@@ -233,6 +233,7 @@ bool MotorsHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBool
   else if (is_armed_ && !req.data)
   {
     rosInfo(name_, "Disarming rotors.");
+    check_interval_timer_.stop();
     is_armed_ = false;
   }
 
