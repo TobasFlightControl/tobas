@@ -70,7 +70,7 @@ private:
 
   void runOnce();
   void rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actuators& rotor_vels);
-  bool allSubscribed();
+  bool allMsgReceived();
 
   void bsCb(const dh_kdl_msgs::PoseVel& msg);
   void jsCb(const sensor_msgs::JointState& msg);
@@ -167,7 +167,7 @@ void Controller::rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actua
   }
 }
 
-bool Controller::allSubscribed()
+bool Controller::allMsgReceived()
 {
   if (transformable_)
   {
@@ -184,7 +184,7 @@ void Controller::bsCb(const dh_kdl_msgs::PoseVel& msg)
   bs_ = msg;
 
   // トピックが揃っていたら，状態を観測するたびに一回だけ制御器を回す．
-  if (allSubscribed())
+  if (allMsgReceived())
   {
     runOnce();
   }
