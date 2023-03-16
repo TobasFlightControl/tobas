@@ -4,17 +4,18 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <Common/Ublox.h>
-#include <Common/Util.h>
 
 class GpsHandler
 {
+  using GpsMsg = sensor_msgs::NavSatFix;
+
 public:
   GpsHandler(ros::NodeHandle& nh);
 
 private:
   Ublox gps_;
   std::vector<double> gps_data_;
-  sensor_msgs::NavSatFix gps_msg_;
+  GpsMsg gps_msg_;
 
   ros::Publisher gps_pub_;
 

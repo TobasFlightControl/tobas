@@ -27,7 +27,7 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh)
   }
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
-  gps_pub_ = nh.advertise<sensor_msgs::NavSatFix>("/" + drone_name + "/gps", 1);
+  gps_pub_ = nh.advertise<GpsMsg>("/" + drone_name + "/gps", 1);
 
   timer_ = nh.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::timerCb, this);
 }
