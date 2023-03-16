@@ -5,8 +5,9 @@
 #include <dh_linear_control/state_spaces.hpp>
 #include <dh_kdl/treekdlmodel.hpp>
 
+#include <multirotor_tools/rotor_property.hpp>
+
 #include "./const.hpp"
-#include "./utils.hpp"
 
 /**
  * @brief クアッドロータの連続時間状態方程式．
@@ -39,8 +40,8 @@ private:
   KDL::TreeKDLModel kdl_model_;
 
   const Eigen::Vector3d ez_;
-  const int num_rotors_;
-  const std::vector<RotorProperty> rotor_props_;
+  const uint32_t num_rotors_;
+  const RotorProperties rotor_props_;
 
   KDL::Rotation rpyvel_angvel_kdl_;
   Eigen::Matrix3d rpyvel_angvel_eigen_;

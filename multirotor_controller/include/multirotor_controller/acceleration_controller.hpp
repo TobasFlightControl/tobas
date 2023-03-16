@@ -5,7 +5,7 @@
 
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
-#include "./utils.hpp"
+#include <multirotor_tools/rotor_property.hpp>
 
 class AccelerationController
 {
@@ -22,7 +22,7 @@ public:
     double& pitch_out);
 
 private:
-  const std::vector<RotorProperty> rotor_props_;
+  const RotorProperties rotor_props_;
   double max_U_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;

@@ -7,9 +7,10 @@
 #include <dh_kdl/util.hpp>
 #include <dh_kdl/conversion/kdl_eigen.hpp>
 
+#include <multirotor_tools/rotor_property.hpp>
+
 #include "../../include/multirotor_controller/dynamics.hpp"
 #include "../../include/multirotor_controller/const.hpp"
-#include "../../include/multirotor_controller/utils.hpp"
 
 using namespace std;
 using namespace Eigen;

@@ -18,6 +18,7 @@
 	<depend>dh_eigen_tools</depend>
 	<depend>dh_std_tools</depend>
 
+	<depend>multirotor_tools</depend>
 	<depend>multirotor_msgs</depend>
 
 </package>

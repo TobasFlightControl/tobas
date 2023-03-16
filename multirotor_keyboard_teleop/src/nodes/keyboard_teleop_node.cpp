@@ -9,6 +9,7 @@
 #include <dh_std_tools/struct.hpp>
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
 
 #include <multirotor_msgs/Command.h>
 
@@ -85,7 +86,7 @@ void CommandHandler::run()
   {
     if (read(0, &c, 1) < 0)
     {
-      ROS_ERROR("Failed to read keyboard input.");
+      dh_ros::rosError("Failed to read keyboard input.");
       break;
     }
 
@@ -93,7 +94,7 @@ void CommandHandler::run()
     // と思ったが普通にCtrl+Cで落ちてくれるっぽい．
     // if (c == 'q')
     // {
-    //   ROS_INFO("q is detected. Command handling is terminated.");
+    //   dh_ros::rosInfo("q is detected. Command handling is terminated.");
     //   break;
     // }
 
@@ -101,49 +102,49 @@ void CommandHandler::run()
     {
       case 'w':  // X+
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Moving forward");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving forward");
         x = dh_std::clamp(x + delta_pos_, x_limit_.lower, x_limit_.upper, "X");
         break;
       }
       case 's':  // X-
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Moving backward");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving backward");
         x = dh_std::clamp(x - delta_pos_, x_limit_.lower, x_limit_.upper, "X");
         break;
       }
       case 'a':  // Y+
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Moving left");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving left");
         y = dh_std::clamp(y + delta_pos_, y_limit_.lower, y_limit_.upper, "Y");
         break;
       }
       case 'd':  // Y-
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Moving right");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving right");
         y = dh_std::clamp(y - delta_pos_, y_limit_.lower, y_limit_.upper, "Y");
         break;
       }
       case KEYCODE_U:  // Z+
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Moving up");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving up");
         z = dh_std::clamp(z + delta_pos_, z_limit_.lower, z_limit_.upper, "Z");
         break;
       }
       case KEYCODE_D:  // Z-
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Moving down");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving down");
         z = dh_std::clamp(z - delta_pos_, z_limit_.lower, z_limit_.upper, "Z");
         break;
       }
       case KEYCODE_L:  // yaw+
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Rotating left");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating left");
         yaw = dh_std::clamp(yaw + delta_rot_, yaw_limit_.lower, yaw_limit_.upper, "Yaw");
         break;
       }
       case KEYCODE_R:  // yaw-
       {
-        ROS_INFO_THROTTLE(INFO_PERIOD, "Rotating right");
+        dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating right");
         yaw = dh_std::clamp(yaw - delta_rot_, yaw_limit_.lower, yaw_limit_.upper, "Yaw");
         break;
       }

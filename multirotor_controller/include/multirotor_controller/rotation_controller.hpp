@@ -9,8 +9,9 @@
 #include <dh_linear_control/mpc/linear_dense.hpp>
 #include <dh_kdl_msgs/PoseVel.h>
 
+#include <multirotor_tools/rotor_property.hpp>
+
 #include "./dynamics.hpp"
-#include "./utils.hpp"
 
 class RotationController
 {
@@ -44,7 +45,7 @@ private:
 
   // 静的ROSパラメータ
   const uint32_t num_rotors_;
-  const std::vector<RotorProperty> rotor_props_;
+  const RotorProperties rotor_props_;
 
   // 動的ROSパラメータに依存するパラメータ
   double dt_;                   // MPCの離散化間隔

@@ -1,5 +1,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/exception.hpp>
+#include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/multirotor_real/gps_handler.hpp"
 
@@ -18,12 +20,12 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh)
 {
   if (!gps_.testConnection())
   {
-    throw runtime_error(ros::this_node::getName() + ": Failed to connect to GPS.");
+    throw dh_ros::RuntimeError("Failed to connect to GPS.");
   }
 
   if (!gps_.configureSolutionRate(SOLUTION_RATE))
   {
-    ROS_ERROR_STREAM(ros::this_node::getName() << ": Failed to set solution rate.");
+    dh_ros::rosError("Failed to set solution rate.");
   }
 
   string drone_name = dh_ros::getParam<string>("/drone_name");

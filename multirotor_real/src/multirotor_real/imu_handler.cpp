@@ -1,5 +1,6 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <Common/MPU9250.h>
 #include <Navio2/LSM9DS1.h>
@@ -32,7 +33,7 @@ void ImuHandler::setupImu()
 
   if (!imu_->probe())
   {
-    throw runtime_error(ros::this_node::getName() + ": Sensor not enabled.");
+    throw dh_ros::RuntimeError("Sensor not enabled.");
   }
 
   imu_->initialize();

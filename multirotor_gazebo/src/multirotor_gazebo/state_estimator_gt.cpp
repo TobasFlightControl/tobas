@@ -31,7 +31,7 @@ void StateEstimatorGT::updateRotation(const geometry_msgs::Quaternion& quat)
 
   // ジャンプを考慮して更新
   updateJumpCounts();
-  bs_.pose.rpy = (2 * PI) * jump_counts_ + rpy_now_;
+  bs_.pose.rpy = (2 * M_PI) * jump_counts_ + rpy_now_;
 
   rpy_prev_ = rpy_now_;
 }
@@ -58,11 +58,11 @@ void StateEstimatorGT::updateJumpCounts()
     const auto& prev = rpy_prev_[i];
 
     // 前回の観測値から180deg以上ずれていたらジャンプしたとみなす
-    if (now - prev > PI)
+    if (now - prev > M_PI)
     {
       jump_counts_[i]--;
     }
-    else if (now - prev < -PI)
+    else if (now - prev < -M_PI)
     {
       jump_counts_[i]++;
     }

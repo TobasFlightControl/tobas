@@ -17,10 +17,11 @@
 #include <multirotor_msgs/ControllerFeedback.h>
 #include <multirotor_controller/ControllerConfig.h>
 
+#include <multirotor_tools/rotor_property.hpp>
+
 #include "../../include/multirotor_controller/position_controller.hpp"
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
 #include "../../include/multirotor_controller/rotation_controller.hpp"
-#include "../../include/multirotor_controller/utils.hpp"
 
 using namespace std;
 using namespace KDL;
@@ -43,7 +44,7 @@ private:
   const uint32_t num_rotors_;
   const vector<string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
   const bool transformable_;              // プロペラ以外の可動関節を持つか否か
-  const vector<RotorProperty> rotor_props_;
+  const RotorProperties rotor_props_;
 
   dh_kdl_msgs::PoseVel bs_;
   JntArray q_;
@@ -158,9 +159,7 @@ void Controller::rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actua
   {
     if (u[i] < -1e-3)
     {
-      ROS_FATAL_STREAM(
-        "Negative thrust force: "
-        << "u = " << u[i]);
+      dh_ros::rosFatal("Negative thrust force: u = " + to_string(u[i]));
       // TODO: 防御モードに移行
     }
     rotor_vels.angular_velocities[i] = sqrt(max(u[i], 0.) / rotor_props_[i].motor_constant);
@@ -194,7 +193,7 @@ void Controller::jsCb(const sensor_msgs::JointState& msg)
 {
   if (msg.name.size() != msg.position.size())
   {
-    ROS_ERROR_STREAM("The size of joint name and position is different.");
+    dh_ros::rosError("The size of joint name and position is different.");
     js_subscribed_ = false;
     return;
   }
@@ -210,7 +209,7 @@ void Controller::jsCb(const sensor_msgs::JointState& msg)
     }
     catch (const exception& e)
     {
-      ROS_ERROR_STREAM(e.what());
+      dh_ros::rosError(e.what());
       js_subscribed_ = false;
       return;
     }
