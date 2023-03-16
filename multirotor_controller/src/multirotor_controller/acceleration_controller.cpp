@@ -1,9 +1,11 @@
 #include <ros/ros.h>
 
-#include <dh_std_tools/algorithm.hpp>
+#include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
 #include "../../include/multirotor_controller/const.hpp"
+
+#define WARN_PERIOD 1.
 
 using namespace std;
 using namespace KDL;
@@ -41,5 +43,13 @@ void AccelerationController::update(
 
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
-  U_out = dh_std::clamp(z / (cos(pitch_out) * cos(roll_out)), 0., max_U_);
+  U_out = z / (cos(pitch_out) * cos(roll_out));
+
+  if (U_out < 0. || max_U_ < U_out)
+  {
+    dh_ros::rosWarnThrottle(
+      WARN_PERIOD,
+      "U_out = " + to_string(U_out) + " is out of range [0, " + to_string(max_U_) + "].");
+    U_out = clamp(U_out, 0., max_U_);
+  }
 }
