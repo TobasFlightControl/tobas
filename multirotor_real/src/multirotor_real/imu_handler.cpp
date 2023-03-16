@@ -12,6 +12,7 @@
 // MPU9250(https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf)
 #define ACC_NOISE_DENSITY 300.   // μg/sqrt(hz)
 #define GYRO_NOISE_DENSITY 0.01  // deg/s/sqrt(hz)
+#define MAG_NOISE_STD 0.  // TODO: データシートに無かったため，磁気センサの精度を計測する
 
 using namespace std;
 
@@ -55,11 +56,10 @@ void ImuHandler::setCovarianceMatrices()
   imu_msg_.angular_velocity_covariance[4] = gyro_var;
   imu_msg_.angular_velocity_covariance[8] = gyro_var;
 
-  // Magnetometerのノイズは分からないので-1を入れておく．使わなければ問題なさそう．
-  for (int i = 0; i < 9; ++i)
-  {
-    mag_msg_.magnetic_field_covariance[i] = -1;
-  }
+  double mag_var = dh_std::sqr(MAG_NOISE_STD);
+  mag_msg_.magnetic_field_covariance[0] = mag_var;
+  mag_msg_.magnetic_field_covariance[4] = mag_var;
+  mag_msg_.magnetic_field_covariance[8] = mag_var;
 }
 
 void ImuHandler::advertisePublishers(ros::NodeHandle& nh)
