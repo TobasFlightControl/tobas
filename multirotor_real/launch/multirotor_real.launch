@@ -3,5 +3,6 @@
   <node pkg="multirotor_real" name="imu_handler" type="imu_handler_node" output="screen" required="true"/>
   <node pkg="multirotor_real" name="barometer_handler" type="barometer_handler_node" output="screen" required="true"/>
   <node pkg="multirotor_real" name="gps_handler" type="gps_handler_node" output="screen" required="true"/>
+  <node pkg="multirotor_real" name="motor_handler" type="motor_handler_node" output="screen" required="true"/>
 
 </launch>
