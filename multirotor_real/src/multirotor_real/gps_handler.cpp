@@ -8,20 +8,9 @@
 #define SOLUTION_RATE 1e+3
 #define TIMER_PERIOD 2e-4
 
-#define LATITUDE_IDX 2
-#define LONGITUDE_IDX 1
-#define ALTITUDE_IDX 4
-#define HOR_POS_ACCURACY_IDX 5
-#define VER_POS_ACCURACY_IDX 6
-
-// U-blox NEO-M8
-// https://content.u-blox.com/sites/default/files/NEO-M8_DataSheet_%28UBX-13003366%29.pdf
-#define HOR_POS_ACCURACY 2.5  // [m]
-#define VEL_ACCURACY 0.05     // [m/s]
-
 using namespace std;
 
-GpsHandler::GpsHandler(ros::NodeHandle& nh)
+GpsHandler::GpsHandler(ros::NodeHandle& nh) : cov_received_(false)
 {
   if (!gps_.testConnection())
   {
@@ -41,25 +30,56 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh)
 
 void GpsHandler::timerCb(const ros::TimerEvent&)
 {
-  if (gps_.decodeSingleMessage(Ublox::NAV_POSLLH, gps_data_) != 1)
+  if (gps_.decodeSingleMessage(Ublox::NAV_COV, data_) == 1)
   {
-    return;
+    cov_received_ = true;
+
+    // Update GPS position covariance
+    gps_msg_.position_covariance[0] = data_[0];  // NN
+    gps_msg_.position_covariance[1] = data_[1];  // NE
+    gps_msg_.position_covariance[2] = data_[2];  // ND
+    gps_msg_.position_covariance[3] = data_[1];  // EN
+    gps_msg_.position_covariance[4] = data_[3];  // EE
+    gps_msg_.position_covariance[5] = data_[4];  // ED
+    gps_msg_.position_covariance[6] = data_[2];  // DN
+    gps_msg_.position_covariance[7] = data_[4];  // DE
+    gps_msg_.position_covariance[8] = data_[8];  // DD
+
+    // Update GPS velocity covariance
+    vel_msg_.vel.covariance[0] = data_[0];  // NN
+    vel_msg_.vel.covariance[1] = data_[1];  // NE
+    vel_msg_.vel.covariance[2] = data_[2];  // ND
+    vel_msg_.vel.covariance[3] = data_[1];  // EN
+    vel_msg_.vel.covariance[4] = data_[3];  // EE
+    vel_msg_.vel.covariance[5] = data_[4];  // ED
+    vel_msg_.vel.covariance[6] = data_[2];  // DN
+    vel_msg_.vel.covariance[7] = data_[4];  // DE
+    vel_msg_.vel.covariance[8] = data_[8];  // DD
   }
 
-  // Update GPS message
-  gps_msg_.header.stamp = ros::Time::now();
+  if (gps_.decodeSingleMessage(Ublox::NAV_PVT, data_) == 1)
+  {
+    if (!cov_received_)
+    {
+      return;
+    }
 
-  gps_msg_.latitude = gps_data_[LATITUDE_IDX] / 10000000;
-  gps_msg_.longitude = gps_data_[LONGITUDE_IDX] / 10000000;
-  gps_msg_.altitude = gps_data_[ALTITUDE_IDX] / 1000;  // Height above mean sea level
+    ros::Time now = ros::Time::now();
 
-  // FIXME: GPSの精度に関する情報が無かったため，正確度そのまま精度(標準偏差)として用いている
-  double hor_pos_accuracy = gps_data_[HOR_POS_ACCURACY_IDX] / 1000;
-  double ver_pos_accuracy = gps_data_[VER_POS_ACCURACY_IDX] / 1000;
-  gps_msg_.position_covariance[0] = dh_std::sqr(hor_pos_accuracy);
-  gps_msg_.position_covariance[4] = dh_std::sqr(hor_pos_accuracy);
-  gps_msg_.position_covariance[8] = dh_std::sqr(ver_pos_accuracy);
+    // Update GPS position message
+    gps_msg_.header.stamp = now;
+    gps_msg_.latitude = data_[1] * 1e-7;   // Latitude [deg]
+    gps_msg_.longitude = data_[0] * 1e-7;  // Longitude [deg]
+    gps_msg_.altitude = data_[2] * 1e-3;   // Height above ellipsoid [m]
 
-  // Publish GPS Message
-  gps_pub_.publish(gps_msg_);
+    // Update GPS velocity message
+    vel_msg_.header.stamp = now;
+    vel_msg_.vel.vel.vx = data_[3] * 1e-3;   // North velocity [m]
+    vel_msg_.vel.vel.vy = -data_[4] * 1e-3;  // West velocity [m]
+    vel_msg_.vel.vel.vz = -data_[5] * 1e-3;  // Up velocity [m]
+
+    // Publish messages
+    gps_pub_.publish(gps_msg_);
+    vel_pub_.publish(vel_msg_);
+  }
 }

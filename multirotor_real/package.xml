@@ -15,6 +15,7 @@
 	<depend>navio</depend>
 	<depend>dh_std_tools</depend>
 	<depend>dh_ros_tools</depend>
+	<depend>dh_common_msgs</depend>
 
 	<depend>multirotor_tools</depend>
 
