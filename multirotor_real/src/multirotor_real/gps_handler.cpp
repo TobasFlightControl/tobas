@@ -11,8 +11,13 @@
 #define LATITUDE_IDX 2
 #define LONGITUDE_IDX 1
 #define ALTITUDE_IDX 4
-#define HOR_STD_DEV_IDX 5
-#define VER_STD_DEV_IDX 6
+#define HOR_POS_ACCURACY_IDX 5
+#define VER_POS_ACCURACY_IDX 6
+
+// U-blox NEO-M8
+// https://content.u-blox.com/sites/default/files/NEO-M8_DataSheet_%28UBX-13003366%29.pdf
+#define HOR_POS_ACCURACY 2.5  // [m]
+#define VEL_ACCURACY 0.05     // [m/s]
 
 using namespace std;
 
@@ -48,11 +53,12 @@ void GpsHandler::timerCb(const ros::TimerEvent&)
   gps_msg_.longitude = gps_data_[LONGITUDE_IDX] / 10000000;
   gps_msg_.altitude = gps_data_[ALTITUDE_IDX] / 1000;  // Height above mean sea level
 
-  double hor_std_dev = gps_data_[HOR_STD_DEV_IDX] / 1000;
-  double ver_std_dev = gps_data_[VER_STD_DEV_IDX] / 1000;
-  gps_msg_.position_covariance[0] = dh_std::sqr(hor_std_dev);
-  gps_msg_.position_covariance[4] = dh_std::sqr(hor_std_dev);
-  gps_msg_.position_covariance[8] = dh_std::sqr(ver_std_dev);
+  // FIXME: GPSの精度に関する情報が無かったため，正確度そのまま精度(標準偏差)として用いている
+  double hor_pos_accuracy = gps_data_[HOR_POS_ACCURACY_IDX] / 1000;
+  double ver_pos_accuracy = gps_data_[VER_POS_ACCURACY_IDX] / 1000;
+  gps_msg_.position_covariance[0] = dh_std::sqr(hor_pos_accuracy);
+  gps_msg_.position_covariance[4] = dh_std::sqr(hor_pos_accuracy);
+  gps_msg_.position_covariance[8] = dh_std::sqr(ver_pos_accuracy);
 
   // Publish GPS Message
   gps_pub_.publish(gps_msg_);

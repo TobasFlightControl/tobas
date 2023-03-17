@@ -10,7 +10,8 @@
 #define GRAVITY 9.80665
 #define TIMER_PERIOD 1e-2
 
-// MPU9250(https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf)
+// MPU9250
+// https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
 #define ACC_NOISE_DENSITY 300.   // μg/sqrt(hz)
 #define GYRO_NOISE_DENSITY 0.01  // deg/s/sqrt(hz)
 #define MAG_NOISE_STD 0.  // TODO: データシートに無かったため，磁気センサの精度を計測する
