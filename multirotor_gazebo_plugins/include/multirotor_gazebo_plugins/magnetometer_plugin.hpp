@@ -29,7 +29,6 @@ class GazeboMagnetometerPlugin : public ModelPlugin
 public:
   GazeboMagnetometerPlugin();
 
-protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
 private:

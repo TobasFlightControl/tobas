@@ -32,10 +32,6 @@ class GazeboImuPlugin : public ModelPlugin
 public:
   GazeboImuPlugin();
 
-  void initializeParams();
-  void publish();
-
-protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
 private:

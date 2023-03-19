@@ -38,12 +38,7 @@ class GazeboGpsPlugin : public SensorPlugin
 public:
   GazeboGpsPlugin();
 
-protected:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf);
-  void getSdfParams(sdf::ElementPtr sdf);
-  void onUpdate();
-  void updatePosition();
-  void updateVelocity();
 
 private:
   ros::NodeHandle nh_;
@@ -74,5 +69,10 @@ private:
   // Publishers
   ros::Publisher pos_pub_;
   ros::Publisher vel_pub_;
+
+  void getSdfParams(sdf::ElementPtr sdf);
+  void onUpdate();
+  void updatePosition();
+  void updateVelocity();
 };
 }  // namespace gazebo

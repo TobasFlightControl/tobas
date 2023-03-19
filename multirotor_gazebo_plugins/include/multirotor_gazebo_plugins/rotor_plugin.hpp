@@ -41,8 +41,6 @@ public:
 
 protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
-  void getSdfParams(sdf::ElementPtr sdf);
-  void onUpdate(const common::UpdateInfo& info);
 
 private:
   ros::NodeHandle nh_;
@@ -68,6 +66,8 @@ private:
   double ref_motor_input_;
   double prev_sim_time_;
   std_msgs::Float64 motor_speed_msg_;
+  ignition::math::Vector3d wind_speed_W_;
+  FirstOrderFilter<double> rotor_speed_filter_;
 
   physics::ModelPtr model_;
   physics::JointPtr joint_;
@@ -78,11 +78,11 @@ private:
   ros::Subscriber command_sub_;
   ros::Subscriber wind_speed_sub_;
 
+  void getSdfParams(sdf::ElementPtr sdf);
+  void onUpdate(const common::UpdateInfo& info);
   void updateForcesAndMoments(double dt);
+
   void commandCb(const CmdMsg& cmd);
   void windSpeedCb(const WindMsg& wind);
-
-  FirstOrderFilter<double> rotor_speed_filter_;
-  ignition::math::Vector3d wind_speed_W_;
 };
 }  // namespace gazebo
