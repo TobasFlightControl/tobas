@@ -400,16 +400,16 @@ class PackageGenerator(QWidget):
         root.append(gps_model)
 
         # IMU (Ground Truth)
-        imu_gt_model = ImuModelGT(self._drone_name, imu_widget.link.get())
-        root.append(imu_gt_model)
+        # imu_gt_model = ImuModelGT(self._drone_name, imu_widget.link.get())
+        # root.append(imu_gt_model)
 
         # Odometry (Ground Truth)
-        odom_gt_model = OdometryModelGT(self._drone_name, root_link)
-        root.append(odom_gt_model)
+        # odom_gt_model = OdometryModelGT(self._drone_name, root_link)
+        # root.append(odom_gt_model)
 
         # ROS Control
-        ros_control = GazeboRosControlModel(self._drone_name)
-        root.append(ros_control)
+        # ros_control = GazeboRosControlModel(self._drone_name)
+        # root.append(ros_control)
 
         # Transmissions
         for jnt_name in self._main.urdf_parser.required_joint_names():

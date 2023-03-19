@@ -31,8 +31,6 @@ public:
 
 protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
-  void getSdfParams(sdf::ElementPtr sdf);
-  void onUpdate(const common::UpdateInfo&);
 
 private:
   ros::NodeHandle nh_;
@@ -59,5 +57,8 @@ private:
   std::mt19937 rnd_gen_;
 
   ros::Publisher mag_pub_;
+
+  void getSdfParams(sdf::ElementPtr sdf);
+  void onUpdate(const common::UpdateInfo&);
 };
 }  // namespace gazebo

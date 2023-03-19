@@ -107,8 +107,8 @@ class ImuModel(ET.Element):
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "librotors_gazebo_imu_plugin.so"
-        plugin.attrib["name"] = "rotors_gazebo_imu_plugin"
+        plugin.attrib["filename"] = "libdh_gazebo_imu_plugin.so"
+        plugin.attrib["name"] = "dh_gazebo_imu_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = drone_name
         ET.SubElement(plugin, "linkName").text = link_name
@@ -310,8 +310,8 @@ class ImuModelGT(ET.Element):
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "librotors_gazebo_imu_plugin.so"
-        plugin.attrib["name"] = "rotors_gazebo_imu_gt_plugin"
+        plugin.attrib["filename"] = "libdh_gazebo_imu_plugin.so"
+        plugin.attrib["name"] = "dh_gazebo_imu_gt_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = drone_name
         ET.SubElement(plugin, "linkName").text = link_name

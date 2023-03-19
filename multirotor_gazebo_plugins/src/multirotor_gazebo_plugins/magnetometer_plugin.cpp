@@ -62,7 +62,7 @@ void GazeboMagnetometerPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf
   // Advertise publisher
   mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + mag_topic_, 1);
 
-  // Listen to the update event. This event is broadcast every simulation iteration
+  // Listen to the update event
   update_connection_ = event::Events::ConnectWorldUpdateBegin(
     boost::bind(&GazeboMagnetometerPlugin::onUpdate, this, _1));
 }
