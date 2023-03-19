@@ -10,11 +10,14 @@
 
 namespace gazebo
 {
+// Constants
+static constexpr char kPluginName[] = "magnetometer_plugin";
+
 // Default values
-static constexpr char defaultMagTopic[] = "magnetic_field";
-static constexpr double defaultRefMagNorth = 3.0031e-05;
-static constexpr double defaultRefMagEast = -4.116e-06;
-static constexpr double defaultRefMagDown = 3.5615e-05;
+static constexpr char kDefaultMagTopic[] = "magnetic_field";
+static constexpr double kDefaultRefMagNorth = 3.0031e-05;
+static constexpr double kDefaultRefMagEast = -4.116e-06;
+static constexpr double kDefaultRefMagDown = 3.5615e-05;
 
 class GazeboMagnetometerPlugin : public ModelPlugin
 {
@@ -29,7 +32,7 @@ public:
 protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
   void getSdfParams(sdf::ElementPtr sdf);
-  void OnUpdate(const common::UpdateInfo&);
+  void onUpdate(const common::UpdateInfo&);
 
 private:
   ros::NodeHandle nh_;
@@ -44,12 +47,12 @@ private:
   SdfVector3 noise_normal_;
   SdfVector3 noise_uniform_initial_bias_;
 
-  physics::WorldPtr world_;                 // Pointer to the world
-  physics::ModelPtr model_;                 // Pointer to the model
-  physics::LinkPtr link_;                   // Pointer to the link
-  event::ConnectionPtr update_connection_;  // Pointer to the update event connection
-  ignition::math::Vector3d mag_NWU_;        // Magnetic field in world NWU frame
-  MagMsg mag_msg_;                          // Magnetic field message
+  physics::WorldPtr world_;
+  physics::ModelPtr model_;
+  physics::LinkPtr link_;
+  event::ConnectionPtr update_connection_;
+  ignition::math::Vector3d mag_NWU_;
+  MagMsg mag_msg_;
 
   NormalDistribution noise_[3];
   std::random_device rnd_dev_;

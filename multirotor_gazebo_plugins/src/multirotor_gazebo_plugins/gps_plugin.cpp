@@ -23,7 +23,7 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == NULL)
   {
-    gzerr << "[gazebo_gps_plugin] Couldn't find specified link \"" << link_name_ << "\"" << endl;
+    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
 
   // Initialize the normal distributions
@@ -79,7 +79,7 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
   else
   {
-    gzerr << "[gazebo_gps_plugin] Please specify a robotNamespace." << endl;
+    gzthrow(kPluginName << ": Please specify a robotNamespace.");
   }
 
   if (sdf->HasElement("linkName"))
@@ -88,19 +88,25 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
   else
   {
-    gzerr << "[gazebo_gps_plugin] Please specify a linkName." << endl;
+    gzthrow(kPluginName << ": Please specify a linkName.");
   }
 
-  getSdfParam<string>(sdf, "gpsTopic", gps_topic_, defaultGpsTopic);
-  getSdfParam<string>(sdf, "groundSpeedTopic", vel_topic_, defaultGroundSpeedTopic);
+  getSdfParam<string>(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
+  getSdfParam<string>(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
 
-  getSdfParam<double>(sdf, "horPosStdDev", hor_pos_std_dev_, defaultHorPosStdDev);
-  getSdfParam<double>(sdf, "verPosStdDev", ver_pos_std_dev_, defaultVerPosStdDev);
-  getSdfParam<double>(sdf, "horVelStdDev", hor_vel_std_dev_, defaultHorVelStdDev);
-  getSdfParam<double>(sdf, "verVelStdDev", ver_vel_std_dev_, defaultVerVelStdDev);
+  getSdfParam<double>(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev);
+  getSdfParam<double>(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev);
+  getSdfParam<double>(sdf, "horVelStdDev", hor_vel_std_dev_, kDefaultHorVelStdDev);
+  getSdfParam<double>(sdf, "verVelStdDev", ver_vel_std_dev_, kDefaultVerVelStdDev);
+  if (
+    hor_pos_std_dev_ < 0. || ver_pos_std_dev_ < 0. || hor_vel_std_dev_ < 0.
+    || ver_vel_std_dev_ < 0.)
+  {
+    gzthrow(kPluginName << ": Noise std. dev cannot be negative.");
+  }
 
-  getSdfParam<double>(sdf, "latitudeZero", lat_0_, defaultLatitudeZero);
-  getSdfParam<double>(sdf, "longitudeZero", lon_0_, defaultLatitudeZero);
+  getSdfParam<double>(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
+  getSdfParam<double>(sdf, "longitudeZero", lon_0_, kDefaultLatitudeZero);
 }
 
 void GazeboGpsPlugin::onUpdate()

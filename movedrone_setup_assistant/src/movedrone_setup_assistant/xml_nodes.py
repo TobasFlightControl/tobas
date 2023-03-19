@@ -164,14 +164,13 @@ class BarometerModel(ET.Element):
         ref_altitude: float,
         pressure_var: float,
     ) -> None:
-        assert ref_altitude >= 0.
         assert pressure_var > 0.
 
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "librotors_gazebo_pressure_plugin.so"
-        plugin.attrib["name"] = "rotors_gazebo_pressure_sensor_plugin"
+        plugin.attrib["filename"] = "libdh_gazebo_pressure_plugin.so"
+        plugin.attrib["name"] = "dh_gazebo_pressure_sensor_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = drone_name
         ET.SubElement(plugin, "linkName").text = link_name

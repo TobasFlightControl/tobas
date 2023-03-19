@@ -24,7 +24,7 @@ void GazeboMagnetometerPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf
   link_ = model_->GetLink(link_name_);
   if (link_ == NULL)
   {
-    gzthrow("[gazebo_magnetometer_plugin] Couldn't find specified link \"" << link_name_ << "\".");
+    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
 
   // Create the normal noise distributions
@@ -64,7 +64,7 @@ void GazeboMagnetometerPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf
 
   // Listen to the update event. This event is broadcast every simulation iteration
   update_connection_ = event::Events::ConnectWorldUpdateBegin(
-    boost::bind(&GazeboMagnetometerPlugin::OnUpdate, this, _1));
+    boost::bind(&GazeboMagnetometerPlugin::onUpdate, this, _1));
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -75,7 +75,7 @@ void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
   else
   {
-    gzerr << "[gazebo_magnetometer_plugin] Please specify a robotNamespace." << endl;
+    gzthrow(kPluginName << ": Please specify a robotNamespace.");
   }
 
   if (sdf->HasElement("linkName"))
@@ -84,18 +84,24 @@ void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
   else
   {
-    gzerr << "[gazebo_magnetometer_plugin] Please specify a linkName." << endl;
+    gzthrow(kPluginName << ": Please specify a linkName.");
   }
 
-  getSdfParam<string>(sdf, "magnetometerTopic", mag_topic_, defaultMagTopic);
-  getSdfParam<double>(sdf, "refMagNorth", ref_mag_north_, defaultRefMagNorth);
-  getSdfParam<double>(sdf, "refMagEast", ref_mag_east_, defaultRefMagEast);
-  getSdfParam<double>(sdf, "refMagDown", ref_mag_down_, defaultRefMagDown);
+  getSdfParam<string>(sdf, "magnetometerTopic", mag_topic_, kDefaultMagTopic);
+
+  getSdfParam<double>(sdf, "refMagNorth", ref_mag_north_, kDefaultRefMagNorth);
+  getSdfParam<double>(sdf, "refMagEast", ref_mag_east_, kDefaultRefMagEast);
+  getSdfParam<double>(sdf, "refMagDown", ref_mag_down_, kDefaultRefMagDown);
+
   getSdfParam<SdfVector3>(sdf, "noiseNormal", noise_normal_, ZERO_3);
   getSdfParam<SdfVector3>(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, ZERO_3);
+  if (!allGreaterEqual(noise_normal_, 0.) || !allGreaterEqual(noise_uniform_initial_bias_, 0.))
+  {
+    gzthrow(kPluginName << ": Noise std. dev cannot be negative.");
+  }
 }
 
-void GazeboMagnetometerPlugin::OnUpdate(const common::UpdateInfo& _info)
+void GazeboMagnetometerPlugin::onUpdate(const common::UpdateInfo&)
 {
   // Get the current pose and time from Gazebo
   ignition::math::Pose3d T_W_B = link_->WorldPose();

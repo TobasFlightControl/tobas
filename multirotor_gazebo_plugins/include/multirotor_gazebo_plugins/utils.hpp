@@ -1,5 +1,11 @@
 #pragma once
 
+#include <gazebo/gazebo.hh>
+
+/**
+ * @brief utilities
+ * @note 各プラグインは個別にビルドしてリンクは行っていないため，ヘッダオンリーで書く．
+ */
 namespace gazebo
 {
 template <typename T>
@@ -21,5 +27,10 @@ bool getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, const T
     param = default_value;
     return false;
   }
+}
+
+bool allGreaterEqual(const ignition::math::Vector3d& v, double x)
+{
+  return v.X() >= x && v.Y() >= x && v.Z() >= x;
 }
 }  // namespace gazebo
