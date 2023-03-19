@@ -11,6 +11,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
 	kdl_msgs
+	geometry_msgs
+	std_msgs
 	message_generation
 	actionlib_msgs
 )
@@ -26,6 +28,8 @@ add_message_files(FILES ${MSG_FILES})
 
 generate_messages(DEPENDENCIES
 	kdl_msgs
+	geometry_msgs
+	std_msgs
 	actionlib_msgs
 )
 

@@ -1,0 +1,2 @@
+imu_complementary_filter:
+  use_mag: true

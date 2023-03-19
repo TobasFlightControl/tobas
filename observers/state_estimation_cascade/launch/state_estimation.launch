@@ -1,0 +1,26 @@
+<launch>
+
+  <arg name='imu_topic' default='/imu'/>
+  <arg name='mag_topic' default='/magnetic_field'/>
+  <arg name='bar_topic' default='/air_pressure'/>
+  <arg name='gps_topic' default='/gps'/>
+  <arg name='vel_topic' default='/ground_speed'/>
+  <arg name='state_topic' default='/estimated_state'/>
+
+  <!-- IMU Filter -->
+  <rosparam file="$(find state_estimation_cascade)/config/imu_complementary_filter.yaml" command="load"/>
+  <node pkg='imu_complementary_filter' name='imu_complementary_filter' type='complementary_filter_node' output='screen' required='true'>
+    <remap from='imu/data_raw' to='$(arg imu_topic)'/>
+    <remap from='imu/mag' to='$(arg mag_topic)'/>
+    <remap from='imu/data' to='/filtered_imu'/>
+  </node>
+
+  <!-- State Estimator -->
+  <node pkg='state_estimation_cascade' name='state_estimator_cascade' type='state_estimator_node' output='screen' required='true'>
+    <remap from='/air_pressure' to='$(arg bar_topic)'/>
+    <remap from='/gps' to='$(arg gps_topic)'/>
+    <remap from='/ground_speed' to='$(arg vel_topic)'/>
+    <remap from='/estimated_state' to='$(arg state_topic)'/>
+  </node>
+
+</launch>

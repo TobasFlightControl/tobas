@@ -14,4 +14,6 @@
 	<depend>dh_std_tools</depend>
 	<depend>dh_ros_tools</depend>
 
+	<depend>multirotor_msgs</depend>
+
 </package>

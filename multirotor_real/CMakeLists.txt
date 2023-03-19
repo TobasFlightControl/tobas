@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 	multirotor_tools
 	dh_ros_tools
 	dh_std_tools
-	dh_common_msgs
+	multirotor_msgs
 	navio
 	mav_msgs
 	roscpp

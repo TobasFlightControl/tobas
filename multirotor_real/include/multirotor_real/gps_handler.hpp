@@ -5,12 +5,12 @@
 
 #include <Common/Ublox.h>
 
-#include <dh_common_msgs/LinearVelocityWithCovarianceStamped.h>
+#include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
 
 class GpsHandler
 {
   using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = dh_common_msgs::LinearVelocityWithCovarianceStamped;
+  using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
 
 public:
   GpsHandler(ros::NodeHandle& nh);

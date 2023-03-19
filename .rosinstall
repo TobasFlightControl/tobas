@@ -35,12 +35,6 @@
 }
 
 - git: {
-  local-name: state_estimation_eskf,
-  uri: git@github.com:Masa0u0/state_estimation_eskf.git,
-  version: main,
-}
-
-- git: {
   local-name: Navio2,
   uri: git@github.com:Masa0u0/Navio2.git,
   version: master,
