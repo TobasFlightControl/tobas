@@ -40,7 +40,7 @@ public:
   GazeboRotorPlugin();
 
 protected:
-  void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
+  void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);
 
