@@ -1,24 +1,24 @@
 - git: {
-  local-name: dh_kdl,
-  uri: git@github.com:Masa0u0/dh_kdl.git,
-  version: main,
-}
+  local-name: rotors_simulator,
+  uri: https://github.com/ethz-asl/rotors_simulator.git,
+  version: master,
+  }
 
 - git: {
-  local-name: dh_kdl_msgs,
-  uri: git@github.com:Masa0u0/dh_kdl_msgs.git,
-  version: main,
-}
+  local-name: mav_comm,
+  uri: https://github.com/ethz-asl/mav_comm.git,
+  version: master,
+  }
 
 - git: {
-  local-name: dh_linear_control,
-  uri: git@github.com:Masa0u0/dh_linear_control.git,
-  version: main,
-}
+  local-name: robot_state_plugin,
+  uri: https://github.com/chvmp/robot_state_plugin.git,
+  version: master,
+  }
 
 - git: {
-  local-name: dh_ros_tools,
-  uri: git@github.com:Masa0u0/dh_ros_tools.git,
+  local-name: dh_std_tools,
+  uri: git@github.com:Masa0u0/dh_std_tools.git,
   version: main,
 }
 
@@ -29,8 +29,32 @@
 }
 
 - git: {
-  local-name: dh_std_tools,
-  uri: git@github.com:Masa0u0/dh_std_tools.git,
+  local-name: dh_ros_tools,
+  uri: git@github.com:Masa0u0/dh_ros_tools.git,
+  version: main,
+}
+
+- git: {
+  local-name: dh_rqt_tools,
+  uri: git@github.com:Masa0u0/dh_rqt_tools.git,
+  version: main,
+}
+
+- git: {
+  local-name: dh_linear_control,
+  uri: git@github.com:Masa0u0/dh_linear_control.git,
+  version: main,
+}
+
+- git: {
+  local-name: dh_kdl,
+  uri: git@github.com:Masa0u0/dh_kdl.git,
+  version: main,
+}
+
+- git: {
+  local-name: dh_kdl_msgs,
+  uri: git@github.com:Masa0u0/dh_kdl_msgs.git,
   version: main,
 }
 
