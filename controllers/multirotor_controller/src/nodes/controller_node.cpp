@@ -46,7 +46,7 @@ private:
   const bool transformable_;              // プロペラ以外の可動関節を持つか否か
   const RotorProperties rotor_props_;
 
-  dh_kdl_msgs::PoseVel bs_;
+  multirotor_msgs::PoseVel bs_;
   JntArray q_;
   multirotor_msgs::Command cmd_;
   bool js_subscribed_;
@@ -73,7 +73,7 @@ private:
   void rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actuators& rotor_vels);
   bool allMsgReceived();
 
-  void bsCb(const dh_kdl_msgs::PoseVel& msg);
+  void bsCb(const multirotor_msgs::PoseVel& msg);
   void jsCb(const sensor_msgs::JointState& msg);
   void commandCb(const multirotor_msgs::Command& msg);
 
@@ -129,20 +129,21 @@ void Controller::runOnce()
 {
   auto& pos_des = feedback_.desired_position;
   auto& acc_des = feedback_.desired_acceleration;
-  auto& roll_des = feedback_.desired_roll;
-  auto& pitch_des = feedback_.desired_pitch;
-  auto& yaw_des = feedback_.desired_yaw;
+  auto& rpy_des = feedback_.desired_orientation;
   auto& U = feedback_.thrust_force_sum;
   auto& u = feedback_.thrust_forces;
 
   // 位置とヨー角の目標値はコマンドどおり
   pos_des = cmd_.target_position;
-  yaw_des = cmd_.target_yaw_angle;
+  rpy_des.yaw = cmd_.target_yaw_angle;
+
+  // TODO: 非ゼロの速度目標値を与える
+  multirotor_msgs::LinearVelocity vel_des;
 
   // stopwatch_.start();
-  pos_controller_.update(bs_.pose.pos, pos_des, bs_.twist.vel, Vector::Zero(), acc_des);
-  acc_controller_.update(acc_des, yaw_des, U, roll_des, pitch_des);
-  rot_controller_.update(bs_, q_, U, roll_des, pitch_des, yaw_des, u);
+  pos_controller_.update(bs_.pose.position, pos_des, bs_.twist.linear, vel_des, acc_des);
+  acc_controller_.update(acc_des, rpy_des.yaw, U, rpy_des.roll, rpy_des.pitch);
+  rot_controller_.update(bs_, q_, U, rpy_des.roll, rpy_des.pitch, rpy_des.yaw, u);
   // stopwatch_.stop();
 
   rotorVelsFromCtrlInput(u, rotor_vels_);
@@ -178,7 +179,7 @@ bool Controller::allMsgReceived()
   }
 }
 
-void Controller::bsCb(const dh_kdl_msgs::PoseVel& msg)
+void Controller::bsCb(const multirotor_msgs::PoseVel& msg)
 {
   bs_ = msg;
 

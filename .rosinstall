@@ -47,18 +47,6 @@
 }
 
 - git: {
-  local-name: dh_kdl,
-  uri: git@github.com:Masa0u0/dh_kdl.git,
-  version: main,
-}
-
-- git: {
-  local-name: dh_kdl_msgs,
-  uri: git@github.com:Masa0u0/dh_kdl_msgs.git,
-  version: main,
-}
-
-- git: {
   local-name: Navio2,
   uri: git@github.com:Masa0u0/Navio2.git,
   version: master,

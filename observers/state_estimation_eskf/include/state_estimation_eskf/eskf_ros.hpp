@@ -5,8 +5,9 @@
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
+
 #include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <dh_kdl_msgs/PoseVel.h>
+#include <multirotor_msgs/PoseVel.h>
 
 #include "./eskf.hpp"
 
@@ -37,12 +38,12 @@ private:
   bool bar_subscribed_;
   bool gps_subscribed_;
   bool vel_subscribed_;
-  ImuMsg imu_;                    // IMUの観測値
-  MagMsg mag_;                    // 磁気センサの観測値
-  BarMsg bar_;                    // 気圧センサの観測値
-  GpsMsg gps_;                    // GPS位置の観測値
-  VelMsg vel_;                    // GPS速度の観測値
-  dh_kdl_msgs::PoseVel posevel_;  // 発行する状態
+  ImuMsg imu_;                        // IMUの観測値
+  MagMsg mag_;                        // 磁気センサの観測値
+  BarMsg bar_;                        // 気圧センサの観測値
+  GpsMsg gps_;                        // GPS位置の観測値
+  VelMsg vel_;                        // GPS速度の観測値
+  multirotor_msgs::PoseVel posevel_;  // 発行する状態
 
   Eigen::Vector3d a_m_;
   Eigen::Vector3d w_m_;

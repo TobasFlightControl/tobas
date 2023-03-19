@@ -13,7 +13,6 @@
 
 	<depend>dh_std_tools</depend>
 	<depend>dh_ros_tools</depend>
-	<depend>dh_kdl_msgs</depend>
 
 	<depend>multirotor_tools</depend>
 	<depend>multirotor_msgs</depend>

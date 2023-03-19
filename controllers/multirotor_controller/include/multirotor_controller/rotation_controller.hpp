@@ -7,9 +7,9 @@
 #include <dh_kdl/treekdlmodel.hpp>
 #include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
-#include <dh_kdl_msgs/PoseVel.h>
 
 #include <multirotor_tools/rotor_property.hpp>
+#include <multirotor_msgs/PoseVel.h>
 
 #include "./dynamics.hpp"
 
@@ -21,7 +21,7 @@ public:
   void updateInternalDataStructures();
 
   void update(
-    const dh_kdl_msgs::PoseVel& bs,
+    const multirotor_msgs::PoseVel& bs,
     const KDL::JntArray& q,
     const double& U,
     const double& roll_des,
@@ -75,7 +75,7 @@ private:
     const double& roll_des,
     const double& pitch_des,
     const KDL::JntArray& q);
-  void updateX(const dh_kdl_msgs::PoseVel& bs);
+  void updateX(const multirotor_msgs::PoseVel& bs);
   void updateS(const double& roll_des, const double& pitch_des, const double& yaw_des);
   void updateWeight_Q(double rot_weight, double angvel_weight);
   void updateWeight_S(int thrust_weight);

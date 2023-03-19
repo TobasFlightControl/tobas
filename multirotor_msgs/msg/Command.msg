@@ -1,2 +1,2 @@
-kdl_msgs/Vector target_position
+geometry_msgs/Point target_position
 float64 target_yaw_angle

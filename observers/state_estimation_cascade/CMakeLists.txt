@@ -16,8 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
 	dh_eigen_tools
 	dh_std_tools
 	multirotor_msgs
-	dh_kdl_msgs
-	kdl_msgs
 	orocos_kdl
 	eigen_conversions
 	kdl_conversions

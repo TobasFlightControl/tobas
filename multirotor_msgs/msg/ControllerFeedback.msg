@@ -1,7 +1,5 @@
-kdl_msgs/Vector desired_position
-kdl_msgs/Vector desired_acceleration
-float64 desired_roll
-float64 desired_pitch
-float64 desired_yaw
+geometry_msgs/Point desired_position
+LinearAccel desired_acceleration
+Euler desired_orientation
 float64 thrust_force_sum
 float64[] thrust_forces

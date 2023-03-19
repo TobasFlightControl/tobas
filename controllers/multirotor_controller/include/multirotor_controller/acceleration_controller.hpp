@@ -5,6 +5,7 @@
 
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
+#include <multirotor_msgs/LinearAccel.h>
 #include <multirotor_tools/rotor_property.hpp>
 
 class AccelerationController
@@ -15,7 +16,7 @@ public:
   void updateInternalDataStructures();
 
   void update(
-    const KDL::Vector& acc_des,
+    const multirotor_msgs::LinearAccel& acc_des,
     const double& yaw_des,
     double& U_out,
     double& roll_out,

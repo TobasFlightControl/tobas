@@ -1,4 +1,4 @@
-#include "../../include/multirotor_tools/eigen_msg.hpp"
+#include "../../../include/multirotor_tools/conversions/eigen_msg.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -17,5 +17,19 @@ void linVelEigenToMsg(const Vector3d& e, multirotor_msgs::LinearVelocity& m)
   m.vx = e.x();
   m.vy = e.y();
   m.vz = e.z();
+}
+
+void angVelMsgToEigen(const multirotor_msgs::AngularVelocity& m, Vector3d& e)
+{
+  e.x() = m.wx;
+  e.y() = m.wy;
+  e.z() = m.wz;
+}
+
+void angVelEigenToMsg(const Vector3d& e, multirotor_msgs::AngularVelocity& m)
+{
+  m.wx = e.x();
+  m.wy = e.y();
+  m.wz = e.z();
 }
 }  // namespace tf

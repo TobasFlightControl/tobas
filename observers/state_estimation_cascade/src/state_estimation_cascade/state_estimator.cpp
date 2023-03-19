@@ -5,9 +5,9 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
-#include <dh_kdl_msgs/PoseVel.h>
 
-#include <multirotor_tools/eigen_msg.hpp>
+#include <multirotor_tools/conversions/msg_msg.hpp>
+#include <multirotor_tools/conversions/eigen_msg.hpp>
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
@@ -97,7 +97,7 @@ void StateEstimator::fillUnusedBuffers()
 
 void StateEstimator::advertisePublishers()
 {
-  posevel_pub_ = nh_.advertise<dh_kdl_msgs::PoseVel>("/estimated_state", 1);
+  posevel_pub_ = nh_.advertise<multirotor_msgs::PoseVel>("/estimated_state", 1);
 }
 
 void StateEstimator::registerSubscribers()
@@ -240,12 +240,12 @@ void StateEstimator::setZeroPositions()
 void StateEstimator::updatePoseVelMsg()
 {
   // 位置
-  tf::vectorEigenToKDL(cart_filter_.getPosition3D(), posevel_.pose.pos);
+  tf::pointEigenToMsg(cart_filter_.getPosition3D(), posevel_.pose.position);
 
   // ロール，ピッチ
   const auto& quat = filtered_imu_buf_.getLatest().orientation;
-  auto& rpy = posevel_.pose.rpy;
-  quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy(0), rpy(1), yaw_now_);
+  auto& rpy = posevel_.pose.orientation;
+  quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // ヨー
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
@@ -257,14 +257,14 @@ void StateEstimator::updatePoseVelMsg()
     yaw_jump_count_++;
   }
   yaw_prev_ = yaw_now_;
-  rpy(2) = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
+  rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // 並進速度
-  tf::vectorEigenToKDL(cart_filter_.getVelocity(), posevel_.twist.vel);
+  tf::linVelEigenToMsg(cart_filter_.getVelocity(), posevel_.twist.linear);
 
   // 回転速度
   const auto& imu = filtered_imu_buf_.getLatest();
-  tf::vectorMsgToKDL(imu.angular_velocity, posevel_.twist.rot);
+  tf::Vector3ToAngularVelocity(imu.angular_velocity, posevel_.twist.angular);
 }
 
 void StateEstimator::filteredImuCb(const ImuMsg& imu)

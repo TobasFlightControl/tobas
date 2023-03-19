@@ -1,6 +1,9 @@
 #pragma once
 
-#include <kdl/frames.hpp>
+#include <geometry_msgs/Point.h>
+
+#include <multirotor_msgs/LinearVelocity.h>
+#include <multirotor_msgs/LinearAccel.h>
 
 class PositionController
 {
@@ -8,12 +11,12 @@ public:
   PositionController();
 
   void update(
-    const KDL::Vector& pos,
-    const KDL::Vector& pos_des,
-    const KDL::Vector& vel,
-    const KDL::Vector& vel_des,
-    KDL::Vector& acc_out);
-  
+    const geometry_msgs::Point& pos,
+    const geometry_msgs::Point& pos_des,
+    const multirotor_msgs::LinearVelocity& vel,
+    const multirotor_msgs::LinearVelocity& vel_des,
+    multirotor_msgs::LinearAccel& acc_out);
+
   void reconfigure(double natural_freq, double damp_ratio);
 
 private:

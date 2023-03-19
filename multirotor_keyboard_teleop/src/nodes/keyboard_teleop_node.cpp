@@ -65,7 +65,7 @@ CommandHandler::CommandHandler(ros::NodeHandle& nh)
   delta_rot_ = max_angvel_ / key_repeat_freq_;
 
   // z座標の初期値を制限の下限に設定
-  cmd_.target_position.z(z_limit_.lower);
+  cmd_.target_position.z = z_limit_.lower;
 
   cmd_pub_ = nh.advertise<multirotor_msgs::Command>("/multirotor_controller/command", 1, false);
 
@@ -74,9 +74,9 @@ CommandHandler::CommandHandler(ros::NodeHandle& nh)
 
 void CommandHandler::run()
 {
-  auto& x = cmd_.target_position(0);
-  auto& y = cmd_.target_position(1);
-  auto& z = cmd_.target_position(2);
+  auto& x = cmd_.target_position.x;
+  auto& y = cmd_.target_position.y;
+  auto& z = cmd_.target_position.z;
   auto& yaw = cmd_.target_yaw_angle;
 
   char c = 0;

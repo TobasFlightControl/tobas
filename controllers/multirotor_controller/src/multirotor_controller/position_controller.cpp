@@ -3,6 +3,9 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
+#include <multirotor_tools/operators.hpp>
+#include <multirotor_tools/conversions/msg_msg.hpp>
+
 #include "../../include/multirotor_controller/position_controller.hpp"
 
 PositionController::PositionController()
@@ -13,13 +16,14 @@ PositionController::PositionController()
 }
 
 void PositionController::update(
-  const KDL::Vector& pos,
-  const KDL::Vector& pos_des,
-  const KDL::Vector& vel,
-  const KDL::Vector& vel_des,
-  KDL::Vector& acc_out)
+  const geometry_msgs::Point& pos,
+  const geometry_msgs::Point& pos_des,
+  const multirotor_msgs::LinearVelocity& vel,
+  const multirotor_msgs::LinearVelocity& vel_des,
+  multirotor_msgs::LinearAccel& acc_out)
 {
-  acc_out = kp_ * (pos_des - pos) + kd_ * (vel_des - vel);
+  const auto& acc_out_tmp = kp_ * (pos_des - pos) + kd_ * (vel_des - vel);
+  tf::Vector3ToLinearAccel(acc_out_tmp, acc_out);
 }
 
 void PositionController::reconfigure(double natural_freq, double damp_ratio)

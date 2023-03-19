@@ -21,7 +21,6 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_conversions
 	eigen_conversions
 	mav_msgs
-	kdl_msgs
 	orocos_kdl
 	roscpp
 	dynamic_reconfigure

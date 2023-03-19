@@ -55,7 +55,7 @@ void RotationController::updateInternalDataStructures()
 }
 
 void RotationController::update(
-  const dh_kdl_msgs::PoseVel& bs,
+  const multirotor_msgs::PoseVel& bs,
   const JntArray& q,
   const double& U,
   const double& roll_des,
@@ -67,8 +67,8 @@ void RotationController::update(
   ROS_ASSERT(U >= 0.);
   ROS_ASSERT(u_opt.size() == num_rotors_);
 
-  const auto& rpy = bs.pose.rpy;
-  updateDynamics(rpy.x(), rpy.y(), roll_des, pitch_des, q);
+  const auto& rpy = bs.pose.orientation;
+  updateDynamics(rpy.roll, rpy.pitch, roll_des, pitch_des, q);
   updateX(bs);
   updateS(roll_des, pitch_des, yaw_des);
 
@@ -133,11 +133,11 @@ void RotationController::updateDynamics(
   }
 }
 
-void RotationController::updateX(const dh_kdl_msgs::PoseVel& bs)
+void RotationController::updateX(const multirotor_msgs::PoseVel& bs)
 {
-  const auto& r = bs.pose.rpy;
-  const auto& w = bs.twist.rot;
-  x_ << r.x(), r.y(), r.z(), w.x(), w.y(), w.z();
+  const auto& r = bs.pose.orientation;
+  const auto& w = bs.twist.angular;
+  x_ << r.roll, r.pitch, r.yaw, w.wx, w.wy, w.wz;
 }
 
 void RotationController::updateS(

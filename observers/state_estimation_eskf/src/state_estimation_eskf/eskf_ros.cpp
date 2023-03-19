@@ -4,9 +4,9 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
-#include <dh_kdl_msgs/PoseVel.h>
 
-#include <multirotor_tools/eigen_msg.hpp>
+#include <multirotor_tools/conversions/msg_msg.hpp>
+#include <multirotor_tools/conversions/eigen_msg.hpp>
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
@@ -34,7 +34,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh)
     gps_subscribed_(false),
     vel_subscribed_(false)
 {
-  posevel_pub_ = nh.advertise<dh_kdl_msgs::PoseVel>("/estimated_state", 1);
+  posevel_pub_ = nh.advertise<multirotor_msgs::PoseVel>("/estimated_state", 1);
 
   imu_sub_ = nh.subscribe("/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
   mag_sub_ = nh.subscribe("/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
@@ -113,16 +113,16 @@ void ErrorStateKalmanFilterRos::initialize()
 
 void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 {
-  tf::vectorEigenToKDL(eskf_.getPos(), posevel_.pose.pos);
+  tf::pointEigenToMsg(eskf_.getPos(), posevel_.pose.position);
 
   auto q = eskf_.getQuat();
-  auto& rpy = posevel_.pose.rpy;
-  quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy(0), rpy(1), rpy(2));
+  auto& rpy = posevel_.pose.orientation;
+  quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
 
-  tf::vectorEigenToKDL(eskf_.getVel(), posevel_.twist.vel);
+  tf::linVelEigenToMsg(eskf_.getVel(), posevel_.twist.linear);
 
   Vector3d w = w_m_ - eskf_.getGyroBias();
-  tf::vectorEigenToKDL(w, posevel_.twist.rot);
+  tf::angVelEigenToMsg(w, posevel_.twist.angular);
 }
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& msg)

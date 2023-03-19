@@ -8,8 +8,9 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <dh_std_tools/buffer.hpp>
+
 #include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <dh_kdl_msgs/PoseVel.h>
+#include <multirotor_msgs/PoseVel.h>
 
 #include "./cartesian_filter.hpp"
 
@@ -44,7 +45,7 @@ private:
   dh_std::Buffer<BarMsg> bar_buf_;           // 気圧センサの観測値
   dh_std::Buffer<GpsMsg> gps_pos_buf_;       // GPS位置の観測値
   dh_std::Buffer<VelMsg> gps_vel_buf_;       // GPS速度の観測値
-  dh_kdl_msgs::PoseVel posevel_;             // 発行する状態
+  multirotor_msgs::PoseVel posevel_;         // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
