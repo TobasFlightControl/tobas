@@ -14,7 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
 	multirotor_msgs
 	dh_kdl
 	dh_linear_control
-	dh_quadprog
 	dh_ros_tools
 	dh_eigen_tools
 	dh_std_tools
