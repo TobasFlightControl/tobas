@@ -20,7 +20,6 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_parser
 	kdl_conversions
 	eigen_conversions
-	mav_msgs
 	orocos_kdl
 	roscpp
 	dynamic_reconfigure

@@ -346,8 +346,8 @@ class PackageGenerator(QWidget):
             root.append(motor_model)
 
         # Controller Interface
-        controller_interface = ControllerInterface(self._drone_name)
-        root.append(controller_interface)
+        # controller_interface = ControllerInterface(self._drone_name)
+        # root.append(controller_interface)
 
         # IMU
         imu_model = ImuModel(

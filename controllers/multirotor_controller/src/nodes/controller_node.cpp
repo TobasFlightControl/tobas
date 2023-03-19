@@ -1,6 +1,5 @@
 #include <kdl_parser/kdl_parser.hpp>
 #include <dynamic_reconfigure/server.h>
-#include <mav_msgs/Actuators.h>
 #include <sensor_msgs/JointState.h>
 
 #include <dh_std_tools/iostream.hpp>
@@ -18,6 +17,7 @@
 #include <multirotor_controller/ControllerConfig.h>
 
 #include <multirotor_tools/rotor_property.hpp>
+#include <multirotor_msgs/RotorSpeeds.h>
 
 #include "../../include/multirotor_controller/position_controller.hpp"
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
@@ -56,11 +56,11 @@ private:
   AccelerationController acc_controller_;
   RotationController rot_controller_;
   multirotor_msgs::ControllerFeedback feedback_;
-  mav_msgs::Actuators rotor_vels_;
+  multirotor_msgs::RotorSpeeds rotor_speeds_;
   dh_ros::Stopwatch stopwatch_;
 
   // PubSub
-  ros::Publisher rotor_vels_pub_;
+  ros::Publisher rotor_speeds_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber bs_sub_;
   ros::Subscriber js_sub_;
@@ -70,7 +70,7 @@ private:
   ConfigServer server_;
 
   void runOnce();
-  void rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actuators& rotor_vels);
+  void rotorVelsFromCtrlInput(const vector<double>& u, multirotor_msgs::RotorSpeeds& rotor_speeds);
   bool allMsgReceived();
 
   void bsCb(const multirotor_msgs::PoseVel& msg);
@@ -104,13 +104,13 @@ Controller::Controller(ros::NodeHandle& nh)
 
   q_.resize(kdl_model_.getNrOfJoints());
   feedback_.thrust_forces.resize(num_rotors_);
-  rotor_vels_.angular_velocities.resize(num_rotors_);
+  rotor_speeds_.speeds.resize(num_rotors_);
 
   const string ns = ros::this_node::getNamespace();
 
   // PubSub
-  rotor_vels_pub_ =
-    nh.advertise<mav_msgs::Actuators>("/" + drone_name + "/command/motor_speed", 1, false);
+  rotor_speeds_pub_ =
+    nh.advertise<multirotor_msgs::RotorSpeeds>("/" + drone_name + "/command/motor_speed", 1, false);
   feedback_pub_ =
     nh.advertise<multirotor_msgs::ControllerFeedback>("/multirotor_controller/feedback", 1, false);
   bs_sub_ = nh.subscribe("/" + drone_name + "/base_state", 1, &Controller::bsCb, this);
@@ -146,13 +146,15 @@ void Controller::runOnce()
   rot_controller_.update(bs_, q_, U, rpy_des.roll, rpy_des.pitch, rpy_des.yaw, u);
   // stopwatch_.stop();
 
-  rotorVelsFromCtrlInput(u, rotor_vels_);
+  rotorVelsFromCtrlInput(u, rotor_speeds_);
 
-  rotor_vels_pub_.publish(rotor_vels_);
+  rotor_speeds_pub_.publish(rotor_speeds_);
   feedback_pub_.publish(feedback_);
 }
 
-void Controller::rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actuators& rotor_vels)
+void Controller::rotorVelsFromCtrlInput(
+  const vector<double>& u,
+  multirotor_msgs::RotorSpeeds& rotor_speeds)
 {
   ROS_ASSERT(u.size() == num_rotors_);
 
@@ -163,7 +165,7 @@ void Controller::rotorVelsFromCtrlInput(const vector<double>& u, mav_msgs::Actua
       dh_ros::rosFatal("Negative thrust force: u = " + to_string(u[i]));
       // TODO: 防御モードに移行
     }
-    rotor_vels.angular_velocities[i] = sqrt(max(u[i], 0.) / rotor_props_[i].motor_constant);
+    rotor_speeds.speeds[i] = sqrt(max(u[i], 0.) / rotor_props_[i].motor_constant);
   }
 }
 

@@ -32,23 +32,23 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
   rotor_vels_sub_ =
-    nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler::rotorVelsCb, this);
+    nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this);
 }
 
-void MotorsHandler::rotorVelsCb(const mav_msgs::Actuators& rotor_vels)
+void MotorsHandler::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds)
 {
-  const auto& angvels = rotor_vels.angular_velocities;
+  const auto& speeds = rotor_speeds.speeds;
 
-  if (angvels.size() != num_rotors_)
+  if (speeds.size() != num_rotors_)
   {
     dh_ros::rosErrorThrottle(
-      INFO_PERIOD, "Size mismatch: " + to_string(angvels.size()) + " != " + to_string(num_rotors_));
+      INFO_PERIOD, "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(num_rotors_));
     return;
   }
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    double angvel = angvels[i];
+    double angvel = speeds[i];
     const RotorProperty& prop = rotor_props_[i];
 
     if (angvel < 0. || prop.max_velocity < angvel)

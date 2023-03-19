@@ -46,8 +46,8 @@ class MotorModel(ET.Element):
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "librotors_gazebo_motor_model.so"
-        plugin.attrib["name"] = f'{drone_name}_{motor_number}_motor_model'
+        plugin.attrib["filename"] = "libdh_gazebo_rotor_plugin.so"
+        plugin.attrib["name"] = f'{drone_name}_{motor_number}_rotor_plugin'
 
         ET.SubElement(plugin, "robotNamespace").text = drone_name
         ET.SubElement(plugin, "motorNumber").text = f'{motor_number}'
@@ -61,8 +61,8 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "rollingMomentCoefficient").text = f'{roll_coef}'
         ET.SubElement(plugin, "timeConstantUp").text = f'{time_const_up}'
         ET.SubElement(plugin, "timeConstantDown").text = f'{time_const_down}'
-        ET.SubElement(plugin, "commandSubTopic").text = "gazebo/command/motor_speed"
         ET.SubElement(plugin, "motorSpeedPubTopic").text = f'motor_speed/{motor_number}'
+        ET.SubElement(plugin, "commandSubTopic").text = "command/motor_speed"
         ET.SubElement(plugin, "rotorVelocitySlowdownSim").text = f'{SLOWDOWN_SIM}'
 
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <ros/ros.h>
-#include <mav_msgs/Actuators.h>
 
 #include <Navio2/RCOutput_Navio2.h>
 
 #include <multirotor_tools/rotor_property.hpp>
+#include <multirotor_msgs/RotorSpeeds.h>
 
 class MotorsHandler
 {
@@ -19,5 +19,5 @@ private:
 
   ros::Subscriber rotor_vels_sub_;
 
-  void rotorVelsCb(const mav_msgs::Actuators& rotor_vels);
+  void rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds);
 };
