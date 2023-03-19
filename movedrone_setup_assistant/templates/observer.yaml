@@ -1,0 +1,22 @@
+state_estimator_eskf:
+  update_rate: 1000.
+  gyro_noise_density: {{ gyro_noise_density }}
+  gyro_random_walk: {{ gyro_random_walk }}
+  acc_noise_density: {{ acc_noise_density }}
+  acc_random_walk: {{ acc_random_walk }}
+  reference_magnetic_strength:
+    north: {{ ref_mag_north }}
+    east: {{ ref_mag_east }}
+    down: {{ ref_mag_down }}
+
+state_estimator_cascade:
+  use_barometer: true  # TODO: アプリから選択
+  use_gps_position: true  # TODO: アプリから選択
+  use_gps_velocity: true  # TODO: アプリから選択
+  variance:
+    gravity: 10.  # TODO: アプリから選択
+
+imu_complementary_filter:
+  ref_mag_north: {{ ref_mag_north }}
+  ref_mag_east: {{ ref_mag_east }}
+  ref_mag_down: {{ ref_mag_down }}

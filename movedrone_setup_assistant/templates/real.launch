@@ -1,0 +1,9 @@
+<launch>
+
+  <!-- Load drone configurations from YAML file to parameter server -->
+  <rosparam file="$(find {{ pkg_name }})/config/drone_properties.yaml" command="load"/>
+
+  <!-- Bringup the nodes required for connections between hardware and software -->
+  <include file="$(find multirotor_real)/launch/hardware_interfaces.launch"/>
+
+</launch>

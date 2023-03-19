@@ -1,0 +1,3 @@
+<launch>
+    <node name="movedrone_setup_assistant" pkg="movedrone_setup_assistant" type="setup_assistant_node.py" output="screen" required="true"/>
+</launch>
