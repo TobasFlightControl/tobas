@@ -1,16 +1,4 @@
 - git: {
-  local-name: rotors_simulator,
-  uri: https://github.com/ethz-asl/rotors_simulator.git,
-  version: master,
-  }
-
-- git: {
-  local-name: mav_comm,
-  uri: https://github.com/ethz-asl/mav_comm.git,
-  version: master,
-  }
-
-- git: {
   local-name: robot_state_plugin,
   uri: https://github.com/chvmp/robot_state_plugin.git,
   version: master,
