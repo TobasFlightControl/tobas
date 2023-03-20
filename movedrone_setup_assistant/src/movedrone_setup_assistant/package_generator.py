@@ -125,6 +125,7 @@ class PackageGenerator(QWidget):
         self._generate_from_template(items, "observer.yaml", config_dir)
         self._generate_from_template(items, "controller.yaml", config_dir)
         self._generate_from_template(items, "gazebo.launch", launch_dir)
+        self._generate_from_template(items, "real.launch", launch_dir)
         self._generate_from_template(items, "bringup.launch", launch_dir)
         self._generate_drone_props(config_dir)
         self._generate_joint_control(config_dir)
