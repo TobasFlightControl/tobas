@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 
+#include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
@@ -50,6 +51,6 @@ void AccelerationController::update(
     dh_ros::rosWarnThrottle(
       WARN_PERIOD,
       "U_out = " + to_string(U_out) + " is out of range [0, " + to_string(max_U_) + "].");
-    U_out = clamp(U_out, 0., max_U_);
+    U_out = dh_std::clamp(U_out, 0., max_U_);
   }
 }

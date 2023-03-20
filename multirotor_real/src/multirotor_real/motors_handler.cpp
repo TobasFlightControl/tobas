@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 
@@ -55,7 +56,7 @@ void MotorsHandler::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_spee
     {
       dh_ros::rosErrorThrottle(
         INFO_PERIOD, "Invalid rotor velocity: " + to_string(angvel) + " rad/s");
-      angvel = clamp(angvel, 0., prop.max_velocity);
+      angvel = dh_std::clamp(angvel, 0., prop.max_velocity);
     }
 
     double period =
