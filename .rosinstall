@@ -5,6 +5,18 @@
   }
 
 - git: {
+  local-name: orocos_kinematics_dynamics,
+  uri: git@github.com:Masa0u0/orocos_kinematics_dynamics.git,
+  version: master,
+}
+
+- git: {
+  local-name: Navio2,
+  uri: git@github.com:Masa0u0/Navio2.git,
+  version: master,
+}
+
+- git: {
   local-name: dh_std_tools,
   uri: git@github.com:Masa0u0/dh_std_tools.git,
   version: main,
@@ -38,10 +50,4 @@
   local-name: dh_kdl,
   uri: git@github.com:Masa0u0/dh_kdl.git,
   version: main,
-}
-
-- git: {
-  local-name: Navio2,
-  uri: git@github.com:Masa0u0/Navio2.git,
-  version: master,
 }
