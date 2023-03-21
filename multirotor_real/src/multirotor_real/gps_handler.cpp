@@ -17,7 +17,7 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh) : cov_received_(false)
     throw dh_ros::RuntimeError("Failed to connect to GPS.");
   }
 
-  if (!gps_.configureSolutionRate(SOLUTION_RATE))
+  if (gps_.configureSolutionRate(SOLUTION_RATE) < 0)
   {
     throw dh_ros::RuntimeError("Failed to set solution rate.");
   }
