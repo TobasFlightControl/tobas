@@ -194,6 +194,8 @@ class SelectedPropellersWidget(QTableWidget):
         self.setCellWidget(row, 9, time_const_down)
 
         pin = SpinBox()
+        pin.setMinimum(1)
+        pin.setMaximum(14)
         self.pins.append(pin)
         self.setCellWidget(row, 10, pin)
 
@@ -220,7 +222,7 @@ class SelectedPropellersWidget(QTableWidget):
             rolling_coef.setValue(1e-6)
             time_const_up.setValue(0.0125)
             time_const_down.setValue(0.025)
-            pin.setValue(0)
+            pin.setValue(1)
             min_pwm_period.setValue(1000)
             max_pwm_period.setValue(2000)
         else:

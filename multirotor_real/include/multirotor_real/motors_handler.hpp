@@ -19,5 +19,6 @@ private:
 
   ros::Subscriber rotor_vels_sub_;
 
+  uint32_t getChannel(uint32_t pin);
   void rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds);
 };

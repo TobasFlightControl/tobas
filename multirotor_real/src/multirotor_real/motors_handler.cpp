@@ -5,6 +5,7 @@
 
 #include "../../include/multirotor_real/motors_handler.hpp"
 
+#define PWM_FREQ 50.
 #define INFO_PERIOD 1.
 
 using namespace std;
@@ -19,21 +20,36 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
 
   for (const auto& rotor_prop : rotor_props_)
   {
-    if (!(pwm_.initialize(rotor_prop.pin)))
+    uint32_t pin = rotor_prop.pin;
+    uint32_t channel = getChannel(pin);
+
+    if (!pwm_.initialize(channel))
     {
-      throw dh_ros::RuntimeError(
-        "Failed to initialize RC output for PIN" + to_string(rotor_prop.pin) + ".");
+      throw dh_ros::RuntimeError("Failed to initialize RC output for PIN" + to_string(pin) + ".");
     }
 
-    if (!(pwm_.enable(rotor_prop.pin)))
+    if (!pwm_.set_frequency(channel, PWM_FREQ))
     {
-      throw dh_ros::RuntimeError("RC output for PIN" + to_string(rotor_prop.pin) + " is disabled.");
+      throw dh_ros::RuntimeError("Failed to set PWM frequency at PIN" + to_string(pin) + ".");
     }
+
+    if (!pwm_.enable(channel))
+    {
+      throw dh_ros::RuntimeError("RC output for PIN" + to_string(pin) + " is disabled.");
+    }
+
+    dh_ros::rosInfo("PWM output for PIN" + to_string(pin) + " is ready.");
+    ros::Duration(0.2).sleep();  // 連続して設定を行うと失敗するため間隔をあける
   }
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
   rotor_vels_sub_ =
     nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this);
+}
+
+uint32_t MotorsHandler::getChannel(uint32_t pin)
+{
+  return pin - 1;
 }
 
 void MotorsHandler::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds)
@@ -62,6 +78,6 @@ void MotorsHandler::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_spee
     double period =
       dh_std::remap(angvel, 0., prop.max_velocity, prop.pwm_range.lower, prop.pwm_range.upper);
 
-    pwm_.set_duty_cycle(prop.pin, period);
+    pwm_.set_duty_cycle(getChannel(prop.pin), period);
   }
 }
