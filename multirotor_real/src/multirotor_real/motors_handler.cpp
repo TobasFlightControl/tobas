@@ -10,7 +10,7 @@
 using namespace std;
 
 MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
-  : num_rotors_(dh_ros::getParam<int>("/num_rotors", 0)), rotor_props_(getRotorProperties())
+  : num_rotors_(dh_ros::getParam<int>("/num_rotors")), rotor_props_(getRotorProperties())
 {
   if (getuid())
   {
@@ -31,7 +31,7 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
     }
   }
 
-  string drone_name = dh_ros::getParam<string>("/drone_name", "unknown");
+  string drone_name = dh_ros::getParam<string>("/drone_name");
   rotor_vels_sub_ =
     nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this);
 }
