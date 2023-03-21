@@ -8,7 +8,7 @@
 #include "../../include/multirotor_real/imu_handler.hpp"
 
 #define GRAVITY 9.80665
-#define TIMER_PERIOD 1e-2
+#define TIMER_PERIOD 0.01
 
 // MPU9250
 // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
@@ -79,6 +79,7 @@ void ImuHandler::timerCb(const ros::TimerEvent&)
 
   // 各センサのメッセージを更新
   // センサの座標系をNWU座標系に変換する
+  imu_->update();
 
   imu_->read_accelerometer(&ax_, &ay_, &az_);
   imu_msg_.linear_acceleration.x = ay_;
@@ -94,4 +95,8 @@ void ImuHandler::timerCb(const ros::TimerEvent&)
   mag_msg_.magnetic_field.x = mx_;
   mag_msg_.magnetic_field.y = -my_;
   mag_msg_.magnetic_field.z = -mz_;
+
+  // Publish messages
+  imu_pub_.publish(imu_msg_);
+  mag_pub_.publish(mag_msg_);
 }

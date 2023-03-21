@@ -3,7 +3,8 @@
 
 #include "../../include/multirotor_real/barometer_handler.hpp"
 
-#define TIMER_PERIOD 1e-2
+#define TIMER_PERIOD 0.01
+#define WAIT_TIME 0.008
 
 // MS5611(http://www.kyohritsu.jp/eclib/OTHER/DATASHEET/SENSOR/ms561101ba03.pdf)
 // 正確度と精度(https://www.hitachi-hightech.com/jp/ja/knowledge/semiconductor/room/manufacturing/accuracy-precision.html)
@@ -27,7 +28,7 @@ BarometerHandler::BarometerHandler(ros::NodeHandle& nh)
 void BarometerHandler::timerCb(const ros::TimerEvent&)
 {
   barometer_.refreshPressure();
-  ros::Duration(5e-3).sleep();  // Waiting for pressure data ready
+  ros::Duration(WAIT_TIME).sleep();  // Waiting for pressure data ready
   barometer_.readPressure();
   barometer_.calculatePressureAndTemperature();
 
