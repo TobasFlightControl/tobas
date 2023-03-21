@@ -66,7 +66,7 @@ void ImuHandler::setCovarianceMatrices()
 
 void ImuHandler::advertisePublishers(ros::NodeHandle& nh)
 {
-  string drone_name = dh_ros::getParam<string>("/drone_name");
+  string drone_name = dh_ros::getParam<string>("/drone_name", "unknown");
   imu_pub_ = nh.advertise<ImuMsg>("/" + drone_name + "/imu", 1);
   mag_pub_ = nh.advertise<MagMsg>("/" + drone_name + "/magnetic_field", 1);
 }

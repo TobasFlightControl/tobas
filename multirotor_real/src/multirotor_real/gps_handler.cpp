@@ -22,7 +22,7 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh) : cov_received_(false)
     dh_ros::rosError("Failed to set solution rate.");
   }
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
+  string drone_name = dh_ros::getParam<string>("/drone_name", "unknown");
   gps_pub_ = nh.advertise<GpsMsg>("/" + drone_name + "/gps", 1);
 
   timer_ = nh.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::timerCb, this);

@@ -31,7 +31,7 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
     }
   }
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
+  string drone_name = dh_ros::getParam<string>("/drone_name", "unknown");
   rotor_vels_sub_ =
     nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this);
 }
