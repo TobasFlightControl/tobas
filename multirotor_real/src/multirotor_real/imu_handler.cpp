@@ -12,7 +12,7 @@
 
 // MPU9250
 // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
-#define ACC_NOISE_DENSITY 300.   // μg/sqrt(hz)
+#define ACC_NOISE_DENSITY 300.   // ug/sqrt(hz)
 #define GYRO_NOISE_DENSITY 0.01  // deg/s/sqrt(hz)
 #define MAG_NOISE_STD 0.  // TODO: データシートに無かったため，磁気センサの精度を計測する
 
@@ -43,7 +43,7 @@ void ImuHandler::setupImu()
 void ImuHandler::setCovarianceMatrices()
 {
   // Accelerometer
-  double acc_std_grav = ACC_NOISE_DENSITY / sqrt(TIMER_PERIOD);  // μg
+  double acc_std_grav = ACC_NOISE_DENSITY / sqrt(TIMER_PERIOD);  // ug
   double acc_std = acc_std_grav * 1e-6 * GRAVITY;                // m/s^2
   double acc_var = dh_std::sqr(acc_std);                         // m^2/s^4
   imu_msg_.linear_acceleration_covariance[0] = acc_var;
@@ -77,18 +77,21 @@ void ImuHandler::timerCb(const ros::TimerEvent&)
   imu_msg_.header.stamp = now;
   mag_msg_.header.stamp = now;
 
+  // 各センサのメッセージを更新
+  // センサの座標系をNWU座標系に変換する
+
   imu_->read_accelerometer(&ax_, &ay_, &az_);
-  imu_msg_.linear_acceleration.x = ax_;
-  imu_msg_.linear_acceleration.y = ay_;
+  imu_msg_.linear_acceleration.x = ay_;
+  imu_msg_.linear_acceleration.y = -ax_;
   imu_msg_.linear_acceleration.z = az_;
 
   imu_->read_gyroscope(&wx_, &wy_, &wz_);
-  imu_msg_.angular_velocity.x = wx_;
-  imu_msg_.angular_velocity.y = wy_;
+  imu_msg_.angular_velocity.x = wy_;
+  imu_msg_.angular_velocity.y = -wx_;
   imu_msg_.angular_velocity.z = wz_;
 
   imu_->read_magnetometer(&mx_, &my_, &mz_);
   mag_msg_.magnetic_field.x = mx_;
-  mag_msg_.magnetic_field.y = my_;
-  mag_msg_.magnetic_field.z = mz_;
+  mag_msg_.magnetic_field.y = -my_;
+  mag_msg_.magnetic_field.z = -mz_;
 }
