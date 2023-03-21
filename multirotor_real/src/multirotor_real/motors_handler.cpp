@@ -19,13 +19,13 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
 
   for (const auto& rotor_prop : rotor_props_)
   {
-    if (!pwm_.initialize(rotor_prop.pin))
+    if (!(pwm_.initialize(rotor_prop.pin)))
     {
       throw dh_ros::RuntimeError(
         "Failed to initialize RC output for PIN" + to_string(rotor_prop.pin) + ".");
     }
 
-    if (!pwm_.enable(rotor_prop.pin))
+    if (!(pwm_.enable(rotor_prop.pin)))
     {
       throw dh_ros::RuntimeError("RC output for PIN" + to_string(rotor_prop.pin) + " is disabled.");
     }
