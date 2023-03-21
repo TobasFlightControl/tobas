@@ -160,7 +160,7 @@ void Controller::rotorVelsFromCtrlInput(
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    if (u[i] < -1e-3)
+    if (u[i] < -1.)
     {
       dh_ros::rosFatal("Negative thrust force: u = " + to_string(u[i]));
       // TODO: 防御モードに移行
