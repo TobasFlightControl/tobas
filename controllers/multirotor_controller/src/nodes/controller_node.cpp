@@ -140,6 +140,10 @@ void Controller::runOnce()
   // TODO: 非ゼロの速度目標値を与える
   multirotor_msgs::LinearVelocity vel_des;
 
+  // cout << bs_.pose.position << endl;
+  // cout << pos_des << endl;
+  // cout << endl;
+
   // stopwatch_.start();
   pos_controller_.update(bs_.pose.position, pos_des, bs_.twist.linear, vel_des, acc_des);
   acc_controller_.update(acc_des, rpy_des.yaw, U, rpy_des.roll, rpy_des.pitch);

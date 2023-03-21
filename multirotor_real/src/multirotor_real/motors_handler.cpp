@@ -68,10 +68,11 @@ void MotorsHandler::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_spee
     double angvel = speeds[i];
     const RotorProperty& prop = rotor_props_[i];
 
-    if (angvel < 0. || prop.max_velocity < angvel)
+    if (angvel < 0. || prop.max_velocity + 1. < angvel)
     {
       dh_ros::rosErrorThrottle(
-        INFO_PERIOD, "Invalid rotor velocity: " + to_string(angvel) + " rad/s");
+        INFO_PERIOD, "Invalid rotor velocity: " + to_string(angvel) + " rad/s is out of ["
+                       + to_string(0.) + ", " + to_string(prop.max_velocity) + "] rad/s.");
       angvel = dh_std::clamp(angvel, 0., prop.max_velocity);
     }
 
