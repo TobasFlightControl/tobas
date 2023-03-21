@@ -10,7 +10,7 @@
 using namespace std;
 
 MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
-  : num_rotors_(dh_ros::getParam<int>("/num_rotors")), rotor_props_(getRotorProperties())
+  : num_rotors_(dh_ros::getParam<int>("/num_rotors", 0)), rotor_props_(getRotorProperties())
 {
   if (getuid())
   {
