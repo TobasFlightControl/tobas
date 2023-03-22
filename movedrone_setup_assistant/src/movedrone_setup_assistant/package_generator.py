@@ -409,8 +409,8 @@ class PackageGenerator(QWidget):
         # root.append(odom_gt_model)
 
         # ROS Control
-        # ros_control = GazeboRosControlModel(self._drone_name)
-        # root.append(ros_control)
+        ros_control = GazeboRosControlModel(self._drone_name)
+        root.append(ros_control)
 
         # Transmissions
         for jnt_name in self._main.urdf_parser.required_joint_names():
