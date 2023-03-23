@@ -10,6 +10,7 @@
 #define SUPPORT_STDIOSTREAM
 
 #define POS_IDX (0)
+#define ALT_IDX (POS_IDX + 2)
 #define VEL_IDX (POS_IDX + 3)
 #define QUAT_IDX (VEL_IDX + 3)
 #define AB_IDX (QUAT_IDX + 4)
@@ -17,6 +18,7 @@
 #define STATE_SIZE (GB_IDX + 3)
 
 #define dPOS_IDX (0)
+#define dALT_IDX (dPOS_IDX + 2)
 #define dVEL_IDX (dPOS_IDX + 3)
 #define dTHETA_IDX (dVEL_IDX + 3)
 #define dAB_IDX (dTHETA_IDX + 3)
@@ -94,15 +96,23 @@ public:
   static Eigen::Matrix3d getSkew(const Eigen::Vector3d& in);
 
   // Acessors of nominal state
-  inline Eigen::Vector3d getPos() const
+  inline Eigen::Vector3d getPosition3D() const
   {
     return nominal_state_.block<3, 1>(POS_IDX, 0);
   }
-  inline Eigen::Vector3d getVel() const
+  inline Eigen::Vector2d getPosition2D() const
+  {
+    return nominal_state_.block<2, 1>(POS_IDX, 0);
+  }
+  inline double getAltitude() const
+  {
+    return nominal_state_(ALT_IDX);
+  }
+  inline Eigen::Vector3d getVelocity() const
   {
     return nominal_state_.block<3, 1>(VEL_IDX, 0);
   }
-  inline Eigen::Quaterniond getQuat() const
+  inline Eigen::Quaterniond getQuaternion() const
   {
     return quatFromHamilton(getQuatVector());
   }
@@ -125,15 +135,23 @@ public:
 
   // Called when there is a new measurment from an absolute position reference.
   // Note that this has no body offset, i.e. it assumes exact observation of the center of the IMU.
-  void measurePos(
+  void measurePosition3D(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
     lTime stamp,
     lTime now);
 
+  void measurePosition2D(
+    const Eigen::Vector2d& xy_meas,
+    const Eigen::Matrix2d& xy_cov,
+    lTime stamp,
+    lTime now);
+
+  void measureAltitude(const double& z_meas, const double& z_var, lTime stamp, lTime now);
+
   // Called when there is a new measurment from an absolute velocity reference.
   // Note that this has no body offset, i.e. it assumes exact observation of the center of the IMU.
-  void measureVel(
+  void measureVelocity(
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     lTime stamp,
@@ -141,7 +159,7 @@ public:
 
   // Called when there is a new measurment from an absolute orientation reference.
   // The uncertianty is represented as the covariance of a rotation vector in the body frame
-  void measureQuat(
+  void measureQuaternion(
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix3d& theta_cov,
     lTime stamp,

@@ -29,10 +29,11 @@ private:
   const double acc_random_walk_;     // m/s^3/sqrt(hz)
   const Eigen::Vector3d ref_mag_;
 
-  ErrorStateKalmanFilter eskf_;
-  ros::Time t_last_;
-
   bool is_ready_;
+  ros::Time t_last_;
+  double lat_0_;  // 緯度のゼロ点
+  double lon_0_;  // 経度のゼロ点
+  double alt_0_;  // 高度のゼロ点
   bool imu_subscribed_;
   bool mag_subscribed_;
   bool bar_subscribed_;
@@ -48,11 +49,12 @@ private:
   Eigen::Vector3d a_m_;
   Eigen::Vector3d w_m_;
   Eigen::Quaterniond q_m_;
-  Eigen::Vector3d p_m_;
+  Eigen::Vector2d xy_m_;
   Eigen::Vector3d v_m_;
 
-  ros::Publisher posevel_pub_;
+  ErrorStateKalmanFilter eskf_;
 
+  ros::Publisher posevel_pub_;
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
@@ -61,6 +63,7 @@ private:
 
   bool allMsgReceived();
   void initialize();
+  void setZeroPositions();
   void updatePoseVelMsg();
 
   void imuCb(const ImuMsg& msg);

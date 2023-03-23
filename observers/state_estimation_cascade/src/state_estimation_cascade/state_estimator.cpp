@@ -353,8 +353,8 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 
   tf::linVelMsgToEigen(vel.vel.vel, v_m_);
 
-  auto vel_copy = vel;
-  Matrix3d cov = Map<Matrix3d>(vel_copy.vel.covariance.data());
+  boost::array<double, 9> cov_copy = vel.vel.covariance;
+  Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   cart_filter_.measureVelocity(v_m_, cov);
 }
