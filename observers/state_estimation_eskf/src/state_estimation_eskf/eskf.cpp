@@ -261,24 +261,30 @@ int ErrorStateKalmanFilter::getClosestTime(vector<pair<lTime, StateVector>>* ptr
 {
   // we find the first time in the history that is older, or take the oldest one if the buffer does
   // not extend far enough
-  int complete = 0;
+  bool is_complete = false;
   int index = recent_ptr_;
-  while (!complete)
+
+  while (!is_complete)
   {
     if (ptr->at(index % buf_length_).first <= stamp)
     {
       if (!ptr->at(index % buf_length_).first.isZero())
+      {
         return index % buf_length_;
-
+      }
       else
       {
         return recent_ptr_ % buf_length_;
       }
     }
-    index--;  // scroll back in time.
+
+    --index;  // scroll back in time.
     if (index <= recent_ptr_ - buf_length_)
-      complete = 1;
+    {
+      is_complete = true;
+    }
   }
+
   return recent_ptr_ % buf_length_;
 }
 
@@ -287,24 +293,30 @@ int ErrorStateKalmanFilter::getClosestTime(vector<ImuMeasurement>* ptr, lTime st
 {
   // we find the first time in the history that is older, or take the oldest one if the buffer does
   // not extend far enough
-  int complete = 0;
+  bool is_complete = false;
   int index = recent_ptr_;
-  while (!complete)
+
+  while (!is_complete)
   {
     if (ptr->at(index % buf_length_).time <= stamp)
     {
       if (!ptr->at(index % buf_length_).time.isZero())
+      {
         return index % buf_length_;
-
+      }
       else
       {
         return recent_ptr_ % buf_length_;
       }
     }
-    index--;  // scroll back in time.
+
+    --index;  // scroll back in time.
     if (index <= recent_ptr_ - buf_length_)
-      complete = 1;
+    {
+      is_complete = true;
+    }
   }
+
   return recent_ptr_ % buf_length_;
 }
 
@@ -316,7 +328,9 @@ void ErrorStateKalmanFilter::measurePos(
 {
   // delta measurement
   if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
+  {
     first_meas_time_ = now;
+  }
 
   Vector3d delta_pos;
   if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
@@ -373,14 +387,18 @@ void ErrorStateKalmanFilter::measureVel(
   if (delay_handling_ == APPLY_UPDATE_TO_NEW)
   {
     if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
+    {
       first_meas_time_ = now;
+    }
     if (stamp > first_meas_time_)
     {
       int bestTimeIndex = getClosestTime(state_hist_ptr_, stamp);
       delta_vel = vel_meas - state_hist_ptr_->at(bestTimeIndex).second.block<3, 1>(VEL_IDX, 0);
     }
     else
+    {
       delta_vel = vel_meas - getVel();
+    }
     // cout << "UpToNew Vel: " << delta_vel << endl;
   }
   if (delay_handling_ == LARSON_AVERATE_IMU)
@@ -424,7 +442,9 @@ void ErrorStateKalmanFilter::measureQuat(
         quatFromHamilton(state_hist_ptr_->at(bestTimeIndex).second.block<4, 1>(QUAT_IDX, 0));
     }
     else
+    {
       q_gb_nominal = getQuat();
+    }
   }
   Quaterniond q_bNominal_bMeas = q_gb_nominal.conjugate() * q_gb_meas;
   Vector3d delta_theta = quatToRotVec(q_bNominal_bMeas);
@@ -439,36 +459,38 @@ void ErrorStateKalmanFilter::measureQuat(
 
 ErrorStateKalmanFilter::ImuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTime stamp)
 {
-  Vector3d accelAcc(0, 0, 0);
-  Vector3d gyroAcc(0, 0, 0);
-  int complete = 0;
+  Vector3d accel_acc(0, 0, 0);
+  Vector3d gyro_acc(0, 0, 0);
+  bool is_complete = false;
   int index = recent_ptr_;
   int count = 0;
-  while (!complete)
+
+  while (!is_complete)
   {
-    if (imu_hist_ptr_->at(index % buf_length_).time >= stamp)
-    {
-      if (!imu_hist_ptr_->at(index % buf_length_).time.isZero())
-      {
-        // should acc
-        accelAcc += imu_hist_ptr_->at(index % buf_length_).acc;
-        gyroAcc += imu_hist_ptr_->at(index % buf_length_).gyro;
-        count++;
-      }
-    }
-    else
+    if (imu_hist_ptr_->at(index % buf_length_).time < stamp)
     {
       break;
     }
-    index--;  // scroll back in time.
-    if (index <= recent_ptr_ - buf_length_)
-      complete = 1;
+
+    if (!imu_hist_ptr_->at(index % buf_length_).time.isZero())
+    {
+      // should acc
+      accel_acc += imu_hist_ptr_->at(index % buf_length_).acc;
+      gyro_acc += imu_hist_ptr_->at(index % buf_length_).gyro;
+      count++;
+    }
+
+    if (--index <= recent_ptr_ - buf_length_)
+    {
+      is_complete = true;
+    }
   }
-  accelAcc = accelAcc / count;
-  gyroAcc = gyroAcc / count;
+
+  accel_acc = accel_acc / count;
+  gyro_acc = gyro_acc / count;
   ErrorStateKalmanFilter::ImuMeasurement ret;
-  ret.acc = accelAcc;
-  ret.gyro = gyroAcc;
+  ret.acc = accel_acc;
+  ret.gyro = gyro_acc;
   ret.time = imu_hist_ptr_->at(index % buf_length_).time;
   return ret;
 }
