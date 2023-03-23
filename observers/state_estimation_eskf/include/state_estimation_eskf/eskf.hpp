@@ -33,18 +33,34 @@ class ErrorStateKalmanFilter
   using Scalar = Eigen::Matrix<double, 1, 1>;
 
 public:
+  enum DelayType
+  {
+    // apply updates  as if they are new.
+    noMethod,
+    // Keep buffer of states, calculate what the update would have been, and apply to current state.
+    applyUpdateToNew,
+    // Method as described by Larson et al. Though a buffer of IMU values is kept, and a single
+    // update taking the average of these values is used.
+    larsonAverageIMU,
+    // As above, though no buffer kept, use most recent value as representing the average.
+    larsonNewestIMU,
+    // As above, though the buffer is applied with the correct time steps, fully as described by
+    // Larson.
+    larsonFull,
+  };
+
   ErrorStateKalmanFilter();
 
   void initialize(
     Eigen::Vector3d a_gravity,
-    const StateVector& initialState,
-    const dStateMatrix& initalP,
+    const StateVector& init_state,
+    const dStateMatrix& init_P,
     double var_acc,
     double var_omega,
     double var_acc_bias,
     double var_omega_bias,
-    int delayHandling,
-    int bufferL);
+    DelayType delay_handling,
+    int buf_length);
 
   // Concatenates relevant vectors to one large vector.
   static StateVector makeState(
@@ -73,11 +89,11 @@ public:
   // Acessors of nominal state
   inline Eigen::Vector3d getPos() const
   {
-    return nominalState_.block<3, 1>(POS_IDX, 0);
+    return nominal_state_.block<3, 1>(POS_IDX, 0);
   }
   inline Eigen::Vector3d getVel() const
   {
-    return nominalState_.block<3, 1>(VEL_IDX, 0);
+    return nominal_state_.block<3, 1>(VEL_IDX, 0);
   }
   inline Eigen::Quaterniond getQuat() const
   {
@@ -85,11 +101,11 @@ public:
   }
   inline Eigen::Vector3d getAccelBias() const
   {
-    return nominalState_.block<3, 1>(AB_IDX, 0);
+    return nominal_state_.block<3, 1>(AB_IDX, 0);
   }
   inline Eigen::Vector3d getGyroBias() const
   {
-    return nominalState_.block<3, 1>(GB_IDX, 0);
+    return nominal_state_.block<3, 1>(GB_IDX, 0);
   }
 
   // Called when there is a new measurment from the IMU.
@@ -104,7 +120,7 @@ public:
   // Note that this has no body offset, i.e. it assumes exact observation of the center of the IMU.
   void measurePos(
     const Eigen::Vector3d& pos_meas,
-    const Eigen::Matrix3d& pos_covariance,
+    const Eigen::Matrix3d& pos_cov,
     lTime stamp,
     lTime now);
 
@@ -112,7 +128,7 @@ public:
   // Note that this has no body offset, i.e. it assumes exact observation of the center of the IMU.
   void measureVel(
     const Eigen::Vector3d& vel_meas,
-    const Eigen::Matrix3d& vel_covariance,
+    const Eigen::Matrix3d& vel_cov,
     lTime stamp,
     lTime now);
 
@@ -120,24 +136,12 @@ public:
   // The uncertianty is represented as the covariance of a rotation vector in the body frame
   void measureQuat(
     const Eigen::Quaterniond& q_meas,
-    const Eigen::Matrix3d& theta_covariance,
+    const Eigen::Matrix3d& theta_cov,
     lTime stamp,
     lTime now);
 
   Eigen::Matrix3d getDCM();
 
-  enum delayTypes
-  {
-    noMethod,          // apply updates  as if they are new.
-    applyUpdateToNew,  // Keep buffer of states, calculate what the update would have been, and
-                       // apply to current state.
-    larsonAverageIMU,  // Method as described by Larson et al. Though a buffer of IMU values is
-                       // kept, and a single update taking the average of these values is used.
-    larsonNewestIMU,   // As above, though no buffer kept, use most recent value as representing the
-                       // average.
-    larsonFull  // As above, though the buffer is applied with the correct time steps, fully as
-                // described by Larson.
-  };
   struct imuMeasurement
   {
     Eigen::Vector3d acc;
@@ -168,7 +172,7 @@ private:
   // クオータニオンをベクトルの形で得る．(w,x,y,z)の順であることに注意！x()などのメソッドでアクセスするとずれる！
   inline Eigen::Vector4d getQuatVector() const
   {
-    return nominalState_.block<4, 1>(QUAT_IDX, 0);
+    return nominal_state_.block<4, 1>(QUAT_IDX, 0);
   }
 
   // IMU Noise values, used in prediction
@@ -179,7 +183,7 @@ private:
   // Acceleration due to gravity in global frame
   Eigen::Vector3d a_gravity_;  // [m/s^2]
   // State vector of the filter
-  StateVector nominalState_;
+  StateVector nominal_state_;
   // Covariance of the (error) state
   dStateMatrix P_;
   // Jacobian of the state transition: page 59, eqn 269
@@ -187,15 +191,15 @@ private:
   // and update the dynamic parts in the predict function
   dStateMatrix F_x_;
 
-  int delayHandling_;
-  int bufferL_;
-  int recentPtr;
+  DelayType delay_handling_;
+  int buf_length_;
+  int recent_ptr_;
   // pointers to structures that are allocated only after choosing a time delay handling method.
-  std::vector<std::pair<lTime, StateVector>>* stateHistoryPtr_;
-  std::vector<std::pair<lTime, dStateMatrix>>* PHistoryPtr_;
-  std::vector<imuMeasurement>* imuHistoryPtr_;
-  imuMeasurement lastImu_;
-  lTime firstMeasTime;
-  lTime lastMeasurement;
-  dStateMatrix* Mptr;
+  std::vector<std::pair<lTime, StateVector>>* state_hist_ptr_;
+  std::vector<std::pair<lTime, dStateMatrix>>* P_hist_ptr_;
+  std::vector<imuMeasurement>* imu_hist_ptr_;
+  imuMeasurement last_imu_;
+  lTime first_meas_time_;
+  lTime last_meas_;
+  dStateMatrix* M_ptr_;
 };
