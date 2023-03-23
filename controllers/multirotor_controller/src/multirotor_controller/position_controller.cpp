@@ -20,10 +20,9 @@ void PositionController::update(
   const geometry_msgs::Point& pos_des,
   const geometry_msgs::Vector3& vel,
   const geometry_msgs::Vector3& vel_des,
-  multirotor_msgs::LinearAccel& acc_out)
+  geometry_msgs::Vector3& acc_out)
 {
-  const auto& acc_out_tmp = kp_ * (pos_des - pos) + kd_ * (vel_des - vel);
-  tf::Vector3ToLinearAccel(acc_out_tmp, acc_out);
+  acc_out = kp_ * (pos_des - pos) + kd_ * (vel_des - vel);
 }
 
 void PositionController::reconfigure(double natural_freq, double damp_ratio)

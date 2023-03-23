@@ -1,9 +1,7 @@
 #pragma once
 
+#include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Point.h>
-
-#include <multirotor_msgs/LinearVelocity.h>
-#include <multirotor_msgs/LinearAccel.h>
 
 class PositionController
 {
@@ -15,7 +13,7 @@ public:
     const geometry_msgs::Point& pos_des,
     const geometry_msgs::Vector3& vel,
     const geometry_msgs::Vector3& vel_des,
-    multirotor_msgs::LinearAccel& acc_out);
+    geometry_msgs::Vector3& acc_out);
 
   void reconfigure(double natural_freq, double damp_ratio);
 

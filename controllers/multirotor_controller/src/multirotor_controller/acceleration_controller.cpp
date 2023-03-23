@@ -29,15 +29,15 @@ void AccelerationController::updateInternalDataStructures()
 }
 
 void AccelerationController::update(
-  const multirotor_msgs::LinearAccel& acc_des,
+  const geometry_msgs::Vector3& acc_des,
   const double& yaw_des,
   double& U_out,
   double& roll_out,
   double& pitch_out)
 {
-  const double x = mass_ * acc_des.ax;
-  const double y = mass_ * acc_des.ay;
-  const double z = mass_ * (acc_des.az + GRAVITY);
+  const double x = mass_ * acc_des.x;
+  const double y = mass_ * acc_des.y;
+  const double z = mass_ * (acc_des.z + GRAVITY);
 
   const double cos_yaw = cos(yaw_des);
   const double sin_yaw = sin(yaw_des);

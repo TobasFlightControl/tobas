@@ -2,10 +2,10 @@
 
 #include <kdl/tree.hpp>
 #include <kdl/frames.hpp>
+#include <geometry_msgs/Vector3.h>
 
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
-#include <multirotor_msgs/LinearAccel.h>
 #include <multirotor_tools/rotor_property.hpp>
 
 class AccelerationController
@@ -16,7 +16,7 @@ public:
   void updateInternalDataStructures();
 
   void update(
-    const multirotor_msgs::LinearAccel& acc_des,
+    const geometry_msgs::Vector3& acc_des,
     const double& yaw_des,
     double& U_out,
     double& roll_out,
