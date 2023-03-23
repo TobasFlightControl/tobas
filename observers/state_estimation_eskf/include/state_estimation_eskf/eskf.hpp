@@ -36,17 +36,17 @@ public:
   enum DelayType
   {
     // apply updates  as if they are new.
-    noMethod,
+    NO_METHOD,
     // Keep buffer of states, calculate what the update would have been, and apply to current state.
-    applyUpdateToNew,
+    APPLY_UPDATE_TO_NEW,
     // Method as described by Larson et al. Though a buffer of IMU values is kept, and a single
     // update taking the average of these values is used.
-    larsonAverageIMU,
+    LARSON_AVERATE_IMU,
     // As above, though no buffer kept, use most recent value as representing the average.
-    larsonNewestIMU,
+    LARSON_NEWEST_IMU,
     // As above, though the buffer is applied with the correct time steps, fully as described by
     // Larson.
-    larsonFull,
+    LARSON_FULL,
   };
 
   struct ImuMeasurement
@@ -150,12 +150,35 @@ public:
   Eigen::Matrix3d getDCM();
 
 private:
+  double var_acc_;
+  double var_omega_;
+  double var_acc_bias_;
+  double var_omega_bias_;
+
+  Eigen::Vector3d a_grav_;     // Acceleration due to gravity in global frame [m/s^2]
+  StateVector nominal_state_;  // State vector of the filter
+  dStateMatrix P_;             // Covariance of the error state
+  dStateMatrix F_x_;           // Jacobian of the state transition
+
+  DelayType delay_handling_;
+  int buf_length_;
+  int recent_ptr_;
+  // pointers to structures that are allocated only after choosing a time delay handling method.
+  std::vector<std::pair<lTime, StateVector>>* state_hist_ptr_;
+  std::vector<std::pair<lTime, dStateMatrix>>* P_hist_ptr_;
+  std::vector<ImuMeasurement>* imu_hist_ptr_;
+  ImuMeasurement last_imu_;
+  lTime first_meas_time_;
+  lTime last_meas_;
+  dStateMatrix* M_ptr_;
+
   Eigen::Matrix<double, 4, 3> getQ_dtheta();  // eqn 280, page 62
 
-  void update_3D(
-    const Eigen::Vector3d& delta_measurement,
-    const Eigen::Matrix3d& meas_covariance,
-    const Eigen::Matrix<double, 3, dSTATE_SIZE>& H,
+  template <size_t M>
+  void correct(
+    const Eigen::Matrix<double, M, 1>& delta_meas,
+    const Eigen::Matrix<double, M, M>& meas_cov,
+    const Eigen::Matrix<double, M, dSTATE_SIZE>& H,
     lTime stamp,
     lTime now);
 
@@ -174,29 +197,77 @@ private:
   {
     return nominal_state_.block<4, 1>(QUAT_IDX, 0);
   }
-
-  // IMU Noise values, used in prediction
-  double var_acc_;
-  double var_omega_;
-  double var_acc_bias_;
-  double var_omega_bias_;
-  Eigen::Vector3d a_grav_;     // Acceleration due to gravity in global frame [m/s^2]
-  StateVector nominal_state_;  // State vector of the filter
-  dStateMatrix P_;             // Covariance of the error state
-  // Jacobian of the state transition: page 59, eqn 269
-  // Note that we precompute the static parts in the constructor,
-  // and update the dynamic parts in the predict function
-  dStateMatrix F_x_;
-
-  DelayType delay_handling_;
-  int buf_length_;
-  int recent_ptr_;
-  // pointers to structures that are allocated only after choosing a time delay handling method.
-  std::vector<std::pair<lTime, StateVector>>* state_hist_ptr_;
-  std::vector<std::pair<lTime, dStateMatrix>>* P_hist_ptr_;
-  std::vector<ImuMeasurement>* imu_hist_ptr_;
-  ImuMeasurement last_imu_;
-  lTime first_meas_time_;
-  lTime last_meas_;
-  dStateMatrix* M_ptr_;
 };
+
+template <size_t M>
+void ErrorStateKalmanFilter::correct(
+  const Eigen::Matrix<double, M, 1>& delta_meas,
+  const Eigen::Matrix<double, M, M>& meas_cov,
+  const Eigen::Matrix<double, M, dSTATE_SIZE>& H,
+  lTime stamp,
+  lTime now)
+{
+  // generate M matrix for time correction methods
+  int best_time_idx;
+  bool is_normal_pass = true;
+  if (delay_handling_ == LARSON_AVERATE_IMU)
+  {
+    if (stamp > first_meas_time_)
+    {
+      is_normal_pass = false;
+    }
+  }
+  if (delay_handling_ == LARSON_AVERATE_IMU && !is_normal_pass)
+  {
+    ImuMeasurement average_imu = getAverageIMU(stamp);
+    double dt = (now - stamp).toSec();
+    Eigen::Vector3d acc_body = average_imu.acc - getAccelBias();
+    Eigen::Vector3d omega = average_imu.gyro - getGyroBias();
+    Eigen::Vector3d delta_theta = omega * dt;
+    Eigen::Quaterniond q_delta_theta = rotVecToQuat(delta_theta);
+    Eigen::Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
+    best_time_idx = getClosestTime(state_hist_ptr_, stamp);
+
+    Eigen::Matrix3d Rot =
+      quatFromHamilton(state_hist_ptr_->at(best_time_idx).second.block<4, 1>(QUAT_IDX, 0)).matrix();
+    // dPos row
+    F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);  // = I_3 * _dt
+    // dVel row
+    F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
+    F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
+    // dTheta row
+    F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
+    F_x_.block<3, 3>(dTHETA_IDX, dGB_IDX).diagonal().fill(-dt);  // = -I_3 * dt;
+  }
+
+  // Kalman gain
+  Eigen::Matrix<double, dSTATE_SIZE, M> PHt = P_ * H.transpose();
+  Eigen::Matrix<double, dSTATE_SIZE, M> K;
+  if ((delay_handling_ == NO_METHOD || delay_handling_ == APPLY_UPDATE_TO_NEW
+       || delay_handling_ == LARSON_AVERATE_IMU))
+  {
+    K = PHt * (H * PHt + meas_cov).inverse();
+  }
+  if (delay_handling_ == LARSON_AVERATE_IMU && !is_normal_pass)
+  {
+    K = F_x_ * K;
+  }
+
+  // Correction error state
+  dStateVector errorState = K * delta_meas;
+
+  // Update P (simple form)
+  // P_ = (dStateMatrix::Identity() - K * H) * P_;
+  // Update P (Joseph form)
+  dStateMatrix I_KH = dStateMatrix::Identity() - K * H;
+  if (delay_handling_ == NO_METHOD || delay_handling_ == APPLY_UPDATE_TO_NEW)
+  {
+    P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();
+  }
+  if (delay_handling_ == LARSON_AVERATE_IMU && !is_normal_pass)
+  {
+    P_ = P_ - K * H * P_hist_ptr_->at(best_time_idx).second * F_x_;
+  }
+
+  injectErrorState(errorState);
+}

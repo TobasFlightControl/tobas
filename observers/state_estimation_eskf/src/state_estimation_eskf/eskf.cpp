@@ -51,7 +51,7 @@ void ErrorStateKalmanFilter::initialize(
   first_meas_time_ = lTime(INT32_MAX, INT32_MAX);
 
   // handle time delay methods
-  if (delay_handling_ == larsonAverageIMU || delay_handling_ == larsonFull)
+  if (delay_handling_ == LARSON_AVERATE_IMU || delay_handling_ == LARSON_FULL)
   {
     // init circular buffer for IMU
     imu_hist_ptr_ = new vector<ImuMeasurement>(buf_length_);
@@ -62,13 +62,13 @@ void ErrorStateKalmanFilter::initialize(
     }
     M_ptr_ = new dStateMatrix;
   }
-  if (delay_handling_ == larsonNewestIMU)
+  if (delay_handling_ == LARSON_NEWEST_IMU)
   {
     // init newest value
     last_imu_.time = lTime(0, 0);
     M_ptr_ = new dStateMatrix;
   }
-  if (delay_handling_ == applyUpdateToNew || delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == APPLY_UPDATE_TO_NEW || delay_handling_ == LARSON_AVERATE_IMU)
   {
     // init circular buffer for state
     state_hist_ptr_ = new vector<pair<lTime, StateVector>>(buf_length_);
@@ -165,7 +165,7 @@ void ErrorStateKalmanFilter::predictIMU(
 {
   recent_ptr_++;
   // handle time delay methods
-  if (delay_handling_ == larsonAverageIMU || delay_handling_ == larsonFull)
+  if (delay_handling_ == LARSON_AVERATE_IMU || delay_handling_ == LARSON_FULL)
   {
     // store the imu data for later.
     ImuMeasurement thisMeas;
@@ -174,7 +174,7 @@ void ErrorStateKalmanFilter::predictIMU(
     thisMeas.gyro = omega_m;
     imu_hist_ptr_->at(recent_ptr_ % buf_length_) = thisMeas;
   }
-  if (delay_handling_ == larsonNewestIMU)
+  if (delay_handling_ == LARSON_NEWEST_IMU)
   {
     // store only the newest imu
     ImuMeasurement thisMeas;
@@ -225,7 +225,7 @@ void ErrorStateKalmanFilter::predictIMU(
   P_.diagonal().block<3, 1>(dAB_IDX, 0).array() += var_acc_bias_ * dt;
   P_.diagonal().block<3, 1>(dGB_IDX, 0).array() += var_omega_bias_ * dt;
 
-  if (delay_handling_ == applyUpdateToNew || delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == APPLY_UPDATE_TO_NEW || delay_handling_ == LARSON_AVERATE_IMU)
   {
     // store state for later.
     pair<lTime, StateVector> thisState;
@@ -233,7 +233,7 @@ void ErrorStateKalmanFilter::predictIMU(
     thisState.second = nominal_state_;
     state_hist_ptr_->at(recent_ptr_ % buf_length_) = thisState;
   }
-  if (delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == LARSON_AVERATE_IMU)
   {
     pair<lTime, dStateMatrix> thisP;
     thisP.first = stamp;
@@ -319,13 +319,13 @@ void ErrorStateKalmanFilter::measurePos(
     first_meas_time_ = now;
 
   Vector3d delta_pos;
-  if (delay_handling_ == noMethod || delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
   {
     delta_pos = pos_meas - getPos();
-    // cout << "noMethod delta Pos: " << delta_pos << endl;
+    // cout << "NO_METHOD delta Pos: " << delta_pos << endl;
   }
 
-  if (delay_handling_ == applyUpdateToNew)
+  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
   {
     if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
       first_meas_time_ = now;
@@ -338,7 +338,7 @@ void ErrorStateKalmanFilter::measurePos(
       delta_pos = pos_meas - getPos();
     // cout << "UpToNew Pos: " << delta_pos << endl;
   }
-  if (delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == LARSON_AVERATE_IMU)
   {
     if (last_meas_ < imu_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).time)
       first_meas_time_ = now;
@@ -350,7 +350,7 @@ void ErrorStateKalmanFilter::measurePos(
   H.block<3, 3>(0, dPOS_IDX) = I_3;
 
   // Apply update
-  update_3D(delta_pos, pos_cov, H, stamp, now);
+  correct<3>(delta_pos, pos_cov, H, stamp, now);
 }
 
 void ErrorStateKalmanFilter::measureVel(
@@ -364,13 +364,13 @@ void ErrorStateKalmanFilter::measureVel(
     first_meas_time_ = now;
 
   Vector3d delta_vel;
-  if (delay_handling_ == noMethod || delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
   {
     delta_vel = vel_meas - getVel();
-    // cout << "noMethod delta Vel: " << delta_vel << endl;
+    // cout << "NO_METHOD delta Vel: " << delta_vel << endl;
   }
 
-  if (delay_handling_ == applyUpdateToNew)
+  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
   {
     if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
       first_meas_time_ = now;
@@ -383,7 +383,7 @@ void ErrorStateKalmanFilter::measureVel(
       delta_vel = vel_meas - getVel();
     // cout << "UpToNew Vel: " << delta_vel << endl;
   }
-  if (delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == LARSON_AVERATE_IMU)
   {
     if (last_meas_ < imu_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).time)
       first_meas_time_ = now;
@@ -395,7 +395,7 @@ void ErrorStateKalmanFilter::measureVel(
   H.block<3, 3>(0, dVEL_IDX) = I_3;
 
   // Apply update
-  update_3D(delta_vel, vel_cov, H, stamp, now);
+  correct<3>(delta_vel, vel_cov, H, stamp, now);
 }
 
 void ErrorStateKalmanFilter::measureQuat(
@@ -411,11 +411,11 @@ void ErrorStateKalmanFilter::measureQuat(
   if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
     first_meas_time_ = now;
   Quaterniond q_gb_nominal = getQuat();
-  if (delay_handling_ == noMethod || delay_handling_ == larsonAverageIMU)
+  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
   {
     q_gb_nominal = getQuat();
   }
-  if (delay_handling_ == applyUpdateToNew)
+  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
   {
     if (stamp > first_meas_time_)
     {
@@ -434,75 +434,7 @@ void ErrorStateKalmanFilter::measureQuat(
   H.block<3, 3>(0, dTHETA_IDX) = I_3;
 
   // Apply update
-  update_3D(delta_theta, theta_cov, H, stamp, now);
-}
-
-void ErrorStateKalmanFilter::update_3D(
-  const Vector3d& delta_measurement,
-  const Matrix3d& meas_covariance,
-  const Matrix<double, 3, dSTATE_SIZE>& H,
-  lTime stamp,
-  lTime now)
-{
-  // generate M matrix for time correction methods
-  int bestTimeIndex;
-  int normalPass = 1;
-  if (delay_handling_ == larsonAverageIMU)
-  {
-    if (stamp > first_meas_time_)
-      normalPass = 0;
-  }
-  if (delay_handling_ == larsonAverageIMU && !normalPass)
-  {
-    ImuMeasurement avMeas = getAverageIMU(stamp);
-    double dt = (now - stamp).toSec();
-    Vector3d acc_body = avMeas.acc - getAccelBias();
-    Vector3d omega = avMeas.gyro - getGyroBias();
-    Vector3d delta_theta = omega * dt;
-    Quaterniond q_delta_theta = rotVecToQuat(delta_theta);
-    Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
-    bestTimeIndex = getClosestTime(state_hist_ptr_, stamp);
-
-    Matrix3d Rot =
-      quatFromHamilton(state_hist_ptr_->at(bestTimeIndex).second.block<4, 1>(QUAT_IDX, 0)).matrix();
-    // dPos row
-    F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);  // = I_3 * _dt
-    // dVel row
-    F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
-    F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
-    // dTheta row
-    F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
-    F_x_.block<3, 3>(dTHETA_IDX, dGB_IDX).diagonal().fill(-dt);  // = -I_3 * dt;
-  }
-
-  // Kalman gain
-  Matrix<double, dSTATE_SIZE, 3> PHt = P_ * H.transpose();
-  Matrix<double, dSTATE_SIZE, 3> K;
-  if ((delay_handling_ == noMethod || delay_handling_ == applyUpdateToNew
-       || delay_handling_ == larsonAverageIMU))
-  {
-    K = PHt * (H * PHt + meas_covariance).inverse();
-  }
-  if (delay_handling_ == larsonAverageIMU && !normalPass)
-  {
-    K = F_x_ * K;
-  }
-  // Correction error state
-  dStateVector errorState = K * delta_measurement;
-  // Update P (simple form)
-  // P = (I_dx - K*H)*P;
-  // Update P (Joseph form)
-  dStateMatrix I_KH = I_dx - K * H;
-  if (delay_handling_ == noMethod || delay_handling_ == applyUpdateToNew)
-  {
-    P_ = I_KH * P_ * I_KH.transpose() + K * meas_covariance * K.transpose();
-  }
-  if (delay_handling_ == larsonAverageIMU && !normalPass)
-  {
-    P_ = P_ - K * H * P_hist_ptr_->at(bestTimeIndex).second * F_x_;
-  }
-
-  injectErrorState(errorState);
+  correct<3>(delta_theta, theta_cov, H, stamp, now);
 }
 
 ErrorStateKalmanFilter::ImuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTime stamp)

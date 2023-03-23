@@ -106,7 +106,7 @@ void ErrorStateKalmanFilterRos::initialize()
       sqr(1.) * I_3, sqr(0.1) * I_3, sqr(1.) * I_3, sqr(10 * 0.001 * 0.00124) * I_3,
       sqr(10 * 0.001 * 0.276) * I_3),
     sqr(0.00124), sqr(0.276), sqr(0.001 * 0.00124), sqr(0.001 * 0.276),  // TODO: センサデータを反映
-    ErrorStateKalmanFilter::DelayType::applyUpdateToNew, 100);  // TODO: 他のも試してみる
+    ErrorStateKalmanFilter::DelayType::APPLY_UPDATE_TO_NEW, 100);  // TODO: 他のも試してみる
 
   t_last_ = ros::Time::now();
 }
