@@ -18,8 +18,8 @@ PositionController::PositionController()
 void PositionController::update(
   const geometry_msgs::Point& pos,
   const geometry_msgs::Point& pos_des,
-  const multirotor_msgs::LinearVelocity& vel,
-  const multirotor_msgs::LinearVelocity& vel_des,
+  const geometry_msgs::Vector3& vel,
+  const geometry_msgs::Vector3& vel_des,
   multirotor_msgs::LinearAccel& acc_out)
 {
   const auto& acc_out_tmp = kp_ * (pos_des - pos) + kd_ * (vel_des - vel);

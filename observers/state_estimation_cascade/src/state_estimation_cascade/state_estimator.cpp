@@ -97,7 +97,7 @@ void StateEstimator::fillUnusedBuffers()
 
 void StateEstimator::advertisePublishers()
 {
-  posevel_pub_ = nh_.advertise<multirotor_msgs::PoseVel>("/estimated_state", 1);
+  posevel_pub_ = nh_.advertise<StateMsg>("/estimated_state", 1);
 }
 
 void StateEstimator::registerSubscribers()
@@ -239,12 +239,15 @@ void StateEstimator::setZeroPositions()
 
 void StateEstimator::updatePoseVelMsg()
 {
+  // 時刻
+  state_.header.stamp = ros::Time::now();
+
   // 位置
-  tf::pointEigenToMsg(cart_filter_.getPosition3D(), posevel_.pose.position);
+  tf::pointEigenToMsg(cart_filter_.getPosition3D(), state_.pose_vel.pose.position);
 
   // ロール，ピッチ
   const auto& quat = filtered_imu_buf_.getLatest().orientation;
-  auto& rpy = posevel_.pose.orientation;
+  auto& rpy = state_.pose_vel.pose.orientation;
   quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // ヨー
@@ -260,11 +263,11 @@ void StateEstimator::updatePoseVelMsg()
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // 並進速度
-  tf::linVelEigenToMsg(cart_filter_.getVelocity(), posevel_.twist.linear);
+  tf::vectorEigenToMsg(cart_filter_.getVelocity(), state_.pose_vel.twist.linear);
 
   // 回転速度
   const auto& imu = filtered_imu_buf_.getLatest();
-  tf::Vector3ToAngularVelocity(imu.angular_velocity, posevel_.twist.angular);
+  state_.pose_vel.twist.angular = imu.angular_velocity;
 }
 
 void StateEstimator::filteredImuCb(const ImuMsg& imu)
@@ -303,7 +306,7 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
 
   // 推定した状態を発行
   updatePoseVelMsg();
-  posevel_pub_.publish(posevel_);
+  posevel_pub_.publish(state_);
 }
 
 void StateEstimator::barometerCb(const BarMsg& bar)

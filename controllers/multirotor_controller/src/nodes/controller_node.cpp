@@ -12,12 +12,12 @@
 #include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/util.hpp>
 
+#include <multirotor_tools/rotor_property.hpp>
+#include <multirotor_msgs/PoseVelStamped.h>
+#include <multirotor_msgs/RotorSpeeds.h>
 #include <multirotor_msgs/Command.h>
 #include <multirotor_msgs/ControllerFeedback.h>
 #include <multirotor_controller/ControllerConfig.h>
-
-#include <multirotor_tools/rotor_property.hpp>
-#include <multirotor_msgs/RotorSpeeds.h>
 
 #include "../../include/multirotor_controller/position_controller.hpp"
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
@@ -73,7 +73,7 @@ private:
   void rotorVelsFromCtrlInput(const vector<double>& u, multirotor_msgs::RotorSpeeds& rotor_speeds);
   bool allMsgReceived();
 
-  void bsCb(const multirotor_msgs::PoseVel& msg);
+  void bsCb(const multirotor_msgs::PoseVelStamped& msg);
   void jsCb(const sensor_msgs::JointState& msg);
   void commandCb(const multirotor_msgs::Command& msg);
 
@@ -138,7 +138,7 @@ void Controller::runOnce()
   rpy_des.yaw = cmd_.target_yaw_angle;
 
   // TODO: 非ゼロの速度目標値を与える
-  multirotor_msgs::LinearVelocity vel_des;
+  geometry_msgs::Vector3 vel_des;
 
   // cout << bs_.pose.position << endl;
   // cout << pos_des << endl;
@@ -185,9 +185,9 @@ bool Controller::allMsgReceived()
   }
 }
 
-void Controller::bsCb(const multirotor_msgs::PoseVel& msg)
+void Controller::bsCb(const multirotor_msgs::PoseVelStamped& msg)
 {
-  bs_ = msg;
+  bs_ = msg.pose_vel;
 
   // トピックが揃っていたら，状態を観測するたびに一回だけ制御器を回す．
   if (allMsgReceived())

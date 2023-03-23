@@ -12,6 +12,7 @@
 #include <multirotor_msgs/WindSpeed.h>
 
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
+#include "../../include/multirotor_gazebo_plugins/first_order_filter.hpp"
 
 namespace gazebo
 {

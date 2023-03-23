@@ -1,2 +1,0 @@
-LinearVelocity linear
-AngularVelocity angular

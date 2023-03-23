@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+#include <boost/array.hpp>
 #include <gazebo/gazebo.hh>
 
 /**
@@ -35,52 +37,12 @@ bool allGreaterEqual(const ignition::math::Vector3<T>& v, T x)
   return v.X() >= x && v.Y() >= x && v.Z() >= x;
 }
 
+/* 3x3行列の対角要素を埋める． */
 template <typename T>
-class FirstOrderFilter
+void fillMatrix3Diag(boost::array<T, 9>& m, T v)
 {
-public:
-  FirstOrderFilter() : is_initialized_(false)
-  {
-  }
-
-  void initialize(double time_const_up, double time_const_down, T init_state)
-  {
-    time_const_up_ = time_const_up;
-    time_const_down_ = time_const_down;
-    prev_state_ = init_state;
-
-    is_initialized_ = true;
-  }
-
-  /**
-   * @brief This method will apply a first order filter on the input_state.
-   */
-  T updateFilter(T input_state, double sampling_time)
-  {
-    GZ_ASSERT(is_initialized_, "FirstOrderFilter is not initialized yet.");
-
-    T output_state_;
-    if (input_state > prev_state_)
-    {
-      // Calcuate the output_state_ if accelerating.
-      double alpha_up = exp(-sampling_time / time_const_up_);
-      // x(k+1) = Ad*x(k) + Bd*u(k)
-      output_state_ = alpha_up * prev_state_ + (1 - alpha_up) * input_state;
-    }
-    else
-    {
-      // Calculate the output_state_ if decelerating.
-      double alphaDown = exp(-sampling_time / time_const_down_);
-      output_state_ = alphaDown * prev_state_ + (1 - alphaDown) * input_state;
-    }
-    prev_state_ = output_state_;
-    return output_state_;
-  }
-
-private:
-  bool is_initialized_;
-  double time_const_up_;
-  double time_const_down_;
-  T prev_state_;
-};
+  m[0] = v;
+  m[4] = v;
+  m[8] = v;
+}
 }  // namespace gazebo

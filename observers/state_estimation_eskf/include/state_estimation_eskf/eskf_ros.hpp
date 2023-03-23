@@ -7,7 +7,7 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <multirotor_msgs/PoseVel.h>
+#include <multirotor_msgs/PoseVelStamped.h>
 
 #include "./eskf.hpp"
 
@@ -18,6 +18,7 @@ class ErrorStateKalmanFilterRos
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
+  using StateMsg = multirotor_msgs::PoseVelStamped;
 
 public:
   ErrorStateKalmanFilterRos(ros::NodeHandle& nh);
@@ -39,12 +40,12 @@ private:
   bool bar_subscribed_;
   bool gps_subscribed_;
   bool vel_subscribed_;
-  ImuMsg imu_;                        // IMUの観測値
-  MagMsg mag_;                        // 磁気センサの観測値
-  BarMsg bar_;                        // 気圧センサの観測値
-  GpsMsg gps_;                        // GPS位置の観測値
-  VelMsg vel_;                        // GPS速度の観測値
-  multirotor_msgs::PoseVel posevel_;  // 発行する状態
+  ImuMsg imu_;      // IMUの観測値
+  MagMsg mag_;      // 磁気センサの観測値
+  BarMsg bar_;      // 気圧センサの観測値
+  GpsMsg gps_;      // GPS位置の観測値
+  VelMsg vel_;      // GPS速度の観測値
+  StateMsg state_;  // 発行する状態
 
   Eigen::Vector3d a_m_;
   Eigen::Vector3d w_m_;

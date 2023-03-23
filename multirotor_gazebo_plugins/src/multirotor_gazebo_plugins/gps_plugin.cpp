@@ -2,8 +2,10 @@
 
 #include "../../include/multirotor_gazebo_plugins/gps_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
+#include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
 using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
@@ -124,11 +126,10 @@ void GazeboGpsPlugin::updatePosition()
   common::Time cur_time = world_->SimTime();
 
   // Get the position in the world frame
-  ignition::math::Vector3 pos = link_->WorldPose().Pos();
+  Vector3 pos = link_->WorldPose().Pos();
 
   // Apply noise to the position
-  pos += ignition::math::Vector3d(
-    pos_noise_[0](rnd_gen_), pos_noise_[1](rnd_gen_), pos_noise_[2](rnd_gen_));
+  pos += Vector3d(pos_noise_[0](rnd_gen_), pos_noise_[1](rnd_gen_), pos_noise_[2](rnd_gen_));
 
   // Fill the GPS message
   pos_msg_.header.stamp.sec = cur_time.sec;
@@ -144,18 +145,14 @@ void GazeboGpsPlugin::updateVelocity()
   common::Time cur_time = world_->SimTime();
 
   // Get the linear velocity in the world frame
-  ignition::math::Vector3d vel = link_->WorldLinearVel();
+  Vector3d vel = link_->WorldLinearVel();
 
   // Apply noise to ground speed
-  vel += ignition::math::Vector3d(
-    vel_noise_[0](rnd_gen_), vel_noise_[1](rnd_gen_), vel_noise_[2](rnd_gen_));
+  vel += Vector3d(vel_noise_[0](rnd_gen_), vel_noise_[1](rnd_gen_), vel_noise_[2](rnd_gen_));
 
   // Fill the ground speed message.
-  vel_msg_.header.stamp.sec = cur_time.sec;
-  vel_msg_.header.stamp.nsec = cur_time.nsec;
-  vel_msg_.vel.vel.vx = vel.X();
-  vel_msg_.vel.vel.vy = vel.Y();
-  vel_msg_.vel.vel.vz = vel.Z();
+  timeGazeboToRos(cur_time, vel_msg_.header.stamp);
+  linvelGazeboToRos(vel, vel_msg_.vel.vel);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboGpsPlugin);

@@ -137,7 +137,7 @@ void RotationController::updateX(const multirotor_msgs::PoseVel& bs)
 {
   const auto& r = bs.pose.orientation;
   const auto& w = bs.twist.angular;
-  x_ << r.roll, r.pitch, r.yaw, w.wx, w.wy, w.wz;
+  x_ << r.roll, r.pitch, r.yaw, w.x, w.y, w.z;
 }
 
 void RotationController::updateS(

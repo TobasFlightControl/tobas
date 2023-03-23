@@ -1,10 +1,12 @@
 #include "../../include/multirotor_gazebo_plugins/imu_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
+#include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
 #define GRAVITY 9.80665
-#define ZERO_3 (ignition::math::Vector3d(0., 0., 0.))
+#define ZERO_3 (Vector3d(0., 0., 0.))
 
 using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
@@ -98,10 +100,7 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
     sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma);
 }
 
-void GazeboImuPlugin::addNoise(
-  ignition::math::Vector3d& lin_acc,
-  ignition::math::Vector3d& ang_vel,
-  double dt)
+void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
 {
   // Gyrosocpe
   double tau_g = gyro_bias_corr_time_;
@@ -144,36 +143,24 @@ void GazeboImuPlugin::onUpdate(const common::UpdateInfo&)
   last_time_ = cur_time;
 
   // Get linear acceleration and angular velocity from simulation
-  ignition::math::Pose3d T_W_B = link_->WorldPose();
-  ignition::math::Quaterniond R_W_B = T_W_B.Rot();
-  ignition::math::Vector3d acc_B =
-    link_->RelativeLinearAccel() - R_W_B.RotateVectorReverse(gravity_W_);
-  ignition::math::Vector3d angvel_B = link_->RelativeAngularVel();
+  Pose3d T_W_B = link_->WorldPose();
+  Quaterniond R_W_B = T_W_B.Rot();
+  Vector3d acc_B = link_->RelativeLinearAccel() - R_W_B.RotateVectorReverse(gravity_W_);
+  Vector3d gyro_B = link_->RelativeAngularVel();
 
   // Add noise to the true values
-  addNoise(acc_B, angvel_B, dt);
+  addNoise(acc_B, gyro_B, dt);
 
   // Fill IMU message.
-  imu_msg_.header.stamp.sec = cur_time.sec;
-  imu_msg_.header.stamp.nsec = cur_time.nsec;
-
-  imu_msg_.linear_acceleration.x = acc_B[0];
-  imu_msg_.linear_acceleration.y = acc_B[1];
-  imu_msg_.linear_acceleration.z = acc_B[2];
-
-  imu_msg_.angular_velocity.x = angvel_B[0];
-  imu_msg_.angular_velocity.y = angvel_B[1];
-  imu_msg_.angular_velocity.z = angvel_B[2];
+  timeGazeboToRos(cur_time, imu_msg_.header.stamp);
+  vectorGazeboToRos(acc_B, imu_msg_.linear_acceleration);
+  vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
 
   double acc_var = sqr(acc_noise_density_) / dt;
-  imu_msg_.linear_acceleration_covariance[0] = acc_var;
-  imu_msg_.linear_acceleration_covariance[4] = acc_var;
-  imu_msg_.linear_acceleration_covariance[8] = acc_var;
+  fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
-  double angvel_var = sqr(gyro_noise_density_) / dt;
-  imu_msg_.angular_velocity_covariance[0] = angvel_var;
-  imu_msg_.angular_velocity_covariance[4] = angvel_var;
-  imu_msg_.angular_velocity_covariance[8] = angvel_var;
+  double gyro_var = sqr(gyro_noise_density_) / dt;
+  fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
   imu_pub_.publish(imu_msg_);

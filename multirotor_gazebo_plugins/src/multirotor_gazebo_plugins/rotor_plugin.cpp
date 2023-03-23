@@ -1,9 +1,11 @@
 #include "../../include/multirotor_gazebo_plugins/rotor_plugin.hpp"
+#include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
 #define CW -1
 #define CCW 1
 
 using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
@@ -149,32 +151,31 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   double thrust = direction_ * real_motor_vel_sign * motor_constant_ * sqr(real_motor_vel);
 
   // Apply a force to the link.
-  link_->AddRelativeForce(ignition::math::Vector3d(0., 0., thrust));
+  link_->AddRelativeForce(Vector3d(0., 0., thrust));
 
   // Forces from Philppe Martin's and Erwan Salaün's
   // 2010 IEEE Conference on Robotics and Automation paper
   // The True Role of Accelerometer Feedback in Quadrotor Control
   // - \omega * \lambda_1 * V_A^{\perp}
-  ignition::math::Vector3d joint_axis = joint_->GlobalAxis(0);
-  ignition::math::Vector3d body_vel_W = link_->WorldLinearVel();
-  ignition::math::Vector3d relative_wind_vel_W = body_vel_W - wind_speed_W_;
-  ignition::math::Vector3d body_vel_perpendicular =
+  Vector3d joint_axis = joint_->GlobalAxis(0);
+  Vector3d body_vel_W = link_->WorldLinearVel();
+  Vector3d relative_wind_vel_W = body_vel_W - wind_speed_W_;
+  Vector3d body_vel_perpendicular =
     relative_wind_vel_W - (relative_wind_vel_W.Dot(joint_axis) * joint_axis);
-  ignition::math::Vector3d air_drag =
-    -abs(real_motor_vel) * rotor_drag_coef_ * body_vel_perpendicular;
+  Vector3d air_drag = -abs(real_motor_vel) * rotor_drag_coef_ * body_vel_perpendicular;
 
   // Apply air_drag to link.
   link_->AddForce(air_drag);
   // Moments get the parent link, such that the resulting torques can be applied.
   physics::Link_V parent_links = link_->GetParentJointsLinks();
   // The tansformation from the parent_link to the link_.
-  ignition::math::Pose3d pose_diff = link_->WorldCoGPose() - parent_links.at(0)->WorldCoGPose();
-  ignition::math::Vector3d drag_torque(0., 0., -direction_ * thrust * moment_constant_);
+  Pose3d pose_diff = link_->WorldCoGPose() - parent_links.at(0)->WorldCoGPose();
+  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_constant_);
   // Transforming the drag torque into the parent frame to handle arbitrary rotor orientations.
-  ignition::math::Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);
+  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);
   parent_links.at(0)->AddRelativeTorque(drag_torque_parent_frame);
 
-  ignition::math::Vector3d rolling_moment;
+  Vector3d rolling_moment;
   // - \omega * \mu_1 * V_A^{\perp}
   rolling_moment = -abs(real_motor_vel) * roll_moment_coef_ * body_vel_perpendicular;
   parent_links.at(0)->AddTorque(rolling_moment);
@@ -201,9 +202,7 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)
 {
   // TODO: Transform velocity to world frame if frame_id is set to something else.
-  wind_speed_W_.X() = wind.velocity.x;
-  wind_speed_W_.Y() = wind.velocity.y;
-  wind_speed_W_.Z() = wind.velocity.z;
+  vectorRosToGazebo(wind.velocity, wind_speed_W_);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRotorPlugin);

@@ -13,8 +13,8 @@ public:
   void update(
     const geometry_msgs::Point& pos,
     const geometry_msgs::Point& pos_des,
-    const multirotor_msgs::LinearVelocity& vel,
-    const multirotor_msgs::LinearVelocity& vel_des,
+    const geometry_msgs::Vector3& vel,
+    const geometry_msgs::Vector3& vel_des,
     multirotor_msgs::LinearAccel& acc_out);
 
   void reconfigure(double natural_freq, double damp_ratio);

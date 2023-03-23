@@ -304,57 +304,22 @@ class _GpsSensorPlugin(ET.Element):
         ET.SubElement(plugin, "longitudeZero").text = f'{longitude_0}'
 
 
-class ImuModelGT(ET.Element):
+class GroundTruthStateModel(ET.Element):
 
-    def __init__(self, drone_name: str, link_name: str) -> None:
+    def __init__(
+        self,
+        drone_name: str,
+        link_name: str,
+    ) -> None:
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "libdh_gazebo_imu_plugin.so"
-        plugin.attrib["name"] = "dh_gazebo_imu_gt_plugin"
+        plugin.attrib["filename"] = "libdh_gazebo_ground_truth_state_plugin.so"
+        plugin.attrib["name"] = "dh_gazebo_ground_truth_state_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = drone_name
         ET.SubElement(plugin, "linkName").text = link_name
-        ET.SubElement(plugin, "imuTopic").text = "ground_truth/imu"
-        ET.SubElement(plugin, "gyroscopeNoiseDensity").text = "0."
-        ET.SubElement(plugin, "gyroscopeRandomWalk").text = "0."
-        ET.SubElement(plugin, "gyroscopeBiasCorrelationTime").text = "1000."
-        ET.SubElement(plugin, "gyroscopeTurnOnBiasSigma").text = "0."
-        ET.SubElement(plugin, "accelerometerNoiseDensity").text = "0."
-        ET.SubElement(plugin, "accelerometerRandomWalk").text = "0."
-        ET.SubElement(plugin, "accelerometerBiasCorrelationTime").text = "300."
-        ET.SubElement(plugin, "accelerometerTurnOnBiasSigma").text = "0."
-
-
-class OdometryModelGT(ET.Element):
-
-    def __init__(self, drone_name: str, root_link: str) -> None:
-        super().__init__("gazebo")
-
-        plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "librotors_gazebo_odometry_plugin.so"
-        plugin.attrib["name"] = "rotors_gazebo_odometry_gt_plugin"
-
-        ET.SubElement(plugin, "robotNamespace").text = drone_name
-        ET.SubElement(plugin, "linkName").text = root_link
-        ET.SubElement(plugin, "poseTopic").text = "ground_truth/pose"
-        ET.SubElement(plugin, "poseWithCovarianceTopic").text = "ground_truth/pose_with_covariance"
-        ET.SubElement(plugin, "positionTopic").text = "ground_truth/position"
-        ET.SubElement(plugin, "transformTopic").text = "ground_truth/transform"
-        ET.SubElement(plugin, "odometryTopic").text = "ground_truth/odometry"
-        ET.SubElement(plugin, "parentFrameId").text = "world"
-        ET.SubElement(plugin, "childFrameId").text = root_link
-        ET.SubElement(plugin, "measurementDivisor").text = "1"
-        ET.SubElement(plugin, "measurementDelay").text = "0"
-        ET.SubElement(plugin, "unknownDelay").text = "0."
-        ET.SubElement(plugin, "noiseNormalPosition").text = "0 0 0"
-        ET.SubElement(plugin, "noiseNormalQuaternion").text = "0 0 0"
-        ET.SubElement(plugin, "noiseNormalLinearVelocity").text = "0 0 0"
-        ET.SubElement(plugin, "noiseNormalAngularVelocity").text = "0 0 0"
-        ET.SubElement(plugin, "noiseUniformPosition").text = "0 0 0"
-        ET.SubElement(plugin, "noiseUniformQuaternion").text = "0 0 0"
-        ET.SubElement(plugin, "noiseUniformLinearVelocity").text = "0 0 0"
-        ET.SubElement(plugin, "noiseUniformAngularVelocity").text = "0 0 0"
+        ET.SubElement(plugin, "stateTopic").text = "ground_truth/base_state"
 
 
 class GazeboRosControlModel(ET.Element):

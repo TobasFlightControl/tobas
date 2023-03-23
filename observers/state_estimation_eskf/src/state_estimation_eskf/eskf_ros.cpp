@@ -34,7 +34,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh)
     gps_subscribed_(false),
     vel_subscribed_(false)
 {
-  posevel_pub_ = nh.advertise<multirotor_msgs::PoseVel>("/estimated_state", 1);
+  posevel_pub_ = nh.advertise<StateMsg>("/estimated_state", 1);
 
   imu_sub_ = nh.subscribe("/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
   mag_sub_ = nh.subscribe("/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
@@ -119,16 +119,18 @@ void ErrorStateKalmanFilterRos::initialize()
 
 void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 {
-  tf::pointEigenToMsg(eskf_.getPosition3D(), posevel_.pose.position);
+  state_.header.stamp = ros::Time::now();
+
+  tf::pointEigenToMsg(eskf_.getPosition3D(), state_.pose_vel.pose.position);
 
   auto q = eskf_.getQuaternion();
-  auto& rpy = posevel_.pose.orientation;
+  auto& rpy = state_.pose_vel.pose.orientation;
   quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
 
-  tf::linVelEigenToMsg(eskf_.getVelocity(), posevel_.twist.linear);
+  tf::vectorEigenToMsg(eskf_.getVelocity(), state_.pose_vel.twist.linear);
 
   Vector3d w = w_m_ - eskf_.getGyroBias();
-  tf::angVelEigenToMsg(w, posevel_.twist.angular);
+  tf::vectorEigenToMsg(w, state_.pose_vel.twist.angular);
 }
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
@@ -159,7 +161,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   // eskf_.predictIMU(Vector3d(0, 0, GRAVITY), Vector3d::Zero(), diff.toSec(), stamp);
 
   updatePoseVelMsg();
-  posevel_pub_.publish(posevel_);
+  posevel_pub_.publish(state_);
 }
 
 void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)

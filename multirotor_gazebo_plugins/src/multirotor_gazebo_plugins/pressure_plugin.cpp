@@ -1,5 +1,6 @@
 #include "../../include/multirotor_gazebo_plugins/pressure_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
+#include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
 using namespace std;
 
@@ -94,8 +95,7 @@ void GazeboPressurePlugin::onUpdate(const common::UpdateInfo&)
   pressure_at_altitude_pascal += pressure_noise_(rnd_gen_);
 
   // Fill the pressure message
-  pressure_msg_.header.stamp.sec = cur_time.sec;
-  pressure_msg_.header.stamp.nsec = cur_time.nsec;
+  timeGazeboToRos(cur_time, pressure_msg_.header.stamp);
   pressure_msg_.fluid_pressure = pressure_at_altitude_pascal;
 
   // Publish the pressure message

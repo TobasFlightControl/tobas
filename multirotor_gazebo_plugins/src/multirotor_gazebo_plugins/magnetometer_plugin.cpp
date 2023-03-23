@@ -1,9 +1,11 @@
 #include "../../include/multirotor_gazebo_plugins/magnetometer_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
+#include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
 #define ZERO_3 (SdfVector3(0., 0., 0.))
 
 using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
@@ -42,7 +44,7 @@ void GazeboMagnetometerPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf
     UniformDistribution(-noise_uniform_initial_bias_.Z(), noise_uniform_initial_bias_.Z());
 
   // Initialize the reference magnetic field vector in NWU world frame
-  mag_NWU_ = ignition::math::Vector3d(
+  mag_NWU_ = Vector3d(
     ref_mag_north_ + initial_bias[0](rnd_gen_), -ref_mag_east_ + initial_bias[1](rnd_gen_),
     -ref_mag_down_ + initial_bias[2](rnd_gen_));
 
@@ -104,21 +106,18 @@ void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboMagnetometerPlugin::onUpdate(const common::UpdateInfo&)
 {
   // Get the current pose and time from Gazebo
-  ignition::math::Pose3d T_W_B = link_->WorldPose();
+  Pose3d T_W_B = link_->WorldPose();
   common::Time cur_time = world_->SimTime();
 
   // Calculate the magnetic field noise
-  ignition::math::Vector3d mag_noise(noise_[0](rnd_gen_), noise_[1](rnd_gen_), noise_[2](rnd_gen_));
+  Vector3d mag_noise(noise_[0](rnd_gen_), noise_[1](rnd_gen_), noise_[2](rnd_gen_));
 
   // Rotate the earth magnetic field into the inertial frame
-  ignition::math::Vector3d field_B = T_W_B.Rot().RotateVectorReverse(mag_NWU_ + mag_noise);
+  Vector3d field_B = T_W_B.Rot().RotateVectorReverse(mag_NWU_ + mag_noise);
 
   // Fill the magnetic field message
-  mag_msg_.header.stamp.sec = cur_time.sec;
-  mag_msg_.header.stamp.nsec = cur_time.nsec;
-  mag_msg_.magnetic_field.x = field_B.X();
-  mag_msg_.magnetic_field.y = field_B.Y();
-  mag_msg_.magnetic_field.z = field_B.Z();
+  timeGazeboToRos(cur_time, mag_msg_.header.stamp);
+  vectorGazeboToRos(field_B, mag_msg_.magnetic_field);
 
   // Publish the message
   mag_pub_.publish(mag_msg_);

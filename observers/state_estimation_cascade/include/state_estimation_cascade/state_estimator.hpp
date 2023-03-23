@@ -10,7 +10,7 @@
 #include <dh_std_tools/buffer.hpp>
 
 #include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <multirotor_msgs/PoseVel.h>
+#include <multirotor_msgs/PoseVelStamped.h>
 
 #include "./cartesian_filter.hpp"
 
@@ -20,6 +20,7 @@ class StateEstimator
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
+  using StateMsg = multirotor_msgs::PoseVelStamped;
 
 public:
   StateEstimator(ros::NodeHandle& nh);
@@ -45,7 +46,7 @@ private:
   dh_std::Buffer<BarMsg> bar_buf_;           // 気圧センサの観測値
   dh_std::Buffer<GpsMsg> gps_pos_buf_;       // GPS位置の観測値
   dh_std::Buffer<VelMsg> gps_vel_buf_;       // GPS速度の観測値
-  multirotor_msgs::PoseVel posevel_;         // 発行する状態
+  StateMsg state_;                           // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数

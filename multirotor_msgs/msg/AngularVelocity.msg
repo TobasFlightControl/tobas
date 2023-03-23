@@ -1,3 +1,3 @@
-float64 wx
-float64 wy
-float64 wz
+float64 wx  # [rad/s]
+float64 wy  # [rad/s]
+float64 wz  # [rad/s]
