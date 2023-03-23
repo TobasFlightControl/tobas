@@ -3,7 +3,7 @@
 
 #define SQ(x) (x * x)
 #define I_3 (Matrix3d::Identity())
-#define I_dx (Matrix<double, dSTATE_SIZE, dSTATE_SIZE>::Identity())
+#define I_dx (dStateMatrix::Identity())
 
 using namespace std;
 using namespace Eigen;
@@ -14,8 +14,8 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 
 void ErrorStateKalmanFilter::initialize(
   Eigen::Vector3d a_gravity,
-  const Eigen::Matrix<double, STATE_SIZE, 1>& initialState,
-  const Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE>& initalP,
+  const StateVector& initialState,
+  const dStateMatrix& initalP,
   double var_acc,
   double var_omega,
   double var_acc_bias,
@@ -55,23 +55,23 @@ void ErrorStateKalmanFilter::initialize(
   {
     // init circular buffer for IMU
     imuHistoryPtr_ = new vector<imuMeasurement>(bufferL_);
-    PHistoryPtr_ = new vector<pair<lTime, Matrix<double, dSTATE_SIZE, dSTATE_SIZE>>>(bufferL);
+    PHistoryPtr_ = new vector<pair<lTime, dStateMatrix>>(bufferL);
     for (int i = 0; i < bufferL; i++)
     {
       imuHistoryPtr_->at(i).time = lTime(0, 0);
     }
-    Mptr = new Matrix<double, dSTATE_SIZE, dSTATE_SIZE>;
+    Mptr = new dStateMatrix;
   }
   if (delayHandling_ == larsonNewestIMU)
   {
     // init newest value
     lastImu_.time = lTime(0, 0);
-    Mptr = new Matrix<double, dSTATE_SIZE, dSTATE_SIZE>;
+    Mptr = new dStateMatrix;
   }
   if (delayHandling_ == applyUpdateToNew || delayHandling_ == larsonAverageIMU)
   {
     // init circular buffer for state
-    stateHistoryPtr_ = new vector<pair<lTime, Matrix<double, STATE_SIZE, 1>>>(bufferL_);
+    stateHistoryPtr_ = new vector<pair<lTime, StateVector>>(bufferL_);
     for (int i = 0; i < bufferL; i++)
     {
       stateHistoryPtr_->at(i).first = lTime(0, 0);
@@ -86,7 +86,7 @@ Matrix<double, STATE_SIZE, 1> ErrorStateKalmanFilter::makeState(
   const Vector3d& a_b,
   const Vector3d& omega_b)
 {
-  Matrix<double, STATE_SIZE, 1> out;
+  StateVector out;
   out << p, v, quatToHamilton(q).normalized(), a_b, omega_b;
   return out;
 }
@@ -98,7 +98,7 @@ Matrix<double, dSTATE_SIZE, dSTATE_SIZE> ErrorStateKalmanFilter::makeP(
   const Matrix3d& cov_a_b,
   const Matrix3d& cov_omega_b)
 {
-  Matrix<double, dSTATE_SIZE, dSTATE_SIZE> P;
+  dStateMatrix P;
   P.setZero();
   P.block<3, 3>(dPOS_IDX, dPOS_IDX) = cov_pos;
   P.block<3, 3>(dVEL_IDX, dVEL_IDX) = cov_vel;
@@ -216,7 +216,7 @@ void ErrorStateKalmanFilter::predictIMU(
   // Predict P and inject variance (with diagonal optimization)
   // P_ = F_x_*P_*F_x_.transpose();
 
-  Matrix<double, dSTATE_SIZE, dSTATE_SIZE> Pnew;
+  dStateMatrix Pnew;
   unrolledFPFt(P_, Pnew, dt, -Rot * getSkew(acc_body) * dt, -Rot * dt, R_delta_theta.transpose());
   P_ = Pnew;
 
@@ -229,14 +229,14 @@ void ErrorStateKalmanFilter::predictIMU(
   if (delayHandling_ == applyUpdateToNew || delayHandling_ == larsonAverageIMU)
   {
     // store state for later.
-    pair<lTime, Matrix<double, STATE_SIZE, 1>> thisState;
+    pair<lTime, StateVector> thisState;
     thisState.first = stamp;
     thisState.second = nominalState_;
     stateHistoryPtr_->at(recentPtr % bufferL_) = thisState;
   }
   if (delayHandling_ == larsonAverageIMU)
   {
-    pair<lTime, Matrix<double, dSTATE_SIZE, dSTATE_SIZE>> thisP;
+    pair<lTime, dStateMatrix> thisP;
     thisP.first = stamp;
     thisP.second = P_;
     PHistoryPtr_->at(recentPtr % bufferL_) = thisP;
@@ -258,9 +258,7 @@ Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
 }
 
 // get best time from history of state
-int ErrorStateKalmanFilter::getClosestTime(
-  vector<pair<lTime, Matrix<double, STATE_SIZE, 1>>>* ptr,
-  lTime stamp)
+int ErrorStateKalmanFilter::getClosestTime(vector<pair<lTime, StateVector>>* ptr, lTime stamp)
 {
   // we find the first time in the history that is older, or take the oldest one if the buffer does
   // not extend far enough
@@ -492,11 +490,11 @@ void ErrorStateKalmanFilter::update_3D(
     K = F_x_ * K;
   }
   // Correction error state
-  Matrix<double, dSTATE_SIZE, 1> errorState = K * delta_measurement;
+  dStateVector errorState = K * delta_measurement;
   // Update P (simple form)
   // P = (I_dx - K*H)*P;
   // Update P (Joseph form)
-  Matrix<double, dSTATE_SIZE, dSTATE_SIZE> I_KH = I_dx - K * H;
+  dStateMatrix I_KH = I_dx - K * H;
   if (delayHandling_ == noMethod || delayHandling_ == applyUpdateToNew)
   {
     P_ = I_KH * P_ * I_KH.transpose() + K * meas_covariance * K.transpose();
@@ -545,7 +543,7 @@ ErrorStateKalmanFilter::imuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTi
   return ret;
 }
 
-void ErrorStateKalmanFilter::injectErrorState(const Matrix<double, dSTATE_SIZE, 1>& error_state)
+void ErrorStateKalmanFilter::injectErrorState(const dStateVector& error_state)
 {  // Inject error state into nominal state (eqn 282, pg 62)
   nominalState_.block<3, 1>(POS_IDX, 0) += error_state.block<3, 1>(dPOS_IDX, 0);
   nominalState_.block<3, 1>(VEL_IDX, 0) += error_state.block<3, 1>(dVEL_IDX, 0);

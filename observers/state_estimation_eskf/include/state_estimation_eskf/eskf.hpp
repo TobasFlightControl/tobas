@@ -26,13 +26,19 @@
 // the main ESKF class
 class ErrorStateKalmanFilter
 {
+  using StateMatrix = Eigen::Matrix<double, STATE_SIZE, STATE_SIZE>;
+  using StateVector = Eigen::Matrix<double, STATE_SIZE, 1>;
+  using dStateMatrix = Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE>;
+  using dStateVector = Eigen::Matrix<double, dSTATE_SIZE, 1>;
+  using Scalar = Eigen::Matrix<double, 1, 1>;
+
 public:
   ErrorStateKalmanFilter();
 
   void initialize(
     Eigen::Vector3d a_gravity,
-    const Eigen::Matrix<double, STATE_SIZE, 1>& initialState,
-    const Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE>& initalP,
+    const StateVector& initialState,
+    const dStateMatrix& initalP,
     double var_acc,
     double var_omega,
     double var_acc_bias,
@@ -41,14 +47,14 @@ public:
     int bufferL);
 
   // Concatenates relevant vectors to one large vector.
-  static Eigen::Matrix<double, STATE_SIZE, 1> makeState(
+  static StateVector makeState(
     const Eigen::Vector3d& p,
     const Eigen::Vector3d& v,
     const Eigen::Quaterniond& q,
     const Eigen::Vector3d& a_b,
     const Eigen::Vector3d& omega_b);
   // Inserts relevant parts of the block-diagonal of the P matrix
-  static Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE> makeP(
+  static dStateMatrix makeP(
     const Eigen::Matrix3d& cov_pos,
     const Eigen::Matrix3d& cov_vel,
     const Eigen::Matrix3d& cov_dtheta,
@@ -65,23 +71,23 @@ public:
   static Eigen::Matrix3d getSkew(const Eigen::Vector3d& in);
 
   // Acessors of nominal state
-  inline Eigen::Vector3d getPos()
+  inline Eigen::Vector3d getPos() const
   {
     return nominalState_.block<3, 1>(POS_IDX, 0);
   }
-  inline Eigen::Vector3d getVel()
+  inline Eigen::Vector3d getVel() const
   {
     return nominalState_.block<3, 1>(VEL_IDX, 0);
   }
-  inline Eigen::Quaterniond getQuat()
+  inline Eigen::Quaterniond getQuat() const
   {
     return quatFromHamilton(getQuatVector());
   }
-  inline Eigen::Vector3d getAccelBias()
+  inline Eigen::Vector3d getAccelBias() const
   {
     return nominalState_.block<3, 1>(AB_IDX, 0);
   }
-  inline Eigen::Vector3d getGyroBias()
+  inline Eigen::Vector3d getGyroBias() const
   {
     return nominalState_.block<3, 1>(GB_IDX, 0);
   }
@@ -141,25 +147,26 @@ public:
 
 private:
   Eigen::Matrix<double, 4, 3> getQ_dtheta();  // eqn 280, page 62
+
   void update_3D(
     const Eigen::Vector3d& delta_measurement,
     const Eigen::Matrix3d& meas_covariance,
     const Eigen::Matrix<double, 3, dSTATE_SIZE>& H,
     lTime stamp,
     lTime now);
-  void injectErrorState(const Eigen::Matrix<double, dSTATE_SIZE, 1>& error_state);
+
+  void injectErrorState(const dStateVector& error_state);
 
   // get best time from history of state
-  int getClosestTime(
-    std::vector<std::pair<lTime, Eigen::Matrix<double, STATE_SIZE, 1>>>* ptr,
-    lTime stamp);
+  int getClosestTime(std::vector<std::pair<lTime, StateVector>>* ptr, lTime stamp);
 
   // get best time from history of imu
   int getClosestTime(std::vector<imuMeasurement>* ptr, lTime stamp);
+
   imuMeasurement getAverageIMU(lTime stamp);
 
   // クオータニオンをベクトルの形で得る．(w,x,y,z)の順であることに注意！x()などのメソッドでアクセスするとずれる！
-  inline Eigen::Vector4d getQuatVector()
+  inline Eigen::Vector4d getQuatVector() const
   {
     return nominalState_.block<4, 1>(QUAT_IDX, 0);
   }
@@ -172,23 +179,23 @@ private:
   // Acceleration due to gravity in global frame
   Eigen::Vector3d a_gravity_;  // [m/s^2]
   // State vector of the filter
-  Eigen::Matrix<double, STATE_SIZE, 1> nominalState_;
+  StateVector nominalState_;
   // Covariance of the (error) state
-  Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE> P_;
+  dStateMatrix P_;
   // Jacobian of the state transition: page 59, eqn 269
   // Note that we precompute the static parts in the constructor,
   // and update the dynamic parts in the predict function
-  Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE> F_x_;
+  dStateMatrix F_x_;
 
   int delayHandling_;
   int bufferL_;
   int recentPtr;
   // pointers to structures that are allocated only after choosing a time delay handling method.
-  std::vector<std::pair<lTime, Eigen::Matrix<double, STATE_SIZE, 1>>>* stateHistoryPtr_;
-  std::vector<std::pair<lTime, Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE>>>* PHistoryPtr_;
+  std::vector<std::pair<lTime, StateVector>>* stateHistoryPtr_;
+  std::vector<std::pair<lTime, dStateMatrix>>* PHistoryPtr_;
   std::vector<imuMeasurement>* imuHistoryPtr_;
   imuMeasurement lastImu_;
   lTime firstMeasTime;
   lTime lastMeasurement;
-  Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE>* Mptr;
+  dStateMatrix* Mptr;
 };
