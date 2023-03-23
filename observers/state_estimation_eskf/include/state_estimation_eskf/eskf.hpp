@@ -49,10 +49,17 @@ public:
     larsonFull,
   };
 
+  struct ImuMeasurement
+  {
+    Eigen::Vector3d acc;
+    Eigen::Vector3d gyro;
+    lTime time;
+  };
+
   ErrorStateKalmanFilter();
 
   void initialize(
-    Eigen::Vector3d a_gravity,
+    Eigen::Vector3d a_grav,
     const StateVector& init_state,
     const dStateMatrix& init_P,
     double var_acc,
@@ -142,13 +149,6 @@ public:
 
   Eigen::Matrix3d getDCM();
 
-  struct imuMeasurement
-  {
-    Eigen::Vector3d acc;
-    Eigen::Vector3d gyro;
-    lTime time;
-  };
-
 private:
   Eigen::Matrix<double, 4, 3> getQ_dtheta();  // eqn 280, page 62
 
@@ -165,9 +165,9 @@ private:
   int getClosestTime(std::vector<std::pair<lTime, StateVector>>* ptr, lTime stamp);
 
   // get best time from history of imu
-  int getClosestTime(std::vector<imuMeasurement>* ptr, lTime stamp);
+  int getClosestTime(std::vector<ImuMeasurement>* ptr, lTime stamp);
 
-  imuMeasurement getAverageIMU(lTime stamp);
+  ImuMeasurement getAverageIMU(lTime stamp);
 
   // クオータニオンをベクトルの形で得る．(w,x,y,z)の順であることに注意！x()などのメソッドでアクセスするとずれる！
   inline Eigen::Vector4d getQuatVector() const
@@ -180,12 +180,9 @@ private:
   double var_omega_;
   double var_acc_bias_;
   double var_omega_bias_;
-  // Acceleration due to gravity in global frame
-  Eigen::Vector3d a_gravity_;  // [m/s^2]
-  // State vector of the filter
-  StateVector nominal_state_;
-  // Covariance of the (error) state
-  dStateMatrix P_;
+  Eigen::Vector3d a_grav_;     // Acceleration due to gravity in global frame [m/s^2]
+  StateVector nominal_state_;  // State vector of the filter
+  dStateMatrix P_;             // Covariance of the error state
   // Jacobian of the state transition: page 59, eqn 269
   // Note that we precompute the static parts in the constructor,
   // and update the dynamic parts in the predict function
@@ -197,8 +194,8 @@ private:
   // pointers to structures that are allocated only after choosing a time delay handling method.
   std::vector<std::pair<lTime, StateVector>>* state_hist_ptr_;
   std::vector<std::pair<lTime, dStateMatrix>>* P_hist_ptr_;
-  std::vector<imuMeasurement>* imu_hist_ptr_;
-  imuMeasurement last_imu_;
+  std::vector<ImuMeasurement>* imu_hist_ptr_;
+  ImuMeasurement last_imu_;
   lTime first_meas_time_;
   lTime last_meas_;
   dStateMatrix* M_ptr_;

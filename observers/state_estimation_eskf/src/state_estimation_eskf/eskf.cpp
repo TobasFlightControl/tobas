@@ -13,7 +13,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  Eigen::Vector3d a_gravity,
+  Vector3d a_grav,
   const StateVector& init_state,
   const dStateMatrix& init_P,
   double var_acc,
@@ -27,7 +27,7 @@ void ErrorStateKalmanFilter::initialize(
   var_omega_ = var_omega;
   var_acc_bias_ = var_acc_bias;
   var_omega_bias_ = var_omega_bias;
-  a_gravity_ = a_gravity;
+  a_grav_ = a_grav;
   nominal_state_ = init_state;
   P_ = init_P;
 
@@ -54,7 +54,7 @@ void ErrorStateKalmanFilter::initialize(
   if (delay_handling_ == larsonAverageIMU || delay_handling_ == larsonFull)
   {
     // init circular buffer for IMU
-    imu_hist_ptr_ = new vector<imuMeasurement>(buf_length_);
+    imu_hist_ptr_ = new vector<ImuMeasurement>(buf_length_);
     P_hist_ptr_ = new vector<pair<lTime, dStateMatrix>>(buf_length);
     for (int i = 0; i < buf_length; i++)
     {
@@ -168,7 +168,7 @@ void ErrorStateKalmanFilter::predictIMU(
   if (delay_handling_ == larsonAverageIMU || delay_handling_ == larsonFull)
   {
     // store the imu data for later.
-    imuMeasurement thisMeas;
+    ImuMeasurement thisMeas;
     thisMeas.time = stamp;
     thisMeas.acc = a_m;
     thisMeas.gyro = omega_m;
@@ -177,7 +177,7 @@ void ErrorStateKalmanFilter::predictIMU(
   if (delay_handling_ == larsonNewestIMU)
   {
     // store only the newest imu
-    imuMeasurement thisMeas;
+    ImuMeasurement thisMeas;
     thisMeas.time = stamp;
     thisMeas.acc = a_m;
     thisMeas.gyro = omega_m;
@@ -196,9 +196,9 @@ void ErrorStateKalmanFilter::predictIMU(
   Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // Nominal state kinematics (eqn 259, pg 58)
-  Vector3d delta_pos = getVel() * dt + 0.5f * (acc_global + a_gravity_) * dt * dt;
+  Vector3d delta_pos = getVel() * dt + 0.5f * (acc_global + a_grav_) * dt * dt;
   nominal_state_.block<3, 1>(POS_IDX, 0) += delta_pos;
-  nominal_state_.block<3, 1>(VEL_IDX, 0) += (acc_global + a_gravity_) * dt;
+  nominal_state_.block<3, 1>(VEL_IDX, 0) += (acc_global + a_grav_) * dt;
   nominal_state_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(getQuat() * q_delta_theta).normalized();
 
   // // Jacobian of the state transition (eqn 269, page 59)
@@ -283,7 +283,7 @@ int ErrorStateKalmanFilter::getClosestTime(vector<pair<lTime, StateVector>>* ptr
 }
 
 // get best time from history of imu
-int ErrorStateKalmanFilter::getClosestTime(vector<imuMeasurement>* ptr, lTime stamp)
+int ErrorStateKalmanFilter::getClosestTime(vector<ImuMeasurement>* ptr, lTime stamp)
 {
   // we find the first time in the history that is older, or take the oldest one if the buffer does
   // not extend far enough
@@ -454,7 +454,7 @@ void ErrorStateKalmanFilter::update_3D(
   }
   if (delay_handling_ == larsonAverageIMU && !normalPass)
   {
-    imuMeasurement avMeas = getAverageIMU(stamp);
+    ImuMeasurement avMeas = getAverageIMU(stamp);
     double dt = (now - stamp).toSec();
     Vector3d acc_body = avMeas.acc - getAccelBias();
     Vector3d omega = avMeas.gyro - getGyroBias();
@@ -505,7 +505,7 @@ void ErrorStateKalmanFilter::update_3D(
   injectErrorState(errorState);
 }
 
-ErrorStateKalmanFilter::imuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTime stamp)
+ErrorStateKalmanFilter::ImuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTime stamp)
 {
   Vector3d accelAcc(0, 0, 0);
   Vector3d gyroAcc(0, 0, 0);
@@ -534,7 +534,7 @@ ErrorStateKalmanFilter::imuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTi
   }
   accelAcc = accelAcc / count;
   gyroAcc = gyroAcc / count;
-  ErrorStateKalmanFilter::imuMeasurement ret;
+  ErrorStateKalmanFilter::ImuMeasurement ret;
   ret.acc = accelAcc;
   ret.gyro = gyroAcc;
   ret.time = imu_hist_ptr_->at(index % buf_length_).time;
