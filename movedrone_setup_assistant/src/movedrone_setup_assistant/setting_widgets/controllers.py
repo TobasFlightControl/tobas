@@ -92,6 +92,7 @@ class LMPCSettingsWidget(QWidget):
         self.natural_freq = ParamGetterWidget_DoubleSpinBox(
             "position_controller/natural_frequency",
             natural_freq_description,
+            decimals=2,
             minimum=0.1,
             default=1.,
             suffix=" Hz",
@@ -102,6 +103,7 @@ class LMPCSettingsWidget(QWidget):
         self.damp_ratio = ParamGetterWidget_DoubleSpinBox(
             "position_controller/damping_ratio",
             damp_ratio_description,
+            decimals=2,
             minimum=math.sqrt(0.5),
             default=1.,
         )
@@ -111,9 +113,11 @@ class LMPCSettingsWidget(QWidget):
         self.pred_horizon = ParamGetterWidget_DoubleSpinBox(
             "rotation_controller/prediction_horizon",
             pred_horizon_description,
+            decimals=2,
             minimum=0.1,
             maximum=3.,
             default=1.,
+            suffix=" s",
         )
         self._rows.addWidget(self.pred_horizon)
 
@@ -131,9 +135,11 @@ class LMPCSettingsWidget(QWidget):
         self.rot_decay = ParamGetterWidget_DoubleSpinBox(
             "rotation_controller/decay/rotation",
             rot_decay_description,
+            decimals=2,
             minimum=0.,
             maximum=1.,
             default=0.2,
+            suffix=" s",
         )
         self._rows.addWidget(self.rot_decay)
 
@@ -141,9 +147,11 @@ class LMPCSettingsWidget(QWidget):
         self.angvel_decay = ParamGetterWidget_DoubleSpinBox(
             "rotation_controller/decay/angular_velocity",
             angvel_decay_description,
+            decimals=2,
             minimum=0.,
             maximum=1.,
             default=0.,
+            suffix=" s",
         )
         self._rows.addWidget(self.angvel_decay)
 

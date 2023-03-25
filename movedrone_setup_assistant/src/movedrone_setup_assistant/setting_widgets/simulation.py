@@ -20,30 +20,35 @@ class SimulationWidget(BaseSettingWidget):
 
         latitude_0_description = "TODO: instruction"
         self.latitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "Latitude of origin [deg]",
+            "Latitude of origin",
             latitude_0_description,
+            decimals=6,
             minimum=-90.,
             maximum=+90.,
             default=35.658099,    # 日本: 北緯35度39分29秒
+            suffix=" deg",
         )
         self._rows.addWidget(self.latitude_0)
 
         longitude_0_description = "TODO: instruction"
         self.longitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "longitude of origin [deg]",
+            "longitude of origin",
             longitude_0_description,
+            decimals=6,
             minimum=-180.,
             maximum=+180.,
             default=139.741354,  # 日本: 東経139度44分28秒8759
+            suffix=" deg",
         )
         self._rows.addWidget(self.longitude_0)
 
         altitude_0_description = "TODO: instruction"
         self.altitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "altitude above sea level [m]",
+            "altitude above sea level",
             altitude_0_description,
-            minimum=0.,
-            default=24.3900,  # 日本水準原点: https://www.gsi.go.jp/sokuchikijun/suijun-base.html
+            decimals=3,
+            default=24.39,  # 日本水準原点: https://www.gsi.go.jp/sokuchikijun/suijun-base.html
+            suffix=" m",
         )
         self._rows.addWidget(self.altitude_0)
 
@@ -52,25 +57,28 @@ class SimulationWidget(BaseSettingWidget):
 
         ref_mag_north_description = "TODO: instruction"
         self.ref_mag_north = ParamGetterWidget_SpinBox(
-            "Reference North Magnetic Field Strength [nT]",
+            "Reference North Magnetic Field Strength",
             ref_mag_north_description,
             default=30031,
+            suffix=" nT",
         )
         self._rows.addWidget(self.ref_mag_north)
 
         ref_mag_east_description = "TODO: instruction"
         self.ref_mag_east = ParamGetterWidget_SpinBox(
-            "Reference East Magnetic Field Strength [nT]",
+            "Reference East Magnetic Field Strength",
             ref_mag_east_description,
             default=-4116,
+            suffix=" nT",
         )
         self._rows.addWidget(self.ref_mag_east)
 
         ref_mag_down_description = "TODO: instruction"
         self.ref_mag_down = ParamGetterWidget_SpinBox(
-            "Reference Down Magnetic Field Strength [nT]",
+            "Reference Down Magnetic Field Strength",
             ref_mag_down_description,
             default=35615,
+            suffix=" nT",
         )
         self._rows.addWidget(self.ref_mag_down)
 

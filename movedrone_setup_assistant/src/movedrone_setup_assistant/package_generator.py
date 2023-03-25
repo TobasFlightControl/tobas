@@ -216,8 +216,8 @@ class PackageGenerator(QWidget):
                 "moment_constant": propellers_widget.moment_consts[i].value(),
                 "rotor_drag_coefficient": propellers_widget.drag_coefs[i].value(),
                 "rolling_moment_coefficient": propellers_widget.rolling_coefs[i].value(),
-                "time_constant_up": propellers_widget.time_consts_up[i].value(),
-                "time_constant_down": propellers_widget.time_consts_down[i].value(),
+                "time_constant_up": propellers_widget.time_consts_up[i].value() * 1e-3,
+                "time_constant_down": propellers_widget.time_consts_down[i].value() * 1e-3,
                 "pin": propellers_widget.pins[i].value(),
                 "pwm_period": {
                     "min": propellers_widget.min_pwm_periods[i].value(),
