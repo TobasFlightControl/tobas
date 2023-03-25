@@ -7,9 +7,6 @@
 
 #include "../../include/state_estimation_cascade/cartesian_filter.hpp"
 
-#define I_3 (Matrix3d::Identity())
-#define I_X (Matrix<double, STATE_SIZE, STATE_SIZE>::Identity())
-
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
@@ -27,12 +24,11 @@ void CartesianFilter::initialize(
   const Matrix3d& pos_cov,
   const Matrix3d& vel_cov,
   const Matrix3d& acc_cov,
-  const double& grav_var)
+  const int& grav_var_exp)
 {
   assert(eigen_tools::isSymmetric(pos_cov) && eigen_tools::isPositive(pos_cov));
   assert(eigen_tools::isSymmetric(vel_cov) && eigen_tools::isPositive(vel_cov));
   assert(eigen_tools::isSymmetric(acc_cov) && eigen_tools::isPositive(acc_cov));
-  assert(grav_var > 0.);
 
   x_.block(POS_IDX, 0, 3, 1) = init_pos;
   x_.block(VEL_IDX, 0, 3, 1) = init_vel;
@@ -40,21 +36,20 @@ void CartesianFilter::initialize(
   x_.block(GRAV_IDX, 0, 3, 1) = init_grav;
 
   constexpr double dt = 1e-2;  // 適当な離散時間
-  const Matrix3d I_dt = I_3 * dt;
 
   A_.setIdentity();
-  A_.block(POS_IDX, VEL_IDX, 3, 3) = I_dt;
-  A_.block(VEL_IDX, ACC_IDX, 3, 3) = I_dt;
-  A_.block(VEL_IDX, GRAV_IDX, 3, 3) = I_dt;
+  A_.block(POS_IDX, VEL_IDX, 3, 3).diagonal().fill(dt);
+  A_.block(VEL_IDX, ACC_IDX, 3, 3).diagonal().fill(dt);
+  A_.block(VEL_IDX, GRAV_IDX, 3, 3).diagonal().fill(dt);
 
   B_.setZero();
-  B_.block(ACC_IDX, 0, 3, 3) = I_dt;
-  B_.block(GRAV_IDX, 3, 3, 3) = I_dt;
+  B_.block(ACC_IDX, 0, 3, 3).diagonal().fill(dt);
+  B_.block(GRAV_IDX, 3, 3, 3).diagonal().fill(dt);
 
   C_.setZero();
-  C_.block(POS_IDX, POS_IDX, 3, 3) = I_3;
-  C_.block(VEL_IDX, VEL_IDX, 3, 3) = I_3;
-  C_.block(ACC_IDX, ACC_IDX, 3, 3) = I_3;
+  C_.block(POS_IDX, POS_IDX, 3, 3).diagonal().fill(1.);
+  C_.block(VEL_IDX, VEL_IDX, 3, 3).diagonal().fill(1.);
+  C_.block(ACC_IDX, ACC_IDX, 3, 3).diagonal().fill(1.);
 
   // 可制御性と可観測性を保証 (実際は可安定性と可検出性で十分)
   assert(isControllable(A_, B_));
@@ -64,7 +59,8 @@ void CartesianFilter::initialize(
   Q_.block(0, 0, 3, 3) = acc_cov;
   // 重力ベクトルの外乱は非常に小さいはず
   // システムを駆動するために適当な微小値を入れておく
-  Q_.block(3, 3, 3, 3) = I_3 * sqr(grav_var);
+  double grav_var = pow(10, grav_var_exp);
+  Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 
   Matrix<double, OUT_SIZE, OUT_SIZE> R;
   R.setZero();
@@ -75,18 +71,22 @@ void CartesianFilter::initialize(
   P_ = dare(A_.transpose(), C_.transpose(), B_ * Q_ * B_.transpose(), R, DareMethod::Joseph);
 }
 
+void CartesianFilter::reconfigure(const int& grav_var_exp)
+{
+  double grav_var = pow(10, grav_var_exp);
+  Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
+}
+
 void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& acc_cov, double dt)
 {
   assert(dt >= 0.);
 
-  const Matrix3d I_dt = I_3 * dt;
-
-  A_.block(POS_IDX, VEL_IDX, 3, 3) = I_dt;
+  A_.block(POS_IDX, VEL_IDX, 3, 3).diagonal().fill(dt);
   A_.block(VEL_IDX, ACC_IDX, 3, 3) = quat.toRotationMatrix() * dt;
-  A_.block(VEL_IDX, GRAV_IDX, 3, 3) = I_dt;
+  A_.block(VEL_IDX, GRAV_IDX, 3, 3).diagonal().fill(dt);
 
-  B_.block(ACC_IDX, 0, 3, 3) = I_dt;
-  B_.block(GRAV_IDX, 3, 3, 3) = I_dt;
+  B_.block(ACC_IDX, 0, 3, 3).diagonal().fill(dt);
+  B_.block(GRAV_IDX, 3, 3, 3).diagonal().fill(dt);
 
   Q_.block(0, 0, 3, 3) = acc_cov;
 

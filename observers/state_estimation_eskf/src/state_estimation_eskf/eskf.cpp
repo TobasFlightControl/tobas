@@ -2,9 +2,7 @@
 #include "../../include/state_estimation_eskf/unrolled_joseph.hpp"
 
 #define SQ(x) (x * x)
-#define I_2 (Matrix2d::Identity())
 #define I_3 (Matrix3d::Identity())
-#define I_dx (dStateMatrix::Identity())
 
 using namespace std;
 using namespace Eigen;
@@ -36,14 +34,14 @@ void ErrorStateKalmanFilter::initialize(
   // Precompute constant part only
   F_x_.setZero();
   // dPos row
-  F_x_.block<3, 3>(dPOS_IDX, dPOS_IDX) = I_3;
+  F_x_.block<3, 3>(dPOS_IDX, dPOS_IDX).diagonal().fill(1.);
   // dVel row
-  F_x_.block<3, 3>(dVEL_IDX, dVEL_IDX) = I_3;
+  F_x_.block<3, 3>(dVEL_IDX, dVEL_IDX).diagonal().fill(1.);
   // dTheta row
   // dAccelBias row
-  F_x_.block<3, 3>(dAB_IDX, dAB_IDX) = I_3;
+  F_x_.block<3, 3>(dAB_IDX, dAB_IDX).diagonal().fill(1.);
   // dGyroBias row
-  F_x_.block<3, 3>(dGB_IDX, dGB_IDX) = I_3;
+  F_x_.block<3, 3>(dGB_IDX, dGB_IDX).diagonal().fill(1.);
 
   // how to handle delayed messurements.
   delay_handling_ = delay_handling;
@@ -369,7 +367,7 @@ void ErrorStateKalmanFilter::measurePosition3D(
   // H is a trivial observation of purely the position
   Matrix<double, 3, dSTATE_SIZE> H;
   H.setZero();
-  H.block<3, 3>(0, dPOS_IDX) = I_3;
+  H.block<3, 3>(0, dPOS_IDX).diagonal().fill(1.);
 
   // Apply update
   correct<3>(delta_pos, pos_cov, H, stamp, now);
@@ -421,7 +419,7 @@ void ErrorStateKalmanFilter::measurePosition2D(
   // H is a trivial observation of purely the position
   Matrix<double, 2, dSTATE_SIZE> H;
   H.setZero();
-  H.block<2, 2>(0, dPOS_IDX) = I_2;
+  H.block<2, 2>(0, dPOS_IDX).diagonal().fill(1.);
 
   // Apply update
   correct<2>(delta_xy, xy_cov, H, stamp, now);
@@ -525,7 +523,7 @@ void ErrorStateKalmanFilter::measureVelocity(
   // H is a trivial observation of purely the velocity
   Matrix<double, 3, dSTATE_SIZE> H;
   H.setZero();
-  H.block<3, 3>(0, dVEL_IDX) = I_3;
+  H.block<3, 3>(0, dVEL_IDX).diagonal().fill(1.);
 
   // Apply update
   correct<3>(delta_vel, vel_cov, H, stamp, now);
@@ -570,7 +568,7 @@ void ErrorStateKalmanFilter::measureQuaternion(
   // Because of the above construction, H is a trivial observation of dtheta
   Matrix<double, 3, dSTATE_SIZE> H;
   H.setZero();
-  H.block<3, 3>(0, dTHETA_IDX) = I_3;
+  H.block<3, 3>(0, dTHETA_IDX).diagonal().fill(1.);
 
   // Apply update
   correct<3>(delta_theta, theta_cov, H, stamp, now);

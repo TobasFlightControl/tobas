@@ -1,8 +1,9 @@
 #pragma once
 
+#include <ros/ros.h>
+#include <dynamic_reconfigure/server.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
@@ -11,6 +12,7 @@
 
 #include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
 #include <multirotor_msgs/PoseVelStamped.h>
+#include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
 #include "./cartesian_filter.hpp"
 
@@ -21,6 +23,9 @@ class StateEstimator
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
   using StateMsg = multirotor_msgs::PoseVelStamped;
+
+  using ConfigType = state_estimation_cascade::StateEstimationCascadeConfig;
+  using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
   StateEstimator(ros::NodeHandle& nh);
@@ -53,15 +58,20 @@ private:
 
   CartesianFilter cart_filter_;
 
+  // PubSub
   ros::Publisher posevel_pub_;
   ros::Subscriber filtered_imu_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_pos_sub_;
   ros::Subscriber gps_vel_sub_;
 
+  // Dynamic Reconfigure
+  ConfigServer server_;
+
   void fillUnusedBuffers();
   void advertisePublishers();
   void registerSubscribers();
+  void setDynamicReconfigure();
   bool allMsgReceived();
   bool initDataCollected();
   void initialize();
@@ -72,4 +82,6 @@ private:
   void barometerCb(const BarMsg& bar);
   void gpsPositionCb(const GpsMsg& gps);
   void gpsVelocityCb(const VelMsg& vel);
+
+  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };

@@ -21,7 +21,8 @@
  */
 class Controller
 {
-  using ConfigServer = dynamic_reconfigure::Server<multirotor_controller::ControllerConfig>;
+  using ConfigType = multirotor_controller::ControllerConfig;
+  using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
   explicit Controller(ros::NodeHandle& nh);
@@ -67,5 +68,5 @@ private:
   void jsCb(const sensor_msgs::JointState& msg);
   void commandCb(const multirotor_msgs::Command& msg);
 
-  void dynamicReconfigureCb(const multirotor_controller::ControllerConfig& cfg, uint32_t level);
+  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };

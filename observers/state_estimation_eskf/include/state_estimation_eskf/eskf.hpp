@@ -249,13 +249,13 @@ void ErrorStateKalmanFilter::correct(
     Eigen::Matrix3d Rot =
       quatFromHamilton(state_hist_ptr_->at(best_time_idx).second.block<4, 1>(QUAT_IDX, 0)).matrix();
     // dPos row
-    F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);  // = I_3 * _dt
+    F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);
     // dVel row
     F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
     F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
     // dTheta row
     F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
-    F_x_.block<3, 3>(dTHETA_IDX, dGB_IDX).diagonal().fill(-dt);  // = -I_3 * dt;
+    F_x_.block<3, 3>(dTHETA_IDX, dGB_IDX).diagonal().fill(-dt);
   }
 
   // Kalman gain

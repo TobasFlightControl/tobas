@@ -39,6 +39,7 @@ StateEstimator::StateEstimator(ros::NodeHandle& nh)
   fillUnusedBuffers();
   advertisePublishers();
   registerSubscribers();
+  setDynamicReconfigure();
 }
 
 void StateEstimator::fillUnusedBuffers()
@@ -118,6 +119,12 @@ void StateEstimator::registerSubscribers()
   {
     gps_vel_sub_ = nh_.subscribe("/ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
   }
+}
+
+void StateEstimator::setDynamicReconfigure()
+{
+  ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 bool StateEstimator::allMsgReceived()
@@ -206,7 +213,7 @@ void StateEstimator::initialize()
     Vector3d(gps_cov[0], gps_cov[4], z_var).asDiagonal(),      // init position covariance
     Map<Matrix3d>(vel.vel.covariance.data()),                  // init velocity covariance
     Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc covariance
-    dh_ros::getParam<double>("~variance/gravity")              // init gravity variance
+    dh_ros::getParam<int>("~gravity_variance_exp")             // init gravity variance
   );
 
   t_last_ = ros::Time::now();
@@ -360,4 +367,9 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   cart_filter_.measureVelocity(v_m_, cov);
+}
+
+void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+{
+  cart_filter_.reconfigure(cfg.gravity_variance_exp);
 }

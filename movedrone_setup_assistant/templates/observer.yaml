@@ -13,8 +13,7 @@ state_estimator_cascade:
   use_barometer: true  # TODO: アプリから選択
   use_gps_position: true  # TODO: アプリから選択
   use_gps_velocity: true  # TODO: アプリから選択
-  variance:
-    gravity: 10.  # TODO: アプリから選択
+  gravity_variance_exp: 2  # TODO: アプリから選択
 
 imu_complementary_filter:
   ref_mag_north: {{ ref_mag_north }}

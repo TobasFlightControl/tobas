@@ -166,9 +166,7 @@ void Controller::commandCb(const multirotor_msgs::Command& msg)
   cmd_subscribed_ = true;
 }
 
-void Controller::dynamicReconfigureCb(
-  const multirotor_controller::ControllerConfig& cfg,
-  uint32_t level)
+void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
   pos_controller_.reconfigure(cfg.natural_frequency, cfg.damping_ratio);
   rot_controller_.reconfigure(
