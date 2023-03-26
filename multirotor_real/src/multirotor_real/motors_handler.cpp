@@ -20,17 +20,12 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh)
 
   for (const auto& rotor_prop : rotor_props_)
   {
-    uint32_t pin = rotor_prop.pin;
+    const uint32_t& pin = rotor_prop.pin;
     uint32_t channel = getChannel(pin);
 
     if (!pwm_.initialize(channel))
     {
       throw dh_ros::RuntimeError("Failed to initialize RC output for PIN" + to_string(pin) + ".");
-    }
-
-    if (!pwm_.set_frequency(channel, PWM_FREQ))
-    {
-      throw dh_ros::RuntimeError("Failed to set PWM frequency at PIN" + to_string(pin) + ".");
     }
 
     if (!pwm_.enable(channel))
@@ -76,9 +71,13 @@ void MotorsHandler::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_spee
       angvel = dh_std::clamp(angvel, 0., prop.max_velocity);
     }
 
+    const uint32_t& pin = prop.pin;
     double period =
       dh_std::remap(angvel, 0., prop.max_velocity, prop.pwm_range.lower, prop.pwm_range.upper);
 
-    pwm_.set_duty_cycle(getChannel(prop.pin), period);
+    if (!pwm_.set_duty_cycle(getChannel(pin), period))
+    {
+      throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");
+    }
   }
 }
