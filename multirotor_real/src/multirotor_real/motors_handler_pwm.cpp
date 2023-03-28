@@ -3,7 +3,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 
-#include "../../include/multirotor_real/motors_handler.hpp"
+#include "../../include/multirotor_real/motors_handler_pwm.hpp"
 
 #define PWM_FREQ 50.
 #define INFO_PERIOD 1.
