@@ -7,10 +7,10 @@
 #include <multirotor_tools/rotor_property.hpp>
 #include <multirotor_msgs/RotorSpeeds.h>
 
-class MotorsHandler_PWM
+class MotorsHandler_DSHOT
 {
 public:
-  MotorsHandler_PWM(ros::NodeHandle& nh);
+  MotorsHandler_DSHOT(ros::NodeHandle& nh);
 
 private:
   const uint32_t num_rotors_;

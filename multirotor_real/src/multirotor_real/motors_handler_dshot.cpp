@@ -3,14 +3,14 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 
-#include "../../include/multirotor_real/motors_handler_pwm.hpp"
+#include "../../include/multirotor_real/motors_handler_dshot.hpp"
 
 #define PWM_FREQ 50.
 #define INFO_PERIOD 1.
 
 using namespace std;
 
-MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle& nh)
+MotorsHandler_DSHOT::MotorsHandler_DSHOT(ros::NodeHandle& nh)
   : num_rotors_(dh_ros::getParam<int>("/num_rotors")), rotor_props_(getRotorProperties())
 {
   if (getuid())
@@ -39,15 +39,15 @@ MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle& nh)
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
   rotor_vels_sub_ =
-    nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+    nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
 }
 
-uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
+uint32_t MotorsHandler_DSHOT::getChannel(uint32_t pin)
 {
   return pin - 1;
 }
 
-void MotorsHandler_PWM::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds)
+void MotorsHandler_DSHOT::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds)
 {
   const auto& speeds = rotor_speeds.speeds;
 
