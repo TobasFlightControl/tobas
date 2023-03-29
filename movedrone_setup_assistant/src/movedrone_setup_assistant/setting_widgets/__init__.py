@@ -1,5 +1,6 @@
 from .start import StartWidget
 from .propellers import PropellersWidget
+from .battery import BatteryWidget
 from .imu import ImuWidget
 from .magnetometer import MagnetometerWidget
 from .barometer import BarometerWidget

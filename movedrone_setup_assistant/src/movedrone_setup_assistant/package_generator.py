@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import yaml
+import math
 import rospy
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -57,6 +58,7 @@ class PackageGenerator(QWidget):
 
     def _is_valid_config(self) -> bool:
         propellers = self._main.settings.propellers.selected
+        battery = self._main.settings.battery
         author_info = self._main.settings.author_information
         ros_pkg = self._main.settings.ros_package
 
@@ -70,12 +72,10 @@ class PackageGenerator(QWidget):
             q_error(self._main, "[Propellers] Duplicated Pin IDs.")
             return False
 
-        for min_pwm, max_pwm in zip(propellers.min_pwm_periods, propellers.max_pwm_periods):
-            lb = min_pwm.value()
-            ub = max_pwm.value()
-            if lb > ub:
-                q_error(self._main, f'[Propellers] Invalid PWM period range: {lb, ub}')
-                return False
+        C_cont = battery.C_cont.get()
+        C_pulse = battery.C_pulse.get()
+        if C_cont > C_pulse:
+            q_error(self._main, "[Propellers] C_cont cannot be greater than C_pulse.")
 
         author_name = author_info.name.get()
         if author_name == "":
@@ -201,28 +201,27 @@ class PackageGenerator(QWidget):
     def _generate_drone_props(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
         propellers_widget = self._main.settings.propellers.selected
+        battery_widget = self._main.settings.battery
         num_rotors = propellers_widget.num()
         drone_props = {
             "drone_name": self._drone_name,
             "num_rotors": num_rotors,
+            "battery_voltage": battery_widget.voltage.get(),
             "required_joint_names": self._main.urdf_parser.required_joint_names(),
         }
         for i in range(num_rotors):
             drone_props[f'rotor_{i}'] = {
                 "link_name": propellers_widget.link_names[i].text(),
                 "direction": propellers_widget.directions[i].currentText().lower(),
-                "max_velocity": propellers_widget.max_vels[i].value(),
                 "motor_constant": propellers_widget.motor_consts[i].value(),
                 "moment_constant": propellers_widget.moment_consts[i].value(),
+                "kv": propellers_widget.kvs[i].value(),
+                "efficiency": propellers_widget.efficiencies[i].value() * 1e-2,
                 "rotor_drag_coefficient": propellers_widget.drag_coefs[i].value(),
                 "rolling_moment_coefficient": propellers_widget.rolling_coefs[i].value(),
                 "time_constant_up": propellers_widget.time_consts_up[i].value() * 1e-3,
                 "time_constant_down": propellers_widget.time_consts_down[i].value() * 1e-3,
                 "pin": propellers_widget.pins[i].value(),
-                "pwm_period": {
-                    "min": propellers_widget.min_pwm_periods[i].value(),
-                    "max": propellers_widget.max_pwm_periods[i].value(),
-                }
             }
 
         # yamlファイルを作成
@@ -318,6 +317,7 @@ class PackageGenerator(QWidget):
         root_link = self._main.urdf_parser.get_root().name
 
         propellers_widget = self._main.settings.propellers.selected
+        battery_widget = self._main.settings.battery
         imu_widget = self._main.settings.imu
         mag_widget = self._main.settings.magnetometer
         bar_widget = self._main.settings.barometer
@@ -329,20 +329,25 @@ class PackageGenerator(QWidget):
         # root.append(base_model)
 
         # Motors
+        voltage = battery_widget.voltage.get()
         for i in range(propellers_widget.num()):
+            kv = propellers_widget.kvs[i].value()
+            efficiency = propellers_widget.efficiencies[i].value() * 1e-2
+            max_rot_vel = rpm_to_rad_per_sec(voltage * kv * efficiency)
+
             motor_model = MotorModel(
                 self._drone_name,
                 i,
                 propellers_widget.link_names[i].text(),
                 propellers_widget.joint_names[i].text(),
                 propellers_widget.directions[i].currentText().lower(),
-                propellers_widget.max_vels[i].value(),
+                max_rot_vel,
                 propellers_widget.motor_consts[i].value(),
                 propellers_widget.moment_consts[i].value(),
                 propellers_widget.drag_coefs[i].value(),
                 propellers_widget.rolling_coefs[i].value(),
-                propellers_widget.time_consts_up[i].value(),
-                propellers_widget.time_consts_down[i].value(),
+                propellers_widget.time_consts_up[i].value() * 1e-3,
+                propellers_widget.time_consts_down[i].value() * 1e-3,
             )
             root.append(motor_model)
 

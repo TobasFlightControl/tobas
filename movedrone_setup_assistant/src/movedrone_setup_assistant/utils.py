@@ -1,9 +1,5 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
-
 import re
+import math
 import rospy
 from xml.etree import ElementTree as ET
 from PyQt5.QtCore import *
@@ -26,3 +22,7 @@ def is_valid_email(email: str) -> bool:
     """
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
     return re.fullmatch(regex, email)
+
+
+def rpm_to_rad_per_sec(rpm: float) -> float:
+    return (math.pi / 30) * rpm
