@@ -23,6 +23,7 @@ public:
     double& pitch_out);
 
 private:
+  const double battery_voltage_;
   const RotorProperties rotor_props_;
   double max_U_;
 

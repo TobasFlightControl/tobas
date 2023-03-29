@@ -1,7 +1,9 @@
 #include <ros/ros.h>
 
+#include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/rosparam.hpp>
 
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
 #include "../../include/multirotor_controller/const.hpp"
@@ -12,12 +14,15 @@ using namespace std;
 using namespace KDL;
 
 AccelerationController::AccelerationController(const Tree& tree)
-  : rotor_props_(getRotorProperties()), inertia_solver_(tree)
+  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
+    rotor_props_(getRotorProperties()),
+    inertia_solver_(tree)
 {
   max_U_ = 0.;
   for (const auto& prop : rotor_props_)
   {
-    const double max_thrust = prop.motor_constant * sqr(prop.max_velocity);
+    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
+    const double max_thrust = prop.motor_constant * sqr(max_speed);
     max_U_ += max_thrust;
   }
 }

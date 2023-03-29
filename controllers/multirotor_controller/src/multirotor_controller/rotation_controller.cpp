@@ -1,4 +1,5 @@
 #include <dh_std_tools/vector.hpp>
+#include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
@@ -12,7 +13,8 @@ using namespace Eigen;
 using namespace KDL;
 
 RotationController::RotationController(const Tree& tree)
-  : num_rotors_(dh_ros::getParam<int>("/num_rotors")),
+  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
+    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     rotor_props_(getRotorProperties()),
     T_refs_(X_DIM),
     kdl_model_(tree),
@@ -179,7 +181,6 @@ void RotationController::updateWeight_R(int thrust_rate_weight, double dt)
 
 ctrl::LinearEquation RotationController::makeBaseInputCondition()
 {
-  const double min_thrust = 0.;
   const MatrixXd E = MatrixXd::Identity(num_rotors_, num_rotors_);
   const VectorXd ones = VectorXd::Ones(num_rotors_);
 
@@ -192,8 +193,12 @@ ctrl::LinearEquation RotationController::makeBaseInputCondition()
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    string rotor_name = "/rotor_" + to_string(i);
-    double max_thrust = rotor_props_[i].motor_constant * sqr(rotor_props_[i].max_velocity);
+    const auto& prop = rotor_props_[i];
+
+    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
+    const double max_thrust = prop.motor_constant * sqr(max_speed);
+    const double min_thrust = 0.;
+
     F_f.b(i) = max_thrust;
     F_f.b(num_rotors_ + i) = -min_thrust;
   }
