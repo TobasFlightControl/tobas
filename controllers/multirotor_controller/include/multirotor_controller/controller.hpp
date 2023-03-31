@@ -25,9 +25,11 @@ class Controller
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller(ros::NodeHandle& nh);
+  explicit Controller();
 
 private:
+  ros::NodeHandle nh_;
+
   KDL::Tree tree_;
   KDL::TreeKDLModel kdl_model_;
 

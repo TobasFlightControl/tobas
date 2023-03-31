@@ -15,7 +15,7 @@
 using namespace std;
 using namespace KDL;
 
-Controller::Controller(ros::NodeHandle& nh)
+Controller::Controller()
   : kdl_model_(tree_),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     required_joints_(dh_ros::getParam<vector<string>>("/required_joint_names")),
@@ -44,16 +44,16 @@ Controller::Controller(ros::NodeHandle& nh)
   const string ns = ros::this_node::getNamespace();
 
   // PubSub
-  rotor_speeds_pub_ =
-    nh.advertise<multirotor_msgs::RotorSpeeds>("/" + drone_name + "/command/motor_speed", 1, false);
+  rotor_speeds_pub_ = nh_.advertise<multirotor_msgs::RotorSpeeds>(
+    "/" + drone_name + "/command/motor_speed", 1, false);
   feedback_pub_ =
-    nh.advertise<multirotor_msgs::ControllerFeedback>("/multirotor_controller/feedback", 1, false);
-  bs_sub_ = nh.subscribe("/" + drone_name + "/base_state", 1, &Controller::bsCb, this);
+    nh_.advertise<multirotor_msgs::ControllerFeedback>("/multirotor_controller/feedback", 1, false);
+  bs_sub_ = nh_.subscribe("/" + drone_name + "/base_state", 1, &Controller::bsCb, this);
   if (transformable_)
   {
-    js_sub_ = nh.subscribe("/" + drone_name + "/joint_states", 1, &Controller::jsCb, this);
+    js_sub_ = nh_.subscribe("/" + drone_name + "/joint_states", 1, &Controller::jsCb, this);
   }
-  cmd_sub_ = nh.subscribe("/multirotor_controller/command", 1, &Controller::commandCb, this);
+  cmd_sub_ = nh_.subscribe("/multirotor_controller/command", 1, &Controller::commandCb, this);
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
