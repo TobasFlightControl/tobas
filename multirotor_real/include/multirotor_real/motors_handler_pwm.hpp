@@ -13,6 +13,7 @@ public:
   MotorsHandler_PWM(ros::NodeHandle& nh);
 
 private:
+  const double battery_voltage_;
   const uint32_t num_rotors_;
   const RotorProperties rotor_props_;
   RCOutput_Navio2 pwm_;

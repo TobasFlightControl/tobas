@@ -5,13 +5,17 @@
 
 #include "../../include/multirotor_real/motors_handler_pwm.hpp"
 
-#define PWM_FREQ 50.
 #define INFO_PERIOD 1.
+#define PWM_LB 1000.
+#define PWM_UB 2000.
 
 using namespace std;
+using namespace dh_std;
 
 MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle& nh)
-  : num_rotors_(dh_ros::getParam<int>("/num_rotors")), rotor_props_(getRotorProperties())
+  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
+    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
+    rotor_props_(getRotorProperties())
 {
   if (getuid())
   {
@@ -38,8 +42,8 @@ MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle& nh)
   }
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
-  rotor_vels_sub_ =
-    nh.subscribe("/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+  rotor_vels_sub_ = nh.subscribe(
+    "/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
 }
 
 uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
@@ -49,32 +53,40 @@ uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
 
 void MotorsHandler_PWM::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds)
 {
-  const auto& speeds = rotor_speeds.speeds;
+  const auto& cmd_speeds = rotor_speeds.speeds;
 
-  if (speeds.size() != num_rotors_)
+  if (cmd_speeds.size() != num_rotors_)
   {
     dh_ros::rosErrorThrottle(
-      INFO_PERIOD, "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(num_rotors_));
+      INFO_PERIOD,
+      "Size mismatch: " + to_string(cmd_speeds.size()) + " != " + to_string(num_rotors_));
     return;
   }
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    double angvel = speeds[i];
     const RotorProperty& prop = rotor_props_[i];
+    const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
 
-    if (angvel < 0. || prop.max_velocity + 1. < angvel)
+    // 指令速度を決定
+    double cmd_speed = cmd_speeds[i];
+    if (cmd_speed < 0.)
     {
       dh_ros::rosErrorThrottle(
-        INFO_PERIOD, "Invalid rotor velocity: " + to_string(angvel) + " rad/s is out of ["
-                       + to_string(0.) + ", " + to_string(prop.max_velocity) + "] rad/s.");
-      angvel = dh_std::clamp(angvel, 0., prop.max_velocity);
+        INFO_PERIOD, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
+      cmd_speed = 0.;
+    }
+    else if (cmd_speed > max_speed)
+    {
+      dh_ros::rosErrorThrottle(
+        INFO_PERIOD, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
+                       + to_string(max_speed));
+      cmd_speed = max_speed;
     }
 
+    // パルス幅に変換して指令
     const uint32_t& pin = prop.pin;
-    double period =
-      dh_std::remap(angvel, 0., prop.max_velocity, prop.pwm_range.lower, prop.pwm_range.upper);
-
+    double period = remap(cmd_speed, 0., max_speed, PWM_LB, PWM_UB);
     if (!pwm_.set_duty_cycle(getChannel(pin), period))
     {
       throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");
