@@ -31,7 +31,7 @@ class GpsWidget(BaseSettingWidget):
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate [Hz]",
             update_rate_description,
-            minimum=0,
+            minimum=1,
             default=5,
         )
         self._rows.addWidget(self.update_rate)
