@@ -24,7 +24,7 @@ class BatteryWidget(BaseSettingWidget):
             voltage_description,
             decimals=1,
             minimum=0.,
-            default=16.,
+            default=14.8,
             suffix=" V",
         )
         self._rows.addWidget(self.voltage)
