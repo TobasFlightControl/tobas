@@ -28,11 +28,11 @@ class GpsWidget(BaseSettingWidget):
         self._rows.addWidget(self.use_custom_gps)
 
         update_rate_description = "TODO: instruction"
-        self.update_rate = ParamGetterWidget_DoubleSpinBox(
+        self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate [Hz]",
             update_rate_description,
-            minimum=0.,
-            default=5.,
+            minimum=0,
+            default=5,
         )
         self._rows.addWidget(self.update_rate)
 
@@ -40,6 +40,7 @@ class GpsWidget(BaseSettingWidget):
         self.horizontal_pos_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for horizontal position noise [m]",
             horizontal_pos_std_description,
+            decimals=2,
             minimum=0.,
             default=3.,
         )
@@ -49,6 +50,7 @@ class GpsWidget(BaseSettingWidget):
         self.vertical_pos_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for vertical position noise [m]",
             vertical_pos_std_description,
+            decimals=2,
             minimum=0.,
             default=6.,
         )
@@ -58,6 +60,7 @@ class GpsWidget(BaseSettingWidget):
         self.horizontal_vel_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for horizontal speed noise [m/s]",
             horizontal_vel_std_description,
+            decimals=2,
             minimum=0.,
             default=0.1,
         )
@@ -67,6 +70,7 @@ class GpsWidget(BaseSettingWidget):
         self.vertical_vel_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for vertical speed noise [m/s]",
             vertical_vel_std_description,
+            decimals=2,
             minimum=0.,
             default=0.1,
         )

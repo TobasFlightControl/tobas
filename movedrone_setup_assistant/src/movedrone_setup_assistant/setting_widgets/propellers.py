@@ -53,7 +53,7 @@ class PropellersWidget(BaseSettingWidget):
 class SelectedPropellersWidget(QTableWidget):
 
     NUM_ENTRIES = 12
-    COL_WIDTH = 180
+    COL_WIDTH = 150
 
     link_added = pyqtSignal(str)
 
@@ -82,8 +82,8 @@ class SelectedPropellersWidget(QTableWidget):
             "Moment Constant",
             "Kv",
             "Efficiency",
-            "Rotor Drag Coefficient",
-            "Rolling Moment Coefficient",
+            "Rotor Drag Coef",
+            "Rolling Moment Coef",
             "Time Constant Up",
             "Time Constant Down",
             "Pin ID",

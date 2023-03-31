@@ -31,6 +31,7 @@ class ImuWidget(BaseSettingWidget):
         self.gyro_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope noise density (two-sided spectrum) [rad/s/sqrt(Hz)]",
             gyro_noise_density_description,
+            decimals=9,
             minimum=0.,
             default=3.394e-4,
         )
@@ -40,17 +41,18 @@ class ImuWidget(BaseSettingWidget):
         self.gyro_random_walk = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope bias random walk [rad/s^2/sqrt(Hz)]",
             gyro_random_walk_description,
+            decimals=9,
             minimum=0.,
             default=3.8785e-5,
         )
         self._rows.addWidget(self.gyro_random_walk)
 
         gyro_bias_corr_time_description = "TODO: instruction"
-        self.gyro_bias_corr_time = ParamGetterWidget_DoubleSpinBox(
+        self.gyro_bias_corr_time = ParamGetterWidget_SpinBox(
             "Gyroscope bias correlation time constant [s]",
             gyro_bias_corr_time_description,
-            minimum=0.,
-            default=1000.,
+            minimum=0,
+            default=1000,
         )
         self._rows.addWidget(self.gyro_bias_corr_time)
 
@@ -58,6 +60,7 @@ class ImuWidget(BaseSettingWidget):
         self.gyro_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope turn on bias standard deviation [rad/s]",
             gyro_turn_on_bias_sigma_description,
+            decimals=9,
             minimum=0.,
             default=8.7e-3,
         )
@@ -67,6 +70,7 @@ class ImuWidget(BaseSettingWidget):
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer noise density (two-sided spectrum) [m/s^2/sqrt(Hz)]",
             acc_noise_density_description,
+            decimals=9,
             minimum=0.,
             default=4e-3,
         )
@@ -76,17 +80,18 @@ class ImuWidget(BaseSettingWidget):
         self.acc_random_walk = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer bias random walk. [m/s^3/sqrt(Hz)]",
             acc_random_walk_description,
+            decimals=9,
             minimum=0.,
             default=6e-3,
         )
         self._rows.addWidget(self.acc_random_walk)
 
         acc_bias_corr_time_description = "TODO: instruction"
-        self.acc_bias_corr_time = ParamGetterWidget_DoubleSpinBox(
+        self.acc_bias_corr_time = ParamGetterWidget_SpinBox(
             "Accelerometer bias correlation time constant [s]",
             acc_bias_corr_time_description,
-            minimum=0.,
-            default=300.,
+            minimum=0,
+            default=300,
         )
         self._rows.addWidget(self.acc_bias_corr_time)
 
@@ -94,6 +99,7 @@ class ImuWidget(BaseSettingWidget):
         self.acc_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer turn on bias standard deviation [m/s^2]",
             acc_turn_on_bias_sigma_description,
+            decimals=9,
             minimum=0.,
             default=0.196,
         )
