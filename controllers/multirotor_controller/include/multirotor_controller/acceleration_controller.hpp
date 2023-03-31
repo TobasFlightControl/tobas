@@ -17,7 +17,7 @@ public:
 
   void update(
     const geometry_msgs::Vector3& acc_des,
-    const double& yaw_des,
+    const double& yaw,
     double& U_out,
     double& roll_out,
     double& pitch_out);

@@ -35,7 +35,7 @@ void AccelerationController::updateInternalDataStructures()
 
 void AccelerationController::update(
   const geometry_msgs::Vector3& acc_des,
-  const double& yaw_des,
+  const double& yaw,
   double& U_out,
   double& roll_out,
   double& pitch_out)
@@ -44,8 +44,8 @@ void AccelerationController::update(
   const double y = mass_ * acc_des.y;
   const double z = mass_ * (acc_des.z + GRAVITY);
 
-  const double cos_yaw = cos(yaw_des);
-  const double sin_yaw = sin(yaw_des);
+  const double cos_yaw = cos(yaw);
+  const double sin_yaw = sin(yaw);
 
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);

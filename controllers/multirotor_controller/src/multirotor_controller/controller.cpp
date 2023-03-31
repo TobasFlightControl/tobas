@@ -81,7 +81,7 @@ void Controller::runOnce()
 
   // stopwatch_.start();
   pos_controller_.update(bs_.pose.position, pos_des, bs_.twist.linear, vel_des, acc_des);
-  acc_controller_.update(acc_des, rpy_des.yaw, U, rpy_des.roll, rpy_des.pitch);
+  acc_controller_.update(acc_des, bs_.pose.orientation.yaw, U, rpy_des.roll, rpy_des.pitch);
   rot_controller_.update(bs_, q_, U, rpy_des.roll, rpy_des.pitch, rpy_des.yaw, u);
   // stopwatch_.stop();
 
