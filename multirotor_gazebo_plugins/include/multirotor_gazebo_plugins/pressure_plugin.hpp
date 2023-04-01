@@ -36,7 +36,7 @@ class GazeboPressurePlugin : public ModelPlugin
 public:
   GazeboPressurePlugin();
 
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
+  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
   ros::NodeHandle nh_;

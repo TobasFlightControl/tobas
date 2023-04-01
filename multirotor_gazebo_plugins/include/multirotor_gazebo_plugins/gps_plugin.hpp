@@ -38,7 +38,7 @@ class GazeboGpsPlugin : public SensorPlugin
 public:
   GazeboGpsPlugin();
 
-  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf);
+  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
   ros::NodeHandle nh_;
