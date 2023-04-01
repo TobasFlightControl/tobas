@@ -52,38 +52,22 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (sdf->HasElement("robotNamespace"))
-  {
-    ns_ = sdf->GetElement("robotNamespace")->Get<string>();
-  }
-  else
+  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
   {
     gzthrow(kPluginName << ": Please specify a robotNamespace.");
   }
 
-  if (sdf->HasElement("linkName"))
-  {
-    link_name_ = sdf->GetElement("linkName")->Get<string>();
-  }
-  else
+  if (!getSdfParam<string>(sdf, "linkName", link_name_))
   {
     gzthrow(kPluginName << ": Please specify a linkName of the rotor.");
   }
 
-  if (sdf->HasElement("jointName"))
-  {
-    joint_name_ = sdf->GetElement("jointName")->Get<string>();
-  }
-  else
+  if (!getSdfParam<string>(sdf, "jointName", joint_name_))
   {
     gzthrow(kPluginName << ": Please specify a jointName, where the rotor is attached.");
   }
 
-  if (sdf->HasElement("motorNumber"))
-  {
-    motor_number_ = sdf->GetElement("motorNumber")->Get<int>();
-  }
-  else
+  if (!getSdfParam<int>(sdf, "motorNumber", motor_number_))
   {
     gzthrow(kPluginName << ": Please specify a motorNumber.");
   }

@@ -17,6 +17,18 @@ inline T sqr(const T& x)
 }
 
 template <typename T>
+bool getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
+{
+  if (!sdf->HasElement(name))
+  {
+    return false;
+  }
+
+  param = sdf->GetElement(name)->Get<T>();
+  return true;
+}
+
+template <typename T>
 bool getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, const T& default_value)
 {
   if (sdf->HasElement(name))

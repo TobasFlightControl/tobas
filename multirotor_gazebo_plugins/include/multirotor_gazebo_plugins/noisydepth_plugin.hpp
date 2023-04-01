@@ -44,6 +44,7 @@ public:
 
 private:
   // SDF parameters
+  std::string ns_;
   std::string depth_image_topic_;
   std::string depth_info_topic_;
   std::string noise_model_name_;

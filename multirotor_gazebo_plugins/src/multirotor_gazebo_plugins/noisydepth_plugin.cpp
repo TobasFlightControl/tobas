@@ -118,6 +118,11 @@ void GazeboNoisyDepthPlugin::OnNewImageFrame(
 
 void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
+  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
+  {
+    gzthrow(kPluginName << ": Please specify a robotNamespace.");
+  }
+
   getSdfParam<string>(sdf, "irImageTopic", image_topic_name_, kDefaultIrImageTopic);
   getSdfParam<string>(sdf, "irInfoTopic", camera_info_topic_name_, kDefaultIrInfoTopic);
   getSdfParam<string>(sdf, "depthImageTopic", depth_image_topic_, kDefaultIrImageTopic);
@@ -150,14 +155,16 @@ void GazeboNoisyDepthPlugin::setNoiseModel()
 void GazeboNoisyDepthPlugin::advertise()
 {
   ros::AdvertiseOptions depth_image_ao = ros::AdvertiseOptions::create<sensor_msgs::Image>(
-    depth_image_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthImageConnect, this),
+    "/" + ns_ + "/" + depth_image_topic_, 1,
+    boost::bind(&GazeboNoisyDepthPlugin::depthImageConnect, this),
     boost::bind(&GazeboNoisyDepthPlugin::depthImageDisconnect, this), ros::VoidPtr(),
     &camera_queue_);
 
   depth_image_pub_ = rosnode_->advertise(depth_image_ao);
 
   ros::AdvertiseOptions depth_info_ao = ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
-    depth_info_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthInfoConnect, this),
+    "/" + ns_ + "/" + depth_info_topic_, 1,
+    boost::bind(&GazeboNoisyDepthPlugin::depthInfoConnect, this),
     boost::bind(&GazeboNoisyDepthPlugin::depthInfoDisconnect, this), ros::VoidPtr(),
     &camera_queue_);
 

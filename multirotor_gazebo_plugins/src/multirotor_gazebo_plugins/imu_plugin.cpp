@@ -65,20 +65,12 @@ void GazeboImuPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (sdf->HasElement("robotNamespace"))
-  {
-    ns_ = sdf->GetElement("robotNamespace")->Get<string>();
-  }
-  else
+  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
   {
     gzthrow(kPluginName << ": Please specify a robotNamespace.");
   }
 
-  if (sdf->HasElement("linkName"))
-  {
-    link_name_ = sdf->GetElement("linkName")->Get<string>();
-  }
-  else
+  if (!getSdfParam<string>(sdf, "linkName", link_name_))
   {
     gzthrow(kPluginName << ": Please specify a linkName.");
   }
