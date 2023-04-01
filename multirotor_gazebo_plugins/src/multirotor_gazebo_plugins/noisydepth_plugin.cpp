@@ -7,14 +7,14 @@ using namespace std;
 
 namespace gazebo
 {
-GazeboNoisyDepth::GazeboNoisyDepth()
+GazeboNoisyDepthPlugin::GazeboNoisyDepthPlugin()
 {
   depth_info_connect_count_ = 0;
   depth_image_connect_count_ = 0;
   last_depth_info_update_time_ = common::Time(0);
 }
 
-void GazeboNoisyDepth::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
+void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
   DepthCameraPlugin::Load(parent, sdf);
 
@@ -33,10 +33,10 @@ void GazeboNoisyDepth::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 
   // Listen to the update event
   update_connection_ =
-    GazeboRosCameraUtils::OnLoad(boost::bind(&GazeboNoisyDepth::advertise, this));
+    GazeboRosCameraUtils::OnLoad(boost::bind(&GazeboNoisyDepthPlugin::advertise, this));
 }
 
-void GazeboNoisyDepth::OnNewDepthFrame(
+void GazeboNoisyDepthPlugin::OnNewDepthFrame(
   const float* image,
   uint32_t width,
   uint32_t height,
@@ -77,7 +77,7 @@ void GazeboNoisyDepth::OnNewDepthFrame(
   publishCameraInfo();
 }
 
-void GazeboNoisyDepth::OnNewImageFrame(
+void GazeboNoisyDepthPlugin::OnNewImageFrame(
   const u_char* image,
   uint32_t width,
   uint32_t height,
@@ -116,7 +116,7 @@ void GazeboNoisyDepth::OnNewImageFrame(
   }
 }
 
-void GazeboNoisyDepth::getSdfParams(sdf::ElementPtr sdf)
+void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam<string>(sdf, "irImageTopic", image_topic_name_, kDefaultIrImageTopic);
   getSdfParam<string>(sdf, "irInfoTopic", camera_info_topic_name_, kDefaultIrInfoTopic);
@@ -127,7 +127,7 @@ void GazeboNoisyDepth::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam<float>(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist);
 }
 
-void GazeboNoisyDepth::setNoiseModel()
+void GazeboNoisyDepthPlugin::setNoiseModel()
 {
   if (noise_model_name_ == "Kinect")
   {
@@ -147,43 +147,45 @@ void GazeboNoisyDepth::setNoiseModel()
   }
 }
 
-void GazeboNoisyDepth::advertise()
+void GazeboNoisyDepthPlugin::advertise()
 {
   ros::AdvertiseOptions depth_image_ao = ros::AdvertiseOptions::create<sensor_msgs::Image>(
-    depth_image_topic_, 1, boost::bind(&GazeboNoisyDepth::depthImageConnect, this),
-    boost::bind(&GazeboNoisyDepth::depthImageDisconnect, this), ros::VoidPtr(), &camera_queue_);
+    depth_image_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthImageConnect, this),
+    boost::bind(&GazeboNoisyDepthPlugin::depthImageDisconnect, this), ros::VoidPtr(),
+    &camera_queue_);
 
   depth_image_pub_ = rosnode_->advertise(depth_image_ao);
 
   ros::AdvertiseOptions depth_info_ao = ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
-    depth_info_topic_, 1, boost::bind(&GazeboNoisyDepth::depthInfoConnect, this),
-    boost::bind(&GazeboNoisyDepth::depthInfoDisconnect, this), ros::VoidPtr(), &camera_queue_);
+    depth_info_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthInfoConnect, this),
+    boost::bind(&GazeboNoisyDepthPlugin::depthInfoDisconnect, this), ros::VoidPtr(),
+    &camera_queue_);
 
   depth_info_pub_ = rosnode_->advertise(depth_info_ao);
 }
 
-void GazeboNoisyDepth::depthImageConnect()
+void GazeboNoisyDepthPlugin::depthImageConnect()
 {
   ++depth_image_connect_count_;
   parentSensor->SetActive(true);
 }
 
-void GazeboNoisyDepth::depthImageDisconnect()
+void GazeboNoisyDepthPlugin::depthImageDisconnect()
 {
   --depth_image_connect_count_;
 }
 
-void GazeboNoisyDepth::depthInfoConnect()
+void GazeboNoisyDepthPlugin::depthInfoConnect()
 {
   ++depth_info_connect_count_;
 }
 
-void GazeboNoisyDepth::depthInfoDisconnect()
+void GazeboNoisyDepthPlugin::depthInfoDisconnect()
 {
   --depth_info_connect_count_;
 }
 
-void GazeboNoisyDepth::fillDepthImage(const float* src)
+void GazeboNoisyDepthPlugin::fillDepthImage(const float* src)
 {
   lock_.lock();
 
@@ -201,7 +203,7 @@ void GazeboNoisyDepth::fillDepthImage(const float* src)
   lock_.unlock();
 }
 
-bool GazeboNoisyDepth::fillDepthImageHelper(
+bool GazeboNoisyDepthPlugin::fillDepthImageHelper(
   const uint32_t rows_arg,
   const uint32_t cols_arg,
   const uint32_t step_arg,
@@ -229,7 +231,7 @@ bool GazeboNoisyDepth::fillDepthImageHelper(
   return true;
 }
 
-void GazeboNoisyDepth::publishCameraInfo()
+void GazeboNoisyDepthPlugin::publishCameraInfo()
 {
   // First publish parent camera info (IR camera)
   GazeboRosCameraUtils::PublishCameraInfo();
@@ -249,5 +251,5 @@ void GazeboNoisyDepth::publishCameraInfo()
   }
 }
 
-GZ_REGISTER_SENSOR_PLUGIN(GazeboNoisyDepth)
+GZ_REGISTER_SENSOR_PLUGIN(GazeboNoisyDepthPlugin)
 }  // namespace gazebo

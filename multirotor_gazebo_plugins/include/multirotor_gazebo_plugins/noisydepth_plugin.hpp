@@ -21,10 +21,10 @@ static constexpr char kDefaultDepthNoiseModel[] = "Kinect";
 static constexpr float kDefaultDepthNoiseMinDist = 0.0f;
 static constexpr float kDefaultDepthNoiseMaxDist = 1e+9f;
 
-class GazeboNoisyDepth : public DepthCameraPlugin, GazeboRosCameraUtils
+class GazeboNoisyDepthPlugin : public DepthCameraPlugin, GazeboRosCameraUtils
 {
 public:
-  GazeboNoisyDepth();
+  GazeboNoisyDepthPlugin();
 
   void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf) override;
 
