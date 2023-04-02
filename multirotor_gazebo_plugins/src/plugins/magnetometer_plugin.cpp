@@ -1,4 +1,4 @@
-#include "../../include/multirotor_gazebo_plugins/magnetometer_plugin.hpp"
+#include "../../include/plugins/magnetometer_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 

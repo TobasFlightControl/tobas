@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ros/ros.h>
-#include <gazebo/plugins/DepthCameraPlugin.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/sensors/DepthCameraSensor.hh>
 #include <gazebo_plugins/gazebo_ros_camera_utils.h>
 #include <sensor_msgs/Image.h>
 
-#include "./depth_noise_models.hpp"
+#include "../multirotor_gazebo_plugins/depth_noise_models.hpp"
 
 namespace gazebo
 {
@@ -20,36 +23,33 @@ static constexpr char kDefaultDepthInfoTopic[] = "depth/image_info";
 static constexpr char kDefaultDepthNoiseModel[] = "Kinect";
 static constexpr float kDefaultDepthNoiseMinDist = 0.0f;
 static constexpr float kDefaultDepthNoiseMaxDist = 1e+9f;
+static constexpr float kDefaultHorizontalFOV = M_PI_2f32;
+static constexpr float kDefaultBaseline = 0.05f;
 
-class GazeboNoisyDepthPlugin : public DepthCameraPlugin, GazeboRosCameraUtils
+/**
+ * @brief DepthCamera + Noise
+ * cf. https://github.com/gazebosim/gazebo-classic/blob/gazebo11/plugins/DepthCameraPlugin.cc
+ */
+class GazeboNoisyDepthPlugin : public SensorPlugin, GazeboRosCameraUtils
 {
 public:
   GazeboNoisyDepthPlugin();
+  ~GazeboNoisyDepthPlugin();
 
   void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf) override;
 
-  void OnNewImageFrame(
-    const u_char* image,
-    uint32_t width,
-    uint32_t height,
-    uint32_t depth,
-    const std::string& format) override;
-
-  void OnNewDepthFrame(
-    const float* image,
-    uint32_t width,
-    uint32_t height,
-    uint32_t depth,
-    const std::string& format) override;
-
 private:
+  sensors::DepthCameraSensorPtr parent_sensor_;
+  rendering::DepthCameraPtr depth_camera_;
+
   // SDF parameters
-  std::string ns_;
   std::string depth_image_topic_;
   std::string depth_info_topic_;
   std::string noise_model_name_;
   float noise_min_dist_;
   float noise_max_dist_;
+  float horizontal_fov_;
+  float baseline_;
 
   std::unique_ptr<DepthNoiseModel> noise_model_;
   int depth_image_connect_count_;
@@ -58,10 +58,25 @@ private:
   common::Time last_depth_info_update_time_;
   sensor_msgs::Image depth_image_msg_;
 
+  event::ConnectionPtr new_image_frame_connection_;
+  event::ConnectionPtr new_depth_frame_connection_;
+
   ros::Publisher depth_image_pub_;
   ros::Publisher depth_info_pub_;
 
-  event::ConnectionPtr update_connection_;
+  void onNewImageFrame(
+    const u_char* image,
+    uint32_t width,
+    uint32_t height,
+    uint32_t depth,
+    const std::string& format);
+
+  void onNewDepthFrame(
+    const float* image,
+    uint32_t width,
+    uint32_t height,
+    uint32_t depth,
+    const std::string& format);
 
   void getSdfParams(sdf::ElementPtr sdf);
   void setNoiseModel();

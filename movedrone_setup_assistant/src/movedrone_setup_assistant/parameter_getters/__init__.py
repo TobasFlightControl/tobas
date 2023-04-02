@@ -4,4 +4,6 @@ from .line_edit import ParamGetterWidget_LineEdit
 from .combo_box import ParamGetterWidget_ComboBox
 from .file_dialog import ParamGetterWidget_FileDialog
 from .directory_dialog import ParamGetterWidget_DirDialog
+from .double_range import ParamGetterWidget_DoubleRange
 from .vector3d import ParamGetterWidget_Vector3d
+from .pose import ParamGetterWidget_Pose

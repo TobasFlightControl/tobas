@@ -29,19 +29,21 @@ class MagnetometerWidget(BaseSettingWidget):
 
         gauss_noise_description = "TODO: instruction"
         self.gauss_noise = ParamGetterWidget_SpinBox(
-            "Standard deviation of additive white gaussian noise [nT]",
+            "Standard deviation of additive white gaussian noise",
             gauss_noise_description,
             minimum=0,
             default=80,
+            suffix=" nT",
         )
         self._rows.addWidget(self.gauss_noise)
 
         uniform_noise_description = "TODO: instruction"
         self.uniform_noise = ParamGetterWidget_SpinBox(
-            "Symmetric bounds of uniform noise for initial sensor bias [nT]",
+            "Symmetric bounds of uniform noise for initial sensor bias",
             uniform_noise_description,
             minimum=0,
             default=400,
+            suffix=" nT",
         )
         self._rows.addWidget(self.uniform_noise)
 

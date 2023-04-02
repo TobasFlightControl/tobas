@@ -1,6 +1,6 @@
 #include <dh_std_tools/math.hpp>
 
-#include "../../include/multirotor_gazebo_plugins/ground_truth_state_plugin.hpp"
+#include "../../include/plugins/ground_truth_state_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 

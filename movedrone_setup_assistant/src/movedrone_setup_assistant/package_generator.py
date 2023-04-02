@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import yaml
-import math
 import rospy
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -14,6 +13,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from urdf_tools_py.core import *
+from urdf_tools_py.gazebo import GazeboRosControl, Camera
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info, q_error
 
@@ -158,31 +159,29 @@ class PackageGenerator(QWidget):
         template_items["ref_mag_east"] = simulation.ref_mag_east.get() * 1e-9
         template_items["ref_mag_down"] = simulation.ref_mag_down.get() * 1e-9
 
-        # LMPC
-        lmpc = self._main.settings.controllers.lmpc_settings
-        lmpc_items = {
-            "natural_freq": lmpc.natural_freq.get(),
-            "damp_ratio": lmpc.damp_ratio.get(),
-            "pred_horizon": lmpc.pred_horizon.get(),
-            "pred_steps": lmpc.pred_steps.get(),
-            "rot_decay": lmpc.rot_decay.get(),
-            "angvel_decay": lmpc.angvel_decay.get(),
-            "rot_weight": lmpc.rot_weight.get(),
-            "angvel_weight": lmpc.angvel_weight.get(),
-            "thrust_weight": lmpc.thrust_weight.get(),
-            "thrust_rate_weight": lmpc.thrust_rate_weight.get(),
-        }
-        template_items["lmpc"] = lmpc_items
-
-        # NMPC
-        nmpc = self._main.settings.controllers.nmpc_settings
-        nmpc_items = {}  # TODO
-        template_items["nmpc"] = nmpc_items
-
-        # SMC
-        smc = self._main.settings.controllers.smc_settings
-        smc_items = {}  # TODO
-        template_items["smc"] = smc_items
+        # Controllers
+        controllers = self._main.settings.controllers
+        if controllers.controller_type.get() == controllers.LMPC_LABEL:
+            lmpc = self._main.settings.controllers.lmpc_settings
+            lmpc_items = {
+                "natural_freq": lmpc.natural_freq.get(),
+                "damp_ratio": lmpc.damp_ratio.get(),
+                "pred_horizon": lmpc.pred_horizon.get(),
+                "pred_steps": lmpc.pred_steps.get(),
+                "rot_decay": lmpc.rot_decay.get(),
+                "angvel_decay": lmpc.angvel_decay.get(),
+                "rot_weight": lmpc.rot_weight.get(),
+                "angvel_weight": lmpc.angvel_weight.get(),
+                "thrust_weight": lmpc.thrust_weight.get(),
+                "thrust_rate_weight": lmpc.thrust_rate_weight.get(),
+            }
+            template_items["lmpc"] = lmpc_items
+        elif controllers.controller_type.get() == controllers.NMPC_LABEL:
+            raise NotImplementedError
+        elif controllers.controller_type.get() == controllers.SMC_LABEL:
+            raise NotImplementedError
+        else:
+            raise NotImplementedError
 
         joint_controllers = "joint_state_controller"
         for jnt_name in self._main.urdf_parser.required_joint_names():
@@ -258,20 +257,20 @@ class PackageGenerator(QWidget):
 
     def _make_urdf_with_plugins(self) -> ET.ElementTree:
         description = rospy.get_param("/robot_description")
-        root = ET.fromstring(description)
-        assert root.tag == "robot"
+        robot = ET.fromstring(description)
+        assert robot.tag == "robot"
 
-        self._screen_xml_elements(root)
-        self._add_xml_elements(root)
+        self._screen_xml_elements(robot)
+        self._add_xml_elements(robot)
 
-        return ET.ElementTree(root)
+        return ET.ElementTree(robot)
 
-    def _screen_xml_elements(self, root: ET.Element) -> None:
+    def _screen_xml_elements(self, robot: ET.Element) -> None:
         """ 悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す． """
-        for child in root:
+        for child in robot:
             # transmissionは問答無用で消す
             if child.tag == "transmission":
-                root.remove(child)
+                robot.remove(child)
 
             # gazeboタグの場合はその子ノードを確認する
             if child.tag == "gazebo":
@@ -279,11 +278,11 @@ class PackageGenerator(QWidget):
                     if gchild.tag == "plugin":
                         # RotorSのプラグインは問答無用で消す
                         if gchild.attrib["filename"].startswith("librotors"):
-                            root.remove(child)
+                            robot.remove(child)
                             continue
                         # Gazebo ROS Controlは問答無用で消す
                         if gchild.attrib["filename"] == "libgazebo_ros_control.so":
-                            root.remove(child)
+                            robot.remove(child)
                             continue
                         self._remove_or_keep_gazebo_child(child, gchild)
                     elif gchild.tag == "sensor":
@@ -313,7 +312,7 @@ class PackageGenerator(QWidget):
         if msg_box.clickedButton() == remove_button:
             gazebo.remove(child)
 
-    def _add_xml_elements(self, root: ET.Element) -> None:
+    def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
 
         propellers_widget = self._main.settings.propellers.selected
@@ -322,11 +321,8 @@ class PackageGenerator(QWidget):
         mag_widget = self._main.settings.magnetometer
         bar_widget = self._main.settings.barometer
         gps_widget = self._main.settings.gps
+        perception3d = self._main.settings.perception3d
         sim_widget = self._main.settings.simulation
-
-        # Base
-        # base_model = BaseModel(self._drone_name, root_link)
-        # root.append(base_model)
 
         # Motors
         voltage = battery_widget.voltage.get()
@@ -336,86 +332,113 @@ class PackageGenerator(QWidget):
             max_rot_vel = rpm_to_rad_per_sec(voltage * kv * efficiency)
 
             motor_model = MotorModel(
-                self._drone_name,
-                i,
-                propellers_widget.link_names[i].text(),
-                propellers_widget.joint_names[i].text(),
-                propellers_widget.directions[i].currentText().lower(),
-                max_rot_vel,
-                propellers_widget.motor_consts[i].value(),
-                propellers_widget.moment_consts[i].value(),
-                propellers_widget.drag_coefs[i].value(),
-                propellers_widget.rolling_coefs[i].value(),
-                propellers_widget.time_consts_up[i].value() * 1e-3,
-                propellers_widget.time_consts_down[i].value() * 1e-3,
+                ns=self._drone_name,
+                motor_number=i,
+                link_name=propellers_widget.link_names[i].text(),
+                joint_name=propellers_widget.joint_names[i].text(),
+                direction=propellers_widget.directions[i].currentText().lower(),
+                max_rot_vel=max_rot_vel,
+                motor_const=propellers_widget.motor_consts[i].value(),
+                moment_const=propellers_widget.moment_consts[i].value(),
+                drag_coef=propellers_widget.drag_coefs[i].value(),
+                roll_coef=propellers_widget.rolling_coefs[i].value(),
+                time_const_up=propellers_widget.time_consts_up[i].value() * 1e-3,
+                time_const_down=propellers_widget.time_consts_down[i].value() * 1e-3,
             )
-            root.append(motor_model)
-
-        # Controller Interface
-        # controller_interface = ControllerInterface(self._drone_name)
-        # root.append(controller_interface)
+            robot.append(motor_model)
 
         # IMU
         imu_model = ImuModel(
-            self._drone_name,
-            imu_widget.link.get(),
-            imu_widget.gyro_noise_density.get(),
-            imu_widget.gyro_random_walk.get(),
-            imu_widget.gyro_bias_corr_time.get(),
-            imu_widget.gyro_turn_on_bias_sigma.get(),
-            imu_widget.acc_noise_density.get(),
-            imu_widget.acc_random_walk.get(),
-            imu_widget.acc_bias_corr_time.get(),
-            imu_widget.acc_turn_on_bias_sigma.get(),
+            ns=self._drone_name,
+            link_name=imu_widget.link.get(),
+            gyro_noise_density=imu_widget.gyro_noise_density.get(),
+            gyro_random_walk=imu_widget.gyro_random_walk.get(),
+            gyro_bias_corr_time=imu_widget.gyro_bias_corr_time.get(),
+            gyro_turn_on_bias_sigma=imu_widget.gyro_turn_on_bias_sigma.get(),
+            acc_noise_density=imu_widget.acc_noise_density.get(),
+            acc_random_walk=imu_widget.acc_random_walk.get(),
+            acc_bias_corr_time=imu_widget.acc_bias_corr_time.get(),
+            acc_turn_on_bias_sigma=imu_widget.acc_turn_on_bias_sigma.get(),
         )
-        root.append(imu_model)
+        robot.append(imu_model)
 
         # Magnetometer
         mag_model = MagnetometerModel(
-            self._drone_name,
-            mag_widget.link.get(),
-            sim_widget.ref_mag_north.get() * 1e-9,
-            sim_widget.ref_mag_east.get() * 1e-9,
-            sim_widget.ref_mag_down.get() * 1e-9,
-            mag_widget.gauss_noise.get() * 1e-9,
-            mag_widget.uniform_noise.get() * 1e-9,
+            ns=self._drone_name,
+            link_name=mag_widget.link.get(),
+            ref_mag_north=sim_widget.ref_mag_north.get() * 1e-9,
+            ref_mag_east=sim_widget.ref_mag_east.get() * 1e-9,
+            ref_mag_down=sim_widget.ref_mag_down.get() * 1e-9,
+            gauss_noise=mag_widget.gauss_noise.get() * 1e-9,
+            uniform_noise=mag_widget.uniform_noise.get() * 1e-9,
         )
-        root.append(mag_model)
+        robot.append(mag_model)
 
         # Barometer
         bar_model = BarometerModel(
-            self._drone_name,
-            bar_widget.link.get(),
-            sim_widget.altitude_0.get(),
-            bar_widget.pressure_var.get(),
+            ns=self._drone_name,
+            link_name=bar_widget.link.get(),
+            ref_altitude=sim_widget.altitude_0.get(),
+            pressure_var=bar_widget.pressure_var.get(),
         )
-        root.append(bar_model)
+        robot.append(bar_model)
 
         # GPS
         gps_model = GpsModel(
-            self._drone_name,
-            gps_widget.link.get(),
-            gps_widget.update_rate.get(),
-            gps_widget.horizontal_pos_std.get(),
-            gps_widget.vertical_pos_std.get(),
-            gps_widget.horizontal_vel_std.get(),
-            gps_widget.vertical_vel_std.get(),
-            sim_widget.latitude_0.get(),
-            sim_widget.longitude_0.get(),
+            ns=self._drone_name,
+            link_name=gps_widget.link.get(),
+            update_rate=gps_widget.update_rate.get(),
+            hor_pos_std=gps_widget.horizontal_pos_std.get(),
+            ver_pos_std=gps_widget.vertical_pos_std.get(),
+            hor_vel_std=gps_widget.horizontal_vel_std.get(),
+            ver_vel_std=gps_widget.vertical_vel_std.get(),
+            latitude_0=sim_widget.latitude_0.get(),
+            longitude_0=sim_widget.longitude_0.get(),
         )
-        root.append(gps_model)
+        robot.append(gps_model)
+
+        # 3D Perception
+        if perception3d.sensor_type.get() == perception3d.POINT_CLOUD_LABEL:
+            raise NotImplementedError
+        elif perception3d.sensor_type.get() == perception3d.DEPTH_MAP_LABEL:
+            depth_map = perception3d.depth_map_settings
+            offset = depth_map.offset
+            add_depth_camera_model(
+                robot=robot,
+                ns=self._drone_name,
+                link_name=depth_map.link.get(),
+                offset=Origin(
+                    x=offset.x(),
+                    y=offset.y(),
+                    z=offset.z(),
+                    roll=offset.roll(),
+                    pitch=offset.pitch(),
+                    yaw=offset.yaw(),
+                ),
+                camera=Camera(
+                    width=depth_map.image_width.get(),
+                    height=depth_map.image_height.get(),
+                    near=depth_map.depth_range.min(),
+                    far=depth_map.depth_range.max(),
+                    horizontal_fov=depth_map.fov.get(),
+                ),
+                frame_rate=depth_map.update_rate.get(),
+                noise_model=depth_map.noise_model.get(),
+                horizontal_fov=depth_map.fov.get(),
+                baseline=depth_map.baseline.get(),
+            )
+        else:
+            raise NotImplementedError
 
         # Ground Truth State
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)
-        root.append(state_gt_model)
+        robot.append(state_gt_model)
 
         # ROS Control
-        ros_control = GazeboRosControlModel(self._drone_name)
-        root.append(ros_control)
+        ros_control = GazeboRosControl(self._drone_name)
+        robot.append(ros_control)
 
         # Transmissions
         for jnt_name in self._main.urdf_parser.required_joint_names():
-            transmission = TransmissionModel(jnt_name, interface=TransmissionModel.POSITION)
-            root.append(transmission)
-
-        return root
+            transmission = Transmission(jnt_name, interface=Transmission.POSITION)
+            robot.append(transmission)

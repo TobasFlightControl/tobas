@@ -42,13 +42,15 @@ public:
 
 class D435DepthNoiseModel : public DepthNoiseModel
 {
-  static constexpr float HorizontalFov = M_PI_2;  // [rad]
-  static constexpr float Baseline = 0.05f;        // [m]
-  static constexpr float SubpixelErr = 0.1f;      // [px] Calibration error
-  static constexpr float MaxStddev = 3.0f;        // [m] cutoff for distance standard deviation
+  static constexpr float SubpixelErr = 0.1f;  // [px] Calibration error
+  static constexpr float MaxStddev = 3.0f;    // [m] cutoff for distance standard deviation
 
 public:
-  D435DepthNoiseModel(float min_depth, float max_depth);
+  D435DepthNoiseModel(float min_depth, float max_depth, float horizontal_fov, float baseline);
 
   void applyNoise(uint32_t width, uint32_t height, float* data) override;
+
+private:
+  const float horizontal_fov_;
+  const float baseline_;
 };

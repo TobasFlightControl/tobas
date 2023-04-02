@@ -28,7 +28,8 @@ class ControllersWidget(BaseSettingWidget):
         self.controller_type = ParamGetterWidget_ComboBox(
             "Type of Controller",
             type_description,
-            [self.LMPC_LABEL, self.NMPC_LABEL, self.SMC_LABEL],
+            # [self.LMPC_LABEL, self.NMPC_LABEL, self.SMC_LABEL],  # TODO
+            [self.LMPC_LABEL],
             default=self.LMPC_LABEL,
         )
         self._rows.addWidget(self.controller_type)

@@ -4,10 +4,6 @@
 #include <boost/array.hpp>
 #include <gazebo/gazebo.hh>
 
-/**
- * @brief utilities
- * @note 各プラグインは個別にビルドしてリンクは行っていないため，ヘッダオンリーで書く．
- */
 namespace gazebo
 {
 template <typename T>

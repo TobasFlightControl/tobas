@@ -1,4 +1,4 @@
-#include "../../include/multirotor_gazebo_plugins/imu_plugin.hpp"
+#include "../../include/plugins/imu_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 

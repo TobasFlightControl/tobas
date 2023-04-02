@@ -11,7 +11,7 @@ DepthNoiseModel::DepthNoiseModel(float min_depth, float max_depth)
   : min_depth_(min_depth),
     max_depth_(max_depth),
     bad_point_(numeric_limits<float>::quiet_NaN()),
-    rnd_gen_(rnd_dev_)
+    rnd_gen_(rnd_dev_())
 {
 }
 
@@ -83,8 +83,12 @@ void PMDDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* data
   }
 }
 
-D435DepthNoiseModel::D435DepthNoiseModel(float min_depth, float max_depth)
-  : DepthNoiseModel(min_depth, max_depth)
+D435DepthNoiseModel::D435DepthNoiseModel(
+  float min_depth,
+  float max_depth,
+  float horizontal_fov,
+  float baseline)
+  : DepthNoiseModel(min_depth, max_depth), horizontal_fov_(horizontal_fov), baseline_(baseline)
 {
 }
 
@@ -95,8 +99,8 @@ void D435DepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* dat
     return;
   }
 
-  float f = 0.5f * (width / tanf(HorizontalFov / 2.0f));
-  float multiplier = (SubpixelErr) / (f * Baseline * 1e+6f);
+  float f = 0.5f * (width / tanf(horizontal_fov_ / 2.0f));
+  float multiplier = (SubpixelErr) / (f * baseline_ * 1e+6f);
   Map<VectorXf> data_vector_map(data, width * height);
 
   // Formula taken from the Intel Whitepaper:

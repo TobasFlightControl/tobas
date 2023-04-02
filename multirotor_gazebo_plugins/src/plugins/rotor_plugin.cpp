@@ -1,4 +1,4 @@
-#include "../../include/multirotor_gazebo_plugins/rotor_plugin.hpp"
+#include "../../include/plugins/rotor_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
 #define CW -1

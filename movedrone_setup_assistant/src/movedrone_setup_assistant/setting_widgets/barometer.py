@@ -29,11 +29,12 @@ class BarometerWidget(BaseSettingWidget):
 
         pressure_var_description = "TODO: instruction"
         self.pressure_var = ParamGetterWidget_DoubleSpinBox(
-            "the air pressure variance [Pa^2]",
+            "the air pressure variance",
             pressure_var_description,
             decimals=2,
             minimum=0.,
             default=1.,
+            suffix=" Pa^2"
         )
         self._rows.addWidget(self.pressure_var)
 
