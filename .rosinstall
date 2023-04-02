@@ -41,12 +41,6 @@
 }
 
 - git: {
-  local-name: dh_rqt_tools,
-  uri: git@github.com:Masa0u0/dh_rqt_tools.git,
-  version: main,
-}
-
-- git: {
   local-name: dh_linear_control,
   uri: git@github.com:Masa0u0/dh_linear_control.git,
   version: main,
@@ -55,5 +49,17 @@
 - git: {
   local-name: dh_kdl,
   uri: git@github.com:Masa0u0/dh_kdl.git,
+  version: main,
+}
+
+- git: {
+  local-name: dh_rqt_tools,
+  uri: git@github.com:Masa0u0/dh_rqt_tools.git,
+  version: main,
+}
+
+- git: {
+  local-name: urdf_tools_py,
+  uri: git@github.com:Masa0u0/urdf_tools_py.git,
   version: main,
 }
