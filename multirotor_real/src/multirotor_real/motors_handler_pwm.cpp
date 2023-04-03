@@ -6,6 +6,7 @@
 #include "../../include/multirotor_real/motors_handler_pwm.hpp"
 
 #define INFO_PERIOD 1.
+#define FREQ 50.
 #define PWM_LB 1000.
 #define PWM_UB 2000.
 
@@ -30,6 +31,11 @@ MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle& nh)
     if (!pwm_.initialize(channel))
     {
       throw dh_ros::RuntimeError("Failed to initialize RC output for PIN" + to_string(pin) + ".");
+    }
+
+    if (!pwm_.set_frequency(channel, FREQ))
+    {
+      throw dh_ros::RuntimeError("Failed to set frequency for PIN" + to_string(pin) + ".");
     }
 
     if (!pwm_.enable(channel))
