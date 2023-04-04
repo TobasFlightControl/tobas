@@ -8,6 +8,7 @@
 
 #include "../../include/multirotor_controller/controller.hpp"
 
+#define INFO_PERIOD 1.
 #define INIT_ELEVATION 1.
 
 using namespace std;
@@ -136,7 +137,7 @@ void Controller::updateDesiredState(double dt)
     }
     default:
     {
-      dh_ros::rosError("Invalid command mode: " + to_string(cmd_.mode));
+      dh_ros::rosErrorThrottle(INFO_PERIOD, "Invalid command mode: " + to_string(cmd_.mode));
       return;
     }
   }

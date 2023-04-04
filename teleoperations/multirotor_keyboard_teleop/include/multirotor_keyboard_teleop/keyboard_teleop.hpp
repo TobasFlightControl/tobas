@@ -12,6 +12,8 @@
  */
 class CommandHandler
 {
+  using CmdMsg = multirotor_msgs::Command;
+
 public:
   explicit CommandHandler(ros::NodeHandle& nh);
 
@@ -30,9 +32,9 @@ private:
   // other
   termios tempcopy_, changed_;
   double update_rate_;
-  double delta_pos_;              // 1度のキーボード入力での並進位置の変化量
-  double delta_rot_;              // 1度のキーボード入力での回転位置の変化量
-  multirotor_msgs::Command cmd_;  // 位置コマンド
+  double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
+  double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
+  CmdMsg cmd_;
 
   ros::Publisher cmd_pub_;
 

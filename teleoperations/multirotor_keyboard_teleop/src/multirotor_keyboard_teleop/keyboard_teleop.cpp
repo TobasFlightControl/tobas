@@ -15,6 +15,7 @@
 #define KEYCODE_R 0x43
 #define KEYCODE_L 0x44
 
+#define OVER_SAMPLING 10.
 #define INFO_PERIOD 1.
 
 using namespace std;
@@ -23,14 +24,17 @@ CommandHandler::CommandHandler(ros::NodeHandle& nh)
 {
   getParams();
 
-  update_rate_ = key_repeat_freq_ * 10.;  // 全てのキーボード入力を拾うためにオーバーサンプリング
+  update_rate_ = key_repeat_freq_ * OVER_SAMPLING;  // 全ての入力を拾うためにオーバーサンプリング
   delta_pos_ = max_linvel_ / key_repeat_freq_;
   delta_rot_ = max_angvel_ / key_repeat_freq_;
+
+  // コマンドをGlobal Positionモードに設定
+  cmd_.mode = CmdMsg::GLOBAL_POSITION;
 
   // z座標の初期値を制限の下限に設定
   cmd_.target_position.z = z_limit_.lower;
 
-  cmd_pub_ = nh.advertise<multirotor_msgs::Command>("/multirotor_controller/command", 1, false);
+  cmd_pub_ = nh.advertise<CmdMsg>("/multirotor_controller/command", 1, false);
 
   prepare(0);
 }
