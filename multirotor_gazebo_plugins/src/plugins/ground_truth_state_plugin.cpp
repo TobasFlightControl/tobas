@@ -63,7 +63,7 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   // Fill state message.
   timeGazeboToRos(cur_time, state_msg_.header.stamp);
 
-  pointGazeboToRos(T_W_B.Pos(), state_msg_.pose_vel.pose.position);
+  vectorGazeboToRos(T_W_B.Pos(), state_msg_.pose_vel.pose.position);
 
   const Quaterniond& q = T_W_B.Rot();
   multirotor_msgs::Euler& e = state_msg_.pose_vel.pose.orientation;

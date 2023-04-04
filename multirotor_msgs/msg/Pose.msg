@@ -1,2 +1,2 @@
-geometry_msgs/Point position
-Euler orientation
+geometry_msgs/Vector3 position  # [m]
+Euler orientation               # [rad]

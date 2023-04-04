@@ -21,6 +21,9 @@
  */
 class Controller
 {
+  using StateMsg = multirotor_msgs::PoseVelStamped;
+  using CmdMsg = multirotor_msgs::Command;
+
   using ConfigType = multirotor_controller::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
@@ -38,18 +41,22 @@ private:
   const bool transformable_;  // プロペラ以外の可動関節を持つか否か
   const RotorProperties rotor_props_;
 
-  multirotor_msgs::PoseVel bs_;
-  KDL::JntArray q_;
-  multirotor_msgs::Command cmd_;
-  bool js_subscribed_;
-  bool cmd_subscribed_;
+  multirotor_msgs::PoseVel bs_;     // ベースの推定状態
+  KDL::JntArray q_;                 // 全ての非固定関節の角度
+  geometry_msgs::Vector3 pos_des_;  // {world}で表された目標位置
+  double yaw_des_;                  // {world}で表されたヨー角の目標値
+  CmdMsg cmd_;
+  bool is_first_run_;
+  bool bs_received_;
+  bool js_received_;
+  bool cmd_received_;
+  ros::Time t_last_;  // 最後に動作した時刻
 
   PositionController pos_controller_;
   AccelerationController acc_controller_;
   RotationController rot_controller_;
   multirotor_msgs::ControllerFeedback feedback_;
   multirotor_msgs::RotorSpeeds rotor_speeds_;
-  dh_ros::Stopwatch stopwatch_;
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
@@ -62,13 +69,12 @@ private:
   ConfigServer server_;
 
   void runOnce();
-  void
-  rotorVelsFromCtrlInput(const std::vector<double>& u, multirotor_msgs::RotorSpeeds& rotor_speeds);
-  bool allMsgReceived();
+  void updateDesiredState(double dt);
+  void ctrlInputToRotorSpeeds(const std::vector<double>& u, multirotor_msgs::RotorSpeeds& speeds);
 
-  void bsCb(const multirotor_msgs::PoseVelStamped& msg);
-  void jsCb(const sensor_msgs::JointState& msg);
-  void commandCb(const multirotor_msgs::Command& msg);
+  void bsCb(const StateMsg& bs);
+  void jsCb(const sensor_msgs::JointState& js);
+  void commandCb(const CmdMsg& cmd);
 
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };

@@ -1,16 +1,14 @@
 #include <kdl_parser/kdl_parser.hpp>
 
-#include <dh_std_tools/iostream.hpp>
 #include <dh_std_tools/vector.hpp>
-#include <dh_eigen_tools/core.hpp>
-#include <dh_ros_tools/rate.hpp>
-#include <dh_ros_tools/stopwatch.hpp>
 #include <dh_ros_tools/rosparam.hpp>
-#include <dh_linear_control/mpc/linear_dense.hpp>
-#include <dh_linear_control/c2d/rk4.hpp>
-#include <dh_linear_control/util.hpp>
+
+#include <multirotor_tools/operators.hpp>
+#include <multirotor_tools/utils.hpp>
 
 #include "../../include/multirotor_controller/controller.hpp"
+
+#define INIT_ELEVATION 1.
 
 using namespace std;
 using namespace KDL;
@@ -21,8 +19,10 @@ Controller::Controller()
     required_joints_(dh_ros::getParam<vector<string>>("/required_joint_names")),
     transformable_(required_joints_.size() > 0),
     rotor_props_(getRotorProperties()),
-    js_subscribed_(false),
-    cmd_subscribed_(false),
+    is_first_run_(true),
+    bs_received_(false),
+    js_received_(false),
+    cmd_received_(false),
     acc_controller_(tree_),
     rot_controller_(tree_)
 {
@@ -40,8 +40,6 @@ Controller::Controller()
   q_.resize(kdl_model_.getNrOfJoints());
   feedback_.thrust_forces.resize(num_rotors_);
   rotor_speeds_.speeds.resize(num_rotors_);
-
-  const string ns = ros::this_node::getNamespace();
 
   // PubSub
   rotor_speeds_pub_ = nh_.advertise<multirotor_msgs::RotorSpeeds>(
@@ -62,6 +60,25 @@ Controller::Controller()
 
 void Controller::runOnce()
 {
+  // 初回動作時は時刻を更新するのみ
+  if (is_first_run_)
+  {
+    t_last_ = ros::Time::now();
+    is_first_run_ = false;
+    return;
+  }
+
+  // 時刻を更新
+  ros::Time now = ros::Time::now();
+  double dt = (now - t_last_).toSec();
+  t_last_ = now;
+
+  // 目標状態を更新
+  if (cmd_received_)
+  {
+    updateDesiredState(dt);
+  }
+
   auto& pos_des = feedback_.desired_position;
   auto& acc_des = feedback_.desired_acceleration;
   auto& rpy_des = feedback_.desired_orientation;
@@ -69,31 +86,65 @@ void Controller::runOnce()
   auto& u = feedback_.thrust_forces;
 
   // 位置とヨー角の目標値はコマンドどおり
-  pos_des = cmd_.target_position;
-  rpy_des.yaw = cmd_.target_yaw_angle;
+  pos_des = pos_des_;
+  rpy_des.yaw = yaw_des_;
 
   // TODO: 非ゼロの速度目標値を与える
   geometry_msgs::Vector3 vel_des;
 
-  // cout << bs_.pose.position << endl;
-  // cout << pos_des << endl;
-  // cout << endl;
-
-  // stopwatch_.start();
+  // 位置制御器，非線形変換，姿勢制御機の順に実行
   pos_controller_.update(bs_.pose.position, pos_des, bs_.twist.linear, vel_des, acc_des);
   acc_controller_.update(acc_des, bs_.pose.orientation.yaw, U, rpy_des.roll, rpy_des.pitch);
   rot_controller_.update(bs_, q_, U, rpy_des.roll, rpy_des.pitch, rpy_des.yaw, u);
-  // stopwatch_.stop();
 
-  rotorVelsFromCtrlInput(u, rotor_speeds_);
+  // 各モータの回転速度を計算
+  ctrlInputToRotorSpeeds(u, rotor_speeds_);
 
+  // モータ速度とフィードバックを発行
   rotor_speeds_pub_.publish(rotor_speeds_);
   feedback_pub_.publish(feedback_);
 }
 
-void Controller::rotorVelsFromCtrlInput(
+void Controller::updateDesiredState(double dt)
+{
+  ROS_ASSERT(dt >= 0.);
+
+  switch (cmd_.mode)
+  {
+    case CmdMsg::GLOBAL_POSITION:
+    {
+      pos_des_ = cmd_.target_position;
+      yaw_des_ = cmd_.target_yaw_angle;
+      break;
+    }
+    case CmdMsg::GLOBAL_VELOCITY:
+    {
+      pos_des_ = pos_des_ + cmd_.target_velocity * dt;
+      yaw_des_ = yaw_des_ + cmd_.target_yaw_rate * dt;
+      break;
+    }
+    case CmdMsg::LOCAL_VELOCITY:
+    {
+      const auto& rpy = bs_.pose.orientation;
+      const auto& V_B = cmd_.target_velocity;
+      geometry_msgs::Vector3 V_W;
+      // rotateVector(rpy.roll, rpy.pitch, rpy.yaw, V_B.x, V_B.y, V_B.z, V_W.x, V_W.y, V_W.z);
+      rotateVector(0., 0., rpy.yaw, V_B.x, V_B.y, V_B.z, V_W.x, V_W.y, V_W.z);
+      pos_des_ = pos_des_ + V_W * dt;
+      yaw_des_ = yaw_des_ + cmd_.target_yaw_rate * dt;
+      break;
+    }
+    default:
+    {
+      dh_ros::rosError("Invalid command mode: " + to_string(cmd_.mode));
+      return;
+    }
+  }
+}
+
+void Controller::ctrlInputToRotorSpeeds(
   const vector<double>& u,
-  multirotor_msgs::RotorSpeeds& rotor_speeds)
+  multirotor_msgs::RotorSpeeds& speeds)
 {
   ROS_ASSERT(u.size() == num_rotors_);
 
@@ -104,39 +155,35 @@ void Controller::rotorVelsFromCtrlInput(
       dh_ros::rosFatal("Negative thrust force: u = " + to_string(u[i]));
       // TODO: 防御モードに移行
     }
-    rotor_speeds.speeds[i] = sqrt(max(u[i], 0.) / rotor_props_[i].motor_constant);
+    speeds.speeds[i] = sqrt(max(u[i], 0.) / rotor_props_[i].motor_constant);
   }
 }
 
-bool Controller::allMsgReceived()
+void Controller::bsCb(const StateMsg& bs)
 {
-  if (transformable_)
+  // 最初は暴れるのを防ぐために現在の状態を目標状態にする
+  if (!bs_received_)
   {
-    return js_subscribed_ && cmd_subscribed_;
+    pos_des_ = bs.pose_vel.pose.position;
+    pos_des_.z += INIT_ELEVATION;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
+    yaw_des_ = bs.pose_vel.pose.orientation.yaw;
+    bs_received_ = true;
   }
-  else
-  {
-    return cmd_subscribed_;
-  }
-}
 
-void Controller::bsCb(const multirotor_msgs::PoseVelStamped& msg)
-{
-  bs_ = msg.pose_vel;
+  bs_ = bs.pose_vel;
 
   // トピックが揃っていたら，状態を観測するたびに一回だけ制御器を回す．
-  if (allMsgReceived())
+  if (!transformable_ || js_received_)
   {
     runOnce();
   }
 }
 
-void Controller::jsCb(const sensor_msgs::JointState& msg)
+void Controller::jsCb(const sensor_msgs::JointState& js)
 {
-  if (msg.name.size() != msg.position.size())
+  if (js.name.size() != js.position.size())
   {
     dh_ros::rosError("The size of joint name and position is different.");
-    js_subscribed_ = false;
     return;
   }
 
@@ -144,26 +191,25 @@ void Controller::jsCb(const sensor_msgs::JointState& msg)
   {
     try
     {
-      const auto msg_idx = dh_std::findIndex(msg.name, jnt_name);  // msg内でのインデックス
-      const auto& jnt_pos = msg.position[msg_idx];
+      const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
+      const auto& jnt_pos = js.position[msg_idx];
       const auto& kdl_idx = kdl_model_.jointIndex(jnt_name);  // Tree内でのインデックス
       q_(kdl_idx) = jnt_pos;
     }
     catch (const exception& e)
     {
       dh_ros::rosError(e.what());
-      js_subscribed_ = false;
       return;
     }
   }
 
-  js_subscribed_ = true;
+  js_received_ = true;
 }
 
-void Controller::commandCb(const multirotor_msgs::Command& msg)
+void Controller::commandCb(const CmdMsg& cmd)
 {
-  cmd_ = msg;
-  cmd_subscribed_ = true;
+  cmd_ = cmd;
+  cmd_received_ = true;
 }
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)

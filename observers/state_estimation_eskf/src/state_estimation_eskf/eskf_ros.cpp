@@ -121,7 +121,7 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 {
   state_.header.stamp = ros::Time::now();
 
-  tf::pointEigenToMsg(eskf_.getPosition3D(), state_.pose_vel.pose.position);
+  tf::vectorEigenToMsg(eskf_.getPosition3D(), state_.pose_vel.pose.position);
 
   auto q = eskf_.getQuaternion();
   auto& rpy = state_.pose_vel.pose.orientation;

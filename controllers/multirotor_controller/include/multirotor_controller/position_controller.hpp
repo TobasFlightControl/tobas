@@ -9,8 +9,8 @@ public:
   PositionController();
 
   void update(
-    const geometry_msgs::Point& pos,
-    const geometry_msgs::Point& pos_des,
+    const geometry_msgs::Vector3& pos,
+    const geometry_msgs::Vector3& pos_des,
     const geometry_msgs::Vector3& vel,
     const geometry_msgs::Vector3& vel_des,
     geometry_msgs::Vector3& acc_out);

@@ -250,7 +250,7 @@ void StateEstimator::updatePoseVelMsg()
   state_.header.stamp = ros::Time::now();
 
   // 位置
-  tf::pointEigenToMsg(cart_filter_.getPosition3D(), state_.pose_vel.pose.position);
+  tf::vectorEigenToMsg(cart_filter_.getPosition3D(), state_.pose_vel.pose.position);
 
   // ロール，ピッチ
   const auto& quat = filtered_imu_buf_.getLatest().orientation;
