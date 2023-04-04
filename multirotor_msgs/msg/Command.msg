@@ -4,6 +4,8 @@ geometry_msgs/Vector3 target_velocity   # [m/s]
 float64 target_yaw_angle                # [rad]
 float64 target_yaw_rate                 # [rad/s]
 
+# コマンドのモード
+# 明示的な設定を促すために敢えてデフォルトの0は外している
 uint8 GLOBAL_POSITION = 1
 uint8 GLOBAL_VELOCITY = 2
 uint8 LOCAL_VELOCITY = 3
