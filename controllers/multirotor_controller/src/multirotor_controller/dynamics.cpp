@@ -12,7 +12,6 @@
 #include "../../include/multirotor_controller/dynamics.hpp"
 
 using namespace std;
-using namespace Eigen;
 using namespace KDL;
 
 MultiRotorDynamics::MultiRotorDynamics(const Tree& tree)
