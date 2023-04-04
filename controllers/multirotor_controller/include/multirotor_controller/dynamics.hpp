@@ -7,7 +7,15 @@
 
 #include <multirotor_tools/rotor_property.hpp>
 
-#include "./const.hpp"
+#define STATE_SIZE 6  // 姿勢制御器の状態の次元
+
+// 状態ベクトルにおける各変数のインデックス
+#define ROLL 0
+#define PITCH 1
+#define YAW 2
+#define ANGVEL_X 3
+#define ANGVEL_Y 4
+#define ANGVEL_Z 5
 
 /**
  * @brief クアッドロータの連続時間状態方程式．

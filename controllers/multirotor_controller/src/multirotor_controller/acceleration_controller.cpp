@@ -6,7 +6,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
-#include "../../include/multirotor_controller/const.hpp"
+#include "../../include/multirotor_controller/constants.hpp"
 
 #define WARN_PERIOD 1.
 

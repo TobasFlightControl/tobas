@@ -10,7 +10,6 @@
 #include <multirotor_tools/rotor_property.hpp>
 
 #include "../../include/multirotor_controller/dynamics.hpp"
-#include "../../include/multirotor_controller/const.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -22,7 +21,7 @@ MultiRotorDynamics::MultiRotorDynamics(const Tree& tree)
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     rotor_props_(getRotorProperties())
 {
-  resize(X_DIM, num_rotors_);
+  resize(STATE_SIZE, num_rotors_);
 }
 
 void MultiRotorDynamics::updateInternalDataStructures()

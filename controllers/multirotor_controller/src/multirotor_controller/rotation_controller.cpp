@@ -5,6 +5,7 @@
 #include <dh_linear_control/util.hpp>
 
 #include "../../include/multirotor_controller/rotation_controller.hpp"
+#include "../../include/multirotor_controller/constants.hpp"
 
 #define WEIGHT_SCALER 1e+6  // QPの数値エラーを防ぐために重みにかける定数
 
@@ -16,20 +17,20 @@ RotationController::RotationController(const Tree& tree)
   : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     rotor_props_(getRotorProperties()),
-    T_refs_(X_DIM),
+    T_refs_(STATE_SIZE),
     kdl_model_(tree),
     cont_(tree),
-    c2d_(X_DIM, num_rotors_),
-    x_(X_DIM),
-    s_(X_DIM),
+    c2d_(STATE_SIZE, num_rotors_),
+    x_(STATE_SIZE),
+    s_(STATE_SIZE),
     u_(VectorXd::Zero(num_rotors_)),
-    Cz_(MatrixXd::Identity(X_DIM, X_DIM)),
-    Q_(X_DIM),
+    Cz_(MatrixXd::Identity(STATE_SIZE, STATE_SIZE)),
+    Q_(STATE_SIZE),
     S_(num_rotors_),
     R_(num_rotors_),
     E_e_(ctrl::LinearEquation(num_rotors_, 0)),
     F_f_(makeBaseInputCondition()),
-    G_g_(ctrl::LinearEquation(X_DIM, 0))
+    G_g_(ctrl::LinearEquation(STATE_SIZE, 0))
 {
 }
 
@@ -105,7 +106,7 @@ void RotationController::reconfigure(
   T_refs_[ROLL] = T_refs_[PITCH] = T_refs_[YAW] = rot_decay;
   T_refs_[ANGVEL_X] = T_refs_[ANGVEL_Y] = T_refs_[ANGVEL_Z] = angvel_decay;
 
-  discs_.resize(pred_steps, ctrl::LinearDynamics(X_DIM, num_rotors_));
+  discs_.resize(pred_steps, ctrl::LinearDynamics(STATE_SIZE, num_rotors_));
 
   updateWeight_Q(rot_weight, angvel_weight);
   updateWeight_S(thrust_weight);
