@@ -24,8 +24,6 @@ GazeboNoisyDepthPlugin::~GazeboNoisyDepthPlugin()
 
 void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
-  GazeboRosCameraUtils::Load(parent, sdf);
-
   parent_sensor_ = dynamic_pointer_cast<sensors::DepthCameraSensor>(parent);
   if (!parent_sensor_)
   {
@@ -49,9 +47,13 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
   new_depth_frame_connection_ = depth_camera_->ConnectNewDepthFrame(
     boost::bind(&GazeboNoisyDepthPlugin::onNewDepthFrame, this, _1, _2, _3, _4, _5));
 
-  parent_sensor_->SetActive(true);
+  // GazeboRosCameraUtilsのLoadが完了してからadvertiseを行うように設定する
+  // これをせずadvertiseをベタ書きするとsegmentation faultになる
+  load_connection_ =
+    GazeboRosCameraUtils::OnLoad(boost::bind(&GazeboNoisyDepthPlugin::advertise, this));
+  GazeboRosCameraUtils::Load(parent, sdf);
 
-  advertise();
+  parent_sensor_->SetActive(true);
 }
 
 void GazeboNoisyDepthPlugin::onNewImageFrame(

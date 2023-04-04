@@ -60,6 +60,7 @@ private:
 
   event::ConnectionPtr new_image_frame_connection_;
   event::ConnectionPtr new_depth_frame_connection_;
+  event::ConnectionPtr load_connection_;
 
   ros::Publisher depth_image_pub_;
   ros::Publisher depth_info_pub_;
