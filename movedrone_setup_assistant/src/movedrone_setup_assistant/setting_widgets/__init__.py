@@ -7,7 +7,7 @@ from .barometer import BarometerWidget
 from .gps import GpsWidget
 from .depth_camera import DepthCameraWidget
 from .lidar import LidarWidget
-from .controllers import ControllersWidget
+from .controller import ControllerWidget
 from .simulation import SimulationWidget
 from .author_information import AuthorInformationWidget
 from .ros_package import RosPackageWidget

@@ -159,10 +159,10 @@ class PackageGenerator(QWidget):
         template_items["ref_mag_east"] = simulation.ref_mag_east.get() * 1e-9
         template_items["ref_mag_down"] = simulation.ref_mag_down.get() * 1e-9
 
-        # Controllers
-        controllers = self._main.settings.controllers
-        if controllers.controller_type.get() == controllers.LMPC_LABEL:
-            lmpc = self._main.settings.controllers.lmpc_settings
+        # Controller
+        controller = self._main.settings.controller
+        if controller.controller_type.get() == controller.LMPC_LABEL:
+            lmpc = self._main.settings.controller.lmpc_settings
             lmpc_items = {
                 "natural_freq": lmpc.natural_freq.get(),
                 "damp_ratio": lmpc.damp_ratio.get(),
@@ -176,9 +176,9 @@ class PackageGenerator(QWidget):
                 "thrust_rate_weight": lmpc.thrust_rate_weight.get(),
             }
             template_items["lmpc"] = lmpc_items
-        elif controllers.controller_type.get() == controllers.NMPC_LABEL:
+        elif controller.controller_type.get() == controller.NMPC_LABEL:
             raise NotImplementedError
-        elif controllers.controller_type.get() == controllers.SMC_LABEL:
+        elif controller.controller_type.get() == controller.SMC_LABEL:
             raise NotImplementedError
         else:
             raise NotImplementedError

@@ -13,15 +13,15 @@ from ..parameter_getters import *
 from ..constants import *
 
 
-class ControllersWidget(BaseSettingWidget):
+class ControllerWidget(BaseSettingWidget):
 
     LMPC_LABEL = "Linear Model Predictive Control"
     NMPC_LABEL = "Nonlinear Model Predictive Control"
     SMC_LABEL = "Model Following Sliding Mode Control"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Setup Controllers'
-        abst_text = 'TODO: abstruct'
+        title_text = "Setup Controller"
+        abst_text = "TODO: abstruct"
         super().__init__(main, title_text, abst_text)
 
         type_description = "TODO: instruction"
@@ -83,7 +83,7 @@ class LMPCSettingsWidget(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = 'TODO: abstruct of LMPC'
+        abst_text = "TODO: abstruct of LMPC"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
@@ -206,7 +206,7 @@ class NMPCSettingsWidget(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = 'TODO: abstruct of NMPC'
+        abst_text = "TODO: abstruct of NMPC"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
@@ -225,7 +225,7 @@ class SMCSettingsWidget(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = 'TODO: abstruct of SMC'
+        abst_text = "TODO: abstruct of SMC"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
