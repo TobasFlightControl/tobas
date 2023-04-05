@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from .base_setting import BaseSettingWidget
-from ..const import *
+from ..constants import *
 from ..parameter_getters import *
 
 

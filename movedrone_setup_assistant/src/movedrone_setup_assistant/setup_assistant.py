@@ -9,7 +9,7 @@ from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
 from .robot_visualizer import RobotVisualizerWidget
 from .settings import SettingsWidget
-from .const import *
+from .constants import *
 
 
 class SetupAssistant(QWidget):

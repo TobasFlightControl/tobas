@@ -12,7 +12,7 @@ from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox
 from dh_rqt_tools.messages import q_error
 
 from .base_setting import BaseSettingWidget
-from ..const import *
+from ..constants import *
 
 
 class PropellersWidget(BaseSettingWidget):

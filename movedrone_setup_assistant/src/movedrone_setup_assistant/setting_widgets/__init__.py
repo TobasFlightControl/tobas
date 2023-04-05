@@ -5,7 +5,8 @@ from .imu import ImuWidget
 from .magnetometer import MagnetometerWidget
 from .barometer import BarometerWidget
 from .gps import GpsWidget
-from .perception3d import Perception3dWidget
+from .depth_camera import DepthCameraWidget
+from .lidar import LidarWidget
 from .controllers import ControllersWidget
 from .simulation import SimulationWidget
 from .author_information import AuthorInformationWidget

@@ -15,7 +15,7 @@ from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_error
 
 from .base_setting import BaseSettingWidget
-from ..const import *
+from ..constants import *
 
 
 class StartWidget(BaseSettingWidget):

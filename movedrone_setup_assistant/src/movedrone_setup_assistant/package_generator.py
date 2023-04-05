@@ -199,28 +199,28 @@ class PackageGenerator(QWidget):
 
     def _generate_drone_props(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
-        propellers_widget = self._main.settings.propellers.selected
-        battery_widget = self._main.settings.battery
-        num_rotors = propellers_widget.num()
+        propellers = self._main.settings.propellers.selected
+        battery = self._main.settings.battery
+        num_rotors = propellers.num()
         drone_props = {
             "drone_name": self._drone_name,
             "num_rotors": num_rotors,
-            "battery_voltage": battery_widget.voltage.get(),
+            "battery_voltage": battery.voltage.get(),
             "required_joint_names": self._main.urdf_parser.required_joint_names(),
         }
         for i in range(num_rotors):
             drone_props[f'rotor_{i}'] = {
-                "link_name": propellers_widget.link_names[i].text(),
-                "direction": propellers_widget.directions[i].currentText().lower(),
-                "motor_constant": propellers_widget.motor_consts[i].value(),
-                "moment_constant": propellers_widget.moment_consts[i].value(),
-                "kv": propellers_widget.kvs[i].value(),
-                "efficiency": propellers_widget.efficiencies[i].value() * 1e-2,
-                "rotor_drag_coefficient": propellers_widget.drag_coefs[i].value(),
-                "rolling_moment_coefficient": propellers_widget.rolling_coefs[i].value(),
-                "time_constant_up": propellers_widget.time_consts_up[i].value() * 1e-3,
-                "time_constant_down": propellers_widget.time_consts_down[i].value() * 1e-3,
-                "pin": propellers_widget.pins[i].value(),
+                "link_name": propellers.link_names[i].text(),
+                "direction": propellers.directions[i].currentText().lower(),
+                "motor_constant": propellers.motor_consts[i].value(),
+                "moment_constant": propellers.moment_consts[i].value(),
+                "kv": propellers.kvs[i].value(),
+                "efficiency": propellers.efficiencies[i].value() * 1e-2,
+                "rotor_drag_coefficient": propellers.drag_coefs[i].value(),
+                "rolling_moment_coefficient": propellers.rolling_coefs[i].value(),
+                "time_constant_up": propellers.time_consts_up[i].value() * 1e-3,
+                "time_constant_down": propellers.time_consts_down[i].value() * 1e-3,
+                "pin": propellers.pins[i].value(),
             }
 
         # yamlファイルを作成
@@ -315,120 +315,114 @@ class PackageGenerator(QWidget):
     def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
 
-        propellers_widget = self._main.settings.propellers.selected
-        battery_widget = self._main.settings.battery
-        imu_widget = self._main.settings.imu
-        mag_widget = self._main.settings.magnetometer
-        bar_widget = self._main.settings.barometer
-        gps_widget = self._main.settings.gps
-        perception3d = self._main.settings.perception3d
-        sim_widget = self._main.settings.simulation
+        propellers = self._main.settings.propellers.selected
+        battery = self._main.settings.battery
+        imu = self._main.settings.imu
+        magnetometer = self._main.settings.magnetometer
+        barometer = self._main.settings.barometer
+        gps = self._main.settings.gps
+        depth_camera = self._main.settings.depth_camera
+        simulation = self._main.settings.simulation
 
         # Motors
-        voltage = battery_widget.voltage.get()
-        for i in range(propellers_widget.num()):
-            kv = propellers_widget.kvs[i].value()
-            efficiency = propellers_widget.efficiencies[i].value() * 1e-2
+        voltage = battery.voltage.get()
+        for i in range(propellers.num()):
+            kv = propellers.kvs[i].value()
+            efficiency = propellers.efficiencies[i].value() * 1e-2
             max_rot_vel = rpm_to_rad_per_sec(voltage * kv * efficiency)
 
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,
-                link_name=propellers_widget.link_names[i].text(),
-                joint_name=propellers_widget.joint_names[i].text(),
-                direction=propellers_widget.directions[i].currentText().lower(),
+                link_name=propellers.link_names[i].text(),
+                joint_name=propellers.joint_names[i].text(),
+                direction=propellers.directions[i].currentText().lower(),
                 max_rot_vel=max_rot_vel,
-                motor_const=propellers_widget.motor_consts[i].value(),
-                moment_const=propellers_widget.moment_consts[i].value(),
-                drag_coef=propellers_widget.drag_coefs[i].value(),
-                roll_coef=propellers_widget.rolling_coefs[i].value(),
-                time_const_up=propellers_widget.time_consts_up[i].value() * 1e-3,
-                time_const_down=propellers_widget.time_consts_down[i].value() * 1e-3,
+                motor_const=propellers.motor_consts[i].value(),
+                moment_const=propellers.moment_consts[i].value(),
+                drag_coef=propellers.drag_coefs[i].value(),
+                roll_coef=propellers.rolling_coefs[i].value(),
+                time_const_up=propellers.time_consts_up[i].value() * 1e-3,
+                time_const_down=propellers.time_consts_down[i].value() * 1e-3,
             )
             robot.append(motor_model)
 
         # IMU
         imu_model = ImuModel(
             ns=self._drone_name,
-            link_name=imu_widget.link.get(),
-            gyro_noise_density=imu_widget.gyro_noise_density.get(),
-            gyro_random_walk=imu_widget.gyro_random_walk.get(),
-            gyro_bias_corr_time=imu_widget.gyro_bias_corr_time.get(),
-            gyro_turn_on_bias_sigma=imu_widget.gyro_turn_on_bias_sigma.get(),
-            acc_noise_density=imu_widget.acc_noise_density.get(),
-            acc_random_walk=imu_widget.acc_random_walk.get(),
-            acc_bias_corr_time=imu_widget.acc_bias_corr_time.get(),
-            acc_turn_on_bias_sigma=imu_widget.acc_turn_on_bias_sigma.get(),
+            link_name=imu.link.get(),
+            gyro_noise_density=imu.gyro_noise_density.get(),
+            gyro_random_walk=imu.gyro_random_walk.get(),
+            gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
+            gyro_turn_on_bias_sigma=imu.gyro_turn_on_bias_sigma.get(),
+            acc_noise_density=imu.acc_noise_density.get(),
+            acc_random_walk=imu.acc_random_walk.get(),
+            acc_bias_corr_time=imu.acc_bias_corr_time.get(),
+            acc_turn_on_bias_sigma=imu.acc_turn_on_bias_sigma.get(),
         )
         robot.append(imu_model)
 
         # Magnetometer
         mag_model = MagnetometerModel(
             ns=self._drone_name,
-            link_name=mag_widget.link.get(),
-            ref_mag_north=sim_widget.ref_mag_north.get() * 1e-9,
-            ref_mag_east=sim_widget.ref_mag_east.get() * 1e-9,
-            ref_mag_down=sim_widget.ref_mag_down.get() * 1e-9,
-            gauss_noise=mag_widget.gauss_noise.get() * 1e-9,
-            uniform_noise=mag_widget.uniform_noise.get() * 1e-9,
+            link_name=magnetometer.link.get(),
+            ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
+            ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
+            ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
+            gauss_noise=magnetometer.gauss_noise.get() * 1e-9,
+            uniform_noise=magnetometer.uniform_noise.get() * 1e-9,
         )
         robot.append(mag_model)
 
         # Barometer
         bar_model = BarometerModel(
             ns=self._drone_name,
-            link_name=bar_widget.link.get(),
-            ref_altitude=sim_widget.altitude_0.get(),
-            pressure_var=bar_widget.pressure_var.get(),
+            link_name=barometer.link.get(),
+            ref_altitude=simulation.altitude_0.get(),
+            pressure_var=barometer.pressure_var.get(),
         )
         robot.append(bar_model)
 
         # GPS
         gps_model = GpsModel(
             ns=self._drone_name,
-            link_name=gps_widget.link.get(),
-            update_rate=gps_widget.update_rate.get(),
-            hor_pos_std=gps_widget.horizontal_pos_std.get(),
-            ver_pos_std=gps_widget.vertical_pos_std.get(),
-            hor_vel_std=gps_widget.horizontal_vel_std.get(),
-            ver_vel_std=gps_widget.vertical_vel_std.get(),
-            latitude_0=sim_widget.latitude_0.get(),
-            longitude_0=sim_widget.longitude_0.get(),
+            link_name=gps.link.get(),
+            update_rate=gps.update_rate.get(),
+            hor_pos_std=gps.horizontal_pos_std.get(),
+            ver_pos_std=gps.vertical_pos_std.get(),
+            hor_vel_std=gps.horizontal_vel_std.get(),
+            ver_vel_std=gps.vertical_vel_std.get(),
+            latitude_0=simulation.latitude_0.get(),
+            longitude_0=simulation.longitude_0.get(),
         )
         robot.append(gps_model)
 
-        # 3D Perception
-        if perception3d.sensor_type.get() == perception3d.POINT_CLOUD_LABEL:
-            raise NotImplementedError
-        elif perception3d.sensor_type.get() == perception3d.DEPTH_MAP_LABEL:
-            depth_map = perception3d.depth_map_settings
-            offset = depth_map.offset
+        # Depth Camera
+        if not depth_camera.no_sensor.isChecked():
             add_depth_camera_model(
                 robot=robot,
                 ns=self._drone_name,
-                link_name=depth_map.link.get(),
+                link_name=depth_camera.link.get(),
                 offset=Origin(
-                    x=offset.x(),
-                    y=offset.y(),
-                    z=offset.z(),
-                    roll=offset.roll(),
-                    pitch=offset.pitch(),
-                    yaw=offset.yaw(),
+                    x=depth_camera.offset.x(),
+                    y=depth_camera.offset.y(),
+                    z=depth_camera.offset.z(),
+                    roll=depth_camera.offset.roll(),
+                    pitch=depth_camera.offset.pitch(),
+                    yaw=depth_camera.offset.yaw(),
                 ),
                 camera=Camera(
-                    width=depth_map.image_width.get(),
-                    height=depth_map.image_height.get(),
-                    near=depth_map.depth_range.min(),
-                    far=depth_map.depth_range.max(),
-                    horizontal_fov=depth_map.fov.get(),
+                    width=depth_camera.image_width.get(),
+                    height=depth_camera.image_height.get(),
+                    near=depth_camera.depth_range.min(),
+                    far=depth_camera.depth_range.max(),
+                    horizontal_fov=depth_camera.fov.get(),
                 ),
-                frame_rate=depth_map.update_rate.get(),
-                noise_model=depth_map.noise_model.get(),
-                horizontal_fov=depth_map.fov.get(),
-                baseline=depth_map.baseline.get(),
+                frame_rate=depth_camera.update_rate.get(),
+                noise_model=depth_camera.noise_model.get(),
+                horizontal_fov=depth_camera.fov.get(),
+                baseline=depth_camera.baseline.get(),
             )
-        else:
-            raise NotImplementedError
 
         # Ground Truth State
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)

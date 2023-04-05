@@ -11,7 +11,7 @@ from PyQt5.QtGui import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..const import *
+from ..constants import *
 from ..utils import get_drone_name
 
 

@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import DoubleSpinBox
 
-from ..const import *
+from ..constants import *
 
 
 class DoubleGetter(QWidget):

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from .base import ParamGetterWidget
-from ..const import *
+from ..constants import *
 
 
 class ParamGetterWidget_DirDialog(ParamGetterWidget):
