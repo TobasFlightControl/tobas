@@ -127,6 +127,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
           << "] might occur. Consider making smaller simulation time "
              "steps or raising the rotor_speed_slowdown_sim_ param."
           << endl;
+    return;
   }
   double real_motor_vel = motor_rot_vel * rotor_speed_slowdown_sim_;
   // Get the direction of the rotor rotation.
@@ -176,8 +177,9 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 {
   if (motor_number_ > cmd.speeds.size() - 1)
   {
-    gzerr << "You tried to access index " << motor_number_
-          << " of the MotorSpeed message array which is of size " << cmd.speeds.size();
+    gzerr << kPluginName << ": You tried to access index " << motor_number_
+          << " of the RotorSpeeds message array which is of size " << cmd.speeds.size() << endl;
+    return;
   }
 
   ref_motor_input_ = min(cmd.speeds[motor_number_], max_rot_vel_);
