@@ -28,6 +28,7 @@ class SettingsWidget(VerticalTabWidget):
         self.magnetometer = MagnetometerWidget(main)
         self.barometer = BarometerWidget(main)
         self.gps = GpsWidget(main)
+        self.rgb_camera = RgbCameraWidget(main)
         self.depth_camera = DepthCameraWidget(main)
         self.lidar = LidarWidget(main)
         self.controller = ControllerWidget(main)
@@ -42,6 +43,7 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.magnetometer, "Magnetic")
         self.addTab(self.barometer, "Barometer")
         self.addTab(self.gps, "GPS")
+        self.addTab(self.rgb_camera, "RGB Camera")
         self.addTab(self.depth_camera, "Depth Camera")
         # self.addTab(self.lidar, "LiDAR")  # TODO
         self.addTab(self.controller, "Controller")
@@ -62,6 +64,7 @@ class SettingsWidget(VerticalTabWidget):
         self.magnetometer.define_connections()
         self.barometer.define_connections()
         self.gps.define_connections()
+        self.rgb_camera.define_connections()
         self.depth_camera.define_connections()
         self.lidar.define_connections()
         self.controller.define_connections()

@@ -321,6 +321,7 @@ class PackageGenerator(QWidget):
         magnetometer = self._main.settings.magnetometer
         barometer = self._main.settings.barometer
         gps = self._main.settings.gps
+        rgb_camera = self._main.settings.rgb_camera
         depth_camera = self._main.settings.depth_camera
         simulation = self._main.settings.simulation
 
@@ -397,6 +398,30 @@ class PackageGenerator(QWidget):
         )
         robot.append(gps_model)
 
+        # RGB Camera
+        if not rgb_camera.no_sensor.isChecked():
+            add_rgb_camera_model(
+                robot=robot,
+                ns=self._drone_name,
+                link_name=rgb_camera.link.get(),
+                offset=Origin(
+                    x=rgb_camera.offset.x(),
+                    y=rgb_camera.offset.y(),
+                    z=rgb_camera.offset.z(),
+                    roll=rgb_camera.offset.roll(),
+                    pitch=rgb_camera.offset.pitch(),
+                    yaw=rgb_camera.offset.yaw(),
+                ),
+                frame_rate=rgb_camera.update_rate.get(),
+                width=rgb_camera.image_width.get(),
+                height=rgb_camera.image_height.get(),
+                near=rgb_camera.depth_range.min(),
+                far=rgb_camera.depth_range.max(),
+                fov=rgb_camera.fov.get(),
+                noise_mean=0.,
+                noise_stddev=rgb_camera.noise_stddev.get(),
+            )
+
         # Depth Camera
         if not depth_camera.no_sensor.isChecked():
             add_depth_camera_model(
@@ -411,17 +436,14 @@ class PackageGenerator(QWidget):
                     pitch=depth_camera.offset.pitch(),
                     yaw=depth_camera.offset.yaw(),
                 ),
-                camera=Camera(
-                    width=depth_camera.image_width.get(),
-                    height=depth_camera.image_height.get(),
-                    near=depth_camera.depth_range.min(),
-                    far=depth_camera.depth_range.max(),
-                    horizontal_fov=depth_camera.fov.get(),
-                ),
                 frame_rate=depth_camera.update_rate.get(),
-                noise_model=depth_camera.noise_model.get(),
-                horizontal_fov=depth_camera.fov.get(),
+                width=depth_camera.image_width.get(),
+                height=depth_camera.image_height.get(),
+                near=depth_camera.depth_range.min(),
+                far=depth_camera.depth_range.max(),
+                fov=depth_camera.fov.get(),
                 baseline=depth_camera.baseline.get(),
+                noise_model=depth_camera.noise_model.get(),
             )
 
         # Ground Truth State
