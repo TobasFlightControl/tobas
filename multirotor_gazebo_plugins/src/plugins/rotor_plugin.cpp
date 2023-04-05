@@ -123,7 +123,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   double motor_rot_vel = joint_->GetVelocity(0);
   if (motor_rot_vel / (2 * M_PI) > 1 / (2 * dt))
   {
-    gzerr << "Aliasing on motor [" << motor_number_
+    gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
           << "] might occur. Consider making smaller simulation time "
              "steps or raising the rotor_speed_slowdown_sim_ param."
           << endl;
