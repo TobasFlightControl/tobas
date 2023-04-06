@@ -24,12 +24,6 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  ros::Publisher imu_pub_;
-
-  ImuSubscriber imu_sub_;
-  MagSubscriber mag_sub_;
-  Synchronizer sync_;
-
   // rosparam
   bool do_bias_estimation_;
   bool do_adaptive_gain_;
@@ -44,6 +38,14 @@ private:
   ComplementaryFilter filter_;
   ros::Time time_prev_;
   bool is_initialized_;
+  Eigen::Vector3d a_;
+  Eigen::Vector3d w_;
+  Eigen::Vector3d m_;
+
+  ros::Publisher imu_pub_;
+  ImuSubscriber imu_sub_;
+  MagSubscriber mag_sub_;
+  Synchronizer sync_;
 
   void getRosParams();
   void initializeFilter();

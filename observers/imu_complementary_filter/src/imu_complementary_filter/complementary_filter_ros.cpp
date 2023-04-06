@@ -16,6 +16,8 @@
 #define DEFAULT_DO_BIAS_ESTIMATION true
 #define DEFAULT_DO_ADAPTIVE_GAIN false
 
+using namespace Eigen;
+
 ComplementaryFilterRos::ComplementaryFilterRos()
   : is_initialized_(false),
     imu_sub_(nh_, "imu/data_raw", QUEUE_SIZE),
@@ -72,9 +74,9 @@ void ComplementaryFilterRos::initializeFilter()
 void ComplementaryFilterRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
 {
   const ros::Time& time = imu.header.stamp;
-  const auto& a = imu.linear_acceleration;
-  const auto& w = imu.angular_velocity;
-  const auto& m = mag.magnetic_field;
+  tf::vectorMsgToEigen(imu.linear_acceleration, a_);
+  tf::vectorMsgToEigen(imu.angular_velocity, w_);
+  tf::vectorMsgToEigen(mag.magnetic_field, m_);
 
   // Initialize
   if (!is_initialized_)
@@ -89,12 +91,10 @@ void ComplementaryFilterRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   time_prev_ = time;
 
   // Update the filter
-  filter_.update(a.x, a.y, a.z, w.x, w.y, w.z, m.x, m.y, m.z, dt);
+  filter_.update(a_, w_, m_, dt);
 
   // Get the orientation
-  double q0, q1, q2, q3;
-  filter_.getOrientation(q0, q1, q2, q3);
-  Eigen::Quaterniond q(q0, q1, q2, q3);
+  Quaterniond q = filter_.getOrientation();
 
   // Create fitlered IMU message
   ImuMsg filtered_imu = imu;
@@ -104,9 +104,8 @@ void ComplementaryFilterRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   // Account for biases
   if (do_bias_estimation_)
   {
-    filtered_imu.angular_velocity.x -= filter_.getAngularVelocityBiasX();
-    filtered_imu.angular_velocity.y -= filter_.getAngularVelocityBiasY();
-    filtered_imu.angular_velocity.z -= filter_.getAngularVelocityBiasZ();
+    w_ -= filter_.getAngularVelocityBias();
+    tf::vectorEigenToMsg(w_, filtered_imu.angular_velocity);
   }
 
   // Publish filtered IMU message
