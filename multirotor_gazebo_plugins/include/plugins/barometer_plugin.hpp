@@ -20,20 +20,20 @@ static constexpr double kTempLapseKelvinPerMeter = 0.0065;
 static constexpr double kAirConstantDimensionless =
   kGravityMagnitude * kMeanMolecularAirWeightKgPerKmol
   / (kGasConstantNmPerKmolKelvin * -kTempLapseKelvinPerMeter);
-static constexpr char kPluginName[] = "pressure_plugin";
+static constexpr char kPluginName[] = "barometer_plugin";
 
 // Default values
 static const std::string kDefaultPressurePubTopic = "air_pressure";
 static constexpr double kDefaultRefAlt = 500.;
 static constexpr double kDefaultPressureVar = 1.;
 
-class GazeboPressurePlugin : public SensorPlugin
+class GazeboBarometerPlugin : public SensorPlugin
 {
   using NormalDistribution = std::normal_distribution<double>;
   using PressureMsg = sensor_msgs::FluidPressure;
 
 public:
-  GazeboPressurePlugin();
+  GazeboBarometerPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 

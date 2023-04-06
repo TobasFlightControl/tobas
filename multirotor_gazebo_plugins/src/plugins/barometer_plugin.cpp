@@ -1,4 +1,4 @@
-#include "../../include/plugins/pressure_plugin.hpp"
+#include "../../include/plugins/barometer_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
@@ -6,11 +6,11 @@ using namespace std;
 
 namespace gazebo
 {
-GazeboPressurePlugin::GazeboPressurePlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
+GazeboBarometerPlugin::GazeboBarometerPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
 {
 }
 
-void GazeboPressurePlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
+void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
   // Get SDF parameters
   getSdfParams(sdf);
@@ -36,10 +36,10 @@ void GazeboPressurePlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + pressure_topic_, 1);
 
   // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboPressurePlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboBarometerPlugin::onUpdate, this));
 }
 
-void GazeboPressurePlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
   {
@@ -61,7 +61,7 @@ void GazeboPressurePlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 }
 
-void GazeboPressurePlugin::onUpdate()
+void GazeboBarometerPlugin::onUpdate()
 {
   common::Time cur_time = world_->SimTime();
 
@@ -92,5 +92,5 @@ void GazeboPressurePlugin::onUpdate()
   pressure_pub_.publish(pressure_msg_);
 }
 
-GZ_REGISTER_SENSOR_PLUGIN(GazeboPressurePlugin);
+GZ_REGISTER_SENSOR_PLUGIN(GazeboBarometerPlugin);
 }  // namespace gazebo

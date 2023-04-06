@@ -33,8 +33,8 @@ class BarometerModel(ET.Element):
 
         # robot/gazebo/sensor/plugin
         plugin = ET.SubElement(sensor, "plugin")
-        plugin.attrib["filename"] = "libdh_gazebo_pressure_plugin.so"
-        plugin.attrib["name"] = "dh_gazebo_pressure_sensor_plugin"
+        plugin.attrib["filename"] = "libdh_gazebo_barometer_plugin.so"
+        plugin.attrib["name"] = "dh_gazebo_barometer_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
