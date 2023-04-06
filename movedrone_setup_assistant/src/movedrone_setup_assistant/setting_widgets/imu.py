@@ -27,6 +27,16 @@ class ImuWidget(BaseSettingWidget):
         self.use_custom_imu.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.use_custom_imu)
 
+        update_rate_description = "TODO: instruction"
+        self.update_rate = ParamGetterWidget_SpinBox(
+            "Update rate",
+            update_rate_description,
+            minimum=1,
+            default=100,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.update_rate)
+
         gyro_noise_density_description = "TODO: instruction"
         self.gyro_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope noise density (two-sided spectrum)",
@@ -129,6 +139,7 @@ class ImuWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.use_custom_imu.isChecked():
+            self.update_rate.setVisible(True)
             self.gyro_noise_density.setVisible(True)
             self.gyro_random_walk.setVisible(True)
             self.gyro_bias_corr_time.setVisible(True)
@@ -138,6 +149,7 @@ class ImuWidget(BaseSettingWidget):
             self.acc_bias_corr_time.setVisible(True)
             self.acc_turn_on_bias_sigma.setVisible(True)
         else:
+            self.update_rate.setVisible(False)
             self.gyro_noise_density.setVisible(False)
             self.gyro_random_walk.setVisible(False)
             self.gyro_bias_corr_time.setVisible(False)

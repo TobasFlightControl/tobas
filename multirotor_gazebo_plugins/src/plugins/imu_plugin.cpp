@@ -10,21 +10,20 @@ using namespace ignition::math;
 namespace gazebo
 {
 GazeboImuPlugin::GazeboImuPlugin()
-  : ModelPlugin(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
+  : SensorPlugin(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
 {
 }
 
-void GazeboImuPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
   // Get SDF parameters
   getSdfParams(sdf);
 
-  // Store the pointer to the model
-  model_ = model;
-  world_ = model_->GetWorld();
+  // Get the world model
+  world_ = physics::get_world(sensor->WorldName());
 
   // Get the pointer to the link
-  link_ = model_->GetLink(link_name_);
+  link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == NULL)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
@@ -54,12 +53,11 @@ void GazeboImuPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   imu_msg_.orientation.z = -1.;
   imu_msg_.orientation.w = -1.;
 
-  // Advertise publisher
+  // Advertise
   imu_pub_ = nh_.advertise<ImuMsg>("/" + ns_ + "/" + imu_topic_, 1);
 
   // Listen to the update event
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboImuPlugin::onUpdate, this, _1));
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboImuPlugin::onUpdate, this));
 }
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -89,6 +87,36 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
     sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime);
   getSdfParam<double>(
     sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma);
+}
+
+void GazeboImuPlugin::onUpdate()
+{
+  common::Time cur_time = world_->SimTime();
+  double dt = (cur_time - last_time_).Double();
+  last_time_ = cur_time;
+
+  // Get linear acceleration and angular velocity from simulation
+  Pose3d T_W_B = link_->WorldPose();
+  Quaterniond R_W_B = T_W_B.Rot();
+  Vector3d acc_B = link_->RelativeLinearAccel() - R_W_B.RotateVectorReverse(gravity_W_);
+  Vector3d gyro_B = link_->RelativeAngularVel();
+
+  // Add noise to the true values
+  addNoise(acc_B, gyro_B, dt);
+
+  // Fill IMU message.
+  timeGazeboToRos(cur_time, imu_msg_.header.stamp);
+  vectorGazeboToRos(acc_B, imu_msg_.linear_acceleration);
+  vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
+
+  double acc_var = sqr(acc_noise_density_) / dt;
+  fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
+
+  double gyro_var = sqr(gyro_noise_density_) / dt;
+  fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
+
+  // Publish IMU message
+  imu_pub_.publish(imu_msg_);
 }
 
 void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
@@ -126,36 +154,5 @@ void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
   }
 }
 
-void GazeboImuPlugin::onUpdate(const common::UpdateInfo&)
-{
-  common::Time cur_time = world_->SimTime();
-  double dt = (cur_time - last_time_).Double();
-  GZ_ASSERT(dt > 0., "Change in time must be greater than 0.");
-  last_time_ = cur_time;
-
-  // Get linear acceleration and angular velocity from simulation
-  Pose3d T_W_B = link_->WorldPose();
-  Quaterniond R_W_B = T_W_B.Rot();
-  Vector3d acc_B = link_->RelativeLinearAccel() - R_W_B.RotateVectorReverse(gravity_W_);
-  Vector3d gyro_B = link_->RelativeAngularVel();
-
-  // Add noise to the true values
-  addNoise(acc_B, gyro_B, dt);
-
-  // Fill IMU message.
-  timeGazeboToRos(cur_time, imu_msg_.header.stamp);
-  vectorGazeboToRos(acc_B, imu_msg_.linear_acceleration);
-  vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
-
-  double acc_var = sqr(acc_noise_density_) / dt;
-  fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
-
-  double gyro_var = sqr(gyro_noise_density_) / dt;
-  fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
-
-  // Publish IMU message
-  imu_pub_.publish(imu_msg_);
-}
-
-GZ_REGISTER_MODEL_PLUGIN(GazeboImuPlugin);
+GZ_REGISTER_SENSOR_PLUGIN(GazeboImuPlugin);
 }  // namespace gazebo

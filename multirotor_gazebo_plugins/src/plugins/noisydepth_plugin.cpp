@@ -42,6 +42,7 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
   getSdfParams(sdf);
   setNoiseModel();
 
+  // Listen to the update events
   new_image_frame_connection_ = depth_camera_->ConnectNewImageFrame(
     boost::bind(&GazeboNoisyDepthPlugin::onNewImageFrame, this, _1, _2, _3, _4, _5));
   new_depth_frame_connection_ = depth_camera_->ConnectNewDepthFrame(

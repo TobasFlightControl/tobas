@@ -27,6 +27,16 @@ class BarometerWidget(BaseSettingWidget):
         self.use_custom_barometer.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.use_custom_barometer)
 
+        update_rate_description = "TODO: instruction"
+        self.update_rate = ParamGetterWidget_SpinBox(
+            "Update rate",
+            update_rate_description,
+            minimum=1,
+            default=100,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.update_rate)
+
         pressure_var_description = "TODO: instruction"
         self.pressure_var = ParamGetterWidget_DoubleSpinBox(
             "the air pressure variance",
@@ -54,6 +64,8 @@ class BarometerWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.use_custom_barometer.isChecked():
+            self.update_rate.setVisible(True)
             self.pressure_var.setVisible(True)
         else:
+            self.update_rate.setVisible(False)
             self.pressure_var.setVisible(False)

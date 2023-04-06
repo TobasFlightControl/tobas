@@ -3,9 +3,8 @@
 #include <random>
 #include <ros/ros.h>
 #include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
-#include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/FluidPressure.h>
 
 namespace gazebo
@@ -28,7 +27,7 @@ static const std::string kDefaultPressurePubTopic = "air_pressure";
 static constexpr double kDefaultRefAlt = 500.;
 static constexpr double kDefaultPressureVar = 1.;
 
-class GazeboPressurePlugin : public ModelPlugin
+class GazeboPressurePlugin : public SensorPlugin
 {
   using NormalDistribution = std::normal_distribution<double>;
   using PressureMsg = sensor_msgs::FluidPressure;
@@ -36,7 +35,7 @@ class GazeboPressurePlugin : public ModelPlugin
 public:
   GazeboPressurePlugin();
 
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
   ros::NodeHandle nh_;
@@ -49,7 +48,6 @@ private:
   double pressure_var_;
 
   physics::WorldPtr world_;
-  physics::ModelPtr model_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
   sensor_msgs::FluidPressure pressure_msg_;
@@ -61,6 +59,6 @@ private:
   ros::Publisher pressure_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
-  void onUpdate(const common::UpdateInfo&);
+  void onUpdate();
 };
 }  // namespace gazebo

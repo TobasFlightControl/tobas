@@ -65,11 +65,11 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   vel_msg_.vel.covariance[7] = 0.;
   vel_msg_.vel.covariance[8] = sqr(ver_vel_std_dev_);
 
-  // Advertise publishers
+  // Advertise
   pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + gps_topic_, 1);
   vel_pub_ = nh_.advertise<VelMsg>("/" + ns_ + "/" + vel_topic_, 1);
 
-  // Connect to the sensor update event
+  // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboGpsPlugin::onUpdate, this));
 }
 

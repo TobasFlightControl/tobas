@@ -354,6 +354,7 @@ class PackageGenerator(QWidget):
         imu_model = ImuModel(
             ns=self._drone_name,
             link_name=imu.link.get(),
+            update_rate=barometer.update_rate.get(),
             gyro_noise_density=imu.gyro_noise_density.get(),
             gyro_random_walk=imu.gyro_random_walk.get(),
             gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
@@ -369,6 +370,7 @@ class PackageGenerator(QWidget):
         mag_model = MagnetometerModel(
             ns=self._drone_name,
             link_name=magnetometer.link.get(),
+            update_rate=barometer.update_rate.get(),
             ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
             ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
             ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
@@ -381,6 +383,7 @@ class PackageGenerator(QWidget):
         bar_model = BarometerModel(
             ns=self._drone_name,
             link_name=barometer.link.get(),
+            update_rate=barometer.update_rate.get(),
             ref_altitude=simulation.altitude_0.get(),
             pressure_var=barometer.pressure_var.get(),
         )

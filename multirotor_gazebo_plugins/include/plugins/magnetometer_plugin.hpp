@@ -3,9 +3,8 @@
 #include <random>
 #include <ros/ros.h>
 #include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
-#include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/MagneticField.h>
 
 namespace gazebo
@@ -19,7 +18,7 @@ static constexpr double kDefaultRefMagNorth = 3.0031e-05;
 static constexpr double kDefaultRefMagEast = -4.116e-06;
 static constexpr double kDefaultRefMagDown = 3.5615e-05;
 
-class GazeboMagnetometerPlugin : public ModelPlugin
+class GazeboMagnetometerPlugin : public SensorPlugin
 {
   using SdfVector3 = ignition::math::Vector3d;
   using NormalDistribution = std::normal_distribution<double>;
@@ -29,7 +28,7 @@ class GazeboMagnetometerPlugin : public ModelPlugin
 public:
   GazeboMagnetometerPlugin();
 
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
   ros::NodeHandle nh_;
@@ -58,6 +57,7 @@ private:
   ros::Publisher mag_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
-  void onUpdate(const common::UpdateInfo&);
+  void onUpdate();
+  void addNoise(ignition::math::Vector3d& mag);
 };
 }  // namespace gazebo

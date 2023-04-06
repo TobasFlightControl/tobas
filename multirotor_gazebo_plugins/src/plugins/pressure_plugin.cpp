@@ -6,21 +6,20 @@ using namespace std;
 
 namespace gazebo
 {
-GazeboPressurePlugin::GazeboPressurePlugin() : ModelPlugin(), rnd_gen_(rnd_dev_())
+GazeboPressurePlugin::GazeboPressurePlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
 {
 }
 
-void GazeboPressurePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboPressurePlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
   // Get SDF parameters
   getSdfParams(sdf);
 
-  // Store the pointer to the model and the world
-  model_ = model;
-  world_ = model_->GetWorld();
+  // Get the world model
+  world_ = physics::get_world(sensor->WorldName());
 
   // Get the pointer to the link
-  link_ = model_->GetLink(link_name_);
+  link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == NULL)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
@@ -33,12 +32,11 @@ void GazeboPressurePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   pressure_msg_.header.frame_id = link_name_;
   pressure_msg_.variance = pressure_var_;
 
-  // Advertise publisher
+  // Advertise
   pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + pressure_topic_, 1);
 
-  // Listen to the update event. This event is broadcast every simulation iteration.
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboPressurePlugin::onUpdate, this, _1));
+  // Listen to the update event
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboPressurePlugin::onUpdate, this));
 }
 
 void GazeboPressurePlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -63,12 +61,12 @@ void GazeboPressurePlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 }
 
-void GazeboPressurePlugin::onUpdate(const common::UpdateInfo&)
+void GazeboPressurePlugin::onUpdate()
 {
   common::Time cur_time = world_->SimTime();
 
   // Get the current geometric height
-  double height_geometric_m = ref_alt_ + model_->WorldPose().Pos().Z();
+  double height_geometric_m = ref_alt_ + link_->WorldPose().Pos().Z();
 
   // Compute the geopotential height
   double height_geopotential_m =
@@ -94,5 +92,5 @@ void GazeboPressurePlugin::onUpdate(const common::UpdateInfo&)
   pressure_pub_.publish(pressure_msg_);
 }
 
-GZ_REGISTER_MODEL_PLUGIN(GazeboPressurePlugin);
+GZ_REGISTER_SENSOR_PLUGIN(GazeboPressurePlugin);
 }  // namespace gazebo

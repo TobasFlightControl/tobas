@@ -9,21 +9,20 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : ModelPlugin(), rnd_gen_(rnd_dev_())
+GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
 {
 }
 
-void GazeboMagnetometerPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
   // Get SDF parameters
   getSdfParams(sdf);
 
-  // Store the pointer to the model and the world
-  model_ = model;
-  world_ = model_->GetWorld();
+  // Get the world model
+  world_ = physics::get_world(sensor->WorldName());
 
   // Get the pointer to the link
-  link_ = model_->GetLink(link_name_);
+  link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == NULL)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
@@ -65,8 +64,8 @@ void GazeboMagnetometerPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf
   mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + mag_topic_, 1);
 
   // Listen to the update event
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(
-    boost::bind(&GazeboMagnetometerPlugin::onUpdate, this, _1));
+  update_connection_ =
+    sensor->ConnectUpdated(boost::bind(&GazeboMagnetometerPlugin::onUpdate, this));
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -95,7 +94,7 @@ void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 }
 
-void GazeboMagnetometerPlugin::onUpdate(const common::UpdateInfo&)
+void GazeboMagnetometerPlugin::onUpdate()
 {
   // Get the current pose and time from Gazebo
   Pose3d T_W_B = link_->WorldPose();
@@ -107,6 +106,9 @@ void GazeboMagnetometerPlugin::onUpdate(const common::UpdateInfo&)
   // Rotate the earth magnetic field into the inertial frame
   Vector3d field_B = T_W_B.Rot().RotateVectorReverse(mag_NWU_ + mag_noise);
 
+  // Add noise to the true values
+  addNoise(field_B);
+
   // Fill the magnetic field message
   timeGazeboToRos(cur_time, mag_msg_.header.stamp);
   vectorGazeboToRos(field_B, mag_msg_.magnetic_field);
@@ -115,5 +117,10 @@ void GazeboMagnetometerPlugin::onUpdate(const common::UpdateInfo&)
   mag_pub_.publish(mag_msg_);
 }
 
-GZ_REGISTER_MODEL_PLUGIN(GazeboMagnetometerPlugin);
+void GazeboMagnetometerPlugin::addNoise(Vector3d& mag)
+{
+  // TODO
+}
+
+GZ_REGISTER_SENSOR_PLUGIN(GazeboMagnetometerPlugin);
 }  // namespace gazebo

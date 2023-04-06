@@ -7,18 +7,32 @@ class MagnetometerModel(ET.Element):
         self,
         ns: str,
         link_name: str,
+        update_rate: float,
         ref_mag_north: float,
         ref_mag_east: float,
         ref_mag_down: float,
         gauss_noise: float,
         uniform_noise: float,
     ) -> None:
+        assert update_rate > 0.
         assert gauss_noise > 0., f'gauss_noise = {gauss_noise}'
         assert uniform_noise > 0., f'uniform_noise = {uniform_noise}'
 
-        super().__init__("gazebo")
+        # robot/gazebo
+        super().__init__("gazebo", reference=link_name)
 
-        plugin = ET.SubElement(self, "plugin")
+        # robot/gazebo/sensor
+        sensor = ET.SubElement(self, "sensor")
+        sensor.attrib["name"] = f'{ns}_magnetometer'
+        sensor.attrib["type"] = "magnetometer"
+
+        ET.SubElement(sensor, "always_on").text = "true"
+        ET.SubElement(sensor, "update_rate").text = f'{update_rate}'
+        ET.SubElement(sensor, "visualize").text = "false"
+        ET.SubElement(sensor, "pose").text = "0 0 0 0 0 0"
+
+        # robot/gazebo/sensor/plugin
+        plugin = ET.SubElement(sensor, "plugin")
         plugin.attrib["filename"] = "libdh_gazebo_magnetometer_plugin.so"
         plugin.attrib["name"] = "dh_gazebo_magnetometer_plugin"
 

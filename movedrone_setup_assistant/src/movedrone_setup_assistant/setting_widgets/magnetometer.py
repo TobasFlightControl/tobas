@@ -27,6 +27,16 @@ class MagnetometerWidget(BaseSettingWidget):
         self.use_custom_magnetometer.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.use_custom_magnetometer)
 
+        update_rate_description = "TODO: instruction"
+        self.update_rate = ParamGetterWidget_SpinBox(
+            "Update rate",
+            update_rate_description,
+            minimum=1,
+            default=100,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.update_rate)
+
         gauss_noise_description = "TODO: instruction"
         self.gauss_noise = ParamGetterWidget_SpinBox(
             "Standard deviation of additive white gaussian noise",
@@ -63,8 +73,10 @@ class MagnetometerWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.use_custom_magnetometer.isChecked():
+            self.update_rate.setVisible(True)
             self.gauss_noise.setVisible(True)
             self.uniform_noise.setVisible(True)
         else:
+            self.update_rate.setVisible(False)
             self.gauss_noise.setVisible(False)
             self.uniform_noise.setVisible(False)

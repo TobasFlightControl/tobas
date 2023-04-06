@@ -3,9 +3,8 @@
 #include <random>
 #include <ros/ros.h>
 #include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
-#include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/Imu.h>
 
 namespace gazebo
@@ -24,7 +23,7 @@ static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
 static constexpr double kDefaultAccBiasCorrTime = 300.;
 static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * 9.80665;
 
-class GazeboImuPlugin : public ModelPlugin
+class GazeboImuPlugin : public SensorPlugin
 {
   using NormalDistribution = std::normal_distribution<double>;
   using ImuMsg = sensor_msgs::Imu;
@@ -32,7 +31,7 @@ class GazeboImuPlugin : public ModelPlugin
 public:
   GazeboImuPlugin();
 
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
   ros::NodeHandle nh_;
@@ -51,7 +50,6 @@ private:
   double acc_turn_on_bias_sigma_;   // Accelerometer turn on bias standard deviation [m/s^2]
 
   physics::WorldPtr world_;
-  physics::ModelPtr model_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
   common::Time last_time_;
@@ -70,7 +68,7 @@ private:
   ros::Publisher imu_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
-  void onUpdate(const common::UpdateInfo&);
+  void onUpdate();
   void addNoise(ignition::math::Vector3d& lin_acc, ignition::math::Vector3d& ang_vel, double dt);
 };
 }  // namespace gazebo
