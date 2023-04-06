@@ -174,12 +174,14 @@ class SelectedPropellersWidget(QTableWidget):
         drag_coef = DoubleSpinBox()
         drag_coef.setMinimum(0.)
         drag_coef.setDecimals(9)
+        drag_coef.setSuffix(" Ns^2/m^2")
         self.drag_coefs.append(drag_coef)
         self.setCellWidget(row, 7, drag_coef)
 
         rolling_coef = DoubleSpinBox()
         rolling_coef.setMinimum(0.)
         rolling_coef.setDecimals(9)
+        rolling_coef.setSuffix(" Ns^2/m")
         self.rolling_coefs.append(rolling_coef)
         self.setCellWidget(row, 8, rolling_coef)
 

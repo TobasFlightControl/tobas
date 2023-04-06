@@ -91,6 +91,11 @@ class URDFParser(QWidget):
                 return True
         return False
 
+    def get_link_names(self) -> List[str]:
+        """ 全てのリンクの名前を返す． """
+        links = self.get_links()
+        return [link.name for link in links]
+
     def get_fixed_link_names(self) -> List[str]:
         """ ルートリンクに固定されているリンクの名前の配列を返す． """
         root = self.get_root()
