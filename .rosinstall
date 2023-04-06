@@ -5,12 +5,6 @@
   }
 
 - git: {
-  local-name: imu_tools,
-  uri: git@github.com:Masa0u0/imu_tools.git,
-  version: noetic,
-}
-
-- git: {
   local-name: orocos_kinematics_dynamics,
   uri: git@github.com:Masa0u0/orocos_kinematics_dynamics.git,
   version: master,
