@@ -15,11 +15,13 @@ class CommandHandler
   using CmdMsg = multirotor_msgs::Command;
 
 public:
-  explicit CommandHandler(ros::NodeHandle& nh);
+  explicit CommandHandler();
 
   void run();
 
 private:
+  ros::NodeHandle nh_;
+
   // rosparam
   double key_repeat_freq_;  // キーボードの連続入力の周波数(PC依存)
   double max_linvel_;       // 並進速度の大きさの最大値

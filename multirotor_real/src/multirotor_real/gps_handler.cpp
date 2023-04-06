@@ -10,7 +10,7 @@
 
 using namespace std;
 
-GpsHandler::GpsHandler(ros::NodeHandle& nh) : cov_received_(false)
+GpsHandler::GpsHandler() : cov_received_(false)
 {
   if (!gps_.testConnection())
   {
@@ -25,10 +25,10 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh) : cov_received_(false)
   gps_msg_.position_covariance_type = GpsMsg::COVARIANCE_TYPE_KNOWN;
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
-  gps_pub_ = nh.advertise<GpsMsg>("/" + drone_name + "/gps", 1);
-  vel_pub_ = nh.advertise<VelMsg>("/" + drone_name + "/ground_speed", 1);
+  gps_pub_ = nh_.advertise<GpsMsg>("/" + drone_name + "/gps", 1);
+  vel_pub_ = nh_.advertise<VelMsg>("/" + drone_name + "/ground_speed", 1);
 
-  timer_ = nh.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::timerCb, this);
+  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::timerCb, this);
 }
 
 void GpsHandler::timerCb(const ros::TimerEvent&)

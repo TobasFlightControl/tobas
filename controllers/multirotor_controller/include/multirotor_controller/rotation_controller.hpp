@@ -44,6 +44,7 @@ private:
   double mass_;
 
   // 静的ROSパラメータ
+  const double gravity_;
   const double battery_voltage_;
   const uint32_t num_rotors_;
   const RotorProperties rotor_props_;

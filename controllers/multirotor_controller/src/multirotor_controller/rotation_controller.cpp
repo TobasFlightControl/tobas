@@ -5,7 +5,6 @@
 #include <dh_linear_control/util.hpp>
 
 #include "../../include/multirotor_controller/rotation_controller.hpp"
-#include "../../include/multirotor_controller/constants.hpp"
 
 #define WEIGHT_SCALER 1e+6  // QPの数値エラーを防ぐために重みにかける定数
 
@@ -14,7 +13,8 @@ using namespace Eigen;
 using namespace KDL;
 
 RotationController::RotationController(const Tree& tree)
-  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
+  : gravity_(dh_ros::getParam<double>("/gravity")),
+    battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     rotor_props_(getRotorProperties()),
     T_refs_(STATE_SIZE),
@@ -160,7 +160,7 @@ void RotationController::updateWeight_Q(double rot_weight, double angvel_weight)
 
 void RotationController::updateWeight_S(int thrust_weight)
 {
-  double u_scale = mass_ * GRAVITY;
+  double u_scale = mass_ * gravity_;
   double S_value = pow(10, thrust_weight) / sqr(u_scale) * WEIGHT_SCALER;
 
   for (uint32_t i = 0; i < num_rotors_; ++i)
@@ -171,7 +171,7 @@ void RotationController::updateWeight_S(int thrust_weight)
 
 void RotationController::updateWeight_R(int thrust_rate_weight, double dt)
 {
-  double delta_u_scale = mass_ * GRAVITY * dt;
+  double delta_u_scale = mass_ * gravity_ * dt;
   double R_value = pow(10, thrust_rate_weight) / sqr(delta_u_scale) * WEIGHT_SCALER;
 
   for (uint32_t i = 0; i < num_rotors_; ++i)

@@ -28,12 +28,13 @@ class StateEstimator
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  StateEstimator(ros::NodeHandle& nh);
+  StateEstimator();
 
 private:
   ros::NodeHandle nh_;
 
   // rosparam
+  const double gravity_;
   const bool use_bar_;
   const bool use_gps_pos_;
   const bool use_gps_vel_;

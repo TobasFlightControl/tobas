@@ -6,7 +6,6 @@
 #include <dh_ros_tools/rosparam.hpp>
 
 #include "../../include/multirotor_controller/acceleration_controller.hpp"
-#include "../../include/multirotor_controller/constants.hpp"
 
 #define WARN_PERIOD 1.
 
@@ -14,7 +13,8 @@ using namespace std;
 using namespace KDL;
 
 AccelerationController::AccelerationController(const Tree& tree)
-  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
+  : gravity_(dh_ros::getParam<double>("/gravity")),
+    battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     rotor_props_(getRotorProperties()),
     inertia_solver_(tree)
 {
@@ -42,7 +42,7 @@ void AccelerationController::update(
 {
   const double x = mass_ * acc_des.x;
   const double y = mass_ * acc_des.y;
-  const double z = mass_ * (acc_des.z + GRAVITY);
+  const double z = mass_ * (acc_des.z + gravity_);
 
   const double cos_yaw = cos(yaw);
   const double sin_yaw = sin(yaw);

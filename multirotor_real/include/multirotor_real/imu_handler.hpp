@@ -13,9 +13,14 @@ class ImuHandler
   using ImuPtr = std::unique_ptr<InertialSensor>;
 
 public:
-  ImuHandler(ros::NodeHandle& nh);
+  ImuHandler();
 
 private:
+  ros::NodeHandle nh_;
+
+  // rosparam
+  const double gravity_;
+
   ImuPtr imu_;
   ImuMsg imu_msg_;
   MagMsg mag_msg_;
@@ -30,6 +35,6 @@ private:
 
   void setupImu();
   void setCovarianceMatrices();
-  void advertisePublishers(ros::NodeHandle& nh);
+  void advertise();
   void timerCb(const ros::TimerEvent&);
 };

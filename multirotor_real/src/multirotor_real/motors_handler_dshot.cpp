@@ -11,7 +11,7 @@
 using namespace std;
 using namespace dh_std;
 
-MotorsHandler_DSHOT::MotorsHandler_DSHOT(ros::NodeHandle& nh)
+MotorsHandler_DSHOT::MotorsHandler_DSHOT()
   : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     rotor_props_(getRotorProperties()),
@@ -30,7 +30,7 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT(ros::NodeHandle& nh)
   }
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
-  rotor_vels_sub_ = nh.subscribe(
+  rotor_vels_sub_ = nh_.subscribe(
     "/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
 }
 

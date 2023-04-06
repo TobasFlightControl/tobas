@@ -10,7 +10,6 @@
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
-#define GRAVITY 9.80665
 #define WARN_PERIOD 3.
 #define I_3 (Matrix3d::Identity())
 
@@ -18,8 +17,9 @@ using namespace std;
 using namespace Eigen;
 using namespace dh_std;
 
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh)
-  : gyro_noise_density_(dh_ros::getParam<double>("~gyro_noise_density")),
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
+  : gravity_(dh_ros::getParam<double>("/gravity")),
+    gyro_noise_density_(dh_ros::getParam<double>("~gyro_noise_density")),
     gyro_random_walk_(dh_ros::getParam<double>("~gyro_random_walk")),
     acc_noise_density_(dh_ros::getParam<double>("~acc_noise_density")),
     acc_random_walk_(dh_ros::getParam<double>("~acc_random_walk")),
@@ -34,13 +34,13 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh)
     gps_subscribed_(false),
     vel_subscribed_(false)
 {
-  posevel_pub_ = nh.advertise<StateMsg>("/estimated_state", 1);
+  posevel_pub_ = nh_.advertise<StateMsg>("/estimated_state", 1);
 
-  imu_sub_ = nh.subscribe("/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
-  mag_sub_ = nh.subscribe("/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
-  bar_sub_ = nh.subscribe("/air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
-  gps_sub_ = nh.subscribe("/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
-  vel_sub_ = nh.subscribe("/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+  imu_sub_ = nh_.subscribe("/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
+  mag_sub_ = nh_.subscribe("/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
+  bar_sub_ = nh_.subscribe("/air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
+  gps_sub_ = nh_.subscribe("/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
+  vel_sub_ = nh_.subscribe("/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
 }
 
 bool ErrorStateKalmanFilterRos::allMsgReceived()
@@ -100,7 +100,7 @@ void ErrorStateKalmanFilterRos::initialize()
 
   // TODO: eskf_.initializeをstate_estimation_cascadeのようにする
   eskf_.initialize(
-    Vector3d(0, 0, -GRAVITY),  // Acceleration due to gravity in global frame
+    Vector3d(0, 0, -gravity_),  // Acceleration due to gravity in global frame
     ErrorStateKalmanFilter::makeState(
       Vector3d::Zero(),  // init pos
       Vector3d::Zero(),  // init vel
@@ -158,7 +158,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   tf::vectorMsgToEigen(imu.angular_velocity, w_m_);
 
   eskf_.predictIMU(a_m_, w_m_, diff.toSec(), stamp);
-  // eskf_.predictIMU(Vector3d(0, 0, GRAVITY), Vector3d::Zero(), diff.toSec(), stamp);
+  // eskf_.predictIMU(Vector3d(0, 0, gravity_), Vector3d::Zero(), diff.toSec(), stamp);
 
   updatePoseVelMsg();
   posevel_pub_.publish(state_);
@@ -187,7 +187,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
   // TODO: 加速度センサのノイズの分散からクォータニオンのノイズの共分散を正しく計算する
   // sensor_msgs::Imuのlinear_acceleration_covarianceを用いる
   const double acc_noise_var = sqr(acc_noise_density_) * 1000.;
-  const double quat_var = acc_noise_var / sqr(GRAVITY);  // これはテキトーにスケーリングしてるだけ
+  const double quat_var = acc_noise_var / sqr(gravity_);  // これはテキトーにスケーリングしてるだけ
 
   eskf_.measureQuaternion(q_m_, quat_var * I_3, stamp, now);
   // eskf_.measureQuaternion(Quaterniond::Identity(), quat_var * I_3, stamp, now);

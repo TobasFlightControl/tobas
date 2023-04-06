@@ -10,16 +10,20 @@
 class MotorsHandler_PWM
 {
 public:
-  MotorsHandler_PWM(ros::NodeHandle& nh);
+  MotorsHandler_PWM();
 
 private:
+  ros::NodeHandle nh_;
+
+  // rosparam
   const double battery_voltage_;
   const uint32_t num_rotors_;
   const RotorProperties rotor_props_;
+
   RCOutput_Navio2 pwm_;
 
   ros::Subscriber rotor_vels_sub_;
 
   uint32_t getChannel(uint32_t pin);
-  void rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_speeds);
+  void rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& speeds);
 };

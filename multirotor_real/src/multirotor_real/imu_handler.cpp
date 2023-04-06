@@ -7,7 +7,6 @@
 
 #include "../../include/multirotor_real/imu_handler.hpp"
 
-#define GRAVITY 9.80665
 #define TIMER_PERIOD 0.01
 
 // MPU9250
@@ -18,13 +17,13 @@
 
 using namespace std;
 
-ImuHandler::ImuHandler(ros::NodeHandle& nh)
+ImuHandler::ImuHandler() : gravity_(dh_ros::getParam<double>("/gravity"))
 {
   setupImu();
   setCovarianceMatrices();
-  advertisePublishers(nh);
+  advertise();
 
-  timer_ = nh.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::timerCb, this);
+  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::timerCb, this);
 }
 
 void ImuHandler::setupImu()
@@ -44,7 +43,7 @@ void ImuHandler::setCovarianceMatrices()
 {
   // Accelerometer
   double acc_std_grav = ACC_NOISE_DENSITY / sqrt(TIMER_PERIOD);  // ug
-  double acc_std = acc_std_grav * 1e-6 * GRAVITY;                // m/s^2
+  double acc_std = acc_std_grav * 1e-6 * gravity_;               // m/s^2
   double acc_var = dh_std::sqr(acc_std);                         // m^2/s^4
   imu_msg_.linear_acceleration_covariance[0] = acc_var;
   imu_msg_.linear_acceleration_covariance[4] = acc_var;
@@ -64,11 +63,11 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[8] = mag_var;
 }
 
-void ImuHandler::advertisePublishers(ros::NodeHandle& nh)
+void ImuHandler::advertise()
 {
   string drone_name = dh_ros::getParam<string>("/drone_name");
-  imu_pub_ = nh.advertise<ImuMsg>("/" + drone_name + "/imu", 1);
-  mag_pub_ = nh.advertise<MagMsg>("/" + drone_name + "/magnetic_field", 1);
+  imu_pub_ = nh_.advertise<ImuMsg>("/" + drone_name + "/imu", 1);
+  mag_pub_ = nh_.advertise<MagMsg>("/" + drone_name + "/magnetic_field", 1);
 }
 
 void ImuHandler::timerCb(const ros::TimerEvent&)

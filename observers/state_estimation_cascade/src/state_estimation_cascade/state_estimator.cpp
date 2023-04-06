@@ -11,7 +11,6 @@
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
-#define GRAVITY 9.80665
 #define INFO_PERIOD 3.
 #define IMU_BUF_SIZE 1
 #define BAR_BUF_SIZE 500  // 100Hz x 5sec
@@ -22,8 +21,8 @@ using namespace std;
 using namespace Eigen;
 using namespace dh_std;
 
-StateEstimator::StateEstimator(ros::NodeHandle& nh)
-  : nh_(nh),
+StateEstimator::StateEstimator()
+  : gravity_(dh_ros::getParam<double>("/gravity")),
     use_bar_(dh_ros::getParam("~use_barometer", true)),
     use_gps_pos_(dh_ros::getParam("~use_gps_position", true)),
     use_gps_vel_(dh_ros::getParam("~use_gps_velocity", true)),
@@ -209,7 +208,7 @@ void StateEstimator::initialize()
     Vector3d::Zero(),                                          // init pos
     Vector3d::Zero(),                                          // init vel
     Vector3d::Zero(),                                          // init accel without gravity
-    Vector3d(0., 0., -GRAVITY),                                // init gravity
+    Vector3d(0., 0., -gravity_),                               // init gravity
     Vector3d(gps_cov[0], gps_cov[4], z_var).asDiagonal(),      // init position covariance
     Map<Matrix3d>(vel.vel.covariance.data()),                  // init velocity covariance
     Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc covariance

@@ -13,16 +13,16 @@
 
 using namespace std;
 
-BarometerHandler::BarometerHandler(ros::NodeHandle& nh)
+BarometerHandler::BarometerHandler()
 {
   barometer_.initialize();
 
   bar_msg_.variance = dh_std::sqr(BAR_NOISE_STD);
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
-  bar_pub_ = nh.advertise<BarMsg>("/" + drone_name + "/air_pressure", 1);
+  bar_pub_ = nh_.advertise<BarMsg>("/" + drone_name + "/air_pressure", 1);
 
-  timer_ = nh.createTimer(ros::Duration(TIMER_PERIOD), &BarometerHandler::timerCb, this);
+  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &BarometerHandler::timerCb, this);
 }
 
 void BarometerHandler::timerCb(const ros::TimerEvent&)

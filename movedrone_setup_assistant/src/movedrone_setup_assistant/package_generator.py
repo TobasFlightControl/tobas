@@ -123,6 +123,7 @@ class PackageGenerator(QWidget):
         self._generate_from_template(items, "README.md", pkg_path)
         self._generate_from_template(items, "CMakeLists.txt", pkg_path)
         self._generate_from_template(items, "package.xml", pkg_path)
+        self._generate_from_template(items, "environment.yaml", config_dir)
         self._generate_from_template(items, "observer.yaml", config_dir)
         self._generate_from_template(items, "controller.yaml", config_dir)
         self._generate_from_template(items, "gazebo.launch", launch_dir)
@@ -155,6 +156,7 @@ class PackageGenerator(QWidget):
 
         # Simulation
         simulation = self._main.settings.simulation
+        template_items["gravity"] = simulation.gravity.get()
         template_items["ref_mag_north"] = simulation.ref_mag_north.get() * 1e-9
         template_items["ref_mag_east"] = simulation.ref_mag_east.get() * 1e-9
         template_items["ref_mag_down"] = simulation.ref_mag_down.get() * 1e-9

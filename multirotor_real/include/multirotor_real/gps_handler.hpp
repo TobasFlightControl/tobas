@@ -13,9 +13,11 @@ class GpsHandler
   using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
 
 public:
-  GpsHandler(ros::NodeHandle& nh);
+  GpsHandler();
 
 private:
+  ros::NodeHandle nh_;
+
   Ublox gps_;
   std::vector<double> data_;
   GpsMsg gps_msg_;

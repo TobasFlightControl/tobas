@@ -20,7 +20,7 @@
 
 using namespace std;
 
-CommandHandler::CommandHandler(ros::NodeHandle& nh)
+CommandHandler::CommandHandler()
 {
   getParams();
 
@@ -34,7 +34,7 @@ CommandHandler::CommandHandler(ros::NodeHandle& nh)
   // z座標の初期値を制限の下限に設定
   cmd_.target_position.z = z_limit_.lower;
 
-  cmd_pub_ = nh.advertise<CmdMsg>("/multirotor_controller/command", 1, false);
+  cmd_pub_ = nh_.advertise<CmdMsg>("/multirotor_controller/command", 1, false);
 
   prepare(0);
 }

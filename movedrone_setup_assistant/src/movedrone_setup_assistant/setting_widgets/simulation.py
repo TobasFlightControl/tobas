@@ -18,6 +18,17 @@ class SimulationWidget(BaseSettingWidget):
         abst_text = 'TODO: abstruct'
         super().__init__(main, title_text, abst_text)
 
+        gravity_description = "TODO: instruction"
+        self.gravity = ParamGetterWidget_DoubleSpinBox(
+            "Gravity",
+            gravity_description,
+            decimals=6,
+            minimum=0.,
+            default=9.80665,  # 標準重力加速度
+            suffix=" m/s^2",
+        )
+        self._rows.addWidget(self.gravity)
+
         latitude_0_description = "TODO: instruction"
         self.latitude_0 = ParamGetterWidget_DoubleSpinBox(
             "Latitude of origin",
@@ -25,7 +36,7 @@ class SimulationWidget(BaseSettingWidget):
             decimals=6,
             minimum=-90.,
             maximum=+90.,
-            default=35.658099,    # 日本: 北緯35度39分29秒
+            default=35.658099,  # 日本: 北緯35度39分29秒
             suffix=" deg",
         )
         self._rows.addWidget(self.latitude_0)

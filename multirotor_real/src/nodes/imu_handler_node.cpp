@@ -3,7 +3,6 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "imu_handler");
-  ros::NodeHandle nh;
-  ImuHandler node(nh);
+  ImuHandler node;
   ros::spin();
 }

@@ -10,9 +10,11 @@ class BarometerHandler
   using BarMsg = sensor_msgs::FluidPressure;
 
 public:
-  BarometerHandler(ros::NodeHandle& nh);
+  BarometerHandler();
 
 private:
+  ros::NodeHandle nh_;
+
   MS5611 barometer_;
   BarMsg bar_msg_;
 

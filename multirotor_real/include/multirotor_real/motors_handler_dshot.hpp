@@ -12,10 +12,12 @@ class MotorsHandler_DSHOT
   const double kDefaultUpdateRate = 1000.;
 
 public:
-  MotorsHandler_DSHOT(ros::NodeHandle& nh);
+  MotorsHandler_DSHOT();
   void run();
 
 private:
+  ros::NodeHandle nh_;
+
   const double battery_voltage_;
   const uint32_t num_rotors_;
   const RotorProperties rotor_props_;

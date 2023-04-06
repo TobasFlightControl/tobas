@@ -2,7 +2,6 @@
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
-#define GRAVITY 9.80665
 #define ZERO_3 (Vector3d(0., 0., 0.))
 
 using namespace std;

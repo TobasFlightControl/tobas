@@ -21,9 +21,13 @@ class ErrorStateKalmanFilterRos
   using StateMsg = multirotor_msgs::PoseVelStamped;
 
 public:
-  ErrorStateKalmanFilterRos(ros::NodeHandle& nh);
+  ErrorStateKalmanFilterRos();
 
 private:
+  ros::NodeHandle nh_;
+
+  // rosparam
+  const double gravity_;
   const double gyro_noise_density_;  // rad/s/sqrt(hz)
   const double gyro_random_walk_;    // rad/s^2/sqrt(hz)
   const double acc_noise_density_;   // m/s^2/sqrt(hz)

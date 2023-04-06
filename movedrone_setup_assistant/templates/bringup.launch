@@ -2,6 +2,9 @@
 
   <arg name='ground_truth' default='false'/>
 
+  <!-- Load environment configurations from YAML file to parameter server -->
+  <rosparam file="$(find {{ pkg_name }})/config/environment.yaml" command="load"/>
+
   <!-- Bringup observer -->
   <group if='$(arg ground_truth)'>
     <node pkg='multirotor_gazebo' name='state_estimator_gt' type='state_estimator_gt_node' output='screen'/>
