@@ -8,7 +8,6 @@
   <arg name='state_topic' default='/estimated_state'/>
 
   <!-- IMU Filter -->
-  <rosparam file="$(find state_estimation_cascade)/config/imu_complementary_filter.yaml" command="load"/>
   <node pkg='imu_complementary_filter' name='imu_complementary_filter' type='complementary_filter_node' output='screen' required='true'>
     <remap from='imu/data_raw' to='$(arg imu_topic)'/>
     <remap from='imu/mag' to='$(arg mag_topic)'/>
