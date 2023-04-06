@@ -1,24 +1,29 @@
-#include <cstdio>
-#include <cmath>
-#include <iostream>
-
 #include "../../include/imu_complementary_filter/complementary_filter.hpp"
 
-const double ComplementaryFilter::kGravity = 9.81;
-const double ComplementaryFilter::gamma_ = 0.01;
-// Bias estimation steady state thresholds
-const double ComplementaryFilter::kAngularVelocityThreshold = 0.2;
-const double ComplementaryFilter::kAccelerationThreshold = 0.1;
-const double ComplementaryFilter::kDeltaAngularVelocityThreshold = 0.01;
+// Constants
+#define ACC_THRESHOLD 0.1
+#define ANGVEL_THRESHOLD 0.2
+#define DELTA_ANGVEL_THRESHOLD 0.01
+
+// Default parameters
+#define DEFAULT_GRAVITY 9.80665
+#define DEFAULT_GAIN_ACC 0.01
+#define DEFAULT_GAIN_MAG 0.01
+#define DEFAULT_BIAS_ALPHA 0.01
+#define DEFAULT_DO_BIAS_ESTIMATION true
+#define DEFAULT_DO_ADAPTIVE_GAIN false
+
+using namespace std;
 
 ComplementaryFilter::ComplementaryFilter()
-  : gain_acc_(0.01),
-    gain_mag_(0.01),
-    bias_alpha_(0.01),
-    do_bias_estimation_(true),
-    do_adaptive_gain_(false),
-    initialized_(false),
-    steady_state_(false),
+  : gravity_(DEFAULT_GRAVITY),
+    gain_acc_(DEFAULT_GAIN_ACC),
+    gain_mag_(DEFAULT_GAIN_MAG),
+    bias_alpha_(DEFAULT_BIAS_ALPHA),
+    do_bias_estimation_(DEFAULT_DO_BIAS_ESTIMATION),
+    do_adaptive_gain_(DEFAULT_DO_ADAPTIVE_GAIN),
+    is_initialized_(false),
+    is_steady_state_(false),
     qBF_0_(1),
     qBF_1_(0),
     qBF_2_(0),
@@ -36,64 +41,42 @@ ComplementaryFilter::ComplementaryFilter()
 {
 }
 
-ComplementaryFilter::~ComplementaryFilter()
+bool ComplementaryFilter::setGravity(double gravity)
 {
-}
-
-void ComplementaryFilter::setDoBiasEstimation(bool do_bias_estimation)
-{
-  do_bias_estimation_ = do_bias_estimation;
-}
-
-bool ComplementaryFilter::getDoBiasEstimation() const
-{
-  return do_bias_estimation_;
-}
-
-void ComplementaryFilter::setDoAdaptiveGain(bool do_adaptive_gain)
-{
-  do_adaptive_gain_ = do_adaptive_gain;
-}
-
-bool ComplementaryFilter::getDoAdaptiveGain() const
-{
-  return do_adaptive_gain_;
+  if (gravity >= 0.)
+  {
+    gravity_ = gravity;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 bool ComplementaryFilter::setGainAcc(double gain)
 {
-  if (gain >= 0 && gain <= 1.0)
+  if (0. <= gain && gain <= 1.)
   {
     gain_acc_ = gain;
     return true;
   }
   else
+  {
     return false;
+  }
 }
 bool ComplementaryFilter::setGainMag(double gain)
 {
-  if (gain >= 0 && gain <= 1.0)
+  if (0. <= gain && gain <= 1.)
   {
     gain_mag_ = gain;
     return true;
   }
   else
+  {
     return false;
-}
-
-double ComplementaryFilter::getGainAcc() const
-{
-  return gain_acc_;
-}
-
-double ComplementaryFilter::getGainMag() const
-{
-  return gain_mag_;
-}
-
-bool ComplementaryFilter::getSteadyState() const
-{
-  return steady_state_;
+  }
 }
 
 bool ComplementaryFilter::setBiasAlpha(double bias_alpha)
@@ -104,12 +87,19 @@ bool ComplementaryFilter::setBiasAlpha(double bias_alpha)
     return true;
   }
   else
+  {
     return false;
+  }
 }
 
-double ComplementaryFilter::getBiasAlpha() const
+void ComplementaryFilter::setDoBiasEstimation(bool do_bias_estimation)
 {
-  return bias_alpha_;
+  do_bias_estimation_ = do_bias_estimation;
+}
+
+void ComplementaryFilter::setDoAdaptiveGain(bool do_adaptive_gain)
+{
+  do_adaptive_gain_ = do_adaptive_gain;
 }
 
 void ComplementaryFilter::setOrientation(double qWB_0, double qWB_1, double qWB_2, double qWB_3)
@@ -159,17 +149,19 @@ void ComplementaryFilter::update(
   double wz,
   double dt)
 {
-  if (!initialized_)
+  if (!is_initialized_)
   {
     // First time - ignore prediction:
     getMeasurement(ax, ay, az, qBF_0_, qBF_1_, qBF_2_, qBF_3_);
-    initialized_ = true;
+    is_initialized_ = true;
     return;
   }
 
   // Bias estimation.
   if (do_bias_estimation_)
+  {
     updateBiases(ax, ay, az, wx, wy, wz);
+  }
 
   // Prediction.
   double q0_pred, q1_pred, q2_pred, q3_pred;
@@ -213,17 +205,19 @@ void ComplementaryFilter::update(
   double mz,
   double dt)
 {
-  if (!initialized_)
+  if (!is_initialized_)
   {
     // First time - ignore prediction:
     getMeasurement(ax, ay, az, mx, my, mz, qBF_0_, qBF_1_, qBF_2_, qBF_3_);
-    initialized_ = true;
+    is_initialized_ = true;
     return;
   }
 
   // Bias estimation.
   if (do_bias_estimation_)
+  {
     updateBiases(ax, ay, az, wx, wy, wz);
+  }
 
   // Prediction.
   double q0_pred, q1_pred, q2_pred, q3_pred;
@@ -237,7 +231,9 @@ void ComplementaryFilter::update(
     ax, ay, az, q0_pred, q1_pred, q2_pred, q3_pred, dq0_acc, dq1_acc, dq2_acc, dq3_acc);
   double alpha = gain_acc_;
   if (do_adaptive_gain_)
+  {
     alpha = getAdaptiveGain(gain_acc_, ax, ay, az);
+  }
   scaleQuaternion(alpha, dq0_acc, dq1_acc, dq2_acc, dq3_acc);
 
   double q0_temp, q1_temp, q2_temp, q3_temp;
@@ -270,20 +266,24 @@ bool ComplementaryFilter::checkState(
   double wz) const
 {
   double acc_magnitude = sqrt(ax * ax + ay * ay + az * az);
-  if (fabs(acc_magnitude - kGravity) > kAccelerationThreshold)
+  if (fabs(acc_magnitude - gravity_) > ACC_THRESHOLD)
+  {
     return false;
+  }
 
   if (
-    fabs(wx - wx_prev_) > kDeltaAngularVelocityThreshold
-    || fabs(wy - wy_prev_) > kDeltaAngularVelocityThreshold
-    || fabs(wz - wz_prev_) > kDeltaAngularVelocityThreshold)
+    fabs(wx - wx_bias_) > ANGVEL_THRESHOLD || fabs(wy - wy_bias_) > ANGVEL_THRESHOLD
+    || fabs(wz - wz_bias_) > ANGVEL_THRESHOLD)
+  {
     return false;
+  }
 
   if (
-    fabs(wx - wx_bias_) > kAngularVelocityThreshold
-    || fabs(wy - wy_bias_) > kAngularVelocityThreshold
-    || fabs(wz - wz_bias_) > kAngularVelocityThreshold)
+    fabs(wx - wx_prev_) > DELTA_ANGVEL_THRESHOLD || fabs(wy - wy_prev_) > DELTA_ANGVEL_THRESHOLD
+    || fabs(wz - wz_prev_) > DELTA_ANGVEL_THRESHOLD)
+  {
     return false;
+  }
 
   return true;
 }
@@ -296,9 +296,9 @@ void ComplementaryFilter::updateBiases(
   double wy,
   double wz)
 {
-  steady_state_ = checkState(ax, ay, az, wx, wy, wz);
+  is_steady_state_ = checkState(ax, ay, az, wx, wy, wz);
 
-  if (steady_state_)
+  if (is_steady_state_)
   {
     wx_bias_ += bias_alpha_ * (wx - wx_bias_);
     wy_bias_ += bias_alpha_ * (wy - wy_bias_);
@@ -499,26 +499,32 @@ void ComplementaryFilter::getOrientation(double& qWB_0, double& qWB_1, double& q
 double ComplementaryFilter::getAdaptiveGain(double alpha, double ax, double ay, double az)
 {
   double a_mag = sqrt(ax * ax + ay * ay + az * az);
-  double error = fabs(a_mag - kGravity) / kGravity;
+  double error = fabs(a_mag - gravity_) / gravity_;
   double factor;
   double error1 = 0.1;
   double error2 = 0.2;
   double m = 1.0 / (error1 - error2);
   double b = 1.0 - m * error1;
   if (error < error1)
+  {
     factor = 1.0;
+  }
   else if (error < error2)
+  {
     factor = m * error + b;
+  }
   else
+  {
     factor = 0.0;
-  // printf("FACTOR: %f \n", factor);
+  }
   return factor * alpha;
 }
 
 void ComplementaryFilter::reset()
 {
-  initialized_ = false;
-  steady_state_ = false;
+  // TODO: 他のクオータニオンもリセット
+  is_initialized_ = false;
+  is_steady_state_ = false;
   qBF_0_ = 1.0;
   qBF_1_ = qBF_2_ = qBF_3_ = 0.0;
   wx_bias_ = wy_bias_ = wz_bias_ = 0.0;

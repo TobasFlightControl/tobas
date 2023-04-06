@@ -1,39 +1,28 @@
 #pragma once
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 class ComplementaryFilter
 {
 public:
   ComplementaryFilter();
-  virtual ~ComplementaryFilter();
 
+  bool setGravity(double gravity);
   bool setGainAcc(double gain);
   bool setGainMag(double gain);
-  double getGainAcc() const;
-  double getGainMag() const;
-
   bool setBiasAlpha(double bias_alpha);
-  double getBiasAlpha() const;
-
-  // When the filter is in the steady state, bias estimation will occur (if
-  // the parameter is enabled).
-  bool getSteadyState() const;
-
   void setDoBiasEstimation(bool do_bias_estimation);
-  bool getDoBiasEstimation() const;
-
   void setDoAdaptiveGain(bool do_adaptive_gain);
-  bool getDoAdaptiveGain() const;
 
   double getAngularVelocityBiasX() const;
   double getAngularVelocityBiasY() const;
   double getAngularVelocityBiasZ() const;
 
-  // Set the orientation, as a Hamilton Quaternion, of the body frame wrt the
-  // world frame.
+  // Set the orientation, as a Hamilton Quaternion, of the body frame wrt the world frame.
   void setOrientation(double qWB_0, double qWB_1, double qWB_2, double qWB_3);
 
-  // Get the orientation, as a Hamilton Quaternion, of the body frame wrt the
-  // world frame.
+  // Get the orientation, as a Hamilton Quaternion, of the body frame wrt the world frame.
   void getOrientation(double& qWB_0, double& qWB_1, double& qWB_2, double& qWB_3) const;
 
   void setReferenceMagneticField(double ref_mag_north, double ref_mag_east, double ref_mag_down);
@@ -65,28 +54,15 @@ public:
   void reset();
 
 private:
-  static const double kGravity;
-  static const double gamma_;
-  // Bias estimation steady state thresholds
-  static const double kAngularVelocityThreshold;
-  static const double kAccelerationThreshold;
-  static const double kDeltaAngularVelocityThreshold;
+  double gravity_;
+  double gain_acc_;    // Accel gain parameter for the complementary filter, belongs in [0, 1].
+  double gain_mag_;    // Magnetic gain parameter for the complementary filter, belongs in [0, 1].
+  double bias_alpha_;  // Bias estimation gain parameter, belongs in [0, 1].
+  bool do_bias_estimation_;  // Parameter whether to do bias estimation or not.
+  bool do_adaptive_gain_;    // Parameter whether to do adaptive gain or not.
 
-  // Gain parameter for the complementary filter, belongs in [0, 1].
-  double gain_acc_;
-  double gain_mag_;
-
-  // Bias estimation gain parameter, belongs in [0, 1].
-  double bias_alpha_;
-
-  // Parameter whether to do bias estimation or not.
-  bool do_bias_estimation_;
-
-  // Parameter whether to do adaptive gain or not.
-  bool do_adaptive_gain_;
-
-  bool initialized_;
-  bool steady_state_;
+  bool is_initialized_;
+  bool is_steady_state_;
 
   // The orientation as a Hamilton quaternion (q0 is the scalar). Represents
   // the orientation of the fixed frame wrt the body frame.
