@@ -15,7 +15,7 @@ state_estimator_cascade:
   use_gps_velocity: true  # TODO: アプリから選択
   gravity_variance_exp: 2  # TODO: アプリから選択
 
-imu_complementary_filter:
+orientation_estimator_complement:
   ref_mag_north: {{ ref_mag_north }}
   ref_mag_east: {{ ref_mag_east }}
   ref_mag_down: {{ ref_mag_down }}

@@ -7,9 +7,9 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
-#include "./complementary_filter.hpp"
+#include "./orientation_estimator.hpp"
 
-class ComplementaryFilterRos
+class OrientationEstimatorRos
 {
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
@@ -19,7 +19,7 @@ class ComplementaryFilterRos
   using MagSubscriber = message_filters::Subscriber<MagMsg>;
 
 public:
-  ComplementaryFilterRos();
+  OrientationEstimatorRos();
 
 private:
   ros::NodeHandle nh_;
@@ -35,7 +35,7 @@ private:
   double ref_mag_east_;
   double ref_mag_down_;
 
-  ComplementaryFilter filter_;
+  OrientationEstimator filter_;
   ros::Time time_prev_;
   bool is_initialized_;
   Eigen::Vector3d a_;

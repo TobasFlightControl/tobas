@@ -8,7 +8,7 @@
   <arg name='state_topic' default='/estimated_state'/>
 
   <!-- IMU Filter -->
-  <node pkg='imu_complementary_filter' name='imu_complementary_filter' type='complementary_filter_node' output='screen' required='true'>
+  <node pkg='orientation_estimation_complement' name='orientation_estimator_complement' type='orientation_estimator_node' output='screen' required='true'>
     <remap from='imu/data_raw' to='$(arg imu_topic)'/>
     <remap from='imu/mag' to='$(arg mag_topic)'/>
     <remap from='imu/data' to='/filtered_imu'/>

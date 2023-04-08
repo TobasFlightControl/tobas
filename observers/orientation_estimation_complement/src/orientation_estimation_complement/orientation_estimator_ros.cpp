@@ -3,7 +3,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
-#include "../../include/imu_complementary_filter/complementary_filter_ros.hpp"
+#include "../../include/orientation_estimation_complement/orientation_estimator_ros.hpp"
 
 // Constants
 #define QUEUE_SIZE 5
@@ -18,7 +18,7 @@
 
 using namespace Eigen;
 
-ComplementaryFilterRos::ComplementaryFilterRos()
+OrientationEstimatorRos::OrientationEstimatorRos()
   : is_initialized_(false),
     imu_sub_(nh_, "imu/data_raw", QUEUE_SIZE),
     mag_sub_(nh_, "imu/mag", QUEUE_SIZE),
@@ -28,10 +28,10 @@ ComplementaryFilterRos::ComplementaryFilterRos()
   initializeFilter();
 
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data", QUEUE_SIZE);
-  sync_.registerCallback(&ComplementaryFilterRos::imuMagCb, this);
+  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
-void ComplementaryFilterRos::getRosParams()
+void OrientationEstimatorRos::getRosParams()
 {
   gravity_ = dh_ros::getParam<double>("/gravity", DEFAULT_GRAVITY);
 
@@ -45,7 +45,7 @@ void ComplementaryFilterRos::getRosParams()
   do_adaptive_gain_ = dh_ros::getParam<bool>("~do_adaptive_gain", DEFAULT_DO_ADAPTIVE_GAIN);
 }
 
-void ComplementaryFilterRos::initializeFilter()
+void OrientationEstimatorRos::initializeFilter()
 {
   filter_.setReferenceMagneticField(ref_mag_north_, ref_mag_east_, ref_mag_down_);
 
@@ -71,7 +71,7 @@ void ComplementaryFilterRos::initializeFilter()
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
 }
 
-void ComplementaryFilterRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
+void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
 {
   const ros::Time& time = imu.header.stamp;
   tf::vectorMsgToEigen(imu.linear_acceleration, a_);

@@ -3,10 +3,14 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-class ComplementaryFilter
+/**
+ * @brief Keeping a Good Attitude: A Quaternion-Based Orientation Filter for IMUs and MARGs
+ * [Valenti+, 2015]
+ */
+class OrientationEstimator
 {
 public:
-  ComplementaryFilter();
+  OrientationEstimator();
 
   bool setGravity(double gravity);
   bool setGainAcc(double gain);

@@ -11,7 +11,7 @@
 
 	<depend>roscpp</depend>
 	<depend>orocos_kdl</depend>
-	<depend>imu_complementary_filter</depend>
+	<depend>orientation_estimation_complement</depend>
 
 	<depend>dh_std_tools</depend>
 	<depend>dh_eigen_tools</depend>

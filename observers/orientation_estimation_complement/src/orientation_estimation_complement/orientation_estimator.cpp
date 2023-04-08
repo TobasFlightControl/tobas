@@ -1,5 +1,5 @@
-#include "../../include/imu_complementary_filter/complementary_filter.hpp"
-#include "../../include/imu_complementary_filter/utils.hpp"
+#include "../../include/orientation_estimation_complement/orientation_estimator.hpp"
+#include "../../include/orientation_estimation_complement/utils.hpp"
 
 // Constants
 #define ACC_THRESHOLD 0.1
@@ -19,7 +19,7 @@
 using namespace std;
 using namespace Eigen;
 
-ComplementaryFilter::ComplementaryFilter()
+OrientationEstimator::OrientationEstimator()
   : gravity_(DEFAULT_GRAVITY),
     gain_acc_(DEFAULT_GAIN_ACC),
     gain_mag_(DEFAULT_GAIN_MAG),
@@ -34,7 +34,7 @@ ComplementaryFilter::ComplementaryFilter()
 {
 }
 
-bool ComplementaryFilter::setGravity(double gravity)
+bool OrientationEstimator::setGravity(double gravity)
 {
   if (gravity >= 0.)
   {
@@ -47,7 +47,7 @@ bool ComplementaryFilter::setGravity(double gravity)
   }
 }
 
-bool ComplementaryFilter::setGainAcc(double gain)
+bool OrientationEstimator::setGainAcc(double gain)
 {
   if (0. <= gain && gain <= 1.)
   {
@@ -59,7 +59,7 @@ bool ComplementaryFilter::setGainAcc(double gain)
     return false;
   }
 }
-bool ComplementaryFilter::setGainMag(double gain)
+bool OrientationEstimator::setGainMag(double gain)
 {
   if (0. <= gain && gain <= 1.)
   {
@@ -72,7 +72,7 @@ bool ComplementaryFilter::setGainMag(double gain)
   }
 }
 
-bool ComplementaryFilter::setBiasAlpha(double bias_alpha)
+bool OrientationEstimator::setBiasAlpha(double bias_alpha)
 {
   if (0. <= bias_alpha && bias_alpha <= 1.)
   {
@@ -85,32 +85,32 @@ bool ComplementaryFilter::setBiasAlpha(double bias_alpha)
   }
 }
 
-void ComplementaryFilter::setDoBiasEstimation(bool do_bias_estimation)
+void OrientationEstimator::setDoBiasEstimation(bool do_bias_estimation)
 {
   do_bias_estimation_ = do_bias_estimation;
 }
 
-void ComplementaryFilter::setDoAdaptiveGain(bool do_adaptive_gain)
+void OrientationEstimator::setDoAdaptiveGain(bool do_adaptive_gain)
 {
   do_adaptive_gain_ = do_adaptive_gain;
 }
 
-Vector3d ComplementaryFilter::getAngularVelocityBias() const
+Vector3d OrientationEstimator::getAngularVelocityBias() const
 {
   return w_bias_;
 }
 
-void ComplementaryFilter::setOrientation(const Quaterniond& q_WB)
+void OrientationEstimator::setOrientation(const Quaterniond& q_WB)
 {
   q_BF_ = (q_WB.conjugate() * q_WF_).normalized();
 }
 
-Quaterniond ComplementaryFilter::getOrientation() const
+Quaterniond OrientationEstimator::getOrientation() const
 {
   return (q_WF_ * q_BF_.conjugate()).normalized();
 }
 
-void ComplementaryFilter::setReferenceMagneticField(
+void OrientationEstimator::setReferenceMagneticField(
   double ref_mag_north,
   double ref_mag_east,
   double ref_mag_down)
@@ -122,7 +122,7 @@ void ComplementaryFilter::setReferenceMagneticField(
   q_WF_.z() = sin(yaw_angle / 2.);
 }
 
-void ComplementaryFilter::update(const Vector3d& a, const Vector3d& w, const Vector3d& m, double dt)
+void OrientationEstimator::update(const Vector3d& a, const Vector3d& w, const Vector3d& m, double dt)
 {
   if (!is_initialized_)
   {
@@ -160,7 +160,7 @@ void ComplementaryFilter::update(const Vector3d& a, const Vector3d& w, const Vec
   q_BF_.normalize();
 }
 
-void ComplementaryFilter::reset()
+void OrientationEstimator::reset()
 {
   is_initialized_ = false;
   q_BF_ = Quaterniond::Identity();
@@ -168,7 +168,7 @@ void ComplementaryFilter::reset()
   w_bias_ = Vector3d::Zero();
 }
 
-void ComplementaryFilter::updateBiases(const Vector3d& a, const Vector3d& w)
+void OrientationEstimator::updateBiases(const Vector3d& a, const Vector3d& w)
 {
   if (checkState(a, w))
   {
@@ -177,7 +177,7 @@ void ComplementaryFilter::updateBiases(const Vector3d& a, const Vector3d& w)
   w_prev_ = w;
 }
 
-bool ComplementaryFilter::checkState(const Vector3d& a, const Vector3d& w) const
+bool OrientationEstimator::checkState(const Vector3d& a, const Vector3d& w) const
 {
   if (abs(a.norm() - gravity_) > ACC_THRESHOLD)
   {
@@ -197,7 +197,7 @@ bool ComplementaryFilter::checkState(const Vector3d& a, const Vector3d& w) const
   return true;
 }
 
-Quaterniond ComplementaryFilter::getPrediction(const Vector3d& w, double dt) const
+Quaterniond OrientationEstimator::getPrediction(const Vector3d& w, double dt) const
 {
   Vector3d w_unb = w - w_bias_;
 
@@ -210,7 +210,7 @@ Quaterniond ComplementaryFilter::getPrediction(const Vector3d& w, double dt) con
   return q_pred.normalized();
 }
 
-Quaterniond ComplementaryFilter::getMeasurement(const Vector3d& a, const Vector3d& m) const
+Quaterniond OrientationEstimator::getMeasurement(const Vector3d& a, const Vector3d& m) const
 {
   // q_acc is the quaternion obtained from the acceleration vector
   // representing the orientation of the Global frame wrt the Local frame with
@@ -254,7 +254,7 @@ Quaterniond ComplementaryFilter::getMeasurement(const Vector3d& a, const Vector3
   return (q_acc * q_mag).normalized();
 }
 
-Quaterniond ComplementaryFilter::getAccCorrection(const Vector3d& a, const Quaterniond& p) const
+Quaterniond OrientationEstimator::getAccCorrection(const Vector3d& a, const Quaterniond& p) const
 {
   // Normalize acceleration vector
   Vector3d a_norm = a.normalized();
@@ -273,7 +273,7 @@ Quaterniond ComplementaryFilter::getAccCorrection(const Vector3d& a, const Quate
   return dq;
 }
 
-Quaterniond ComplementaryFilter::getMagCorrection(const Vector3d& m, const Quaterniond& p) const
+Quaterniond OrientationEstimator::getMagCorrection(const Vector3d& m, const Quaterniond& p) const
 {
   // Magnetic reading rotated into the world frame by the inverse predicted quaternion:
   Vector3d l = p.conjugate() * m;
@@ -290,7 +290,7 @@ Quaterniond ComplementaryFilter::getMagCorrection(const Vector3d& m, const Quate
   return dq;
 }
 
-double ComplementaryFilter::getAdaptiveGain(double alpha, const Vector3d& a) const
+double OrientationEstimator::getAdaptiveGain(double alpha, const Vector3d& a) const
 {
   constexpr double error1 = 0.1;
   constexpr double error2 = 0.2;
