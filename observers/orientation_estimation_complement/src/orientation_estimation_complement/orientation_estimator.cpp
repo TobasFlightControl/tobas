@@ -122,7 +122,11 @@ void OrientationEstimator::setReferenceMagneticField(
   q_WF_.z() = sin(yaw_angle / 2.);
 }
 
-void OrientationEstimator::update(const Vector3d& a, const Vector3d& w, const Vector3d& m, double dt)
+void OrientationEstimator::update(
+  const Vector3d& a,
+  const Vector3d& w,
+  const Vector3d& m,
+  double dt)
 {
   if (!is_initialized_)
   {

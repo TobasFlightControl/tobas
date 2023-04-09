@@ -30,7 +30,7 @@ public:
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Matrix3d& acc_cov,
     const int& grav_var_exp);
-  
+
   void reconfigure(const int& grav_var_exp);
 
   void predict(const Eigen::Quaterniond& quat, const Eigen::Matrix3d& acc_cov, double dt);
