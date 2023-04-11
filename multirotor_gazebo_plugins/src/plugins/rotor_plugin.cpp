@@ -217,6 +217,13 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   // Rolling moment
   Vector3d rolling_moment = -abs(rot_vel_real) * roll_moment_coef_ * body_vel_perp;
 
+  // For debug
+  // cout << "thrust force: " << thrust << " [N]" << endl;
+  // cout << "rotor drag torque: " << drag_torque.Length() << " [Nm]" << endl;
+  // cout << "air drag force: " << air_drag.Length() << " [N]" << endl;
+  // cout << "rolling moment: " << rolling_moment.Length() << " [Nm]" << endl;
+  // cout << endl;
+
   // Apply forces and torques
   link_->AddRelativeForce(Vector3d(0., 0., thrust));
   parent_link_->AddRelativeTorque(drag_torque_parent_frame);
