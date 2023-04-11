@@ -23,13 +23,6 @@ static constexpr char kPluginName[] = "motor_model_plugin";
 static constexpr char kDefaultSpeedPubTopic[] = "motor_speed";
 static constexpr char kDefaultCmdSubTopic[] = "command/motor_speed";
 static constexpr char kDefaultWindSubTopic[] = "wind_speed";
-static constexpr double kDefaultMaxRotSpeed = 838.;
-static constexpr double kDefaultMotorConst = 8.54858e-06;
-static constexpr double kDefaultMomentConst = 1.6e-2;
-static constexpr double kDefaultRotorDragCoef = 1e-4;
-static constexpr double kDefaultRollMomentCoef = 1e-6;
-static constexpr double kDefaultTimeConstUp = 1. / 80.;
-static constexpr double kDefaultTimeConstDown = 1. / 40.;
 static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 
 class GazeboRotorPlugin : public ModelPlugin
@@ -56,8 +49,8 @@ private:
   std::string cmd_sub_topic_;
   std::string wind_speed_sub_topic_;
   double max_rot_vel_;
-  double motor_constant_;
-  double moment_constant_;
+  double motor_const_;
+  double moment_const_;
   double rotor_drag_coef_;
   double roll_moment_coef_;
   double time_const_up_;
@@ -73,6 +66,7 @@ private:
   physics::ModelPtr model_;
   physics::JointPtr joint_;
   physics::LinkPtr link_;
+  physics::LinkPtr parent_link_;
   event::ConnectionPtr update_connection_;
 
   ros::Publisher motor_speed_pub_;

@@ -15,13 +15,15 @@ inline T sqr(const T& x)
 template <typename T>
 bool getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
 {
-  if (!sdf->HasElement(name))
+  if (sdf->HasElement(name))
+  {
+    param = sdf->GetElement(name)->Get<T>();
+    return true;
+  }
+  else
   {
     return false;
   }
-
-  param = sdf->GetElement(name)->Get<T>();
-  return true;
 }
 
 template <typename T>

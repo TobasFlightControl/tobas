@@ -1,9 +1,6 @@
 #include "../../include/plugins/rotor_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
-#define CW -1
-#define CCW 1
-
 using namespace std;
 using namespace ignition::math;
 
@@ -34,11 +31,12 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
+  parent_link_ = link_->GetParentJointsLinks()[0];
 
   // Initialize the first order filter
   rotor_speed_filter_.initialize(time_const_up_, time_const_down_, ref_motor_input_);
 
-  // Advertise and register
+  // Advertise
   motor_speed_pub_ = nh_.advertise<std_msgs::Float64>("/" + ns_ + "/" + motor_speed_pub_topic_, 1);
   command_sub_ =
     nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
@@ -54,22 +52,22 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
   {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
+    gzthrow(kPluginName << ": Please specify robotNamespace.");
   }
 
   if (!getSdfParam<string>(sdf, "linkName", link_name_))
   {
-    gzthrow(kPluginName << ": Please specify a linkName of the rotor.");
+    gzthrow(kPluginName << ": Please specify linkName of the rotor.");
   }
 
   if (!getSdfParam<string>(sdf, "jointName", joint_name_))
   {
-    gzthrow(kPluginName << ": Please specify a jointName, where the rotor is attached.");
+    gzthrow(kPluginName << ": Please specify jointName, where the rotor is attached.");
   }
 
   if (!getSdfParam<int>(sdf, "motorNumber", motor_number_))
   {
-    gzthrow(kPluginName << ": Please specify a motorNumber.");
+    gzthrow(kPluginName << ": Please specify motorNumber.");
   }
 
   if (sdf->HasElement("turningDirection"))
@@ -77,11 +75,11 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     string turning_direction = sdf->GetElement("turningDirection")->Get<string>();
     if (turning_direction == "cw")
     {
-      direction_ = CW;
+      direction_ = -1;
     }
     else if (turning_direction == "ccw")
     {
-      direction_ = CCW;
+      direction_ = 1;
     }
     else
     {
@@ -93,19 +91,86 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  // TODO: 範囲チェック
+  if (!getSdfParam<double>(sdf, "maxRotVelocity", max_rot_vel_))
+  {
+    gzthrow(kPluginName << ": Please specify maxRotVelocity [rad/s].");
+  }
+  if (max_rot_vel_ < 0.)
+  {
+    gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_vel_ << " [rad/s]");
+  }
+
+  if (!getSdfParam<double>(sdf, "motorConstant", motor_const_))
+  {
+    gzthrow(kPluginName << ": Please specify motorConstant [kg*m/s^2]");
+  }
+  if (motor_const_ < 0.)
+  {
+    gzthrow(kPluginName << ": Invalid motorConstant: " << motor_const_ << " [kg*m/s^2]");
+  }
+
+  if (!getSdfParam<double>(sdf, "momentConstant", moment_const_))
+  {
+    gzthrow(kPluginName << ": Please specify momentConstant [m]");
+  }
+  if (moment_const_ < 0.)
+  {
+    gzthrow(kPluginName << ": Invalid momentConstant:" << moment_const_ << " [m]");
+  }
+
+  if (!getSdfParam<double>(sdf, "rotorDragCoefficient", rotor_drag_coef_))
+  {
+    gzthrow(kPluginName << ": Please specify rotorDragCoefficient [Ns^2/m^2]");
+  }
+  if (rotor_drag_coef_ < 0.)
+  {
+    gzthrow(kPluginName << ": Invalid rotorDragCoefficient:" << rotor_drag_coef_ << " [Ns^2/m^2]");
+  }
+
+  if (!getSdfParam<double>(sdf, "rollingMomentCoefficient", roll_moment_coef_))
+  {
+    gzthrow(kPluginName << ": Please specify rollingMomentCoefficient [Ns^2/m]");
+  }
+  if (roll_moment_coef_ < 0.)
+  {
+    gzthrow(
+      kPluginName << ": Invalid rollingMomentCoefficient:" << roll_moment_coef_ << " [Ns^2/m]");
+  }
+
+  if (!getSdfParam<double>(sdf, "timeConstantUp", time_const_up_))
+  {
+    gzthrow(kPluginName << ": Please specify timeConstantUp [s]");
+  }
+  if (time_const_up_ <= 0.)
+  {
+    gzthrow(kPluginName << ": Invalid timeConstantUp:" << time_const_up_ << " [s]");
+  }
+
+  if (!getSdfParam<double>(sdf, "timeConstantDown", time_const_down_))
+  {
+    gzthrow(kPluginName << ": Please specify timeConstantDown [s]");
+  }
+  if (time_const_down_ <= 0.)
+  {
+    gzthrow(kPluginName << ": Invalid timeConstantDown:" << time_const_down_ << " [s]");
+  }
+
   getSdfParam<string>(sdf, "motorSpeedPubTopic", motor_speed_pub_topic_, kDefaultSpeedPubTopic);
   getSdfParam<string>(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
   getSdfParam<string>(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
-  getSdfParam<double>(sdf, "maxRotVelocity", max_rot_vel_, kDefaultMaxRotSpeed);
-  getSdfParam<double>(sdf, "motorConstant", motor_constant_, kDefaultMotorConst);
-  getSdfParam<double>(sdf, "momentConstant", moment_constant_, kDefaultMomentConst);
-  getSdfParam<double>(sdf, "rotorDragCoefficient", rotor_drag_coef_, kDefaultRotorDragCoef);
-  getSdfParam<double>(sdf, "rollingMomentCoefficient", roll_moment_coef_, kDefaultRollMomentCoef);
-  getSdfParam<double>(sdf, "timeConstantUp", time_const_up_, kDefaultTimeConstUp);
-  getSdfParam<double>(sdf, "timeConstantDown", time_const_down_, kDefaultTimeConstDown);
-  getSdfParam<double>(
-    sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim);
+
+  if (!getSdfParam<double>(sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_))
+  {
+    gzlog << kPluginName << ": rotorVelocitySlowdownSim is not specified. The default value "
+          << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
+    rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
+  }
+  if (rotor_speed_slowdown_sim_ < 1.)
+  {
+    gzerr << kPluginName << ": Invalid rotorVelocitySlowdownSim: " << rotor_speed_slowdown_sim_
+          << ". The default value " << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
+    rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
+  }
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -114,14 +179,14 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   prev_sim_time_ = info.simTime.Double();
   updateForcesAndMoments(dt);
 
-  motor_speed_msg_.data = joint_->GetVelocity(0.);
+  motor_speed_msg_.data = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;  // real speed
   motor_speed_pub_.publish(motor_speed_msg_);
 }
 
 void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 {
-  double motor_rot_vel = joint_->GetVelocity(0);
-  if (motor_rot_vel / (2 * M_PI) > 1 / (2 * dt))
+  double rot_vel_sim = joint_->GetVelocity(0);
+  if (rot_vel_sim * dt > M_PI)
   {
     gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
           << "] might occur. Consider making smaller simulation time "
@@ -129,47 +194,37 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
           << endl;
     return;
   }
-  double real_motor_vel = motor_rot_vel * rotor_speed_slowdown_sim_;
-  // Get the direction of the rotor rotation.
-  int real_motor_vel_sign = (real_motor_vel > 0.) - (real_motor_vel < 0.);
-  // Assuming symmetric propellers (or rotors) for the thrust calculation.
-  double thrust = direction_ * real_motor_vel_sign * motor_constant_ * sqr(real_motor_vel);
 
-  // Apply a force to the link.
-  link_->AddRelativeForce(Vector3d(0., 0., thrust));
+  // Thrust force
+  double rot_vel_real = rot_vel_sim * rotor_speed_slowdown_sim_;
+  int rot_vel_sgn = (rot_vel_real > 0.) - (rot_vel_real < 0.);
+  double thrust = direction_ * rot_vel_sgn * motor_const_ * sqr(rot_vel_real);  // [N]
+
+  // Rotor drag torque
+  Pose3d pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
+  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // self frame
+  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);  // parent frame
 
   // Forces from Philppe Martin's and Erwan Salaün's
   // 2010 IEEE Conference on Robotics and Automation paper
   // The True Role of Accelerometer Feedback in Quadrotor Control
-  // - \omega * \lambda_1 * V_A^{\perp}
   Vector3d joint_axis = joint_->GlobalAxis(0);
   Vector3d body_vel_W = link_->WorldLinearVel();
   Vector3d relative_wind_vel_W = body_vel_W - wind_speed_W_;
-  Vector3d body_vel_perpendicular =
-    relative_wind_vel_W - (relative_wind_vel_W.Dot(joint_axis) * joint_axis);
-  Vector3d air_drag = -abs(real_motor_vel) * rotor_drag_coef_ * body_vel_perpendicular;
+  Vector3d body_vel_perp = relative_wind_vel_W - (relative_wind_vel_W.Dot(joint_axis) * joint_axis);
+  Vector3d air_drag = -abs(rot_vel_real) * rotor_drag_coef_ * body_vel_perp;
 
-  // Apply air_drag to link.
+  // Rolling moment
+  Vector3d rolling_moment = -abs(rot_vel_real) * roll_moment_coef_ * body_vel_perp;
+
+  // Apply forces and torques
+  link_->AddRelativeForce(Vector3d(0., 0., thrust));
+  parent_link_->AddRelativeTorque(drag_torque_parent_frame);
   link_->AddForce(air_drag);
-  // Moments get the parent link, such that the resulting torques can be applied.
-  physics::Link_V parent_links = link_->GetParentJointsLinks();
-  // The tansformation from the parent_link to the link_.
-  Pose3d pose_diff = link_->WorldCoGPose() - parent_links.at(0)->WorldCoGPose();
-  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_constant_);
-  // Transforming the drag torque into the parent frame to handle arbitrary rotor orientations.
-  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);
-  parent_links.at(0)->AddRelativeTorque(drag_torque_parent_frame);
+  parent_link_->AddTorque(rolling_moment);
 
-  Vector3d rolling_moment;
-  // - \omega * \mu_1 * V_A^{\perp}
-  rolling_moment = -abs(real_motor_vel) * roll_moment_coef_ * body_vel_perpendicular;
-  parent_links.at(0)->AddTorque(rolling_moment);
-  // Apply the filter on the motor's velocity.
+  // Apply the filter on the motor velocity
   double ref_motor_rot_vel = rotor_speed_filter_.updateFilter(ref_motor_input_, dt);
-
-  // Make sure max force is set, as it may be reset to 0 by a world reset any
-  // time. (This cannot be done during Reset() because the change will be undone
-  // by the Joint's reset function afterwards.)
   joint_->SetVelocity(0, direction_ * ref_motor_rot_vel / rotor_speed_slowdown_sim_);
 }
 
