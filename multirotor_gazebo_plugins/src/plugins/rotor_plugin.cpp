@@ -180,7 +180,6 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   {
     gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
           << "] might occur. Lower simulation time step or raise rotorVelocitySlowdownSim." << endl;
-    return;
   }
 
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
