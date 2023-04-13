@@ -202,7 +202,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 
   // (2) first term: Rotor drag torque
   Pose3d pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
-  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // self frame
+  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // rotor frame
   Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);  // parent frame
 
   // For debug
