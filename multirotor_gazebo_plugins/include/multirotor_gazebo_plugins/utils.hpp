@@ -7,12 +7,6 @@
 namespace gazebo
 {
 template <typename T>
-inline T sqr(const T& x)
-{
-  return x * x;
-}
-
-template <typename T>
 bool getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
 {
   if (sdf->HasElement(name))

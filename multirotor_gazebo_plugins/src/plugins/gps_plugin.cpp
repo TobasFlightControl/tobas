@@ -42,28 +42,28 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   pos_msg_.status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
   pos_msg_.position_covariance_type = PosMsg::COVARIANCE_TYPE_KNOWN;
 
-  pos_msg_.position_covariance[0] = sqr(hor_pos_std_dev_);
+  pos_msg_.position_covariance[0] = dh_std::sqr(hor_pos_std_dev_);
   pos_msg_.position_covariance[1] = 0.;
   pos_msg_.position_covariance[2] = 0.;
   pos_msg_.position_covariance[3] = 0.;
-  pos_msg_.position_covariance[4] = sqr(hor_pos_std_dev_);
+  pos_msg_.position_covariance[4] = dh_std::sqr(hor_pos_std_dev_);
   pos_msg_.position_covariance[5] = 0.;
   pos_msg_.position_covariance[6] = 0.;
   pos_msg_.position_covariance[7] = 0.;
-  pos_msg_.position_covariance[8] = sqr(ver_pos_std_dev_);
+  pos_msg_.position_covariance[8] = dh_std::sqr(ver_pos_std_dev_);
 
   // Fill the static parts of the ground speed message
   vel_msg_.header.frame_id = link_name_;
 
-  vel_msg_.vel.covariance[0] = sqr(hor_vel_std_dev_);
+  vel_msg_.vel.covariance[0] = dh_std::sqr(hor_vel_std_dev_);
   vel_msg_.vel.covariance[1] = 0.;
   vel_msg_.vel.covariance[2] = 0.;
   vel_msg_.vel.covariance[3] = 0.;
-  vel_msg_.vel.covariance[4] = sqr(hor_vel_std_dev_);
+  vel_msg_.vel.covariance[4] = dh_std::sqr(hor_vel_std_dev_);
   vel_msg_.vel.covariance[5] = 0.;
   vel_msg_.vel.covariance[6] = 0.;
   vel_msg_.vel.covariance[7] = 0.;
-  vel_msg_.vel.covariance[8] = sqr(ver_vel_std_dev_);
+  vel_msg_.vel.covariance[8] = dh_std::sqr(ver_vel_std_dev_);
 
   // Advertise
   pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + gps_topic_, 1);

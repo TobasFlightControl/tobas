@@ -1,3 +1,5 @@
+#include <dh_std_tools/math.hpp>
+
 #include "../../include/plugins/magnetometer_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
@@ -50,15 +52,15 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   // Fill the static parts of the magnetometer message
   mag_msg_.header.frame_id = link_name_;
 
-  mag_msg_.magnetic_field_covariance[0] = sqr(noise_normal_.X());
+  mag_msg_.magnetic_field_covariance[0] = dh_std::sqr(noise_normal_.X());
   mag_msg_.magnetic_field_covariance[1] = 0.;
   mag_msg_.magnetic_field_covariance[2] = 0.;
   mag_msg_.magnetic_field_covariance[3] = 0.;
-  mag_msg_.magnetic_field_covariance[4] = sqr(noise_normal_.Y());
+  mag_msg_.magnetic_field_covariance[4] = dh_std::sqr(noise_normal_.Y());
   mag_msg_.magnetic_field_covariance[5] = 0.;
   mag_msg_.magnetic_field_covariance[6] = 0.;
   mag_msg_.magnetic_field_covariance[7] = 0.;
-  mag_msg_.magnetic_field_covariance[8] = sqr(noise_normal_.Z());
+  mag_msg_.magnetic_field_covariance[8] = dh_std::sqr(noise_normal_.Z());
 
   // Advertise publisher
   mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + mag_topic_, 1);

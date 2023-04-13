@@ -1,3 +1,5 @@
+#include <dh_std_tools/math.hpp>
+
 #include "../../include/plugins/rotor_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
 
@@ -190,7 +192,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   // (1) first term: Thrust Force
   double rot_vel_real = rot_vel_sim * rotor_speed_slowdown_sim_;
   int rot_vel_sgn = (rot_vel_real > 0.) - (rot_vel_real < 0.);
-  double thrust = direction_ * rot_vel_sgn * motor_const_ * sqr(rot_vel_real);  // [N]
+  double thrust = direction_ * rot_vel_sgn * motor_const_ * dh_std::sqr(rot_vel_real);  // [N]
 
   // (1) second term: H-force
   Vector3d joint_axis = joint_->GlobalAxis(0);

@@ -1,3 +1,5 @@
+#include <dh_std_tools/math.hpp>
+
 #include "../../include/plugins/imu_plugin.hpp"
 #include "../../include/multirotor_gazebo_plugins/utils.hpp"
 #include "../../include/multirotor_gazebo_plugins/conversions.hpp"
@@ -109,10 +111,10 @@ void GazeboImuPlugin::onUpdate()
   vectorGazeboToRos(acc_B, imu_msg_.linear_acceleration);
   vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
 
-  double acc_var = sqr(acc_noise_density_) / dt;
+  double acc_var = dh_std::sqr(acc_noise_density_) / dt;
   fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
-  double gyro_var = sqr(gyro_noise_density_) / dt;
+  double gyro_var = dh_std::sqr(gyro_noise_density_) / dt;
   fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
