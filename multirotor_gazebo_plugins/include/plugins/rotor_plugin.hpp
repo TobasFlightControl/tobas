@@ -52,7 +52,6 @@ private:
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
-  double roll_moment_coef_;
   double time_const_up_;
   double time_const_down_;
   double rotor_speed_slowdown_sim_;

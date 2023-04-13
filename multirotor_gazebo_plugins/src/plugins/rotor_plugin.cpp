@@ -127,16 +127,6 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Invalid rotorDragCoefficient:" << rotor_drag_coef_ << " [Ns^2/m^2]");
   }
 
-  if (!getSdfParam<double>(sdf, "rollingMomentCoefficient", roll_moment_coef_))
-  {
-    gzthrow(kPluginName << ": Please specify rollingMomentCoefficient [Ns^2/m]");
-  }
-  if (roll_moment_coef_ < 0.)
-  {
-    gzthrow(
-      kPluginName << ": Invalid rollingMomentCoefficient:" << roll_moment_coef_ << " [Ns^2/m]");
-  }
-
   if (!getSdfParam<double>(sdf, "timeConstantUp", time_const_up_))
   {
     gzthrow(kPluginName << ": Please specify timeConstantUp [s]");
@@ -186,49 +176,45 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 {
   double rot_vel_sim = joint_->GetVelocity(0);
-  if (rot_vel_sim * dt > M_PI)
+  if (abs(rot_vel_sim) * dt > M_PI)
   {
     gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
-          << "] might occur. Consider making smaller simulation time "
-             "steps or raising the rotor_speed_slowdown_sim_ param."
-          << endl;
+          << "] might occur. Lower simulation time step or raise rotorVelocitySlowdownSim." << endl;
     return;
   }
 
-  // Thrust force
+  // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
+  // II-A. Model of a single propeller near hovering
+  // TODO: Implement other terms
+  // TODO: II-B. Model of the complete quadrotor
+
+  // (1) first term: Thrust Force
   double rot_vel_real = rot_vel_sim * rotor_speed_slowdown_sim_;
   int rot_vel_sgn = (rot_vel_real > 0.) - (rot_vel_real < 0.);
   double thrust = direction_ * rot_vel_sgn * motor_const_ * sqr(rot_vel_real);  // [N]
 
-  // Rotor drag torque
-  Pose3d pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
-  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // self frame
-  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);  // parent frame
-
-  // Forces from Philppe Martin's and Erwan Salaün's
-  // 2010 IEEE Conference on Robotics and Automation paper
-  // The True Role of Accelerometer Feedback in Quadrotor Control
+  // (1) second term: H-force
   Vector3d joint_axis = joint_->GlobalAxis(0);
   Vector3d body_vel_W = link_->WorldLinearVel();
   Vector3d relative_wind_vel_W = body_vel_W - wind_speed_W_;
   Vector3d body_vel_perp = relative_wind_vel_W - (relative_wind_vel_W.Dot(joint_axis) * joint_axis);
   Vector3d air_drag = -abs(rot_vel_real) * rotor_drag_coef_ * body_vel_perp;
 
-  // Rolling moment
-  Vector3d rolling_moment = -abs(rot_vel_real) * roll_moment_coef_ * body_vel_perp;
+  // (2) first term: Rotor drag torque
+  Pose3d pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
+  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // self frame
+  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);  // parent frame
 
   // For debug
-  // cout << "thrust force: " << thrust << " [N]" << endl;
-  // cout << "rotor drag torque: " << drag_torque.Length() << " [Nm]" << endl;
-  // cout << "air drag force: " << air_drag.Length() << " [N]" << endl;
-  // cout << "rolling moment: " << rolling_moment.Length() << " [Nm]" << endl;
+  // cout << "Thrust force: " << thrust << " [N]" << endl;
+  // cout << "H force: " << air_drag.Length() << " [N]" << endl;
+  // cout << "Rotor drag torque: " << drag_torque.Length() << " [Nm]" << endl;
   // cout << endl;
 
   // Apply forces and torques
   link_->AddRelativeForce(Vector3d(0., 0., thrust));
-  parent_link_->AddRelativeTorque(drag_torque_parent_frame);
   link_->AddForce(air_drag);
-  parent_link_->AddTorque(rolling_moment);
+  parent_link_->AddRelativeTorque(drag_torque_parent_frame);
 
   // Apply the filter on the motor velocity
   double ref_motor_rot_vel = rotor_speed_filter_.updateFilter(ref_motor_input_, dt);

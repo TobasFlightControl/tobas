@@ -15,8 +15,7 @@ class MotorModel(ET.Element):
         max_rot_vel: float,
         motor_const: float,
         moment_const: float,
-        drag_coef: float,
-        roll_coef: float,
+        rotor_drag_coef: float,
         time_const_up: float,
         time_const_down: float,
     ) -> None:
@@ -24,8 +23,7 @@ class MotorModel(ET.Element):
         assert max_rot_vel > 0.
         assert motor_const > 0.
         assert moment_const > 0.
-        assert drag_coef > 0.
-        assert roll_coef > 0.
+        assert rotor_drag_coef > 0.
         assert time_const_up > 0.
         assert time_const_down > 0.
 
@@ -43,8 +41,7 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "maxRotVelocity").text = f'{max_rot_vel}'
         ET.SubElement(plugin, "motorConstant").text = f'{motor_const}'
         ET.SubElement(plugin, "momentConstant").text = f'{moment_const}'
-        ET.SubElement(plugin, "rotorDragCoefficient").text = f'{drag_coef}'
-        ET.SubElement(plugin, "rollingMomentCoefficient").text = f'{roll_coef}'
+        ET.SubElement(plugin, "rotorDragCoefficient").text = f'{rotor_drag_coef}'
         ET.SubElement(plugin, "timeConstantUp").text = f'{time_const_up}'
         ET.SubElement(plugin, "timeConstantDown").text = f'{time_const_down}'
         ET.SubElement(plugin, "motorSpeedPubTopic").text = f'motor_speed/{motor_number}'

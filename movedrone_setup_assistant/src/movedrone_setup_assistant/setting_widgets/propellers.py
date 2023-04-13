@@ -52,13 +52,25 @@ class PropellersWidget(BaseSettingWidget):
 
 class SelectedPropellersWidget(QTableWidget):
 
-    NUM_ENTRIES = 12
     COL_WIDTH = 150
+    LABELS = [
+        "Link Name",
+        "Joint Name",
+        "Direction",
+        "Motor Constant",
+        "Moment Constant",
+        "Rotor Drag Coef",
+        "Kv",
+        "Efficiency",
+        "Time Constant Up",
+        "Time Constant Down",
+        "Pin ID",
+    ]
 
     link_added = pyqtSignal(str)
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__(0, self.NUM_ENTRIES)
+        super().__init__(0, len(self.LABELS))
         self._main = main
 
         self.link_names: List[QLabel] = []
@@ -66,28 +78,14 @@ class SelectedPropellersWidget(QTableWidget):
         self.directions: List[ComboBox] = []
         self.motor_consts: List[DoubleSpinBox] = []
         self.moment_consts: List[DoubleSpinBox] = []
+        self.rotor_drag_coefs: List[DoubleSpinBox] = []
         self.kvs: List[SpinBox] = []
         self.efficiencies: List[SpinBox] = []
-        self.drag_coefs: List[DoubleSpinBox] = []
-        self.rolling_coefs: List[DoubleSpinBox] = []
         self.time_consts_up: List[DoubleSpinBox] = []
         self.time_consts_down: List[DoubleSpinBox] = []
         self.pins: List[SpinBox] = []
 
-        self.setHorizontalHeaderLabels([
-            "Link Name",
-            "Joint Name",
-            "Direction",
-            "Motor Constant",
-            "Moment Constant",
-            "Kv",
-            "Efficiency",
-            "Rotor Drag Coef",
-            "Rolling Moment Coef",
-            "Time Constant Up",
-            "Time Constant Down",
-            "Pin ID",
-        ])
+        self.setHorizontalHeaderLabels(self.LABELS)
 
         for c in range(self.columnCount()):
             self.setColumnWidth(c, self.COL_WIDTH)
@@ -157,60 +155,52 @@ class SelectedPropellersWidget(QTableWidget):
         self.moment_consts.append(moment_const)
         self.setCellWidget(row, 4, moment_const)
 
+        drag_coef = DoubleSpinBox()
+        drag_coef.setMinimum(0.)
+        drag_coef.setDecimals(9)
+        drag_coef.setSuffix(" Ns^2/m^2")
+        self.rotor_drag_coefs.append(drag_coef)
+        self.setCellWidget(row, 5, drag_coef)
+
         kv = SpinBox()
         kv.setMinimum(1)
         kv.setMaximum(10**5)
         kv.setSuffix(" rpm/V")
         self.kvs.append(kv)
-        self.setCellWidget(row, 5, kv)
+        self.setCellWidget(row, 6, kv)
 
         efficiency = SpinBox()
         efficiency.setMinimum(1)
         efficiency.setMaximum(100)
         efficiency.setSuffix(" %")
         self.efficiencies.append(efficiency)
-        self.setCellWidget(row, 6, efficiency)
-
-        drag_coef = DoubleSpinBox()
-        drag_coef.setMinimum(0.)
-        drag_coef.setDecimals(9)
-        drag_coef.setSuffix(" Ns^2/m^2")
-        self.drag_coefs.append(drag_coef)
-        self.setCellWidget(row, 7, drag_coef)
-
-        rolling_coef = DoubleSpinBox()
-        rolling_coef.setMinimum(0.)
-        rolling_coef.setDecimals(9)
-        rolling_coef.setSuffix(" Ns^2/m")
-        self.rolling_coefs.append(rolling_coef)
-        self.setCellWidget(row, 8, rolling_coef)
+        self.setCellWidget(row, 7, efficiency)
 
         time_const_up = SpinBox()
         time_const_up.setMinimum(0)
         time_const_up.setSuffix(" ms")
         self.time_consts_up.append(time_const_up)
-        self.setCellWidget(row, 9, time_const_up)
+        self.setCellWidget(row, 8, time_const_up)
 
         time_const_down = SpinBox()
         time_const_down.setMinimum(0)
         time_const_down.setSuffix(" ms")
         self.time_consts_down.append(time_const_down)
-        self.setCellWidget(row, 10, time_const_down)
+        self.setCellWidget(row, 9, time_const_down)
 
         pin = SpinBox()
         pin.setMinimum(1)
         pin.setMaximum(14)
         self.pins.append(pin)
-        self.setCellWidget(row, 11, pin)
+        self.setCellWidget(row, 10, pin)
 
         if row == 0:
             # 1段目
             motor_const.setValue(8.54858e-6)
             moment_const.setValue(0.016)
+            drag_coef.setValue(8.06428e-5)
             kv.setValue(920)
             efficiency.setValue(80)
-            drag_coef.setValue(8.06428e-5)
-            rolling_coef.setValue(1e-6)
             time_const_up.setValue(12)
             time_const_down.setValue(25)
             pin.setValue(1)
@@ -219,10 +209,9 @@ class SelectedPropellersWidget(QTableWidget):
             direction.setCurrentText(self.directions[row - 1].currentText())
             motor_const.setValue(self.motor_consts[row - 1].value())
             moment_const.setValue(self.moment_consts[row - 1].value())
+            drag_coef.setValue(self.rotor_drag_coefs[row - 1].value())
             kv.setValue(self.kvs[row - 1].value())
             efficiency.setValue(self.efficiencies[row - 1].value())
-            drag_coef.setValue(self.drag_coefs[row - 1].value())
-            rolling_coef.setValue(self.rolling_coefs[row - 1].value())
             time_const_up.setValue(self.time_consts_up[row - 1].value())
             time_const_down.setValue(self.time_consts_down[row - 1].value())
             pin.setValue(self.pins[row - 1].value() + 1)  # Pinのデフォルトは連番にしておく
@@ -242,10 +231,9 @@ class SelectedPropellersWidget(QTableWidget):
         self.directions.pop(row)
         self.motor_consts.pop(row)
         self.moment_consts.pop(row)
+        self.rotor_drag_coefs.pop(row)
         self.kvs.pop(row)
         self.efficiencies.pop(row)
-        self.drag_coefs.pop(row)
-        self.rolling_coefs.pop(row)
         self.time_consts_up.pop(row)
         self.time_consts_down.pop(row)
         self.pins.pop(row)
