@@ -22,8 +22,9 @@ class SettingsWidget(VerticalTabWidget):
         self._main = main
 
         self.start = StartWidget(main)
-        self.propellers = PropellersWidget(main)
         self.battery = BatteryWidget(main)
+        self.propellers = PropellersWidget(main)
+        self.rotary_wings = RotaryWingsWidget(main)
         self.imu = ImuWidget(main)
         self.magnetometer = MagnetometerWidget(main)
         self.barometer = BarometerWidget(main)
@@ -37,8 +38,9 @@ class SettingsWidget(VerticalTabWidget):
         self.ros_package = RosPackageWidget(main)
 
         self.addTab(self.start, "Start")
-        self.addTab(self.propellers, "Propellers")
         self.addTab(self.battery, "Battery")
+        self.addTab(self.propellers, "Propellers")
+        self.addTab(self.rotary_wings, "Rotary Wings")
         self.addTab(self.imu, "IMU")
         self.addTab(self.magnetometer, "Magnetic")
         self.addTab(self.barometer, "Barometer")
@@ -58,8 +60,9 @@ class SettingsWidget(VerticalTabWidget):
 
     def define_connections(self) -> None:
         self.start.define_connections()
-        self.propellers.define_connections()
         self.battery.define_connections()
+        self.propellers.define_connections()
+        self.rotary_wings.define_connections()
         self.imu.define_connections()
         self.magnetometer.define_connections()
         self.barometer.define_connections()
