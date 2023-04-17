@@ -20,6 +20,7 @@ from dh_rqt_tools.messages import q_info, q_error
 
 from .utils import *
 from .xml_nodes import *
+from .setting_widgets.rotary_wings import SelectedLinkTabWidget
 
 
 class PackageGenerator(QWidget):
@@ -81,21 +82,22 @@ class PackageGenerator(QWidget):
             q_error(self._main, "[Rotary Wings] At least 2 rotary wings are required.")
             return False
 
-        for i in range(0, num_rotors):
-            esc = rotary_wings.settings[i].esc
+        for i in range(num_rotors):
+            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+            esc = rotary_wings.widget(i).esc
             if esc.esc_type.currentText() == esc.NO_SELECT:
                 q_error(self._main, "[Rotary Wings] Please select ESC type.")
                 return False
-            motor = rotary_wings.settings[i].motor
+            motor = selected.motor
             if motor.setting_method.currentText() == motor.NO_SELECT:
                 q_error(self._main, "[Rotary Wings] Please select motor setting method.")
                 return False
-            aerodynamics = rotary_wings.settings[i].aerodynamics
+            aerodynamics = selected.aerodynamics
             if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
                 q_error(self._main, "[Rotary Wings] Please select aerodynamics setting method.")
                 return False
 
-        directions = set(setting.motor.direction() for setting in rotary_wings.settings)
+        directions = set(rotary_wings.widget(i).motor.direction() for i in range(num_rotors))
         if len(directions) == 1:
             q_error(self._main, "[Rotary Wings] Rotating direction of all rotors are same.")
             return False
@@ -240,20 +242,21 @@ class PackageGenerator(QWidget):
             "battery_voltage": battery.voltage.get(),
             "required_joint_names": self._main.urdf_parser.required_joint_names(),
         }
-        for i in range(0, num_rotors):
+        for i in range(num_rotors):
+            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
             drone_props[f'rotor_{i}'] = {
-                "link_name": rotary_wings.settings[i].link_name(),
-                "direction": rotary_wings.settings[i].motor.direction(),
-                "kv": rotary_wings.settings[i].motor.kv(),
-                "time_constant_up": rotary_wings.settings[i].motor.time_const_up(),
-                "time_constant_down": rotary_wings.settings[i].motor.time_const_down(),
-                "motor_constant": rotary_wings.settings[i].aerodynamics.motor_const(),
-                "moment_constant": rotary_wings.settings[i].aerodynamics.moment_const(),
-                "rotor_drag_coefficient": rotary_wings.settings[i].aerodynamics.rotor_drag_coef(),
+                "link_name": selected.link_name(),
+                "direction": selected.motor.direction(),
+                "kv": selected.motor.kv(),
+                "time_constant_up": selected.motor.time_const_up(),
+                "time_constant_down": selected.motor.time_const_down(),
+                "motor_constant": selected.aerodynamics.motor_const(),
+                "moment_constant": selected.aerodynamics.moment_const(),
+                "rotor_drag_coefficient": selected.aerodynamics.rotor_drag_coef(),
                 "pin": i + 1,
             }
 
-            esc = rotary_wings.settings[i].esc
+            esc = selected.esc
             esc_type = esc.esc_type.currentText()
             drone_props[f'rotor_{i}']["esc_type"] = esc_type.lower()
             if esc_type == esc.PWM:
@@ -371,22 +374,24 @@ class PackageGenerator(QWidget):
 
         # Motors
         voltage = battery.voltage.get()
-        for i in range(0, rotary_wings.count()):
-            kv = rotary_wings.settings[i].motor.kv()
+        for i in range(rotary_wings.count()):
+            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+
+            kv = selected.motor.kv()
             max_rot_vel = rpm_to_rad_per_sec(voltage * kv)
 
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,
-                link_name=rotary_wings.settings[i].link_name(),
-                joint_name=rotary_wings.settings[i].joint_name(),
-                direction=rotary_wings.settings[i].motor.direction(),
+                link_name=selected.link_name(),
+                joint_name=selected.joint_name(),
+                direction=selected.motor.direction(),
                 max_rot_vel=max_rot_vel,
-                motor_const=rotary_wings.settings[i].aerodynamics.motor_const(),
-                moment_const=rotary_wings.settings[i].aerodynamics.moment_const(),
-                rotor_drag_coef=rotary_wings.settings[i].aerodynamics.rotor_drag_coef(),
-                time_const_up=rotary_wings.settings[i].motor.time_const_up(),
-                time_const_down=rotary_wings.settings[i].motor.time_const_down(),
+                motor_const=selected.aerodynamics.motor_const(),
+                moment_const=selected.aerodynamics.moment_const(),
+                rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),
+                time_const_up=selected.motor.time_const_up(),
+                time_const_down=selected.motor.time_const_down(),
             )
             robot.append(motor_model)
 

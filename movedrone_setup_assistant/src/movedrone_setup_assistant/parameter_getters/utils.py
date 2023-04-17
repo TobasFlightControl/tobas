@@ -38,7 +38,7 @@ class IntGetter(QWidget):
             assert minimum <= default <= maximum
             self.data.setValue(default)
         self.data.setSuffix(suffix)
-        self.data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self._cols.addWidget(self.data)
 
     def get(self) -> int:
@@ -76,7 +76,7 @@ class DoubleGetter(QWidget):
             assert minimum <= default <= maximum
             self.data.setValue(default)
         self.data.setSuffix(suffix)
-        self.data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self._cols.addWidget(self.data)
 
     def get(self) -> float:

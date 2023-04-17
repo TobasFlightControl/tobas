@@ -43,15 +43,19 @@ class RotaryWingsWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self.available.define_connections()
+        self.selected.define_connections()
 
 
 class AvailableLinksWidget(QListWidget):
 
+    HEIGHT = 200
     ITEM_HEIGHT = 40
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
+
+        self.setFixedHeight(self.HEIGHT)
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
@@ -136,48 +140,56 @@ class AvailableLinkItemWidget(QListWidget):
 
 class SelectedLinksWidget(QTabWidget):
 
-    TAB_HEIGHT = 40
-    TAB_WIDTH = 100
+    TAB_HEIGHT = 50
+    TAB_WIDTH = 150
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
-        self.settings: List[SelectedLinkTabWidget] = []
-
         self.setStyleSheet(
             f'QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}'
         )
+        self.setMovable(True)
+        self.setTabsClosable(True)
+
+    def define_connections(self):
+        self.tabCloseRequested.connect(self._on_tab_close_requested)
 
     def add(self, link_name: str) -> None:
-        setting = SelectedLinkTabWidget(self._main, link_name)
-        self.settings.append(setting)
-        self.addTab(setting, link_name)
-
-    def remove(self, link_name: str) -> None:
-        idx = self.get_index(link_name)
-        self.settings.pop(idx)
-        self.removeTab(idx)
+        tab = SelectedLinkTabWidget(self._main, link_name)
+        self.addTab(tab, link_name)
 
     def get_index(self, link_name) -> int:
         """ タブのインデックスを返す． """
-        for idx, setting in enumerate(self.settings):
-            if setting.link_name() == link_name:
+        for idx in range(self.count()):
+            tab: SelectedLinkTabWidget = self.widget(idx)
+            if tab.link_name() == link_name:
                 return idx
         else:
             raise RuntimeError(f'Link name not found: {link_name}')
 
     def link_names(self) -> List[str]:
         """ 選択テーブル内のリンクの名前のリストを返す． """
-        return [setting.link_name() for setting in self.settings]
+        res = []
+        for idx in range(self.count()):
+            tab: SelectedLinkTabWidget = self.widget(idx)
+            res.append(tab.link_name())
+        return res
 
     def joint_names(self) -> List[str]:
         """ 選択テーブル内のジョイントの名前のリストを返す． """
-        return [setting.joint_name() for setting in self.settings]
+        res = []
+        for idx in range(self.count()):
+            tab: SelectedLinkTabWidget = self.widget(idx)
+            res.append(tab.joint_name())
+        return res
 
-    def count(self) -> int:
-        """ 登録された回転翼の個数． """
-        return len(self.settings)
+    @pyqtSlot(int)
+    def _on_tab_close_requested(self, idx: int) -> None:
+        tab: SelectedLinkTabWidget = self.widget(idx)
+        self._main.settings.rotary_wings.available.add(tab.link_name())
+        self.removeTab(idx)
 
 
 class SelectedLinkTabWidget(QWidget):
@@ -207,10 +219,6 @@ class SelectedLinkTabWidget(QWidget):
         self.aerodynamics = AerodynamicsWidget()
         self._rows.addWidget(self.aerodynamics)
 
-        self.remove_button = add_center_button("Remove", self._rows)
-        self.remove_button.setFixedSize(QSize(self.RM_BUTTON_WIDTH, self.RM_BUTTON_HEIGHT))
-        # self.remove_button.setStyleSheet("background-color: rgb(255,0,0);")
-
         add_expanding_widget(self._rows)
         self._define_connections()
 
@@ -222,7 +230,6 @@ class SelectedLinkTabWidget(QWidget):
 
     def _define_connections(self) -> None:
         self.copy_button.clicked.connect(self._copy_from_left_tab)
-        self.remove_button.clicked.connect(self._on_remove_button_clicked)
 
     @pyqtSlot()
     def _copy_from_left_tab(self) -> None:
@@ -233,15 +240,10 @@ class SelectedLinkTabWidget(QWidget):
             q_info(self._main, "No left tab")
             return
 
-        left = selected.settings[self_idx - 1]
+        left: SelectedLinkTabWidget = selected.widget(self_idx - 1)
         self.esc.copy_from(left.esc)
         self.motor.copy_from(left.motor)
         self.aerodynamics.copy_from(left.aerodynamics)
-
-    @pyqtSlot()
-    def _on_remove_button_clicked(self) -> None:
-        self._main.settings.rotary_wings.available.add(self.link_name())
-        self._main.settings.rotary_wings.selected.remove(self.link_name())
 
 
 class EscWidget(QWidget):
