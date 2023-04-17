@@ -4,10 +4,10 @@
 
 using namespace std;
 
-RotorProperties getRotorProperties()
+RotorConfigs getRotorConfigs()
 {
   const int num_rotors = dh_ros::getParam<int>("/num_rotors");
-  RotorProperties res(num_rotors);
+  RotorConfigs res(num_rotors);
 
   for (int i = 0; i < num_rotors; ++i)
   {
@@ -55,11 +55,30 @@ RotorProperties getRotorProperties()
       throw dh_ros::RuntimeError("Invalid Kv: " + to_string(res[i].kv) + " rpm/V");
     }
 
-    // PIN
+    // Pin
     res[i].pin = dh_ros::getParam<int>(rotor_prefix + "/pin");
     if (res[i].pin < 1 || 14 < res[i].pin)
     {
       throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(res[i].pin));
+    }
+
+    // ESC
+    string esc_type = dh_ros::getParam<string>(rotor_prefix + "/esc_type");
+    if (esc_type == "pwm")
+    {
+      res[i].esc_type = ESCType::PWM;
+      res[i].pwm.frequency = dh_ros::getParam<double>(rotor_prefix + "/pwm/frequency");
+      res[i].pwm.min_pulse_width = dh_ros::getParam<double>(rotor_prefix + "/pwm/min_pulse_width");
+      res[i].pwm.max_pulse_width = dh_ros::getParam<double>(rotor_prefix + "/pwm/max_pulse_width");
+    }
+    else if (esc_type == "dshot")
+    {
+      res[i].esc_type = ESCType::DSHOT;
+      // TODO
+    }
+    else
+    {
+      throw dh_ros::RuntimeError("Unknown ESC type: " + esc_type);
     }
   }
 

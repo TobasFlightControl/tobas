@@ -16,7 +16,7 @@ RotationController::RotationController(const Tree& tree)
   : gravity_(dh_ros::getParam<double>("/gravity")),
     battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_props_(getRotorProperties()),
+    rotor_configs_(getRotorConfigs()),
     T_refs_(STATE_SIZE),
     kdl_model_(tree),
     cont_(tree),
@@ -194,10 +194,10 @@ ctrl::LinearEquation RotationController::makeBaseInputCondition()
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    const auto& prop = rotor_props_[i];
+    const auto& rotor_config = rotor_configs_[i];
 
-    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv);
-    const double max_thrust = prop.motor_constant * sqr(max_speed);
+    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
+    const double max_thrust = rotor_config.motor_constant * sqr(max_speed);
     const double min_thrust = 0.;
 
     F_f.b(i) = max_thrust;

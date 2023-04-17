@@ -248,7 +248,7 @@ class EscWidget(QWidget):
 
     NO_SELECT = "Select ESC type"
     PWM = "PWM"
-    DSHOT = "D-SHOT"
+    DSHOT = "DSHOT"
 
     def __init__(self) -> None:
         super().__init__()

@@ -49,7 +49,7 @@ private:
 
   const Eigen::Vector3d ez_;
   const uint32_t num_rotors_;
-  const RotorProperties rotor_props_;
+  const RotorConfigs rotor_configs_;
 
   KDL::Rotation rpyvel_angvel_kdl_;
   Eigen::Matrix3d rpyvel_angvel_eigen_;

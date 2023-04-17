@@ -39,7 +39,7 @@ private:
   const uint32_t num_rotors_;
   const std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
   const bool transformable_;  // プロペラ以外の可動関節を持つか否か
-  const RotorProperties rotor_props_;
+  const RotorConfigs rotor_configs_;
 
   multirotor_msgs::PoseVel bs_;     // ベースの推定状態
   KDL::JntArray q_;                 // 全ての非固定関節の角度

@@ -47,7 +47,7 @@ private:
   const double gravity_;
   const double battery_voltage_;
   const uint32_t num_rotors_;
-  const RotorProperties rotor_props_;
+  const RotorConfigs rotor_configs_;
 
   // 動的ROSパラメータに依存するパラメータ
   double dt_;                   // MPCの離散化間隔

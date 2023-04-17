@@ -15,14 +15,14 @@ using namespace KDL;
 AccelerationController::AccelerationController(const Tree& tree)
   : gravity_(dh_ros::getParam<double>("/gravity")),
     battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
-    rotor_props_(getRotorProperties()),
+    rotor_configs_(getRotorConfigs()),
     inertia_solver_(tree)
 {
   max_U_ = 0.;
-  for (const auto& prop : rotor_props_)
+  for (const auto& rotor_config : rotor_configs_)
   {
-    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv);
-    const double max_thrust = prop.motor_constant * sqr(max_speed);
+    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
+    const double max_thrust = rotor_config.motor_constant * sqr(max_speed);
     max_U_ += max_thrust;
   }
 }

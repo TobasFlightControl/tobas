@@ -25,7 +25,7 @@ public:
 private:
   const double gravity_;
   const double battery_voltage_;
-  const RotorProperties rotor_props_;
+  const RotorConfigs rotor_configs_;
   double max_U_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;

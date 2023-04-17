@@ -18,7 +18,7 @@ MultiRotorDynamics::MultiRotorDynamics(const Tree& tree)
   : kdl_model_(tree),
     ez_(0., 0., 1.),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_props_(getRotorProperties())
+    rotor_configs_(getRotorConfigs())
 {
   resize(STATE_SIZE, num_rotors_);
 }
@@ -51,11 +51,11 @@ void MultiRotorDynamics::updateB(const JntArray& q)
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    kdl_model_.fkPos(q, rotor_props_[i].link_name, T_base_rotor_);
+    kdl_model_.fkPos(q, rotor_configs_[i].link_name, T_base_rotor_);
     P_cog_rotor_kdl_ = T_base_rotor_.p - P_base_cog_;
     tf::vectorKDLToEigen(P_cog_rotor_kdl_, P_cog_rotor_eigen_);
-    const auto& d = rotor_props_[i].direction;
-    const auto& c = rotor_props_[i].moment_constant;
+    const auto& d = rotor_configs_[i].direction;
+    const auto& c = rotor_configs_[i].moment_constant;
     B.block(3, i, 3, 1) = I_cog_inv_ * (P_cog_rotor_eigen_.cross(ez_) - (d * c) * ez_);
   }
 }

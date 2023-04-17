@@ -20,7 +20,7 @@ private:
 
   const double battery_voltage_;
   const uint32_t num_rotors_;
-  const RotorProperties rotor_props_;
+  const RotorConfigs rotor_configs_;
   const double update_rate_;
 
   std::vector<double> cmd_speeds_;

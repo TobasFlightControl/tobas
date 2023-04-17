@@ -19,7 +19,7 @@ Controller::Controller()
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
     required_joints_(dh_ros::getParam<vector<string>>("/required_joint_names")),
     transformable_(required_joints_.size() > 0),
-    rotor_props_(getRotorProperties()),
+    rotor_configs_(getRotorConfigs()),
     is_first_run_(true),
     bs_received_(false),
     js_received_(false),
@@ -156,7 +156,7 @@ void Controller::ctrlInputToRotorSpeeds(
       dh_ros::rosFatal("Negative thrust force: u = " + to_string(u[i]));
       // TODO: 防御モードに移行
     }
-    speeds.speeds[i] = sqrt(max(u[i], 0.) / rotor_props_[i].motor_constant);
+    speeds.speeds[i] = sqrt(max(u[i], 0.) / rotor_configs_[i].motor_constant);
   }
 }
 

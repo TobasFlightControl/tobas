@@ -253,6 +253,20 @@ class PackageGenerator(QWidget):
                 "pin": i + 1,
             }
 
+            esc = rotary_wings.settings[i].esc
+            esc_type = esc.esc_type.currentText()
+            drone_props[f'rotor_{i}']["esc_type"] = esc_type.lower()
+            if esc_type == esc.PWM:
+                drone_props[f'rotor_{i}']["pwm"] = {
+                    "frequency": esc.pwm.freq.get(),
+                    "min_pulse_width": esc.pwm.pulse_width_range.min(),
+                    "max_pulse_width": esc.pwm.pulse_width_range.max(),
+                }
+            elif esc_type == esc.DSHOT:
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f'Unknown ESC type: {esc_type}')
+
         # yamlファイルを作成
         drone_props_path = osp.join(config_dir, "drone_properties.yaml")
         with open(drone_props_path, "w") as f:

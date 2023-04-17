@@ -14,7 +14,7 @@ using namespace dh_std;
 MotorsHandler_DSHOT::MotorsHandler_DSHOT()
   : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_props_(getRotorProperties()),
+    rotor_configs_(getRotorConfigs()),
     update_rate_(dh_ros::getParam<double>("~update_rate", kDefaultUpdateRate)),
     cmd_speeds_(num_rotors_, 0.),
     dshot_(DSHOT::DSHOT_600)
@@ -24,9 +24,9 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT()
     throw dh_ros::RuntimeError("Not root.");
   }
 
-  for (const auto& rotor_prop : rotor_props_)
+  for (const auto& rotor_config : rotor_configs_)
   {
-    dshot_.initialize(rotor_prop.pin);
+    dshot_.initialize(rotor_config.pin);
   }
 
   string drone_name = dh_ros::getParam<string>("/drone_name");
@@ -42,8 +42,8 @@ void MotorsHandler_DSHOT::run()
   {
     for (int i = 0; i < num_rotors_; ++i)
     {
-      const RotorProperty& prop = rotor_props_[i];
-      const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv);
+      const RotorConfig& rotor_config = rotor_configs_[i];
+      const double max_speed = rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
 
       // 指令速度を決定
       double cmd_speed = cmd_speeds_[i];
@@ -63,7 +63,7 @@ void MotorsHandler_DSHOT::run()
 
       // スロットルに変換して指令
       uint32_t throttle = remap<double>(cmd_speed, 0., max_speed, 48, (1 << 11) - 1);
-      dshot_.setSignal(prop.pin, throttle);
+      dshot_.setSignal(rotor_config.pin, throttle);
     }
 
     ros::spinOnce();

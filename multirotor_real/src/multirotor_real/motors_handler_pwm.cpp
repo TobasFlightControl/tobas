@@ -6,9 +6,6 @@
 #include "../../include/multirotor_real/motors_handler_pwm.hpp"
 
 #define INFO_PERIOD 1.
-#define FREQ 50.  // TODO: rosparamから取得
-#define PWM_LB 1000.
-#define PWM_UB 2000.
 
 using namespace std;
 using namespace dh_std;
@@ -16,16 +13,16 @@ using namespace dh_std;
 MotorsHandler_PWM::MotorsHandler_PWM()
   : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
     num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_props_(getRotorProperties())
+    rotor_configs_(getRotorConfigs())
 {
   if (getuid())
   {
     throw dh_ros::RuntimeError("Not root.");
   }
 
-  for (const auto& rotor_prop : rotor_props_)
+  for (const auto& rotor_config : rotor_configs_)
   {
-    const uint32_t& pin = rotor_prop.pin;
+    const uint32_t& pin = rotor_config.pin;
     uint32_t channel = getChannel(pin);
 
     if (!pwm_.initialize(channel))
@@ -33,7 +30,7 @@ MotorsHandler_PWM::MotorsHandler_PWM()
       throw dh_ros::RuntimeError("Failed to initialize RC output for PIN" + to_string(pin) + ".");
     }
 
-    if (!pwm_.set_frequency(channel, FREQ))
+    if (!pwm_.set_frequency(channel, rotor_config.pwm.frequency))
     {
       throw dh_ros::RuntimeError("Failed to set frequency for PIN" + to_string(pin) + ".");
     }
@@ -71,8 +68,8 @@ void MotorsHandler_PWM::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    const RotorProperty& prop = rotor_props_[i];
-    const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv);
+    const auto& rotor_config = rotor_configs_[i];
+    const double max_speed = rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
 
     // 指令速度を決定
     double cmd_speed = cmd_speeds[i];
@@ -91,8 +88,9 @@ void MotorsHandler_PWM::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_
     }
 
     // パルス幅に変換して指令
-    const uint32_t& pin = prop.pin;
-    double period = remap(cmd_speed, 0., max_speed, PWM_LB, PWM_UB);
+    const auto& pin = rotor_config.pin;
+    const auto& pwm = rotor_config.pwm;
+    double period = remap(cmd_speed, 0., max_speed, pwm.min_pulse_width, pwm.max_pulse_width);
     if (!pwm_.set_duty_cycle(getChannel(pin), period))
     {
       throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");
