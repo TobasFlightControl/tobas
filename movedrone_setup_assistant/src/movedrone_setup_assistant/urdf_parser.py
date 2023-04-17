@@ -70,11 +70,11 @@ class URDFParser(QWidget):
         ロボットの形状を決めるのに必要な関節名のリストを返す．\\
         プロペラに設定されていない可動リンクがあるかどうかを調べる．
         """
-        propeller_joints = set(self._main.settings.propellers.selected.get_joint_names())
+        rotary_wing_joints = set(self._main.settings.rotary_wings.selected.joint_names())
         res = []
 
         for joint in self.get_joints():
-            if (not joint.name in propeller_joints) and (not self.is_fixed_joint(joint.name)):
+            if (not joint.name in rotary_wing_joints) and (not self.is_fixed_joint(joint.name)):
                 res.append(joint.name)
 
         return res

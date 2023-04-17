@@ -55,13 +55,6 @@ RotorProperties getRotorProperties()
       throw dh_ros::RuntimeError("Invalid Kv: " + to_string(res[i].kv) + " rpm/V");
     }
 
-    // Efficiency
-    res[i].efficiency = dh_ros::getParam<double>(rotor_prefix + "/efficiency");
-    if (res[i].efficiency <= 0. || 1 < res[i].efficiency)
-    {
-      throw dh_ros::RuntimeError("Invalid rotor efficiency: " + to_string(res[i].efficiency));
-    }
-
     // PIN
     res[i].pin = dh_ros::getParam<int>(rotor_prefix + "/pin");
     if (res[i].pin < 1 || 14 < res[i].pin)

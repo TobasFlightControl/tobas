@@ -10,6 +10,7 @@ from PyQt5.QtGui import *
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
+from ..utils import add_expanding_widget
 
 
 class DepthCameraWidget(BaseSettingWidget):
@@ -104,7 +105,7 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.noise_model)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)
         self._update_visibility()
 
     def define_connections(self) -> None:

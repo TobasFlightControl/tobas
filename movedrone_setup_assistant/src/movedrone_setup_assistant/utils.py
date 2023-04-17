@@ -26,3 +26,25 @@ def is_valid_email(email: str) -> bool:
 
 def rpm_to_rad_per_sec(rpm: float) -> float:
     return (math.pi / 30) * rpm
+
+
+def add_expanding_widget(layout: QBoxLayout) -> None:
+    """
+    余白が空いているとサイズ固定が効かなくなるため，最後に伸縮可能なダミーウィジェットを加える．\\
+    ダミーウィジェットを最大まで拡大するようにしておけば，他の要素はなるべく上に詰めてくれる．
+    """
+    dummy_widget = QWidget()
+    dummy_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    layout.addWidget(dummy_widget)
+
+
+def add_center_button(text: str, layout: QBoxLayout) -> QPushButton:
+    """ layoutの中央にQPushButtonを配置する． """
+    button = QPushButton(text)
+    button_widget = QWidget()
+    button_layout = QVBoxLayout()
+    button_layout.setAlignment(Qt.AlignCenter)  # この操作のためにLayoutが必要
+    button_widget.setLayout(button_layout)
+    button_layout.addWidget(button)
+    layout.addWidget(button_widget)  # この操作のためにWidgetが必要
+    return button

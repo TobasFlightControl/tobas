@@ -10,6 +10,7 @@ from PyQt5.QtGui import *
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
+from ..utils import add_expanding_widget
 
 
 class LidarWidget(BaseSettingWidget):
@@ -86,7 +87,7 @@ class LidarWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.max_update_rate)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)
         self._update_visibility()
 
     def define_connections(self) -> None:

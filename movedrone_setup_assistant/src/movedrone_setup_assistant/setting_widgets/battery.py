@@ -9,6 +9,7 @@ from PyQt5.QtGui import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
+from ..utils import add_expanding_widget
 
 
 class BatteryWidget(BaseSettingWidget):
@@ -59,4 +60,4 @@ class BatteryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.C_pulse)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)

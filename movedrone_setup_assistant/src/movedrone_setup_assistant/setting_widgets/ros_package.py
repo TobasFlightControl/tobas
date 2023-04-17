@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-import os.path as osp
 import re
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -12,7 +11,7 @@ from PyQt5.QtGui import *
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import get_drone_name
+from ..utils import get_drone_name, add_expanding_widget, add_center_button
 
 
 class RosPackageWidget(BaseSettingWidget):
@@ -44,17 +43,11 @@ class RosPackageWidget(BaseSettingWidget):
         self._rows.addWidget(self.pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
-        self.generate_button = QPushButton("Generate")
+        self.generate_button = add_center_button("Generate", self._rows)
         self.generate_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
         self.generate_button.setEnabled(False)
-        button_widget = QWidget()
-        button_layout = QVBoxLayout()
-        button_layout.setAlignment(Qt.AlignCenter)  # この操作のためにLayoutが必要
-        button_widget.setLayout(button_layout)
-        button_layout.addWidget(self.generate_button)
-        self._rows.addWidget(button_widget)  # この操作のためにWidgetが必要
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)
 
     def define_connections(self) -> None:
         super().define_connections()

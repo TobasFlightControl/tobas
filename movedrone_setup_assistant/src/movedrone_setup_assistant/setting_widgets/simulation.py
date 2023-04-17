@@ -9,6 +9,7 @@ from PyQt5.QtGui import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
+from ..utils import add_expanding_widget
 
 
 class SimulationWidget(BaseSettingWidget):
@@ -93,4 +94,4 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.ref_mag_down)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)

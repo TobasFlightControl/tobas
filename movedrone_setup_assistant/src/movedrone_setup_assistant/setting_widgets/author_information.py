@@ -9,6 +9,7 @@ from PyQt5.QtGui import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
+from ..utils import add_expanding_widget
 
 
 class AuthorInformationWidget(BaseSettingWidget):
@@ -24,4 +25,4 @@ class AuthorInformationWidget(BaseSettingWidget):
         self.email = ParamGetterWidget_LineEdit("Email of the Maintainer")
         self._rows.addWidget(self.email)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)

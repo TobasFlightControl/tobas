@@ -13,6 +13,7 @@ from dh_rqt_tools.messages import q_error
 
 from .base_setting import BaseSettingWidget
 from ..constants import *
+from ..utils import add_expanding_widget
 
 
 class PropellersWidget(BaseSettingWidget):
@@ -43,7 +44,7 @@ class PropellersWidget(BaseSettingWidget):
         self.available_links = AvailableLinksWidget(main)
         self._rows.addWidget(self.available_links)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)
 
     def define_connections(self) -> None:
         super().define_connections()

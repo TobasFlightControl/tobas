@@ -8,73 +8,79 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import ComboBox
+
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
+from ..utils import add_expanding_widget
 
 
 class ControllerWidget(BaseSettingWidget):
 
-    LMPC_LABEL = "Linear Model Predictive Control"
-    NMPC_LABEL = "Nonlinear Model Predictive Control"
-    SMC_LABEL = "Model Following Sliding Mode Control"
+    NO_SELECT = "Select Controller type"
+    LMPC = "Linear Model Predictive Control"
+    NMPC = "Nonlinear Model Predictive Control"
+    SMC = "Model Following Sliding Mode Control"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Controller"
         abst_text = "TODO: abstruct"
         super().__init__(main, title_text, abst_text)
 
-        type_description = "TODO: instruction"
-        self.controller_type = ParamGetterWidget_ComboBox(
-            "Type of Controller",
-            type_description,
-            # [self.LMPC_LABEL, self.NMPC_LABEL, self.SMC_LABEL],  # TODO
-            [self.LMPC_LABEL],
-            default=self.LMPC_LABEL,
-        )
+        self.controller_type = ComboBox()
+        self.controller_type.addItems([self.NO_SELECT, self.LMPC])
+        # self.controller_type.addItems([self.NO_SELECT, self.LMPC, self.NMPC, self.SMC])  # TODO
+        self.controller_type.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.controller_type)
 
-        self.lmpc_settings = LMPCSettingsWidget(main)
-        self._rows.addWidget(self.lmpc_settings)
+        self.lmpc = ControllerWidget_LMPC(main)
+        self._rows.addWidget(self.lmpc)
 
-        self.nmpc_settings = NMPCSettingsWidget(main)
-        self._rows.addWidget(self.nmpc_settings)
+        self.nmpc = ControllerWidget_NMPC(main)
+        self._rows.addWidget(self.nmpc)
 
-        self.smc_settings = SMCSettingsWidget(main)
-        self._rows.addWidget(self.smc_settings)
+        self.smc = ControllerWidget_SMC(main)
+        self._rows.addWidget(self.smc)
 
-        self._add_dummy_widget()
-
-        self._update_controllers_visibility()
+        add_expanding_widget(self._rows)
+        self._update_visibility()
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.controller_type.text_changed.connect(self._on_type_changed)
+        self.controller_type.currentTextChanged.connect(self._on_type_changed)
 
-    def _update_controllers_visibility(self) -> None:
-        controller_type = self.controller_type.get()
+    def get_type(self) -> str:
+        return self.controller_type.currentText()
 
-        if controller_type == self.LMPC_LABEL:
-            self.lmpc_settings.setVisible(True)
-            self.nmpc_settings.setVisible(False)
-            self.smc_settings.setVisible(False)
-        elif controller_type == self.NMPC_LABEL:
-            self.lmpc_settings.setVisible(False)
-            self.nmpc_settings.setVisible(True)
-            self.smc_settings.setVisible(False)
-        elif controller_type == self.SMC_LABEL:
-            self.lmpc_settings.setVisible(False)
-            self.nmpc_settings.setVisible(False)
-            self.smc_settings.setVisible(True)
+    def _update_visibility(self) -> None:
+        controller_type = self.get_type()
+
+        if controller_type == self.NO_SELECT:
+            self.lmpc.setVisible(False)
+            self.nmpc.setVisible(False)
+            self.smc.setVisible(False)
+        elif controller_type == self.LMPC:
+            self.lmpc.setVisible(True)
+            self.nmpc.setVisible(False)
+            self.smc.setVisible(False)
+        elif controller_type == self.NMPC:
+            self.lmpc.setVisible(False)
+            self.nmpc.setVisible(True)
+            self.smc.setVisible(False)
+        elif controller_type == self.SMC:
+            self.lmpc.setVisible(False)
+            self.nmpc.setVisible(False)
+            self.smc.setVisible(True)
         else:
-            raise RuntimeError(f'Invalid controller type: {controller_type}')
+            raise RuntimeError(f'Unknown controller type: {controller_type}')
 
     @pyqtSlot(str)
     def _on_type_changed(self, controller_type: str) -> None:
-        self._update_controllers_visibility()
+        self._update_visibility()
 
 
-class LMPCSettingsWidget(QWidget):
+class ControllerWidget_LMPC(QWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -197,7 +203,7 @@ class LMPCSettingsWidget(QWidget):
         self._rows.addWidget(self.thrust_rate_weight)
 
 
-class NMPCSettingsWidget(QWidget):
+class ControllerWidget_NMPC(QWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -215,7 +221,7 @@ class NMPCSettingsWidget(QWidget):
         # TODO
 
 
-class SMCSettingsWidget(QWidget):
+class ControllerWidget_SMC(QWidget):
     """ モデルフォロイング型スライディングモード制御の設定(cf. 「ドローン工学入門」,p.189) """
 
     def __init__(self, main: SetupAssistant) -> None:

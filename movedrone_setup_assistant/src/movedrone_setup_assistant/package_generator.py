@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from urdf_tools_py.core import *
-from urdf_tools_py.gazebo import GazeboRosControl, Camera
+from urdf_tools_py.gazebo import GazeboRosControl
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info, q_error
 
@@ -58,26 +58,48 @@ class PackageGenerator(QWidget):
         self.generated.emit()
 
     def _is_valid_config(self) -> bool:
-        propellers = self._main.settings.propellers.selected
+        rotary_wings = self._main.settings.rotary_wings.selected
         battery = self._main.settings.battery
+        controller = self._main.settings.controller
         author_info = self._main.settings.author_information
         ros_pkg = self._main.settings.ros_package
 
-        if propellers.num() < 3:
-            # TODO: ヘリのような駆動関節の先にプロペラが付いたモデルなら2つでもいけるはず
-            q_error(self._main, "[Propellers] At least 3 propellers are needed.")
-            return False
-
-        pins_uniq = set(pin.value() for pin in propellers.pins)
-        if len(pins_uniq) != propellers.num():
-            q_error(self._main, "[Propellers] Duplicated Pin IDs.")
-            return False
-
+        # Battery
         C_cont = battery.C_cont.get()
         C_pulse = battery.C_pulse.get()
         if C_cont > C_pulse:
-            q_error(self._main, "[Propellers] C_cont cannot be greater than C_pulse.")
+            q_error(
+                self._main,
+                "[Battery] Continuous discharge current rate cannot be "
+                "greater than pulse discharge current rate."
+            )
 
+        # Rotary Wings
+        num_rotors = rotary_wings.count()
+        if num_rotors < 2:
+            q_error(self._main, "[Rotary Wings] At least 2 rotary wings are required.")
+            return False
+        directions = set(setting.motor.direction() for setting in rotary_wings.settings)
+        if len(directions) == 1:
+            q_error(self._main, "[Rotary Wings] Rotating direction of all rotors are same.")
+            return False
+        for i in range(0, num_rotors):
+            esc = rotary_wings.settings[i].esc
+            if esc.esc_type.currentText() == esc.NO_SELECT:
+                q_error("[Rotary Wings] Please select ESC type.")
+            motor = rotary_wings.settings[i].motor
+            if motor.setting_method.currentText() == motor.NO_SELECT:
+                q_error("[Rotary Wings] Please select motor setting method.")
+            aerodynamics = rotary_wings.settings[i].motor
+            if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
+                q_error("[Rotary Wings] Please select aerodynamics setting method.")
+
+        # Controller
+        if controller.get_type() == controller.NO_SELECT:
+            q_error(self._main, "[Controllers] Please select controller type.")
+            return False
+
+        # Author Info
         author_name = author_info.name.get()
         if author_name == "":
             q_error(self._main, "[Author Info] Author name is blank.")
@@ -88,6 +110,7 @@ class PackageGenerator(QWidget):
             q_error(self._main, "[Author Info] Invalid email address.")
             return False
 
+        # ROS Package
         pardir = ros_pkg.pkg_path.pardir
         if not osp.isdir(pardir):
             q_error(self._main, f'[ROS Package] {pardir} does not exist.')
@@ -163,8 +186,9 @@ class PackageGenerator(QWidget):
 
         # Controller
         controller = self._main.settings.controller
-        if controller.controller_type.get() == controller.LMPC_LABEL:
-            lmpc = self._main.settings.controller.lmpc_settings
+        controller_type = controller.get_type()
+        if controller_type == controller.LMPC:
+            lmpc = self._main.settings.controller.lmpc
             lmpc_items = {
                 "natural_freq": lmpc.natural_freq.get(),
                 "damp_ratio": lmpc.damp_ratio.get(),
@@ -178,12 +202,12 @@ class PackageGenerator(QWidget):
                 "thrust_rate_weight": lmpc.thrust_rate_weight.get(),
             }
             template_items["lmpc"] = lmpc_items
-        elif controller.controller_type.get() == controller.NMPC_LABEL:
+        elif controller_type == controller.NMPC:
             raise NotImplementedError
-        elif controller.controller_type.get() == controller.SMC_LABEL:
+        elif controller_type == controller.SMC:
             raise NotImplementedError
         else:
-            raise NotImplementedError
+            raise RuntimeError(f'Unknown controller type: {controller_type}')
 
         joint_controllers = "joint_state_controller"
         for jnt_name in self._main.urdf_parser.required_joint_names():
@@ -201,27 +225,26 @@ class PackageGenerator(QWidget):
 
     def _generate_drone_props(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
-        propellers = self._main.settings.propellers.selected
+        rotary_wings = self._main.settings.rotary_wings.selected
         battery = self._main.settings.battery
-        num_rotors = propellers.num()
+        num_rotors = rotary_wings.count()
         drone_props = {
             "drone_name": self._drone_name,
             "num_rotors": num_rotors,
             "battery_voltage": battery.voltage.get(),
             "required_joint_names": self._main.urdf_parser.required_joint_names(),
         }
-        for i in range(num_rotors):
+        for i in range(0, num_rotors):
             drone_props[f'rotor_{i}'] = {
-                "link_name": propellers.link_names[i].text(),
-                "direction": propellers.directions[i].currentText().lower(),
-                "motor_constant": propellers.motor_consts[i].value(),
-                "moment_constant": propellers.moment_consts[i].value(),
-                "rotor_drag_coefficient": propellers.rotor_drag_coefs[i].value(),
-                "kv": propellers.kvs[i].value(),
-                "efficiency": propellers.efficiencies[i].value() * 1e-2,
-                "time_constant_up": propellers.time_consts_up[i].value() * 1e-3,
-                "time_constant_down": propellers.time_consts_down[i].value() * 1e-3,
-                "pin": propellers.pins[i].value(),
+                "link_name": rotary_wings.settings[i].link_name(),
+                "direction": rotary_wings.settings[i].motor.direction(),
+                "kv": rotary_wings.settings[i].motor.kv(),
+                "time_constant_up": rotary_wings.settings[i].motor.time_const_up(),
+                "time_constant_down": rotary_wings.settings[i].motor.time_const_down(),
+                "motor_constant": rotary_wings.settings[i].aerodynamics.motor_const(),
+                "moment_constant": rotary_wings.settings[i].aerodynamics.moment_const(),
+                "rotor_drag_coefficient": rotary_wings.settings[i].aerodynamics.rotor_drag_coef(),
+                "pin": i + 1,
             }
 
         # yamlファイルを作成
@@ -316,7 +339,7 @@ class PackageGenerator(QWidget):
     def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
 
-        propellers = self._main.settings.propellers.selected
+        rotary_wings = self._main.settings.rotary_wings.selected
         battery = self._main.settings.battery
         imu = self._main.settings.imu
         magnetometer = self._main.settings.magnetometer
@@ -328,23 +351,22 @@ class PackageGenerator(QWidget):
 
         # Motors
         voltage = battery.voltage.get()
-        for i in range(propellers.num()):
-            kv = propellers.kvs[i].value()
-            efficiency = propellers.efficiencies[i].value() * 1e-2
-            max_rot_vel = rpm_to_rad_per_sec(voltage * kv * efficiency)
+        for i in range(0, rotary_wings.count()):
+            kv = rotary_wings.settings[i].motor.kv()
+            max_rot_vel = rpm_to_rad_per_sec(voltage * kv)
 
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,
-                link_name=propellers.link_names[i].text(),
-                joint_name=propellers.joint_names[i].text(),
-                direction=propellers.directions[i].currentText().lower(),
+                link_name=rotary_wings.settings[i].link_name(),
+                joint_name=rotary_wings.settings[i].joint_name(),
+                direction=rotary_wings.settings[i].motor.direction(),
                 max_rot_vel=max_rot_vel,
-                motor_const=propellers.motor_consts[i].value(),
-                moment_const=propellers.moment_consts[i].value(),
-                rotor_drag_coef=propellers.rotor_drag_coefs[i].value(),
-                time_const_up=propellers.time_consts_up[i].value() * 1e-3,
-                time_const_down=propellers.time_consts_down[i].value() * 1e-3,
+                motor_const=rotary_wings.settings[i].aerodynamics.motor_const(),
+                moment_const=rotary_wings.settings[i].aerodynamics.moment_const(),
+                rotor_drag_coef=rotary_wings.settings[i].aerodynamics.rotor_drag_coef(),
+                time_const_up=rotary_wings.settings[i].motor.time_const_up(),
+                time_const_down=rotary_wings.settings[i].motor.time_const_down(),
             )
             robot.append(motor_model)
 

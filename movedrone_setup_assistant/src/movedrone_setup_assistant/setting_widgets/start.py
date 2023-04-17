@@ -16,6 +16,7 @@ from dh_rqt_tools.messages import q_error
 
 from .base_setting import BaseSettingWidget
 from ..constants import *
+from ..utils import add_expanding_widget
 
 
 class StartWidget(BaseSettingWidget):
@@ -30,7 +31,7 @@ class StartWidget(BaseSettingWidget):
         self.robot_model_loader = RobotModelLoaderWidget(main)
         self._rows.addWidget(self.robot_model_loader)
 
-        self._add_dummy_widget()
+        add_expanding_widget(self._rows)
 
     def define_connections(self) -> None:
         self.robot_model_loader.define_connections()

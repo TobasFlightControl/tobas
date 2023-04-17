@@ -42,13 +42,3 @@ class BaseSettingWidget(QScrollArea):
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(lambda: self.setEnabled(True))
         self._main.pkg_generator.generated.connect(lambda: self.setEnabled(False))
-
-    @final
-    def _add_dummy_widget(self) -> None:
-        """
-        余白が空いているとサイズ固定が効かなくなるため，最後に伸縮可能なダミーウィジェットを加える．\\
-        ダミーウィジェットを最大まで拡大するようにしておけば，他の要素はなるべく上に詰めてくれる．
-        """
-        dummy_widget = QWidget()
-        dummy_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._rows.addWidget(dummy_widget)

@@ -21,7 +21,7 @@ AccelerationController::AccelerationController(const Tree& tree)
   max_U_ = 0.;
   for (const auto& prop : rotor_props_)
   {
-    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
+    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv);
     const double max_thrust = prop.motor_constant * sqr(max_speed);
     max_U_ += max_thrust;
   }

@@ -43,7 +43,7 @@ void MotorsHandler_DSHOT::run()
     for (int i = 0; i < num_rotors_; ++i)
     {
       const RotorProperty& prop = rotor_props_[i];
-      const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
+      const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv);
 
       // 指令速度を決定
       double cmd_speed = cmd_speeds_[i];

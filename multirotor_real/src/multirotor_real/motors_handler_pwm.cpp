@@ -6,7 +6,7 @@
 #include "../../include/multirotor_real/motors_handler_pwm.hpp"
 
 #define INFO_PERIOD 1.
-#define FREQ 50.
+#define FREQ 50.  // TODO: rosparamから取得
 #define PWM_LB 1000.
 #define PWM_UB 2000.
 
@@ -72,7 +72,7 @@ void MotorsHandler_PWM::rotorSpeedsCb(const multirotor_msgs::RotorSpeeds& rotor_
   for (int i = 0; i < num_rotors_; ++i)
   {
     const RotorProperty& prop = rotor_props_[i];
-    const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
+    const double max_speed = rpmToRadPerSec(battery_voltage_ * prop.kv);
 
     // 指令速度を決定
     double cmd_speed = cmd_speeds[i];

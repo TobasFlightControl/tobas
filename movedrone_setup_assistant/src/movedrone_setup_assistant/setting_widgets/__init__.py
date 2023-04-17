@@ -1,5 +1,4 @@
 from .start import StartWidget
-from .propellers import PropellersWidget
 from .rotary_wings import RotaryWingsWidget
 from .battery import BatteryWidget
 from .imu import ImuWidget

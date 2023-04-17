@@ -196,7 +196,7 @@ ctrl::LinearEquation RotationController::makeBaseInputCondition()
   {
     const auto& prop = rotor_props_[i];
 
-    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv * prop.efficiency);
+    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * prop.kv);
     const double max_thrust = prop.motor_constant * sqr(max_speed);
     const double min_thrust = 0.;
 
