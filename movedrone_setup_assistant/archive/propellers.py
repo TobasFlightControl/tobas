@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..setup_assistant import SetupAssistant
+    from ..src.movedrone_setup_assistant.setup_assistant import SetupAssistant
 
 from typing import Union, List
 from PyQt5.QtCore import *
@@ -11,9 +11,9 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox
 from dh_rqt_tools.messages import q_error
 
-from .base_setting import BaseSettingWidget
-from ..constants import *
-from ..utils import add_expanding_widget
+from ..src.movedrone_setup_assistant.setting_widgets.base_setting import BaseSettingWidget
+from ..src.movedrone_setup_assistant.constants import *
+from ..src.movedrone_setup_assistant.utils import add_expanding_widget
 
 
 class PropellersWidget(BaseSettingWidget):
