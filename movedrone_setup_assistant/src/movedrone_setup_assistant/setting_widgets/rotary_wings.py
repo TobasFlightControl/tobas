@@ -154,6 +154,11 @@ class SelectedLinksWidget(QTabWidget):
         self.settings.append(setting)
         self.addTab(setting, link_name)
 
+    def remove(self, link_name: str) -> None:
+        idx = self.get_index(link_name)
+        self.settings.pop(idx)
+        self.removeTab(idx)
+
     def get_index(self, link_name) -> int:
         """ タブのインデックスを返す． """
         for idx, setting in enumerate(self.settings):
@@ -235,7 +240,8 @@ class SelectedLinkTabWidget(QWidget):
 
     @pyqtSlot()
     def _on_remove_button_clicked(self) -> None:
-        raise NotImplementedError
+        self._main.settings.rotary_wings.available.add(self.link_name())
+        self._main.settings.rotary_wings.selected.remove(self.link_name())
 
 
 class EscWidget(QWidget):

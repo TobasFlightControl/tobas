@@ -73,26 +73,32 @@ class PackageGenerator(QWidget):
                 "[Battery] Continuous discharge current rate cannot be "
                 "greater than pulse discharge current rate."
             )
+            return False
 
         # Rotary Wings
         num_rotors = rotary_wings.count()
         if num_rotors < 2:
             q_error(self._main, "[Rotary Wings] At least 2 rotary wings are required.")
             return False
+
+        for i in range(0, num_rotors):
+            esc = rotary_wings.settings[i].esc
+            if esc.esc_type.currentText() == esc.NO_SELECT:
+                q_error(self._main, "[Rotary Wings] Please select ESC type.")
+                return False
+            motor = rotary_wings.settings[i].motor
+            if motor.setting_method.currentText() == motor.NO_SELECT:
+                q_error(self._main, "[Rotary Wings] Please select motor setting method.")
+                return False
+            aerodynamics = rotary_wings.settings[i].aerodynamics
+            if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
+                q_error(self._main, "[Rotary Wings] Please select aerodynamics setting method.")
+                return False
+
         directions = set(setting.motor.direction() for setting in rotary_wings.settings)
         if len(directions) == 1:
             q_error(self._main, "[Rotary Wings] Rotating direction of all rotors are same.")
             return False
-        for i in range(0, num_rotors):
-            esc = rotary_wings.settings[i].esc
-            if esc.esc_type.currentText() == esc.NO_SELECT:
-                q_error("[Rotary Wings] Please select ESC type.")
-            motor = rotary_wings.settings[i].motor
-            if motor.setting_method.currentText() == motor.NO_SELECT:
-                q_error("[Rotary Wings] Please select motor setting method.")
-            aerodynamics = rotary_wings.settings[i].motor
-            if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
-                q_error("[Rotary Wings] Please select aerodynamics setting method.")
 
         # Controller
         if controller.get_type() == controller.NO_SELECT:
