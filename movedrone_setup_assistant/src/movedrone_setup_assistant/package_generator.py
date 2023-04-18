@@ -84,7 +84,7 @@ class PackageGenerator(QWidget):
 
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
-            esc = rotary_wings.widget(i).esc
+            esc = selected.esc
             if esc.esc_type.currentText() == esc.NO_SELECT:
                 q_error(self._main, "[Rotary Wings] Please select ESC type.")
                 return False

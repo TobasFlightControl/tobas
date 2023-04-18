@@ -11,7 +11,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import ComboBox, TabWidget
-from dh_rqt_tools.messages import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -238,7 +237,6 @@ class SelectedLinkTabWidget(QWidget):
         self_idx = selected.get_index(self._link_name)
 
         if self_idx == 0:
-            q_info(self._main, "No left tab")
             return
 
         left: SelectedLinkTabWidget = selected.widget(self_idx - 1)
@@ -388,8 +386,8 @@ class MotorWidget(QWidget):
         self.manual = MotorWidget_Manual()
         self._rows.addWidget(self.manual)
 
-        self.experiment = MotorWidget_Experiment()
-        self._rows.addWidget(self.experiment)
+        self.thrust_stand = MotorWidget_Experiment()
+        self._rows.addWidget(self.thrust_stand)
 
         self._update_visibility()
         self._define_connections()
@@ -413,7 +411,7 @@ class MotorWidget(QWidget):
     def copy_from(self, src: MotorWidget) -> None:
         self.setting_method.setCurrentText(src.setting_method.currentText())
         self.manual.copy_from(src.manual)
-        self.experiment.copy_from(src.experiment)
+        self.thrust_stand.copy_from(src.thrust_stand)
 
         self._update_visibility()
 
@@ -425,13 +423,13 @@ class MotorWidget(QWidget):
 
         if setting_method == self.NO_SELECT:
             self.manual.setVisible(False)
-            self.experiment.setVisible(False)
+            self.thrust_stand.setVisible(False)
         elif setting_method == self.MANUAL:
             self.manual.setVisible(True)
-            self.experiment.setVisible(False)
+            self.thrust_stand.setVisible(False)
         elif setting_method == self.THRUST_STAND:
             self.manual.setVisible(False)
-            self.experiment.setVisible(True)
+            self.thrust_stand.setVisible(True)
         else:
             raise RuntimeError(f'Unknown setting method: {setting_method}')
 
@@ -441,7 +439,7 @@ class MotorWidget(QWidget):
         if setting_method == self.MANUAL:
             return self.manual
         elif setting_method == self.THRUST_STAND:
-            return self.experiment
+            return self.thrust_stand
         else:
             raise RuntimeError
 
@@ -597,8 +595,8 @@ class AerodynamicsWidget(QWidget):
         self.blade_theory = AerodynamicsWidget_BladeTheory()
         self._rows.addWidget(self.blade_theory)
 
-        self.experiment = AerodynamicsWidget_ThrustStand()
-        self._rows.addWidget(self.experiment)
+        self.thrust_stand = AerodynamicsWidget_ThrustStand()
+        self._rows.addWidget(self.thrust_stand)
 
         self._update_visibility()
         self._define_connections()
@@ -622,7 +620,7 @@ class AerodynamicsWidget(QWidget):
         self.setting_method.setCurrentText(src.setting_method.currentText())
         self.manual.copy_from(src.manual)
         self.blade_theory.copy_from(src.blade_theory)
-        self.experiment.copy_from(src.experiment)
+        self.thrust_stand.copy_from(src.thrust_stand)
 
         self._update_visibility()
 
@@ -635,19 +633,19 @@ class AerodynamicsWidget(QWidget):
         if setting_method == self.NO_SELECT:
             self.manual.setVisible(False)
             self.blade_theory.setVisible(False)
-            self.experiment.setVisible(False)
+            self.thrust_stand.setVisible(False)
         elif setting_method == self.MANUAL:
             self.manual.setVisible(True)
             self.blade_theory.setVisible(False)
-            self.experiment.setVisible(False)
+            self.thrust_stand.setVisible(False)
         elif setting_method == self.BLADE_THEORY:
             self.manual.setVisible(False)
             self.blade_theory.setVisible(True)
-            self.experiment.setVisible(False)
+            self.thrust_stand.setVisible(False)
         elif setting_method == self.THRUST_STAND:
             self.manual.setVisible(False)
             self.blade_theory.setVisible(False)
-            self.experiment.setVisible(True)
+            self.thrust_stand.setVisible(True)
         else:
             raise RuntimeError(f'Unknown setting method: {setting_method}')
 
@@ -659,7 +657,7 @@ class AerodynamicsWidget(QWidget):
         elif setting_method == self.BLADE_THEORY:
             return self.blade_theory
         elif setting_method == self.THRUST_STAND:
-            return self.experiment
+            return self.thrust_stand
         else:
             raise RuntimeError
 
@@ -669,6 +667,12 @@ class AerodynamicsWidget(QWidget):
 
 
 class AerodynamicsWidget_Base(QWidget):
+
+    rho = 1.225         # Air density [kg/m^3]
+    a = 2 * math.pi     # 2D lift curve slope (ideal value)
+    B = 0.9             # Tip loss factor
+    gamma = 8.          # Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
+    C_d0 = 0.02         # Profile drag coefficient (typical value)
 
     def __init__(self) -> None:
         super().__init__()
@@ -751,12 +755,6 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """ Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] """
-
-    rho = 1.225         # Air density [kg/m^3]
-    a = 2 * math.pi     # 2D lift curve slope (ideal value)
-    B = 0.9             # Tip loss factor
-    gamma = 8.          # Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
-    C_d0 = 0.02         # Profile drag coefficient (typical value)
 
     def __init__(self) -> None:
         super().__init__()
@@ -869,6 +867,12 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def __init__(self) -> None:
         super().__init__()
 
+        # 同じ計算を繰り返すことを防ぐためにMotor ConstとMoment Constをキャッシュする
+        self._motor_const = -1.
+        self._moment_const = -1.
+        self._motor_const_updated = False
+        self._moment_const_updated = False
+
         num_blade_description = "TODO: instruction"
         self._num_blade = ParamGetterWidget_SpinBox(
             "Number of blades",
@@ -894,23 +898,95 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
             ["Rotation Speed", "Thrust", "Torque"],
             description_text=data_description,
         )
-        self._data.set_minimum([1., 0., 0.])
+        self._data.set_minimum([1e-1, 1e-6, 1e-6])
         self._data.set_decimals([1, 6, 6])
         self._data.set_suffix([" rpm", " N", " Nm"])
         self._data.set_fixed_height(self.TABLE_HEIGHT)
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
+        self._data.data_changed.connect(self._on_data_changed)
+
     def motor_const(self) -> float:
-        pass  # TODO
+        # Motor Constが更新されていなければ更新
+        if not self._motor_const_updated:
+            data = self._data.get()
+            num_samples = data.shape[0]
+            assert num_samples > 0
+
+            motor_const_sum = 0.
+            for omega, thrust, _ in data:
+                motor_const = thrust / omega**2
+                motor_const_sum += motor_const
+
+            self._motor_const = motor_const_sum / num_samples
+            self._motor_const_updated = True
+
+        return float(self._motor_const)  # yaml.dump()のためにnp.floatから組み込みのfloatに変換
 
     def moment_const(self) -> float:
-        pass  # TODO
+        # Moment Constが更新されていなければ更新
+        if not self._moment_const_updated:
+            data = self._data.get()
+            num_samples = data.shape[0]
+            assert num_samples > 0
+
+            moment_const_sum = 0.
+            for omega, thrust, torque in data:
+                motor_const = thrust / omega**2
+                moment_const = torque / motor_const
+                moment_const_sum += moment_const
+
+            self._moment_const = moment_const_sum / num_samples
+            self._moment_const_updated = True
+
+        return float(self._moment_const)
 
     def rotor_drag_coef(self) -> float:
-        pass  # TODO
+        return float(4 * math.pi * self.rho * self._R()**3 * self._C_H())
 
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         self._num_blade.set(src._num_blade.get())
         self._blade_chord.set(src._blade_chord.get())
         self._data.set(src._data.get())
+
+    def _N(self) -> int:
+        """ Number of blades """
+        return self._num_blade.get()
+
+    def _c(self) -> float:
+        """ Measured blade chord [m] """
+        return self._blade_chord.get() / 1000.
+
+    def _R(self) -> float:
+        """ Estimated rotor radius [m] """
+        return math.sqrt(self.motor_const() / (8 * math.pi * self.rho)) / self.moment_const()
+
+    def _theta(self) -> float:
+        """ Estimated blade average pitch angle [rad] """
+        lam = self._lambda()
+        return (3 * lam) / (2 * self.B) * (1 + (8 * lam) / (self.B**2 * self._sigma() * self.a))
+
+    def _sigma(self) -> float:
+        """ Solidity """
+        return (self._N() * self._c()) / (math.pi * self._R())
+
+    def _lambda(self) -> float:
+        """ Inflow ratio """
+        return self.moment_const()**2 * math.sqrt(8 * math.pi * self.rho / self.motor_const())
+
+    def _C_H(self) -> float:
+        """ Horizontal force coefficient (devided by mu) """
+        theta = self._theta()
+        sigma = self._sigma()
+        lam = self._lambda()
+        b0 = 0.5 * self.gamma * (theta / 4 - lam / 3)
+        b1c = 2 * (lam - (4 / 3) * theta)   # devided by mu
+        b1s = -(4/3) * b0                   # devided by mu
+        return (sigma / 4) * (self.C_d0 + (self.a / 6) * (2 * theta * (3 * lam - 2 * b1c) +
+                                                          9 * lam * b1c + 2 * b0 * b1s + 3 * b0**2))
+
+    @pyqtSlot()
+    def _on_data_changed(self) -> None:
+        self._motor_const_updated = False
+        self._moment_const_updated = False

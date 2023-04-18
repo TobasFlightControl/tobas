@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from typing import List
 
 from dh_rqt_tools.widgets import DoubleSpinBox
-from dh_rqt_tools.messages import q_error
+from dh_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
 from ..constants import *
@@ -20,6 +20,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
     BTN_WIDTH = 100
     DEFAULT_VALUE = 0.
     DEFAULT_DECIMALS = 2
+
+    data_changed = pyqtSignal()
 
     def __init__(
         self,
@@ -91,11 +93,10 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         src : NDArray[np.float64]
             shape = (num_data, num_entry)
         """
-        assert src.ndim == 2
-        assert src.shape[1] == self._num_entry
+        if not self._is_valid_data(src):
+            return
 
         self._clear()
-
         for row in range(src.shape[0]):
             self._add_row()
             for col in range(src.shape[1]):
@@ -158,6 +159,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             cell.setValue(self._default[col])
             cell.setDecimals(self._decimals[col])
             cell.setSuffix(self._suffix[col])
+            cell.valueChanged.connect(lambda: self.data_changed.emit())
             self._table.setCellWidget(rows, col, cell)
 
     @pyqtSlot()
@@ -201,6 +203,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             )
 
         self.set(data)
+        q_info(self.parent(), "Data is successfully loaded.")
 
     def _get_csv_file_path(self) -> str:
         options = QFileDialog.Options()
@@ -209,3 +212,19 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             self, TITLE, "", "CSV File (*.csv)", options=options
         )
         return file_path
+
+    def _is_valid_data(self, src: NDArray[np.float64]) -> bool:
+        assert src.ndim == 2
+        assert src.shape[1] == self._num_entry
+
+        for row in range(src.shape[0]):
+            for col in range(self._num_entry):
+                val = src[row, col]
+                if not self._minimum[col] <= val <= self._maximum[col]:
+                    q_error(
+                        self.parent(),
+                        f'{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.',
+                    )
+                    return False
+
+        return True
