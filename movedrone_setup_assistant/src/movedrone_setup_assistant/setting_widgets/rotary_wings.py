@@ -315,7 +315,7 @@ class EscWidget_Base(QWidget):
 
     @abstractmethod
     def copy_from(self, src) -> None:
-        pass
+        raise NotImplementedError
 
 
 class EscWidget_PWM(QWidget):
@@ -366,7 +366,7 @@ class MotorWidget(QWidget):
 
     NO_SELECT = "Select setting method"
     MANUAL = "Set manually"
-    EXPERIMENT = "Set from experimental data"
+    THRUST_STAND = "Set from experimental data"
 
     def __init__(self) -> None:
         super().__init__()
@@ -381,7 +381,7 @@ class MotorWidget(QWidget):
 
         self.setting_method = ComboBox()
         self.setting_method.addItems([self.NO_SELECT, self.MANUAL])
-        # self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.EXPERIMENT])  # TODO
+        # self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.THRUST_STAND])  # TODO
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
 
@@ -429,7 +429,7 @@ class MotorWidget(QWidget):
         elif setting_method == self.MANUAL:
             self.manual.setVisible(True)
             self.experiment.setVisible(False)
-        elif setting_method == self.EXPERIMENT:
+        elif setting_method == self.THRUST_STAND:
             self.manual.setVisible(False)
             self.experiment.setVisible(True)
         else:
@@ -440,7 +440,7 @@ class MotorWidget(QWidget):
 
         if setting_method == self.MANUAL:
             return self.manual
-        elif setting_method == self.EXPERIMENT:
+        elif setting_method == self.THRUST_STAND:
             return self.experiment
         else:
             raise RuntimeError
@@ -474,21 +474,21 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
     @abstractmethod
     def kv(self) -> float:
         """ [rpm/V], including efficiency """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def time_const_up(self) -> float:
         """ [s] """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def time_const_down(self) -> float:
         """ [s] """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def copy_from(self, src) -> None:
-        pass
+        raise NotImplementedError
 
 
 class MotorWidget_Manual(MotorWidget_Base):
@@ -570,8 +570,8 @@ class AerodynamicsWidget(QWidget):
 
     NO_SELECT = "Select setting method"
     MANUAL = "Set manually"
-    BLADE_THEORY = "Set from blade property"
-    EXPERIMENT = "Set from experimental data"
+    BLADE_THEORY = "Set from rough blade shape"
+    THRUST_STAND = "Set from thrust stand data"
 
     def __init__(self) -> None:
         super().__init__()
@@ -586,7 +586,7 @@ class AerodynamicsWidget(QWidget):
 
         self.setting_method = ComboBox()
         self.setting_method.addItems(
-            [self.NO_SELECT, self.MANUAL, self.BLADE_THEORY, self.EXPERIMENT]
+            [self.NO_SELECT, self.MANUAL, self.BLADE_THEORY, self.THRUST_STAND]
         )
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
@@ -597,7 +597,7 @@ class AerodynamicsWidget(QWidget):
         self.blade_theory = AerodynamicsWidget_BladeTheory()
         self._rows.addWidget(self.blade_theory)
 
-        self.experiment = AerodynamicsWidget_Experiment()
+        self.experiment = AerodynamicsWidget_ThrustStand()
         self._rows.addWidget(self.experiment)
 
         self._update_visibility()
@@ -644,7 +644,7 @@ class AerodynamicsWidget(QWidget):
             self.manual.setVisible(False)
             self.blade_theory.setVisible(True)
             self.experiment.setVisible(False)
-        elif setting_method == self.EXPERIMENT:
+        elif setting_method == self.THRUST_STAND:
             self.manual.setVisible(False)
             self.blade_theory.setVisible(False)
             self.experiment.setVisible(True)
@@ -658,7 +658,7 @@ class AerodynamicsWidget(QWidget):
             return self.manual
         elif setting_method == self.BLADE_THEORY:
             return self.blade_theory
-        elif setting_method == self.EXPERIMENT:
+        elif setting_method == self.THRUST_STAND:
             return self.experiment
         else:
             raise RuntimeError
@@ -679,21 +679,21 @@ class AerodynamicsWidget_Base(QWidget):
     @abstractmethod
     def motor_const(self) -> float:
         """ [kg*m/s^2] """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def moment_const(self) -> float:
         """ [m] """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def rotor_drag_coef(self) -> float:
         """ [Ns^2/m^2] """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def copy_from(self, src) -> None:
-        pass
+        raise NotImplementedError
 
 
 class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
@@ -770,7 +770,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._num_blade)
 
-        rotor_radius_description = "TODO: instruction"  # 元論文だと75%Rの位置で計測している
+        rotor_radius_description = "TODO: instruction"
         self._rotor_radius = ParamGetterWidget_SpinBox(
             "Rotor radius",
             rotor_radius_description,
@@ -780,7 +780,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._rotor_radius)
 
-        blade_chord_description = "TODO: instruction"
+        blade_chord_description = "TODO: instruction"  # 元論文だと75%Rの位置で計測している
         self._blade_chord = ParamGetterWidget_SpinBox(
             "Blade chord",
             blade_chord_description,
@@ -851,18 +851,50 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         sigma = self._sigma()
         lam = self._lambda()
         b0 = 0.5 * self.gamma * (theta / 4 - lam / 3)
-        b1c = 2 * (lam - (4/3) * theta)     # devided by mu
+        b1c = 2 * (lam - (4 / 3) * theta)   # devided by mu
         b1s = -(4/3) * b0                   # devided by mu
         return (sigma / 4) * (self.C_d0 + (self.a / 6) * (2 * theta * (3 * lam - 2 * b1c) +
                                                           9 * lam * b1c + 2 * b0 * b1s + 3 * b0**2))
 
 
-class AerodynamicsWidget_Experiment(AerodynamicsWidget_Base):
+class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
+    """
+    推力係数とトルク係数はThrust Standの実験データから求める．\\
+    空気抗力係数は上の係数とBlade Theoryから求める．
+    """
+
+    TABLE_COL_WIDTH = 150
 
     def __init__(self) -> None:
         super().__init__()
 
-        # TODO
+        num_blade_description = "TODO: instruction"
+        self._num_blade = ParamGetterWidget_SpinBox(
+            "Number of blades",
+            num_blade_description,
+            minimum=1,
+            default=2,
+        )
+        self._rows.addWidget(self._num_blade)
 
-    def copy_from(self, src: AerodynamicsWidget_Experiment) -> None:
+        blade_chord_description = "TODO: instruction"
+        self._blade_chord = ParamGetterWidget_SpinBox(
+            "Blade chord",
+            blade_chord_description,
+            minimum=1,
+            default=15,
+            suffix=" mm",
+        )
+        self._rows.addWidget(self._blade_chord)
+
+        data_description = "TODO: instruction"
+        self._data = ParamGetterWidget_DoubleTable(
+            "Data from thrust stand",
+            data_description,
+            ["Rotation Speed [rpm]", "Thrust [N]", "Torque [Nm]"],
+            col_width=self.TABLE_COL_WIDTH,
+        )
+        self._rows.addWidget(self._data)
+
+    def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         return  # TODO

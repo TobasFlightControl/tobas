@@ -1,3 +1,4 @@
+numpy >= 1.20
 pyqt-vertical-tab-widget
 pyyaml
 et-xmlfile

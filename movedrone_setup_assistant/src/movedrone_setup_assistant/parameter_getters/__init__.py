@@ -8,3 +8,4 @@ from .int_range import ParamGetterWidget_IntRange
 from .double_range import ParamGetterWidget_DoubleRange
 from .vector3d import ParamGetterWidget_Vector3d
 from .pose import ParamGetterWidget_Pose
+from .double_table import ParamGetterWidget_DoubleTable

@@ -33,8 +33,8 @@ class ParamGetterWidget(QWidget):
 
     @abstractmethod
     def get(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def set(self):
-        raise NotImplementedError()
+        raise NotImplementedError
