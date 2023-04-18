@@ -123,7 +123,6 @@ class RobotModelLoaderWidget(QWidget):
         self.urdf_loaded.emit()
 
     def _launch_file(self) -> None:
-        # This is a hack to pass URDF file
         # description.launchで使われる環境変数を設定
         os.environ["MOVEDRONE_SETUP_ASSISTANT_DESCRIPTION_PATH"] = self.description_path
 
