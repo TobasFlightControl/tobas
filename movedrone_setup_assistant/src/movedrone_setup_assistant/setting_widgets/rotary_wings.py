@@ -3,13 +3,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import math
 from abc import abstractmethod
 from typing import List, final
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox
+from dh_rqt_tools.widgets import ComboBox, TabWidget
 from dh_rqt_tools.messages import *
 
 from .base_setting import BaseSettingWidget
@@ -138,7 +139,7 @@ class AvailableLinkItemWidget(QListWidget):
         self._main.settings.rotary_wings.available.remove(self.link_name())
 
 
-class SelectedLinksWidget(QTabWidget):
+class SelectedLinksWidget(TabWidget):
 
     TAB_HEIGHT = 50
     TAB_WIDTH = 150
@@ -379,7 +380,8 @@ class MotorWidget(QWidget):
         self._rows.addWidget(title)
 
         self.setting_method = ComboBox()
-        self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.EXPERIMENT])
+        self.setting_method.addItems([self.NO_SELECT, self.MANUAL])
+        # self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.EXPERIMENT])  # TODO
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
 
@@ -671,6 +673,9 @@ class AerodynamicsWidget_Base(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
+        self._rows = QVBoxLayout()
+        self.setLayout(self._rows)
+
     @abstractmethod
     def motor_const(self) -> float:
         """ [kg*m/s^2] """
@@ -695,9 +700,6 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 
     def __init__(self) -> None:
         super().__init__()
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
 
         motor_const_description = "TODO: instruction"
         self._motor_const = ParamGetterWidget_DoubleSpinBox(
@@ -736,11 +738,9 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         return self._motor_const.get()
 
     def moment_const(self) -> float:
-        """ [m] """
         return self._moment_const.get()
 
     def rotor_drag_coef(self) -> float:
-        """ [Ns^2/m^2] """
         return self._rotor_drag_coef.get()
 
     def copy_from(self, src: AerodynamicsWidget_Manual) -> None:
@@ -750,14 +750,111 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 
 
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
+    """ Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] """
+
+    rho = 1.225         # Air density [kg/m^3]
+    a = 2 * math.pi     # 2D lift curve slope (ideal value)
+    B = 0.9             # Tip loss factor
+    gamma = 8.          # Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
+    C_d0 = 0.02         # Profile drag coefficient (typical value)
 
     def __init__(self) -> None:
         super().__init__()
 
-        # TODO
+        num_blade_description = "TODO: instruction"
+        self._num_blade = ParamGetterWidget_SpinBox(
+            "Number of blades",
+            num_blade_description,
+            minimum=1,
+            default=2,
+        )
+        self._rows.addWidget(self._num_blade)
+
+        rotor_radius_description = "TODO: instruction"  # 元論文だと75%Rの位置で計測している
+        self._rotor_radius = ParamGetterWidget_SpinBox(
+            "Rotor radius",
+            rotor_radius_description,
+            minimum=1,
+            default=100,
+            suffix=" mm",
+        )
+        self._rows.addWidget(self._rotor_radius)
+
+        blade_chord_description = "TODO: instruction"
+        self._blade_chord = ParamGetterWidget_SpinBox(
+            "Blade chord",
+            blade_chord_description,
+            minimum=1,
+            default=15,
+            suffix=" mm",
+        )
+        self._rows.addWidget(self._blade_chord)
+
+        pitch_avg_description = "TODO: instruction"
+        self._pitch_avg = ParamGetterWidget_SpinBox(
+            "Blade average pitch angle",
+            pitch_avg_description,
+            minimum=1,
+            maximum=90,
+            default=10,
+            suffix=" deg",
+        )
+        self._rows.addWidget(self._pitch_avg)
+
+    def motor_const(self) -> float:
+        return 4 * math.pi * self._C_T() * self.rho * self._R()**4
+
+    def moment_const(self) -> float:
+        return self._R() * self._lambda()
+
+    def rotor_drag_coef(self) -> float:
+        return 4 * math.pi * self.rho * self._R()**3 * self._C_H()
 
     def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
-        pass  # TODO
+        self._num_blade.set(src._num_blade.get())
+        self._rotor_radius.set(src._rotor_radius.get())
+        self._blade_chord.set(src._blade_chord.get())
+        self._pitch_avg.set(src._pitch_avg.get())
+
+    def _N(self) -> int:
+        """ Number of blades """
+        return self._num_blade.get()
+
+    def _R(self) -> float:
+        """ Rotor radius [m] """
+        return self._rotor_radius.get() / 1000.
+
+    def _c(self) -> float:
+        """ Blade chord [m] """
+        return self._blade_chord.get() / 1000.
+
+    def _theta(self) -> float:
+        """ Blade average pitch angle [rad] """
+        return math.radians(self._pitch_avg.get())
+
+    def _sigma(self) -> float:
+        """ Solidity """
+        return (self._N() * self._c()) / (math.pi * self._R())
+
+    def _lambda(self) -> float:
+        """ Inflow ratio """
+        a_B_sigma = self.a * self.B * self._sigma()
+        return a_B_sigma * self.B / 16 * (math.sqrt(1 + (64 * self._theta()) / (3 * a_B_sigma)) - 1)
+
+    def _C_T(self) -> float:
+        """ Thrust coefficient """
+        return 2 * self._lambda()**2
+
+    def _C_H(self) -> float:
+        """ Horizontal force coefficient (devided by mu) """
+        theta = self._theta()
+        sigma = self._sigma()
+        lam = self._lambda()
+        b0 = 0.5 * self.gamma * (theta / 4 - lam / 3)
+        b1c = 2 * (lam - (4/3) * theta)     # devided by mu
+        b1s = -(4/3) * b0                   # devided by mu
+        return (sigma / 4) * (self.C_d0 + (self.a / 6) * (2 * theta * (3 * lam - 2 * b1c) +
+                                                          9 * lam * b1c + 2 * b0 * b1s + 3 * b0**2))
 
 
 class AerodynamicsWidget_Experiment(AerodynamicsWidget_Base):
