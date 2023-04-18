@@ -863,7 +863,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     空気抗力係数は上の係数とBlade Theoryから求める．
     """
 
-    TABLE_COL_WIDTH = 150
+    TABLE_HEIGHT = 500
+    TABLE_COL_WIDTH = 180
 
     def __init__(self) -> None:
         super().__init__()
@@ -890,11 +891,26 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         data_description = "TODO: instruction"
         self._data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
-            data_description,
-            ["Rotation Speed [rpm]", "Thrust [N]", "Torque [Nm]"],
-            col_width=self.TABLE_COL_WIDTH,
+            ["Rotation Speed", "Thrust", "Torque"],
+            description_text=data_description,
         )
+        self._data.set_minimum([1., 0., 0.])
+        self._data.set_decimals([1, 6, 6])
+        self._data.set_suffix([" rpm", " N", " Nm"])
+        self._data.set_fixed_height(self.TABLE_HEIGHT)
+        self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
+    def motor_const(self) -> float:
+        pass  # TODO
+
+    def moment_const(self) -> float:
+        pass  # TODO
+
+    def rotor_drag_coef(self) -> float:
+        pass  # TODO
+
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
-        return  # TODO
+        self._num_blade.set(src._num_blade.get())
+        self._blade_chord.set(src._blade_chord.get())
+        self._data.set(src._data.get())
