@@ -24,10 +24,6 @@ class MagnetometerWidget(BaseSettingWidget):
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        self.use_custom_magnetometer = QCheckBox("Use custom magnetometer")
-        self.use_custom_magnetometer.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.use_custom_magnetometer)
-
         update_rate_description = "TODO: instruction"
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
@@ -59,25 +55,12 @@ class MagnetometerWidget(BaseSettingWidget):
         self._rows.addWidget(self.uniform_noise)
 
         add_expanding_widget(self._rows)
-        self._update_visibility()
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.use_custom_magnetometer.toggled.connect(self._update_visibility)
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
         body_choices = self._main.urdf_parser.get_fixed_link_names()
         self.link.box.addItems(body_choices)
-
-    @pyqtSlot()
-    def _update_visibility(self) -> None:
-        if self.use_custom_magnetometer.isChecked():
-            self.update_rate.setVisible(True)
-            self.gauss_noise.setVisible(True)
-            self.uniform_noise.setVisible(True)
-        else:
-            self.update_rate.setVisible(False)
-            self.gauss_noise.setVisible(False)
-            self.uniform_noise.setVisible(False)

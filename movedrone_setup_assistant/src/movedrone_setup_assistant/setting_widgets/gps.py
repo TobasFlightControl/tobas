@@ -24,10 +24,6 @@ class GpsWidget(BaseSettingWidget):
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        self.use_custom_gps = QCheckBox("Use custom GPS")
-        self.use_custom_gps.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.use_custom_gps)
-
         update_rate_description = "TODO: instruction"
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
@@ -83,29 +79,12 @@ class GpsWidget(BaseSettingWidget):
         self._rows.addWidget(self.vertical_vel_std)
 
         add_expanding_widget(self._rows)
-        self._update_visibility()
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.use_custom_gps.toggled.connect(self._update_visibility)
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
         body_choices = self._main.urdf_parser.get_fixed_link_names()
         self.link.box.addItems(body_choices)
-
-    @pyqtSlot()
-    def _update_visibility(self) -> None:
-        if self.use_custom_gps.isChecked():
-            self.update_rate.setVisible(True)
-            self.horizontal_pos_std.setVisible(True)
-            self.vertical_pos_std.setVisible(True)
-            self.horizontal_vel_std.setVisible(True)
-            self.vertical_vel_std.setVisible(True)
-        else:
-            self.update_rate.setVisible(False)
-            self.horizontal_pos_std.setVisible(False)
-            self.vertical_pos_std.setVisible(False)
-            self.horizontal_vel_std.setVisible(False)
-            self.vertical_vel_std.setVisible(False)

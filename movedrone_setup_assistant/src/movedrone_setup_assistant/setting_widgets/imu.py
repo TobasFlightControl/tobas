@@ -24,10 +24,6 @@ class ImuWidget(BaseSettingWidget):
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        self.use_custom_imu = QCheckBox("Use custom IMU")
-        self.use_custom_imu.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.use_custom_imu)
-
         update_rate_description = "TODO: instruction"
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
@@ -125,37 +121,12 @@ class ImuWidget(BaseSettingWidget):
         self._rows.addWidget(self.acc_turn_on_bias_sigma)
 
         add_expanding_widget(self._rows)
-        self._update_visibility()
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.use_custom_imu.toggled.connect(self._update_visibility)
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
         body_choices = self._main.urdf_parser.get_fixed_link_names()
         self.link.box.addItems(body_choices)
-
-    @pyqtSlot()
-    def _update_visibility(self) -> None:
-        if self.use_custom_imu.isChecked():
-            self.update_rate.setVisible(True)
-            self.gyro_noise_density.setVisible(True)
-            self.gyro_random_walk.setVisible(True)
-            self.gyro_bias_corr_time.setVisible(True)
-            self.gyro_turn_on_bias_sigma.setVisible(True)
-            self.acc_noise_density.setVisible(True)
-            self.acc_random_walk.setVisible(True)
-            self.acc_bias_corr_time.setVisible(True)
-            self.acc_turn_on_bias_sigma.setVisible(True)
-        else:
-            self.update_rate.setVisible(False)
-            self.gyro_noise_density.setVisible(False)
-            self.gyro_random_walk.setVisible(False)
-            self.gyro_bias_corr_time.setVisible(False)
-            self.gyro_turn_on_bias_sigma.setVisible(False)
-            self.acc_noise_density.setVisible(False)
-            self.acc_random_walk.setVisible(False)
-            self.acc_bias_corr_time.setVisible(False)
-            self.acc_turn_on_bias_sigma.setVisible(False)
