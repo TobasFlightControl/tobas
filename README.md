@@ -11,7 +11,7 @@ $ sudo apt update
 $ sudo apt install -y ros-noetic-desktop-full python3-rosdep python3-rosinstall python3-catkin-tools python3-vcstool ros-noetic-ros-controllers ros-noetic-gazebo-ros-control
 $ sudo rosdep init
 $ rosdep update
-$ source /opt/ros/kinetic/setup.bash
+$ source /opt/ros/noetic/setup.bash
 ```
 
 2. Create catkin workspace
