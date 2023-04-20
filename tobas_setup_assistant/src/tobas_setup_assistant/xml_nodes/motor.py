@@ -30,7 +30,7 @@ class MotorModel(ET.Element):
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
-        plugin.attrib["filename"] = "libdh_gazebo_rotor_plugin.so"
+        plugin.attrib["filename"] = "libtobas_gazebo_rotor_plugin.so"
         plugin.attrib["name"] = f'{ns}_{motor_number}_rotor_plugin'
 
         ET.SubElement(plugin, "robotNamespace").text = ns

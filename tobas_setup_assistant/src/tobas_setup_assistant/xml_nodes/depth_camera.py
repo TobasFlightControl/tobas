@@ -78,7 +78,7 @@ def add_depth_camera_model(
     # robot/gazebo/sensor/plugin
     plugin = ET.SubElement(sensor, "plugin")
     plugin.attrib["name"] = f'{ns}_depth_camera'
-    plugin.attrib["filename"] = "libdh_gazebo_noisydepth_plugin.so"
+    plugin.attrib["filename"] = "libtobas_gazebo_noisydepth_plugin.so"
 
     ET.SubElement(plugin, "cameraName").text = "depth_camera"
 

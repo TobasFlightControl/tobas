@@ -42,8 +42,8 @@ class ImuModel(ET.Element):
 
         # robot/gazebo/sensor/plugin
         plugin = ET.SubElement(sensor, "plugin")
-        plugin.attrib["filename"] = "libdh_gazebo_imu_plugin.so"
-        plugin.attrib["name"] = "dh_gazebo_imu_plugin"
+        plugin.attrib["filename"] = "libtobas_gazebo_imu_plugin.so"
+        plugin.attrib["name"] = "tobas_gazebo_imu_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
