@@ -10,10 +10,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
-	multirotor_tools
+	tobas_tools
 	dh_ros_tools
 	dh_std_tools
-	multirotor_msgs
+	tobas_msgs
 	eigen_conversions
 	orocos_kdl
   roscpp

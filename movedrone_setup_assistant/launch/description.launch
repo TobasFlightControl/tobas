@@ -1,4 +1,0 @@
-<launch>
-    <arg name="description_file" default="$(env MOVEDRONE_SETUP_ASSISTANT_DESCRIPTION_PATH)"/>
-    <param name="/robot_description" command="$(find xacro)/xacro '$(arg description_file)'"/>
-</launch>

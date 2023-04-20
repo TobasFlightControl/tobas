@@ -1,0 +1,10 @@
+<launch>
+
+  <node pkg="tobas_real" name="imu_handler" type="imu_handler_node" output="screen" required="true"/>
+  <node pkg="tobas_real" name="barometer_handler" type="barometer_handler_node" output="screen" required="true"/>
+  <node pkg="tobas_real" name="gps_handler" type="gps_handler_node" output="screen" required="true"/>
+
+  <!-- <node pkg="tobas_real" name="motors_handler_pwm" type="motors_handler_pwm_node" output="screen" required="true"/> -->
+  <node pkg="tobas_real" name="motors_handler_dshot" type="motors_handler_dshot_node" output="screen" required="true"/>
+
+</launch>

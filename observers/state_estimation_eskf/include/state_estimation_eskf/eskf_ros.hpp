@@ -6,8 +6,8 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <multirotor_msgs/PoseVelStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
+#include <tobas_msgs/PoseVelStamped.h>
 
 #include "./eskf.hpp"
 
@@ -17,8 +17,8 @@ class ErrorStateKalmanFilterRos
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
-  using StateMsg = multirotor_msgs::PoseVelStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
+  using StateMsg = tobas_msgs::PoseVelStamped;
 
 public:
   ErrorStateKalmanFilterRos();

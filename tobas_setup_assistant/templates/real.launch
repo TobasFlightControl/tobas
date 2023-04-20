@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Load drone configurations from YAML file to parameter server -->
+  <rosparam file="$(find {{ pkg_name }})/config/drone_properties.yaml" command="load"/>
+
+  <!-- Load the URDF into the ROS parameter server -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.urdf'"/>
+
+  <!-- Bringup the nodes required for connections between hardware and software -->
+  <include file="$(find tobas_real)/launch/hardware_interfaces.launch"/>
+
+</launch>

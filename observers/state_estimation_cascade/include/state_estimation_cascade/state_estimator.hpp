@@ -10,8 +10,8 @@
 
 #include <dh_std_tools/buffer.hpp>
 
-#include <multirotor_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <multirotor_msgs/PoseVelStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
+#include <tobas_msgs/PoseVelStamped.h>
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
 #include "./cartesian_filter.hpp"
@@ -21,8 +21,8 @@ class StateEstimator
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = multirotor_msgs::LinearVelocityWithCovarianceStamped;
-  using StateMsg = multirotor_msgs::PoseVelStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
+  using StateMsg = tobas_msgs::PoseVelStamped;
 
   using ConfigType = state_estimation_cascade::StateEstimationCascadeConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;

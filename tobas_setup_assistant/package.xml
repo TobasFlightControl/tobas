@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>tobas_setup_assistant</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<depend>rospy</depend>
+	<depend>rviz</depend>
+	<depend>robot_state_plugin</depend>
+
+	<depend>dh_rqt_tools</depend>
+
+</package>
