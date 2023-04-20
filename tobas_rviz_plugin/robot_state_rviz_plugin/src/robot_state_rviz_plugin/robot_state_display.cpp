@@ -15,6 +15,11 @@
 
 #include "../../include/robot_state_rviz_plugin/robot_state_display.hpp"
 
+#define HIGHLIGHT_R 0
+#define HIGHLIGHT_G 255
+#define HIGHLIGHT_B 0
+#define HIGHLIGHT_A 0.7
+
 using namespace std;
 
 namespace moveit_rviz_plugin
@@ -38,10 +43,10 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
   root_link_name_property_->setReadOnly(true);
 
   robot_alpha_property_ = new rviz::FloatProperty(
-    "Robot Alpha", 1.0f, "Specifies the alpha for the robot links", this,
+    "Robot Alpha", 1., "Specifies the alpha for the robot links", this,
     SLOT(changedRobotSceneAlpha()), this);
-  robot_alpha_property_->setMin(0.0);
-  robot_alpha_property_->setMax(1.0);
+  robot_alpha_property_->setMin(0.);
+  robot_alpha_property_->setMax(1.);
 
   attached_body_color_property_ = new rviz::ColorProperty(
     "Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies", this,
@@ -124,16 +129,14 @@ void RobotStateDisplay::changedEnableLinkHighlight()
 {
   if (enable_link_highlight_->getBool())
   {
-    for (map<string, std_msgs::ColorRGBA>::iterator it = highlights_.begin();
-         it != highlights_.end(); ++it)
+    for (auto it = highlights_.begin(); it != highlights_.end(); ++it)
     {
       setHighlight(it->first, it->second);
     }
   }
   else
   {
-    for (map<string, std_msgs::ColorRGBA>::iterator it = highlights_.begin();
-         it != highlights_.end(); ++it)
+    for (auto it = highlights_.begin(); it != highlights_.end(); ++it)
     {
       unsetHighlight(it->first);
     }
@@ -159,12 +162,12 @@ void RobotStateDisplay::setRobotHighlights(
   const moveit_msgs::DisplayRobotState::_highlight_links_type& highlight_links)
 {
   if (highlight_links.empty() && highlights_.empty())
+  {
     return;
+  }
 
   map<string, std_msgs::ColorRGBA> highlights;
-  for (moveit_msgs::DisplayRobotState::_highlight_links_type::const_iterator it =
-         highlight_links.begin();
-       it != highlight_links.end(); ++it)
+  for (auto it = highlight_links.begin(); it != highlight_links.end(); ++it)
   {
     highlights[it->id] = it->color;
   }
@@ -217,10 +220,10 @@ void RobotStateDisplay::changedHighlightColor()
   if (robot_)
   {
     std_msgs::ColorRGBA color_msg;
-    color_msg.r = 255;
-    color_msg.g = 0;
-    color_msg.b = 0;
-    color_msg.a = 0.7;
+    color_msg.r = HIGHLIGHT_R;
+    color_msg.g = HIGHLIGHT_G;
+    color_msg.b = HIGHLIGHT_B;
+    color_msg.a = HIGHLIGHT_A;
     setHighlight(highlight_link_->getStdString(), color_msg);
     update_state_ = true;
   }
@@ -253,7 +256,9 @@ void RobotStateDisplay::changedAttachedBodyColor()
 void RobotStateDisplay::changedRobotDescription()
 {
   if (isEnabled())
+  {
     reset();
+  }
 }
 
 void RobotStateDisplay::changedRootLinkName()
@@ -282,7 +287,9 @@ void RobotStateDisplay::changedRobotStateTopic()
 
   // reset model to default state, we don't want to show previous messages
   if (static_cast<bool>(kstate_))
+  {
     kstate_->setToDefaultValues();
+  }
   update_state_ = true;
 
   robot_state_subscriber_ = root_nh_.subscribe(
@@ -294,11 +301,14 @@ void RobotStateDisplay::newRobotStateCallback(
   const moveit_msgs::DisplayRobotStateConstPtr& state_msg)
 {
   if (!kmodel_)
+  {
     return;
+  }
   if (!kstate_)
+  {
     kstate_.reset(new robot_state::RobotState(kmodel_));
-  // possibly use TF to construct a robot_state::Transforms object to pass in to the conversion
-  // functio?
+  }
+  // Use TF to construct a robot_state::Transforms object to pass in to the conversion function?
   robot_state::robotStateMsgToRobotState(state_msg->state, *kstate_);
   setRobotHighlights(state_msg->highlight_links);
   update_state_ = true;
@@ -323,7 +333,9 @@ void RobotStateDisplay::setLinkColor(
 
   // Check if link exists
   if (link)
+  {
     link->setColor(color.redF(), color.greenF(), color.blueF());
+  }
 }
 
 void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const string& link_name)
@@ -332,14 +344,18 @@ void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const string& link_na
 
   // Check if link exists
   if (link)
+  {
     link->unsetColor();
+  }
 }
 
 void RobotStateDisplay::loadRobotModel()
 {
   load_robot_model_ = false;
   if (!rdf_loader_)
+  {
     rdf_loader_.reset(new rdf_loader::RDFLoader(robot_description_property_->getStdString()));
+  }
 
   if (rdf_loader_->getURDF())
   {
@@ -360,7 +376,9 @@ void RobotStateDisplay::loadRobotModel()
     robot_->setVisible(true);
   }
   else
+  {
     setStatus(rviz::StatusProperty::Error, "RobotState", "No Planning Model Loaded");
+  }
 
   highlights_.clear();
 }
@@ -376,7 +394,9 @@ void RobotStateDisplay::onDisable()
 {
   robot_state_subscriber_.shutdown();
   if (robot_)
+  {
     robot_->setVisible(false);
+  }
   Display::onDisable();
 }
 
@@ -402,7 +422,9 @@ void RobotStateDisplay::update(float wall_dt, float ros_dt)
 void RobotStateDisplay::calculateOffsetPosition()
 {
   if (!getRobotModel())
+  {
     return;
+  }
 
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
