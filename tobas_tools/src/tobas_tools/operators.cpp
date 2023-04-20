@@ -47,8 +47,7 @@ Vector3 operator-(const Point& lhs, const Point& rhs)
   return res;
 }
 
-Vector3
-operator-(const tobas_msgs::LinearVelocity& lhs, const tobas_msgs::LinearVelocity& rhs)
+Vector3 operator-(const tobas_msgs::LinearVelocity& lhs, const tobas_msgs::LinearVelocity& rhs)
 {
   Vector3 res;
   res.x = lhs.vx - rhs.vx;

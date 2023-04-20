@@ -12,13 +12,9 @@ void Vector3ToLinearVelocity(const geometry_msgs::Vector3& vec, tobas_msgs::Line
 
 void LinearVelocityToVector3(const tobas_msgs::LinearVelocity& v, geometry_msgs::Vector3& vec);
 
-void Vector3ToAngularVelocity(
-  const geometry_msgs::Vector3& vec,
-  tobas_msgs::AngularVelocity& w);
+void Vector3ToAngularVelocity(const geometry_msgs::Vector3& vec, tobas_msgs::AngularVelocity& w);
 
-void AngularVelocityToVector3(
-  const tobas_msgs::AngularVelocity& w,
-  geometry_msgs::Vector3& vec);
+void AngularVelocityToVector3(const tobas_msgs::AngularVelocity& w, geometry_msgs::Vector3& vec);
 
 void LinearAccelToVector3(const tobas_msgs::LinearAccel& a, geometry_msgs::Vector3& vec);
 

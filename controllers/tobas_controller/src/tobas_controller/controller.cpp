@@ -43,8 +43,8 @@ Controller::Controller()
   rotor_speeds_.speeds.resize(num_rotors_);
 
   // PubSub
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(
-    "/" + drone_name + "/command/motor_speed", 1, false);
+  rotor_speeds_pub_ =
+    nh_.advertise<tobas_msgs::RotorSpeeds>("/" + drone_name + "/command/motor_speed", 1, false);
   feedback_pub_ =
     nh_.advertise<tobas_msgs::ControllerFeedback>("/tobas_controller/feedback", 1, false);
   bs_sub_ = nh_.subscribe("/" + drone_name + "/base_state", 1, &Controller::bsCb, this);
@@ -143,9 +143,7 @@ void Controller::updateDesiredState(double dt)
   }
 }
 
-void Controller::ctrlInputToRotorSpeeds(
-  const vector<double>& u,
-  tobas_msgs::RotorSpeeds& speeds)
+void Controller::ctrlInputToRotorSpeeds(const vector<double>& u, tobas_msgs::RotorSpeeds& speeds)
 {
   ROS_ASSERT(u.size() == num_rotors_);
 

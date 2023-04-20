@@ -41,7 +41,7 @@ private:
   const bool transformable_;  // プロペラ以外の可動関節を持つか否か
   const RotorConfigs rotor_configs_;
 
-  tobas_msgs::PoseVel bs_;     // ベースの推定状態
+  tobas_msgs::PoseVel bs_;          // ベースの推定状態
   KDL::JntArray q_;                 // 全ての非固定関節の角度
   geometry_msgs::Vector3 pos_des_;  // {world}で表された目標位置
   double yaw_des_;                  // {world}で表されたヨー角の目標値

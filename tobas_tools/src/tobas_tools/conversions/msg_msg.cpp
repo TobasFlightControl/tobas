@@ -16,18 +16,14 @@ void LinearVelocityToVector3(const tobas_msgs::LinearVelocity& v, geometry_msgs:
   vec.z = v.vz;
 }
 
-void Vector3ToAngularVelocity(
-  const geometry_msgs::Vector3& vec,
-  tobas_msgs::AngularVelocity& w)
+void Vector3ToAngularVelocity(const geometry_msgs::Vector3& vec, tobas_msgs::AngularVelocity& w)
 {
   w.wx = vec.x;
   w.wy = vec.y;
   w.wz = vec.z;
 }
 
-void AngularVelocityToVector3(
-  const tobas_msgs::AngularVelocity& w,
-  geometry_msgs::Vector3& vec)
+void AngularVelocityToVector3(const tobas_msgs::AngularVelocity& w, geometry_msgs::Vector3& vec)
 {
   vec.x = w.wx;
   vec.y = w.wy;
