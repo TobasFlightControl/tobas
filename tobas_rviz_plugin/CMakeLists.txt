@@ -38,14 +38,9 @@ set(CMAKE_AUTOMOC ON)
 add_definitions(-DQT_NO_KEYWORDS)
 
 catkin_package(
-  LIBRARIES
-  moveit_robot_state_rviz_plugin_core
-  moveit_planning_scene_rviz_plugin_core
-  INCLUDE_DIRS
-  robot_state_rviz_plugin/include
-  CATKIN_DEPENDS
-  moveit_ros_visualization
-  DEPENDS)
+  LIBRARIES tobas_robot_state_rviz_plugin_core
+  INCLUDE_DIRS robot_state_rviz_plugin/include
+)
 
 include_directories(
   robot_state_rviz_plugin/include
