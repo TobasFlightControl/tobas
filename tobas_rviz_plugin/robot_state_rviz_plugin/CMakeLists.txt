@@ -1,5 +1,11 @@
 set(TOBAS_LIB_NAME tobas_robot_state_rviz_plugin)
-add_library(${TOBAS_LIB_NAME}_core src/robot_state_rviz_plugin/robot_state_display.cpp)
+
+# ヘッダもライブラリに加える必要がある．加えないとハイライト系のスロットが無いと言われる．
+add_library(${TOBAS_LIB_NAME}_core
+  src/robot_state_rviz_plugin/robot_state_display.cpp
+  include/robot_state_rviz_plugin/robot_state_display.hpp
+)
+
 set_target_properties(${TOBAS_LIB_NAME}_core PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${TOBAS_LIB_NAME}_core
   ${catkin_LIBRARIES}
