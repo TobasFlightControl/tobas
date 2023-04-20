@@ -13,8 +13,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_definitions(-DBOOST_MATH_DISABLE_FLOAT128)
 
 find_package(catkin REQUIRED COMPONENTS
+  moveit_ros_visualization
   class_loader
-  moveit_ros_planning_interface
   pluginlib
   roscpp
   rviz
@@ -39,26 +39,21 @@ add_definitions(-DQT_NO_KEYWORDS)
 
 catkin_package(
   LIBRARIES
-  tobas_rviz_plugin_render_tools
   moveit_robot_state_rviz_plugin_core
   moveit_planning_scene_rviz_plugin_core
   INCLUDE_DIRS
-  rviz_plugin_render_tools/include
   robot_state_rviz_plugin/include
   CATKIN_DEPENDS
-  moveit_ros_planning_interface
+  moveit_ros_visualization
   DEPENDS)
 
 include_directories(
-  rviz_plugin_render_tools/include
   robot_state_rviz_plugin/include
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 include_directories(SYSTEM ${QT_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS})
 
-add_subdirectory(rviz_plugin_render_tools)
 add_subdirectory(robot_state_rviz_plugin)
 
 install(FILES robot_state_rviz_plugin_description.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(DIRECTORY icons DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

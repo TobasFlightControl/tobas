@@ -1,9 +1,7 @@
 #include <moveit/robot_state/conversions.h>
-
 #include <rviz/visualization_manager.h>
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
-
 #include <rviz/properties/property.h>
 #include <rviz/properties/string_property.h>
 #include <rviz/properties/bool_property.h>
@@ -12,7 +10,6 @@
 #include <rviz/properties/color_property.h>
 #include <rviz/display_context.h>
 #include <rviz/frame_manager.h>
-
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
@@ -35,8 +32,6 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
     "The topic on which the moveit_msgs::RobotState messages are received", this,
     SLOT(changedRobotStateTopic()), this);
 
-  // Planning scene category
-  // -------------------------------------------------------------------------------------------
   root_link_name_property_ = new rviz::StringProperty(
     "Robot Root Link", "", "Shows the name of the root link for the robot model", this,
     SLOT(changedRootLinkName()), this);
@@ -55,9 +50,11 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
   enable_link_highlight_ = new rviz::BoolProperty(
     "Show Highlights", true, "Specifies whether link highlighting is enabled", this,
     SLOT(changedEnableLinkHighlight()), this);
+
   enable_visual_visible_ = new rviz::BoolProperty(
     "Visual Enabled", true, "Whether to display the visual representation of the robot.", this,
     SLOT(changedEnableVisualVisible()), this);
+
   enable_collision_visible_ = new rviz::BoolProperty(
     "Collision Enabled", false, "Whether to display the collision representation of the robot.",
     this, SLOT(changedEnableCollisionVisible()), this);
