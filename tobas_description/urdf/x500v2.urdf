@@ -1,0 +1,141 @@
+<robot name="x500v2">
+
+  <link name="base_link"/>
+
+  <joint name="base_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="base_link_inertia"/>
+  </joint>
+  <link name="base_link_inertia">
+    <inertial>
+      <mass value="0.988937"/>
+      <origin xyz="-2.141e-3 1.82e-4 -0.012811" rpy="0 0 0"/>
+      <inertia ixx="0.02174" ixy="4.664512e-6" ixz="9.6172683e-5" iyy="0.0216" iyz="-6.86777e-7" izz="0.03197"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/frame.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/frame.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="base_link_inertia">
+    <material>Gazebo/Gray</material>
+  </gazebo>
+
+  <joint name="rotor_0_joint" type="continuous">
+    <origin xyz="0.176876 -0.176876 0.0558" rpy="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <parent link="base_link"/>
+    <child link="rotor_0"/>
+  </joint>
+  <link name="rotor_0">
+    <inertial>
+      <mass value="4.779e-3"/>
+      <origin xyz="0 0 6.173e-3" rpy="0 0 0"/>
+      <inertia ixx="4.10713e-07" ixy="2.345102e-6" ixz="0.0" iyy="2.1981e-5" iyz="0.0" izz="2.2326e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="rotor_0">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <joint name="rotor_1_joint" type="continuous">
+    <origin xyz="-0.176876 0.176876 0.0558" rpy="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <parent link="base_link"/>
+    <child link="rotor_1"/>
+  </joint>
+  <link name="rotor_1">
+    <inertial>
+      <mass value="4.779e-3"/>
+      <origin xyz="0 0 6.173e-3" rpy="0 0 0"/>
+      <inertia ixx="4.10713e-07" ixy="2.345102e-6" ixz="0.0" iyy="2.1981e-5" iyz="0.0" izz="2.2326e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="rotor_1">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <joint name="rotor_2_joint" type="continuous">
+    <origin xyz="0.176876 0.176876 0.0558" rpy="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <parent link="base_link"/>
+    <child link="rotor_2"/>
+  </joint>
+  <link name="rotor_2">
+    <inertial>
+      <mass value="4.779e-3"/>
+      <origin xyz="0 0 6.173e-3" rpy="0 0 0"/>
+      <inertia ixx="4.10713e-07" ixy="2.345102e-6" ixz="0.0" iyy="2.1981e-5" iyz="0.0" izz="2.2326e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="rotor_2">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <joint name="rotor_3_joint" type="continuous">
+    <origin xyz="-0.176876 -0.176876 0.0558" rpy="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <parent link="base_link"/>
+    <child link="rotor_3"/>
+  </joint>
+  <link name="rotor_3">
+    <inertial>
+      <mass value="4.779e-3"/>
+      <origin xyz="0 0 6.173e-3" rpy="0 0 0"/>
+      <inertia ixx="4.10713e-07" ixy="2.345102e-6" ixz="0.0" iyy="2.1981e-5" iyz="0.0" izz="2.2326e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/x500v2/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="rotor_3">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+</robot>
