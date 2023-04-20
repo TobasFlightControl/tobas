@@ -1,10 +1,4 @@
 - git: {
-  local-name: robot_state_plugin,
-  uri: https://github.com/chvmp/robot_state_plugin.git,
-  version: master,
-  }
-
-- git: {
   local-name: orocos_kinematics_dynamics,
   uri: git@github.com:Masa0u0/orocos_kinematics_dynamics.git,
   version: master,

@@ -42,7 +42,7 @@ class RvizWidget(QWidget):
         self.robot_model_display = manager.getRootDisplayGroup().getDisplayAt(2)
         self.robot_model_display.setBool(False)
 
-        # robot_model_displaのサブプロパティを取得
+        # robot_model_displayのサブプロパティを取得
         self.link_highlighter = self.robot_model_display.subProp("Highlight Link")
         self.link_unhighlighter = self.robot_model_display.subProp("Unhighlight Link")
 

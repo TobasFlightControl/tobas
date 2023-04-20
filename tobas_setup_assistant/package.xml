@@ -11,8 +11,8 @@
 
 	<depend>rospy</depend>
 	<depend>rviz</depend>
-	<depend>robot_state_plugin</depend>
 
 	<depend>dh_rqt_tools</depend>
+	<depend>tobas_rviz_plugin</depend>
 
 </package>
