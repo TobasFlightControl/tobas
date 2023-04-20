@@ -25,6 +25,10 @@ namespace moveit_rviz_plugin
 {
 class RobotStateVisualization;
 
+/**
+ * @brief https://github.com/ros-planning/moveit/blob/master/moveit_ros/visualization/robot_state_rviz_plugin/include/moveit/robot_state_rviz_plugin/robot_state_display.h
+ * Highlighting functions are added.
+ */
 class RobotStateDisplay : public rviz::Display
 {
   Q_OBJECT
@@ -44,16 +48,12 @@ public:
   void unsetLinkColor(const std::string& link_name);
 
 private Q_SLOTS:
-  // ******************************************************************************************
-  // Slot Event Functions
-  // ******************************************************************************************
   void changedRobotDescription();
   void changedRootLinkName();
   void changedRobotSceneAlpha();
   void changedAttachedBodyColor();
   void changedHighlightColor();
   void changedUnhighlightColor();
-
   void changedRobotStateTopic();
   void changedEnableLinkHighlight();
   void changedEnableVisualVisible();
