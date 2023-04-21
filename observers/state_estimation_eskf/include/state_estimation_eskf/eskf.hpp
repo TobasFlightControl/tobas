@@ -58,7 +58,7 @@ public:
     lTime time;
   };
 
-  ErrorStateKalmanFilter();
+  explicit ErrorStateKalmanFilter();
 
   void initialize(
     Eigen::Vector3d a_grav,

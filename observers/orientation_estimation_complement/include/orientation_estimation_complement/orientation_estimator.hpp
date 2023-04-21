@@ -10,7 +10,7 @@
 class OrientationEstimator
 {
 public:
-  OrientationEstimator();
+  explicit OrientationEstimator();
 
   bool setGravity(double gravity);
   bool setGainAcc(double gain);

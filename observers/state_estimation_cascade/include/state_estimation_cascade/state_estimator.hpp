@@ -28,7 +28,8 @@ class StateEstimator
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  StateEstimator();
+  explicit StateEstimator();
+  ~StateEstimator();
 
 private:
   ros::NodeHandle nh_;
@@ -39,7 +40,7 @@ private:
   const bool use_gps_pos_;
   const bool use_gps_vel_;
 
-  bool is_ready_;
+  bool is_initialized_;
   ros::Time t_last_;
   double lat_0_;                             // 緯度のゼロ点
   double lon_0_;                             // 経度のゼロ点
@@ -66,15 +67,13 @@ private:
   ros::Subscriber gps_pos_sub_;
   ros::Subscriber gps_vel_sub_;
 
-  // Dynamic Reconfigure
-  ConfigServer server_;
+  ConfigServer server_;            // Dynamic Reconfigure
+  ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
   void fillUnusedBuffers();
   void advertisePublishers();
   void registerSubscribers();
-  void setDynamicReconfigure();
-  bool allMsgReceived();
-  bool initDataCollected();
+  bool isReady();
   void initialize();
   void setZeroPositions();
   void updatePoseVelMsg();
@@ -85,4 +84,5 @@ private:
   void gpsVelocityCb(const VelMsg& vel);
 
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };

@@ -36,7 +36,7 @@ public:
   }
 
   int32_t sec, nsec;
-  lTime() : sec(0), nsec(0)
+  explicit lTime() : sec(0), nsec(0)
   {
     error = 0;
   }

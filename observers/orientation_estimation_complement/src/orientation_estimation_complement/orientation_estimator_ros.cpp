@@ -6,6 +6,7 @@
 #include "../../include/orientation_estimation_complement/orientation_estimator_ros.hpp"
 
 // Constants
+#define TIMER_PERIOD 5.
 #define QUEUE_SIZE 5
 
 // Default parameters
@@ -29,6 +30,10 @@ OrientationEstimatorRos::OrientationEstimatorRos()
 
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data", QUEUE_SIZE);
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
+
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
+  check_topics_timer_.start();
 }
 
 void OrientationEstimatorRos::getRosParams()
@@ -81,6 +86,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   // Initialize
   if (!is_initialized_)
   {
+    check_topics_timer_.stop();
     time_prev_ = time;
     is_initialized_ = true;
     return;
@@ -110,4 +116,9 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
 
   // Publish filtered IMU message
   imu_pub_.publish(filtered_imu);
+}
+
+void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
+{
+  dh_ros::rosWarn("IMU data is not received yet.");
 }

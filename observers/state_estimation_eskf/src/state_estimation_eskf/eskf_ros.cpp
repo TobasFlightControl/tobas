@@ -10,7 +10,7 @@
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
-#define WARN_PERIOD 3.
+#define TIMER_PERIOD 5.
 #define I_3 (Matrix3d::Identity())
 
 using namespace std;
@@ -41,41 +41,26 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   bar_sub_ = nh_.subscribe("/air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
   gps_sub_ = nh_.subscribe("/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
   vel_sub_ = nh_.subscribe("/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(TIMER_PERIOD), &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this);
+  check_topics_timer_.start();
 }
 
-bool ErrorStateKalmanFilterRos::allMsgReceived()
+ErrorStateKalmanFilterRos::~ErrorStateKalmanFilterRos()
+{
+  check_topics_timer_.stop();
+}
+
+bool ErrorStateKalmanFilterRos::isReady()
 {
   bool ok = true;
 
-  if (!imu_subscribed_)
-  {
-    dh_ros::rosWarnThrottle(WARN_PERIOD, "IMU data is not received yet.");
-    ok = false;
-  }
-
-  if (!mag_subscribed_)
-  {
-    dh_ros::rosWarnThrottle(WARN_PERIOD, "Magnetometer data is not received yet.");
-    ok = false;
-  }
-
-  if (!bar_subscribed_)
-  {
-    dh_ros::rosWarnThrottle(WARN_PERIOD, "Barometer data is not received yet.");
-    ok = false;
-  }
-
-  if (!gps_subscribed_)
-  {
-    dh_ros::rosWarnThrottle(WARN_PERIOD, "GPS position data is not received yet.");
-    ok = false;
-  }
-
-  if (!vel_subscribed_)
-  {
-    dh_ros::rosWarnThrottle(WARN_PERIOD, "GPS velocity data is not received yet.");
-    ok = false;
-  }
+  ok &= imu_subscribed_;
+  ok &= mag_subscribed_;
+  ok &= bar_subscribed_;
+  ok &= gps_subscribed_;
+  ok &= vel_subscribed_;
 
   return ok;
 }
@@ -102,11 +87,11 @@ void ErrorStateKalmanFilterRos::initialize()
   eskf_.initialize(
     Vector3d(0, 0, -gravity_),  // Acceleration due to gravity in global frame
     ErrorStateKalmanFilter::makeState(
-      Vector3d::Zero(),  // init pos
-      Vector3d::Zero(),  // init vel
-      q_m_,              // init quaternion
-      Vector3d::Zero(),  // init accel bias
-      Vector3d::Zero()   // init gyro bias
+      Vector3d::Zero(),         // init pos
+      Vector3d::Zero(),         // init vel
+      q_m_,                     // init quaternion
+      Vector3d::Zero(),         // init accel bias
+      Vector3d::Zero()          // init gyro bias
       ),
     ErrorStateKalmanFilter::makeP(
       sqr(1.) * I_3, sqr(0.1) * I_3, sqr(1.) * I_3, sqr(10 * 0.001 * 0.00124) * I_3,
@@ -140,11 +125,12 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 
   if (!is_ready_)
   {
-    if (allMsgReceived())
+    if (isReady())
     {
+      check_topics_timer_.stop();
       initialize();
       is_ready_ = true;
-      dh_ros::rosInfo("Starts to publish estimated state.");
+      dh_ros::rosInfo("State estimator is ready.");
     }
     return;
   }
@@ -265,4 +251,32 @@ lTime ErrorStateKalmanFilterRos::getNow()
 {
   ros::Time now = ros::Time::now();
   return lTime(now.sec, now.nsec);
+}
+
+void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
+{
+  if (!imu_subscribed_)
+  {
+    dh_ros::rosWarn("IMU data is not received yet.");
+  }
+
+  if (!mag_subscribed_)
+  {
+    dh_ros::rosWarn("Magnetometer data is not received yet.");
+  }
+
+  if (!bar_subscribed_)
+  {
+    dh_ros::rosWarn("Barometer data is not received yet.");
+  }
+
+  if (!gps_subscribed_)
+  {
+    dh_ros::rosWarn("GPS position data is not received yet.");
+  }
+
+  if (!vel_subscribed_)
+  {
+    dh_ros::rosWarn("GPS velocity data is not received yet.");
+  }
 }

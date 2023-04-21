@@ -21,7 +21,8 @@ class ErrorStateKalmanFilterRos
   using StateMsg = tobas_msgs::PoseVelStamped;
 
 public:
-  ErrorStateKalmanFilterRos();
+  explicit ErrorStateKalmanFilterRos();
+  ~ErrorStateKalmanFilterRos();
 
 private:
   ros::NodeHandle nh_;
@@ -66,7 +67,9 @@ private:
   ros::Subscriber gps_sub_;
   ros::Subscriber vel_sub_;
 
-  bool allMsgReceived();
+  ros::Timer check_topics_timer_;  // Check if messages are received or not.
+
+  bool isReady();
   void initialize();
   void setZeroPositions();
   void updatePoseVelMsg();
@@ -76,6 +79,8 @@ private:
   void barCb(const BarMsg& msg);
   void gpsCb(const GpsMsg& msg);
   void velCb(const VelMsg& msg);
+
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 
   static lTime getNow();
 };

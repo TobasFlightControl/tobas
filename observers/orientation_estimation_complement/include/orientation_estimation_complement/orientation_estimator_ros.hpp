@@ -19,7 +19,7 @@ class OrientationEstimatorRos
   using MagSubscriber = message_filters::Subscriber<MagMsg>;
 
 public:
-  OrientationEstimatorRos();
+  explicit OrientationEstimatorRos();
 
 private:
   ros::NodeHandle nh_;
@@ -47,7 +47,10 @@ private:
   MagSubscriber mag_sub_;
   Synchronizer sync_;
 
+  ros::Timer check_topics_timer_;  // Check if messages are received or not.
+
   void getRosParams();
   void initializeFilter();
   void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };
