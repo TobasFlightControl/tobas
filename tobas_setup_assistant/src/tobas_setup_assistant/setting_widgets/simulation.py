@@ -95,3 +95,9 @@ class SimulationWidget(BaseSettingWidget):
         self._rows.addWidget(self.ref_mag_down)
 
         add_expanding_widget(self._rows)
+
+    def define_connections(self) -> None:
+        super().define_connections()
+
+    def is_valid(self) -> bool:
+        return True

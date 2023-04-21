@@ -95,6 +95,9 @@ class LidarWidget(BaseSettingWidget):
         self.no_sensor.toggled.connect(self._update_visibility)
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
+    def is_valid(self) -> bool:
+        return True
+
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():

@@ -36,6 +36,9 @@ class StartWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         self.robot_model_loader.define_connections()
 
+    def is_valid(self) -> bool:
+        return True
+
 
 class RobotModelLoaderWidget(QWidget):
 

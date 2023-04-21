@@ -7,12 +7,16 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.messages import q_error_named
+
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..utils import add_expanding_widget
+from ..utils import add_expanding_widget, is_valid_email
 
 
 class AuthorInformationWidget(BaseSettingWidget):
+
+    NAME = "Author Information"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = 'Specify Author Information'
@@ -26,3 +30,19 @@ class AuthorInformationWidget(BaseSettingWidget):
         self._rows.addWidget(self.email)
 
         add_expanding_widget(self._rows)
+
+    def define_connections(self) -> None:
+        super().define_connections()
+
+    def is_valid(self) -> bool:
+        author_name = self.name.get()
+        if author_name == "":
+            q_error_named(self._main, self.NAME, "Author name is blank.")
+            return False
+
+        author_email = self.email.get()
+        if not is_valid_email(author_email):
+            q_error_named(self._main, self.NAME, "Invalid email address.")
+            return False
+
+        return True

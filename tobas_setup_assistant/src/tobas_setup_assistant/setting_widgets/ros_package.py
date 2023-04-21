@@ -3,10 +3,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import os.path as osp
 import re
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -15,6 +18,8 @@ from ..utils import get_drone_name, add_expanding_widget, add_center_button
 
 
 class RosPackageWidget(BaseSettingWidget):
+
+    NAME = "ROS Package"
 
     TEXT_HEIGHT = 50
     BUTTON_HEIGHT = 40
@@ -53,6 +58,24 @@ class RosPackageWidget(BaseSettingWidget):
         super().define_connections()
         self.pkg_path.define_connections()
         self.pkg_path.path_changed.connect(self._on_path_changed)
+
+    def is_valid(self) -> bool:
+        pardir = self.pkg_path.pardir
+        if not osp.isdir(pardir):
+            q_error_named(self._main, self.NAME, f'{pardir} does not exist.')
+            return False
+
+        pkg_name = self.pkg_path.pkg_name
+        if pkg_name.count("/") > 0 or pkg_name.count(" "):
+            q_error_named(self._main, self.NAME, f'Invalid package name: {pkg_name}')
+            return False
+
+        pkg_path = self.pkg_path.text()
+        if osp.exists(pkg_path):
+            q_error_named(self._main, self.NAME, f'{pkg_path} already exists.')
+            return False
+
+        return True
 
     @pyqtSlot(str, str)
     def _on_path_changed(self, pardir: str, pkg_name: str) -> None:
