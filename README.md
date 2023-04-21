@@ -68,3 +68,17 @@ For controller API, please see [controllers](https://github.com/Masa0u0/tobas/tr
 $ roslaunch tobas_keyboard_teleop keyboard_teleop.launch  # By keyboard
 $ roslaunch tobas_gui_teleop gui_teleop.launch            # By GUI application
 ```
+
+## Trouble Shooting
+
+### Robot meshes not visible [WSL]
+
+With WSL there are still some issues with using GPU, and in particular OpenGL, and this creates problems for visualizing meshes in rviz. A temporary fix would be to export:
+
+```bash
+$ export LIBGL_ALWAYS_SOFTWARE=1
+$ export LIBGL_ALWAYS_INDIRECT=0
+```
+
+and if you are using an Xserver, leave "Native opengl" option unchecked. This however will force the system to work on CPU, but that's what we have for now. \
+cf. [Robot meshes not visible in rviz [Windows11, WSL2]](https://answers.ros.org/question/394135/robot-meshes-not-visible-in-rviz-windows11-wsl2/)
