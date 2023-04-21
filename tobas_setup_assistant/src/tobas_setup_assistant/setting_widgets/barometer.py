@@ -15,6 +15,8 @@ from ..utils import add_expanding_widget
 
 class BarometerWidget(BaseSettingWidget):
 
+    NAME = "Barometer"
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = 'Define Air Pressure Sensor'
         abst_text = 'TODO: abstruct'
@@ -50,6 +52,9 @@ class BarometerWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
+
+    def is_valid(self) -> bool:
+        return True
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:

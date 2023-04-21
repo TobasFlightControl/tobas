@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import ComboBox, TabWidget
+from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -20,6 +21,7 @@ from ..utils import add_expanding_widget, add_center_button
 
 class RotaryWingsWidget(BaseSettingWidget):
 
+    NAME = "Rotary Wings"
     LABEL_PSIZE = 12
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -44,6 +46,41 @@ class RotaryWingsWidget(BaseSettingWidget):
         super().define_connections()
         self.available.define_connections()
         self.selected.define_connections()
+
+    def is_valid(self) -> bool:
+        num_rotors = self.selected.count()
+        if num_rotors < 2:
+            q_error_named(self._main, self.NAME, "At least 2 rotary wings are required.")
+            return False
+
+        for i in range(num_rotors):
+            selected: SelectedLinkTabWidget = self.selected.widget(i)
+
+            esc = selected.esc
+            if esc.esc_type.currentText() == esc.NO_SELECT:
+                q_error_named(self._main, self.NAME, "Please select ESC type.")
+                return False
+
+            motor = selected.motor
+            if motor.setting_method.currentText() == motor.NO_SELECT:
+                q_error_named(self._main, self.NAME, "Please select motor setting method.")
+                return False
+
+            aerodynamics = selected.aerodynamics
+            if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
+                q_error_named(self._main, self.NAME, "Please select aerodynamics setting method.")
+                return False
+            elif aerodynamics.setting_method.currentText() == aerodynamics.THRUST_STAND:
+                if aerodynamics.thrust_stand.data.count() == 0:
+                    q_error_named(self._main, self.NAME, "Thrust stand data is blank.")
+                    return False
+
+        directions = set(self.selected.widget(i).motor.direction() for i in range(num_rotors))
+        if len(directions) == 1:
+            q_error_named(self._main, self.NAME, "Rotating direction of all rotors are same.")
+            return False
+
+        return True
 
 
 class AvailableLinksWidget(QListWidget):
@@ -893,24 +930,24 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._rows.addWidget(self._blade_chord)
 
         data_description = "TODO: instruction"
-        self._data = ParamGetterWidget_DoubleTable(
+        self.data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
             ["Rotation Speed", "Thrust", "Torque"],
             description_text=data_description,
         )
-        self._data.set_minimum([1e-1, 1e-6, 1e-6])
-        self._data.set_decimals([1, 6, 6])
-        self._data.set_suffix([" rpm", " N", " Nm"])
-        self._data.set_fixed_height(self.TABLE_HEIGHT)
-        self._data.set_column_width(self.TABLE_COL_WIDTH)
-        self._rows.addWidget(self._data)
+        self.data.set_minimum([1e-1, 1e-6, 1e-6])
+        self.data.set_decimals([1, 6, 6])
+        self.data.set_suffix([" rpm", " N", " Nm"])
+        self.data.set_fixed_height(self.TABLE_HEIGHT)
+        self.data.set_column_width(self.TABLE_COL_WIDTH)
+        self._rows.addWidget(self.data)
 
-        self._data.data_changed.connect(self._on_data_changed)
+        self.data.data_changed.connect(self._on_data_changed)
 
     def motor_const(self) -> float:
         # Motor Constが更新されていなければ更新
         if not self._motor_const_updated:
-            data = self._data.get()
+            data = self.data.get()
             num_samples = data.shape[0]
             assert num_samples > 0
 
@@ -927,7 +964,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def moment_const(self) -> float:
         # Moment Constが更新されていなければ更新
         if not self._moment_const_updated:
-            data = self._data.get()
+            data = self.data.get()
             num_samples = data.shape[0]
             assert num_samples > 0
 
@@ -948,7 +985,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         self._num_blade.set(src._num_blade.get())
         self._blade_chord.set(src._blade_chord.get())
-        self._data.set(src._data.get())
+        self.data.set(src.data.get())
 
     def _N(self) -> int:
         """ Number of blades """

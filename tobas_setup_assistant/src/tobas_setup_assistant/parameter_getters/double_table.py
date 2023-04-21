@@ -76,7 +76,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         NDArray[np.float64]
             shape = (num_data, num_entry)
         """
-        rows = self._table.rowCount()
+        rows = self.count()
         res = np.empty((rows, self._num_entry))
 
         for row in range(rows):
@@ -147,9 +147,13 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         for col in range(self._num_entry):
             self._table.setColumnWidth(col, width)
 
+    def count(self) -> int:
+        """ Returns the number of samples. """
+        return self._table.rowCount()
+
     @pyqtSlot()
     def _add_row(self) -> None:
-        rows = self._table.rowCount()
+        rows = self.count()
         self._table.insertRow(rows)
 
         for col in range(self._num_entry):
@@ -171,7 +175,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
     @pyqtSlot()
     def _clear(self) -> None:
-        rows = self._table.rowCount()
+        rows = self.count()
         for _ in range(rows):
             self._table.removeRow(0)
 

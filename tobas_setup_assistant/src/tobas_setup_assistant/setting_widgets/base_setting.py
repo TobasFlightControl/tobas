@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from typing import final
+from abc import abstractmethod
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -39,6 +39,12 @@ class BaseSettingWidget(QScrollArea):
         abst.setAlignment(Qt.AlignTop)
         self._rows.addWidget(abst)
 
+    @abstractmethod
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(lambda: self.setEnabled(True))
         self._main.pkg_generator.generated.connect(lambda: self.setEnabled(False))
+
+    @abstractmethod
+    def is_valid(self) -> bool:
+        """ Returns true if user configuration is valid. """
+        raise NotImplementedError

@@ -16,7 +16,7 @@ from PyQt5.QtGui import *
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
 from dh_rqt_tools.path import get_proj_path
-from dh_rqt_tools.messages import q_info, q_error
+from dh_rqt_tools.messages import q_info
 
 from .utils import *
 from .xml_nodes import *
@@ -59,79 +59,33 @@ class PackageGenerator(QWidget):
         self.generated.emit()
 
     def _is_valid_config(self) -> bool:
-        rotary_wings = self._main.settings.rotary_wings.selected
-        battery = self._main.settings.battery
-        controller = self._main.settings.controller
-        author_info = self._main.settings.author_information
-        ros_pkg = self._main.settings.ros_package
-
-        # Battery
-        C_cont = battery.C_cont.get()
-        C_pulse = battery.C_pulse.get()
-        if C_cont > C_pulse:
-            q_error(
-                self._main,
-                "[Battery] Continuous discharge current rate cannot be "
-                "greater than pulse discharge current rate."
-            )
+        if not self._main.settings.start.is_valid():
             return False
-
-        # Rotary Wings
-        num_rotors = rotary_wings.count()
-        if num_rotors < 2:
-            q_error(self._main, "[Rotary Wings] At least 2 rotary wings are required.")
+        if not self._main.settings.battery.is_valid():
             return False
-
-        for i in range(num_rotors):
-            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
-            esc = selected.esc
-            if esc.esc_type.currentText() == esc.NO_SELECT:
-                q_error(self._main, "[Rotary Wings] Please select ESC type.")
-                return False
-            motor = selected.motor
-            if motor.setting_method.currentText() == motor.NO_SELECT:
-                q_error(self._main, "[Rotary Wings] Please select motor setting method.")
-                return False
-            aerodynamics = selected.aerodynamics
-            if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
-                q_error(self._main, "[Rotary Wings] Please select aerodynamics setting method.")
-                return False
-
-        directions = set(rotary_wings.widget(i).motor.direction() for i in range(num_rotors))
-        if len(directions) == 1:
-            q_error(self._main, "[Rotary Wings] Rotating direction of all rotors are same.")
+        if not self._main.settings.rotary_wings.is_valid():
             return False
-
-        # Controller
-        if controller.get_type() == controller.NO_SELECT:
-            q_error(self._main, "[Controllers] Please select controller type.")
+        if not self._main.settings.imu.is_valid():
             return False
-
-        # Author Info
-        author_name = author_info.name.get()
-        if author_name == "":
-            q_error(self._main, "[Author Info] Author name is blank.")
+        if not self._main.settings.magnetometer.is_valid():
             return False
-
-        author_email = author_info.email.get()
-        if not is_valid_email(author_email):
-            q_error(self._main, "[Author Info] Invalid email address.")
+        if not self._main.settings.barometer.is_valid():
             return False
-
-        # ROS Package
-        pardir = ros_pkg.pkg_path.pardir
-        if not osp.isdir(pardir):
-            q_error(self._main, f'[ROS Package] {pardir} does not exist.')
+        if not self._main.settings.gps.is_valid():
             return False
-
-        pkg_name = ros_pkg.pkg_path.pkg_name
-        if pkg_name.count("/") > 0 or pkg_name.count(" "):
-            q_error(self._main, f'[ROS Package] Invalid package name.')
+        if not self._main.settings.rgb_camera.is_valid():
             return False
-
-        pkg_path = ros_pkg.pkg_path.text()
-        if osp.exists(pkg_path):
-            q_error(self._main, f'[ROS Package] {pkg_path} already exists.')
+        if not self._main.settings.depth_camera.is_valid():
+            return False
+        if not self._main.settings.lidar.is_valid():
+            return False
+        if not self._main.settings.controller.is_valid():
+            return False
+        if not self._main.settings.simulation.is_valid():
+            return False
+        if not self._main.settings.author_information.is_valid():
+            return False
+        if not self._main.settings.ros_package.is_valid():
             return False
 
         return True

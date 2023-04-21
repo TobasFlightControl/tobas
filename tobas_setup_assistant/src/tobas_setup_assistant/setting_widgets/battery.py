@@ -7,12 +7,16 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.messages import q_error_named
+
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..utils import add_expanding_widget
 
 
 class BatteryWidget(BaseSettingWidget):
+
+    NAME = "Battery"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = 'Define Battery'
@@ -61,3 +65,20 @@ class BatteryWidget(BaseSettingWidget):
         self._rows.addWidget(self.C_pulse)
 
         add_expanding_widget(self._rows)
+
+    def define_connections(self) -> None:
+        super().define_connections()
+
+    def is_valid(self) -> bool:
+        C_cont = self.C_cont.get()
+        C_pulse = self.C_pulse.get()
+        if C_cont > C_pulse:
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Continuous discharge current rate cannot be "
+                "greater than pulse discharge current rate."
+            )
+            return False
+
+        return True

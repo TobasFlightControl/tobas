@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import ComboBox
+from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -17,6 +18,8 @@ from ..utils import add_expanding_widget
 
 
 class ControllerWidget(BaseSettingWidget):
+
+    NAME = "Controller"
 
     NO_SELECT = "Select Controller type"
     LMPC = "Linear Model Predictive Control"
@@ -49,6 +52,13 @@ class ControllerWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self.controller_type.currentTextChanged.connect(self._on_type_changed)
+
+    def is_valid(self) -> bool:
+        if self.get_type() == self.NO_SELECT:
+            q_error_named(self._main, self.NAME, "Please select controller type.")
+            return False
+
+        return True
 
     def get_type(self) -> str:
         return self.controller_type.currentText()

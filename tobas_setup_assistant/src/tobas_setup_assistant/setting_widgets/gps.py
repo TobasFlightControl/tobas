@@ -84,6 +84,9 @@ class GpsWidget(BaseSettingWidget):
         super().define_connections()
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
+    def is_valid(self) -> bool:
+        return True
+
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
         body_choices = self._main.urdf_parser.get_fixed_link_names()
