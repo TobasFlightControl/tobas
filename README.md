@@ -32,7 +32,20 @@ $ rosdep install --from-paths . --ignore-src -ry
 $ pip install -r tobas/requirements.txt
 ```
 
-4. Build catkin workspace
+4. Install QuadProgpp
+
+```bash
+$ cd ~
+$ git clone https://github.com/liuq/QuadProgpp.git
+$ cd QuadProgpp
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ make
+$ sudo make install
+```
+
+5. Build catkin workspace
 
 ```bash
 $ catkin build
