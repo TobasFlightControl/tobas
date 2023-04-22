@@ -66,7 +66,7 @@ void CommandHandler::run()
   char c = 0;
   ros::Rate rate(update_rate_);
 
-  // spin & sleepの後にタイマーを起動することで，タイマーが複数回呼ばれることを防ぐ
+  // spin & sleepの後にタイマーを起動することで，同時刻に複数回呼ばれることを防ぐ
   ros::spinOnce();
   ros::Duration(0.1).sleep();
   instruction_timer_.start();
