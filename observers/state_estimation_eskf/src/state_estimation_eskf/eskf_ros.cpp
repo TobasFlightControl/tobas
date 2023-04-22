@@ -44,7 +44,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 
   check_topics_timer_ = nh_.createTimer(
     ros::Duration(TIMER_PERIOD), &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this);
-  check_topics_timer_.start();
 }
 
 ErrorStateKalmanFilterRos::~ErrorStateKalmanFilterRos()

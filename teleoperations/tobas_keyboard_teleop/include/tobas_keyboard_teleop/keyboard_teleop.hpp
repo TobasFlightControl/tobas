@@ -16,6 +16,7 @@ class CommandHandler
 
 public:
   explicit CommandHandler();
+  ~CommandHandler();
 
   void run();
 
@@ -32,6 +33,7 @@ private:
   dh_std::Range<double> yaw_limit_;
 
   // other
+  std::string instruction_;
   termios tempcopy_, changed_;
   double update_rate_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
@@ -39,7 +41,9 @@ private:
   CmdMsg cmd_;
 
   ros::Publisher cmd_pub_;
+  ros::Timer instruction_timer_;
 
   void getParams();
   void prepare(int fd);
+  void instructionTimerCb(const ros::TimerEvent&);
 };

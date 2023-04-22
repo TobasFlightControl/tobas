@@ -33,7 +33,6 @@ OrientationEstimatorRos::OrientationEstimatorRos()
 
   check_topics_timer_ = nh_.createTimer(
     ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
-  check_topics_timer_.start();
 }
 
 void OrientationEstimatorRos::getRosParams()

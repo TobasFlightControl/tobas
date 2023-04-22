@@ -62,7 +62,6 @@ Controller::Controller()
   // Start timer
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(TIMER_PERIOD), &Controller::checkTopicsTimerCb, this);
-  check_topics_timer_.start();
 }
 Controller::~Controller()
 {

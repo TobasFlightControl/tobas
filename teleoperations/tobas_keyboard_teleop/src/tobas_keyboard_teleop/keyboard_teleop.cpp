@@ -17,11 +17,19 @@
 
 #define OVER_SAMPLING 10.
 #define INFO_PERIOD 1.
+#define INSTRUCTION_PERIOD 10.
 
 using namespace std;
 
 CommandHandler::CommandHandler()
 {
+  instruction_ = "Control your drone!\n"
+                 "---------------------------\n"
+                 "W/S       : increase/decrease linear velocity along x-axis in WCSs\n"
+                 "A/D       : increase/decrease linear velocity along y-axis in WCSs\n"
+                 "Left/Right: increase/decrease angular velocity along z-axis in WCSs\n"
+                 "Ctrl-C    : quit\n";
+
   getParams();
 
   update_rate_ = key_repeat_freq_ * OVER_SAMPLING;  // 全ての入力を拾うためにオーバーサンプリング
@@ -34,9 +42,18 @@ CommandHandler::CommandHandler()
   // z座標の初期値を制限の下限に設定
   cmd_.target_position.z = z_limit_.lower;
 
+  prepare(0);
+
   cmd_pub_ = nh_.advertise<CmdMsg>("/tobas_controller/command", 1, false);
 
-  prepare(0);
+  instruction_timer_ = nh_.createTimer(
+    ros::Duration(INSTRUCTION_PERIOD), &CommandHandler::instructionTimerCb, this, false, false);
+}
+
+CommandHandler::~CommandHandler()
+{
+  tcsetattr(0, TCSANOW, &tempcopy_);
+  instruction_timer_.stop();
 }
 
 void CommandHandler::run()
@@ -48,6 +65,12 @@ void CommandHandler::run()
 
   char c = 0;
   ros::Rate rate(update_rate_);
+
+  // spin & sleepの後にタイマーを起動することで，タイマーが複数回呼ばれることを防ぐ
+  ros::spinOnce();
+  ros::Duration(0.1).sleep();
+  instruction_timer_.start();
+  dh_ros::rosInfo(instruction_);
 
   while (ros::ok())
   {
@@ -123,10 +146,9 @@ void CommandHandler::run()
 
     cmd_pub_.publish(cmd_);
 
+    ros::spinOnce();
     rate.sleep();
   }
-
-  tcsetattr(0, TCSANOW, &tempcopy_);
 }
 
 void CommandHandler::getParams()
@@ -167,4 +189,9 @@ void CommandHandler::prepare(int fd)
   changed_.c_cc[VTIME] = 10. / update_rate_;
 
   tcsetattr(fd, TCSANOW, &changed_);
+}
+
+void CommandHandler::instructionTimerCb(const ros::TimerEvent&)
+{
+  dh_ros::rosInfo(instruction_);
 }

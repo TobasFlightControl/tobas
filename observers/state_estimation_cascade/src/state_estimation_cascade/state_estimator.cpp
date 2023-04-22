@@ -44,7 +44,6 @@ StateEstimator::StateEstimator()
 
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(TIMER_PERIOD), &StateEstimator::checkTopicsTimerCb, this);
-  check_topics_timer_.start();
 }
 
 StateEstimator::~StateEstimator()
