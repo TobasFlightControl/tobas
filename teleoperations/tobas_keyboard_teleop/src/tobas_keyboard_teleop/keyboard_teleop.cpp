@@ -70,6 +70,7 @@ void CommandHandler::run()
   ros::spinOnce();
   ros::Duration(0.1).sleep();
   instruction_timer_.start();
+
   dh_ros::rosInfo(instruction_);
 
   while (ros::ok())
