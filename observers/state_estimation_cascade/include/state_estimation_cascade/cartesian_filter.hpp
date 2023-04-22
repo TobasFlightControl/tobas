@@ -19,7 +19,7 @@ class CartesianFilter
   using Scalar = Eigen::Matrix<double, 1, 1>;
 
 public:
-  CartesianFilter();
+  explicit CartesianFilter();
 
   void initialize(
     const Eigen::Vector3d& init_pos,

@@ -11,7 +11,7 @@
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
-#define INFO_PERIOD 3.
+#define TIMER_PERIOD 5.
 #define IMU_BUF_SIZE 1
 #define BAR_BUF_SIZE 500  // 100Hz x 5sec
 #define GPS_BUF_SIZE 25   // 5Hz x 5sec
@@ -26,7 +26,7 @@ StateEstimator::StateEstimator()
     use_bar_(dh_ros::getParam("~use_barometer", true)),
     use_gps_pos_(dh_ros::getParam("~use_gps_position", true)),
     use_gps_vel_(dh_ros::getParam("~use_gps_velocity", true)),
-    is_ready_(false),
+    is_initialized_(false),
     filtered_imu_buf_(IMU_BUF_SIZE),
     bar_buf_(BAR_BUF_SIZE),
     gps_pos_buf_(GPS_BUF_SIZE),
@@ -38,7 +38,17 @@ StateEstimator::StateEstimator()
   fillUnusedBuffers();
   advertisePublishers();
   registerSubscribers();
-  setDynamicReconfigure();
+
+  ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
+
+  check_topics_timer_ =
+    nh_.createTimer(ros::Duration(TIMER_PERIOD), &StateEstimator::checkTopicsTimerCb, this);
+}
+
+StateEstimator::~StateEstimator()
+{
+  check_topics_timer_.stop();
 }
 
 void StateEstimator::fillUnusedBuffers()
@@ -120,68 +130,27 @@ void StateEstimator::registerSubscribers()
   }
 }
 
-void StateEstimator::setDynamicReconfigure()
-{
-  ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-}
-
-bool StateEstimator::allMsgReceived()
-{
-  bool ok = true;
-
-  if (filtered_imu_buf_.size() == 0)
-  {
-    dh_ros::rosWarnThrottle(INFO_PERIOD, "Filtered IMU data is not received yet.");
-    ok = false;
-  }
-
-  if (use_bar_ && bar_buf_.size() == 0)
-  {
-    dh_ros::rosWarnThrottle(INFO_PERIOD, "Barometer data is not received yet.");
-    ok = false;
-  }
-
-  if (use_gps_pos_ && gps_pos_buf_.size() == 0)
-  {
-    dh_ros::rosWarnThrottle(INFO_PERIOD, "GPS position data is not received yet.");
-    ok = false;
-  }
-
-  if (use_gps_vel_ && gps_vel_buf_.size() == 0)
-  {
-    dh_ros::rosWarnThrottle(INFO_PERIOD, "GPS velocity data is not received yet.");
-    ok = false;
-  }
-
-  return ok;
-}
-
-bool StateEstimator::initDataCollected()
+bool StateEstimator::isReady()
 {
   bool ok = true;
 
   if (!filtered_imu_buf_.isFull())
   {
-    dh_ros::rosInfoOnce("Waiting for Filtered IMU data to be collected.");
     ok = false;
   }
 
   if (use_bar_ && !bar_buf_.isFull())
   {
-    dh_ros::rosInfoOnce("Waiting for Barometer data to be collected.");
     ok = false;
   }
 
   if (use_gps_pos_ && !gps_pos_buf_.isFull())
   {
-    dh_ros::rosInfoOnce("Waiting for GPS position data to be collected.");
     ok = false;
   }
 
   if (use_gps_vel_ && !gps_vel_buf_.isFull())
   {
-    dh_ros::rosInfoOnce("Waiting for GPS velocity data to be collected.");
     ok = false;
   }
 
@@ -280,13 +249,14 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
 {
   filtered_imu_buf_.add(imu);
 
-  if (!is_ready_)
+  if (!is_initialized_)
   {
-    if (allMsgReceived() && initDataCollected())
+    if (isReady())
     {
+      check_topics_timer_.stop();
       initialize();
-      is_ready_ = true;
-      dh_ros::rosInfo("Starts to publish estimated state.");
+      is_initialized_ = true;
+      dh_ros::rosInfo("State estimator is ready.");
     }
     return;
   }
@@ -294,7 +264,6 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
   // TODO: delayを考慮する
   ros::Time now = ros::Time::now();
   double dt = (now - t_last_).toSec();
-  // cout << dt << endl;
   ROS_ASSERT(dt >= 0.);
   t_last_ = now;
 
@@ -319,7 +288,7 @@ void StateEstimator::barometerCb(const BarMsg& bar)
 {
   bar_buf_.add(bar);
 
-  if (!is_ready_)
+  if (!is_initialized_)
   {
     return;
   }
@@ -335,7 +304,7 @@ void StateEstimator::gpsPositionCb(const GpsMsg& gps)
 {
   gps_pos_buf_.add(gps);
 
-  if (!is_ready_)
+  if (!is_initialized_)
   {
     return;
   }
@@ -355,7 +324,7 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 {
   gps_vel_buf_.add(vel);
 
-  if (!is_ready_)
+  if (!is_initialized_)
   {
     return;
   }
@@ -371,4 +340,56 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
   cart_filter_.reconfigure(cfg.gravity_variance_exp);
+}
+
+void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
+{
+  // IMU
+  if (filtered_imu_buf_.isEmpty())
+  {
+    dh_ros::rosWarn("Filtered IMU data is not received yet.");
+  }
+  else if (!filtered_imu_buf_.isFull())
+  {
+    dh_ros::rosInfoOnce("Waiting for Filtered IMU data to be collected.");
+  }
+
+  // Barometer
+  if (use_bar_)
+  {
+    if (bar_buf_.isEmpty())
+    {
+      dh_ros::rosWarn("Barometer data is not received yet.");
+    }
+    else if (!bar_buf_.isFull())
+    {
+      dh_ros::rosInfoOnce("Waiting for Barometer data to be collected.");
+    }
+  }
+
+  // GPS position
+  if (use_gps_pos_)
+  {
+    if (gps_pos_buf_.isEmpty())
+    {
+      dh_ros::rosWarn("GPS position data is not received yet.");
+    }
+    else if (!gps_pos_buf_.isFull())
+    {
+      dh_ros::rosInfoOnce("Waiting for GPS position data to be collected.");
+    }
+  }
+
+  // GPS velocity
+  if (use_gps_vel_)
+  {
+    if (gps_vel_buf_.isEmpty())
+    {
+      dh_ros::rosWarn("GPS velocity data is not received yet.");
+    }
+    else if (!gps_vel_buf_.isFull())
+    {
+      dh_ros::rosInfoOnce("Waiting for GPS velocity data to be collected.");
+    }
+  }
 }

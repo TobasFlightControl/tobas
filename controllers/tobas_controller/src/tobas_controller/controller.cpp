@@ -9,6 +9,7 @@
 #include "../../include/tobas_controller/controller.hpp"
 
 #define INFO_PERIOD 1.
+#define TIMER_PERIOD 5.
 #define INIT_ELEVATION 1.
 
 using namespace std;
@@ -20,7 +21,7 @@ Controller::Controller()
     required_joints_(dh_ros::getParam<vector<string>>("/required_joint_names")),
     transformable_(required_joints_.size() > 0),
     rotor_configs_(getRotorConfigs()),
-    is_first_run_(true),
+    is_initialized_(false),
     bs_received_(false),
     js_received_(false),
     cmd_received_(false),
@@ -57,18 +58,35 @@ Controller::Controller()
   // Dynamic Reconfigure
   ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
+
+  // Start timer
+  check_topics_timer_ =
+    nh_.createTimer(ros::Duration(TIMER_PERIOD), &Controller::checkTopicsTimerCb, this);
+}
+Controller::~Controller()
+{
+  check_topics_timer_.stop();
 }
 
-void Controller::runOnce()
+bool Controller::isReady()
 {
-  // 初回動作時は時刻を更新するのみ
-  if (is_first_run_)
+  bool is_ready = true;
+
+  if (transformable_ && !js_received_)
   {
-    t_last_ = ros::Time::now();
-    is_first_run_ = false;
-    return;
+    is_ready = false;
   }
 
+  return is_ready;
+}
+
+void Controller::initialize()
+{
+  t_last_ = ros::Time::now();
+}
+
+void Controller::runOnce(const tobas_msgs::PoseVel& bs)
+{
   // 時刻を更新
   ros::Time now = ros::Time::now();
   double dt = (now - t_last_).toSec();
@@ -77,7 +95,7 @@ void Controller::runOnce()
   // 目標状態を更新
   if (cmd_received_)
   {
-    updateDesiredState(dt);
+    updateDesiredState(bs, dt);
   }
 
   auto& pos_des = feedback_.desired_position;
@@ -94,9 +112,9 @@ void Controller::runOnce()
   geometry_msgs::Vector3 vel_des;
 
   // 位置制御器，非線形変換，姿勢制御機の順に実行
-  pos_controller_.update(bs_.pose.position, pos_des, bs_.twist.linear, vel_des, acc_des);
-  acc_controller_.update(acc_des, bs_.pose.orientation.yaw, U, rpy_des.roll, rpy_des.pitch);
-  rot_controller_.update(bs_, q_, U, rpy_des.roll, rpy_des.pitch, rpy_des.yaw, u);
+  pos_controller_.update(bs.pose.position, pos_des, bs.twist.linear, vel_des, acc_des);
+  acc_controller_.update(acc_des, bs.pose.orientation.yaw, U, rpy_des.roll, rpy_des.pitch);
+  rot_controller_.update(bs, q_, U, rpy_des.roll, rpy_des.pitch, rpy_des.yaw, u);
 
   // 各モータの回転速度を計算
   ctrlInputToRotorSpeeds(u, rotor_speeds_);
@@ -106,7 +124,7 @@ void Controller::runOnce()
   feedback_pub_.publish(feedback_);
 }
 
-void Controller::updateDesiredState(double dt)
+void Controller::updateDesiredState(const tobas_msgs::PoseVel& bs, double dt)
 {
   ROS_ASSERT(dt >= 0.);
 
@@ -126,7 +144,7 @@ void Controller::updateDesiredState(double dt)
     }
     case CmdMsg::LOCAL_VELOCITY:
     {
-      const auto& rpy = bs_.pose.orientation;
+      const auto& rpy = bs.pose.orientation;
       const auto& V_B = cmd_.target_velocity;
       geometry_msgs::Vector3 V_W;
       // rotateVector(rpy.roll, rpy.pitch, rpy.yaw, V_B.x, V_B.y, V_B.z, V_W.x, V_W.y, V_W.z);
@@ -169,13 +187,20 @@ void Controller::bsCb(const StateMsg& bs)
     bs_received_ = true;
   }
 
-  bs_ = bs.pose_vel;
+  if (!is_initialized_)
+  {
+    if (isReady())
+    {
+      check_topics_timer_.stop();
+      initialize();
+      is_initialized_ = true;
+      dh_ros::rosInfo("Controller is ready.");
+    }
+    return;
+  }
 
   // トピックが揃っていたら，状態を観測するたびに一回だけ制御器を回す．
-  if (!transformable_ || js_received_)
-  {
-    runOnce();
-  }
+  runOnce(bs.pose_vel);
 }
 
 void Controller::jsCb(const sensor_msgs::JointState& js)
@@ -192,7 +217,7 @@ void Controller::jsCb(const sensor_msgs::JointState& js)
     {
       const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
       const auto& jnt_pos = js.position[msg_idx];
-      const auto& kdl_idx = kdl_model_.jointIndex(jnt_name);  // Tree内でのインデックス
+      const auto& kdl_idx = kdl_model_.jointIndex(jnt_name);      // Tree内でのインデックス
       q_(kdl_idx) = jnt_pos;
     }
     catch (const exception& e)
@@ -218,4 +243,12 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
     cfg.prediction_horizon, cfg.prediction_steps, cfg.rotation_decay, cfg.angular_velocity_decay,
     cfg.rotation_weight, cfg.angular_velocity_weight, cfg.thrust_force_weight,
     cfg.thrust_force_rate_weight);
+}
+
+void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
+{
+  if (transformable_ && !js_received_)
+  {
+    dh_ros::rosWarn("Joint states are not received yet.");
+  }
 }

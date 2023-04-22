@@ -29,6 +29,7 @@ class Controller
 
 public:
   explicit Controller();
+  ~Controller();
 
 private:
   ros::NodeHandle nh_;
@@ -41,12 +42,11 @@ private:
   const bool transformable_;  // プロペラ以外の可動関節を持つか否か
   const RotorConfigs rotor_configs_;
 
-  tobas_msgs::PoseVel bs_;          // ベースの推定状態
   KDL::JntArray q_;                 // 全ての非固定関節の角度
   geometry_msgs::Vector3 pos_des_;  // {world}で表された目標位置
   double yaw_des_;                  // {world}で表されたヨー角の目標値
   CmdMsg cmd_;
-  bool is_first_run_;
+  bool is_initialized_;
   bool bs_received_;
   bool js_received_;
   bool cmd_received_;
@@ -65,11 +65,13 @@ private:
   ros::Subscriber js_sub_;
   ros::Subscriber cmd_sub_;
 
-  // Dynamic Reconfigure
-  ConfigServer server_;
+  ConfigServer server_;            // Dynamic Reconfigure
+  ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
-  void runOnce();
-  void updateDesiredState(double dt);
+  bool isReady();
+  void initialize();
+  void runOnce(const tobas_msgs::PoseVel& bs);
+  void updateDesiredState(const tobas_msgs::PoseVel& bs, double dt);
   void ctrlInputToRotorSpeeds(const std::vector<double>& u, tobas_msgs::RotorSpeeds& speeds);
 
   void bsCb(const StateMsg& bs);
@@ -77,4 +79,5 @@ private:
   void commandCb(const CmdMsg& cmd);
 
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };
