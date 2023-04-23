@@ -39,15 +39,18 @@ private:
   KDL::Tree tree_;
   KDL::TreeKDLModel kdl_model_;
 
-  const uint32_t num_rotors_;
-  const std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
-  const bool transformable_;  // プロペラ以外の可動関節を持つか否か
-  const RotorConfigs rotor_configs_;
+  // rosparams
+  std::string drone_name_;
+  std::string description_;
+  uint32_t num_rotors_;
+  std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
+  RotorConfigs rotor_configs_;
 
   KDL::JntArray q_;                 // 全ての非固定関節の角度
   geometry_msgs::Vector3 pos_des_;  // {world}で表された目標位置
   double yaw_des_;                  // {world}で表されたヨー角の目標値
   CmdMsg cmd_;
+  bool is_transformable_;           // プロペラ以外の可動関節を持つか否か
   bool is_initialized_;
   bool bs_received_;
   bool js_received_;
@@ -70,6 +73,9 @@ private:
   ConfigServer server_;               // Dynamic Reconfigure
   dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
+  void getRosParams();
+  void registerPublishers();
+  void registerSubscribers();
   bool isReady();
   void initialize();
   void runOnce(const tobas_msgs::PoseVel& bs);

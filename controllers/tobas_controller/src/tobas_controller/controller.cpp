@@ -17,10 +17,6 @@ using namespace KDL;
 
 Controller::Controller()
   : kdl_model_(tree_),
-    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    required_joints_(dh_ros::getParam<vector<string>>("/required_joint_names")),
-    transformable_(required_joints_.size() > 0),
-    rotor_configs_(getRotorConfigs()),
     is_initialized_(false),
     bs_received_(false),
     js_received_(false),
@@ -28,12 +24,12 @@ Controller::Controller()
     acc_controller_(tree_),
     rot_controller_(tree_)
 {
-  // URDFを取得
-  const string drone_name = dh_ros::getParam<string>("/drone_name");
-  const string description = dh_ros::getParam<string>("/robot_description");
+  getRosParams();
+
+  is_transformable_ = required_joints_.size() > 0;
 
   // Treeを取得
-  const bool ok = kdl_parser::treeFromString(description, tree_);
+  const bool ok = kdl_parser::treeFromString(description_, tree_);
   ROS_ASSERT(ok);
   kdl_model_.updateInternalDataStructures();
   acc_controller_.updateInternalDataStructures();
@@ -43,18 +39,8 @@ Controller::Controller()
   feedback_.thrust_forces.resize(num_rotors_);
   rotor_speeds_.speeds.resize(num_rotors_);
 
-  // PubSub
-  rotor_speeds_pub_ =
-    nh_.advertise<tobas_msgs::RotorSpeeds>("/" + drone_name + "/command/motor_speed", 1, false);
-  feedback_pub_ =
-    nh_.advertise<tobas_msgs::ControllerFeedback>("/tobas_controller/feedback", 1, false);
-  bs_sub_ = nh_.subscribe("/" + drone_name + "/base_state", 1, &Controller::bsCb, this);
-  if (transformable_)
-  {
-    js_sub_ = nh_.subscribe("/" + drone_name + "/joint_states", 1, &Controller::jsCb, this);
-  }
-  cmd_sub_ =
-    nh_.subscribe("/" + drone_name + "/command/base_state", 1, &Controller::commandCb, this);
+  registerPublishers();
+  registerSubscribers();
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
@@ -64,15 +50,44 @@ Controller::Controller()
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(TIMER_PERIOD), &Controller::checkTopicsTimerCb, this);
 }
+
 Controller::~Controller()
 {
+}
+
+void Controller::getRosParams()
+{
+  drone_name_ = dh_ros::getParam<string>("/drone_name");
+  description_ = dh_ros::getParam<string>("/robot_description");
+  num_rotors_ = dh_ros::getParam<int>("/num_rotors");
+  required_joints_ = dh_ros::getParam<vector<string>>("/required_joint_names");
+  rotor_configs_ = getRotorConfigs();
+}
+
+void Controller::registerPublishers()
+{
+  rotor_speeds_pub_ =
+    nh_.advertise<tobas_msgs::RotorSpeeds>("/" + drone_name_ + "/command/motor_speed", 1, false);
+  feedback_pub_ =
+    nh_.advertise<tobas_msgs::ControllerFeedback>("/tobas_controller/feedback", 1, false);
+}
+
+void Controller::registerSubscribers()
+{
+  bs_sub_ = nh_.subscribe("/" + drone_name_ + "/base_state", 1, &Controller::bsCb, this);
+  if (is_transformable_)
+  {
+    js_sub_ = nh_.subscribe("/" + drone_name_ + "/joint_states", 1, &Controller::jsCb, this);
+  }
+  cmd_sub_ =
+    nh_.subscribe("/" + drone_name_ + "/command/base_state", 1, &Controller::commandCb, this);
 }
 
 bool Controller::isReady()
 {
   bool is_ready = true;
 
-  if (transformable_ && !js_received_)
+  if (is_transformable_ && !js_received_)
   {
     is_ready = false;
   }
@@ -247,7 +262,7 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (transformable_ && !js_received_)
+  if (is_transformable_ && !js_received_)
   {
     dh_ros::rosWarn("Joint states are not received yet.");
   }
