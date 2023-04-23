@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
+    from .setting_widgets.rotary_wings.selected_links import SelectedLinkTabWidget
 
 import os
 import os.path as osp
@@ -21,7 +22,6 @@ from dh_rqt_tools.xml import prettify_and_save
 
 from .utils import *
 from .xml_nodes import *
-from .setting_widgets.rotary_wings import SelectedLinkTabWidget
 
 
 class PackageGenerator(QWidget):
