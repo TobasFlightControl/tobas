@@ -11,7 +11,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..utils import add_expanding_widget, is_valid_email
+from ..utils import add_expanding_widget, is_valid_email, get_user_name
 
 
 class AuthorInformationWidget(BaseSettingWidget):
@@ -23,10 +23,16 @@ class AuthorInformationWidget(BaseSettingWidget):
         abst_text = 'TODO: abstruct'
         super().__init__(main, title_text, abst_text)
 
-        self.name = ParamGetterWidget_LineEdit("Name of the Maintainer")
+        self.name = ParamGetterWidget_LineEdit(
+            "Name of the Maintainer",
+            default=get_user_name(),
+        )
         self._rows.addWidget(self.name)
 
-        self.email = ParamGetterWidget_LineEdit("Email of the Maintainer")
+        self.email = ParamGetterWidget_LineEdit(
+            "Email of the Maintainer",
+            default=f'{get_user_name()}@gmail.com',
+        )
         self._rows.addWidget(self.email)
 
         add_expanding_widget(self._rows)

@@ -1,3 +1,4 @@
+import os
 import re
 import math
 import rospy
@@ -16,6 +17,11 @@ def remap(x: float, a: float, b: float, c: float, d: float) -> float:
         return (c + d) / 2.
     else:
         return (c * (b - x) + d * (x - a)) / (b - a)
+
+
+def get_user_name() -> str:
+    """ ユーザ名を返す． """
+    return os.environ['USER']
 
 
 def get_drone_name() -> str:

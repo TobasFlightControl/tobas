@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.messages import q_error_named
+from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -108,7 +109,7 @@ class PackagePath(QLabel):
     def define_connections(self) -> None:
         self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
         self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._set_default_pkg)
+        self._main.urdf_parser.robot_model_updated.connect(self._set_defaults)
 
     def _update(self) -> None:
         path = self.pardir + "/" + self.pkg_name
@@ -128,7 +129,11 @@ class PackagePath(QLabel):
         self._update()
 
     @pyqtSlot()
-    def _set_default_pkg(self) -> None:
+    def _set_defaults(self) -> None:
+        par_dir = f'{get_workspace_path()}/src'
+        self._main.settings.ros_package.pardir.set(par_dir)
+
         pkg_name = f'tobas_{get_drone_name()}_config'
         self._main.settings.ros_package.pkg_name.set(pkg_name)
+
         self._update()
