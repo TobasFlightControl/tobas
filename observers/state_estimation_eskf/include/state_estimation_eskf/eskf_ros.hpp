@@ -6,6 +6,8 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
+#include <dh_ros_tools/timer.hpp>
+
 #include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
 #include <tobas_msgs/PoseVelStamped.h>
 
@@ -68,7 +70,7 @@ private:
   ros::Subscriber gps_sub_;
   ros::Subscriber vel_sub_;
 
-  ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
   void getRosParams();
   void registerPublishers();

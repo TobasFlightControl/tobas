@@ -53,7 +53,6 @@ CommandHandler::CommandHandler()
 CommandHandler::~CommandHandler()
 {
   tcsetattr(0, TCSANOW, &tempcopy_);
-  instruction_timer_.stop();
 }
 
 void CommandHandler::run()
@@ -63,15 +62,11 @@ void CommandHandler::run()
   auto& z = cmd_.target_position.z;
   auto& yaw = cmd_.target_yaw_angle;
 
+  instruction_timer_.start();
+  dh_ros::rosInfo(instruction_);
+
   char c = 0;
   ros::Rate rate(update_rate_);
-
-  // spin & sleepの後にタイマーを起動することで，同時刻に複数回呼ばれることを防ぐ
-  ros::spinOnce();
-  ros::Duration(0.1).sleep();
-  instruction_timer_.start();
-
-  dh_ros::rosInfo(instruction_);
 
   while (ros::ok())
   {

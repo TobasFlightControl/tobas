@@ -4,9 +4,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
-#include "./position_controller.hpp"
-#include "./acceleration_controller.hpp"
-#include "./rotation_controller.hpp"
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/rotor_property.hpp>
 #include <tobas_msgs/PoseVelStamped.h>
@@ -14,6 +12,10 @@
 #include <tobas_msgs/Command.h>
 #include <tobas_msgs/ControllerFeedback.h>
 #include <tobas_controller/ControllerConfig.h>
+
+#include "./position_controller.hpp"
+#include "./acceleration_controller.hpp"
+#include "./rotation_controller.hpp"
 
 /**
  * @brief 位置制御器(PD制御)，加速度制御器(解析計算)，姿勢制御器(MPC)を組み合わせた制御器．
@@ -65,8 +67,8 @@ private:
   ros::Subscriber js_sub_;
   ros::Subscriber cmd_sub_;
 
-  ConfigServer server_;            // Dynamic Reconfigure
-  ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  ConfigServer server_;               // Dynamic Reconfigure
+  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
   bool isReady();
   void initialize();

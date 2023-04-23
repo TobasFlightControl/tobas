@@ -33,7 +33,6 @@ OrientationEstimatorRos::OrientationEstimatorRos() : is_initialized_(false)
 
 OrientationEstimatorRos::~OrientationEstimatorRos()
 {
-  check_topics_timer_.stop();
 }
 
 void OrientationEstimatorRos::getRosParams()

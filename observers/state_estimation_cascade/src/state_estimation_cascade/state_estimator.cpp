@@ -45,7 +45,6 @@ StateEstimator::StateEstimator()
 
 StateEstimator::~StateEstimator()
 {
-  check_topics_timer_.stop();
 }
 
 void StateEstimator::getRosParams()

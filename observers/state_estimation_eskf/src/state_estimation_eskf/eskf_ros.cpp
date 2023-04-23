@@ -35,7 +35,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 
 ErrorStateKalmanFilterRos::~ErrorStateKalmanFilterRos()
 {
-  check_topics_timer_.stop();
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()

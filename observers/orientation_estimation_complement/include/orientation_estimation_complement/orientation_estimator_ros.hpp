@@ -7,6 +7,8 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
+#include <dh_ros_tools/timer.hpp>
+
 #include "./orientation_estimator.hpp"
 
 class OrientationEstimatorRos
@@ -49,7 +51,7 @@ private:
   std::shared_ptr<MagSubscriber> mag_sub_;
   std::shared_ptr<Synchronizer> sync_;
 
-  ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
   void getRosParams();
   void initializeFilter();

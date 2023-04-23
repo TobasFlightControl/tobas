@@ -66,7 +66,6 @@ Controller::Controller()
 }
 Controller::~Controller()
 {
-  check_topics_timer_.stop();
 }
 
 bool Controller::isReady()

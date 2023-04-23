@@ -9,6 +9,7 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <dh_std_tools/buffer.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
 #include <tobas_msgs/PoseVelStamped.h>
@@ -69,7 +70,7 @@ private:
   ros::Subscriber gps_vel_sub_;
 
   ConfigServer server_;            // Dynamic Reconfigure
-  ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
   void getRosParams();
   void fillUnusedBuffers();

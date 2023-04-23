@@ -4,6 +4,7 @@
 #include <termios.h>
 
 #include <dh_std_tools/struct.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/Command.h>
 
@@ -42,7 +43,7 @@ private:
   CmdMsg cmd_;
 
   ros::Publisher cmd_pub_;
-  ros::Timer instruction_timer_;
+  dh_ros::Timer instruction_timer_;
 
   void getRosParams();
   void prepare(int fd);
