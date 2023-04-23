@@ -97,7 +97,7 @@ class CommandersWidget(QScrollArea):
 
         # Publisher
         self._drone_cmd_pub = rospy.Publisher(
-            "/tobas_controller/command", Command, queue_size=1
+            f'/{drone_name}/command/base_state', Command, queue_size=1
         )
 
         self._add_dummy_widget()  # 余白を埋めるためのダミーウィジェット

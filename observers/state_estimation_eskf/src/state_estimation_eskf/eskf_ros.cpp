@@ -18,29 +18,16 @@ using namespace Eigen;
 using namespace dh_std;
 
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
-  : gravity_(dh_ros::getParam<double>("/gravity")),
-    gyro_noise_density_(dh_ros::getParam<double>("~gyro_noise_density")),
-    gyro_random_walk_(dh_ros::getParam<double>("~gyro_random_walk")),
-    acc_noise_density_(dh_ros::getParam<double>("~acc_noise_density")),
-    acc_random_walk_(dh_ros::getParam<double>("~acc_random_walk")),
-    ref_mag_(
-      dh_ros::getParam<double>("~reference_magnetic_strength/north"),
-      dh_ros::getParam<double>("~reference_magnetic_strength/east"),
-      dh_ros::getParam<double>("~reference_magnetic_strength/down")),
-    is_ready_(false),
+  : is_ready_(false),
     imu_subscribed_(false),
     mag_subscribed_(false),
     bar_subscribed_(false),
     gps_subscribed_(false),
     vel_subscribed_(false)
 {
-  posevel_pub_ = nh_.advertise<StateMsg>("/estimated_state", 1);
-
-  imu_sub_ = nh_.subscribe("/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
-  mag_sub_ = nh_.subscribe("/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
-  bar_sub_ = nh_.subscribe("/air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
-  gps_sub_ = nh_.subscribe("/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
-  vel_sub_ = nh_.subscribe("/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+  getRosParams();
+  registerPublishers();
+  registerSubscribers();
 
   check_topics_timer_ = nh_.createTimer(
     ros::Duration(TIMER_PERIOD), &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this);
@@ -49,6 +36,36 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 ErrorStateKalmanFilterRos::~ErrorStateKalmanFilterRos()
 {
   check_topics_timer_.stop();
+}
+
+void ErrorStateKalmanFilterRos::getRosParams()
+{
+  drone_name_ = dh_ros::getParam<string>("/drone_name");
+  gravity_ = dh_ros::getParam<double>("/gravity");
+  ref_mag_.x() = dh_ros::getParam<double>("/geomagnetism/north");
+  ref_mag_.y() = dh_ros::getParam<double>("/geomagnetism/east");
+  ref_mag_.z() = dh_ros::getParam<double>("/geomagnetism/down");
+  gyro_noise_density_ = dh_ros::getParam<double>("~gyro_noise_density");
+  gyro_random_walk_ = dh_ros::getParam<double>("~gyro_random_walk");
+  acc_noise_density_ = dh_ros::getParam<double>("~acc_noise_density");
+  acc_random_walk_ = dh_ros::getParam<double>("~acc_random_walk");
+}
+
+void ErrorStateKalmanFilterRos::registerPublishers()
+{
+  posevel_pub_ = nh_.advertise<StateMsg>("/" + drone_name_ + "/base_state", 1);
+}
+
+void ErrorStateKalmanFilterRos::registerSubscribers()
+{
+  imu_sub_ = nh_.subscribe("/" + drone_name_ + "/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
+  mag_sub_ = nh_.subscribe(
+    "/" + drone_name_ + "/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
+  bar_sub_ =
+    nh_.subscribe("/" + drone_name_ + "/air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
+  gps_sub_ = nh_.subscribe("/" + drone_name_ + "/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
+  vel_sub_ =
+    nh_.subscribe("/" + drone_name_ + "/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
 }
 
 bool ErrorStateKalmanFilterRos::isReady()

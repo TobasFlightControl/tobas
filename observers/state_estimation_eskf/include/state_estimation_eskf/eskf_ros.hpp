@@ -27,13 +27,14 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  // rosparam
-  const double gravity_;
-  const double gyro_noise_density_;  // rad/s/sqrt(hz)
-  const double gyro_random_walk_;    // rad/s^2/sqrt(hz)
-  const double acc_noise_density_;   // m/s^2/sqrt(hz)
-  const double acc_random_walk_;     // m/s^3/sqrt(hz)
-  const Eigen::Vector3d ref_mag_;
+  // rosparams
+  std::string drone_name_;
+  double gravity_;
+  Eigen::Vector3d ref_mag_;
+  double gyro_noise_density_;  // rad/s/sqrt(hz)
+  double gyro_random_walk_;    // rad/s^2/sqrt(hz)
+  double acc_noise_density_;   // m/s^2/sqrt(hz)
+  double acc_random_walk_;     // m/s^3/sqrt(hz)
 
   bool is_ready_;
   ros::Time t_last_;
@@ -69,6 +70,9 @@ private:
 
   ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
+  void getRosParams();
+  void registerPublishers();
+  void registerSubscribers();
   bool isReady();
   void initialize();
   void setZeroPositions();

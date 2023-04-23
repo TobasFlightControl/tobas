@@ -81,6 +81,8 @@ class PackageGenerator(QWidget):
             return False
         if not self._main.settings.controller.is_valid():
             return False
+        if not self._main.settings.observer.is_valid():
+            return False
         if not self._main.settings.simulation.is_valid():
             return False
         if not self._main.settings.author_information.is_valid():
@@ -103,41 +105,33 @@ class PackageGenerator(QWidget):
         os.mkdir(launch_dir)
         os.mkdir(urdf_dir)
 
-        # ファイルを作る
+        # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(items, "README.md", pkg_path)
         self._generate_from_template(items, "CMakeLists.txt", pkg_path)
         self._generate_from_template(items, "package.xml", pkg_path)
         self._generate_from_template(items, "environment.yaml", config_dir)
-        self._generate_from_template(items, "observer.yaml", config_dir)
-        self._generate_from_template(items, "controller.yaml", config_dir)
         self._generate_from_template(items, "gazebo.launch", launch_dir)
         self._generate_from_template(items, "real.launch", launch_dir)
         self._generate_from_template(items, "bringup.launch", launch_dir)
-        self._generate_drone_props(config_dir)
-        self._generate_joint_control(config_dir)
+
+        # Pythonで自動生成
+        self._generate_drone_config(config_dir)
+        self._generate_joint_control_config(config_dir)
+        self._generate_controller_config(config_dir)
+        self._generate_observer_config(config_dir)
         self._generate_urdf(urdf_dir)
 
     def _make_template_items(self) -> None:
-        template_items = {}
+        template_items = dict()
 
         template_items["drone_name"] = self._drone_name
 
-        # Ros Package
-        ros_pkg = self._main.settings.ros_package
-        template_items["pkg_name"] = ros_pkg.pkg_name.get()
+        # Controller
+        template_items["controller_pkg"] = self._main.settings.controller.pkg_name()
 
-        # Author Info
-        author_info = self._main.settings.author_information
-        template_items["author_name"] = author_info.name.get()
-        template_items["author_email"] = author_info.email.get()
-
-        # IMU
-        imu = self._main.settings.imu
-        template_items["gyro_noise_density"] = imu.gyro_noise_density.get()
-        template_items["gyro_random_walk"] = imu.gyro_random_walk.get()
-        template_items["acc_noise_density"] = imu.acc_noise_density.get()
-        template_items["acc_random_walk"] = imu.acc_random_walk.get()
+        # Observer
+        template_items["observer_pkg"] = self._main.settings.observer.pkg_name()
 
         # Simulation
         simulation = self._main.settings.simulation
@@ -146,31 +140,16 @@ class PackageGenerator(QWidget):
         template_items["ref_mag_east"] = simulation.ref_mag_east.get() * 1e-9
         template_items["ref_mag_down"] = simulation.ref_mag_down.get() * 1e-9
 
-        # Controller
-        controller = self._main.settings.controller
-        controller_type = controller.get_type()
-        if controller_type == controller.LMPC:
-            lmpc = self._main.settings.controller.lmpc
-            lmpc_items = {
-                "natural_freq": lmpc.natural_freq.get(),
-                "damp_ratio": lmpc.damp_ratio.get(),
-                "pred_horizon": lmpc.pred_horizon.get(),
-                "pred_steps": lmpc.pred_steps.get(),
-                "rot_decay": lmpc.rot_decay.get(),
-                "angvel_decay": lmpc.angvel_decay.get(),
-                "rot_weight": lmpc.rot_weight.get(),
-                "angvel_weight": lmpc.angvel_weight.get(),
-                "thrust_weight": lmpc.thrust_weight.get(),
-                "thrust_rate_weight": lmpc.thrust_rate_weight.get(),
-            }
-            template_items["lmpc"] = lmpc_items
-        elif controller_type == controller.NMPC:
-            raise NotImplementedError
-        elif controller_type == controller.SMC:
-            raise NotImplementedError
-        else:
-            raise RuntimeError(f'Unknown controller type: {controller_type}')
+        # Author Info
+        author_info = self._main.settings.author_information
+        template_items["author_name"] = author_info.name.get()
+        template_items["author_email"] = author_info.email.get()
 
+        # Ros Package
+        ros_pkg = self._main.settings.ros_package
+        template_items["pkg_name"] = ros_pkg.pkg_name.get()
+
+        # Joint Controllers
         joint_controllers = "joint_state_controller"
         for jnt_name in self._main.urdf_parser.required_joint_names():
             joint_controllers += f' {jnt_name}_controller'
@@ -185,12 +164,12 @@ class PackageGenerator(QWidget):
         with open(file_path, "w") as f:
             f.write(content)
 
-    def _generate_drone_props(self, config_dir: str) -> None:
+    def _generate_drone_config(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
         rotary_wings = self._main.settings.rotary_wings.selected
         battery = self._main.settings.battery
         num_rotors = rotary_wings.count()
-        drone_props = {
+        drone_config = {
             "drone_name": self._drone_name,
             "num_rotors": num_rotors,
             "battery_voltage": battery.voltage.get(),
@@ -198,7 +177,7 @@ class PackageGenerator(QWidget):
         }
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
-            drone_props[f'rotor_{i}'] = {
+            drone_config[f'rotor_{i}'] = {
                 "link_name": selected.link_name(),
                 "direction": selected.motor.direction(),
                 "kv": selected.motor.kv(),
@@ -212,9 +191,9 @@ class PackageGenerator(QWidget):
 
             esc = selected.esc
             esc_type = esc.esc_type.currentText()
-            drone_props[f'rotor_{i}']["esc_type"] = esc_type.lower()
+            drone_config[f'rotor_{i}']["esc_type"] = esc_type.lower()
             if esc_type == esc.PWM:
-                drone_props[f'rotor_{i}']["pwm"] = {
+                drone_config[f'rotor_{i}']["pwm"] = {
                     "frequency": esc.pwm.freq.get(),
                     "min_pulse_width": esc.pwm.pulse_width_range.min(),
                     "max_pulse_width": esc.pwm.pulse_width_range.max(),
@@ -225,31 +204,93 @@ class PackageGenerator(QWidget):
                 raise RuntimeError(f'Unknown ESC type: {esc_type}')
 
         # yamlファイルを作成
-        drone_props_path = osp.join(config_dir, "drone_properties.yaml")
-        with open(drone_props_path, "w") as f:
-            yaml.dump(drone_props, f)
+        drone_config_path = osp.join(config_dir, "drone_config.yaml")
+        with open(drone_config_path, "w") as f:
+            yaml.dump(drone_config, f)
 
-    def _generate_joint_control(self, config_dir: str) -> None:
+    def _generate_joint_control_config(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
-        jnt_ctrl_sub = {}
-
-        jnt_ctrl_sub["joint_state_controller"] = {
+        sub_items = dict()
+        sub_items["joint_state_controller"] = {
             "type": "joint_state_controller/JointStateController",
             "publish_rate": 1000.
         }
-
         for jnt_name in self._main.urdf_parser.required_joint_names():
-            jnt_ctrl_sub[f'{jnt_name}_controller'] = {
+            sub_items[f'{jnt_name}_controller'] = {
                 "type": "position_controllers/JointPositionController",
                 "joint": jnt_name,
             }
-
-        jnt_ctrl = {self._drone_name: jnt_ctrl_sub}
+        items = {self._drone_name: sub_items}
 
         # yamlファイルを作成
         jnt_ctrl_path = osp.join(config_dir, "joint_control.yaml")
         with open(jnt_ctrl_path, "w") as f:
-            yaml.dump(jnt_ctrl, f)
+            yaml.dump(items, f)
+
+    def _generate_controller_config(self, config_dir: str) -> None:
+        controller = self._main.settings.controller
+        controller_type = controller.get_type()
+
+        items = dict()
+        if controller_type == controller.LMPC:
+            lmpc = controller.lmpc
+            items["tobas_controller"] = {
+                "natural_frequency": lmpc.natural_freq.get(),
+                "damping_ratio": lmpc.damp_ratio.get(),
+                "prediction_horizon": lmpc.pred_horizon.get(),
+                "prediction_steps": lmpc.pred_steps.get(),
+                "rotation_decay": lmpc.rot_decay.get(),
+                "angular_velocity_decay": lmpc.angvel_decay.get(),
+                "rotation_weight": lmpc.rot_weight.get(),
+                "angular_velocity_weight": lmpc.angvel_weight.get(),
+                "thrust_force_weight": lmpc.thrust_weight.get(),
+                "thrust_force_rate_weight": lmpc.thrust_rate_weight.get(),
+            }
+        elif controller_type == controller.NMPC:
+            raise NotImplementedError
+        elif controller_type == controller.SMC:
+            raise NotImplementedError
+        else:
+            raise RuntimeError(f'Unknown controller type: {controller_type}')
+
+        controller_path = osp.join(config_dir, "controller.yaml")
+        with open(controller_path, "w") as f:
+            yaml.dump(items, f)
+
+    def _generate_observer_config(self, config_dir: str) -> None:
+        observer = self._main.settings.observer
+        observer_type = observer.get_type()
+
+        items = dict()
+        if observer_type == observer.CASCADE:
+            cascade = observer.cascade
+            items["orientation_estimator_complement"] = {
+                "gain_acc": cascade.gain_acc.get(),
+                "gain_mag": cascade.gain_mag.get(),
+                "bias_alpha": cascade.bias_alpha.get(),
+                "do_bias_estimation": cascade.do_bias_estimation.get(),
+                "do_adaptive_gain": cascade.do_adaptive_gain.get(),
+            }
+            items["state_estimator_cascade"] = {
+                "use_barometer": True,
+                "use_gps_position": True,
+                "use_gps_velocity": True,
+                "gravity_variance_exp": cascade.grav_var_exp.get(),
+            }
+        elif observer_type == observer.ESKF:
+            imu = self._main.settings.imu
+            items["state_estimator_eskf"] = {
+                "gyro_noise_density": imu.gyro_noise_density.get(),
+                "gyro_random_walk": imu.gyro_random_walk.get(),
+                "acc_noise_density": imu.acc_noise_density.get(),
+                "acc_random_walk": imu.acc_random_walk.get(),
+            }
+        else:
+            raise RuntimeError(f'Unknown observer type: {observer_type}')
+
+        observer_path = osp.join(config_dir, "observer.yaml")
+        with open(observer_path, "w") as f:
+            yaml.dump(items, f)
 
     def _generate_urdf(self, urdf_dir: str) -> None:
         tree = self._make_urdf_with_plugins()

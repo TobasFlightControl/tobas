@@ -1,1 +1,5 @@
 gravity: {{ gravity }}
+geomagnetism:
+  north: {{ ref_mag_north }}
+  east: {{ ref_mag_east }}
+  down: {{ ref_mag_down }}

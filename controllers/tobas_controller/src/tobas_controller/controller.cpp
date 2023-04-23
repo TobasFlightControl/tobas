@@ -53,7 +53,8 @@ Controller::Controller()
   {
     js_sub_ = nh_.subscribe("/" + drone_name + "/joint_states", 1, &Controller::jsCb, this);
   }
-  cmd_sub_ = nh_.subscribe("/tobas_controller/command", 1, &Controller::commandCb, this);
+  cmd_sub_ =
+    nh_.subscribe("/" + drone_name + "/command/base_state", 1, &Controller::commandCb, this);
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);

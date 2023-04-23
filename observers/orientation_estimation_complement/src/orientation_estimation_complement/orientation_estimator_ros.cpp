@@ -17,31 +17,35 @@
 #define DEFAULT_DO_BIAS_ESTIMATION true
 #define DEFAULT_DO_ADAPTIVE_GAIN false
 
+using namespace std;
 using namespace Eigen;
 
-OrientationEstimatorRos::OrientationEstimatorRos()
-  : is_initialized_(false),
-    imu_sub_(nh_, "imu/data_raw", QUEUE_SIZE),
-    mag_sub_(nh_, "imu/mag", QUEUE_SIZE),
-    sync_(SyncPolicy(QUEUE_SIZE), imu_sub_, mag_sub_)
+OrientationEstimatorRos::OrientationEstimatorRos() : is_initialized_(false)
 {
   getRosParams();
   initializeFilter();
-
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data", QUEUE_SIZE);
-  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
+  registerPublishers();
+  registerSubscribers();
 
   check_topics_timer_ = nh_.createTimer(
     ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
 }
 
+OrientationEstimatorRos::~OrientationEstimatorRos()
+{
+  check_topics_timer_.stop();
+}
+
 void OrientationEstimatorRos::getRosParams()
 {
+  // 共通パラメータ
+  drone_name_ = dh_ros::getParam<string>("/drone_name");
   gravity_ = dh_ros::getParam<double>("/gravity", DEFAULT_GRAVITY);
+  ref_mag_north_ = dh_ros::getParam<double>("/geomagnetism/north");
+  ref_mag_east_ = dh_ros::getParam<double>("/geomagnetism/east");
+  ref_mag_down_ = dh_ros::getParam<double>("/geomagnetism/down");
 
-  ref_mag_north_ = dh_ros::getParam<double>("~ref_mag_north");
-  ref_mag_east_ = dh_ros::getParam<double>("~ref_mag_east");
-  ref_mag_down_ = dh_ros::getParam<double>("~ref_mag_down");
+  // ノード固有のパラメータ
   gain_acc_ = dh_ros::getParam<double>("~gain_acc", DEFAULT_GAIN_ACC);
   gain_mag_ = dh_ros::getParam<double>("~gain_mag", DEFAULT_GAIN_MAG);
   bias_alpha_ = dh_ros::getParam<double>("~bias_alpha", DEFAULT_BIAS_ALPHA);
@@ -73,6 +77,19 @@ void OrientationEstimatorRos::initializeFilter()
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
+}
+
+void OrientationEstimatorRos::registerPublishers()
+{
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + drone_name_ + "/filtered_imu", QUEUE_SIZE);
+}
+
+void OrientationEstimatorRos::registerSubscribers()
+{
+  imu_sub_.reset(new ImuSubscriber(nh_, "/" + drone_name_ + "/imu", QUEUE_SIZE));
+  mag_sub_.reset(new MagSubscriber(nh_, "/" + drone_name_ + "/magnetic_field", QUEUE_SIZE));
+  sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
+  sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)

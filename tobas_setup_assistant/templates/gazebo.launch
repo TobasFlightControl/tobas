@@ -19,18 +19,18 @@
   </include>
 
   <!-- Load drone configurations from YAML file to parameter server -->
-  <rosparam file="$(find {{ pkg_name }})/config/drone_properties.yaml" command="load"/>
+  <rosparam file="$(find {{ pkg_name }})/config/drone_config.yaml" command="load"/>
 
   <!-- Load the URDF into the ROS parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.urdf'"/>
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-  <node name="spawn_{{ drone_name }}" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -x $(arg x) -y $(arg y) -z $(arg z) -model {{ drone_name }}" respawn="false" output="screen" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_{{ drone_name }}" output="screen" args="-param robot_description -urdf -x $(arg x) -y $(arg y) -z $(arg z) -model {{ drone_name }}"/>
 
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find {{ pkg_name }})/config/joint_control.yaml" command="load"/>
 
   <!-- Load the joint controllers -->
-  <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false" output="screen" ns="/{{ drone_name }}" args="{{ joint_controllers }}"/>
+  <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" ns="/{{ drone_name }}" args="{{ joint_controllers }}"/>
 
 </launch>

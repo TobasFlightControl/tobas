@@ -15,7 +15,7 @@ class SettingsWidget(VerticalTabWidget):
 
     TAB_HEIGHT = 30  # 30以上無いと何故かTabBarの文字が横に見切れてしまう
     TAB_WIDTH = 70
-    MIN_HEIGHT = 600
+    MIN_HEIGHT = 300
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -32,6 +32,7 @@ class SettingsWidget(VerticalTabWidget):
         self.depth_camera = DepthCameraWidget(main)
         self.lidar = LidarWidget(main)
         self.controller = ControllerWidget(main)
+        self.observer = ObserverWidget(main)
         self.simulation = SimulationWidget(main)
         self.author_information = AuthorInformationWidget(main)
         self.ros_package = RosPackageWidget(main)
@@ -47,6 +48,7 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.depth_camera, "Depth Camera")
         # self.addTab(self.lidar, "LiDAR")  # TODO
         self.addTab(self.controller, "Controller")
+        self.addTab(self.observer, "Observer")
         self.addTab(self.simulation, "Simulation")
         self.addTab(self.author_information, "Author Info")
         self.addTab(self.ros_package, "ROS Package")
@@ -68,6 +70,7 @@ class SettingsWidget(VerticalTabWidget):
         self.depth_camera.define_connections()
         self.lidar.define_connections()
         self.controller.define_connections()
+        self.observer.define_connections()
         self.simulation.define_connections()
         self.author_information.define_connections()
         self.ros_package.define_connections()

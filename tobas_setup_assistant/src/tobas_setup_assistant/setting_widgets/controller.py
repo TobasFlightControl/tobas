@@ -21,7 +21,7 @@ class ControllerWidget(BaseSettingWidget):
 
     NAME = "Controller"
 
-    NO_SELECT = "Select Controller type"
+    NO_SELECT = "Select controller type"
     LMPC = "Linear Model Predictive Control"
     NMPC = "Nonlinear Model Predictive Control"
     SMC = "Model Following Sliding Mode Control"
@@ -62,6 +62,20 @@ class ControllerWidget(BaseSettingWidget):
 
     def get_type(self) -> str:
         return self.controller_type.currentText()
+
+    def pkg_name(self) -> str:
+        controller_type = self.get_type()
+
+        if controller_type == self.NO_SELECT:
+            raise RuntimeError("Controller type is not selected.")
+        elif controller_type == self.LMPC:
+            return "tobas_controller"
+        elif controller_type == self.NMPC:
+            raise NotImplementedError
+        elif controller_type == self.SMC:
+            raise NotImplementedError
+        else:
+            raise RuntimeError(f'Unknown controller type: {controller_type}')
 
     def _update_visibility(self) -> None:
         controller_type = self.get_type()
@@ -214,6 +228,7 @@ class ControllerWidget_LMPC(QWidget):
 
 
 class ControllerWidget_NMPC(QWidget):
+    """ Data-Driven MPC for Quadrotors [Torrente+, 2021] """
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()

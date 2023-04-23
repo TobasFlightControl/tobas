@@ -20,11 +20,13 @@ class OrientationEstimatorRos
 
 public:
   explicit OrientationEstimatorRos();
+  ~OrientationEstimatorRos();
 
 private:
   ros::NodeHandle nh_;
 
-  // rosparam
+  // rosparams
+  std::string drone_name_;
   bool do_bias_estimation_;
   bool do_adaptive_gain_;
   double gravity_;
@@ -43,14 +45,16 @@ private:
   Eigen::Vector3d m_;
 
   ros::Publisher imu_pub_;
-  ImuSubscriber imu_sub_;
-  MagSubscriber mag_sub_;
-  Synchronizer sync_;
+  std::shared_ptr<ImuSubscriber> imu_sub_;
+  std::shared_ptr<MagSubscriber> mag_sub_;
+  std::shared_ptr<Synchronizer> sync_;
 
   ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
   void getRosParams();
   void initializeFilter();
+  void registerPublishers();
+  void registerSubscribers();
   void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };

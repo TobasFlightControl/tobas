@@ -30,7 +30,7 @@ CommandHandler::CommandHandler()
                  "Left/Right: increase/decrease angular velocity along z-axis in WCSs\n"
                  "Ctrl-C    : quit\n";
 
-  getParams();
+  getRosParams();
 
   update_rate_ = key_repeat_freq_ * OVER_SAMPLING;  // 全ての入力を拾うためにオーバーサンプリング
   delta_pos_ = max_linvel_ / key_repeat_freq_;
@@ -44,7 +44,7 @@ CommandHandler::CommandHandler()
 
   prepare(0);
 
-  cmd_pub_ = nh_.advertise<CmdMsg>("/tobas_controller/command", 1, false);
+  cmd_pub_ = nh_.advertise<CmdMsg>("/" + drone_name_ + "/command/base_state", 1, false);
 
   instruction_timer_ = nh_.createTimer(
     ros::Duration(INSTRUCTION_PERIOD), &CommandHandler::instructionTimerCb, this, false, false);
@@ -152,8 +152,9 @@ void CommandHandler::run()
   }
 }
 
-void CommandHandler::getParams()
+void CommandHandler::getRosParams()
 {
+  drone_name_ = dh_ros::getParam<string>("/drone_name");
   key_repeat_freq_ = dh_ros::getParam<double>("~key_repeat_freq");
   max_linvel_ = dh_ros::getParam<double>("~max_linear_velocity");
   max_angvel_ = dh_ros::getParam<double>("~max_angular_velocity");

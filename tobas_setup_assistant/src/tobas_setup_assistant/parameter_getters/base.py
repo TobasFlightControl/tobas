@@ -8,8 +8,6 @@ from ..constants import *
 
 class ParamGetterWidget(QWidget):
 
-    LABEL_HEIGHT = 20
-
     def __init__(
         self,
         param_name: str,

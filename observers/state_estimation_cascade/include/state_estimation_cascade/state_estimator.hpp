@@ -34,11 +34,12 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  // rosparam
-  const double gravity_;
-  const bool use_bar_;
-  const bool use_gps_pos_;
-  const bool use_gps_vel_;
+  // rosparams
+  std::string drone_name_;
+  double gravity_;
+  bool use_bar_;
+  bool use_gps_pos_;
+  bool use_gps_vel_;
 
   bool is_initialized_;
   ros::Time t_last_;
@@ -70,8 +71,9 @@ private:
   ConfigServer server_;            // Dynamic Reconfigure
   ros::Timer check_topics_timer_;  // Check if messages are received or not.
 
+  void getRosParams();
   void fillUnusedBuffers();
-  void advertisePublishers();
+  void registerPublishers();
   void registerSubscribers();
   bool isReady();
   void initialize();
