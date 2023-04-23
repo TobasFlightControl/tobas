@@ -27,6 +27,8 @@ static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 
 class GazeboRotorPlugin : public ModelPlugin
 {
+  using super = ModelPlugin;
+  
   using CmdMsg = tobas_msgs::RotorSpeeds;
   using WindMsg = tobas_msgs::WindSpeed;
 

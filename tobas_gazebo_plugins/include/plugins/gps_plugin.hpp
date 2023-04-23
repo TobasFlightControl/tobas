@@ -31,6 +31,8 @@ static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経13
  */
 class GazeboGpsPlugin : public SensorPlugin
 {
+  using super = SensorPlugin;
+
   using NormalDistribution = std::normal_distribution<double>;
   using PosMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;

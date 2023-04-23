@@ -9,7 +9,7 @@ using namespace ignition::math;
 namespace gazebo
 {
 GazeboRotorPlugin::GazeboRotorPlugin()
-  : ModelPlugin(), ref_motor_input_(0.), prev_sim_time_(0.), wind_speed_W_(0., 0., 0.)
+  : super(), ref_motor_input_(0.), prev_sim_time_(0.), wind_speed_W_(0., 0., 0.)
 {
 }
 

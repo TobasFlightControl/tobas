@@ -20,6 +20,8 @@ static constexpr double kDefaultRefMagDown = 3.5615e-05;
 
 class GazeboMagnetometerPlugin : public SensorPlugin
 {
+  using super = SensorPlugin;
+
   using SdfVector3 = ignition::math::Vector3d;
   using NormalDistribution = std::normal_distribution<double>;
   using UniformDistribution = std::uniform_real_distribution<double>;

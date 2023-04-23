@@ -9,7 +9,7 @@ using namespace std;
 
 namespace gazebo
 {
-GazeboNoisyDepthPlugin::GazeboNoisyDepthPlugin()
+GazeboNoisyDepthPlugin::GazeboNoisyDepthPlugin() : SensorPlugin(), GazeboRosCameraUtils()
 {
   depth_info_connect_count_ = 0;
   depth_image_connect_count_ = 0;

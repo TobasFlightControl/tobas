@@ -6,7 +6,7 @@ using namespace std;
 
 namespace gazebo
 {
-GazeboBarometerPlugin::GazeboBarometerPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
+GazeboBarometerPlugin::GazeboBarometerPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 

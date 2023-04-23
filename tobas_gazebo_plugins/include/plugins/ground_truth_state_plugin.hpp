@@ -19,6 +19,8 @@ static constexpr char kDefaultStateTopic[] = "ground_truth/base_state";
 
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
+  using super = ModelPlugin;
+
   using StateMsg = tobas_msgs::PoseVelStamped;
 
 public:

@@ -9,7 +9,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboGpsPlugin::GazeboGpsPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
+GazeboGpsPlugin::GazeboGpsPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 

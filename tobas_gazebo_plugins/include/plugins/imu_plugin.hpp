@@ -25,6 +25,8 @@ static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * 9.80665;
 
 class GazeboImuPlugin : public SensorPlugin
 {
+  using super = SensorPlugin;
+
   using NormalDistribution = std::normal_distribution<double>;
   using ImuMsg = sensor_msgs::Imu;
 

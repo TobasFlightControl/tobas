@@ -11,7 +11,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
+GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 

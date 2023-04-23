@@ -9,7 +9,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : ModelPlugin()
+GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : super()
 {
 }
 

@@ -29,6 +29,8 @@ static constexpr double kDefaultPressureVar = 1.;
 
 class GazeboBarometerPlugin : public SensorPlugin
 {
+  using super = SensorPlugin;
+  
   using NormalDistribution = std::normal_distribution<double>;
   using PressureMsg = sensor_msgs::FluidPressure;
 
