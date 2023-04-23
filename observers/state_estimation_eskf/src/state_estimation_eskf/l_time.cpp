@@ -127,7 +127,8 @@ bool lTime::operator<(const lTime& rhs) const
     return true;
   else if (sec == rhs.sec && nsec < rhs.nsec)
     return true;
-  return false;
+  else
+    return false;
 }
 
 bool lTime::operator>(const lTime& rhs) const
@@ -136,7 +137,8 @@ bool lTime::operator>(const lTime& rhs) const
     return true;
   else if (sec == rhs.sec && nsec > rhs.nsec)
     return true;
-  return false;
+  else
+    return false;
 }
 
 bool lTime::operator<=(const lTime& rhs) const
@@ -145,7 +147,8 @@ bool lTime::operator<=(const lTime& rhs) const
     return true;
   else if (sec == rhs.sec && nsec <= rhs.nsec)
     return true;
-  return false;
+  else
+    return false;
 }
 
 bool lTime::operator>=(const lTime& rhs) const
@@ -154,7 +157,8 @@ bool lTime::operator>=(const lTime& rhs) const
     return true;
   else if (sec == rhs.sec && nsec >= rhs.nsec)
     return true;
-  return false;
+  else
+    return false;
 }
 
 bool lTime::operator==(const lTime& rhs) const
