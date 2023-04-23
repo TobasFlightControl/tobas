@@ -127,7 +127,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
     def set_decimals(self, decimals: List[int]) -> None:
         assert len(decimals) == self._num_entry
         for decimal in decimals:
-            assert decimal > 0
+            assert decimal >= 0
 
         self._decimals = decimals
 

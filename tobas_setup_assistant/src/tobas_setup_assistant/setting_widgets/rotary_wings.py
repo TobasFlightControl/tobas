@@ -16,7 +16,7 @@ from dh_rqt_tools.messages import q_error_named
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import add_expanding_widget, add_center_button
+from ..utils import remap, add_expanding_widget, add_center_button
 
 
 class RotaryWingsWidget(BaseSettingWidget):
@@ -48,36 +48,9 @@ class RotaryWingsWidget(BaseSettingWidget):
         self.selected.define_connections()
 
     def is_valid(self) -> bool:
-        num_rotors = self.selected.count()
-        if num_rotors < 2:
-            q_error_named(self._main, self.NAME, "At least 2 rotary wings are required.")
+        if not self.available.is_valid():
             return False
-
-        for i in range(num_rotors):
-            selected: SelectedLinkTabWidget = self.selected.widget(i)
-
-            esc = selected.esc
-            if esc.esc_type.currentText() == esc.NO_SELECT:
-                q_error_named(self._main, self.NAME, "Please select ESC type.")
-                return False
-
-            motor = selected.motor
-            if motor.setting_method.currentText() == motor.NO_SELECT:
-                q_error_named(self._main, self.NAME, "Please select motor setting method.")
-                return False
-
-            aerodynamics = selected.aerodynamics
-            if aerodynamics.setting_method.currentText() == aerodynamics.NO_SELECT:
-                q_error_named(self._main, self.NAME, "Please select aerodynamics setting method.")
-                return False
-            elif aerodynamics.setting_method.currentText() == aerodynamics.THRUST_STAND:
-                if aerodynamics.thrust_stand.data.count() == 0:
-                    q_error_named(self._main, self.NAME, "Thrust stand data is blank.")
-                    return False
-
-        directions = set(self.selected.widget(i).motor.direction() for i in range(num_rotors))
-        if len(directions) == 1:
-            q_error_named(self._main, self.NAME, "Rotating direction of all rotors are same.")
+        if not self.selected.is_valid():
             return False
 
         return True
@@ -90,12 +63,16 @@ class AvailableLinksWidget(QListWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
+
         self._main = main
 
         self.setFixedHeight(self.HEIGHT)
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
+
+    def is_valid(self) -> bool:
+        return True
 
     def add(self, link_name: str) -> None:
         assert self._main.urdf_parser.link_exists(link_name), f'Unknown link: {link_name}'
@@ -147,6 +124,7 @@ class AvailableLinkItemWidget(QListWidget):
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
         self._main = main
 
         self._cols = QHBoxLayout()
@@ -182,6 +160,7 @@ class SelectedLinksWidget(TabWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
+
         self._main = main
 
         self.setStyleSheet(
@@ -193,11 +172,37 @@ class SelectedLinksWidget(TabWidget):
     def define_connections(self):
         self.tabCloseRequested.connect(self._on_tab_close_requested)
 
+    def is_valid(self) -> bool:
+        num_rotors = self.count()
+
+        if num_rotors < 2:
+            q_error_named(
+                self._main, RotaryWingsWidget.NAME, "At least 2 rotary wings are required."
+            )
+            return False
+
+        directions = set(self.widget(i).motor.direction() for i in range(num_rotors))
+        if len(directions) == 1:
+            q_error_named(
+                self._main,
+                RotaryWingsWidget.NAME,
+                "All rotors have the same rotation direction. "
+                "Rotors that rotate in both clockwise (CW) and counterclockwise (CCW) are required.",
+            )
+            return False
+
+        for i in range(num_rotors):
+            tab: SelectedLinksWidget = self.widget(i)
+            if not tab.is_valid():
+                return False
+
+        return True
+
     def add(self, link_name: str) -> None:
         tab = SelectedLinkTabWidget(self._main, link_name)
         self.addTab(tab, link_name)
 
-    def get_index(self, link_name) -> int:
+    def get_index(self, link_name: str) -> int:
         """ タブのインデックスを返す． """
         for idx in range(self.count()):
             tab: SelectedLinkTabWidget = self.widget(idx)
@@ -205,6 +210,21 @@ class SelectedLinksWidget(TabWidget):
                 return idx
         else:
             raise RuntimeError(f'Link name not found: {link_name}')
+
+    def get_esc(self, link_name: str) -> EscWidget:
+        idx = self.get_index(link_name)
+        tab: SelectedLinkTabWidget = self.widget(idx)
+        return tab.esc
+
+    def get_motor(self, link_name: str) -> MotorWidget:
+        idx = self.get_index(link_name)
+        tab: SelectedLinkTabWidget = self.widget(idx)
+        return tab.motor
+
+    def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
+        idx = self.get_index(link_name)
+        tab: SelectedLinkTabWidget = self.widget(idx)
+        return tab.aerodynamics
 
     def link_names(self) -> List[str]:
         """ 選択テーブル内のリンクの名前のリストを返す． """
@@ -238,6 +258,7 @@ class SelectedLinkTabWidget(QWidget):
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
         self._main = main
         self._link_name = link_name
 
@@ -247,17 +268,27 @@ class SelectedLinkTabWidget(QWidget):
         self.copy_button = add_center_button("Copy from left tab", self._rows)
         self.copy_button.setFixedSize(QSize(self.CP_BUTTON_WIDTH, self.CP_BUTTON_HEIGHT))
 
-        self.esc = EscWidget()
+        self.esc = EscWidget(main, link_name)
         self._rows.addWidget(self.esc)
 
-        self.motor = MotorWidget()
+        self.motor = MotorWidget(main, link_name)
         self._rows.addWidget(self.motor)
 
-        self.aerodynamics = AerodynamicsWidget()
+        self.aerodynamics = AerodynamicsWidget(main, link_name)
         self._rows.addWidget(self.aerodynamics)
 
         add_expanding_widget(self._rows)
         self._define_connections()
+
+    def is_valid(self) -> bool:
+        if not self.esc.is_valid():
+            return False
+        if not self.motor.is_valid():
+            return False
+        if not self.aerodynamics.is_valid():
+            return False
+
+        return True
 
     def link_name(self) -> str:
         return self._link_name
@@ -288,8 +319,11 @@ class EscWidget(QWidget):
     PWM = "PWM"
     DSHOT = "DSHOT"
 
-    def __init__(self) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
+        self._main = main
+        self._link_name = link_name
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -304,14 +338,34 @@ class EscWidget(QWidget):
         self.esc_type.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.esc_type)
 
-        self.pwm = EscWidget_PWM()
+        self.pwm = EscWidget_PWM(main, link_name)
         self._rows.addWidget(self.pwm)
 
-        self.dshot = EscWidget_DSHOT()
+        self.dshot = EscWidget_DSHOT(main, link_name)
         self._rows.addWidget(self.dshot)
 
         self._update_visibility()
         self._define_connections()
+
+    def is_valid(self) -> bool:
+        if self.esc_type.currentText() == self.NO_SELECT:
+            q_error_named(self._main, RotaryWingsWidget.NAME, "Please select ESC type.")
+            return False
+        else:
+            if not self.selected().is_valid():
+                return False
+
+        return True
+
+    def selected(self) -> EscWidget_Base:
+        esc_type = self.esc_type.currentText()
+
+        if esc_type == self.PWM:
+            return self.pwm
+        elif esc_type == self.DSHOT:
+            return self.dshot
+        else:
+            raise RuntimeError
 
     def copy_from(self, src: EscWidget) -> None:
         self.esc_type.setCurrentText(src.esc_type.currentText())
@@ -345,18 +399,25 @@ class EscWidget(QWidget):
 
 class EscWidget_Base(QWidget):
 
-    def __init__(self) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
+        self._main = main
+        self._link_name = link_name
+
+    @abstractmethod
+    def is_valid(self) -> bool:
+        raise NotImplementedError
 
     @abstractmethod
     def copy_from(self, src) -> None:
         raise NotImplementedError
 
 
-class EscWidget_PWM(QWidget):
+class EscWidget_PWM(EscWidget_Base):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -381,17 +442,23 @@ class EscWidget_PWM(QWidget):
         )
         self._rows.addWidget(self.pulse_width_range)
 
+    def is_valid(self) -> bool:
+        return True
+
     def copy_from(self, src: EscWidget_PWM) -> None:
         self.freq.set(src.freq.get())
         self.pulse_width_range.set(*src.pulse_width_range.get())
 
 
-class EscWidget_DSHOT(QWidget):
+class EscWidget_DSHOT(EscWidget_Base):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
 
         # TODO
+
+    def is_valid(self) -> bool:
+        pass  # TODO
 
     def copy_from(self, src: EscWidget_DSHOT) -> None:
         pass  # TODO
@@ -401,10 +468,13 @@ class MotorWidget(QWidget):
 
     NO_SELECT = "Select setting method"
     MANUAL = "Set manually"
-    THRUST_STAND = "Set from experimental data"
+    EXPERIMENT = "Set from experimental data (recommended)"
 
-    def __init__(self) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
+        self._main = main
+        self._link_name = link_name
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -415,19 +485,38 @@ class MotorWidget(QWidget):
         self._rows.addWidget(title)
 
         self.setting_method = ComboBox()
-        self.setting_method.addItems([self.NO_SELECT, self.MANUAL])
-        # self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.THRUST_STAND])  # TODO
+        self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.EXPERIMENT])
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
 
-        self.manual = MotorWidget_Manual()
+        self.manual = MotorWidget_Manual(main, link_name)
         self._rows.addWidget(self.manual)
 
-        self.thrust_stand = MotorWidget_Experiment()
-        self._rows.addWidget(self.thrust_stand)
+        self.experiment = MotorWidget_Experiment(main, link_name)
+        self._rows.addWidget(self.experiment)
 
         self._update_visibility()
         self._define_connections()
+
+    def is_valid(self) -> bool:
+        if self.setting_method.currentText() == self.NO_SELECT:
+            q_error_named(self._main, RotaryWingsWidget.NAME, "Please select motor setting method.")
+            return False
+        else:
+            if not self.selected().is_valid():
+                return False
+
+        return True
+
+    def selected(self) -> EscWidget_Base:
+        setting_method = self.setting_method.currentText()
+
+        if setting_method == self.MANUAL:
+            return self.manual
+        elif setting_method == self.EXPERIMENT:
+            return self.experiment
+        else:
+            raise RuntimeError
 
     def direction(self) -> str:
         """ 'cw' or 'ccw' """
@@ -448,7 +537,7 @@ class MotorWidget(QWidget):
     def copy_from(self, src: MotorWidget) -> None:
         self.setting_method.setCurrentText(src.setting_method.currentText())
         self.manual.copy_from(src.manual)
-        self.thrust_stand.copy_from(src.thrust_stand)
+        self.experiment.copy_from(src.experiment)
 
         self._update_visibility()
 
@@ -460,13 +549,13 @@ class MotorWidget(QWidget):
 
         if setting_method == self.NO_SELECT:
             self.manual.setVisible(False)
-            self.thrust_stand.setVisible(False)
+            self.experiment.setVisible(False)
         elif setting_method == self.MANUAL:
             self.manual.setVisible(True)
-            self.thrust_stand.setVisible(False)
-        elif setting_method == self.THRUST_STAND:
+            self.experiment.setVisible(False)
+        elif setting_method == self.EXPERIMENT:
             self.manual.setVisible(False)
-            self.thrust_stand.setVisible(True)
+            self.experiment.setVisible(True)
         else:
             raise RuntimeError(f'Unknown setting method: {setting_method}')
 
@@ -475,8 +564,8 @@ class MotorWidget(QWidget):
 
         if setting_method == self.MANUAL:
             return self.manual
-        elif setting_method == self.THRUST_STAND:
-            return self.thrust_stand
+        elif setting_method == self.EXPERIMENT:
+            return self.experiment
         else:
             raise RuntimeError
 
@@ -487,8 +576,11 @@ class MotorWidget(QWidget):
 
 class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
 
-    def __init__(self) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
+        self._main = main
+        self._link_name = link_name
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -501,10 +593,9 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._direction)
 
-    @final
-    def direction(self) -> str:
-        """ 'cw' or 'ccw' """
-        return self._direction.get().lower()
+    @abstractmethod
+    def is_valid(self) -> bool:
+        raise NotImplementedError
 
     @abstractmethod
     def kv(self) -> float:
@@ -525,11 +616,16 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
     def copy_from(self, src) -> None:
         raise NotImplementedError
 
+    @final
+    def direction(self) -> str:
+        """ 'cw' or 'ccw' """
+        return self._direction.get().lower()
+
 
 class MotorWidget_Manual(MotorWidget_Base):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
 
         kv_description = "TODO: instruction"
         self._kv = ParamGetterWidget_SpinBox(
@@ -573,6 +669,9 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._time_const_down)
 
+    def is_valid(self) -> bool:
+        return True
+
     def kv(self) -> float:
         return self._kv.get() * (self._efficiency.get() / 100.)
 
@@ -592,13 +691,105 @@ class MotorWidget_Manual(MotorWidget_Base):
 
 class MotorWidget_Experiment(MotorWidget_Base):
 
-    def __init__(self) -> None:
-        super().__init__()
+    TABLE_HEIGHT = 500
+    TABLE_COL_WIDTH = 180
 
-        # TODO
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
+
+        time_const_up_description = "TODO: instruction"
+        self._time_const_up = ParamGetterWidget_SpinBox(
+            "Time Constant Up",
+            time_const_up_description,
+            minimum=1,
+            default=10,
+            suffix=" ms",
+        )
+        self._rows.addWidget(self._time_const_up)
+
+        time_const_down_description = "TODO: instruction"
+        self._time_const_down = ParamGetterWidget_SpinBox(
+            "Time Constant Down",
+            time_const_down_description,
+            minimum=1,
+            default=20,
+            suffix=" ms",
+        )
+        self._rows.addWidget(self._time_const_down)
+
+        data_description = "TODO: instruction"
+        self._data = ParamGetterWidget_DoubleTable(
+            "Experimental data",
+            ["ESC signal", "Voltage", "Speed"],
+            description_text=data_description,
+        )
+        self._data.set_minimum([1., 1., 1.])
+        self._data.set_decimals([0, 6, 0])
+        self._data.set_suffix([" us", " V", " rpm"])  # TODO: PWM型以外のESCにも対応
+        self._data.set_fixed_height(self.TABLE_HEIGHT)
+        self._data.set_column_width(self.TABLE_COL_WIDTH)
+        self._rows.addWidget(self._data)
+
+    def is_valid(self) -> bool:
+        if self._data.count() == 0:
+            q_error_named(self._main, RotaryWingsWidget.NAME, "Experiment data is blank.")
+            return False
+
+        data = self._data.get()
+        esc = self._main.settings.rotary_wings.selected.get_esc(self._link_name)
+        esc_type = esc.esc_type.currentText()
+        if esc_type == esc.PWM:
+            lb, ub = esc.pwm.pulse_width_range.get()
+            for pulse_width, _, _ in data:
+                if not lb <= pulse_width <= ub:
+                    q_error_named(
+                        self._main,
+                        RotaryWingsWidget.NAME,
+                        f'Pulse width out of range: {pulse_width} not in [{lb}, {ub}]',
+                    )
+                    return False
+        elif esc_type == esc.DSHOT:
+            pass  # TODO
+
+        return True
+
+    def kv(self) -> float:
+        # TODO: 外れ値を除去
+        # TODO: あまりに線形からかけ離れていたら警告を出す
+        # TODO: データ数が十分かつ細かい時間間隔で取れていたらtime_constも推定できるかも
+
+        data = self._data.get()
+        num_samples = data.shape[0]
+        assert num_samples > 0
+
+        esc = self._main.settings.rotary_wings.selected.get_esc(self._link_name)
+        esc_type = esc.esc_type.currentText()
+        kv_sum = 0.
+
+        if esc_type == esc.PWM:
+            lb, ub = esc.pwm.pulse_width_range.get()
+            for pulse_width, battery_voltage, rpm in data:
+                throttle = remap(pulse_width, lb, ub, 0., 1.)
+                motor_voltage = battery_voltage * throttle
+                kv = rpm / motor_voltage
+                kv_sum += kv
+        elif esc_type == esc.DSHOT:
+            raise NotImplementedError
+        else:
+            raise RuntimeError
+
+        return kv_sum / num_samples
+
+    def time_const_up(self) -> float:
+        return self._time_const_up.get() / 1000.
+
+    def time_const_down(self) -> float:
+        return self._time_const_down.get() / 1000.
 
     def copy_from(self, src: MotorWidget_Experiment) -> None:
-        pass  # TODO
+        self._time_const_up.set(src._time_const_up.get())
+        self._time_const_down.set(src._time_const_down.get())
+        self._data.set(src._data.get())
 
 
 class AerodynamicsWidget(QWidget):
@@ -606,10 +797,13 @@ class AerodynamicsWidget(QWidget):
     NO_SELECT = "Select setting method"
     MANUAL = "Set manually"
     BLADE_THEORY = "Set from rough blade shape"
-    THRUST_STAND = "Set from thrust stand data"
+    THRUST_STAND = "Set from thrust stand data (recommended)"
 
-    def __init__(self) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
+        self._main = main
+        self._link_name = link_name
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -626,17 +820,41 @@ class AerodynamicsWidget(QWidget):
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
 
-        self.manual = AerodynamicsWidget_Manual()
+        self.manual = AerodynamicsWidget_Manual(main, link_name)
         self._rows.addWidget(self.manual)
 
-        self.blade_theory = AerodynamicsWidget_BladeTheory()
+        self.blade_theory = AerodynamicsWidget_BladeTheory(main, link_name)
         self._rows.addWidget(self.blade_theory)
 
-        self.thrust_stand = AerodynamicsWidget_ThrustStand()
+        self.thrust_stand = AerodynamicsWidget_ThrustStand(main, link_name)
         self._rows.addWidget(self.thrust_stand)
 
         self._update_visibility()
         self._define_connections()
+
+    def is_valid(self) -> bool:
+        if self.setting_method.currentText() == self.NO_SELECT:
+            q_error_named(
+                self._main, RotaryWingsWidget.NAME, "Please select aerodynamics setting method."
+            )
+            return False
+        else:
+            if not self.selected().is_valid():
+                return False
+
+        return True
+
+    def selected(self) -> EscWidget_Base:
+        setting_method = self.setting_method.currentText()
+
+        if setting_method == self.MANUAL:
+            return self.manual
+        elif setting_method == self.BLADE_THEORY:
+            return self.blade_theory
+        elif setting_method == self.THRUST_STAND:
+            return self.thrust_stand
+        else:
+            raise RuntimeError
 
     def motor_const(self) -> float:
         """ [kg*m/s^2] """
@@ -649,9 +867,6 @@ class AerodynamicsWidget(QWidget):
     def rotor_drag_coef(self) -> float:
         """ [Ns^2/m^2] """
         return self._selected_setting_widget().rotor_drag_coef()
-
-    def copy_from(self, src) -> None:
-        pass
 
     def copy_from(self, src: AerodynamicsWidget) -> None:
         self.setting_method.setCurrentText(src.setting_method.currentText())
@@ -711,11 +926,18 @@ class AerodynamicsWidget_Base(QWidget):
     gamma = 8.          # Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
     C_d0 = 0.02         # Profile drag coefficient (typical value)
 
-    def __init__(self) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
+
+        self._main = main
+        self._link_name = link_name
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
+
+    @abstractmethod
+    def is_valid(self) -> bool:
+        raise NotImplementedError
 
     @abstractmethod
     def motor_const(self) -> float:
@@ -739,8 +961,8 @@ class AerodynamicsWidget_Base(QWidget):
 
 class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
 
         motor_const_description = "TODO: instruction"
         self._motor_const = ParamGetterWidget_DoubleSpinBox(
@@ -775,6 +997,9 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._rotor_drag_coef)
 
+    def is_valid(self) -> bool:
+        return True
+
     def motor_const(self) -> float:
         return self._motor_const.get()
 
@@ -793,8 +1018,8 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """ Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
 
         num_blade_description = "TODO: instruction"
         self._num_blade = ParamGetterWidget_SpinBox(
@@ -835,6 +1060,9 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
             suffix=" deg",
         )
         self._rows.addWidget(self._pitch_avg)
+
+    def is_valid(self) -> bool:
+        return True
 
     def motor_const(self) -> float:
         return 4 * math.pi * self._C_T() * self.rho * self._R()**4
@@ -901,8 +1129,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
 
         # 同じ計算を繰り返すことを防ぐためにMotor ConstとMoment Constをキャッシュする
         self._motor_const = -1.
@@ -930,24 +1158,34 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._rows.addWidget(self._blade_chord)
 
         data_description = "TODO: instruction"
-        self.data = ParamGetterWidget_DoubleTable(
+        self._data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
             ["Rotation Speed", "Thrust", "Torque"],
             description_text=data_description,
         )
-        self.data.set_minimum([1e-1, 1e-6, 1e-6])
-        self.data.set_decimals([1, 6, 6])
-        self.data.set_suffix([" rpm", " N", " Nm"])
-        self.data.set_fixed_height(self.TABLE_HEIGHT)
-        self.data.set_column_width(self.TABLE_COL_WIDTH)
-        self._rows.addWidget(self.data)
+        self._data.set_minimum([1e-1, 1e-6, 1e-6])  # TODO: 負の値にも対応
+        self._data.set_decimals([1, 6, 6])
+        self._data.set_suffix([" rpm", " N", " Nm"])
+        self._data.set_fixed_height(self.TABLE_HEIGHT)
+        self._data.set_column_width(self.TABLE_COL_WIDTH)
+        self._rows.addWidget(self._data)
 
-        self.data.data_changed.connect(self._on_data_changed)
+        self._data.data_changed.connect(self._on_data_changed)
+
+    def is_valid(self) -> bool:
+        if self._data.count() == 0:
+            q_error_named(self._main, RotaryWingsWidget.NAME, "Thrust stand data is blank.")
+            return False
+
+        return True
 
     def motor_const(self) -> float:
+        # TODO: 外れ値を除去
+        # TODO: あまりにモデル(２次関数)からかけ離れていたら警告を出す
+
         # Motor Constが更新されていなければ更新
         if not self._motor_const_updated:
-            data = self.data.get()
+            data = self._data.get()
             num_samples = data.shape[0]
             assert num_samples > 0
 
@@ -959,12 +1197,15 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
             self._motor_const = motor_const_sum / num_samples
             self._motor_const_updated = True
 
-        return float(self._motor_const)  # yaml.dump()のためにnp.floatから組み込みのfloatに変換
+        return self._motor_const
 
     def moment_const(self) -> float:
+        # TODO: 外れ値を除去
+        # TODO: あまりにモデルからかけ離れていたら警告を出す
+
         # Moment Constが更新されていなければ更新
         if not self._moment_const_updated:
-            data = self.data.get()
+            data = self._data.get()
             num_samples = data.shape[0]
             assert num_samples > 0
 
@@ -977,7 +1218,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
             self._moment_const = moment_const_sum / num_samples
             self._moment_const_updated = True
 
-        return float(self._moment_const)
+        return self._moment_const
 
     def rotor_drag_coef(self) -> float:
         return float(4 * math.pi * self.rho * self._R()**3 * self._C_H())
@@ -985,7 +1226,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         self._num_blade.set(src._num_blade.get())
         self._blade_chord.set(src._blade_chord.get())
-        self.data.set(src.data.get())
+        self._data.set(src._data.get())
 
     def _N(self) -> int:
         """ Number of blades """

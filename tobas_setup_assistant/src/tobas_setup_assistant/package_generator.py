@@ -178,15 +178,17 @@ class PackageGenerator(QWidget):
         }
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+
+            # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f'rotor_{i}'] = {
                 "link_name": selected.link_name(),
                 "direction": selected.motor.direction(),
-                "kv": selected.motor.kv(),
-                "time_constant_up": selected.motor.time_const_up(),
-                "time_constant_down": selected.motor.time_const_down(),
-                "motor_constant": selected.aerodynamics.motor_const(),
-                "moment_constant": selected.aerodynamics.moment_const(),
-                "rotor_drag_coefficient": selected.aerodynamics.rotor_drag_coef(),
+                "kv": float(selected.motor.kv()),
+                "time_constant_up": float(selected.motor.time_const_up()),
+                "time_constant_down": float(selected.motor.time_const_down()),
+                "motor_constant": float(selected.aerodynamics.motor_const()),
+                "moment_constant": float(selected.aerodynamics.moment_const()),
+                "rotor_drag_coefficient": float(selected.aerodynamics.rotor_drag_coef()),
                 "pin": i + 1,
             }
 
