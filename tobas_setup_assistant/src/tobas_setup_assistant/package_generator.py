@@ -17,6 +17,7 @@ from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
+from dh_rqt_tools.xml import prettify_and_save
 
 from .utils import *
 from .xml_nodes import *
@@ -293,11 +294,14 @@ class PackageGenerator(QWidget):
             yaml.dump(items, f)
 
     def _generate_urdf(self, urdf_dir: str) -> None:
-        tree = self._make_urdf_with_plugins()
+        robot = self._make_urdf_with_plugins()
         urdf_path = osp.join(urdf_dir, f'{self._drone_name}.urdf')
-        tree.write(urdf_path)
 
-    def _make_urdf_with_plugins(self) -> ET.ElementTree:
+        # Save URDF
+        # ET.ElementTree(robot).write(urdf_path)
+        prettify_and_save(robot, urdf_path)
+
+    def _make_urdf_with_plugins(self) -> ET.Element:
         description = rospy.get_param("/robot_description")
         robot = ET.fromstring(description)
         assert robot.tag == "robot"
@@ -305,7 +309,7 @@ class PackageGenerator(QWidget):
         self._screen_xml_elements(robot)
         self._add_xml_elements(robot)
 
-        return ET.ElementTree(robot)
+        return robot
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """ 悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す． """
