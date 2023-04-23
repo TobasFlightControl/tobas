@@ -30,7 +30,8 @@ class ObserverWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         self.observer_type = ComboBox()
-        self.observer_type.addItems([self.NO_SELECT, self.CASCADE, self.ESKF])
+        # self.observer_type.addItems([self.NO_SELECT, self.CASCADE, self.ESKF])  # TODO
+        self.observer_type.addItems([self.NO_SELECT, self.CASCADE])
         self.observer_type.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.observer_type)
 
