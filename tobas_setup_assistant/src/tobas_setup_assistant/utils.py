@@ -1,6 +1,7 @@
 import os
 import re
 import math
+import subprocess
 import rospy
 from xml.etree import ElementTree as ET
 from PyQt5.QtCore import *
@@ -20,8 +21,28 @@ def remap(x: float, a: float, b: float, c: float, d: float) -> float:
 
 
 def get_user_name() -> str:
-    """ ユーザ名を返す． """
+    """ PCのユーザ名を返す． """
     return os.environ['USER']
+
+
+def get_git_user_name() -> str:
+    """ Gitのユーザ名を返す． """
+    command = "git config --global user.name"
+    result = subprocess.run(command.split(), stdout=subprocess.PIPE)
+    return result.stdout.decode('utf-8').strip()
+
+
+def get_git_user_email() -> str:
+    """ Gitのメールアドレスを返す． """
+    command = "git config --global user.email"
+    result = subprocess.run(command.split(), stdout=subprocess.PIPE)
+    return result.stdout.decode('utf-8').strip()
+
+
+def git_config() -> None:
+    """ Gitのユーザ名とメールアドレスを設定する． """
+    os.system("git config --global user.name " + get_git_user_name())
+    os.system("git config --global user.email " + get_git_user_email())
 
 
 def get_drone_name() -> str:
