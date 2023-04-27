@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <termios.h>
 
-#include <dh_std_tools/struct.hpp>
+#include <dh_std_tools/range.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/Command.h>

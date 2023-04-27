@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -89,49 +88,49 @@ void CommandHandler::run()
       case 'w':  // X+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving forward");
-        x = dh_std::clamp(x + delta_pos_, x_limit_.lower, x_limit_.upper, "X");
+        x = x_limit_.clamp(x + delta_pos_);
         break;
       }
       case 's':  // X-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving backward");
-        x = dh_std::clamp(x - delta_pos_, x_limit_.lower, x_limit_.upper, "X");
+        x = x_limit_.clamp(x - delta_pos_);
         break;
       }
       case 'a':  // Y+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving left");
-        y = dh_std::clamp(y + delta_pos_, y_limit_.lower, y_limit_.upper, "Y");
+        y = y_limit_.clamp(y + delta_pos_);
         break;
       }
       case 'd':  // Y-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving right");
-        y = dh_std::clamp(y - delta_pos_, y_limit_.lower, y_limit_.upper, "Y");
+        y = y_limit_.clamp(y - delta_pos_);
         break;
       }
       case KEYCODE_U:  // Z+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving up");
-        z = dh_std::clamp(z + delta_pos_, z_limit_.lower, z_limit_.upper, "Z");
+        z = z_limit_.clamp(z + delta_pos_);
         break;
       }
       case KEYCODE_D:  // Z-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving down");
-        z = dh_std::clamp(z - delta_pos_, z_limit_.lower, z_limit_.upper, "Z");
+        z = z_limit_.clamp(z - delta_pos_);
         break;
       }
       case KEYCODE_L:  // yaw+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating left");
-        yaw = dh_std::clamp(yaw + delta_rot_, yaw_limit_.lower, yaw_limit_.upper, "Yaw");
+        yaw = yaw_limit_.clamp(yaw + delta_rot_);
         break;
       }
       case KEYCODE_R:  // yaw-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating right");
-        yaw = dh_std::clamp(yaw - delta_rot_, yaw_limit_.lower, yaw_limit_.upper, "Yaw");
+        yaw = yaw_limit_.clamp(yaw - delta_rot_);
         break;
       }
     }
