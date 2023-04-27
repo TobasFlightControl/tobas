@@ -121,6 +121,7 @@ Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
   double beta,
   const Vector3d& force_coefs)
 {
+  // (1.8-9)
   double C_l = rollCoefficient(beta);
   double C_m = pitchCoefficient(alpha, beta, force_coefs.Z());
   double C_n = yawCoefficient(beta, force_coefs.Y());
