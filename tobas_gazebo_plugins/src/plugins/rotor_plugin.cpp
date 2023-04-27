@@ -38,12 +38,7 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   // Initialize the first order filter
   rotor_speed_filter_.initialize(time_const_up_, time_const_down_, ref_motor_input_);
 
-  // Advertise
-  motor_speed_pub_ = nh_.advertise<std_msgs::Float64>("/" + ns_ + "/" + motor_speed_pub_topic_, 1);
-  command_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
-  wind_speed_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+  registerPubSub();
 
   // Listen to the update event
   update_connection_ =
@@ -175,6 +170,16 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   motor_speed_pub_.publish(motor_speed_msg_);
 }
 
+void GazeboRotorPlugin::registerPubSub()
+{
+  motor_speed_pub_ = nh_.advertise<std_msgs::Float64>("/" + ns_ + "/" + motor_speed_pub_topic_, 1);
+
+  command_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
+  wind_speed_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+}
+
 void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 {
   double rot_vel_sim = joint_->GetVelocity(0);
@@ -236,7 +241,6 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 
 void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)
 {
-  // TODO: Transform velocity to world frame if frame_id is set to something else.
   vectorRosToGazebo(wind.velocity, wind_speed_W_);
 }
 

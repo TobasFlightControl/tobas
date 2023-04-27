@@ -11,8 +11,11 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/WindSpeed.h>
 
+#include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
+
+
 
 namespace gazebo
 {
@@ -22,13 +25,11 @@ static constexpr char kPluginName[] = "motor_model_plugin";
 // Default values
 static constexpr char kDefaultSpeedPubTopic[] = "motor_speed";
 static constexpr char kDefaultCmdSubTopic[] = "command/motor_speed";
-static constexpr char kDefaultWindSubTopic[] = "wind_speed";
-static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 
 class GazeboRotorPlugin : public ModelPlugin
 {
   using super = ModelPlugin;
-  
+
   using CmdMsg = tobas_msgs::RotorSpeeds;
   using WindMsg = tobas_msgs::WindSpeed;
 
@@ -75,6 +76,7 @@ private:
   ros::Subscriber wind_speed_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
+  void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
   void updateForcesAndMoments(double dt);
 
