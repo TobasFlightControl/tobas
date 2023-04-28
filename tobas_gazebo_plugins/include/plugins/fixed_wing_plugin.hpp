@@ -11,71 +11,27 @@
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/WindSpeed.h>
 
+#include "../tobas_gazebo_plugins/fixed_wing_tools.hpp"
+
 namespace gazebo
 {
 // Constants
 static constexpr char kPluginName[] = "fixed_wing_plugin";
+static constexpr double deg2rad = M_PI / 180.;
 static constexpr double kMinAirSpeedThresh = 0.1;
 
-struct VehicleParameters
-{
-  double wing_surface;  // 主翼面積
-  double wing_span;     // 翼幅
-  double mac;           // 平均空力翼弦 (Mean Aerodynamic Chord)
-};
-
-/**
- * @brief 舵面．軸が概ねY軸またはZ軸に平行であることを想定．
- */
-struct ControlSurface
-{
-  uint32_t index;  // 舵角配列における添字
-  dh_std::Range<double> limit;
-
-  double c_lift_delta;      // [/deg]
-  double c_drag_abs_delta;  // [/deg], 舵角の正負にかかわらず抗力が発生するモデル
-  double c_side_delta;      // [/deg]
-  double c_roll_delta;      // [/deg]
-  double c_pitch_delta;     // [/deg]
-  double c_yaw_delta;       // [/deg]
-};
-
-struct AerodynamicsCoefficients
-{
-  // Lift force
-  double c_lift_0;      // [-]
-  double c_lift_alpha;  // [/deg]
-
-  // Drag force
-  double c_drag_0;      // [-]
-  double c_drag_alpha;  // [/deg]
-
-  // Side force
-  double c_side_beta;  // [/deg]
-
-  // Roll moment
-  double c_roll_beta;  // [/deg]
-  double c_roll_p;     // [/rad]
-  double c_roll_r;     // [/rad]
-
-  // Pitch moment
-  double c_pitch_0;           // [-]
-  double c_pitch_alpha;       // [/deg]
-  double c_pitch_abs_beta;    // [/deg]
-  double c_pitch_alpha_rate;  // [/rad]
-  double c_pitch_q;           // [/rad]
-
-  // Yaw moment
-  double c_yaw_beta;  // [/deg]
-  double c_yaw_p;     // [/rad]
-  double c_yaw_r;     // [/rad]
-
-  std::vector<ControlSurface> control_surfaces;
-};
+// Default values
+static constexpr char kDefaultDeflectionsSubTopic[] = "deflections";
+static constexpr double kDefaultLowerStallAngle = -10. * deg2rad;
+static constexpr double kDefaultUpperStallAngle = 20. * deg2rad;
 
 /**
  * @brief 固定翼機に作用する空気力のプラグイン．
  * cf. 航空機の飛行力学と制御: https://www.morikita.co.jp/books/mid/069081
+ *
+ * @note
+ * 全てSI単位系を用いる．
+ * 舵面ごとに別々のプラグインにすることも検討したが，揚力係数等の計算が面倒になるため全ての舵面を統合している．
  */
 class GazeboFixedWingPlugin : public ModelPlugin
 {
@@ -98,16 +54,16 @@ private:
   std::string link_name_;
   std::string deflections_sub_topic_;
   std::string wind_speed_sub_topic_;
-  double ref_alt_;
-  dh_std::Range<double> alpha_range_;
-  uint32_t num_control_surfaces_;
+  double ref_alt_;                     // 基準点の幾何的高度
+  dh_std::Range<double> alpha_range_;  // 失速角
   VehicleParameters vehicle_params_;
   AerodynamicsCoefficients aero_coefs_;
 
+  uint32_t num_control_surfaces_;
   bool is_initialized_;
   double prev_sim_time_;
   double prev_alpha_;
-  tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [deg]
+  tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [rad]
   ignition::math::Vector3d wind_speed_W_;                 // 風速 [m/s]
 
   physics::LinkPtr link_;
@@ -119,6 +75,7 @@ private:
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
+  void updateDeflections(double dt);
   ignition::math::Vector3d nonDimentionalAeroCoefs_Force(double alpha, double beta);
   ignition::math::Vector3d nonDimentionalAeroCoefs_Moment(
     double alpha,
