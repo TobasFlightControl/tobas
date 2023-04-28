@@ -3,6 +3,7 @@
 #include <kdl_conversions/kdl_msg.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
@@ -179,7 +180,7 @@ void StateEstimator::initialize()
   auto gps_cov = gps.position_covariance;
 
   double dummy, z_var;
-  airPressureToAltitude(bar.fluid_pressure, bar.variance, dummy, z_var);
+  pressureToAltitude(bar.fluid_pressure, bar.variance, dummy, z_var);
 
   cart_filter_.initialize(
     Vector3d::Zero(),                                          // init pos
@@ -217,7 +218,7 @@ void StateEstimator::setZeroPositions()
     sum_pressure += bar.fluid_pressure;
   }
   double mean_pressure = sum_pressure / BAR_BUF_SIZE;
-  airPressureToAltitude(mean_pressure, alt_0_);
+  alt_0_ = pressureToAltitude(mean_pressure);
 }
 
 void StateEstimator::updatePoseVelMsg()
@@ -302,7 +303,7 @@ void StateEstimator::barometerCb(const BarMsg& bar)
   }
 
   double z_abs, z_var;
-  airPressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
+  pressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
 
   double z_m = z_abs - alt_0_;
   cart_filter_.measureAltitude(z_m, z_var);

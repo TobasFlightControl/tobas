@@ -1,6 +1,7 @@
 #include "../../include/plugins/barometer_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/constants.hpp"
 
 using namespace std;
 
@@ -52,7 +53,7 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   getSdfParam<string>(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
-  getSdfParam<double>(sdf, "referenceAltitude", ref_alt_, kDefaultRefAlt);
+  getSdfParam<double>(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
 
   getSdfParam<double>(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar);
   if (pressure_var_ < 0.)

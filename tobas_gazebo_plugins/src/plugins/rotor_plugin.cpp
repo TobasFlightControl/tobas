@@ -229,7 +229,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 
 void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 {
-  if (motor_number_ > cmd.speeds.size() - 1)
+  if (motor_number_ >= cmd.speeds.size())
   {
     gzerr << kPluginName << ": You tried to access index " << motor_number_
           << " of the RotorSpeeds message array which is of size " << cmd.speeds.size() << endl;

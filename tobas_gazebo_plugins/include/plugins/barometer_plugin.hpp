@@ -24,7 +24,6 @@ static constexpr char kPluginName[] = "barometer_plugin";
 
 // Default values
 static const std::string kDefaultPressurePubTopic = "air_pressure";
-static constexpr double kDefaultRefAlt = 500.;
 static constexpr double kDefaultPressureVar = 1.;
 
 class GazeboBarometerPlugin : public SensorPlugin

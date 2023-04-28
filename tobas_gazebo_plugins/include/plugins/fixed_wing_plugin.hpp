@@ -24,12 +24,53 @@ struct VehicleParameters
   double mac;           // 平均空力翼弦 (Mean Aerodynamic Chord)
 };
 
+/**
+ * @brief 舵面．軸が概ねY軸またはZ軸に平行であることを想定．
+ */
+struct ControlSurface
+{
+  uint32_t index;  // 舵角配列における添字
+  dh_std::Range<double> limit;
+
+  double c_lift_delta;      // [/deg]
+  double c_drag_abs_delta;  // [/deg], 舵角の正負にかかわらず抗力が発生するモデル
+  double c_side_delta;      // [/deg]
+  double c_roll_delta;      // [/deg]
+  double c_pitch_delta;     // [/deg]
+  double c_yaw_delta;       // [/deg]
+};
+
 struct AerodynamicsCoefficients
 {
+  // Lift force
   double c_lift_0;      // [-]
   double c_lift_alpha;  // [/deg]
+
+  // Drag force
   double c_drag_0;      // [-]
   double c_drag_alpha;  // [/deg]
+
+  // Side force
+  double c_side_beta;  // [/deg]
+
+  // Roll moment
+  double c_roll_beta;  // [/deg]
+  double c_roll_p;     // [/rad]
+  double c_roll_r;     // [/rad]
+
+  // Pitch moment
+  double c_pitch_0;           // [-]
+  double c_pitch_alpha;       // [/deg]
+  double c_pitch_abs_beta;    // [/deg]
+  double c_pitch_alpha_rate;  // [/rad]
+  double c_pitch_q;           // [/rad]
+
+  // Yaw moment
+  double c_yaw_beta;  // [/deg]
+  double c_yaw_p;     // [/rad]
+  double c_yaw_r;     // [/rad]
+
+  std::vector<ControlSurface> control_surfaces;
 };
 
 /**
@@ -57,11 +98,17 @@ private:
   std::string link_name_;
   std::string deflections_sub_topic_;
   std::string wind_speed_sub_topic_;
+  double ref_alt_;
   dh_std::Range<double> alpha_range_;
+  uint32_t num_control_surfaces_;
   VehicleParameters vehicle_params_;
   AerodynamicsCoefficients aero_coefs_;
 
-  ignition::math::Vector3d wind_speed_W_;
+  bool is_initialized_;
+  double prev_sim_time_;
+  double prev_alpha_;
+  tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [deg]
+  ignition::math::Vector3d wind_speed_W_;                 // 風速 [m/s]
 
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
@@ -76,16 +123,19 @@ private:
   ignition::math::Vector3d nonDimentionalAeroCoefs_Moment(
     double alpha,
     double beta,
+    double alpha_rate,
+    double V,
     const ignition::math::Vector3d& force_coefs);
   double liftCoefficient(double alpha);
   double dragCoefficient(double alpha);
   double sideCoefficient(double beta);
-  double rollCoefficient(double beta);
-  double pitchCoefficient(double alpha, double beta, double C_z);
-  double yawCoefficient(double beta, double C_y);
-  double dynamicPressure();
+  double rollCoefficient(double beta, double p, double r, double V);
+  double
+  pitchCoefficient(double alpha, double beta, double alpha_rate, double q, double V, double C_z);
+  double yawCoefficient(double beta, double p, double r, double V, double C_y);
+  double dynamicPressure(double V);
 
-  void deflectionsCb(const CmdMsg& cmd);
+  void deflectionsCb(const CmdMsg& deflections);
   void windSpeedCb(const WindMsg& wind);
 };
 }  // namespace gazebo

@@ -2,6 +2,7 @@
 #include <eigen_conversions/eigen_kdl.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
@@ -85,7 +86,7 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   // TODO: state_estimation_cascadeのようにバッファの平均をとる？
   lat_0_ = gps_.latitude;
   lon_0_ = gps_.longitude;
-  airPressureToAltitude(bar_.fluid_pressure, alt_0_);
+  alt_0_ = pressureToAltitude(bar_.fluid_pressure);
 }
 
 void ErrorStateKalmanFilterRos::initialize()
@@ -208,7 +209,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
   lTime now = getNow();
 
   double z_abs, z_var;
-  airPressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
+  pressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
 
   double z_m = z_abs - alt_0_;
   eskf_.measureAltitude(z_m, z_var, stamp, now);
