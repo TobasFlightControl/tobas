@@ -72,15 +72,8 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
 
 void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
+  getSdfParam<string>(sdf, "robotNamespace", ns_);
+  getSdfParam<string>(sdf, "linkName", link_name_);
 
   getSdfParam<string>(sdf, "magnetometerTopic", mag_topic_, kDefaultMagTopic);
 

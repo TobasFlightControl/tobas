@@ -75,15 +75,8 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
+  getSdfParam<string>(sdf, "robotNamespace", ns_);
+  getSdfParam<string>(sdf, "linkName", link_name_);
 
   getSdfParam<string>(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
   getSdfParam<string>(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);

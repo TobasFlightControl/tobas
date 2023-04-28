@@ -64,15 +64,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
+  getSdfParam<string>(sdf, "robotNamespace", ns_);
+  getSdfParam<string>(sdf, "linkName", link_name_);
 
   // TODO: 範囲チェック
   getSdfParam<string>(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);

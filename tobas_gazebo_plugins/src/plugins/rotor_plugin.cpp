@@ -47,25 +47,10 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify linkName of the rotor.");
-  }
-
-  if (!getSdfParam<string>(sdf, "jointName", joint_name_))
-  {
-    gzthrow(kPluginName << ": Please specify jointName, where the rotor is attached.");
-  }
-
-  if (!getSdfParam<int>(sdf, "motorNumber", motor_number_))
-  {
-    gzthrow(kPluginName << ": Please specify motorNumber.");
-  }
+  getSdfParam<string>(sdf, "robotNamespace", ns_);
+  getSdfParam<string>(sdf, "linkName", link_name_);
+  getSdfParam<string>(sdf, "jointName", joint_name_);
+  getSdfParam<int>(sdf, "motorNumber", motor_number_);
 
   if (sdf->HasElement("turningDirection"))
   {
@@ -88,55 +73,37 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  if (!getSdfParam<double>(sdf, "maxRotVelocity", max_rot_vel_))
-  {
-    gzthrow(kPluginName << ": Please specify maxRotVelocity [rad/s].");
-  }
+  getSdfParam<double>(sdf, "maxRotVelocity", max_rot_vel_);
   if (max_rot_vel_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_vel_ << " [rad/s]");
   }
 
-  if (!getSdfParam<double>(sdf, "motorConstant", motor_const_))
-  {
-    gzthrow(kPluginName << ": Please specify motorConstant [kg*m/s^2]");
-  }
+  getSdfParam<double>(sdf, "motorConstant", motor_const_);
   if (motor_const_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid motorConstant: " << motor_const_ << " [kg*m/s^2]");
   }
 
-  if (!getSdfParam<double>(sdf, "momentConstant", moment_const_))
-  {
-    gzthrow(kPluginName << ": Please specify momentConstant [m]");
-  }
+  getSdfParam<double>(sdf, "momentConstant", moment_const_);
   if (moment_const_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid momentConstant:" << moment_const_ << " [m]");
   }
 
-  if (!getSdfParam<double>(sdf, "rotorDragCoefficient", rotor_drag_coef_))
-  {
-    gzthrow(kPluginName << ": Please specify rotorDragCoefficient [Ns^2/m^2]");
-  }
+  getSdfParam<double>(sdf, "rotorDragCoefficient", rotor_drag_coef_);
   if (rotor_drag_coef_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid rotorDragCoefficient:" << rotor_drag_coef_ << " [Ns^2/m^2]");
   }
 
-  if (!getSdfParam<double>(sdf, "timeConstantUp", time_const_up_))
-  {
-    gzthrow(kPluginName << ": Please specify timeConstantUp [s]");
-  }
+  getSdfParam<double>(sdf, "timeConstantUp", time_const_up_);
   if (time_const_up_ <= 0.)
   {
     gzthrow(kPluginName << ": Invalid timeConstantUp:" << time_const_up_ << " [s]");
   }
 
-  if (!getSdfParam<double>(sdf, "timeConstantDown", time_const_down_))
-  {
-    gzthrow(kPluginName << ": Please specify timeConstantDown [s]");
-  }
+  getSdfParam<double>(sdf, "timeConstantDown", time_const_down_);
   if (time_const_down_ <= 0.)
   {
     gzthrow(kPluginName << ": Invalid timeConstantDown:" << time_const_down_ << " [s]");
@@ -146,12 +113,8 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam<string>(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
   getSdfParam<string>(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
 
-  if (!getSdfParam<double>(sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_))
-  {
-    gzlog << kPluginName << ": rotorVelocitySlowdownSim is not specified. The default value "
-          << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
-    rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
-  }
+  getSdfParam<double>(
+    sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim);
   if (rotor_speed_slowdown_sim_ < 1.)
   {
     gzerr << kPluginName << ": Invalid rotorVelocitySlowdownSim: " << rotor_speed_slowdown_sim_

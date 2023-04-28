@@ -42,15 +42,8 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
 
 void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
+  getSdfParam<string>(sdf, "robotNamespace", ns_);
+  getSdfParam<string>(sdf, "linkName", link_name_);
 
   getSdfParam<string>(sdf, "stateTopic", state_topic_, kDefaultStateTopic);
 }
