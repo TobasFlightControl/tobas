@@ -4,7 +4,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
 
-#include "../../include/tobas_controller/rotation_controller.hpp"
+#include "../../include/tobas_multirotor_controller/rotation_controller.hpp"
 
 #define WEIGHT_SCALER 1e+6  // QPの数値エラーを防ぐために重みにかける定数
 

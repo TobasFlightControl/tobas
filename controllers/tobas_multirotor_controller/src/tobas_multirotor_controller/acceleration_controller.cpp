@@ -5,7 +5,7 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
-#include "../../include/tobas_controller/acceleration_controller.hpp"
+#include "../../include/tobas_multirotor_controller/acceleration_controller.hpp"
 
 #define WARN_PERIOD 1.
 

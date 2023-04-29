@@ -31,5 +31,5 @@ $ roslaunch tobas_gui_teleop gui_teleop.launch            # GUI
 
 ```bash
 $ rosrun rqt_reconfigure rqt_reconfigure
-$ rosparam dump {{ pkg_name }}/config/controller.yaml /tobas_controller
+$ rosparam dump {{ pkg_name }}/config/controller.yaml /tobas_multirotor_controller
 ```

@@ -11,7 +11,7 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Command.h>
 #include <tobas_msgs/ControllerFeedback.h>
-#include <tobas_controller/ControllerConfig.h>
+#include <tobas_multirotor_controller/ControllerConfig.h>
 
 #include "./position_controller.hpp"
 #include "./acceleration_controller.hpp"
@@ -26,7 +26,7 @@ class Controller
   using StateMsg = tobas_msgs::PoseVelStamped;
   using CmdMsg = tobas_msgs::Command;
 
-  using ConfigType = tobas_controller::ControllerConfig;
+  using ConfigType = tobas_multirotor_controller::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:

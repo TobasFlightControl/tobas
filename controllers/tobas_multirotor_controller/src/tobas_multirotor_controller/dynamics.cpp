@@ -9,7 +9,7 @@
 
 #include <tobas_tools/rotor_property.hpp>
 
-#include "../../include/tobas_controller/dynamics.hpp"
+#include "../../include/tobas_multirotor_controller/dynamics.hpp"
 
 using namespace std;
 using namespace KDL;

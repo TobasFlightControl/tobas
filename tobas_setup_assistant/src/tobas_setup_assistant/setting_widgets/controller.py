@@ -69,7 +69,7 @@ class ControllerWidget(BaseSettingWidget):
         if controller_type == self.NO_SELECT:
             raise RuntimeError("Controller type is not selected.")
         elif controller_type == self.LMPC:
-            return "tobas_controller"
+            return "tobas_multirotor_controller"
         elif controller_type == self.NMPC:
             raise NotImplementedError
         elif controller_type == self.SMC:

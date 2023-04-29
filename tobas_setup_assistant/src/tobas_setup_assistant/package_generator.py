@@ -237,7 +237,7 @@ class PackageGenerator(QWidget):
         items = dict()
         if controller_type == controller.LMPC:
             lmpc = controller.lmpc
-            items["tobas_controller"] = {
+            items["tobas_multirotor_controller"] = {
                 "natural_frequency": lmpc.natural_freq.get(),
                 "damping_ratio": lmpc.damp_ratio.get(),
                 "prediction_horizon": lmpc.pred_horizon.get(),

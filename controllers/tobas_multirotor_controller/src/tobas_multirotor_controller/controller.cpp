@@ -6,7 +6,7 @@
 #include <tobas_tools/operators.hpp>
 #include <tobas_tools/utils.hpp>
 
-#include "../../include/tobas_controller/controller.hpp"
+#include "../../include/tobas_multirotor_controller/controller.hpp"
 
 #define INFO_PERIOD 1.
 #define TIMER_PERIOD 5.
@@ -69,7 +69,7 @@ void Controller::registerPublishers()
   rotor_speeds_pub_ =
     nh_.advertise<tobas_msgs::RotorSpeeds>("/" + drone_name_ + "/command/motor_speed", 1, false);
   feedback_pub_ =
-    nh_.advertise<tobas_msgs::ControllerFeedback>("/tobas_controller/feedback", 1, false);
+    nh_.advertise<tobas_msgs::ControllerFeedback>("/tobas_multirotor_controller/feedback", 1, false);
 }
 
 void Controller::registerSubscribers()

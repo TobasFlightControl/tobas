@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_multirotor_controller" type="controller_node" name="tobas_multirotor_controller" output="screen"/>
+
+</launch>

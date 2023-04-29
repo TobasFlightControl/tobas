@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_controller" type="controller_node" name="tobas_controller" output="screen"/>
-
-</launch>

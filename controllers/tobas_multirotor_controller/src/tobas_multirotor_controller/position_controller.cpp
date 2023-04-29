@@ -6,7 +6,7 @@
 #include <tobas_tools/operators.hpp>
 #include <tobas_tools/conversions/msg_msg.hpp>
 
-#include "../../include/tobas_controller/position_controller.hpp"
+#include "../../include/tobas_multirotor_controller/position_controller.hpp"
 
 PositionController::PositionController()
 {
