@@ -412,4 +412,6 @@ void GazeboFixedWingPlugin::windSpeedCb(const WindMsg& wind)
 {
   vectorRosToGazebo(wind.velocity, wind_speed_W_);
 }
+
+GZ_REGISTER_MODEL_PLUGIN(GazeboFixedWingPlugin);
 }  // namespace gazebo
