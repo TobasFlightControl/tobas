@@ -1,31 +1,20 @@
-#include <ros/ros.h>
 #include <Eigen/Core>
 #include <eigen_conversions/eigen_kdl.h>
-#include <kdl/frames_io.hpp>
 
-#include <dh_ros_tools/rosparam.hpp>
 #include <dh_kdl/util.hpp>
 #include <dh_kdl/conversion/kdl_eigen.hpp>
-
-#include <tobas_tools/rotor_property.hpp>
 
 #include "../../include/tobas_multirotor_controller/dynamics.hpp"
 
 using namespace std;
 using namespace KDL;
 
-MultiRotorDynamics::MultiRotorDynamics(const Tree& tree)
-  : kdl_model_(tree),
-    ez_(0., 0., 1.),
-    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_configs_(getRotorConfigs())
+MultiRotorDynamics::MultiRotorDynamics(const Tree& tree, const RotorConfigs& rotor_configs)
+  : fk_solver_(tree), inertia_solver_(tree), ez_(0., 0., 1.), rotor_configs_(rotor_configs)
 {
-  resize(STATE_SIZE, num_rotors_);
-}
+  assert(tree.getNrOfJoints() > 0);
 
-void MultiRotorDynamics::updateInternalDataStructures()
-{
-  kdl_model_.updateInternalDataStructures();
+  resize(STATE_SIZE, rotor_configs.size());
 }
 
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
@@ -43,15 +32,14 @@ void MultiRotorDynamics::updateA(const double& roll, const double& pitch)
 
 void MultiRotorDynamics::updateB(const JntArray& q)
 {
-  kdl_model_.treeInertia(q, P_base_cog_, I_cog_kdl_);
-  // cout << P_base_cog_ << endl;
+  inertia_solver_.JntToCart(q, P_base_cog_, I_cog_kdl_);
   tf::rotInertiaKDLToEigen(I_cog_kdl_, I_cog_eigen_);
   I_cog_eigen_.computeInverseWithCheck(I_cog_inv_, invertible_);
-  ROS_ASSERT(invertible_);
+  assert(invertible_);
 
-  for (int i = 0; i < num_rotors_; ++i)
+  for (int i = 0; i < rotor_configs_.size(); ++i)
   {
-    kdl_model_.fkPos(q, rotor_configs_[i].link_name, T_base_rotor_);
+    fk_solver_.JntToCart(q, rotor_configs_[i].link_name, T_base_rotor_);
     P_cog_rotor_kdl_ = T_base_rotor_.p - P_base_cog_;
     tf::vectorKDLToEigen(P_cog_rotor_kdl_, P_cog_rotor_eigen_);
     const auto& d = rotor_configs_[i].direction;

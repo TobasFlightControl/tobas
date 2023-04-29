@@ -7,6 +7,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/utils.hpp>
 #include <tobas_tools/conversions/msg_msg.hpp>
 #include <tobas_tools/conversions/eigen_msg.hpp>
 
@@ -36,6 +37,8 @@ StateEstimator::StateEstimator()
   fillUnusedBuffers();
   registerPublishers();
   registerSubscribers();
+
+  state_.header.frame_id = "world";
 
   ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
@@ -141,29 +144,27 @@ void StateEstimator::registerSubscribers()
 
 bool StateEstimator::isReady()
 {
-  bool ok = true;
-
   if (!filtered_imu_buf_.isFull())
   {
-    ok = false;
+    return false;
   }
 
   if (use_bar_ && !bar_buf_.isFull())
   {
-    ok = false;
+    return false;
   }
 
   if (use_gps_pos_ && !gps_pos_buf_.isFull())
   {
-    ok = false;
+    return false;
   }
 
   if (use_gps_vel_ && !gps_vel_buf_.isFull())
   {
-    ok = false;
+    return false;
   }
 
-  return ok;
+  return true;
 }
 
 void StateEstimator::initialize()
@@ -249,7 +250,7 @@ void StateEstimator::updatePoseVelMsg()
   // 並進速度
   tf::vectorEigenToMsg(cart_filter_.getVelocity(), state_.pose_vel.twist.linear);
 
-  // 回転速度
+  // 回転速度だけはローカル座標系
   const auto& imu = filtered_imu_buf_.getLatest();
   state_.pose_vel.twist.angular = imu.angular_velocity;
 }

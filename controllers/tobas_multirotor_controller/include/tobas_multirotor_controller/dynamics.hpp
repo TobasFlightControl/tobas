@@ -3,7 +3,8 @@
 #include <Eigen/Core>
 
 #include <dh_linear_control/state_spaces.hpp>
-#include <dh_kdl/treekdlmodel.hpp>
+#include <dh_kdl/treefksolverpos.hpp>
+#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/rotor_property.hpp>
 
@@ -28,12 +29,7 @@ public:
    *
    * @param tree 全身のTree
    */
-  explicit MultiRotorDynamics(const KDL::Tree& tree);
-
-  /**
-   * @brief treeの更新に伴い，内部状態を更新する．
-   */
-  void updateInternalDataStructures();
+  explicit MultiRotorDynamics(const KDL::Tree& tree, const RotorConfigs& rotor_configs);
 
   /**
    * @brief 状態方程式を更新する．
@@ -45,10 +41,11 @@ public:
   void update(const double& roll, const double& pitch, const KDL::JntArray& q);
 
 private:
-  KDL::TreeKDLModel kdl_model_;
+  // KDL tools
+  KDL::ExtTreeFkSolverPos fk_solver_;
+  KDL::TreeJntToInertiaSolver inertia_solver_;
 
   const Eigen::Vector3d ez_;
-  const uint32_t num_rotors_;
   const RotorConfigs rotor_configs_;
 
   KDL::Rotation rpyvel_angvel_kdl_;

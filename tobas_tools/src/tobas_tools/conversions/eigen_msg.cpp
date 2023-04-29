@@ -32,4 +32,18 @@ void angVelEigenToMsg(const Vector3d& e, tobas_msgs::AngularVelocity& m)
   m.wy = e.y();
   m.wz = e.z();
 }
+
+void eulerMsgToEigen(const tobas_msgs::Euler& m, Vector3d& e)
+{
+  e.x() = m.roll;
+  e.y() = m.pitch;
+  e.z() = m.yaw;
+}
+
+void eulerEigenToMsg(const Vector3d& e, tobas_msgs::Euler& m)
+{
+  m.roll = e.x();
+  m.pitch = e.y();
+  m.yaw = e.z();
+}
 }  // namespace tf

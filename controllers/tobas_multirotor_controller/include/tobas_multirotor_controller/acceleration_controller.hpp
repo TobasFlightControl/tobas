@@ -1,33 +1,32 @@
 #pragma once
 
 #include <kdl/tree.hpp>
-#include <kdl/frames.hpp>
-#include <geometry_msgs/Vector3.h>
-
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+#include <Eigen/Core>
+#include <kdl/tree.hpp>
 
 #include <tobas_tools/rotor_property.hpp>
 
 class AccelerationController
 {
 public:
-  AccelerationController(const KDL::Tree& tree);
-
-  void updateInternalDataStructures();
+  AccelerationController(
+    const KDL::Tree& tree,
+    double gravity,
+    double battery_voltage,
+    const RotorConfigs& rotor_configs);
 
   void update(
-    const geometry_msgs::Vector3& acc_des,
+    const Eigen::Vector3d& tar_acc,
     const double& yaw,
     double& U_out,
     double& roll_out,
     double& pitch_out);
+  
+  const double& maxU() const;
 
 private:
   const double gravity_;
-  const double battery_voltage_;
   const RotorConfigs rotor_configs_;
-  double max_U_;
-
-  KDL::TreeJntToInertiaSolver inertia_solver_;
   double mass_;
+  double max_U_;
 };

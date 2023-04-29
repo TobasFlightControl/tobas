@@ -1,35 +1,23 @@
 #include <ros/ros.h>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-
-#include <tobas_tools/operators.hpp>
-#include <tobas_tools/conversions/msg_msg.hpp>
-
 #include "../../include/tobas_multirotor_controller/position_controller.hpp"
 
-PositionController::PositionController()
+using namespace Eigen;
+
+PositionController::PositionController(const PositionControllerDynamicParams& params)
 {
-  double natural_freq = dh_ros::getParam<double>("~natural_frequency");
-  double damp_ratio = dh_ros::getParam<double>("~damping_ratio");
-  reconfigure(natural_freq, damp_ratio);
+  reconfigure(params);
 }
 
-void PositionController::update(
-  const geometry_msgs::Vector3& pos,
-  const geometry_msgs::Vector3& pos_des,
-  const geometry_msgs::Vector3& vel,
-  const geometry_msgs::Vector3& vel_des,
-  geometry_msgs::Vector3& acc_out)
+void PositionController::update(const Vector3d& cur_pos, const Vector3d& tar_pos, Vector3d& tar_vel)
 {
-  acc_out = kp_ * (pos_des - pos) + kd_ * (vel_des - vel);
+  tar_vel = kp_ * (tar_pos - cur_pos);
 }
 
-void PositionController::reconfigure(double natural_freq, double damp_ratio)
+void PositionController::reconfigure(const PositionControllerDynamicParams& params)
 {
-  ROS_ASSERT(natural_freq > 0.);
-  ROS_ASSERT(damp_ratio > 0.);
+  ROS_ASSERT(params.natural_freq > 0.);
+  ROS_ASSERT(params.damp_ratio > 0.);
 
-  kp_ = dh_std::sqr(natural_freq);
-  kd_ = 2. * damp_ratio * natural_freq;
+  kp_ = 0.5 * params.natural_freq / params.damp_ratio;
 }

@@ -9,13 +9,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
 from dh_rqt_tools.messages import q_error_named
 from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import get_drone_name, add_expanding_widget, add_center_button
+from ..utils import get_drone_name
 
 
 class RosPackageWidget(BaseSettingWidget):

@@ -1,5 +1,0 @@
-geometry_msgs/Vector3 desired_position
-geometry_msgs/Vector3 desired_acceleration
-Euler desired_orientation
-float64 thrust_force_sum
-float64[] thrust_forces

@@ -6,12 +6,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from typing import List
 
-from dh_rqt_tools.widgets import DoubleSpinBox
+from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class ParamGetterWidget_DoubleTable(ParamGetterWidget):

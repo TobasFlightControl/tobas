@@ -130,6 +130,7 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 
   tf::vectorEigenToMsg(eskf_.getVelocity(), state_.pose_vel.twist.linear);
 
+  // 角速度だけはローカル座標系
   Vector3d w = w_m_ - eskf_.getGyroBias();
   tf::vectorEigenToMsg(w, state_.pose_vel.twist.angular);
 }

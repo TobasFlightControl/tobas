@@ -8,12 +8,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import TabWidget
+from dh_rqt_tools.widgets import TabWidget, add_expanding_widget, add_center_button
 from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...constants import *
-from ...utils import add_expanding_widget, add_center_button
 from .constants import NAME
 from .esc import EscWidget
 from .motor import MotorWidget

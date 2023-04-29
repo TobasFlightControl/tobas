@@ -35,15 +35,12 @@ CommandHandler::CommandHandler()
   delta_pos_ = max_linvel_ / key_repeat_freq_;
   delta_rot_ = max_angvel_ / key_repeat_freq_;
 
-  // コマンドをGlobal Positionモードに設定
-  cmd_.mode = CmdMsg::GLOBAL_POSITION;
-
   // z座標の初期値を制限の下限に設定
-  cmd_.target_position.z = z_limit_.lower;
+  cmd_.position.z = z_limit_.lower;
 
   prepare(0);
 
-  cmd_pub_ = nh_.advertise<CmdMsg>("/" + drone_name_ + "/command/base_state", 1, false);
+  cmd_pub_ = nh_.advertise<CmdMsg>("/" + drone_name_ + "/command/position_yaw", 1, false);
 
   instruction_timer_ = nh_.createTimer(
     ros::Duration(INSTRUCTION_PERIOD), &CommandHandler::instructionTimerCb, this, false, false);
@@ -56,11 +53,6 @@ CommandHandler::~CommandHandler()
 
 void CommandHandler::run()
 {
-  auto& x = cmd_.target_position.x;
-  auto& y = cmd_.target_position.y;
-  auto& z = cmd_.target_position.z;
-  auto& yaw = cmd_.target_yaw_angle;
-
   instruction_timer_.start();
   dh_ros::rosInfo(instruction_);
 
@@ -88,49 +80,49 @@ void CommandHandler::run()
       case 'w':  // X+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving forward");
-        x = x_limit_.clamp(x + delta_pos_);
+        cmd_.position.x = x_limit_.clamp(cmd_.position.x + delta_pos_);
         break;
       }
       case 's':  // X-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving backward");
-        x = x_limit_.clamp(x - delta_pos_);
+        cmd_.position.x = x_limit_.clamp(cmd_.position.x - delta_pos_);
         break;
       }
       case 'a':  // Y+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving left");
-        y = y_limit_.clamp(y + delta_pos_);
+        cmd_.position.y = y_limit_.clamp(cmd_.position.y + delta_pos_);
         break;
       }
       case 'd':  // Y-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving right");
-        y = y_limit_.clamp(y - delta_pos_);
+        cmd_.position.y = y_limit_.clamp(cmd_.position.y - delta_pos_);
         break;
       }
       case KEYCODE_U:  // Z+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving up");
-        z = z_limit_.clamp(z + delta_pos_);
+        cmd_.position.z = z_limit_.clamp(cmd_.position.z + delta_pos_);
         break;
       }
       case KEYCODE_D:  // Z-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving down");
-        z = z_limit_.clamp(z - delta_pos_);
+        cmd_.position.z = z_limit_.clamp(cmd_.position.z - delta_pos_);
         break;
       }
-      case KEYCODE_L:  // yaw+
+      case KEYCODE_L:  // Yaw+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating left");
-        yaw = yaw_limit_.clamp(yaw + delta_rot_);
+        cmd_.yaw = yaw_limit_.clamp(cmd_.yaw + delta_rot_);
         break;
       }
-      case KEYCODE_R:  // yaw-
+      case KEYCODE_R:  // Yaw-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating right");
-        yaw = yaw_limit_.clamp(yaw - delta_rot_);
+        cmd_.yaw = yaw_limit_.clamp(cmd_.yaw - delta_rot_);
         break;
       }
     }

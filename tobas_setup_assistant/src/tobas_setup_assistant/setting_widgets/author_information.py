@@ -7,11 +7,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
 from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..utils import add_expanding_widget, is_valid_email, get_git_user_name, get_git_user_email
+from ..utils import is_valid_email, get_git_user_name, get_git_user_email
 
 
 class AuthorInformationWidget(BaseSettingWidget):

@@ -7,10 +7,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
+
 from .base_setting import BaseSettingWidget
 from ..constants import *
 from ..parameter_getters import *
-from ..utils import add_expanding_widget
 
 
 class GpsWidget(BaseSettingWidget):

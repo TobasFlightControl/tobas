@@ -1,11 +1,18 @@
 <launch>
 
+  <arg name="control_mode" default="position"/>
+
   <!-- Load environment configurations from YAML file to parameter server -->
   <rosparam file="$(find {{ pkg_name }})/config/environment.yaml" command="load"/>
 
   <!-- Bringup controller -->
   <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
-  <include file="$(find {{ controller_pkg }})/launch/controller.launch"/>
+  <group if="$(eval control_mode=='position')">
+    <include file="$(find {{ controller_pkg }})/launch/position_control.launch"/>
+  </group>
+  <group if="$(eval control_mode=='velocity')">
+    <include file="$(find {{ controller_pkg }})/launch/velocity_control.launch"/>
+  </group>
 
   <!-- Bringup observer -->
   <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>

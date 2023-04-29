@@ -1,125 +1,97 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/core.hpp>
-#include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
+#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include "../../include/tobas_multirotor_controller/rotation_controller.hpp"
 
-#define WEIGHT_SCALER 1e+6  // QPの数値エラーを防ぐために重みにかける定数
+#define WEIGHT_SCALER 1e+6  // TODO: QPの数値エラーを防ぐために重みにかける定数を自動調整
+#define ZERO3 Vector3d::Zero()
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
-RotationController::RotationController(const Tree& tree)
-  : gravity_(dh_ros::getParam<double>("/gravity")),
-    battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
-    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_configs_(getRotorConfigs()),
+RotationController::RotationController(
+  const Tree& tree,
+  double gravity,
+  double battery_voltage,
+  const RotorConfigs& rotor_configs,
+  const RotationControllerDynamicParams& params)
+  : gravity_(gravity),
+    battery_voltage_(battery_voltage),
+    num_rotors_(rotor_configs.size()),
     T_refs_(STATE_SIZE),
-    kdl_model_(tree),
-    cont_(tree),
+    cont_(tree, rotor_configs),
     c2d_(STATE_SIZE, num_rotors_),
-    x_(STATE_SIZE),
-    s_(STATE_SIZE),
-    u_(VectorXd::Zero(num_rotors_)),
     Cz_(MatrixXd::Identity(STATE_SIZE, STATE_SIZE)),
     Q_(STATE_SIZE),
     S_(num_rotors_),
     R_(num_rotors_),
     E_e_(ctrl::LinearEquation(num_rotors_, 0)),
-    F_f_(makeBaseInputCondition()),
+    F_f_(makeBaseInputCondition(rotor_configs)),
     G_g_(ctrl::LinearEquation(STATE_SIZE, 0))
 {
-}
+  assert(tree.getNrOfJoints() > 0);
 
-void RotationController::updateInternalDataStructures()
-{
-  kdl_model_.updateInternalDataStructures();
-  cont_.updateInternalDataStructures();
+  TreeJntToInertiaSolver inertia_solver_(tree);
+  mass_ = inertia_solver_.JntToMass();
 
-  mass_ = kdl_model_.treeMass();
-
-  // 動的rosparamの初期値を取得
-  auto pred_horizon = dh_ros::getParam<double>("~prediction_horizon");
-  auto pred_steps = dh_ros::getParam<int>("~prediction_steps");
-  auto rot_decay = dh_ros::getParam<double>("~rotation_decay");
-  auto angvel_decay = dh_ros::getParam<double>("~angular_velocity_decay");
-  auto rot_weight = dh_ros::getParam<double>("~rotation_weight");
-  auto angvel_weight = dh_ros::getParam<double>("~angular_velocity_weight");
-  auto thrust_weight = dh_ros::getParam<int>("~thrust_force_weight");
-  auto thrust_rate_weight = dh_ros::getParam<int>("~thrust_force_rate_weight");
-
-  // 内部変数を更新
-  reconfigure(
-    pred_horizon, pred_steps, rot_decay, angvel_decay, rot_weight, angvel_weight, thrust_weight,
-    thrust_rate_weight);
+  reconfigure(params);
 }
 
 void RotationController::update(
-  const tobas_msgs::PoseVel& bs,
+  const Vector3d& cur_rpy,
+  const Vector3d& cur_angvel,
   const JntArray& q,
   const double& U,
-  const double& roll_des,
-  const double& pitch_des,
-  const double& yaw_des,
-  vector<double>& u_opt)
+  const Vector3d& tar_rpy,
+  VectorXd& u_opt)
 {
-  ROS_ASSERT(q.rows() == kdl_model_.getNrOfJoints());
-  ROS_ASSERT(U >= 0.);
-  ROS_ASSERT(u_opt.size() == num_rotors_);
+  assert(u_opt.rows() == num_rotors_);
 
-  const auto& rpy = bs.pose.orientation;
-  updateDynamics(rpy.roll, rpy.pitch, roll_des, pitch_des, q);
-  updateX(bs);
-  updateS(roll_des, pitch_des, yaw_des);
-
+  updateDynamics(cur_rpy, tar_rpy, q);
   updateInputCondition(U);
 
-  // stopwatch_.start();
-  u_ = ctrl::solveLinearDenseMPC(
-    discs_, Cz_, Hp_, Hp_, dt_, T_refs_, R_, S_, Q_, E_e_, F_f_, G_g_, x_, s_, u_);
-  u_opt = eigen_tools::toStdVector(u_);
-  // stopwatch_.stop();
+  VectorXd x = eigen_tools::concat(cur_rpy, cur_angvel, 0);
+  VectorXd s = eigen_tools::concat(tar_rpy, ZERO3, 0);
+
+  u_opt = ctrl::solveLinearDenseMPC(
+    discs_, Cz_, Hp_, Hp_, dt_, T_refs_, R_, S_, Q_, E_e_, F_f_, G_g_, x, s, u_opt);
 }
 
-void RotationController::reconfigure(
-  double pred_horizon,
-  uint32_t pred_steps,
-  double rot_decay,
-  double angvel_decay,
-  double rot_weight,
-  double angvel_weight,
-  int thrust_weight,
-  int thrust_rate_weight)
+void RotationController::reconfigure(const RotationControllerDynamicParams& params)
 {
-  ROS_ASSERT(pred_horizon > 0.);
-  ROS_ASSERT(pred_steps > 0);
-  ROS_ASSERT(rot_decay >= 0.);
-  ROS_ASSERT(angvel_decay >= 0.);
-  ROS_ASSERT(rot_weight > 0.);
-  ROS_ASSERT(angvel_weight > 0.);
+  assert(params.pred_horizon > 0.);
+  assert(params.pred_steps > 0);
+  assert(params.rot_decay >= 0.);
+  assert(params.angvel_decay >= 0.);
+  assert(params.rot_weight > 0.);
+  assert(params.angvel_weight > 0.);
 
-  dt_ = pred_horizon / pred_steps;
-  Hp_ = pred_steps;
-  T_refs_[ROLL] = T_refs_[PITCH] = T_refs_[YAW] = rot_decay;
-  T_refs_[ANGVEL_X] = T_refs_[ANGVEL_Y] = T_refs_[ANGVEL_Z] = angvel_decay;
+  dt_ = params.pred_horizon / params.pred_steps;
+  Hp_ = params.pred_steps;
+  T_refs_[ROLL] = T_refs_[PITCH] = T_refs_[YAW] = params.rot_decay;
+  T_refs_[ANGVEL_X] = T_refs_[ANGVEL_Y] = T_refs_[ANGVEL_Z] = params.angvel_decay;
 
-  discs_.resize(pred_steps, ctrl::LinearDynamics(STATE_SIZE, num_rotors_));
+  discs_.resize(params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, num_rotors_));
 
-  updateWeight_Q(rot_weight, angvel_weight);
-  updateWeight_S(thrust_weight);
-  updateWeight_R(thrust_rate_weight, dt_);
+  updateWeight_Q(params.rot_weight, params.angvel_weight);
+  updateWeight_S(params.thrust_weight);
+  updateWeight_R(params.thrust_rate_weight, dt_);
 }
 
 void RotationController::updateDynamics(
-  const double& roll,
-  const double& pitch,
-  const double& roll_des,
-  const double& pitch_des,
+  const Vector3d& cur_rpy,
+  const Vector3d& tar_rpy,
   const JntArray& q)
 {
+  const auto& cur_roll = cur_rpy.x();
+  const auto& cur_pitch = cur_rpy.y();
+  const auto& tar_roll = tar_rpy.x();
+  const auto& tar_pitch = tar_rpy.y();
+
   double t;
   double roll_k, pitch_k;
 
@@ -128,27 +100,12 @@ void RotationController::updateDynamics(
     t = dt_ * k;  // 計画開始時刻(= 0)からの経過時間
 
     // 時刻tにおけるドローンの姿勢の参照値
-    roll_k = ctrl::firstOrderPos(roll, roll_des, T_refs_[ROLL], t);
-    pitch_k = ctrl::firstOrderPos(pitch, pitch_des, T_refs_[PITCH], t);
+    roll_k = ctrl::firstOrderPos(cur_roll, tar_roll, T_refs_[ROLL], t);
+    pitch_k = ctrl::firstOrderPos(cur_pitch, tar_pitch, T_refs_[PITCH], t);
 
     cont_.update(roll_k, pitch_k, q);
     discs_[k] = c2d_.convert(cont_, dt_);
   }
-}
-
-void RotationController::updateX(const tobas_msgs::PoseVel& bs)
-{
-  const auto& r = bs.pose.orientation;
-  const auto& w = bs.twist.angular;
-  x_ << r.roll, r.pitch, r.yaw, w.x, w.y, w.z;
-}
-
-void RotationController::updateS(
-  const double& roll_des,
-  const double& pitch_des,
-  const double& yaw_des)
-{
-  s_ << roll_des, pitch_des, yaw_des, 0., 0., 0.;
 }
 
 void RotationController::updateWeight_Q(double rot_weight, double angvel_weight)
@@ -180,7 +137,7 @@ void RotationController::updateWeight_R(int thrust_rate_weight, double dt)
   }
 }
 
-ctrl::LinearEquation RotationController::makeBaseInputCondition()
+ctrl::LinearEquation RotationController::makeBaseInputCondition(const RotorConfigs& rotor_configs)
 {
   const MatrixXd E = MatrixXd::Identity(num_rotors_, num_rotors_);
   const VectorXd ones = VectorXd::Ones(num_rotors_);
@@ -194,7 +151,7 @@ ctrl::LinearEquation RotationController::makeBaseInputCondition()
 
   for (int i = 0; i < num_rotors_; ++i)
   {
-    const auto& rotor_config = rotor_configs_[i];
+    const auto& rotor_config = rotor_configs[i];
 
     const double max_speed = dh_std::rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
     const double max_thrust = rotor_config.motor_constant * sqr(max_speed);

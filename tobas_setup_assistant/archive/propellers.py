@@ -8,12 +8,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox
+from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_error
 
 from ..src.tobas_setup_assistant.setting_widgets.base_setting import BaseSettingWidget
 from ..src.tobas_setup_assistant.constants import *
-from ..src.tobas_setup_assistant.utils import add_expanding_widget
 
 
 class PropellersWidget(BaseSettingWidget):

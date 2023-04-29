@@ -6,14 +6,14 @@
 #include <dh_std_tools/range.hpp>
 #include <dh_ros_tools/timer.hpp>
 
-#include <tobas_msgs/Command.h>
+#include <tobas_msgs/PositionYaw.h>
 
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
 class CommandHandler
 {
-  using CmdMsg = tobas_msgs::Command;
+  using CmdMsg = tobas_msgs::PositionYaw;
 
 public:
   explicit CommandHandler();

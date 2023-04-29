@@ -1,23 +1,23 @@
 #pragma once
 
-#include <geometry_msgs/Vector3.h>
-#include <geometry_msgs/Point.h>
+#include <Eigen/Core>
+
+struct PositionControllerDynamicParams
+{
+  double natural_freq;
+  double damp_ratio;
+};
 
 class PositionController
 {
 public:
-  PositionController();
+  PositionController(const PositionControllerDynamicParams& params);
 
-  void update(
-    const geometry_msgs::Vector3& pos,
-    const geometry_msgs::Vector3& pos_des,
-    const geometry_msgs::Vector3& vel,
-    const geometry_msgs::Vector3& vel_des,
-    geometry_msgs::Vector3& acc_out);
+  void
+  update(const Eigen::Vector3d& cur_pos, const Eigen::Vector3d& tar_pos, Eigen::Vector3d& tar_vel);
 
-  void reconfigure(double natural_freq, double damp_ratio);
+  void reconfigure(const PositionControllerDynamicParams& params);
 
 private:
   double kp_;
-  double kd_;
 };

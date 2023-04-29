@@ -12,8 +12,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import Slider
-from tobas_msgs.msg import Command
+from dh_rqt_tools.widgets import Slider, add_expanding_widget
+from tobas_msgs.msg import PositionYaw
 
 from .utils import remap
 
@@ -34,8 +34,7 @@ class CommandersWidget(QScrollArea):
         self._rows = QVBoxLayout()
         inner.setLayout(self._rows)
 
-        self._drone_cmd = Command()
-        self._drone_cmd.mode = Command.GLOBAL_POSITION
+        self._drone_cmd = PositionYaw()
 
         # ドローンの位置姿勢
         drone_label = QLabel("Multirotor Command")
@@ -97,10 +96,10 @@ class CommandersWidget(QScrollArea):
 
         # Publisher
         self._drone_cmd_pub = rospy.Publisher(
-            f'/{drone_name}/command/base_state', Command, queue_size=1
+            f'/{drone_name}/command/position_yaw', PositionYaw, queue_size=1
         )
 
-        self._add_dummy_widget()  # 余白を埋めるためのダミーウィジェット
+        add_expanding_widget(self._rows)
 
     def define_connections(self) -> None:
         self.drone_cmd_x.value_changed.connect(self._publish_drone_cmd)
@@ -117,17 +116,12 @@ class CommandersWidget(QScrollArea):
 
     @pyqtSlot()
     def _publish_drone_cmd(self) -> None:
-        self._drone_cmd.target_position.x = self.drone_cmd_x.get_value()
-        self._drone_cmd.target_position.y = self.drone_cmd_y.get_value()
-        self._drone_cmd.target_position.z = self.drone_cmd_z.get_value()
-        self._drone_cmd.target_yaw_angle = self.drone_cmd_yaw.get_value()
+        self._drone_cmd.position.x = self.drone_cmd_x.get_value()
+        self._drone_cmd.position.y = self.drone_cmd_y.get_value()
+        self._drone_cmd.position.z = self.drone_cmd_z.get_value()
+        self._drone_cmd.yaw = self.drone_cmd_yaw.get_value()
 
         self._drone_cmd_pub.publish(self._drone_cmd)
-
-    def _add_dummy_widget(self) -> None:
-        dummy_widget = QWidget()
-        dummy_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._rows.addWidget(dummy_widget)
 
 
 class Commander(QWidget):

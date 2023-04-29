@@ -8,13 +8,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox
+from dh_rqt_tools.widgets import ComboBox, add_expanding_widget
 from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class ControllerWidget(BaseSettingWidget):
