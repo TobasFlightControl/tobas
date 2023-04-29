@@ -1,3 +1,5 @@
+#include <dh_std_tools/standard_atmosphere.hpp>
+
 #include "../../include/plugins/barometer_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions.hpp"
@@ -62,30 +64,18 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboBarometerPlugin::onUpdate()
 {
-  common::Time cur_time = world_->SimTime();
-
   // Get the current geometric height
-  double height_geometric_m = ref_alt_ + link_->WorldPose().Pos().Z();
+  double altitude = ref_alt_ + link_->WorldPose().Pos().Z();
 
-  // Compute the geopotential height
-  double height_geopotential_m =
-    kEarthRadiusMeters * height_geometric_m / (kEarthRadiusMeters + height_geometric_m);
-
-  // Compute the temperature at the current altitude
-  double temperature_at_altitude_kelvin =
-    kSeaLevelTempKelvin - kTempLapseKelvinPerMeter * height_geopotential_m;
-
-  // Compute the current air pressure
-  double pressure_at_altitude_pascal =
-    kPressureOneAtmospherePascals
-    * exp(kAirConstantDimensionless * log(kSeaLevelTempKelvin / temperature_at_altitude_kelvin));
+  // Compute the air pressure at the current altitude
+  double pressure = dh_std::altitudeToPressure(altitude);
 
   // Add noise to pressure measurement
-  pressure_at_altitude_pascal += pressure_noise_(rnd_gen_);
+  pressure += pressure_noise_(rnd_gen_);
 
   // Fill the pressure message
-  timeGazeboToRos(cur_time, pressure_msg_.header.stamp);
-  pressure_msg_.fluid_pressure = pressure_at_altitude_pascal;
+  timeGazeboToRos(world_->SimTime(), pressure_msg_.header.stamp);
+  pressure_msg_.fluid_pressure = pressure;
 
   // Publish the pressure message
   pressure_pub_.publish(pressure_msg_);

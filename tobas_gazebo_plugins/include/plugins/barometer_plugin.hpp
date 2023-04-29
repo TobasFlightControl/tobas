@@ -10,26 +10,16 @@
 namespace gazebo
 {
 // Constants
-static constexpr double kGasConstantNmPerKmolKelvin = 8314.32;
-static constexpr double kMeanMolecularAirWeightKgPerKmol = 28.9644;
-static constexpr double kGravityMagnitude = 9.80665;
-static constexpr double kEarthRadiusMeters = 6356766.0;
-static constexpr double kPressureOneAtmospherePascals = 101325.0;
-static constexpr double kSeaLevelTempKelvin = 288.15;
-static constexpr double kTempLapseKelvinPerMeter = 0.0065;
-static constexpr double kAirConstantDimensionless =
-  kGravityMagnitude * kMeanMolecularAirWeightKgPerKmol
-  / (kGasConstantNmPerKmolKelvin * -kTempLapseKelvinPerMeter);
 static constexpr char kPluginName[] = "barometer_plugin";
 
 // Default values
 static const std::string kDefaultPressurePubTopic = "air_pressure";
-static constexpr double kDefaultPressureVar = 1.;
+static constexpr double kDefaultPressureVar = 1.;  // [Pa]
 
 class GazeboBarometerPlugin : public SensorPlugin
 {
   using super = SensorPlugin;
-  
+
   using NormalDistribution = std::normal_distribution<double>;
   using PressureMsg = sensor_msgs::FluidPressure;
 
