@@ -137,7 +137,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
       getSdfParam(cs_elem, "cYawDelta", cs.c_lift_delta, 0.);
 
       indexes.emplace(cs.index);
-      aero_coefs_.control_surfaces.push_back(cs);
+      control_surfaces_.push_back(cs);
       cs_elem = cs_elem->GetNextElement("controlSurface");
     }
 
@@ -243,7 +243,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboFixedWingPlugin::updateDeflections(double dt)
 {
-  for (auto& cs : aero_coefs_.control_surfaces)
+  for (auto& cs : control_surfaces_)
   {
     const double& cmd_deflection = cs_deflections_.deflections[cs.index];
     cs.setAngle(cmd_deflection, dt);
@@ -294,7 +294,7 @@ double GazeboFixedWingPlugin::liftCoefficient(double alpha)
   double C_L = aero_coefs_.c_lift_0 + aero_coefs_.c_lift_alpha * alpha;
 
   // 舵面
-  for (const auto& cs : aero_coefs_.control_surfaces)
+  for (const auto& cs : control_surfaces_)
   {
     C_L += cs.c_lift_delta * cs.getAngle();
   }
@@ -308,7 +308,7 @@ double GazeboFixedWingPlugin::dragCoefficient(double alpha)
   double C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha;
 
   // 舵面
-  for (const auto& cs : aero_coefs_.control_surfaces)
+  for (const auto& cs : control_surfaces_)
   {
     C_D += cs.c_drag_abs_delta * abs(cs.getAngle());  // 舵角の正負にかかわらず抗力が発生するモデル
   }
@@ -322,7 +322,7 @@ double GazeboFixedWingPlugin::sideCoefficient(double beta)
   double C_S = aero_coefs_.c_side_beta * beta;
 
   // 舵面
-  for (const auto& cs : aero_coefs_.control_surfaces)
+  for (const auto& cs : control_surfaces_)
   {
     C_S += cs.c_side_delta * cs.getAngle();
   }
@@ -340,7 +340,7 @@ double GazeboFixedWingPlugin::rollCoefficient(double beta, double p, double r, d
   C_l += b / (2 * V) * (aero_coefs_.c_roll_p * p + aero_coefs_.c_roll_r * r);
 
   // 舵面
-  for (const auto& cs : aero_coefs_.control_surfaces)
+  for (const auto& cs : control_surfaces_)
   {
     C_l += cs.c_roll_delta * cs.getAngle();
   }
@@ -365,7 +365,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   C_m += c / (2 * V) * (aero_coefs_.c_pitch_alpha_rate * alpha_rate + aero_coefs_.c_pitch_q * q);
 
   // 舵面
-  for (const auto& cs : aero_coefs_.control_surfaces)
+  for (const auto& cs : control_surfaces_)
   {
     C_m += cs.c_pitch_delta * cs.getAngle();
   }
@@ -386,7 +386,7 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
   C_n += b / (2 * V) * (aero_coefs_.c_yaw_p * p + aero_coefs_.c_yaw_r * r);
 
   // 舵面
-  for (const auto& cs : aero_coefs_.control_surfaces)
+  for (const auto& cs : control_surfaces_)
   {
     C_n += cs.c_yaw_delta * cs.getAngle();
   }

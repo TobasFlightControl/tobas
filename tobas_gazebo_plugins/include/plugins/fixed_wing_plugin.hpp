@@ -58,6 +58,7 @@ private:
   dh_std::Range<double> alpha_range_;  // 失速角
   VehicleParameters vehicle_params_;
   AerodynamicsCoefficients aero_coefs_;
+  std::vector<ControlSurface> control_surfaces_;
 
   uint32_t num_control_surfaces_;
   bool is_initialized_;

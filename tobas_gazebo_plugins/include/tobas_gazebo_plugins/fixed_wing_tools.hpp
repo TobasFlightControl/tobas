@@ -13,32 +13,6 @@ struct VehicleParameters
   double mac;           // 平均空力翼弦 (Mean Aerodynamic Chord) [m]
 };
 
-/**
- * @brief 舵面．軸が概ねY軸またはZ軸に平行であることを想定．
- */
-class ControlSurface
-{
-public:
-  uint32_t index;  // 舵角配列における添字
-  dh_std::Range<double> angle_limit;
-  double max_angle_rate;
-
-  double c_lift_delta;      // [/rad]
-  double c_drag_abs_delta;  // [/rad], 舵角の正負にかかわらず抗力が発生するモデル
-  double c_side_delta;      // [/rad]
-  double c_roll_delta;      // [/rad]
-  double c_pitch_delta;     // [/rad]
-  double c_yaw_delta;       // [/rad]
-
-  explicit ControlSurface();
-
-  void setAngle(double cmd_angle, double dt);
-  const double& getAngle() const;
-
-private:
-  double angle_;
-};
-
 struct AerodynamicsCoefficients
 {
   // Lift force
@@ -68,7 +42,31 @@ struct AerodynamicsCoefficients
   double c_yaw_beta;  // [/rad]
   double c_yaw_p;     // [/rad]
   double c_yaw_r;     // [/rad]
+};
 
-  std::vector<ControlSurface> control_surfaces;
+/**
+ * @brief 舵面．軸が概ねY軸またはZ軸に平行であることを想定．
+ */
+class ControlSurface
+{
+public:
+  uint32_t index;  // 舵角配列における添字
+  dh_std::Range<double> angle_limit;
+  double max_angle_rate;
+
+  double c_lift_delta;      // [/rad]
+  double c_drag_abs_delta;  // [/rad], 舵角の正負にかかわらず抗力が発生するモデル
+  double c_side_delta;      // [/rad]
+  double c_roll_delta;      // [/rad]
+  double c_pitch_delta;     // [/rad]
+  double c_yaw_delta;       // [/rad]
+
+  explicit ControlSurface();
+
+  void setAngle(double cmd_angle, double dt);
+  const double& getAngle() const;
+
+private:
+  double angle_;
 };
 }  // namespace gazebo
