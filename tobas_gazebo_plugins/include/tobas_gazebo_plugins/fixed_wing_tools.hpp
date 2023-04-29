@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <gazebo/gazebo.hh>
 
 #include <dh_std_tools/range.hpp>
 
@@ -8,9 +9,10 @@ namespace gazebo
 {
 struct VehicleParameters
 {
-  double wing_surface;  // 主翼面積 [m^2]
-  double wing_span;     // 翼幅 [m]
-  double mac;           // 平均空力翼弦 (Mean Aerodynamic Chord) [m]
+  double wing_surface;                          // 主翼面積 [m^2]
+  double wing_span;                             // 翼幅 [m]
+  double mean_aerodynamic_chord;                // 平均空力翼弦 [m]
+  ignition::math::Vector3d aerodynamic_center;  // フレーム原点に対する空力中心 (NWU) [m]
 };
 
 struct AerodynamicsCoefficients

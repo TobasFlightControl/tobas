@@ -78,19 +78,14 @@ private:
   void onUpdate(const common::UpdateInfo& info);
   void updateDeflections(double dt);
   ignition::math::Vector3d nonDimentionalAeroCoefs_Force(double alpha, double beta);
-  ignition::math::Vector3d nonDimentionalAeroCoefs_Moment(
-    double alpha,
-    double beta,
-    double alpha_rate,
-    double V,
-    const ignition::math::Vector3d& force_coefs);
+  ignition::math::Vector3d
+  nonDimentionalAeroCoefs_Moment(double alpha, double beta, double alpha_rate, double V);
   double liftCoefficient(double alpha);
   double dragCoefficient(double alpha);
   double sideCoefficient(double beta);
   double rollCoefficient(double beta, double p, double r, double V);
-  double
-  pitchCoefficient(double alpha, double beta, double alpha_rate, double q, double V, double C_z);
-  double yawCoefficient(double beta, double p, double r, double V, double C_y);
+  double pitchCoefficient(double alpha, double beta, double alpha_rate, double q, double V);
+  double yawCoefficient(double beta, double p, double r, double V);
   double dynamicPressure(double V);
 
   void deflectionsCb(const CmdMsg& deflections);

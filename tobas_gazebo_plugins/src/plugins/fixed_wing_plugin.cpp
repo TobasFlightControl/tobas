@@ -55,7 +55,8 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   // Vehicle Parameters
   getSdfParam<double>(sdf, "wingSurface", vehicle_params_.wing_surface);
   getSdfParam<double>(sdf, "wingSpan", vehicle_params_.wing_span);
-  getSdfParam<double>(sdf, "meanAerodynamicChord", vehicle_params_.mac);
+  getSdfParam<double>(sdf, "meanAerodynamicChord", vehicle_params_.mean_aerodynamic_chord);
+  getSdfParam<Vector3d>(sdf, "aerodynamicCenter", vehicle_params_.aerodynamic_center);
 
   // Aerodynamic Coefficients
   getSdfParam<double>(sdf, "cLift0", aero_coefs_.c_lift_0);
@@ -213,9 +214,8 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   updateDeflections(dt);
 
   // 無次元空力係数
-  Vector3d force_coefs = nonDimentionalAeroCoefs_Force(alpha, beta);          // Cx, Cy, Cz
-  Vector3d moment_coefs =
-    nonDimentionalAeroCoefs_Moment(alpha, beta, alpha_rate, V, force_coefs);  // Cl, Cm, Cn
+  Vector3d force_coefs = nonDimentionalAeroCoefs_Force(alpha, beta);                   // Cx, Cy, Cz
+  Vector3d moment_coefs = nonDimentionalAeroCoefs_Moment(alpha, beta, alpha_rate, V);  // Cl, Cm, Cn
 
   // 定数部分を計算しておく
   double q_bar = dynamicPressure(V);               // 動圧 (p.15) [Pa]
@@ -229,7 +229,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   const double& C_m = moment_coefs.Y();                                       // [-]
   const double& C_n = moment_coefs.Z();                                       // [-]
   const double& b = vehicle_params_.wing_span;                                // [m]
-  const double& c_bar = vehicle_params_.mac;                                  // [m]
+  const double& c_bar = vehicle_params_.mean_aerodynamic_chord;               // [m]
   Vector3d air_moment = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
 
   // NED -> NWU
@@ -237,7 +237,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   NED2NWU(air_moment);
 
   // 空気力を作用させる
-  link_->AddRelativeForce(air_force);
+  link_->AddLinkForce(air_force, vehicle_params_.aerodynamic_center);
   link_->AddRelativeTorque(air_moment);  // TODO: 重心周りにトルクをかける
 }
 
@@ -270,8 +270,7 @@ Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
   double alpha,
   double beta,
   double alpha_rate,
-  double V,
-  const Vector3d& force_coefs)
+  double V)
 {
   // 角速度
   Vector3d B_angular_velocity_W_B = link_->RelativeAngularVel();
@@ -280,10 +279,10 @@ Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
   double q = B_angular_velocity_W_B.Y();
   double r = B_angular_velocity_W_B.Z();
 
-  // (1.8-9)
+  // (1.8-9): 揚力中心に力をかけるためモーメントの補正項はなし
   double C_l = rollCoefficient(beta, p, r, V);
-  double C_m = pitchCoefficient(alpha, beta, alpha_rate, q, V, force_coefs.Z());
-  double C_n = yawCoefficient(beta, p, r, V, force_coefs.Y());
+  double C_m = pitchCoefficient(alpha, beta, alpha_rate, q, V);
+  double C_n = yawCoefficient(beta, p, r, V);
 
   return Vector3d(C_l, C_m, C_n);
 }
@@ -353,15 +352,14 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   double beta,
   double alpha_rate,
   double q,
-  double V,
-  double C_z)
+  double V)
 {
   // 迎角，横滑り角
   double C_m = aero_coefs_.c_pitch_0 + aero_coefs_.c_pitch_alpha * alpha;
   C_m += aero_coefs_.c_pitch_abs_beta * abs(beta);
 
   // 角速度
-  const double& c = vehicle_params_.mac;
+  const double& c = vehicle_params_.mean_aerodynamic_chord;
   C_m += c / (2 * V) * (aero_coefs_.c_pitch_alpha_rate * alpha_rate + aero_coefs_.c_pitch_q * q);
 
   // 舵面
@@ -370,13 +368,10 @@ double GazeboFixedWingPlugin::pitchCoefficient(
     C_m += cs.c_pitch_delta * cs.getAngle();
   }
 
-  // 重心のずれ
-  // TODO
-
   return C_m;
 }
 
-double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, double V, double C_y)
+double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, double V)
 {
   // 横滑り角
   double C_n = aero_coefs_.c_yaw_beta * beta;
@@ -390,9 +385,6 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
   {
     C_n += cs.c_yaw_delta * cs.getAngle();
   }
-
-  // 重心のずれ
-  // TODO
 
   return C_n;
 }
