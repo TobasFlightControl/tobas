@@ -238,7 +238,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 
   // 空気力を作用させる
   link_->AddLinkForce(air_force, vehicle_params_.aerodynamic_center);
-  link_->AddRelativeTorque(air_moment);  // TODO: 重心周りにトルクをかける
+  link_->AddRelativeTorque(air_moment);
 }
 
 void GazeboFixedWingPlugin::updateDeflections(double dt)
