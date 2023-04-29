@@ -19,5 +19,6 @@ void PositionController::reconfigure(const PositionControllerDynamicParams& para
   ROS_ASSERT(params.natural_freq > 0.);
   ROS_ASSERT(params.damp_ratio > 0.);
 
+  // 速度制御器と位置制御器を合わせると理論的には2次遅れ系の一般系になる (memo: 2-16)
   kp_ = 0.5 * params.natural_freq / params.damp_ratio;
 }
