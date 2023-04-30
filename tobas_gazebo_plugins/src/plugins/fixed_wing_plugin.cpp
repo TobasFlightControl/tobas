@@ -176,7 +176,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   const double& v = B_air_speed_W_B.Y();
   const double& w = B_air_speed_W_B.Z();
   double V = B_air_speed_W_B.Length();
-  if (min(u, V) < kMinAirSpeedThresh)  // 風速が閾値より小さければ空気力の計算は行わない
+  if (u < kMinAirSpeedThresh)  // 風速が閾値より小さければ空気力の計算は行わない
   {
     return;
   }
