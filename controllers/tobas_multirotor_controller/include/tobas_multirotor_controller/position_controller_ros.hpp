@@ -51,7 +51,6 @@ private:
 
   void baseStateCb(const tobas_msgs::PoseVelStamped& bs);
   void targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw);
-
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
