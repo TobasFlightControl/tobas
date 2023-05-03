@@ -2,6 +2,8 @@
 
 #include <Eigen/Core>
 
+namespace tobas_multirotor_controller
+{
 struct VelocityControllerDynamicParams
 {
   double natural_freq;
@@ -11,7 +13,7 @@ struct VelocityControllerDynamicParams
 class VelocityController
 {
 public:
-  VelocityController(const VelocityControllerDynamicParams& params);
+  explicit VelocityController(const VelocityControllerDynamicParams& params);
 
   void
   update(const Eigen::Vector3d& cur_vel, const Eigen::Vector3d& tar_vel, Eigen::Vector3d& tar_acc);
@@ -21,3 +23,4 @@ public:
 private:
   double kv_;
 };
+}  // namespace tobas_multirotor_controller

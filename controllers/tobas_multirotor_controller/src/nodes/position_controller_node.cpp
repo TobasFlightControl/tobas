@@ -3,6 +3,6 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "tobas_multirotor_position_controller");
-  PositionControllerRos node;
+  tobas_multirotor_controller::PositionControllerRos node;
   ros::spin();
 }

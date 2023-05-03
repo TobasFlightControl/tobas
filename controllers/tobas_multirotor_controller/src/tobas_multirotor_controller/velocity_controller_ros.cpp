@@ -20,6 +20,8 @@ using namespace std;
 using namespace KDL;
 using namespace Eigen;
 
+namespace tobas_multirotor_controller
+{
 VelocityControllerRos::VelocityControllerRos()
   : jnt_name_parser_(tree_),
     is_initialized_(false),
@@ -61,8 +63,6 @@ VelocityControllerRos::VelocityControllerRos()
 
 void VelocityControllerRos::getRosParams()
 {
-  string ctrl_prefix = "/" + TOBAS_MULTIROTOR_CONTROLLER;
-
   drone_name_ = dh_ros::getParam<string>("/drone_name");
   description_ = dh_ros::getParam<string>("/robot_description");
   num_rotors_ = dh_ros::getParam<int>("/num_rotors");
@@ -72,21 +72,21 @@ void VelocityControllerRos::getRosParams()
   rotor_configs_ = getRotorConfigs();
 
   // velocity controller
-  dynamic_params_vel_.natural_freq = dh_ros::getParam<double>(ctrl_prefix + "/natural_frequency");
-  dynamic_params_vel_.damp_ratio = dh_ros::getParam<double>(ctrl_prefix + "/damping_ratio");
+  dynamic_params_vel_.natural_freq = dh_ros::getParam<double>(ctrlPrefix + "/natural_frequency");
+  dynamic_params_vel_.damp_ratio = dh_ros::getParam<double>(ctrlPrefix + "/damping_ratio");
 
   // rotation_controller
-  dynamic_params_rot_.pred_horizon = dh_ros::getParam<double>(ctrl_prefix + "/prediction_horizon");
-  dynamic_params_rot_.pred_steps = dh_ros::getParam<int>(ctrl_prefix + "/prediction_steps");
-  dynamic_params_rot_.rot_decay = dh_ros::getParam<double>(ctrl_prefix + "/rotation_decay");
+  dynamic_params_rot_.pred_horizon = dh_ros::getParam<double>(ctrlPrefix + "/prediction_horizon");
+  dynamic_params_rot_.pred_steps = dh_ros::getParam<int>(ctrlPrefix + "/prediction_steps");
+  dynamic_params_rot_.rot_decay = dh_ros::getParam<double>(ctrlPrefix + "/rotation_decay");
   dynamic_params_rot_.angvel_decay =
-    dh_ros::getParam<double>(ctrl_prefix + "/angular_velocity_decay");
-  dynamic_params_rot_.rot_weight = dh_ros::getParam<double>(ctrl_prefix + "/rotation_weight");
+    dh_ros::getParam<double>(ctrlPrefix + "/angular_velocity_decay");
+  dynamic_params_rot_.rot_weight = dh_ros::getParam<double>(ctrlPrefix + "/rotation_weight");
   dynamic_params_rot_.angvel_weight =
-    dh_ros::getParam<double>(ctrl_prefix + "/angular_velocity_weight");
-  dynamic_params_rot_.thrust_weight = dh_ros::getParam<int>(ctrl_prefix + "/thrust_force_weight");
+    dh_ros::getParam<double>(ctrlPrefix + "/angular_velocity_weight");
+  dynamic_params_rot_.thrust_weight = dh_ros::getParam<int>(ctrlPrefix + "/thrust_force_weight");
   dynamic_params_rot_.thrust_rate_weight =
-    dh_ros::getParam<int>(ctrl_prefix + "/thrust_force_rate_weight");
+    dh_ros::getParam<int>(ctrlPrefix + "/thrust_force_rate_weight");
 }
 
 void VelocityControllerRos::registerPublishers()
@@ -293,3 +293,4 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
     dh_ros::rosWarn("Joint states are not received yet.");
   }
 }
+}  // namespace tobas_multirotor_controller

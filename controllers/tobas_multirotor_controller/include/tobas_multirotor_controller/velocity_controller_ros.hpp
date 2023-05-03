@@ -17,6 +17,8 @@
 #include "./acceleration_controller.hpp"
 #include "./rotation_controller.hpp"
 
+namespace tobas_multirotor_controller
+{
 /**
  * @brief 加速度制御器(解析計算)，姿勢制御器(MPC)を組み合わせた制御器．
  * vx, vy, vz, yaw_rateの目標値に追従する．
@@ -96,3 +98,4 @@ private:
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_multirotor_controller

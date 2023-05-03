@@ -13,6 +13,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas_multirotor_controller
+{
 PositionControllerRos::PositionControllerRos() : is_initialized_(false)
 {
   getRosParams();
@@ -34,12 +36,10 @@ PositionControllerRos::PositionControllerRos() : is_initialized_(false)
 
 void PositionControllerRos::getRosParams()
 {
-  string ctrl_prefix = "/" + TOBAS_MULTIROTOR_CONTROLLER;
-
   drone_name_ = dh_ros::getParam<string>("/drone_name");
 
-  dynamic_params_.natural_freq = dh_ros::getParam<double>(ctrl_prefix + "/natural_frequency");
-  dynamic_params_.damp_ratio = dh_ros::getParam<double>(ctrl_prefix + "/damping_ratio");
+  dynamic_params_.natural_freq = dh_ros::getParam<double>(ctrlPrefix + "/natural_frequency");
+  dynamic_params_.damp_ratio = dh_ros::getParam<double>(ctrlPrefix + "/damping_ratio");
 }
 
 void PositionControllerRos::registerPubSub()
@@ -110,3 +110,4 @@ void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   dh_ros::rosWarn("Base state is not received yet.");
 }
+}  // namespace tobas_multirotor_controller

@@ -12,6 +12,8 @@
 
 #include "./position_controller.hpp"
 
+namespace tobas_multirotor_controller
+{
 class PositionControllerRos
 {
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
@@ -54,3 +56,4 @@ private:
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_multirotor_controller

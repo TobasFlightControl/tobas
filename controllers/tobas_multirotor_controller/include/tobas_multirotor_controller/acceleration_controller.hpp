@@ -6,10 +6,12 @@
 
 #include <tobas_tools/rotor_property.hpp>
 
+namespace tobas_multirotor_controller
+{
 class AccelerationController
 {
 public:
-  AccelerationController(
+  explicit AccelerationController(
     const KDL::Tree& tree,
     double gravity,
     double battery_voltage,
@@ -21,7 +23,7 @@ public:
     double& U_out,
     double& roll_out,
     double& pitch_out);
-  
+
   const double& maxU() const;
 
 private:
@@ -30,3 +32,4 @@ private:
   double mass_;
   double max_U_;
 };
+}  // namespace tobas_multirotor_controller

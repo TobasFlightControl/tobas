@@ -8,6 +8,8 @@ using namespace std;
 using namespace KDL;
 using namespace Eigen;
 
+namespace tobas_multirotor_controller
+{
 AccelerationController::AccelerationController(
   const KDL::Tree& tree,
   double gravity,
@@ -50,3 +52,4 @@ const double& AccelerationController::maxU() const
 {
   return max_U_;
 }
+}  // namespace tobas_multirotor_controller

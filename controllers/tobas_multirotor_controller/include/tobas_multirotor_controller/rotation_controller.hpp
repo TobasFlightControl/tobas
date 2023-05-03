@@ -10,6 +10,8 @@
 
 #include "./dynamics.hpp"
 
+namespace tobas_multirotor_controller
+{
 struct RotationControllerDynamicParams
 {
   double pred_horizon;
@@ -25,7 +27,7 @@ struct RotationControllerDynamicParams
 class RotationController
 {
 public:
-  RotationController(
+  explicit RotationController(
     const KDL::Tree& tree,
     double gravity,
     double battery_voltage,
@@ -76,3 +78,4 @@ private:
   ctrl::LinearEquation makeBaseInputCondition(const RotorConfigs& rotor_configs);
   void updateInputCondition(const double& U);
 };
+}  // namespace tobas_multirotor_controller

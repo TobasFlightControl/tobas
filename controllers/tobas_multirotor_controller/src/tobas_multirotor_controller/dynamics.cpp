@@ -9,6 +9,8 @@
 using namespace std;
 using namespace KDL;
 
+namespace tobas_multirotor_controller
+{
 MultiRotorDynamics::MultiRotorDynamics(const Tree& tree, const RotorConfigs& rotor_configs)
   : fk_solver_(tree), inertia_solver_(tree), ez_(0., 0., 1.), rotor_configs_(rotor_configs)
 {
@@ -47,3 +49,4 @@ void MultiRotorDynamics::updateB(const JntArray& q)
     B.block(3, i, 3, 1) = I_cog_inv_ * (P_cog_rotor_eigen_.cross(ez_) - (d * c) * ez_);
   }
 }
+}  // namespace tobas_multirotor_controller

@@ -13,6 +13,8 @@ using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
+namespace tobas_multirotor_controller
+{
 RotationController::RotationController(
   const Tree& tree,
   double gravity,
@@ -169,3 +171,4 @@ void RotationController::updateInputCondition(const double& U)
   F_f_.b(num_rotors_ * 2) = U;
   F_f_.b(num_rotors_ * 2 + 1) = -U;
 }
+}  // namespace tobas_multirotor_controller
