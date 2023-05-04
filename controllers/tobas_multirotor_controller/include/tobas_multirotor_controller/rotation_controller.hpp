@@ -54,7 +54,7 @@ private:
   // 動的ROSパラメータに依存するパラメータ
   double dt_;                   // MPCの離散化間隔
   uint32_t Hp_;                 // 予測区間の分割数
-  std::vector<double> T_refs_;  // 制御変数の誤差の減衰時定数[sec]
+  std::vector<double> T_refs_;  // 制御変数の誤差の減衰時定数 [s]
   Eigen::VectorXd Q_;
   Eigen::VectorXd S_;
   Eigen::VectorXd R_;

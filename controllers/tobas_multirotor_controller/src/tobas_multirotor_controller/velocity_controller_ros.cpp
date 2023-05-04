@@ -4,6 +4,7 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/operators.hpp>
 #include <tobas_tools/utils.hpp>
@@ -12,9 +13,6 @@
 
 #include "../../include/tobas_multirotor_controller/velocity_controller_ros.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
-
-#define INFO_PERIOD 1.
-#define TIMER_PERIOD 5.
 
 using namespace std;
 using namespace KDL;
@@ -34,8 +32,11 @@ VelocityControllerRos::VelocityControllerRos()
   is_transformable_ = required_joints_.size() > 0;
 
   // Treeを取得
-  const bool ok = kdl_parser::treeFromString(description_, tree_);
-  ROS_ASSERT(ok);
+  if (!kdl_parser::treeFromString(description_, tree_))
+  {
+    dh_ros::RuntimeError("Failed to get KDL tree.");
+  }
+
   jnt_name_parser_.updateInternalDataStructures();
 
   // 各コントローラを初期化
@@ -57,8 +58,8 @@ VelocityControllerRos::VelocityControllerRos()
   server_.setCallback(f);
 
   // Start timer
-  check_topics_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &VelocityControllerRos::checkTopicsTimerCb, this);
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(checkTopicsTimerPeriod), &VelocityControllerRos::checkTopicsTimerCb, this);
 }
 
 void VelocityControllerRos::getRosParams()
@@ -165,7 +166,7 @@ void VelocityControllerRos::runOnce(const tobas_msgs::PoseVel& bs)
   {
     const double& max_U = acc_controller_->maxU();
     dh_ros::rosWarnThrottle(
-      INFO_PERIOD, "U_out = " + to_string(U_) + " is out of range [0, " + to_string(max_U) + "].");
+      warnPeriod, "U_out = " + to_string(U_) + " is out of range [0, " + to_string(max_U) + "].");
     U_ = dh_std::clamp(U_, 0., max_U);
   }
 

@@ -7,9 +7,6 @@
 #include "../../include/tobas_multirotor_controller/position_controller_ros.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
 
-#define TIMER_PERIOD 5.
-#define INIT_ELEVATION 1.
-
 using namespace std;
 using namespace Eigen;
 
@@ -30,8 +27,8 @@ PositionControllerRos::PositionControllerRos() : is_initialized_(false)
   server_.setCallback(f);
 
   // Start timer
-  check_topics_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &PositionControllerRos::checkTopicsTimerCb, this);
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(checkTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
 }
 
 void PositionControllerRos::getRosParams()
@@ -59,7 +56,7 @@ void PositionControllerRos::initialize(const tobas_msgs::PoseVelStamped& bs)
 {
   // 最初は暴れるのを防ぐために現在の状態を目標状態にする
   tf::vectorMsgToEigen(bs.pose_vel.pose.position, target_pos_);
-  target_pos_.z() += INIT_ELEVATION;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
+  target_pos_.z() += initialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
   target_yaw_ = bs.pose_vel.pose.orientation.yaw;
 }
 
