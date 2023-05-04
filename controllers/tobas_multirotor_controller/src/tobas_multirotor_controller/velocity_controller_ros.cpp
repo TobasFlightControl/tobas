@@ -70,7 +70,7 @@ void VelocityControllerRos::getRosParams()
   required_joints_ = dh_ros::getParam<vector<string>>("/required_joint_names");
   gravity_ = dh_ros::getParam<double>("/gravity");
   battery_voltage_ = dh_ros::getParam<double>("/battery_voltage");
-  rotor_configs_ = getRotorConfigs();
+  getRotorConfigs(rotor_configs_);
 
   // velocity controller
   dynamic_params_vel_.natural_freq = dh_ros::getParam<double>(ctrlPrefix + "/natural_frequency");

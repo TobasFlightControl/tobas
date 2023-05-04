@@ -2,7 +2,7 @@
 
 #include "../../include/plugins/magnetometer_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 #define ZERO_3 (SdfVector3(0., 0., 0.))
 

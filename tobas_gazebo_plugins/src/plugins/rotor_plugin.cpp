@@ -1,7 +1,7 @@
 #include <dh_std_tools/math.hpp>
 
 #include "../../include/plugins/rotor_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
 using namespace ignition::math;

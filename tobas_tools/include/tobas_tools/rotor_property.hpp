@@ -36,4 +36,5 @@ struct RotorConfig
 
 using RotorConfigs = std::vector<RotorConfig>;
 
-RotorConfigs getRotorConfigs();
+/* Get rotor configurations from ROS parameter server. */
+void getRotorConfigs(RotorConfigs& des);

@@ -11,14 +11,13 @@ using namespace std;
 using namespace dh_std;
 
 MotorsHandler_PWM::MotorsHandler_PWM()
-  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
-    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_configs_(getRotorConfigs())
 {
   if (getuid())
   {
     throw dh_ros::RuntimeError("Not root.");
   }
+
+  getRosParams();
 
   for (const auto& rotor_config : rotor_configs_)
   {
@@ -44,9 +43,16 @@ MotorsHandler_PWM::MotorsHandler_PWM()
     ros::Duration(0.2).sleep();  // 連続して設定を行うと失敗するため間隔をあける
   }
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
   rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+}
+
+void MotorsHandler_PWM::getRosParams()
+{
+  drone_name_ = dh_ros::getParam<string>("/drone_name");
+  battery_voltage_ = dh_ros::getParam<double>("/battery_voltage");
+  num_rotors_ = dh_ros::getParam<int>("/num_rotors");
+  getRotorConfigs(rotor_configs_);
 }
 
 uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)

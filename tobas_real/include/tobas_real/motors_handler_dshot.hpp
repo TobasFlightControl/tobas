@@ -18,15 +18,21 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  const double battery_voltage_;
-  const uint32_t num_rotors_;
-  const RotorConfigs rotor_configs_;
-  const double update_rate_;
-
+  bool cmd_received_;
   std::vector<double> cmd_speeds_;
   DSHOT dshot_;
 
+  // rosparams
+  std::string drone_name_;
+  double battery_voltage_;
+  uint32_t num_rotors_;
+  RotorConfigs rotor_configs_;
+  double update_rate_;
+
+  // PubSub
   ros::Subscriber rotor_vels_sub_;
+
+  void getRosParams();
 
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds);
 };

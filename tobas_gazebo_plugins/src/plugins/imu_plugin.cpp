@@ -2,7 +2,7 @@
 
 #include "../../include/plugins/imu_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 #define ZERO_3 (Vector3d(0., 0., 0.))
 

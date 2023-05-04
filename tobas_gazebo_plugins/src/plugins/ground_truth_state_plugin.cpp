@@ -2,7 +2,7 @@
 
 #include "../../include/plugins/ground_truth_state_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
 using namespace ignition::math;

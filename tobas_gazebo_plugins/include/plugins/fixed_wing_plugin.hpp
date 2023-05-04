@@ -8,10 +8,11 @@
 
 #include <dh_std_tools/range.hpp>
 
+#include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/WindSpeed.h>
 
-#include "../tobas_gazebo_plugins/fixed_wing_tools.hpp"
+#include "../tobas_gazebo_plugins/simple_joint_model.hpp"
 
 namespace gazebo
 {
@@ -54,11 +55,11 @@ private:
   std::string link_name_;
   std::string deflections_sub_topic_;
   std::string wind_speed_sub_topic_;
-  double ref_alt_;                     // 基準点の幾何的高度
-  dh_std::Range<double> alpha_range_;  // 失速角
+  double ref_alt_;  // 基準点の幾何的高度
   VehicleParameters vehicle_params_;
   AerodynamicsCoefficients aero_coefs_;
   std::vector<ControlSurface> control_surfaces_;
+  std::vector<SimpleJointModel> cs_angle_models_;
 
   uint32_t num_control_surfaces_;
   bool is_initialized_;

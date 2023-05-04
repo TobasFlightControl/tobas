@@ -15,15 +15,19 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  // rosparam
-  const double battery_voltage_;
-  const uint32_t num_rotors_;
-  const RotorConfigs rotor_configs_;
-
   RCOutput_Navio2 pwm_;
 
+  // rosparam
+  std::string drone_name_;
+  double battery_voltage_;
+  uint32_t num_rotors_;
+  RotorConfigs rotor_configs_;
+
+  // PubSub
   ros::Subscriber rotor_vels_sub_;
 
+  void getRosParams();
   uint32_t getChannel(uint32_t pin);
+
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
 };

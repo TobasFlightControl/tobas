@@ -11,27 +11,22 @@
 using namespace std;
 using namespace dh_std;
 
-MotorsHandler_DSHOT::MotorsHandler_DSHOT()
-  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
-    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_configs_(getRotorConfigs()),
-    update_rate_(dh_ros::getParam<double>("~update_rate", kDefaultUpdateRate)),
-    cmd_speeds_(num_rotors_, 0.),
-    dshot_(DSHOT::DSHOT_600)
+MotorsHandler_DSHOT::MotorsHandler_DSHOT() : cmd_received_(false), dshot_(DSHOT::DSHOT_600)
 {
   if (getuid())
   {
     throw dh_ros::RuntimeError("Not root.");
   }
 
+  getRosParams();
+
   for (const auto& rotor_config : rotor_configs_)
   {
     dshot_.initialize(rotor_config.pin);
   }
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
   rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
 }
 
 void MotorsHandler_DSHOT::run()
@@ -40,6 +35,13 @@ void MotorsHandler_DSHOT::run()
 
   while (ros::ok())
   {
+    if (!cmd_received_)
+    {
+      ros::spinOnce();
+      rate.sleep();
+      continue;
+    }
+
     for (int i = 0; i < num_rotors_; ++i)
     {
       const RotorConfig& rotor_config = rotor_configs_[i];
@@ -71,6 +73,16 @@ void MotorsHandler_DSHOT::run()
   }
 }
 
+void MotorsHandler_DSHOT::getRosParams()
+{
+  drone_name_ = dh_ros::getParam<string>("/drone_name");
+  battery_voltage_ = dh_ros::getParam<double>("/battery_voltage");
+  num_rotors_ = dh_ros::getParam<int>("/num_rotors");
+  getRotorConfigs(rotor_configs_);
+
+  update_rate_ = dh_ros::getParam<double>("~update_rate", kDefaultUpdateRate);
+}
+
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
   const auto& speeds = rotor_speeds.speeds;
@@ -80,6 +92,11 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
     dh_ros::rosErrorThrottle(
       INFO_PERIOD, "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(num_rotors_));
     return;
+  }
+
+  if (!cmd_received_)
+  {
+    cmd_received_ = true;
   }
 
   cmd_speeds_ = speeds;
