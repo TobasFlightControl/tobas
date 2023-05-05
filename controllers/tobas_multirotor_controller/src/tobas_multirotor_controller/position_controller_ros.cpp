@@ -19,16 +19,14 @@ PositionControllerRos::PositionControllerRos() : is_initialized_(false)
   pos_controller_.reset(new PositionController(dynamic_params_));
   vel_yaw_.frame_id.frame_id = tobas_msgs::FrameId::GLOBAL;
 
-  registerPubSub();
+  registerPublishers();
+  registerSubscribers();
+  createTimers();
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f =
     boost::bind(&PositionControllerRos::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
-
-  // Start timer
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(checkTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
 }
 
 void PositionControllerRos::getRosParams()
@@ -39,17 +37,24 @@ void PositionControllerRos::getRosParams()
   dh_ros::getParam(ctrlPrefix + "/damping_ratio", dynamic_params_.damp_ratio);
 }
 
-void PositionControllerRos::registerPubSub()
+void PositionControllerRos::registerPublishers()
 {
-  string drone_prefix = "/" + drone_name_;
-
   vel_yaw_pub_ =
-    nh_.advertise<tobas_msgs::VelocityYaw>(drone_prefix + "/command/velocity_yaw", 1, false);
+    nh_.advertise<tobas_msgs::VelocityYaw>("/" + drone_name_ + "/command/velocity_yaw", 1, false);
+}
 
+void PositionControllerRos::registerSubscribers()
+{
   base_state_sub_ =
-    nh_.subscribe(drone_prefix + "/base_state", 1, &PositionControllerRos::baseStateCb, this);
+    nh_.subscribe("/" + drone_name_ + "/base_state", 1, &PositionControllerRos::baseStateCb, this);
   pos_yaw_sub_ = nh_.subscribe(
-    drone_prefix + "/command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
+    "/" + drone_name_ + "/command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
+}
+
+void PositionControllerRos::createTimers()
+{
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(checkTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
 }
 
 void PositionControllerRos::initialize(const tobas_msgs::PoseVelStamped& bs)
@@ -96,15 +101,15 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_
   target_yaw_ = pos_yaw.yaw;
 }
 
+void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
+  dh_ros::rosWarn("Base state is not received yet.");
+}
+
 void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
   updateDynamicParams(cfg);
 
   pos_controller_->reconfigure(dynamic_params_);
-}
-
-void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
-{
-  dh_ros::rosWarn("Base state is not received yet.");
 }
 }  // namespace tobas_multirotor_controller

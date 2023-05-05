@@ -24,7 +24,7 @@ ImuHandler::ImuHandler()
   setCovarianceMatrices();
   registerPublishers();
 
-  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::timerCb, this);
+  main_loop_timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::mainLoopTimerCb, this);
 }
 
 void ImuHandler::getRosParams()
@@ -76,7 +76,7 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[8] = mag_var;
 }
 
-void ImuHandler::timerCb(const ros::TimerEvent&)
+void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
   ros::Time now = ros::Time::now();
   imu_msg_.header.stamp = now;

@@ -43,7 +43,9 @@ MotorsHandler_PWM::MotorsHandler_PWM()
     ros::Duration(0.2).sleep();  // 連続して設定を行うと失敗するため間隔をあける
   }
 
+  registerPublishers();
   registerSubscribers();
+  createTimers();
 }
 
 void MotorsHandler_PWM::getRosParams()
@@ -54,10 +56,18 @@ void MotorsHandler_PWM::getRosParams()
   getRotorConfigs(rotor_configs_);
 }
 
+void MotorsHandler_PWM::registerPublishers()
+{
+}
+
 void MotorsHandler_PWM::registerSubscribers()
 {
   rotor_vels_sub_ = nh_.subscribe(
     "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+}
+
+void MotorsHandler_PWM::createTimers()
+{
 }
 
 uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
@@ -107,4 +117,8 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
       throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");
     }
   }
+}
+
+void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
 }

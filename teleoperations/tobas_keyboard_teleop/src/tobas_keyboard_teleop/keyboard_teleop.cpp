@@ -40,10 +40,9 @@ CommandHandler::CommandHandler()
 
   prepare(0);
 
-  cmd_pub_ = nh_.advertise<CmdMsg>("/" + drone_name_ + "/command/position_yaw", 1, false);
-
-  instruction_timer_ = nh_.createTimer(
-    ros::Duration(INSTRUCTION_PERIOD), &CommandHandler::instructionTimerCb, this, false, false);
+  registerPublishers();
+  registerSubscribers();
+  createTimers();
 }
 
 CommandHandler::~CommandHandler()
@@ -163,6 +162,21 @@ void CommandHandler::getRosParams()
   ROS_ASSERT(yaw_limit_.lower < 0. && 0. < yaw_limit_.upper);
 }
 
+void CommandHandler::registerPublishers()
+{
+  cmd_pub_ = nh_.advertise<CmdMsg>("/" + drone_name_ + "/command/position_yaw", 1, false);
+}
+
+void CommandHandler::registerSubscribers()
+{
+}
+
+void CommandHandler::createTimers()
+{
+  instruction_timer_ = nh_.createTimer(
+    ros::Duration(INSTRUCTION_PERIOD), &CommandHandler::instructionTimerCb, this, false, false);
+}
+
 void CommandHandler::prepare(int fd)
 {
   tcgetattr(fd, &tempcopy_);
@@ -178,6 +192,10 @@ void CommandHandler::prepare(int fd)
   changed_.c_cc[VTIME] = 10. / update_rate_;
 
   tcsetattr(fd, TCSANOW, &changed_);
+}
+
+void CommandHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
 }
 
 void CommandHandler::instructionTimerCb(const ros::TimerEvent&)

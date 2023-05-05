@@ -29,13 +29,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   getRosParams();
   registerPublishers();
   registerSubscribers();
-
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(TIMER_PERIOD), &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this);
-}
-
-ErrorStateKalmanFilterRos::~ErrorStateKalmanFilterRos()
-{
+  createTimers();
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()
@@ -67,6 +61,12 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
   gps_sub_ = nh_.subscribe("/" + drone_name_ + "/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
   vel_sub_ =
     nh_.subscribe("/" + drone_name_ + "/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+}
+
+void ErrorStateKalmanFilterRos::createTimers()
+{
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(TIMER_PERIOD), &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this);
 }
 
 bool ErrorStateKalmanFilterRos::isReady()
@@ -265,13 +265,7 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
   // eskf_.measureVelocity(Vector3d::Zero(), cov, stamp, now);
 }
 
-lTime ErrorStateKalmanFilterRos::getNow()
-{
-  ros::Time now = ros::Time::now();
-  return lTime(now.sec, now.nsec);
-}
-
-void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
+void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   if (!imu_subscribed_)
   {
@@ -297,4 +291,10 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
   {
     dh_ros::rosWarn("GPS velocity data is not received yet.");
   }
+}
+
+lTime ErrorStateKalmanFilterRos::getNow()
+{
+  ros::Time now = ros::Time::now();
+  return lTime(now.sec, now.nsec);
 }

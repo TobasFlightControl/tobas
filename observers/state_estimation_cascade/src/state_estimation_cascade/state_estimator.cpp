@@ -35,20 +35,15 @@ StateEstimator::StateEstimator()
 {
   getRosParams();
   fillUnusedBuffers();
-  registerPublishers();
-  registerSubscribers();
 
   state_.header.frame_id = "world";
 
+  registerPublishers();
+  registerSubscribers();
+  createTimers();
+
   ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
-
-  check_topics_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &StateEstimator::checkTopicsTimerCb, this);
-}
-
-StateEstimator::~StateEstimator()
-{
 }
 
 void StateEstimator::getRosParams()
@@ -60,6 +55,41 @@ void StateEstimator::getRosParams()
   dh_ros::getParam("~use_gps_position", use_gps_pos_, true);
   dh_ros::getParam("~use_gps_velocity", use_gps_vel_, true);
   dh_ros::getParam("~gravity_variance_exp", grav_var_exp_);
+}
+
+void StateEstimator::registerPublishers()
+{
+  posevel_pub_ = nh_.advertise<StateMsg>("/" + drone_name_ + "/base_state", 1);
+}
+
+void StateEstimator::registerSubscribers()
+{
+  filtered_imu_sub_ =
+    nh_.subscribe("/" + drone_name_ + "/filtered_imu", 1, &StateEstimator::filteredImuCb, this);
+
+  if (use_bar_)
+  {
+    bar_sub_ =
+      nh_.subscribe("/" + drone_name_ + "/air_pressure", 1, &StateEstimator::barometerCb, this);
+  }
+
+  if (use_gps_pos_)
+  {
+    gps_pos_sub_ =
+      nh_.subscribe("/" + drone_name_ + "/gps", 1, &StateEstimator::gpsPositionCb, this);
+  }
+
+  if (use_gps_vel_)
+  {
+    gps_vel_sub_ =
+      nh_.subscribe("/" + drone_name_ + "/ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
+  }
+}
+
+void StateEstimator::createTimers()
+{
+  check_topics_timer_ =
+    nh_.createTimer(ros::Duration(TIMER_PERIOD), &StateEstimator::checkTopicsTimerCb, this);
 }
 
 void StateEstimator::fillUnusedBuffers()
@@ -113,35 +143,6 @@ void StateEstimator::fillUnusedBuffers()
     vel.vel.covariance[7] = 0.;
     vel.vel.covariance[8] = sqr(default_ver_vel_std);
     gps_vel_buf_.fill(vel);
-  }
-}
-
-void StateEstimator::registerPublishers()
-{
-  posevel_pub_ = nh_.advertise<StateMsg>("/" + drone_name_ + "/base_state", 1);
-}
-
-void StateEstimator::registerSubscribers()
-{
-  filtered_imu_sub_ =
-    nh_.subscribe("/" + drone_name_ + "/filtered_imu", 1, &StateEstimator::filteredImuCb, this);
-
-  if (use_bar_)
-  {
-    bar_sub_ =
-      nh_.subscribe("/" + drone_name_ + "/air_pressure", 1, &StateEstimator::barometerCb, this);
-  }
-
-  if (use_gps_pos_)
-  {
-    gps_pos_sub_ =
-      nh_.subscribe("/" + drone_name_ + "/gps", 1, &StateEstimator::gpsPositionCb, this);
-  }
-
-  if (use_gps_vel_)
-  {
-    gps_vel_sub_ =
-      nh_.subscribe("/" + drone_name_ + "/ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
   }
 }
 
@@ -350,12 +351,7 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
   cart_filter_.measureVelocity(v_m_, cov);
 }
 
-void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
-{
-  cart_filter_.reconfigure(cfg.gravity_variance_exp);
-}
-
-void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
+void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   // IMU
   if (filtered_imu_buf_.isEmpty())
@@ -405,4 +401,9 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
       dh_ros::rosInfoOnce("Waiting for GPS velocity data to be collected.");
     }
   }
+}
+
+void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+{
+  cart_filter_.reconfigure(cfg.gravity_variance_exp);
 }

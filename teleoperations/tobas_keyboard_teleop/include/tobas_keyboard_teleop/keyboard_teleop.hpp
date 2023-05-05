@@ -4,14 +4,14 @@
 #include <termios.h>
 
 #include <dh_std_tools/range.hpp>
-#include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/node.hpp>
 
 #include <tobas_msgs/PositionYaw.h>
 
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
-class CommandHandler
+class CommandHandler : public dh_ros::BaseNode
 {
   using CmdMsg = tobas_msgs::PositionYaw;
 
@@ -22,9 +22,14 @@ public:
   void run();
 
 private:
-  ros::NodeHandle nh_;
+  std::string instruction_;
+  termios tempcopy_, changed_;
+  double update_rate_;
+  double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
+  double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
+  CmdMsg cmd_;
 
-  // rosparam
+  // rosparams
   std::string drone_name_;
   double key_repeat_freq_;  // キーボードの連続入力の周波数(PC依存)
   double max_linvel_;       // 並進速度の大きさの最大値
@@ -34,18 +39,18 @@ private:
   dh_std::Range<double> z_limit_;
   dh_std::Range<double> yaw_limit_;
 
-  // other
-  std::string instruction_;
-  termios tempcopy_, changed_;
-  double update_rate_;
-  double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
-  double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
-  CmdMsg cmd_;
-
+  // PubSub
   ros::Publisher cmd_pub_;
+
   dh_ros::Timer instruction_timer_;
 
-  void getRosParams();
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
+
   void prepare(int fd);
+
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void instructionTimerCb(const ros::TimerEvent&);
 };

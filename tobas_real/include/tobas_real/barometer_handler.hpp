@@ -5,7 +5,9 @@
 
 #include <Common/MS5611.h>
 
-class BarometerHandler
+#include <dh_ros_tools/node.hpp>
+
+class BarometerHandler : public dh_ros::BaseNode
 {
   using BarMsg = sensor_msgs::FluidPressure;
 
@@ -13,20 +15,22 @@ public:
   BarometerHandler();
 
 private:
-  ros::NodeHandle nh_;
-
   MS5611 barometer_;
   BarMsg bar_msg_;
 
-  // roaparam
+  // roaparams
   std::string drone_name_;
 
-  // Publisher
+  // PubSub
   ros::Publisher bar_pub_;
 
-  ros::Timer timer_;
+  ros::Timer main_loop_timer_;
 
-  void getRosParams();
-  void registerPublishers();
-  void timerCb(const ros::TimerEvent&);
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
+
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void mainLoopTimerCb(const ros::TimerEvent&);
 };

@@ -9,7 +9,7 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <dh_std_tools/buffer.hpp>
-#include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/node.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
 #include <tobas_msgs/PoseVelStamped.h>
@@ -17,7 +17,7 @@
 
 #include "./cartesian_filter.hpp"
 
-class StateEstimator
+class StateEstimator : public dh_ros::BaseNode
 {
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
@@ -30,19 +30,8 @@ class StateEstimator
 
 public:
   explicit StateEstimator();
-  ~StateEstimator();
 
 private:
-  ros::NodeHandle nh_;
-
-  // rosparams
-  std::string drone_name_;
-  double gravity_;
-  bool use_bar_;
-  bool use_gps_pos_;
-  bool use_gps_vel_;
-  double grav_var_exp_;
-
   bool is_initialized_;
   ros::Time t_last_;
   double lat_0_;                             // 緯度のゼロ点
@@ -63,6 +52,14 @@ private:
 
   CartesianFilter cart_filter_;
 
+  // rosparams
+  std::string drone_name_;
+  double gravity_;
+  bool use_bar_;
+  bool use_gps_pos_;
+  bool use_gps_vel_;
+  double grav_var_exp_;
+
   // PubSub
   ros::Publisher posevel_pub_;
   ros::Subscriber filtered_imu_sub_;
@@ -70,13 +67,15 @@ private:
   ros::Subscriber gps_pos_sub_;
   ros::Subscriber gps_vel_sub_;
 
-  ConfigServer server_;            // Dynamic Reconfigure
-  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  // Dynamic Reconfigure
+  ConfigServer server_;
 
-  void getRosParams();
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
+
   void fillUnusedBuffers();
-  void registerPublishers();
-  void registerSubscribers();
   bool isReady();
   void initialize();
   void setZeroPositions();
@@ -87,6 +86,6 @@ private:
   void gpsPositionCb(const GpsMsg& gps);
   void gpsVelocityCb(const VelMsg& vel);
 
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
-  void checkTopicsTimerCb(const ros::TimerEvent&);
 };

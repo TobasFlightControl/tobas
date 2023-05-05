@@ -34,11 +34,11 @@ private:
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
-  ros::Timer timer_;
+  ros::Timer main_loop_timer_;
 
   void getRosParams();
   void registerPublishers();
   void setupImu();
   void setCovarianceMatrices();
-  void timerCb(const ros::TimerEvent&);
+  void mainLoopTimerCb(const ros::TimerEvent&);
 };

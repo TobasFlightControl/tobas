@@ -25,7 +25,9 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT() : cmd_received_(false), dshot_(DSHOT:
     dshot_.initialize(rotor_config.pin);
   }
 
+  registerPublishers();
   registerSubscribers();
+  createTimers();
 }
 
 void MotorsHandler_DSHOT::run()
@@ -82,10 +84,18 @@ void MotorsHandler_DSHOT::getRosParams()
   dh_ros::getParam("~update_rate", update_rate_, kDefaultUpdateRate);
 }
 
+void MotorsHandler_DSHOT::registerPublishers()
+{
+}
+
 void MotorsHandler_DSHOT::registerSubscribers()
 {
   rotor_vels_sub_ = nh_.subscribe(
     "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+}
+
+void MotorsHandler_DSHOT::createTimers()
+{
 }
 
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
@@ -105,4 +115,8 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
   }
 
   cmd_speeds_ = speeds;
+}
+
+void MotorsHandler_DSHOT::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
 }

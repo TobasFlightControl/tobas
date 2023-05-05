@@ -27,8 +27,8 @@ GpsHandler::GpsHandler() : cov_received_(false)
   gps_msg_.position_covariance_type = GpsMsg::COVARIANCE_TYPE_KNOWN;
 
   registerPublishers();
-
-  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::timerCb, this);
+  registerSubscribers();
+  createTimers();
 }
 
 void GpsHandler::getRosParams()
@@ -42,7 +42,21 @@ void GpsHandler::registerPublishers()
   vel_pub_ = nh_.advertise<VelMsg>("/" + drone_name_ + "/ground_speed", 1);
 }
 
-void GpsHandler::timerCb(const ros::TimerEvent&)
+void GpsHandler::registerSubscribers()
+{
+}
+
+void GpsHandler::createTimers()
+{
+  main_loop_timer_ =
+    nh_.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::mainLoopTimerCb, this);
+}
+
+void GpsHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
+}
+
+void GpsHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
   if (gps_.decodeSingleMessage(Ublox::NAV_COV, data_) == 1)
   {

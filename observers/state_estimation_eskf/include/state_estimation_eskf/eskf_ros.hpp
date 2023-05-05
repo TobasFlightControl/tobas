@@ -6,14 +6,14 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/node.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
 #include <tobas_msgs/PoseVelStamped.h>
 
 #include "./eskf.hpp"
 
-class ErrorStateKalmanFilterRos
+class ErrorStateKalmanFilterRos : public dh_ros::BaseNode
 {
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
@@ -24,20 +24,8 @@ class ErrorStateKalmanFilterRos
 
 public:
   explicit ErrorStateKalmanFilterRos();
-  ~ErrorStateKalmanFilterRos();
 
 private:
-  ros::NodeHandle nh_;
-
-  // rosparams
-  std::string drone_name_;
-  double gravity_;
-  Eigen::Vector3d ref_mag_;
-  double gyro_noise_density_;  // rad/s/sqrt(hz)
-  double gyro_random_walk_;    // rad/s^2/sqrt(hz)
-  double acc_noise_density_;   // m/s^2/sqrt(hz)
-  double acc_random_walk_;     // m/s^3/sqrt(hz)
-
   bool is_ready_;
   ros::Time t_last_;
   double lat_0_;  // 緯度のゼロ点
@@ -63,6 +51,16 @@ private:
 
   ErrorStateKalmanFilter eskf_;
 
+  // rosparams
+  std::string drone_name_;
+  double gravity_;
+  Eigen::Vector3d ref_mag_;
+  double gyro_noise_density_;  // rad/s/sqrt(hz)
+  double gyro_random_walk_;    // rad/s^2/sqrt(hz)
+  double acc_noise_density_;   // m/s^2/sqrt(hz)
+  double acc_random_walk_;     // m/s^3/sqrt(hz)
+
+  // rosparams
   ros::Publisher posevel_pub_;
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
@@ -70,11 +68,11 @@ private:
   ros::Subscriber gps_sub_;
   ros::Subscriber vel_sub_;
 
-  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
 
-  void getRosParams();
-  void registerPublishers();
-  void registerSubscribers();
   bool isReady();
   void initialize();
   void setZeroPositions();
@@ -86,7 +84,7 @@ private:
   void gpsCb(const GpsMsg& msg);
   void velCb(const VelMsg& msg);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
 
   static lTime getNow();
 };

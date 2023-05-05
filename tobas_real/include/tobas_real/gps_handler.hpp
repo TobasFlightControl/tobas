@@ -5,9 +5,11 @@
 
 #include <Common/Ublox.h>
 
+#include <dh_ros_tools/node.hpp>
+
 #include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
 
-class GpsHandler
+class GpsHandler : public dh_ros::BaseNode
 {
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
@@ -16,8 +18,6 @@ public:
   GpsHandler();
 
 private:
-  ros::NodeHandle nh_;
-
   Ublox gps_;
   std::vector<double> data_;
   GpsMsg gps_msg_;
@@ -31,9 +31,13 @@ private:
   ros::Publisher gps_pub_;
   ros::Publisher vel_pub_;
 
-  ros::Timer timer_;
+  ros::Timer main_loop_timer_;
 
-  void getRosParams();
-  void registerPublishers();
-  void timerCb(const ros::TimerEvent&);
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
+
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void mainLoopTimerCb(const ros::TimerEvent&);
 };

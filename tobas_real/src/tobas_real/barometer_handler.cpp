@@ -20,7 +20,9 @@ BarometerHandler::BarometerHandler()
   barometer_.initialize();
   bar_msg_.variance = dh_std::sqr(BAR_NOISE_STD);
 
-  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &BarometerHandler::timerCb, this);
+  registerPublishers();
+  registerSubscribers();
+  createTimers();
 }
 
 void BarometerHandler::getRosParams()
@@ -33,7 +35,21 @@ void BarometerHandler::registerPublishers()
   bar_pub_ = nh_.advertise<BarMsg>("/" + drone_name_ + "/air_pressure", 1);
 }
 
-void BarometerHandler::timerCb(const ros::TimerEvent&)
+void BarometerHandler::registerSubscribers()
+{
+}
+
+void BarometerHandler::createTimers()
+{
+  main_loop_timer_ =
+    nh_.createTimer(ros::Duration(TIMER_PERIOD), &BarometerHandler::mainLoopTimerCb, this);
+}
+
+void BarometerHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
+}
+
+void BarometerHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
   barometer_.refreshPressure();
   ros::Duration(WAIT_TIME).sleep();  // Waiting for pressure data ready
