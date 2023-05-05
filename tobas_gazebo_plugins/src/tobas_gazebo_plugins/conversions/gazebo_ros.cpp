@@ -1,4 +1,4 @@
-#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 namespace gazebo
 {
