@@ -1,18 +1,17 @@
 #pragma once
 
 #include <vector>
-#include <gazebo/gazebo.hh>
+#include <Eigen/Core>
 
 #include <dh_std_tools/range.hpp>
 
-namespace gazebo
-{
 struct VehicleParameters
 {
-  double wing_surface;                          // 主翼面積 [m^2]
-  double wing_span;                             // 翼幅 [m]
-  double mean_aerodynamic_chord;                // 平均空力翼弦 [m]
-  ignition::math::Vector3d aerodynamic_center;  // フレーム原点に対する空力中心 (NWU) [m]
+  double wing_surface;                 // 主翼面積 [m^2]
+  double wing_span;                    // 翼幅 [m]
+  double mean_aerodynamic_chord;       // 平均空力翼弦 [m]
+  Eigen::Vector3d aerodynamic_center;  // フレーム原点に対する空力中心 (NWU) [m]
+  dh_std::Range<double> alpha_limit;   // 失速角 [rad]
 };
 
 struct AerodynamicsCoefficients
@@ -49,9 +48,8 @@ struct AerodynamicsCoefficients
 /**
  * @brief 舵面．軸が概ねY軸またはZ軸に平行であることを想定．
  */
-class ControlSurface
+struct ControlSurface
 {
-public:
   uint32_t index;  // 舵角配列における添字
   dh_std::Range<double> angle_limit;
   double max_angle_rate;
@@ -62,13 +60,25 @@ public:
   double c_roll_delta;      // [/rad]
   double c_pitch_delta;     // [/rad]
   double c_yaw_delta;       // [/rad]
-
-  explicit ControlSurface();
-
-  void setAngle(double cmd_angle, double dt);
-  const double& getAngle() const;
-
-private:
-  double angle_;
 };
-}  // namespace gazebo
+
+using ControlSurfaces = std::vector<ControlSurface>;
+
+struct FixedWingConfig
+{
+  VehicleParameters vehicle;
+  AerodynamicsCoefficients aerodynamics;
+  ControlSurfaces control_surfaces;
+};
+
+/* Get fixed wing vehicle parameters from ROS parameter server. */
+void getVehicleParameters(VehicleParameters& des);
+
+/* Get aerodynamics coefficients from ROS parameter server. */
+void getAerodynamicsCoefficients(AerodynamicsCoefficients& des);
+
+/* Get control surface configurations from ROS parameter server. */
+void getControlSurfaces(ControlSurfaces& des);
+
+/* Get fixed wing configurations from ROS parameter server. */
+void getFixedWingConfig(FixedWingConfig& des);
