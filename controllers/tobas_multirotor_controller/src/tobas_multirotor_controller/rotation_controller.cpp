@@ -24,21 +24,23 @@ RotationController::RotationController(
   : gravity_(gravity),
     battery_voltage_(battery_voltage),
     num_rotors_(rotor_configs.size()),
-    T_refs_(STATE_SIZE),
     cont_(tree, rotor_configs),
-    c2d_(STATE_SIZE, num_rotors_),
-    Cz_(MatrixXd::Identity(STATE_SIZE, STATE_SIZE)),
-    Q_(STATE_SIZE),
-    S_(num_rotors_),
-    R_(num_rotors_),
-    E_e_(ctrl::LinearEquation(num_rotors_, 0)),
-    F_f_(makeBaseInputCondition(rotor_configs)),
-    G_g_(ctrl::LinearEquation(STATE_SIZE, 0))
+    c2d_(STATE_SIZE, num_rotors_)
 {
   assert(tree.getNrOfJoints() > 0);
 
   TreeJntToInertiaSolver inertia_solver_(tree);
   mass_ = inertia_solver_.JntToMass();
+
+  mpc_.decay_time_consts.resize(STATE_SIZE);
+  mpc_.Cz = MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
+  mpc_.input_rate_weight.resize(num_rotors_);
+  mpc_.input_weight.resize(num_rotors_);
+  mpc_.control_weight.resize(STATE_SIZE);
+  mpc_.input_rate_constraint.resize(num_rotors_, 0);
+  setInputConstraintBase(rotor_configs);
+  mpc_.control_constraint.resize(STATE_SIZE, 0);
+  mpc_.last_input = VectorXd::Zero(num_rotors_);
 
   reconfigure(params);
 }
@@ -54,13 +56,12 @@ void RotationController::update(
   assert(u_opt.rows() == num_rotors_);
 
   updateDynamics(cur_rpy, tar_rpy, q);
-  updateInputCondition(U);
+  updateInputConstraint(U);
 
-  VectorXd x = eigen_tools::concat(cur_rpy, cur_angvel, 0);
-  VectorXd s = eigen_tools::concat(tar_rpy, ZERO3, 0);
+  mpc_.current_state = eigen_tools::concat(cur_rpy, cur_angvel, 0);
+  mpc_.set_state = eigen_tools::concat(tar_rpy, ZERO3, 0);
 
-  u_opt = ctrl::solveLinearDenseMPC(
-    discs_, Cz_, Hp_, Hp_, dt_, T_refs_, R_, S_, Q_, E_e_, F_f_, G_g_, x, s, u_opt);
+  u_opt = mpc_.solveMPC();
 }
 
 void RotationController::reconfigure(const RotationControllerDynamicParams& params)
@@ -72,16 +73,18 @@ void RotationController::reconfigure(const RotationControllerDynamicParams& para
   assert(params.rot_weight > 0.);
   assert(params.angvel_weight > 0.);
 
-  dt_ = params.pred_horizon / params.pred_steps;
-  Hp_ = params.pred_steps;
-  T_refs_[ROLL] = T_refs_[PITCH] = T_refs_[YAW] = params.rot_decay;
-  T_refs_[ANGVEL_X] = T_refs_[ANGVEL_Y] = T_refs_[ANGVEL_Z] = params.angvel_decay;
+  mpc_.time_step = params.pred_horizon / params.pred_steps;
+  mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
+  mpc_.decay_time_consts[ROLL] = mpc_.decay_time_consts[PITCH] = mpc_.decay_time_consts[YAW] =
+    params.rot_decay;
+  mpc_.decay_time_consts[ANGVEL_X] = mpc_.decay_time_consts[ANGVEL_Y] =
+    mpc_.decay_time_consts[ANGVEL_Z] = params.angvel_decay;
 
-  discs_.resize(params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, num_rotors_));
+  mpc_.discrete_dynamics.resize(params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, num_rotors_));
 
   updateWeight_Q(params.rot_weight, params.angvel_weight);
   updateWeight_S(params.thrust_weight);
-  updateWeight_R(params.thrust_rate_weight, dt_);
+  updateWeight_R(params.thrust_rate_weight, mpc_.time_step);
 }
 
 void RotationController::updateDynamics(
@@ -97,59 +100,53 @@ void RotationController::updateDynamics(
   double t;
   double roll_k, pitch_k;
 
-  for (int k = 0; k < Hp_; ++k)
+  for (int k = 0; k < mpc_.prediction_steps; ++k)
   {
-    t = dt_ * k;  // 計画開始時刻(= 0)からの経過時間
+    t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
 
     // 時刻tにおけるドローンの姿勢の参照値
-    roll_k = ctrl::firstOrderPos(cur_roll, tar_roll, T_refs_[ROLL], t);
-    pitch_k = ctrl::firstOrderPos(cur_pitch, tar_pitch, T_refs_[PITCH], t);
+    roll_k = ctrl::firstOrderPos(cur_roll, tar_roll, mpc_.decay_time_consts[ROLL], t);
+    pitch_k = ctrl::firstOrderPos(cur_pitch, tar_pitch, mpc_.decay_time_consts[PITCH], t);
 
     cont_.update(roll_k, pitch_k, q);
-    discs_[k] = c2d_.convert(cont_, dt_);
+    mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
   }
 }
 
 void RotationController::updateWeight_Q(double rot_weight, double angvel_weight)
 {
   // 姿勢と角速度のスケールは機体によって変化しないため，Qはスケーリングしない
-  Q_(ROLL) = Q_(PITCH) = Q_(YAW) = rot_weight * WEIGHT_SCALER;
-  Q_(ANGVEL_X) = Q_(ANGVEL_Y) = Q_(ANGVEL_Z) = angvel_weight * WEIGHT_SCALER;
+  mpc_.control_weight(ROLL) = mpc_.control_weight(PITCH) = mpc_.control_weight(YAW) =
+    rot_weight * WEIGHT_SCALER;
+  mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
+    angvel_weight * WEIGHT_SCALER;
 }
 
 void RotationController::updateWeight_S(int thrust_weight)
 {
   double u_scale = mass_ * gravity_;
   double S_value = pow(10, thrust_weight) / sqr(u_scale) * WEIGHT_SCALER;
-
-  for (uint32_t i = 0; i < num_rotors_; ++i)
-  {
-    S_(i) = S_value;
-  }
+  mpc_.input_weight = VectorXd::Constant(num_rotors_, S_value);
 }
 
 void RotationController::updateWeight_R(int thrust_rate_weight, double dt)
 {
   double delta_u_scale = mass_ * gravity_ * dt;
   double R_value = pow(10, thrust_rate_weight) / sqr(delta_u_scale) * WEIGHT_SCALER;
-
-  for (uint32_t i = 0; i < num_rotors_; ++i)
-  {
-    R_(i) = R_value;
-  }
+  mpc_.input_rate_weight = VectorXd::Constant(num_rotors_, R_value);
 }
 
-ctrl::LinearEquation RotationController::makeBaseInputCondition(const RotorConfigs& rotor_configs)
+void RotationController::setInputConstraintBase(const RotorConfigs& rotor_configs)
 {
   const MatrixXd E = MatrixXd::Identity(num_rotors_, num_rotors_);
   const VectorXd ones = VectorXd::Ones(num_rotors_);
 
-  ctrl::LinearEquation F_f(num_rotors_, num_rotors_ * 2 + 2);
+  mpc_.input_constraint.resize(num_rotors_, num_rotors_ * 2 + 2);
 
-  F_f.A.block(0, 0, num_rotors_, num_rotors_) = E;
-  F_f.A.block(num_rotors_, 0, num_rotors_, num_rotors_) = -E;
-  F_f.A.block(num_rotors_ * 2, 0, 1, num_rotors_) = ones.transpose();
-  F_f.A.block(num_rotors_ * 2 + 1, 0, 1, num_rotors_) = -ones.transpose();
+  mpc_.input_constraint.A.block(0, 0, num_rotors_, num_rotors_) = E;
+  mpc_.input_constraint.A.block(num_rotors_, 0, num_rotors_, num_rotors_) = -E;
+  mpc_.input_constraint.A.block(num_rotors_ * 2, 0, 1, num_rotors_) = ones.transpose();
+  mpc_.input_constraint.A.block(num_rotors_ * 2 + 1, 0, 1, num_rotors_) = -ones.transpose();
 
   for (int i = 0; i < num_rotors_; ++i)
   {
@@ -159,16 +156,14 @@ ctrl::LinearEquation RotationController::makeBaseInputCondition(const RotorConfi
     const double max_thrust = rotor_config.motor_constant * sqr(max_speed);
     const double min_thrust = 0.;
 
-    F_f.b(i) = max_thrust;
-    F_f.b(num_rotors_ + i) = -min_thrust;
+    mpc_.input_constraint.b(i) = max_thrust;
+    mpc_.input_constraint.b(num_rotors_ + i) = -min_thrust;
   }
-
-  return F_f;
 }
 
-void RotationController::updateInputCondition(const double& U)
+void RotationController::updateInputConstraint(double U)
 {
-  F_f_.b(num_rotors_ * 2) = U;
-  F_f_.b(num_rotors_ * 2 + 1) = -U;
+  mpc_.input_constraint.b(num_rotors_ * 2) = U;
+  mpc_.input_constraint.b(num_rotors_ * 2 + 1) = -U;
 }
 }  // namespace tobas_multirotor_controller

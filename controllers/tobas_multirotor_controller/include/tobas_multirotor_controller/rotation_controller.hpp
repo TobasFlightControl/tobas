@@ -51,22 +51,9 @@ private:
   const uint32_t num_rotors_;
   double mass_;
 
-  // 動的ROSパラメータに依存するパラメータ
-  double dt_;                   // MPCの離散化間隔
-  uint32_t Hp_;                 // 予測区間の分割数
-  std::vector<double> T_refs_;  // 制御変数の誤差の減衰時定数 [s]
-  Eigen::VectorXd Q_;
-  Eigen::VectorXd S_;
-  Eigen::VectorXd R_;
-
-  MultiRotorDynamics cont_;                  // 連続時間線形状態方程式
-  std::vector<ctrl::LinearDynamics> discs_;  // 離散時間線系状態方程式
-  ctrl::C2D_RK4 c2d_;                        // 状態方程式を離散化
-
-  const Eigen::MatrixXd Cz_;
-  const ctrl::LinearEquation E_e_;
-  ctrl::LinearEquation F_f_;
-  const ctrl::LinearEquation G_g_;
+  MultiRotorDynamics cont_;   // 連続時間線形状態方程式
+  ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
+  ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御
 
   void updateDynamics(
     const Eigen::Vector3d& cur_rpy,
@@ -75,7 +62,7 @@ private:
   void updateWeight_Q(double rot_weight, double angvel_weight);
   void updateWeight_S(int thrust_weight);
   void updateWeight_R(int thrust_rate_weight, double dt);
-  ctrl::LinearEquation makeBaseInputCondition(const RotorConfigs& rotor_configs);
-  void updateInputCondition(const double& U);
+  void setInputConstraintBase(const RotorConfigs& rotor_configs);
+  void updateInputConstraint(double U);
 };
 }  // namespace tobas_multirotor_controller
