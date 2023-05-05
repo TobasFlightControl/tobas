@@ -153,17 +153,17 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
       getSdfParam(cs_elem, "minimumAngle", cs.angle_limit.lower);
       getSdfParam(cs_elem, "maximumAngle", cs.angle_limit.upper);
-      if (!(cs.angle_limit.lower <= 0. && 0. <= cs.angle_limit.upper))
+      if (!cs.angle_limit.isValid() || !cs.angle_limit.inRange(0.))
       {
         gzthrow(kPluginName << ": Invalid range of control surface angle");
       }
 
       getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.);
-      getSdfParam(cs_elem, "cDragAbsDelta", cs.c_lift_delta, 0.);
-      getSdfParam(cs_elem, "cSideDelta", cs.c_lift_delta, 0.);
-      getSdfParam(cs_elem, "cRollDelta", cs.c_lift_delta, 0.);
-      getSdfParam(cs_elem, "cPitchDelta", cs.c_lift_delta, 0.);
-      getSdfParam(cs_elem, "cYawDelta", cs.c_lift_delta, 0.);
+      getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.);
+      getSdfParam(cs_elem, "cSideDelta", cs.c_side_delta, 0.);
+      getSdfParam(cs_elem, "cRollDelta", cs.c_roll_delta, 0.);
+      getSdfParam(cs_elem, "cPitchDelta", cs.c_pitch_delta, 0.);
+      getSdfParam(cs_elem, "cYawDelta", cs.c_yaw_delta, 0.);
 
       indexes.emplace(cs.index);
       control_surfaces_.push_back(cs);
