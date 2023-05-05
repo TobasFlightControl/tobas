@@ -25,8 +25,7 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT() : cmd_received_(false), dshot_(DSHOT:
     dshot_.initialize(rotor_config.pin);
   }
 
-  rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+  registerSubscribers();
 }
 
 void MotorsHandler_DSHOT::run()
@@ -75,12 +74,18 @@ void MotorsHandler_DSHOT::run()
 
 void MotorsHandler_DSHOT::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  battery_voltage_ = dh_ros::getParam<double>("/battery_voltage");
-  num_rotors_ = dh_ros::getParam<int>("/num_rotors");
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/battery_voltage", battery_voltage_);
+  dh_ros::getParam("/num_rotors", num_rotors_);
   getRotorConfigs(rotor_configs_);
 
-  update_rate_ = dh_ros::getParam<double>("~update_rate", kDefaultUpdateRate);
+  dh_ros::getParam("~update_rate", update_rate_, kDefaultUpdateRate);
+}
+
+void MotorsHandler_DSHOT::registerSubscribers()
+{
+  rotor_vels_sub_ = nh_.subscribe(
+    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
 }
 
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)

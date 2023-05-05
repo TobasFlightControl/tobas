@@ -53,12 +53,15 @@ StateEstimator::~StateEstimator()
 
 void StateEstimator::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  gravity_ = dh_ros::getParam<double>("/gravity");
-  use_bar_ = dh_ros::getParam("~use_barometer", true);
-  use_gps_pos_ = dh_ros::getParam("~use_gps_position", true);
-  use_gps_vel_ = dh_ros::getParam("~use_gps_velocity", true);
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/gravity", gravity_);
+
+  dh_ros::getParam("~use_barometer", use_bar_, true);
+  dh_ros::getParam("~use_gps_position", use_gps_pos_, true);
+  dh_ros::getParam("~use_gps_velocity", use_gps_vel_, true);
+  dh_ros::getParam("~gravity_variance_exp", grav_var_exp_);
 }
+
 void StateEstimator::fillUnusedBuffers()
 {
   constexpr double default_air_pressure = 101325.;  // 海面気圧 [Pa]
@@ -191,7 +194,7 @@ void StateEstimator::initialize()
     Vector3d(gps_cov[0], gps_cov[4], z_var).asDiagonal(),      // init position covariance
     Map<Matrix3d>(vel.vel.covariance.data()),                  // init velocity covariance
     Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc covariance
-    dh_ros::getParam<int>("~gravity_variance_exp")             // init gravity variance
+    grav_var_exp_                                              // init gravity variance
   );
 
   t_last_ = ros::Time::now();

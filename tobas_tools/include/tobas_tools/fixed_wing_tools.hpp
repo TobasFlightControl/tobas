@@ -50,7 +50,7 @@ struct AerodynamicsCoefficients
  */
 struct ControlSurface
 {
-  uint32_t index;  // 舵角配列における添字
+  int index;  // 舵角配列における添字
   dh_std::Range<double> angle_limit;
   double max_angle_rate;
 

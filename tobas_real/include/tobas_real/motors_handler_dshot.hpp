@@ -25,7 +25,7 @@ private:
   // rosparams
   std::string drone_name_;
   double battery_voltage_;
-  uint32_t num_rotors_;
+  int num_rotors_;
   RotorConfigs rotor_configs_;
   double update_rate_;
 
@@ -33,6 +33,7 @@ private:
   ros::Subscriber rotor_vels_sub_;
 
   void getRosParams();
+  void registerSubscribers();
 
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds);
 };

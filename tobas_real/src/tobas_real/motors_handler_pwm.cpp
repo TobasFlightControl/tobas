@@ -43,16 +43,21 @@ MotorsHandler_PWM::MotorsHandler_PWM()
     ros::Duration(0.2).sleep();  // 連続して設定を行うと失敗するため間隔をあける
   }
 
-  rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+  registerSubscribers();
 }
 
 void MotorsHandler_PWM::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  battery_voltage_ = dh_ros::getParam<double>("/battery_voltage");
-  num_rotors_ = dh_ros::getParam<int>("/num_rotors");
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/battery_voltage", battery_voltage_);
+  dh_ros::getParam("/num_rotors", num_rotors_);
   getRotorConfigs(rotor_configs_);
+}
+
+void MotorsHandler_PWM::registerSubscribers()
+{
+  rotor_vels_sub_ = nh_.subscribe(
+    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
 }
 
 uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)

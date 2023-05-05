@@ -38,18 +38,18 @@ OrientationEstimatorRos::~OrientationEstimatorRos()
 void OrientationEstimatorRos::getRosParams()
 {
   // 共通パラメータ
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  gravity_ = dh_ros::getParam<double>("/gravity", DEFAULT_GRAVITY);
-  ref_mag_north_ = dh_ros::getParam<double>("/geomagnetism/north");
-  ref_mag_east_ = dh_ros::getParam<double>("/geomagnetism/east");
-  ref_mag_down_ = dh_ros::getParam<double>("/geomagnetism/down");
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/gravity", gravity_, DEFAULT_GRAVITY);
+  dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
+  dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
+  dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
 
   // ノード固有のパラメータ
-  gain_acc_ = dh_ros::getParam<double>("~gain_acc", DEFAULT_GAIN_ACC);
-  gain_mag_ = dh_ros::getParam<double>("~gain_mag", DEFAULT_GAIN_MAG);
-  bias_alpha_ = dh_ros::getParam<double>("~bias_alpha", DEFAULT_BIAS_ALPHA);
-  do_bias_estimation_ = dh_ros::getParam<bool>("~do_bias_estimation", DEFAULT_DO_BIAS_ESTIMATION);
-  do_adaptive_gain_ = dh_ros::getParam<bool>("~do_adaptive_gain", DEFAULT_DO_ADAPTIVE_GAIN);
+  dh_ros::getParam("~gain_acc", gain_acc_, DEFAULT_GAIN_ACC);
+  dh_ros::getParam("~gain_mag", gain_mag_, DEFAULT_GAIN_MAG);
+  dh_ros::getParam("~bias_alpha", bias_alpha_, DEFAULT_BIAS_ALPHA);
+  dh_ros::getParam("~do_bias_estimation", do_bias_estimation_, DEFAULT_DO_BIAS_ESTIMATION);
+  dh_ros::getParam("~do_adaptive_gain", do_adaptive_gain_, DEFAULT_DO_ADAPTIVE_GAIN);
 }
 
 void OrientationEstimatorRos::initializeFilter()

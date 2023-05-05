@@ -33,10 +33,10 @@ PositionControllerRos::PositionControllerRos() : is_initialized_(false)
 
 void PositionControllerRos::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
+  dh_ros::getParam("/drone_name", drone_name_);
 
-  dynamic_params_.natural_freq = dh_ros::getParam<double>(ctrlPrefix + "/natural_frequency");
-  dynamic_params_.damp_ratio = dh_ros::getParam<double>(ctrlPrefix + "/damping_ratio");
+  dh_ros::getParam(ctrlPrefix + "/natural_frequency", dynamic_params_.natural_freq);
+  dh_ros::getParam(ctrlPrefix + "/damping_ratio", dynamic_params_.damp_ratio);
 }
 
 void PositionControllerRos::registerPubSub()

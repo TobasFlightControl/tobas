@@ -18,9 +18,15 @@ private:
   MS5611 barometer_;
   BarMsg bar_msg_;
 
+  // roaparam
+  std::string drone_name_;
+
+  // Publisher
   ros::Publisher bar_pub_;
 
   ros::Timer timer_;
 
+  void getRosParams();
+  void registerPublishers();
   void timerCb(const ros::TimerEvent&);
 };

@@ -140,18 +140,19 @@ void CommandHandler::run()
 
 void CommandHandler::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  key_repeat_freq_ = dh_ros::getParam<double>("~key_repeat_freq");
-  max_linvel_ = dh_ros::getParam<double>("~max_linear_velocity");
-  max_angvel_ = dh_ros::getParam<double>("~max_angular_velocity");
-  x_limit_.lower = dh_ros::getParam<double>("~pose_limit/x/min");
-  x_limit_.upper = dh_ros::getParam<double>("~pose_limit/x/max");
-  y_limit_.lower = dh_ros::getParam<double>("~pose_limit/y/min");
-  y_limit_.upper = dh_ros::getParam<double>("~pose_limit/y/max");
-  z_limit_.lower = dh_ros::getParam<double>("~pose_limit/z/min");
-  z_limit_.upper = dh_ros::getParam<double>("~pose_limit/z/max");
-  yaw_limit_.lower = dh_ros::getParam<double>("~pose_limit/yaw/min");
-  yaw_limit_.upper = dh_ros::getParam<double>("~pose_limit/yaw/max");
+  dh_ros::getParam("/drone_name", drone_name_);
+
+  dh_ros::getParam("~key_repeat_freq", key_repeat_freq_);
+  dh_ros::getParam("~max_linear_velocity", max_linvel_);
+  dh_ros::getParam("~max_angular_velocity", max_angvel_);
+  dh_ros::getParam("~pose_limit/x/min", x_limit_.lower);
+  dh_ros::getParam("~pose_limit/x/max", x_limit_.upper);
+  dh_ros::getParam("~pose_limit/y/min", y_limit_.lower);
+  dh_ros::getParam("~pose_limit/y/max", y_limit_.upper);
+  dh_ros::getParam("~pose_limit/z/min", z_limit_.lower);
+  dh_ros::getParam("~pose_limit/z/max", z_limit_.upper);
+  dh_ros::getParam("~pose_limit/yaw/min", yaw_limit_.lower);
+  dh_ros::getParam("~pose_limit/yaw/max", yaw_limit_.upper);
 
   ROS_ASSERT(key_repeat_freq_ > 0.);
   ROS_ASSERT(max_linvel_ > 0.);

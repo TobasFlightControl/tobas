@@ -134,7 +134,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   // ControlSurfaces
   if (sdf->HasElement("controlSurface"))
   {
-    unordered_set<uint32_t> indexes;
+    unordered_set<int> indexes;
     sdf::ElementPtr cs_elem = sdf->GetElement("controlSurface");
 
     while (cs_elem)
@@ -171,7 +171,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
     }
 
     num_control_surfaces_ = indexes.size();
-    for (uint32_t i = 0; i < num_control_surfaces_; ++i)
+    for (int i = 0; i < num_control_surfaces_; ++i)
     {
       if (!dh_std::contains(indexes, i))
       {

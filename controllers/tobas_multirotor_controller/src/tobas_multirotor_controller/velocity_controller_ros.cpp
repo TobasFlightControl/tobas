@@ -64,30 +64,28 @@ VelocityControllerRos::VelocityControllerRos()
 
 void VelocityControllerRos::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  description_ = dh_ros::getParam<string>("/robot_description");
-  num_rotors_ = dh_ros::getParam<int>("/num_rotors");
-  required_joints_ = dh_ros::getParam<vector<string>>("/required_joint_names");
-  gravity_ = dh_ros::getParam<double>("/gravity");
-  battery_voltage_ = dh_ros::getParam<double>("/battery_voltage");
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/robot_description", description_);
+  dh_ros::getParam("/num_rotors", num_rotors_);
+  dh_ros::getParam<vector<string>>("/required_joint_names", required_joints_);
+  dh_ros::getParam("/gravity", gravity_);
+  dh_ros::getParam("/battery_voltage", battery_voltage_);
   getRotorConfigs(rotor_configs_);
 
   // velocity controller
-  dynamic_params_vel_.natural_freq = dh_ros::getParam<double>(ctrlPrefix + "/natural_frequency");
-  dynamic_params_vel_.damp_ratio = dh_ros::getParam<double>(ctrlPrefix + "/damping_ratio");
+  dh_ros::getParam(ctrlPrefix + "/natural_frequency", dynamic_params_vel_.natural_freq);
+  dh_ros::getParam(ctrlPrefix + "/damping_ratio", dynamic_params_vel_.damp_ratio);
 
   // rotation_controller
-  dynamic_params_rot_.pred_horizon = dh_ros::getParam<double>(ctrlPrefix + "/prediction_horizon");
-  dynamic_params_rot_.pred_steps = dh_ros::getParam<int>(ctrlPrefix + "/prediction_steps");
-  dynamic_params_rot_.rot_decay = dh_ros::getParam<double>(ctrlPrefix + "/rotation_decay");
-  dynamic_params_rot_.angvel_decay =
-    dh_ros::getParam<double>(ctrlPrefix + "/angular_velocity_decay");
-  dynamic_params_rot_.rot_weight = dh_ros::getParam<double>(ctrlPrefix + "/rotation_weight");
-  dynamic_params_rot_.angvel_weight =
-    dh_ros::getParam<double>(ctrlPrefix + "/angular_velocity_weight");
-  dynamic_params_rot_.thrust_weight = dh_ros::getParam<int>(ctrlPrefix + "/thrust_force_weight");
-  dynamic_params_rot_.thrust_rate_weight =
-    dh_ros::getParam<int>(ctrlPrefix + "/thrust_force_rate_weight");
+  dh_ros::getParam(ctrlPrefix + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
+  dh_ros::getParam(ctrlPrefix + "/prediction_steps", dynamic_params_rot_.pred_steps);
+  dh_ros::getParam(ctrlPrefix + "/rotation_decay", dynamic_params_rot_.rot_decay);
+  dh_ros::getParam(ctrlPrefix + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
+  dh_ros::getParam(ctrlPrefix + "/rotation_weight", dynamic_params_rot_.rot_weight);
+  dh_ros::getParam(ctrlPrefix + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
+  dh_ros::getParam(ctrlPrefix + "/thrust_force_weight", dynamic_params_rot_.thrust_weight);
+  dh_ros::getParam(
+    ctrlPrefix + "/thrust_force_rate_weight", dynamic_params_rot_.thrust_rate_weight);
 }
 
 void VelocityControllerRos::registerPublishers()

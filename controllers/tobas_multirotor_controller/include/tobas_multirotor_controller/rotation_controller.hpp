@@ -15,7 +15,7 @@ namespace tobas_multirotor_controller
 struct RotationControllerDynamicParams
 {
   double pred_horizon;
-  uint32_t pred_steps;
+  int pred_steps;
   double rot_decay;
   double angvel_decay;
   double rot_weight;

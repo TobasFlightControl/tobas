@@ -41,6 +41,7 @@ private:
   bool use_bar_;
   bool use_gps_pos_;
   bool use_gps_vel_;
+  double grav_var_exp_;
 
   bool is_initialized_;
   ros::Time t_last_;

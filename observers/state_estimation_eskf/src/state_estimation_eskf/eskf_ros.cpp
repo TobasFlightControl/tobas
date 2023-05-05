@@ -40,15 +40,16 @@ ErrorStateKalmanFilterRos::~ErrorStateKalmanFilterRos()
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  drone_name_ = dh_ros::getParam<string>("/drone_name");
-  gravity_ = dh_ros::getParam<double>("/gravity");
-  ref_mag_.x() = dh_ros::getParam<double>("/geomagnetism/north");
-  ref_mag_.y() = dh_ros::getParam<double>("/geomagnetism/east");
-  ref_mag_.z() = dh_ros::getParam<double>("/geomagnetism/down");
-  gyro_noise_density_ = dh_ros::getParam<double>("~gyro_noise_density");
-  gyro_random_walk_ = dh_ros::getParam<double>("~gyro_random_walk");
-  acc_noise_density_ = dh_ros::getParam<double>("~acc_noise_density");
-  acc_random_walk_ = dh_ros::getParam<double>("~acc_random_walk");
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/gravity", gravity_);
+  dh_ros::getParam("/geomagnetism/north", ref_mag_.x());
+  dh_ros::getParam("/geomagnetism/east", ref_mag_.y());
+  dh_ros::getParam("/geomagnetism/down", ref_mag_.z());
+
+  dh_ros::getParam("~gyro_noise_density", gyro_noise_density_);
+  dh_ros::getParam("~gyro_random_walk", gyro_random_walk_);
+  dh_ros::getParam("~acc_noise_density", acc_noise_density_);
+  dh_ros::getParam("~acc_random_walk", acc_random_walk_);
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()

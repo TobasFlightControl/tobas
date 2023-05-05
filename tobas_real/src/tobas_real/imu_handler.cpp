@@ -17,13 +17,26 @@
 
 using namespace std;
 
-ImuHandler::ImuHandler() : gravity_(dh_ros::getParam<double>("/gravity"))
+ImuHandler::ImuHandler()
 {
+  getRosParams();
   setupImu();
   setCovarianceMatrices();
-  advertise();
+  registerPublishers();
 
   timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::timerCb, this);
+}
+
+void ImuHandler::getRosParams()
+{
+  dh_ros::getParam("/drone_name", drone_name_);
+  dh_ros::getParam("/gravity", gravity_);
+}
+
+void ImuHandler::registerPublishers()
+{
+  imu_pub_ = nh_.advertise<ImuMsg>("/" + drone_name_ + "/imu", 1);
+  mag_pub_ = nh_.advertise<MagMsg>("/" + drone_name_ + "/magnetic_field", 1);
 }
 
 void ImuHandler::setupImu()
@@ -61,13 +74,6 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[0] = mag_var;
   mag_msg_.magnetic_field_covariance[4] = mag_var;
   mag_msg_.magnetic_field_covariance[8] = mag_var;
-}
-
-void ImuHandler::advertise()
-{
-  string drone_name = dh_ros::getParam<string>("/drone_name");
-  imu_pub_ = nh_.advertise<ImuMsg>("/" + drone_name + "/imu", 1);
-  mag_pub_ = nh_.advertise<MagMsg>("/" + drone_name + "/magnetic_field", 1);
 }
 
 void ImuHandler::timerCb(const ros::TimerEvent&)

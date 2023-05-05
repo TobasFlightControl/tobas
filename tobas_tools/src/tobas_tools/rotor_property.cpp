@@ -6,7 +6,8 @@ using namespace std;
 
 void getRotorConfigs(RotorConfigs& des)
 {
-  const int num_rotors = dh_ros::getParam<int>("/num_rotors");
+  int num_rotors;
+  dh_ros::getParam("/num_rotors", num_rotors);
   des.resize(num_rotors);
 
   for (int i = 0; i < num_rotors; ++i)
@@ -14,10 +15,10 @@ void getRotorConfigs(RotorConfigs& des)
     const string prefix = "/rotor_" + to_string(i);
 
     // Link name
-    des[i].link_name = dh_ros::getParam<string>(prefix + "/link_name");
+    dh_ros::getParam(prefix + "/link_name", des[i].link_name);
 
     // Motor constant
-    des[i].motor_constant = dh_ros::getParam<double>(prefix + "/motor_constant");
+    dh_ros::getParam(prefix + "/motor_constant", des[i].motor_constant);
     if (des[i].motor_constant <= 0.)
     {
       throw dh_ros::RuntimeError(
@@ -25,7 +26,7 @@ void getRotorConfigs(RotorConfigs& des)
     }
 
     // Moment constant
-    des[i].moment_constant = dh_ros::getParam<double>(prefix + "/moment_constant");
+    dh_ros::getParam(prefix + "/moment_constant", des[i].moment_constant);
     if (des[i].moment_constant <= 0.)
     {
       throw dh_ros::RuntimeError(
@@ -33,7 +34,8 @@ void getRotorConfigs(RotorConfigs& des)
     }
 
     // Direction
-    const string direction = dh_ros::getParam<string>(prefix + "/direction");
+    string direction;
+    dh_ros::getParam(prefix + "/direction", direction);
     if (direction == "ccw")
     {
       des[i].direction = 1;
@@ -49,27 +51,28 @@ void getRotorConfigs(RotorConfigs& des)
     }
 
     // KV
-    des[i].kv = dh_ros::getParam<double>(prefix + "/kv");
+    dh_ros::getParam(prefix + "/kv", des[i].kv);
     if (des[i].kv <= 0.)
     {
       throw dh_ros::RuntimeError("Invalid Kv: " + to_string(des[i].kv) + " rpm/V");
     }
 
     // Pin
-    des[i].pin = dh_ros::getParam<int>(prefix + "/pin");
+    dh_ros::getParam(prefix + "/pin", des[i].pin);
     if (des[i].pin < 1 || 14 < des[i].pin)
     {
       throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(des[i].pin));
     }
 
     // ESC
-    string esc_type = dh_ros::getParam<string>(prefix + "/esc_type");
+    string esc_type;
+    dh_ros::getParam(prefix + "/esc_type", esc_type);
     if (esc_type == "pwm")
     {
       des[i].esc_type = ESCType::PWM;
-      des[i].pwm.frequency = dh_ros::getParam<double>(prefix + "/pwm/frequency");
-      des[i].pwm.min_pulse_width = dh_ros::getParam<double>(prefix + "/pwm/min_pulse_width");
-      des[i].pwm.max_pulse_width = dh_ros::getParam<double>(prefix + "/pwm/max_pulse_width");
+      dh_ros::getParam(prefix + "/pwm/frequency", des[i].pwm.frequency);
+      dh_ros::getParam(prefix + "/pwm/min_pulse_width", des[i].pwm.min_pulse_width);
+      dh_ros::getParam(prefix + "/pwm/max_pulse_width", des[i].pwm.max_pulse_width);
     }
     else if (esc_type == "dshot")
     {

@@ -44,7 +44,7 @@ private:
   // rosparams
   std::string drone_name_;
   std::string description_;
-  uint32_t num_rotors_;
+  int num_rotors_;
   std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
   double gravity_;
   double battery_voltage_;

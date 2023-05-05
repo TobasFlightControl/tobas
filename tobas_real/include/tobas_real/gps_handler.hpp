@@ -24,10 +24,16 @@ private:
   VelMsg vel_msg_;
   bool cov_received_;
 
+  // roaparam
+  std::string drone_name_;
+
+  // Publisher
   ros::Publisher gps_pub_;
   ros::Publisher vel_pub_;
 
   ros::Timer timer_;
 
+  void getRosParams();
+  void registerPublishers();
   void timerCb(const ros::TimerEvent&);
 };

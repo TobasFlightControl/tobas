@@ -18,8 +18,6 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  // rosparam
-  const double gravity_;
 
   ImuPtr imu_;
   ImuMsg imu_msg_;
@@ -28,13 +26,19 @@ private:
   float wx_, wy_, wz_;
   float mx_, my_, mz_;
 
+  // rosparam
+  std::string drone_name_;
+  double gravity_;
+
+  // Publisher
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
   ros::Timer timer_;
 
+  void getRosParams();
+  void registerPublishers();
   void setupImu();
   void setCovarianceMatrices();
-  void advertise();
   void timerCb(const ros::TimerEvent&);
 };

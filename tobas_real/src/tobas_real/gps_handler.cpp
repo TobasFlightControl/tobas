@@ -22,13 +22,24 @@ GpsHandler::GpsHandler() : cov_received_(false)
     throw dh_ros::RuntimeError("Failed to set solution rate.");
   }
 
+  getRosParams();
+
   gps_msg_.position_covariance_type = GpsMsg::COVARIANCE_TYPE_KNOWN;
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
-  gps_pub_ = nh_.advertise<GpsMsg>("/" + drone_name + "/gps", 1);
-  vel_pub_ = nh_.advertise<VelMsg>("/" + drone_name + "/ground_speed", 1);
+  registerPublishers();
 
   timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::timerCb, this);
+}
+
+void GpsHandler::getRosParams()
+{
+  dh_ros::getParam("/drone_name", drone_name_);
+}
+
+void GpsHandler::registerPublishers()
+{
+  gps_pub_ = nh_.advertise<GpsMsg>("/" + drone_name_ + "/gps", 1);
+  vel_pub_ = nh_.advertise<VelMsg>("/" + drone_name_ + "/ground_speed", 1);
 }
 
 void GpsHandler::timerCb(const ros::TimerEvent&)
