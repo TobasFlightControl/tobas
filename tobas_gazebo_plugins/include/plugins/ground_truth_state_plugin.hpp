@@ -12,10 +12,10 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "ground_truth_state_plugin";
+static const std::string kPluginName = "ground_truth_state_plugin";
 
 // Default values
-static constexpr char kDefaultStateTopic[] = "ground_truth/base_state";
+static const std::string kDefaultStateTopic = "ground_truth/base_state";
 
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {

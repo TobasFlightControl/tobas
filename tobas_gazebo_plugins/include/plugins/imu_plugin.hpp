@@ -10,10 +10,10 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "imu_plugin";
+static const std::string kPluginName = "imu_plugin";
 
 // Default values
-static constexpr char kDefaultImuTopic[] = "imu";
+static const std::string kDefaultImuTopic = "imu";
 static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. / 180. * M_PI;
 static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. / 180. * M_PI;
 static constexpr double kDefaultGyroBiasCorrTime = 1e+3;

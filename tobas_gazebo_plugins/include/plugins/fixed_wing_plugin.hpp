@@ -17,12 +17,12 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "fixed_wing_plugin";
+static const std::string kPluginName = "fixed_wing_plugin";
 static constexpr double deg2rad = M_PI / 180.;
 static constexpr double kMinAirSpeedThresh = 0.1;
 
 // Default values
-static constexpr char kDefaultDeflectionsSubTopic[] = "deflections";
+static const std::string kDefaultDeflectionsSubTopic = "deflections";
 static constexpr double kDefaultLowerStallAngle = -10. * deg2rad;
 static constexpr double kDefaultUpperStallAngle = 20. * deg2rad;
 

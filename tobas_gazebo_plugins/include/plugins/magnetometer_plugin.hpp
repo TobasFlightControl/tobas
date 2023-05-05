@@ -10,10 +10,10 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "magnetometer_plugin";
+static const std::string kPluginName = "magnetometer_plugin";
 
 // Default values
-static constexpr char kDefaultMagTopic[] = "magnetic_field";
+static const std::string kDefaultMagTopic = "magnetic_field";
 static constexpr double kDefaultRefMagNorth = 3.0031e-05;
 static constexpr double kDefaultRefMagEast = -4.116e-06;
 static constexpr double kDefaultRefMagDown = 3.5615e-05;

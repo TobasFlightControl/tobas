@@ -47,10 +47,10 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "robotNamespace", ns_);
-  getSdfParam<string>(sdf, "linkName", link_name_);
-  getSdfParam<string>(sdf, "jointName", joint_name_);
-  getSdfParam<int>(sdf, "motorNumber", motor_number_);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "jointName", joint_name_);
+  getSdfParam(sdf, "motorNumber", motor_number_);
 
   if (sdf->HasElement("turningDirection"))
   {
@@ -73,47 +73,47 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  getSdfParam<double>(sdf, "maxRotVelocity", max_rot_vel_);
+  getSdfParam(sdf, "maxRotVelocity", max_rot_vel_);
   if (max_rot_vel_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_vel_ << " [rad/s]");
   }
 
-  getSdfParam<double>(sdf, "motorConstant", motor_const_);
+  getSdfParam(sdf, "motorConstant", motor_const_);
   if (motor_const_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid motorConstant: " << motor_const_ << " [kg*m/s^2]");
   }
 
-  getSdfParam<double>(sdf, "momentConstant", moment_const_);
+  getSdfParam(sdf, "momentConstant", moment_const_);
   if (moment_const_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid momentConstant:" << moment_const_ << " [m]");
   }
 
-  getSdfParam<double>(sdf, "rotorDragCoefficient", rotor_drag_coef_);
+  getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_);
   if (rotor_drag_coef_ < 0.)
   {
     gzthrow(kPluginName << ": Invalid rotorDragCoefficient:" << rotor_drag_coef_ << " [Ns^2/m^2]");
   }
 
-  getSdfParam<double>(sdf, "timeConstantUp", time_const_up_);
+  getSdfParam(sdf, "timeConstantUp", time_const_up_);
   if (time_const_up_ <= 0.)
   {
     gzthrow(kPluginName << ": Invalid timeConstantUp:" << time_const_up_ << " [s]");
   }
 
-  getSdfParam<double>(sdf, "timeConstantDown", time_const_down_);
+  getSdfParam(sdf, "timeConstantDown", time_const_down_);
   if (time_const_down_ <= 0.)
   {
     gzthrow(kPluginName << ": Invalid timeConstantDown:" << time_const_down_ << " [s]");
   }
 
-  getSdfParam<string>(sdf, "motorSpeedPubTopic", motor_speed_pub_topic_, kDefaultSpeedPubTopic);
-  getSdfParam<string>(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
-  getSdfParam<string>(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
+  getSdfParam(sdf, "motorSpeedPubTopic", motor_speed_pub_topic_, kDefaultSpeedPubTopic);
+  getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
+  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
 
-  getSdfParam<double>(
+  getSdfParam(
     sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim);
   if (rotor_speed_slowdown_sim_ < 1.)
   {

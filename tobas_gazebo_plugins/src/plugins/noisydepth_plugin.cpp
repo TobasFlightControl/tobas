@@ -139,15 +139,15 @@ void GazeboNoisyDepthPlugin::onNewDepthFrame(
 
 void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "irImageTopic", image_topic_name_, kDefaultIrImageTopic);
-  getSdfParam<string>(sdf, "irInfoTopic", camera_info_topic_name_, kDefaultIrInfoTopic);
-  getSdfParam<string>(sdf, "depthImageTopic", depth_image_topic_, kDefaultDepthImageTopic);
-  getSdfParam<string>(sdf, "depthInfoTopic", depth_info_topic_, kDefaultDepthInfoTopic);
-  getSdfParam<string>(sdf, "depthNoiseModel", noise_model_name_, kDefaultDepthNoiseModel);
-  getSdfParam<float>(sdf, "depthNoiseMinDist", noise_min_dist_, kDefaultDepthNoiseMinDist);
-  getSdfParam<float>(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist);
-  getSdfParam<float>(sdf, "horizontalFOV", horizontal_fov_, kDefaultHorizontalFOV);
-  getSdfParam<float>(sdf, "baseline", baseline_, kDefaultBaseline);
+  getSdfParam(sdf, "irImageTopic", image_topic_name_, kDefaultIrImageTopic);
+  getSdfParam(sdf, "irInfoTopic", camera_info_topic_name_, kDefaultIrInfoTopic);
+  getSdfParam(sdf, "depthImageTopic", depth_image_topic_, kDefaultDepthImageTopic);
+  getSdfParam(sdf, "depthInfoTopic", depth_info_topic_, kDefaultDepthInfoTopic);
+  getSdfParam(sdf, "depthNoiseModel", noise_model_name_, kDefaultDepthNoiseModel);
+  getSdfParam(sdf, "depthNoiseMinDist", noise_min_dist_, kDefaultDepthNoiseMinDist);
+  getSdfParam(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist);
+  getSdfParam(sdf, "horizontalFOV", horizontal_fov_, kDefaultHorizontalFOV);
+  getSdfParam(sdf, "baseline", baseline_, kDefaultBaseline);
 }
 
 void GazeboNoisyDepthPlugin::setNoiseModel()

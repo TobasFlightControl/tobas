@@ -10,7 +10,7 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "barometer_plugin";
+static const std::string kPluginName = "barometer_plugin";
 
 // Default values
 static const std::string kDefaultPressurePubTopic = "air_pressure";

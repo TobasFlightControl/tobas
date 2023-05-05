@@ -42,10 +42,10 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
 
 void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "robotNamespace", ns_);
-  getSdfParam<string>(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
 
-  getSdfParam<string>(sdf, "stateTopic", state_topic_, kDefaultStateTopic);
+  getSdfParam(sdf, "stateTopic", state_topic_, kDefaultStateTopic);
 }
 
 void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)

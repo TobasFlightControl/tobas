@@ -11,8 +11,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboImuPlugin::GazeboImuPlugin()
-  : super(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
+GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
 {
 }
 
@@ -64,23 +63,21 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "robotNamespace", ns_);
-  getSdfParam<string>(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
 
   // TODO: 範囲チェック
-  getSdfParam<string>(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
-  getSdfParam<double>(sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity);
-  getSdfParam<double>(sdf, "gyroscopeBiasRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk);
-  getSdfParam<double>(
-    sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime);
-  getSdfParam<double>(
+  getSdfParam(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
+  getSdfParam(sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity);
+  getSdfParam(sdf, "gyroscopeBiasRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk);
+  getSdfParam(sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime);
+  getSdfParam(
     sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma);
-  getSdfParam<double>(
-    sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity);
-  getSdfParam<double>(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk);
-  getSdfParam<double>(
+  getSdfParam(sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity);
+  getSdfParam(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk);
+  getSdfParam(
     sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime);
-  getSdfParam<double>(
+  getSdfParam(
     sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma);
 }
 

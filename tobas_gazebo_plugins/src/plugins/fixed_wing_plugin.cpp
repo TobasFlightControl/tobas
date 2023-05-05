@@ -43,96 +43,93 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "robotNamespace", ns_);
-  getSdfParam<string>(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
 
-  getSdfParam<string>(
-    sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
-  getSdfParam<string>(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
+  getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
+  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
 
-  getSdfParam<double>(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
+  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
   if (ref_alt_ < 0.)
   {
     gzthrow(kPluginName << ": referenceAltitude must be non-negative.")
   }
 
   // Vehicle
-  getSdfParam<double>(sdf, "wingSurface", vehicle_params_.wing_surface);
+  getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface);
   if (vehicle_params_.wing_surface <= 0.)
   {
     gzthrow(kPluginName << ": wingSurface must be positive.");
   }
 
-  getSdfParam<double>(sdf, "wingSpan", vehicle_params_.wing_span);
+  getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span);
   if (vehicle_params_.wing_span <= 0.)
   {
     gzthrow(kPluginName << ": wingSpan must be positive.");
   }
 
-  getSdfParam<double>(sdf, "meanAerodynamicChord", vehicle_params_.mean_aerodynamic_chord);
+  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mean_aerodynamic_chord);
   if (vehicle_params_.mean_aerodynamic_chord <= 0.)
   {
     gzthrow(kPluginName << ": meanAerodynamicChord must be positive.");
   }
 
   Vector3d aerodynamic_center;
-  getSdfParam<Vector3d>(sdf, "aerodynamicCenter", aerodynamic_center);
+  getSdfParam(sdf, "aerodynamicCenter", aerodynamic_center);
   vectorGazeboToEigen(aerodynamic_center, vehicle_params_.aerodynamic_center);
 
-  getSdfParam<double>(
-    sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
-  getSdfParam<double>(
-    sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
+  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
+  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
   if (!vehicle_params_.alpha_limit.isValid())
   {
     gzthrow(kPluginName << ": Invalid stall angles");
   }
 
   // Aerodynamics
-  getSdfParam<double>(sdf, "cLift0", aero_coefs_.c_lift_0);
+  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0);
   if (aero_coefs_.c_lift_0 <= 0.)
   {
     gzthrow(kPluginName << ": cLift0 must be positive.");
   }
 
-  getSdfParam<double>(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha);
+  getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha);
   if (aero_coefs_.c_lift_alpha <= 0.)
   {
     gzthrow(kPluginName << ": cLiftAlpha must be positive.");
   }
 
-  getSdfParam<double>(sdf, "cDrag0", aero_coefs_.c_drag_0);
+  getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0);
   if (aero_coefs_.c_drag_0 >= 0.)
   {
     gzthrow(kPluginName << ": cDrag0 must be negative.");
   }
 
-  getSdfParam<double>(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha);
+  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha);
   if (aero_coefs_.c_drag_alpha >= 0.)
   {
     gzthrow(kPluginName << ": cDragAlpha must be negative.");
   }
 
-  getSdfParam<double>(sdf, "cSideBeta", aero_coefs_.c_side_beta);
+  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta);
   if (aero_coefs_.c_side_beta >= 0.)
   {
     gzthrow(kPluginName << ": cSideBeta must be negative.");
   }
 
   // TODO: 安定微係数の符号チェック
-  getSdfParam<double>(sdf, "cRollBeta", aero_coefs_.c_roll_beta);
-  getSdfParam<double>(sdf, "cRollP", aero_coefs_.c_roll_p);
-  getSdfParam<double>(sdf, "cRollR", aero_coefs_.c_roll_r);
+  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta);
+  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p);
+  getSdfParam(sdf, "cRollR", aero_coefs_.c_roll_r);
 
-  getSdfParam<double>(sdf, "cPitch0", aero_coefs_.c_pitch_0);
-  getSdfParam<double>(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha);
-  getSdfParam<double>(sdf, "cPitchAbsBeta", aero_coefs_.c_pitch_abs_beta);
-  getSdfParam<double>(sdf, "cPitchAlphaRate", aero_coefs_.c_pitch_alpha_rate);
-  getSdfParam<double>(sdf, "cPitchQ", aero_coefs_.c_pitch_q);
+  getSdfParam(sdf, "cPitch0", aero_coefs_.c_pitch_0);
+  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha);
+  getSdfParam(sdf, "cPitchAbsBeta", aero_coefs_.c_pitch_abs_beta);
+  getSdfParam(sdf, "cPitchAlphaRate", aero_coefs_.c_pitch_alpha_rate);
+  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q);
 
-  getSdfParam<double>(sdf, "cYawBeta", aero_coefs_.c_yaw_beta);
-  getSdfParam<double>(sdf, "cYawP", aero_coefs_.c_yaw_p);
-  getSdfParam<double>(sdf, "cYawR", aero_coefs_.c_yaw_r);
+  getSdfParam(sdf, "cYawBeta", aero_coefs_.c_yaw_beta);
+  getSdfParam(sdf, "cYawP", aero_coefs_.c_yaw_p);
+  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r);
 
   // ControlSurfaces
   if (sdf->HasElement("controlSurface"))

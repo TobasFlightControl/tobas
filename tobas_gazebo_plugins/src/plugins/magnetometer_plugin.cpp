@@ -72,17 +72,17 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
 
 void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "robotNamespace", ns_);
-  getSdfParam<string>(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
 
-  getSdfParam<string>(sdf, "magnetometerTopic", mag_topic_, kDefaultMagTopic);
+  getSdfParam(sdf, "magnetometerTopic", mag_topic_, kDefaultMagTopic);
 
-  getSdfParam<double>(sdf, "refMagNorth", ref_mag_north_, kDefaultRefMagNorth);
-  getSdfParam<double>(sdf, "refMagEast", ref_mag_east_, kDefaultRefMagEast);
-  getSdfParam<double>(sdf, "refMagDown", ref_mag_down_, kDefaultRefMagDown);
+  getSdfParam(sdf, "refMagNorth", ref_mag_north_, kDefaultRefMagNorth);
+  getSdfParam(sdf, "refMagEast", ref_mag_east_, kDefaultRefMagEast);
+  getSdfParam(sdf, "refMagDown", ref_mag_down_, kDefaultRefMagDown);
 
-  getSdfParam<SdfVector3>(sdf, "noiseNormal", noise_normal_, ZERO_3);
-  getSdfParam<SdfVector3>(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, ZERO_3);
+  getSdfParam(sdf, "noiseNormal", noise_normal_, ZERO_3);
+  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, ZERO_3);
   if (!allGreaterEqual(noise_normal_, 0.) || !allGreaterEqual(noise_uniform_initial_bias_, 0.))
   {
     gzthrow(kPluginName << ": Noise std. dev cannot be negative.");

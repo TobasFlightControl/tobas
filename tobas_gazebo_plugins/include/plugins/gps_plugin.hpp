@@ -12,11 +12,11 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "gps_plugin";
+static const std::string kPluginName = "gps_plugin";
 
 // Default values
-static constexpr char kDefaultGpsTopic[] = "gps";
-static constexpr char kDefaultGroundSpeedTopic[] = "ground_speed";
+static const std::string kDefaultGpsTopic = "gps";
+static const std::string kDefaultGroundSpeedTopic = "ground_speed";
 static constexpr double kDefaultHorPosStdDev = 3.;
 static constexpr double kDefaultVerPosStdDev = 6.;
 static constexpr double kDefaultHorVelStdDev = 0.1;

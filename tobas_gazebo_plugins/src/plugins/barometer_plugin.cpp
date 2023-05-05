@@ -44,18 +44,18 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  getSdfParam<string>(sdf, "robotNamespace", ns_);
-  getSdfParam<string>(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
 
-  getSdfParam<string>(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
+  getSdfParam(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
 
-  getSdfParam<double>(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
+  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
   if (ref_alt_ < 0.)
   {
     gzthrow(kPluginName << ": Please specify a non-negative referenceAltitude.")
   }
 
-  getSdfParam<double>(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar);
+  getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar);
   if (pressure_var_ < 0.)
   {
     gzthrow(kPluginName << ": Please specify a non-negative pressureVariance.");

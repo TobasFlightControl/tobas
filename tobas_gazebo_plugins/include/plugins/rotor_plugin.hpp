@@ -15,16 +15,14 @@
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
-
-
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "motor_model_plugin";
+static const std::string kPluginName = "motor_model_plugin";
 
 // Default values
-static constexpr char kDefaultSpeedPubTopic[] = "motor_speed";
-static constexpr char kDefaultCmdSubTopic[] = "command/motor_speed";
+static const std::string kDefaultSpeedPubTopic = "motor_speed";
+static const std::string kDefaultCmdSubTopic = "command/motor_speed";
 
 class GazeboRotorPlugin : public ModelPlugin
 {
