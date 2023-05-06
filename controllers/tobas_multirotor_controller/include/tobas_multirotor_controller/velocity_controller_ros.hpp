@@ -41,17 +41,6 @@ private:
   KDL::Tree tree_;
   KDL::TreeJointNameParser jnt_name_parser_;
 
-  // rosparams
-  std::string drone_name_;
-  std::string description_;
-  int num_rotors_;
-  std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
-  double gravity_;
-  double battery_voltage_;
-  RotorConfigs rotor_configs_;
-  VelocityControllerDynamicParams dynamic_params_vel_;
-  RotationControllerDynamicParams dynamic_params_rot_;
-
   KDL::JntArray q_;  // 全ての非固定関節の角度
   Eigen::Vector3d cur_vel_W_;
   Eigen::Vector3d cur_rpy_;
@@ -73,6 +62,17 @@ private:
   std::shared_ptr<VelocityController> vel_controller_;
   std::shared_ptr<AccelerationController> acc_controller_;
   std::shared_ptr<RotationController> rot_controller_;
+
+  // RosParams
+  std::string drone_name_;
+  std::string description_;
+  int num_rotors_;
+  std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
+  double gravity_;
+  double battery_voltage_;
+  RotorConfigs rotor_configs_;
+  VelocityControllerDynamicParams dynamic_params_vel_;
+  RotationControllerDynamicParams dynamic_params_rot_;
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
