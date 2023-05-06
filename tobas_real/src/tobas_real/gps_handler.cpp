@@ -10,7 +10,7 @@
 
 using namespace std;
 
-GpsHandler::GpsHandler() : cov_received_(false)
+GpsHandler::GpsHandler() : super(), cov_received_(false)
 {
   if (!gps_.testConnection())
   {

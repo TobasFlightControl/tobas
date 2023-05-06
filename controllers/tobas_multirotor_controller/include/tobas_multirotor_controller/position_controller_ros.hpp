@@ -16,6 +16,8 @@ namespace tobas_multirotor_controller
 {
 class PositionControllerRos : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 

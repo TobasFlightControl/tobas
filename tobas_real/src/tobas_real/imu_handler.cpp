@@ -17,14 +17,13 @@
 
 using namespace std;
 
-ImuHandler::ImuHandler()
+ImuHandler::ImuHandler() : super()
 {
   getRosParams();
   setupImu();
   setCovarianceMatrices();
   registerPublishers();
-
-  main_loop_timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::mainLoopTimerCb, this);
+  createTimers();
 }
 
 void ImuHandler::getRosParams()
@@ -37,6 +36,16 @@ void ImuHandler::registerPublishers()
 {
   imu_pub_ = nh_.advertise<ImuMsg>("/" + drone_name_ + "/imu", 1);
   mag_pub_ = nh_.advertise<MagMsg>("/" + drone_name_ + "/magnetic_field", 1);
+}
+
+void ImuHandler::registerSubscribers()
+{
+}
+
+void ImuHandler::createTimers()
+{
+  main_loop_timer_ =
+    nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::mainLoopTimerCb, this);
 }
 
 void ImuHandler::setupImu()
@@ -74,6 +83,10 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[0] = mag_var;
   mag_msg_.magnetic_field_covariance[4] = mag_var;
   mag_msg_.magnetic_field_covariance[8] = mag_var;
+}
+
+void ImuHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
 }
 
 void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)

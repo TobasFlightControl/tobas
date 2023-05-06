@@ -26,6 +26,8 @@ namespace tobas_multirotor_controller
  */
 class VelocityControllerRos : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using StateMsg = tobas_msgs::PoseVelStamped;
   using CmdMsg = tobas_msgs::VelocityYaw;
 
@@ -96,7 +98,7 @@ private:
   void jointStateCb(const sensor_msgs::JointState& js);
   void commandCb(const CmdMsg& cmd);
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event);
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };
 }  // namespace tobas_multirotor_controller

@@ -21,7 +21,8 @@ using namespace Eigen;
 namespace tobas_multirotor_controller
 {
 VelocityControllerRos::VelocityControllerRos()
-  : jnt_name_parser_(tree_),
+  : super(),
+    jnt_name_parser_(tree_),
     is_initialized_(false),
     bs_received_(false),
     js_received_(false),

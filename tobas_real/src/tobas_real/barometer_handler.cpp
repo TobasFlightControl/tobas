@@ -13,7 +13,7 @@
 
 using namespace std;
 
-BarometerHandler::BarometerHandler()
+BarometerHandler::BarometerHandler() : super()
 {
   getRosParams();
 

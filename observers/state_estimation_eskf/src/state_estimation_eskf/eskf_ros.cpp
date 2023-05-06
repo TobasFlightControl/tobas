@@ -19,7 +19,8 @@ using namespace Eigen;
 using namespace dh_std;
 
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
-  : is_ready_(false),
+  : super(),
+    is_ready_(false),
     imu_subscribed_(false),
     mag_subscribed_(false),
     bar_subscribed_(false),

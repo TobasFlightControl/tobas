@@ -11,7 +11,7 @@
 using namespace std;
 using namespace dh_std;
 
-MotorsHandler_DSHOT::MotorsHandler_DSHOT() : cmd_received_(false), dshot_(DSHOT::DSHOT_600)
+MotorsHandler_DSHOT::MotorsHandler_DSHOT() : super(), cmd_received_(false), dshot_(DSHOT::DSHOT_600)
 {
   if (getuid())
   {

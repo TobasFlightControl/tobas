@@ -7,12 +7,14 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
-#include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/node.hpp>
 
 #include "./orientation_estimator.hpp"
 
-class OrientationEstimatorRos
+class OrientationEstimatorRos : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
   using SyncPolicy = message_filters::sync_policies::ApproximateTime<ImuMsg, MagMsg>;
@@ -22,10 +24,14 @@ class OrientationEstimatorRos
 
 public:
   explicit OrientationEstimatorRos();
-  ~OrientationEstimatorRos();
 
 private:
-  ros::NodeHandle nh_;
+  OrientationEstimator filter_;
+  ros::Time time_prev_;
+  bool is_initialized_;
+  Eigen::Vector3d a_;
+  Eigen::Vector3d w_;
+  Eigen::Vector3d m_;
 
   // rosparams
   std::string drone_name_;
@@ -39,24 +45,19 @@ private:
   double ref_mag_east_;
   double ref_mag_down_;
 
-  OrientationEstimator filter_;
-  ros::Time time_prev_;
-  bool is_initialized_;
-  Eigen::Vector3d a_;
-  Eigen::Vector3d w_;
-  Eigen::Vector3d m_;
-
+  // PubSub
   ros::Publisher imu_pub_;
   std::shared_ptr<ImuSubscriber> imu_sub_;
   std::shared_ptr<MagSubscriber> mag_sub_;
   std::shared_ptr<Synchronizer> sync_;
 
-  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
 
-  void getRosParams();
   void initializeFilter();
-  void registerPublishers();
-  void registerSubscribers();
+
   void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
-  void checkTopicsTimerCb(const ros::TimerEvent&);
+  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
 };

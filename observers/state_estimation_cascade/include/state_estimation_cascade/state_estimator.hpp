@@ -19,6 +19,8 @@
 
 class StateEstimator : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;

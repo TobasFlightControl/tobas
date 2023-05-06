@@ -9,10 +9,12 @@
 
 class BarometerHandler : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using BarMsg = sensor_msgs::FluidPressure;
 
 public:
-  BarometerHandler();
+  explicit BarometerHandler();
 
 private:
   MS5611 barometer_;

@@ -11,11 +11,13 @@
 
 class GpsHandler : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
 
 public:
-  GpsHandler();
+  explicit GpsHandler();
 
 private:
   Ublox gps_;

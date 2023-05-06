@@ -10,7 +10,7 @@
 using namespace std;
 using namespace dh_std;
 
-MotorsHandler_PWM::MotorsHandler_PWM()
+MotorsHandler_PWM::MotorsHandler_PWM() : super()
 {
   if (getuid())
   {

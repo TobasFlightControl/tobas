@@ -15,6 +15,8 @@
 
 class ErrorStateKalmanFilterRos : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;

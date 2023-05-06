@@ -20,7 +20,7 @@
 
 using namespace std;
 
-CommandHandler::CommandHandler()
+CommandHandler::CommandHandler() : super()
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"

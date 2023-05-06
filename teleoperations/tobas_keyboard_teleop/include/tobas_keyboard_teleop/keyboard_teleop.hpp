@@ -13,6 +13,8 @@
  */
 class CommandHandler : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
   using CmdMsg = tobas_msgs::PositionYaw;
 
 public:

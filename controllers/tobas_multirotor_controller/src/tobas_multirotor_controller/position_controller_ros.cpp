@@ -12,7 +12,7 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-PositionControllerRos::PositionControllerRos() : is_initialized_(false)
+PositionControllerRos::PositionControllerRos() : super(), is_initialized_(false)
 {
   getRosParams();
 

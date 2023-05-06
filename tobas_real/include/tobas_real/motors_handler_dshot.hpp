@@ -13,8 +13,10 @@ class MotorsHandler_DSHOT : public dh_ros::BaseNode
 {
   const double kDefaultUpdateRate = 1000.;
 
+  using super = dh_ros::BaseNode;
+
 public:
-  MotorsHandler_DSHOT();
+  explicit MotorsHandler_DSHOT();
   void run();
 
 private:

@@ -11,8 +11,10 @@
 
 class MotorsHandler_PWM : public dh_ros::BaseNode
 {
+  using super = dh_ros::BaseNode;
+
 public:
-  MotorsHandler_PWM();
+  explicit MotorsHandler_PWM();
 
 private:
   RCOutput_Navio2 pwm_;

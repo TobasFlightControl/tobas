@@ -24,7 +24,8 @@ using namespace Eigen;
 using namespace dh_std;
 
 StateEstimator::StateEstimator()
-  : is_initialized_(false),
+  : super(),
+    is_initialized_(false),
     filtered_imu_buf_(IMU_BUF_SIZE),
     bar_buf_(BAR_BUF_SIZE),
     gps_pos_buf_(GPS_BUF_SIZE),

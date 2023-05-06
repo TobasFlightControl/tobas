@@ -20,19 +20,13 @@
 using namespace std;
 using namespace Eigen;
 
-OrientationEstimatorRos::OrientationEstimatorRos() : is_initialized_(false)
+OrientationEstimatorRos::OrientationEstimatorRos() : super(), is_initialized_(false)
 {
   getRosParams();
   initializeFilter();
   registerPublishers();
   registerSubscribers();
-
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
-}
-
-OrientationEstimatorRos::~OrientationEstimatorRos()
-{
+  createTimers();
 }
 
 void OrientationEstimatorRos::getRosParams()
@@ -50,6 +44,25 @@ void OrientationEstimatorRos::getRosParams()
   dh_ros::getParam("~bias_alpha", bias_alpha_, DEFAULT_BIAS_ALPHA);
   dh_ros::getParam("~do_bias_estimation", do_bias_estimation_, DEFAULT_DO_BIAS_ESTIMATION);
   dh_ros::getParam("~do_adaptive_gain", do_adaptive_gain_, DEFAULT_DO_ADAPTIVE_GAIN);
+}
+
+void OrientationEstimatorRos::registerPublishers()
+{
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + drone_name_ + "/filtered_imu", QUEUE_SIZE);
+}
+
+void OrientationEstimatorRos::registerSubscribers()
+{
+  imu_sub_.reset(new ImuSubscriber(nh_, "/" + drone_name_ + "/imu", QUEUE_SIZE));
+  mag_sub_.reset(new MagSubscriber(nh_, "/" + drone_name_ + "/magnetic_field", QUEUE_SIZE));
+  sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
+  sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
+}
+
+void OrientationEstimatorRos::createTimers()
+{
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
 }
 
 void OrientationEstimatorRos::initializeFilter()
@@ -76,19 +89,6 @@ void OrientationEstimatorRos::initializeFilter()
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
-}
-
-void OrientationEstimatorRos::registerPublishers()
-{
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + drone_name_ + "/filtered_imu", QUEUE_SIZE);
-}
-
-void OrientationEstimatorRos::registerSubscribers()
-{
-  imu_sub_.reset(new ImuSubscriber(nh_, "/" + drone_name_ + "/imu", QUEUE_SIZE));
-  mag_sub_.reset(new MagSubscriber(nh_, "/" + drone_name_ + "/magnetic_field", QUEUE_SIZE));
-  sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
-  sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
@@ -133,7 +133,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   imu_pub_.publish(filtered_imu);
 }
 
-void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
+void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   dh_ros::rosWarn("IMU data is not received yet.");
 }
