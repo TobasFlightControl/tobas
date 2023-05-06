@@ -6,7 +6,7 @@
 #include <sensor_msgs/JointState.h>
 
 #include <dh_kdl/treejntnameparser.hpp>
-#include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/node.hpp>
 
 #include <tobas_tools/rotor_property.hpp>
 #include <tobas_msgs/PoseVelStamped.h>
@@ -24,7 +24,7 @@ namespace tobas_multirotor_controller
  * @brief 加速度制御器(解析計算)，姿勢制御器(MPC)を組み合わせた制御器．
  * vx, vy, vz, yaw_rateの目標値に追従する．
  */
-class VelocityControllerRos
+class VelocityControllerRos : public dh_ros::BaseNode
 {
   using StateMsg = tobas_msgs::PoseVelStamped;
   using CmdMsg = tobas_msgs::VelocityYaw;
@@ -36,8 +36,6 @@ public:
   explicit VelocityControllerRos();
 
 private:
-  ros::NodeHandle nh_;
-
   KDL::Tree tree_;
   KDL::TreeJointNameParser jnt_name_parser_;
 
@@ -80,12 +78,14 @@ private:
   ros::Subscriber joint_state_sub_;
   ros::Subscriber cmd_sub_;
 
-  ConfigServer server_;               // Dynamic Reconfigure
-  dh_ros::Timer check_topics_timer_;  // Check if messages are received or not.
+  // Dynamic Reconfigure
+  ConfigServer server_;
 
-  void getRosParams();
-  void registerPublishers();
-  void registerSubscribers();
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+  void createTimers() override;
+
   bool isReady();
   void initialize(const tobas_msgs::PoseVel& bs);
   void updateDynamicParams(const ConfigType& cfg);
@@ -96,7 +96,7 @@ private:
   void jointStateCb(const sensor_msgs::JointState& js);
   void commandCb(const CmdMsg& cmd);
 
+  void checkTopicsTimerCb(const ros::TimerEvent& event);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
-  void checkTopicsTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_multirotor_controller

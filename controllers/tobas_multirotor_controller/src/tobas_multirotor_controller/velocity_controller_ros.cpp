@@ -51,15 +51,12 @@ VelocityControllerRos::VelocityControllerRos()
 
   registerPublishers();
   registerSubscribers();
+  createTimers();
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f =
     boost::bind(&VelocityControllerRos::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
-
-  // Start timer
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(checkTopicsTimerPeriod), &VelocityControllerRos::checkTopicsTimerCb, this);
 }
 
 void VelocityControllerRos::getRosParams()
@@ -107,6 +104,12 @@ void VelocityControllerRos::registerSubscribers()
   }
   cmd_sub_ = nh_.subscribe(
     drone_prefix + "/command/velocity_yaw", 1, &VelocityControllerRos::commandCb, this);
+}
+
+void VelocityControllerRos::createTimers()
+{
+  check_topics_timer_ = nh_.createTimer(
+    ros::Duration(checkTopicsTimerPeriod), &VelocityControllerRos::checkTopicsTimerCb, this);
 }
 
 bool VelocityControllerRos::isReady()
@@ -274,13 +277,7 @@ void VelocityControllerRos::commandCb(const CmdMsg& cmd)
   cmd_received_ = true;
 }
 
-void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
-{
-  updateDynamicParams(cfg);
-  rot_controller_->reconfigure(dynamic_params_rot_);
-}
-
-void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
+void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   if (!bs_received_)
   {
@@ -291,5 +288,11 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   {
     dh_ros::rosWarn("Joint states are not received yet.");
   }
+}
+
+void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+{
+  updateDynamicParams(cfg);
+  rot_controller_->reconfigure(dynamic_params_rot_);
 }
 }  // namespace tobas_multirotor_controller
