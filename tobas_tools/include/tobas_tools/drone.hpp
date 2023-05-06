@@ -4,7 +4,7 @@
 #include "./fixed_wing_tools.hpp"
 
 /**
- * @brief ドローンの固有パラメータ．
+ * @brief ドローンの固有パラメータ．TBSFファイルを読み込む．
  */
 class Drone
 {
