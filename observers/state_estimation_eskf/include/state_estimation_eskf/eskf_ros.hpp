@@ -54,7 +54,6 @@ private:
   ErrorStateKalmanFilter eskf_;
 
   // rosparams
-  std::string drone_name_;
   double gravity_;
   Eigen::Vector3d ref_mag_;
   double gyro_noise_density_;  // rad/s/sqrt(hz)

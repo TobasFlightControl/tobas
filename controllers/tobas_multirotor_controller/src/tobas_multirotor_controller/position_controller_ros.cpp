@@ -31,24 +31,20 @@ PositionControllerRos::PositionControllerRos() : super(), is_initialized_(false)
 
 void PositionControllerRos::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
-
-  dh_ros::getParam(ctrlPrefix + "/natural_frequency", dynamic_params_.natural_freq);
-  dh_ros::getParam(ctrlPrefix + "/damping_ratio", dynamic_params_.damp_ratio);
+  dh_ros::getParam(ctrlName + "/natural_frequency", dynamic_params_.natural_freq);
+  dh_ros::getParam(ctrlName + "/damping_ratio", dynamic_params_.damp_ratio);
 }
 
 void PositionControllerRos::registerPublishers()
 {
-  vel_yaw_pub_ =
-    nh_.advertise<tobas_msgs::VelocityYaw>("/" + drone_name_ + "/command/velocity_yaw", 1, false);
+  vel_yaw_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1, false);
 }
 
 void PositionControllerRos::registerSubscribers()
 {
-  base_state_sub_ =
-    nh_.subscribe("/" + drone_name_ + "/base_state", 1, &PositionControllerRos::baseStateCb, this);
-  pos_yaw_sub_ = nh_.subscribe(
-    "/" + drone_name_ + "/command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
+  base_state_sub_ = nh_.subscribe("base_state", 1, &PositionControllerRos::baseStateCb, this);
+  pos_yaw_sub_ =
+    nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
 }
 
 void PositionControllerRos::createTimers()

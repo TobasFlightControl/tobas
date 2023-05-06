@@ -27,12 +27,11 @@ BarometerHandler::BarometerHandler() : super()
 
 void BarometerHandler::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
 }
 
 void BarometerHandler::registerPublishers()
 {
-  bar_pub_ = nh_.advertise<BarMsg>("/" + drone_name_ + "/air_pressure", 1);
+  bar_pub_ = nh_.advertise<BarMsg>("air_pressure", 1);
 }
 
 void BarometerHandler::registerSubscribers()

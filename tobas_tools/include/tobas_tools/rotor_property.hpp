@@ -3,6 +3,12 @@
 #include <string>
 #include <vector>
 
+enum struct Axis
+{
+  X_POSITIVE,
+  Z_POSITIVE,
+};
+
 enum struct ESCType
 {
   PWM,
@@ -24,7 +30,8 @@ struct ESCConfig_DSHOT
 struct RotorConfig
 {
   std::string link_name;   // プロペラのリンク名
-  int direction;           // CCW(1) or CW(-1)
+  Axis axis;               // 回転軸
+  int direction;           // 回転方向: CCW(1) or CW(-1)
   double motor_constant;   // 推力係数 [N*s^2/rad^2]
   double moment_constant;  // 反トルク係数 [m]
   double kv;               // 効率を考慮した1ボルトあたりの回転数 [rpm/V]
@@ -35,6 +42,3 @@ struct RotorConfig
 };
 
 using RotorConfigs = std::vector<RotorConfig>;
-
-/* Get rotor configurations from ROS parameter server. */
-void getRotorConfigs(RotorConfigs& des);

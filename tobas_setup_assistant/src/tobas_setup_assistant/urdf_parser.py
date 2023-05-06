@@ -65,7 +65,7 @@ class URDFParser(QWidget):
         joint = self._robot.joint_map[joint_name]
         return joint.type == "fixed"
 
-    def required_joint_names(self) -> List[str]:
+    def active_joint_names(self) -> List[str]:
         """
         ロボットの形状を決めるのに必要な関節名のリストを返す．\\
         プロペラに設定されていない可動リンクがあるかどうかを調べる．

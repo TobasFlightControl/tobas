@@ -29,11 +29,12 @@ VelocityControllerRos::VelocityControllerRos()
     cmd_received_(false)
 {
   getRosParams();
+  drone_.loadFromParam(ns_);
 
-  is_transformable_ = required_joints_.size() > 0;
+  is_transformable_ = drone_.activeJointNames().size() > 0;
 
   // Treeを取得
-  if (!kdl_parser::treeFromString(description_, tree_))
+  if (!kdl_parser::treeFromParam("robot_description", tree_))
   {
     dh_ros::RuntimeError("Failed to get KDL tree.");
   }
@@ -42,13 +43,11 @@ VelocityControllerRos::VelocityControllerRos()
 
   // 各コントローラを初期化
   vel_controller_.reset(new VelocityController(dynamic_params_vel_));
-  acc_controller_.reset(
-    new AccelerationController(tree_, gravity_, battery_voltage_, rotor_configs_));
-  rot_controller_.reset(
-    new RotationController(tree_, gravity_, battery_voltage_, rotor_configs_, dynamic_params_rot_));
+  acc_controller_.reset(new AccelerationController(drone_, tree_, gravity_));
+  rot_controller_.reset(new RotationController(drone_, tree_, gravity_, dynamic_params_rot_));
 
   q_.resize(tree_.getNrOfJoints());
-  rotor_speeds_.speeds.resize(num_rotors_);
+  rotor_speeds_.speeds.resize(drone_.numRotors(), 0.);
 
   registerPublishers();
   registerSubscribers();
@@ -62,49 +61,36 @@ VelocityControllerRos::VelocityControllerRos()
 
 void VelocityControllerRos::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
-  dh_ros::getParam("/robot_description", description_);
-  dh_ros::getParam("/num_rotors", num_rotors_);
-  dh_ros::getParam<vector<string>>("/required_joint_names", required_joints_);
   dh_ros::getParam("/gravity", gravity_);
-  dh_ros::getParam("/battery_voltage", battery_voltage_);
-  getRotorConfigs(rotor_configs_);
 
   // velocity controller
-  dh_ros::getParam(ctrlPrefix + "/natural_frequency", dynamic_params_vel_.natural_freq);
-  dh_ros::getParam(ctrlPrefix + "/damping_ratio", dynamic_params_vel_.damp_ratio);
+  dh_ros::getParam(ctrlName + "/natural_frequency", dynamic_params_vel_.natural_freq);
+  dh_ros::getParam(ctrlName + "/damping_ratio", dynamic_params_vel_.damp_ratio);
 
   // rotation_controller
-  dh_ros::getParam(ctrlPrefix + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
-  dh_ros::getParam(ctrlPrefix + "/prediction_steps", dynamic_params_rot_.pred_steps);
-  dh_ros::getParam(ctrlPrefix + "/rotation_decay", dynamic_params_rot_.rot_decay);
-  dh_ros::getParam(ctrlPrefix + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
-  dh_ros::getParam(ctrlPrefix + "/rotation_weight", dynamic_params_rot_.rot_weight);
-  dh_ros::getParam(ctrlPrefix + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
-  dh_ros::getParam(ctrlPrefix + "/thrust_force_weight", dynamic_params_rot_.thrust_weight);
-  dh_ros::getParam(
-    ctrlPrefix + "/thrust_force_rate_weight", dynamic_params_rot_.thrust_rate_weight);
+  dh_ros::getParam(ctrlName + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
+  dh_ros::getParam(ctrlName + "/prediction_steps", dynamic_params_rot_.pred_steps);
+  dh_ros::getParam(ctrlName + "/rotation_decay", dynamic_params_rot_.rot_decay);
+  dh_ros::getParam(ctrlName + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
+  dh_ros::getParam(ctrlName + "/rotation_weight", dynamic_params_rot_.rot_weight);
+  dh_ros::getParam(ctrlName + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
+  dh_ros::getParam(ctrlName + "/thrust_force_weight", dynamic_params_rot_.thrust_weight);
+  dh_ros::getParam(ctrlName + "/thrust_force_rate_weight", dynamic_params_rot_.thrust_rate_weight);
 }
 
 void VelocityControllerRos::registerPublishers()
 {
-  rotor_speeds_pub_ =
-    nh_.advertise<tobas_msgs::RotorSpeeds>("/" + drone_name_ + "/command/motor_speed", 1, false);
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1, false);
 }
 
 void VelocityControllerRos::registerSubscribers()
 {
-  string drone_prefix = "/" + drone_name_;
-
-  base_state_sub_ =
-    nh_.subscribe(drone_prefix + "/base_state", 1, &VelocityControllerRos::baseStateCb, this);
+  base_state_sub_ = nh_.subscribe("base_state", 1, &VelocityControllerRos::baseStateCb, this);
   if (is_transformable_)
   {
-    joint_state_sub_ =
-      nh_.subscribe(drone_prefix + "/joint_states", 1, &VelocityControllerRos::jointStateCb, this);
+    joint_state_sub_ = nh_.subscribe("joint_states", 1, &VelocityControllerRos::jointStateCb, this);
   }
-  cmd_sub_ = nh_.subscribe(
-    drone_prefix + "/command/velocity_yaw", 1, &VelocityControllerRos::commandCb, this);
+  cmd_sub_ = nh_.subscribe("command/velocity_yaw", 1, &VelocityControllerRos::commandCb, this);
 }
 
 void VelocityControllerRos::createTimers()
@@ -132,7 +118,7 @@ void VelocityControllerRos::initialize(const tobas_msgs::PoseVel& bs)
 {
   t_last_ = ros::Time::now();
   tar_rpy_.z() = bs.pose.orientation.yaw;
-  u_opt_ = VectorXd::Zero(num_rotors_);
+  u_opt_ = VectorXd::Zero(drone_.numRotorsInAxis(Axis::Z_POSITIVE));
 }
 
 void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
@@ -186,16 +172,19 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
   const Eigen::VectorXd& u,
   tobas_msgs::RotorSpeeds& speeds)
 {
-  ROS_ASSERT(u.rows() == num_rotors_);
+  const auto ver_prop_idxes = drone_.rotorConfigIdxInAxis(Axis::Z_POSITIVE);
+  assert(u.rows() == ver_prop_idxes.size());
 
-  for (int i = 0; i < num_rotors_; ++i)
+  for (int i = 0; i < u.rows(); ++i)
   {
     if (u(i) < -1.)
     {
       dh_ros::rosFatal("Negative thrust force: u = " + to_string(u(i)));
       // TODO: 防御モードに移行
     }
-    speeds.speeds[i] = sqrt(max(u(i), 0.) / rotor_configs_[i].motor_constant);
+
+    const auto& idx = ver_prop_idxes[i];
+    speeds.speeds[idx] = sqrt(max(u(i), 0.) / drone_.rotorConfigs()[idx].motor_constant);
   }
 }
 
@@ -230,7 +219,7 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
     return;
   }
 
-  for (const auto& jnt_name : required_joints_)
+  for (const auto& jnt_name : drone_.activeJointNames())
   {
     try
     {

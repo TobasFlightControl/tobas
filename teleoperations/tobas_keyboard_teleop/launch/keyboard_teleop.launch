@@ -1,8 +1,11 @@
 <launch>
 
-  <arg name='node_params_path' default='$(find tobas_keyboard_teleop)/config/node_params.yaml'/>
+  <arg name="drone_name"/>
+  <arg name="node_params_path" default="$(find tobas_keyboard_teleop)/config/node_params.yaml"/>
 
-  <rosparam file='$(arg node_params_path)' command='load'/>
-  <node pkg='tobas_keyboard_teleop' name='keyboard_teleop' type='keyboard_teleop_node' output='screen'/>
+  <group ns="$(arg drone_name)">
+    <rosparam file="$(arg node_params_path)" command="load"/>
+    <node pkg="tobas_keyboard_teleop" name="keyboard_teleop" type="keyboard_teleop_node" output="screen"/>
+  </group>
 
 </launch>

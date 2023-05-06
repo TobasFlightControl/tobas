@@ -10,22 +10,16 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-AccelerationController::AccelerationController(
-  const KDL::Tree& tree,
-  double gravity,
-  double battery_voltage,
-  const RotorConfigs& rotor_configs)
-  : gravity_(gravity), rotor_configs_(rotor_configs)
+AccelerationController::AccelerationController(const Drone& drone, const Tree& tree, double gravity)
+  : gravity_(gravity)
 {
   TreeJntToInertiaSolver inertia_solver_(tree);
   mass_ = inertia_solver_.JntToMass();
 
   max_U_ = 0.;
-  for (const auto& rotor_config : rotor_configs_)
+  for (const auto& rotor_idx : drone.rotorConfigIdxInAxis(Axis::Z_POSITIVE))
   {
-    const double max_speed = dh_std::rpmToRadPerSec(battery_voltage * rotor_config.kv);
-    const double max_thrust = rotor_config.motor_constant * sqr(max_speed);
-    max_U_ += max_thrust;
+    max_U_ += drone.maxThrust(rotor_idx);
   }
 }
 

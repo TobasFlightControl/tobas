@@ -32,7 +32,6 @@ OrientationEstimatorRos::OrientationEstimatorRos() : super(), is_initialized_(fa
 void OrientationEstimatorRos::getRosParams()
 {
   // 共通パラメータ
-  dh_ros::getParam("/drone_name", drone_name_);
   dh_ros::getParam("/gravity", gravity_, DEFAULT_GRAVITY);
   dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
   dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
@@ -48,13 +47,13 @@ void OrientationEstimatorRos::getRosParams()
 
 void OrientationEstimatorRos::registerPublishers()
 {
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + drone_name_ + "/filtered_imu", QUEUE_SIZE);
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", QUEUE_SIZE);
 }
 
 void OrientationEstimatorRos::registerSubscribers()
 {
-  imu_sub_.reset(new ImuSubscriber(nh_, "/" + drone_name_ + "/imu", QUEUE_SIZE));
-  mag_sub_.reset(new MagSubscriber(nh_, "/" + drone_name_ + "/magnetic_field", QUEUE_SIZE));
+  imu_sub_.reset(new ImuSubscriber(nh_, "imu", QUEUE_SIZE));
+  mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", QUEUE_SIZE));
   sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
   sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }

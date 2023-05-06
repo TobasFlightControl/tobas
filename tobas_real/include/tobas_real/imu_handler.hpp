@@ -28,7 +28,6 @@ private:
   float mx_, my_, mz_;
 
   // rosparam
-  std::string drone_name_;
   double gravity_;
 
   // Publisher

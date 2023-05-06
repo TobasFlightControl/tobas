@@ -18,8 +18,9 @@ MotorsHandler_PWM::MotorsHandler_PWM() : super()
   }
 
   getRosParams();
+  drone_.loadFromParam(ns_);
 
-  for (const auto& rotor_config : rotor_configs_)
+  for (const auto& rotor_config : drone_.rotorConfigs())
   {
     const uint32_t& pin = rotor_config.pin;
     uint32_t channel = getChannel(pin);
@@ -50,10 +51,6 @@ MotorsHandler_PWM::MotorsHandler_PWM() : super()
 
 void MotorsHandler_PWM::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
-  dh_ros::getParam("/battery_voltage", battery_voltage_);
-  dh_ros::getParam("/num_rotors", num_rotors_);
-  getRotorConfigs(rotor_configs_);
 }
 
 void MotorsHandler_PWM::registerPublishers()
@@ -62,8 +59,8 @@ void MotorsHandler_PWM::registerPublishers()
 
 void MotorsHandler_PWM::registerSubscribers()
 {
-  rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+  rotor_vels_sub_ =
+    nh_.subscribe("command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
 }
 
 void MotorsHandler_PWM::createTimers()
@@ -79,18 +76,18 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
 {
   const auto& cmd_speeds = rotor_speeds.speeds;
 
-  if (cmd_speeds.size() != num_rotors_)
+  if (cmd_speeds.size() != drone_.numRotors())
   {
     dh_ros::rosErrorThrottle(
       INFO_PERIOD,
-      "Size mismatch: " + to_string(cmd_speeds.size()) + " != " + to_string(num_rotors_));
+      "Size mismatch: " + to_string(cmd_speeds.size()) + " != " + to_string(drone_.numRotors()));
     return;
   }
 
-  for (int i = 0; i < num_rotors_; ++i)
+  for (int i = 0; i < drone_.numRotors(); ++i)
   {
-    const auto& rotor_config = rotor_configs_[i];
-    const double max_speed = rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
+    const auto& rotor_config = drone_.rotorConfigs()[i];
+    const double max_speed = rpmToRadPerSec(drone_.maxRotSpeed(i));
 
     // 指令速度を決定
     double cmd_speed = cmd_speeds[i];

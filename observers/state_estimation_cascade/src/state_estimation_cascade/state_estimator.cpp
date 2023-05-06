@@ -49,7 +49,6 @@ StateEstimator::StateEstimator()
 
 void StateEstimator::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
   dh_ros::getParam("/gravity", gravity_);
 
   dh_ros::getParam("~use_barometer", use_bar_, true);
@@ -60,30 +59,26 @@ void StateEstimator::getRosParams()
 
 void StateEstimator::registerPublishers()
 {
-  posevel_pub_ = nh_.advertise<StateMsg>("/" + drone_name_ + "/base_state", 1);
+  posevel_pub_ = nh_.advertise<StateMsg>("base_state", 1);
 }
 
 void StateEstimator::registerSubscribers()
 {
-  filtered_imu_sub_ =
-    nh_.subscribe("/" + drone_name_ + "/filtered_imu", 1, &StateEstimator::filteredImuCb, this);
+  filtered_imu_sub_ = nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this);
 
   if (use_bar_)
   {
-    bar_sub_ =
-      nh_.subscribe("/" + drone_name_ + "/air_pressure", 1, &StateEstimator::barometerCb, this);
+    bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this);
   }
 
   if (use_gps_pos_)
   {
-    gps_pos_sub_ =
-      nh_.subscribe("/" + drone_name_ + "/gps", 1, &StateEstimator::gpsPositionCb, this);
+    gps_pos_sub_ = nh_.subscribe("gps", 1, &StateEstimator::gpsPositionCb, this);
   }
 
   if (use_gps_vel_)
   {
-    gps_vel_sub_ =
-      nh_.subscribe("/" + drone_name_ + "/ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
+    gps_vel_sub_ = nh_.subscribe("ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
   }
 }
 

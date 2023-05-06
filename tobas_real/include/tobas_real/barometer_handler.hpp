@@ -20,9 +20,6 @@ private:
   MS5611 barometer_;
   BarMsg bar_msg_;
 
-  // roaparams
-  std::string drone_name_;
-
   // PubSub
   ros::Publisher bar_pub_;
 

@@ -35,7 +35,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
   dh_ros::getParam("/gravity", gravity_);
   dh_ros::getParam("/geomagnetism/north", ref_mag_.x());
   dh_ros::getParam("/geomagnetism/east", ref_mag_.y());
@@ -49,19 +48,16 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  posevel_pub_ = nh_.advertise<StateMsg>("/" + drone_name_ + "/base_state", 1);
+  posevel_pub_ = nh_.advertise<StateMsg>("base_state", 1);
 }
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
-  imu_sub_ = nh_.subscribe("/" + drone_name_ + "/imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
-  mag_sub_ = nh_.subscribe(
-    "/" + drone_name_ + "/magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
-  bar_sub_ =
-    nh_.subscribe("/" + drone_name_ + "/air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
-  gps_sub_ = nh_.subscribe("/" + drone_name_ + "/gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
-  vel_sub_ =
-    nh_.subscribe("/" + drone_name_ + "/ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+  imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
+  mag_sub_ = nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
+  bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
+  gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
+  vel_sub_ = nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
 }
 
 void ErrorStateKalmanFilterRos::createTimers()

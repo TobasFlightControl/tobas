@@ -4,18 +4,14 @@
 #include <Eigen/Core>
 #include <kdl/tree.hpp>
 
-#include <tobas_tools/rotor_property.hpp>
+#include <tobas_tools/drone.hpp>
 
 namespace tobas_multirotor_controller
 {
 class AccelerationController
 {
 public:
-  explicit AccelerationController(
-    const KDL::Tree& tree,
-    double gravity,
-    double battery_voltage,
-    const RotorConfigs& rotor_configs);
+  explicit AccelerationController(const Drone& drone, const KDL::Tree& tree, double gravity);
 
   void update(
     const Eigen::Vector3d& tar_acc,
@@ -28,7 +24,6 @@ public:
 
 private:
   const double gravity_;
-  const RotorConfigs rotor_configs_;
   double mass_;
   double max_U_;
 };

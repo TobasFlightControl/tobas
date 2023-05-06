@@ -55,7 +55,6 @@ private:
   CartesianFilter cart_filter_;
 
   // rosparams
-  std::string drone_name_;
   double gravity_;
   bool use_bar_;
   bool use_gps_pos_;

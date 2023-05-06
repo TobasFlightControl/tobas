@@ -28,14 +28,13 @@ ImuHandler::ImuHandler() : super()
 
 void ImuHandler::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
   dh_ros::getParam("/gravity", gravity_);
 }
 
 void ImuHandler::registerPublishers()
 {
-  imu_pub_ = nh_.advertise<ImuMsg>("/" + drone_name_ + "/imu", 1);
-  mag_pub_ = nh_.advertise<MagMsg>("/" + drone_name_ + "/magnetic_field", 1);
+  imu_pub_ = nh_.advertise<ImuMsg>("imu", 1);
+  mag_pub_ = nh_.advertise<MagMsg>("magnetic_field", 1);
 }
 
 void ImuHandler::registerSubscribers()

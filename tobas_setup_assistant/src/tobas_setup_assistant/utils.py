@@ -39,12 +39,6 @@ def get_git_user_email() -> str:
     return result.stdout.decode('utf-8').strip()
 
 
-def git_config() -> None:
-    """ Gitのユーザ名とメールアドレスを設定する． """
-    os.system("git config --global user.name " + get_git_user_name())
-    os.system("git config --global user.email " + get_git_user_email())
-
-
 def get_drone_name() -> str:
     """ URDFからドローンの名前を取得する． """
     description = rospy.get_param("/robot_description")

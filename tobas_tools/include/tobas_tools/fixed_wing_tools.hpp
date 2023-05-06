@@ -70,15 +70,3 @@ struct FixedWingConfig
   AerodynamicsCoefficients aerodynamics;
   ControlSurfaces control_surfaces;
 };
-
-/* Get fixed wing vehicle parameters from ROS parameter server. */
-void getVehicleParameters(VehicleParameters& des);
-
-/* Get aerodynamics coefficients from ROS parameter server. */
-void getAerodynamicsCoefficients(AerodynamicsCoefficients& des);
-
-/* Get control surface configurations from ROS parameter server. */
-void getControlSurfaces(ControlSurfaces& des);
-
-/* Get fixed wing configurations from ROS parameter server. */
-void getFixedWingConfig(FixedWingConfig& des);

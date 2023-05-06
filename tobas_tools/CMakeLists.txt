@@ -16,14 +16,15 @@ find_package(catkin REQUIRED COMPONENTS
 	orocos_kdl
 	roscpp
 )
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
 )
 
-include_directories(${catkin_INCLUDE_DIRS} /usr/include/eigen3)
+include_directories(${catkin_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} Eigen3::Eigen)

@@ -12,8 +12,9 @@ public:
   explicit Drone();
 
   /* Load drone configurations from ROS parameter server. */
-  void loadFromParam(const std::string& drone_name);
+  void loadFromParam(const std::string& ns);
 
+  const bool& hasFixedWing() const;
   const double& batteryVoltage() const;
   const std::vector<std::string>& activeJointNames() const;
   const RotorConfigs& rotorConfigs() const;
@@ -34,16 +35,17 @@ public:
   double maxThrust(uint32_t idx) const;
 
 private:
+  bool has_fixed_wing_;
   double battery_voltage_;
   std::vector<std::string> active_joint_names_;
   RotorConfigs rotor_configs_;
   FixedWingConfig fixed_wing_config_;
 
-  void getRotorConfigs(const std::string& drone_name);
-  void getRotorConfig(const std::string& drone_name, uint32_t idx);
+  void getRotorConfigs(const std::string& ns);
+  void getRotorConfig(const std::string& ns, uint32_t idx);
 
-  void getFixedWingConfig(const std::string& drone_name);
-  void getVehicleParameters(const std::string& drone_name);
-  void getAerodynamicsCoefficients(const std::string& drone_name);
-  void getControlSurfaces(const std::string& drone_name);
+  void getFixedWingConfig(const std::string& ns);
+  void getVehicleParameters(const std::string& ns);
+  void getAerodynamicsCoefficients(const std::string& ns);
+  void getControlSurfaces(const std::string& ns);
 };

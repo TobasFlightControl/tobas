@@ -33,8 +33,7 @@ private:
   Eigen::Vector3d w_;
   Eigen::Vector3d m_;
 
-  // rosparams
-  std::string drone_name_;
+  // RosParams
   bool do_bias_estimation_;
   bool do_adaptive_gain_;
   double gravity_;

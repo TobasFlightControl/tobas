@@ -139,8 +139,6 @@ void CommandHandler::run()
 
 void CommandHandler::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
-
   dh_ros::getParam("~key_repeat_freq", key_repeat_freq_);
   dh_ros::getParam("~max_linear_velocity", max_linvel_);
   dh_ros::getParam("~max_angular_velocity", max_angvel_);
@@ -164,7 +162,7 @@ void CommandHandler::getRosParams()
 
 void CommandHandler::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<CmdMsg>("/" + drone_name_ + "/command/position_yaw", 1, false);
+  cmd_pub_ = nh_.advertise<CmdMsg>("command/position_yaw", 1, false);
 }
 
 void CommandHandler::registerSubscribers()

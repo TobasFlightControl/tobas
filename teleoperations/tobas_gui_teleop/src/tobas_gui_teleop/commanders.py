@@ -71,9 +71,8 @@ class CommandersWidget(QScrollArea):
         self._rows.addWidget(self.drone_cmd_yaw)
 
         # その他の可動関節
-        drone_name = rospy.get_param("/drone_name")
-        joint_names = rospy.get_param("/required_joint_names")
-        robot = Robot.from_parameter_server("/robot_description")
+        joint_names = rospy.get_param("active_joint_names")
+        robot = Robot.from_parameter_server("robot_description")
         self.joint_cmds: List[Commander] = []
 
         if len(joint_names) > 0:
@@ -88,16 +87,14 @@ class CommandersWidget(QScrollArea):
                 joint_name,
                 joint.limit.lower,
                 joint.limit.upper,
-                f'/{drone_name}/{joint_name}_controller/command',
+                f'{joint_name}_controller/command',
             )
             commander.update()
             self.joint_cmds.append(commander)
             self._rows.addWidget(commander)
 
         # Publisher
-        self._drone_cmd_pub = rospy.Publisher(
-            f'/{drone_name}/command/position_yaw', PositionYaw, queue_size=1
-        )
+        self._drone_cmd_pub = rospy.Publisher("command/position_yaw", PositionYaw, queue_size=1)
 
         add_expanding_widget(self._rows)
 

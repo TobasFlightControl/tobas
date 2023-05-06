@@ -6,7 +6,7 @@
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
-#include <tobas_tools/rotor_property.hpp>
+#include <tobas_tools/drone.hpp>
 
 #define STATE_SIZE 6  // 姿勢制御器の状態の次元
 
@@ -31,7 +31,7 @@ public:
    *
    * @param tree 全身のTree
    */
-  explicit MultiRotorDynamics(const KDL::Tree& tree, const RotorConfigs& rotor_configs);
+  explicit MultiRotorDynamics(const Drone& drone, const KDL::Tree& tree);
 
   /**
    * @brief 状態方程式を更新する．
@@ -43,12 +43,13 @@ public:
   void update(const double& roll, const double& pitch, const KDL::JntArray& q);
 
 private:
+  const Drone& drone_;
+  const std::vector<uint32_t> ver_prop_idxes_;
+  const uint32_t u_dim_;  // 制御入力の次元
+
   // KDL tools
   KDL::ExtTreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
-
-  const Eigen::Vector3d ez_;
-  const RotorConfigs rotor_configs_;
 
   KDL::Rotation rpyvel_angvel_kdl_;
   Eigen::Matrix3d rpyvel_angvel_eigen_;

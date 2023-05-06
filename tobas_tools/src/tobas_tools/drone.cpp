@@ -14,15 +14,23 @@ Drone::Drone()
 {
 }
 
-void Drone::loadFromParam(const string& drone_name)
+void Drone::loadFromParam(const string& ns)
 {
-  const string prefix = "/" + drone_name;
+  dh_ros::getParam(ns + "/battery_voltage", battery_voltage_);
+  dh_ros::getParam(ns + "/active_joint_names", active_joint_names_);
 
-  dh_ros::getParam(prefix + "/battery_voltage", battery_voltage_);
-  dh_ros::getParam(prefix + "/active_joint_names", active_joint_names_);
+  getRotorConfigs(ns);
 
-  getRotorConfigs(drone_name);
-  getFixedWingConfig(drone_name);
+  dh_ros::getParam(ns + "/has_fixed_wing", has_fixed_wing_);
+  if (has_fixed_wing_)
+  {
+    getFixedWingConfig(ns);
+  }
+}
+
+const bool& Drone::hasFixedWing() const
+{
+  return has_fixed_wing_;
 }
 
 const double& Drone::batteryVoltage() const
@@ -80,21 +88,21 @@ double Drone::maxThrust(uint32_t idx) const
   return rotor_configs_[idx].motor_constant * dh_std::sqr(maxRotSpeed(idx));
 }
 
-void Drone::getRotorConfigs(const string& drone_name)
+void Drone::getRotorConfigs(const string& ns)
 {
   int num_rotors;
-  dh_ros::getParam("/" + drone_name + "/num_rotors", num_rotors);
+  dh_ros::getParam(ns + "/num_rotors", num_rotors);
   rotor_configs_.resize(num_rotors);
 
   for (uint32_t i = 0; i < num_rotors; ++i)
   {
-    getRotorConfig(drone_name, i);
+    getRotorConfig(ns, i);
   }
 }
 
-void Drone::getRotorConfig(const string& drone_name, uint32_t idx)
+void Drone::getRotorConfig(const string& ns, uint32_t idx)
 {
-  const string prefix = "/rotor_" + to_string(idx);
+  const string prefix = ns + "/rotor_" + to_string(idx);
   auto& des = rotor_configs_[idx];
 
   // Link name
@@ -190,16 +198,16 @@ void Drone::getRotorConfig(const string& drone_name, uint32_t idx)
   }
 }
 
-void Drone::getFixedWingConfig(const string& drone_name)
+void Drone::getFixedWingConfig(const string& ns)
 {
-  getVehicleParameters(drone_name);
-  getAerodynamicsCoefficients(drone_name);
-  getControlSurfaces(drone_name);
+  getVehicleParameters(ns);
+  getAerodynamicsCoefficients(ns);
+  getControlSurfaces(ns);
 }
 
-void Drone::getVehicleParameters(const string& drone_name)
+void Drone::getVehicleParameters(const string& ns)
 {
-  const string prefix = "/" + drone_name + "/fixed_wing/vehicle";
+  const string prefix = ns + "/fixed_wing/vehicle";
   auto& des = fixed_wing_config_.vehicle;
 
   dh_ros::getParam(prefix + "/wing_surface", des.wing_surface);
@@ -236,9 +244,9 @@ void Drone::getVehicleParameters(const string& drone_name)
   }
 }
 
-void Drone::getAerodynamicsCoefficients(const string& drone_name)
+void Drone::getAerodynamicsCoefficients(const string& ns)
 {
-  const string prefix = "/" + drone_name + "/fixed_wing/aerodynamic_coefficients";
+  const string prefix = ns + "/fixed_wing/aerodynamic_coefficients";
   auto& des = fixed_wing_config_.aerodynamics;
 
   dh_ros::getParam(prefix + "/c_lift_0", des.c_lift_0);
@@ -287,28 +295,19 @@ void Drone::getAerodynamicsCoefficients(const string& drone_name)
   dh_ros::getParam(prefix + "/c_yaw_r", des.c_yaw_r);
 }
 
-void Drone::getControlSurfaces(const string& drone_name)
+void Drone::getControlSurfaces(const string& ns)
 {
   int num_cs;
-  dh_ros::getParam("/" + drone_name + "/num_control_surfaces", num_cs);
+  dh_ros::getParam(ns + "/num_control_surfaces", num_cs);
   fixed_wing_config_.control_surfaces.resize(num_cs);
-
-  unordered_set<int> indexes;
 
   for (int i = 0; i < num_cs; ++i)
   {
-    const string prefix = "/" + drone_name + "/control_surface_" + to_string(i);
+    const string prefix = ns + "/control_surface_" + to_string(i);
     auto& des = fixed_wing_config_.control_surfaces[i];
 
-    dh_ros::getParam(prefix + "/index", des.index);
-    if (des.index < 0)
-    {
-      throw dh_ros::RuntimeError("Please specify non-negative index.");
-    }
-    else if (dh_std::contains(indexes, des.index))
-    {
-      throw dh_ros::RuntimeError("The index of each control surface must be unique.");
-    }
+    // indexはprefixの番号と同じ
+    des.index = 0;
 
     dh_ros::getParam(prefix + "/angle_limit/lower", des.angle_limit.lower);
     dh_ros::getParam(prefix + "/angle_limit/upper", des.angle_limit.upper);
@@ -323,15 +322,5 @@ void Drone::getControlSurfaces(const string& drone_name)
     dh_ros::getParam(prefix + "/c_roll_delta", des.c_roll_delta);
     dh_ros::getParam(prefix + "/c_pitch_delta", des.c_pitch_delta);
     dh_ros::getParam(prefix + "/c_yaw_delta", des.c_yaw_delta);
-
-    indexes.emplace(des.index);
-  }
-
-  for (int i = 0; i < indexes.size(); ++i)
-  {
-    if (!dh_std::contains(indexes, i))
-    {
-      throw dh_ros::RuntimeError("Control Surface index mismatch.");
-    }
   }
 }

@@ -6,8 +6,6 @@
 #include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
-#include <tobas_tools/rotor_property.hpp>
-
 #include "./dynamics.hpp"
 
 namespace tobas_multirotor_controller
@@ -28,10 +26,9 @@ class RotationController
 {
 public:
   explicit RotationController(
+    const Drone& drone,
     const KDL::Tree& tree,
     double gravity,
-    double battery_voltage,
-    const RotorConfigs& rotor_configs,
     const RotationControllerDynamicParams& params);
 
   void update(
@@ -45,10 +42,9 @@ public:
   void reconfigure(const RotationControllerDynamicParams& params);
 
 private:
-  // 定数
+  const Drone& drone_;
   const double gravity_;
-  const double battery_voltage_;
-  const uint32_t num_rotors_;
+  const uint32_t u_dim_;
   double mass_;
 
   MultiRotorDynamics cont_;   // 連続時間線形状態方程式
@@ -62,7 +58,7 @@ private:
   void updateWeight_Q(double rot_weight, double angvel_weight);
   void updateWeight_S(int thrust_weight);
   void updateWeight_R(int thrust_rate_weight, double dt);
-  void setInputConstraintBase(const RotorConfigs& rotor_configs);
+  void setInputConstraintBase();
   void updateInputConstraint(double U);
 };
 }  // namespace tobas_multirotor_controller

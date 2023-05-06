@@ -32,7 +32,6 @@ private:
   CmdMsg cmd_;
 
   // rosparams
-  std::string drone_name_;
   double key_repeat_freq_;  // キーボードの連続入力の周波数(PC依存)
   double max_linvel_;       // 並進速度の大きさの最大値
   double max_angvel_;       // 回転速度の大きさの最大値

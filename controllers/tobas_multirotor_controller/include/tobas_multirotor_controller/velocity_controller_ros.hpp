@@ -8,7 +8,7 @@
 #include <dh_kdl/treejntnameparser.hpp>
 #include <dh_ros_tools/node.hpp>
 
-#include <tobas_tools/rotor_property.hpp>
+#include <tobas_tools/drone.hpp>
 #include <tobas_msgs/PoseVelStamped.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -38,6 +38,7 @@ public:
   explicit VelocityControllerRos();
 
 private:
+  Drone drone_;
   KDL::Tree tree_;
   KDL::TreeJointNameParser jnt_name_parser_;
 
@@ -64,13 +65,7 @@ private:
   std::shared_ptr<RotationController> rot_controller_;
 
   // RosParams
-  std::string drone_name_;
-  std::string description_;
-  int num_rotors_;
-  std::vector<std::string> required_joints_;  // プロペラ以外の可動関節の名前のリスト
   double gravity_;
-  double battery_voltage_;
-  RotorConfigs rotor_configs_;
   VelocityControllerDynamicParams dynamic_params_vel_;
   RotationControllerDynamicParams dynamic_params_rot_;
 

@@ -19,8 +19,9 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT() : super(), cmd_received_(false), dsho
   }
 
   getRosParams();
+  drone_.loadFromParam(ns_);
 
-  for (const auto& rotor_config : rotor_configs_)
+  for (const auto& rotor_config : drone_.rotorConfigs())
   {
     dshot_.initialize(rotor_config.pin);
   }
@@ -43,10 +44,10 @@ void MotorsHandler_DSHOT::run()
       continue;
     }
 
-    for (int i = 0; i < num_rotors_; ++i)
+    for (int i = 0; i < drone_.numRotors(); ++i)
     {
-      const RotorConfig& rotor_config = rotor_configs_[i];
-      const double max_speed = rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
+      const RotorConfig& rotor_config = drone_.rotorConfigs()[i];
+      const double max_speed = rpmToRadPerSec(drone_.maxRotSpeed(i));
 
       // 指令速度を決定
       double cmd_speed = cmd_speeds_[i];
@@ -76,11 +77,6 @@ void MotorsHandler_DSHOT::run()
 
 void MotorsHandler_DSHOT::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
-  dh_ros::getParam("/battery_voltage", battery_voltage_);
-  dh_ros::getParam("/num_rotors", num_rotors_);
-  getRotorConfigs(rotor_configs_);
-
   dh_ros::getParam("~update_rate", update_rate_, kDefaultUpdateRate);
 }
 
@@ -90,8 +86,8 @@ void MotorsHandler_DSHOT::registerPublishers()
 
 void MotorsHandler_DSHOT::registerSubscribers()
 {
-  rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name_ + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+  rotor_vels_sub_ =
+    nh_.subscribe("command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
 }
 
 void MotorsHandler_DSHOT::createTimers()
@@ -102,10 +98,11 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
 {
   const auto& speeds = rotor_speeds.speeds;
 
-  if (speeds.size() != num_rotors_)
+  if (speeds.size() != drone_.numRotors())
   {
     dh_ros::rosErrorThrottle(
-      INFO_PERIOD, "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(num_rotors_));
+      INFO_PERIOD,
+      "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(drone_.numRotors()));
     return;
   }
 

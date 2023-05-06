@@ -6,7 +6,7 @@
 
 #include <dh_ros_tools/node.hpp>
 
-#include <tobas_tools/rotor_property.hpp>
+#include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 
 class MotorsHandler_DSHOT : public dh_ros::BaseNode
@@ -20,15 +20,13 @@ public:
   void run();
 
 private:
+  Drone drone_;
+
   bool cmd_received_;
   std::vector<double> cmd_speeds_;
   DSHOT dshot_;
 
   // rosparams
-  std::string drone_name_;
-  double battery_voltage_;
-  int num_rotors_;
-  RotorConfigs rotor_configs_;
   double update_rate_;
 
   // PubSub

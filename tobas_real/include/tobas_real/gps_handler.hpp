@@ -26,9 +26,6 @@ private:
   VelMsg vel_msg_;
   bool cov_received_;
 
-  // roaparam
-  std::string drone_name_;
-
   // Publisher
   ros::Publisher gps_pub_;
   ros::Publisher vel_pub_;

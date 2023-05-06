@@ -33,13 +33,12 @@ GpsHandler::GpsHandler() : super(), cov_received_(false)
 
 void GpsHandler::getRosParams()
 {
-  dh_ros::getParam("/drone_name", drone_name_);
 }
 
 void GpsHandler::registerPublishers()
 {
-  gps_pub_ = nh_.advertise<GpsMsg>("/" + drone_name_ + "/gps", 1);
-  vel_pub_ = nh_.advertise<VelMsg>("/" + drone_name_ + "/ground_speed", 1);
+  gps_pub_ = nh_.advertise<GpsMsg>("gps", 1);
+  vel_pub_ = nh_.advertise<VelMsg>("ground_speed", 1);
 }
 
 void GpsHandler::registerSubscribers()

@@ -35,7 +35,6 @@ private:
   std::shared_ptr<PositionController> pos_controller_;
 
   // rosparams
-  std::string drone_name_;
   PositionControllerDynamicParams dynamic_params_;
 
   // PubSub

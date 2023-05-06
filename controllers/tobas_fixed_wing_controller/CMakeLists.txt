@@ -10,42 +10,40 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_tools
+	tobas_msgs
+	dh_kdl
+	dh_linear_control
+	dh_ros_tools
+	dh_eigen_tools
+	dh_std_tools
+	kdl_parser
+	kdl_conversions
+	eigen_conversions
+	orocos_kdl
 	roscpp
-# 	message_generation
-# 	actionlib_msgs
+	dynamic_reconfigure
 )
 
-# catkin_python_setup()
-
-# file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
-# add_message_files(FILES ${MSG_FILES})
-# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
-# add_service_files(FILES ${SRV_FILES})
-# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
-# add_action_files(FILES ${ACTION_FILES})
-
-# generate_messages(DEPENDENCIES
-# 	actionlib_msgs
-# )
+generate_dynamic_reconfigure_options(cfg/Controller.cfg) # Dynamic Reconfigureの設定
 
 catkin_package(
-# 	INCLUDE_DIRS include
-# 	LIBRARIES ${PROJECT_NAME}
+	INCLUDE_DIRS include
+	LIBRARIES ${PROJECT_NAME}
 )
 
 # include_directories(${catkin_INCLUDE_DIRS})
 
-# ライブラリを作成
+# # ライブラリを作成
 # file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
 # add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} /usr/local/lib/libquadprog.a)
 
-# ノードの実行ファイルを作成
+# # ノードの実行ファイルを作成
 # file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)
 # foreach(FILE IN LISTS NODE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-# 	add_executable(${NODE_NAME} ${FILE})
-# 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+# get_filename_component(NODE_NAME ${FILE} NAME_WE)
+# add_executable(${NODE_NAME} ${FILE})
+# add_dependencies(${NODE_NAME} ${PROJECT_NAME}_gencfg) # Dynamic Reconfigureへの依存
+# target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 # endforeach()

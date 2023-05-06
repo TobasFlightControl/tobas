@@ -13,6 +13,8 @@
 	<depend>geometry_msgs</depend>
 
 	<depend>dh_std_tools</depend>
+
+	<depend>tobas_tools</depend>
 	<depend>tobas_msgs</depend>
 
 </package>
