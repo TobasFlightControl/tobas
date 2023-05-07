@@ -83,9 +83,9 @@ def add_depth_camera_model(
     ET.SubElement(plugin, "cameraName").text = "depth_camera"
 
     ET.SubElement(plugin, "irImageTopic").text = "ir/image_raw"
-    ET.SubElement(plugin, "irImageInfo").text = "ir/camera_info"
+    ET.SubElement(plugin, "irInfoTopic").text = "ir/camera_info"
     ET.SubElement(plugin, "depthImageTopic").text = "depth/image_raw"
-    ET.SubElement(plugin, "depthImageInfo").text = "depth/camera_info"
+    ET.SubElement(plugin, "depthInfoTopic").text = "depth/camera_info"
 
     ET.SubElement(plugin, "distortionK1").text = "0.0"
     ET.SubElement(plugin, "distortionK2").text = "0.0"
@@ -95,6 +95,8 @@ def add_depth_camera_model(
 
     ET.SubElement(plugin, "robotNamespace").text = ns
     ET.SubElement(plugin, "frameName").text = optical_link
+    ET.SubElement(plugin, "depthNoiseModel").text = noise_model
+    ET.SubElement(plugin, "depthNoiseMinDist").text = f'{near}'
+    ET.SubElement(plugin, "depthNoiseMaxDist").text = f'{far}'
     ET.SubElement(plugin, "horizontalFOV").text = f'{fov}'
     ET.SubElement(plugin, "baseline").text = f'{baseline}'
-    ET.SubElement(plugin, "depthNoiseModel").text = noise_model

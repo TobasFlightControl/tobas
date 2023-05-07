@@ -13,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas_real
+{
 BarometerHandler::BarometerHandler() : super()
 {
   getRosParams();
@@ -58,3 +60,4 @@ void BarometerHandler::mainLoopTimerCb(const ros::TimerEvent&)
   bar_msg_.fluid_pressure = barometer_.getPressure() * 100;  // mbar -> Pa
   bar_pub_.publish(bar_msg_);
 }
+}  // namespace tobas_real

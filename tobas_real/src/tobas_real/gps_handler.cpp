@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas_real
+{
 GpsHandler::GpsHandler() : super(), cov_received_(false)
 {
   if (!gps_.testConnection())
@@ -91,7 +93,7 @@ void GpsHandler::mainLoopTimerCb(const ros::TimerEvent&)
       return;
     }
 
-    ros::Time now = ros::Time::now();
+    const ros::Time now = ros::Time::now();
 
     // Update GPS position message
     gps_msg_.header.stamp = now;
@@ -110,3 +112,4 @@ void GpsHandler::mainLoopTimerCb(const ros::TimerEvent&)
     vel_pub_.publish(vel_msg_);
   }
 }
+}  // namespace tobas_real

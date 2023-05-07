@@ -5,12 +5,13 @@
 #include <dh_ros_tools/rate.hpp>
 
 #include "../../include/tobas_real/motors_handler_dshot.hpp"
-
-#define INFO_PERIOD 1.
+#include "../../include/tobas_real/constants.hpp"
 
 using namespace std;
 using namespace dh_std;
 
+namespace tobas_real
+{
 MotorsHandler_DSHOT::MotorsHandler_DSHOT() : super(), cmd_received_(false), dshot_(DSHOT::DSHOT_600)
 {
   if (getuid())
@@ -46,7 +47,7 @@ void MotorsHandler_DSHOT::run()
 
     for (int i = 0; i < drone_.numRotors(); ++i)
     {
-      const RotorConfig& rotor_config = drone_.rotorConfigs()[i];
+      const auto& rotor_config = drone_.rotorConfigs()[i];
       const double max_speed = rpmToRadPerSec(drone_.maxRotSpeed(i));
 
       // 指令速度を決定
@@ -54,19 +55,19 @@ void MotorsHandler_DSHOT::run()
       if (cmd_speed < 0.)
       {
         dh_ros::rosErrorThrottle(
-          INFO_PERIOD, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
+          infoPeriod, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
         cmd_speed = 0.;
       }
       else if (cmd_speed > max_speed)
       {
         dh_ros::rosErrorThrottle(
-          INFO_PERIOD, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
-                         + to_string(max_speed));
+          infoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
+                        + to_string(max_speed));
         cmd_speed = max_speed;
       }
 
       // スロットルに変換して指令
-      uint32_t throttle = remap<double>(cmd_speed, 0., max_speed, 48, (1 << 11) - 1);
+      const uint32_t throttle = remap<double>(cmd_speed, 0., max_speed, 48, (1 << 11) - 1);
       dshot_.setSignal(rotor_config.pin, throttle);
     }
 
@@ -98,12 +99,27 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
 {
   const auto& speeds = rotor_speeds.speeds;
 
+  // Check array size
   if (speeds.size() != drone_.numRotors())
   {
     dh_ros::rosErrorThrottle(
-      INFO_PERIOD,
+      infoPeriod,
       "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(drone_.numRotors()));
     return;
+  }
+
+  // Check delay
+  const double delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
+  if (delay > checkDelayThreshold)
+  {
+    dh_ros::rosWarnThrottle(
+      infoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
+                    + " seconds, which is too large.");
+  }
+  else if (delay < 0.)
+  {
+    dh_ros::rosErrorThrottle(
+      infoPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
   if (!cmd_received_)
@@ -117,3 +133,4 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
 void MotorsHandler_DSHOT::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
 }
+}  // namespace tobas_real

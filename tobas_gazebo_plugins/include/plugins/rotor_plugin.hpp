@@ -23,6 +23,7 @@ static const std::string kPluginName = "motor_model_plugin";
 // Default values
 static const std::string kDefaultSpeedPubTopic = "motor_speed";
 static const std::string kDefaultCmdSubTopic = "command/motor_speed";
+static constexpr double kDefaultCheckDelayThreshold = 0.02;  // [s]
 
 class GazeboRotorPlugin : public ModelPlugin
 {
@@ -49,15 +50,16 @@ private:
   std::string motor_speed_pub_topic_;
   std::string cmd_sub_topic_;
   std::string wind_speed_sub_topic_;
-  double max_rot_vel_;
+  double max_rot_speed_;
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
   double time_const_up_;
   double time_const_down_;
   double rotor_speed_slowdown_sim_;
+  double check_delay_threshold_;
 
-  double ref_motor_input_;
+  double ref_rot_speed_;
   double prev_sim_time_;
   std_msgs::Float64 motor_speed_msg_;
   ignition::math::Vector3d wind_speed_W_;

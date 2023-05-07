@@ -111,16 +111,16 @@ void ErrorStateKalmanFilterRos::initialize()
     sqr(0.00124), sqr(0.276), sqr(0.001 * 0.00124), sqr(0.001 * 0.276),
     ErrorStateKalmanFilter::DelayType::APPLY_UPDATE_TO_NEW, 100);  // TODO: 他の手法も試してみる
 
-  t_last_ = ros::Time::now();
+  t_last_ = imu_.header.stamp;
 }
 
 void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 {
-  state_.header.stamp = ros::Time::now();
+  state_.header.stamp = imu_.header.stamp;
 
   tf::vectorEigenToKDL(eskf_.getPosition3D(), state_.pose.pos);
 
-  auto q = eskf_.getQuaternion();
+  const auto q = eskf_.getQuaternion();
   auto& rpy = state_.pose.euler;
   quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
 
@@ -129,6 +129,12 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg()
   // 角速度だけはローカル座標系
   Vector3d w = w_m_ - eskf_.getGyroBias();
   tf::vectorEigenToKDL(w, state_.twist.rot);
+}
+
+lTime ErrorStateKalmanFilterRos::getNow()
+{
+  const auto& now = imu_.header.stamp;
+  return lTime(now.sec, now.nsec);
 }
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
@@ -148,10 +154,10 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
     return;
   }
 
-  ros::Duration diff = imu.header.stamp - t_last_;
+  const ros::Duration diff = imu.header.stamp - t_last_;
   t_last_ = imu.header.stamp;
   ROS_ASSERT(diff.toSec() > 0.);
-  lTime stamp(imu.header.stamp.sec, imu.header.stamp.nsec);
+  const lTime stamp(imu.header.stamp.sec, imu.header.stamp.nsec);
 
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(imu.angular_velocity, w_m_);
@@ -286,10 +292,4 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent& event)
   {
     dh_ros::rosWarn("GPS velocity data is not received yet.");
   }
-}
-
-lTime ErrorStateKalmanFilterRos::getNow()
-{
-  ros::Time now = ros::Time::now();
-  return lTime(now.sec, now.nsec);
 }

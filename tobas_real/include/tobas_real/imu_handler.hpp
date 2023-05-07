@@ -8,6 +8,8 @@
 
 #include <Common/InertialSensor.h>
 
+namespace tobas_real
+{
 class ImuHandler : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
@@ -48,3 +50,4 @@ private:
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void mainLoopTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_real

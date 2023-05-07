@@ -10,7 +10,7 @@ using namespace ignition::math;
 namespace gazebo
 {
 GazeboRotorPlugin::GazeboRotorPlugin()
-  : super(), ref_motor_input_(0.), prev_sim_time_(0.), wind_speed_W_(0., 0., 0.)
+  : super(), ref_rot_speed_(0.), prev_sim_time_(0.), wind_speed_W_(0., 0., 0.)
 {
 }
 
@@ -37,7 +37,7 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   parent_link_ = link_->GetParentJointsLinks()[0];
 
   // Initialize the first order filter
-  rotor_speed_filter_.initialize(time_const_up_, time_const_down_, ref_motor_input_);
+  rotor_speed_filter_.initialize(time_const_up_, time_const_down_, ref_rot_speed_);
 
   registerPubSub();
 
@@ -74,10 +74,10 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  getSdfParam(sdf, "maxRotVelocity", max_rot_vel_);
-  if (max_rot_vel_ < 0.)
+  getSdfParam(sdf, "maxRotVelocity", max_rot_speed_);
+  if (max_rot_speed_ < 0.)
   {
-    gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_vel_ << " [rad/s]");
+    gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_speed_ << " [rad/s]");
   }
 
   getSdfParam(sdf, "motorConstant", motor_const_);
@@ -122,6 +122,14 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
           << ". The default value " << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
     rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
   }
+
+  getSdfParam(sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold);
+  if (check_delay_threshold_ <= 0.)
+  {
+    gzerr << kPluginName << ": Invalid checkDelayThreshold: " << check_delay_threshold_
+          << ". The default value " << kDefaultCheckDelayThreshold << " is used." << endl;
+    check_delay_threshold_ = kDefaultCheckDelayThreshold;
+  }
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -146,8 +154,8 @@ void GazeboRotorPlugin::registerPubSub()
 
 void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 {
-  double rot_vel_sim = joint_->GetVelocity(0);
-  if (abs(rot_vel_sim) * dt > M_PI)
+  double rot_speed_sim = joint_->GetVelocity(0);
+  if (abs(rot_speed_sim) * dt > M_PI)
   {
     gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
           << "] might occur. Lower simulation time step or raise rotorVelocitySlowdownSim." << endl;
@@ -159,7 +167,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   // TODO: II-B. Model of the complete quadrotor
 
   // (1) first term: Thrust Force
-  double rot_vel_real = rot_vel_sim * rotor_speed_slowdown_sim_;
+  double rot_vel_real = rot_speed_sim * rotor_speed_slowdown_sim_;
   int rot_vel_sgn = dh_std::sign(rot_vel_real);
   double thrust = direction_ * rot_vel_sgn * motor_const_ * dh_std::sqr(rot_vel_real);  // [N]
 
@@ -187,12 +195,13 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   parent_link_->AddRelativeTorque(drag_torque_parent_frame);
 
   // Apply the filter on the motor velocity
-  double ref_motor_rot_vel = rotor_speed_filter_.updateFilter(ref_motor_input_, dt);
-  joint_->SetVelocity(0, direction_ * ref_motor_rot_vel / rotor_speed_slowdown_sim_);
+  double ref_rot_speed = rotor_speed_filter_.updateFilter(ref_rot_speed_, dt);
+  joint_->SetVelocity(0, direction_ * ref_rot_speed / rotor_speed_slowdown_sim_);
 }
 
 void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 {
+  // Check index
   if (motor_number_ >= cmd.speeds.size())
   {
     gzerr << kPluginName << ": You tried to access index " << motor_number_
@@ -200,7 +209,21 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
     return;
   }
 
-  ref_motor_input_ = min(cmd.speeds[motor_number_], max_rot_vel_);
+  // Check delay
+  const double delay = prev_sim_time_ - cmd.header.stamp.toSec();
+  if (delay > check_delay_threshold_)
+  {
+    gzwarn << kPluginName << ": The delay from sensors to the motor command is " << delay
+           << " seconds, which is too large." << endl;
+  }
+  else if (delay < 0.)
+  {
+    gzerr << kPluginName << ": The timestamp of the motor command precedes the current time."
+          << endl;
+  }
+
+  // Update reference rotation speed
+  ref_rot_speed_ = min(cmd.speeds[motor_number_], max_rot_speed_);
 }
 
 void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)

@@ -78,6 +78,7 @@ private:
   void initialize();
   void setZeroPositions();
   void updatePoseVelMsg();
+  lTime getNow();
 
   void imuCb(const ImuMsg& msg);
   void magCb(const MagMsg& msg);
@@ -86,6 +87,4 @@ private:
   void velCb(const VelMsg& msg);
 
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
-
-  static lTime getNow();
 };

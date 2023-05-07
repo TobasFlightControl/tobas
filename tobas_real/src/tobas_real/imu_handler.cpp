@@ -17,6 +17,8 @@
 
 using namespace std;
 
+namespace tobas_real
+{
 ImuHandler::ImuHandler() : super()
 {
   getRosParams();
@@ -90,7 +92,7 @@ void ImuHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
 
 void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
-  ros::Time now = ros::Time::now();
+  const ros::Time now = ros::Time::now();
   imu_msg_.header.stamp = now;
   mag_msg_.header.stamp = now;
 
@@ -117,3 +119,4 @@ void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)
   imu_pub_.publish(imu_msg_);
   mag_pub_.publish(mag_msg_);
 }
+}  // namespace tobas_real

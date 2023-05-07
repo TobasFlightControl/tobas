@@ -3,6 +3,6 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "gps_handler");
-  GpsHandler node;
+  tobas_real::GpsHandler node;
   ros::spin();
 }

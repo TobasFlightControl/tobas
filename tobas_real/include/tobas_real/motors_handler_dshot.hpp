@@ -9,6 +9,8 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 
+namespace tobas_real
+{
 class MotorsHandler_DSHOT : public dh_ros::BaseNode
 {
   const double kDefaultUpdateRate = 1000.;
@@ -40,3 +42,4 @@ private:
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds);
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
 };
+}  // namespace tobas_real

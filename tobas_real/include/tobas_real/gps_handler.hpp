@@ -9,6 +9,8 @@
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 
+namespace tobas_real
+{
 class GpsHandler : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
@@ -40,3 +42,4 @@ private:
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void mainLoopTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_real

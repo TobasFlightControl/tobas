@@ -31,13 +31,11 @@ OrientationEstimatorRos::OrientationEstimatorRos() : super(), is_initialized_(fa
 
 void OrientationEstimatorRos::getRosParams()
 {
-  // 共通パラメータ
   dh_ros::getParam("/gravity", gravity_, DEFAULT_GRAVITY);
   dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
   dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
   dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
 
-  // ノード固有のパラメータ
   dh_ros::getParam("~gain_acc", gain_acc_, DEFAULT_GAIN_ACC);
   dh_ros::getParam("~gain_mag", gain_mag_, DEFAULT_GAIN_MAG);
   dh_ros::getParam("~bias_alpha", bias_alpha_, DEFAULT_BIAS_ALPHA);
@@ -107,7 +105,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   }
 
   // Calculate dt
-  double dt = (time - time_prev_).toSec();
+  const double dt = (time - time_prev_).toSec();
   time_prev_ = time;
 
   // Update the filter

@@ -149,7 +149,8 @@ void VelocityControllerRos::runOnce()
   // 姿勢制御器
   rot_controller_->update(cur_bs_.pose.euler, cur_bs_.twist.rot, q_, U_, tar_rpy_, u_opt_);
 
-  // 各モータの回転速度を計算
+  // 各モータの回転速度メッセージを更新
+  rotor_speeds_.header.stamp = cur_bs_.header.stamp;
   ctrlInputToRotorSpeeds(u_opt_, rotor_speeds_);
 
   // モータ速度を発行

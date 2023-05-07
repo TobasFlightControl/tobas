@@ -4,12 +4,13 @@
 #include <dh_ros_tools/exception.hpp>
 
 #include "../../include/tobas_real/motors_handler_pwm.hpp"
-
-#define INFO_PERIOD 1.
+#include "../../include/tobas_real/constants.hpp"
 
 using namespace std;
 using namespace dh_std;
 
+namespace tobas_real
+{
 MotorsHandler_PWM::MotorsHandler_PWM() : super()
 {
   if (getuid())
@@ -76,12 +77,27 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
 {
   const auto& cmd_speeds = rotor_speeds.speeds;
 
+  // Check array size
   if (cmd_speeds.size() != drone_.numRotors())
   {
     dh_ros::rosErrorThrottle(
-      INFO_PERIOD,
+      infoPeriod,
       "Size mismatch: " + to_string(cmd_speeds.size()) + " != " + to_string(drone_.numRotors()));
     return;
+  }
+
+  // Check delay
+  const double delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
+  if (delay > checkDelayThreshold)
+  {
+    dh_ros::rosWarnThrottle(
+      infoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
+                    + " seconds, which is too large.");
+  }
+  else if (delay < 0.)
+  {
+    dh_ros::rosErrorThrottle(
+      infoPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
   for (int i = 0; i < drone_.numRotors(); ++i)
@@ -94,21 +110,21 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     if (cmd_speed < 0.)
     {
       dh_ros::rosErrorThrottle(
-        INFO_PERIOD, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
+        infoPeriod, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
       cmd_speed = 0.;
     }
     else if (cmd_speed > max_speed)
     {
       dh_ros::rosErrorThrottle(
-        INFO_PERIOD, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
-                       + to_string(max_speed));
+        infoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
+                      + to_string(max_speed));
       cmd_speed = max_speed;
     }
 
     // パルス幅に変換して指令
     const auto& pin = rotor_config.pin;
     const auto& pwm = rotor_config.pwm;
-    double period = remap(cmd_speed, 0., max_speed, pwm.min_pulse_width, pwm.max_pulse_width);
+    const double period = remap(cmd_speed, 0., max_speed, pwm.min_pulse_width, pwm.max_pulse_width);
     if (!pwm_.set_duty_cycle(getChannel(pin), period))
     {
       throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");
@@ -119,3 +135,4 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
 void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
 }
+}  // namespace tobas_real

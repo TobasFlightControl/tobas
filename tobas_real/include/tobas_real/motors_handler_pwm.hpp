@@ -9,6 +9,8 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 
+namespace tobas_real
+{
 class MotorsHandler_PWM : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
@@ -33,3 +35,4 @@ private:
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
 };
+}  // namespace tobas_real

@@ -193,7 +193,7 @@ void StateEstimator::initialize()
     grav_var_exp_                                              // init gravity variance
   );
 
-  t_last_ = ros::Time::now();
+  t_last_ = imu.header.stamp;
 }
 
 void StateEstimator::setZeroPositions()
@@ -223,8 +223,10 @@ void StateEstimator::setZeroPositions()
 
 void StateEstimator::updatePoseVelMsg()
 {
+  const auto& imu = filtered_imu_buf_.getLatest();
+
   // 時刻
-  state_.header.stamp = ros::Time::now();
+  state_.header.stamp = imu.header.stamp;
 
   // 位置
   tf::vectorEigenToKDL(cart_filter_.getPosition3D(), state_.pose.pos);
@@ -250,7 +252,6 @@ void StateEstimator::updatePoseVelMsg()
   tf::vectorEigenToKDL(cart_filter_.getVelocity(), state_.twist.vel);
 
   // 回転速度だけはローカル座標系
-  const auto& imu = filtered_imu_buf_.getLatest();
   tf::vectorMsgToKDL(imu.angular_velocity, state_.twist.rot);
 }
 
@@ -270,11 +271,9 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
     return;
   }
 
-  // TODO: delayを考慮する
-  ros::Time now = ros::Time::now();
-  double dt = (now - t_last_).toSec();
+  const double dt = (imu.header.stamp - t_last_).toSec();
   ROS_ASSERT(dt >= 0.);
-  t_last_ = now;
+  t_last_ = imu.header.stamp;
 
   tf::quaternionMsgToEigen(imu.orientation, quat_);
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);

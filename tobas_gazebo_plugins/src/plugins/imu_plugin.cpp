@@ -69,7 +69,7 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
   // TODO: 範囲チェック
   getSdfParam(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
   getSdfParam(sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity);
-  getSdfParam(sdf, "gyroscopeBiasRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk);
+  getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk);
   getSdfParam(sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime);
   getSdfParam(
     sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma);
