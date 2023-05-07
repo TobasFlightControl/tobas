@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Core>
+#include <kdl/frames.hpp>
 
 namespace tobas_multirotor_controller
 {
@@ -15,8 +15,7 @@ class VelocityController
 public:
   explicit VelocityController(const VelocityControllerDynamicParams& params);
 
-  void
-  update(const Eigen::Vector3d& cur_vel, const Eigen::Vector3d& tar_vel, Eigen::Vector3d& tar_acc);
+  void update(const KDL::Vector& cur_vel, const KDL::Vector& tar_vel, KDL::Vector& tar_acc);
 
   void reconfigure(const VelocityControllerDynamicParams& params);
 

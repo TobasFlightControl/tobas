@@ -8,8 +8,8 @@
 
 #include <dh_ros_tools/node.hpp>
 
-#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovariance.h>
+#include <tobas_msgs/BaseState.h>
 
 #include "./eskf.hpp"
 
@@ -21,8 +21,8 @@ class ErrorStateKalmanFilterRos : public dh_ros::BaseNode
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
-  using StateMsg = tobas_msgs::PoseVelStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
+  using StateMsg = tobas_msgs::BaseState;
 
 public:
   explicit ErrorStateKalmanFilterRos();

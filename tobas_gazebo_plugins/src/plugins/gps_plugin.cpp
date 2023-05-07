@@ -1,8 +1,10 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/geometry.hpp>
 
 #include "../../include/plugins/gps_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -55,15 +57,15 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   // Fill the static parts of the ground speed message
   vel_msg_.header.frame_id = link_name_;
 
-  vel_msg_.vel.covariance[0] = dh_std::sqr(hor_vel_std_dev_);
-  vel_msg_.vel.covariance[1] = 0.;
-  vel_msg_.vel.covariance[2] = 0.;
-  vel_msg_.vel.covariance[3] = 0.;
-  vel_msg_.vel.covariance[4] = dh_std::sqr(hor_vel_std_dev_);
-  vel_msg_.vel.covariance[5] = 0.;
-  vel_msg_.vel.covariance[6] = 0.;
-  vel_msg_.vel.covariance[7] = 0.;
-  vel_msg_.vel.covariance[8] = dh_std::sqr(ver_vel_std_dev_);
+  vel_msg_.covariance[0] = dh_std::sqr(hor_vel_std_dev_);
+  vel_msg_.covariance[1] = 0.;
+  vel_msg_.covariance[2] = 0.;
+  vel_msg_.covariance[3] = 0.;
+  vel_msg_.covariance[4] = dh_std::sqr(hor_vel_std_dev_);
+  vel_msg_.covariance[5] = 0.;
+  vel_msg_.covariance[6] = 0.;
+  vel_msg_.covariance[7] = 0.;
+  vel_msg_.covariance[8] = dh_std::sqr(ver_vel_std_dev_);
 
   // Advertise
   pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + gps_topic_, 1);
@@ -137,7 +139,7 @@ void GazeboGpsPlugin::updateVelocity()
 
   // Fill the ground speed message.
   timeGazeboToRos(cur_time, vel_msg_.header.stamp);
-  linvelGazeboToRos(vel, vel_msg_.vel.vel);
+  vectorGazeboToKDL(vel, vel_msg_.vel);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboGpsPlugin);

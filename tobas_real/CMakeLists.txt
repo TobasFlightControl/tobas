@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 	dh_std_tools
 	tobas_msgs
 	navio
+	kdl_msgs
 	roscpp
 )
 find_package(Eigen3 REQUIRED)

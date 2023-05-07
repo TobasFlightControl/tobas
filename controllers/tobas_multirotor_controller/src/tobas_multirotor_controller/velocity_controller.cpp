@@ -2,7 +2,7 @@
 
 #include "../../include/tobas_multirotor_controller/velocity_controller.hpp"
 
-using namespace Eigen;
+using namespace KDL;
 
 namespace tobas_multirotor_controller
 {
@@ -11,7 +11,7 @@ VelocityController::VelocityController(const VelocityControllerDynamicParams& pa
   reconfigure(params);
 }
 
-void VelocityController::update(const Vector3d& cur_vel, const Vector3d& tar_vel, Vector3d& tar_acc)
+void VelocityController::update(const Vector& cur_vel, const Vector& tar_vel, Vector& tar_acc)
 {
   tar_acc = kv_ * (tar_vel - cur_vel);
 }

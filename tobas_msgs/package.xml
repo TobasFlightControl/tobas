@@ -10,6 +10,8 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>std_msgs</depend>
-	<depend>geometry_msgs</depend>
+	<depend>kdl_msgs</depend>
+
+	<depend>dh_kdl</depend>
 
 </package>

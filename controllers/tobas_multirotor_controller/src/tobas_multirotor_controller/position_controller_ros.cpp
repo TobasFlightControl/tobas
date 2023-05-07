@@ -17,7 +17,7 @@ PositionControllerRos::PositionControllerRos() : super(), is_initialized_(false)
   getRosParams();
 
   pos_controller_.reset(new PositionController(dynamic_params_));
-  vel_yaw_.frame_id.frame_id = tobas_msgs::FrameId::GLOBAL;
+  vel_yaw_out_.frame_id.frame_id = tobas_msgs::FrameId::GLOBAL;
 
   registerPublishers();
   registerSubscribers();
@@ -53,12 +53,12 @@ void PositionControllerRos::createTimers()
     ros::Duration(checkTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
 }
 
-void PositionControllerRos::initialize(const tobas_msgs::PoseVelStamped& bs)
+void PositionControllerRos::initialize(const tobas_msgs::BaseState& bs)
 {
   // 最初は暴れるのを防ぐために現在の状態を目標状態にする
-  tf::vectorMsgToEigen(bs.pose_vel.pose.position, target_pos_);
-  target_pos_.z() += initialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
-  target_yaw_ = bs.pose_vel.pose.orientation.yaw;
+  pos_yaw_in_.pos = bs.pose.pos;
+  pos_yaw_in_.pos(2) += initialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
+  pos_yaw_in_.yaw = bs.pose.euler.yaw;
 }
 
 void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
@@ -67,7 +67,7 @@ void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
   dynamic_params_.damp_ratio = cfg.damping_ratio;
 }
 
-void PositionControllerRos::baseStateCb(const tobas_msgs::PoseVelStamped& bs)
+void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 {
   if (!is_initialized_)
   {
@@ -78,23 +78,17 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::PoseVelStamped& bs)
     return;
   }
 
-  tf::vectorMsgToEigen(bs.pose_vel.pose.position, cur_pos_);
-
-  // Compute target velocity
-  pos_controller_->update(cur_pos_, target_pos_, target_vel_);
-
-  // Fill VelocityYaw messege
-  tf::vectorEigenToMsg(target_vel_, vel_yaw_.velocity);
-  vel_yaw_.yaw = target_yaw_;
+  // Compute target velocity and yaw angle
+  pos_controller_->update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
+  vel_yaw_out_.yaw = pos_yaw_in_.yaw;  // ヨー角は位置指令をそのまま流す
 
   // Publish VelocityYaw message
-  vel_yaw_pub_.publish(vel_yaw_);
+  vel_yaw_pub_.publish(vel_yaw_out_);
 }
 
 void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw)
 {
-  tf::vectorMsgToEigen(pos_yaw.position, target_pos_);
-  target_yaw_ = pos_yaw.yaw;
+  pos_yaw_in_ = pos_yaw;
 }
 
 void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)

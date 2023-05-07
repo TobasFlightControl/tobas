@@ -9,7 +9,7 @@
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
@@ -23,7 +23,7 @@ class Controller : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
 
-  using StateMsg = tobas_msgs::PoseVelStamped;
+  using StateMsg = tobas_msgs::BaseState;
   using CmdMsg = tobas_msgs::SpeedRollDeltaPitch;
 
   using ConfigType = tobas_fixed_wing_controller::ControllerConfig;
@@ -39,20 +39,21 @@ private:
   ConfigType init_dynamic_config_;  // 動的パラメータの初期値
 
   // 固定値
-  std::vector<uint32_t> rotor_idx_in_use_;  // 使用するロータ (+X) の添字
-  uint32_t num_hor_props_;                  // 推力発生用プロペラの個数
-  uint32_t num_cs_;                         // 制御面の個数
-  uint32_t u_dim_;                          // MPCの制御変数の次元
+  std::vector<uint32_t> hor_prop_idxes_;  // 使用するロータ (+X) の添字
+  uint32_t num_hor_props_;                // 推力発生用プロペラの個数
+  uint32_t num_cs_;                       // 制御面の個数
+  uint32_t u_dim_;                        // MPCの制御変数の次元
 
   bool is_initialized_;
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 
-  // トリム状態
-  VectorXd x_0_;
-  VectorXd u_0_;
+  VectorXd x_;// 状態
+  VectorXd u_;// 制御入力
+  VectorXd x_0_;                        // トリム時の状態
+  VectorXd u_0_;                        // トリム時の制御入力
+  FixdWingDynamics cont_;               // 微小擾乱状態方程式
 
-  FixdWingDynamics cont_;               // 連続時間線形状態方程式
   std::shared_ptr<ctrl::C2D_RK4> c2d_;  // 状態方程式を離散化
   ctrl::LinearDenseMPC mpc_;            // 線形モデル予測制御
 
@@ -78,7 +79,7 @@ private:
   void updateWeight_R(int thrust_rate_weight_exp, int deflection_rate_weight_exp, double dt);
   void updateTrimDynamics(double tar_V);
   void updateCurrentStateVector(const StateMsg& bs);
-  void updateSetStateVector(double tar_roll, double tar_pitch);
+  void updateSetStateVector(double tar_roll, double tar_delta_pitch);
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);
   void updateDeflections(const Eigen::VectorXd& deflections);
 

@@ -2,9 +2,12 @@
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 
+#include <tobas_tools/fixed_wing_tools.hpp>
+
 #include "../../include/plugins/fixed_wing_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_eigen.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 #include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 
@@ -193,25 +196,21 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 {
   // 風に対する相対的な機体速度
   const Quaterniond& W_rot_B = link_->WorldPose().Rot();
-  Vector3d W_air_speed_W_B = link_->WorldLinearVel() - wind_speed_W_;
-  Vector3d B_air_speed_W_B = W_rot_B.RotateVectorReverse(W_air_speed_W_B);
+  Vector3d linvel_W = link_->WorldLinearVel() - wind_speed_W_;
+  Vector3d linvel_B = W_rot_B.RotateVectorReverse(linvel_W);
 
   // NWU -> NED
-  NWU2NED(B_air_speed_W_B);
+  NWU2NED(linvel_B);
 
   // 風速
-  const double& u = B_air_speed_W_B.X();
-  const double& v = B_air_speed_W_B.Y();
-  const double& w = B_air_speed_W_B.Z();
-  double V = B_air_speed_W_B.Length();
-  if (u < kMinAirSpeedThresh)  // 風速が閾値より小さければ空気力の計算は行わない
-  {
-    return;
-  }
+  const double& u = linvel_B.X();
+  const double& v = linvel_B.Y();
+  const double& w = linvel_B.Z();
+  double V = linvel_B.Length();
 
   // 迎角と横滑り角
-  double alpha = atan(w / u);  // 迎角 [rad]
-  double beta = asin(v / V);   // 横滑り角 [rad]
+  double alpha = angleOfAttack(u, v, w);   // 迎角 [rad]
+  double beta = angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
 
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha))
@@ -441,7 +440,7 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
 
 void GazeboFixedWingPlugin::windSpeedCb(const WindMsg& wind)
 {
-  vectorRosToGazebo(wind.velocity, wind_speed_W_);
+  vectorKDLToGazebo(wind.vel, wind_speed_W_);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboFixedWingPlugin);

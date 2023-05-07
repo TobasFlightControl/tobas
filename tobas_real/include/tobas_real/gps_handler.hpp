@@ -7,14 +7,14 @@
 
 #include <dh_ros_tools/node.hpp>
 
-#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovariance.h>
 
 class GpsHandler : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
 
   using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
   explicit GpsHandler();

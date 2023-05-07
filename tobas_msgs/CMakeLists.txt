@@ -10,10 +10,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
-	geometry_msgs
+	dh_kdl
+	kdl_msgs
 	std_msgs
-	message_generation
 	actionlib_msgs
+	message_generation
 )
 
 # catkin_python_setup()
@@ -26,17 +27,17 @@ add_message_files(FILES ${MSG_FILES})
 # add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
-	geometry_msgs
+	kdl_msgs
 	std_msgs
 	actionlib_msgs
 )
 
 catkin_package(
-# 	INCLUDE_DIRS include
+	INCLUDE_DIRS include
 # 	LIBRARIES ${PROJECT_NAME}
 )
 
-# include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS})
 
 # ライブラリを作成
 # file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)

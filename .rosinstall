@@ -5,6 +5,12 @@
 }
 
 - git: {
+  local-name: kdl_msgs,
+  uri: https://github.com/orocos/kdl_msgs.git,
+  version: master,
+}
+
+- git: {
   local-name: Navio2,
   uri: git@github.com:Masa0u0/Navio2.git,
   version: master,

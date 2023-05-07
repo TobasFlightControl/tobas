@@ -1,2 +1,2 @@
-geometry_msgs/Vector3 position  # [m]
-Euler orientation               # [rad]
+kdl_msgs/Vector pos  # [m]
+Euler euler          # [rad]

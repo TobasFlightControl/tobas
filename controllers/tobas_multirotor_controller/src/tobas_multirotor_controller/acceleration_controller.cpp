@@ -6,7 +6,6 @@
 
 using namespace std;
 using namespace KDL;
-using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
@@ -24,7 +23,7 @@ AccelerationController::AccelerationController(const Drone& drone, const Tree& t
 }
 
 void AccelerationController::update(
-  const Vector3d& tar_acc,
+  const Vector& tar_acc,
   const double& yaw,
   double& U_out,
   double& roll_out,

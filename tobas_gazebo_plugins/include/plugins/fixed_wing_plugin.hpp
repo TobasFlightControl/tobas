@@ -12,14 +12,13 @@
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/WindSpeed.h>
 
+#include "../tobas_gazebo_plugins/constants.hpp"
 #include "../tobas_gazebo_plugins/simple_joint_model.hpp"
 
 namespace gazebo
 {
 // Constants
 static const std::string kPluginName = "fixed_wing_plugin";
-static constexpr double deg2rad = M_PI / 180.;
-static constexpr double kMinAirSpeedThresh = 0.1;
 
 // Default values
 static const std::string kDefaultDeflectionsSubTopic = "deflections";

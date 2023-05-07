@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Core>
+#include <kdl/frames.hpp>
 
 namespace tobas_multirotor_controller
 {
@@ -15,8 +15,7 @@ class PositionController
 public:
   explicit PositionController(const PositionControllerDynamicParams& params);
 
-  void
-  update(const Eigen::Vector3d& cur_pos, const Eigen::Vector3d& tar_pos, Eigen::Vector3d& tar_vel);
+  void update(const KDL::Vector& cur_pos, const KDL::Vector& tar_pos, KDL::Vector& tar_vel);
 
   void reconfigure(const PositionControllerDynamicParams& params);
 

@@ -1,4 +1,7 @@
+#include <kdl/frames.hpp>
+
 #include <dh_std_tools/math.hpp>
+#include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
 #include <tobas_tools/utils.hpp>
@@ -19,8 +22,8 @@ Controller::Controller() : super()
   getRosParams();
   drone_.loadFromParam(ns_);
 
-  rotor_idx_in_use_ = drone_.rotorConfigIdxInAxis(Axis::X_POSITIVE);
-  num_hor_props_ = rotor_idx_in_use_.size();
+  hor_prop_idxes_ = drone_.rotorConfigIdxInAxis(Axis::X_POSITIVE);
+  num_hor_props_ = hor_prop_idxes_.size();
   num_cs_ = drone_.fixedWingConfig().control_surfaces.size();
   u_dim_ = num_hor_props_ + num_cs_;
 
@@ -28,7 +31,10 @@ Controller::Controller() : super()
   rotor_speeds_msg_.speeds.resize(drone_.numRotors());
   deflections_msg_.deflections.resize(num_cs_);
 
-  c2d_.reset(new ctrl::C2D_RK4(dStateSize, u_dim_));
+  x_0_ = VectorXd::Zero(stateSize);
+  u_0_ = VectorXd::Zero(u_dim_);
+
+  c2d_.reset(new ctrl::C2D_RK4(stateSize, u_dim_));
 
   mpc_.decay_time_consts.resize(ctrlSize);
   setCz();
@@ -103,11 +109,11 @@ void Controller::runOnce(const StateMsg& bs)
 
 void Controller::setCz()
 {
-  mpc_.Cz = MatrixXd::Zero(ctrlSize, dStateSize);
+  mpc_.Cz = MatrixXd::Zero(ctrlSize, stateSize);
 
-  mpc_.Cz(ctrlIdx_beta, dStateIdx_beta) = 1;
-  mpc_.Cz(ctrlIdx_phi, dStateIdx_phi) = 1;
-  mpc_.Cz(ctrlIdx_theta, dStateIdx_theta) = 1;
+  mpc_.Cz(ctrlIdx_beta, stateIdx_beta) = 1;
+  mpc_.Cz(ctrlIdx_phi, stateIdx_phi) = 1;
+  mpc_.Cz(ctrlIdx_theta, stateIdx_theta) = 1;
 }
 
 void Controller::updateWeight_Q(double beta_weight, double rot_weight)
@@ -124,7 +130,7 @@ void Controller::updateWeight_S(int thrust_weight_exp, int deflection_weight_exp
 {
   for (int i = 0; i < num_hor_props_; ++i)
   {
-    double thrust_scale = drone_.maxThrust(rotor_idx_in_use_[i]);
+    double thrust_scale = drone_.maxThrust(hor_prop_idxes_[i]);
     mpc_.input_weight(i) = pow(10, thrust_weight_exp) / sqr(thrust_scale) * WEIGHT_SCALER;
   }
 
@@ -141,7 +147,7 @@ void Controller::updateWeight_R(
 {
   for (int i = 0; i < num_hor_props_; ++i)
   {
-    double thrust_rate_scale = drone_.maxThrust(rotor_idx_in_use_[i]) * dt;
+    double thrust_rate_scale = drone_.maxThrust(hor_prop_idxes_[i]) * dt;
     mpc_.input_rate_weight(i) =
       pow(10, thrust_rate_weight_exp) / sqr(thrust_rate_scale) * WEIGHT_SCALER;
   }
@@ -163,19 +169,34 @@ void Controller::updateCurrentStateVector(const StateMsg& bs)
   // TODO
 }
 
-void Controller::updateSetStateVector(double tar_roll, double tar_pitch)
+void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
   // TODO
 }
 
-void Controller::updateRotorSpeeds(const Eigen::VectorXd& thrust)
+void Controller::updateRotorSpeeds(const VectorXd& thrust)
 {
-  // TODO
+  ROS_ASSERT(thrust.rows() == num_hor_props_);
+
+  for (int i = 0; i < thrust.rows(); ++i)
+  {
+    if (thrust(i) < -1.)
+    {
+      dh_ros::rosFatal("Negative thrust force: " + to_string(thrust(i)) + " [N]");
+      // TODO: 防御モードに移行
+    }
+
+    const auto& idx = hor_prop_idxes_[i];
+    rotor_speeds_msg_.speeds[idx] =
+      sqrt(max(thrust(i), 0.) / drone_.rotorConfigs()[idx].motor_constant);
+  }
 }
 
-void Controller::updateDeflections(const Eigen::VectorXd& deflections)
+void Controller::updateDeflections(const VectorXd& deflections)
 {
-  // TODO
+  ROS_ASSERT(deflections.rows() == num_cs_);
+
+  deflections_msg_.deflections = eigen_tools::toStdVector(deflections);
 }
 
 void Controller::baseStateCb(const StateMsg& bs)
@@ -196,7 +217,8 @@ void Controller::baseStateCb(const StateMsg& bs)
 
 void Controller::commandCb(const CmdMsg& cmd)
 {
-  // TODO
+  updateTrimDynamics(cmd.speed);
+  updateSetStateVector(cmd.roll, cmd.delta_pitch);
 }
 
 void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)
@@ -218,7 +240,7 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
   mpc_.decay_time_consts[ctrlIdx_beta] = cfg.rotation_decay;
   mpc_.decay_time_consts[ctrlIdx_phi] = mpc_.decay_time_consts[ctrlIdx_theta] = cfg.rotation_decay;
 
-  mpc_.discrete_dynamics.resize(cfg.prediction_steps, ctrl::LinearDynamics(dStateSize, u_dim_));
+  mpc_.discrete_dynamics.resize(cfg.prediction_steps, ctrl::LinearDynamics(stateSize, u_dim_));
 
   updateWeight_Q(cfg.beta_weight, cfg.rotation_weight);
   updateWeight_S(cfg.thrust_force_weight_exp, cfg.deflection_weight_exp);

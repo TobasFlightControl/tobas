@@ -3,13 +3,12 @@
 #include <kdl_conversions/kdl_msg.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/utils.hpp>
-#include <tobas_tools/conversions/msg_msg.hpp>
-#include <tobas_tools/conversions/eigen_msg.hpp>
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
@@ -126,18 +125,18 @@ void StateEstimator::fillUnusedBuffers()
   if (!use_gps_vel_)
   {
     VelMsg vel;
-    vel.vel.vel.vx = 0.;
-    vel.vel.vel.vy = 0.;
-    vel.vel.vel.vz = 0.;
-    vel.vel.covariance[0] = sqr(default_hor_vel_std);
-    vel.vel.covariance[1] = 0.;
-    vel.vel.covariance[2] = 0.;
-    vel.vel.covariance[3] = 0.;
-    vel.vel.covariance[4] = sqr(default_hor_vel_std);
-    vel.vel.covariance[5] = 0.;
-    vel.vel.covariance[6] = 0.;
-    vel.vel.covariance[7] = 0.;
-    vel.vel.covariance[8] = sqr(default_ver_vel_std);
+    vel.vel.x(0.);
+    vel.vel.y(0.);
+    vel.vel.z(0.);
+    vel.covariance[0] = sqr(default_hor_vel_std);
+    vel.covariance[1] = 0.;
+    vel.covariance[2] = 0.;
+    vel.covariance[3] = 0.;
+    vel.covariance[4] = sqr(default_hor_vel_std);
+    vel.covariance[5] = 0.;
+    vel.covariance[6] = 0.;
+    vel.covariance[7] = 0.;
+    vel.covariance[8] = sqr(default_ver_vel_std);
     gps_vel_buf_.fill(vel);
   }
 }
@@ -188,9 +187,9 @@ void StateEstimator::initialize()
     Vector3d::Zero(),                                          // init vel
     Vector3d::Zero(),                                          // init accel without gravity
     Vector3d(0., 0., -gravity_),                               // init gravity
-    Vector3d(gps_cov[0], gps_cov[4], z_var).asDiagonal(),      // init position covariance
-    Map<Matrix3d>(vel.vel.covariance.data()),                  // init velocity covariance
-    Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc covariance
+    Vector3d(gps_cov[0], gps_cov[4], z_var).asDiagonal(),      // init position cov
+    Map<Matrix3d>(vel.covariance.data()),                      // init velocity cov
+    Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc cov
     grav_var_exp_                                              // init gravity variance
   );
 
@@ -228,11 +227,11 @@ void StateEstimator::updatePoseVelMsg()
   state_.header.stamp = ros::Time::now();
 
   // 位置
-  tf::vectorEigenToMsg(cart_filter_.getPosition3D(), state_.pose_vel.pose.position);
+  tf::vectorEigenToKDL(cart_filter_.getPosition3D(), state_.pose.pos);
 
   // ロール，ピッチ
   const auto& quat = filtered_imu_buf_.getLatest().orientation;
-  auto& rpy = state_.pose_vel.pose.orientation;
+  auto& rpy = state_.pose.euler;
   quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // ヨー
@@ -248,11 +247,11 @@ void StateEstimator::updatePoseVelMsg()
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // 並進速度
-  tf::vectorEigenToMsg(cart_filter_.getVelocity(), state_.pose_vel.twist.linear);
+  tf::vectorEigenToKDL(cart_filter_.getVelocity(), state_.twist.vel);
 
   // 回転速度だけはローカル座標系
   const auto& imu = filtered_imu_buf_.getLatest();
-  state_.pose_vel.twist.angular = imu.angular_velocity;
+  tf::vectorMsgToKDL(imu.angular_velocity, state_.twist.rot);
 }
 
 void StateEstimator::filteredImuCb(const ImuMsg& imu)
@@ -339,9 +338,9 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
     return;
   }
 
-  tf::linVelMsgToEigen(vel.vel.vel, v_m_);
+  tf::vectorKDLToEigen(vel.vel, v_m_);
 
-  boost::array<double, 9> cov_copy = vel.vel.covariance;
+  boost::array<double, 9> cov_copy = vel.covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   cart_filter_.measureVelocity(v_m_, cov);

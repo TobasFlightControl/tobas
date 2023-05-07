@@ -1,2 +1,3 @@
-geometry_msgs/Vector3 position  # [m]
-float64 yaw  # [rad]
+std_msgs/Header header
+kdl_msgs/Vector pos  # [m]
+float64 yaw          # [rad]

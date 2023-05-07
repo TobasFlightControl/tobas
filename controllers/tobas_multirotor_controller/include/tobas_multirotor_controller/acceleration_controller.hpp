@@ -1,7 +1,6 @@
 #pragma once
 
-#include <kdl/tree.hpp>
-#include <Eigen/Core>
+#include <kdl/frames.hpp>
 #include <kdl/tree.hpp>
 
 #include <tobas_tools/drone.hpp>
@@ -14,7 +13,7 @@ public:
   explicit AccelerationController(const Drone& drone, const KDL::Tree& tree, double gravity);
 
   void update(
-    const Eigen::Vector3d& tar_acc,
+    const KDL::Vector& tar_acc,
     const double& yaw,
     double& U_out,
     double& roll_out,

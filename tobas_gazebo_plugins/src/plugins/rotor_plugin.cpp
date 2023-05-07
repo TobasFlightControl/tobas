@@ -2,6 +2,7 @@
 
 #include "../../include/plugins/rotor_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -204,7 +205,7 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 
 void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)
 {
-  vectorRosToGazebo(wind.velocity, wind_speed_W_);
+  vectorKDLToGazebo(wind.vel, wind_speed_W_);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRotorPlugin);

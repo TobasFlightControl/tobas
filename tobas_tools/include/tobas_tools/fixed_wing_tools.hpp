@@ -70,3 +70,19 @@ struct FixedWingConfig
   AerodynamicsCoefficients aerodynamics;
   ControlSurfaces control_surfaces;
 };
+
+/**
+ * @brief 迎角を計算する．
+ *
+ * @param u,v,w 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @return double 迎角 [rad]
+ */
+double angleOfAttack(double u, double v, double w);
+
+/**
+ * @brief 横滑り角を計算する．
+ *
+ * @param u,v,w 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @return double 横滑り角 [rad]
+ */
+double angleOfSideSlip(double u, double v, double w);

@@ -1,4 +1,4 @@
-#include "../../include/tobas_fixed_wing_controller/controller_ros.hpp"
+#include "../../include/tobas_fixed_wing_controller/controller.hpp"
 
 int main(int argc, char** argv)
 {

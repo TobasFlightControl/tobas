@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <kdl/frames.hpp>
 
+#include <dh_kdl/euler.hpp>
 #include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
@@ -32,11 +33,11 @@ public:
     const RotationControllerDynamicParams& params);
 
   void update(
-    const Eigen::Vector3d& cur_rpy,
-    const Eigen::Vector3d& cur_angvel,
+    const KDL::Euler& cur_rpy,
+    const KDL::Vector& cur_angvel_B,
     const KDL::JntArray& q,
     const double& U,
-    const Eigen::Vector3d& tar_rpy,
+    const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
 
   void reconfigure(const RotationControllerDynamicParams& params);
@@ -51,10 +52,9 @@ private:
   ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
   ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御
 
-  void updateDynamics(
-    const Eigen::Vector3d& cur_rpy,
-    const Eigen::Vector3d& tar_rpy,
-    const KDL::JntArray& q);
+  void updateCurrentState(const KDL::Euler& cur_rpy, const KDL::Vector& cur_angvel_B);
+  void updateSetState(const KDL::Euler& tar_rpy);
+  void updateDynamics(const KDL::Euler& cur_rpy, const KDL::Euler& tar_rpy, const KDL::JntArray& q);
   void updateWeight_Q(double rot_weight, double angvel_weight);
   void updateWeight_S(int thrust_weight);
   void updateWeight_R(int thrust_rate_weight, double dt);

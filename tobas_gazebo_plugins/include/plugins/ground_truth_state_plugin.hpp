@@ -7,7 +7,7 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/BaseState.h>
 
 namespace gazebo
 {
@@ -21,7 +21,7 @@ class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
   using super = ModelPlugin;
 
-  using StateMsg = tobas_msgs::PoseVelStamped;
+  using StateMsg = tobas_msgs::BaseState;
 
 public:
   GazeboGroundTruthStatePlugin();

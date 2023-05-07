@@ -5,8 +5,6 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Point.h>
 
-#include <tobas_msgs/LinearVelocity.h>
-
 namespace gazebo
 {
 void timeGazeboToRos(const common::Time& g, ros::Time& r);
@@ -42,21 +40,5 @@ void pointRosToGazebo(const geometry_msgs::Point& r, ignition::math::Vector3<T>&
   g.X() = r.x;
   g.Y() = r.y;
   g.Z() = r.z;
-}
-
-template <typename T>
-void linvelGazeboToRos(const ignition::math::Vector3<T>& g, tobas_msgs::LinearVelocity& r)
-{
-  r.vx = g.X();
-  r.vy = g.Y();
-  r.vz = g.Z();
-}
-
-template <typename T>
-void linvelRosToGazebo(const tobas_msgs::LinearVelocity& r, ignition::math::Vector3<T>& g)
-{
-  g.X() = r.vx;
-  g.Y() = r.vy;
-  g.Z() = r.vz;
 }
 }  // namespace gazebo

@@ -11,8 +11,8 @@
 #include <dh_std_tools/buffer.hpp>
 #include <dh_ros_tools/node.hpp>
 
-#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovariance.h>
+#include <tobas_msgs/BaseState.h>
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
 #include "./cartesian_filter.hpp"
@@ -24,8 +24,8 @@ class StateEstimator : public dh_ros::BaseNode
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
-  using StateMsg = tobas_msgs::PoseVelStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
+  using StateMsg = tobas_msgs::BaseState;
 
   using ConfigType = state_estimation_cascade::StateEstimationCascadeConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;

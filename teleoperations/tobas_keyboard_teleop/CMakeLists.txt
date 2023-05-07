@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_msgs
 	dh_ros_tools
 	dh_std_tools
+	kdl_msgs
 	roscpp
 )
 

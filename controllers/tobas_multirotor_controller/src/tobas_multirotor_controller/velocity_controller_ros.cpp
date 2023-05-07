@@ -8,7 +8,6 @@
 
 #include <tobas_tools/operators.hpp>
 #include <tobas_tools/utils.hpp>
-#include <tobas_tools/conversions/eigen_msg.hpp>
 #include <tobas_msgs/FrameId.h>
 
 #include "../../include/tobas_multirotor_controller/velocity_controller_ros.hpp"
@@ -114,10 +113,9 @@ bool VelocityControllerRos::isReady()
   return true;
 }
 
-void VelocityControllerRos::initialize(const tobas_msgs::PoseVel& bs)
+void VelocityControllerRos::initialize()
 {
-  t_last_ = ros::Time::now();
-  tar_rpy_.z() = bs.pose.orientation.yaw;
+  tar_rpy_.yaw = cur_bs_.pose.euler.yaw;  // ヨー角は初期状態を目標状態にする
   u_opt_ = VectorXd::Zero(drone_.numRotorsInAxis(Axis::Z_POSITIVE));
 }
 
@@ -133,23 +131,13 @@ void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
   dynamic_params_rot_.thrust_rate_weight = cfg.thrust_force_rate_weight;
 }
 
-void VelocityControllerRos::runOnce(const tobas_msgs::PoseVel& bs)
+void VelocityControllerRos::runOnce()
 {
-  // 時刻を更新
-  ros::Time now = ros::Time::now();
-  double dt = (now - t_last_).toSec();
-  t_last_ = now;
-
-  // 現在の状態を更新
-  tf::vectorMsgToEigen(bs.twist.linear, cur_vel_W_);
-  tf::eulerMsgToEigen(bs.pose.orientation, cur_rpy_);
-  tf::vectorMsgToEigen(bs.twist.angular, cur_angvel_B_);  // 角速度だけはローカル座標系！
-
   // 速度制御器
-  vel_controller_->update(cur_vel_W_, tar_vel_W_, tar_acc_W_);
+  vel_controller_->update(cur_bs_.twist.vel, tar_vel_W_, tar_acc_W_);
 
   // 非線形変換
-  acc_controller_->update(tar_acc_W_, bs.pose.orientation.yaw, U_, tar_rpy_.x(), tar_rpy_.y());
+  acc_controller_->update(tar_acc_W_, cur_bs_.pose.euler.yaw, U_, tar_rpy_.roll, tar_rpy_.pitch);
   if (U_ < 0. || acc_controller_->maxU() < U_)
   {
     const double& max_U = acc_controller_->maxU();
@@ -159,7 +147,7 @@ void VelocityControllerRos::runOnce(const tobas_msgs::PoseVel& bs)
   }
 
   // 姿勢制御器
-  rot_controller_->update(cur_rpy_, cur_angvel_B_, q_, U_, tar_rpy_, u_opt_);
+  rot_controller_->update(cur_bs_.pose.euler, cur_bs_.twist.rot, q_, U_, tar_rpy_, u_opt_);
 
   // 各モータの回転速度を計算
   ctrlInputToRotorSpeeds(u_opt_, rotor_speeds_);
@@ -179,7 +167,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
   {
     if (u(i) < -1.)
     {
-      dh_ros::rosFatal("Negative thrust force: u = " + to_string(u(i)));
+      dh_ros::rosFatal("Negative thrust force: " + to_string(u(i)) + " [N]");
       // TODO: 防御モードに移行
     }
 
@@ -195,12 +183,14 @@ void VelocityControllerRos::baseStateCb(const StateMsg& bs)
     bs_received_ = true;
   }
 
+  cur_bs_ = bs;
+
   if (!is_initialized_)
   {
     if (isReady())
     {
       check_topics_timer_.stop();
-      initialize(bs.pose_vel);
+      initialize();
       is_initialized_ = true;
       dh_ros::rosInfo("Velocity controller is ready.");
     }
@@ -208,7 +198,7 @@ void VelocityControllerRos::baseStateCb(const StateMsg& bs)
   }
 
   // トピックが揃っていたら，状態を観測するたびに一回だけ制御器を回す．
-  runOnce(bs.pose_vel);
+  runOnce();
 }
 
 void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
@@ -244,17 +234,14 @@ void VelocityControllerRos::commandCb(const CmdMsg& cmd)
   {
     case tobas_msgs::FrameId::GLOBAL:
     {
-      tf::vectorMsgToEigen(cmd.velocity, tar_vel_W_);
-      tar_rpy_.z() = cmd.yaw;
+      tar_vel_W_ = cmd.vel;
+      tar_rpy_.yaw = cmd.yaw;
       break;
     }
     case tobas_msgs::FrameId::LOCAL:
     {
-      const auto& cmd_vel = cmd.velocity;
-      rotateVector(
-        0., 0., cur_rpy_.z(), cmd_vel.x, cmd_vel.y, cmd_vel.z, tar_vel_W_.x(), tar_vel_W_.y(),
-        tar_vel_W_.z());
-      tar_rpy_.z() = cmd.yaw;
+      tar_vel_W_ = cur_bs_.pose.euler * cmd.vel;
+      tar_rpy_.yaw = cmd.yaw;
       break;
     }
     default:

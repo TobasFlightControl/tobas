@@ -36,7 +36,7 @@ CommandHandler::CommandHandler() : super()
   delta_rot_ = max_angvel_ / key_repeat_freq_;
 
   // z座標の初期値を制限の下限に設定
-  cmd_.position.z = z_limit_.lower;
+  cmd_.pos.z(z_limit_.lower);
 
   prepare(0);
 
@@ -79,37 +79,37 @@ void CommandHandler::run()
       case 'w':  // X+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving forward");
-        cmd_.position.x = x_limit_.clamp(cmd_.position.x + delta_pos_);
+        cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() + delta_pos_));
         break;
       }
       case 's':  // X-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving backward");
-        cmd_.position.x = x_limit_.clamp(cmd_.position.x - delta_pos_);
+        cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() - delta_pos_));
         break;
       }
       case 'a':  // Y+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving left");
-        cmd_.position.y = y_limit_.clamp(cmd_.position.y + delta_pos_);
+        cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() + delta_pos_));
         break;
       }
       case 'd':  // Y-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving right");
-        cmd_.position.y = y_limit_.clamp(cmd_.position.y - delta_pos_);
+        cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() - delta_pos_));
         break;
       }
       case KEYCODE_U:  // Z+
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving up");
-        cmd_.position.z = z_limit_.clamp(cmd_.position.z + delta_pos_);
+        cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() + delta_pos_));
         break;
       }
       case KEYCODE_D:  // Z-
       {
         dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving down");
-        cmd_.position.z = z_limit_.clamp(cmd_.position.z - delta_pos_);
+        cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() - delta_pos_));
         break;
       }
       case KEYCODE_L:  // Yaw+

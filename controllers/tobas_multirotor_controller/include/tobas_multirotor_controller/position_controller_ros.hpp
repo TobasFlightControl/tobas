@@ -5,7 +5,7 @@
 
 #include <dh_ros_tools/node.hpp>
 
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
@@ -26,11 +26,8 @@ public:
 
 private:
   bool is_initialized_;
-  Eigen::Vector3d cur_pos_;
-  Eigen::Vector3d target_pos_;
-  double target_yaw_;
-  Eigen::Vector3d target_vel_;
-  tobas_msgs::VelocityYaw vel_yaw_;
+  tobas_msgs::PositionYaw pos_yaw_in_;// 受け取る位置コマンド
+  tobas_msgs::VelocityYaw vel_yaw_out_;// 発行する速度コマンド
 
   std::shared_ptr<PositionController> pos_controller_;
 
@@ -50,10 +47,10 @@ private:
   void registerSubscribers() override;
   void createTimers() override;
 
-  void initialize(const tobas_msgs::PoseVelStamped& bs);
+  void initialize(const tobas_msgs::BaseState& bs);
   void updateDynamicParams(const ConfigType& cfg);
 
-  void baseStateCb(const tobas_msgs::PoseVelStamped& bs);
+  void baseStateCb(const tobas_msgs::BaseState& bs);
   void targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw);
 
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;

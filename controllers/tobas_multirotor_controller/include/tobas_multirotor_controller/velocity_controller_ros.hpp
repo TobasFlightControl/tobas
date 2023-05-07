@@ -5,11 +5,12 @@
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
+#include <dh_kdl/euler.hpp>
 #include <dh_kdl/treejntnameparser.hpp>
 #include <dh_ros_tools/node.hpp>
 
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
@@ -28,7 +29,7 @@ class VelocityControllerRos : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
 
-  using StateMsg = tobas_msgs::PoseVelStamped;
+  using StateMsg = tobas_msgs::BaseState;
   using CmdMsg = tobas_msgs::VelocityYaw;
 
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
@@ -42,13 +43,11 @@ private:
   KDL::Tree tree_;
   KDL::TreeJointNameParser jnt_name_parser_;
 
+  tobas_msgs::BaseState cur_bs_;
   KDL::JntArray q_;  // 全ての非固定関節の角度
-  Eigen::Vector3d cur_vel_W_;
-  Eigen::Vector3d cur_rpy_;
-  Eigen::Vector3d cur_angvel_B_;
-  Eigen::Vector3d tar_vel_W_;
-  Eigen::Vector3d tar_acc_W_;
-  Eigen::Vector3d tar_rpy_;
+  KDL::Vector tar_vel_W_;
+  KDL::Vector tar_acc_W_;
+  KDL::Euler tar_rpy_;
   double U_;
   Eigen::VectorXd u_opt_;
 
@@ -57,7 +56,6 @@ private:
   bool bs_received_;
   bool js_received_;
   bool cmd_received_;
-  ros::Time t_last_;  // 最後に動作した時刻
   tobas_msgs::RotorSpeeds rotor_speeds_;
 
   std::shared_ptr<VelocityController> vel_controller_;
@@ -84,9 +82,9 @@ private:
   void createTimers() override;
 
   bool isReady();
-  void initialize(const tobas_msgs::PoseVel& bs);
+  void initialize();
   void updateDynamicParams(const ConfigType& cfg);
-  void runOnce(const tobas_msgs::PoseVel& bs);
+  void runOnce();
   void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeeds& speeds);
 
   void baseStateCb(const StateMsg& bs);

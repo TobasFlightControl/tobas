@@ -7,7 +7,7 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovariance.h>
 
 namespace gazebo
 {
@@ -35,7 +35,7 @@ class GazeboGpsPlugin : public SensorPlugin
 
   using NormalDistribution = std::normal_distribution<double>;
   using PosMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
   GazeboGpsPlugin();

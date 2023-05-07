@@ -12,8 +12,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tobas_msgs
+	dh_kdl
 	dh_std_tools
 	gazebo_plugins
+	kdl_msgs
 	sensor_msgs
 	geometry_msgs
 )

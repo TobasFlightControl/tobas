@@ -1,8 +1,9 @@
-#include <dh_std_tools/math.hpp>
+#include <dh_std_tools/geometry.hpp>
 
 #include "../../include/plugins/ground_truth_state_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -56,14 +57,14 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   // Fill state message.
   timeGazeboToRos(cur_time, state_msg_.header.stamp);
 
-  vectorGazeboToRos(T_W_B.Pos(), state_msg_.pose_vel.pose.position);
+  vectorGazeboToKDL(T_W_B.Pos(), state_msg_.pose.pos);
 
   const Quaterniond& q = T_W_B.Rot();
-  tobas_msgs::Euler& e = state_msg_.pose_vel.pose.orientation;
+  tobas_msgs::Euler& e = state_msg_.pose.euler;
   dh_std::quaternionToEuler(q.X(), q.Y(), q.Z(), q.W(), e.roll, e.pitch, e.yaw);
 
-  vectorGazeboToRos(link_->WorldLinearVel(), state_msg_.pose_vel.twist.linear);
-  vectorGazeboToRos(link_->RelativeAngularVel(), state_msg_.pose_vel.twist.angular);
+  vectorGazeboToKDL(link_->WorldLinearVel(), state_msg_.twist.vel);
+  vectorGazeboToKDL(link_->RelativeAngularVel(), state_msg_.twist.rot);
 
   // Publish state message
   state_pub_.publish(state_msg_);

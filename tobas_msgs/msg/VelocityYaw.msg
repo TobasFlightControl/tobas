@@ -1,3 +1,4 @@
+std_msgs/Header header
 FrameId frame_id
-geometry_msgs/Vector3 velocity  # [m/s]
-float64 yaw  # [rad]
+kdl_msgs/Vector vel  # [m/s]
+float64 yaw          # [rad]

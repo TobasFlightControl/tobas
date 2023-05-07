@@ -2,12 +2,10 @@
 #include <eigen_conversions/eigen_kdl.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
-
-#include <tobas_tools/conversions/msg_msg.hpp>
-#include <tobas_tools/conversions/eigen_msg.hpp>
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
@@ -120,17 +118,17 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 {
   state_.header.stamp = ros::Time::now();
 
-  tf::vectorEigenToMsg(eskf_.getPosition3D(), state_.pose_vel.pose.position);
+  tf::vectorEigenToKDL(eskf_.getPosition3D(), state_.pose.pos);
 
   auto q = eskf_.getQuaternion();
-  auto& rpy = state_.pose_vel.pose.orientation;
+  auto& rpy = state_.pose.euler;
   quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
 
-  tf::vectorEigenToMsg(eskf_.getVelocity(), state_.pose_vel.twist.linear);
+  tf::vectorEigenToKDL(eskf_.getVelocity(), state_.twist.vel);
 
   // 角速度だけはローカル座標系
   Vector3d w = w_m_ - eskf_.getGyroBias();
-  tf::vectorEigenToMsg(w, state_.pose_vel.twist.angular);
+  tf::vectorEigenToKDL(w, state_.twist.rot);
 }
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
@@ -253,9 +251,9 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
   lTime stamp(vel.header.stamp.sec, vel.header.stamp.nsec);
   lTime now = getNow();
 
-  tf::linVelMsgToEigen(vel.vel.vel, v_m_);
+  tf::vectorKDLToEigen(vel.vel, v_m_);
 
-  boost::array<double, 9> cov_copy = vel.vel.covariance;
+  boost::array<double, 9> cov_copy = vel.covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   eskf_.measureVelocity(v_m_, cov, stamp, now);
