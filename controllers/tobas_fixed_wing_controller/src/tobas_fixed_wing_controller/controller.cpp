@@ -5,6 +5,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 
 #include <tobas_tools/utils.hpp>
+#include <tobas_tools/conversions/coordinates.hpp>
 
 #include "../../include/tobas_fixed_wing_controller/controller.hpp"
 #include "../../include/tobas_fixed_wing_controller/constants.hpp"
@@ -13,6 +14,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace KDL;
 using namespace dh_std;
 
 namespace tobas_fixed_wing_controller
@@ -41,7 +43,10 @@ Controller::Controller() : super()
   mpc_.input_rate_weight.resize(u_dim_);
   mpc_.input_weight.resize(u_dim_);
   mpc_.control_weight.resize(ctrlSize);
+  setInputRateConstraint();
   mpc_.control_constraint.resize(ctrlSize, 0);
+  mpc_.current_state.resize(stateSize);
+  mpc_.set_state.resize(ctrlSize);
   mpc_.last_input = VectorXd::Zero(u_dim_);
 
   dynamicReconfigureCb(init_dynamic_config_, 0);
@@ -87,21 +92,24 @@ void Controller::createTimers()
     nh_.createTimer(ros::Duration(checkTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
 }
 
-void Controller::initialize(const StateMsg& bs)
+void Controller::initialize()
 {
 }
 
-void Controller::runOnce(const StateMsg& bs)
+void Controller::runOnce()
 {
-  updateCurrentStateVector(bs);
+  updateCurrentStateVector();
 
+  // MPCを解いて最適制御入力を求める
   VectorXd du = mpc_.solveMPC();
   VectorXd u = u_0_ + du;
 
+  // 各ロータの回転数を発行
   VectorXd thrust = u.block(0, 0, num_hor_props_, 1);
   updateRotorSpeeds(thrust);
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
+  // 各操舵面の偏角を発行
   VectorXd deflections = u.block(num_hor_props_, 0, num_cs_, 1);
   updateDeflections(deflections);
   deflections_pub_.publish(deflections_msg_);
@@ -114,6 +122,11 @@ void Controller::setCz()
   mpc_.Cz(ctrlIdx_beta, stateIdx_beta) = 1;
   mpc_.Cz(ctrlIdx_phi, stateIdx_phi) = 1;
   mpc_.Cz(ctrlIdx_theta, stateIdx_theta) = 1;
+}
+
+void Controller::setInputRateConstraint()
+{
+  // TODO
 }
 
 void Controller::updateWeight_Q(double beta_weight, double rot_weight)
@@ -161,17 +174,31 @@ void Controller::updateWeight_R(
 
 void Controller::updateTrimDynamics(double tar_V)
 {
-  // TODO
+  // TODO: トリム状態のダイナミクスの更新と，それに伴う制御入力制約の更新
 }
 
-void Controller::updateCurrentStateVector(const StateMsg& bs)
+void Controller::updateCurrentStateVector()
 {
-  // TODO
+  const Vector linvel_B = cur_bs_.pose.euler * cur_bs_.twist.vel;
+  VectorXd x(stateSize);
+
+  x(stateIdx_u) = linvel_B.x();
+  x(stateIdx_alpha) = angleOfAttack(linvel_B);
+  x(stateIdx_beta) = angleOfSideSlip(linvel_B);
+  x(stateIdx_phi) = cur_bs_.pose.euler.roll;
+  x(stateIdx_theta) = cur_bs_.pose.euler.pitch;
+  x(stateIdx_p) = cur_bs_.twist.rot.x();
+  x(stateIdx_q) = cur_bs_.twist.rot.y();
+  x(stateIdx_r) = cur_bs_.twist.rot.z();
+
+  mpc_.current_state = x - x_0_;  // delta_x
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
-  // TODO
+  mpc_.set_state(ctrlIdx_beta) = 0.;  // 横滑り角の目標値は常に0を設定
+  mpc_.set_state(ctrlIdx_phi) = tar_roll;
+  mpc_.set_state(ctrlIdx_theta) = tar_delta_pitch;
 }
 
 void Controller::updateRotorSpeeds(const VectorXd& thrust)
@@ -199,26 +226,35 @@ void Controller::updateDeflections(const VectorXd& deflections)
   deflections_msg_.deflections = eigen_tools::toStdVector(deflections);
 }
 
-void Controller::baseStateCb(const StateMsg& bs)
+void Controller::baseStateCb(const StateMsg& bs_nwu)
 {
   // 初期化処理
   if (!is_initialized_)
   {
     check_topics_timer_.stop();
-    initialize(bs);
+    initialize();
     is_initialized_ = true;
     dh_ros::rosInfo("Controller is ready.");
     return;
   }
 
+  // コールバックの時点で全てNED座標系に変換しておく
+  tf::baseStateNwuToNed(bs_nwu, cur_bs_);
+
   // メイン処理
-  runOnce(bs);
+  runOnce();
 }
 
-void Controller::commandCb(const CmdMsg& cmd)
+void Controller::commandCb(const CmdMsg& cmd_nwu)
 {
-  updateTrimDynamics(cmd.speed);
-  updateSetStateVector(cmd.roll, cmd.delta_pitch);
+  if (cmd_nwu.speed < 0.)
+  {
+    dh_ros::rosError("Negative speed is commanded.");
+    return;
+  }
+
+  updateTrimDynamics(cmd_nwu.speed);
+  updateSetStateVector(cmd_nwu.roll, -cmd_nwu.delta_pitch);  // NWU->NEDに変換して渡す
 }
 
 void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)

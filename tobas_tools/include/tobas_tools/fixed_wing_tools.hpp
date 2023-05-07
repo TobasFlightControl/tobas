@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <Eigen/Core>
+#include <kdl/frames.hpp>
 
 #include <dh_std_tools/range.hpp>
 
@@ -80,9 +81,25 @@ struct FixedWingConfig
 double angleOfAttack(double u, double v, double w);
 
 /**
+ * @brief 迎角を計算する．
+ *
+ * @param linvel_B 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @return double 迎角 [rad]
+ */
+double angleOfAttack(const KDL::Vector& linvel_B);
+
+/**
  * @brief 横滑り角を計算する．
  *
  * @param u,v,w 風に対する相対的な機体速度 (NED座標系) [m/s]
  * @return double 横滑り角 [rad]
  */
 double angleOfSideSlip(double u, double v, double w);
+
+/**
+ * @brief 横滑り角を計算する．
+ *
+ * @param linvel_B 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @return double 横滑り角 [rad]
+ */
+double angleOfSideSlip(const KDL::Vector& linvel_B);

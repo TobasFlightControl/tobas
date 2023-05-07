@@ -45,13 +45,12 @@ private:
   uint32_t u_dim_;                        // MPCの制御変数の次元
 
   bool is_initialized_;
+  tobas_msgs::BaseState cur_bs_;  // 現在の状態 (NUD座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 
-  VectorXd x_;// 状態
-  VectorXd u_;// 制御入力
-  VectorXd x_0_;                        // トリム時の状態
-  VectorXd u_0_;                        // トリム時の制御入力
+  Eigen::VectorXd x_0_;                 // トリム時の状態
+  Eigen::VectorXd u_0_;                 // トリム時の制御入力
   FixdWingDynamics cont_;               // 微小擾乱状態方程式
 
   std::shared_ptr<ctrl::C2D_RK4> c2d_;  // 状態方程式を離散化
@@ -71,20 +70,21 @@ private:
   void registerSubscribers() override;
   void createTimers() override;
 
-  void initialize(const StateMsg& bs);
-  void runOnce(const StateMsg& bs);
+  void initialize();
+  void runOnce();
   void setCz();
+  void setInputRateConstraint();
   void updateWeight_Q(double beta_weight, double rot_weight);
   void updateWeight_S(int thrust_weight_exp, int deflection_weight_exp);
   void updateWeight_R(int thrust_rate_weight_exp, int deflection_rate_weight_exp, double dt);
   void updateTrimDynamics(double tar_V);
-  void updateCurrentStateVector(const StateMsg& bs);
+  void updateCurrentStateVector();
   void updateSetStateVector(double tar_roll, double tar_delta_pitch);
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);
   void updateDeflections(const Eigen::VectorXd& deflections);
 
-  void baseStateCb(const StateMsg& bs);
-  void commandCb(const CmdMsg& cmd);
+  void baseStateCb(const StateMsg& bs_nwu);
+  void commandCb(const CmdMsg& cmd_nwu);
 
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);

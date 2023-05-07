@@ -103,11 +103,6 @@ void RotationController::updateDynamics(
   const Euler& tar_rpy,
   const JntArray& q)
 {
-  const auto& cur_roll = cur_rpy.roll;
-  const auto& cur_pitch = cur_rpy.pitch;
-  const auto& tar_roll = tar_rpy.roll;
-  const auto& tar_pitch = tar_rpy.pitch;
-
   double t;
   double roll_k, pitch_k;
 
@@ -116,8 +111,8 @@ void RotationController::updateDynamics(
     t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
 
     // 時刻tにおけるドローンの姿勢の参照値
-    roll_k = ctrl::firstOrderPos(cur_roll, tar_roll, mpc_.decay_time_consts[ROLL], t);
-    pitch_k = ctrl::firstOrderPos(cur_pitch, tar_pitch, mpc_.decay_time_consts[PITCH], t);
+    roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts[ROLL], t);
+    pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts[PITCH], t);
 
     cont_.update(roll_k, pitch_k, q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
