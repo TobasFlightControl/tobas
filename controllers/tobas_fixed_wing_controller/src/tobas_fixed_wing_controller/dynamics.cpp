@@ -1,3 +1,5 @@
+#include <dh_std_tools/standard_atmosphere.hpp>
+
 #include "../../include/tobas_fixed_wing_controller/dynamics.hpp"
 
 using namespace std;
@@ -10,13 +12,24 @@ FixedWingMicroDisturbanceDynamics::FixedWingMicroDisturbanceDynamics(const Drone
 {
   hor_prop_idxes_ = drone.rotorConfigIdxInAxis(Axis::X_POSITIVE);
   setInputLimits();
+  mass_ = kdl_model_.treeMass();
+
+  resize(kStateSize, horizontalPropsSize() + controlSurfacesSize());
+
+  x_0_ = StateVector::Zero();
+  u_0_ = VectorXd::Zero(inputSize());
 }
 
-void FixedWingMicroDisturbanceDynamics::update(double V)
+void FixedWingMicroDisturbanceDynamics::update(double V, double altitude)
 {
   assert(V > 0.);
+  assert(altitude > 0.);
 
-  // TODO
+  const double rho = dh_std::altitudeToDensity(altitude);
+
+  updateTrimStateInput(V, rho);
+  updateA(V, rho);
+  updateB(V, rho);
 }
 
 const FixedWingMicroDisturbanceDynamics::StateVector&
@@ -52,42 +65,42 @@ VectorXd FixedWingMicroDisturbanceDynamics::maxDeltaInput() const
 
 double FixedWingMicroDisturbanceDynamics::trimState_u() const
 {
-  return x_0_(stateIdx_u);
+  return x_0_(kStateIdx_u);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_alpha() const
 {
-  return x_0_(stateIdx_alpha);
+  return x_0_(kStateIdx_alpha);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_beta() const
 {
-  return x_0_(stateIdx_beta);
+  return x_0_(kStateIdx_beta);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_phi() const
 {
-  return x_0_(stateIdx_phi);
+  return x_0_(kStateIdx_phi);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_theta() const
 {
-  return x_0_(stateIdx_theta);
+  return x_0_(kStateIdx_theta);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_p() const
 {
-  return x_0_(stateIdx_p);
+  return x_0_(kStateIdx_p);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_q() const
 {
-  return x_0_(stateIdx_q);
+  return x_0_(kStateIdx_q);
 }
 
 double FixedWingMicroDisturbanceDynamics::trimState_r() const
 {
-  return x_0_(stateIdx_r);
+  return x_0_(kStateIdx_r);
 }
 
 uint32_t FixedWingMicroDisturbanceDynamics::horizontalPropIndex(uint32_t input_index) const
@@ -105,11 +118,6 @@ uint32_t FixedWingMicroDisturbanceDynamics::controlSurfacesSize() const
   return drone_.fixedWingConfig().control_surfaces.size();
 }
 
-uint32_t FixedWingMicroDisturbanceDynamics::inputSize() const
-{
-  return horizontalPropsSize() + controlSurfacesSize();
-}
-
 void FixedWingMicroDisturbanceDynamics::setInputLimits()
 {
   for (int i = 0; i < horizontalPropsSize(); ++i)
@@ -125,5 +133,18 @@ void FixedWingMicroDisturbanceDynamics::setInputLimits()
     max_u_(horizontalPropsSize() + i) =
       drone_.fixedWingConfig().control_surfaces[i].angle_limit.upper;
   }
+}
+
+void FixedWingMicroDisturbanceDynamics::updateTrimStateInput(double V, double rho)
+{
+  // TODO
+}
+void FixedWingMicroDisturbanceDynamics::updateA(double V, double rho)
+{
+  // TODO
+}
+void FixedWingMicroDisturbanceDynamics::updateB(double V, double rho)
+{
+  // TODO
 }
 }  // namespace tobas_fixed_wing_controller
