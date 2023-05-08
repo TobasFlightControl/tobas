@@ -26,7 +26,8 @@ namespace moveit_rviz_plugin
 class RobotStateVisualization;
 
 /**
- * @brief https://github.com/ros-planning/moveit/blob/master/moveit_ros/visualization/robot_state_rviz_plugin/include/moveit/robot_state_rviz_plugin/robot_state_display.h
+ * @brief
+ * https://github.com/ros-planning/moveit/blob/master/moveit_ros/visualization/robot_state_rviz_plugin/include/moveit/robot_state_rviz_plugin/robot_state_display.h
  * Highlighting functions are added.
  */
 class RobotStateDisplay : public rviz::Display
@@ -71,7 +72,7 @@ protected:
   void setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color);
   void unsetLinkColor(rviz::Robot* robot, const std::string& link_name);
 
-  void newRobotStateCallback(const moveit_msgs::DisplayRobotState::ConstPtr& state);
+  void newRobotStateCallback(const moveit_msgs::DisplayRobotStateConstPtr& state);
 
   void
   setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& highlight_links);
@@ -96,18 +97,18 @@ protected:
   bool update_state_;
   bool load_robot_model_;  // for delayed robot initialization
 
-  rviz::StringProperty* robot_description_property_;
-  rviz::StringProperty* root_link_name_property_;
-  rviz::StringProperty* highlight_link_;
-  rviz::StringProperty* unhighlight_link_;
+  std::shared_ptr<rviz::StringProperty> robot_description_property_;
+  std::shared_ptr<rviz::StringProperty> root_link_name_property_;
+  std::shared_ptr<rviz::StringProperty> highlight_link_;
+  std::shared_ptr<rviz::StringProperty> unhighlight_link_;
 
-  rviz::RosTopicProperty* robot_state_topic_property_;
-  rviz::FloatProperty* robot_alpha_property_;
-  rviz::ColorProperty* attached_body_color_property_;
+  std::shared_ptr<rviz::RosTopicProperty> robot_state_topic_property_;
+  std::shared_ptr<rviz::FloatProperty> robot_alpha_property_;
+  std::shared_ptr<rviz::ColorProperty> attached_body_color_property_;
 
-  rviz::BoolProperty* enable_link_highlight_;
-  rviz::BoolProperty* enable_visual_visible_;
-  rviz::BoolProperty* enable_collision_visible_;
-  rviz::BoolProperty* show_all_links_;
+  std::shared_ptr<rviz::BoolProperty> enable_link_highlight_;
+  std::shared_ptr<rviz::BoolProperty> enable_visual_visible_;
+  std::shared_ptr<rviz::BoolProperty> enable_collision_visible_;
+  std::shared_ptr<rviz::BoolProperty> show_all_links_;
 };
 }  // namespace moveit_rviz_plugin
