@@ -36,7 +36,7 @@ VelocityControllerRos::VelocityControllerRos()
   // 各コントローラを初期化
   vel_controller_.reset(new VelocityController(dynamic_params_vel_));
   acc_controller_.reset(new AccelerationController(drone_, gravity_));
-  rot_controller_.reset(new RotationController(drone_, gravity_, dynamic_params_rot_));
+  rot_controller_.reset(new RotationController(drone_, dynamic_params_rot_));
 
   q_.resize(drone_.tree().getNrOfJoints());
   rotor_speeds_.speeds.resize(drone_.numRotors(), 0.);

@@ -70,11 +70,9 @@ private:
   void initialize();
   void runOnce();
   void setCz();
+  void setScales();
   void setInputConstraint();
   void setInputRateConstraint();
-  void updateWeight_Q(double beta_weight, double rot_weight);
-  void updateWeight_S(int thrust_weight_exp, int deflection_weight_exp);
-  void updateWeight_R(int thrust_rate_weight_exp, int deflection_rate_weight_exp, double dt);
   void updateCurrentStateVector();
   void updateSetStateVector(double tar_roll, double tar_delta_pitch);
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);

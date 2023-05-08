@@ -26,10 +26,7 @@ struct RotationControllerDynamicParams
 class RotationController
 {
 public:
-  explicit RotationController(
-    const Drone& drone,
-    double gravity,
-    const RotationControllerDynamicParams& params);
+  explicit RotationController(const Drone& drone, const RotationControllerDynamicParams& params);
 
   void update(
     const KDL::Euler& cur_rpy,
@@ -43,9 +40,8 @@ public:
 
 private:
   const Drone& drone_;
-  const double gravity_;
-  const uint32_t u_dim_;
-  double mass_;
+  std::vector<uint32_t> ver_prop_idxes_;
+  uint32_t u_dim_;
 
   MultiRotorDynamics cont_;   // 連続時間線形状態方程式
   ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
@@ -54,9 +50,7 @@ private:
   void updateCurrentState(const KDL::Euler& cur_rpy, const KDL::Vector& cur_angvel_B);
   void updateSetState(const KDL::Euler& tar_rpy);
   void updateDynamics(const KDL::Euler& cur_rpy, const KDL::Euler& tar_rpy, const KDL::JntArray& q);
-  void updateWeight_Q(double rot_weight, double angvel_weight);
-  void updateWeight_S(int thrust_weight);
-  void updateWeight_R(int thrust_rate_weight, double dt);
+  void setScales();
   void setInputConstraintBase();
   void updateInputConstraint(double U);
 };
