@@ -1,3 +1,5 @@
+#include <kdl_parser/kdl_parser.hpp>
+
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -9,6 +11,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace KDL;
 
 Drone::Drone()
 {
@@ -16,6 +19,8 @@ Drone::Drone()
 
 void Drone::loadFromParam(const string& ns)
 {
+  getTree(ns);
+
   dh_ros::getParam(ns + "/battery_voltage", battery_voltage_);
   dh_ros::getParam(ns + "/active_joint_names", active_joint_names_);
 
@@ -26,6 +31,11 @@ void Drone::loadFromParam(const string& ns)
   {
     getFixedWingConfig(ns);
   }
+}
+
+const Tree& Drone::tree() const
+{
+  return tree_;
 }
 
 const bool& Drone::hasFixedWing() const
@@ -86,6 +96,14 @@ double Drone::maxRotSpeed(uint32_t idx) const
 double Drone::maxThrust(uint32_t idx) const
 {
   return rotor_configs_[idx].motor_constant * dh_std::sqr(maxRotSpeed(idx));
+}
+
+void Drone::getTree(const string& ns)
+{
+  if (!kdl_parser::treeFromParam(ns + "/robot_description", tree_))
+  {
+    dh_ros::RuntimeError("Failed to get KDL tree.");
+  }
 }
 
 void Drone::getRotorConfigs(const string& ns)

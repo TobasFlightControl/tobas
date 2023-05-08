@@ -10,7 +10,7 @@ namespace tobas_multirotor_controller
 class AccelerationController
 {
 public:
-  explicit AccelerationController(const Drone& drone, const KDL::Tree& tree, double gravity);
+  explicit AccelerationController(const Drone& drone, double gravity);
 
   void update(
     const KDL::Vector& tar_acc,

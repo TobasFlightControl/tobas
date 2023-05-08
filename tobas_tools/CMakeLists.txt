@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 	dh_ros_tools
 	dh_std_tools
 	tobas_msgs
+	kdl_parser
 	kdl_msgs
 	orocos_kdl
 	roscpp

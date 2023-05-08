@@ -49,12 +49,9 @@ private:
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 
-  Eigen::VectorXd x_0_;                 // トリム時の状態
-  Eigen::VectorXd u_0_;                 // トリム時の制御入力
-  FixdWingDynamics cont_;               // 微小擾乱状態方程式
-
-  std::shared_ptr<ctrl::C2D_RK4> c2d_;  // 状態方程式を離散化
-  ctrl::LinearDenseMPC mpc_;            // 線形モデル予測制御
+  std::shared_ptr<FixedWingMicroDisturbanceDynamics> cont_;  // 微小擾乱状態方程式
+  std::shared_ptr<ctrl::C2D_RK4> c2d_;                       // 状態方程式を離散化
+  ctrl::LinearDenseMPC mpc_;                                 // 線形モデル予測制御
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
@@ -73,11 +70,11 @@ private:
   void initialize();
   void runOnce();
   void setCz();
+  void setInputConstraint();
   void setInputRateConstraint();
   void updateWeight_Q(double beta_weight, double rot_weight);
   void updateWeight_S(int thrust_weight_exp, int deflection_weight_exp);
   void updateWeight_R(int thrust_rate_weight_exp, int deflection_rate_weight_exp, double dt);
-  void updateTrimDynamics(double tar_V);
   void updateCurrentStateVector();
   void updateSetStateVector(double tar_roll, double tar_delta_pitch);
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);
@@ -85,7 +82,6 @@ private:
 
   void baseStateCb(const StateMsg& bs_nwu);
   void commandCb(const CmdMsg& cmd_nwu);
-
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };

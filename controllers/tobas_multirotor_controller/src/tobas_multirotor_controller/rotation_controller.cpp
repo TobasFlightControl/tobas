@@ -15,18 +15,17 @@ namespace tobas_multirotor_controller
 {
 RotationController::RotationController(
   const Drone& drone,
-  const Tree& tree,
   double gravity,
   const RotationControllerDynamicParams& params)
   : drone_(drone),
     gravity_(gravity),
     u_dim_(drone.numRotorsInAxis(Axis::Z_POSITIVE)),
-    cont_(drone, tree),
+    cont_(drone),
     c2d_(STATE_SIZE, u_dim_)
 {
-  assert(tree.getNrOfJoints() > 0);
+  assert(drone.tree().getNrOfJoints() > 0);
 
-  TreeJntToInertiaSolver inertia_solver_(tree);
+  TreeJntToInertiaSolver inertia_solver_(drone.tree());
   mass_ = inertia_solver_.JntToMass();
 
   mpc_.decay_time_consts.resize(STATE_SIZE);

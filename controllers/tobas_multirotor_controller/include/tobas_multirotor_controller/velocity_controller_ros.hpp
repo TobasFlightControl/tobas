@@ -40,7 +40,6 @@ public:
 
 private:
   Drone drone_;
-  KDL::Tree tree_;
   KDL::TreeJointNameParser jnt_name_parser_;
 
   tobas_msgs::BaseState cur_bs_;

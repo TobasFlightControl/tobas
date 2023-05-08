@@ -10,6 +10,8 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>roscpp</depend>
+	<depend>orocos_kdl</depend>
+	<depend>kdl_msgs</depend>
 
 	<depend>dh_kdl</depend>
 	<depend>dh_linear_control</depend>

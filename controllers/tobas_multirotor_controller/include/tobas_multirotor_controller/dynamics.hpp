@@ -31,7 +31,7 @@ public:
    *
    * @param tree 全身のTree
    */
-  explicit MultiRotorDynamics(const Drone& drone, const KDL::Tree& tree);
+  explicit MultiRotorDynamics(const Drone& drone);
 
   /**
    * @brief 状態方程式を更新する．

@@ -21,7 +21,7 @@ namespace tobas_multirotor_controller
 {
 VelocityControllerRos::VelocityControllerRos()
   : super(),
-    jnt_name_parser_(tree_),
+    jnt_name_parser_(drone_.tree()),
     is_initialized_(false),
     bs_received_(false),
     js_received_(false),
@@ -30,22 +30,15 @@ VelocityControllerRos::VelocityControllerRos()
   getRosParams();
   drone_.loadFromParam(ns_);
 
-  is_transformable_ = drone_.activeJointNames().size() > 0;
-
-  // Treeを取得
-  if (!kdl_parser::treeFromParam("robot_description", tree_))
-  {
-    dh_ros::RuntimeError("Failed to get KDL tree.");
-  }
-
   jnt_name_parser_.updateInternalDataStructures();
+  is_transformable_ = drone_.activeJointNames().size() > 0;
 
   // 各コントローラを初期化
   vel_controller_.reset(new VelocityController(dynamic_params_vel_));
-  acc_controller_.reset(new AccelerationController(drone_, tree_, gravity_));
-  rot_controller_.reset(new RotationController(drone_, tree_, gravity_, dynamic_params_rot_));
+  acc_controller_.reset(new AccelerationController(drone_, gravity_));
+  rot_controller_.reset(new RotationController(drone_, gravity_, dynamic_params_rot_));
 
-  q_.resize(tree_.getNrOfJoints());
+  q_.resize(drone_.tree().getNrOfJoints());
   rotor_speeds_.speeds.resize(drone_.numRotors(), 0.);
 
   registerPublishers();

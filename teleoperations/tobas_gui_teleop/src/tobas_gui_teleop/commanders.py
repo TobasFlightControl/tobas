@@ -113,9 +113,9 @@ class CommandersWidget(QScrollArea):
 
     @pyqtSlot()
     def _publish_drone_cmd(self) -> None:
-        self._drone_cmd.position.x = self.drone_cmd_x.get_value()
-        self._drone_cmd.position.y = self.drone_cmd_y.get_value()
-        self._drone_cmd.position.z = self.drone_cmd_z.get_value()
+        self._drone_cmd.pos.x = self.drone_cmd_x.get_value()
+        self._drone_cmd.pos.y = self.drone_cmd_y.get_value()
+        self._drone_cmd.pos.z = self.drone_cmd_z.get_value()
         self._drone_cmd.yaw = self.drone_cmd_yaw.get_value()
 
         self._drone_cmd_pub.publish(self._drone_cmd)

@@ -28,7 +28,6 @@ class RotationController
 public:
   explicit RotationController(
     const Drone& drone,
-    const KDL::Tree& tree,
     double gravity,
     const RotationControllerDynamicParams& params);
 

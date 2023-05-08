@@ -1,8 +1,10 @@
 #include <kdl/frames.hpp>
+#include <kdl_parser/kdl_parser.hpp>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_linear_control/util.hpp>
 
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/conversions/coordinates.hpp>
@@ -33,10 +35,8 @@ Controller::Controller() : super()
   rotor_speeds_msg_.speeds.resize(drone_.numRotors());
   deflections_msg_.deflections.resize(num_cs_);
 
-  x_0_ = VectorXd::Zero(stateSize);
-  u_0_ = VectorXd::Zero(u_dim_);
-
-  c2d_.reset(new ctrl::C2D_RK4(stateSize, u_dim_));
+  cont_.reset(new FixedWingMicroDisturbanceDynamics(drone_));
+  c2d_.reset(new ctrl::C2D_RK4(cont_->stateSize, u_dim_));
 
   mpc_.decay_time_consts.resize(ctrlSize);
   setCz();
@@ -45,7 +45,7 @@ Controller::Controller() : super()
   mpc_.control_weight.resize(ctrlSize);
   setInputRateConstraint();
   mpc_.control_constraint.resize(ctrlSize, 0);
-  mpc_.current_state.resize(stateSize);
+  mpc_.current_state.resize(cont_->stateSize);
   mpc_.set_state.resize(ctrlSize);
   mpc_.last_input = VectorXd::Zero(u_dim_);
 
@@ -102,7 +102,7 @@ void Controller::runOnce()
 
   // MPCを解いて最適制御入力を求める
   VectorXd du = mpc_.solveMPC();
-  VectorXd u = u_0_ + du;
+  VectorXd u = cont_->trimInput() + du;
 
   // 各ロータの回転数を発行
   VectorXd thrust = u.block(0, 0, num_hor_props_, 1);
@@ -117,16 +117,31 @@ void Controller::runOnce()
 
 void Controller::setCz()
 {
-  mpc_.Cz = MatrixXd::Zero(ctrlSize, stateSize);
+  mpc_.Cz = MatrixXd::Zero(ctrlSize, cont_->stateSize);
 
-  mpc_.Cz(ctrlIdx_beta, stateIdx_beta) = 1;
-  mpc_.Cz(ctrlIdx_phi, stateIdx_phi) = 1;
-  mpc_.Cz(ctrlIdx_theta, stateIdx_theta) = 1;
+  mpc_.Cz(ctrlIdx_beta, cont_->stateIdx_beta) = 1;
+  mpc_.Cz(ctrlIdx_phi, cont_->stateIdx_phi) = 1;
+  mpc_.Cz(ctrlIdx_theta, cont_->stateIdx_theta) = 1;
+}
+
+void Controller::setInputConstraint()
+{
+  // TODO
 }
 
 void Controller::setInputRateConstraint()
 {
-  // TODO
+  VectorXd lb = VectorXd::Constant(u_dim_, numeric_limits<double>::lowest());
+  VectorXd ub = VectorXd::Constant(u_dim_, numeric_limits<double>::max());
+
+  for (int i = 0; i < num_cs_; ++i)
+  {
+    const auto& max_angle_rate = drone_.fixedWingConfig().control_surfaces[i].max_angle_rate;
+    lb(num_hor_props_ + i) = -max_angle_rate;
+    ub(num_hor_props_ + i) = +max_angle_rate;
+  }
+
+  mpc_.input_rate_constraint = ctrl::matIneqFromRange(lb, ub);
 }
 
 void Controller::updateWeight_Q(double beta_weight, double rot_weight)
@@ -172,26 +187,18 @@ void Controller::updateWeight_R(
     VectorXd::Constant(num_cs_, deflection_rate_weight);
 }
 
-void Controller::updateTrimDynamics(double tar_V)
-{
-  // TODO: トリム状態のダイナミクスの更新と，それに伴う制御入力制約の更新
-}
-
 void Controller::updateCurrentStateVector()
 {
   const Vector linvel_B = cur_bs_.pose.euler * cur_bs_.twist.vel;
-  VectorXd x(stateSize);
 
-  x(stateIdx_u) = linvel_B.x();
-  x(stateIdx_alpha) = angleOfAttack(linvel_B);
-  x(stateIdx_beta) = angleOfSideSlip(linvel_B);
-  x(stateIdx_phi) = cur_bs_.pose.euler.roll;
-  x(stateIdx_theta) = cur_bs_.pose.euler.pitch;
-  x(stateIdx_p) = cur_bs_.twist.rot.x();
-  x(stateIdx_q) = cur_bs_.twist.rot.y();
-  x(stateIdx_r) = cur_bs_.twist.rot.z();
-
-  mpc_.current_state = x - x_0_;  // delta_x
+  mpc_.current_state(cont_->stateIdx_u) = linvel_B.x() - cont_->trimState_u();
+  mpc_.current_state(cont_->stateIdx_alpha) = angleOfAttack(linvel_B) - cont_->trimState_alpha();
+  mpc_.current_state(cont_->stateIdx_beta) = angleOfSideSlip(linvel_B) - cont_->trimState_beta();
+  mpc_.current_state(cont_->stateIdx_phi) = cur_bs_.pose.euler.roll - cont_->trimState_phi();
+  mpc_.current_state(cont_->stateIdx_theta) = cur_bs_.pose.euler.pitch - cont_->trimState_theta();
+  mpc_.current_state(cont_->stateIdx_p) = cur_bs_.twist.rot.x() - cont_->trimState_p();
+  mpc_.current_state(cont_->stateIdx_q) = cur_bs_.twist.rot.y() - cont_->trimState_q();
+  mpc_.current_state(cont_->stateIdx_r) = cur_bs_.twist.rot.z() - cont_->trimState_r();
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
@@ -253,7 +260,8 @@ void Controller::commandCb(const CmdMsg& cmd_nwu)
     return;
   }
 
-  updateTrimDynamics(cmd_nwu.speed);
+  cont_->update(cmd_nwu.speed);
+  setInputConstraint();
   updateSetStateVector(cmd_nwu.roll, -cmd_nwu.delta_pitch);  // NWU->NEDに変換して渡す
 }
 
@@ -276,7 +284,8 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
   mpc_.decay_time_consts[ctrlIdx_beta] = cfg.rotation_decay;
   mpc_.decay_time_consts[ctrlIdx_phi] = mpc_.decay_time_consts[ctrlIdx_theta] = cfg.rotation_decay;
 
-  mpc_.discrete_dynamics.resize(cfg.prediction_steps, ctrl::LinearDynamics(stateSize, u_dim_));
+  mpc_.discrete_dynamics.resize(
+    cfg.prediction_steps, ctrl::LinearDynamics(cont_->stateSize, u_dim_));
 
   updateWeight_Q(cfg.beta_weight, cfg.rotation_weight);
   updateWeight_S(cfg.thrust_force_weight_exp, cfg.deflection_weight_exp);

@@ -14,15 +14,13 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-MultiRotorDynamics::MultiRotorDynamics(const Drone& drone, const Tree& tree)
+MultiRotorDynamics::MultiRotorDynamics(const Drone& drone)
   : drone_(drone),
     ver_prop_idxes_(drone.rotorConfigIdxInAxis(Axis::Z_POSITIVE)),
     u_dim_(ver_prop_idxes_.size()),
-    fk_solver_(tree),
-    inertia_solver_(tree)
+    fk_solver_(drone.tree()),
+    inertia_solver_(drone.tree())
 {
-  assert(tree.getNrOfJoints() > 0);
-
   resize(STATE_SIZE, u_dim_);
 }
 

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <kdl/tree.hpp>
+
 #include "./rotor_property.hpp"
 #include "./fixed_wing_tools.hpp"
 
 /**
- * @brief ドローンの固有パラメータ．TBSFファイルを読み込む．
+ * @brief ドローンを記述するのに必要な最低限の情報のみを持つクラス．
  */
 class Drone
 {
@@ -14,6 +16,7 @@ public:
   /* Load drone configurations from ROS parameter server. */
   void loadFromParam(const std::string& ns);
 
+  const KDL::Tree& tree() const;
   const bool& hasFixedWing() const;
   const double& batteryVoltage() const;
   const std::vector<std::string>& activeJointNames() const;
@@ -35,11 +38,14 @@ public:
   double maxThrust(uint32_t idx) const;
 
 private:
+  KDL::Tree tree_;
   bool has_fixed_wing_;
   double battery_voltage_;
   std::vector<std::string> active_joint_names_;
   RotorConfigs rotor_configs_;
   FixedWingConfig fixed_wing_config_;
+
+  void getTree(const std::string& ns);
 
   void getRotorConfigs(const std::string& ns);
   void getRotorConfig(const std::string& ns, uint32_t idx);

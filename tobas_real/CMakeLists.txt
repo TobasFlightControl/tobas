@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 	dh_std_tools
 	tobas_msgs
 	navio
+	kdl_parser
 	kdl_msgs
 	roscpp
 )
