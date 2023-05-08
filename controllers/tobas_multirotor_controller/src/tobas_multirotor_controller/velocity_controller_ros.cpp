@@ -56,18 +56,18 @@ void VelocityControllerRos::getRosParams()
   dh_ros::getParam("/gravity", gravity_);
 
   // velocity controller
-  dh_ros::getParam(ctrlName + "/natural_frequency", dynamic_params_vel_.natural_freq);
-  dh_ros::getParam(ctrlName + "/damping_ratio", dynamic_params_vel_.damp_ratio);
+  dh_ros::getParam(kCtrlName + "/natural_frequency", dynamic_params_vel_.natural_freq);
+  dh_ros::getParam(kCtrlName + "/damping_ratio", dynamic_params_vel_.damp_ratio);
 
   // rotation_controller
-  dh_ros::getParam(ctrlName + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
-  dh_ros::getParam(ctrlName + "/prediction_steps", dynamic_params_rot_.pred_steps);
-  dh_ros::getParam(ctrlName + "/rotation_decay", dynamic_params_rot_.rot_decay);
-  dh_ros::getParam(ctrlName + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
-  dh_ros::getParam(ctrlName + "/rotation_weight", dynamic_params_rot_.rot_weight);
-  dh_ros::getParam(ctrlName + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
-  dh_ros::getParam(ctrlName + "/thrust_force_weight", dynamic_params_rot_.thrust_weight);
-  dh_ros::getParam(ctrlName + "/thrust_force_rate_weight", dynamic_params_rot_.thrust_rate_weight);
+  dh_ros::getParam(kCtrlName + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
+  dh_ros::getParam(kCtrlName + "/prediction_steps", dynamic_params_rot_.pred_steps);
+  dh_ros::getParam(kCtrlName + "/rotation_decay", dynamic_params_rot_.rot_decay);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
+  dh_ros::getParam(kCtrlName + "/rotation_weight", dynamic_params_rot_.rot_weight);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
+  dh_ros::getParam(kCtrlName + "/thrust_force_weight", dynamic_params_rot_.thrust_weight);
+  dh_ros::getParam(kCtrlName + "/thrust_force_rate_weight", dynamic_params_rot_.thrust_rate_weight);
 }
 
 void VelocityControllerRos::registerPublishers()
@@ -88,7 +88,7 @@ void VelocityControllerRos::registerSubscribers()
 void VelocityControllerRos::createTimers()
 {
   check_topics_timer_ = nh_.createTimer(
-    ros::Duration(checkTopicsTimerPeriod), &VelocityControllerRos::checkTopicsTimerCb, this);
+    ros::Duration(kCheckTopicsTimerPeriod), &VelocityControllerRos::checkTopicsTimerCb, this);
 }
 
 bool VelocityControllerRos::isReady()
@@ -135,7 +135,7 @@ void VelocityControllerRos::runOnce()
   {
     const double& max_U = acc_controller_->maxU();
     dh_ros::rosWarnThrottle(
-      warnPeriod, "U_out = " + to_string(U_) + " is out of range [0, " + to_string(max_U) + "].");
+      kWarnPeriod, "U_out = " + to_string(U_) + " is out of range [0, " + to_string(max_U) + "].");
     U_ = dh_std::clamp(U_, 0., max_U);
   }
 

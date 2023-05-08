@@ -55,13 +55,13 @@ void MotorsHandler_DSHOT::run()
       if (cmd_speed < 0.)
       {
         dh_ros::rosErrorThrottle(
-          infoPeriod, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
+          kInfoPeriod, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
         cmd_speed = 0.;
       }
       else if (cmd_speed > max_speed)
       {
         dh_ros::rosErrorThrottle(
-          infoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
+          kInfoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
                         + to_string(max_speed));
         cmd_speed = max_speed;
       }
@@ -103,23 +103,23 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
   if (speeds.size() != drone_.numRotors())
   {
     dh_ros::rosErrorThrottle(
-      infoPeriod,
+      kInfoPeriod,
       "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(drone_.numRotors()));
     return;
   }
 
   // Check delay
   const double delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
-  if (delay > checkDelayThreshold)
+  if (delay > kCheckDelayThreshold)
   {
     dh_ros::rosWarnThrottle(
-      infoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
+      kInfoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
                     + " seconds, which is too large.");
   }
   else if (delay < 0.)
   {
     dh_ros::rosErrorThrottle(
-      infoPeriod, "The timestamp of the motor command precedes the current time.");
+      kInfoPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
   if (!cmd_received_)

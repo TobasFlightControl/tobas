@@ -5,7 +5,7 @@
 namespace gazebo
 {
 // Constants
-static constexpr double deg2rad = M_PI / 180.;
+static constexpr double kDegreeToRadian = M_PI / 180.;
 
 // Default values
 static const std::string kDefaultWindSubTopic = "wind_speed";

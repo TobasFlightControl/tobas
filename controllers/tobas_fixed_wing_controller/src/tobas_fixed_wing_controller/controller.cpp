@@ -31,16 +31,16 @@ Controller::Controller() : super()
   cont_.reset(new FixedWingMicroDisturbanceDynamics(drone_));
   c2d_.reset(new ctrl::C2D_RK4(cont_->kStateSize, cont_->inputSize()));
 
-  mpc_.decay_time_consts.resize(ctrlSize);
+  mpc_.decay_time_consts.resize(kCtrlSize);
   setCz();
   setScales();
   mpc_.input_rate_weight.resize(cont_->inputSize());
   mpc_.input_weight.resize(cont_->inputSize());
-  mpc_.control_weight.resize(ctrlSize);
+  mpc_.control_weight.resize(kCtrlSize);
   setInputRateConstraint();
-  mpc_.control_constraint.resize(ctrlSize, 0);
+  mpc_.control_constraint.resize(kCtrlSize, 0);
   mpc_.current_state.resize(cont_->kStateSize);
-  mpc_.set_state.resize(ctrlSize);
+  mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(cont_->inputSize());
 
   dynamicReconfigureCb(init_dynamic_config_, 0);
@@ -52,19 +52,20 @@ Controller::Controller() : super()
 
 void Controller::getRosParams()
 {
-  dh_ros::getParam(ctrlName + "/prediction_horizon", init_dynamic_config_.prediction_horizon);
-  dh_ros::getParam(ctrlName + "/prediction_steps", init_dynamic_config_.prediction_steps);
-  dh_ros::getParam(ctrlName + "/beta_decay", init_dynamic_config_.beta_decay);
-  dh_ros::getParam(ctrlName + "/rotation_decay", init_dynamic_config_.rotation_decay);
-  dh_ros::getParam(ctrlName + "/beta_weight", init_dynamic_config_.beta_weight);
-  dh_ros::getParam(ctrlName + "/rotation_weight", init_dynamic_config_.rotation_weight);
+  dh_ros::getParam(kCtrlName + "/prediction_horizon", init_dynamic_config_.prediction_horizon);
+  dh_ros::getParam(kCtrlName + "/prediction_steps", init_dynamic_config_.prediction_steps);
+  dh_ros::getParam(kCtrlName + "/beta_decay", init_dynamic_config_.beta_decay);
+  dh_ros::getParam(kCtrlName + "/rotation_decay", init_dynamic_config_.rotation_decay);
+  dh_ros::getParam(kCtrlName + "/beta_weight", init_dynamic_config_.beta_weight);
+  dh_ros::getParam(kCtrlName + "/rotation_weight", init_dynamic_config_.rotation_weight);
   dh_ros::getParam(
-    ctrlName + "/thrust_force_weight_exp", init_dynamic_config_.thrust_force_weight_exp);
+    kCtrlName + "/thrust_force_weight_exp", init_dynamic_config_.thrust_force_weight_exp);
   dh_ros::getParam(
-    ctrlName + "/thrust_force_rate_weight_exp", init_dynamic_config_.thrust_force_rate_weight_exp);
-  dh_ros::getParam(ctrlName + "/deflection_weight_exp", init_dynamic_config_.deflection_weight_exp);
+    kCtrlName + "/thrust_force_rate_weight_exp", init_dynamic_config_.thrust_force_rate_weight_exp);
   dh_ros::getParam(
-    ctrlName + "/deflection_rate_weight_exp", init_dynamic_config_.deflection_rate_weight_exp);
+    kCtrlName + "/deflection_weight_exp", init_dynamic_config_.deflection_weight_exp);
+  dh_ros::getParam(
+    kCtrlName + "/deflection_rate_weight_exp", init_dynamic_config_.deflection_rate_weight_exp);
 }
 
 void Controller::registerPublishers()
@@ -83,7 +84,7 @@ void Controller::registerSubscribers()
 void Controller::createTimers()
 {
   check_topics_timer_ =
-    nh_.createTimer(ros::Duration(checkTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
+    nh_.createTimer(ros::Duration(kCheckTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
 }
 
 void Controller::initialize()
@@ -112,19 +113,19 @@ void Controller::runOnce()
 
 void Controller::setCz()
 {
-  mpc_.Cz = MatrixXd::Zero(ctrlSize, cont_->kStateSize);
+  mpc_.Cz = MatrixXd::Zero(kCtrlSize, cont_->kStateSize);
 
-  mpc_.Cz(ctrlIdx_beta, cont_->kStateIdx_beta) = 1;
-  mpc_.Cz(ctrlIdx_phi, cont_->kStateIdx_phi) = 1;
-  mpc_.Cz(ctrlIdx_theta, cont_->kStateIdx_theta) = 1;
+  mpc_.Cz(kCtrlIdx_beta, cont_->kStateIdx_beta) = 1;
+  mpc_.Cz(kCtrlIdx_phi, cont_->kStateIdx_phi) = 1;
+  mpc_.Cz(kCtrlIdx_theta, cont_->kStateIdx_theta) = 1;
 }
 
 void Controller::setScales()
 {
   // 制御変数のスケール
-  mpc_.control_scale.resize(ctrlSize);
-  mpc_.control_scale(ctrlIdx_beta) = M_PI;
-  mpc_.control_scale(ctrlIdx_phi) = mpc_.control_scale(ctrlIdx_theta) = M_PI;
+  mpc_.control_scale.resize(kCtrlSize);
+  mpc_.control_scale(kCtrlIdx_beta) = M_PI;
+  mpc_.control_scale(kCtrlIdx_phi) = mpc_.control_scale(kCtrlIdx_theta) = M_PI;
 
   // 制御入力のスケール
   mpc_.input_scale.resize(cont_->inputSize());
@@ -176,9 +177,9 @@ void Controller::updateCurrentStateVector()
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
-  mpc_.set_state(ctrlIdx_beta) = 0.;  // 横滑り角の目標値は常に0を設定
-  mpc_.set_state(ctrlIdx_phi) = tar_roll;
-  mpc_.set_state(ctrlIdx_theta) = tar_delta_pitch;
+  mpc_.set_state(kCtrlIdx_beta) = 0.;  // 横滑り角の目標値は常に0を設定
+  mpc_.set_state(kCtrlIdx_phi) = tar_roll;
+  mpc_.set_state(kCtrlIdx_theta) = tar_delta_pitch;
 }
 
 void Controller::updateRotorSpeeds(const VectorXd& thrust)
@@ -254,15 +255,16 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 
   mpc_.time_step = cfg.prediction_horizon / cfg.prediction_steps;
   mpc_.prediction_steps = mpc_.input_steps = cfg.prediction_steps;
-  mpc_.decay_time_consts(ctrlIdx_beta) = cfg.rotation_decay;
-  mpc_.decay_time_consts(ctrlIdx_phi) = mpc_.decay_time_consts(ctrlIdx_theta) = cfg.rotation_decay;
+  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.rotation_decay;
+  mpc_.decay_time_consts(kCtrlIdx_phi) = mpc_.decay_time_consts(kCtrlIdx_theta) =
+    cfg.rotation_decay;
 
   mpc_.discrete_dynamics.resize(
     cfg.prediction_steps, ctrl::LinearDynamics(cont_->kStateSize, cont_->inputSize()));
 
   // 制御変数の重み
-  mpc_.control_weight(ctrlIdx_beta) = cfg.beta_weight;
-  mpc_.control_weight(ctrlIdx_phi) = mpc_.control_weight(ctrlIdx_theta) = cfg.rotation_weight;
+  mpc_.control_weight(kCtrlIdx_beta) = cfg.beta_weight;
+  mpc_.control_weight(kCtrlIdx_phi) = mpc_.control_weight(kCtrlIdx_theta) = cfg.rotation_weight;
 
   // 制御入力の重み
   mpc_.input_weight.block(0, 0, cont_->horizontalPropsSize(), 1) =

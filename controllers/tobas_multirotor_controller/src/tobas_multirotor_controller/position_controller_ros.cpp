@@ -31,8 +31,8 @@ PositionControllerRos::PositionControllerRos() : super(), is_initialized_(false)
 
 void PositionControllerRos::getRosParams()
 {
-  dh_ros::getParam(ctrlName + "/natural_frequency", dynamic_params_.natural_freq);
-  dh_ros::getParam(ctrlName + "/damping_ratio", dynamic_params_.damp_ratio);
+  dh_ros::getParam(kCtrlName + "/natural_frequency", dynamic_params_.natural_freq);
+  dh_ros::getParam(kCtrlName + "/damping_ratio", dynamic_params_.damp_ratio);
 }
 
 void PositionControllerRos::registerPublishers()
@@ -50,14 +50,14 @@ void PositionControllerRos::registerSubscribers()
 void PositionControllerRos::createTimers()
 {
   check_topics_timer_ = nh_.createTimer(
-    ros::Duration(checkTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
+    ros::Duration(kCheckTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
 }
 
 void PositionControllerRos::initialize(const tobas_msgs::BaseState& bs)
 {
   // 最初は暴れるのを防ぐために現在の状態を目標状態にする
   pos_yaw_in_.pos = bs.pose.pos;
-  pos_yaw_in_.pos(2) += initialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
+  pos_yaw_in_.pos(2) += kInitialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
   pos_yaw_in_.yaw = bs.pose.euler.yaw;
 }
 

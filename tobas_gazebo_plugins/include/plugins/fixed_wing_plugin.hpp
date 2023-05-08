@@ -22,8 +22,8 @@ static const std::string kPluginName = "fixed_wing_plugin";
 
 // Default values
 static const std::string kDefaultDeflectionsSubTopic = "deflections";
-static constexpr double kDefaultLowerStallAngle = -10. * deg2rad;
-static constexpr double kDefaultUpperStallAngle = 20. * deg2rad;
+static constexpr double kDefaultLowerStallAngle = -10. * kDegreeToRadian;
+static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
 
 /**
  * @brief 固定翼機に作用する空気力のプラグイン．
