@@ -17,11 +17,11 @@ namespace tobas_multirotor_controller
 MultiRotorDynamics::MultiRotorDynamics(const Drone& drone)
   : drone_(drone),
     ver_prop_idxes_(drone.rotorConfigIdxInAxis(Axis::Z_POSITIVE)),
-    u_dim_(ver_prop_idxes_.size()),
+    u_size_(ver_prop_idxes_.size()),
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree())
 {
-  resize(STATE_SIZE, u_dim_);
+  resize(STATE_SIZE, u_size_);
 }
 
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
@@ -44,7 +44,7 @@ void MultiRotorDynamics::updateB(const JntArray& q)
   I_cog_eigen_.computeInverseWithCheck(I_cog_inv_, invertible_);
   assert(invertible_);
 
-  for (int i = 0; i < u_dim_; ++i)
+  for (int i = 0; i < u_size_; ++i)
   {
     const auto& rotor_idx = ver_prop_idxes_[i];
     const auto& rotor_config = drone_.rotorConfig(rotor_idx);

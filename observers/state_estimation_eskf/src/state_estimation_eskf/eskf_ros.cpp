@@ -99,11 +99,11 @@ void ErrorStateKalmanFilterRos::initialize()
   eskf_.initialize(
     Vector3d(0, 0, -gravity_),  // Acceleration due to gravity in global frame
     ErrorStateKalmanFilter::makeState(
-      Vector3d::Zero(),         // init pos
-      Vector3d::Zero(),         // init vel
-      q_m_,                     // init quaternion
-      Vector3d::Zero(),         // init accel bias
-      Vector3d::Zero()          // init gyro bias
+      Vector3d::Zero(),  // init pos
+      Vector3d::Zero(),  // init vel
+      q_m_,              // init quaternion
+      Vector3d::Zero(),  // init accel bias
+      Vector3d::Zero()   // init gyro bias
       ),
     ErrorStateKalmanFilter::makeP(
       sqr(1.) * I_3, sqr(0.1) * I_3, sqr(1.) * I_3, sqr(10 * 0.001 * 0.00124) * I_3,

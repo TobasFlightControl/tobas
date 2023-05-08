@@ -17,8 +17,8 @@ static const std::string kPluginName = "noisydepth_plugin";
 
 // Default values
 static const std::string kDefaultIrImageTopic = "ir/image_raw";
-static const std::string kDefaultIrInfoTopic= "ir/image_info";
-static const std::string kDefaultDepthImageTopic= "depth/image_raw";
+static const std::string kDefaultIrInfoTopic = "ir/image_info";
+static const std::string kDefaultDepthImageTopic = "depth/image_raw";
 static const std::string kDefaultDepthInfoTopic = "depth/image_info";
 static const std::string kDefaultDepthNoiseModel = "Kinect";
 static constexpr float kDefaultDepthNoiseMinDist = 0.0f;

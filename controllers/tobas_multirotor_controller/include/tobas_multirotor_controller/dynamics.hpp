@@ -45,7 +45,7 @@ public:
 private:
   const Drone& drone_;
   const std::vector<uint32_t> ver_prop_idxes_;
-  const uint32_t u_dim_;  // 制御入力の次元
+  const uint32_t u_size_;  // 制御入力の次元
 
   // KDL tools
   KDL::ExtTreeFkSolverPos fk_solver_;

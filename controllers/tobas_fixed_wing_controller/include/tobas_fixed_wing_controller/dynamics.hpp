@@ -62,13 +62,13 @@ private:
   KDL::TreeKDLModel kdl_model_;
 
   // 固定値
-  std::vector<uint32_t> hor_prop_idxes_;     // X軸正方向を向いたプロペラの添字
-  Eigen::VectorXd min_u_;                    // 制御入力の最小値 (固定)
-  Eigen::VectorXd max_u_;                    // 制御入力の最大値 (固定)
-  double mass_;                              // 機体の質量 [kg]
+  std::vector<uint32_t> hor_prop_idxes_;  // X軸正方向を向いたプロペラの添字
+  Eigen::VectorXd min_u_;                 // 制御入力の最小値 (固定)
+  Eigen::VectorXd max_u_;                 // 制御入力の最大値 (固定)
+  double mass_;                           // 機体の質量 [kg]
 
   Eigen::Matrix<double, kStateSize, 1> x_0_;  // トリム時の状態
-  Eigen::VectorXd u_0_;                      // トリム時の制御入力
+  Eigen::VectorXd u_0_;                       // トリム時の制御入力
 
   void setInputLimits();
   void updateTrimStateInput(double V, double rho);
