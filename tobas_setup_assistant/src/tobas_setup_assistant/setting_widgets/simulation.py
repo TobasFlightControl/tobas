@@ -30,6 +30,7 @@ class SimulationWidget(BaseSettingWidget):
             suffix=" m/s^2",
         )
         self._rows.addWidget(self.gravity)
+        self.gravity.setEnabled(False)  # 重力の変化は無視できるため，標準重力加速度のみを使う
 
         latitude_0_description = "TODO: instruction"
         self.latitude_0 = ParamGetterWidget_DoubleSpinBox(
