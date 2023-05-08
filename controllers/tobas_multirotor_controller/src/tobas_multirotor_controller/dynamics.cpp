@@ -47,7 +47,7 @@ void MultiRotorDynamics::updateB(const JntArray& q)
   for (int i = 0; i < u_dim_; ++i)
   {
     const auto& rotor_idx = ver_prop_idxes_[i];
-    const auto& rotor_config = drone_.rotorConfigs()[rotor_idx];
+    const auto& rotor_config = drone_.rotorConfig(rotor_idx);
 
     fk_solver_.JntToCart(q, rotor_config.link_name, T_base_rotor_);
     P_cog_rotor_kdl_ = T_base_rotor_.p - P_base_cog_;

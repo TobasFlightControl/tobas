@@ -21,6 +21,7 @@ public:
   const double& batteryVoltage() const;
   const std::vector<std::string>& activeJointNames() const;
   const RotorConfigs& rotorConfigs() const;
+  const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
   const FixedWingConfig& fixedWingConfig() const;
 
   uint32_t numRotors() const;
@@ -32,10 +33,10 @@ public:
   uint32_t numRotorsInAxis(const Axis& axis) const;
 
   /* 指定したロータの最大回転数 [rad/s]． */
-  double maxRotSpeed(uint32_t idx) const;
+  double maxRotSpeed(uint32_t rotor_idx) const;
 
   /* 指定したロータの最大推力 [N]． */
-  double maxThrust(uint32_t idx) const;
+  double maxThrust(uint32_t rotor_idx) const;
 
 private:
   KDL::Tree tree_;
@@ -48,7 +49,7 @@ private:
   void getTree(const std::string& ns);
 
   void getRotorConfigs(const std::string& ns);
-  void getRotorConfig(const std::string& ns, uint32_t idx);
+  void getRotorConfig(const std::string& ns, uint32_t rotor_idx);
 
   void getFixedWingConfig(const std::string& ns);
   void getVehicleParameters(const std::string& ns);

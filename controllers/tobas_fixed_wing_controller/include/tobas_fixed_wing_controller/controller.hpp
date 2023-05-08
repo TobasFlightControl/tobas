@@ -38,12 +38,6 @@ private:
   // RosParams
   ConfigType init_dynamic_config_;  // 動的パラメータの初期値
 
-  // 固定値
-  std::vector<uint32_t> hor_prop_idxes_;  // 使用するロータ (+X) の添字
-  uint32_t num_hor_props_;                // 推力発生用プロペラの個数
-  uint32_t num_cs_;                       // 制御面の個数
-  uint32_t u_dim_;                        // MPCの制御変数の次元
-
   bool is_initialized_;
   tobas_msgs::BaseState cur_bs_;  // 現在の状態 (NUD座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;

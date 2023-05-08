@@ -166,7 +166,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
     }
 
     const auto& idx = ver_prop_idxes[i];
-    speeds.speeds[idx] = sqrt(max(u(i), 0.) / drone_.rotorConfigs()[idx].motor_constant);
+    speeds.speeds[idx] = sqrt(max(u(i), 0.) / drone_.rotorConfig(idx).motor_constant);
   }
 }
 

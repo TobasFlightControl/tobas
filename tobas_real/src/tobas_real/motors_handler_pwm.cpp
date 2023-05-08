@@ -102,7 +102,7 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
 
   for (int i = 0; i < drone_.numRotors(); ++i)
   {
-    const auto& rotor_config = drone_.rotorConfigs()[i];
+    const auto& rotor_config = drone_.rotorConfig(i);
     const double max_speed = rpmToRadPerSec(drone_.maxRotSpeed(i));
 
     // 指令速度を決定

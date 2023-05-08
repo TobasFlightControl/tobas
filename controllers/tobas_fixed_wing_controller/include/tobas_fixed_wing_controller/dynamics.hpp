@@ -33,6 +33,11 @@ public:
   const Eigen::Matrix<double, stateSize, 1>& trimState() const;
   const Eigen::VectorXd& trimInput() const;
 
+  const Eigen::VectorXd& minInput() const;
+  const Eigen::VectorXd& maxInput() const;
+  Eigen::VectorXd minDeltaInput() const;
+  Eigen::VectorXd maxDeltaInput() const;
+
   double trimState_u() const;
   double trimState_alpha() const;
   double trimState_beta() const;
@@ -42,11 +47,23 @@ public:
   double trimState_q() const;
   double trimState_r() const;
 
+  uint32_t horizontalPropIndex(uint32_t input_index) const;
+  uint32_t horizontalPropsSize() const;
+  uint32_t controlSurfacesSize() const;
+  uint32_t inputSize() const;
+
 private:
   const Drone& drone_;
   KDL::TreeKDLModel kdl_model_;
 
-  Eigen::Matrix<double, stateSize, 1> trim_state_;  // トリム時の状態
-  Eigen::VectorXd trim_input_;                      // トリム時の制御入力
+  // 固定
+  std::vector<uint32_t> hor_prop_idxes_;     // X軸正方向を向いたプロペラの添字
+  Eigen::VectorXd min_u_;                    // 制御入力の最小値 (固定)
+  Eigen::VectorXd max_u_;                    // 制御入力の最大値 (固定)
+
+  Eigen::Matrix<double, stateSize, 1> x_0_;  // トリム時の状態
+  Eigen::VectorXd u_0_;                      // トリム時の制御入力
+
+  void setInputLimits();
 };
 }  // namespace tobas_fixed_wing_controller

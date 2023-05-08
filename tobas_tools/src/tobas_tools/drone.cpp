@@ -58,6 +58,11 @@ const RotorConfigs& Drone::rotorConfigs() const
   return rotor_configs_;
 }
 
+const RotorConfig& Drone::rotorConfig(uint32_t rotor_idx) const
+{
+  return rotor_configs_[rotor_idx];
+}
+
 const FixedWingConfig& Drone::fixedWingConfig() const
 {
   return fixed_wing_config_;
@@ -86,16 +91,16 @@ uint32_t Drone::numRotorsInAxis(const Axis& axis) const
   return rotorConfigIdxInAxis(axis).size();
 }
 
-double Drone::maxRotSpeed(uint32_t idx) const
+double Drone::maxRotSpeed(uint32_t rotor_idx) const
 {
-  assert(idx < numRotors());
+  assert(rotor_idx < numRotors());
 
-  return rotor_configs_[idx].kv * battery_voltage_;
+  return rotor_configs_[rotor_idx].kv * battery_voltage_;
 }
 
-double Drone::maxThrust(uint32_t idx) const
+double Drone::maxThrust(uint32_t rotor_idx) const
 {
-  return rotor_configs_[idx].motor_constant * dh_std::sqr(maxRotSpeed(idx));
+  return rotor_configs_[rotor_idx].motor_constant * dh_std::sqr(maxRotSpeed(rotor_idx));
 }
 
 void Drone::getTree(const string& ns)
@@ -118,10 +123,10 @@ void Drone::getRotorConfigs(const string& ns)
   }
 }
 
-void Drone::getRotorConfig(const string& ns, uint32_t idx)
+void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 {
-  const string prefix = ns + "/rotor_" + to_string(idx);
-  auto& des = rotor_configs_[idx];
+  const string prefix = ns + "/rotor_" + to_string(rotor_idx);
+  auto& des = rotor_configs_[rotor_idx];
 
   // Link name
   dh_ros::getParam(prefix + "/link_name", des.link_name);

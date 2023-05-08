@@ -24,29 +24,24 @@ Controller::Controller() : super()
   getRosParams();
   drone_.loadFromParam(ns_);
 
-  hor_prop_idxes_ = drone_.rotorConfigIdxInAxis(Axis::X_POSITIVE);
-  num_hor_props_ = hor_prop_idxes_.size();
-  num_cs_ = drone_.fixedWingConfig().control_surfaces.size();
-  u_dim_ = num_hor_props_ + num_cs_;
-
   is_initialized_ = false;
   rotor_speeds_msg_.speeds.resize(drone_.numRotors());
-  deflections_msg_.deflections.resize(num_cs_);
+  deflections_msg_.deflections.resize(cont_->controlSurfacesSize());
 
   cont_.reset(new FixedWingMicroDisturbanceDynamics(drone_));
-  c2d_.reset(new ctrl::C2D_RK4(cont_->stateSize, u_dim_));
+  c2d_.reset(new ctrl::C2D_RK4(cont_->stateSize, cont_->inputSize()));
 
   mpc_.decay_time_consts.resize(ctrlSize);
   setCz();
   setScales();
-  mpc_.input_rate_weight.resize(u_dim_);
-  mpc_.input_weight.resize(u_dim_);
+  mpc_.input_rate_weight.resize(cont_->inputSize());
+  mpc_.input_weight.resize(cont_->inputSize());
   mpc_.control_weight.resize(ctrlSize);
   setInputRateConstraint();
   mpc_.control_constraint.resize(ctrlSize, 0);
   mpc_.current_state.resize(cont_->stateSize);
   mpc_.set_state.resize(ctrlSize);
-  mpc_.last_input = VectorXd::Zero(u_dim_);
+  mpc_.last_input = VectorXd::Zero(cont_->inputSize());
 
   dynamicReconfigureCb(init_dynamic_config_, 0);
 
@@ -100,16 +95,17 @@ void Controller::runOnce()
   updateCurrentStateVector();
 
   // MPCを解いて最適制御入力を求める
-  VectorXd du = mpc_.solveMPC();
-  VectorXd u = cont_->trimInput() + du;
+  const VectorXd du = mpc_.solveMPC();
+  const VectorXd u = cont_->trimInput() + du;
 
   // 各ロータの回転数を発行
-  VectorXd thrust = u.block(0, 0, num_hor_props_, 1);
+  const VectorXd thrust = u.block(0, 0, cont_->horizontalPropsSize(), 1);
   updateRotorSpeeds(thrust);
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
   // 各操舵面の偏角を発行
-  VectorXd deflections = u.block(num_hor_props_, 0, num_cs_, 1);
+  const VectorXd deflections =
+    u.block(cont_->horizontalPropsSize(), 0, cont_->controlSurfacesSize(), 1);
   updateDeflections(deflections);
   deflections_pub_.publish(deflections_msg_);
 }
@@ -131,30 +127,34 @@ void Controller::setScales()
   mpc_.control_scale(ctrlIdx_phi) = mpc_.control_scale(ctrlIdx_theta) = M_PI;
 
   // 制御入力のスケール
-  mpc_.input_scale.resize(u_dim_);
-  for (int i = 0; i < num_hor_props_; ++i)
+  mpc_.input_scale.resize(cont_->inputSize());
+  for (int i = 0; i < cont_->horizontalPropsSize(); ++i)
   {
-    const auto& rotor_idx = hor_prop_idxes_[i];
+    const auto& rotor_idx = cont_->horizontalPropIndex(i);
     mpc_.input_scale(i) = drone_.maxThrust(rotor_idx);
   }
-  mpc_.input_weight.block(num_hor_props_, 0, num_cs_, 1) = VectorXd::Constant(num_cs_, M_PI);
+  mpc_.input_weight.block(cont_->horizontalPropsSize(), 0, cont_->controlSurfacesSize(), 1) =
+    VectorXd::Constant(cont_->controlSurfacesSize(), M_PI);
 }
 
 void Controller::setInputConstraint()
 {
-  // TODO
+  const auto lb = cont_->minDeltaInput();
+  const auto ub = cont_->maxDeltaInput();
+  mpc_.input_constraint = ctrl::matIneqFromRange(lb, ub);
 }
 
 void Controller::setInputRateConstraint()
 {
-  VectorXd lb = VectorXd::Constant(u_dim_, numeric_limits<double>::lowest());
-  VectorXd ub = VectorXd::Constant(u_dim_, numeric_limits<double>::max());
+  VectorXd lb = VectorXd::Constant(cont_->inputSize(), numeric_limits<double>::lowest());
+  VectorXd ub = VectorXd::Constant(cont_->inputSize(), numeric_limits<double>::max());
 
-  for (int i = 0; i < num_cs_; ++i)
+  for (int i = 0; i < cont_->controlSurfacesSize();
+       ++i)  // FIXME: 遅延が大きいなら舵角の変化率の制約は消してもいいかも
   {
     const auto& max_angle_rate = drone_.fixedWingConfig().control_surfaces[i].max_angle_rate;
-    lb(num_hor_props_ + i) = -max_angle_rate;
-    ub(num_hor_props_ + i) = +max_angle_rate;
+    lb(cont_->horizontalPropsSize() + i) = -max_angle_rate;
+    ub(cont_->horizontalPropsSize() + i) = +max_angle_rate;
   }
 
   mpc_.input_rate_constraint = ctrl::matIneqFromRange(lb, ub);
@@ -183,7 +183,7 @@ void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 
 void Controller::updateRotorSpeeds(const VectorXd& thrust)
 {
-  ROS_ASSERT(thrust.rows() == num_hor_props_);
+  ROS_ASSERT(thrust.rows() == cont_->horizontalPropsSize());
 
   for (int i = 0; i < thrust.rows(); ++i)
   {
@@ -193,15 +193,15 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
       // TODO: 防御モードに移行
     }
 
-    const auto& idx = hor_prop_idxes_[i];
-    rotor_speeds_msg_.speeds[idx] =
-      sqrt(max(thrust(i), 0.) / drone_.rotorConfigs()[idx].motor_constant);
+    const auto& rotor_idx = cont_->horizontalPropIndex(i);
+    rotor_speeds_msg_.speeds[rotor_idx] =
+      sqrt(max(thrust(i), 0.) / drone_.rotorConfig(rotor_idx).motor_constant);
   }
 }
 
 void Controller::updateDeflections(const VectorXd& deflections)
 {
-  ROS_ASSERT(deflections.rows() == num_cs_);
+  ROS_ASSERT(deflections.rows() == cont_->controlSurfacesSize());
 
   deflections_msg_.deflections = eigen_tools::toStdVector(deflections);
 }
@@ -258,22 +258,22 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
   mpc_.decay_time_consts(ctrlIdx_phi) = mpc_.decay_time_consts(ctrlIdx_theta) = cfg.rotation_decay;
 
   mpc_.discrete_dynamics.resize(
-    cfg.prediction_steps, ctrl::LinearDynamics(cont_->stateSize, u_dim_));
+    cfg.prediction_steps, ctrl::LinearDynamics(cont_->stateSize, cont_->inputSize()));
 
   // 制御変数の重み
   mpc_.control_weight(ctrlIdx_beta) = cfg.beta_weight;
   mpc_.control_weight(ctrlIdx_phi) = mpc_.control_weight(ctrlIdx_theta) = cfg.rotation_weight;
 
   // 制御入力の重み
-  mpc_.input_weight.block(0, 0, num_hor_props_, 1) =
-    VectorXd::Constant(num_hor_props_, pow(10, cfg.thrust_force_weight_exp));
-  mpc_.input_weight.block(num_hor_props_, 0, num_cs_, 1) =
-    VectorXd::Constant(num_cs_, pow(10, cfg.deflection_weight_exp));
+  mpc_.input_weight.block(0, 0, cont_->horizontalPropsSize(), 1) =
+    VectorXd::Constant(cont_->horizontalPropsSize(), pow(10, cfg.thrust_force_weight_exp));
+  mpc_.input_weight.block(cont_->horizontalPropsSize(), 0, cont_->controlSurfacesSize(), 1) =
+    VectorXd::Constant(cont_->controlSurfacesSize(), pow(10, cfg.deflection_weight_exp));
 
   // 制御入力の変化率の重み
-  mpc_.input_rate_weight.block(0, 0, num_hor_props_, 1) =
-    VectorXd::Constant(num_hor_props_, pow(10, cfg.thrust_force_rate_weight_exp));
-  mpc_.input_rate_weight.block(num_hor_props_, 0, num_cs_, 1) =
-    VectorXd::Constant(num_cs_, pow(10, cfg.deflection_rate_weight_exp));
+  mpc_.input_rate_weight.block(0, 0, cont_->horizontalPropsSize(), 1) =
+    VectorXd::Constant(cont_->horizontalPropsSize(), pow(10, cfg.thrust_force_rate_weight_exp));
+  mpc_.input_rate_weight.block(cont_->horizontalPropsSize(), 0, cont_->controlSurfacesSize(), 1) =
+    VectorXd::Constant(cont_->controlSurfacesSize(), pow(10, cfg.deflection_rate_weight_exp));
 }
 }  // namespace tobas_fixed_wing_controller
