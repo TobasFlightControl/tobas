@@ -130,8 +130,8 @@ private:
   // 固定値
   double mass_;                        // 機体の質量 [kg]
   std::vector<uint32_t> hprop_idxes_;  // X軸正方向を向いたプロペラの添字
-  uint32_t hprop_size_;
-  uint32_t cs_size_;
+  uint32_t num_hprop_;
+  uint32_t num_cs_;
   uint32_t u_size_;
   Eigen::VectorXd min_u_;  // 制御入力の最小値
   Eigen::VectorXd max_u_;  // 制御入力の最大値
@@ -151,7 +151,5 @@ private:
   Eigen::Vector3d P_cog_rotor_eigen_;
   KDL::Frame T_base_rotor_;
 
-  /* The column number of a control surface in the control matrix B. */
-  uint32_t controlSurfaceColumn(uint32_t cs_idx) const;
   void setInputLimits();
 };

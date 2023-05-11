@@ -20,9 +20,9 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, uint32_t elev_cs_id
 {
   mass_ = inertia_solver_.JntToMass();
   hprop_idxes_ = drone.rotorConfigIdxInAxis(Axis::X_POSITIVE);
-  hprop_size_ = hprop_idxes_.size();
-  cs_size_ = drone.fixedWingConfig().control_surfaces.size();
-  u_size_ = hprop_size_ + cs_size_;
+  num_hprop_ = hprop_idxes_.size();
+  num_cs_ = drone.fixedWingConfig().control_surfaces.size();
+  u_size_ = num_hprop_ + num_cs_;
   setInputLimits();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
@@ -137,7 +137,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
 
   // Bを更新
   // thrust -> u
-  for (int i = 0; i < hprop_size_; ++i)
+  for (int i = 0; i < num_hprop_; ++i)
   {
     B_(kStateIdx_u, i) = 1 / mass_;
   }
@@ -145,7 +145,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   // thrust -> p,q,r
   tf::rotInertiaKDLToEigen(I_kdl_, I_eigen_);
   const auto I_inv = I_eigen_.inverse();
-  for (int i = 0; i < hprop_size_; ++i)
+  for (int i = 0; i < num_hprop_; ++i)
   {
     const auto& rotor_idx = hprop_idxes_[i];
     const auto& rotor_config = drone_.rotorConfig(rotor_idx);
@@ -159,7 +159,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   }
 
   // deflection
-  for (int cs_idx = 0; cs_idx < cs_size_; ++cs_idx)
+  for (int cs_idx = 0; cs_idx < num_cs_; ++cs_idx)
   {
     const auto& cs = control_surfaces[cs_idx];
 
@@ -172,7 +172,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
     const auto N_delta_dash =
       q_S_b / I_z_tilde * (asd_cog.cYawDelta(cs_idx) + I_xz / I_x * cs.c_roll_delta);  // (3.2-22)
 
-    const auto col = controlSurfaceColumn(cs_idx);
+    const auto col = num_hprop_ + cs_idx;
     B_(kStateIdx_alpha, col) = Z_delta_bar;
     B_(kStateIdx_beta, col) = Y_delta_bar;
     B_(kStateIdx_p, col) = L_delta_dash;
@@ -181,21 +181,21 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   }
 
   // トリム時の状態を更新
-  x_0_(MicroDisturbanceEoM::kStateIdx_u) = trim_.u();
-  x_0_(MicroDisturbanceEoM::kStateIdx_alpha) = trim_.alpha();
-  x_0_(MicroDisturbanceEoM::kStateIdx_beta) = 0.;
-  x_0_(MicroDisturbanceEoM::kStateIdx_phi) = 0.;
-  x_0_(MicroDisturbanceEoM::kStateIdx_theta) = trim_.theta();
-  x_0_(MicroDisturbanceEoM::kStateIdx_p) = 0.;
-  x_0_(MicroDisturbanceEoM::kStateIdx_q) = 0.;
-  x_0_(MicroDisturbanceEoM::kStateIdx_r) = 0.;
+  x_0_(kStateIdx_u) = trim_.u();
+  x_0_(kStateIdx_alpha) = trim_.alpha();
+  x_0_(kStateIdx_beta) = 0.;
+  x_0_(kStateIdx_phi) = 0.;
+  x_0_(kStateIdx_theta) = trim_.theta();
+  x_0_(kStateIdx_p) = 0.;
+  x_0_(kStateIdx_q) = 0.;
+  x_0_(kStateIdx_r) = 0.;
 
   // トリム時の制御入力を更新
   // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
-  const auto thrust_avg = thrust_sum / hprop_size_;
-  u_0_.block(0, 0, hprop_size_, 0) = VectorXd::Constant(hprop_size_, thrust_avg);
-  u_0_(hprop_size_) = trim_.elevator();
+  const auto thrust_avg = thrust_sum / num_hprop_;
+  u_0_.block(0, 0, num_hprop_, 0) = VectorXd::Constant(num_hprop_, thrust_avg);
+  u_0_(num_hprop_) = trim_.elevator();
 }
 
 const TrimConditions& MicroDisturbanceEoM::trimCondition() const
@@ -250,12 +250,12 @@ const uint32_t& MicroDisturbanceEoM::hPropIndex(uint32_t u_idx) const
 
 const uint32_t& MicroDisturbanceEoM::numHProps() const
 {
-  return hprop_size_;
+  return num_hprop_;
 }
 
 const uint32_t& MicroDisturbanceEoM::numControlSurfaces() const
 {
-  return cs_size_;
+  return num_cs_;
 }
 
 const uint32_t& MicroDisturbanceEoM::inputSize() const
@@ -441,32 +441,27 @@ const double& MicroDisturbanceEoM::u_thrust() const
 
 const double& MicroDisturbanceEoM::alpha_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_alpha, controlSurfaceColumn(cs_idx));
+  return B_(kStateIdx_alpha, num_hprop_ + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::beta_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_beta, controlSurfaceColumn(cs_idx));
+  return B_(kStateIdx_beta, num_hprop_ + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::p_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_p, controlSurfaceColumn(cs_idx));
+  return B_(kStateIdx_p, num_hprop_ + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::q_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_q, controlSurfaceColumn(cs_idx));
+  return B_(kStateIdx_q, num_hprop_ + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::r_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_r, controlSurfaceColumn(cs_idx));
-}
-
-uint32_t MicroDisturbanceEoM::controlSurfaceColumn(uint32_t cs_idx) const
-{
-  return hprop_size_ + cs_idx;
+  return B_(kStateIdx_r, num_hprop_ + cs_idx);
 }
 
 void MicroDisturbanceEoM::setInputLimits()
@@ -474,15 +469,16 @@ void MicroDisturbanceEoM::setInputLimits()
   min_u_.resize(u_size_);
   max_u_.resize(u_size_);
 
-  for (int i = 0; i < hprop_size_; ++i)
+  for (int i = 0; i < num_hprop_; ++i)
   {
     min_u_(i) = 0.;
     max_u_(i) = drone_.maxThrust(hPropIndex(i));
   }
 
-  for (int i = 0; i < cs_size_; ++i)
+  for (int i = 0; i < num_cs_; ++i)
   {
-    min_u_(hprop_size_ + i) = drone_.fixedWingConfig().control_surfaces[i].angle_limit.lower;
-    max_u_(hprop_size_ + i) = drone_.fixedWingConfig().control_surfaces[i].angle_limit.upper;
+    const auto& cs = drone_.fixedWingConfig().control_surfaces[i];
+    min_u_(num_hprop_ + i) = cs.angle_limit.lower;
+    max_u_(num_hprop_ + i) = cs.angle_limit.upper;
   }
 }
