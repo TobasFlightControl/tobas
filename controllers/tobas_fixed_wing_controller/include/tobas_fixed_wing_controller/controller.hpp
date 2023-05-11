@@ -9,13 +9,12 @@
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
 #include <tobas_tools/drone.hpp>
+#include <tobas_tools/micro_disturbance_eom.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_fixed_wing_controller/ControllerConfig.h>
-
-#include "./dynamics.hpp"
 
 namespace tobas_fixed_wing_controller
 {
@@ -36,16 +35,17 @@ private:
   Drone drone_;
 
   // RosParams
-  ConfigType init_dynamic_config_;  // 動的パラメータの初期値
+  ConfigType cfg_;  // 動的パラメータの初期値
+  int trim_elev_idx_;
 
   bool is_initialized_;
   tobas_msgs::BaseState cur_bs_;  // 現在の状態 (NUD座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 
-  std::shared_ptr<FixedWingMicroDisturbanceDynamics> cont_;  // 微小擾乱状態方程式
-  std::shared_ptr<ctrl::C2D_RK4> c2d_;                       // 状態方程式を離散化
-  ctrl::LinearDenseMPC mpc_;                                 // 線形モデル予測制御
+  std::shared_ptr<MicroDisturbanceEoM> eom_;  // 微小擾乱状態方程式
+  std::shared_ptr<ctrl::C2D_RK4> c2d_;        // 状態方程式を離散化
+  ctrl::LinearDenseMPC mpc_;                  // 線形モデル予測制御
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
@@ -71,6 +71,7 @@ private:
   void updateSetStateVector(double tar_roll, double tar_delta_pitch);
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);
   void updateDeflections(const Eigen::VectorXd& deflections);
+  void reconfigure(const ConfigType& cfg);
 
   void baseStateCb(const StateMsg& bs_nwu);
   void commandCb(const CmdMsg& cmd_nwu);

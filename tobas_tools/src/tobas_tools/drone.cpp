@@ -245,19 +245,21 @@ void Drone::getVehicleParameters(const string& ns)
     throw dh_ros::RuntimeError("wing_span must be positive.");
   }
 
-  dh_ros::getParam(prefix + "/mean_aerodynamic_chord", des.mean_aerodynamic_chord);
-  if (des.mean_aerodynamic_chord <= 0.)
+  dh_ros::getParam(prefix + "/mean_aerodynamic_chord", des.mac);
+  if (des.mac <= 0.)
   {
     throw dh_ros::RuntimeError("mean_aerodynamic_chord must be positive.");
   }
 
-  vector<double> aerodynamic_center;
-  dh_ros::getParam<vector<double>>(prefix + "/aerodynamic_center", aerodynamic_center);
-  if (aerodynamic_center.size() != 3)
+  vector<double> ac;
+  dh_ros::getParam<vector<double>>(prefix + "/aerodynamic_center", ac);
+  if (ac.size() != 3)
   {
     throw dh_ros::RuntimeError("Size mismatch: The size of aerodynamic_center must be 3.");
   }
-  des.aerodynamic_center = Map<Vector3d>(aerodynamic_center.data());
+  des.ac.x(ac[0]);
+  des.ac.y(ac[1]);
+  des.ac.z(ac[2]);
 
   dh_ros::getParam(prefix + "/alpha_limit/lower", des.alpha_limit.lower);
   dh_ros::getParam(prefix + "/alpha_limit/upper", des.alpha_limit.upper);

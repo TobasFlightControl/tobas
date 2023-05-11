@@ -8,13 +8,17 @@
 
 struct VehicleParameters
 {
-  double wing_surface;                 // 主翼面積 [m^2]
-  double wing_span;                    // 翼幅 [m]
-  double mean_aerodynamic_chord;       // 平均空力翼弦 [m]
-  Eigen::Vector3d aerodynamic_center;  // フレーム原点に対する空力中心 (NWU) [m]
-  dh_std::Range<double> alpha_limit;   // 失速角 [rad]
+  double wing_surface;                // Wing surface [m^2]
+  double wing_span;                   // Wing span [m]
+  double mac;                         // Mean Aerodynamic Chord [m]
+  KDL::Vector ac;                     // Aerodynamic Center wrt the frame origin (NWU) [m]
+  dh_std::Range<double> alpha_limit;  // Stall angles [rad]
 };
 
+/**
+ * @brief Aerodynamics stability derivatives independent of control surfaces.
+ * The moment reference point for the wing is at the wing quarter-chord.
+ */
 struct AerodynamicsCoefficients
 {
   // Lift force
@@ -47,7 +51,9 @@ struct AerodynamicsCoefficients
 };
 
 /**
- * @brief 舵面．軸が概ねY軸またはZ軸に平行であることを想定．
+ * @brief Control sufrace.
+ * The moment reference point for the wing is at the wing quarter-chord.
+ * A rotation axis parallel to the Y or Z axis is assumed.
  */
 struct ControlSurface
 {
@@ -103,3 +109,12 @@ double angleOfSideSlip(double u, double v, double w);
  * @return double 横滑り角 [rad]
  */
 double angleOfSideSlip(const KDL::Vector& linvel_B);
+
+/**
+ * @brief 動圧 (q_bar) を計算する．
+ *
+ * @param rho 大気密度 [kg/m^3]
+ * @param V 風に対する相対的な機体速度の絶対値 [m/s]
+ * @return double 動圧 [Pa]
+ */
+double dynamicPressure(double rho, double V);

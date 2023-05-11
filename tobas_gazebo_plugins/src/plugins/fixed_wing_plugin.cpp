@@ -71,15 +71,15 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": wingSpan must be positive.");
   }
 
-  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mean_aerodynamic_chord);
-  if (vehicle_params_.mean_aerodynamic_chord <= 0.)
+  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mac);
+  if (vehicle_params_.mac <= 0.)
   {
     gzthrow(kPluginName << ": meanAerodynamicChord must be positive.");
   }
 
-  Vector3d aerodynamic_center;
-  getSdfParam(sdf, "aerodynamicCenter", aerodynamic_center);
-  vectorGazeboToEigen(aerodynamic_center, vehicle_params_.aerodynamic_center);
+  Vector3d ac;
+  getSdfParam(sdf, "aerodynamicCenter", ac);
+  vectorGazeboToKDL(ac, vehicle_params_.ac);
 
   getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
   getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
@@ -256,7 +256,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   const double& C_m = moment_coefs.Y();                                       // [-]
   const double& C_n = moment_coefs.Z();                                       // [-]
   const double& b = vehicle_params_.wing_span;                                // [m]
-  const double& c_bar = vehicle_params_.mean_aerodynamic_chord;               // [m]
+  const double& c_bar = vehicle_params_.mac;                                  // [m]
   Vector3d air_moment = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
 
   // NED -> NWU
@@ -264,9 +264,9 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   NED2NWU(air_moment);
 
   // 空気力を作用させる
-  Vector3d aerodynamic_center;
-  vectorEigenToGazebo(vehicle_params_.aerodynamic_center, aerodynamic_center);
-  link_->AddLinkForce(air_force, aerodynamic_center);
+  Vector3d ac;
+  vectorKDLToGazebo(vehicle_params_.ac, ac);
+  link_->AddLinkForce(air_force, ac);
   link_->AddRelativeTorque(air_moment);
 }
 
@@ -389,7 +389,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   C_m += aero_coefs_.c_pitch_abs_beta * abs(beta);
 
   // 角速度
-  const double& c = vehicle_params_.mean_aerodynamic_chord;
+  const double& c = vehicle_params_.mac;
   C_m += c / (2 * V) * (aero_coefs_.c_pitch_alpha_rate * alpha_rate + aero_coefs_.c_pitch_q * q);
 
   // 舵面
