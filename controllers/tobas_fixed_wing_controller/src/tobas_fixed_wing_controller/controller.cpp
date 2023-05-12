@@ -25,6 +25,8 @@ Controller::Controller() : super()
   getRosParams();
   drone_.loadFromParam(ns_);
 
+  q_0_.resize(drone_.tree().getNrOfJoints());
+
   eom_.reset(new MicroDisturbanceEoM(drone_, trim_elev_idx_));
   c2d_.reset(new ctrl::C2D_RK4(eom_->kStateSize, eom_->inputSize()));
 
@@ -92,7 +94,15 @@ void Controller::initialize()
 
 void Controller::runOnce()
 {
+  // 状態方程式を更新
+  eom_->update(cmd_ned_.speed, -bs_ned_.pose.pos.z(), q_0_);
+  const ctrl::LinearDynamics cont(eom_->A(), eom_->B());
+  const auto disc = c2d_->convert(cont, mpc_.time_step);
+  fill(mpc_.discrete_dynamics, disc);
+
+  setInputConstraint();  // EoMの更新後に呼ぶ必要がある
   updateCurrentStateVector();
+  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);  // NWU->NEDに変換して渡す
 
   const auto& trim = eom_->trimCondition();
 
@@ -164,18 +174,18 @@ void Controller::setInputRateConstraint()
 
 void Controller::updateCurrentStateVector()
 {
-  const Vector linvel_B = cur_bs_.pose.euler * cur_bs_.twist.vel;
+  const Vector linvel_B = bs_ned_.pose.euler * bs_ned_.twist.vel;
   const auto& trim = eom_->trimCondition();
 
   // TODO: 横系のトリムも考慮
   mpc_.current_state(eom_->kStateIdx_u) = linvel_B.x() - trim.u();
   mpc_.current_state(eom_->kStateIdx_alpha) = angleOfAttack(linvel_B) - trim.alpha();
   mpc_.current_state(eom_->kStateIdx_beta) = angleOfSideSlip(linvel_B);
-  mpc_.current_state(eom_->kStateIdx_phi) = cur_bs_.pose.euler.roll;
-  mpc_.current_state(eom_->kStateIdx_theta) = cur_bs_.pose.euler.pitch - trim.theta();
-  mpc_.current_state(eom_->kStateIdx_p) = cur_bs_.twist.rot.x();
-  mpc_.current_state(eom_->kStateIdx_q) = cur_bs_.twist.rot.y();
-  mpc_.current_state(eom_->kStateIdx_r) = cur_bs_.twist.rot.z();
+  mpc_.current_state(eom_->kStateIdx_phi) = bs_ned_.pose.euler.roll;
+  mpc_.current_state(eom_->kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
+  mpc_.current_state(eom_->kStateIdx_p) = bs_ned_.twist.rot.x();
+  mpc_.current_state(eom_->kStateIdx_q) = bs_ned_.twist.rot.y();
+  mpc_.current_state(eom_->kStateIdx_r) = bs_ned_.twist.rot.z();
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
@@ -259,7 +269,12 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
   }
 
   // コールバックの時点で全てNED座標系に変換しておく
-  tf::baseStateNwuToNed(bs_nwu, cur_bs_);
+  tf::baseStateNwuToNed(bs_nwu, bs_ned_);
+
+  if (!bs_received_)
+  {
+    bs_received_ = true;
+  }
 
   // メイン処理
   runOnce();
@@ -267,20 +282,19 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
 
 void Controller::commandCb(const CmdMsg& cmd_nwu)
 {
-  if (cmd_nwu.speed < 0.)
+  if (!bs_received_)
   {
-    dh_ros::rosError("Negative speed is commanded.");
     return;
   }
 
-  // 状態方程式を更新
-  eom_->update(cmd_nwu.speed, cur_bs_.pose.pos.z(), JntArray(drone_.tree().getNrOfJoints()));
-  const ctrl::LinearDynamics cont(eom_->A(), eom_->B());
-  const auto disc = c2d_->convert(cont, mpc_.time_step);
-  fill(mpc_.discrete_dynamics, disc);
+  const auto cur_altitude = -bs_ned_.pose.pos.z();
+  if (!eom_->trimCondition().speedLimit(cur_altitude).inRange(cmd_nwu.speed))
+  {
+    dh_ros::rosError("Invalid speed is commanded.");
+    return;
+  }
 
-  setInputConstraint();
-  updateSetStateVector(cmd_nwu.roll, -cmd_nwu.delta_pitch);  // NWU->NEDに変換して渡す
+  tf::speedRollDeltaPitchNwuToNed(cmd_nwu, cmd_ned_);
 }
 
 void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)

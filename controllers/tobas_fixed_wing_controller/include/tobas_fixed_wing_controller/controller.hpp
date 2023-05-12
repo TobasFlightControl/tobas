@@ -38,8 +38,13 @@ private:
   ConfigType cfg_;  // 動的パラメータの初期値
   int trim_elev_idx_;
 
+  // 固定値
+  KDL::JntArray q_0_;
+
+  bool bs_received_;
   bool is_initialized_;
-  tobas_msgs::BaseState cur_bs_;  // 現在の状態 (NUD座標系)
+  StateMsg bs_ned_;  // 現在の状態 (NED座標系)
+  CmdMsg cmd_ned_;   // 現在のコマンド (NED座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 

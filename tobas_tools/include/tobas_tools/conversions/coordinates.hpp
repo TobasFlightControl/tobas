@@ -2,6 +2,7 @@
 
 #include <tobas_msgs/Pose.h>
 #include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/SpeedRollDeltaPitch.h>
 
 namespace tf
 {
@@ -14,4 +15,13 @@ void baseStateNedToNwu(const tobas_msgs::BaseState& src, tobas_msgs::BaseState& 
 void baseStateNwuToNed(const tobas_msgs::BaseState& src, tobas_msgs::BaseState& des);
 void baseStateNedToNwu(tobas_msgs::BaseState& arg);
 void baseStateNwuToNed(tobas_msgs::BaseState& arg);
+
+void speedRollDeltaPitchNedToNwu(
+  const tobas_msgs::SpeedRollDeltaPitch src,
+  tobas_msgs::SpeedRollDeltaPitch& des);
+void speedRollDeltaPitchNwuToNed(
+  const tobas_msgs::SpeedRollDeltaPitch src,
+  tobas_msgs::SpeedRollDeltaPitch& des);
+void speedRollDeltaPitchNedToNwu(tobas_msgs::SpeedRollDeltaPitch& arg);
+void speedRollDeltaPitchNwuToNed(tobas_msgs::SpeedRollDeltaPitch& arg);
 }  // namespace tf

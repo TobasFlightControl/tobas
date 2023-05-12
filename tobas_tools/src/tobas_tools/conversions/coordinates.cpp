@@ -45,4 +45,30 @@ void baseStateNwuToNed(tobas_msgs::BaseState& arg)
 {
   baseStateNwuToNed(arg, arg);
 }
+
+void speedRollDeltaPitchNedToNwu(
+  const tobas_msgs::SpeedRollDeltaPitch src,
+  tobas_msgs::SpeedRollDeltaPitch& des)
+{
+  des.speed = src.speed;
+  des.roll = src.roll;
+  des.delta_pitch = -src.delta_pitch;
+}
+
+void speedRollDeltaPitchNwuToNed(
+  const tobas_msgs::SpeedRollDeltaPitch src,
+  tobas_msgs::SpeedRollDeltaPitch& des)
+{
+  speedRollDeltaPitchNedToNwu(src, des);
+}
+
+void speedRollDeltaPitchNedToNwu(tobas_msgs::SpeedRollDeltaPitch& arg)
+{
+  speedRollDeltaPitchNedToNwu(arg, arg);
+}
+
+void speedRollDeltaPitchNwuToNed(tobas_msgs::SpeedRollDeltaPitch& arg)
+{
+  speedRollDeltaPitchNwuToNed(arg, arg);
+}
 }  // namespace tf

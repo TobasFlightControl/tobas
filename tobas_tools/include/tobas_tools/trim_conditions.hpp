@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dh_std_tools/range.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include "./stability_derivatives_cog.hpp"
@@ -21,7 +22,7 @@ public:
    */
   void update(double V, double h, const KDL::JntArray& q);
 
-  const StabilityDerivativesCG& stabilityDerivativesCG()const;
+  const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
   const uint32_t& elevatorIndex() const;
@@ -41,6 +42,9 @@ public:
   /* X軸方向の速さ [m/s] */
   const double& u() const;
 
+  /* 失速しないための速度の大きさの範囲． */
+  dh_std::Range<double> speedLimit(double altitude) const;
+
 private:
   const Drone& drone_;
   const uint32_t elev_cs_idx_;
@@ -49,7 +53,8 @@ private:
   StabilityDerivativesCG asd_cog_;
 
   // 固定値
-  double mass_;
+  double W_;         // 機体の重量 [N]
+  double a_, b_;     // (2.9-49)の定数部分
 
   double alpha_;     // トリム時の迎角 [rad]
   double elevator_;  // トリム時の昇降舵の偏角 [rad]

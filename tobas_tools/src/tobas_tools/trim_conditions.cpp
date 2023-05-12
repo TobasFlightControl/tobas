@@ -10,13 +10,21 @@ using namespace KDL;
 TrimConditions::TrimConditions(const Drone& drone, uint32_t elev_cs_idx)
   : drone_(drone), elev_cs_idx_(elev_cs_idx), inertia_solver_(drone.tree()), asd_cog_(drone)
 {
-  mass_ = inertia_solver_.JntToMass();
+  W_ = inertia_solver_.JntToMass() * GRAVITY;
+
+  const auto& fixed_wing = drone_.fixedWingConfig();
+  const auto& aero = fixed_wing.aerodynamics;
+  const auto& elev_cs = fixed_wing.control_surfaces[elev_cs_idx_];
+
+  const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
+  a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
+  b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 }
 
 void TrimConditions::update(double V, double h, const JntArray& q)
 {
-  assert(V > 0.);
   assert(h > 0.);
+  assert(speedLimit(h).inRange(V));
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
   // エイリアス
@@ -27,20 +35,17 @@ void TrimConditions::update(double V, double h, const JntArray& q)
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
-  const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
-  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_cs_idx_);
+  const auto c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
+  const auto c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_cs_idx_);
 
   // 引数に依存する定数
   const auto rho = dh_std::altitudeToDensity(h);
-  const auto W = mass_ * GRAVITY;
   const auto q_bar = dynamicPressure(rho, V);
 
   // 縦系の釣り合い
-  c_L_ = W / (q_bar * vehicle.wing_surface);  // (2.9-47)
-  alpha_ =
-    ((c_L_ - aero.c_lift_0) * c_pitch_elev_cg + aero.c_pitch_0 * elev_cs.c_lift_delta)
-    / (aero.c_lift_alpha * c_pitch_elev_cg - c_pitch_alpha_cg * elev_cs.c_lift_delta);  // (2.9-49)
-  elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;          // (2.9-46)
+  c_L_ = W_ / (q_bar * vehicle.wing_surface);                                   // (2.9-47)
+  alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
+  elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;  // TODO: 2次以上も考慮
   c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * elevator_;            // (1.8-3)
   c_T_ = c_D_ / cos(alpha_);                                          // (2.2-10b)
@@ -92,4 +97,17 @@ const double& TrimConditions::c_T() const
 const double& TrimConditions::u() const
 {
   return u_;
+}
+
+dh_std::Range<double> TrimConditions::speedLimit(double altitude) const
+{
+  const auto& vehicle = drone_.fixedWingConfig().vehicle;
+  const auto& alpha_limit = vehicle.alpha_limit;
+
+  const auto rho = dh_std::altitudeToDensity(altitude);
+  const auto c = 2. * W_ / rho / vehicle.wing_surface;
+  const auto V_min = sqrt(c / (a_ * alpha_limit.upper + b_));
+  const auto V_max = sqrt(c / (a_ * alpha_limit.lower + b_));
+
+  return dh_std::Range<double>(V_min, V_max);
 }
