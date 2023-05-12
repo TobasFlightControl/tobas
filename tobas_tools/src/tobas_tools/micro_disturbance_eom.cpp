@@ -434,7 +434,7 @@ const double& MicroDisturbanceEoM::r_phi() const
   return A_(kStateIdx_r, kStateIdx_phi);
 }
 
-const double& MicroDisturbanceEoM::u_thrust() const
+double MicroDisturbanceEoM::u_thrust() const
 {
   return 1 / mass_;
 }

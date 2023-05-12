@@ -107,7 +107,7 @@ public:
   const double& r_r() const;
   const double& r_phi() const;
 
-  const double& u_thrust() const;
+  double u_thrust() const;
 
   // Z_delta_bar (2.2-37)
   const double& alpha_delta(uint32_t cs_idx) const;
