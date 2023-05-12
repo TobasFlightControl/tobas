@@ -15,7 +15,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
 using namespace dh_std;
 
 namespace tobas_fixed_wing_controller
@@ -30,9 +29,9 @@ Controller::Controller() : super()
   eom_.reset(new MicroDisturbanceEoM(drone_, trim_elev_idx_));
   c2d_.reset(new ctrl::C2D_RK4(eom_->kStateSize, eom_->inputSize()));
 
-  is_initialized_ = false;
-  rotor_speeds_msg_.speeds.resize(drone_.numRotors());
-  deflections_msg_.deflections.resize(eom_->numControlSurfaces());
+  state_ = State::START;
+  rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
+  deflections_msg_.deflections.resize(eom_->numControlSurfaces(), 0.);
 
   mpc_.decay_time_consts.resize(kCtrlSize);
   setCz();
@@ -88,8 +87,27 @@ void Controller::createTimers()
     nh_.createTimer(ros::Duration(kCheckTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
 }
 
-void Controller::initialize()
+void Controller::publishTakeoffCommand()
 {
+  for (int i = 0; i < eom_->numHProps(); ++i)
+  {
+    const auto rotor_idx = eom_->hPropIndex(i);
+    rotor_speeds_msg_.speeds[rotor_idx] = drone_.maxRotSpeed(rotor_idx);
+  }
+  rotor_speeds_pub_.publish(rotor_speeds_msg_);
+
+  deflections_msg_.deflections[eom_->elevatorIndex()] = eom_->trimCondition().elevator();
+  deflections_pub_.publish(deflections_msg_);
+}
+
+void Controller::setInitialTarget()
+{
+  const auto cur_altitude = -bs_ned_.pose.pos.z();
+  const auto& trim = eom_->trimCondition();
+  cmd_ned_.speed = trim.speedLimit(cur_altitude).lower;
+
+  cmd_ned_.roll = 0.;
+  cmd_ned_.delta_pitch = kInitialDeltaPitch;
 }
 
 void Controller::runOnce()
@@ -174,7 +192,7 @@ void Controller::setInputRateConstraint()
 
 void Controller::updateCurrentStateVector()
 {
-  const Vector linvel_B = bs_ned_.pose.euler * bs_ned_.twist.vel;
+  const KDL::Vector linvel_B = bs_ned_.pose.euler * bs_ned_.twist.vel;
   const auto& trim = eom_->trimCondition();
 
   // TODO: 横系のトリムも考慮
@@ -258,32 +276,47 @@ void Controller::reconfigure(const ConfigType& cfg)
 
 void Controller::baseStateCb(const StateMsg& bs_nwu)
 {
-  // 初期化処理
-  if (!is_initialized_)
-  {
-    check_topics_timer_.stop();
-    initialize();
-    is_initialized_ = true;
-    dh_ros::rosInfo("Controller is ready.");
-    return;
-  }
-
   // コールバックの時点で全てNED座標系に変換しておく
   tf::baseStateNwuToNed(bs_nwu, bs_ned_);
 
-  if (!bs_received_)
+  switch (state_)
   {
-    bs_received_ = true;
-  }
+    case START:
+    {
+      dh_ros::rosInfo("First base state is received.");
+      check_topics_timer_.stop();
+      state_ = TAKEOFF;
+      break;
+    }
+    case TAKEOFF:
+    {
+      publishTakeoffCommand();
 
-  // メイン処理
-  runOnce();
+      // 失速しない最低速度を上回ったら制御開始
+      const auto cur_speed = bs_nwu.twist.vel.Norm();
+      const auto cur_altitude = bs_nwu.pose.pos.z();
+      const auto& trim = eom_->trimCondition();
+      if (cur_speed > trim.speedLimit(cur_altitude).lower)
+      {
+        setInitialTarget();
+        state_ = FLIGHT;
+        dh_ros::rosInfo("The aircraft takes off and begins flight control.");
+      }
+      break;
+    }
+    case FLIGHT:
+    {
+      runOnce();
+      break;
+    }
+  }
 }
 
 void Controller::commandCb(const CmdMsg& cmd_nwu)
 {
-  if (!bs_received_)
+  if (!(state_ == FLIGHT))
   {
+    dh_ros::rosError("Not in flight state.");
     return;
   }
 

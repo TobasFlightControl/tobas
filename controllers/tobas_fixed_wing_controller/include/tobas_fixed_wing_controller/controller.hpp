@@ -32,6 +32,14 @@ public:
   explicit Controller();
 
 private:
+  enum State
+  {
+    START,
+    TAKEOFF,
+    FLIGHT,
+    LANDING
+  };
+
   Drone drone_;
 
   // RosParams
@@ -41,8 +49,7 @@ private:
   // 固定値
   KDL::JntArray q_0_;
 
-  bool bs_received_;
-  bool is_initialized_;
+  State state_;
   StateMsg bs_ned_;  // 現在の状態 (NED座標系)
   CmdMsg cmd_ned_;   // 現在のコマンド (NED座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
@@ -66,7 +73,8 @@ private:
   void registerSubscribers() override;
   void createTimers() override;
 
-  void initialize();
+  void publishTakeoffCommand();
+  void setInitialTarget();
   void runOnce();
   void setCz();
   void setScales();
