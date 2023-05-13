@@ -227,25 +227,25 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.angvel_weight)
 
-        thrust_weight_description = "TODO: instruction"
-        self.thrust_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/thrust_force",
-            thrust_weight_description,
+        thrust_weight_exp_description = "TODO: instruction"
+        self.thrust_weight_exp = ParamGetterWidget_SpinBox(
+            "rotation_controller/weight/thrust_exp",
+            thrust_weight_exp_description,
             minimum=-6,
             maximum=0,
             default=-3,
         )
-        self._rows.addWidget(self.thrust_weight)
+        self._rows.addWidget(self.thrust_weight_exp)
 
-        thrust_rate_weight_description = "TODO: instruction"
-        self.thrust_rate_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/thrust_force_rate",
-            thrust_rate_weight_description,
+        thrust_rate_weight_exp_description = "TODO: instruction"
+        self.thrust_rate_weight_exp = ParamGetterWidget_SpinBox(
+            "rotation_controller/weight/thrust_rate_exp",
+            thrust_rate_weight_exp_description,
             minimum=-6,
             maximum=0,
             default=-3,
         )
-        self._rows.addWidget(self.thrust_rate_weight)
+        self._rows.addWidget(self.thrust_rate_weight_exp)
 
 
 class ControllerWidget_NMPC(QWidget):

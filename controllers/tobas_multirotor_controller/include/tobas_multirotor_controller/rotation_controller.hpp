@@ -27,8 +27,8 @@ struct RotationControllerDynamicParams
   double attitude_weight;
   double heading_weight;
   double angvel_weight;
-  int thrust_weight;
-  int thrust_rate_weight;
+  int thrust_weight_exp;
+  int thrust_rate_weight_exp;
 };
 
 class RotationController

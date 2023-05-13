@@ -79,8 +79,8 @@ void RotationController::reconfigure(const RotationControllerDynamicParams& para
   mpc_.control_weight(YAW) = params.heading_weight;
   mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
     params.angvel_weight;
-  mpc_.input_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_weight));
-  mpc_.input_rate_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_rate_weight));
+  mpc_.input_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_weight_exp));
+  mpc_.input_rate_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_rate_weight_exp));
 }
 
 void RotationController::updateCurrentState(

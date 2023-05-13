@@ -64,8 +64,8 @@ void Controller::getRosParams()
   dh_ros::getParam(kCtrlName + "/attitude_decay", cfg_.attitude_decay);
   dh_ros::getParam(kCtrlName + "/beta_weight", cfg_.beta_weight);
   dh_ros::getParam(kCtrlName + "/attitude_weight", cfg_.attitude_weight);
-  dh_ros::getParam(kCtrlName + "/thrust_force_weight_exp", cfg_.thrust_force_weight_exp);
-  dh_ros::getParam(kCtrlName + "/thrust_force_rate_weight_exp", cfg_.thrust_force_rate_weight_exp);
+  dh_ros::getParam(kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
+  dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
   dh_ros::getParam(kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
   dh_ros::getParam(kCtrlName + "/deflection_rate_weight_exp", cfg_.deflection_rate_weight_exp);
 
@@ -267,13 +267,13 @@ void Controller::reconfigure(const ConfigType& cfg)
 
   // 制御入力の重み
   mpc_.input_weight.block(0, 0, eom_->numHProps(), 1) =
-    VectorXd::Constant(eom_->numHProps(), pow(10, cfg.thrust_force_weight_exp));
+    VectorXd::Constant(eom_->numHProps(), pow(10, cfg.thrust_weight_exp));
   mpc_.input_weight.block(eom_->numHProps(), 0, eom_->numControlSurfaces(), 1) =
     VectorXd::Constant(eom_->numControlSurfaces(), pow(10, cfg.deflection_weight_exp));
 
   // 制御入力の変化率の重み
   mpc_.input_rate_weight.block(0, 0, eom_->numHProps(), 1) =
-    VectorXd::Constant(eom_->numHProps(), pow(10, cfg.thrust_force_rate_weight_exp));
+    VectorXd::Constant(eom_->numHProps(), pow(10, cfg.thrust_rate_weight_exp));
   mpc_.input_rate_weight.block(eom_->numHProps(), 0, eom_->numControlSurfaces(), 1) =
     VectorXd::Constant(eom_->numControlSurfaces(), pow(10, cfg.deflection_rate_weight_exp));
 }

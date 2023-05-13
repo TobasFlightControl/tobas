@@ -248,8 +248,8 @@ class PackageGenerator(QWidget):
                 "attitude_weight": lmpc.attitude_weight.get(),
                 "heading_weight": lmpc.heading_weight.get(),
                 "angular_velocity_weight": lmpc.angvel_weight.get(),
-                "thrust_force_weight": lmpc.thrust_weight.get(),
-                "thrust_force_rate_weight": lmpc.thrust_rate_weight.get(),
+                "thrust_weight_exp": lmpc.thrust_weight_exp.get(),
+                "thrust_rate_weight_exp": lmpc.thrust_rate_weight_exp.get(),
             }
         elif controller_type == controller.NMPC:
             raise NotImplementedError
