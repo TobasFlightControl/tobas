@@ -62,7 +62,7 @@ class URDFParser(QWidget):
         return link_name not in self._robot.child_map.keys()
 
     def is_fixed_joint(self, joint_name: str) -> bool:
-        joint = self._robot.joint_map[joint_name]
+        joint: Joint = self._robot.joint_map[joint_name]
         return joint.type == "fixed"
 
     def active_joint_names(self) -> List[str]:
@@ -91,17 +91,21 @@ class URDFParser(QWidget):
                 return True
         return False
 
-    def get_link_names(self) -> List[str]:
+    def link_names(self) -> List[str]:
         """ 全てのリンクの名前を返す． """
         links = self.get_links()
         return [link.name for link in links]
 
-    def get_fixed_link_names(self) -> List[str]:
-        """ ルートリンクに固定されているリンクの名前の配列を返す． """
-        root = self.get_root()
-        return self._get_fixed_link_names_rec(root.name)
+    def nwu_fixed_link_names(self) -> List[str]:
+        """
+        以下の条件を満たすリンクの名前の配列を返す．
+        - ルートリンクに固定されている．
+        - フレームの座標軸が XYZ = NWU に一致する．
+        """
+        root_link = self.get_root()
+        return self._nwu_fixed_link_names_rec(root_link.name)
 
-    def _get_fixed_link_names_rec(self, parent_name: str) -> List[str]:
+    def _nwu_fixed_link_names_rec(self, parent_name: str) -> List[str]:
         """ parent以下の固定リンクの名前の配列を返す． """
         res = [parent_name]
 
@@ -109,18 +113,38 @@ class URDFParser(QWidget):
             return res
 
         for _, child_name in self.get_children(parent_name):
+            link = self.get_link(child_name)
             joint = self.get_joint(child_name)
+
+            # 固定関節であることを保証
             if joint.type != "fixed":
                 continue
-            res += self._get_fixed_link_names_rec(child_name)
+
+            # 親フレームと子フレームの回転が一致していることを保証
+            if link.origin is not None and link.origin.rpy != [0, 0, 0]:
+                continue
+            if joint.origin is not None and joint.origin.rpy != [0, 0, 0]:
+                continue
+
+            res += self._nwu_fixed_link_names_rec(child_name)
+
         return res
 
     def _is_valid_robot(self) -> bool:
         """ 有効なロボットかどうかを判定する． """
-        # 多自由度関節はダメ
+        # 多自由度関節を持たないことを保証
         for joint in self.get_joints():
             if joint.type in {"floating", "planar"}:
                 q_error(self._main, f'Invalid joint type: {joint.type}')
                 return False
+
+        # ルートリンクのフレーム座標軸が XYZ = NWU に一致することを保証
+        root_link = self.get_root()
+        if root_link.origin is not None and root_link.origin.rpy != [0, 0, 0]:
+            q_error(
+                self._main,
+                "The frame of the root link must coincide with the NWU coordinate axis.",
+            )
+            return False
 
         return True

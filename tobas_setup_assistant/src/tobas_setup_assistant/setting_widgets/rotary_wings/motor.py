@@ -55,6 +55,7 @@ class MotorWidget(QWidget):
 
     def is_valid(self) -> bool:
         if self.setting_method.currentText() == self.NO_SELECT:
+            print(self.setting_method.currentText())
             q_error_named(self._main, NAME, "Please select motor setting method.")
             return False
         else:
@@ -122,7 +123,7 @@ class MotorWidget(QWidget):
         elif setting_method == self.EXPERIMENT:
             return self.experiment
         else:
-            raise RuntimeError
+            raise RuntimeError(f'Unknown setting method: {setting_method}')
 
     @pyqtSlot(str)
     def _on_type_changed(self, setting_method: str) -> None:

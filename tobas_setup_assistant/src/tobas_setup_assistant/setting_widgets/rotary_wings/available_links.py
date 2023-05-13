@@ -51,18 +51,26 @@ class AvailableLinksWidget(QListWidget):
 
     @pyqtSlot()
     def _add_available_links(self) -> None:
-        """ rootから複数のfixedと1つのcontinuousで繋がったリンクのみプロペラ候補とする． """
+        """
+        以下の条件を満たすリンクをプロペラ候補としてリストに追加する．
+        - 親リンクがNWU-Fixed．
+        - continuousタイプのジョイントをもつ．
+        - 回転軸がZ軸と一致している．
+        """
         root_link = self._main.urdf_parser.get_root()
-        links = self._main.urdf_parser.get_links()
-        fixed_link_names = self._main.urdf_parser.get_fixed_link_names()
+        fixed_link_names = self._main.urdf_parser.nwu_fixed_link_names()
 
-        for link in links:
+        for link in self._main.urdf_parser.get_links():
             if link.name == root_link.name:
                 continue
 
             joint = self._main.urdf_parser.get_joint(link.name)
             parent = self._main.urdf_parser.get_parent(link.name)
-            if joint.type == "continuous" and parent.name in fixed_link_names:
+            if (
+                parent.name in fixed_link_names and
+                joint.type == "continuous" and
+                joint.axis == [0, 0, 1]
+            ):
                 self.add(link.name)
 
         self.sortItems()

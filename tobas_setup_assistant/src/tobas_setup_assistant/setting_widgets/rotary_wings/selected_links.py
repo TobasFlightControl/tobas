@@ -41,6 +41,15 @@ class SelectedLinksWidget(TabWidget):
     def is_valid(self) -> bool:
         num_rotors = self.count()
 
+        # まずそれぞれのタブが有効であることを確認
+        for i in range(num_rotors):
+            tab: SelectedLinkTabWidget = self.widget(i)
+            if not tab.is_valid():
+                return False
+
+        # 次にタブ全体で見たときの有効性を確認
+        # そうしないと全体を見る過程で部分のエラーが出る可能性がある
+
         if num_rotors < 2:
             q_error_named(self._main, NAME, "At least 2 rotary wings are required.")
             return False
@@ -54,11 +63,6 @@ class SelectedLinksWidget(TabWidget):
                 "Rotors that rotate in both clockwise (CW) and counterclockwise (CCW) are required.",
             )
             return False
-
-        for i in range(num_rotors):
-            tab: SelectedLinksWidget = self.widget(i)
-            if not tab.is_valid():
-                return False
 
         return True
 

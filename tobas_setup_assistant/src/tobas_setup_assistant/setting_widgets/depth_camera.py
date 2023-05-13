@@ -142,5 +142,5 @@ class DepthCameraWidget(BaseSettingWidget):
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.get_fixed_link_names()
+        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
         self.link.box.addItems(body_choices)

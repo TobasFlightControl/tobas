@@ -104,7 +104,7 @@ class SelectedPropellersWidget(QTableWidget):
         # return self.cellWidget(row, 0).property("text")
         return self.link_names[row].text()
 
-    def num(self) -> int:
+    def count(self) -> int:
         """ 選択テーブル内のプロペラの個数を返す． """
         return len(self.link_names)
 
@@ -313,7 +313,7 @@ class AvailableLinksWidget(QListWidget):
         """ rootから複数のfixedと1つのcontinuousで繋がったリンクのみプロペラ候補とする． """
         root_link = self._main.urdf_parser.get_root()
         links = self._main.urdf_parser.get_links()
-        fixed_link_names = self._main.urdf_parser.get_fixed_link_names()
+        fixed_link_names = self._main.urdf_parser.nwu_fixed_link_names()
 
         for link in links:
             if link.name == root_link.name:
