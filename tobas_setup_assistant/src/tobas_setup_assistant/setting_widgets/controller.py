@@ -161,17 +161,29 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.pred_steps)
 
-        rot_decay_description = "TODO: instruction"
-        self.rot_decay = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/decay/rotation",
-            rot_decay_description,
+        attitude_decay_description = "TODO: instruction"
+        self.attitude_decay = ParamGetterWidget_DoubleSpinBox(
+            "rotation_controller/decay/attitude",
+            attitude_decay_description,
             decimals=2,
             minimum=0.,
             maximum=1.,
             default=0.2,
             suffix=" s",
         )
-        self._rows.addWidget(self.rot_decay)
+        self._rows.addWidget(self.attitude_decay)
+
+        heading_decay_description = "TODO: instruction"
+        self.heading_decay = ParamGetterWidget_DoubleSpinBox(
+            "rotation_controller/decay/heading",
+            heading_decay_description,
+            decimals=2,
+            minimum=0.,
+            maximum=1.,
+            default=0.2,
+            suffix=" s",
+        )
+        self._rows.addWidget(self.heading_decay)
 
         angvel_decay_description = "TODO: instruction"
         self.angvel_decay = ParamGetterWidget_DoubleSpinBox(
@@ -185,15 +197,25 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.angvel_decay)
 
-        rot_weight_description = "TODO: instruction"
-        self.rot_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/rotation",
-            rot_weight_description,
+        attitude_weight_description = "TODO: instruction"
+        self.attitude_weight = ParamGetterWidget_SpinBox(
+            "rotation_controller/weight/attitude",
+            attitude_weight_description,
             minimum=1,
             maximum=100,
             default=100,
         )
-        self._rows.addWidget(self.rot_weight)
+        self._rows.addWidget(self.attitude_weight)
+
+        heading_weight_description = "TODO: instruction"
+        self.heading_weight = ParamGetterWidget_SpinBox(
+            "rotation_controller/weight/heading",
+            heading_weight_description,
+            minimum=1,
+            maximum=100,
+            default=10,
+        )
+        self._rows.addWidget(self.heading_weight)
 
         angvel_weight_description = "TODO: instruction"
         self.angvel_weight = ParamGetterWidget_SpinBox(

@@ -58,23 +58,25 @@ void RotationController::reconfigure(const RotationControllerDynamicParams& para
 {
   assert(params.pred_horizon > 0.);
   assert(params.pred_steps > 0);
-  assert(params.rot_decay >= 0.);
+  assert(params.attitude_decay >= 0.);
+  assert(params.heading_decay >= 0.);
   assert(params.angvel_decay >= 0.);
-  assert(params.rot_weight > 0.);
+  assert(params.attitude_weight > 0.);
+  assert(params.heading_weight > 0.);
   assert(params.angvel_weight > 0.);
 
   mpc_.time_step = params.pred_horizon / params.pred_steps;
   mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
-  mpc_.decay_time_consts(ROLL) = mpc_.decay_time_consts(PITCH) = mpc_.decay_time_consts(YAW) =
-    params.rot_decay;
+  mpc_.decay_time_consts(ROLL) = mpc_.decay_time_consts(PITCH) = params.attitude_decay;
+  mpc_.decay_time_consts(YAW) = params.heading_decay;
   mpc_.decay_time_consts(ANGVEL_X) = mpc_.decay_time_consts(ANGVEL_Y) =
     mpc_.decay_time_consts(ANGVEL_Z) = params.angvel_decay;
 
   mpc_.discrete_dynamics.resize(params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, u_size_));
 
   // Update weights
-  mpc_.control_weight(ROLL) = mpc_.control_weight(PITCH) = mpc_.control_weight(YAW) =
-    params.rot_weight;
+  mpc_.control_weight(ROLL) = mpc_.control_weight(PITCH) = params.attitude_weight;
+  mpc_.control_weight(YAW) = params.heading_weight;
   mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
     params.angvel_weight;
   mpc_.input_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_weight));

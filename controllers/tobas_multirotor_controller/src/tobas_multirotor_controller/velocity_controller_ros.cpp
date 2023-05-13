@@ -25,7 +25,8 @@ VelocityControllerRos::VelocityControllerRos()
     is_initialized_(false),
     bs_received_(false),
     js_received_(false),
-    cmd_received_(false)
+    cmd_received_(false),
+    server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
   drone_.loadFromParam(ns_);
@@ -62,9 +63,11 @@ void VelocityControllerRos::getRosParams()
   // rotation_controller
   dh_ros::getParam(kCtrlName + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
   dh_ros::getParam(kCtrlName + "/prediction_steps", dynamic_params_rot_.pred_steps);
-  dh_ros::getParam(kCtrlName + "/rotation_decay", dynamic_params_rot_.rot_decay);
+  dh_ros::getParam(kCtrlName + "/attitude_decay", dynamic_params_rot_.attitude_decay);
+  dh_ros::getParam(kCtrlName + "/heading_decay", dynamic_params_rot_.heading_decay);
   dh_ros::getParam(kCtrlName + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
-  dh_ros::getParam(kCtrlName + "/rotation_weight", dynamic_params_rot_.rot_weight);
+  dh_ros::getParam(kCtrlName + "/attitude_weight", dynamic_params_rot_.attitude_weight);
+  dh_ros::getParam(kCtrlName + "/heading_weight", dynamic_params_rot_.heading_weight);
   dh_ros::getParam(kCtrlName + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
   dh_ros::getParam(kCtrlName + "/thrust_force_weight", dynamic_params_rot_.thrust_weight);
   dh_ros::getParam(kCtrlName + "/thrust_force_rate_weight", dynamic_params_rot_.thrust_rate_weight);
@@ -116,9 +119,11 @@ void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
   dynamic_params_rot_.pred_horizon = cfg.prediction_horizon;
   dynamic_params_rot_.pred_steps = cfg.prediction_steps;
-  dynamic_params_rot_.rot_decay = cfg.rotation_decay;
+  dynamic_params_rot_.attitude_decay = cfg.attitude_decay;
+  dynamic_params_rot_.heading_decay = cfg.heading_decay;
   dynamic_params_rot_.angvel_decay = cfg.angular_velocity_decay;
-  dynamic_params_rot_.rot_weight = cfg.rotation_weight;
+  dynamic_params_rot_.attitude_weight = cfg.attitude_weight;
+  dynamic_params_rot_.heading_weight = cfg.heading_weight;
   dynamic_params_rot_.angvel_weight = cfg.angular_velocity_weight;
   dynamic_params_rot_.thrust_weight = cfg.thrust_force_weight;
   dynamic_params_rot_.thrust_rate_weight = cfg.thrust_force_rate_weight;

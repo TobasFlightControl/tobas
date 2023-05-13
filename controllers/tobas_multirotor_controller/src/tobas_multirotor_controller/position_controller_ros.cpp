@@ -12,7 +12,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-PositionControllerRos::PositionControllerRos() : super(), is_initialized_(false)
+PositionControllerRos::PositionControllerRos()
+  : super(), is_initialized_(false), server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
 

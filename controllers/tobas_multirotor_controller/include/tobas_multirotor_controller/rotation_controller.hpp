@@ -15,9 +15,11 @@ struct RotationControllerDynamicParams
 {
   double pred_horizon;
   int pred_steps;
-  double rot_decay;
+  double attitude_decay;
+  double heading_decay;
   double angvel_decay;
-  double rot_weight;
+  double attitude_weight;
+  double heading_weight;
   double angvel_weight;
   int thrust_weight;
   int thrust_rate_weight;
