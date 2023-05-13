@@ -19,7 +19,7 @@ using namespace dh_std;
 
 namespace tobas_fixed_wing_controller
 {
-Controller::Controller() : super()
+Controller::Controller() : super(), server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
   drone_.loadFromParam(ns_);
@@ -50,6 +50,10 @@ Controller::Controller() : super()
   registerPublishers();
   registerSubscribers();
   createTimers();
+
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void Controller::getRosParams()
@@ -57,9 +61,9 @@ void Controller::getRosParams()
   dh_ros::getParam(kCtrlName + "/prediction_horizon", cfg_.prediction_horizon);
   dh_ros::getParam(kCtrlName + "/prediction_steps", cfg_.prediction_steps);
   dh_ros::getParam(kCtrlName + "/beta_decay", cfg_.beta_decay);
-  dh_ros::getParam(kCtrlName + "/rotation_decay", cfg_.rotation_decay);
+  dh_ros::getParam(kCtrlName + "/attitude_decay", cfg_.attitude_decay);
   dh_ros::getParam(kCtrlName + "/beta_weight", cfg_.beta_weight);
-  dh_ros::getParam(kCtrlName + "/rotation_weight", cfg_.rotation_weight);
+  dh_ros::getParam(kCtrlName + "/attitude_weight", cfg_.attitude_weight);
   dh_ros::getParam(kCtrlName + "/thrust_force_weight_exp", cfg_.thrust_force_weight_exp);
   dh_ros::getParam(kCtrlName + "/thrust_force_rate_weight_exp", cfg_.thrust_force_rate_weight_exp);
   dh_ros::getParam(kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
@@ -243,15 +247,15 @@ void Controller::reconfigure(const ConfigType& cfg)
   ROS_ASSERT(cfg.prediction_horizon > 0.);
   ROS_ASSERT(cfg.prediction_steps > 0);
   ROS_ASSERT(cfg.beta_decay >= 0.);
-  ROS_ASSERT(cfg.rotation_decay >= 0.);
+  ROS_ASSERT(cfg.attitude_decay >= 0.);
   ROS_ASSERT(cfg.beta_weight > 0.);
-  ROS_ASSERT(cfg.rotation_weight > 0.);
+  ROS_ASSERT(cfg.attitude_weight > 0.);
 
   mpc_.time_step = cfg.prediction_horizon / cfg.prediction_steps;
   mpc_.prediction_steps = mpc_.input_steps = cfg.prediction_steps;
-  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.rotation_decay;
+  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.attitude_decay;
   mpc_.decay_time_consts(kCtrlIdx_phi) = mpc_.decay_time_consts(kCtrlIdx_theta) =
-    cfg.rotation_decay;
+    cfg.attitude_decay;
 
   const ctrl::LinearDynamics cont(eom_->A(), eom_->B());
   const auto disc = c2d_->convert(cont, mpc_.time_step);
@@ -259,7 +263,7 @@ void Controller::reconfigure(const ConfigType& cfg)
 
   // 制御変数の重み
   mpc_.control_weight(kCtrlIdx_beta) = cfg.beta_weight;
-  mpc_.control_weight(kCtrlIdx_phi) = mpc_.control_weight(kCtrlIdx_theta) = cfg.rotation_weight;
+  mpc_.control_weight(kCtrlIdx_phi) = mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
 
   // 制御入力の重み
   mpc_.input_weight.block(0, 0, eom_->numHProps(), 1) =
