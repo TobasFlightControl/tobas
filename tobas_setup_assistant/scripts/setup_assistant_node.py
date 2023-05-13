@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication
 
 from tobas_setup_assistant import SetupAssistant
 
+
 if __name__ == '__main__':
     node_name = osp.splitext(osp.basename(__file__))[0]
     rospy.init_node(node_name)
