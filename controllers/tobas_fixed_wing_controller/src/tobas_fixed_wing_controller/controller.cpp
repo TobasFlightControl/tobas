@@ -19,17 +19,20 @@ using namespace dh_std;
 namespace tobas_fixed_wing_controller
 {
 Controller::Controller()
-  : super(), x_rotors_(drone_, tobas::Axis::X_POSITIVE), server_(ros::NodeHandle(kCtrlName))
+  : super(),
+    x_rotors_(drone_, tobas::Axis::X_POSITIVE),
+    eom_(drone_, trim_elev_idx_),
+    server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
   drone_.loadFromParam(ns_);
 
   x_rotors_.updateInternalDataStructures();
+  eom_.updateInternalDataStructures();
 
   q_0_.resize(drone_.tree().getNrOfJoints());
 
-  eom_.reset(new tobas::MicroDisturbanceEoM(drone_, trim_elev_idx_));
-  c2d_.reset(new ctrl::C2D_RK4(eom_->kStateSize, eom_->inputSize()));
+  c2d_.reset(new ctrl::C2D_RK4(eom_.kStateSize, eom_.inputSize()));
 
   state_ = State::START;
   rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
@@ -38,14 +41,14 @@ Controller::Controller()
   mpc_.decay_time_consts.resize(kCtrlSize);
   setCz();
   setScales();
-  mpc_.input_rate_weight.resize(eom_->inputSize());
-  mpc_.input_weight.resize(eom_->inputSize());
+  mpc_.input_rate_weight.resize(eom_.inputSize());
+  mpc_.input_weight.resize(eom_.inputSize());
   mpc_.control_weight.resize(kCtrlSize);
   setInputRateConstraint();
   mpc_.control_constraint.resize(kCtrlSize, 0);
-  mpc_.current_state.resize(eom_->kStateSize);
+  mpc_.current_state.resize(eom_.kStateSize);
   mpc_.set_state.resize(kCtrlSize);
-  mpc_.last_input = VectorXd::Zero(eom_->inputSize());
+  mpc_.last_input = VectorXd::Zero(eom_.inputSize());
 
   reconfigure(cfg_);
 
@@ -101,14 +104,14 @@ void Controller::publishTakeoffCommand()
   }
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
-  deflections_msg_.deflections[eom_->elevatorIndex()] = eom_->trimCondition().elevator();
+  deflections_msg_.deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
   deflections_pub_.publish(deflections_msg_);
 }
 
 void Controller::setInitialTarget()
 {
   const auto cur_altitude = -bs_ned_.pose.pos.z();
-  const auto& trim = eom_->trimCondition();
+  const auto& trim = eom_.trimCondition();
   cmd_ned_.speed = trim.speedLimit(cur_altitude).lower;
 
   cmd_ned_.roll = 0.;
@@ -118,8 +121,8 @@ void Controller::setInitialTarget()
 void Controller::runOnce()
 {
   // 状態方程式を更新
-  eom_->update(cmd_ned_.speed, -bs_ned_.pose.pos.z(), q_0_);
-  const ctrl::LinearDynamics cont(eom_->A(), eom_->B());
+  eom_.update(cmd_ned_.speed, -bs_ned_.pose.pos.z(), q_0_);
+  const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
   const auto disc = c2d_->convert(cont, mpc_.time_step);
   fill(mpc_.discrete_dynamics, disc);
 
@@ -127,7 +130,7 @@ void Controller::runOnce()
   updateCurrentStateVector();
   updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);  // NWU->NEDに変換して渡す
 
-  const auto& trim = eom_->trimCondition();
+  const auto& trim = eom_.trimCondition();
 
   // MPCを解いて最適制御入力を求める
   const VectorXd du = mpc_.solveMPC();
@@ -147,11 +150,11 @@ void Controller::runOnce()
 
 void Controller::setCz()
 {
-  mpc_.Cz = MatrixXd::Zero(kCtrlSize, eom_->kStateSize);
+  mpc_.Cz = MatrixXd::Zero(kCtrlSize, eom_.kStateSize);
 
-  mpc_.Cz(kCtrlIdx_beta, eom_->kStateIdx_beta) = 1;
-  mpc_.Cz(kCtrlIdx_phi, eom_->kStateIdx_phi) = 1;
-  mpc_.Cz(kCtrlIdx_theta, eom_->kStateIdx_theta) = 1;
+  mpc_.Cz(kCtrlIdx_beta, eom_.kStateIdx_beta) = 1;
+  mpc_.Cz(kCtrlIdx_phi, eom_.kStateIdx_phi) = 1;
+  mpc_.Cz(kCtrlIdx_theta, eom_.kStateIdx_theta) = 1;
 }
 
 void Controller::setScales()
@@ -162,7 +165,7 @@ void Controller::setScales()
   mpc_.control_scale(kCtrlIdx_phi) = mpc_.control_scale(kCtrlIdx_theta) = M_PI;
 
   // 制御入力のスケール
-  mpc_.input_scale.resize(eom_->inputSize());
+  mpc_.input_scale.resize(eom_.inputSize());
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
     mpc_.input_scale(i) = x_rotors_.maxThrust(i);
@@ -173,15 +176,15 @@ void Controller::setScales()
 
 void Controller::setInputConstraint()
 {
-  const auto lb = eom_->minDeltaInput();
-  const auto ub = eom_->maxDeltaInput();
+  const auto lb = eom_.minDeltaInput();
+  const auto ub = eom_.maxDeltaInput();
   mpc_.input_constraint = ctrl::matIneqFromRange(lb, ub);
 }
 
 void Controller::setInputRateConstraint()
 {
-  VectorXd lb = VectorXd::Constant(eom_->inputSize(), numeric_limits<double>::lowest());
-  VectorXd ub = VectorXd::Constant(eom_->inputSize(), numeric_limits<double>::max());
+  VectorXd lb = VectorXd::Constant(eom_.inputSize(), numeric_limits<double>::lowest());
+  VectorXd ub = VectorXd::Constant(eom_.inputSize(), numeric_limits<double>::max());
 
   // FIXME: 遅延が大きいなら舵角の変化率の制約は消してもいいかも
   for (int i = 0; i < drone_.numControlSurfaces(); ++i)
@@ -197,17 +200,17 @@ void Controller::setInputRateConstraint()
 void Controller::updateCurrentStateVector()
 {
   const KDL::Vector linvel_B = bs_ned_.pose.euler * bs_ned_.twist.vel;
-  const auto& trim = eom_->trimCondition();
+  const auto& trim = eom_.trimCondition();
 
   // TODO: 横系のトリムも考慮
-  mpc_.current_state(eom_->kStateIdx_u) = linvel_B.x() - trim.u();
-  mpc_.current_state(eom_->kStateIdx_alpha) = tobas::angleOfAttack(linvel_B) - trim.alpha();
-  mpc_.current_state(eom_->kStateIdx_beta) = tobas::angleOfSideSlip(linvel_B);
-  mpc_.current_state(eom_->kStateIdx_phi) = bs_ned_.pose.euler.roll;
-  mpc_.current_state(eom_->kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
-  mpc_.current_state(eom_->kStateIdx_p) = bs_ned_.twist.rot.x();
-  mpc_.current_state(eom_->kStateIdx_q) = bs_ned_.twist.rot.y();
-  mpc_.current_state(eom_->kStateIdx_r) = bs_ned_.twist.rot.z();
+  mpc_.current_state(eom_.kStateIdx_u) = linvel_B.x() - trim.u();
+  mpc_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(linvel_B) - trim.alpha();
+  mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(linvel_B);
+  mpc_.current_state(eom_.kStateIdx_phi) = bs_ned_.pose.euler.roll;
+  mpc_.current_state(eom_.kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
+  mpc_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
+  mpc_.current_state(eom_.kStateIdx_q) = bs_ned_.twist.rot.y();
+  mpc_.current_state(eom_.kStateIdx_r) = bs_ned_.twist.rot.z();
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
@@ -256,7 +259,7 @@ void Controller::reconfigure(const ConfigType& cfg)
   mpc_.decay_time_consts(kCtrlIdx_phi) = mpc_.decay_time_consts(kCtrlIdx_theta) =
     cfg.attitude_decay;
 
-  const ctrl::LinearDynamics cont(eom_->A(), eom_->B());
+  const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
   const auto disc = c2d_->convert(cont, mpc_.time_step);
   mpc_.discrete_dynamics.resize(cfg.prediction_steps, disc);
 
@@ -298,7 +301,7 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
       // 失速しない最低速度を上回ったら制御開始
       const auto cur_speed = bs_nwu.twist.vel.Norm();
       const auto cur_altitude = bs_nwu.pose.pos.z();
-      const auto& trim = eom_->trimCondition();
+      const auto& trim = eom_.trimCondition();
       if (cur_speed > trim.speedLimit(cur_altitude).lower)
       {
         setInitialTarget();
@@ -324,7 +327,7 @@ void Controller::commandCb(const CmdMsg& cmd_nwu)
   }
 
   const auto cur_altitude = -bs_ned_.pose.pos.z();
-  if (!eom_->trimCondition().speedLimit(cur_altitude).inRange(cmd_nwu.speed))
+  if (!eom_.trimCondition().speedLimit(cur_altitude).inRange(cmd_nwu.speed))
   {
     dh_ros::rosError("Invalid speed is commanded.");
     return;

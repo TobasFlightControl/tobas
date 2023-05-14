@@ -23,7 +23,9 @@ public:
   static constexpr uint32_t kStateIdx_q = 6;
   static constexpr uint32_t kStateIdx_r = 7;
 
-  explicit MicroDisturbanceEoM(const Drone& drone, uint32_t elev_cs_idx);
+  explicit MicroDisturbanceEoM(const Drone& drone,const uint32_t& elev_cs_idx);
+
+  void updateInternalDataStructures();
 
   /**
    * @brief 内部状態を更新する．

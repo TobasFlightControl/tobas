@@ -14,6 +14,8 @@ class StabilityDerivativesCG
 public:
   explicit StabilityDerivativesCG(const Drone& drone);
 
+  void updateInternalDataStructures();
+
   void update(const KDL::JntArray& q);
 
   double cPitchAlpha() const;

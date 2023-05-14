@@ -14,16 +14,26 @@ using namespace KDL;
 
 namespace tobas
 {
-MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, uint32_t elev_cs_idx)
+MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const uint32_t& elev_cs_idx)
   : drone_(drone),
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
     x_rotors_(drone, Axis::X_POSITIVE),
     trim_(drone, elev_cs_idx)
 {
+  updateInternalDataStructures();
+}
+
+void MicroDisturbanceEoM::updateInternalDataStructures()
+{
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
+  x_rotors_.updateInternalDataStructures();
+  trim_.updateInternalDataStructures();
+
   mass_ = inertia_solver_.JntToMass();
   num_hprop_ = x_rotors_.count();
-  num_cs_ = drone.fixedWingConfig().control_surfaces.size();
+  num_cs_ = drone_.fixedWingConfig().control_surfaces.size();
   u_size_ = num_hprop_ + num_cs_;
   setInputLimits();
 

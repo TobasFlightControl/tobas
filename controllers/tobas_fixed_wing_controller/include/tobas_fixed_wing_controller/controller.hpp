@@ -44,6 +44,7 @@ private:
   tobas::Drone drone_;
 
   tobas::RotorAxisExtractor x_rotors_;
+  tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
   // RosParams
   ConfigType cfg_;  // 動的パラメータの初期値
@@ -58,9 +59,8 @@ private:
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 
-  std::shared_ptr<tobas::MicroDisturbanceEoM> eom_;  // 微小擾乱状態方程式
-  std::shared_ptr<ctrl::C2D_RK4> c2d_;               // 状態方程式を離散化
-  ctrl::LinearDenseMPC mpc_;                         // 線形モデル予測制御
+  std::shared_ptr<ctrl::C2D_RK4> c2d_;  // 状態方程式を離散化
+  ctrl::LinearDenseMPC mpc_;            // 線形モデル予測制御
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;

@@ -8,9 +8,17 @@ using namespace KDL;
 
 namespace tobas
 {
-TrimConditions::TrimConditions(const Drone& drone, uint32_t elev_cs_idx)
+TrimConditions::TrimConditions(const Drone& drone, const uint32_t& elev_cs_idx)
   : drone_(drone), elev_cs_idx_(elev_cs_idx), inertia_solver_(drone.tree()), asd_cog_(drone)
 {
+  updateInternalDataStructures();
+}
+
+void TrimConditions::updateInternalDataStructures()
+{
+  inertia_solver_.updateInternalDataStructures();
+  asd_cog_.updateInternalDataStructures();
+
   W_ = inertia_solver_.JntToMass() * kGravity;
 
   const auto& fixed_wing = drone_.fixedWingConfig();

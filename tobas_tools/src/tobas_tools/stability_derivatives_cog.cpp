@@ -8,8 +8,12 @@ namespace tobas
 StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone)
   : drone_(drone), inertia_solver_(drone.tree())
 {
-  JntArray q_0(drone.tree().getNrOfJoints());
-  update(q_0);
+  updateInternalDataStructures();
+}
+
+void StabilityDerivativesCG::updateInternalDataStructures()
+{
+  inertia_solver_.updateInternalDataStructures();
 }
 
 void StabilityDerivativesCG::update(const JntArray& q)

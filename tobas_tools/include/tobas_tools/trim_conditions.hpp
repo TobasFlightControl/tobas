@@ -13,7 +13,9 @@ namespace tobas
 class TrimConditions
 {
 public:
-  explicit TrimConditions(const Drone& drone, uint32_t elev_cs_idx);
+  explicit TrimConditions(const Drone& drone, const uint32_t& elev_cs_idx);
+
+  void updateInternalDataStructures();
 
   /**
    * @brief 内部状態を更新する．
@@ -49,7 +51,7 @@ public:
 
 private:
   const Drone& drone_;
-  const uint32_t elev_cs_idx_;
+  const uint32_t& elev_cs_idx_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;
   StabilityDerivativesCG asd_cog_;
