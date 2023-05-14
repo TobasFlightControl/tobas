@@ -88,7 +88,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   const auto L_r_dash = rho_V_S_b2 / 4 / I_x_tilde * (aero.c_roll_r + I_xz / I_z * aero.c_yaw_r);
 
   // (2.2-47)
-  const auto M_u = 0;
+  const auto M_u = 0.;
   const auto M_alpha = q_S_c / I_y * asd_cog.cPitchAlpha();
   const auto M_q = rho_V_S * sqr(vehicle.mac) / 4 / I_y * aero.c_pitch_q;
   const auto M_alpha_rate = rho_V_S * sqr(vehicle.mac) / 4 / I_y * aero.c_pitch_alpha_rate;
