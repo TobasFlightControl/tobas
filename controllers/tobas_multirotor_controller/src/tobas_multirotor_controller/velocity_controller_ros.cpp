@@ -22,6 +22,7 @@ namespace tobas_multirotor_controller
 VelocityControllerRos::VelocityControllerRos()
   : super(),
     jnt_name_parser_(drone_.tree()),
+    z_rotors_(drone_, Axis::Z_POSITIVE),
     is_initialized_(false),
     bs_received_(false),
     js_received_(false),
@@ -32,6 +33,8 @@ VelocityControllerRos::VelocityControllerRos()
   drone_.loadFromParam(ns_);
 
   jnt_name_parser_.updateInternalDataStructures();
+  z_rotors_.updateInternalDataStructures();
+
   is_transformable_ = drone_.activeJointNames().size() > 0;
 
   // 各コントローラを初期化
@@ -70,7 +73,8 @@ void VelocityControllerRos::getRosParams()
   dh_ros::getParam(kCtrlName + "/heading_weight", dynamic_params_rot_.heading_weight);
   dh_ros::getParam(kCtrlName + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
   dh_ros::getParam(kCtrlName + "/thrust_weight_exp", dynamic_params_rot_.thrust_weight_exp);
-  dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", dynamic_params_rot_.thrust_rate_weight_exp);
+  dh_ros::getParam(
+    kCtrlName + "/thrust_rate_weight_exp", dynamic_params_rot_.thrust_rate_weight_exp);
 }
 
 void VelocityControllerRos::registerPublishers()
@@ -112,7 +116,7 @@ bool VelocityControllerRos::isReady()
 void VelocityControllerRos::initialize()
 {
   tar_rpy_.yaw = cur_bs_.pose.euler.yaw;  // ヨー角は初期状態を目標状態にする
-  u_opt_ = VectorXd::Zero(drone_.numRotorsInAxis(Axis::Z_POSITIVE));
+  u_opt_ = VectorXd::Zero(z_rotors_.count());
 }
 
 void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
@@ -159,8 +163,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
   const Eigen::VectorXd& u,
   tobas_msgs::RotorSpeeds& speeds)
 {
-  const auto ver_prop_idxes = drone_.rotorConfigIdxInAxis(Axis::Z_POSITIVE);
-  assert(u.rows() == ver_prop_idxes.size());
+  assert(u.rows() == z_rotors_.count());
 
   for (int i = 0; i < u.rows(); ++i)
   {
@@ -170,8 +173,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
       // TODO: 防御モードに移行
     }
 
-    const auto& idx = ver_prop_idxes[i];
-    speeds.speeds[idx] = sqrt(max(u(i), 0.) / drone_.rotorConfig(idx).motor_constant);
+    speeds.speeds[z_rotors_.rotorIdx(i)] = z_rotors_.thrustToRotSpeed(i, max(0., u(i)));
   }
 }
 

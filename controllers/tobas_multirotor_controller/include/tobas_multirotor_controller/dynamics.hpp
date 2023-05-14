@@ -7,6 +7,7 @@
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/drone.hpp>
+#include <tobas_tools/rotor_axis_extractor.hpp>
 
 #define STATE_SIZE 6  // 姿勢制御器の状態の次元
 
@@ -44,12 +45,10 @@ public:
 
 private:
   const Drone& drone_;
-  const std::vector<uint32_t> ver_prop_idxes_;
-  const uint32_t u_size_;  // 制御入力の次元
 
-  // KDL tools
   KDL::ExtTreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
+  RotorAxisExtractor z_rotors_;
 
   KDL::Rotation rpyvel_angvel_kdl_;
   Eigen::Matrix3d rpyvel_angvel_eigen_;

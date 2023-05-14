@@ -10,15 +10,15 @@ using namespace KDL;
 namespace tobas_multirotor_controller
 {
 AccelerationController::AccelerationController(const Drone& drone, double gravity)
-  : gravity_(gravity)
+  : drone_(drone), z_rotors_(drone, Axis::Z_POSITIVE), gravity_(gravity)
 {
   TreeJntToInertiaSolver inertia_solver_(drone.tree());
   mass_ = inertia_solver_.JntToMass();
 
   max_U_ = 0.;
-  for (const auto& rotor_idx : drone.rotorConfigIdxInAxis(Axis::Z_POSITIVE))
+  for (int i = 0; i < z_rotors_.count(); ++i)
   {
-    max_U_ += drone.maxThrust(rotor_idx);
+    max_U_ += z_rotors_.maxThrust(i);
   }
 }
 

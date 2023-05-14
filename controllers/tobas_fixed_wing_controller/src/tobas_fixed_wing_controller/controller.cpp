@@ -19,10 +19,13 @@ using namespace dh_std;
 
 namespace tobas_fixed_wing_controller
 {
-Controller::Controller() : super(), server_(ros::NodeHandle(kCtrlName))
+Controller::Controller()
+  : super(), x_rotors_(drone_, Axis::X_POSITIVE), server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
   drone_.loadFromParam(ns_);
+
+  x_rotors_.updateInternalDataStructures();
 
   q_0_.resize(drone_.tree().getNrOfJoints());
 
@@ -31,7 +34,7 @@ Controller::Controller() : super(), server_(ros::NodeHandle(kCtrlName))
 
   state_ = State::START;
   rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
-  deflections_msg_.deflections.resize(eom_->numControlSurfaces(), 0.);
+  deflections_msg_.deflections.resize(drone_.numControlSurfaces(), 0.);
 
   mpc_.decay_time_consts.resize(kCtrlSize);
   setCz();
@@ -93,10 +96,9 @@ void Controller::createTimers()
 
 void Controller::publishTakeoffCommand()
 {
-  for (int i = 0; i < eom_->numHProps(); ++i)
+  for (int i = 0; i < x_rotors_.count(); ++i)
   {
-    const auto rotor_idx = eom_->hPropIndex(i);
-    rotor_speeds_msg_.speeds[rotor_idx] = drone_.maxRotSpeed(rotor_idx);
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i);
   }
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
@@ -131,15 +133,15 @@ void Controller::runOnce()
   // MPCを解いて最適制御入力を求める
   const VectorXd du = mpc_.solveMPC();
   VectorXd u = du;
-  u(eom_->numHProps() + trim_elev_idx_) += trim.elevator();  // 昇降舵だけはトリム値がある
+  u(x_rotors_.count() + trim_elev_idx_) += trim.elevator();  // 昇降舵だけはトリム値がある
 
   // 各ロータの回転数を発行
-  const VectorXd thrust = u.block(0, 0, eom_->numHProps(), 1);
+  const VectorXd thrust = u.block(0, 0, x_rotors_.count(), 1);
   updateRotorSpeeds(thrust);
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
   // 各操舵面の偏角を発行
-  const VectorXd deflections = u.block(eom_->numHProps(), 0, eom_->numControlSurfaces(), 1);
+  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
   updateDeflections(deflections);
   deflections_pub_.publish(deflections_msg_);
 }
@@ -162,13 +164,12 @@ void Controller::setScales()
 
   // 制御入力のスケール
   mpc_.input_scale.resize(eom_->inputSize());
-  for (int i = 0; i < eom_->numHProps(); ++i)
+  for (int i = 0; i < x_rotors_.count(); ++i)
   {
-    const auto& rotor_idx = eom_->hPropIndex(i);
-    mpc_.input_scale(i) = drone_.maxThrust(rotor_idx);
+    mpc_.input_scale(i) = x_rotors_.maxThrust(i);
   }
-  mpc_.input_weight.block(eom_->numHProps(), 0, eom_->numControlSurfaces(), 1) =
-    VectorXd::Constant(eom_->numControlSurfaces(), M_PI);
+  mpc_.input_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
+    VectorXd::Constant(drone_.numControlSurfaces(), M_PI);
 }
 
 void Controller::setInputConstraint()
@@ -184,11 +185,11 @@ void Controller::setInputRateConstraint()
   VectorXd ub = VectorXd::Constant(eom_->inputSize(), numeric_limits<double>::max());
 
   // FIXME: 遅延が大きいなら舵角の変化率の制約は消してもいいかも
-  for (int i = 0; i < eom_->numControlSurfaces(); ++i)
+  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& max_angle_rate = drone_.fixedWingConfig().control_surfaces[i].max_angle_rate;
-    lb(eom_->numHProps() + i) = -max_angle_rate;
-    ub(eom_->numHProps() + i) = +max_angle_rate;
+    lb(x_rotors_.count() + i) = -max_angle_rate;
+    ub(x_rotors_.count() + i) = +max_angle_rate;
   }
 
   mpc_.input_rate_constraint = ctrl::matIneqFromRange(lb, ub);
@@ -219,7 +220,7 @@ void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 
 void Controller::updateRotorSpeeds(const VectorXd& thrust)
 {
-  ROS_ASSERT(thrust.rows() == eom_->numHProps());
+  ROS_ASSERT(thrust.rows() == x_rotors_.count());
 
   for (int i = 0; i < thrust.rows(); ++i)
   {
@@ -229,15 +230,14 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
       // TODO: 防御モードに移行
     }
 
-    const auto& rotor_idx = eom_->hPropIndex(i);
-    rotor_speeds_msg_.speeds[rotor_idx] =
-      sqrt(max(thrust(i), 0.) / drone_.rotorConfig(rotor_idx).motor_constant);
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] =
+      x_rotors_.thrustToRotSpeed(i, max(0., thrust(i)));
   }
 }
 
 void Controller::updateDeflections(const VectorXd& deflections)
 {
-  ROS_ASSERT(deflections.rows() == eom_->numControlSurfaces());
+  ROS_ASSERT(deflections.rows() == drone_.numControlSurfaces());
 
   deflections_msg_.deflections = eigen_tools::toStdVector(deflections);
 }
@@ -266,16 +266,16 @@ void Controller::reconfigure(const ConfigType& cfg)
   mpc_.control_weight(kCtrlIdx_phi) = mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
 
   // 制御入力の重み
-  mpc_.input_weight.block(0, 0, eom_->numHProps(), 1) =
-    VectorXd::Constant(eom_->numHProps(), pow(10, cfg.thrust_weight_exp));
-  mpc_.input_weight.block(eom_->numHProps(), 0, eom_->numControlSurfaces(), 1) =
-    VectorXd::Constant(eom_->numControlSurfaces(), pow(10, cfg.deflection_weight_exp));
+  mpc_.input_weight.block(0, 0, x_rotors_.count(), 1) =
+    VectorXd::Constant(x_rotors_.count(), pow(10, cfg.thrust_weight_exp));
+  mpc_.input_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
+    VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_weight_exp));
 
   // 制御入力の変化率の重み
-  mpc_.input_rate_weight.block(0, 0, eom_->numHProps(), 1) =
-    VectorXd::Constant(eom_->numHProps(), pow(10, cfg.thrust_rate_weight_exp));
-  mpc_.input_rate_weight.block(eom_->numHProps(), 0, eom_->numControlSurfaces(), 1) =
-    VectorXd::Constant(eom_->numControlSurfaces(), pow(10, cfg.deflection_rate_weight_exp));
+  mpc_.input_rate_weight.block(0, 0, x_rotors_.count(), 1) =
+    VectorXd::Constant(x_rotors_.count(), pow(10, cfg.thrust_rate_weight_exp));
+  mpc_.input_rate_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
+    VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_rate_weight_exp));
 }
 
 void Controller::baseStateCb(const StateMsg& bs_nwu)

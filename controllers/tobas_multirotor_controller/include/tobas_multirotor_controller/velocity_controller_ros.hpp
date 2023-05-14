@@ -10,6 +10,7 @@
 #include <dh_ros_tools/node.hpp>
 
 #include <tobas_tools/drone.hpp>
+#include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -40,7 +41,9 @@ public:
 
 private:
   Drone drone_;
+
   KDL::TreeJointNameParser jnt_name_parser_;
+  RotorAxisExtractor z_rotors_;
 
   tobas_msgs::BaseState cur_bs_;
   KDL::JntArray q_;  // 全ての非固定関節の角度

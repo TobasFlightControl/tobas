@@ -16,12 +16,11 @@ namespace tobas_multirotor_controller
 {
 MultiRotorDynamics::MultiRotorDynamics(const Drone& drone)
   : drone_(drone),
-    ver_prop_idxes_(drone.rotorConfigIdxInAxis(Axis::Z_POSITIVE)),
-    u_size_(ver_prop_idxes_.size()),
     fk_solver_(drone.tree()),
-    inertia_solver_(drone.tree())
+    inertia_solver_(drone.tree()),
+    z_rotors_(drone, Axis::Z_POSITIVE)
 {
-  resize(STATE_SIZE, u_size_);
+  resize(STATE_SIZE, z_rotors_.count());
 }
 
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
@@ -44,16 +43,13 @@ void MultiRotorDynamics::updateB(const JntArray& q)
   I_cog_eigen_.computeInverseWithCheck(I_cog_inv_, invertible_);
   assert(invertible_);
 
-  for (int i = 0; i < u_size_; ++i)
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    const auto& rotor_idx = ver_prop_idxes_[i];
-    const auto& rotor_config = drone_.rotorConfig(rotor_idx);
-
-    fk_solver_.JntToCart(q, rotor_config.link_name, T_base_rotor_);
+    fk_solver_.JntToCart(q, z_rotors_.linkName(i), T_base_rotor_);
     P_cog_rotor_kdl_ = T_base_rotor_.p - P_base_cog_;
     tf::vectorKDLToEigen(P_cog_rotor_kdl_, P_cog_rotor_eigen_);
-    const auto& d = rotor_config.direction;
-    const auto& c = rotor_config.moment_constant;
+    const auto& d = z_rotors_.direction(i);
+    const auto& c = z_rotors_.momentConstant(i);
     B.block(3, i, 3, 1) = I_cog_inv_ * (P_cog_rotor_eigen_.cross(Z_AXIS) - (d * c) * Z_AXIS);
   }
 }

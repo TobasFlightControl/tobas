@@ -25,18 +25,16 @@ public:
   const FixedWingConfig& fixedWingConfig() const;
 
   uint32_t numRotors() const;
-
-  /* RotorConfigsのうち特定の軸をもつものの添字を取得する． */
-  std::vector<uint32_t> rotorConfigIdxInAxis(const Axis& axis) const;
-
-  /* 特定の軸をもつロータの個数を返す． */
-  uint32_t numRotorsInAxis(const Axis& axis) const;
+  uint32_t numControlSurfaces() const;
 
   /* 指定したロータの最大回転数 [rad/s]． */
   double maxRotSpeed(uint32_t rotor_idx) const;
 
   /* 指定したロータの最大推力 [N]． */
   double maxThrust(uint32_t rotor_idx) const;
+
+  /* 推力 [N] からロータの回転数 [rad/s] を求める． */
+  double thrustToRotSpeed(uint32_t rotor_idx, double thrust) const;
 
 private:
   KDL::Tree tree_;

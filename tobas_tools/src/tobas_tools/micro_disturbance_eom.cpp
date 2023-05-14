@@ -16,11 +16,11 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, uint32_t elev_cs_id
   : drone_(drone),
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
+    x_rotors_(drone, Axis::X_POSITIVE),
     trim_(drone, elev_cs_idx)
 {
   mass_ = inertia_solver_.JntToMass();
-  hprop_idxes_ = drone.rotorConfigIdxInAxis(Axis::X_POSITIVE);
-  num_hprop_ = hprop_idxes_.size();
+  num_hprop_ = x_rotors_.count();
   num_cs_ = drone.fixedWingConfig().control_surfaces.size();
   u_size_ = num_hprop_ + num_cs_;
   setInputLimits();
@@ -147,14 +147,11 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   const auto I_inv = I_eigen_.inverse();
   for (int i = 0; i < num_hprop_; ++i)
   {
-    const auto& rotor_idx = hprop_idxes_[i];
-    const auto& rotor_config = drone_.rotorConfig(rotor_idx);
-
-    fk_solver_.JntToCart(q, rotor_config.link_name, T_base_rotor_);
+    fk_solver_.JntToCart(q, x_rotors_.linkName(i), T_base_rotor_);
     const auto P_cog_rotor_kdl = T_base_rotor_.p - P_base_cog_;
     tf::vectorKDLToEigen(P_cog_rotor_kdl, P_cog_rotor_eigen_);
-    const auto& d = rotor_config.direction;
-    const auto& c = rotor_config.moment_constant;
+    const auto& d = x_rotors_.direction(i);
+    const auto& c = x_rotors_.momentConstant(i);
     B_.block(kStateIdx_p, i, 3, 1) = I_inv * (P_cog_rotor_eigen_.cross(X_AXIS) - (d * c) * X_AXIS);
   }
 
@@ -241,21 +238,6 @@ VectorXd MicroDisturbanceEoM::maxDeltaInput() const
 const uint32_t& MicroDisturbanceEoM::elevatorIndex() const
 {
   return trim_.elevatorIndex();
-}
-
-const uint32_t& MicroDisturbanceEoM::hPropIndex(uint32_t u_idx) const
-{
-  return hprop_idxes_[u_idx];
-}
-
-const uint32_t& MicroDisturbanceEoM::numHProps() const
-{
-  return num_hprop_;
-}
-
-const uint32_t& MicroDisturbanceEoM::numControlSurfaces() const
-{
-  return num_cs_;
 }
 
 const uint32_t& MicroDisturbanceEoM::inputSize() const
@@ -472,7 +454,7 @@ void MicroDisturbanceEoM::setInputLimits()
   for (int i = 0; i < num_hprop_; ++i)
   {
     min_u_(i) = 0.;
-    max_u_(i) = drone_.maxThrust(hPropIndex(i));
+    max_u_(i) = x_rotors_.maxThrust(i);
   }
 
   for (int i = 0; i < num_cs_; ++i)

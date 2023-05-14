@@ -4,6 +4,7 @@
 #include <kdl/tree.hpp>
 
 #include <tobas_tools/drone.hpp>
+#include <tobas_tools/rotor_axis_extractor.hpp>
 
 namespace tobas_multirotor_controller
 {
@@ -22,6 +23,10 @@ public:
   const double& maxU() const;
 
 private:
+  const Drone& drone_;
+
+  RotorAxisExtractor z_rotors_;
+
   const double gravity_;
   double mass_;
   double max_U_;

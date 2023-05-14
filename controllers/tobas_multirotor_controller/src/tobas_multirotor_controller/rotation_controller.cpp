@@ -13,25 +13,25 @@ namespace tobas_multirotor_controller
 RotationController::RotationController(
   const Drone& drone,
   const RotationControllerDynamicParams& params)
-  : drone_(drone), cont_(drone), c2d_(STATE_SIZE, u_size_)
+  : drone_(drone),
+    z_rotors_(drone, Axis::Z_POSITIVE),
+    cont_(drone),
+    c2d_(STATE_SIZE, z_rotors_.count())
 {
   assert(drone.tree().getNrOfJoints() > 0);
-
-  ver_prop_idxes_ = drone_.rotorConfigIdxInAxis(Axis::Z_POSITIVE);
-  u_size_ = ver_prop_idxes_.size();
 
   mpc_.Cz = MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
   mpc_.decay_time_consts.resize(STATE_SIZE);
   setScales();
-  mpc_.input_rate_weight.resize(u_size_);
-  mpc_.input_weight.resize(u_size_);
+  mpc_.input_rate_weight.resize(z_rotors_.count());
+  mpc_.input_weight.resize(z_rotors_.count());
   mpc_.control_weight.resize(STATE_SIZE);
-  mpc_.input_rate_constraint.resize(u_size_, 0);
+  mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
   setInputConstraintBase();
   mpc_.control_constraint.resize(STATE_SIZE, 0);
   mpc_.current_state.resize(STATE_SIZE);
   mpc_.set_state.resize(STATE_SIZE);
-  mpc_.last_input = VectorXd::Zero(u_size_);
+  mpc_.last_input = VectorXd::Zero(z_rotors_.count());
 
   reconfigure(params);
 }
@@ -44,7 +44,7 @@ void RotationController::update(
   const Euler& tar_rpy,
   VectorXd& u_opt)
 {
-  assert(u_opt.rows() == u_size_);
+  assert(u_opt.rows() == z_rotors_.count());
 
   updateCurrentState(cur_rpy, cur_angvel_B);
   updateSetState(tar_rpy);
@@ -72,15 +72,17 @@ void RotationController::reconfigure(const RotationControllerDynamicParams& para
   mpc_.decay_time_consts(ANGVEL_X) = mpc_.decay_time_consts(ANGVEL_Y) =
     mpc_.decay_time_consts(ANGVEL_Z) = params.angvel_decay;
 
-  mpc_.discrete_dynamics.resize(params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, u_size_));
+  mpc_.discrete_dynamics.resize(
+    params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, z_rotors_.count()));
 
   // Update weights
   mpc_.control_weight(ROLL) = mpc_.control_weight(PITCH) = params.attitude_weight;
   mpc_.control_weight(YAW) = params.heading_weight;
   mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
     params.angvel_weight;
-  mpc_.input_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_weight_exp));
-  mpc_.input_rate_weight = VectorXd::Constant(u_size_, pow(10, params.thrust_rate_weight_exp));
+  mpc_.input_weight = VectorXd::Constant(z_rotors_.count(), pow(10, params.thrust_weight_exp));
+  mpc_.input_rate_weight =
+    VectorXd::Constant(z_rotors_.count(), pow(10, params.thrust_rate_weight_exp));
 }
 
 void RotationController::updateCurrentState(
@@ -123,40 +125,39 @@ void RotationController::setScales()
   mpc_.control_scale(ROLL) = mpc_.control_scale(PITCH) = mpc_.control_scale(YAW) = M_PI;
   mpc_.control_scale(ANGVEL_X) = mpc_.control_scale(ANGVEL_Y) = mpc_.control_scale(ANGVEL_Z) = M_PI;
 
-  mpc_.input_scale.resize(u_size_);
-  for (int i = 0; i < u_size_; ++i)
+  mpc_.input_scale.resize(z_rotors_.count());
+  for (int i = 0; i < z_rotors_.count(); ++i)
   {
-    const auto& rotor_idx = ver_prop_idxes_[i];
-    mpc_.input_scale(i) = drone_.maxThrust(rotor_idx);
+    mpc_.input_scale(i) = z_rotors_.maxThrust(i);
   }
 }
 
 void RotationController::setInputConstraintBase()
 {
-  const MatrixXd E = MatrixXd::Identity(u_size_, u_size_);
-  const VectorXd ones = VectorXd::Ones(u_size_);
+  const MatrixXd E = MatrixXd::Identity(z_rotors_.count(), z_rotors_.count());
+  const VectorXd ones = VectorXd::Ones(z_rotors_.count());
 
-  mpc_.input_constraint.resize(u_size_, u_size_ * 2 + 2);
+  mpc_.input_constraint.resize(z_rotors_.count(), z_rotors_.count() * 2 + 2);
 
-  mpc_.input_constraint.A.block(0, 0, u_size_, u_size_) = E;
-  mpc_.input_constraint.A.block(u_size_, 0, u_size_, u_size_) = -E;
-  mpc_.input_constraint.A.block(u_size_ * 2, 0, 1, u_size_) = ones.transpose();
-  mpc_.input_constraint.A.block(u_size_ * 2 + 1, 0, 1, u_size_) = -ones.transpose();
+  mpc_.input_constraint.A.block(0, 0, z_rotors_.count(), z_rotors_.count()) = E;
+  mpc_.input_constraint.A.block(z_rotors_.count(), 0, z_rotors_.count(), z_rotors_.count()) = -E;
+  mpc_.input_constraint.A.block(z_rotors_.count() * 2, 0, 1, z_rotors_.count()) = ones.transpose();
+  mpc_.input_constraint.A.block(z_rotors_.count() * 2 + 1, 0, 1, z_rotors_.count()) =
+    -ones.transpose();
 
-  for (int i = 0; i < u_size_; ++i)
+  for (int i = 0; i < z_rotors_.count(); ++i)
   {
-    const auto& rotor_idx = ver_prop_idxes_[i];
-    const double max_thrust = drone_.maxThrust(rotor_idx);
+    const double max_thrust = z_rotors_.maxThrust(i);
     const double min_thrust = 0.;
 
     mpc_.input_constraint.b(i) = max_thrust;
-    mpc_.input_constraint.b(u_size_ + i) = -min_thrust;
+    mpc_.input_constraint.b(z_rotors_.count() + i) = -min_thrust;
   }
 }
 
 void RotationController::updateInputConstraint(double U)
 {
-  mpc_.input_constraint.b(u_size_ * 2) = U;
-  mpc_.input_constraint.b(u_size_ * 2 + 1) = -U;
+  mpc_.input_constraint.b(z_rotors_.count() * 2) = U;
+  mpc_.input_constraint.b(z_rotors_.count() * 2 + 1) = -U;
 }
 }  // namespace tobas_multirotor_controller

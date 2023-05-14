@@ -2,6 +2,7 @@
 
 #include <dh_kdl/treefksolverpos.hpp>
 
+#include "./rotor_axis_extractor.hpp"
 #include "./trim_conditions.hpp"
 
 /**
@@ -43,10 +44,6 @@ public:
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
   const uint32_t& elevatorIndex() const;
-  /* 制御入力ベクトルの添字から推力プロペラの添字を取得する． */
-  const uint32_t& hPropIndex(uint32_t u_idx) const;
-  const uint32_t& numHProps() const;
-  const uint32_t& numControlSurfaces() const;
   const uint32_t& inputSize() const;
 
   const Eigen::Matrix<double, kStateSize, kStateSize>& A();
@@ -125,11 +122,11 @@ private:
 
   KDL::ExtTreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
+  RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 
   // 固定値
   double mass_;                        // 機体の質量 [kg]
-  std::vector<uint32_t> hprop_idxes_;  // X軸正方向を向いたプロペラの添字
   uint32_t num_hprop_;
   uint32_t num_cs_;
   uint32_t u_size_;

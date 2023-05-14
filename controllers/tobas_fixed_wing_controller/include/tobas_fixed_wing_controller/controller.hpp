@@ -9,6 +9,7 @@
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
 #include <tobas_tools/drone.hpp>
+#include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_tools/micro_disturbance_eom.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
@@ -41,6 +42,8 @@ private:
   };
 
   Drone drone_;
+
+  RotorAxisExtractor x_rotors_;
 
   // RosParams
   ConfigType cfg_;  // 動的パラメータの初期値

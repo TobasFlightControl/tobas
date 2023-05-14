@@ -1,6 +1,5 @@
 #include <kdl_parser/kdl_parser.hpp>
 
-#include <dh_std_tools/math.hpp>
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
@@ -73,34 +72,25 @@ uint32_t Drone::numRotors() const
   return rotor_configs_.size();
 }
 
-std::vector<uint32_t> Drone::rotorConfigIdxInAxis(const Axis& axis) const
+uint32_t Drone::numControlSurfaces() const
 {
-  vector<uint32_t> res;
-  for (uint32_t i = 0; i < numRotors(); ++i)
-  {
-    if (rotor_configs_[i].axis == axis)
-    {
-      res.emplace_back(i);
-    }
-  }
-  return res;
-}
-
-uint32_t Drone::numRotorsInAxis(const Axis& axis) const
-{
-  return rotorConfigIdxInAxis(axis).size();
+  return fixed_wing_config_.control_surfaces.size();
 }
 
 double Drone::maxRotSpeed(uint32_t rotor_idx) const
 {
-  assert(rotor_idx < numRotors());
-
   return rotor_configs_[rotor_idx].kv * battery_voltage_;
 }
 
 double Drone::maxThrust(uint32_t rotor_idx) const
 {
-  return rotor_configs_[rotor_idx].motor_constant * dh_std::sqr(maxRotSpeed(rotor_idx));
+  return rotor_configs_[rotor_idx].motor_constant * sqr(maxRotSpeed(rotor_idx));
+}
+
+double Drone::thrustToRotSpeed(uint32_t rotor_idx, double thrust) const
+{
+  assert(thrust >= 0.);
+  return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
 }
 
 void Drone::getTree(const string& ns)
