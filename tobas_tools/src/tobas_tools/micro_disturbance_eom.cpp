@@ -4,8 +4,8 @@
 #include <dh_kdl/conversion/kdl_eigen.hpp>
 
 #include "../../include/tobas_tools/micro_disturbance_eom.hpp"
+#include "../../include/tobas_tools/constants.hpp"
 
-#define GRAVITY 9.80665  // 重力加速度 [m/s^2]
 #define X_AXIS Vector3d(1, 0, 0)
 
 using namespace std;
@@ -62,7 +62,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
 
   // 引数に依存する定数
   const auto rho = dh_std::altitudeToDensity(h);
-  const auto W = mass_ * GRAVITY;
+  const auto W = mass_ * kGravity;
   const auto q_bar = dynamicPressure(rho, V);
   const auto q_S = q_bar * vehicle.wing_surface;
   const auto q_S_b = q_S * vehicle.wing_span;
@@ -97,7 +97,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   const auto M_u_dash = M_u + M_alpha_rate * Z_u_bar;
   const auto M_alpha_dash = M_alpha + M_alpha_rate * Z_alpha_bar;
   const auto M_q_dash = M_q + M_alpha_rate;
-  const auto M_theta_dash = -GRAVITY * sin(trim_.theta()) / V * M_alpha_rate;
+  const auto M_theta_dash = -kGravity * sin(trim_.theta()) / V * M_alpha_rate;
 
   // (3.2-22)
   const auto N_beta_dash = q_S_b / I_z_tilde * (asd_cog.cYawBeta() + I_xz / I_x * aero.c_roll_beta);
@@ -107,15 +107,15 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   // Aを更新
   A_(kStateIdx_u, kStateIdx_u) = X_u;
   A_(kStateIdx_u, kStateIdx_alpha) = X_alpha;
-  A_(kStateIdx_u, kStateIdx_theta) = -GRAVITY * cos(trim_.theta());
+  A_(kStateIdx_u, kStateIdx_theta) = -kGravity * cos(trim_.theta());
 
   A_(kStateIdx_alpha, kStateIdx_u) = Z_u_bar;
   A_(kStateIdx_alpha, kStateIdx_alpha) = Z_alpha_bar;
-  A_(kStateIdx_alpha, kStateIdx_theta) = -GRAVITY * sin(trim_.theta()) / V;
+  A_(kStateIdx_alpha, kStateIdx_theta) = -kGravity * sin(trim_.theta()) / V;
   A_(kStateIdx_alpha, kStateIdx_q) = 1;
 
   A_(kStateIdx_beta, kStateIdx_beta) = Y_beta_bar;
-  A_(kStateIdx_beta, kStateIdx_phi) = GRAVITY * cos(trim_.theta()) / V;
+  A_(kStateIdx_beta, kStateIdx_phi) = kGravity * cos(trim_.theta()) / V;
   A_(kStateIdx_beta, kStateIdx_p) = trim_.alpha();
   A_(kStateIdx_beta, kStateIdx_r) = -1;
 
