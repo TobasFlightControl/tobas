@@ -1,5 +1,7 @@
 #include "../../include/tobas_tools/rotor_axis_extractor.hpp"
 
+namespace tobas
+{
 RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, Axis axis) : drone_(drone), axis_(axis)
 {
   updateInternalDataStructures();
@@ -77,3 +79,4 @@ void RotorAxisExtractor::setRotorIdxs()
     }
   }
 }
+}  // namespace tobas

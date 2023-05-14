@@ -4,14 +4,14 @@
 #include <dh_ros_tools/rosparam.hpp>
 
 #include "../../include/tobas_tools/drone.hpp"
-
-#define MIN_PIN_ID 1
-#define MAX_PIN_ID 14
+#include "../../include/tobas_tools/constants.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
+namespace tobas
+{
 Drone::Drone()
 {
 }
@@ -178,14 +178,14 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 
   // Index
   dh_ros::getParam(prefix + "/pin", des.pin);
-  if (des.pin < MIN_PIN_ID || MAX_PIN_ID < des.pin)
+  if (des.pin < kMinPinId || kMaxPinId < des.pin)
   {
     throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(des.pin));
   }
 
   // Pin
   dh_ros::getParam(prefix + "/pin", des.pin);
-  if (des.pin < MIN_PIN_ID || MAX_PIN_ID < des.pin)
+  if (des.pin < kMinPinId || kMaxPinId < des.pin)
   {
     throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(des.pin));
   }
@@ -339,3 +339,4 @@ void Drone::getControlSurfaces(const string& ns)
     dh_ros::getParam(prefix + "/c_yaw_delta", des.c_yaw_delta);
   }
 }
+}  // namespace tobas

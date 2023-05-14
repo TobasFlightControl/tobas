@@ -9,8 +9,8 @@ using namespace KDL;
 
 namespace tobas_multirotor_controller
 {
-AccelerationController::AccelerationController(const Drone& drone, double gravity)
-  : drone_(drone), z_rotors_(drone, Axis::Z_POSITIVE), gravity_(gravity)
+AccelerationController::AccelerationController(const tobas::Drone& drone, double gravity)
+  : drone_(drone), z_rotors_(drone, tobas::Axis::Z_POSITIVE), gravity_(gravity)
 {
   TreeJntToInertiaSolver inertia_solver_(drone.tree());
   mass_ = inertia_solver_.JntToMass();

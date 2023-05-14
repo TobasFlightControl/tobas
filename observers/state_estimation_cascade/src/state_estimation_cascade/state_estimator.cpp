@@ -8,8 +8,6 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
-#include <tobas_tools/utils.hpp>
-
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
 #define TIMER_PERIOD 5.

@@ -11,10 +11,10 @@ using namespace KDL;
 namespace tobas_multirotor_controller
 {
 RotationController::RotationController(
-  const Drone& drone,
+  const tobas::Drone& drone,
   const RotationControllerDynamicParams& params)
   : drone_(drone),
-    z_rotors_(drone, Axis::Z_POSITIVE),
+    z_rotors_(drone, tobas::Axis::Z_POSITIVE),
     cont_(drone),
     c2d_(STATE_SIZE, z_rotors_.count())
 {

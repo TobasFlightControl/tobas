@@ -12,6 +12,8 @@ using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
+namespace tobas
+{
 MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, uint32_t elev_cs_idx)
   : drone_(drone),
     fk_solver_(drone.tree()),
@@ -464,3 +466,4 @@ void MicroDisturbanceEoM::setInputLimits()
     max_u_(num_hprop_ + i) = cs.angle_limit.upper;
   }
 }
+}  // namespace tobas

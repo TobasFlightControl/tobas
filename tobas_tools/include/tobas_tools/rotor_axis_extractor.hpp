@@ -2,6 +2,8 @@
 
 #include "./drone.hpp"
 
+namespace tobas
+{
 /**
  * @brief 特定の回転軸を持つロータを抽出する．
  */
@@ -53,3 +55,4 @@ private:
 
   void setRotorIdxs();
 };
+}  // namespace tobas

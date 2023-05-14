@@ -34,7 +34,9 @@ struct RotationControllerDynamicParams
 class RotationController
 {
 public:
-  explicit RotationController(const Drone& drone, const RotationControllerDynamicParams& params);
+  explicit RotationController(
+    const tobas::Drone& drone,
+    const RotationControllerDynamicParams& params);
 
   void update(
     const KDL::Euler& cur_rpy,
@@ -47,9 +49,9 @@ public:
   void reconfigure(const RotationControllerDynamicParams& params);
 
 private:
-  const Drone& drone_;
+  const tobas::Drone& drone_;
 
-  RotorAxisExtractor z_rotors_;
+  tobas::RotorAxisExtractor z_rotors_;
 
   MultiRotorDynamics cont_;   // 連続時間線形状態方程式
   ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化

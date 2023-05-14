@@ -3,6 +3,8 @@
 using namespace std;
 using namespace KDL;
 
+namespace tobas
+{
 StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone)
   : drone_(drone), inertia_solver_(drone.tree())
 {
@@ -56,3 +58,4 @@ double StabilityDerivativesCG::cYawDelta(uint32_t cs_idx) const
 {
   return c_yaw_delta_cg_[cs_idx];
 }
+}  // namespace tobas

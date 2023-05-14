@@ -32,7 +32,7 @@ public:
    *
    * @param tree 全身のTree
    */
-  explicit MultiRotorDynamics(const Drone& drone);
+  explicit MultiRotorDynamics(const tobas::Drone& drone);
 
   /**
    * @brief 状態方程式を更新する．
@@ -44,11 +44,11 @@ public:
   void update(const double& roll, const double& pitch, const KDL::JntArray& q);
 
 private:
-  const Drone& drone_;
+  const tobas::Drone& drone_;
 
   KDL::ExtTreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
-  RotorAxisExtractor z_rotors_;
+  tobas::RotorAxisExtractor z_rotors_;
 
   KDL::Rotation rpyvel_angvel_kdl_;
   Eigen::Matrix3d rpyvel_angvel_eigen_;

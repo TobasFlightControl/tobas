@@ -22,7 +22,7 @@ public:
   void run();
 
 private:
-  Drone drone_;
+  tobas::Drone drone_;
 
   bool cmd_received_;
   std::vector<double> cmd_speeds_;

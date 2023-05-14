@@ -5,6 +5,8 @@
 #include "./rotor_axis_extractor.hpp"
 #include "./trim_conditions.hpp"
 
+namespace tobas
+{
 /**
  * @brief トリム状態周りの微小擾乱運動方程式．有次元空力安定微係数を個別に提供する．
  */
@@ -126,7 +128,7 @@ private:
   TrimConditions trim_;
 
   // 固定値
-  double mass_;                        // 機体の質量 [kg]
+  double mass_;  // 機体の質量 [kg]
   uint32_t num_hprop_;
   uint32_t num_cs_;
   uint32_t u_size_;
@@ -150,3 +152,4 @@ private:
 
   void setInputLimits();
 };
+}  // namespace tobas

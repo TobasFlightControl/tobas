@@ -62,7 +62,7 @@ void MotorsHandler_DSHOT::run()
       {
         dh_ros::rosErrorThrottle(
           kInfoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
-                        + to_string(max_speed));
+                         + to_string(max_speed));
         cmd_speed = max_speed;
       }
 
@@ -114,7 +114,7 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
   {
     dh_ros::rosWarnThrottle(
       kInfoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
-                    + " seconds, which is too large.");
+                     + " seconds, which is too large.");
   }
   else if (delay < 0.)
   {

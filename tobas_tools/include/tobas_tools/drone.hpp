@@ -5,6 +5,8 @@
 #include "./rotor_property.hpp"
 #include "./fixed_wing_tools.hpp"
 
+namespace tobas
+{
 /**
  * @brief ドローンを記述するのに必要な最低限の情報のみを持つクラス．
  */
@@ -54,3 +56,4 @@ private:
   void getAerodynamicsCoefficients(const std::string& ns);
   void getControlSurfaces(const std::string& ns);
 };
+}  // namespace tobas

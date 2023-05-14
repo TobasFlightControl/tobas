@@ -5,6 +5,8 @@
 
 #include "./stability_derivatives_cog.hpp"
 
+namespace tobas
+{
 /**
  * @brief 縦系のトリム状態を求める．
  */
@@ -63,3 +65,4 @@ private:
   double c_T_;       // トリム時の推力係数 [-]
   double u_;         // トリム時のX軸方向の速さ [m/s]
 };
+}  // namespace tobas

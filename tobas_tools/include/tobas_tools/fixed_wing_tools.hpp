@@ -6,6 +6,8 @@
 
 #include <dh_std_tools/range.hpp>
 
+namespace tobas
+{
 struct VehicleParameters
 {
   double wing_surface;                // Wing surface [m^2]
@@ -118,3 +120,4 @@ double angleOfSideSlip(const KDL::Vector& linvel_B);
  * @return double 動圧 [Pa]
  */
 double dynamicPressure(double rho, double V);
+}  // namespace tobas

@@ -19,7 +19,7 @@ public:
   explicit MotorsHandler_PWM();
 
 private:
-  Drone drone_;
+  tobas::Drone drone_;
   RCOutput_Navio2 pwm_;
 
   // PubSub

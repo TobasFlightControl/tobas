@@ -7,7 +7,6 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
 
-#include <tobas_tools/utils.hpp>
 #include <tobas_tools/conversions/coordinates.hpp>
 
 #include "../../include/tobas_fixed_wing_controller/controller.hpp"
@@ -20,7 +19,7 @@ using namespace dh_std;
 namespace tobas_fixed_wing_controller
 {
 Controller::Controller()
-  : super(), x_rotors_(drone_, Axis::X_POSITIVE), server_(ros::NodeHandle(kCtrlName))
+  : super(), x_rotors_(drone_, tobas::Axis::X_POSITIVE), server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
   drone_.loadFromParam(ns_);
@@ -29,7 +28,7 @@ Controller::Controller()
 
   q_0_.resize(drone_.tree().getNrOfJoints());
 
-  eom_.reset(new MicroDisturbanceEoM(drone_, trim_elev_idx_));
+  eom_.reset(new tobas::MicroDisturbanceEoM(drone_, trim_elev_idx_));
   c2d_.reset(new ctrl::C2D_RK4(eom_->kStateSize, eom_->inputSize()));
 
   state_ = State::START;
@@ -202,8 +201,8 @@ void Controller::updateCurrentStateVector()
 
   // TODO: 横系のトリムも考慮
   mpc_.current_state(eom_->kStateIdx_u) = linvel_B.x() - trim.u();
-  mpc_.current_state(eom_->kStateIdx_alpha) = angleOfAttack(linvel_B) - trim.alpha();
-  mpc_.current_state(eom_->kStateIdx_beta) = angleOfSideSlip(linvel_B);
+  mpc_.current_state(eom_->kStateIdx_alpha) = tobas::angleOfAttack(linvel_B) - trim.alpha();
+  mpc_.current_state(eom_->kStateIdx_beta) = tobas::angleOfSideSlip(linvel_B);
   mpc_.current_state(eom_->kStateIdx_phi) = bs_ned_.pose.euler.roll;
   mpc_.current_state(eom_->kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
   mpc_.current_state(eom_->kStateIdx_p) = bs_ned_.twist.rot.x();

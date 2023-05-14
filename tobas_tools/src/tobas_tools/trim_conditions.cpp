@@ -1,16 +1,17 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 
 #include "../../include/tobas_tools/trim_conditions.hpp"
-
-#define GRAVITY 9.80665
+#include "../../include/tobas_tools/constants.hpp"
 
 using namespace std;
 using namespace KDL;
 
+namespace tobas
+{
 TrimConditions::TrimConditions(const Drone& drone, uint32_t elev_cs_idx)
   : drone_(drone), elev_cs_idx_(elev_cs_idx), inertia_solver_(drone.tree()), asd_cog_(drone)
 {
-  W_ = inertia_solver_.JntToMass() * GRAVITY;
+  W_ = inertia_solver_.JntToMass() * kGravity;
 
   const auto& fixed_wing = drone_.fixedWingConfig();
   const auto& aero = fixed_wing.aerodynamics;
@@ -111,3 +112,4 @@ dh_std::Range<double> TrimConditions::speedLimit(double altitude) const
 
   return dh_std::Range<double>(V_min, V_max);
 }
+}  // namespace tobas

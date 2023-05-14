@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+namespace tobas
+{
 enum struct Axis
 {
   X_POSITIVE,
@@ -42,3 +44,4 @@ struct RotorConfig
 };
 
 using RotorConfigs = std::vector<RotorConfig>;
+}  // namespace tobas

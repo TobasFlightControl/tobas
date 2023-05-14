@@ -7,7 +7,6 @@
 #include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/operators.hpp>
-#include <tobas_tools/utils.hpp>
 #include <tobas_msgs/FrameId.h>
 
 #include "../../include/tobas_multirotor_controller/velocity_controller_ros.hpp"
@@ -22,7 +21,7 @@ namespace tobas_multirotor_controller
 VelocityControllerRos::VelocityControllerRos()
   : super(),
     jnt_name_parser_(drone_.tree()),
-    z_rotors_(drone_, Axis::Z_POSITIVE),
+    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     is_initialized_(false),
     bs_received_(false),
     js_received_(false),

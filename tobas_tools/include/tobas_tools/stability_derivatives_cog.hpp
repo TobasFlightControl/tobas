@@ -4,6 +4,8 @@
 
 #include "./drone.hpp"
 
+namespace tobas
+{
 /**
  * @brief モーメントに関する空力安定微係数の参照フレームを空力中心周りから重心周り変換する．
  */
@@ -32,3 +34,4 @@ private:
   std::vector<double> c_pitch_delta_cg_;
   std::vector<double> c_yaw_delta_cg_;
 };
+}  // namespace tobas

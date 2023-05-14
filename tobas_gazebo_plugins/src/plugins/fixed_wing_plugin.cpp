@@ -142,7 +142,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
     while (cs_elem)
     {
-      ControlSurface cs;
+      tobas::ControlSurface cs;
 
       getSdfParam(cs_elem, "index", cs.index);
       if (cs.index < 0)
@@ -203,14 +203,14 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   NWU2NED(linvel_B);
 
   // 風速
-  const double& u = linvel_B.X();
-  const double& v = linvel_B.Y();
-  const double& w = linvel_B.Z();
-  double V = linvel_B.Length();
+  const auto& u = linvel_B.X();
+  const auto& v = linvel_B.Y();
+  const auto& w = linvel_B.Z();
+  const auto V = linvel_B.Length();
 
   // 迎角と横滑り角
-  double alpha = angleOfAttack(u, v, w);   // 迎角 [rad]
-  double beta = angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
+  auto alpha = tobas::angleOfAttack(u, v, w);         // 迎角 [rad]
+  const auto beta = tobas::angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
 
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha))
@@ -231,9 +231,9 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   }
 
   // 迎角の変化率
-  double cur_time = info.simTime.Double();
-  double dt = cur_time - prev_sim_time_;
-  double alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
+  const auto cur_time = info.simTime.Double();
+  const auto dt = cur_time - prev_sim_time_;
+  const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
   prev_sim_time_ = cur_time;
   prev_alpha_ = alpha;
 
@@ -245,18 +245,18 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   Vector3d moment_coefs = nonDimentionalAeroCoefs_Moment(alpha, beta, alpha_rate, V);  // Cl, Cm, Cn
 
   // 定数部分を計算しておく
-  double q_bar = dynamicPressure(V);               // 動圧 (p.15) [Pa]
-  const double& S = vehicle_params_.wing_surface;  // 主翼面積 [m^2]
+  const auto q_bar = dynamicPressure(V);         // 動圧 (p.15) [Pa]
+  const auto& S = vehicle_params_.wing_surface;  // 主翼面積 [m^2]
 
   // 空気力 (1.8-1)
   Vector3d air_force = q_bar * S * force_coefs;  // [N]
 
   // 空気モーメント (1.8-7)
-  const double& C_l = moment_coefs.X();                                       // [-]
-  const double& C_m = moment_coefs.Y();                                       // [-]
-  const double& C_n = moment_coefs.Z();                                       // [-]
-  const double& b = vehicle_params_.wing_span;                                // [m]
-  const double& c_bar = vehicle_params_.mac;                                  // [m]
+  const auto& C_l = moment_coefs.X();                                         // [-]
+  const auto& C_m = moment_coefs.Y();                                         // [-]
+  const auto& C_n = moment_coefs.Z();                                         // [-]
+  const auto& b = vehicle_params_.wing_span;                                  // [m]
+  const auto& c_bar = vehicle_params_.mac;                                    // [m]
   Vector3d air_moment = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
 
   // NED -> NWU
@@ -274,23 +274,23 @@ void GazeboFixedWingPlugin::updateDeflections(double dt)
 {
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    const double& cmd_deflection = cs_deflections_.deflections[control_surfaces_[i].index];
+    const auto& cmd_deflection = cs_deflections_.deflections[control_surfaces_[i].index];
     cs_angle_models_[i].setTargetPosition(cmd_deflection, dt);
   }
 }
 
 Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(double alpha, double beta)
 {
-  double C_L = liftCoefficient(alpha);  // 揚力係数 (1.8-3)
-  double C_D = dragCoefficient(alpha);  // 抗力係数 (1.8-3)
-  double C_S = sideCoefficient(beta);   // 横力係数 (1.8-5)
+  const auto C_L = liftCoefficient(alpha);  // 揚力係数 (1.8-3)
+  const auto C_D = dragCoefficient(alpha);  // 抗力係数 (1.8-3)
+  const auto C_S = sideCoefficient(beta);   // 横力係数 (1.8-5)
 
-  double cos_alpha = cos(alpha);
-  double sin_alpha = sin(alpha);
+  const auto cos_alpha = cos(alpha);
+  const auto sin_alpha = sin(alpha);
 
-  double C_x = -C_D * cos_alpha + C_L * sin_alpha;  // (1.8-4)
-  double C_z = -C_L * cos_alpha - C_D * sin_alpha;  // (1.8-4)
-  double C_y = C_S;                                 // (1.8-5)
+  const auto C_x = -C_D * cos_alpha + C_L * sin_alpha;  // (1.8-4)
+  const auto C_z = -C_L * cos_alpha - C_D * sin_alpha;  // (1.8-4)
+  const auto C_y = C_S;                                 // (1.8-5)
 
   return Vector3d(C_x, C_y, C_z);
 }
@@ -304,14 +304,14 @@ Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
   // 角速度
   Vector3d B_angular_velocity_W_B = link_->RelativeAngularVel();
   NWU2NED(B_angular_velocity_W_B);
-  double p = B_angular_velocity_W_B.X();
-  double q = B_angular_velocity_W_B.Y();
-  double r = B_angular_velocity_W_B.Z();
+  const auto p = B_angular_velocity_W_B.X();
+  const auto q = B_angular_velocity_W_B.Y();
+  const auto r = B_angular_velocity_W_B.Z();
 
   // (1.8-9): 揚力中心に力をかけるためモーメントの補正項はなし
-  double C_l = rollCoefficient(beta, p, r, V);
-  double C_m = pitchCoefficient(alpha, beta, alpha_rate, q, V);
-  double C_n = yawCoefficient(beta, p, r, V);
+  const auto C_l = rollCoefficient(beta, p, r, V);
+  const auto C_m = pitchCoefficient(alpha, beta, alpha_rate, q, V);
+  const auto C_n = yawCoefficient(beta, p, r, V);
 
   return Vector3d(C_l, C_m, C_n);
 }
@@ -319,7 +319,7 @@ Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
 double GazeboFixedWingPlugin::liftCoefficient(double alpha)
 {
   // 迎角
-  double C_L = aero_coefs_.c_lift_0 + aero_coefs_.c_lift_alpha * alpha;
+  auto C_L = aero_coefs_.c_lift_0 + aero_coefs_.c_lift_alpha * alpha;
 
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
@@ -333,7 +333,7 @@ double GazeboFixedWingPlugin::liftCoefficient(double alpha)
 double GazeboFixedWingPlugin::dragCoefficient(double alpha)
 {
   // 迎角
-  double C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha;
+  auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha;
 
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
@@ -348,7 +348,7 @@ double GazeboFixedWingPlugin::dragCoefficient(double alpha)
 double GazeboFixedWingPlugin::sideCoefficient(double beta)
 {
   // 横滑り角
-  double C_S = aero_coefs_.c_side_beta * beta;
+  auto C_S = aero_coefs_.c_side_beta * beta;
 
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
@@ -362,10 +362,10 @@ double GazeboFixedWingPlugin::sideCoefficient(double beta)
 double GazeboFixedWingPlugin::rollCoefficient(double beta, double p, double r, double V)
 {
   // 横滑り角
-  double C_l = aero_coefs_.c_roll_beta * beta;
+  auto C_l = aero_coefs_.c_roll_beta * beta;
 
   // 角速度
-  const double& b = vehicle_params_.wing_span;
+  const auto& b = vehicle_params_.wing_span;
   C_l += b / (2 * V) * (aero_coefs_.c_roll_p * p + aero_coefs_.c_roll_r * r);
 
   // 舵面
@@ -385,11 +385,11 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   double V)
 {
   // 迎角，横滑り角
-  double C_m = aero_coefs_.c_pitch_0 + aero_coefs_.c_pitch_alpha * alpha;
+  auto C_m = aero_coefs_.c_pitch_0 + aero_coefs_.c_pitch_alpha * alpha;
   C_m += aero_coefs_.c_pitch_abs_beta * abs(beta);
 
   // 角速度
-  const double& c = vehicle_params_.mac;
+  const auto& c = vehicle_params_.mac;
   C_m += c / (2 * V) * (aero_coefs_.c_pitch_alpha_rate * alpha_rate + aero_coefs_.c_pitch_q * q);
 
   // 舵面
@@ -404,10 +404,10 @@ double GazeboFixedWingPlugin::pitchCoefficient(
 double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, double V)
 {
   // 横滑り角
-  double C_n = aero_coefs_.c_yaw_beta * beta;
+  auto C_n = aero_coefs_.c_yaw_beta * beta;
 
   // 角速度
-  const double& b = vehicle_params_.wing_span;
+  const auto& b = vehicle_params_.wing_span;
   C_n += b / (2 * V) * (aero_coefs_.c_yaw_p * p + aero_coefs_.c_yaw_r * r);
 
   // 舵面
@@ -421,9 +421,9 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
 
 double GazeboFixedWingPlugin::dynamicPressure(double V)
 {
-  double altitude = ref_alt_ + link_->WorldPose().Pos().Z();
-  double rho = dh_std::altitudeToDensity(altitude);
-  return rho * dh_std::sqr(V) / 2;
+  const auto altitude = ref_alt_ + link_->WorldPose().Pos().Z();
+  const auto rho = dh_std::altitudeToDensity(altitude);
+  return rho * dh_std::sqr(V) / 2.;
 }
 
 void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)

@@ -40,10 +40,10 @@ public:
   explicit VelocityControllerRos();
 
 private:
-  Drone drone_;
+  tobas::Drone drone_;
 
   KDL::TreeJointNameParser jnt_name_parser_;
-  RotorAxisExtractor z_rotors_;
+  tobas::RotorAxisExtractor z_rotors_;
 
   tobas_msgs::BaseState cur_bs_;
   KDL::JntArray q_;  // 全ての非固定関節の角度
