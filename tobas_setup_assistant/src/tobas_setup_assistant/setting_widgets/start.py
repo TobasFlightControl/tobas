@@ -115,8 +115,7 @@ class RobotModelLoaderWidget(QWidget):
         try:
             self._launch_file()
         except Exception as e:
-            rospy.logerr(e)
-            q_error(self._main, "Failed to load robot description.")
+            q_error(self._main, f'Failed to load robot description:\n\n{e}')
             return
 
         self.file_text.setEnabled(False)
