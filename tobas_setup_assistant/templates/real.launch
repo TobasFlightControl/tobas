@@ -1,8 +1,8 @@
 <launch>
 
   <group ns="{{ drone_name }}">
-    <!-- Load drone configurations from YAML file to parameter server -->
-    <rosparam file="$(find {{ pkg_name }})/config/drone_config.yaml" command="load"/>
+    <!-- Load drone configurations from TBSF file to parameter server -->
+    <rosparam file="$(find {{ pkg_name }})/config/{{ drone_name }}.tbsf" command="load"/>
 
     <!-- Load the URDF into the ROS parameter server -->
     <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.urdf'"/>
