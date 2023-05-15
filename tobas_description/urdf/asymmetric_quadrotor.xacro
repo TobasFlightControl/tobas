@@ -22,7 +22,7 @@
 <robot name="asymmetric_quadrotor" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- Included URDF Files -->
   <!-- <xacro:include filename="$(find rotors_description)/urdf/multirotor_base.xacro" /> -->
-  <xacro:include filename="$(find tobas_setup_assistant)/urdf/multirotor_base.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/multirotor_base.xacro" />
   <!-- Properties  -->
   <!-- <xacro:property name="namespace" value="$(arg namespace)" /> -->
   <xacro:property name="namespace" value="asymmetric_quadrotor" />

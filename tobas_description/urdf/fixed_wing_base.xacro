@@ -73,7 +73,7 @@
     </gazebo>
 
     <!-- Attach fw_dynamics to the base_link -->
-    <gazebo>
+    <!-- <gazebo>
       <plugin filename="librotors_gazebo_fw_dynamics_plugin.so" name="fw_dynamics_plugin">
         <robotNamespace>${robot_namespace}</robotNamespace>
         <linkName>${robot_namespace}/base_link</linkName>
@@ -81,7 +81,7 @@
         <vehicleParamsYAML>${vehicle_params_yaml}</vehicleParamsYAML>
         <isInputJoystick>${is_input_joystick}</isInputJoystick>
       </plugin>
-    </gazebo>
+    </gazebo> -->
   </xacro:macro>
 
   <!-- Control surface joint and link -->
