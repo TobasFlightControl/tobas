@@ -92,7 +92,7 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   {
     dh_ros::rosWarnThrottle(
       kInfoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
-                    + " seconds, which is too large.");
+                     + " seconds, which is too large.");
   }
   else if (delay < 0.)
   {
@@ -117,14 +117,15 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     {
       dh_ros::rosErrorThrottle(
         kInfoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
-                      + to_string(max_speed));
+                       + to_string(max_speed));
       cmd_speed = max_speed;
     }
 
     // パルス幅に変換して指令
     const auto& pin = rotor_config.pin;
     const auto& pwm = rotor_config.pwm;
-    const double period = remap(cmd_speed, 0., max_speed, pwm.min_pulse_width, pwm.max_pulse_width);
+    const double period =
+      remap(cmd_speed, 0., max_speed, pwm.pulse_width_range.lower, pwm.pulse_width_range.upper);
     if (!pwm_.set_duty_cycle(getChannel(pin), period))
     {
       throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");

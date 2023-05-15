@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <dh_std_tools/range.hpp>
+
 namespace tobas
 {
 enum struct Axis
@@ -19,9 +21,8 @@ enum struct ESCType
 
 struct ESCConfig_PWM
 {
-  double frequency;        // データ転送の周波数 [Hz]
-  double min_pulse_width;  // パルス幅の最小値 [us]
-  double max_pulse_width;  // パルス幅の最小値 [us]
+  double frequency;                         // データ転送の周波数 [Hz]
+  dh_std::Range<double> pulse_width_range;  // パルス幅の範囲 [us]
 };
 
 struct ESCConfig_DSHOT

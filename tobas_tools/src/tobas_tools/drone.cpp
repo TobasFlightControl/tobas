@@ -170,9 +170,16 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
   if (esc_type == "pwm")
   {
     des.esc_type = ESCType::PWM;
-    dh_ros::getParam(prefix + "/pwm/frequency", des.pwm.frequency);
-    dh_ros::getParam(prefix + "/pwm/min_pulse_width", des.pwm.min_pulse_width);
-    dh_ros::getParam(prefix + "/pwm/max_pulse_width", des.pwm.max_pulse_width);
+    dh_ros::getParam(prefix + "/pwm/frequency", des.pwm.frequency, dh_ros::POSITIVE);
+
+    dh_ros::getParam(
+      prefix + "/pwm/min_pulse_width", des.pwm.pulse_width_range.lower, dh_ros::POSITIVE);
+    dh_ros::getParam(
+      prefix + "/pwm/max_pulse_width", des.pwm.pulse_width_range.upper, dh_ros::POSITIVE);
+    if (!des.pwm.pulse_width_range.isValid())
+    {
+      throw dh_ros::RuntimeError("Invalid pulse width range.");
+    }
   }
   else if (esc_type == "dshot")
   {
@@ -230,19 +237,19 @@ void Drone::getAerodynamicsCoefficients(const string& ns)
   dh_ros::getParam(prefix + "/c_drag_alpha", des.c_drag_alpha, dh_ros::POSITIVE);
   dh_ros::getParam(prefix + "/c_side_beta", des.c_side_beta, dh_ros::NEGATIVE);
 
-  dh_ros::getParam(prefix + "/c_roll_beta", des.c_roll_beta);
-  dh_ros::getParam(prefix + "/c_roll_p", des.c_roll_p);
+  dh_ros::getParam(prefix + "/c_roll_beta", des.c_roll_beta, dh_ros::NEGATIVE);
+  dh_ros::getParam(prefix + "/c_roll_p", des.c_roll_p, dh_ros::NEGATIVE);
   dh_ros::getParam(prefix + "/c_roll_r", des.c_roll_r);
 
   dh_ros::getParam(prefix + "/c_pitch_0", des.c_pitch_0);
-  dh_ros::getParam(prefix + "/c_pitch_alpha", des.c_pitch_alpha);
+  dh_ros::getParam(prefix + "/c_pitch_alpha", des.c_pitch_alpha, dh_ros::NEGATIVE);
   dh_ros::getParam(prefix + "/c_pitch_abs_beta", des.c_pitch_abs_beta);
   dh_ros::getParam(prefix + "/c_pitch_alpha_rate", des.c_pitch_alpha_rate);
-  dh_ros::getParam(prefix + "/c_pitch_q", des.c_pitch_q);
+  dh_ros::getParam(prefix + "/c_pitch_q", des.c_pitch_q, dh_ros::NEGATIVE);
 
   dh_ros::getParam(prefix + "/c_yaw_beta", des.c_yaw_beta);
   dh_ros::getParam(prefix + "/c_yaw_p", des.c_yaw_p);
-  dh_ros::getParam(prefix + "/c_yaw_r", des.c_yaw_r);
+  dh_ros::getParam(prefix + "/c_yaw_r", des.c_yaw_r, dh_ros::NEGATIVE);
 }
 
 void Drone::getControlSurfaces(const string& ns)

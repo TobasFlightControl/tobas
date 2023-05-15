@@ -77,20 +77,19 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha, POSITIVE);
   getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta, NEGATIVE);
 
-  // TODO: 安定微係数の符号チェック
-  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta);
-  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p);
+  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta, NEGATIVE);
+  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p, NEGATIVE);
   getSdfParam(sdf, "cRollR", aero_coefs_.c_roll_r);
 
   getSdfParam(sdf, "cPitch0", aero_coefs_.c_pitch_0);
-  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha);
+  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha, NEGATIVE);
   getSdfParam(sdf, "cPitchAbsBeta", aero_coefs_.c_pitch_abs_beta);
   getSdfParam(sdf, "cPitchAlphaRate", aero_coefs_.c_pitch_alpha_rate);
-  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q);
+  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q, NEGATIVE);
 
   getSdfParam(sdf, "cYawBeta", aero_coefs_.c_yaw_beta);
   getSdfParam(sdf, "cYawP", aero_coefs_.c_yaw_p);
-  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r);
+  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, NEGATIVE);
 
   // ControlSurfaces
   if (sdf->HasElement("controlSurface"))
