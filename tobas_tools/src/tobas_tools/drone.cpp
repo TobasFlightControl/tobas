@@ -20,7 +20,7 @@ void Drone::loadFromParam(const string& ns)
 {
   getTree(ns);
 
-  dh_ros::getParam(ns + "/battery_voltage", battery_voltage_);
+  dh_ros::getParam(ns + "/battery_voltage", battery_voltage_, dh_ros::POSITIVE);
   dh_ros::getParam(ns + "/active_joint_names", active_joint_names_);
 
   getRotorConfigs(ns);
@@ -104,7 +104,7 @@ void Drone::getTree(const string& ns)
 void Drone::getRotorConfigs(const string& ns)
 {
   int num_rotors;
-  dh_ros::getParam(ns + "/num_rotors", num_rotors);
+  dh_ros::getParam(ns + "/num_rotors", num_rotors, dh_ros::NON_NEGATIVE);
   rotor_configs_.resize(num_rotors);
 
   for (uint32_t i = 0; i < num_rotors; ++i)
@@ -154,29 +154,10 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
       "Invalid rotation direction: " + direction + ". direction must be 'cw' or 'ccw'.");
   }
 
-  // Motor constant
-  dh_ros::getParam(prefix + "/motor_constant", des.motor_constant);
-  if (des.motor_constant <= 0.)
-  {
-    throw dh_ros::RuntimeError(
-      "Invalid motor constant: " + to_string(des.motor_constant) + " N*s^2/rad^2");
-  }
+  dh_ros::getParam(prefix + "/motor_constant", des.motor_constant, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/moment_constant", des.moment_constant, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/kv", des.kv, dh_ros::POSITIVE);
 
-  // Moment constant
-  dh_ros::getParam(prefix + "/moment_constant", des.moment_constant);
-  if (des.moment_constant <= 0.)
-  {
-    throw dh_ros::RuntimeError("Invalid moment constant: " + to_string(des.moment_constant) + " m");
-  }
-
-  // KV
-  dh_ros::getParam(prefix + "/kv", des.kv);
-  if (des.kv <= 0.)
-  {
-    throw dh_ros::RuntimeError("Invalid Kv: " + to_string(des.kv) + " rpm/V");
-  }
-
-  // Pin
   dh_ros::getParam(prefix + "/pin", des.pin);
   if (des.pin < kMinPinId || kMaxPinId < des.pin)
   {
@@ -216,23 +197,9 @@ void Drone::getVehicleParameters(const string& ns)
   const string prefix = ns + "/fixed_wing/vehicle";
   auto& des = fixed_wing_config_.vehicle;
 
-  dh_ros::getParam(prefix + "/wing_surface", des.wing_surface);
-  if (des.wing_surface <= 0.)
-  {
-    throw dh_ros::RuntimeError("wing_surface must be positive.");
-  }
-
-  dh_ros::getParam(prefix + "/wing_span", des.wing_span);
-  if (des.wing_span <= 0.)
-  {
-    throw dh_ros::RuntimeError("wing_span must be positive.");
-  }
-
-  dh_ros::getParam(prefix + "/mean_aerodynamic_chord", des.mac);
-  if (des.mac <= 0.)
-  {
-    throw dh_ros::RuntimeError("mean_aerodynamic_chord must be positive.");
-  }
+  dh_ros::getParam(prefix + "/wing_surface", des.wing_surface, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/wing_span", des.wing_span, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/mean_aerodynamic_chord", des.mac, dh_ros::POSITIVE);
 
   vector<double> ac;
   dh_ros::getParam<vector<double>>(prefix + "/aerodynamic_center", ac);
@@ -257,37 +224,12 @@ void Drone::getAerodynamicsCoefficients(const string& ns)
   const string prefix = ns + "/fixed_wing/aerodynamic_coefficients";
   auto& des = fixed_wing_config_.aerodynamics;
 
-  dh_ros::getParam(prefix + "/c_lift_0", des.c_lift_0);
-  if (des.c_lift_0 <= 0.)
-  {
-    throw dh_ros::RuntimeError("c_lift_0 must be positive.");
-  }
+  dh_ros::getParam(prefix + "/c_lift_0", des.c_lift_0, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/c_lift_alpha", des.c_lift_alpha, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/c_drag_0", des.c_drag_0, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/c_drag_alpha", des.c_drag_alpha, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/c_side_beta", des.c_side_beta, dh_ros::NEGATIVE);
 
-  dh_ros::getParam(prefix + "/c_lift_alpha", des.c_lift_alpha);
-  if (des.c_lift_alpha <= 0.)
-  {
-    throw dh_ros::RuntimeError("c_lift_alpha must be positive.");
-  }
-
-  dh_ros::getParam(prefix + "/c_drag_0", des.c_drag_0);
-  if (des.c_drag_0 <= 0.)
-  {
-    throw dh_ros::RuntimeError("c_drag_0 must be positive.");
-  }
-
-  dh_ros::getParam(prefix + "/c_drag_alpha", des.c_drag_alpha);
-  if (des.c_drag_alpha <= 0.)
-  {
-    throw dh_ros::RuntimeError("c_drag_alpha must be positive.");
-  }
-
-  dh_ros::getParam(prefix + "/c_side_beta", des.c_side_beta);
-  if (des.c_side_beta >= 0.)
-  {
-    throw dh_ros::RuntimeError("c_side_beta must be negative.");
-  }
-
-  // TODO: 安定微係数の符号チェック
   dh_ros::getParam(prefix + "/c_roll_beta", des.c_roll_beta);
   dh_ros::getParam(prefix + "/c_roll_p", des.c_roll_p);
   dh_ros::getParam(prefix + "/c_roll_r", des.c_roll_r);
