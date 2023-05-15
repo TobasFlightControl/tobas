@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 
 #include "../../include/plugins/imu_plugin.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
@@ -65,20 +66,24 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-
-  // TODO: 範囲チェック
   getSdfParam(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
-  getSdfParam(sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity);
-  getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk);
-  getSdfParam(sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime);
   getSdfParam(
-    sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma);
-  getSdfParam(sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity);
-  getSdfParam(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk);
+    sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity, POSITIVE);
+  getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
   getSdfParam(
-    sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime);
+    sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
   getSdfParam(
-    sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma);
+    sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma,
+    POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity, POSITIVE);
+  getSdfParam(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime,
+    POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma,
+    POSITIVE);
 }
 
 void GazeboImuPlugin::onUpdate()

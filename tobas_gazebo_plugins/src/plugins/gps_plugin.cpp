@@ -2,7 +2,7 @@
 #include <dh_std_tools/geometry.hpp>
 
 #include "../../include/plugins/gps_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
@@ -83,16 +83,10 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
   getSdfParam(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
 
-  getSdfParam(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev);
-  getSdfParam(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev);
-  getSdfParam(sdf, "horVelStdDev", hor_vel_std_dev_, kDefaultHorVelStdDev);
-  getSdfParam(sdf, "verVelStdDev", ver_vel_std_dev_, kDefaultVerVelStdDev);
-  if (
-    hor_pos_std_dev_ < 0. || ver_pos_std_dev_ < 0. || hor_vel_std_dev_ < 0.
-    || ver_vel_std_dev_ < 0.)
-  {
-    gzthrow(kPluginName << ": Noise std. dev cannot be negative.");
-  }
+  getSdfParam(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "horVelStdDev", hor_vel_std_dev_, kDefaultHorVelStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "verVelStdDev", ver_vel_std_dev_, kDefaultVerVelStdDev, NON_NEGATIVE);
 
   getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
   getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLatitudeZero);

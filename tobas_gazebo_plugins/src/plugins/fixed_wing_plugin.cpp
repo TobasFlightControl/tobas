@@ -11,6 +11,7 @@
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 #include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -49,34 +50,14 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
   getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
-
-  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
-  if (ref_alt_ < 0.)
-  {
-    gzthrow(kPluginName << ": referenceAltitude must be non-negative.")
-  }
+  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude, NON_NEGATIVE);
 
   // Vehicle
-  getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface);
-  if (vehicle_params_.wing_surface <= 0.)
-  {
-    gzthrow(kPluginName << ": wingSurface must be positive.");
-  }
-
-  getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span);
-  if (vehicle_params_.wing_span <= 0.)
-  {
-    gzthrow(kPluginName << ": wingSpan must be positive.");
-  }
-
-  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mac);
-  if (vehicle_params_.mac <= 0.)
-  {
-    gzthrow(kPluginName << ": meanAerodynamicChord must be positive.");
-  }
+  getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
+  getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span, POSITIVE);
+  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mac, POSITIVE);
 
   Vector3d ac;
   getSdfParam(sdf, "aerodynamicCenter", ac);
@@ -90,35 +71,11 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   // Aerodynamics
-  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0);
-  if (aero_coefs_.c_lift_0 <= 0.)
-  {
-    gzthrow(kPluginName << ": cLift0 must be positive.");
-  }
-
-  getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha);
-  if (aero_coefs_.c_lift_alpha <= 0.)
-  {
-    gzthrow(kPluginName << ": cLiftAlpha must be positive.");
-  }
-
-  getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0);
-  if (aero_coefs_.c_drag_0 <= 0.)
-  {
-    gzthrow(kPluginName << ": cDrag0 must be positive.");
-  }
-
-  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha);
-  if (aero_coefs_.c_drag_alpha <= 0.)
-  {
-    gzthrow(kPluginName << ": cDragAlpha must be positive.");
-  }
-
-  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta);
-  if (aero_coefs_.c_side_beta >= 0.)
-  {
-    gzthrow(kPluginName << ": cSideBeta must be negative.");
-  }
+  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, POSITIVE);
+  getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha, POSITIVE);
+  getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0, POSITIVE);
+  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha, POSITIVE);
+  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta, NEGATIVE);
 
   // TODO: 安定微係数の符号チェック
   getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta);
@@ -145,12 +102,8 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
     {
       tobas::ControlSurface cs;
 
-      getSdfParam(cs_elem, "index", cs.index);
-      if (cs.index < 0)
-      {
-        gzthrow(kPluginName << ": Please specify non-negative index.");
-      }
-      else if (dh_std::contains(indexes, cs.index))
+      getSdfParam(cs_elem, "index", cs.index, NON_NEGATIVE);
+      if (dh_std::contains(indexes, cs.index))
       {
         gzthrow(kPluginName << ": The index of each control surface must be unique.");
       }

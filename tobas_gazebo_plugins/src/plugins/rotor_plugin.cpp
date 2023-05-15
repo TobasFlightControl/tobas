@@ -1,6 +1,8 @@
 #include <dh_std_tools/math.hpp>
 
 #include "../../include/plugins/rotor_plugin.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
@@ -51,11 +53,11 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "jointName", joint_name_);
-  getSdfParam(sdf, "motorNumber", motor_number_);
+  getSdfParam(sdf, "motorNumber", motor_number_, NON_NEGATIVE);
 
   if (sdf->HasElement("turningDirection"))
   {
-    string turning_direction = sdf->GetElement("turningDirection")->Get<string>();
+    const auto turning_direction = sdf->GetElement("turningDirection")->Get<string>();
     if (turning_direction == "cw")
     {
       direction_ = -1;
@@ -74,41 +76,12 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  getSdfParam(sdf, "maxRotVelocity", max_rot_speed_);
-  if (max_rot_speed_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_speed_ << " [rad/s]");
-  }
-
-  getSdfParam(sdf, "motorConstant", motor_const_);
-  if (motor_const_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid motorConstant: " << motor_const_ << " [kg*m/s^2]");
-  }
-
-  getSdfParam(sdf, "momentConstant", moment_const_);
-  if (moment_const_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid momentConstant:" << moment_const_ << " [m]");
-  }
-
-  getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_);
-  if (rotor_drag_coef_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid rotorDragCoefficient:" << rotor_drag_coef_ << " [Ns^2/m^2]");
-  }
-
-  getSdfParam(sdf, "timeConstantUp", time_const_up_);
-  if (time_const_up_ <= 0.)
-  {
-    gzthrow(kPluginName << ": Invalid timeConstantUp:" << time_const_up_ << " [s]");
-  }
-
-  getSdfParam(sdf, "timeConstantDown", time_const_down_);
-  if (time_const_down_ <= 0.)
-  {
-    gzthrow(kPluginName << ": Invalid timeConstantDown:" << time_const_down_ << " [s]");
-  }
+  getSdfParam(sdf, "maxRotVelocity", max_rot_speed_, NON_NEGATIVE);
+  getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
+  getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
+  getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
+  getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
+  getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
 
   getSdfParam(sdf, "motorSpeedPubTopic", motor_speed_pub_topic_, kDefaultSpeedPubTopic);
   getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);

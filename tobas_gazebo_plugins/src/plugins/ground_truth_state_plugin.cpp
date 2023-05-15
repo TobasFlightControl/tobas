@@ -1,7 +1,7 @@
 #include <dh_std_tools/geometry.hpp>
 
 #include "../../include/plugins/ground_truth_state_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
@@ -45,7 +45,6 @@ void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-
   getSdfParam(sdf, "stateTopic", state_topic_, kDefaultStateTopic);
 }
 

@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 
 #include "../../include/plugins/magnetometer_plugin.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 

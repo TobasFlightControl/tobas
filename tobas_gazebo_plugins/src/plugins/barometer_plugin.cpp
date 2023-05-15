@@ -1,7 +1,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 
 #include "../../include/plugins/barometer_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/constants.hpp"
 
@@ -46,20 +46,9 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-
   getSdfParam(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
-
-  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude);
-  if (ref_alt_ < 0.)
-  {
-    gzthrow(kPluginName << ": Please specify a non-negative referenceAltitude.")
-  }
-
-  getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar);
-  if (pressure_var_ < 0.)
-  {
-    gzthrow(kPluginName << ": Please specify a non-negative pressureVariance.");
-  }
+  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude, NON_NEGATIVE);
+  getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
 }
 
 void GazeboBarometerPlugin::onUpdate()

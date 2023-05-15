@@ -11,8 +11,6 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/WindSpeed.h>
 
-#include "../../include/tobas_gazebo_plugins/constants.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
 namespace gazebo

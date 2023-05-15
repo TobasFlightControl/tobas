@@ -2,7 +2,7 @@
 #include <sensor_msgs/image_encodings.h>
 
 #include "../../include/plugins/noisydepth_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
@@ -143,11 +143,18 @@ void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "irInfoTopic", camera_info_topic_name_, kDefaultIrInfoTopic);
   getSdfParam(sdf, "depthImageTopic", depth_image_topic_, kDefaultDepthImageTopic);
   getSdfParam(sdf, "depthInfoTopic", depth_info_topic_, kDefaultDepthInfoTopic);
+
   getSdfParam(sdf, "depthNoiseModel", noise_model_name_, kDefaultDepthNoiseModel);
-  getSdfParam(sdf, "depthNoiseMinDist", noise_min_dist_, kDefaultDepthNoiseMinDist);
-  getSdfParam(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist);
-  getSdfParam(sdf, "horizontalFOV", horizontal_fov_, kDefaultHorizontalFOV);
-  getSdfParam(sdf, "baseline", baseline_, kDefaultBaseline);
+
+  getSdfParam(sdf, "depthNoiseMinDist", noise_min_dist_, kDefaultDepthNoiseMinDist, NON_NEGATIVE);
+  getSdfParam(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist, NON_NEGATIVE);
+  if (noise_min_dist_ >= noise_max_dist_)
+  {
+    gzthrow(kPluginName << ": Invalid noise distance range.");
+  }
+
+  getSdfParam(sdf, "horizontalFOV", horizontal_fov_, kDefaultHorizontalFOV, POSITIVE);
+  getSdfParam(sdf, "baseline", baseline_, kDefaultBaseline, POSITIVE);
 }
 
 void GazeboNoisyDepthPlugin::setNoiseModel()

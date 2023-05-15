@@ -1,42 +1,10 @@
 #pragma once
 
-#include <string>
-#include <iostream>
 #include <boost/array.hpp>
 #include <gazebo/gazebo.hh>
 
 namespace gazebo
 {
-template <typename T>
-void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
-{
-  if (sdf->HasElement(name))
-  {
-    param = sdf->GetElement(name)->Get<T>();
-  }
-  else
-  {
-    gzthrow("Please specify " << name << ".");
-  }
-}
-
-template <typename T>
-bool getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, const T& default_value)
-{
-  if (sdf->HasElement(name))
-  {
-    param = sdf->GetElement(name)->Get<T>();
-    return true;
-  }
-  else
-  {
-    gzwarn << "SDF parameter '" << name << "' is not specified. The default value '"
-           << default_value << "' is used." << std::endl;
-    param = default_value;
-    return false;
-  }
-}
-
 template <typename T>
 bool allGreaterEqual(const ignition::math::Vector3<T>& v, T x)
 {
