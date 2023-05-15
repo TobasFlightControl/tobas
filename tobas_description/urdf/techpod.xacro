@@ -17,7 +17,8 @@
 
 <robot name="techpod" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- Global properties -->
-  <xacro:property name="namespace" value="$(arg namespace)" />
+  <!-- <xacro:property name="namespace" value="$(arg namespace)" /> -->
+  <xacro:property name="namespace" value="techpod" />
   <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
   <xacro:property name="use_mesh" value="true" />
 
@@ -115,10 +116,11 @@
   </xacro:property>
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find rotors_description)/urdf/fixed_wing_base.xacro" />
+  <!-- <xacro:include filename="$(find rotors_description)/urdf/fixed_wing_base.xacro" /> -->
+  <xacro:include filename="$(find tobas_description)/urdf/fixed_wing_base.xacro" />
 
   <!-- Instantiate fixed_wing_base_macro once -->
-  <xacro:fixed_wing_base_macro
+  <!-- <xacro:fixed_wing_base_macro
     robot_namespace="${namespace}"
     mass="${mass_fuselage}"
     length="${body_length}"
@@ -132,7 +134,25 @@
     is_input_joystick="$(arg is_input_joystick)">
     <origin xyz="0 0 0" rpy="0 0 0" />
     <xacro:insert_block name="body_inertia" />
+  </xacro:fixed_wing_base_macro> -->
+
+  <!-- Added from here -->
+  <xacro:fixed_wing_base_macro
+    robot_namespace="${namespace}"
+    mass="${mass_fuselage}"
+    length="${body_length}"
+    width="${body_width}"
+    height="${body_height}"
+    color="${body_color}"
+    use_mesh_file="${use_mesh}"
+    mesh_file="${body_mesh_file}"
+    aero_params_yaml="hoge"
+    vehicle_params_yaml="fuga"
+    is_input_joystick="piyo">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <xacro:insert_block name="body_inertia" />
   </xacro:fixed_wing_base_macro>
+  <!-- Added to here -->
 
   <!-- Instantiate the ailerons -->
   <xacro:control_surface
