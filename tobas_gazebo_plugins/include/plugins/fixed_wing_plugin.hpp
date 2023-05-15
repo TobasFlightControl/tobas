@@ -21,7 +21,7 @@ namespace gazebo
 static const std::string kPluginName = "fixed_wing_plugin";
 
 // Default values
-static const std::string kDefaultDeflectionsSubTopic = "deflections";
+static const std::string kDefaultDeflectionsSubTopic = "command/deflections";
 static constexpr double kDefaultLowerStallAngle = -10. * kDegreeToRadian;
 static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
 

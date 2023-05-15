@@ -3,6 +3,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 
 #include <tobas_tools/fixed_wing_tools.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/plugins/fixed_wing_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
@@ -102,15 +103,15 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0);
-  if (aero_coefs_.c_drag_0 >= 0.)
+  if (aero_coefs_.c_drag_0 <= 0.)
   {
-    gzthrow(kPluginName << ": cDrag0 must be negative.");
+    gzthrow(kPluginName << ": cDrag0 must be positive.");
   }
 
   getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha);
-  if (aero_coefs_.c_drag_alpha >= 0.)
+  if (aero_coefs_.c_drag_alpha <= 0.)
   {
-    gzthrow(kPluginName << ": cDragAlpha must be negative.");
+    gzthrow(kPluginName << ": cDragAlpha must be positive.");
   }
 
   getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta);
@@ -202,11 +203,17 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   // NWU -> NED
   NWU2NED(linvel_B);
 
-  // 風速
+  // 相対風速
   const auto& u = linvel_B.X();
   const auto& v = linvel_B.Y();
   const auto& w = linvel_B.Z();
   const auto V = linvel_B.Length();
+
+  // 相対風速が閾値よりも小さければ物理演算を行わない
+  if (V < tobas::kMinAirSpeedThresh)
+  {
+    return;
+  }
 
   // 迎角と横滑り角
   auto alpha = tobas::angleOfAttack(u, v, w);         // 迎角 [rad]

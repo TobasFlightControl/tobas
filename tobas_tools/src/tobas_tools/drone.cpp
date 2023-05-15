@@ -176,13 +176,6 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
     throw dh_ros::RuntimeError("Invalid Kv: " + to_string(des.kv) + " rpm/V");
   }
 
-  // Index
-  dh_ros::getParam(prefix + "/pin", des.pin);
-  if (des.pin < kMinPinId || kMaxPinId < des.pin)
-  {
-    throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(des.pin));
-  }
-
   // Pin
   dh_ros::getParam(prefix + "/pin", des.pin);
   if (des.pin < kMinPinId || kMaxPinId < des.pin)
@@ -322,7 +315,7 @@ void Drone::getControlSurfaces(const string& ns)
     auto& des = fixed_wing_config_.control_surfaces[i];
 
     // indexはprefixの番号と同じ
-    des.index = 0;
+    des.index = i;
 
     dh_ros::getParam(prefix + "/angle_limit/lower", des.angle_limit.lower);
     dh_ros::getParam(prefix + "/angle_limit/upper", des.angle_limit.upper);
