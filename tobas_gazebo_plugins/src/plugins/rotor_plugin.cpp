@@ -153,7 +153,7 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto air_drag_W = -abs(rot_vel_real) * rotor_drag_coef_ * linvel_perp_W;
+  const auto air_drag_W = (-abs(rot_vel_real) * rotor_drag_coef_) * linvel_perp_W;
   link_->AddForce(air_drag_W);
 
   // (2) first term: Rotor drag torque
@@ -163,9 +163,9 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
   // For debug
-  // cout << "Thrust force: " << thrust << " [N]" << endl;
-  // cout << "H force: " << air_drag.Length() << " [N]" << endl;
-  // cout << "Rotor drag torque: " << drag_torque.Length() << " [Nm]" << endl;
+  // cout << "Thrust force (world frame): " << thrust * global_axis << " [N]" << endl;
+  // cout << "H force (world frame): " << air_drag_W << " [N]" << endl;
+  // cout << "Rotor drag torque (body frame): " << drag_torque_parent << " [Nm]" << endl;
   // cout << endl;
 
   // Apply the filter on the motor velocity
@@ -184,7 +184,7 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
   }
 
   // Check delay
-  const double delay = prev_sim_time_ - cmd.header.stamp.toSec();
+  const auto delay = prev_sim_time_ - cmd.header.stamp.toSec();
   if (delay > check_delay_threshold_)
   {
     gzwarn << kPluginName << ": The delay from sensors to the motor command is " << delay
@@ -205,7 +205,7 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
     gzerr << kPluginName << ": The commanded motor speed " << cmd_speed << " is lower than 0."
           << endl;
   }
-  else if (cmd_speed > max_rot_speed_)
+  else if (cmd_speed > max_rot_speed_ + 1.)
   {
     gzerr << kPluginName << ": The commanded motor speed " << cmd_speed
           << " exceeds the maximum speed " << max_rot_speed_ << "." << endl;

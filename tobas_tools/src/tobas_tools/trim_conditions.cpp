@@ -1,4 +1,5 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_std_tools/assert.hpp>
 
 #include "../../include/tobas_tools/trim_conditions.hpp"
 #include "../../include/tobas_tools/constants.hpp"
@@ -38,7 +39,7 @@ void TrimConditions::update(double V, double rho, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
-  assert(speedLimit(rho).inRange(V));
+  assertWithMsg(speedLimit(rho).inRange(V), "V = " << V << " is out of " << speedLimit(rho));
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
   // エイリアス

@@ -124,7 +124,7 @@ void Controller::publishTakeoffCommand()
 void Controller::setInitialTarget()
 {
   const auto& trim = eom_.trimCondition();
-  cmd_ned_.speed = trim.speedLimit(air_density_).lower;
+  cmd_ned_.speed = trim.speedLimit(air_density_).lower * 1.1;  // TODO: 初期速度をどう決めるか
 
   cmd_ned_.roll = 0.;
   cmd_ned_.delta_pitch = kInitialDeltaPitch;

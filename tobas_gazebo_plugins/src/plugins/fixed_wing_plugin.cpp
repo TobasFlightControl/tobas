@@ -200,27 +200,32 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   updateDeflections(dt);
 
   // 無次元空力係数
-  Vector3d force_coefs = nonDimentionalAeroCoefs_Force(alpha, beta);                   // Cx, Cy, Cz
-  Vector3d moment_coefs = nonDimentionalAeroCoefs_Moment(alpha, beta, alpha_rate, V);  // Cl, Cm, Cn
+  const auto force_coefs = nonDimentionalAeroCoefs_Force(alpha, beta);
+  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(alpha, beta, alpha_rate, V);
 
   // 定数部分を計算しておく
   const auto q_bar = dynamicPressure(V);         // 動圧 (p.15) [Pa]
   const auto& S = vehicle_params_.wing_surface;  // 主翼面積 [m^2]
 
   // 空気力 (1.8-1)
-  Vector3d air_force = q_bar * S * force_coefs;  // [N]
+  auto air_force = q_bar * S * force_coefs;  // [N]
 
   // 空気モーメント (1.8-7)
-  const auto& C_l = moment_coefs.X();                                         // [-]
-  const auto& C_m = moment_coefs.Y();                                         // [-]
-  const auto& C_n = moment_coefs.Z();                                         // [-]
-  const auto& b = vehicle_params_.wing_span;                                  // [m]
-  const auto& c_bar = vehicle_params_.mac;                                    // [m]
-  Vector3d air_moment = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
+  const auto& C_l = moment_coefs.X();                                     // [-]
+  const auto& C_m = moment_coefs.Y();                                     // [-]
+  const auto& C_n = moment_coefs.Z();                                     // [-]
+  const auto& b = vehicle_params_.wing_span;                              // [m]
+  const auto& c_bar = vehicle_params_.mac;                                // [m]
+  auto air_moment = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
 
   // NED -> NWU
   NED2NWU(air_force);
   NED2NWU(air_moment);
+
+  // For Debug
+  // cout << "Air force (body frame): " << air_force << endl;
+  // cout << "Air moment (body frame): " << air_moment << endl;
+  // cout << endl;
 
   // 空気力を作用させる
   Vector3d ac;

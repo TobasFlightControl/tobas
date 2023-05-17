@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(catkin REQUIRED COMPONENTS
 	dh_kdl
 	dh_ros_tools
+	dh_eigen_tools
 	dh_std_tools
 	tobas_msgs
 	kdl_parser

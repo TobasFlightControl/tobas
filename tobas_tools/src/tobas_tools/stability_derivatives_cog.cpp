@@ -17,6 +17,9 @@ StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone)
 void StabilityDerivativesCG::updateInternalDataStructures()
 {
   inertia_solver_.updateInternalDataStructures();
+
+  c_pitch_delta_cg_.resize(drone_.numControlSurfaces());
+  c_yaw_delta_cg_.resize(drone_.numControlSurfaces());
 }
 
 void StabilityDerivativesCG::update(const JntArray& q)
