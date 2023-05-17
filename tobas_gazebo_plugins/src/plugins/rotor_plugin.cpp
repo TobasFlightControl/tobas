@@ -108,7 +108,7 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  double dt = info.simTime.Double() - prev_sim_time_;
+  const auto dt = info.simTime.Double() - prev_sim_time_;
   prev_sim_time_ = info.simTime.Double();
   updateForcesAndMoments(dt);
 
@@ -128,7 +128,7 @@ void GazeboRotorPlugin::registerPubSub()
 
 void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 {
-  double rot_speed_sim = joint_->GetVelocity(0);
+  const auto rot_speed_sim = joint_->GetVelocity(0);
   if (abs(rot_speed_sim) * dt > M_PI)
   {
     gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
@@ -140,22 +140,27 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   // TODO: Implement other terms
   // TODO: II-B. Model of the complete quadrotor
 
+  // Get joint axes
+  const auto global_axis = joint_->GlobalAxis(0);
+  const auto local_axis = joint_->LocalAxis(0);
+
   // (1) first term: Thrust Force
-  double rot_vel_real = rot_speed_sim * rotor_speed_slowdown_sim_;
-  int rot_vel_sgn = dh_std::sign(rot_vel_real);
-  double thrust = direction_ * rot_vel_sgn * motor_const_ * dh_std::sqr(rot_vel_real);  // [N]
+  const auto rot_vel_real = rot_speed_sim * rotor_speed_slowdown_sim_;
+  const auto rot_vel_sgn = dh_std::sign(rot_vel_real);
+  const auto thrust = direction_ * rot_vel_sgn * motor_const_ * dh_std::sqr(rot_vel_real);
+  link_->AddForce(thrust * global_axis);
 
   // (1) second term: H-force
-  Vector3d joint_axis = joint_->GlobalAxis(0);
-  Vector3d body_vel_W = link_->WorldLinearVel();
-  Vector3d relative_wind_vel_W = body_vel_W - wind_speed_W_;
-  Vector3d body_vel_perp = relative_wind_vel_W - (relative_wind_vel_W.Dot(joint_axis) * joint_axis);
-  Vector3d air_drag = -abs(rot_vel_real) * rotor_drag_coef_ * body_vel_perp;
+  const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
+  const auto linvel_perp = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
+  const auto air_drag = -abs(rot_vel_real) * rotor_drag_coef_ * linvel_perp;
+  link_->AddForce(air_drag);
 
   // (2) first term: Rotor drag torque
-  Pose3d pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
-  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // rotor frame
-  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);  // parent frame
+  const auto pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
+  const auto drag_torque_child = (-direction_ * thrust * moment_const_) * local_axis;
+  const auto drag_torque_parent = pose_diff.Rot().RotateVector(drag_torque_child);
+  parent_link_->AddRelativeTorque(drag_torque_parent);
 
   // For debug
   // cout << "Thrust force: " << thrust << " [N]" << endl;
@@ -163,13 +168,8 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   // cout << "Rotor drag torque: " << drag_torque.Length() << " [Nm]" << endl;
   // cout << endl;
 
-  // Apply forces and torques
-  link_->AddRelativeForce(Vector3d(0., 0., thrust));
-  link_->AddForce(air_drag);
-  parent_link_->AddRelativeTorque(drag_torque_parent_frame);
-
   // Apply the filter on the motor velocity
-  double ref_rot_speed = rotor_speed_filter_.updateFilter(ref_rot_speed_, dt);
+  const auto ref_rot_speed = rotor_speed_filter_.updateFilter(ref_rot_speed_, dt);
   joint_->SetVelocity(0, direction_ * ref_rot_speed / rotor_speed_slowdown_sim_);
 }
 
