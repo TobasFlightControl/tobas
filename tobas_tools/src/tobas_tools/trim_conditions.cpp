@@ -31,6 +31,7 @@ void TrimConditions::updateInternalDataStructures()
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
+  assert(a_ > 0.);
 }
 
 void TrimConditions::update(double V, double rho, const JntArray& q)
@@ -115,8 +116,16 @@ const double& TrimConditions::u() const
 dh_std::Range<double> TrimConditions::speedLimit(double rho) const
 {
   const auto c = 2. * W_ / rho / drone_.vehicle().wing_surface;
-  const auto V_min = sqrt(c / (a_ * drone_.vehicle().alpha_limit.upper + b_));
-  const auto V_max = sqrt(c / (a_ * drone_.vehicle().alpha_limit.lower + b_));
+
+  // 迎角の最大値から最小速度を求める
+  const auto max_den = a_ * drone_.vehicle().alpha_limit.upper + b_;
+  assert(max_den > 0.);
+  const auto V_min = sqrt(c / max_den);
+
+  // 迎角の最小値から最大速度を求める
+  // 分母が+0になる場合は，理論上無限の速度で水平飛行できる
+  const auto min_den = a_ * drone_.vehicle().alpha_limit.lower + b_;
+  const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
 
   return dh_std::Range<double>(V_min, V_max);
 }

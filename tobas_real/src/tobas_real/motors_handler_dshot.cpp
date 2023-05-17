@@ -48,7 +48,7 @@ void MotorsHandler_DSHOT::run()
     for (int i = 0; i < drone_.numRotors(); ++i)
     {
       const auto& rotor_config = drone_.rotorConfig(i);
-      const double max_speed = rpmToRadPerSec(drone_.maxRotSpeed(i));
+      const double max_speed = drone_.maxRotSpeed(i);
 
       // 指令速度を決定
       double cmd_speed = cmd_speeds_[i];

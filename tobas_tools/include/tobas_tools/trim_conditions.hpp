@@ -46,7 +46,13 @@ public:
   /* X軸方向の速さ [m/s] */
   const double& u() const;
 
-  /* 失速しないための速度の大きさの範囲． */
+  /**
+   * @brief 失速しないための速度の大きさの範囲．
+   * cf. 青本, p.85, (2.9-47, 2.9-49)
+   *
+   * @param rho 大気密度 [kg/m^3]
+   * @return dh_std::Range<double> 速度の大きさの範囲
+   */
   dh_std::Range<double> speedLimit(double rho) const;
 
 private:

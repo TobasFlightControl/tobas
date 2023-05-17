@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/algorithm.hpp>
 
 #include "../../include/plugins/rotor_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -195,8 +196,23 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
           << endl;
   }
 
+  // Get Commanded speed
+  const auto cmd_speed = cmd.speeds[motor_number_];
+
+  // Check rotor speed limit
+  if (cmd_speed < 0.)
+  {
+    gzerr << kPluginName << ": The commanded motor speed " << cmd_speed << " is lower than 0."
+          << endl;
+  }
+  else if (cmd_speed > max_rot_speed_)
+  {
+    gzerr << kPluginName << ": The commanded motor speed " << cmd_speed
+          << " exceeds the maximum speed " << max_rot_speed_ << "." << endl;
+  }
+
   // Update reference rotation speed
-  ref_rot_speed_ = min(cmd.speeds[motor_number_], max_rot_speed_);
+  ref_rot_speed_ = dh_std::clamp(cmd_speed, 0., max_rot_speed_);
 }
 
 void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)

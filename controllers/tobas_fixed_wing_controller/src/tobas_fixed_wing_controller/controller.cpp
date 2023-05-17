@@ -105,12 +105,18 @@ bool Controller::isReady()
 
 void Controller::publishTakeoffCommand()
 {
+  // タイムスタンプを更新
+  rotor_speeds_msg_.header.stamp = bs_ned_.header.stamp;
+  deflections_msg_.header.stamp = bs_ned_.header.stamp;
+
+  // 各ロータの回転数を発行
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
     rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i);
   }
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
+  // 各操舵面の偏角を発行
   deflections_msg_.deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
   deflections_pub_.publish(deflections_msg_);
 }
@@ -139,6 +145,10 @@ void Controller::runOnce()
   // MPCを解いて最適制御入力を求める
   const auto du = mpc_.solveMPC();
   const auto u = eom_.trimInput() + du;
+
+  // タイムスタンプを更新
+  rotor_speeds_msg_.header.stamp = bs_ned_.header.stamp;
+  deflections_msg_.header.stamp = bs_ned_.header.stamp;
 
   // 各ロータの回転数を発行
   const auto thrust = u.block(0, 0, x_rotors_.count(), 1);

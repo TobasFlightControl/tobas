@@ -1,6 +1,7 @@
 #include <kdl_parser/kdl_parser.hpp>
 
 #include <dh_std_tools/unordered_set.hpp>
+#include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
 #include "../../include/tobas_tools/drone.hpp"
@@ -106,7 +107,8 @@ uint32_t Drone::numControlSurfaces() const
 
 double Drone::maxRotSpeed(uint32_t rotor_idx) const
 {
-  return rotor_configs_[rotor_idx].kv * battery_voltage_;
+  const auto max_rpm = rotor_configs_[rotor_idx].kv * battery_voltage_;
+  return dh_std::rpmToRadPerSec(max_rpm);
 }
 
 double Drone::maxThrust(uint32_t rotor_idx) const

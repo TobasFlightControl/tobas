@@ -27,6 +27,7 @@ void poseNwuToNed(tobas_msgs::Pose& arg)
 
 void baseStateNedToNwu(const tobas_msgs::BaseState& src, tobas_msgs::BaseState& des)
 {
+  des.header = src.header;
   poseNedToNwu(src.pose, des.pose);
   twistNedToNwu(src.twist, des.twist);
 }
