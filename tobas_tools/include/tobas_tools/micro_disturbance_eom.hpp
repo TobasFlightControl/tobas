@@ -23,7 +23,7 @@ public:
   static constexpr uint32_t kStateIdx_q = 6;
   static constexpr uint32_t kStateIdx_r = 7;
 
-  explicit MicroDisturbanceEoM(const Drone& drone,const uint32_t& elev_cs_idx);
+  explicit MicroDisturbanceEoM(const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -31,10 +31,10 @@ public:
    * @brief 内部状態を更新する．
    *
    * @param V 大気に対する機体速度の絶対値 [m/s]
-   * @param h 幾何高度 [m]
+   * @param rho 大気密度 [kg/m^3]
    * @param q 可動関節の角度 [rad]
    */
-  void update(double V, double h, const KDL::JntArray& q);
+  void update(double V, double rho, const KDL::JntArray& q);
 
   const TrimConditions& trimCondition() const;
   const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -130,9 +130,7 @@ private:
   TrimConditions trim_;
 
   // 固定値
-  double mass_;  // 機体の質量 [kg]
-  uint32_t num_hprop_;
-  uint32_t num_cs_;
+  double mass_;            // 機体の質量 [kg]
   uint32_t u_size_;
   Eigen::VectorXd min_u_;  // 制御入力の最小値
   Eigen::VectorXd max_u_;  // 制御入力の最大値

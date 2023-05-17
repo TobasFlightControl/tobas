@@ -3,6 +3,7 @@
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/vector.hpp>
+#include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
@@ -21,7 +22,7 @@ namespace tobas_fixed_wing_controller
 Controller::Controller()
   : super(),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
-    eom_(drone_, trim_elev_idx_),
+    eom_(drone_),
     server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
@@ -34,6 +35,8 @@ Controller::Controller()
 
   c2d_.reset(new ctrl::C2D_RK4(eom_.kStateSize, eom_.inputSize()));
 
+  pressure_received_ = false;
+  bs_received_ = false;
   state_ = State::START;
   rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
   deflections_msg_.deflections.resize(drone_.numControlSurfaces(), 0.);
@@ -73,8 +76,6 @@ void Controller::getRosParams()
   dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
   dh_ros::getParam(kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
   dh_ros::getParam(kCtrlName + "/deflection_rate_weight_exp", cfg_.deflection_rate_weight_exp);
-
-  dh_ros::getParam(kCtrlSize + "/trim_elevator_index", trim_elev_idx_);
 }
 
 void Controller::registerPublishers()
@@ -86,6 +87,7 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
+  air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
   cmd_sub_ = nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this);
 }
@@ -94,6 +96,11 @@ void Controller::createTimers()
 {
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(kCheckTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
+}
+
+bool Controller::isReady()
+{
+  return pressure_received_ && bs_received_;
 }
 
 void Controller::publishTakeoffCommand()
@@ -110,9 +117,8 @@ void Controller::publishTakeoffCommand()
 
 void Controller::setInitialTarget()
 {
-  const auto cur_altitude = -bs_ned_.pose.pos.z();
   const auto& trim = eom_.trimCondition();
-  cmd_ned_.speed = trim.speedLimit(cur_altitude).lower;
+  cmd_ned_.speed = trim.speedLimit(air_density_).lower;
 
   cmd_ned_.roll = 0.;
   cmd_ned_.delta_pitch = kInitialDeltaPitch;
@@ -121,7 +127,7 @@ void Controller::setInitialTarget()
 void Controller::runOnce()
 {
   // 状態方程式を更新
-  eom_.update(cmd_ned_.speed, -bs_ned_.pose.pos.z(), q_0_);
+  eom_.update(cmd_ned_.speed, air_density_, q_0_);
   const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
   const auto disc = c2d_->convert(cont, mpc_.time_step);
   fill(mpc_.discrete_dynamics, disc);
@@ -130,20 +136,17 @@ void Controller::runOnce()
   updateCurrentStateVector();
   updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);  // NWU->NEDに変換して渡す
 
-  const auto& trim = eom_.trimCondition();
-
   // MPCを解いて最適制御入力を求める
-  const VectorXd du = mpc_.solveMPC();
-  VectorXd u = du;
-  u(x_rotors_.count() + trim_elev_idx_) += trim.elevator();  // 昇降舵だけはトリム値がある
+  const auto du = mpc_.solveMPC();
+  const auto u = eom_.trimInput() + du;
 
   // 各ロータの回転数を発行
-  const VectorXd thrust = u.block(0, 0, x_rotors_.count(), 1);
+  const auto thrust = u.block(0, 0, x_rotors_.count(), 1);
   updateRotorSpeeds(thrust);
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
   // 各操舵面の偏角を発行
-  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
+  const auto deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
   updateDeflections(deflections);
   deflections_pub_.publish(deflections_msg_);
 }
@@ -170,7 +173,7 @@ void Controller::setScales()
   {
     mpc_.input_scale(i) = x_rotors_.maxThrust(i);
   }
-  mpc_.input_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
+  mpc_.input_scale.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
     VectorXd::Constant(drone_.numControlSurfaces(), M_PI);
 }
 
@@ -189,7 +192,7 @@ void Controller::setInputRateConstraint()
   // FIXME: 遅延が大きいなら舵角の変化率の制約は消してもいいかも
   for (int i = 0; i < drone_.numControlSurfaces(); ++i)
   {
-    const auto& max_angle_rate = drone_.fixedWingConfig().control_surfaces[i].max_angle_rate;
+    const auto& max_angle_rate = drone_.controlSurface(i).max_angle_rate;
     lb(x_rotors_.count() + i) = -max_angle_rate;
     ub(x_rotors_.count() + i) = +max_angle_rate;
   }
@@ -280,8 +283,23 @@ void Controller::reconfigure(const ConfigType& cfg)
     VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_rate_weight_exp));
 }
 
+void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)
+{
+  if (!pressure_received_)
+  {
+    pressure_received_ = true;
+  }
+
+  air_density_ = dh_std::pressureToDensity(msg.fluid_pressure);
+}
+
 void Controller::baseStateCb(const StateMsg& bs_nwu)
 {
+  if (!bs_received_)
+  {
+    bs_received_ = true;
+  }
+
   // コールバックの時点で全てNED座標系に変換しておく
   tf::baseStateNwuToNed(bs_nwu, bs_ned_);
 
@@ -289,9 +307,12 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
   {
     case START:
     {
-      dh_ros::rosInfo("First base state is received.");
-      check_topics_timer_.stop();
-      state_ = TAKEOFF;
+      if (isReady())
+      {
+        dh_ros::rosInfo("Controller is ready.");
+        check_topics_timer_.stop();
+        state_ = TAKEOFF;
+      }
       break;
     }
     case TAKEOFF:
@@ -300,9 +321,7 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
 
       // 失速しない最低速度を上回ったら制御開始
       const auto cur_speed = bs_nwu.twist.vel.Norm();
-      const auto cur_altitude = bs_nwu.pose.pos.z();
-      const auto& trim = eom_.trimCondition();
-      if (cur_speed > trim.speedLimit(cur_altitude).lower)
+      if (cur_speed > eom_.trimCondition().speedLimit(air_density_).lower)
       {
         setInitialTarget();
         state_ = FLIGHT;
@@ -326,8 +345,7 @@ void Controller::commandCb(const CmdMsg& cmd_nwu)
     return;
   }
 
-  const auto cur_altitude = -bs_ned_.pose.pos.z();
-  if (!eom_.trimCondition().speedLimit(cur_altitude).inRange(cmd_nwu.speed))
+  if (!eom_.trimCondition().speedLimit(air_density_).inRange(cmd_nwu.speed))
   {
     dh_ros::rosError("Invalid speed is commanded.");
     return;
@@ -338,7 +356,15 @@ void Controller::commandCb(const CmdMsg& cmd_nwu)
 
 void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
-  dh_ros::rosWarn("Base state is not received yet.");
+  if (!pressure_received_)
+  {
+    dh_ros::rosWarn("Air pressure is not received yet.");
+  }
+
+  if (!bs_received_)
+  {
+    dh_ros::rosWarn("Base state is not received yet.");
+  }
 }
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)

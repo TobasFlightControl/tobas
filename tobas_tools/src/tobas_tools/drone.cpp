@@ -59,9 +59,29 @@ const RotorConfig& Drone::rotorConfig(uint32_t rotor_idx) const
   return rotor_configs_[rotor_idx];
 }
 
-const FixedWingConfig& Drone::fixedWingConfig() const
+const FixedWingConfig& Drone::fixedWing() const
 {
   return fixed_wing_config_;
+}
+
+const VehicleParameters& Drone::vehicle() const
+{
+  return fixed_wing_config_.vehicle;
+}
+
+const AerodynamicsCoefficients& Drone::aerodynamics() const
+{
+  return fixed_wing_config_.aerodynamics;
+}
+
+const ControlSurfaces& Drone::controlSurfaces() const
+{
+  return fixed_wing_config_.control_surfaces;
+}
+
+const ControlSurface& Drone::controlSurface(uint32_t cs_idx) const
+{
+  return fixed_wing_config_.control_surfaces[cs_idx];
 }
 
 const bool& Drone::hasFixedWing() const
@@ -110,34 +130,32 @@ void Drone::getTree(const string& ns)
 
 void Drone::getRotorConfigs(const string& ns)
 {
-  int num_rotors;
-  dh_ros::getParam(ns + "/num_rotors", num_rotors, dh_ros::NON_NEGATIVE);
-  rotor_configs_.resize(num_rotors);
-
-  for (uint32_t i = 0; i < num_rotors; ++i)
+  uint32_t rotor_idx = 0;
+  while (dh_ros::match(ns + "/rotor_" + to_string(rotor_idx)))
   {
-    getRotorConfig(ns, i);
+    rotor_configs_.push_back(getRotorConfig(ns, rotor_idx));
+    ++rotor_idx;
   }
 }
 
-void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
+RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 {
   const string prefix = ns + "/rotor_" + to_string(rotor_idx);
-  auto& des = rotor_configs_[rotor_idx];
+  RotorConfig res;
 
   // Link name
-  dh_ros::getParam(prefix + "/link_name", des.link_name);
+  dh_ros::getParam(prefix + "/link_name", res.link_name);
 
   // Axis
   string axis;
   dh_ros::getParam(prefix + "/axis", axis);
   if (axis == "x_positive")
   {
-    des.axis = Axis::X_POSITIVE;
+    res.axis = Axis::X_POSITIVE;
   }
   else if (axis == "z_positive")
   {
-    des.axis = Axis::Z_POSITIVE;
+    res.axis = Axis::Z_POSITIVE;
   }
   else
   {
@@ -149,11 +167,11 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
   dh_ros::getParam(prefix + "/direction", direction);
   if (direction == "ccw")
   {
-    des.direction = 1;
+    res.direction = 1;
   }
   else if (direction == "cw")
   {
-    des.direction = -1;
+    res.direction = -1;
   }
   else
   {
@@ -161,14 +179,14 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
       "Invalid rotation direction: " + direction + ". direction must be 'cw' or 'ccw'.");
   }
 
-  dh_ros::getParam(prefix + "/motor_constant", des.motor_constant, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/moment_constant", des.moment_constant, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/kv", des.kv, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/moment_constant", res.moment_constant, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/kv", res.kv, dh_ros::POSITIVE);
 
-  dh_ros::getParam(prefix + "/pin", des.pin);
-  if (des.pin < kMinPinId || kMaxPinId < des.pin)
+  dh_ros::getParam(prefix + "/pin", res.pin);
+  if (res.pin < kMinPinId || kMaxPinId < res.pin)
   {
-    throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(des.pin));
+    throw dh_ros::RuntimeError("Invalid rotor pin number: " + to_string(res.pin));
   }
 
   // ESC
@@ -176,27 +194,29 @@ void Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
   dh_ros::getParam(prefix + "/esc_type", esc_type);
   if (esc_type == "pwm")
   {
-    des.esc_type = ESCType::PWM;
-    dh_ros::getParam(prefix + "/pwm/frequency", des.pwm.frequency, dh_ros::POSITIVE);
+    res.esc_type = ESCType::PWM;
+    dh_ros::getParam(prefix + "/pwm/frequency", res.pwm.frequency, dh_ros::POSITIVE);
 
     dh_ros::getParam(
-      prefix + "/pwm/min_pulse_width", des.pwm.pulse_width_range.lower, dh_ros::POSITIVE);
+      prefix + "/pwm/min_pulse_width", res.pwm.pulse_width_range.lower, dh_ros::POSITIVE);
     dh_ros::getParam(
-      prefix + "/pwm/max_pulse_width", des.pwm.pulse_width_range.upper, dh_ros::POSITIVE);
-    if (!des.pwm.pulse_width_range.isValid())
+      prefix + "/pwm/max_pulse_width", res.pwm.pulse_width_range.upper, dh_ros::POSITIVE);
+    if (!res.pwm.pulse_width_range.isValid())
     {
       throw dh_ros::RuntimeError("Invalid pulse width range.");
     }
   }
   else if (esc_type == "dshot")
   {
-    des.esc_type = ESCType::DSHOT;
+    res.esc_type = ESCType::DSHOT;
     // TODO
   }
   else
   {
     throw dh_ros::RuntimeError("Unknown ESC type: " + esc_type);
   }
+
+  return res;
 }
 
 void Drone::getFixedWingConfig(const string& ns)
@@ -261,31 +281,36 @@ void Drone::getAerodynamicsCoefficients(const string& ns)
 
 void Drone::getControlSurfaces(const string& ns)
 {
-  int num_cs;
-  dh_ros::getParam(ns + "/num_control_surfaces", num_cs);
-  fixed_wing_config_.control_surfaces.resize(num_cs);
-
-  for (int i = 0; i < num_cs; ++i)
+  uint32_t cs_idx = 0;
+  while (dh_ros::match(ns + "/fixed_wing/control_surface_" + to_string(cs_idx)))
   {
-    const string prefix = ns + "/control_surface_" + to_string(i);
-    auto& des = fixed_wing_config_.control_surfaces[i];
-
-    // indexはprefixの番号と同じ
-    des.index = i;
-
-    dh_ros::getParam(prefix + "/angle_limit/lower", des.angle_limit.lower);
-    dh_ros::getParam(prefix + "/angle_limit/upper", des.angle_limit.upper);
-    if (!des.angle_limit.isValid() || !des.angle_limit.inRange(0.))
-    {
-      throw dh_ros::RuntimeError("Invalid range of control surface angle");
-    }
-
-    dh_ros::getParam(prefix + "/c_lift_delta", des.c_lift_delta);
-    dh_ros::getParam(prefix + "/c_drag_abs_delta", des.c_drag_abs_delta);
-    dh_ros::getParam(prefix + "/c_side_delta", des.c_side_delta);
-    dh_ros::getParam(prefix + "/c_roll_delta", des.c_roll_delta);
-    dh_ros::getParam(prefix + "/c_pitch_delta", des.c_pitch_delta);
-    dh_ros::getParam(prefix + "/c_yaw_delta", des.c_yaw_delta);
+    fixed_wing_config_.control_surfaces.push_back(getControlSurface(ns, cs_idx));
+    ++cs_idx;
   }
+}
+
+ControlSurface Drone::getControlSurface(const string& ns, uint32_t cs_idx)
+{
+  const string prefix = ns + "/fixed_wing/control_surface_" + to_string(cs_idx);
+  ControlSurface res;
+
+  // indexはprefixの番号と同じ
+  res.index = cs_idx;
+
+  dh_ros::getParam(prefix + "/angle_limit/lower", res.angle_limit.lower);
+  dh_ros::getParam(prefix + "/angle_limit/upper", res.angle_limit.upper);
+  if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0.))
+  {
+    throw dh_ros::RuntimeError("Invalid range of control surface angle");
+  }
+
+  dh_ros::getParam(prefix + "/c_lift_delta", res.c_lift_delta);
+  dh_ros::getParam(prefix + "/c_drag_abs_delta", res.c_drag_abs_delta);
+  dh_ros::getParam(prefix + "/c_side_delta", res.c_side_delta);
+  dh_ros::getParam(prefix + "/c_roll_delta", res.c_roll_delta);
+  dh_ros::getParam(prefix + "/c_pitch_delta", res.c_pitch_delta);
+  dh_ros::getParam(prefix + "/c_yaw_delta", res.c_yaw_delta);
+
+  return res;
 }
 }  // namespace tobas

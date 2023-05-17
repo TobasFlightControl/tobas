@@ -171,8 +171,6 @@ class PackageGenerator(QWidget):
         battery = self._main.settings.battery
         num_rotors = rotary_wings.count()
         drone_config = {
-            "num_rotors": num_rotors,
-            "has_fixed_wing": False,  # TODO: もちろん固定翼機ならTrueになる
             "battery_voltage": battery.voltage.get(),
             "active_joint_names": self._main.urdf_parser.active_joint_names(),
         }

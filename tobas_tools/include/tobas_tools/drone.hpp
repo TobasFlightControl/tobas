@@ -23,7 +23,11 @@ public:
   const std::vector<std::string>& activeJointNames() const;
   const RotorConfigs& rotorConfigs() const;
   const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
-  const FixedWingConfig& fixedWingConfig() const;
+  const FixedWingConfig& fixedWing() const;
+  const VehicleParameters& vehicle() const;
+  const AerodynamicsCoefficients& aerodynamics() const;
+  const ControlSurfaces& controlSurfaces() const;
+  const ControlSurface& controlSurface(uint32_t cs_idx) const;
 
   const bool& hasFixedWing() const;
   const bool& isLoaded() const;
@@ -53,11 +57,12 @@ private:
   void getTree(const std::string& ns);
 
   void getRotorConfigs(const std::string& ns);
-  void getRotorConfig(const std::string& ns, uint32_t rotor_idx);
+  RotorConfig getRotorConfig(const std::string& ns, uint32_t rotor_idx);
 
   void getFixedWingConfig(const std::string& ns);
   void getVehicleParameters(const std::string& ns);
   void getAerodynamicsCoefficients(const std::string& ns);
   void getControlSurfaces(const std::string& ns);
+  ControlSurface getControlSurface(const std::string& ns, uint32_t cs_idx);
 };
 }  // namespace tobas

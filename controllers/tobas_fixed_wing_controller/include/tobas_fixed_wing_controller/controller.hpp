@@ -3,6 +3,7 @@
 #include <memory>
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
+#include <sensor_msgs/FluidPressure.h>
 
 #include <dh_ros_tools/node.hpp>
 #include <dh_linear_control/c2d/rk4.hpp>
@@ -48,14 +49,16 @@ private:
 
   // RosParams
   ConfigType cfg_;  // 動的パラメータの初期値
-  int trim_elev_idx_;
 
   // 固定値
   KDL::JntArray q_0_;
 
+  bool pressure_received_;
+  bool bs_received_;
   State state_;
-  StateMsg bs_ned_;  // 現在の状態 (NED座標系)
-  CmdMsg cmd_ned_;   // 現在のコマンド (NED座標系)
+  double air_density_;  // 現在の大気密度
+  StateMsg bs_ned_;     // 現在の状態 (NED座標系)
+  CmdMsg cmd_ned_;      // 現在のコマンド (NED座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
 
@@ -65,6 +68,7 @@ private:
   // PubSub
   ros::Publisher rotor_speeds_pub_;
   ros::Publisher deflections_pub_;
+  ros::Subscriber air_pressure_sub_;
   ros::Subscriber base_state_sub_;
   ros::Subscriber cmd_sub_;
 
@@ -76,6 +80,7 @@ private:
   void registerSubscribers() override;
   void createTimers() override;
 
+  bool isReady();
   void publishTakeoffCommand();
   void setInitialTarget();
   void runOnce();
@@ -89,6 +94,7 @@ private:
   void updateDeflections(const Eigen::VectorXd& deflections);
   void reconfigure(const ConfigType& cfg);
 
+  void airPressureCb(const sensor_msgs::FluidPressure& msg);
   void baseStateCb(const StateMsg& bs_nwu);
   void commandCb(const CmdMsg& cmd_nwu);
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;

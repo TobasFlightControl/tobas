@@ -22,25 +22,22 @@ void StabilityDerivativesCG::updateInternalDataStructures()
 void StabilityDerivativesCG::update(const JntArray& q)
 {
   // エイリアス
-  const auto& fixed_wing = drone_.fixedWingConfig();
-  const auto& vehicle = fixed_wing.vehicle;
-  const auto& aero = fixed_wing.aerodynamics;
-  const auto& control_surfaces = fixed_wing.control_surfaces;
+  const auto& aero = drone_.aerodynamics();
 
   // CoGを更新
   inertia_solver_.JntToCart(q, cog_, I_);
 
   // 安定微係数を更新: (2.2-40), (3.2-23)
-  const auto dx = vehicle.ac.x() - cog_.x();
-  const auto dx_b = dx / vehicle.wing_span;
-  const auto dx_c = dx / vehicle.mac;
+  const auto dx = drone_.vehicle().ac.x() - cog_.x();
+  const auto dx_b = dx / drone_.vehicle().wing_span;
+  const auto dx_c = dx / drone_.vehicle().mac;
 
   c_pitch_alpha_cg_ = aero.c_pitch_alpha + dx_c * aero.c_lift_alpha;
   c_yaw_beta_cg_ = aero.c_yaw_beta + dx_b * aero.c_side_beta;
 
-  for (int i = 0; i < control_surfaces.size(); ++i)
+  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
   {
-    const auto& cs = control_surfaces[i];
+    const auto& cs = drone_.controlSurface(i);
     c_pitch_delta_cg_[i] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
     c_yaw_delta_cg_[i] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }

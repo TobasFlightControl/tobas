@@ -13,7 +13,7 @@ namespace tobas
 class TrimConditions
 {
 public:
-  explicit TrimConditions(const Drone& drone, const uint32_t& elev_cs_idx);
+  explicit TrimConditions(const Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -21,10 +21,10 @@ public:
    * @brief 内部状態を更新する．
    *
    * @param V 風速に対する機体速度の絶対値 [m/s]
-   * @param h 幾何高度 [m]
+   * @param rho 大気密度 [kg/m^3]
    * @param q 関節角 [rad]
    */
-  void update(double V, double h, const KDL::JntArray& q);
+  void update(double V, double rho, const KDL::JntArray& q);
 
   const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
@@ -47,24 +47,26 @@ public:
   const double& u() const;
 
   /* 失速しないための速度の大きさの範囲． */
-  dh_std::Range<double> speedLimit(double altitude) const;
+  dh_std::Range<double> speedLimit(double rho) const;
 
 private:
   const Drone& drone_;
-  const uint32_t& elev_cs_idx_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;
   StabilityDerivativesCG asd_cog_;
 
   // 固定値
-  double W_;         // 機体の重量 [N]
-  double a_, b_;     // (2.9-49)の定数部分
+  double W_;           // 機体の重量 [N]
+  uint32_t elev_idx_;  // ピッチ回転の釣り合いに使う舵面の添字
+  double a_, b_;       // (2.9-49)の定数部分
 
-  double alpha_;     // トリム時の迎角 [rad]
-  double elevator_;  // トリム時の昇降舵の偏角 [rad]
-  double c_L_;       // トリム時の揚力係数 [-]
-  double c_D_;       // トリム時の抗力係数 [-]
-  double c_T_;       // トリム時の推力係数 [-]
-  double u_;         // トリム時のX軸方向の速さ [m/s]
+  double alpha_;       // トリム時の迎角 [rad]
+  double elevator_;    // トリム時の昇降舵の偏角 [rad]
+  double c_L_;         // トリム時の揚力係数 [-]
+  double c_D_;         // トリム時の抗力係数 [-]
+  double c_T_;         // トリム時の推力係数 [-]
+  double u_;           // トリム時のX軸方向の速さ [m/s]
+
+  void setElevatorIndex();
 };
 }  // namespace tobas

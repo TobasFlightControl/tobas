@@ -14,12 +14,12 @@ using namespace KDL;
 
 namespace tobas
 {
-MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const uint32_t& elev_cs_idx)
+MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone)
   : drone_(drone),
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
     x_rotors_(drone, Axis::X_POSITIVE),
-    trim_(drone, elev_cs_idx)
+    trim_(drone)
 {
   if (drone.isLoaded())
   {
@@ -35,9 +35,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   trim_.updateInternalDataStructures();
 
   mass_ = inertia_solver_.JntToMass();
-  num_hprop_ = x_rotors_.count();
-  num_cs_ = drone_.fixedWingConfig().control_surfaces.size();
-  u_size_ = num_hprop_ + num_cs_;
+  u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
   setInputLimits();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
@@ -46,17 +44,15 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
+void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
 {
   assert(V > 0.);
-  assert(h > 0.);
+  assert(rho > 0.);
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
   // エイリアス
-  const auto& fixed_wing = drone_.fixedWingConfig();
-  const auto& vehicle = fixed_wing.vehicle;
-  const auto& aero = fixed_wing.aerodynamics;
-  const auto& control_surfaces = fixed_wing.control_surfaces;
+  const auto& vehicle = drone_.vehicle();
+  const auto& aero = drone_.aerodynamics();
 
   // 重心と慣性テンソル
   inertia_solver_.JntToCart(q, P_base_cog_, I_kdl_);
@@ -70,11 +66,10 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   const auto I_z_tilde = I_z * tmp;
 
   // トリム状態を更新
-  trim_.update(V, h, q);
+  trim_.update(V, rho, q);
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 引数に依存する定数
-  const auto rho = dh_std::altitudeToDensity(h);
   const auto W = mass_ * kGravity;
   const auto q_bar = dynamicPressure(rho, V);
   const auto q_S = q_bar * vehicle.wing_surface;
@@ -152,7 +147,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
 
   // Bを更新
   // thrust -> u
-  for (int i = 0; i < num_hprop_; ++i)
+  for (int i = 0; i < x_rotors_.count(); ++i)
   {
     B_(kStateIdx_u, i) = 1 / mass_;
   }
@@ -160,7 +155,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   // thrust -> p,q,r
   tf::rotInertiaKDLToEigen(I_kdl_, I_eigen_);
   const auto I_inv = I_eigen_.inverse();
-  for (int i = 0; i < num_hprop_; ++i)
+  for (int i = 0; i < x_rotors_.count(); ++i)
   {
     fk_solver_.JntToCart(q, x_rotors_.linkName(i), T_base_rotor_);
     const auto P_cog_rotor_kdl = T_base_rotor_.p - P_base_cog_;
@@ -171,9 +166,9 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   }
 
   // deflection
-  for (int cs_idx = 0; cs_idx < num_cs_; ++cs_idx)
+  for (int cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
   {
-    const auto& cs = control_surfaces[cs_idx];
+    const auto& cs = drone_.controlSurface(cs_idx);
 
     const auto Y_delta_bar = q_S / P * cs.c_side_delta;                                // (3.2-20)
     const auto Z_delta_bar = -q_S / P * cs.c_lift_delta;                               // (2.2-37)
@@ -184,7 +179,7 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
     const auto N_delta_dash =
       q_S_b / I_z_tilde * (asd_cog.cYawDelta(cs_idx) + I_xz / I_x * cs.c_roll_delta);  // (3.2-22)
 
-    const auto col = num_hprop_ + cs_idx;
+    const auto col = x_rotors_.count() + cs_idx;
     B_(kStateIdx_alpha, col) = Z_delta_bar;
     B_(kStateIdx_beta, col) = Y_delta_bar;
     B_(kStateIdx_p, col) = L_delta_dash;
@@ -205,9 +200,9 @@ void MicroDisturbanceEoM::update(double V, double h, const JntArray& q)
   // トリム時の制御入力を更新
   // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
-  const auto thrust_avg = thrust_sum / num_hprop_;
-  u_0_.block(0, 0, num_hprop_, 0) = VectorXd::Constant(num_hprop_, thrust_avg);
-  u_0_(num_hprop_) = trim_.elevator();
+  const auto thrust_avg = thrust_sum / x_rotors_.count();
+  u_0_.block(0, 0, x_rotors_.count(), 0) = VectorXd::Constant(x_rotors_.count(), thrust_avg);
+  u_0_(x_rotors_.count()) = trim_.elevator();
 }
 
 const TrimConditions& MicroDisturbanceEoM::trimCondition() const
@@ -438,27 +433,27 @@ double MicroDisturbanceEoM::u_thrust() const
 
 const double& MicroDisturbanceEoM::alpha_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_alpha, num_hprop_ + cs_idx);
+  return B_(kStateIdx_alpha, x_rotors_.count() + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::beta_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_beta, num_hprop_ + cs_idx);
+  return B_(kStateIdx_beta, x_rotors_.count() + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::p_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_p, num_hprop_ + cs_idx);
+  return B_(kStateIdx_p, x_rotors_.count() + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::q_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_q, num_hprop_ + cs_idx);
+  return B_(kStateIdx_q, x_rotors_.count() + cs_idx);
 }
 
 const double& MicroDisturbanceEoM::r_delta(uint32_t cs_idx) const
 {
-  return B_(kStateIdx_r, num_hprop_ + cs_idx);
+  return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
 }
 
 void MicroDisturbanceEoM::setInputLimits()
@@ -466,17 +461,17 @@ void MicroDisturbanceEoM::setInputLimits()
   min_u_.resize(u_size_);
   max_u_.resize(u_size_);
 
-  for (int i = 0; i < num_hprop_; ++i)
+  for (int i = 0; i < x_rotors_.count(); ++i)
   {
     min_u_(i) = 0.;
     max_u_(i) = x_rotors_.maxThrust(i);
   }
 
-  for (int i = 0; i < num_cs_; ++i)
+  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
   {
-    const auto& cs = drone_.fixedWingConfig().control_surfaces[i];
-    min_u_(num_hprop_ + i) = cs.angle_limit.lower;
-    max_u_(num_hprop_ + i) = cs.angle_limit.upper;
+    const auto& cs = drone_.controlSurface(i);
+    min_u_(x_rotors_.count() + i) = cs.angle_limit.lower;
+    max_u_(x_rotors_.count() + i) = cs.angle_limit.upper;
   }
 }
 }  // namespace tobas
