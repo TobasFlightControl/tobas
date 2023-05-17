@@ -21,7 +21,10 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const uint32_t& ele
     x_rotors_(drone, Axis::X_POSITIVE),
     trim_(drone, elev_cs_idx)
 {
-  updateInternalDataStructures();
+  if (drone.isLoaded())
+  {
+    updateInternalDataStructures();
+  }
 }
 
 void MicroDisturbanceEoM::updateInternalDataStructures()

@@ -12,7 +12,7 @@ using namespace KDL;
 
 namespace tobas
 {
-Drone::Drone()
+Drone::Drone() : is_loaded_(false)
 {
 }
 
@@ -25,21 +25,18 @@ void Drone::loadFromParam(const string& ns)
 
   getRotorConfigs(ns);
 
-  dh_ros::getParam(ns + "/has_fixed_wing", has_fixed_wing_);
+  has_fixed_wing_ = dh_ros::match(ns + "/fixed_wing");
   if (has_fixed_wing_)
   {
     getFixedWingConfig(ns);
   }
+
+  is_loaded_ = true;
 }
 
 const Tree& Drone::tree() const
 {
   return tree_;
-}
-
-const bool& Drone::hasFixedWing() const
-{
-  return has_fixed_wing_;
 }
 
 const double& Drone::batteryVoltage() const
@@ -65,6 +62,16 @@ const RotorConfig& Drone::rotorConfig(uint32_t rotor_idx) const
 const FixedWingConfig& Drone::fixedWingConfig() const
 {
   return fixed_wing_config_;
+}
+
+const bool& Drone::hasFixedWing() const
+{
+  return has_fixed_wing_;
+}
+
+const bool& Drone::isLoaded() const
+{
+  return is_loaded_;
 }
 
 uint32_t Drone::numRotors() const

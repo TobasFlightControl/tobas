@@ -4,7 +4,10 @@ namespace tobas
 {
 RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, Axis axis) : drone_(drone), axis_(axis)
 {
-  updateInternalDataStructures();
+  if (drone.isLoaded())
+  {
+    updateInternalDataStructures();
+  }
 }
 
 void RotorAxisExtractor::updateInternalDataStructures()

@@ -11,7 +11,10 @@ namespace tobas
 TrimConditions::TrimConditions(const Drone& drone, const uint32_t& elev_cs_idx)
   : drone_(drone), elev_cs_idx_(elev_cs_idx), inertia_solver_(drone.tree()), asd_cog_(drone)
 {
-  updateInternalDataStructures();
+  if (drone.isLoaded())
+  {
+    updateInternalDataStructures();
+  }
 }
 
 void TrimConditions::updateInternalDataStructures()

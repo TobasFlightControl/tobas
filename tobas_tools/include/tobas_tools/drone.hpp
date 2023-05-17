@@ -19,12 +19,14 @@ public:
   void loadFromParam(const std::string& ns);
 
   const KDL::Tree& tree() const;
-  const bool& hasFixedWing() const;
   const double& batteryVoltage() const;
   const std::vector<std::string>& activeJointNames() const;
   const RotorConfigs& rotorConfigs() const;
   const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
   const FixedWingConfig& fixedWingConfig() const;
+
+  const bool& hasFixedWing() const;
+  const bool& isLoaded() const;
 
   uint32_t numRotors() const;
   uint32_t numControlSurfaces() const;
@@ -40,11 +42,13 @@ public:
 
 private:
   KDL::Tree tree_;
-  bool has_fixed_wing_;
   double battery_voltage_;
   std::vector<std::string> active_joint_names_;
   RotorConfigs rotor_configs_;
   FixedWingConfig fixed_wing_config_;
+
+  bool has_fixed_wing_;
+  bool is_loaded_;
 
   void getTree(const std::string& ns);
 

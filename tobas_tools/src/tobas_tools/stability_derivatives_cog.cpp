@@ -8,7 +8,10 @@ namespace tobas
 StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone)
   : drone_(drone), inertia_solver_(drone.tree())
 {
-  updateInternalDataStructures();
+  if (drone.isLoaded())
+  {
+    updateInternalDataStructures();
+  }
 }
 
 void StabilityDerivativesCG::updateInternalDataStructures()
