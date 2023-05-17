@@ -152,9 +152,9 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
-  const auto linvel_perp = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto air_drag = -abs(rot_vel_real) * rotor_drag_coef_ * linvel_perp;
-  link_->AddForce(air_drag);
+  const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
+  const auto air_drag_W = -abs(rot_vel_real) * rotor_drag_coef_ * linvel_perp_W;
+  link_->AddForce(air_drag_W);
 
   // (2) first term: Rotor drag torque
   const auto pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
