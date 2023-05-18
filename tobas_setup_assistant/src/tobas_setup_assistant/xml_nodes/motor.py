@@ -44,6 +44,6 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "rotorDragCoefficient").text = f'{rotor_drag_coef}'
         ET.SubElement(plugin, "timeConstantUp").text = f'{time_const_up}'
         ET.SubElement(plugin, "timeConstantDown").text = f'{time_const_down}'
-        ET.SubElement(plugin, "motorSpeedPubTopic").text = f'motor_speed/{motor_number}'
+        ET.SubElement(plugin, "debugPubTopic").text = f'ground_truth/rotor_debug/{motor_number}'
         ET.SubElement(plugin, "commandSubTopic").text = "command/motor_speed"
-        ET.SubElement(plugin, "rotorVelocitySlowdownSim").text = f'{self.SLOWDOWN_SIM}'
+        ET.SubElement(plugin, "rotorSpeedSlowdownSim").text = f'{self.SLOWDOWN_SIM}'

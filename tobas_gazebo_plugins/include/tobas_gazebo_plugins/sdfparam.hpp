@@ -62,7 +62,12 @@ void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
 }
 
 template <typename T>
-void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, const T& default_value)
+void getSdfParam(
+  sdf::ElementPtr sdf,
+  const std::string& name,
+  T& param,
+  const T& default_value,
+  bool verbose = true)
 {
   if (sdf->HasElement(name))
   {
@@ -70,8 +75,11 @@ void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, const T
   }
   else
   {
-    gzwarn << "SDF parameter '" << name << "' is not specified. The default value '"
-           << default_value << "' is used." << std::endl;
+    if (verbose)
+    {
+      gzwarn << "SDF parameter '" << name << "' is not specified. The default value '"
+             << default_value << "' is used." << std::endl;
+    }
     param = default_value;
   }
 }

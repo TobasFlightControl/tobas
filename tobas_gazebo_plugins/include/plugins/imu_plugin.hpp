@@ -31,7 +31,7 @@ class GazeboImuPlugin : public SensorPlugin
   using ImuMsg = sensor_msgs::Imu;
 
 public:
-  GazeboImuPlugin();
+  explicit GazeboImuPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 

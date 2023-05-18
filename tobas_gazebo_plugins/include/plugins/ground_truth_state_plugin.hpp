@@ -24,7 +24,7 @@ class GazeboGroundTruthStatePlugin : public ModelPlugin
   using StateMsg = tobas_msgs::BaseState;
 
 public:
-  GazeboGroundTruthStatePlugin();
+  explicit GazeboGroundTruthStatePlugin();
 
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 

@@ -6,10 +6,10 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
-#include <std_msgs/Float64.h>
 
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/WindSpeed.h>
+#include <tobas_msgs/RotorDebug.h>
 
 #include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
@@ -19,7 +19,7 @@ namespace gazebo
 static const std::string kPluginName = "motor_model_plugin";
 
 // Default values
-static const std::string kDefaultSpeedPubTopic = "motor_speed";
+static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
 static const std::string kDefaultCmdSubTopic = "command/motor_speed";
 static constexpr double kDefaultCheckDelayThreshold = 0.02;  // [s]
 
@@ -31,7 +31,7 @@ class GazeboRotorPlugin : public ModelPlugin
   using WindMsg = tobas_msgs::WindSpeed;
 
 public:
-  GazeboRotorPlugin();
+  explicit GazeboRotorPlugin();
 
 protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
@@ -45,7 +45,7 @@ private:
   std::string joint_name_;
   int motor_number_;
   int direction_;  // turning direction. 1(CCW) or -1(CW).
-  std::string motor_speed_pub_topic_;
+  std::string debug_pub_topic_;
   std::string cmd_sub_topic_;
   std::string wind_speed_sub_topic_;
   double max_rot_speed_;
@@ -59,9 +59,9 @@ private:
 
   double ref_rot_speed_;
   double prev_sim_time_;
-  std_msgs::Float64 motor_speed_msg_;
   ignition::math::Vector3d wind_speed_W_;
   FirstOrderFilter<double> rotor_speed_filter_;
+  tobas_msgs::RotorDebug debug_msg_;
 
   physics::ModelPtr model_;
   physics::JointPtr joint_;
@@ -69,14 +69,14 @@ private:
   physics::LinkPtr parent_link_;
   event::ConnectionPtr update_connection_;
 
-  ros::Publisher motor_speed_pub_;
+  // PubSub
+  ros::Publisher debug_pub_;
   ros::Subscriber command_sub_;
   ros::Subscriber wind_speed_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
-  void updateForcesAndMoments(double dt);
 
   void commandCb(const CmdMsg& cmd);
   void windSpeedCb(const WindMsg& wind);

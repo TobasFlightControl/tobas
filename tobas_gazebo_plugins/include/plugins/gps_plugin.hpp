@@ -38,7 +38,7 @@ class GazeboGpsPlugin : public SensorPlugin
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
-  GazeboGpsPlugin();
+  explicit GazeboGpsPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 

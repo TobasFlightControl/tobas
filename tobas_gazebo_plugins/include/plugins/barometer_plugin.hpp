@@ -24,7 +24,7 @@ class GazeboBarometerPlugin : public SensorPlugin
   using PressureMsg = sensor_msgs::FluidPressure;
 
 public:
-  GazeboBarometerPlugin();
+  explicit GazeboBarometerPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 

@@ -84,20 +84,21 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
 
-  getSdfParam(sdf, "motorSpeedPubTopic", motor_speed_pub_topic_, kDefaultSpeedPubTopic);
+  getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
   getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
 
   getSdfParam(
-    sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim);
+    sdf, "rotorSpeedSlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim, false);
   if (rotor_speed_slowdown_sim_ < 1.)
   {
-    gzerr << kPluginName << ": Invalid rotorVelocitySlowdownSim: " << rotor_speed_slowdown_sim_
+    gzerr << kPluginName << ": Invalid rotorSpeedSlowdownSim: " << rotor_speed_slowdown_sim_
           << ". The default value " << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
     rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
   }
 
-  getSdfParam(sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold);
+  getSdfParam(
+    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
   if (check_delay_threshold_ <= 0.)
   {
     gzerr << kPluginName << ": Invalid checkDelayThreshold: " << check_delay_threshold_
@@ -110,29 +111,12 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 {
   const auto dt = info.simTime.Double() - prev_sim_time_;
   prev_sim_time_ = info.simTime.Double();
-  updateForcesAndMoments(dt);
 
-  motor_speed_msg_.data = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;  // real speed
-  motor_speed_pub_.publish(motor_speed_msg_);
-}
-
-void GazeboRotorPlugin::registerPubSub()
-{
-  motor_speed_pub_ = nh_.advertise<std_msgs::Float64>("/" + ns_ + "/" + motor_speed_pub_topic_, 1);
-
-  command_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
-  wind_speed_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
-}
-
-void GazeboRotorPlugin::updateForcesAndMoments(double dt)
-{
   const auto rot_speed_sim = joint_->GetVelocity(0);
   if (abs(rot_speed_sim) * dt > M_PI)
   {
     gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
-          << "] might occur. Lower simulation time step or raise rotorVelocitySlowdownSim." << endl;
+          << "] might occur. Lower simulation time step or raise rotorSpeedSlowdownSim." << endl;
   }
 
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
@@ -148,13 +132,14 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   const auto rot_vel_real = rot_speed_sim * rotor_speed_slowdown_sim_;
   const auto rot_vel_sgn = dh_std::sign(rot_vel_real);
   const auto thrust = direction_ * rot_vel_sgn * motor_const_ * dh_std::sqr(rot_vel_real);
-  link_->AddForce(thrust * global_axis);
+  const auto thrust_W = thrust * global_axis;
+  link_->AddForce(thrust_W);
 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto air_drag_W = (-abs(rot_vel_real) * rotor_drag_coef_) * linvel_perp_W;
-  link_->AddForce(air_drag_W);
+  const auto h_force_W = (-abs(rot_vel_real) * rotor_drag_coef_) * linvel_perp_W;
+  link_->AddForce(h_force_W);
 
   // (2) first term: Rotor drag torque
   const auto pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
@@ -162,15 +147,27 @@ void GazeboRotorPlugin::updateForcesAndMoments(double dt)
   const auto drag_torque_parent = pose_diff.Rot().RotateVector(drag_torque_child);
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
-  // For debug
-  // cout << "Thrust force (world frame): " << thrust * global_axis << " [N]" << endl;
-  // cout << "H force (world frame): " << air_drag_W << " [N]" << endl;
-  // cout << "Rotor drag torque (body frame): " << drag_torque_parent << " [Nm]" << endl;
-  // cout << endl;
-
   // Apply the filter on the motor velocity
   const auto ref_rot_speed = rotor_speed_filter_.updateFilter(ref_rot_speed_, dt);
   joint_->SetVelocity(0, direction_ * ref_rot_speed / rotor_speed_slowdown_sim_);
+
+  // Publish debug message
+  timeGazeboToRos(info.simTime, debug_msg_.header.stamp);
+  debug_msg_.rotation_speed = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;
+  vectorGazeboToKDL(thrust_W, debug_msg_.thrust_force);
+  vectorGazeboToKDL(h_force_W, debug_msg_.horizontal_force);
+  vectorGazeboToKDL(drag_torque_parent, debug_msg_.drag_torque);
+  debug_pub_.publish(debug_msg_);
+}
+
+void GazeboRotorPlugin::registerPubSub()
+{
+  debug_pub_ = nh_.advertise<tobas_msgs::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+
+  command_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
+  wind_speed_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
 }
 
 void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)

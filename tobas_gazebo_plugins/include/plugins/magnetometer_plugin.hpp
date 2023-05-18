@@ -28,7 +28,7 @@ class GazeboMagnetometerPlugin : public SensorPlugin
   using MagMsg = sensor_msgs::MagneticField;
 
 public:
-  GazeboMagnetometerPlugin();
+  explicit GazeboMagnetometerPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 

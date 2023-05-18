@@ -33,7 +33,7 @@ static constexpr float kDefaultBaseline = 0.05f;
 class GazeboNoisyDepthPlugin : public SensorPlugin, GazeboRosCameraUtils
 {
 public:
-  GazeboNoisyDepthPlugin();
+  explicit GazeboNoisyDepthPlugin();
   ~GazeboNoisyDepthPlugin();
 
   void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf) override;

@@ -32,7 +32,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     cs_angle_models_.emplace_back(cs.angle_limit, cs.max_angle_rate);
   }
 
-  cs_deflections_.deflections.resize(num_control_surfaces_);
+  cs_deflections_.deflections.resize(control_surfaces_.size());
 
   link_ = model->GetLink(link_name_);
   if (link_ == NULL)
@@ -50,6 +50,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
   getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
   getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude, NON_NEGATIVE);
@@ -126,8 +127,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
       cs_elem = cs_elem->GetNextElement("controlSurface");
     }
 
-    num_control_surfaces_ = indexes.size();
-    for (int i = 0; i < num_control_surfaces_; ++i)
+    for (int i = 0; i < indexes.size(); ++i)
     {
       if (!dh_std::contains(indexes, i))
       {
@@ -139,6 +139,8 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
+  debug_pub_ = nh_.advertise<tobas_msgs::FixedWingDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+
   deflections_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this);
   wind_speed_sub_ = nh_.subscribe(
@@ -148,9 +150,9 @@ void GazeboFixedWingPlugin::registerPubSub()
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 {
   // 風に対する相対的な機体速度
-  const Quaterniond& W_rot_B = link_->WorldPose().Rot();
-  Vector3d linvel_W = link_->WorldLinearVel() - wind_speed_W_;
-  Vector3d linvel_B = W_rot_B.RotateVectorReverse(linvel_W);
+  const auto& W_rot_B = link_->WorldPose().Rot();
+  const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
+  auto linvel_B = W_rot_B.RotateVectorReverse(linvel_W);
 
   // NWU -> NED
   NWU2NED(linvel_B);
@@ -168,7 +170,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   }
 
   // 迎角と横滑り角
-  auto alpha = tobas::angleOfAttack(u, v, w);         // 迎角 [rad]
+  const auto alpha = tobas::angleOfAttack(u, v, w);   // 迎角 [rad]
   const auto beta = tobas::angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
 
   // 迎角の範囲チェック
@@ -177,7 +179,6 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
     gzwarn << kPluginName << ": The angle of attack " << alpha << " is not within the valid range "
            << vehicle_params_.alpha_limit
            << ". The accuracy of the physics simulation may be compromised." << endl;
-    alpha = vehicle_params_.alpha_limit.clamp(alpha);
   }
 
   // 最初は変数の初期化だけして終了
@@ -222,16 +223,20 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   NED2NWU(air_force);
   NED2NWU(air_moment);
 
-  // For Debug
-  // cout << "Air force (body frame): " << air_force << endl;
-  // cout << "Air moment (body frame): " << air_moment << endl;
-  // cout << endl;
-
   // 空気力を作用させる
   Vector3d ac;
   vectorKDLToGazebo(vehicle_params_.ac, ac);
   link_->AddLinkForce(air_force, ac);
   link_->AddRelativeTorque(air_moment);
+
+  // デバッグ用メッセージを発行
+  timeGazeboToRos(info.simTime, debug_msg_.header.stamp);
+  vectorGazeboToKDL(linvel_B, debug_msg_.relative_body_velocity);
+  debug_msg_.alpha = alpha;
+  debug_msg_.beta = beta;
+  vectorGazeboToKDL(air_force, debug_msg_.air_force);
+  vectorGazeboToKDL(air_moment, debug_msg_.air_moment);
+  debug_pub_.publish(debug_msg_);
 }
 
 void GazeboFixedWingPlugin::updateDeflections(double dt)
@@ -392,7 +397,7 @@ double GazeboFixedWingPlugin::dynamicPressure(double V)
 
 void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
 {
-  if (deflections.deflections.size() != num_control_surfaces_)
+  if (deflections.deflections.size() != control_surfaces_.size())
   {
     gzerr << "The size of the received deflections array is " << deflections.deflections.size()
           << ", which does not match numberOfControlSurfaces." << endl;
