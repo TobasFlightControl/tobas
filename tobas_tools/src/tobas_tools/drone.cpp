@@ -182,7 +182,7 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
   }
 
   dh_ros::getParam(prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/moment_constant", res.moment_constant, dh_ros::POSITIVE);
+  dh_ros::getParam(prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
   dh_ros::getParam(prefix + "/kv", res.kv, dh_ros::POSITIVE);
 
   dh_ros::getParam(prefix + "/pin", res.pin);

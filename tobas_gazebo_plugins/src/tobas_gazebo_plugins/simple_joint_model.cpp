@@ -2,6 +2,8 @@
 
 #include "../../include/tobas_gazebo_plugins/simple_joint_model.hpp"
 
+#define POS_MARGIN 1e-2  // [rad]
+
 using namespace std;
 
 namespace gazebo
@@ -16,7 +18,7 @@ void SimpleJointModel::setTargetPosition(double tar_pos, double dt)
 {
   assert(dt > 0.);
 
-  if (!pos_limit_.inRange(tar_pos))
+  if (!pos_limit_.inRange(tar_pos, POS_MARGIN))
   {
     gzerr << "Target position " << tar_pos << " is out of range " << pos_limit_ << "." << endl;
     tar_pos = pos_limit_.clamp(tar_pos);

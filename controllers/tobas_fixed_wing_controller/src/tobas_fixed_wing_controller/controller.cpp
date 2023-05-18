@@ -165,6 +165,8 @@ void Controller::setCz()
 {
   mpc_.Cz = MatrixXd::Zero(kCtrlSize, eom_.kStateSize);
 
+  mpc_.Cz(kCtrlIdx_u, eom_.kStateIdx_u) = 1;
+  mpc_.Cz(kCtrlIdx_alpha, eom_.kStateIdx_alpha) = 1;
   mpc_.Cz(kCtrlIdx_beta, eom_.kStateIdx_beta) = 1;
   mpc_.Cz(kCtrlIdx_phi, eom_.kStateIdx_phi) = 1;
   mpc_.Cz(kCtrlIdx_theta, eom_.kStateIdx_theta) = 1;
@@ -174,7 +176,8 @@ void Controller::setScales()
 {
   // 制御変数のスケール
   mpc_.control_scale.resize(kCtrlSize);
-  mpc_.control_scale(kCtrlIdx_beta) = M_PI;
+  mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().speedLimit(kStandardAirDensity).lower;
+  mpc_.control_scale(kCtrlIdx_alpha) = mpc_.control_scale(kCtrlIdx_beta) = M_PI;
   mpc_.control_scale(kCtrlIdx_phi) = mpc_.control_scale(kCtrlIdx_theta) = M_PI;
 
   // 制御入力のスケール
@@ -228,7 +231,9 @@ void Controller::updateCurrentStateVector()
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
-  mpc_.set_state(kCtrlIdx_beta) = 0.;  // 横滑り角の目標値は常に0を設定
+  mpc_.set_state(kCtrlIdx_u) = 0.;
+  mpc_.set_state(kCtrlIdx_alpha) = 0.;
+  mpc_.set_state(kCtrlIdx_beta) = 0.;
   mpc_.set_state(kCtrlIdx_phi) = tar_roll;
   mpc_.set_state(kCtrlIdx_theta) = tar_delta_pitch;
 }
@@ -268,6 +273,8 @@ void Controller::reconfigure(const ConfigType& cfg)
 
   mpc_.time_step = cfg.prediction_horizon / cfg.prediction_steps;
   mpc_.prediction_steps = mpc_.input_steps = cfg.prediction_steps;
+  mpc_.decay_time_consts(kCtrlIdx_u) = cfg.forward_speed_decay;
+  mpc_.decay_time_consts(kCtrlIdx_alpha) = cfg.alpha_decay;
   mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.attitude_decay;
   mpc_.decay_time_consts(kCtrlIdx_phi) = mpc_.decay_time_consts(kCtrlIdx_theta) =
     cfg.attitude_decay;
@@ -277,6 +284,8 @@ void Controller::reconfigure(const ConfigType& cfg)
   mpc_.discrete_dynamics.resize(cfg.prediction_steps, disc);
 
   // 制御変数の重み
+  mpc_.control_weight(kCtrlIdx_u) = cfg.forward_speed_weight;
+  mpc_.control_weight(kCtrlIdx_alpha) = cfg.alpha_weight;
   mpc_.control_weight(kCtrlIdx_beta) = cfg.beta_weight;
   mpc_.control_weight(kCtrlIdx_phi) = mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
 
