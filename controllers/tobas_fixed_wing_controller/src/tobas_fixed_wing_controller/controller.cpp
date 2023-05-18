@@ -52,6 +52,7 @@ Controller::Controller()
   mpc_.current_state.resize(eom_.kStateSize);
   mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(eom_.inputSize());
+  mpc_.weight_scaler = 1e+6;
 
   reconfigure(cfg_);
 
