@@ -185,6 +185,15 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
     B_(kStateIdx_p, col) = L_delta_dash;
     B_(kStateIdx_q, col) = M_delta_dash;
     B_(kStateIdx_r, col) = N_delta_dash;
+
+    // For debug
+    // cout << "Control Surface Index: " << cs_idx << endl;
+    // cout << "Y_delta_bar: " << Y_delta_bar << endl;
+    // cout << "Z_delta_bar: " << Z_delta_bar << endl;
+    // cout << "L_delta_dash: " << L_delta_dash << endl;
+    // cout << "M_delta_dash: " << M_delta_dash << endl;
+    // cout << "N_delta_dash: " << N_delta_dash << endl;
+    // cout << endl;
   }
 
   // トリム時の状態を更新

@@ -140,7 +140,7 @@ void Controller::runOnce()
 
   setInputConstraint();  // EoMの更新後に呼ぶ必要がある
   updateCurrentStateVector();
-  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);  // NWU->NEDに変換して渡す
+  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
 
   // MPCを解いて最適制御入力を求める
   const auto du = mpc_.solveMPC();
@@ -227,6 +227,8 @@ void Controller::updateCurrentStateVector()
   mpc_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
   mpc_.current_state(eom_.kStateIdx_q) = bs_ned_.twist.rot.y();
   mpc_.current_state(eom_.kStateIdx_r) = bs_ned_.twist.rot.z();
+
+  // cout << mpc_.current_state << endl << endl;
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
