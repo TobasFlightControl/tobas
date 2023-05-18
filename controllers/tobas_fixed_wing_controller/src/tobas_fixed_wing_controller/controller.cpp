@@ -68,10 +68,19 @@ void Controller::getRosParams()
 {
   dh_ros::getParam(kCtrlName + "/prediction_horizon", cfg_.prediction_horizon);
   dh_ros::getParam(kCtrlName + "/prediction_steps", cfg_.prediction_steps);
+
+  dh_ros::getParam(kCtrlName + "/forward_speed_decay", cfg_.forward_speed_decay);
+  dh_ros::getParam(kCtrlName + "/alpha_decay", cfg_.alpha_decay);
   dh_ros::getParam(kCtrlName + "/beta_decay", cfg_.beta_decay);
   dh_ros::getParam(kCtrlName + "/attitude_decay", cfg_.attitude_decay);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_decay", cfg_.angular_velocity_decay);
+
+  dh_ros::getParam(kCtrlName + "/forward_speed_weight", cfg_.forward_speed_weight);
+  dh_ros::getParam(kCtrlName + "/alpha_weight", cfg_.alpha_weight);
   dh_ros::getParam(kCtrlName + "/beta_weight", cfg_.beta_weight);
   dh_ros::getParam(kCtrlName + "/attitude_weight", cfg_.attitude_weight);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", cfg_.angular_velocity_weight);
+
   dh_ros::getParam(kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
   dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
   dh_ros::getParam(kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
@@ -170,6 +179,9 @@ void Controller::setCz()
   mpc_.Cz(kCtrlIdx_beta, eom_.kStateIdx_beta) = 1;
   mpc_.Cz(kCtrlIdx_phi, eom_.kStateIdx_phi) = 1;
   mpc_.Cz(kCtrlIdx_theta, eom_.kStateIdx_theta) = 1;
+  mpc_.Cz(kCtrlIdx_p, kCtrlIdx_p) = 1;
+  mpc_.Cz(kCtrlIdx_q, kCtrlIdx_q) = 1;
+  mpc_.Cz(kCtrlIdx_r, kCtrlIdx_r) = 1;
 }
 
 void Controller::setScales()
@@ -177,8 +189,13 @@ void Controller::setScales()
   // 制御変数のスケール
   mpc_.control_scale.resize(kCtrlSize);
   mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().speedLimit(kStandardAirDensity).lower;
-  mpc_.control_scale(kCtrlIdx_alpha) = mpc_.control_scale(kCtrlIdx_beta) = M_PI;
-  mpc_.control_scale(kCtrlIdx_phi) = mpc_.control_scale(kCtrlIdx_theta) = M_PI;
+  mpc_.control_scale(kCtrlIdx_alpha) = M_PI;
+  mpc_.control_scale(kCtrlIdx_beta) = M_PI;
+  mpc_.control_scale(kCtrlIdx_phi) = M_PI;
+  mpc_.control_scale(kCtrlIdx_theta) = M_PI;
+  mpc_.control_scale(kCtrlIdx_p) = M_PI;
+  mpc_.control_scale(kCtrlIdx_q) = M_PI;
+  mpc_.control_scale(kCtrlIdx_r) = M_PI;
 
   // 制御入力のスケール
   mpc_.input_scale.resize(eom_.inputSize());
@@ -238,6 +255,9 @@ void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
   mpc_.set_state(kCtrlIdx_beta) = 0.;
   mpc_.set_state(kCtrlIdx_phi) = tar_roll;
   mpc_.set_state(kCtrlIdx_theta) = tar_delta_pitch;
+  mpc_.set_state(kCtrlIdx_p) = 0.;
+  mpc_.set_state(kCtrlIdx_q) = 0.;
+  mpc_.set_state(kCtrlIdx_r) = 0.;
 }
 
 void Controller::updateRotorSpeeds(const VectorXd& thrust)
@@ -268,18 +288,27 @@ void Controller::reconfigure(const ConfigType& cfg)
 {
   ROS_ASSERT(cfg.prediction_horizon > 0.);
   ROS_ASSERT(cfg.prediction_steps > 0);
+  ROS_ASSERT(cfg.forward_speed_decay >= 0.);
+  ROS_ASSERT(cfg.alpha_decay >= 0.);
   ROS_ASSERT(cfg.beta_decay >= 0.);
   ROS_ASSERT(cfg.attitude_decay >= 0.);
+  ROS_ASSERT(cfg.angular_velocity_decay >= 0.);
+  ROS_ASSERT(cfg.forward_speed_weight > 0.);
+  ROS_ASSERT(cfg.alpha_weight > 0.);
   ROS_ASSERT(cfg.beta_weight > 0.);
   ROS_ASSERT(cfg.attitude_weight > 0.);
+  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
 
   mpc_.time_step = cfg.prediction_horizon / cfg.prediction_steps;
   mpc_.prediction_steps = mpc_.input_steps = cfg.prediction_steps;
   mpc_.decay_time_consts(kCtrlIdx_u) = cfg.forward_speed_decay;
   mpc_.decay_time_consts(kCtrlIdx_alpha) = cfg.alpha_decay;
-  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.attitude_decay;
-  mpc_.decay_time_consts(kCtrlIdx_phi) = mpc_.decay_time_consts(kCtrlIdx_theta) =
-    cfg.attitude_decay;
+  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.beta_decay;
+  mpc_.decay_time_consts(kCtrlIdx_phi) = cfg.attitude_decay;
+  mpc_.decay_time_consts(kCtrlIdx_theta) = cfg.attitude_decay;
+  mpc_.decay_time_consts(kCtrlIdx_p) = cfg.angular_velocity_decay;
+  mpc_.decay_time_consts(kCtrlIdx_q) = cfg.angular_velocity_decay;
+  mpc_.decay_time_consts(kCtrlIdx_r) = cfg.angular_velocity_decay;
 
   const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
   const auto disc = c2d_->convert(cont, mpc_.time_step);
@@ -289,7 +318,11 @@ void Controller::reconfigure(const ConfigType& cfg)
   mpc_.control_weight(kCtrlIdx_u) = cfg.forward_speed_weight;
   mpc_.control_weight(kCtrlIdx_alpha) = cfg.alpha_weight;
   mpc_.control_weight(kCtrlIdx_beta) = cfg.beta_weight;
-  mpc_.control_weight(kCtrlIdx_phi) = mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
+  mpc_.control_weight(kCtrlIdx_phi) = cfg.attitude_weight;
+  mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
+  mpc_.control_weight(kCtrlIdx_p) = cfg.angular_velocity_weight;
+  mpc_.control_weight(kCtrlIdx_q) = cfg.angular_velocity_weight;
+  mpc_.control_weight(kCtrlIdx_r) = cfg.angular_velocity_weight;
 
   // 制御入力の重み
   mpc_.input_weight.block(0, 0, x_rotors_.count(), 1) =
