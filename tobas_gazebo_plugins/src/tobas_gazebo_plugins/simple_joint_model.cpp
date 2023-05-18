@@ -11,10 +11,13 @@ namespace gazebo
 SimpleJointModel::SimpleJointModel(const dh_std::Range<double>& pos_limit, const double max_vel)
   : pos_limit_(pos_limit), max_vel_(max_vel)
 {
+  assert(pos_limit.isValid());
+  assert(max_vel > 0.);
+
   cur_pos_ = 0.;
 }
 
-void SimpleJointModel::setTargetPosition(double tar_pos, double dt)
+void SimpleJointModel::update(double tar_pos, double dt)
 {
   assert(dt > 0.);
 
@@ -25,16 +28,16 @@ void SimpleJointModel::setTargetPosition(double tar_pos, double dt)
   }
 
   // 速度制限
-  double ideal_delta_angle = tar_pos - cur_pos_;
-  double max_delta_angle = max_vel_ * dt;
-  double delta_angle = dh_std::clamp(ideal_delta_angle, -max_delta_angle, max_delta_angle);
+  const auto ideal_delta_angle = tar_pos - cur_pos_;
+  const auto max_delta_angle = max_vel_ * dt;
+  const auto delta_angle = dh_std::clamp(ideal_delta_angle, -max_delta_angle, max_delta_angle);
 
   // 位置制限
-  double cnd_angle = cur_pos_ + delta_angle;
-  cur_pos_ = dh_std::clamp(cnd_angle, pos_limit_.lower, pos_limit_.upper);
+  const auto cnd_angle = cur_pos_ + delta_angle;
+  cur_pos_ = pos_limit_.clamp(cnd_angle);
 }
 
-const double& SimpleJointModel::getCurrentPosition() const
+const double& SimpleJointModel::currentPosition() const
 {
   return cur_pos_;
 }

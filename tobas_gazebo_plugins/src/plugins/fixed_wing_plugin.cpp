@@ -33,6 +33,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   }
 
   cs_deflections_.deflections.resize(control_surfaces_.size());
+  debug_msg_.deflections.resize(control_surfaces_.size());
 
   link_ = model->GetLink(link_name_);
   if (link_ == NULL)
@@ -108,12 +109,14 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
         gzthrow(kPluginName << ": The index of each control surface must be unique.");
       }
 
-      getSdfParam(cs_elem, "minimumAngle", cs.angle_limit.lower);
-      getSdfParam(cs_elem, "maximumAngle", cs.angle_limit.upper);
+      getSdfParam(cs_elem, "minAngle", cs.angle_limit.lower);
+      getSdfParam(cs_elem, "maxAngle", cs.angle_limit.upper);
       if (!cs.angle_limit.isValid() || !cs.angle_limit.inRange(0.))
       {
         gzthrow(kPluginName << ": Invalid range of control surface angle");
       }
+
+      getSdfParam(cs_elem, "maxAngleRate", cs.max_angle_rate, POSITIVE);
 
       getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.);
       getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.);
@@ -135,6 +138,9 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
       }
     }
   }
+
+  // index順に並べ替える
+  sort(control_surfaces_.begin(), control_surfaces_.end(), sortKey);
 }
 
 void GazeboFixedWingPlugin::registerPubSub()
@@ -161,13 +167,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   const auto& u = linvel_B.X();
   const auto& v = linvel_B.Y();
   const auto& w = linvel_B.Z();
-  const auto V = linvel_B.Length();
-
-  // 相対風速が閾値よりも小さければ物理演算を行わない
-  if (V < tobas::kMinAirSpeedThresh)
-  {
-    return;
-  }
+  const auto V = max(linvel_B.Length(), tobas::kMinAirSpeedThresh);  // V > 0 を保証する
 
   // 迎角と横滑り角
   const auto alpha = tobas::angleOfAttack(u, v, w);   // 迎角 [rad]
@@ -236,6 +236,10 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   debug_msg_.beta = beta;
   vectorGazeboToKDL(air_force, debug_msg_.air_force);
   vectorGazeboToKDL(air_moment, debug_msg_.air_moment);
+  for (int i = 0; i < control_surfaces_.size(); ++i)
+  {
+    debug_msg_.deflections[i] = cs_angle_models_[i].currentPosition();
+  }
   debug_pub_.publish(debug_msg_);
 }
 
@@ -243,8 +247,8 @@ void GazeboFixedWingPlugin::updateDeflections(double dt)
 {
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    const auto& cmd_deflection = cs_deflections_.deflections[control_surfaces_[i].index];
-    cs_angle_models_[i].setTargetPosition(cmd_deflection, dt);
+    const auto& cmd_deflection = cs_deflections_.deflections[i];
+    cs_angle_models_[i].update(cmd_deflection, dt);
   }
 }
 
@@ -293,7 +297,7 @@ double GazeboFixedWingPlugin::liftCoefficient(double alpha)
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    C_L += control_surfaces_[i].c_lift_delta * cs_angle_models_[i].getCurrentPosition();
+    C_L += control_surfaces_[i].c_lift_delta * cs_angle_models_[i].currentPosition();
   }
 
   return C_L;
@@ -308,7 +312,7 @@ double GazeboFixedWingPlugin::dragCoefficient(double alpha)
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
     // 舵角の正負にかかわらず抗力が発生するモデル
-    C_D += control_surfaces_[i].c_drag_abs_delta * cs_angle_models_[i].getCurrentPosition();
+    C_D += control_surfaces_[i].c_drag_abs_delta * cs_angle_models_[i].currentPosition();
   }
 
   return C_D;
@@ -322,7 +326,7 @@ double GazeboFixedWingPlugin::sideCoefficient(double beta)
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    C_S += control_surfaces_[i].c_side_delta * cs_angle_models_[i].getCurrentPosition();
+    C_S += control_surfaces_[i].c_side_delta * cs_angle_models_[i].currentPosition();
   }
 
   return C_S;
@@ -340,7 +344,7 @@ double GazeboFixedWingPlugin::rollCoefficient(double beta, double p, double r, d
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    C_l += control_surfaces_[i].c_roll_delta * cs_angle_models_[i].getCurrentPosition();
+    C_l += control_surfaces_[i].c_roll_delta * cs_angle_models_[i].currentPosition();
   }
 
   return C_l;
@@ -364,7 +368,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    C_m += control_surfaces_[i].c_pitch_delta * cs_angle_models_[i].getCurrentPosition();
+    C_m += control_surfaces_[i].c_pitch_delta * cs_angle_models_[i].currentPosition();
   }
 
   return C_m;
@@ -382,7 +386,7 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
   // 舵面
   for (int i = 0; i < control_surfaces_.size(); ++i)
   {
-    C_n += control_surfaces_[i].c_yaw_delta * cs_angle_models_[i].getCurrentPosition();
+    C_n += control_surfaces_[i].c_yaw_delta * cs_angle_models_[i].currentPosition();
   }
 
   return C_n;
@@ -410,6 +414,11 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
 void GazeboFixedWingPlugin::windSpeedCb(const WindMsg& wind)
 {
   vectorKDLToGazebo(wind.vel, wind_speed_W_);
+}
+
+bool GazeboFixedWingPlugin::sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r)
+{
+  return l.index < r.index;
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboFixedWingPlugin);

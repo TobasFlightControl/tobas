@@ -95,5 +95,8 @@ private:
 
   void deflectionsCb(const CmdMsg& deflections);
   void windSpeedCb(const WindMsg& wind);
+
+  /* ControlSurfaceをindexで並べ替えるためのキー． */
+  static bool sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r);
 };
 }  // namespace gazebo

@@ -306,6 +306,8 @@ ControlSurface Drone::getControlSurface(const string& ns, uint32_t cs_idx)
     throw dh_ros::RuntimeError("Invalid range of control surface angle");
   }
 
+  dh_ros::getParam(prefix + "/max_angle_rate", res.max_angle_rate, dh_ros::POSITIVE);
+
   dh_ros::getParam(prefix + "/c_lift_delta", res.c_lift_delta);
   dh_ros::getParam(prefix + "/c_drag_abs_delta", res.c_drag_abs_delta);
   dh_ros::getParam(prefix + "/c_side_delta", res.c_side_delta);
