@@ -221,6 +221,7 @@ void Controller::setInputConstraint()
   const auto lb = eom_.minDeltaInput();
   const auto ub = eom_.maxDeltaInput();
   mpc_.input_constraint = ctrl::matIneqFromRange(lb, ub);
+  // cout << mpc_.input_constraint << endl;
 }
 
 void Controller::setInputRateConstraint()
