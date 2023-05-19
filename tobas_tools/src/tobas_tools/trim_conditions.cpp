@@ -106,7 +106,7 @@ const double& TrimConditions::c_D() const
 
 const double& TrimConditions::c_T() const
 {
-  return c_L_;
+  return c_T_;
 }
 
 const double& TrimConditions::u() const

@@ -210,6 +210,10 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
   // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
   const auto thrust_avg = thrust_sum / x_rotors_.count();
+  for (int i = 0; i < x_rotors_.count(); ++i)
+  {
+    assert(x_rotors_.maxThrust(i) > thrust_avg);
+  }
   u_0_.block(0, 0, x_rotors_.count(), 1) = VectorXd::Constant(x_rotors_.count(), thrust_avg);
   u_0_(x_rotors_.count() + trim_.elevatorIndex()) = trim_.elevator();
 }
