@@ -116,6 +116,9 @@ void RotationController::updateDynamics(
 
     cont_.update(roll_k, pitch_k, q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
+
+    // For debug
+    // cout << cont_ << endl;
   }
 }
 
