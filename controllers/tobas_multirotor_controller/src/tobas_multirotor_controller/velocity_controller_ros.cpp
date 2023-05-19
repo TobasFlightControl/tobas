@@ -78,7 +78,7 @@ void VelocityControllerRos::getRosParams()
 
 void VelocityControllerRos::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1, false);
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
 }
 
 void VelocityControllerRos::registerSubscribers()

@@ -38,7 +38,7 @@ void PositionControllerRos::getRosParams()
 
 void PositionControllerRos::registerPublishers()
 {
-  vel_yaw_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1, false);
+  vel_yaw_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
 }
 
 void PositionControllerRos::registerSubscribers()

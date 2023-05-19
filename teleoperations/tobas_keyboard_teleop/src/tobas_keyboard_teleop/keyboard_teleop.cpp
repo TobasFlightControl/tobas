@@ -162,7 +162,7 @@ void CommandHandler::getRosParams()
 
 void CommandHandler::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<CmdMsg>("command/position_yaw", 1, false);
+  cmd_pub_ = nh_.advertise<CmdMsg>("command/position_yaw", 1);
 }
 
 void CommandHandler::registerSubscribers()

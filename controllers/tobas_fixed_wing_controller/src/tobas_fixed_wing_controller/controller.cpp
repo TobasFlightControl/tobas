@@ -40,6 +40,10 @@ Controller::Controller()
   state_ = State::START;
   rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
   deflections_msg_.deflections.resize(drone_.numControlSurfaces(), 0.);
+  feedback_msg_.trim_thrusts.resize(drone_.numRotors());
+  feedback_msg_.delta_thrusts.resize(drone_.numRotors());
+  feedback_msg_.trim_deflections.resize(drone_.numControlSurfaces());
+  feedback_msg_.delta_deflections.resize(drone_.numControlSurfaces());
 
   mpc_.decay_time_consts.resize(kCtrlSize);
   setCz();
@@ -90,9 +94,10 @@ void Controller::getRosParams()
 
 void Controller::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1, false);
-  deflections_pub_ =
-    nh_.advertise<tobas_msgs::ControlSurfaceDeflections>("command/deflections", 1, false);
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
+  deflections_pub_ = nh_.advertise<tobas_msgs::ControlSurfaceDeflections>("command/deflections", 1);
+  feedback_pub_ =
+    nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
 }
 
 void Controller::registerSubscribers()
@@ -169,6 +174,9 @@ void Controller::runOnce()
   const auto deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
   updateDeflections(deflections);
   deflections_pub_.publish(deflections_msg_);
+
+  // フィードバックを発行
+  publishFeedback(du);
 }
 
 void Controller::setCz()
@@ -283,6 +291,29 @@ void Controller::updateDeflections(const VectorXd& deflections)
   ROS_ASSERT(deflections.rows() == drone_.numControlSurfaces());
 
   deflections_msg_.deflections = eigen_tools::toStdVector(deflections);
+}
+
+void Controller::publishFeedback(const Eigen::VectorXd& du)
+{
+  const auto& trim = eom_.trimCondition();
+
+  feedback_msg_.trim_u = trim.u();
+  feedback_msg_.trim_alpha = trim.alpha();
+
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  {
+    feedback_msg_.trim_thrusts[x_rotors_.rotorIdx(i)] = eom_.trimInput()(i);
+    feedback_msg_.delta_thrusts[x_rotors_.rotorIdx(i)] = du(i);
+  }
+
+  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  {
+    const auto u_idx = x_rotors_.count() + i;
+    feedback_msg_.trim_deflections[i] = eom_.trimInput()[u_idx];
+    feedback_msg_.delta_deflections[i] = du(u_idx);
+  }
+
+  feedback_pub_.publish(feedback_msg_);
 }
 
 void Controller::reconfigure(const ConfigType& cfg)

@@ -16,6 +16,7 @@
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
+#include <tobas_msgs/FixedWingControllerFeedback.h>
 #include <tobas_fixed_wing_controller/ControllerConfig.h>
 
 namespace tobas_fixed_wing_controller
@@ -61,6 +62,7 @@ private:
   CmdMsg cmd_ned_;      // 現在のコマンド (NED座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
+  tobas_msgs::FixedWingControllerFeedback feedback_msg_;
 
   std::shared_ptr<ctrl::C2D_RK4> c2d_;  // 状態方程式を離散化
   ctrl::LinearDenseMPC mpc_;            // 線形モデル予測制御
@@ -68,6 +70,7 @@ private:
   // PubSub
   ros::Publisher rotor_speeds_pub_;
   ros::Publisher deflections_pub_;
+  ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;
   ros::Subscriber base_state_sub_;
   ros::Subscriber cmd_sub_;
@@ -92,6 +95,7 @@ private:
   void updateSetStateVector(double tar_roll, double tar_delta_pitch);
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);
   void updateDeflections(const Eigen::VectorXd& deflections);
+  void publishFeedback(const Eigen::VectorXd& du);
   void reconfigure(const ConfigType& cfg);
 
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
