@@ -55,6 +55,8 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
   getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
   getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude, NON_NEGATIVE);
+  getSdfParam(
+    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, POSITIVE);
 
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
@@ -401,11 +403,25 @@ double GazeboFixedWingPlugin::dynamicPressure(double V)
 
 void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
 {
+  // Check array size
   if (deflections.deflections.size() != control_surfaces_.size())
   {
     gzerr << "The size of the received deflections array is " << deflections.deflections.size()
           << ", which does not match numberOfControlSurfaces." << endl;
     return;
+  }
+
+  // Check delay
+  const auto delay = prev_sim_time_ - deflections.header.stamp.toSec();
+  if (delay > check_delay_threshold_)
+  {
+    gzwarn << kPluginName << ": The delay from sensors to the motor command " << delay
+           << "[s] is over " << check_delay_threshold_ << "[s]." << endl;
+  }
+  else if (delay < 0.)
+  {
+    gzerr << kPluginName << ": The timestamp of the motor command precedes the current time."
+          << endl;
   }
 
   cs_deflections_ = deflections;

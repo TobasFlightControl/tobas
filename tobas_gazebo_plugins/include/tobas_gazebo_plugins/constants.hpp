@@ -11,4 +11,5 @@ static constexpr double kDegreeToRadian = M_PI / 180.;
 static const std::string kDefaultWindSubTopic = "wind_speed";
 static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 static constexpr double kDefaultReferenceAltitude = 0.;
+static constexpr double kDefaultCheckDelayThreshold = 0.02;  // [s]
 }  // namespace gazebo

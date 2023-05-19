@@ -98,13 +98,7 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   getSdfParam(
-    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
-  if (check_delay_threshold_ <= 0.)
-  {
-    gzerr << kPluginName << ": Invalid checkDelayThreshold: " << check_delay_threshold_
-          << ". The default value " << kDefaultCheckDelayThreshold << " is used." << endl;
-    check_delay_threshold_ = kDefaultCheckDelayThreshold;
-  }
+    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, POSITIVE);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -184,8 +178,8 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
   const auto delay = prev_sim_time_ - cmd.header.stamp.toSec();
   if (delay > check_delay_threshold_)
   {
-    gzwarn << kPluginName << ": The delay from sensors to the motor command is " << delay
-           << " seconds, which is too large." << endl;
+    gzwarn << kPluginName << ": The delay from sensors to the motor command " << delay
+           << "[s] is over " << check_delay_threshold_ << "[s]." << endl;
   }
   else if (delay < 0.)
   {

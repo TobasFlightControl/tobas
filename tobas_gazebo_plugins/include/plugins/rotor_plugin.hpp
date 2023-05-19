@@ -21,7 +21,6 @@ static const std::string kPluginName = "motor_model_plugin";
 // Default values
 static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
 static const std::string kDefaultCmdSubTopic = "command/motor_speed";
-static constexpr double kDefaultCheckDelayThreshold = 0.02;  // [s]
 
 class GazeboRotorPlugin : public ModelPlugin
 {

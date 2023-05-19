@@ -58,6 +58,7 @@ private:
   std::string deflections_sub_topic_;
   std::string wind_speed_sub_topic_;
   double ref_alt_;  // 基準点の幾何的高度
+  double check_delay_threshold_;
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicsCoefficients aero_coefs_;
   std::vector<tobas::ControlSurface> control_surfaces_;
