@@ -33,6 +33,7 @@ void TrimConditions::updateInternalDataStructures()
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
   assert(a_ > 0.);
+  assert(b_ > 0.);
 }
 
 void TrimConditions::update(double V, double rho, const JntArray& q)
@@ -129,6 +130,13 @@ dh_std::Range<double> TrimConditions::speedLimit(double rho) const
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
 
   return dh_std::Range<double>(V_min, V_max);
+}
+
+double TrimConditions::takeOffSpeed(double rho) const
+{
+  const auto c = 2. * W_ / rho / drone_.vehicle().wing_surface;
+  constexpr double alpha_zero = 0.;
+  return sqrt(c / (a_ * alpha_zero + b_));
 }
 
 void TrimConditions::setElevatorIndex()

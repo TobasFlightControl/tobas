@@ -139,7 +139,7 @@ void Controller::publishTakeoffCommand()
 void Controller::setInitialTarget()
 {
   const auto& trim = eom_.trimCondition();
-  cmd_ned_.speed = trim.speedLimit(air_density_).lower * 1.1;  // TODO: 初期速度をどう決めるか
+  cmd_ned_.speed = trim.takeOffSpeed(air_density_);
 
   cmd_ned_.roll = 0.;
   cmd_ned_.delta_pitch = kInitialDeltaPitch;
@@ -197,7 +197,7 @@ void Controller::setScales()
 {
   // 制御変数のスケール
   mpc_.control_scale.resize(kCtrlSize);
-  mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().speedLimit(kStandardAirDensity).lower;
+  mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().takeOffSpeed(air_density_);
   mpc_.control_scale(kCtrlIdx_alpha) = M_PI;
   mpc_.control_scale(kCtrlIdx_beta) = M_PI;
   mpc_.control_scale(kCtrlIdx_phi) = M_PI;
@@ -405,9 +405,9 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
     {
       publishTakeoffCommand();
 
-      // 失速しない最低速度を上回ったら制御開始
+      // 離陸速度を上回ったら制御開始
       const auto cur_speed = bs_nwu.twist.vel.Norm();
-      if (cur_speed > eom_.trimCondition().speedLimit(air_density_).lower)
+      if (cur_speed > eom_.trimCondition().takeOffSpeed(air_density_))
       {
         setInitialTarget();
         state_ = FLIGHT;
