@@ -23,7 +23,8 @@ void SimpleJointModel::update(double tar_pos, double dt)
 
   if (!pos_limit_.inRange(tar_pos, POS_MARGIN))
   {
-    gzerr << "Target position " << tar_pos << " is out of range " << pos_limit_ << "." << endl;
+    gzerr << "The target position " << tar_pos << "[rad] is out of range " << pos_limit_ << "[rad]."
+          << endl;
     tar_pos = pos_limit_.clamp(tar_pos);
   }
 
