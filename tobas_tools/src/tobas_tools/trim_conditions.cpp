@@ -117,6 +117,8 @@ const double& TrimConditions::u() const
 
 dh_std::Range<double> TrimConditions::speedLimit(double rho) const
 {
+  assert(rho > 0.);
+
   const auto c = 2. * W_ / rho / drone_.vehicle().wing_surface;
 
   // 迎角の最大値から最小速度を求める
@@ -134,6 +136,8 @@ dh_std::Range<double> TrimConditions::speedLimit(double rho) const
 
 double TrimConditions::takeOffSpeed(double rho) const
 {
+  assert(rho > 0.);
+
   const auto c = 2. * W_ / rho / drone_.vehicle().wing_surface;
   constexpr double alpha_zero = 0.;
   return sqrt(c / (a_ * alpha_zero + b_));

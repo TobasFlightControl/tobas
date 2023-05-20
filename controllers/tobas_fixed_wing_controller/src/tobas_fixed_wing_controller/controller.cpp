@@ -203,11 +203,11 @@ void Controller::setScales()
 {
   // 制御変数のスケール
   mpc_.control_scale.resize(kCtrlSize);
-  mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().takeOffSpeed(air_density_);
-  mpc_.control_scale(kCtrlIdx_alpha) = M_PI;
-  mpc_.control_scale(kCtrlIdx_beta) = M_PI;
-  mpc_.control_scale(kCtrlIdx_phi) = M_PI;
-  mpc_.control_scale(kCtrlIdx_theta) = M_PI;
+  mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().takeOffSpeed(kStandardAirDensity);
+  mpc_.control_scale(kCtrlIdx_alpha) = drone_.vehicle().alpha_limit.range();
+  mpc_.control_scale(kCtrlIdx_beta) = M_PI_4;
+  mpc_.control_scale(kCtrlIdx_phi) = M_PI_4;
+  mpc_.control_scale(kCtrlIdx_theta) = M_PI_4;
   mpc_.control_scale(kCtrlIdx_p) = M_PI;
   mpc_.control_scale(kCtrlIdx_q) = M_PI;
   mpc_.control_scale(kCtrlIdx_r) = M_PI;
@@ -218,8 +218,10 @@ void Controller::setScales()
   {
     mpc_.input_scale(i) = x_rotors_.maxThrust(i);
   }
-  mpc_.input_scale.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
-    VectorXd::Constant(drone_.numControlSurfaces(), M_PI);
+  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
+  {
+    mpc_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
+  }
 }
 
 void Controller::setInputConstraint()
@@ -244,6 +246,7 @@ void Controller::setInputRateConstraint()
   }
 
   mpc_.input_rate_constraint = ctrl::matIneqFromRange(lb, ub);
+  // cout << mpc_.input_rate_constraint << endl;
 }
 
 void Controller::updateCurrentStateVector()
