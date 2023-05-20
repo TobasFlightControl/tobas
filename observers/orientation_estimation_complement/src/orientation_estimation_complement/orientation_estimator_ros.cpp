@@ -68,19 +68,19 @@ void OrientationEstimatorRos::initializeFilter()
 
   if (!filter_.setGravity(gravity_))
   {
-    dh_ros::rosWarn("Invalid gravity");
+    rosWarn("Invalid gravity");
   }
 
   if (!filter_.setGainAcc(gain_acc_))
   {
-    dh_ros::rosWarn("Invalid gain_acc");
+    rosWarn("Invalid gain_acc");
   }
 
   if (do_bias_estimation_)
   {
     if (!filter_.setBiasAlpha(bias_alpha_))
     {
-      dh_ros::rosWarn("Invalid bias_alpha");
+      rosWarn("Invalid bias_alpha");
     }
   }
 
@@ -132,5 +132,5 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
-  dh_ros::rosWarn("IMU data is not received yet.");
+  rosWarn("IMU data is not received yet.");
 }

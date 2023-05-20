@@ -264,7 +264,7 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
       check_topics_timer_.stop();
       initialize();
       is_initialized_ = true;
-      dh_ros::rosInfo("State estimator is ready.");
+      rosInfo("State estimator is ready.");
     }
     return;
   }
@@ -348,11 +348,11 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent& event)
   // IMU
   if (filtered_imu_buf_.isEmpty())
   {
-    dh_ros::rosWarn("Filtered IMU data is not received yet.");
+    rosWarn("Filtered IMU data is not received yet.");
   }
   else if (!filtered_imu_buf_.isFull())
   {
-    dh_ros::rosInfoOnce("Waiting for Filtered IMU data to be collected.");
+    rosInfoOnce("Waiting for Filtered IMU data to be collected.");
   }
 
   // Barometer
@@ -360,11 +360,11 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent& event)
   {
     if (bar_buf_.isEmpty())
     {
-      dh_ros::rosWarn("Barometer data is not received yet.");
+      rosWarn("Barometer data is not received yet.");
     }
     else if (!bar_buf_.isFull())
     {
-      dh_ros::rosInfoOnce("Waiting for Barometer data to be collected.");
+      rosInfoOnce("Waiting for Barometer data to be collected.");
     }
   }
 
@@ -373,11 +373,11 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent& event)
   {
     if (gps_pos_buf_.isEmpty())
     {
-      dh_ros::rosWarn("GPS position data is not received yet.");
+      rosWarn("GPS position data is not received yet.");
     }
     else if (!gps_pos_buf_.isFull())
     {
-      dh_ros::rosInfoOnce("Waiting for GPS position data to be collected.");
+      rosInfoOnce("Waiting for GPS position data to be collected.");
     }
   }
 
@@ -386,11 +386,11 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent& event)
   {
     if (gps_vel_buf_.isEmpty())
     {
-      dh_ros::rosWarn("GPS velocity data is not received yet.");
+      rosWarn("GPS velocity data is not received yet.");
     }
     else if (!gps_vel_buf_.isFull())
     {
-      dh_ros::rosInfoOnce("Waiting for GPS velocity data to be collected.");
+      rosInfoOnce("Waiting for GPS velocity data to be collected.");
     }
   }
 }

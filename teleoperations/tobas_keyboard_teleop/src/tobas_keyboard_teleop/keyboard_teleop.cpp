@@ -53,7 +53,7 @@ CommandHandler::~CommandHandler()
 void CommandHandler::run()
 {
   instruction_timer_.start();
-  dh_ros::rosInfo(instruction_);
+  rosInfo(instruction_);
 
   char c = 0;
   ros::Rate rate(update_rate_);
@@ -62,7 +62,7 @@ void CommandHandler::run()
   {
     if (read(0, &c, 1) < 0)
     {
-      dh_ros::rosError("Failed to read keyboard input.");
+      rosError("Failed to read keyboard input.");
       break;
     }
 
@@ -70,7 +70,7 @@ void CommandHandler::run()
     // と思ったが普通にCtrl+Cで落ちてくれるっぽい．
     // if (c == 'q')
     // {
-    //   dh_ros::rosInfo("q is detected. Command handling is terminated.");
+    //   rosInfo("q is detected. Command handling is terminated.");
     //   break;
     // }
 
@@ -78,49 +78,49 @@ void CommandHandler::run()
     {
       case 'w':  // X+
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving forward");
+        rosInfoThrottle(INFO_PERIOD, "Moving forward");
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() + delta_pos_));
         break;
       }
       case 's':  // X-
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving backward");
+        rosInfoThrottle(INFO_PERIOD, "Moving backward");
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() - delta_pos_));
         break;
       }
       case 'a':  // Y+
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving left");
+        rosInfoThrottle(INFO_PERIOD, "Moving left");
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() + delta_pos_));
         break;
       }
       case 'd':  // Y-
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving right");
+        rosInfoThrottle(INFO_PERIOD, "Moving right");
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() - delta_pos_));
         break;
       }
       case KEYCODE_U:  // Z+
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving up");
+        rosInfoThrottle(INFO_PERIOD, "Moving up");
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() + delta_pos_));
         break;
       }
       case KEYCODE_D:  // Z-
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Moving down");
+        rosInfoThrottle(INFO_PERIOD, "Moving down");
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() - delta_pos_));
         break;
       }
       case KEYCODE_L:  // Yaw+
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating left");
+        rosInfoThrottle(INFO_PERIOD, "Rotating left");
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw + delta_rot_);
         break;
       }
       case KEYCODE_R:  // Yaw-
       {
-        dh_ros::rosInfoThrottle(INFO_PERIOD, "Rotating right");
+        rosInfoThrottle(INFO_PERIOD, "Rotating right");
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw - delta_rot_);
         break;
       }
@@ -198,5 +198,5 @@ void CommandHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
 
 void CommandHandler::instructionTimerCb(const ros::TimerEvent&)
 {
-  dh_ros::rosInfo(instruction_);
+  rosInfo(instruction_);
 }

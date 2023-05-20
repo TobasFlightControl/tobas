@@ -41,7 +41,7 @@ MotorsHandler_PWM::MotorsHandler_PWM() : super()
       throw dh_ros::RuntimeError("RC output for PIN" + to_string(pin) + " is disabled.");
     }
 
-    dh_ros::rosInfo("PWM output for PIN" + to_string(pin) + " is ready.");
+    rosInfo("PWM output for PIN" << pin << " is ready.");
     ros::Duration(0.2).sleep();  // 連続して設定を行うと失敗するため間隔をあける
   }
 
@@ -80,9 +80,8 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   // Check array size
   if (cmd_speeds.size() != drone_.numRotors())
   {
-    dh_ros::rosErrorThrottle(
-      kInfoPeriod,
-      "Size mismatch: " + to_string(cmd_speeds.size()) + " != " + to_string(drone_.numRotors()));
+    rosErrorThrottle(
+      kInfoPeriod, "Size mismatch: " << cmd_speeds.size() << " != " << drone_.numRotors());
     return;
   }
 
@@ -90,14 +89,13 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   const double delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
   if (delay > kCheckDelayThreshold)
   {
-    dh_ros::rosWarnThrottle(
-      kInfoPeriod, "The delay from sensors to the motor command is " + to_string(delay)
-                     + " seconds, which is too large.");
+    rosWarnThrottle(
+      kInfoPeriod, "The delay from sensors to the motor command is "
+                     << delay << " seconds, which is too large.");
   }
   else if (delay < 0.)
   {
-    dh_ros::rosErrorThrottle(
-      kInfoPeriod, "The timestamp of the motor command precedes the current time.");
+    rosErrorThrottle(kInfoPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
   for (int i = 0; i < drone_.numRotors(); ++i)
@@ -109,15 +107,13 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     double cmd_speed = cmd_speeds[i];
     if (cmd_speed < 0.)
     {
-      dh_ros::rosErrorThrottle(
-        kInfoPeriod, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
+      rosErrorThrottle(kInfoPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
       cmd_speed = 0.;
     }
     else if (cmd_speed > max_speed)
     {
-      dh_ros::rosErrorThrottle(
-        kInfoPeriod, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
-                       + to_string(max_speed));
+      rosErrorThrottle(
+        kInfoPeriod, "Commanded rotor speed is too large: " << cmd_speed << " > " << max_speed);
       cmd_speed = max_speed;
     }
 

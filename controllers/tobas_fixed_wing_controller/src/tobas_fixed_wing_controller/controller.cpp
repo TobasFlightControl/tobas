@@ -284,7 +284,7 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
   {
     if (thrust(i) < -1.)
     {
-      dh_ros::rosFatal("Negative thrust force: " + to_string(thrust(i)) + " [N]");
+      rosFatal("Negative thrust force: " << thrust(i) << " [N]");
       // TODO: 防御モードに移行
     }
 
@@ -402,7 +402,7 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
     {
       if (isReady())
       {
-        dh_ros::rosInfo("Controller is ready.");
+        rosInfo("Controller is ready.");
         check_topics_timer_.stop();
         state_ = TAKEOFF;
       }
@@ -418,7 +418,7 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
       {
         setInitialTarget();
         state_ = FLIGHT;
-        dh_ros::rosInfo("The aircraft takes off and begins flight control.");
+        rosInfo("The aircraft takes off and begins flight control.");
       }
       break;
     }
@@ -434,13 +434,13 @@ void Controller::commandCb(const CmdMsg& cmd_nwu)
 {
   if (!(state_ == FLIGHT))
   {
-    dh_ros::rosError("Not in flight state.");
+    rosError("Not in flight state.");
     return;
   }
 
   if (!eom_.trimCondition().speedLimit(air_density_).inRange(cmd_nwu.speed))
   {
-    dh_ros::rosError("Invalid speed is commanded.");
+    rosError("Invalid speed is commanded.");
     return;
   }
 
@@ -451,12 +451,12 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   if (!pressure_received_)
   {
-    dh_ros::rosWarn("Air pressure is not received yet.");
+    rosWarn("Air pressure is not received yet.");
   }
 
   if (!bs_received_)
   {
-    dh_ros::rosWarn("Base state is not received yet.");
+    rosWarn("Base state is not received yet.");
   }
 }
 

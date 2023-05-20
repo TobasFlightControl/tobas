@@ -75,7 +75,7 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
     check_topics_timer_.stop();
     initialize(bs);
     is_initialized_ = true;
-    dh_ros::rosInfo("Position controller is ready.");
+    rosInfo("Position controller is ready.");
     return;
   }
 
@@ -94,7 +94,7 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_
 
 void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
-  dh_ros::rosWarn("Base state is not received yet.");
+  rosWarn("Base state is not received yet.");
 }
 
 void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)

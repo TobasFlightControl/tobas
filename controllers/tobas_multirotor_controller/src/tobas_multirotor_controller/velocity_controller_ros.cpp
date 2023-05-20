@@ -142,8 +142,7 @@ void VelocityControllerRos::runOnce()
   if (U_ < 0. || acc_controller_->maxU() < U_)
   {
     const double& max_U = acc_controller_->maxU();
-    dh_ros::rosWarnThrottle(
-      kWarnPeriod, "U_out = " + to_string(U_) + " is out of range [0, " + to_string(max_U) + "].");
+    rosWarnThrottle(kWarnPeriod, "U_out = " << U_ << " is out of range [0, " << max_U << "].");
     U_ = dh_std::clamp(U_, 0., max_U);
   }
 
@@ -168,7 +167,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
   {
     if (u(i) < -1.)
     {
-      dh_ros::rosFatal("Negative thrust force: " + to_string(u(i)) + " [N]");
+      rosFatal("Negative thrust force: " << u(i) << " [N]");
       // TODO: 防御モードに移行
     }
 
@@ -192,7 +191,7 @@ void VelocityControllerRos::baseStateCb(const StateMsg& bs)
       check_topics_timer_.stop();
       initialize();
       is_initialized_ = true;
-      dh_ros::rosInfo("Velocity controller is ready.");
+      rosInfo("Velocity controller is ready.");
     }
     return;
   }
@@ -205,7 +204,7 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
 {
   if (js.name.size() != js.position.size())
   {
-    dh_ros::rosError("The size of joint name and position is different.");
+    rosError("The size of joint name and position is different.");
     return;
   }
 
@@ -220,7 +219,7 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
     }
     catch (const exception& e)
     {
-      dh_ros::rosError(e.what());
+      rosError(e.what());
       return;
     }
   }
@@ -246,7 +245,7 @@ void VelocityControllerRos::commandCb(const CmdMsg& cmd)
     }
     default:
     {
-      dh_ros::rosError("Invalid FrameId: " + to_string(cmd.frame_id.frame_id));
+      rosError("Invalid FrameId: " << cmd.frame_id.frame_id);
       return;
     }
   }
@@ -258,12 +257,12 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   if (!bs_received_)
   {
-    dh_ros::rosWarn("Base state is not received yet.");
+    rosWarn("Base state is not received yet.");
   }
 
   if (is_transformable_ && !js_received_)
   {
-    dh_ros::rosWarn("Joint states are not received yet.");
+    rosWarn("Joint states are not received yet.");
   }
 }
 

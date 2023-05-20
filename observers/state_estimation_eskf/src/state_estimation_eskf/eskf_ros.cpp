@@ -149,7 +149,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
       check_topics_timer_.stop();
       initialize();
       is_ready_ = true;
-      dh_ros::rosInfo("State estimator is ready.");
+      rosInfo("State estimator is ready.");
     }
     return;
   }
@@ -270,26 +270,26 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
   if (!imu_subscribed_)
   {
-    dh_ros::rosWarn("IMU data is not received yet.");
+    rosWarn("IMU data is not received yet.");
   }
 
   if (!mag_subscribed_)
   {
-    dh_ros::rosWarn("Magnetometer data is not received yet.");
+    rosWarn("Magnetometer data is not received yet.");
   }
 
   if (!bar_subscribed_)
   {
-    dh_ros::rosWarn("Barometer data is not received yet.");
+    rosWarn("Barometer data is not received yet.");
   }
 
   if (!gps_subscribed_)
   {
-    dh_ros::rosWarn("GPS position data is not received yet.");
+    rosWarn("GPS position data is not received yet.");
   }
 
   if (!vel_subscribed_)
   {
-    dh_ros::rosWarn("GPS velocity data is not received yet.");
+    rosWarn("GPS velocity data is not received yet.");
   }
 }
