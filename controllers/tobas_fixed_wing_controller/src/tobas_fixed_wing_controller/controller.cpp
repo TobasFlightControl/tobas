@@ -153,15 +153,16 @@ void Controller::runOnce()
   const auto disc = c2d_->convert(cont, mpc_.time_step);
   fill(mpc_.discrete_dynamics, disc);
 
+  setInputConstraint();  // EoMの更新後に呼ぶ必要がある
+  updateCurrentStateVector();
+  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
+
   // For debug
   // cout << "A_cont:" << endl;
   // cout << eom_.A() << endl;
   // cout << "B_cont:" << endl;
   // cout << eom_.B() << endl;
-
-  setInputConstraint();  // EoMの更新後に呼ぶ必要がある
-  updateCurrentStateVector();
-  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
+  // cout << mpc_ << endl;
 
   // MPCを解いて最適制御入力を求める
   const auto du = mpc_.solveMPC();
