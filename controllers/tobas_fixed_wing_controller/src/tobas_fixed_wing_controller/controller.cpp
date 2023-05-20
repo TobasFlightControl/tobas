@@ -56,7 +56,7 @@ Controller::Controller()
   mpc_.current_state.resize(eom_.kStateSize);
   mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(eom_.inputSize());
-  mpc_.weight_scaler = 1e+6;
+  mpc_.weight_scaler = 1.;
 
   reconfigure(cfg_);
 
@@ -157,16 +157,16 @@ void Controller::runOnce()
   updateCurrentStateVector();
   updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
 
-  // For debug
-  // cout << "A_cont:" << endl;
-  // cout << eom_.A() << endl;
-  // cout << "B_cont:" << endl;
-  // cout << eom_.B() << endl;
-  // cout << mpc_ << endl;
-
   // MPCを解いて最適制御入力を求める
   const auto du = mpc_.solveMPC();
   const auto u = eom_.trimInput() + du;
+
+  // For debug
+  // cout << "A_cont:" << endl << eom_.A() << endl;
+  // cout << "B_cont:" << endl << eom_.B() << endl;
+  // cout << mpc_ << endl;
+  // cout << "du:" << endl << du << endl;
+  // cout << "u:" << endl << u << endl;
 
   // タイムスタンプを更新
   rotor_speeds_msg_.header.stamp = bs_ned_.header.stamp;
