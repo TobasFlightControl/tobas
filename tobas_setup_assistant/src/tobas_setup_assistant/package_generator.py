@@ -430,7 +430,7 @@ class PackageGenerator(QWidget):
             ns=self._drone_name,
             link_name=barometer.link.get(),
             update_rate=barometer.update_rate.get(),
-            ref_altitude=simulation.altitude_0.get(),
+            altitude_0=simulation.altitude_0.get(),
             pressure_var=barometer.pressure_var.get(),
         )
         robot.append(bar_model)
@@ -446,6 +446,7 @@ class PackageGenerator(QWidget):
             ver_vel_std=gps.vertical_vel_std.get(),
             latitude_0=simulation.latitude_0.get(),
             longitude_0=simulation.longitude_0.get(),
+            altitude_0=simulation.altitude_0.get(),
         )
         robot.append(gps_model)
 

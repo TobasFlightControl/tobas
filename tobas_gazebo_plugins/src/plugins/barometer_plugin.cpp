@@ -47,14 +47,14 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
-  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude, NON_NEGATIVE);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
   getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
 }
 
 void GazeboBarometerPlugin::onUpdate()
 {
   // Get the current geometric height
-  double altitude = ref_alt_ + link_->WorldPose().Pos().Z();
+  double altitude = alt_0_ + link_->WorldPose().Pos().Z();
 
   // Compute the air pressure at the current altitude
   double pressure = dh_std::altitudeToPressure(altitude);

@@ -21,8 +21,6 @@ static constexpr double kDefaultHorPosStdDev = 3.;
 static constexpr double kDefaultVerPosStdDev = 6.;
 static constexpr double kDefaultHorVelStdDev = 0.1;
 static constexpr double kDefaultVerVelStdDev = 0.1;
-static constexpr double kDefaultLatitudeZero = 35.658099;    // 日本: 北緯35度39分29秒
-static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経139度44分28秒8759
 
 /**
  * @brief GPSの位置データと速度データを発行するプラグイン．
@@ -56,6 +54,7 @@ private:
   double ver_vel_std_dev_;
   double lat_0_;  // 原点の北緯
   double lon_0_;  // 原点の東経
+  double alt_0_;  // 原点の高度
 
   physics::WorldPtr world_;
   physics::LinkPtr link_;

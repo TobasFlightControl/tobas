@@ -3,6 +3,7 @@
 
 #include "../../include/plugins/gps_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
@@ -89,7 +90,8 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "verVelStdDev", ver_vel_std_dev_, kDefaultVerVelStdDev, NON_NEGATIVE);
 
   getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
-  getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLatitudeZero);
+  getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
 }
 
 void GazeboGpsPlugin::onUpdate()
@@ -108,6 +110,9 @@ void GazeboGpsPlugin::updatePosition()
 
   // Get the position in the world frame
   Vector3 pos = link_->WorldPose().Pos();
+
+  // Add the altitude of the origin to the z-coordinate
+  pos.Z() += alt_0_;
 
   // Apply noise to the position
   pos += Vector3d(pos_noise_[0](rnd_gen_), pos_noise_[1](rnd_gen_), pos_noise_[2](rnd_gen_));

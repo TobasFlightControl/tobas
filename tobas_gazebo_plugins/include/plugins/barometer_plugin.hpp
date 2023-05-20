@@ -35,7 +35,7 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string pressure_topic_;
-  double ref_alt_;
+  double alt_0_;
   double pressure_var_;
 
   physics::WorldPtr world_;

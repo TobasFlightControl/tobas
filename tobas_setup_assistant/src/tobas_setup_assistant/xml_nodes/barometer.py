@@ -8,10 +8,11 @@ class BarometerModel(ET.Element):
         ns: str,
         link_name: str,
         update_rate: float,
-        ref_altitude: float,
+        altitude_0: float,
         pressure_var: float,
     ) -> None:
         assert update_rate > 0.
+        assert altitude_0 >= 0.
         assert pressure_var > 0.
 
         # robot/gazebo
@@ -39,5 +40,5 @@ class BarometerModel(ET.Element):
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "pressureTopic").text = "air_pressure"
-        ET.SubElement(plugin, "referenceAltitude").text = f'{ref_altitude}'
+        ET.SubElement(plugin, "altitudeZero").text = f'{altitude_0}'
         ET.SubElement(plugin, "pressureVariance").text = f'{pressure_var}'

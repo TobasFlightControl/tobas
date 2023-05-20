@@ -54,7 +54,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
   getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
-  getSdfParam(sdf, "referenceAltitude", ref_alt_, kDefaultReferenceAltitude, NON_NEGATIVE);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
   getSdfParam(
     sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, POSITIVE);
 
@@ -396,7 +396,7 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
 
 double GazeboFixedWingPlugin::dynamicPressure(double V)
 {
-  const auto altitude = ref_alt_ + link_->WorldPose().Pos().Z();
+  const auto altitude = alt_0_ + link_->WorldPose().Pos().Z();
   const auto rho = dh_std::altitudeToDensity(altitude);
   return rho * dh_std::sqr(V) / 2.;
 }

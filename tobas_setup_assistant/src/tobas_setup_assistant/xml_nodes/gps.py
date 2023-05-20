@@ -14,6 +14,7 @@ class GpsModel(ET.Element):
         ver_vel_std: float,
         latitude_0: float,
         longitude_0: float,
+        altitude_0: float,
     ) -> None:
         """
         GazeboのGPSセンサモデル．
@@ -38,6 +39,8 @@ class GpsModel(ET.Element):
             原点の緯度．北緯を正とする．
         longitude_0 : float
             原点の経度．東経を正とする．
+        altitude_0: float
+            原点の高度．上方を正とする．
         """
         assert update_rate > 0.
         assert hor_pos_std > 0.
@@ -46,6 +49,7 @@ class GpsModel(ET.Element):
         assert ver_vel_std > 0.
         assert -90. <= latitude_0 <= 90.
         assert -180 <= longitude_0 <= 180.
+        assert altitude_0 >= 0.
 
         # robot/gazebo
         super().__init__("gazebo", reference=link_name)
@@ -75,3 +79,4 @@ class GpsModel(ET.Element):
         ET.SubElement(plugin, "verVelStdDev").text = f'{ver_vel_std}'
         ET.SubElement(plugin, "latitudeZero").text = f'{latitude_0}'
         ET.SubElement(plugin, "longitudeZero").text = f'{longitude_0}'
+        ET.SubElement(plugin, "altitudeZero").text = f'{altitude_0}'
