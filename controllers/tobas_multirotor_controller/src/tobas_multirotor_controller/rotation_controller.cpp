@@ -52,6 +52,9 @@ void RotationController::update(
   updateInputConstraint(U);
 
   u_opt = mpc_.solveMPC();
+
+  // For debug
+  // cout << mpc_ << endl;
 }
 
 void RotationController::reconfigure(const RotationControllerDynamicParams& params)
