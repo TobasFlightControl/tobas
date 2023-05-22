@@ -56,7 +56,6 @@ Controller::Controller()
   mpc_.current_state.resize(eom_.kStateSize);
   mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(eom_.inputSize());
-  mpc_.weight_scaler = 1.;
 
   reconfigure(cfg_);
 
@@ -164,9 +163,8 @@ void Controller::runOnce()
   // For debug
   // cout << "A_cont:" << endl << eom_.A() << endl;
   // cout << "B_cont:" << endl << eom_.B() << endl;
+  // cout << "Discrete dynamics:" << endl << disc << endl;
   // cout << mpc_ << endl;
-  // cout << "du:" << endl << du << endl;
-  // cout << "u:" << endl << u << endl;
 
   // タイムスタンプを更新
   rotor_speeds_msg_.header.stamp = bs_ned_.header.stamp;
@@ -202,16 +200,20 @@ void Controller::setCz()
 
 void Controller::setScales()
 {
+  // 状態変数のスケール
+  mpc_.state_scale.resize(kCtrlSize);
+  mpc_.state_scale(kCtrlIdx_u) = eom_.trimCondition().takeOffSpeed(kStandardAirDensity);
+  mpc_.state_scale(kCtrlIdx_alpha) = drone_.vehicle().alpha_limit.range();
+  mpc_.state_scale(kCtrlIdx_beta) = M_PI_4;
+  mpc_.state_scale(kCtrlIdx_phi) = M_PI_4;
+  mpc_.state_scale(kCtrlIdx_theta) = M_PI_4;
+  mpc_.state_scale(kCtrlIdx_p) = M_PI;
+  mpc_.state_scale(kCtrlIdx_q) = M_PI;
+  mpc_.state_scale(kCtrlIdx_r) = M_PI;
+
   // 制御変数のスケール
-  mpc_.control_scale.resize(kCtrlSize);
-  mpc_.control_scale(kCtrlIdx_u) = eom_.trimCondition().takeOffSpeed(kStandardAirDensity);
-  mpc_.control_scale(kCtrlIdx_alpha) = drone_.vehicle().alpha_limit.range();
-  mpc_.control_scale(kCtrlIdx_beta) = M_PI_4;
-  mpc_.control_scale(kCtrlIdx_phi) = M_PI_4;
-  mpc_.control_scale(kCtrlIdx_theta) = M_PI_4;
-  mpc_.control_scale(kCtrlIdx_p) = M_PI;
-  mpc_.control_scale(kCtrlIdx_q) = M_PI;
-  mpc_.control_scale(kCtrlIdx_r) = M_PI;
+  // 制御変数は状態変数と同じ
+  mpc_.control_scale = mpc_.state_scale;
 
   // 制御入力のスケール
   mpc_.input_scale.resize(eom_.inputSize());

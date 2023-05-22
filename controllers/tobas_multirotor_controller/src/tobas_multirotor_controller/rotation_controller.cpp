@@ -127,9 +127,12 @@ void RotationController::updateDynamics(
 
 void RotationController::setScales()
 {
-  mpc_.control_scale.resize(STATE_SIZE);
-  mpc_.control_scale(ROLL) = mpc_.control_scale(PITCH) = mpc_.control_scale(YAW) = M_PI;
-  mpc_.control_scale(ANGVEL_X) = mpc_.control_scale(ANGVEL_Y) = mpc_.control_scale(ANGVEL_Z) = M_PI;
+  mpc_.state_scale.resize(STATE_SIZE);
+  mpc_.state_scale(ROLL) = mpc_.state_scale(PITCH) = mpc_.state_scale(YAW) = M_PI;
+  mpc_.state_scale(ANGVEL_X) = mpc_.state_scale(ANGVEL_Y) = mpc_.state_scale(ANGVEL_Z) = M_PI;
+
+  // 制御変数は状態変数と等しい
+  mpc_.control_scale = mpc_.state_scale;
 
   mpc_.input_scale.resize(z_rotors_.count());
   for (int i = 0; i < z_rotors_.count(); ++i)
