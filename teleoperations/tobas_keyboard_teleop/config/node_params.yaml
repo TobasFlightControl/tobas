@@ -10,7 +10,7 @@ keyboard_teleop:
       min: -100.
       max: 100.
     z:
-      min: 1.
+      min: -1.
       max: 100.
     yaw:
       min: -1.0e+9
