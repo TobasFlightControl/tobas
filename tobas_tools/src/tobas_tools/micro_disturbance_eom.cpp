@@ -61,7 +61,9 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
   const auto I_y = I_kdl_.data[4];
   const auto I_z = I_kdl_.data[8];
   const auto I_xz = I_kdl_.data[2];
-  const auto tmp = 1 - sqr(I_xz) / (I_x * I_z);
+
+  // p.97
+  const auto tmp = 1. - sqr(I_xz) / (I_x * I_z);
   const auto I_x_tilde = I_x * tmp;
   const auto I_z_tilde = I_z * tmp;
 
@@ -77,6 +79,7 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
   const auto q_S_c = q_S * vehicle.mac;
   const auto rho_V_S = rho * V * vehicle.wing_surface;
   const auto rho_V_S_b2 = rho_V_S * sqr(vehicle.wing_span);
+  const auto rho_V_S_c2 = rho_V_S * sqr(vehicle.mac);
   const auto P = mass_ * V;  // 運動量
 
   // (2.2-45)
@@ -98,8 +101,8 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
   // (2.2-47)
   const auto M_u = 0.;
   const auto M_alpha = q_S_c / I_y * asd_cog.cPitchAlpha();
-  const auto M_q = rho_V_S * sqr(vehicle.mac) / 4 / I_y * aero.c_pitch_q;
-  const auto M_alpha_rate = rho_V_S * sqr(vehicle.mac) / 4 / I_y * aero.c_pitch_alpha_rate;
+  const auto M_q = rho_V_S_c2 / 4 / I_y * aero.c_pitch_q;
+  const auto M_alpha_rate = rho_V_S_c2 / 4 / I_y * aero.c_pitch_alpha_rate;
 
   // (2.2-39)
   const auto M_u_dash = M_u + M_alpha_rate * Z_u_bar;

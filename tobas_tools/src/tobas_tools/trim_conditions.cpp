@@ -61,7 +61,7 @@ void TrimConditions::update(double V, double rho, const JntArray& q)
   alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;  // TODO: 2次以上も考慮
-  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * elevator_;            // (1.8-3)
+  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * abs(elevator_);       // (1.8-3)
   c_T_ = c_D_ / cos(alpha_);                                          // (2.2-10b)
   assert(-M_PI_2 < alpha_ && alpha_ < M_PI_2);
   assert(drone_.controlSurface(elev_idx_).angle_limit.inRange(elevator_));
