@@ -1,4 +1,4 @@
-# tobas_fixed_wing_controller
+# tobas_fixed_wing_mpc
 
 ## 仮定
 

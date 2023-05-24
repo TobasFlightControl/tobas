@@ -17,9 +17,9 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/FixedWingControllerFeedback.h>
-#include <tobas_fixed_wing_controller/ControllerConfig.h>
+#include <tobas_fixed_wing_mpc/ControllerConfig.h>
 
-namespace tobas_fixed_wing_controller
+namespace tobas_fixed_wing_mpc
 {
 class Controller : public dh_ros::BaseNode
 {
@@ -28,7 +28,7 @@ class Controller : public dh_ros::BaseNode
   using StateMsg = tobas_msgs::BaseState;
   using CmdMsg = tobas_msgs::SpeedRollDeltaPitch;
 
-  using ConfigType = tobas_fixed_wing_controller::ControllerConfig;
+  using ConfigType = tobas_fixed_wing_mpc::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
@@ -104,4 +104,4 @@ private:
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };
-}  // namespace tobas_fixed_wing_controller
+}  // namespace tobas_fixed_wing_mpc

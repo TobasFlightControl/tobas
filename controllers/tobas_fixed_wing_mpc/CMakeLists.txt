@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(tobas_fixed_wing_controller)
+project(tobas_fixed_wing_mpc)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)

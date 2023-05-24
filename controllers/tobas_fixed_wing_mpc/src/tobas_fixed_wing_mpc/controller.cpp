@@ -10,14 +10,14 @@
 
 #include <tobas_tools/conversions/coordinates.hpp>
 
-#include "../../include/tobas_fixed_wing_controller/controller.hpp"
-#include "../../include/tobas_fixed_wing_controller/constants.hpp"
+#include "../../include/tobas_fixed_wing_mpc/controller.hpp"
+#include "../../include/tobas_fixed_wing_mpc/constants.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
 
-namespace tobas_fixed_wing_controller
+namespace tobas_fixed_wing_mpc
 {
 Controller::Controller()
   : super(),
@@ -470,4 +470,4 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
   reconfigure(cfg);
 }
-}  // namespace tobas_fixed_wing_controller
+}  // namespace tobas_fixed_wing_mpc
