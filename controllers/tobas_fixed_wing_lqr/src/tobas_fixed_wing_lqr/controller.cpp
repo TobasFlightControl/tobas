@@ -1,0 +1,377 @@
+#include <kdl/frames.hpp>
+#include <kdl_parser/kdl_parser.hpp>
+
+#include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_eigen_tools/core.hpp>
+#include <dh_ros_tools/rosparam.hpp>
+
+#include <tobas_tools/conversions/coordinates.hpp>
+
+#include "../../include/tobas_fixed_wing_lqr/controller.hpp"
+#include "../../include/tobas_fixed_wing_lqr/constants.hpp"
+
+using namespace std;
+using namespace Eigen;
+using namespace dh_std;
+
+namespace tobas_fixed_wing_lqr
+{
+Controller::Controller()
+  : super(),
+    x_rotors_(drone_, tobas::Axis::X_POSITIVE),
+    eom_(drone_),
+    server_(ros::NodeHandle(kCtrlName))
+{
+  getRosParams();
+  drone_.loadFromParam(ns_);
+
+  x_rotors_.updateInternalDataStructures();
+  eom_.updateInternalDataStructures();
+
+  q_0_.resize(drone_.tree().getNrOfJoints());
+
+  pressure_received_ = false;
+  bs_received_ = false;
+  state_ = State::START;
+  rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
+  deflections_msg_.deflections.resize(drone_.numControlSurfaces(), 0.);
+  feedback_msg_.trim_thrusts.resize(drone_.numRotors());
+  feedback_msg_.delta_thrusts.resize(drone_.numRotors());
+  feedback_msg_.trim_deflections.resize(drone_.numControlSurfaces());
+  feedback_msg_.delta_deflections.resize(drone_.numControlSurfaces());
+
+  setScales();
+  lqr_.state_weight.resize(eom_.kStateSize);
+  lqr_.input_weight.resize(eom_.inputSize());
+  lqr_.current_state.resize(eom_.kStateSize);
+  lqr_.target_state.resize(eom_.kStateSize);
+
+  reconfigure(cfg_);
+
+  registerPublishers();
+  registerSubscribers();
+  createTimers();
+
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
+}
+
+void Controller::getRosParams()
+{
+  dh_ros::getParam(kCtrlName + "/forward_speed_weight", cfg_.forward_speed_weight);
+  dh_ros::getParam(kCtrlName + "/alpha_weight", cfg_.alpha_weight);
+  dh_ros::getParam(kCtrlName + "/beta_weight", cfg_.beta_weight);
+  dh_ros::getParam(kCtrlName + "/attitude_weight", cfg_.attitude_weight);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", cfg_.angular_velocity_weight);
+
+  dh_ros::getParam(kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
+  dh_ros::getParam(kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
+}
+
+void Controller::registerPublishers()
+{
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
+  deflections_pub_ = nh_.advertise<tobas_msgs::ControlSurfaceDeflections>("command/deflections", 1);
+  feedback_pub_ =
+    nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
+}
+
+void Controller::registerSubscribers()
+{
+  air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
+  base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
+  cmd_sub_ = nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this);
+}
+
+void Controller::createTimers()
+{
+  check_topics_timer_ =
+    nh_.createTimer(ros::Duration(kCheckTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
+}
+
+bool Controller::isReady()
+{
+  return pressure_received_ && bs_received_;
+}
+
+void Controller::publishTakeoffCommand()
+{
+  // タイムスタンプを更新
+  rotor_speeds_msg_.header.stamp = bs_ned_.header.stamp;
+  deflections_msg_.header.stamp = bs_ned_.header.stamp;
+
+  // 各ロータの回転数を発行
+  for (int i = 0; i < x_rotors_.count(); ++i)
+  {
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i);
+  }
+  rotor_speeds_pub_.publish(rotor_speeds_msg_);
+
+  // 各操舵面の偏角を発行
+  deflections_msg_.deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
+  deflections_pub_.publish(deflections_msg_);
+}
+
+void Controller::setInitialTarget()
+{
+  const auto& trim = eom_.trimCondition();
+  cmd_ned_.speed = trim.takeOffSpeed(air_density_);
+
+  cmd_ned_.roll = 0.;
+  cmd_ned_.delta_pitch = kInitialDeltaPitch;
+}
+
+void Controller::runOnce()
+{
+  // 状態方程式を更新
+  eom_.update(cmd_ned_.speed, air_density_, q_0_);
+  lqr_.dynamics.A = eom_.A();
+  lqr_.dynamics.B = eom_.B();
+
+  updateCurrentStateVector();
+  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
+
+  // MPCを解いて最適制御入力を求める
+  const auto du = lqr_.solveLQR();
+  const auto u = eom_.trimInput() + du;
+
+  // For debug
+  // cout << "A_cont:" << endl << eom_.A() << endl;
+  // cout << "B_cont:" << endl << eom_.B() << endl;
+  // cout << lqr_ << endl;
+
+  // タイムスタンプを更新
+  rotor_speeds_msg_.header.stamp = bs_ned_.header.stamp;
+  deflections_msg_.header.stamp = bs_ned_.header.stamp;
+
+  // 各ロータの回転数を発行
+  const auto thrust = u.block(0, 0, x_rotors_.count(), 1);
+  updateRotorSpeeds(thrust);
+  rotor_speeds_pub_.publish(rotor_speeds_msg_);
+
+  // 各操舵面の偏角を発行
+  const auto deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
+  updateDeflections(deflections);
+  deflections_pub_.publish(deflections_msg_);
+
+  // フィードバックを発行
+  publishFeedback(du);
+}
+
+void Controller::setScales()
+{
+  // 状態変数のスケール
+  lqr_.state_scale.resize(eom_.kStateSize);
+  lqr_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(kStandardAirDensity);
+  lqr_.state_scale(eom_.kStateIdx_alpha) = drone_.vehicle().alpha_limit.range();
+  lqr_.state_scale(eom_.kStateIdx_beta) = M_PI_4;
+  lqr_.state_scale(eom_.kStateIdx_phi) = M_PI_4;
+  lqr_.state_scale(eom_.kStateIdx_theta) = M_PI_4;
+  lqr_.state_scale(eom_.kStateIdx_p) = M_PI;
+  lqr_.state_scale(eom_.kStateIdx_q) = M_PI;
+  lqr_.state_scale(eom_.kStateIdx_r) = M_PI;
+
+  // 制御入力のスケール
+  lqr_.input_scale.resize(eom_.inputSize());
+  for (int i = 0; i < x_rotors_.count(); ++i)
+  {
+    lqr_.input_scale(i) = x_rotors_.maxThrust(i);
+  }
+  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
+  {
+    lqr_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
+  }
+}
+
+void Controller::updateCurrentStateVector()
+{
+  const KDL::Vector linvel_B = bs_ned_.pose.euler * bs_ned_.twist.vel;
+  const auto& trim = eom_.trimCondition();
+
+  // TODO: 横系のトリムも考慮
+  lqr_.current_state(eom_.kStateIdx_u) = linvel_B.x() - trim.u();
+  lqr_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(linvel_B) - trim.alpha();
+  lqr_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(linvel_B);
+  lqr_.current_state(eom_.kStateIdx_phi) = bs_ned_.pose.euler.roll;
+  lqr_.current_state(eom_.kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
+  lqr_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
+  lqr_.current_state(eom_.kStateIdx_q) = bs_ned_.twist.rot.y();
+  lqr_.current_state(eom_.kStateIdx_r) = bs_ned_.twist.rot.z();
+
+  // cout << lqr_.current_state << endl << endl;
+}
+
+void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
+{
+  lqr_.target_state(eom_.kStateIdx_u) = 0.;
+  lqr_.target_state(eom_.kStateIdx_alpha) = 0.;
+  lqr_.target_state(eom_.kStateIdx_beta) = 0.;
+  lqr_.target_state(eom_.kStateIdx_phi) = tar_roll;
+  lqr_.target_state(eom_.kStateIdx_theta) = tar_delta_pitch;
+  lqr_.target_state(eom_.kStateIdx_p) = 0.;
+  lqr_.target_state(eom_.kStateIdx_q) = 0.;
+  lqr_.target_state(eom_.kStateIdx_r) = 0.;
+}
+
+void Controller::updateRotorSpeeds(const VectorXd& thrust)
+{
+  ROS_ASSERT(thrust.rows() == x_rotors_.count());
+
+  for (int i = 0; i < thrust.rows(); ++i)
+  {
+    if (thrust(i) < -1.)
+    {
+      rosFatal("Negative thrust force: " << thrust(i) << " [N]");
+      // TODO: 防御モードに移行
+    }
+
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] =
+      x_rotors_.thrustToRotSpeed(i, max(0., thrust(i)));
+  }
+}
+
+void Controller::updateDeflections(const VectorXd& deflections)
+{
+  ROS_ASSERT(deflections.rows() == drone_.numControlSurfaces());
+
+  deflections_msg_.deflections = eigen_tools::toStdVector(deflections);
+}
+
+void Controller::publishFeedback(const Eigen::VectorXd& du)
+{
+  const auto& trim = eom_.trimCondition();
+
+  feedback_msg_.trim_u = trim.u();
+  feedback_msg_.trim_alpha = trim.alpha();
+
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  {
+    feedback_msg_.trim_thrusts[x_rotors_.rotorIdx(i)] = eom_.trimInput()(i);
+    feedback_msg_.delta_thrusts[x_rotors_.rotorIdx(i)] = du(i);
+  }
+
+  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  {
+    const auto u_idx = x_rotors_.count() + i;
+    feedback_msg_.trim_deflections[i] = eom_.trimInput()[u_idx];
+    feedback_msg_.delta_deflections[i] = du(u_idx);
+  }
+
+  feedback_pub_.publish(feedback_msg_);
+}
+
+void Controller::reconfigure(const ConfigType& cfg)
+{
+  ROS_ASSERT(cfg.forward_speed_weight > 0.);
+  ROS_ASSERT(cfg.alpha_weight > 0.);
+  ROS_ASSERT(cfg.beta_weight > 0.);
+  ROS_ASSERT(cfg.attitude_weight > 0.);
+  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
+
+  // 状態変数の重み
+  lqr_.state_weight(eom_.kStateIdx_u) = cfg.forward_speed_weight;
+  lqr_.state_weight(eom_.kStateIdx_alpha) = cfg.alpha_weight;
+  lqr_.state_weight(eom_.kStateIdx_beta) = cfg.beta_weight;
+  lqr_.state_weight(eom_.kStateIdx_phi) = cfg.attitude_weight;
+  lqr_.state_weight(eom_.kStateIdx_theta) = cfg.attitude_weight;
+  lqr_.state_weight(eom_.kStateIdx_p) = cfg.angular_velocity_weight;
+  lqr_.state_weight(eom_.kStateIdx_q) = cfg.angular_velocity_weight;
+  lqr_.state_weight(eom_.kStateIdx_r) = cfg.angular_velocity_weight;
+
+  // 制御入力の重み
+  lqr_.input_weight.block(0, 0, x_rotors_.count(), 1) =
+    VectorXd::Constant(x_rotors_.count(), pow(10, cfg.thrust_weight_exp));
+  lqr_.input_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
+    VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_weight_exp));
+}
+
+void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)
+{
+  if (!pressure_received_)
+  {
+    pressure_received_ = true;
+  }
+
+  air_density_ = dh_std::pressureToDensity(msg.fluid_pressure);
+}
+
+void Controller::baseStateCb(const StateMsg& bs_nwu)
+{
+  if (!bs_received_)
+  {
+    bs_received_ = true;
+  }
+
+  // コールバックの時点で全てNED座標系に変換しておく
+  tf::baseStateNwuToNed(bs_nwu, bs_ned_);
+
+  switch (state_)
+  {
+    case START:
+    {
+      if (isReady())
+      {
+        rosInfo("Controller is ready.");
+        check_topics_timer_.stop();
+        state_ = TAKEOFF;
+      }
+      break;
+    }
+    case TAKEOFF:
+    {
+      publishTakeoffCommand();
+
+      // 離陸速度を上回ったら制御開始
+      const auto cur_speed = bs_nwu.twist.vel.Norm();
+      if (cur_speed > eom_.trimCondition().takeOffSpeed(air_density_))
+      {
+        setInitialTarget();
+        state_ = FLIGHT;
+        rosInfo("The aircraft takes off and begins flight control.");
+      }
+      break;
+    }
+    case FLIGHT:
+    {
+      runOnce();
+      break;
+    }
+  }
+}
+
+void Controller::commandCb(const CmdMsg& cmd_nwu)
+{
+  if (!(state_ == FLIGHT))
+  {
+    rosError("Not in flight state.");
+    return;
+  }
+
+  if (!eom_.trimCondition().speedLimit(air_density_).inRange(cmd_nwu.speed))
+  {
+    rosError("Invalid speed is commanded.");
+    return;
+  }
+
+  tf::speedRollDeltaPitchNwuToNed(cmd_nwu, cmd_ned_);
+}
+
+void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)
+{
+  if (!pressure_received_)
+  {
+    rosWarn("Air pressure is not received yet.");
+  }
+
+  if (!bs_received_)
+  {
+    rosWarn("Base state is not received yet.");
+  }
+}
+
+void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+{
+  reconfigure(cfg);
+}
+}  // namespace tobas_fixed_wing_lqr
