@@ -55,9 +55,12 @@ private:
   double time_const_down_;
   double rotor_speed_slowdown_sim_;
   double check_delay_threshold_;
+  double auto_reset_time_thr_;
 
   double ref_rot_speed_;
   double prev_sim_time_;
+  double last_cmd_time_;
+  bool is_activated_;
   ignition::math::Vector3d wind_speed_W_;
   FirstOrderFilter<double> rotor_speed_filter_;
   tobas_msgs::RotorDebug debug_msg_;

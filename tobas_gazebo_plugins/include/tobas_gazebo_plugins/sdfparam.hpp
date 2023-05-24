@@ -8,6 +8,7 @@ namespace gazebo
 {
 enum Constraint
 {
+  NONE,
   POSITIVE,
   NEGATIVE,
   NON_NEGATIVE,
@@ -19,6 +20,8 @@ void checkConstraint(const std::string& name, const T& param, Constraint constra
 {
   switch (constraint)
   {
+    case NONE:
+      break;
     case POSITIVE:
       if (param <= 0)
       {

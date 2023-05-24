@@ -13,7 +13,12 @@ using namespace ignition::math;
 namespace gazebo
 {
 GazeboRotorPlugin::GazeboRotorPlugin()
-  : super(), ref_rot_speed_(0.), prev_sim_time_(0.), wind_speed_W_(0., 0., 0.)
+  : super(),
+    ref_rot_speed_(0.),
+    prev_sim_time_(0.),
+    last_cmd_time_(0.),
+    is_activated_(false),
+    wind_speed_W_(0., 0., 0.)
 {
 }
 
@@ -98,14 +103,29 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   getSdfParam(
-    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, POSITIVE);
+    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
+  getSdfParam(
+    sdf, "autoResetTimeThreshold", auto_reset_time_thr_, kDefaultAutoStopTimeThreshold, false);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  const auto dt = info.simTime.Double() - prev_sim_time_;
-  prev_sim_time_ = info.simTime.Double();
+  // Check time after last command
+  const auto cur_time = info.simTime.Double();
+  const auto time_after_last_cmd = cur_time - last_cmd_time_;
+  if (is_activated_ && time_after_last_cmd > auto_reset_time_thr_)
+  {
+    ref_rot_speed_ = 0.;
+    is_activated_ = false;
+    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
+          << auto_reset_time_thr_ << " seconds have elapsed since the last command." << endl;
+  }
 
+  // Time after previous simulation time
+  const auto dt = cur_time - prev_sim_time_;
+  prev_sim_time_ = cur_time;
+
+  // Check aliasing
   const auto rot_speed_sim = joint_->GetVelocity(0);
   if (abs(rot_speed_sim) * dt > M_PI)
   {
@@ -204,6 +224,12 @@ void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
 
   // Update reference rotation speed
   ref_rot_speed_ = dh_std::clamp(cmd_speed, 0., max_rot_speed_);
+
+  // Update last commanded time
+  last_cmd_time_ = prev_sim_time_;
+
+  // Motor is now activated
+  is_activated_ = true;
 }
 
 void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)

@@ -59,14 +59,17 @@ private:
   std::string wind_speed_sub_topic_;
   double alt_0_;  // 基準点の幾何的高度
   double check_delay_threshold_;
+  double auto_reset_time_thr_;
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicsCoefficients aero_coefs_;
   std::vector<tobas::ControlSurface> control_surfaces_;
   std::vector<SimpleJointModel> cs_angle_models_;
 
-  bool is_initialized_;
-  double prev_sim_time_;
   double prev_alpha_;
+  double prev_sim_time_;
+  double last_cmd_time_;
+  bool is_initialized_;
+  bool cs_activated_;
   ignition::math::Vector3d wind_speed_W_;                 // 風速 [m/s]
   tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [rad]
   tobas_msgs::FixedWingDebug debug_msg_;

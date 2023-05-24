@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 
@@ -18,7 +19,14 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboFixedWingPlugin::GazeboFixedWingPlugin() : super()
+GazeboFixedWingPlugin::GazeboFixedWingPlugin()
+  : super(),
+    prev_alpha_(0.),
+    prev_sim_time_(0.),
+    last_cmd_time_(0.),
+    is_initialized_(false),
+    cs_activated_(false),
+    wind_speed_W_(0., 0., 0.)
 {
 }
 
@@ -55,8 +63,11 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
   getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
+
   getSdfParam(
-    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, POSITIVE);
+    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
+  getSdfParam(
+    sdf, "autoResetTimeThreshold", auto_reset_time_thr_, kDefaultAutoStopTimeThreshold, false);
 
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
@@ -157,6 +168,18 @@ void GazeboFixedWingPlugin::registerPubSub()
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 {
+  // 最新のコマンドからの経過時間を確認
+  const auto cur_time = info.simTime.Double();
+  const auto time_after_last_cmd = cur_time - last_cmd_time_;
+  if (cs_activated_ && time_after_last_cmd > auto_reset_time_thr_)
+  {
+    dh_std::fill(cs_deflections_.deflections, 0.);
+    cs_activated_ = false;
+    gzmsg << kPluginName
+          << ": Deflection angles of control surfaces are automatically reset because "
+          << auto_reset_time_thr_ << " seconds have elapsed since the last command." << endl;
+  }
+
   // 風に対する相対的な機体速度
   const auto& W_rot_B = link_->WorldPose().Rot();
   const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
@@ -192,8 +215,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
     return;
   }
 
-  // 迎角の変化率
-  const auto cur_time = info.simTime.Double();
+  // 時刻と迎角の変化率を更新
   const auto dt = cur_time - prev_sim_time_;
   const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
   prev_sim_time_ = cur_time;
@@ -424,7 +446,14 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
           << endl;
   }
 
+  // Update reference deflection angles
   cs_deflections_ = deflections;
+
+  // Update last commanded time
+  last_cmd_time_ = prev_sim_time_;
+
+  // Control surfaces are now activated
+  cs_activated_ = true;
 }
 
 void GazeboFixedWingPlugin::windSpeedCb(const WindMsg& wind)
