@@ -4,6 +4,7 @@
 #include <termios.h>
 
 #include <dh_std_tools/range.hpp>
+#include <dh_std_tools/x11.hpp>
 #include <dh_ros_tools/node.hpp>
 
 #include <tobas_msgs/PositionYaw.h>
@@ -25,6 +26,7 @@ public:
 
 private:
   std::string instruction_;
+  XkbControlsPtr keyboard_;
   termios tempcopy_, changed_;
   double update_rate_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
@@ -32,9 +34,8 @@ private:
   CmdMsg cmd_;
 
   // rosparams
-  double key_repeat_freq_;  // キーボードの連続入力の周波数(PC依存)
-  double max_linvel_;       // 並進速度の大きさの最大値
-  double max_angvel_;       // 回転速度の大きさの最大値
+  double max_linvel_;  // 並進速度の大きさの最大値
+  double max_angvel_;  // 回転速度の大きさの最大値
   dh_std::Range<double> x_limit_;
   dh_std::Range<double> y_limit_;
   dh_std::Range<double> z_limit_;

@@ -1,5 +1,4 @@
 keyboard_teleop:
-  key_repeat_freq: 30.
   max_linear_velocity: 2.
   max_angular_velocity: 1.
   pose_limit:

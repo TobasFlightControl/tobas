@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_msgs
 	roscpp
 )
+find_package(X11 REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
@@ -27,7 +28,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 # ライブラリを作成
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${X11_LIBRARIES})
 
 # ノードの実行ファイルを作成
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)

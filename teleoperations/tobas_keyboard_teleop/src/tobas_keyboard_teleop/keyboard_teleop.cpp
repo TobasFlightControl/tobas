@@ -31,9 +31,13 @@ CommandHandler::CommandHandler() : super()
 
   getRosParams();
 
-  update_rate_ = key_repeat_freq_ * OVER_SAMPLING;  // 全ての入力を拾うためにオーバーサンプリング
-  delta_pos_ = max_linvel_ / key_repeat_freq_;
-  delta_rot_ = max_angvel_ / key_repeat_freq_;
+  keyboard_ = dh_std::keyboardControls();
+  const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
+  rosInfo("Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
+
+  update_rate_ = OVER_SAMPLING / repeat_interval;  // 全ての入力を拾うためにオーバーサンプリング
+  delta_pos_ = max_linvel_ * repeat_interval;
+  delta_rot_ = max_angvel_ * repeat_interval;
 
   // z座標の初期値を制限の下限に設定
   cmd_.pos.z(z_limit_.lower);
@@ -139,9 +143,8 @@ void CommandHandler::run()
 
 void CommandHandler::getRosParams()
 {
-  dh_ros::getParam("~key_repeat_freq", key_repeat_freq_);
-  dh_ros::getParam("~max_linear_velocity", max_linvel_);
-  dh_ros::getParam("~max_angular_velocity", max_angvel_);
+  dh_ros::getParam("~max_linear_velocity", max_linvel_, dh_ros::POSITIVE);
+  dh_ros::getParam("~max_angular_velocity", max_angvel_, dh_ros::POSITIVE);
   dh_ros::getParam("~pose_limit/x/min", x_limit_.lower);
   dh_ros::getParam("~pose_limit/x/max", x_limit_.upper);
   dh_ros::getParam("~pose_limit/y/min", y_limit_.lower);
@@ -151,13 +154,10 @@ void CommandHandler::getRosParams()
   dh_ros::getParam("~pose_limit/yaw/min", yaw_limit_.lower);
   dh_ros::getParam("~pose_limit/yaw/max", yaw_limit_.upper);
 
-  ROS_ASSERT(key_repeat_freq_ > 0.);
-  ROS_ASSERT(max_linvel_ > 0.);
-  ROS_ASSERT(max_angvel_ > 0.);
-  ROS_ASSERT(x_limit_.lower < 0. && 0. < x_limit_.upper);
-  ROS_ASSERT(y_limit_.lower < 0. && 0. < y_limit_.upper);
-  ROS_ASSERT(0. < z_limit_.lower && z_limit_.lower < z_limit_.upper);
-  ROS_ASSERT(yaw_limit_.lower < 0. && 0. < yaw_limit_.upper);
+  ROS_ASSERT(x_limit_.isValid());
+  ROS_ASSERT(y_limit_.isValid());
+  ROS_ASSERT(z_limit_.isValid());
+  ROS_ASSERT(yaw_limit_.isValid());
 }
 
 void CommandHandler::registerPublishers()
