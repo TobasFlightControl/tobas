@@ -55,6 +55,9 @@ public:
    */
   dh_std::Range<double> speedLimit(double rho) const;
 
+  double minimumSpeed(double rho) const;
+  double maximumSpeed(double rho) const;
+
   /* 迎角が0でも機体を持ち上げるだけの揚力が発生する速度． */
   double takeOffSpeed(double rho) const;
 

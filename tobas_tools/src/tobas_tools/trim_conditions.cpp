@@ -40,7 +40,9 @@ void TrimConditions::update(double V, double rho, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
-  assertWithMsg(speedLimit(rho).inRange(V), "V = " << V << " is out of " << speedLimit(rho));
+  assertWithMsg(
+    speedLimit(rho).inRange(V, 0.1),
+    "V = " << V << " is out of valid speed range " << speedLimit(rho));
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
   // エイリアス
@@ -132,6 +134,16 @@ dh_std::Range<double> TrimConditions::speedLimit(double rho) const
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
 
   return dh_std::Range<double>(V_min, V_max);
+}
+
+double TrimConditions::minimumSpeed(double rho) const
+{
+  return speedLimit(rho).lower;
+}
+
+double TrimConditions::maximumSpeed(double rho) const
+{
+  return speedLimit(rho).upper;
 }
 
 double TrimConditions::takeOffSpeed(double rho) const
