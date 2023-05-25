@@ -133,7 +133,7 @@ void Controller::runOnce()
   t_last_loop_ = now;
 
   // 状態方程式を更新
-  eom_.update(cmd_ned_.speed, air_density_, q_0_);
+  eom_.update(bs_ned_.twist.vel.Norm(), air_density_, q_0_);  // 現在の速度を使う
   lqd_.dynamics.A = eom_.A();
   lqd_.dynamics.B = eom_.B();
 
@@ -212,7 +212,10 @@ void Controller::updateCurrentStateVector()
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
-  lqd_.target_state(eom_.kStateIdx_u) = 0.;
+  const auto tar_u = cmd_ned_.speed * cos(eom_.trimCondition().alpha());
+  const auto& trim = eom_.trimCondition();
+
+  lqd_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
   lqd_.target_state(eom_.kStateIdx_alpha) = 0.;
   lqd_.target_state(eom_.kStateIdx_beta) = 0.;
   lqd_.target_state(eom_.kStateIdx_phi) = tar_roll;
@@ -334,6 +337,10 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
     }
     case TAKEOFF:
     {
+      const auto cur_V = bs_ned_.twist.vel.Norm();
+      const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
+      eom_.update(max(cur_V, min_V), air_density_, q_0_);
+
       publishTakeoffCommand();
 
       // 離陸速度を上回ったら制御開始
