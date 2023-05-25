@@ -5,6 +5,7 @@
 
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/tobas_keyboard_teleop/keyboard_teleop.hpp"
@@ -44,7 +45,7 @@ void CommandHandler::run()
   instruction_timer_.start();
   rosInfo(instruction_);
 
-  ros::Rate rate(kUpdateRate);
+  dh_ros::Rate rate(kUpdateRate);
 
   while (ros::ok())
   {
