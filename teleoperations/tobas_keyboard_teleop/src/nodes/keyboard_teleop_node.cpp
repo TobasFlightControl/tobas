@@ -3,6 +3,6 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "keyboard_teleop");
-  CommandHandler node;
+  tobas_keyboard_teleop::CommandHandler node;
   node.run();
 }

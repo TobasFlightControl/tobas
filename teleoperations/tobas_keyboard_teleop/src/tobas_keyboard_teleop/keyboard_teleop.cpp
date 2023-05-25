@@ -8,19 +8,13 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/tobas_keyboard_teleop/keyboard_teleop.hpp"
-
-#define KEYCODE_U 0x41
-#define KEYCODE_D 0x42
-#define KEYCODE_R 0x43
-#define KEYCODE_L 0x44
-
-#define OVER_SAMPLING 10.
-#define INFO_PERIOD 1.
-#define INSTRUCTION_PERIOD 10.
+#include "../../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
 
-CommandHandler::CommandHandler() : super()
+namespace tobas_keyboard_teleop
+{
+CommandHandler::CommandHandler() : super(), keyboard_(getKeyboardControls())
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -31,27 +25,18 @@ CommandHandler::CommandHandler() : super()
 
   getRosParams();
 
-  keyboard_ = dh_std::keyboardControls();
   const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
   rosInfo("Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
 
-  update_rate_ = OVER_SAMPLING / repeat_interval;  // 全ての入力を拾うためにオーバーサンプリング
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
   // z座標の初期値を制限の下限に設定
   cmd_.pos.z(z_limit_.lower);
 
-  prepare(0);
-
   registerPublishers();
   registerSubscribers();
   createTimers();
-}
-
-CommandHandler::~CommandHandler()
-{
-  tcsetattr(0, TCSANOW, &tempcopy_);
 }
 
 void CommandHandler::run()
@@ -59,80 +44,63 @@ void CommandHandler::run()
   instruction_timer_.start();
   rosInfo(instruction_);
 
-  char c = 0;
-  ros::Rate rate(update_rate_);
+  ros::Rate rate(kUpdateRate);
 
   while (ros::ok())
   {
-    if (read(0, &c, 1) < 0)
-    {
-      rosError("Failed to read keyboard input.");
-      break;
-    }
-
-    // いきなりCtrl+Cを押すとループから抜けられずにバグるため，必ず"q"で抜けるようにする．
-    // と思ったが普通にCtrl+Cで落ちてくれるっぽい．
-    // if (c == 'q')
-    // {
-    //   rosInfo("q is detected. Command handling is terminated.");
-    //   break;
-    // }
+    const auto c = key_reader_.readKey();
 
     switch (c)
     {
-      case 'w':  // X+
+      case kKeyCode_W:  // X+
       {
-        rosInfoThrottle(INFO_PERIOD, "Moving forward");
+        rosInfoThrottle(kInfoPeriod, "Moving forward");
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() + delta_pos_));
         break;
       }
-      case 's':  // X-
+      case kKeyCode_S:  // X-
       {
-        rosInfoThrottle(INFO_PERIOD, "Moving backward");
+        rosInfoThrottle(kInfoPeriod, "Moving backward");
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() - delta_pos_));
         break;
       }
-      case 'a':  // Y+
+      case kKeyCode_A:  // Y+
       {
-        rosInfoThrottle(INFO_PERIOD, "Moving left");
+        rosInfoThrottle(kInfoPeriod, "Moving left");
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() + delta_pos_));
         break;
       }
-      case 'd':  // Y-
+      case kKeyCode_D:  // Y-
       {
-        rosInfoThrottle(INFO_PERIOD, "Moving right");
+        rosInfoThrottle(kInfoPeriod, "Moving right");
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() - delta_pos_));
         break;
       }
-      case KEYCODE_U:  // Z+
+      case kKeyCode_Up:  // Z+
       {
-        rosInfoThrottle(INFO_PERIOD, "Moving up");
+        rosInfoThrottle(kInfoPeriod, "Moving up");
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() + delta_pos_));
         break;
       }
-      case KEYCODE_D:  // Z-
+      case kKeyCode_Down:  // Z-
       {
-        rosInfoThrottle(INFO_PERIOD, "Moving down");
+        rosInfoThrottle(kInfoPeriod, "Moving down");
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() - delta_pos_));
         break;
       }
-      case KEYCODE_L:  // Yaw+
+      case kKeyCode_Left:  // Yaw+
       {
-        rosInfoThrottle(INFO_PERIOD, "Rotating left");
+        rosInfoThrottle(kInfoPeriod, "Rotating left");
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw + delta_rot_);
         break;
       }
-      case KEYCODE_R:  // Yaw-
+      case kKeyCode_Right:  // Yaw-
       {
-        rosInfoThrottle(INFO_PERIOD, "Rotating right");
+        rosInfoThrottle(kInfoPeriod, "Rotating right");
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw - delta_rot_);
         break;
       }
     }
-
-    // キーボード入力をリセット
-    // リセットしないと同じコマンドが連続して入力されてしまう．
-    c = 0;
 
     cmd_pub_.publish(cmd_);
 
@@ -172,24 +140,7 @@ void CommandHandler::registerSubscribers()
 void CommandHandler::createTimers()
 {
   instruction_timer_ = nh_.createTimer(
-    ros::Duration(INSTRUCTION_PERIOD), &CommandHandler::instructionTimerCb, this, false, false);
-}
-
-void CommandHandler::prepare(int fd)
-{
-  tcgetattr(fd, &tempcopy_);
-  memcpy(&changed_, &tempcopy_, sizeof(termios));
-
-  changed_.c_lflag &= ~(ICANON | ECHO);
-  changed_.c_cc[VEOL] = 1;
-  changed_.c_cc[VEOF] = 2;
-
-  // 入力受付のタイムリミットを設定
-  // https://stackoverflow.com/questions/2917881/how-to-implement-a-timeout-in-read-function-call
-  changed_.c_cc[VMIN] = 0.;
-  changed_.c_cc[VTIME] = 10. / update_rate_;
-
-  tcsetattr(fd, TCSANOW, &changed_);
+    ros::Duration(kInstructionPeriod), &CommandHandler::instructionTimerCb, this, false, false);
 }
 
 void CommandHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
@@ -200,3 +151,4 @@ void CommandHandler::instructionTimerCb(const ros::TimerEvent&)
 {
   rosInfo(instruction_);
 }
+}  // namespace tobas_keyboard_teleop

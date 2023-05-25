@@ -1,14 +1,17 @@
 #pragma once
 
 #include <ros/ros.h>
-#include <termios.h>
 
 #include <dh_std_tools/range.hpp>
-#include <dh_std_tools/x11.hpp>
 #include <dh_ros_tools/node.hpp>
 
 #include <tobas_msgs/PositionYaw.h>
 
+#include "../../include/tobas_keyboard_teleop/x11.hpp"
+#include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
+
+namespace tobas_keyboard_teleop
+{
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
@@ -20,14 +23,14 @@ class CommandHandler : public dh_ros::BaseNode
 
 public:
   explicit CommandHandler();
-  ~CommandHandler();
 
   void run();
 
 private:
+  const XkbControlsPtr keyboard_;
+  KeyboardReader key_reader_;
+
   std::string instruction_;
-  XkbControlsPtr keyboard_;
-  termios tempcopy_, changed_;
   double update_rate_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
@@ -51,8 +54,7 @@ private:
   void registerSubscribers() override;
   void createTimers() override;
 
-  void prepare(int fd);
-
   void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void instructionTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_keyboard_teleop
