@@ -39,7 +39,7 @@ private:
     START,
     TAKEOFF,
     FLIGHT,
-    LANDING
+    LANDING,
   };
 
   tobas::Drone drone_;
@@ -53,6 +53,7 @@ private:
   // 固定値
   KDL::JntArray q_0_;
 
+  ros::Time t_last_loop_;
   bool pressure_received_;
   bool bs_received_;
   State state_;
@@ -63,7 +64,7 @@ private:
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
   tobas_msgs::FixedWingControllerFeedback feedback_msg_;
 
-  ctrl::LQR lqr_;  // 最適レギュレータ
+  ctrl::LQD lqd_;  // 最適レギュレータ
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
@@ -83,7 +84,7 @@ private:
 
   bool isReady();
   void publishTakeoffCommand();
-  void setInitialTarget();
+  void initialize();
   void runOnce();
   void setScales();
   void updateCurrentStateVector();
