@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "keyboard_teleop");
+  ros::init(argc, argv, "position_yaw_publisher");
   tobas_keyboard_teleop::PositionYawPublisher node;
   node.run();
 }

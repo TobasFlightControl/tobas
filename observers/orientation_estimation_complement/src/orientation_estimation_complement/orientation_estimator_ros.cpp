@@ -20,13 +20,15 @@
 using namespace std;
 using namespace Eigen;
 
-OrientationEstimatorRos::OrientationEstimatorRos() : super(), is_initialized_(false)
+OrientationEstimatorRos::OrientationEstimatorRos()
+  : super(),
+    is_initialized_(false),
+    check_topics_timer_(nh_, TIMER_PERIOD, &OrientationEstimatorRos::checkTopicsTimerCb, this)
 {
   getRosParams();
   initializeFilter();
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void OrientationEstimatorRos::getRosParams()
@@ -54,12 +56,6 @@ void OrientationEstimatorRos::registerSubscribers()
   mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", QUEUE_SIZE));
   sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
   sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
-}
-
-void OrientationEstimatorRos::createTimers()
-{
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
 }
 
 void OrientationEstimatorRos::initializeFilter()
@@ -130,7 +126,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   imu_pub_.publish(filtered_imu);
 }
 
-void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent& event)
+void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   rosWarn("IMU data is not received yet.");
 }

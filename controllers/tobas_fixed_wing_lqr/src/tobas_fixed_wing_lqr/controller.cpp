@@ -20,6 +20,7 @@ Controller::Controller()
   : super(),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
+    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
@@ -51,7 +52,6 @@ Controller::Controller()
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
@@ -85,12 +85,6 @@ void Controller::registerSubscribers()
   air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
   cmd_sub_ = nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this);
-}
-
-void Controller::createTimers()
-{
-  check_topics_timer_ =
-    nh_.createTimer(ros::Duration(kCheckTopicsTimerPeriod), &Controller::checkTopicsTimerCb, this);
 }
 
 bool Controller::isReady()
@@ -377,7 +371,7 @@ void Controller::commandCb(const CmdMsg& cmd_nwu)
   tf::speedRollDeltaPitchNwuToNed(cmd_nwu, cmd_ned_);
 }
 
-void Controller::checkTopicsTimerCb(const ros::TimerEvent& event)
+void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
   {

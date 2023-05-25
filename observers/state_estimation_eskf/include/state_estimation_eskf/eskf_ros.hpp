@@ -7,6 +7,7 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
@@ -61,7 +62,7 @@ private:
   double acc_noise_density_;   // m/s^2/sqrt(hz)
   double acc_random_walk_;     // m/s^3/sqrt(hz)
 
-  // rosparams
+  // PubSub
   ros::Publisher posevel_pub_;
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
@@ -69,10 +70,12 @@ private:
   ros::Subscriber gps_sub_;
   ros::Subscriber vel_sub_;
 
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   bool isReady();
   void initialize();
@@ -86,5 +89,5 @@ private:
   void gpsCb(const GpsMsg& msg);
   void velCb(const VelMsg& msg);
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };

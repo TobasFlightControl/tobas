@@ -19,13 +19,13 @@ using namespace std;
 
 namespace tobas_real
 {
-ImuHandler::ImuHandler() : super()
+ImuHandler::ImuHandler()
+  : super(), main_loop_timer_(nh_, TIMER_PERIOD, &ImuHandler::mainLoopTimerCb, this)
 {
   getRosParams();
   setupImu();
   setCovarianceMatrices();
   registerPublishers();
-  createTimers();
 }
 
 void ImuHandler::getRosParams()
@@ -41,12 +41,6 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
-}
-
-void ImuHandler::createTimers()
-{
-  main_loop_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::mainLoopTimerCb, this);
 }
 
 void ImuHandler::setupImu()
@@ -84,10 +78,6 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[0] = mag_var;
   mag_msg_.magnetic_field_covariance[4] = mag_var;
   mag_msg_.magnetic_field_covariance[8] = mag_var;
-}
-
-void ImuHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
-{
 }
 
 void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)

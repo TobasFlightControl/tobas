@@ -11,7 +11,10 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler_PWM::MotorsHandler_PWM() : super()
+MotorsHandler_PWM::MotorsHandler_PWM()
+  : super(),
+    is_initialized_(false),
+    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &MotorsHandler_PWM::checkTopicsTimerCb, this)
 {
   if (getuid())
   {
@@ -47,7 +50,6 @@ MotorsHandler_PWM::MotorsHandler_PWM() : super()
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void MotorsHandler_PWM::getRosParams()
@@ -62,10 +64,6 @@ void MotorsHandler_PWM::registerSubscribers()
 {
   rotor_vels_sub_ =
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
-}
-
-void MotorsHandler_PWM::createTimers()
-{
 }
 
 uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
@@ -83,6 +81,14 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     rosErrorThrottle(
       kInfoPeriod, "Size mismatch: " << cmd_speeds.size() << " != " << drone_.numRotors());
     return;
+  }
+
+  // Initialize
+  if (!is_initialized_)
+  {
+    check_topics_timer_.stop();
+    is_initialized_ = true;
+    rosInfo("First motor command is received");
   }
 
   // Check delay
@@ -129,7 +135,8 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   }
 }
 
-void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent& event)
+void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent&)
 {
+  rosWarn("Motor command is not received yet.");
 }
 }  // namespace tobas_real

@@ -7,6 +7,7 @@
 
 #include <dh_kdl/euler.hpp>
 #include <dh_kdl/treejntnameparser.hpp>
+#include <dh_ros_tools/timer.hpp>
 #include <dh_ros_tools/node.hpp>
 
 #include <tobas_tools/drone.hpp>
@@ -69,6 +70,9 @@ private:
   VelocityControllerDynamicParams dynamic_params_vel_;
   RotationControllerDynamicParams dynamic_params_rot_;
 
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
   // PubSub
   ros::Publisher rotor_speeds_pub_;
   ros::Subscriber base_state_sub_;
@@ -81,7 +85,6 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   bool isReady();
   void initialize();
@@ -93,7 +96,7 @@ private:
   void jointStateCb(const sensor_msgs::JointState& js);
   void commandCb(const CmdMsg& cmd);
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };
 }  // namespace tobas_multirotor_controller

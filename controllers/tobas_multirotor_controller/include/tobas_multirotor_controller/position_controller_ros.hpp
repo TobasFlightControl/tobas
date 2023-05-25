@@ -4,6 +4,7 @@
 #include <dynamic_reconfigure/server.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
@@ -39,13 +40,15 @@ private:
   ros::Subscriber base_state_sub_;
   ros::Subscriber pos_yaw_sub_;
 
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
   // Dynamic Reconfigure
   ConfigServer server_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   void initialize(const tobas_msgs::BaseState& bs);
   void updateDynamicParams(const ConfigType& cfg);
@@ -53,7 +56,7 @@ private:
   void baseStateCb(const tobas_msgs::BaseState& bs);
   void targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw);
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };
 }  // namespace tobas_multirotor_controller

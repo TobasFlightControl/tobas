@@ -13,7 +13,14 @@ using namespace Eigen;
 namespace tobas_multirotor_controller
 {
 PositionControllerRos::PositionControllerRos()
-  : super(), is_initialized_(false), server_(ros::NodeHandle(kCtrlName))
+  : super(),
+    is_initialized_(false),
+    check_topics_timer_(
+      nh_,
+      kCheckTopicsTimerPeriod,
+      &PositionControllerRos::checkTopicsTimerCb,
+      this),
+    server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
 
@@ -22,7 +29,6 @@ PositionControllerRos::PositionControllerRos()
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f =
@@ -46,12 +52,6 @@ void PositionControllerRos::registerSubscribers()
   base_state_sub_ = nh_.subscribe("base_state", 1, &PositionControllerRos::baseStateCb, this);
   pos_yaw_sub_ =
     nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
-}
-
-void PositionControllerRos::createTimers()
-{
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(kCheckTopicsTimerPeriod), &PositionControllerRos::checkTopicsTimerCb, this);
 }
 
 void PositionControllerRos::initialize(const tobas_msgs::BaseState& bs)
@@ -92,7 +92,7 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_
   pos_yaw_in_ = pos_yaw;
 }
 
-void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)
+void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   rosWarn("Base state is not received yet.");
 }

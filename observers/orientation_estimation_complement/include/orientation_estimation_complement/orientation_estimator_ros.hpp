@@ -8,6 +8,7 @@
 #include <sensor_msgs/MagneticField.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include "./orientation_estimator.hpp"
 
@@ -50,13 +51,15 @@ private:
   std::shared_ptr<MagSubscriber> mag_sub_;
   std::shared_ptr<Synchronizer> sync_;
 
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   void initializeFilter();
 
   void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };

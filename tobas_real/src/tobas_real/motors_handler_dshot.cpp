@@ -12,7 +12,16 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler_DSHOT::MotorsHandler_DSHOT() : super(), cmd_received_(false), dshot_(DSHOT::DSHOT_600)
+MotorsHandler_DSHOT::MotorsHandler_DSHOT()
+  : super(),
+    dshot_(DSHOT::DSHOT_600),
+    is_initialized_(false),
+    cmd_received_(false),
+    check_topics_timer_(
+      nh_,
+      kCheckTopicsTimerPeriod,
+      &MotorsHandler_DSHOT::checkTopicsTimerCb,
+      this)
 {
   if (getuid())
   {
@@ -29,7 +38,6 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT() : super(), cmd_received_(false), dsho
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void MotorsHandler_DSHOT::run()
@@ -38,8 +46,13 @@ void MotorsHandler_DSHOT::run()
 
   while (ros::ok())
   {
-    if (!cmd_received_)
+    if (!is_initialized_)
     {
+      if (cmd_received_)
+      {
+        check_topics_timer_.stop();
+        is_initialized_ = true;
+      }
       ros::spinOnce();
       rate.sleep();
       continue;
@@ -89,10 +102,6 @@ void MotorsHandler_DSHOT::registerSubscribers()
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
 }
 
-void MotorsHandler_DSHOT::createTimers()
-{
-}
-
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
   const auto& speeds = rotor_speeds.speeds;
@@ -121,12 +130,14 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
   if (!cmd_received_)
   {
     cmd_received_ = true;
+    rosInfo("First motor command is received");
   }
 
   cmd_speeds_ = speeds;
 }
 
-void MotorsHandler_DSHOT::checkTopicsTimerCb(const ros::TimerEvent& event)
+void MotorsHandler_DSHOT::checkTopicsTimerCb(const ros::TimerEvent&)
 {
+  rosWarn("Motor command is not received yet.");
 }
 }  // namespace tobas_real

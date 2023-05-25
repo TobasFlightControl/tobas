@@ -15,14 +15,24 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-PositionYawPublisher::PositionYawPublisher() : super(), keyboard_(getKeyboardControls())
+PositionYawPublisher::PositionYawPublisher()
+  : super(),
+    keyboard_(getKeyboardControls()),
+    instruction_timer_(
+      nh_,
+      kInstructionTimerPeriod,
+      &PositionYawPublisher::instructionTimerCb,
+      this,
+      false)
+
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
-                 "W/S       : increase/decrease linear velocity along x-axis in WCSs\n"
-                 "A/D       : increase/decrease linear velocity along y-axis in WCSs\n"
-                 "Left/Right: increase/decrease angular velocity along z-axis in WCSs\n"
-                 "Ctrl-C    : quit\n";
+                 "W/S       : Move in the positive/negative direction along X-axis in WCSs\n"
+                 "A/D       : Move in the positive/negative direction along Y-axis in WCSs\n"
+                 "Up/Down   : Move in the positive/negative direction along Z-axis in WCSs\n"
+                 "Left/Right: Turn left/right along Z-axis in WCSs\n"
+                 "Ctrl-C    : Quit\n";
 
   getRosParams();
 
@@ -37,7 +47,6 @@ PositionYawPublisher::PositionYawPublisher() : super(), keyboard_(getKeyboardCon
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void PositionYawPublisher::run()
@@ -137,17 +146,6 @@ void PositionYawPublisher::registerPublishers()
 }
 
 void PositionYawPublisher::registerSubscribers()
-{
-}
-
-void PositionYawPublisher::createTimers()
-{
-  instruction_timer_ = nh_.createTimer(
-    ros::Duration(kInstructionPeriod), &PositionYawPublisher::instructionTimerCb, this, false,
-    false);
-}
-
-void PositionYawPublisher::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
 }
 

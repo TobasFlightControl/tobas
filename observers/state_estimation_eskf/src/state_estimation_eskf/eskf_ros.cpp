@@ -23,12 +23,12 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
     mag_subscribed_(false),
     bar_subscribed_(false),
     gps_subscribed_(false),
-    vel_subscribed_(false)
+    vel_subscribed_(false),
+    check_topics_timer_(nh_, TIMER_PERIOD, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
 {
   getRosParams();
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()
@@ -56,12 +56,6 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
   bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
   gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
   vel_sub_ = nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
-}
-
-void ErrorStateKalmanFilterRos::createTimers()
-{
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(TIMER_PERIOD), &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this);
 }
 
 bool ErrorStateKalmanFilterRos::isReady()
@@ -99,11 +93,11 @@ void ErrorStateKalmanFilterRos::initialize()
   eskf_.initialize(
     Vector3d(0, 0, -gravity_),  // Acceleration due to gravity in global frame
     ErrorStateKalmanFilter::makeState(
-      Vector3d::Zero(),  // init pos
-      Vector3d::Zero(),  // init vel
-      q_m_,              // init quaternion
-      Vector3d::Zero(),  // init accel bias
-      Vector3d::Zero()   // init gyro bias
+      Vector3d::Zero(),         // init pos
+      Vector3d::Zero(),         // init vel
+      q_m_,                     // init quaternion
+      Vector3d::Zero(),         // init accel bias
+      Vector3d::Zero()          // init gyro bias
       ),
     ErrorStateKalmanFilter::makeP(
       sqr(1.) * I_3, sqr(0.1) * I_3, sqr(1.) * I_3, sqr(10 * 0.001 * 0.00124) * I_3,
@@ -266,7 +260,7 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
   // eskf_.measureVelocity(Vector3d::Zero(), cov, stamp, now);
 }
 
-void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent& event)
+void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!imu_subscribed_)
   {

@@ -29,7 +29,8 @@ StateEstimator::StateEstimator()
     gps_vel_buf_(VEL_BUF_SIZE),
     yaw_now_(0.),
     yaw_prev_(0.),
-    yaw_jump_count_(0)
+    yaw_jump_count_(0),
+    check_topics_timer_(nh_, TIMER_PERIOD, &StateEstimator::checkTopicsTimerCb, this)
 {
   getRosParams();
   fillUnusedBuffers();
@@ -38,7 +39,6 @@ StateEstimator::StateEstimator()
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 
   ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
@@ -77,12 +77,6 @@ void StateEstimator::registerSubscribers()
   {
     gps_vel_sub_ = nh_.subscribe("ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
   }
-}
-
-void StateEstimator::createTimers()
-{
-  check_topics_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &StateEstimator::checkTopicsTimerCb, this);
 }
 
 void StateEstimator::fillUnusedBuffers()
@@ -343,7 +337,7 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
   cart_filter_.measureVelocity(v_m_, cov);
 }
 
-void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent& event)
+void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   // IMU
   if (filtered_imu_buf_.isEmpty())

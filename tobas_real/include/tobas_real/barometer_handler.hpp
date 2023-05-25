@@ -6,6 +6,7 @@
 #include <Common/MS5611.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 namespace tobas_real
 {
@@ -25,14 +26,13 @@ private:
   // PubSub
   ros::Publisher bar_pub_;
 
-  ros::Timer main_loop_timer_;
+  // Timer
+  dh_ros::Timer main_loop_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void mainLoopTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

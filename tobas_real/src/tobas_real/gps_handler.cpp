@@ -12,7 +12,10 @@ using namespace std;
 
 namespace tobas_real
 {
-GpsHandler::GpsHandler() : super(), cov_received_(false)
+GpsHandler::GpsHandler()
+  : super(),
+    cov_received_(false),
+    main_loop_timer_(nh_, TIMER_PERIOD, &GpsHandler::mainLoopTimerCb, this)
 {
   if (!gps_.testConnection())
   {
@@ -30,7 +33,6 @@ GpsHandler::GpsHandler() : super(), cov_received_(false)
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void GpsHandler::getRosParams()
@@ -44,16 +46,6 @@ void GpsHandler::registerPublishers()
 }
 
 void GpsHandler::registerSubscribers()
-{
-}
-
-void GpsHandler::createTimers()
-{
-  main_loop_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &GpsHandler::mainLoopTimerCb, this);
-}
-
-void GpsHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
 }
 

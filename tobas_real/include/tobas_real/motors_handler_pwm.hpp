@@ -5,6 +5,7 @@
 #include <Navio2/RCOutput_Navio2.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -22,17 +23,21 @@ private:
   tobas::Drone drone_;
   RCOutput_Navio2 pwm_;
 
+  bool is_initialized_;
+
   // PubSub
   ros::Subscriber rotor_vels_sub_;
+
+  // Timer
+  dh_ros::Timer check_topics_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   uint32_t getChannel(uint32_t pin);
 
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

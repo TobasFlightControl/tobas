@@ -5,6 +5,7 @@
 #include <sensor_msgs/MagneticField.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <Common/InertialSensor.h>
 
@@ -37,17 +38,15 @@ private:
   ros::Publisher mag_pub_;
 
   // Timer
-  ros::Timer main_loop_timer_;
+  dh_ros::Timer main_loop_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   void setupImu();
   void setCovarianceMatrices();
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void mainLoopTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

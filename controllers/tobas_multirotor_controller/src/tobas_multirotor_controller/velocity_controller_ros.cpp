@@ -26,6 +26,11 @@ VelocityControllerRos::VelocityControllerRos()
     bs_received_(false),
     js_received_(false),
     cmd_received_(false),
+    check_topics_timer_(
+      nh_,
+      kCheckTopicsTimerPeriod,
+      &VelocityControllerRos::checkTopicsTimerCb,
+      this),
     server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
@@ -46,7 +51,6 @@ VelocityControllerRos::VelocityControllerRos()
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 
   // Dynamic Reconfigure
   ConfigServer::CallbackType f =
@@ -89,12 +93,6 @@ void VelocityControllerRos::registerSubscribers()
     joint_state_sub_ = nh_.subscribe("joint_states", 1, &VelocityControllerRos::jointStateCb, this);
   }
   cmd_sub_ = nh_.subscribe("command/velocity_yaw", 1, &VelocityControllerRos::commandCb, this);
-}
-
-void VelocityControllerRos::createTimers()
-{
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(kCheckTopicsTimerPeriod), &VelocityControllerRos::checkTopicsTimerCb, this);
 }
 
 bool VelocityControllerRos::isReady()
@@ -253,7 +251,7 @@ void VelocityControllerRos::commandCb(const CmdMsg& cmd)
   cmd_received_ = true;
 }
 
-void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent& event)
+void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!bs_received_)
   {

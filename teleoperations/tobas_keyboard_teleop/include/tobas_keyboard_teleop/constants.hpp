@@ -14,5 +14,6 @@ static constexpr char kKeyCode_Left = 0x44;
 static constexpr int kFileDescriptor = 0;     // 標準入力
 static constexpr double kUpdateRate = 1000.;  // [Hz]
 static constexpr double kInfoPeriod = 1.;
-static constexpr double kInstructionPeriod = 10.;
+static constexpr double kCheckTopicsTimerPeriod = 5.;
+static constexpr double kInstructionTimerPeriod = 10.;
 }  // namespace tobas_keyboard_teleop

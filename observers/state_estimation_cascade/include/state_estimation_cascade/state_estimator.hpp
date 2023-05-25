@@ -10,6 +10,7 @@
 
 #include <dh_std_tools/buffer.hpp>
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
@@ -68,13 +69,15 @@ private:
   ros::Subscriber gps_pos_sub_;
   ros::Subscriber gps_vel_sub_;
 
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
   // Dynamic Reconfigure
   ConfigServer server_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   void fillUnusedBuffers();
   bool isReady();
@@ -87,6 +90,6 @@ private:
   void gpsPositionCb(const GpsMsg& gps);
   void gpsVelocityCb(const VelMsg& vel);
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };

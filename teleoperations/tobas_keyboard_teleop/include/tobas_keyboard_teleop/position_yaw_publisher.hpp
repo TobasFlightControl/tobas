@@ -4,6 +4,7 @@
 
 #include <dh_std_tools/range.hpp>
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/PositionYaw.h>
 
@@ -13,7 +14,7 @@
 namespace tobas_keyboard_teleop
 {
 static constexpr double kDefaultMaxLinearVelocity = 2.;
-static constexpr double kDefaultMaxAngularVelocity = 1.;
+static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
 static constexpr double kDefaultMinimumX = -100.;
 static constexpr double kDefaultMaximumX = +100.;
 static constexpr double kDefaultMinimumY = -100.;
@@ -39,10 +40,12 @@ private:
   const XkbControlsPtr keyboard_;
   KeyboardReader key_reader_;
 
+  // 固定値
   std::string instruction_;
-  double update_rate_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
+
+  // 可変値
   tobas_msgs::PositionYaw cmd_;
 
   // rosparams
@@ -56,14 +59,13 @@ private:
   // PubSub
   ros::Publisher cmd_pub_;
 
+  // Timer
   dh_ros::Timer instruction_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
   void instructionTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_keyboard_teleop

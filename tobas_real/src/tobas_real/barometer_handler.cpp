@@ -15,7 +15,8 @@ using namespace std;
 
 namespace tobas_real
 {
-BarometerHandler::BarometerHandler() : super()
+BarometerHandler::BarometerHandler()
+  : super(), main_loop_timer_(nh_, TIMER_PERIOD, &BarometerHandler::mainLoopTimerCb, this)
 {
   getRosParams();
 
@@ -24,7 +25,6 @@ BarometerHandler::BarometerHandler() : super()
 
   registerPublishers();
   registerSubscribers();
-  createTimers();
 }
 
 void BarometerHandler::getRosParams()
@@ -37,16 +37,6 @@ void BarometerHandler::registerPublishers()
 }
 
 void BarometerHandler::registerSubscribers()
-{
-}
-
-void BarometerHandler::createTimers()
-{
-  main_loop_timer_ =
-    nh_.createTimer(ros::Duration(TIMER_PERIOD), &BarometerHandler::mainLoopTimerCb, this);
-}
-
-void BarometerHandler::checkTopicsTimerCb(const ros::TimerEvent& event)
 {
 }
 

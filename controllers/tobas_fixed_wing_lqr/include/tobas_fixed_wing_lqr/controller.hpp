@@ -6,6 +6,7 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 #include <dh_linear_control/lqr.hpp>
 
 #include <tobas_tools/drone.hpp>
@@ -74,13 +75,15 @@ private:
   ros::Subscriber base_state_sub_;
   ros::Subscriber cmd_sub_;
 
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
   // Dynamic Reconfigure
   ConfigServer server_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void createTimers() override;
 
   bool isReady();
   void publishTakeoffCommand();
@@ -97,7 +100,7 @@ private:
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
   void baseStateCb(const StateMsg& bs_nwu);
   void commandCb(const CmdMsg& cmd_nwu);
-  void checkTopicsTimerCb(const ros::TimerEvent& event) override;
+  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };
 }  // namespace tobas_fixed_wing_lqr
