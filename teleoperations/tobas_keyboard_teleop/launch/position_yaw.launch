@@ -1,0 +1,9 @@
+<launch>
+
+  <arg name="drone_name"/>
+
+  <group ns="$(arg drone_name)">
+    <node pkg="tobas_keyboard_teleop" name="position_yaw_publisher" type="position_yaw_publisher_node" output="screen"/>
+  </group>
+
+</launch>

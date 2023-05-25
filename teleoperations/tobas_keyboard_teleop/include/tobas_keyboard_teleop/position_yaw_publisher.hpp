@@ -12,17 +12,26 @@
 
 namespace tobas_keyboard_teleop
 {
+static constexpr double kDefaultMaxLinearVelocity = 2.;
+static constexpr double kDefaultMaxAngularVelocity = 1.;
+static constexpr double kDefaultMinimumX = -100.;
+static constexpr double kDefaultMaximumX = +100.;
+static constexpr double kDefaultMinimumY = -100.;
+static constexpr double kDefaultMaximumY = +100.;
+static constexpr double kDefaultMinimumZ = -1.;
+static constexpr double kDefaultMaximumZ = +100.;
+static constexpr double kDefaultMinimumYaw = std::numeric_limits<double>::lowest();
+static constexpr double kDefaultMaximumYaw = std::numeric_limits<double>::max();
+
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
-class CommandHandler : public dh_ros::BaseNode
+class PositionYawPublisher : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
 
-  using CmdMsg = tobas_msgs::PositionYaw;
-
 public:
-  explicit CommandHandler();
+  explicit PositionYawPublisher();
 
   void run();
 
@@ -34,7 +43,7 @@ private:
   double update_rate_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
-  CmdMsg cmd_;
+  tobas_msgs::PositionYaw cmd_;
 
   // rosparams
   double max_linvel_;  // 並進速度の大きさの最大値
