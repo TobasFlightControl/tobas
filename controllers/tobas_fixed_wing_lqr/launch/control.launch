@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_fixed_wing_lqr" type="controller_node" name="tobas_fixed_wing_lqr" output="screen"/>
+
+</launch>
