@@ -121,7 +121,6 @@ void SpeedRollDeltaPitchPublisher::run()
         rosInfoThrottle(kInfoPeriod, "Nose down");
         cmd_.delta_pitch =
           dh_std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-
         break;
       }
     }
