@@ -58,7 +58,7 @@ class CommandersWidget(QScrollArea):
 
         z_min = rospy.get_param("~pose_limit/z/min")
         z_max = rospy.get_param("~pose_limit/z/max")
-        assert 0. <= z_min <= z_max
+        assert z_min <= z_max
         self.drone_cmd_z = Commander("multirotor/z", z_min, z_max)
         self.drone_cmd_z.set_value(z_min)
         self._rows.addWidget(self.drone_cmd_z)
