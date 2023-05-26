@@ -364,16 +364,14 @@ void Controller::reconfigure(const ConfigType& cfg)
   mpc_.control_weight(kCtrlIdx_r) = cfg.angular_velocity_weight;
 
   // 制御入力の重み
-  mpc_.input_weight.block(0, 0, x_rotors_.count(), 1) =
-    VectorXd::Constant(x_rotors_.count(), pow(10, cfg.thrust_weight_exp));
-  mpc_.input_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
-    VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_weight_exp));
+  mpc_.input_weight.topRows(x_rotors_.count()).fill(pow(10, cfg.thrust_weight_exp));
+  mpc_.input_weight.bottomRows(drone_.numControlSurfaces())
+    .fill(pow(10, cfg.deflection_weight_exp));
 
   // 制御入力の変化率の重み
-  mpc_.input_rate_weight.block(0, 0, x_rotors_.count(), 1) =
-    VectorXd::Constant(x_rotors_.count(), pow(10, cfg.thrust_rate_weight_exp));
-  mpc_.input_rate_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
-    VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_rate_weight_exp));
+  mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(pow(10, cfg.thrust_rate_weight_exp));
+  mpc_.input_rate_weight.bottomRows(drone_.numControlSurfaces())
+    .fill(pow(10, cfg.deflection_rate_weight_exp));
 }
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)

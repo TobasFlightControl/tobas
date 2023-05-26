@@ -36,14 +36,22 @@ void TrimConditions::updateInternalDataStructures()
   assert(b_ > 0.);
 }
 
-void TrimConditions::update(double V, double rho, const JntArray& q)
+TrimConditions::ErrorCode TrimConditions::update(double V, double rho, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
-  assertWithMsg(
-    speedLimit(rho).inRange(V, 0.1),
-    "V = " << V << " is out of valid speed range " << speedLimit(rho));
   assert(q.rows() == drone_.tree().getNrOfJoints());
+
+  error_code_ = E_NOERROR;
+  error_msg_ = "No error";
+
+  const auto speed_limit = speedLimit(rho);
+  if (!speed_limit.inRange(V))
+  {
+    error_code_ = E_INVALID_SPEED;
+    error_msg_ = "V = " + to_string(V) + " is out of valid speed range ["
+                 + to_string(speed_limit.lower) + ", " + to_string(speed_limit.upper) + "].";
+  }
 
   // エイリアス
   const auto& aero = drone_.aerodynamics();
@@ -70,6 +78,18 @@ void TrimConditions::update(double V, double rho, const JntArray& q)
 
   // その他依存変数
   u_ = V * cos(alpha_);
+
+  return error_code_;
+}
+
+const TrimConditions::ErrorCode& TrimConditions::errorCode() const
+{
+  return error_code_;
+}
+
+const string& TrimConditions::errorMessage() const
+{
+  return error_msg_;
 }
 
 const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const

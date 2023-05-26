@@ -13,6 +13,12 @@ namespace tobas
 class TrimConditions
 {
 public:
+  enum ErrorCode
+  {
+    E_NOERROR = 0,
+    E_INVALID_SPEED = -1,
+  };
+
   explicit TrimConditions(const Drone& drone);
 
   void updateInternalDataStructures();
@@ -23,8 +29,13 @@ public:
    * @param V 風速に対する機体速度の絶対値 [m/s]
    * @param rho 大気密度 [kg/m^3]
    * @param q 関節角 [rad]
+   *
+   * @return ErrorCode Error code
    */
-  void update(double V, double rho, const KDL::JntArray& q);
+  ErrorCode update(double V, double rho, const KDL::JntArray& q);
+
+  const ErrorCode& errorCode() const;
+  const std::string& errorMessage() const;
 
   const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
@@ -62,6 +73,9 @@ public:
   double takeOffSpeed(double rho) const;
 
 private:
+  ErrorCode error_code_;
+  std::string error_msg_;
+
   const Drone& drone_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;

@@ -119,7 +119,13 @@ void Controller::initialize()
 void Controller::runOnce()
 {
   // 状態方程式を更新
-  eom_.update(bs_ned_.twist.vel.Norm(), air_density_, q_0_);  // 現在の速度を使う
+  const auto eom_error =
+    eom_.update(bs_ned_.twist.vel.Norm(), air_density_, q_0_);  // 現在の速度を使う
+  if (eom_error < 0)
+  {
+    rosError(eom_.errorMessage());
+  }
+
   lqr_.dynamics.A = eom_.A();
   lqr_.dynamics.B = eom_.B();
 
@@ -277,10 +283,9 @@ void Controller::reconfigure(const ConfigType& cfg)
   lqr_.state_weight(eom_.kStateIdx_r) = cfg.angular_velocity_weight;
 
   // 制御入力の重み
-  lqr_.input_weight.block(0, 0, x_rotors_.count(), 1) =
-    VectorXd::Constant(x_rotors_.count(), pow(10, cfg.thrust_weight_exp));
-  lqr_.input_weight.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1) =
-    VectorXd::Constant(drone_.numControlSurfaces(), pow(10, cfg.deflection_weight_exp));
+  lqr_.input_weight.topRows(x_rotors_.count()).fill(pow(10, cfg.thrust_weight_exp));
+  lqr_.input_weight.bottomRows(drone_.numControlSurfaces())
+    .fill(pow(10, cfg.deflection_weight_exp));
 }
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)
@@ -319,7 +324,11 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
     {
       const auto cur_V = bs_ned_.twist.vel.Norm();
       const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
-      eom_.update(max(cur_V, min_V), air_density_, q_0_);
+      const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, q_0_);
+      if (eom_error < 0)
+      {
+        rosError(eom_.errorMessage());
+      }
 
       publishTakeoffCommand();
 

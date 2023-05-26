@@ -23,6 +23,13 @@ public:
   static constexpr uint32_t kStateIdx_q = 6;
   static constexpr uint32_t kStateIdx_r = 7;
 
+  enum ErrorCode
+  {
+    E_NOERROR = 0,
+    E_THRUST_OVERLIMIT = -1,
+    E_TRIM_ERROR = -2,
+  };
+
   explicit MicroDisturbanceEoM(const Drone& drone);
 
   void updateInternalDataStructures();
@@ -33,8 +40,13 @@ public:
    * @param V 大気に対する機体速度の絶対値 [m/s]
    * @param rho 大気密度 [kg/m^3]
    * @param q 可動関節の角度 [rad]
+   *
+   * @return ErrorCode Error code
    */
-  void update(double V, double rho, const KDL::JntArray& q);
+  ErrorCode update(double V, double rho, const KDL::JntArray& q);
+
+  const ErrorCode& errorCode() const;
+  const std::string& errorMessage() const;
 
   const TrimConditions& trimCondition() const;
   const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -50,8 +62,8 @@ public:
   const uint32_t& elevatorIndex() const;
   const uint32_t& inputSize() const;
 
-  const Eigen::Matrix<double, kStateSize, kStateSize>& A();
-  const Eigen::Matrix<double, kStateSize, Eigen::Dynamic>& B();
+  const Eigen::Matrix<double, kStateSize, kStateSize>& A() const;
+  const Eigen::Matrix<double, kStateSize, Eigen::Dynamic>& B() const;
 
   // X_u (2.2-36)
   const double& u_u() const;
@@ -122,6 +134,9 @@ public:
   const double& r_delta(uint32_t cs_idx) const;
 
 private:
+  ErrorCode error_code_;
+  std::string error_msg_;
+
   const Drone& drone_;
 
   KDL::ExtTreeFkSolverPos fk_solver_;

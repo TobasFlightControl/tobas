@@ -44,15 +44,27 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
+MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
+  error_code_ = E_NOERROR;
+  error_msg_ = "No error";
+
+  // トリム状態を更新
+  const auto trim_error = trim_.update(V, rho, q);
+  if (trim_error < 0)
+  {
+    error_code_ = E_TRIM_ERROR;
+    error_msg_ = trim_.errorMessage();
+  }
+
   // エイリアス
   const auto& vehicle = drone_.vehicle();
   const auto& aero = drone_.aerodynamics();
+  const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
   inertia_solver_.JntToCart(q, P_base_cog_, I_kdl_);
@@ -66,10 +78,6 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
   const auto tmp = 1. - sqr(I_xz) / (I_x * I_z);
   const auto I_x_tilde = I_x * tmp;
   const auto I_z_tilde = I_z * tmp;
-
-  // トリム状態を更新
-  trim_.update(V, rho, q);
-  const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 引数に依存する定数
   const auto W = mass_ * kGravity;
@@ -215,10 +223,27 @@ void MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
   const auto thrust_avg = thrust_sum / x_rotors_.count();
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
-    assert(x_rotors_.maxThrust(i) > thrust_avg);
+    if (thrust_avg > x_rotors_.maxThrust(i))
+    {
+      error_code_ = E_THRUST_OVERLIMIT;
+      error_msg_ = "Average thrust " + to_string(thrust_avg) + "[N] is over the maximum limit "
+                   + to_string(x_rotors_.maxThrust(i)) + "[N].";
+    }
   }
-  u_0_.block(0, 0, x_rotors_.count(), 1) = VectorXd::Constant(x_rotors_.count(), thrust_avg);
+  u_0_.block(0, 0, x_rotors_.count(), 1).fill(thrust_avg);
   u_0_(x_rotors_.count() + trim_.elevatorIndex()) = trim_.elevator();
+
+  return error_code_;
+}
+
+const MicroDisturbanceEoM::ErrorCode& MicroDisturbanceEoM::errorCode() const
+{
+  return error_code_;
+}
+
+const string& MicroDisturbanceEoM::errorMessage() const
+{
+  return error_msg_;
 }
 
 const TrimConditions& MicroDisturbanceEoM::trimCondition() const
@@ -272,12 +297,12 @@ const uint32_t& MicroDisturbanceEoM::inputSize() const
 }
 
 const Matrix<double, MicroDisturbanceEoM::kStateSize, MicroDisturbanceEoM::kStateSize>&
-MicroDisturbanceEoM::A()
+MicroDisturbanceEoM::A() const
 {
   return A_;
 }
 
-const Matrix<double, MicroDisturbanceEoM::kStateSize, Dynamic>& MicroDisturbanceEoM::B()
+const Matrix<double, MicroDisturbanceEoM::kStateSize, Dynamic>& MicroDisturbanceEoM::B() const
 {
   return B_;
 }
