@@ -248,7 +248,7 @@ void Controller::setInputRateConstraint()
 
 void Controller::updateCurrentStateVector()
 {
-  const KDL::Vector linvel_B = bs_ned_.pose.euler * bs_ned_.twist.vel;
+  const auto linvel_B = bs_ned_.pose.euler.Inverse(bs_ned_.twist.vel);
   const auto& trim = eom_.trimCondition();
 
   // TODO: 横系のトリムも考慮
@@ -260,8 +260,6 @@ void Controller::updateCurrentStateVector()
   mpc_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
   mpc_.current_state(eom_.kStateIdx_q) = bs_ned_.twist.rot.y();
   mpc_.current_state(eom_.kStateIdx_r) = bs_ned_.twist.rot.z();
-
-  // cout << mpc_.current_state << endl << endl;
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)

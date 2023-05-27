@@ -1,6 +1,7 @@
 #include <eigen_conversions/eigen_kdl.h>
 
 #include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_eigen_tools/geometry.hpp>
 #include <dh_kdl/conversion/kdl_eigen.hpp>
 
 #include "../../include/tobas_tools/micro_disturbance_eom.hpp"
@@ -173,7 +174,9 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(double V, double rho,
     tf::vectorKDLToEigen(P_cog_rotor_kdl, P_cog_rotor_eigen_);
     const auto& d = x_rotors_.direction(i);
     const auto& c = x_rotors_.momentConstant(i);
-    B_.block(kStateIdx_p, i, 3, 1) = I_inv * (P_cog_rotor_eigen_.cross(X_AXIS) - (d * c) * X_AXIS);
+    Vector3d v = I_inv * (P_cog_rotor_eigen_.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
+    eigen_tools::vectorNwuToNed(v);                                              // NWU -> NED
+    B_.block(kStateIdx_p, i, 3, 1) = v;
   }
 
   // deflection
