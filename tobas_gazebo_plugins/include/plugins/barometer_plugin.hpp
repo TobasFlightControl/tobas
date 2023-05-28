@@ -7,6 +7,8 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/FluidPressure.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+
 namespace gazebo
 {
 // Constants
@@ -20,7 +22,6 @@ class GazeboBarometerPlugin : public SensorPlugin
 {
   using super = SensorPlugin;
 
-  using NormalDistribution = std::normal_distribution<double>;
   using PressureMsg = sensor_msgs::FluidPressure;
 
 public:

@@ -9,6 +9,8 @@
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+
 namespace gazebo
 {
 // Constants
@@ -31,7 +33,6 @@ class GazeboGpsPlugin : public SensorPlugin
 {
   using super = SensorPlugin;
 
-  using NormalDistribution = std::normal_distribution<double>;
   using PosMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 

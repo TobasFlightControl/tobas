@@ -5,8 +5,6 @@
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
-#define ZERO_3 (Vector3d(0., 0., 0.))
-
 using namespace std;
 using namespace ignition::math;
 
@@ -33,8 +31,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   last_time_ = world_->SimTime();
   gravity_W_ = world_->Gravity();
-  gyro_bias_ = ZERO_3;
-  acc_bias_ = ZERO_3;
+  gyro_bias_ = zero3;
+  acc_bias_ = zero3;
 
   noise_ = NormalDistribution(0., 1.);
   for (int i = 0; i < 3; ++i)

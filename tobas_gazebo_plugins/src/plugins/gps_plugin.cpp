@@ -3,7 +3,6 @@
 
 #include "../../include/plugins/gps_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
-#include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 

@@ -7,6 +7,8 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/Imu.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+
 namespace gazebo
 {
 // Constants
@@ -27,7 +29,6 @@ class GazeboImuPlugin : public SensorPlugin
 {
   using super = SensorPlugin;
 
-  using NormalDistribution = std::normal_distribution<double>;
   using ImuMsg = sensor_msgs::Imu;
 
 public:

@@ -10,7 +10,6 @@
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_eigen.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
-#include "../../include/tobas_gazebo_plugins/constants.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 

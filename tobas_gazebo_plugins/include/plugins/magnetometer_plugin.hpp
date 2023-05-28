@@ -7,6 +7,8 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/MagneticField.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+
 namespace gazebo
 {
 // Constants
@@ -22,9 +24,6 @@ class GazeboMagnetometerPlugin : public SensorPlugin
 {
   using super = SensorPlugin;
 
-  using SdfVector3 = ignition::math::Vector3d;
-  using NormalDistribution = std::normal_distribution<double>;
-  using UniformDistribution = std::uniform_real_distribution<double>;
   using MagMsg = sensor_msgs::MagneticField;
 
 public:

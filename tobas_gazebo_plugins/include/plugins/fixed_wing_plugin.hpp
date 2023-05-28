@@ -13,7 +13,7 @@
 #include <tobas_msgs/WindSpeed.h>
 #include <tobas_msgs/FixedWingDebug.h>
 
-#include "../tobas_gazebo_plugins/constants.hpp"
+#include "../tobas_gazebo_plugins/common.hpp"
 #include "../tobas_gazebo_plugins/simple_joint_model.hpp"
 
 namespace gazebo
