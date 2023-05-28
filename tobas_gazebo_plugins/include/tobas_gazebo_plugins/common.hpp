@@ -1,11 +1,16 @@
 #pragma once
 
-#include <string>
+#include <gazebo/gazebo.hh>
 
 namespace gazebo
 {
+using SdfVector3 = ignition::math::Vector3d;
+using NormalDistribution = std::normal_distribution<double>;
+using UniformDistribution = std::uniform_real_distribution<double>;
+
 // Constants
 static constexpr double kDegreeToRadian = M_PI / 180.;
+static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 
 // Default values
 static const std::string kDefaultWindSubTopic = "wind_speed";
