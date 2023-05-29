@@ -4,41 +4,23 @@
 #include <gazebo/gazebo.hh>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Pose.h>
 
 namespace gazebo
 {
 void timeGazeboToRos(const common::Time& g, ros::Time& r);
 void timeRosToGazebo(const ros::Time& r, common::Time& g);
 
-template <typename T>
-void vectorGazeboToRos(const ignition::math::Vector3<T>& g, geometry_msgs::Vector3& r)
-{
-  r.x = g.X();
-  r.y = g.Y();
-  r.z = g.Z();
-}
+void vectorGazeboToRos(const ignition::math::Vector3d& g, geometry_msgs::Vector3& r);
+void vectorRosToGazebo(const geometry_msgs::Vector3& r, ignition::math::Vector3d& g);
 
-template <typename T>
-void vectorRosToGazebo(const geometry_msgs::Vector3& r, ignition::math::Vector3<T>& g)
-{
-  g.X() = r.x;
-  g.Y() = r.y;
-  g.Z() = r.z;
-}
+void pointGazeboToRos(const ignition::math::Vector3d& g, geometry_msgs::Point& r);
+void pointRosToGazebo(const geometry_msgs::Point& r, ignition::math::Vector3d& g);
 
-template <typename T>
-void pointGazeboToRos(const ignition::math::Vector3<T>& g, geometry_msgs::Point& r)
-{
-  r.x = g.X();
-  r.y = g.Y();
-  r.z = g.Z();
-}
+void quaternionGazeboToRos(const ignition::math::Quaterniond& g, geometry_msgs::Quaternion& r);
+void quaternionRosToGazebo(const geometry_msgs::Quaternion& r, ignition::math::Quaterniond& g);
 
-template <typename T>
-void pointRosToGazebo(const geometry_msgs::Point& r, ignition::math::Vector3<T>& g)
-{
-  g.X() = r.x;
-  g.Y() = r.y;
-  g.Z() = r.z;
-}
+void poseGazeboToRos(const ignition::math::Pose3d& g, geometry_msgs::Pose& r);
+void poseRosToGazebo(const geometry_msgs::Pose& r, ignition::math::Pose3d& g);
 }  // namespace gazebo
