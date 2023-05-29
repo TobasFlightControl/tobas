@@ -112,16 +112,20 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg()
 {
   state_.header.stamp = imu_.header.stamp;
 
+  // Position
   tf::vectorEigenToKDL(eskf_.getPosition3D(), state_.pose.pos);
 
+  // Rotation
   const auto q = eskf_.getQuaternion();
   auto& rpy = state_.pose.euler;
   quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
 
+  // Linear velocity (Local)
   tf::vectorEigenToKDL(eskf_.getVelocity(), state_.twist.vel);
+  state_.twist.vel = state_.pose.euler.Inverse(state_.twist.vel);  // World -> Local
 
-  // 角速度だけはローカル座標系
-  Vector3d w = w_m_ - eskf_.getGyroBias();
+  // Angular velocity (Local)
+  const auto w = w_m_ - eskf_.getGyroBias();
   tf::vectorEigenToKDL(w, state_.twist.rot);
 }
 

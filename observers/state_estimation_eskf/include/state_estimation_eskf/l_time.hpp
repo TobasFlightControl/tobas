@@ -13,7 +13,6 @@ public:
   explicit lTime();
   explicit lTime(double t);
   explicit lTime(int32_t _sec, int32_t _nsec);
-  ~lTime();
 
   void normalizeSecNSecSigned(int64_t& sec, int64_t& nsec);
   void normalizeSecNSecSigned(int32_t& sec, int32_t& nsec);

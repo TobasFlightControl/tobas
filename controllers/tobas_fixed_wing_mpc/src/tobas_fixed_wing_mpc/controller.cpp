@@ -248,13 +248,12 @@ void Controller::setInputRateConstraint()
 
 void Controller::updateCurrentStateVector()
 {
-  const auto linvel_B = bs_ned_.pose.euler.Inverse(bs_ned_.twist.vel);
   const auto& trim = eom_.trimCondition();
 
   // TODO: 横系のトリムも考慮
-  mpc_.current_state(eom_.kStateIdx_u) = linvel_B.x() - trim.u();
-  mpc_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(linvel_B) - trim.alpha();
-  mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(linvel_B);
+  mpc_.current_state(eom_.kStateIdx_u) = bs_ned_.twist.vel.x() - trim.u();
+  mpc_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(bs_ned_.twist.vel) - trim.alpha();
+  mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(bs_ned_.twist.vel);
   mpc_.current_state(eom_.kStateIdx_phi) = bs_ned_.pose.euler.roll;
   mpc_.current_state(eom_.kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
   mpc_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
@@ -264,7 +263,10 @@ void Controller::updateCurrentStateVector()
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
-  mpc_.set_state(kCtrlIdx_u) = 0.;
+  const auto& trim = eom_.trimCondition();
+  const auto tar_u = cmd_ned_.speed * cos(eom_.trimCondition().alpha());
+
+  mpc_.set_state(kCtrlIdx_u) = tar_u - trim.u();
   mpc_.set_state(kCtrlIdx_alpha) = 0.;
   mpc_.set_state(kCtrlIdx_beta) = 0.;
   mpc_.set_state(kCtrlIdx_phi) = tar_roll;

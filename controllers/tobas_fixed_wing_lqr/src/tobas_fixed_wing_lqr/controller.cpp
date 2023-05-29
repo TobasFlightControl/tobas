@@ -185,13 +185,12 @@ void Controller::setScales()
 
 void Controller::updateCurrentStateVector()
 {
-  const auto linvel_B = bs_ned_.pose.euler.Inverse(bs_ned_.twist.vel);
   const auto& trim = eom_.trimCondition();
 
   // TODO: 横系のトリムも考慮
-  lqr_.current_state(eom_.kStateIdx_u) = linvel_B.x() - trim.u();
-  lqr_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(linvel_B) - trim.alpha();
-  lqr_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(linvel_B);
+  lqr_.current_state(eom_.kStateIdx_u) = bs_ned_.twist.vel.x() - trim.u();
+  lqr_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(bs_ned_.twist.vel) - trim.alpha();
+  lqr_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(bs_ned_.twist.vel);
   lqr_.current_state(eom_.kStateIdx_phi) = bs_ned_.pose.euler.roll;
   lqr_.current_state(eom_.kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
   lqr_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
@@ -201,8 +200,8 @@ void Controller::updateCurrentStateVector()
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 {
-  const auto tar_u = cmd_ned_.speed * cos(eom_.trimCondition().alpha());
   const auto& trim = eom_.trimCondition();
+  const auto tar_u = cmd_ned_.speed * cos(eom_.trimCondition().alpha());
 
   lqr_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
   lqr_.target_state(eom_.kStateIdx_alpha) = 0.;

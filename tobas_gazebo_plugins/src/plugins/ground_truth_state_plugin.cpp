@@ -50,19 +50,23 @@ void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
 {
-  common::Time cur_time = world_->SimTime();
-  Pose3d T_W_B = link_->WorldPose();
+  const auto T_W_B = link_->WorldPose();
 
-  // Fill state message.
-  timeGazeboToRos(cur_time, state_msg_.header.stamp);
+  // Update time stamp
+  timeGazeboToRos(world_->SimTime(), state_msg_.header.stamp);
 
+  // Update position
   vectorGazeboToKDL(T_W_B.Pos(), state_msg_.pose.pos);
 
-  const Quaterniond& q = T_W_B.Rot();
-  tobas_msgs::Euler& e = state_msg_.pose.euler;
+  // Update rotation
+  const auto& q = T_W_B.Rot();
+  auto& e = state_msg_.pose.euler;
   dh_std::quaternionToEuler(q.X(), q.Y(), q.Z(), q.W(), e.roll, e.pitch, e.yaw);
 
-  vectorGazeboToKDL(link_->WorldLinearVel(), state_msg_.twist.vel);
+  // Update linear velocity (Local)
+  vectorGazeboToKDL(link_->RelativeLinearVel(), state_msg_.twist.vel);
+
+  // Update angular velocity (Local)
   vectorGazeboToKDL(link_->RelativeAngularVel(), state_msg_.twist.rot);
 
   // Publish state message

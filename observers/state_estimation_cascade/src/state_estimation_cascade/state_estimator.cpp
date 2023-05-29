@@ -217,18 +217,18 @@ void StateEstimator::updatePoseVelMsg()
 {
   const auto& imu = filtered_imu_buf_.getLatest();
 
-  // 時刻
+  // Time stamp
   state_.header.stamp = imu.header.stamp;
 
-  // 位置
+  // Position
   tf::vectorEigenToKDL(cart_filter_.getPosition3D(), state_.pose.pos);
 
-  // ロール，ピッチ
+  // Roll, Pitch
   const auto& quat = filtered_imu_buf_.getLatest().orientation;
   auto& rpy = state_.pose.euler;
   quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy.roll, rpy.pitch, yaw_now_);
 
-  // ヨー
+  // Yaw
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
   {
     yaw_jump_count_--;
@@ -240,10 +240,11 @@ void StateEstimator::updatePoseVelMsg()
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
-  // 並進速度
+  // Linear velocity (Local)
   tf::vectorEigenToKDL(cart_filter_.getVelocity(), state_.twist.vel);
+  state_.twist.vel = state_.pose.euler.Inverse(state_.twist.vel);  // World -> Local
 
-  // 回転速度だけはローカル座標系
+  // Angular velocity (Local)
   tf::vectorMsgToKDL(imu.angular_velocity, state_.twist.rot);
 }
 

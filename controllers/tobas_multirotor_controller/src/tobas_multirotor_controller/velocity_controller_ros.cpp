@@ -118,6 +118,9 @@ void VelocityControllerRos::initialize()
 
 void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
+  dynamic_params_vel_.natural_freq = cfg.natural_frequency;
+  dynamic_params_vel_.damp_ratio = cfg.damping_ratio;
+
   dynamic_params_rot_.pred_horizon = cfg.prediction_horizon;
   dynamic_params_rot_.pred_steps = cfg.prediction_steps;
   dynamic_params_rot_.attitude_decay = cfg.attitude_decay;
@@ -133,7 +136,8 @@ void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 void VelocityControllerRos::runOnce()
 {
   // 速度制御器
-  vel_controller_->update(cur_bs_.twist.vel, tar_vel_W_, tar_acc_W_);
+  const auto cur_vel_W = cur_bs_.pose.euler * cur_bs_.twist.vel;
+  vel_controller_->update(cur_vel_W, tar_vel_W_, tar_acc_W_);
 
   // 非線形変換
   acc_controller_->update(tar_acc_W_, cur_bs_.pose.euler.yaw, U_, tar_rpy_.roll, tar_rpy_.pitch);
@@ -267,6 +271,7 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
   updateDynamicParams(cfg);
+  vel_controller_->reconfigure(dynamic_params_vel_);
   rot_controller_->reconfigure(dynamic_params_rot_);
 }
 }  // namespace tobas_multirotor_controller

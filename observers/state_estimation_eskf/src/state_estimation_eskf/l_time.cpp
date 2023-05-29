@@ -16,10 +16,6 @@ lTime::lTime(int32_t _sec, int32_t _nsec) : sec(_sec), nsec(_nsec)
   normalizeSecNSecSigned(sec, nsec);
 }
 
-lTime::~lTime()
-{
-}
-
 void lTime::normalizeSecNSecSigned(int64_t& sec, int64_t& nsec)
 {
   int64_t nsec_part = nsec % 1000000000L;
@@ -59,7 +55,9 @@ lTime& lTime::fromSec(double d)
 {
   int64_t sec64 = (int64_t)floor(d);
   if (sec64 < INT32_MAX || sec64 > INT32_MAX)
-    error++;
+  {
+    ++error;
+  }
   sec = (int32_t)sec64;
   nsec = (int32_t)(nearbyint((d - (double)sec) * 1000000000));
   return *(this);
@@ -69,7 +67,9 @@ lTime& lTime::fromNSec(int64_t t)
 {
   int64_t sec64 = t / 1000000000;
   if (sec64 < INT32_MIN || sec64 > INT32_MAX)
-    error++;
+  {
+    ++error;
+  }
   sec = (int32_t)sec64;
   nsec = (int32_t)(t % 1000000000);
   return *(this);
@@ -124,41 +124,65 @@ lTime& lTime::operator*=(double scale)
 bool lTime::operator<(const lTime& rhs) const
 {
   if (sec < rhs.sec)
+  {
     return true;
+  }
   else if (sec == rhs.sec && nsec < rhs.nsec)
+  {
     return true;
+  }
   else
+  {
     return false;
+  }
 }
 
 bool lTime::operator>(const lTime& rhs) const
 {
   if (sec > rhs.sec)
+  {
     return true;
+  }
   else if (sec == rhs.sec && nsec > rhs.nsec)
+  {
     return true;
+  }
   else
+  {
     return false;
+  }
 }
 
 bool lTime::operator<=(const lTime& rhs) const
 {
   if (sec < rhs.sec)
+  {
     return true;
+  }
   else if (sec == rhs.sec && nsec <= rhs.nsec)
+  {
     return true;
+  }
   else
+  {
     return false;
+  }
 }
 
 bool lTime::operator>=(const lTime& rhs) const
 {
   if (sec > rhs.sec)
+  {
     return true;
+  }
   else if (sec == rhs.sec && nsec >= rhs.nsec)
+  {
     return true;
+  }
   else
+  {
     return false;
+  }
 }
 
 bool lTime::operator==(const lTime& rhs) const
