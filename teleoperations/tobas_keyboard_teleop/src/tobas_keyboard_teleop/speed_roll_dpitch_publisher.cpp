@@ -37,10 +37,10 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher()
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
-                 "W/S    : Increase/Decrease speed\n"
-                 "A/D    : Turn left/right\n"
-                 "Up/Down: Nose up/down\n"
-                 "Ctrl-C : Quit\n";
+                 "W/S       : Increase/Decrease speed\n"
+                 "Up/Down   : Nose up/down\n"
+                 "Left/Right: Turn left/right\n"
+                 "Ctrl-C    : Quit\n";
 
   getRosParams();
   drone_.loadFromParam(ns_);
@@ -97,18 +97,6 @@ void SpeedRollDeltaPitchPublisher::run()
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
         break;
       }
-      case kKeyCode_A:
-      {
-        rosInfoThrottle(kInfoPeriod, "Turn left");
-        cmd_.roll = dh_std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        break;
-      }
-      case kKeyCode_D:
-      {
-        rosInfoThrottle(kInfoPeriod, "Turn right");
-        cmd_.roll = dh_std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        break;
-      }
       case kKeyCode_Up:
       {
         rosInfoThrottle(kInfoPeriod, "Nose up");
@@ -121,6 +109,18 @@ void SpeedRollDeltaPitchPublisher::run()
         rosInfoThrottle(kInfoPeriod, "Nose down");
         cmd_.delta_pitch =
           dh_std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+        break;
+      }
+      case kKeyCode_Left:
+      {
+        rosInfoThrottle(kInfoPeriod, "Turn left");
+        cmd_.roll = dh_std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
+        break;
+      }
+      case kKeyCode_Right:
+      {
+        rosInfoThrottle(kInfoPeriod, "Turn right");
+        cmd_.roll = dh_std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
         break;
       }
     }
