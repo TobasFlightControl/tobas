@@ -15,6 +15,7 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
         self,
         param_name: str,
         description_text: str = None,
+        decimals: int = 3,
         minimum: float = -1e+9,
         maximum: float = +1e+9,
         single_step: float = 1.,
@@ -26,10 +27,10 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
         self._cols = QHBoxLayout()
         self._rows.addLayout(self._cols)
 
-        self._min = DoubleGetter("min", minimum, maximum, single_step, default[0], suffix)
+        self._min = DoubleGetter("min", decimals, minimum, maximum, single_step, default[0], suffix)
         self._cols.addWidget(self._min)
 
-        self._max = DoubleGetter("max", minimum, maximum, single_step, default[1], suffix)
+        self._max = DoubleGetter("max", decimals, minimum, maximum, single_step, default[1], suffix)
         self._cols.addWidget(self._max)
 
         self._min.data.valueChanged.connect(self._on_value_changed)

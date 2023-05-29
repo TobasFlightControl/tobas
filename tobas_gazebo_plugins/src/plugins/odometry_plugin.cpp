@@ -57,11 +57,11 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "odometryTopic", odometry_pub_topic_, kDefaultOdometryTopic);
 
   getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
-  getSdfParam(sdf, "noiseNormalQuaternion", noise_normal_rotation_, zero3);
+  getSdfParam(sdf, "noiseNormalRotation", noise_normal_rotation_, zero3);
   getSdfParam(sdf, "noiseNormalLinearVelocity", noise_normal_linvel_, zero3);
   getSdfParam(sdf, "noiseNormalAngularVelocity", noise_normal_angvel_, zero3);
   getSdfParam(sdf, "noiseUniformPosition", noise_uniform_position_, zero3);
-  getSdfParam(sdf, "noiseUniformQuaternion", noise_uniform_rotation_, zero3);
+  getSdfParam(sdf, "noiseUniformRotation", noise_uniform_rotation_, zero3);
   getSdfParam(sdf, "noiseUniformLinearVelocity", noise_uniform_linvel_, zero3);
   getSdfParam(sdf, "noiseUniformAngularVelocity", noise_uniform_angvel_, zero3);
 }

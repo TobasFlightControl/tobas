@@ -4,6 +4,7 @@ import math
 import subprocess
 import rospy
 from xml.etree import ElementTree as ET
+from typing import Sequence
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -58,3 +59,31 @@ def is_valid_email(email: str) -> bool:
 
 def rpm_to_rad_per_sec(rpm: float) -> float:
     return (math.pi / 30) * rpm
+
+
+def all_gt(seq: Sequence[float], x: float) -> bool:
+    for elem in seq:
+        if elem <= x:
+            return False
+    return True
+
+
+def all_lt(seq: Sequence[float], x: float) -> bool:
+    for elem in seq:
+        if elem >= x:
+            return False
+    return True
+
+
+def all_ge(seq: Sequence[float], x: float) -> bool:
+    for elem in seq:
+        if elem < x:
+            return False
+    return True
+
+
+def all_le(seq: Sequence[float], x: float) -> bool:
+    for elem in seq:
+        if elem > x:
+            return False
+    return True

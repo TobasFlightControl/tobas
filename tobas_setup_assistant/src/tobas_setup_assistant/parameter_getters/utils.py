@@ -50,12 +50,14 @@ class DoubleGetter(QWidget):
     def __init__(
         self,
         name: str,
+        decimals: int,
         minimum: float,
         maximum: float,
         single_step: float,
         default: float,
         suffix: str,
     ) -> None:
+        assert decimals >= 0
         assert minimum < maximum
         assert single_step > 0.
 
@@ -69,6 +71,7 @@ class DoubleGetter(QWidget):
         self._cols.addWidget(label)
 
         self.data = DoubleSpinBox()
+        self.data.setDecimals(decimals)
         self.data.setMinimum(minimum)
         self.data.setMaximum(maximum)
         self.data.setSingleStep(single_step)

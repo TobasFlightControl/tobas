@@ -61,7 +61,7 @@ def add_depth_camera_model(
     sensor.attrib["type"] = "depth"
 
     ET.SubElement(sensor, "always_on").text = "true"
-    ET.SubElement(sensor, "update_rate").text = f'{frame_rate}'
+    ET.SubElement(sensor, "update_rate").text = str(frame_rate)
 
     # robot/gazebo/sensor/camera
     camera = Camera(
@@ -96,7 +96,7 @@ def add_depth_camera_model(
     ET.SubElement(plugin, "robotNamespace").text = ns
     ET.SubElement(plugin, "frameName").text = optical_link
     ET.SubElement(plugin, "depthNoiseModel").text = noise_model
-    ET.SubElement(plugin, "depthNoiseMinDist").text = f'{near}'
-    ET.SubElement(plugin, "depthNoiseMaxDist").text = f'{far}'
-    ET.SubElement(plugin, "horizontalFOV").text = f'{fov}'
-    ET.SubElement(plugin, "baseline").text = f'{baseline}'
+    ET.SubElement(plugin, "depthNoiseMinDist").text = str(near)
+    ET.SubElement(plugin, "depthNoiseMaxDist").text = str(far)
+    ET.SubElement(plugin, "horizontalFOV").text = str(fov)
+    ET.SubElement(plugin, "baseline").text = str(baseline)

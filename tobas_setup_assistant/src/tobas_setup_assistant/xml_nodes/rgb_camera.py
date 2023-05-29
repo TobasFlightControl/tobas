@@ -55,7 +55,7 @@ def add_rgb_camera_model(
     sensor.attrib["type"] = "camera"
 
     ET.SubElement(sensor, "always_on").text = "true"
-    ET.SubElement(sensor, "update_rate").text = f'{frame_rate}'
+    ET.SubElement(sensor, "update_rate").text = str(frame_rate)
 
     # robot/gazebo/sensor/camera
     camera = Camera(

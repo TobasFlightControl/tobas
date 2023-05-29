@@ -80,6 +80,8 @@ class PackageGenerator(QWidget):
             return False
         if not self._main.settings.lidar.is_valid():
             return False
+        if not self._main.settings.odometry.is_valid():
+            return False
         if not self._main.settings.controller.is_valid():
             return False
         if not self._main.settings.observer.is_valid():
@@ -371,6 +373,7 @@ class PackageGenerator(QWidget):
         gps = self._main.settings.gps
         rgb_camera = self._main.settings.rgb_camera
         depth_camera = self._main.settings.depth_camera
+        odometry = self._main.settings.odometry
         simulation = self._main.settings.simulation
 
         # Motors
@@ -497,6 +500,23 @@ class PackageGenerator(QWidget):
                 baseline=depth_camera.baseline.get(),
                 noise_model=depth_camera.noise_model.get(),
             )
+
+        # Odometry
+        if not odometry.no_sensor.isChecked():
+            odometry_model = OdometryModel(
+                ns=self._drone_name,
+                link_name=odometry.link.get(),
+                update_rate=odometry.update_rate.get(),
+                pos_normal_noise_std=odometry.pos_normal_noise_std.get(),
+                rot_normal_noise_std=odometry.rot_normal_noise_std.get(),
+                linvel_normal_noise_std=odometry.linvel_normal_noise_std.get(),
+                angvel_normal_noise_std=odometry.angvel_normal_noise_std.get(),
+                pos_uniform_noise_scale=odometry.pos_uniform_noise_scale.get(),
+                rot_uniform_noise_scale=odometry.rot_uniform_noise_scale.get(),
+                linvel_uniform_noise_scale=odometry.linvel_uniform_noise_scale.get(),
+                angvel_uniform_noise_scale=odometry.angvel_uniform_noise_scale.get(),
+            )
+            robot.append(odometry_model)
 
         # Ground Truth State
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)

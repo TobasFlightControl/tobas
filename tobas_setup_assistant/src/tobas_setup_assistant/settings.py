@@ -31,6 +31,7 @@ class SettingsWidget(VerticalTabWidget):
         self.rgb_camera = RgbCameraWidget(main)
         self.depth_camera = DepthCameraWidget(main)
         self.lidar = LidarWidget(main)
+        self.odometry = OdometryWidget(main)
         self.controller = ControllerWidget(main)
         self.observer = ObserverWidget(main)
         self.simulation = SimulationWidget(main)
@@ -47,6 +48,7 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.rgb_camera, "RGB Camera")
         self.addTab(self.depth_camera, "Depth Camera")
         # self.addTab(self.lidar, "LiDAR")  # TODO
+        self.addTab(self.odometry, "Odometry")
         self.addTab(self.controller, "Controller")
         self.addTab(self.observer, "Observer")
         self.addTab(self.simulation, "Simulation")
@@ -69,6 +71,7 @@ class SettingsWidget(VerticalTabWidget):
         self.rgb_camera.define_connections()
         self.depth_camera.define_connections()
         self.lidar.define_connections()
+        self.odometry.define_connections()
         self.controller.define_connections()
         self.observer.define_connections()
         self.simulation.define_connections()

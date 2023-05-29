@@ -1,7 +1,9 @@
 from xml.etree import ElementTree as ET
 
+from .sensor import SensorModel
 
-class ImuModel(ET.Element):
+
+class ImuModel(SensorModel):
 
     def __init__(
         self,
@@ -27,32 +29,21 @@ class ImuModel(ET.Element):
         assert acc_bias_corr_time > 0.
         assert acc_turn_on_bias_sigma > 0.
 
-        # robot/gazebo
-        super().__init__("gazebo", reference=link_name)
-
-        # robot/gazebo/sensor
-        sensor = ET.SubElement(self, "sensor")
-        sensor.attrib["name"] = f'{ns}_imu'
-        sensor.attrib["type"] = "imu"
-
-        ET.SubElement(sensor, "always_on").text = "true"
-        ET.SubElement(sensor, "update_rate").text = f'{update_rate}'
-        ET.SubElement(sensor, "visualize").text = "false"
-        ET.SubElement(sensor, "pose").text = "0 0 0 0 0 0"
+        super().__init__(link_name, f'{ns}_imu', "imu", update_rate)
 
         # robot/gazebo/sensor/plugin
-        plugin = ET.SubElement(sensor, "plugin")
+        plugin = ET.SubElement(self.sensor, "plugin")
         plugin.attrib["filename"] = "libtobas_gazebo_imu_plugin.so"
         plugin.attrib["name"] = "tobas_gazebo_imu_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "imuTopic").text = "imu"
-        ET.SubElement(plugin, "gyroscopeNoiseDensity").text = f'{gyro_noise_density}'
-        ET.SubElement(plugin, "gyroscopeRandomWalk").text = f'{gyro_random_walk}'
-        ET.SubElement(plugin, "gyroscopeBiasCorrelationTime").text = f'{gyro_bias_corr_time}'
-        ET.SubElement(plugin, "gyroscopeTurnOnBiasSigma").text = f'{gyro_turn_on_bias_sigma}'
-        ET.SubElement(plugin, "accelerometerNoiseDensity").text = f'{acc_noise_density}'
-        ET.SubElement(plugin, "accelerometerRandomWalk").text = f'{acc_random_walk}'
-        ET.SubElement(plugin, "accelerometerBiasCorrelationTime").text = f'{acc_bias_corr_time}'
-        ET.SubElement(plugin, "accelerometerTurnOnBiasSigma").text = f'{acc_turn_on_bias_sigma}'
+        ET.SubElement(plugin, "gyroscopeNoiseDensity").text = str(gyro_noise_density)
+        ET.SubElement(plugin, "gyroscopeRandomWalk").text = str(gyro_random_walk)
+        ET.SubElement(plugin, "gyroscopeBiasCorrelationTime").text = str(gyro_bias_corr_time)
+        ET.SubElement(plugin, "gyroscopeTurnOnBiasSigma").text = str(gyro_turn_on_bias_sigma)
+        ET.SubElement(plugin, "accelerometerNoiseDensity").text = str(acc_noise_density)
+        ET.SubElement(plugin, "accelerometerRandomWalk").text = str(acc_random_walk)
+        ET.SubElement(plugin, "accelerometerBiasCorrelationTime").text = str(acc_bias_corr_time)
+        ET.SubElement(plugin, "accelerometerTurnOnBiasSigma").text = str(acc_turn_on_bias_sigma)

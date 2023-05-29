@@ -15,6 +15,7 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
         self,
         param_name: str,
         description_text: str = None,
+        decimals: int = 3,
         minimum: Tuple[float, float, float] = (-1e+9,) * 3,
         maximum: Tuple[float, float, float] = (+1e+9,) * 3,
         single_step: Tuple[float, float, float] = (1.,) * 3,
@@ -26,13 +27,19 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
         self._cols = QHBoxLayout()
         self._rows.addLayout(self._cols)
 
-        self._x = DoubleGetter("x", minimum[0], maximum[0], single_step[0], default[0], suffix)
+        self._x = DoubleGetter(
+            "x", decimals, minimum[0], maximum[0], single_step[0], default[0], suffix
+        )
         self._cols.addWidget(self._x)
 
-        self._y = DoubleGetter("y", minimum[1], maximum[1], single_step[1], default[1], suffix)
+        self._y = DoubleGetter(
+            "y", decimals, minimum[1], maximum[1], single_step[1], default[1], suffix
+        )
         self._cols.addWidget(self._y)
 
-        self._z = DoubleGetter("z", minimum[2], maximum[2], single_step[2], default[2], suffix)
+        self._z = DoubleGetter(
+            "z", decimals, minimum[2], maximum[2], single_step[2], default[2], suffix
+        )
         self._cols.addWidget(self._z)
 
         self._x.data.valueChanged.connect(self._on_value_changed)
