@@ -8,6 +8,7 @@
 #include <sensor_msgs/MagneticField.h>
 
 #include "../tobas_gazebo_plugins/common.hpp"
+#include "../tobas_gazebo_plugins/random.hpp"
 
 namespace gazebo
 {
@@ -51,14 +52,12 @@ private:
   ignition::math::Vector3d mag_NWU_;
   MagMsg mag_msg_;
 
-  NormalDistribution noise_[3];
   std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
+  NormalDistribution3dPtr noise_;
 
   ros::Publisher mag_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();
-  void addNoise(ignition::math::Vector3d& mag);
 };
 }  // namespace gazebo

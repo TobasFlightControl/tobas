@@ -10,6 +10,7 @@
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 
 #include "../tobas_gazebo_plugins/common.hpp"
+#include "../tobas_gazebo_plugins/random.hpp"
 
 namespace gazebo
 {
@@ -63,16 +64,18 @@ private:
   PosMsg pos_msg_;
   VelMsg vel_msg_;
 
-  NormalDistribution pos_noise_[3];
-  NormalDistribution vel_noise_[3];
   std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
+  NormalDistribution3dPtr pos_noise_;
+  NormalDistribution3dPtr vel_noise_;
 
   // Publishers
   ros::Publisher pos_pub_;
   ros::Publisher vel_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
+  void fillMessageStaticParts();
+  void setRandomDistribuitons();
+  void registerPublishers();
   void onUpdate();
   void updatePosition();
   void updateVelocity();

@@ -68,7 +68,7 @@ private:
   ros::Publisher odometry_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
-  void fillOdometryFixedParts();
+  void fillMessageStaticParts();
   void setRandomDistributions();
   void registerPublishers();
   void onUpdate();

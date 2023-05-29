@@ -64,9 +64,9 @@ private:
   ignition::math::Vector3d gyro_turn_on_bias_;
   ignition::math::Vector3d acc_turn_on_bias_;
 
-  NormalDistribution noise_;
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
+  NormalDistribution noise_;
 
   ros::Publisher imu_pub_;
 

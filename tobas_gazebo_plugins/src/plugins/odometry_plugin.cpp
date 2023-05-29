@@ -22,7 +22,7 @@ GazeboOdometryPlugin::GazeboOdometryPlugin() : super()
 void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
   getSdfParams(sdf);
-  fillOdometryFixedParts();
+  fillMessageStaticParts();
   setRandomDistributions();
 
   world_ = physics::get_world(sensor->WorldName());
@@ -66,7 +66,7 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "noiseUniformAngularVelocity", noise_uniform_angvel_, zero3);
 }
 
-void GazeboOdometryPlugin::fillOdometryFixedParts()
+void GazeboOdometryPlugin::fillMessageStaticParts()
 {
   // Fill in frame ids
   odom_msg_.header.frame_id = "world";
