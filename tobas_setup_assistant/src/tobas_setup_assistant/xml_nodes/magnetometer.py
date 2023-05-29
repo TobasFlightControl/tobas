@@ -24,7 +24,10 @@ class MagnetometerModel(ET.Element):
         # robot/gazebo/sensor
         sensor = ET.SubElement(self, "sensor")
         sensor.attrib["name"] = f'{ns}_magnetometer'
-        sensor.attrib["type"] = "magnetometer"
+
+        # TODO: センサを登録 (https://github.com/peci1/gazebo_custom_sensor_preloader)
+        # sensor.attrib["type"] = "magnetometer"
+        sensor.attrib["type"] = "imu"
 
         ET.SubElement(sensor, "always_on").text = "true"
         ET.SubElement(sensor, "update_rate").text = f'{update_rate}'

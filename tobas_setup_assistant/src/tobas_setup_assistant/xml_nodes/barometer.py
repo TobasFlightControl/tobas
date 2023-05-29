@@ -23,9 +23,9 @@ class BarometerModel(ET.Element):
         sensor.attrib["name"] = f'{ns}_barometer'
 
         # SDFormat(http://sdformat.org/spec?elem=sensor)にはあるが，"air_pressure"だとセンサが起動しなかった
-        # <air_pressure>タグを指定しておらずtypeは正直何でもよいため，とりあえず"altimeter"にしている
-        # sensor.attrib["type"] = "air_pressure"
-        sensor.attrib["type"] = "altimeter"
+        # <air_pressure>タグを指定しておらずtypeは正直何でもよいため，とりあえず"imu"にしている
+        # "altimeter"もあるが"Error: Conversion of sensor type[altimeter] not supported"が出る
+        sensor.attrib["type"] = "imu"
 
         ET.SubElement(sensor, "always_on").text = "true"
         ET.SubElement(sensor, "update_rate").text = f'{update_rate}'
