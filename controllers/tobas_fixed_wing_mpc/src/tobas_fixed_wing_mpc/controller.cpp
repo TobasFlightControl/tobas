@@ -410,9 +410,9 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
     {
       publishTakeoffCommand();
 
-      // 離陸速度を上回ったら制御開始
+      // 最低速度を上回ったら制御開始
       const auto cur_speed = bs_nwu.twist.vel.Norm();
-      if (cur_speed > eom_.trimCondition().takeOffSpeed(air_density_))
+      if (cur_speed > eom_.trimCondition().minimumSpeed(air_density_))
       {
         setInitialTarget();
         state_ = FLIGHT;
