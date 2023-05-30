@@ -17,13 +17,6 @@
       </sky>
     </scene>
 
-    <spherical_coordinates>
-      <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>47.3667</latitude_deg>
-      <longitude_deg>8.5500</longitude_deg>
-      <elevation>500.0</elevation>
-      <heading_deg>0</heading_deg>
-    </spherical_coordinates>
     <physics type='ode'>
       <ode>
         <solver>
@@ -41,8 +34,9 @@
       <max_step_size>0.01</max_step_size>
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>100</real_time_update_rate>
-      <gravity>0 0 -9.8</gravity>
+      <gravity>0 0 -9.8066</gravity>
     </physics>
+
     <!-- Light Source -->
     <light type="directional" name="sun">
       <cast_shadows>false</cast_shadows>
@@ -57,9 +51,11 @@
       </attenuation>
       <direction>0.2 0.2 -0.9</direction>
     </light>
+
     <include>
       <uri>model://yosemite</uri>
     </include>
+
     <model name="grass_takeoff_plane">
       <static>true</static>
       <link name='link'>
@@ -74,7 +70,7 @@
             <friction>
               <ode>
                 <mu>0.2</mu>
-                <mu2>.2</mu2>
+                <mu2>0.2</mu2>
               </ode>
             </friction>
           </surface>
@@ -200,5 +196,6 @@
         </visual>
       </link>
     </model>
+
   </world>
 </sdf>
