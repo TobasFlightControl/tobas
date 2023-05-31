@@ -12,7 +12,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  Vector3d a_grav,
+  const Vector3d& a_grav,
   const StateVector& init_state,
   const dStateMatrix& init_P,
   double var_acc,
@@ -245,7 +245,7 @@ void ErrorStateKalmanFilter::predictIMU(
 // eqn 280, page 62
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
 {
-  Vector4d qby2 = 0.5f * getQuatVector();
+  Vector4d qby2 = 0.5 * getQuatVector();
   // Assing to letters for readability. Note Hamilton order.
   double w = qby2[0];
   double x = qby2[1];

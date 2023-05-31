@@ -257,7 +257,7 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
 
   tf::vectorKDLToEigen(vel.vel, v_m_);
 
-  boost::array<double, 9> cov_copy = vel.covariance;
+  auto cov_copy = vel.covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   eskf_.measureVelocity(v_m_, cov, stamp, now);

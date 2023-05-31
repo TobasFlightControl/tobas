@@ -61,7 +61,7 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    Eigen::Vector3d a_grav,
+    const Eigen::Vector3d& a_grav,
     const StateVector& init_state,
     const dStateMatrix& init_P,
     double var_acc,
@@ -237,17 +237,18 @@ void ErrorStateKalmanFilter::correct(
   }
   if (delay_handling_ == LARSON_AVERATE_IMU && !is_normal_pass)
   {
-    ImuMeasurement average_imu = getAverageIMU(stamp);
-    double dt = (now - stamp).toSec();
-    Eigen::Vector3d acc_body = average_imu.acc - getAccelBias();
-    Eigen::Vector3d omega = average_imu.gyro - getGyroBias();
-    Eigen::Vector3d delta_theta = omega * dt;
-    Eigen::Quaterniond q_delta_theta = rotVecToQuat(delta_theta);
-    Eigen::Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
+    const auto average_imu = getAverageIMU(stamp);
+    const auto dt = (now - stamp).toSec();
+    const auto acc_body = average_imu.acc - getAccelBias();
+    const auto omega = average_imu.gyro - getGyroBias();
+    const auto delta_theta = omega * dt;
+    const auto q_delta_theta = rotVecToQuat(delta_theta);
+    const auto R_delta_theta = q_delta_theta.toRotationMatrix();
     best_time_idx = getClosestTime(state_hist_ptr_, stamp);
 
-    Eigen::Matrix3d Rot =
+    const auto Rot =
       quatFromHamilton(state_hist_ptr_->at(best_time_idx).second.block<4, 1>(QUAT_IDX, 0)).matrix();
+
     // dPos row
     F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);
     // dVel row
@@ -259,7 +260,7 @@ void ErrorStateKalmanFilter::correct(
   }
 
   // Kalman gain
-  Eigen::Matrix<double, dSTATE_SIZE, M> PHt = P_ * H.transpose();
+  const auto PHt = P_ * H.transpose();
   Eigen::Matrix<double, dSTATE_SIZE, M> K;
   if ((delay_handling_ == NO_METHOD || delay_handling_ == APPLY_UPDATE_TO_NEW
        || delay_handling_ == LARSON_AVERATE_IMU))
@@ -272,12 +273,13 @@ void ErrorStateKalmanFilter::correct(
   }
 
   // Correction error state
-  dStateVector errorState = K * delta_meas;
+  const auto error_state = K * delta_meas;
+  const auto I_KH = dStateMatrix::Identity() - K * H;
 
   // Update P (simple form)
-  // P_ = (dStateMatrix::Identity() - K * H) * P_;
+  // P_ = I_KH * P_;
+
   // Update P (Joseph form)
-  dStateMatrix I_KH = dStateMatrix::Identity() - K * H;
   if (delay_handling_ == NO_METHOD || delay_handling_ == APPLY_UPDATE_TO_NEW)
   {
     P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();
@@ -287,5 +289,5 @@ void ErrorStateKalmanFilter::correct(
     P_ = P_ - K * H * P_hist_ptr_->at(best_time_idx).second * F_x_;
   }
 
-  injectErrorState(errorState);
+  injectErrorState(error_state);
 }
