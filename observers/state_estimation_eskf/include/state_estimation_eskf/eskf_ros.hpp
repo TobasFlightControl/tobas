@@ -81,7 +81,6 @@ private:
   void initialize();
   void setZeroPositions();
   void updatePoseVelMsg();
-  lTime getNow();
 
   void imuCb(const ImuMsg& msg);
   void magCb(const MagMsg& msg);

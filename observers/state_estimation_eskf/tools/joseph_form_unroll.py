@@ -4,8 +4,8 @@ dPOS_IDX = (0)
 dVEL_IDX = (dPOS_IDX + 3)
 dTHETA_IDX = (dVEL_IDX + 3)
 dAB_IDX = (dTHETA_IDX + 3)
-dGB_IDX = (dAB_IDX + 3)
-dSTATE_SIZE = (dGB_IDX + 3)
+dWB_IDX = (dAB_IDX + 3)
+dSTATE_SIZE = (dWB_IDX + 3)
 
 outfile_name = '../include/state_estimation_eskf/unrolled_joseph.hpp'
 
@@ -36,11 +36,11 @@ F_x[dVEL_IDX:dVEL_IDX+3, dTHETA_IDX:dTHETA_IDX+3] = make_matrix('dVel_dTheta', 3
 F_x[dVEL_IDX:dVEL_IDX+3, dAB_IDX:dAB_IDX+3] = make_matrix('dVel_dAccelBias', 3, 3)
 # dTheta row
 F_x[dTHETA_IDX:dTHETA_IDX+3, dTHETA_IDX:dTHETA_IDX+3] = make_matrix('dTheta_dTheta', 3, 3)
-F_x[dTHETA_IDX:dTHETA_IDX+3, dGB_IDX:dGB_IDX+3] = -sp.eye(3) * dt
+F_x[dTHETA_IDX:dTHETA_IDX+3, dWB_IDX:dWB_IDX+3] = -sp.eye(3) * dt
 # dAccelBias row
 F_x[dAB_IDX:dAB_IDX+3, dAB_IDX:dAB_IDX+3] = sp.eye(3)
 # dGyroBias row
-F_x[dGB_IDX:dGB_IDX+3, dGB_IDX:dGB_IDX+3] = sp.eye(3)
+F_x[dWB_IDX:dWB_IDX+3, dWB_IDX:dWB_IDX+3] = sp.eye(3)
 
 
 P = make_matrix('Pin', dSTATE_SIZE, dSTATE_SIZE)
