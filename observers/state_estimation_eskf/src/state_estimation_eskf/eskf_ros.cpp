@@ -178,8 +178,8 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
     return;
   }
 
-  // FIXME: 観測が状態に依存してるのはマズい気がする
-  const Vector3d a = a_m_ - eskf_.getAccelBias();
+  const Vector3d a = a_m_;
+  // const Vector3d a = a_m_ - eskf_.getAccelBias();  // 観測が状態に依存してるのはまずい？
   const auto& m = mag.magnetic_field;
   imuToQuaternion(
     a.x(), a.y(), a.z(), m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), q_m_.x(),
