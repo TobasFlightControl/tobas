@@ -24,21 +24,15 @@ void ErrorStateKalmanFilter::initialize(
   var_omega_ = var_omega;
   var_acc_bias_ = var_acc_bias;
   var_omega_bias_ = var_omega_bias;
-  a_grav_ = a_grav;
+  grav_W_ = a_grav;
   nominal_state_ = init_state;
   P_ = init_P;
 
-  // Jacobian of the state transition: page 59, eqn 269
-  // Precompute constant part only
+  // (270) ヤコビアンの不変部分を埋める
   F_x_.setZero();
-  // dPos row
   F_x_.block<3, 3>(dPOS_IDX, dPOS_IDX).diagonal().fill(1.);
-  // dVel row
   F_x_.block<3, 3>(dVEL_IDX, dVEL_IDX).diagonal().fill(1.);
-  // dTheta row
-  // dAccelBias row
   F_x_.block<3, 3>(dAB_IDX, dAB_IDX).diagonal().fill(1.);
-  // dGyroBias row
   F_x_.block<3, 3>(dWB_IDX, dWB_IDX).diagonal().fill(1.);
 }
 
@@ -120,44 +114,35 @@ Vector3d ErrorStateKalmanFilter::quatToRotVec(const Quaterniond& q)
   return angle_axis.angle() * angle_axis.axis();
 }
 
-void ErrorStateKalmanFilter::predictIMU(
-  const Vector3d& a_m,
-  const Vector3d& omega_m,
-  const double dt)
+void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, const double dt)
 {
-  // DCM of current state
+  assert(dt > 0.);
+
   const auto Rot = getDCM();
-  // Accelerometer measurement
-  const auto acc_body = a_m - getAccelBias();
-  const auto acc_global = Rot * acc_body;
-  // Gyro measruement
-  const auto omega = omega_m - getGyroBias();
-  const auto delta_theta = omega * dt;
+  const auto acc_B = a_m - getAccelBias();
+  const auto acc_W = Rot * acc_B;
+  const auto delta_theta = (w_m - getGyroBias()) * dt;
   const auto q_delta_theta = rotVecToQuat(delta_theta);
   const auto R_delta_theta = q_delta_theta.toRotationMatrix();
 
-  // Nominal state kinematics (eqn 259, pg 58)
-  const auto delta_pos = getVelocity() * dt + 0.5 * (acc_global + a_grav_) * SQ(dt);
-  nominal_state_.block<3, 1>(POS_IDX, 0) += delta_pos;
-  nominal_state_.block<3, 1>(VEL_IDX, 0) += (acc_global + a_grav_) * dt;
+  // (260) ノミナル状態のキネマティクス
+  nominal_state_.block<3, 1>(POS_IDX, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * SQ(dt);
+  nominal_state_.block<3, 1>(VEL_IDX, 0) += (acc_W + grav_W_) * dt;
   nominal_state_.block<4, 1>(QUAT_IDX, 0) =
     quatToHamilton(getQuaternion() * q_delta_theta).normalized();
 
-  // Jacobian of the state transition (eqn 269, page 59). Update dynamic parts only.
-  // dPos row
+  // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);  // = I_3 * dt
-  // dVel row
-  F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
+  F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_B) * dt;
   F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
-  // dTheta row
   F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
   F_x_.block<3, 3>(dTHETA_IDX, dWB_IDX).diagonal().fill(-dt);  // = -I_3 * dt;
 
-  // Predict P and inject variance (with diagonal optimization)
+  // (269): 共分散行列の予測値を更新
   P_ = F_x_ * P_ * F_x_.transpose();
 
   // dStateMatrix Pnew;
-  // unrolledFPFt(P_, Pnew, dt, -Rot * getSkew(acc_body) * dt, -Rot * dt,
+  // unrolledFPFt(P_, Pnew, dt, -Rot * getSkew(acc_B) * dt, -Rot * dt,
   // R_delta_theta.transpose()); P_ = Pnew;
 
   // Inject process noise
@@ -250,18 +235,17 @@ void ErrorStateKalmanFilter::measureQuaternion(
 }
 
 void ErrorStateKalmanFilter::injectErrorState(const dStateVector& error_state)
-{  // Inject error state into nominal state (eqn 282, pg 62)
+{
+  // (283) 観測した誤差をノミナル状態に反映
+  const auto dtheta = error_state.block<3, 1>(dTHETA_IDX, 0);
+  const auto q_dtheta = rotVecToQuat(dtheta);
   nominal_state_.block<3, 1>(POS_IDX, 0) += error_state.block<3, 1>(dPOS_IDX, 0);
   nominal_state_.block<3, 1>(VEL_IDX, 0) += error_state.block<3, 1>(dVEL_IDX, 0);
-  Vector3d dtheta = error_state.block<3, 1>(dTHETA_IDX, 0);
-  Quaterniond q_dtheta = rotVecToQuat(dtheta);
   nominal_state_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(getQuaternion() * q_dtheta).normalized();
   nominal_state_.block<3, 1>(AB_IDX, 0) += error_state.block<3, 1>(dAB_IDX, 0);
   nominal_state_.block<3, 1>(WB_IDX, 0) += error_state.block<3, 1>(dWB_IDX, 0);
 
-  // Reflect this tranformation in the P matrix, aka ErrorStateKalmanFilter Reset
-  // Note that the document suggests that this step is optional
-  // eqn 287, pg 63
+  // (286) ESKFを初期化
   const auto G_theta = I_3 - getSkew(0.5 * dtheta);
   P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) =
     G_theta * P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) * G_theta.transpose();

@@ -20,7 +20,10 @@
 #define dWB_IDX (dAB_IDX + 3)
 #define dSTATE_SIZE (dWB_IDX + 3)
 
-// the main ESKF class
+/**
+ * @brief 誤差状態カルマンフィルタ．
+ * https://www.flight.t.u-tokyo.ac.jp/?p=800
+ */
 class ErrorStateKalmanFilter
 {
   using StateMatrix = Eigen::Matrix<double, STATE_SIZE, STATE_SIZE>;
@@ -112,12 +115,13 @@ private:
   double var_acc_bias_;
   double var_omega_bias_;
 
-  Eigen::Vector3d a_grav_;                    // Acceleration due to gravity in global frame [m/s^2]
-  StateVector nominal_state_;                 // State vector of the filter
-  dStateMatrix P_;                            // Covariance of the error state
-  dStateMatrix F_x_;                          // Jacobian of the state transition
+  Eigen::Vector3d grav_W_;     // Acceleration due to gravity in global frame [m/s^2]
+  StateVector nominal_state_;  // State vector of the filter
+  dStateMatrix P_;             // Covariance of the error state
+  dStateMatrix F_x_;           // Jacobian of the state transition
 
-  Eigen::Matrix<double, 4, 3> getQ_dtheta();  // eqn 280, page 62
+  /* (281) */
+  Eigen::Matrix<double, 4, 3> getQ_dtheta();
 
   template <size_t M>
   void correct(
