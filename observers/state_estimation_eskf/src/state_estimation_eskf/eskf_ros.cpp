@@ -86,8 +86,17 @@ void ErrorStateKalmanFilterRos::initialize()
   const auto& a = imu_.linear_acceleration;
   const auto& m = mag_.magnetic_field;
   imuToQuaternion(
-    a.x, a.y, a.z, m.x, m.y, m.z, ref_mag_.x(), ref_mag_.y(), ref_mag_.z(), q_m_.x(), q_m_.y(),
+    a.x, a.y, a.z, m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), q_m_.x(), q_m_.y(),
     q_m_.z(), q_m_.w());
+
+  // For debug
+  // KDL::Euler euler;
+  // imuToEuler(
+  //   a.x, a.y, a.z, m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), euler.roll,
+  //   euler.pitch, euler.yaw);
+  // std::cout << "a: " << a << endl;
+  // std::cout << "m: " << m << endl;
+  // std::cout << "euler: " << euler << endl;
 
   // TODO: eskf_.initializeをstate_estimation_cascadeのようにする
   eskf_.initialize(
@@ -173,7 +182,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
   const Vector3d a = a_m_ - eskf_.getAccelBias();
   const auto& m = mag.magnetic_field;
   imuToQuaternion(
-    a.x(), a.y(), a.z(), m.x, m.y, m.z, ref_mag_.x(), ref_mag_.y(), ref_mag_.z(), q_m_.x(),
+    a.x(), a.y(), a.z(), m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), q_m_.x(),
     q_m_.y(), q_m_.z(), q_m_.w());
 
   // TODO: 加速度センサのノイズの分散からクォータニオンのノイズの共分散を正しく計算する

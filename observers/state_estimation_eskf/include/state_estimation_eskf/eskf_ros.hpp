@@ -56,7 +56,7 @@ private:
 
   // rosparams
   double gravity_;
-  Eigen::Vector3d ref_mag_;
+  Eigen::Vector3d ref_mag_;    // 地磁気ベクトル (NED)
   double gyro_noise_density_;  // rad/s/sqrt(hz)
   double gyro_random_walk_;    // rad/s^2/sqrt(hz)
   double acc_noise_density_;   // m/s^2/sqrt(hz)
