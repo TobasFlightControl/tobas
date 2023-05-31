@@ -9,8 +9,9 @@
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
-#define TIMER_PERIOD 5.
 #define I_3 (Matrix3d::Identity())
+#define TIMER_PERIOD 5.  // [s]
+#define WAIT_TO_PUBLISH 3.  // 状態を安定させるためにESKFが稼働してから少し待つ (効果微妙) [s]
 
 using namespace std;
 using namespace Eigen;
@@ -34,9 +35,9 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 void ErrorStateKalmanFilterRos::getRosParams()
 {
   dh_ros::getParam("/gravity", gravity_);
-  dh_ros::getParam("/geomagnetism/north", ref_mag_.x());
-  dh_ros::getParam("/geomagnetism/east", ref_mag_.y());
-  dh_ros::getParam("/geomagnetism/down", ref_mag_.z());
+  dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
+  dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
+  dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
 
   dh_ros::getParam("~gyro_noise_density", gyro_noise_density_);
   dh_ros::getParam("~gyro_random_walk", gyro_random_walk_);
@@ -83,35 +84,35 @@ void ErrorStateKalmanFilterRos::initialize()
 {
   setZeroPositions();
 
-  const auto& a = imu_.linear_acceleration;
+  // 地磁気センサから初期姿勢を推定
   const auto& m = mag_.magnetic_field;
-  imuToQuaternion(
-    a.x, a.y, a.z, m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), q_m_.x(), q_m_.y(),
-    q_m_.z(), q_m_.w());
+  const Vector3d m0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
+  const double roll = 0., pitch = 0.;  // 最初は水平状態を想定
+  const double yaw = atan2(m0.y() * m.x - m0.x() * m.y, m0.x() * m.x + m0.y() * m.y);
+  eulerToQuaternion(roll, pitch, yaw, q_m_.x(), q_m_.y(), q_m_.z(), q_m_.w());
+  cout << "Initial quaternion: " << q_m_.coeffs() << endl;
 
-  // For debug
-  // KDL::Euler euler;
-  // imuToEuler(
-  //   a.x, a.y, a.z, m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), euler.roll,
-  //   euler.pitch, euler.yaw);
-  // std::cout << "a: " << a << endl;
-  // std::cout << "m: " << m << endl;
-  // std::cout << "euler: " << euler << endl;
-
-  // TODO: eskf_.initializeをstate_estimation_cascadeのようにする
+  // ISKFを初期化
+  const double freq = 100.;  // テキトー [Hz]
+  const auto var_acc = sqr(acc_noise_density_) * freq;
+  const auto var_gyro = sqr(gyro_noise_density_) * freq;
+  const auto var_acc_bias = sqr(acc_random_walk_) * freq;
+  const auto var_gyro_bias = sqr(gyro_random_walk_) * freq;
   eskf_.initialize(
-    Vector3d(0, 0, -gravity_),  // Acceleration due to gravity in global frame
-    ErrorStateKalmanFilter::makeState(
-      Vector3d::Zero(),         // init pos
-      Vector3d::Zero(),         // init vel
-      q_m_,                     // init quaternion
-      Vector3d::Zero(),         // init accel bias
-      Vector3d::Zero()          // init gyro bias
-      ),
-    ErrorStateKalmanFilter::makeP(
-      sqr(1.) * I_3, sqr(0.1) * I_3, sqr(1.) * I_3, sqr(10 * 0.001 * 0.00124) * I_3,
-      sqr(10 * 0.001 * 0.276) * I_3),
-    sqr(0.00124), sqr(0.276), sqr(0.001 * 0.00124), sqr(0.001 * 0.276));
+    gravity_,                                          // gravity
+    var_acc,                                           // acc variance
+    var_gyro,                                          // gyro variance
+    var_acc_bias,                                      // acc bias variance
+    var_gyro_bias,                                     // gyro bias variance
+    Vector3d::Zero(),                                  // init position
+    Vector3d::Zero(),                                  // init velocity
+    q_m_,                                              // init quaternion
+    Vector3d(sqr(3.), sqr(3.), sqr(1.)).asDiagonal(),  // init position cov
+    sqr(0.1) * I_3,                                    // init velocity cov
+    sqr(1.) * I_3,                                     // init quaternion cov
+    var_acc_bias * I_3,                                // init acc bias cov
+    var_gyro_bias * I_3                                // init gyro bias cov
+  );
 
   t_last_ = imu_.header.stamp;
 }
@@ -128,6 +129,8 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg()
   const auto q = eskf_.getQuaternion();
   auto& rpy = state_.pose.euler;
   quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
+  cout << "Quaternion: " << q.coeffs() << endl;
+  cout << "Euler: " << rpy << endl;
 
   // Linear velocity (Local)
   tf::vectorEigenToKDL(eskf_.getVelocity(), state_.twist.vel);
@@ -149,8 +152,10 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
     {
       check_topics_timer_.stop();
       initialize();
+      t_ready_ = ros::Time::now();
       is_ready_ = true;
-      rosInfo("State estimator is ready.");
+      rosInfo(
+        "State estimator is ready. Wait to publish states for " << WAIT_TO_PUBLISH << " seconds.");
     }
     return;
   }
@@ -164,8 +169,11 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 
   eskf_.predictIMU(a_m_, w_m_, dt);
 
-  updatePoseVelMsg();
-  posevel_pub_.publish(state_);
+  if ((ros::Time::now() - t_ready_).toSec() > WAIT_TO_PUBLISH)
+  {
+    updatePoseVelMsg();
+    posevel_pub_.publish(state_);
+  }
 }
 
 void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
@@ -182,7 +190,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
   // const Vector3d a = a_m_ - eskf_.getAccelBias();  // 観測が状態に依存してるのはまずい？
   const auto& m = mag.magnetic_field;
   imuToQuaternion(
-    a.x(), a.y(), a.z(), m.x, m.y, m.z, ref_mag_.x(), -ref_mag_.y(), -ref_mag_.z(), q_m_.x(),
+    a.x(), a.y(), a.z(), m.x, m.y, m.z, ref_mag_north_, -ref_mag_east_, -ref_mag_down_, q_m_.x(),
     q_m_.y(), q_m_.z(), q_m_.w());
 
   // TODO: 加速度センサのノイズの分散からクォータニオンのノイズの共分散を正しく計算する

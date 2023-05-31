@@ -36,24 +36,14 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    const Eigen::Vector3d& a_grav,
-    const StateVector& init_state,
-    const dStateMatrix& init_P,
+    double gravity,
     double var_acc,
-    double var_omega,
+    double var_gyro,
     double var_acc_bias,
-    double var_omega_bias);
-
-  // Concatenates relevant vectors to one large vector.
-  static StateVector makeState(
-    const Eigen::Vector3d& p,
-    const Eigen::Vector3d& v,
-    const Eigen::Quaterniond& q,
-    const Eigen::Vector3d& a_b,
-    const Eigen::Vector3d& w_b);
-
-  // Inserts relevant parts of the block-diagonal of the P matrix
-  static dStateMatrix makeP(
+    double var_gyro_bias,
+    const Eigen::Vector3d& init_pos,
+    const Eigen::Vector3d& init_vel,
+    const Eigen::Quaterniond& init_quat,
     const Eigen::Matrix3d& cov_pos,
     const Eigen::Matrix3d& cov_vel,
     const Eigen::Matrix3d& cov_dtheta,
@@ -61,7 +51,7 @@ public:
     const Eigen::Matrix3d& cov_w_b);
 
   // The quaternion convention in the document is "Hamilton" convention.
-  // Eigen has a different order of components, so we need conversion
+  // Eigen has a different order of components, so we need conversion.
   static Eigen::Quaterniond quatFromHamilton(const Eigen::Vector4d& qHam);
   static Eigen::Vector4d quatToHamilton(const Eigen::Quaterniond& q);
   static Eigen::Matrix3d rotVecToMat(const Eigen::Vector3d& in);
@@ -99,7 +89,7 @@ public:
     return nominal_state_.block<3, 1>(WB_IDX, 0);
   }
 
-  void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& omega_m, const double dt);
+  void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, const double dt);
 
   void measurePosition3D(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
   void measurePosition2D(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
@@ -111,9 +101,9 @@ public:
 
 private:
   double var_acc_;
-  double var_omega_;
+  double var_gyro_;
   double var_acc_bias_;
-  double var_omega_bias_;
+  double var_gyro_bias_;
 
   Eigen::Vector3d grav_W_;     // Acceleration due to gravity in global frame [m/s^2]
   StateVector nominal_state_;  // State vector of the filter

@@ -1,3 +1,5 @@
+#include <dh_eigen_tools/linalg.hpp>
+
 #include "../../include/state_estimation_eskf/eskf.hpp"
 #include "../../include/state_estimation_eskf/unrolled_joseph.hpp"
 
@@ -12,21 +14,50 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  const Vector3d& a_grav,
-  const StateVector& init_state,
-  const dStateMatrix& init_P,
+  double gravity,
   double var_acc,
-  double var_omega,
+  double var_gyro,
   double var_acc_bias,
-  double var_omega_bias)
+  double var_gyro_bias,
+  const Eigen::Vector3d& init_pos,
+  const Eigen::Vector3d& init_vel,
+  const Eigen::Quaterniond& init_quat,
+  const Eigen::Matrix3d& cov_pos,
+  const Eigen::Matrix3d& cov_vel,
+  const Eigen::Matrix3d& cov_dtheta,
+  const Eigen::Matrix3d& cov_a_b,
+  const Eigen::Matrix3d& cov_w_b)
 {
+  assert(gravity > 0.);
+  assert(var_acc > 0.);
+  assert(var_gyro > 0.);
+  assert(var_acc_bias > 0.);
+  assert(var_gyro_bias > 0.);
+  assert(eigen_tools::isPositive(cov_pos));
+  assert(eigen_tools::isPositive(cov_vel));
+  assert(eigen_tools::isPositive(cov_dtheta));
+  assert(eigen_tools::isPositive(cov_a_b));
+  assert(eigen_tools::isPositive(cov_w_b));
+
+  grav_W_ = Vector3d(0., 0., -gravity);
   var_acc_ = var_acc;
-  var_omega_ = var_omega;
+  var_gyro_ = var_gyro;
   var_acc_bias_ = var_acc_bias;
-  var_omega_bias_ = var_omega_bias;
-  grav_W_ = a_grav;
-  nominal_state_ = init_state;
-  P_ = init_P;
+  var_gyro_bias_ = var_gyro_bias;
+
+  // ノミナル状態を初期化
+  nominal_state_.setZero();
+  nominal_state_.block<3, 1>(POS_IDX, 0) = init_pos;
+  nominal_state_.block<3, 1>(VEL_IDX, 0) = init_vel;
+  nominal_state_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(init_quat).normalized();
+
+  // 共分散行列を初期化
+  P_.setZero();
+  P_.block<3, 3>(dPOS_IDX, dPOS_IDX) = cov_pos;
+  P_.block<3, 3>(dVEL_IDX, dVEL_IDX) = cov_vel;
+  P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = cov_dtheta;
+  P_.block<3, 3>(dAB_IDX, dAB_IDX) = cov_a_b;
+  P_.block<3, 3>(dWB_IDX, dWB_IDX) = cov_w_b;
 
   // (270) ヤコビアンの不変部分を埋める
   F_x_.setZero();
@@ -34,35 +65,6 @@ void ErrorStateKalmanFilter::initialize(
   F_x_.block<3, 3>(dVEL_IDX, dVEL_IDX).diagonal().fill(1.);
   F_x_.block<3, 3>(dAB_IDX, dAB_IDX).diagonal().fill(1.);
   F_x_.block<3, 3>(dWB_IDX, dWB_IDX).diagonal().fill(1.);
-}
-
-Matrix<double, STATE_SIZE, 1> ErrorStateKalmanFilter::makeState(
-  const Vector3d& p,
-  const Vector3d& v,
-  const Quaterniond& q,
-  const Vector3d& a_b,
-  const Vector3d& w_b)
-{
-  StateVector out;
-  out << p, v, quatToHamilton(q).normalized(), a_b, w_b;
-  return out;
-}
-
-Matrix<double, dSTATE_SIZE, dSTATE_SIZE> ErrorStateKalmanFilter::makeP(
-  const Matrix3d& cov_pos,
-  const Matrix3d& cov_vel,
-  const Matrix3d& cov_dtheta,
-  const Matrix3d& cov_a_b,
-  const Matrix3d& cov_w_b)
-{
-  dStateMatrix P;
-  P.setZero();
-  P.block<3, 3>(dPOS_IDX, dPOS_IDX) = cov_pos;
-  P.block<3, 3>(dVEL_IDX, dVEL_IDX) = cov_vel;
-  P.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = cov_dtheta;
-  P.block<3, 3>(dAB_IDX, dAB_IDX) = cov_a_b;
-  P.block<3, 3>(dWB_IDX, dWB_IDX) = cov_w_b;
-  return P;
 }
 
 Matrix3d ErrorStateKalmanFilter::getDCM()
@@ -147,9 +149,9 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
 
   // Inject process noise
   P_.diagonal().block<3, 1>(dVEL_IDX, 0).array() += var_acc_ * SQ(dt);
-  P_.diagonal().block<3, 1>(dTHETA_IDX, 0).array() += var_omega_ * SQ(dt);
+  P_.diagonal().block<3, 1>(dTHETA_IDX, 0).array() += var_gyro_ * SQ(dt);
   P_.diagonal().block<3, 1>(dAB_IDX, 0).array() += var_acc_bias_ * dt;
-  P_.diagonal().block<3, 1>(dWB_IDX, 0).array() += var_omega_bias_ * dt;
+  P_.diagonal().block<3, 1>(dWB_IDX, 0).array() += var_gyro_bias_ * dt;
 }
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()

@@ -30,6 +30,7 @@ public:
 
 private:
   bool is_ready_;
+  ros::Time t_ready_;// 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
   ros::Time t_last_;
   double lat_0_;  // 緯度のゼロ点
   double lon_0_;  // 経度のゼロ点
@@ -56,7 +57,9 @@ private:
 
   // rosparams
   double gravity_;
-  Eigen::Vector3d ref_mag_;    // 地磁気ベクトル (NED)
+  double ref_mag_north_;
+  double ref_mag_east_;
+  double ref_mag_down_;
   double gyro_noise_density_;  // rad/s/sqrt(hz)
   double gyro_random_walk_;    // rad/s^2/sqrt(hz)
   double acc_noise_density_;   // m/s^2/sqrt(hz)
