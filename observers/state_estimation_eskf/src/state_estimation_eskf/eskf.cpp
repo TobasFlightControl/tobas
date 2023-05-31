@@ -143,23 +143,22 @@ void ErrorStateKalmanFilter::predictIMU(
   nominal_state_.block<4, 1>(QUAT_IDX, 0) =
     quatToHamilton(getQuaternion() * q_delta_theta).normalized();
 
-  // // Jacobian of the state transition (eqn 269, page 59)
-  // // Update dynamic parts only
-  // // dPos row
-  // F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt); // = I_3 * _dt
-  // // dVel row
-  // F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
-  // F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
-  // // dTheta row
-  // F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
-  // F_x_.block<3, 3>(dTHETA_IDX, dWB_IDX).diagonal().fill(-dt); // = -I_3 * dt;
+  // Jacobian of the state transition (eqn 269, page 59). Update dynamic parts only.
+  // dPos row
+  F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);  // = I_3 * dt
+  // dVel row
+  F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
+  F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
+  // dTheta row
+  F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
+  F_x_.block<3, 3>(dTHETA_IDX, dWB_IDX).diagonal().fill(-dt);  // = -I_3 * dt;
 
   // Predict P and inject variance (with diagonal optimization)
-  // P_ = F_x_ * P_ * F_x_.transpose();
+  P_ = F_x_ * P_ * F_x_.transpose();
 
-  dStateMatrix Pnew;
-  unrolledFPFt(P_, Pnew, dt, -Rot * getSkew(acc_body) * dt, -Rot * dt, R_delta_theta.transpose());
-  P_ = Pnew;
+  // dStateMatrix Pnew;
+  // unrolledFPFt(P_, Pnew, dt, -Rot * getSkew(acc_body) * dt, -Rot * dt,
+  // R_delta_theta.transpose()); P_ = Pnew;
 
   // Inject process noise
   P_.diagonal().block<3, 1>(dVEL_IDX, 0).array() += var_acc_ * SQ(dt);
@@ -172,10 +171,10 @@ Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
 {
   Vector4d qby2 = 0.5 * getQuatVector();
   // Assing to letters for readability. Note Hamilton order.
-  double w = qby2[0];
-  double x = qby2[1];
-  double y = qby2[2];
-  double z = qby2[3];
+  const auto w = qby2[0];
+  const auto x = qby2[1];
+  const auto y = qby2[2];
+  const auto z = qby2[3];
   Matrix<double, 4, 3> Q_dtheta;
   Q_dtheta << -x, -y, -z, w, -z, y, z, w, -x, -y, x, w;
   return Q_dtheta;
