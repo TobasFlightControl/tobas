@@ -23,10 +23,11 @@ class ParamGetterWidget(QWidget):
         label.setAlignment(Qt.AlignTop)
         self._rows.addWidget(label)
 
-        if description_text is not None:
+        if description_text:
             description = QLabel(description_text)
             description.setFont(QFont("Default", pointSize=BODY_PSIZE))
             description.setAlignment(Qt.AlignTop)
+            description.setWordWrap(True)
             self._rows.addWidget(description)
 
     @abstractmethod

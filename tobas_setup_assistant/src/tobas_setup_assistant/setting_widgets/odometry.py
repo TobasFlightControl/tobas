@@ -17,19 +17,20 @@ from ..parameter_getters import *
 class OdometryWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Odometry Sensor"
-        abst_text = "TODO: abstruct"
+        title_text = "Define Odometry Publisher"
+        abst_text = "オドメトリを発行する機器の設定を行います．データシートを確認し，各値を入力してください．"\
+            + "ホイールエンコーダや，VIO (Visual Inertial Odometry) などが該当します．"
         super().__init__(main, title_text, abst_text)
 
         self.no_sensor = QCheckBox("The drone is not equipped with odometry sensor.")
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
-        link_description = "TODO: instruction"
+        link_description = "オドメトリを計算するフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        update_rate_description = "TODO: instruction"
+        update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
             update_rate_description,
@@ -41,7 +42,7 @@ class OdometryWidget(BaseSettingWidget):
 
         # TODO: Covariance Image getter
 
-        pos_normal_noise_std_descripiton = "TODO: instruction"
+        pos_normal_noise_std_descripiton = ""
         self.pos_normal_noise_std = ParamGetterWidget_Vector3d(
             "Position normal noise std. dev",
             pos_normal_noise_std_descripiton,
@@ -51,7 +52,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.pos_normal_noise_std)
 
-        rot_normal_noise_std_descripiton = "TODO: instruction"
+        rot_normal_noise_std_descripiton = ""
         self.rot_normal_noise_std = ParamGetterWidget_Vector3d(
             "Rotation normal noise std. dev",
             rot_normal_noise_std_descripiton,
@@ -61,7 +62,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.rot_normal_noise_std)
 
-        linvel_normal_noise_std_descripiton = "TODO: instruction"
+        linvel_normal_noise_std_descripiton = ""
         self.linvel_normal_noise_std = ParamGetterWidget_Vector3d(
             "Linear velocity normal noise std. dev",
             linvel_normal_noise_std_descripiton,
@@ -71,7 +72,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.linvel_normal_noise_std)
 
-        angvel_normal_noise_std_descripiton = "TODO: instruction"
+        angvel_normal_noise_std_descripiton = ""
         self.angvel_normal_noise_std = ParamGetterWidget_Vector3d(
             "Angular velocity normal noise std. dev",
             angvel_normal_noise_std_descripiton,
@@ -81,7 +82,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.angvel_normal_noise_std)
 
-        pos_uniform_noise_scale_descripiton = "TODO: instruction"
+        pos_uniform_noise_scale_descripiton = ""
         self.pos_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Position uniform noise scale",
             pos_uniform_noise_scale_descripiton,
@@ -91,7 +92,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.pos_uniform_noise_scale)
 
-        rot_uniform_noise_scale_descripiton = "TODO: instruction"
+        rot_uniform_noise_scale_descripiton = ""
         self.rot_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Rotation uniform noise scale",
             rot_uniform_noise_scale_descripiton,
@@ -101,7 +102,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.rot_uniform_noise_scale)
 
-        linvel_uniform_noise_scale_descripiton = "TODO: instruction"
+        linvel_uniform_noise_scale_descripiton = ""
         self.linvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Linear velocity uniform noise scale",
             linvel_uniform_noise_scale_descripiton,
@@ -111,7 +112,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.linvel_uniform_noise_scale)
 
-        angvel_uniform_noise_scale_descripiton = "TODO: instruction"
+        angvel_uniform_noise_scale_descripiton = ""
         self.angvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Angular velocity uniform noise scale",
             angvel_uniform_noise_scale_descripiton,

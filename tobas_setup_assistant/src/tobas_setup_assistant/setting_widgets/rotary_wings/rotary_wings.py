@@ -23,7 +23,10 @@ class RotaryWingsWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Rotary Wings"
-        abst_text = "TODO: abstruct"
+        abst_text = "プロペラの設定を行います．"\
+            + "全てのプロペラがX軸前方もしくはZ軸上方に推力を発生することを想定しています．"\
+            + "Available Linksからプロペラとして使用するリンクを追加し，"\
+            + "それぞれのプロペラに対して必要事項を入力してください．"
         super().__init__(main, title_text, abst_text)
 
         links_label = QLabel("Available Links")

@@ -141,7 +141,8 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        direction_description = "TODO: instruction"
+        direction_description = "モータの回転方向．"\
+            + "X軸またはZ軸の正方向に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
             direction_description,
@@ -183,7 +184,7 @@ class MotorWidget_Manual(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        kv_description = "TODO: instruction"
+        kv_description = "供給される電圧に対する無負荷時のモーターの回転速度．"
         self._kv = ParamGetterWidget_SpinBox(
             "Kv",
             kv_description,
@@ -194,7 +195,8 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._kv)
 
-        efficiency_description = "TODO: instruction"
+        efficiency_description = "Kvから推定される回転数に対する実際の回転数の比率．"\
+            + "負荷、摩擦、電気的損失などにより実際の回転数は理論値よりも小さくなります．"
         self._efficiency = ParamGetterWidget_SpinBox(
             "Efficiency",
             efficiency_description,
@@ -205,7 +207,7 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._efficiency)
 
-        time_const_up_description = "TODO: instruction"
+        time_const_up_description = "モータの回転数が増加する際の，指令値に対する一時遅れの時定数．"
         self._time_const_up = ParamGetterWidget_SpinBox(
             "Time Constant Up",
             time_const_up_description,
@@ -215,7 +217,7 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._time_const_up)
 
-        time_const_down_description = "TODO: instruction"
+        time_const_down_description = "モータの回転数が減少する際の，指令値に対する一時遅れの時定数．"
         self._time_const_down = ParamGetterWidget_SpinBox(
             "Time Constant Down",
             time_const_down_description,
@@ -253,7 +255,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        time_const_up_description = "TODO: instruction"
+        time_const_up_description = "モータの回転数が増加する際の，指令値に対する一次遅れの時定数．"
         self._time_const_up = ParamGetterWidget_SpinBox(
             "Time Constant Up",
             time_const_up_description,
@@ -263,7 +265,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         )
         self._rows.addWidget(self._time_const_up)
 
-        time_const_down_description = "TODO: instruction"
+        time_const_down_description = "モータの回転数が減少する際の，指令値に対する一次遅れの時定数．"
         self._time_const_down = ParamGetterWidget_SpinBox(
             "Time Constant Down",
             time_const_down_description,
@@ -273,7 +275,10 @@ class MotorWidget_Experiment(MotorWidget_Base):
         )
         self._rows.addWidget(self._time_const_down)
 
-        data_description = "TODO: instruction"
+        data_description = "Thrust Stand実験のデータから，ESCへのPWM信号とモータの回転数の関係を推定します．"\
+            + "データを直接入力するか，CSVファイルを読み込んでください．"\
+            + "実験には必ず機体に搭載するバッテリーを用い，実際のプロペラを取り付けた状態で行ってください．\n"\
+            + "Thrust Standの例: https://www.tytorobotics.com/pages/series-1580-1585"
         self._data = ParamGetterWidget_DoubleTable(
             "Experimental data",
             ["ESC signal", "Voltage", "Speed"],

@@ -125,7 +125,7 @@ class EscWidget_PWM(EscWidget_Base):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        freq_description = "TODO: instruction"
+        freq_description = ""
         self.freq = ParamGetterWidget_SpinBox(
             "Frequency",
             freq_description,
@@ -135,7 +135,7 @@ class EscWidget_PWM(EscWidget_Base):
         )
         self._rows.addWidget(self.freq)
 
-        pulse_width_range_description = "TODO: instruction"
+        pulse_width_range_description = ""
         self.pulse_width_range = ParamGetterWidget_IntRange(
             "Pulse Width Range",
             pulse_width_range_description,

@@ -116,6 +116,7 @@ class ControllerWidget_LMPC(QWidget):
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
         natural_freq_description = "TODO: instruction"
@@ -262,6 +263,7 @@ class ControllerWidget_NMPC(QWidget):
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
         # TODO
@@ -281,6 +283,7 @@ class ControllerWidget_SMC(QWidget):
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
         # TODO

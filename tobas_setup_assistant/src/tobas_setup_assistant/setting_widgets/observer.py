@@ -102,6 +102,7 @@ class ObserverWidget_Cascade(QWidget):
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
         gain_acc_description = "TODO: instruction"
@@ -179,4 +180,5 @@ class ObserverWidget_ESKF(QWidget):
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)

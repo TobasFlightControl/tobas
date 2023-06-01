@@ -17,15 +17,17 @@ from ..parameter_getters import *
 class MagnetometerWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Define Magnetometer'
-        abst_text = 'TODO: abstruct'
+        title_text = "Define Magnetometer"
+        abst_text = "地磁気センサの設定を行います．データシートを確認し，各値を入力してください．"\
+            + "センサフレームは機体フレームに平行であり，値はNWU座標系で得られることを想定しています．"\
+            + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
-        link_description = "TODO: instruction"
+        link_description = "センサが取り付けられたフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        update_rate_description = "TODO: instruction"
+        update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
             update_rate_description,
@@ -35,7 +37,7 @@ class MagnetometerWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.update_rate)
 
-        gauss_noise_description = "TODO: instruction"
+        gauss_noise_description = ""
         self.gauss_noise = ParamGetterWidget_SpinBox(
             "Standard deviation of additive white gaussian noise",
             gauss_noise_description,
@@ -45,7 +47,7 @@ class MagnetometerWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gauss_noise)
 
-        uniform_noise_description = "TODO: instruction"
+        uniform_noise_description = ""
         self.uniform_noise = ParamGetterWidget_SpinBox(
             "Symmetric bounds of uniform noise for initial sensor bias",
             uniform_noise_description,

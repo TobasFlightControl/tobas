@@ -188,18 +188,22 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        motor_const_description = "TODO: instruction"
+        motor_const_description = "プロペラの推力定数．"\
+            + "推力定数をc[kg*m/rad^2]，回転数をw[rad/s]とすると，回転面に垂直な向きに発生する推力T[N]は"\
+            + " T = c w^2 と表されます．"
         self._motor_const = ParamGetterWidget_DoubleSpinBox(
             "Motor Constant",
             motor_const_description,
             decimals=12,
             minimum=0.,
             default=8.54858e-6,
-            suffix=" kg*m/s^2",
+            suffix=" kg*m/rad^2",
         )
         self._rows.addWidget(self._motor_const)
 
-        moment_const_description = "TODO: instruction"
+        moment_const_description = "プロペラの反トルク係数．"\
+            + "反トルク係数をc[m]，プロペラの推力をT[N]とすると，プロペラの回転方向と逆向きに発生するトルク[Nm]は"\
+            + " N = c T と表されます．"
         self._moment_const = ParamGetterWidget_DoubleSpinBox(
             "Moment Constant",
             moment_const_description,
@@ -210,14 +214,17 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._moment_const)
 
-        rotor_drag_coef_description = "TODO: instruction"
+        rotor_drag_coef_description = "プロペラの空気抗力係数．"\
+            + "空気抗力係数をc[kg/rad]，モータの回転数をw[rad/s]，"\
+            + "機体に対する相対的な大気速度の回転軸に垂直な成分の大きさをV[m/s]とすると，"\
+            + "プロペラに発生する空気抗力の大きさF[N]は F = c w V と表されます．"
         self._rotor_drag_coef = ParamGetterWidget_DoubleSpinBox(
             "Rotor Drag Coefficient",
             rotor_drag_coef_description,
             decimals=9,
             minimum=0.,
             default=8.06428e-5,
-            suffix=" Ns^2/m^2",
+            suffix=" kg/rad",
         )
         self._rows.addWidget(self._rotor_drag_coef)
 
@@ -245,7 +252,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        num_blade_description = "TODO: instruction"
+        num_blade_description = "1つのプロペラに対するブレードの個数．"
         self._num_blade = ParamGetterWidget_SpinBox(
             "Number of blades",
             num_blade_description,
@@ -254,7 +261,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._num_blade)
 
-        rotor_radius_description = "TODO: instruction"
+        rotor_radius_description = "プロペラの回転面の半径．つまり回転中心からブレードの先端までの距離．"
         self._rotor_radius = ParamGetterWidget_SpinBox(
             "Rotor radius",
             rotor_radius_description,
@@ -264,7 +271,8 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._rotor_radius)
 
-        blade_chord_description = "TODO: instruction"  # 元論文だと75%Rの位置で計測している
+        blade_chord_description = "ブレードの弦長．"\
+            + "測定位置によって異なる場合，元論文ではブレードの長さの75%の位置で計測しているようです．"
         self._blade_chord = ParamGetterWidget_SpinBox(
             "Blade chord",
             blade_chord_description,
@@ -274,7 +282,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._blade_chord)
 
-        pitch_avg_description = "TODO: instruction"
+        pitch_avg_description = "ブレードの平均ねじれ角．"
         self._pitch_avg = ParamGetterWidget_SpinBox(
             "Blade average pitch angle",
             pitch_avg_description,
@@ -362,7 +370,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._motor_const_updated = False
         self._moment_const_updated = False
 
-        num_blade_description = "TODO: instruction"
+        num_blade_description = "1つのプロペラに対するブレードの個数．"
         self._num_blade = ParamGetterWidget_SpinBox(
             "Number of blades",
             num_blade_description,
@@ -371,7 +379,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._num_blade)
 
-        blade_chord_description = "TODO: instruction"
+        blade_chord_description = "ブレードの弦長．"\
+            + "測定位置によって異なる場合，元論文ではブレードの長さの75%の位置で計測しているようです．"
         self._blade_chord = ParamGetterWidget_SpinBox(
             "Blade chord",
             blade_chord_description,
@@ -381,7 +390,9 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._blade_chord)
 
-        data_description = "TODO: instruction"
+        data_description = "Thrust Stand実験のデータから，シミュレーションと制御に必要な空力定数を推定します．"\
+            + "データを直接入力するか，CSVファイルを読み込んでください．\n"\
+            + "Thrust Standの例: https://www.tytorobotics.com/pages/series-1580-1585"
         self._data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
             ["Rotation Speed", "Thrust", "Torque"],

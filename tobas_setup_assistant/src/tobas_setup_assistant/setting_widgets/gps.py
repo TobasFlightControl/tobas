@@ -17,15 +17,17 @@ from ..parameter_getters import *
 class GpsWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Define Global Positioning System'
-        abst_text = 'TODO: abstruct'
+        title_text = "Define Global Positioning System"
+        abst_text = "GPSの設定を行います．データシートを確認し，各値を入力してください．"\
+            + "緯度，経度，高度に加え，NWU世界座標系に対する絶対速度が得られるものを想定しています．"\
+            + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
-        link_description = "TODO: instruction"
+        link_description = "センサが取り付けられたフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        update_rate_description = "TODO: instruction"
+        update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
             update_rate_description,
@@ -35,7 +37,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.update_rate)
 
-        horizontal_pos_std_description = "TODO: instruction"
+        horizontal_pos_std_description = ""
         self.horizontal_pos_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for horizontal position noise",
             horizontal_pos_std_description,
@@ -46,7 +48,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.horizontal_pos_std)
 
-        vertical_pos_std_description = "TODO: instruction"
+        vertical_pos_std_description = ""
         self.vertical_pos_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for vertical position noise",
             vertical_pos_std_description,
@@ -57,7 +59,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.vertical_pos_std)
 
-        horizontal_vel_std_description = "TODO: instruction"
+        horizontal_vel_std_description = ""
         self.horizontal_vel_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for horizontal speed noise",
             horizontal_vel_std_description,
@@ -68,7 +70,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.horizontal_vel_std)
 
-        vertical_vel_std_description = "TODO: instruction"
+        vertical_vel_std_description = ""
         self.vertical_vel_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for vertical speed noise",
             vertical_vel_std_description,

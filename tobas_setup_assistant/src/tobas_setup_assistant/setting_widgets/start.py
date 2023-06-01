@@ -22,8 +22,9 @@ from ..constants import *
 class StartWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Tobas Setup Assistant'
-        abst_text = 'TODO: abstruct'
+        title_text = "Tobas Setup Assistant"
+        abst_text = "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために必要な設定ファイルを作成するのを手助けするツールです．"\
+            + "ここでの設定が完了すれば，すぐにあなたのドローンを飛ばすことができます．"
         super().__init__(main, title_text, abst_text)
 
         self.setEnabled(True)  # Startだけは初めからアクティブにしておく
@@ -64,10 +65,11 @@ class RobotModelLoaderWidget(QWidget):
         label.setAlignment(Qt.AlignTop)
         self._rows.addWidget(label)
 
-        instruction_text = "TODO: instruction"
+        instruction_text = "あなたのドローンのURDFを指定し，Loadボタンを押してください．"
         instruction = QLabel(instruction_text)
         instruction.setFont(QFont("Default", pointSize=BODY_PSIZE))
         instruction.setAlignment(Qt.AlignTop)
+        instruction.setWordWrap(True)
         self._rows.addWidget(instruction)
 
         self._cols = QHBoxLayout()
