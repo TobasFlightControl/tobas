@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -15,7 +16,7 @@ from ..constants import *
 
 
 class DepthCameraWidget(BaseSettingWidget):
-    
+
     NAME = "Depth Camera"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -118,6 +119,13 @@ class DepthCameraWidget(BaseSettingWidget):
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
+        if self.no_sensor.isChecked():
+            return True
+
+        if not self.depth_range.is_valid():
+            q_error_named(self._main, self.NAME, "Invalid depth range.")
+            return False
+
         return True
 
     @pyqtSlot()

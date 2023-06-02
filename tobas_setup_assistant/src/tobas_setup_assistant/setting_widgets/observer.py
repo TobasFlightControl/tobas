@@ -25,7 +25,9 @@ class ObserverWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Observer"
-        abst_text = "TODO: abstruct"
+        abst_text = "状態推定器の設定を行います．"\
+            + "手法を1つ選択し，各パラメータを設定してください．"\
+            + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
         super().__init__(main, title_text, abst_text)
 
         self.observer_type = ComboBox()
@@ -98,16 +100,18 @@ class ObserverWidget_Cascade(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of Cascade Observer"
+        abst_text = "この状態推定器は，姿勢推定器と位置推定器の2つの部分に分かれています．"\
+            + "6軸IMUと地磁気センサの情報から相補フィルタにより姿勢を推定し，"\
+            + "推定した姿勢と他のセンサの情報から線形カルマンフィルタにより3次元位置を推定します．"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
-        gain_acc_description = "TODO: instruction"
+        gain_acc_description = "Accelerometer gain for the orientation estimation."
         self.gain_acc = ParamGetterWidget_DoubleSpinBox(
-            "orientation_estimator/gain_acc",
+            "Acelerometer gain",
             gain_acc_description,
             decimals=3,
             minimum=0.,
@@ -116,9 +120,9 @@ class ObserverWidget_Cascade(QWidget):
         )
         self._rows.addWidget(self.gain_acc)
 
-        gain_mag_description = "TODO: instruction"
+        gain_mag_description = "Magnetometer gain for the orientation estimation."
         self.gain_mag = ParamGetterWidget_DoubleSpinBox(
-            "orientation_estimator/gain_mag",
+            "Magnetometer gain",
             gain_mag_description,
             decimals=3,
             minimum=0.,
@@ -127,9 +131,9 @@ class ObserverWidget_Cascade(QWidget):
         )
         self._rows.addWidget(self.gain_mag)
 
-        bias_alpha_description = "TODO: instruction"
+        bias_alpha_description = "Bias estimation gain for the orientation estimation."
         self.bias_alpha = ParamGetterWidget_DoubleSpinBox(
-            "orientation_estimator/bias_alpha",
+            "Bias estimation gain",
             bias_alpha_description,
             decimals=3,
             minimum=0.,
@@ -138,27 +142,29 @@ class ObserverWidget_Cascade(QWidget):
         )
         self._rows.addWidget(self.bias_alpha)
 
-        do_bias_estimation_description = "TODO: instruction"
+        do_bias_estimation_description = "Whether to do bias estimation of the gyroscope readings "\
+            + "for the orientation estimation."
         self.do_bias_estimation = ParamGetterWidget_CheckBox(
-            "orientation_estimator/do_bias_estimation",
+            "Do bias estimation",
             do_bias_estimation_description,
             check_box_text="Do bias estimation",
             default=True,
         )
         self._rows.addWidget(self.do_bias_estimation)
 
-        do_adaptive_gain_description = "TODO: instruction"
+        do_adaptive_gain_description = "Whether to do adaptive gain for the orientation estimation."
         self.do_adaptive_gain = ParamGetterWidget_CheckBox(
-            "orientation_estimator/do_adaptive_gain",
+            "Do adaptive gain",
             do_adaptive_gain_description,
             check_box_text="Do adaptive gain",
             default=False,
         )
         self._rows.addWidget(self.do_adaptive_gain)
 
-        grav_var_exp_description = "TODO: instruction"
+        grav_var_exp_description = "The ordinary logarithm of the variance of the "\
+            + "estimated gravity vector."
         self.grav_var_exp = ParamGetterWidget_SpinBox(
-            "position_estimator/gravity_variance_exp",
+            "Gravity variance level",
             grav_var_exp_description,
             minimum=-5,
             maximum=5,
@@ -176,7 +182,7 @@ class ObserverWidget_ESKF(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of ESKF"
+        abst_text = ""  # TODO
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)

@@ -65,7 +65,7 @@ class BatteryWidget(BaseSettingWidget):
         # self._rows.addWidget(self.C_cont)  # TODO
 
         C_pulse_description = "バッテリーが短時間で放電できる最大電流．"\
-            + "これは、バッテリーが連続的には処理できない大きな電流を一時的に供給する場合の最大レートを示します。"
+            + "これは，バッテリーが連続的には処理できない大きな電流を一時的に供給する場合の最大レートを示します．"
         self.C_pulse = ParamGetterWidget_SpinBox(
             "Pulse Discharge Current Rate",
             C_pulse_description,

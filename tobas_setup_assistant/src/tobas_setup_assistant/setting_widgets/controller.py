@@ -28,7 +28,7 @@ class ControllerWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Controller"
         abst_text = "飛行制御器の設定を行います．"\
-            + "制御器を1つ選択し，各パラメータを設定してください．"\
+            + "手法を1つ選択し，各パラメータを設定してください．"\
             + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
         super().__init__(main, title_text, abst_text)
 
@@ -135,7 +135,7 @@ class ControllerWidget_LMPC(QWidget):
             + "大きいほど応答速度が速くなりますが，"\
             + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
         self.natural_freq = ParamGetterWidget_DoubleSpinBox(
-            "position_controller/natural_frequency",
+            "Natural frequency (Position controller)",
             natural_freq_description,
             decimals=2,
             minimum=0.1,
@@ -152,7 +152,7 @@ class ControllerWidget_LMPC(QWidget):
             + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
             + "オーバーシュートなく最速で目標位置に収束します．"
         self.damp_ratio = ParamGetterWidget_DoubleSpinBox(
-            "position_controller/damping_ratio",
+            "Damping ratio (Position controller)",
             damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
@@ -165,7 +165,7 @@ class ControllerWidget_LMPC(QWidget):
             + "大きくするほど離散化誤差や計算機の数値誤差が大きくなります．"\
             + "最低でもシステム (ここでは姿勢制御) の応答時間の数倍以上にすべきだと言われています．"
         self.pred_horizon = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/prediction_horizon",
+            "Predictin horizon (Orientation controller)",
             pred_horizon_description,
             decimals=2,
             minimum=0.1,
@@ -178,7 +178,7 @@ class ControllerWidget_LMPC(QWidget):
         pred_steps_description = "モデル予測制御の予測区間の分割数．"\
             + "大きいほど離散化誤差が小さくなりますが，計算量は分割数の3乗に比例します．"
         self.pred_steps = ParamGetterWidget_SpinBox(
-            "rotation_controller/prediction_steps",
+            "Prediction steps (Orientation controller)",
             pred_steps_description,
             minimum=1,
             maximum=30,
@@ -189,7 +189,7 @@ class ControllerWidget_LMPC(QWidget):
         attitude_decay_description = "モデル予測制御における，ロール角とピッチ角の参照値の追従時定数．"\
             + "大きいほど目標値に滑らかに追従します．"
         self.attitude_decay = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/decay/attitude",
+            "Attitude decay time constant (Orientation controller)",
             attitude_decay_description,
             decimals=2,
             minimum=0.,
@@ -202,7 +202,7 @@ class ControllerWidget_LMPC(QWidget):
         heading_decay_description = "モデル予測制御における，ヨー角の参照値の追従時定数．"\
             + "大きいほど目標値に滑らかに追従します．"
         self.heading_decay = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/decay/heading",
+            "Heading decay time constant (Orientation controller)",
             heading_decay_description,
             decimals=2,
             minimum=0.,
@@ -215,7 +215,7 @@ class ControllerWidget_LMPC(QWidget):
         angvel_decay_description = "モデル予測制御における，角速度の参照値の追従時定数．"\
             + "大きいほど目標値に滑らかに追従します．"
         self.angvel_decay = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/decay/angular_velocity",
+            "Angular velocity decay time constant (Orientation controller)",
             angvel_decay_description,
             decimals=2,
             minimum=0.,
@@ -227,7 +227,7 @@ class ControllerWidget_LMPC(QWidget):
 
         attitude_weight_description = "モデル予測制御における，ロール角とピッチ角の重み．"
         self.attitude_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/attitude",
+            "Attitude weight (Orientation controller)",
             attitude_weight_description,
             minimum=1,
             maximum=100,
@@ -237,7 +237,7 @@ class ControllerWidget_LMPC(QWidget):
 
         heading_weight_description = "モデル予測制御における，ヨー角の重み．"
         self.heading_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/heading",
+            "Heading weight (Orientation controller)",
             heading_weight_description,
             minimum=1,
             maximum=100,
@@ -247,7 +247,7 @@ class ControllerWidget_LMPC(QWidget):
 
         angvel_weight_description = "モデル予測制御における，角速度の重み．"
         self.angvel_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/angular_velocity",
+            "Angular velocity weight (Orientation controller)",
             angvel_weight_description,
             minimum=1,
             maximum=100,
@@ -255,10 +255,9 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.angvel_weight)
 
-        thrust_weight_exp_description = "モデル予測制御における，プロペラ推力の重み．"\
-            "10の累乗が実際の重みとして使用されます．"
+        thrust_weight_exp_description = "モデル予測制御における，プロペラ推力の重みの常用対数．"
         self.thrust_weight_exp = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/thrust_exp",
+            "Thrust weight level (Orientation controller)",
             thrust_weight_exp_description,
             minimum=-6,
             maximum=0,
@@ -266,10 +265,9 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.thrust_weight_exp)
 
-        thrust_rate_weight_exp_description = "モデル予測制御における，プロペラ推力の変化率の重み．"\
-            "10の累乗が実際の重みとして使用されます．"
+        thrust_rate_weight_exp_description = "モデル予測制御における，プロペラ推力の変化率の重みの常用対数．"
         self.thrust_rate_weight_exp = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/thrust_rate_exp",
+            "Thrust rate weight level (Orientation controller)",
             thrust_rate_weight_exp_description,
             minimum=-6,
             maximum=0,
@@ -313,7 +311,7 @@ class ControllerWidget_NMPC(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of NMPC"  # TODO
+        abst_text = ""  # TODO
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
@@ -336,7 +334,7 @@ class ControllerWidget_SMC(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of SMC"  # TODO
+        abst_text = ""  # TODO
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)

@@ -28,15 +28,16 @@ class RosPackageWidget(BaseSettingWidget):
     BUTTON_WIDTH = 100
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Generate ROS Package'
-        abst_text = 'TODO: abstruct'
+        title_text = "Generate ROS Package"
+        abst_text = "これまでの設定を元にTobasを使用するのに必要なROSパッケージを生成します．"\
+            + "パッケージのパスを指定し，Generateボタンを押してください．"
         super().__init__(main, title_text, abst_text)
 
-        pardir_description = "TODO: description"
+        pardir_description = ""
         self.pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
         self._rows.addWidget(self.pardir)
 
-        pkg_name_description = "TODO: description"
+        pkg_name_description = ""
         self.pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
         self._rows.addWidget(self.pkg_name)
 

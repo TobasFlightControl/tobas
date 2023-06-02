@@ -196,7 +196,7 @@ class MotorWidget_Manual(MotorWidget_Base):
         self._rows.addWidget(self._kv)
 
         efficiency_description = "Kvから推定される回転数に対する実際の回転数の比率．"\
-            + "負荷、摩擦、電気的損失などにより実際の回転数は理論値よりも小さくなります．"
+            + "負荷，摩擦，電気的損失などにより実際の回転数は理論値よりも小さくなります．"
         self._efficiency = ParamGetterWidget_SpinBox(
             "Efficiency",
             efficiency_description,

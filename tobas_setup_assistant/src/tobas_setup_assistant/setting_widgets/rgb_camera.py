@@ -110,7 +110,10 @@ class RgbCameraWidget(BaseSettingWidget):
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
-        if self.depth_range.is_valid():
+        if self.no_sensor.isChecked():
+            return True
+
+        if not self.depth_range.is_valid():
             q_error_named(self._main, self.NAME, "Invalid depth range.")
             return False
 

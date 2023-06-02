@@ -20,8 +20,9 @@ class AuthorInformationWidget(BaseSettingWidget):
     NAME = "Author Information"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Specify Author Information'
-        abst_text = 'TODO: abstruct'
+        title_text = "Specify Author Information"
+        abst_text = "生成されるパッケージの管理者に関する情報を入力してください．"\
+            + "ここで指定した情報はパッケージのpackage.xmlに反映されます．"
         super().__init__(main, title_text, abst_text)
 
         self.name = ParamGetterWidget_LineEdit(
