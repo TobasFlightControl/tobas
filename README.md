@@ -78,8 +78,8 @@ For controller API, please see [controllers](https://github.com/Masa0u0/tobas/tr
 ### Teleoperation
 
 ```bash
-$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch  # By keyboard
-$ roslaunch tobas_gui_teleop gui_teleop.launch            # By GUI application
+$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch drone_name:=(drone_name) # By keyboard
+$ roslaunch tobas_gui_teleop gui_teleop.launch drone_name:=(drone_name)           # By GUI application
 ```
 
 ## Trouble Shooting
