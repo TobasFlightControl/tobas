@@ -28,6 +28,10 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 {
   getRosParams();
 
+  yaw_now_ = 0.;
+  yaw_prev_ = 0.;
+  yaw_jump_count_ = 0;
+
   rot_acc_cov_.setZero();
   rot_mag_cov_.setZero();
 
@@ -141,10 +145,22 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg()
   // Position
   tf::vectorEigenToKDL(eskf_.getXYZ(), state_.pose.pos);
 
-  // Rotation
+  // Roll, Pitch
   const Quaterniond q = eskf_.getQuaternion();
   auto& rpy = state_.pose.euler;
-  quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, rpy.yaw);
+  quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, yaw_now_);
+
+  // Yaw
+  if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
+  {
+    --yaw_jump_count_;
+  }
+  else if (yaw_now_ - yaw_prev_ < -M_PI)  // 正方向のジャンプを検出
+  {
+    ++yaw_jump_count_;
+  }
+  yaw_prev_ = yaw_now_;
+  rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Linear velocity (Local)
   tf::vectorEigenToKDL(eskf_.getVelocity(), state_.twist.vel);

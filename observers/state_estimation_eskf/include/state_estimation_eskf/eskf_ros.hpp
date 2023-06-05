@@ -53,6 +53,9 @@ private:
   GpsMsg gps_;      // GPS位置の観測値
   VelMsg vel_;      // GPS速度の観測値
   StateMsg state_;  // 発行する状態
+  double yaw_now_;
+  double yaw_prev_;
+  int yaw_jump_count_;  // ヨー角の回転回数
 
   Eigen::Vector3d a_m_;
   Eigen::Vector3d w_m_;

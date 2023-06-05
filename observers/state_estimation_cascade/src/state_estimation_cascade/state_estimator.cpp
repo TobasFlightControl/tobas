@@ -231,11 +231,11 @@ void StateEstimator::updatePoseVelMsg()
   // Yaw
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
   {
-    yaw_jump_count_--;
+    --yaw_jump_count_;
   }
   else if (yaw_now_ - yaw_prev_ < -M_PI)  // 正方向のジャンプを検出
   {
-    yaw_jump_count_++;
+    ++yaw_jump_count_;
   }
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
