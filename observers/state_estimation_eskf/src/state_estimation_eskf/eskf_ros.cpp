@@ -116,7 +116,7 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
     const auto& bar = bar_buf_.get(i);
     sum_pressure += bar.fluid_pressure;
   }
-  double mean_pressure = sum_pressure / bar_buf_.maxSize();
+  const double mean_pressure = sum_pressure / bar_buf_.maxSize();
   alt_0_ = pressureToAltitude(mean_pressure);
 }
 

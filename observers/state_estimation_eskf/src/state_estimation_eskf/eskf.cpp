@@ -241,7 +241,7 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
   const Vector3d grav_B = rot_B_W * grav_W_;
   const Vector3d acc_nominal = -grav_B;
   const Vector3d delta_acc = acc_meas - acc_nominal;
-  const Matrix3d grav_B_cross = et::crossMat(grav_B);
+  const Matrix3d grav_B_cross = et::crossMat(grav_B);  // 一時objectをblockに代入すると反映されない
 
   // std::cout << "rot_B_W:" << endl << rot_B_W << endl;
   // std::cout << "grav_B:" << endl << grav_B << endl;
@@ -249,8 +249,6 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
 
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  // H.block(0, kDeltaThetaIdx, 3, 3) = -2 * et::crossMat(grav_B);  //
-  // これだとHが変更されない．なぜ？？
   H.block(0, kDeltaThetaIdx, 3, 3) = -2 * grav_B_cross;
 
   correct<3>(delta_acc, acc_cov, H);
