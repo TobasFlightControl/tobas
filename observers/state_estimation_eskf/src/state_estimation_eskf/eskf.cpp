@@ -36,11 +36,11 @@ void ErrorStateKalmanFilter::initialize(
   assert(var_acc_bias > 0.);
   assert(var_gyro_bias > 0.);
   assert(grav_W.z() < 0.);
-  assert(eigen_tools::isPositive(cov_pos));
-  assert(eigen_tools::isPositive(cov_vel));
-  assert(eigen_tools::isPositive(cov_dtheta));
-  assert(eigen_tools::isPositive(cov_a_b));
-  assert(eigen_tools::isPositive(cov_w_b));
+  assert(et::isPositive(cov_pos));
+  assert(et::isPositive(cov_vel));
+  assert(et::isPositive(cov_dtheta));
+  assert(et::isPositive(cov_a_b));
+  assert(et::isPositive(cov_w_b));
 
   var_acc_ = var_acc;
   var_gyro_ = var_gyro;
@@ -139,7 +139,7 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   P_ = F_x_ * P_ * F_x_.transpose();
 
   // 無理やり対称性を保存 (これが必須)
-  eigen_tools::symmetrise(P_);
+  et::symmetrise(P_);
 
   // Inject process noise
   P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += var_acc_ * sqr(dt);
@@ -279,6 +279,6 @@ void ErrorStateKalmanFilter::injectErrorState(const dStateVector& error_state)
   // const Matrix3d G_theta = I3 - et::crossMat(0.5 * dtheta);
   // P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) =
   //   G_theta * P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) * G_theta.transpose();
-  // eigen_tools::symmetrise(P_);
+  // et::symmetrise(P_);
 }
 }  // namespace state_estimation_eskf
