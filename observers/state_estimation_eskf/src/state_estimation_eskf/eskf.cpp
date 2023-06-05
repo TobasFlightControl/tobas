@@ -16,10 +16,10 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  double var_acc,
-  double var_gyro,
-  double var_acc_bias,
-  double var_gyro_bias,
+  double acc_noise_density,
+  double gyro_noise_density,
+  double acc_random_walk,
+  double gyro_random_walk,
   const Vector3d& grav_W,
   const Vector3d& mag_W,
   const Vector3d& init_pos,
@@ -31,10 +31,10 @@ void ErrorStateKalmanFilter::initialize(
   const Matrix3d& cov_a_b,
   const Matrix3d& cov_w_b)
 {
-  assert(var_acc > 0.);
-  assert(var_gyro > 0.);
-  assert(var_acc_bias > 0.);
-  assert(var_gyro_bias > 0.);
+  assert(acc_noise_density > 0.);
+  assert(gyro_noise_density > 0.);
+  assert(acc_random_walk > 0.);
+  assert(gyro_random_walk > 0.);
   assert(grav_W.z() < 0.);
   assert(et::isPositive(cov_pos));
   assert(et::isPositive(cov_vel));
@@ -42,10 +42,10 @@ void ErrorStateKalmanFilter::initialize(
   assert(et::isPositive(cov_a_b));
   assert(et::isPositive(cov_w_b));
 
-  var_acc_ = var_acc;
-  var_gyro_ = var_gyro;
-  var_acc_bias_ = var_acc_bias;
-  var_gyro_bias_ = var_gyro_bias;
+  acc_noise_density_ = acc_noise_density;
+  gyro_noise_density_ = gyro_noise_density;
+  acc_random_walk_ = acc_random_walk;
+  gyro_random_walk_ = gyro_random_walk;
   grav_W_ = grav_W;
   mag_W_ = mag_W;
 
@@ -138,14 +138,22 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   // (269): 共分散行列の予測値を更新
   P_ = F_x_ * P_ * F_x_.transpose();
 
-  // 無理やり対称性を保存 (これが必須)
+  // 無理やり対称化 (これが必須)
+  // プロセスノイズを加える前に対称化する必要がある
   et::symmetrise(P_);
 
+  // Noise variance
+  // FIXME: (264), (265)は論文と単位が異なるが，無理にdtの数で論文に単位を合わせると性能が劣化する
+  const double sigma2_an = sqr(acc_noise_density_) / dt;   // (262) [m^2/s^4]
+  const double sigma2_wn = sqr(gyro_noise_density_) / dt;  // (263) [rad^2/s^2]
+  const double sigma2_aw = sqr(acc_random_walk_) / dt;     // (264) [m^2/s^6]
+  const double sigma2_ww = sqr(gyro_random_walk_) / dt;    // (265) [rad^2/s^4]
+
   // Inject process noise
-  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += var_acc_ * sqr(dt);
-  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += var_gyro_ * sqr(dt);
-  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += var_acc_bias_ * dt;
-  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += var_gyro_bias_ * dt;
+  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += sigma2_an * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += sigma2_wn * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += sigma2_aw * dt;
+  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += sigma2_ww * dt;
 
   // For debug
   // cout << "F_x:" << endl << F_x_ << endl;

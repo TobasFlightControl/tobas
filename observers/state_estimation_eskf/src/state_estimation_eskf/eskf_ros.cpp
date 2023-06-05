@@ -112,26 +112,22 @@ void ErrorStateKalmanFilterRos::initialize()
   // std::cout << "Initial quaternion: " << q_0.coeffs() << endl;
 
   // ISKFを初期化
-  const double freq = 100.;  // テキトー [Hz]
-  const double var_acc = sqr(acc_noise_density_) * freq;
-  const double var_gyro = sqr(gyro_noise_density_) * freq;
-  const double var_acc_bias = sqr(acc_random_walk_) * freq;
-  const double var_gyro_bias = sqr(gyro_random_walk_) * freq;
+  // 共分散の初期値は想定しうる最大値以上に設定している
   eskf_.initialize(
-    var_acc,                                                   // acc variance
-    var_gyro,                                                  // gyro variance
-    var_acc_bias,                                              // acc bias variance
-    var_gyro_bias,                                             // gyro bias variance
+    acc_noise_density_,                                        // accelerometer noise density
+    gyro_noise_density_,                                       // gyrometer noise density
+    acc_random_walk_,                                          // accelerometer random walk
+    gyro_random_walk_,                                         // gyrometer random walk
     Vector3d(0., 0., -gravity_),                               // gravity vector
     Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
     Vector3d::Zero(),                                          // init position
     Vector3d::Zero(),                                          // init velocity
     q_0,                                                       // init quaternion
-    Vector3d(sqr(3.), sqr(3.), sqr(1.)).asDiagonal(),          // init position cov
+    Vector3d(sqr(10.), sqr(10.), sqr(10.)).asDiagonal(),       // init position cov
     sqr(1.) * I3,                                              // init velocity cov
-    1000. * I3,                                                // init quaternion cov  // TODO
-    var_acc_bias * I3,                                         // init acc bias cov
-    var_gyro_bias * I3                                         // init gyro bias cov
+    1000. * I3,                                                // init quaternion cov
+    1. * I3,                                                   // init acc bias cov
+    1. * I3                                                    // init gyro bias cov
   );
 
   t_last_ = imu_.header.stamp;

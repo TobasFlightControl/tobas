@@ -27,10 +27,10 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    double var_acc,
-    double var_gyro,
-    double var_acc_bias,
-    double var_gyro_bias,
+    double acc_noise_density,
+    double gyro_noise_density,
+    double acc_random_walk,
+    double gyro_random_walk,
     const Eigen::Vector3d& grav_W,
     const Eigen::Vector3d& mag_W,
     const Eigen::Vector3d& init_pos,
@@ -79,10 +79,10 @@ public:
   void measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
 
 private:
-  double var_acc_;
-  double var_gyro_;
-  double var_acc_bias_;
-  double var_gyro_bias_;
+  double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
+  double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
+  double acc_random_walk_;     // [m/s^3/sqrt(Hz)]
+  double gyro_random_walk_;    // [rad/s^2/sqrt(Hz)]
 
   Eigen::Vector3d grav_W_;     // Acceleration due to gravity wrt. world frame [m/s^2]
   Eigen::Vector3d mag_W_;      // Magnetic field wrt. world frame [T]
