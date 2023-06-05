@@ -57,15 +57,15 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam("~acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
   dh_ros::getParam("~acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
 
-  dh_ros::getParam("~imu_buf_size", imu_buf_size_, dh_ros::POSITIVE);
-  dh_ros::getParam("~mag_buf_size", mag_buf_size_, dh_ros::POSITIVE);
-  dh_ros::getParam("~bar_buf_size", bar_buf_size_, dh_ros::POSITIVE);
-  dh_ros::getParam("~gps_buf_size", gps_buf_size_, dh_ros::POSITIVE);
-  dh_ros::getParam("~vel_buf_size", vel_buf_size_, dh_ros::POSITIVE);
+  dh_ros::getParam("~imu_buf_size", imu_buf_size_, kDefaultImuBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~mag_buf_size", mag_buf_size_, kDefaultMagBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~bar_buf_size", bar_buf_size_, kDefaultBarBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~gps_buf_size", gps_buf_size_, kDefaultGpsBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~vel_buf_size", vel_buf_size_, kDefaultVelBufSize, dh_ros::POSITIVE);
 
   // Dynamic parameters
-  dh_ros::getParam("~rotation_variance_acc", cfg_.rotation_variance_acc, dh_ros::POSITIVE);
-  dh_ros::getParam("~rotation_variance_mag", cfg_.rotation_variance_mag, dh_ros::POSITIVE);
+  dh_ros::getParam("~rotation_variance_grav", cfg_.rotation_variance_grav, dh_ros::POSITIVE);
+  dh_ros::getParam("~rotation_variance_geomag", cfg_.rotation_variance_geomag, dh_ros::POSITIVE);
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()
@@ -349,7 +349,7 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
-  rot_acc_cov_.diagonal().fill(cfg_.rotation_variance_acc);
-  rot_mag_cov_.diagonal().fill(cfg_.rotation_variance_mag);
+  rot_acc_cov_.diagonal().fill(cfg_.rotation_variance_grav);
+  rot_mag_cov_.diagonal().fill(cfg_.rotation_variance_geomag);
 }
 }  // namespace state_estimation_eskf

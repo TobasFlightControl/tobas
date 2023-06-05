@@ -284,11 +284,19 @@ class PackageGenerator(QWidget):
             }
         elif observer_type == observer.ESKF:
             imu = self._main.settings.imu
+            eskf = observer.eskf
             items["state_estimator_eskf"] = {
                 "gyro_noise_density": imu.gyro_noise_density.get(),
                 "gyro_random_walk": imu.gyro_random_walk.get(),
                 "acc_noise_density": imu.acc_noise_density.get(),
                 "acc_random_walk": imu.acc_random_walk.get(),
+                "imu_buf_size": 1,
+                "mag_buf_size": 1,
+                "bar_buf_size": 1,
+                "gps_buf_size": 1,
+                "vel_buf_size": 1,
+                "rotation_variance_grav": eskf.rot_var_grav.get(),
+                "rotation_variance_geomag": eskf.rot_var_geomag.get(),
             }
         else:
             raise RuntimeError(f'Unknown observer type: {observer_type}')

@@ -25,4 +25,10 @@ static constexpr uint32_t kDeltaStateSize = kDeltaGyroBiasIdx + 3;
 
 static constexpr double kTimerPeriod = 5.;  // [s]
 static constexpr double kWaitToPublish = 3.;  // 状態安定のためESKFが稼働してから少し待つ [s]
+
+static constexpr int kDefaultImuBufSize = 1;
+static constexpr int kDefaultMagBufSize = 1;
+static constexpr int kDefaultBarBufSize = 1;
+static constexpr int kDefaultGpsBufSize = 1;
+static constexpr int kDefaultVelBufSize = 1;
 }  // namespace state_estimation_eskf

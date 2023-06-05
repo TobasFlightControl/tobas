@@ -21,7 +21,7 @@ class ObserverWidget(BaseSettingWidget):
 
     NO_SELECT = "Select observer type"
     CASCADE = "Cascade Kalman Filter"
-    ESKF = "Error State Kalman Filter"
+    ESKF = "Error State Kalman Filter (recommended)"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Observer"
@@ -31,8 +31,7 @@ class ObserverWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         self.observer_type = ComboBox()
-        # self.observer_type.addItems([self.NO_SELECT, self.CASCADE, self.ESKF])  # TODO
-        self.observer_type.addItems([self.NO_SELECT, self.CASCADE])
+        self.observer_type.addItems([self.NO_SELECT, self.CASCADE, self.ESKF])
         self.observer_type.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.observer_type)
 
@@ -182,9 +181,30 @@ class ObserverWidget_ESKF(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = ""  # TODO
+        abst_text = "Quaternion kinematics for the error-state Kalman filter [Joan Sola, 2017]\n"\
+            + "https://arxiv.org/abs/1711.02508"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
         self._rows.addWidget(abst)
+
+        rot_var_grav_description = "重力ベクトルの観測に用いる分散．"
+        self.rot_var_grav = ParamGetterWidget_SpinBox(
+            "Rotation variance (Gravity vector)",
+            rot_var_grav_description,
+            minimum=1,
+            maximum=5000,
+            default=100,
+        )
+        self._rows.addWidget(self.rot_var_grav)
+
+        rot_var_geomag_description = "地磁気ベクトルの観測に用いる分散．"
+        self.rot_var_geomag = ParamGetterWidget_SpinBox(
+            "Rotation variance (Geomagnetic vector)",
+            rot_var_geomag_description,
+            minimum=1,
+            maximum=5000,
+            default=100,
+        )
+        self._rows.addWidget(self.rot_var_geomag)
