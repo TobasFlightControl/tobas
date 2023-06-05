@@ -35,8 +35,6 @@ StateEstimator::StateEstimator()
   getRosParams();
   fillUnusedBuffers();
 
-  state_.header.frame_id = "world";
-
   registerPublishers();
   registerSubscribers();
 
@@ -190,7 +188,7 @@ void StateEstimator::initialize()
 
 void StateEstimator::setZeroPositions()
 {
-  // 緯度，経度[deg]
+  // 緯度，経度 [deg]
   double sum_lat = 0.;
   double sum_lon = 0.;
   for (int i = 0; i < GPS_BUF_SIZE; ++i)
@@ -202,7 +200,7 @@ void StateEstimator::setZeroPositions()
   lat_0_ = sum_lat / GPS_BUF_SIZE;
   lon_0_ = sum_lon / GPS_BUF_SIZE;
 
-  // 高度[m]
+  // 高度 [m]
   double sum_pressure = 0.;
   for (int i = 0; i < BAR_BUF_SIZE; ++i)
   {

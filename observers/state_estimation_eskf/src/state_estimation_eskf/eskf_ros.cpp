@@ -19,18 +19,18 @@ namespace state_estimation_eskf
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   : super(),
     is_ready_(false),
-    imu_subscribed_(false),
-    mag_subscribed_(false),
-    bar_subscribed_(false),
-    gps_subscribed_(false),
-    vel_subscribed_(false),
+    yaw_now_(0.),
+    yaw_prev_(0.),
+    yaw_jump_count_(0),
     check_topics_timer_(nh_, kTimerPeriod, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
 {
   getRosParams();
 
-  yaw_now_ = 0.;
-  yaw_prev_ = 0.;
-  yaw_jump_count_ = 0;
+  imu_buf_.resize(imu_buf_size_);
+  mag_buf_.resize(mag_buf_size_);
+  bar_buf_.resize(bar_buf_size_);
+  gps_buf_.resize(gps_buf_size_);
+  vel_buf_.resize(vel_buf_size_);
 
   rot_acc_cov_.setZero();
   rot_mag_cov_.setZero();
@@ -47,19 +47,25 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_);
+  dh_ros::getParam("/gravity", gravity_, dh_ros::POSITIVE);
   dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
   dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
   dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
 
-  dh_ros::getParam("~gyro_noise_density", gyro_noise_density_);
-  dh_ros::getParam("~gyro_random_walk", gyro_random_walk_);
-  dh_ros::getParam("~acc_noise_density", acc_noise_density_);
-  dh_ros::getParam("~acc_random_walk", acc_random_walk_);
+  dh_ros::getParam("~gyro_noise_density", gyro_noise_density_, dh_ros::POSITIVE);
+  dh_ros::getParam("~gyro_random_walk", gyro_random_walk_, dh_ros::POSITIVE);
+  dh_ros::getParam("~acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
+  dh_ros::getParam("~acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
+
+  dh_ros::getParam("~imu_buf_size", imu_buf_size_, dh_ros::POSITIVE);
+  dh_ros::getParam("~mag_buf_size", mag_buf_size_, dh_ros::POSITIVE);
+  dh_ros::getParam("~bar_buf_size", bar_buf_size_, dh_ros::POSITIVE);
+  dh_ros::getParam("~gps_buf_size", gps_buf_size_, dh_ros::POSITIVE);
+  dh_ros::getParam("~vel_buf_size", vel_buf_size_, dh_ros::POSITIVE);
 
   // Dynamic parameters
-  dh_ros::getParam("~rotation_variance_acc", cfg_.rotation_variance_acc);
-  dh_ros::getParam("~rotation_variance_mag", cfg_.rotation_variance_mag);
+  dh_ros::getParam("~rotation_variance_acc", cfg_.rotation_variance_acc, dh_ros::POSITIVE);
+  dh_ros::getParam("~rotation_variance_mag", cfg_.rotation_variance_mag, dh_ros::POSITIVE);
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()
@@ -80,36 +86,73 @@ bool ErrorStateKalmanFilterRos::isReady()
 {
   bool ok = true;
 
-  ok &= imu_subscribed_;
-  ok &= mag_subscribed_;
-  ok &= bar_subscribed_;
-  ok &= gps_subscribed_;
-  ok &= vel_subscribed_;
+  ok &= imu_buf_.isFull();
+  ok &= mag_buf_.isFull();
+  ok &= bar_buf_.isFull();
+  ok &= gps_buf_.isFull();
+  ok &= vel_buf_.isFull();
 
   return ok;
 }
 
 void ErrorStateKalmanFilterRos::setZeroPositions()
 {
-  // TODO: state_estimation_cascadeのようにバッファの平均をとる？
-  lat_0_ = gps_.latitude;
-  lon_0_ = gps_.longitude;
-  alt_0_ = pressureToAltitude(bar_.fluid_pressure);
+  // 緯度，経度 [deg]
+  double sum_lat = 0.;
+  double sum_lon = 0.;
+  for (int i = 0; i < gps_buf_.maxSize(); ++i)
+  {
+    const auto& gps = gps_buf_.get(i);
+    sum_lat += gps.latitude;
+    sum_lon += gps.longitude;
+  }
+  lat_0_ = sum_lat / gps_buf_.maxSize();
+  lon_0_ = sum_lon / gps_buf_.maxSize();
+
+  // 高度 [m]
+  double sum_pressure = 0.;
+  for (int i = 0; i < bar_buf_.maxSize(); ++i)
+  {
+    const auto& bar = bar_buf_.get(i);
+    sum_pressure += bar.fluid_pressure;
+  }
+  double mean_pressure = sum_pressure / bar_buf_.maxSize();
+  alt_0_ = pressureToAltitude(mean_pressure);
 }
 
 void ErrorStateKalmanFilterRos::initialize()
 {
   setZeroPositions();
 
-  // 地磁気センサから初期姿勢を推定
-  const auto& m = mag_.magnetic_field;
-  const Vector3d m_0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
-  const double roll = 0., pitch = 0.;  // 最初は水平状態を想定
-  const double yaw = atan2(m_0.y() * m.x - m_0.x() * m.y, m_0.x() * m.x + m_0.y() * m.y);
+  // 速度の平均を計算
+  Vector3d sum_v = Vector3d::Zero();
+  for (int i = 0; i < vel_buf_.maxSize(); ++i)
+  {
+    const auto& vel = vel_buf_.getLatest();
+    sum_v.x() += vel.vel.x();
+    sum_v.y() += vel.vel.y();
+    sum_v.z() += vel.vel.z();
+  }
+  const Vector3d v = sum_v / vel_buf_.maxSize();
 
-  Quaterniond q_0;
-  eulerToQuaternion(roll, pitch, yaw, q_0.x(), q_0.y(), q_0.z(), q_0.w());
-  // std::cout << "Initial quaternion: " << q_0.coeffs() << endl;
+  // 地磁気の平均から初期姿勢を推定
+  Vector3d sum_m = Vector3d::Zero();
+  for (int i = 0; i < mag_buf_.maxSize(); ++i)
+  {
+    const auto& mag = mag_buf_.get(i);
+    sum_m.x() += mag.magnetic_field.x;
+    sum_m.y() += mag.magnetic_field.y;
+    sum_m.z() += mag.magnetic_field.z;
+  }
+  const Vector3d m = sum_m / mag_buf_.maxSize();  // 比率が問題なので和をそのまま地磁気としてもよい
+  const Vector3d m0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
+  const double roll = 0., pitch = 0.;  // 最初は水平状態を想定
+  const double yaw = atan2(m0.y() * m.x() - m0.x() * m.y(), m0.x() * m.x() + m0.y() * m.y());
+
+  // 初期姿勢をクオータニオンに変換
+  Quaterniond q;
+  eulerToQuaternion(roll, pitch, yaw, q.x(), q.y(), q.z(), q.w());
+  // std::cout << "Initial quaternion: " << q.coeffs() << endl;
 
   // ISKFを初期化
   // 共分散の初期値は想定しうる最大値以上に設定している
@@ -121,8 +164,8 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d(0., 0., -gravity_),                               // gravity vector
     Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
     Vector3d::Zero(),                                          // init position
-    Vector3d::Zero(),                                          // init velocity
-    q_0,                                                       // init quaternion
+    v,                                                         // init velocity
+    q,                                                         // init quaternion
     Vector3d(sqr(10.), sqr(10.), sqr(10.)).asDiagonal(),       // init position cov
     sqr(1.) * I3,                                              // init velocity cov
     1000. * I3,                                                // init quaternion cov
@@ -130,13 +173,13 @@ void ErrorStateKalmanFilterRos::initialize()
     1. * I3                                                    // init gyro bias cov
   );
 
-  t_last_ = imu_.header.stamp;
+  t_last_ = imu_buf_.getLatest().header.stamp;
 }
 
 void ErrorStateKalmanFilterRos::updateBaseStateMsg()
 {
   // Time stamp
-  state_.header.stamp = imu_.header.stamp;
+  state_.header.stamp = imu_buf_.getLatest().header.stamp;
 
   // Position
   tf::vectorEigenToKDL(eskf_.getXYZ(), state_.pose.pos);
@@ -173,8 +216,7 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg()
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 {
-  imu_subscribed_ = true;
-  imu_ = imu;
+  imu_buf_.add(imu);
 
   if (!is_ready_)
   {
@@ -213,8 +255,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 
 void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
 {
-  mag_subscribed_ = true;
-  mag_ = mag;
+  mag_buf_.add(mag);
 
   if (!is_ready_)
   {
@@ -227,8 +268,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
 
 void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
 {
-  bar_subscribed_ = true;
-  bar_ = bar;
+  bar_buf_.add(bar);
 
   if (!is_ready_)
   {
@@ -244,8 +284,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
 
 void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
 {
-  gps_subscribed_ = true;
-  gps_ = gps;
+  gps_buf_.add(gps);
 
   if (!is_ready_)
   {
@@ -265,8 +304,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
 
 void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
 {
-  vel_subscribed_ = true;
-  vel_ = vel;
+  vel_buf_.add(vel);
 
   if (!is_ready_)
   {
@@ -283,27 +321,27 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (!imu_subscribed_)
+  if (imu_buf_.isEmpty())
   {
     rosWarn("IMU data is not received yet.");
   }
 
-  if (!mag_subscribed_)
+  if (mag_buf_.isEmpty())
   {
     rosWarn("Magnetometer data is not received yet.");
   }
 
-  if (!bar_subscribed_)
+  if (bar_buf_.isEmpty())
   {
     rosWarn("Barometer data is not received yet.");
   }
 
-  if (!gps_subscribed_)
+  if (gps_buf_.isEmpty())
   {
     rosWarn("GPS position data is not received yet.");
   }
 
-  if (!vel_subscribed_)
+  if (vel_buf_.isEmpty())
   {
     rosWarn("GPS velocity data is not received yet.");
   }

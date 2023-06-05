@@ -7,6 +7,7 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
+#include <dh_std_tools/buffer.hpp>
 #include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
@@ -42,17 +43,12 @@ private:
   double lat_0_;  // 緯度のゼロ点
   double lon_0_;  // 経度のゼロ点
   double alt_0_;  // 高度のゼロ点
-  bool imu_subscribed_;
-  bool mag_subscribed_;
-  bool bar_subscribed_;
-  bool gps_subscribed_;
-  bool vel_subscribed_;
-  ImuMsg imu_;      // IMUの観測値
-  MagMsg mag_;      // 磁気センサの観測値
-  BarMsg bar_;      // 気圧センサの観測値
-  GpsMsg gps_;      // GPS位置の観測値
-  VelMsg vel_;      // GPS速度の観測値
-  StateMsg state_;  // 発行する状態
+  dh_std::Buffer<ImuMsg> imu_buf_;  // IMUの観測値
+  dh_std::Buffer<MagMsg> mag_buf_;  // 磁気センサの観測値
+  dh_std::Buffer<BarMsg> bar_buf_;  // 気圧センサの観測値
+  dh_std::Buffer<GpsMsg> gps_buf_;  // GPS位置の観測値
+  dh_std::Buffer<VelMsg> vel_buf_;  // GPS速度の観測値
+  StateMsg state_;                  // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
@@ -72,10 +68,15 @@ private:
   double ref_mag_north_;
   double ref_mag_east_;
   double ref_mag_down_;
-  double gyro_noise_density_;                             // rad/s/sqrt(hz)
-  double gyro_random_walk_;                               // rad/s^2/sqrt(hz)
-  double acc_noise_density_;                              // m/s^2/sqrt(hz)
-  double acc_random_walk_;                                // m/s^3/sqrt(hz)
+  double gyro_noise_density_;  // rad/s/sqrt(hz)
+  double gyro_random_walk_;    // rad/s^2/sqrt(hz)
+  double acc_noise_density_;   // m/s^2/sqrt(hz)
+  double acc_random_walk_;     // m/s^3/sqrt(hz)
+  int imu_buf_size_;
+  int mag_buf_size_;
+  int bar_buf_size_;
+  int gps_buf_size_;
+  int vel_buf_size_;
   state_estimation_eskf::StateEstimationEskfConfig cfg_;  // 動的パラメータ
 
   // PubSub
