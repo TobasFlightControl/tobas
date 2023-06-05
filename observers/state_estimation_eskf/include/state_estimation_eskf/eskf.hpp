@@ -1,8 +1,11 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+#include <dh_eigen_tools/linalg.hpp>
 
 #define POS_IDX (0)
 #define ALT_IDX (POS_IDX + 2)
@@ -36,11 +39,12 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    double gravity,
     double var_acc,
     double var_gyro,
     double var_acc_bias,
     double var_gyro_bias,
+    const Eigen::Vector3d& grav_W,
+    const Eigen::Vector3d& mag_W,
     const Eigen::Vector3d& init_pos,
     const Eigen::Vector3d& init_vel,
     const Eigen::Quaterniond& init_quat,
@@ -97,6 +101,25 @@ public:
   void measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
   void measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
 
+  /**
+   * @brief 重力方向の観測．姿勢の修正に用いる．
+   * https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
+   *
+   * @param acc_meas 加速度センサの読み．
+   * @param cov 観測による修正量を決めるパラメータ．
+   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   */
+  void measureAcceleration(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& acc_cov);
+
+  /**
+   * @brief 地磁気の観測．姿勢の修正に用いる．
+
+   * @param mag_meas 地磁気センサの読み．
+   * @param cov 観測による修正量を決めるパラメータ．
+   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   */
+  void measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
+
   Eigen::Matrix3d getDCM();
 
 private:
@@ -105,7 +128,9 @@ private:
   double var_acc_bias_;
   double var_gyro_bias_;
 
-  Eigen::Vector3d grav_W_;     // Acceleration due to gravity in global frame [m/s^2]
+  Eigen::Vector3d grav_W_;     // Acceleration due to gravity wrt. world frame [m/s^2]
+  Eigen::Vector3d mag_W_;      // Magnetic field wrt. world frame [T]
+
   StateVector nominal_state_;  // State vector of the filter
   dStateMatrix P_;             // Covariance of the error state
   dStateMatrix F_x_;           // Jacobian of the state transition
@@ -134,6 +159,9 @@ void ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, M>& meas_cov,
   const Eigen::Matrix<double, M, dSTATE_SIZE>& H)
 {
+  assert(eigen_tools::isPositive(meas_cov));
+  assert(H.norm() > 0.);  // Hが変更されないバグがあったため，Hに非ゼロの要素が含まれることを保証．
+
   // Kalman gain
   const auto PHt = P_ * H.transpose();
   const auto K = PHt * (H * PHt + meas_cov).inverse();
@@ -147,4 +175,10 @@ void ErrorStateKalmanFilter::correct(
   P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // Joseph form
 
   injectErrorState(error_state);
+
+  // For debug
+  // std::cout << "Delta measure:" << std::endl << delta_meas << std::endl;
+  // std::cout << "Measurement covariance matrix:" << std::endl << meas_cov << std::endl;
+  // std::cout << "Output matrix:" << std::endl << H << std::endl;
+  // std::cout << "Kalman gain:" << std::endl << K << std::endl;
 }
