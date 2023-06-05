@@ -7,32 +7,20 @@
 
 #include <dh_eigen_tools/linalg.hpp>
 
-#define POS_IDX (0)
-#define ALT_IDX (POS_IDX + 2)
-#define VEL_IDX (POS_IDX + 3)
-#define QUAT_IDX (VEL_IDX + 3)
-#define AB_IDX (QUAT_IDX + 4)
-#define WB_IDX (AB_IDX + 3)
-#define STATE_SIZE (WB_IDX + 3)
+#include "./constants.hpp"
 
-#define dPOS_IDX (0)
-#define dALT_IDX (dPOS_IDX + 2)
-#define dVEL_IDX (dPOS_IDX + 3)
-#define dTHETA_IDX (dVEL_IDX + 3)
-#define dAB_IDX (dTHETA_IDX + 3)
-#define dWB_IDX (dAB_IDX + 3)
-#define dSTATE_SIZE (dWB_IDX + 3)
-
+namespace state_estimation_eskf
+{
 /**
  * @brief 誤差状態カルマンフィルタ．
  * https://www.flight.t.u-tokyo.ac.jp/?p=800
  */
 class ErrorStateKalmanFilter
 {
-  using StateMatrix = Eigen::Matrix<double, STATE_SIZE, STATE_SIZE>;
-  using StateVector = Eigen::Matrix<double, STATE_SIZE, 1>;
-  using dStateMatrix = Eigen::Matrix<double, dSTATE_SIZE, dSTATE_SIZE>;
-  using dStateVector = Eigen::Matrix<double, dSTATE_SIZE, 1>;
+  using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
+  using StateVector = Eigen::Matrix<double, kStateSize, 1>;
+  using dStateMatrix = Eigen::Matrix<double, kDeltaStateSize, kDeltaStateSize>;
+  using dStateVector = Eigen::Matrix<double, kDeltaStateSize, 1>;
   using Scalar = Eigen::Matrix<double, 1, 1>;
 
 public:
@@ -54,49 +42,19 @@ public:
     const Eigen::Matrix3d& cov_a_b,
     const Eigen::Matrix3d& cov_w_b);
 
-  // The quaternion convention in the document is "Hamilton" convention.
-  // Eigen has a different order of components, so we need conversion.
-  static Eigen::Quaterniond quatFromHamilton(const Eigen::Vector4d& qHam);
-  static Eigen::Vector4d quatToHamilton(const Eigen::Quaterniond& q);
-  static Eigen::Matrix3d rotVecToMat(const Eigen::Vector3d& in);
-  static Eigen::Quaterniond rotVecToQuat(const Eigen::Vector3d& in);
-  static Eigen::Vector3d quatToRotVec(const Eigen::Quaterniond& q);
-  static Eigen::Matrix3d getSkew(const Eigen::Vector3d& in);
+  Eigen::Vector3d getXYZ() const;
+  Eigen::Vector2d getXY() const;
+  double getAltitude() const;
+  Eigen::Vector3d getVelocity() const;
+  Eigen::Quaterniond getQuaternion() const;
+  Eigen::Vector3d getAccelBias() const;
+  Eigen::Vector3d getGyroBias() const;
+  Eigen::Matrix3d getDCM() const;
 
-  // Acessors of nominal state
-  inline Eigen::Vector3d getPosition3D() const
-  {
-    return nominal_state_.block<3, 1>(POS_IDX, 0);
-  }
-  inline Eigen::Vector2d getPosition2D() const
-  {
-    return nominal_state_.block<2, 1>(POS_IDX, 0);
-  }
-  inline double getAltitude() const
-  {
-    return nominal_state_(ALT_IDX);
-  }
-  inline Eigen::Vector3d getVelocity() const
-  {
-    return nominal_state_.block<3, 1>(VEL_IDX, 0);
-  }
-  inline Eigen::Quaterniond getQuaternion() const
-  {
-    return quatFromHamilton(getQuatVector());
-  }
-  inline Eigen::Vector3d getAccelBias() const
-  {
-    return nominal_state_.block<3, 1>(AB_IDX, 0);
-  }
-  inline Eigen::Vector3d getGyroBias() const
-  {
-    return nominal_state_.block<3, 1>(WB_IDX, 0);
-  }
+  void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, double dt);
 
-  void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, const double dt);
-
-  void measurePosition3D(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
-  void measurePosition2D(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
+  void measureXYZ(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
+  void measureXY(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
   void measureAltitude(const double& z_meas, const double& z_var);
   void measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
   void measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
@@ -113,14 +71,12 @@ public:
 
   /**
    * @brief 地磁気の観測．姿勢の修正に用いる．
-
+   *
    * @param mag_meas 地磁気センサの読み．
    * @param cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    */
   void measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
-
-  Eigen::Matrix3d getDCM();
 
 private:
   double var_acc_;
@@ -142,14 +98,14 @@ private:
   void correct(
     const Eigen::Matrix<double, M, 1>& delta_meas,
     const Eigen::Matrix<double, M, M>& meas_cov,
-    const Eigen::Matrix<double, M, dSTATE_SIZE>& H);
+    const Eigen::Matrix<double, M, kDeltaStateSize>& H);
 
   void injectErrorState(const dStateVector& error_state);
 
-  // クオータニオンをベクトルの形で得る．(w,x,y,z)の順であることに注意！x()などのメソッドでアクセスするとずれる！
+  /* クオータニオンをベクトルの形で得る．(w,x,y,z)の順(ハミルトン)であることに注意！ */
   inline Eigen::Vector4d getQuatVector() const
   {
-    return nominal_state_.block<4, 1>(QUAT_IDX, 0);
+    return nominal_state_.block<4, 1>(kQuatIdx, 0);
   }
 };
 
@@ -157,7 +113,7 @@ template <size_t M>
 void ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, 1>& delta_meas,
   const Eigen::Matrix<double, M, M>& meas_cov,
-  const Eigen::Matrix<double, M, dSTATE_SIZE>& H)
+  const Eigen::Matrix<double, M, kDeltaStateSize>& H)
 {
   assert(eigen_tools::isPositive(meas_cov));
   assert(H.norm() > 0.);  // Hが変更されないバグがあったため，Hに非ゼロの要素が含まれることを保証．
@@ -182,3 +138,4 @@ void ErrorStateKalmanFilter::correct(
   // std::cout << "Output matrix:" << std::endl << H << std::endl;
   // std::cout << "Kalman gain:" << std::endl << K << std::endl;
 }
+}  // namespace state_estimation_eskf

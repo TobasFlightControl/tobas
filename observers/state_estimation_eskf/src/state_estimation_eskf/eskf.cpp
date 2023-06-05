@@ -1,13 +1,16 @@
+#include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/linalg.hpp>
+#include <dh_eigen_tools/geometry.hpp>
 
 #include "../../include/state_estimation_eskf/eskf.hpp"
 
-#define SQ(x) (x * x)
-#define I_3 (Matrix3d::Identity())
-
 using namespace std;
 using namespace Eigen;
+using namespace dh_std;
+namespace et = eigen_tools;
 
+namespace state_estimation_eskf
+{
 ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 {
 }
@@ -48,70 +51,67 @@ void ErrorStateKalmanFilter::initialize(
 
   // ノミナル状態を初期化
   nominal_state_.setZero();
-  nominal_state_.block<3, 1>(POS_IDX, 0) = init_pos;
-  nominal_state_.block<3, 1>(VEL_IDX, 0) = init_vel;
-  nominal_state_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(init_quat).normalized();
+  nominal_state_.block<3, 1>(kPosIdx, 0) = init_pos;
+  nominal_state_.block<3, 1>(kVelIdx, 0) = init_vel;
+  nominal_state_.block<4, 1>(kQuatIdx, 0) = et::quaternionToHamilton(init_quat).normalized();
 
   // 共分散行列を初期化
   P_.setZero();
-  P_.block<3, 3>(dPOS_IDX, dPOS_IDX) = cov_pos;
-  P_.block<3, 3>(dVEL_IDX, dVEL_IDX) = cov_vel;
-  P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = cov_dtheta;
-  P_.block<3, 3>(dAB_IDX, dAB_IDX) = cov_a_b;
-  P_.block<3, 3>(dWB_IDX, dWB_IDX) = cov_w_b;
+  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = cov_pos;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = cov_vel;
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov_dtheta;
+  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = cov_a_b;
+  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = cov_w_b;
 
   // (270) ヤコビアンの不変部分を埋める
   F_x_.setZero();
-  F_x_.block<3, 3>(dPOS_IDX, dPOS_IDX).diagonal().fill(1.);
-  F_x_.block<3, 3>(dVEL_IDX, dVEL_IDX).diagonal().fill(1.);
-  F_x_.block<3, 3>(dAB_IDX, dAB_IDX).diagonal().fill(1.);
-  F_x_.block<3, 3>(dWB_IDX, dWB_IDX).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().fill(1.);
 }
 
-Matrix3d ErrorStateKalmanFilter::getDCM()
+Vector3d ErrorStateKalmanFilter::getXYZ() const
 {
-  return getQuaternion().matrix();
+  return nominal_state_.block<3, 1>(kPosIdx, 0);
 }
 
-Quaterniond ErrorStateKalmanFilter::quatFromHamilton(const Vector4d& qHam)
+Vector2d ErrorStateKalmanFilter::getXY() const
 {
-  return Quaterniond((Vector4d() << qHam.block<3, 1>(1, 0), qHam.block<1, 1>(0, 0)).finished());
+  return nominal_state_.block<2, 1>(kPosIdx, 0);
 }
 
-Vector4d ErrorStateKalmanFilter::quatToHamilton(const Quaterniond& q)
+double ErrorStateKalmanFilter::getAltitude() const
 {
-  return (Vector4d() << q.coeffs().block<1, 1>(3, 0), q.coeffs().block<3, 1>(0, 0)).finished();
+  return nominal_state_(kAltIdx);
 }
 
-Matrix3d ErrorStateKalmanFilter::getSkew(const Vector3d& in)
+Vector3d ErrorStateKalmanFilter::getVelocity() const
 {
-  Matrix3d out;
-  out << 0, -in(2), in(1), in(2), 0, -in(0), -in(1), in(0), 0;
-  return out;
+  return nominal_state_.block<3, 1>(kVelIdx, 0);
 }
 
-Matrix3d ErrorStateKalmanFilter::rotVecToMat(const Vector3d& in)
+Quaterniond ErrorStateKalmanFilter::getQuaternion() const
 {
-  const double angle = in.norm();
-  const Vector3d axis = (angle == 0) ? Vector3d(1, 0, 0) : in.normalized();
-  AngleAxisd angle_axis(angle, axis);
-  return angle_axis.toRotationMatrix();
+  return et::hamiltonToQuaternion(getQuatVector());
 }
 
-Quaterniond ErrorStateKalmanFilter::rotVecToQuat(const Vector3d& in)
+Vector3d ErrorStateKalmanFilter::getAccelBias() const
 {
-  const double angle = in.norm();
-  Vector3d axis = (angle == 0) ? Vector3d(1, 0, 0) : in.normalized();
-  return Quaterniond(AngleAxisd(angle, axis));
+  return nominal_state_.block<3, 1>(kAccBiasIdx, 0);
 }
 
-Vector3d ErrorStateKalmanFilter::quatToRotVec(const Quaterniond& q)
+Vector3d ErrorStateKalmanFilter::getGyroBias() const
 {
-  AngleAxisd angle_axis(q);
-  return angle_axis.angle() * angle_axis.axis();
+  return nominal_state_.block<3, 1>(kGyroBiasIdx, 0);
 }
 
-void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, const double dt)
+Matrix3d ErrorStateKalmanFilter::getDCM() const
+{
+  return getQuaternion().toRotationMatrix();
+}
+
+void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
 {
   assert(dt > 0.);
 
@@ -119,21 +119,21 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   const Vector3d acc_B = a_m - getAccelBias();
   const Vector3d acc_W = Rot * acc_B;
   const Vector3d delta_theta = (w_m - getGyroBias()) * dt;
-  const Quaterniond q_delta_theta = rotVecToQuat(delta_theta);
+  const Quaterniond q_delta_theta = et::angleAxisToQuaternion(delta_theta);
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
-  nominal_state_.block<3, 1>(POS_IDX, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * SQ(dt);
-  nominal_state_.block<3, 1>(VEL_IDX, 0) += (acc_W + grav_W_) * dt;
-  nominal_state_.block<4, 1>(QUAT_IDX, 0) =
-    quatToHamilton(getQuaternion() * q_delta_theta).normalized();
+  nominal_state_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * sqr(dt);
+  nominal_state_.block<3, 1>(kVelIdx, 0) += (acc_W + grav_W_) * dt;
+  nominal_state_.block<4, 1>(kQuatIdx, 0) =
+    et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
 
   // (270) ヤコビアンの可変部を更新
-  F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt);
-  F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_B) * dt;
-  F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
-  F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
-  F_x_.block<3, 3>(dTHETA_IDX, dWB_IDX).diagonal().fill(-dt);
+  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -Rot * et::crossMat(acc_B) * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -Rot * dt;
+  F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
+  F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269): 共分散行列の予測値を更新
   P_ = F_x_ * P_ * F_x_.transpose();
@@ -142,10 +142,10 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   eigen_tools::symmetrise(P_);
 
   // Inject process noise
-  P_.diagonal().block<3, 1>(dVEL_IDX, 0).array() += var_acc_ * SQ(dt);
-  P_.diagonal().block<3, 1>(dTHETA_IDX, 0).array() += var_gyro_ * SQ(dt);
-  P_.diagonal().block<3, 1>(dAB_IDX, 0).array() += var_acc_bias_ * dt;
-  P_.diagonal().block<3, 1>(dWB_IDX, 0).array() += var_gyro_bias_ * dt;
+  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += var_acc_ * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += var_gyro_ * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += var_acc_bias_ * dt;
+  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += var_gyro_bias_ * dt;
 
   // For debug
   // cout << "F_x:" << endl << F_x_ << endl;
@@ -164,24 +164,24 @@ Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
   return Q_dtheta;
 }
 
-void ErrorStateKalmanFilter::measurePosition3D(const Vector3d& pos_meas, const Matrix3d& pos_cov)
+void ErrorStateKalmanFilter::measureXYZ(const Vector3d& pos_meas, const Matrix3d& pos_cov)
 {
-  const Vector3d delta_pos = pos_meas - getPosition3D();
+  const Vector3d delta_pos = pos_meas - getXYZ();
 
-  Matrix<double, 3, dSTATE_SIZE> H;
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dPOS_IDX).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaPosIdx).diagonal().fill(1.);
 
   correct<3>(delta_pos, pos_cov, H);
 }
 
-void ErrorStateKalmanFilter::measurePosition2D(const Vector2d& xy_meas, const Matrix2d& xy_cov)
+void ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
 {
-  const Vector2d delta_xy = xy_meas - getPosition2D();
+  const Vector2d delta_xy = xy_meas - getXY();
 
-  Matrix<double, 2, dSTATE_SIZE> H;
+  Matrix<double, 2, kDeltaStateSize> H;
   H.setZero();
-  H.block<2, 2>(0, dPOS_IDX).diagonal().fill(1.);
+  H.block<2, 2>(0, kDeltaPosIdx).diagonal().fill(1.);
 
   correct<2>(delta_xy, xy_cov, H);
 }
@@ -192,9 +192,9 @@ void ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double&
   // std::cout << "Estimated altitude:" << endl << getAltitude() << endl;
   // std::cout << "Measured altitude:" << endl << z_meas << endl;
 
-  Matrix<double, 1, dSTATE_SIZE> H;
+  Matrix<double, 1, kDeltaStateSize> H;
   H.setZero();
-  H(0, dALT_IDX) = 1.;
+  H(0, kDeltaAltIdx) = 1.;
 
   correct<1>(Scalar(delta_z), Scalar(z_cov), H);
 }
@@ -205,27 +205,25 @@ void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Mat
   // std::cout << "Estimated velocity:" << endl << getVelocity() << endl;
   // std::cout << "Measured velocity:" << endl << vel_meas << endl;
 
-  Matrix<double, 3, dSTATE_SIZE> H;
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dVEL_IDX).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaVelIdx).diagonal().fill(1.);
 
   correct<3>(delta_vel, vel_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureQuaternion(
-  const Quaterniond& q_gb_meas,
-  const Matrix3d& theta_cov)
+void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
-  const Quaterniond q_gb_nominal = getQuaternion();
-  const Quaterniond q_bNominal_bMeas = q_gb_nominal.conjugate() * q_gb_meas;
-  const Vector3d delta_theta = quatToRotVec(q_bNominal_bMeas);
+  const Quaterniond q_nominal = getQuaternion();
+  const Quaterniond q_nominal_meas = q_nominal.conjugate() * q_meas;  // 回転の誤差
+  const Vector3d delta_theta = et::quaternionToAngleAxis(q_nominal_meas);
 
-  // Because of the above construction, H is a trivial observation of dtheta
-  Matrix<double, 3, dSTATE_SIZE> H;
+  // 回転の誤差を3次元ベクトルとして観測
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dTHETA_IDX).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaThetaIdx).diagonal().fill(1.);
 
-  // Apply update
+  // 事後推定を計算
   correct<3>(delta_theta, theta_cov, H);
 }
 
@@ -235,16 +233,17 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
   const Vector3d grav_B = rot_B_W * grav_W_;
   const Vector3d acc_nominal = -grav_B;
   const Vector3d delta_acc = acc_meas - acc_nominal;
-  const Matrix3d grav_B_cross = getSkew(grav_B);
+  const Matrix3d grav_B_cross = et::crossMat(grav_B);
 
   // std::cout << "rot_B_W:" << endl << rot_B_W << endl;
   // std::cout << "grav_B:" << endl << grav_B << endl;
   // std::cout << "skew(grav_B):" << endl << grav_B_cross << endl;
 
-  Matrix<double, 3, dSTATE_SIZE> H;
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  // H.block(0, dTHETA_IDX, 3, 3) = -2 * getSkew(grav_B);  // これだとHが変更されない．なぜ？？
-  H.block(0, dTHETA_IDX, 3, 3) = -2 * grav_B_cross;
+  // H.block(0, kDeltaThetaIdx, 3, 3) = -2 * et::crossMat(grav_B);  //
+  // これだとHが変更されない．なぜ？？
+  H.block(0, kDeltaThetaIdx, 3, 3) = -2 * grav_B_cross;
 
   correct<3>(delta_acc, acc_cov, H);
 }
@@ -254,11 +253,11 @@ void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, cons
   const Matrix3d rot_B_W = getDCM().transpose();
   const Vector3d mag_B = rot_B_W * mag_W_;
   const Vector3d delta_mag = mag_meas - mag_B;
-  const Matrix3d mag_B_cross = getSkew(mag_B);
+  const Matrix3d mag_B_cross = et::crossMat(mag_B);
 
-  Matrix<double, 3, dSTATE_SIZE> H;
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dTHETA_IDX) = 2 * mag_B_cross;
+  H.block<3, 3>(0, kDeltaThetaIdx) = 2 * mag_B_cross;
 
   correct<3>(delta_mag, mag_cov, H);
 }
@@ -266,18 +265,20 @@ void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, cons
 void ErrorStateKalmanFilter::injectErrorState(const dStateVector& error_state)
 {
   // (283) 観測した誤差をノミナル状態に反映
-  const Vector3d dtheta = error_state.block<3, 1>(dTHETA_IDX, 0);
-  const Quaterniond q_dtheta = rotVecToQuat(dtheta);
-  nominal_state_.block<3, 1>(POS_IDX, 0) += error_state.block<3, 1>(dPOS_IDX, 0);
-  nominal_state_.block<3, 1>(VEL_IDX, 0) += error_state.block<3, 1>(dVEL_IDX, 0);
-  nominal_state_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(getQuaternion() * q_dtheta).normalized();
-  nominal_state_.block<3, 1>(AB_IDX, 0) += error_state.block<3, 1>(dAB_IDX, 0);
-  nominal_state_.block<3, 1>(WB_IDX, 0) += error_state.block<3, 1>(dWB_IDX, 0);
+  const Vector3d dtheta = error_state.block<3, 1>(kDeltaThetaIdx, 0);
+  const Quaterniond q_dtheta = et::angleAxisToQuaternion(dtheta);
+  nominal_state_.block<3, 1>(kPosIdx, 0) += error_state.block<3, 1>(kDeltaPosIdx, 0);
+  nominal_state_.block<3, 1>(kVelIdx, 0) += error_state.block<3, 1>(kDeltaVelIdx, 0);
+  nominal_state_.block<4, 1>(kQuatIdx, 0) =
+    et::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
+  nominal_state_.block<3, 1>(kAccBiasIdx, 0) += error_state.block<3, 1>(kDeltaAccBiasIdx, 0);
+  nominal_state_.block<3, 1>(kGyroBiasIdx, 0) += error_state.block<3, 1>(kDeltaGyroBiasIdx, 0);
 
   // (286) ESKFを初期化 (不要)
   // FIXME: これをやるとバグる問題．symmetriseを挟むと若干マシになるがそれでもやらないほうがマシ．
-  // const Matrix3d G_theta = I_3 - getSkew(0.5 * dtheta);
-  // P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) =
-  //   G_theta * P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) * G_theta.transpose();
+  // const Matrix3d G_theta = I3 - et::crossMat(0.5 * dtheta);
+  // P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) =
+  //   G_theta * P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) * G_theta.transpose();
   // eigen_tools::symmetrise(P_);
 }
+}  // namespace state_estimation_eskf

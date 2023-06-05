@@ -36,10 +36,10 @@ public:
   void predict(const Eigen::Quaterniond& quat, const Eigen::Matrix3d& acc_cov, double dt);
 
   /* 絶対位置の観測． */
-  void measurePosition3D(const Eigen::Vector3d& p_m, const Eigen::Matrix3d& cov);
+  void measureXYZ(const Eigen::Vector3d& p_m, const Eigen::Matrix3d& cov);
 
   /* 絶対平面位置の観測． */
-  void measurePosition2D(const Eigen::Vector2d& xy_m, const Eigen::Matrix2d& cov);
+  void measureXY(const Eigen::Vector2d& xy_m, const Eigen::Matrix2d& cov);
 
   /* 絶対高度の観測. */
   void measureAltitude(const double& z_m, const double& var);
@@ -50,8 +50,8 @@ public:
   /* 期待座標系における加速度センサの観測． */
   void measureAcceleration(const Eigen::Vector3d& a_m, const Eigen::Matrix3d& cov);
 
-  Eigen::Vector3d getPosition3D() const;
-  Eigen::Vector2d getPosition2D() const;
+  Eigen::Vector3d getXYZ() const;
+  Eigen::Vector2d getXY() const;
   double getAltitude() const;
   Eigen::Vector3d getVelocity() const;
   Eigen::Vector3d getAcceleration() const;

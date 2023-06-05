@@ -157,7 +157,7 @@ void GazeboOdometryPlugin::addNoise(
 
   // Add rotation noise
   const auto theta = rotation_n_->get() + rotation_u_->get();
-  const auto q_n = quaternionFromAngleAxis(theta);
+  const auto q_n = angleAxisToQuaternion(theta);
   pose.Rot() *= q_n;
   pose.Rot().Normalize();
 

@@ -96,20 +96,20 @@ void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& acc_cov, 
   eigen_tools::symmetrise(P_);
 }
 
-void CartesianFilter::measurePosition3D(const Vector3d& p_m, const Matrix3d& cov)
+void CartesianFilter::measureXYZ(const Vector3d& p_m, const Matrix3d& cov)
 {
   assert(eigen_tools::isPositive(cov));
 
-  Vector3d dpos = p_m - getPosition3D();
+  Vector3d dpos = p_m - getXYZ();
   Matrix<double, 3, STATE_SIZE> C = C_.block(POS_IDX, 0, 3, STATE_SIZE);
   correct<3>(dpos, cov, C);
 }
 
-void CartesianFilter::measurePosition2D(const Vector2d& xy_m, const Matrix2d& cov)
+void CartesianFilter::measureXY(const Vector2d& xy_m, const Matrix2d& cov)
 {
   assert(eigen_tools::isPositive(cov));
 
-  Vector2d dxy = xy_m - getPosition2D();
+  Vector2d dxy = xy_m - getXY();
   Matrix<double, 2, STATE_SIZE> C = C_.block(POS_IDX, 0, 2, STATE_SIZE);
   correct<2>(dxy, cov, C);
 }
@@ -141,12 +141,12 @@ void CartesianFilter::measureAcceleration(const Vector3d& a_m, const Matrix3d& c
   correct<3>(dacc, cov, C);
 }
 
-Vector3d CartesianFilter::getPosition3D() const
+Vector3d CartesianFilter::getXYZ() const
 {
   return x_.block(POS_IDX, 0, 3, 1);
 }
 
-Vector2d CartesianFilter::getPosition2D() const
+Vector2d CartesianFilter::getXY() const
 {
   return x_.block(POS_IDX, 0, 2, 1);
 }

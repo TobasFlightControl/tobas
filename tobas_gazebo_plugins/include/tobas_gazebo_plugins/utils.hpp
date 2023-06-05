@@ -37,5 +37,5 @@ void NED2NWU(ignition::math::Vector3<T>& v)
 }
 
 /* 等価角軸ベクトルからクオータニオンを作成． */
-ignition::math::Quaterniond quaternionFromAngleAxis(const ignition::math::Vector3d& w);
+ignition::math::Quaterniond angleAxisToQuaternion(const ignition::math::Vector3d& w);
 }  // namespace gazebo

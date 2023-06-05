@@ -221,7 +221,7 @@ void StateEstimator::updatePoseVelMsg()
   state_.header.stamp = imu.header.stamp;
 
   // Position
-  tf::vectorEigenToKDL(cart_filter_.getPosition3D(), state_.pose.pos);
+  tf::vectorEigenToKDL(cart_filter_.getXYZ(), state_.pose.pos);
 
   // Roll, Pitch
   const auto& quat = filtered_imu_buf_.getLatest().orientation;
@@ -318,7 +318,7 @@ void StateEstimator::gpsPositionCb(const GpsMsg& gps)
   cov(1, 0) = gps.position_covariance[3];
   cov(1, 1) = gps.position_covariance[4];
 
-  cart_filter_.measurePosition2D(xy_m_, cov);
+  cart_filter_.measureXY(xy_m_, cov);
 }
 
 void StateEstimator::gpsVelocityCb(const VelMsg& vel)

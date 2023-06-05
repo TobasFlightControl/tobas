@@ -4,7 +4,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-Quaterniond quaternionFromAngleAxis(const Vector3d& w)
+Quaterniond angleAxisToQuaternion(const Vector3d& w)
 {
   const auto angle = w.Length();
   if (angle < 1e-9)

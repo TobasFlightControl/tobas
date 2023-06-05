@@ -16,6 +16,8 @@
 
 #include "./eskf.hpp"
 
+namespace state_estimation_eskf
+{
 class ErrorStateKalmanFilterRos : public dh_ros::BaseNode
 {
   using super = dh_ros::BaseNode;
@@ -105,3 +107,4 @@ private:
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };
+}  // namespace state_estimation_eskf

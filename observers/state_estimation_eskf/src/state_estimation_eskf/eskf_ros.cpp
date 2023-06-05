@@ -10,14 +10,12 @@
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
-#define I_3 (Matrix3d::Identity())
-#define TIMER_PERIOD 5.  // [s]
-#define WAIT_TO_PUBLISH 0.  // 状態を安定させるためにESKFが稼働してから少し待つ (効果微妙) [s]
-
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
 
+namespace state_estimation_eskf
+{
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   : super(),
     is_ready_(false),
@@ -26,7 +24,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
     bar_subscribed_(false),
     gps_subscribed_(false),
     vel_subscribed_(false),
-    check_topics_timer_(nh_, TIMER_PERIOD, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
+    check_topics_timer_(nh_, kTimerPeriod, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
 {
   getRosParams();
 
@@ -126,10 +124,10 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d::Zero(),                                          // init velocity
     q_0,                                                       // init quaternion
     Vector3d(sqr(3.), sqr(3.), sqr(1.)).asDiagonal(),          // init position cov
-    sqr(1.) * I_3,                                             // init velocity cov
-    1000. * I_3,                                               // init quaternion cov  // TODO
-    var_acc_bias * I_3,                                        // init acc bias cov
-    var_gyro_bias * I_3                                        // init gyro bias cov
+    sqr(1.) * I3,                                              // init velocity cov
+    1000. * I3,                                                // init quaternion cov  // TODO
+    var_acc_bias * I3,                                         // init acc bias cov
+    var_gyro_bias * I3                                         // init gyro bias cov
   );
 
   t_last_ = imu_.header.stamp;
@@ -141,7 +139,7 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg()
   state_.header.stamp = imu_.header.stamp;
 
   // Position
-  tf::vectorEigenToKDL(eskf_.getPosition3D(), state_.pose.pos);
+  tf::vectorEigenToKDL(eskf_.getXYZ(), state_.pose.pos);
 
   // Rotation
   const Quaterniond q = eskf_.getQuaternion();
@@ -175,7 +173,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
       t_ready_ = ros::Time::now();
       is_ready_ = true;
       rosInfo(
-        "State estimator is ready. Wait to publish states for " << WAIT_TO_PUBLISH << " seconds.");
+        "State estimator is ready. Wait to publish states for " << kWaitToPublish << " seconds.");
     }
     return;
   }
@@ -194,7 +192,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   eskf_.measureAcceleration(a_m_, rot_acc_cov_);
 
   // 推定状態を発行
-  if ((ros::Time::now() - t_ready_).toSec() > WAIT_TO_PUBLISH)
+  if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
   {
     updateBaseStateMsg();
     posevel_pub_.publish(state_);
@@ -250,7 +248,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
   cov(1, 0) = gps.position_covariance[3];
   cov(1, 1) = gps.position_covariance[4];
 
-  eskf_.measurePosition2D(xy_m_, cov);
+  eskf_.measureXY(xy_m_, cov);
 }
 
 void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
@@ -304,3 +302,4 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
   rot_acc_cov_.diagonal().fill(cfg_.rotation_variance_acc);
   rot_mag_cov_.diagonal().fill(cfg_.rotation_variance_mag);
 }
+}  // namespace state_estimation_eskf
