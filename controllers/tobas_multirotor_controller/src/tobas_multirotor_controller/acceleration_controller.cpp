@@ -3,14 +3,15 @@
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include "../../include/tobas_multirotor_controller/acceleration_controller.hpp"
+#include "../../include/tobas_multirotor_controller/constants.hpp"
 
 using namespace std;
 using namespace KDL;
 
 namespace tobas_multirotor_controller
 {
-AccelerationController::AccelerationController(const tobas::Drone& drone, double gravity)
-  : drone_(drone), z_rotors_(drone, tobas::Axis::Z_POSITIVE), gravity_(gravity)
+AccelerationController::AccelerationController(const tobas::Drone& drone)
+  : drone_(drone), z_rotors_(drone, tobas::Axis::Z_POSITIVE)
 {
   TreeJntToInertiaSolver inertia_solver_(drone.tree());
   mass_ = inertia_solver_.JntToMass();
@@ -25,7 +26,7 @@ void AccelerationController::update(
 {
   const double x = mass_ * tar_acc.x();
   const double y = mass_ * tar_acc.y();
-  const double z = mass_ * (tar_acc.z() + gravity_);
+  const double z = mass_ * (tar_acc.z() + kGravity);
 
   const double cos_yaw = cos(yaw);
   const double sin_yaw = sin(yaw);

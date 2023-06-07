@@ -4,6 +4,7 @@
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include "../../include/tobas_multirotor_controller/rotation_controller.hpp"
+#include "../../include/tobas_multirotor_controller/constants.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -143,7 +144,7 @@ void RotationController::setScales()
   TreeJntToInertiaSolver inertia_solver(drone_.tree());
   const auto mass = inertia_solver.JntToMass();
   mpc_.input_scale.resize(z_rotors_.count());
-  mpc_.input_scale.fill(mass / z_rotors_.count());
+  mpc_.input_scale.fill(mass * kGravity / z_rotors_.count());
 }
 
 void RotationController::setInputConstraintBase()

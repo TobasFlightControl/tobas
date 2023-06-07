@@ -44,7 +44,7 @@ VelocityControllerRos::VelocityControllerRos()
 
   // 各コントローラを初期化
   vel_controller_.reset(new VelocityController(dynamic_params_vel_));
-  acc_controller_.reset(new AccelerationController(drone_, gravity_));
+  acc_controller_.reset(new AccelerationController(drone_));
   rot_controller_.reset(new RotationController(drone_, dynamic_params_rot_));
 
   q_.resize(drone_.tree().getNrOfJoints());
@@ -61,8 +61,6 @@ VelocityControllerRos::VelocityControllerRos()
 
 void VelocityControllerRos::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_);
-
   // velocity controller
   dh_ros::getParam(kCtrlName + "/natural_frequency", dynamic_params_vel_.natural_freq);
   dh_ros::getParam(kCtrlName + "/damping_ratio", dynamic_params_vel_.damp_ratio);

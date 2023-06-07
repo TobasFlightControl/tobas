@@ -7,6 +7,7 @@
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
+#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/conversions/coordinates.hpp>
 
@@ -32,8 +33,12 @@ Controller::Controller()
   x_rotors_.updateInternalDataStructures();
   eom_.updateInternalDataStructures();
 
-  q_0_.resize(drone_.tree().getNrOfJoints());
+  if (x_rotors_.count() == 0)
+  {
+    dh_ros::RuntimeError("The number of propellers is zero.");
+  }
 
+  q_0_.resize(drone_.tree().getNrOfJoints());
   c2d_.reset(new ctrl::C2D_RK4(eom_.kStateSize, eom_.inputSize()));
 
   pressure_received_ = false;
@@ -212,11 +217,10 @@ void Controller::setScales()
   mpc_.control_scale = mpc_.state_scale;
 
   // 制御入力のスケール
+  KDL::TreeJntToInertiaSolver inertia_solver_(drone_.tree());
+  const auto mass = inertia_solver_.JntToMass();
   mpc_.input_scale.resize(eom_.inputSize());
-  for (int i = 0; i < x_rotors_.count(); ++i)
-  {
-    mpc_.input_scale(i) = x_rotors_.maxThrust(i, battery_.voltage);
-  }
+  mpc_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(mass * kGravity / x_rotors_.count());
   for (int i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     mpc_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();

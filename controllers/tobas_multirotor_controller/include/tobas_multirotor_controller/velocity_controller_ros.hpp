@@ -69,7 +69,6 @@ private:
   std::shared_ptr<RotationController> rot_controller_;
 
   // RosParams
-  double gravity_;
   VelocityControllerDynamicParams dynamic_params_vel_;
   RotationControllerDynamicParams dynamic_params_rot_;
 

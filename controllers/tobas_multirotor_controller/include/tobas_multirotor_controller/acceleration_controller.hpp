@@ -11,7 +11,7 @@ namespace tobas_multirotor_controller
 class AccelerationController
 {
 public:
-  explicit AccelerationController(const tobas::Drone& drone, double gravity);
+  explicit AccelerationController(const tobas::Drone& drone);
 
   void update(
     const KDL::Vector& tar_acc,
@@ -25,7 +25,6 @@ private:
 
   tobas::RotorAxisExtractor z_rotors_;
 
-  const double gravity_;
   double mass_;
 };
 }  // namespace tobas_multirotor_controller
