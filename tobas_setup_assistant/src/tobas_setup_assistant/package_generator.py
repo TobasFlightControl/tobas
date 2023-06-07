@@ -173,7 +173,7 @@ class PackageGenerator(QWidget):
         battery = self._main.settings.battery
         num_rotors = rotary_wings.count()
         drone_config = {
-            "battery_voltage": battery.voltage.get(),
+            "battery_voltage": battery.nominal_voltage.get(),
             "active_joint_names": self._main.urdf_parser.active_joint_names(),
         }
         for i in range(num_rotors):
@@ -389,13 +389,20 @@ class PackageGenerator(QWidget):
         odometry = self._main.settings.odometry
         simulation = self._main.settings.simulation
 
+        # Battery
+        battery_model = BatteryModel(
+            ns=self._drone_name,
+            nominal_voltage=battery.nominal_voltage.get(),
+        )
+        robot.append(battery_model)
+
         # Motors
-        voltage = battery.voltage.get()
+        nominal_voltage = battery.nominal_voltage.get()
         for i in range(rotary_wings.count()):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
 
             kv = selected.motor.kv()
-            max_rot_vel = rpm_to_rad_per_sec(voltage * kv)
+            max_rot_vel = rpm_to_rad_per_sec(nominal_voltage * kv)
 
             motor_model = MotorModel(
                 ns=self._drone_name,

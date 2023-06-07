@@ -25,18 +25,18 @@ class BatteryWidget(BaseSettingWidget):
             + "つまり，ここでの設定は全てのモータの制御に影響します．"
         super().__init__(main, title_text, abst_text)
 
-        voltage_description = "バッテリーの電圧．"\
+        nominal_voltage_description = "バッテリーの定格電圧．"\
             + "バッテリーが複数のセルを持つ場合，全てのセルの電圧の合計値を入力してください．"\
             + "例えば4Sの場合，通常の放電状態だと3.7[V] x 4 = 14.8[V]となります．"
-        self.voltage = ParamGetterWidget_DoubleSpinBox(
-            "Voltage",
-            voltage_description,
+        self.nominal_voltage = ParamGetterWidget_DoubleSpinBox(
+            "Nominal Voltage",
+            nominal_voltage_description,
             decimals=1,
             minimum=0.,
             default=14.8,
             suffix=" V",
         )
-        self._rows.addWidget(self.voltage)
+        self._rows.addWidget(self.nominal_voltage)
 
         capacity_description = "バッテリーが1時間に供給できる電流の量．"\
             + "例えば，5000mAhのバッテリーは1時間に5000mA (5A) の電流を供給することができます．"

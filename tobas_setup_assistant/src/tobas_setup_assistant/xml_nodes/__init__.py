@@ -1,4 +1,5 @@
 from .state_gt import GroundTruthStateModel
+from .battery import BatteryModel
 from .motor import MotorModel
 from .imu import ImuModel
 from .magnetometer import MagnetometerModel
