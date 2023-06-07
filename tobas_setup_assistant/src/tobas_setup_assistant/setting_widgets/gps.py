@@ -23,6 +23,10 @@ class GpsWidget(BaseSettingWidget):
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
+        self.no_sensor = QCheckBox("The drone is not equipped with GPS.")
+        self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        self._rows.addWidget(self.no_sensor)
+
         link_description = "センサが取り付けられたフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
@@ -82,13 +86,35 @@ class GpsWidget(BaseSettingWidget):
         self._rows.addWidget(self.vertical_vel_std)
 
         add_expanding_widget(self._rows)
+        self._update_visibility()
 
     def define_connections(self) -> None:
         super().define_connections()
+        self.no_sensor.toggled.connect(self._update_visibility)
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
+        if self.no_sensor.isChecked():
+            return True
+
         return True
+
+    @pyqtSlot()
+    def _update_visibility(self) -> None:
+        if self.no_sensor.isChecked():
+            self.link.setVisible(False)
+            self.update_rate.setVisible(False)
+            self.horizontal_pos_std.setVisible(False)
+            self.vertical_pos_std.setVisible(False)
+            self.horizontal_vel_std.setVisible(False)
+            self.vertical_vel_std.setVisible(False)
+        else:
+            self.link.setVisible(True)
+            self.update_rate.setVisible(True)
+            self.horizontal_pos_std.setVisible(True)
+            self.vertical_pos_std.setVisible(True)
+            self.horizontal_vel_std.setVisible(True)
+            self.vertical_vel_std.setVisible(True)
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:

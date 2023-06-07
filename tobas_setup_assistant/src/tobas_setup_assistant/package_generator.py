@@ -266,6 +266,9 @@ class PackageGenerator(QWidget):
         observer = self._main.settings.observer
         observer_type = observer.get_type()
 
+        imu = self._main.settings.imu
+        gps = self._main.settings.gps
+
         items = dict()
         if observer_type == observer.CASCADE:
             cascade = observer.cascade
@@ -277,19 +280,21 @@ class PackageGenerator(QWidget):
                 "do_adaptive_gain": cascade.do_adaptive_gain.get(),
             }
             items["state_estimator_cascade"] = {
-                "use_barometer": True,
-                "use_gps_position": True,
-                "use_gps_velocity": True,
+                "use_gps": not gps.no_sensor.isChecked(),
+                "imu_buf_size": 1,
+                "bar_buf_size": 500,
+                "gps_buf_size": 25,
+                "vel_buf_size": 1,
                 "gravity_variance": cascade.grav_var.get(),
             }
         elif observer_type == observer.ESKF:
-            imu = self._main.settings.imu
             eskf = observer.eskf
             items["state_estimator_eskf"] = {
                 "gyro_noise_density": imu.gyro_noise_density.get(),
                 "gyro_random_walk": imu.gyro_random_walk.get(),
                 "acc_noise_density": imu.acc_noise_density.get(),
                 "acc_random_walk": imu.acc_random_walk.get(),
+                "use_gps": not gps.no_sensor.isChecked(),
                 "imu_buf_size": 1,
                 "mag_buf_size": 1,
                 "bar_buf_size": 1,
@@ -447,19 +452,20 @@ class PackageGenerator(QWidget):
         robot.append(bar_model)
 
         # GPS
-        gps_model = GpsModel(
-            ns=self._drone_name,
-            link_name=gps.link.get(),
-            update_rate=gps.update_rate.get(),
-            hor_pos_std=gps.horizontal_pos_std.get(),
-            ver_pos_std=gps.vertical_pos_std.get(),
-            hor_vel_std=gps.horizontal_vel_std.get(),
-            ver_vel_std=gps.vertical_vel_std.get(),
-            latitude_0=simulation.latitude_0.get(),
-            longitude_0=simulation.longitude_0.get(),
-            altitude_0=simulation.altitude_0.get(),
-        )
-        robot.append(gps_model)
+        if not gps.no_sensor.isChecked():
+            gps_model = GpsModel(
+                ns=self._drone_name,
+                link_name=gps.link.get(),
+                update_rate=gps.update_rate.get(),
+                hor_pos_std=gps.horizontal_pos_std.get(),
+                ver_pos_std=gps.vertical_pos_std.get(),
+                hor_vel_std=gps.horizontal_vel_std.get(),
+                ver_vel_std=gps.vertical_vel_std.get(),
+                latitude_0=simulation.latitude_0.get(),
+                longitude_0=simulation.longitude_0.get(),
+                altitude_0=simulation.altitude_0.get(),
+            )
+            robot.append(gps_model)
 
         # RGB Camera
         if not rgb_camera.no_sensor.isChecked():
