@@ -137,17 +137,6 @@ void ErrorStateKalmanFilterRos::initialize()
 {
   setZeroPositions();
 
-  // 速度の平均を計算
-  Vector3d sum_v = Vector3d::Zero();
-  for (int i = 0; i < vel_buf_.maxSize(); ++i)
-  {
-    const auto& vel = vel_buf_.getLatest();
-    sum_v.x() += vel.vel.x();
-    sum_v.y() += vel.vel.y();
-    sum_v.z() += vel.vel.z();
-  }
-  const Vector3d init_v = sum_v / vel_buf_.maxSize();
-
   // 地磁気の平均から初期姿勢を推定
   Vector3d sum_m = Vector3d::Zero();
   for (int i = 0; i < mag_buf_.maxSize(); ++i)
@@ -177,7 +166,7 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d(0., 0., -gravity_),                               // gravity vector
     Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
     Vector3d::Zero(),                                          // init position
-    init_v,                                                    // init velocity
+    Vector3d::Zero(),                                          // init velocity
     init_q,                                                    // init quaternion
     Matrix3d::Zero(),                                          // init position cov
     Matrix3d::Zero(),                                          // init velocity cov
