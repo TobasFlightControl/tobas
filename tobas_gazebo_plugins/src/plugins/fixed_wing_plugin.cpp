@@ -60,7 +60,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
-  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
+  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindTopic);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
   getSdfParam(

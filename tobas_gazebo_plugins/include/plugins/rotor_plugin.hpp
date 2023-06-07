@@ -8,6 +8,7 @@
 #include <gazebo/physics/physics.hh>
 
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
 #include <tobas_msgs/WindSpeed.h>
 #include <tobas_msgs/RotorDebug.h>
 
@@ -26,9 +27,6 @@ class GazeboRotorPlugin : public ModelPlugin
 {
   using super = ModelPlugin;
 
-  using CmdMsg = tobas_msgs::RotorSpeeds;
-  using WindMsg = tobas_msgs::WindSpeed;
-
 public:
   explicit GazeboRotorPlugin();
 
@@ -46,8 +44,9 @@ private:
   int direction_;  // turning direction. 1(CCW) or -1(CW).
   std::string debug_pub_topic_;
   std::string cmd_sub_topic_;
+  std::string battery_sub_topic_;
   std::string wind_speed_sub_topic_;
-  double max_rot_speed_;
+  double kv_;  // Kv (with efficiency)
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
@@ -57,11 +56,15 @@ private:
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
-  double ref_rot_speed_;
-  double prev_sim_time_;
-  double last_cmd_time_;
+  double cmd_rot_speed_;                   // [rad/s]
+  tobas_msgs::Battery battery_;
+  ignition::math::Vector3d wind_speed_W_;  // [m/s]
+  double prev_sim_time_;                   // [s]
+  double last_cmd_time_;                   // [s]
   bool is_activated_;
-  ignition::math::Vector3d wind_speed_W_;
+  bool is_initialized_;
+  bool battery_received_;
+  bool wind_speed_received_;
   FirstOrderFilter<double> rotor_speed_filter_;
   tobas_msgs::RotorDebug debug_msg_;
 
@@ -74,13 +77,18 @@ private:
   // PubSub
   ros::Publisher debug_pub_;
   ros::Subscriber command_sub_;
+  ros::Subscriber battery_sub_;
   ros::Subscriber wind_speed_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
-  void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
+  void registerPubSub();
+  bool isReady();
+  void applyForceAndTorque(double rot_speed, const common::Time cur_time);
+  void updateRotationSpeed(double dt);
 
-  void commandCb(const CmdMsg& cmd);
-  void windSpeedCb(const WindMsg& wind);
+  void commandCb(const tobas_msgs::RotorSpeeds& cmd);
+  void batteryCb(const tobas_msgs::Battery& battery);
+  void windSpeedCb(const tobas_msgs::WindSpeed& wind);
 };
 }  // namespace gazebo

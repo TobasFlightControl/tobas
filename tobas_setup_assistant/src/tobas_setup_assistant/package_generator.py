@@ -397,20 +397,15 @@ class PackageGenerator(QWidget):
         robot.append(battery_model)
 
         # Motors
-        nominal_voltage = battery.nominal_voltage.get()
         for i in range(rotary_wings.count()):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
-
-            kv = selected.motor.kv()
-            max_rot_vel = rpm_to_rad_per_sec(nominal_voltage * kv)
-
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
                 direction=selected.motor.direction(),
-                max_rot_vel=max_rot_vel,
+                kv=selected.motor.kv(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),

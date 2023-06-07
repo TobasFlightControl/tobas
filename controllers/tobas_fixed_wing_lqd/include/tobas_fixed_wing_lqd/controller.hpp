@@ -100,6 +100,7 @@ private:
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
   void baseStateCb(const StateMsg& bs_nwu);
   void commandCb(const CmdMsg& cmd_nwu);
+
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
 };

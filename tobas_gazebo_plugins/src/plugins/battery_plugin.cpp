@@ -1,4 +1,5 @@
 #include "../../include/plugins/battery_plugin.hpp"
+#include "../../include/tobas_gazebo_plugins/common.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
@@ -19,7 +20,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
-  getSdfParam(sdf, "batteryPubTopic", battery_pub_topic_, kDefaultBatteryPubTopic);
+  getSdfParam(sdf, "batteryPubTopic", battery_pub_topic_, kDefaultBatteryTopic);
   getSdfParam(sdf, "nominalVoltage", nominal_voltage_, POSITIVE);
 }
 

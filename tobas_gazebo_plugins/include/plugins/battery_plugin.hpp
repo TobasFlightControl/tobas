@@ -11,9 +11,6 @@ namespace gazebo
 // Constants
 static const std::string kPluginName = "battery_plugin";
 
-// Default values
-static const std::string kDefaultBatteryPubTopic = "battery";
-
 class GazeboBatteryPlugin : public ModelPlugin
 {
   using super = ModelPlugin;

@@ -79,7 +79,7 @@ class MotorWidget(QWidget):
         return self._selected_setting_widget().direction()
 
     def kv(self) -> float:
-        """ [rpm/V], including efficiency """
+        """ [rpm/V], with efficiency """
         return self._selected_setting_widget().kv()
 
     def time_const_up(self) -> float:
