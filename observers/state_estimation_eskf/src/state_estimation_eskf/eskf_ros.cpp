@@ -20,9 +20,6 @@ namespace state_estimation_eskf
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   : super(),
     is_ready_(false),
-    yaw_now_(0.),
-    yaw_prev_(0.),
-    yaw_jump_count_(0),
     check_topics_timer_(nh_, kTimerPeriod, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
 {
   getRosParams();
@@ -175,6 +172,8 @@ void ErrorStateKalmanFilterRos::initialize()
     Matrix3d::Zero()                                           // init gyrometer bias cov
   );
 
+  yaw_prev_ = yaw;
+  yaw_jump_count_ = 0;
   t_last_ = imu_buf_.getLatest().header.stamp;
 }
 

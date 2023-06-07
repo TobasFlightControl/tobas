@@ -20,9 +20,6 @@ namespace state_estimation_cascade
 StateEstimator::StateEstimator()
   : super(),
     is_initialized_(false),
-    yaw_now_(0.),
-    yaw_prev_(0.),
-    yaw_jump_count_(0),
     check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this)
 {
   getRosParams();
@@ -115,7 +112,15 @@ void StateEstimator::initialize()
     grav_var_                     // gravity variance
   );
 
-  t_last_ = imu_buf_.getLatest().header.stamp;
+  const auto& imu = imu_buf_.getLatest();
+
+  // ヨー角の初期値
+  const auto& q = imu.orientation;
+  double roll, pitch;
+  quaternionToEuler(q.x, q.y, q.z, q.w, roll, pitch, yaw_prev_);
+
+  yaw_jump_count_ = 0;
+  t_last_ = imu.header.stamp;
 }
 
 void StateEstimator::setZeroPositions()
