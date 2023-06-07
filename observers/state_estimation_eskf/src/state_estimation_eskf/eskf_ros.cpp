@@ -166,7 +166,7 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d::Zero(),                                          // init position
     v,                                                         // init velocity
     q,                                                         // init quaternion
-    Vector3d(sqr(10.), sqr(10.), sqr(10.)).asDiagonal(),       // init position cov
+    sqr(10.) * I3,                                             // init position cov
     sqr(1.) * I3,                                              // init velocity cov
     1000. * I3,                                                // init quaternion cov
     1. * I3,                                                   // init acc bias cov

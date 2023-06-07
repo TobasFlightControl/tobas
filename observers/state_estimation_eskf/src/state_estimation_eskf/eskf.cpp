@@ -36,11 +36,11 @@ void ErrorStateKalmanFilter::initialize(
   assert(acc_random_walk > 0.);
   assert(gyro_random_walk > 0.);
   assert(grav_W.z() < 0.);
-  assert(et::isPositive(cov_pos));
-  assert(et::isPositive(cov_vel));
-  assert(et::isPositive(cov_dtheta));
-  assert(et::isPositive(cov_a_b));
-  assert(et::isPositive(cov_w_b));
+  assert(et::isSymmetric(cov_pos) && et::isPositive(cov_pos));
+  assert(et::isSymmetric(cov_vel) && et::isPositive(cov_vel));
+  assert(et::isSymmetric(cov_dtheta) && et::isPositive(cov_dtheta));
+  assert(et::isSymmetric(cov_a_b) && et::isPositive(cov_a_b));
+  assert(et::isSymmetric(cov_w_b) && et::isPositive(cov_w_b));
 
   acc_noise_density_ = acc_noise_density;
   gyro_noise_density_ = gyro_noise_density;

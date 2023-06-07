@@ -11,29 +11,26 @@
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
-#define TIMER_PERIOD 5.
-#define IMU_BUF_SIZE 1
-#define BAR_BUF_SIZE 500  // 100Hz x 5sec
-#define GPS_BUF_SIZE 25   // 5Hz x 5sec
-#define VEL_BUF_SIZE 1
-
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
 
+namespace state_estimation_cascade
+{
 StateEstimator::StateEstimator()
   : super(),
     is_initialized_(false),
-    filtered_imu_buf_(IMU_BUF_SIZE),
-    bar_buf_(BAR_BUF_SIZE),
-    gps_pos_buf_(GPS_BUF_SIZE),
-    gps_vel_buf_(VEL_BUF_SIZE),
     yaw_now_(0.),
     yaw_prev_(0.),
     yaw_jump_count_(0),
-    check_topics_timer_(nh_, TIMER_PERIOD, &StateEstimator::checkTopicsTimerCb, this)
+    check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this)
 {
   getRosParams();
+
+  imu_buf_.resize(imu_buf_size_);
+  bar_buf_.resize(bar_buf_size_);
+  gps_buf_.resize(gps_buf_size_);
+  vel_buf_.resize(vel_buf_size_);
 
   registerPublishers();
   registerSubscribers();
@@ -44,10 +41,16 @@ StateEstimator::StateEstimator()
 
 void StateEstimator::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_);
+  dh_ros::getParam("/gravity", gravity_, dh_ros::POSITIVE);
 
-  dh_ros::getParam("~use_gps", use_gps_, true);
-  dh_ros::getParam("~gravity_variance_exp", grav_var_exp_);
+  dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
+  dh_ros::getParam("~imu_buf_size", imu_buf_size_, kDefaultImuBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~bar_buf_size", bar_buf_size_, kDefaultBarBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~gps_buf_size", gps_buf_size_, kDefaultGpsBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam("~vel_buf_size", vel_buf_size_, kDefaultVelBufSize, dh_ros::POSITIVE);
+
+  // Dynamic parameters
+  dh_ros::getParam("~gravity_variance", grav_var_, dh_ros::POSITIVE);
 }
 
 void StateEstimator::registerPublishers()
@@ -69,7 +72,7 @@ void StateEstimator::registerSubscribers()
 
 bool StateEstimator::isReady()
 {
-  if (!filtered_imu_buf_.isFull())
+  if (!imu_buf_.isFull())
   {
     return false;
   }
@@ -81,11 +84,11 @@ bool StateEstimator::isReady()
 
   if (use_gps_)
   {
-    if (!gps_pos_buf_.isFull())
+    if (!gps_buf_.isFull())
     {
       return false;
     }
-    if (!gps_vel_buf_.isFull())
+    if (!vel_buf_.isFull())
     {
       return false;
     }
@@ -99,42 +102,46 @@ void StateEstimator::initialize()
   // 静止状態でのセンサデータを平均してゼロ点を決める
   setZeroPositions();
 
-  // 各センサの最新の値を取得
-  auto imu = filtered_imu_buf_.getLatest();
-  auto bar = bar_buf_.getLatest();
+  boost::array<double, 9> pos_cov;  // 位置の共分散
+  boost::array<double, 9> vel_cov;  // 速度の共分散
 
-  // GPSの共分散
-  boost::array<double, 9> pos_cov, vel_cov;
+  // 水平位置と速度の共分散
   if (use_gps_)
   {
-    auto gps = gps_pos_buf_.getLatest();
-    auto vel = gps_vel_buf_.getLatest();
+    const auto gps = gps_buf_.getLatest();
+    const auto vel = vel_buf_.getLatest();
     pos_cov = gps.position_covariance;
     vel_cov = vel.covariance;
   }
   else
   {
-    // GPSが取得できないことが分かっている場合は，共分散の値を非常に大きくしておく
+    // GPSが取得できないことが分かっている場合は，共分散の初期値を適当に決める
     pos_cov.fill(0.);
     vel_cov.fill(0.);
-    dh_std::fillMatrix3Diag(pos_cov, 1e+6);
-    dh_std::fillMatrix3Diag(vel_cov, 1e+6);
+    pos_cov[0] = pos_cov[4] = 1.;
+    dh_std::fillMatrix3Diag(vel_cov, 0.1);
   }
 
   // 高度の分散
-  double dummy, z_var;
-  pressureToAltitude(bar.fluid_pressure, bar.variance, dummy, z_var);
+  double dummy;
+  const auto bar = bar_buf_.getLatest();
+  pressureToAltitude(bar.fluid_pressure, bar.variance, dummy, pos_cov[8]);
+
+  // 加速度の共分散
+  const auto imu = imu_buf_.getLatest();
+  auto acc_cov = imu.linear_acceleration_covariance;
 
   // カルマンフィルタを初期化
+  // 共分散の初期値はテキトーに決めずにセンサから取得した値を用いたほうが起動時の安定性が高い印象
   cart_filter_.initialize(
-    Vector3d::Zero(),                                          // init pos
-    Vector3d::Zero(),                                          // init vel
-    Vector3d::Zero(),                                          // init accel without gravity
-    Vector3d(0., 0., -gravity_),                               // init gravity
-    Vector3d(pos_cov[0], pos_cov[4], z_var).asDiagonal(),      // init position cov
-    Map<Matrix3d>(vel_cov.data()),                             // init velocity cov
-    Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc cov
-    grav_var_exp_                                              // init gravity variance
+    Vector3d::Zero(),               // init pos
+    Vector3d::Zero(),               // init vel
+    Vector3d::Zero(),               // init accel without gravity
+    Vector3d(0., 0., -gravity_),    // init gravity
+    Map<Matrix3d>(pos_cov.data()),  // init position cov
+    Map<Matrix3d>(vel_cov.data()),  // init velocity cov
+    Map<Matrix3d>(acc_cov.data()),  // init acc cov
+    grav_var_                       // init gravity variance
   );
 
   t_last_ = imu.header.stamp;
@@ -147,30 +154,30 @@ void StateEstimator::setZeroPositions()
   {
     double sum_lat = 0.;
     double sum_lon = 0.;
-    for (int i = 0; i < GPS_BUF_SIZE; ++i)
+    for (int i = 0; i < gps_buf_size_; ++i)
     {
-      const auto& gps = gps_pos_buf_.get(i);
+      const auto& gps = gps_buf_.get(i);
       sum_lat += gps.latitude;
       sum_lon += gps.longitude;
     }
-    lat_0_ = sum_lat / GPS_BUF_SIZE;
-    lon_0_ = sum_lon / GPS_BUF_SIZE;
+    lat_0_ = sum_lat / gps_buf_size_;
+    lon_0_ = sum_lon / gps_buf_size_;
   }
 
   // 高度 [m]
   double sum_pressure = 0.;
-  for (int i = 0; i < BAR_BUF_SIZE; ++i)
+  for (int i = 0; i < bar_buf_size_; ++i)
   {
     const auto& bar = bar_buf_.get(i);
     sum_pressure += bar.fluid_pressure;
   }
-  double mean_pressure = sum_pressure / BAR_BUF_SIZE;
+  const double mean_pressure = sum_pressure / bar_buf_size_;
   alt_0_ = pressureToAltitude(mean_pressure);
 }
 
 void StateEstimator::updatePoseVelMsg()
 {
-  const auto& imu = filtered_imu_buf_.getLatest();
+  const auto& imu = imu_buf_.getLatest();
 
   // Time stamp
   state_.header.stamp = imu.header.stamp;
@@ -179,7 +186,7 @@ void StateEstimator::updatePoseVelMsg()
   tf::vectorEigenToKDL(cart_filter_.getXYZ(), state_.pose.pos);
 
   // Roll, Pitch
-  const auto& quat = filtered_imu_buf_.getLatest().orientation;
+  const auto& quat = imu_buf_.getLatest().orientation;
   auto& rpy = state_.pose.euler;
   quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy.roll, rpy.pitch, yaw_now_);
 
@@ -205,7 +212,7 @@ void StateEstimator::updatePoseVelMsg()
 
 void StateEstimator::filteredImuCb(const ImuMsg& imu)
 {
-  filtered_imu_buf_.add(imu);
+  imu_buf_.add(imu);
 
   if (!is_initialized_)
   {
@@ -226,8 +233,8 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
   tf::quaternionMsgToEigen(imu.orientation, quat_);
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
 
-  auto imu_copy = imu;
-  Matrix3d acc_cov = Map<Matrix3d>(imu_copy.linear_acceleration_covariance.data());
+  auto acc_cov_data = imu.linear_acceleration_covariance;
+  Matrix3d acc_cov = Map<Matrix3d>(acc_cov_data.data());
 
   // 公称状態を更新
   cart_filter_.predict(quat_, acc_cov, dt);
@@ -252,13 +259,13 @@ void StateEstimator::barometerCb(const BarMsg& bar)
   double z_abs, z_var;
   pressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
 
-  double z_m = z_abs - alt_0_;
+  const double z_m = z_abs - alt_0_;
   cart_filter_.measureAltitude(z_m, z_var);
 }
 
 void StateEstimator::gpsPositionCb(const GpsMsg& gps)
 {
-  gps_pos_buf_.add(gps);
+  gps_buf_.add(gps);
 
   if (!is_initialized_)
   {
@@ -278,7 +285,7 @@ void StateEstimator::gpsPositionCb(const GpsMsg& gps)
 
 void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 {
-  gps_vel_buf_.add(vel);
+  vel_buf_.add(vel);
 
   if (!is_initialized_)
   {
@@ -287,7 +294,7 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 
   tf::vectorKDLToEigen(vel.vel, v_m_);
 
-  boost::array<double, 9> cov_copy = vel.covariance;
+  auto cov_copy = vel.covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   cart_filter_.measureVelocity(v_m_, cov);
@@ -296,11 +303,11 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   // IMU
-  if (filtered_imu_buf_.isEmpty())
+  if (imu_buf_.isEmpty())
   {
     rosWarn("Filtered IMU data is not received yet.");
   }
-  else if (!filtered_imu_buf_.isFull())
+  else if (!imu_buf_.isFull())
   {
     rosInfoOnce("Waiting for Filtered IMU data to be collected.");
   }
@@ -318,21 +325,21 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
   if (use_gps_)
   {
     // GPS position
-    if (gps_pos_buf_.isEmpty())
+    if (gps_buf_.isEmpty())
     {
       rosWarn("GPS position data is not received yet.");
     }
-    else if (!gps_pos_buf_.isFull())
+    else if (!gps_buf_.isFull())
     {
       rosInfoOnce("Waiting for GPS position data to be collected.");
     }
 
     // GPS velocity
-    if (gps_vel_buf_.isEmpty())
+    if (vel_buf_.isEmpty())
     {
       rosWarn("GPS velocity data is not received yet.");
     }
-    else if (!gps_vel_buf_.isFull())
+    else if (!vel_buf_.isFull())
     {
       rosInfoOnce("Waiting for GPS velocity data to be collected.");
     }
@@ -341,5 +348,6 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
 {
-  cart_filter_.reconfigure(cfg.gravity_variance_exp);
+  cart_filter_.reconfigure(cfg.gravity_variance);
 }
+}  // namespace state_estimation_cascade

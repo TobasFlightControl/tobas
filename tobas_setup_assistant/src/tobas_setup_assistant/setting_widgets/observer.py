@@ -160,16 +160,15 @@ class ObserverWidget_Cascade(QWidget):
         )
         self._rows.addWidget(self.do_adaptive_gain)
 
-        grav_var_exp_description = "The ordinary logarithm of the variance of the "\
-            + "estimated gravity vector."
-        self.grav_var_exp = ParamGetterWidget_SpinBox(
-            "Gravity variance level",
-            grav_var_exp_description,
-            minimum=-5,
-            maximum=5,
-            default=2,
+        grav_var_description = "The process noise variance of the gravity vector."
+        self.grav_var = ParamGetterWidget_SpinBox(
+            "Gravity variance",
+            grav_var_description,
+            minimum=1,
+            maximum=1000,
+            default=100,
         )
-        self._rows.addWidget(self.grav_var_exp)
+        self._rows.addWidget(self.grav_var)
 
 
 class ObserverWidget_ESKF(QWidget):

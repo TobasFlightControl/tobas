@@ -280,7 +280,7 @@ class PackageGenerator(QWidget):
                 "use_barometer": True,
                 "use_gps_position": True,
                 "use_gps_velocity": True,
-                "gravity_variance_exp": cascade.grav_var_exp.get(),
+                "gravity_variance": cascade.grav_var.get(),
             }
         elif observer_type == observer.ESKF:
             imu = self._main.settings.imu
