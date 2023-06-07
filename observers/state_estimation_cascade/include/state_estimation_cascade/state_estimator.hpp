@@ -57,9 +57,7 @@ private:
 
   // rosparams
   double gravity_;
-  bool use_bar_;
-  bool use_gps_pos_;
-  bool use_gps_vel_;
+  bool use_gps_;
   double grav_var_exp_;
 
   // PubSub
@@ -79,7 +77,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void fillUnusedBuffers();
   bool isReady();
   void initialize();
   void setZeroPositions();

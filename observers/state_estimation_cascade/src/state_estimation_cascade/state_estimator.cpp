@@ -5,6 +5,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_std_tools/boost.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
@@ -33,7 +34,6 @@ StateEstimator::StateEstimator()
     check_topics_timer_(nh_, TIMER_PERIOD, &StateEstimator::checkTopicsTimerCb, this)
 {
   getRosParams();
-  fillUnusedBuffers();
 
   registerPublishers();
   registerSubscribers();
@@ -46,9 +46,7 @@ void StateEstimator::getRosParams()
 {
   dh_ros::getParam("/gravity", gravity_);
 
-  dh_ros::getParam("~use_barometer", use_bar_, true);
-  dh_ros::getParam("~use_gps_position", use_gps_pos_, true);
-  dh_ros::getParam("~use_gps_velocity", use_gps_vel_, true);
+  dh_ros::getParam("~use_gps", use_gps_, true);
   dh_ros::getParam("~gravity_variance_exp", grav_var_exp_);
 }
 
@@ -60,74 +58,12 @@ void StateEstimator::registerPublishers()
 void StateEstimator::registerSubscribers()
 {
   filtered_imu_sub_ = nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this);
+  bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this);
 
-  if (use_bar_)
-  {
-    bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this);
-  }
-
-  if (use_gps_pos_)
+  if (use_gps_)
   {
     gps_pos_sub_ = nh_.subscribe("gps", 1, &StateEstimator::gpsPositionCb, this);
-  }
-
-  if (use_gps_vel_)
-  {
     gps_vel_sub_ = nh_.subscribe("ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
-  }
-}
-
-void StateEstimator::fillUnusedBuffers()
-{
-  constexpr double default_air_pressure = 101325.;  // 海面気圧 [Pa]
-  constexpr double default_air_pressure_std = 1.;   // [Pa]
-  constexpr double default_hor_pos_std = 3.;        // [m]
-  constexpr double default_ver_pos_std = 6.;        // [m]
-  constexpr double default_hor_vel_std = 0.1;       // [m/s]
-  constexpr double default_ver_vel_std = 0.1;       // [m/s]
-
-  if (!use_bar_)
-  {
-    BarMsg bar;
-    bar.fluid_pressure = default_air_pressure;
-    bar.variance = sqr(default_air_pressure_std);
-    bar_buf_.fill(bar);
-  }
-
-  if (!use_gps_pos_)
-  {
-    GpsMsg gps;
-    gps.latitude = 0.;
-    gps.longitude = 0.;
-    gps.altitude = 0.;
-    gps.position_covariance[0] = sqr(default_hor_pos_std);
-    gps.position_covariance[1] = 0.;
-    gps.position_covariance[2] = 0.;
-    gps.position_covariance[3] = 0.;
-    gps.position_covariance[4] = sqr(default_hor_pos_std);
-    gps.position_covariance[5] = 0.;
-    gps.position_covariance[6] = 0.;
-    gps.position_covariance[7] = 0.;
-    gps.position_covariance[8] = sqr(default_ver_pos_std);
-    gps_pos_buf_.fill(gps);
-  }
-
-  if (!use_gps_vel_)
-  {
-    VelMsg vel;
-    vel.vel.x(0.);
-    vel.vel.y(0.);
-    vel.vel.z(0.);
-    vel.covariance[0] = sqr(default_hor_vel_std);
-    vel.covariance[1] = 0.;
-    vel.covariance[2] = 0.;
-    vel.covariance[3] = 0.;
-    vel.covariance[4] = sqr(default_hor_vel_std);
-    vel.covariance[5] = 0.;
-    vel.covariance[6] = 0.;
-    vel.covariance[7] = 0.;
-    vel.covariance[8] = sqr(default_ver_vel_std);
-    gps_vel_buf_.fill(vel);
   }
 }
 
@@ -138,19 +74,21 @@ bool StateEstimator::isReady()
     return false;
   }
 
-  if (use_bar_ && !bar_buf_.isFull())
+  if (!bar_buf_.isFull())
   {
     return false;
   }
 
-  if (use_gps_pos_ && !gps_pos_buf_.isFull())
+  if (use_gps_)
   {
-    return false;
-  }
-
-  if (use_gps_vel_ && !gps_vel_buf_.isFull())
-  {
-    return false;
+    if (!gps_pos_buf_.isFull())
+    {
+      return false;
+    }
+    if (!gps_vel_buf_.isFull())
+    {
+      return false;
+    }
   }
 
   return true;
@@ -161,24 +99,40 @@ void StateEstimator::initialize()
   // 静止状態でのセンサデータを平均してゼロ点を決める
   setZeroPositions();
 
-  // 各センサの最新の値を取得する
+  // 各センサの最新の値を取得
   auto imu = filtered_imu_buf_.getLatest();
-  auto gps = gps_pos_buf_.getLatest();
   auto bar = bar_buf_.getLatest();
-  auto vel = gps_vel_buf_.getLatest();
 
-  auto gps_cov = gps.position_covariance;
+  // GPSの共分散
+  boost::array<double, 9> pos_cov, vel_cov;
+  if (use_gps_)
+  {
+    auto gps = gps_pos_buf_.getLatest();
+    auto vel = gps_vel_buf_.getLatest();
+    pos_cov = gps.position_covariance;
+    vel_cov = vel.covariance;
+  }
+  else
+  {
+    // GPSが取得できないことが分かっている場合は，共分散の値を非常に大きくしておく
+    pos_cov.fill(0.);
+    vel_cov.fill(0.);
+    dh_std::fillMatrix3Diag(pos_cov, 1e+6);
+    dh_std::fillMatrix3Diag(vel_cov, 1e+6);
+  }
 
+  // 高度の分散
   double dummy, z_var;
   pressureToAltitude(bar.fluid_pressure, bar.variance, dummy, z_var);
 
+  // カルマンフィルタを初期化
   cart_filter_.initialize(
     Vector3d::Zero(),                                          // init pos
     Vector3d::Zero(),                                          // init vel
     Vector3d::Zero(),                                          // init accel without gravity
     Vector3d(0., 0., -gravity_),                               // init gravity
-    Vector3d(gps_cov[0], gps_cov[4], z_var).asDiagonal(),      // init position cov
-    Map<Matrix3d>(vel.covariance.data()),                      // init velocity cov
+    Vector3d(pos_cov[0], pos_cov[4], z_var).asDiagonal(),      // init position cov
+    Map<Matrix3d>(vel_cov.data()),                             // init velocity cov
     Map<Matrix3d>(imu.linear_acceleration_covariance.data()),  // init acc cov
     grav_var_exp_                                              // init gravity variance
   );
@@ -189,16 +143,19 @@ void StateEstimator::initialize()
 void StateEstimator::setZeroPositions()
 {
   // 緯度，経度 [deg]
-  double sum_lat = 0.;
-  double sum_lon = 0.;
-  for (int i = 0; i < GPS_BUF_SIZE; ++i)
+  if (use_gps_)
   {
-    const auto& gps = gps_pos_buf_.get(i);
-    sum_lat += gps.latitude;
-    sum_lon += gps.longitude;
+    double sum_lat = 0.;
+    double sum_lon = 0.;
+    for (int i = 0; i < GPS_BUF_SIZE; ++i)
+    {
+      const auto& gps = gps_pos_buf_.get(i);
+      sum_lat += gps.latitude;
+      sum_lon += gps.longitude;
+    }
+    lat_0_ = sum_lat / GPS_BUF_SIZE;
+    lon_0_ = sum_lon / GPS_BUF_SIZE;
   }
-  lat_0_ = sum_lat / GPS_BUF_SIZE;
-  lon_0_ = sum_lon / GPS_BUF_SIZE;
 
   // 高度 [m]
   double sum_pressure = 0.;
@@ -349,21 +306,18 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
   }
 
   // Barometer
-  if (use_bar_)
+  if (bar_buf_.isEmpty())
   {
-    if (bar_buf_.isEmpty())
-    {
-      rosWarn("Barometer data is not received yet.");
-    }
-    else if (!bar_buf_.isFull())
-    {
-      rosInfoOnce("Waiting for Barometer data to be collected.");
-    }
+    rosWarn("Barometer data is not received yet.");
+  }
+  else if (!bar_buf_.isFull())
+  {
+    rosInfoOnce("Waiting for Barometer data to be collected.");
   }
 
-  // GPS position
-  if (use_gps_pos_)
+  if (use_gps_)
   {
+    // GPS position
     if (gps_pos_buf_.isEmpty())
     {
       rosWarn("GPS position data is not received yet.");
@@ -372,11 +326,8 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
     {
       rosInfoOnce("Waiting for GPS position data to be collected.");
     }
-  }
 
-  // GPS velocity
-  if (use_gps_vel_)
-  {
+    // GPS velocity
     if (gps_vel_buf_.isEmpty())
     {
       rosWarn("GPS velocity data is not received yet.");
