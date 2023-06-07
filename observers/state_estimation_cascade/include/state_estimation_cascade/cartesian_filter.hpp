@@ -21,9 +21,10 @@ public:
     const Eigen::Vector3d& init_vel,
     const Eigen::Vector3d& init_acc,
     const Eigen::Vector3d& init_grav,
-    const Eigen::Matrix3d& pos_cov,
-    const Eigen::Matrix3d& vel_cov,
-    const Eigen::Matrix3d& acc_cov,
+    const Eigen::Matrix3d& init_pos_cov,
+    const Eigen::Matrix3d& init_vel_cov,
+    const Eigen::Matrix3d& init_acc_cov,
+    const Eigen::Matrix3d& init_grav_cov,
     const double& grav_var);
 
   void reconfigure(const double& grav_var);

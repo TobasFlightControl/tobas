@@ -72,6 +72,7 @@ private:
   double gyro_random_walk_;    // rad/s^2/sqrt(hz)
   double acc_noise_density_;   // m/s^2/sqrt(hz)
   double acc_random_walk_;     // m/s^3/sqrt(hz)
+  bool use_gps_;
   int imu_buf_size_;
   int mag_buf_size_;
   int bar_buf_size_;

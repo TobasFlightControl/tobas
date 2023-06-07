@@ -76,7 +76,6 @@ bool StateEstimator::isReady()
   {
     return false;
   }
-
   if (!bar_buf_.isFull())
   {
     return false;
@@ -102,49 +101,21 @@ void StateEstimator::initialize()
   // 静止状態でのセンサデータを平均してゼロ点を決める
   setZeroPositions();
 
-  boost::array<double, 9> pos_cov;  // 位置の共分散
-  boost::array<double, 9> vel_cov;  // 速度の共分散
-
-  // 水平位置と速度の共分散
-  if (use_gps_)
-  {
-    const auto gps = gps_buf_.getLatest();
-    const auto vel = vel_buf_.getLatest();
-    pos_cov = gps.position_covariance;
-    vel_cov = vel.covariance;
-  }
-  else
-  {
-    // GPSが取得できないことが分かっている場合は，共分散の初期値を適当に決める
-    pos_cov.fill(0.);
-    vel_cov.fill(0.);
-    pos_cov[0] = pos_cov[4] = 1.;
-    dh_std::fillMatrix3Diag(vel_cov, 0.1);
-  }
-
-  // 高度の分散
-  double dummy;
-  const auto bar = bar_buf_.getLatest();
-  pressureToAltitude(bar.fluid_pressure, bar.variance, dummy, pos_cov[8]);
-
-  // 加速度の共分散
-  const auto imu = imu_buf_.getLatest();
-  auto acc_cov = imu.linear_acceleration_covariance;
-
   // カルマンフィルタを初期化
-  // 共分散の初期値はテキトーに決めずにセンサから取得した値を用いたほうが起動時の安定性が高い印象
+  // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
   cart_filter_.initialize(
-    Vector3d::Zero(),               // init pos
-    Vector3d::Zero(),               // init vel
-    Vector3d::Zero(),               // init accel without gravity
-    Vector3d(0., 0., -gravity_),    // init gravity
-    Map<Matrix3d>(pos_cov.data()),  // init position cov
-    Map<Matrix3d>(vel_cov.data()),  // init velocity cov
-    Map<Matrix3d>(acc_cov.data()),  // init acc cov
-    grav_var_                       // init gravity variance
+    Vector3d::Zero(),             // init position
+    Vector3d::Zero(),             // init velocity
+    Vector3d::Zero(),             // init acceleration without gravity
+    Vector3d(0., 0., -gravity_),  // init gravity
+    Matrix3d::Zero(),             // init position cov
+    Matrix3d::Zero(),             // init velocity cov
+    Matrix3d::Zero(),             // init acceleration cov
+    Matrix3d::Zero(),             // init gravity cov
+    grav_var_                     // gravity variance
   );
 
-  t_last_ = imu.header.stamp;
+  t_last_ = imu_buf_.getLatest().header.stamp;
 }
 
 void StateEstimator::setZeroPositions()

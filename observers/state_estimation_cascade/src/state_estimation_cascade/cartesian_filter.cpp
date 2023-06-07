@@ -33,14 +33,16 @@ void CartesianFilter::initialize(
   const Vector3d& init_vel,
   const Vector3d& init_acc,
   const Vector3d& init_grav,
-  const Matrix3d& pos_cov,
-  const Matrix3d& vel_cov,
-  const Matrix3d& acc_cov,
+  const Matrix3d& init_pos_cov,
+  const Matrix3d& init_vel_cov,
+  const Matrix3d& init_acc_cov,
+  const Matrix3d& init_grav_cov,
   const double& grav_var)
 {
-  assert(eigen_tools::isSymmetric(pos_cov) && eigen_tools::isPositive(pos_cov));
-  assert(eigen_tools::isSymmetric(vel_cov) && eigen_tools::isPositive(vel_cov));
-  assert(eigen_tools::isSymmetric(acc_cov) && eigen_tools::isPositive(acc_cov));
+  assert(eigen_tools::isSymmetric(init_pos_cov) && eigen_tools::isSemiPositive(init_pos_cov));
+  assert(eigen_tools::isSymmetric(init_vel_cov) && eigen_tools::isSemiPositive(init_vel_cov));
+  assert(eigen_tools::isSymmetric(init_acc_cov) && eigen_tools::isSemiPositive(init_acc_cov));
+  assert(eigen_tools::isSymmetric(init_grav_cov) && eigen_tools::isSemiPositive(init_grav_cov));
   assert(grav_var > 0.);
 
   x_.block(kPosIdx, 0, 3, 1) = init_pos;
@@ -49,10 +51,10 @@ void CartesianFilter::initialize(
   x_.block(kGravIdx, 0, 3, 1) = init_grav;
 
   // DAREを用いて先に共分散行列の極限値を求めることもできるが，ここでは初期の共分散の成長を考慮する
-  P_.block(kPosIdx, kPosIdx, 3, 3) = pos_cov;
-  P_.block(kVelIdx, kVelIdx, 3, 3) = vel_cov;
-  P_.block(kAccIdx, kAccIdx, 3, 3) = acc_cov;
-  P_.block(kGravIdx, kGravIdx, 3, 3).diagonal().fill(grav_var);
+  P_.block(kPosIdx, kPosIdx, 3, 3) = init_pos_cov;
+  P_.block(kVelIdx, kVelIdx, 3, 3) = init_vel_cov;
+  P_.block(kAccIdx, kAccIdx, 3, 3) = init_acc_cov;
+  P_.block(kGravIdx, kGravIdx, 3, 3) = init_grav_cov;
 
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
@@ -62,7 +64,7 @@ void CartesianFilter::reconfigure(const double& grav_var)
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
 
-void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& acc_cov, double dt)
+void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& init_acc_cov, double dt)
 {
   assert(dt > 0.);
 
@@ -73,7 +75,7 @@ void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& acc_cov, 
   B_.block(kAccIdx, 0, 3, 3).diagonal().fill(dt);
   B_.block(kGravIdx, 3, 3, 3).diagonal().fill(dt);
 
-  Q_.block(0, 0, 3, 3) = acc_cov;
+  Q_.block(0, 0, 3, 3) = init_acc_cov;
 
   x_ = A_ * x_;
   P_ = A_ * P_ * A_.transpose() + B_ * Q_ * B_.transpose();

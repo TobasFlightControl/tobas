@@ -25,22 +25,22 @@ void ErrorStateKalmanFilter::initialize(
   const Vector3d& init_pos,
   const Vector3d& init_vel,
   const Quaterniond& init_quat,
-  const Matrix3d& cov_pos,
-  const Matrix3d& cov_vel,
-  const Matrix3d& cov_dtheta,
-  const Matrix3d& cov_a_b,
-  const Matrix3d& cov_w_b)
+  const Matrix3d& init_pos_cov,
+  const Matrix3d& init_vel_cov,
+  const Matrix3d& init_dtheta_cov,
+  const Matrix3d& init_acc_bias_cov,
+  const Matrix3d& init_gyro_bias_cov)
 {
   assert(acc_noise_density > 0.);
   assert(gyro_noise_density > 0.);
   assert(acc_random_walk > 0.);
   assert(gyro_random_walk > 0.);
   assert(grav_W.z() < 0.);
-  assert(et::isSymmetric(cov_pos) && et::isPositive(cov_pos));
-  assert(et::isSymmetric(cov_vel) && et::isPositive(cov_vel));
-  assert(et::isSymmetric(cov_dtheta) && et::isPositive(cov_dtheta));
-  assert(et::isSymmetric(cov_a_b) && et::isPositive(cov_a_b));
-  assert(et::isSymmetric(cov_w_b) && et::isPositive(cov_w_b));
+  assert(et::isSymmetric(init_pos_cov) && et::isSemiPositive(init_pos_cov));
+  assert(et::isSymmetric(init_vel_cov) && et::isSemiPositive(init_vel_cov));
+  assert(et::isSymmetric(init_dtheta_cov) && et::isSemiPositive(init_dtheta_cov));
+  assert(et::isSymmetric(init_acc_bias_cov) && et::isSemiPositive(init_acc_bias_cov));
+  assert(et::isSymmetric(init_gyro_bias_cov) && et::isSemiPositive(init_gyro_bias_cov));
 
   acc_noise_density_ = acc_noise_density;
   gyro_noise_density_ = gyro_noise_density;
@@ -57,11 +57,11 @@ void ErrorStateKalmanFilter::initialize(
 
   // 共分散行列を初期化
   P_.setZero();
-  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = cov_pos;
-  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = cov_vel;
-  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov_dtheta;
-  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = cov_a_b;
-  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = cov_w_b;
+  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = init_pos_cov;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = init_vel_cov;
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = init_dtheta_cov;
+  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = init_acc_bias_cov;
+  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = init_gyro_bias_cov;
 
   // (270) ヤコビアンの不変部分を埋める
   F_x_.setZero();

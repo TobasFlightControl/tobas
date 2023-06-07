@@ -36,11 +36,11 @@ public:
     const Eigen::Vector3d& init_pos,
     const Eigen::Vector3d& init_vel,
     const Eigen::Quaterniond& init_quat,
-    const Eigen::Matrix3d& cov_pos,
-    const Eigen::Matrix3d& cov_vel,
-    const Eigen::Matrix3d& cov_dtheta,
-    const Eigen::Matrix3d& cov_a_b,
-    const Eigen::Matrix3d& cov_w_b);
+    const Eigen::Matrix3d& init_pos_cov,
+    const Eigen::Matrix3d& init_vel_cov,
+    const Eigen::Matrix3d& init_dtheta_cov,
+    const Eigen::Matrix3d& init_acc_bias_cov,
+    const Eigen::Matrix3d& init_gyro_bias_cov);
 
   Eigen::Vector3d getXYZ() const;
   Eigen::Vector2d getXY() const;

@@ -4,6 +4,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_std_tools/boost.hpp>
 #include <dh_eigen_tools/iostream.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -57,6 +58,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam("~acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
   dh_ros::getParam("~acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
 
+  dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam("~imu_buf_size", imu_buf_size_, kDefaultImuBufSize, dh_ros::POSITIVE);
   dh_ros::getParam("~mag_buf_size", mag_buf_size_, kDefaultMagBufSize, dh_ros::POSITIVE);
   dh_ros::getParam("~bar_buf_size", bar_buf_size_, kDefaultBarBufSize, dh_ros::POSITIVE);
@@ -78,8 +80,12 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
   imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
   mag_sub_ = nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
   bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
-  gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
-  vel_sub_ = nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+
+  if (use_gps_)
+  {
+    gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
+    vel_sub_ = nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+  }
 }
 
 bool ErrorStateKalmanFilterRos::isReady()
@@ -89,8 +95,12 @@ bool ErrorStateKalmanFilterRos::isReady()
   ok &= imu_buf_.isFull();
   ok &= mag_buf_.isFull();
   ok &= bar_buf_.isFull();
-  ok &= gps_buf_.isFull();
-  ok &= vel_buf_.isFull();
+
+  if (use_gps_)
+  {
+    ok &= gps_buf_.isFull();
+    ok &= vel_buf_.isFull();
+  }
 
   return ok;
 }
@@ -98,16 +108,19 @@ bool ErrorStateKalmanFilterRos::isReady()
 void ErrorStateKalmanFilterRos::setZeroPositions()
 {
   // 緯度，経度 [deg]
-  double sum_lat = 0.;
-  double sum_lon = 0.;
-  for (int i = 0; i < gps_buf_.maxSize(); ++i)
+  if (use_gps_)
   {
-    const auto& gps = gps_buf_.get(i);
-    sum_lat += gps.latitude;
-    sum_lon += gps.longitude;
+    double sum_lat = 0.;
+    double sum_lon = 0.;
+    for (int i = 0; i < gps_buf_.maxSize(); ++i)
+    {
+      const auto& gps = gps_buf_.get(i);
+      sum_lat += gps.latitude;
+      sum_lon += gps.longitude;
+    }
+    lat_0_ = sum_lat / gps_buf_.maxSize();
+    lon_0_ = sum_lon / gps_buf_.maxSize();
   }
-  lat_0_ = sum_lat / gps_buf_.maxSize();
-  lon_0_ = sum_lon / gps_buf_.maxSize();
 
   // 高度 [m]
   double sum_pressure = 0.;
@@ -133,7 +146,7 @@ void ErrorStateKalmanFilterRos::initialize()
     sum_v.y() += vel.vel.y();
     sum_v.z() += vel.vel.z();
   }
-  const Vector3d v = sum_v / vel_buf_.maxSize();
+  const Vector3d init_v = sum_v / vel_buf_.maxSize();
 
   // 地磁気の平均から初期姿勢を推定
   Vector3d sum_m = Vector3d::Zero();
@@ -150,12 +163,12 @@ void ErrorStateKalmanFilterRos::initialize()
   const double yaw = atan2(m0.y() * m.x() - m0.x() * m.y(), m0.x() * m.x() + m0.y() * m.y());
 
   // 初期姿勢をクオータニオンに変換
-  Quaterniond q;
-  eulerToQuaternion(roll, pitch, yaw, q.x(), q.y(), q.z(), q.w());
-  // std::cout << "Initial quaternion: " << q.coeffs() << endl;
+  Quaterniond init_q;
+  eulerToQuaternion(roll, pitch, yaw, init_q.x(), init_q.y(), init_q.z(), init_q.w());
+  // std::cout << "Initial quaternion: " << init_q.coeffs() << endl;
 
   // ISKFを初期化
-  // 共分散の初期値は想定しうる最大値以上に設定している
+  // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
   eskf_.initialize(
     acc_noise_density_,                                        // accelerometer noise density
     gyro_noise_density_,                                       // gyrometer noise density
@@ -164,13 +177,13 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d(0., 0., -gravity_),                               // gravity vector
     Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
     Vector3d::Zero(),                                          // init position
-    v,                                                         // init velocity
-    q,                                                         // init quaternion
-    sqr(10.) * I3,                                             // init position cov
-    sqr(1.) * I3,                                              // init velocity cov
-    1000. * I3,                                                // init quaternion cov
-    1. * I3,                                                   // init acc bias cov
-    1. * I3                                                    // init gyro bias cov
+    init_v,                                                    // init velocity
+    init_q,                                                    // init quaternion
+    Matrix3d::Zero(),                                          // init position cov
+    Matrix3d::Zero(),                                          // init velocity cov
+    Matrix3d::Zero(),                                          // init quaternion cov
+    Matrix3d::Zero(),                                          // init accelerometer bias cov
+    Matrix3d::Zero()                                           // init gyrometer bias cov
   );
 
   t_last_ = imu_buf_.getLatest().header.stamp;
@@ -336,14 +349,17 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn("Barometer data is not received yet.");
   }
 
-  if (gps_buf_.isEmpty())
+  if (use_gps_)
   {
-    rosWarn("GPS position data is not received yet.");
-  }
+    if (gps_buf_.isEmpty())
+    {
+      rosWarn("GPS position data is not received yet.");
+    }
 
-  if (vel_buf_.isEmpty())
-  {
-    rosWarn("GPS velocity data is not received yet.");
+    if (vel_buf_.isEmpty())
+    {
+      rosWarn("GPS velocity data is not received yet.");
+    }
   }
 }
 
