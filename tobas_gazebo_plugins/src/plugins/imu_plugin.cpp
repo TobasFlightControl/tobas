@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/boost.hpp>
 
 #include "../../include/plugins/imu_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -105,10 +106,10 @@ void GazeboImuPlugin::onUpdate()
   vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
 
   double acc_var = dh_std::sqr(acc_noise_density_) / dt;
-  fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
+  dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
   double gyro_var = dh_std::sqr(gyro_noise_density_) / dt;
-  fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
+  dh_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
   imu_pub_.publish(imu_msg_);
