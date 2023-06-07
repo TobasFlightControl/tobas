@@ -19,7 +19,6 @@ public:
   void loadFromParam(const std::string& ns);
 
   const KDL::Tree& tree() const;
-  const double& batteryVoltage() const;
   const std::vector<std::string>& activeJointNames() const;
   const RotorConfigs& rotorConfigs() const;
   const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
@@ -36,17 +35,16 @@ public:
   uint32_t numControlSurfaces() const;
 
   /* 指定したロータの最大回転数 [rad/s]． */
-  double maxRotSpeed(uint32_t rotor_idx) const;
+  double maxRotSpeed(uint32_t rotor_idx, double battery_voltage) const;
 
   /* 指定したロータの最大推力 [N]． */
-  double maxThrust(uint32_t rotor_idx) const;
+  double maxThrust(uint32_t rotor_idx, double battery_voltage) const;
 
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
   double thrustToRotSpeed(uint32_t rotor_idx, double thrust) const;
 
 private:
   KDL::Tree tree_;
-  double battery_voltage_;
   std::vector<std::string> active_joint_names_;
   RotorConfigs rotor_configs_;
   FixedWingConfig fixed_wing_config_;

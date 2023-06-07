@@ -15,6 +15,7 @@
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/FixedWingControllerFeedback.h>
 #include <tobas_fixed_wing_lqd/ControllerConfig.h>
@@ -56,11 +57,13 @@ private:
 
   ros::Time t_last_loop_;
   bool pressure_received_;
+  bool battery_received_;
   bool bs_received_;
-  State state_;
-  double air_density_;  // 現在の大気密度
-  StateMsg bs_ned_;     // 現在の状態 (NED座標系)
-  CmdMsg cmd_ned_;      // 現在のコマンド (NED座標系)
+  State state_;                  // 飛行フェーズ
+  double air_density_;           // 現在の大気密度
+  tobas_msgs::Battery battery_;  // 現在のバッテリーの状態
+  StateMsg bs_ned_;              // 現在の状態 (NED座標系)
+  CmdMsg cmd_ned_;               // 現在のコマンド (NED座標系)
   tobas_msgs::RotorSpeeds rotor_speeds_msg_;
   tobas_msgs::ControlSurfaceDeflections deflections_msg_;
   tobas_msgs::FixedWingControllerFeedback feedback_msg_;
@@ -72,6 +75,7 @@ private:
   ros::Publisher deflections_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;
+  ros::Subscriber battery_sub_;
   ros::Subscriber base_state_sub_;
   ros::Subscriber cmd_sub_;
 
@@ -98,6 +102,7 @@ private:
   void reconfigure(const ConfigType& cfg);
 
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
+  void batteryCb(const tobas_msgs::Battery& battery);
   void baseStateCb(const StateMsg& bs_nwu);
   void commandCb(const CmdMsg& cmd_nwu);
 

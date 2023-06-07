@@ -173,7 +173,6 @@ class PackageGenerator(QWidget):
         battery = self._main.settings.battery
         num_rotors = rotary_wings.count()
         drone_config = {
-            "battery_voltage": battery.nominal_voltage.get(),
             "active_joint_names": self._main.urdf_parser.active_joint_names(),
         }
         for i in range(num_rotors):

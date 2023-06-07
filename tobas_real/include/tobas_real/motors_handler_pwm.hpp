@@ -9,6 +9,7 @@
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
 
 namespace tobas_real
 {
@@ -24,9 +25,13 @@ private:
   RCOutput_Navio2 pwm_;
 
   bool is_initialized_;
+  bool rot_speeds_received_;
+  bool battery_received_;
+  tobas_msgs::Battery battery_;
 
   // PubSub
-  ros::Subscriber rotor_vels_sub_;
+  ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber battery_sub_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;
@@ -35,9 +40,12 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  bool isReady();
   uint32_t getChannel(uint32_t pin);
 
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
+  void batteryCb(const tobas_msgs::Battery& battery);
+
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

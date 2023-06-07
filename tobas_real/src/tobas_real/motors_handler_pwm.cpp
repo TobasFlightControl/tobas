@@ -14,6 +14,8 @@ namespace tobas_real
 MotorsHandler_PWM::MotorsHandler_PWM()
   : super(),
     is_initialized_(false),
+    rot_speeds_received_(false),
+    battery_received_(false),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &MotorsHandler_PWM::checkTopicsTimerCb, this)
 {
   if (getuid())
@@ -62,8 +64,14 @@ void MotorsHandler_PWM::registerPublishers()
 
 void MotorsHandler_PWM::registerSubscribers()
 {
-  rotor_vels_sub_ =
+  rotor_speeds_sub_ =
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_PWM::batteryCb, this);
+}
+
+bool MotorsHandler_PWM::isReady()
+{
+  return rot_speeds_received_ && battery_received_;
 }
 
 uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
@@ -73,6 +81,11 @@ uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
 
 void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
+  if (!rot_speeds_received_)
+  {
+    rot_speeds_received_ = true;
+  }
+
   const auto& cmd_speeds = rotor_speeds.speeds;
 
   // Check array size
@@ -86,13 +99,16 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   // Initialize
   if (!is_initialized_)
   {
-    check_topics_timer_.stop();
-    is_initialized_ = true;
-    rosInfo("First motor command is received");
+    if (isReady())
+    {
+      check_topics_timer_.stop();
+      is_initialized_ = true;
+    }
+    return;
   }
 
   // Check delay
-  const double delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
+  const auto delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(
@@ -107,10 +123,10 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   for (int i = 0; i < drone_.numRotors(); ++i)
   {
     const auto& rotor_config = drone_.rotorConfig(i);
-    const double max_speed = drone_.maxRotSpeed(i);
+    const auto max_speed = drone_.maxRotSpeed(i, battery_.voltage);
 
     // 指令速度を決定
-    double cmd_speed = cmd_speeds[i];
+    auto cmd_speed = cmd_speeds[i];
     if (cmd_speed < 0.)
     {
       rosErrorThrottle(kInfoPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
@@ -126,7 +142,7 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     // パルス幅に変換して指令
     const auto& pin = rotor_config.pin;
     const auto& pwm = rotor_config.pwm;
-    const double period =
+    const auto period =
       remap(cmd_speed, 0., max_speed, pwm.pulse_width_range.lower, pwm.pulse_width_range.upper);
     if (!pwm_.set_duty_cycle(getChannel(pin), period))
     {
@@ -135,8 +151,26 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   }
 }
 
+void MotorsHandler_PWM::batteryCb(const tobas_msgs::Battery& battery)
+{
+  if (!battery_received_)
+  {
+    battery_received_ = true;
+  }
+
+  battery_ = battery;
+}
+
 void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn("Motor command is not received yet.");
+  if (!rot_speeds_received_)
+  {
+    rosWarn("Motor command is not received yet.");
+  }
+
+  if (!battery_received_)
+  {
+    rosWarn("Battery state is not received yet.");
+  }
 }
 }  // namespace tobas_real

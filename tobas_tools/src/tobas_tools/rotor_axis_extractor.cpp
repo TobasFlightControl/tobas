@@ -55,14 +55,14 @@ const double& RotorAxisExtractor::kv(uint32_t inner_idx) const
   return drone_.rotorConfig(rotorIdx(inner_idx)).kv;
 }
 
-double RotorAxisExtractor::maxRotSpeed(uint32_t inner_idx) const
+double RotorAxisExtractor::maxRotSpeed(uint32_t inner_idx, double battery_voltage) const
 {
-  return drone_.maxRotSpeed(rotorIdx(inner_idx));
+  return drone_.maxRotSpeed(rotorIdx(inner_idx), battery_voltage);
 }
 
-double RotorAxisExtractor::maxThrust(uint32_t inner_idx) const
+double RotorAxisExtractor::maxThrust(uint32_t inner_idx, double battery_voltage) const
 {
-  return drone_.maxThrust(rotorIdx(inner_idx));
+  return drone_.maxThrust(rotorIdx(inner_idx), battery_voltage);
 }
 
 double RotorAxisExtractor::thrustToRotSpeed(uint32_t inner_idx, double thrust) const

@@ -43,7 +43,7 @@ public:
    *
    * @return ErrorCode Error code
    */
-  ErrorCode update(double V, double rho, const KDL::JntArray& q);
+  ErrorCode update(double V, double rho, double battery_voltage, const KDL::JntArray& q);
 
   const ErrorCode& errorCode() const;
   const std::string& errorMessage() const;
@@ -165,6 +165,6 @@ private:
   Eigen::Vector3d P_cog_rotor_eigen_;
   KDL::Frame T_base_rotor_;
 
-  void setInputLimits();
+  void setInputLimits(double battery_voltage);
 };
 }  // namespace tobas

@@ -24,6 +24,7 @@ VelocityControllerRos::VelocityControllerRos()
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     is_initialized_(false),
     bs_received_(false),
+    battery_received_(false),
     js_received_(false),
     cmd_received_(false),
     check_topics_timer_(
@@ -88,6 +89,7 @@ void VelocityControllerRos::registerPublishers()
 void VelocityControllerRos::registerSubscribers()
 {
   base_state_sub_ = nh_.subscribe("base_state", 1, &VelocityControllerRos::baseStateCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &VelocityControllerRos::batteryCb, this);
   if (is_transformable_)
   {
     joint_state_sub_ = nh_.subscribe("joint_states", 1, &VelocityControllerRos::jointStateCb, this);
@@ -141,15 +143,16 @@ void VelocityControllerRos::runOnce()
 
   // 非線形変換
   acc_controller_->update(tar_acc_W_, cur_bs_.pose.euler.yaw, U_, tar_rpy_.roll, tar_rpy_.pitch);
-  if (U_ < 0. || acc_controller_->maxU() < U_)
+  const auto max_U = maxU();
+  if (U_ < 0. || max_U < U_)
   {
-    const double& max_U = acc_controller_->maxU();
     rosWarnThrottle(kWarnPeriod, "U_out = " << U_ << " is out of range [0, " << max_U << "].");
     U_ = dh_std::clamp(U_, 0., max_U);
   }
 
   // 姿勢制御器
-  rot_controller_->update(cur_bs_.pose.euler, cur_bs_.twist.rot, q_, U_, tar_rpy_, u_opt_);
+  rot_controller_->update(
+    cur_bs_.pose.euler, cur_bs_.twist.rot, q_, battery_.voltage, U_, tar_rpy_, u_opt_);
 
   // 各モータの回転速度メッセージを更新
   rotor_speeds_.header.stamp = cur_bs_.header.stamp;
@@ -177,6 +180,16 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
   }
 }
 
+double VelocityControllerRos::maxU()
+{
+  double max_U = 0.;
+  for (int i = 0; i < z_rotors_.count(); ++i)
+  {
+    max_U += z_rotors_.maxThrust(i, battery_.voltage);
+  }
+  return max_U;
+}
+
 void VelocityControllerRos::baseStateCb(const StateMsg& bs)
 {
   if (!bs_received_)
@@ -200,6 +213,16 @@ void VelocityControllerRos::baseStateCb(const StateMsg& bs)
 
   // トピックが揃っていたら，状態を観測するたびに一回だけ制御器を回す．
   runOnce();
+}
+
+void VelocityControllerRos::batteryCb(const tobas_msgs::Battery& battery)
+{
+  if (!battery_received_)
+  {
+    battery_received_ = true;
+  }
+
+  battery_ = battery;
 }
 
 void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
@@ -226,7 +249,10 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
     }
   }
 
-  js_received_ = true;
+  if (!js_received_)
+  {
+    js_received_ = true;
+  }
 }
 
 void VelocityControllerRos::commandCb(const CmdMsg& cmd)
@@ -252,7 +278,10 @@ void VelocityControllerRos::commandCb(const CmdMsg& cmd)
     }
   }
 
-  cmd_received_ = true;
+  if (!cmd_received_)
+  {
+    cmd_received_ = true;
+  }
 }
 
 void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
@@ -260,6 +289,11 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (!bs_received_)
   {
     rosWarn("Base state is not received yet.");
+  }
+
+  if (!battery_received_)
+  {
+    rosWarn("Battery state is not received yet.");
   }
 
   if (is_transformable_ && !js_received_)

@@ -32,6 +32,7 @@ Controller::Controller()
   q_0_.resize(drone_.tree().getNrOfJoints());
 
   pressure_received_ = false;
+  battery_received_ = false;
   bs_received_ = false;
   state_ = State::START;
   rotor_speeds_msg_.speeds.resize(drone_.numRotors(), 0.);
@@ -83,13 +84,14 @@ void Controller::registerPublishers()
 void Controller::registerSubscribers()
 {
   air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
   cmd_sub_ = nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this);
 }
 
 bool Controller::isReady()
 {
-  return pressure_received_ && bs_received_;
+  return pressure_received_ && battery_received_ && bs_received_;
 }
 
 void Controller::publishTakeoffCommand()
@@ -101,7 +103,7 @@ void Controller::publishTakeoffCommand()
   // 各ロータの回転数を発行
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
-    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i);
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i, battery_.voltage);
   }
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
@@ -133,8 +135,8 @@ void Controller::runOnce()
   t_last_loop_ = now;
 
   // 状態方程式を更新
-  const auto eom_error =
-    eom_.update(bs_ned_.twist.vel.Norm(), air_density_, q_0_);  // 現在の速度を使う
+  const auto eom_error = eom_.update(
+    bs_ned_.twist.vel.Norm(), air_density_, battery_.voltage, q_0_);  // 現在の速度を使う
   if (eom_error < 0)
   {
     rosError(eom_.errorMessage());
@@ -190,7 +192,7 @@ void Controller::setScales()
   lqd_.input_scale.resize(eom_.inputSize());
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
-    lqd_.input_scale(i) = x_rotors_.maxThrust(i);
+    lqd_.input_scale(i) = x_rotors_.maxThrust(i, battery_.voltage);
   }
   for (int i = 0; i < drone_.numControlSurfaces(); ++i)
   {
@@ -316,6 +318,16 @@ void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)
   air_density_ = dh_std::pressureToDensity(msg.fluid_pressure);
 }
 
+void Controller::batteryCb(const tobas_msgs::Battery& battery)
+{
+  if (!battery_received_)
+  {
+    battery_received_ = true;
+  }
+
+  battery_ = battery;
+}
+
 void Controller::baseStateCb(const StateMsg& bs_nwu)
 {
   if (!bs_received_)
@@ -342,7 +354,7 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
     {
       const auto cur_V = bs_ned_.twist.vel.Norm();
       const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
-      const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, q_0_);
+      const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_.voltage, q_0_);
       if (eom_error < 0)
       {
         rosError(eom_.errorMessage());
@@ -390,6 +402,11 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
   if (!pressure_received_)
   {
     rosWarn("Air pressure is not received yet.");
+  }
+
+  if (!battery_received_)
+  {
+    rosWarn("Battery state is not received yet.");
   }
 
   if (!bs_received_)

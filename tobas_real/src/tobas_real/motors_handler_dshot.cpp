@@ -16,7 +16,8 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT()
   : super(),
     dshot_(DSHOT::DSHOT_600),
     is_initialized_(false),
-    cmd_received_(false),
+    rot_speeds_received_(false),
+    battery_received_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -48,7 +49,7 @@ void MotorsHandler_DSHOT::run()
   {
     if (!is_initialized_)
     {
-      if (cmd_received_)
+      if (isReady())
       {
         check_topics_timer_.stop();
         is_initialized_ = true;
@@ -61,10 +62,10 @@ void MotorsHandler_DSHOT::run()
     for (int i = 0; i < drone_.numRotors(); ++i)
     {
       const auto& rotor_config = drone_.rotorConfig(i);
-      const double max_speed = drone_.maxRotSpeed(i);
+      const auto max_speed = drone_.maxRotSpeed(i, battery_.voltage);
 
       // 指令速度を決定
-      double cmd_speed = cmd_speeds_[i];
+      auto cmd_speed = cmd_speeds_[i];
       if (cmd_speed < 0.)
       {
         rosErrorThrottle(kInfoPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
@@ -98,12 +99,23 @@ void MotorsHandler_DSHOT::registerPublishers()
 
 void MotorsHandler_DSHOT::registerSubscribers()
 {
-  rotor_vels_sub_ =
+  rotor_speeds_sub_ =
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_DSHOT::batteryCb, this);
+}
+
+bool MotorsHandler_DSHOT::isReady()
+{
+  return rot_speeds_received_ && battery_received_;
 }
 
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
+  if (!rot_speeds_received_)
+  {
+    rot_speeds_received_ = true;
+  }
+
   const auto& speeds = rotor_speeds.speeds;
 
   // Check array size
@@ -115,7 +127,7 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
   }
 
   // Check delay
-  const double delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
+  const auto delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(
@@ -127,17 +139,29 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
     rosErrorThrottle(kInfoPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
-  if (!cmd_received_)
+  cmd_speeds_ = speeds;
+}
+
+void MotorsHandler_DSHOT::batteryCb(const tobas_msgs::Battery& battery)
+{
+  if (!battery_received_)
   {
-    cmd_received_ = true;
-    rosInfo("First motor command is received");
+    battery_received_ = true;
   }
 
-  cmd_speeds_ = speeds;
+  battery_ = battery;
 }
 
 void MotorsHandler_DSHOT::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn("Motor command is not received yet.");
+  if (!rot_speeds_received_)
+  {
+    rosWarn("Motor command is not received yet.");
+  }
+
+  if (!battery_received_)
+  {
+    rosWarn("Battery state is not received yet.");
+  }
 }
 }  // namespace tobas_real

@@ -42,6 +42,7 @@ public:
     const KDL::Euler& cur_rpy,
     const KDL::Vector& cur_angvel_B,
     const KDL::JntArray& q,
+    const double& battery_voltage,
     const double& U,
     const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
@@ -62,6 +63,6 @@ private:
   void updateDynamics(const KDL::Euler& cur_rpy, const KDL::Euler& tar_rpy, const KDL::JntArray& q);
   void setScales();
   void setInputConstraintBase();
-  void updateInputConstraint(double U);
+  void updateInputConstraint(double battery_voltage, double U);
 };
 }  // namespace tobas_multirotor_controller

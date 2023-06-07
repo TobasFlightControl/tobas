@@ -37,7 +37,6 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
 
   mass_ = inertia_solver_.JntToMass();
   u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
-  setInputLimits();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
   u_0_ = VectorXd::Zero(u_size_);
@@ -45,14 +44,19 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(double V, double rho, const JntArray& q)
+MicroDisturbanceEoM::ErrorCode
+MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
+  assert(battery_voltage);
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
   error_code_ = E_NOERROR;
   error_msg_ = "No error";
+
+  // 制御入力の制約を更新
+  setInputLimits(battery_voltage);
 
   // トリム状態を更新
   const auto trim_error = trim_.update(V, rho, q);
@@ -226,11 +230,11 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(double V, double rho,
   const auto thrust_avg = thrust_sum / x_rotors_.count();
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
-    if (thrust_avg > x_rotors_.maxThrust(i))
+    if (thrust_avg > x_rotors_.maxThrust(i, battery_voltage))
     {
       error_code_ = E_THRUST_OVERLIMIT;
       error_msg_ = "Average thrust " + to_string(thrust_avg) + "[N] is over the maximum limit "
-                   + to_string(x_rotors_.maxThrust(i)) + "[N].";
+                   + to_string(x_rotors_.maxThrust(i, battery_voltage)) + "[N].";
     }
   }
   u_0_.block(0, 0, x_rotors_.count(), 1).fill(thrust_avg);
@@ -500,7 +504,7 @@ const double& MicroDisturbanceEoM::r_delta(uint32_t cs_idx) const
   return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
 }
 
-void MicroDisturbanceEoM::setInputLimits()
+void MicroDisturbanceEoM::setInputLimits(double battery_voltage)
 {
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);
@@ -508,7 +512,7 @@ void MicroDisturbanceEoM::setInputLimits()
   for (int i = 0; i < x_rotors_.count(); ++i)
   {
     min_u_(i) = 0.;
-    max_u_(i) = x_rotors_.maxThrust(i);
+    max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
   }
 
   for (int i = 0; i < drone_.numControlSurfaces(); ++i)

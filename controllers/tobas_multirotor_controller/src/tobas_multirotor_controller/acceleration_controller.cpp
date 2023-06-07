@@ -14,12 +14,6 @@ AccelerationController::AccelerationController(const tobas::Drone& drone, double
 {
   TreeJntToInertiaSolver inertia_solver_(drone.tree());
   mass_ = inertia_solver_.JntToMass();
-
-  max_U_ = 0.;
-  for (int i = 0; i < z_rotors_.count(); ++i)
-  {
-    max_U_ += z_rotors_.maxThrust(i);
-  }
 }
 
 void AccelerationController::update(
@@ -39,10 +33,5 @@ void AccelerationController::update(
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
   U_out = z / (cos(pitch_out) * cos(roll_out));
-}
-
-const double& AccelerationController::maxU() const
-{
-  return max_U_;
 }
 }  // namespace tobas_multirotor_controller

@@ -9,6 +9,7 @@
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
 
 namespace tobas_real
 {
@@ -27,14 +28,17 @@ private:
   DSHOT dshot_;
 
   bool is_initialized_;
-  bool cmd_received_;
+  bool rot_speeds_received_;
+  bool battery_received_;
   std::vector<double> cmd_speeds_;
+  tobas_msgs::Battery battery_;
 
   // rosparams
   double update_rate_;
 
   // PubSub
-  ros::Subscriber rotor_vels_sub_;
+  ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber battery_sub_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;
@@ -43,7 +47,11 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds);
+  bool isReady();
+
+  void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
+  void batteryCb(const tobas_msgs::Battery& battery);
+
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

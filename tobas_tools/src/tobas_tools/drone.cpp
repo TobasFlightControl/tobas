@@ -21,7 +21,6 @@ void Drone::loadFromParam(const string& ns)
 {
   getTree(ns);
 
-  dh_ros::getParam(ns + "/battery_voltage", battery_voltage_, dh_ros::POSITIVE);
   dh_ros::getParam(ns + "/active_joint_names", active_joint_names_);
 
   getRotorConfigs(ns);
@@ -38,11 +37,6 @@ void Drone::loadFromParam(const string& ns)
 const Tree& Drone::tree() const
 {
   return tree_;
-}
-
-const double& Drone::batteryVoltage() const
-{
-  return battery_voltage_;
 }
 
 const vector<string>& Drone::activeJointNames() const
@@ -105,15 +99,20 @@ uint32_t Drone::numControlSurfaces() const
   return fixed_wing_config_.control_surfaces.size();
 }
 
-double Drone::maxRotSpeed(uint32_t rotor_idx) const
+double Drone::maxRotSpeed(uint32_t rotor_idx, double battery_voltage) const
 {
-  const auto max_rpm = rotor_configs_[rotor_idx].kv * battery_voltage_;
+  assert(battery_voltage > 0.);
+
+  const auto max_rpm = rotor_configs_[rotor_idx].kv * battery_voltage;
   return dh_std::rpmToRadPerSec(max_rpm);
 }
 
-double Drone::maxThrust(uint32_t rotor_idx) const
+double Drone::maxThrust(uint32_t rotor_idx, double battery_voltage) const
 {
-  return rotor_configs_[rotor_idx].motor_constant * sqr(maxRotSpeed(rotor_idx));
+  assert(battery_voltage > 0.);
+
+  const auto max_rot_speed = maxRotSpeed(rotor_idx, battery_voltage);
+  return rotor_configs_[rotor_idx].motor_constant * sqr(max_rot_speed);
 }
 
 double Drone::thrustToRotSpeed(uint32_t rotor_idx, double thrust) const

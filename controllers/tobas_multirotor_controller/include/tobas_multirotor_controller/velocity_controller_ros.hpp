@@ -15,6 +15,7 @@
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
 #include "./velocity_controller.hpp"
@@ -46,8 +47,9 @@ private:
   KDL::TreeJointNameParser jnt_name_parser_;
   tobas::RotorAxisExtractor z_rotors_;
 
-  tobas_msgs::BaseState cur_bs_;
-  KDL::JntArray q_;  // 全ての非固定関節の角度
+  tobas_msgs::BaseState cur_bs_;  // 現在のベースの状態
+  tobas_msgs::Battery battery_;   // 現在のバッテリーの状態
+  KDL::JntArray q_;               // 全ての非固定関節の角度
   KDL::Vector tar_vel_W_;
   KDL::Vector tar_acc_W_;
   KDL::Euler tar_rpy_;
@@ -57,6 +59,7 @@ private:
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
   bool is_initialized_;
   bool bs_received_;
+  bool battery_received_;
   bool js_received_;
   bool cmd_received_;
   tobas_msgs::RotorSpeeds rotor_speeds_;
@@ -76,6 +79,7 @@ private:
   // PubSub
   ros::Publisher rotor_speeds_pub_;
   ros::Subscriber base_state_sub_;
+  ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber cmd_sub_;
 
@@ -91,8 +95,10 @@ private:
   void updateDynamicParams(const ConfigType& cfg);
   void runOnce();
   void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeeds& speeds);
+  double maxU();
 
   void baseStateCb(const StateMsg& bs);
+  void batteryCb(const tobas_msgs::Battery& battery);
   void jointStateCb(const sensor_msgs::JointState& js);
   void commandCb(const CmdMsg& cmd);
 

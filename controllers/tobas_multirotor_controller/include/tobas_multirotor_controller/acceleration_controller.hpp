@@ -20,8 +20,6 @@ public:
     double& roll_out,
     double& pitch_out);
 
-  const double& maxU() const;
-
 private:
   const tobas::Drone& drone_;
 
@@ -29,6 +27,5 @@ private:
 
   const double gravity_;
   double mass_;
-  double max_U_;
 };
 }  // namespace tobas_multirotor_controller

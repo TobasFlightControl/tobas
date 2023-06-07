@@ -1,6 +1,7 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_linear_control/util.hpp>
+#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include "../../include/tobas_multirotor_controller/rotation_controller.hpp"
 
@@ -19,6 +20,7 @@ RotationController::RotationController(
     c2d_(STATE_SIZE, z_rotors_.count())
 {
   assert(drone.tree().getNrOfJoints() > 0);
+  assert(z_rotors_.count() > 0);
 
   mpc_.Cz = MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
   mpc_.decay_time_consts.resize(STATE_SIZE);
@@ -40,16 +42,19 @@ void RotationController::update(
   const Euler& cur_rpy,
   const Vector& cur_angvel_B,
   const JntArray& q,
+  const double& battery_voltage,
   const double& U,
   const Euler& tar_rpy,
   VectorXd& u_opt)
 {
+  assert(battery_voltage > 0.);
+  assert(U > 0.);
   assert(u_opt.rows() == z_rotors_.count());
 
   updateCurrentState(cur_rpy, cur_angvel_B);
   updateSetState(tar_rpy);
   updateDynamics(cur_rpy, tar_rpy, q);
-  updateInputConstraint(U);
+  updateInputConstraint(battery_voltage, U);
 
   u_opt = mpc_.solveMPC();
 
@@ -126,6 +131,7 @@ void RotationController::updateDynamics(
 
 void RotationController::setScales()
 {
+  // 状態変数のスケール
   mpc_.state_scale.resize(STATE_SIZE);
   mpc_.state_scale(ROLL) = mpc_.state_scale(PITCH) = mpc_.state_scale(YAW) = M_PI;
   mpc_.state_scale(ANGVEL_X) = mpc_.state_scale(ANGVEL_Y) = mpc_.state_scale(ANGVEL_Z) = M_PI;
@@ -133,11 +139,11 @@ void RotationController::setScales()
   // 制御変数は状態変数と等しい
   mpc_.control_scale = mpc_.state_scale;
 
+  // 制御入力のスケール
+  TreeJntToInertiaSolver inertia_solver(drone_.tree());
+  const auto mass = inertia_solver.JntToMass();
   mpc_.input_scale.resize(z_rotors_.count());
-  for (int i = 0; i < z_rotors_.count(); ++i)
-  {
-    mpc_.input_scale(i) = z_rotors_.maxThrust(i);
-  }
+  mpc_.input_scale.fill(mass / z_rotors_.count());
 }
 
 void RotationController::setInputConstraintBase()
@@ -152,19 +158,19 @@ void RotationController::setInputConstraintBase()
   mpc_.input_constraint.A.block(z_rotors_.count() * 2, 0, 1, z_rotors_.count()) = ones.transpose();
   mpc_.input_constraint.A.block(z_rotors_.count() * 2 + 1, 0, 1, z_rotors_.count()) =
     -ones.transpose();
+}
 
+void RotationController::updateInputConstraint(double battery_voltage, double U)
+{
   for (int i = 0; i < z_rotors_.count(); ++i)
   {
-    const double max_thrust = z_rotors_.maxThrust(i);
+    const double max_thrust = z_rotors_.maxThrust(i, battery_voltage);
     const double min_thrust = 0.;
 
     mpc_.input_constraint.b(i) = max_thrust;
     mpc_.input_constraint.b(z_rotors_.count() + i) = -min_thrust;
   }
-}
 
-void RotationController::updateInputConstraint(double U)
-{
   mpc_.input_constraint.b(z_rotors_.count() * 2) = U;
   mpc_.input_constraint.b(z_rotors_.count() * 2 + 1) = -U;
 }
