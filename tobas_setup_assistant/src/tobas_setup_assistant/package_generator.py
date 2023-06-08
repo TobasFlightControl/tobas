@@ -196,13 +196,9 @@ class PackageGenerator(QWidget):
             esc_type = esc.esc_type.currentText()
             drone_config[f'rotor_{i}']["esc_type"] = esc_type.lower()
             if esc_type == esc.PWM:
-                drone_config[f'rotor_{i}']["pwm"] = {
-                    "frequency": esc.pwm.freq.get(),
-                    "min_pulse_width": esc.pwm.pulse_width_range.min(),
-                    "max_pulse_width": esc.pwm.pulse_width_range.max(),
-                }
+                pass
             elif esc_type == esc.DSHOT:
-                raise NotImplementedError
+                pass
             else:
                 raise RuntimeError(f'Unknown ESC type: {esc_type}')
 

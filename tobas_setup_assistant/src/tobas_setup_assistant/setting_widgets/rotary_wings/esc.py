@@ -125,32 +125,18 @@ class EscWidget_PWM(EscWidget_Base):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        freq_description = ""
-        self.freq = ParamGetterWidget_SpinBox(
-            "Frequency",
-            freq_description,
-            minimum=1,
-            default=50,
-            suffix=" Hz",
-        )
-        self._rows.addWidget(self.freq)
-
-        pulse_width_range_description = ""
-        self.pulse_width_range = ParamGetterWidget_IntRange(
-            "Pulse Width Range",
-            pulse_width_range_description,
-            minimum=1,
-            default=(1000, 2000),
-            suffix=" us",
-        )
-        self._rows.addWidget(self.pulse_width_range)
+        abst_text = "周波数50Hzで1000usから2000usのパルス幅を受け取る通常のESCです．"
+        abst = QLabel(abst_text)
+        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
+        self._rows.addWidget(abst)
 
     def is_valid(self) -> bool:
         return True
 
     def copy_from(self, src: EscWidget_PWM) -> None:
-        self.freq.set(src.freq.get())
-        self.pulse_width_range.set(*src.pulse_width_range.get())
+        pass
 
 
 class EscWidget_DSHOT(EscWidget_Base):
@@ -158,10 +144,18 @@ class EscWidget_DSHOT(EscWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        # TODO
+        self._rows = QVBoxLayout()
+        self.setLayout(self._rows)
+
+        abst_text = "TODO: abstraction"  # TODO
+        abst = QLabel(abst_text)
+        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
+        self._rows.addWidget(abst)
 
     def is_valid(self) -> bool:
-        pass  # TODO
+        return True
 
     def copy_from(self, src: EscWidget_DSHOT) -> None:
-        pass  # TODO
+        pass

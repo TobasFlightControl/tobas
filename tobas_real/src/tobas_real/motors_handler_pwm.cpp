@@ -36,7 +36,7 @@ MotorsHandler_PWM::MotorsHandler_PWM()
       throw dh_ros::RuntimeError("Failed to initialize RC output for PIN" + to_string(pin) + ".");
     }
 
-    if (!pwm_.set_frequency(channel, rotor_config.pwm.frequency))
+    if (!pwm_.set_frequency(channel, kPwmFrequency))
     {
       throw dh_ros::RuntimeError("Failed to set frequency for PIN" + to_string(pin) + ".");
     }
@@ -141,9 +141,7 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
 
     // パルス幅に変換して指令
     const auto& pin = rotor_config.pin;
-    const auto& pwm = rotor_config.pwm;
-    const auto period =
-      remap(cmd_speed, 0., max_speed, pwm.pulse_width_range.lower, pwm.pulse_width_range.upper);
+    const auto period = remap(cmd_speed, 0., max_speed, kPwmMin, kPwmMax);
     if (!pwm_.set_duty_cycle(getChannel(pin), period))
     {
       throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");

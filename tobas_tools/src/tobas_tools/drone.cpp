@@ -196,21 +196,10 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
   if (esc_type == "pwm")
   {
     res.esc_type = ESCType::PWM;
-    dh_ros::getParam(prefix + "/pwm/frequency", res.pwm.frequency, dh_ros::POSITIVE);
-
-    dh_ros::getParam(
-      prefix + "/pwm/min_pulse_width", res.pwm.pulse_width_range.lower, dh_ros::POSITIVE);
-    dh_ros::getParam(
-      prefix + "/pwm/max_pulse_width", res.pwm.pulse_width_range.upper, dh_ros::POSITIVE);
-    if (!res.pwm.pulse_width_range.isValid())
-    {
-      throw dh_ros::RuntimeError("Invalid pulse width range.");
-    }
   }
   else if (esc_type == "dshot")
   {
     res.esc_type = ESCType::DSHOT;
-    // TODO
   }
   else
   {
