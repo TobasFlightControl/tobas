@@ -1,11 +1,11 @@
 #include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include <Common/MPU9250.h>
 #include <Navio2/LSM9DS1.h>
 
 #include "../../include/tobas_real/imu_handler.hpp"
+#include "../../include/tobas_real/constants.hpp"
 
 #define TIMER_PERIOD 0.01
 
@@ -30,7 +30,6 @@ ImuHandler::ImuHandler()
 
 void ImuHandler::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_);
 }
 
 void ImuHandler::registerPublishers()
@@ -60,7 +59,7 @@ void ImuHandler::setCovarianceMatrices()
 {
   // Accelerometer
   double acc_std_grav = ACC_NOISE_DENSITY / sqrt(TIMER_PERIOD);  // ug
-  double acc_std = acc_std_grav * 1e-6 * gravity_;               // m/s^2
+  double acc_std = acc_std_grav * 1e-6 * kGravity;               // m/s^2
   double acc_var = dh_std::sqr(acc_std);                         // m^2/s^4
   imu_msg_.linear_acceleration_covariance[0] = acc_var;
   imu_msg_.linear_acceleration_covariance[4] = acc_var;

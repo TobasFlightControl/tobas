@@ -30,9 +30,6 @@ private:
   float wx_, wy_, wz_;
   float mx_, my_, mz_;
 
-  // rosparam
-  double gravity_;
-
   // Publisher
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
