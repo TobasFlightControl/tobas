@@ -23,7 +23,7 @@ void BatteryHandler::run()
 
   while (ros::ok())
   {
-    // Access battery voltage channel
+    // Read battery voltage
     const int a2_value = adc_.read(POWER_MODULE_VOLTAGE_CHANNEL);
     if (a2_value < 0)
     {
