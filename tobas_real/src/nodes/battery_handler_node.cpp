@@ -4,5 +4,5 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "battery_handler");
   tobas_real::BatteryHandler node;
-  ros::spin();
+  node.run();
 }

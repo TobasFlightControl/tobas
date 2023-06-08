@@ -6,7 +6,7 @@
 
 // https://docs.emlid.com/navio2/dev/adc/
 #define POWER_MODULE_VOLTAGE_CHANNEL 2
-#define VOLTAGE_MULTIPLIER 11.3
+#define VOLTAGE_MULTIPLIER (11.3 / 1000.)
 
 #define FREQ 100.  // [Hz]
 
