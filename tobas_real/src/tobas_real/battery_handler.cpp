@@ -4,8 +4,10 @@
 
 #include "../../include/tobas_real/battery_handler.hpp"
 
+// https://docs.emlid.com/navio2/dev/adc/
 #define POWER_MODULE_VOLTAGE_CHANNEL 2
 #define VOLTAGE_MULTIPLIER 11.3
+
 #define FREQ 100.  // [Hz]
 
 namespace tobas_real
