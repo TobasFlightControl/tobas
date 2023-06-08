@@ -61,25 +61,32 @@ $ catkin source
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 ```
 
-### Gazebo Simulation
+### Launch your drone
+
+#### Gazebo
 
 ```bash
 $ roslaunch (tobas_config_pkg) gazebo.launch
 ```
 
+#### Real world
+
+```bash
+$ roslaunch (tobas_config_pkg) real.launch
+```
+
 ### Bringup observer and controller
 
 ```bash
+$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/  # Send configuration package from your PC to raspberry pi
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
-
-For controller API, please see [controllers](https://github.com/Masa0u0/tobas/tree/main/controllers#readme).
 
 ### Teleoperation
 
 ```bash
-$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch drone_name:=(drone_name) # By keyboard
-$ roslaunch tobas_gui_teleop gui_teleop.launch drone_name:=(drone_name)           # By GUI application
+$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch drone_name:=(drone_name)  # By keyboard
+$ roslaunch tobas_gui_teleop gui_teleop.launch drone_name:=(drone_name)            # By GUI application
 ```
 
 ## Trouble Shooting
