@@ -63,7 +63,7 @@ $ roslaunch tobas_setup_assistant setup_assistant.launch
 
 ### Launch your drone
 
-#### Gazebo
+#### Gazebo simulation
 
 ```bash
 $ roslaunch (tobas_config_pkg) gazebo.launch
