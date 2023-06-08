@@ -72,13 +72,13 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 #### Real world
 
 ```bash
+$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/  # Send configuration package from your PC to raspberry pi
 $ roslaunch (tobas_config_pkg) real.launch
 ```
 
 ### Bringup observer and controller
 
 ```bash
-$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/  # Send configuration package from your PC to raspberry pi
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
 
