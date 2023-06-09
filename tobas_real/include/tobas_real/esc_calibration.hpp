@@ -13,9 +13,10 @@ public:
   void run();
 
 private:
+  ros::NodeHandle nh_;
+  RCOutput_Navio2 pwm_;
+
   void setHigh();
   void setLow();
-
-  RCOutput_Navio2 pwm_;
 };
 }  // namespace tobas_real
