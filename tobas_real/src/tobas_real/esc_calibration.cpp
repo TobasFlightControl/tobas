@@ -51,7 +51,7 @@ void EscCalibrator::setHigh()
         rosFatal("Failed to set high duty cycle on channel " << channel << ".");
       }
     }
-    sleep(INTERVAL);
+    usleep(INTERVAL * 1e+6);
   }
 }
 
@@ -69,7 +69,7 @@ void EscCalibrator::setLow()
         rosFatal("Failed to set low duty cycle on channel " << channel << ".");
       }
     }
-    sleep(INTERVAL);
+    usleep(INTERVAL * 1e+6);
   }
 }
 }  // namespace tobas_real
