@@ -15,7 +15,7 @@ namespace tobas_real
 {
 int calibrateEscs()
 {
-  // Chech authority
+  // Check authority
   if (getuid())
   {
     rosError("Not root.");
@@ -28,17 +28,17 @@ int calibrateEscs()
   {
     if (!(pwm.initialize(channel)))
     {
-      rosError("Failed to initialze PWM for channel " << channel << ".");
+      rosError("Failed to initialze PWM on channel " << channel << ".");
       return -1;
     }
     if (!pwm.set_frequency(channel, kPwmFrequency))
     {
-      rosError("Failed to set frequency for channel " << channel << ".");
+      rosError("Failed to set frequency on channel " << channel << ".");
       return -1;
     }
     if (!(pwm.enable(channel)))
     {
-      rosError("Failed to enable PWM for channel " << channel << ".");
+      rosError("Failed to enable PWM on channel " << channel << ".");
       return -1;
     }
   }
@@ -51,7 +51,7 @@ int calibrateEscs()
     rosInfo("Step 1: Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
     if (!pwm.set_duty_cycle(channel, kPwmMax))
     {
-      rosError("Failed to set high duty cycle for channel " << channel << ".");
+      rosError("Failed to set high duty cycle on channel " << channel << ".");
       return -1;
     }
     sleep(SLEEP_TIME_HIGH);
@@ -59,14 +59,14 @@ int calibrateEscs()
     rosInfo("Step 2: Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
     if (!pwm.set_duty_cycle(channel, kPwmMin))
     {
-      rosError("Failed to set low duty cycle for channel " << channel << ".");
+      rosError("Failed to set low duty cycle on channel " << channel << ".");
       return -1;
     }
     sleep(SLEEP_TIME_LOW);
   }
 
   // Finish
-  rosInfo("Calibration finished. Now all the ESCs should be calibrated.");
+  rosInfo("Calibration finished.");
   return 0;
 }
 }  // namespace tobas_real

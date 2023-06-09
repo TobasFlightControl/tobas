@@ -9,7 +9,7 @@ int main(int argc, char** argv)
   const int error_code = tobas_real::calibrateEscs();
   if (error_code == 0)
   {
-    rosError("Calibration finished successfully.");
+    rosInfo("Calibration finished successfully.");
   }
   else
   {
