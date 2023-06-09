@@ -32,18 +32,15 @@ EscCalibrator::EscCalibrator()
 
 void EscCalibrator::run()
 {
-  rosInfo("Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
   setHigh();
-
-  rosInfo("Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
   setLow();
-
   rosInfo("Calibration finished.");
 }
 
 void EscCalibrator::setHigh()
 {
   ros::Time start_time = ros::Time::now();
+  rosInfo("Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
 
   while ((ros::Time::now() - start_time).toSec() < SLEEP_TIME_HIGH)
   {
@@ -61,6 +58,7 @@ void EscCalibrator::setHigh()
 void EscCalibrator::setLow()
 {
   ros::Time start_time = ros::Time::now();
+  rosInfo("Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
 
   while ((ros::Time::now() - start_time).toSec() < SLEEP_TIME_LOW)
   {
