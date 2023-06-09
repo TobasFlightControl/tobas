@@ -71,8 +71,23 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 
 #### Real world
 
+1. Send configuration package from your PC to FC
+
 ```bash
-$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/  # Send configuration package from your PC to raspberry pi
+$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/
+```
+
+2. SSH into FC
+
+```bash
+$ ssh (user)@(host)
+```
+
+3. Execute real.launch with superuser privileges
+
+```bash
+$ su
+$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch (tobas_config_pkg) real.launch
 ```
 
@@ -80,6 +95,17 @@ $ roslaunch (tobas_config_pkg) real.launch
 
 ```bash
 $ roslaunch (tabas_config_pkg) bringup.launch
+```
+
+### ESC Calibration
+
+Make sure battery and ESCs are connected to FC properly.\
+Execute the following in FC.
+
+```bash
+$ su
+$ source ~/catkin_ws/devel/setup.bash
+$ roslaunch tobas_real esc_calibration.launch
 ```
 
 ### Teleoperation
