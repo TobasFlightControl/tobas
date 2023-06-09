@@ -44,27 +44,26 @@ int calibrateEscs()
   }
 
   // Calibrate
-  rosInfo("Step 1: Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
   {
+    rosInfo("ESC calibration on channel " << channel << " starts.");
+
+    rosInfo("Step 1: Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
     if (!pwm.set_duty_cycle(channel, kPwmMax))
     {
       rosError("Failed to set high duty cycle for channel " << channel << ".");
       return -1;
     }
-  }
-  sleep(SLEEP_TIME_HIGH);
+    sleep(SLEEP_TIME_HIGH);
 
-  rosInfo("Step 2: Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
-  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
-  {
+    rosInfo("Step 2: Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
     if (!pwm.set_duty_cycle(channel, kPwmMin))
     {
       rosError("Failed to set low duty cycle for channel " << channel << ".");
       return -1;
     }
+    sleep(SLEEP_TIME_LOW);
   }
-  sleep(SLEEP_TIME_LOW);
 
   // Finish
   rosInfo("Calibration finished. Now all the ESCs should be calibrated.");
