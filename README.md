@@ -27,7 +27,7 @@ $ catkin init
 ```bash
 $ cd ~/catkin_ws/src
 $ git clone https://github.com/Masa0u0/tobas.git
-$ vcs import . < tobas/.rosinstall --recursive
+$ vcs import . < tobas/.rosinstall_main --recursive
 $ rosdep install --from-paths . --ignore-src -ry
 $ pip install -r tobas/requirements.txt
 ```
