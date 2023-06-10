@@ -10,21 +10,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
-	dh_std_tools
+	tobas_tools
 	tobas_msgs
+	dh_kdl
+	dh_std_tools
 	gazebo_plugins
+	kdl_msgs
 	sensor_msgs
 	geometry_msgs
 )
 find_package(gazebo REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
@@ -37,5 +41,10 @@ foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 	get_filename_component(FILE_NAME ${FILE} NAME_WE)
 	set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
 	add_library(${PLUGIN_NAME} SHARED ${FILE})
-	target_link_libraries(${PLUGIN_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${PROJECT_NAME})
+	target_link_libraries(${PLUGIN_NAME}
+		${catkin_LIBRARIES}
+		${GAZEBO_LIBRARIES}
+		${OpenCV_LIBRARIES}
+		${PROJECT_NAME}
+	)
 endforeach()

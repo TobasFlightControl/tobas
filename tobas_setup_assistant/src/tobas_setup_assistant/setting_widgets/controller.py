@@ -8,27 +8,28 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox
+from dh_rqt_tools.widgets import ComboBox, add_expanding_widget
 from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class ControllerWidget(BaseSettingWidget):
 
     NAME = "Controller"
 
-    NO_SELECT = "Select Controller type"
+    NO_SELECT = "Select controller type"
     LMPC = "Linear Model Predictive Control"
     NMPC = "Nonlinear Model Predictive Control"
     SMC = "Model Following Sliding Mode Control"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Controller"
-        abst_text = "TODO: abstruct"
+        abst_text = "飛行制御器の設定を行います．"\
+            + "手法を1つ選択し，各パラメータを設定してください．"\
+            + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
         super().__init__(main, title_text, abst_text)
 
         self.controller_type = ComboBox()
@@ -58,10 +59,31 @@ class ControllerWidget(BaseSettingWidget):
             q_error_named(self._main, self.NAME, "Please select controller type.")
             return False
 
+        if self.get_type() == self.LMPC and (not self.lmpc.is_valid()):
+            return False
+        if self.get_type() == self.NMPC and (not self.nmpc.is_valid()):
+            return False
+        if self.get_type() == self.SMC and (not self.smc.is_valid()):
+            return False
+
         return True
 
     def get_type(self) -> str:
         return self.controller_type.currentText()
+
+    def pkg_name(self) -> str:
+        controller_type = self.get_type()
+
+        if controller_type == self.NO_SELECT:
+            raise RuntimeError("Controller type is not selected.")
+        elif controller_type == self.LMPC:
+            return "tobas_multirotor_controller"
+        elif controller_type == self.NMPC:
+            raise NotImplementedError
+        elif controller_type == self.SMC:
+            raise NotImplementedError
+        else:
+            raise RuntimeError(f'Unknown controller type: {controller_type}')
 
     def _update_visibility(self) -> None:
         controller_type = self.get_type()
@@ -92,6 +114,8 @@ class ControllerWidget(BaseSettingWidget):
 
 class ControllerWidget_LMPC(QWidget):
 
+    NAME = "Linear Model Predictive Control"
+
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
@@ -99,15 +123,19 @@ class ControllerWidget_LMPC(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of LMPC"
+        abst_text = "PD制御と線形モデル予測制御を組み合わせた制御器です．\n"\
+            + "コマンド形式: tobas_msgs/PositionYaw.msg or tobas_msgs/VelocityYaw.msg"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
-        natural_freq_description = "TODO: instruction"
+        natural_freq_description = "PD制御の自然周波数．"\
+            + "大きいほど応答速度が速くなりますが，"\
+            + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
         self.natural_freq = ParamGetterWidget_DoubleSpinBox(
-            "position_controller/natural_frequency",
+            "Natural frequency (Position controller)",
             natural_freq_description,
             decimals=2,
             minimum=0.1,
@@ -116,9 +144,15 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.natural_freq)
 
-        damp_ratio_description = "TODO: instruction"
+        damp_ratio_description = "PD制御の減衰比．"\
+            + "大きいほどオーバーシュートが小さくなりますが，"\
+            + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"\
+            + "逆に小さいほど応答速度が速くなりますが，"\
+            + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"\
+            + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
+            + "オーバーシュートなく最速で目標位置に収束します．"
         self.damp_ratio = ParamGetterWidget_DoubleSpinBox(
-            "position_controller/damping_ratio",
+            "Damping ratio (Position controller)",
             damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
@@ -126,9 +160,12 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.damp_ratio)
 
-        pred_horizon_description = "TODO: instruction"
+        pred_horizon_description = "モデル予測制御の予測区間の長さ．"\
+            + "理論的には大きいほど制御性能が良くなりますが，"\
+            + "大きくするほど離散化誤差や計算機の数値誤差が大きくなります．"\
+            + "最低でもシステム (ここでは姿勢制御) の応答時間の数倍以上にすべきだと言われています．"
         self.pred_horizon = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/prediction_horizon",
+            "Predictin horizon (Orientation controller)",
             pred_horizon_description,
             decimals=2,
             minimum=0.1,
@@ -138,9 +175,10 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.pred_horizon)
 
-        pred_steps_description = "TODO: instruction"
+        pred_steps_description = "モデル予測制御の予測区間の分割数．"\
+            + "大きいほど離散化誤差が小さくなりますが，計算量は分割数の3乗に比例します．"
         self.pred_steps = ParamGetterWidget_SpinBox(
-            "rotation_controller/prediction_steps",
+            "Prediction steps (Orientation controller)",
             pred_steps_description,
             minimum=1,
             maximum=30,
@@ -148,21 +186,36 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.pred_steps)
 
-        rot_decay_description = "TODO: instruction"
-        self.rot_decay = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/decay/rotation",
-            rot_decay_description,
+        attitude_decay_description = "モデル予測制御における，ロール角とピッチ角の参照値の追従時定数．"\
+            + "大きいほど目標値に滑らかに追従します．"
+        self.attitude_decay = ParamGetterWidget_DoubleSpinBox(
+            "Attitude decay time constant (Orientation controller)",
+            attitude_decay_description,
             decimals=2,
             minimum=0.,
             maximum=1.,
             default=0.2,
             suffix=" s",
         )
-        self._rows.addWidget(self.rot_decay)
+        self._rows.addWidget(self.attitude_decay)
 
-        angvel_decay_description = "TODO: instruction"
+        heading_decay_description = "モデル予測制御における，ヨー角の参照値の追従時定数．"\
+            + "大きいほど目標値に滑らかに追従します．"
+        self.heading_decay = ParamGetterWidget_DoubleSpinBox(
+            "Heading decay time constant (Orientation controller)",
+            heading_decay_description,
+            decimals=2,
+            minimum=0.,
+            maximum=1.,
+            default=0.2,
+            suffix=" s",
+        )
+        self._rows.addWidget(self.heading_decay)
+
+        angvel_decay_description = "モデル予測制御における，角速度の参照値の追従時定数．"\
+            + "大きいほど目標値に滑らかに追従します．"
         self.angvel_decay = ParamGetterWidget_DoubleSpinBox(
-            "rotation_controller/decay/angular_velocity",
+            "Angular velocity decay time constant (Orientation controller)",
             angvel_decay_description,
             decimals=2,
             minimum=0.,
@@ -172,19 +225,29 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.angvel_decay)
 
-        rot_weight_description = "TODO: instruction"
-        self.rot_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/rotation",
-            rot_weight_description,
+        attitude_weight_description = "モデル予測制御における，ロール角とピッチ角の重み．"
+        self.attitude_weight = ParamGetterWidget_SpinBox(
+            "Attitude weight (Orientation controller)",
+            attitude_weight_description,
             minimum=1,
             maximum=100,
             default=100,
         )
-        self._rows.addWidget(self.rot_weight)
+        self._rows.addWidget(self.attitude_weight)
 
-        angvel_weight_description = "TODO: instruction"
+        heading_weight_description = "モデル予測制御における，ヨー角の重み．"
+        self.heading_weight = ParamGetterWidget_SpinBox(
+            "Heading weight (Orientation controller)",
+            heading_weight_description,
+            minimum=1,
+            maximum=100,
+            default=10,
+        )
+        self._rows.addWidget(self.heading_weight)
+
+        angvel_weight_description = "モデル予測制御における，角速度の重み．"
         self.angvel_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/angular_velocity",
+            "Angular velocity weight (Orientation controller)",
             angvel_weight_description,
             minimum=1,
             maximum=100,
@@ -192,28 +255,54 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.angvel_weight)
 
-        thrust_weight_description = "TODO: instruction"
-        self.thrust_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/thrust_force",
-            thrust_weight_description,
+        thrust_weight_exp_description = "モデル予測制御における，プロペラ推力の重みの常用対数．"
+        self.thrust_weight_exp = ParamGetterWidget_SpinBox(
+            "Thrust weight level (Orientation controller)",
+            thrust_weight_exp_description,
             minimum=-6,
             maximum=0,
             default=-3,
         )
-        self._rows.addWidget(self.thrust_weight)
+        self._rows.addWidget(self.thrust_weight_exp)
 
-        thrust_rate_weight_description = "TODO: instruction"
-        self.thrust_rate_weight = ParamGetterWidget_SpinBox(
-            "rotation_controller/weight/thrust_force_rate",
-            thrust_rate_weight_description,
+        thrust_rate_weight_exp_description = "モデル予測制御における，プロペラ推力の変化率の重みの常用対数．"
+        self.thrust_rate_weight_exp = ParamGetterWidget_SpinBox(
+            "Thrust rate weight level (Orientation controller)",
+            thrust_rate_weight_exp_description,
             minimum=-6,
             maximum=0,
             default=-3,
         )
-        self._rows.addWidget(self.thrust_rate_weight)
+        self._rows.addWidget(self.thrust_rate_weight_exp)
+
+    def is_valid(self) -> bool:
+        if self.attitude_decay.get() > self.pred_horizon.get():
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Decay time constant of attitude is greater the prediction horizon.",
+            )
+            return False
+        if self.attitude_decay.get() > self.pred_horizon.get():
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Decay time constant of heading is greater the prediction horizon.",
+            )
+            return False
+        if self.attitude_decay.get() > self.pred_horizon.get():
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Decay time constant of angular velocity is greater the prediction horizon.",
+            )
+            return False
+
+        return True
 
 
 class ControllerWidget_NMPC(QWidget):
+    """ Data-Driven MPC for Quadrotors [Torrente+, 2021] """
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -222,13 +311,17 @@ class ControllerWidget_NMPC(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of NMPC"
+        abst_text = ""  # TODO
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
         # TODO
+
+    def is_valid(self) -> None:
+        raise NotImplementedError()  # TODO
 
 
 class ControllerWidget_SMC(QWidget):
@@ -241,10 +334,14 @@ class ControllerWidget_SMC(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "TODO: abstruct of SMC"
+        abst_text = ""  # TODO
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
+        abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
         # TODO
+
+    def is_valid(self) -> None:
+        raise NotImplementedError()  # TODO

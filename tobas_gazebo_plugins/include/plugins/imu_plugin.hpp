@@ -7,13 +7,15 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/Imu.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "imu_plugin";
+static const std::string kPluginName = "imu_plugin";
 
 // Default values
-static constexpr char kDefaultImuTopic[] = "imu";
+static const std::string kDefaultImuTopic = "imu";
 static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. / 180. * M_PI;
 static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. / 180. * M_PI;
 static constexpr double kDefaultGyroBiasCorrTime = 1e+3;
@@ -25,11 +27,12 @@ static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * 9.80665;
 
 class GazeboImuPlugin : public SensorPlugin
 {
-  using NormalDistribution = std::normal_distribution<double>;
+  using super = SensorPlugin;
+
   using ImuMsg = sensor_msgs::Imu;
 
 public:
-  GazeboImuPlugin();
+  explicit GazeboImuPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
@@ -61,9 +64,9 @@ private:
   ignition::math::Vector3d gyro_turn_on_bias_;
   ignition::math::Vector3d acc_turn_on_bias_;
 
-  NormalDistribution noise_;
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
+  NormalDistribution noise_;
 
   ros::Publisher imu_pub_;
 

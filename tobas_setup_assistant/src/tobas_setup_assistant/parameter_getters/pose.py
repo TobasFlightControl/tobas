@@ -16,6 +16,7 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
         self,
         param_name: str,
         description_text: str = None,
+        decimals: int = 3,
         xyz_min: Tuple[float, float, float] = (-1e+9,) * 3,
         xyz_max: Tuple[float, float, float] = (+1e+9,) * 3,
         xyz_default: Tuple[float, float, float] = (0.,) * 3,
@@ -31,26 +32,38 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
         self._cols_xyz = QHBoxLayout()
         self._rows.addLayout(self._cols_xyz)
 
-        self._x = DoubleGetter("x", xyz_min[0], xyz_max[0], 0.1, xyz_default[0], xyz_suffix)
+        self._x = DoubleGetter(
+            "x", decimals, xyz_min[0], xyz_max[0], 0.1, xyz_default[0], xyz_suffix
+        )
         self._cols_xyz.addWidget(self._x)
 
-        self._y = DoubleGetter("y", xyz_min[1], xyz_max[1], 0.1, xyz_default[1], xyz_suffix)
+        self._y = DoubleGetter(
+            "y", decimals, xyz_min[1], xyz_max[1], 0.1, xyz_default[1], xyz_suffix
+        )
         self._cols_xyz.addWidget(self._y)
 
-        self._z = DoubleGetter("z", xyz_min[2], xyz_max[2], 0.1, xyz_default[2], xyz_suffix)
+        self._z = DoubleGetter(
+            "z", decimals, xyz_min[2], xyz_max[2], 0.1, xyz_default[2], xyz_suffix
+        )
         self._cols_xyz.addWidget(self._z)
 
         # RPY
         self._cols_rpy = QHBoxLayout()
         self._rows.addLayout(self._cols_rpy)
 
-        self._roll = DoubleGetter("roll", rpy_min[0], rpy_max[0], 0.1, rpy_default[0], rpy_suffix)
+        self._roll = DoubleGetter(
+            "roll", decimals, rpy_min[0], rpy_max[0], 0.1, rpy_default[0], rpy_suffix
+        )
         self._cols_rpy.addWidget(self._roll)
 
-        self._pitch = DoubleGetter("pitch", rpy_min[1], rpy_max[1], 0.1, rpy_default[1], rpy_suffix)
+        self._pitch = DoubleGetter(
+            "pitch", decimals, rpy_min[1], rpy_max[1], 0.1, rpy_default[1], rpy_suffix
+        )
         self._cols_rpy.addWidget(self._pitch)
 
-        self._yaw = DoubleGetter("yaw", rpy_min[2], rpy_max[2], 0.1, rpy_default[2], rpy_suffix)
+        self._yaw = DoubleGetter(
+            "yaw", decimals, rpy_min[2], rpy_max[2], 0.1, rpy_default[2], rpy_suffix
+        )
         self._cols_rpy.addWidget(self._yaw)
 
         self._x.data.valueChanged.connect(self._on_value_changed)

@@ -6,32 +6,29 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
-#include <std_msgs/Float64.h>
 
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
 #include <tobas_msgs/WindSpeed.h>
+#include <tobas_msgs/RotorDebug.h>
 
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
 #include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "motor_model_plugin";
+static const std::string kPluginName = "motor_model_plugin";
 
 // Default values
-static constexpr char kDefaultSpeedPubTopic[] = "motor_speed";
-static constexpr char kDefaultCmdSubTopic[] = "command/motor_speed";
-static constexpr char kDefaultWindSubTopic[] = "wind_speed";
-static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
+static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
+static const std::string kDefaultCmdSubTopic = "command/motor_speed";
 
 class GazeboRotorPlugin : public ModelPlugin
 {
-  using CmdMsg = tobas_msgs::RotorSpeeds;
-  using WindMsg = tobas_msgs::WindSpeed;
+  using super = ModelPlugin;
 
 public:
-  GazeboRotorPlugin();
+  explicit GazeboRotorPlugin();
 
 protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
@@ -45,22 +42,31 @@ private:
   std::string joint_name_;
   int motor_number_;
   int direction_;  // turning direction. 1(CCW) or -1(CW).
-  std::string motor_speed_pub_topic_;
+  std::string debug_pub_topic_;
   std::string cmd_sub_topic_;
+  std::string battery_sub_topic_;
   std::string wind_speed_sub_topic_;
-  double max_rot_vel_;
+  double kv_;  // Kv (with efficiency)
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
   double time_const_up_;
   double time_const_down_;
   double rotor_speed_slowdown_sim_;
+  double check_delay_threshold_;
+  double auto_reset_time_thr_;
 
-  double ref_motor_input_;
-  double prev_sim_time_;
-  std_msgs::Float64 motor_speed_msg_;
-  ignition::math::Vector3d wind_speed_W_;
+  double cmd_rot_speed_;                   // [rad/s]
+  tobas_msgs::Battery battery_;
+  ignition::math::Vector3d wind_speed_W_;  // [m/s]
+  double prev_sim_time_;                   // [s]
+  double last_cmd_time_;                   // [s]
+  bool is_activated_;
+  bool is_initialized_;
+  bool battery_received_;
+  bool wind_speed_received_;
   FirstOrderFilter<double> rotor_speed_filter_;
+  tobas_msgs::RotorDebug debug_msg_;
 
   physics::ModelPtr model_;
   physics::JointPtr joint_;
@@ -68,15 +74,21 @@ private:
   physics::LinkPtr parent_link_;
   event::ConnectionPtr update_connection_;
 
-  ros::Publisher motor_speed_pub_;
+  // PubSub
+  ros::Publisher debug_pub_;
   ros::Subscriber command_sub_;
+  ros::Subscriber battery_sub_;
   ros::Subscriber wind_speed_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);
-  void updateForcesAndMoments(double dt);
+  void registerPubSub();
+  bool isReady();
+  void applyForceAndTorque(double rot_speed, const common::Time cur_time);
+  void updateRotationSpeed(double dt);
 
-  void commandCb(const CmdMsg& cmd);
-  void windSpeedCb(const WindMsg& wind);
+  void commandCb(const tobas_msgs::RotorSpeeds& cmd);
+  void batteryCb(const tobas_msgs::Battery& battery);
+  void windSpeedCb(const tobas_msgs::WindSpeed& wind);
 };
 }  // namespace gazebo

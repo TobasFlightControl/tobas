@@ -5,33 +5,40 @@
 #include <dh_ros_tools/rate.hpp>
 
 #include "../../include/tobas_real/motors_handler_dshot.hpp"
-
-#define INFO_PERIOD 1.
+#include "../../include/tobas_real/common.hpp"
 
 using namespace std;
 using namespace dh_std;
 
+namespace tobas_real
+{
 MotorsHandler_DSHOT::MotorsHandler_DSHOT()
-  : battery_voltage_(dh_ros::getParam<double>("/battery_voltage")),
-    num_rotors_(dh_ros::getParam<int>("/num_rotors")),
-    rotor_configs_(getRotorConfigs()),
-    update_rate_(dh_ros::getParam<double>("~update_rate", kDefaultUpdateRate)),
-    cmd_speeds_(num_rotors_, 0.),
-    dshot_(DSHOT::DSHOT_600)
+  : super(),
+    dshot_(DSHOT::DSHOT_600),
+    is_initialized_(false),
+    rot_speeds_received_(false),
+    battery_received_(false),
+    check_topics_timer_(
+      nh_,
+      kCheckTopicsTimerPeriod,
+      &MotorsHandler_DSHOT::checkTopicsTimerCb,
+      this)
 {
   if (getuid())
   {
-    throw dh_ros::RuntimeError("Not root.");
+    rosthrow("Not root.");
   }
 
-  for (const auto& rotor_config : rotor_configs_)
+  getRosParams();
+  drone_.loadFromParam(ns_);
+
+  for (const auto& rotor_config : drone_.rotorConfigs())
   {
     dshot_.initialize(rotor_config.pin);
   }
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
-  rotor_vels_sub_ = nh_.subscribe(
-    "/" + drone_name + "/command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+  registerPublishers();
+  registerSubscribers();
 }
 
 void MotorsHandler_DSHOT::run()
@@ -40,29 +47,40 @@ void MotorsHandler_DSHOT::run()
 
   while (ros::ok())
   {
-    for (int i = 0; i < num_rotors_; ++i)
+    if (!is_initialized_)
     {
-      const RotorConfig& rotor_config = rotor_configs_[i];
-      const double max_speed = rpmToRadPerSec(battery_voltage_ * rotor_config.kv);
+      if (isReady())
+      {
+        check_topics_timer_.stop();
+        is_initialized_ = true;
+      }
+      ros::spinOnce();
+      rate.sleep();
+      continue;
+    }
+
+    for (int i = 0; i < drone_.numRotors(); ++i)
+    {
+      const auto& rotor_config = drone_.rotorConfig(i);
+      const auto max_speed = drone_.maxRotSpeed(i, battery_.voltage);
 
       // 指令速度を決定
-      double cmd_speed = cmd_speeds_[i];
+      auto cmd_speed = cmd_speeds_[i];
       if (cmd_speed < 0.)
       {
-        dh_ros::rosErrorThrottle(
-          INFO_PERIOD, "Rotor speed must be semi-positive: " + to_string(cmd_speed) + " < 0");
+        rosErrorThrottle(
+          kErrorPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
         cmd_speed = 0.;
       }
       else if (cmd_speed > max_speed)
       {
-        dh_ros::rosErrorThrottle(
-          INFO_PERIOD, "Commanded rotor speed is too large: " + to_string(cmd_speed) + " > "
-                         + to_string(max_speed));
+        rosErrorThrottle(
+          kErrorPeriod, "Commanded rotor speed is too large: " << cmd_speed << " > " << max_speed);
         cmd_speed = max_speed;
       }
 
       // スロットルに変換して指令
-      uint32_t throttle = remap<double>(cmd_speed, 0., max_speed, 48, (1 << 11) - 1);
+      const uint32_t throttle = remap<double>(cmd_speed, 0., max_speed, 48, (1 << 11) - 1);
       dshot_.setSignal(rotor_config.pin, throttle);
     }
 
@@ -71,16 +89,79 @@ void MotorsHandler_DSHOT::run()
   }
 }
 
+void MotorsHandler_DSHOT::getRosParams()
+{
+  dh_ros::getParam("~update_rate", update_rate_, kDefaultUpdateRate);
+}
+
+void MotorsHandler_DSHOT::registerPublishers()
+{
+}
+
+void MotorsHandler_DSHOT::registerSubscribers()
+{
+  rotor_speeds_sub_ =
+    nh_.subscribe("command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_DSHOT::batteryCb, this);
+}
+
+bool MotorsHandler_DSHOT::isReady()
+{
+  return rot_speeds_received_ && battery_received_;
+}
+
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
-  const auto& speeds = rotor_speeds.speeds;
-
-  if (speeds.size() != num_rotors_)
+  if (!rot_speeds_received_)
   {
-    dh_ros::rosErrorThrottle(
-      INFO_PERIOD, "Size mismatch: " + to_string(speeds.size()) + " != " + to_string(num_rotors_));
+    rot_speeds_received_ = true;
+  }
+
+  // Check array size
+  if (rotor_speeds.speeds.size() != drone_.numRotors())
+  {
+    rosErrorThrottle(
+      kErrorPeriod,
+      "Size mismatch: " << rotor_speeds.speeds.size() << " != " << drone_.numRotors());
     return;
   }
 
-  cmd_speeds_ = speeds;
+  // Check delay
+  const auto delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
+  if (delay > kCheckDelayThreshold)
+  {
+    rosWarnThrottle(
+      kErrorPeriod, "The delay from sensors to the motor command is "
+                      << delay << ", which exceeds the threshold " << kCheckDelayThreshold);
+  }
+  else if (delay < 0.)
+  {
+    rosErrorThrottle(kErrorPeriod, "The timestamp of the motor command precedes the current time.");
+  }
+
+  cmd_speeds_ = rotor_speeds.speeds;
 }
+
+void MotorsHandler_DSHOT::batteryCb(const tobas_msgs::Battery& battery)
+{
+  if (!battery_received_)
+  {
+    battery_received_ = true;
+  }
+
+  battery_ = battery;
+}
+
+void MotorsHandler_DSHOT::checkTopicsTimerCb(const ros::TimerEvent&)
+{
+  if (!rot_speeds_received_)
+  {
+    rosWarn("Motor command is not received yet.");
+  }
+
+  if (!battery_received_)
+  {
+    rosWarn("Battery state is not received yet.");
+  }
+}
+}  // namespace tobas_real

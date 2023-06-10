@@ -1,0 +1,9 @@
+<launch>
+
+  <arg name="ground_truth" default="false"/>
+
+  <node pkg="tobas_fixed_wing_mpc" type="controller_node" name="tobas_fixed_wing_mpc" output="screen">
+    <remap if="$(arg ground_truth)" from="base_state" to="ground_truth/base_state"/>
+  </node>
+
+</launch>

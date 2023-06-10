@@ -2,6 +2,8 @@
 
 using namespace geometry_msgs;
 
+namespace tobas
+{
 Vector3 operator*(const double& lhs, const Vector3& rhs)
 {
   Vector3 res;
@@ -46,12 +48,4 @@ Vector3 operator-(const Point& lhs, const Point& rhs)
   res.z = lhs.z - rhs.z;
   return res;
 }
-
-Vector3 operator-(const tobas_msgs::LinearVelocity& lhs, const tobas_msgs::LinearVelocity& rhs)
-{
-  Vector3 res;
-  res.x = lhs.vx - rhs.vx;
-  res.y = lhs.vy - rhs.vy;
-  res.z = lhs.vz - rhs.vz;
-  return res;
-}
+}  // namespace tobas

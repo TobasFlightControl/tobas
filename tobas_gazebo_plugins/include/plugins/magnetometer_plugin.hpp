@@ -7,26 +7,28 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/MagneticField.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+#include "../tobas_gazebo_plugins/random.hpp"
+
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "magnetometer_plugin";
+static const std::string kPluginName = "magnetometer_plugin";
 
 // Default values
-static constexpr char kDefaultMagTopic[] = "magnetic_field";
+static const std::string kDefaultMagTopic = "magnetic_field";
 static constexpr double kDefaultRefMagNorth = 3.0031e-05;
 static constexpr double kDefaultRefMagEast = -4.116e-06;
 static constexpr double kDefaultRefMagDown = 3.5615e-05;
 
 class GazeboMagnetometerPlugin : public SensorPlugin
 {
-  using SdfVector3 = ignition::math::Vector3d;
-  using NormalDistribution = std::normal_distribution<double>;
-  using UniformDistribution = std::uniform_real_distribution<double>;
+  using super = SensorPlugin;
+
   using MagMsg = sensor_msgs::MagneticField;
 
 public:
-  GazeboMagnetometerPlugin();
+  explicit GazeboMagnetometerPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
@@ -50,14 +52,12 @@ private:
   ignition::math::Vector3d mag_NWU_;
   MagMsg mag_msg_;
 
-  NormalDistribution noise_[3];
   std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
+  NormalDistribution3dPtr noise_;
 
   ros::Publisher mag_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();
-  void addNoise(ignition::math::Vector3d& mag);
 };
 }  // namespace gazebo

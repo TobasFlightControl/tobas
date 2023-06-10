@@ -1,633 +1,290 @@
-#include "../../include/state_estimation_eskf/eskf.hpp"
-#include "../../include/state_estimation_eskf/unrolled_joseph.hpp"
+#include <dh_std_tools/math.hpp>
+#include <dh_eigen_tools/linalg.hpp>
+#include <dh_eigen_tools/geometry.hpp>
 
-#define SQ(x) (x * x)
-#define I_3 (Matrix3d::Identity())
+#include "../../include/state_estimation_eskf/eskf.hpp"
 
 using namespace std;
 using namespace Eigen;
+using namespace dh_std;
+namespace et = eigen_tools;
 
+namespace state_estimation_eskf
+{
 ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 {
 }
 
 void ErrorStateKalmanFilter::initialize(
-  Vector3d a_grav,
-  const StateVector& init_state,
-  const dStateMatrix& init_P,
-  double var_acc,
-  double var_omega,
-  double var_acc_bias,
-  double var_omega_bias,
-  DelayType delay_handling,
-  int buf_length)
+  double acc_noise_density,
+  double gyro_noise_density,
+  double acc_random_walk,
+  double gyro_random_walk,
+  const Vector3d& grav_W,
+  const Vector3d& mag_W,
+  const Vector3d& init_pos,
+  const Vector3d& init_vel,
+  const Quaterniond& init_quat,
+  const Matrix3d& init_pos_cov,
+  const Matrix3d& init_vel_cov,
+  const Matrix3d& init_dtheta_cov,
+  const Matrix3d& init_acc_bias_cov,
+  const Matrix3d& init_gyro_bias_cov)
 {
-  var_acc_ = var_acc;
-  var_omega_ = var_omega;
-  var_acc_bias_ = var_acc_bias;
-  var_omega_bias_ = var_omega_bias;
-  a_grav_ = a_grav;
-  nominal_state_ = init_state;
-  P_ = init_P;
+  assert(acc_noise_density > 0.);
+  assert(gyro_noise_density > 0.);
+  assert(acc_random_walk > 0.);
+  assert(gyro_random_walk > 0.);
+  assert(grav_W.z() < 0.);
+  assert(et::isSymmetric(init_pos_cov) && et::isSemiPositive(init_pos_cov));
+  assert(et::isSymmetric(init_vel_cov) && et::isSemiPositive(init_vel_cov));
+  assert(et::isSymmetric(init_dtheta_cov) && et::isSemiPositive(init_dtheta_cov));
+  assert(et::isSymmetric(init_acc_bias_cov) && et::isSemiPositive(init_acc_bias_cov));
+  assert(et::isSymmetric(init_gyro_bias_cov) && et::isSemiPositive(init_gyro_bias_cov));
 
-  // Jacobian of the state transition: page 59, eqn 269
-  // Precompute constant part only
+  acc_noise_density_ = acc_noise_density;
+  gyro_noise_density_ = gyro_noise_density;
+  acc_random_walk_ = acc_random_walk;
+  gyro_random_walk_ = gyro_random_walk;
+  grav_W_ = grav_W;
+  mag_W_ = mag_W;
+
+  // ノミナル状態を初期化
+  nominal_state_.setZero();
+  nominal_state_.block<3, 1>(kPosIdx, 0) = init_pos;
+  nominal_state_.block<3, 1>(kVelIdx, 0) = init_vel;
+  nominal_state_.block<4, 1>(kQuatIdx, 0) = et::quaternionToHamilton(init_quat).normalized();
+
+  // 共分散行列を初期化
+  P_.setZero();
+  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = init_pos_cov;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = init_vel_cov;
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = init_dtheta_cov;
+  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = init_acc_bias_cov;
+  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = init_gyro_bias_cov;
+
+  // (270) ヤコビアンの不変部分を埋める
   F_x_.setZero();
-  // dPos row
-  F_x_.block<3, 3>(dPOS_IDX, dPOS_IDX).diagonal().fill(1.);
-  // dVel row
-  F_x_.block<3, 3>(dVEL_IDX, dVEL_IDX).diagonal().fill(1.);
-  // dTheta row
-  // dAccelBias row
-  F_x_.block<3, 3>(dAB_IDX, dAB_IDX).diagonal().fill(1.);
-  // dGyroBias row
-  F_x_.block<3, 3>(dGB_IDX, dGB_IDX).diagonal().fill(1.);
-
-  // how to handle delayed messurements.
-  delay_handling_ = delay_handling;
-  buf_length_ = buf_length;
-  recent_ptr_ = 0;
-  first_meas_time_ = lTime(INT32_MAX, INT32_MAX);
-
-  // handle time delay methods
-  if (delay_handling_ == LARSON_AVERATE_IMU || delay_handling_ == LARSON_FULL)
-  {
-    // init circular buffer for IMU
-    imu_hist_ptr_ = new vector<ImuMeasurement>(buf_length_);
-    P_hist_ptr_ = new vector<pair<lTime, dStateMatrix>>(buf_length);
-    for (int i = 0; i < buf_length; i++)
-    {
-      imu_hist_ptr_->at(i).time = lTime(0, 0);
-    }
-    M_ptr_ = new dStateMatrix;
-  }
-  if (delay_handling_ == LARSON_NEWEST_IMU)
-  {
-    // init newest value
-    last_imu_.time = lTime(0, 0);
-    M_ptr_ = new dStateMatrix;
-  }
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    // init circular buffer for state
-    state_hist_ptr_ = new vector<pair<lTime, StateVector>>(buf_length_);
-    for (int i = 0; i < buf_length; i++)
-    {
-      state_hist_ptr_->at(i).first = lTime(0, 0);
-    }
-  }
+  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().fill(1.);
 }
 
-Matrix<double, STATE_SIZE, 1> ErrorStateKalmanFilter::makeState(
-  const Vector3d& p,
-  const Vector3d& v,
-  const Quaterniond& q,
-  const Vector3d& a_b,
-  const Vector3d& omega_b)
+Vector3d ErrorStateKalmanFilter::getXYZ() const
 {
-  StateVector out;
-  out << p, v, quatToHamilton(q).normalized(), a_b, omega_b;
-  return out;
+  return nominal_state_.block<3, 1>(kPosIdx, 0);
 }
 
-Matrix<double, dSTATE_SIZE, dSTATE_SIZE> ErrorStateKalmanFilter::makeP(
-  const Matrix3d& cov_pos,
-  const Matrix3d& cov_vel,
-  const Matrix3d& cov_dtheta,
-  const Matrix3d& cov_a_b,
-  const Matrix3d& cov_omega_b)
+Vector2d ErrorStateKalmanFilter::getXY() const
 {
-  dStateMatrix P;
-  P.setZero();
-  P.block<3, 3>(dPOS_IDX, dPOS_IDX) = cov_pos;
-  P.block<3, 3>(dVEL_IDX, dVEL_IDX) = cov_vel;
-  P.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = cov_dtheta;
-  P.block<3, 3>(dAB_IDX, dAB_IDX) = cov_a_b;
-  P.block<3, 3>(dGB_IDX, dGB_IDX) = cov_omega_b;
-  return P;
+  return nominal_state_.block<2, 1>(kPosIdx, 0);
 }
 
-Matrix3d ErrorStateKalmanFilter::getDCM()
+double ErrorStateKalmanFilter::getAltitude() const
 {
-  return getQuaternion().matrix();
+  return nominal_state_(kAltIdx);
 }
 
-Quaterniond ErrorStateKalmanFilter::quatFromHamilton(const Vector4d& qHam)
+Vector3d ErrorStateKalmanFilter::getVelocity() const
 {
-  return Quaterniond((Vector4d() << qHam.block<3, 1>(1, 0),  // x, y, z
-                      qHam.block<1, 1>(0, 0)                 // w
-                      )
-                       .finished());
+  return nominal_state_.block<3, 1>(kVelIdx, 0);
 }
 
-Vector4d ErrorStateKalmanFilter::quatToHamilton(const Quaterniond& q)
+Quaterniond ErrorStateKalmanFilter::getQuaternion() const
 {
-  return (Vector4d() << q.coeffs().block<1, 1>(3, 0),  // w
-          q.coeffs().block<3, 1>(0, 0)                 // x, y, z
-          )
-    .finished();
+  return et::hamiltonToQuaternion(getQuatVector());
 }
 
-Matrix3d ErrorStateKalmanFilter::getSkew(const Vector3d& in)
+Vector3d ErrorStateKalmanFilter::getAccelBias() const
 {
-  Matrix3d out;
-  out << 0, -in(2), in(1), in(2), 0, -in(0), -in(1), in(0), 0;
-  return out;
+  return nominal_state_.block<3, 1>(kAccBiasIdx, 0);
 }
 
-Matrix3d ErrorStateKalmanFilter::rotVecToMat(const Vector3d& in)
+Vector3d ErrorStateKalmanFilter::getGyroBias() const
 {
-  double angle = in.norm();
-  Vector3d axis = (angle == 0) ? Vector3d(1, 0, 0) : in.normalized();
-  AngleAxisd angAx(angle, axis);
-  return angAx.toRotationMatrix();
+  return nominal_state_.block<3, 1>(kGyroBiasIdx, 0);
 }
 
-Quaterniond ErrorStateKalmanFilter::rotVecToQuat(const Vector3d& in)
+Matrix3d ErrorStateKalmanFilter::getDCM() const
 {
-  double angle = in.norm();
-  Vector3d axis = (angle == 0) ? Vector3d(1, 0, 0) : in.normalized();
-  return Quaterniond(AngleAxisd(angle, axis));
+  return getQuaternion().toRotationMatrix();
 }
 
-Vector3d ErrorStateKalmanFilter::quatToRotVec(const Quaterniond& q)
+void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
 {
-  AngleAxisd angAx(q);
-  return angAx.angle() * angAx.axis();
-}
+  assert(dt > 0.);
 
-void ErrorStateKalmanFilter::predictIMU(
-  const Vector3d& a_m,
-  const Vector3d& omega_m,
-  const double dt,
-  lTime stamp)
-{
-  recent_ptr_++;
-  // handle time delay methods
-  if (delay_handling_ == LARSON_AVERATE_IMU || delay_handling_ == LARSON_FULL)
-  {
-    // store the imu data for later.
-    ImuMeasurement thisMeas;
-    thisMeas.time = stamp;
-    thisMeas.acc = a_m;
-    thisMeas.gyro = omega_m;
-    imu_hist_ptr_->at(recent_ptr_ % buf_length_) = thisMeas;
-  }
-  if (delay_handling_ == LARSON_NEWEST_IMU)
-  {
-    // store only the newest imu
-    ImuMeasurement thisMeas;
-    thisMeas.time = stamp;
-    thisMeas.acc = a_m;
-    thisMeas.gyro = omega_m;
-    last_imu_ = thisMeas;
-  }
+  const Matrix3d Rot = getDCM();
+  const Vector3d acc_B = a_m - getAccelBias();
+  const Vector3d acc_W = Rot * acc_B;
+  const Vector3d delta_theta = (w_m - getGyroBias()) * dt;
+  const Quaterniond q_delta_theta = et::angleAxisToQuaternion(delta_theta);
+  const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
-  // DCM of current state
-  Matrix3d Rot = getDCM();
-  // Accelerometer measurement
-  Vector3d acc_body = a_m - getAccelBias();
-  Vector3d acc_global = Rot * acc_body;
-  // Gyro measruement
-  Vector3d omega = omega_m - getGyroBias();
-  Vector3d delta_theta = omega * dt;
-  Quaterniond q_delta_theta = rotVecToQuat(delta_theta);
-  Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
+  // (260) ノミナル状態のキネマティクス
+  nominal_state_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * sqr(dt);
+  nominal_state_.block<3, 1>(kVelIdx, 0) += (acc_W + grav_W_) * dt;
+  nominal_state_.block<4, 1>(kQuatIdx, 0) =
+    et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
 
-  // Nominal state kinematics (eqn 259, pg 58)
-  Vector3d delta_pos = getVelocity() * dt + 0.5f * (acc_global + a_grav_) * dt * dt;
-  nominal_state_.block<3, 1>(POS_IDX, 0) += delta_pos;
-  nominal_state_.block<3, 1>(VEL_IDX, 0) += (acc_global + a_grav_) * dt;
-  nominal_state_.block<4, 1>(QUAT_IDX, 0) =
-    quatToHamilton(getQuaternion() * q_delta_theta).normalized();
+  // (270) ヤコビアンの可変部を更新
+  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -Rot * et::crossMat(acc_B) * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -Rot * dt;
+  F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
+  F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
-  // // Jacobian of the state transition (eqn 269, page 59)
-  // // Update dynamic parts only
-  // // dPos row
-  // F_x_.block<3, 3>(dPOS_IDX, dVEL_IDX).diagonal().fill(dt); // = I_3 * _dt
-  // // dVel row
-  // F_x_.block<3, 3>(dVEL_IDX, dTHETA_IDX) = -Rot * getSkew(acc_body) * dt;
-  // F_x_.block<3, 3>(dVEL_IDX, dAB_IDX) = -Rot * dt;
-  // // dTheta row
-  // F_x_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) = R_delta_theta.transpose();
-  // F_x_.block<3, 3>(dTHETA_IDX, dGB_IDX).diagonal().fill(-dt); // = -I_3 * dt;
+  // (269): 共分散行列の予測値を更新
+  P_ = F_x_ * P_ * F_x_.transpose();
 
-  // Predict P and inject variance (with diagonal optimization)
-  // P_ = F_x_*P_*F_x_.transpose();
+  // 無理やり対称化 (これが必須)
+  // プロセスノイズを加える前に対称化する必要がある
+  et::symmetrise(P_);
 
-  dStateMatrix Pnew;
-  unrolledFPFt(P_, Pnew, dt, -Rot * getSkew(acc_body) * dt, -Rot * dt, R_delta_theta.transpose());
-  P_ = Pnew;
+  // Noise variance
+  // FIXME: (264), (265)は論文と単位が異なるが，無理にdtの数で論文に単位を合わせると性能が劣化する
+  const double sigma2_an = sqr(acc_noise_density_) / dt;   // (262) [m^2/s^4]
+  const double sigma2_wn = sqr(gyro_noise_density_) / dt;  // (263) [rad^2/s^2]
+  const double sigma2_aw = sqr(acc_random_walk_) / dt;     // (264) [m^2/s^6]
+  const double sigma2_ww = sqr(gyro_random_walk_) / dt;    // (265) [rad^2/s^4]
 
   // Inject process noise
-  P_.diagonal().block<3, 1>(dVEL_IDX, 0).array() += var_acc_ * SQ(dt);
-  P_.diagonal().block<3, 1>(dTHETA_IDX, 0).array() += var_omega_ * SQ(dt);
-  P_.diagonal().block<3, 1>(dAB_IDX, 0).array() += var_acc_bias_ * dt;
-  P_.diagonal().block<3, 1>(dGB_IDX, 0).array() += var_omega_bias_ * dt;
+  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += sigma2_an * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += sigma2_wn * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += sigma2_aw * dt;
+  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += sigma2_ww * dt;
 
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    // store state for later.
-    pair<lTime, StateVector> thisState;
-    thisState.first = stamp;
-    thisState.second = nominal_state_;
-    state_hist_ptr_->at(recent_ptr_ % buf_length_) = thisState;
-  }
-  if (delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    pair<lTime, dStateMatrix> thisP;
-    thisP.first = stamp;
-    thisP.second = P_;
-    P_hist_ptr_->at(recent_ptr_ % buf_length_) = thisP;
-  }
+  // For debug
+  // cout << "F_x:" << endl << F_x_ << endl;
 }
 
-// eqn 280, page 62
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
 {
-  Vector4d qby2 = 0.5f * getQuatVector();
+  Vector4d qby2 = 0.5 * getQuatVector();
   // Assing to letters for readability. Note Hamilton order.
-  double w = qby2[0];
-  double x = qby2[1];
-  double y = qby2[2];
-  double z = qby2[3];
+  const double w = qby2[0];
+  const double x = qby2[1];
+  const double y = qby2[2];
+  const double z = qby2[3];
   Matrix<double, 4, 3> Q_dtheta;
   Q_dtheta << -x, -y, -z, w, -z, y, z, w, -x, -y, x, w;
   return Q_dtheta;
 }
 
-// get best time from history of state
-int ErrorStateKalmanFilter::getClosestTime(vector<pair<lTime, StateVector>>* ptr, lTime stamp)
+void ErrorStateKalmanFilter::measureXYZ(const Vector3d& pos_meas, const Matrix3d& pos_cov)
 {
-  // we find the first time in the history that is older, or take the oldest one if the buffer does
-  // not extend far enough
-  bool is_complete = false;
-  int index = recent_ptr_;
+  const Vector3d delta_pos = pos_meas - getXYZ();
 
-  while (!is_complete)
-  {
-    if (ptr->at(index % buf_length_).first <= stamp)
-    {
-      if (!ptr->at(index % buf_length_).first.isZero())
-      {
-        return index % buf_length_;
-      }
-      else
-      {
-        return recent_ptr_ % buf_length_;
-      }
-    }
-
-    --index;  // scroll back in time.
-    if (index <= recent_ptr_ - buf_length_)
-    {
-      is_complete = true;
-    }
-  }
-
-  return recent_ptr_ % buf_length_;
-}
-
-// get best time from history of imu
-int ErrorStateKalmanFilter::getClosestTime(vector<ImuMeasurement>* ptr, lTime stamp)
-{
-  // we find the first time in the history that is older, or take the oldest one if the buffer does
-  // not extend far enough
-  bool is_complete = false;
-  int index = recent_ptr_;
-
-  while (!is_complete)
-  {
-    if (ptr->at(index % buf_length_).time <= stamp)
-    {
-      if (!ptr->at(index % buf_length_).time.isZero())
-      {
-        return index % buf_length_;
-      }
-      else
-      {
-        return recent_ptr_ % buf_length_;
-      }
-    }
-
-    --index;  // scroll back in time.
-    if (index <= recent_ptr_ - buf_length_)
-    {
-      is_complete = true;
-    }
-  }
-
-  return recent_ptr_ % buf_length_;
-}
-
-void ErrorStateKalmanFilter::measurePosition3D(
-  const Vector3d& pos_meas,
-  const Matrix3d& pos_cov,
-  lTime stamp,
-  lTime now)
-{
-  // delta measurement
-  if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
-  {
-    first_meas_time_ = now;
-  }
-
-  Vector3d delta_pos;
-  // TODO: delay_handlingに関するスイッチ文にする．他も同様．
-  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    delta_pos = pos_meas - getPosition3D();
-  }
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
-  {
-    if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
-    {
-      first_meas_time_ = now;
-    }
-    if (stamp > first_meas_time_)
-    {
-      int best_time_idx = getClosestTime(state_hist_ptr_, stamp);
-      delta_pos = pos_meas - state_hist_ptr_->at(best_time_idx).second.block<3, 1>(POS_IDX, 0);
-    }
-    else
-    {
-      delta_pos = pos_meas - getPosition3D();
-    }
-  }
-  if (delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    if (last_meas_ < imu_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).time)
-    {
-      first_meas_time_ = now;
-    }
-  }
-
-  last_meas_ = now;
-
-  // H is a trivial observation of purely the position
-  Matrix<double, 3, dSTATE_SIZE> H;
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dPOS_IDX).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaPosIdx).diagonal().fill(1.);
 
-  // Apply update
-  correct<3>(delta_pos, pos_cov, H, stamp, now);
+  correct<3>(delta_pos, pos_cov, H);
 }
 
-void ErrorStateKalmanFilter::measurePosition2D(
-  const Vector2d& xy_meas,
-  const Matrix2d& xy_cov,
-  lTime stamp,
-  lTime now)
+void ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
 {
-  // delta measurement
-  if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
-  {
-    first_meas_time_ = now;
-  }
+  const Vector2d delta_xy = xy_meas - getXY();
 
-  Vector2d delta_xy;
-  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    delta_xy = xy_meas - getPosition2D();
-  }
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
-  {
-    if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
-    {
-      first_meas_time_ = now;
-    }
-    if (stamp > first_meas_time_)
-    {
-      int best_time_idx = getClosestTime(state_hist_ptr_, stamp);
-      delta_xy = xy_meas - state_hist_ptr_->at(best_time_idx).second.block<2, 1>(POS_IDX, 0);
-    }
-    else
-    {
-      delta_xy = xy_meas - getPosition2D();
-    }
-  }
-  if (delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    if (last_meas_ < imu_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).time)
-    {
-      first_meas_time_ = now;
-    }
-  }
-
-  last_meas_ = now;
-
-  // H is a trivial observation of purely the position
-  Matrix<double, 2, dSTATE_SIZE> H;
+  Matrix<double, 2, kDeltaStateSize> H;
   H.setZero();
-  H.block<2, 2>(0, dPOS_IDX).diagonal().fill(1.);
+  H.block<2, 2>(0, kDeltaPosIdx).diagonal().fill(1.);
 
-  // Apply update
-  correct<2>(delta_xy, xy_cov, H, stamp, now);
+  correct<2>(delta_xy, xy_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureAltitude(
-  const double& z_meas,
-  const double& z_cov,
-  lTime stamp,
-  lTime now)
+void ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_cov)
 {
-  // delta measurement
-  if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
-  {
-    first_meas_time_ = now;
-  }
+  const double delta_z = z_meas - getAltitude();
+  // std::cout << "Estimated altitude:" << endl << getAltitude() << endl;
+  // std::cout << "Measured altitude:" << endl << z_meas << endl;
 
-  double delta_z;
-  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    delta_z = z_meas - getAltitude();
-  }
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
-  {
-    if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
-    {
-      first_meas_time_ = now;
-    }
-    if (stamp > first_meas_time_)
-    {
-      int best_time_idx = getClosestTime(state_hist_ptr_, stamp);
-      delta_z = z_meas - state_hist_ptr_->at(best_time_idx).second(ALT_IDX);
-    }
-    else
-    {
-      delta_z = z_meas - getAltitude();
-    }
-  }
-  if (delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    if (last_meas_ < imu_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).time)
-    {
-      first_meas_time_ = now;
-    }
-  }
-
-  last_meas_ = now;
-
-  // H is a trivial observation of purely the position
-  Matrix<double, 1, dSTATE_SIZE> H;
+  Matrix<double, 1, kDeltaStateSize> H;
   H.setZero();
-  H(0, dALT_IDX) = 1.;
+  H(0, kDeltaAltIdx) = 1.;
 
-  // Apply update
-  correct<1>(Scalar(delta_z), Scalar(z_cov), H, stamp, now);
+  correct<1>(Scalar(delta_z), Scalar(z_cov), H);
 }
 
-void ErrorStateKalmanFilter::measureVelocity(
-  const Vector3d& vel_meas,
-  const Matrix3d& vel_cov,
-  lTime stamp,
-  lTime now)
+void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
 {
-  // delta measurement
-  if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
-  {
-    first_meas_time_ = now;
-  }
+  const Vector3d delta_vel = vel_meas - getVelocity();
+  // std::cout << "Estimated velocity:" << endl << getVelocity() << endl;
+  // std::cout << "Measured velocity:" << endl << vel_meas << endl;
 
-  Vector3d delta_vel;
-  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    delta_vel = vel_meas - getVelocity();
-  }
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
-  {
-    if (last_meas_ < state_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).first)
-    {
-      first_meas_time_ = now;
-    }
-    if (stamp > first_meas_time_)
-    {
-      int best_time_idx = getClosestTime(state_hist_ptr_, stamp);
-      delta_vel = vel_meas - state_hist_ptr_->at(best_time_idx).second.block<3, 1>(VEL_IDX, 0);
-    }
-    else
-    {
-      delta_vel = vel_meas - getVelocity();
-    }
-  }
-  if (delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    if (last_meas_ < imu_hist_ptr_->at((recent_ptr_ + 1) % buf_length_).time)
-    {
-      first_meas_time_ = now;
-    }
-  }
-
-  last_meas_ = now;
-
-  // H is a trivial observation of purely the velocity
-  Matrix<double, 3, dSTATE_SIZE> H;
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dVEL_IDX).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaVelIdx).diagonal().fill(1.);
 
-  // Apply update
-  correct<3>(delta_vel, vel_cov, H, stamp, now);
+  correct<3>(delta_vel, vel_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureQuaternion(
-  const Quaterniond& q_gb_meas,
-  const Matrix3d& theta_cov,
-  lTime stamp,
-  lTime now)
+void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
-  // Transform the quaternion measurement to a measurement of delta_theta:
-  // a rotation in the body frame from nominal to measured.
-  // This is identical to the form of dtheta in the error_state,
-  // so this becomes a trivial measurement of dtheta.
-  if (first_meas_time_ == lTime(INT32_MAX, INT32_MAX))
-  {
-    first_meas_time_ = now;
-  }
+  const Quaterniond q_nominal = getQuaternion();
+  const Quaterniond q_nominal_meas = q_nominal.conjugate() * q_meas;  // 回転の誤差
+  const Vector3d delta_theta = et::quaternionToAngleAxis(q_nominal_meas);
 
-  Quaterniond q_gb_nominal = getQuaternion();
-  if (delay_handling_ == NO_METHOD || delay_handling_ == LARSON_AVERATE_IMU)
-  {
-    q_gb_nominal = getQuaternion();
-  }
-  if (delay_handling_ == APPLY_UPDATE_TO_NEW)
-  {
-    if (stamp > first_meas_time_)
-    {
-      int best_time_idx = getClosestTime(state_hist_ptr_, stamp);
-      q_gb_nominal =
-        quatFromHamilton(state_hist_ptr_->at(best_time_idx).second.block<4, 1>(QUAT_IDX, 0));
-    }
-    else
-    {
-      q_gb_nominal = getQuaternion();
-    }
-  }
-
-  Quaterniond q_bNominal_bMeas = q_gb_nominal.conjugate() * q_gb_meas;
-  Vector3d delta_theta = quatToRotVec(q_bNominal_bMeas);
-  // Because of the above construction, H is a trivial observation of dtheta
-  Matrix<double, 3, dSTATE_SIZE> H;
+  // 回転の誤差を3次元ベクトルとして観測
+  Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, dTHETA_IDX).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaThetaIdx).diagonal().fill(1.);
 
-  // Apply update
-  correct<3>(delta_theta, theta_cov, H, stamp, now);
+  // 事後推定を計算
+  correct<3>(delta_theta, theta_cov, H);
 }
 
-ErrorStateKalmanFilter::ImuMeasurement ErrorStateKalmanFilter::getAverageIMU(lTime stamp)
+void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const Matrix3d& acc_cov)
 {
-  Vector3d accel_acc(0, 0, 0);
-  Vector3d gyro_acc(0, 0, 0);
-  bool is_complete = false;
-  int index = recent_ptr_;
-  int count = 0;
+  const Matrix3d rot_B_W = getDCM().transpose();
+  const Vector3d grav_B = rot_B_W * grav_W_;
+  const Vector3d acc_nominal = -grav_B;
+  const Vector3d delta_acc = acc_meas - acc_nominal;
+  const Matrix3d grav_B_cross = et::crossMat(grav_B);  // 一時objectをblockに代入すると反映されない
 
-  while (!is_complete)
-  {
-    if (imu_hist_ptr_->at(index % buf_length_).time < stamp)
-    {
-      break;
-    }
+  // std::cout << "rot_B_W:" << endl << rot_B_W << endl;
+  // std::cout << "grav_B:" << endl << grav_B << endl;
+  // std::cout << "skew(grav_B):" << endl << grav_B_cross << endl;
 
-    if (!imu_hist_ptr_->at(index % buf_length_).time.isZero())
-    {
-      // should acc
-      accel_acc += imu_hist_ptr_->at(index % buf_length_).acc;
-      gyro_acc += imu_hist_ptr_->at(index % buf_length_).gyro;
-      count++;
-    }
+  Matrix<double, 3, kDeltaStateSize> H;
+  H.setZero();
+  H.block(0, kDeltaThetaIdx, 3, 3) = -2 * grav_B_cross;
 
-    if (--index <= recent_ptr_ - buf_length_)
-    {
-      is_complete = true;
-    }
-  }
+  correct<3>(delta_acc, acc_cov, H);
+}
 
-  accel_acc = accel_acc / count;
-  gyro_acc = gyro_acc / count;
+void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, const Matrix3d& mag_cov)
+{
+  const Matrix3d rot_B_W = getDCM().transpose();
+  const Vector3d mag_B = rot_B_W * mag_W_;
+  const Vector3d delta_mag = mag_meas - mag_B;
+  const Matrix3d mag_B_cross = et::crossMat(mag_B);
 
-  ErrorStateKalmanFilter::ImuMeasurement imu_meas;
-  imu_meas.acc = accel_acc;
-  imu_meas.gyro = gyro_acc;
-  imu_meas.time = imu_hist_ptr_->at(index % buf_length_).time;
+  Matrix<double, 3, kDeltaStateSize> H;
+  H.setZero();
+  H.block<3, 3>(0, kDeltaThetaIdx) = 2 * mag_B_cross;
 
-  return imu_meas;
+  correct<3>(delta_mag, mag_cov, H);
 }
 
 void ErrorStateKalmanFilter::injectErrorState(const dStateVector& error_state)
-{  // Inject error state into nominal state (eqn 282, pg 62)
-  nominal_state_.block<3, 1>(POS_IDX, 0) += error_state.block<3, 1>(dPOS_IDX, 0);
-  nominal_state_.block<3, 1>(VEL_IDX, 0) += error_state.block<3, 1>(dVEL_IDX, 0);
-  Vector3d dtheta = error_state.block<3, 1>(dTHETA_IDX, 0);
-  Quaterniond q_dtheta = rotVecToQuat(dtheta);
-  nominal_state_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(getQuaternion() * q_dtheta).normalized();
-  nominal_state_.block<3, 1>(AB_IDX, 0) += error_state.block<3, 1>(dAB_IDX, 0);
-  nominal_state_.block<3, 1>(GB_IDX, 0) += error_state.block<3, 1>(dGB_IDX, 0);
+{
+  // (283) 観測した誤差をノミナル状態に反映
+  const Vector3d dtheta = error_state.block<3, 1>(kDeltaThetaIdx, 0);
+  const Quaterniond q_dtheta = et::angleAxisToQuaternion(dtheta);
+  nominal_state_.block<3, 1>(kPosIdx, 0) += error_state.block<3, 1>(kDeltaPosIdx, 0);
+  nominal_state_.block<3, 1>(kVelIdx, 0) += error_state.block<3, 1>(kDeltaVelIdx, 0);
+  nominal_state_.block<4, 1>(kQuatIdx, 0) =
+    et::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
+  nominal_state_.block<3, 1>(kAccBiasIdx, 0) += error_state.block<3, 1>(kDeltaAccBiasIdx, 0);
+  nominal_state_.block<3, 1>(kGyroBiasIdx, 0) += error_state.block<3, 1>(kDeltaGyroBiasIdx, 0);
 
-  // Reflect this tranformation in the P matrix, aka ErrorStateKalmanFilter Reset
-  // Note that the document suggests that this step is optional
-  // eqn 287, pg 63
-  Matrix3d G_theta = I_3 - getSkew(0.5f * dtheta);
-  P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) =
-    G_theta * P_.block<3, 3>(dTHETA_IDX, dTHETA_IDX) * G_theta.transpose();
+  // (286) ESKFを初期化 (不要)
+  // FIXME: これをやるとバグる問題．symmetriseを挟むと若干マシになるがそれでもやらないほうがマシ．
+  // const Matrix3d G_theta = I3 - et::crossMat(0.5 * dtheta);
+  // P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) =
+  //   G_theta * P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) * G_theta.transpose();
+  // et::symmetrise(P_);
 }
+}  // namespace state_estimation_eskf

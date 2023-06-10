@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="state_estimation_eskf" type="eskf_node" name="state_estimator_eskf" output="screen" required="true"/>
+
+</launch>

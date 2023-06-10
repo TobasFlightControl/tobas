@@ -7,22 +7,23 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <tobas_msgs/LinearVelocityWithCovarianceStamped.h>
+#include <tobas_msgs/LinearVelocityWithCovariance.h>
+
+#include "../tobas_gazebo_plugins/common.hpp"
+#include "../tobas_gazebo_plugins/random.hpp"
 
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "gps_plugin";
+static const std::string kPluginName = "gps_plugin";
 
 // Default values
-static constexpr char kDefaultGpsTopic[] = "gps";
-static constexpr char kDefaultGroundSpeedTopic[] = "ground_speed";
+static const std::string kDefaultGpsTopic = "gps";
+static const std::string kDefaultGroundSpeedTopic = "ground_speed";
 static constexpr double kDefaultHorPosStdDev = 3.;
 static constexpr double kDefaultVerPosStdDev = 6.;
 static constexpr double kDefaultHorVelStdDev = 0.1;
 static constexpr double kDefaultVerVelStdDev = 0.1;
-static constexpr double kDefaultLatitudeZero = 35.658099;    // 日本: 北緯35度39分29秒
-static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経139度44分28秒8759
 
 /**
  * @brief GPSの位置データと速度データを発行するプラグイン．
@@ -31,12 +32,13 @@ static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経13
  */
 class GazeboGpsPlugin : public SensorPlugin
 {
-  using NormalDistribution = std::normal_distribution<double>;
+  using super = SensorPlugin;
+
   using PosMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovarianceStamped;
+  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
-  GazeboGpsPlugin();
+  explicit GazeboGpsPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
@@ -54,6 +56,7 @@ private:
   double ver_vel_std_dev_;
   double lat_0_;  // 原点の北緯
   double lon_0_;  // 原点の東経
+  double alt_0_;  // 原点の高度
 
   physics::WorldPtr world_;
   physics::LinkPtr link_;
@@ -61,16 +64,18 @@ private:
   PosMsg pos_msg_;
   VelMsg vel_msg_;
 
-  NormalDistribution pos_noise_[3];
-  NormalDistribution vel_noise_[3];
   std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
+  NormalDistribution3dPtr pos_noise_;
+  NormalDistribution3dPtr vel_noise_;
 
   // Publishers
   ros::Publisher pos_pub_;
   ros::Publisher vel_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
+  void fillMessageStaticParts();
+  void setRandomDistribuitons();
+  void registerPublishers();
   void onUpdate();
   void updatePosition();
   void updateVelocity();

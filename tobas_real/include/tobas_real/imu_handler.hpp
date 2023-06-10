@@ -4,23 +4,25 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
+#include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
+
 #include <Common/InertialSensor.h>
 
-class ImuHandler
+namespace tobas_real
 {
+class ImuHandler : public dh_ros::BaseNode
+{
+  using super = dh_ros::BaseNode;
+
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
   using ImuPtr = std::unique_ptr<InertialSensor>;
 
 public:
-  ImuHandler();
+  explicit ImuHandler();
 
 private:
-  ros::NodeHandle nh_;
-
-  // rosparam
-  const double gravity_;
-
   ImuPtr imu_;
   ImuMsg imu_msg_;
   MagMsg mag_msg_;
@@ -28,13 +30,20 @@ private:
   float wx_, wy_, wz_;
   float mx_, my_, mz_;
 
+  // Publisher
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
-  ros::Timer timer_;
+  // Timer
+  dh_ros::Timer main_loop_timer_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
 
   void setupImu();
   void setCovarianceMatrices();
-  void advertise();
-  void timerCb(const ros::TimerEvent&);
+
+  void mainLoopTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_real

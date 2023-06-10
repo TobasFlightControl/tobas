@@ -17,36 +17,45 @@
 #define DEFAULT_DO_BIAS_ESTIMATION true
 #define DEFAULT_DO_ADAPTIVE_GAIN false
 
+using namespace std;
 using namespace Eigen;
 
 OrientationEstimatorRos::OrientationEstimatorRos()
-  : is_initialized_(false),
-    imu_sub_(nh_, "imu/data_raw", QUEUE_SIZE),
-    mag_sub_(nh_, "imu/mag", QUEUE_SIZE),
-    sync_(SyncPolicy(QUEUE_SIZE), imu_sub_, mag_sub_)
+  : super(),
+    is_initialized_(false),
+    check_topics_timer_(nh_, TIMER_PERIOD, &OrientationEstimatorRos::checkTopicsTimerCb, this)
 {
   getRosParams();
   initializeFilter();
-
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data", QUEUE_SIZE);
-  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
-
-  check_topics_timer_ = nh_.createTimer(
-    ros::Duration(TIMER_PERIOD), &OrientationEstimatorRos::checkTopicsTimerCb, this);
+  registerPublishers();
+  registerSubscribers();
 }
 
 void OrientationEstimatorRos::getRosParams()
 {
-  gravity_ = dh_ros::getParam<double>("/gravity", DEFAULT_GRAVITY);
+  dh_ros::getParam("/gravity", gravity_, DEFAULT_GRAVITY);
+  dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
+  dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
+  dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
 
-  ref_mag_north_ = dh_ros::getParam<double>("~ref_mag_north");
-  ref_mag_east_ = dh_ros::getParam<double>("~ref_mag_east");
-  ref_mag_down_ = dh_ros::getParam<double>("~ref_mag_down");
-  gain_acc_ = dh_ros::getParam<double>("~gain_acc", DEFAULT_GAIN_ACC);
-  gain_mag_ = dh_ros::getParam<double>("~gain_mag", DEFAULT_GAIN_MAG);
-  bias_alpha_ = dh_ros::getParam<double>("~bias_alpha", DEFAULT_BIAS_ALPHA);
-  do_bias_estimation_ = dh_ros::getParam<bool>("~do_bias_estimation", DEFAULT_DO_BIAS_ESTIMATION);
-  do_adaptive_gain_ = dh_ros::getParam<bool>("~do_adaptive_gain", DEFAULT_DO_ADAPTIVE_GAIN);
+  dh_ros::getParam("~gain_acc", gain_acc_, DEFAULT_GAIN_ACC);
+  dh_ros::getParam("~gain_mag", gain_mag_, DEFAULT_GAIN_MAG);
+  dh_ros::getParam("~bias_alpha", bias_alpha_, DEFAULT_BIAS_ALPHA);
+  dh_ros::getParam("~do_bias_estimation", do_bias_estimation_, DEFAULT_DO_BIAS_ESTIMATION);
+  dh_ros::getParam("~do_adaptive_gain", do_adaptive_gain_, DEFAULT_DO_ADAPTIVE_GAIN);
+}
+
+void OrientationEstimatorRos::registerPublishers()
+{
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", QUEUE_SIZE);
+}
+
+void OrientationEstimatorRos::registerSubscribers()
+{
+  imu_sub_.reset(new ImuSubscriber(nh_, "imu", QUEUE_SIZE));
+  mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", QUEUE_SIZE));
+  sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
+  sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::initializeFilter()
@@ -55,19 +64,19 @@ void OrientationEstimatorRos::initializeFilter()
 
   if (!filter_.setGravity(gravity_))
   {
-    dh_ros::rosWarn("Invalid gravity");
+    rosWarn("Invalid gravity");
   }
 
   if (!filter_.setGainAcc(gain_acc_))
   {
-    dh_ros::rosWarn("Invalid gain_acc");
+    rosWarn("Invalid gain_acc");
   }
 
   if (do_bias_estimation_)
   {
     if (!filter_.setBiasAlpha(bias_alpha_))
     {
-      dh_ros::rosWarn("Invalid bias_alpha");
+      rosWarn("Invalid bias_alpha");
     }
   }
 
@@ -92,7 +101,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
   }
 
   // Calculate dt
-  double dt = (time - time_prev_).toSec();
+  const double dt = (time - time_prev_).toSec();
   time_prev_ = time;
 
   // Update the filter
@@ -119,5 +128,5 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  dh_ros::rosWarn("IMU data is not received yet.");
+  rosWarn("IMU data is not received yet.");
 }

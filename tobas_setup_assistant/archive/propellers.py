@@ -8,12 +8,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox
+from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_error
 
 from ..src.tobas_setup_assistant.setting_widgets.base_setting import BaseSettingWidget
 from ..src.tobas_setup_assistant.constants import *
-from ..src.tobas_setup_assistant.utils import add_expanding_widget
 
 
 class PropellersWidget(BaseSettingWidget):
@@ -105,7 +104,7 @@ class SelectedPropellersWidget(QTableWidget):
         # return self.cellWidget(row, 0).property("text")
         return self.link_names[row].text()
 
-    def num(self) -> int:
+    def count(self) -> int:
         """ 選択テーブル内のプロペラの個数を返す． """
         return len(self.link_names)
 
@@ -314,7 +313,7 @@ class AvailableLinksWidget(QListWidget):
         """ rootから複数のfixedと1つのcontinuousで繋がったリンクのみプロペラ候補とする． """
         root_link = self._main.urdf_parser.get_root()
         links = self._main.urdf_parser.get_links()
-        fixed_link_names = self._main.urdf_parser.get_fixed_link_names()
+        fixed_link_names = self._main.urdf_parser.nwu_fixed_link_names()
 
         for link in links:
             if link.name == root_link.name:

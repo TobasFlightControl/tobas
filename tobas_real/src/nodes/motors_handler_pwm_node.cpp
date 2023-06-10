@@ -3,6 +3,6 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "motors_handler_pwm");
-  MotorsHandler_PWM node;
-  ros::spin();
+  tobas_real::MotorsHandler_PWM node;
+  node.run();
 }

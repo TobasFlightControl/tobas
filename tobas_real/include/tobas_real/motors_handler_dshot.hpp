@@ -4,29 +4,54 @@
 
 #include <Navio2/DSHOT.h>
 
-#include <tobas_tools/rotor_property.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
-class MotorsHandler_DSHOT
+#include <tobas_tools/drone.hpp>
+#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
+
+namespace tobas_real
+{
+class MotorsHandler_DSHOT : public dh_ros::BaseNode
 {
   const double kDefaultUpdateRate = 1000.;
 
+  using super = dh_ros::BaseNode;
+
 public:
-  MotorsHandler_DSHOT();
+  explicit MotorsHandler_DSHOT();
   void run();
 
 private:
-  ros::NodeHandle nh_;
-
-  const double battery_voltage_;
-  const uint32_t num_rotors_;
-  const RotorConfigs rotor_configs_;
-  const double update_rate_;
-
-  std::vector<double> cmd_speeds_;
+  tobas::Drone drone_;
   DSHOT dshot_;
 
-  ros::Subscriber rotor_vels_sub_;
+  bool is_initialized_;
+  bool rot_speeds_received_;
+  bool battery_received_;
+  std::vector<double> cmd_speeds_;
+  tobas_msgs::Battery battery_;
 
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds);
+  // rosparams
+  double update_rate_;
+
+  // PubSub
+  ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber battery_sub_;
+
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  bool isReady();
+
+  void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
+  void batteryCb(const tobas_msgs::Battery& battery);
+
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_real

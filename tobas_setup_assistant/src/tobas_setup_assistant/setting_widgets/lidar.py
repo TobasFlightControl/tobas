@@ -7,10 +7,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
+
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class LidarWidget(BaseSettingWidget):
@@ -98,6 +99,9 @@ class LidarWidget(BaseSettingWidget):
     def is_valid(self) -> bool:
         return True
 
+    def equipped(self) -> bool:
+        return not self.no_sensor.isChecked()
+
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():
@@ -121,5 +125,5 @@ class LidarWidget(BaseSettingWidget):
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.get_fixed_link_names()
+        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
         self.link.box.addItems(body_choices)

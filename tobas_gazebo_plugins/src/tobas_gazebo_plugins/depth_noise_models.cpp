@@ -21,7 +21,7 @@ bool DepthNoiseModel::inRange(float depth) const
 }
 
 KinectDepthNoiseModel::KinectDepthNoiseModel(float min_depth, float max_depth)
-  : DepthNoiseModel(min_depth, max_depth)
+  : super(min_depth, max_depth)
 {
 }
 
@@ -54,7 +54,7 @@ void KinectDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* d
 }
 
 PMDDepthNoiseModel::PMDDepthNoiseModel(float min_depth, float max_depth)
-  : DepthNoiseModel(min_depth, max_depth)
+  : super(min_depth, max_depth)
 {
 }
 
@@ -88,7 +88,7 @@ D435DepthNoiseModel::D435DepthNoiseModel(
   float max_depth,
   float horizontal_fov,
   float baseline)
-  : DepthNoiseModel(min_depth, max_depth), horizontal_fov_(horizontal_fov), baseline_(baseline)
+  : super(min_depth, max_depth), horizontal_fov_(horizontal_fov), baseline_(baseline)
 {
 }
 

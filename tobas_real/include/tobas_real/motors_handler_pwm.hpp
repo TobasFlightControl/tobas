@@ -4,26 +4,52 @@
 
 #include <Navio2/RCOutput_Navio2.h>
 
-#include <tobas_tools/rotor_property.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
 
-class MotorsHandler_PWM
+#include <tobas_tools/drone.hpp>
+#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Battery.h>
+
+namespace tobas_real
 {
+class MotorsHandler_PWM : public dh_ros::BaseNode
+{
+  using super = dh_ros::BaseNode;
+
 public:
-  MotorsHandler_PWM();
+  explicit MotorsHandler_PWM();
+
+  void run();
 
 private:
-  ros::NodeHandle nh_;
-
-  // rosparam
-  const double battery_voltage_;
-  const uint32_t num_rotors_;
-  const RotorConfigs rotor_configs_;
-
+  tobas::Drone drone_;
   RCOutput_Navio2 pwm_;
 
-  ros::Subscriber rotor_vels_sub_;
+  ros::Time last_cmd_time_;  // [s]
+  bool is_activated_;
+  bool is_initialized_;
+  bool battery_received_;
+  std::vector<double> pwm_periods_;
+  tobas_msgs::Battery battery_;
 
-  uint32_t getChannel(uint32_t pin);
+  // PubSub
+  ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber battery_sub_;
+
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  bool isReady();
+  void sendDisarm();
+
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
+  void batteryCb(const tobas_msgs::Battery& battery);
+
+  void checkTopicsTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_real

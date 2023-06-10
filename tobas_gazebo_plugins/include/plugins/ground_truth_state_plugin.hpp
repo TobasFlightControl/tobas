@@ -7,22 +7,24 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/PoseVelStamped.h>
+#include <tobas_msgs/BaseState.h>
 
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "ground_truth_state_plugin";
+static const std::string kPluginName = "ground_truth_state_plugin";
 
 // Default values
-static constexpr char kDefaultStateTopic[] = "ground_truth/base_state";
+static const std::string kDefaultStateTopic = "ground_truth/base_state";
 
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
-  using StateMsg = tobas_msgs::PoseVelStamped;
+  using super = ModelPlugin;
+
+  using StateMsg = tobas_msgs::BaseState;
 
 public:
-  GazeboGroundTruthStatePlugin();
+  explicit GazeboGroundTruthStatePlugin();
 
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 

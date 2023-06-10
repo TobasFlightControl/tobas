@@ -11,8 +11,12 @@
 
 	<depend>sensor_msgs</depend>
 	<depend>geometry_msgs</depend>
+	<depend>kdl_msgs</depend>
 
 	<depend>dh_std_tools</depend>
+	<depend>dh_kdl</depend>
+
+	<depend>tobas_tools</depend>
 	<depend>tobas_msgs</depend>
 
 </package>

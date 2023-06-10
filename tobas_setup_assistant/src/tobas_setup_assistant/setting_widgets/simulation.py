@@ -7,19 +7,21 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
+
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..utils import add_expanding_widget
 
 
 class SimulationWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Gazebo Simulation'
-        abst_text = 'TODO: abstruct'
+        title_text = "Gazebo Simulation"
+        abst_text = "Gazeboシミュレーション環境の設定を行います．"\
+            "シミュレーションの精度を向上させるために，実際の実行環境の情報を入力してください．"
         super().__init__(main, title_text, abst_text)
 
-        gravity_description = "TODO: instruction"
+        gravity_description = ""
         self.gravity = ParamGetterWidget_DoubleSpinBox(
             "Gravity",
             gravity_description,
@@ -29,8 +31,9 @@ class SimulationWidget(BaseSettingWidget):
             suffix=" m/s^2",
         )
         self._rows.addWidget(self.gravity)
+        self.gravity.setEnabled(False)  # 重力の変化は無視できるため，標準重力加速度のみを使う
 
-        latitude_0_description = "TODO: instruction"
+        latitude_0_description = ""
         self.latitude_0 = ParamGetterWidget_DoubleSpinBox(
             "Latitude of origin",
             latitude_0_description,
@@ -42,7 +45,7 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.latitude_0)
 
-        longitude_0_description = "TODO: instruction"
+        longitude_0_description = ""
         self.longitude_0 = ParamGetterWidget_DoubleSpinBox(
             "longitude of origin",
             longitude_0_description,
@@ -54,7 +57,7 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.longitude_0)
 
-        altitude_0_description = "TODO: instruction"
+        altitude_0_description = ""
         self.altitude_0 = ParamGetterWidget_DoubleSpinBox(
             "altitude above sea level",
             altitude_0_description,
@@ -67,7 +70,7 @@ class SimulationWidget(BaseSettingWidget):
         # 日本経緯度原点に対して国土地理院の地磁気測量値を用いて算出
         # 地磁気測量: https://vldb.gsi.go.jp/sokuchi/geomag/menu_00/index.html
 
-        ref_mag_north_description = "TODO: instruction"
+        ref_mag_north_description = ""
         self.ref_mag_north = ParamGetterWidget_SpinBox(
             "Reference North Magnetic Field Strength",
             ref_mag_north_description,
@@ -76,7 +79,7 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.ref_mag_north)
 
-        ref_mag_east_description = "TODO: instruction"
+        ref_mag_east_description = ""
         self.ref_mag_east = ParamGetterWidget_SpinBox(
             "Reference East Magnetic Field Strength",
             ref_mag_east_description,
@@ -85,7 +88,7 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.ref_mag_east)
 
-        ref_mag_down_description = "TODO: instruction"
+        ref_mag_down_description = ""
         self.ref_mag_down = ParamGetterWidget_SpinBox(
             "Reference Down Magnetic Field Strength",
             ref_mag_down_description,

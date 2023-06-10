@@ -61,10 +61,34 @@ $ catkin source
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 ```
 
-### Gazebo Simulation
+### Launch your drone
+
+#### Gazebo simulation
 
 ```bash
 $ roslaunch (tobas_config_pkg) gazebo.launch
+```
+
+#### Real world
+
+1. Send configuration package from your PC to FC
+
+```bash
+$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/
+```
+
+2. SSH into FC
+
+```bash
+$ ssh (user)@(host)
+```
+
+3. Execute real.launch with superuser privileges
+
+```bash
+$ su
+$ source ~/catkin_ws/devel/setup.bash
+$ roslaunch (tobas_config_pkg) real.launch
 ```
 
 ### Bringup observer and controller
@@ -73,13 +97,22 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
 
-For controller API, please see [controllers](https://github.com/Masa0u0/tobas/tree/main/controllers#readme).
+### ESC Calibration
+
+Make sure battery and ESCs are connected to FC properly.\
+Execute the following in FC.
+
+```bash
+$ su
+$ source ~/catkin_ws/devel/setup.bash
+$ roslaunch tobas_real esc_calibration.launch
+```
 
 ### Teleoperation
 
 ```bash
-$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch  # By keyboard
-$ roslaunch tobas_gui_teleop gui_teleop.launch            # By GUI application
+$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch drone_name:=(drone_name)  # By keyboard
+$ roslaunch tobas_gui_teleop gui_teleop.launch drone_name:=(drone_name)            # By GUI application
 ```
 
 ## Trouble Shooting

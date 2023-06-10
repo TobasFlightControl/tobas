@@ -9,12 +9,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
 from dh_rqt_tools.messages import q_error_named
+from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import get_drone_name, add_expanding_widget, add_center_button
+from ..utils import get_drone_name
 
 
 class RosPackageWidget(BaseSettingWidget):
@@ -26,15 +28,16 @@ class RosPackageWidget(BaseSettingWidget):
     BUTTON_WIDTH = 100
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Generate ROS Package'
-        abst_text = 'TODO: abstruct'
+        title_text = "Generate ROS Package"
+        abst_text = "これまでの設定を元にTobasを使用するのに必要なROSパッケージを生成します．"\
+            + "パッケージのパスを指定し，Generateボタンを押してください．"
         super().__init__(main, title_text, abst_text)
 
-        pardir_description = "TODO: description"
+        pardir_description = ""
         self.pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
         self._rows.addWidget(self.pardir)
 
-        pkg_name_description = "TODO: description"
+        pkg_name_description = ""
         self.pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
         self._rows.addWidget(self.pkg_name)
 
@@ -108,7 +111,7 @@ class PackagePath(QLabel):
     def define_connections(self) -> None:
         self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
         self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._set_default_pkg)
+        self._main.urdf_parser.robot_model_updated.connect(self._set_defaults)
 
     def _update(self) -> None:
         path = self.pardir + "/" + self.pkg_name
@@ -128,7 +131,11 @@ class PackagePath(QLabel):
         self._update()
 
     @pyqtSlot()
-    def _set_default_pkg(self) -> None:
+    def _set_defaults(self) -> None:
+        par_dir = f'{get_workspace_path()}/src'
+        self._main.settings.ros_package.pardir.set(par_dir)
+
         pkg_name = f'tobas_{get_drone_name()}_config'
         self._main.settings.ros_package.pkg_name.set(pkg_name)
+
         self._update()

@@ -7,7 +7,7 @@ gui_teleop:
       min: -10.
       max: 10.
     z:
-      min: 1.
+      min: -1.
       max: 10.
     yaw:
       min: -3.14

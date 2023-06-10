@@ -1,0 +1,27 @@
+#include <ros/ros.h>
+
+#include "../../include/tobas_multirotor_controller/velocity_controller.hpp"
+
+using namespace KDL;
+
+namespace tobas_multirotor_controller
+{
+VelocityController::VelocityController(const VelocityControllerDynamicParams& params)
+{
+  reconfigure(params);
+}
+
+void VelocityController::update(const Vector& cur_vel, const Vector& tar_vel, Vector& tar_acc)
+{
+  tar_acc = kv_ * (tar_vel - cur_vel);
+}
+
+void VelocityController::reconfigure(const VelocityControllerDynamicParams& params)
+{
+  ROS_ASSERT(params.natural_freq > 0.);
+  ROS_ASSERT(params.damp_ratio > 0.);
+
+  // 速度制御器と位置制御器を合わせると理論的には2次遅れ系の一般系になる (memo: 2-16)
+  kv_ = 2. * params.natural_freq * params.damp_ratio;
+}
+}  // namespace tobas_multirotor_controller

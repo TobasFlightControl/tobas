@@ -1,0 +1,27 @@
+#pragma once
+
+#include <gazebo/gazebo.hh>
+
+namespace gazebo
+{
+using SdfVector3 = ignition::math::Vector3d;
+using NormalDistribution = std::normal_distribution<double>;
+using UniformDistribution = std::uniform_real_distribution<double>;
+
+// Constants
+static constexpr double kDegreeToRadian = M_PI / 180.;
+static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
+
+// Default values
+static const std::string kDefaultBatteryTopic = "battery";
+static const std::string kDefaultWindTopic = "wind_speed";
+
+static constexpr double kDefaultLatitudeZero = 35.658099;    // 日本: 北緯35度39分29秒
+static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経139度44分28秒8759
+static constexpr double kDefaultAltitudeZero = 0.;           // [m]
+
+static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
+static constexpr double kDefaultCheckDelayThreshold = 0.02;   // [s]
+static constexpr double kDefaultAutoStopTimeThreshold = 0.5;  // [s]
+static constexpr double kCheckTopicsTimeThreshold = 1.;       // [s]
+}  // namespace gazebo

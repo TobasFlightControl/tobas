@@ -11,19 +11,20 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_error
 
 from .base_setting import BaseSettingWidget
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class StartWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Tobas Setup Assistant'
-        abst_text = 'TODO: abstruct'
+        title_text = "Tobas Setup Assistant"
+        abst_text = "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために必要な設定ファイルを作成するのを手助けするツールです．"\
+            + "ここでの設定が完了すれば，すぐにあなたのドローンを飛ばすことができます．"
         super().__init__(main, title_text, abst_text)
 
         self.setEnabled(True)  # Startだけは初めからアクティブにしておく
@@ -64,10 +65,11 @@ class RobotModelLoaderWidget(QWidget):
         label.setAlignment(Qt.AlignTop)
         self._rows.addWidget(label)
 
-        instruction_text = "TODO: instruction"
+        instruction_text = "あなたのドローンのURDFを指定し，Loadボタンを押してください．"
         instruction = QLabel(instruction_text)
         instruction.setFont(QFont("Default", pointSize=BODY_PSIZE))
         instruction.setAlignment(Qt.AlignTop)
+        instruction.setWordWrap(True)
         self._rows.addWidget(instruction)
 
         self._cols = QHBoxLayout()
@@ -115,8 +117,7 @@ class RobotModelLoaderWidget(QWidget):
         try:
             self._launch_file()
         except Exception as e:
-            rospy.logerr(e)
-            q_error(self._main, "Failed to load robot description.")
+            q_error(self._main, f'Failed to load robot description:\n\n{e}')
             return
 
         self.file_text.setEnabled(False)

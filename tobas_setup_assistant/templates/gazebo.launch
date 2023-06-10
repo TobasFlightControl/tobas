@@ -2,9 +2,9 @@
 
   <arg name="world_path" default="$(find tobas_gazebo)/worlds/basic.world"/>
   <arg name="debug" default="false"/>
-  <arg name="paused" default="true"/>
+  <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
-  <arg name="verbose" default="false"/>
+  <arg name="verbose" default="true"/>
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
   <arg name="z" default="0.3"/>
@@ -18,19 +18,21 @@
     <arg name="verbose" value="$(arg verbose)"/>
   </include>
 
-  <!-- Load drone configurations from YAML file to parameter server -->
-  <rosparam file="$(find {{ pkg_name }})/config/drone_properties.yaml" command="load"/>
+  <group ns="{{ drone_name }}">
+    <!-- Load drone configurations from TBSF file to parameter server -->
+    <rosparam file="$(find {{ pkg_name }})/config/{{ drone_name }}.tbsf" command="load"/>
 
-  <!-- Load the URDF into the ROS parameter server -->
-  <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.urdf'"/>
+    <!-- Load the URDF into the ROS parameter server -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.urdf'"/>
 
-  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-  <node name="spawn_{{ drone_name }}" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -x $(arg x) -y $(arg y) -z $(arg z) -model {{ drone_name }}" respawn="false" output="screen" />
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_{{ drone_name }}" output="screen" args="-param robot_description -urdf -x $(arg x) -y $(arg y) -z $(arg z) -model {{ drone_name }}"/>
 
-  <!-- Load joint controller configurations from YAML file to parameter server -->
-  <rosparam file="$(find {{ pkg_name }})/config/joint_control.yaml" command="load"/>
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find {{ pkg_name }})/config/joint_control.yaml" command="load"/>
 
-  <!-- Load the joint controllers -->
-  <node pkg="controller_manager" type="spawner" name="controller_spawner" respawn="false" output="screen" ns="/{{ drone_name }}" args="{{ joint_controllers }}"/>
+    <!-- Load the joint controllers -->
+    <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
+  </group>
 
 </launch>

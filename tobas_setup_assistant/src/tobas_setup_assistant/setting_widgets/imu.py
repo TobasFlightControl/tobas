@@ -7,24 +7,27 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
+
 from .base_setting import BaseSettingWidget
 from ..constants import *
 from ..parameter_getters import *
-from ..utils import add_expanding_widget
 
 
 class ImuWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Define Inertial Measurement Unit'
-        abst_text = 'TODO: abstruct'
+        title_text = "Define Inertial Measurement Unit"
+        abst_text = "6軸IMUの設定を行います．データシートを確認し，各値を入力してください．"\
+            + "センサフレームは機体フレームに平行であり，値はNWU座標系で得られることを想定しています．"\
+            + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
-        link_description = "TODO: instruction"
+        link_description = "センサが取り付けられたフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        update_rate_description = "TODO: instruction"
+        update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
             update_rate_description,
@@ -34,7 +37,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.update_rate)
 
-        gyro_noise_density_description = "TODO: instruction"
+        gyro_noise_density_description = ""
         self.gyro_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope noise density (two-sided spectrum)",
             gyro_noise_density_description,
@@ -45,7 +48,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gyro_noise_density)
 
-        gyro_random_walk_description = "TODO: instruction"
+        gyro_random_walk_description = ""
         self.gyro_random_walk = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope bias random walk",
             gyro_random_walk_description,
@@ -56,7 +59,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gyro_random_walk)
 
-        gyro_bias_corr_time_description = "TODO: instruction"
+        gyro_bias_corr_time_description = ""
         self.gyro_bias_corr_time = ParamGetterWidget_SpinBox(
             "Gyroscope bias correlation time constant",
             gyro_bias_corr_time_description,
@@ -66,7 +69,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gyro_bias_corr_time)
 
-        gyro_turn_on_bias_sigma_description = "TODO: instruction"
+        gyro_turn_on_bias_sigma_description = ""
         self.gyro_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
             "Gyroscope turn on bias standard deviation",
             gyro_turn_on_bias_sigma_description,
@@ -77,7 +80,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gyro_turn_on_bias_sigma)
 
-        acc_noise_density_description = "TODO: instruction"
+        acc_noise_density_description = ""
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer noise density (two-sided spectrum)",
             acc_noise_density_description,
@@ -88,7 +91,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.acc_noise_density)
 
-        acc_random_walk_description = "TODO: instruction"
+        acc_random_walk_description = ""
         self.acc_random_walk = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer bias random walk",
             acc_random_walk_description,
@@ -99,7 +102,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.acc_random_walk)
 
-        acc_bias_corr_time_description = "TODO: instruction"
+        acc_bias_corr_time_description = ""
         self.acc_bias_corr_time = ParamGetterWidget_SpinBox(
             "Accelerometer bias correlation time constant",
             acc_bias_corr_time_description,
@@ -109,7 +112,7 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.acc_bias_corr_time)
 
-        acc_turn_on_bias_sigma_description = "TODO: instruction"
+        acc_turn_on_bias_sigma_description = ""
         self.acc_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer turn on bias standard deviation",
             acc_turn_on_bias_sigma_description,
@@ -129,7 +132,10 @@ class ImuWidget(BaseSettingWidget):
     def is_valid(self) -> bool:
         return True
 
+    def equipped(self) -> bool:
+        return True
+
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.get_fixed_link_names()
+        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
         self.link.box.addItems(body_choices)

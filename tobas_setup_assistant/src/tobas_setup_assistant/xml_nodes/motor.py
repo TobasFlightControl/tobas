@@ -12,7 +12,7 @@ class MotorModel(ET.Element):
         link_name: str,
         joint_name: str,
         direction: str,
-        max_rot_vel: float,
+        kv: float,
         motor_const: float,
         moment_const: float,
         rotor_drag_coef: float,
@@ -20,7 +20,7 @@ class MotorModel(ET.Element):
         time_const_down: float,
     ) -> None:
         assert direction in {"cw", "ccw"}, direction
-        assert max_rot_vel > 0., max_rot_vel
+        assert kv > 0., kv
         assert motor_const > 0., motor_const
         assert moment_const > 0., moment_const
         assert rotor_drag_coef > 0., rotor_drag_coef
@@ -34,16 +34,18 @@ class MotorModel(ET.Element):
         plugin.attrib["name"] = f'{ns}_{motor_number}_rotor_plugin'
 
         ET.SubElement(plugin, "robotNamespace").text = ns
-        ET.SubElement(plugin, "motorNumber").text = f'{motor_number}'
+        ET.SubElement(plugin, "motorNumber").text = str(motor_number)
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "jointName").text = joint_name
         ET.SubElement(plugin, "turningDirection").text = direction
-        ET.SubElement(plugin, "maxRotVelocity").text = f'{max_rot_vel}'
-        ET.SubElement(plugin, "motorConstant").text = f'{motor_const}'
-        ET.SubElement(plugin, "momentConstant").text = f'{moment_const}'
-        ET.SubElement(plugin, "rotorDragCoefficient").text = f'{rotor_drag_coef}'
-        ET.SubElement(plugin, "timeConstantUp").text = f'{time_const_up}'
-        ET.SubElement(plugin, "timeConstantDown").text = f'{time_const_down}'
-        ET.SubElement(plugin, "motorSpeedPubTopic").text = f'motor_speed/{motor_number}'
+        ET.SubElement(plugin, "kv").text = str(kv)
+        ET.SubElement(plugin, "motorConstant").text = str(motor_const)
+        ET.SubElement(plugin, "momentConstant").text = str(moment_const)
+        ET.SubElement(plugin, "rotorDragCoefficient").text = str(rotor_drag_coef)
+        ET.SubElement(plugin, "timeConstantUp").text = str(time_const_up)
+        ET.SubElement(plugin, "timeConstantDown").text = str(time_const_down)
+        ET.SubElement(plugin, "debugPubTopic").text = f'ground_truth/rotor_debug/{motor_number}'
         ET.SubElement(plugin, "commandSubTopic").text = "command/motor_speed"
-        ET.SubElement(plugin, "rotorVelocitySlowdownSim").text = f'{self.SLOWDOWN_SIM}'
+        ET.SubElement(plugin, "batterySubTopic").text = "battery"
+        ET.SubElement(plugin, "windSpeedSubTopic").text = "wind_speed"
+        ET.SubElement(plugin, "rotorSpeedSlowdownSim").text = str(self.SLOWDOWN_SIM)

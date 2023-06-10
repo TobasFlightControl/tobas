@@ -13,14 +13,14 @@
 namespace gazebo
 {
 // Constants
-static constexpr char kPluginName[] = "noisydepth_plugin";
+static const std::string kPluginName = "noisydepth_plugin";
 
 // Default values
-static constexpr char kDefaultIrImageTopic[] = "ir/image_raw";
-static constexpr char kDefaultIrInfoTopic[] = "ir/image_info";
-static constexpr char kDefaultDepthImageTopic[] = "depth/image_raw";
-static constexpr char kDefaultDepthInfoTopic[] = "depth/image_info";
-static constexpr char kDefaultDepthNoiseModel[] = "Kinect";
+static const std::string kDefaultIrImageTopic = "ir/image_raw";
+static const std::string kDefaultIrInfoTopic = "ir/image_info";
+static const std::string kDefaultDepthImageTopic = "depth/image_raw";
+static const std::string kDefaultDepthInfoTopic = "depth/image_info";
+static const std::string kDefaultDepthNoiseModel = "Kinect";
 static constexpr float kDefaultDepthNoiseMinDist = 0.0f;
 static constexpr float kDefaultDepthNoiseMaxDist = 1e+9f;
 static constexpr float kDefaultHorizontalFOV = M_PI_2f32;
@@ -33,7 +33,7 @@ static constexpr float kDefaultBaseline = 0.05f;
 class GazeboNoisyDepthPlugin : public SensorPlugin, GazeboRosCameraUtils
 {
 public:
-  GazeboNoisyDepthPlugin();
+  explicit GazeboNoisyDepthPlugin();
   ~GazeboNoisyDepthPlugin();
 
   void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf) override;

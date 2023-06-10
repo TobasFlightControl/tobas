@@ -26,53 +26,54 @@ namespace moveit_rviz_plugin
 {
 RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_robot_model_(false)
 {
-  robot_description_property_ = new rviz::StringProperty(
+  robot_description_property_.reset(new rviz::StringProperty(
     "Robot Description", "robot_description",
     "The name of the ROS parameter where the URDF for the robot is loaded", this,
-    SLOT(changedRobotDescription()), this);
+    SLOT(changedRobotDescription()), this));
 
-  robot_state_topic_property_ = new rviz::RosTopicProperty(
+  robot_state_topic_property_.reset(new rviz::RosTopicProperty(
     "Robot State Topic", "display_robot_state",
     ros::message_traits::datatype<moveit_msgs::DisplayRobotState>(),
     "The topic on which the moveit_msgs::RobotState messages are received", this,
-    SLOT(changedRobotStateTopic()), this);
+    SLOT(changedRobotStateTopic()), this));
 
-  root_link_name_property_ = new rviz::StringProperty(
+  root_link_name_property_.reset(new rviz::StringProperty(
     "Robot Root Link", "", "Shows the name of the root link for the robot model", this,
-    SLOT(changedRootLinkName()), this);
+    SLOT(changedRootLinkName()), this));
   root_link_name_property_->setReadOnly(true);
 
-  robot_alpha_property_ = new rviz::FloatProperty(
+  robot_alpha_property_.reset(new rviz::FloatProperty(
     "Robot Alpha", 1., "Specifies the alpha for the robot links", this,
-    SLOT(changedRobotSceneAlpha()), this);
+    SLOT(changedRobotSceneAlpha()), this));
   robot_alpha_property_->setMin(0.);
   robot_alpha_property_->setMax(1.);
 
-  attached_body_color_property_ = new rviz::ColorProperty(
+  attached_body_color_property_.reset(new rviz::ColorProperty(
     "Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies", this,
-    SLOT(changedAttachedBodyColor()), this);
+    SLOT(changedAttachedBodyColor()), this));
 
-  enable_link_highlight_ = new rviz::BoolProperty(
+  enable_link_highlight_.reset(new rviz::BoolProperty(
     "Show Highlights", true, "Specifies whether link highlighting is enabled", this,
-    SLOT(changedEnableLinkHighlight()), this);
+    SLOT(changedEnableLinkHighlight()), this));
 
-  enable_visual_visible_ = new rviz::BoolProperty(
+  enable_visual_visible_.reset(new rviz::BoolProperty(
     "Visual Enabled", true, "Whether to display the visual representation of the robot.", this,
-    SLOT(changedEnableVisualVisible()), this);
+    SLOT(changedEnableVisualVisible()), this));
 
-  enable_collision_visible_ = new rviz::BoolProperty(
+  enable_collision_visible_.reset(new rviz::BoolProperty(
     "Collision Enabled", false, "Whether to display the collision representation of the robot.",
-    this, SLOT(changedEnableCollisionVisible()), this);
+    this, SLOT(changedEnableCollisionVisible()), this));
 
-  show_all_links_ = new rviz::BoolProperty(
+  show_all_links_.reset(new rviz::BoolProperty(
     "Show All Links", true, "Toggle all links visibility on or off.", this, SLOT(changedAllLinks()),
-    this);
+    this));
 
-  highlight_link_ = new rviz::StringProperty(
-    "Highlight Link", "", "Highlight chosen link", this, SLOT(changedHighlightColor()), this);
+  highlight_link_.reset(new rviz::StringProperty(
+    "Highlight Link", "", "Highlight chosen link", this, SLOT(changedHighlightColor()), this));
 
-  unhighlight_link_ = new rviz::StringProperty(
-    "Unhighlight Link", "", "Unhighlight chosen link", this, SLOT(changedUnhighlightColor()), this);
+  unhighlight_link_.reset(new rviz::StringProperty(
+    "Unhighlight Link", "", "Unhighlight chosen link", this, SLOT(changedUnhighlightColor()),
+    this));
 }
 
 void RobotStateDisplay::onInitialize()

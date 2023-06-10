@@ -4,3 +4,4 @@ pyqt-vertical-tab-widget
 pyyaml
 et-xmlfile
 jinja2
+markdown

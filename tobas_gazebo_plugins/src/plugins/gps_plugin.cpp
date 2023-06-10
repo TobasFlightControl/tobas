@@ -1,41 +1,57 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/geometry.hpp>
 
 #include "../../include/plugins/gps_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboGpsPlugin::GazeboGpsPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
+GazeboGpsPlugin::GazeboGpsPlugin() : super()
 {
 }
 
 void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
-  // Get SDF parameters
   getSdfParams(sdf);
+  fillMessageStaticParts();
+  setRandomDistribuitons();
 
-  // Get the world model
   world_ = physics::get_world(sensor->WorldName());
-
-  // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == NULL)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
 
-  // Initialize the normal distributions
-  pos_noise_[0] = NormalDistribution(0., hor_pos_std_dev_);
-  pos_noise_[1] = NormalDistribution(0., hor_pos_std_dev_);
-  pos_noise_[2] = NormalDistribution(0., ver_pos_std_dev_);
-  vel_noise_[0] = NormalDistribution(0., hor_vel_std_dev_);
-  vel_noise_[1] = NormalDistribution(0., hor_vel_std_dev_);
-  vel_noise_[2] = NormalDistribution(0., ver_vel_std_dev_);
+  registerPublishers();
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboGpsPlugin::onUpdate, this));
+}
 
+void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
+{
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
+
+  getSdfParam(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
+  getSdfParam(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
+
+  getSdfParam(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "horVelStdDev", hor_vel_std_dev_, kDefaultHorVelStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "verVelStdDev", ver_vel_std_dev_, kDefaultVerVelStdDev, NON_NEGATIVE);
+
+  getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
+  getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
+}
+
+void GazeboGpsPlugin::fillMessageStaticParts()
+{
   // Fill the static parts of the GPS message
   pos_msg_.header.frame_id = link_name_;
   pos_msg_.status.service = sensor_msgs::NavSatStatus::SERVICE_GPS;
@@ -55,52 +71,29 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   // Fill the static parts of the ground speed message
   vel_msg_.header.frame_id = link_name_;
 
-  vel_msg_.vel.covariance[0] = dh_std::sqr(hor_vel_std_dev_);
-  vel_msg_.vel.covariance[1] = 0.;
-  vel_msg_.vel.covariance[2] = 0.;
-  vel_msg_.vel.covariance[3] = 0.;
-  vel_msg_.vel.covariance[4] = dh_std::sqr(hor_vel_std_dev_);
-  vel_msg_.vel.covariance[5] = 0.;
-  vel_msg_.vel.covariance[6] = 0.;
-  vel_msg_.vel.covariance[7] = 0.;
-  vel_msg_.vel.covariance[8] = dh_std::sqr(ver_vel_std_dev_);
-
-  // Advertise
-  pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + gps_topic_, 1);
-  vel_pub_ = nh_.advertise<VelMsg>("/" + ns_ + "/" + vel_topic_, 1);
-
-  // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboGpsPlugin::onUpdate, this));
+  vel_msg_.covariance[0] = dh_std::sqr(hor_vel_std_dev_);
+  vel_msg_.covariance[1] = 0.;
+  vel_msg_.covariance[2] = 0.;
+  vel_msg_.covariance[3] = 0.;
+  vel_msg_.covariance[4] = dh_std::sqr(hor_vel_std_dev_);
+  vel_msg_.covariance[5] = 0.;
+  vel_msg_.covariance[6] = 0.;
+  vel_msg_.covariance[7] = 0.;
+  vel_msg_.covariance[8] = dh_std::sqr(ver_vel_std_dev_);
 }
 
-void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboGpsPlugin::setRandomDistribuitons()
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
+  const Vector3d pos_stddev(hor_pos_std_dev_, hor_pos_std_dev_, ver_pos_std_dev_);
+  const Vector3d vel_stddev(hor_vel_std_dev_, hor_vel_std_dev_, ver_vel_std_dev_);
+  pos_noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, pos_stddev));
+  vel_noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, vel_stddev));
+}
 
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
-
-  getSdfParam<string>(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
-  getSdfParam<string>(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
-
-  getSdfParam<double>(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev);
-  getSdfParam<double>(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev);
-  getSdfParam<double>(sdf, "horVelStdDev", hor_vel_std_dev_, kDefaultHorVelStdDev);
-  getSdfParam<double>(sdf, "verVelStdDev", ver_vel_std_dev_, kDefaultVerVelStdDev);
-  if (
-    hor_pos_std_dev_ < 0. || ver_pos_std_dev_ < 0. || hor_vel_std_dev_ < 0.
-    || ver_vel_std_dev_ < 0.)
-  {
-    gzthrow(kPluginName << ": Noise std. dev cannot be negative.");
-  }
-
-  getSdfParam<double>(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
-  getSdfParam<double>(sdf, "longitudeZero", lon_0_, kDefaultLatitudeZero);
+void GazeboGpsPlugin::registerPublishers()
+{
+  pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + gps_topic_, 1);
+  vel_pub_ = nh_.advertise<VelMsg>("/" + ns_ + "/" + vel_topic_, 1);
 }
 
 void GazeboGpsPlugin::onUpdate()
@@ -114,18 +107,17 @@ void GazeboGpsPlugin::onUpdate()
 
 void GazeboGpsPlugin::updatePosition()
 {
-  // Get the time of the last measurement
-  common::Time cur_time = world_->SimTime();
-
   // Get the position in the world frame
-  Vector3 pos = link_->WorldPose().Pos();
+  auto pos = link_->WorldPose().Pos();
+
+  // Add the altitude of the origin to the z-coordinate
+  pos.Z() += alt_0_;
 
   // Apply noise to the position
-  pos += Vector3d(pos_noise_[0](rnd_gen_), pos_noise_[1](rnd_gen_), pos_noise_[2](rnd_gen_));
+  pos += pos_noise_->get();
 
   // Fill the GPS message
-  pos_msg_.header.stamp.sec = cur_time.sec;
-  pos_msg_.header.stamp.nsec = cur_time.nsec;
+  timeGazeboToRos(world_->SimTime(), pos_msg_.header.stamp);
   dh_std::cartToGpsRelative(
     pos.X(), pos.Y(), lat_0_, lon_0_, pos_msg_.latitude, pos_msg_.longitude);
   pos_msg_.altitude = pos.Z();
@@ -133,18 +125,15 @@ void GazeboGpsPlugin::updatePosition()
 
 void GazeboGpsPlugin::updateVelocity()
 {
-  // Get the time of the last measurement
-  common::Time cur_time = world_->SimTime();
-
   // Get the linear velocity in the world frame
-  Vector3d vel = link_->WorldLinearVel();
+  auto vel = link_->WorldLinearVel();
 
   // Apply noise to ground speed
-  vel += Vector3d(vel_noise_[0](rnd_gen_), vel_noise_[1](rnd_gen_), vel_noise_[2](rnd_gen_));
+  vel += vel_noise_->get();
 
   // Fill the ground speed message.
-  timeGazeboToRos(cur_time, vel_msg_.header.stamp);
-  linvelGazeboToRos(vel, vel_msg_.vel.vel);
+  timeGazeboToRos(world_->SimTime(), vel_msg_.header.stamp);
+  vectorGazeboToKDL(vel, vel_msg_.vel);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboGpsPlugin);

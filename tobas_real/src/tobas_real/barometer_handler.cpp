@@ -13,19 +13,34 @@
 
 using namespace std;
 
-BarometerHandler::BarometerHandler()
+namespace tobas_real
 {
-  barometer_.initialize();
+BarometerHandler::BarometerHandler()
+  : super(), main_loop_timer_(nh_, TIMER_PERIOD, &BarometerHandler::mainLoopTimerCb, this)
+{
+  getRosParams();
 
+  barometer_.initialize();
   bar_msg_.variance = dh_std::sqr(BAR_NOISE_STD);
 
-  string drone_name = dh_ros::getParam<string>("/drone_name");
-  bar_pub_ = nh_.advertise<BarMsg>("/" + drone_name + "/air_pressure", 1);
-
-  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &BarometerHandler::timerCb, this);
+  registerPublishers();
+  registerSubscribers();
 }
 
-void BarometerHandler::timerCb(const ros::TimerEvent&)
+void BarometerHandler::getRosParams()
+{
+}
+
+void BarometerHandler::registerPublishers()
+{
+  bar_pub_ = nh_.advertise<BarMsg>("air_pressure", 1);
+}
+
+void BarometerHandler::registerSubscribers()
+{
+}
+
+void BarometerHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
   barometer_.refreshPressure();
   ros::Duration(WAIT_TIME).sleep();  // Waiting for pressure data ready
@@ -35,3 +50,4 @@ void BarometerHandler::timerCb(const ros::TimerEvent&)
   bar_msg_.fluid_pressure = barometer_.getPressure() * 100;  // mbar -> Pa
   bar_pub_.publish(bar_msg_);
 }
+}  // namespace tobas_real

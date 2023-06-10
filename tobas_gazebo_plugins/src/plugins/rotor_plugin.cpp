@@ -1,7 +1,11 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/algorithm.hpp>
 
 #include "../../include/plugins/rotor_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../../include/tobas_gazebo_plugins/common.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -9,7 +13,15 @@ using namespace ignition::math;
 namespace gazebo
 {
 GazeboRotorPlugin::GazeboRotorPlugin()
-  : ModelPlugin(), ref_motor_input_(0.), prev_sim_time_(0.), wind_speed_W_(0., 0., 0.)
+  : super(),
+    cmd_rot_speed_(0.),
+    wind_speed_W_(0., 0., 0.),
+    prev_sim_time_(0.),
+    last_cmd_time_(0.),
+    is_activated_(false),
+    is_initialized_(false),
+    battery_received_(false),
+    wind_speed_received_(true)  // TODO: falseにしてwind_speedの購読を強制する
 {
 }
 
@@ -36,14 +48,9 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   parent_link_ = link_->GetParentJointsLinks()[0];
 
   // Initialize the first order filter
-  rotor_speed_filter_.initialize(time_const_up_, time_const_down_, ref_motor_input_);
+  rotor_speed_filter_.initialize(time_const_up_, time_const_down_, 0.);
 
-  // Advertise
-  motor_speed_pub_ = nh_.advertise<std_msgs::Float64>("/" + ns_ + "/" + motor_speed_pub_topic_, 1);
-  command_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
-  wind_speed_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+  registerPubSub();
 
   // Listen to the update event
   update_connection_ =
@@ -52,29 +59,14 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify linkName of the rotor.");
-  }
-
-  if (!getSdfParam<string>(sdf, "jointName", joint_name_))
-  {
-    gzthrow(kPluginName << ": Please specify jointName, where the rotor is attached.");
-  }
-
-  if (!getSdfParam<int>(sdf, "motorNumber", motor_number_))
-  {
-    gzthrow(kPluginName << ": Please specify motorNumber.");
-  }
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "jointName", joint_name_);
+  getSdfParam(sdf, "motorNumber", motor_number_, NON_NEGATIVE);
 
   if (sdf->HasElement("turningDirection"))
   {
-    string turning_direction = sdf->GetElement("turningDirection")->Get<string>();
+    const auto turning_direction = sdf->GetElement("turningDirection")->Get<string>();
     if (turning_direction == "cw")
     {
       direction_ = -1;
@@ -93,151 +85,213 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  if (!getSdfParam<double>(sdf, "maxRotVelocity", max_rot_vel_))
-  {
-    gzthrow(kPluginName << ": Please specify maxRotVelocity [rad/s].");
-  }
-  if (max_rot_vel_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid maxRotVelocity: " << max_rot_vel_ << " [rad/s]");
-  }
+  getSdfParam(sdf, "kv", kv_, NON_NEGATIVE);
+  getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
+  getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
+  getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
+  getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
+  getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
 
-  if (!getSdfParam<double>(sdf, "motorConstant", motor_const_))
-  {
-    gzthrow(kPluginName << ": Please specify motorConstant [kg*m/s^2]");
-  }
-  if (motor_const_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid motorConstant: " << motor_const_ << " [kg*m/s^2]");
-  }
+  getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
+  getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
+  getSdfParam(sdf, "batterySubTopic", battery_sub_topic_, kDefaultBatteryTopic);
+  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindTopic);
 
-  if (!getSdfParam<double>(sdf, "momentConstant", moment_const_))
-  {
-    gzthrow(kPluginName << ": Please specify momentConstant [m]");
-  }
-  if (moment_const_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid momentConstant:" << moment_const_ << " [m]");
-  }
-
-  if (!getSdfParam<double>(sdf, "rotorDragCoefficient", rotor_drag_coef_))
-  {
-    gzthrow(kPluginName << ": Please specify rotorDragCoefficient [Ns^2/m^2]");
-  }
-  if (rotor_drag_coef_ < 0.)
-  {
-    gzthrow(kPluginName << ": Invalid rotorDragCoefficient:" << rotor_drag_coef_ << " [Ns^2/m^2]");
-  }
-
-  if (!getSdfParam<double>(sdf, "timeConstantUp", time_const_up_))
-  {
-    gzthrow(kPluginName << ": Please specify timeConstantUp [s]");
-  }
-  if (time_const_up_ <= 0.)
-  {
-    gzthrow(kPluginName << ": Invalid timeConstantUp:" << time_const_up_ << " [s]");
-  }
-
-  if (!getSdfParam<double>(sdf, "timeConstantDown", time_const_down_))
-  {
-    gzthrow(kPluginName << ": Please specify timeConstantDown [s]");
-  }
-  if (time_const_down_ <= 0.)
-  {
-    gzthrow(kPluginName << ": Invalid timeConstantDown:" << time_const_down_ << " [s]");
-  }
-
-  getSdfParam<string>(sdf, "motorSpeedPubTopic", motor_speed_pub_topic_, kDefaultSpeedPubTopic);
-  getSdfParam<string>(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
-  getSdfParam<string>(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindSubTopic);
-
-  if (!getSdfParam<double>(sdf, "rotorVelocitySlowdownSim", rotor_speed_slowdown_sim_))
-  {
-    gzlog << kPluginName << ": rotorVelocitySlowdownSim is not specified. The default value "
-          << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
-    rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
-  }
+  getSdfParam(
+    sdf, "rotorSpeedSlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim, false);
   if (rotor_speed_slowdown_sim_ < 1.)
   {
-    gzerr << kPluginName << ": Invalid rotorVelocitySlowdownSim: " << rotor_speed_slowdown_sim_
+    gzerr << kPluginName << ": Invalid rotorSpeedSlowdownSim: " << rotor_speed_slowdown_sim_
           << ". The default value " << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
     rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
   }
+
+  getSdfParam(
+    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
+  getSdfParam(
+    sdf, "autoResetTimeThreshold", auto_reset_time_thr_, kDefaultAutoStopTimeThreshold, false);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  double dt = info.simTime.Double() - prev_sim_time_;
-  prev_sim_time_ = info.simTime.Double();
-  updateForcesAndMoments(dt);
+  const auto cur_time = info.simTime.Double();
 
-  motor_speed_msg_.data = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;  // real speed
-  motor_speed_pub_.publish(motor_speed_msg_);
-}
-
-void GazeboRotorPlugin::updateForcesAndMoments(double dt)
-{
-  double rot_vel_sim = joint_->GetVelocity(0);
-  if (abs(rot_vel_sim) * dt > M_PI)
+  if (!is_initialized_)
   {
-    gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
-          << "] might occur. Lower simulation time step or raise rotorVelocitySlowdownSim." << endl;
+    if (isReady())
+    {
+      is_initialized_ = true;
+    }
+
+    // Check topics
+    // ros::Timer cannot be used for shared library.
+    if (cur_time > kCheckTopicsTimeThreshold)
+    {
+      if (!battery_received_)
+      {
+        gzerr << kPluginName << ": Battery state is not received yet." << endl;
+      }
+      if (!wind_speed_received_)
+      {
+        gzerr << kPluginName << ": Wind speed is not received yet." << endl;
+      }
+    }
+    return;
   }
 
+  // Check elapsed time after last command
+  const auto time_after_last_cmd = cur_time - last_cmd_time_;
+  if (is_activated_ && time_after_last_cmd > auto_reset_time_thr_)
+  {
+    cmd_rot_speed_ = 0.;
+    is_activated_ = false;
+    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
+          << auto_reset_time_thr_ << " seconds have elapsed since the last command." << endl;
+  }
+
+  // Get rotation speed
+  const auto rot_speed_sim = joint_->GetVelocity(0);
+  const auto rot_speed_real = rot_speed_sim * rotor_speed_slowdown_sim_;
+
+  // Compute time after previous simulation time
+  const auto dt = cur_time - prev_sim_time_;
+  prev_sim_time_ = cur_time;
+
+  // Check aliasing
+  if (abs(rot_speed_sim) * dt > M_PI)
+  {
+    gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
+          << "] might occur. Lower simulation time step or raise rotorSpeedSlowdownSim." << endl;
+  }
+
+  // Update simulation state
+  applyForceAndTorque(rot_speed_real, info.simTime);
+  updateRotationSpeed(dt);
+}
+
+void GazeboRotorPlugin::registerPubSub()
+{
+  debug_pub_ = nh_.advertise<tobas_msgs::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+
+  command_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
+  battery_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this);
+  wind_speed_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+}
+
+bool GazeboRotorPlugin::isReady()
+{
+  return battery_received_ && wind_speed_received_;
+}
+
+void GazeboRotorPlugin::applyForceAndTorque(double rot_speed, const common::Time cur_time)
+{
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
   // TODO: Implement other terms
   // TODO: II-B. Model of the complete quadrotor
 
+  // Get joint axes
+  const auto global_axis = joint_->GlobalAxis(0);
+  const auto local_axis = joint_->LocalAxis(0);
+
   // (1) first term: Thrust Force
-  double rot_vel_real = rot_vel_sim * rotor_speed_slowdown_sim_;
-  int rot_vel_sgn = (rot_vel_real > 0.) - (rot_vel_real < 0.);
-  double thrust = direction_ * rot_vel_sgn * motor_const_ * dh_std::sqr(rot_vel_real);  // [N]
+  const auto rot_speed_sgn = dh_std::sign(rot_speed);
+  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * dh_std::sqr(rot_speed);
+  const auto thrust_W = thrust * global_axis;
+  link_->AddForce(thrust_W);
 
   // (1) second term: H-force
-  Vector3d joint_axis = joint_->GlobalAxis(0);
-  Vector3d body_vel_W = link_->WorldLinearVel();
-  Vector3d relative_wind_vel_W = body_vel_W - wind_speed_W_;
-  Vector3d body_vel_perp = relative_wind_vel_W - (relative_wind_vel_W.Dot(joint_axis) * joint_axis);
-  Vector3d air_drag = -abs(rot_vel_real) * rotor_drag_coef_ * body_vel_perp;
+  const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
+  const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
+  const auto h_force_W = (-abs(rot_speed) * rotor_drag_coef_) * linvel_perp_W;
+  link_->AddForce(h_force_W);
 
   // (2) first term: Rotor drag torque
-  Pose3d pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
-  Vector3d drag_torque(0., 0., -direction_ * thrust * moment_const_);             // rotor frame
-  Vector3d drag_torque_parent_frame = pose_diff.Rot().RotateVector(drag_torque);  // parent frame
+  const auto pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
+  const auto drag_torque_child = (-direction_ * thrust * moment_const_) * local_axis;
+  const auto drag_torque_parent = pose_diff.Rot().RotateVector(drag_torque_child);
+  parent_link_->AddRelativeTorque(drag_torque_parent);
 
-  // For debug
-  // cout << "Thrust force: " << thrust << " [N]" << endl;
-  // cout << "H force: " << air_drag.Length() << " [N]" << endl;
-  // cout << "Rotor drag torque: " << drag_torque.Length() << " [Nm]" << endl;
-  // cout << endl;
-
-  // Apply forces and torques
-  link_->AddRelativeForce(Vector3d(0., 0., thrust));
-  link_->AddForce(air_drag);
-  parent_link_->AddRelativeTorque(drag_torque_parent_frame);
-
-  // Apply the filter on the motor velocity
-  double ref_motor_rot_vel = rotor_speed_filter_.updateFilter(ref_motor_input_, dt);
-  joint_->SetVelocity(0, direction_ * ref_motor_rot_vel / rotor_speed_slowdown_sim_);
+  // Publish debug message
+  timeGazeboToRos(cur_time, debug_msg_.header.stamp);
+  debug_msg_.rotation_speed = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;
+  vectorGazeboToKDL(thrust_W, debug_msg_.thrust_force);
+  vectorGazeboToKDL(h_force_W, debug_msg_.horizontal_force);
+  vectorGazeboToKDL(drag_torque_parent, debug_msg_.drag_torque);
+  debug_pub_.publish(debug_msg_);
 }
 
-void GazeboRotorPlugin::commandCb(const CmdMsg& cmd)
+void GazeboRotorPlugin::updateRotationSpeed(double dt)
 {
-  if (motor_number_ > cmd.speeds.size() - 1)
+  assert(dt > 0.);
+
+  // Check rotor speed limit and get set value
+  auto set_rot_speed = cmd_rot_speed_;
+  const auto max_rot_speed = dh_std::rpmToRadPerSec(kv_ * battery_.voltage);
+  if (cmd_rot_speed_ < 0.)
+  {
+    gzerr << kPluginName << ": The commanded motor speed " << cmd_rot_speed_ << " is lower than 0."
+          << endl;
+    set_rot_speed = 0.;
+  }
+  else if (cmd_rot_speed_ > max_rot_speed + 1.)
+  {
+    gzerr << kPluginName << ": The commanded motor speed " << cmd_rot_speed_
+          << " exceeds the maximum speed " << max_rot_speed << "." << endl;
+    set_rot_speed = max_rot_speed;
+  }
+
+  // Apply the filter on the rotation speed
+  const auto ref_rot_speed = rotor_speed_filter_.updateFilter(set_rot_speed, dt);
+  joint_->SetVelocity(0, direction_ * ref_rot_speed / rotor_speed_slowdown_sim_);
+}
+
+void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
+{
+  // Check index
+  if (motor_number_ >= cmd.speeds.size())
   {
     gzerr << kPluginName << ": You tried to access index " << motor_number_
           << " of the RotorSpeeds message array which is of size " << cmd.speeds.size() << endl;
     return;
   }
 
-  ref_motor_input_ = min(cmd.speeds[motor_number_], max_rot_vel_);
+  // Check delay
+  const auto delay = prev_sim_time_ - cmd.header.stamp.toSec();
+  if (delay > check_delay_threshold_)
+  {
+    gzwarn << kPluginName << ": The delay from sensors to the motor command " << delay
+           << "[s] is over " << check_delay_threshold_ << "[s]." << endl;
+  }
+  else if (delay < 0.)
+  {
+    gzerr << kPluginName << ": The timestamp of the motor command precedes the current time."
+          << endl;
+  }
+
+  // Get Commanded speed
+  cmd_rot_speed_ = cmd.speeds[motor_number_];
+
+  // Update last commanded time
+  last_cmd_time_ = prev_sim_time_;
+
+  // Now the motor is activated
+  is_activated_ = true;
 }
 
-void GazeboRotorPlugin::windSpeedCb(const WindMsg& wind)
+void GazeboRotorPlugin::batteryCb(const tobas_msgs::Battery& battery)
 {
-  // TODO: Transform velocity to world frame if frame_id is set to something else.
-  vectorRosToGazebo(wind.velocity, wind_speed_W_);
+  battery_ = battery;
+  battery_received_ = true;
+}
+
+void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindSpeed& wind)
+{
+  vectorKDLToGazebo(wind.vel, wind_speed_W_);
+  wind_speed_received_ = true;
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRotorPlugin);

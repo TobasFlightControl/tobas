@@ -6,12 +6,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from typing import List
 
-from dh_rqt_tools.widgets import DoubleSpinBox
+from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class ParamGetterWidget_DoubleTable(ParamGetterWidget):
@@ -127,7 +126,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
     def set_decimals(self, decimals: List[int]) -> None:
         assert len(decimals) == self._num_entry
         for decimal in decimals:
-            assert decimal > 0
+            assert decimal >= 0
 
         self._decimals = decimals
 

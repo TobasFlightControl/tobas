@@ -5,22 +5,34 @@
 
 #include <Common/MS5611.h>
 
-class BarometerHandler
+#include <dh_ros_tools/node.hpp>
+#include <dh_ros_tools/timer.hpp>
+
+namespace tobas_real
 {
+class BarometerHandler : public dh_ros::BaseNode
+{
+  using super = dh_ros::BaseNode;
+
   using BarMsg = sensor_msgs::FluidPressure;
 
 public:
-  BarometerHandler();
+  explicit BarometerHandler();
 
 private:
-  ros::NodeHandle nh_;
-
   MS5611 barometer_;
   BarMsg bar_msg_;
 
+  // PubSub
   ros::Publisher bar_pub_;
 
-  ros::Timer timer_;
+  // Timer
+  dh_ros::Timer main_loop_timer_;
 
-  void timerCb(const ros::TimerEvent&);
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  void mainLoopTimerCb(const ros::TimerEvent&);
 };
+}  // namespace tobas_real

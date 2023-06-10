@@ -1,7 +1,9 @@
 from xml.etree import ElementTree as ET
 
+from .sensor import SensorModel
 
-class GpsModel(ET.Element):
+
+class GpsModel(SensorModel):
 
     def __init__(
         self,
@@ -14,6 +16,7 @@ class GpsModel(ET.Element):
         ver_vel_std: float,
         latitude_0: float,
         longitude_0: float,
+        altitude_0: float,
     ) -> None:
         """
         GazeboのGPSセンサモデル．
@@ -38,6 +41,8 @@ class GpsModel(ET.Element):
             原点の緯度．北緯を正とする．
         longitude_0 : float
             原点の経度．東経を正とする．
+        altitude_0: float
+            原点の高度．上方を正とする．
         """
         assert update_rate > 0.
         assert hor_pos_std > 0.
@@ -46,22 +51,12 @@ class GpsModel(ET.Element):
         assert ver_vel_std > 0.
         assert -90. <= latitude_0 <= 90.
         assert -180 <= longitude_0 <= 180.
+        assert altitude_0 >= 0.
 
-        # robot/gazebo
-        super().__init__("gazebo", reference=link_name)
-
-        # robot/gazebo/sensor
-        sensor = ET.SubElement(self, "sensor")
-        sensor.attrib["name"] = f'{ns}_gps'
-        sensor.attrib["type"] = "gps"
-
-        ET.SubElement(sensor, "always_on").text = "true"
-        ET.SubElement(sensor, "update_rate").text = f'{update_rate}'
-        ET.SubElement(sensor, "visualize").text = "false"
-        ET.SubElement(sensor, "pose").text = "0 0 0 0 0 0"
+        super().__init__(link_name, f'{ns}_gps', "gps", update_rate)
 
         # robot/gazebo/sensor/plugin
-        plugin = ET.SubElement(sensor, "plugin")
+        plugin = ET.SubElement(self.sensor, "plugin")
         plugin.attrib["filename"] = "libtobas_gazebo_gps_plugin.so"
         plugin.attrib["name"] = "tobas_gazebo_gps_plugin"
 
@@ -69,9 +64,10 @@ class GpsModel(ET.Element):
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "gpsTopic").text = "gps"
         ET.SubElement(plugin, "groundSpeedTopic").text = "ground_speed"
-        ET.SubElement(plugin, "horPosStdDev").text = f'{hor_pos_std}'
-        ET.SubElement(plugin, "verPosStdDev").text = f'{ver_pos_std}'
-        ET.SubElement(plugin, "horVelStdDev").text = f'{hor_vel_std}'
-        ET.SubElement(plugin, "verVelStdDev").text = f'{ver_vel_std}'
-        ET.SubElement(plugin, "latitudeZero").text = f'{latitude_0}'
-        ET.SubElement(plugin, "longitudeZero").text = f'{longitude_0}'
+        ET.SubElement(plugin, "horPosStdDev").text = str(hor_pos_std)
+        ET.SubElement(plugin, "verPosStdDev").text = str(ver_pos_std)
+        ET.SubElement(plugin, "horVelStdDev").text = str(hor_vel_std)
+        ET.SubElement(plugin, "verVelStdDev").text = str(ver_vel_std)
+        ET.SubElement(plugin, "latitudeZero").text = str(latitude_0)
+        ET.SubElement(plugin, "longitudeZero").text = str(longitude_0)
+        ET.SubElement(plugin, "altitudeZero").text = str(altitude_0)

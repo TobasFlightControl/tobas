@@ -1,43 +1,32 @@
 from xml.etree import ElementTree as ET
 
+from .sensor import SensorModel
 
-class BarometerModel(ET.Element):
+
+class BarometerModel(SensorModel):
 
     def __init__(
         self,
         ns: str,
         link_name: str,
         update_rate: float,
-        ref_altitude: float,
+        altitude_0: float,
         pressure_var: float,
     ) -> None:
         assert update_rate > 0.
+        assert altitude_0 >= 0.
         assert pressure_var > 0.
 
-        # robot/gazebo
-        super().__init__("gazebo", reference=link_name)
-
-        # robot/gazebo/sensor
-        sensor = ET.SubElement(self, "sensor")
-        sensor.attrib["name"] = f'{ns}_barometer'
-
-        # SDFormat(http://sdformat.org/spec?elem=sensor)にはあるが，"air_pressure"だとセンサが起動しなかった
-        # <air_pressure>タグを指定しておらずtypeは正直何でもよいため，とりあえず"altimeter"にしている
-        # sensor.attrib["type"] = "air_pressure"
-        sensor.attrib["type"] = "altimeter"
-
-        ET.SubElement(sensor, "always_on").text = "true"
-        ET.SubElement(sensor, "update_rate").text = f'{update_rate}'
-        ET.SubElement(sensor, "visualize").text = "false"
-        ET.SubElement(sensor, "pose").text = "0 0 0 0 0 0"
+        # 便宜的にセンサタイプをIMUにしている
+        super().__init__(link_name, f'{ns}_barometer', "imu", update_rate)
 
         # robot/gazebo/sensor/plugin
-        plugin = ET.SubElement(sensor, "plugin")
+        plugin = ET.SubElement(self.sensor, "plugin")
         plugin.attrib["filename"] = "libtobas_gazebo_barometer_plugin.so"
         plugin.attrib["name"] = "tobas_gazebo_barometer_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "pressureTopic").text = "air_pressure"
-        ET.SubElement(plugin, "referenceAltitude").text = f'{ref_altitude}'
-        ET.SubElement(plugin, "pressureVariance").text = f'{pressure_var}'
+        ET.SubElement(plugin, "altitudeZero").text = str(altitude_0)
+        ET.SubElement(plugin, "pressureVariance").text = str(pressure_var)

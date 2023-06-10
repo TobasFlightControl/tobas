@@ -7,33 +7,25 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/FluidPressure.h>
 
+#include "../tobas_gazebo_plugins/common.hpp"
+
 namespace gazebo
 {
 // Constants
-static constexpr double kGasConstantNmPerKmolKelvin = 8314.32;
-static constexpr double kMeanMolecularAirWeightKgPerKmol = 28.9644;
-static constexpr double kGravityMagnitude = 9.80665;
-static constexpr double kEarthRadiusMeters = 6356766.0;
-static constexpr double kPressureOneAtmospherePascals = 101325.0;
-static constexpr double kSeaLevelTempKelvin = 288.15;
-static constexpr double kTempLapseKelvinPerMeter = 0.0065;
-static constexpr double kAirConstantDimensionless =
-  kGravityMagnitude * kMeanMolecularAirWeightKgPerKmol
-  / (kGasConstantNmPerKmolKelvin * -kTempLapseKelvinPerMeter);
-static constexpr char kPluginName[] = "barometer_plugin";
+static const std::string kPluginName = "barometer_plugin";
 
 // Default values
 static const std::string kDefaultPressurePubTopic = "air_pressure";
-static constexpr double kDefaultRefAlt = 500.;
-static constexpr double kDefaultPressureVar = 1.;
+static constexpr double kDefaultPressureVar = 1.;  // [Pa]
 
 class GazeboBarometerPlugin : public SensorPlugin
 {
-  using NormalDistribution = std::normal_distribution<double>;
+  using super = SensorPlugin;
+
   using PressureMsg = sensor_msgs::FluidPressure;
 
 public:
-  GazeboBarometerPlugin();
+  explicit GazeboBarometerPlugin();
 
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
@@ -44,7 +36,7 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string pressure_topic_;
-  double ref_alt_;
+  double alt_0_;
   double pressure_var_;
 
   physics::WorldPtr world_;

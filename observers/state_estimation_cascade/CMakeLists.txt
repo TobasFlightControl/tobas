@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	dh_linear_control
+	dh_kdl
 	dh_ros_tools
 	dh_eigen_tools
 	dh_std_tools
@@ -19,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 	orocos_kdl
 	eigen_conversions
 	kdl_conversions
+	kdl_msgs
 	roscpp
 	dynamic_reconfigure
 )

@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_real" type="esc_calibration_node" name="esc_calibration" output="screen" required="true"/>
+
+</launch>

@@ -1,12 +1,14 @@
+#include <dh_std_tools/standard_atmosphere.hpp>
+
 #include "../../include/plugins/barometer_plugin.hpp"
-#include "../../include/tobas_gazebo_plugins/utils.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
 
 namespace gazebo
 {
-GazeboBarometerPlugin::GazeboBarometerPlugin() : SensorPlugin(), rnd_gen_(rnd_dev_())
+GazeboBarometerPlugin::GazeboBarometerPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 
@@ -41,52 +43,27 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
-
-  getSdfParam<string>(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
-  getSdfParam<double>(sdf, "referenceAltitude", ref_alt_, kDefaultRefAlt);
-
-  getSdfParam<double>(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar);
-  if (pressure_var_ < 0.)
-  {
-    gzthrow(kPluginName << ": Noise variance cannot be negative.");
-  }
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
+  getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
 }
 
 void GazeboBarometerPlugin::onUpdate()
 {
-  common::Time cur_time = world_->SimTime();
-
   // Get the current geometric height
-  double height_geometric_m = ref_alt_ + link_->WorldPose().Pos().Z();
+  double altitude = alt_0_ + link_->WorldPose().Pos().Z();
 
-  // Compute the geopotential height
-  double height_geopotential_m =
-    kEarthRadiusMeters * height_geometric_m / (kEarthRadiusMeters + height_geometric_m);
-
-  // Compute the temperature at the current altitude
-  double temperature_at_altitude_kelvin =
-    kSeaLevelTempKelvin - kTempLapseKelvinPerMeter * height_geopotential_m;
-
-  // Compute the current air pressure
-  double pressure_at_altitude_pascal =
-    kPressureOneAtmospherePascals
-    * exp(kAirConstantDimensionless * log(kSeaLevelTempKelvin / temperature_at_altitude_kelvin));
+  // Compute the air pressure at the current altitude
+  double pressure = dh_std::altitudeToPressure(altitude);
 
   // Add noise to pressure measurement
-  pressure_at_altitude_pascal += pressure_noise_(rnd_gen_);
+  pressure += pressure_noise_(rnd_gen_);
 
   // Fill the pressure message
-  timeGazeboToRos(cur_time, pressure_msg_.header.stamp);
-  pressure_msg_.fluid_pressure = pressure_at_altitude_pascal;
+  timeGazeboToRos(world_->SimTime(), pressure_msg_.header.stamp);
+  pressure_msg_.fluid_pressure = pressure;
 
   // Publish the pressure message
   pressure_pub_.publish(pressure_msg_);

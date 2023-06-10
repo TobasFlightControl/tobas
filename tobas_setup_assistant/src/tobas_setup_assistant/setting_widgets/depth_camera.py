@@ -7,35 +7,39 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.messages import q_error_named
+
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..constants import *
-from ..utils import add_expanding_widget
 
 
 class DepthCameraWidget(BaseSettingWidget):
 
+    NAME = "Depth Camera"
+
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Define Depth Camera'
-        abst_text = 'TODO: abstruct'
+        title_text = "Define Depth Camera"
+        abst_text = "深度カメラの設定を行います．データシートを確認し，各値を入力してください．"
         super().__init__(main, title_text, abst_text)
 
         self.no_sensor = QCheckBox("The drone is not equipped with depth camera.")
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
-        link_description = "TODO: instruction"
+        link_description = "カメラが取り付けられたフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        offset_description = "TODO: instruction"
+        offset_description = "選択したリンクに対するカメラ位置のオフセット．"
         self.offset = ParamGetterWidget_Pose(
             "Offset",
             offset_description,
         )
         self._rows.addWidget(self.offset)
 
-        update_rate_description = "TODO: instruction"
+        update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update Rate",
             update_rate_description,
@@ -45,7 +49,7 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.update_rate)
 
-        fov_description = "TODO: instruction"
+        fov_description = ""
         self.fov = ParamGetterWidget_DoubleSpinBox(
             "Horizontal Field of View",
             fov_description,
@@ -56,7 +60,7 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.fov)
 
-        baseline_description = "TODO: instruction"
+        baseline_description = ""
         self.baseline = ParamGetterWidget_DoubleSpinBox(
             "Baseline",  # TODO
             baseline_description,
@@ -67,7 +71,7 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.baseline)
 
-        image_width_description = "TODO: instruction"
+        image_width_description = ""
         self.image_width = ParamGetterWidget_SpinBox(
             "Image Width",
             image_width_description,
@@ -77,7 +81,7 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.image_width)
 
-        image_height_description = "TODO: instruction"
+        image_height_description = ""
         self.image_height = ParamGetterWidget_SpinBox(
             "Image Height",
             image_height_description,
@@ -87,7 +91,8 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.image_height)
 
-        depth_range_description = "TODO: instruction"
+        depth_range_description = "カメラで観測可能な深さの範囲．"\
+            + "シミュレーションでは，この範囲外にある物体は切り捨てられます．"
         self.depth_range = ParamGetterWidget_DoubleRange(
             "Depth Range",
             depth_range_description,
@@ -97,7 +102,7 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.depth_range)
 
-        noise_model_description = "TODO: instruction"
+        noise_model_description = ""
         self.noise_model = ParamGetterWidget_ComboBox(
             "Depth Noise Model",
             noise_model_description,
@@ -114,7 +119,17 @@ class DepthCameraWidget(BaseSettingWidget):
         self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
+        if self.no_sensor.isChecked():
+            return True
+
+        if not self.depth_range.is_valid():
+            q_error_named(self._main, self.NAME, "Invalid depth range.")
+            return False
+
         return True
+
+    def equipped(self) -> bool:
+        return not self.no_sensor.isChecked()
 
     @pyqtSlot()
     def _update_visibility(self) -> None:
@@ -141,5 +156,5 @@ class DepthCameraWidget(BaseSettingWidget):
 
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.get_fixed_link_names()
+        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
         self.link.box.addItems(body_choices)

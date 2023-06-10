@@ -1,29 +1,23 @@
 <launch>
 
-  <arg name='ground_truth' default='false'/>
+  <arg name="control_mode" default="position"/>
 
   <!-- Load environment configurations from YAML file to parameter server -->
   <rosparam file="$(find {{ pkg_name }})/config/environment.yaml" command="load"/>
 
-  <!-- Bringup observer -->
-  <group if='$(arg ground_truth)'>
-    <node pkg='tobas_gazebo' name='state_estimator_gt' type='state_estimator_gt_node' output='screen'/>
-  </group>
+  <group ns="{{ drone_name }}">
+    <!-- Bringup controller -->
+    <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
+    <group if="$(eval control_mode=='position')">
+      <include file="$(find {{ controller_pkg }})/launch/position_control.launch"/>
+    </group>
+    <group if="$(eval control_mode=='velocity')">
+      <include file="$(find {{ controller_pkg }})/launch/velocity_control.launch"/>
+    </group>
 
-  <group unless='$(arg ground_truth)'>
+    <!-- Bringup observer -->
     <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>
-    <include file="$(find state_estimation_cascade)/launch/state_estimation.launch">
-      <arg name="imu_topic" value="/{{ drone_name }}/imu"/>
-      <arg name="mag_topic" value="/{{ drone_name }}/magnetic_field"/>
-      <arg name="bar_topic" value="/{{ drone_name }}/air_pressure"/>
-      <arg name="gps_topic" value="/{{ drone_name }}/gps"/>
-      <arg name="vel_topic" value="/{{ drone_name }}/ground_speed"/>
-      <arg name="state_topic" value="/{{ drone_name }}/base_state"/>
-    </include>
+    <include file="$(find {{ observer_pkg }})/launch/observer.launch"/>
   </group>
-
-  <!-- Bringup controller -->
-  <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
-  <node pkg='tobas_controller' name='tobas_controller' type='controller_node' output='screen'/>
 
 </launch>

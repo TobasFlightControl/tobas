@@ -1,11 +1,11 @@
 #include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include <Common/MPU9250.h>
 #include <Navio2/LSM9DS1.h>
 
 #include "../../include/tobas_real/imu_handler.hpp"
+#include "../../include/tobas_real/common.hpp"
 
 #define TIMER_PERIOD 0.01
 
@@ -17,13 +17,29 @@
 
 using namespace std;
 
-ImuHandler::ImuHandler() : gravity_(dh_ros::getParam<double>("/gravity"))
+namespace tobas_real
 {
+ImuHandler::ImuHandler()
+  : super(), main_loop_timer_(nh_, TIMER_PERIOD, &ImuHandler::mainLoopTimerCb, this)
+{
+  getRosParams();
   setupImu();
   setCovarianceMatrices();
-  advertise();
+  registerPublishers();
+}
 
-  timer_ = nh_.createTimer(ros::Duration(TIMER_PERIOD), &ImuHandler::timerCb, this);
+void ImuHandler::getRosParams()
+{
+}
+
+void ImuHandler::registerPublishers()
+{
+  imu_pub_ = nh_.advertise<ImuMsg>("imu", 1);
+  mag_pub_ = nh_.advertise<MagMsg>("magnetic_field", 1);
+}
+
+void ImuHandler::registerSubscribers()
+{
 }
 
 void ImuHandler::setupImu()
@@ -33,7 +49,7 @@ void ImuHandler::setupImu()
 
   if (!imu_->probe())
   {
-    throw dh_ros::RuntimeError("Sensor not enabled.");
+    rosthrow("Sensor not enabled.");
   }
 
   imu_->initialize();
@@ -43,7 +59,7 @@ void ImuHandler::setCovarianceMatrices()
 {
   // Accelerometer
   double acc_std_grav = ACC_NOISE_DENSITY / sqrt(TIMER_PERIOD);  // ug
-  double acc_std = acc_std_grav * 1e-6 * gravity_;               // m/s^2
+  double acc_std = acc_std_grav * 1e-6 * kGravity;               // m/s^2
   double acc_var = dh_std::sqr(acc_std);                         // m^2/s^4
   imu_msg_.linear_acceleration_covariance[0] = acc_var;
   imu_msg_.linear_acceleration_covariance[4] = acc_var;
@@ -63,16 +79,9 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[8] = mag_var;
 }
 
-void ImuHandler::advertise()
+void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
-  string drone_name = dh_ros::getParam<string>("/drone_name");
-  imu_pub_ = nh_.advertise<ImuMsg>("/" + drone_name + "/imu", 1);
-  mag_pub_ = nh_.advertise<MagMsg>("/" + drone_name + "/magnetic_field", 1);
-}
-
-void ImuHandler::timerCb(const ros::TimerEvent&)
-{
-  ros::Time now = ros::Time::now();
+  const ros::Time now = ros::Time::now();
   imu_msg_.header.stamp = now;
   mag_msg_.header.stamp = now;
 
@@ -99,3 +108,4 @@ void ImuHandler::timerCb(const ros::TimerEvent&)
   imu_pub_.publish(imu_msg_);
   mag_pub_.publish(mag_msg_);
 }
+}  // namespace tobas_real

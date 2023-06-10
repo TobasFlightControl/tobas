@@ -11,15 +11,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
+	dh_kdl
 	dh_ros_tools
+	dh_eigen_tools
 	dh_std_tools
 	tobas_msgs
 	eigen_conversions
+	kdl_msgs
 	orocos_kdl
-  roscpp
-  std_msgs
+	roscpp
+	dynamic_reconfigure
+	std_msgs
 )
 find_package(Eigen3 REQUIRED)
+
+generate_dynamic_reconfigure_options(cfg/StateEstimationEskf.cfg)
 
 catkin_package(
 	INCLUDE_DIRS include
@@ -35,8 +41,10 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} Eigen3::Eigen)
 
 # ノードの実行ファイルを作成
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)
+
 foreach(FILE IN LISTS NODE_FILES)
 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
 	add_executable(${NODE_NAME} ${FILE})
+	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_gencfg)
 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 endforeach()

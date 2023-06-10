@@ -1,18 +1,17 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/boost.hpp>
 
 #include "../../include/plugins/imu_plugin.hpp"
+#include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/utils.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions.hpp"
-
-#define ZERO_3 (Vector3d(0., 0., 0.))
+#include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
 using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboImuPlugin::GazeboImuPlugin()
-  : SensorPlugin(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
+GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
 {
 }
 
@@ -33,8 +32,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   last_time_ = world_->SimTime();
   gravity_W_ = world_->Gravity();
-  gyro_bias_ = ZERO_3;
-  acc_bias_ = ZERO_3;
+  gyro_bias_ = zero3;
+  acc_bias_ = zero3;
 
   noise_ = NormalDistribution(0., 1.);
   for (int i = 0; i < 3; ++i)
@@ -64,31 +63,26 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  if (!getSdfParam<string>(sdf, "robotNamespace", ns_))
-  {
-    gzthrow(kPluginName << ": Please specify a robotNamespace.");
-  }
-
-  if (!getSdfParam<string>(sdf, "linkName", link_name_))
-  {
-    gzthrow(kPluginName << ": Please specify a linkName.");
-  }
-
-  // TODO: 範囲チェック
-  getSdfParam<string>(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
-  getSdfParam<double>(sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity);
-  getSdfParam<double>(sdf, "gyroscopeBiasRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk);
-  getSdfParam<double>(
-    sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime);
-  getSdfParam<double>(
-    sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma);
-  getSdfParam<double>(
-    sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity);
-  getSdfParam<double>(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk);
-  getSdfParam<double>(
-    sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime);
-  getSdfParam<double>(
-    sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma);
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
+  getSdfParam(
+    sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity, POSITIVE);
+  getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
+  getSdfParam(
+    sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
+  getSdfParam(
+    sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma,
+    POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity, POSITIVE);
+  getSdfParam(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime,
+    POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma,
+    POSITIVE);
 }
 
 void GazeboImuPlugin::onUpdate()
@@ -112,10 +106,10 @@ void GazeboImuPlugin::onUpdate()
   vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
 
   double acc_var = dh_std::sqr(acc_noise_density_) / dt;
-  fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
+  dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
   double gyro_var = dh_std::sqr(gyro_noise_density_) / dt;
-  fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
+  dh_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
   imu_pub_.publish(imu_msg_);
