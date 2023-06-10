@@ -5,7 +5,7 @@
 #include <dh_ros_tools/rate.hpp>
 
 #include "../../include/tobas_real/motors_handler_dshot.hpp"
-#include "../../include/tobas_real/constants.hpp"
+#include "../../include/tobas_real/common.hpp"
 
 using namespace std;
 using namespace dh_std;
@@ -68,13 +68,14 @@ void MotorsHandler_DSHOT::run()
       auto cmd_speed = cmd_speeds_[i];
       if (cmd_speed < 0.)
       {
-        rosErrorThrottle(kInfoPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
+        rosErrorThrottle(
+          kErrorPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
         cmd_speed = 0.;
       }
       else if (cmd_speed > max_speed)
       {
         rosErrorThrottle(
-          kInfoPeriod, "Commanded rotor speed is too large: " << cmd_speed << " > " << max_speed);
+          kErrorPeriod, "Commanded rotor speed is too large: " << cmd_speed << " > " << max_speed);
         cmd_speed = max_speed;
       }
 
@@ -116,13 +117,12 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
     rot_speeds_received_ = true;
   }
 
-  const auto& speeds = rotor_speeds.speeds;
-
   // Check array size
-  if (speeds.size() != drone_.numRotors())
+  if (rotor_speeds.speeds.size() != drone_.numRotors())
   {
     rosErrorThrottle(
-      kInfoPeriod, "Size mismatch: " << speeds.size() << " != " << drone_.numRotors());
+      kErrorPeriod,
+      "Size mismatch: " << rotor_speeds.speeds.size() << " != " << drone_.numRotors());
     return;
   }
 
@@ -131,15 +131,15 @@ void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_spe
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(
-      kInfoPeriod, "The delay from sensors to the motor command is "
-                     << delay << " seconds, which is too large.");
+      kErrorPeriod, "The delay from sensors to the motor command is "
+                      << delay << ", which exceeds the threshold " << kCheckDelayThreshold);
   }
   else if (delay < 0.)
   {
-    rosErrorThrottle(kInfoPeriod, "The timestamp of the motor command precedes the current time.");
+    rosErrorThrottle(kErrorPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
-  cmd_speeds_ = speeds;
+  cmd_speeds_ = rotor_speeds.speeds;
 }
 
 void MotorsHandler_DSHOT::batteryCb(const tobas_msgs::Battery& battery)
