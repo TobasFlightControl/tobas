@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ros/ros.h>
 #include <Navio2/RCOutput_Navio2.h>
 
 namespace tobas_real
