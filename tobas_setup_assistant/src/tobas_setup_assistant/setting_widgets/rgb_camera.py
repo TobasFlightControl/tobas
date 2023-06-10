@@ -119,6 +119,9 @@ class RgbCameraWidget(BaseSettingWidget):
 
         return True
 
+    def equipped(self) -> bool:
+        return not self.no_sensor.isChecked()
+
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():

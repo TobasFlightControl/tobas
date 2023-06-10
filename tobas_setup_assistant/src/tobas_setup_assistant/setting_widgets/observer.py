@@ -53,6 +53,11 @@ class ObserverWidget(BaseSettingWidget):
             q_error_named(self._main, self.NAME, "Please select observer type.")
             return False
 
+        if self.get_type() == self.CASCADE and (not self.cascade.is_valid()):
+            return False
+        if self.get_type() == self.ESKF and (not self.eskf.is_valid()):
+            return False
+
         return True
 
     def get_type(self) -> str:
@@ -91,6 +96,8 @@ class ObserverWidget(BaseSettingWidget):
 
 
 class ObserverWidget_Cascade(QWidget):
+
+    NAME = "Cascade Kalman Filter"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -170,8 +177,24 @@ class ObserverWidget_Cascade(QWidget):
         )
         self._rows.addWidget(self.grav_var)
 
+    def is_valid(self) -> bool:
+        # 絶対位置が取得できないとダメ
+        no_gps = not self._main.settings.gps.equipped()
+        no_odom = not self._main.settings.odometry.equipped()
+        if no_gps and no_odom:
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Absolute position connot be observed. Please review the sensor settings",
+            )
+            return False
+
+        return True
+
 
 class ObserverWidget_ESKF(QWidget):
+
+    NAME = "Error State Kalman Filter"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -207,3 +230,17 @@ class ObserverWidget_ESKF(QWidget):
             default=100,
         )
         self._rows.addWidget(self.rot_var_geomag)
+
+    def is_valid(self) -> bool:
+        # 絶対位置が取得できないとダメ
+        no_gps = not self._main.settings.gps.equipped()
+        no_odom = not self._main.settings.odometry.equipped()
+        if no_gps and no_odom:
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Absolute position connot be observed. Please review the sensor settings.",
+            )
+            return False
+
+        return True

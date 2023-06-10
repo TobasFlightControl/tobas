@@ -22,7 +22,7 @@ class OdometryWidget(BaseSettingWidget):
             + "ホイールエンコーダや，VIO (Visual Inertial Odometry) などが該当します．"
         super().__init__(main, title_text, abst_text)
 
-        self.no_sensor = QCheckBox("The drone is not equipped with odometry sensor.")
+        self.no_sensor = QCheckBox("The drone is not equipped with odometry publisher.")
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
@@ -132,6 +132,9 @@ class OdometryWidget(BaseSettingWidget):
 
     def is_valid(self) -> bool:
         return True
+
+    def equipped(self) -> bool:
+        return not self.no_sensor.isChecked()
 
     @pyqtSlot()
     def _update_visibility(self) -> None:

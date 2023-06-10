@@ -54,9 +54,9 @@ class EscWidget(QWidget):
         if self.esc_type.currentText() == self.NO_SELECT:
             q_error_named(self._main, NAME, "Please select ESC type.")
             return False
-        else:
-            if not self.selected().is_valid():
-                return False
+        
+        if not self.selected().is_valid():
+            return False
 
         return True
 

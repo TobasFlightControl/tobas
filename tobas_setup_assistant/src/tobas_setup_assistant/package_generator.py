@@ -275,7 +275,7 @@ class PackageGenerator(QWidget):
                 "do_adaptive_gain": cascade.do_adaptive_gain.get(),
             }
             items["state_estimator_cascade"] = {
-                "use_gps": not gps.no_sensor.isChecked(),
+                "use_gps": gps.equipped(),
                 "imu_buf_size": 1,
                 "bar_buf_size": 500,
                 "gps_buf_size": 25,
@@ -289,7 +289,7 @@ class PackageGenerator(QWidget):
                 "gyro_random_walk": imu.gyro_random_walk.get(),
                 "acc_noise_density": imu.acc_noise_density.get(),
                 "acc_random_walk": imu.acc_random_walk.get(),
-                "use_gps": not gps.no_sensor.isChecked(),
+                "use_gps": gps.equipped(),
                 "imu_buf_size": 1,
                 "mag_buf_size": 1,
                 "bar_buf_size": 1,
@@ -410,46 +410,49 @@ class PackageGenerator(QWidget):
             robot.append(motor_model)
 
         # IMU
-        imu_model = ImuModel(
-            ns=self._drone_name,
-            link_name=imu.link.get(),
-            update_rate=barometer.update_rate.get(),
-            gyro_noise_density=imu.gyro_noise_density.get(),
-            gyro_random_walk=imu.gyro_random_walk.get(),
-            gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
-            gyro_turn_on_bias_sigma=imu.gyro_turn_on_bias_sigma.get(),
-            acc_noise_density=imu.acc_noise_density.get(),
-            acc_random_walk=imu.acc_random_walk.get(),
-            acc_bias_corr_time=imu.acc_bias_corr_time.get(),
-            acc_turn_on_bias_sigma=imu.acc_turn_on_bias_sigma.get(),
-        )
-        robot.append(imu_model)
+        if imu.equipped():
+            imu_model = ImuModel(
+                ns=self._drone_name,
+                link_name=imu.link.get(),
+                update_rate=barometer.update_rate.get(),
+                gyro_noise_density=imu.gyro_noise_density.get(),
+                gyro_random_walk=imu.gyro_random_walk.get(),
+                gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
+                gyro_turn_on_bias_sigma=imu.gyro_turn_on_bias_sigma.get(),
+                acc_noise_density=imu.acc_noise_density.get(),
+                acc_random_walk=imu.acc_random_walk.get(),
+                acc_bias_corr_time=imu.acc_bias_corr_time.get(),
+                acc_turn_on_bias_sigma=imu.acc_turn_on_bias_sigma.get(),
+            )
+            robot.append(imu_model)
 
         # Magnetometer
-        mag_model = MagnetometerModel(
-            ns=self._drone_name,
-            link_name=magnetometer.link.get(),
-            update_rate=barometer.update_rate.get(),
-            ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
-            ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
-            ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
-            gauss_noise=magnetometer.gauss_noise.get() * 1e-9,
-            uniform_noise=magnetometer.uniform_noise.get() * 1e-9,
-        )
-        robot.append(mag_model)
+        if magnetometer.equipped():
+            mag_model = MagnetometerModel(
+                ns=self._drone_name,
+                link_name=magnetometer.link.get(),
+                update_rate=barometer.update_rate.get(),
+                ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
+                ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
+                ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
+                gauss_noise=magnetometer.gauss_noise.get() * 1e-9,
+                uniform_noise=magnetometer.uniform_noise.get() * 1e-9,
+            )
+            robot.append(mag_model)
 
         # Barometer
-        bar_model = BarometerModel(
-            ns=self._drone_name,
-            link_name=barometer.link.get(),
-            update_rate=barometer.update_rate.get(),
-            altitude_0=simulation.altitude_0.get(),
-            pressure_var=barometer.pressure_var.get(),
-        )
-        robot.append(bar_model)
+        if barometer.equipped():
+            bar_model = BarometerModel(
+                ns=self._drone_name,
+                link_name=barometer.link.get(),
+                update_rate=barometer.update_rate.get(),
+                altitude_0=simulation.altitude_0.get(),
+                pressure_var=barometer.pressure_var.get(),
+            )
+            robot.append(bar_model)
 
         # GPS
-        if not gps.no_sensor.isChecked():
+        if gps.equipped():
             gps_model = GpsModel(
                 ns=self._drone_name,
                 link_name=gps.link.get(),
@@ -465,7 +468,7 @@ class PackageGenerator(QWidget):
             robot.append(gps_model)
 
         # RGB Camera
-        if not rgb_camera.no_sensor.isChecked():
+        if rgb_camera.equipped():
             add_rgb_camera_model(
                 robot=robot,
                 ns=self._drone_name,
@@ -489,7 +492,7 @@ class PackageGenerator(QWidget):
             )
 
         # Depth Camera
-        if not depth_camera.no_sensor.isChecked():
+        if depth_camera.equipped():
             add_depth_camera_model(
                 robot=robot,
                 ns=self._drone_name,
@@ -513,7 +516,7 @@ class PackageGenerator(QWidget):
             )
 
         # Odometry
-        if not odometry.no_sensor.isChecked():
+        if odometry.equipped():
             odometry_model = OdometryModel(
                 ns=self._drone_name,
                 link_name=odometry.link.get(),

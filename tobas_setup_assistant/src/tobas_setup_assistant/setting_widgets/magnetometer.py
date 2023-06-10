@@ -66,6 +66,9 @@ class MagnetometerWidget(BaseSettingWidget):
     def is_valid(self) -> bool:
         return True
 
+    def equipped(self) -> bool:
+        return True
+
     @pyqtSlot()
     def _add_fixed_links(self) -> None:
         body_choices = self._main.urdf_parser.nwu_fixed_link_names()
