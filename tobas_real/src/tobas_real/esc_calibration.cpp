@@ -1,7 +1,8 @@
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include "../../include/tobas_real/esc_calibration.hpp"
-#include "../../include/tobas_real/constants.hpp"
+#include "../../include/tobas_real/common.hpp"
 
 #define SLEEP_TIME_HIGH 3  // [s]
 #define SLEEP_TIME_LOW 4   // [s]
@@ -13,20 +14,14 @@ namespace tobas_real
 {
 EscCalibrator::EscCalibrator()
 {
+  if (getuid())
+  {
+    throw dh_ros::RuntimeError("Not root.");
+  }
+
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
   {
-    if (!(pwm_.initialize(channel)))
-    {
-      rosFatal("Failed to initialze PWM on channel " << channel << ".");
-    }
-    if (!pwm_.set_frequency(channel, kPwmFrequency))
-    {
-      rosFatal("Failed to set frequency on channel " << channel << ".");
-    }
-    if (!(pwm_.enable(channel)))
-    {
-      rosFatal("Failed to enable PWM on channel " << channel << ".");
-    }
+    setupRCOutput(pwm_, channel);
   }
 }
 
@@ -39,7 +34,7 @@ void EscCalibrator::run()
 
 void EscCalibrator::setHigh()
 {
-  ros::Time start_time = ros::Time::now();
+  const ros::Time start_time = ros::Time::now();
   rosInfo("Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
 
   while ((ros::Time::now() - start_time).toSec() < SLEEP_TIME_HIGH)
@@ -51,13 +46,13 @@ void EscCalibrator::setHigh()
         rosFatal("Failed to set high duty cycle on channel " << channel << ".");
       }
     }
-    usleep(INTERVAL * 1e+6);
+    ros::Duration(INTERVAL).sleep();
   }
 }
 
 void EscCalibrator::setLow()
 {
-  ros::Time start_time = ros::Time::now();
+  const ros::Time start_time = ros::Time::now();
   rosInfo("Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
 
   while ((ros::Time::now() - start_time).toSec() < SLEEP_TIME_LOW)
@@ -69,7 +64,7 @@ void EscCalibrator::setLow()
         rosFatal("Failed to set low duty cycle on channel " << channel << ".");
       }
     }
-    usleep(INTERVAL * 1e+6);
+    ros::Duration(INTERVAL).sleep();
   }
 }
 }  // namespace tobas_real
