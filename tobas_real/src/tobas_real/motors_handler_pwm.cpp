@@ -1,10 +1,15 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/vector.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
+#include <dh_ros_tools/rate.hpp>
 
 #include "../../include/tobas_real/motors_handler_pwm.hpp"
-#include "../../include/tobas_real/constants.hpp"
+#include "../../include/tobas_real/common.hpp"
+
+#define CONTROL_RATE 1000.            // [Hz]
+#define AUTO_STOP_TIME_THRESHOLD 0.5  // [s]
 
 using namespace std;
 using namespace dh_std;
@@ -13,8 +18,9 @@ namespace tobas_real
 {
 MotorsHandler_PWM::MotorsHandler_PWM()
   : super(),
+    last_cmd_time_(0.),
+    is_activated_(false),
     is_initialized_(false),
-    rot_speeds_received_(false),
     battery_received_(false),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &MotorsHandler_PWM::checkTopicsTimerCb, this)
 {
@@ -26,32 +32,54 @@ MotorsHandler_PWM::MotorsHandler_PWM()
   getRosParams();
   drone_.loadFromParam(ns_);
 
+  // PWMドライバのセットアップ
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
-    const uint32_t& pin = rotor_config.pin;
-    uint32_t channel = getChannel(pin);
-
-    if (!pwm_.initialize(channel))
-    {
-      throw dh_ros::RuntimeError("Failed to initialize RC output for PIN" + to_string(pin) + ".");
-    }
-
-    if (!pwm_.set_frequency(channel, kPwmFrequency))
-    {
-      throw dh_ros::RuntimeError("Failed to set frequency for PIN" + to_string(pin) + ".");
-    }
-
-    if (!pwm_.enable(channel))
-    {
-      throw dh_ros::RuntimeError("RC output for PIN" + to_string(pin) + " is disabled.");
-    }
-
-    rosInfo("PWM output for PIN" << pin << " is ready.");
-    ros::Duration(0.2).sleep();  // 連続して設定を行うと失敗するため間隔をあける
+    const auto channel = channelFromPin(rotor_config.pin);
+    setupRCOutput(pwm_, channel);
   }
+
+  // コマンドの初期値はDisarm
+  pwm_periods_.resize(drone_.numRotors(), kPwmDisarm);
 
   registerPublishers();
   registerSubscribers();
+}
+
+void MotorsHandler_PWM::run()
+{
+  rosInfo("Send disarm command for " << kDisarmDuration << " seconds.");
+  sendDisarm();
+  rosInfo("Disarming finished. The motors are ready to rotate.");
+
+  dh_ros::Rate rate(CONTROL_RATE);
+  while (ros::ok())
+  {
+    // Check elapsed time after last command
+    const auto time_after_last_cmd = (ros::Time::now() - last_cmd_time_).toSec();
+    if (is_activated_ && time_after_last_cmd > AUTO_STOP_TIME_THRESHOLD)
+    {
+      dh_std::fill(pwm_periods_, kPwmDisarm);
+      is_activated_ = false;
+      rosInfo(
+        "The rotors are automatically stopped because "
+        << AUTO_STOP_TIME_THRESHOLD << " seconds have elapsed since the last command.");
+    }
+
+    // Set PWM duty cycles
+    for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
+    {
+      const auto& rotor_config = drone_.rotorConfig(rotor_idx);
+      const auto& pin = rotor_config.pin;
+      if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_periods_[rotor_idx]))
+      {
+        rosFatal("Failed to set PWM duty cycle on PIN" << pin << ".");
+      }
+    }
+
+    ros::spinOnce();
+    rate.sleep();
+  }
 }
 
 void MotorsHandler_PWM::getRosParams()
@@ -71,32 +99,28 @@ void MotorsHandler_PWM::registerSubscribers()
 
 bool MotorsHandler_PWM::isReady()
 {
-  return rot_speeds_received_ && battery_received_;
+  return battery_received_;
 }
 
-uint32_t MotorsHandler_PWM::getChannel(uint32_t pin)
+void MotorsHandler_PWM::sendDisarm()
 {
-  return pin - 1;
+  const ros::Time start_time = ros::Time::now();
+  while ((ros::Time::now() - start_time).toSec() < kDisarmDuration)
+  {
+    for (const auto& rotor_config : drone_.rotorConfigs())
+    {
+      const auto& pin = rotor_config.pin;
+      if (!pwm_.set_duty_cycle(channelFromPin(pin), kPwmDisarm))
+      {
+        rosFatal("Failed to set PWM duty cycle on PIN " << pin << ".");
+      }
+    }
+    ros::Duration(kDisarmInterval).sleep();
+  }
 }
 
 void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
-  if (!rot_speeds_received_)
-  {
-    rot_speeds_received_ = true;
-  }
-
-  const auto& cmd_speeds = rotor_speeds.speeds;
-
-  // Check array size
-  if (cmd_speeds.size() != drone_.numRotors())
-  {
-    rosErrorThrottle(
-      kInfoPeriod, "Size mismatch: " << cmd_speeds.size() << " != " << drone_.numRotors());
-    return;
-  }
-
-  // Initialize
   if (!is_initialized_)
   {
     if (isReady())
@@ -104,49 +128,70 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
       check_topics_timer_.stop();
       is_initialized_ = true;
     }
+    else
+    {
+      rosError("The rotors cannot be rotated because some topics have not been received yet.");
+      return;
+    }
+  }
+
+  // Check array size
+  if (rotor_speeds.speeds.size() != drone_.numRotors())
+  {
+    rosErrorThrottle(
+      kErrorPeriod,
+      "Size mismatch: " << rotor_speeds.speeds.size() << " != " << drone_.numRotors());
     return;
   }
 
+  const auto cur_time = ros::Time::now();
+
   // Check delay
-  const auto delay = (ros::Time::now() - rotor_speeds.header.stamp).toSec();
+  const auto delay = (cur_time - rotor_speeds.header.stamp).toSec();
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(
-      kInfoPeriod, "The delay from sensors to the motor command is "
-                     << delay << " seconds, which is too large.");
+      kErrorPeriod, "The delay from sensors to the motor command is "
+                      << delay << ", which exceeds the threshold " << kCheckDelayThreshold);
   }
   else if (delay < 0.)
   {
-    rosErrorThrottle(kInfoPeriod, "The timestamp of the motor command precedes the current time.");
+    rosErrorThrottle(kErrorPeriod, "The timestamp of the motor command precedes the current time.");
   }
 
-  for (int i = 0; i < drone_.numRotors(); ++i)
+  // Update PWM periods
+  for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
-    const auto& rotor_config = drone_.rotorConfig(i);
-    const auto max_speed = drone_.maxRotSpeed(i, battery_.voltage);
+    const auto& rotor_config = drone_.rotorConfig(rotor_idx);
+    const auto& pin = rotor_config.pin;
+    const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_.voltage);
 
     // 指令速度を決定
-    auto cmd_speed = cmd_speeds[i];
+    auto cmd_speed = rotor_speeds.speeds[rotor_idx];
     if (cmd_speed < 0.)
     {
-      rosErrorThrottle(kInfoPeriod, "Rotor speed must be semi-positive: " << cmd_speed << " < 0");
+      rosErrorThrottle(
+        kErrorPeriod,
+        "Negative rotor speed is commanded on PIN" << pin << ": " << cmd_speed << " [rad/s]");
       cmd_speed = 0.;
     }
     else if (cmd_speed > max_speed)
     {
       rosErrorThrottle(
-        kInfoPeriod, "Commanded rotor speed is too large: " << cmd_speed << " > " << max_speed);
+        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " exceeds the limit: " << cmd_speed
+                                                     << " > " << max_speed << " [rad/s]");
       cmd_speed = max_speed;
     }
 
-    // パルス幅に変換して指令
-    const auto& pin = rotor_config.pin;
-    const auto period = remap(cmd_speed, 0., max_speed, kPwmMin, kPwmMax);
-    if (!pwm_.set_duty_cycle(getChannel(pin), period))
-    {
-      throw dh_ros::RuntimeError("Failed to set PWM duty cycle for PIN" + to_string(pin) + ".");
-    }
+    // パルス幅に変換
+    pwm_periods_[rotor_idx] = remap(cmd_speed, 0., max_speed, kPwmMin, kPwmMax);
   }
+
+  // Update last commanded time
+  last_cmd_time_ = cur_time;
+
+  // Now the motor is activated
+  is_activated_ = true;
 }
 
 void MotorsHandler_PWM::batteryCb(const tobas_msgs::Battery& battery)
@@ -161,11 +206,6 @@ void MotorsHandler_PWM::batteryCb(const tobas_msgs::Battery& battery)
 
 void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (!rot_speeds_received_)
-  {
-    rosWarn("Motor command is not received yet.");
-  }
-
   if (!battery_received_)
   {
     rosWarn("Battery state is not received yet.");

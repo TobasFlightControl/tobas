@@ -20,13 +20,17 @@ class MotorsHandler_PWM : public dh_ros::BaseNode
 public:
   explicit MotorsHandler_PWM();
 
+  void run();
+
 private:
   tobas::Drone drone_;
   RCOutput_Navio2 pwm_;
 
+  ros::Time last_cmd_time_;  // [s]
+  bool is_activated_;
   bool is_initialized_;
-  bool rot_speeds_received_;
   bool battery_received_;
+  std::vector<double> pwm_periods_;
   tobas_msgs::Battery battery_;
 
   // PubSub
@@ -41,7 +45,7 @@ private:
   void registerSubscribers() override;
 
   bool isReady();
-  uint32_t getChannel(uint32_t pin);
+  void sendDisarm();
 
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
   void batteryCb(const tobas_msgs::Battery& battery);

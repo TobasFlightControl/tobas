@@ -4,5 +4,5 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "motors_handler_pwm");
   tobas_real::MotorsHandler_PWM node;
-  ros::spin();
+  node.run();
 }
