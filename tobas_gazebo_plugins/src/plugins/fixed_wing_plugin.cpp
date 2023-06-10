@@ -200,9 +200,9 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha))
   {
-    gzwarn << kPluginName << ": The angle of attack " << alpha << " is not within the valid range "
-           << vehicle_params_.alpha_limit
-           << ". The accuracy of the physics simulation may be compromised." << endl;
+    gzerr << kPluginName << ": The angle of attack " << alpha << " is not within the valid range "
+          << vehicle_params_.alpha_limit
+          << ". The accuracy of the physics simulation may be compromised." << endl;
   }
 
   // 最初は変数の初期化だけして終了

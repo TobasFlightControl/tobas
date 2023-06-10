@@ -139,7 +139,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     return;
   }
 
-  // Check time after last command
+  // Check elapsed time after last command
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
   if (is_activated_ && time_after_last_cmd > auto_reset_time_thr_)
   {
