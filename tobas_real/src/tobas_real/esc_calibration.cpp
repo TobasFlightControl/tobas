@@ -16,7 +16,7 @@ EscCalibrator::EscCalibrator()
 {
   if (getuid())
   {
-    throw dh_ros::RuntimeError("Not root.");
+    rosthrow("Not root.");
   }
 
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)

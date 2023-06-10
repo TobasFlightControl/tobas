@@ -4,6 +4,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/exception.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/conversions/coordinates.hpp>
@@ -32,7 +33,7 @@ Controller::Controller()
 
   if (x_rotors_.count() == 0)
   {
-    dh_ros::RuntimeError("The number of propellers is zero.");
+    rosthrow("The number of propellers is zero.");
   }
 
   q_0_.resize(drone_.tree().getNrOfJoints());

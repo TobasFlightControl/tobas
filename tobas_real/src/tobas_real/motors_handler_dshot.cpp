@@ -26,7 +26,7 @@ MotorsHandler_DSHOT::MotorsHandler_DSHOT()
 {
   if (getuid())
   {
-    throw dh_ros::RuntimeError("Not root.");
+    rosthrow("Not root.");
   }
 
   getRosParams();

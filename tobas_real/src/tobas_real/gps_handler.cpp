@@ -19,12 +19,12 @@ GpsHandler::GpsHandler()
 {
   if (!gps_.testConnection())
   {
-    throw dh_ros::RuntimeError("Failed to connect to GPS.");
+    rosthrow("Failed to connect to GPS.");
   }
 
   if (gps_.configureSolutionRate(SOLUTION_RATE) < 0)
   {
-    throw dh_ros::RuntimeError("Failed to set solution rate.");
+    rosthrow("Failed to set solution rate.");
   }
 
   getRosParams();

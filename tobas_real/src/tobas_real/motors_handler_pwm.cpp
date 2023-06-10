@@ -26,7 +26,7 @@ MotorsHandler_PWM::MotorsHandler_PWM()
 {
   if (getuid())
   {
-    throw dh_ros::RuntimeError("Not root.");
+    rosthrow("Not root.");
   }
 
   getRosParams();

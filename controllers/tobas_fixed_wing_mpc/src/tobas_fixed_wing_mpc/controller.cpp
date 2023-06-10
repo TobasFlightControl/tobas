@@ -35,7 +35,7 @@ Controller::Controller()
 
   if (x_rotors_.count() == 0)
   {
-    dh_ros::RuntimeError("The number of propellers is zero.");
+    rosthrow("The number of propellers is zero.");
   }
 
   q_0_.resize(drone_.tree().getNrOfJoints());

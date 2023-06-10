@@ -13,17 +13,17 @@ void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel)
 
   if (!pwm.initialize(channel))
   {
-    throw dh_ros::RuntimeError("Failed to initialize RC output on PIN" + to_string(pin) + ".");
+    rosthrow("Failed to initialize RC output on PIN" << pin << ".");
   }
 
   if (!pwm.set_frequency(channel, kPwmFrequency))
   {
-    throw dh_ros::RuntimeError("Failed to set PWM frequency on PIN" + to_string(pin) + ".");
+    rosthrow("Failed to set PWM frequency on PIN" << pin << ".");
   }
 
   if (!pwm.enable(channel))
   {
-    throw dh_ros::RuntimeError("RC output on PIN" + to_string(pin) + " is disabled.");
+    rosthrow("RC output on PIN" << pin << " is disabled.");
   }
 
   rosInfo("Setup for RC output on PIN" << pin << " finished successfully.");

@@ -49,7 +49,7 @@ void ImuHandler::setupImu()
 
   if (!imu_->probe())
   {
-    throw dh_ros::RuntimeError("Sensor not enabled.");
+    rosthrow("Sensor not enabled.");
   }
 
   imu_->initialize();
