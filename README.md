@@ -100,7 +100,7 @@ $ roslaunch (tabas_config_pkg) bringup.launch
 ### ESC Calibration
 
 Make sure battery and ESCs are connected to FC properly.\
-Execute the following in FC.
+Execute the following in FC:
 
 ```bash
 $ su
@@ -113,6 +113,30 @@ $ roslaunch tobas_real esc_calibration.launch
 ```bash
 $ roslaunch tobas_keyboard_teleop keyboard_teleop.launch drone_name:=(drone_name)  # By keyboard
 $ roslaunch tobas_gui_teleop gui_teleop.launch drone_name:=(drone_name)            # By GUI application
+```
+
+### Run FC and external PC on the same ROS network
+
+1. Make sure that the FC and the external PC are connected to the same network.
+2. Make sure that the ROS versions on the FC and the external PC are the same.
+3. On the FC, launch roscore.
+
+```bash
+$ roscore
+```
+
+4. On the external PC, set the following environment variables:
+
+```bash
+$ export ROS_IP=`hostname -I | cut -d' ' -f1`
+$ export ROS_HOSTNAME=`hostname -I | cut -d' ' -f1`
+$ export ROS_MASTER_URI=http://(IP address of FC):11311
+```
+
+5. Confirm that the external PC can communicate with the ROS nodes inside the FC.
+
+```bash
+$ rosnode ping /rosout
 ```
 
 ## Trouble Shooting
