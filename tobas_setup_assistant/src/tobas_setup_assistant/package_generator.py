@@ -387,7 +387,7 @@ class PackageGenerator(QWidget):
         # Battery
         battery_model = BatteryModel(
             ns=self._drone_name,
-            nominal_voltage=battery.nominal_voltage.get(),
+            nominal_voltage=battery.selected().nominal_voltage(),
         )
         robot.append(battery_model)
 
