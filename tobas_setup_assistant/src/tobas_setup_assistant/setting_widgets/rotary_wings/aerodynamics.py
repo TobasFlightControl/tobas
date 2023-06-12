@@ -15,7 +15,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...constants import *
-from .constants import NAME
+from .constants import ROTARY_WINGS
 
 
 class AerodynamicsWidget(QWidget):
@@ -60,7 +60,7 @@ class AerodynamicsWidget(QWidget):
 
     def is_valid(self) -> bool:
         if self.setting_method.currentText() == self.NO_SELECT:
-            q_error_named(self._main, NAME, "Please select aerodynamics setting method.")
+            q_error_named(self._main, ROTARY_WINGS, "Please select aerodynamics setting method.")
             return False
         else:
             if not self.selected().is_valid():
@@ -409,7 +409,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(self._main, NAME, "Thrust stand data is blank.")
+            q_error_named(self._main, ROTARY_WINGS, "Thrust stand data is blank.")
             return False
 
         return True

@@ -1,1 +1,1 @@
-NAME = "Rotary Wings"
+ROTARY_WINGS = "Rotary Wings"

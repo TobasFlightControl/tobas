@@ -13,7 +13,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...constants import *
-from .constants import NAME
+from .constants import ROTARY_WINGS
 from .esc import EscWidget
 from .motor import MotorWidget
 from .aerodynamics import AerodynamicsWidget
@@ -51,14 +51,14 @@ class SelectedLinksWidget(TabWidget):
         # そうしないと全体を見る過程で部分のエラーが出る可能性がある
 
         if num_rotors < 2:
-            q_error_named(self._main, NAME, "At least 2 rotary wings are required.")
+            q_error_named(self._main, ROTARY_WINGS, "At least 2 rotary wings are required.")
             return False
 
         directions = set(self.widget(i).motor.direction() for i in range(num_rotors))
         if len(directions) == 1:
             q_error_named(
                 self._main,
-                NAME,
+                ROTARY_WINGS,
                 "All rotors have the same rotation direction. "
                 "Rotors that rotate in both clockwise (CW) and counterclockwise (CCW) are required.",
             )

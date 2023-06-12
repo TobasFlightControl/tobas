@@ -13,7 +13,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...constants import *
-from .constants import NAME
+from .constants import ROTARY_WINGS
 
 
 class EscWidget(QWidget):
@@ -52,7 +52,7 @@ class EscWidget(QWidget):
 
     def is_valid(self) -> bool:
         if self.esc_type.currentText() == self.NO_SELECT:
-            q_error_named(self._main, NAME, "Please select ESC type.")
+            q_error_named(self._main, ROTARY_WINGS, "Please select ESC type.")
             return False
         
         if not self.selected().is_valid():

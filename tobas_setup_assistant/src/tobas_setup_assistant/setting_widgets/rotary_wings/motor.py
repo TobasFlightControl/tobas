@@ -16,7 +16,7 @@ from dh_rqt_tools.messages import q_error_named
 from ...parameter_getters import *
 from ...constants import *
 from ...utils import remap
-from .constants import NAME
+from .constants import ROTARY_WINGS
 
 
 class MotorWidget(QWidget):
@@ -56,7 +56,7 @@ class MotorWidget(QWidget):
     def is_valid(self) -> bool:
         if self.setting_method.currentText() == self.NO_SELECT:
             print(self.setting_method.currentText())
-            q_error_named(self._main, NAME, "Please select motor setting method.")
+            q_error_named(self._main, ROTARY_WINGS, "Please select motor setting method.")
             return False
         else:
             if not self.selected().is_valid():
@@ -293,7 +293,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(self._main, NAME, "Experiment data is blank.")
+            q_error_named(self._main, ROTARY_WINGS, "Experiment data is blank.")
             return False
 
         data = self._data.get()
@@ -304,7 +304,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
             for pulse_width, _, _ in data:
                 if not lb <= pulse_width <= ub:
                     q_error_named(
-                        self._main, NAME, f'Pulse width out of range: {pulse_width} not in [{lb}, {ub}]',
+                        self._main, ROTARY_WINGS, f'Pulse width out of range: {pulse_width} not in [{lb}, {ub}]',
                     )
                     return False
         elif esc_type == esc.DSHOT:
