@@ -1,0 +1,29 @@
+# goal
+float64 gps_position_stddev_threshold  # [m]
+
+---
+
+# result
+sensor_msgs/Imu imu
+sensor_msgs/MagneticField magnetic_field
+sensor_msgs/FluidPressure air_pressure
+sensor_msgs/NavSatFix gps
+tobas_msgs/LinearVelocityWithCovariance ground_speed
+
+int32 imu_count
+int32 mag_count
+int32 bar_count
+int32 gps_count
+int32 vel_count
+
+int8 error_code
+int8 NO_ERROR = 0
+int8 INVALID_GOAL = -1
+int8 TIMEOUT = -2
+int8 UNKNOWN_ERROR = -3
+
+---
+
+# feedback
+float64 gps_x_stddev  # [m]
+float64 gps_y_stddev  # [m]

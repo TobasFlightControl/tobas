@@ -2,17 +2,18 @@
 
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
+#include <actionlib/client/simple_action_client.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <dh_std_tools/buffer.hpp>
 #include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
+#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
 
 #include "./eskf.hpp"
@@ -37,18 +38,20 @@ public:
   explicit ErrorStateKalmanFilterRos();
 
 private:
-  bool is_ready_;
-  ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
-  ros::Time t_last_;
+  // 固定値
   double lat_0_;  // 緯度のゼロ点
   double lon_0_;  // 経度のゼロ点
   double alt_0_;  // 高度のゼロ点
-  dh_std::Buffer<ImuMsg> imu_buf_;  // IMUの観測値
-  dh_std::Buffer<MagMsg> mag_buf_;  // 磁気センサの観測値
-  dh_std::Buffer<BarMsg> bar_buf_;  // 気圧センサの観測値
-  dh_std::Buffer<GpsMsg> gps_buf_;  // GPS位置の観測値
-  dh_std::Buffer<VelMsg> vel_buf_;  // GPS速度の観測値
-  StateMsg state_;                  // 発行する状態
+
+  bool is_initialized_;
+  bool imu_received_;
+  bool mag_received_;
+  bool bar_received_;
+  bool gps_received_;
+  bool vel_received_;
+  ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
+  ros::Time t_last_;
+  StateMsg state_;  // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
@@ -68,16 +71,12 @@ private:
   double ref_mag_north_;
   double ref_mag_east_;
   double ref_mag_down_;
-  double gyro_noise_density_;  // rad/s/sqrt(hz)
-  double gyro_random_walk_;    // rad/s^2/sqrt(hz)
-  double acc_noise_density_;   // m/s^2/sqrt(hz)
-  double acc_random_walk_;     // m/s^3/sqrt(hz)
+  double gyro_noise_density_;                             // rad/s/sqrt(hz)
+  double gyro_random_walk_;                               // rad/s^2/sqrt(hz)
+  double acc_noise_density_;                              // m/s^2/sqrt(hz)
+  double acc_random_walk_;                                // m/s^3/sqrt(hz)
   bool use_gps_;
-  int imu_buf_size_;
-  int mag_buf_size_;
-  int bar_buf_size_;
-  int gps_buf_size_;
-  int vel_buf_size_;
+  double gps_pos_stddev_thr_;                             // [m]
   state_estimation_eskf::StateEstimationEskfConfig cfg_;  // 動的パラメータ
 
   // PubSub
@@ -91,23 +90,27 @@ private:
   // Timer
   dh_ros::Timer check_topics_timer_;
 
+  // Action client
+  actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac_;
+
   // Dynamic Reconfigure
   ConfigServer server_;
+
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   bool isReady();
-  void initialize();
+  void initialize(const ros::Time& stamp);
   void setZeroPositions();
-  void updateBaseStateMsg();
+  void updateBaseStateMsg(const ros::Time& stamp);
 
-  void imuCb(const ImuMsg& msg);
-  void magCb(const MagMsg& msg);
-  void barCb(const BarMsg& msg);
-  void gpsCb(const GpsMsg& msg);
-  void velCb(const VelMsg& msg);
+  void imuCb(const ImuMsg& imu);
+  void magCb(const MagMsg& mag);
+  void barCb(const BarMsg& bar);
+  void gpsCb(const GpsMsg& gps);
+  void velCb(const VelMsg& vel);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
