@@ -32,6 +32,19 @@ private:
   ResultType result_;
   FeedbackType feedback_;
   bool is_action_running_;
+  uint32_t imu_count_;
+  uint32_t mag_count_;
+  uint32_t bar_count_;
+  uint32_t gps_count_;
+  uint32_t vel_count_;
+  ImuMsg imu_sum_;
+  MagMsg mag_sum_;
+  BarMsg bar_sum_;
+  double cos_lat_sum_, sin_lat_sum_;
+  double cos_lon_sum_, sin_lon_sum_;
+  double alt_sum_;
+  boost::array<double, 9> pos_cov_sum_;
+  VelMsg vel_sum_;
 
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
@@ -46,6 +59,7 @@ private:
   void registerSubscribers() override;
 
   void reset();
+  void fillResult();
   bool isValidGoal();
   bool isValidResult();
 

@@ -39,14 +39,59 @@ void StaticStateDeterminationServer::registerSubscribers()
 
 void StaticStateDeterminationServer::reset()
 {
-  // 各センサ値や共分散には最初に0がかかるため初期化する必要はない
+  imu_count_ = 0;
+  mag_count_ = 0;
+  bar_count_ = 0;
+  gps_count_ = 0;
+  vel_count_ = 0;
 
-  // 平均値の計算に用いるサンプル数を初期化
-  result_.imu_count = 0;
-  result_.mag_count = 0;
-  result_.bar_count = 0;
-  result_.gps_count = 0;
-  result_.vel_count = 0;
+  imu_sum_ = ImuMsg();
+  mag_sum_ = MagMsg();
+  bar_sum_ = BarMsg();
+  cos_lat_sum_ = sin_lat_sum_ = 0.;
+  cos_lon_sum_ = sin_lon_sum_ = 0.;
+  alt_sum_ = 0.;
+  pos_cov_sum_.fill(0.);
+  vel_sum_ = VelMsg();
+}
+
+void StaticStateDeterminationServer::fillResult()
+{
+  result_.imu_count = imu_count_;
+  result_.mag_count = mag_count_;
+  result_.bar_count = bar_count_;
+  result_.gps_count = gps_count_;
+  result_.vel_count = vel_count_;
+
+  const double imu_count = static_cast<double>(imu_count_);
+  result_.imu.angular_velocity = imu_sum_.angular_velocity / imu_count;
+  result_.imu.linear_acceleration = imu_sum_.linear_acceleration / imu_count;
+  result_.imu.angular_velocity_covariance = imu_sum_.angular_velocity_covariance / sqr(imu_count);
+  result_.imu.linear_acceleration_covariance =
+    imu_sum_.linear_acceleration_covariance / sqr(imu_count);
+
+  const double mag_count = static_cast<double>(mag_count_);
+  result_.magnetic_field.magnetic_field = mag_sum_.magnetic_field / mag_count;
+  result_.magnetic_field.magnetic_field_covariance =
+    mag_sum_.magnetic_field_covariance / sqr(mag_count);
+
+  const double bar_count = static_cast<double>(bar_count_);
+  result_.air_pressure.fluid_pressure = bar_sum_.fluid_pressure / bar_count;
+  result_.air_pressure.variance = bar_sum_.variance / sqr(bar_count);
+
+  const double gps_count = static_cast<double>(gps_count_);
+  const auto cos_lat = cos_lat_sum_ / gps_count;
+  const auto sin_lat = sin_lat_sum_ / gps_count;
+  const auto cos_lon = cos_lon_sum_ / gps_count;
+  const auto sin_lon = sin_lon_sum_ / gps_count;
+  result_.gps.latitude = rad2deg(atan2(sin_lat, cos_lat));
+  result_.gps.longitude = rad2deg(atan2(sin_lon, cos_lon));
+  result_.gps.altitude = alt_sum_ / gps_count;
+  result_.gps.position_covariance = pos_cov_sum_ / sqr(gps_count);
+
+  const double vel_count = static_cast<double>(vel_count_);
+  result_.ground_speed.vel = vel_sum_.vel / vel_count;
+  result_.ground_speed.covariance = vel_sum_.covariance / sqr(vel_count);
 }
 
 bool StaticStateDeterminationServer::isValidGoal()
@@ -63,18 +108,26 @@ bool StaticStateDeterminationServer::isValidGoal()
 
 bool StaticStateDeterminationServer::isValidResult()
 {
-  bool ok = true;
+  if (imu_count_ == 0)
+    return false;
+  if (mag_count_ == 0)
+    return false;
+  if (bar_count_ == 0)
+    return false;
+  if (gps_count_ == 0)
+    return false;
+  if (vel_count_ == 0)
+    return false;
 
-  ok &= result_.imu_count > 0;
-  ok &= result_.mag_count > 0;
-  ok &= result_.bar_count > 0;
-  ok &= result_.gps_count > 0;
-  ok &= result_.vel_count > 0;
+  const auto gps_x_stddev = sqrt(pos_cov_sum_[0] / sqr(gps_count_));
+  if (gps_x_stddev > goal_->gps_position_stddev_threshold)
+    return false;
 
-  ok &= feedback_.gps_x_stddev < goal_->gps_position_stddev_threshold;
-  ok &= feedback_.gps_y_stddev < goal_->gps_position_stddev_threshold;
+  const auto gps_y_stddev = sqrt(pos_cov_sum_[4] / sqr(gps_count_));
+  if (gps_y_stddev > goal_->gps_position_stddev_threshold)
+    return false;
 
-  return ok;
+  return true;
 }
 
 void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
@@ -84,20 +137,15 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
     return;
   }
 
-  ++result_.imu_count;
-  const double n = static_cast<double>(result_.imu_count);
+  ++imu_count_;
 
-  const auto& prev_gyro = result_.imu.angular_velocity;
-  const auto& prev_acc = result_.imu.linear_acceleration;
-  result_.imu.angular_velocity = ((n - 1) * prev_gyro + imu.angular_velocity) / n;
-  result_.imu.linear_acceleration = ((n - 1) * prev_acc + imu.linear_acceleration) / n;
+  imu_sum_.angular_velocity = imu_sum_.angular_velocity + imu.angular_velocity;
+  imu_sum_.linear_acceleration = imu_sum_.linear_acceleration + imu.linear_acceleration;
 
-  const auto& prev_gyro_cov = result_.imu.angular_velocity_covariance;
-  const auto& prev_acc_cov = result_.imu.linear_acceleration_covariance;
-  result_.imu.angular_velocity_covariance =
-    (sqr(n - 1) * prev_gyro_cov + imu.angular_velocity_covariance) / sqr(n);
-  result_.imu.linear_acceleration_covariance =
-    (sqr(n - 1) * prev_acc_cov + imu.linear_acceleration_covariance) / sqr(n);
+  imu_sum_.angular_velocity_covariance =
+    imu_sum_.angular_velocity_covariance + imu.angular_velocity_covariance;
+  imu_sum_.linear_acceleration_covariance =
+    imu_sum_.linear_acceleration_covariance + imu.linear_acceleration_covariance;
 }
 
 void StaticStateDeterminationServer::magCb(const MagMsg& mag)
@@ -107,15 +155,11 @@ void StaticStateDeterminationServer::magCb(const MagMsg& mag)
     return;
   }
 
-  ++result_.mag_count;
-  const double n = static_cast<double>(result_.mag_count);
+  ++mag_count_;
 
-  const auto& prev_mag = result_.magnetic_field.magnetic_field;
-  result_.magnetic_field.magnetic_field = ((n - 1) * prev_mag + mag.magnetic_field) / n;
-
-  const auto& prev_cov = result_.magnetic_field.magnetic_field_covariance;
-  result_.magnetic_field.magnetic_field_covariance =
-    (sqr(n - 1) * prev_cov + mag.magnetic_field_covariance) / sqr(n);
+  mag_sum_.magnetic_field = mag_sum_.magnetic_field + mag.magnetic_field;
+  mag_sum_.magnetic_field_covariance =
+    mag_sum_.magnetic_field_covariance + mag.magnetic_field_covariance;
 }
 
 void StaticStateDeterminationServer::barCb(const BarMsg& bar)
@@ -125,14 +169,10 @@ void StaticStateDeterminationServer::barCb(const BarMsg& bar)
     return;
   }
 
-  ++result_.bar_count;
-  const double n = static_cast<double>(result_.bar_count);
+  ++bar_count_;
 
-  const auto& prev_bar = result_.air_pressure.fluid_pressure;
-  result_.air_pressure.fluid_pressure = ((n - 1) * prev_bar + bar.fluid_pressure) / n;
-
-  const auto& prev_var = result_.air_pressure.variance;
-  result_.air_pressure.variance = (sqr(n - 1) * prev_var + bar.variance) / sqr(n);
+  bar_sum_.fluid_pressure += bar.fluid_pressure;
+  bar_sum_.variance += bar.variance;
 }
 
 void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
@@ -142,16 +182,18 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
     return;
   }
 
-  ++result_.gps_count;
-  const double n = static_cast<double>(result_.gps_count);
+  ++gps_count_;
 
-  const auto& prev_gps = result_.gps;
-  result_.gps.latitude = ((n - 1) * prev_gps.latitude + gps.latitude) / n;
-  result_.gps.longitude = ((n - 1) * prev_gps.longitude + gps.longitude) / n;
-  result_.gps.altitude = ((n - 1) * prev_gps.altitude + gps.altitude) / n;
+  const auto lat_rad = deg2rad(gps.latitude);
+  const auto lon_rad = deg2rad(gps.longitude);
+  cos_lat_sum_ += cos(lat_rad);
+  sin_lat_sum_ += sin(lat_rad);
+  cos_lon_sum_ += cos(lon_rad);
+  sin_lon_sum_ += sin(lon_rad);
 
-  const auto& prev_cov = result_.gps.position_covariance;
-  result_.gps.position_covariance = (sqr(n - 1) * prev_cov + gps.position_covariance) / sqr(n);
+  alt_sum_ += gps.altitude;
+
+  pos_cov_sum_ = pos_cov_sum_ + gps.position_covariance;
 }
 
 void StaticStateDeterminationServer::velCb(const VelMsg& vel)
@@ -161,14 +203,10 @@ void StaticStateDeterminationServer::velCb(const VelMsg& vel)
     return;
   }
 
-  ++result_.vel_count;
-  const double n = static_cast<double>(result_.vel_count);
+  ++vel_count_;
 
-  const auto& prev_vel = result_.ground_speed.vel;
-  result_.ground_speed.vel = ((n - 1) * prev_vel + vel.vel) / n;
-
-  const auto& prev_cov = result_.ground_speed.covariance;
-  result_.ground_speed.covariance = (sqr(n - 1) * prev_cov + vel.covariance) / sqr(n);
+  vel_sum_.vel += vel.vel;
+  vel_sum_.covariance = vel_sum_.covariance + vel.covariance;
 }
 
 void StaticStateDeterminationServer::executeCb(const GoalType& goal)
@@ -191,24 +229,29 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
     if (as_.isPreemptRequested())
     {
       is_action_running_ = false;
+      fillResult();
       result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return;
     }
 
-    // フィードバックを発行
-    feedback_.gps_x_stddev = sqrt(result_.gps.position_covariance[0]);
-    feedback_.gps_y_stddev = sqrt(result_.gps.position_covariance[4]);
-    as_.publishFeedback(feedback_);
+    if (gps_count_ > 0)
+    {
+      // フィードバックを発行
+      feedback_.gps_x_stddev = sqrt(pos_cov_sum_[0] / sqr(gps_count_));
+      feedback_.gps_y_stddev = sqrt(pos_cov_sum_[4] / sqr(gps_count_));
+      as_.publishFeedback(feedback_);
 
-    // コンソールにもフィードバックを出す
-    rosInfoThrottle(kInfoPeriod, "X std. dev: " << feedback_.gps_x_stddev << "[m]");
-    rosInfoThrottle(kInfoPeriod, "Y std. dev: " << feedback_.gps_y_stddev << "[m]");
+      // コンソールにもフィードバックを出す
+      rosInfoThrottle(kInfoPeriod, "X std. dev: " << feedback_.gps_x_stddev << "[m]");
+      rosInfoThrottle(kInfoPeriod, "Y std. dev: " << feedback_.gps_y_stddev << "[m]");
+    }
 
     // 条件を満たしていれば終了
     if (isValidResult())
     {
       is_action_running_ = false;
+      fillResult();
       result_.error_code = ResultType::NO_ERROR;
       as_.setSucceeded(result_);
       return;
