@@ -115,13 +115,18 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   goal.gps_position_stddev_threshold = gps_pos_stddev_thr_;
   ac_.sendGoal(goal);
 
-  bool finished_before_timeout = ac_.waitForResult(ros::Duration(kStaticStateDeterminationTimeout));
+  bool finished_before_timeout = ac_.waitForResult();
   if (!finished_before_timeout)
   {
     rosthrow("Action did not finish before timeout.");
   }
 
   const auto result = ac_.getResult();
+  rosInfo(
+    "The result of " << static_state_determination::kActionName << ":\n"
+                     << result->imu << endl
+                     << result->magnetic_field << result->air_pressure << result->gps
+                     << result->ground_speed);
 
   // 経緯度
   lat_0_ = result->gps.latitude;

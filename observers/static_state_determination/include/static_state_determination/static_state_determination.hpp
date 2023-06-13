@@ -31,6 +31,7 @@ private:
   GoalType goal_;
   ResultType result_;
   FeedbackType feedback_;
+  bool is_action_running_;
 
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;

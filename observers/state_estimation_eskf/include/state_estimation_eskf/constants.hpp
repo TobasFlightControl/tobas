@@ -25,5 +25,5 @@ static constexpr double kWaitToPublish = 3.;  // 状態安定のためESKFが稼
 static constexpr double kStaticStateDeterminationTimeout = 30.;  // [s]
 
 static constexpr bool kDefaultUseGps = true;
-static constexpr double kDefaultGpsPositionStddevThreshold = 0.1;  // [m]
+static constexpr double kDefaultGpsPositionStddevThreshold = 0.3;  // [m]
 }  // namespace state_estimation_eskf

@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/boost.hpp>
 #include <dh_ros_tools/operators.hpp>
+#include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/static_state_determination/static_state_determination.hpp"
 #include "../../include/static_state_determination/common.hpp"
@@ -11,8 +12,12 @@ namespace static_state_determination
 {
 StaticStateDeterminationServer::StaticStateDeterminationServer()
   : super(),
+    is_action_running_(false),
     as_(nh_, kActionName, boost::bind(&StaticStateDeterminationServer::executeCb, this, _1), true)
 {
+  getRosParams();
+  registerPublishers();
+  registerSubscribers();
 }
 
 void StaticStateDeterminationServer::getRosParams()
@@ -74,6 +79,11 @@ bool StaticStateDeterminationServer::isValidResult()
 
 void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
 {
+  if (!is_action_running_)
+  {
+    return;
+  }
+
   ++result_.imu_count;
   const double n = static_cast<double>(result_.imu_count);
 
@@ -92,6 +102,11 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
 
 void StaticStateDeterminationServer::magCb(const MagMsg& mag)
 {
+  if (!is_action_running_)
+  {
+    return;
+  }
+
   ++result_.mag_count;
   const double n = static_cast<double>(result_.mag_count);
 
@@ -105,6 +120,11 @@ void StaticStateDeterminationServer::magCb(const MagMsg& mag)
 
 void StaticStateDeterminationServer::barCb(const BarMsg& bar)
 {
+  if (!is_action_running_)
+  {
+    return;
+  }
+
   ++result_.bar_count;
   const double n = static_cast<double>(result_.bar_count);
 
@@ -112,11 +132,16 @@ void StaticStateDeterminationServer::barCb(const BarMsg& bar)
   result_.air_pressure.fluid_pressure = ((n - 1) * prev_bar + bar.fluid_pressure) / n;
 
   const auto& prev_var = result_.air_pressure.variance;
-  result_.air_pressure.fluid_pressure = (sqr(n - 1) * prev_var + bar.variance) / sqr(n);
+  result_.air_pressure.variance = (sqr(n - 1) * prev_var + bar.variance) / sqr(n);
 }
 
 void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
 {
+  if (!is_action_running_)
+  {
+    return;
+  }
+
   ++result_.gps_count;
   const double n = static_cast<double>(result_.gps_count);
 
@@ -131,6 +156,11 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
 
 void StaticStateDeterminationServer::velCb(const VelMsg& vel)
 {
+  if (!is_action_running_)
+  {
+    return;
+  }
+
   ++result_.vel_count;
   const double n = static_cast<double>(result_.vel_count);
 
@@ -151,6 +181,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
   }
 
   reset();
+  is_action_running_ = true;
 
   ros::Time start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
@@ -159,7 +190,8 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
   {
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::UNKNOWN_ERROR;
+      is_action_running_ = false;
+      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return;
     }
@@ -169,9 +201,14 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
     feedback_.gps_y_stddev = sqrt(result_.gps.position_covariance[4]);
     as_.publishFeedback(feedback_);
 
+    // コンソールにもフィードバックを出す
+    rosInfoThrottle(kInfoPeriod, "X std. dev: " << feedback_.gps_x_stddev << "[m]");
+    rosInfoThrottle(kInfoPeriod, "Y std. dev: " << feedback_.gps_y_stddev << "[m]");
+
     // 条件を満たしていれば終了
     if (isValidResult())
     {
+      is_action_running_ = false;
       result_.error_code = ResultType::NO_ERROR;
       as_.setSucceeded(result_);
       return;
@@ -180,5 +217,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
     ros::spinOnce();
     rate.sleep();
   }
+
+  is_action_running_ = false;
 }
 }  // namespace static_state_determination
