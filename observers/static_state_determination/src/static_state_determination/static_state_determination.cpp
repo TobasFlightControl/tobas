@@ -48,10 +48,7 @@ void StaticStateDeterminationServer::reset()
   imu_sum_ = ImuMsg();
   mag_sum_ = MagMsg();
   bar_sum_ = BarMsg();
-  cos_lat_sum_ = sin_lat_sum_ = 0.;
-  cos_lon_sum_ = sin_lon_sum_ = 0.;
-  alt_sum_ = 0.;
-  pos_cov_sum_.fill(0.);
+  gps_sum_ = GpsMsg();
   vel_sum_ = VelMsg();
 }
 
@@ -80,14 +77,10 @@ void StaticStateDeterminationServer::fillResult()
   result_.air_pressure.variance = bar_sum_.variance / sqr(bar_count);
 
   const double gps_count = static_cast<double>(gps_count_);
-  const auto cos_lat = cos_lat_sum_ / gps_count;
-  const auto sin_lat = sin_lat_sum_ / gps_count;
-  const auto cos_lon = cos_lon_sum_ / gps_count;
-  const auto sin_lon = sin_lon_sum_ / gps_count;
-  result_.gps.latitude = rad2deg(atan2(sin_lat, cos_lat));
-  result_.gps.longitude = rad2deg(atan2(sin_lon, cos_lon));
-  result_.gps.altitude = alt_sum_ / gps_count;
-  result_.gps.position_covariance = pos_cov_sum_ / sqr(gps_count);
+  result_.gps.latitude = gps_sum_.latitude / gps_count;
+  result_.gps.longitude = gps_sum_.longitude / gps_count;
+  result_.gps.altitude = gps_sum_.altitude / gps_count;
+  result_.gps.position_covariance = gps_sum_.position_covariance / sqr(gps_count);
 
   const double vel_count = static_cast<double>(vel_count_);
   result_.ground_speed.vel = vel_sum_.vel / vel_count;
@@ -119,11 +112,11 @@ bool StaticStateDeterminationServer::isValidResult()
   if (vel_count_ == 0)
     return false;
 
-  const auto gps_x_stddev = sqrt(pos_cov_sum_[0] / sqr(gps_count_));
+  const auto gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
   if (gps_x_stddev > goal_->gps_position_stddev_threshold)
     return false;
 
-  const auto gps_y_stddev = sqrt(pos_cov_sum_[4] / sqr(gps_count_));
+  const auto gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
   if (gps_y_stddev > goal_->gps_position_stddev_threshold)
     return false;
 
@@ -184,16 +177,12 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
 
   ++gps_count_;
 
-  const auto lat_rad = deg2rad(gps.latitude);
-  const auto lon_rad = deg2rad(gps.longitude);
-  cos_lat_sum_ += cos(lat_rad);
-  sin_lat_sum_ += sin(lat_rad);
-  cos_lon_sum_ += cos(lon_rad);
-  sin_lon_sum_ += sin(lon_rad);
+  // FIXME: 数値誤差を発生させないように和をとる．少数部分だけ計算するとか．
+  gps_sum_.latitude += gps.latitude;
+  gps_sum_.longitude += gps.longitude;
+  gps_sum_.altitude += gps.altitude;
 
-  alt_sum_ += gps.altitude;
-
-  pos_cov_sum_ = pos_cov_sum_ + gps.position_covariance;
+  gps_sum_.position_covariance = gps_sum_.position_covariance + gps.position_covariance;
 }
 
 void StaticStateDeterminationServer::velCb(const VelMsg& vel)
@@ -238,8 +227,8 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
     if (gps_count_ > 0)
     {
       // フィードバックを発行
-      feedback_.gps_x_stddev = sqrt(pos_cov_sum_[0] / sqr(gps_count_));
-      feedback_.gps_y_stddev = sqrt(pos_cov_sum_[4] / sqr(gps_count_));
+      feedback_.gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
+      feedback_.gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
       as_.publishFeedback(feedback_);
 
       // コンソールにもフィードバックを出す

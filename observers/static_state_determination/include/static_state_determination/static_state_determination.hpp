@@ -40,10 +40,7 @@ private:
   ImuMsg imu_sum_;
   MagMsg mag_sum_;
   BarMsg bar_sum_;
-  double cos_lat_sum_, sin_lat_sum_;
-  double cos_lon_sum_, sin_lon_sum_;
-  double alt_sum_;
-  boost::array<double, 9> pos_cov_sum_;
+  GpsMsg gps_sum_;
   VelMsg vel_sum_;
 
   ros::Subscriber imu_sub_;

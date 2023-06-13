@@ -124,6 +124,11 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   const auto result = ac_.getResult();
   rosInfo(
     "The result of " << static_state_determination::kActionName << ":\n"
+                     << "IMU count: " << result->imu_count << endl
+                     << "Magnetometer count: " << result->mag_count << endl
+                     << "Barometer count: " << result->bar_count << endl
+                     << "GPS position count: " << result->gps_count << endl
+                     << "GPS velocity count: " << result->vel_count << endl
                      << result->imu << endl
                      << result->magnetic_field << result->air_pressure << result->gps
                      << result->ground_speed);
