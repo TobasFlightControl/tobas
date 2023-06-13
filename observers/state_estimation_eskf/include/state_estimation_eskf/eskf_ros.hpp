@@ -103,7 +103,6 @@ private:
 
   bool isReady();
   void initialize(const ros::Time& stamp);
-  void setZeroPositions();
   void updateBaseStateMsg(const ros::Time& stamp);
 
   void imuCb(const ImuMsg& imu);
