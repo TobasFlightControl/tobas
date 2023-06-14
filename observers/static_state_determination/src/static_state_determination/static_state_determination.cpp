@@ -13,11 +13,13 @@ namespace static_state_determination
 StaticStateDeterminationServer::StaticStateDeterminationServer()
   : super(),
     is_action_running_(false),
-    as_(nh_, kActionName, boost::bind(&StaticStateDeterminationServer::executeCb, this, _1), true)
+    as_(nh_, kActionName, boost::bind(&StaticStateDeterminationServer::executeCb, this, _1), false)
 {
   getRosParams();
   registerPublishers();
   registerSubscribers();
+
+  as_.start();
 }
 
 void StaticStateDeterminationServer::getRosParams()
