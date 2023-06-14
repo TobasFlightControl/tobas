@@ -27,12 +27,12 @@
   <xacro:property name="use_embedded_controller" value="$(arg use_embedded_controller)"/> -->
 
   <!-- <xacro:if value="$(arg load_manipulator)"> -->
-	   <xacro:include filename="$(find aerial_manipulation)/urdf/j2s7s300.xacro"/>
+	   <xacro:include filename="$(find tobas_description)/urdf/harrier/j2s7s300.xacro"/>
   	   <xacro:j2s7s300 base_parent="${namespace}/base_link" ns="${namespace}" is_inverted="1"/>
   <!-- </xacro:if> -->
 
   <!-- <xacro:if value="$(arg with_landing_gear)"> -->
-	  <xacro:include filename="$(find aerial_manipulation)/urdf/landing_gear.xacro"/>
+	  <xacro:include filename="$(find tobas_description)/urdf/harrier/landing_gear.xacro"/>
   <!-- </xacro:if> -->
 
   <!-- <xacro:if value="$(arg use_embedded_controller)">
@@ -137,7 +137,7 @@
               scale="1 1 1" />
           </xacro:if>
           <xacro:unless value="${use_own_mesh}">
-            <mesh filename="package://aerial_manipulation/meshes/black_propeller.stl"
+            <mesh filename="package://tobas_description/meshes/harrier/black_propeller.stl"
               scale="${radius_rotor} ${radius_rotor} ${radius_rotor}" /> <!-- The propeller meshes have a radius of 1m -->
             <!-- <box size="${2*radius_rotor} 0.01 0.005"/> -->
           </xacro:unless>
