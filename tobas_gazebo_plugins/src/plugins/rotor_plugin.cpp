@@ -252,7 +252,7 @@ void GazeboRotorPlugin::updateRotationSpeed(double dt)
 void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
 {
   // Check index
-  if (motor_number_ >= cmd.speeds.size())
+  if (motor_number_ >= static_cast<int>(cmd.speeds.size()))
   {
     gzerr << kPluginName << ": You tried to access index " << motor_number_
           << " of the RotorSpeeds message array which is of size " << cmd.speeds.size() << endl;

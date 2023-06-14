@@ -26,7 +26,7 @@ public:
   /* {world} -> {base} */
   Eigen::Quaterniond getOrientation() const;
 
-  void setReferenceMagneticField(double ref_mag_north, double ref_mag_east, double ref_mag_down);
+  void setReferenceMagneticField(double ref_mag_north, double ref_mag_east);
 
   /**
    * @brief Update from accelerometer, gyroscope, and magnetometer data.

@@ -9,14 +9,14 @@ using namespace KDL;
 
 namespace tobas
 {
-double angleOfAttack(double u, double v, double w)
+double angleOfAttack(double u, double w)
 {
   return u > kMinAirSpeedThresh ? atan(w / u) : 0.;
 }
 
 double angleOfAttack(const Vector& linvel_B)
 {
-  return angleOfAttack(linvel_B.x(), linvel_B.y(), linvel_B.z());
+  return angleOfAttack(linvel_B.x(), linvel_B.z());
 }
 
 double angleOfSideSlip(double u, double v, double w)

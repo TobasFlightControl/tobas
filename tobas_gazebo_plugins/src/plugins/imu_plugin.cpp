@@ -11,7 +11,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_()), velocity_prev_W_(0., 0., 0.)
+GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 

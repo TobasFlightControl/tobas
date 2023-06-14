@@ -58,7 +58,6 @@ private:
   common::Time last_time_;
   ImuMsg imu_msg_;
   ignition::math::Vector3d gravity_W_;
-  ignition::math::Vector3d velocity_prev_W_;
   ignition::math::Vector3d gyro_bias_;
   ignition::math::Vector3d acc_bias_;
   ignition::math::Vector3d gyro_turn_on_bias_;

@@ -83,10 +83,10 @@ struct FixedWingConfig
 /**
  * @brief 迎角 (alpha) を計算する．
  *
- * @param u,v,w 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @param u,w 風に対する相対的な機体速度 (NED座標系) [m/s]
  * @return double 迎角 [rad]
  */
-double angleOfAttack(double u, double v, double w);
+double angleOfAttack(double u, double w);
 
 /**
  * @brief 迎角 (alpha) を計算する．

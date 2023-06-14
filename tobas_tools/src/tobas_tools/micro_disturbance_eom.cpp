@@ -85,7 +85,6 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
   const auto I_z_tilde = I_z * tmp;
 
   // 引数に依存する定数
-  const auto W = mass_ * kGravity;
   const auto q_bar = dynamicPressure(rho, V);
   const auto q_S = q_bar * vehicle.wing_surface;
   const auto q_S_b = q_S * vehicle.wing_span;
@@ -163,7 +162,7 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
 
   // Bを更新
   // thrust -> u
-  for (int i = 0; i < x_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
     B_(kStateIdx_u, i) = 1 / mass_;
   }
@@ -171,7 +170,7 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
   // thrust -> p,q,r
   tf::rotInertiaKDLToEigen(I_kdl_, I_eigen_);
   const auto I_inv = I_eigen_.inverse();
-  for (int i = 0; i < x_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
     fk_solver_.JntToCart(q, x_rotors_.linkName(i), T_base_rotor_);
     const auto P_cog_rotor_kdl = T_base_rotor_.p - P_base_cog_;
@@ -184,7 +183,7 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
   }
 
   // deflection
-  for (int cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
+  for (uint32_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
   {
     const auto& cs = drone_.controlSurface(cs_idx);
 
@@ -228,7 +227,7 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
   // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
   const auto thrust_avg = thrust_sum / x_rotors_.count();
-  for (int i = 0; i < x_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
     if (thrust_avg > x_rotors_.maxThrust(i, battery_voltage))
     {
@@ -509,13 +508,13 @@ void MicroDisturbanceEoM::setInputLimits(double battery_voltage)
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);
 
-  for (int i = 0; i < x_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
     min_u_(i) = 0.;
     max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
   }
 
-  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& cs = drone_.controlSurface(i);
     min_u_(x_rotors_.count() + i) = cs.angle_limit.lower;

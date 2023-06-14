@@ -97,7 +97,7 @@ void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   rosWarn("Base state is not received yet.");
 }
 
-void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
 

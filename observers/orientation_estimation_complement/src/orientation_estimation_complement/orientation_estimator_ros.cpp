@@ -60,7 +60,7 @@ void OrientationEstimatorRos::registerSubscribers()
 
 void OrientationEstimatorRos::initializeFilter()
 {
-  filter_.setReferenceMagneticField(ref_mag_north_, ref_mag_east_, ref_mag_down_);
+  filter_.setReferenceMagneticField(ref_mag_north_, ref_mag_east_);
 
   if (!filter_.setGravity(gravity_))
   {

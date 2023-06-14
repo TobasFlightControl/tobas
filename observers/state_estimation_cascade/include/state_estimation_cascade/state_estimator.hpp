@@ -94,6 +94,6 @@ private:
   void gpsVelocityCb(const VelMsg& vel);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
+  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
 };
 }  // namespace state_estimation_cascade

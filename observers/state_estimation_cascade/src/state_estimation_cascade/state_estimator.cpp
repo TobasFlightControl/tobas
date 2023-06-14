@@ -368,7 +368,7 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
   }
 }
 
-void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   cart_filter_.reconfigure(cfg.gravity_variance);
 }

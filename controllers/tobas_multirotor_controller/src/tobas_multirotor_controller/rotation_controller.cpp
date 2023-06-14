@@ -114,7 +114,7 @@ void RotationController::updateDynamics(
   double t;
   double roll_k, pitch_k;
 
-  for (int k = 0; k < mpc_.prediction_steps; ++k)
+  for (uint32_t k = 0; k < mpc_.prediction_steps; ++k)
   {
     t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
 
@@ -163,7 +163,7 @@ void RotationController::setInputConstraintBase()
 
 void RotationController::updateInputConstraint(double battery_voltage, double U)
 {
-  for (int i = 0; i < z_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     const double max_thrust = z_rotors_.maxThrust(i, battery_voltage);
     const double min_thrust = 0.;

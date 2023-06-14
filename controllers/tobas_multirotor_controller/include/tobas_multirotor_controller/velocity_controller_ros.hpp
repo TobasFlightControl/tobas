@@ -102,6 +102,6 @@ private:
   void commandCb(const CmdMsg& cmd);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
+  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
 };
 }  // namespace tobas_multirotor_controller

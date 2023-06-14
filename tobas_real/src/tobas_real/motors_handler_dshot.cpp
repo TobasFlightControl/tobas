@@ -59,7 +59,7 @@ void MotorsHandler_DSHOT::run()
       continue;
     }
 
-    for (int i = 0; i < drone_.numRotors(); ++i)
+    for (uint32_t i = 0; i < drone_.numRotors(); ++i)
     {
       const auto& rotor_config = drone_.rotorConfig(i);
       const auto max_speed = drone_.maxRotSpeed(i, battery_.voltage);

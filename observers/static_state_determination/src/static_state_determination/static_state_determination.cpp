@@ -212,9 +212,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
   reset();
   is_action_running_ = true;
 
-  ros::Time start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
-
   while (ros::ok())
   {
     if (as_.isPreemptRequested())

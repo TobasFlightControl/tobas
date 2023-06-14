@@ -166,7 +166,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
 {
   assert(u.rows() == z_rotors_.count());
 
-  for (int i = 0; i < u.rows(); ++i)
+  for (uint32_t i = 0; i < u.rows(); ++i)
   {
     if (u(i) < -1.)
     {
@@ -181,7 +181,7 @@ void VelocityControllerRos::ctrlInputToRotorSpeeds(
 double VelocityControllerRos::maxU()
 {
   double max_U = 0.;
-  for (int i = 0; i < z_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     max_U += z_rotors_.maxThrust(i, battery_.voltage);
   }
@@ -300,7 +300,7 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   }
 }
 
-void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
   vel_controller_->reconfigure(dynamic_params_vel_);

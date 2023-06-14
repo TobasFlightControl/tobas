@@ -108,7 +108,7 @@ void Controller::publishTakeoffCommand()
   deflections_msg_.header.stamp = bs_ned_.header.stamp;
 
   // 各ロータの回転数を発行
-  for (int i = 0; i < x_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
     rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i, battery_.voltage);
   }
@@ -200,7 +200,7 @@ void Controller::setScales()
   const auto mass = inertia_solver_.JntToMass();
   lqd_.input_scale.resize(eom_.inputSize());
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(mass * kGravity / x_rotors_.count());
-  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     lqd_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
   }
@@ -240,7 +240,7 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
 {
   ROS_ASSERT(thrust.rows() == x_rotors_.count());
 
-  for (int i = 0; i < thrust.rows(); ++i)
+  for (uint32_t i = 0; i < thrust.rows(); ++i)
   {
     if (thrust(i) < -1.)
     {
@@ -383,6 +383,11 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
       runOnce();
       break;
     }
+    case LANDING:
+    {
+      // TODO
+      break;
+    }
   }
 }
 
@@ -421,7 +426,7 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
   }
 }
 
-void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   reconfigure(cfg);
 }

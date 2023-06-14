@@ -38,7 +38,7 @@ void StabilityDerivativesCG::update(const JntArray& q)
   c_pitch_alpha_cg_ = aero.c_pitch_alpha + dx_c * aero.c_lift_alpha;
   c_yaw_beta_cg_ = aero.c_yaw_beta + dx_b * aero.c_side_beta;
 
-  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& cs = drone_.controlSurface(i);
     c_pitch_delta_cg_[i] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;

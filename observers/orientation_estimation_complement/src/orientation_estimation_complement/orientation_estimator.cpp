@@ -110,10 +110,7 @@ Quaterniond OrientationEstimator::getOrientation() const
   return (q_WF_ * q_BF_.conjugate()).normalized();
 }
 
-void OrientationEstimator::setReferenceMagneticField(
-  double ref_mag_north,
-  double ref_mag_east,
-  double ref_mag_down)
+void OrientationEstimator::setReferenceMagneticField(double ref_mag_north, double ref_mag_east)
 {
   double yaw_angle = -atan2(ref_mag_east, ref_mag_north);
   q_WF_.w() = cos(yaw_angle / 2.);

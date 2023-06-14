@@ -411,9 +411,9 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
   }
 }
 
-void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  rot_acc_cov_.diagonal().fill(cfg_.rotation_variance_grav);
-  rot_mag_cov_.diagonal().fill(cfg_.rotation_variance_geomag);
+  rot_acc_cov_.diagonal().fill(cfg.rotation_variance_grav);
+  rot_mag_cov_.diagonal().fill(cfg.rotation_variance_geomag);
 }
 }  // namespace state_estimation_eskf
