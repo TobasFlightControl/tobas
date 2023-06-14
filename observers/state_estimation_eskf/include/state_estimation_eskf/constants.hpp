@@ -22,7 +22,7 @@ static constexpr uint32_t kDeltaStateSize = kDeltaGyroBiasIdx + 3;
 
 static constexpr double kTimerPeriod = 5.;           // [s]
 static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
-static constexpr double kWaitToPublish = 1.;  // 状態安定のためESKFが稼働してから少し待つ [s]
+static constexpr double kWaitToPublish = 3.;  // 状態安定のためESKFが稼働してから少し待つ [s]
 
 static constexpr bool kDefaultUseGps = true;
 static constexpr double kDefaultGpsPositionStddevThreshold = 0.3;  // [m]
