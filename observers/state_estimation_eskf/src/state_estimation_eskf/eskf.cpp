@@ -113,7 +113,7 @@ Matrix3d ErrorStateKalmanFilter::getDCM() const
 
 void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
 {
-  assert(dt >= 0.);
+  assert(dt > 0.);  // クオータニオンの正規化のためにdt = 0を許容できない
   assert(dt < kImuTimeGapThreshold);
 
   const Matrix3d Rot = getDCM();
@@ -156,8 +156,10 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += sigma2_aw * dt;
   P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += sigma2_ww * dt;
 
-  // For debug
-  // cout << "F_x:" << endl << F_x_ << endl;
+  // NaN検出
+  assert(et::isFinite(nominal_state_));
+  assert(et::isFinite(F_x_));
+  assert(et::isFinite(P_));
 }
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()

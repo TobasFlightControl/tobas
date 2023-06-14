@@ -249,6 +249,12 @@ bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
     return false;
   }
 
+  if (dt == 0.)
+  {
+    rosWarn("The time gap between consecutive IMU sensor readings is zero.");
+    return false;
+  }
+
   return true;
 }
 
