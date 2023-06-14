@@ -276,7 +276,7 @@ class PackageGenerator(QWidget):
             }
             items["state_estimator_cascade"] = {
                 "use_gps": gps.equipped(),
-                "gps_position_stddev_threshold": 0.3,  # TODO: ユーザが選択できるように
+                "gps_position_stddev_threshold": cascade.gps_pos_stddev_threshold.get(),
                 "gravity_variance": cascade.grav_var.get(),
             }
         elif observer_type == observer.ESKF:
@@ -287,7 +287,7 @@ class PackageGenerator(QWidget):
                 "acc_noise_density": imu.acc_noise_density.get(),
                 "acc_random_walk": imu.acc_random_walk.get(),
                 "use_gps": gps.equipped(),
-                "gps_position_stddev_threshold": 0.3,  # TODO: ユーザが選択できるように
+                "gps_position_stddev_threshold": eskf.gps_pos_stddev_threshold.get(),
                 "rotation_variance_grav": eskf.rot_var_grav.get(),
                 "rotation_variance_geomag": eskf.rot_var_geomag.get(),
             }

@@ -95,25 +95,46 @@ class ObserverWidget(BaseSettingWidget):
             raise RuntimeError(f'Unknown observer type: {observer_type}')
 
 
-class ObserverWidget_Cascade(QWidget):
+class ObserverWidget_Base(QWidget):
 
-    NAME = "Cascade Kalman Filter"
-
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()
+
         self._main = main
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst_text = "この状態推定器は，姿勢推定器と位置推定器の2つの部分に分かれています．"\
-            + "6軸IMUと地磁気センサの情報から相補フィルタにより姿勢を推定し，"\
-            + "推定した姿勢と他のセンサの情報から線形カルマンフィルタにより3次元位置を推定します．"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
         self._rows.addWidget(abst)
+
+        gps_pos_stddev_threshold_description = "GPSを用いて初期位置合わせをする際の，"\
+            + "真値に対する標準偏差の閾値．"\
+            + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
+        self.gps_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
+            "GPS position std. dev threshold",
+            gps_pos_stddev_threshold_description,
+            decimals=2,
+            minimum=0.01,
+            maximum=1.,
+            default=0.3,
+            suffix=" m"
+        )
+        self._rows.addWidget(self.gps_pos_stddev_threshold)
+
+
+class ObserverWidget_Cascade(ObserverWidget_Base):
+
+    NAME = "Cascade Kalman Filter"
+
+    def __init__(self, main: SetupAssistant) -> None:
+        abst_text = "この状態推定器は，姿勢推定器と位置推定器の2つの部分に分かれています．"\
+            + "6軸IMUと地磁気センサの情報から相補フィルタにより姿勢を推定し，"\
+            + "推定した姿勢と他のセンサの情報から線形カルマンフィルタにより3次元位置を推定します．"
+        super().__init__(main, abst_text)
 
         gain_acc_description = "Accelerometer gain for the orientation estimation."
         self.gain_acc = ParamGetterWidget_DoubleSpinBox(
@@ -192,24 +213,14 @@ class ObserverWidget_Cascade(QWidget):
         return True
 
 
-class ObserverWidget_ESKF(QWidget):
+class ObserverWidget_ESKF(ObserverWidget_Base):
 
     NAME = "Error State Kalman Filter"
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
-
         abst_text = "Quaternion kinematics for the error-state Kalman filter [Joan Sola, 2017]\n"\
             + "https://arxiv.org/abs/1711.02508"
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        self._rows.addWidget(abst)
+        super().__init__(main, abst_text)
 
         rot_var_grav_description = "重力ベクトルの観測に用いる分散．"
         self.rot_var_grav = ParamGetterWidget_SpinBox(
