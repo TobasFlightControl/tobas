@@ -66,7 +66,8 @@ void CartesianFilter::reconfigure(const double& grav_var)
 
 void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& init_acc_cov, double dt)
 {
-  assert(dt > 0.);
+  assert(dt >= 0.);
+  assert(dt < kImuTimeGapThreshold);
 
   A_.block(kPosIdx, kVelIdx, 3, 3).diagonal().fill(dt);
   A_.block(kVelIdx, kAccIdx, 3, 3) = quat.toRotationMatrix() * dt;

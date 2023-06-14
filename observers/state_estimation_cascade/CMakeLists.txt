@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
+	static_state_determination
 	tobas_tools
 	dh_linear_control
 	dh_kdl
@@ -22,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_conversions
 	kdl_msgs
 	roscpp
+	actionlib
 	dynamic_reconfigure
 )
 

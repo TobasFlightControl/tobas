@@ -1,3 +1,4 @@
+#include <actionlib/client/simple_action_client.h>
 #include <eigen_conversions/eigen_msg.h>
 #include <eigen_conversions/eigen_kdl.h>
 #include <kdl_conversions/kdl_msg.h>
@@ -8,6 +9,9 @@
 #include <dh_std_tools/boost.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
+
+#include <static_state_determination/StaticStateDeterminationAction.h>
+#include <static_state_determination/common.hpp>
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
@@ -20,15 +24,13 @@ namespace state_estimation_cascade
 StateEstimator::StateEstimator()
   : super(),
     is_initialized_(false),
+    imu_received_(false),
+    bar_received_(false),
+    gps_received_(false),
+    vel_received_(false),
     check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this)
 {
   getRosParams();
-
-  imu_buf_.resize(imu_buf_size_);
-  bar_buf_.resize(bar_buf_size_);
-  gps_buf_.resize(gps_buf_size_);
-  vel_buf_.resize(vel_buf_size_);
-
   registerPublishers();
   registerSubscribers();
 
@@ -41,10 +43,9 @@ void StateEstimator::getRosParams()
   dh_ros::getParam("/gravity", gravity_, dh_ros::POSITIVE);
 
   dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
-  dh_ros::getParam("~imu_buf_size", imu_buf_size_, kDefaultImuBufSize, dh_ros::POSITIVE);
-  dh_ros::getParam("~bar_buf_size", bar_buf_size_, kDefaultBarBufSize, dh_ros::POSITIVE);
-  dh_ros::getParam("~gps_buf_size", gps_buf_size_, kDefaultGpsBufSize, dh_ros::POSITIVE);
-  dh_ros::getParam("~vel_buf_size", vel_buf_size_, kDefaultVelBufSize, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    "~gps_position_stddev_threshold", gps_pos_stddev_thr_, kDefaultGpsPositionStddevThreshold,
+    dh_ros::POSITIVE);
 
   // Dynamic parameters
   dh_ros::getParam("~gravity_variance", grav_var_, dh_ros::POSITIVE);
@@ -69,22 +70,22 @@ void StateEstimator::registerSubscribers()
 
 bool StateEstimator::isReady()
 {
-  if (!imu_buf_.isFull())
+  if (!imu_received_)
   {
     return false;
   }
-  if (!bar_buf_.isFull())
+  if (!bar_received_)
   {
     return false;
   }
 
   if (use_gps_)
   {
-    if (!gps_buf_.isFull())
+    if (!gps_received_)
     {
       return false;
     }
-    if (!vel_buf_.isFull())
+    if (!vel_received_)
     {
       return false;
     }
@@ -93,8 +94,11 @@ bool StateEstimator::isReady()
   return true;
 }
 
-void StateEstimator::initialize()
+void StateEstimator::initialize(const ImuMsg& imu)
 {
+  // 初期化処理の開始時間
+  ros::Time start_time = ros::Time::now();
+
   // 静止状態でのセンサデータを平均してゼロ点を決める
   setZeroPositions();
 
@@ -112,49 +116,67 @@ void StateEstimator::initialize()
     grav_var_                     // gravity variance
   );
 
-  const auto& imu = imu_buf_.getLatest();
-
   // ヨー角の初期値
-  const auto& q = imu.orientation;
+  const auto& q0 = imu.orientation;
   double roll, pitch;
-  quaternionToEuler(q.x, q.y, q.z, q.w, roll, pitch, yaw_prev_);
+  quaternionToEuler(q0.x, q0.y, q0.z, q0.w, roll, pitch, yaw_prev_);
 
   yaw_jump_count_ = 0;
-  t_last_ = imu.header.stamp;
+
+  // IMUのタイムスタンプに初期化に要した時間を足した時間を最新のセンサ時間とする
+  const auto duration = ros::Time::now() - start_time;
+  t_last_ = imu.header.stamp + duration;
 }
 
 void StateEstimator::setZeroPositions()
 {
-  // 緯度，経度 [deg]
-  if (use_gps_)
+  actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac(
+    static_state_determination::kActionName);
+  rosInfo(
+    "Waiting for action server '" << static_state_determination::kActionName << "' to start.");
+  ac.waitForServer();
+
+  rosInfo(
+    "Action server '" << static_state_determination::kActionName << "' started, sending goal.");
+  static_state_determination::StaticStateDeterminationGoal goal;
+  goal.gps_position_stddev_threshold = gps_pos_stddev_thr_;
+  ac.sendGoal(goal);
+
+  const bool finished_before_timeout = ac.waitForResult();
+  if (!finished_before_timeout)
   {
-    double sum_lat = 0.;
-    double sum_lon = 0.;
-    for (int i = 0; i < gps_buf_size_; ++i)
-    {
-      const auto& gps = gps_buf_.get(i);
-      sum_lat += gps.latitude;
-      sum_lon += gps.longitude;
-    }
-    lat_0_ = sum_lat / gps_buf_size_;
-    lon_0_ = sum_lon / gps_buf_size_;
+    rosthrow("Action did not finish before timeout.");
   }
 
-  // 高度 [m]
-  double sum_pressure = 0.;
-  for (int i = 0; i < bar_buf_size_; ++i)
-  {
-    const auto& bar = bar_buf_.get(i);
-    sum_pressure += bar.fluid_pressure;
-  }
-  const double mean_pressure = sum_pressure / bar_buf_size_;
-  alt_0_ = pressureToAltitude(mean_pressure);
+  const auto result = ac.getResult();
+  rosInfo(
+    "The result of " << static_state_determination::kActionName << ":\n"
+                     << "IMU count: " << result->imu_count << endl
+                     << "Magnetometer count: " << result->mag_count << endl
+                     << "Barometer count: " << result->bar_count << endl
+                     << "GPS position count: " << result->gps_count << endl
+                     << "GPS velocity count: " << result->vel_count << endl
+                     << "IMU:\n"
+                     << result->imu << endl
+                     << "Magnetic Field:\n"
+                     << result->magnetic_field << endl
+                     << "Air Pressure:\n"
+                     << result->air_pressure << endl
+                     << "GPS:\n"
+                     << result->gps << endl
+                     << "Ground Speed:\n"
+                     << result->ground_speed);
+
+  // 経緯度
+  lat_0_ = result->gps.latitude;
+  lon_0_ = result->gps.longitude;
+
+  // 高度
+  alt_0_ = pressureToAltitude(result->air_pressure.fluid_pressure);
 }
 
-void StateEstimator::updatePoseVelMsg()
+void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)
 {
-  const auto& imu = imu_buf_.getLatest();
-
   // Time stamp
   state_.header.stamp = imu.header.stamp;
 
@@ -162,9 +184,9 @@ void StateEstimator::updatePoseVelMsg()
   tf::vectorEigenToKDL(cart_filter_.getXYZ(), state_.pose.pos);
 
   // Roll, Pitch
-  const auto& quat = imu_buf_.getLatest().orientation;
+  const auto& q = imu.orientation;
   auto& rpy = state_.pose.euler;
-  quaternionToEuler(quat.x, quat.y, quat.z, quat.w, rpy.roll, rpy.pitch, yaw_now_);
+  quaternionToEuler(q.x, q.y, q.z, q.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // Yaw
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
@@ -186,16 +208,38 @@ void StateEstimator::updatePoseVelMsg()
   tf::vectorMsgToKDL(imu.angular_velocity, state_.twist.rot);
 }
 
+bool StateEstimator::isValidImuTimeGap(double dt)
+{
+  if (dt < 0.)
+  {
+    rosFatal("The time gap between consecutive IMU sensor readings is negative: " << dt << "[s]");
+    return false;
+  }
+
+  if (dt > kImuTimeGapThreshold)
+  {
+    rosFatal(
+      "The time gap between consecutive IMU sensor readings " << dt << "[s] exceeds the threshold "
+                                                              << kImuTimeGapThreshold << "[s]");
+    return false;
+  }
+
+  return true;
+}
+
 void StateEstimator::filteredImuCb(const ImuMsg& imu)
 {
-  imu_buf_.add(imu);
+  if (!imu_received_)
+  {
+    imu_received_ = true;
+  }
 
   if (!is_initialized_)
   {
     if (isReady())
     {
       check_topics_timer_.stop();
-      initialize();
+      initialize(imu);
       is_initialized_ = true;
       rosInfo("State estimator is ready.");
     }
@@ -203,7 +247,10 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
   }
 
   const double dt = (imu.header.stamp - t_last_).toSec();
-  ROS_ASSERT(dt >= 0.);
+  if (!isValidImuTimeGap(dt))
+  {
+    return;
+  }
   t_last_ = imu.header.stamp;
 
   tf::quaternionMsgToEigen(imu.orientation, quat_);
@@ -219,13 +266,16 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
   cart_filter_.measureAcceleration(a_m_, acc_cov);
 
   // 推定した状態を発行
-  updatePoseVelMsg();
+  updatePoseVelMsg(imu);
   posevel_pub_.publish(state_);
 }
 
 void StateEstimator::barometerCb(const BarMsg& bar)
 {
-  bar_buf_.add(bar);
+  if (!bar_received_)
+  {
+    bar_received_ = true;
+  }
 
   if (!is_initialized_)
   {
@@ -241,7 +291,10 @@ void StateEstimator::barometerCb(const BarMsg& bar)
 
 void StateEstimator::gpsPositionCb(const GpsMsg& gps)
 {
-  gps_buf_.add(gps);
+  if (!gps_received_)
+  {
+    gps_received_ = true;
+  }
 
   if (!is_initialized_)
   {
@@ -261,7 +314,10 @@ void StateEstimator::gpsPositionCb(const GpsMsg& gps)
 
 void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 {
-  vel_buf_.add(vel);
+  if (!vel_received_)
+  {
+    vel_received_ = true;
+  }
 
   if (!is_initialized_)
   {
@@ -279,45 +335,29 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
 void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   // IMU
-  if (imu_buf_.isEmpty())
+  if (!imu_received_)
   {
     rosWarn("Filtered IMU data is not received yet.");
   }
-  else if (!imu_buf_.isFull())
-  {
-    rosInfoOnce("Waiting for Filtered IMU data to be collected.");
-  }
 
   // Barometer
-  if (bar_buf_.isEmpty())
+  if (!bar_received_)
   {
     rosWarn("Barometer data is not received yet.");
-  }
-  else if (!bar_buf_.isFull())
-  {
-    rosInfoOnce("Waiting for Barometer data to be collected.");
   }
 
   if (use_gps_)
   {
     // GPS position
-    if (gps_buf_.isEmpty())
+    if (!gps_received_)
     {
       rosWarn("GPS position data is not received yet.");
     }
-    else if (!gps_buf_.isFull())
-    {
-      rosInfoOnce("Waiting for GPS position data to be collected.");
-    }
 
     // GPS velocity
-    if (vel_buf_.isEmpty())
+    if (!vel_received_)
     {
       rosWarn("GPS velocity data is not received yet.");
-    }
-    else if (!vel_buf_.isFull())
-    {
-      rosInfoOnce("Waiting for GPS velocity data to be collected.");
     }
   }
 }

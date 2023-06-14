@@ -113,7 +113,8 @@ Matrix3d ErrorStateKalmanFilter::getDCM() const
 
 void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
 {
-  assert(dt > 0.);
+  assert(dt >= 0.);
+  assert(dt < kImuTimeGapThreshold);
 
   const Matrix3d Rot = getDCM();
   const Vector3d acc_B = a_m - getAccelBias();

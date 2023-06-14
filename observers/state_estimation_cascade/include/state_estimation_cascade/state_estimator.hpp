@@ -8,12 +8,12 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <dh_std_tools/buffer.hpp>
 #include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
+#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
 #include "./cartesian_filter.hpp"
@@ -37,20 +37,22 @@ public:
   explicit StateEstimator();
 
 private:
+  // 固定値
+  double lat_0_;  // 緯度のゼロ点
+  double lon_0_;  // 経度のゼロ点
+  double alt_0_;  // 高度のゼロ点
+
   bool is_initialized_;
+  bool imu_received_;
+  bool bar_received_;
+  bool gps_received_;
+  bool vel_received_;
   ros::Time t_last_;
-  double lat_0_;                    // 緯度のゼロ点
-  double lon_0_;                    // 経度のゼロ点
-  double alt_0_;                    // 高度のゼロ点
-  Eigen::Quaterniond quat_;         // 推定された姿勢
-  Eigen::Vector2d xy_m_;            // 絶対平面位置の測定値 (world)
-  Eigen::Vector3d v_m_;             // 絶対速度の測定値 (world)
-  Eigen::Vector3d a_m_;             // 加速度の観測値 (local)
-  dh_std::Buffer<ImuMsg> imu_buf_;  // 姿勢推定済みのIMUデータ
-  dh_std::Buffer<BarMsg> bar_buf_;  // 気圧センサの観測値
-  dh_std::Buffer<GpsMsg> gps_buf_;  // GPS位置の観測値
-  dh_std::Buffer<VelMsg> vel_buf_;  // GPS速度の観測値
-  StateMsg state_;                  // 発行する状態
+  Eigen::Quaterniond quat_;  // 推定された姿勢
+  Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
+  Eigen::Vector3d v_m_;      // 絶対速度の測定値 (world)
+  Eigen::Vector3d a_m_;      // 加速度の観測値 (local)
+  StateMsg state_;           // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
@@ -60,10 +62,7 @@ private:
   // rosparams
   double gravity_;
   bool use_gps_;
-  int imu_buf_size_;
-  int bar_buf_size_;
-  int gps_buf_size_;
-  int vel_buf_size_;
+  double gps_pos_stddev_thr_;  // [m]
   double grav_var_;
 
   // PubSub
@@ -84,9 +83,10 @@ private:
   void registerSubscribers() override;
 
   bool isReady();
-  void initialize();
+  void initialize(const ImuMsg& imu);
   void setZeroPositions();
-  void updatePoseVelMsg();
+  void updatePoseVelMsg(const ImuMsg& imu);
+  bool isValidImuTimeGap(double dt);
 
   void filteredImuCb(const ImuMsg& imu);
   void barometerCb(const BarMsg& bar);

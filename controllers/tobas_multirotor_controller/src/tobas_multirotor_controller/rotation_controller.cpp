@@ -49,7 +49,7 @@ void RotationController::update(
   VectorXd& u_opt)
 {
   assert(battery_voltage > 0.);
-  assert(U > 0.);
+  assert(U >= 0.);
   assert(u_opt.rows() == z_rotors_.count());
 
   updateCurrentState(cur_rpy, cur_angvel_B);

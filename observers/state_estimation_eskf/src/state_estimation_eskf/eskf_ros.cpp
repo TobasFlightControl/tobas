@@ -1,3 +1,4 @@
+#include <actionlib/client/simple_action_client.h>
 #include <eigen_conversions/eigen_msg.h>
 #include <eigen_conversions/eigen_kdl.h>
 
@@ -10,6 +11,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <static_state_determination/common.hpp>
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
@@ -28,8 +30,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
     bar_received_(false),
     gps_received_(false),
     vel_received_(false),
-    check_topics_timer_(nh_, kTimerPeriod, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this),
-    ac_(static_state_determination::kActionName)
+    check_topics_timer_(nh_, kTimerPeriod, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
 {
   getRosParams();
 
@@ -105,23 +106,63 @@ bool ErrorStateKalmanFilterRos::isReady()
 
 void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
 {
+  // 初期化処理の開始時間
+  ros::Time start_time = ros::Time::now();
+
+  // 静止状態でのセンサデータを平均してゼロ点を決める
+  setZeroPositions();
+
+  // ISKFを初期化
+  // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
+  eskf_.initialize(
+    acc_noise_density_,                                        // accelerometer noise density
+    gyro_noise_density_,                                       // gyrometer noise density
+    acc_random_walk_,                                          // accelerometer random walk
+    gyro_random_walk_,                                         // gyrometer random walk
+    Vector3d(0., 0., -gravity_),                               // gravity vector
+    Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
+    Vector3d::Zero(),                                          // init position
+    Vector3d::Zero(),                                          // init velocity
+    q_0_,                                                      // init quaternion
+    Matrix3d::Zero(),                                          // init position cov
+    Matrix3d::Zero(),                                          // init velocity cov
+    Matrix3d::Zero(),                                          // init quaternion cov
+    Matrix3d::Zero(),                                          // init accelerometer bias cov
+    Matrix3d::Zero()                                           // init gyrometer bias cov
+  );
+
+  // ヨー角の初期値
+  double roll, pitch;
+  quaternionToEuler(q_0_.x(), q_0_.y(), q_0_.z(), q_0_.w(), roll, pitch, yaw_prev_);
+
+  yaw_jump_count_ = 0;
+
+  // IMUのタイムスタンプに初期化に要した時間を足した時間を最新のセンサ時間とする
+  const auto duration = ros::Time::now() - start_time;
+  t_last_ = t_ready_ = stamp + duration;
+}
+
+void ErrorStateKalmanFilterRos::setZeroPositions()
+{
+  actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac(
+    static_state_determination::kActionName);
   rosInfo(
     "Waiting for action server '" << static_state_determination::kActionName << "' to start.");
-  ac_.waitForServer();
+  ac.waitForServer();
 
   rosInfo(
     "Action server '" << static_state_determination::kActionName << "' started, sending goal.");
   static_state_determination::StaticStateDeterminationGoal goal;
   goal.gps_position_stddev_threshold = gps_pos_stddev_thr_;
-  ac_.sendGoal(goal);
+  ac.sendGoal(goal);
 
-  bool finished_before_timeout = ac_.waitForResult();
+  const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
     rosthrow("Action did not finish before timeout.");
   }
 
-  const auto result = ac_.getResult();
+  const auto result = ac.getResult();
   rosInfo(
     "The result of " << static_state_determination::kActionName << ":\n"
                      << "IMU count: " << result->imu_count << endl
@@ -129,8 +170,15 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
                      << "Barometer count: " << result->bar_count << endl
                      << "GPS position count: " << result->gps_count << endl
                      << "GPS velocity count: " << result->vel_count << endl
+                     << "IMU:\n"
                      << result->imu << endl
-                     << result->magnetic_field << result->air_pressure << result->gps
+                     << "Magnetic Field:\n"
+                     << result->magnetic_field << endl
+                     << "Air Pressure:\n"
+                     << result->air_pressure << endl
+                     << "GPS:\n"
+                     << result->gps << endl
+                     << "Ground Speed:\n"
                      << result->ground_speed);
 
   // 経緯度
@@ -144,34 +192,7 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
   const Vector3d m0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
-  Quaterniond init_q;
-  eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, init_q);
-
-  // ISKFを初期化
-  // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
-  eskf_.initialize(
-    acc_noise_density_,                                        // accelerometer noise density
-    gyro_noise_density_,                                       // gyrometer noise density
-    acc_random_walk_,                                          // accelerometer random walk
-    gyro_random_walk_,                                         // gyrometer random walk
-    Vector3d(0., 0., -gravity_),                               // gravity vector
-    Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
-    Vector3d::Zero(),                                          // init position
-    Vector3d::Zero(),                                          // init velocity
-    init_q,                                                    // init quaternion
-    Matrix3d::Zero(),                                          // init position cov
-    Matrix3d::Zero(),                                          // init velocity cov
-    Matrix3d::Zero(),                                          // init quaternion cov
-    Matrix3d::Zero(),                                          // init accelerometer bias cov
-    Matrix3d::Zero()                                           // init gyrometer bias cov
-  );
-
-  // ヨー角の初期値など
-  double roll, pitch;
-  quaternionToEuler(init_q.x(), init_q.y(), init_q.z(), init_q.w(), roll, pitch, yaw_prev_);
-  yaw_jump_count_ = 0;
-
-  t_last_ = stamp;
+  eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
 }
 
 void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ros::Time& stamp)
@@ -212,6 +233,25 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ros::Time& stamp)
   // std::cout << "Estimated state:" << endl << state_ << endl;
 }
 
+bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
+{
+  if (dt < 0.)
+  {
+    rosFatal("The time gap between consecutive IMU sensor readings is negative: " << dt << "[s]");
+    return false;
+  }
+
+  if (dt > kImuTimeGapThreshold)
+  {
+    rosFatal(
+      "The time gap between consecutive IMU sensor readings " << dt << "[s] exceeds the threshold "
+                                                              << kImuTimeGapThreshold << "[s]");
+    return false;
+  }
+
+  return true;
+}
+
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 {
   if (!imu_received_)
@@ -225,7 +265,6 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
     {
       check_topics_timer_.stop();
       initialize(imu.header.stamp);
-      t_ready_ = ros::Time::now();
       is_initialized_ = true;
       rosInfo(
         "State estimator is ready. Wait to publish states for " << kWaitToPublish << " seconds.");
@@ -234,8 +273,11 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   }
 
   const double dt = (imu.header.stamp - t_last_).toSec();
+  if (!isValidImuTimeGap(dt))
+  {
+    return;
+  }
   t_last_ = imu.header.stamp;
-  ROS_ASSERT(dt > 0.);
 
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(imu.angular_velocity, w_m_);

@@ -2,7 +2,6 @@
 
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
-#include <actionlib/client/simple_action_client.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
@@ -13,7 +12,6 @@
 
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
-#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
 
 #include "./eskf.hpp"
@@ -39,9 +37,10 @@ public:
 
 private:
   // 固定値
-  double lat_0_;  // 緯度のゼロ点
-  double lon_0_;  // 経度のゼロ点
-  double alt_0_;  // 高度のゼロ点
+  double lat_0_;            // 緯度のゼロ点
+  double lon_0_;            // 経度のゼロ点
+  double alt_0_;            // 高度のゼロ点
+  Eigen::Quaterniond q_0_;  // 姿勢の初期値
 
   bool is_initialized_;
   bool imu_received_;
@@ -90,12 +89,8 @@ private:
   // Timer
   dh_ros::Timer check_topics_timer_;
 
-  // Action client
-  actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac_;
-
   // Dynamic Reconfigure
   ConfigServer server_;
-
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -103,7 +98,9 @@ private:
 
   bool isReady();
   void initialize(const ros::Time& stamp);
+  void setZeroPositions();
   void updateBaseStateMsg(const ros::Time& stamp);
+  bool isValidImuTimeGap(double dt);
 
   void imuCb(const ImuMsg& imu);
   void magCb(const MagMsg& mag);

@@ -18,9 +18,6 @@
     <!-- Bringup observer -->
     <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>
     <include file="$(find {{ observer_pkg }})/launch/observer.launch"/>
-
-    <!-- Bringup static state determinator -->
-    <include file="$(find static_state_determination)/launch/static_state_determination.launch"/>
   </group>
 
 </launch>
