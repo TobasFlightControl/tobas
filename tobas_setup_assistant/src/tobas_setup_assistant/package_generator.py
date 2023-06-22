@@ -288,6 +288,7 @@ class PackageGenerator(QWidget):
                 "acc_random_walk": imu.acc_random_walk.get(),
                 "use_gps": gps.equipped(),
                 "gps_position_stddev_threshold": eskf.gps_pos_stddev_threshold.get(),
+                "geomag_observe_method": "rpy",
                 "rotation_variance_grav": eskf.rot_var_grav.get(),
                 "rotation_variance_geomag": eskf.rot_var_geomag.get(),
             }

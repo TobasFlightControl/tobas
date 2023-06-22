@@ -19,8 +19,10 @@ class ErrorStateKalmanFilter
 {
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Matrix<double, kStateSize, 1>;
-  using dStateMatrix = Eigen::Matrix<double, kDeltaStateSize, kDeltaStateSize>;
-  using dStateVector = Eigen::Matrix<double, kDeltaStateSize, 1>;
+  using RowStateVector = Eigen::Matrix<double, 1, kStateSize>;
+  using DeltaStateMatrix = Eigen::Matrix<double, kDeltaStateSize, kDeltaStateSize>;
+  using DeltaStateVector = Eigen::Matrix<double, kDeltaStateSize, 1>;
+  using RowDeltaStateVector = Eigen::Matrix<double, 1, kDeltaStateSize>;
   using Scalar = Eigen::Matrix<double, 1, 1>;
 
 public:
@@ -50,6 +52,7 @@ public:
   Eigen::Vector3d getAccelBias() const;
   Eigen::Vector3d getGyroBias() const;
   Eigen::Matrix3d getDCM() const;
+  double getYaw() const;
 
   void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, double dt);
 
@@ -75,8 +78,22 @@ public:
    * @param mag_meas 地磁気センサの読み．
    * @param cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   *
+   * @note
+   * 地磁気センサのバイアスが大きく，ロールピッチの観測に用いると姿勢推定の精度が落ちる恐れがあるため，
+   * 地磁気はヨー角の観測にのみ用いるべきという意見もある．
    */
-  void measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
+  void measureMagneticFieldRPY(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
+
+  /**
+   * @brief 地磁気の観測．ヨー角の修正に用いる．
+   * https://github.com/PX4/PX4-ECL/blob/b3fed06fe822d08d19ab1d2c2f8daf7b7d21951c/EKF/mag_fusion.cpp#L420
+   *
+   * @param mag_meas 地磁気センサの読み．
+   * @param yaw_var 観測による修正量を決めるパラメータ．
+   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   */
+  void measureMagneticFieldYaw(double mag_meas_x, double mag_meas_y, double yaw_var);
 
 private:
   double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
@@ -88,8 +105,8 @@ private:
   Eigen::Vector3d mag_W_;      // Magnetic field wrt. world frame [T]
 
   StateVector nominal_state_;  // State vector of the filter
-  dStateMatrix P_;             // Covariance of the error state
-  dStateMatrix F_x_;           // Jacobian of the state transition
+  DeltaStateMatrix P_;         // Covariance of the error state
+  DeltaStateMatrix F_x_;       // Jacobian of the state transition
 
   /* (281) */
   Eigen::Matrix<double, 4, 3> getQ_dtheta();
@@ -100,10 +117,15 @@ private:
     const Eigen::Matrix<double, M, M>& meas_cov,
     const Eigen::Matrix<double, M, kDeltaStateSize>& H);
 
-  void injectErrorState(const dStateVector& error_state);
+  void injectErrorState(const DeltaStateVector& error_state);
 
-  /* クオータニオンをベクトルの形で得る．(w,x,y,z)の順(ハミルトン)であることに注意！ */
-  inline Eigen::Vector4d getQuatVector() const
+  /**
+   * @brief クオータニオンをベクトルの形で得る．
+   * (w,x,y,z)の順(ハミルトン)だから，w()などでアクセスするとずれることに注意！
+   *
+   * @return Eigen::Vector4d ハミルトン形式のクオータニオン
+   */
+  inline Eigen::Vector4d getHamilton() const
   {
     return nominal_state_.block<4, 1>(kQuatIdx, 0);
   }
@@ -124,7 +146,7 @@ void ErrorStateKalmanFilter::correct(
 
   // Correction error state
   const auto error_state = K * delta_meas;
-  const auto I_KH = dStateMatrix::Identity() - K * H;
+  const auto I_KH = DeltaStateMatrix::Identity() - K * H;
 
   // Update P (simple form)
   // P_ = I_KH * P_;  // Simple form

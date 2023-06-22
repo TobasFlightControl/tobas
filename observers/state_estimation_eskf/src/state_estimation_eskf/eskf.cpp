@@ -93,7 +93,7 @@ Vector3d ErrorStateKalmanFilter::getVelocity() const
 
 Quaterniond ErrorStateKalmanFilter::getQuaternion() const
 {
-  return et::hamiltonToQuaternion(getQuatVector());
+  return et::hamiltonToQuaternion(getHamilton());
 }
 
 Vector3d ErrorStateKalmanFilter::getAccelBias() const
@@ -109,6 +109,12 @@ Vector3d ErrorStateKalmanFilter::getGyroBias() const
 Matrix3d ErrorStateKalmanFilter::getDCM() const
 {
   return getQuaternion().toRotationMatrix();
+}
+
+double ErrorStateKalmanFilter::getYaw() const
+{
+  const auto R_W_B = getDCM();
+  return atan2(R_W_B(1, 0), R_W_B(0, 0));
 }
 
 void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
@@ -164,12 +170,12 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
 {
-  Vector4d qby2 = 0.5 * getQuatVector();
-  // Assing to letters for readability. Note Hamilton order.
-  const double w = qby2[0];
-  const double x = qby2[1];
-  const double y = qby2[2];
-  const double z = qby2[3];
+  Vector4d qby2 = 0.5 * getHamilton();
+  const double w = qby2(0);
+  const double x = qby2(1);
+  const double y = qby2(2);
+  const double z = qby2(3);
+
   Matrix<double, 4, 3> Q_dtheta;
   Q_dtheta << -x, -y, -z, w, -z, y, z, w, -x, -y, x, w;
   return Q_dtheta;
@@ -257,7 +263,9 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
   correct<3>(delta_acc, acc_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, const Matrix3d& mag_cov)
+void ErrorStateKalmanFilter::measureMagneticFieldRPY(
+  const Vector3d& mag_meas,
+  const Matrix3d& mag_cov)
 {
   const Matrix3d rot_B_W = getDCM().transpose();
   const Vector3d mag_B = rot_B_W * mag_W_;
@@ -271,7 +279,90 @@ void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, cons
   correct<3>(delta_mag, mag_cov, H);
 }
 
-void ErrorStateKalmanFilter::injectErrorState(const dStateVector& error_state)
+void ErrorStateKalmanFilter::measureMagneticFieldYaw(
+  double mag_meas_x,
+  double mag_meas_y,
+  double yaw_var)
+{
+  assert(yaw_var > 0.);
+
+  // Compute innovation
+  const double yaw_meas = wrapPi(atan2(mag_meas_y, mag_meas_x) - atan2(mag_W_.y(), mag_W_.x()));
+  const double delta_yaw = wrapPi(yaw_meas - getYaw());
+
+  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
+  constexpr double epsilon = 1e-6;
+  const Quaterniond q = getQuaternion();
+
+  bool can_use_A = false;
+  const double SA0 = 2 * q.z();
+  const double SA1 = 2 * q.y();
+  const double SA2 = SA0 * q.w() + SA1 * q.x();
+  const double SA3 = sqr(q.w()) + sqr(q.x()) - sqr(q.y()) - sqr(q.z());
+  double SA4, SA5_inv;
+  if (sqr(SA3) > epsilon)
+  {
+    SA4 = 1 / sqr(SA3);
+    SA5_inv = sqr(SA2) * SA4 + 1;
+    can_use_A = abs(SA5_inv) > epsilon;
+  }
+
+  bool can_use_B = false;
+  const double SB0 = 2 * q.w();
+  const double SB1 = 2 * q.x();
+  const double SB2 = SB0 * q.z() + SB1 * q.y();
+  const double SB4 = sqr(q.w()) + sqr(q.x()) - sqr(q.y()) - sqr(q.z());
+  double SB3, SB5_inv;
+  if (sqr(SB2) > epsilon)
+  {
+    SB3 = 1 / sqr(SB2);
+    SB5_inv = SB3 * sqr(SB4) + 1;
+    can_use_B = abs(SB5_inv) > epsilon;
+  }
+
+  // Compute output matrix
+  RowVector4d H_yaw;
+  if (can_use_A && (!can_use_B || abs(SA5_inv) >= abs(SB5_inv)))
+  {
+    const double SA5 = 1 / SA5_inv;
+    const double SA6 = 1 / SA3;
+    const double SA7 = SA2 * SA4;
+    const double SA8 = 2 * SA7;
+    const double SA9 = 2 * SA6;
+
+    H_yaw(0) = SA5 * (SA0 * SA6 - SA8 * q.w());
+    H_yaw(1) = SA5 * (SA1 * SA6 - SA8 * q.x());
+    H_yaw(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
+    H_yaw(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
+  }
+  else if (can_use_B && (!can_use_A || abs(SB5_inv) > abs(SA5_inv)))
+  {
+    const double SB5 = 1 / SB5_inv;
+    const double SB6 = 1 / SB2;
+    const double SB7 = SB3 * SB4;
+    const double SB8 = 2 * SB7;
+    const double SB9 = 2 * SB6;
+
+    H_yaw(0) = -SB5 * (SB0 * SB6 - SB8 * q.z());
+    H_yaw(1) = -SB5 * (SB1 * SB6 - SB8 * q.y());
+    H_yaw(2) = -SB5 * (-SB1 * SB7 - SB9 * q.y());
+    H_yaw(3) = -SB5 * (-SB0 * SB7 - SB9 * q.z());
+  }
+  else
+  {
+    return;
+  }
+
+  const auto Q_dtheta = getQ_dtheta();
+  RowDeltaStateVector H;
+  H.setZero();
+  H.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
+
+  // Update the quaternion states and covariance matrix
+  correct<1>(Scalar(delta_yaw), Scalar(yaw_var), H);
+}
+
+void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_state)
 {
   // (283) 観測した誤差をノミナル状態に反映
   const Vector3d dtheta = error_state.block<3, 1>(kDeltaThetaIdx, 0);

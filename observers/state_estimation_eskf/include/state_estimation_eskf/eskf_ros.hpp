@@ -32,6 +32,12 @@ class ErrorStateKalmanFilterRos : public dh_ros::BaseNode
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
+  enum GeomagObserveMethod
+  {
+    RPY,
+    YAW_ONLY,
+  };
+
 public:
   explicit ErrorStateKalmanFilterRos();
 
@@ -76,6 +82,7 @@ private:
   double acc_random_walk_;                                // m/s^3/sqrt(hz)
   bool use_gps_;
   double gps_pos_stddev_thr_;                             // [m]
+  GeomagObserveMethod geomag_observe_method_;
   state_estimation_eskf::StateEstimationEskfConfig cfg_;  // 動的パラメータ
 
   // PubSub

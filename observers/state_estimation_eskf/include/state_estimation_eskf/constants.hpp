@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace state_estimation_eskf
 {
@@ -24,6 +25,7 @@ static constexpr double kTimerPeriod = 5.;           // [s]
 static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
 static constexpr double kWaitToPublish = 3.;  // 状態安定のためESKFが稼働してから少し待つ [s]
 
+static const std::string kDefaultGeomagObserveMethod = "rpy";
 static constexpr bool kDefaultUseGps = true;
 static constexpr double kDefaultGpsPositionStddevThreshold = 0.3;  // [m]
 }  // namespace state_estimation_eskf

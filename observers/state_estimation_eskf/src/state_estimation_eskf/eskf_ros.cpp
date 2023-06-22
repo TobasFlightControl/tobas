@@ -6,10 +6,12 @@
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_std_tools/exception.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_eigen_tools/iostream.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <static_state_determination/StaticStateDeterminationAction.h>
 #include <static_state_determination/common.hpp>
@@ -63,6 +65,21 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(
     "~gps_position_stddev_threshold", gps_pos_stddev_thr_, kDefaultGpsPositionStddevThreshold,
     dh_ros::POSITIVE);
+
+  string geomag_observe_method;
+  dh_ros::getParam("~geomag_observe_method", geomag_observe_method, kDefaultGeomagObserveMethod);
+  if (geomag_observe_method == "rpy")
+  {
+    geomag_observe_method_ = GeomagObserveMethod::RPY;
+  }
+  else if (geomag_observe_method == "yaw_only")
+  {
+    geomag_observe_method_ = GeomagObserveMethod::YAW_ONLY;
+  }
+  else
+  {
+    rosthrow("Invalid geomagnetism observation method: " << geomag_observe_method);
+  }
 
   // Dynamic parameters
   dh_ros::getParam("~rotation_variance_grav", cfg_.rotation_variance_grav, dh_ros::POSITIVE);
@@ -315,7 +332,18 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
   }
 
   tf::vectorMsgToEigen(mag.magnetic_field, mag_m_);
-  eskf_.measureMagneticField(mag_m_, rot_mag_cov_);
+
+  switch (geomag_observe_method_)
+  {
+    case GeomagObserveMethod::RPY:
+      eskf_.measureMagneticFieldRPY(mag_m_, rot_mag_cov_);
+      break;
+    case GeomagObserveMethod::YAW_ONLY:
+      eskf_.measureMagneticFieldYaw(mag_m_.x(), mag_m_.y(), rot_mag_cov_(0, 0));
+      break;
+    default:
+      throw NotImplementedError();
+  }
 }
 
 void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
@@ -415,5 +443,7 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
 {
   rot_acc_cov_.diagonal().fill(cfg.rotation_variance_grav);
   rot_mag_cov_.diagonal().fill(cfg.rotation_variance_geomag);
+
+  rosInfo("New dynamic parameters are set.");
 }
 }  // namespace state_estimation_eskf
