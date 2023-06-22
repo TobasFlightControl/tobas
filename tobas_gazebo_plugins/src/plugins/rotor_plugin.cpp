@@ -160,8 +160,10 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   // Check aliasing
   if (abs(rot_speed_sim) * dt > M_PI)
   {
-    gzerr << kPluginName << ": Aliasing on motor [" << motor_number_
-          << "] might occur. Lower simulation time step or raise rotorSpeedSlowdownSim." << endl;
+    GZ_WARN_THROTTLE(
+      kWarnPeriod, kPluginName << ": Aliasing on motor [" << motor_number_
+                               << "] might occur. Lower simulation time step or raise "
+                                  "rotorSpeedSlowdownSim.");
   }
 
   // Update simulation state
@@ -263,13 +265,14 @@ void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
   const auto delay = prev_sim_time_ - cmd.header.stamp.toSec();
   if (delay > check_delay_threshold_)
   {
-    gzwarn << kPluginName << ": The delay from sensors to the motor command " << delay
-           << "[s] is over " << check_delay_threshold_ << "[s]." << endl;
+    GZ_WARN_THROTTLE(
+      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay
+                               << "[s] is over " << check_delay_threshold_ << "[s].");
   }
   else if (delay < 0.)
   {
-    gzerr << kPluginName << ": The timestamp of the motor command precedes the current time."
-          << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
   }
 
   // Get Commanded speed

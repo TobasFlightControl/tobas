@@ -200,9 +200,10 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha))
   {
-    gzerr << kPluginName << ": The angle of attack " << alpha << " is not within the valid range "
-          << vehicle_params_.alpha_limit
-          << ". The accuracy of the physics simulation may be compromised." << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, kPluginName << ": The angle of attack " << alpha
+                                << " is not within the valid range " << vehicle_params_.alpha_limit
+                                << ". The accuracy of the physics simulation may be compromised.");
   }
 
   // 最初は変数の初期化だけして終了
@@ -436,13 +437,14 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
   const auto delay = prev_sim_time_ - deflections.header.stamp.toSec();
   if (delay > check_delay_threshold_)
   {
-    gzwarn << kPluginName << ": The delay from sensors to the motor command " << delay
-           << "[s] is over " << check_delay_threshold_ << "[s]." << endl;
+    GZ_WARN_THROTTLE(
+      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay
+                               << "[s] is over " << check_delay_threshold_ << "[s].");
   }
   else if (delay < 0.)
   {
-    gzerr << kPluginName << ": The timestamp of the motor command precedes the current time."
-          << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
   }
 
   // Update reference deflection angles
