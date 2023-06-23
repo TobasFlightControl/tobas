@@ -38,6 +38,7 @@ class BaseSettingWidget(QScrollArea):
         abst.setFixedHeight(self.ABST_HEIGHT)
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
+        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
     @abstractmethod

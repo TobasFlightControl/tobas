@@ -28,6 +28,7 @@ class ParamGetterWidget(QWidget):
             description.setFont(QFont("Default", pointSize=BODY_PSIZE))
             description.setAlignment(Qt.AlignTop)
             description.setWordWrap(True)
+            description.setOpenExternalLinks(True)
             self._rows.addWidget(description)
 
     @abstractmethod

@@ -129,6 +129,7 @@ class ControllerWidget_LMPC(QWidget):
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
+        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
         natural_freq_description = "PD制御の自然周波数．"\
@@ -316,6 +317,7 @@ class ControllerWidget_NMPC(QWidget):
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
+        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
         # TODO
@@ -339,6 +341,7 @@ class ControllerWidget_SMC(QWidget):
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
+        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
         # TODO
