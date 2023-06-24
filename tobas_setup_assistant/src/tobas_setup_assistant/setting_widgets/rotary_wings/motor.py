@@ -202,10 +202,10 @@ class MotorWidget_Manual(MotorWidget_Base):
             efficiency_description,
             minimum=1,
             maximum=100,
-            default=80,
+            default=100,
             suffix=" %",
         )
-        self._rows.addWidget(self._efficiency)
+        # self._rows.addWidget(self._efficiency)  # 負荷による電圧降下は逆起電力よりも十分に小さいと仮定
 
         time_const_up_description = "モータの回転数が増加する際の，指令値に対する一時遅れの時定数．"
         self._time_const_up = ParamGetterWidget_SpinBox(
