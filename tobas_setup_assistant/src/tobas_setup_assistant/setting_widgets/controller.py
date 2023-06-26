@@ -79,9 +79,9 @@ class ControllerWidget(BaseSettingWidget):
         elif controller_type == self.LMPC:
             return "tobas_multirotor_controller"
         elif controller_type == self.NMPC:
-            raise NotImplementedError
+            raise NotImplementedError()
         elif controller_type == self.SMC:
-            raise NotImplementedError
+            raise NotImplementedError()
         else:
             raise RuntimeError(f'Unknown controller type: {controller_type}')
 

@@ -72,7 +72,7 @@ class MotorWidget(QWidget):
         elif setting_method == self.EXPERIMENT:
             return self.experiment
         else:
-            raise RuntimeError
+            raise RuntimeError()
 
     def direction(self) -> str:
         """ 'cw' or 'ccw' """
@@ -152,26 +152,26 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
 
     @abstractmethod
     def is_valid(self) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def kv(self) -> float:
         """ [rpm/V], including efficiency """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def time_const_up(self) -> float:
         """ [s] """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def time_const_down(self) -> float:
         """ [s] """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def copy_from(self, src) -> None:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @final
     def direction(self) -> str:
@@ -333,9 +333,9 @@ class MotorWidget_Experiment(MotorWidget_Base):
                 kv = rpm / motor_voltage
                 kv_sum += kv
         elif esc_type == esc.DSHOT:
-            raise NotImplementedError
+            raise NotImplementedError()
         else:
-            raise RuntimeError
+            raise RuntimeError()
 
         return kv_sum / num_samples
 

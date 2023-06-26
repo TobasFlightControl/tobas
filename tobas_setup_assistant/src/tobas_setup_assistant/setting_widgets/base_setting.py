@@ -49,4 +49,4 @@ class BaseSettingWidget(QScrollArea):
     @abstractmethod
     def is_valid(self) -> bool:
         """ Returns true if user configuration is valid. """
-        raise NotImplementedError
+        raise NotImplementedError()

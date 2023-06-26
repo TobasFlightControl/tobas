@@ -97,11 +97,11 @@ class BatteryWidget_Base(QWidget):
 
     @abstractmethod
     def is_valid(self) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def nominal_voltage(self) -> float:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class BatteryWidget_LiPo(BatteryWidget_Base):

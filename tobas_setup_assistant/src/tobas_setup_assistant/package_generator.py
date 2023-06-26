@@ -247,9 +247,9 @@ class PackageGenerator(QWidget):
                 "thrust_rate_weight_exp": lmpc.thrust_rate_weight_exp.get(),
             }
         elif controller_type == controller.NMPC:
-            raise NotImplementedError
+            raise NotImplementedError()
         elif controller_type == controller.SMC:
-            raise NotImplementedError
+            raise NotImplementedError()
         else:
             raise RuntimeError(f'Unknown controller type: {controller_type}')
 
