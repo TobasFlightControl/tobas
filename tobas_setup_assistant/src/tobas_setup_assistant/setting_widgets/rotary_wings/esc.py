@@ -68,7 +68,7 @@ class EscWidget(QWidget):
         elif esc_type == self.DSHOT:
             return self.dshot
         else:
-            raise RuntimeError
+            raise RuntimeError()
 
     def copy_from(self, src: EscWidget) -> None:
         self.esc_type.setCurrentText(src.esc_type.currentText())
@@ -110,11 +110,11 @@ class EscWidget_Base(QWidget):
 
     @abstractmethod
     def is_valid(self) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def copy_from(self, src) -> None:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class EscWidget_PWM(EscWidget_Base):

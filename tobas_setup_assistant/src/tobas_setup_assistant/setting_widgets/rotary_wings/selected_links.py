@@ -16,6 +16,7 @@ from ...constants import *
 from .constants import ROTARY_WINGS
 from .esc import EscWidget
 from .motor import MotorWidget
+from .blade_geometry import BladeGeometry
 from .aerodynamics import AerodynamicsWidget
 
 
@@ -79,20 +80,21 @@ class SelectedLinksWidget(TabWidget):
         else:
             raise RuntimeError(f'Link name not found: {link_name}')
 
-    def get_esc(self, link_name: str) -> EscWidget:
+    def get_tab(self, link_name: str) -> SelectedLinkTabWidget:
         idx = self.get_index(link_name)
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        return tab.esc
+        return self.widget(idx)
+
+    def get_esc(self, link_name: str) -> EscWidget:
+        return self.get_tab(link_name).esc
 
     def get_motor(self, link_name: str) -> MotorWidget:
-        idx = self.get_index(link_name)
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        return tab.motor
+        return self.get_tab(link_name).motor
+
+    def get_blade_geometry(self, link_name: str) -> BladeGeometry:
+        return self.get_tab(link_name).blade_geometry
 
     def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
-        idx = self.get_index(link_name)
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        return tab.aerodynamics
+        return self.get_tab(link_name).aerodynamics
 
     def link_names(self) -> List[str]:
         """ 選択テーブル内のリンクの名前のリストを返す． """
@@ -142,6 +144,9 @@ class SelectedLinkTabWidget(QWidget):
         self.motor = MotorWidget(main, link_name)
         self._rows.addWidget(self.motor)
 
+        self.blade_geometry = BladeGeometry(main, link_name)
+        self._rows.addWidget(self.blade_geometry)
+
         self.aerodynamics = AerodynamicsWidget(main, link_name)
         self._rows.addWidget(self.aerodynamics)
 
@@ -152,6 +157,8 @@ class SelectedLinkTabWidget(QWidget):
         if not self.esc.is_valid():
             return False
         if not self.motor.is_valid():
+            return False
+        if not self.blade_geometry.is_valid():
             return False
         if not self.aerodynamics.is_valid():
             return False
@@ -178,4 +185,5 @@ class SelectedLinkTabWidget(QWidget):
         left: SelectedLinkTabWidget = selected.widget(self_idx - 1)
         self.esc.copy_from(left.esc)
         self.motor.copy_from(left.motor)
+        self.blade_geometry.copy_from(left.blade_geometry)
         self.aerodynamics.copy_from(left.aerodynamics)
