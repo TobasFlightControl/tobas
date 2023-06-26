@@ -17,6 +17,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...constants import *
+from ...utils import rpm_to_rad_per_sec
 from .constants import ROTARY_WINGS
 
 
@@ -398,7 +399,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
             assert num_samples > 0
 
             motor_const_sum = 0.
-            for omega, thrust, _ in data:
+            for rpm, thrust, _ in data:
+                omega = rpm_to_rad_per_sec(rpm)  # [rad/s]
                 motor_const = thrust / omega**2
                 motor_const_sum += motor_const
 
@@ -418,9 +420,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
             assert num_samples > 0
 
             moment_const_sum = 0.
-            for omega, thrust, torque in data:
-                motor_const = thrust / omega**2
-                moment_const = torque / motor_const
+            for _, thrust, torque in data:
+                moment_const = torque / thrust
                 moment_const_sum += moment_const
 
             self._moment_const = moment_const_sum / num_samples
