@@ -24,7 +24,6 @@ PositionYawPublisher::PositionYawPublisher()
       &PositionYawPublisher::instructionTimerCb,
       this,
       false)
-
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
