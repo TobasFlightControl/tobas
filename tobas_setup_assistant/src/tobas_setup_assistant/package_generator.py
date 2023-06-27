@@ -116,6 +116,8 @@ class PackageGenerator(QWidget):
         self._generate_from_template(items, "environment.yaml", config_dir)
         self._generate_from_template(items, "gazebo.launch", launch_dir)
         self._generate_from_template(items, "real.launch", launch_dir)
+        self._generate_from_template(items, "controller.launch", launch_dir)
+        self._generate_from_template(items, "observer.launch", launch_dir)
         self._generate_from_template(items, "bringup.launch", launch_dir)
 
         # Pythonで自動生成

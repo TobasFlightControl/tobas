@@ -1,0 +1,11 @@
+<launch>
+
+  <group ns="{{ drone_name }}">
+    <!-- Load parameters -->
+    <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>
+
+    <!-- Bringup observer -->
+    <include file="$(find {{ observer_pkg }})/launch/observer.launch"/>
+  </group>
+
+</launch>

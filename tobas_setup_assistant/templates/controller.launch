@@ -1,0 +1,14 @@
+<launch>
+
+  <arg name="control_mode" default="position"/>
+
+  <group ns="{{ drone_name }}">
+    <!-- Load parameters -->
+    <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
+
+    <!-- Bringup controller -->
+    <include if="$(eval control_mode=='position')" file="$(find {{ controller_pkg }})/launch/position_control.launch"/>
+    <include if="$(eval control_mode=='velocity')" file="$(find {{ controller_pkg }})/launch/velocity_control.launch"/>
+  </group>
+
+</launch>

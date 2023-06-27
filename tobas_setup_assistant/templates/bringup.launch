@@ -2,22 +2,12 @@
 
   <arg name="control_mode" default="position"/>
 
-  <!-- Load environment configurations from YAML file to parameter server -->
-  <rosparam file="$(find {{ pkg_name }})/config/environment.yaml" command="load"/>
+  <!-- Bringup controller -->
+  <include file="$(find {{ pkg_name }})/launch/controller.launch">
+    <arg name="control_mode" value="$(arg control_mode)"/>
+  </include>
 
-  <group ns="{{ drone_name }}">
-    <!-- Bringup controller -->
-    <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
-    <group if="$(eval control_mode=='position')">
-      <include file="$(find {{ controller_pkg }})/launch/position_control.launch"/>
-    </group>
-    <group if="$(eval control_mode=='velocity')">
-      <include file="$(find {{ controller_pkg }})/launch/velocity_control.launch"/>
-    </group>
-
-    <!-- Bringup observer -->
-    <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>
-    <include file="$(find {{ observer_pkg }})/launch/observer.launch"/>
-  </group>
+  <!-- Bringup observer -->
+  <include file="$(find {{ pkg_name }})/launch/observer.launch"/>
 
 </launch>
