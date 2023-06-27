@@ -58,7 +58,7 @@ void PositionControllerRos::initialize(const tobas_msgs::BaseState& bs)
 {
   // 最初は暴れるのを防ぐために現在の状態を目標状態にする
   pos_yaw_in_.pos = bs.pose.pos;
-  pos_yaw_in_.pos(2) += kInitialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
+  pos_yaw_in_.pos(2) += kInitialTargetAltitude;  // Z座標に遊びを設ける
   pos_yaw_in_.yaw = bs.pose.euler.yaw;
 }
 

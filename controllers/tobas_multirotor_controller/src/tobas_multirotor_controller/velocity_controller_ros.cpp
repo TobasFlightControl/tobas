@@ -22,6 +22,7 @@ VelocityControllerRos::VelocityControllerRos()
   : super(),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    tar_vel_W_(0., 0., kInitialTargetVerticalSpeed),
     is_initialized_(false),
     bs_received_(false),
     battery_received_(false),
