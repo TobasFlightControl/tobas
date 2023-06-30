@@ -7,6 +7,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from kdl_sympy.joint import JointType
+
 from ...parameter_getters import *
 from ...constants import *
 
@@ -53,24 +55,25 @@ class AvailableLinksWidget(QListWidget):
     def _add_available_links(self) -> None:
         """
         以下の条件を満たすリンクをプロペラ候補としてリストに追加する．
-        - 親リンクがNWU-Fixed．
         - continuousタイプのジョイントをもつ．
-        - 回転軸がZ軸と一致している．
+        - 回転軸が常にZ軸と一致している．
         """
-        root_link = self._main.urdf_parser.get_root()
-        fixed_link_names = self._main.urdf_parser.nwu_fixed_link_names()
+        urdf_parser = self._main.urdf_parser
+        root_link = urdf_parser.get_root()
 
-        for link in self._main.urdf_parser.get_links():
+        for link in urdf_parser.get_links():
             if link.name == root_link.name:
                 continue
 
-            joint = self._main.urdf_parser.get_joint(link.name)
-            parent = self._main.urdf_parser.get_parent(link.name)
-            if (
-                parent.name in fixed_link_names and
-                joint.type == "continuous" and
-                joint.axis == [0, 0, 1]
-            ):
+            # 無制限回転のみ
+            joint = urdf_parser.get_joint(link.name)
+            if joint.type != JointType.CONTINUOUS:
+                continue
+
+            # 回転軸が常にZ軸と一致している
+            # FIXME: 複数回の回転を含む場合，数値誤差により理論的には存在しないXY要素が発生するかもしれない
+            global_axis = urdf_parser.global_axis(joint.name)
+            if global_axis.x() == 0 and global_axis.y() == 0:
                 self.add(link.name)
 
         self.sortItems()

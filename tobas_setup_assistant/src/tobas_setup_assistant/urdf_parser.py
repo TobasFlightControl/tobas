@@ -5,12 +5,15 @@ if TYPE_CHECKING:
 
 import rospy
 from typing import List, Tuple
-from urdf_parser_py.urdf import Robot, Link, Joint  # https://github.com/ros/urdf_parser_py
+from urdf_parser_py.urdf import Link, Joint
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.messages import q_error
+from kdl_sympy.frames import *
+from kdl_sympy.tree import Tree
+from kdl_sympy.joint import JointType
 
 
 class URDFParser(QWidget):
@@ -21,49 +24,52 @@ class URDFParser(QWidget):
         super().__init__()
         self._main = main
 
-        self._robot = Robot()
+        self._tree = Tree()
 
     def define_connections(self) -> None:
         self._main.settings.start.robot_model_loader.urdf_loaded.connect(self._on_urdf_loaded)
 
     @pyqtSlot()
     def _on_urdf_loaded(self) -> None:
-        self._robot = Robot.from_parameter_server("/robot_description")
-        self._is_valid_robot()
+        self._tree.load_from_param()
+        if not self._is_valid_robot():
+            return
+
         rospy.loginfo("Robot model is loaded successfully.")
         self.robot_model_updated.emit()
 
     def get_links(self) -> List[Link]:
-        return self._robot.links
+        return self._tree.get_links()
 
     def get_joints(self) -> List[Joint]:
-        return self._robot.joints
+        return self._tree.get_joints()
 
     def get_root(self) -> Link:
-        root_name = self._robot.get_root()
-        return self._robot.link_map[root_name]
+        return self._tree.get_root()
 
     def get_link(self, link_name: str) -> Link:
-        return self._robot.link_map[link_name]
+        return self._tree.get_link(link_name)
 
     def get_joint(self, link_name: str) -> Joint:
-        joint_name, _ = self._robot.parent_map[link_name]
-        return self._robot.joint_map[joint_name]
+        return self._tree.get_joint(link_name)
 
     def get_parent(self, link_name: str) -> Link:
-        _, parent_name = self._robot.parent_map[link_name]
-        return self._robot.link_map[parent_name]
+        return self._tree.get_parent(link_name)
 
     def get_children(self, link_name: str) -> List[Tuple[str, str]]:
-        return self._robot.child_map[link_name]
+        return self._tree.get_children(link_name)
 
     def is_end_link(self, link_name: str) -> bool:
-        assert link_name in self._robot.link_map.keys()
-        return link_name not in self._robot.child_map.keys()
+        return self._tree.is_end_link(link_name)
 
-    def is_fixed_joint(self, joint_name: str) -> bool:
-        joint: Joint = self._robot.joint_map[joint_name]
-        return joint.type == "fixed"
+    def link_exists(self, link_name: str) -> bool:
+        return self._tree.link_exists(link_name)
+
+    def joint_exists(self, joint_name: str) -> bool:
+        return self._tree.joint_exists(joint_name)
+
+    def link_names(self) -> List[str]:
+        return self._tree.link_names()
 
     def active_joint_names(self) -> List[str]:
         """
@@ -74,27 +80,16 @@ class URDFParser(QWidget):
         res = []
 
         for joint in self.get_joints():
-            if (not joint.name in rotary_wing_joints) and (not self.is_fixed_joint(joint.name)):
+            if (not joint.name in rotary_wing_joints) and (not self._tree.is_fixed_joint(joint.name)):
                 res.append(joint.name)
 
         return res
 
-    def link_exists(self, link_name: str) -> bool:
-        for link in self.get_links():
-            if link.name == link_name:
-                return True
-        return False
+    def global_pose(self, link_name: str) -> Frame:
+        return self._tree.global_pose(link_name)
 
-    def joint_exists(self, joint_name: str) -> bool:
-        for joint in self.get_joints():
-            if joint.name == joint_name:
-                return True
-        return False
-
-    def link_names(self) -> List[str]:
-        """ 全てのリンクの名前を返す． """
-        links = self.get_links()
-        return [link.name for link in links]
+    def global_axis(self, joint_name: str) -> Vector:
+        return self._tree.global_axis(joint_name)
 
     def nwu_fixed_link_names(self) -> List[str]:
         """
@@ -117,7 +112,7 @@ class URDFParser(QWidget):
             joint = self.get_joint(child_name)
 
             # 固定関節であることを保証
-            if joint.type != "fixed":
+            if joint.type != JointType.FIXED:
                 continue
 
             # 親フレームと子フレームの回転が一致していることを保証
@@ -134,7 +129,7 @@ class URDFParser(QWidget):
         """ 有効なロボットかどうかを判定する． """
         # 多自由度関節を持たないことを保証
         for joint in self.get_joints():
-            if joint.type in {"floating", "planar"}:
+            if joint.type in {JointType.PLANER, JointType.FLOATING}:
                 q_error(self._main, f'Invalid joint type: {joint.type}')
                 return False
 

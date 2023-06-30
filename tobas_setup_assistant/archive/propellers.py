@@ -10,6 +10,7 @@ from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_error
+from kdl_sympy.joint import JointType
 
 from ..src.tobas_setup_assistant.setting_widgets.base_setting import BaseSettingWidget
 from ..src.tobas_setup_assistant.constants import *
@@ -321,7 +322,7 @@ class AvailableLinksWidget(QListWidget):
 
             joint = self._main.urdf_parser.get_joint(link.name)
             parent = self._main.urdf_parser.get_parent(link.name)
-            if joint.type == "continuous" and parent.name in fixed_link_names:
+            if joint.type == JointType.CONTINUOUS and parent.name in fixed_link_names:
                 self.add_link(link.name)
 
         self.sortItems()
