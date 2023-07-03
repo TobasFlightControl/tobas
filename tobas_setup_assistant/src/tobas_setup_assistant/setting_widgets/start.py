@@ -5,8 +5,8 @@ if TYPE_CHECKING:
 
 import os
 import os.path as osp
-import rospy
 import roslaunch
+from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -23,7 +23,8 @@ class StartWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Tobas Setup Assistant"
-        abst_text = "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために必要な設定ファイルを作成するのを手助けするツールです．"\
+        abst_text = "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために"\
+            + "必要な設定ファイルを作成するのを手助けするツールです．"\
             + "ここでの設定が完了すれば，すぐにあなたのドローンを飛ばすことができます．"
         super().__init__(main, title_text, abst_text)
 
@@ -43,12 +44,17 @@ class StartWidget(BaseSettingWidget):
 
 class RobotModelLoaderWidget(QWidget):
 
+    KEY = "last_opened_dir/robot_model_loader"
+
     urdf_loaded = pyqtSignal()
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
         self.description_path = None
+
+        self._config = ConfigParser()
+        self._config.read(CONFIG_PATH)
 
         description_loader_uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         description_launch_path = osp.join(get_proj_path(), "launch/description.launch")
@@ -105,12 +111,29 @@ class RobotModelLoaderWidget(QWidget):
 
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
+        # 前回開いたパスを取得
+        last_opened_dir = self._config.get("DEFAULT", self.KEY, fallback=osp.expanduser("~"))
+
+        # URDFのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, "", "Robot Description (*.urdf *.xacro)", options=options
+            self, TITLE, last_opened_dir, "Robot Description (*.urdf *.xacro)", options=options
         )
+
+        # キャンセルの場合は何もせずに終了
+        # でないと空文字が設定されてしまう
+        if not file_path:
+            return
+
+        # パスをテキストに設定
         self.file_text.setText(file_path)
+
+        # ユーザが開いたディレクトリを保存
+        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
+        self._config["DEFAULT"][self.KEY] = osp.dirname(file_path)
+        with open(CONFIG_PATH, "w") as f:
+            self._config.write(f)
 
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:

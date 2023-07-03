@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -34,6 +35,10 @@ class SetupAssistant(QWidget):
 
         self.settings = SettingsWidget(self)
         self._rows.addWidget(self.settings)
+
+        # configがなければ作成
+        config_dir = osp.dirname(CONFIG_PATH)
+        os.makedirs(config_dir, exist_ok=True)
 
         # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
         self.define_connections()
