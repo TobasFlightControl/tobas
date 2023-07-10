@@ -35,7 +35,7 @@ class CommandersWidget(QScrollArea):
         inner.setLayout(self._rows)
 
         self._drone_cmd = PositionYaw()
-        self._drone_cmd.level.level = CommandLevel.NORMAL
+        self._drone_cmd.level.data = CommandLevel.NORMAL
 
         # ドローンの位置姿勢
         drone_label = QLabel("Multirotor Command")
