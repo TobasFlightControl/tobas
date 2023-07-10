@@ -4,23 +4,22 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <dh_ros_tools/node.hpp>
-
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_trajectory_commander/LandAction.h>
 
 namespace tobas_trajectory_commander
 {
-class MultirotorLandServer : public dh_ros::BaseNode
+class MultirotorLandServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "multirotor_land";
-  static constexpr double kUpdateRate = 100.;    // [Hz]
-  static constexpr double kVerticalSpeed = 0.1;  // [m/s]
-  static constexpr double kTimeWindow = 3.;      // [s] 高度の変化を見る時間窓の長さ
-  static constexpr double kStableAltitudeRange = 0.05;  // [m]
+  static constexpr double kUpdateRate = 100.;  // [Hz]
+  static constexpr double kVerticalSpeed = 1.;  // [m/s] 多くのドローンでは1~2mらしい (GPT4)
+  static constexpr double kTimeWindow = 3.;  // [s] 高度の変化を見る時間窓の長さ
+  static constexpr double kStableAltitudeRange = 0.03;  // [m]
 
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using ActionType = tobas_trajectory_commander::LandAction;
   using GoalType = tobas_trajectory_commander::LandGoalConstPtr;
@@ -50,6 +49,7 @@ private:
 
   void reset();
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void baseStateCb(const tobas_msgs::BaseState& bs);
   void executeCb(const GoalType&);
 };

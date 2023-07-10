@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_trajectory_commander
+	tobas_tools
 	dh_ros_tools
 	dh_kdl
 	tobas_msgs

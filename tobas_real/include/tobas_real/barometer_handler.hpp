@@ -2,17 +2,17 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/FluidPressure.h>
-
 #include <Common/MS5611.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
+
+#include <tobas_tools/node.hpp>
 
 namespace tobas_real
 {
-class BarometerHandler : public dh_ros::BaseNode
+class BarometerHandler : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using BarMsg = sensor_msgs::FluidPressure;
 
@@ -33,6 +33,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void mainLoopTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

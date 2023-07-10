@@ -51,6 +51,7 @@ void PositionControllerRos::registerPublishers()
 
 void PositionControllerRos::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &PositionControllerRos::eventCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &PositionControllerRos::baseStateCb, this);
   pos_yaw_sub_ =
     nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
@@ -70,6 +71,18 @@ void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
   dynamic_params_.natural_freq = cfg.natural_frequency;
   dynamic_params_.damp_ratio = cfg.damping_ratio;
+}
+
+void PositionControllerRos::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)

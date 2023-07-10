@@ -52,6 +52,8 @@ void OrientationEstimatorRos::registerPublishers()
 
 void OrientationEstimatorRos::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &OrientationEstimatorRos::eventCb, this);
+
   imu_sub_.reset(new ImuSubscriber(nh_, "imu", QUEUE_SIZE));
   mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", QUEUE_SIZE));
   sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
@@ -82,6 +84,18 @@ void OrientationEstimatorRos::initializeFilter()
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
+}
+
+void OrientationEstimatorRos::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)

@@ -58,6 +58,7 @@ void StateEstimator::registerPublishers()
 
 void StateEstimator::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &StateEstimator::eventCb, this);
   filtered_imu_sub_ = nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this);
   bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this);
 
@@ -231,6 +232,18 @@ bool StateEstimator::isValidImuTimeGap(double dt)
   }
 
   return true;
+}
+
+void StateEstimator::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void StateEstimator::filteredImuCb(const ImuMsg& imu)

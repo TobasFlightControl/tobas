@@ -3,15 +3,14 @@
 #include <ros/ros.h>
 #include <Navio2/ADC_Navio2.h>
 
-#include <dh_ros_tools/node.hpp>
-
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/Battery.h>
 
 namespace tobas_real
 {
-class BatteryHandler : public dh_ros::BaseNode
+class BatteryHandler : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
 public:
   explicit BatteryHandler();
@@ -28,5 +27,7 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  void eventCb(const tobas_msgs::Event& event) override;
 };
 }  // namespace tobas_real

@@ -32,6 +32,7 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &StaticStateDeterminationServer::eventCb, this);
   imu_sub_ = nh_.subscribe("imu", 1, &StaticStateDeterminationServer::imuCb, this);
   mag_sub_ = nh_.subscribe("magnetic_field", 1, &StaticStateDeterminationServer::magCb, this);
   bar_sub_ = nh_.subscribe("air_pressure", 1, &StaticStateDeterminationServer::barCb, this);
@@ -123,6 +124,18 @@ bool StaticStateDeterminationServer::isValidResult()
     return false;
 
   return true;
+}
+
+void StaticStateDeterminationServer::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)

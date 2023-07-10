@@ -40,6 +40,7 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &ImuHandler::eventCb, this);
 }
 
 void ImuHandler::setupImu()
@@ -77,6 +78,18 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[0] = mag_var;
   mag_msg_.magnetic_field_covariance[4] = mag_var;
   mag_msg_.magnetic_field_covariance[8] = mag_var;
+}
+
+void ImuHandler::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void ImuHandler::mainLoopTimerCb(const ros::TimerEvent&)

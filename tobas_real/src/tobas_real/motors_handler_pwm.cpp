@@ -92,6 +92,7 @@ void MotorsHandler_PWM::registerPublishers()
 
 void MotorsHandler_PWM::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler_PWM::eventCb, this);
   rotor_speeds_sub_ =
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_PWM::batteryCb, this);
@@ -116,6 +117,18 @@ void MotorsHandler_PWM::sendDisarm()
       }
     }
     ros::Duration(kDisarmInterval).sleep();
+  }
+}
+
+void MotorsHandler_PWM::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
   }
 }
 

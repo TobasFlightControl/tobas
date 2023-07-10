@@ -56,5 +56,18 @@ void BatteryHandler::registerPublishers()
 
 void BatteryHandler::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &BatteryHandler::eventCb, this);
+}
+
+void BatteryHandler::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 }  // namespace tobas_real

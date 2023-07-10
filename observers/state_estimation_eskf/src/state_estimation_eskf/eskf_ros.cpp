@@ -93,6 +93,7 @@ void ErrorStateKalmanFilterRos::registerPublishers()
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &ErrorStateKalmanFilterRos::eventCb, this);
   imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
   mag_sub_ = nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
   bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
@@ -273,6 +274,18 @@ bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
   }
 
   return true;
+}
+
+void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)

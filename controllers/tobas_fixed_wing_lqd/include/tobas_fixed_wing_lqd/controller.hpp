@@ -5,10 +5,10 @@
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/FluidPressure.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 #include <dh_linear_control/lqr.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_tools/micro_disturbance_eom.hpp>
@@ -22,9 +22,9 @@
 
 namespace tobas_fixed_wing_lqd
 {
-class Controller : public dh_ros::BaseNode
+class Controller : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using StateMsg = tobas_msgs::BaseState;
   using CmdMsg = tobas_msgs::SpeedRollDeltaPitch;
@@ -101,6 +101,7 @@ private:
   void publishFeedback(const Eigen::VectorXd& du);
   void reconfigure(const ConfigType& cfg);
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
   void batteryCb(const tobas_msgs::Battery& battery);
   void baseStateCb(const StateMsg& bs_nwu);

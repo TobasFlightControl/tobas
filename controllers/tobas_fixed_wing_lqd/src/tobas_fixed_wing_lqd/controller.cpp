@@ -90,6 +90,7 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &Controller::eventCb, this);
   air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
@@ -312,6 +313,18 @@ void Controller::reconfigure(const ConfigType& cfg)
   const auto deflection_rate_weight = pow(10, cfg.deflection_rate_weight_exp);
   lqd_.input_rate_weight.topRows(x_rotors_.count()).fill(thrust_rate_weight);
   lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
+}
+
+void Controller::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)

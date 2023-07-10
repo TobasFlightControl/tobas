@@ -7,9 +7,9 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
@@ -18,9 +18,9 @@
 
 namespace state_estimation_eskf
 {
-class ErrorStateKalmanFilterRos : public dh_ros::BaseNode
+class ErrorStateKalmanFilterRos : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
@@ -109,6 +109,7 @@ private:
   void updateBaseStateMsg(const ros::Time& stamp);
   bool isValidImuTimeGap(double dt);
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);
   void magCb(const MagMsg& mag);
   void barCb(const BarMsg& bar);

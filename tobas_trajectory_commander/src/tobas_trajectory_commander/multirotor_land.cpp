@@ -34,6 +34,7 @@ void MultirotorLandServer::registerPublishers()
 
 void MultirotorLandServer::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &MultirotorLandServer::eventCb, this);
   bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorLandServer::baseStateCb, this);
 }
 
@@ -42,6 +43,18 @@ void MultirotorLandServer::reset()
   bs_received_ = false;
   is_history_filled_ = false;
   alt_history_.clear();
+}
+
+void MultirotorLandServer::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseState& bs)
@@ -78,6 +91,8 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseState& bs)
 
 void MultirotorLandServer::executeCb(const GoalType&)
 {
+  rosInfo("Action is called.");
+
   reset();
   is_action_running_ = true;
 

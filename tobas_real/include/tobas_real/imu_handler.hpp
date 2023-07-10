@@ -3,17 +3,17 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
+#include <Common/InertialSensor.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
-#include <Common/InertialSensor.h>
+#include <tobas_tools/node.hpp>
 
 namespace tobas_real
 {
-class ImuHandler : public dh_ros::BaseNode
+class ImuHandler : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
@@ -44,6 +44,7 @@ private:
   void setupImu();
   void setCovarianceMatrices();
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void mainLoopTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

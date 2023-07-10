@@ -47,6 +47,19 @@ void GpsHandler::registerPublishers()
 
 void GpsHandler::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &GpsHandler::eventCb, this);
+}
+
+void GpsHandler::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void GpsHandler::mainLoopTimerCb(const ros::TimerEvent&)

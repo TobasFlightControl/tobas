@@ -87,6 +87,7 @@ void VelocityControllerRos::registerPublishers()
 
 void VelocityControllerRos::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &VelocityControllerRos::eventCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &VelocityControllerRos::baseStateCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &VelocityControllerRos::batteryCb, this);
   if (is_transformable_)
@@ -192,6 +193,18 @@ double VelocityControllerRos::maxU()
     max_U += z_rotors_.maxThrust(i, battery_.voltage);
   }
   return max_U;
+}
+
+void VelocityControllerRos::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void VelocityControllerRos::baseStateCb(const StateMsg& bs)

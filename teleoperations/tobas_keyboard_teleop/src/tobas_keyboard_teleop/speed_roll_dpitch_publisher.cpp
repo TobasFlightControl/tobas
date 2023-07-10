@@ -150,6 +150,7 @@ void SpeedRollDeltaPitchPublisher::registerPublishers()
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &SpeedRollDeltaPitchPublisher::eventCb, this);
   air_pressure_sub_ =
     nh_.subscribe("air_pressure", 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this);
 }
@@ -163,6 +164,18 @@ void SpeedRollDeltaPitchPublisher::initialize()
 {
   // cmd_.speed = trim_.speedLimit(air_density_).lower + 0.1;
   cmd_.speed = trim_.takeOffSpeed(air_density_);
+}
+
+void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressure& msg)

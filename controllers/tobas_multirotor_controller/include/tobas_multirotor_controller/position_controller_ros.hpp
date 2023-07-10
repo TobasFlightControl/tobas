@@ -3,9 +3,9 @@
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
@@ -15,11 +15,11 @@
 
 namespace tobas_multirotor_controller
 {
-class PositionControllerRos : public dh_ros::BaseNode
+class PositionControllerRos : public tobas::BaseNode
 {
   static constexpr double kCommandTimeoutThreshold = 3.;
 
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
@@ -59,6 +59,7 @@ private:
   void initialize();
   void updateDynamicParams(const ConfigType& cfg);
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void baseStateCb(const tobas_msgs::BaseState& bs);
   void targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw);
 

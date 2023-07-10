@@ -38,6 +38,19 @@ void BarometerHandler::registerPublishers()
 
 void BarometerHandler::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &BarometerHandler::eventCb, this);
+}
+
+void BarometerHandler::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void BarometerHandler::mainLoopTimerCb(const ros::TimerEvent&)

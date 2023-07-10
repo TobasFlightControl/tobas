@@ -11,6 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_tools
 	dh_ros_tools
 	dh_kdl
 	kdl_msgs

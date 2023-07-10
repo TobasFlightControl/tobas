@@ -8,9 +8,9 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
 #include <static_state_determination/StaticStateDeterminationAction.h>
@@ -20,9 +20,9 @@
 
 namespace state_estimation_cascade
 {
-class StateEstimator : public dh_ros::BaseNode
+class StateEstimator : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
@@ -88,6 +88,7 @@ private:
   void updatePoseVelMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void filteredImuCb(const ImuMsg& imu);
   void barometerCb(const BarMsg& bar);
   void gpsPositionCb(const GpsMsg& gps);

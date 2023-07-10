@@ -3,9 +3,9 @@
 #include <ros/ros.h>
 
 #include <dh_std_tools/range.hpp>
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/PositionYaw.h>
 
 #include "../../include/tobas_keyboard_teleop/x11.hpp"
@@ -19,7 +19,7 @@ static constexpr double kDefaultMinimumX = -100.;
 static constexpr double kDefaultMaximumX = +100.;
 static constexpr double kDefaultMinimumY = -100.;
 static constexpr double kDefaultMaximumY = +100.;
-static constexpr double kDefaultMinimumZ = -1.;
+static constexpr double kDefaultMinimumZ = -3.;
 static constexpr double kDefaultMaximumZ = +100.;
 static constexpr double kDefaultMinimumYaw = std::numeric_limits<double>::lowest();
 static constexpr double kDefaultMaximumYaw = std::numeric_limits<double>::max();
@@ -27,9 +27,9 @@ static constexpr double kDefaultMaximumYaw = std::numeric_limits<double>::max();
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
-class PositionYawPublisher : public dh_ros::BaseNode
+class PositionYawPublisher : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
 public:
   explicit PositionYawPublisher();
@@ -66,6 +66,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void instructionTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_keyboard_teleop

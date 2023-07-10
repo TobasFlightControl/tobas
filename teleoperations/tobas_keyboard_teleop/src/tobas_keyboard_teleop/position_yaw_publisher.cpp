@@ -146,6 +146,19 @@ void PositionYawPublisher::registerPublishers()
 
 void PositionYawPublisher::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this);
+}
+
+void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void PositionYawPublisher::instructionTimerCb(const ros::TimerEvent&)

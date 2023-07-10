@@ -57,6 +57,9 @@ void MultirotorStateChecker::run()
 
       // 全てのシステムを停止する
       rosInfo("Shutting down the system.");
+      tobas_msgs::Event event;
+      event.data = tobas_msgs::Event::SHUTDOWN;
+      event_pub_.publish(event);
     }
 
     ros::spinOnce();
@@ -70,12 +73,26 @@ void MultirotorStateChecker::getRosParams()
 
 void MultirotorStateChecker::registerPublishers()
 {
+  event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
 }
 
 void MultirotorStateChecker::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &MultirotorStateChecker::eventCb, this);
   bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorStateChecker::baseStateCb, this);
   cmd_sub_ = nh_.subscribe("command/velocity_yaw", 1, &MultirotorStateChecker::commandCb, this);
+}
+
+void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState&)

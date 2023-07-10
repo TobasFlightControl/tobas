@@ -3,15 +3,15 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <dh_ros_tools/node.hpp>
+#include <tobas_tools/node.hpp>
 
 #include <static_state_determination/StaticStateDeterminationAction.h>
 
 namespace static_state_determination
 {
-class StaticStateDeterminationServer : public dh_ros::BaseNode
+class StaticStateDeterminationServer : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
@@ -60,6 +60,7 @@ private:
   bool isValidGoal();
   bool isValidResult();
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);
   void magCb(const MagMsg& mag);
   void barCb(const BarMsg& bar);

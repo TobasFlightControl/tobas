@@ -6,8 +6,8 @@
 #include <dh_kdl/euler.hpp>
 #include <dh_kdl/treejntnameparser.hpp>
 #include <dh_ros_tools/timer.hpp>
-#include <dh_ros_tools/node.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_msgs/BaseState.h>
@@ -26,9 +26,9 @@ namespace tobas_multirotor_controller
  * @brief 加速度制御器(解析計算)，姿勢制御器(MPC)を組み合わせた制御器．
  * vx, vy, vz, yaw_rateの目標値に追従する．
  */
-class VelocityControllerRos : public dh_ros::BaseNode
+class VelocityControllerRos : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  using super = tobas::BaseNode;
 
   using StateMsg = tobas_msgs::BaseState;
   using CmdMsg = tobas_msgs::VelocityYaw;
@@ -95,6 +95,7 @@ private:
   void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeeds& speeds);
   double maxU();
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void baseStateCb(const StateMsg& bs);
   void batteryCb(const tobas_msgs::Battery& battery);
   void jointStateCb(const sensor_msgs::JointState& js);

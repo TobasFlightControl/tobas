@@ -100,6 +100,7 @@ void MotorsHandler_DSHOT::registerPublishers()
 
 void MotorsHandler_DSHOT::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler_DSHOT::eventCb, this);
   rotor_speeds_sub_ =
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_DSHOT::rotorSpeedsCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_DSHOT::batteryCb, this);
@@ -108,6 +109,18 @@ void MotorsHandler_DSHOT::registerSubscribers()
 bool MotorsHandler_DSHOT::isReady()
 {
   return rot_speeds_received_ && battery_received_;
+}
+
+void MotorsHandler_DSHOT::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void MotorsHandler_DSHOT::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
