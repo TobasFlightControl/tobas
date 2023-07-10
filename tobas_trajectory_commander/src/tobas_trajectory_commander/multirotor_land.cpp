@@ -92,7 +92,8 @@ void MultirotorLandServer::executeCb(const GoalType&)
     return;
   }
 
-  // 現在の状態を初期目標状態に設定
+  // 速度指令だと水平位置が制御できないため，位置指令にする
+  // 現在の位置を初期目標位置に設定
   cmd_.level.level = tobas_msgs::CommandLevel::EMERGENCY;  // TODO: goalで指定する
   cmd_.pos = bs_.pose.pos;
   cmd_.yaw = bs_.pose.euler.yaw;
