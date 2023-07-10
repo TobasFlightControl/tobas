@@ -23,7 +23,7 @@ MultirotorStateChecker::MultirotorStateChecker()
     rosError(
       "'" << kLandActionName << "' action server failed to start within " << kWaitForActionServer
           << " seconds. Please check the server status.");
-    // TODO: モータを無理矢理止める処理
+    requestShutdown();
   }
 }
 
@@ -59,9 +59,7 @@ void MultirotorStateChecker::run()
 
       // 全てのシステムを停止する
       rosInfo("Shutting down the system.");
-      tobas_msgs::Event event;
-      event.data = tobas_msgs::Event::SHUTDOWN;
-      event_pub_.publish(event);
+      requestShutdown();
     }
 
     ros::spinOnce();
@@ -83,6 +81,12 @@ void MultirotorStateChecker::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &MultirotorStateChecker::eventCb, this);
   bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorStateChecker::baseStateCb, this);
   cmd_sub_ = nh_.subscribe("command/velocity_yaw", 1, &MultirotorStateChecker::commandCb, this);
+}
+
+void MultirotorStateChecker::requestShutdown()
+{
+  event_.data = tobas_msgs::Event::SHUTDOWN;
+  event_pub_.publish(event_);
 }
 
 void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
