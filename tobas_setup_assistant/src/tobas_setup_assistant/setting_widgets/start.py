@@ -123,7 +123,7 @@ class RobotModelLoaderWidget(QWidget):
 
         # キャンセルの場合は何もせずに終了
         # でないと空文字が設定されてしまう
-        if not file_path:
+        if file_path == "":
             return
 
         # パスをテキストに設定

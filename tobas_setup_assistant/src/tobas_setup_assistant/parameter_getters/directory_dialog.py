@@ -23,7 +23,7 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget):
         # 最後に開かれたディレクトリの記録用
         self._config = ConfigParser()
         self._config.read(CONFIG_PATH)
-        self._key = f'last_opened_dir/{param_name}'
+        self._key = f'last_opened_dir/dir_dialog/{param_name}'
 
         self._options = QFileDialog.Options()
         self._options |= QFileDialog.DontUseNativeDialog
@@ -59,8 +59,7 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget):
         last_opened_dir = self._config.get("DEFAULT", self._key, fallback=osp.expanduser("~"))
 
         path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, self._options)
-
-        if not path:
+        if not path:  # Cancelの場合
             return
 
         self.path.setText(path)

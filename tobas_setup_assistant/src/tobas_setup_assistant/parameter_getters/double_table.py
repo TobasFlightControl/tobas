@@ -1,10 +1,11 @@
+from typing import List
+from configparser import ConfigParser
 import numpy as np
 from numpy.typing import NDArray  # numpy >= 1.20
 import pandas as pd
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from typing import List
 
 from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_info, q_error
@@ -29,6 +30,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         description_text: str = None,
     ) -> None:
         super().__init__(param_name, description_text)
+
+        # 最後に開かれたディレクトリの記録用
+        self._config = ConfigParser()
+        self._config.read(CONFIG_PATH)
+        self._path_key = f'last_opened_dir/double_table/{param_name}'
 
         self._labels = labels
         self._num_entry = len(labels)
@@ -209,11 +215,20 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         q_info(self.parent(), "Data is successfully loaded.")
 
     def _get_csv_file_path(self) -> str:
+        last_opened_dir = self._config.get("DEFAULT", self._path_key, fallback=osp.expanduser("~"))
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, "", "CSV File (*.csv)", options=options
+            self, TITLE, last_opened_dir, "CSV File (*.csv)", options=options
         )
+
+        # 最後に開かれたパスを保存
+        if file_path != "":
+            self._config["DEFAULT"][self._path_key] = osp.dirname(file_path)
+            with open(CONFIG_PATH, "w") as f:
+                self._config.write(f)
+
         return file_path
 
     def _is_valid_data(self, src: NDArray[np.float64]) -> bool:
