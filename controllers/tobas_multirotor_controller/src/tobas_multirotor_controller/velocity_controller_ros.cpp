@@ -22,7 +22,7 @@ VelocityControllerRos::VelocityControllerRos()
   : super(),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    tar_vel_W_(0., 0., kInitialTargetVerticalSpeed),
+    cmd_level_(tobas_msgs::CommandLevel::NORMAL),
     is_initialized_(false),
     bs_received_(false),
     battery_received_(false),
@@ -104,6 +104,11 @@ bool VelocityControllerRos::isReady()
   }
 
   if (is_transformable_ && !js_received_)
+  {
+    return false;
+  }
+
+  if (!cmd_received_)
   {
     return false;
   }
@@ -256,6 +261,22 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
 
 void VelocityControllerRos::commandCb(const CmdMsg& cmd)
 {
+  // コマンドレベルの処理
+  if (cmd.level.level < cmd_level_)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, "The command is ignored because its level "
+                      << cmd.level.level << "is lower than the current command level " << cmd_level_
+                      << ".");
+    return;
+  }
+  if (cmd.level.level > cmd_level_)
+  {
+    rosInfo("The command level is raised from " << cmd_level_ << " to " << cmd.level.level << ".");
+    cmd_level_ = cmd.level.level;
+  }
+
+  // 目標速度と姿勢を更新
   switch (cmd.frame_id.frame_id)
   {
     case tobas_msgs::FrameId::GLOBAL:
@@ -298,6 +319,11 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (is_transformable_ && !js_received_)
   {
     rosWarn("Joint states are not received yet.");
+  }
+
+  if (!cmd_received_)
+  {
+    rosWarn("Command is not received yet.");
   }
 }
 

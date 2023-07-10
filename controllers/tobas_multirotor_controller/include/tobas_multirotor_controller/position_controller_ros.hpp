@@ -17,6 +17,8 @@ namespace tobas_multirotor_controller
 {
 class PositionControllerRos : public dh_ros::BaseNode
 {
+  static constexpr double kCommandTimeoutThreshold = 3.;
+
   using super = dh_ros::BaseNode;
 
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
@@ -27,8 +29,11 @@ public:
 
 private:
   bool is_initialized_;
+  bool bs_received_;
+  bool cmd_received_;
   tobas_msgs::PositionYaw pos_yaw_in_;   // 受け取る位置コマンド
   tobas_msgs::VelocityYaw vel_yaw_out_;  // 発行する速度コマンド
+  ros::Time t_last_cmd_;
 
   std::shared_ptr<PositionController> pos_controller_;
 
@@ -50,7 +55,8 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void initialize(const tobas_msgs::BaseState& bs);
+  bool isReady();
+  void initialize();
   void updateDynamicParams(const ConfigType& cfg);
 
   void baseStateCb(const tobas_msgs::BaseState& bs);

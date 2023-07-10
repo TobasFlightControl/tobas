@@ -41,8 +41,8 @@ PositionYawPublisher::PositionYawPublisher()
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  // z座標の初期値を制限の下限に設定
-  cmd_.pos.z(z_limit_.lower);
+  cmd_.level.level = tobas_msgs::CommandLevel::NORMAL;
+  cmd_.pos.z(z_limit_.lower);  // z座標の初期値を制限の下限に設定
 
   registerPublishers();
   registerSubscribers();

@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import Slider, add_expanding_widget
-from tobas_msgs.msg import PositionYaw
+from tobas_msgs.msg import PositionYaw, CommandLevel
 
 from .utils import remap
 
@@ -35,6 +35,7 @@ class CommandersWidget(QScrollArea):
         inner.setLayout(self._rows)
 
         self._drone_cmd = PositionYaw()
+        self._drone_cmd.level.level = CommandLevel.NORMAL
 
         # ドローンの位置姿勢
         drone_label = QLabel("Multirotor Command")

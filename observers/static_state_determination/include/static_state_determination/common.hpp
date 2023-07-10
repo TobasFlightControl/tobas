@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <boost/array.hpp>
 
 namespace static_state_determination
 {

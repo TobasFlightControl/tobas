@@ -7,7 +7,7 @@
 #include <dh_ros_tools/node.hpp>
 
 #include <tobas_msgs/BaseState.h>
-#include <tobas_msgs/VelocityYaw.h>
+#include <tobas_msgs/PositionYaw.h>
 #include <tobas_trajectory_commander/LandAction.h>
 
 namespace tobas_trajectory_commander
@@ -18,7 +18,7 @@ class MultirotorLandServer : public dh_ros::BaseNode
   static constexpr double kUpdateRate = 100.;    // [Hz]
   static constexpr double kVerticalSpeed = 0.1;  // [m/s]
   static constexpr double kTimeWindow = 3.;      // [s] 高度の変化を見る時間窓の長さ
-  static constexpr double kStableAltitudeRange = 0.01;  // [m]
+  static constexpr double kStableAltitudeRange = 0.05;  // [m]
 
   using super = dh_ros::BaseNode;
 
@@ -32,9 +32,11 @@ public:
 
 private:
   bool is_action_running_;
+  bool bs_received_;
   bool is_history_filled_;  // 時間窓分だけ履歴が溜まっている場合にtrue
   std::deque<std::pair<ros::Time, double>> alt_history_;
-  tobas_msgs::VelocityYaw cmd_;
+  tobas_msgs::BaseState bs_;
+  tobas_msgs::PositionYaw cmd_;
   ResultType result_;
 
   ros::Publisher cmd_pub_;

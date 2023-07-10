@@ -10,4 +10,14 @@
   <!-- Bringup observer -->
   <include file="$(find {{ pkg_name }})/launch/observer.launch"/>
 
+  <!-- Bringup landing action server for emergency -->
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_trajectory_commander)/launch/multirotor_land.launch"/>
+  </group>
+
+  <!-- Bringup state checker -->
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_state_checker)/launch/multirotor_state_checker.launch"/>
+  </group>
+
 </launch>

@@ -17,10 +17,6 @@ MultirotorLandServer::MultirotorLandServer()
 {
   getRosParams();
 
-  cmd_.frame_id.frame_id = tobas_msgs::FrameId::GLOBAL;
-  cmd_.level.level = tobas_msgs::CommandLevel::NORMAL;  // TODO: rosparamで切り替える
-  cmd_.vel.z(-kVerticalSpeed);  // TODO: その場で着陸するだけでなく，場所も考慮して軌道を作る
-
   registerPublishers();
   registerSubscribers();
 
@@ -33,7 +29,7 @@ void MultirotorLandServer::getRosParams()
 
 void MultirotorLandServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::PositionYaw>("command/position_yaw", 1);
 }
 
 void MultirotorLandServer::registerSubscribers()
@@ -43,6 +39,7 @@ void MultirotorLandServer::registerSubscribers()
 
 void MultirotorLandServer::reset()
 {
+  bs_received_ = false;
   is_history_filled_ = false;
   alt_history_.clear();
 }
@@ -69,6 +66,14 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseState& bs)
       is_history_filled_ = true;
     }
   }
+
+  // 最新の状態を更新
+  bs_ = bs;
+
+  if (!bs_received_)
+  {
+    bs_received_ = true;
+  }
 }
 
 void MultirotorLandServer::executeCb(const GoalType&)
@@ -76,16 +81,39 @@ void MultirotorLandServer::executeCb(const GoalType&)
   reset();
   is_action_running_ = true;
 
+  // 現在の状態を取得
+  ros::spinOnce();
+  ros::Duration(0.1).sleep();  // ベース状態が更新されるよう少し待機
+  if (!bs_received_)
+  {
+    is_action_running_ = false;
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to get base state.");
+    return;
+  }
+
+  // 現在の状態を初期目標状態に設定
+  cmd_.level.level = tobas_msgs::CommandLevel::EMERGENCY;  // TODO: goalで指定する
+  cmd_.pos = bs_.pose.pos;
+  cmd_.yaw = bs_.pose.euler.yaw;
+
+  const auto start_alt = bs_.pose.pos.z();
+  ros::Time start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
+
   while (ros::ok())
   {
     if (as_.isPreemptRequested())
     {
       is_action_running_ = false;
       result_.error_code = ResultType::PREEMPTED;
-      as_.setPreempted(result_);
+      as_.setPreempted(result_, "Preempt requested.");
       return;
     }
+
+    // コマンドを更新
+    const auto t = (ros::Time::now() - start_time).toSec();
+    cmd_.pos.z(start_alt - kVerticalSpeed * t);
 
     // コマンドを発行
     cmd_pub_.publish(cmd_);

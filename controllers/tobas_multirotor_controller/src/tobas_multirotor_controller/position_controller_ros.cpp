@@ -15,6 +15,8 @@ namespace tobas_multirotor_controller
 PositionControllerRos::PositionControllerRos()
   : super(),
     is_initialized_(false),
+    bs_received_(false),
+    cmd_received_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -54,12 +56,14 @@ void PositionControllerRos::registerSubscribers()
     nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
 }
 
-void PositionControllerRos::initialize(const tobas_msgs::BaseState& bs)
+bool PositionControllerRos::isReady()
 {
-  // 最初は暴れるのを防ぐために現在の状態を目標状態にする
-  pos_yaw_in_.pos = bs.pose.pos;
-  pos_yaw_in_.pos(2) += kInitialTargetAltitude;  // Z座標に遊びを設ける
-  pos_yaw_in_.yaw = bs.pose.euler.yaw;
+  return bs_received_ && cmd_received_;
+}
+
+void PositionControllerRos::initialize()
+{
+  t_last_cmd_ = ros::Time::now();
 }
 
 void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
@@ -70,17 +74,40 @@ void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
 
 void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 {
+  if (!bs_received_)
+  {
+    bs_received_ = true;
+  }
+
   if (!is_initialized_)
   {
-    check_topics_timer_.stop();
-    initialize(bs);
-    is_initialized_ = true;
-    rosInfo("Position controller is ready.");
+    if (isReady())
+    {
+      check_topics_timer_.stop();
+      initialize();
+      is_initialized_ = true;
+      rosInfo("Position controller is ready.");
+    }
     return;
   }
 
-  // Compute target velocity and yaw angle
+  // GCSとの通信が切れるなどして一定時間コマンドを受け取っていない場合は停止
+  if (cmd_received_ && (ros::Time::now() - t_last_cmd_).toSec() > kCommandTimeoutThreshold)
+  {
+    cmd_received_ = false;
+    rosInfo(
+      "Stop publishing velocity command as no commands have been received for "
+      << kCommandTimeoutThreshold << " seconds.");
+  }
+
+  if (!cmd_received_)
+  {
+    return;
+  }
+
+  // Update VelocityYaw message
   pos_controller_->update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
+  vel_yaw_out_.level = pos_yaw_in_.level;
   vel_yaw_out_.yaw = pos_yaw_in_.yaw;  // ヨー角は位置指令をそのまま流す
 
   // Publish VelocityYaw message
@@ -90,11 +117,25 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw)
 {
   pos_yaw_in_ = pos_yaw;
+  t_last_cmd_ = ros::Time::now();
+
+  if (!cmd_received_)
+  {
+    cmd_received_ = true;
+  }
 }
 
 void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn("Base state is not received yet.");
+  if (!bs_received_)
+  {
+    rosWarn("Base state is not received yet.");
+  }
+
+  if (!cmd_received_)
+  {
+    rosWarn("Command is not received yet.");
+  }
 }
 
 void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

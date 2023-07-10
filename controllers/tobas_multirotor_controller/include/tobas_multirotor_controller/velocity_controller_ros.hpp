@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
@@ -47,9 +45,11 @@ private:
   KDL::TreeJointNameParser jnt_name_parser_;
   tobas::RotorAxisExtractor z_rotors_;
 
+  uint8_t cmd_level_;
   tobas_msgs::BaseState cur_bs_;  // 現在のベースの状態
   tobas_msgs::Battery battery_;   // 現在のバッテリーの状態
   KDL::JntArray q_;               // 全ての非固定関節の角度
+  tobas_msgs::RotorSpeeds rotor_speeds_;
   KDL::Vector tar_vel_W_;
   KDL::Vector tar_acc_W_;
   KDL::Euler tar_rpy_;
@@ -62,7 +62,6 @@ private:
   bool battery_received_;
   bool js_received_;
   bool cmd_received_;
-  tobas_msgs::RotorSpeeds rotor_speeds_;
 
   std::shared_ptr<VelocityController> vel_controller_;
   std::shared_ptr<AccelerationController> acc_controller_;
