@@ -39,7 +39,9 @@ void MultirotorStateChecker::run()
       rosInfo(
         "Issuing a landing command as no commands have been received for "
         << kCommandTimeoutThreshold << " seconds.");
-      ac_.sendGoal(tobas_trajectory_commander::LandGoal());
+      tobas_trajectory_commander::LandGoal goal;
+      goal.level.data = tobas_msgs::CommandLevel::EMERGENCY;
+      ac_.sendGoal(goal);
       ac_.waitForResult();
 
       const auto result = ac_.getResult();

@@ -89,7 +89,7 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 }
 
-void MultirotorLandServer::executeCb(const GoalType&)
+void MultirotorLandServer::executeCb(const GoalType& goal)
 {
   rosInfo("Action is called.");
 
@@ -109,7 +109,7 @@ void MultirotorLandServer::executeCb(const GoalType&)
 
   // 速度指令だと水平位置が制御できないため，位置指令にする
   // 現在の位置を初期目標位置に設定
-  cmd_.level.data = tobas_msgs::CommandLevel::EMERGENCY;  // TODO: goalで指定する
+  cmd_.level = goal->level;
   cmd_.pos = bs_.pose.pos;
   cmd_.yaw = bs_.pose.euler.yaw;
 

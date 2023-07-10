@@ -30,6 +30,7 @@ file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]
 add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
+	tobas_msgs
 	actionlib_msgs
 )
 
