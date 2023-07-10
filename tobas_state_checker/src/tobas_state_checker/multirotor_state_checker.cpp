@@ -31,14 +31,33 @@ void MultirotorStateChecker::run()
 {
   while (ros::ok())
   {
+    const auto cur_time = ros::Time::now();
+
+    // ベースの状態が一定時間得られていない場合は落とす
+    if (bs_received_ && (cur_time - t_last_bs_).toSec() > kBaseStateTimeout)
+    {
+      rosFatal(
+        "The base state is not received for " << kBaseStateTimeout
+                                              << " seconds. Shutting down the system.");
+      requestShutdown();
+    }
+
+    // 姿勢角が閾値を超えていたら落とす
+    const auto& euler = bs_.pose.euler;
+    if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
+    {
+      rosFatal("The attitude angle exceeds the threshold. Shutting down the system.");
+      requestShutdown();
+    }
+
     // GCSとの通信が切れるなどして一定時間コマンドを受け取っていない場合は着陸指令を出す
-    if (cmd_received_ && (ros::Time::now() - t_last_cmd_).toSec() > kCommandTimeoutThreshold)
+    if (cmd_received_ && (cur_time - t_last_cmd_).toSec() > kCommandTimeout)
     {
       cmd_received_ = false;
 
-      rosInfo(
-        "Issuing a landing command as no commands have been received for "
-        << kCommandTimeoutThreshold << " seconds.");
+      rosWarn(
+        "Issuing a landing command as no commands have been received for " << kCommandTimeout
+                                                                           << " seconds.");
       tobas_trajectory_commander::LandGoal goal;
       goal.level.data = tobas_msgs::CommandLevel::EMERGENCY;
       ac_.sendGoal(goal);
@@ -101,8 +120,11 @@ void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState&)
+void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
 {
+  bs_ = bs;
+  t_last_bs_ = ros::Time::now();
+
   if (!bs_received_)
   {
     bs_received_ = true;
