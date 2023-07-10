@@ -89,7 +89,7 @@ void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState&)
 void MultirotorStateChecker::commandCb(const tobas_msgs::VelocityYaw& cmd)
 {
   // 緊急コマンドはスキップ
-  if (cmd.level.level == tobas_msgs::CommandLevel::EMERGENCY)
+  if (cmd.level.data == tobas_msgs::CommandLevel::EMERGENCY)
   {
     return;
   }

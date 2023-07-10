@@ -27,7 +27,7 @@ PositionControllerRos::PositionControllerRos()
   getRosParams();
 
   pos_controller_.reset(new PositionController(dynamic_params_));
-  vel_yaw_out_.frame_id.frame_id = tobas_msgs::FrameId::GLOBAL;
+  vel_yaw_out_.frame_id.data = tobas_msgs::FrameId::GLOBAL;
 
   registerPublishers();
   registerSubscribers();

@@ -262,22 +262,22 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointState& js)
 void VelocityControllerRos::commandCb(const CmdMsg& cmd)
 {
   // コマンドレベルの処理
-  if (cmd.level.level < cmd_level_)
+  if (cmd.level.data < cmd_level_)
   {
     rosErrorThrottle(
       kErrorPeriod, "The command is ignored because its level "
-                      << cmd.level.level << "is lower than the current command level " << cmd_level_
+                      << cmd.level.data << "is lower than the current command level " << cmd_level_
                       << ".");
     return;
   }
-  if (cmd.level.level > cmd_level_)
+  if (cmd.level.data > cmd_level_)
   {
-    rosInfo("The command level is raised from " << cmd_level_ << " to " << cmd.level.level << ".");
-    cmd_level_ = cmd.level.level;
+    rosInfo("The command level is raised from " << cmd_level_ << " to " << cmd.level.data << ".");
+    cmd_level_ = cmd.level.data;
   }
 
   // 目標速度と姿勢を更新
-  switch (cmd.frame_id.frame_id)
+  switch (cmd.frame_id.data)
   {
     case tobas_msgs::FrameId::GLOBAL:
     {
@@ -293,7 +293,7 @@ void VelocityControllerRos::commandCb(const CmdMsg& cmd)
     }
     default:
     {
-      rosError("Invalid FrameId: " << cmd.frame_id.frame_id);
+      rosError("Invalid FrameId: " << cmd.frame_id.data);
       return;
     }
   }
