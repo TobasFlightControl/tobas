@@ -1,3 +1,5 @@
 <launch>
-    <node name="tobas_setup_assistant" pkg="tobas_setup_assistant" type="setup_assistant_node.py" output="screen" required="true"/>
+
+  <node pkg="tobas_setup_assistant" type="setup_assistant_node.py" name="tobas_setup_assistant" output="screen"/>
+
 </launch>
