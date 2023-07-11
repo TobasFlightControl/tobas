@@ -59,6 +59,12 @@ void PositionYawPublisher::run()
   {
     const auto c = key_reader_.readKey();
 
+    // For debug
+    // if (c)
+    // {
+    //   cout << static_cast<int>(c) << endl;  // charのままだとEscやEnterなどが表示されない
+    // }
+
     switch (c)
     {
       case kKeyCode_W:  // X+
