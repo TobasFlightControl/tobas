@@ -71,19 +71,21 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 
 #### Real world
 
-1. Send configuration package from your PC to FC
+1. Connect FC and an external PC to the same network
+
+2. Send configuration package from the PC to FC
 
 ```bash
 $ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/
 ```
 
-2. SSH into FC
+3. SSH into FC
 
 ```bash
 $ ssh (user)@(host)
 ```
 
-3. Execute real.launch with superuser privileges
+4. Execute real.launch with superuser privileges
 
 ```bash
 $ su
