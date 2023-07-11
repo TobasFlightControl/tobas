@@ -141,6 +141,39 @@ $ export ROS_MASTER_URI=http://(IP address of FC):11311
 $ rosnode ping /rosout
 ```
 
+### Hardware in the Loop (HIL)
+
+1. Launch roscore on FC
+
+```bash
+$ roscore
+```
+
+2. Launch Gazebo simulation on the external PC
+
+```bash
+$ roslaunch (tobas_config_pkg) gazebo.launch
+```
+
+3. Launch motors handler on FC. Make sure that the battery is properly connected and that the propellers are not attached to the motors.
+
+```bash
+$ su
+$ roslaunch (tobas_config_pkg) motors.launch
+```
+
+4. Launch controller and observer on FC
+
+```bash
+$ roslaunch (tobas_config_pkg) bringup.launch
+```
+
+5. Send position commands from the external PC
+
+```bash
+$ roslaunch tobas_keyboard_teleop position_yaw.launch drone_name:=(drone_name)
+```
+
 ## Trouble Shooting
 
 ### Robot meshes not visible [WSL]
