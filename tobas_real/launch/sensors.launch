@@ -1,0 +1,8 @@
+<launch>
+
+  <node pkg="tobas_real" name="battery_handler" type="battery_handler_node" output="screen"/>
+  <node pkg="tobas_real" name="imu_handler" type="imu_handler_node" output="screen"/>
+  <node pkg="tobas_real" name="barometer_handler" type="barometer_handler_node" output="screen"/>
+  <node pkg="tobas_real" name="gps_handler" type="gps_handler_node" output="screen"/>
+
+</launch>
