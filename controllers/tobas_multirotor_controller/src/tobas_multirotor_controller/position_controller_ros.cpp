@@ -87,6 +87,8 @@ void PositionControllerRos::eventCb(const tobas_msgs::Event& event)
 
 void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 {
+  bs_ = bs;
+
   if (!bs_received_)
   {
     bs_received_ = true;
@@ -129,6 +131,17 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 
 void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw)
 {
+  // 指令位置と現在位置が離れすぎていないか確認
+  const auto dist = (pos_yaw.pos - bs_.pose.pos).Norm();
+  if (dist > kMaxCommandPositionDeviation)
+  {
+    rosError(
+      "The distance between current position and commanded position is "
+      << dist << " m, which exceeds the limit: " << kMaxCommandPositionDeviation
+      << " m. The command is ignored.");
+    return;
+  }
+
   pos_yaw_in_ = pos_yaw;
   t_last_cmd_ = ros::Time::now();
 

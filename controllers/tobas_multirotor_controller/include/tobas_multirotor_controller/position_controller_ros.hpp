@@ -18,6 +18,7 @@ namespace tobas_multirotor_controller
 class PositionControllerRos : public tobas::BaseNode
 {
   static constexpr double kCommandTimeoutThreshold = 3.;
+  static constexpr double kMaxCommandPositionDeviation = 5.;
 
   using super = tobas::BaseNode;
 
@@ -31,6 +32,7 @@ private:
   bool is_initialized_;
   bool bs_received_;
   bool cmd_received_;
+  tobas_msgs::BaseState bs_;
   tobas_msgs::PositionYaw pos_yaw_in_;   // 受け取る位置コマンド
   tobas_msgs::VelocityYaw vel_yaw_out_;  // 発行する速度コマンド
   ros::Time t_last_cmd_;
