@@ -123,7 +123,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
     {
       is_action_running_ = false;
       result_.error_code = ResultType::PREEMPTED;
-      as_.setPreempted(result_, "Preempt requested.");
+      as_.setPreempted(result_);
       return;
     }
 

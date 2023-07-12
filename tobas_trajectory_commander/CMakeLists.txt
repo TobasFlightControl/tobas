@@ -11,9 +11,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_tools
 	tobas_msgs
+	dh_ros_tools
 	kdl_msgs
 	roscpp
+	actionlib
 	message_generation
 	actionlib_msgs
 )
@@ -38,17 +41,17 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME}
 )
 
-# include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS})
 
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
-# add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)
-# foreach(FILE IN LISTS NODE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-# 	add_executable(${NODE_NAME} ${FILE})
-# 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-# endforeach()
+file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)
+foreach(FILE IN LISTS NODE_FILES)
+	get_filename_component(NODE_NAME ${FILE} NAME_WE)
+	add_executable(${NODE_NAME} ${FILE})
+	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
+	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+endforeach()

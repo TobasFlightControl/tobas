@@ -1,0 +1,45 @@
+#pragma once
+
+#include <ros/ros.h>
+#include <actionlib/server/simple_action_server.h>
+
+#include <tobas_tools/node.hpp>
+#include <tobas_msgs/PositionYaw.h>
+
+#include <tobas_trajectory_commander/FollowPositionYawTrajectoryAction.h>
+
+namespace tobas_trajectory_commander
+{
+class FollowPositionYawTrajectoryServer : tobas::BaseNode
+{
+  static constexpr char kActionName[] = "follow_trajectory_position_yaw";
+
+  using super = tobas::BaseNode;
+
+  using CommandType = tobas_msgs::PositionYaw;
+
+  using ActionType = tobas_trajectory_commander::FollowPositionYawTrajectoryAction;
+  using GoalType = tobas_trajectory_commander::FollowPositionYawTrajectoryGoalConstPtr;
+  using ResultType = tobas_trajectory_commander::FollowPositionYawTrajectoryResult;
+  using FeedbackType = tobas_trajectory_commander::FollowPositionYawTrajectoryFeedback;
+
+public:
+  explicit FollowPositionYawTrajectoryServer();
+
+private:
+  ResultType result_;
+
+  ros::Publisher cmd_pub_;
+
+  actionlib::SimpleActionServer<ActionType> as_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  bool isValidGoal(const GoalType& goal);
+
+  void eventCb(const tobas_msgs::Event& event) override;
+  void executeCb(const GoalType& goal);
+};
+}  // namespace tobas_trajectory_commander
