@@ -24,16 +24,16 @@ class FollowTrajectoryClient_Hover(FollowTrajectoryClient):
 
         # 上昇
         point.pos.z = 2.
-        point.time_from_start += rospy.Duration(2.)
+        point.time_from_start += rospy.Duration.from_sec(5.)
         goal.waypoints.append(deepcopy(point))
 
         # 待機
-        point.time_from_start += rospy.Duration(10.)
+        point.time_from_start += rospy.Duration.from_sec(10.)
         goal.waypoints.append(deepcopy(point))
 
         # 下降
-        point.pos.z = -3.  # 安全のため余分に下げる
-        point.time_from_start += rospy.Duration(5.)
+        point.pos.z = -2.  # 安全のため余分に下げる
+        point.time_from_start += rospy.Duration.from_sec(5.)
         goal.waypoints.append(deepcopy(point))
 
         return goal

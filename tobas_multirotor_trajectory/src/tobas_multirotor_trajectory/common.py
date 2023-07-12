@@ -12,7 +12,7 @@ from tobas_trajectory_commander.msg import (
 class FollowTrajectoryClient(ABC):
 
     ACTION_NAME = "follow_trajectory_position_yaw"
-    WAIT_FOR_SERVER = 5.
+    WAIT_FOR_SERVER = 3.  # [s]
 
     def __init__(self) -> None:
         self._ac = actionlib.SimpleActionClient(
@@ -20,8 +20,14 @@ class FollowTrajectoryClient(ABC):
             FollowPositionYawTrajectoryAction,
         )
 
+        # Ctrl + Cでアクションを止められるようにする
+        rospy.on_shutdown(self._on_shutdown)
+
     def run(self) -> None:
-        if not self._ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER)):
+        # ノードの起動直後にrospy.Timeにアクセスすると0が返る可能性があるため，少し待機する
+        rospy.sleep(0.1)
+
+        if not self._ac.wait_for_server(rospy.Duration.from_sec(self.WAIT_FOR_SERVER)):
             rospy.logerr(f'Failed to connect to "{self.ACTION_NAME}" action server')
             return
 
@@ -36,6 +42,10 @@ class FollowTrajectoryClient(ABC):
         result: FollowPositionYawTrajectoryResult = self._ac.get_result()
         if result:
             rospy.loginfo(f'Result: {result.error_code}')
+
+    def _on_shutdown(self) -> None:
+        rospy.loginfo("Program interrupted before completion. Canceling action.")
+        self._ac.cancel_goal()
 
     @abstractmethod
     def _make_goal(self) -> FollowPositionYawTrajectoryGoal:
