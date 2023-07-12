@@ -31,6 +31,7 @@ private:
   ResultType result_;
 
   ros::Publisher cmd_pub_;
+  ros::Subscriber event_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 

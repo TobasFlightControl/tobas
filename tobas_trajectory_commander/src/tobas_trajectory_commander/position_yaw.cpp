@@ -44,6 +44,7 @@ void FollowPositionYawTrajectoryServer::registerPublishers()
 
 void FollowPositionYawTrajectoryServer::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &FollowPositionYawTrajectoryServer::eventCb, this);
 }
 
 bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
@@ -54,7 +55,8 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (goal->degree < 1 || 3 < goal->degree)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Spline degree must be in range of [1, 3].");
+    rosError("Spline degree is " << goal->degree << ". It must be in range of [1, 3].");
+    as_.setAborted(result_);
     return false;
   }
 
@@ -62,7 +64,8 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (waypoints.size() < 2)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Waypoints must include more than 1 points.");
+    rosError("Waypoints must include more than 1 points.");
+    as_.setAborted(result_);
     return false;
   }
 
@@ -70,7 +73,8 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (waypoints.size() > kMaxNrOfTrajPoint)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Too many number of trajectory points.");
+    rosError("Too many number of trajectory points.");
+    as_.setAborted(result_);
     return false;
   }
 
@@ -78,7 +82,8 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (waypoints[0].time_from_start.toSec() != 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "The duration of the first trajectory point must be 0.");
+    rosError("The duration of the first trajectory point must be 0.");
+    as_.setAborted(result_);
     return false;
   }
 
@@ -88,7 +93,8 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
     if (waypoints[i].time_from_start >= waypoints[i + 1].time_from_start)
     {
       result_.error_code = ResultType::INVALID_GOAL;
-      as_.setAborted(result_, "The durations must be strictly increasing.");
+      rosError("The durations must be strictly increasing.");
+      as_.setAborted(result_);
       return false;
     }
   }
@@ -159,6 +165,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
     ros::Duration(kControlnterval).sleep();  // Sleep for control rate
   }
 
-  as_.setSucceeded();
+  result_.error_code = ResultType::NO_ERROR;
+  as_.setSucceeded(result_);
 }
 }  // namespace tobas_trajectory_commander
