@@ -20,4 +20,9 @@
     <include file="$(find tobas_state_checker)/launch/multirotor_state_checker.launch"/>
   </group>
 
+  <!-- Bringup trajectory commanding action server -->
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_trajectory_commander)/launch/position_yaw.launch"/>
+  </group>
+
 </launch>
