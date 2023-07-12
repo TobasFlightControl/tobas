@@ -151,6 +151,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
     if (as_.isPreemptRequested())
     {
       result_.error_code = ResultType::PREEMPTED;
+      rosWarn("Preempt requested.");
       as_.setPreempted(result_);
       return;
     }
