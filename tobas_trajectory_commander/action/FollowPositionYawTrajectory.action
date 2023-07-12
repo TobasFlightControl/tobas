@@ -1,5 +1,6 @@
 # goal
 tobas_msgs/CommandLevel level
+uint32 degree
 tobas_msgs/PositionYawTrajectoryPoint[] waypoints
 
 ---

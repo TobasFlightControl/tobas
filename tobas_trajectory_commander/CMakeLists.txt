@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tobas_msgs
 	dh_ros_tools
+	dh_eigen_tools
 	kdl_msgs
 	roscpp
 	actionlib

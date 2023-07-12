@@ -1,11 +1,11 @@
-#include <Eigen/Core>
-#include <unsupported/Eigen/Splines>
-
+#include <dh_eigen_tools/spline.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/rate.hpp>
 
 #include "../../include/tobas_trajectory_commander/position_yaw.hpp"
 #include "../../include/tobas_trajectory_commander/common.hpp"
+
+#define COMMAND_DIMENSION 4  // x, y, z, yaw
 
 using namespace std;
 using namespace KDL;
@@ -50,6 +50,14 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
 {
   const auto& waypoints = goal->waypoints;
 
+  // 次数は1以上3以下
+  if (goal->degree < 1 || 3 < goal->degree)
+  {
+    result_.error_code = ResultType::INVALID_GOAL;
+    as_.setAborted(result_, "Spline degree must be in range of [1, 3].");
+    return false;
+  }
+
   // 点が2つ以上含まれているか
   if (waypoints.size() < 2)
   {
@@ -76,6 +84,9 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
       return false;
     }
   }
+
+  // 点の数が多すぎるとダメ
+  // TODO
 
   return true;
 }
@@ -106,21 +117,21 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
 
   // Prepare time and position vectors for spline fitting
   VectorXd times(waypoints.size());
-  MatrixXd positions(waypoints.size(), 4);
+  vector<VectorXd> positions(COMMAND_DIMENSION, VectorXd::Zero(waypoints.size()));
   for (uint32_t i = 0; i < waypoints.size(); ++i)
   {
-    times[i] = waypoints[i].time_from_start.toSec();
-    positions(i, 0) = waypoints[i].pos.x();
-    positions(i, 1) = waypoints[i].pos.y();
-    positions(i, 2) = waypoints[i].pos.z();
-    positions(i, 3) = waypoints[i].yaw;
+    times(i) = waypoints[i].time_from_start.toSec();
+    positions[0](i) = waypoints[i].pos.x();
+    positions[1](i) = waypoints[i].pos.y();
+    positions[2](i) = waypoints[i].pos.z();
+    positions[3](i) = waypoints[i].yaw;
   }
 
   // Compute spline fit
-  vector<SplineType> splines;
-  for (uint32_t j = 0; j < positions.cols(); ++j)
+  vector<eigen_tools::SplineFunction> splines;
+  for (uint32_t i = 0; i < COMMAND_DIMENSION; ++i)
   {
-    splines.push_back(SplineFitting<SplineType>::Interpolate(positions.col(j), 3, times));
+    splines.emplace_back(times, positions[i], goal->degree);
   }
 
   // Execute trajectory
@@ -133,10 +144,10 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
       return;
     }
 
-    cmd.pos.x(splines[0](t)(0));
-    cmd.pos.y(splines[1](t)(0));
-    cmd.pos.z(splines[2](t)(0));
-    cmd.yaw = splines[3](t)(0);
+    cmd.pos.x(splines[0](t));
+    cmd.pos.y(splines[1](t));
+    cmd.pos.z(splines[2](t));
+    cmd.yaw = splines[3](t);
 
     cmd_pub_.publish(cmd);
 
