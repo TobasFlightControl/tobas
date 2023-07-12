@@ -66,6 +66,14 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
     return false;
   }
 
+  // 点の数が多すぎるとダメ
+  if (waypoints.size() > kMaxNrOfTrajPoint)
+  {
+    result_.error_code = ResultType::INVALID_GOAL;
+    as_.setAborted(result_, "Too many number of trajectory points.");
+    return false;
+  }
+
   // 最初のtime_from_startは0でなければならない
   if (waypoints[0].time_from_start.toSec() != 0.)
   {
@@ -84,9 +92,6 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
       return false;
     }
   }
-
-  // 点の数が多すぎるとダメ
-  // TODO
 
   return true;
 }
