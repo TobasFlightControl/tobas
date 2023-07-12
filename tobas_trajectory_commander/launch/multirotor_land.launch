@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_trajectory_commander" type="multirotor_land_node" name="multirotor_land" output="screen"/>
-
-</launch>

@@ -58,14 +58,14 @@ void MultirotorStateChecker::run()
       rosWarn(
         "Issuing a landing command as no commands have been received for " << kCommandTimeout
                                                                            << " seconds.");
-      tobas_trajectory_commander::LandGoal goal;
+      tobas_msgs::LandGoal goal;
       goal.level.data = tobas_msgs::CommandLevel::EMERGENCY;
       ac_.sendGoal(goal);
       ac_.waitForResult();
 
       const auto result = ac_.getResult();
       const auto state = ac_.getState();
-      if (result->error_code == tobas_trajectory_commander::LandResult::NO_ERROR)
+      if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
       {
         rosInfo(state.getText());
         rosInfo("Landing action finished successfully.");

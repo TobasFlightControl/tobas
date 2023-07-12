@@ -9,13 +9,13 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/VelocityYaw.h>
-#include <tobas_trajectory_commander/LandAction.h>
+#include <tobas_msgs/LandAction.h>
 
 namespace tobas_state_checker
 {
 class MultirotorStateChecker : public tobas::BaseNode
 {
-  static constexpr char kLandActionName[] = "multirotor_land";
+  static constexpr char kLandActionName[] = "multirotor_landing";
   static constexpr double kSleepTime = 0.1;           // [s]
   static constexpr double kWaitForActionServer = 3.;  // [s]
   static constexpr double kBaseStateTimeout = 0.5;    // [s]
@@ -41,7 +41,7 @@ private:
   ros::Subscriber bs_sub_;
   ros::Subscriber cmd_sub_;
 
-  actionlib::SimpleActionClient<tobas_trajectory_commander::LandAction> ac_;
+  actionlib::SimpleActionClient<tobas_msgs::LandAction> ac_;
 
   void getRosParams() override;
   void registerPublishers() override;

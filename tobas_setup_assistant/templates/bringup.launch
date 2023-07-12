@@ -12,7 +12,7 @@
 
   <!-- Bringup landing action server for emergency -->
   <group ns="{{ drone_name }}">
-    <include file="$(find tobas_trajectory_commander)/launch/multirotor_land.launch"/>
+    <include file="$(find tobas_multirotor_landing)/launch/landing_action_server.launch"/>
   </group>
 
   <!-- Bringup state checker -->

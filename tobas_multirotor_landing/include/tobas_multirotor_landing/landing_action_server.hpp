@@ -7,13 +7,13 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_trajectory_commander/LandAction.h>
+#include <tobas_msgs/LandAction.h>
 
-namespace tobas_trajectory_commander
+namespace tobas_multirotor_landing
 {
 class MultirotorLandServer : public tobas::BaseNode
 {
-  static constexpr char kActionName[] = "multirotor_land";
+  static constexpr char kActionName[] = "multirotor_landing";
   static constexpr double kUpdateRate = 100.;  // [Hz]
   static constexpr double kVerticalSpeed = 1.;  // [m/s] 多くのドローンでは1~2mらしい (GPT4)
   static constexpr double kTimeWindow = 3.;  // [s] 高度の変化を見る時間窓の長さ
@@ -21,10 +21,10 @@ class MultirotorLandServer : public tobas::BaseNode
 
   using super = tobas::BaseNode;
 
-  using ActionType = tobas_trajectory_commander::LandAction;
-  using GoalType = tobas_trajectory_commander::LandGoalConstPtr;  // Goalはポインタの必要あり
-  using ResultType = tobas_trajectory_commander::LandResult;
-  using FeedbackType = tobas_trajectory_commander::LandFeedback;
+  using ActionType = tobas_msgs::LandAction;
+  using GoalType = tobas_msgs::LandGoalConstPtr;  // Goalはポインタの必要あり
+  using ResultType = tobas_msgs::LandResult;
+  using FeedbackType = tobas_msgs::LandFeedback;
 
 public:
   explicit MultirotorLandServer();
@@ -53,4 +53,4 @@ private:
   void baseStateCb(const tobas_msgs::BaseState& bs);
   void executeCb(const GoalType& goal);
 };
-}  // namespace tobas_trajectory_commander
+}  // namespace tobas_multirotor_landing

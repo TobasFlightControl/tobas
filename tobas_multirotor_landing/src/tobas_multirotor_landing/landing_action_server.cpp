@@ -1,10 +1,10 @@
 #include <dh_ros_tools/console_message.hpp>
 
-#include "../../include/tobas_trajectory_commander/multirotor_land.hpp"
+#include "../../include/tobas_multirotor_landing/landing_action_server.hpp"
 
 using namespace std;
 
-namespace tobas_trajectory_commander
+namespace tobas_multirotor_landing
 {
 // 外部リンケージをもつポインタ型はODR違反が起きる可能性があるため，ソースでconstexpr変数の再定義を行う必要がある．
 // 再定義ではstaticを省略する．
@@ -156,4 +156,4 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
 
   is_action_running_ = false;
 }
-}  // namespace tobas_trajectory_commander
+}  // namespace tobas_multirotor_landing
