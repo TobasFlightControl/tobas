@@ -18,7 +18,7 @@ namespace tobas_multirotor_controller
 class PositionControllerRos : public tobas::BaseNode
 {
   static constexpr double kCommandTimeoutThreshold = 60.;
-  static constexpr double kMaxCommandPositionDeviation = 5.;
+  static constexpr double kMaxCommandPositionDeviation = 100.;  // TODO
 
   using super = tobas::BaseNode;
 
