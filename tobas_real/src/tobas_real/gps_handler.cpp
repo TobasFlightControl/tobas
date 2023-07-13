@@ -5,8 +5,8 @@
 
 #include "../../include/tobas_real/gps_handler.hpp"
 
-#define SOLUTION_RATE 1e+3
-#define TIMER_PERIOD 2e-4
+#define MEASUREMENT_RATE 100  // [ms]
+#define TIMER_PERIOD 2e-4     // [s]
 
 using namespace std;
 
@@ -22,7 +22,7 @@ GpsHandler::GpsHandler()
     rosthrow("Failed to connect to GPS.");
   }
 
-  if (gps_.configureSolutionRate(SOLUTION_RATE) < 0)
+  if (gps_.configureSolutionRate(MEASUREMENT_RATE) < 0)
   {
     rosthrow("Failed to set solution rate.");
   }
@@ -64,6 +64,8 @@ void GpsHandler::eventCb(const tobas_msgs::Event& event)
 
 void GpsHandler::mainLoopTimerCb(const ros::TimerEvent&)
 {
+  const ros::Time now = ros::Time::now();
+
   if (gps_.decodeSingleMessage(Ublox::NAV_COV, data_) == 1)
   {
     cov_received_ = true;
@@ -91,30 +93,62 @@ void GpsHandler::mainLoopTimerCb(const ros::TimerEvent&)
     vel_msg_.covariance[8] = data_[11];  // DD
   }
 
-  if (gps_.decodeSingleMessage(Ublox::NAV_PVT, data_) == 1)
+  if (gps_.decodeSingleMessage(Ublox::NAV_POSLLH, data_) == 1)
   {
     if (!cov_received_)
     {
       return;
     }
 
-    const ros::Time now = ros::Time::now();
-
     // Update GPS position message
     gps_msg_.header.stamp = now;
-    gps_msg_.latitude = data_[1] * 1e-7;   // Latitude [deg]
-    gps_msg_.longitude = data_[0] * 1e-7;  // Longitude [deg]
-    gps_msg_.altitude = data_[2] * 1e-3;   // Height above ellipsoid [m]
+    gps_msg_.latitude = data_[2] * 1e-7;   // Latitude [deg]
+    gps_msg_.longitude = data_[1] * 1e-7;  // Longitude [deg]
+    gps_msg_.altitude = data_[4] * 1e-3;   // Height above mean sea level [m]
+
+    // Publish message
+    gps_pub_.publish(gps_msg_);
+  }
+
+  if (gps_.decodeSingleMessage(Ublox::NAV_VELNED, data_) == 1)
+  {
+    if (!cov_received_)
+    {
+      return;
+    }
 
     // Update GPS velocity message
     vel_msg_.header.stamp = now;
-    vel_msg_.vel.x(data_[3] * 1e-3);   // North velocity [m]
-    vel_msg_.vel.y(-data_[4] * 1e-3);  // West velocity [m]
-    vel_msg_.vel.z(-data_[5] * 1e-3);  // Up velocity [m]
+    vel_msg_.vel.x(data_[0] * 1e-2);   // North velocity [m]
+    vel_msg_.vel.y(-data_[1] * 1e-2);  // West velocity [m]
+    vel_msg_.vel.z(-data_[2] * 1e-2);  // Up velocity [m]
 
-    // Publish messages
-    gps_pub_.publish(gps_msg_);
+    // Publish message
     vel_pub_.publish(vel_msg_);
   }
+
+  // if (gps_.decodeSingleMessage(Ublox::NAV_PVT, data_) == 1)
+  // {
+  //   if (!cov_received_)
+  //   {
+  //     return;
+  //   }
+
+  //   // Update GPS position message
+  //   gps_msg_.header.stamp = now;
+  //   gps_msg_.latitude = data_[1] * 1e-7;   // Latitude [deg]
+  //   gps_msg_.longitude = data_[0] * 1e-7;  // Longitude [deg]
+  //   gps_msg_.altitude = data_[2] * 1e-3;   // Height above ellipsoid [m]
+
+  //   // Update GPS velocity message
+  //   vel_msg_.header.stamp = now;
+  //   vel_msg_.vel.x(data_[3] * 1e-3);   // North velocity [m]
+  //   vel_msg_.vel.y(-data_[4] * 1e-3);  // West velocity [m]
+  //   vel_msg_.vel.z(-data_[5] * 1e-3);  // Up velocity [m]
+
+  //   // Publish messages
+  //   gps_pub_.publish(gps_msg_);
+  //   vel_pub_.publish(vel_msg_);
+  // }
 }
 }  // namespace tobas_real
