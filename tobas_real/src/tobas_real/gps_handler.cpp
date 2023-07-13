@@ -69,7 +69,7 @@ void GpsHandler::run()
     {
       if (!cov_received_)
       {
-        return;
+        continue;
       }
 
       // Update GPS position message
@@ -86,7 +86,7 @@ void GpsHandler::run()
     {
       if (!cov_received_)
       {
-        return;
+        continue;
       }
 
       // Update GPS velocity message
