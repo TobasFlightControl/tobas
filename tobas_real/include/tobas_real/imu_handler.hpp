@@ -5,14 +5,20 @@
 #include <sensor_msgs/MagneticField.h>
 #include <Common/InertialSensor.h>
 
-#include <dh_ros_tools/timer.hpp>
-
 #include <tobas_tools/node.hpp>
 
 namespace tobas_real
 {
 class ImuHandler : public tobas::BaseNode
 {
+  static constexpr double kUpdateRate = 100.;  // [Hz]
+
+  // MPU9250
+  // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
+  static constexpr double kAccNoiseDensity = 300.;   // ug/sqrt(hz)
+  static constexpr double kGyroNoiseDensity = 0.01;  // deg/s/sqrt(hz)
+  static constexpr double kMagNoiseStd = 0.;  // TODO: データシートに無かったため計測する
+
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
@@ -21,6 +27,8 @@ class ImuHandler : public tobas::BaseNode
 
 public:
   explicit ImuHandler();
+
+  void run();
 
 private:
   ImuPtr imu_;
@@ -34,9 +42,6 @@ private:
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
-  // Timer
-  dh_ros::Timer main_loop_timer_;
-
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -45,6 +50,5 @@ private:
   void setCovarianceMatrices();
 
   void eventCb(const tobas_msgs::Event& event) override;
-  void mainLoopTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

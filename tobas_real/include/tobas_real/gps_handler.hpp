@@ -5,8 +5,6 @@
 
 #include <Common/Ublox.h>
 
-#include <dh_ros_tools/timer.hpp>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 
@@ -14,6 +12,9 @@ namespace tobas_real
 {
 class GpsHandler : public tobas::BaseNode
 {
+  static constexpr uint32_t kMeasurementRate = 100;  // [ms]
+  static constexpr uint32_t kSleepTime = 200;            // [us]
+
   using super = tobas::BaseNode;
 
   using GpsMsg = sensor_msgs::NavSatFix;
@@ -21,6 +22,8 @@ class GpsHandler : public tobas::BaseNode
 
 public:
   explicit GpsHandler();
+
+  void run();
 
 private:
   Ublox gps_;
@@ -33,14 +36,10 @@ private:
   ros::Publisher gps_pub_;
   ros::Publisher vel_pub_;
 
-  // Timer
-  dh_ros::Timer main_loop_timer_;
-
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::Event& event) override;
-  void mainLoopTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

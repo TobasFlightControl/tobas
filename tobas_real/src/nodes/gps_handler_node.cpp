@@ -4,5 +4,5 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "gps_handler");
   tobas_real::GpsHandler node;
-  ros::spin();
+  node.run();
 }

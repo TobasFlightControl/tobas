@@ -4,5 +4,5 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "barometer_handler");
   tobas_real::BarometerHandler node;
-  ros::spin();
+  node.run();
 }

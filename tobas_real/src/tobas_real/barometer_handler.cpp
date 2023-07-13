@@ -1,30 +1,41 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/rate.hpp>
 
 #include "../../include/tobas_real/barometer_handler.hpp"
 
-#define TIMER_PERIOD 0.01
-#define WAIT_TIME 0.008
-
-// MS5611(http://www.kyohritsu.jp/eclib/OTHER/DATASHEET/SENSOR/ms561101ba03.pdf)
-// 正確度と精度(https://www.hitachi-hightech.com/jp/ja/knowledge/semiconductor/room/manufacturing/accuracy-precision.html)
-// 精度(precision)がノイズにあたり，それ関する情報は無かった
-#define BAR_NOISE_STD 1.  // TODO: センサの精度を計測する
-
-using namespace std;
-
 namespace tobas_real
 {
-BarometerHandler::BarometerHandler()
-  : super(), main_loop_timer_(nh_, TIMER_PERIOD, &BarometerHandler::mainLoopTimerCb, this)
+constexpr double BarometerHandler::kBarNoiseStd;
+
+BarometerHandler::BarometerHandler() : super()
 {
   getRosParams();
 
   barometer_.initialize();
-  bar_msg_.variance = dh_std::sqr(BAR_NOISE_STD);
+  bar_msg_.variance = dh_std::sqr(kBarNoiseStd);
 
   registerPublishers();
   registerSubscribers();
+}
+
+void BarometerHandler::run()
+{
+  dh_ros::Rate rate(kUpdateRate);
+
+  while (ros::ok())
+  {
+    barometer_.refreshPressure();
+    ros::Duration(kWaitTime).sleep();  // Waiting for pressure data ready
+    barometer_.readPressure();
+    barometer_.calculatePressureAndTemperature();
+
+    bar_msg_.fluid_pressure = barometer_.getPressure() * 100;  // mbar -> Pa
+    bar_pub_.publish(bar_msg_);
+
+    ros::spinOnce();
+    rate.sleep();
+  }
 }
 
 void BarometerHandler::getRosParams()
@@ -51,16 +62,5 @@ void BarometerHandler::eventCb(const tobas_msgs::Event& event)
     default:
       break;
   }
-}
-
-void BarometerHandler::mainLoopTimerCb(const ros::TimerEvent&)
-{
-  barometer_.refreshPressure();
-  ros::Duration(WAIT_TIME).sleep();  // Waiting for pressure data ready
-  barometer_.readPressure();
-  barometer_.calculatePressureAndTemperature();
-
-  bar_msg_.fluid_pressure = barometer_.getPressure() * 100;  // mbar -> Pa
-  bar_pub_.publish(bar_msg_);
 }
 }  // namespace tobas_real
