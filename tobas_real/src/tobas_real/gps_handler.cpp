@@ -11,6 +11,10 @@ namespace tobas_real
 {
 GpsHandler::GpsHandler() : super(), cov_received_(false)
 {
+  // TODO: 指定していないメッセージ型を自動でdisableにする
+  gps_.enableNAV(Ublox::NAV_PVT);
+  gps_.enableNAV(Ublox::NAV_COV);
+
   if (!gps_.testConnection())
   {
     rosthrow("Failed to connect to GPS.");
@@ -35,91 +39,104 @@ void GpsHandler::run()
   {
     const ros::Time now = ros::Time::now();
 
-    if (gps_.decodeSingleMessage(Ublox::NAV_COV, data_) == 1)
+    const auto msg_id = gps_.update();
+    cout << msg_id << endl;
+    switch (msg_id)
     {
-      if (!cov_received_)
+      case Ublox::NAV_COV:
       {
-        cov_received_ = true;
+        gps_.decode(cov_);
+
+        if (!cov_received_)
+        {
+          cov_received_ = true;
+        }
+
+        // Update GPS position covariance
+        gps_msg_.position_covariance[0] = cov_.posCovNN;  // NN
+        gps_msg_.position_covariance[1] = cov_.posCovNE;  // NE
+        gps_msg_.position_covariance[2] = cov_.posCovND;  // ND
+        gps_msg_.position_covariance[3] = cov_.posCovNE;  // EN
+        gps_msg_.position_covariance[4] = cov_.posCovEE;  // EE
+        gps_msg_.position_covariance[5] = cov_.posCovED;  // ED
+        gps_msg_.position_covariance[6] = cov_.posCovND;  // DN
+        gps_msg_.position_covariance[7] = cov_.posCovED;  // DE
+        gps_msg_.position_covariance[8] = cov_.posCovDD;  // DD
+
+        // Update GPS velocity covariance
+        vel_msg_.covariance[0] = cov_.velCovNN;  // NN
+        vel_msg_.covariance[1] = cov_.velCovNE;  // NE
+        vel_msg_.covariance[2] = cov_.velCovND;  // ND
+        vel_msg_.covariance[3] = cov_.velCovNE;  // EN
+        vel_msg_.covariance[4] = cov_.velCovEE;  // EE
+        vel_msg_.covariance[5] = cov_.velCovED;  // ED
+        vel_msg_.covariance[6] = cov_.velCovND;  // DN
+        vel_msg_.covariance[7] = cov_.velCovED;  // DE
+        vel_msg_.covariance[8] = cov_.velCovDD;  // DD
+
+        break;
       }
 
-      // Update GPS position covariance
-      gps_msg_.position_covariance[0] = data_[0];  // NN
-      gps_msg_.position_covariance[1] = data_[1];  // NE
-      gps_msg_.position_covariance[2] = data_[2];  // ND
-      gps_msg_.position_covariance[3] = data_[1];  // EN
-      gps_msg_.position_covariance[4] = data_[3];  // EE
-      gps_msg_.position_covariance[5] = data_[4];  // ED
-      gps_msg_.position_covariance[6] = data_[2];  // DN
-      gps_msg_.position_covariance[7] = data_[4];  // DE
-      gps_msg_.position_covariance[8] = data_[5];  // DD
-
-      // Update GPS velocity covariance
-      vel_msg_.covariance[0] = data_[6];   // NN
-      vel_msg_.covariance[1] = data_[7];   // NE
-      vel_msg_.covariance[2] = data_[8];   // ND
-      vel_msg_.covariance[3] = data_[7];   // EN
-      vel_msg_.covariance[4] = data_[9];   // EE
-      vel_msg_.covariance[5] = data_[10];  // ED
-      vel_msg_.covariance[6] = data_[8];   // DN
-      vel_msg_.covariance[7] = data_[10];  // DE
-      vel_msg_.covariance[8] = data_[11];  // DD
-    }
-
-    if (gps_.decodeSingleMessage(Ublox::NAV_POSLLH, data_) == 1)
-    {
-      if (!cov_received_)
+      case Ublox::NAV_PVT:
       {
-        continue;
+        if (!cov_received_)
+        {
+          continue;
+        }
+
+        gps_.decode(pvt_);
+
+        // Update GPS position message
+        gps_msg_.header.stamp = now;
+        gps_msg_.latitude = pvt_.lat;   // Latitude [deg]
+        gps_msg_.longitude = pvt_.lon;  // Longitude [deg]
+        gps_msg_.altitude = pvt_.hMSL;  // Height above ellipsoid [m]
+
+        // Update GPS velocity message
+        vel_msg_.header.stamp = now;
+        vel_msg_.vel.x(pvt_.velN);   // North velocity [m]
+        vel_msg_.vel.y(-pvt_.velE);  // West velocity [m]
+        vel_msg_.vel.z(-pvt_.velD);  // Up velocity [m]
+
+        // Publish messages
+        gps_pub_.publish(gps_msg_);
+        vel_pub_.publish(vel_msg_);
+
+        break;
       }
-
-      // Update GPS position message
-      gps_msg_.header.stamp = now;
-      gps_msg_.latitude = data_[2] * 1e-7;   // Latitude [deg]
-      gps_msg_.longitude = data_[1] * 1e-7;  // Longitude [deg]
-      gps_msg_.altitude = data_[4] * 1e-3;   // Height above mean sea level [m]
-
-      // Publish message
-      gps_pub_.publish(gps_msg_);
     }
 
-    if (gps_.decodeSingleMessage(Ublox::NAV_VELNED, data_) == 1)
-    {
-      if (!cov_received_)
-      {
-        continue;
-      }
-
-      // Update GPS velocity message
-      vel_msg_.header.stamp = now;
-      vel_msg_.vel.x(data_[0] * 1e-2);   // North velocity [m]
-      vel_msg_.vel.y(-data_[1] * 1e-2);  // West velocity [m]
-      vel_msg_.vel.z(-data_[2] * 1e-2);  // Up velocity [m]
-
-      // Publish message
-      vel_pub_.publish(vel_msg_);
-    }
-
-    // if (gps_.decodeSingleMessage(Ublox::NAV_PVT, data_) == 1)
+    // if (gps_.decodeSingleMessage(Ublox::NAV_POSLLH, data_) == 1)
     // {
     //   if (!cov_received_)
     //   {
-    //     return;
+    //     continue;
     //   }
 
     //   // Update GPS position message
     //   gps_msg_.header.stamp = now;
-    //   gps_msg_.latitude = data_[1] * 1e-7;   // Latitude [deg]
-    //   gps_msg_.longitude = data_[0] * 1e-7;  // Longitude [deg]
-    //   gps_msg_.altitude = data_[2] * 1e-3;   // Height above ellipsoid [m]
+    //   gps_msg_.latitude = data_[2] * 1e-7;   // Latitude [deg]
+    //   gps_msg_.longitude = data_[1] * 1e-7;  // Longitude [deg]
+    //   gps_msg_.altitude = data_[4] * 1e-3;   // Height above mean sea level [m]
+
+    //   // Publish message
+    //   gps_pub_.publish(gps_msg_);
+    // }
+
+    // if (gps_.decodeSingleMessage(Ublox::NAV_VELNED, data_) == 1)
+    // {
+    //   if (!cov_received_)
+    //   {
+    //     continue;
+    //   }
 
     //   // Update GPS velocity message
     //   vel_msg_.header.stamp = now;
-    //   vel_msg_.vel.x(data_[3] * 1e-3);   // North velocity [m]
-    //   vel_msg_.vel.y(-data_[4] * 1e-3);  // West velocity [m]
-    //   vel_msg_.vel.z(-data_[5] * 1e-3);  // Up velocity [m]
+    //   vel_msg_.vel.x(data_[0] * 1e-2);   // North velocity [m]
+    //   vel_msg_.vel.y(-data_[1] * 1e-2);  // West velocity [m]
+    //   vel_msg_.vel.z(-data_[2] * 1e-2);  // Up velocity [m]
 
-    //   // Publish messages
-    //   gps_pub_.publish(gps_msg_);
+    //   // Publish message
     //   vel_pub_.publish(vel_msg_);
     // }
 

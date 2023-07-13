@@ -13,7 +13,7 @@ namespace tobas_real
 class GpsHandler : public tobas::BaseNode
 {
   static constexpr uint32_t kMeasurementRate = 100;  // [ms]
-  static constexpr uint32_t kSleepTime = 200;            // [us]
+  static constexpr uint32_t kSleepTime = 200;        // [us]
 
   using super = tobas::BaseNode;
 
@@ -27,7 +27,8 @@ public:
 
 private:
   Ublox gps_;
-  std::vector<double> data_;
+  NavPayload_PVT pvt_;
+  NavPayload_COV cov_;
   GpsMsg gps_msg_;
   VelMsg vel_msg_;
   bool cov_received_;
