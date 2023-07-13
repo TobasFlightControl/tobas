@@ -37,7 +37,10 @@ void GpsHandler::run()
 
     if (gps_.decodeSingleMessage(Ublox::NAV_COV, data_) == 1)
     {
-      cov_received_ = true;
+      if (!cov_received_)
+      {
+        cov_received_ = true;
+      }
 
       // Update GPS position covariance
       gps_msg_.position_covariance[0] = data_[0];  // NN
