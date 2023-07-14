@@ -27,10 +27,12 @@ public:
 
 private:
   Ublox gps_;
+  NavPayload_STATUS status_;
   NavPayload_PVT pvt_;
   NavPayload_COV cov_;
   GpsMsg gps_msg_;
   VelMsg vel_msg_;
+  bool gps_fix_ok_;
   bool cov_received_;
 
   // Publisher
@@ -40,6 +42,8 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  bool isReadyToPublish() const;
 
   void eventCb(const tobas_msgs::Event& event) override;
 };

@@ -4,14 +4,15 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include "../../include/tobas_real/gps_handler.hpp"
+#include "../../include/tobas_real/common.hpp"
 
 using namespace std;
 
 namespace tobas_real
 {
-GpsHandler::GpsHandler() : super(), cov_received_(false)
+GpsHandler::GpsHandler() : super(), gps_fix_ok_(false), cov_received_(false)
 {
-  // TODO: 指定していないメッセージ型を自動でdisableにする
+  gps_.enableNAV(Ublox::NAV_STATUS);
   gps_.enableNAV(Ublox::NAV_PVT);
   gps_.enableNAV(Ublox::NAV_COV);
 
@@ -38,19 +39,62 @@ void GpsHandler::run()
   while (ros::ok())
   {
     const ros::Time now = ros::Time::now();
-
     const auto msg_id = gps_.update();
     // cout << "Message ID: " << msg_id << endl;
+
     switch (msg_id)
     {
+      case Ublox::NAV_STATUS:
+      {
+        gps_.decode(status_);
+        gps_fix_ok_ = status_.flags & 1;  // p.288, Bitfield flags
+
+        if (!gps_fix_ok_)
+        {
+          rosErrorThrottle(
+            kErrorPeriod, "GPS fix not acquired. Please check GNSS signal strength and receiver's "
+                          "connection.");
+        }
+
+        break;
+      }
+
+      case Ublox::NAV_PVT:
+      {
+        if (!isReadyToPublish())
+        {
+          continue;
+        }
+
+        gps_.decode(pvt_);
+
+        // Update GPS position message
+        gps_msg_.header.stamp = now;
+        gps_msg_.latitude = pvt_.lat;   // Latitude [deg]
+        gps_msg_.longitude = pvt_.lon;  // Longitude [deg]
+        gps_msg_.altitude = pvt_.hMSL;  // Height above ellipsoid [m]
+
+        // Update GPS velocity message
+        vel_msg_.header.stamp = now;
+        vel_msg_.vel.x(pvt_.velN);   // North velocity [m]
+        vel_msg_.vel.y(-pvt_.velE);  // West velocity [m]
+        vel_msg_.vel.z(-pvt_.velD);  // Up velocity [m]
+
+        // Publish messages
+        gps_pub_.publish(gps_msg_);
+        vel_pub_.publish(vel_msg_);
+
+        break;
+      }
+
       case Ublox::NAV_COV:
       {
-        gps_.decode(cov_);
-
         if (!cov_received_)
         {
           cov_received_ = true;
         }
+
+        gps_.decode(cov_);
 
         // Update GPS position covariance
         gps_msg_.position_covariance[0] = cov_.posCovNN;  // NN
@@ -76,69 +120,7 @@ void GpsHandler::run()
 
         break;
       }
-
-      case Ublox::NAV_PVT:
-      {
-        if (!cov_received_)
-        {
-          continue;
-        }
-
-        gps_.decode(pvt_);
-
-        // Update GPS position message
-        gps_msg_.header.stamp = now;
-        gps_msg_.latitude = pvt_.lat;   // Latitude [deg]
-        gps_msg_.longitude = pvt_.lon;  // Longitude [deg]
-        gps_msg_.altitude = pvt_.hMSL;  // Height above ellipsoid [m]
-
-        // Update GPS velocity message
-        vel_msg_.header.stamp = now;
-        vel_msg_.vel.x(pvt_.velN);   // North velocity [m]
-        vel_msg_.vel.y(-pvt_.velE);  // West velocity [m]
-        vel_msg_.vel.z(-pvt_.velD);  // Up velocity [m]
-
-        // Publish messages
-        gps_pub_.publish(gps_msg_);
-        vel_pub_.publish(vel_msg_);
-
-        break;
-      }
     }
-
-    // if (gps_.decodeSingleMessage(Ublox::NAV_POSLLH, data_) == 1)
-    // {
-    //   if (!cov_received_)
-    //   {
-    //     continue;
-    //   }
-
-    //   // Update GPS position message
-    //   gps_msg_.header.stamp = now;
-    //   gps_msg_.latitude = data_[2] * 1e-7;   // Latitude [deg]
-    //   gps_msg_.longitude = data_[1] * 1e-7;  // Longitude [deg]
-    //   gps_msg_.altitude = data_[4] * 1e-3;   // Height above mean sea level [m]
-
-    //   // Publish message
-    //   gps_pub_.publish(gps_msg_);
-    // }
-
-    // if (gps_.decodeSingleMessage(Ublox::NAV_VELNED, data_) == 1)
-    // {
-    //   if (!cov_received_)
-    //   {
-    //     continue;
-    //   }
-
-    //   // Update GPS velocity message
-    //   vel_msg_.header.stamp = now;
-    //   vel_msg_.vel.x(data_[0] * 1e-2);   // North velocity [m]
-    //   vel_msg_.vel.y(-data_[1] * 1e-2);  // West velocity [m]
-    //   vel_msg_.vel.z(-data_[2] * 1e-2);  // Up velocity [m]
-
-    //   // Publish message
-    //   vel_pub_.publish(vel_msg_);
-    // }
 
     ros::spinOnce();
     usleep(kSleepTime);
@@ -158,6 +140,11 @@ void GpsHandler::registerPublishers()
 void GpsHandler::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &GpsHandler::eventCb, this);
+}
+
+bool GpsHandler::isReadyToPublish() const
+{
+  return gps_fix_ok_ && cov_received_;
 }
 
 void GpsHandler::eventCb(const tobas_msgs::Event& event)
