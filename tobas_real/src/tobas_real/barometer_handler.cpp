@@ -13,6 +13,11 @@ BarometerHandler::BarometerHandler() : super()
   getRosParams();
 
   barometer_.initialize();
+  if (!barometer_.testConnection())
+  {
+    rosthrow("Barometer test failed.");
+  }
+
   bar_msg_.variance = dh_std::sqr(kBarNoiseStd);
 
   registerPublishers();
@@ -26,7 +31,7 @@ void BarometerHandler::run()
   while (ros::ok())
   {
     barometer_.refreshPressure();
-    ros::Duration(kWaitTime).sleep();  // Waiting for pressure data ready
+    usleep(kWaitTime);  // Waiting for pressure data ready
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
 

@@ -10,8 +10,8 @@ namespace tobas_real
 {
 class BarometerHandler : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;
-  static constexpr double kWaitTime = 0.008;
+  static constexpr double kUpdateRate = 100.;  // [Hz]
+  static constexpr uint32_t kWaitTime = 8000;  // [us]
 
   // MS5611(http://www.kyohritsu.jp/eclib/OTHER/DATASHEET/SENSOR/ms561101ba03.pdf)
   // 正確度と精度(https://www.hitachi-hightech.com/jp/ja/knowledge/semiconductor/room/manufacturing/accuracy-precision.html)
