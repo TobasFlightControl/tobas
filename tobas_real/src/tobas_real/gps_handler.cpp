@@ -40,7 +40,7 @@ void GpsHandler::run()
     const ros::Time now = ros::Time::now();
 
     const auto msg_id = gps_.update();
-    cout << msg_id << endl;
+    // cout << "Message ID: " << msg_id << endl;
     switch (msg_id)
     {
       case Ublox::NAV_COV:
