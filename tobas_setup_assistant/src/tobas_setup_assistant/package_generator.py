@@ -126,6 +126,7 @@ class PackageGenerator(QWidget):
         self._generate_joint_control_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
+        self._generate_state_checker_config(config_dir)
         self._generate_urdf(urdf_dir)
 
     def _make_template_items(self) -> None:
@@ -173,7 +174,6 @@ class PackageGenerator(QWidget):
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
         rotary_wings = self._main.settings.rotary_wings.selected
-        battery = self._main.settings.battery
         num_rotors = rotary_wings.count()
         drone_config = {
             "active_joint_names": self._main.urdf_parser.active_joint_names(),
@@ -300,6 +300,19 @@ class PackageGenerator(QWidget):
 
         observer_path = osp.join(config_dir, "observer.yaml")
         with open(observer_path, "w") as f:
+            yaml.dump(items, f)
+
+    def _generate_state_checker_config(self, config_dir: str) -> None:
+        battery = self._main.settings.battery.selected()
+
+        items = dict()
+        items["multirotor_state_checker"] = {
+            "warn_battery_voltage": battery.warn_voltage(),
+            "fatal_battery_voltage": battery.fatal_voltage(),
+        }
+
+        file_path = osp.join(config_dir, "state_checker.yaml")
+        with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_urdf(self, urdf_dir: str) -> None:
