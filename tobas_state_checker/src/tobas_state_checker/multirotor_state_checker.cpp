@@ -42,7 +42,6 @@ void MultirotorStateChecker::run()
     const auto cur_time = ros::Time::now();
 
     // バッテリー電圧の監視
-    cout << battery_received_ << ", " << battery_.voltage << endl;
     if (battery_received_ && battery_.voltage < warn_voltage_)
     {
       rosWarnThrottle(
