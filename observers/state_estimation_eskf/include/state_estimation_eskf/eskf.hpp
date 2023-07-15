@@ -54,6 +54,12 @@ public:
   Eigen::Matrix3d getDCM() const;
   double getYaw() const;
 
+  Eigen::Matrix3d getPositionCovariance() const;
+  Eigen::Matrix3d getVelocityCovariance() const;
+  Eigen::Matrix3d getOrientationCovariance() const;
+  Eigen::Matrix3d getAccelBiasCovariance() const;
+  Eigen::Matrix3d getGyroBiasCovariance() const;
+
   void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, double dt);
 
   void measureXYZ(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);

@@ -117,6 +117,31 @@ double ErrorStateKalmanFilter::getYaw() const
   return atan2(R_W_B(1, 0), R_W_B(0, 0));
 }
 
+Matrix3d ErrorStateKalmanFilter::getPositionCovariance() const
+{
+  return P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx);
+}
+
+Matrix3d ErrorStateKalmanFilter::getVelocityCovariance() const
+{
+  return P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx);
+}
+
+Matrix3d ErrorStateKalmanFilter::getOrientationCovariance() const
+{
+  return P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx);
+}
+
+Matrix3d ErrorStateKalmanFilter::getAccelBiasCovariance() const
+{
+  return P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx);
+}
+
+Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
+{
+  return P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx);
+}
+
 void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
 {
   assert(dt > 0.);  // クオータニオンの正規化のためにdt = 0を許容できない

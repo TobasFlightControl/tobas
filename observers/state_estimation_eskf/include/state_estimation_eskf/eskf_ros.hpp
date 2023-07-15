@@ -106,7 +106,7 @@ private:
   bool isReady();
   void initialize(const ros::Time& stamp);
   void setZeroPositions();
-  void updateBaseStateMsg(const ros::Time& stamp);
+  void updateBaseStateMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
 
   void eventCb(const tobas_msgs::Event& event) override;

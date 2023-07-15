@@ -9,6 +9,7 @@
 #include <dh_std_tools/exception.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_eigen_tools/iostream.hpp>
+#include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -213,10 +214,10 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
 }
 
-void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ros::Time& stamp)
+void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
 {
   // Time stamp
-  state_.header.stamp = stamp;
+  state_.header.stamp = imu.header.stamp;
 
   // Position
   tf::vectorEigenToKDL(eskf_.getXYZ(), state_.pose.pos);
@@ -245,6 +246,13 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ros::Time& stamp)
   // Angular velocity (Local)
   const Vector3d w = w_m_ - eskf_.getGyroBias();
   tf::vectorEigenToKDL(w, state_.twist.rot);
+
+  // Covariances
+  eigen_tools::matrix3EigenToBoost(eskf_.getPositionCovariance(), state_.position_covariance);
+  eigen_tools::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state_.orientation_covariance);
+  eigen_tools::matrix3EigenToBoost(
+    eskf_.getVelocityCovariance(), state_.linear_velocity_covariance);
+  state_.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
 
   // For debug
   // std::cout << "Estiamted Quaternion: " << endl << q << endl;
@@ -327,7 +335,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   // 推定状態を発行
   if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
   {
-    updateBaseStateMsg(imu.header.stamp);
+    updateBaseStateMsg(imu);
     posevel_pub_.publish(state_);
   }
 }
