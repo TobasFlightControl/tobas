@@ -140,16 +140,16 @@ void OrientationEstimator::update(
   }
 
   // Prediction
-  Quaterniond q_pred = getPrediction(w, dt);
+  const Quaterniond q_pred = getPrediction(w, dt);
 
   // Correction (from acc):
   // q_tmp = q_pred * [(1-gain) * qI + gain * dq_acc]
   // where qI = identity quaternion
   Quaterniond dq_acc = getAccCorrection(a, q_pred);
-  double alpha = do_adaptive_gain_ ? getAdaptiveGain(gain_acc_, a) : gain_acc_;
+  const double alpha = do_adaptive_gain_ ? getAdaptiveGain(gain_acc_, a) : gain_acc_;
   scaleQuaternion(alpha, dq_acc);
 
-  Quaterniond q_tmp = (q_pred * dq_acc).normalized();
+  const Quaterniond q_tmp = (q_pred * dq_acc).normalized();
 
   // Correction (from mag):
   // q_ = q_tmp * [(1-gain) * qI + gain * dq_mag]
@@ -200,7 +200,7 @@ bool OrientationEstimator::checkState(const Vector3d& a, const Vector3d& w) cons
 
 Quaterniond OrientationEstimator::getPrediction(const Vector3d& w, double dt) const
 {
-  Vector3d w_unb = w - w_bias_;
+  const Vector3d w_unb = w - w_bias_;
 
   Quaterniond q_pred = q_BF_;
   q_pred.w() += 0.5 * dt * (w_unb.x() * q_BF_.x() + w_unb.y() * q_BF_.y() + w_unb.z() * q_BF_.z());
@@ -217,7 +217,7 @@ Quaterniond OrientationEstimator::getMeasurement(const Vector3d& a, const Vector
   // representing the orientation of the Global frame wrt the Local frame with
   // arbitrary yaw (intermediary frame). q3_acc is defined as 0.
   Quaterniond q_acc;
-  Vector3d a_norm = a.normalized();
+  const Vector3d a_norm = a.normalized();
   if (a_norm.z() >= 0.)
   {
     q_acc.w() = sqrt((a_norm.z() + 1.) / 2.);
@@ -237,13 +237,13 @@ Quaterniond OrientationEstimator::getMeasurement(const Vector3d& a, const Vector
   // l is the magnetic field reading,
   // rotated into the intermediary frame by the inverse of q_acc.
   // l = R(q_acc)^-1 m
-  Vector3d l = q_acc.conjugate() * m;
+  const Vector3d l = q_acc.conjugate() * m;
 
   // q_mag is the quaternion that rotates the Global frame (North West Up)
   // into the intermediary frame. q1_mag and q2_mag are defined as 0.
   Quaterniond q_mag;
-  double gamma = SQR(l.x()) + SQR(l.y());
-  double beta = sqrt(gamma + l.x() * sqrt(gamma));
+  const double gamma = SQR(l.x()) + SQR(l.y());
+  const double beta = sqrt(gamma + l.x() * sqrt(gamma));
   q_mag.w() = beta / (sqrt(2. * gamma));
   q_mag.x() = 0.;
   q_mag.y() = 0.;
@@ -258,11 +258,11 @@ Quaterniond OrientationEstimator::getMeasurement(const Vector3d& a, const Vector
 Quaterniond OrientationEstimator::getAccCorrection(const Vector3d& a, const Quaterniond& p) const
 {
   // Normalize acceleration vector
-  Vector3d a_norm = a.normalized();
+  const Vector3d a_norm = a.normalized();
 
   // Acceleration reading rotated into the fixed frame by the inverse
   // predicted quaternion (predicted gravity):
-  Vector3d g = p.conjugate() * a_norm;
+  const Vector3d g = p.conjugate() * a_norm;
 
   // Delta quaternion that rotates the predicted gravity into the real gravity:
   Quaterniond dq;
@@ -277,12 +277,12 @@ Quaterniond OrientationEstimator::getAccCorrection(const Vector3d& a, const Quat
 Quaterniond OrientationEstimator::getMagCorrection(const Vector3d& m, const Quaterniond& p) const
 {
   // Magnetic reading rotated into the world frame by the inverse predicted quaternion:
-  Vector3d l = p.conjugate() * m;
+  const Vector3d l = p.conjugate() * m;
 
   // Delta quaternion that rotates the l so that it lies in the xz-plane (points north):
   Quaterniond dq;
-  double gamma = SQR(l.x()) + SQR(l.y());
-  double beta = sqrt(gamma + l.x() * sqrt(gamma));
+  const double gamma = SQR(l.x()) + SQR(l.y());
+  const double beta = sqrt(gamma + l.x() * sqrt(gamma));
   dq.w() = beta / (sqrt(2. * gamma));
   dq.x() = 0.;
   dq.y() = 0.;
@@ -298,7 +298,7 @@ double OrientationEstimator::getAdaptiveGain(double alpha, const Vector3d& a) co
   constexpr double m = 1. / (error1 - error2);
   constexpr double b = 1. - m * error1;
 
-  double error = fabs(a.norm() - gravity_) / gravity_;
+  const double error = fabs(a.norm() - gravity_) / gravity_;
   double factor;
 
   if (error < error1)

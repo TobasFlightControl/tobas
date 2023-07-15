@@ -7,6 +7,7 @@
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
@@ -207,6 +208,14 @@ void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)
 
   // Angular velocity (Local)
   tf::vectorMsgToKDL(imu.angular_velocity, state_.twist.rot);
+
+  // Covariances
+  eigen_tools::matrix3EigenToBoost(
+    cart_filter_.getPositionCovariance(), state_.position_covariance);
+  state_.orientation_covariance.fill(-1);  // TODO: 相補フィルタから推定
+  eigen_tools::matrix3EigenToBoost(
+    cart_filter_.getVelocityCovariance(), state_.linear_velocity_covariance);
+  state_.angular_velocity_covariance = imu.angular_velocity_covariance;
 }
 
 bool StateEstimator::isValidImuTimeGap(double dt)

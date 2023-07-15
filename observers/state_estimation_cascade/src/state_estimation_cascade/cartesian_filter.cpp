@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/linalg.hpp>
 #include <dh_linear_control/util.hpp>
@@ -158,5 +156,25 @@ Vector3d CartesianFilter::getAcceleration() const
 Vector3d CartesianFilter::getGravity() const
 {
   return x_.block(kGravIdx, 0, 3, 1);
+}
+
+Eigen::Matrix3d CartesianFilter::getPositionCovariance() const
+{
+  return P_.block(kPosIdx, kPosIdx, 3, 3);
+}
+
+Eigen::Matrix3d CartesianFilter::getVelocityCovariance() const
+{
+  return P_.block(kVelIdx, kVelIdx, 3, 3);
+}
+
+Eigen::Matrix3d CartesianFilter::getAccelerationCovariance() const
+{
+  return P_.block(kAccIdx, kAccIdx, 3, 3);
+}
+
+Eigen::Matrix3d CartesianFilter::getGravityCovariance() const
+{
+  return P_.block(kGravIdx, kGravIdx, 3, 3);
 }
 }  // namespace state_estimation_cascade

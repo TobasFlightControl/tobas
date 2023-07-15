@@ -53,6 +53,11 @@ public:
   Eigen::Vector3d getAcceleration() const;
   Eigen::Vector3d getGravity() const;
 
+  Eigen::Matrix3d getPositionCovariance() const;
+  Eigen::Matrix3d getVelocityCovariance() const;
+  Eigen::Matrix3d getAccelerationCovariance() const;
+  Eigen::Matrix3d getGravityCovariance() const;
+
 private:
   StateVector x_;
   StateMatrix A_;
