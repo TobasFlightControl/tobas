@@ -312,7 +312,7 @@ void ErrorStateKalmanFilter::measureMagneticFieldYaw(
   assert(yaw_var > 0.);
 
   // Compute innovation
-  const double yaw_meas = wrapPi(atan2(mag_meas_y, mag_meas_x) - atan2(mag_W_.y(), mag_W_.x()));
+  const double yaw_meas = wrapPi(atan2(mag_W_.y(), mag_W_.x()) - atan2(mag_meas_y, mag_meas_x));
   const double delta_yaw = wrapPi(yaw_meas - getYaw());
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
