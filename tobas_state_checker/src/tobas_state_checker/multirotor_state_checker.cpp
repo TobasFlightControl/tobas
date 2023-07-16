@@ -1,3 +1,4 @@
+#include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -56,14 +57,22 @@ void MultirotorStateChecker::run()
       requestLanding();
     }
 
-    // GCSとの通信が切れるなどして一定時間コマンドを受け取っていない場合は着陸指令を出す
-    if (cmd_received_ && (cur_time - t_last_cmd_).toSec() > kCommandTimeout)
+    // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
+    const auto& pos_cov = bs_.position_covariance;
+    const auto& rot_cov = bs_.orientation_covariance;
+    if (dh_std::max(pos_cov[0], pos_cov[4], pos_cov[8]) > dh_std::sqr(kPositionStddevThreshold))
     {
-      cmd_received_ = false;
-
-      rosWarn(
-        "Issuing a landing command as no commands have been received for " << kCommandTimeout
-                                                                           << " seconds.");
+      rosFatal("Position covariance value exceeds the threshold. Issuing a landing command.");
+      requestLanding();
+    }
+    if (max(rot_cov[0], rot_cov[4]) > dh_std::sqr(kAttitudeStddevThreshold))
+    {
+      rosFatal("Attitude covariance value exceeds the threshold. Issuing a landing command.");
+      requestLanding();
+    }
+    if (rot_cov[8] > dh_std::sqr(kHeadingStddevThreshold))
+    {
+      rosFatal("Heading covariance value exceeds the threshold. Issuing a landing command.");
       requestLanding();
     }
 
@@ -74,6 +83,17 @@ void MultirotorStateChecker::run()
         "The base state is not received for " << kBaseStateTimeout
                                               << " seconds. Shutting down the system.");
       requestShutdown();
+    }
+
+    // GCSとの通信が切れるなどして一定時間コマンドを受け取っていない場合は着陸指令を出す
+    if (cmd_received_ && (cur_time - t_last_cmd_).toSec() > kCommandTimeout)
+    {
+      cmd_received_ = false;
+
+      rosWarn(
+        "Issuing a landing command as no commands have been received for " << kCommandTimeout
+                                                                           << " seconds.");
+      requestLanding();
     }
 
     // 姿勢角が閾値を超えていたら落とす

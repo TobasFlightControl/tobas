@@ -17,10 +17,6 @@ namespace tobas_state_checker
 class MultirotorStateChecker : public tobas::BaseNode
 {
   static constexpr char kLandActionName[] = "multirotor_landing";
-  static constexpr double kWaitForActionServer = 3.;  // [s]
-  static constexpr double kBaseStateTimeout = 0.5;    // [s]
-  static constexpr double kCommandTimeout = 0.5;      // [s]
-  static constexpr double kAttitudeThreshold = dh_std::deg2rad(80.);
 
   using super = tobas::BaseNode;
 
