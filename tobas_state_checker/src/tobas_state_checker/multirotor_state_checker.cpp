@@ -13,11 +13,7 @@ namespace tobas_state_checker
 constexpr char MultirotorStateChecker::kLandActionName[];
 
 MultirotorStateChecker::MultirotorStateChecker()
-  : super(),
-    battery_received_(false),
-    bs_received_(false),
-    cmd_received_(false),
-    ac_(kLandActionName)
+  : super(), bs_received_(false), cmd_received_(false), ac_(kLandActionName)
 {
   getRosParams();
 
@@ -42,40 +38,6 @@ void MultirotorStateChecker::run()
   {
     const auto cur_time = ros::Time::now();
 
-    // バッテリー電圧の監視
-    if (battery_received_ && battery_.voltage < warn_voltage_)
-    {
-      rosWarnThrottle(
-        kWarnPeriod, "Battery voltage " << battery_.voltage << "V is less than the warning line "
-                                        << warn_voltage_ << "V. It is time to stop flying.");
-    }
-    if (battery_received_ && battery_.voltage < fatal_voltage_)
-    {
-      rosFatal(
-        "Battery voltage " << battery_.voltage << "V is less than the fatal line " << fatal_voltage_
-                           << "V. Issuing a landing command.");
-      requestLanding();
-    }
-
-    // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
-    const auto& pos_cov = bs_.position_covariance;
-    const auto& rot_cov = bs_.orientation_covariance;
-    if (dh_std::max(pos_cov[0], pos_cov[4], pos_cov[8]) > dh_std::sqr(kPositionStddevThreshold))
-    {
-      rosFatal("Position covariance value exceeds the threshold. Issuing a landing command.");
-      requestLanding();
-    }
-    if (max(rot_cov[0], rot_cov[4]) > dh_std::sqr(kAttitudeStddevThreshold))
-    {
-      rosFatal("Attitude covariance value exceeds the threshold. Issuing a landing command.");
-      requestLanding();
-    }
-    if (rot_cov[8] > dh_std::sqr(kHeadingStddevThreshold))
-    {
-      rosFatal("Heading covariance value exceeds the threshold. Issuing a landing command.");
-      requestLanding();
-    }
-
     // ベースの状態が一定時間得られていない場合は落とす
     if (bs_received_ && (cur_time - t_last_bs_).toSec() > kBaseStateTimeout)
     {
@@ -94,14 +56,6 @@ void MultirotorStateChecker::run()
         "Issuing a landing command as no commands have been received for " << kCommandTimeout
                                                                            << " seconds.");
       requestLanding();
-    }
-
-    // 姿勢角が閾値を超えていたら落とす
-    const auto& euler = bs_.pose.euler;
-    if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
-    {
-      rosFatal("The attitude angle exceeds the threshold. Shutting down the system.");
-      requestShutdown();
     }
 
     ros::spinOnce();
@@ -128,6 +82,7 @@ void MultirotorStateChecker::registerPublishers()
 void MultirotorStateChecker::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &MultirotorStateChecker::eventCb, this);
+  cpu_sub_ = nh_.subscribe("cpu", 1, &MultirotorStateChecker::cpuCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &MultirotorStateChecker::batteryCb, this);
   bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorStateChecker::baseStateCb, this);
   cmd_sub_ = nh_.subscribe("command/velocity_yaw", 1, &MultirotorStateChecker::commandCb, this);
@@ -176,24 +131,75 @@ void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
   }
 }
 
+void MultirotorStateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
+{
+  // 温度の警告ライン
+  if (cpu.temperature < kWarnCpuTemperature)
+  {
+    rosWarnThrottle(
+      kWarnPeriod,
+      "CPU temperature is too high: " << cpu.temperature << "℃. It is time to stop flying.");
+  }
+
+  // 温度の危険ライン
+  if (cpu.temperature < kFatalCpuTemperture)
+  {
+    rosFatal("CPU temperature is too high: " << cpu.temperature << "℃. Issuing a landing command.");
+    requestLanding();
+  }
+}
+
 void MultirotorStateChecker::batteryCb(const tobas_msgs::Battery& battery)
 {
-  battery_ = battery;
-
-  if (!battery_received_)
+  // 電圧の警告ライン
+  if (battery.voltage < warn_voltage_)
   {
-    battery_received_ = true;
+    rosWarnThrottle(
+      kWarnPeriod,
+      "Battery voltage is too low: " << battery.voltage << "V. It is time to stop flying.");
+  }
+
+  // 電圧の危険ライン
+  if (battery.voltage < fatal_voltage_)
+  {
+    rosFatal("Battery voltage is too low: " << battery.voltage << "V. Issuing a landing command.");
+    requestLanding();
   }
 }
 
 void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
 {
-  bs_ = bs;
   t_last_bs_ = ros::Time::now();
-
   if (!bs_received_)
   {
     bs_received_ = true;
+  }
+
+  // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
+  const auto& pos_cov = bs.position_covariance;
+  const auto& rot_cov = bs.orientation_covariance;
+  if (dh_std::max(pos_cov[0], pos_cov[4], pos_cov[8]) > dh_std::sqr(kPositionStddevThreshold))
+  {
+    rosFatal("Position covariance value exceeds the threshold. Issuing a landing command.");
+    requestLanding();
+  }
+  if (max(rot_cov[0], rot_cov[4]) > dh_std::sqr(kAttitudeStddevThreshold))
+  {
+    rosFatal("Attitude covariance value exceeds the threshold. Issuing a landing command.");
+    requestLanding();
+  }
+  if (rot_cov[8] > dh_std::sqr(kHeadingStddevThreshold))
+  {
+    rosFatal("Heading covariance value exceeds the threshold. Issuing a landing command.");
+    requestLanding();
+  }
+
+  // 姿勢角が閾値を超えていたら落とす
+  const auto& euler = bs.pose.euler;
+  if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
+  {
+    rosFatal("The attitude angle exceeds the threshold. Shutting down the system.");
+    requestShutdown();
   }
 }
 
