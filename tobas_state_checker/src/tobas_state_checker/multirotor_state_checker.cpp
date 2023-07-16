@@ -134,7 +134,7 @@ void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
 void MultirotorStateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
 {
   // 温度の警告ライン
-  if (cpu.temperature < kWarnCpuTemperature)
+  if (cpu.temperature > kWarnCpuTemperature)
   {
     rosWarnThrottle(
       kWarnPeriod,
@@ -142,7 +142,7 @@ void MultirotorStateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
   }
 
   // 温度の危険ライン
-  if (cpu.temperature < kFatalCpuTemperture)
+  if (cpu.temperature > kFatalCpuTemperture)
   {
     rosFatal("CPU temperature is too high: " << cpu.temperature << "℃. Issuing a landing command.");
     requestLanding();
