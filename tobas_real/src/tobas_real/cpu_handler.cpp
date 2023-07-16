@@ -30,8 +30,9 @@ void CpuHandler::run()
     {
       rosErrorThrottle(kErrorPeriod, "Failed to open " << kTemperatureFilePath << ".");
     }
-
     file >> temp_millidegrees_;
+
+    cpu_msg_.header.stamp = ros::Time::now();
     cpu_msg_.temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
 
     cpu_pub_.publish(cpu_msg_);
