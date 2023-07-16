@@ -239,7 +239,7 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
             rot_var_geomag_description,
             minimum=1,
             maximum=5000,
-            default=100,
+            default=1,
         )
         self._rows.addWidget(self.rot_var_geomag)
 
