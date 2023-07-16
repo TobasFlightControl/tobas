@@ -16,7 +16,8 @@ class BarometerHandler : public tobas::BaseNode
   // MS5611(http://www.kyohritsu.jp/eclib/OTHER/DATASHEET/SENSOR/ms561101ba03.pdf)
   // 正確度と精度(https://www.hitachi-hightech.com/jp/ja/knowledge/semiconductor/room/manufacturing/accuracy-precision.html)
   // 精度(precision)がノイズにあたり，それ関する情報は無かった
-  static constexpr double kBarNoiseStd = 1.;  // TODO: センサの精度を計測する
+  // TODO: 実際のデータには白色ノイズモデルでは表せないバイアスが乗っているため，モデルから考え直す
+  static constexpr double kBarNoiseStd = 10.;
 
   using super = tobas::BaseNode;
 

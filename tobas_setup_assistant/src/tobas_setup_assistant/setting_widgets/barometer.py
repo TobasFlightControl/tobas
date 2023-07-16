@@ -44,7 +44,7 @@ class BarometerWidget(BaseSettingWidget):
             pressure_var_description,
             decimals=2,
             minimum=0.,
-            default=1.,
+            default=10.,
             suffix=" Pa^2"
         )
         self._rows.addWidget(self.pressure_var)
