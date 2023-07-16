@@ -156,6 +156,7 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
 
   // (260) ノミナル状態のキネマティクス
   nominal_state_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * sqr(dt);
+  // nominal_state_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt;  // 加速度の位置への寄与を無視
   nominal_state_.block<3, 1>(kVelIdx, 0) += (acc_W + grav_W_) * dt;
   nominal_state_.block<4, 1>(kQuatIdx, 0) =
     et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();

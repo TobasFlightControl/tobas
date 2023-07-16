@@ -178,9 +178,14 @@ void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
   // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
   const auto& pos_cov = bs.position_covariance;
   const auto& rot_cov = bs.orientation_covariance;
-  if (dh_std::max(pos_cov[0], pos_cov[4], pos_cov[8]) > dh_std::sqr(kPositionStddevThreshold))
+  if (max(pos_cov[0], pos_cov[4]) > dh_std::sqr(kHorizontalPositionStddevThreshold))
   {
-    rosFatal("Position covariance value exceeds the threshold. Issuing a landing command.");
+    rosFatal("Horizontal Position covariance exceeds the threshold. Issuing a landing command.");
+    requestLanding();
+  }
+  if (pos_cov[8] > dh_std::sqr(kVerticalPositionStddevThreshold))
+  {
+    rosFatal("Vertical Position variance exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
   if (max(rot_cov[0], rot_cov[4]) > dh_std::sqr(kAttitudeStddevThreshold))
