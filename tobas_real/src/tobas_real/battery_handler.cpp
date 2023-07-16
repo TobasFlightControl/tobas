@@ -17,6 +17,7 @@ BatteryHandler::BatteryHandler()
   getRosParams();
   adc_.initialize();
   registerPublishers();
+  registerSubscribers();
 }
 
 void BatteryHandler::run()

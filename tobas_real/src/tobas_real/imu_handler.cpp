@@ -18,6 +18,7 @@ ImuHandler::ImuHandler() : super()
   setupImu();
   setCovarianceMatrices();
   registerPublishers();
+  registerSubscribers();
 }
 
 void ImuHandler::run()
