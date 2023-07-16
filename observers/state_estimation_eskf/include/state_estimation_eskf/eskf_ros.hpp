@@ -45,7 +45,8 @@ private:
   // 固定値
   double lat_0_;            // 緯度のゼロ点
   double lon_0_;            // 経度のゼロ点
-  double alt_0_;            // 高度のゼロ点
+  double alt_0_bar_;        // 気圧センサから求めた高度のゼロ点
+  double alt_0_gps_;        // GPSから求めた高度のゼロ点
   Eigen::Quaterniond q_0_;  // 姿勢の初期値
 
   bool is_initialized_;
@@ -64,7 +65,7 @@ private:
   Eigen::Vector3d a_m_;
   Eigen::Vector3d w_m_;
   Eigen::Vector3d mag_m_;
-  Eigen::Vector2d xy_m_;
+  Eigen::Vector3d pos_m_;
   Eigen::Vector3d vel_m_;
   Eigen::Matrix3d rot_acc_cov_;
   Eigen::Matrix3d rot_mag_cov_;
@@ -76,10 +77,11 @@ private:
   double ref_mag_north_;
   double ref_mag_east_;
   double ref_mag_down_;
-  double gyro_noise_density_;                             // rad/s/sqrt(hz)
-  double gyro_random_walk_;                               // rad/s^2/sqrt(hz)
-  double acc_noise_density_;                              // m/s^2/sqrt(hz)
-  double acc_random_walk_;                                // m/s^3/sqrt(hz)
+  double gyro_noise_density_;  // rad/s/sqrt(hz)
+  double gyro_random_walk_;    // rad/s^2/sqrt(hz)
+  double acc_noise_density_;   // m/s^2/sqrt(hz)
+  double acc_random_walk_;     // m/s^3/sqrt(hz)
+  bool use_bar_;
   bool use_gps_;
   double gps_pos_stddev_thr_;                             // [m]
   GeomagObserveMethod geomag_observe_method_;

@@ -62,6 +62,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam("~acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
   dh_ros::getParam("~acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
 
+  dh_ros::getParam("~use_barometer", use_bar_, kDefaultUseBarometer);
   dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
     "~gps_position_stddev_threshold", gps_pos_stddev_thr_, kDefaultGpsPositionStddevThreshold,
@@ -97,7 +98,11 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &ErrorStateKalmanFilterRos::eventCb, this);
   imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
   mag_sub_ = nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
-  bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
+
+  if (use_bar_)
+  {
+    bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
+  }
 
   if (use_gps_)
   {
@@ -112,7 +117,11 @@ bool ErrorStateKalmanFilterRos::isReady()
 
   ok &= imu_received_;
   ok &= mag_received_;
-  ok &= bar_received_;
+
+  if (use_bar_)
+  {
+    ok &= bar_received_;
+  }
 
   if (use_gps_)
   {
@@ -200,12 +209,13 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
                      << "Ground Speed:\n"
                      << result->ground_speed);
 
-  // 経緯度
+  // GPS
   lat_0_ = result->gps.latitude;
   lon_0_ = result->gps.longitude;
+  alt_0_gps_ = result->gps.altitude;
 
-  // 高度
-  alt_0_ = pressureToAltitude(result->air_pressure.fluid_pressure);
+  // Barometer
+  alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
 
   // 初期姿勢
   tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
@@ -382,7 +392,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
   double z_abs, z_var;
   pressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
 
-  const double z_m = z_abs - alt_0_;
+  const double z_m = z_abs - alt_0_bar_;
   eskf_.measureAltitude(z_m, z_var);
 }
 
@@ -398,15 +408,13 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
     return;
   }
 
-  gpsToCartRelative(gps.latitude, gps.longitude, lat_0_, lon_0_, xy_m_.x(), xy_m_.y());
+  gpsToCartRelative(gps.latitude, gps.longitude, lat_0_, lon_0_, pos_m_.x(), pos_m_.y());
+  pos_m_.z() = gps.altitude - alt_0_gps_;
 
-  Matrix2d cov;
-  cov(0, 0) = gps.position_covariance[0];
-  cov(0, 1) = gps.position_covariance[1];
-  cov(1, 0) = gps.position_covariance[3];
-  cov(1, 1) = gps.position_covariance[4];
+  auto cov_copy = gps.position_covariance;
+  Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
-  eskf_.measureXY(xy_m_, cov);
+  eskf_.measureXYZ(pos_m_, cov);
 }
 
 void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
@@ -441,7 +449,7 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn("Magnetometer data is not received yet.");
   }
 
-  if (!bar_received_)
+  if (use_bar_ && !bar_received_)
   {
     rosWarn("Barometer data is not received yet.");
   }

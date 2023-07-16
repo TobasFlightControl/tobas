@@ -26,6 +26,7 @@ static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
 static constexpr double kWaitToPublish = 3.;  // 状態安定のためESKFが稼働してから少し待つ [s]
 
 static const std::string kDefaultGeomagObserveMethod = "rpy";
+static constexpr bool kDefaultUseBarometer = true;
 static constexpr bool kDefaultUseGps = true;
 static constexpr double kDefaultGpsPositionStddevThreshold = 0.3;  // [m]
 }  // namespace state_estimation_eskf

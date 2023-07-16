@@ -289,6 +289,7 @@ class PackageGenerator(QWidget):
                 "gyro_random_walk": imu.gyro_random_walk.get(),
                 "acc_noise_density": imu.acc_noise_density.get(),
                 "acc_random_walk": imu.acc_random_walk.get(),
+                "use_barometer": False,  # TODO: 選択できるように
                 "use_gps": gps.equipped(),
                 "gps_position_stddev_threshold": eskf.gps_pos_stddev_threshold.get(),
                 "geomag_observe_method": "yaw_only",
