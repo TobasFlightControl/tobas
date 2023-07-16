@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ros/ros.h>
-
 #include <Navio2/RCOutput_Navio2.h>
 
 #include <dh_ros_tools/timer.hpp>
@@ -15,6 +14,9 @@ namespace tobas_real
 {
 class MotorsHandler_PWM : public tobas::BaseNode
 {
+  static constexpr double kControlRate = 200.;           // [Hz]
+  static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
+
   using super = tobas::BaseNode;
 
 public:

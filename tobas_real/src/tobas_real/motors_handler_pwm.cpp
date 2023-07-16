@@ -8,9 +8,6 @@
 #include "../../include/tobas_real/motors_handler_pwm.hpp"
 #include "../../include/tobas_real/common.hpp"
 
-#define CONTROL_RATE 1000.            // [Hz]
-#define AUTO_STOP_TIME_THRESHOLD 0.5  // [s]
-
 using namespace std;
 using namespace dh_std;
 
@@ -52,18 +49,18 @@ void MotorsHandler_PWM::run()
   sendDisarm();
   rosInfo("Disarming finished. The motors are ready to rotate.");
 
-  dh_ros::Rate rate(CONTROL_RATE);
+  dh_ros::Rate rate(kControlRate);
   while (ros::ok())
   {
     // Check elapsed time after last command
     const auto time_after_last_cmd = (ros::Time::now() - last_cmd_time_).toSec();
-    if (is_activated_ && time_after_last_cmd > AUTO_STOP_TIME_THRESHOLD)
+    if (is_activated_ && time_after_last_cmd > kAutoStopTimeThreshold)
     {
       dh_std::fill(pwm_periods_, kPwmDisarm);
       is_activated_ = false;
       rosInfo(
         "The rotors are automatically stopped because "
-        << AUTO_STOP_TIME_THRESHOLD << " seconds have elapsed since the last command.");
+        << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
     }
 
     // Set PWM duty cycles
