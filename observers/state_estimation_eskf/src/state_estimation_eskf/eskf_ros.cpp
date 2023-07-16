@@ -410,6 +410,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
 
   gpsToCartRelative(gps.latitude, gps.longitude, lat_0_, lon_0_, pos_m_.x(), pos_m_.y());
   pos_m_.z() = gps.altitude - alt_0_gps_;
+  // cout << "Measured position: " << endl << pos_m_ << endl;
 
   auto cov_copy = gps.position_covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
