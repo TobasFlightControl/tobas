@@ -13,7 +13,7 @@
 
 namespace tobas_keyboard_teleop
 {
-static constexpr double kDefaultMaxLinearVelocity = 2.;
+static constexpr double kDefaultMaxLinearVelocity = 5.;
 static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
 static constexpr double kDefaultMinimumX = -100.;
 static constexpr double kDefaultMaximumX = +100.;
