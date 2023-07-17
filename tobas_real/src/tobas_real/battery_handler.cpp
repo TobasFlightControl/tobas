@@ -6,9 +6,9 @@
 
 // https://docs.emlid.com/navio2/dev/adc/
 #define POWER_MODULE_VOLTAGE_CHANNEL 2
-#define VOLTAGE_MULTIPLIER (11.3 / 1000.)
+#define VOLTAGE_COEF 13.0  // TODO
 
-#define FREQ 100.  // [Hz]
+#define FREQ 100.          // [Hz]
 
 namespace tobas_real
 {
@@ -36,7 +36,7 @@ void BatteryHandler::run()
 
     // Fill battery message
     battery_msg_.header.stamp = ros::Time::now();
-    battery_msg_.voltage = static_cast<double>(a2_value) * VOLTAGE_MULTIPLIER;
+    battery_msg_.voltage = static_cast<double>(a2_value) * VOLTAGE_COEF * 1e-3;
 
     // Publish battery message
     battery_pub_.publish(battery_msg_);
