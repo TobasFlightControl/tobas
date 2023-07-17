@@ -87,13 +87,13 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::onUpdate()
 {
-  common::Time cur_time = world_->SimTime();
-  double dt = (cur_time - last_time_).Double();
+  const common::Time cur_time = world_->SimTime();
+  const double dt = (cur_time - last_time_).Double();
   last_time_ = cur_time;
 
   // Get linear acceleration and angular velocity from simulation
-  Pose3d T_W_B = link_->WorldPose();
-  Quaterniond R_W_B = T_W_B.Rot();
+  const Pose3d T_W_B = link_->WorldPose();
+  const Quaterniond R_W_B = T_W_B.Rot();
   Vector3d acc_B = link_->RelativeLinearAccel() - R_W_B.RotateVectorReverse(gravity_W_);
   Vector3d gyro_B = link_->RelativeAngularVel();
 
@@ -105,27 +105,31 @@ void GazeboImuPlugin::onUpdate()
   vectorGazeboToRos(acc_B, imu_msg_.linear_acceleration);
   vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
 
-  double acc_var = dh_std::sqr(acc_noise_density_) / dt;
+  const double acc_var = dh_std::sqr(acc_noise_density_) / dt;
   dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
-  double gyro_var = dh_std::sqr(gyro_noise_density_) / dt;
+  const double gyro_var = dh_std::sqr(gyro_noise_density_) / dt;
   dh_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
   imu_pub_.publish(imu_msg_);
+
+  // For debug
+  // cout << "Accelerometer bias: " << acc_bias_ << endl;
+  // cout << "Gyroscope bias: " << gyro_bias_ << endl;
 }
 
 void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
 {
   // Gyrosocpe
-  double tau_g = gyro_bias_corr_time_;
+  const double tau_g = gyro_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt.
-  double sigma_g_d = 1 / sqrt(dt) * gyro_noise_density_;
-  double sigma_b_g = gyro_random_walk_;
+  const double sigma_g_d = 1 / sqrt(dt) * gyro_noise_density_;
+  const double sigma_b_g = gyro_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114].
-  double sigma_b_g_d = sqrt(-sigma_b_g * sigma_b_g * tau_g / 2. * (exp(-2. * dt / tau_g) - 1.));
+  const double sigma_b_g_d = sqrt(-sigma_b_g * sigma_b_g * tau_g / 2 * (exp(-2 * dt / tau_g) - 1));
   // Compute state-transition.
-  double phi_g_d = exp(-1. / tau_g * dt);
+  const double phi_g_d = exp(-1 / tau_g * dt);
   // Simulate gyroscope noise processes and add them to the true angular rate.
   for (int i = 0; i < 3; ++i)
   {
@@ -134,14 +138,14 @@ void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
   }
 
   // Accelerometer
-  double tau_a = acc_bias_corr_time_;
+  const double tau_a = acc_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt.
-  double sigma_a_d = 1 / sqrt(dt) * acc_noise_density_;
-  double sigma_b_a = acc_random_walk_;
+  const double sigma_a_d = 1 / sqrt(dt) * acc_noise_density_;
+  const double sigma_b_a = acc_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114].
-  double sigma_b_a_d = sqrt(-sigma_b_a * sigma_b_a * tau_a / 2. * (exp(-2. * dt / tau_a) - 1.));
+  const double sigma_b_a_d = sqrt(-sigma_b_a * sigma_b_a * tau_a / 2 * (exp(-2 * dt / tau_a) - 1));
   // Compute state-transition.
-  double phi_a_d = exp(-1. / tau_a * dt);
+  const double phi_a_d = exp(-1. / tau_a * dt);
   // Simulate accelerometer noise processes and add them to the true linear acceleration.
   for (int i = 0; i < 3; ++i)
   {
