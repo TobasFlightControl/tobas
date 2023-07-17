@@ -112,19 +112,33 @@ class ObserverWidget_Base(QWidget):
         abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
-        gps_pos_stddev_threshold_description = "GPSを用いて初期位置合わせをする際の，"\
-            + "真値に対する標準偏差の閾値．"\
+        gps_hor_pos_stddev_threshold_description = "GPSを用いて初期位置合わせをする際の，"\
+            + "水平位置の真値に対する標準偏差の閾値．"\
             + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
-        self.gps_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
-            "GPS position std. dev threshold",
-            gps_pos_stddev_threshold_description,
+        self.gps_hor_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
+            "GPS horizontal position std. dev threshold",
+            gps_hor_pos_stddev_threshold_description,
             decimals=2,
             minimum=0.01,
             maximum=1.,
             default=0.3,
             suffix=" m"
         )
-        self._rows.addWidget(self.gps_pos_stddev_threshold)
+        self._rows.addWidget(self.gps_hor_pos_stddev_threshold)
+
+        gps_ver_pos_stddev_threshold_description = "GPSを用いて初期位置合わせをする際の，"\
+            + "垂直位置の真値に対する標準偏差の閾値．"\
+            + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
+        self.gps_ver_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
+            "GPS vertical position std. dev threshold",
+            gps_ver_pos_stddev_threshold_description,
+            decimals=2,
+            minimum=0.01,
+            maximum=1.,
+            default=0.6,
+            suffix=" m"
+        )
+        self._rows.addWidget(self.gps_ver_pos_stddev_threshold)
 
 
 class ObserverWidget_Cascade(ObserverWidget_Base):

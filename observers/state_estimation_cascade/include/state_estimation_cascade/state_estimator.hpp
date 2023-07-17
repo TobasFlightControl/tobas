@@ -62,7 +62,8 @@ private:
   // rosparams
   double gravity_;
   bool use_gps_;
-  double gps_pos_stddev_thr_;  // [m]
+  double gps_hor_pos_stddev_thr_;  // [m]
+  double gps_ver_pos_stddev_thr_;  // [m]
   double grav_var_;
 
   // PubSub
@@ -84,7 +85,7 @@ private:
 
   bool isReady();
   void initialize(const ImuMsg& imu);
-  void setZeroPositions();
+  static_state_determination::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updatePoseVelMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
 

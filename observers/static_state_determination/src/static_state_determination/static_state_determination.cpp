@@ -92,7 +92,9 @@ void StaticStateDeterminationServer::fillResult()
 
 bool StaticStateDeterminationServer::isValidGoal()
 {
-  if (goal_->gps_position_stddev_threshold <= 0.)
+  if (
+    goal_->gps_horizontal_position_stddev_threshold <= 0.
+    || goal_->gps_vertical_position_stddev_threshold <= 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Position std. dev must be positive.");
@@ -116,11 +118,15 @@ bool StaticStateDeterminationServer::isValidResult()
     return false;
 
   const auto gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
-  if (gps_x_stddev > goal_->gps_position_stddev_threshold)
+  if (gps_x_stddev > goal_->gps_horizontal_position_stddev_threshold)
     return false;
 
   const auto gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
-  if (gps_y_stddev > goal_->gps_position_stddev_threshold)
+  if (gps_y_stddev > goal_->gps_horizontal_position_stddev_threshold)
+    return false;
+
+  const auto gps_z_stddev = sqrt(gps_sum_.position_covariance[8] / sqr(gps_count_));
+  if (gps_z_stddev > goal_->gps_vertical_position_stddev_threshold)
     return false;
 
   return true;
@@ -242,11 +248,14 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
       // フィードバックを発行
       feedback_.gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
       feedback_.gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
+      feedback_.gps_z_stddev = sqrt(gps_sum_.position_covariance[8] / sqr(gps_count_));
       as_.publishFeedback(feedback_);
 
       // コンソールにもフィードバックを出す
-      rosInfoThrottle(kInfoPeriod, "X std. dev: " << feedback_.gps_x_stddev << "[m]");
-      rosInfoThrottle(kInfoPeriod, "Y std. dev: " << feedback_.gps_y_stddev << "[m]");
+      rosInfoThrottle(
+        kInfoPeriod, "GPS position std. dev [m]: (" << feedback_.gps_x_stddev << ", "
+                                                    << feedback_.gps_y_stddev << ", "
+                                                    << feedback_.gps_z_stddev << ")");
     }
 
     // 条件を満たしていれば終了

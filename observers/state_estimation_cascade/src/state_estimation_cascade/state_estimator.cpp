@@ -11,7 +11,6 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
-#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <static_state_determination/common.hpp>
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
@@ -45,8 +44,11 @@ void StateEstimator::getRosParams()
 
   dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
-    "~gps_position_stddev_threshold", gps_pos_stddev_thr_, kDefaultGpsPositionStddevThreshold,
-    dh_ros::POSITIVE);
+    "~gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
+    kDefaultGpsHorPosStddevThreshold, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    "~gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
+    kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
 
   // Dynamic parameters
   dh_ros::getParam("~gravity_variance", grav_var_, dh_ros::POSITIVE);
@@ -102,7 +104,7 @@ void StateEstimator::initialize(const ImuMsg& imu)
   ros::Time start_time = ros::Time::now();
 
   // 静止状態でのセンサデータを平均してゼロ点を決める
-  setZeroPositions();
+  const auto result = setZeroPositions();
 
   // カルマンフィルタを初期化
   // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
@@ -111,11 +113,11 @@ void StateEstimator::initialize(const ImuMsg& imu)
     Vector3d::Zero(),             // init velocity
     Vector3d::Zero(),             // init acceleration without gravity
     Vector3d(0., 0., -gravity_),  // init gravity
-    Matrix3d::Zero(),             // init position cov
-    Matrix3d::Zero(),             // init velocity cov
-    Matrix3d::Zero(),             // init acceleration cov
-    Matrix3d::Zero(),             // init gravity cov
-    grav_var_                     // gravity variance
+    Map<const Matrix3d>(result->gps.position_covariance.data()),  // Initial position cov
+    Map<const Matrix3d>(result->ground_speed.covariance.data()),  // Initial velocity cov
+    Matrix3d::Zero(),                                             // init acceleration cov
+    Matrix3d::Zero(),                                             // init gravity cov
+    grav_var_                                                     // gravity variance
   );
 
   // ヨー角の初期値
@@ -130,7 +132,8 @@ void StateEstimator::initialize(const ImuMsg& imu)
   t_last_ = imu.header.stamp + duration;
 }
 
-void StateEstimator::setZeroPositions()
+static_state_determination::StaticStateDeterminationResultConstPtr
+StateEstimator::setZeroPositions()
 {
   actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac(
     static_state_determination::kActionName);
@@ -141,7 +144,8 @@ void StateEstimator::setZeroPositions()
   rosInfo(
     "Action server '" << static_state_determination::kActionName << "' started, sending goal.");
   static_state_determination::StaticStateDeterminationGoal goal;
-  goal.gps_position_stddev_threshold = gps_pos_stddev_thr_;
+  goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
+  goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
   ac.sendGoal(goal);
 
   const bool finished_before_timeout = ac.waitForResult();
@@ -175,6 +179,8 @@ void StateEstimator::setZeroPositions()
 
   // 高度
   alt_0_ = pressureToAltitude(result->air_pressure.fluid_pressure);
+
+  return result;
 }
 
 void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)

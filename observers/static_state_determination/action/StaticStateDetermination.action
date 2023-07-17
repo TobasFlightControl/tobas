@@ -1,5 +1,6 @@
 # goal
-float64 gps_position_stddev_threshold  # [m]
+float64 gps_horizontal_position_stddev_threshold  # [m]
+float64 gps_vertical_position_stddev_threshold  # [m]
 
 ---
 
@@ -27,3 +28,4 @@ int8 UNKNOWN_ERROR = -3
 # feedback
 float64 gps_x_stddev  # [m]
 float64 gps_y_stddev  # [m]
+float64 gps_z_stddev  # [m]

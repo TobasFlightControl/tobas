@@ -14,7 +14,6 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
-#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <static_state_determination/common.hpp>
 
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
@@ -65,8 +64,11 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam("~use_barometer", use_bar_, kDefaultUseBarometer);
   dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
-    "~gps_position_stddev_threshold", gps_pos_stddev_thr_, kDefaultGpsPositionStddevThreshold,
-    dh_ros::POSITIVE);
+    "~gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
+    kDefaultGpsHorPosStddevThreshold, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    "~gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
+    kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
 
   string geomag_observe_method;
   dh_ros::getParam("~geomag_observe_method", geomag_observe_method, kDefaultGeomagObserveMethod);
@@ -138,25 +140,25 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   ros::Time start_time = ros::Time::now();
 
   // 静止状態でのセンサデータを平均してゼロ点を決める
-  setZeroPositions();
+  const auto result = setZeroPositions();
 
   // ISKFを初期化
-  // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
+  // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
   eskf_.initialize(
-    acc_noise_density_,                                        // accelerometer noise density
-    gyro_noise_density_,                                       // gyrometer noise density
-    acc_random_walk_,                                          // accelerometer random walk
-    gyro_random_walk_,                                         // gyrometer random walk
-    Vector3d(0., 0., -gravity_),                               // gravity vector
-    Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),  // magnetic field (NWU)
-    Vector3d::Zero(),                                          // init position
-    Vector3d::Zero(),                                          // init velocity
-    q_0_,                                                      // init quaternion
-    Matrix3d::Zero(),                                          // init position cov
-    Matrix3d::Zero(),                                          // init velocity cov
-    Matrix3d::Zero(),                                          // init quaternion cov
-    Matrix3d::Zero(),                                          // init accelerometer bias cov
-    Matrix3d::Zero()                                           // init gyrometer bias cov
+    acc_noise_density_,                                           // Accelerometer noise density
+    gyro_noise_density_,                                          // Gyrometer noise density
+    acc_random_walk_,                                             // Accelerometer random walk
+    gyro_random_walk_,                                            // Gyrometer random walk
+    Vector3d(0., 0., -gravity_),                                  // Gravity vector
+    Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),     // Magnetic field (NWU)
+    Vector3d::Zero(),                                             // Init position
+    Vector3d::Zero(),                                             // Init velocity
+    q_0_,                                                         // Init quaternion
+    Map<const Matrix3d>(result->gps.position_covariance.data()),  // Init position cov
+    Map<const Matrix3d>(result->ground_speed.covariance.data()),  // Init velocity cov
+    Vector3d::Constant(kInitRotStddev).asDiagonal(),              // Init quaternion cov
+    Matrix3d::Zero(),                                             // Init accel bias cov
+    Matrix3d::Zero()                                              // Init gyro bias cov
   );
 
   // ヨー角の初期値
@@ -170,7 +172,8 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   t_last_ = t_ready_ = stamp + duration;
 }
 
-void ErrorStateKalmanFilterRos::setZeroPositions()
+static_state_determination::StaticStateDeterminationResultConstPtr
+ErrorStateKalmanFilterRos::setZeroPositions()
 {
   actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac(
     static_state_determination::kActionName);
@@ -181,7 +184,8 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   rosInfo(
     "Action server '" << static_state_determination::kActionName << "' started, sending goal.");
   static_state_determination::StaticStateDeterminationGoal goal;
-  goal.gps_position_stddev_threshold = gps_pos_stddev_thr_;
+  goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
+  goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
   ac.sendGoal(goal);
 
   const bool finished_before_timeout = ac.waitForResult();
@@ -222,6 +226,8 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
   const Vector3d m0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
   eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
+
+  return result;
 }
 
 void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
@@ -265,8 +271,9 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   state_.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
 
   // For debug
-  // std::cout << "Estiamted Quaternion: " << endl << q << endl;
-  // std::cout << "Estimated state:" << endl << state_ << endl;
+  // cout << "Estiamted Quaternion:" << endl << q << endl;
+  // cout << "Estimated accelerometer bias:" << endl << eskf_.getAccelBias() << endl;
+  // cout << "Estimated gyroscope bias:" << endl << eskf_.getGyroBias() << endl;
 }
 
 bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)

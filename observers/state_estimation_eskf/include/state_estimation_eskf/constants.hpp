@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 
+#include <dh_std_tools/math.hpp>
+
 namespace state_estimation_eskf
 {
 static constexpr uint32_t kPosIdx = 0;
@@ -24,9 +26,11 @@ static constexpr uint32_t kDeltaStateSize = kDeltaGyroBiasIdx + 3;
 static constexpr double kTimerPeriod = 5.;           // [s]
 static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
 static constexpr double kWaitToPublish = 3.;  // 状態安定のためESKFが稼働してから少し待つ [s]
+static constexpr double kInitRotStddev = dh_std::deg2rad(10.);
 
 static const std::string kDefaultGeomagObserveMethod = "rpy";
 static constexpr bool kDefaultUseBarometer = true;
 static constexpr bool kDefaultUseGps = true;
-static constexpr double kDefaultGpsPositionStddevThreshold = 0.3;  // [m]
+static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]
+static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
 }  // namespace state_estimation_eskf

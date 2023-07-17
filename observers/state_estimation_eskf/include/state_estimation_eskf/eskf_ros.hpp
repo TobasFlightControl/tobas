@@ -12,6 +12,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
+#include <static_state_determination/StaticStateDeterminationAction.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
 
 #include "./eskf.hpp"
@@ -83,7 +84,8 @@ private:
   double acc_random_walk_;     // m/s^3/sqrt(hz)
   bool use_bar_;
   bool use_gps_;
-  double gps_pos_stddev_thr_;                             // [m]
+  double gps_hor_pos_stddev_thr_;                         // [m]
+  double gps_ver_pos_stddev_thr_;                         // [m]
   GeomagObserveMethod geomag_observe_method_;
   state_estimation_eskf::StateEstimationEskfConfig cfg_;  // 動的パラメータ
 
@@ -107,7 +109,7 @@ private:
 
   bool isReady();
   void initialize(const ros::Time& stamp);
-  void setZeroPositions();
+  static_state_determination::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
 
