@@ -9,9 +9,9 @@
   </joint>
   <link name="base_link_inertia">
     <inertial>
-      <mass value="0.988937"/>
-      <origin xyz="-3.166e-3 3.9e-5 -0.032225" rpy="0 0 0"/>
-      <inertia ixx="0.02344" ixy="-2.0875334e-5" ixz="1.555e-4" iyy="0.02415" iyz="-2.2392257e-5" izz="0.03315"/>
+      <mass value="1.62"/>
+      <origin xyz="5.939e-3 -4.1e-5 -0.033115" rpy="0 0 0"/>
+      <inertia ixx="0.02340" ixy="-2.0987835e-5" ixz="-1.533e-4" iyy="0.02368" iyz="-2.2392127e-5" izz="0.03265"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
