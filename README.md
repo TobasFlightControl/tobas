@@ -99,6 +99,16 @@ $ roslaunch (tobas_config_pkg) real.launch
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
 
+### ADC Calibration
+
+Make sure battery is connected to FC properly.\
+Execute the following in FC:
+
+```bash
+$ su
+$ roslaunch tobas_real adc_calibration.launch
+```
+
 ### ESC Calibration
 
 Make sure battery and ESCs are connected to FC properly.\
