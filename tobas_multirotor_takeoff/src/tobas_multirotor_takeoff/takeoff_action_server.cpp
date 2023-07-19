@@ -6,8 +6,6 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-// 外部リンケージをもつポインタ型はODR違反が起きる可能性があるため，ソースでconstexpr変数の再定義を行う必要がある．
-// 再定義ではstaticを省略する．
 constexpr char MultirotorTakeoffServer::kActionName[];
 
 MultirotorTakeoffServer::MultirotorTakeoffServer()
