@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_multirotor_takeoff" type="takeoff_action_server_node" name="takeoff_action_server" output="screen"/>
+
+</launch>

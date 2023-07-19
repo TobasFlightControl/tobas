@@ -114,7 +114,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   cmd_.yaw = bs_.pose.euler.yaw;
 
   const auto start_alt = bs_.pose.pos.z();
-  ros::Time start_time = ros::Time::now();
+  const auto start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
 
   while (ros::ok())
