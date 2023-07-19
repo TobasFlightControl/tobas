@@ -61,7 +61,7 @@ void CpuHandler::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      // ros::shutdown();
       break;
     default:
       break;
