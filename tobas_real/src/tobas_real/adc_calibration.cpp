@@ -38,7 +38,7 @@ void AdcCalibrator::run()
 
   // ADCの測定値を取得
   int a2_sum = 0;
-  for (int _ = 0; _ < kDataCount; ++_)
+  for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const int a2_value = adc_.read(kPowerModuleVoltageChannel);
     rosInfoThrottle(kInfoPeriod, "A2 value: " << a2_value);
