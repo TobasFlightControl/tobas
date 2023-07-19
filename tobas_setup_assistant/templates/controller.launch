@@ -9,6 +9,7 @@
     <!-- Bringup controller -->
     <include if="$(eval control_mode=='position')" file="$(find {{ controller_pkg }})/launch/position_control.launch"/>
     <include if="$(eval control_mode=='velocity')" file="$(find {{ controller_pkg }})/launch/velocity_control.launch"/>
+    <include if="$(eval control_mode=='rotation')" file="$(find {{ controller_pkg }})/launch/rotation_control.launch"/>
   </group>
 
 </launch>
