@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_real" type="adc_calibration_node" name="adc_calibration" output="screen" required="true"/>
+
+</launch>
