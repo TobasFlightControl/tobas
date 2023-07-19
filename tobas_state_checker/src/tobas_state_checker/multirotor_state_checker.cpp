@@ -47,17 +47,6 @@ void MultirotorStateChecker::run()
       requestShutdown();
     }
 
-    // GCSとの通信が切れるなどして一定時間コマンドを受け取っていない場合は着陸指令を出す
-    if (cmd_received_ && (cur_time - t_last_cmd_).toSec() > kCommandTimeout)
-    {
-      cmd_received_ = false;
-
-      rosWarn(
-        "Issuing a landing command as no commands have been received for " << kCommandTimeout
-                                                                           << " seconds.");
-      requestLanding();
-    }
-
     ros::spinOnce();
     rate.sleep();
   }
@@ -85,7 +74,6 @@ void MultirotorStateChecker::registerSubscribers()
   cpu_sub_ = nh_.subscribe("cpu", 1, &MultirotorStateChecker::cpuCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &MultirotorStateChecker::batteryCb, this);
   bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorStateChecker::baseStateCb, this);
-  cmd_sub_ = nh_.subscribe("command/velocity_yaw", 1, &MultirotorStateChecker::commandCb, this);
 }
 
 void MultirotorStateChecker::requestLanding()
@@ -205,23 +193,6 @@ void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
   {
     rosFatal("The attitude angle exceeds the threshold. Shutting down the system.");
     requestShutdown();
-  }
-}
-
-void MultirotorStateChecker::commandCb(const tobas_msgs::VelocityYaw& cmd)
-{
-  // 緊急コマンドはスキップ
-  if (cmd.level.data == tobas_msgs::CommandLevel::EMERGENCY)
-  {
-    return;
-  }
-
-  // 最新のコマンドを受け取った時刻を更新
-  t_last_cmd_ = ros::Time::now();
-
-  if (!cmd_received_)
-  {
-    cmd_received_ = true;
   }
 }
 }  // namespace tobas_state_checker

@@ -64,7 +64,6 @@ bool PositionControllerRos::isReady()
 
 void PositionControllerRos::initialize()
 {
-  t_last_cmd_ = ros::Time::now();
 }
 
 void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
@@ -106,15 +105,6 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
     return;
   }
 
-  // GCSとの通信が切れるなどして一定時間コマンドを受け取っていない場合は停止
-  if (cmd_received_ && (ros::Time::now() - t_last_cmd_).toSec() > kCommandTimeoutThreshold)
-  {
-    cmd_received_ = false;
-    rosInfo(
-      "Stop publishing velocity command as no commands have been received for "
-      << kCommandTimeoutThreshold << " seconds.");
-  }
-
   if (!cmd_received_)
   {
     return;
@@ -143,7 +133,6 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_
   }
 
   pos_yaw_in_ = pos_yaw;
-  t_last_cmd_ = ros::Time::now();
 
   if (!cmd_received_)
   {

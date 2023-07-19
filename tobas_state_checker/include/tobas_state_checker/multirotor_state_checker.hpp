@@ -7,7 +7,6 @@
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/BaseState.h>
-#include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/LandAction.h>
 
 namespace tobas_state_checker
@@ -31,7 +30,6 @@ private:
   bool bs_received_;
   bool cmd_received_;
   ros::Time t_last_bs_;
-  ros::Time t_last_cmd_;
   tobas_msgs::Event event_;
 
   ros::Publisher event_pub_;
@@ -53,6 +51,5 @@ private:
   void cpuCb(const tobas_msgs::Cpu& cpu);
   void batteryCb(const tobas_msgs::Battery& battery);
   void baseStateCb(const tobas_msgs::BaseState& bs);
-  void commandCb(const tobas_msgs::VelocityYaw& cmd);
 };
 }  // namespace tobas_state_checker
