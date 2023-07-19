@@ -3,10 +3,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .gui_teleop import GuiTeleopWidget
 
+import math
 import random
 import rospy
 from typing import List
-from urdf_parser_py.urdf import Robot
+from urdf_parser_py.urdf import Robot, Joint
 from std_msgs.msg import Float64
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -21,6 +22,21 @@ from .utils import remap
 class CommandersWidget(QScrollArea):
 
     LABEL_PSIZE = 12
+    CONTROL_RATE = 30.  # [Hz]
+
+    INITIAL_X = 0.  # [m]
+    INITIAL_Y = 0.  # [m]
+    INITIAL_Z = 1.  # [m]
+    INITIAL_YAW = 0.  # [rad]
+
+    DEFAULT_MINIMUM_X = -10.  # [m]
+    DEFAULT_MAXIMUM_X = 10.  # [m]
+    DEFAULT_MINIMUM_Y = -10.  # [m]
+    DEFAULT_MAXIMUM_Y = 10.  # [m]
+    DEFAULT_MINIMUM_Z = -10.  # [m]
+    DEFAULT_MAXIMUM_Z = 10.  # [m]
+    DEFAULT_MINIMUM_YAW = -math.pi  # [rad]
+    DEFAULT_MAXIMUM_YAW = math.pi  # [rad]
 
     def __init__(self, main: GuiTeleopWidget) -> None:
         super().__init__()
@@ -43,37 +59,37 @@ class CommandersWidget(QScrollArea):
         drone_label.setAlignment(Qt.AlignCenter)
         self._rows.addWidget(drone_label)
 
-        x_min = rospy.get_param("~pose_limit/x/min")
-        x_max = rospy.get_param("~pose_limit/x/max")
-        assert x_min <= 0. <= x_max
+        x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MINIMUM_X)
+        x_max = rospy.get_param("~pose_limit/x/max", self.DEFAULT_MAXIMUM_X)
+        assert x_min <= x_max
         self.drone_cmd_x = Commander("multirotor/x", x_min, x_max)
-        self.drone_cmd_x.set_value(0.)
+        self.drone_cmd_x.set_value(self.INITIAL_X)
         self._rows.addWidget(self.drone_cmd_x)
 
-        y_min = rospy.get_param("~pose_limit/y/min")
-        y_max = rospy.get_param("~pose_limit/y/max")
-        assert y_min <= 0. <= y_max
+        y_min = rospy.get_param("~pose_limit/y/min", self.DEFAULT_MINIMUM_Y)
+        y_max = rospy.get_param("~pose_limit/y/max", self.DEFAULT_MAXIMUM_Y)
+        assert y_min <= y_max
         self.drone_cmd_y = Commander("multirotor/y", y_min, y_max)
-        self.drone_cmd_y.set_value(0.)
+        self.drone_cmd_y.set_value(self.INITIAL_Y)
         self._rows.addWidget(self.drone_cmd_y)
 
-        z_min = rospy.get_param("~pose_limit/z/min")
-        z_max = rospy.get_param("~pose_limit/z/max")
+        z_min = rospy.get_param("~pose_limit/z/min", self.DEFAULT_MINIMUM_Z)
+        z_max = rospy.get_param("~pose_limit/z/max", self.DEFAULT_MAXIMUM_Z)
         assert z_min <= z_max
         self.drone_cmd_z = Commander("multirotor/z", z_min, z_max)
-        self.drone_cmd_z.set_value(z_min)
+        self.drone_cmd_z.set_value(self.INITIAL_Z)
         self._rows.addWidget(self.drone_cmd_z)
 
-        yaw_min = rospy.get_param("~pose_limit/yaw/min")
-        yaw_max = rospy.get_param("~pose_limit/yaw/max")
-        assert yaw_min <= 0. <= yaw_max
+        yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MINIMUM_YAW)
+        yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAXIMUM_YAW)
+        assert yaw_min <= yaw_max
         self.drone_cmd_yaw = Commander("multirotor/yaw", yaw_min, yaw_max)
-        self.drone_cmd_yaw.set_value(0.)
+        self.drone_cmd_yaw.set_value(self.INITIAL_YAW)
         self._rows.addWidget(self.drone_cmd_yaw)
 
         # その他の可動関節
         joint_names = rospy.get_param("active_joint_names")
-        robot = Robot.from_parameter_server("robot_description")
+        robot: Robot = Robot.from_parameter_server("robot_description")
         self.joint_cmds: List[Commander] = []
 
         if len(joint_names) > 0:
@@ -83,7 +99,7 @@ class CommandersWidget(QScrollArea):
             self._rows.addWidget(joint_label)
 
         for joint_name in joint_names:
-            joint = robot.joint_map[joint_name]
+            joint: Joint = robot.joint_map[joint_name]
             commander = Commander(
                 joint_name,
                 joint.limit.lower,

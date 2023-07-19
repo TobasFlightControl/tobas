@@ -15,8 +15,8 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    setup_assistant = GuiTeleopWidget()
-    setup_assistant.show()
+    gui_teleop = GuiTeleopWidget()
+    gui_teleop.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

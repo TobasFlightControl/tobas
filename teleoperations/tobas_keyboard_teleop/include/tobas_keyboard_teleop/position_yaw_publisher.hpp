@@ -13,16 +13,21 @@
 
 namespace tobas_keyboard_teleop
 {
+static constexpr double kInitialX = 0.;
+static constexpr double kInitialY = 0.;
+static constexpr double kInitialZ = 1.;
+static constexpr double kInitialYaw = 0.;
+
 static constexpr double kDefaultMaxLinearVelocity = 5.;
 static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
-static constexpr double kDefaultMinimumX = -100.;
-static constexpr double kDefaultMaximumX = +100.;
-static constexpr double kDefaultMinimumY = -100.;
-static constexpr double kDefaultMaximumY = +100.;
-static constexpr double kDefaultMinimumZ = -3.;
-static constexpr double kDefaultMaximumZ = +100.;
-static constexpr double kDefaultMinimumYaw = std::numeric_limits<double>::lowest();
-static constexpr double kDefaultMaximumYaw = std::numeric_limits<double>::max();
+static constexpr double kDefaultMinimumX = -10.;
+static constexpr double kDefaultMaximumX = +10.;
+static constexpr double kDefaultMinimumY = -10.;
+static constexpr double kDefaultMaximumY = +10.;
+static constexpr double kDefaultMinimumZ = -10.;
+static constexpr double kDefaultMaximumZ = +10.;
+static constexpr double kDefaultMinimumYaw = -M_PI;
+static constexpr double kDefaultMaximumYaw = M_PI;
 
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．

@@ -1,7 +1,4 @@
-#include <string>
-#include <iostream>
-#include <stdio.h>
-#include <unistd.h>
+#include <kdl/frames_io.hpp>
 
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -15,6 +12,15 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
+ostream& operator<<(ostream& os, const tobas_msgs::PositionYaw& arg)
+{
+  os << "x = " << arg.pos.x() << "[m], ";
+  os << "y = " << arg.pos.y() << "[m], ";
+  os << "z = " << arg.pos.z() << "[m], ";
+  os << "yaw = " << arg.yaw << "[rad]";
+  return os;
+}
+
 PositionYawPublisher::PositionYawPublisher()
   : super(),
     keyboard_(getKeyboardControls()),
@@ -42,7 +48,10 @@ PositionYawPublisher::PositionYawPublisher()
   delta_rot_ = max_angvel_ * repeat_interval;
 
   cmd_.level.data = tobas_msgs::CommandLevel::NORMAL;
-  cmd_.pos.z(z_limit_.lower);  // z座標の初期値を制限の下限に設定
+  cmd_.pos.x(kInitialX);
+  cmd_.pos.y(kInitialY);
+  cmd_.pos.z(kInitialZ);
+  cmd_.yaw = kInitialYaw;
 
   registerPublishers();
   registerSubscribers();
@@ -69,49 +78,49 @@ void PositionYawPublisher::run()
     {
       case kKeyCode_W:  // X+
       {
-        rosInfoThrottle(kInfoPeriod, "Moving forward");
+        rosInfo("Moving forward: " << cmd_);
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() + delta_pos_));
         break;
       }
       case kKeyCode_S:  // X-
       {
-        rosInfoThrottle(kInfoPeriod, "Moving backward");
+        rosInfo("Moving backward: " << cmd_);
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() - delta_pos_));
         break;
       }
       case kKeyCode_A:  // Y+
       {
-        rosInfoThrottle(kInfoPeriod, "Moving left");
+        rosInfo("Moving left: " << cmd_);
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() + delta_pos_));
         break;
       }
       case kKeyCode_D:  // Y-
       {
-        rosInfoThrottle(kInfoPeriod, "Moving right");
+        rosInfo("Moving right: " << cmd_);
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() - delta_pos_));
         break;
       }
       case kKeyCode_Up:  // Z+
       {
-        rosInfoThrottle(kInfoPeriod, "Moving up");
+        rosInfo("Moving up: " << cmd_);
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() + delta_pos_));
         break;
       }
       case kKeyCode_Down:  // Z-
       {
-        rosInfoThrottle(kInfoPeriod, "Moving down");
+        rosInfo("Moving down: " << cmd_);
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() - delta_pos_));
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
-        rosInfoThrottle(kInfoPeriod, "Rotating left");
+        rosInfo("Rotating left: " << cmd_);
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw + delta_rot_);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
-        rosInfoThrottle(kInfoPeriod, "Rotating right");
+        rosInfo("Rotating right: " << cmd_);
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw - delta_rot_);
         break;
       }
