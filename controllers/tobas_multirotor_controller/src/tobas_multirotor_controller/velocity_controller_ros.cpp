@@ -345,5 +345,6 @@ void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t
   updateDynamicParams(cfg);
   vel_controller_->reconfigure(dynamic_params_vel_);
   rot_controller_->reconfigure(dynamic_params_rot_);
+  rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller
