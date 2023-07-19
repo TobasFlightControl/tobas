@@ -12,6 +12,8 @@ from .pose_buttons import PoseButtonsWidget
 
 class GuiTeleopWidget(QWidget):
 
+    WAIT_TO_CONNECT = 0.5  # [s]
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -29,12 +31,17 @@ class GuiTeleopWidget(QWidget):
         self.pose_buttons = PoseButtonsWidget(self)
         self._rows.addWidget(self.pose_buttons)
 
+        # 可動ジョイントが無い場合は姿勢ボタンを不可視にする
+        joint_names = rospy.get_param("active_joint_names")
+        if len(joint_names) == 0:
+            self.pose_buttons.setVisible(False)
+
         self.define_connections()
-        
+
         # 接続が完了するまで少し待ってから全ての関節値を発行
-        rospy.sleep(0.5)
+        rospy.sleep(self.WAIT_TO_CONNECT)
         self.commanders.publish()
-    
+
     def define_connections(self) -> None:
         self.commanders.define_connections()
         self.pose_buttons.define_connections()
