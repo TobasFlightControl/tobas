@@ -1,11 +1,19 @@
 #pragma once
 
-#include <cinttypes>
 #include <Navio2/RCOutput_Navio2.h>
 
 namespace tobas_real
 {
 static constexpr double kGravity = 9.80665;  // [m/s^2]
+
+static const std::string kHomeDirectory = getenv("HOME");
+static const std::string kConfigPath = kHomeDirectory + "/.config/tobas/config.ini";
+
+static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";
+
+// https://docs.emlid.com/navio2/dev/adc/
+static constexpr uint32_t kPowerModuleVoltageChannel = 2;
+static constexpr double kDefaultAdcCoef = 11.3;
 
 static constexpr uint32_t kServoRailSize = 14;
 static constexpr double kPwmFrequency = 50.;           // [Hz]

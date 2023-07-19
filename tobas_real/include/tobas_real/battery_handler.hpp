@@ -10,6 +10,8 @@ namespace tobas_real
 {
 class BatteryHandler : public tobas::BaseNode
 {
+  static constexpr double kUpdateRate = 100.;  // [Hz]
+
   using super = tobas::BaseNode;
 
 public:
@@ -19,6 +21,7 @@ public:
 
 private:
   ADC_Navio2 adc_;
+  double adc_coef_;
   tobas_msgs::Battery battery_msg_;
 
   // Publisher
@@ -27,6 +30,8 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  void getAdcCoefficient();
 
   void eventCb(const tobas_msgs::Event& event) override;
 };
