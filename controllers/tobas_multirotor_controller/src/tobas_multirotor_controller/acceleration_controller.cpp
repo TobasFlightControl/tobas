@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+
+#include <tobas_tools/utils.hpp>
 
 #include "../../include/tobas_multirotor_controller/acceleration_controller.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
@@ -13,8 +14,7 @@ namespace tobas_multirotor_controller
 AccelerationController::AccelerationController(const tobas::Drone& drone)
   : drone_(drone), z_rotors_(drone, tobas::Axis::Z_POSITIVE)
 {
-  TreeJntToInertiaSolver inertia_solver_(drone.tree());
-  mass_ = inertia_solver_.JntToMass();
+  mass_ = tobas::getMass();
 }
 
 void AccelerationController::update(

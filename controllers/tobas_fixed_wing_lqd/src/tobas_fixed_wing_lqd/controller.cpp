@@ -5,9 +5,9 @@
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/conversions/coordinates.hpp>
+#include <tobas_tools/utils.hpp>
 
 #include "../../include/tobas_fixed_wing_lqd/controller.hpp"
 #include "../../include/tobas_fixed_wing_lqd/constants.hpp"
@@ -197,8 +197,7 @@ void Controller::setScales()
   lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
 
   // 制御入力のスケール
-  KDL::TreeJntToInertiaSolver inertia_solver_(drone_.tree());
-  const auto mass = inertia_solver_.JntToMass();
+  const auto mass = tobas::getMass();
   lqd_.input_scale.resize(eom_.inputSize());
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(mass * kGravity / x_rotors_.count());
   for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
