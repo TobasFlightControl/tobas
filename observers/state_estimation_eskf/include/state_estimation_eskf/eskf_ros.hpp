@@ -50,12 +50,13 @@ private:
   double alt_0_gps_;        // GPSから求めた高度のゼロ点
   Eigen::Quaterniond q_0_;  // 姿勢の初期値
 
-  bool is_initialized_;
   bool imu_received_;
   bool mag_received_;
   bool bar_received_;
   bool gps_received_;
   bool vel_received_;
+  bool is_initialized_;
+  bool is_stability_checked_;
   ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
   ros::Time t_last_;
   StateMsg state_;  // 発行する状態
@@ -112,6 +113,7 @@ private:
   static_state_determination::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
+  bool isStateStable();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);

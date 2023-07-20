@@ -26,13 +26,18 @@ namespace state_estimation_eskf
 {
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   : super(),
-    is_initialized_(false),
     imu_received_(false),
     mag_received_(false),
     bar_received_(false),
     gps_received_(false),
     vel_received_(false),
-    check_topics_timer_(nh_, kTimerPeriod, &ErrorStateKalmanFilterRos::checkTopicsTimerCb, this)
+    is_initialized_(false),
+    is_stability_checked_(false),
+    check_topics_timer_(
+      nh_,
+      kCheckTopicsTimerPeriod,
+      &ErrorStateKalmanFilterRos::checkTopicsTimerCb,
+      this)
 {
   getRosParams();
 
@@ -301,6 +306,37 @@ bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
   return true;
 }
 
+bool ErrorStateKalmanFilterRos::isStateStable()
+{
+  const auto pos = eskf_.getXYZ();
+  const auto hor_pos_norm = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
+  if (hor_pos_norm > gps_hor_pos_stddev_thr_)
+  {
+    rosWarnThrottle(
+      kInfoPeriod, "The norm of horizontal position is over threshold: "
+                     << hor_pos_norm << " > " << gps_hor_pos_stddev_thr_);
+    return false;
+  }
+  if (abs(pos.z()) > gps_ver_pos_stddev_thr_)
+  {
+    rosWarnThrottle(
+      kInfoPeriod,
+      "Altitude is out of threshold: |" << pos.z() << "| > " << gps_ver_pos_stddev_thr_);
+    return false;
+  }
+
+  const auto vel = eskf_.getVelocity();
+  if (vel.norm() > kVelocityThreshold)
+  {
+    rosWarnThrottle(
+      kInfoPeriod,
+      "The norm of velocity is over threshold: " << vel.norm() << " > " << kVelocityThreshold);
+    return false;
+  }
+
+  return true;
+}
+
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
@@ -327,8 +363,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
       check_topics_timer_.stop();
       initialize(imu.header.stamp);
       is_initialized_ = true;
-      rosInfo(
-        "State estimator is ready. Wait to publish states for " << kWaitToPublish << " seconds.");
+      rosInfo("All necessary messages are received. Checking state estimation stability.");
     }
     return;
   }
@@ -349,12 +384,21 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   // 重力方向の観測
   eskf_.measureAcceleration(a_m_, rot_acc_cov_);
 
-  // 推定状態を発行
-  if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
+  // 最初に推定した状態が一定の範囲内にあるかどうかを確認
+  if (!is_stability_checked_)
   {
-    updateBaseStateMsg(imu);
-    posevel_pub_.publish(state_);
+    rosInfoThrottle(kInfoPeriod, "Checking state estimation stability.");
+    if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish && isStateStable())
+    {
+      rosInfo("State estimation stability is checked. Start to publish estimated state.");
+      is_stability_checked_ = true;
+    }
+    return;
   }
+
+  // 推定状態を発行
+  updateBaseStateMsg(imu);
+  posevel_pub_.publish(state_);
 }
 
 void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
