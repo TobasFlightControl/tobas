@@ -7,23 +7,24 @@
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_msgs/LandAction.h>
+#include <tobas_msgs/TakeoffAction.h>
 
 namespace tobas_multirotor_takeoff
 {
 class MultirotorTakeoffServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "multirotor_takeoff";
-  static constexpr double kUpdateRate = 100.;     // [Hz]
-  static constexpr double kTargetAltitude = 1.5;  // [m]
-  static constexpr double kVerticalSpeed = 0.1;   // [m]
+  static constexpr double kUpdateRate = 100.;            // [Hz]
+  static constexpr double kTargetAltitude = 1.5;         // [m]
+  static constexpr double kElevationTimeThreshold = 3.;  // [s]
+  static constexpr double kVerticalSpeed = 0.2;          // [m]
 
   using super = tobas::BaseNode;
 
-  using ActionType = tobas_msgs::LandAction;
-  using GoalType = tobas_msgs::LandGoalConstPtr;  // Goalはポインタの必要あり
-  using ResultType = tobas_msgs::LandResult;
-  using FeedbackType = tobas_msgs::LandFeedback;
+  using ActionType = tobas_msgs::TakeoffAction;
+  using GoalType = tobas_msgs::TakeoffGoalConstPtr;  // Goalはポインタの必要あり
+  using ResultType = tobas_msgs::TakeoffResult;
+  using FeedbackType = tobas_msgs::TakeoffFeedback;
 
 public:
   explicit MultirotorTakeoffServer();

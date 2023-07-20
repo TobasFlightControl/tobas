@@ -87,12 +87,16 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
       return;
     }
 
-    // コマンドを更新．Z以外は現在の値を指令し，垂直方向以外の力を書けないようにする．
-    const auto t = (ros::Time::now() - start_time).toSec();
+    // 定常誤差に対応するため，一定時間を過ぎたら時間と共に少しずつ指令高度を上げる
+    const double t = max((ros::Time::now() - start_time).toSec() - kElevationTimeThreshold, 0.);
+    pos_yaw.pos.z(start_alt + kTargetAltitude + kVerticalSpeed * t);
+
+    // Z以外は現在の値を指令し，垂直方向以外の力を書けないようにする．
     pos_yaw.pos.x(bs_.pose.pos.x());
     pos_yaw.pos.y(bs_.pose.pos.y());
-    pos_yaw.pos.z(start_alt + kTargetAltitude + kVerticalSpeed * t);
     pos_yaw.yaw = bs_.pose.euler.yaw;
+
+    // コマンドを発行
     pos_yaw_pub_.publish(pos_yaw);
 
     ros::spinOnce();
