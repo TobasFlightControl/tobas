@@ -6,6 +6,7 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
 
 #include "../../include/tobas_keyboard_teleop/x11.hpp"
@@ -13,21 +14,17 @@
 
 namespace tobas_keyboard_teleop
 {
-static constexpr double kInitialX = 0.;
-static constexpr double kInitialY = 0.;
-static constexpr double kInitialZ = 1.;
-static constexpr double kInitialYaw = 0.;
-
-static constexpr double kDefaultMaxLinearVelocity = 5.;
-static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
-static constexpr double kDefaultMinimumX = -10.;
-static constexpr double kDefaultMaximumX = +10.;
-static constexpr double kDefaultMinimumY = -10.;
-static constexpr double kDefaultMaximumY = +10.;
-static constexpr double kDefaultMinimumZ = -10.;
-static constexpr double kDefaultMaximumZ = +10.;
-static constexpr double kDefaultMinimumYaw = -M_PI;
-static constexpr double kDefaultMaximumYaw = M_PI;
+static constexpr double kDefaultInitialElevation = 1.5;       // [m]
+static constexpr double kDefaultMaxLinearVelocity = 5.;       // [m/s]
+static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
+static constexpr double kDefaultMinimumX = -10.;              // [m]
+static constexpr double kDefaultMaximumX = +10.;              // [m]
+static constexpr double kDefaultMinimumY = -10.;              // [m]
+static constexpr double kDefaultMaximumY = +10.;              // [m]
+static constexpr double kDefaultMinimumZ = -10.;              // [m]
+static constexpr double kDefaultMaximumZ = +10.;              // [m]
+static constexpr double kDefaultMinimumYaw = -M_PI;           // [rad]
+static constexpr double kDefaultMaximumYaw = M_PI;            // [rad]
 
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
@@ -51,11 +48,14 @@ private:
   double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
 
   // 可変値
+  bool bs_received_;
+  tobas_msgs::BaseState bs_;
   tobas_msgs::PositionYaw cmd_;
 
   // rosparams
-  double max_linvel_;  // 並進速度の大きさの最大値
-  double max_angvel_;  // 回転速度の大きさの最大値
+  double init_elevation_;  // 初期目標高度
+  double max_linvel_;      // 並進速度の大きさの最大値
+  double max_angvel_;      // 回転速度の大きさの最大値
   dh_std::Range<double> x_limit_;
   dh_std::Range<double> y_limit_;
   dh_std::Range<double> z_limit_;
@@ -63,15 +63,13 @@ private:
 
   // PubSub
   ros::Publisher cmd_pub_;
-
-  // Timer
-  dh_ros::Timer instruction_timer_;
+  ros::Subscriber bs_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::Event& event) override;
-  void instructionTimerCb(const ros::TimerEvent&);
+  void baseStateCb(const tobas_msgs::BaseState& bs);
 };
 }  // namespace tobas_keyboard_teleop

@@ -1,5 +1,3 @@
-#include <kdl/frames_io.hpp>
-
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
@@ -22,14 +20,7 @@ ostream& operator<<(ostream& os, const tobas_msgs::PositionYaw& arg)
 }
 
 PositionYawPublisher::PositionYawPublisher()
-  : super(),
-    keyboard_(getKeyboardControls()),
-    instruction_timer_(
-      nh_,
-      kInstructionTimerPeriod,
-      &PositionYawPublisher::instructionTimerCb,
-      this,
-      false)
+  : super(), keyboard_(getKeyboardControls()), bs_received_(false)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -48,10 +39,6 @@ PositionYawPublisher::PositionYawPublisher()
   delta_rot_ = max_angvel_ * repeat_interval;
 
   cmd_.level.data = tobas_msgs::CommandLevel::NORMAL;
-  cmd_.pos.x(kInitialX);
-  cmd_.pos.y(kInitialY);
-  cmd_.pos.z(kInitialZ);
-  cmd_.yaw = kInitialYaw;
 
   registerPublishers();
   registerSubscribers();
@@ -59,73 +46,81 @@ PositionYawPublisher::PositionYawPublisher()
 
 void PositionYawPublisher::run()
 {
-  instruction_timer_.start();
-  rosInfo(instruction_);
+  // 初期状態が得られるまで待機
+  while (ros::ok() && !bs_received_)
+  {
+    rosWarnThrottle(kCheckTopicsTimerPeriod, "Base state is not received yet.");
+    ros::spinOnce();
+    ros::Duration(0.1).sleep();
+  }
+
+  // 初期コマンド
+  cmd_.pos.x(bs_.pose.pos.x());
+  cmd_.pos.y(bs_.pose.pos.y());
+  cmd_.pos.z(bs_.pose.pos.z() + init_elevation_);
+  cmd_.yaw = bs_.pose.euler.yaw;
 
   dh_ros::Rate rate(kUpdateRate);
-
   while (ros::ok())
   {
+    // インストラクション
+    rosInfoThrottle(kInstructionTimerPeriod, instruction_);
+
+    // キーボード入力に依ってコマンドを更新
     const auto c = key_reader_.readKey();
-
-    // For debug
-    // if (c)
-    // {
-    //   cout << static_cast<int>(c) << endl;  // charのままだとEscやEnterなどが表示されない
-    // }
-
     switch (c)
     {
       case kKeyCode_W:  // X+
       {
-        rosInfo("Moving forward: " << cmd_);
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() + delta_pos_));
+        rosInfo("Moving forward: " << cmd_);
         break;
       }
       case kKeyCode_S:  // X-
       {
-        rosInfo("Moving backward: " << cmd_);
         cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() - delta_pos_));
+        rosInfo("Moving backward: " << cmd_);
         break;
       }
       case kKeyCode_A:  // Y+
       {
-        rosInfo("Moving left: " << cmd_);
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() + delta_pos_));
+        rosInfo("Moving left: " << cmd_);
         break;
       }
       case kKeyCode_D:  // Y-
       {
-        rosInfo("Moving right: " << cmd_);
         cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() - delta_pos_));
+        rosInfo("Moving right: " << cmd_);
         break;
       }
       case kKeyCode_Up:  // Z+
       {
-        rosInfo("Moving up: " << cmd_);
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() + delta_pos_));
+        rosInfo("Moving up: " << cmd_);
         break;
       }
       case kKeyCode_Down:  // Z-
       {
-        rosInfo("Moving down: " << cmd_);
         cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() - delta_pos_));
+        rosInfo("Moving down: " << cmd_);
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
-        rosInfo("Rotating left: " << cmd_);
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw + delta_rot_);
+        rosInfo("Rotating left: " << cmd_);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
-        rosInfo("Rotating right: " << cmd_);
         cmd_.yaw = yaw_limit_.clamp(cmd_.yaw - delta_rot_);
+        rosInfo("Rotating right: " << cmd_);
         break;
       }
     }
 
+    // コマンドを発行
     cmd_pub_.publish(cmd_);
 
     ros::spinOnce();
@@ -135,6 +130,7 @@ void PositionYawPublisher::run()
 
 void PositionYawPublisher::getRosParams()
 {
+  dh_ros::getParam("~initial_elevation", init_elevation_, kDefaultInitialElevation);
   dh_ros::getParam("~max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity);
   dh_ros::getParam("~max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity);
   dh_ros::getParam("~pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
@@ -146,6 +142,7 @@ void PositionYawPublisher::getRosParams()
   dh_ros::getParam("~pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
   dh_ros::getParam("~pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
 
+  ROS_ASSERT(init_elevation_ >= 0.);
   ROS_ASSERT(max_linvel_ > 0.);
   ROS_ASSERT(max_angvel_ > 0.);
   ROS_ASSERT(x_limit_.isValid());
@@ -162,6 +159,7 @@ void PositionYawPublisher::registerPublishers()
 void PositionYawPublisher::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this);
+  bs_sub_ = nh_.subscribe("base_state", 1, &PositionYawPublisher::baseStateCb, this);
 }
 
 void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
@@ -176,8 +174,14 @@ void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void PositionYawPublisher::instructionTimerCb(const ros::TimerEvent&)
+void PositionYawPublisher::baseStateCb(const tobas_msgs::BaseState& bs)
 {
-  rosInfo(instruction_);
+  bs_ = bs;
+
+  if (!bs_received_)
+  {
+    rosInfo("First base state is received.");
+    bs_received_ = true;
+  }
 }
 }  // namespace tobas_keyboard_teleop
