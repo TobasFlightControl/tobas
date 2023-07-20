@@ -93,15 +93,13 @@ void RotationController::reconfigure(const RotationControllerDynamicParams& para
   mpc_.input_rate_weight.fill(pow(10, params.thrust_rate_weight_exp));
 }
 
-void RotationController::updateCurrentState(
-  const KDL::Euler& cur_rpy,
-  const KDL::Vector& cur_angvel_B)
+void RotationController::updateCurrentState(const Euler& cur_rpy, const Vector& cur_angvel_B)
 {
   mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_angvel_B.x(),
     cur_angvel_B.y(), cur_angvel_B.z();
 }
 
-void RotationController::updateSetState(const KDL::Euler& tar_rpy)
+void RotationController::updateSetState(const Euler& tar_rpy)
 {
   mpc_.set_state << tar_rpy.roll, tar_rpy.pitch, tar_rpy.yaw, 0., 0., 0.;
 }
