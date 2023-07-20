@@ -7,9 +7,10 @@
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_linear_control/util.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/conversions/coordinates.hpp>
+#include <tobas_tools/utils.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_fixed_wing_mpc/controller.hpp"
 #include "../../include/tobas_fixed_wing_mpc/constants.hpp"
@@ -218,10 +219,9 @@ void Controller::setScales()
   mpc_.control_scale = mpc_.state_scale;
 
   // 制御入力のスケール
-  KDL::TreeJntToInertiaSolver inertia_solver_(drone_.tree());
-  const auto mass = inertia_solver_.JntToMass();
   mpc_.input_scale.resize(eom_.inputSize());
-  mpc_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(mass * kGravity / x_rotors_.count());
+  const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
+  mpc_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
   for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     mpc_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();

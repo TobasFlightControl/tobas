@@ -4,8 +4,6 @@
 
 namespace tobas_real
 {
-static constexpr double kGravity = 9.80665;  // [m/s^2]
-
 static const std::string kHomeDirectory = getenv("HOME");
 static const std::string kConfigPath = kHomeDirectory + "/.config/tobas/config.ini";
 

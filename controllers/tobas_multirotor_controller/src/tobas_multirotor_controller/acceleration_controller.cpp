@@ -2,6 +2,7 @@
 #include <dh_std_tools/algorithm.hpp>
 
 #include <tobas_tools/utils.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_multirotor_controller/acceleration_controller.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
@@ -26,7 +27,7 @@ void AccelerationController::update(
 {
   const double x = mass_ * tar_acc.x();
   const double y = mass_ * tar_acc.y();
-  const double z = mass_ * (tar_acc.z() + kGravity);
+  const double z = mass_ * (tar_acc.z() + tobas::kGravity);
 
   const double cos_yaw = cos(yaw);
   const double sin_yaw = sin(yaw);

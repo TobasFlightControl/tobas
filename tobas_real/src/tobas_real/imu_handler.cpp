@@ -5,6 +5,8 @@
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../../include/tobas_real/imu_handler.hpp"
 #include "../../include/tobas_real/common.hpp"
 
@@ -91,7 +93,7 @@ void ImuHandler::setCovarianceMatrices()
 {
   // Accelerometer
   double acc_std_grav = kAccNoiseDensity * sqrt(kUpdateRate);  // ug
-  double acc_std = acc_std_grav * 1e-6 * kGravity;             // m/s^2
+  double acc_std = acc_std_grav * 1e-6 * tobas::kGravity;      // m/s^2
   double acc_var = dh_std::sqr(acc_std);                       // m^2/s^4
   imu_msg_.linear_acceleration_covariance[0] = acc_var;
   imu_msg_.linear_acceleration_covariance[4] = acc_var;

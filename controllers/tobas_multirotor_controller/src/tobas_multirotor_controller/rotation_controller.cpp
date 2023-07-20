@@ -1,7 +1,9 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_linear_control/util.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+
+#include <tobas_tools/constants.hpp>
+#include <tobas_tools/utils.hpp>
 
 #include "../../include/tobas_multirotor_controller/rotation_controller.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
@@ -139,10 +141,8 @@ void RotationController::setScales()
   mpc_.control_scale = mpc_.state_scale;
 
   // 制御入力のスケール
-  TreeJntToInertiaSolver inertia_solver(drone_.tree());
-  const auto mass = inertia_solver.JntToMass();
   mpc_.input_scale.resize(z_rotors_.count());
-  mpc_.input_scale.fill(mass * kGravity / z_rotors_.count());
+  mpc_.input_scale.fill(tobas::getMass() * tobas::kGravity / z_rotors_.count());
 }
 
 void RotationController::setInputConstraintBase()

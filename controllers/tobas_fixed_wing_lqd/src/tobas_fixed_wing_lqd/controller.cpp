@@ -8,6 +8,7 @@
 
 #include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_tools/utils.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_fixed_wing_lqd/controller.hpp"
 #include "../../include/tobas_fixed_wing_lqd/constants.hpp"
@@ -197,9 +198,9 @@ void Controller::setScales()
   lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
 
   // 制御入力のスケール
-  const auto mass = tobas::getMass();
   lqd_.input_scale.resize(eom_.inputSize());
-  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(mass * kGravity / x_rotors_.count());
+  const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
+  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
   for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     lqd_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
