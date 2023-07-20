@@ -27,7 +27,6 @@ void MultirotorTakeoffServer::getRosParams()
 
 void MultirotorTakeoffServer::registerPublishers()
 {
-  rpy_thrust_pub_ = nh_.advertise<tobas_msgs::RollPitchYawThrust>("command/rpy_thrust", 1);
   pos_yaw_pub_ = nh_.advertise<tobas_msgs::PositionYaw>("command/position_yaw", 1);
 }
 
@@ -72,13 +71,14 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
   const auto start_alt = bs_.pose.pos.z();
   const auto start_time = ros::Time::now();
 
-  // 姿勢制御コマンド
-  tobas_msgs::RollPitchYawThrust rpy_thrust;
-  rpy_thrust.level = goal->level;
+  // 位置制御コマンド
+  tobas_msgs::PositionYaw pos_yaw;
+  pos_yaw.level = goal->level;
+  pos_yaw.pos.z(kTargetAltitude);
 
   // 目標高度に到達するまで徐々に推力を上げていく
   ros::Rate rate(kUpdateRate);
-  while (ros::ok())
+  while (ros::ok() && bs_.pose.pos.z() - start_alt < kTargetAltitude)
   {
     if (as_.isPreemptRequested())
     {
@@ -87,29 +87,20 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
       return;
     }
 
-    // コマンドを更新
+    // コマンドを更新．Z以外は現在の値を指令し，垂直方向以外の力を書けないようにする．
     const auto t = (ros::Time::now() - start_time).toSec();
-    rpy_thrust.thrust = kThrustRate * t;
-    rpy_thrust_pub_.publish(rpy_thrust);
-
-    // 目標高度に到達すればループを抜ける
-    const auto cur_alt = bs_.pose.pos.z();
-    if (cur_alt - start_alt > kTakeoffAltitudeThreshold)
-    {
-      break;
-    }
+    pos_yaw.pos.x(bs_.pose.pos.x());
+    pos_yaw.pos.y(bs_.pose.pos.y());
+    pos_yaw.pos.z(start_alt + kTargetAltitude + kVerticalSpeed * t);
+    pos_yaw.yaw = bs_.pose.euler.yaw;
+    pos_yaw_pub_.publish(pos_yaw);
 
     ros::spinOnce();
     rate.sleep();
   }
 
-  // 目標位置でホバリング
-  tobas_msgs::PositionYaw pos_yaw;
-  pos_yaw.level = goal->level;
-  pos_yaw.pos.z(kHoverAltitude);
-  pos_yaw_pub_.publish(pos_yaw);
-
   // アクション成功
+  rosInfo("Drone has reached the target altitude successfully");
   result_.error_code = ResultType::NO_ERROR;
   as_.setSucceeded(result_);
 }

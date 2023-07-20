@@ -14,10 +14,9 @@ namespace tobas_multirotor_takeoff
 class MultirotorTakeoffServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "multirotor_takeoff";
-  static constexpr double kUpdateRate = 100.;              // [Hz]
-  static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
-  static constexpr double kHoverAltitude = 1.5;            // [m]
-  static constexpr double kThrustRate = 1.;                // [N/s]
+  static constexpr double kUpdateRate = 100.;     // [Hz]
+  static constexpr double kTargetAltitude = 1.5;  // [m]
+  static constexpr double kVerticalSpeed = 0.1;   // [m]
 
   using super = tobas::BaseNode;
 
@@ -34,7 +33,6 @@ private:
   tobas_msgs::BaseState bs_;
   ResultType result_;
 
-  ros::Publisher rpy_thrust_pub_;
   ros::Publisher pos_yaw_pub_;
   ros::Subscriber bs_sub_;
 
