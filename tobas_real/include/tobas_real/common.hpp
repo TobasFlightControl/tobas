@@ -4,8 +4,7 @@
 
 namespace tobas_real
 {
-static const std::string kHomeDirectory = getenv("HOME");
-static const std::string kConfigPath = kHomeDirectory + "/.config/tobas/config.ini";
+static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
 
 static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";
 

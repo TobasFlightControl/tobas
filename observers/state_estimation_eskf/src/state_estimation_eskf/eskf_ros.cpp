@@ -310,18 +310,18 @@ bool ErrorStateKalmanFilterRos::isStateStable()
 {
   const auto pos = eskf_.getXYZ();
   const auto hor_pos_norm = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
-  if (hor_pos_norm > gps_hor_pos_stddev_thr_)
+  if (hor_pos_norm > gps_hor_pos_stddev_thr_ * 2)
   {
     rosWarnThrottle(
-      kInfoPeriod, "The norm of horizontal position is over threshold: "
-                     << hor_pos_norm << " > " << gps_hor_pos_stddev_thr_);
+      kInfoPeriod, "The norm of horizontal position is out of 95\% confidence interval: "
+                     << hor_pos_norm << " > " << gps_hor_pos_stddev_thr_ * 2);
     return false;
   }
-  if (abs(pos.z()) > gps_ver_pos_stddev_thr_)
+  if (abs(pos.z()) > gps_ver_pos_stddev_thr_ * 2)
   {
     rosWarnThrottle(
-      kInfoPeriod,
-      "Altitude is out of threshold: |" << pos.z() << "| > " << gps_ver_pos_stddev_thr_);
+      kInfoPeriod, "Altitude is out of 95\% confidence interval: |" << pos.z() << "| > "
+                                                                    << gps_ver_pos_stddev_thr_ * 2);
     return false;
   }
 

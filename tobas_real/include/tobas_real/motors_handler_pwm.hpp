@@ -14,7 +14,7 @@ namespace tobas_real
 {
 class MotorsHandler_PWM : public tobas::BaseNode
 {
-  static constexpr double kControlRate = 200.;           // [Hz]
+  static constexpr double kControlRate = 1000.;          // [Hz]
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
 
   using super = tobas::BaseNode;
