@@ -140,7 +140,7 @@ class ControllerWidget_LMPC(QWidget):
             natural_freq_description,
             decimals=2,
             minimum=0.1,
-            default=1.,
+            default=2.,
             suffix=" Hz",
         )
         self._rows.addWidget(self.natural_freq)
