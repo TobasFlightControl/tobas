@@ -140,7 +140,7 @@ class ControllerWidget_LMPC(QWidget):
             natural_freq_description,
             decimals=2,
             minimum=0.1,
-            default=2.,
+            default=1.5,
             suffix=" Hz",
         )
         self._rows.addWidget(self.natural_freq)
@@ -195,7 +195,7 @@ class ControllerWidget_LMPC(QWidget):
             decimals=2,
             minimum=0.,
             maximum=1.,
-            default=0.1,
+            default=0.2,
             suffix=" s",
         )
         self._rows.addWidget(self.attitude_decay)
@@ -208,7 +208,7 @@ class ControllerWidget_LMPC(QWidget):
             decimals=2,
             minimum=0.,
             maximum=1.,
-            default=0.1,
+            default=0.2,
             suffix=" s",
         )
         self._rows.addWidget(self.heading_decay)

@@ -14,7 +14,7 @@
 
 namespace tobas_keyboard_teleop
 {
-static constexpr double kDefaultInitialElevation = 1.5;       // [m]
+static constexpr double kDefaultInitialElevation = 0.;        // [m]
 static constexpr double kDefaultMaxLinearVelocity = 1.;       // [m/s]
 static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
 static constexpr double kDefaultMinimumX = -10.;              // [m]

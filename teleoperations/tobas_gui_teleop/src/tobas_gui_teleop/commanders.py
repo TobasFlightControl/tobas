@@ -24,7 +24,7 @@ class CommandersWidget(QScrollArea):
     LABEL_PSIZE = 12
     CONTROL_RATE = 30.  # [Hz]
 
-    DEFAULT_INITIAL_ELEVATION = 1.5  # [m]
+    DEFAULT_INITIAL_ELEVATION = 0.  # [m]
     DEFAULT_MINIMUM_X = -10.  # [m]
     DEFAULT_MAXIMUM_X = 10.  # [m]
     DEFAULT_MINIMUM_Y = -10.  # [m]
