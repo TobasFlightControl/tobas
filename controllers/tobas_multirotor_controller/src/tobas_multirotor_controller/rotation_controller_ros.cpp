@@ -255,8 +255,36 @@ void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rp
     cmd_level_ = rpy_thrust.level.data;
   }
 
-  // 目標姿勢&目標推力を更新
-  rpy_thrust_ = rpy_thrust;
+  // 目標姿勢 & 目標推力の範囲チェックをしながら更新
+  // Roll
+  if (abs(rpy_thrust.rpy.roll) > kMaxAttitude)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, "roll = " << rpy_thrust.rpy.roll << " is out of range [" << -kMaxAttitude
+                              << ", " << kMaxAttitude << "].");
+  }
+  rpy_thrust_.rpy.roll = clamp(rpy_thrust.rpy.roll, -kMaxAttitude, kMaxAttitude);
+
+  // Pitch
+  if (abs(rpy_thrust.rpy.pitch) > kMaxAttitude)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, "pitch = " << rpy_thrust.rpy.pitch << " is out of range [" << -kMaxAttitude
+                               << ", " << kMaxAttitude << "].");
+  }
+  rpy_thrust_.rpy.pitch = clamp(rpy_thrust.rpy.pitch, -kMaxAttitude, kMaxAttitude);
+
+  // Yaw
+  rpy_thrust_.rpy.yaw = rpy_thrust.rpy.yaw;
+
+  // Thrust
+  const auto max_U = maxU();
+  if (rpy_thrust.thrust < 0. || max_U < rpy_thrust.thrust)
+  {
+    rosWarnThrottle(
+      kWarnPeriod, "thrust = " << rpy_thrust.thrust << " is out of range [0, " << max_U << "].");
+  }
+  rpy_thrust_.thrust = clamp(rpy_thrust.thrust, 0., max_U);
 
   if (!rpy_thrust_received_)
   {
