@@ -156,7 +156,7 @@ void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-
   pos_controller_->reconfigure(dynamic_params_);
+  rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller
