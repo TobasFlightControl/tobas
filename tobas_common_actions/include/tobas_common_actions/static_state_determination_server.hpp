@@ -30,7 +30,6 @@ public:
   explicit StaticStateDeterminationServer();
 
 private:
-  GoalType goal_;
   ResultType result_;
   FeedbackType feedback_;
   bool is_action_running_;
@@ -59,8 +58,8 @@ private:
 
   void reset();
   void fillResult();
-  bool isValidGoal();
-  bool isValidResult();
+  bool isValidGoal(const GoalType& goal);
+  bool isValidResult(const GoalType& goal);
 
   void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);

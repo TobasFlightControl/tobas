@@ -1,6 +1,5 @@
 #pragma once
 
-#include <deque>
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 

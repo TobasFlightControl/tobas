@@ -90,11 +90,11 @@ void StaticStateDeterminationServer::fillResult()
   result_.ground_speed.covariance = vel_sum_.covariance / sqr(vel_count);
 }
 
-bool StaticStateDeterminationServer::isValidGoal()
+bool StaticStateDeterminationServer::isValidGoal(const GoalType& goal)
 {
   if (
-    goal_->gps_horizontal_position_stddev_threshold <= 0.
-    || goal_->gps_vertical_position_stddev_threshold <= 0.)
+    goal->gps_horizontal_position_stddev_threshold <= 0.
+    || goal->gps_vertical_position_stddev_threshold <= 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Position std. dev must be positive.");
@@ -104,7 +104,7 @@ bool StaticStateDeterminationServer::isValidGoal()
   return true;
 }
 
-bool StaticStateDeterminationServer::isValidResult()
+bool StaticStateDeterminationServer::isValidResult(const GoalType& goal)
 {
   if (imu_count_ == 0)
     return false;
@@ -118,15 +118,15 @@ bool StaticStateDeterminationServer::isValidResult()
     return false;
 
   const auto gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
-  if (gps_x_stddev > goal_->gps_horizontal_position_stddev_threshold)
+  if (gps_x_stddev > goal->gps_horizontal_position_stddev_threshold)
     return false;
 
   const auto gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
-  if (gps_y_stddev > goal_->gps_horizontal_position_stddev_threshold)
+  if (gps_y_stddev > goal->gps_horizontal_position_stddev_threshold)
     return false;
 
   const auto gps_z_stddev = sqrt(gps_sum_.position_covariance[8] / sqr(gps_count_));
-  if (gps_z_stddev > goal_->gps_vertical_position_stddev_threshold)
+  if (gps_z_stddev > goal->gps_vertical_position_stddev_threshold)
     return false;
 
   return true;
@@ -221,9 +221,9 @@ void StaticStateDeterminationServer::velCb(const VelMsg& vel)
 
 void StaticStateDeterminationServer::executeCb(const GoalType& goal)
 {
-  goal_ = goal;
+  rosInfo("Action is called.");
 
-  if (!isValidGoal())
+  if (!isValidGoal(goal))
   {
     return;
   }
@@ -259,7 +259,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
     }
 
     // 条件を満たしていれば終了
-    if (isValidResult())
+    if (isValidResult(goal))
     {
       is_action_running_ = false;
       fillResult();
@@ -271,7 +271,5 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
     ros::spinOnce();
     rate.sleep();
   }
-
-  is_action_running_ = false;
 }
 }  // namespace tobas_common_actions

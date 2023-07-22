@@ -1,6 +1,6 @@
 # goal
 float64 gps_horizontal_position_stddev_threshold  # [m]
-float64 gps_vertical_position_stddev_threshold  # [m]
+float64 gps_vertical_position_stddev_threshold    # [m]
 
 ---
 
