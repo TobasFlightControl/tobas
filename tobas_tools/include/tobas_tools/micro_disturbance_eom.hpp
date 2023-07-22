@@ -145,7 +145,7 @@ private:
   TrimConditions trim_;
 
   // 固定値
-  double mass_;            // 機体の質量 [kg]
+  double mass_;  // 機体の質量 [kg]
   uint32_t u_size_;
   Eigen::VectorXd min_u_;  // 制御入力の最小値
   Eigen::VectorXd max_u_;  // 制御入力の最大値

@@ -53,7 +53,7 @@ private:
   KDL::JntArray q_;                            // 全ての非固定関節の角度
   tobas_msgs::RollPitchYawThrust rpy_thrust_;  // 姿勢+推力 (入力)
   Eigen::VectorXd u_opt_;
-  tobas_msgs::RotorSpeeds rotor_speeds_;       // モータの回転数 (出力)
+  tobas_msgs::RotorSpeeds rotor_speeds_;  // モータの回転数 (出力)
 
   // RosParams
   RotationControllerDynamicParams dynamic_params_rot_;

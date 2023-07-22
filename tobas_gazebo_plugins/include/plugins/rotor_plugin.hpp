@@ -56,7 +56,7 @@ private:
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
-  double cmd_rot_speed_;                   // [rad/s]
+  double cmd_rot_speed_;  // [rad/s]
   tobas_msgs::Battery battery_;
   ignition::math::Vector3d wind_speed_W_;  // [m/s]
   double prev_sim_time_;                   // [s]

@@ -86,12 +86,12 @@ private:
   uint32_t elev_idx_;  // ピッチ回転の釣り合いに使う舵面の添字
   double a_, b_;       // (2.9-49)の定数部分
 
-  double alpha_;       // トリム時の迎角 [rad]
-  double elevator_;    // トリム時の昇降舵の偏角 [rad]
-  double c_L_;         // トリム時の揚力係数 [-]
-  double c_D_;         // トリム時の抗力係数 [-]
-  double c_T_;         // トリム時の推力係数 [-]
-  double u_;           // トリム時のX軸方向の速さ [m/s]
+  double alpha_;     // トリム時の迎角 [rad]
+  double elevator_;  // トリム時の昇降舵の偏角 [rad]
+  double c_L_;       // トリム時の揚力係数 [-]
+  double c_D_;       // トリム時の抗力係数 [-]
+  double c_T_;       // トリム時の推力係数 [-]
+  double u_;         // トリム時のX軸方向の速さ [m/s]
 
   void setElevatorIndex();
 };

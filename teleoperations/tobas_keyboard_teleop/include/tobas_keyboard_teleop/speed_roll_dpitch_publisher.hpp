@@ -73,7 +73,7 @@ private:
 
   void eventCb(const tobas_msgs::Event& event) override;
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
-  
+
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void instructionTimerCb(const ros::TimerEvent&);
 };

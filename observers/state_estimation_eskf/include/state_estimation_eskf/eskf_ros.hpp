@@ -84,8 +84,8 @@ private:
   double acc_random_walk_;     // m/s^3/sqrt(hz)
   bool use_bar_;
   bool use_gps_;
-  double gps_hor_pos_stddev_thr_;                         // [m]
-  double gps_ver_pos_stddev_thr_;                         // [m]
+  double gps_hor_pos_stddev_thr_;  // [m]
+  double gps_ver_pos_stddev_thr_;  // [m]
   GeomagObserveMethod geomag_observe_method_;
   state_estimation_eskf::StateEstimationEskfConfig cfg_;  // 動的パラメータ
 

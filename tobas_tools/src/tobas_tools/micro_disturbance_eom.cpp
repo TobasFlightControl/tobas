@@ -187,8 +187,8 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
   {
     const auto& cs = drone_.controlSurface(cs_idx);
 
-    const auto Y_delta_bar = q_S / P * cs.c_side_delta;                                // (3.2-20)
-    const auto Z_delta_bar = -q_S / P * cs.c_lift_delta;                               // (2.2-37)
+    const auto Y_delta_bar = q_S / P * cs.c_side_delta;   // (3.2-20)
+    const auto Z_delta_bar = -q_S / P * cs.c_lift_delta;  // (2.2-37)
     const auto L_delta_dash =
       q_S_b / I_x_tilde * (cs.c_roll_delta + I_xz / I_z * asd_cog.cYawDelta(cs_idx));  // (3.2-21)
     const auto M_delta = q_S_c / I_y * asd_cog.cPitchDelta(cs_idx);                    // (2.2-38)
