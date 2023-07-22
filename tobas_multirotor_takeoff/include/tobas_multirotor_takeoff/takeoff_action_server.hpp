@@ -6,8 +6,8 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_msgs/TakeoffAction.h>
 #include <tobas_common_actions/WaitForStillnessAction.h>
+#include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
 
 namespace tobas_multirotor_takeoff
 {
@@ -29,10 +29,10 @@ class MultirotorTakeoffServer : public tobas::BaseNode
 
   using super = tobas::BaseNode;
 
-  using ActionType = tobas_msgs::TakeoffAction;
-  using GoalType = tobas_msgs::TakeoffGoalConstPtr;  // Goalはポインタの必要あり
-  using ResultType = tobas_msgs::TakeoffResult;
-  using FeedbackType = tobas_msgs::TakeoffFeedback;
+  using ActionType = tobas_multirotor_takeoff::MultirotorTakeoffAction;
+  using GoalType = tobas_multirotor_takeoff::MultirotorTakeoffGoalConstPtr;
+  using ResultType = tobas_multirotor_takeoff::MultirotorTakeoffResult;
+  using FeedbackType = tobas_multirotor_takeoff::MultirotorTakeoffFeedback;
 
 public:
   explicit MultirotorTakeoffServer();
@@ -50,6 +50,8 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  void fillResult();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void executeCb(const GoalType& goal);

@@ -37,6 +37,11 @@ void MultirotorTakeoffServer::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &MultirotorTakeoffServer::eventCb, this);
 }
 
+void MultirotorTakeoffServer::fillResult()
+{
+  result_.last_command = pos_yaw_;
+}
+
 void MultirotorTakeoffServer::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
@@ -102,6 +107,7 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
     if (elevation > kTargetElevation)
     {
       rosInfo("Target altitude is commanded.");
+      fillResult();
       result_.error_code = ResultType::NO_ERROR;
       as_.setSucceeded(result_);
     }
