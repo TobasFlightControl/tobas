@@ -4,6 +4,8 @@
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
 
+#include <dh_std_tools/math.hpp>
+
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_common_actions/WaitForStillnessAction.h>
@@ -21,6 +23,14 @@ class MultirotorTakeoffServer : public tobas::BaseNode
   static constexpr char kActionName[] = "multirotor_takeoff";
   static constexpr double kUpdateRate = 100.;                 // [Hz]
   static constexpr double kWaitForExternalActionServer = 3.;  // [s]
+
+  // WaitForStillnessGoal
+  static constexpr double kTimeWindow = 3.;                          // [s]
+  static constexpr double kHorPosVarThr = 0.1;                       // [m]
+  static constexpr double kVerPosVarThr = 0.1;                       // [m]
+  static constexpr double kAttitudeThreshold = dh_std::deg2rad(1.);  // [rad]
+  static constexpr double kHeadingThreshold = dh_std::deg2rad(1.);   // [rad]
+  static constexpr double kVelThreshold = 0.1;                       // [m/s]
 
   // TODO: ActionGoalで指定できるように
   static constexpr double kInitElevation = -3.;    // [m]

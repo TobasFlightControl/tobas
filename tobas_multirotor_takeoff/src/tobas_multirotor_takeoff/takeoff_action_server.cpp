@@ -17,6 +17,13 @@ MultirotorTakeoffServer::MultirotorTakeoffServer()
 {
   getRosParams();
 
+  wait_for_stillness_goal_.time_window = ros::Duration(kTimeWindow);
+  wait_for_stillness_goal_.horizontal_position_variance_threshold = kHorPosVarThr;
+  wait_for_stillness_goal_.vertical_position_variance_threshold = kVerPosVarThr;
+  wait_for_stillness_goal_.attitude_variance_threshold = kAttitudeThreshold;
+  wait_for_stillness_goal_.heading_variance_threshold = kHeadingThreshold;
+  wait_for_stillness_goal_.velocity_threshold = kVelThreshold;
+
   registerPublishers();
   registerSubscribers();
 
