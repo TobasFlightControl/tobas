@@ -2,6 +2,8 @@
 
 #include "../../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
 
+#define WAIT_FOR_STILLNESS "wait_for_stillness"
+
 using namespace std;
 
 namespace tobas_multirotor_takeoff
@@ -10,8 +12,8 @@ constexpr char MultirotorTakeoffServer::kActionName[];
 
 MultirotorTakeoffServer::MultirotorTakeoffServer()
   : super(),
-    bs_received_(false),
-    as_(nh_, kActionName, boost::bind(&MultirotorTakeoffServer::executeCb, this, _1), false)
+    as_(nh_, kActionName, boost::bind(&MultirotorTakeoffServer::executeCb, this, _1), false),
+    wait_for_stillness_(WAIT_FOR_STILLNESS)
 {
   getRosParams();
 
@@ -33,7 +35,6 @@ void MultirotorTakeoffServer::registerPublishers()
 void MultirotorTakeoffServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &MultirotorTakeoffServer::eventCb, this);
-  bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorTakeoffServer::baseStateCb, this);
 }
 
 void MultirotorTakeoffServer::eventCb(const tobas_msgs::Event& event)
@@ -48,37 +49,39 @@ void MultirotorTakeoffServer::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void MultirotorTakeoffServer::baseStateCb(const tobas_msgs::BaseState& bs)
-{
-  bs_ = bs;
-
-  if (!bs_received_)
-    bs_received_ = true;
-}
-
 void MultirotorTakeoffServer::executeCb(const GoalType& goal)
 {
   rosInfo("Action is called.");
 
-  if (!bs_received_)
+  // 初期静止状態を取得
+  rosInfo("Waiting for '" << WAIT_FOR_STILLNESS << "' action server.");
+  if (!wait_for_stillness_.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
+    rosInfo("Failed to connect to '" << WAIT_FOR_STILLNESS << "' action server.");
     result_.error_code = ResultType::NOT_READY;
-    as_.setAborted(result_, "Base state is not received yet.");
+    as_.setAborted(result_);
     return;
   }
-
-  // 初期状態
-  const auto start_alt = bs_.pose.pos.z();
-  const auto start_time = ros::Time::now();
+  rosInfo("Checking stillness.");
+  wait_for_stillness_.sendGoalAndWait(wait_for_stillness_goal_);
+  rosInfo("Stillness is confirmed");
+  const auto wait_for_stillness_result = wait_for_stillness_.getResult();
+  const auto& init_bs = wait_for_stillness_result->base_state;
 
   // 位置制御コマンド
-  tobas_msgs::PositionYaw pos_yaw;
-  pos_yaw.level = goal->level;
-  pos_yaw.pos.z(kTargetAltitude);
+  // x, y, yawは初期値を維持する
+  pos_yaw_.level = goal->level;
+  pos_yaw_.pos.x(init_bs.pose.pos.x());
+  pos_yaw_.pos.y(init_bs.pose.pos.y());
+  pos_yaw_.yaw = init_bs.pose.euler.yaw;
+
+  // 初期状態
+  const auto start_alt = init_bs.pose.pos.z();
+  const auto start_time = ros::Time::now();
 
   // 目標高度に到達するまで徐々に推力を上げていく
   ros::Rate rate(kUpdateRate);
-  while (ros::ok() && bs_.pose.pos.z() - start_alt < kTargetAltitude)
+  while (ros::ok())
   {
     if (as_.isPreemptRequested())
     {
@@ -87,25 +90,24 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
       return;
     }
 
-    // 定常誤差に対応するため，一定時間を過ぎたら時間と共に少しずつ指令高度を上げる
-    const double t = max((ros::Time::now() - start_time).toSec() - kElevationTimeThreshold, 0.);
-    pos_yaw.pos.z(start_alt + kTargetAltitude + kVerticalSpeed * t);
-
-    // Z以外は現在の値を指令し，垂直方向以外の力を書けないようにする．
-    pos_yaw.pos.x(bs_.pose.pos.x());
-    pos_yaw.pos.y(bs_.pose.pos.y());
-    pos_yaw.yaw = bs_.pose.euler.yaw;
+    // 時間とともに目標高度を上げていく
+    const double t = (ros::Time::now() - start_time).toSec();
+    const auto elevation = kInitElevation + kElevationSpeed * t;
+    pos_yaw_.pos.z(start_alt + elevation);
 
     // コマンドを発行
-    pos_yaw_pub_.publish(pos_yaw);
+    pos_yaw_pub_.publish(pos_yaw_);
+
+    // 目標高度を指令したら終了
+    if (elevation > kTargetElevation)
+    {
+      rosInfo("Target altitude is commanded.");
+      result_.error_code = ResultType::NO_ERROR;
+      as_.setSucceeded(result_);
+    }
 
     ros::spinOnce();
     rate.sleep();
   }
-
-  // アクション成功
-  rosInfo("Drone has reached the target altitude successfully");
-  result_.error_code = ResultType::NO_ERROR;
-  as_.setSucceeded(result_);
 }
 }  // namespace tobas_multirotor_takeoff

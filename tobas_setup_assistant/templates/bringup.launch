@@ -10,7 +10,7 @@
   <!-- Bringup observer -->
   <include file="$(find {{ pkg_name }})/launch/observer.launch"/>
 
-  <!-- Bringup landing and takeoff action server -->
+  <!-- Bringup takeoff and landing action server -->
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_multirotor_takeoff)/launch/takeoff_action_server.launch"/>
     <include file="$(find tobas_multirotor_landing)/launch/landing_action_server.launch"/>
