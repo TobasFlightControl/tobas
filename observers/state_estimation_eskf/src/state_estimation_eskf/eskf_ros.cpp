@@ -171,7 +171,7 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
 
   // IMUのタイムスタンプに初期化に要した時間を足した時間を最新のセンサ時間とする
   const auto duration = ros::Time::now() - start_time;
-  t_last_ = stamp + duration;
+  t_last_ = t_ready_ = stamp + duration;
 }
 
 tobas_common_actions::StaticStateDeterminationResultConstPtr
@@ -328,7 +328,9 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
       check_topics_timer_.stop();
       initialize(imu.header.stamp);
       is_initialized_ = true;
-      rosInfo("All necessary messages are received. Start to publish estimated state.");
+      rosInfo(
+        "All necessary messages are received. Wait to publish states for " << kWaitToPublish
+                                                                           << " seconds.");
     }
     return;
   }
@@ -350,8 +352,11 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   eskf_.measureAcceleration(a_m_, rot_acc_cov_);
 
   // 推定状態を発行
-  updateBaseStateMsg(imu);
-  posevel_pub_.publish(state_);
+  if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
+  {
+    updateBaseStateMsg(imu);
+    posevel_pub_.publish(state_);
+  }
 }
 
 void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)

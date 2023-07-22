@@ -132,34 +132,63 @@ class ControllerWidget_LMPC(QWidget):
         abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
-        natural_freq_description = "PD制御の自然周波数．"\
+        hor_natural_freq_description = "PD制御における水平方向の自然周波数．"\
             + "大きいほど応答速度が速くなりますが，"\
             + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
-        self.natural_freq = ParamGetterWidget_DoubleSpinBox(
-            "Natural frequency (Position controller)",
-            natural_freq_description,
+        self.hor_natural_freq = ParamGetterWidget_DoubleSpinBox(
+            "Horizontal natural frequency (Position controller)",
+            hor_natural_freq_description,
             decimals=2,
             minimum=0.1,
-            default=1.5,
+            default=1.,
             suffix=" Hz",
         )
-        self._rows.addWidget(self.natural_freq)
+        self._rows.addWidget(self.hor_natural_freq)
 
-        damp_ratio_description = "PD制御の減衰比．"\
+        hor_damp_ratio_description = "PD制御における水平方向の減衰比．"\
             + "大きいほどオーバーシュートが小さくなりますが，"\
             + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"\
             + "逆に小さいほど応答速度が速くなりますが，"\
             + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"\
             + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
             + "オーバーシュートなく最速で目標位置に収束します．"
-        self.damp_ratio = ParamGetterWidget_DoubleSpinBox(
-            "Damping ratio (Position controller)",
-            damp_ratio_description,
+        self.hor_damp_ratio = ParamGetterWidget_DoubleSpinBox(
+            "Horizontal damping ratio (Position controller)",
+            hor_damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
             default=1.,
         )
-        self._rows.addWidget(self.damp_ratio)
+        self._rows.addWidget(self.hor_damp_ratio)
+
+        ver_natural_freq_description = "PD制御における垂直方向の自然周波数．"\
+            + "大きいほど応答速度が速くなりますが，"\
+            + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
+        self.ver_natural_freq = ParamGetterWidget_DoubleSpinBox(
+            "Vertical natural frequency (Position controller)",
+            ver_natural_freq_description,
+            decimals=2,
+            minimum=0.1,
+            default=2.,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.ver_natural_freq)
+
+        ver_damp_ratio_description = "PD制御における垂直方向の減衰比．"\
+            + "大きいほどオーバーシュートが小さくなりますが，"\
+            + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"\
+            + "逆に小さいほど応答速度が速くなりますが，"\
+            + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"\
+            + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
+            + "オーバーシュートなく最速で目標位置に収束します．"
+        self.ver_damp_ratio = ParamGetterWidget_DoubleSpinBox(
+            "Vertical damping ratio (Position controller)",
+            ver_damp_ratio_description,
+            decimals=2,
+            minimum=math.sqrt(0.5),
+            default=1.,
+        )
+        self._rows.addWidget(self.ver_damp_ratio)
 
         pred_horizon_description = "モデル予測制御の予測区間の長さ．"\
             + "理論的には大きいほど制御性能が良くなりますが，"\

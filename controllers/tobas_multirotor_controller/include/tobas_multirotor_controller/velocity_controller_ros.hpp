@@ -50,7 +50,7 @@ private:
   std::shared_ptr<AccelerationController> acc_controller_;
 
   // RosParams
-  VelocityControllerDynamicParams dynamic_params_vel_;
+  VelocityControllerDynamicParams dynamic_params_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;

@@ -34,7 +34,7 @@ VelocityControllerRos::VelocityControllerRos()
   drone_.loadFromParam(ns_);
 
   // コントローラを初期化
-  vel_controller_.reset(new VelocityController(dynamic_params_vel_));
+  vel_controller_.reset(new VelocityController(dynamic_params_));
   acc_controller_.reset(new AccelerationController(drone_));
 
   registerPublishers();
@@ -48,8 +48,10 @@ VelocityControllerRos::VelocityControllerRos()
 
 void VelocityControllerRos::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/natural_frequency", dynamic_params_vel_.natural_freq);
-  dh_ros::getParam(kCtrlName + "/damping_ratio", dynamic_params_vel_.damp_ratio);
+  dh_ros::getParam(kCtrlName + "/horizontal_natural_frequency", dynamic_params_.hor_natural_freq);
+  dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
+  dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
+  dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
 }
 
 void VelocityControllerRos::registerPublishers()
@@ -82,8 +84,10 @@ void VelocityControllerRos::initialize()
 
 void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
-  dynamic_params_vel_.natural_freq = cfg.natural_frequency;
-  dynamic_params_vel_.damp_ratio = cfg.damping_ratio;
+  dynamic_params_.hor_natural_freq = cfg.horizontal_natural_frequency;
+  dynamic_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
+  dynamic_params_.ver_natural_freq = cfg.vertical_natural_frequency;
+  dynamic_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
 }
 
 void VelocityControllerRos::runOnce()
@@ -197,7 +201,7 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  vel_controller_->reconfigure(dynamic_params_vel_);
+  vel_controller_->reconfigure(dynamic_params_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

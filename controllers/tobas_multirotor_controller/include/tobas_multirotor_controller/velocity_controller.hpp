@@ -6,8 +6,10 @@ namespace tobas_multirotor_controller
 {
 struct VelocityControllerDynamicParams
 {
-  double natural_freq;
-  double damp_ratio;
+  double hor_natural_freq;
+  double hor_damp_ratio;
+  double ver_natural_freq;
+  double ver_damp_ratio;
 };
 
 class VelocityController
@@ -20,6 +22,7 @@ public:
   void reconfigure(const VelocityControllerDynamicParams& params);
 
 private:
-  double kv_;
+  double hor_kv_;
+  double ver_kv_;
 };
 }  // namespace tobas_multirotor_controller

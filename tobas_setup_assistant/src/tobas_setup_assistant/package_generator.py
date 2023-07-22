@@ -236,8 +236,10 @@ class PackageGenerator(QWidget):
         if controller_type == controller.LMPC:
             lmpc = controller.lmpc
             items["tobas_multirotor_controller"] = {
-                "natural_frequency": lmpc.natural_freq.get(),
-                "damping_ratio": lmpc.damp_ratio.get(),
+                "horizontal_natural_frequency": lmpc.hor_natural_freq.get(),
+                "horizontal_damping_ratio": lmpc.hor_damp_ratio.get(),
+                "vertical_natural_frequency": lmpc.ver_natural_freq.get(),
+                "vertical_damping_ratio": lmpc.ver_damp_ratio.get(),
                 "prediction_horizon": lmpc.pred_horizon.get(),
                 "prediction_steps": lmpc.pred_steps.get(),
                 "attitude_decay": lmpc.attitude_decay.get(),
