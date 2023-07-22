@@ -56,8 +56,6 @@ private:
   bool gps_received_;
   bool vel_received_;
   bool is_initialized_;
-  bool is_stability_checked_;
-  ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
   ros::Time t_last_;
   StateMsg state_;  // 発行する状態
   double yaw_now_;
@@ -113,7 +111,6 @@ private:
   tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
-  bool isStateStable();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);

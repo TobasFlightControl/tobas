@@ -30,7 +30,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
     gps_received_(false),
     vel_received_(false),
     is_initialized_(false),
-    is_stability_checked_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -172,7 +171,7 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
 
   // IMUのタイムスタンプに初期化に要した時間を足した時間を最新のセンサ時間とする
   const auto duration = ros::Time::now() - start_time;
-  t_last_ = t_ready_ = stamp + duration;
+  t_last_ = stamp + duration;
 }
 
 tobas_common_actions::StaticStateDeterminationResultConstPtr
@@ -303,38 +302,6 @@ bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
   return true;
 }
 
-bool ErrorStateKalmanFilterRos::isStateStable()
-{
-  // const auto pos = eskf_.getXYZ();
-  // const auto hor_pos_norm = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
-  // if (hor_pos_norm > gps_hor_pos_stddev_thr_ * 2)
-  // {
-  //   rosWarnThrottle(
-  //     kInfoPeriod, "The norm of horizontal position is out of 95\% confidence interval: "
-  //                    << hor_pos_norm << " > " << gps_hor_pos_stddev_thr_ * 2);
-  //   return false;
-  // }
-  // if (abs(pos.z()) > gps_ver_pos_stddev_thr_ * 2)
-  // {
-  //   rosWarnThrottle(
-  //     kInfoPeriod, "Altitude is out of 95\% confidence interval: |" << pos.z() << "| > "
-  //                                                                   << gps_ver_pos_stddev_thr_ *
-  //                                                                   2);
-  //   return false;
-  // }
-
-  // const auto vel = eskf_.getVelocity();
-  // if (vel.norm() > kVelocityThreshold)
-  // {
-  //   rosWarnThrottle(
-  //     kInfoPeriod,
-  //     "The norm of velocity is over threshold: " << vel.norm() << " > " << kVelocityThreshold);
-  //   return false;
-  // }
-
-  return true;
-}
-
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
@@ -361,7 +328,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
       check_topics_timer_.stop();
       initialize(imu.header.stamp);
       is_initialized_ = true;
-      rosInfo("All necessary messages are received. Checking state estimation stability.");
+      rosInfo("All necessary messages are received. Start to publish estimated state.");
     }
     return;
   }
@@ -381,18 +348,6 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 
   // 重力方向の観測
   eskf_.measureAcceleration(a_m_, rot_acc_cov_);
-
-  // 最初に推定した状態が一定の範囲内にあるかどうかを確認
-  if (!is_stability_checked_)
-  {
-    rosInfoThrottle(kInfoPeriod, "Checking state estimation stability.");
-    if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish && isStateStable())
-    {
-      rosInfo("State estimation stability is checked. Start to publish estimated state.");
-      is_stability_checked_ = true;
-    }
-    return;
-  }
 
   // 推定状態を発行
   updateBaseStateMsg(imu);
