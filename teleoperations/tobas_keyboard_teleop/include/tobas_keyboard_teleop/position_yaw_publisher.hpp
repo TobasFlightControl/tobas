@@ -1,20 +1,16 @@
 #pragma once
 
-#include <ros/ros.h>
-
 #include <dh_std_tools/range.hpp>
-#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/BaseState.h>
-#include <tobas_msgs/PositionYaw.h>
 
 #include "../../include/tobas_keyboard_teleop/x11.hpp"
 #include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
 
 namespace tobas_keyboard_teleop
 {
-static constexpr double kDefaultInitialElevation = 0.;        // [m]
+static constexpr char kTakeoffActionName[] = "multirotor_takeoff";
+
 static constexpr double kDefaultMaxLinearVelocity = 1.;       // [m/s]
 static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
 static constexpr double kDefaultMinimumX = -10.;              // [m]
@@ -47,15 +43,9 @@ private:
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
 
-  // 可変値
-  bool bs_received_;
-  tobas_msgs::BaseState bs_;
-  tobas_msgs::PositionYaw cmd_;
-
   // rosparams
-  double init_elevation_;  // 初期目標高度
-  double max_linvel_;      // 並進速度の大きさの最大値
-  double max_angvel_;      // 回転速度の大きさの最大値
+  double max_linvel_;  // 並進速度の大きさの最大値
+  double max_angvel_;  // 回転速度の大きさの最大値
   dh_std::Range<double> x_limit_;
   dh_std::Range<double> y_limit_;
   dh_std::Range<double> z_limit_;
@@ -63,13 +53,11 @@ private:
 
   // PubSub
   ros::Publisher cmd_pub_;
-  ros::Subscriber bs_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::Event& event) override;
-  void baseStateCb(const tobas_msgs::BaseState& bs);
 };
 }  // namespace tobas_keyboard_teleop

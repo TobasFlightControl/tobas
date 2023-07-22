@@ -19,5 +19,6 @@
 
 	<depend>tobas_tools</depend>
 	<depend>tobas_msgs</depend>
+	<depend>tobas_multirotor_takeoff</depend>
 
 </package>

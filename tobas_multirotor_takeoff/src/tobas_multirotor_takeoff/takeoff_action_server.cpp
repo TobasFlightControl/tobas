@@ -65,7 +65,7 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
 {
   rosInfo("Action is called.");
 
-  // 初期静止状態を取得
+  // 静止チェッカーを用意
   rosInfo("Waiting for '" << WAIT_FOR_STILLNESS << "' action server.");
   if (!wait_for_stillness_.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
@@ -74,10 +74,22 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
     as_.setAborted(result_);
     return;
   }
+
+  // 静止チェック
   rosInfo("Checking stillness.");
   wait_for_stillness_.sendGoalAndWait(wait_for_stillness_goal_);
-  rosInfo("Stillness is confirmed");
   const auto wait_for_stillness_result = wait_for_stillness_.getResult();
+  if (
+    wait_for_stillness_result->error_code != tobas_common_actions::WaitForStillnessResult::NO_ERROR)
+  {
+    rosInfo("'" << WAIT_FOR_STILLNESS << "' action failed.");
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_);
+    return;
+  }
+
+  // 初期状態を取得
+  rosInfo("Stillness is confirmed");
   const auto& init_bs = wait_for_stillness_result->base_state;
 
   // 位置制御コマンド
@@ -117,6 +129,7 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
       fillResult();
       result_.error_code = ResultType::NO_ERROR;
       as_.setSucceeded(result_);
+      return;
     }
 
     ros::spinOnce();

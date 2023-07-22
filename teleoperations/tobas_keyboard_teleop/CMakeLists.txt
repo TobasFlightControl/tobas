@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_multirotor_takeoff
 	tobas_tools
 	tobas_msgs
 	dh_kdl
@@ -20,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_parser
 	kdl_msgs
 	roscpp
+	actionlib
 )
 find_package(X11 REQUIRED)
 

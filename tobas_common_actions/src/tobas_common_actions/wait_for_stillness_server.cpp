@@ -96,17 +96,29 @@ bool WaitForStillnessServer::isConditionsMet()
     return false;
   }
 
+  // FIXME: 本当は最初と最後の差ではなく，範囲つまり最大値と最小値の差で評価すべき
   const auto& bs_front = bs_history_.front();
   const auto& bs_back = bs_history_.back();
 
+  bool res = true;
+
   const auto dp = bs_back.pose.pos - bs_front.pose.pos;
-  if (sqrt(sqr(dp.x()) + sqr(dp.y())) > goal_->horizontal_position_variance_threshold)
+  const auto hor_pos_var_norm = sqrt(sqr(dp.x()) + sqr(dp.y()));
+  if (hor_pos_var_norm > goal_->horizontal_position_variance_threshold)
   {
-    return false;
+    rosWarnThrottle(
+      kWarnPeriod, "The variance of horizontal position in "
+                     << goal_->time_window << " seconds is over threshold: " << hor_pos_var_norm
+                     << " > " << goal_->horizontal_position_variance_threshold);
+    res = false;
   }
   if (abs(dp.z()) > goal_->vertical_position_variance_threshold)
   {
-    return false;
+    rosWarnThrottle(
+      kWarnPeriod, "The variance of altitude in "
+                     << goal_->time_window << " seconds is over threshold: " << abs(dp.z()) << " > "
+                     << goal_->vertical_position_variance_threshold);
+    res = false;
   }
 
   const auto roll_diff = bs_back.pose.euler.roll - bs_front.pose.euler.roll;
@@ -114,23 +126,35 @@ bool WaitForStillnessServer::isConditionsMet()
   const auto yaw_diff = bs_back.pose.euler.yaw - bs_front.pose.euler.yaw;
   if (abs(roll_diff) > goal_->attitude_variance_threshold)
   {
-    return false;
+    rosWarnThrottle(
+      kWarnPeriod, "The variance of roll angle in "
+                     << goal_->time_window << " seconds is over threshold: " << abs(roll_diff)
+                     << " > " << goal_->attitude_variance_threshold);
+    res = false;
   }
   if (abs(pitch_diff) > goal_->attitude_variance_threshold)
   {
-    return false;
+    rosWarnThrottle(
+      kWarnPeriod, "The variance of pitch angle in "
+                     << goal_->time_window << " seconds is over threshold: " << abs(pitch_diff)
+                     << " > " << goal_->attitude_variance_threshold);
+    res = false;
   }
   if (abs(yaw_diff) > goal_->heading_variance_threshold)
   {
-    return false;
+    rosWarnThrottle(
+      kWarnPeriod, "The variance of yaw angle in "
+                     << goal_->time_window << " seconds is over threshold: " << abs(yaw_diff)
+                     << " > " << goal_->heading_variance_threshold);
+    res = false;
   }
 
   if (bs_back.header.stamp - t_last_valid_velocity_ < goal_->time_window)
   {
-    return false;
+    res = false;
   }
 
-  return true;
+  return res;
 }
 
 void WaitForStillnessServer::fillResult()
@@ -174,6 +198,9 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseState& bs)
   // これで速度が初めて閾値を下回った瞬間の時刻が記録される
   if (bs.twist.vel.Norm() > goal_->velocity_threshold)
   {
+    rosWarnThrottle(
+      kWarnPeriod, "The norm of velocity is over threshold: " << bs.twist.vel.Norm() << " > "
+                                                              << goal_->velocity_threshold);
     t_last_valid_velocity_ = bs.header.stamp;
   }
 }
@@ -208,7 +235,7 @@ void WaitForStillnessServer::executeCb(const GoalType& goal)
       is_action_running_ = false;
       fillResult();
       result_.error_code = ResultType::NO_ERROR;
-      as_.setSucceeded();
+      as_.setSucceeded(result_);
       return;
     }
 

@@ -1,7 +1,11 @@
+#include <actionlib/client/simple_action_client.h>
+
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
+
+#include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
 
 #include "../../include/tobas_keyboard_teleop/position_yaw_publisher.hpp"
 #include "../../include/tobas_keyboard_teleop/constants.hpp"
@@ -19,8 +23,7 @@ ostream& operator<<(ostream& os, const tobas_msgs::PositionYaw& arg)
   return os;
 }
 
-PositionYawPublisher::PositionYawPublisher()
-  : super(), keyboard_(getKeyboardControls()), bs_received_(false)
+PositionYawPublisher::PositionYawPublisher() : super(), keyboard_(getKeyboardControls())
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -38,28 +41,39 @@ PositionYawPublisher::PositionYawPublisher()
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  cmd_.level.data = tobas_msgs::CommandLevel::NORMAL;
-
   registerPublishers();
   registerSubscribers();
 }
 
 void PositionYawPublisher::run()
 {
-  // 初期状態が得られるまで待機
-  while (ros::ok() && !bs_received_)
+  // 離陸アクションクライアントを用意
+  actionlib::SimpleActionClient<tobas_multirotor_takeoff::MultirotorTakeoffAction> takeoff(
+    kTakeoffActionName);
+  rosInfo("Waiting for '" << kTakeoffActionName << "' action server.");
+  if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    rosWarnThrottle(kCheckTopicsTimerPeriod, "Base state is not received yet.");
-    ros::spinOnce();
-    ros::Duration(0.1).sleep();
+    rosInfo("Failed to connect to '" << kTakeoffActionName << "' action server.");
+    return;
   }
 
-  // 初期コマンド
-  cmd_.pos.x(bs_.pose.pos.x());
-  cmd_.pos.y(bs_.pose.pos.y());
-  cmd_.pos.z(bs_.pose.pos.z() + init_elevation_);
-  cmd_.yaw = bs_.pose.euler.yaw;
+  // 離陸
+  rosInfo("Takeoff");
+  tobas_multirotor_takeoff::MultirotorTakeoffGoal takeoff_goal;
+  takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
+  takeoff.sendGoalAndWait(takeoff_goal);
+  const auto takeoff_result = takeoff.getResult();
+  if (takeoff_result->error_code != tobas_multirotor_takeoff::MultirotorTakeoffResult::NO_ERROR)
+  {
+    rosInfo("'" << kTakeoffActionName << "' action failed.");
+    return;
+  }
 
+  // 初期コマンドを取得
+  rosInfo("Takeoff finished successfully. Start teleoperation!");
+  auto cmd = takeoff_result->last_command;
+
+  // キーボード入力による位置コマンドを発行し続ける
   dh_ros::Rate rate(kUpdateRate);
   while (ros::ok())
   {
@@ -72,56 +86,56 @@ void PositionYawPublisher::run()
     {
       case kKeyCode_W:  // X+
       {
-        cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() + delta_pos_));
-        rosInfo("Moving forward: " << cmd_);
+        cmd.pos.x(x_limit_.clamp(cmd.pos.x() + delta_pos_));
+        rosInfo("Moving forward: " << cmd);
         break;
       }
       case kKeyCode_S:  // X-
       {
-        cmd_.pos.x(x_limit_.clamp(cmd_.pos.x() - delta_pos_));
-        rosInfo("Moving backward: " << cmd_);
+        cmd.pos.x(x_limit_.clamp(cmd.pos.x() - delta_pos_));
+        rosInfo("Moving backward: " << cmd);
         break;
       }
       case kKeyCode_A:  // Y+
       {
-        cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() + delta_pos_));
-        rosInfo("Moving left: " << cmd_);
+        cmd.pos.y(y_limit_.clamp(cmd.pos.y() + delta_pos_));
+        rosInfo("Moving left: " << cmd);
         break;
       }
       case kKeyCode_D:  // Y-
       {
-        cmd_.pos.y(y_limit_.clamp(cmd_.pos.y() - delta_pos_));
-        rosInfo("Moving right: " << cmd_);
+        cmd.pos.y(y_limit_.clamp(cmd.pos.y() - delta_pos_));
+        rosInfo("Moving right: " << cmd);
         break;
       }
       case kKeyCode_Up:  // Z+
       {
-        cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() + delta_pos_));
-        rosInfo("Moving up: " << cmd_);
+        cmd.pos.z(z_limit_.clamp(cmd.pos.z() + delta_pos_));
+        rosInfo("Moving up: " << cmd);
         break;
       }
       case kKeyCode_Down:  // Z-
       {
-        cmd_.pos.z(z_limit_.clamp(cmd_.pos.z() - delta_pos_));
-        rosInfo("Moving down: " << cmd_);
+        cmd.pos.z(z_limit_.clamp(cmd.pos.z() - delta_pos_));
+        rosInfo("Moving down: " << cmd);
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
-        cmd_.yaw = yaw_limit_.clamp(cmd_.yaw + delta_rot_);
-        rosInfo("Rotating left: " << cmd_);
+        cmd.yaw = yaw_limit_.clamp(cmd.yaw + delta_rot_);
+        rosInfo("Rotating left: " << cmd);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
-        cmd_.yaw = yaw_limit_.clamp(cmd_.yaw - delta_rot_);
-        rosInfo("Rotating right: " << cmd_);
+        cmd.yaw = yaw_limit_.clamp(cmd.yaw - delta_rot_);
+        rosInfo("Rotating right: " << cmd);
         break;
       }
     }
 
     // コマンドを発行
-    cmd_pub_.publish(cmd_);
+    cmd_pub_.publish(cmd);
 
     ros::spinOnce();
     rate.sleep();
@@ -130,7 +144,6 @@ void PositionYawPublisher::run()
 
 void PositionYawPublisher::getRosParams()
 {
-  dh_ros::getParam("~initial_elevation", init_elevation_, kDefaultInitialElevation);
   dh_ros::getParam("~max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity);
   dh_ros::getParam("~max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity);
   dh_ros::getParam("~pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
@@ -142,7 +155,6 @@ void PositionYawPublisher::getRosParams()
   dh_ros::getParam("~pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
   dh_ros::getParam("~pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
 
-  ROS_ASSERT(init_elevation_ >= 0.);
   ROS_ASSERT(max_linvel_ > 0.);
   ROS_ASSERT(max_angvel_ > 0.);
   ROS_ASSERT(x_limit_.isValid());
@@ -159,7 +171,6 @@ void PositionYawPublisher::registerPublishers()
 void PositionYawPublisher::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this);
-  bs_sub_ = nh_.subscribe("base_state", 1, &PositionYawPublisher::baseStateCb, this);
 }
 
 void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
@@ -171,17 +182,6 @@ void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
       break;
     default:
       break;
-  }
-}
-
-void PositionYawPublisher::baseStateCb(const tobas_msgs::BaseState& bs)
-{
-  bs_ = bs;
-
-  if (!bs_received_)
-  {
-    rosInfo("First base state is received.");
-    bs_received_ = true;
   }
 }
 }  // namespace tobas_keyboard_teleop
