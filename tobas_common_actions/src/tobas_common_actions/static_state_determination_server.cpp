@@ -3,12 +3,12 @@
 #include <dh_ros_tools/operators.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
-#include "../../include/static_state_determination/static_state_determination.hpp"
-#include "../../include/static_state_determination/common.hpp"
+#include "../../include/tobas_common_actions/static_state_determination_server.hpp"
+#include "../../include/tobas_common_actions/common.hpp"
 
 using namespace dh_std;
 
-namespace static_state_determination
+namespace tobas_common_actions
 {
 StaticStateDeterminationServer::StaticStateDeterminationServer()
   : super(),
@@ -274,4 +274,4 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
 
   is_action_running_ = false;
 }
-}  // namespace static_state_determination
+}  // namespace tobas_common_actions

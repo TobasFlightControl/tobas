@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_common_actions" type="static_state_determination_server_node" name="static_state_determination_server" output="screen"/>
+
+</launch>

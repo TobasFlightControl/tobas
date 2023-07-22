@@ -5,12 +5,14 @@
 
 #include <tobas_tools/node.hpp>
 
-#include <static_state_determination/StaticStateDeterminationAction.h>
+#include <tobas_common_actions/StaticStateDeterminationAction.h>
 
-namespace static_state_determination
+namespace tobas_common_actions
 {
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
+  static constexpr char kActionName[] = "static_state_determination";
+
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
@@ -19,10 +21,10 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
-  using ActionType = static_state_determination::StaticStateDeterminationAction;
-  using GoalType = static_state_determination::StaticStateDeterminationGoalConstPtr;
-  using ResultType = static_state_determination::StaticStateDeterminationResult;
-  using FeedbackType = static_state_determination::StaticStateDeterminationFeedback;
+  using ActionType = tobas_common_actions::StaticStateDeterminationAction;
+  using GoalType = tobas_common_actions::StaticStateDeterminationGoalConstPtr;
+  using ResultType = tobas_common_actions::StaticStateDeterminationResult;
+  using FeedbackType = tobas_common_actions::StaticStateDeterminationFeedback;
 
 public:
   explicit StaticStateDeterminationServer();
@@ -69,4 +71,4 @@ private:
 
   void executeCb(const GoalType& goal);
 };
-}  // namespace static_state_determination
+}  // namespace tobas_common_actions

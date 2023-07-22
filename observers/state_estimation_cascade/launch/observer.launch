@@ -4,7 +4,7 @@
   <node pkg="orientation_estimation_complement" type="orientation_estimator_node" name="orientation_estimator_complement" output="screen"/>
 
   <!-- Static State Determinator -->
-  <include file="$(find static_state_determination)/launch/static_state_determination.launch"/>
+  <include file="$(find tobas_common_actions)/launch/static_state_determination.launch"/>
 
   <!-- State Estimator -->
   <node pkg="state_estimation_cascade" type="state_estimator_node" name="state_estimator_cascade" output="screen"/>

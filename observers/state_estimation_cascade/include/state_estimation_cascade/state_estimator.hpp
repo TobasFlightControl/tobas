@@ -13,7 +13,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
-#include <static_state_determination/StaticStateDeterminationAction.h>
+#include <tobas_common_actions/StaticStateDeterminationAction.h>
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
 #include "./cartesian_filter.hpp"
@@ -85,7 +85,7 @@ private:
 
   bool isReady();
   void initialize(const ImuMsg& imu);
-  static_state_determination::StaticStateDeterminationResultConstPtr setZeroPositions();
+  tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updatePoseVelMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
 

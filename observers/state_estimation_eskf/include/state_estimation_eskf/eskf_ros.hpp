@@ -12,7 +12,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
-#include <static_state_determination/StaticStateDeterminationAction.h>
+#include <tobas_common_actions/StaticStateDeterminationAction.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
 
 #include "./eskf.hpp"
@@ -110,7 +110,7 @@ private:
 
   bool isReady();
   void initialize(const ros::Time& stamp);
-  static_state_determination::StaticStateDeterminationResultConstPtr setZeroPositions();
+  tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
   bool isValidImuTimeGap(double dt);
   bool isStateStable();

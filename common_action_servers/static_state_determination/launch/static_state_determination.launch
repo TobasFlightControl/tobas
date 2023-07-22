@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="static_state_determination" type="static_state_determination_node" name="static_state_determination" output="screen"/>
-
-</launch>

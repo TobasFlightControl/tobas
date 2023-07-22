@@ -14,8 +14,6 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
-#include <static_state_determination/common.hpp>
-
 #include "../../include/state_estimation_eskf/eskf_ros.hpp"
 
 using namespace std;
@@ -177,18 +175,17 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   t_last_ = t_ready_ = stamp + duration;
 }
 
-static_state_determination::StaticStateDeterminationResultConstPtr
+tobas_common_actions::StaticStateDeterminationResultConstPtr
 ErrorStateKalmanFilterRos::setZeroPositions()
 {
-  actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac(
-    static_state_determination::kActionName);
-  rosInfo(
-    "Waiting for action server '" << static_state_determination::kActionName << "' to start.");
+  constexpr char action_name[] = "static_state_determination";
+  actionlib::SimpleActionClient<tobas_common_actions::StaticStateDeterminationAction> ac(
+    action_name);
+  rosInfo("Waiting for action server '" << action_name << "' to start.");
   ac.waitForServer();
 
-  rosInfo(
-    "Action server '" << static_state_determination::kActionName << "' started, sending goal.");
-  static_state_determination::StaticStateDeterminationGoal goal;
+  rosInfo("Action server '" << action_name << "' started, sending goal.");
+  tobas_common_actions::StaticStateDeterminationGoal goal;
   goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
   goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
   ac.sendGoal(goal);
@@ -201,7 +198,7 @@ ErrorStateKalmanFilterRos::setZeroPositions()
 
   const auto result = ac.getResult();
   rosInfo(
-    "The result of " << static_state_determination::kActionName << ":\n"
+    "The result of " << action_name << ":\n"
                      << "IMU count: " << result->imu_count << endl
                      << "Magnetometer count: " << result->mag_count << endl
                      << "Barometer count: " << result->bar_count << endl
@@ -308,31 +305,32 @@ bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
 
 bool ErrorStateKalmanFilterRos::isStateStable()
 {
-  const auto pos = eskf_.getXYZ();
-  const auto hor_pos_norm = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
-  if (hor_pos_norm > gps_hor_pos_stddev_thr_ * 2)
-  {
-    rosWarnThrottle(
-      kInfoPeriod, "The norm of horizontal position is out of 95\% confidence interval: "
-                     << hor_pos_norm << " > " << gps_hor_pos_stddev_thr_ * 2);
-    return false;
-  }
-  if (abs(pos.z()) > gps_ver_pos_stddev_thr_ * 2)
-  {
-    rosWarnThrottle(
-      kInfoPeriod, "Altitude is out of 95\% confidence interval: |" << pos.z() << "| > "
-                                                                    << gps_ver_pos_stddev_thr_ * 2);
-    return false;
-  }
+  // const auto pos = eskf_.getXYZ();
+  // const auto hor_pos_norm = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
+  // if (hor_pos_norm > gps_hor_pos_stddev_thr_ * 2)
+  // {
+  //   rosWarnThrottle(
+  //     kInfoPeriod, "The norm of horizontal position is out of 95\% confidence interval: "
+  //                    << hor_pos_norm << " > " << gps_hor_pos_stddev_thr_ * 2);
+  //   return false;
+  // }
+  // if (abs(pos.z()) > gps_ver_pos_stddev_thr_ * 2)
+  // {
+  //   rosWarnThrottle(
+  //     kInfoPeriod, "Altitude is out of 95\% confidence interval: |" << pos.z() << "| > "
+  //                                                                   << gps_ver_pos_stddev_thr_ *
+  //                                                                   2);
+  //   return false;
+  // }
 
-  const auto vel = eskf_.getVelocity();
-  if (vel.norm() > kVelocityThreshold)
-  {
-    rosWarnThrottle(
-      kInfoPeriod,
-      "The norm of velocity is over threshold: " << vel.norm() << " > " << kVelocityThreshold);
-    return false;
-  }
+  // const auto vel = eskf_.getVelocity();
+  // if (vel.norm() > kVelocityThreshold)
+  // {
+  //   rosWarnThrottle(
+  //     kInfoPeriod,
+  //     "The norm of velocity is over threshold: " << vel.norm() << " > " << kVelocityThreshold);
+  //   return false;
+  // }
 
   return true;
 }

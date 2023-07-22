@@ -19,6 +19,6 @@
 
 	<depend>tobas_tools</depend>
 	<depend>tobas_msgs</depend>
-	<depend>static_state_determination</depend>
+	<depend>tobas_common_actions</depend>
 
 </package>

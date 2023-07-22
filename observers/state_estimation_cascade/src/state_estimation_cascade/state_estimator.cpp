@@ -11,7 +11,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
-#include <static_state_determination/common.hpp>
+#include <tobas_common_actions/common.hpp>
 
 #include "../../include/state_estimation_cascade/state_estimator.hpp"
 
@@ -132,18 +132,16 @@ void StateEstimator::initialize(const ImuMsg& imu)
   t_last_ = imu.header.stamp + duration;
 }
 
-static_state_determination::StaticStateDeterminationResultConstPtr
-StateEstimator::setZeroPositions()
+tobas_common_actions::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositions()
 {
-  actionlib::SimpleActionClient<static_state_determination::StaticStateDeterminationAction> ac(
-    static_state_determination::kActionName);
-  rosInfo(
-    "Waiting for action server '" << static_state_determination::kActionName << "' to start.");
+  constexpr char action_name[] = "static_state_determination";
+  actionlib::SimpleActionClient<tobas_common_actions::StaticStateDeterminationAction> ac(
+    action_name);
+  rosInfo("Waiting for action server '" << action_name << "' to start.");
   ac.waitForServer();
 
-  rosInfo(
-    "Action server '" << static_state_determination::kActionName << "' started, sending goal.");
-  static_state_determination::StaticStateDeterminationGoal goal;
+  rosInfo("Action server '" << action_name << "' started, sending goal.");
+  tobas_common_actions::StaticStateDeterminationGoal goal;
   goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
   goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
   ac.sendGoal(goal);
@@ -156,7 +154,7 @@ StateEstimator::setZeroPositions()
 
   const auto result = ac.getResult();
   rosInfo(
-    "The result of " << static_state_determination::kActionName << ":\n"
+    "The result of " << action_name << ":\n"
                      << "IMU count: " << result->imu_count << endl
                      << "Magnetometer count: " << result->mag_count << endl
                      << "Barometer count: " << result->bar_count << endl
