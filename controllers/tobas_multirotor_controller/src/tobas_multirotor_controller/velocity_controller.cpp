@@ -6,9 +6,8 @@ using namespace KDL;
 
 namespace tobas_multirotor_controller
 {
-VelocityController::VelocityController(const VelocityControllerDynamicParams& params)
+VelocityController::VelocityController()
 {
-  reconfigure(params);
 }
 
 void VelocityController::update(const Vector& cur_vel, const Vector& tar_vel, Vector& tar_acc)

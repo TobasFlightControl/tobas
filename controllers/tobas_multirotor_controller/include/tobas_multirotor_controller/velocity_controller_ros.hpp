@@ -6,8 +6,6 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/VelocityYaw.h>
@@ -34,8 +32,6 @@ public:
   explicit VelocityControllerRos();
 
 private:
-  tobas::Drone drone_;
-
   uint8_t cmd_level_;
   tobas_msgs::BaseState cur_bs_;               // 現在のベースの状態
   tobas_msgs::RollPitchYawThrust rpy_thrust_;  // 姿勢+推力 (出力)
@@ -46,8 +42,8 @@ private:
   bool bs_received_;
   bool vel_yaw_received_;
 
-  std::shared_ptr<VelocityController> vel_controller_;
-  std::shared_ptr<AccelerationController> acc_controller_;
+  VelocityController vel_controller_;
+  AccelerationController acc_controller_;
 
   // RosParams
   VelocityControllerDynamicParams dynamic_params_;

@@ -15,7 +15,7 @@ struct VelocityControllerDynamicParams
 class VelocityController
 {
 public:
-  explicit VelocityController(const VelocityControllerDynamicParams& params);
+  explicit VelocityController();
 
   void update(const KDL::Vector& cur_vel, const KDL::Vector& tar_vel, KDL::Vector& tar_acc);
 

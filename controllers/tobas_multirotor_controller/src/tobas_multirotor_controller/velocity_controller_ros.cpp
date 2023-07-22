@@ -31,11 +31,8 @@ VelocityControllerRos::VelocityControllerRos()
     server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
-  drone_.loadFromParam(ns_);
 
-  // コントローラを初期化
-  vel_controller_.reset(new VelocityController(dynamic_params_));
-  acc_controller_.reset(new AccelerationController(drone_));
+  vel_controller_.reconfigure(dynamic_params_);
 
   registerPublishers();
   registerSubscribers();
@@ -94,10 +91,10 @@ void VelocityControllerRos::runOnce()
 {
   // 速度制御器
   const auto cur_vel_W = cur_bs_.pose.euler * cur_bs_.twist.vel;
-  vel_controller_->update(cur_vel_W, tar_vel_W_, tar_acc_W_);
+  vel_controller_.update(cur_vel_W, tar_vel_W_, tar_acc_W_);
 
   // 非線形変換
-  acc_controller_->update(
+  acc_controller_.update(
     tar_acc_W_, cur_bs_.pose.euler.yaw, rpy_thrust_.thrust, rpy_thrust_.rpy.roll,
     rpy_thrust_.rpy.pitch);
 
@@ -201,7 +198,7 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  vel_controller_->reconfigure(dynamic_params_);
+  vel_controller_.reconfigure(dynamic_params_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller
