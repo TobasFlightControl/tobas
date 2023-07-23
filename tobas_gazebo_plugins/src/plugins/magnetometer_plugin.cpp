@@ -16,6 +16,8 @@ GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : super()
 
 void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   // Get SDF parameters
   getSdfParams(sdf);
 

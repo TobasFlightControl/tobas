@@ -17,6 +17,8 @@ GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_())
 
 void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   // Get SDF parameters
   getSdfParams(sdf);
 

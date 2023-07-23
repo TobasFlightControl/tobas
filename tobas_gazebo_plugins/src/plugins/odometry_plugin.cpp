@@ -21,6 +21,8 @@ GazeboOdometryPlugin::GazeboOdometryPlugin() : super()
 
 void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   getSdfParams(sdf);
   fillMessageStaticParts();
   setRandomDistributions();

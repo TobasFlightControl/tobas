@@ -14,6 +14,8 @@ GazeboBarometerPlugin::GazeboBarometerPlugin() : super(), rnd_gen_(rnd_dev_())
 
 void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   // Get SDF parameters
   getSdfParams(sdf);
 

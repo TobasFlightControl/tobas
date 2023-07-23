@@ -16,6 +16,8 @@ GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : super()
 
 void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   // Get SDF parameters
   getSdfParams(sdf);
 

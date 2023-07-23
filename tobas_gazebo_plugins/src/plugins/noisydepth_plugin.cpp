@@ -24,6 +24,8 @@ GazeboNoisyDepthPlugin::~GazeboNoisyDepthPlugin()
 
 void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   parent_sensor_ = dynamic_pointer_cast<sensors::DepthCameraSensor>(parent);
   if (!parent_sensor_)
   {

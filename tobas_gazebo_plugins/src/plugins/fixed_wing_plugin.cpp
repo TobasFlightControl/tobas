@@ -31,6 +31,8 @@ GazeboFixedWingPlugin::GazeboFixedWingPlugin()
 
 void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   getSdfParams(sdf);
 
   // 制御面の角度モデル

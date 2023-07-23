@@ -17,6 +17,8 @@ GazeboGpsPlugin::GazeboGpsPlugin() : super()
 
 void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   getSdfParams(sdf);
   fillMessageStaticParts();
   setRandomDistribuitons();

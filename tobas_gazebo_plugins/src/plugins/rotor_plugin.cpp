@@ -27,6 +27,8 @@ GazeboRotorPlugin::GazeboRotorPlugin()
 
 void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   // Get SDF parameters
   getSdfParams(sdf);
 
