@@ -88,4 +88,33 @@
     </gazebo>
   </xacro:macro>
 
+  <!-- Virtual frame for visualization -->
+  <xacro:macro name="virtual_frame" params="parent name *origin">
+    <joint name="${name}_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+    </joint>
+
+    <link name="${name}_link">
+      <inertial>
+        <mass value="1e-9"/>
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <box size="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <material name="Red">
+          <color rgba="1.0 0.0 0.0 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="1e-3 1e-3 1e-3"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
 </robot>
