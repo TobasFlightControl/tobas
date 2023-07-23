@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 
 <robot name="hummingbird" xmlns:xacro="http://ros.org/wiki/xacro">
-  <!-- Properties (Taken from Novel Dynamic Inversion Architecture Design
-for Quadrocopter Control by Jian Wang et al.) -->
-  <!-- <xacro:property name="namespace" value="$(arg namespace)" /> -->
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/multirotor_base.xacro" />
+
+  <!-- Properties (Taken from Novel Dynamic Inversion Architecture Design for Quadrocopter Control by Jian Wang et al.) -->
   <xacro:property name="namespace" value="hummingbird" />
   <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
   <xacro:property name="use_mesh_file" value="true" />
@@ -32,10 +34,6 @@ for Quadrocopter Control by Jian Wang et al.) -->
   <xacro:property name="rotor_inertia">
     <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor*rotor_velocity_slowdown_sim}" />
   </xacro:property>
-
-  <!-- Included URDF Files -->
-  <!-- <xacro:include filename="$(find rotors_description)/urdf/multirotor_base.xacro" /> -->
-  <xacro:include filename="$(find tobas_description)/urdf/multirotor_base.xacro" />
 
   <!-- Instantiate multirotor_base_macro once -->
   <xacro:multirotor_base_macro
