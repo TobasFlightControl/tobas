@@ -1,23 +1,4 @@
 <?xml version="1.0"?>
-<!--
-  Copyright 2015 Fadri Furrer, ASL, ETH Zurich, Switzerland
-  Copyright 2015 Michael Burri, ASL, ETH Zurich, Switzerland
-  Copyright 2015 Mina Kamel, ASL, ETH Zurich, Switzerland
-  Copyright 2015 Janosch Nikolic, ASL, ETH Zurich, Switzerland
-  Copyright 2015 Markus Achtelik, ASL, ETH Zurich, Switzerland
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
 
 <robot name="asymmetric_quadrotor" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- Included URDF Files -->
@@ -61,8 +42,7 @@
     body_width="${body_width}"
     body_height="${body_height}"
     use_mesh_file="${use_mesh_file}"
-    mesh_file=""
-    >
+    mesh_file="">
     <xacro:insert_block name="body_inertia" />
   </xacro:multirotor_base_macro>
 
@@ -165,19 +145,11 @@
   <!-- Instantiate rotors -->
   <xacro:vertical_rotor
     robot_namespace="${namespace}"
-    suffix="0"
     direction="ccw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
-    parent="${namespace}/arm0_link"
+    parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="0"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Red"
     use_own_mesh="false"
     mesh="">
@@ -187,19 +159,11 @@
 
   <xacro:vertical_rotor
     robot_namespace="${namespace}"
-    suffix="1"
     direction="cw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
-    parent="${namespace}/arm1_link"
+    parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="1"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
@@ -209,19 +173,11 @@
 
   <xacro:vertical_rotor
     robot_namespace="${namespace}"
-    suffix="2"
     direction="ccw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
-    parent="${namespace}/arm2_link"
+    parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="2"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Yellow"
     use_own_mesh="false"
     mesh="">
@@ -231,19 +187,11 @@
 
   <xacro:vertical_rotor
     robot_namespace="${namespace}"
-    suffix="3"
     direction="cw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
-    parent="${namespace}/arm3_link"
+    parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="3"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">

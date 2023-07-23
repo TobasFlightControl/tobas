@@ -49,27 +49,18 @@
     body_width="${body_width}"
     body_height="${body_height}"
     use_mesh_file="${use_mesh_file}"
-    mesh_file="${mesh_file}"
-    >
+    mesh_file="${mesh_file}">
     <xacro:insert_block name="body_inertia" />
   </xacro:multirotor_base_macro>
 
   <!-- Instantiate rotors -->
   <xacro:vertical_rotor
     robot_namespace="${namespace}"
-    suffix="front_right"
     direction="ccw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="0"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
@@ -79,19 +70,11 @@
 
   <xacro:vertical_rotor
     robot_namespace="${namespace}"
-    suffix="back_left"
     direction="ccw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="1"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Red"
     use_own_mesh="false"
     mesh="">
@@ -99,20 +82,13 @@
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor robot_namespace="${namespace}"
-    suffix="front_left"
+  <xacro:vertical_rotor
+    robot_namespace="${namespace}"
     direction="cw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="2"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
@@ -120,20 +96,13 @@
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor robot_namespace="${namespace}"
-    suffix="back_right"
+  <xacro:vertical_rotor
+    robot_namespace="${namespace}"
     direction="cw"
-    motor_constant="${motor_constant}"
-    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    time_constant_up="${time_constant_up}"
-    time_constant_down="${time_constant_down}"
-    max_rot_velocity="${max_rot_velocity}"
     motor_number="3"
-    rotor_drag_coefficient="${rotor_drag_coefficient}"
-    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Red"
     use_own_mesh="false"
     mesh="">
