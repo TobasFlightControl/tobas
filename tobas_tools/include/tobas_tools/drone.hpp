@@ -19,7 +19,7 @@ public:
   void loadFromParam(const std::string& ns);
 
   const KDL::Tree& tree() const;
-  const std::vector<std::string>& activeJointNames() const;
+  const std::vector<std::string>& postureDefiningJoints() const;
   const RotorConfigs& rotorConfigs() const;
   const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
   const FixedWingConfig& fixedWing() const;
@@ -45,7 +45,7 @@ public:
 
 private:
   KDL::Tree tree_;
-  std::vector<std::string> active_joint_names_;
+  std::vector<std::string> posture_defining_joints_;
   RotorConfigs rotor_configs_;
   FixedWingConfig fixed_wing_config_;
 

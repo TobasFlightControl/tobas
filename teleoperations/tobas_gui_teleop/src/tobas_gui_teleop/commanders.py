@@ -137,7 +137,7 @@ class CommandersWidget(QScrollArea):
         self._yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MINIMUM_YAW)
         self._yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAXIMUM_YAW)
         self._init_elevation = rospy.get_param("~initial_elevation", self.DEFAULT_INITIAL_ELEVATION)
-        self._joint_names = rospy.get_param("active_joint_names")
+        self._joint_names = rospy.get_param("posture_defining_joint_names")
 
         assert self._x_min <= self._x_max
         assert self._y_min <= self._y_max

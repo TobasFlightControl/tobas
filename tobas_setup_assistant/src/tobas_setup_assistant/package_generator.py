@@ -158,7 +158,7 @@ class PackageGenerator(QWidget):
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
-        for jnt_name in self._main.urdf_parser.active_joint_names():
+        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
             joint_controllers += f' {jnt_name}_controller'
         template_items["joint_controllers"] = joint_controllers
 
@@ -176,7 +176,7 @@ class PackageGenerator(QWidget):
         rotary_wings = self._main.settings.rotary_wings.selected
         num_rotors = rotary_wings.count()
         drone_config = {
-            "active_joint_names": self._main.urdf_parser.active_joint_names(),
+            "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
         }
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
@@ -217,7 +217,7 @@ class PackageGenerator(QWidget):
             "type": "joint_state_controller/JointStateController",
             "publish_rate": 1000.
         }
-        for jnt_name in self._main.urdf_parser.active_joint_names():
+        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
             items[f'{jnt_name}_controller'] = {
                 "type": "position_controllers/JointPositionController",
                 "joint": jnt_name,
@@ -556,6 +556,6 @@ class PackageGenerator(QWidget):
         robot.append(ros_control)
 
         # Transmissions
-        for jnt_name in self._main.urdf_parser.active_joint_names():
+        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
             transmission = Transmission(jnt_name, interface=Transmission.POSITION)
             robot.append(transmission)

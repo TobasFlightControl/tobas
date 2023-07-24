@@ -71,7 +71,7 @@ class URDFParser(QWidget):
     def link_names(self) -> List[str]:
         return self._tree.link_names()
 
-    def active_joint_names(self) -> List[str]:
+    def posture_defining_joint_names(self) -> List[str]:
         """
         ロボットの形状を決めるのに必要な関節名のリストを返す．\\
         プロペラに設定されていない可動リンクがあるかどうかを調べる．

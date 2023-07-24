@@ -21,7 +21,7 @@ void Drone::loadFromParam(const string& ns)
 {
   getTree(ns);
 
-  dh_ros::getParam(ns + "/active_joint_names", active_joint_names_);
+  dh_ros::getParam(ns + "/posture_defining_joint_names", posture_defining_joints_);
 
   getRotorConfigs(ns);
 
@@ -39,9 +39,9 @@ const Tree& Drone::tree() const
   return tree_;
 }
 
-const vector<string>& Drone::activeJointNames() const
+const vector<string>& Drone::postureDefiningJoints() const
 {
-  return active_joint_names_;
+  return posture_defining_joints_;
 }
 
 const RotorConfigs& Drone::rotorConfigs() const

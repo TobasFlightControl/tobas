@@ -32,7 +32,7 @@ class GuiTeleopWidget(QWidget):
         self._rows.addWidget(self.pose_buttons)
 
         # 可動ジョイントが無い場合は姿勢ボタンを不可視にする
-        joint_names = rospy.get_param("active_joint_names")
+        joint_names = rospy.get_param("posture_defining_joint_names")
         if len(joint_names) == 0:
             self.pose_buttons.setVisible(False)
 

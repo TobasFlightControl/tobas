@@ -35,7 +35,7 @@ RotationControllerRos::RotationControllerRos()
 
   rot_controller_.reset(new RotationController(drone_, dynamic_params_rot_));
 
-  is_transformable_ = drone_.activeJointNames().size() > 0;
+  is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
   rotor_speeds_.speeds.resize(drone_.numRotors(), 0.);
 
@@ -215,7 +215,7 @@ void RotationControllerRos::jointStateCb(const sensor_msgs::JointState& js)
     return;
   }
 
-  for (const auto& jnt_name : drone_.activeJointNames())
+  for (const auto& jnt_name : drone_.postureDefiningJoints())
   {
     try
     {
