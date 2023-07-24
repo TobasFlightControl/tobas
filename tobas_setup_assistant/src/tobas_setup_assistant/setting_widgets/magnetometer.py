@@ -23,14 +23,6 @@ class MagnetometerWidget(BaseSettingWidget):
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
-        offset_description = "ルートリンクに対するセンサ位置のオフセット．"
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            offset_description,
-            suffix=" m",
-        )
-        self._rows.addWidget(self.offset)
-
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",

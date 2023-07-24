@@ -12,6 +12,7 @@ class OdometryModel(SensorModel):
         ns: str,
         link_name: str,
         update_rate: float,
+        offset: Tuple[float, float, float],
         pos_normal_noise_std: Tuple[float, float, float],
         rot_normal_noise_std: Tuple[float, float, float],
         linvel_normal_noise_std: Tuple[float, float, float],
@@ -42,6 +43,7 @@ class OdometryModel(SensorModel):
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "odometryTopic").text = "odometry"
+        ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
 
         ET.SubElement(plugin, "noiseNormalPosition").text \
             = " ".join(map(str, pos_normal_noise_std))

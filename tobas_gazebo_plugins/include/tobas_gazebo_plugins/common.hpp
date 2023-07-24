@@ -44,6 +44,7 @@ static constexpr double kDegreeToRadian = M_PI / 180.;
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 3.;
 static constexpr double kErrorPeriod = 1.;
+static constexpr double kCheckTopicsTimeThreshold = 1.;       // [s]
 
 // Default values
 static const std::string kDefaultBatteryTopic = "battery";
@@ -56,5 +57,4 @@ static constexpr double kDefaultAltitudeZero = 0.;           // [m]
 static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 static constexpr double kDefaultCheckDelayThreshold = 0.02;   // [s]
 static constexpr double kDefaultAutoStopTimeThreshold = 0.5;  // [s]
-static constexpr double kCheckTopicsTimeThreshold = 1.;       // [s]
 }  // namespace gazebo

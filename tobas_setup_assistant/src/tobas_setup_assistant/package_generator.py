@@ -429,7 +429,8 @@ class PackageGenerator(QWidget):
             imu_model = ImuModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=barometer.update_rate.get(),
+                update_rate=imu.update_rate.get(),
+                offset=imu.offset.get(),
                 gyro_noise_density=imu.gyro_noise_density.get(),
                 gyro_random_walk=imu.gyro_random_walk.get(),
                 gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
@@ -446,7 +447,7 @@ class PackageGenerator(QWidget):
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=barometer.update_rate.get(),
+                update_rate=magnetometer.update_rate.get(),
                 ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
                 ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
                 ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
@@ -461,6 +462,7 @@ class PackageGenerator(QWidget):
                 ns=self._drone_name,
                 link_name=root_link,
                 update_rate=barometer.update_rate.get(),
+                offset=barometer.offset.get(),
                 altitude_0=simulation.altitude_0.get(),
                 pressure_var=barometer.pressure_var.get(),
             )
@@ -472,6 +474,7 @@ class PackageGenerator(QWidget):
                 ns=self._drone_name,
                 link_name=root_link,
                 update_rate=gps.update_rate.get(),
+                offset=gps.offset.get(),
                 hor_pos_std=gps.horizontal_pos_std.get(),
                 ver_pos_std=gps.vertical_pos_std.get(),
                 hor_vel_std=gps.horizontal_vel_std.get(),
@@ -536,6 +539,7 @@ class PackageGenerator(QWidget):
                 ns=self._drone_name,
                 link_name=root_link,
                 update_rate=odometry.update_rate.get(),
+                offset=odometry.offset.get(),
                 pos_normal_noise_std=odometry.pos_normal_noise_std.get(),
                 rot_normal_noise_std=odometry.rot_normal_noise_std.get(),
                 linvel_normal_noise_std=odometry.linvel_normal_noise_std.get(),

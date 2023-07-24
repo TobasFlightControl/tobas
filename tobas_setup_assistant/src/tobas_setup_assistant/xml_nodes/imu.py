@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Tuple
 
 from .sensor import SensorModel
 
@@ -10,6 +11,7 @@ class ImuModel(SensorModel):
         ns: str,
         link_name: str,
         update_rate: float,
+        offset: Tuple[float, float, float],
         gyro_noise_density: float,
         gyro_random_walk: float,
         gyro_bias_corr_time: float,
@@ -39,6 +41,7 @@ class ImuModel(SensorModel):
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "imuTopic").text = "imu"
+        ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
         ET.SubElement(plugin, "gyroscopeNoiseDensity").text = str(gyro_noise_density)
         ET.SubElement(plugin, "gyroscopeRandomWalk").text = str(gyro_random_walk)
         ET.SubElement(plugin, "gyroscopeBiasCorrelationTime").text = str(gyro_bias_corr_time)

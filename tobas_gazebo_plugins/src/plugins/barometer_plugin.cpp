@@ -5,6 +5,7 @@
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
@@ -48,14 +49,19 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
+  getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
   getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
 }
 
 void GazeboBarometerPlugin::onUpdate()
 {
-  // Get the current geometric height
-  double altitude = alt_0_ + link_->WorldPose().Pos().Z();
+  // Get the current geometric height of sensor
+  const Pose3d& T_W_B = link_->WorldPose();
+  const Vector3d& W_Pos_WB = T_W_B.Pos();
+  const Quaterniond& W_Rot_B = T_W_B.Rot();
+  const Vector3d W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
+  const double altitude = alt_0_ + W_Pos_WS.Z();
 
   // Compute the air pressure at the current altitude
   double pressure = dh_std::altitudeToPressure(altitude);

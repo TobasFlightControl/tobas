@@ -42,6 +42,8 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
   getSdfParam(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
 
+  getSdfParam(sdf, "offset", offset_, zero3);
+
   getSdfParam(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev, NON_NEGATIVE);
   getSdfParam(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev, NON_NEGATIVE);
   getSdfParam(sdf, "horVelStdDev", hor_vel_std_dev_, kDefaultHorVelStdDev, NON_NEGATIVE);
@@ -109,33 +111,44 @@ void GazeboGpsPlugin::onUpdate()
 
 void GazeboGpsPlugin::updatePosition()
 {
-  // Get the position in the world frame
-  auto pos = link_->WorldPose().Pos();
+  // ベースフレームの状態を取得
+  const Pose3d& T_W_B = link_->WorldPose();
+  const Vector3d& W_Pos_WB = T_W_B.Pos();
+  const Quaterniond& W_Rot_B = T_W_B.Rot();
+
+  // オフセットを考慮してGPSレシーバーの位置を計算
+  Vector3d W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
 
   // Add the altitude of the origin to the z-coordinate
-  pos.Z() += alt_0_;
+  W_Pos_WS.Z() += alt_0_;
 
   // Apply noise to the position
-  pos += pos_noise_->get();
+  W_Pos_WS += pos_noise_->get();
 
   // Fill the GPS message
   timeGazeboToRos(world_->SimTime(), pos_msg_.header.stamp);
   dh_std::cartToGpsRelative(
-    pos.X(), pos.Y(), lat_0_, lon_0_, pos_msg_.latitude, pos_msg_.longitude);
-  pos_msg_.altitude = pos.Z();
+    W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, pos_msg_.latitude, pos_msg_.longitude);
+  pos_msg_.altitude = W_Pos_WS.Z();
 }
 
 void GazeboGpsPlugin::updateVelocity()
 {
-  // Get the linear velocity in the world frame
-  auto vel = link_->WorldLinearVel();
+  // ベースフレームの状態を取得
+  const Pose3d& T_W_B = link_->WorldPose();
+  const Quaterniond& W_Rot_B = T_W_B.Rot();
+  const Vector3d W_Linvel_WB = link_->WorldLinearVel();
+  const Vector3d B_Angvel_WB = link_->RelativeAngularVel();
+
+  // オフセットを考慮してGPSレシーバの速度を計算
+  Vector3d W_Linvel_WS = W_Linvel_WB + W_Rot_B * B_Angvel_WB.Cross(offset_);
 
   // Apply noise to ground speed
-  vel += vel_noise_->get();
+  W_Linvel_WS += vel_noise_->get();
 
   // Fill the ground speed message.
   timeGazeboToRos(world_->SimTime(), vel_msg_.header.stamp);
-  vectorGazeboToKDL(vel, vel_msg_.vel);
+  vectorGazeboToKDL(W_Linvel_WS, vel_msg_.vel);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboGpsPlugin);

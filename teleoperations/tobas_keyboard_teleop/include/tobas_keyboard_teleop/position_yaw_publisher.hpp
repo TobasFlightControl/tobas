@@ -11,7 +11,7 @@ namespace tobas_keyboard_teleop
 {
 static constexpr char kTakeoffActionName[] = "multirotor_takeoff";
 
-static constexpr double kDefaultMaxLinearVelocity = 1.;       // [m/s]
+static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
 static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
 static constexpr double kDefaultMinimumX = -10.;              // [m]
 static constexpr double kDefaultMaximumX = +10.;              // [m]

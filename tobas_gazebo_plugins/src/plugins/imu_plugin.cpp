@@ -33,7 +33,6 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   last_time_ = world_->SimTime();
-  gravity_W_ = world_->Gravity();
   gyro_bias_ = zero3;
   acc_bias_ = zero3;
 
@@ -68,6 +67,7 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
+  getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(
     sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity, POSITIVE);
   getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
@@ -93,19 +93,28 @@ void GazeboImuPlugin::onUpdate()
   const double dt = (cur_time - last_time_).Double();
   last_time_ = cur_time;
 
-  // Get linear acceleration and angular velocity from simulation
-  const Pose3d T_W_B = link_->WorldPose();
-  const Quaterniond R_W_B = T_W_B.Rot();
-  Vector3d acc_B = link_->RelativeLinearAccel() - R_W_B.RotateVectorReverse(gravity_W_);
-  Vector3d gyro_B = link_->RelativeAngularVel();
+  // ベースフレームの状態を取得
+  const Pose3d& T_W_B = link_->WorldPose();
+  const Quaterniond& R_W_B = T_W_B.Rot();
+  const Vector3d acc_B = link_->RelativeLinearAccel();
+  const Vector3d omega_B = link_->RelativeAngularVel();
+  const Vector3d domega_B = link_->RelativeAngularAccel();
+
+  // オフセットによる補正を考慮して加速度センサの読みを計算 (memo: 2-26)
+  const Vector3d grav_B = R_W_B.RotateVectorReverse(world_->Gravity());
+  const Vector3d acc_corr = omega_B.Cross(omega_B.Cross(offset_)) + domega_B.Cross(offset_);
+  Vector3d acc_meas = acc_B - grav_B + acc_corr;
+
+  // オフセットが並進のみならばジャイロセンサの読みはベースフレームの角速度に一致する
+  Vector3d gyro_meas = omega_B;
 
   // Add noise to the true values
-  addNoise(acc_B, gyro_B, dt);
+  addNoise(acc_meas, gyro_meas, dt);
 
-  // Fill IMU message.
+  // Fill IMU message
   timeGazeboToRos(cur_time, imu_msg_.header.stamp);
-  vectorGazeboToRos(acc_B, imu_msg_.linear_acceleration);
-  vectorGazeboToRos(gyro_B, imu_msg_.angular_velocity);
+  vectorGazeboToRos(acc_meas, imu_msg_.linear_acceleration);
+  vectorGazeboToRos(gyro_meas, imu_msg_.angular_velocity);
 
   const double acc_var = dh_std::sqr(acc_noise_density_) / dt;
   dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
@@ -121,7 +130,7 @@ void GazeboImuPlugin::onUpdate()
   // cout << "Gyroscope bias: " << gyro_bias_ << endl;
 }
 
-void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
+void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, double dt)
 {
   // Gyrosocpe
   const double tau_g = gyro_bias_corr_time_;
@@ -136,7 +145,8 @@ void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
   for (int i = 0; i < 3; ++i)
   {
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
-    ang_vel[i] = ang_vel[i] + gyro_bias_[i] + sigma_g_d * noise_(rnd_gen_) + gyro_turn_on_bias_[i];
+    gyro_meas[i] =
+      gyro_meas[i] + gyro_bias_[i] + sigma_g_d * noise_(rnd_gen_) + gyro_turn_on_bias_[i];
   }
 
   // Accelerometer
@@ -148,11 +158,11 @@ void GazeboImuPlugin::addNoise(Vector3d& lin_acc, Vector3d& ang_vel, double dt)
   const double sigma_b_a_d = sqrt(-sigma_b_a * sigma_b_a * tau_a / 2 * (exp(-2 * dt / tau_a) - 1));
   // Compute state-transition.
   const double phi_a_d = exp(-1. / tau_a * dt);
-  // Simulate accelerometer noise processes and add them to the true linear acceleration.
+  // Simulate acc_meas noise processes and add them to the true linear acceleration.
   for (int i = 0; i < 3; ++i)
   {
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
-    lin_acc[i] = lin_acc[i] + acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];
+    acc_meas[i] = acc_meas[i] + acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];
   }
 }
 

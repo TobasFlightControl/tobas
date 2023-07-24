@@ -42,6 +42,16 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "odometryTopic", odometry_pub_topic_, kDefaultOdometryTopic);
+  getSdfParam(sdf, "offset", offset_, zero3);
+  getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
+  getSdfParam(sdf, "noiseNormalRotation", noise_normal_rotation_, zero3);
+  getSdfParam(sdf, "noiseNormalLinearVelocity", noise_normal_linvel_, zero3);
+  getSdfParam(sdf, "noiseNormalAngularVelocity", noise_normal_angvel_, zero3);
+  getSdfParam(sdf, "noiseUniformPosition", noise_uniform_position_, zero3);
+  getSdfParam(sdf, "noiseUniformRotation", noise_uniform_rotation_, zero3);
+  getSdfParam(sdf, "noiseUniformLinearVelocity", noise_uniform_linvel_, zero3);
+  getSdfParam(sdf, "noiseUniformAngularVelocity", noise_uniform_angvel_, zero3);
 
   if (sdf->HasElement("covarianceImage"))
   {
@@ -55,17 +65,6 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
     getSdfParam(
       sdf, "covarianceImageScale", cov_image_scale_, kDefaultCovarianceImageScale, POSITIVE);
   }
-
-  getSdfParam(sdf, "odometryTopic", odometry_pub_topic_, kDefaultOdometryTopic);
-
-  getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
-  getSdfParam(sdf, "noiseNormalRotation", noise_normal_rotation_, zero3);
-  getSdfParam(sdf, "noiseNormalLinearVelocity", noise_normal_linvel_, zero3);
-  getSdfParam(sdf, "noiseNormalAngularVelocity", noise_normal_angvel_, zero3);
-  getSdfParam(sdf, "noiseUniformPosition", noise_uniform_position_, zero3);
-  getSdfParam(sdf, "noiseUniformRotation", noise_uniform_rotation_, zero3);
-  getSdfParam(sdf, "noiseUniformLinearVelocity", noise_uniform_linvel_, zero3);
-  getSdfParam(sdf, "noiseUniformAngularVelocity", noise_uniform_angvel_, zero3);
 }
 
 void GazeboOdometryPlugin::fillMessageStaticParts()
@@ -114,10 +113,16 @@ void GazeboOdometryPlugin::registerPublishers()
 
 void GazeboOdometryPlugin::onUpdate()
 {
-  // W: World, L: Local
-  auto pose_W = link_->WorldCoGPose();
-  auto linvel_L = link_->RelativeLinearVel();
-  auto angvel_L = link_->RelativeAngularVel();
+  // ベースフレームの状態を取得
+  const auto& T_W_B = link_->WorldPose();
+  const auto B_Linvel_WB = link_->RelativeLinearVel();
+  const auto B_Angvel_WB = link_->RelativeAngularVel();
+
+  // センサフレームに変換
+  const ignition::math::Pose3d T_B_S(offset_, ignition::math::Quaterniond::Identity);
+  auto T_W_S = T_W_B * T_B_S;
+  auto B_Linvel_WS = B_Linvel_WB + B_Angvel_WB.Cross(offset_);
+  auto B_Angvel_WS = B_Angvel_WB;  // オフセットが並進のみならば角速度は同じ
 
   // Check if odometry is available
   if (covariance_image_.data != NULL)
@@ -125,8 +130,8 @@ void GazeboOdometryPlugin::onUpdate()
     // Image is always centered around the origin
     const auto width = covariance_image_.cols;
     const auto height = covariance_image_.rows;
-    const auto x = static_cast<int>(floor(pose_W.Pos().X() / cov_image_scale_)) + width / 2;
-    const auto y = static_cast<int>(floor(pose_W.Pos().Y() / cov_image_scale_)) + height / 2;
+    const auto x = static_cast<int>(floor(T_W_B.Pos().X() / cov_image_scale_)) + width / 2;
+    const auto y = static_cast<int>(floor(T_W_B.Pos().Y() / cov_image_scale_)) + height / 2;
 
     if (0 <= x && x < width && 0 <= y && y < height)
     {
@@ -138,13 +143,14 @@ void GazeboOdometryPlugin::onUpdate()
     }
   }
 
-  addNoise(pose_W, linvel_L, angvel_L);
+  // Add noise to the true values
+  addNoise(T_W_S, B_Linvel_WS, B_Angvel_WS);
 
   // Fill in odometry message
   timeGazeboToRos(world_->SimTime(), odom_msg_.header.stamp);
-  poseGazeboToRos(pose_W, odom_msg_.pose.pose);
-  vectorGazeboToRos(linvel_L, odom_msg_.twist.twist.linear);
-  vectorGazeboToRos(angvel_L, odom_msg_.twist.twist.angular);
+  poseGazeboToRos(T_W_B, odom_msg_.pose.pose);
+  vectorGazeboToRos(B_Linvel_WS, odom_msg_.twist.twist.linear);
+  vectorGazeboToRos(B_Angvel_WS, odom_msg_.twist.twist.angular);
 
   odometry_pub_.publish(odom_msg_);
 }

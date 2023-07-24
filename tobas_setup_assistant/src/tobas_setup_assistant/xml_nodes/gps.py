@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Tuple
 
 from .sensor import SensorModel
 
@@ -10,6 +11,7 @@ class GpsModel(SensorModel):
         ns: str,
         link_name: str,
         update_rate: float,
+        offset: Tuple[float, float, float],
         hor_pos_std: float,
         ver_pos_std: float,
         hor_vel_std: float,
@@ -29,6 +31,8 @@ class GpsModel(SensorModel):
             センサを取り付けるリンク名
         update_rate: float
             センサの更新頻度
+        offset: Tuple[float, float, float]
+            ルートリンクに対するGPSレシーバのオフセット．
         hor_pos_std : float
             水平位置のノイズの標準偏差
         ver_pos_std : float
@@ -64,6 +68,7 @@ class GpsModel(SensorModel):
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "gpsTopic").text = "gps"
         ET.SubElement(plugin, "groundSpeedTopic").text = "ground_speed"
+        ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
         ET.SubElement(plugin, "horPosStdDev").text = str(hor_pos_std)
         ET.SubElement(plugin, "verPosStdDev").text = str(ver_pos_std)
         ET.SubElement(plugin, "horVelStdDev").text = str(hor_vel_std)

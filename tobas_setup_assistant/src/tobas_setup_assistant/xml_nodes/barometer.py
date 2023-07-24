@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Tuple
 
 from .sensor import SensorModel
 
@@ -10,6 +11,7 @@ class BarometerModel(SensorModel):
         ns: str,
         link_name: str,
         update_rate: float,
+        offset: Tuple[float, float, float],
         altitude_0: float,
         pressure_var: float,
     ) -> None:
@@ -28,5 +30,6 @@ class BarometerModel(SensorModel):
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "pressureTopic").text = "air_pressure"
+        ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
         ET.SubElement(plugin, "altitudeZero").text = str(altitude_0)
         ET.SubElement(plugin, "pressureVariance").text = str(pressure_var)

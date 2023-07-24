@@ -27,11 +27,11 @@ class MultirotorTakeoffServer : public tobas::BaseNode
   // WaitForStillnessGoal
   // TODO: 実際もう少し小さいほうが良さそう．SIMのブレを改善できたら小さくする．
   static constexpr double kTimeWindow = 3.;                          // [s]
-  static constexpr double kHorPosVarThr = 0.3;                       // [m]
-  static constexpr double kVerPosVarThr = 0.3;                       // [m]
+  static constexpr double kHorPosVarThr = 0.5;                       // [m]
+  static constexpr double kVerPosVarThr = 0.5;                       // [m]
   static constexpr double kAttitudeThreshold = dh_std::deg2rad(5.);  // [rad]
   static constexpr double kHeadingThreshold = dh_std::deg2rad(5.);   // [rad]
-  static constexpr double kVelThreshold = 0.3;                       // [m/s]
+  static constexpr double kVelThreshold = 0.5;                       // [m/s]
 
   // TODO: ActionGoalで指定できるように
   static constexpr double kInitElevation = -3.;    // [m]

@@ -36,6 +36,7 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string pressure_topic_;
+  SdfVector3 offset_;  // B_Pos_BS
   double alt_0_;
   double pressure_var_;
 

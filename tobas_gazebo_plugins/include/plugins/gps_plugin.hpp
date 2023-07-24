@@ -50,6 +50,7 @@ private:
   std::string link_name_;
   std::string gps_topic_;
   std::string vel_topic_;
+  SdfVector3 offset_;  // B_Pos_BS
   double hor_pos_std_dev_;
   double ver_pos_std_dev_;
   double hor_vel_std_dev_;
