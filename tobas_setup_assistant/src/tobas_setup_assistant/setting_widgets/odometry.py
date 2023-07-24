@@ -26,9 +26,13 @@ class OdometryWidget(BaseSettingWidget):
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
-        link_description = "オドメトリを計算するフレームの名前．"
-        self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
-        self._rows.addWidget(self.link)
+        offset_description = "ルートリンクに対するオドメトリを得るフレームのオフセット．"
+        self.offset = ParamGetterWidget_Vector3d(
+            "Offset",
+            offset_description,
+            suffix=" m",
+        )
+        self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
@@ -128,7 +132,6 @@ class OdometryWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self.no_sensor.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
         return True
@@ -139,7 +142,7 @@ class OdometryWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():
-            self.link.setVisible(False)
+            self.offset.setVisible(False)
             self.update_rate.setVisible(False)
             self.pos_normal_noise_std.setVisible(False)
             self.rot_normal_noise_std.setVisible(False)
@@ -150,7 +153,7 @@ class OdometryWidget(BaseSettingWidget):
             self.linvel_uniform_noise_scale.setVisible(False)
             self.angvel_uniform_noise_scale.setVisible(False)
         else:
-            self.link.setVisible(True)
+            self.offset.setVisible(True)
             self.update_rate.setVisible(True)
             self.pos_normal_noise_std.setVisible(True)
             self.rot_normal_noise_std.setVisible(True)
@@ -160,8 +163,3 @@ class OdometryWidget(BaseSettingWidget):
             self.rot_uniform_noise_scale.setVisible(True)
             self.linvel_uniform_noise_scale.setVisible(True)
             self.angvel_uniform_noise_scale.setVisible(True)
-
-    @pyqtSlot()
-    def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
-        self.link.box.addItems(body_choices)

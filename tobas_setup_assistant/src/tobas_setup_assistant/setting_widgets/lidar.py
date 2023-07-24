@@ -25,6 +25,14 @@ class LidarWidget(BaseSettingWidget):
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
+        offset_description = "ルートリンクに対するGPSレシーバの位置のオフセット．"
+        self.offset = ParamGetterWidget_Vector3d(
+            "Offset",
+            offset_description,
+            suffix=" m",
+        )
+        self._rows.addWidget(self.offset)
+
         raw_topic_description = "TODO: instruction"
         self.raw_topic = ParamGetterWidget_LineEdit(
             "Point Cloud Topic",
@@ -100,6 +108,7 @@ class LidarWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():
+            self.offset.setVisible(False)
             self.raw_topic.setVisible(False)
             self.max_range.setVisible(False)
             self.subsample.setVisible(False)
@@ -108,6 +117,7 @@ class LidarWidget(BaseSettingWidget):
             self.filtered_topic.setVisible(False)
             self.max_update_rate.setVisible(False)
         else:
+            self.offset.setVisible(True)
             self.raw_topic.setVisible(True)
             self.max_range.setVisible(True)
             self.subsample.setVisible(True)

@@ -23,9 +23,13 @@ class MagnetometerWidget(BaseSettingWidget):
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
-        link_description = "センサが取り付けられたフレームの名前．"
-        self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
-        self._rows.addWidget(self.link)
+        offset_description = "ルートリンクに対するセンサ位置のオフセット．"
+        self.offset = ParamGetterWidget_Vector3d(
+            "Offset",
+            offset_description,
+            suffix=" m",
+        )
+        self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
@@ -61,15 +65,9 @@ class MagnetometerWidget(BaseSettingWidget):
 
     def define_connections(self) -> None:
         super().define_connections()
-        self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
         return True
 
     def equipped(self) -> bool:
         return True
-
-    @pyqtSlot()
-    def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
-        self.link.box.addItems(body_choices)
