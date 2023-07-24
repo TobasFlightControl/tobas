@@ -258,8 +258,8 @@ void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Mat
 void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
   const Quaterniond q_nominal = getQuaternion();
-  const Quaterniond q_nominal_meas = q_nominal.conjugate() * q_meas;  // 回転の誤差
-  const Vector3d delta_theta = et::quaternionToAngleAxis(q_nominal_meas);
+  const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
+  const Vector3d delta_theta = et::quaternionToAngleAxis(q_error);
 
   // 回転の誤差を3次元ベクトルとして観測
   Matrix<double, 3, kDeltaStateSize> H;
