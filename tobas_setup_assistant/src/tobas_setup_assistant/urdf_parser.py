@@ -71,18 +71,36 @@ class URDFParser(QWidget):
     def link_names(self) -> List[str]:
         return self._tree.link_names()
 
+    def joint_names(self) -> List[str]:
+        return self._tree.joint_names()
+
+    def mobile_joint_names(self) -> List[str]:
+        """ 可動関節名のリストを返す． """
+        res = []
+        for joint_name in self._tree.joint_names():
+            if (not self._tree.is_fixed_joint(joint_name)):
+                res.append(joint_name)
+        return res
+
     def posture_defining_joint_names(self) -> List[str]:
         """
         ロボットの形状を決めるのに必要な関節名のリストを返す．\\
         プロペラに設定されていない可動リンクがあるかどうかを調べる．
         """
+        mobile_joints = set(self.mobile_joint_names())
         rotary_wing_joints = set(self._main.settings.rotary_wings.selected.joint_names())
+        return list(mobile_joints - rotary_wing_joints)
+
+    def link_names_with_mobile_joint(self) -> List[str]:
+        """ 可動関節をもつリンク名のリストを返す． """
+        mobile_joints = set(self.mobile_joint_names())
         res = []
-
-        for joint in self.get_joints():
-            if (not joint.name in rotary_wing_joints) and (not self._tree.is_fixed_joint(joint.name)):
-                res.append(joint.name)
-
+        for link in self._tree.get_links():
+            if link.name == self._tree.get_root().name:
+                continue
+            joint = self._tree.get_joint(link.name)
+            if joint.name in mobile_joints:
+                res.append(link.name)
         return res
 
     def global_pose(self, link_name: str) -> Frame:

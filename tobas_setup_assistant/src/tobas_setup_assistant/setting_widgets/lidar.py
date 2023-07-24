@@ -25,10 +25,6 @@ class LidarWidget(BaseSettingWidget):
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
-        link_description = "TODO: instruction"
-        self.link = ParamGetterWidget_ComboBox("Link Nane", link_description, [])
-        self._rows.addWidget(self.link)
-
         raw_topic_description = "TODO: instruction"
         self.raw_topic = ParamGetterWidget_LineEdit(
             "Point Cloud Topic",
@@ -94,7 +90,6 @@ class LidarWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self.no_sensor.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
         return True
@@ -105,7 +100,6 @@ class LidarWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():
-            self.link.setVisible(False)
             self.raw_topic.setVisible(False)
             self.max_range.setVisible(False)
             self.subsample.setVisible(False)
@@ -114,7 +108,6 @@ class LidarWidget(BaseSettingWidget):
             self.filtered_topic.setVisible(False)
             self.max_update_rate.setVisible(False)
         else:
-            self.link.setVisible(True)
             self.raw_topic.setVisible(True)
             self.max_range.setVisible(True)
             self.subsample.setVisible(True)
@@ -122,8 +115,3 @@ class LidarWidget(BaseSettingWidget):
             self.padding_scale.setVisible(True)
             self.filtered_topic.setVisible(True)
             self.max_update_rate.setVisible(True)
-
-    @pyqtSlot()
-    def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
-        self.link.box.addItems(body_choices)
