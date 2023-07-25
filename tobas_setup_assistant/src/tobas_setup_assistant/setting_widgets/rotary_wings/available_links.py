@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from kdl_sympy.joint import JointType
+from dh_rqt_tools.widgets import ListWidgetItem
 
 from ...parameter_getters import *
 from ...constants import *
@@ -35,10 +36,14 @@ class AvailableLinksWidget(QListWidget):
         assert self._main.urdf_parser.link_exists(link_name), f'Unknown link: {link_name}'
         assert not self._link_exists_in_list(link_name), f'Duplicated: {link_name}'
 
-        item = QListWidgetItem()
+        item = ListWidgetItem()
         item.setSizeHint(QSize(0, self.ITEM_HEIGHT))  # 横幅が小さすぎる場合は自動で引き伸ばされる
+        item.setData(Qt.UserRole, link_name)  # リンク名をソート基準にする
         self.addItem(item)
         self.setItemWidget(item, AvailableLinkItemWidget(self._main, link_name))
+
+        # リンクが追加されるたびにソート
+        self.sortItems(Qt.AscendingOrder)
 
     @pyqtSlot(str)
     def remove(self, link_name: str) -> None:
