@@ -14,6 +14,8 @@ namespace state_estimation_eskf
 /**
  * @brief 誤差状態カルマンフィルタ．
  * https://www.flight.t.u-tokyo.ac.jp/?p=800
+ *
+ * @note IMUフレームで考える．
  */
 class ErrorStateKalmanFilter
 {
@@ -63,9 +65,33 @@ public:
   void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, double dt);
 
   void measureXYZ(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
+  /**
+   * @brief 位置の観測をノミナル状態に反映させる．
+   *
+   * @param pos_meas 世界座標系で表現された位置の観測値
+   * @param pos_cov 位置の観測ノイズの共分散
+   * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
+   */
+  void measureXYZ(
+    const Eigen::Vector3d& pos_meas,
+    const Eigen::Matrix3d& pos_cov,
+    const Eigen::Vector3d& offset);
   void measureXY(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
   void measureAltitude(const double& z_meas, const double& z_var);
   void measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
+  /**
+   * @brief 速度の観測をノミナル状態に反映させる．
+   *
+   * @param pos_meas 世界座標系で表現された速度の観測値
+   * @param pos_cov 速度の観測ノイズの共分散
+   * @param gyro_meas ジャイロセンサの読み
+   * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
+   */
+  void measureVelocity(
+    const Eigen::Vector3d& vel_meas,
+    const Eigen::Matrix3d& vel_cov,
+    const Eigen::Vector3d& gyro_meas,
+    const Eigen::Vector3d& offset);
   void measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
 
   /**
@@ -107,15 +133,26 @@ private:
   double acc_random_walk_;     // [m/s^3/sqrt(Hz)]
   double gyro_random_walk_;    // [rad/s^2/sqrt(Hz)]
 
-  Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
-  Eigen::Vector3d mag_W_;   // Magnetic field wrt. world frame [T]
+  Eigen::Vector3d grav_W_;     // Acceleration due to gravity wrt. world frame [m/s^2]
+  Eigen::Vector3d mag_W_;      // Magnetic field wrt. world frame [T]
 
   StateVector nominal_state_;  // State vector of the filter
   DeltaStateMatrix P_;         // Covariance of the error state
   DeltaStateMatrix F_x_;       // Jacobian of the state transition
 
+  /**
+   * @brief クオータニオンをベクトルの形で得る．
+   * (w,x,y,z)の順(ハミルトン)だから，w()などでアクセスするとずれることに注意！
+   *
+   * @return Eigen::Vector4d ハミルトン形式のクオータニオン
+   */
+  Eigen::Vector4d getHamilton() const;
+
   /* (281) */
-  Eigen::Matrix<double, 4, 3> getQ_dtheta();
+  Eigen::Matrix<double, 4, 3> getQ_dtheta() const;
+
+  /* vのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
+  Eigen::Matrix<double, 3, 4> quatRotationDerivative(const Eigen::Vector3d& a) const;
 
   template <size_t M>
   void correct(
@@ -124,17 +161,6 @@ private:
     const Eigen::Matrix<double, M, kDeltaStateSize>& H);
 
   void injectErrorState(const DeltaStateVector& error_state);
-
-  /**
-   * @brief クオータニオンをベクトルの形で得る．
-   * (w,x,y,z)の順(ハミルトン)だから，w()などでアクセスするとずれることに注意！
-   *
-   * @return Eigen::Vector4d ハミルトン形式のクオータニオン
-   */
-  inline Eigen::Vector4d getHamilton() const
-  {
-    return nominal_state_.block<4, 1>(kQuatIdx, 0);
-  }
 };
 
 template <size_t M>

@@ -176,6 +176,9 @@ class PackageGenerator(QWidget):
         rotary_wings = self._main.settings.rotary_wings.selected
         num_rotors = rotary_wings.count()
         drone_config = {
+            "imu_offset": self._main.settings.imu.offset.get(),
+            "barometer_offset": self._main.settings.barometer.offset.get(),
+            "gps_offset": self._main.settings.gps.offset.get(),
             "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
         }
         for i in range(num_rotors):

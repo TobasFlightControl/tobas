@@ -26,7 +26,7 @@ static constexpr uint32_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
 static constexpr uint32_t kDeltaStateSize = kDeltaGyroBiasIdx + 3;
 
 // rosparamのデフォルト
-static const std::string kDefaultGeomagObserveMethod = "rpy";
+static const std::string kDefaultGeomagObserveMethod = "yaw_only";
 static constexpr bool kDefaultUseBarometer = true;
 static constexpr bool kDefaultUseGps = true;
 static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]

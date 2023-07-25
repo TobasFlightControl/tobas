@@ -19,8 +19,14 @@ Drone::Drone() : is_loaded_(false)
 
 void Drone::loadFromParam(const string& ns)
 {
-  getTree(ns);
+  if (!kdl_parser::treeFromParam(ns + "/robot_description", tree_))
+  {
+    rosthrow("Failed to get KDL tree.");
+  }
 
+  dh_ros::getParam(ns + "/imu_offset", imu_offset_);
+  dh_ros::getParam(ns + "/barometer_offset", bar_offset_);
+  dh_ros::getParam(ns + "/gps_offset", gps_offset_);
   dh_ros::getParam(ns + "/posture_defining_joint_names", posture_defining_joints_);
 
   getRotorConfigs(ns);
@@ -37,6 +43,21 @@ void Drone::loadFromParam(const string& ns)
 const Tree& Drone::tree() const
 {
   return tree_;
+}
+
+const Vector3d& Drone::imuOffset() const
+{
+  return imu_offset_;
+}
+
+const Vector3d& Drone::barometerOffset() const
+{
+  return bar_offset_;
+}
+
+const Vector3d& Drone::gpsOffset() const
+{
+  return gps_offset_;
 }
 
 const vector<string>& Drone::postureDefiningJoints() const
@@ -119,14 +140,6 @@ double Drone::thrustToRotSpeed(uint32_t rotor_idx, double thrust) const
 {
   assert(thrust >= 0.);
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
-}
-
-void Drone::getTree(const string& ns)
-{
-  if (!kdl_parser::treeFromParam(ns + "/robot_description", tree_))
-  {
-    rosthrow("Failed to get KDL tree.");
-  }
 }
 
 void Drone::getRotorConfigs(const string& ns)

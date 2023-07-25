@@ -37,6 +37,9 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
       this)
 {
   getRosParams();
+  drone_.loadFromParam(ns_);
+
+  imu2gps_ = drone_.gpsOffset() - drone_.imuOffset();
 
   rot_acc_cov_.setZero();
   rot_mag_cov_.setZero();
@@ -214,35 +217,49 @@ ErrorStateKalmanFilterRos::setZeroPositions()
                      << "Ground Speed:\n"
                      << result->ground_speed);
 
-  // GPS
-  lat_0_ = result->gps.latitude;
-  lon_0_ = result->gps.longitude;
-  alt_0_gps_ = result->gps.altitude;
-
-  // Barometer
-  alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
-
   // 初期姿勢
   tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
   const Vector3d m0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
   eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
 
+  // GPS
+  // TODO: IMUフレームに変換
+  lat_0_ = result->gps.latitude;
+  lon_0_ = result->gps.longitude;
+  alt_0_gps_ = result->gps.altitude;
+
+  // Barometer
+  // TODO: IMUフレームに変換
+  alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
+
   return result;
 }
 
 void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
 {
+  const Vector3d W_Pos_WI = eskf_.getXYZ();
+  const Vector3d W_Vel_WI = eskf_.getVelocity();
+  const Quaterniond W_Rot_B = eskf_.getQuaternion();
+  const Quaterniond B_Rot_W = W_Rot_B.conjugate();
+  const Vector3d B_omega = w_m_ - eskf_.getGyroBias();
+  const Vector3d B_Pos_BI = drone_.imuOffset();
+
   // Time stamp
   state_.header.stamp = imu.header.stamp;
 
-  // Position
-  tf::vectorEigenToKDL(eskf_.getXYZ(), state_.pose.pos);
+  // Position (Global): IMU frame -> Base frame
+  const Vector3d W_Pos_WB = W_Pos_WI - W_Rot_B * B_Pos_BI;
+  tf::vectorEigenToKDL(W_Pos_WB, state_.pose.pos);
+
+  // Linear velocity (Local): IMU frame -> Base frame
+  const Vector3d B_Vel_WB = B_Rot_W * W_Vel_WI - B_omega.cross(B_Pos_BI);
+  tf::vectorEigenToKDL(B_Vel_WB, state_.twist.vel);
 
   // Roll, Pitch
-  const Quaterniond q = eskf_.getQuaternion();
   auto& rpy = state_.pose.euler;
-  quaternionToEuler(q.x(), q.y(), q.z(), q.w(), rpy.roll, rpy.pitch, yaw_now_);
+  quaternionToEuler(
+    W_Rot_B.x(), W_Rot_B.y(), W_Rot_B.z(), W_Rot_B.w(), rpy.roll, rpy.pitch, yaw_now_);
 
   // Yaw
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
@@ -256,13 +273,8 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
-  // Linear velocity (Local)
-  tf::vectorEigenToKDL(eskf_.getVelocity(), state_.twist.vel);
-  state_.twist.vel = state_.pose.euler.Inverse(state_.twist.vel);  // World -> Local
-
   // Angular velocity (Local)
-  const Vector3d w = w_m_ - eskf_.getGyroBias();
-  tf::vectorEigenToKDL(w, state_.twist.rot);
+  tf::vectorEigenToKDL(B_omega, state_.twist.rot);
 
   // Covariances
   eigen_tools::matrix3EigenToBoost(eskf_.getPositionCovariance(), state_.position_covariance);
@@ -272,7 +284,7 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   state_.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
 
   // For debug
-  // cout << "Estiamted Quaternion:" << endl << q << endl;
+  // cout << "Estiamted Quaternion:" << endl << W_Rot_B << endl;
   // cout << "Estimated accelerometer bias:" << endl << eskf_.getAccelBias() << endl;
   // cout << "Estimated gyroscope bias:" << endl << eskf_.getGyroBias() << endl;
 }
@@ -424,7 +436,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
   auto cov_copy = gps.position_covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
-  eskf_.measureXYZ(pos_m_, cov);
+  eskf_.measureXYZ(pos_m_, cov, imu2gps_);
 }
 
 void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
@@ -444,7 +456,7 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
   auto cov_copy = vel.covariance;
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
-  eskf_.measureVelocity(vel_m_, cov);
+  eskf_.measureVelocity(vel_m_, cov, w_m_, imu2gps_);
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)

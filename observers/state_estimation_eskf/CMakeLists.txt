@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_msgs
 	eigen_conversions
 	kdl_msgs
+	kdl_parser
 	orocos_kdl
 	roscpp
 	actionlib

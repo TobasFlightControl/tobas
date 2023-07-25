@@ -4,6 +4,8 @@
 
 #include "../../include/state_estimation_eskf/eskf.hpp"
 
+#define I3 Matrix3d::Identity()
+
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
@@ -194,19 +196,6 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   assert(et::isFinite(P_));
 }
 
-Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta()
-{
-  Vector4d qby2 = 0.5 * getHamilton();
-  const double w = qby2(0);
-  const double x = qby2(1);
-  const double y = qby2(2);
-  const double z = qby2(3);
-
-  Matrix<double, 4, 3> Q_dtheta;
-  Q_dtheta << -x, -y, -z, w, -z, y, z, w, -x, -y, x, w;
-  return Q_dtheta;
-}
-
 void ErrorStateKalmanFilter::measureXYZ(const Vector3d& pos_meas, const Matrix3d& pos_cov)
 {
   const Vector3d delta_pos = pos_meas - getXYZ();
@@ -214,6 +203,28 @@ void ErrorStateKalmanFilter::measureXYZ(const Vector3d& pos_meas, const Matrix3d
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
   H.block<3, 3>(0, kDeltaPosIdx).diagonal().fill(1.);
+
+  correct<3>(delta_pos, pos_cov, H);
+}
+
+void ErrorStateKalmanFilter::measureXYZ(
+  const Vector3d& pos_meas,
+  const Matrix3d& pos_cov,
+  const Vector3d& offset)
+{
+  const Vector3d pos_nominal = getXYZ() + getQuaternion() * offset;
+  const Vector3d delta_pos = pos_meas - pos_nominal;
+
+  Matrix<double, 3, kDeltaStateSize> H;
+  H.setZero();
+
+  // 位置による偏微分
+  H.block<3, 3>(0, kDeltaPosIdx).diagonal().fill(1.);
+
+  // 姿勢による偏微分
+  const auto dqvq_dq = quatRotationDerivative(offset);
+  const auto Q_dtheta = getQ_dtheta();
+  H.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   correct<3>(delta_pos, pos_cov, H);
 }
@@ -229,7 +240,7 @@ void ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& 
   correct<2>(delta_xy, xy_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_cov)
+void ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
 {
   const double delta_z = z_meas - getAltitude();
   // std::cout << "Estimated altitude:" << endl << getAltitude() << endl;
@@ -239,7 +250,7 @@ void ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double&
   H.setZero();
   H(0, kDeltaAltIdx) = 1.;
 
-  correct<1>(Scalar(delta_z), Scalar(z_cov), H);
+  correct<1>(Scalar(delta_z), Scalar(z_var), H);
 }
 
 void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
@@ -251,6 +262,34 @@ void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Mat
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
   H.block<3, 3>(0, kDeltaVelIdx).diagonal().fill(1.);
+
+  correct<3>(delta_vel, vel_cov, H);
+}
+
+void ErrorStateKalmanFilter::measureVelocity(
+  const Vector3d& vel_meas,
+  const Matrix3d& vel_cov,
+  const Vector3d& gyro_meas,
+  const Vector3d& offset)
+{
+  const Vector3d gyro_nominal = gyro_meas - getGyroBias();
+  const Vector3d gyro_offset = gyro_nominal.cross(offset);
+  const Vector3d vel_nominal = getVelocity() + getQuaternion() * gyro_offset;
+  const Vector3d delta_vel = vel_meas - vel_nominal;
+
+  Matrix<double, 3, kDeltaStateSize> H;
+  H.setZero();
+
+  // 速度による偏微分
+  H.block<3, 3>(0, kDeltaVelIdx).diagonal().fill(1.);
+
+  // 姿勢による偏微分
+  const auto dqvq_dq = quatRotationDerivative(gyro_offset);
+  const auto Q_dtheta = getQ_dtheta();
+  H.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
+
+  // ジャイロバイアスによる偏微分
+  H.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
 
   correct<3>(delta_vel, vel_cov, H);
 }
@@ -272,15 +311,11 @@ void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const 
 
 void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const Matrix3d& acc_cov)
 {
-  const Matrix3d rot_B_W = getDCM().transpose();
-  const Vector3d grav_B = rot_B_W * grav_W_;
+  const Quaterniond Q_W_B = getQuaternion();
+  const Vector3d grav_B = Q_W_B.conjugate() * grav_W_;
   const Vector3d acc_nominal = -grav_B;
   const Vector3d delta_acc = acc_meas - acc_nominal;
   const Matrix3d grav_B_cross = et::crossMat(grav_B);  // 一時objectをblockに代入すると反映されない
-
-  // std::cout << "rot_B_W:" << endl << rot_B_W << endl;
-  // std::cout << "grav_B:" << endl << grav_B << endl;
-  // std::cout << "skew(grav_B):" << endl << grav_B_cross << endl;
 
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
@@ -293,8 +328,8 @@ void ErrorStateKalmanFilter::measureMagneticFieldRPY(
   const Vector3d& mag_meas,
   const Matrix3d& mag_cov)
 {
-  const Matrix3d rot_B_W = getDCM().transpose();
-  const Vector3d mag_B = rot_B_W * mag_W_;
+  const Quaterniond Q_W_B = getQuaternion();
+  const Vector3d mag_B = Q_W_B.conjugate() * mag_W_;
   const Vector3d delta_mag = mag_meas - mag_B;
   const Matrix3d mag_B_cross = et::crossMat(mag_B);
 
@@ -386,6 +421,39 @@ void ErrorStateKalmanFilter::measureMagneticFieldYaw(
 
   // Update the quaternion states and covariance matrix
   correct<1>(Scalar(delta_yaw), Scalar(yaw_var), H);
+}
+
+Vector4d ErrorStateKalmanFilter::getHamilton() const
+{
+  return nominal_state_.block<4, 1>(kQuatIdx, 0);
+}
+
+Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta() const
+{
+  const Vector4d qby2 = 0.5 * getHamilton();
+  const double w = qby2(0);
+  const double x = qby2(1);
+  const double y = qby2(2);
+  const double z = qby2(3);
+
+  Matrix<double, 4, 3> Q_dtheta;
+  Q_dtheta << -x, -y, -z, w, -z, y, z, w, -x, -y, x, w;
+
+  return Q_dtheta;
+}
+
+Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const Vector3d& a) const
+{
+  const Vector4d ham = getHamilton();
+  const double w = ham(0);
+  const Vector3d v = ham.block<3, 1>(1, 0);
+
+  Matrix<double, 3, 4> res;
+  res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
+  res.block<3, 3>(0, 1) =
+    2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::crossMat(a));
+
+  return res;
 }
 
 void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_state)
