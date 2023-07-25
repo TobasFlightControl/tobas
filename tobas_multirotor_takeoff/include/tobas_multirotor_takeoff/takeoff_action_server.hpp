@@ -30,11 +30,11 @@ class MultirotorTakeoffServer : public tobas::BaseNode
   static constexpr double kHorPosVarThr = 0.5;                       // [m]
   static constexpr double kVerPosVarThr = 0.5;                       // [m]
   static constexpr double kAttitudeThreshold = dh_std::deg2rad(5.);  // [rad]
-  static constexpr double kHeadingThreshold = dh_std::deg2rad(5.);   // [rad]
+  static constexpr double kHeadingThreshold = dh_std::deg2rad(10.);  // [rad]
   static constexpr double kVelThreshold = 0.5;                       // [m/s]
 
   // TODO: ActionGoalで指定できるように
-  static constexpr double kInitElevation = -3.;    // [m]
+  static constexpr double kInitElevation = -1.;    // [m]
   static constexpr double kTargetElevation = 2.5;  // [m]
   static constexpr double kElevationSpeed = 1.5;   // [m]
 

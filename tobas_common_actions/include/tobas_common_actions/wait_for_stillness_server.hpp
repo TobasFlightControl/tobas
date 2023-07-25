@@ -26,6 +26,7 @@ public:
 private:
   bool is_action_running_;
   bool is_history_filled_;           // 時間窓分だけ履歴が溜まっている場合にtrue
+  ros::Time t_last_valid_attitude_;  // 最後に姿勢角が閾値内に入った時刻
   ros::Time t_last_valid_velocity_;  // 最後に速度が閾値内に入った時刻
   std::deque<tobas_msgs::BaseState> bs_history_;
   GoalType goal_;

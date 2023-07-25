@@ -3,8 +3,8 @@ duration time_window
 
 float64 horizontal_position_variance_threshold  # [m]
 float64 vertical_position_variance_threshold    # [m]
-float64 attitude_variance_threshold             # [rad]
 float64 heading_variance_threshold              # [rad]
+float64 attitude_threshold                      # [rad]
 float64 velocity_threshold                      # [m/s]
 
 ---

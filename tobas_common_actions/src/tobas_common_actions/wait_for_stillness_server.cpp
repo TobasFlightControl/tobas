@@ -65,17 +65,17 @@ bool WaitForStillnessServer::isValidGoal(const GoalType& goal)
     return false;
   }
 
-  if (goal->attitude_variance_threshold <= 0.)
-  {
-    result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "'attitude_variance_threshold' must be positive.");
-    return false;
-  }
-
   if (goal->heading_variance_threshold <= 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'heading_variance_threshold' must be positive.");
+    return false;
+  }
+
+  if (goal->attitude_threshold <= 0.)
+  {
+    result_.error_code = ResultType::INVALID_GOAL;
+    as_.setAborted(result_, "'attitude_threshold' must be positive.");
     return false;
   }
 
@@ -121,31 +121,18 @@ bool WaitForStillnessServer::isConditionsMet()
     res = false;
   }
 
-  const auto roll_diff = bs_back.pose.euler.roll - bs_front.pose.euler.roll;
-  const auto pitch_diff = bs_back.pose.euler.pitch - bs_front.pose.euler.pitch;
   const auto yaw_diff = bs_back.pose.euler.yaw - bs_front.pose.euler.yaw;
-  if (abs(roll_diff) > goal_->attitude_variance_threshold)
-  {
-    rosWarnThrottle(
-      kWarnPeriod, "The variance of roll angle in "
-                     << goal_->time_window << " seconds is over threshold: " << abs(roll_diff)
-                     << " > " << goal_->attitude_variance_threshold);
-    res = false;
-  }
-  if (abs(pitch_diff) > goal_->attitude_variance_threshold)
-  {
-    rosWarnThrottle(
-      kWarnPeriod, "The variance of pitch angle in "
-                     << goal_->time_window << " seconds is over threshold: " << abs(pitch_diff)
-                     << " > " << goal_->attitude_variance_threshold);
-    res = false;
-  }
   if (abs(yaw_diff) > goal_->heading_variance_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, "The variance of yaw angle in "
                      << goal_->time_window << " seconds is over threshold: " << abs(yaw_diff)
                      << " > " << goal_->heading_variance_threshold);
+    res = false;
+  }
+
+  if (bs_back.header.stamp - t_last_valid_attitude_ < goal_->time_window)
+  {
     res = false;
   }
 
@@ -194,8 +181,25 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseState& bs)
     }
   }
 
-  // 速度が閾値を下回った時刻を更新
-  // これで速度が初めて閾値を下回った瞬間の時刻が記録される
+  // 最後に姿勢角が閾値を下回った時刻を更新
+  const auto& roll = bs.pose.euler.roll;
+  const auto& pitch = bs.pose.euler.pitch;
+  if (abs(roll) > goal_->attitude_threshold)
+  {
+    rosWarnThrottle(
+      kWarnPeriod,
+      "Roll angle is over threshold: |" << roll << "| > " << goal_->attitude_threshold);
+    t_last_valid_attitude_ = bs.header.stamp;
+  }
+  if (abs(pitch) > goal_->attitude_threshold)
+  {
+    rosWarnThrottle(
+      kWarnPeriod,
+      "Pitch angle is over threshold: |" << pitch << "| > " << goal_->attitude_threshold);
+    t_last_valid_attitude_ = bs.header.stamp;
+  }
+
+  // 最後に速度が閾値を下回った時刻を更新
   if (bs.twist.vel.Norm() > goal_->velocity_threshold)
   {
     rosWarnThrottle(
