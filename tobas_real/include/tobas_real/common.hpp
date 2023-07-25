@@ -13,10 +13,10 @@ static constexpr uint32_t kPowerModuleVoltageChannel = 2;
 static constexpr double kDefaultAdcCoef = 11.3;
 
 static constexpr uint32_t kServoRailSize = 14;
-static constexpr double kPwmFrequency = 50.;  // [Hz]
-static constexpr double kPwmMin = 1000.;      // [us]
-static constexpr double kPwmMax = 2000.;      // [us]
-static constexpr double kPwmDisarm = 900.;    // [us]
+static constexpr double kPwmFrequency = 400.;  // [Hz] PX4のデフォルト値
+static constexpr double kPwmMin = 1000.;       // [us]
+static constexpr double kPwmMax = 2000.;       // [us]
+static constexpr double kPwmDisarm = 900.;     // [us]
 
 // モータが停止して静止摩擦が発生することを防ぐために，最低でも10%のスロットルで回転させる
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
