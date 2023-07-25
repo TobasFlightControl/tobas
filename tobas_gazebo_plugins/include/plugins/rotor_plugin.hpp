@@ -18,6 +18,7 @@ namespace gazebo
 {
 // Constants
 static const std::string kPluginName = "motor_model_plugin";
+static constexpr double kRotorSpeedCheckMargin = 10.;  // [rad/s]
 
 // Default values
 static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
@@ -56,7 +57,7 @@ private:
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
-  double cmd_rot_speed_;  // [rad/s]
+  double cmd_rot_speed_;                   // [rad/s]
   tobas_msgs::Battery battery_;
   ignition::math::Vector3d wind_speed_W_;  // [m/s]
   double prev_sim_time_;                   // [s]
@@ -86,6 +87,8 @@ private:
   bool isReady();
   void applyForceAndTorque(double rot_speed, const common::Time cur_time);
   void updateRotationSpeed(double dt);
+  double maxRotSpeed();
+  double minRotSpeed();
 
   void commandCb(const tobas_msgs::RotorSpeeds& cmd);
   void batteryCb(const tobas_msgs::Battery& battery);

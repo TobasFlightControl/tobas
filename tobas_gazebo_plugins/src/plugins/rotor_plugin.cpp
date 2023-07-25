@@ -1,6 +1,8 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../../include/plugins/rotor_plugin.hpp"
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/common.hpp"
@@ -14,7 +16,6 @@ namespace gazebo
 {
 GazeboRotorPlugin::GazeboRotorPlugin()
   : super(),
-    cmd_rot_speed_(0.),
     wind_speed_W_(0., 0., 0.),
     prev_sim_time_(0.),
     last_cmd_time_(0.),
@@ -145,7 +146,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
   if (is_activated_ && time_after_last_cmd > auto_reset_time_thr_)
   {
-    cmd_rot_speed_ = 0.;
+    cmd_rot_speed_ = minRotSpeed();
     is_activated_ = false;
     gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
           << auto_reset_time_thr_ << " seconds have elapsed since the last command." << endl;
@@ -234,17 +235,18 @@ void GazeboRotorPlugin::updateRotationSpeed(double dt)
 
   // Check rotor speed limit and get set value
   auto set_rot_speed = cmd_rot_speed_;
-  const auto max_rot_speed = dh_std::rpmToRadPerSec(kv_ * battery_.voltage);
-  if (cmd_rot_speed_ < 0.)
+  const auto max_rot_speed = maxRotSpeed();
+  const auto min_rot_speed = minRotSpeed();
+  if (cmd_rot_speed_ < min_rot_speed - kRotorSpeedCheckMargin)
   {
-    gzerr << kPluginName << ": The commanded motor speed " << cmd_rot_speed_ << " is lower than 0."
-          << endl;
-    set_rot_speed = 0.;
+    gzerr << kPluginName << ": Commanded rotor speed on index " << motor_number_
+          << " is too low: " << cmd_rot_speed_ << " < " << min_rot_speed << " [rad/s]" << endl;
+    set_rot_speed = min_rot_speed;
   }
-  else if (cmd_rot_speed_ > max_rot_speed + 1.)
+  else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
-    gzerr << kPluginName << ": The commanded motor speed " << cmd_rot_speed_
-          << " exceeds the maximum speed " << max_rot_speed << "." << endl;
+    gzerr << kPluginName << ": Commanded rotor speed on index " << motor_number_
+          << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed << " [rad/s]" << endl;
     set_rot_speed = max_rot_speed;
   }
 
@@ -287,16 +289,36 @@ void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
   is_activated_ = true;
 }
 
+double GazeboRotorPlugin::maxRotSpeed()
+{
+  return dh_std::rpmToRadPerSec(kv_ * battery_.voltage);
+}
+
+double GazeboRotorPlugin::minRotSpeed()
+{
+  return maxRotSpeed() * tobas::kMotorSpinArm;
+}
+
 void GazeboRotorPlugin::batteryCb(const tobas_msgs::Battery& battery)
 {
   battery_ = battery;
-  battery_received_ = true;
+
+  // 最初のバッテリー電圧取得時に最小回転数を目標回転数に設定する
+  if (!battery_received_)
+  {
+    battery_received_ = true;
+    cmd_rot_speed_ = minRotSpeed();
+  }
 }
 
 void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindSpeed& wind)
 {
   vectorKDLToGazebo(wind.vel, wind_speed_W_);
-  wind_speed_received_ = true;
+
+  if (!wind_speed_received_)
+  {
+    wind_speed_received_ = true;
+  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRotorPlugin);
