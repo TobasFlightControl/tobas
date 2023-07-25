@@ -150,14 +150,24 @@ void RotationControllerRos::ctrlInputToRotorSpeeds(
   }
 }
 
-double RotationControllerRos::maxU()
+double RotationControllerRos::maxThrustSum()
 {
-  double max_U = 0.;
+  double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    max_U += z_rotors_.maxThrust(i, battery_.voltage);
+    res += z_rotors_.maxThrust(i, battery_.voltage);
   }
-  return max_U;
+  return res;
+}
+
+double RotationControllerRos::minThrustSum()
+{
+  double res = 0.;
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  {
+    res += z_rotors_.minThrust(i, battery_.voltage);
+  }
+  return res;
 }
 
 void RotationControllerRos::eventCb(const tobas_msgs::Event& event)
@@ -278,13 +288,15 @@ void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rp
   rpy_thrust_.rpy.yaw = rpy_thrust.rpy.yaw;
 
   // Thrust
-  const auto max_U = maxU();
-  if (rpy_thrust.thrust < 0. || max_U < rpy_thrust.thrust)
+  const auto max_U = maxThrustSum();
+  const auto min_U = minThrustSum();
+  if (rpy_thrust.thrust < min_U || max_U < rpy_thrust.thrust)
   {
     rosWarnThrottle(
-      kWarnPeriod, "thrust = " << rpy_thrust.thrust << " is out of range [0, " << max_U << "].");
+      kWarnPeriod,
+      "thrust = " << rpy_thrust.thrust << " is out of range [" << min_U << ", " << max_U << "].");
   }
-  rpy_thrust_.thrust = clamp(rpy_thrust.thrust, 0., max_U);
+  rpy_thrust_.thrust = clamp(rpy_thrust.thrust, min_U, max_U);
 
   if (!rpy_thrust_received_)
   {

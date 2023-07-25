@@ -44,6 +44,9 @@ public:
   /* 最大推力 [N]． */
   double maxThrust(uint32_t inner_idx, double battery_voltage) const;
 
+  /* 最小推力 [N]． */
+  double minThrust(uint32_t inner_idx, double battery_voltage) const;
+
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
   double thrustToRotSpeed(uint32_t inner_idx, double thrust) const;
 

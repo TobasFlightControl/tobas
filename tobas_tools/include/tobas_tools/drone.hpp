@@ -43,6 +43,9 @@ public:
   /* 指定したロータの最大推力 [N]． */
   double maxThrust(uint32_t rotor_idx, double battery_voltage) const;
 
+  /* 指定したロータの最小推力 [N]．つまりモータが最小回転数で回転しているときの推力． */
+  double minThrust(uint32_t rotor_idx, double battery_voltage) const;
+
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
   double thrustToRotSpeed(uint32_t rotor_idx, double thrust) const;
 

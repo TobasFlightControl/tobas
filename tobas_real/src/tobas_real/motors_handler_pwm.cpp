@@ -175,7 +175,7 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     const auto& rotor_config = drone_.rotorConfig(rotor_idx);
     const auto& pin = rotor_config.pin;
     const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_.voltage);
-    const auto min_speed = max_speed * kMotorSpinArm;
+    const auto min_speed = max_speed * tobas::kMotorSpinArm;
 
     // 指令速度を決定
     auto cmd_speed = rotor_speeds.speeds[rotor_idx];

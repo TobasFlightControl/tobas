@@ -136,6 +136,12 @@ double Drone::maxThrust(uint32_t rotor_idx, double battery_voltage) const
   return rotor_configs_[rotor_idx].motor_constant * sqr(max_rot_speed);
 }
 
+double Drone::minThrust(uint32_t rotor_idx, double battery_voltage) const
+{
+  // 推力は回転数の2乗に比例するため，最小推力は最大推力と回転数の比率の2乗の積で計算できる．
+  return maxThrust(rotor_idx, battery_voltage) * sqr(kMotorSpinArm);
+}
+
 double Drone::thrustToRotSpeed(uint32_t rotor_idx, double thrust) const
 {
   assert(thrust >= 0.);

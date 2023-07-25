@@ -163,11 +163,8 @@ void RotationController::updateInputConstraint(double battery_voltage, double U)
 {
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    const double max_thrust = z_rotors_.maxThrust(i, battery_voltage);
-    const double min_thrust = 0.;
-
-    mpc_.input_constraint.b(i) = max_thrust;
-    mpc_.input_constraint.b(z_rotors_.count() + i) = -min_thrust;
+    mpc_.input_constraint.b(i) = z_rotors_.maxThrust(i, battery_voltage);
+    mpc_.input_constraint.b(z_rotors_.count() + i) = -z_rotors_.minThrust(i, battery_voltage);
   }
 
   mpc_.input_constraint.b(z_rotors_.count() * 2) = U;

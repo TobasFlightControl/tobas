@@ -65,6 +65,11 @@ double RotorAxisExtractor::maxThrust(uint32_t inner_idx, double battery_voltage)
   return drone_.maxThrust(rotorIdx(inner_idx), battery_voltage);
 }
 
+double RotorAxisExtractor::minThrust(uint32_t inner_idx, double battery_voltage) const
+{
+  return drone_.minThrust(rotorIdx(inner_idx), battery_voltage);
+}
+
 double RotorAxisExtractor::thrustToRotSpeed(uint32_t inner_idx, double thrust) const
 {
   return drone_.thrustToRotSpeed(rotorIdx(inner_idx), thrust);
