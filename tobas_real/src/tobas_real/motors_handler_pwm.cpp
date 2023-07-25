@@ -36,8 +36,8 @@ MotorsHandler_PWM::MotorsHandler_PWM()
     setupRCOutput(pwm_, channel);
   }
 
-  // コマンドの初期値はDisarm
-  pwm_periods_.resize(drone_.numRotors(), kPwmDisarm);
+  // コマンドの初期値はArm
+  pwm_periods_.resize(drone_.numRotors(), kPwmArm);
 
   registerPublishers();
   registerSubscribers();
@@ -56,10 +56,10 @@ void MotorsHandler_PWM::run()
     const auto time_after_last_cmd = (ros::Time::now() - last_cmd_time_).toSec();
     if (is_activated_ && time_after_last_cmd > kAutoStopTimeThreshold)
     {
-      dh_std::fill(pwm_periods_, kPwmDisarm);
+      dh_std::fill(pwm_periods_, kPwmArm);
       is_activated_ = false;
       rosInfo(
-        "The rotors are automatically stopped because "
+        "The rotors automatically slow down because "
         << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
     }
 
@@ -175,26 +175,27 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     const auto& rotor_config = drone_.rotorConfig(rotor_idx);
     const auto& pin = rotor_config.pin;
     const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_.voltage);
+    const auto min_speed = max_speed * kMotorSpinArm;
 
     // 指令速度を決定
     auto cmd_speed = rotor_speeds.speeds[rotor_idx];
-    if (cmd_speed < 0.)
+    if (cmd_speed < min_speed)
     {
       rosErrorThrottle(
-        kErrorPeriod,
-        "Negative rotor speed is commanded on PIN" << pin << ": " << cmd_speed << " [rad/s]");
-      cmd_speed = 0.;
+        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " is too low: " << cmd_speed << " < "
+                                                     << min_speed << " [rad/s]");
+      cmd_speed = min_speed;
     }
     else if (cmd_speed > max_speed)
     {
       rosErrorThrottle(
-        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " exceeds the limit: " << cmd_speed
+        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " is too high: " << cmd_speed
                                                      << " > " << max_speed << " [rad/s]");
       cmd_speed = max_speed;
     }
 
     // パルス幅に変換
-    pwm_periods_[rotor_idx] = remap(cmd_speed, 0., max_speed, kPwmMin, kPwmMax);
+    pwm_periods_[rotor_idx] = remap(cmd_speed, min_speed, max_speed, kPwmArm, kPwmMax);
   }
 
   // Update last commanded time
