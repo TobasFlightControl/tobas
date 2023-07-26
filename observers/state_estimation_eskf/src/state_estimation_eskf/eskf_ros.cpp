@@ -217,6 +217,9 @@ ErrorStateKalmanFilterRos::setZeroPositions()
                      << "Ground Speed:\n"
                      << result->ground_speed);
 
+  // ジャイロバイアス
+  tf::vectorMsgToEigen(result->imu.angular_velocity, gyro_bias_);
+
   // 初期姿勢
   tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
@@ -356,6 +359,9 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(imu.angular_velocity, w_m_);
+
+  // バイアスを除く．バイアスは元々無かったものとしてESKFに与える．
+  w_m_ -= gyro_bias_;
 
   // 事前予測
   eskf_.predictIMU(a_m_, w_m_, dt);
