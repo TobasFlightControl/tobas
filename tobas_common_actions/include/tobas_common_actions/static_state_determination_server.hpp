@@ -12,7 +12,7 @@ namespace tobas_common_actions
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "static_state_determination";
-  static constexpr uint32_t kMinimumImuCount = 1000;
+  static constexpr uint32_t kMinimumImuCount = 1000;  // バイアスの推定のためにこれくらいは必要
   static constexpr uint32_t kMinimumBarCount = 100;
   static constexpr uint32_t kMinimumGpsCount = 50;
 
