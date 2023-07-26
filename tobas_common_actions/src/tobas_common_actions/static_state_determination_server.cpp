@@ -106,15 +106,15 @@ bool StaticStateDeterminationServer::isValidGoal(const GoalType& goal)
 
 bool StaticStateDeterminationServer::isValidResult(const GoalType& goal)
 {
-  if (imu_count_ == 0)
+  if (imu_count_ < kMinimumImuCount)
     return false;
-  if (mag_count_ == 0)
+  if (mag_count_ < kMinimumImuCount)
     return false;
-  if (bar_count_ == 0)
+  if (bar_count_ < kMinimumBarCount)
     return false;
-  if (gps_count_ == 0)
+  if (gps_count_ < kMinimumGpsCount)
     return false;
-  if (vel_count_ == 0)
+  if (vel_count_ < kMinimumGpsCount)
     return false;
 
   const auto gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
