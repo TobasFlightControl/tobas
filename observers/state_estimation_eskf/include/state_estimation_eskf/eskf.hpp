@@ -180,7 +180,7 @@ void ErrorStateKalmanFilter::correct(
   const auto error_state = K * delta_meas;
   const auto I_KH = DeltaStateMatrix::Identity() - K * H;
 
-  // Update P (simple form)
+  // Update covariance matrix
   // P_ = I_KH * P_;  // Simple form
   P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // Joseph form
 
