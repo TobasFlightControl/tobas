@@ -12,7 +12,7 @@ namespace tobas_real
 {
 class GpsHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kMeasurementRate = 100;  // [ms]
+  static constexpr uint32_t kMeasurementRate = 200;  // [ms]
   static constexpr uint32_t kSleepTime = 200;        // [us]
 
   using super = tobas::BaseNode;
@@ -43,6 +43,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void configureGnssReceiver();
   bool isReadyToPublish() const;
 
   void eventCb(const tobas_msgs::Event& event) override;

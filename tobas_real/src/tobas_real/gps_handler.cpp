@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/time.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -13,22 +14,8 @@ namespace tobas_real
 {
 GpsHandler::GpsHandler() : super(), gps_fix_ok_(false), cov_received_(false)
 {
-  gps_.disableAllNavMsgs();
-  gps_.enableNavMsg(Ublox::NAV_STATUS);
-  gps_.enableNavMsg(Ublox::NAV_PVT);
-  gps_.enableNavMsg(Ublox::NAV_COV);
-
-  if (!gps_.testConnection())
-  {
-    rosthrow("Failed to connect to GPS.");
-  }
-
-  if (gps_.configureSolutionRate(kMeasurementRate) < 0)
-  {
-    rosthrow("Failed to set measurement rate.");
-  }
-
   getRosParams();
+  configureGnssReceiver();
 
   gps_msg_.position_covariance_type = GpsMsg::COVARIANCE_TYPE_KNOWN;
 
@@ -42,11 +29,12 @@ void GpsHandler::run()
 
   while (ros::ok())
   {
-    const ros::Time now = ros::Time::now();
-    // stopwatch.start();
+    stopwatch.start();
     const auto msg_id = gps_.update();
-    // stopwatch.stop();
     cout << "Message ID: " << msg_id << endl;
+    stopwatch.stop();
+
+    const ros::Time now = ros::Time::now();
 
     switch (msg_id)
     {
@@ -72,6 +60,15 @@ void GpsHandler::run()
         }
 
         gps_.decode(pvt_);
+        // cout << pvt_ << endl;
+
+        // 時刻差を表示
+        auto gps_tm =
+          dh_std::tmFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec);
+        const auto gps_tp = dh_std::tmToTimePoint(gps_tm);
+        const auto cur_tp = chrono::system_clock::now();
+        const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
+        rosInfo("GPS delay: " << gps_delay.count() << "[ms]");
 
         // Update GPS position message
         gps_msg_.header.stamp = now;
@@ -149,6 +146,20 @@ void GpsHandler::registerPublishers()
 void GpsHandler::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &GpsHandler::eventCb, this);
+}
+
+void GpsHandler::configureGnssReceiver()
+{
+  gps_.disableAllNavMsgs();
+  gps_.enableNavMsg(Ublox::NAV_STATUS);
+  gps_.enableNavMsg(Ublox::NAV_PVT);
+  gps_.enableNavMsg(Ublox::NAV_COV);
+
+  if (gps_.configureSolutionRate(kMeasurementRate) < 0)
+    rosthrow("Failed to set measurement rate.");
+
+  if (gps_.configureDynamicsModel(Ublox::AIRBORNE_2G) < 0)
+    rosthrow("Failed to set dynamics model.");
 }
 
 bool GpsHandler::isReadyToPublish() const
