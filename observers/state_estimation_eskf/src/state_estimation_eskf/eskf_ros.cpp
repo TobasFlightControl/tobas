@@ -443,6 +443,10 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
   Matrix3d cov = Map<Matrix3d>(cov_copy.data());
 
   eskf_.measureXYZ(pos_m_, cov, imu2gps_);
+
+  // トピック通信の遅延チェック
+  // const auto delay = (ros::Time::now() - gps.header.stamp).toSec();
+  // rosInfo("NavSatFix communication delay: " << delay << "[s]");
 }
 
 void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
