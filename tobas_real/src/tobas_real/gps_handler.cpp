@@ -2,6 +2,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/stopwatch.hpp>
 
 #include "../../include/tobas_real/gps_handler.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -12,9 +13,10 @@ namespace tobas_real
 {
 GpsHandler::GpsHandler() : super(), gps_fix_ok_(false), cov_received_(false)
 {
-  gps_.enableNAV(Ublox::NAV_STATUS);
-  gps_.enableNAV(Ublox::NAV_PVT);
-  gps_.enableNAV(Ublox::NAV_COV);
+  gps_.disableAllNavMsgs();
+  gps_.enableNavMsg(Ublox::NAV_STATUS);
+  gps_.enableNavMsg(Ublox::NAV_PVT);
+  gps_.enableNavMsg(Ublox::NAV_COV);
 
   if (!gps_.testConnection())
   {
@@ -36,11 +38,15 @@ GpsHandler::GpsHandler() : super(), gps_fix_ok_(false), cov_received_(false)
 
 void GpsHandler::run()
 {
+  dh_ros::Stopwatch stopwatch;
+
   while (ros::ok())
   {
     const ros::Time now = ros::Time::now();
+    // stopwatch.start();
     const auto msg_id = gps_.update();
-    // cout << "Message ID: " << msg_id << endl;
+    // stopwatch.stop();
+    cout << "Message ID: " << msg_id << endl;
 
     switch (msg_id)
     {
@@ -58,7 +64,6 @@ void GpsHandler::run()
 
         break;
       }
-
       case Ublox::NAV_PVT:
       {
         if (!isReadyToPublish())
@@ -86,7 +91,6 @@ void GpsHandler::run()
 
         break;
       }
-
       case Ublox::NAV_COV:
       {
         if (!cov_received_)
@@ -118,6 +122,11 @@ void GpsHandler::run()
         vel_msg_.covariance[7] = cov_.velCovED;  // DE
         vel_msg_.covariance[8] = cov_.velCovDD;  // DD
 
+        break;
+      }
+      default:
+      {
+        rosWarn("Unnecessary UBX NAV message: " << msg_id);
         break;
       }
     }
