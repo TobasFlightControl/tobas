@@ -12,8 +12,9 @@ namespace tobas_real
 {
 class GpsHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kMeasurementRate = 200;  // [ms]
-  static constexpr uint32_t kSleepTime = 200;        // [us]
+  // GPSレシーバの更新周期[ms]．10Hzにするとレシーバの処理が間に合わず遅延が発生する．
+  static constexpr uint32_t kMeasurementRate = 200;
+  static constexpr uint32_t kSleepTime = 200;  // [us]
 
   using super = tobas::BaseNode;
 

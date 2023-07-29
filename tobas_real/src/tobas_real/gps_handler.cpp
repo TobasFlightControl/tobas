@@ -161,7 +161,8 @@ void GpsHandler::configureGnssReceiver()
   if (gps_.configureDynamicsModel(Ublox::AIRBORNE_2G) < 0)
     rosthrow("Failed to set dynamics model.");
 
-  // TODO: 地域によって使用するGNSSを変える
+  // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
+  // https://www.u-blox.com/en/product/neo-m8-series
   gps_.configureGnss_GPS(true);
   gps_.configureGnss_SBAS(true);
   gps_.configureGnss_Galileo(false);
