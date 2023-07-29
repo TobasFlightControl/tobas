@@ -46,8 +46,7 @@ void GpsHandler::run()
         if (!gps_fix_ok_)
         {
           rosErrorThrottle(
-            kErrorPeriod, "GPS fix not acquired. Please check GNSS signal strength and receiver's "
-                          "connection.");
+            kErrorPeriod, "GPS no fix. Please check GNSS signal and connection strength.");
         }
 
         break;
