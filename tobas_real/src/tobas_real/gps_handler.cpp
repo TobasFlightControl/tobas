@@ -150,16 +150,24 @@ void GpsHandler::registerSubscribers()
 
 void GpsHandler::configureGnssReceiver()
 {
-  gps_.disableAllNavMsgs();
-  gps_.enableNavMsg(Ublox::NAV_STATUS);
-  gps_.enableNavMsg(Ublox::NAV_PVT);
-  gps_.enableNavMsg(Ublox::NAV_COV);
+  gps_.enableAllNavMsgs(false);
+  gps_.enableNavMsg(Ublox::NAV_STATUS, true);
+  gps_.enableNavMsg(Ublox::NAV_PVT, true);
+  gps_.enableNavMsg(Ublox::NAV_COV, true);
 
   if (gps_.configureSolutionRate(kMeasurementRate) < 0)
     rosthrow("Failed to set measurement rate.");
 
   if (gps_.configureDynamicsModel(Ublox::AIRBORNE_2G) < 0)
     rosthrow("Failed to set dynamics model.");
+
+  // TODO: 地域によって使用するGNSSを変える
+  gps_.configureGnss_GPS(true);
+  gps_.configureGnss_SBAS(true);
+  gps_.configureGnss_Galileo(false);
+  gps_.configureGnss_BeiDou(false);
+  gps_.configureGnss_QZSS(true);
+  gps_.configureGnss_GLONASS(false);
 }
 
 bool GpsHandler::isReadyToPublish() const
