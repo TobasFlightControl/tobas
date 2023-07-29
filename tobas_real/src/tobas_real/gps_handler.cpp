@@ -29,10 +29,10 @@ void GpsHandler::run()
 
   while (ros::ok())
   {
-    stopwatch.start();
+    // stopwatch.start();
     const auto msg_id = gps_.update();
-    cout << "Message ID: " << msg_id << endl;
-    stopwatch.stop();
+    // cout << "Message ID: " << msg_id << endl;
+    // stopwatch.stop();
 
     const ros::Time now = ros::Time::now();
 
@@ -61,13 +61,14 @@ void GpsHandler::run()
         gps_.decode(pvt_);
         // cout << pvt_ << endl;
 
-        // 時刻差を表示
-        auto gps_tm =
-          dh_std::tmFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec);
-        const auto gps_tp = dh_std::tmToTimePoint(gps_tm);
-        const auto cur_tp = chrono::system_clock::now();
-        const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
-        rosInfo("GPS delay: " << gps_delay.count() << "[ms]");
+        // auto gps_tm =
+        //   dh_std::tmFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec);
+        // const auto gps_tp = dh_std::tmToTimePoint(gps_tm);
+        // const auto cur_tp = chrono::system_clock::now();  // インターネット接続が必要
+        // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
+        // cout << "GPS time:" << endl << gps_tm << endl;
+        // cout << "Current time:" << endl << dh_std::timePointToTm(cur_tp) << endl;
+        // rosInfo("GPS delay: " << gps_delay.count() << "[ms]");
 
         // Update GPS position message
         gps_msg_.header.stamp = now;
