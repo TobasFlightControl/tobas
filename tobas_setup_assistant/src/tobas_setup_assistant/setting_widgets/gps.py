@@ -45,6 +45,17 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.update_rate)
 
+        delay_description = ""
+        self.delay = ParamGetterWidget_DoubleSpinBox(
+            "Communication delay",
+            delay_description,
+            decimals=2,
+            minimum=0.,
+            default=0.2,
+            suffix=" s",
+        )
+        self._rows.addWidget(self.delay)
+
         horizontal_pos_std_description = ""
         self.horizontal_pos_std = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for horizontal position noise",

@@ -477,6 +477,7 @@ class PackageGenerator(QWidget):
                 ns=self._drone_name,
                 link_name=root_link,
                 update_rate=gps.update_rate.get(),
+                delay=gps.delay.get(),
                 offset=gps.offset.get(),
                 hor_pos_std=gps.horizontal_pos_std.get(),
                 ver_pos_std=gps.vertical_pos_std.get(),

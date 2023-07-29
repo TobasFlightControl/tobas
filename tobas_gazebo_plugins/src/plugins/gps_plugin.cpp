@@ -11,7 +11,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboGpsPlugin::GazeboGpsPlugin() : super()
+GazeboGpsPlugin::GazeboGpsPlugin() : super(), is_history_filled_(false)
 {
 }
 
@@ -32,6 +32,8 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   registerPublishers();
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboGpsPlugin::onUpdate, this));
+
+  t_last_ = world_->SimTime();
 }
 
 void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -43,6 +45,8 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
 
   getSdfParam(sdf, "offset", offset_, zero3);
+  getSdfParam(sdf, "update_rate", update_rate_, kDefaultUpdateRate, POSITIVE);
+  getSdfParam(sdf, "delay", delay_, kDefaultDelay, NON_NEGATIVE);
 
   getSdfParam(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev, NON_NEGATIVE);
   getSdfParam(sdf, "verPosStdDev", ver_pos_std_dev_, kDefaultVerPosStdDev, NON_NEGATIVE);
@@ -102,21 +106,57 @@ void GazeboGpsPlugin::registerPublishers()
 
 void GazeboGpsPlugin::onUpdate()
 {
-  updatePosition();
-  updateVelocity();
+  // 現在の状態を履歴に追加
+  const common::Time cur_time = world_->SimTime();
+  history_.emplace_back(
+    cur_time, link_->WorldPose(), link_->WorldLinearVel(), link_->RelativeAngularVel());
 
+  // 古い履歴を削除
+  while ((cur_time - get<0>(history_.front())).Double() > delay_)
+  {
+    history_.pop_front();
+    if (!is_history_filled_)
+    {
+      is_history_filled_ = true;
+    }
+  }
+
+  // 履歴が溜まっていなければ発行しない
+  if (!is_history_filled_)
+  {
+    return;
+  }
+
+  // 更新時刻になっていなければ発行しない
+  if ((cur_time - t_last_).Double() < 1 / update_rate_)
+  {
+    return;
+  }
+
+  // 最後の発行時間を更新
+  t_last_ = cur_time;
+
+  // 最も古い (= delay分遅れている) 状態を取得
+  common::Time gps_time;
+  Pose3d T_W_B;
+  Vector3d W_Linvel_WB;
+  Vector3d B_Angvel_WB;
+  tie(gps_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
+
+  // 位置と速度のメッセージを更新
+  updatePosition(gps_time, T_W_B);
+  updateVelocity(gps_time, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
+
+  // メッセージを発行
   pos_pub_.publish(pos_msg_);
   vel_pub_.publish(vel_msg_);
 }
 
-void GazeboGpsPlugin::updatePosition()
+void GazeboGpsPlugin::updatePosition(const common::Time& gps_time, const Pose3d& T_W_B)
 {
-  // ベースフレームの状態を取得
-  const Pose3d& T_W_B = link_->WorldPose();
+  // オフセットを考慮してGPSレシーバーの位置を計算
   const Vector3d& W_Pos_WB = T_W_B.Pos();
   const Quaterniond& W_Rot_B = T_W_B.Rot();
-
-  // オフセットを考慮してGPSレシーバーの位置を計算
   Vector3d W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
 
   // Add the altitude of the origin to the z-coordinate
@@ -126,20 +166,18 @@ void GazeboGpsPlugin::updatePosition()
   W_Pos_WS += pos_noise_->get();
 
   // Fill the GPS message
-  timeGazeboToRos(world_->SimTime(), pos_msg_.header.stamp);
+  timeGazeboToRos(gps_time, pos_msg_.header.stamp);
   dh_std::cartToGpsRelative(
     W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, pos_msg_.latitude, pos_msg_.longitude);
   pos_msg_.altitude = W_Pos_WS.Z();
 }
 
-void GazeboGpsPlugin::updateVelocity()
+void GazeboGpsPlugin::updateVelocity(
+  const common::Time& gps_time,
+  const Quaterniond& W_Rot_B,
+  const Vector3d& W_Linvel_WB,
+  const Vector3d& B_Angvel_WB)
 {
-  // ベースフレームの状態を取得
-  const Pose3d& T_W_B = link_->WorldPose();
-  const Quaterniond& W_Rot_B = T_W_B.Rot();
-  const Vector3d W_Linvel_WB = link_->WorldLinearVel();
-  const Vector3d B_Angvel_WB = link_->RelativeAngularVel();
-
   // オフセットを考慮してGPSレシーバの速度を計算
   Vector3d W_Linvel_WS = W_Linvel_WB + W_Rot_B * B_Angvel_WB.Cross(offset_);
 
@@ -147,7 +185,7 @@ void GazeboGpsPlugin::updateVelocity()
   W_Linvel_WS += vel_noise_->get();
 
   // Fill the ground speed message.
-  timeGazeboToRos(world_->SimTime(), vel_msg_.header.stamp);
+  timeGazeboToRos(gps_time, vel_msg_.header.stamp);
   vectorGazeboToKDL(W_Linvel_WS, vel_msg_.vel);
 }
 

@@ -198,7 +198,6 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
 
   ++gps_count_;
 
-  // FIXME: 数値誤差を発生させないように和をとる．少数部分だけ計算するとか．
   gps_sum_.latitude += gps.latitude;
   gps_sum_.longitude += gps.longitude;
   gps_sum_.altitude += gps.altitude;
