@@ -7,8 +7,6 @@
 #include "../../include/tobas_real/rcin_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
 
-#define SLEEP_TIME 3  // [s]
-
 using namespace std;
 
 namespace tobas_real
@@ -36,7 +34,7 @@ void RCInputCalibrator::run()
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto roll_right = readRCInput(kRCInputChannelRoll);
 
-  if (!(roll_left < roll_neutoral && roll_neutoral < roll_right))
+  if (!(roll_left + kPeriodMargin < roll_neutoral && roll_neutoral + kPeriodMargin < roll_right))
   {
     rosthrow("Invalid value on ROLL lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
@@ -56,7 +54,7 @@ void RCInputCalibrator::run()
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto pitch_down = readRCInput(kRCInputChannelPitch);
 
-  if (!(pitch_up < pitch_neutoral && pitch_neutoral < pitch_down))
+  if (!(pitch_up + kPeriodMargin < pitch_neutoral && pitch_neutoral + kPeriodMargin < pitch_down))
   {
     rosthrow("Invalid period on PITCH lever. 'UP < NEUTORAL < DOWN' must be satisfied.");
   }
@@ -76,7 +74,7 @@ void RCInputCalibrator::run()
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto yaw_right = readRCInput(kRCInputChannelYaw);
 
-  if (!(yaw_left < yaw_neutoral && yaw_neutoral < yaw_right))
+  if (!(yaw_left + kPeriodMargin < yaw_neutoral && yaw_neutoral + kPeriodMargin < yaw_right))
   {
     rosthrow("Invalid value on YAW lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
@@ -91,7 +89,7 @@ void RCInputCalibrator::run()
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto throttle_down = readRCInput(kRCInputChannelThrottle);
 
-  if (!(throttle_down < throttle_up))
+  if (!(throttle_down + kPeriodMargin < throttle_up))
   {
     rosthrow("Invalid period on THROTTLE lever. 'DOWN < UP' must be satisfied.");
   }
@@ -106,7 +104,7 @@ void RCInputCalibrator::run()
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto switch_down = readRCInput(kRCInputChannelSwitch);
 
-  if (!(switch_up < switch_down))
+  if (!(switch_up + kPeriodMargin < switch_down))
   {
     rosthrow("Invalid period on SWITCH-A. 'UP < DOWN' must be satisfied.");
   }
@@ -125,8 +123,8 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcPitchUp, pitch_up);
   pt.put(kConfigKey_RcPitchDown, pitch_down);
   pt.put(kConfigKey_RcYawNeutoral, yaw_neutoral);
-  pt.put(kConfigKey_RcYawNeutoral, yaw_left);
-  pt.put(kConfigKey_RcYawNeutoral, yaw_right);
+  pt.put(kConfigKey_RcYawLeft, yaw_left);
+  pt.put(kConfigKey_RcYawRight, yaw_right);
   pt.put(kConfigKey_RcThrottleUp, throttle_up);
   pt.put(kConfigKey_RcThrottleDown, throttle_down);
   pt.put(kConfigKey_RcSwitchUp, switch_up);
