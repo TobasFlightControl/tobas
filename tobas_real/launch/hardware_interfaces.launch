@@ -6,5 +6,6 @@
   <include file="$(find tobas_real)/launch/motors.launch">
     <arg name="esc_protocol" value="$(arg esc_protocol)"/>
   </include>
+  <include file="$(find tobas_real)/launch/rc_input.launch"/>
 
 </launch>

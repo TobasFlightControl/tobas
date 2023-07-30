@@ -94,19 +94,19 @@ void RCInputCalibrator::run()
     rosthrow("Invalid period on THROTTLE lever. 'DOWN < UP' must be satisfied.");
   }
 
-  // Switch Up
-  cout << "Please set the SWITCH-A to UP and press Enter when ready:";
+  // Toggle Up
+  cout << "Please set the TOGGLE-A to UP and press Enter when ready:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto switch_up = readRCInput(kRCInputChannelSwitch);
+  const auto toggle_up = readRCInput(kRCInputChannelToggle);
 
-  // Switch Down
-  cout << "Please set the SWITCH-A to DOWN and press Enter when ready:";
+  // Toggle Down
+  cout << "Please set the TOGGLE-A to DOWN and press Enter when ready:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto switch_down = readRCInput(kRCInputChannelSwitch);
+  const auto toggle_down = readRCInput(kRCInputChannelToggle);
 
-  if (!(switch_up + kPeriodMargin < switch_down))
+  if (!(toggle_up + kPeriodMargin < toggle_down))
   {
-    rosthrow("Invalid period on SWITCH-A. 'UP < DOWN' must be satisfied.");
+    rosthrow("Invalid period on TOGGLE-A. 'UP < DOWN' must be satisfied.");
   }
 
   // Configに保存
@@ -127,8 +127,8 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcYawRight, yaw_right);
   pt.put(kConfigKey_RcThrottleUp, throttle_up);
   pt.put(kConfigKey_RcThrottleDown, throttle_down);
-  pt.put(kConfigKey_RcSwitchUp, switch_up);
-  pt.put(kConfigKey_RcSwitchDown, switch_down);
+  pt.put(kConfigKey_RcToggleUp, toggle_up);
+  pt.put(kConfigKey_RcToggleDown, toggle_down);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
   rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
 }

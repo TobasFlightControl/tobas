@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_real" name="rcin_handler" type="rcin_handler_node" output="screen"/>
+
+</launch>

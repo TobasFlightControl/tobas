@@ -20,8 +20,8 @@ static constexpr char kConfigKey_RcYawLeft[] = "DEFAULT.rc_input/yaw/left";
 static constexpr char kConfigKey_RcYawRight[] = "DEFAULT.rc_input/yaw/right";
 static constexpr char kConfigKey_RcThrottleUp[] = "DEFAULT.rc_input/throttle/up";
 static constexpr char kConfigKey_RcThrottleDown[] = "DEFAULT.rc_input/throttle/down";
-static constexpr char kConfigKey_RcSwitchUp[] = "DEFAULT.rc_input/switch/up";
-static constexpr char kConfigKey_RcSwitchDown[] = "DEFAULT.rc_input/switch/down";
+static constexpr char kConfigKey_RcToggleUp[] = "DEFAULT.rc_input/toggle/up";
+static constexpr char kConfigKey_RcToggleDown[] = "DEFAULT.rc_input/toggle/down";
 
 // https://docs.emlid.com/navio2/dev/adc/
 static constexpr uint32_t kPowerModuleVoltageChannel = 2;
@@ -38,7 +38,7 @@ static constexpr uint32_t kRCInputChannelYaw = 0;
 static constexpr uint32_t kRCInputChannelPitch = 1;
 static constexpr uint32_t kRCInputChannelThrottle = 2;
 static constexpr uint32_t kRCInputChannelRoll = 3;
-static constexpr uint32_t kRCInputChannelSwitch = 4;
+static constexpr uint32_t kRCInputChannelToggle = 4;
 
 static constexpr double kDisarmDuration = 3.;   // [s]
 static constexpr double kDisarmInterval = 0.1;  // [s]
