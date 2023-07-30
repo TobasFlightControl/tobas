@@ -12,6 +12,7 @@
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
+#include <tobas_msgs/RollPitchYawrateThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
@@ -41,19 +42,20 @@ private:
 
   std::shared_ptr<RotationController> rot_controller_;
 
-  uint8_t cmd_level_;
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
   bool is_initialized_;
   bool battery_received_;
   bool bs_received_;
   bool js_received_;
   bool rpy_thrust_received_;
+  bool rpyd_thrust_received_;
+  ros::Time t_last_rpyd_thrust_;
   tobas_msgs::Battery battery_;                // 現在のバッテリーの状態
   tobas_msgs::BaseState bs_;                   // 現在のベースの状態
   KDL::JntArray q_;                            // 全ての非固定関節の角度
   tobas_msgs::RollPitchYawThrust rpy_thrust_;  // 姿勢+推力 (入力)
   Eigen::VectorXd u_opt_;
-  tobas_msgs::RotorSpeeds rotor_speeds_;       // モータの回転数 (出力)
+  tobas_msgs::RotorSpeeds rotor_speeds_;  // モータの回転数 (出力)
 
   // RosParams
   RotationControllerDynamicParams dynamic_params_rot_;
@@ -67,6 +69,7 @@ private:
   ros::Subscriber base_state_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber rpy_thrust_sub_;
+  ros::Subscriber rpyd_thrust_sub_;
 
   // Dynamic Reconfigure
   ConfigServer server_;
@@ -82,12 +85,17 @@ private:
   void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeeds& speeds);
   double maxThrustSum();
   double minThrustSum();
+  void updateCommandLevel(const tobas_msgs::CommandLevel& level);
+  void updateTargetRoll(double tar_roll);
+  void updateTargetPitch(double tar_pitch);
+  void updateTargetThrust(double tar_thrust);
 
   void eventCb(const tobas_msgs::Event& event) override;
   void batteryCb(const tobas_msgs::Battery& battery);
   void baseStateCb(const tobas_msgs::BaseState& bs);
   void jointStateCb(const sensor_msgs::JointState& js);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rpy_thrust);
+  void rpydThrustCb(const tobas_msgs::RollPitchYawrateThrust& rpyd_thrust);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

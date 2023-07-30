@@ -14,12 +14,12 @@ RotationControllerRos::RotationControllerRos()
   : super(),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    cmd_level_(tobas_msgs::CommandLevel::NORMAL),
     is_initialized_(false),
     battery_received_(false),
     bs_received_(false),
     js_received_(false),
     rpy_thrust_received_(false),
+    rpyd_thrust_received_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -37,6 +37,7 @@ RotationControllerRos::RotationControllerRos()
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
+  rpy_thrust_.level.data = tobas_msgs::CommandLevel::NORMAL;
   rotor_speeds_.speeds.resize(drone_.numRotors(), 0.);
 
   registerPublishers();
@@ -79,6 +80,8 @@ void RotationControllerRos::registerSubscribers()
   }
   rpy_thrust_sub_ =
     nh_.subscribe("command/rpy_thrust", 1, &RotationControllerRos::rpyThrustCb, this);
+  rpyd_thrust_sub_ = nh_.subscribe(
+    "command/roll_pitch_yawrate_thrust", 1, &RotationControllerRos::rpydThrustCb, this);
 }
 
 bool RotationControllerRos::isReady()
@@ -92,7 +95,7 @@ bool RotationControllerRos::isReady()
   if (is_transformable_ && !js_received_)
     return false;
 
-  if (!rpy_thrust_received_)
+  if (!rpy_thrust_received_ && !rpyd_thrust_received_)
     return false;
 
   return true;
@@ -168,6 +171,59 @@ double RotationControllerRos::minThrustSum()
     res += z_rotors_.minThrust(i, battery_.voltage);
   }
   return res;
+}
+
+void RotationControllerRos::updateCommandLevel(const tobas_msgs::CommandLevel& level)
+{
+  if (level.data < rpy_thrust_.level.data)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, "The command is ignored because its level "
+                      << level.data << "is lower than the current command level "
+                      << rpy_thrust_.level.data << ".");
+    return;
+  }
+  if (level.data > rpy_thrust_.level.data)
+  {
+    rosInfo(
+      "The command level is raised from " << rpy_thrust_.level.data << " to " << level.data << ".");
+    rpy_thrust_.level = level;
+  }
+}
+
+void RotationControllerRos::updateTargetRoll(double tar_roll)
+{
+  if (abs(tar_roll) > kMaxAttitude)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, "roll = " << tar_roll << " is out of range [" << -kMaxAttitude << ", "
+                              << kMaxAttitude << "].");
+  }
+  rpy_thrust_.rpy.roll = clamp(tar_roll, -kMaxAttitude, kMaxAttitude);
+}
+
+void RotationControllerRos::updateTargetPitch(double tar_pitch)
+{
+  if (abs(tar_pitch) > kMaxAttitude)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, "pitch = " << tar_pitch << " is out of range [" << -kMaxAttitude << ", "
+                               << kMaxAttitude << "].");
+  }
+  rpy_thrust_.rpy.pitch = clamp(tar_pitch, -kMaxAttitude, kMaxAttitude);
+}
+
+void RotationControllerRos::updateTargetThrust(double tar_thrust)
+{
+  const auto max_U = maxThrustSum();
+  const auto min_U = minThrustSum();
+  if (tar_thrust < min_U || max_U < tar_thrust)
+  {
+    rosWarnThrottle(
+      kWarnPeriod,
+      "thrust = " << tar_thrust << " is out of range [" << min_U << ", " << max_U << "].");
+  }
+  rpy_thrust_.thrust = clamp(tar_thrust, min_U, max_U);
 }
 
 void RotationControllerRos::eventCb(const tobas_msgs::Event& event)
@@ -249,58 +305,49 @@ void RotationControllerRos::jointStateCb(const sensor_msgs::JointState& js)
 
 void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rpy_thrust)
 {
-  // コマンドレベルの処理
-  if (rpy_thrust.level.data < cmd_level_)
+  if (!bs_received_)
   {
-    rosErrorThrottle(
-      kErrorPeriod, "The command is ignored because its level "
-                      << rpy_thrust.level.data << "is lower than the current command level "
-                      << cmd_level_ << ".");
     return;
   }
-  if (rpy_thrust.level.data > cmd_level_)
-  {
-    rosInfo(
-      "The command level is raised from " << cmd_level_ << " to " << rpy_thrust.level.data << ".");
-    cmd_level_ = rpy_thrust.level.data;
-  }
 
-  // 目標姿勢 & 目標推力の範囲チェックをしながら更新
-  // Roll
-  if (abs(rpy_thrust.rpy.roll) > kMaxAttitude)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, "roll = " << rpy_thrust.rpy.roll << " is out of range [" << -kMaxAttitude
-                              << ", " << kMaxAttitude << "].");
-  }
-  rpy_thrust_.rpy.roll = clamp(rpy_thrust.rpy.roll, -kMaxAttitude, kMaxAttitude);
+  updateCommandLevel(rpy_thrust.level);
+  updateTargetRoll(rpy_thrust.rpy.roll);
+  updateTargetPitch(rpy_thrust.rpy.pitch);
 
-  // Pitch
-  if (abs(rpy_thrust.rpy.pitch) > kMaxAttitude)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, "pitch = " << rpy_thrust.rpy.pitch << " is out of range [" << -kMaxAttitude
-                               << ", " << kMaxAttitude << "].");
-  }
-  rpy_thrust_.rpy.pitch = clamp(rpy_thrust.rpy.pitch, -kMaxAttitude, kMaxAttitude);
-
-  // Yaw
+  // Yawの目標値を更新
   rpy_thrust_.rpy.yaw = rpy_thrust.rpy.yaw;
-
-  // Thrust
-  const auto max_U = maxThrustSum();
-  const auto min_U = minThrustSum();
-  if (rpy_thrust.thrust < min_U || max_U < rpy_thrust.thrust)
-  {
-    rosWarnThrottle(
-      kWarnPeriod,
-      "thrust = " << rpy_thrust.thrust << " is out of range [" << min_U << ", " << max_U << "].");
-  }
-  rpy_thrust_.thrust = clamp(rpy_thrust.thrust, min_U, max_U);
 
   if (!rpy_thrust_received_)
   {
     rpy_thrust_received_ = true;
+  }
+}
+
+void RotationControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrust& rpyd_thrust)
+{
+  if (!bs_received_)
+  {
+    return;
+  }
+
+  updateCommandLevel(rpyd_thrust.level);
+  updateTargetRoll(rpyd_thrust.roll);
+  updateTargetPitch(rpyd_thrust.pitch);
+
+  // Yawの目標値を更新
+  if (rpyd_thrust_received_)
+  {
+    // TODO: 前回からあまりに時間が立っていた場合はリセット
+    const ros::Time now = ros::Time::now();
+    const auto dt = (now - t_last_rpyd_thrust_).toSec();
+    t_last_rpyd_thrust_ = now;
+    rpy_thrust_.rpy.yaw += rpyd_thrust.yawrate * dt;
+  }
+  else
+  {
+    t_last_rpyd_thrust_ = ros::Time::now();
+    rpy_thrust_.rpy.yaw = bs_.pose.euler.yaw;  // 最初は現在のヨー角を指令
+    rpyd_thrust_received_ = true;
   }
 }
 
@@ -315,8 +362,7 @@ void RotationControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (is_transformable_ && !js_received_)
     rosWarn("Joint states are not received yet.");
 
-  if (!rpy_thrust_received_)
-    rosWarn("RPY & Thrust command is not received yet.");
+  // コマンドの警告はしない
 }
 
 void RotationControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

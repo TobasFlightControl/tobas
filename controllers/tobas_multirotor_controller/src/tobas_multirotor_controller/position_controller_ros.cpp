@@ -125,6 +125,11 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 
 void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw)
 {
+  if (!bs_received_)
+  {
+    return;
+  }
+
   // 指令位置と現在位置が離れすぎていないか確認
   const auto dist = (pos_yaw.pos - bs_.pose.pos).Norm();
   if (dist > kMaxCommandPositionDeviation)
@@ -153,7 +158,7 @@ void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
   if (!cmd_received_)
   {
-    rosWarn("Command is not received yet.");
+    rosInfo("Waiting for Position & Yaw command.");
   }
 }
 

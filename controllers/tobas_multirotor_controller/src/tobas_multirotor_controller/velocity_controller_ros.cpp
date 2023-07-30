@@ -141,6 +141,11 @@ void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 
 void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYaw& vel_yaw)
 {
+  if (!bs_received_)
+  {
+    return;
+  }
+
   // コマンドレベルの処理
   if (vel_yaw.level.data < cmd_level_)
   {
@@ -192,7 +197,7 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn("Base state is not received yet.");
 
   if (!vel_yaw_received_)
-    rosWarn("Velocity & Yaw command is not received yet.");
+    rosInfo("Waiting for Velocity & Yaw command.");
 }
 
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
