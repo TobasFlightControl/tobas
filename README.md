@@ -105,8 +105,16 @@ Make sure battery is connected to FC properly.\
 Execute the following in FC:
 
 ```bash
-$ su
 $ roslaunch tobas_real adc_calibration.launch
+```
+
+### RC Input Calibration
+
+Make sure RC receiver is connected to FC properly and it can communicate with a transmitter.\
+Execute the following in FC:
+
+```bash
+$ roslaunch tobas_real rcin_calibration.launch
 ```
 
 ### ESC Calibration
