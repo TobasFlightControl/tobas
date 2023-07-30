@@ -66,6 +66,6 @@ void AdcCalibrator::run()
   }
   pt.put(kConfigKey_AdcCoef, adc_coef);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
-  rosInfo("ADC coefficient is saved to '" << kConfigPath << "'.");
+  rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
 }
 }  // namespace tobas_real
