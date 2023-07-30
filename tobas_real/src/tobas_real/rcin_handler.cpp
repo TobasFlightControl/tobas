@@ -46,7 +46,7 @@ void RCInputHandler::run()
     rcin_msg_.yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
     rcin_msg_.throttle =
       remap<double>(throttle_period, throttle_range_.lower, throttle_range_.upper, 0, 1);
-    rcin_msg_.toggle = toggle_period > toggle_range_.mean();
+    rcin_msg_.toggle = toggle_period < toggle_range_.mean();
 
     // Publish message
     rcin_pub_.publish(rcin_msg_);
@@ -96,7 +96,7 @@ void RCInputHandler::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      // ros::shutdown();
+      ros::shutdown();
       break;
     default:
       break;
