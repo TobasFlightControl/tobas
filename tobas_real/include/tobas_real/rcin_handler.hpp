@@ -25,7 +25,7 @@ private:
   RCInput_Navio2 rcin_;
   tobas_msgs::RCInput rcin_msg_;
 
-  // rosparams
+  // RC input period ranges
   dh_std::Range<double> roll_range_;
   dh_std::Range<double> pitch_range_;
   dh_std::Range<double> yaw_range_;
