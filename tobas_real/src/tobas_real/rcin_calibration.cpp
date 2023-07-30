@@ -38,7 +38,7 @@ void RCInputCalibrator::run()
 
   if (!(roll_left < roll_neutoral && roll_neutoral < roll_right))
   {
-    rosthrow("Invalid value on roll lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
+    rosthrow("Invalid value on ROLL lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
 
   // Pitch Neutoral
@@ -58,7 +58,7 @@ void RCInputCalibrator::run()
 
   if (!(pitch_up < pitch_neutoral && pitch_neutoral < pitch_down))
   {
-    rosthrow("Invalid period on pitch lever. 'UP < NEUTORAL < DOWN' must be satisfied.");
+    rosthrow("Invalid period on PITCH lever. 'UP < NEUTORAL < DOWN' must be satisfied.");
   }
 
   // Yaw Neutoral
@@ -78,22 +78,37 @@ void RCInputCalibrator::run()
 
   if (!(yaw_left < yaw_neutoral && yaw_neutoral < yaw_right))
   {
-    rosthrow("Invalid value on yaw lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
+    rosthrow("Invalid value on YAW lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
 
-  // Thrust Up
-  rosInfo("Please set the THRUST lever to UP and press Enter when ready.");
+  // Throttle Up
+  rosInfo("Please set the THROTTLE lever to UP and press Enter when ready.");
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto thrust_up = readRCInput(kRCInputChannelThrust);
+  const auto throttle_up = readRCInput(kRCInputChannelThrottle);
 
-  // Thrust Down
-  rosInfo("Please set the THRUST lever to DOWN and press Enter when ready.");
+  // Throttle Down
+  rosInfo("Please set the THROTTLE lever to DOWN and press Enter when ready.");
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto thrust_down = readRCInput(kRCInputChannelThrust);
+  const auto throttle_down = readRCInput(kRCInputChannelThrottle);
 
-  if (!(thrust_down < thrust_up))
+  if (!(throttle_down < throttle_up))
   {
-    rosthrow("Invalid period on thrust lever. 'DOWN < UP' must be satisfied.");
+    rosthrow("Invalid period on THROTTLE lever. 'DOWN < UP' must be satisfied.");
+  }
+
+  // Switch Up
+  rosInfo("Please set the SWITCH-A to UP and press Enter when ready.");
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  const auto switch_up = readRCInput(kRCInputChannelSwitch);
+
+  // Switch Down
+  rosInfo("Please set the SWITCH-A to DOWN and press Enter when ready.");
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  const auto switch_down = readRCInput(kRCInputChannelSwitch);
+
+  if (!(switch_up < switch_down))
+  {
+    rosthrow("Invalid period on SWITCH-A. 'UP < DOWN' must be satisfied.");
   }
 
   // Configに保存
@@ -112,8 +127,10 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcYawNeutoral, yaw_neutoral);
   pt.put(kConfigKey_RcYawNeutoral, yaw_left);
   pt.put(kConfigKey_RcYawNeutoral, yaw_right);
-  pt.put(kConfigKey_RcThrustUp, thrust_up);
-  pt.put(kConfigKey_RcThrustDown, thrust_down);
+  pt.put(kConfigKey_RcThrottleUp, throttle_up);
+  pt.put(kConfigKey_RcThrottleDown, throttle_down);
+  pt.put(kConfigKey_RcSwitchUp, switch_up);
+  pt.put(kConfigKey_RcSwitchDown, switch_down);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
   rosInfo("RC input periods are saved to '" << kConfigPath << "'.");
 }
