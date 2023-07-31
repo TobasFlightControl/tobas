@@ -123,9 +123,17 @@ void RotationControllerRos::updateDynamicParams(const ConfigType& cfg)
 void RotationControllerRos::runOnce()
 {
   // 姿勢制御器
-  rot_controller_->update(
-    bs_.pose.euler, bs_.twist.rot, q_, battery_.voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
-    u_opt_);
+  try
+  {
+    rot_controller_->update(
+      bs_.pose.euler, bs_.twist.rot, q_, battery_.voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
+      u_opt_);
+  }
+  catch (const exception& e)  // MPCがコケたり
+  {
+    rosError(e.what());
+    return;
+  }
 
   // 各モータの回転速度メッセージを更新
   rotor_speeds_.header.stamp = bs_.header.stamp;
