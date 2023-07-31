@@ -95,6 +95,8 @@ $ roslaunch (tobas_config_pkg) real.launch
 
 ### Bringup observer and controller
 
+Please make sure that the RC transmitter and receiver can communicate correctly.
+
 ```bash
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
@@ -206,3 +208,16 @@ $ export LIBGL_ALWAYS_INDIRECT=0
 
 and if you are using an Xserver, leave "Native opengl" option unchecked. This however will force the system to work on CPU, but that's what we have for now. \
 cf. [Robot meshes not visible in rviz [Windows11, WSL2]](https://answers.ros.org/question/394135/robot-meshes-not-visible-in-rviz-windows11-wsl2/)
+
+### Unstable takeoff
+
+1. Have the sensors, ADC, and ESC been calibrated?
+1. There might be a large discrepancy between the model and the actual drone.
+   - The position of the center of gravity.
+   - Sensor positions.
+   - Motor mounting angles.
+   - Is the inertia tensor defined in the NWU coordinate system?
+1. Increase the takeoff speed and/or the gain in the vertical direction to rise quickly.
+1. Increase the intensity of the attitude control.
+   - Increase the attitude weight.
+   - Reduce the decay time constant of the attitude error.
