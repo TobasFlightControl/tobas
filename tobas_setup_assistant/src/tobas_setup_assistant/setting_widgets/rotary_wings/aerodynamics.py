@@ -386,14 +386,14 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
         omega2 = rpm_to_rad_per_sec(rpm)**2
-        return (thrust.T @ omega2) / (omega2.T @ omega2)  # 最小2乗解
+        return (thrust.T @ omega2) / (omega2.T @ omega2)  # 最小2乗解 (memo: 2-28)
 
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         _, thrust, torque = np.hsplit(data, 3)
-        return (torque.T @ thrust) / (thrust.T @ thrust)  # 最小2乗解
+        return (torque.T @ thrust) / (thrust.T @ thrust)  # 最小2乗解 (memo: 2-28)
 
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法
