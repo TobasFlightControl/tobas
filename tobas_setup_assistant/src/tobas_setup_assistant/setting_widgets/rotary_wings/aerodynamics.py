@@ -485,7 +485,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
     def moment_const(self) -> float:
         # CT, CPの平均をとる
-        # TODO: もっと良い計算方法があるかも．ホバリング時の回転数に対応する値を重視するとか．
+        # TODO: 単純な平均ではなく，ホバリング時の回転数に対応する値をとる
         data = self._data.get()
         CTs = data[:, 1]
         CPs = data[:, 2]
