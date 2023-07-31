@@ -75,7 +75,10 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
   rpydt_.roll = dh_std::remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
   rpydt_.pitch = dh_std::remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
   rpydt_.yawrate = dh_std::remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
-  rpydt_.thrust = z_rotors_.maxThrustSum(battery_.voltage) * rcin.throttle;
+
+  const auto min_thrust = z_rotors_.minThrustSum(battery_.voltage);
+  const auto max_thrust = z_rotors_.maxThrustSum(battery_.voltage);
+  rpydt_.thrust = dh_std::remap(rcin.throttle, 0., 1., min_thrust, max_thrust);
 
   // コマンドを発行
   rpydt_pub_.publish(rpydt_);
