@@ -16,10 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_msgs
 	dh_ros_tools
 	dh_eigen_tools
-	kdl_msgs
-	roscpp
 	actionlib
-	message_generation
 	actionlib_msgs
 )
 
@@ -34,13 +31,13 @@ add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
 	tobas_msgs
-	kdl_msgs
 	actionlib_msgs
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_tools tobas_msgs dh_ros_tools dh_eigen_tools actionlib actionlib_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

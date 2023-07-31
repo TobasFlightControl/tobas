@@ -9,6 +9,9 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>actionlib</depend>
+	<depend>actionlib_msgs</depend>
+
 	<depend>dh_eigen_tools</depend>
 	<depend>dh_ros_tools</depend>
 

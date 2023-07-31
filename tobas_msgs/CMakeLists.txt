@@ -37,6 +37,7 @@ generate_messages(DEPENDENCIES
 catkin_package(
 	INCLUDE_DIRS include
 # 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS dh_kdl kdl_msgs std_msgs actionlib_msgs message_generation
 )
 
 include_directories(${catkin_INCLUDE_DIRS})
