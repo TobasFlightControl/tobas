@@ -360,12 +360,6 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
             + "Tyto Rootics Series 1585 Thrust Stand</a>"
         super().__init__(main, link_name, abst_text)
 
-        # 同じ計算を繰り返すことを防ぐためにMotor ConstとMoment Constをキャッシュする
-        self._motor_const = -1.
-        self._moment_const = -1.
-        self._motor_const_updated = False
-        self._moment_const_updated = False
-
         data_description = "Thrust Standの実験データを入力してください．"
         self._data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
@@ -379,8 +373,6 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
-        self._data.data_changed.connect(self._on_data_changed)
-
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(self._main, ROTARY_WINGS, "Thrust stand data is blank.")
@@ -390,44 +382,18 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     def motor_const(self) -> float:
         # TODO: 外れ値を除去
-        # TODO: あまりにモデル(２次関数)からかけ離れていたら警告を出す
-
-        # Motor Constが更新されていなければ更新
-        if not self._motor_const_updated:
-            data = self._data.get()
-            num_samples = data.shape[0]
-            assert num_samples > 0
-
-            motor_const_sum = 0.
-            for rpm, thrust, _ in data:
-                omega = rpm_to_rad_per_sec(rpm)  # [rad/s]
-                motor_const = thrust / omega**2
-                motor_const_sum += motor_const
-
-            self._motor_const = motor_const_sum / num_samples
-            self._motor_const_updated = True
-
-        return self._motor_const
+        # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
+        data = self._data.get()
+        rpm, thrust, _ = np.hsplit(data, 3)
+        omega2 = rpm_to_rad_per_sec(rpm)**2
+        return (thrust.T @ omega2) / (omega2.T @ omega2)  # 最小2乗解
 
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
-        # TODO: あまりにモデルからかけ離れていたら警告を出す
-
-        # Moment Constが更新されていなければ更新
-        if not self._moment_const_updated:
-            data = self._data.get()
-            num_samples = data.shape[0]
-            assert num_samples > 0
-
-            moment_const_sum = 0.
-            for _, thrust, torque in data:
-                moment_const = torque / thrust
-                moment_const_sum += moment_const
-
-            self._moment_const = moment_const_sum / num_samples
-            self._moment_const_updated = True
-
-        return self._moment_const
+        # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
+        data = self._data.get()
+        _, thrust, torque = np.hsplit(data, 3)
+        return (torque.T @ thrust) / (thrust.T @ thrust)  # 最小2乗解
 
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法
@@ -436,11 +402,6 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         self._data.set(src._data.get())
-
-    @pyqtSlot()
-    def _on_data_changed(self) -> None:
-        self._motor_const_updated = False
-        self._moment_const_updated = False
 
 
 class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
