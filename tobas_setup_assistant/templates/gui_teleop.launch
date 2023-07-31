@@ -1,8 +1,6 @@
 <launch>
 
-  <arg name="drone_name"/>
-
-  <group ns="$(arg drone_name)">
+  <group ns="{{ drone_name }}">
     <node pkg="tobas_gui_teleop" type="gui_teleop_node.py" name="gui_teleop" output="screen"/>
   </group>
 

@@ -120,6 +120,9 @@ class PackageGenerator(QWidget):
         self._generate_from_template(items, "observer.launch", launch_dir)
         self._generate_from_template(items, "bringup.launch", launch_dir)
         self._generate_from_template(items, "motors.launch", launch_dir)
+        self._generate_from_template(items, "keyboard_teleop.launch", launch_dir)
+        self._generate_from_template(items, "gui_teleop.launch", launch_dir)
+        self._generate_from_template(items, "rc_teleop.launch", launch_dir)
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)

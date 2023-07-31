@@ -10,6 +10,9 @@
   <!-- Bringup observer -->
   <include file="$(find {{ pkg_name }})/launch/observer.launch"/>
 
+  <!-- For safety reasons, bringup RC teleoperation by default -->
+  <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch"/>
+
   <!-- Bringup takeoff and landing action server -->
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_multirotor_takeoff)/launch/takeoff_action_server.launch"/>
@@ -25,11 +28,6 @@
   <!-- Bringup trajectory commanding action server -->
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_trajectory_commander)/launch/position_yaw.launch"/>
-  </group>
-
-  <!-- Bringup RC teleoperation -->
-  <group ns="{{ drone_name }}">
-    <include file="$(find tobas_rc_teleop)/launch/roll_pitch_yawrate_thrust.launch"/>
   </group>
 
 </launch>
