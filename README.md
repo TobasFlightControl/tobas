@@ -131,8 +131,9 @@ $ roslaunch tobas_real esc_calibration.launch
 ### Teleoperation
 
 ```bash
-$ roslaunch tobas_keyboard_teleop keyboard_teleop.launch drone_name:=(drone_name)  # By keyboard
-$ roslaunch tobas_gui_teleop gui_teleop.launch drone_name:=(drone_name)            # By GUI application
+$ roslaunch (tobas_config_pkg) keyboard_teleop.launch  # By keyboard
+$ roslaunch (tobas_config_pkg) gui_teleop.launch       # By GUI application
+$ roslaunch (tobas_config_pkg) rc_teleop.launch        # By RC transmitter
 ```
 
 ### Run FC and external PC on the same ROS network
