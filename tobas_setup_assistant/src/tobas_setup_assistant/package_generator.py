@@ -110,7 +110,6 @@ class PackageGenerator(QWidget):
 
         # テンプレートから生成
         items = self._make_template_items()
-        self._generate_from_template(items, "README.md", pkg_path)
         self._generate_from_template(items, "CMakeLists.txt", pkg_path)
         self._generate_from_template(items, "package.xml", pkg_path)
         self._generate_from_template(items, "environment.yaml", config_dir)
