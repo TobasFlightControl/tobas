@@ -313,6 +313,7 @@ void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rp
   updateCommandLevel(rpy_thrust.level);
   updateTargetRoll(rpy_thrust.rpy.roll);
   updateTargetPitch(rpy_thrust.rpy.pitch);
+  updateTargetThrust(rpy_thrust.thrust);
 
   // Yawの目標値を更新
   rpy_thrust_.rpy.yaw = rpy_thrust.rpy.yaw;
@@ -333,6 +334,7 @@ void RotationControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrus
   updateCommandLevel(rpyd_thrust.level);
   updateTargetRoll(rpyd_thrust.roll);
   updateTargetPitch(rpyd_thrust.pitch);
+  updateTargetThrust(rpyd_thrust.thrust);
 
   // Yawの目標値を更新
   if (rpyd_thrust_received_)
