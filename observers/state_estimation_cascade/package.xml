@@ -9,19 +9,12 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>roscpp</depend>
-	<depend>orocos_kdl</depend>
-	<depend>kdl_msgs</depend>
-	<depend>orientation_estimation_complement</depend>
+	<depend>eigen_conversions</depend>
+	<depend>kdl_conversions</depend>
+	<depend>dynamic_reconfigure</depend>
 
-	<depend>dh_std_tools</depend>
-	<depend>dh_eigen_tools</depend>
-	<depend>dh_ros_tools</depend>
 	<depend>dh_linear_control</depend>
-	<depend>dh_kdl</depend>
 
-	<depend>tobas_tools</depend>
-	<depend>tobas_msgs</depend>
 	<depend>tobas_common_actions</depend>
 
 </package>

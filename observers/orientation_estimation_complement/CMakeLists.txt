@@ -13,18 +13,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
   tobas_tools
-  dh_ros_tools
-  tobas_msgs
   eigen_conversions
   message_filters
-  roscpp
   sensor_msgs
 )
-find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS tobas_tools eigen_conversions message_filters sensor_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS})
@@ -32,7 +29,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 # ライブラリを作成
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # ノードの実行ファイルを作成
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)

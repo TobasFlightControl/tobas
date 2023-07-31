@@ -13,13 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
-	dh_ros_tools
-	dh_kdl
-	kdl_msgs
-	roscpp
-	message_generation
 	actionlib
-	tobas_msgs
 )
 
 # file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
@@ -37,6 +31,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_tools actionlib
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

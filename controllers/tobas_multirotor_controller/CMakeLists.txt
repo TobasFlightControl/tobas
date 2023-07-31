@@ -12,21 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	tobas_multirotor_landing
 	tobas_tools
-	tobas_msgs
-	dh_kdl
 	dh_linear_control
-	dh_ros_tools
-	dh_eigen_tools
-	dh_std_tools
-	kdl_parser
 	kdl_conversions
 	eigen_conversions
-	kdl_msgs
-	orocos_kdl
-	roscpp
-	actionlib
 	dynamic_reconfigure
 )
 
@@ -35,6 +24,7 @@ generate_dynamic_reconfigure_options(cfg/Controller.cfg) # Dynamic Reconfigure„Å
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_tools dh_linear_control kdl_conversions eigen_conversions dynamic_reconfigure
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

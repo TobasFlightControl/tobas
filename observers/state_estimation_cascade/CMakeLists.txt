@@ -13,27 +13,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_common_actions
-	tobas_tools
 	dh_linear_control
-	dh_kdl
-	dh_ros_tools
-	dh_eigen_tools
-	dh_std_tools
-	tobas_msgs
-	orocos_kdl
 	eigen_conversions
 	kdl_conversions
-	kdl_msgs
-	roscpp
-	actionlib
 	dynamic_reconfigure
 )
 
-generate_dynamic_reconfigure_options(cfg/StateEstimationCascade.cfg) # Dynamic Reconfigureの設定
+generate_dynamic_reconfigure_options(cfg/StateEstimationCascade.cfg)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_common_actions dh_linear_control eigen_conversions kdl_conversions dynamic_reconfigure
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

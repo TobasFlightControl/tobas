@@ -42,6 +42,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 catkin_package(
   LIBRARIES tobas_robot_state_rviz_plugin_core
   INCLUDE_DIRS robot_state_rviz_plugin/include
+  CATKIN_DEPENDS moveit_ros_visualization class_loader pluginlib roscpp rviz
 )
 
 include_directories(

@@ -13,21 +13,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_multirotor_takeoff
-	tobas_tools
-	tobas_msgs
-	dh_kdl
-	dh_ros_tools
-	dh_std_tools
-	kdl_parser
-	kdl_msgs
-	roscpp
-	actionlib
 )
 find_package(X11 REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_multirotor_takeoff
+	DEPENDS X11
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

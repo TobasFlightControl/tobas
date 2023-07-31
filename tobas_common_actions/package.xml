@@ -9,12 +9,11 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>kdl_msgs</depend>
+	<depend>actionlib</depend>
+	<depend>message_generation</depend>
+	<depend>sensor_msgs</depend>
+	<depend>actionlib_msgs</depend>
 
-	<depend>dh_ros_tools</depend>
-	<depend>dh_std_tools</depend>
-	<depend>dh_kdl</depend>
-	<depend>tobas_msgs</depend>
 	<depend>tobas_tools</depend>
 
 </package>

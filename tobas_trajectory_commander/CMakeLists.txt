@@ -14,8 +14,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tobas_msgs
-	dh_ros_tools
-	dh_eigen_tools
 	actionlib
 	actionlib_msgs
 )
@@ -37,7 +35,7 @@ generate_messages(DEPENDENCIES
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_tools tobas_msgs dh_ros_tools dh_eigen_tools actionlib actionlib_msgs
+	CATKIN_DEPENDS tobas_tools tobas_msgs actionlib actionlib_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

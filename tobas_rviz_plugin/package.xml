@@ -10,6 +10,8 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>moveit_ros_visualization</depend>
+  <depend>class_loader</depend>
+  <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>rviz</depend>
 
