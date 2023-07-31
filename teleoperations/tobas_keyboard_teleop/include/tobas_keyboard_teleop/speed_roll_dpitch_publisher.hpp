@@ -15,16 +15,16 @@
 
 namespace tobas_keyboard_teleop
 {
-static constexpr double kDefaultMaxLinearAcceleration = 2.;
-static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
-static constexpr double kDefaultMaximumRoll = M_PI_2;
-static constexpr double kDefaultMaximumDeltaPitch = M_PI_4;
-
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
 class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
 {
+  static constexpr double kDefaultMaxLinearAcceleration = 2.;
+  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
+  static constexpr double kDefaultMaximumRoll = M_PI_2;
+  static constexpr double kDefaultMaximumDeltaPitch = M_PI_4;
+
   using super = tobas::BaseNode;
 
 public:

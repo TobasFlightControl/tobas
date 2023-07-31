@@ -79,7 +79,7 @@ void MultirotorStateChecker::registerSubscribers()
 void MultirotorStateChecker::requestLanding()
 {
   tobas_msgs::LandGoal goal;
-  goal.level.data = tobas_msgs::CommandLevel::EMERGENCY;
+  goal.level.data = tobas_msgs::CommandLevel::DEFENSIVE;
   ac_.sendGoal(goal);
   ac_.waitForResult();
 

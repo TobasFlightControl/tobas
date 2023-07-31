@@ -9,24 +9,24 @@
 
 namespace tobas_keyboard_teleop
 {
-static constexpr char kTakeoffActionName[] = "multirotor_takeoff";
-
-static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
-static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
-static constexpr double kDefaultMinimumX = -10.;              // [m]
-static constexpr double kDefaultMaximumX = +10.;              // [m]
-static constexpr double kDefaultMinimumY = -10.;              // [m]
-static constexpr double kDefaultMaximumY = +10.;              // [m]
-static constexpr double kDefaultMinimumZ = -10.;              // [m]
-static constexpr double kDefaultMaximumZ = +10.;              // [m]
-static constexpr double kDefaultMinimumYaw = -M_PI;           // [rad]
-static constexpr double kDefaultMaximumYaw = M_PI;            // [rad]
-
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
 class PositionYawPublisher : public tobas::BaseNode
 {
+  static constexpr char kTakeoffActionName[] = "multirotor_takeoff";
+
+  static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
+  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
+  static constexpr double kDefaultMinimumX = -10.;              // [m]
+  static constexpr double kDefaultMaximumX = +10.;              // [m]
+  static constexpr double kDefaultMinimumY = -10.;              // [m]
+  static constexpr double kDefaultMaximumY = +10.;              // [m]
+  static constexpr double kDefaultMinimumZ = -10.;              // [m]
+  static constexpr double kDefaultMaximumZ = +10.;              // [m]
+  static constexpr double kDefaultMinimumYaw = -M_PI;           // [rad]
+  static constexpr double kDefaultMaximumYaw = M_PI;            // [rad]
+
   using super = tobas::BaseNode;
 
 public:
