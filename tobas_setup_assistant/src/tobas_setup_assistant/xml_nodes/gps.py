@@ -73,6 +73,7 @@ class GpsModel(SensorModel):
         ET.SubElement(plugin, "gpsTopic").text = "gps"
         ET.SubElement(plugin, "groundSpeedTopic").text = "ground_speed"
         ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
+        ET.SubElement(plugin, "updateRate").text = str(update_rate)
         ET.SubElement(plugin, "delay").text = str(delay)
         ET.SubElement(plugin, "horPosStdDev").text = str(hor_pos_std)
         ET.SubElement(plugin, "verPosStdDev").text = str(ver_pos_std)

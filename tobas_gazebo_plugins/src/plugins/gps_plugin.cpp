@@ -45,7 +45,7 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
 
   getSdfParam(sdf, "offset", offset_, zero3);
-  getSdfParam(sdf, "update_rate", update_rate_, kDefaultUpdateRate, POSITIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, POSITIVE);
   getSdfParam(sdf, "delay", delay_, kDefaultDelay, NON_NEGATIVE);
 
   getSdfParam(sdf, "horPosStdDev", hor_pos_std_dev_, kDefaultHorPosStdDev, NON_NEGATIVE);
