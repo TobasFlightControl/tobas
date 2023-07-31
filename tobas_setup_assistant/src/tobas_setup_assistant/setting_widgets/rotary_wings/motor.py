@@ -251,6 +251,8 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
+    PWM_MIN = 1000  # [us]
+    PWM_MAX = 2000  # [us]
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
@@ -300,15 +302,16 @@ class MotorWidget_Experiment(MotorWidget_Base):
         esc = self._main.settings.rotary_wings.selected.get_esc(self._link_name)
         esc_type = esc.esc_type.currentText()
         if esc_type == esc.PWM:
-            lb, ub = esc.pwm.pulse_width_range.get()
             for pulse_width, _, _ in data:
-                if not lb <= pulse_width <= ub:
+                if not self.PWM_MIN <= pulse_width <= self.PWM_MAX:
                     q_error_named(
-                        self._main, ROTARY_WINGS, f'Pulse width out of range: {pulse_width} not in [{lb}, {ub}]',
+                        self._main,
+                        ROTARY_WINGS,
+                        f'Pulse width out of range: {pulse_width} not in [{self.PWM_MIN}, {self.PWM_MAX}]',
                     )
                     return False
         elif esc_type == esc.DSHOT:
-            pass  # TODO
+            raise NotImplementedError()  # TODO
 
         return True
 
@@ -326,9 +329,8 @@ class MotorWidget_Experiment(MotorWidget_Base):
         kv_sum = 0.
 
         if esc_type == esc.PWM:
-            lb, ub = esc.pwm.pulse_width_range.get()
             for pulse_width, battery_voltage, rpm in data:
-                throttle = remap(pulse_width, lb, ub, 0., 1.)
+                throttle = remap(pulse_width, self.PWM_MIN, self.PWM_MAX, 0., 1.)
                 motor_voltage = battery_voltage * throttle
                 kv = rpm / motor_voltage
                 kv_sum += kv
