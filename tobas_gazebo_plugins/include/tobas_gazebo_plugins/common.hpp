@@ -35,6 +35,7 @@ std::mutex g_log_throttle_mutex;
 
 namespace gazebo
 {
+using SdfVector2 = ignition::math::Vector2d;
 using SdfVector3 = ignition::math::Vector3d;
 using NormalDistribution = std::normal_distribution<double>;
 using UniformDistribution = std::uniform_real_distribution<double>;
@@ -44,7 +45,7 @@ static constexpr double kDegreeToRadian = M_PI / 180.;
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 3.;
 static constexpr double kErrorPeriod = 1.;
-static constexpr double kCheckTopicsTimeThreshold = 1.;       // [s]
+static constexpr double kCheckTopicsTimeThreshold = 1.;  // [s]
 
 // Default values
 static const std::string kDefaultBatteryTopic = "battery";

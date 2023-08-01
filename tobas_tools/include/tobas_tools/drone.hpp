@@ -37,17 +37,17 @@ public:
   uint32_t numRotors() const;
   uint32_t numControlSurfaces() const;
 
-  /* 指定したロータの最大回転数 [rad/s]． */
-  double maxRotSpeed(uint32_t rotor_idx, double battery_voltage) const;
+  /* 指定したロータの推力 [N]． */
+  double thrustFromVoltage(uint32_t rotor_idx, double voltage) const;
 
-  /* 指定したロータの最大推力 [N]． */
-  double maxThrust(uint32_t rotor_idx, double battery_voltage) const;
+  /* 指定したロータの回転数から印加電圧を求める． */
+  double voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const;
 
-  /* 指定したロータの最小推力 [N]．つまりモータが最小回転数で回転しているときの推力． */
-  double minThrust(uint32_t rotor_idx, double battery_voltage) const;
+  /* 指定したロータの印加電圧から回転数を求める． */
+  double rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const;
 
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
-  double thrustToRotSpeed(uint32_t rotor_idx, double thrust) const;
+  double rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const;
 
 private:
   KDL::Tree tree_;

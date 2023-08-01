@@ -161,10 +161,11 @@ void RotationController::setInputConstraintBase()
 
 void RotationController::updateInputConstraint(double battery_voltage, double U)
 {
+  const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    mpc_.input_constraint.b(i) = z_rotors_.maxThrust(i, battery_voltage);
-    mpc_.input_constraint.b(z_rotors_.count() + i) = -z_rotors_.minThrust(i, battery_voltage);
+    mpc_.input_constraint.b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
+    mpc_.input_constraint.b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
   }
 
   mpc_.input_constraint.b(z_rotors_.count() * 2) = U;

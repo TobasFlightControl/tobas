@@ -1,4 +1,7 @@
 #include "../../include/tobas_tools/rotor_axis_extractor.hpp"
+#include "../../include/tobas_tools/constants.hpp"
+
+using namespace std;
 
 namespace tobas
 {
@@ -50,24 +53,29 @@ const double& RotorAxisExtractor::momentConstant(uint32_t inner_idx) const
   return drone_.rotorConfig(rotorIdx(inner_idx)).moment_constant;
 }
 
-const double& RotorAxisExtractor::kv(uint32_t inner_idx) const
+const pair<double, double>& RotorAxisExtractor::rotSpeedCoefs(uint32_t inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).kv;
+  return drone_.rotorConfig(rotorIdx(inner_idx)).rot_speed_coefs;
 }
 
-double RotorAxisExtractor::maxRotSpeed(uint32_t inner_idx, double battery_voltage) const
+double RotorAxisExtractor::thrustFromVoltage(uint32_t inner_idx, double voltage) const
 {
-  return drone_.maxRotSpeed(rotorIdx(inner_idx), battery_voltage);
+  return drone_.thrustFromVoltage(rotorIdx(inner_idx), voltage);
 }
 
-double RotorAxisExtractor::maxThrust(uint32_t inner_idx, double battery_voltage) const
+double RotorAxisExtractor::voltageFromRotSpeed(uint32_t inner_idx, double rot_speed) const
 {
-  return drone_.maxThrust(rotorIdx(inner_idx), battery_voltage);
+  return drone_.voltageFromRotSpeed(rotorIdx(inner_idx), rot_speed);
 }
 
-double RotorAxisExtractor::minThrust(uint32_t inner_idx, double battery_voltage) const
+double RotorAxisExtractor::rotSpeedFromVoltage(uint32_t inner_idx, double voltage) const
 {
-  return drone_.minThrust(rotorIdx(inner_idx), battery_voltage);
+  return drone_.rotSpeedFromVoltage(rotorIdx(inner_idx), voltage);
+}
+
+double RotorAxisExtractor::rotSpeedFromThrust(uint32_t inner_idx, double thrust) const
+{
+  return drone_.rotSpeedFromThrust(rotorIdx(inner_idx), thrust);
 }
 
 double RotorAxisExtractor::maxThrustSum(double battery_voltage) const
@@ -75,24 +83,20 @@ double RotorAxisExtractor::maxThrustSum(double battery_voltage) const
   double res = 0.;
   for (const auto& rotor_idx : rotor_idxs_)
   {
-    res += drone_.maxThrust(rotor_idx, battery_voltage);
+    res += drone_.thrustFromVoltage(rotor_idx, battery_voltage);
   }
   return res;
 }
 
 double RotorAxisExtractor::minThrustSum(double battery_voltage) const
 {
+  const auto min_voltage = battery_voltage * kMotorSpinArm;
   double res = 0.;
   for (const auto& rotor_idx : rotor_idxs_)
   {
-    res += drone_.minThrust(rotor_idx, battery_voltage);
+    res += drone_.thrustFromVoltage(rotor_idx, min_voltage);
   }
   return res;
-}
-
-double RotorAxisExtractor::thrustToRotSpeed(uint32_t inner_idx, double thrust) const
-{
-  return drone_.thrustToRotSpeed(rotorIdx(inner_idx), thrust);
 }
 
 void RotorAxisExtractor::setRotorIdxs()

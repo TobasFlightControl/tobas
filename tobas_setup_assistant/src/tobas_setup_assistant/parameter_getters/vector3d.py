@@ -56,7 +56,7 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
         return self._z.get()
 
     def get(self) -> List[float]:
-        """ yamlにそのまま書き込めるようにタプルではなくリスト形式で返す． """
+        """ yamlにそのまま書き込めるようにタプルではなくリストで返す． """
         return [self.x(), self.y(), self.z()]
 
     def set(self, x: float, y: float, z: float) -> None:

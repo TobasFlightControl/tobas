@@ -120,29 +120,33 @@ uint32_t Drone::numControlSurfaces() const
   return fixed_wing_config_.control_surfaces.size();
 }
 
-double Drone::maxRotSpeed(uint32_t rotor_idx, double battery_voltage) const
+double Drone::thrustFromVoltage(uint32_t rotor_idx, double voltage) const
 {
-  assert(battery_voltage > 0.);
+  assert(voltage > 0.);
 
-  const auto max_rpm = rotor_configs_[rotor_idx].kv * battery_voltage;
-  return dh_std::rpmToRadPerSec(max_rpm);
+  const auto rot_speed = rotSpeedFromVoltage(rotor_idx, voltage);
+  return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
 }
 
-double Drone::maxThrust(uint32_t rotor_idx, double battery_voltage) const
+double Drone::voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const
 {
-  assert(battery_voltage > 0.);
+  assert(rot_speed >= 0.);
 
-  const auto max_rot_speed = maxRotSpeed(rotor_idx, battery_voltage);
-  return rotor_configs_[rotor_idx].motor_constant * sqr(max_rot_speed);
+  const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
+  const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
+  return a * rot_speed + b * sqr(rot_speed);
 }
 
-double Drone::minThrust(uint32_t rotor_idx, double battery_voltage) const
+double Drone::rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const
 {
-  // 推力は回転数の2乗に比例するため，最小推力は最大推力と回転数の比率の2乗の積で計算できる．
-  return maxThrust(rotor_idx, battery_voltage) * sqr(kMotorSpinArm);
+  assert(voltage >= 0.);
+
+  const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
+  const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
+  return b > 0 ? (sqrt(sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
-double Drone::thrustToRotSpeed(uint32_t rotor_idx, double thrust) const
+double Drone::rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const
 {
   assert(thrust >= 0.);
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
@@ -200,7 +204,16 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 
   dh_ros::getParam(prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
   dh_ros::getParam(prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
-  dh_ros::getParam(prefix + "/kv", res.kv, dh_ros::POSITIVE);
+
+  dh_ros::getParam(prefix + "/rot_speed_coefs", res.rot_speed_coefs);
+  if (res.rot_speed_coefs.first <= 0.)
+  {
+    rosthrow("The first term of 'rot_speed_coefs' must be positive.");
+  }
+  if (res.rot_speed_coefs.second < 0.)
+  {
+    rosthrow("The second term of 'rot_speed_coefs' must be non-negative.");
+  }
 
   dh_ros::getParam(prefix + "/pin", res.pin);
   if (res.pin < kMinPinId || kMaxPinId < res.pin)

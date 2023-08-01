@@ -35,26 +35,26 @@ public:
   /* 反トルク係数 [m]． */
   const double& momentConstant(uint32_t inner_idx) const;
 
-  /* 効率を考慮した1ボルトあたりの回転数 [rpm/V]． */
-  const double& kv(uint32_t inner_idx) const;
+  /* 回転数と電圧の関係式の係数: V = c1 w + c2 w^2 (V[V], w[rad/s]) */
+  const std::pair<double, double>& rotSpeedCoefs(uint32_t inner_idx) const;
 
-  /* 最大回転数 [rad/s]． */
-  double maxRotSpeed(uint32_t inner_idx, double battery_voltage) const;
+  /* 指定したロータの推力 [N]． */
+  double thrustFromVoltage(uint32_t inner_idx, double voltage) const;
 
-  /* 最大推力 [N]． */
-  double maxThrust(uint32_t inner_idx, double battery_voltage) const;
+  /* 指定したロータの回転数から印加電圧を求める． */
+  double voltageFromRotSpeed(uint32_t inner_idx, double rot_speed) const;
 
-  /* 最小推力 [N]． */
-  double minThrust(uint32_t inner_idx, double battery_voltage) const;
+  /* 指定したロータの印加電圧から回転数を求める． */
+  double rotSpeedFromVoltage(uint32_t inner_idx, double voltage) const;
+
+  /* 推力 [N] からロータの回転数 [rad/s] を求める． */
+  double rotSpeedFromThrust(uint32_t inner_idx, double thrust) const;
 
   /* 最大推力の合計 [N]． */
   double maxThrustSum(double battery_voltage) const;
 
   /* 最小推力の合計 [N]． */
   double minThrustSum(double battery_voltage) const;
-
-  /* 推力 [N] からロータの回転数 [rad/s] を求める． */
-  double thrustToRotSpeed(uint32_t inner_idx, double thrust) const;
 
 private:
   const Drone& drone_;

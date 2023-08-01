@@ -129,7 +129,8 @@ void Controller::publishTakeoffCommand()
   // 各ロータの回転数を発行
   for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
-    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i, battery_.voltage);
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] =
+      x_rotors_.rotSpeedFromVoltage(i, battery_.voltage);
   }
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
@@ -296,7 +297,7 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
     }
 
     rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] =
-      x_rotors_.thrustToRotSpeed(i, max(0., thrust(i)));
+      x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
   }
 }
 

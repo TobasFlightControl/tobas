@@ -173,30 +173,28 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   // Update PWM periods
   for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
-    const auto& rotor_config = drone_.rotorConfig(rotor_idx);
-    const auto& pin = rotor_config.pin;
-    const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_.voltage);
-    const auto min_speed = max_speed * tobas::kMotorSpinArm;
-
-    // 指令速度を決定
-    auto cmd_speed = rotor_speeds.speeds[rotor_idx];
-    if (cmd_speed < min_speed)
+    // スロットルを決定
+    // 電圧とスロットルの関係は線形だが，電圧と回転数の関係は非線形であることに注意
+    const auto& pin = drone_.rotorConfig(rotor_idx).pin;
+    const auto cmd_voltage = drone_.voltageFromRotSpeed(rotor_idx, rotor_speeds.speeds[rotor_idx]);
+    auto tar_throttle = cmd_voltage / battery_.voltage;  // [0, 1]
+    if (tar_throttle < tobas::kMotorSpinArm)
     {
       rosErrorThrottle(
-        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " is too low: " << cmd_speed << " < "
-                                                     << min_speed << " [rad/s]");
-      cmd_speed = min_speed;
+        kErrorPeriod, "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
+                                               << tobas::kMotorSpinArm);
+      tar_throttle = tobas::kMotorSpinArm;
     }
-    else if (cmd_speed > max_speed)
+    if (tar_throttle > 1.)
     {
       rosErrorThrottle(
-        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " is too high: " << cmd_speed
-                                                     << " > " << max_speed << " [rad/s]");
-      cmd_speed = max_speed;
+        kErrorPeriod,
+        "Target throttle on PIN" << pin << " is too high: " << tar_throttle << " > 1");
+      tar_throttle = 1.;
     }
 
-    // パルス幅に変換
-    pwm_periods_[rotor_idx] = remap(cmd_speed, min_speed, max_speed, kPwmArm, kPwmMax);
+    // スロットルをパルス幅に変換
+    pwm_periods_[rotor_idx] = remap(tar_throttle, 0., 1., kPwmMin, kPwmMax);
   }
 
   // Update last commanded time

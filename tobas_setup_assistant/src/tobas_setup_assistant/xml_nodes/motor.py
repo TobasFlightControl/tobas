@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Tuple
 
 
 class MotorModel(ET.Element):
@@ -12,7 +13,7 @@ class MotorModel(ET.Element):
         link_name: str,
         joint_name: str,
         direction: str,
-        kv: float,
+        rot_speed_coefs: Tuple[float, float],
         motor_const: float,
         moment_const: float,
         rotor_drag_coef: float,
@@ -20,7 +21,7 @@ class MotorModel(ET.Element):
         time_const_down: float,
     ) -> None:
         assert direction in {"cw", "ccw"}, direction
-        assert kv > 0., kv
+        assert rot_speed_coefs[0] > 0. and rot_speed_coefs[1] >= 0.
         assert motor_const > 0., motor_const
         assert moment_const > 0., moment_const
         assert rotor_drag_coef > 0., rotor_drag_coef
@@ -38,7 +39,7 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "jointName").text = joint_name
         ET.SubElement(plugin, "turningDirection").text = direction
-        ET.SubElement(plugin, "kv").text = str(kv)
+        ET.SubElement(plugin, "rotSpeedCoefficients").text = " ".join(map(str, rot_speed_coefs))
         ET.SubElement(plugin, "motorConstant").text = str(motor_const)
         ET.SubElement(plugin, "momentConstant").text = str(moment_const)
         ET.SubElement(plugin, "rotorDragCoefficient").text = str(rotor_drag_coef)

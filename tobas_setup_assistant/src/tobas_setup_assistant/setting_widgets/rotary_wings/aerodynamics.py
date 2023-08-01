@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 import math
 import numpy as np
+from numpy.typing import NDArray
 from abc import abstractmethod
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -363,11 +364,11 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         data_description = "Thrust Standの実験データを入力してください．"
         self._data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
-            ["Rotation Speed", "Thrust", "Torque"],
+            ["RPM", "Thrust", "Torque"],
             description_text=data_description,
         )
         self._data.set_minimum([1e-1, 1e-6, 1e-6])  # TODO: 負の値にも対応
-        self._data.set_decimals([1, 6, 6])
+        self._data.set_decimals([0, 6, 6])
         self._data.set_suffix([" rpm", " N", " Nm"])
         self._data.set_fixed_height(self.TABLE_HEIGHT)
         self._data.set_column_width(self.TABLE_COL_WIDTH)
@@ -385,15 +386,15 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
-        omega2 = rpm_to_rad_per_sec(rpm)**2
-        return (thrust.T @ omega2) / (omega2.T @ omega2)  # 最小2乗解 (memo: 2-28)
+        omega2: NDArray = rpm_to_rad_per_sec(rpm)**2
+        return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         _, thrust, torque = np.hsplit(data, 3)
-        return (torque.T @ thrust) / (thrust.T @ thrust)  # 最小2乗解 (memo: 2-28)
+        return ((torque.T @ thrust) / (thrust.T @ thrust)).item()  # 最小2乗解 (memo: 2-28)
 
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法

@@ -229,11 +229,12 @@ MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const 
   const auto thrust_avg = thrust_sum / x_rotors_.count();
   for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
-    if (thrust_avg > x_rotors_.maxThrust(i, battery_voltage))
+    const auto max_thrust = x_rotors_.thrustFromVoltage(i, battery_voltage);
+    if (thrust_avg > max_thrust)
     {
       error_code_ = E_THRUST_OVERLIMIT;
       error_msg_ = "Average thrust " + to_string(thrust_avg) + "[N] is over the maximum limit "
-                   + to_string(x_rotors_.maxThrust(i, battery_voltage)) + "[N].";
+                   + to_string(max_thrust) + "[N].";
     }
   }
   u_0_.block(0, 0, x_rotors_.count(), 1).fill(thrust_avg);
@@ -511,7 +512,7 @@ void MicroDisturbanceEoM::setInputLimits(double battery_voltage)
   for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
     min_u_(i) = 0.;
-    max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
+    max_u_(i) = x_rotors_.thrustFromVoltage(i, battery_voltage);
   }
 
   for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)

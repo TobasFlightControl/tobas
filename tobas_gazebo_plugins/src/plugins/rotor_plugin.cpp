@@ -11,6 +11,7 @@
 
 using namespace std;
 using namespace ignition::math;
+using namespace dh_std;
 
 namespace gazebo
 {
@@ -88,7 +89,17 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
   }
 
-  getSdfParam(sdf, "kv", kv_, NON_NEGATIVE);
+  getSdfParam(sdf, "rotSpeedCoefficients", rot_speed_coefs_);
+  if (rot_speed_coefs_.X() <= 0.)
+  {
+    gzthrow(kPluginName << ": The first term of 'rotationSpeedCoefficients' must be positive.");
+  }
+  if (rot_speed_coefs_.Y() < 0.)
+  {
+    gzthrow(
+      kPluginName << ": The second term of 'rotationSpeedCoefficients' must be non-negative.");
+  }
+
   getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
@@ -203,8 +214,8 @@ void GazeboRotorPlugin::applyForceAndTorque(double rot_speed, const common::Time
   const auto local_axis = joint_->LocalAxis(0);
 
   // (1) first term: Thrust Force
-  const auto rot_speed_sgn = dh_std::sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * dh_std::sqr(rot_speed);
+  const auto rot_speed_sgn = sign(rot_speed);
+  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
 
@@ -291,7 +302,10 @@ void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
 
 double GazeboRotorPlugin::maxRotSpeed()
 {
-  return dh_std::rpmToRadPerSec(kv_ * battery_.voltage);
+  const auto& a = rot_speed_coefs_.X();
+  const auto& b = rot_speed_coefs_.Y();
+  const auto& V = battery_.voltage;
+  return b > 0 ? (sqrt(sqr(a) + 4 * b * V) - a) / (2 * b) : V / a;
 }
 
 double GazeboRotorPlugin::minRotSpeed()

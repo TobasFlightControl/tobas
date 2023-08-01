@@ -12,7 +12,8 @@
 #include <tobas_msgs/WindSpeed.h>
 #include <tobas_msgs/RotorDebug.h>
 
-#include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
+#include "../tobas_gazebo_plugins/first_order_filter.hpp"
+#include "../tobas_gazebo_plugins/common.hpp"
 
 namespace gazebo
 {
@@ -47,7 +48,7 @@ private:
   std::string cmd_sub_topic_;
   std::string battery_sub_topic_;
   std::string wind_speed_sub_topic_;
-  double kv_;  // Kv (with efficiency)
+  SdfVector2 rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
@@ -57,7 +58,7 @@ private:
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
-  double cmd_rot_speed_;                   // [rad/s]
+  double cmd_rot_speed_;  // [rad/s]
   tobas_msgs::Battery battery_;
   ignition::math::Vector3d wind_speed_W_;  // [m/s]
   double prev_sim_time_;                   // [s]

@@ -1,11 +1,7 @@
 <launch>
 
-  <arg name="esc_protocol" default="pwm"/>
-
   <include file="$(find tobas_real)/launch/sensors.launch"/>
-  <include file="$(find tobas_real)/launch/motors.launch">
-    <arg name="esc_protocol" value="$(arg esc_protocol)"/>
-  </include>
+  <include file="$(find tobas_real)/launch/motors.launch"/>
   <include file="$(find tobas_real)/launch/rc_input.launch"/>
 
 </launch>

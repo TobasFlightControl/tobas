@@ -191,7 +191,7 @@ class PackageGenerator(QWidget):
                 "link_name": selected.link_name(),
                 "axis": "z_positive",  # TODO: Widgetから取得
                 "direction": selected.motor.direction(),
-                "kv": float(selected.motor.kv()),
+                "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
                 "time_constant_down": float(selected.motor.time_const_down()),
                 "motor_constant": float(selected.aerodynamics.motor_const()),
@@ -420,7 +420,7 @@ class PackageGenerator(QWidget):
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
                 direction=selected.motor.direction(),
-                kv=selected.motor.kv(),
+                rot_speed_coefs=selected.motor.rot_speed_coefs(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),

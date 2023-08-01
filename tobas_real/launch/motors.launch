@@ -1,8 +1,5 @@
 <launch>
 
-  <arg name="esc_protocol" default="pwm"/>
-
-  <node if="$(eval esc_protocol=='pwm')" pkg="tobas_real" name="motors_handler_pwm" type="motors_handler_pwm_node" output="screen"/>
-  <node if="$(eval esc_protocol=='dshot')" pkg="tobas_real" name="motors_handler_dshot" type="motors_handler_dshot_node" output="screen"/>
+  <node pkg="tobas_real" name="motors_handler_pwm" type="motors_handler_pwm_node" output="screen"/>
 
 </launch>

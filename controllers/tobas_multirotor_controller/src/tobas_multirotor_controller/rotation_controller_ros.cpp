@@ -1,6 +1,8 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../../include/tobas_multirotor_controller/rotation_controller_ros.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
 
@@ -157,7 +159,7 @@ void RotationControllerRos::ctrlInputToRotorSpeeds(
       // TODO: 防御モードに移行
     }
 
-    speeds.speeds[z_rotors_.rotorIdx(i)] = z_rotors_.thrustToRotSpeed(i, max(0., u(i)));
+    speeds.speeds[z_rotors_.rotorIdx(i)] = z_rotors_.rotSpeedFromThrust(i, max(0., u(i)));
   }
 }
 
@@ -166,17 +168,18 @@ double RotationControllerRos::maxThrustSum()
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    res += z_rotors_.maxThrust(i, battery_.voltage);
+    res += z_rotors_.thrustFromVoltage(i, battery_.voltage);
   }
   return res;
 }
 
 double RotationControllerRos::minThrustSum()
 {
+  const auto min_voltage = battery_.voltage * tobas::kMotorSpinArm;
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    res += z_rotors_.minThrust(i, battery_.voltage);
+    res += z_rotors_.thrustFromVoltage(i, min_voltage);
   }
   return res;
 }
