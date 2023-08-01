@@ -38,7 +38,7 @@ class EscWidget(QWidget):
 
         self.esc_type = ComboBox()
         self.esc_type.addItems([self.NO_SELECT, self.PWM])
-        self.esc_type.setCurrentText(self.NO_SELECT)
+        self.esc_type.setCurrentText(self.PWM)
         self._rows.addWidget(self.esc_type)
 
         self.pwm = EscWidget_PWM(main, link_name)

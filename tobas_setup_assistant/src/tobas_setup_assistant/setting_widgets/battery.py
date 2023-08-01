@@ -32,7 +32,7 @@ class BatteryWidget(BaseSettingWidget):
 
         self.battery_type = ComboBox()
         self.battery_type.addItems([self.NO_SELECT, self.LIPO, self.OTHER])
-        self.battery_type.setCurrentText(self.NO_SELECT)
+        self.battery_type.setCurrentText(self.LIPO)
         self._rows.addWidget(self.battery_type)
 
         self.lipo = BatteryWidget_LiPo(main)

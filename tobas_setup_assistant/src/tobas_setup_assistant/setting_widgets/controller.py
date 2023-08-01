@@ -35,7 +35,7 @@ class ControllerWidget(BaseSettingWidget):
         self.controller_type = ComboBox()
         self.controller_type.addItems([self.NO_SELECT, self.LMPC])
         # self.controller_type.addItems([self.NO_SELECT, self.LMPC, self.NMPC, self.SMC])  # TODO
-        self.controller_type.setCurrentText(self.NO_SELECT)
+        self.controller_type.setCurrentText(self.LMPC)
         self._rows.addWidget(self.controller_type)
 
         self.lmpc = ControllerWidget_LMPC(main)
