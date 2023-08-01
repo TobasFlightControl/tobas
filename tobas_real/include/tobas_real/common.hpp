@@ -18,8 +18,8 @@ static constexpr char kConfigKey_RcPitchDown[] = "DEFAULT.rc_input/pitch/down";
 static constexpr char kConfigKey_RcYawNeutoral[] = "DEFAULT.rc_input/yaw/neutoral";
 static constexpr char kConfigKey_RcYawLeft[] = "DEFAULT.rc_input/yaw/left";
 static constexpr char kConfigKey_RcYawRight[] = "DEFAULT.rc_input/yaw/right";
-static constexpr char kConfigKey_RcThrottleUp[] = "DEFAULT.rc_input/throttle/up";
-static constexpr char kConfigKey_RcThrottleDown[] = "DEFAULT.rc_input/throttle/down";
+static constexpr char kConfigKey_RcThrustUp[] = "DEFAULT.rc_input/thrust/up";
+static constexpr char kConfigKey_RcThrustDown[] = "DEFAULT.rc_input/thrust/down";
 static constexpr char kConfigKey_RcToggleUp[] = "DEFAULT.rc_input/toggle/up";
 static constexpr char kConfigKey_RcToggleDown[] = "DEFAULT.rc_input/toggle/down";
 
@@ -36,7 +36,7 @@ static constexpr double kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorS
 
 static constexpr uint32_t kRCInputChannelYaw = 0;
 static constexpr uint32_t kRCInputChannelPitch = 1;
-static constexpr uint32_t kRCInputChannelThrottle = 2;
+static constexpr uint32_t kRCInputChannelThrust = 2;
 static constexpr uint32_t kRCInputChannelRoll = 3;
 static constexpr uint32_t kRCInputChannelToggle = 4;
 

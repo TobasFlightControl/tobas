@@ -36,7 +36,7 @@ void RCInputHandler::run()
     const auto roll_period = rcin_.read(kRCInputChannelRoll);
     const auto pitch_period = rcin_.read(kRCInputChannelPitch);
     const auto yaw_period = rcin_.read(kRCInputChannelYaw);
-    const auto throttle_period = rcin_.read(kRCInputChannelThrottle);
+    const auto thrust_period = rcin_.read(kRCInputChannelThrust);
     const auto toggle_period = rcin_.read(kRCInputChannelToggle);
 
     // Fill message
@@ -44,8 +44,8 @@ void RCInputHandler::run()
     rcin_msg_.roll = remap<double>(roll_period, roll_range_.lower, roll_range_.upper, -1, 1);
     rcin_msg_.pitch = -remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
     rcin_msg_.yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
-    rcin_msg_.throttle =
-      remap<double>(throttle_period, throttle_range_.lower, throttle_range_.upper, 0, 1);
+    rcin_msg_.thrust =
+      remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
     rcin_msg_.toggle = toggle_period < toggle_range_.mean();
 
     // Publish message
@@ -84,8 +84,8 @@ void RCInputHandler::getRcPeriodRanges()
   yaw_range_.lower = pt.get<double>(kConfigKey_RcYawLeft);
   yaw_range_.upper = pt.get<double>(kConfigKey_RcYawRight);
 
-  throttle_range_.lower = pt.get<double>(kConfigKey_RcThrottleDown);
-  throttle_range_.upper = pt.get<double>(kConfigKey_RcThrottleUp);
+  thrust_range_.lower = pt.get<double>(kConfigKey_RcThrustDown);
+  thrust_range_.upper = pt.get<double>(kConfigKey_RcThrustUp);
 
   toggle_range_.lower = pt.get<double>(kConfigKey_RcToggleUp);
   toggle_range_.upper = pt.get<double>(kConfigKey_RcToggleDown);

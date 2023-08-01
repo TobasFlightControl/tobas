@@ -78,7 +78,7 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
 
   const auto min_thrust = z_rotors_.minThrustSum(battery_.voltage);
   const auto max_thrust = z_rotors_.maxThrustSum(battery_.voltage);
-  rpydt_.thrust = dh_std::remap(rcin.throttle, 0., 1., min_thrust, max_thrust);
+  rpydt_.thrust = dh_std::remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
 
   // コマンドを発行
   rpydt_pub_.publish(rpydt_);

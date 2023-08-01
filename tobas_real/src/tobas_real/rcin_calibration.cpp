@@ -79,19 +79,19 @@ void RCInputCalibrator::run()
     rosthrow("Invalid value on YAW lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
 
-  // Throttle Up
-  cout << "Please set the THROTTLE lever to UP and press Enter when ready:";
+  // Thrust Up
+  cout << "Please set the THRUST lever to UP and press Enter when ready:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto throttle_up = readRCInput(kRCInputChannelThrottle);
+  const auto thrust_up = readRCInput(kRCInputChannelThrust);
 
-  // Throttle Down
-  cout << "Please set the THROTTLE lever to DOWN and press Enter when ready:";
+  // Thrust Down
+  cout << "Please set the THRUST lever to DOWN and press Enter when ready:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto throttle_down = readRCInput(kRCInputChannelThrottle);
+  const auto thrust_down = readRCInput(kRCInputChannelThrust);
 
-  if (!(throttle_down + kPeriodMargin < throttle_up))
+  if (!(thrust_down + kPeriodMargin < thrust_up))
   {
-    rosthrow("Invalid period on THROTTLE lever. 'DOWN < UP' must be satisfied.");
+    rosthrow("Invalid period on THRUST lever. 'DOWN < UP' must be satisfied.");
   }
 
   // Toggle Up
@@ -125,8 +125,8 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcYawNeutoral, yaw_neutoral);
   pt.put(kConfigKey_RcYawLeft, yaw_left);
   pt.put(kConfigKey_RcYawRight, yaw_right);
-  pt.put(kConfigKey_RcThrottleUp, throttle_up);
-  pt.put(kConfigKey_RcThrottleDown, throttle_down);
+  pt.put(kConfigKey_RcThrustUp, thrust_up);
+  pt.put(kConfigKey_RcThrustDown, thrust_down);
   pt.put(kConfigKey_RcToggleUp, toggle_up);
   pt.put(kConfigKey_RcToggleDown, toggle_down);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);

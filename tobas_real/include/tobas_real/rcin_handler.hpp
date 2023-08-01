@@ -29,7 +29,7 @@ private:
   dh_std::Range<double> roll_range_;
   dh_std::Range<double> pitch_range_;
   dh_std::Range<double> yaw_range_;
-  dh_std::Range<double> throttle_range_;
+  dh_std::Range<double> thrust_range_;
   dh_std::Range<double> toggle_range_;
 
   // Publisher
