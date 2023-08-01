@@ -103,8 +103,19 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
+
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
+  if (time_const_up_ > kTimeConstWarnThreshold)
+  {
+    gzwarn << kPluginName << ": The value provided for 'timeConstantUp' appears to be too large: "
+           << time_const_up_ << "[s]. Please check settings and datasheet." << endl;
+  }
+  if (time_const_down_ > kTimeConstWarnThreshold)
+  {
+    gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: "
+           << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
+  }
 
   getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);

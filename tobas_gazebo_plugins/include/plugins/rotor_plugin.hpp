@@ -19,7 +19,8 @@ namespace gazebo
 {
 // Constants
 static const std::string kPluginName = "motor_model_plugin";
-static constexpr double kRotorSpeedCheckMargin = 10.;  // [rad/s]
+static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
+static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
 
 // Default values
 static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
