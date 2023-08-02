@@ -1,3 +1,3 @@
-uint8 data
+uint32 data
 
-uint8 SHUTDOWN = 1
+uint32 SHUTDOWN = 1

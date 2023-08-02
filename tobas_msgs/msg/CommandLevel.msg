@@ -1,5 +1,5 @@
-uint8 data
+uint32 data
 
-uint8 NORMAL = 0
-uint8 DEFENSIVE = 1
-uint8 MANUAL = 2
+uint32 NORMAL = 0
+uint32 DEFENSIVE = 1
+uint32 MANUAL = 2
