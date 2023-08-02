@@ -71,6 +71,7 @@ void MotorsHandler_PWM::run()
       if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_periods_[rotor_idx]))
       {
         rosFatal("Failed to set PWM duty cycle on PIN" << pin << ".");
+        // TODO: Request shutdown
       }
     }
 
@@ -178,14 +179,14 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     const auto& pin = drone_.rotorConfig(rotor_idx).pin;
     const auto cmd_voltage = drone_.voltageFromRotSpeed(rotor_idx, rotor_speeds.speeds[rotor_idx]);
     auto tar_throttle = cmd_voltage / battery_.voltage;  // [0, 1]
-    if (tar_throttle < tobas::kMotorSpinArm)
+    if (tar_throttle < tobas::kMotorSpinArm - kThrottleMargin)
     {
       rosErrorThrottle(
         kErrorPeriod, "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
                                                << tobas::kMotorSpinArm);
       tar_throttle = tobas::kMotorSpinArm;
     }
-    if (tar_throttle > 1.)
+    if (tar_throttle > 1. + kThrottleMargin)
     {
       rosErrorThrottle(
         kErrorPeriod,

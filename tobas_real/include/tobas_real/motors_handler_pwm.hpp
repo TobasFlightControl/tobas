@@ -16,6 +16,7 @@ class MotorsHandler_PWM : public tobas::BaseNode
 {
   static constexpr double kControlRate = 800.;           // [Hz]
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
+  static constexpr double kThrottleMargin = 0.01;
 
   using super = tobas::BaseNode;
 
