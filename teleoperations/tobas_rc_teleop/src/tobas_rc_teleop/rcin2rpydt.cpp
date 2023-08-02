@@ -99,11 +99,11 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
 
   // コマンドを更新
   rpydt_.roll =
-    dead_zone_.inRange(rcin.roll) ? remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_) : 0.;
+    dead_zone_.inRange(rcin.roll) ? 0. : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
   rpydt_.pitch =
-    dead_zone_.inRange(rcin.pitch) ? remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_) : 0.;
+    dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
   rpydt_.yawrate =
-    dead_zone_.inRange(rcin.yaw) ? remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_) : 0.;
+    dead_zone_.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_.voltage));
   const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_.voltage));
