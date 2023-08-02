@@ -1,10 +1,12 @@
 #include <dh_ros_tools/rosparam.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
 #include "../../include/tobas_rc_teleop/rcin2rpydt.hpp"
 
 using namespace std;
+using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
@@ -17,7 +19,11 @@ RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust()
   z_rotors_.updateInternalDataStructures();
 
   const auto mass = tobas::getMass();
-  max_thrust_ = mass * (tobas::kGravity + kMaxAcceleration);
+  max_thrust_ = mass * (tobas::kGravity + max_acc_);
+  min_thrust_ = mass * (tobas::kGravity + min_acc_);
+
+  dead_zone_.lower = -dead_zone_rate_ / 2;
+  dead_zone_.upper = dead_zone_rate_ / 2;
 
   // プロポによる制御を最大の優先順位に設定
   rpydt_.level.data = tobas_msgs::CommandLevel::MANUAL;
@@ -30,7 +36,19 @@ void RcinToRollPitchYawrateThrust::getRosParams()
 {
   dh_ros::getParam("~max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
   dh_ros::getParam("~max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
-  dh_ros::getParam("~max_acceleration", max_acc_, kMaxAcceleration, dh_ros::POSITIVE);
+
+  dh_ros::getParam("~max_acceleration", max_acc_, kDefaultMaxAcceleration, dh_ros::POSITIVE);
+  dh_ros::getParam("~min_acceleration", min_acc_, kDefaultMinAcceleration, dh_ros::NEGATIVE);
+  if (min_acc_ < -tobas::kGravity)
+  {
+    rosthrow("'min_acceleration' must be greater than -Gravity.");
+  }
+
+  dh_ros::getParam("~dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
+  if (dead_zone_rate_ >= 1.)
+  {
+    rosthrow("'dead_zone_rate' must be lower than 1.");
+  }
 }
 
 void RcinToRollPitchYawrateThrust::registerPublishers()
@@ -80,13 +98,16 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
   }
 
   // コマンドを更新
-  rpydt_.roll = dh_std::remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-  rpydt_.pitch = dh_std::remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
-  rpydt_.yawrate = dh_std::remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  rpydt_.roll =
+    dead_zone_.inRange(rcin.roll) ? remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_) : 0.;
+  rpydt_.pitch =
+    dead_zone_.inRange(rcin.pitch) ? remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_) : 0.;
+  rpydt_.yawrate =
+    dead_zone_.inRange(rcin.yaw) ? remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_) : 0.;
 
-  const auto min_thrust = min(max_thrust_, z_rotors_.minThrustSum(battery_.voltage));
+  const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_.voltage));
   const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_.voltage));
-  rpydt_.thrust = dh_std::remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
+  rpydt_.thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
 
   // コマンドを発行
   rpydt_pub_.publish(rpydt_);
