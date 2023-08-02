@@ -93,7 +93,7 @@ $ source ~/catkin_ws/devel/setup.bash
 $ roslaunch (tobas_config_pkg) real.launch
 ```
 
-### Bringup observer and controller
+### Bringup control nodes
 
 Please make sure that the RC transmitter and receiver can communicate correctly.
 
@@ -183,10 +183,10 @@ $ su
 $ roslaunch (tobas_config_pkg) motors.launch
 ```
 
-4. Launch controller and observer on FC
+4. Launch control nodes on FC
 
 ```bash
-$ roslaunch (tobas_config_pkg) bringup.launch
+$ roslaunch (tobas_config_pkg) hil.launch
 ```
 
 5. Send position commands from the external PC
