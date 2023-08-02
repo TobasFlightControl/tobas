@@ -84,9 +84,9 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInput& rcin)
 
   // 並進速度を更新
   vel_yaw_.vel.x(
-    dead_zone_.inRange(rcin.roll) ? 0. : remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_yaw_.vel.y(
     dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
+  vel_yaw_.vel.y(
+    dead_zone_.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
   vel_yaw_.vel.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));
 
   // Yawの目標値を更新
