@@ -292,31 +292,6 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   // cout << "Estimated gyroscope bias:" << endl << eskf_.getGyroBias() << endl;
 }
 
-bool ErrorStateKalmanFilterRos::isValidImuTimeGap(double dt)
-{
-  if (dt < 0.)
-  {
-    rosFatal("The time gap between consecutive IMU sensor readings is negative: " << dt << "[s]");
-    return false;
-  }
-
-  if (dt > kImuTimeGapThreshold)
-  {
-    rosFatal(
-      "The time gap between consecutive IMU sensor readings " << dt << "[s] exceeds the threshold "
-                                                              << kImuTimeGapThreshold << "[s]");
-    return false;
-  }
-
-  if (dt == 0.)
-  {
-    rosWarn("The time gap between consecutive IMU sensor readings is zero.");
-    return false;
-  }
-
-  return true;
-}
-
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
@@ -351,11 +326,11 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   }
 
   const double dt = (imu.header.stamp - t_last_).toSec();
-  if (!isValidImuTimeGap(dt))
+  t_last_ = imu.header.stamp;
+  if (dt <= 0. || kImuTimeGapThreshold < dt)
   {
     return;
   }
-  t_last_ = imu.header.stamp;
 
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
   tf::vectorMsgToEigen(imu.angular_velocity, w_m_);

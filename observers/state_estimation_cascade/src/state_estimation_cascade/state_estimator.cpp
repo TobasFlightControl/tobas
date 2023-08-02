@@ -222,31 +222,6 @@ void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)
   state_.angular_velocity_covariance = imu.angular_velocity_covariance;
 }
 
-bool StateEstimator::isValidImuTimeGap(double dt)
-{
-  if (dt < 0.)
-  {
-    rosFatal("The time gap between consecutive IMU sensor readings is negative: " << dt << "[s]");
-    return false;
-  }
-
-  if (dt > kImuTimeGapThreshold)
-  {
-    rosFatal(
-      "The time gap between consecutive IMU sensor readings " << dt << "[s] exceeds the threshold "
-                                                              << kImuTimeGapThreshold << "[s]");
-    return false;
-  }
-
-  if (dt == 0.)
-  {
-    rosWarn("The time gap between consecutive IMU sensor readings is zero.");
-    return false;
-  }
-
-  return true;
-}
-
 void StateEstimator::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
@@ -279,11 +254,11 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
   }
 
   const double dt = (imu.header.stamp - t_last_).toSec();
-  if (!isValidImuTimeGap(dt))
+  t_last_ = imu.header.stamp;
+  if (dt <= 0. || kImuTimeGapThreshold < dt)
   {
     return;
   }
-  t_last_ = imu.header.stamp;
 
   tf::quaternionMsgToEigen(imu.orientation, quat_);
   tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);

@@ -112,6 +112,7 @@ void MotorsHandler_PWM::sendDisarm()
       if (!pwm_.set_duty_cycle(channelFromPin(pin), kPwmDisarm))
       {
         rosFatal("Failed to set PWM duty cycle on PIN " << pin << ".");
+        // TODO: Request shutdown
       }
     }
     ros::Duration(kDisarmInterval).sleep();

@@ -116,7 +116,6 @@ private:
   void initialize(const ros::Time& stamp);
   tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
-  bool isValidImuTimeGap(double dt);
 
   void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);
