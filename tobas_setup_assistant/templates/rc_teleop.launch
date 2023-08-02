@@ -1,7 +1,7 @@
 <launch>
 
   <group ns="{{ drone_name }}">
-    <node pkg="tobas_rc_teleop" type="rcin2rpydt_node" name="rcin2rpydt" output="screen"/>
+    <node pkg="tobas_rc_teleop" type="roll_pitch_yawrate_thrust_node" name="rcin_to_roll_pitch_yawrate_thrust" output="screen"/>
   </group>
 
 </launch>
