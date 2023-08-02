@@ -5,6 +5,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/RollPitchYawrateThrust.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
@@ -15,6 +16,7 @@ class RcinToRollPitchYawrateThrust : public tobas::BaseNode
 {
   static constexpr double kDefaultMaxAttitude = dh_std::deg2rad(30.);
   static constexpr double kDefaultMaxYawrate = dh_std::deg2rad(90.);
+  static constexpr double kMaxAcceleration = tobas::kGravity;
 
   using super = tobas::BaseNode;
 
@@ -29,9 +31,13 @@ private:
   tobas_msgs::Battery battery_;
   tobas_msgs::RollPitchYawrateThrust rpydt_;
 
-  // rosparams
+  // ROS parameters
   double max_attitude_;  // [rad]
   double max_yawrate_;   // [rad/s]
+  double max_acc_;       // [m/s^2] 垂直上方向の加速度の最大値
+
+  // Constant values
+  double max_thrust_;  // [N] ドローンの最大推力
 
   // PubSub
   ros::Publisher rpydt_pub_;

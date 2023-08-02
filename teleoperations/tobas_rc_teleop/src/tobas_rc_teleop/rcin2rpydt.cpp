@@ -1,6 +1,10 @@
 #include <dh_ros_tools/rosparam.hpp>
 
+#include <tobas_tools/utils.hpp>
+
 #include "../../include/tobas_rc_teleop/rcin2rpydt.hpp"
+
+using namespace std;
 
 namespace tobas_rc_teleop
 {
@@ -11,6 +15,9 @@ RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust()
 
   drone_.loadFromParam(ns_);
   z_rotors_.updateInternalDataStructures();
+
+  const auto mass = tobas::getMass();
+  max_thrust_ = mass * (tobas::kGravity + kMaxAcceleration);
 
   // プロポによる制御を最大の優先順位に設定
   rpydt_.level.data = tobas_msgs::CommandLevel::MANUAL;
@@ -23,6 +30,7 @@ void RcinToRollPitchYawrateThrust::getRosParams()
 {
   dh_ros::getParam("~max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
   dh_ros::getParam("~max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
+  dh_ros::getParam("~max_acceleration", max_acc_, kMaxAcceleration, dh_ros::POSITIVE);
 }
 
 void RcinToRollPitchYawrateThrust::registerPublishers()
@@ -76,8 +84,8 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
   rpydt_.pitch = dh_std::remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
   rpydt_.yawrate = dh_std::remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
-  const auto min_thrust = z_rotors_.minThrustSum(battery_.voltage);
-  const auto max_thrust = z_rotors_.maxThrustSum(battery_.voltage);
+  const auto min_thrust = min(max_thrust_, z_rotors_.minThrustSum(battery_.voltage));
+  const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_.voltage));
   rpydt_.thrust = dh_std::remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
 
   // コマンドを発行
