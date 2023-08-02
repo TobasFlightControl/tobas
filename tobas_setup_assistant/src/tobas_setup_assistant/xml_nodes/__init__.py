@@ -1,3 +1,4 @@
+from .base_static_joint import BaseStaticJoint
 from .state_gt import GroundTruthStateModel
 from .battery import BatteryModel
 from .motor import MotorModel

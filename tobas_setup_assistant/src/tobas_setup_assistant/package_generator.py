@@ -328,7 +328,7 @@ class PackageGenerator(QWidget):
 
     def _generate_urdf(self, urdf_dir: str) -> None:
         robot = self._make_urdf_with_plugins()
-        urdf_path = osp.join(urdf_dir, f'{self._drone_name}.urdf')
+        urdf_path = osp.join(urdf_dir, f'{self._drone_name}.xacro')
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
@@ -404,6 +404,13 @@ class PackageGenerator(QWidget):
         depth_camera = self._main.settings.depth_camera
         odometry = self._main.settings.odometry
         simulation = self._main.settings.simulation
+
+        # XML namespace
+        robot.attrib["xmlns:xacro"] = "http://ros.org/wiki/xacro"
+
+        # Base static joint for debug
+        base_fix_joint = BaseStaticJoint(root_link=root_link)
+        robot.append(base_fix_joint)
 
         # Battery
         battery_model = BatteryModel(
