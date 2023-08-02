@@ -362,10 +362,17 @@ void RotationControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrus
   // Yawの目標値を更新
   if (rpyd_thrust_received_)
   {
-    // TODO: 前回からあまりに時間が立っていた場合はリセット
     const ros::Time now = ros::Time::now();
     const auto dt = (now - t_last_rpyd_thrust_).toSec();
     t_last_rpyd_thrust_ = now;
+    if (dt > kRollPitchYawrateThrustTimeout)
+    {
+      rosInfo(
+        "The time gap from the previous command is over " << kRollPitchYawrateThrustTimeout
+                                                          << " seconds. The command is reset.");
+      rpyd_thrust_received_ = false;
+      return;
+    }
     rpy_thrust_.rpy.yaw += rpyd_thrust.yawrate * dt;
   }
   else

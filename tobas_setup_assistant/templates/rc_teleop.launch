@@ -1,7 +1,10 @@
 <launch>
 
+  <arg name="control_mode" default="velocity"/>
+
   <group ns="{{ drone_name }}">
-    <node pkg="tobas_rc_teleop" type="roll_pitch_yawrate_thrust_node" name="rcin_to_roll_pitch_yawrate_thrust" output="screen"/>
+    <node if="$(eval control_mode=='attitude')" pkg="tobas_rc_teleop" type="roll_pitch_yawrate_thrust_node" name="rcin_to_roll_pitch_yawrate_thrust" output="screen"/>
+    <node if="$(eval control_mode=='velocity')" pkg="tobas_rc_teleop" type="velocity_yaw_node" name="rcin_to_velocity_yaw" output="screen"/>
   </group>
 
 </launch>
