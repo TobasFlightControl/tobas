@@ -38,7 +38,7 @@ void RcinToVelocityYaw::getRosParams()
 
 void RcinToVelocityYaw::registerPublishers()
 {
-  vel_yaw_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw_thrust", 1);
+  vel_yaw_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
 }
 
 void RcinToVelocityYaw::registerSubscribers()
