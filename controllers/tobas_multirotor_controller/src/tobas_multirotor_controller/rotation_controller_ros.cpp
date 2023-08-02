@@ -184,7 +184,7 @@ double RotationControllerRos::minThrustSum()
   return res;
 }
 
-void RotationControllerRos::updateCommandLevel(const tobas_msgs::CommandLevel& level)
+bool RotationControllerRos::isCommandLevelOk(const tobas_msgs::CommandLevel& level)
 {
   if (level.data < rpy_thrust_.level.data)
   {
@@ -192,14 +192,17 @@ void RotationControllerRos::updateCommandLevel(const tobas_msgs::CommandLevel& l
       kErrorPeriod, "The command is ignored because its level "
                       << level.data << "is lower than the current command level "
                       << rpy_thrust_.level.data << ".");
-    return;
+    return false;
   }
+
   if (level.data > rpy_thrust_.level.data)
   {
     rosInfo(
       "The command level is raised from " << rpy_thrust_.level.data << " to " << level.data << ".");
     rpy_thrust_.level = level;
   }
+
+  return true;
 }
 
 void RotationControllerRos::updateTargetRoll(double tar_roll)
@@ -321,7 +324,11 @@ void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rp
     return;
   }
 
-  updateCommandLevel(rpy_thrust.level);
+  if (!isCommandLevelOk(rpy_thrust.level))
+  {
+    return;
+  }
+
   updateTargetRoll(rpy_thrust.rpy.roll);
   updateTargetPitch(rpy_thrust.rpy.pitch);
   updateTargetThrust(rpy_thrust.thrust);
@@ -342,7 +349,11 @@ void RotationControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrus
     return;
   }
 
-  updateCommandLevel(rpyd_thrust.level);
+  if (!isCommandLevelOk(rpyd_thrust.level))
+  {
+    return;
+  }
+
   updateTargetRoll(rpyd_thrust.roll);
   updateTargetPitch(rpyd_thrust.pitch);
   updateTargetThrust(rpyd_thrust.thrust);

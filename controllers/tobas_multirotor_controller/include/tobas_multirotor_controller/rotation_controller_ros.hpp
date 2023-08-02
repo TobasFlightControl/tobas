@@ -85,7 +85,7 @@ private:
   void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeeds& speeds);
   double maxThrustSum();
   double minThrustSum();
-  void updateCommandLevel(const tobas_msgs::CommandLevel& level);
+  bool isCommandLevelOk(const tobas_msgs::CommandLevel& level);
   void updateTargetRoll(double tar_roll);
   void updateTargetPitch(double tar_pitch);
   void updateTargetThrust(double tar_thrust);
