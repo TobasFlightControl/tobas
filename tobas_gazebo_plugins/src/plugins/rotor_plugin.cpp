@@ -259,10 +259,14 @@ void GazeboRotorPlugin::updateRotationSpeed(double dt)
   auto set_rot_speed = cmd_rot_speed_;
   const auto max_rot_speed = maxRotSpeed();
   const auto min_rot_speed = minRotSpeed();
-  if (cmd_rot_speed_ < min_rot_speed - kRotorSpeedCheckMargin)
+  if (cmd_rot_speed_ < min_rot_speed)
   {
-    gzerr << kPluginName << ": Commanded rotor speed on index " << motor_number_
-          << " is too low: " << cmd_rot_speed_ << " < " << min_rot_speed << " [rad/s]" << endl;
+    // エラーを出すのは指令値が負のときのみ．[0, min_rot_speed]の時は修正するだけにする．
+    if (cmd_rot_speed_ < 0.)
+    {
+      gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_
+            << ": " << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
+    }
     set_rot_speed = min_rot_speed;
   }
   else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
