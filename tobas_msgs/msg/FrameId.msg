@@ -1,4 +1,4 @@
-uint32 data
+uint8 data
 
-uint32 GLOBAL = 1
-uint32 LOCAL = 2
+uint8 GLOBAL = 1
+uint8 LOCAL = 2

@@ -190,15 +190,16 @@ bool RotationControllerRos::isCommandLevelOk(const tobas_msgs::CommandLevel& lev
   {
     rosErrorThrottle(
       kErrorPeriod, "The command is ignored because its level "
-                      << level.data << "is lower than the current command level "
-                      << rpy_thrust_.level.data << ".");
+                      << static_cast<int>(level.data) << "is lower than the current command level "
+                      << static_cast<int>(rpy_thrust_.level.data) << ".");
     return false;
   }
 
   if (level.data > rpy_thrust_.level.data)
   {
     rosInfo(
-      "The command level is raised from " << rpy_thrust_.level.data << " to " << level.data << ".");
+      "The command level is raised from " << static_cast<int>(rpy_thrust_.level.data) << " to "
+                                          << static_cast<int>(level.data) << ".");
     rpy_thrust_.level = level;
   }
 

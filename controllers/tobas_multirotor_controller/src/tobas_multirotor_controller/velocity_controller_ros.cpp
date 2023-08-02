@@ -151,14 +151,16 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYaw& vel_yaw
   {
     rosErrorThrottle(
       kErrorPeriod, "The command is ignored because its level "
-                      << vel_yaw.level.data << "is lower than the current command level "
-                      << cmd_level_ << ".");
+                      << static_cast<int>(vel_yaw.level.data)
+                      << "is lower than the current command level " << static_cast<int>(cmd_level_)
+                      << ".");
     return;
   }
   if (vel_yaw.level.data > cmd_level_)
   {
     rosInfo(
-      "The command level is raised from " << cmd_level_ << " to " << vel_yaw.level.data << ".");
+      "The command level is raised from " << static_cast<int>(cmd_level_) << " to "
+                                          << static_cast<int>(vel_yaw.level.data) << ".");
     cmd_level_ = vel_yaw.level.data;
   }
 
@@ -177,7 +179,7 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYaw& vel_yaw
     }
     default:
     {
-      rosError("Invalid FrameId: " << vel_yaw.frame_id.data);
+      rosError("Invalid FrameId: " << static_cast<int>(vel_yaw.frame_id.data));
       return;
     }
   }
