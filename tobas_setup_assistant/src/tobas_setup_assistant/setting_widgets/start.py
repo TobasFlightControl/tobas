@@ -54,7 +54,6 @@ class RobotModelLoaderWidget(QWidget):
         self.description_path = None
 
         self._config = ConfigParser()
-        self._config.read(CONFIG_PATH)
 
         description_loader_uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         description_launch_path = osp.join(get_proj_path(), "launch/description.launch")
@@ -112,6 +111,7 @@ class RobotModelLoaderWidget(QWidget):
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
         # 前回開いたパスを取得
+        self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
         last_opened_dir = self._config.get("DEFAULT", self.KEY, fallback=osp.expanduser("~"))
 
         # URDFのパスを取得

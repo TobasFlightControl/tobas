@@ -33,7 +33,6 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         # 最後に開かれたディレクトリの記録用
         self._config = ConfigParser()
-        self._config.read(CONFIG_PATH)
         self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
@@ -225,6 +224,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         q_info(self.parent(), "Data is successfully loaded.")
 
     def _get_csv_file_path(self) -> str:
+        self._config.read(CONFIG_PATH)
         last_opened_dir = self._config.get("DEFAULT", self._path_key, fallback=osp.expanduser("~"))
 
         options = QFileDialog.Options()
