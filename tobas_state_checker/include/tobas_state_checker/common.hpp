@@ -14,5 +14,5 @@ static constexpr double kVerticalPositionStddevThreshold = 2.;           // [m]
 static constexpr double kAttitudeStddevThreshold = dh_std::deg2rad(5.);  // [rad]
 static constexpr double kHeadingStddevThreshold = dh_std::deg2rad(10.);  // [rad]
 static constexpr double kBaseStateTimeout = 0.5;                         // [s]
-static constexpr double kAttitudeThreshold = dh_std::deg2rad(80.);       // [rad]
+static constexpr double kAttitudeThreshold = dh_std::deg2rad(90.);       // [rad]
 }  // namespace tobas_state_checker
