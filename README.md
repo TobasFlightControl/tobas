@@ -176,23 +176,11 @@ $ roscore
 $ roslaunch (tobas_config_pkg) gazebo.launch
 ```
 
-3. Launch motors handler on FC. Make sure that the battery is properly connected and that the propellers are not attached to the motors.
+3. Launch motors handler on FC. Make sure that the battery is properly connected and that the propellers are NOT attached to the motors.
 
 ```bash
 $ su
-$ roslaunch (tobas_config_pkg) motors.launch
-```
-
-4. Launch control nodes on FC
-
-```bash
 $ roslaunch (tobas_config_pkg) hil.launch
-```
-
-5. Send position commands from the external PC
-
-```bash
-$ roslaunch tobas_keyboard_teleop position_yaw.launch drone_name:=(drone_name)
 ```
 
 ## Trouble Shooting
