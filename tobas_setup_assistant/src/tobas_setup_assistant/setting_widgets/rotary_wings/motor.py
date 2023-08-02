@@ -157,7 +157,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
             "Time Constant Up",
             time_const_up_description,
             minimum=1,
-            default=15,
+            default=10,
             suffix=" ms",
         )
         self._rows.addWidget(self._time_const_up)
@@ -167,7 +167,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
             "Time Constant Down",
             time_const_down_description,
             minimum=1,
-            default=30,
+            default=20,
             suffix=" ms",
         )
         self._rows.addWidget(self._time_const_down)
