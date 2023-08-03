@@ -14,8 +14,7 @@ class RcinToVelocityYaw : public tobas::BaseNode
 {
   static constexpr double kDefaultMaxHorizontalVelocity = 3.;
   static constexpr double kDefaultMaxVerticalVelocity = 3.;
-  static constexpr double kDefaultMaxYawrate = dh_std::deg2rad(90.);
-  static constexpr double kDefaultDeadZoneRate = 0.1;
+  static constexpr double kDefaultMaxYawrate = dh_std::deg2rad(180.);
 
   using super = tobas::BaseNode;
 

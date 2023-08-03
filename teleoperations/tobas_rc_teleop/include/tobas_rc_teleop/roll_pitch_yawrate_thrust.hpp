@@ -15,10 +15,9 @@ namespace tobas_rc_teleop
 class RcinToRollPitchYawrateThrust : public tobas::BaseNode
 {
   static constexpr double kDefaultMaxAttitude = dh_std::deg2rad(30.);
-  static constexpr double kDefaultMaxYawrate = dh_std::deg2rad(90.);
+  static constexpr double kDefaultMaxYawrate = dh_std::deg2rad(180.);
   static constexpr double kDefaultMaxAcceleration = 3.;
   static constexpr double kDefaultMinAcceleration = -3.;
-  static constexpr double kDefaultDeadZoneRate = 0.1;
 
   using super = tobas::BaseNode;
 
