@@ -29,9 +29,12 @@ private:
   tobas::Drone drone_;
   tobas::RotorAxisExtractor z_rotors_;
 
-  bool battery_received_;
   tobas_msgs::Battery battery_;
   tobas_msgs::RollPitchYawrateThrust rpydt_;
+  tobas_msgs::Event event_;
+  bool battery_received_;
+  bool rcin_received_;
+  bool last_toggle_;
 
   // ROS parameters
   double max_attitude_;  // [rad]
@@ -47,12 +50,15 @@ private:
 
   // PubSub
   ros::Publisher rpydt_pub_;
+  ros::Publisher event_pub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  void requestShutdown();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void batteryCb(const tobas_msgs::Battery& battery);
