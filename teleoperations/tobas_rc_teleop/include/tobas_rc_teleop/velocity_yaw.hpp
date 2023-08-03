@@ -22,12 +22,19 @@ public:
   explicit RcinToVelocityYaw();
 
 private:
+  enum State
+  {
+    CHECK_PREREQUISITES,
+    FIRST_RCIN,
+    TOGGLE_OFF,
+    TOGGLE_ON,
+  };
+
+  State state_;
   tobas_msgs::BaseState bs_;
   tobas_msgs::VelocityYaw vel_yaw_;
   tobas_msgs::Event event_;
-  bool rcin_received_;
   bool bs_received_;
-  bool last_toggle_;
   ros::Time t_last_rcin_;
 
   // ROS parameters

@@ -25,15 +25,22 @@ public:
   explicit RcinToRollPitchYawrateThrust();
 
 private:
+  enum State
+  {
+    CHECK_PREREQUISITES,
+    FIRST_RCIN,
+    TOGGLE_OFF,
+    TOGGLE_ON,
+  };
+
   tobas::Drone drone_;
   tobas::RotorAxisExtractor z_rotors_;
 
+  State state_;
   tobas_msgs::Battery battery_;
   tobas_msgs::RollPitchYawrateThrust rpydt_;
   tobas_msgs::Event event_;
   bool battery_received_;
-  bool rcin_received_;
-  bool last_toggle_;
 
   // ROS parameters
   double max_attitude_;  // [rad]

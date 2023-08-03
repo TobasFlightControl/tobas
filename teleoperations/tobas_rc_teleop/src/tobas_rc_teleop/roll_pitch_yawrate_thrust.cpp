@@ -12,11 +12,7 @@ using namespace dh_std;
 namespace tobas_rc_teleop
 {
 RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust()
-  : super(),
-    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    battery_received_(false),
-    rcin_received_(false),
-    last_toggle_(false)
+  : super(), z_rotors_(drone_, tobas::Axis::Z_POSITIVE), battery_received_(false)
 {
   getRosParams();
 
@@ -99,46 +95,73 @@ void RcinToRollPitchYawrateThrust::batteryCb(const tobas_msgs::Battery& battery)
 
 void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
 {
-  // バッテリーの状態が取得できていなければ動かさない
-  if (!battery_received_)
+  switch (state_)
   {
-    return;
-  }
-
-  // トグルをオフにした状態で起動することを要求
-  if (!rcin_received_)
-  {
-    if (rcin.toggle)
+    case CHECK_PREREQUISITES:
     {
-      rosErrorThrottle(
-        kErrorPeriod, "Please start with the transmitter's toggle in the OFF position.");
-      return;
+      if (battery_received_)
+      {
+        state_ = FIRST_RCIN;
+      }
+      break;
     }
-    rcin_received_ = true;
+
+    case FIRST_RCIN:
+    {
+      if (rcin.toggle)
+      {
+        rosErrorThrottle(
+          kErrorPeriod, "Please start with the transmitter's toggle in the OFF position.");
+      }
+      else
+      {
+        rosInfo("RC transmitter is ready. Toggle on to start control.");
+        state_ = TOGGLE_OFF;
+      }
+      break;
+    }
+
+    case TOGGLE_OFF:
+    {
+      if (rcin.toggle)
+      {
+        state_ = TOGGLE_ON;
+      }
+      break;
+    }
+
+    case TOGGLE_ON:
+    {
+      if (!rcin.toggle)
+      {
+        rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
+        requestShutdown();
+        ros::shutdown();
+      }
+
+      // コマンドを更新
+      rpydt_.roll = dead_zone_.inRange(rcin.roll) ?
+                      0. :
+                      remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
+      rpydt_.pitch = dead_zone_.inRange(rcin.pitch) ?
+                       0. :
+                       remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+      rpydt_.yawrate =
+        dead_zone_.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+
+      const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_.voltage));
+      const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_.voltage));
+      rpydt_.thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
+
+      // コマンドを発行
+      rpydt_pub_.publish(rpydt_);
+      break;
+    }
+
+    default:
+    {
+      rosthrow("Invalid state: " << state_);
+    }
   }
-
-  // トグル変化時の処理
-  // ON -> OFF: 強制シャットダウン (最終手段)
-  if (last_toggle_ && !rcin.toggle)
-  {
-    rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
-    requestShutdown();
-    return;
-  }
-
-  // コマンドを更新
-  rpydt_.roll =
-    dead_zone_.inRange(rcin.roll) ? 0. : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-  rpydt_.pitch =
-    dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
-  rpydt_.yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
-
-  const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_.voltage));
-  const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_.voltage));
-  rpydt_.thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
-
-  // コマンドを発行
-  rpydt_pub_.publish(rpydt_);
 }
 }  // namespace tobas_rc_teleop
