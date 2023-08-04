@@ -204,8 +204,9 @@ void GazeboRotorPlugin::registerPubSub()
     nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
   battery_sub_ =
     nh_.subscribe("/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this);
-  wind_speed_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+
+  wind_speed_sub_ =
+    nh_.subscribe("/gazebo/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
 }
 
 bool GazeboRotorPlugin::isReady()
