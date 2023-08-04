@@ -8,7 +8,7 @@
     <rosparam file="$(find {{ pkg_name }})/config/{{ drone_name }}.tbsf" command="load"/>
 
     <!-- Load the URDF into the ROS parameter server -->
-    <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.xacro' DEBUG:=$(arg user_debug)"/>
+    <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.xacro' DEBUG:=false"/>
 
     <!-- Bringup the nodes required for connections between hardware and software -->
     <include file="$(find tobas_real)/launch/hardware_interfaces.launch"/>
