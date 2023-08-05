@@ -1,5 +1,6 @@
 from .base_static_joint import BaseStaticJoint
 from .state_gt import GroundTruthStateModel
+from .wind import WindModel
 from .battery import BatteryModel
 from .motor import MotorModel
 from .imu import ImuModel

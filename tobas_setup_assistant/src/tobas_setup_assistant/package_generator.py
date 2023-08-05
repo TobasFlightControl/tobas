@@ -412,6 +412,15 @@ class PackageGenerator(QWidget):
         base_fix_joint = BaseStaticJoint(root_link=root_link)
         robot.append(base_fix_joint)
 
+        # Wind
+        wind_model = WindModel(
+            ns=self._drone_name,
+            link_name=root_link,
+            mean_wind_speed=simulation.mean_wind_speed.get(),
+            const_wind_direction=simulation.const_wind_direction.get(),
+        )
+        robot.append(wind_model)
+
         # Battery
         battery_model = BatteryModel(
             ns=self._drone_name,
