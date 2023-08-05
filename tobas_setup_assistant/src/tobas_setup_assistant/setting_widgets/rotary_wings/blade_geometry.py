@@ -42,7 +42,7 @@ class BladeGeometry(QWidget):
             "Propeller Diameter",
             diameter_description,
             minimum=1,
-            default=200,
+            default=250,
             suffix=" mm",
         )
         self._rows.addWidget(self._diameter)
@@ -63,7 +63,7 @@ class BladeGeometry(QWidget):
             pitch_angle_description,
             minimum=1,
             maximum=90,
-            default=10,
+            default=15,
             suffix=" deg",
         )
         self._rows.addWidget(self._pitch_angle)
