@@ -17,13 +17,13 @@ namespace gazebo
 {
 GazeboRotorPlugin::GazeboRotorPlugin()
   : super(),
-    wind_speed_W_(0., 0., 0.),
+    wind_vel_W_(zero3),
     prev_sim_time_(0.),
     last_cmd_time_(0.),
     is_activated_(false),
     is_initialized_(false),
     battery_received_(false),
-    wind_speed_received_(true)  // TODO: falseにしてwind_speedの購読を強制する
+    wind_received_(false)
 {
 }
 
@@ -120,7 +120,7 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
   getSdfParam(sdf, "batterySubTopic", battery_sub_topic_, kDefaultBatteryTopic);
-  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindTopic);
+  getSdfParam(sdf, "windSubTopic", wind_sub_topic_, kDefaultWindTopic);
 
   getSdfParam(
     sdf, "rotorSpeedSlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim, false);
@@ -156,7 +156,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
       {
         gzerr << kPluginName << ": Battery state is not received yet." << endl;
       }
-      if (!wind_speed_received_)
+      if (!wind_received_)
       {
         gzerr << kPluginName << ": Wind speed is not received yet." << endl;
       }
@@ -204,14 +204,13 @@ void GazeboRotorPlugin::registerPubSub()
     nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
   battery_sub_ =
     nh_.subscribe("/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this);
-
-  wind_speed_sub_ =
-    nh_.subscribe("/gazebo/" + wind_speed_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+  wind_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
 }
 
 bool GazeboRotorPlugin::isReady()
 {
-  return battery_received_ && wind_speed_received_;
+  return battery_received_ && wind_received_;
 }
 
 void GazeboRotorPlugin::applyForceAndTorque(double rot_speed, const common::Time cur_time)
@@ -232,7 +231,7 @@ void GazeboRotorPlugin::applyForceAndTorque(double rot_speed, const common::Time
   link_->AddForce(thrust_W);
 
   // (1) second term: H-force
-  const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
+  const auto linvel_W = link_->WorldLinearVel() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
   const auto h_force_W = (-abs(rot_speed) * rotor_drag_coef_) * linvel_perp_W;
   link_->AddForce(h_force_W);
@@ -341,13 +340,13 @@ void GazeboRotorPlugin::batteryCb(const tobas_msgs::Battery& battery)
   }
 }
 
-void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindSpeed& wind)
+void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::Wind& wind)
 {
-  vectorKDLToGazebo(wind.vel, wind_speed_W_);
+  vectorKDLToGazebo(wind.vel, wind_vel_W_);
 
-  if (!wind_speed_received_)
+  if (!wind_received_)
   {
-    wind_speed_received_ = true;
+    wind_received_ = true;
   }
 }
 

@@ -42,6 +42,10 @@ using UniformDistribution = std::uniform_real_distribution<double>;
 
 // Constants
 static constexpr double kDegreeToRadian = M_PI / 180.;
+static constexpr double kRadianToDegree = 1 / kDegreeToRadian;
+static constexpr double kFeetToMeter = 0.3048;
+static constexpr double kMeterToFeet = 1 / kFeetToMeter;
+
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 3.;
 static constexpr double kErrorPeriod = 1.;
@@ -49,7 +53,7 @@ static constexpr double kCheckTopicsTimeThreshold = 1.;  // [s]
 
 // Default values
 static const std::string kDefaultBatteryTopic = "battery";
-static const std::string kDefaultWindTopic = "wind_speed";
+static const std::string kDefaultWindTopic = "wind";
 
 static constexpr double kDefaultLatitudeZero = 35.658099;    // 日本: 北緯35度39分29秒
 static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経139度44分28秒8759

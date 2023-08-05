@@ -25,7 +25,7 @@ GazeboFixedWingPlugin::GazeboFixedWingPlugin()
     last_cmd_time_(0.),
     is_initialized_(false),
     cs_activated_(false),
-    wind_speed_W_(0., 0., 0.)
+    wind_vel_W_(0., 0., 0.)
 {
 }
 
@@ -62,7 +62,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
   getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
-  getSdfParam(sdf, "windSpeedSubTopic", wind_speed_sub_topic_, kDefaultWindTopic);
+  getSdfParam(sdf, "windSubTopic", wind_sub_topic_, kDefaultWindTopic);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
   getSdfParam(
@@ -163,8 +163,8 @@ void GazeboFixedWingPlugin::registerPubSub()
 
   deflections_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this);
-  wind_speed_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_speed_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this);
+  wind_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this);
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
@@ -183,7 +183,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 
   // 風に対する相対的な機体速度
   const auto& W_rot_B = link_->WorldPose().Rot();
-  const auto linvel_W = link_->WorldLinearVel() - wind_speed_W_;
+  const auto linvel_W = link_->WorldLinearVel() - wind_vel_W_;
   auto linvel_B = W_rot_B.RotateVectorReverse(linvel_W);
 
   // NWU -> NED
@@ -461,7 +461,7 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
 
 void GazeboFixedWingPlugin::windSpeedCb(const WindMsg& wind)
 {
-  vectorKDLToGazebo(wind.vel, wind_speed_W_);
+  vectorKDLToGazebo(wind.vel, wind_vel_W_);
 }
 
 bool GazeboFixedWingPlugin::sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r)

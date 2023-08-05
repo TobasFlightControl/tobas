@@ -10,7 +10,7 @@
 
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
-#include <tobas_msgs/WindSpeed.h>
+#include <tobas_msgs/Wind.h>
 #include <tobas_msgs/FixedWingDebug.h>
 
 #include "../tobas_gazebo_plugins/common.hpp"
@@ -40,7 +40,7 @@ class GazeboFixedWingPlugin : public ModelPlugin
   using super = ModelPlugin;
 
   using CmdMsg = tobas_msgs::ControlSurfaceDeflections;
-  using WindMsg = tobas_msgs::WindSpeed;
+  using WindMsg = tobas_msgs::Wind;
 
 public:
   explicit GazeboFixedWingPlugin();
@@ -56,7 +56,7 @@ private:
   std::string link_name_;
   std::string debug_pub_topic_;
   std::string deflections_sub_topic_;
-  std::string wind_speed_sub_topic_;
+  std::string wind_sub_topic_;
   double alt_0_;  // 基準点の幾何的高度
   double check_delay_threshold_;
   double auto_reset_time_thr_;
@@ -70,7 +70,7 @@ private:
   double last_cmd_time_;
   bool is_initialized_;
   bool cs_activated_;
-  ignition::math::Vector3d wind_speed_W_;                 // 風速 [m/s]
+  ignition::math::Vector3d wind_vel_W_;                   // 風速 [m/s]
   tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [rad]
   tobas_msgs::FixedWingDebug debug_msg_;
 
@@ -80,7 +80,7 @@ private:
   // PubSub
   ros::Publisher debug_pub_;
   ros::Subscriber deflections_sub_;
-  ros::Subscriber wind_speed_sub_;
+  ros::Subscriber wind_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();
