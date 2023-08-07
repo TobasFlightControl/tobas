@@ -67,7 +67,7 @@ void BatteryHandler::getAdcCoefficient()
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
 
-  adc_coef_ = pt.get<double>(kConfigKey_AdcCoef, kDefaultAdcCoef);
+  adc_coef_ = pt.get<double>(kConfigKey_AdcCoef);
   if (adc_coef_ <= 0.)
   {
     rosthrow("Negative ADC coefficient: " << adc_coef_);

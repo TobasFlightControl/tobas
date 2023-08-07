@@ -28,7 +28,6 @@ static constexpr char kConfigKey_RcToggleDown[] = "DEFAULT.rc_input/toggle/down"
 
 // https://docs.emlid.com/navio2/dev/adc/
 static constexpr uint32_t kPowerModuleVoltageChannel = 2;
-static constexpr double kDefaultAdcCoef = 11.3;
 
 static constexpr uint32_t kServoRailSize = 14;
 static constexpr double kPwmFrequency = 400.;  // [Hz] PX4のデフォルト値
