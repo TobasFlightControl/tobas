@@ -9,6 +9,9 @@ namespace tobas_real
 static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
 
 static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";
+static constexpr char kConfigKey_AccOffsetX[] = "DEFAULT.acc_offset_x";
+static constexpr char kConfigKey_AccOffsetY[] = "DEFAULT.acc_offset_y";
+static constexpr char kConfigKey_AccOffsetZ[] = "DEFAULT.acc_offset_z";
 static constexpr char kConfigKey_RcRollNeutoral[] = "DEFAULT.rc_input/roll/neutoral";
 static constexpr char kConfigKey_RcRollLeft[] = "DEFAULT.rc_input/roll/left";
 static constexpr char kConfigKey_RcRollRight[] = "DEFAULT.rc_input/roll/right";
@@ -43,9 +46,10 @@ static constexpr uint32_t kRCInputChannelToggle = 4;
 static constexpr double kDisarmDuration = 3.;   // [s]
 static constexpr double kDisarmInterval = 0.1;  // [s]
 
-static constexpr double kErrorPeriod = 1.;             // [s]
-static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
-static constexpr double kCheckDelayThreshold = 0.02;   // [s]
+static constexpr double kErrorPeriod = 1.;               // [s]
+static constexpr double kShowSensorReadingPeriod = 0.5;  // [s]
+static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
+static constexpr double kCheckDelayThreshold = 0.02;     // [s]
 
 void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel);
 

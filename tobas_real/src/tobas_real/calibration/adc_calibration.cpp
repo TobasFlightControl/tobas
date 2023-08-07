@@ -41,7 +41,7 @@ void AdcCalibrator::run()
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const int a2_value = adc_.read(kPowerModuleVoltageChannel);
-    rosInfoThrottle(kInfoPeriod, "A2 value: " << a2_value);
+    rosInfoThrottle(kShowSensorReadingPeriod, "A2 value: " << a2_value);
     a2_sum += a2_value;
     usleep(kSleepTime);
   }

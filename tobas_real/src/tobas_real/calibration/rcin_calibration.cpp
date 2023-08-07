@@ -20,17 +20,17 @@ void RCInputCalibrator::run()
   rcin_.initialize();
 
   // Roll Neutoral
-  cout << "Please set the ROLL lever to NEUTORAL and press Enter when ready:";
+  cout << "Please set the ROLL lever to NEUTORAL and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto roll_neutoral = readRCInput(kRCInputChannelRoll);
 
   // Roll Left
-  cout << "Please set the ROLL lever to LEFT and press Enter when ready:";
+  cout << "Please set the ROLL lever to LEFT and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto roll_left = readRCInput(kRCInputChannelRoll);
 
   // Roll Right
-  cout << "Please set the ROLL lever to RIGHT and press Enter when ready:";
+  cout << "Please set the ROLL lever to RIGHT and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto roll_right = readRCInput(kRCInputChannelRoll);
 
@@ -40,17 +40,17 @@ void RCInputCalibrator::run()
   }
 
   // Pitch Neutoral
-  cout << "Please set the PITCH lever to NEUTORAL and press Enter when ready:";
+  cout << "Please set the PITCH lever to NEUTORAL and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto pitch_neutoral = readRCInput(kRCInputChannelPitch);
 
   // Pitch Up
-  cout << "Please set the PITCH lever to UP and press Enter when ready:";
+  cout << "Please set the PITCH lever to UP and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto pitch_up = readRCInput(kRCInputChannelPitch);
 
   // Pitch Down
-  cout << "Please set the PITCH lever to DOWN and press Enter when ready:";
+  cout << "Please set the PITCH lever to DOWN and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto pitch_down = readRCInput(kRCInputChannelPitch);
 
@@ -60,17 +60,17 @@ void RCInputCalibrator::run()
   }
 
   // Yaw Neutoral
-  cout << "Please set the YAW lever to NEUTORAL and press Enter when ready:";
+  cout << "Please set the YAW lever to NEUTORAL and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto yaw_neutoral = readRCInput(kRCInputChannelYaw);
 
   // Yaw Left
-  cout << "Please set the YAW lever to LEFT and press Enter when ready:";
+  cout << "Please set the YAW lever to LEFT and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto yaw_left = readRCInput(kRCInputChannelYaw);
 
   // Yaw Right
-  cout << "Please set the YAW lever to RIGHT and press Enter when ready:";
+  cout << "Please set the YAW lever to RIGHT and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto yaw_right = readRCInput(kRCInputChannelYaw);
 
@@ -80,12 +80,12 @@ void RCInputCalibrator::run()
   }
 
   // Thrust Up
-  cout << "Please set the THRUST lever to UP and press Enter when ready:";
+  cout << "Please set the THRUST lever to UP and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto thrust_up = readRCInput(kRCInputChannelThrust);
 
   // Thrust Down
-  cout << "Please set the THRUST lever to DOWN and press Enter when ready:";
+  cout << "Please set the THRUST lever to DOWN and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto thrust_down = readRCInput(kRCInputChannelThrust);
 
@@ -95,12 +95,12 @@ void RCInputCalibrator::run()
   }
 
   // Toggle Up
-  cout << "Please set the TOGGLE-A to UP and press Enter when ready:";
+  cout << "Please set the TOGGLE-A to UP and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto toggle_up = readRCInput(kRCInputChannelToggle);
 
   // Toggle Down
-  cout << "Please set the TOGGLE-A to DOWN and press Enter when ready:";
+  cout << "Please set the TOGGLE-A to DOWN and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const auto toggle_down = readRCInput(kRCInputChannelToggle);
 
@@ -110,7 +110,6 @@ void RCInputCalibrator::run()
   }
 
   // Configに保存
-  // 設定ファイルに係数を書き込む
   boost::property_tree::ptree pt;
   if (dh_std::fileExists(kConfigPath))
   {
@@ -144,7 +143,7 @@ double RCInputCalibrator::readRCInput(uint32_t channel)
     {
       rosthrow("Failed to read RC input.");
     }
-    rosInfoThrottle(kInfoPeriod, "Period on channel " << channel << ": " << period);
+    rosInfoThrottle(kShowSensorReadingPeriod, "Period on channel " << channel << ": " << period);
     period_sum += period;
     usleep(kSleepTime);
   }
