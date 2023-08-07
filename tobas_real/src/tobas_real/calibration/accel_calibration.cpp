@@ -58,7 +58,6 @@ Vector3f AccelCalibrator::readAccel()
   {
     imu_.update();
     imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
-    rosInfoThrottle(kShowSensorReadingPeriod, "Accelerometer reading:" << acc_);
     acc_sum += acc_;
     usleep(kSleepTime);
   }
