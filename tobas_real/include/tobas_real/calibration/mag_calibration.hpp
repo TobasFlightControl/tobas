@@ -8,9 +8,9 @@ namespace tobas_real
 {
 class MagnetometerCalibrator
 {
-  static constexpr uint32_t kDataCount = 1000;
+  static constexpr uint32_t kDataCount = 500;
   static constexpr uint32_t kDirections = 6;
-  static constexpr uint32_t kSleepTime = 10000;  // [us]
+  static constexpr uint32_t kSleepTime = 20000;  // [us]
 
 public:
   explicit MagnetometerCalibrator();
