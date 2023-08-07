@@ -1,6 +1,3 @@
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
-
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
@@ -35,19 +32,19 @@ void ImuHandler::run()
 
     // 各センサのメッセージを更新
     // センサの座標系をNWU座標系に変換する
-    imu_->update();
+    imu_.update();
 
-    imu_->read_accelerometer(&ax_, &ay_, &az_);
+    imu_.read_accelerometer(&ax_, &ay_, &az_);
     imu_msg_.linear_acceleration.x = ay_;
     imu_msg_.linear_acceleration.y = -ax_;
     imu_msg_.linear_acceleration.z = az_;
 
-    imu_->read_gyroscope(&wx_, &wy_, &wz_);
+    imu_.read_gyroscope(&wx_, &wy_, &wz_);
     imu_msg_.angular_velocity.x = wy_;
     imu_msg_.angular_velocity.y = -wx_;
     imu_msg_.angular_velocity.z = wz_;
 
-    imu_->read_magnetometer(&mx_, &my_, &mz_);
+    imu_.read_magnetometer(&mx_, &my_, &mz_);
     mag_msg_.magnetic_field.x = mx_;
     mag_msg_.magnetic_field.y = -my_;
     mag_msg_.magnetic_field.z = -mz_;
@@ -78,15 +75,12 @@ void ImuHandler::registerSubscribers()
 
 void ImuHandler::setupImu()
 {
-  imu_ = ImuPtr(new MPU9250());
-  // imu_ = ImuPtr(new LSM9DS1());
-
-  if (!imu_->probe())
+  if (!imu_.probe())
   {
     rosthrow("Sensor not enabled.");
   }
 
-  imu_->initialize();
+  imu_.initialize();
 }
 
 void ImuHandler::setCovarianceMatrices()

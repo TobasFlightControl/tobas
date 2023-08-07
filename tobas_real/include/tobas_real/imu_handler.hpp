@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
-#include <Common/InertialSensor.h>
+#include <Common/MPU9250.h>
 
 #include <tobas_tools/node.hpp>
 
@@ -15,7 +15,7 @@ class ImuHandler : public tobas::BaseNode
 
   // MPU9250
   // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
-  static constexpr double kAccNoiseDensity = 300.;   // ug/sqrt(hz)
+  static constexpr double kAccNoiseDensity = 300.;  // ug/sqrt(hz)  // TODO: 実際は遥かに大きい
   static constexpr double kGyroNoiseDensity = 0.01;  // deg/s/sqrt(hz)
   static constexpr double kMagNoiseStd = 0.;  // TODO: データシートに無かったため計測する
 
@@ -31,7 +31,7 @@ public:
   void run();
 
 private:
-  ImuPtr imu_;
+  MPU9250 imu_;
   ImuMsg imu_msg_;
   MagMsg mag_msg_;
   float ax_, ay_, az_;
