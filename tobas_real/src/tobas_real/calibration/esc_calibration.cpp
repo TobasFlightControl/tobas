@@ -1,8 +1,8 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
-#include "../../include/tobas_real/esc_calibration.hpp"
-#include "../../include/tobas_real/common.hpp"
+#include "../../../include/tobas_real/calibration/esc_calibration.hpp"
+#include "../../../include/tobas_real/common.hpp"
 
 #define SLEEP_TIME_HIGH 3  // [s]
 #define SLEEP_TIME_LOW 4   // [s]
