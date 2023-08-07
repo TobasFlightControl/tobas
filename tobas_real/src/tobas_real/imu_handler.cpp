@@ -1,6 +1,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/boost.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
@@ -17,10 +18,12 @@ namespace tobas_real
 ImuHandler::ImuHandler() : super()
 {
   getRosParams();
+  readConfig();
 
-  setupImu();
   setCovarianceMatrices();
-  getAccelOffset();
+  setupImu();
+
+  mag_trans_.initialize();
 
   registerPublishers();
   registerSubscribers();
@@ -29,6 +32,8 @@ ImuHandler::ImuHandler() : super()
 void ImuHandler::run()
 {
   dh_ros::Rate rate(kUpdateRate);
+
+  // TODO: ジャイロバイアスを計測
 
   while (ros::ok())
   {
@@ -47,14 +52,16 @@ void ImuHandler::run()
     imu_msg_.linear_acceleration.z = acc.z();
 
     imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+    // TODO: バイアスを引く
     imu_msg_.angular_velocity.x = gyro_.y();
     imu_msg_.angular_velocity.y = -gyro_.x();
     imu_msg_.angular_velocity.z = gyro_.z();
 
     imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
-    mag_msg_.magnetic_field.x = mag_.x();
-    mag_msg_.magnetic_field.y = -mag_.y();
-    mag_msg_.magnetic_field.z = -mag_.z();
+    const Vector3f mag = mag_trans_.transform(mag_);  // 原点中心の単位球に射影
+    mag_msg_.magnetic_field.x = mag.x();
+    mag_msg_.magnetic_field.y = -mag.y();
+    mag_msg_.magnetic_field.z = -mag.z();
 
     // Publish messages
     imu_pub_.publish(imu_msg_);
@@ -80,41 +87,7 @@ void ImuHandler::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &ImuHandler::eventCb, this);
 }
 
-void ImuHandler::setupImu()
-{
-  if (!imu_.probe())
-  {
-    rosthrow("Sensor not enabled.");
-  }
-
-  imu_.initialize();
-}
-
-void ImuHandler::setCovarianceMatrices()
-{
-  // Accelerometer
-  double acc_std_grav = kAccNoiseDensity * sqrt(kUpdateRate);  // ug
-  double acc_std = acc_std_grav * 1e-6 * tobas::kGravity;      // m/s^2
-  double acc_var = dh_std::sqr(acc_std);                       // m^2/s^4
-  imu_msg_.linear_acceleration_covariance[0] = acc_var;
-  imu_msg_.linear_acceleration_covariance[4] = acc_var;
-  imu_msg_.linear_acceleration_covariance[8] = acc_var;
-
-  // Gyroscope
-  double gyro_std_deg = kGyroNoiseDensity * sqrt(kUpdateRate);  // deg/s
-  double gyro_std_rad = dh_std::deg2rad(gyro_std_deg);          // rad/s
-  double gyro_var = dh_std::sqr(gyro_std_rad);                  // rad^2/s^2
-  imu_msg_.angular_velocity_covariance[0] = gyro_var;
-  imu_msg_.angular_velocity_covariance[4] = gyro_var;
-  imu_msg_.angular_velocity_covariance[8] = gyro_var;
-
-  double mag_var = dh_std::sqr(kMagNoiseStd);
-  mag_msg_.magnetic_field_covariance[0] = mag_var;
-  mag_msg_.magnetic_field_covariance[4] = mag_var;
-  mag_msg_.magnetic_field_covariance[8] = mag_var;
-}
-
-void ImuHandler::getAccelOffset()
+void ImuHandler::readConfig()
 {
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
@@ -122,6 +95,43 @@ void ImuHandler::getAccelOffset()
   acc_offset_.x() = pt.get<float>(kConfigKey_AccOffsetX);
   acc_offset_.y() = pt.get<float>(kConfigKey_AccOffsetY);
   acc_offset_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
+
+  mag_trans_.a_xx = pt.get<float>(kConfigKey_MagEllipseAxx);
+  mag_trans_.a_yy = pt.get<float>(kConfigKey_MagEllipseAyy);
+  mag_trans_.a_zz = pt.get<float>(kConfigKey_MagEllipseAzz);
+  mag_trans_.a_xy = pt.get<float>(kConfigKey_MagEllipseAxy);
+  mag_trans_.a_yz = pt.get<float>(kConfigKey_MagEllipseAyz);
+  mag_trans_.a_zx = pt.get<float>(kConfigKey_MagEllipseAzx);
+  mag_trans_.b_x = pt.get<float>(kConfigKey_MagEllipseBx);
+  mag_trans_.b_y = pt.get<float>(kConfigKey_MagEllipseBy);
+  mag_trans_.b_z = pt.get<float>(kConfigKey_MagEllipseBz);
+}
+
+void ImuHandler::setCovarianceMatrices()
+{
+  // Accelerometer
+  const double acc_std_grav = kAccNoiseDensity * sqrt(kUpdateRate);  // ug
+  const double acc_std = acc_std_grav * 1e-6 * tobas::kGravity;      // m/s^2
+  const double acc_var = dh_std::sqr(acc_std);                       // m^2/s^4
+  dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
+
+  // Gyroscope
+  const double gyro_std_deg = kGyroNoiseDensity * sqrt(kUpdateRate);  // deg/s
+  const double gyro_std_rad = dh_std::deg2rad(gyro_std_deg);          // rad/s
+  const double gyro_var = dh_std::sqr(gyro_std_rad);                  // rad^2/s^2
+  dh_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
+
+  const double mag_var = dh_std::sqr(kMagNoiseStd);
+  dh_std::fillMatrix3Diag(mag_msg_.magnetic_field_covariance, mag_var);
+}
+
+void ImuHandler::setupImu()
+{
+  if (!imu_.probe())
+  {
+    rosthrow("Sensor not enabled.");
+  }
+  imu_.initialize();
 }
 
 void ImuHandler::eventCb(const tobas_msgs::Event& event)

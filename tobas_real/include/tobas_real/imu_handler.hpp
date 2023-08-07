@@ -8,6 +8,8 @@
 
 #include <tobas_tools/node.hpp>
 
+#include "./ellipse_transformer.hpp"
+
 namespace tobas_real
 {
 class ImuHandler : public tobas::BaseNode
@@ -38,6 +40,7 @@ private:
   Eigen::Vector3f acc_;
   Eigen::Vector3f gyro_;
   Eigen::Vector3f mag_;
+  EllipseTransformer mag_trans_;
 
   // 固定値
   Eigen::Vector3f acc_offset_;
@@ -50,9 +53,9 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void setupImu();
+  void readConfig();
   void setCovarianceMatrices();
-  void getAccelOffset();
+  void setupImu();
 
   void eventCb(const tobas_msgs::Event& event) override;
 };
