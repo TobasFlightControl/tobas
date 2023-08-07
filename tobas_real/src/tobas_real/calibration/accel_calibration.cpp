@@ -31,6 +31,7 @@ void AccelCalibrator::run()
   cout << "Press Enter with the flight controller's TOP surface facing up:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
   const Vector3f acc_top = readAccel();
+  // TODO: 明らかにおかしな値だった場合は例外を出す
 
   // オフセットを計算
   const Vector3f acc_offset = acc_top - Vector3f(0., 0., tobas::kGravity);
@@ -55,6 +56,7 @@ Vector3f AccelCalibrator::readAccel()
   Vector3f acc_sum = Vector3f::Zero();
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
+    imu_.update();
     imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
     rosInfoThrottle(kShowSensorReadingPeriod, "Accelerometer reading:" << acc_);
     acc_sum += acc_;
