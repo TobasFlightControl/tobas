@@ -30,10 +30,10 @@ void AccelCalibrator::run()
   // Top
   cout << "Press Enter with the flight controller's TOP surface facing up:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const Vector3d acc_top = readAccel();
+  const Vector3f acc_top = readAccel();
 
   // オフセットを計算
-  const Vector3d acc_offset = acc_top - Vector3d(0., 0., tobas::kGravity);
+  const Vector3f acc_offset = acc_top - Vector3f(0., 0., tobas::kGravity);
   rosInfo("The estimated accelerometer offset is: " << acc_offset);
 
   // Configに保存
@@ -49,10 +49,10 @@ void AccelCalibrator::run()
   rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
 }
 
-Vector3d AccelCalibrator::readAccel()
+Vector3f AccelCalibrator::readAccel()
 {
   // 加速度を取得
-  Vector3d acc_sum = Vector3d::Zero();
+  Vector3f acc_sum = Vector3f::Zero();
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
@@ -62,7 +62,7 @@ Vector3d AccelCalibrator::readAccel()
   }
 
   // 平均を計算
-  const Vector3d acc_mean = acc_sum / kDataCount;
+  const Vector3f acc_mean = acc_sum / kDataCount;
   rosInfo("Finished reading. The average value of accelerometer readings is: " << acc_mean);
   return acc_mean;
 }

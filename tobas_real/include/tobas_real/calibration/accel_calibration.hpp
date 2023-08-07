@@ -21,6 +21,6 @@ private:
   MPU9250 imu_;
   Eigen::Vector3f acc_;
 
-  Eigen::Vector3d readAccel();
+  Eigen::Vector3f readAccel();
 };
 }  // namespace tobas_real

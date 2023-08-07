@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Eigen/Core>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
@@ -34,9 +35,12 @@ private:
   MPU9250 imu_;
   ImuMsg imu_msg_;
   MagMsg mag_msg_;
-  float ax_, ay_, az_;
-  float wx_, wy_, wz_;
-  float mx_, my_, mz_;
+  Eigen::Vector3f acc_;
+  Eigen::Vector3f gyro_;
+  Eigen::Vector3f mag_;
+
+  // 固定値
+  Eigen::Vector3f acc_offset_;
 
   // Publisher
   ros::Publisher imu_pub_;
@@ -48,6 +52,7 @@ private:
 
   void setupImu();
   void setCovarianceMatrices();
+  void getAccelOffset();
 
   void eventCb(const tobas_msgs::Event& event) override;
 };

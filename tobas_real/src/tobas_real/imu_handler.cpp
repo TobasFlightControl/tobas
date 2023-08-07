@@ -1,3 +1,5 @@
+#include <boost/property_tree/ini_parser.hpp>
+
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
@@ -8,14 +10,18 @@
 #include "../../include/tobas_real/common.hpp"
 
 using namespace std;
+using namespace Eigen;
 
 namespace tobas_real
 {
 ImuHandler::ImuHandler() : super()
 {
   getRosParams();
+
   setupImu();
   setCovarianceMatrices();
+  getAccelOffset();
+
   registerPublishers();
   registerSubscribers();
 }
@@ -34,20 +40,21 @@ void ImuHandler::run()
     // センサの座標系をNWU座標系に変換する
     imu_.update();
 
-    imu_.read_accelerometer(&ax_, &ay_, &az_);
-    imu_msg_.linear_acceleration.x = ay_;
-    imu_msg_.linear_acceleration.y = -ax_;
-    imu_msg_.linear_acceleration.z = az_;
+    imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
+    const Vector3f acc = acc_ - acc_offset_;  // 事前に計測したオフセットを引く
+    imu_msg_.linear_acceleration.x = acc.y();
+    imu_msg_.linear_acceleration.y = -acc.x();
+    imu_msg_.linear_acceleration.z = acc.z();
 
-    imu_.read_gyroscope(&wx_, &wy_, &wz_);
-    imu_msg_.angular_velocity.x = wy_;
-    imu_msg_.angular_velocity.y = -wx_;
-    imu_msg_.angular_velocity.z = wz_;
+    imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+    imu_msg_.angular_velocity.x = gyro_.y();
+    imu_msg_.angular_velocity.y = -gyro_.x();
+    imu_msg_.angular_velocity.z = gyro_.z();
 
-    imu_.read_magnetometer(&mx_, &my_, &mz_);
-    mag_msg_.magnetic_field.x = mx_;
-    mag_msg_.magnetic_field.y = -my_;
-    mag_msg_.magnetic_field.z = -mz_;
+    imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+    mag_msg_.magnetic_field.x = mag_.x();
+    mag_msg_.magnetic_field.y = -mag_.y();
+    mag_msg_.magnetic_field.z = -mag_.z();
 
     // Publish messages
     imu_pub_.publish(imu_msg_);
@@ -105,6 +112,16 @@ void ImuHandler::setCovarianceMatrices()
   mag_msg_.magnetic_field_covariance[0] = mag_var;
   mag_msg_.magnetic_field_covariance[4] = mag_var;
   mag_msg_.magnetic_field_covariance[8] = mag_var;
+}
+
+void ImuHandler::getAccelOffset()
+{
+  boost::property_tree::ptree pt;
+  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
+
+  acc_offset_.x() = pt.get<float>(kConfigKey_AccOffsetX);
+  acc_offset_.y() = pt.get<float>(kConfigKey_AccOffsetY);
+  acc_offset_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
 }
 
 void ImuHandler::eventCb(const tobas_msgs::Event& event)
