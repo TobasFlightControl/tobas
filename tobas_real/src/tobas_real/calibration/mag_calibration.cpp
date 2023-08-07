@@ -69,6 +69,7 @@ void MagnetometerCalibrator::run()
 void MagnetometerCalibrator::getMagData()
 {
   // TODO: データがキレイな楕円体を描いているかどうかを評価し，進捗バーを表示する (cf. ArduPilot)
+
   constexpr uint32_t get_data_time = kDataCount * kSleepTime / 1000000;
 
   // Top
