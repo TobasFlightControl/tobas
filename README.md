@@ -101,6 +101,18 @@ Please make sure that the RC transmitter and receiver can communicate correctly.
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
 
+### Accelerometer Calibration
+
+```bash
+$ roslaunch tobas_real accel_calibration.launch
+```
+
+### Magnetometer Calibration
+
+```bash
+$ roslaunch tobas_real mag_calibration.launch
+```
+
 ### ADC Calibration
 
 Make sure battery is connected to FC properly.\
