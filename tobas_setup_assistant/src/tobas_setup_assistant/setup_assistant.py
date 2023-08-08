@@ -49,10 +49,10 @@ class SetupAssistant(QWidget):
         # 最新のウィンドウの位置とサイズを反映
         self._config = ConfigParser()
         self._config.read(CONFIG_PATH)
-        pos_x = self._config.getint("DEFAULT", self.POS_X_KEY, fallback=-1)
-        pos_y = self._config.getint("DEFAULT", self.POS_Y_KEY, fallback=-1)
-        width = self._config.getint("DEFAULT", self.WIDTH_KEY, fallback=-1)
-        height = self._config.getint("DEFAULT", self.HEIGHT_KEY, fallback=-1)
+        pos_x = self._config.getint(DEFAULT, self.POS_X_KEY, fallback=-1)
+        pos_y = self._config.getint(DEFAULT, self.POS_Y_KEY, fallback=-1)
+        width = self._config.getint(DEFAULT, self.WIDTH_KEY, fallback=-1)
+        height = self._config.getint(DEFAULT, self.HEIGHT_KEY, fallback=-1)
         if pos_x >= 0 and pos_y >= 0 and width > 0 and height > 0:
             self.setGeometry(pos_x, pos_y, width, height)
 
@@ -72,8 +72,8 @@ class SetupAssistant(QWidget):
         # 現在のウィンドウ位置を保存
         self._config.read(CONFIG_PATH)
         cur_pos = self.pos()
-        self._config["DEFAULT"][self.POS_X_KEY] = str(cur_pos.x())
-        self._config["DEFAULT"][self.POS_Y_KEY] = str(cur_pos.y())
+        self._config[DEFAULT][self.POS_X_KEY] = str(cur_pos.x())
+        self._config[DEFAULT][self.POS_Y_KEY] = str(cur_pos.y())
         with open(CONFIG_PATH, "w") as f:
             self._config.write(f)
 
@@ -83,8 +83,8 @@ class SetupAssistant(QWidget):
         # 現在のウィンドウサイズを保存
         self._config.read(CONFIG_PATH)
         cur_size = self.size()
-        self._config["DEFAULT"][self.WIDTH_KEY] = str(cur_size.width())
-        self._config["DEFAULT"][self.HEIGHT_KEY] = str(cur_size.height())
+        self._config[DEFAULT][self.WIDTH_KEY] = str(cur_size.width())
+        self._config[DEFAULT][self.HEIGHT_KEY] = str(cur_size.height())
         with open(CONFIG_PATH, "w") as f:
             self._config.write(f)
 

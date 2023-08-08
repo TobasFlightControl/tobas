@@ -225,7 +225,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
     def _get_csv_file_path(self) -> str:
         self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get("DEFAULT", self._path_key, fallback=osp.expanduser("~"))
+        last_opened_dir = self._config.get(DEFAULT, self._path_key, fallback=osp.expanduser("~"))
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -235,7 +235,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         # 最後に開かれたパスを保存
         if file_path != "":
-            self._config["DEFAULT"][self._path_key] = osp.dirname(file_path)
+            self._config[DEFAULT][self._path_key] = osp.dirname(file_path)
             with open(CONFIG_PATH, "w") as f:
                 self._config.write(f)
 

@@ -56,7 +56,7 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
         self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get("DEFAULT", self._key, fallback=osp.expanduser("~"))
+        last_opened_dir = self._config.get(DEFAULT, self._key, fallback=osp.expanduser("~"))
 
         path, _ = QFileDialog.getOpenFileName(
             self, TITLE, last_opened_dir, self._init_filter, self._options
@@ -66,6 +66,6 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
 
         self.path.setText(path)
 
-        self._config["DEFAULT"][self._key] = osp.dirname(path)
+        self._config[DEFAULT][self._key] = osp.dirname(path)
         with open(CONFIG_PATH, "w") as f:
             self._config.write(f)
