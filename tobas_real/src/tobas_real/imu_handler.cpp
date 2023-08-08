@@ -2,6 +2,7 @@
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
@@ -22,7 +23,7 @@ ImuHandler::ImuHandler() : super()
 
   setCovarianceMatrices();
   setupImu();
-
+  setGyroBias();
   mag_trans_.initialize();
 
   registerPublishers();
@@ -32,9 +33,6 @@ ImuHandler::ImuHandler() : super()
 void ImuHandler::run()
 {
   dh_ros::Rate rate(kUpdateRate);
-
-  // TODO: ジャイロバイアスを計測
-
   while (ros::ok())
   {
     const ros::Time now = ros::Time::now();
@@ -46,16 +44,16 @@ void ImuHandler::run()
     imu_.update();
 
     imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
-    const Vector3f acc = acc_ - acc_offset_;  // 事前に計測したオフセットを引く
+    const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
     imu_msg_.linear_acceleration.x = acc.y();
     imu_msg_.linear_acceleration.y = -acc.x();
     imu_msg_.linear_acceleration.z = acc.z();
 
     imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
-    // TODO: バイアスを引く
-    imu_msg_.angular_velocity.x = gyro_.y();
-    imu_msg_.angular_velocity.y = -gyro_.x();
-    imu_msg_.angular_velocity.z = gyro_.z();
+    const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
+    imu_msg_.angular_velocity.x = gyro.y();
+    imu_msg_.angular_velocity.y = -gyro.x();
+    imu_msg_.angular_velocity.z = gyro.z();
 
     imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
     const Vector3f mag = mag_trans_.transform(mag_);  // 原点中心の単位球に射影
@@ -92,9 +90,9 @@ void ImuHandler::readConfig()
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
 
-  acc_offset_.x() = pt.get<float>(kConfigKey_AccOffsetX);
-  acc_offset_.y() = pt.get<float>(kConfigKey_AccOffsetY);
-  acc_offset_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
+  acc_bias_.x() = pt.get<float>(kConfigKey_AccOffsetX);
+  acc_bias_.y() = pt.get<float>(kConfigKey_AccOffsetY);
+  acc_bias_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
 
   mag_trans_.a_xx = pt.get<float>(kConfigKey_MagEllipseAxx);
   mag_trans_.a_yy = pt.get<float>(kConfigKey_MagEllipseAyy);
@@ -132,6 +130,36 @@ void ImuHandler::setupImu()
     rosthrow("Sensor not enabled.");
   }
   imu_.initialize();
+}
+
+void ImuHandler::setGyroBias()
+{
+  rosInfo("Measuring gyro bias. Please do not move the aircraft.");
+
+  Vector3f gyro_sum = Vector3f::Zero();
+  uint32_t cnt = 0;
+
+  dh_ros::Rate rate(kMeasureGyroBiasRate);
+  while (cnt++ < kMeasureGyroBiasCount)
+  {
+    imu_.update();
+    imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+
+    if (gyro_.norm() > kStaticGyroThreshold)
+    {
+      rosError("Movement of the aircraft is detected while measuring gyro bias.");
+      gyro_sum.setZero();
+      cnt = 0;
+      continue;
+    }
+
+    gyro_sum += gyro_;
+    rate.sleep();
+  }
+
+  gyro_bias_ = gyro_sum / kMeasureGyroBiasCount;
+
+  rosInfo("Finished measuring gyro bias. It is estimated to be:\n" << gyro_bias_);
 }
 
 void ImuHandler::eventCb(const tobas_msgs::Event& event)

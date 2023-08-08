@@ -52,7 +52,6 @@ private:
   double lon_0_;               // 経度のゼロ点 (Base Frame)
   double alt_0_bar_;           // 気圧センサから求めた高度のゼロ点 (Base Frame)
   double alt_0_gps_;           // GPSから求めた高度のゼロ点 (Base Frame)
-  Eigen::Vector3d gyro_bias_;  // ジャイロセンサのバイアス
   Eigen::Quaterniond q_0_;     // 姿勢の初期値 (Base Frame)
 
   bool imu_received_;

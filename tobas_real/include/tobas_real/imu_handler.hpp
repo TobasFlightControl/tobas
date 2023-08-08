@@ -14,7 +14,10 @@ namespace tobas_real
 {
 class ImuHandler : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;  // [Hz]
+  static constexpr double kUpdateRate = 100.;           // [Hz]
+  static constexpr double kMeasureGyroBiasRate = 200.;  // [Hz]
+  static constexpr uint32_t kMeasureGyroBiasCount = 1000;
+  static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
   // MPU9250
   // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
@@ -43,7 +46,8 @@ private:
   EllipseTransformer mag_trans_;
 
   // 固定値
-  Eigen::Vector3f acc_offset_;
+  Eigen::Vector3f acc_bias_;
+  Eigen::Vector3f gyro_bias_;
 
   // Publisher
   ros::Publisher imu_pub_;
@@ -56,6 +60,7 @@ private:
   void readConfig();
   void setCovarianceMatrices();
   void setupImu();
+  void setGyroBias();
 
   void eventCb(const tobas_msgs::Event& event) override;
 };
