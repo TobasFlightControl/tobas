@@ -25,7 +25,6 @@ private:
   void getMagData();
   void readMag(uint32_t idx);
 
-  static bool
-  isValidEllipseCoefs(double a_xx, double a_yy, double a_zz, double a_xy, double a_yz, double a_zx);
+  static bool isValidEllipseCoefs(const Eigen::Matrix<float, 9, 1>& coefs);
 };
 }  // namespace tobas_real

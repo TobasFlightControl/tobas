@@ -8,6 +8,7 @@
 
 #include "../../../include/tobas_real/calibration/mag_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
+#include "../../../include/tobas_real/ellipse_transformer.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -49,7 +50,7 @@ void MagnetometerCalibrator::run()
   const Matrix<float, 9, 1> coefs = CE.fullPivLu().solve(ce0);
 
   // 楕円の方程式の係数行列Aが正定であることを確認
-  if (!isValidEllipseCoefs(coefs(0), coefs(1), coefs(2), coefs(3), coefs(4), coefs(5)))
+  if (!isValidEllipseCoefs(coefs))
   {
     rosError("Magnetometer calibration failed.");
     return;
@@ -128,16 +129,28 @@ void MagnetometerCalibrator::readMag(uint32_t idx)
   }
 }
 
-bool MagnetometerCalibrator::isValidEllipseCoefs(
-  double a_xx,
-  double a_yy,
-  double a_zz,
-  double a_xy,
-  double a_yz,
-  double a_zx)
+bool MagnetometerCalibrator::isValidEllipseCoefs(const Matrix<float, 9, 1>& coefs)
 {
-  Matrix<float, 3, 3> A;
-  A << a_xx, a_xy, a_zx, a_xy, a_yy, a_yz, a_zx, a_yz, a_zz;
-  return eigen_tools::isPositive(A);
+  EllipseTransformer mag_trans;
+  mag_trans.a_xx = coefs(0);
+  mag_trans.a_yy = coefs(1);
+  mag_trans.a_zz = coefs(2);
+  mag_trans.a_xy = coefs(3);
+  mag_trans.a_yz = coefs(4);
+  mag_trans.a_zx = coefs(5);
+  mag_trans.b_x = coefs(6);
+  mag_trans.b_y = coefs(7);
+  mag_trans.b_z = coefs(8);
+
+  // 楕円体の射影クラスの初期化に成功したら有効な係数だと言える
+  try
+  {
+    mag_trans.initialize();
+    return true;
+  }
+  catch (const exception& e)
+  {
+    return false;
+  }
 }
 }  // namespace tobas_real
