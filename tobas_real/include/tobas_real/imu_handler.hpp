@@ -5,6 +5,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <Common/MPU9250.h>
+#include <Navio2/LSM9DS1.h>
 
 #include <tobas_tools/node.hpp>
 
@@ -37,7 +38,9 @@ public:
   void run();
 
 private:
-  MPU9250 imu_;
+  // MPU9250 imu_;
+  LSM9DS1 imu_;
+
   ImuMsg imu_msg_;
   MagMsg mag_msg_;
   Eigen::Vector3f acc_;
