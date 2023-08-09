@@ -24,5 +24,8 @@ private:
 
   void getMagData();
   void readMag(uint32_t idx);
+
+  static bool
+  isValidEllipseCoefs(double a_xx, double a_yy, double a_zz, double a_xy, double a_yz, double a_zx);
 };
 }  // namespace tobas_real

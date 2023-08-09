@@ -2,6 +2,7 @@
 #include <Eigen/LU>
 
 #include <dh_std_tools/fstream.hpp>
+#include <dh_eigen_tools/linalg.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
@@ -41,11 +42,18 @@ void MagnetometerCalibrator::run()
   const Matrix<float, kDataCount * kDirections, 1> yz = y.cwiseProduct(z);
   const Matrix<float, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
 
-  Matrix<float, kDataCount * kDirections, 9> A;
-  A << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-  Matrix<float, kDataCount * kDirections, 1> b;
-  b.fill(-1);
-  const Matrix<float, 9, 1> coefs = A.fullPivLu().solve(b);
+  Matrix<float, kDataCount * kDirections, 9> CE;
+  CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
+  Matrix<float, kDataCount * kDirections, 1> ce0;
+  ce0.fill(-1);
+  const Matrix<float, 9, 1> coefs = CE.fullPivLu().solve(ce0);
+
+  // 楕円の方程式の係数行列Aが正定であることを確認
+  if (!isValidEllipseCoefs(coefs(0), coefs(1), coefs(2), coefs(3), coefs(4), coefs(5)))
+  {
+    rosError("Magnetometer calibration failed.");
+    return;
+  }
 
   // Configに保存
   boost::property_tree::ptree pt;
@@ -115,8 +123,21 @@ void MagnetometerCalibrator::readMag(uint32_t idx)
   {
     const auto row = kDataCount * idx + i;
     imu_.update();
-    imu_.read_accelerometer(&mag_(row, 0), &mag_(row, 1), &mag_(row, 2));
+    imu_.read_magnetometer(&mag_(row, 0), &mag_(row, 1), &mag_(row, 2));
     usleep(kSleepTime);
   }
+}
+
+bool MagnetometerCalibrator::isValidEllipseCoefs(
+  double a_xx,
+  double a_yy,
+  double a_zz,
+  double a_xy,
+  double a_yz,
+  double a_zx)
+{
+  Matrix<float, 3, 3> A;
+  A << a_xx, a_xy, a_zx, a_xy, a_yy, a_yz, a_zx, a_yz, a_zz;
+  return eigen_tools::isPositive(A);
 }
 }  // namespace tobas_real

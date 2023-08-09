@@ -23,6 +23,7 @@ void EllipseTransformer::initialize()
   const SelfAdjointEigenSolver<Matrix3f> eigen_solver(A);
   const Vector3f Lam = eigen_solver.eigenvalues();
   const Matrix3f P = eigen_solver.eigenvectors();
+  assert((Lam.array() > 0.).all());
 
   // 変換行列を計算
   const Vector3f Lam_sqrt = Lam.cwiseSqrt();
