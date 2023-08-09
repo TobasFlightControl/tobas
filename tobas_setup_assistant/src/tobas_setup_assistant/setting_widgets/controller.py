@@ -197,7 +197,7 @@ class ControllerWidget_LMPC(QWidget):
             decimals=1,
             minimum=1.,
             maximum=10.,
-            default=2.,
+            default=3.,
             suffix=" m/s",
         )
         self._rows.addWidget(self.max_hor_vel)
@@ -209,7 +209,7 @@ class ControllerWidget_LMPC(QWidget):
             decimals=1,
             minimum=1.,
             maximum=10.,
-            default=2.,
+            default=3.,
             suffix=" m/s",
         )
         self._rows.addWidget(self.max_ver_vel)
