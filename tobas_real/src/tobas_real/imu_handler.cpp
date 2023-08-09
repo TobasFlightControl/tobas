@@ -26,6 +26,9 @@ ImuHandler::ImuHandler() : super()
   setGyroBias();
   mag_trans_.initialize();
 
+  imu_msg_.header.frame_id = "imu_frame";
+  mag_msg_.header.frame_id = "mag_frame";
+
   registerPublishers();
   registerSubscribers();
 }
@@ -56,7 +59,8 @@ void ImuHandler::run()
     imu_msg_.angular_velocity.z = gyro.z();
 
     imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
-    const Vector3f mag = mag_trans_.transform(mag_);  // 原点中心の単位球に射影
+    // const Vector3f mag = mag_trans_.transform(mag_);  // 原点中心の単位球に射影
+    const Vector3f mag = mag_;  // TODO: キャリブレーションを反映
     mag_msg_.magnetic_field.x = mag.x();
     mag_msg_.magnetic_field.y = -mag.y();
     mag_msg_.magnetic_field.z = -mag.z();

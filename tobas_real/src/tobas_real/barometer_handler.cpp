@@ -18,6 +18,7 @@ BarometerHandler::BarometerHandler() : super()
     rosthrow("Barometer test failed.");
   }
 
+  bar_msg_.header.frame_id = "barometer_frame";
   bar_msg_.variance = dh_std::sqr(kBarNoiseStd);
 
   registerPublishers();

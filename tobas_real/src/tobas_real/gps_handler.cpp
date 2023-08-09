@@ -17,6 +17,7 @@ GpsHandler::GpsHandler() : super(), gps_fix_ok_(false), cov_received_(false)
   getRosParams();
   configureGnssReceiver();
 
+  gps_msg_.header.frame_id = "gps_frame";
   gps_msg_.position_covariance_type = GpsMsg::COVARIANCE_TYPE_KNOWN;
 
   registerPublishers();
