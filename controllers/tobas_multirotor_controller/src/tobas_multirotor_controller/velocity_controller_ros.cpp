@@ -32,7 +32,8 @@ VelocityControllerRos::VelocityControllerRos()
 {
   getRosParams();
 
-  vel_controller_.reconfigure(dynamic_params_);
+  vel_controller_.reconfigure(dynamic_params_vel_);
+  acc_controller_.reconfigure(dynamic_params_acc_);
 
   registerPublishers();
   registerSubscribers();
@@ -45,12 +46,16 @@ VelocityControllerRos::VelocityControllerRos()
 
 void VelocityControllerRos::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/horizontal_natural_frequency", dynamic_params_.hor_natural_freq);
-  dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
-  dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
-  dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
-  dh_ros::getParam(kCtrlName + "/max_horizontal_accel", dynamic_params_.max_hor_acc);
-  dh_ros::getParam(kCtrlName + "/max_vertical_accel", dynamic_params_.max_ver_acc);
+  dh_ros::getParam(
+    kCtrlName + "/horizontal_natural_frequency", dynamic_params_vel_.hor_natural_freq);
+  dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_vel_.hor_damp_ratio);
+  dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_vel_.ver_natural_freq);
+  dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_vel_.ver_damp_ratio);
+  dh_ros::getParam(kCtrlName + "/max_horizontal_velocity", dynamic_params_vel_.max_hor_vel);
+  dh_ros::getParam(kCtrlName + "/max_vertical_velocity", dynamic_params_vel_.max_ver_vel);
+
+  dh_ros::getParam(kCtrlName + "/max_horizontal_accel", dynamic_params_acc_.max_hor_acc);
+  dh_ros::getParam(kCtrlName + "/max_vertical_accel", dynamic_params_acc_.max_ver_acc);
 }
 
 void VelocityControllerRos::registerPublishers()
@@ -83,12 +88,15 @@ void VelocityControllerRos::initialize()
 
 void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
-  dynamic_params_.hor_natural_freq = cfg.horizontal_natural_frequency;
-  dynamic_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
-  dynamic_params_.ver_natural_freq = cfg.vertical_natural_frequency;
-  dynamic_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
-  dynamic_params_.max_hor_acc = cfg.max_horizontal_accel;
-  dynamic_params_.max_ver_acc = cfg.max_vertical_accel;
+  dynamic_params_vel_.hor_natural_freq = cfg.horizontal_natural_frequency;
+  dynamic_params_vel_.hor_damp_ratio = cfg.horizontal_damping_ratio;
+  dynamic_params_vel_.ver_natural_freq = cfg.vertical_natural_frequency;
+  dynamic_params_vel_.ver_damp_ratio = cfg.vertical_damping_ratio;
+  dynamic_params_vel_.max_hor_vel = cfg.max_horizontal_velocity;
+  dynamic_params_vel_.max_ver_vel = cfg.max_vertical_velocity;
+
+  dynamic_params_acc_.max_hor_acc = cfg.max_horizontal_accel;
+  dynamic_params_acc_.max_ver_acc = cfg.max_vertical_accel;
 }
 
 void VelocityControllerRos::runOnce()
@@ -209,7 +217,8 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  vel_controller_.reconfigure(dynamic_params_);
+  vel_controller_.reconfigure(dynamic_params_vel_);
+  acc_controller_.reconfigure(dynamic_params_acc_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

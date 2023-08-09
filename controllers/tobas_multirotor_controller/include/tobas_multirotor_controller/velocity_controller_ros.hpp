@@ -46,7 +46,8 @@ private:
   AccelerationController acc_controller_;
 
   // RosParams
-  VelocityControllerDynamicParams dynamic_params_;
+  VelocityControllerDynamicParams dynamic_params_vel_;
+  AccelerationControllerDynamicParams dynamic_params_acc_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;

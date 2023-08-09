@@ -8,6 +8,12 @@
 
 namespace tobas_multirotor_controller
 {
+struct AccelerationControllerDynamicParams
+{
+  double max_hor_acc;
+  double max_ver_acc;
+};
+
 class AccelerationController
 {
 public:
@@ -19,8 +25,12 @@ public:
     double& U_out,
     double& roll_out,
     double& pitch_out);
+  void reconfigure(const AccelerationControllerDynamicParams& params);
 
 private:
   double mass_;
+
+  double max_hor_acc_;
+  double max_ver_acc_;
 };
 }  // namespace tobas_multirotor_controller

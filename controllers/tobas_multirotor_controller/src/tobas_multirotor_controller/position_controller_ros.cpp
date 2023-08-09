@@ -44,8 +44,6 @@ void PositionControllerRos::getRosParams()
   dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
   dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
   dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
-  dh_ros::getParam(kCtrlName + "/max_horizontal_velocity", dynamic_params_.max_hor_vel);
-  dh_ros::getParam(kCtrlName + "/max_vertical_velocity", dynamic_params_.max_ver_vel);
 }
 
 void PositionControllerRos::registerPublishers()
@@ -76,8 +74,6 @@ void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
   dynamic_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
   dynamic_params_.ver_natural_freq = cfg.vertical_natural_frequency;
   dynamic_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
-  dynamic_params_.max_hor_vel = cfg.max_horizontal_velocity;
-  dynamic_params_.max_ver_vel = cfg.max_vertical_velocity;
 }
 
 void PositionControllerRos::eventCb(const tobas_msgs::Event& event)

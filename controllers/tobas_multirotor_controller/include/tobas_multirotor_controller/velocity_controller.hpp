@@ -10,8 +10,8 @@ struct VelocityControllerDynamicParams
   double hor_damp_ratio;
   double ver_natural_freq;
   double ver_damp_ratio;
-  double max_hor_acc;
-  double max_ver_acc;
+  double max_hor_vel;
+  double max_ver_vel;
 };
 
 class VelocityController
@@ -20,13 +20,12 @@ public:
   explicit VelocityController();
 
   void update(const KDL::Vector& cur_vel, const KDL::Vector& tar_vel, KDL::Vector& tar_acc);
-
   void reconfigure(const VelocityControllerDynamicParams& params);
 
 private:
   double hor_kv_;
   double ver_kv_;
-  double max_hor_acc_;
-  double max_ver_acc_;
+  double max_hor_vel_;
+  double max_ver_vel_;
 };
 }  // namespace tobas_multirotor_controller
