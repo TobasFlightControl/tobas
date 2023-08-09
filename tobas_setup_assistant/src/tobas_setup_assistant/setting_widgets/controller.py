@@ -136,7 +136,7 @@ class ControllerWidget_LMPC(QWidget):
             + "大きいほど応答速度が速くなりますが，"\
             + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
         self.hor_natural_freq = ParamGetterWidget_DoubleSpinBox(
-            "Horizontal natural frequency (Position controller)",
+            "Horizontal natural frequency (Translation controller)",
             hor_natural_freq_description,
             decimals=2,
             minimum=0.1,
@@ -153,7 +153,7 @@ class ControllerWidget_LMPC(QWidget):
             + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
             + "オーバーシュートなく最速で目標位置に収束します．"
         self.hor_damp_ratio = ParamGetterWidget_DoubleSpinBox(
-            "Horizontal damping ratio (Position controller)",
+            "Horizontal damping ratio (Translation controller)",
             hor_damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
@@ -165,7 +165,7 @@ class ControllerWidget_LMPC(QWidget):
             + "大きいほど応答速度が速くなりますが，"\
             + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
         self.ver_natural_freq = ParamGetterWidget_DoubleSpinBox(
-            "Vertical natural frequency (Position controller)",
+            "Vertical natural frequency (Translation controller)",
             ver_natural_freq_description,
             decimals=2,
             minimum=0.1,
@@ -182,7 +182,7 @@ class ControllerWidget_LMPC(QWidget):
             + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
             + "オーバーシュートなく最速で目標位置に収束します．"
         self.ver_damp_ratio = ParamGetterWidget_DoubleSpinBox(
-            "Vertical damping ratio (Position controller)",
+            "Vertical damping ratio (Translation controller)",
             ver_damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
@@ -190,12 +190,60 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.ver_damp_ratio)
 
+        max_hor_vel_description = "水平方向の最大速度．"
+        self.max_hor_vel = ParamGetterWidget_DoubleSpinBox(
+            "Maximum horizontal velocity (Translation controller)",
+            max_hor_vel_description,
+            decimals=1,
+            minimum=1.,
+            maximum=10.,
+            default=2.,
+            suffix=" m/s",
+        )
+        self._rows.addWidget(self.max_hor_vel)
+
+        max_ver_vel_description = "垂直方向の最大速度．"
+        self.max_ver_vel = ParamGetterWidget_DoubleSpinBox(
+            "Maximum vertical velocity (Translation controller)",
+            max_ver_vel_description,
+            decimals=1,
+            minimum=1.,
+            maximum=10.,
+            default=2.,
+            suffix=" m/s",
+        )
+        self._rows.addWidget(self.max_ver_vel)
+
+        max_hor_acc_description = "水平方向の最大加速度．"
+        self.max_hor_acc = ParamGetterWidget_DoubleSpinBox(
+            "Maximum horizontal acceleration (Translation controller)",
+            max_hor_acc_description,
+            decimals=1,
+            minimum=1.,
+            maximum=10.,
+            default=5.,
+            suffix=" m/s^2",
+        )
+        self._rows.addWidget(self.max_hor_acc)
+
+        max_ver_acc_description = "垂直方向の最大加速度．"
+        self.max_ver_acc = ParamGetterWidget_DoubleSpinBox(
+            "Maximum vertical acceleration (Translation controller)",
+            max_ver_acc_description,
+            decimals=1,
+            minimum=1.,
+            maximum=10.,
+            default=5.,
+            suffix=" m/s^2",
+        )
+        self._rows.addWidget(self.max_ver_acc)
+
         pred_horizon_description = "モデル予測制御の予測区間の長さ．"\
             + "理論的には大きいほど制御性能が良くなりますが，"\
             + "大きくするほど離散化誤差や計算機の数値誤差が大きくなります．"\
             + "最低でもシステム (ここでは姿勢制御) の応答時間の数倍以上にすべきだと言われています．"
         self.pred_horizon = ParamGetterWidget_DoubleSpinBox(
-            "Predictin horizon (Orientation controller)",
+            "Predictin horizon (Rotation controller)",
             pred_horizon_description,
             decimals=2,
             minimum=0.1,
@@ -208,7 +256,7 @@ class ControllerWidget_LMPC(QWidget):
         pred_steps_description = "モデル予測制御の予測区間の分割数．"\
             + "大きいほど離散化誤差が小さくなりますが，計算量は分割数の3乗に比例します．"
         self.pred_steps = ParamGetterWidget_SpinBox(
-            "Prediction steps (Orientation controller)",
+            "Prediction steps (Rotation controller)",
             pred_steps_description,
             minimum=1,
             maximum=30,
@@ -219,7 +267,7 @@ class ControllerWidget_LMPC(QWidget):
         attitude_decay_description = "モデル予測制御における，ロール角とピッチ角の参照値の追従時定数．"\
             + "大きいほど目標値に滑らかに追従します．"
         self.attitude_decay = ParamGetterWidget_DoubleSpinBox(
-            "Attitude decay time constant (Orientation controller)",
+            "Attitude decay time constant (Rotation controller)",
             attitude_decay_description,
             decimals=2,
             minimum=0.,
@@ -232,7 +280,7 @@ class ControllerWidget_LMPC(QWidget):
         heading_decay_description = "モデル予測制御における，ヨー角の参照値の追従時定数．"\
             + "大きいほど目標値に滑らかに追従します．"
         self.heading_decay = ParamGetterWidget_DoubleSpinBox(
-            "Heading decay time constant (Orientation controller)",
+            "Heading decay time constant (Rotation controller)",
             heading_decay_description,
             decimals=2,
             minimum=0.,
@@ -245,7 +293,7 @@ class ControllerWidget_LMPC(QWidget):
         angvel_decay_description = "モデル予測制御における，角速度の参照値の追従時定数．"\
             + "大きいほど目標値に滑らかに追従します．"
         self.angvel_decay = ParamGetterWidget_DoubleSpinBox(
-            "Angular velocity decay time constant (Orientation controller)",
+            "Angular velocity decay time constant (Rotation controller)",
             angvel_decay_description,
             decimals=2,
             minimum=0.,
@@ -257,7 +305,7 @@ class ControllerWidget_LMPC(QWidget):
 
         attitude_weight_description = "モデル予測制御における，ロール角とピッチ角の重み．"
         self.attitude_weight = ParamGetterWidget_SpinBox(
-            "Attitude weight (Orientation controller)",
+            "Attitude weight (Rotation controller)",
             attitude_weight_description,
             minimum=1,
             maximum=100,
@@ -267,7 +315,7 @@ class ControllerWidget_LMPC(QWidget):
 
         heading_weight_description = "モデル予測制御における，ヨー角の重み．"
         self.heading_weight = ParamGetterWidget_SpinBox(
-            "Heading weight (Orientation controller)",
+            "Heading weight (Rotation controller)",
             heading_weight_description,
             minimum=1,
             maximum=100,
@@ -277,7 +325,7 @@ class ControllerWidget_LMPC(QWidget):
 
         angvel_weight_description = "モデル予測制御における，角速度の重み．"
         self.angvel_weight = ParamGetterWidget_SpinBox(
-            "Angular velocity weight (Orientation controller)",
+            "Angular velocity weight (Rotation controller)",
             angvel_weight_description,
             minimum=1,
             maximum=100,
@@ -287,7 +335,7 @@ class ControllerWidget_LMPC(QWidget):
 
         thrust_weight_exp_description = "モデル予測制御における，プロペラ推力の重みの常用対数．"
         self.thrust_weight_exp = ParamGetterWidget_SpinBox(
-            "Thrust weight level (Orientation controller)",
+            "Thrust weight level (Rotation controller)",
             thrust_weight_exp_description,
             minimum=-6,
             maximum=0,
@@ -297,7 +345,7 @@ class ControllerWidget_LMPC(QWidget):
 
         thrust_rate_weight_exp_description = "モデル予測制御における，プロペラ推力の変化率の重みの常用対数．"
         self.thrust_rate_weight_exp = ParamGetterWidget_SpinBox(
-            "Thrust rate weight level (Orientation controller)",
+            "Thrust rate weight level (Rotation controller)",
             thrust_rate_weight_exp_description,
             minimum=-6,
             maximum=0,

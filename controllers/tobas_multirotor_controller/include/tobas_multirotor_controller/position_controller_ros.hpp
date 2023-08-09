@@ -35,7 +35,7 @@ private:
   tobas_msgs::PositionYaw pos_yaw_in_;   // 受け取る位置コマンド
   tobas_msgs::VelocityYaw vel_yaw_out_;  // 発行する速度コマンド
 
-  std::shared_ptr<PositionController> pos_controller_;
+  PositionController pos_controller_;
 
   // rosparams
   PositionControllerDynamicParams dynamic_params_;

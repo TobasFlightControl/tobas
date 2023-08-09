@@ -23,12 +23,15 @@ void AccelerationController::update(
   double& roll_out,
   double& pitch_out)
 {
-  const double x = mass_ * tar_acc.x();
-  const double y = mass_ * tar_acc.y();
-  const double z = mass_ * (tar_acc.z() + tobas::kGravity);
+  // 鉛直下方向に重力加速度以上の加速度を出すことはできない
+  assert(tar_acc.z() > -tobas::kGravity);
 
-  const double cos_yaw = cos(yaw);
-  const double sin_yaw = sin(yaw);
+  const auto x = mass_ * tar_acc.x();
+  const auto y = mass_ * tar_acc.y();
+  const auto z = mass_ * (tar_acc.z() + tobas::kGravity);
+
+  const auto cos_yaw = cos(yaw);
+  const auto sin_yaw = sin(yaw);
 
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);

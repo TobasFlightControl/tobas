@@ -10,6 +10,8 @@ struct VelocityControllerDynamicParams
   double hor_damp_ratio;
   double ver_natural_freq;
   double ver_damp_ratio;
+  double max_hor_acc;
+  double max_ver_acc;
 };
 
 class VelocityController
@@ -24,5 +26,7 @@ public:
 private:
   double hor_kv_;
   double ver_kv_;
+  double max_hor_acc_;
+  double max_ver_acc_;
 };
 }  // namespace tobas_multirotor_controller

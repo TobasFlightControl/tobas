@@ -26,7 +26,7 @@ PositionControllerRos::PositionControllerRos()
 {
   getRosParams();
 
-  pos_controller_.reset(new PositionController(dynamic_params_));
+  pos_controller_.reconfigure(dynamic_params_);
   vel_yaw_out_.frame_id.data = tobas_msgs::FrameId::GLOBAL;
 
   registerPublishers();
@@ -44,6 +44,8 @@ void PositionControllerRos::getRosParams()
   dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
   dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
   dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
+  dh_ros::getParam(kCtrlName + "/max_horizontal_velocity", dynamic_params_.max_hor_vel);
+  dh_ros::getParam(kCtrlName + "/max_vertical_velocity", dynamic_params_.max_ver_vel);
 }
 
 void PositionControllerRos::registerPublishers()
@@ -74,6 +76,8 @@ void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
   dynamic_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
   dynamic_params_.ver_natural_freq = cfg.vertical_natural_frequency;
   dynamic_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
+  dynamic_params_.max_hor_vel = cfg.max_horizontal_velocity;
+  dynamic_params_.max_ver_vel = cfg.max_vertical_velocity;
 }
 
 void PositionControllerRos::eventCb(const tobas_msgs::Event& event)
@@ -115,7 +119,7 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 
   // Update VelocityYaw message
-  pos_controller_->update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
+  pos_controller_.update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
   vel_yaw_out_.level = pos_yaw_in_.level;
   vel_yaw_out_.yaw = pos_yaw_in_.yaw;  // ヨー角は位置指令をそのまま流す
 
@@ -165,7 +169,7 @@ void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  pos_controller_->reconfigure(dynamic_params_);
+  pos_controller_.reconfigure(dynamic_params_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller
