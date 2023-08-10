@@ -53,9 +53,10 @@ ostream& operator<<(ostream& os, const EllipseTransformer& arg)
   os << "a_xy: " << arg.a_xy << endl;
   os << "a_yz: " << arg.a_yz << endl;
   os << "a_zx: " << arg.a_zx << endl;
-  os << "b_x:  " << arg.b_x << endl;
-  os << "b_y:  " << arg.b_y << endl;
-  os << "b_z:  " << arg.b_z << endl;
+  os << "b_x : " << arg.b_x << endl;
+  os << "b_y : " << arg.b_y << endl;
+  os << "b_z : " << arg.b_z << endl;
+  os << "c   : " << arg.c << endl;
 
   return os;
 }
