@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Eigen/Eigen>
 
 #include "../../include/tobas_real/ellipse_transformer.hpp"
@@ -23,6 +24,8 @@ void EllipseTransformer::initialize()
   const SelfAdjointEigenSolver<Matrix3d> eigen_solver(A);
   const Vector3d Lam = eigen_solver.eigenvalues();
   const Matrix3d P = eigen_solver.eigenvectors();
+  cout << "Eigenvalues:\n" << Lam << endl;
+  cout << "Eigenvectors:\n" << P << endl;
 
   // 変換行列を計算
   const Vector3d Lam_inv = Lam.cwiseInverse();

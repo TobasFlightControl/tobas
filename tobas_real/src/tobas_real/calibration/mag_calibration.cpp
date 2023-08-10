@@ -80,7 +80,7 @@ void MagnetometerCalibrator::run()
     mag_trans_.b_z = -2 * z0 / rz2;
     mag_trans_.c = dh_std::sqr(x0) / rx2 + dh_std::sqr(y0) / ry2 + dh_std::sqr(z0) / rz2 - 1;
   }
-  if (method_ == "sphere_fitting")
+  else if (method_ == "sphere_fitting")
   {
     // 球体でフィッティング．
     // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
