@@ -43,6 +43,7 @@ void MagnetometerCalibrator::run()
   const Matrix<double, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
 
   // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
+  // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
   mag_trans_.c = -(xx + yy + zz).mean();
   VectorXd ce0(kDataCount * kDirections);  // メモリ制限回避のため可変サイズで定義
   ce0.fill(-mag_trans_.c);
