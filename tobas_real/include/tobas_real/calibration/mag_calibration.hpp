@@ -12,7 +12,7 @@ namespace tobas_real
 class MagnetometerCalibrator
 {
   // Default parameters
-  const std::string kDefaultMethod = "sphere";
+  const std::string kDefaultMethod = "bounding";
 
   // Constant values
   static constexpr uint32_t kDataCount = 1000;

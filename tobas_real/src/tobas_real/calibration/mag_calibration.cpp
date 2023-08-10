@@ -1,6 +1,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <Eigen/SVD>
 
+#include <dh_std_tools/math.hpp>
 #include <dh_std_tools/fstream.hpp>
 #include <dh_eigen_tools/linalg.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -48,7 +49,38 @@ void MagnetometerCalibrator::run()
   VectorXd ce0(kDataCount * kDirections);  // メモリ制限回避のため可変サイズで定義
   ce0.fill(-mag_trans_.c);
 
-  if (method_ == "sphere")
+  if (method_ == "bounding")
+  {
+    // https://okasho-engineer.com/magnetic-sensor-calibration/
+    const double x_min = x.minCoeff();
+    const double x_max = x.maxCoeff();
+    const double y_min = y.minCoeff();
+    const double y_max = y.maxCoeff();
+    const double z_min = z.minCoeff();
+    const double z_max = z.maxCoeff();
+
+    const double x0 = (x_min + x_max) / 2;
+    const double y0 = (y_min + y_max) / 2;
+    const double z0 = (z_min + z_max) / 2;
+    const double rx = (x_max - x_min) / 2;
+    const double ry = (y_max - y_min) / 2;
+    const double rz = (z_max - z_min) / 2;
+    const double rx2 = dh_std::sqr(rx);
+    const double ry2 = dh_std::sqr(ry);
+    const double rz2 = dh_std::sqr(rz);
+
+    mag_trans_.a_xx = 1 / rx2;
+    mag_trans_.a_yy = 1 / ry2;
+    mag_trans_.a_zz = 1 / rz2;
+    mag_trans_.a_xy = 0;
+    mag_trans_.a_yz = 0;
+    mag_trans_.a_zx = 0;
+    mag_trans_.b_x = -2 * x0 / rx2;
+    mag_trans_.b_y = -2 * y0 / ry2;
+    mag_trans_.b_z = -2 * z0 / rz2;
+    mag_trans_.c = dh_std::sqr(x0) / rx2 + dh_std::sqr(y0) / ry2 + dh_std::sqr(z0) / rz2 - 1;
+  }
+  if (method_ == "sphere_fitting")
   {
     // 球体でフィッティング．
     // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
@@ -59,14 +91,14 @@ void MagnetometerCalibrator::run()
     mag_trans_.a_xx = coefs(0);
     mag_trans_.a_yy = coefs(0);
     mag_trans_.a_zz = coefs(0);
-    mag_trans_.a_xy = 0.;
-    mag_trans_.a_yz = 0.;
-    mag_trans_.a_zx = 0.;
+    mag_trans_.a_xy = 0;
+    mag_trans_.a_yz = 0;
+    mag_trans_.a_zx = 0;
     mag_trans_.b_x = coefs(1);
     mag_trans_.b_y = coefs(2);
     mag_trans_.b_z = coefs(3);
   }
-  else if (method_ == "ellipse")
+  else if (method_ == "ellipse_fitting")
   {
     // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
     // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
