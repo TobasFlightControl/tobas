@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 #include <Common/MPU9250.h>
+#include <Navio2/LSM9DS1.h>
 
 #include "../ellipse_transformer.hpp"
 
@@ -25,8 +26,11 @@ public:
 
 private:
   ros::NodeHandle nh_;
-  MPU9250 imu_;
-  Eigen::MatrixXd mag_;  // 地磁気データのバッファ．メモリ制限回避のため可変サイズで定義．
+
+  // MPU9250 imu_;
+  LSM9DS1 imu_;
+
+  Eigen::MatrixXd mag_data_;  // 地磁気データのバッファ．メモリ制限回避のため可変サイズで定義．
   EllipseTransformer mag_trans_;
 
   // rosparam

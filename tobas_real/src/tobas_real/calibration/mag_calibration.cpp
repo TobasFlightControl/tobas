@@ -15,7 +15,7 @@ using namespace Eigen;
 
 namespace tobas_real
 {
-MagnetometerCalibrator::MagnetometerCalibrator() : mag_(kDataCount * kDirections, 3)
+MagnetometerCalibrator::MagnetometerCalibrator() : mag_data_(kDataCount * kDirections, 3)
 {
   getRosParams();
 
@@ -28,13 +28,13 @@ MagnetometerCalibrator::MagnetometerCalibrator() : mag_(kDataCount * kDirections
 void MagnetometerCalibrator::run()
 {
   imu_.initialize();
-  mag_.setZero();
+  mag_data_.setZero();
 
   // 6面分のデータを取得
   getMagData();
-  const Matrix<double, kDataCount * kDirections, 1> x = mag_.col(0);
-  const Matrix<double, kDataCount * kDirections, 1> y = mag_.col(1);
-  const Matrix<double, kDataCount * kDirections, 1> z = mag_.col(2);
+  const Matrix<double, kDataCount * kDirections, 1> x = mag_data_.col(0);
+  const Matrix<double, kDataCount * kDirections, 1> y = mag_data_.col(1);
+  const Matrix<double, kDataCount * kDirections, 1> z = mag_data_.col(2);
   const Matrix<double, kDataCount * kDirections, 1> xx = x.cwiseProduct(x);
   const Matrix<double, kDataCount * kDirections, 1> yy = y.cwiseProduct(y);
   const Matrix<double, kDataCount * kDirections, 1> zz = z.cwiseProduct(z);
@@ -183,7 +183,7 @@ void MagnetometerCalibrator::readMag(uint32_t idx)
     imu_.read_magnetometer(&tmp(0), &tmp(1), &tmp(2));
 
     const auto row = kDataCount * idx + i;
-    mag_.block(row, 0, 1, 3) = tmp.cast<double>();
+    mag_data_.block(row, 0, 1, 3) = tmp.cast<double>();
 
     usleep(kSleepTime);
   }
