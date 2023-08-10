@@ -1,7 +1,5 @@
-#define EIGEN_STACK_ALLOCATION_LIMIT 1000000
-
 #include <boost/property_tree/ini_parser.hpp>
-#include <Eigen/LU>
+#include <Eigen/SVD>
 
 #include <dh_std_tools/fstream.hpp>
 #include <dh_eigen_tools/linalg.hpp>
@@ -17,7 +15,7 @@ using namespace Eigen;
 
 namespace tobas_real
 {
-MagnetometerCalibrator::MagnetometerCalibrator()
+MagnetometerCalibrator::MagnetometerCalibrator() : mag_(kDataCount * kDirections, 3)
 {
   getRosParams();
 
@@ -46,16 +44,16 @@ void MagnetometerCalibrator::run()
 
   // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
   mag_trans_.c = -(xx + yy + zz).mean();
-  Matrix<double, kDataCount * kDirections, 1> ce0;
+  VectorXd ce0(kDataCount * kDirections);  // メモリ制限回避のため可変サイズで定義
   ce0.fill(-mag_trans_.c);
 
   if (method_ == "sphere")
   {
     // 球体でフィッティング．
     // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-    Matrix<double, kDataCount * kDirections, 4> CE;
+    MatrixXd CE(kDataCount * kDirections, 4);
     CE << xx + yy + zz, x, y, z;
-    const Matrix<double, 4, 1> coefs = CE.fullPivLu().solve(ce0);
+    const Matrix<double, 4, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
 
     mag_trans_.a_xx = coefs(0);
     mag_trans_.a_yy = coefs(0);
@@ -71,9 +69,9 @@ void MagnetometerCalibrator::run()
   {
     // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
     // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-    Matrix<double, kDataCount * kDirections, 9> CE;
+    MatrixXd CE(kDataCount * kDirections, 9);
     CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-    const Matrix<double, 9, 1> coefs = CE.fullPivLu().solve(ce0);
+    const Matrix<double, 9, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
 
     mag_trans_.a_xx = coefs(0);
     mag_trans_.a_yy = coefs(1);

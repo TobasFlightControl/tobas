@@ -26,7 +26,7 @@ public:
 private:
   ros::NodeHandle nh_;
   MPU9250 imu_;
-  Eigen::Matrix<double, kDataCount * kDirections, 3> mag_;
+  Eigen::MatrixXd mag_;  // 地磁気データのバッファ．メモリ制限回避のため可変サイズで定義．
   EllipseTransformer mag_trans_;
 
   // rosparam
