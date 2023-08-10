@@ -43,7 +43,7 @@ void MagnetometerCalibrator::run()
   const Matrix<float, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
 
   // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
-  mag_trans_.c = 1.;  // TODO: x,y,zのスケールに依って決める
+  mag_trans_.c = -(xx + yy + zz).mean();
   Matrix<float, kDataCount * kDirections, 1> ce0;
   ce0.fill(-mag_trans_.c);
 
