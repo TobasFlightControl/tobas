@@ -1,3 +1,5 @@
+#define EIGEN_STACK_ALLOCATION_LIMIT 1000000
+
 #include <boost/property_tree/ini_parser.hpp>
 #include <Eigen/LU>
 
@@ -32,28 +34,28 @@ void MagnetometerCalibrator::run()
 
   // 6面分のデータを取得
   getMagData();
-  const Matrix<float, kDataCount * kDirections, 1> x = mag_.col(0);
-  const Matrix<float, kDataCount * kDirections, 1> y = mag_.col(1);
-  const Matrix<float, kDataCount * kDirections, 1> z = mag_.col(2);
-  const Matrix<float, kDataCount * kDirections, 1> xx = x.cwiseProduct(x);
-  const Matrix<float, kDataCount * kDirections, 1> yy = y.cwiseProduct(y);
-  const Matrix<float, kDataCount * kDirections, 1> zz = z.cwiseProduct(z);
-  const Matrix<float, kDataCount * kDirections, 1> xy = x.cwiseProduct(y);
-  const Matrix<float, kDataCount * kDirections, 1> yz = y.cwiseProduct(z);
-  const Matrix<float, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
+  const Matrix<double, kDataCount * kDirections, 1> x = mag_.col(0);
+  const Matrix<double, kDataCount * kDirections, 1> y = mag_.col(1);
+  const Matrix<double, kDataCount * kDirections, 1> z = mag_.col(2);
+  const Matrix<double, kDataCount * kDirections, 1> xx = x.cwiseProduct(x);
+  const Matrix<double, kDataCount * kDirections, 1> yy = y.cwiseProduct(y);
+  const Matrix<double, kDataCount * kDirections, 1> zz = z.cwiseProduct(z);
+  const Matrix<double, kDataCount * kDirections, 1> xy = x.cwiseProduct(y);
+  const Matrix<double, kDataCount * kDirections, 1> yz = y.cwiseProduct(z);
+  const Matrix<double, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
 
   // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
   mag_trans_.c = -(xx + yy + zz).mean();
-  Matrix<float, kDataCount * kDirections, 1> ce0;
+  Matrix<double, kDataCount * kDirections, 1> ce0;
   ce0.fill(-mag_trans_.c);
 
   if (method_ == "sphere")
   {
     // 球体でフィッティング．
     // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-    Matrix<float, kDataCount * kDirections, 4> CE;
+    Matrix<double, kDataCount * kDirections, 4> CE;
     CE << xx + yy + zz, x, y, z;
-    const Matrix<float, 4, 1> coefs = CE.fullPivLu().solve(ce0);
+    const Matrix<double, 4, 1> coefs = CE.fullPivLu().solve(ce0);
 
     mag_trans_.a_xx = coefs(0);
     mag_trans_.a_yy = coefs(0);
@@ -69,9 +71,9 @@ void MagnetometerCalibrator::run()
   {
     // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
     // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-    Matrix<float, kDataCount * kDirections, 9> CE;
+    Matrix<double, kDataCount * kDirections, 9> CE;
     CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-    const Matrix<float, 9, 1> coefs = CE.fullPivLu().solve(ce0);
+    const Matrix<double, 9, 1> coefs = CE.fullPivLu().solve(ce0);
 
     mag_trans_.a_xx = coefs(0);
     mag_trans_.a_yy = coefs(1);
@@ -173,11 +175,15 @@ void MagnetometerCalibrator::getMagData()
 
 void MagnetometerCalibrator::readMag(uint32_t idx)
 {
+  RowVector3f tmp;
   for (uint32_t i = 0; i < kDataCount && ros::ok(); ++i)
   {
-    const auto row = kDataCount * idx + i;
     imu_.update();
-    imu_.read_magnetometer(&mag_(row, 0), &mag_(row, 1), &mag_(row, 2));
+    imu_.read_magnetometer(&tmp(0), &tmp(1), &tmp(2));
+
+    const auto row = kDataCount * idx + i;
+    mag_.block(row, 0, 1, 3) = tmp.cast<double>();
+
     usleep(kSleepTime);
   }
 }

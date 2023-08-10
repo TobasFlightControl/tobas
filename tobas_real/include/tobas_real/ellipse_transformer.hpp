@@ -11,26 +11,26 @@ namespace tobas_real
 class EllipseTransformer
 {
 public:
-  float a_xx;
-  float a_yy;
-  float a_zz;
-  float a_xy;
-  float a_yz;
-  float a_zx;
-  float b_x;
-  float b_y;
-  float b_z;
-  float c;
+  double a_xx;
+  double a_yy;
+  double a_zz;
+  double a_xy;
+  double a_yz;
+  double a_zx;
+  double b_x;
+  double b_y;
+  double b_z;
+  double c;
 
   explicit EllipseTransformer();
 
   void initialize();
-  Eigen::Vector3f transform(const Eigen::Vector3f& mag_raw);
+  Eigen::Vector3d transform(const Eigen::Vector3d& mag_raw);
 
   friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
 
 private:
-  Eigen::Matrix3f A_;
-  Eigen::Vector3f b_;
+  Eigen::Matrix3d A_;
+  Eigen::Vector3d b_;
 };
 }  // namespace tobas_real

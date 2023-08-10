@@ -14,9 +14,9 @@ class MagnetometerCalibrator
   const std::string kDefaultMethod = "sphere";
 
   // Constant values
-  static constexpr uint32_t kDataCount = 500;
+  static constexpr uint32_t kDataCount = 1000;
   static constexpr uint32_t kDirections = 6;
-  static constexpr uint32_t kSleepTime = 20000;  // [us]
+  static constexpr uint32_t kSleepTime = 10000;  // [us]
 
 public:
   explicit MagnetometerCalibrator();
@@ -26,7 +26,7 @@ public:
 private:
   ros::NodeHandle nh_;
   MPU9250 imu_;
-  Eigen::Matrix<float, kDataCount * kDirections, 3> mag_;
+  Eigen::Matrix<double, kDataCount * kDirections, 3> mag_;
   EllipseTransformer mag_trans_;
 
   // rosparam

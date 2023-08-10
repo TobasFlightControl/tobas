@@ -59,7 +59,7 @@ void ImuHandler::run()
     imu_msg_.angular_velocity.z = gyro.z();
 
     imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
-    const Vector3f mag = mag_trans_.transform(mag_);  // 原点中心の単位球に射影
+    const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 原点中心の単位球に射影
     mag_msg_.magnetic_field.x = mag.x();
     mag_msg_.magnetic_field.y = -mag.y();
     mag_msg_.magnetic_field.z = -mag.z();
