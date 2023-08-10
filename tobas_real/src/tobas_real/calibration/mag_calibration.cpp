@@ -105,6 +105,9 @@ void MagnetometerCalibrator::run()
     return;
   }
 
+  // 中心と半径を表示
+  rosInfo("Center:\n" << mag_trans_.getCenter() << endl << "Radius:\n" << mag_trans_.getRadius());
+
   // Configに保存
   boost::property_tree::ptree pt;
   if (dh_std::fileExists(kConfigPath))
