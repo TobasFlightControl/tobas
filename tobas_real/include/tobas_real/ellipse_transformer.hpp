@@ -20,6 +20,7 @@ public:
   float b_x;
   float b_y;
   float b_z;
+  float c;
 
   explicit EllipseTransformer();
 

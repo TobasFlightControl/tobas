@@ -25,7 +25,6 @@ void EllipseTransformer::initialize()
   const Matrix3f P = eigen_solver.eigenvectors();
 
   // 変換行列を計算
-  constexpr float c = 1.;
   const Vector3f Lam_inv = Lam.cwiseInverse();
   const float W = (P.transpose() * b).cwiseAbs2().cwiseProduct(Lam_inv).sum() / 4 - c;
 

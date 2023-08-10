@@ -3,12 +3,12 @@
 
 #include <dh_std_tools/fstream.hpp>
 #include <dh_eigen_tools/linalg.hpp>
+#include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include "../../../include/tobas_real/calibration/mag_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
-#include "../../../include/tobas_real/ellipse_transformer.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -30,9 +30,6 @@ void MagnetometerCalibrator::run()
 
   // 6面分のデータを取得
   getMagData();
-
-  // 最小二乗法で楕円の方程式を推定
-  // https://rikei-tawamure.com/entry/2021/10/07/211725
   const Matrix<float, kDataCount * kDirections, 1> x = mag_.col(0);
   const Matrix<float, kDataCount * kDirections, 1> y = mag_.col(1);
   const Matrix<float, kDataCount * kDirections, 1> z = mag_.col(2);
@@ -43,14 +40,59 @@ void MagnetometerCalibrator::run()
   const Matrix<float, kDataCount * kDirections, 1> yz = y.cwiseProduct(z);
   const Matrix<float, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
 
-  Matrix<float, kDataCount * kDirections, 9> CE;
-  CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
+  // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
+  mag_trans_.c = 1.;  // TODO: x,y,zのスケールに依って決める
   Matrix<float, kDataCount * kDirections, 1> ce0;
-  ce0.fill(-1);
-  const Matrix<float, 9, 1> coefs = CE.fullPivLu().solve(ce0);
+  ce0.fill(-mag_trans_.c);
 
-  // 楕円の方程式の係数行列Aが正定であることを確認
-  if (!isValidEllipseCoefs(coefs))
+  if (method_ == "sphere")
+  {
+    // 球体でフィッティング．
+    // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
+    Matrix<float, kDataCount * kDirections, 4> CE;
+    CE << xx + yy + zz, x, y, z;
+    const Matrix<float, 4, 1> coefs = CE.fullPivLu().solve(ce0);
+
+    mag_trans_.a_xx = coefs(0);
+    mag_trans_.a_yy = coefs(0);
+    mag_trans_.a_zz = coefs(0);
+    mag_trans_.a_xy = 0.;
+    mag_trans_.a_yz = 0.;
+    mag_trans_.a_zx = 0.;
+    mag_trans_.b_x = coefs(1);
+    mag_trans_.b_y = coefs(2);
+    mag_trans_.b_z = coefs(3);
+  }
+  else if (method_ == "ellipse")
+  {
+    // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
+    // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
+    Matrix<float, kDataCount * kDirections, 9> CE;
+    CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
+    const Matrix<float, 9, 1> coefs = CE.fullPivLu().solve(ce0);
+
+    mag_trans_.a_xx = coefs(0);
+    mag_trans_.a_yy = coefs(1);
+    mag_trans_.a_zz = coefs(2);
+    mag_trans_.a_xy = coefs(3);
+    mag_trans_.a_yz = coefs(4);
+    mag_trans_.a_zx = coefs(5);
+    mag_trans_.b_x = coefs(6);
+    mag_trans_.b_y = coefs(7);
+    mag_trans_.b_z = coefs(8);
+  }
+  else
+  {
+    rosError("Invalid method: " << method_);
+    return;
+  }
+
+  // 楕円体の射影クラスの初期化に成功したら有効な係数だと言える
+  try
+  {
+    mag_trans_.initialize();
+  }
+  catch (const exception& e)
   {
     rosError("Magnetometer calibration failed.");
     return;
@@ -62,17 +104,23 @@ void MagnetometerCalibrator::run()
   {
     boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
   }
-  pt.put(kConfigKey_MagEllipseAxx, coefs(0));
-  pt.put(kConfigKey_MagEllipseAyy, coefs(1));
-  pt.put(kConfigKey_MagEllipseAzz, coefs(2));
-  pt.put(kConfigKey_MagEllipseAxy, coefs(3));
-  pt.put(kConfigKey_MagEllipseAyz, coefs(4));
-  pt.put(kConfigKey_MagEllipseAzx, coefs(5));
-  pt.put(kConfigKey_MagEllipseBx, coefs(6));
-  pt.put(kConfigKey_MagEllipseBy, coefs(7));
-  pt.put(kConfigKey_MagEllipseBz, coefs(8));
+  pt.put(kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
+  pt.put(kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
+  pt.put(kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
+  pt.put(kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
+  pt.put(kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
+  pt.put(kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
+  pt.put(kConfigKey_MagEllipseBx, mag_trans_.b_x);
+  pt.put(kConfigKey_MagEllipseBy, mag_trans_.b_y);
+  pt.put(kConfigKey_MagEllipseBz, mag_trans_.b_z);
+  pt.put(kConfigKey_MagEllipseC, mag_trans_.c);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
   rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
+}
+
+void MagnetometerCalibrator::getRosParams()
+{
+  dh_ros::getParam("~method", method_, kDefaultMethod);
 }
 
 void MagnetometerCalibrator::getMagData()
@@ -126,31 +174,6 @@ void MagnetometerCalibrator::readMag(uint32_t idx)
     imu_.update();
     imu_.read_magnetometer(&mag_(row, 0), &mag_(row, 1), &mag_(row, 2));
     usleep(kSleepTime);
-  }
-}
-
-bool MagnetometerCalibrator::isValidEllipseCoefs(const Matrix<float, 9, 1>& coefs)
-{
-  EllipseTransformer mag_trans;
-  mag_trans.a_xx = coefs(0);
-  mag_trans.a_yy = coefs(1);
-  mag_trans.a_zz = coefs(2);
-  mag_trans.a_xy = coefs(3);
-  mag_trans.a_yz = coefs(4);
-  mag_trans.a_zx = coefs(5);
-  mag_trans.b_x = coefs(6);
-  mag_trans.b_y = coefs(7);
-  mag_trans.b_z = coefs(8);
-
-  // 楕円体の射影クラスの初期化に成功したら有効な係数だと言える
-  try
-  {
-    mag_trans.initialize();
-    return true;
-  }
-  catch (const exception& e)
-  {
-    return false;
   }
 }
 }  // namespace tobas_real

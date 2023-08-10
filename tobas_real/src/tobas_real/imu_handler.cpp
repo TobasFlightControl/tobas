@@ -107,6 +107,7 @@ void ImuHandler::readConfig()
   mag_trans_.b_x = pt.get<float>(kConfigKey_MagEllipseBx);
   mag_trans_.b_y = pt.get<float>(kConfigKey_MagEllipseBy);
   mag_trans_.b_z = pt.get<float>(kConfigKey_MagEllipseBz);
+  mag_trans_.c = pt.get<float>(kConfigKey_MagEllipseC);
 }
 
 void ImuHandler::setCovarianceMatrices()

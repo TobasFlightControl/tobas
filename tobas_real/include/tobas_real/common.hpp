@@ -20,6 +20,7 @@ static constexpr char kConfigKey_MagEllipseAyz[] = "DEFAULT.mag_ellipse/a_yz";
 static constexpr char kConfigKey_MagEllipseBx[] = "DEFAULT.mag_ellipse/b_x";
 static constexpr char kConfigKey_MagEllipseBy[] = "DEFAULT.mag_ellipse/b_y";
 static constexpr char kConfigKey_MagEllipseBz[] = "DEFAULT.mag_ellipse/b_z";
+static constexpr char kConfigKey_MagEllipseC[] = "DEFAULT.mag_ellipse/c";
 static constexpr char kConfigKey_MagEllipseAzx[] = "DEFAULT.mag_ellipse/a_zx";
 static constexpr char kConfigKey_RcRollNeutoral[] = "DEFAULT.rc_input/roll/neutoral";
 static constexpr char kConfigKey_RcRollLeft[] = "DEFAULT.rc_input/roll/left";
