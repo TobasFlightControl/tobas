@@ -44,4 +44,19 @@ Vector3f EllipseTransformer::transform(const Vector3f& mag_raw)
 {
   return A_ * mag_raw + b_;
 }
+
+ostream& operator<<(ostream& os, const EllipseTransformer& arg)
+{
+  os << "a_xx: " << arg.a_xx << endl;
+  os << "a_yy: " << arg.a_yy << endl;
+  os << "a_zz: " << arg.a_zz << endl;
+  os << "a_xy: " << arg.a_xy << endl;
+  os << "a_yz: " << arg.a_yz << endl;
+  os << "a_zx: " << arg.a_zx << endl;
+  os << "b_x:  " << arg.b_x << endl;
+  os << "b_y:  " << arg.b_y << endl;
+  os << "b_z:  " << arg.b_z << endl;
+
+  return os;
+}
 }  // namespace tobas_real

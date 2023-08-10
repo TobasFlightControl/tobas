@@ -17,6 +17,8 @@ namespace tobas_real
 {
 MagnetometerCalibrator::MagnetometerCalibrator()
 {
+  getRosParams();
+
   if (!imu_.probe())
   {
     rosthrow("Sensor not enabled.");
@@ -86,6 +88,9 @@ void MagnetometerCalibrator::run()
     rosError("Invalid method: " << method_);
     return;
   }
+
+  // 推定された係数を表示
+  rosInfo("Estimated coefficients:\n" << mag_trans_);
 
   // 楕円体の射影クラスの初期化に成功したら有効な係数だと言える
   try
@@ -168,7 +173,7 @@ void MagnetometerCalibrator::getMagData()
 
 void MagnetometerCalibrator::readMag(uint32_t idx)
 {
-  for (uint32_t i = 0; i < kDataCount; ++i)
+  for (uint32_t i = 0; i < kDataCount && ros::ok(); ++i)
   {
     const auto row = kDataCount * idx + i;
     imu_.update();

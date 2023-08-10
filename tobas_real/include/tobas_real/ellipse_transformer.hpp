@@ -27,6 +27,8 @@ public:
   void initialize();
   Eigen::Vector3f transform(const Eigen::Vector3f& mag_raw);
 
+  friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
+
 private:
   Eigen::Matrix3f A_;
   Eigen::Vector3f b_;

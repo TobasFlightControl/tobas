@@ -37,7 +37,7 @@ void EscCalibrator::setHigh()
   const ros::Time start_time = ros::Time::now();
   rosInfo("Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
 
-  while ((ros::Time::now() - start_time).toSec() < SLEEP_TIME_HIGH)
+  while (ros::ok() && (ros::Time::now() - start_time).toSec() < SLEEP_TIME_HIGH)
   {
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
@@ -55,7 +55,7 @@ void EscCalibrator::setLow()
   const ros::Time start_time = ros::Time::now();
   rosInfo("Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
 
-  while ((ros::Time::now() - start_time).toSec() < SLEEP_TIME_LOW)
+  while (ros::ok() && (ros::Time::now() - start_time).toSec() < SLEEP_TIME_LOW)
   {
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {

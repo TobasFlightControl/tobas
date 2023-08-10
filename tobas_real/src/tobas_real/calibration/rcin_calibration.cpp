@@ -136,7 +136,7 @@ double RCInputCalibrator::readRCInput(uint32_t channel)
 {
   // RC入力を取得
   int period_sum = 0;
-  for (uint32_t _ = 0; _ < kDataCount; ++_)
+  for (uint32_t _ = 0; _ < kDataCount && ros::ok(); ++_)
   {
     const auto period = rcin_.read(channel);
     if (period < 0)
