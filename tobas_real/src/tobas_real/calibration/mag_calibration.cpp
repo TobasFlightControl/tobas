@@ -217,6 +217,7 @@ void MagnetometerCalibrator::readMag(uint32_t idx)
 
     const auto row = kDataCount * idx + i;
     mag_data_.block(row, 0, 1, 3) = tmp.cast<double>();
+    cout << "Magnetic field: " << mag_data_.block(row, 0, 1, 3) << endl;
 
     usleep(kSleepTime);
   }
