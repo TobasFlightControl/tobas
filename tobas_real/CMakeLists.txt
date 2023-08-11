@@ -29,10 +29,10 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAM
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# ノードの実行ファイルを作成
-file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp)
-foreach(FILE IN LISTS NODE_FILES)
-	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-	add_executable(${NODE_NAME} ${FILE})
-	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+# ノードとExampleの実行ファイルを作成
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp examples/[^.]*.cpp)
+foreach(FILE IN LISTS EXE_FILES)
+	get_filename_component(NAME ${FILE} NAME_WE)
+	add_executable(${NAME} ${FILE})
+	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 endforeach()
