@@ -27,13 +27,15 @@
           </friction>
           <contact>
             <ode>
+              <!-- 接触点安定化への効果大だが微調整が必要．なんとなく臨界減衰に設定． -->
+              <kp>2.5e+5</kp>
+              <kd>1e+3</kd>
+
+              <!-- 以下4パラメータの接触点の安定化への寄与は小さいかも -->
               <max_vel>10.0</max_vel>
               <min_depth>0.001</min_depth>
               <soft_cfm>1e-3</soft_cfm>
               <soft_erp>0.1</soft_erp>
-              <!-- 臨界減衰 -->
-              <kp>2.5e+5</kp>
-              <kd>1e+3</kd>
             </ode>
           </contact>
         </surface>
