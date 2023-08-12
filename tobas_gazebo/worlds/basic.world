@@ -3,6 +3,7 @@
   <world name="default">
 
     <include>
+      <!-- <uri>model://ground_plane</uri> -->
       <uri>model://soft_ground_plane</uri>
     </include>
 
