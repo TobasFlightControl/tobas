@@ -305,7 +305,7 @@ class SelectedLinksWidget(QTableWidget):
         max_angle_rate.setMinimum(1e-3)
         max_angle_rate.setDecimals(3)
         max_angle_rate.setSuffix(" rad/s")
-        self.max_angles.append(max_angle_rate)
+        self.max_angle_rates.append(max_angle_rate)
         self.setCellWidget(row, 4, max_angle_rate)
 
         c_lift_delta = DoubleSpinBox()
