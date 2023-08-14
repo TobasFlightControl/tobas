@@ -1,6 +1,7 @@
 from .start import StartWidget
 from .battery import BatteryWidget
 from .rotary_wings import RotaryWingsWidget
+from .fixed_wing.fixed_wing import FixedWingWidget
 from .imu import ImuWidget
 from .magnetometer import MagnetometerWidget
 from .barometer import BarometerWidget

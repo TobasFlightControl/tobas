@@ -62,6 +62,9 @@ class URDFParser(QWidget):
     def is_end_link(self, link_name: str) -> bool:
         return self._tree.is_end_link(link_name)
 
+    def is_fixed_link(self, link_name: str) -> bool:
+        return self._tree.is_fixed_link(link_name)
+
     def link_exists(self, link_name: str) -> bool:
         return self._tree.link_exists(link_name)
 

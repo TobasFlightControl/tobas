@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
-    from .esc import EscWidget_Base
     from .blade_geometry import BladeGeometry
 
 import math
@@ -76,7 +75,7 @@ class AerodynamicsWidget(QWidget):
 
         return True
 
-    def selected(self) -> EscWidget_Base:
+    def selected(self) -> AerodynamicsWidget:
         setting_method = self.setting_method.currentText()
 
         if setting_method == self.MANUAL:
@@ -92,15 +91,15 @@ class AerodynamicsWidget(QWidget):
 
     def motor_const(self) -> float:
         """ [kg*m/s^2] """
-        return self._selected_setting_widget().motor_const()
+        return self.selected().motor_const()
 
     def moment_const(self) -> float:
         """ [m] """
-        return self._selected_setting_widget().moment_const()
+        return self.selected().moment_const()
 
     def rotor_drag_coef(self) -> float:
         """ [Ns^2/m^2] """
-        return self._selected_setting_widget().rotor_drag_coef()
+        return self.selected().rotor_drag_coef()
 
     def copy_from(self, src: AerodynamicsWidget) -> None:
         self.setting_method.setCurrentText(src.setting_method.currentText())
@@ -144,20 +143,6 @@ class AerodynamicsWidget(QWidget):
             self.uiuc.setVisible(True)
         else:
             raise RuntimeError(f'Unknown setting method: {setting_method}')
-
-    def _selected_setting_widget(self) -> AerodynamicsWidget_Base:
-        setting_method = self.setting_method.currentText()
-
-        if setting_method == self.MANUAL:
-            return self.manual
-        elif setting_method == self.BLADE_THEORY:
-            return self.blade_theory
-        elif setting_method == self.THRUST_STAND:
-            return self.thrust_stand
-        elif setting_method == self.UIUC:
-            return self.uiuc
-        else:
-            raise RuntimeError()
 
     @pyqtSlot(str)
     def _on_type_changed(self, setting_method: str) -> None:

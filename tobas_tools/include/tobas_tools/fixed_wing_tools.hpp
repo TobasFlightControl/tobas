@@ -36,20 +36,20 @@ struct AerodynamicsCoefficients
 
   // Roll moment
   double c_roll_beta;  // [/rad]
-  double c_roll_p;     // [/rad]
-  double c_roll_r;     // [/rad]
+  double c_roll_p;     // [s/rad]
+  double c_roll_r;     // [s/rad]
 
   // Pitch moment
   double c_pitch_0;           // [-]
   double c_pitch_alpha;       // [/rad]
   double c_pitch_abs_beta;    // [/rad]
-  double c_pitch_alpha_rate;  // [/rad]
-  double c_pitch_q;           // [/rad]
+  double c_pitch_alpha_rate;  // [s/rad]
+  double c_pitch_q;           // [s/rad]
 
   // Yaw moment
   double c_yaw_beta;  // [/rad]
-  double c_yaw_p;     // [/rad]
-  double c_yaw_r;     // [/rad]
+  double c_yaw_p;     // [s/rad]
+  double c_yaw_r;     // [s/rad]
 };
 
 /**

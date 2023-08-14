@@ -66,6 +66,8 @@ class PackageGenerator(QWidget):
             return False
         if not self._main.settings.rotary_wings.is_valid():
             return False
+        if not self._main.settings.fixed_wing.is_valid():
+            return False
         if not self._main.settings.imu.is_valid():
             return False
         if not self._main.settings.magnetometer.is_valid():
@@ -399,6 +401,7 @@ class PackageGenerator(QWidget):
         root_link = self._main.urdf_parser.get_root().name
 
         rotary_wings = self._main.settings.rotary_wings.selected
+        fixed_wing = self._main.settings.fixed_wing
         battery = self._main.settings.battery
         imu = self._main.settings.imu
         magnetometer = self._main.settings.magnetometer
