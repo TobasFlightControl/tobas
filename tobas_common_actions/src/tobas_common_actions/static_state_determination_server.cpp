@@ -1,7 +1,9 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_ros_tools/operators.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/util.hpp>
 
 #include "../../include/tobas_common_actions/static_state_determination_server.hpp"
 #include "../../include/tobas_common_actions/common.hpp"
@@ -132,6 +134,32 @@ bool StaticStateDeterminationServer::isValidResult(const GoalType& goal)
   return true;
 }
 
+bool StaticStateDeterminationServer::isStatic()
+{
+  // ジャイロが閾値を超えたらダメ
+  if (dh_ros::norm(imu_.angular_velocity) > kStaticGyroThreshold)
+  {
+    result_.error_code = StaticStateDeterminationResult::NOT_STATIC;
+    as_.setAborted(result_, "Rotation of the aircraft is detected.");
+    return false;
+  }
+
+  // 気圧高度の変動が閾値を超えたらダメ
+  if (bar_count_ > 0)
+  {
+    const auto cur_alt = dh_std::pressureToAltitude(bar_.fluid_pressure);
+    const auto mean_alt = dh_std::pressureToAltitude(bar_sum_.fluid_pressure / bar_count_);
+    if (abs(cur_alt - mean_alt) > kStaticAirPressureAltitudeThreshold)
+    {
+      result_.error_code = StaticStateDeterminationResult::NOT_STATIC;
+      as_.setAborted(result_, "A drift in barometric altitude is detected.");
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void StaticStateDeterminationServer::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
@@ -152,6 +180,7 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
   }
 
   ++imu_count_;
+  imu_ = imu;
 
   imu_sum_.angular_velocity = imu_sum_.angular_velocity + imu.angular_velocity;
   imu_sum_.linear_acceleration = imu_sum_.linear_acceleration + imu.linear_acceleration;
@@ -184,6 +213,7 @@ void StaticStateDeterminationServer::barCb(const BarMsg& bar)
   }
 
   ++bar_count_;
+  bar_ = bar;
 
   bar_sum_.fluid_pressure += bar.fluid_pressure;
   bar_sum_.variance += bar.variance;
@@ -239,6 +269,12 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
       fillResult();
       result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
+      return;
+    }
+
+    // 静止していなければ終了
+    if (!isStatic())
+    {
       return;
     }
 

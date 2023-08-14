@@ -199,6 +199,12 @@ ErrorStateKalmanFilterRos::setZeroPositions()
   }
 
   const auto result = ac.getResult();
+  const auto state = ac.getState();
+  if (result->error_code != tobas_common_actions::StaticStateDeterminationResult::NO_ERROR)
+  {
+    rosthrow("'" << action_name << "' finished with error: " << state.getText());
+  }
+
   rosInfo(
     "The result of " << action_name << ":\n"
                      << "IMU count: " << result->imu_count << endl

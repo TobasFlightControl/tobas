@@ -12,9 +12,11 @@ namespace tobas_common_actions
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "static_state_determination";
-  static constexpr uint32_t kMinimumImuCount = 1000;  // バイアスの推定のためにこれくらいは必要
-  static constexpr uint32_t kMinimumBarCount = 100;
-  static constexpr uint32_t kMinimumGpsCount = 50;
+  static constexpr uint32_t kMinimumImuCount = 500;
+  static constexpr uint32_t kMinimumBarCount = 500;
+  static constexpr uint32_t kMinimumGpsCount = 25;
+  static constexpr double kStaticGyroThreshold = 0.5;                // [rad/s]
+  static constexpr double kStaticAirPressureAltitudeThreshold = 1.;  // [m]
 
   using super = tobas::BaseNode;
 
@@ -41,6 +43,8 @@ private:
   uint32_t bar_count_;
   uint32_t gps_count_;
   uint32_t vel_count_;
+  ImuMsg imu_;
+  BarMsg bar_;
   ImuMsg imu_sum_;
   MagMsg mag_sum_;
   BarMsg bar_sum_;
@@ -63,6 +67,7 @@ private:
   void fillResult();
   bool isValidGoal(const GoalType& goal);
   bool isValidResult(const GoalType& goal);
+  bool isStatic();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void imuCb(const ImuMsg& imu);
