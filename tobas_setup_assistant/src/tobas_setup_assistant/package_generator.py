@@ -291,8 +291,8 @@ class PackageGenerator(QWidget):
             }
             items["state_estimator_cascade"] = {
                 "use_gps": gps.equipped(),
-                "gps_horizontal_position_stddev_threshold": eskf.gps_hor_pos_stddev_threshold.get(),
-                "gps_vertical_position_stddev_threshold": eskf.gps_ver_pos_stddev_threshold.get(),
+                "gps_horizontal_position_stddev_threshold": cascade.gps_hor_pos_stddev_threshold.get(),
+                "gps_vertical_position_stddev_threshold": cascade.gps_ver_pos_stddev_threshold.get(),
                 "gravity_variance": cascade.grav_var.get(),
             }
         elif observer_type == observer.ESKF:
