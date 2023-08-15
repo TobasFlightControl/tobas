@@ -11,7 +11,7 @@ from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
 from .robot_visualizer import RobotVisualizerWidget
 from .settings import SettingsWidget
-from .constants import *
+from .common import *
 
 
 class SetupAssistant(QWidget):
@@ -31,6 +31,7 @@ class SetupAssistant(QWidget):
 
         self.urdf_parser = URDFParser(self)
         self.pkg_generator = PackageGenerator(self)
+        self.signals = Signals()
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)

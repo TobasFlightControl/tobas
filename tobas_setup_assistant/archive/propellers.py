@@ -13,7 +13,7 @@ from dh_rqt_tools.messages import q_error
 from kdl_sympy.joint import JointType
 
 from ..src.tobas_setup_assistant.setting_widgets.base_setting import BaseSettingWidget
-from ..src.tobas_setup_assistant.constants import *
+from ..src.tobas_setup_assistant.common import *
 
 
 class PropellersWidget(BaseSettingWidget):

@@ -11,7 +11,7 @@ from kdl_sympy.joint import JointType
 from dh_rqt_tools.widgets import ListWidgetItem
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 
 
 class AvailableLinksWidget(QListWidget):
@@ -122,3 +122,5 @@ class AvailableLinkItemWidget(QListWidget):
     def _on_add_button_clicked(self) -> None:
         self._main.settings.rotary_wings.selected.add(self.link_name())
         self._main.settings.rotary_wings.available.remove(self.link_name())
+
+        self._main.signals.airframe_updated.emit()

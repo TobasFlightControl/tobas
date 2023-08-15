@@ -1,11 +1,7 @@
 <launch>
 
-  <arg name="control_mode" default="position"/>
-
   <!-- Bringup controller -->
-  <include file="$(find {{ pkg_name }})/launch/controller.launch">
-    <arg name="control_mode" value="$(arg control_mode)"/>
-  </include>
+  <include file="$(find {{ pkg_name }})/launch/controller.launch"/>
 
   <!-- Bringup observer -->
   <include file="$(find {{ pkg_name }})/launch/observer.launch"/>
@@ -13,21 +9,10 @@
   <!-- For safety reasons, bringup RC teleoperation by default -->
   <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch"/>
 
-  <!-- Bringup takeoff and landing action server -->
-  <group ns="{{ drone_name }}">
-    <include file="$(find tobas_multirotor_takeoff)/launch/takeoff_action_server.launch"/>
-    <include file="$(find tobas_multirotor_landing)/launch/landing_action_server.launch"/>
-  </group>
-
   <!-- Bringup state checker -->
   <group ns="{{ drone_name }}">
     <rosparam file="$(find {{ pkg_name }})/config/state_checker.yaml" command="load"/>
     <include file="$(find tobas_state_checker)/launch/multirotor_state_checker.launch"/>
-  </group>
-
-  <!-- Bringup trajectory commanding action server -->
-  <group ns="{{ drone_name }}">
-    <include file="$(find tobas_trajectory_commander)/launch/position_yaw.launch"/>
   </group>
 
 </launch>

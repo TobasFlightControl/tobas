@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.widgets import add_expanding_widget
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 from ..base_setting import BaseSettingWidget
 from .available_links import AvailableLinksWidget
 from .selected_links import SelectedLinksWidget

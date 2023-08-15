@@ -11,7 +11,7 @@ from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
-from ..constants import *
+from ..common import *
 
 
 class ParamGetterWidget_DoubleTable(ParamGetterWidget):

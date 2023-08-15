@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from .base import ParamGetterWidget
-from ..constants import *
+from ..common import *
 
 
 class ParamGetterWidget_FileDialog(ParamGetterWidget):

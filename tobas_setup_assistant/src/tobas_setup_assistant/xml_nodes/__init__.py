@@ -3,6 +3,7 @@ from .state_gt import GroundTruthStateModel
 from .wind import WindModel
 from .battery import BatteryModel
 from .motor import MotorModel
+from .fixed_wing import FixedWingModel
 from .imu import ImuModel
 from .magnetometer import MagnetometerModel
 from .barometer import BarometerModel

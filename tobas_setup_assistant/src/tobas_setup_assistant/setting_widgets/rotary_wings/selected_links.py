@@ -12,7 +12,7 @@ from dh_rqt_tools.widgets import TabWidget, add_expanding_widget, add_center_but
 from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 from .constants import ROTARY_WINGS
 from .esc import EscWidget
 from .motor import MotorWidget
@@ -117,6 +117,8 @@ class SelectedLinksWidget(TabWidget):
         tab: SelectedLinkTabWidget = self.widget(idx)
         self._main.settings.rotary_wings.available.add(tab.link_name())
         self.removeTab(idx)
+
+        self._main.signals.airframe_updated.emit()
 
 
 class SelectedLinkTabWidget(QWidget):

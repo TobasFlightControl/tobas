@@ -16,7 +16,7 @@ from dh_rqt_tools.widgets import ComboBox
 from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 from ...utils import rpm_to_rad_per_sec
 from .constants import ROTARY_WINGS
 

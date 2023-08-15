@@ -12,7 +12,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..constants import *
+from ..common import *
 
 
 class RgbCameraWidget(BaseSettingWidget):

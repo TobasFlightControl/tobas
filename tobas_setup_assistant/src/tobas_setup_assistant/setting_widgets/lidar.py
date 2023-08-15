@@ -11,7 +11,7 @@ from dh_rqt_tools.widgets import add_expanding_widget
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..constants import *
+from ..common import *
 
 
 class LidarWidget(BaseSettingWidget):

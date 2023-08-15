@@ -1,136 +1,40 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..setup_assistant import SetupAssistant
+    from ...setup_assistant import SetupAssistant
 
 import math
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox, add_expanding_widget
 from dh_rqt_tools.messages import q_error_named
 
-from .base_setting import BaseSettingWidget
-from ..parameter_getters import *
-from ..constants import *
+from tobas_msgs.msg import RollPitchYawThrust, RollPitchYawrateThrust, VelocityYaw, PositionYaw
+
+from ...parameter_getters import *
+from ...common import *
+from .base import BaseController
 
 
-class ControllerWidget(BaseSettingWidget):
-
-    NAME = "Controller"
-
-    NO_SELECT = "Select controller type"
-    LMPC = "Linear Model Predictive Control"
-    NMPC = "Nonlinear Model Predictive Control"
-    SMC = "Model Following Sliding Mode Control"
-
-    def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Setup Controller"
-        abst_text = "飛行制御器の設定を行います．"\
-            + "手法を1つ選択し，各パラメータを設定してください．"\
-            + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
-        super().__init__(main, title_text, abst_text)
-
-        self.controller_type = ComboBox()
-        self.controller_type.addItems([self.NO_SELECT, self.LMPC])
-        # self.controller_type.addItems([self.NO_SELECT, self.LMPC, self.NMPC, self.SMC])  # TODO
-        self.controller_type.setCurrentText(self.LMPC)
-        self._rows.addWidget(self.controller_type)
-
-        self.lmpc = ControllerWidget_LMPC(main)
-        self._rows.addWidget(self.lmpc)
-
-        self.nmpc = ControllerWidget_NMPC(main)
-        self._rows.addWidget(self.nmpc)
-
-        self.smc = ControllerWidget_SMC(main)
-        self._rows.addWidget(self.smc)
-
-        add_expanding_widget(self._rows)
-        self._update_visibility()
-
-    def define_connections(self) -> None:
-        super().define_connections()
-        self.controller_type.currentTextChanged.connect(self._on_type_changed)
-
-    def is_valid(self) -> bool:
-        if self.get_type() == self.NO_SELECT:
-            q_error_named(self._main, self.NAME, "Please select controller type.")
-            return False
-
-        if self.get_type() == self.LMPC and (not self.lmpc.is_valid()):
-            return False
-        if self.get_type() == self.NMPC and (not self.nmpc.is_valid()):
-            return False
-        if self.get_type() == self.SMC and (not self.smc.is_valid()):
-            return False
-
-        return True
-
-    def get_type(self) -> str:
-        return self.controller_type.currentText()
-
-    def pkg_name(self) -> str:
-        controller_type = self.get_type()
-
-        if controller_type == self.NO_SELECT:
-            raise RuntimeError("Controller type is not selected.")
-        elif controller_type == self.LMPC:
-            return "tobas_multirotor_controller"
-        elif controller_type == self.NMPC:
-            raise NotImplementedError()
-        elif controller_type == self.SMC:
-            raise NotImplementedError()
-        else:
-            raise RuntimeError(f'Unknown controller type: {controller_type}')
-
-    def _update_visibility(self) -> None:
-        controller_type = self.get_type()
-
-        if controller_type == self.NO_SELECT:
-            self.lmpc.setVisible(False)
-            self.nmpc.setVisible(False)
-            self.smc.setVisible(False)
-        elif controller_type == self.LMPC:
-            self.lmpc.setVisible(True)
-            self.nmpc.setVisible(False)
-            self.smc.setVisible(False)
-        elif controller_type == self.NMPC:
-            self.lmpc.setVisible(False)
-            self.nmpc.setVisible(True)
-            self.smc.setVisible(False)
-        elif controller_type == self.SMC:
-            self.lmpc.setVisible(False)
-            self.nmpc.setVisible(False)
-            self.smc.setVisible(True)
-        else:
-            raise RuntimeError(f'Unknown controller type: {controller_type}')
-
-    @pyqtSlot(str)
-    def _on_type_changed(self, controller_type: str) -> None:
-        self._update_visibility()
-
-
-class ControllerWidget_LMPC(QWidget):
+class MultirotorLMPC(BaseController):
 
     NAME = "Linear Model Predictive Control"
 
+    CONTROLLER_PKG = "tobas_multirotor_controller"
+    TAKEOFF_PKG = "tobas_multirotor_takeoff"
+    LANDING_PKG = "tobas_multirotor_landing"
+
+    COMMAND_MSGS = [
+        RollPitchYawThrust,
+        RollPitchYawrateThrust,
+        VelocityYaw,
+        PositionYaw,
+    ]
+
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
-
-        abst_text = "PD制御と線形モデル予測制御を組み合わせた制御器です．\n"\
-            + "コマンド形式: tobas_msgs/PositionYaw.msg or tobas_msgs/VelocityYaw.msg"
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        abst.setOpenExternalLinks(True)
-        self._rows.addWidget(abst)
+        abst_text = "位置制御にPD制御，姿勢制御に線形モデル予測制御を用いた制御器です．"
+        super().__init__(main, abst_text)
 
         hor_natural_freq_description = "PD制御における水平方向の自然周波数．"\
             + "大きいほど応答速度が速くなりますが，"\
@@ -353,6 +257,9 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.thrust_rate_weight_exp)
 
+    def is_applicable(self) -> bool:
+        return True  # TODO
+
     def is_valid(self) -> bool:
         if self.attitude_decay.get() > self.pred_horizon.get():
             q_error_named(
@@ -378,50 +285,27 @@ class ControllerWidget_LMPC(QWidget):
 
         return True
 
+    def parameter_dict(self) -> dict:
+        res = dict()
+        res["tobas_multirotor_controller"] = {
+            "horizontal_natural_frequency": self.hor_natural_freq.get(),
+            "horizontal_damping_ratio": self.hor_damp_ratio.get(),
+            "vertical_natural_frequency": self.ver_natural_freq.get(),
+            "vertical_damping_ratio": self.ver_damp_ratio.get(),
+            "max_horizontal_velocity": self.max_hor_vel.get(),
+            "max_vertical_velocity": self.max_ver_vel.get(),
+            "max_horizontal_accel": self.max_hor_acc.get(),
+            "max_vertical_accel": self.max_ver_acc.get(),
+            "prediction_horizon": self.pred_horizon.get(),
+            "prediction_steps": self.pred_steps.get(),
+            "attitude_decay": self.attitude_decay.get(),
+            "heading_decay": self.heading_decay.get(),
+            "angular_velocity_decay": self.angvel_decay.get(),
+            "attitude_weight": self.attitude_weight.get(),
+            "heading_weight": self.heading_weight.get(),
+            "angular_velocity_weight": self.angvel_weight.get(),
+            "thrust_weight_exp": self.thrust_weight_exp.get(),
+            "thrust_rate_weight_exp": self.thrust_rate_weight_exp.get(),
+        }
 
-class ControllerWidget_NMPC(QWidget):
-    """ Data-Driven MPC for Quadrotors [Torrente+, 2021] """
-
-    def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
-
-        abst_text = ""  # TODO
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        abst.setOpenExternalLinks(True)
-        self._rows.addWidget(abst)
-
-        # TODO
-
-    def is_valid(self) -> None:
-        raise NotImplementedError()  # TODO
-
-
-class ControllerWidget_SMC(QWidget):
-    """ モデルフォロイング型スライディングモード制御の設定(cf. 「ドローン工学入門」,p.189) """
-
-    def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
-
-        abst_text = ""  # TODO
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        abst.setOpenExternalLinks(True)
-        self._rows.addWidget(abst)
-
-        # TODO
-
-    def is_valid(self) -> None:
-        raise NotImplementedError()  # TODO
+        return res

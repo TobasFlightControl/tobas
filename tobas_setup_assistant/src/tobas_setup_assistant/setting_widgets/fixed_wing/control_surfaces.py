@@ -14,7 +14,7 @@ from dh_rqt_tools.messages import q_error
 from kdl_sympy.joint import JointType
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 
 
 class ControlSurface:
@@ -37,8 +37,6 @@ class ControlSurfacesWidget(QWidget):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
-
-        self.control_surfaces: List[ControlSurface] = []
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -72,6 +70,21 @@ class ControlSurfacesWidget(QWidget):
             return False
 
         return True
+
+    def control_surfaces(self) -> List[ControlSurface]:
+        res = [ControlSurface() for _ in range(self.selected.count())]
+        for i in range(self.selected.count()):
+            res[i].min_angle = self.selected.min_angles[i].value()
+            res[i].max_angle = self.selected.max_angles[i].value()
+            res[i].max_angle_rate = self.selected.max_angle_rates[i].value()
+            res[i].c_lift_delta = self.selected.c_lift_delta[i].value()
+            res[i].c_drag_abs_delta = self.selected.c_drag_delta[i].value()
+            res[i].c_side_delta = self.selected.c_side_delta[i].value()
+            res[i].c_roll_delta = self.selected.c_roll_delta[i].value()
+            res[i].c_pitch_delta = self.selected.c_pitch_delta[i].value()
+            res[i].c_yaw_delta = self.selected.c_yaw_delta[i].value()
+
+        return res
 
 
 class AvailableLinksWidget(QListWidget):

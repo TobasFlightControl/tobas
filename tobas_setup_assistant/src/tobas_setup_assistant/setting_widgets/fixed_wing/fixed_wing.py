@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.widgets import add_expanding_widget
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 from ..base_setting import BaseSettingWidget
 from .vehicle import VehicleParametersWidget
 from .aero_coefs import AerodynamicsCoefficientsWidget
@@ -49,7 +49,7 @@ class FixedWingWidget(BaseSettingWidget):
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.has_fixed_wing.toggled.connect(self._update_visibility)
+        self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
         self.vehicle.define_connections()
         self.aero_coefs.define_connections()
         self.control_surfaces.define_connections()
@@ -58,16 +58,15 @@ class FixedWingWidget(BaseSettingWidget):
         if not self.has_fixed_wing.isChecked():
             return True
 
-        if not self.vehicle.isValid():
+        if not self.vehicle.is_valid():
             return False
-        if not self.aero_coefs.isValid():
+        if not self.aero_coefs.is_valid():
             return False
         if not self.control_surfaces.is_valid():
             return False
 
         return True
 
-    @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.has_fixed_wing.isChecked():
             self.vehicle.setVisible(True)
@@ -77,3 +76,8 @@ class FixedWingWidget(BaseSettingWidget):
             self.vehicle.setVisible(False)
             self.aero_coefs.setVisible(False)
             self.control_surfaces.setVisible(False)
+
+    @pyqtSlot()
+    def _on_has_fixed_wing_toggled(self) -> None:
+        self._update_visibility()
+        self._main.signals.airframe_updated.emit()

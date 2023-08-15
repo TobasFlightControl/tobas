@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 
 
 class BladeGeometry(QWidget):

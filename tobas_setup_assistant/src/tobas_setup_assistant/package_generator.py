@@ -20,11 +20,13 @@ from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
 
+from tobas_msgs.msg import PositionYaw, SpeedRollDeltaPitch
+
 from .utils import *
 from .xml_nodes import *
 
 
-class PackageGenerator(QWidget):
+class PackageGenerator(QObject):
 
     generated = pyqtSignal()
 
@@ -36,16 +38,14 @@ class PackageGenerator(QWidget):
         self._template_env = Environment(
             loader=FileSystemLoader(osp.join(self._proj_path, "templates")),
             trim_blocks=True,
-            lstrip_blocks=True,
-        )
+            lstrip_blocks=True)
 
         self._drone_name = ""
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._main.settings.ros_package.generate_button.clicked.connect(
-            self._on_generate_button_clicked
-        )
+            self._on_generate_button_clicked)
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
@@ -112,19 +112,44 @@ class PackageGenerator(QWidget):
 
         # テンプレートから生成
         items = self._make_template_items()
-        self._generate_from_template(items, "CMakeLists.txt", pkg_path)
-        self._generate_from_template(items, "package.xml", pkg_path)
-        self._generate_from_template(items, "environment.yaml", config_dir)
-        self._generate_from_template(items, "gazebo.launch", launch_dir)
-        self._generate_from_template(items, "real.launch", launch_dir)
-        self._generate_from_template(items, "controller.launch", launch_dir)
-        self._generate_from_template(items, "observer.launch", launch_dir)
-        self._generate_from_template(items, "bringup.launch", launch_dir)
-        self._generate_from_template(items, "hil.launch", launch_dir)
-        self._generate_from_template(items, "motors.launch", launch_dir)
-        self._generate_from_template(items, "keyboard_teleop.launch", launch_dir)
-        self._generate_from_template(items, "gui_teleop.launch", launch_dir)
-        self._generate_from_template(items, "rc_teleop.launch", launch_dir)
+        self._generate_from_template(
+            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt"))
+        self._generate_from_template(
+            items, "package.xml", osp.join(pkg_path, "package.xml"))
+        self._generate_from_template(
+            items, "environment.yaml", osp.join(config_dir, "environment.yaml"))
+        self._generate_from_template(
+            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch"))
+        self._generate_from_template(
+            items, "real.launch", osp.join(launch_dir, "real.launch"))
+        self._generate_from_template(
+            items, "controller.launch", osp.join(launch_dir, "controller.launch"))
+        self._generate_from_template(
+            items, "observer.launch", osp.join(launch_dir, "observer.launch"))
+        self._generate_from_template(
+            items, "bringup.launch", osp.join(launch_dir, "bringup.launch"))
+        self._generate_from_template(
+            items, "hil.launch", osp.join(launch_dir, "hil.launch"))
+        self._generate_from_template(
+            items, "motors.launch", osp.join(launch_dir, "motors.launch"))
+        self._generate_from_template(
+            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch"))
+
+        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
+        if PositionYaw in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/position_yaw.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"))
+            self._generate_from_template(
+                items,
+                "gui_teleop/position_yaw.launch",
+                osp.join(launch_dir, "gui_teleop.launch"))
+        elif SpeedRollDeltaPitch in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/speed_roll_dpitch.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"))
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
@@ -140,7 +165,10 @@ class PackageGenerator(QWidget):
         template_items["drone_name"] = self._drone_name
 
         # Controller
-        template_items["controller_pkg"] = self._main.settings.controller.pkg_name()
+        controller = self._main.settings.controller
+        template_items["controller_pkg"] = controller.controller_pkg()
+        template_items["takeoff_pkg"] = controller.takeoff_pkg()
+        template_items["landing_pkg"] = controller.landing_pkg()
 
         # Observer
         template_items["observer_pkg"] = self._main.settings.observer.pkg_name()
@@ -169,23 +197,24 @@ class PackageGenerator(QWidget):
 
         return template_items
 
-    def _generate_from_template(self, items: dict, template_file: str, dest: str) -> None:
+    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
         template = self._template_env.get_template(template_file)
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
-        file_path = osp.join(dest, template_file)
-        with open(file_path, "w") as f:
+        with open(out_path, "w") as f:
             f.write(content)
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
-        rotary_wings = self._main.settings.rotary_wings.selected
-        num_rotors = rotary_wings.count()
         drone_config = {
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
             "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
         }
+
+        # Rotary wings
+        rotary_wings = self._main.settings.rotary_wings.selected
+        num_rotors = rotary_wings.count()
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
 
@@ -206,12 +235,59 @@ class PackageGenerator(QWidget):
             esc = selected.esc
             esc_type = esc.esc_type.currentText()
             drone_config[f'rotor_{i}']["esc_type"] = esc_type.lower()
-            if esc_type == esc.PWM:
-                pass
-            elif esc_type == esc.DSHOT:
-                pass
-            else:
-                raise RuntimeError(f'Unknown ESC type: {esc_type}')
+
+        # Fixed wing
+        fixed_wing = self._main.settings.fixed_wing
+        if fixed_wing.has_fixed_wing.isChecked():
+            drone_config["fixed_wing"] = dict()
+
+            vehicle = fixed_wing.vehicle
+            drone_config["fixed_wing"]["vehicle"] = {
+                "wing_surface": vehicle.wing_surface.get(),
+                "wing_span": vehicle.wing_span.get(),
+                "mean_aerodynamic_chord": vehicle.mac.get(),
+                "aerodynamic_center": vehicle.aerodynamic_center.get(),
+                "alpha_limit": {
+                    "lower": vehicle.alpha_limit.min(),
+                    "upper": vehicle.alpha_limit.max(),
+                },
+            }
+
+            aero_coefs = fixed_wing.aero_coefs
+            drone_config["fixed_wing"]["aerodynamic_coefficients"] = {
+                "c_lift_0": aero_coefs.c_lift_0.value(),
+                "c_lift_alpha": aero_coefs.c_lift_alpha.value(),
+                "c_drag_0": aero_coefs.c_drag_0.value(),
+                "c_drag_alpha": aero_coefs.c_drag_alpha.value(),
+                "c_side_beta": aero_coefs.c_side_beta.value(),
+                "c_roll_beta": aero_coefs.c_roll_beta.value(),
+                "c_roll_p": aero_coefs.c_roll_p.value(),
+                "c_roll_r": aero_coefs.c_roll_r.value(),
+                "c_pitch_0": aero_coefs.c_pitch_0.value(),
+                "c_pitch_alpha": aero_coefs.c_pitch_alpha.value(),
+                "c_pitch_abs_beta": aero_coefs.c_pitch_abs_beta.value(),
+                "c_pitch_alpha_rate": aero_coefs.c_pitch_alpha_rate.value(),
+                "c_pitch_q": aero_coefs.c_pitch_q.value(),
+                "c_yaw_beta": aero_coefs.c_yaw_beta.value(),
+                "c_yaw_p": aero_coefs.c_yaw_p.value(),
+                "c_yaw_r": aero_coefs.c_yaw_r.value(),
+            }
+
+            control_surfaces = fixed_wing.control_surfaces
+            for idx, cs in enumerate(control_surfaces.control_surfaces()):
+                drone_config["fixed_wing"][f'control_surface_{idx}'] = {
+                    "angle_limit": {
+                        "lower": cs.min_angle,
+                        "upper": cs.max_angle,
+                    },
+                    "max_angle_rate": cs.max_angle_rate,
+                    "c_lift_delta": cs.c_lift_delta,
+                    "c_drag_abs_delta": cs.c_drag_abs_delta,
+                    "c_side_delta": cs.c_side_delta,
+                    "c_roll_delta": cs.c_roll_delta,
+                    "c_pitch_delta": cs.c_pitch_delta,
+                    "c_yaw_delta": cs.c_yaw_delta,
+                }
 
         # TBSFファイルを作成
         drone_config_path = osp.join(config_dir, f'{self._drone_name}.tbsf')
@@ -237,84 +313,13 @@ class PackageGenerator(QWidget):
             yaml.dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        controller = self._main.settings.controller
-        controller_type = controller.get_type()
-
-        items = dict()
-        if controller_type == controller.LMPC:
-            lmpc = controller.lmpc
-            items["tobas_multirotor_controller"] = {
-                "horizontal_natural_frequency": lmpc.hor_natural_freq.get(),
-                "horizontal_damping_ratio": lmpc.hor_damp_ratio.get(),
-                "vertical_natural_frequency": lmpc.ver_natural_freq.get(),
-                "vertical_damping_ratio": lmpc.ver_damp_ratio.get(),
-                "max_horizontal_velocity": lmpc.max_hor_vel.get(),
-                "max_vertical_velocity": lmpc.max_ver_vel.get(),
-                "max_horizontal_accel": lmpc.max_hor_acc.get(),
-                "max_vertical_accel": lmpc.max_ver_acc.get(),
-                "prediction_horizon": lmpc.pred_horizon.get(),
-                "prediction_steps": lmpc.pred_steps.get(),
-                "attitude_decay": lmpc.attitude_decay.get(),
-                "heading_decay": lmpc.heading_decay.get(),
-                "angular_velocity_decay": lmpc.angvel_decay.get(),
-                "attitude_weight": lmpc.attitude_weight.get(),
-                "heading_weight": lmpc.heading_weight.get(),
-                "angular_velocity_weight": lmpc.angvel_weight.get(),
-                "thrust_weight_exp": lmpc.thrust_weight_exp.get(),
-                "thrust_rate_weight_exp": lmpc.thrust_rate_weight_exp.get(),
-            }
-        elif controller_type == controller.NMPC:
-            raise NotImplementedError()
-        elif controller_type == controller.SMC:
-            raise NotImplementedError()
-        else:
-            raise RuntimeError(f'Unknown controller type: {controller_type}')
-
+        items = self._main.settings.controller.selected().parameter_dict()
         controller_path = osp.join(config_dir, "controller.yaml")
         with open(controller_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        observer = self._main.settings.observer
-        observer_type = observer.get_type()
-
-        imu = self._main.settings.imu
-        gps = self._main.settings.gps
-
-        items = dict()
-        if observer_type == observer.CASCADE:
-            cascade = observer.cascade
-            items["orientation_estimator_complement"] = {
-                "gain_acc": cascade.gain_acc.get(),
-                "gain_mag": cascade.gain_mag.get(),
-                "bias_alpha": cascade.bias_alpha.get(),
-                "do_bias_estimation": cascade.do_bias_estimation.get(),
-                "do_adaptive_gain": cascade.do_adaptive_gain.get(),
-            }
-            items["state_estimator_cascade"] = {
-                "use_gps": gps.equipped(),
-                "gps_horizontal_position_stddev_threshold": cascade.gps_hor_pos_stddev_threshold.get(),
-                "gps_vertical_position_stddev_threshold": cascade.gps_ver_pos_stddev_threshold.get(),
-                "gravity_variance": cascade.grav_var.get(),
-            }
-        elif observer_type == observer.ESKF:
-            eskf = observer.eskf
-            items["state_estimator_eskf"] = {
-                "gyro_noise_density": imu.gyro_noise_density.get(),
-                "gyro_random_walk": imu.gyro_random_walk.get(),
-                "acc_noise_density": imu.acc_noise_density.get(),
-                "acc_random_walk": imu.acc_random_walk.get(),
-                "use_barometer": False,  # TODO: 選択できるように
-                "use_gps": gps.equipped(),
-                "gps_horizontal_position_stddev_threshold": eskf.gps_hor_pos_stddev_threshold.get(),
-                "gps_vertical_position_stddev_threshold": eskf.gps_ver_pos_stddev_threshold.get(),
-                "geomag_observe_method": "yaw_only",
-                "rotation_variance_grav": eskf.rot_var_grav.get(),
-                "rotation_variance_geomag": eskf.rot_var_geomag.get(),
-            }
-        else:
-            raise RuntimeError(f'Unknown observer type: {observer_type}')
-
+        items = self._main.settings.observer.selected().parameter_dict()
         observer_path = osp.join(config_dir, "observer.yaml")
         with open(observer_path, "w") as f:
             yaml.dump(items, f)
@@ -435,7 +440,7 @@ class PackageGenerator(QWidget):
         )
         robot.append(battery_model)
 
-        # Motors
+        # Rotary wings
         for i in range(rotary_wings.count()):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
             motor_model = MotorModel(
@@ -452,6 +457,40 @@ class PackageGenerator(QWidget):
                 time_const_down=selected.motor.time_const_down(),
             )
             robot.append(motor_model)
+
+        # Fixed wing
+        if fixed_wing.has_fixed_wing.isChecked():
+            vehicle = fixed_wing.vehicle
+            aero_coefs = fixed_wing.aero_coefs
+            control_surfaces = fixed_wing.control_surfaces
+            fixed_wing_model = FixedWingModel(
+                ns=self._drone_name,
+                link_name=root_link,
+                altitude_0=simulation.altitude_0.get(),
+                wing_surface=vehicle.wing_surface.get(),
+                wing_span=vehicle.wing_span,
+                mean_aerodynamic_chord=vehicle.mac.get(),
+                aerodynamic_center=vehicle.aerodynamic_center.get(),
+                alpha_limit=vehicle.alpha_limit.get(),
+                c_lift_0=aero_coefs.c_lift_0.value(),
+                c_lift_alpha=aero_coefs.c_lift_alpha.value(),
+                c_drag_0=aero_coefs.c_drag_0.value(),
+                c_drag_alpha=aero_coefs.c_drag_alpha.value(),
+                c_side_beta=aero_coefs.c_side_beta.value(),
+                c_roll_beta=aero_coefs.c_roll_beta.value(),
+                c_roll_p=aero_coefs.c_roll_p.value(),
+                c_roll_r=aero_coefs.c_roll_r.value(),
+                c_pitch_0=aero_coefs.c_pitch_0.value(),
+                c_pitch_alpha=aero_coefs.c_pitch_alpha.value(),
+                c_pitch_abs_beta=aero_coefs.c_pitch_abs_beta.value(),
+                c_pitch_alpha_rate=aero_coefs.c_pitch_alpha_rate.value(),
+                c_pitch_q=aero_coefs.c_pitch_q.value(),
+                c_yaw_beta=aero_coefs.c_yaw_beta.value(),
+                c_yaw_p=aero_coefs.c_yaw_p.value(),
+                c_yaw_r=aero_coefs.c_yaw_r.value(),
+                control_surfaces=control_surfaces.control_surfaces(),
+            )
+            robot.append(fixed_wing_model)
 
         # IMU
         if imu.equipped():

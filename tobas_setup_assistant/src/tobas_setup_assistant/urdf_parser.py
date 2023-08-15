@@ -16,7 +16,7 @@ from kdl_sympy.tree import Tree
 from kdl_sympy.joint import JointType
 
 
-class URDFParser(QWidget):
+class URDFParser(QObject):
 
     robot_model_updated = pyqtSignal()
 
