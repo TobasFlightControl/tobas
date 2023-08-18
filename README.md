@@ -53,7 +53,7 @@ $ catkin build
 
 ## Basic Usage
 
-### Create Tobas configuration package using setup assistant.
+### 1. Create Tobas configuration package using setup assistant.
 
 ```bash
 $ cd ~/catkin_ws
@@ -63,15 +63,17 @@ $ roslaunch tobas_setup_assistant setup_assistant.launch
 
 Examples of robot description can be found in `tobas/tobas_description/urdf/`.
 
-### Launch your drone
+### 2. Launch your drone
 
-#### Gazebo simulation
+Launch the drivers for the drone's sensors and propulsing system in Gazebo or in the real world.
+
+#### In the case of Gazebo simulation
 
 ```bash
 $ roslaunch (tobas_config_pkg) gazebo.launch
 ```
 
-#### Real world
+#### In the case of the real world
 
 1. Connect FC and an external PC to the same network
 
@@ -95,62 +97,24 @@ $ source ~/catkin_ws/devel/setup.bash
 $ roslaunch (tobas_config_pkg) real.launch
 ```
 
-### Bringup control nodes
+### 3. Bringup control nodes
 
+Launch the nodes for drone control. This is common for both simulation and the real world.\
 Please make sure that the RC transmitter and receiver can communicate correctly.
 
 ```bash
 $ roslaunch (tabas_config_pkg) bringup.launch
 ```
 
-### Accelerometer Calibration
-
-```bash
-$ roslaunch tobas_real accel_calibration.launch
-```
-
-### Magnetometer Calibration
-
-```bash
-$ roslaunch tobas_real mag_calibration.launch
-```
-
-### ADC Calibration
-
-Make sure battery is connected to FC properly.\
-Execute the following in FC:
-
-```bash
-$ roslaunch tobas_real adc_calibration.launch
-```
-
-### RC Input Calibration
-
-Make sure RC receiver is connected to FC properly and it can communicate with a transmitter.\
-Execute the following in FC:
-
-```bash
-$ roslaunch tobas_real rcin_calibration.launch
-```
-
-### ESC Calibration
-
-Make sure battery and ESCs are connected to FC properly.\
-Execute the following in FC:
-
-```bash
-$ su
-$ source ~/catkin_ws/devel/setup.bash
-$ roslaunch tobas_real esc_calibration.launch
-```
-
-### Teleoperation
+### 4. Teleoperation
 
 ```bash
 $ roslaunch (tobas_config_pkg) keyboard_teleop.launch  # By keyboard
 $ roslaunch (tobas_config_pkg) gui_teleop.launch       # By GUI application
 $ roslaunch (tobas_config_pkg) rc_teleop.launch        # By RC transmitter
 ```
+
+## Advanced usage
 
 ### Run FC and external PC on the same ROS network
 
@@ -195,6 +159,49 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 ```bash
 $ su
 $ roslaunch (tobas_config_pkg) hil.launch
+```
+
+## Calibration
+
+### Accelerometer Calibration
+
+```bash
+$ roslaunch tobas_real accel_calibration.launch
+```
+
+### Magnetometer Calibration
+
+```bash
+$ roslaunch tobas_real mag_calibration.launch
+```
+
+### ADC Calibration
+
+Make sure battery is connected to FC properly.\
+Execute the following in FC:
+
+```bash
+$ roslaunch tobas_real adc_calibration.launch
+```
+
+### RC Input Calibration
+
+Make sure RC receiver is connected to FC properly and it can communicate with a transmitter.\
+Execute the following in FC:
+
+```bash
+$ roslaunch tobas_real rcin_calibration.launch
+```
+
+### ESC Calibration
+
+Make sure battery and ESCs are connected to FC properly.\
+Execute the following in FC:
+
+```bash
+$ su
+$ source ~/catkin_ws/devel/setup.bash
+$ roslaunch tobas_real esc_calibration.launch
 ```
 
 ## Trouble Shooting
