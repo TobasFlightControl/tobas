@@ -139,6 +139,85 @@
   </xacro:fixed_wing_base_macro>
   <!-- Added to here -->
 
+  <!-- Instantiate the wheels -->
+	<joint name="techpod/wheel_left_joint" type="continuous">
+		<parent link="techpod/base_link"/>
+		<child link="techpod/wheel_left"/>
+		<origin xyz="0.3 0.2 -0.2" rpy="1.5707963267948966 0 0" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<link name="techpod/wheel_left">
+		<inertial>
+			<mass value="1e-3" />
+			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
+		</inertial>
+		<visual>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+	<gazebo reference="techpod/wheel_left">
+		<material>Gazebo/Black</material>
+	</gazebo>
+
+	<joint name="techpod/wheel_right_joint" type="continuous">
+		<parent link="techpod/base_link"/>
+		<child link="techpod/wheel_right"/>
+		<origin xyz="0.3 -0.2 -0.2" rpy="1.5707963267948966 0 0" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<link name="techpod/wheel_right">
+		<inertial>
+			<mass value="1e-3" />
+			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
+		</inertial>
+		<visual>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+	<gazebo reference="techpod/wheel_right">
+		<material>Gazebo/Black</material>
+	</gazebo>
+
+	<joint name="techpod/wheel_rear_joint" type="continuous">
+		<parent link="techpod/base_link"/>
+		<child link="techpod/wheel_rear"/>
+		<origin xyz="-0.3 0 -0.2" rpy="1.5707963267948966 0 0" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<link name="techpod/wheel_rear">
+		<inertial>
+			<mass value="1e-3" />
+			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
+		</inertial>
+		<visual>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+	<gazebo reference="techpod/wheel_rear">
+		<material>Gazebo/Black</material>
+	</gazebo>
+
   <!-- Instantiate the ailerons -->
   <xacro:control_surface
     robot_namespace="${namespace}"
@@ -267,7 +346,7 @@
     color="${propeller_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${propeller_mesh_file}">
-    <origin xyz="-0.025 0 0.15" rpy="0 ${-0.5*PI} 0" />
+    <origin xyz="-0.025 0 0.15" rpy="0 ${0.5*PI} 0" />
     <xacro:insert_block name="propeller_inertia" />
   </xacro:propeller>
 
