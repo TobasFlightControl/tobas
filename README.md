@@ -41,7 +41,7 @@ $ cd QuadProgpp
 $ mkdir build
 $ cd build
 $ cmake -DCMAKE_BUILD_TYPE=Release ..
-$ make
+$ make -j
 $ sudo make install
 ```
 
@@ -57,7 +57,7 @@ $ catkin build
 
 ```bash
 $ cd ~/catkin_ws
-$ catkin source
+$ source devel/setup.bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 ```
 
