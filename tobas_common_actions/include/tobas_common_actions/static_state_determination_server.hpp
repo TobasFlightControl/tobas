@@ -3,8 +3,9 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <tobas_tools/node.hpp>
+#include <dh_std_tools/statistics.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_common_actions/StaticStateDeterminationAction.h>
 
 namespace tobas_common_actions
@@ -12,11 +13,15 @@ namespace tobas_common_actions
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "static_state_determination";
-  static constexpr uint32_t kMinimumImuCount = 500;
-  static constexpr uint32_t kMinimumBarCount = 500;
-  static constexpr uint32_t kMinimumGpsCount = 25;
-  static constexpr double kStaticGyroThreshold = 0.5;                // [rad/s]
-  static constexpr double kStaticAirPressureAltitudeThreshold = 3.;  // [m]
+
+  // 中心極限定理によると，データ数が30以上なら多くの分布に対してサンプル平均の分布は近似的に正規分布になる．
+  // よって，データ数がそれ以上ならば平均と分散の推定がより信頼できると一般的には考えられる． (GPT4)
+  static constexpr uint32_t kMinimumImuCount = 100;
+  static constexpr uint32_t kMinimumBarCount = 100;
+  static constexpr uint32_t kMinimumGpsCount = 50;
+
+  static constexpr double kStaticGyroThreshold = 0.5;               // [rad/s]
+  static constexpr double kStaticAirPressureAltVarThreshold = 0.5;  // [m]
 
   using super = tobas::BaseNode;
 
@@ -43,13 +48,13 @@ private:
   uint32_t bar_count_;
   uint32_t gps_count_;
   uint32_t vel_count_;
-  ImuMsg imu_;
-  BarMsg bar_;
   ImuMsg imu_sum_;
   MagMsg mag_sum_;
   BarMsg bar_sum_;
   GpsMsg gps_sum_;
   VelMsg vel_sum_;
+  geometry_msgs::Vector3 gyro_;
+  dh_std::OnlineStatistics pressure_alt_stat_;
 
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;

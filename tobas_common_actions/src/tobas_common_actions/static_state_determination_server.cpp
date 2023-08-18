@@ -8,6 +8,7 @@
 #include "../../include/tobas_common_actions/static_state_determination_server.hpp"
 #include "../../include/tobas_common_actions/common.hpp"
 
+using namespace std;
 using namespace dh_std;
 
 namespace tobas_common_actions
@@ -55,6 +56,8 @@ void StaticStateDeterminationServer::reset()
   bar_sum_ = BarMsg();
   gps_sum_ = GpsMsg();
   vel_sum_ = VelMsg();
+
+  pressure_alt_stat_.reset();
 }
 
 void StaticStateDeterminationServer::fillResult()
@@ -137,19 +140,17 @@ bool StaticStateDeterminationServer::isValidResult(const GoalType& goal)
 bool StaticStateDeterminationServer::isStatic()
 {
   // ジャイロが閾値を超えたらダメ
-  if (dh_ros::norm(imu_.angular_velocity) > kStaticGyroThreshold)
+  if (dh_ros::norm(gyro_) > kStaticGyroThreshold)
   {
     result_.error_code = StaticStateDeterminationResult::NOT_STATIC;
     as_.setAborted(result_, "Rotation of the aircraft is detected.");
     return false;
   }
 
-  // 気圧高度の変動が閾値を超えたらダメ
-  if (bar_count_ > 0)
+  // 気圧高度の分散が閾値を超えたらダメ
+  if (bar_count_ > kMinimumBarCount)
   {
-    const auto cur_alt = dh_std::pressureToAltitude(bar_.fluid_pressure);
-    const auto mean_alt = dh_std::pressureToAltitude(bar_sum_.fluid_pressure / bar_count_);
-    if (abs(cur_alt - mean_alt) > kStaticAirPressureAltitudeThreshold)
+    if (pressure_alt_stat_.getVariance() > kStaticAirPressureAltVarThreshold)
     {
       result_.error_code = StaticStateDeterminationResult::NOT_STATIC;
       as_.setAborted(result_, "A drift in barometric altitude is detected.");
@@ -180,7 +181,6 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
   }
 
   ++imu_count_;
-  imu_ = imu;
 
   imu_sum_.angular_velocity = imu_sum_.angular_velocity + imu.angular_velocity;
   imu_sum_.linear_acceleration = imu_sum_.linear_acceleration + imu.linear_acceleration;
@@ -189,6 +189,8 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
     imu_sum_.angular_velocity_covariance + imu.angular_velocity_covariance;
   imu_sum_.linear_acceleration_covariance =
     imu_sum_.linear_acceleration_covariance + imu.linear_acceleration_covariance;
+
+  gyro_ = imu.angular_velocity;
 }
 
 void StaticStateDeterminationServer::magCb(const MagMsg& mag)
@@ -213,10 +215,12 @@ void StaticStateDeterminationServer::barCb(const BarMsg& bar)
   }
 
   ++bar_count_;
-  bar_ = bar;
 
   bar_sum_.fluid_pressure += bar.fluid_pressure;
   bar_sum_.variance += bar.variance;
+
+  const auto pressure_alt = pressureToAltitude(bar.fluid_pressure);
+  pressure_alt_stat_.addData(pressure_alt);
 }
 
 void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
