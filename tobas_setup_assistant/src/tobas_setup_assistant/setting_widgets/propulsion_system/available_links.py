@@ -59,7 +59,7 @@ class AvailableLinksWidget(QListWidget):
     @pyqtSlot()
     def _add_available_links(self) -> None:
         """
-        以下の条件を満たすリンクをプロペラ候補としてリストに追加する．
+        以下の条件を満たすリンクを推進系候補としてリストに追加する．
         - continuousタイプのジョイントをもつ．
         - 回転軸が常にZ軸と一致している．
         """
@@ -117,7 +117,7 @@ class AvailableLinkItemWidget(QListWidget):
 
     @pyqtSlot()
     def _on_add_button_clicked(self) -> None:
-        self._main.settings.rotary_wings.selected.add(self.link_name())
-        self._main.settings.rotary_wings.available.remove(self.link_name())
+        self._main.settings.propulsion_system.selected.add(self.link_name())
+        self._main.settings.propulsion_system.available.remove(self.link_name())
 
         self._main.signals.airframe_updated.emit()

@@ -23,7 +23,7 @@ class SettingsWidget(VerticalTabWidget):
 
         self.start = StartWidget(main)
         self.battery = BatteryWidget(main)
-        self.rotary_wings = RotaryWingsWidget(main)
+        self.propulsion_system = PropulsionSystemWidget(main)
         self.fixed_wing = FixedWingWidget(main)
         self.imu = ImuWidget(main)
         self.magnetometer = MagnetometerWidget(main)
@@ -41,7 +41,7 @@ class SettingsWidget(VerticalTabWidget):
 
         self.addTab(self.start, StartWidget.NAME)
         self.addTab(self.battery, BatteryWidget.NAME)
-        self.addTab(self.rotary_wings, RotaryWingsWidget.NAME)
+        self.addTab(self.propulsion_system, PropulsionSystemWidget.NAME)
         self.addTab(self.fixed_wing, FixedWingWidget.NAME)
         self.addTab(self.imu, ImuWidget.NAME)
         self.addTab(self.magnetometer, MagnetometerWidget.NAME)
@@ -65,7 +65,7 @@ class SettingsWidget(VerticalTabWidget):
     def define_connections(self) -> None:
         self.start.define_connections()
         self.battery.define_connections()
-        self.rotary_wings.define_connections()
+        self.propulsion_system.define_connections()
         self.fixed_wing.define_connections()
         self.imu.define_connections()
         self.magnetometer.define_connections()

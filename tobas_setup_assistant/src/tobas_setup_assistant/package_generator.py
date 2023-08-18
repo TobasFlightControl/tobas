@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
-    from .setting_widgets.rotary_wings.selected_links import SelectedLinkTabWidget
+    from .setting_widgets.propulsion_system.selected_links import SelectedLinkTabWidget
 
 import os
 import os.path as osp
@@ -66,8 +66,8 @@ class PackageGenerator(QObject):
         if not self._main.settings.battery.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.battery)
             return False
-        if not self._main.settings.rotary_wings.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.rotary_wings)
+        if not self._main.settings.propulsion_system.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.propulsion_system)
             return False
         if not self._main.settings.fixed_wing.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.fixed_wing)
@@ -229,11 +229,11 @@ class PackageGenerator(QObject):
             "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
         }
 
-        # Rotary wings
-        rotary_wings = self._main.settings.rotary_wings.selected
-        num_rotors = rotary_wings.count()
+        # Propulsion System
+        propulsion_system = self._main.settings.propulsion_system.selected
+        num_rotors = propulsion_system.count()
         for i in range(num_rotors):
-            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+            selected: SelectedLinkTabWidget = propulsion_system.widget(i)
 
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f'rotor_{i}'] = {
@@ -422,7 +422,7 @@ class PackageGenerator(QObject):
     def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
 
-        rotary_wings = self._main.settings.rotary_wings.selected
+        propulsion_system = self._main.settings.propulsion_system.selected
         fixed_wing = self._main.settings.fixed_wing
         battery = self._main.settings.battery
         imu = self._main.settings.imu
@@ -457,9 +457,9 @@ class PackageGenerator(QObject):
         )
         robot.append(battery_model)
 
-        # Rotary wings
-        for i in range(rotary_wings.count()):
-            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+        # Propulsion System
+        for i in range(propulsion_system.count()):
+            selected: SelectedLinkTabWidget = propulsion_system.widget(i)
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,

@@ -287,7 +287,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         pass
 
     def _blade(self) -> BladeGeometry:
-        return self._main.settings.rotary_wings.selected.get_blade_geometry(self._link_name)
+        return self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
 
     def _N(self) -> int:
         """ Number of blades """
@@ -383,7 +383,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法
-        aero_dynamics = self._main.settings.rotary_wings.selected.get_aerodynamics(self._link_name)
+        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(self._link_name)
         return aero_dynamics.blade_theory.rotor_drag_coef()
 
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
@@ -427,7 +427,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CTs = data[:, 1]
         CT = np.mean(CTs)
 
-        blade = self._main.settings.rotary_wings.selected.get_blade_geometry(self._link_name)
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (CT * self.rho * blade.propeller_diameter()**4) / (4 * math.pi**2)
 
     def moment_const(self) -> float:
@@ -439,12 +439,12 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
         CP = np.mean(CPs)
 
-        blade = self._main.settings.rotary_wings.selected.get_blade_geometry(self._link_name)
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (blade.propeller_diameter() * CP) / (2 * math.pi * CT)
 
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法
-        aero_dynamics = self._main.settings.rotary_wings.selected.get_aerodynamics(self._link_name)
+        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(self._link_name)
         return aero_dynamics.blade_theory.rotor_drag_coef()
 
     def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:

@@ -109,7 +109,7 @@ class SelectedLinksWidget(TabWidget):
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:
         tab: SelectedLinkTabWidget = self.widget(idx)
-        self._main.settings.rotary_wings.available.add(tab.link_name())
+        self._main.settings.propulsion_system.available.add(tab.link_name())
         self.removeTab(idx)
 
         self._main.signals.airframe_updated.emit()
@@ -182,7 +182,7 @@ class SelectedLinkTabWidget(QWidget):
 
     @pyqtSlot()
     def _copy_from_left_tab(self) -> None:
-        selected = self._main.settings.rotary_wings.selected
+        selected = self._main.settings.propulsion_system.selected
         self_idx = selected.get_index(self._link_name)
 
         if self_idx == 0:

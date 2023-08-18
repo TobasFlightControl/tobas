@@ -266,8 +266,8 @@ class MultirotorLMPC(BaseController):
         if fixed_wing.has_fixed_wing.isChecked():
             return False
 
-        # プロペラの枚数条件
-        prop_jnt_names = self._main.settings.rotary_wings.selected.joint_names()
+        # プロペラの個数条件
+        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
         if len(prop_jnt_names) < self.MIN_PROP_NUM:
             return False
 
@@ -283,7 +283,7 @@ class MultirotorLMPC(BaseController):
 
     def is_valid(self) -> bool:
         # 両方の回転方向のプロペラをもつ
-        directions = set(self._main.settings.rotary_wings.selected.directions())
+        directions = set(self._main.settings.propulsion_system.selected.directions())
         assert len(directions) <= 2
         if len(directions) == 1:
             q_error_named(

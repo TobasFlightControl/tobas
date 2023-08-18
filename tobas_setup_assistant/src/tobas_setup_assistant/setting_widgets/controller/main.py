@@ -305,7 +305,7 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.angvel_weight)
 
-        thrust_weight_exp_description = "モデル予測制御における，プロペラ推力の重みの常用対数．"
+        thrust_weight_exp_description = "モデル予測制御における，推力の重みの常用対数．"
         self.thrust_weight_exp = ParamGetterWidget_SpinBox(
             "Thrust weight level (Rotation controller)",
             thrust_weight_exp_description,
@@ -315,7 +315,7 @@ class ControllerWidget_LMPC(QWidget):
         )
         self._rows.addWidget(self.thrust_weight_exp)
 
-        thrust_rate_weight_exp_description = "モデル予測制御における，プロペラ推力の変化率の重みの常用対数．"
+        thrust_rate_weight_exp_description = "モデル予測制御における，推力の変化率の重みの常用対数．"
         self.thrust_rate_weight_exp = ParamGetterWidget_SpinBox(
             "Thrust rate weight level (Rotation controller)",
             thrust_rate_weight_exp_description,

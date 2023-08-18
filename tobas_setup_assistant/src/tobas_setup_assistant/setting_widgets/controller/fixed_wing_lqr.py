@@ -128,8 +128,8 @@ class FixedWingLQR(BaseController):
         if not fixed_wing.has_fixed_wing.isChecked():
             return False
 
-        # プロペラの枚数条件
-        prop_jnt_names = self._main.settings.rotary_wings.selected.joint_names()
+        # プロペラの個数条件
+        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
         if len(prop_jnt_names) < self.MIN_PROP_NUM:
             return False
 

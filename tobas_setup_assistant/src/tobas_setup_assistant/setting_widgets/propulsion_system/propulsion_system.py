@@ -16,16 +16,16 @@ from .available_links import AvailableLinksWidget
 from .selected_links import SelectedLinksWidget
 
 
-class RotaryWingsWidget(BaseSettingWidget):
+class PropulsionSystemWidget(BaseSettingWidget):
 
-    NAME = "Rotary Wings"
+    NAME = "Propulsion"
     LABEL_PSIZE = 12
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Rotary Wings"
-        abst_text = "プロペラの設定を行います．"\
-            + "Available Linksからプロペラとして使用するリンクを追加し，"\
-            + "それぞれのプロペラに対して必要事項を入力してください．"
+        title_text = "Define Propulsion System"
+        abst_text = "推進系の設定を行います．"\
+            + "Available Linksから推進系として使用するリンクを追加し，"\
+            + "それぞれに対して必要事項を入力してください．"
         super().__init__(main, title_text, abst_text)
 
         links_label = QLabel("Available Links")
