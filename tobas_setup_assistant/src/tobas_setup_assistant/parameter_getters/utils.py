@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import SpinBox, DoubleSpinBox
 
-from ..constants import *
+from ..common import *
 
 
 class IntGetter(QWidget):

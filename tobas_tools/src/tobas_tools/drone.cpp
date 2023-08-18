@@ -19,9 +19,15 @@ Drone::Drone() : is_loaded_(false)
 
 void Drone::loadFromParam(const string& ns)
 {
-  getTree(ns);
+  if (!kdl_parser::treeFromParam(ns + "/robot_description", tree_))
+  {
+    rosthrow("Failed to get KDL tree.");
+  }
 
-  dh_ros::getParam(ns + "/active_joint_names", active_joint_names_);
+  dh_ros::getParam(ns + "/imu_offset", imu_offset_);
+  dh_ros::getParam(ns + "/barometer_offset", bar_offset_);
+  dh_ros::getParam(ns + "/gps_offset", gps_offset_);
+  dh_ros::getParam(ns + "/posture_defining_joint_names", posture_defining_joints_);
 
   getRotorConfigs(ns);
 
@@ -39,9 +45,24 @@ const Tree& Drone::tree() const
   return tree_;
 }
 
-const vector<string>& Drone::activeJointNames() const
+const Vector3d& Drone::imuOffset() const
 {
-  return active_joint_names_;
+  return imu_offset_;
+}
+
+const Vector3d& Drone::barometerOffset() const
+{
+  return bar_offset_;
+}
+
+const Vector3d& Drone::gpsOffset() const
+{
+  return gps_offset_;
+}
+
+const vector<string>& Drone::postureDefiningJoints() const
+{
+  return posture_defining_joints_;
 }
 
 const RotorConfigs& Drone::rotorConfigs() const
@@ -99,34 +120,36 @@ uint32_t Drone::numControlSurfaces() const
   return fixed_wing_config_.control_surfaces.size();
 }
 
-double Drone::maxRotSpeed(uint32_t rotor_idx, double battery_voltage) const
+double Drone::thrustFromVoltage(uint32_t rotor_idx, double voltage) const
 {
-  assert(battery_voltage > 0.);
+  assert(voltage > 0.);
 
-  const auto max_rpm = rotor_configs_[rotor_idx].kv * battery_voltage;
-  return dh_std::rpmToRadPerSec(max_rpm);
+  const auto rot_speed = rotSpeedFromVoltage(rotor_idx, voltage);
+  return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
 }
 
-double Drone::maxThrust(uint32_t rotor_idx, double battery_voltage) const
+double Drone::voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const
 {
-  assert(battery_voltage > 0.);
+  assert(rot_speed >= 0.);
 
-  const auto max_rot_speed = maxRotSpeed(rotor_idx, battery_voltage);
-  return rotor_configs_[rotor_idx].motor_constant * sqr(max_rot_speed);
+  const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
+  const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
+  return a * rot_speed + b * sqr(rot_speed);
 }
 
-double Drone::thrustToRotSpeed(uint32_t rotor_idx, double thrust) const
+double Drone::rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const
+{
+  assert(voltage >= 0.);
+
+  const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
+  const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
+  return b > 0 ? (sqrt(sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+}
+
+double Drone::rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const
 {
   assert(thrust >= 0.);
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
-}
-
-void Drone::getTree(const string& ns)
-{
-  if (!kdl_parser::treeFromParam(ns + "/robot_description", tree_))
-  {
-    rosthrow("Failed to get KDL tree.");
-  }
 }
 
 void Drone::getRotorConfigs(const string& ns)
@@ -181,7 +204,16 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 
   dh_ros::getParam(prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
   dh_ros::getParam(prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
-  dh_ros::getParam(prefix + "/kv", res.kv, dh_ros::POSITIVE);
+
+  dh_ros::getParam(prefix + "/rot_speed_coefs", res.rot_speed_coefs);
+  if (res.rot_speed_coefs.first <= 0.)
+  {
+    rosthrow("The first term of 'rot_speed_coefs' must be positive.");
+  }
+  if (res.rot_speed_coefs.second < 0.)
+  {
+    rosthrow("The second term of 'rot_speed_coefs' must be non-negative.");
+  }
 
   dh_ros::getParam(prefix + "/pin", res.pin);
   if (res.pin < kMinPinId || kMaxPinId < res.pin)

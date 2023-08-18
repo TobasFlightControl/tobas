@@ -15,7 +15,7 @@ from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..constants import *
+from ..common import *
 from ..utils import get_drone_name
 
 

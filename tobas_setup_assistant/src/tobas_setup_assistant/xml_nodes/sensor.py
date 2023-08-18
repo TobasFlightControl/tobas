@@ -14,7 +14,7 @@ class SensorModel(ET.Element):
         visualize: bool = False,
         pose: List[float] = [0.] * 6,
     ):
-        assert update_rate > 0.
+        assert update_rate >= 0.  # 0のときは寧ろ毎シミュレーション周期発行
         assert len(pose) == 6
 
         # robot/gazebo

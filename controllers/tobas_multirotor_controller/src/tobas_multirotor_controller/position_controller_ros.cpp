@@ -15,6 +15,8 @@ namespace tobas_multirotor_controller
 PositionControllerRos::PositionControllerRos()
   : super(),
     is_initialized_(false),
+    bs_received_(false),
+    cmd_received_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -24,8 +26,8 @@ PositionControllerRos::PositionControllerRos()
 {
   getRosParams();
 
-  pos_controller_.reset(new PositionController(dynamic_params_));
-  vel_yaw_out_.frame_id.frame_id = tobas_msgs::FrameId::GLOBAL;
+  pos_controller_.reconfigure(dynamic_params_);
+  vel_yaw_out_.frame_id.data = tobas_msgs::FrameId::GLOBAL;
 
   registerPublishers();
   registerSubscribers();
@@ -38,8 +40,10 @@ PositionControllerRos::PositionControllerRos()
 
 void PositionControllerRos::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/natural_frequency", dynamic_params_.natural_freq);
-  dh_ros::getParam(kCtrlName + "/damping_ratio", dynamic_params_.damp_ratio);
+  dh_ros::getParam(kCtrlName + "/horizontal_natural_frequency", dynamic_params_.hor_natural_freq);
+  dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
+  dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
+  dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
 }
 
 void PositionControllerRos::registerPublishers()
@@ -49,38 +53,70 @@ void PositionControllerRos::registerPublishers()
 
 void PositionControllerRos::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &PositionControllerRos::eventCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &PositionControllerRos::baseStateCb, this);
   pos_yaw_sub_ =
     nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
 }
 
-void PositionControllerRos::initialize(const tobas_msgs::BaseState& bs)
+bool PositionControllerRos::isReady()
 {
-  // 最初は暴れるのを防ぐために現在の状態を目標状態にする
-  pos_yaw_in_.pos = bs.pose.pos;
-  pos_yaw_in_.pos(2) += kInitialElevation;  // 地面との衝突を避けるためにZ座標だけは少し上げておく
-  pos_yaw_in_.yaw = bs.pose.euler.yaw;
+  return bs_received_ && cmd_received_;
+}
+
+void PositionControllerRos::initialize()
+{
 }
 
 void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
-  dynamic_params_.natural_freq = cfg.natural_frequency;
-  dynamic_params_.damp_ratio = cfg.damping_ratio;
+  dynamic_params_.hor_natural_freq = cfg.horizontal_natural_frequency;
+  dynamic_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
+  dynamic_params_.ver_natural_freq = cfg.vertical_natural_frequency;
+  dynamic_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
+}
+
+void PositionControllerRos::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 {
+  bs_ = bs;
+
+  if (!bs_received_)
+  {
+    bs_received_ = true;
+  }
+
   if (!is_initialized_)
   {
-    check_topics_timer_.stop();
-    initialize(bs);
-    is_initialized_ = true;
-    rosInfo("Position controller is ready.");
+    if (isReady())
+    {
+      check_topics_timer_.stop();
+      initialize();
+      is_initialized_ = true;
+      rosInfo("Position controller is ready.");
+    }
     return;
   }
 
-  // Compute target velocity and yaw angle
-  pos_controller_->update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
+  if (!cmd_received_)
+  {
+    return;
+  }
+
+  // Update VelocityYaw message
+  pos_controller_.update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
+  vel_yaw_out_.level = pos_yaw_in_.level;
   vel_yaw_out_.yaw = pos_yaw_in_.yaw;  // ヨー角は位置指令をそのまま流す
 
   // Publish VelocityYaw message
@@ -89,18 +125,47 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
 
 void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw)
 {
+  if (!bs_received_)
+  {
+    return;
+  }
+
+  // 指令位置と現在位置が離れすぎていないか確認
+  const auto dist = (pos_yaw.pos - bs_.pose.pos).Norm();
+  if (dist > kMaxCommandPositionDeviation)
+  {
+    rosError(
+      "The distance between current position and commanded position is "
+      << dist << " m, which exceeds the limit: " << kMaxCommandPositionDeviation
+      << " m. The command is ignored.");
+    return;
+  }
+
   pos_yaw_in_ = pos_yaw;
+
+  if (!cmd_received_)
+  {
+    cmd_received_ = true;
+  }
 }
 
 void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn("Base state is not received yet.");
+  if (!bs_received_)
+  {
+    rosWarn("Base state is not received yet.");
+  }
+
+  if (!cmd_received_)
+  {
+    rosInfo("Waiting for Position & Yaw command.");
+  }
 }
 
-void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-
-  pos_controller_->reconfigure(dynamic_params_);
+  pos_controller_.reconfigure(dynamic_params_);
+  rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

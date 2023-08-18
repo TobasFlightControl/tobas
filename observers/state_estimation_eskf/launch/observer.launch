@@ -1,5 +1,9 @@
 <launch>
 
-  <node pkg="state_estimation_eskf" type="eskf_node" name="state_estimator_eskf" output="screen" required="true"/>
+  <!-- Static State Determinator -->
+  <include file="$(find tobas_common_actions)/launch/static_state_determination.launch"/>
+
+  <!-- State Estimator -->
+  <node pkg="state_estimation_eskf" type="eskf_node" name="state_estimator_eskf" output="screen"/>
 
 </launch>

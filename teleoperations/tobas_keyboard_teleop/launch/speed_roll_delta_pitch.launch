@@ -1,9 +1,0 @@
-<launch>
-
-  <arg name="drone_name"/>
-
-  <group ns="$(arg drone_name)">
-    <node pkg="tobas_keyboard_teleop" name="speed_roll_dpitch_publisher" type="speed_roll_dpitch_publisher_node" output="screen"/>
-  </group>
-
-</launch>

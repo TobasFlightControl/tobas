@@ -1,16 +1,9 @@
 import math
-from enum import Enum
 from xml.etree import ElementTree as ET
 
 from urdf_tools_py.core import *
 from urdf_tools_py.dummy import DummyLink
 from urdf_tools_py.gazebo import Camera
-
-
-class DepthNoiseModel(Enum):
-    KINECT = "Kinect"
-    PMD = "PMD"
-    D435 = "D435"
 
 
 def add_depth_camera_model(
@@ -39,16 +32,16 @@ def add_depth_camera_model(
     robot.append(Joint(
         name=f'{ns}/depth_camera_joint',
         type="fixed",
+        parent=link_name,
+        child=depth_camera_link,
         origin=offset,
-        parent=Parent(link_name),
-        child=Child(depth_camera_link),
     ))
     robot.append(Joint(
         name=f'{ns}/depth_camera_optical_joint',
         type="fixed",
+        parent=depth_camera_link,
+        child=optical_link,
         origin=Origin(0., 0., 0., -math.pi / 2, 0., -math.pi / 2),
-        parent=Parent(depth_camera_link),
-        child=Child(optical_link),
     ))
 
     # robot/gazebo

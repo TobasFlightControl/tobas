@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import math
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -47,7 +48,7 @@ class SimulationWidget(BaseSettingWidget):
 
         longitude_0_description = ""
         self.longitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "longitude of origin",
+            "Longitude of origin",
             longitude_0_description,
             decimals=6,
             minimum=-180.,
@@ -59,7 +60,7 @@ class SimulationWidget(BaseSettingWidget):
 
         altitude_0_description = ""
         self.altitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "altitude above sea level",
+            "Altitude above sea level",
             altitude_0_description,
             decimals=3,
             default=24.39,  # 日本水準原点: https://www.gsi.go.jp/sokuchikijun/suijun-base.html
@@ -96,6 +97,29 @@ class SimulationWidget(BaseSettingWidget):
             suffix=" nT",
         )
         self._rows.addWidget(self.ref_mag_down)
+
+        mean_wind_speed_description = ""
+        self.mean_wind_speed = ParamGetterWidget_DoubleSpinBox(
+            "Mean wind speed",
+            mean_wind_speed_description,
+            decimals=1,
+            minimum=0.,
+            default=0.,
+            suffix=" m/s",
+        )
+        self._rows.addWidget(self.mean_wind_speed)
+
+        const_wind_direction_description = ""
+        self.const_wind_direction = ParamGetterWidget_DoubleSpinBox(
+            "Constant wind direction (Yaw angle)",
+            const_wind_direction_description,
+            decimals=2,
+            minimum=0.,
+            maximum=2 * math.pi,
+            default=0.,
+            suffix=" m/s",
+        )
+        self._rows.addWidget(self.const_wind_direction)
 
         add_expanding_widget(self._rows)
 

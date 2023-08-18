@@ -61,11 +61,8 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher()
 void SpeedRollDeltaPitchPublisher::run()
 {
   check_topics_timer_.start();
-  instruction_timer_.start();
-  rosInfo(instruction_);
 
   dh_ros::Rate rate(kUpdateRate);
-
   while (ros::ok())
   {
     if (!is_initialized_)
@@ -87,40 +84,40 @@ void SpeedRollDeltaPitchPublisher::run()
     {
       case kKeyCode_W:
       {
-        rosInfoThrottle(kInfoPeriod, "Increase speed");
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
+        rosInfoThrottle(kInfoPeriod, "Increase speed");
         break;
       }
       case kKeyCode_S:
       {
-        rosInfoThrottle(kInfoPeriod, "Decrease speed");
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
+        rosInfoThrottle(kInfoPeriod, "Decrease speed");
         break;
       }
       case kKeyCode_Up:
       {
-        rosInfoThrottle(kInfoPeriod, "Nose up");
         cmd_.delta_pitch =
           dh_std::clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+        rosInfoThrottle(kInfoPeriod, "Nose up");
         break;
       }
       case kKeyCode_Down:
       {
-        rosInfoThrottle(kInfoPeriod, "Nose down");
         cmd_.delta_pitch =
           dh_std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+        rosInfoThrottle(kInfoPeriod, "Nose down");
         break;
       }
       case kKeyCode_Left:
       {
-        rosInfoThrottle(kInfoPeriod, "Turn left");
         cmd_.roll = dh_std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
+        rosInfoThrottle(kInfoPeriod, "Turn left");
         break;
       }
       case kKeyCode_Right:
       {
-        rosInfoThrottle(kInfoPeriod, "Turn right");
         cmd_.roll = dh_std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
+        rosInfoThrottle(kInfoPeriod, "Turn right");
         break;
       }
     }
@@ -150,6 +147,7 @@ void SpeedRollDeltaPitchPublisher::registerPublishers()
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &SpeedRollDeltaPitchPublisher::eventCb, this);
   air_pressure_sub_ =
     nh_.subscribe("air_pressure", 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this);
 }
@@ -163,6 +161,22 @@ void SpeedRollDeltaPitchPublisher::initialize()
 {
   // cmd_.speed = trim_.speedLimit(air_density_).lower + 0.1;
   cmd_.speed = trim_.takeOffSpeed(air_density_);
+
+  // インストラクションを開始
+  instruction_timer_.start();
+  rosInfo(instruction_);
+}
+
+void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressure& msg)

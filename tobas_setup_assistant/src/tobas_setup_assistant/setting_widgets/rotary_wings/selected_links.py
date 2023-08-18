@@ -9,13 +9,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import TabWidget, add_expanding_widget, add_center_button
-from dh_rqt_tools.messages import q_error_named
+from kdl_sympy.frames import Vector
 
 from ...parameter_getters import *
-from ...constants import *
-from .constants import NAME
+from ...common import *
+from .common import ROTARY_WINGS, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget
+from .blade_geometry import BladeGeometry
 from .aerodynamics import AerodynamicsWidget
 
 
@@ -41,28 +42,11 @@ class SelectedLinksWidget(TabWidget):
     def is_valid(self) -> bool:
         num_rotors = self.count()
 
-        # まずそれぞれのタブが有効であることを確認
+        # それぞれのタブの設定が有効であることを確認
         for i in range(num_rotors):
             tab: SelectedLinkTabWidget = self.widget(i)
             if not tab.is_valid():
                 return False
-
-        # 次にタブ全体で見たときの有効性を確認
-        # そうしないと全体を見る過程で部分のエラーが出る可能性がある
-
-        if num_rotors < 2:
-            q_error_named(self._main, NAME, "At least 2 rotary wings are required.")
-            return False
-
-        directions = set(self.widget(i).motor.direction() for i in range(num_rotors))
-        if len(directions) == 1:
-            q_error_named(
-                self._main,
-                NAME,
-                "All rotors have the same rotation direction. "
-                "Rotors that rotate in both clockwise (CW) and counterclockwise (CCW) are required.",
-            )
-            return False
 
         return True
 
@@ -79,20 +63,21 @@ class SelectedLinksWidget(TabWidget):
         else:
             raise RuntimeError(f'Link name not found: {link_name}')
 
-    def get_esc(self, link_name: str) -> EscWidget:
+    def get_tab(self, link_name: str) -> SelectedLinkTabWidget:
         idx = self.get_index(link_name)
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        return tab.esc
+        return self.widget(idx)
+
+    def get_esc(self, link_name: str) -> EscWidget:
+        return self.get_tab(link_name).esc
 
     def get_motor(self, link_name: str) -> MotorWidget:
-        idx = self.get_index(link_name)
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        return tab.motor
+        return self.get_tab(link_name).motor
+
+    def get_blade_geometry(self, link_name: str) -> BladeGeometry:
+        return self.get_tab(link_name).blade_geometry
 
     def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
-        idx = self.get_index(link_name)
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        return tab.aerodynamics
+        return self.get_tab(link_name).aerodynamics
 
     def link_names(self) -> List[str]:
         """ 選択テーブル内のリンクの名前のリストを返す． """
@@ -110,11 +95,17 @@ class SelectedLinksWidget(TabWidget):
             res.append(tab.joint_name())
         return res
 
+    def directions(self) -> List[str]:
+        """ 選択テーブル内の回転方向 ('cw' or 'ccw') のリストを返す． """
+        return [self.widget(i).motor.direction() for i in range(self.count())]
+
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:
         tab: SelectedLinkTabWidget = self.widget(idx)
         self._main.settings.rotary_wings.available.add(tab.link_name())
         self.removeTab(idx)
+
+        self._main.signals.airframe_updated.emit()
 
 
 class SelectedLinkTabWidget(QWidget):
@@ -142,6 +133,9 @@ class SelectedLinkTabWidget(QWidget):
         self.motor = MotorWidget(main, link_name)
         self._rows.addWidget(self.motor)
 
+        self.blade_geometry = BladeGeometry(main, link_name)
+        self._rows.addWidget(self.blade_geometry)
+
         self.aerodynamics = AerodynamicsWidget(main, link_name)
         self._rows.addWidget(self.aerodynamics)
 
@@ -153,6 +147,8 @@ class SelectedLinkTabWidget(QWidget):
             return False
         if not self.motor.is_valid():
             return False
+        if not self.blade_geometry.is_valid():
+            return False
         if not self.aerodynamics.is_valid():
             return False
 
@@ -163,6 +159,16 @@ class SelectedLinkTabWidget(QWidget):
 
     def joint_name(self) -> str:
         return self._main.urdf_parser.get_joint(self._link_name).name
+
+    def axis_type(self) -> str:
+        axis = self._main.urdf_parser.global_axis(self.joint_name())
+        if axis.is_collinear(Vector.UnitX()):
+            return AxisType.X_POSITIVE
+        elif axis.is_collinear(Vector.UnitZ()):
+            return AxisType.Z_POSITIVE
+        else:
+            # TODO: その他の回転軸に対応
+            raise RuntimeError(f'Invalid rotation axis: {axis}')
 
     def _define_connections(self) -> None:
         self.copy_button.clicked.connect(self._copy_from_left_tab)
@@ -178,4 +184,5 @@ class SelectedLinkTabWidget(QWidget):
         left: SelectedLinkTabWidget = selected.widget(self_idx - 1)
         self.esc.copy_from(left.esc)
         self.motor.copy_from(left.motor)
+        self.blade_geometry.copy_from(left.blade_geometry)
         self.aerodynamics.copy_from(left.aerodynamics)

@@ -1,7 +1,9 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_linear_control/util.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+
+#include <tobas_tools/constants.hpp>
+#include <tobas_tools/utils.hpp>
 
 #include "../../include/tobas_multirotor_controller/rotation_controller.hpp"
 #include "../../include/tobas_multirotor_controller/constants.hpp"
@@ -49,7 +51,7 @@ void RotationController::update(
   VectorXd& u_opt)
 {
   assert(battery_voltage > 0.);
-  assert(U > 0.);
+  assert(U >= 0.);
   assert(u_opt.rows() == z_rotors_.count());
 
   updateCurrentState(cur_rpy, cur_angvel_B);
@@ -93,15 +95,13 @@ void RotationController::reconfigure(const RotationControllerDynamicParams& para
   mpc_.input_rate_weight.fill(pow(10, params.thrust_rate_weight_exp));
 }
 
-void RotationController::updateCurrentState(
-  const KDL::Euler& cur_rpy,
-  const KDL::Vector& cur_angvel_B)
+void RotationController::updateCurrentState(const Euler& cur_rpy, const Vector& cur_angvel_B)
 {
   mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_angvel_B.x(),
     cur_angvel_B.y(), cur_angvel_B.z();
 }
 
-void RotationController::updateSetState(const KDL::Euler& tar_rpy)
+void RotationController::updateSetState(const Euler& tar_rpy)
 {
   mpc_.set_state << tar_rpy.roll, tar_rpy.pitch, tar_rpy.yaw, 0., 0., 0.;
 }
@@ -114,7 +114,7 @@ void RotationController::updateDynamics(
   double t;
   double roll_k, pitch_k;
 
-  for (int k = 0; k < mpc_.prediction_steps; ++k)
+  for (uint32_t k = 0; k < mpc_.prediction_steps; ++k)
   {
     t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
 
@@ -141,10 +141,8 @@ void RotationController::setScales()
   mpc_.control_scale = mpc_.state_scale;
 
   // 制御入力のスケール
-  TreeJntToInertiaSolver inertia_solver(drone_.tree());
-  const auto mass = inertia_solver.JntToMass();
   mpc_.input_scale.resize(z_rotors_.count());
-  mpc_.input_scale.fill(mass * kGravity / z_rotors_.count());
+  mpc_.input_scale.fill(tobas::getMass() * tobas::kGravity / z_rotors_.count());
 }
 
 void RotationController::setInputConstraintBase()
@@ -163,13 +161,11 @@ void RotationController::setInputConstraintBase()
 
 void RotationController::updateInputConstraint(double battery_voltage, double U)
 {
-  for (int i = 0; i < z_rotors_.count(); ++i)
+  const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    const double max_thrust = z_rotors_.maxThrust(i, battery_voltage);
-    const double min_thrust = 0.;
-
-    mpc_.input_constraint.b(i) = max_thrust;
-    mpc_.input_constraint.b(z_rotors_.count() + i) = -min_thrust;
+    mpc_.input_constraint.b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
+    mpc_.input_constraint.b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
   }
 
   mpc_.input_constraint.b(z_rotors_.count() * 2) = U;

@@ -4,6 +4,11 @@ namespace tobas
 {
 constexpr double kGravity = 9.80665;        // 重力加速度 [m/s^2]
 constexpr double kMinAirSpeedThresh = 0.1;  // 空力計算を行う最小の風速 [m/s]
-constexpr unsigned int kMinPinId = 1;
-constexpr unsigned int kMaxPinId = 14;
+constexpr int kMinPinId = 1;
+constexpr int kMaxPinId = 14;
+
+// モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
+// cf. https://ardupilot.org/copter/docs/set-motor-range.html
+// TODO: Ardupilotを参考にGUIで設定できるようにする
+static constexpr double kMotorSpinArm = 0.1;
 }  // namespace tobas

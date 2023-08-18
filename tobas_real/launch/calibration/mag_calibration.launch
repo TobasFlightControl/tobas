@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_real" type="mag_calibration_node" name="mag_calibration" output="screen" required="true"/>
+
+</launch>

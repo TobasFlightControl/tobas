@@ -20,11 +20,13 @@ from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
 
+from tobas_msgs.msg import PositionYaw, SpeedRollDeltaPitch
+
 from .utils import *
 from .xml_nodes import *
 
 
-class PackageGenerator(QWidget):
+class PackageGenerator(QObject):
 
     generated = pyqtSignal()
 
@@ -36,16 +38,14 @@ class PackageGenerator(QWidget):
         self._template_env = Environment(
             loader=FileSystemLoader(osp.join(self._proj_path, "templates")),
             trim_blocks=True,
-            lstrip_blocks=True,
-        )
+            lstrip_blocks=True)
 
         self._drone_name = ""
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._main.settings.ros_package.generate_button.clicked.connect(
-            self._on_generate_button_clicked
-        )
+            self._on_generate_button_clicked)
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
@@ -65,6 +65,8 @@ class PackageGenerator(QWidget):
         if not self._main.settings.battery.is_valid():
             return False
         if not self._main.settings.rotary_wings.is_valid():
+            return False
+        if not self._main.settings.fixed_wing.is_valid():
             return False
         if not self._main.settings.imu.is_valid():
             return False
@@ -110,19 +112,51 @@ class PackageGenerator(QWidget):
 
         # テンプレートから生成
         items = self._make_template_items()
-        self._generate_from_template(items, "README.md", pkg_path)
-        self._generate_from_template(items, "CMakeLists.txt", pkg_path)
-        self._generate_from_template(items, "package.xml", pkg_path)
-        self._generate_from_template(items, "environment.yaml", config_dir)
-        self._generate_from_template(items, "gazebo.launch", launch_dir)
-        self._generate_from_template(items, "real.launch", launch_dir)
-        self._generate_from_template(items, "bringup.launch", launch_dir)
+        self._generate_from_template(
+            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt"))
+        self._generate_from_template(
+            items, "package.xml", osp.join(pkg_path, "package.xml"))
+        self._generate_from_template(
+            items, "environment.yaml", osp.join(config_dir, "environment.yaml"))
+        self._generate_from_template(
+            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch"))
+        self._generate_from_template(
+            items, "real.launch", osp.join(launch_dir, "real.launch"))
+        self._generate_from_template(
+            items, "controller.launch", osp.join(launch_dir, "controller.launch"))
+        self._generate_from_template(
+            items, "observer.launch", osp.join(launch_dir, "observer.launch"))
+        self._generate_from_template(
+            items, "bringup.launch", osp.join(launch_dir, "bringup.launch"))
+        self._generate_from_template(
+            items, "hil.launch", osp.join(launch_dir, "hil.launch"))
+        self._generate_from_template(
+            items, "motors.launch", osp.join(launch_dir, "motors.launch"))
+        self._generate_from_template(
+            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch"))
+
+        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
+        if PositionYaw in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/position_yaw.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"))
+            self._generate_from_template(
+                items,
+                "gui_teleop/position_yaw.launch",
+                osp.join(launch_dir, "gui_teleop.launch"))
+        elif SpeedRollDeltaPitch in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/speed_roll_dpitch.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"))
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
         self._generate_joint_control_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
+        self._generate_state_checker_config(config_dir)
         self._generate_urdf(urdf_dir)
 
     def _make_template_items(self) -> None:
@@ -131,7 +165,10 @@ class PackageGenerator(QWidget):
         template_items["drone_name"] = self._drone_name
 
         # Controller
-        template_items["controller_pkg"] = self._main.settings.controller.pkg_name()
+        controller = self._main.settings.controller
+        template_items["controller_pkg"] = controller.controller_pkg()
+        template_items["takeoff_pkg"] = controller.takeoff_pkg()
+        template_items["landing_pkg"] = controller.landing_pkg()
 
         # Observer
         template_items["observer_pkg"] = self._main.settings.observer.pkg_name()
@@ -154,36 +191,39 @@ class PackageGenerator(QWidget):
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
-        for jnt_name in self._main.urdf_parser.active_joint_names():
+        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
             joint_controllers += f' {jnt_name}_controller'
         template_items["joint_controllers"] = joint_controllers
 
         return template_items
 
-    def _generate_from_template(self, items: dict, template_file: str, dest: str) -> None:
+    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
         template = self._template_env.get_template(template_file)
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
-        file_path = osp.join(dest, template_file)
-        with open(file_path, "w") as f:
+        with open(out_path, "w") as f:
             f.write(content)
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
-        rotary_wings = self._main.settings.rotary_wings.selected
-        battery = self._main.settings.battery
-        num_rotors = rotary_wings.count()
         drone_config = {
-            "active_joint_names": self._main.urdf_parser.active_joint_names(),
+            "imu_offset": self._main.settings.imu.offset.get(),
+            "barometer_offset": self._main.settings.barometer.offset.get(),
+            "gps_offset": self._main.settings.gps.offset.get(),
+            "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
         }
+
+        # Rotary wings
+        rotary_wings = self._main.settings.rotary_wings.selected
+        num_rotors = rotary_wings.count()
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
 
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f'rotor_{i}'] = {
                 "link_name": selected.link_name(),
-                "axis": "z_positive",  # TODO: Widgetから取得
+                "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
-                "kv": float(selected.motor.kv()),
+                "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
                 "time_constant_down": float(selected.motor.time_const_down()),
                 "motor_constant": float(selected.aerodynamics.motor_const()),
@@ -195,12 +235,59 @@ class PackageGenerator(QWidget):
             esc = selected.esc
             esc_type = esc.esc_type.currentText()
             drone_config[f'rotor_{i}']["esc_type"] = esc_type.lower()
-            if esc_type == esc.PWM:
-                pass
-            elif esc_type == esc.DSHOT:
-                pass
-            else:
-                raise RuntimeError(f'Unknown ESC type: {esc_type}')
+
+        # Fixed wing
+        fixed_wing = self._main.settings.fixed_wing
+        if fixed_wing.has_fixed_wing.isChecked():
+            drone_config["fixed_wing"] = dict()
+
+            vehicle = fixed_wing.vehicle
+            drone_config["fixed_wing"]["vehicle"] = {
+                "wing_surface": vehicle.wing_surface.get(),
+                "wing_span": vehicle.wing_span.get(),
+                "mean_aerodynamic_chord": vehicle.mac.get(),
+                "aerodynamic_center": vehicle.aerodynamic_center.get(),
+                "alpha_limit": {
+                    "lower": vehicle.alpha_limit.min(),
+                    "upper": vehicle.alpha_limit.max(),
+                },
+            }
+
+            aero_coefs = fixed_wing.aero_coefs
+            drone_config["fixed_wing"]["aerodynamic_coefficients"] = {
+                "c_lift_0": aero_coefs.c_lift_0.value(),
+                "c_lift_alpha": aero_coefs.c_lift_alpha.value(),
+                "c_drag_0": aero_coefs.c_drag_0.value(),
+                "c_drag_alpha": aero_coefs.c_drag_alpha.value(),
+                "c_side_beta": aero_coefs.c_side_beta.value(),
+                "c_roll_beta": aero_coefs.c_roll_beta.value(),
+                "c_roll_p": aero_coefs.c_roll_p.value(),
+                "c_roll_r": aero_coefs.c_roll_r.value(),
+                "c_pitch_0": aero_coefs.c_pitch_0.value(),
+                "c_pitch_alpha": aero_coefs.c_pitch_alpha.value(),
+                "c_pitch_abs_beta": aero_coefs.c_pitch_abs_beta.value(),
+                "c_pitch_alpha_rate": aero_coefs.c_pitch_alpha_rate.value(),
+                "c_pitch_q": aero_coefs.c_pitch_q.value(),
+                "c_yaw_beta": aero_coefs.c_yaw_beta.value(),
+                "c_yaw_p": aero_coefs.c_yaw_p.value(),
+                "c_yaw_r": aero_coefs.c_yaw_r.value(),
+            }
+
+            control_surfaces = fixed_wing.control_surfaces
+            for idx, cs in enumerate(control_surfaces.control_surfaces()):
+                drone_config["fixed_wing"][f'control_surface_{idx}'] = {
+                    "angle_limit": {
+                        "lower": cs.min_angle,
+                        "upper": cs.max_angle,
+                    },
+                    "max_angle_rate": cs.max_angle_rate,
+                    "c_lift_delta": cs.c_lift_delta,
+                    "c_drag_abs_delta": cs.c_drag_abs_delta,
+                    "c_side_delta": cs.c_side_delta,
+                    "c_roll_delta": cs.c_roll_delta,
+                    "c_pitch_delta": cs.c_pitch_delta,
+                    "c_yaw_delta": cs.c_yaw_delta,
+                }
 
         # TBSFファイルを作成
         drone_config_path = osp.join(config_dir, f'{self._drone_name}.tbsf')
@@ -214,7 +301,7 @@ class PackageGenerator(QWidget):
             "type": "joint_state_controller/JointStateController",
             "publish_rate": 1000.
         }
-        for jnt_name in self._main.urdf_parser.active_joint_names():
+        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
             items[f'{jnt_name}_controller'] = {
                 "type": "position_controllers/JointPositionController",
                 "joint": jnt_name,
@@ -226,88 +313,33 @@ class PackageGenerator(QWidget):
             yaml.dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        controller = self._main.settings.controller
-        controller_type = controller.get_type()
-
-        items = dict()
-        if controller_type == controller.LMPC:
-            lmpc = controller.lmpc
-            items["tobas_multirotor_controller"] = {
-                "natural_frequency": lmpc.natural_freq.get(),
-                "damping_ratio": lmpc.damp_ratio.get(),
-                "prediction_horizon": lmpc.pred_horizon.get(),
-                "prediction_steps": lmpc.pred_steps.get(),
-                "attitude_decay": lmpc.attitude_decay.get(),
-                "heading_decay": lmpc.heading_decay.get(),
-                "angular_velocity_decay": lmpc.angvel_decay.get(),
-                "attitude_weight": lmpc.attitude_weight.get(),
-                "heading_weight": lmpc.heading_weight.get(),
-                "angular_velocity_weight": lmpc.angvel_weight.get(),
-                "thrust_weight_exp": lmpc.thrust_weight_exp.get(),
-                "thrust_rate_weight_exp": lmpc.thrust_rate_weight_exp.get(),
-            }
-        elif controller_type == controller.NMPC:
-            raise NotImplementedError
-        elif controller_type == controller.SMC:
-            raise NotImplementedError
-        else:
-            raise RuntimeError(f'Unknown controller type: {controller_type}')
-
+        items = self._main.settings.controller.selected().parameter_dict()
         controller_path = osp.join(config_dir, "controller.yaml")
         with open(controller_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        observer = self._main.settings.observer
-        observer_type = observer.get_type()
-
-        imu = self._main.settings.imu
-        gps = self._main.settings.gps
-
-        items = dict()
-        if observer_type == observer.CASCADE:
-            cascade = observer.cascade
-            items["orientation_estimator_complement"] = {
-                "gain_acc": cascade.gain_acc.get(),
-                "gain_mag": cascade.gain_mag.get(),
-                "bias_alpha": cascade.bias_alpha.get(),
-                "do_bias_estimation": cascade.do_bias_estimation.get(),
-                "do_adaptive_gain": cascade.do_adaptive_gain.get(),
-            }
-            items["state_estimator_cascade"] = {
-                "use_gps": gps.equipped(),
-                "imu_buf_size": 1,
-                "bar_buf_size": 500,
-                "gps_buf_size": 25,
-                "vel_buf_size": 1,
-                "gravity_variance": cascade.grav_var.get(),
-            }
-        elif observer_type == observer.ESKF:
-            eskf = observer.eskf
-            items["state_estimator_eskf"] = {
-                "gyro_noise_density": imu.gyro_noise_density.get(),
-                "gyro_random_walk": imu.gyro_random_walk.get(),
-                "acc_noise_density": imu.acc_noise_density.get(),
-                "acc_random_walk": imu.acc_random_walk.get(),
-                "use_gps": gps.equipped(),
-                "imu_buf_size": 1,
-                "mag_buf_size": 1,
-                "bar_buf_size": 1,
-                "gps_buf_size": 1,
-                "vel_buf_size": 1,
-                "rotation_variance_grav": eskf.rot_var_grav.get(),
-                "rotation_variance_geomag": eskf.rot_var_geomag.get(),
-            }
-        else:
-            raise RuntimeError(f'Unknown observer type: {observer_type}')
-
+        items = self._main.settings.observer.selected().parameter_dict()
         observer_path = osp.join(config_dir, "observer.yaml")
         with open(observer_path, "w") as f:
             yaml.dump(items, f)
 
+    def _generate_state_checker_config(self, config_dir: str) -> None:
+        battery = self._main.settings.battery.selected()
+
+        items = dict()
+        items["multirotor_state_checker"] = {
+            "warn_battery_voltage": battery.warn_voltage(),
+            "fatal_battery_voltage": battery.fatal_voltage(),
+        }
+
+        file_path = osp.join(config_dir, "state_checker.yaml")
+        with open(file_path, "w") as f:
+            yaml.dump(items, f)
+
     def _generate_urdf(self, urdf_dir: str) -> None:
         robot = self._make_urdf_with_plugins()
-        urdf_path = osp.join(urdf_dir, f'{self._drone_name}.urdf')
+        urdf_path = osp.join(urdf_dir, f'{self._drone_name}.xacro')
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
@@ -374,6 +406,7 @@ class PackageGenerator(QWidget):
         root_link = self._main.urdf_parser.get_root().name
 
         rotary_wings = self._main.settings.rotary_wings.selected
+        fixed_wing = self._main.settings.fixed_wing
         battery = self._main.settings.battery
         imu = self._main.settings.imu
         magnetometer = self._main.settings.magnetometer
@@ -384,14 +417,30 @@ class PackageGenerator(QWidget):
         odometry = self._main.settings.odometry
         simulation = self._main.settings.simulation
 
+        # XML namespace
+        robot.attrib["xmlns:xacro"] = "http://ros.org/wiki/xacro"
+
+        # Base static joint for debug
+        base_fix_joint = BaseStaticJoint(root_link=root_link)
+        robot.append(base_fix_joint)
+
+        # Wind
+        wind_model = WindModel(
+            ns=self._drone_name,
+            link_name=root_link,
+            mean_wind_speed=simulation.mean_wind_speed.get(),
+            const_wind_direction=simulation.const_wind_direction.get(),
+        )
+        robot.append(wind_model)
+
         # Battery
         battery_model = BatteryModel(
             ns=self._drone_name,
-            nominal_voltage=battery.nominal_voltage.get(),
+            nominal_voltage=battery.selected().nominal_voltage(),
         )
         robot.append(battery_model)
 
-        # Motors
+        # Rotary wings
         for i in range(rotary_wings.count()):
             selected: SelectedLinkTabWidget = rotary_wings.widget(i)
             motor_model = MotorModel(
@@ -400,7 +449,7 @@ class PackageGenerator(QWidget):
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
                 direction=selected.motor.direction(),
-                kv=selected.motor.kv(),
+                rot_speed_coefs=selected.motor.rot_speed_coefs(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),
@@ -409,12 +458,47 @@ class PackageGenerator(QWidget):
             )
             robot.append(motor_model)
 
+        # Fixed wing
+        if fixed_wing.has_fixed_wing.isChecked():
+            vehicle = fixed_wing.vehicle
+            aero_coefs = fixed_wing.aero_coefs
+            control_surfaces = fixed_wing.control_surfaces
+            fixed_wing_model = FixedWingModel(
+                ns=self._drone_name,
+                link_name=root_link,
+                altitude_0=simulation.altitude_0.get(),
+                wing_surface=vehicle.wing_surface.get(),
+                wing_span=vehicle.wing_span.get(),
+                mean_aerodynamic_chord=vehicle.mac.get(),
+                aerodynamic_center=vehicle.aerodynamic_center.get(),
+                alpha_limit=vehicle.alpha_limit.get(),
+                c_lift_0=aero_coefs.c_lift_0.value(),
+                c_lift_alpha=aero_coefs.c_lift_alpha.value(),
+                c_drag_0=aero_coefs.c_drag_0.value(),
+                c_drag_alpha=aero_coefs.c_drag_alpha.value(),
+                c_side_beta=aero_coefs.c_side_beta.value(),
+                c_roll_beta=aero_coefs.c_roll_beta.value(),
+                c_roll_p=aero_coefs.c_roll_p.value(),
+                c_roll_r=aero_coefs.c_roll_r.value(),
+                c_pitch_0=aero_coefs.c_pitch_0.value(),
+                c_pitch_alpha=aero_coefs.c_pitch_alpha.value(),
+                c_pitch_abs_beta=aero_coefs.c_pitch_abs_beta.value(),
+                c_pitch_alpha_rate=aero_coefs.c_pitch_alpha_rate.value(),
+                c_pitch_q=aero_coefs.c_pitch_q.value(),
+                c_yaw_beta=aero_coefs.c_yaw_beta.value(),
+                c_yaw_p=aero_coefs.c_yaw_p.value(),
+                c_yaw_r=aero_coefs.c_yaw_r.value(),
+                control_surfaces=control_surfaces.control_surfaces(),
+            )
+            robot.append(fixed_wing_model)
+
         # IMU
         if imu.equipped():
             imu_model = ImuModel(
                 ns=self._drone_name,
-                link_name=imu.link.get(),
-                update_rate=barometer.update_rate.get(),
+                link_name=root_link,
+                update_rate=imu.update_rate.get(),
+                offset=imu.offset.get(),
                 gyro_noise_density=imu.gyro_noise_density.get(),
                 gyro_random_walk=imu.gyro_random_walk.get(),
                 gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
@@ -430,8 +514,8 @@ class PackageGenerator(QWidget):
         if magnetometer.equipped():
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
-                link_name=magnetometer.link.get(),
-                update_rate=barometer.update_rate.get(),
+                link_name=root_link,
+                update_rate=magnetometer.update_rate.get(),
                 ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
                 ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
                 ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
@@ -444,8 +528,9 @@ class PackageGenerator(QWidget):
         if barometer.equipped():
             bar_model = BarometerModel(
                 ns=self._drone_name,
-                link_name=barometer.link.get(),
+                link_name=root_link,
                 update_rate=barometer.update_rate.get(),
+                offset=barometer.offset.get(),
                 altitude_0=simulation.altitude_0.get(),
                 pressure_var=barometer.pressure_var.get(),
             )
@@ -455,8 +540,10 @@ class PackageGenerator(QWidget):
         if gps.equipped():
             gps_model = GpsModel(
                 ns=self._drone_name,
-                link_name=gps.link.get(),
+                link_name=root_link,
                 update_rate=gps.update_rate.get(),
+                delay=gps.delay.get(),
+                offset=gps.offset.get(),
                 hor_pos_std=gps.horizontal_pos_std.get(),
                 ver_pos_std=gps.vertical_pos_std.get(),
                 hor_vel_std=gps.horizontal_vel_std.get(),
@@ -519,8 +606,9 @@ class PackageGenerator(QWidget):
         if odometry.equipped():
             odometry_model = OdometryModel(
                 ns=self._drone_name,
-                link_name=odometry.link.get(),
+                link_name=root_link,
                 update_rate=odometry.update_rate.get(),
+                offset=odometry.offset.get(),
                 pos_normal_noise_std=odometry.pos_normal_noise_std.get(),
                 rot_normal_noise_std=odometry.rot_normal_noise_std.get(),
                 linvel_normal_noise_std=odometry.linvel_normal_noise_std.get(),
@@ -541,6 +629,6 @@ class PackageGenerator(QWidget):
         robot.append(ros_control)
 
         # Transmissions
-        for jnt_name in self._main.urdf_parser.active_joint_names():
+        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
             transmission = Transmission(jnt_name, interface=Transmission.POSITION)
             robot.append(transmission)

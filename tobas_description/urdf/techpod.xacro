@@ -1,23 +1,8 @@
 <?xml version="1.0"?>
-<!--
-  Copyright 2016 Pavel Vechersky, ASL, ETH Zurich, Switzerland
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
 
 <robot name="techpod" xmlns:xacro="http://ros.org/wiki/xacro">
+
   <!-- Global properties -->
-  <!-- <xacro:property name="namespace" value="$(arg namespace)" /> -->
   <xacro:property name="namespace" value="techpod" />
   <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
   <xacro:property name="use_mesh" value="true" />
@@ -38,7 +23,7 @@
   <xacro:property name="body_width" value="2.591" /> <!-- [m] -->
   <xacro:property name="body_height" value="0.303" /> <!-- [m] -->
   <xacro:property name="body_color" value="Gray" />
-  <xacro:property name="body_mesh_file" value="package://rotors_description/meshes/techpod/techpod_body.dae" />
+  <xacro:property name="body_mesh_file" value="package://tobas_description/meshes/techpod/techpod_body.dae" />
 
   <!-- Aileron properties -->
   <xacro:property name="aileron_length" value="0.053" /> <!-- [m] -->
@@ -47,8 +32,8 @@
   <xacro:property name="aileron_min_angle" value="-0.349066" /> <!-- [rad] -->
   <xacro:property name="aileron_max_angle" value="0.349066" /> <!-- [rad] -->
   <xacro:property name="aileron_color" value="Red" />
-  <xacro:property name="aileron_left_mesh_file" value="package://rotors_description/meshes/techpod/techpod_aileron_left.dae" />
-  <xacro:property name="aileron_right_mesh_file" value="package://rotors_description/meshes/techpod/techpod_aileron_right.dae" />
+  <xacro:property name="aileron_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_left.dae" />
+  <xacro:property name="aileron_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_right.dae" />
 
   <!-- Elevator properties -->
   <xacro:property name="elevator_length" value="0.051" /> <!-- [m] -->
@@ -57,7 +42,7 @@
   <xacro:property name="elevator_min_angle" value="-0.349066" /> <!-- [rad] -->
   <xacro:property name="elevator_max_angle" value="0.349066" /> <!-- [rad] -->
   <xacro:property name="elevator_color" value="Blue" />
-  <xacro:property name="elevator_mesh_file" value="package://rotors_description/meshes/techpod/techpod_elevator.dae" />
+  <xacro:property name="elevator_mesh_file" value="package://tobas_description/meshes/techpod/techpod_elevator.dae" />
 
   <!-- Flap properties -->
   <xacro:property name="flap_length" value="0.076" /> <!-- [m] -->
@@ -66,8 +51,8 @@
   <xacro:property name="flap_min_angle" value="0.0" /> <!-- [rad] -->
   <xacro:property name="flap_max_angle" value="0.0" /> <!-- [rad] -->
   <xacro:property name="flap_color" value="Yellow" />
-  <xacro:property name="flap_left_mesh_file" value="package://rotors_description/meshes/techpod/techpod_flap_left.dae" />
-  <xacro:property name="flap_right_mesh_file" value="package://rotors_description/meshes/techpod/techpod_flap_right.dae" />
+  <xacro:property name="flap_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_left.dae" />
+  <xacro:property name="flap_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_right.dae" />
 
   <!-- Rudder properties -->
   <xacro:property name="rudder_length" value="0.129" />
@@ -76,14 +61,14 @@
   <xacro:property name="rudder_min_angle" value="-0.349066" />
   <xacro:property name="rudder_max_angle" value="0.349066" />
   <xacro:property name="rudder_color" value="Orange" />
-  <xacro:property name="rudder_mesh_file" value="package://rotors_description/meshes/techpod/techpod_rudder.dae" />
+  <xacro:property name="rudder_mesh_file" value="package://tobas_description/meshes/techpod/techpod_rudder.dae" />
 
   <!-- Propeller properties -->
   <xacro:property name="propeller_direction" value="cw" />
   <xacro:property name="propeller_radius" value="0.1" />
   <xacro:property name="propeller_height" value="0.003" />
   <xacro:property name="propeller_color" value="Gray" />
-  <xacro:property name="propeller_mesh_file" value="package://rotors_description/meshes/propeller_${propeller_direction}.dae" />
+  <xacro:property name="propeller_mesh_file" value="package://tobas_description/meshes/propeller_${propeller_direction}.dae" />
 
   <!-- Inertia of the main body -->
   <xacro:property name="body_inertia">
@@ -153,6 +138,85 @@
     <xacro:insert_block name="body_inertia" />
   </xacro:fixed_wing_base_macro>
   <!-- Added to here -->
+
+  <!-- Instantiate the wheels -->
+	<joint name="techpod/wheel_left_joint" type="continuous">
+		<parent link="techpod/base_link"/>
+		<child link="techpod/wheel_left"/>
+		<origin xyz="0.3 0.2 -0.2" rpy="1.5707963267948966 0 0" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<link name="techpod/wheel_left">
+		<inertial>
+			<mass value="1e-3" />
+			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
+		</inertial>
+		<visual>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+	<gazebo reference="techpod/wheel_left">
+		<material>Gazebo/Black</material>
+	</gazebo>
+
+	<joint name="techpod/wheel_right_joint" type="continuous">
+		<parent link="techpod/base_link"/>
+		<child link="techpod/wheel_right"/>
+		<origin xyz="0.3 -0.2 -0.2" rpy="1.5707963267948966 0 0" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<link name="techpod/wheel_right">
+		<inertial>
+			<mass value="1e-3" />
+			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
+		</inertial>
+		<visual>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+	<gazebo reference="techpod/wheel_right">
+		<material>Gazebo/Black</material>
+	</gazebo>
+
+	<joint name="techpod/wheel_rear_joint" type="continuous">
+		<parent link="techpod/base_link"/>
+		<child link="techpod/wheel_rear"/>
+		<origin xyz="-0.3 0 -0.2" rpy="1.5707963267948966 0 0" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<link name="techpod/wheel_rear">
+		<inertial>
+			<mass value="1e-3" />
+			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
+		</inertial>
+		<visual>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.025" radius="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+	<gazebo reference="techpod/wheel_rear">
+		<material>Gazebo/Black</material>
+	</gazebo>
 
   <!-- Instantiate the ailerons -->
   <xacro:control_surface
@@ -282,7 +346,7 @@
     color="${propeller_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${propeller_mesh_file}">
-    <origin xyz="-0.025 0 0.15" rpy="0 ${-0.5*PI} 0" />
+    <origin xyz="-0.025 0 0.15" rpy="0 ${0.5*PI} 0" />
     <xacro:insert_block name="propeller_inertia" />
   </xacro:propeller>
 

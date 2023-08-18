@@ -8,6 +8,8 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Needed for boost/math/constants/constants.hpp included by Ogre to compile
 add_definitions(-DBOOST_MATH_DISABLE_FLOAT128)
@@ -40,6 +42,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 catkin_package(
   LIBRARIES tobas_robot_state_rviz_plugin_core
   INCLUDE_DIRS robot_state_rviz_plugin/include
+  CATKIN_DEPENDS moveit_ros_visualization class_loader pluginlib roscpp rviz
 )
 
 include_directories(

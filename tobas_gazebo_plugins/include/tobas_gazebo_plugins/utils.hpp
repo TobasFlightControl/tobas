@@ -28,4 +28,7 @@ void NED2NWU(ignition::math::Vector3<T>& v)
 
 /* 等価角軸ベクトルからクオータニオンを作成． */
 ignition::math::Quaterniond angleAxisToQuaternion(const ignition::math::Vector3d& w);
+
+/* 3次元ベクトルの外積を表す歪対称行列を計算する． */
+ignition::math::Matrix3d skewMatrix(const ignition::math::Vector3d& v);
 }  // namespace gazebo

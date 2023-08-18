@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from typing import Tuple
+from typing import Tuple, List
 
 from .base import ParamGetterWidget
 from .utils import DoubleGetter
@@ -55,8 +55,9 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
     def z(self) -> float:
         return self._z.get()
 
-    def get(self) -> Tuple[float, float, float]:
-        return self.x(), self.y(), self.z()
+    def get(self) -> List[float]:
+        """ yamlにそのまま書き込めるようにタプルではなくリストで返す． """
+        return [self.x(), self.y(), self.z()]
 
     def set(self, x: float, y: float, z: float) -> None:
         self._x.data.setValue(x)

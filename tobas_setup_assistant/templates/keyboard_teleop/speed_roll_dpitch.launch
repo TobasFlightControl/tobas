@@ -1,0 +1,7 @@
+<launch>
+
+  <group ns="{{ drone_name }}">
+    <node pkg="tobas_keyboard_teleop" type="speed_roll_dpitch_publisher_node" name="speed_roll_dpitch_publisher" output="screen"/>
+  </group>
+
+</launch>

@@ -3,6 +3,8 @@
 #include "../../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
+using namespace std;
+
 namespace gazebo
 {
 GazeboBatteryPlugin::GazeboBatteryPlugin() : super()
@@ -11,6 +13,8 @@ GazeboBatteryPlugin::GazeboBatteryPlugin() : super()
 
 void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 {
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
   getSdfParams(sdf);
   registerPubSub();
   update_connection_ =

@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_trajectory_commander" type="position_yaw_node" name="follow_position_yaw_trajectory_server" output="screen"/>
+
+</launch>

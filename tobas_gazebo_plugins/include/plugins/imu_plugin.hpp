@@ -43,6 +43,7 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string imu_topic_;
+  SdfVector3 offset_;               // B_Pos_BS
   double gyro_noise_density_;       // Gyroscope noise density spectrum [rad/s/sqrt(Hz)]
   double gyro_random_walk_;         // Gyroscope bias random walk [rad/s/s/sqrt(Hz)]
   double gyro_bias_corr_time_;      // Gyroscope bias correlation time constant [s]
@@ -57,8 +58,6 @@ private:
   event::ConnectionPtr update_connection_;
   common::Time last_time_;
   ImuMsg imu_msg_;
-  ignition::math::Vector3d gravity_W_;
-  ignition::math::Vector3d velocity_prev_W_;
   ignition::math::Vector3d gyro_bias_;
   ignition::math::Vector3d acc_bias_;
   ignition::math::Vector3d gyro_turn_on_bias_;
@@ -72,6 +71,6 @@ private:
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();
-  void addNoise(ignition::math::Vector3d& lin_acc, ignition::math::Vector3d& ang_vel, double dt);
+  void addNoise(ignition::math::Vector3d& acc_meas, ignition::math::Vector3d& gyro_meas, double dt);
 };
 }  // namespace gazebo

@@ -4,5 +4,5 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "imu_handler");
   tobas_real::ImuHandler node;
-  ros::spin();
+  node.run();
 }

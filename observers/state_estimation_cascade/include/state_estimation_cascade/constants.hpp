@@ -13,11 +13,10 @@ static constexpr uint32_t kStateSize = kGravIdx + 3;
 static constexpr uint32_t kInputSize = 6;
 static constexpr uint32_t kOutputSize = 9;
 
-static constexpr double kTimerPeriod = 5.;  // [s]
+static constexpr double kTimerPeriod = 5.;           // [s]
+static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
 
 static constexpr bool kDefaultUseGps = true;
-static constexpr int kDefaultImuBufSize = 1;
-static constexpr int kDefaultBarBufSize = 1;
-static constexpr int kDefaultGpsBufSize = 1;
-static constexpr int kDefaultVelBufSize = 1;
+static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]
+static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
 }  // namespace state_estimation_cascade

@@ -5,9 +5,10 @@
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/conversions/coordinates.hpp>
+#include <tobas_tools/utils.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_fixed_wing_lqd/controller.hpp"
 #include "../../include/tobas_fixed_wing_lqd/constants.hpp"
@@ -90,6 +91,7 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &Controller::eventCb, this);
   air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this);
   base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
@@ -108,9 +110,10 @@ void Controller::publishTakeoffCommand()
   deflections_msg_.header.stamp = bs_ned_.header.stamp;
 
   // 各ロータの回転数を発行
-  for (int i = 0; i < x_rotors_.count(); ++i)
+  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
-    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] = x_rotors_.maxRotSpeed(i, battery_.voltage);
+    rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] =
+      x_rotors_.rotSpeedFromVoltage(i, battery_.voltage);
   }
   rotor_speeds_pub_.publish(rotor_speeds_msg_);
 
@@ -196,11 +199,10 @@ void Controller::setScales()
   lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
 
   // 制御入力のスケール
-  KDL::TreeJntToInertiaSolver inertia_solver_(drone_.tree());
-  const auto mass = inertia_solver_.JntToMass();
   lqd_.input_scale.resize(eom_.inputSize());
-  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(mass * kGravity / x_rotors_.count());
-  for (int i = 0; i < drone_.numControlSurfaces(); ++i)
+  const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
+  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
+  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     lqd_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
   }
@@ -240,7 +242,7 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
 {
   ROS_ASSERT(thrust.rows() == x_rotors_.count());
 
-  for (int i = 0; i < thrust.rows(); ++i)
+  for (uint32_t i = 0; i < thrust.rows(); ++i)
   {
     if (thrust(i) < -1.)
     {
@@ -249,7 +251,7 @@ void Controller::updateRotorSpeeds(const VectorXd& thrust)
     }
 
     rotor_speeds_msg_.speeds[x_rotors_.rotorIdx(i)] =
-      x_rotors_.thrustToRotSpeed(i, max(0., thrust(i)));
+      x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
   }
 }
 
@@ -312,6 +314,18 @@ void Controller::reconfigure(const ConfigType& cfg)
   const auto deflection_rate_weight = pow(10, cfg.deflection_rate_weight_exp);
   lqd_.input_rate_weight.topRows(x_rotors_.count()).fill(thrust_rate_weight);
   lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
+}
+
+void Controller::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
+  }
 }
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressure& msg)
@@ -383,6 +397,11 @@ void Controller::baseStateCb(const StateMsg& bs_nwu)
       runOnce();
       break;
     }
+    case LANDING:
+    {
+      // TODO
+      break;
+    }
   }
 }
 
@@ -421,7 +440,7 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
   }
 }
 
-void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t level)
+void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   reconfigure(cfg);
 }

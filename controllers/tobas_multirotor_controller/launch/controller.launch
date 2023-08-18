@@ -1,0 +1,7 @@
+<launch>
+
+  <node pkg="tobas_multirotor_controller" type="rotation_controller_node" name="tobas_multirotor_rotation_controller" output="screen"/>
+  <node pkg="tobas_multirotor_controller" type="velocity_controller_node" name="tobas_multirotor_velocity_controller" output="screen"/>
+  <node pkg="tobas_multirotor_controller" type="position_controller_node" name="tobas_multirotor_position_controller" output="screen"/>
+
+</launch>

@@ -7,8 +7,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from kdl_sympy.joint import JointType
+from dh_rqt_tools.widgets import ListWidgetItem
+
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 
 
 class AvailableLinksWidget(QListWidget):
@@ -33,10 +36,14 @@ class AvailableLinksWidget(QListWidget):
         assert self._main.urdf_parser.link_exists(link_name), f'Unknown link: {link_name}'
         assert not self._link_exists_in_list(link_name), f'Duplicated: {link_name}'
 
-        item = QListWidgetItem()
+        item = ListWidgetItem()
         item.setSizeHint(QSize(0, self.ITEM_HEIGHT))  # 横幅が小さすぎる場合は自動で引き伸ばされる
+        item.setData(Qt.UserRole, link_name)  # リンク名をソート基準にする
         self.addItem(item)
         self.setItemWidget(item, AvailableLinkItemWidget(self._main, link_name))
+
+        # リンクが追加されるたびにソート
+        self.sortItems(Qt.AscendingOrder)
 
     @pyqtSlot(str)
     def remove(self, link_name: str) -> None:
@@ -53,25 +60,23 @@ class AvailableLinksWidget(QListWidget):
     def _add_available_links(self) -> None:
         """
         以下の条件を満たすリンクをプロペラ候補としてリストに追加する．
-        - 親リンクがNWU-Fixed．
         - continuousタイプのジョイントをもつ．
-        - 回転軸がZ軸と一致している．
+        - 回転軸が常にZ軸と一致している．
         """
-        root_link = self._main.urdf_parser.get_root()
-        fixed_link_names = self._main.urdf_parser.nwu_fixed_link_names()
+        urdf_parser = self._main.urdf_parser
+        root_link = urdf_parser.get_root()
 
-        for link in self._main.urdf_parser.get_links():
+        for link in urdf_parser.get_links():
             if link.name == root_link.name:
                 continue
 
-            joint = self._main.urdf_parser.get_joint(link.name)
-            parent = self._main.urdf_parser.get_parent(link.name)
-            if (
-                parent.name in fixed_link_names and
-                joint.type == "continuous" and
-                joint.axis == [0, 0, 1]
-            ):
-                self.add(link.name)
+            # 無制限回転のみ
+            joint = urdf_parser.get_joint(link.name)
+            if joint.type != JointType.CONTINUOUS:
+                continue
+
+            # リンク名をリストに追加
+            self.add(link.name)
 
         self.sortItems()
 
@@ -114,3 +119,5 @@ class AvailableLinkItemWidget(QListWidget):
     def _on_add_button_clicked(self) -> None:
         self._main.settings.rotary_wings.selected.add(self.link_name())
         self._main.settings.rotary_wings.available.remove(self.link_name())
+
+        self._main.signals.airframe_updated.emit()

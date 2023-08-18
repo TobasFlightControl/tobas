@@ -8,7 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from ..constants import *
+from ..common import *
 
 
 class BaseSettingWidget(QScrollArea):
@@ -38,6 +38,7 @@ class BaseSettingWidget(QScrollArea):
         abst.setFixedHeight(self.ABST_HEIGHT)
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
+        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
     @abstractmethod
@@ -48,4 +49,4 @@ class BaseSettingWidget(QScrollArea):
     @abstractmethod
     def is_valid(self) -> bool:
         """ Returns true if user configuration is valid. """
-        raise NotImplementedError
+        raise NotImplementedError()

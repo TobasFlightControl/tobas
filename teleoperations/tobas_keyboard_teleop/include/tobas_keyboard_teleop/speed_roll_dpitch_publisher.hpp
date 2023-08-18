@@ -4,9 +4,9 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <dh_std_tools/range.hpp>
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_tools/trim_conditions.hpp>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
@@ -15,17 +15,17 @@
 
 namespace tobas_keyboard_teleop
 {
-static constexpr double kDefaultMaxLinearAcceleration = 2.;
-static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
-static constexpr double kDefaultMaximumRoll = M_PI_2;
-static constexpr double kDefaultMaximumDeltaPitch = M_PI_4;
-
 /**
  * @brief キーボード入力を受け取り，コマンドを発行する．
  */
-class SpeedRollDeltaPitchPublisher : public dh_ros::BaseNode
+class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  static constexpr double kDefaultMaxLinearAcceleration = 2.;
+  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;
+  static constexpr double kDefaultMaximumRoll = M_PI_2;
+  static constexpr double kDefaultMaximumDeltaPitch = M_PI_4;
+
+  using super = tobas::BaseNode;
 
 public:
   explicit SpeedRollDeltaPitchPublisher();
@@ -71,7 +71,9 @@ private:
   bool isReady();
   void initialize();
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
+
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void instructionTimerCb(const ros::TimerEvent&);
 };

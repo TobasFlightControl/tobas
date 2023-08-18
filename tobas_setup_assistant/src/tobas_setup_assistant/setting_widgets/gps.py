@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.widgets import add_expanding_widget
 
 from .base_setting import BaseSettingWidget
-from ..constants import *
+from ..common import *
 from ..parameter_getters import *
 
 
@@ -27,9 +27,13 @@ class GpsWidget(BaseSettingWidget):
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
-        link_description = "センサが取り付けられたフレームの名前．"
-        self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
-        self._rows.addWidget(self.link)
+        offset_description = "ルートリンクに対するGPSレシーバの位置のオフセット．"
+        self.offset = ParamGetterWidget_Vector3d(
+            "Offset",
+            offset_description,
+            suffix=" m",
+        )
+        self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
@@ -40,6 +44,17 @@ class GpsWidget(BaseSettingWidget):
             suffix=" Hz",
         )
         self._rows.addWidget(self.update_rate)
+
+        delay_description = ""
+        self.delay = ParamGetterWidget_DoubleSpinBox(
+            "Communication delay",
+            delay_description,
+            decimals=2,
+            minimum=0.,
+            default=0.2,
+            suffix=" s",
+        )
+        self._rows.addWidget(self.delay)
 
         horizontal_pos_std_description = ""
         self.horizontal_pos_std = ParamGetterWidget_DoubleSpinBox(
@@ -91,7 +106,6 @@ class GpsWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self.no_sensor.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_fixed_links)
 
     def is_valid(self) -> bool:
         if self.no_sensor.isChecked():
@@ -105,21 +119,16 @@ class GpsWidget(BaseSettingWidget):
     @pyqtSlot()
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():
-            self.link.setVisible(False)
+            self.offset.setVisible(False)
             self.update_rate.setVisible(False)
             self.horizontal_pos_std.setVisible(False)
             self.vertical_pos_std.setVisible(False)
             self.horizontal_vel_std.setVisible(False)
             self.vertical_vel_std.setVisible(False)
         else:
-            self.link.setVisible(True)
+            self.offset.setVisible(True)
             self.update_rate.setVisible(True)
             self.horizontal_pos_std.setVisible(True)
             self.vertical_pos_std.setVisible(True)
             self.horizontal_vel_std.setVisible(True)
             self.vertical_vel_std.setVisible(True)
-
-    @pyqtSlot()
-    def _add_fixed_links(self) -> None:
-        body_choices = self._main.urdf_parser.nwu_fixed_link_names()
-        self.link.box.addItems(body_choices)

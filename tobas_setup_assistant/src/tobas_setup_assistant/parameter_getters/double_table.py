@@ -1,16 +1,17 @@
+from typing import List
+from configparser import ConfigParser
 import numpy as np
 from numpy.typing import NDArray  # numpy >= 1.20
 import pandas as pd
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from typing import List
 
 from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
 from dh_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
-from ..constants import *
+from ..common import *
 
 
 class ParamGetterWidget_DoubleTable(ParamGetterWidget):
@@ -29,6 +30,10 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         description_text: str = None,
     ) -> None:
         super().__init__(param_name, description_text)
+
+        # 最後に開かれたディレクトリの記録用
+        self._config = ConfigParser()
+        self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
         self._num_entry = len(labels)
@@ -85,15 +90,20 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         return res
 
-    def set(self, src: NDArray[np.float64]) -> None:
+    def set(self, src: NDArray[np.float64]) -> bool:
         """
         Parameters
         ----------
         src : NDArray[np.float64]
             shape = (num_data, num_entry)
+
+        Returns
+        ----------
+        bool
+            success or failure
         """
         if not self._is_valid_data(src):
-            return
+            return False
 
         self._clear()
         for row in range(src.shape[0]):
@@ -101,6 +111,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             for col in range(src.shape[1]):
                 cell: DoubleSpinBox = self._table.cellWidget(row, col)
                 cell.setValue(src[row, col])
+
+        return True
 
     def set_minimum(self, minimum: List[float]) -> None:
         assert len(minimum) == self._num_entry
@@ -204,16 +216,29 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
                 self.parent(),
                 f'The data contains invalid data type. The error message is: {e}'
             )
+            return
 
-        self.set(data)
+        if not self.set(data):
+            return
+
         q_info(self.parent(), "Data is successfully loaded.")
 
     def _get_csv_file_path(self) -> str:
+        self._config.read(CONFIG_PATH)
+        last_opened_dir = self._config.get(DEFAULT, self._path_key, fallback=osp.expanduser("~"))
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, "", "CSV File (*.csv)", options=options
+            self, TITLE, last_opened_dir, "CSV File (*.csv)", options=options
         )
+
+        # 最後に開かれたパスを保存
+        if file_path != "":
+            self._config[DEFAULT][self._path_key] = osp.dirname(file_path)
+            with open(CONFIG_PATH, "w") as f:
+                self._config.write(f)
+
         return file_path
 
     def _is_valid_data(self, src: NDArray[np.float64]) -> bool:

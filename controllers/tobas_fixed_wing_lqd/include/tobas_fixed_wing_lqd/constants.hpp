@@ -6,8 +6,7 @@
 
 namespace tobas_fixed_wing_lqd
 {
-static constexpr double kGravity = 9.80665;                        // [m/s^2]
-static constexpr double kStandardAirDensity = 1.225;               // [kg/m^3]
+static constexpr double kStandardAirDensity = 1.225;  // [kg/m^3]
 static const std::string kCtrlName = "tobas_fixed_wing_lqd";
 static constexpr double kWarnPeriod = 1.;                          // [s]
 static constexpr double kCheckTopicsTimerPeriod = 5.;              // [s]

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <random>
 #include <ros/ros.h>
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
@@ -9,15 +8,18 @@
 
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/WindSpeed.h>
+#include <tobas_msgs/Wind.h>
 #include <tobas_msgs/RotorDebug.h>
 
-#include "../../include/tobas_gazebo_plugins/first_order_filter.hpp"
+#include "../tobas_gazebo_plugins/first_order_filter.hpp"
+#include "../tobas_gazebo_plugins/common.hpp"
 
 namespace gazebo
 {
 // Constants
 static const std::string kPluginName = "motor_model_plugin";
+static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
+static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
 
 // Default values
 static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
@@ -45,8 +47,8 @@ private:
   std::string debug_pub_topic_;
   std::string cmd_sub_topic_;
   std::string battery_sub_topic_;
-  std::string wind_speed_sub_topic_;
-  double kv_;  // Kv (with efficiency)
+  std::string wind_sub_topic_;
+  SdfVector2 rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
@@ -56,15 +58,15 @@ private:
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
-  double cmd_rot_speed_;                   // [rad/s]
+  double cmd_rot_speed_;  // [rad/s]
   tobas_msgs::Battery battery_;
-  ignition::math::Vector3d wind_speed_W_;  // [m/s]
-  double prev_sim_time_;                   // [s]
-  double last_cmd_time_;                   // [s]
+  ignition::math::Vector3d wind_vel_W_;  // [m/s]
+  double prev_sim_time_;                 // [s]
+  double last_cmd_time_;                 // [s]
   bool is_activated_;
   bool is_initialized_;
   bool battery_received_;
-  bool wind_speed_received_;
+  bool wind_received_;
   FirstOrderFilter<double> rotor_speed_filter_;
   tobas_msgs::RotorDebug debug_msg_;
 
@@ -78,7 +80,7 @@ private:
   ros::Publisher debug_pub_;
   ros::Subscriber command_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber wind_speed_sub_;
+  ros::Subscriber wind_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);
@@ -86,9 +88,11 @@ private:
   bool isReady();
   void applyForceAndTorque(double rot_speed, const common::Time cur_time);
   void updateRotationSpeed(double dt);
+  double maxRotSpeed();
+  double minRotSpeed();
 
   void commandCb(const tobas_msgs::RotorSpeeds& cmd);
   void batteryCb(const tobas_msgs::Battery& battery);
-  void windSpeedCb(const tobas_msgs::WindSpeed& wind);
+  void windSpeedCb(const tobas_msgs::Wind& wind);
 };
 }  // namespace gazebo

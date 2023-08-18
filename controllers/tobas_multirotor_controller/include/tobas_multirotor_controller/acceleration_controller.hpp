@@ -8,10 +8,16 @@
 
 namespace tobas_multirotor_controller
 {
+struct AccelerationControllerDynamicParams
+{
+  double max_hor_acc;
+  double max_ver_acc;
+};
+
 class AccelerationController
 {
 public:
-  explicit AccelerationController(const tobas::Drone& drone);
+  explicit AccelerationController();
 
   void update(
     const KDL::Vector& tar_acc,
@@ -19,12 +25,12 @@ public:
     double& U_out,
     double& roll_out,
     double& pitch_out);
+  void reconfigure(const AccelerationControllerDynamicParams& params);
 
 private:
-  const tobas::Drone& drone_;
-
-  tobas::RotorAxisExtractor z_rotors_;
-
   double mass_;
+
+  double max_hor_acc_;
+  double max_ver_acc_;
 };
 }  // namespace tobas_multirotor_controller

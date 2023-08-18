@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.widgets import add_expanding_widget
 
 from ...parameter_getters import *
-from ...constants import *
+from ...common import *
 from ..base_setting import BaseSettingWidget
 from .available_links import AvailableLinksWidget
 from .selected_links import SelectedLinksWidget
@@ -24,7 +24,6 @@ class RotaryWingsWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Rotary Wings"
         abst_text = "プロペラの設定を行います．"\
-            + "全てのプロペラがX軸前方もしくはZ軸上方に推力を発生することを想定しています．"\
             + "Available Linksからプロペラとして使用するリンクを追加し，"\
             + "それぞれのプロペラに対して必要事項を入力してください．"
         super().__init__(main, title_text, abst_text)

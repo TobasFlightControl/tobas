@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 
 class FrameTreeWidget(QTreeWidget):
 
-    WIDTH = 200
+    WIDTH = 300
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -22,6 +22,8 @@ class FrameTreeWidget(QTreeWidget):
 
     def define_connections(self) -> None:
         self.itemClicked.connect(self._on_item_clicked)
+        self.itemExpanded.connect(self._resize_columns)
+        self.itemCollapsed.connect(self._resize_columns)
         self._main.urdf_parser.robot_model_updated.connect(self._add_tree_items)
 
     @pyqtSlot(QTreeWidgetItem, int)
@@ -40,6 +42,13 @@ class FrameTreeWidget(QTreeWidget):
         root_item = QTreeWidgetItem([root.name])
         self._add_tree_items_rec(root_item)
         self.insertTopLevelItem(0, root_item)
+
+        self._resize_columns()
+
+    @pyqtSlot()
+    def _resize_columns(self) -> None:
+        """ 文字列の長さに応じて列の幅を調整する． """
+        self.resizeColumnToContents(0)
 
     def _add_tree_items_rec(self, parent_item: QTreeWidgetItem) -> None:
         parent_name = parent_item.text(0)

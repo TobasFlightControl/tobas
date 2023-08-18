@@ -8,10 +8,10 @@ using namespace std;
 using namespace Eigen;
 
 DepthNoiseModel::DepthNoiseModel(float min_depth, float max_depth)
-  : min_depth_(min_depth),
-    max_depth_(max_depth),
-    bad_point_(numeric_limits<float>::quiet_NaN()),
-    rnd_gen_(rnd_dev_())
+  : bad_point_(numeric_limits<float>::quiet_NaN()),
+    rnd_gen_(rnd_dev_()),
+    min_depth_(min_depth),
+    max_depth_(max_depth)
 {
 }
 
@@ -40,7 +40,7 @@ void KinectDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* d
   VectorXf var_noise = 1.2e-3f + 1.9e-3f * (data_vector_map.array() - 0.4f).array().square();
 
   // Sample noise for each pixel and transform variance according to error at this depth.
-  for (int i = 0; i < width * height; ++i)
+  for (uint32_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
     {
@@ -70,7 +70,7 @@ void PMDDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* data
   VectorXf var_noise = data_vector_map.array() * 0.01f;
 
   // Sample noise for each pixel and transform variance according to error at this depth.
-  for (int i = 0; i < width * height; ++i)
+  for (uint32_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
     {
@@ -110,7 +110,7 @@ void D435DepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* dat
   VectorXf noise = rms_noise.array().square();
 
   // Sample noise for each pixel and transform variance according to error at this depth.
-  for (int i = 0; i < width * height; ++i)
+  for (uint32_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
     {

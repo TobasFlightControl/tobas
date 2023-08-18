@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_real" type="accel_calibration_node" name="accel_calibration" output="screen" required="true"/>
+
+</launch>

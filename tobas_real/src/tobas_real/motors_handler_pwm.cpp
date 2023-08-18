@@ -8,9 +8,6 @@
 #include "../../include/tobas_real/motors_handler_pwm.hpp"
 #include "../../include/tobas_real/common.hpp"
 
-#define CONTROL_RATE 1000.            // [Hz]
-#define AUTO_STOP_TIME_THRESHOLD 0.5  // [s]
-
 using namespace std;
 using namespace dh_std;
 
@@ -39,8 +36,8 @@ MotorsHandler_PWM::MotorsHandler_PWM()
     setupRCOutput(pwm_, channel);
   }
 
-  // コマンドの初期値はDisarm
-  pwm_periods_.resize(drone_.numRotors(), kPwmDisarm);
+  // コマンドの初期値はArm
+  pwm_periods_.resize(drone_.numRotors(), kPwmArm);
 
   registerPublishers();
   registerSubscribers();
@@ -52,18 +49,18 @@ void MotorsHandler_PWM::run()
   sendDisarm();
   rosInfo("Disarming finished. The motors are ready to rotate.");
 
-  dh_ros::Rate rate(CONTROL_RATE);
+  dh_ros::Rate rate(kControlRate);
   while (ros::ok())
   {
     // Check elapsed time after last command
     const auto time_after_last_cmd = (ros::Time::now() - last_cmd_time_).toSec();
-    if (is_activated_ && time_after_last_cmd > AUTO_STOP_TIME_THRESHOLD)
+    if (is_activated_ && time_after_last_cmd > kAutoStopTimeThreshold)
     {
-      dh_std::fill(pwm_periods_, kPwmDisarm);
+      dh_std::fill(pwm_periods_, kPwmArm);
       is_activated_ = false;
       rosInfo(
-        "The rotors are automatically stopped because "
-        << AUTO_STOP_TIME_THRESHOLD << " seconds have elapsed since the last command.");
+        "The rotors automatically slow down because "
+        << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
     }
 
     // Set PWM duty cycles
@@ -74,6 +71,7 @@ void MotorsHandler_PWM::run()
       if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_periods_[rotor_idx]))
       {
         rosFatal("Failed to set PWM duty cycle on PIN" << pin << ".");
+        // TODO: Request shutdown
       }
     }
 
@@ -92,6 +90,7 @@ void MotorsHandler_PWM::registerPublishers()
 
 void MotorsHandler_PWM::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler_PWM::eventCb, this);
   rotor_speeds_sub_ =
     nh_.subscribe("command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_PWM::batteryCb, this);
@@ -113,9 +112,22 @@ void MotorsHandler_PWM::sendDisarm()
       if (!pwm_.set_duty_cycle(channelFromPin(pin), kPwmDisarm))
       {
         rosFatal("Failed to set PWM duty cycle on PIN " << pin << ".");
+        // TODO: Request shutdown
       }
     }
     ros::Duration(kDisarmInterval).sleep();
+  }
+}
+
+void MotorsHandler_PWM::eventCb(const tobas_msgs::Event& event)
+{
+  switch (event.data)
+  {
+    case tobas_msgs::Event::SHUTDOWN:
+      ros::shutdown();
+      break;
+    default:
+      break;
   }
 }
 
@@ -148,10 +160,11 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
 
   // Check delay
   const auto delay = (cur_time - rotor_speeds.header.stamp).toSec();
+  // rosInfo("The delay from IMU to the motor command: " << delay << "[s]");
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(
-      kErrorPeriod, "The delay from sensors to the motor command is "
+      kErrorPeriod, "The delay from IMU to the motor command is "
                       << delay << ", which exceeds the threshold " << kCheckDelayThreshold);
   }
   else if (delay < 0.)
@@ -162,29 +175,28 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
   // Update PWM periods
   for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
-    const auto& rotor_config = drone_.rotorConfig(rotor_idx);
-    const auto& pin = rotor_config.pin;
-    const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_.voltage);
-
-    // 指令速度を決定
-    auto cmd_speed = rotor_speeds.speeds[rotor_idx];
-    if (cmd_speed < 0.)
+    // スロットルを決定
+    // 電圧とスロットルの関係は線形だが，電圧と回転数の関係は非線形であることに注意
+    const auto& pin = drone_.rotorConfig(rotor_idx).pin;
+    const auto cmd_voltage = drone_.voltageFromRotSpeed(rotor_idx, rotor_speeds.speeds[rotor_idx]);
+    auto tar_throttle = cmd_voltage / battery_.voltage;  // [0, 1]
+    if (tar_throttle < tobas::kMotorSpinArm - kThrottleMargin)
+    {
+      rosErrorThrottle(
+        kErrorPeriod, "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
+                                               << tobas::kMotorSpinArm);
+      tar_throttle = tobas::kMotorSpinArm;
+    }
+    if (tar_throttle > 1. + kThrottleMargin)
     {
       rosErrorThrottle(
         kErrorPeriod,
-        "Negative rotor speed is commanded on PIN" << pin << ": " << cmd_speed << " [rad/s]");
-      cmd_speed = 0.;
-    }
-    else if (cmd_speed > max_speed)
-    {
-      rosErrorThrottle(
-        kErrorPeriod, "Commanded rotor speed on PIN" << pin << " exceeds the limit: " << cmd_speed
-                                                     << " > " << max_speed << " [rad/s]");
-      cmd_speed = max_speed;
+        "Target throttle on PIN" << pin << " is too high: " << tar_throttle << " > 1");
+      tar_throttle = 1.;
     }
 
-    // パルス幅に変換
-    pwm_periods_[rotor_idx] = remap(cmd_speed, 0., max_speed, kPwmMin, kPwmMax);
+    // スロットルをパルス幅に変換
+    pwm_periods_[rotor_idx] = remap(tar_throttle, 0., 1., kPwmMin, kPwmMax);
   }
 
   // Update last commanded time

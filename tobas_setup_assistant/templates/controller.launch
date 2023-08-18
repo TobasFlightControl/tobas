@@ -1,0 +1,15 @@
+<launch>
+
+  <group ns="{{ drone_name }}">
+    <!-- Load parameters -->
+    <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
+
+    <!-- Bringup controller -->
+    <include file="$(find {{ controller_pkg }})/launch/controller.launch"/>
+
+    <!-- Bringup takeoff and landing action servers at the same time -->
+    <include file="$(find {{ takeoff_pkg }})/launch/takeoff_action_server.launch"/>
+    <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch"/>
+  </group>
+
+</launch>

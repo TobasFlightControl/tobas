@@ -1,0 +1,12 @@
+<launch>
+
+  <include file="$(find {{ pkg_name }})/launch/bringup.launch">
+    <arg name="control_mode" value="position"/>
+  </include>
+
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_real)/launch/motors.launch"/>
+    <include file="$(find tobas_real)/launch/rc_input.launch"/>
+  </group>
+
+</launch>

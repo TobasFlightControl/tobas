@@ -37,9 +37,8 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  cv::Mat covariance_image_;
   std::string odometry_pub_topic_;
-  double cov_image_scale_;
+  SdfVector3 offset_;  // B_Pos_BS
   SdfVector3 noise_normal_position_;
   SdfVector3 noise_normal_rotation_;
   SdfVector3 noise_normal_linvel_;
@@ -48,6 +47,8 @@ private:
   SdfVector3 noise_uniform_rotation_;
   SdfVector3 noise_uniform_linvel_;
   SdfVector3 noise_uniform_angvel_;
+  cv::Mat covariance_image_;
+  double cov_image_scale_;
 
   // Noise distributions
   NormalDistribution3dPtr position_n_;

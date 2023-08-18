@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="soft_ground_plane">
+
+    <static>true</static>
+
+    <link name="link">
+
+      <collision name="collision">
+
+        <!-- 最大接触点数を制限すると計算速度が上がるが精度が落ちる -->
+        <!-- <max_contacts>4</max_contacts> -->
+
+        <geometry>
+          <plane>
+            <normal>0 0 1</normal>
+            <size>20 20</size>
+          </plane>
+        </geometry>
+
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <!-- 接触点安定化への効果大だが微調整が必要．なんとなく臨界減衰に設定． -->
+              <kp>2.5e+5</kp>
+              <kd>1e+3</kd>
+
+              <!-- 以下4パラメータの接触点の安定化への寄与は小さいかも -->
+              <max_vel>10.0</max_vel>
+              <min_depth>0.001</min_depth>
+              <soft_cfm>1e-3</soft_cfm>
+              <soft_erp>0.1</soft_erp>
+            </ode>
+          </contact>
+        </surface>
+
+      </collision>
+
+      <visual name="visual">
+
+        <geometry>
+          <plane>
+            <normal>0 0 1</normal>
+            <size>20 20</size>
+          </plane>
+        </geometry>
+
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+        </material>
+
+      </visual>
+
+    </link>
+
+  </model>
+</sdf>

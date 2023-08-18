@@ -1,19 +1,32 @@
 #pragma once
 
+#include <Eigen/Core>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
+#include <Common/MPU9250.h>
+#include <Navio2/LSM9DS1.h>
 
-#include <dh_ros_tools/node.hpp>
-#include <dh_ros_tools/timer.hpp>
+#include <tobas_tools/node.hpp>
 
-#include <Common/InertialSensor.h>
+#include "./ellipse_transformer.hpp"
 
 namespace tobas_real
 {
-class ImuHandler : public dh_ros::BaseNode
+class ImuHandler : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  static constexpr double kUpdateRate = 100.;           // [Hz]
+  static constexpr double kMeasureGyroBiasRate = 200.;  // [Hz]
+  static constexpr uint32_t kMeasureGyroBiasCount = 1000;
+  static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
+
+  // MPU9250
+  // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
+  static constexpr double kAccNoiseDensity = 300.;  // ug/sqrt(hz)  // TODO: 実際は遥かに大きい
+  static constexpr double kGyroNoiseDensity = 0.01;  // deg/s/sqrt(hz)
+  static constexpr double kMagNoiseStd = 0.;  // TODO: データシートに無かったため計測する
+
+  using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
@@ -22,28 +35,36 @@ class ImuHandler : public dh_ros::BaseNode
 public:
   explicit ImuHandler();
 
+  void run();
+
 private:
-  ImuPtr imu_;
+  // MPU9250 imu_;
+  LSM9DS1 imu_;
+
   ImuMsg imu_msg_;
   MagMsg mag_msg_;
-  float ax_, ay_, az_;
-  float wx_, wy_, wz_;
-  float mx_, my_, mz_;
+  Eigen::Vector3f acc_;
+  Eigen::Vector3f gyro_;
+  Eigen::Vector3f mag_;
+  EllipseTransformer mag_trans_;
+
+  // 固定値
+  Eigen::Vector3f acc_bias_;
+  Eigen::Vector3f gyro_bias_;
 
   // Publisher
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
-  // Timer
-  dh_ros::Timer main_loop_timer_;
-
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void setupImu();
+  void readConfig();
   void setCovarianceMatrices();
+  void setupImu();
+  void setGyroBias();
 
-  void mainLoopTimerCb(const ros::TimerEvent&);
+  void eventCb(const tobas_msgs::Event& event) override;
 };
 }  // namespace tobas_real

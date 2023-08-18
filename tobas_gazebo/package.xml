@@ -9,4 +9,12 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<!-- Make gazebo look in the package directory for models -->
+	<!-- https://qiita.com/srs/items/ac242e46177c2b797a7b -->
+	<exec_depend>gazebo_ros</exec_depend>
+	<export>
+		<gazebo_ros gazebo_model_path="${prefix}/models"/>
+		<gazebo_ros gazebo_media_path="${prefix}/models"/>
+	</export>
+
 </package>

@@ -3,9 +3,9 @@
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
@@ -15,9 +15,11 @@
 
 namespace tobas_multirotor_controller
 {
-class PositionControllerRos : public dh_ros::BaseNode
+class PositionControllerRos : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  static constexpr double kMaxCommandPositionDeviation = 100.;  // TODO
+
+  using super = tobas::BaseNode;
 
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
@@ -27,10 +29,13 @@ public:
 
 private:
   bool is_initialized_;
+  bool bs_received_;
+  bool cmd_received_;
+  tobas_msgs::BaseState bs_;
   tobas_msgs::PositionYaw pos_yaw_in_;   // 受け取る位置コマンド
   tobas_msgs::VelocityYaw vel_yaw_out_;  // 発行する速度コマンド
 
-  std::shared_ptr<PositionController> pos_controller_;
+  PositionController pos_controller_;
 
   // rosparams
   PositionControllerDynamicParams dynamic_params_;
@@ -50,13 +55,15 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void initialize(const tobas_msgs::BaseState& bs);
+  bool isReady();
+  void initialize();
   void updateDynamicParams(const ConfigType& cfg);
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void baseStateCb(const tobas_msgs::BaseState& bs);
   void targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t level);
+  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
 };
 }  // namespace tobas_multirotor_controller

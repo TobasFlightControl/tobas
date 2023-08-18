@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from ..constants import *
+from ..common import *
 
 
 class ParamGetterWidget(QWidget):
@@ -28,12 +28,13 @@ class ParamGetterWidget(QWidget):
             description.setFont(QFont("Default", pointSize=BODY_PSIZE))
             description.setAlignment(Qt.AlignTop)
             description.setWordWrap(True)
+            description.setOpenExternalLinks(True)
             self._rows.addWidget(description)
 
     @abstractmethod
     def get(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def set(self):
-        raise NotImplementedError
+        raise NotImplementedError()

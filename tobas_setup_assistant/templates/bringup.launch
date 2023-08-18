@@ -1,23 +1,18 @@
 <launch>
 
-  <arg name="control_mode" default="position"/>
+  <!-- Bringup controller -->
+  <include file="$(find {{ pkg_name }})/launch/controller.launch"/>
 
-  <!-- Load environment configurations from YAML file to parameter server -->
-  <rosparam file="$(find {{ pkg_name }})/config/environment.yaml" command="load"/>
+  <!-- Bringup observer -->
+  <include file="$(find {{ pkg_name }})/launch/observer.launch"/>
 
+  <!-- For safety reasons, bringup RC teleoperation by default -->
+  <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch"/>
+
+  <!-- Bringup state checker -->
   <group ns="{{ drone_name }}">
-    <!-- Bringup controller -->
-    <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
-    <group if="$(eval control_mode=='position')">
-      <include file="$(find {{ controller_pkg }})/launch/position_control.launch"/>
-    </group>
-    <group if="$(eval control_mode=='velocity')">
-      <include file="$(find {{ controller_pkg }})/launch/velocity_control.launch"/>
-    </group>
-
-    <!-- Bringup observer -->
-    <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>
-    <include file="$(find {{ observer_pkg }})/launch/observer.launch"/>
+    <rosparam file="$(find {{ pkg_name }})/config/state_checker.yaml" command="load"/>
+    <include file="$(find tobas_state_checker)/launch/multirotor_state_checker.launch"/>
   </group>
 
 </launch>

@@ -1,21 +1,24 @@
 #pragma once
 
 #include <ros/ros.h>
-
 #include <Navio2/RCOutput_Navio2.h>
 
-#include <dh_ros_tools/node.hpp>
 #include <dh_ros_tools/timer.hpp>
 
+#include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 
 namespace tobas_real
 {
-class MotorsHandler_PWM : public dh_ros::BaseNode
+class MotorsHandler_PWM : public tobas::BaseNode
 {
-  using super = dh_ros::BaseNode;
+  static constexpr double kControlRate = 800.;           // [Hz]
+  static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
+  static constexpr double kThrottleMargin = 0.01;
+
+  using super = tobas::BaseNode;
 
 public:
   explicit MotorsHandler_PWM();
@@ -47,6 +50,7 @@ private:
   bool isReady();
   void sendDisarm();
 
+  void eventCb(const tobas_msgs::Event& event) override;
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
   void batteryCb(const tobas_msgs::Battery& battery);
 

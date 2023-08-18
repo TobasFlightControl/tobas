@@ -12,8 +12,8 @@ from dh_rqt_tools.widgets import ComboBox
 from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
-from ...constants import *
-from .constants import NAME
+from ...common import *
+from .common import ROTARY_WINGS
 
 
 class EscWidget(QWidget):
@@ -38,7 +38,7 @@ class EscWidget(QWidget):
 
         self.esc_type = ComboBox()
         self.esc_type.addItems([self.NO_SELECT, self.PWM])
-        self.esc_type.setCurrentText(self.NO_SELECT)
+        self.esc_type.setCurrentText(self.PWM)
         self._rows.addWidget(self.esc_type)
 
         self.pwm = EscWidget_PWM(main, link_name)
@@ -52,7 +52,7 @@ class EscWidget(QWidget):
 
     def is_valid(self) -> bool:
         if self.esc_type.currentText() == self.NO_SELECT:
-            q_error_named(self._main, NAME, "Please select ESC type.")
+            q_error_named(self._main, ROTARY_WINGS, "Please select ESC type.")
             return False
         
         if not self.selected().is_valid():
@@ -68,7 +68,7 @@ class EscWidget(QWidget):
         elif esc_type == self.DSHOT:
             return self.dshot
         else:
-            raise RuntimeError
+            raise RuntimeError()
 
     def copy_from(self, src: EscWidget) -> None:
         self.esc_type.setCurrentText(src.esc_type.currentText())
@@ -110,11 +110,11 @@ class EscWidget_Base(QWidget):
 
     @abstractmethod
     def is_valid(self) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def copy_from(self, src) -> None:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class EscWidget_PWM(EscWidget_Base):

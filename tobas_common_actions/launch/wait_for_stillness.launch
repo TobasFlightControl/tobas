@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_common_actions" type="wait_for_stillness_server_node" name="wait_for_stillness_server" output="screen"/>
+
+</launch>

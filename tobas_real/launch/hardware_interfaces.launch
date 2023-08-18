@@ -1,13 +1,7 @@
 <launch>
 
-  <arg name="motors_handler" default="pwm"/>
-
-  <node pkg="tobas_real" name="battery_handler" type="battery_handler_node" output="screen" required="true"/>
-  <node pkg="tobas_real" name="imu_handler" type="imu_handler_node" output="screen" required="true"/>
-  <node pkg="tobas_real" name="barometer_handler" type="barometer_handler_node" output="screen" required="true"/>
-  <node pkg="tobas_real" name="gps_handler" type="gps_handler_node" output="screen" required="true"/>
-
-  <node if="$(eval motors_handler=='pwm')" pkg="tobas_real" name="motors_handler_pwm" type="motors_handler_pwm_node" output="screen" required="true"/>
-  <node if="$(eval motors_handler=='dshot')" pkg="tobas_real" name="motors_handler_dshot" type="motors_handler_dshot_node" output="screen" required="true"/>
+  <include file="$(find tobas_real)/launch/sensors.launch"/>
+  <include file="$(find tobas_real)/launch/motors.launch"/>
+  <include file="$(find tobas_real)/launch/rc_input.launch"/>
 
 </launch>

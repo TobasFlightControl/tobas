@@ -5,27 +5,26 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
-	tobas_msgs
-	dh_kdl
-	dh_std_tools
 	gazebo_plugins
-	kdl_msgs
 	sensor_msgs
 	geometry_msgs
 )
 find_package(gazebo REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_tools gazebo_plugins sensor_msgs geometry_msgs
+	DEPENDS GAZEBO OpenCV
 )
 
 include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
@@ -33,7 +32,7 @@ include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${OpenCV_INCLU
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # プラグインごとに共有ライブラリを作成
 file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/plugins/[^.]*_plugin.cpp)

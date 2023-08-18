@@ -33,16 +33,16 @@ def add_rgb_camera_model(
     robot.append(Joint(
         name=f'{ns}/rgb_camera_joint',
         type="fixed",
+        parent=link_name,
+        child=rgb_camera_link,
         origin=offset,
-        parent=Parent(link_name),
-        child=Child(rgb_camera_link),
     ))
     robot.append(Joint(
         name=f'{ns}/rgb_camera_optical_joint',
         type="fixed",
+        parent=rgb_camera_link,
+        child=optical_link,
         origin=Origin(0., 0., 0., -math.pi / 2, 0., -math.pi / 2),
-        parent=Parent(rgb_camera_link),
-        child=Child(optical_link),
     ))
 
     # robot/gazebo
