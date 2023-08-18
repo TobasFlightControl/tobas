@@ -101,12 +101,6 @@ void MultirotorStateChecker::requestLanding()
   requestShutdown();
 }
 
-void MultirotorStateChecker::requestShutdown()
-{
-  event_.data = tobas_msgs::Event::SHUTDOWN;
-  event_pub_.publish(event_);
-}
-
 void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)

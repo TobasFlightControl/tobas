@@ -15,6 +15,7 @@ protected:
   ros::NodeHandle nh_;
   const std::string ns_;
 
+  ros::Publisher event_pub_;
   ros::Subscriber event_sub_;
 
   explicit BaseNode();
@@ -24,5 +25,7 @@ protected:
   virtual void registerSubscribers() = 0;
 
   virtual void eventCb(const tobas_msgs::Event& event) = 0;
+
+  void requestShutdown();
 };
 }  // namespace tobas

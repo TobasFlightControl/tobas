@@ -39,7 +39,6 @@ private:
   State state_;
   tobas_msgs::Battery battery_;
   tobas_msgs::RollPitchYawrateThrust rpydt_;
-  tobas_msgs::Event event_;
   bool battery_received_;
 
   // ROS parameters
@@ -56,15 +55,12 @@ private:
 
   // PubSub
   ros::Publisher rpydt_pub_;
-  ros::Publisher event_pub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-
-  void requestShutdown();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void batteryCb(const tobas_msgs::Battery& battery);

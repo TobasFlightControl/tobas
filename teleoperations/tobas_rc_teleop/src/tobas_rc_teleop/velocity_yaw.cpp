@@ -49,12 +49,6 @@ void RcinToVelocityYaw::registerSubscribers()
   rcin_sub_ = nh_.subscribe("rc_input", 1, &RcinToVelocityYaw::rcInputCb, this);
 }
 
-void RcinToVelocityYaw::requestShutdown()
-{
-  event_.data = tobas_msgs::Event::SHUTDOWN;
-  event_pub_.publish(event_);
-}
-
 void RcinToVelocityYaw::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)

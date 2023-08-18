@@ -16,7 +16,7 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   static constexpr uint32_t kMinimumBarCount = 500;
   static constexpr uint32_t kMinimumGpsCount = 25;
   static constexpr double kStaticGyroThreshold = 0.5;                // [rad/s]
-  static constexpr double kStaticAirPressureAltitudeThreshold = 1.;  // [m]
+  static constexpr double kStaticAirPressureAltitudeThreshold = 3.;  // [m]
 
   using super = tobas::BaseNode;
 

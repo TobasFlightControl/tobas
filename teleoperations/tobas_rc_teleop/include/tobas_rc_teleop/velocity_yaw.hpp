@@ -33,7 +33,6 @@ private:
   State state_;
   tobas_msgs::BaseState bs_;
   tobas_msgs::VelocityYaw vel_yaw_;
-  tobas_msgs::Event event_;
   bool bs_received_;
   ros::Time t_last_rcin_;
 
@@ -48,15 +47,12 @@ private:
 
   // PubSub
   ros::Publisher vel_yaw_pub_;
-  ros::Publisher event_pub_;
   ros::Subscriber bs_sub_;
   ros::Subscriber rcin_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-
-  void requestShutdown();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void baseStateCb(const tobas_msgs::BaseState& bs);

@@ -30,9 +30,7 @@ private:
   bool bs_received_;
   bool cmd_received_;
   ros::Time t_last_bs_;
-  tobas_msgs::Event event_;
 
-  ros::Publisher event_pub_;
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber bs_sub_;
@@ -45,7 +43,6 @@ private:
   void registerSubscribers() override;
 
   void requestLanding();
-  void requestShutdown();
 
   void eventCb(const tobas_msgs::Event& event) override;
   void cpuCb(const tobas_msgs::Cpu& cpu);
