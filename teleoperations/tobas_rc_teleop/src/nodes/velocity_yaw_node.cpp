@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "rcin_to_velocity_yaw");
+  ros::init(argc, argv, "rc_teleop");
   tobas_rc_teleop::RcinToVelocityYaw node;
   ros::spin();
 }

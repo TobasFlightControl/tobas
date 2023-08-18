@@ -58,7 +58,7 @@ void PositionYawPublisher::run()
   }
 
   // 離陸
-  rosInfo("Takeoff");
+  rosInfo("Requesting takeoff action.");
   tobas_multirotor_takeoff::MultirotorTakeoffGoal takeoff_goal;
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
   takeoff.sendGoalAndWait(takeoff_goal);

@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "speed_roll_delta_pitch_publisher");
+  ros::init(argc, argv, "keyboard_teleop");
   tobas_keyboard_teleop::SpeedRollDeltaPitchPublisher node;
   node.run();
 }

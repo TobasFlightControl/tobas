@@ -1,7 +1,7 @@
 <launch>
 
   <group ns="{{ drone_name }}">
-    <node pkg="tobas_keyboard_teleop" type="position_yaw_publisher_node" name="position_yaw_publisher" output="screen"/>
+    <node pkg="tobas_keyboard_teleop" type="position_yaw_publisher_node" name="keyboard_teleop" output="screen"/>
   </group>
 
 </launch>
