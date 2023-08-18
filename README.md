@@ -53,13 +53,15 @@ $ catkin build
 
 ## Basic Usage
 
-### Create Tobas configuration package
+### Create Tobas configuration package using setup assistant.
 
 ```bash
 $ cd ~/catkin_ws
 $ source devel/setup.bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 ```
+
+Examples of robot description can be found in `tobas/tobas_description/urdf/`.
 
 ### Launch your drone
 

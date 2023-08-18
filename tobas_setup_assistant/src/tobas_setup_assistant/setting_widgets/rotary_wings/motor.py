@@ -144,7 +144,8 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self.setLayout(self._rows)
 
         direction_description = "モータの回転方向．"\
-            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
+            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"\
+            + "例えば回転翼機の場合，通常は対角に位置するプロペラが同じ回転方向になります．"
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
             direction_description,

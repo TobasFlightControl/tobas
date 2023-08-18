@@ -265,7 +265,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """ Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] """
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        abst_text = "プロペラの幾何形状から"\
+        abst_text = "上で設定したプロペラの幾何形状から"\
             + "<a href='https://en.wikipedia.org/wiki/Blade_element_theory'>Blade Element Theory</a>や"\
             + "<a href='https://en.wikipedia.org/wiki/Momentum_theory'>Momentum Theory</a>"\
             + "を利用して空力定数を推定します．"
