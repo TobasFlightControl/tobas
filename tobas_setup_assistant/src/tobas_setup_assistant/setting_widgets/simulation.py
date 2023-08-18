@@ -16,6 +16,8 @@ from ..parameter_getters import *
 
 class SimulationWidget(BaseSettingWidget):
 
+    NAME = "Simulation"
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Gazebo Simulation"
         abst_text = "Gazeboシミュレーション環境の設定を行います．"\
@@ -127,4 +129,5 @@ class SimulationWidget(BaseSettingWidget):
         super().define_connections()
 
     def is_valid(self) -> bool:
+        # TODO: 極に近すぎると方角がわからない
         return True

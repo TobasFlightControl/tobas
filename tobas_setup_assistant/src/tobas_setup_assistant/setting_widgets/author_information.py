@@ -17,7 +17,7 @@ from ..utils import is_valid_email, get_git_user_name, get_git_user_email
 
 class AuthorInformationWidget(BaseSettingWidget):
 
-    NAME = "Author Information"
+    NAME = "Author Info"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Specify Author Information"

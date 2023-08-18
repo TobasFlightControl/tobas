@@ -39,23 +39,23 @@ class SettingsWidget(VerticalTabWidget):
         self.author_information = AuthorInformationWidget(main)
         self.ros_package = RosPackageWidget(main)
 
-        self.addTab(self.start, "Start")
-        self.addTab(self.battery, "Battery")
-        self.addTab(self.rotary_wings, "Rotary Wings")
-        self.addTab(self.fixed_wing, "Fixed Wing")
-        self.addTab(self.imu, "IMU")
-        self.addTab(self.magnetometer, "Magnetic")
-        self.addTab(self.barometer, "Barometer")
-        self.addTab(self.gps, "GPS")
-        self.addTab(self.rgb_camera, "RGB Camera")
-        self.addTab(self.depth_camera, "Depth Camera")
-        # self.addTab(self.lidar, "LiDAR")  # TODO
-        self.addTab(self.odometry, "Odometry")
-        self.addTab(self.controller, "Controller")
-        self.addTab(self.observer, "Observer")
-        self.addTab(self.simulation, "Simulation")
-        self.addTab(self.author_information, "Author Info")
-        self.addTab(self.ros_package, "ROS Package")
+        self.addTab(self.start, StartWidget.NAME)
+        self.addTab(self.battery, BatteryWidget.NAME)
+        self.addTab(self.rotary_wings, RotaryWingsWidget.NAME)
+        self.addTab(self.fixed_wing, FixedWingWidget.NAME)
+        self.addTab(self.imu, ImuWidget.NAME)
+        self.addTab(self.magnetometer, MagnetometerWidget.NAME)
+        self.addTab(self.barometer, BarometerWidget.NAME)
+        self.addTab(self.gps, GpsWidget.NAME)
+        self.addTab(self.rgb_camera, RgbCameraWidget.NAME)
+        self.addTab(self.depth_camera, DepthCameraWidget.NAME)
+        # self.addTab(self.lidar, LidarWidget.NAME)  # TODO
+        self.addTab(self.odometry, OdometryWidget.NAME)
+        self.addTab(self.controller, ControllerWidget.NAME)
+        self.addTab(self.observer, ObserverWidget.NAME)
+        self.addTab(self.simulation, SimulationWidget.NAME)
+        self.addTab(self.author_information, AuthorInformationWidget.NAME)
+        self.addTab(self.ros_package, RosPackageWidget.NAME)
 
         self.setMinimumHeight(self.MIN_HEIGHT)
         self.setStyleSheet(
@@ -80,3 +80,8 @@ class SettingsWidget(VerticalTabWidget):
         self.simulation.define_connections()
         self.author_information.define_connections()
         self.ros_package.define_connections()
+
+    def switch_to_tab(self, tab: QWidget) -> None:
+        idx = self.indexOf(tab)
+        assert idx >= 0
+        self.setCurrentIndex(idx)

@@ -15,6 +15,8 @@ from ..parameter_getters import *
 
 
 class GpsWidget(BaseSettingWidget):
+    
+    NAME = "GPS"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Global Positioning System"

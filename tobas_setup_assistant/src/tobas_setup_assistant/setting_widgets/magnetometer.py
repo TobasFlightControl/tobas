@@ -15,6 +15,8 @@ from ..parameter_getters import *
 
 
 class MagnetometerWidget(BaseSettingWidget):
+    
+    NAME = "Compass"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Magnetometer"

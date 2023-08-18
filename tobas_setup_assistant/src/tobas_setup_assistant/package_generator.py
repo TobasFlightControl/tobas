@@ -61,38 +61,55 @@ class PackageGenerator(QObject):
 
     def _is_valid_config(self) -> bool:
         if not self._main.settings.start.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.start)
             return False
         if not self._main.settings.battery.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.battery)
             return False
         if not self._main.settings.rotary_wings.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.rotary_wings)
             return False
         if not self._main.settings.fixed_wing.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.fixed_wing)
             return False
         if not self._main.settings.imu.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.imu)
             return False
         if not self._main.settings.magnetometer.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.magnetometer)
             return False
         if not self._main.settings.barometer.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.barometer)
             return False
         if not self._main.settings.gps.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.gps)
             return False
         if not self._main.settings.rgb_camera.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.rgb_camera)
             return False
         if not self._main.settings.depth_camera.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.depth_camera)
             return False
         if not self._main.settings.lidar.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.lidar)
             return False
         if not self._main.settings.odometry.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.odometry)
             return False
         if not self._main.settings.controller.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
         if not self._main.settings.observer.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.observer)
             return False
         if not self._main.settings.simulation.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.simulation)
             return False
         if not self._main.settings.author_information.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.author_information)
             return False
         if not self._main.settings.ros_package.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.ros_package)
             return False
 
         return True

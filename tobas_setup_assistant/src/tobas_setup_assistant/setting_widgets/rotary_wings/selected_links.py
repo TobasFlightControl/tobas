@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import TabWidget, add_expanding_widget, add_center_button
+from dh_rqt_tools.messages import q_error_named
 from kdl_sympy.frames import Vector
 
 from ...parameter_getters import *
@@ -47,6 +48,12 @@ class SelectedLinksWidget(TabWidget):
             tab: SelectedLinkTabWidget = self.widget(i)
             if not tab.is_valid():
                 return False
+
+        # 最低1つは登録されていなければならない
+        if num_rotors == 0:
+            q_error_named(
+                self._main, ROTARY_WINGS, "Please register at least 1 propulsion systems.")
+            return
 
         return True
 

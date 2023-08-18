@@ -15,6 +15,8 @@ from ..parameter_getters import *
 
 
 class OdometryWidget(BaseSettingWidget):
+    
+    NAME = "Odometry"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Odometry Publisher"

@@ -15,6 +15,8 @@ from ..parameter_getters import *
 
 
 class ImuWidget(BaseSettingWidget):
+    
+    NAME = "IMU"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Inertial Measurement Unit"

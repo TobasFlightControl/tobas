@@ -15,6 +15,8 @@ from ..common import *
 
 
 class LidarWidget(BaseSettingWidget):
+    
+    NAME = "LiDAR"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = 'Define LiDAR'

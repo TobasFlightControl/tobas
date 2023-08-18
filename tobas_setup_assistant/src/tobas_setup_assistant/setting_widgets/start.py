@@ -20,6 +20,8 @@ from ..common import *
 
 
 class StartWidget(BaseSettingWidget):
+    
+    NAME = "Start"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Tobas Setup Assistant"
