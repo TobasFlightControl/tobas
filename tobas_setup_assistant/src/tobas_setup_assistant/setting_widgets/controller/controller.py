@@ -89,16 +89,16 @@ class ControllerWidget(BaseSettingWidget):
                 self.type.addItem(MultirotorLMPC.NAME)
         else:
             if self.type.contains(MultirotorLMPC.NAME):
-                self.type.setItemText(self.NO_SELECT)
-                self.type.removeItem(MultirotorLMPC.NAME)
+                self.type.setCurrentText(self.NO_SELECT)
+                self.type.remove_text(MultirotorLMPC.NAME)
 
         if self.fixed_wing_lqr.is_applicable():
             if not self.type.contains(FixedWingLQR.NAME):
                 self.type.addItem(FixedWingLQR.NAME)
         else:
             if self.type.contains(FixedWingLQR.NAME):
-                self.type.setItemText(self.NO_SELECT)
-                self.type.removeItem(FixedWingLQR.NAME)
+                self.type.setCurrentText(self.NO_SELECT)
+                self.type.remove_text(FixedWingLQR.NAME)
 
     def _update_visibility(self) -> None:
         controller_type = self.type.currentText()

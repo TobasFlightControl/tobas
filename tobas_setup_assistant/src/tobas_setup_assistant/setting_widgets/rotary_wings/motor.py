@@ -18,7 +18,7 @@ from dh_rqt_tools.messages import q_error_named
 from ...parameter_getters import *
 from ...common import *
 from ...utils import rpm_to_rad_per_sec
-from .constants import ROTARY_WINGS
+from .common import ROTARY_WINGS
 
 
 class MotorWidget(QWidget):
@@ -78,19 +78,19 @@ class MotorWidget(QWidget):
 
     def direction(self) -> str:
         """ 'cw' or 'ccw' """
-        return self._selected_setting_widget().direction()
+        return self._selected().direction()
 
     def time_const_up(self) -> float:
         """ [s] """
-        return self._selected_setting_widget().time_const_up()
+        return self._selected().time_const_up()
 
     def time_const_down(self) -> float:
         """ [s] """
-        return self._selected_setting_widget().time_const_down()
+        return self._selected().time_const_down()
 
     def rot_speed_coefs(self) -> Tuple[float, float]:
         """ V = a w + b w^2 (V[V], w[rad/s]) """
-        return self._selected_setting_widget().rot_speed_coefs()
+        return self._selected().rot_speed_coefs()
 
     def copy_from(self, src: MotorWidget) -> None:
         self.setting_method.setCurrentText(src.setting_method.currentText())
@@ -117,7 +117,7 @@ class MotorWidget(QWidget):
         else:
             raise RuntimeError(f'Unknown setting method: {setting_method}')
 
-    def _selected_setting_widget(self) -> MotorWidget_Base:
+    def _selected(self) -> MotorWidget_Base:
         setting_method = self.setting_method.currentText()
 
         if setting_method == self.MANUAL:
@@ -144,7 +144,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self.setLayout(self._rows)
 
         direction_description = "モータの回転方向．"\
-            + "X軸またはZ軸の正方向に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
+            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
             direction_description,

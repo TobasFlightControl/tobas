@@ -9,11 +9,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import TabWidget, add_expanding_widget, add_center_button
-from dh_rqt_tools.messages import q_error_named
+from kdl_sympy.frames import Vector
 
 from ...parameter_getters import *
 from ...common import *
-from .constants import ROTARY_WINGS
+from .common import ROTARY_WINGS, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget
 from .blade_geometry import BladeGeometry
@@ -42,28 +42,11 @@ class SelectedLinksWidget(TabWidget):
     def is_valid(self) -> bool:
         num_rotors = self.count()
 
-        # まずそれぞれのタブが有効であることを確認
+        # それぞれのタブの設定が有効であることを確認
         for i in range(num_rotors):
             tab: SelectedLinkTabWidget = self.widget(i)
             if not tab.is_valid():
                 return False
-
-        # 次にタブ全体で見たときの有効性を確認
-        # そうしないと全体を見る過程で部分のエラーが出る可能性がある
-
-        if num_rotors < 2:
-            q_error_named(self._main, ROTARY_WINGS, "At least 2 rotary wings are required.")
-            return False
-
-        directions = set(self.widget(i).motor.direction() for i in range(num_rotors))
-        if len(directions) == 1:
-            q_error_named(
-                self._main,
-                ROTARY_WINGS,
-                "All rotors have the same rotation direction. "
-                "Rotors that rotate in both clockwise (CW) and counterclockwise (CCW) are required.",
-            )
-            return False
 
         return True
 
@@ -111,6 +94,10 @@ class SelectedLinksWidget(TabWidget):
             tab: SelectedLinkTabWidget = self.widget(idx)
             res.append(tab.joint_name())
         return res
+
+    def directions(self) -> List[str]:
+        """ 選択テーブル内の回転方向 ('cw' or 'ccw') のリストを返す． """
+        return [self.widget(i).motor.direction() for i in range(self.count())]
 
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:
@@ -172,6 +159,16 @@ class SelectedLinkTabWidget(QWidget):
 
     def joint_name(self) -> str:
         return self._main.urdf_parser.get_joint(self._link_name).name
+
+    def axis_type(self) -> str:
+        axis = self._main.urdf_parser.global_axis(self.joint_name())
+        if axis.is_collinear(Vector.UnitX()):
+            return AxisType.X_POSITIVE
+        elif axis.is_collinear(Vector.UnitZ()):
+            return AxisType.Z_POSITIVE
+        else:
+            # TODO: その他の回転軸に対応
+            raise RuntimeError(f'Invalid rotation axis: {axis}')
 
     def _define_connections(self) -> None:
         self.copy_button.clicked.connect(self._copy_from_left_tab)

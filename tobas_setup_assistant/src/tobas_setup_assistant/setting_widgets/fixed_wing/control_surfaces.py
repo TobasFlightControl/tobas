@@ -15,6 +15,7 @@ from kdl_sympy.joint import JointType
 
 from ...parameter_getters import *
 from ...common import *
+from .common import *
 
 
 class ControlSurface:
@@ -210,6 +211,7 @@ class AddDeleteButtonsWidget(QWidget):
 class SelectedLinksWidget(QTableWidget):
 
     COL_WIDTH = 120
+    COEF_DECIMALS = 6
     LABELS = [
         "Link Name",
         "Joint Name",
@@ -322,37 +324,37 @@ class SelectedLinksWidget(QTableWidget):
         self.setCellWidget(row, 4, max_angle_rate)
 
         c_lift_delta = DoubleSpinBox()
-        c_lift_delta.setDecimals(3)
+        c_lift_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_lift_delta.setSuffix(" /rad")
         self.c_lift_delta.append(c_lift_delta)
         self.setCellWidget(row, 5, c_lift_delta)
 
         c_drag_delta = DoubleSpinBox()
-        c_drag_delta.setDecimals(3)
+        c_drag_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_drag_delta.setSuffix(" /rad")
         self.c_drag_delta.append(c_drag_delta)
         self.setCellWidget(row, 6, c_drag_delta)
 
         c_side_delta = DoubleSpinBox()
-        c_side_delta.setDecimals(3)
+        c_side_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_side_delta.setSuffix(" /rad")
         self.c_side_delta.append(c_side_delta)
         self.setCellWidget(row, 7, c_side_delta)
 
         c_roll_delta = DoubleSpinBox()
-        c_roll_delta.setDecimals(3)
+        c_roll_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_roll_delta.setSuffix(" /rad")
         self.c_roll_delta.append(c_roll_delta)
         self.setCellWidget(row, 8, c_roll_delta)
 
         c_pitch_delta = DoubleSpinBox()
-        c_pitch_delta.setDecimals(3)
+        c_pitch_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_pitch_delta.setSuffix(" /rad")
         self.c_pitch_delta.append(c_pitch_delta)
         self.setCellWidget(row, 9, c_pitch_delta)
 
         c_yaw_delta = DoubleSpinBox()
-        c_yaw_delta.setDecimals(3)
+        c_yaw_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_yaw_delta.setSuffix(" /rad")
         self.c_yaw_delta.append(c_yaw_delta)
         self.setCellWidget(row, 10, c_yaw_delta)

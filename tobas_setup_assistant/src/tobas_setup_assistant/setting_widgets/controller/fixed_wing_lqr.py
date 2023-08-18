@@ -7,6 +7,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from kdl_sympy.frames import Vector
+
 from tobas_msgs.msg import SpeedRollDeltaPitch
 
 from ...parameter_getters import *
@@ -23,6 +25,8 @@ class FixedWingLQR(BaseController):
     LANDING_PKG = "TODO"  # TODO
 
     COMMAND_MSGS = [SpeedRollDeltaPitch]
+
+    MIN_PROP_NUM = 1
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = "TODO"
@@ -119,9 +123,26 @@ class FixedWingLQR(BaseController):
         self._rows.addWidget(self.deflection_rate_weight_exp)
 
     def is_applicable(self) -> bool:
-        return True  # TODO
+        # 固定翼を持つ
+        fixed_wing = self._main.settings.fixed_wing
+        if not fixed_wing.has_fixed_wing.isChecked():
+            return False
+
+        # プロペラの枚数条件
+        prop_jnt_names = self._main.settings.rotary_wings.selected.joint_names()
+        if len(prop_jnt_names) < self.MIN_PROP_NUM:
+            return False
+
+        # X軸正方向のプロペラのみ
+        for joint_name in prop_jnt_names:
+            axis = self._main.urdf_parser.global_axis(joint_name)
+            if not axis.is_collinear(Vector.UnitX()):
+                return False
+
+        return True
 
     def is_valid(self) -> bool:
+        # TODO: 制御面の数や符号などに関する条件
         return True
 
     def parameter_dict(self) -> dict:

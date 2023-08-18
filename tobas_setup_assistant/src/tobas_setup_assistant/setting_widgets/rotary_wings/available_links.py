@@ -75,11 +75,8 @@ class AvailableLinksWidget(QListWidget):
             if joint.type != JointType.CONTINUOUS:
                 continue
 
-            # 回転軸が常にZ軸と一致している
-            # FIXME: 複数回の回転を含む場合，数値誤差により理論的には存在しないXY要素が発生するかもしれない
-            global_axis = urdf_parser.global_axis(joint.name)
-            if global_axis.x() == 0 and global_axis.y() == 0:
-                self.add(link.name)
+            # リンク名をリストに追加
+            self.add(link.name)
 
         self.sortItems()
 

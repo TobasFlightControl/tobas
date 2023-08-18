@@ -221,7 +221,7 @@ class PackageGenerator(QObject):
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f'rotor_{i}'] = {
                 "link_name": selected.link_name(),
-                "axis": "z_positive",  # TODO: Widgetから取得
+                "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
                 "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
@@ -468,7 +468,7 @@ class PackageGenerator(QObject):
                 link_name=root_link,
                 altitude_0=simulation.altitude_0.get(),
                 wing_surface=vehicle.wing_surface.get(),
-                wing_span=vehicle.wing_span,
+                wing_span=vehicle.wing_span.get(),
                 mean_aerodynamic_chord=vehicle.mac.get(),
                 aerodynamic_center=vehicle.aerodynamic_center.get(),
                 alpha_limit=vehicle.alpha_limit.get(),

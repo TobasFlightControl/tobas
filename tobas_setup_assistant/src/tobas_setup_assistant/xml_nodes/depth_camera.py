@@ -1,16 +1,9 @@
 import math
-from enum import Enum
 from xml.etree import ElementTree as ET
 
 from urdf_tools_py.core import *
 from urdf_tools_py.dummy import DummyLink
 from urdf_tools_py.gazebo import Camera
-
-
-class DepthNoiseModel(Enum):
-    KINECT = "Kinect"
-    PMD = "PMD"
-    D435 = "D435"
 
 
 def add_depth_camera_model(

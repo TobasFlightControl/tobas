@@ -37,7 +37,18 @@ class BaseController(QWidget):
 
     @abstractmethod
     def is_applicable(self) -> bool:
-        """ ハードウェアの構造などから，制御器が適用可能かどうかを返す． """
+        """
+        ハードウェアの構造のみから，制御器が適用可能かどうかを返す．
+
+        Returns
+        -------
+        bool
+            制御器が適用可能かどうか．
+
+        Note
+        ------
+        - 実験データによるモータの設定など，個別の設定方法に依存してはならない．
+        """
         raise NotImplementedError()
 
     @abstractmethod

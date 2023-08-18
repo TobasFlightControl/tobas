@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+from enum import Enum
+from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -13,6 +15,17 @@ from dh_rqt_tools.messages import q_error_named
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
 from ..common import *
+
+
+class DepthNoiseModel(Enum):
+
+    KINECT = "Kinect"
+    PMD = "PMD"
+    D435 = "D435"
+
+    @classmethod
+    def get_all_values(cls) -> List[str]:
+        return [item.value for item in cls]
 
 
 class DepthCameraWidget(BaseSettingWidget):
@@ -106,7 +119,7 @@ class DepthCameraWidget(BaseSettingWidget):
         self.noise_model = ParamGetterWidget_ComboBox(
             "Depth Noise Model",
             noise_model_description,
-            ["Kinect", "PMD", "D435"],
+            DepthNoiseModel.get_all_values(),
         )
         self._rows.addWidget(self.noise_model)
 
