@@ -31,6 +31,8 @@
   <xacro:property name="aileron_height" value="0.013" /> <!-- [m] -->
   <xacro:property name="aileron_min_angle" value="-0.349066" /> <!-- [rad] -->
   <xacro:property name="aileron_max_angle" value="0.349066" /> <!-- [rad] -->
+  <xacro:property name="aileron_max_velocity" value="10.0" /> <!-- [rad/s] -->
+  <xacro:property name="aileron_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="aileron_color" value="Red" />
   <xacro:property name="aileron_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_left.dae" />
   <xacro:property name="aileron_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_right.dae" />
@@ -41,6 +43,8 @@
   <xacro:property name="elevator_height" value="0.012" /> <!-- [m] -->
   <xacro:property name="elevator_min_angle" value="-0.349066" /> <!-- [rad] -->
   <xacro:property name="elevator_max_angle" value="0.349066" /> <!-- [rad] -->
+  <xacro:property name="elevator_max_velocity" value="10.0" /> <!-- [rad/s] -->
+  <xacro:property name="elevator_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="elevator_color" value="Blue" />
   <xacro:property name="elevator_mesh_file" value="package://tobas_description/meshes/techpod/techpod_elevator.dae" />
 
@@ -50,6 +54,8 @@
   <xacro:property name="flap_height" value="0.016" /> <!-- [m] -->
   <xacro:property name="flap_min_angle" value="0.0" /> <!-- [rad] -->
   <xacro:property name="flap_max_angle" value="0.0" /> <!-- [rad] -->
+  <xacro:property name="flap_max_velocity" value="10.0" /> <!-- [rad/s] -->
+  <xacro:property name="flap_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="flap_color" value="Yellow" />
   <xacro:property name="flap_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_left.dae" />
   <xacro:property name="flap_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_right.dae" />
@@ -60,6 +66,8 @@
   <xacro:property name="rudder_height" value="0.241" />
   <xacro:property name="rudder_min_angle" value="-0.349066" />
   <xacro:property name="rudder_max_angle" value="0.349066" />
+  <xacro:property name="rudder_max_velocity" value="10.0" />
+  <xacro:property name="rudder_max_effort" value="1e+6" />
   <xacro:property name="rudder_color" value="Orange" />
   <xacro:property name="rudder_mesh_file" value="package://tobas_description/meshes/techpod/techpod_rudder.dae" />
 
@@ -226,6 +234,8 @@
     mass_surface="${mass_aileron}"
     min_angle="${aileron_min_angle}"
     max_angle="${aileron_max_angle}"
+    max_velocity="${aileron_max_velocity}"
+    max_effort="${aileron_max_effort}"
     color="${aileron_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${aileron_left_mesh_file}"
@@ -245,6 +255,8 @@
     mass_surface="${mass_aileron}"
     min_angle="${aileron_min_angle}"
     max_angle="${aileron_max_angle}"
+    max_velocity="${aileron_max_velocity}"
+    max_effort="${aileron_max_effort}"
     color="${aileron_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${aileron_right_mesh_file}"
@@ -265,6 +277,8 @@
     mass_surface="${mass_elevator}"
     min_angle="${elevator_min_angle}"
     max_angle="${elevator_max_angle}"
+    max_velocity="${elevator_max_velocity}"
+    max_effort="${elevator_max_effort}"
     color="${elevator_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${elevator_mesh_file}"
@@ -285,6 +299,8 @@
     mass_surface="${mass_flap}"
     min_angle="${flap_min_angle}"
     max_angle="${flap_max_angle}"
+    max_velocity="${flap_max_velocity}"
+    max_effort="${flap_max_effort}"
     color="${flap_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${flap_left_mesh_file}"
@@ -304,6 +320,8 @@
     mass_surface="${mass_flap}"
     min_angle="${flap_min_angle}"
     max_angle="${flap_max_angle}"
+    max_velocity="${flap_max_velocity}"
+    max_effort="${flap_max_effort}"
     color="${flap_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${flap_right_mesh_file}"
@@ -324,6 +342,8 @@
     mass_surface="${mass_rudder}"
     min_angle="${rudder_min_angle}"
     max_angle="${rudder_max_angle}"
+    max_velocity="${rudder_max_velocity}"
+    max_effort="${rudder_max_effort}"
     color="${rudder_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${rudder_mesh_file}"

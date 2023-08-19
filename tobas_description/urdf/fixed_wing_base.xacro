@@ -63,14 +63,14 @@
   <!-- Control surface joint and link -->
   <xacro:macro name="control_surface"
     params="robot_namespace surface_name parent mass_surface min_angle
-      max_angle color use_mesh_file mesh_file surface_length surface_width
+      max_angle max_velocity max_effort color use_mesh_file mesh_file surface_length surface_width
       surface_height *axis *joint_origin *link_origin *inertia">
     <joint name="${robot_namespace}/${surface_name}_joint" type="revolute">
       <xacro:insert_block name="joint_origin" />
       <xacro:insert_block name="axis" />
       <parent link="${parent}" />
       <child link="${robot_namespace}/${surface_name}" />
-      <limit upper="0" lower="0" effort="0" velocity="0" />
+      <limit lower="${min_angle}" upper="${max_angle}" velocity="${max_velocity}" effort="${max_effort}" />
     </joint>
 
     <link name="${robot_namespace}/${surface_name}">
