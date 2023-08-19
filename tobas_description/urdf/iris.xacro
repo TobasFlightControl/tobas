@@ -5,11 +5,6 @@
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro" />
 
-  <!-- Constants -->
-  <xacro:property name="sin30" value="0.5" />
-  <xacro:property name="cos30" value="0.866025403784" />
-  <xacro:property name="sqrt2" value="1.4142135623730951" />
-
   <!-- Properties -->
   <xacro:property name="namespace" value="iris" />
   <xacro:property name="use_mesh_file" value="true" />
