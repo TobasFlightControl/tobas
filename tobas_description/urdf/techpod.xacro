@@ -359,7 +359,7 @@
   <!-- Instantiate the propeller -->
   <xacro:propeller
     robot_namespace="${namespace}"
-    suffix=""
+    suffix="0"
     parent="${namespace}/base_link"
     mass_propeller="${mass_propeller}"
     propeller_radius="${propeller_radius}"
