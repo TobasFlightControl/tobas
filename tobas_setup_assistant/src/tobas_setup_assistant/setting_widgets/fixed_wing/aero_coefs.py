@@ -11,7 +11,7 @@ from dh_rqt_tools.widgets import DoubleSpinBox
 
 from ...parameter_getters import *
 from ...common import *
-from .common import *
+from .common import STABILITY_COEF_DECIMALS
 
 
 class AerodynamicsCoefficientsWidget(QWidget):
