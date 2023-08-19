@@ -9,6 +9,7 @@
 
   <!-- Constants -->
   <xacro:property name="PI" value="3.1415926535897931" />
+  <xacro:property name="DEG2RAD" value="${PI / 180.0}" />
 
   <!-- Component masses -->
   <xacro:property name="mass_fuselage" value="2.05" /> <!-- [kg] -->
@@ -29,8 +30,8 @@
   <xacro:property name="aileron_length" value="0.053" /> <!-- [m] -->
   <xacro:property name="aileron_width" value="0.349" /> <!-- [m] -->
   <xacro:property name="aileron_height" value="0.013" /> <!-- [m] -->
-  <xacro:property name="aileron_min_angle" value="-0.349066" /> <!-- [rad] -->
-  <xacro:property name="aileron_max_angle" value="0.349066" /> <!-- [rad] -->
+  <xacro:property name="aileron_min_angle" value="-${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="aileron_max_angle" value="${20.0 * DEG2RAD}" /> <!-- [rad] -->
   <xacro:property name="aileron_max_velocity" value="10.0" /> <!-- [rad/s] -->
   <xacro:property name="aileron_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="aileron_color" value="Red" />
@@ -41,8 +42,8 @@
   <xacro:property name="elevator_length" value="0.051" /> <!-- [m] -->
   <xacro:property name="elevator_width" value="0.457" /> <!-- [m] -->
   <xacro:property name="elevator_height" value="0.012" /> <!-- [m] -->
-  <xacro:property name="elevator_min_angle" value="-0.349066" /> <!-- [rad] -->
-  <xacro:property name="elevator_max_angle" value="0.349066" /> <!-- [rad] -->
+  <xacro:property name="elevator_min_angle" value="-${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="elevator_max_angle" value="${20.0 * DEG2RAD}" /> <!-- [rad] -->
   <xacro:property name="elevator_max_velocity" value="10.0" /> <!-- [rad/s] -->
   <xacro:property name="elevator_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="elevator_color" value="Blue" />
@@ -52,8 +53,8 @@
   <xacro:property name="flap_length" value="0.076" /> <!-- [m] -->
   <xacro:property name="flap_width" value="0.459" /> <!-- [m] -->
   <xacro:property name="flap_height" value="0.016" /> <!-- [m] -->
-  <xacro:property name="flap_min_angle" value="0.0" /> <!-- [rad] -->
-  <xacro:property name="flap_max_angle" value="0.0" /> <!-- [rad] -->
+  <xacro:property name="flap_min_angle" value="-${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="flap_max_angle" value="${20.0 * DEG2RAD}" /> <!-- [rad] -->
   <xacro:property name="flap_max_velocity" value="10.0" /> <!-- [rad/s] -->
   <xacro:property name="flap_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="flap_color" value="Yellow" />
@@ -64,8 +65,8 @@
   <xacro:property name="rudder_length" value="0.129" />
   <xacro:property name="rudder_width" value="0.018" />
   <xacro:property name="rudder_height" value="0.241" />
-  <xacro:property name="rudder_min_angle" value="-0.349066" />
-  <xacro:property name="rudder_max_angle" value="0.349066" />
+  <xacro:property name="rudder_min_angle" value="-${20.0 * DEG2RAD}" />
+  <xacro:property name="rudder_max_angle" value="${20.0 * DEG2RAD}" />
   <xacro:property name="rudder_max_velocity" value="10.0" />
   <xacro:property name="rudder_max_effort" value="1e+6" />
   <xacro:property name="rudder_color" value="Orange" />
@@ -105,7 +106,7 @@
 
   <!-- Inertia of the propeller, assuming it is a cylinder -->
   <xacro:property name="propeller_inertia">
-    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller*rotor_velocity_slowdown_sim}" />
+    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller * rotor_velocity_slowdown_sim}" />
   </xacro:property>
 
   <!-- Included URDF Files -->
@@ -366,7 +367,7 @@
     color="${propeller_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${propeller_mesh_file}">
-    <origin xyz="-0.025 0 0.15" rpy="0 ${0.5*PI} 0" />
+    <origin xyz="-0.025 0 0.15" rpy="0 ${0.5 * PI} 0" />
     <xacro:insert_block name="propeller_inertia" />
   </xacro:propeller>
 

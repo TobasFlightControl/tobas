@@ -126,6 +126,7 @@ class AvailableLinksWidget(QListWidget):
         """
         以下の条件を満たすリンクの名前の配列を返す．
         - 回転関節 (Revolute) をもつ．
+        - リミットが正しく設定されている．
         - エンドリンクである．
         - 親リンクがルートリンクに固定されている．
         """
@@ -137,13 +138,25 @@ class AvailableLinksWidget(QListWidget):
                 continue
 
             joint = self._main.urdf_parser.get_joint(link.name)
+            parent = self._main.urdf_parser.get_parent(link.name)
+
+            # 回転関節 (Revolute) をもつ
             if joint.type != JointType.REVOLUTE:
                 continue
 
+            # リミットが正しく設定されている
+            if not joint.limit.lower < 0. < joint.limit.upper:
+                continue
+            if joint.limit.velocity <= 0.:
+                continue
+            if joint.limit.effort <= 0.:
+                continue
+
+            # エンドリンクである
             if not self._main.urdf_parser.is_end_link(link.name):
                 continue
 
-            parent = self._main.urdf_parser.get_parent(link.name)
+            # 親リンクがルートリンクに固定されている
             if not self._main.urdf_parser.is_fixed_link(parent.name):
                 continue
 
