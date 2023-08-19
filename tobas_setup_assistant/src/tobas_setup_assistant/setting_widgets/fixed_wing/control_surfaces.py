@@ -15,7 +15,7 @@ from kdl_sympy.joint import JointType
 
 from ...parameter_getters import *
 from ...common import *
-from .common import *
+from .common import STABILITY_COEF_DECIMALS
 
 
 class ControlSurface:
