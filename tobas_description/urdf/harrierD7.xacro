@@ -30,11 +30,11 @@
 
   <!-- inertia of a single rotor, assuming it is a cuboid. Height=3mm, width=15mm -->
   <xacro:property name="rotor_inertia">
-    <xacro:box_inertia x="${radius_rotor}" y="0.1" z="0.003" mass="${mass_rotor*rotor_velocity_slowdown_sim}" />
+    <xacro:box_inertia x="${radius_rotor}" y="0.1" z="0.003" mass="${mass_rotor * rotor_velocity_slowdown_sim}" />
   </xacro:property>
 
   <!-- Included URDF Files. It requires some properties defined beforehand. -->
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/multirotor_base_harrier.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/multirotor_base_harrier.xacro" />
 
   <!-- Instantiate multirotor_base_macro once -->
   <xacro:multirotor_base_macro

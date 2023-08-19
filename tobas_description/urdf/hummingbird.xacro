@@ -3,7 +3,7 @@
 <robot name="hummingbird" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find tobas_description)/urdf/multirotor_base.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro" />
 
   <!-- Properties (Taken from Novel Dynamic Inversion Architecture Design for Quadrocopter Control by Jian Wang et al.) -->
   <xacro:property name="namespace" value="hummingbird" />

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/j2s7s300.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/landing_gear.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/j2s7s300.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/landing_gear.xacro"/>
   <xacro:j2s7s300 base_parent="${namespace}/base_link" ns="${namespace}" is_inverted="1"/>
 
   <xacro:macro name="box_inertia" params="x y z mass">

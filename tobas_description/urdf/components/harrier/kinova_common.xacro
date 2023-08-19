@@ -14,7 +14,7 @@
   xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/kinova_inertial.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/kinova_inertial.xacro" />
 
   <xacro:property name="J_PI" value="3.1415926535897931" />
 

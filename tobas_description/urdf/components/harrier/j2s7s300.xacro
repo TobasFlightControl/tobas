@@ -14,8 +14,8 @@
   xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/kinova_common.xacro" />
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/kinova_finger_set.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/kinova_common.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/kinova_finger_set.xacro" />
 
   <xacro:property name="link_base_mesh" value="base" />
   <xacro:property name="link_1_mesh" value="shoulder" />

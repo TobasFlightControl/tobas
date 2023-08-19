@@ -121,8 +121,7 @@
   </xacro:property>
 
   <!-- Included URDF Files -->
-  <!-- <xacro:include filename="$(find rotors_description)/urdf/fixed_wing_base.xacro" /> -->
-  <xacro:include filename="$(find tobas_description)/urdf/fixed_wing_base.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/fixed_wing_base.xacro" />
 
   <xacro:fixed_wing_base_macro
     robot_namespace="${namespace}"

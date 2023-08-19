@@ -14,7 +14,7 @@
   xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find tobas_description)/urdf/harrier/kinova_common.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/kinova_common.xacro" />
 
   <xacro:macro name="kinova_3fingers" params="link_hand prefix">
     <!-- finger1 Rot := Ry((1/2)*Pi) . Rx(12.1*((1/180)*Pi)+Pi) . Rz(-52.8*((1/180)*Pi)) -->
