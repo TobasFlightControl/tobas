@@ -2,14 +2,13 @@
 
 <robot name="techpod" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Global properties -->
-  <xacro:property name="namespace" value="techpod" />
-  <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
-  <xacro:property name="use_mesh" value="true" />
-
   <!-- Constants -->
   <xacro:property name="PI" value="3.1415926535897931" />
   <xacro:property name="DEG2RAD" value="${PI / 180.0}" />
+
+  <!-- Global properties -->
+  <xacro:property name="namespace" value="techpod" />
+  <xacro:property name="use_mesh" value="true" />
 
   <!-- Component masses -->
   <xacro:property name="mass_fuselage" value="2.05" /> <!-- [kg] -->
@@ -112,7 +111,7 @@
 
   <!-- Inertia of the propeller, assuming it is a cylinder -->
   <xacro:property name="propeller_inertia">
-    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller * rotor_velocity_slowdown_sim}" />
+    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller}" />
   </xacro:property>
 
   <!-- Inertia of the wheels, assuming it is a cylinder -->
