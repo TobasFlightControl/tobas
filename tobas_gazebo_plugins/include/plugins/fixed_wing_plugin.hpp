@@ -63,7 +63,9 @@ private:
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicsCoefficients aero_coefs_;
   std::vector<tobas::ControlSurface> control_surfaces_;
-  std::vector<SimpleJointModel> cs_angle_models_;
+
+  std::vector<physics::JointPtr> cs_joints_;       // 制御面のジョイントへのポインタ
+  std::vector<SimpleJointModel> cs_angle_models_;  // 制御面の角度モデル
 
   double prev_alpha_;
   double prev_sim_time_;

@@ -35,20 +35,45 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   getSdfParams(sdf);
 
-  // 制御面の角度モデル
-  for (const auto& cs : control_surfaces_)
-  {
-    cs_angle_models_.emplace_back(cs.angle_limit, cs.max_angle_rate);
-  }
-
-  cs_deflections_.deflections.resize(control_surfaces_.size());
-  debug_msg_.deflections.resize(control_surfaces_.size());
-
+  // ボディフレームを取得
   link_ = model->GetLink(link_name_);
   if (link_ == NULL)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
+
+  // 制御面のジョイントと角度モデル
+  for (const auto& cs : control_surfaces_)
+  {
+    // ジョイントを取得
+    const auto joint = model->GetJoint(cs.joint_name);
+    if (joint == NULL)
+    {
+      gzthrow(
+        kPluginName << ": Couldn't find the control surface joint \"" << cs.joint_name << "\".");
+    }
+
+    // ジョイントの制限をチェック
+    if (joint->LowerLimit(0) >= joint->UpperLimit(0))
+    {
+      gzthrow(kPluginName << ": The position limit of " << cs.joint_name << " is invalid.");
+    }
+    if (joint->GetVelocityLimit(0) <= 0.)
+    {
+      gzthrow(kPluginName << ": The velocity limit of " << cs.joint_name << " must be positive.");
+    }
+    if (joint->GetEffortLimit(0) <= 0.)
+    {
+      gzthrow(kPluginName << ": The effort limit of " << cs.joint_name << " must be positive.");
+    }
+
+    // ジョイントモデルを追加
+    cs_joints_.push_back(joint);
+    cs_angle_models_.emplace_back(cs.angle_limit, cs.max_angle_rate);
+  }
+
+  cs_deflections_.deflections.resize(control_surfaces_.size());
+  debug_msg_.deflections.resize(control_surfaces_.size());
 
   registerPubSub();
 
@@ -122,6 +147,8 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
       {
         gzthrow(kPluginName << ": The index of each control surface must be unique.");
       }
+
+      getSdfParam(cs_elem, "jointName", cs.joint_name);
 
       getSdfParam(cs_elem, "minAngle", cs.angle_limit.lower);
       getSdfParam(cs_elem, "maxAngle", cs.angle_limit.upper);
@@ -273,8 +300,17 @@ void GazeboFixedWingPlugin::updateDeflections(double dt)
 {
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
   {
+    // 角度と角速度の制限を考慮して制御面の舵角を更新
+    // Transmissionに任せることもできるが，プラグイン内で完結するようにしている
     const auto& cmd_deflection = cs_deflections_.deflections[i];
     cs_angle_models_[i].update(cmd_deflection, dt);
+
+    // Gazebo内の関節角を更新
+    // これは単なるアニメーションであり，制御面を動かすことによる機体への反作用は考慮しない
+    if (!cs_joints_[i]->SetPosition(0, cs_angle_models_[i].currentPosition(), true))
+    {
+      gzerr << kPluginName << ": Failed to set control surface deflection." << endl;
+    }
   }
 }
 

@@ -31,7 +31,7 @@ void SimpleJointModel::update(double tar_pos, double dt)
   // 速度制限
   const auto ideal_delta_angle = tar_pos - cur_pos_;
   const auto max_delta_angle = max_vel_ * dt;
-  const auto delta_angle = dh_std::clamp(ideal_delta_angle, -max_delta_angle, max_delta_angle);
+  const auto delta_angle = clamp(ideal_delta_angle, -max_delta_angle, max_delta_angle);
 
   // 位置制限
   const auto cnd_angle = cur_pos_ + delta_angle;

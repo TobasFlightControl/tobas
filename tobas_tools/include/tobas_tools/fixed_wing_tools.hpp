@@ -60,6 +60,7 @@ struct AerodynamicsCoefficients
 struct ControlSurface
 {
   int index;  // 舵角配列における添字
+  std::string joint_name;
   dh_std::Range<double> angle_limit;
   double max_angle_rate;
 
