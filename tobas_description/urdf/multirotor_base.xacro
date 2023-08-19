@@ -17,7 +17,13 @@
   </xacro:macro>
 
   <!-- Main multirotor link -->
-  <xacro:macro name="multirotor_base_macro" params="robot_namespace mass body_width body_height use_mesh_file mesh_file *inertia">
+  <xacro:macro name="multirotor_base_macro" params="robot_namespace
+      mass
+      body_width
+      body_height
+      use_mesh_file
+      mesh_file
+      *inertia">
     <link name="${robot_namespace}/base_link"></link>
 
     <joint name="${robot_namespace}/base_joint" type="fixed">
@@ -55,13 +61,24 @@
   </xacro:macro>
 
   <!-- Rotor joint and link -->
-  <xacro:macro name="vertical_rotor" params="robot_namespace direction parent mass_rotor radius_rotor motor_number color use_own_mesh mesh *origin *inertia">
+  <xacro:macro name="vertical_rotor" params="robot_namespace
+      direction
+      parent
+      mass_rotor
+      radius_rotor
+      motor_number
+      color
+      use_own_mesh
+      mesh
+      *origin
+      *inertia">
     <joint name="${robot_namespace}/rotor_${motor_number}_joint" type="continuous">
       <xacro:insert_block name="origin" />
       <axis xyz="0 0 1" />
       <parent link="${parent}" />
       <child link="${robot_namespace}/rotor_${motor_number}" />
     </joint>
+
     <link name="${robot_namespace}/rotor_${motor_number}">
       <inertial>
         <mass value="${mass_rotor}" />
@@ -83,6 +100,7 @@
         </geometry>
       </collision>
     </link>
+
     <gazebo reference="${robot_namespace}/rotor_${motor_number}">
       <material>Gazebo/${color}</material>
     </gazebo>
