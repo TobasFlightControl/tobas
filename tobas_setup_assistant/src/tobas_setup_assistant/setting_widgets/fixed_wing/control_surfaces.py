@@ -225,6 +225,7 @@ class SelectedLinksWidget(QTableWidget):
 
     COL_WIDTH = 120
     COEF_DECIMALS = 6
+    ANGLE_LIMIT = math.pi / 4
     LABELS = [
         "Link Name",
         "Joint Name",
@@ -297,6 +298,7 @@ class SelectedLinksWidget(QTableWidget):
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return
+        joint = self._main.urdf_parser.get_joint(selected_link)
 
         row = self.rowCount()
         self.insertRow(row)
@@ -307,25 +309,27 @@ class SelectedLinksWidget(QTableWidget):
         self.link_names.append(link_name)
         self.setCellWidget(row, 0, link_name)
 
-        joint_name = QLabel(self._main.urdf_parser.get_joint(selected_link).name)
+        joint_name = QLabel(joint.name)
         joint_name.setFont(QFont("Default", pointSize=BODY_PSIZE))
         joint_name.setAlignment(Qt.AlignCenter)
         self.joint_names.append(joint_name)
         self.setCellWidget(row, 1, joint_name)
 
         min_angle = DoubleSpinBox()
-        min_angle.setMinimum(-math.pi / 4)
+        min_angle.setMinimum(-self.ANGLE_LIMIT)
         min_angle.setMaximum(0.)
         min_angle.setDecimals(3)
         min_angle.setSuffix(" rad")
+        min_angle.setValue(joint.limit.lower)
         self.min_angles.append(min_angle)
         self.setCellWidget(row, 2, min_angle)
 
         max_angle = DoubleSpinBox()
         max_angle.setMinimum(0.)
-        max_angle.setMaximum(math.pi / 4)
+        max_angle.setMaximum(self.ANGLE_LIMIT)
         max_angle.setDecimals(3)
         max_angle.setSuffix(" rad")
+        max_angle.setValue(joint.limit.upper)
         self.max_angles.append(max_angle)
         self.setCellWidget(row, 3, max_angle)
 
@@ -333,6 +337,7 @@ class SelectedLinksWidget(QTableWidget):
         max_angle_rate.setMinimum(1e-3)
         max_angle_rate.setDecimals(3)
         max_angle_rate.setSuffix(" rad/s")
+        max_angle_rate.setValue(joint.limit.velocity)
         self.max_angle_rates.append(max_angle_rate)
         self.setCellWidget(row, 4, max_angle_rate)
 
@@ -371,17 +376,6 @@ class SelectedLinksWidget(QTableWidget):
         c_yaw_delta.setSuffix(" /rad")
         self.c_yaw_delta.append(c_yaw_delta)
         self.setCellWidget(row, 10, c_yaw_delta)
-
-        if row == 0:
-            # 1段目
-            min_angle.setValue(math.radians(-20.))
-            max_angle.setValue(math.radians(20.))
-            max_angle_rate.setValue(10.)
-        else:
-            # 2段目以降
-            min_angle.setValue(self.min_angles[row - 1].value())
-            max_angle.setValue(self.max_angles[row - 1].value())
-            max_angle_rate.setValue(self.max_angle_rates[row - 1].value())
 
         self.link_added.emit(selected_link)
 
