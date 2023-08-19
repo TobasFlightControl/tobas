@@ -1,6 +1,6 @@
 - git: {
   local-name: orocos_kinematics_dynamics,
-  uri: "git@github.com:Masa0u0/orocos_kinematics_dynamics.git",
+  uri: "git@github.com:TobasFlightControl/orocos_kinematics_dynamics.git",
   version: master,
 }
 
@@ -12,54 +12,54 @@
 
 - git: {
   local-name: Navio2,
-  uri: "git@github.com:Masa0u0/Navio2.git",
+  uri: "git@github.com:TobasFlightControl/Navio2.git",
   version: develop,
 }
 
 - git: {
   local-name: dh_std_tools,
-  uri: "git@github.com:Masa0u0/dh_std_tools.git",
+  uri: "git@github.com:TobasFlightControl/dh_std_tools.git",
   version: develop,
 }
 
 - git: {
   local-name: dh_eigen_tools,
-  uri: "git@github.com:Masa0u0/dh_eigen_tools.git",
+  uri: "git@github.com:TobasFlightControl/dh_eigen_tools.git",
   version: develop,
 }
 
 - git: {
   local-name: dh_ros_tools,
-  uri: "git@github.com:Masa0u0/dh_ros_tools.git",
+  uri: "git@github.com:TobasFlightControl/dh_ros_tools.git",
   version: develop,
 }
 
 - git: {
   local-name: dh_linear_control,
-  uri: "git@github.com:Masa0u0/dh_linear_control.git",
+  uri: "git@github.com:TobasFlightControl/dh_linear_control.git",
   version: develop,
 }
 
 - git: {
   local-name: dh_kdl,
-  uri: "git@github.com:Masa0u0/dh_kdl.git",
+  uri: "git@github.com:TobasFlightControl/dh_kdl.git",
   version: develop,
 }
 
 - git: {
   local-name: dh_rqt_tools,
-  uri: "git@github.com:Masa0u0/dh_rqt_tools.git",
+  uri: "git@github.com:TobasFlightControl/dh_rqt_tools.git",
   version: develop,
 }
 
 - git: {
   local-name: urdf_tools_py,
-  uri: "git@github.com:Masa0u0/urdf_tools_py.git",
+  uri: "git@github.com:TobasFlightControl/urdf_tools_py.git",
   version: develop,
 }
 
 - git: {
   local-name: kdl_sympy,
-  uri: "git@github.com:Masa0u0/kdl_sympy.git",
+  uri: "git@github.com:TobasFlightControl/kdl_sympy.git",
   version: develop,
 }
