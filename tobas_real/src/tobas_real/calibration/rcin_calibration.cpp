@@ -1,8 +1,7 @@
+#include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/fstream.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
 
 #include "../../../include/tobas_real/calibration/rcin_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
@@ -13,12 +12,11 @@ namespace tobas_real
 {
 RCInputCalibrator::RCInputCalibrator()
 {
+  rcin_.initialize();
 }
 
 void RCInputCalibrator::run()
 {
-  rcin_.initialize();
-
   // Roll Neutoral
   cout << "Please set the ROLL lever to NEUTORAL and press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -36,7 +34,7 @@ void RCInputCalibrator::run()
 
   if (!(roll_left + kPeriodMargin < roll_neutoral && roll_neutoral + kPeriodMargin < roll_right))
   {
-    rosthrow("Invalid value on ROLL lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
+    throw runtime_error("Invalid value on ROLL. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
 
   // Pitch Neutoral
@@ -56,7 +54,7 @@ void RCInputCalibrator::run()
 
   if (!(pitch_up + kPeriodMargin < pitch_neutoral && pitch_neutoral + kPeriodMargin < pitch_down))
   {
-    rosthrow("Invalid period on PITCH lever. 'UP < NEUTORAL < DOWN' must be satisfied.");
+    throw runtime_error("Invalid period on PITCH. 'UP < NEUTORAL < DOWN' must be satisfied.");
   }
 
   // Yaw Neutoral
@@ -76,7 +74,7 @@ void RCInputCalibrator::run()
 
   if (!(yaw_left + kPeriodMargin < yaw_neutoral && yaw_neutoral + kPeriodMargin < yaw_right))
   {
-    rosthrow("Invalid value on YAW lever. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
+    throw runtime_error("Invalid value on YAW. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
   }
 
   // Thrust Up
@@ -91,7 +89,7 @@ void RCInputCalibrator::run()
 
   if (!(thrust_down + kPeriodMargin < thrust_up))
   {
-    rosthrow("Invalid period on THRUST lever. 'DOWN < UP' must be satisfied.");
+    throw runtime_error("Invalid period on THRUST. 'DOWN < UP' must be satisfied.");
   }
 
   // Toggle Up
@@ -106,7 +104,7 @@ void RCInputCalibrator::run()
 
   if (!(toggle_up + kPeriodMargin < toggle_down))
   {
-    rosthrow("Invalid period on TOGGLE-A. 'UP < DOWN' must be satisfied.");
+    throw runtime_error("Invalid period on TOGGLE-A. 'UP < DOWN' must be satisfied.");
   }
 
   // Configに保存
@@ -129,28 +127,28 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcToggleUp, toggle_up);
   pt.put(kConfigKey_RcToggleDown, toggle_down);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
-  rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
+  cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 
 double RCInputCalibrator::readRCInput(uint32_t channel)
 {
   // RC入力を取得
   int period_sum = 0;
-  for (uint32_t _ = 0; _ < kDataCount && ros::ok(); ++_)
+  for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const auto period = rcin_.read(channel);
     if (period < 0)
     {
-      rosthrow("Failed to read RC input.");
+      throw runtime_error("Failed to read RC input.");
     }
-    rosInfoThrottle(kShowSensorReadingPeriod, "Period on channel " << channel << ": " << period);
+    cout << "Period on channel " << channel << ": " << period << endl;
     period_sum += period;
     usleep(kSleepTime);
   }
 
   // 平均を計算
   const auto period_mean = static_cast<double>(period_sum) / kDataCount;
-  rosInfo("Finished reading. Mean period on channel " << channel << " is: " << period_mean);
+  cout << "Finished reading. Mean period on channel " << channel << " is: " << period_mean << endl;
   return period_mean;
 }
 }  // namespace tobas_real

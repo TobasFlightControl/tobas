@@ -65,7 +65,7 @@ void GpsHandler::run()
         // auto gps_tm =
         //   dh_std::tmFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec);
         // const auto gps_tp = dh_std::tmToTimePoint(gps_tm);
-        // const auto cur_tp = chrono::system_clock::now();  // インターネット接続が必要
+        // const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
         // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
         // cout << "GPS time:" << endl << gps_tm << endl;
         // cout << "Current time:" << endl << dh_std::timePointToTm(cur_tp) << endl;

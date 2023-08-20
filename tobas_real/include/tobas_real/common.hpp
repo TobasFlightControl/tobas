@@ -56,7 +56,6 @@ static constexpr double kDisarmDuration = 3.;   // [s]
 static constexpr double kDisarmInterval = 0.1;  // [s]
 
 static constexpr double kErrorPeriod = 1.;               // [s]
-static constexpr double kShowSensorReadingPeriod = 0.5;  // [s]
 static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
 static constexpr double kCheckDelayThreshold = 0.02;     // [s]
 

@@ -1,8 +1,7 @@
+#include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/fstream.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
 
 #include "../../../include/tobas_real/calibration/accel_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
@@ -16,14 +15,13 @@ AccelCalibrator::AccelCalibrator()
 {
   if (!imu_.probe())
   {
-    rosthrow("Sensor not enabled.");
+    throw runtime_error("Sensor not enabled.");
   }
+  imu_.initialize();
 }
 
 void AccelCalibrator::run()
 {
-  imu_.initialize();
-
   // TODO: 6面分取得して最小二乗法で同時変換行列を推定
   // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
 
@@ -35,7 +33,7 @@ void AccelCalibrator::run()
 
   // オフセットを計算
   const Vector3f acc_offset = acc_top - Vector3f(0., 0., tobas::kGravity);
-  rosInfo("The estimated accelerometer offset is: " << acc_offset);
+  cout << "The estimated accelerometer offset is: " << acc_offset << endl;
 
   // Configに保存
   boost::property_tree::ptree pt;
@@ -47,14 +45,14 @@ void AccelCalibrator::run()
   pt.put(kConfigKey_AccOffsetY, acc_offset.y());
   pt.put(kConfigKey_AccOffsetZ, acc_offset.z());
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
-  rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
+  cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 
 Vector3f AccelCalibrator::readAccel()
 {
   // 加速度を取得
   Vector3f acc_sum = Vector3f::Zero();
-  for (uint32_t _ = 0; _ < kDataCount && ros::ok(); ++_)
+  for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     imu_.update();
     imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
@@ -64,7 +62,7 @@ Vector3f AccelCalibrator::readAccel()
 
   // 平均を計算
   const Vector3f acc_mean = acc_sum / kDataCount;
-  rosInfo("Finished reading. The average value of accelerometer readings is: " << acc_mean);
+  cout << "Finished reading. The average value of accelerometer readings is: " << acc_mean << endl;
   return acc_mean;
 }
 }  // namespace tobas_real

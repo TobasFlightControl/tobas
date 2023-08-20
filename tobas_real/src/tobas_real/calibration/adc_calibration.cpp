@@ -1,7 +1,7 @@
+#include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/fstream.hpp>
-#include <dh_ros_tools/console_message.hpp>
 
 #include "../../../include/tobas_real/calibration/adc_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
@@ -26,22 +26,22 @@ void AdcCalibrator::run()
 
     if (voltage > 0.)
     {
-      rosInfo("Battery voltage [V]: " << voltage);
+      cout << "Battery voltage [V]: " << voltage << endl;
       break;
     }
     else
     {
-      rosError("Invalid battery voltage.");
+      cout << "Invalid battery voltage." << endl;
       continue;
     }
   }
 
   // ADCの測定値を取得
   int a2_sum = 0;
-  for (uint32_t _ = 0; _ < kDataCount && ros::ok(); ++_)
+  for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const int a2_value = adc_.read(kPowerModuleVoltageChannel);
-    rosInfoThrottle(kShowSensorReadingPeriod, "A2 value: " << a2_value);
+    cout << "A2 value: " << a2_value << endl;
     a2_sum += a2_value;
     usleep(kSleepTime);
   }
@@ -51,11 +51,11 @@ void AdcCalibrator::run()
   const double adc_coef = voltage / a2_mean * 1e+3;
   if (kValidAdcCoefMin <= adc_coef && adc_coef <= kValidAdcCoefMax)
   {
-    rosInfo("ADC coefficient: " << adc_coef);
+    cout << "ADC coefficient: " << adc_coef << endl;
   }
   else
   {
-    rosWarn("Strange ADC coefficient: " << adc_coef);
+    cout << "Strange ADC coefficient: " << adc_coef << endl;
   }
 
   // 設定ファイルに係数を書き込む
@@ -66,6 +66,6 @@ void AdcCalibrator::run()
   }
   pt.put(kConfigKey_AdcCoef, adc_coef);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
-  rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
+  cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 }  // namespace tobas_real

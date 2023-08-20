@@ -1,12 +1,10 @@
+#include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 #include <Eigen/SVD>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/fstream.hpp>
 #include <dh_eigen_tools/linalg.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
 
 #include "../../../include/tobas_real/calibration/mag_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
@@ -18,17 +16,15 @@ namespace tobas_real
 {
 MagnetometerCalibrator::MagnetometerCalibrator() : mag_data_(kDataCount * kDirections, 3)
 {
-  getRosParams();
-
   if (!imu_.probe())
   {
-    rosthrow("Sensor not enabled.");
+    throw runtime_error("Sensor not enabled.");
   }
+  imu_.initialize();
 }
 
-void MagnetometerCalibrator::run()
+void MagnetometerCalibrator::run(const std::string& method)
 {
-  imu_.initialize();
   mag_data_.setZero();
 
   // 6面分のデータを取得
@@ -49,7 +45,7 @@ void MagnetometerCalibrator::run()
   VectorXd ce0(kDataCount * kDirections);  // メモリ制限回避のため可変サイズで定義
   ce0.fill(-mag_trans_.c);
 
-  if (method_ == "bounding")
+  if (method == "bounding")
   {
     // https://okasho-engineer.com/magnetic-sensor-calibration/
     const double x_min = x.minCoeff();
@@ -80,7 +76,7 @@ void MagnetometerCalibrator::run()
     mag_trans_.b_z = -2 * z0 / rz2;
     mag_trans_.c = dh_std::sqr(x0) / rx2 + dh_std::sqr(y0) / ry2 + dh_std::sqr(z0) / rz2 - 1;
   }
-  else if (method_ == "sphere_fitting")
+  else if (method == "sphere_fitting")
   {
     // 球体でフィッティング．
     // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
@@ -98,7 +94,7 @@ void MagnetometerCalibrator::run()
     mag_trans_.b_y = coefs(2);
     mag_trans_.b_z = coefs(3);
   }
-  else if (method_ == "ellipse_fitting")
+  else if (method == "ellipse_fitting")
   {
     // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
     // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
@@ -118,12 +114,12 @@ void MagnetometerCalibrator::run()
   }
   else
   {
-    rosError("Invalid method: " << method_);
+    throw runtime_error("Invalid method: " + method);
     return;
   }
 
   // 推定された係数を表示
-  rosInfo("Estimated coefficients:\n" << mag_trans_);
+  cout << "Estimated coefficients:\n" << mag_trans_ << endl;
 
   // 楕円体の射影クラスの初期化に成功したら有効な係数だと言える
   try
@@ -132,12 +128,14 @@ void MagnetometerCalibrator::run()
   }
   catch (const exception& e)
   {
-    rosError("Magnetometer calibration failed.");
-    return;
+    throw runtime_error("Magnetometer calibration failed: " + string(e.what()));
   }
 
   // 中心と半径を表示
-  rosInfo("Center:\n" << mag_trans_.getCenter() << endl << "Radius:\n" << mag_trans_.getRadius());
+  cout << "Center:\n"
+       << mag_trans_.getCenter() << endl
+       << "Radius:\n"
+       << mag_trans_.getRadius() << endl;
 
   // Configに保存
   boost::property_tree::ptree pt;
@@ -156,12 +154,7 @@ void MagnetometerCalibrator::run()
   pt.put(kConfigKey_MagEllipseBz, mag_trans_.b_z);
   pt.put(kConfigKey_MagEllipseC, mag_trans_.c);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
-  rosInfo("Calibration finished. The result is saved to '" << kConfigPath << "'.");
-}
-
-void MagnetometerCalibrator::getRosParams()
-{
-  dh_ros::getParam("~method", method_, kDefaultMethod);
+  cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 
 void MagnetometerCalibrator::getMagData()
@@ -210,7 +203,7 @@ void MagnetometerCalibrator::getMagData()
 void MagnetometerCalibrator::readMag(uint32_t idx)
 {
   RowVector3f tmp;
-  for (uint32_t i = 0; i < kDataCount && ros::ok(); ++i)
+  for (uint32_t i = 0; i < kDataCount; ++i)
   {
     imu_.update();
     imu_.read_magnetometer(&tmp(0), &tmp(1), &tmp(2));

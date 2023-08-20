@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <cinttypes>
 #include <Navio2/RCInput_Navio2.h>
 
 namespace tobas_real
@@ -17,7 +17,6 @@ public:
   void run();
 
 private:
-  ros::NodeHandle nh_;
   RCInput_Navio2 rcin_;
 
   double readRCInput(uint32_t channel);

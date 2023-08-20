@@ -1,14 +1,12 @@
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <iostream>
+#include <chrono>
+#include <unistd.h>
 
 #include "../../../include/tobas_real/calibration/esc_calibration.hpp"
 #include "../../../include/tobas_real/common.hpp"
 
-#define SLEEP_TIME_HIGH 3  // [s]
-#define SLEEP_TIME_LOW 4   // [s]
-#define INTERVAL 0.1       // [s]
-
 using namespace std;
+using namespace chrono;
 
 namespace tobas_real
 {
@@ -16,7 +14,7 @@ EscCalibrator::EscCalibrator()
 {
   if (getuid())
   {
-    rosthrow("Not root.");
+    throw runtime_error("Not root.");
   }
 
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
@@ -29,42 +27,42 @@ void EscCalibrator::run()
 {
   setHigh();
   setLow();
-  rosInfo("Calibration finished.");
+  cout << "Calibration finished." << endl;
 }
 
 void EscCalibrator::setHigh()
 {
-  const ros::Time start_time = ros::Time::now();
-  rosInfo("Send maximum throttle command for " << SLEEP_TIME_HIGH << "seconds.");
+  const auto start_time = system_clock::now();
+  cout << "Send maximum throttle command for " << (kSleepHigh / 1000000) << " seconds." << endl;
 
-  while (ros::ok() && (ros::Time::now() - start_time).toSec() < SLEEP_TIME_HIGH)
+  while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kSleepHigh)
   {
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
       if (!pwm_.set_duty_cycle(channel, kPwmMax))
       {
-        rosFatal("Failed to set high duty cycle on channel " << channel << ".");
+        throw runtime_error("Failed to set high duty cycle.");
       }
     }
-    ros::Duration(INTERVAL).sleep();
+    usleep(kInterval);
   }
 }
 
 void EscCalibrator::setLow()
 {
-  const ros::Time start_time = ros::Time::now();
-  rosInfo("Send minimum throttle command for " << SLEEP_TIME_LOW << "seconds.");
+  const auto start_time = system_clock::now();
+  cout << "Send minimum throttle command for " << (kSleepLow / 1000000) << " seconds." << endl;
 
-  while (ros::ok() && (ros::Time::now() - start_time).toSec() < SLEEP_TIME_LOW)
+  while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kSleepLow)
   {
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
       if (!pwm_.set_duty_cycle(channel, kPwmMin))
       {
-        rosFatal("Failed to set low duty cycle on channel " << channel << ".");
+        throw runtime_error("Failed to set low duty cycle.");
       }
     }
-    ros::Duration(INTERVAL).sleep();
+    usleep(kInterval);
   }
 }
 }  // namespace tobas_real
