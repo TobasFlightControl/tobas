@@ -37,13 +37,13 @@ catkin_package(
 # include_directories(${catkin_INCLUDE_DIRS})
 
 # ライブラリを作成
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
+# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 # add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 # target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # ノードの実行ファイルを作成
-# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp) # src内のノードへのパスを取得
+# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp) # src内のノードへのパスを取得
 # foreach(FILE IN LISTS NODE_FILES)
 # 	get_filename_component(NODE_NAME ${FILE} NAME_WE) # 拡張子を除いたファイル名を取得
 # 	add_executable(${NODE_NAME} ${FILE}) # コンパイル

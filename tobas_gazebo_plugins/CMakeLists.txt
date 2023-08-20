@@ -30,12 +30,12 @@ catkin_package(
 include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # プラグインごとに共有ライブラリを作成
-file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/plugins/[^.]*_plugin.cpp)
+file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*_plugin.cpp)
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 	get_filename_component(FILE_NAME ${FILE} NAME_WE)
 	set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
