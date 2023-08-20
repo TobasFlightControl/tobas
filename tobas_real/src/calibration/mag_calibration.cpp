@@ -16,11 +16,11 @@ namespace tobas_real
 {
 MagnetometerCalibrator::MagnetometerCalibrator() : mag_data_(kDataCount * kDirections, 3)
 {
+  imu_.initialize();
   if (!imu_.probe())
   {
-    throw runtime_error("Sensor not enabled.");
+    throw runtime_error("IMU not enabled.");
   }
-  imu_.initialize();
 }
 
 void MagnetometerCalibrator::run(const std::string& method)

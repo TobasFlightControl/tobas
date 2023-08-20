@@ -129,11 +129,11 @@ void ImuHandler::setCovarianceMatrices()
 
 void ImuHandler::setupImu()
 {
+  imu_.initialize();
   if (!imu_.probe())
   {
-    rosthrow("Sensor not enabled.");
+    rosthrow("IMU not enabled.");
   }
-  imu_.initialize();
 }
 
 void ImuHandler::setGyroBias()

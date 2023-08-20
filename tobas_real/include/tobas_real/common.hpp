@@ -9,6 +9,10 @@ namespace tobas_real
 static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
 
 static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";
+static constexpr char kConfigKey_AccNoiseDensity[] = "DEFAULT.acc_noise_density";
+static constexpr char kConfigKey_GyroNoiseDensity[] = "DEFAULT.gyro_noise_density";
+static constexpr char kConfigKey_MagNoiseDensity[] = "DEFAULT.mag_noise_density";
+static constexpr char kConfigKey_PressureNoiseDensity[] = "DEFAULT.pressure_noise_density";
 static constexpr char kConfigKey_AccOffsetX[] = "DEFAULT.acc_offset/x";
 static constexpr char kConfigKey_AccOffsetY[] = "DEFAULT.acc_offset/y";
 static constexpr char kConfigKey_AccOffsetZ[] = "DEFAULT.acc_offset/z";
@@ -55,9 +59,9 @@ static constexpr uint32_t kRCInputChannelToggle = 4;
 static constexpr double kDisarmDuration = 3.;   // [s]
 static constexpr double kDisarmInterval = 0.1;  // [s]
 
-static constexpr double kErrorPeriod = 1.;               // [s]
-static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
-static constexpr double kCheckDelayThreshold = 0.02;     // [s]
+static constexpr double kErrorPeriod = 1.;             // [s]
+static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
+static constexpr double kCheckDelayThreshold = 0.02;   // [s]
 
 void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel);
 

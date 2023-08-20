@@ -13,11 +13,11 @@ namespace tobas_real
 {
 AccelCalibrator::AccelCalibrator()
 {
+  imu_.initialize();
   if (!imu_.probe())
   {
-    throw runtime_error("Sensor not enabled.");
+    throw runtime_error("IMU not enabled.");
   }
-  imu_.initialize();
 }
 
 void AccelCalibrator::run()

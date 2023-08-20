@@ -27,7 +27,7 @@ struct RotorConfig
   double motor_constant;                      // 推力係数 [N*s^2/rad^2]
   double moment_constant;                     // 反トルク係数 [m]
   std::pair<double, double> rot_speed_coefs;  // V = c1 w + c2 w^2 (V[V], w[rad/s])
-  int pin;                                    // モータが接続されているピン番号
+  uint32_t pin;                               // モータが接続されているピン番号
   ESCType esc_type;
 };
 
