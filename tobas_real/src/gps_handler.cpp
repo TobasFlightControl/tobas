@@ -151,19 +151,19 @@ void GpsHandler::registerSubscribers()
 
 void GpsHandler::configureGnssReceiver()
 {
-  if (!gps_.enableAllNavMsgs(false))
+  if (!gps_.enableAllMsgs(false))
   {
     rosthrow("Failed to disable all navigation messsages.");
   }
-  if (!gps_.enableNavMsg(Ublox::NAV_STATUS, true))
+  if (!gps_.enableMsg(Ublox::NAV_STATUS, true))
   {
     rosthrow("Failed to enable NAV_STATUS");
   }
-  if (!gps_.enableNavMsg(Ublox::NAV_PVT, true))
+  if (!gps_.enableMsg(Ublox::NAV_PVT, true))
   {
     rosthrow("Failed to enable NAV_PVT");
   }
-  if (!gps_.enableNavMsg(Ublox::NAV_COV, true))
+  if (!gps_.enableMsg(Ublox::NAV_COV, true))
   {
     rosthrow("Failed to enable NAV_COV");
   }

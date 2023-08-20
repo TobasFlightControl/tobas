@@ -28,9 +28,9 @@ public:
 
 private:
   Ublox gps_;
-  NavPayload_STATUS status_;
-  NavPayload_PVT pvt_;
-  NavPayload_COV cov_;
+  NavStatusPayload status_;
+  NavPvtPayload pvt_;
+  NavCovPayload cov_;
   GpsMsg gps_msg_;
   VelMsg vel_msg_;
   bool gps_fix_ok_;
