@@ -31,13 +31,13 @@ void GpsHandler::run()
   while (ros::ok())
   {
     // stopwatch.start();
-    const auto msg_id = gps_.update();
-    // cout << "Message ID: " << msg_id << endl;
+    const auto msg = gps_.update();
+    // cout << "Message ID: " << msg << endl;
     // stopwatch.stop();
 
     const ros::Time now = ros::Time::now();
 
-    switch (msg_id)
+    switch (msg)
     {
       case Ublox::NAV_STATUS:
       {
@@ -124,7 +124,7 @@ void GpsHandler::run()
       }
       default:
       {
-        rosWarn("Unnecessary UBX NAV message: " << msg_id);
+        rosWarn("Unnecessary UBX message: " << msg);
         break;
       }
     }
@@ -152,21 +152,16 @@ void GpsHandler::registerSubscribers()
 void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
-  {
     rosthrow("Failed to disable all navigation messsages.");
-  }
+
   if (!gps_.enableMsg(Ublox::NAV_STATUS, true))
-  {
     rosthrow("Failed to enable NAV_STATUS");
-  }
+
   if (!gps_.enableMsg(Ublox::NAV_PVT, true))
-  {
     rosthrow("Failed to enable NAV_PVT");
-  }
+
   if (!gps_.enableMsg(Ublox::NAV_COV, true))
-  {
     rosthrow("Failed to enable NAV_COV");
-  }
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
     rosthrow("Failed to set measurement rate.");
@@ -177,29 +172,22 @@ void GpsHandler::configureGnssReceiver()
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-  {
-    rosthrow("Failed to configure GPS.");
-  }
+    rosError("Failed to configure GPS.");
+
   if (!gps_.configureGnss_SBAS(true))
-  {
-    rosthrow("Failed to configure SBAS.");
-  }
+    rosError("Failed to configure SBAS.");
+
   if (!gps_.configureGnss_Galileo(false))
-  {
-    rosthrow("Failed to configure Galileo.");
-  }
+    rosError("Failed to configure Galileo.");
+
   if (!gps_.configureGnss_BeiDou(false))
-  {
-    rosthrow("Failed to configure BeiDou.");
-  }
+    rosError("Failed to configure BeiDou.");
+
   if (!gps_.configureGnss_QZSS(true))
-  {
-    rosthrow("Failed to configure QZSS.");
-  }
+    rosError("Failed to configure QZSS.");
+
   if (!gps_.configureGnss_GLONASS(false))
-  {
-    rosthrow("Failed to configure GLONASS.");
-  }
+    rosError("Failed to configure GLONASS.");
 }
 
 bool GpsHandler::isReadyToPublish() const
