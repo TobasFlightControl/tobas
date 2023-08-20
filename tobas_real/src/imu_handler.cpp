@@ -6,8 +6,6 @@
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
-#include <tobas_tools/constants.hpp>
-
 #include "../include/tobas_real/imu_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
@@ -93,37 +91,37 @@ void ImuHandler::readConfig()
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
 
+  acc_noise_density_ = pt.get<double>(kConfigKey_AccNoiseDensity);
+  gyro_noise_density_ = pt.get<double>(kConfigKey_GyroNoiseDensity);
+  mag_noise_density_ = pt.get<double>(kConfigKey_MagNoiseDensity);
+
   acc_bias_.x() = pt.get<float>(kConfigKey_AccOffsetX);
   acc_bias_.y() = pt.get<float>(kConfigKey_AccOffsetY);
   acc_bias_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
 
-  mag_trans_.a_xx = pt.get<float>(kConfigKey_MagEllipseAxx);
-  mag_trans_.a_yy = pt.get<float>(kConfigKey_MagEllipseAyy);
-  mag_trans_.a_zz = pt.get<float>(kConfigKey_MagEllipseAzz);
-  mag_trans_.a_xy = pt.get<float>(kConfigKey_MagEllipseAxy);
-  mag_trans_.a_yz = pt.get<float>(kConfigKey_MagEllipseAyz);
-  mag_trans_.a_zx = pt.get<float>(kConfigKey_MagEllipseAzx);
-  mag_trans_.b_x = pt.get<float>(kConfigKey_MagEllipseBx);
-  mag_trans_.b_y = pt.get<float>(kConfigKey_MagEllipseBy);
-  mag_trans_.b_z = pt.get<float>(kConfigKey_MagEllipseBz);
-  mag_trans_.c = pt.get<float>(kConfigKey_MagEllipseC);
+  mag_trans_.a_xx = pt.get<double>(kConfigKey_MagEllipseAxx);
+  mag_trans_.a_yy = pt.get<double>(kConfigKey_MagEllipseAyy);
+  mag_trans_.a_zz = pt.get<double>(kConfigKey_MagEllipseAzz);
+  mag_trans_.a_xy = pt.get<double>(kConfigKey_MagEllipseAxy);
+  mag_trans_.a_yz = pt.get<double>(kConfigKey_MagEllipseAyz);
+  mag_trans_.a_zx = pt.get<double>(kConfigKey_MagEllipseAzx);
+  mag_trans_.b_x = pt.get<double>(kConfigKey_MagEllipseBx);
+  mag_trans_.b_y = pt.get<double>(kConfigKey_MagEllipseBy);
+  mag_trans_.b_z = pt.get<double>(kConfigKey_MagEllipseBz);
+  mag_trans_.c = pt.get<double>(kConfigKey_MagEllipseC);
 }
 
 void ImuHandler::setCovarianceMatrices()
 {
   // Accelerometer
-  const double acc_std_grav = kAccNoiseDensity * sqrt(kUpdateRate);  // ug
-  const double acc_std = acc_std_grav * 1e-6 * tobas::kGravity;      // m/s^2
-  const double acc_var = dh_std::sqr(acc_std);                       // m^2/s^4
+  const double acc_var = dh_std::sqr(acc_noise_density_) * kUpdateRate;  // [m^2/s^4]
   dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
   // Gyroscope
-  const double gyro_std_deg = kGyroNoiseDensity * sqrt(kUpdateRate);  // deg/s
-  const double gyro_std_rad = dh_std::deg2rad(gyro_std_deg);          // rad/s
-  const double gyro_var = dh_std::sqr(gyro_std_rad);                  // rad^2/s^2
+  const double gyro_var = dh_std::sqr(gyro_noise_density_) * kUpdateRate;  // [rad^2/s^2]
   dh_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
-  const double mag_var = dh_std::sqr(kMagNoiseStd);
+  const double mag_var = dh_std::sqr(mag_noise_density_) * kUpdateRate;
   dh_std::fillMatrix3Diag(mag_msg_.magnetic_field_covariance, mag_var);
 }
 

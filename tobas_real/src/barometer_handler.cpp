@@ -1,3 +1,5 @@
+#include <boost/property_tree/ini_parser.hpp>
+
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
@@ -7,8 +9,6 @@
 
 namespace tobas_real
 {
-constexpr double BarometerHandler::kBarNoiseStd;
-
 BarometerHandler::BarometerHandler() : super()
 {
   getRosParams();
@@ -20,7 +20,7 @@ BarometerHandler::BarometerHandler() : super()
   }
 
   bar_msg_.header.frame_id = "barometer_frame";
-  bar_msg_.variance = dh_std::sqr(kBarNoiseStd);
+  bar_msg_.variance = dh_std::sqr(pressure_noise_density_) * kUpdateRate;  // [Pa^2]
 
   registerPublishers();
   registerSubscribers();
@@ -64,6 +64,14 @@ void BarometerHandler::registerPublishers()
 void BarometerHandler::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &BarometerHandler::eventCb, this);
+}
+
+void BarometerHandler::readConfig()
+{
+  boost::property_tree::ptree pt;
+  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
+
+  pressure_noise_density_ = pt.get<double>(kConfigKey_PressureNoiseDensity);
 }
 
 void BarometerHandler::eventCb(const tobas_msgs::Event& event)

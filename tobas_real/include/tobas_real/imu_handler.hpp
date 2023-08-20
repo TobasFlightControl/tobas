@@ -19,12 +19,6 @@ class ImuHandler : public tobas::BaseNode
   static constexpr uint32_t kMeasureGyroBiasCount = 1000;
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
-  // MPU9250
-  // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
-  static constexpr double kAccNoiseDensity = 300.;  // ug/sqrt(hz)  // TODO: 実際は遥かに大きい
-  static constexpr double kGyroNoiseDensity = 0.01;  // deg/s/sqrt(hz)
-  static constexpr double kMagNoiseStd = 0.;  // TODO: データシートに無かったため計測する
-
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
@@ -46,8 +40,13 @@ private:
   Eigen::Vector3f mag_;
   EllipseTransformer mag_trans_;
 
-  // 固定値
+  // Config
+  double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
+  double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
+  double mag_noise_density_;   // [/sqrt(Hz)]
   Eigen::Vector3f acc_bias_;
+
+  // 固定値
   Eigen::Vector3f gyro_bias_;
 
   // Publisher
