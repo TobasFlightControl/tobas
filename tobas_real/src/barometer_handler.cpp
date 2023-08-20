@@ -32,7 +32,6 @@ void BarometerHandler::run()
   while (ros::ok())
   {
     barometer_.refreshPressure();
-    usleep(kWaitTime);  // Waiting for pressure data ready
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
 
