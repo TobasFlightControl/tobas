@@ -1,4 +1,3 @@
-#include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_real/common.hpp"
@@ -25,8 +24,6 @@ void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel)
   {
     rosthrow("RC output on PIN" << pin << " is disabled.");
   }
-
-  rosInfo("Setup for RC output on PIN" << pin << " finished successfully.");
 }
 
 uint32_t channelFromPin(uint32_t pin)
