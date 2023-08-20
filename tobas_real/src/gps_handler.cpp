@@ -172,22 +172,22 @@ void GpsHandler::configureGnssReceiver()
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-    rosError("Failed to configure GPS.");
+    rosthrow("Failed to configure GPS.");
 
   if (!gps_.configureGnss_SBAS(true))
-    rosError("Failed to configure SBAS.");
+    rosthrow("Failed to configure SBAS.");
 
   if (!gps_.configureGnss_Galileo(false))
-    rosError("Failed to configure Galileo.");
+    rosthrow("Failed to configure Galileo.");
 
   if (!gps_.configureGnss_BeiDou(false))
-    rosError("Failed to configure BeiDou.");
+    rosthrow("Failed to configure BeiDou.");
 
   if (!gps_.configureGnss_QZSS(true))
-    rosError("Failed to configure QZSS.");
+    rosthrow("Failed to configure QZSS.");
 
   if (!gps_.configureGnss_GLONASS(false))
-    rosError("Failed to configure GLONASS.");
+    rosthrow("Failed to configure GLONASS.");
 }
 
 bool GpsHandler::isReadyToPublish() const
