@@ -15,7 +15,7 @@ from ..parameter_getters import *
 
 
 class ImuWidget(BaseSettingWidget):
-    
+
     NAME = "IMU"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -49,7 +49,7 @@ class ImuWidget(BaseSettingWidget):
             gyro_noise_density_description,
             decimals=9,
             minimum=0.,
-            default=3.394e-4,
+            default=5e-4,
             suffix=" rad/s/sqrt(Hz)"
         )
         self._rows.addWidget(self.gyro_noise_density)
@@ -92,7 +92,7 @@ class ImuWidget(BaseSettingWidget):
             acc_noise_density_description,
             decimals=9,
             minimum=0.,
-            default=4e-3,
+            default=5e-2,
             suffix=" m/s^2/sqrt(Hz)"
         )
         self._rows.addWidget(self.acc_noise_density)
