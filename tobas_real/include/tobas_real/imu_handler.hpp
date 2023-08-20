@@ -4,12 +4,11 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
 
 #include <tobas_tools/node.hpp>
 
 #include "./ellipse_transformer.hpp"
+#include "./common.hpp"
 
 namespace tobas_real
 {
@@ -38,8 +37,7 @@ public:
   void run();
 
 private:
-  // MPU9250 imu_;
-  LSM9DS1 imu_;
+  ImuDevice imu_;
 
   ImuMsg imu_msg_;
   MagMsg mag_msg_;

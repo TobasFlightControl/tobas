@@ -1,11 +1,16 @@
 #pragma once
 
+#include <Common/MPU9250.h>
+#include <Navio2/LSM9DS1.h>
 #include <Navio2/RCOutput_Navio2.h>
 
 #include <tobas_tools/constants.hpp>
 
 namespace tobas_real
 {
+// using ImuDevice = MPU9250;
+using ImuDevice = LSM9DS1;
+
 static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
 
 static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";

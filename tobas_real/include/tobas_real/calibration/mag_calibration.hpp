@@ -1,10 +1,9 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
 
 #include "../ellipse_transformer.hpp"
+#include "../common.hpp"
 
 namespace tobas_real
 {
@@ -24,8 +23,7 @@ public:
   void run(const std::string& method = kDefaultMethod);
 
 private:
-  // MPU9250 imu_;
-  LSM9DS1 imu_;
+  ImuDevice imu_;
 
   Eigen::MatrixXd mag_data_;  // 地磁気データのバッファ．メモリ制限回避のため可変サイズで定義．
   EllipseTransformer mag_trans_;
