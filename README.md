@@ -166,13 +166,13 @@ $ roslaunch (tobas_config_pkg) hil.launch
 ### Accelerometer Calibration
 
 ```bash
-$ roslaunch tobas_real accel_calibration.launch
+$ ~/catkin_ws/devel/lib/tobas_real/accel_calibration
 ```
 
 ### Magnetometer Calibration
 
 ```bash
-$ roslaunch tobas_real mag_calibration.launch
+$ ~/catkin_ws/devel/lib/tobas_real/mag_calibration
 ```
 
 ### ADC Calibration
@@ -181,7 +181,7 @@ Make sure battery is connected to FC properly.\
 Execute the following in FC:
 
 ```bash
-$ roslaunch tobas_real adc_calibration.launch
+$ ~/catkin_ws/devel/lib/tobas_real/adc_calibration
 ```
 
 ### RC Input Calibration
@@ -190,7 +190,7 @@ Make sure RC receiver is connected to FC properly and it can communicate with a 
 Execute the following in FC:
 
 ```bash
-$ roslaunch tobas_real rcin_calibration.launch
+$ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 ```
 
 ### ESC Calibration
@@ -201,7 +201,7 @@ Execute the following in FC:
 ```bash
 $ su
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch tobas_real esc_calibration.launch
+$ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
 ```
 
 ## Trouble Shooting
