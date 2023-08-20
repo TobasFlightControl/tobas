@@ -83,6 +83,10 @@ void MeasureSensorNoise::run()
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
     pres_data(i) = barometer_.getPressure() * 100;  // mbar -> Pa
+    if (pres_data(i) < kMinAirPressure || kMaxAirPressure < pres_data(i))
+    {
+      throw runtime_error("Strange air pressure: " + to_string(pres_data(i)) + " [Pa]");
+    }
   }
   const auto end_time = system_clock::now();
 

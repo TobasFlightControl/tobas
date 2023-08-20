@@ -33,11 +33,18 @@ void BarometerHandler::run()
   while (ros::ok())
   {
     barometer_.refreshPressure();
-    usleep(kWaitToUpdateSensor);
+    usleep(kWaitToUpdateSensor);  // この待ち時間が必須
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
 
-    bar_msg_.fluid_pressure = barometer_.getPressure() * 100;  // mbar -> Pa
+    const auto pressure = barometer_.getPressure() * 100;  // mbar -> Pa
+    if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
+    {
+      rosError("Strange air pressure: " << pressure << " [Pa]");
+      continue;
+    }
+
+    bar_msg_.fluid_pressure = pressure;
     bar_pub_.publish(bar_msg_);
 
     ros::spinOnce();
