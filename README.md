@@ -200,8 +200,17 @@ Execute the following in FC:
 
 ```bash
 $ su
-$ source ~/catkin_ws/devel/setup.bash
 $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
+```
+
+### Measure sensor noise
+
+Make sure battery and ESCs are connected to FC properly.\
+Execute the following in FC:
+
+```bash
+$ su
+$ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 ```
 
 ## Trouble Shooting
