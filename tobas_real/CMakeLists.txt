@@ -30,7 +30,7 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # 実行ファイルを作成
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/nodes/[^.]*.cpp tools/[^.]*.cpp examples/[^.]*.cpp)
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp tools/[^.]*.cpp examples/[^.]*.cpp)
 foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
