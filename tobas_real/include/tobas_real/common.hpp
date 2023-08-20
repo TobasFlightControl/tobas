@@ -68,8 +68,8 @@ static constexpr double kErrorPeriod = 1.;              // [s]
 static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCheckDelayThreshold = 0.02;    // [s]
 
-static constexpr double kMinAirPressure = 90000.;   // [Pa] 有効な気圧の下限
-static constexpr double kMaxAirPressure = 110000.;  // [Pa] 有効な気圧の上限
+static constexpr double kMinAirPressure = 50000.;   // [Pa] 有効な気圧の下限
+static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限
 
 void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel);
 
