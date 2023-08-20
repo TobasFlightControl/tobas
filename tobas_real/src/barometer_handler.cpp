@@ -3,6 +3,7 @@
 #include <dh_ros_tools/rate.hpp>
 
 #include "../include/tobas_real/barometer_handler.hpp"
+#include "../include/tobas_real/common.hpp"
 
 namespace tobas_real
 {
@@ -32,6 +33,7 @@ void BarometerHandler::run()
   while (ros::ok())
   {
     barometer_.refreshPressure();
+    usleep(kWaitToUpdateSensor);
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
 

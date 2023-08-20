@@ -48,9 +48,8 @@ MeasureSensorNoise::MeasureSensorNoise()
 void MeasureSensorNoise::run()
 {
   // 一定時間Disarmコマンドを送信
-  cout << "Send disarm command for " << kDisarmDuration << " seconds." << endl;
+  cout << "Sending disarm command for " << kDisarmDuration << " seconds." << endl;
   sendDisarm();
-  cout << "Disarming finished. The motors are ready to rotate." << endl;
 
   // センサデータを取得
   Matrix<float, kDataCount, 3> acc_data;
@@ -58,12 +57,14 @@ void MeasureSensorNoise::run()
   Matrix<float, kDataCount, 3> mag_data;
   Matrix<float, kDataCount, 1> pres_data;
 
+  cout << "Sampling sensor data while rotating motors." << endl;
   const auto start_time = system_clock::now();
   for (uint32_t i = 0; i < kDataCount; ++i)
   {
     // センサ情報を更新
     imu_.update();
     barometer_.refreshPressure();
+    usleep(kWaitToUpdateSensor);
 
     // モータが動いている状態でのノイズを計測するため，Armコマンドを送信
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
@@ -76,15 +77,12 @@ void MeasureSensorNoise::run()
 
     // センサ情報を読み取る
     imu_.read_accelerometer(&acc_data(i, 0), &acc_data(i, 1), &acc_data(i, 2));
-    imu_.read_accelerometer(&gyro_data(i, 0), &gyro_data(i, 1), &gyro_data(i, 2));
+    imu_.read_gyroscope(&gyro_data(i, 0), &gyro_data(i, 1), &gyro_data(i, 2));
     imu_.read_magnetometer(&mag_data(i, 0), &mag_data(i, 1), &mag_data(i, 2));
 
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
     pres_data(i) = barometer_.getPressure() * 100;  // mbar -> Pa
-
-    // Sleep
-    usleep(kSleepTime);
   }
   const auto end_time = system_clock::now();
 

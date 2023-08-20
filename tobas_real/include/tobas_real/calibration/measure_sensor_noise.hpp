@@ -12,7 +12,6 @@ namespace tobas_real
 class MeasureSensorNoise
 {
   static constexpr uint32_t kDataCount = 1000;
-  static constexpr uint32_t kSleepTime = 10000;  // [us]
 
 public:
   explicit MeasureSensorNoise();

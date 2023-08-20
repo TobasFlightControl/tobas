@@ -45,7 +45,7 @@ MotorsHandler_PWM::MotorsHandler_PWM()
 
 void MotorsHandler_PWM::run()
 {
-  rosInfo("Send disarm command for " << kDisarmDuration << " seconds.");
+  rosInfo("Sending disarm command for " << kDisarmDuration << " seconds.");
   sendDisarm();
   rosInfo("Disarming finished. The motors are ready to rotate.");
 
