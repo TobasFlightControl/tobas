@@ -45,11 +45,11 @@ class GpsModel(SensorModel):
         ver_vel_std : float
             垂直速度のノイズの標準偏差
         latitude_0 : float
-            原点の緯度．北緯を正とする．
+            原点の緯度 [deg]．北緯を正とする．
         longitude_0 : float
-            原点の経度．東経を正とする．
+            原点の経度 [deg]．東経を正とする．
         altitude_0: float
-            原点の高度．上方を正とする．
+            原点の高度 [m]．上方を正とする．
         """
         assert update_rate > 0.
         assert delay >= 0.

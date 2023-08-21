@@ -1,21 +1,14 @@
 #include <eigen_conversions/eigen_msg.h>
+#include <sensor_msgs/NavSatFix.h>
 
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/util.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
+#include <tobas_tools/utils.hpp>
+
 #include "../include/orientation_estimation_complement/orientation_estimator_ros.hpp"
-
-// Constants
-#define TIMER_PERIOD 5.
-#define QUEUE_SIZE 5
-
-// Default parameters
-#define DEFAULT_GRAVITY 9.80665
-#define DEFAULT_GAIN_ACC 0.01
-#define DEFAULT_GAIN_MAG 0.01
-#define DEFAULT_BIAS_ALPHA 0.01
-#define DEFAULT_DO_BIAS_ESTIMATION true
-#define DEFAULT_DO_ADAPTIVE_GAIN false
 
 using namespace std;
 using namespace Eigen;
@@ -23,7 +16,7 @@ using namespace Eigen;
 OrientationEstimatorRos::OrientationEstimatorRos()
   : super(),
     is_initialized_(false),
-    check_topics_timer_(nh_, TIMER_PERIOD, &OrientationEstimatorRos::checkTopicsTimerCb, this)
+    check_topics_timer_(nh_, kTimerPeriod, &OrientationEstimatorRos::checkTopicsTimerCb, this)
 {
   getRosParams();
   initializeFilter();
@@ -33,52 +26,53 @@ OrientationEstimatorRos::OrientationEstimatorRos()
 
 void OrientationEstimatorRos::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_, DEFAULT_GRAVITY);
-  dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
-  dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
-  dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
-
-  dh_ros::getParam("~gain_acc", gain_acc_, DEFAULT_GAIN_ACC);
-  dh_ros::getParam("~gain_mag", gain_mag_, DEFAULT_GAIN_MAG);
-  dh_ros::getParam("~bias_alpha", bias_alpha_, DEFAULT_BIAS_ALPHA);
-  dh_ros::getParam("~do_bias_estimation", do_bias_estimation_, DEFAULT_DO_BIAS_ESTIMATION);
-  dh_ros::getParam("~do_adaptive_gain", do_adaptive_gain_, DEFAULT_DO_ADAPTIVE_GAIN);
+  dh_ros::getParam("~gain_acc", gain_acc_, kDefaultGainAcc);
+  dh_ros::getParam("~gain_mag", gain_mag_, kDefaultGainMag);
+  dh_ros::getParam("~bias_alpha", bias_alpha_, kDefaultBiasAlpha);
+  dh_ros::getParam("~do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
+  dh_ros::getParam("~do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
 }
 
 void OrientationEstimatorRos::registerPublishers()
 {
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", QUEUE_SIZE);
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", kQueueSize);
 }
 
 void OrientationEstimatorRos::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &OrientationEstimatorRos::eventCb, this);
 
-  imu_sub_.reset(new ImuSubscriber(nh_, "imu", QUEUE_SIZE));
-  mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", QUEUE_SIZE));
-  sync_.reset(new Synchronizer(SyncPolicy(QUEUE_SIZE), *imu_sub_, *mag_sub_));
+  imu_sub_.reset(new ImuSubscriber(nh_, "imu", kQueueSize));
+  mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", kQueueSize));
+  sync_.reset(new Synchronizer(SyncPolicy(kQueueSize), *imu_sub_, *mag_sub_));
   sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::initializeFilter()
 {
-  filter_.setReferenceMagneticField(ref_mag_north_, ref_mag_east_);
-
-  if (!filter_.setGravity(gravity_))
+  sensor_msgs::NavSatFix gps;
+  if (!dh_ros::subscribeOnce(gps, "gps", nh_))
   {
-    rosWarn("Invalid gravity");
+    rosthrow("Failed to get GPS message.");
+  }
+  const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
+  filter_.setReferenceMagneticField(mag.north, mag.east);
+
+  if (!filter_.setGravity(tobas::kGravity))
+  {
+    rosthrow("Invalid gravity");
   }
 
   if (!filter_.setGainAcc(gain_acc_))
   {
-    rosWarn("Invalid gain_acc");
+    rosthrow("Invalid gain_acc");
   }
 
   if (do_bias_estimation_)
   {
     if (!filter_.setBiasAlpha(bias_alpha_))
     {
-      rosWarn("Invalid bias_alpha");
+      rosthrow("Invalid bias_alpha");
     }
   }
 

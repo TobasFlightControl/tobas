@@ -17,9 +17,6 @@ static const std::string kPluginName = "magnetometer_plugin";
 
 // Default values
 static const std::string kDefaultMagTopic = "magnetic_field";
-static constexpr double kDefaultRefMagNorth = 3.0031e-05;
-static constexpr double kDefaultRefMagEast = -4.116e-06;
-static constexpr double kDefaultRefMagDown = 3.5615e-05;
 
 class GazeboMagnetometerPlugin : public SensorPlugin
 {
@@ -39,17 +36,20 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string mag_topic_;
-  double ref_mag_north_;
-  double ref_mag_east_;
-  double ref_mag_down_;
-  SdfVector3 noise_normal_;
-  SdfVector3 noise_uniform_initial_bias_;
+  SdfVector3 offset_;                      // [m] B_Pos_BS
+  double lat_0_;                           // [deg] 原点の北緯
+  double lon_0_;                           // [deg] 原点の東経
+  double alt_0_;                           // [m] 原点の高度
+  SdfVector3 noise_normal_;                // [nT]
+  SdfVector3 noise_uniform_initial_bias_;  // [nT]
 
   physics::WorldPtr world_;
   physics::ModelPtr model_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
-  ignition::math::Vector3d mag_NWU_;
+
+  ignition::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
+  double lat_, lon_;                    // [deg] 現在位置の経緯度
   MagMsg mag_msg_;
 
   std::random_device rnd_dev_;

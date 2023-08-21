@@ -15,6 +15,17 @@
 
 class OrientationEstimatorRos : public tobas::BaseNode
 {
+  // Constants
+  static constexpr double kTimerPeriod = 5.;
+  static constexpr uint32_t kQueueSize = 5;
+
+  // Default parameters
+  static constexpr double kDefaultGainAcc = 0.01;
+  static constexpr double kDefaultGainMag = 0.01;
+  static constexpr double kDefaultBiasAlpha = 0.01;
+  static constexpr bool kDefaultDoBiasEstimation = true;
+  static constexpr bool kDefaultDoAdaptiveGain = false;
+
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
@@ -38,13 +49,9 @@ private:
   // RosParams
   bool do_bias_estimation_;
   bool do_adaptive_gain_;
-  double gravity_;
   double gain_acc_;
   double gain_mag_;
   double bias_alpha_;
-  double ref_mag_north_;
-  double ref_mag_east_;
-  double ref_mag_down_;
 
   // PubSub
   ros::Publisher imu_pub_;

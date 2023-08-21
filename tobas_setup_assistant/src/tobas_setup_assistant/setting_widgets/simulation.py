@@ -70,36 +70,6 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.altitude_0)
 
-        # 日本経緯度原点に対して国土地理院の地磁気測量値を用いて算出
-        # 地磁気測量: https://vldb.gsi.go.jp/sokuchi/geomag/menu_00/index.html
-
-        ref_mag_north_description = ""
-        self.ref_mag_north = ParamGetterWidget_SpinBox(
-            "Reference North Magnetic Field Strength",
-            ref_mag_north_description,
-            default=30031,
-            suffix=" nT",
-        )
-        self._rows.addWidget(self.ref_mag_north)
-
-        ref_mag_east_description = ""
-        self.ref_mag_east = ParamGetterWidget_SpinBox(
-            "Reference East Magnetic Field Strength",
-            ref_mag_east_description,
-            default=-4116,
-            suffix=" nT",
-        )
-        self._rows.addWidget(self.ref_mag_east)
-
-        ref_mag_down_description = ""
-        self.ref_mag_down = ParamGetterWidget_SpinBox(
-            "Reference Down Magnetic Field Strength",
-            ref_mag_down_description,
-            default=35615,
-            suffix=" nT",
-        )
-        self._rows.addWidget(self.ref_mag_down)
-
         mean_wind_speed_description = ""
         self.mean_wind_speed = ParamGetterWidget_DoubleSpinBox(
             "Mean wind speed",

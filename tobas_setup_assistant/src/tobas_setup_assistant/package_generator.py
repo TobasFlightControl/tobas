@@ -193,9 +193,6 @@ class PackageGenerator(QObject):
         # Simulation
         simulation = self._main.settings.simulation
         template_items["gravity"] = simulation.gravity.get()
-        template_items["ref_mag_north"] = simulation.ref_mag_north.get() * 1e-9
-        template_items["ref_mag_east"] = simulation.ref_mag_east.get() * 1e-9
-        template_items["ref_mag_down"] = simulation.ref_mag_down.get() * 1e-9
 
         # Author Info
         author_info = self._main.settings.author_information
@@ -533,11 +530,12 @@ class PackageGenerator(QObject):
                 ns=self._drone_name,
                 link_name=root_link,
                 update_rate=magnetometer.update_rate.get(),
-                ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
-                ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
-                ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
-                gauss_noise=magnetometer.gauss_noise.get() * 1e-9,
-                uniform_noise=magnetometer.uniform_noise.get() * 1e-9,
+                offset=magnetometer.offset.get(),
+                latitude_0=simulation.latitude_0.get(),
+                longitude_0=simulation.longitude_0.get(),
+                altitude_0=simulation.altitude_0.get(),
+                gauss_noise=magnetometer.gauss_noise.get(),
+                uniform_noise=magnetometer.uniform_noise.get(),
             )
             robot.append(mag_model)
 

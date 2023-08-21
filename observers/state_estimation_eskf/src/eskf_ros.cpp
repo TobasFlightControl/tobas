@@ -14,6 +14,9 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
+#include <tobas_tools/utils.hpp>
+
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
 using namespace std;
@@ -56,11 +59,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_, dh_ros::POSITIVE);
-  dh_ros::getParam("/geomagnetism/north", ref_mag_north_);
-  dh_ros::getParam("/geomagnetism/east", ref_mag_east_);
-  dh_ros::getParam("/geomagnetism/down", ref_mag_down_);
-
   dh_ros::getParam("~gyro_noise_density", gyro_noise_density_, dh_ros::POSITIVE);
   dh_ros::getParam("~gyro_random_walk", gyro_random_walk_, dh_ros::POSITIVE);
   dh_ros::getParam("~acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
@@ -148,6 +146,12 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   // 静止状態でのセンサデータを平均してゼロ点を決める
   const auto result = setZeroPositions();
 
+  // GPSの初期値から地磁気の参照値を求める
+  // TODO: 位置の変化に合わせてオンラインで参照値を求める
+  const auto mag = tobas::geomag(lat_0_, lon_0_, alt_0_gps_);
+  cout << "The magnetic field of the initial point:" << endl;
+  cout << "North: " << mag.north << ", East: " << mag.east << ", Down: " << mag.down << endl;
+
   // ISKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
   eskf_.initialize(
@@ -155,8 +159,8 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
     gyro_noise_density_,                                          // Gyrometer noise density
     acc_random_walk_,                                             // Accelerometer random walk
     gyro_random_walk_,                                            // Gyrometer random walk
-    Vector3d(0., 0., -gravity_),                                  // Gravity vector
-    Vector3d(ref_mag_north_, -ref_mag_east_, -ref_mag_down_),     // Magnetic field (NWU)
+    Vector3d(0., 0., -tobas::kGravity),                           // Gravity vector
+    Vector3d(mag.north, -mag.east, -mag.down),                    // Magnetic field (NWU)
     Vector3d::Zero(),                                             // Init position
     Vector3d::Zero(),                                             // Init velocity
     q_0_,                                                         // Init quaternion
@@ -228,12 +232,6 @@ ErrorStateKalmanFilterRos::setZeroPositions()
                      << "Ground Speed:\n"
                      << result->ground_speed);
 
-  // 初期姿勢
-  tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
-  tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
-  const Vector3d m0(ref_mag_north_, -ref_mag_east_, -ref_mag_down_);  // NED -> NWU
-  eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
-
   // GPS
   // TODO: IMUフレームに変換
   lat_0_ = result->gps.latitude;
@@ -243,6 +241,13 @@ ErrorStateKalmanFilterRos::setZeroPositions()
   // Barometer
   // TODO: IMUフレームに変換
   alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
+
+  // 初期姿勢
+  tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
+  tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
+  const auto mag = tobas::geomag(result->gps.latitude, result->gps.longitude, result->gps.altitude);
+  const Vector3d m0(mag.north, -mag.east, -mag.down);  // NED -> NWU
+  eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
 
   return result;
 }
