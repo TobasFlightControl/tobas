@@ -14,23 +14,27 @@ using ImuDevice = LSM9DS1;
 static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
 
 static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";
+
 static constexpr char kConfigKey_AccNoiseDensity[] = "DEFAULT.acc_noise_density";
 static constexpr char kConfigKey_GyroNoiseDensity[] = "DEFAULT.gyro_noise_density";
 static constexpr char kConfigKey_MagNoiseDensity[] = "DEFAULT.mag_noise_density";
 static constexpr char kConfigKey_PressureNoiseDensity[] = "DEFAULT.pressure_noise_density";
+
 static constexpr char kConfigKey_AccOffsetX[] = "DEFAULT.acc_offset/x";
 static constexpr char kConfigKey_AccOffsetY[] = "DEFAULT.acc_offset/y";
 static constexpr char kConfigKey_AccOffsetZ[] = "DEFAULT.acc_offset/z";
+
 static constexpr char kConfigKey_MagEllipseAxx[] = "DEFAULT.mag_ellipse/a_xx";
 static constexpr char kConfigKey_MagEllipseAyy[] = "DEFAULT.mag_ellipse/a_yy";
 static constexpr char kConfigKey_MagEllipseAzz[] = "DEFAULT.mag_ellipse/a_zz";
 static constexpr char kConfigKey_MagEllipseAxy[] = "DEFAULT.mag_ellipse/a_xy";
 static constexpr char kConfigKey_MagEllipseAyz[] = "DEFAULT.mag_ellipse/a_yz";
+static constexpr char kConfigKey_MagEllipseAzx[] = "DEFAULT.mag_ellipse/a_zx";
 static constexpr char kConfigKey_MagEllipseBx[] = "DEFAULT.mag_ellipse/b_x";
 static constexpr char kConfigKey_MagEllipseBy[] = "DEFAULT.mag_ellipse/b_y";
 static constexpr char kConfigKey_MagEllipseBz[] = "DEFAULT.mag_ellipse/b_z";
 static constexpr char kConfigKey_MagEllipseC[] = "DEFAULT.mag_ellipse/c";
-static constexpr char kConfigKey_MagEllipseAzx[] = "DEFAULT.mag_ellipse/a_zx";
+
 static constexpr char kConfigKey_RcRollNeutoral[] = "DEFAULT.rc_input/roll/neutoral";
 static constexpr char kConfigKey_RcRollLeft[] = "DEFAULT.rc_input/roll/left";
 static constexpr char kConfigKey_RcRollRight[] = "DEFAULT.rc_input/roll/right";

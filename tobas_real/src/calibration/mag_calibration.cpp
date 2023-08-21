@@ -39,12 +39,6 @@ void MagnetometerCalibrator::run(const std::string& method)
   const Matrix<double, kDataCount * kDirections, 1> yz = y.cwiseProduct(z);
   const Matrix<double, kDataCount * kDirections, 1> zx = z.cwiseProduct(x);
 
-  // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
-  // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
-  mag_trans_.c = -(xx + yy + zz).mean();
-  VectorXd ce0(kDataCount * kDirections);  // メモリ制限回避のため可変サイズで定義
-  ce0.fill(-mag_trans_.c);
-
   if (method == "bounding")
   {
     // https://okasho-engineer.com/magnetic-sensor-calibration/
@@ -76,46 +70,55 @@ void MagnetometerCalibrator::run(const std::string& method)
     mag_trans_.b_z = -2 * z0 / rz2;
     mag_trans_.c = dh_std::sqr(x0) / rx2 + dh_std::sqr(y0) / ry2 + dh_std::sqr(z0) / rz2 - 1;
   }
-  else if (method == "sphere_fitting")
-  {
-    // 球体でフィッティング．
-    // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-    MatrixXd CE(kDataCount * kDirections, 4);
-    CE << xx + yy + zz, x, y, z;
-    const Matrix<double, 4, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
-
-    mag_trans_.a_xx = coefs(0);
-    mag_trans_.a_yy = coefs(0);
-    mag_trans_.a_zz = coefs(0);
-    mag_trans_.a_xy = 0;
-    mag_trans_.a_yz = 0;
-    mag_trans_.a_zx = 0;
-    mag_trans_.b_x = coefs(1);
-    mag_trans_.b_y = coefs(2);
-    mag_trans_.b_z = coefs(3);
-  }
-  else if (method == "ellipse_fitting")
-  {
-    // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
-    // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-    MatrixXd CE(kDataCount * kDirections, 9);
-    CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-    const Matrix<double, 9, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
-
-    mag_trans_.a_xx = coefs(0);
-    mag_trans_.a_yy = coefs(1);
-    mag_trans_.a_zz = coefs(2);
-    mag_trans_.a_xy = coefs(3);
-    mag_trans_.a_yz = coefs(4);
-    mag_trans_.a_zx = coefs(5);
-    mag_trans_.b_x = coefs(6);
-    mag_trans_.b_y = coefs(7);
-    mag_trans_.b_z = coefs(8);
-  }
   else
   {
-    throw runtime_error("Invalid method: " + method);
-    return;
+    // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
+    // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
+    mag_trans_.c = -(xx + yy + zz).mean();
+    VectorXd ce0(kDataCount * kDirections);  // メモリ制限回避のため可変サイズで定義
+    ce0.fill(-mag_trans_.c);
+
+    if (method == "sphere_fitting")
+    {
+      // 球体でフィッティング．
+      // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
+      MatrixXd CE(kDataCount * kDirections, 4);
+      CE << xx + yy + zz, x, y, z;
+      const Matrix<double, 4, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
+
+      mag_trans_.a_xx = coefs(0);
+      mag_trans_.a_yy = coefs(0);
+      mag_trans_.a_zz = coefs(0);
+      mag_trans_.a_xy = 0;
+      mag_trans_.a_yz = 0;
+      mag_trans_.a_zx = 0;
+      mag_trans_.b_x = coefs(1);
+      mag_trans_.b_y = coefs(2);
+      mag_trans_.b_z = coefs(3);
+    }
+    else if (method == "ellipse_fitting")
+    {
+      // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
+      // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
+      MatrixXd CE(kDataCount * kDirections, 9);
+      CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
+      const Matrix<double, 9, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
+
+      mag_trans_.a_xx = coefs(0);
+      mag_trans_.a_yy = coefs(1);
+      mag_trans_.a_zz = coefs(2);
+      mag_trans_.a_xy = coefs(3);
+      mag_trans_.a_yz = coefs(4);
+      mag_trans_.a_zx = coefs(5);
+      mag_trans_.b_x = coefs(6);
+      mag_trans_.b_y = coefs(7);
+      mag_trans_.b_z = coefs(8);
+    }
+    else
+    {
+      throw runtime_error("Invalid method: " + method);
+      return;
+    }
   }
 
   // 推定された係数を表示
