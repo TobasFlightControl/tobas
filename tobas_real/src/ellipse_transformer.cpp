@@ -37,24 +37,25 @@ void EllipseTransformer::initialize()
     throw runtime_error("It cannot be an ellipsoid with the given coefficients.");
   }
 
-  xc_ = -0.5 * P * Lam_inv.asDiagonal() * P.transpose() * b;
-  S_ = (Lam / W).cwiseSqrt();
-  PSPt_ = P * S_.asDiagonal() * P.transpose();
+  const Vector3d S = (Lam / W).cwiseSqrt();
+  PSPt_ = P * S.asDiagonal() * P.transpose();
+  center_ = -0.5 * P * Lam_inv.asDiagonal() * P.transpose() * b;
+  radius_ = S.cwiseInverse();
 }
 
 Vector3d EllipseTransformer::transform(const Vector3d& x) const
 {
-  return PSPt_ * (x - xc_);
+  return PSPt_ * (x - center_);
 }
 
 const Vector3d& EllipseTransformer::getCenter() const
 {
-  return xc_;
+  return center_;
 }
 
-const Vector3d EllipseTransformer::getRadius() const
+const Vector3d& EllipseTransformer::getRadius() const
 {
-  return S_.cwiseInverse();
+  return radius_;
 }
 
 ostream& operator<<(ostream& os, const EllipseTransformer& arg)

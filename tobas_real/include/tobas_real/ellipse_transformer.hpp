@@ -29,13 +29,13 @@ public:
   Eigen::Vector3d transform(const Eigen::Vector3d& mag_raw) const;
 
   const Eigen::Vector3d& getCenter() const;
-  const Eigen::Vector3d getRadius() const;
+  const Eigen::Vector3d& getRadius() const;
 
   friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
 
 private:
-  Eigen::Vector3d xc_;  // 元の座標系における中心
-  Eigen::Vector3d S_;   // 3軸方向の半径
+  Eigen::Vector3d center_;  // 元の座標系における中心
+  Eigen::Vector3d radius_;  // 3軸方向の半径
   Eigen::Matrix3d PSPt_;
 };
 }  // namespace tobas_real
