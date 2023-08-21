@@ -28,6 +28,7 @@ void MagnetometerCalibrator::run(const std::string& method)
   mag_data_.setZero();
 
   // 6面分のデータを取得
+  // TODO: 外れ値除去，間引いて均一にするなどの前処理
   getMagData();
   const Matrix<double, kDataCount * kDirections, 1> x = mag_data_.col(0);
   const Matrix<double, kDataCount * kDirections, 1> y = mag_data_.col(1);
