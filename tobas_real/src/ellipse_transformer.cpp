@@ -52,9 +52,9 @@ const Vector3d& EllipseTransformer::getCenter() const
   return xc_;
 }
 
-const Vector3d& EllipseTransformer::getRadius() const
+const Vector3d EllipseTransformer::getRadius() const
 {
-  return S_;
+  return S_.cwiseInverse();
 }
 
 ostream& operator<<(ostream& os, const EllipseTransformer& arg)

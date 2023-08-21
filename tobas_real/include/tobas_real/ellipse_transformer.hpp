@@ -29,7 +29,7 @@ public:
   Eigen::Vector3d transform(const Eigen::Vector3d& mag_raw) const;
 
   const Eigen::Vector3d& getCenter() const;
-  const Eigen::Vector3d& getRadius() const;
+  const Eigen::Vector3d getRadius() const;
 
   friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
 

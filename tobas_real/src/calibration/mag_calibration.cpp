@@ -135,10 +135,8 @@ void MagnetometerCalibrator::run(const std::string& method)
   }
 
   // 中心と半径を表示
-  cout << "Center:\n"
-       << mag_trans_.getCenter() << endl
-       << "Radius:\n"
-       << mag_trans_.getRadius() << endl;
+  cout << "Center:" << mag_trans_.getCenter().transpose() << endl;
+  cout << "Radius:" << mag_trans_.getRadius().transpose() << endl;
 
   // Configに保存
   boost::property_tree::ptree pt;
