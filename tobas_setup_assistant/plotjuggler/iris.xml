@@ -1,0 +1,387 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<root>
+ <tabbed_widget name="Main Window" parent="main_window">
+  <Tab tab_name="pose" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.499333;0.500667" count="2">
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.037191" right="625.040000" top="0.784727" left="615.040000"/>
+         <limitY/>
+         <curve color="#1f77b4" name="/iris/base_state/pose/pos/x"/>
+         <curve color="#17becf" name="/iris/ground_truth/base_state/pose/pos/x"/>
+         <curve color="#f14cc1" name="/iris/command/position_yaw/pos/x"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.983100" right="625.040000" top="0.354146" left="615.040000"/>
+         <limitY/>
+         <curve color="#d62728" name="/iris/base_state/pose/pos/y"/>
+         <curve color="#bcbd22" name="/iris/ground_truth/base_state/pose/pos/y"/>
+         <curve color="#9467bd" name="/iris/command/position_yaw/pos/y"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.556327" right="625.040000" top="25.119100" left="615.040000"/>
+         <limitY/>
+         <curve color="#1ac938" name="/iris/base_state/pose/pos/z"/>
+         <curve color="#1f77b4" name="/iris/ground_truth/base_state/pose/pos/z"/>
+         <curve color="#17becf" name="/iris/command/position_yaw/pos/z"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.032380" right="625.040000" top="0.000792" left="615.040000"/>
+         <limitY/>
+         <curve color="#ff7f0e" name="/iris/base_state/pose/euler/roll"/>
+         <curve color="#d62728" name="/iris/ground_truth/base_state/pose/euler/roll"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.035237" right="625.040000" top="0.000863" left="615.040000"/>
+         <limitY/>
+         <curve color="#f14cc1" name="/iris/base_state/pose/euler/pitch"/>
+         <curve color="#1ac938" name="/iris/ground_truth/base_state/pose/euler/pitch"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.021194" right="625.040000" top="-0.013894" left="615.040000"/>
+         <limitY/>
+         <curve color="#9467bd" name="/iris/base_state/pose/euler/yaw"/>
+         <curve color="#ff7f0e" name="/iris/ground_truth/base_state/pose/euler/yaw"/>
+         <curve color="#bcbd22" name="/iris/command/position_yaw/yaw"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="twist" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-1.619470" right="241.040000" top="0.301155" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.153492" right="241.040000" top="0.208233" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.257846" right="241.040000" top="0.083310" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.164533" right="241.040000" top="0.145381" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.208891" right="241.040000" top="0.196997" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.050645" right="241.040000" top="0.043062" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="cpu" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#1f77b4" name="/x500v2/cpu/temperature"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="battery" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#9467bd" name="/x500v2/battery/voltage"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="imu" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="0.557991" right="241.040000" top="1.195888" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.960217" right="241.040000" top="-0.485825" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="9.254867" right="241.040000" top="10.325758" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.168481" right="241.040000" top="0.141814" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.203280" right="241.040000" top="0.202589" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.054003" right="241.040000" top="0.039814" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="magnetomer" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#1ac938" name="/x500v2/magnetic_field/magnetic_field/x"/>
+      </plot>
+     </DockArea>
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#ff7f0e" name="/x500v2/magnetic_field/magnetic_field/y"/>
+      </plot>
+     </DockArea>
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#f14cc1" name="/x500v2/magnetic_field/magnetic_field/z"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="barometer" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#17becf" name="/x500v2/air_pressure/fluid_pressure"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="gps" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="35.658040" right="240.980000" top="35.658169" left="230.980000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="139.741285" right="240.980000" top="139.741437" left="230.980000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="18.850775" right="240.980000" top="35.022008" left="230.980000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.342089" right="240.980000" top="0.329356" left="230.980000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.232067" right="240.980000" top="0.406662" left="230.980000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="-0.296843" right="240.980000" top="0.339511" left="230.980000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="motor" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.501094;0.498906" count="2">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="610.633431" right="241.040000" top="645.517672" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="553.171408" right="241.040000" top="590.767179" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.5;0.5" count="2">
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="621.937943" right="241.040000" top="668.315675" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+         <range bottom="559.378180" right="241.040000" top="603.738215" left="231.040000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="wind" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="0.332968;0.334064;0.332968" count="3">
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#1f77b4" name="/x500v2/wind/vel/x"/>
+      </plot>
+     </DockArea>
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#d62728" name="/x500v2/wind/vel/y"/>
+      </plot>
+     </DockArea>
+     <DockArea name="...">
+      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" top="0.100000" left="0.000000"/>
+       <limitY/>
+       <curve color="#1ac938" name="/x500v2/wind/vel/z"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="0"/>
+ </tabbed_widget>
+ <use_relative_time_offset enabled="0"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <Plugins>
+  <plugin ID="DataLoad CSV">
+   <default delimiter="0" time_axis=""/>
+  </plugin>
+  <plugin ID="DataLoad MCAP"/>
+  <plugin ID="DataLoad ROS bags">
+   <use_header_stamp value="false"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+   <boolean_strings_to_number value="true"/>
+   <remove_suffix_from_strings value="true"/>
+  </plugin>
+  <plugin ID="DataLoad ULog"/>
+  <plugin ID="ROS Topic Subscriber">
+   <use_header_stamp value="false"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+   <boolean_strings_to_number value="true"/>
+   <remove_suffix_from_strings value="true"/>
+  </plugin>
+  <plugin ID="UDP Server"/>
+  <plugin ID="WebSocket Server"/>
+  <plugin ID="ZMQ Subscriber"/>
+  <plugin ID="Fast Fourier Transform"/>
+  <plugin ID="Quaternion to RPY"/>
+  <plugin ID="Reactive Script Editor">
+   <library code="--[[ Helper function to create a series from arrays&#xa;&#xa; new_series: a series previously created with ScatterXY.new(name)&#xa; prefix:     prefix of the timeseries, before the index of the array&#xa; suffix_X:   suffix to complete the name of the series containing the X value. If [nil], use the index of the array.&#xa; suffix_Y:   suffix to complete the name of the series containing the Y value&#xa; timestamp:   usually the tracker_time variable&#xa;              &#xa; Example:&#xa; &#xa; Assuming we have multiple series in the form:&#xa; &#xa;   /trajectory/node.{X}/position/x&#xa;   /trajectory/node.{X}/position/y&#xa;   &#xa; where {N} is the index of the array (integer). We can create a reactive series from the array with:&#xa; &#xa;   new_series = ScatterXY.new(&quot;my_trajectory&quot;) &#xa;   CreateSeriesFromArray( new_series, &quot;/trajectory/node&quot;, &quot;position/x&quot;, &quot;position/y&quot;, tracker_time );&#xa;]]--&#xa;&#xa;function CreateSeriesFromArray( new_series, prefix, suffix_X, suffix_Y, timestamp )&#xa;  &#xa;  --- clear previous values&#xa;  new_series:clear()&#xa;  &#xa;  --- Append points to new_series&#xa;  index = 0&#xa;  while(true) do&#xa;&#xa;    x = index;&#xa;    -- if not nil, get the X coordinate from a series&#xa;    if suffix_X ~= nil then &#xa;      series_x = TimeseriesView.find( string.format( &quot;%s.%d/%s&quot;, prefix, index, suffix_X) )&#xa;      if series_x == nil then break end&#xa;      x = series_x:atTime(timestamp)&#x9; &#xa;    end&#xa;    &#xa;    series_y = TimeseriesView.find( string.format( &quot;%s.%d/%s&quot;, prefix, index, suffix_Y) )&#xa;    if series_y == nil then break end &#xa;    y = series_y:atTime(timestamp)&#xa;    &#xa;    new_series:push_back(x,y)&#xa;    index = index+1&#xa;  end&#xa;end&#xa;&#xa;--[[ Similar to the built-in function GetSeriesNames(), but select only the names with a give prefix. ]]--&#xa;&#xa;function GetSeriesNamesByPrefix(prefix)&#xa;  -- GetSeriesNames(9 is a built-in function&#xa;  all_names = GetSeriesNames()&#xa;  filtered_names = {}&#xa;  for i, name in ipairs(all_names)  do&#xa;    -- check the prefix&#xa;    if name:find(prefix, 1, #prefix) then&#xa;      table.insert(filtered_names, name);&#xa;    end&#xa;  end&#xa;  return filtered_names&#xa;end&#xa;&#xa;--[[ Modify an existing series, applying offsets to all their X and Y values&#xa;&#xa; series: an existing timeseries, obtained with TimeseriesView.find(name)&#xa; delta_x: offset to apply to each x value&#xa; delta_y: offset to apply to each y value  &#xa;&#xa;]]--&#xa;&#xa;function ApplyOffsetInPlace(series, delta_x, delta_y)&#xa;  -- use C++ indeces, not Lua indeces&#xa;  for index=0, series:size()-1 do&#xa;    x,y = series:at(index)&#xa;    series:set(index, x + delta_x, y + delta_y)&#xa;  end&#xa;end&#xa;"/>
+   <scripts/>
+  </plugin>
+  <plugin ID="CSV Exporter"/>
+  <plugin ID="ROS /rosout Visualization"/>
+  <plugin ID="ROS Topic Re-Publisher"/>
+ </Plugins>
+ <!-- - - - - - - - - - - - - - - -->
+ <previouslyLoaded_Datafiles/>
+ <previouslyLoaded_Streamer name="ROS Topic Subscriber"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <customMathEquations/>
+ <snippets/>
+ <!-- - - - - - - - - - - - - - - -->
+</root>
+
