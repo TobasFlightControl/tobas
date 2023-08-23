@@ -5,6 +5,7 @@
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
 
 #include "../include/tobas_keyboard_teleop/position_yaw_publisher.hpp"
@@ -49,11 +50,11 @@ void PositionYawPublisher::run()
 {
   // 離陸アクションクライアントを用意
   actionlib::SimpleActionClient<tobas_multirotor_takeoff::MultirotorTakeoffAction> takeoff(
-    kTakeoffActionName);
-  rosInfo("Waiting for '" << kTakeoffActionName << "' action server.");
+    tobas::kTakeoffAction);
+  rosInfo("Waiting for '" << tobas::kTakeoffAction << "' action server.");
   if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    rosInfo("Failed to connect to '" << kTakeoffActionName << "' action server.");
+    rosInfo("Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
     return;
   }
 
@@ -65,7 +66,7 @@ void PositionYawPublisher::run()
   const auto takeoff_result = takeoff.getResult();
   if (takeoff_result->error_code != tobas_multirotor_takeoff::MultirotorTakeoffResult::NO_ERROR)
   {
-    rosInfo("'" << kTakeoffActionName << "' action failed.");
+    rosInfo("'" << tobas::kTakeoffAction << "' action failed.");
     return;
   }
 
@@ -144,8 +145,11 @@ void PositionYawPublisher::run()
 
 void PositionYawPublisher::getRosParams()
 {
-  dh_ros::getParam("~max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity);
-  dh_ros::getParam("~max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity);
+  dh_ros::getParam(
+    "~max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    "~max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, dh_ros::POSITIVE);
+
   dh_ros::getParam("~pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
   dh_ros::getParam("~pose_limit/x/max", x_limit_.upper, kDefaultMaximumX);
   dh_ros::getParam("~pose_limit/y/min", y_limit_.lower, kDefaultMinimumY);
@@ -154,9 +158,6 @@ void PositionYawPublisher::getRosParams()
   dh_ros::getParam("~pose_limit/z/max", z_limit_.upper, kDefaultMaximumZ);
   dh_ros::getParam("~pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
   dh_ros::getParam("~pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
-
-  ROS_ASSERT(max_linvel_ > 0.);
-  ROS_ASSERT(max_angvel_ > 0.);
   ROS_ASSERT(x_limit_.isValid());
   ROS_ASSERT(y_limit_.isValid());
   ROS_ASSERT(z_limit_.isValid());

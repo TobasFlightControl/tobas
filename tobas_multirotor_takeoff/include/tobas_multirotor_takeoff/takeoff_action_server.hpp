@@ -20,7 +20,6 @@ namespace tobas_multirotor_takeoff
  */
 class MultirotorTakeoffServer : public tobas::BaseNode
 {
-  static constexpr char kActionName[] = "multirotor_takeoff";
   static constexpr double kUpdateRate = 100.;                 // [Hz]
   static constexpr double kWaitForExternalActionServer = 3.;  // [s]
 

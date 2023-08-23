@@ -13,4 +13,7 @@ constexpr uint32_t kMaxPinId = 14;
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
 // TODO: Ardupilotを参考にGUIで設定できるようにする
 static constexpr double kMotorSpinArm = 0.1;
+
+static constexpr char kLandingAction[] = "landing_action";
+static constexpr char kTakeoffAction[] = "takeoff_action";
 }  // namespace tobas

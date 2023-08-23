@@ -14,8 +14,6 @@ namespace tobas_keyboard_teleop
  */
 class PositionYawPublisher : public tobas::BaseNode
 {
-  static constexpr char kTakeoffActionName[] = "multirotor_takeoff";
-
   static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
   static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
   static constexpr double kDefaultMinimumX = -10.;              // [m]

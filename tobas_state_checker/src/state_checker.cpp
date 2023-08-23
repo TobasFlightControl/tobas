@@ -3,17 +3,17 @@
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
-#include "../include/tobas_state_checker/multirotor_state_checker.hpp"
+#include <tobas_tools/constants.hpp>
+
+#include "../include/tobas_state_checker/state_checker.hpp"
 #include "../include/tobas_state_checker/common.hpp"
 
 using namespace std;
 
 namespace tobas_state_checker
 {
-constexpr char MultirotorStateChecker::kLandActionName[];
-
 MultirotorStateChecker::MultirotorStateChecker()
-  : super(), bs_received_(false), cmd_received_(false), ac_(kLandActionName)
+  : super(), bs_received_(false), cmd_received_(false), ac_(tobas::kLandingAction)
 {
   getRosParams();
 
@@ -24,8 +24,8 @@ MultirotorStateChecker::MultirotorStateChecker()
   if (!ac_.waitForServer(ros::Duration(kWaitForActionServer)))
   {
     rosError(
-      "'" << kLandActionName << "' action server failed to start within " << kWaitForActionServer
-          << " seconds. Please check the server status.");
+      "'" << tobas::kLandingAction << "' action server failed to start within "
+          << kWaitForActionServer << " seconds. Please check the server status.");
     requestShutdown();
   }
 }

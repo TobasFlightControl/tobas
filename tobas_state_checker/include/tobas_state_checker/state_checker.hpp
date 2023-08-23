@@ -13,8 +13,6 @@ namespace tobas_state_checker
 {
 class MultirotorStateChecker : public tobas::BaseNode
 {
-  static constexpr char kLandActionName[] = "multirotor_landing";
-
   using super = tobas::BaseNode;
 
 public:

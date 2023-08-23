@@ -12,7 +12,6 @@ namespace tobas_multirotor_landing
 {
 class MultirotorLandServer : public tobas::BaseNode
 {
-  static constexpr char kActionName[] = "multirotor_landing";
   static constexpr double kUpdateRate = 100.;  // [Hz]
   static constexpr double kVerticalSpeed = 1.;  // [m/s] 多くのドローンでは1~2mらしい (GPT4)
   static constexpr double kTimeWindow = 3.;  // [s] 高度の変化を見る時間窓の長さ

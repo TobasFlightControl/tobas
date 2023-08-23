@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_state_checker" type="state_checker_node" name="state_checker" output="screen"/>
+
+</launch>

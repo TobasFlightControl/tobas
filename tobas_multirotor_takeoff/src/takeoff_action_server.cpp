@@ -1,5 +1,7 @@
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
 
 #define WAIT_FOR_STILLNESS "wait_for_stillness"
@@ -8,11 +10,13 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-constexpr char MultirotorTakeoffServer::kActionName[];
-
 MultirotorTakeoffServer::MultirotorTakeoffServer()
   : super(),
-    as_(nh_, kActionName, boost::bind(&MultirotorTakeoffServer::executeCb, this, _1), false),
+    as_(
+      nh_,
+      tobas::kTakeoffAction,
+      boost::bind(&MultirotorTakeoffServer::executeCb, this, _1),
+      false),
     wait_for_stillness_(WAIT_FOR_STILLNESS)
 {
   getRosParams();

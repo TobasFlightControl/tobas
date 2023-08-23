@@ -342,7 +342,7 @@ class PackageGenerator(QObject):
         battery = self._main.settings.battery.selected()
 
         items = dict()
-        items["multirotor_state_checker"] = {
+        items["state_checker"] = {
             "warn_battery_voltage": battery.warn_voltage(),
             "fatal_battery_voltage": battery.fatal_voltage(),
         }

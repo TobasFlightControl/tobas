@@ -1,19 +1,17 @@
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_multirotor_landing/landing_action_server.hpp"
 
 using namespace std;
 
 namespace tobas_multirotor_landing
 {
-// 外部リンケージをもつポインタ型はODR違反が起きる可能性があるため，ソースでconstexpr変数の再定義を行う必要がある．
-// 再定義ではstaticを省略する．
-constexpr char MultirotorLandServer::kActionName[];
-
 MultirotorLandServer::MultirotorLandServer()
   : super(),
     is_action_running_(false),
-    as_(nh_, kActionName, boost::bind(&MultirotorLandServer::executeCb, this, _1), false)
+    as_(nh_, tobas::kLandingAction, boost::bind(&MultirotorLandServer::executeCb, this, _1), false)
 {
   getRosParams();
 
