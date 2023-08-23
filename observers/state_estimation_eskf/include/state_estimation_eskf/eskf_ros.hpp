@@ -47,12 +47,12 @@ private:
   tobas::Drone drone_;
 
   // 固定値
-  Eigen::Vector3d imu2gps_;    // IMUに対するGPSレシーバの位置
-  double lat_0_;               // 緯度のゼロ点 (Base Frame)
-  double lon_0_;               // 経度のゼロ点 (Base Frame)
-  double alt_0_bar_;           // 気圧センサから求めた高度のゼロ点 (Base Frame)
-  double alt_0_gps_;           // GPSから求めた高度のゼロ点 (Base Frame)
-  Eigen::Quaterniond q_0_;     // 姿勢の初期値 (Base Frame)
+  Eigen::Vector3d imu2gps_;  // IMUに対するGPSレシーバの位置
+  double lat_0_;             // 緯度のゼロ点 (Base Frame)
+  double lon_0_;             // 経度のゼロ点 (Base Frame)
+  double alt_0_gps_;         // GPS高度のゼロ点 (Base Frame)
+  double alt_0_bar_;         // 気圧高度のゼロ点 (Base Frame)
+  Eigen::Quaterniond q_0_;   // 姿勢の初期値 (Base Frame)
 
   bool imu_received_;
   bool mag_received_;
@@ -84,8 +84,8 @@ private:
   double acc_random_walk_;     // m/s^3/sqrt(hz)
   bool use_bar_;
   bool use_gps_;
-  double gps_hor_pos_stddev_thr_;                         // [m]
-  double gps_ver_pos_stddev_thr_;                         // [m]
+  double gps_hor_pos_stddev_thr_;  // [m]
+  double gps_ver_pos_stddev_thr_;  // [m]
   GeomagObserveMethod geomag_observe_method_;
   state_estimation_eskf::StateEstimationEskfConfig cfg_;  // 動的パラメータ
 
