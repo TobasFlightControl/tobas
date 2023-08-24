@@ -100,7 +100,7 @@ void GazeboLidarPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
   getSdfParam(sdf, "topicName", topic_name_, kDefaultTopicName);
-  getSdfParam(sdf, "gaussianNoise", gaussian_noise_, kDefaultGaussianNoise);
+  getSdfParam(sdf, "gaussianNoise", noise_stddev_, kDefaultNoiseStddev);
   getSdfParam(sdf, "hokuyoMinIntensity", hokuyo_min_intensity_, kDefaultHokuyoMinIntensity);
 }
 
@@ -202,13 +202,13 @@ void GazeboLidarPlugin::putLaserData(common::Time& update_time)
       // add noise to range only if not at max range
       if (max_range - r > kEpsilonDiff)
       {
-        point.x += gaussianKernel(0, gaussian_noise_);
-        point.y += gaussianKernel(0, gaussian_noise_);
-        point.z += gaussianKernel(0, gaussian_noise_);
+        point.x += gaussianKernel(0, noise_stddev_);
+        point.y += gaussianKernel(0, noise_stddev_);
+        point.z += gaussianKernel(0, noise_stddev_);
       }
 
       cloud_msg_.points.push_back(point);
-      cloud_msg_.channels[0].values.push_back(intensity + gaussianKernel(0, gaussian_noise_));
+      cloud_msg_.channels[0].values.push_back(intensity + gaussianKernel(0, noise_stddev_));
     }
   }
   parent_ray_sensor_->SetActive(true);

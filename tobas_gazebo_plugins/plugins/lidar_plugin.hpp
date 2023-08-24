@@ -18,7 +18,7 @@ static constexpr double kTimeout = 1e-2;
 // Default values
 static const std::string kDefaultFrameName = "world";
 static const std::string kDefaultTopicName = "point_cloud";
-static constexpr double kDefaultGaussianNoise = 0.;
+static constexpr double kDefaultNoiseStddev = 0.;
 static constexpr double kDefaultHokuyoMinIntensity = 101.;
 
 /**
@@ -44,7 +44,7 @@ private:
   std::string ns_;
   std::string topic_name_;  // topic name
   std::string frame_name_;  // frame transform name, should match link name
-  double gaussian_noise_;   // Gaussian noise
+  double noise_stddev_;     // Gaussian noise
   double hokuyo_min_intensity_;
 
   physics::WorldPtr world_;           // Pointer to the model
