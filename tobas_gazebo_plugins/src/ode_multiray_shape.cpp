@@ -1,5 +1,3 @@
-#include <gazebo/common/Assert.hh>
-#include <gazebo/common/Exception.hh>
 #include <gazebo/physics/World.hh>
 #include <gazebo/physics/ode/ODETypes.hh>
 #include <gazebo/physics/ode/ODELink.hh>
