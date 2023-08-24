@@ -10,6 +10,7 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>gazebo_plugins</depend>
+	<depend>laser_geometry</depend>
 	<depend>sensor_msgs</depend>
 	<depend>geometry_msgs</depend>
 

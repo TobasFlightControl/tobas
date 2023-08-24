@@ -14,6 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	gazebo_plugins
+	laser_geometry
 	sensor_msgs
 	geometry_msgs
 )
@@ -23,11 +24,15 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_tools gazebo_plugins sensor_msgs geometry_msgs
+	CATKIN_DEPENDS tobas_tools gazebo_plugins laser_geometry sensor_msgs geometry_msgs
 	DEPENDS GAZEBO OpenCV
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+include_directories(
+	${catkin_INCLUDE_DIRS}
+	${GAZEBO_INCLUDE_DIRS}
+	${OpenCV_INCLUDE_DIRS}
+)
 
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
