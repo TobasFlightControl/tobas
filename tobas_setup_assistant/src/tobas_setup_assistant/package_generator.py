@@ -428,6 +428,7 @@ class PackageGenerator(QObject):
         gps = self._main.settings.gps
         rgb_camera = self._main.settings.rgb_camera
         depth_camera = self._main.settings.depth_camera
+        lidar = self._main.settings.lidar
         odometry = self._main.settings.odometry
         simulation = self._main.settings.simulation
 
@@ -615,6 +616,23 @@ class PackageGenerator(QObject):
                 fov=depth_camera.fov.get(),
                 baseline=depth_camera.baseline.get(),
                 noise_model=depth_camera.noise_model.get(),
+            )
+
+        # LiDAR
+        if lidar.equipped():
+            add_lidar_model(
+                robot=robot,
+                ns=self._drone_name,
+                link_name=root_link,
+                offset=Origin.Trans(lidar.offset.x(), lidar.offset.y(), lidar.offset.z()),
+                update_rate=lidar.update_rate.get(),
+                hor_samples=lidar.hor_samples.get(),
+                ver_samples=lidar.ver_samples.get(),
+                hor_fov=lidar.hor_fov.get(),
+                ver_fov=lidar.ver_fov.get(),
+                dist_range=lidar.range.get(),
+                resolution=lidar.resolution.get(),
+                noise_stddev=lidar.noise_stddev.get(),
             )
 
         # Odometry

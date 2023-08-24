@@ -100,8 +100,7 @@ void GazeboLidarPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
   getSdfParam(sdf, "topicName", topic_name_, kDefaultTopicName);
-  getSdfParam(sdf, "gaussianNoise", noise_stddev_, kDefaultNoiseStddev);
-  getSdfParam(sdf, "hokuyoMinIntensity", hokuyo_min_intensity_, kDefaultHokuyoMinIntensity);
+  getSdfParam(sdf, "gaussianNoiseStddev", noise_stddev_, kDefaultNoiseStddev);
 }
 
 void GazeboLidarPlugin::putLaserData(common::Time& update_time)

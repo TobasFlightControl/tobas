@@ -3,11 +3,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import math
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -15,19 +17,19 @@ from ..common import *
 
 
 class LidarWidget(BaseSettingWidget):
-    
+
     NAME = "LiDAR"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Define LiDAR'
-        abst_text = 'TODO: abstruct'
+        title_text = "Define LiDAR"
+        abst_text = "TODO: abstruct"
         super().__init__(main, title_text, abst_text)
 
         self.no_sensor = QCheckBox("The drone is not equipped with LiDAR.")
         self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._rows.addWidget(self.no_sensor)
 
-        offset_description = "ルートリンクに対するGPSレシーバの位置のオフセット．"
+        offset_description = "ルートリンクに対するLiDARの位置のオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
             "Offset",
             offset_description,
@@ -35,64 +37,85 @@ class LidarWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.offset)
 
-        raw_topic_description = "TODO: instruction"
-        self.raw_topic = ParamGetterWidget_LineEdit(
-            "Point Cloud Topic",
-            raw_topic_description,
-            "/head_mount_kinect/depth_registered/points")
-        self._rows.addWidget(self.raw_topic)
-
-        max_range_description = "TODO: instruction"
-        self.max_range = ParamGetterWidget_DoubleSpinBox(
-            "Max Range",
-            max_range_description,
-            minimum=0.,
-            default=5.,
-        )
-        self._rows.addWidget(self.max_range)
-
-        subsample_description = "TODO: instruction"
-        self.subsample = ParamGetterWidget_SpinBox(
-            "Point Subsample",
-            subsample_description,
-            minimum=0,
-            default=1,
-        )
-        self._rows.addWidget(self.subsample)
-
-        padding_offset_description = "TODO: instruction"
-        self.padding_offset = ParamGetterWidget_DoubleSpinBox(
-            "Padding Offset",
-            padding_offset_description,
-            minimum=0.,
-            default=0.1,
-        )
-        self._rows.addWidget(self.padding_offset)
-
-        padding_scale_description = "TODO: instruction"
-        self.padding_scale = ParamGetterWidget_DoubleSpinBox(
-            "Padding Scale",
-            padding_scale_description,
-            minimum=0.,
-            default=0.1,
-        )
-        self._rows.addWidget(self.padding_scale)
-
-        filtered_topic_description = "TODO: instruction"
-        self.filtered_topic = ParamGetterWidget_LineEdit(
-            "Filtered Cloud Topic",
-            filtered_topic_description,
-            "/head_mount_kinect/depth_registered/points")
-        self._rows.addWidget(self.filtered_topic)
-
-        max_update_rate_description = "TODO: instruction"
-        self.max_update_rate = ParamGetterWidget_DoubleSpinBox(
-            "Max Update Rate",
-            max_update_rate_description,
-            minimum=1.,
+        update_rate_description = ""
+        self.update_rate = ParamGetterWidget_SpinBox(
+            "Update rate",
+            update_rate_description,
+            minimum=1,
+            default=10,
             suffix=" Hz",
         )
-        self._rows.addWidget(self.max_update_rate)
+        self._rows.addWidget(self.update_rate)
+
+        hor_samples_description = ""
+        self.hor_samples = ParamGetterWidget_SpinBox(
+            "The number of horizontal samples",
+            hor_samples_description,
+            minimum=1,
+            default=100,
+        )
+        self._rows.addWidget(self.hor_samples)
+
+        ver_samples_description = ""
+        self.ver_samples = ParamGetterWidget_SpinBox(
+            "The number of vertical samples",
+            ver_samples_description,
+            minimum=1,
+            default=360,
+        )
+        self._rows.addWidget(self.ver_samples)
+
+        hor_fov_description = ""
+        self.hor_fov = ParamGetterWidget_DoubleRange(
+            "Horizontal Field of View",
+            hor_fov_description,
+            decimals=3,
+            default=(0., 2 * math.pi),
+            suffix=" rad",
+        )
+        self._rows.addWidget(self.hor_fov)
+
+        ver_fov_description = ""
+        self.ver_fov = ParamGetterWidget_DoubleRange(
+            "Vertical Field of View",
+            ver_fov_description,
+            decimals=3,
+            default=(math.radians(-7.22), math.radians(55.22)),
+            suffix=" rad",
+        )
+        self._rows.addWidget(self.ver_fov)
+
+        range_description = ""
+        self.range = ParamGetterWidget_DoubleRange(
+            "Laser distance range",
+            range_description,
+            decimals=3,
+            default=(0.1, 200.),
+            suffix=" m",
+        )
+        self._rows.addWidget(self.range)
+
+        resolution_description = ""
+        self.resolution = ParamGetterWidget_DoubleSpinBox(
+            "Distance resolution",
+            resolution_description,
+            decimals=3,
+            minimum=1e-3,
+            default=2e-3,
+            suffix=" m",
+        )
+        self._rows.addWidget(self.resolution)
+
+        noise_stddev_description = ""
+        self.noise_stddev = ParamGetterWidget_DoubleSpinBox(
+            "Standard deviation of gaussian noise",
+            noise_stddev_description,
+            decimals=3,
+            minimum=0.,
+            default=0.01,
+            suffix=" m",
+        )
+        self._rows.addWidget(self.noise_stddev)
 
         add_expanding_widget(self._rows)
         self._update_visibility()
@@ -102,6 +125,16 @@ class LidarWidget(BaseSettingWidget):
         self.no_sensor.toggled.connect(self._update_visibility)
 
     def is_valid(self) -> bool:
+        if not self.hor_fov.is_valid():
+            q_error_named(self._main, self.NAME, "Horizontal Field of View is invalid.")
+            return False
+        if not self.ver_fov.is_valid():
+            q_error_named(self._main, self.NAME, "Vertical Field of View is invalid.")
+            return False
+        if not self.range.is_valid():
+            q_error_named(self._main, self.NAME, "Laser distance range is invalid.")
+            return False
+
         return True
 
     def equipped(self) -> bool:
@@ -111,19 +144,21 @@ class LidarWidget(BaseSettingWidget):
     def _update_visibility(self) -> None:
         if self.no_sensor.isChecked():
             self.offset.setVisible(False)
-            self.raw_topic.setVisible(False)
-            self.max_range.setVisible(False)
-            self.subsample.setVisible(False)
-            self.padding_offset.setVisible(False)
-            self.padding_scale.setVisible(False)
-            self.filtered_topic.setVisible(False)
-            self.max_update_rate.setVisible(False)
+            self.update_rate.setVisible(False)
+            self.hor_samples.setVisible(False)
+            self.hor_fov.setVisible(False)
+            self.ver_samples.setVisible(False)
+            self.ver_fov.setVisible(False)
+            self.range.setVisible(False)
+            self.resolution.setVisible(False)
+            self.noise_stddev.setVisible(False)
         else:
             self.offset.setVisible(True)
-            self.raw_topic.setVisible(True)
-            self.max_range.setVisible(True)
-            self.subsample.setVisible(True)
-            self.padding_offset.setVisible(True)
-            self.padding_scale.setVisible(True)
-            self.filtered_topic.setVisible(True)
-            self.max_update_rate.setVisible(True)
+            self.update_rate.setVisible(True)
+            self.hor_samples.setVisible(True)
+            self.hor_fov.setVisible(True)
+            self.ver_samples.setVisible(True)
+            self.ver_fov.setVisible(True)
+            self.range.setVisible(True)
+            self.resolution.setVisible(True)
+            self.noise_stddev.setVisible(True)

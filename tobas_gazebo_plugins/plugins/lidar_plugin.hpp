@@ -19,7 +19,6 @@ static constexpr double kTimeout = 1e-2;
 static const std::string kDefaultFrameName = "world";
 static const std::string kDefaultTopicName = "point_cloud";
 static constexpr double kDefaultNoiseStddev = 0.;
-static constexpr double kDefaultHokuyoMinIntensity = 101.;
 
 /**
  * @brief 3D LiDAR Plugin.
@@ -45,7 +44,6 @@ private:
   std::string topic_name_;  // topic name
   std::string frame_name_;  // frame transform name, should match link name
   double noise_stddev_;     // Gaussian noise
-  double hokuyo_min_intensity_;
 
   physics::WorldPtr world_;           // Pointer to the model
   sensors::SensorPtr parent_sensor_;  // The parent sensor

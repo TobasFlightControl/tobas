@@ -49,7 +49,7 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.gps, GpsWidget.NAME)
         self.addTab(self.rgb_camera, RgbCameraWidget.NAME)
         self.addTab(self.depth_camera, DepthCameraWidget.NAME)
-        # self.addTab(self.lidar, LidarWidget.NAME)  # TODO
+        self.addTab(self.lidar, LidarWidget.NAME)
         self.addTab(self.odometry, OdometryWidget.NAME)
         self.addTab(self.controller, ControllerWidget.NAME)
         self.addTab(self.observer, ObserverWidget.NAME)

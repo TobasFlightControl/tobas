@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+from overrides import overrides
 from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -69,6 +70,7 @@ class SetupAssistant(QWidget):
         # パッケージの作成が完了したら閉じる
         self.pkg_generator.generated.connect(self.close)
 
+    @overrides
     def moveEvent(self, event: QMoveEvent) -> None:
         # 現在のウィンドウ位置を保存
         self._config.read(CONFIG_PATH)
@@ -80,6 +82,7 @@ class SetupAssistant(QWidget):
 
         return super().moveEvent(event)
 
+    @overrides
     def resizeEvent(self, event: QResizeEvent) -> None:
         # 現在のウィンドウサイズを保存
         self._config.read(CONFIG_PATH)
