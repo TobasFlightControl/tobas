@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 import math
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -260,6 +261,7 @@ class MultirotorLMPC(BaseController):
         )
         self._rows.addWidget(self.thrust_rate_weight_exp)
 
+    @overrides
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing
@@ -281,6 +283,7 @@ class MultirotorLMPC(BaseController):
 
         return True
 
+    @overrides
     def is_valid(self) -> bool:
         # 両方の回転方向のプロペラをもつ
         directions = set(self._main.settings.propulsion_system.selected.directions())
@@ -318,6 +321,7 @@ class MultirotorLMPC(BaseController):
 
         return True
 
+    @overrides
     def parameter_dict(self) -> dict:
         res = dict()
         res["tobas_multirotor_controller"] = {

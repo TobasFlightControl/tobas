@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -65,9 +66,11 @@ class MagnetometerWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 

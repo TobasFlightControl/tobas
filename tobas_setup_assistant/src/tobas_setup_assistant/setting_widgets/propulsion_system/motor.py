@@ -8,6 +8,7 @@ import numpy as np
 from numpy import linalg as LA
 from abc import abstractmethod
 from typing import final, Tuple
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -220,14 +221,17 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._kv)
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 
-    def rot_speed_coefs(self) -> float:
+    @overrides
+    def rot_speed_coefs(self) -> Tuple[float, float]:
         a = 1. / rpm_to_rad_per_sec(self._kv.get())  # 発電係数
         b = 0.  # 内部抵抗を無視 (回転数が大きいほど誤差が大きくなる)
         return a, b
 
+    @overrides
     def copy_from(self, src: MotorWidget_Manual) -> None:
         super().copy_from(src)
         self._kv.set(src._kv.get())
@@ -258,6 +262,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
+    @overrides
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(self._main, ROTARY_WINGS, "Experiment data is blank.")
@@ -265,6 +270,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
         return True
 
+    @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
         # TODO: 外れ値を除去
         # TODO: あまりにモデルからかけ離れていたら警告を出す
@@ -281,6 +287,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
         return a, b
 
+    @overrides
     def copy_from(self, src: MotorWidget_Experiment) -> None:
         super().copy_from(src)
         self._data.set(src._data.get())

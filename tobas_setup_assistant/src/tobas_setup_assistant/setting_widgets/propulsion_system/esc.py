@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -132,9 +133,11 @@ class EscWidget_PWM(EscWidget_Base):
         abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 
+    @overrides
     def copy_from(self, src: EscWidget_PWM) -> None:
         pass
 
@@ -154,8 +157,10 @@ class EscWidget_DSHOT(EscWidget_Base):
         abst.setWordWrap(True)
         self._rows.addWidget(abst)
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 
+    @overrides
     def copy_from(self, src: EscWidget_DSHOT) -> None:
         pass

@@ -8,6 +8,7 @@ import math
 import numpy as np
 from numpy.typing import NDArray
 from abc import abstractmethod
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -243,18 +244,23 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._rotor_drag_coef)
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 
+    @overrides
     def motor_const(self) -> float:
         return self._motor_const.get()
 
+    @overrides
     def moment_const(self) -> float:
         return self._moment_const.get()
 
+    @overrides
     def rotor_drag_coef(self) -> float:
         return self._rotor_drag_coef.get()
 
+    @overrides
     def copy_from(self, src: AerodynamicsWidget_Manual) -> None:
         self._motor_const.set(src._motor_const.get())
         self._moment_const.set(src._moment_const.get())
@@ -271,18 +277,23 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
             + "を利用して空力定数を推定します．"
         super().__init__(main, link_name, abst_text)
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 
+    @overrides
     def motor_const(self) -> float:
         return 4 * math.pi * self._C_T() * self.rho * self._R()**4
 
+    @overrides
     def moment_const(self) -> float:
         return self._R() * self._lambda()
 
+    @overrides
     def rotor_drag_coef(self) -> float:
         return 4 * math.pi * self.rho * self._R()**3 * self._C_H()
 
+    @overrides
     def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
         pass
 
@@ -359,6 +370,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
+    @overrides
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(self._main, ROTARY_WINGS, "Thrust stand data is blank.")
@@ -366,6 +378,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
         return True
 
+    @overrides
     def motor_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
@@ -374,6 +387,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         omega2: NDArray = rpm_to_rad_per_sec(rpm)**2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
+    @overrides
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
@@ -381,11 +395,14 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         _, thrust, torque = np.hsplit(data, 3)
         return ((torque.T @ thrust) / (thrust.T @ thrust)).item()  # 最小2乗解 (memo: 2-28)
 
+    @overrides
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法
-        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(self._link_name)
+        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(
+            self._link_name)
         return aero_dynamics.blade_theory.rotor_drag_coef()
 
+    @overrides
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         self._data.set(src._data.get())
 
@@ -414,6 +431,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
+    @overrides
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(self._main, ROTARY_WINGS, "Measurements in static condition is blank.")
@@ -421,6 +439,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
         return True
 
+    @overrides
     def motor_const(self) -> float:
         # CTの平均をとる
         data = self._data.get()
@@ -430,6 +449,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (CT * self.rho * blade.propeller_diameter()**4) / (4 * math.pi**2)
 
+    @overrides
     def moment_const(self) -> float:
         # CT, CPの平均をとる
         # TODO: 単純な平均ではなく，ホバリング時の回転数に対応する値をとる
@@ -442,10 +462,13 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (blade.propeller_diameter() * CP) / (2 * math.pi * CT)
 
+    @overrides
     def rotor_drag_coef(self) -> float:
         # Blade Theoryと同じ計算方法
-        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(self._link_name)
+        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(
+            self._link_name)
         return aero_dynamics.blade_theory.rotor_drag_coef()
 
+    @overrides
     def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:
         self._data.set(src._data.get())

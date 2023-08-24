@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -44,11 +45,13 @@ class ControllerWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.type.currentTextChanged.connect(self._on_type_changed)
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
 
+    @overrides
     def is_valid(self) -> bool:
         if self.type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select controller type.")

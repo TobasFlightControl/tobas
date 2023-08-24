@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -47,6 +48,7 @@ class FixedWingWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
@@ -54,6 +56,7 @@ class FixedWingWidget(BaseSettingWidget):
         self.aero_coefs.define_connections()
         self.control_surfaces.define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         if not self.has_fixed_wing.isChecked():
             return True

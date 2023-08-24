@@ -1,6 +1,7 @@
 import rospy
 import math
 from copy import deepcopy
+from overrides import overrides
 
 from tobas_msgs.msg import CommandLevel, PositionYawTrajectoryPoint
 from tobas_trajectory_commander.msg import FollowPositionYawTrajectoryGoal
@@ -13,6 +14,7 @@ class FollowTrajectoryClient_Turn(FollowTrajectoryClient):
     def __init__(self) -> None:
         super().__init__()
 
+    @overrides
     def _make_goal(self) -> FollowPositionYawTrajectoryGoal:
         goal = FollowPositionYawTrajectoryGoal()
         goal.level.data = CommandLevel.NORMAL

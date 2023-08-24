@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from abc import abstractmethod
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -45,10 +46,12 @@ class ObserverWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.type.currentTextChanged.connect(self._on_type_changed)
 
+    @overrides
     def is_valid(self) -> bool:
         if self.get_type() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select observer type.")
@@ -227,6 +230,7 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
         )
         self._rows.addWidget(self.grav_var)
 
+    @overrides
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
         no_gps = not self._main.settings.gps.equipped()
@@ -241,6 +245,7 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
 
         return True
 
+    @overrides
     def parameter_dict(self) -> dict:
         res = dict()
         res["orientation_estimator_complement"] = {
@@ -290,6 +295,7 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
         )
         self._rows.addWidget(self.rot_var_geomag)
 
+    @overrides
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
         no_gps = not self._main.settings.gps.equipped()
@@ -304,6 +310,7 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
 
         return True
 
+    @overrides
     def parameter_dict(self) -> dict:
         imu = self._main.settings.imu
         gps = self._main.settings.gps

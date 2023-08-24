@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 import math
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -95,9 +96,11 @@ class SimulationWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         # TODO: 極に近すぎると方角がわからない
         return True

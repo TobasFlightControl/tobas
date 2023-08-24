@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -41,11 +42,13 @@ class PropulsionSystemWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.available.define_connections()
         self.selected.define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         if not self.available.is_valid():
             return False

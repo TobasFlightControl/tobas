@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from abc import abstractmethod
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -44,10 +45,12 @@ class BatteryWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.battery_type.currentTextChanged.connect(self._on_type_changed)
 
+    @overrides
     def is_valid(self) -> bool:
         if self.battery_type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select battery type.")
@@ -171,6 +174,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         # self._rows.addWidget(self._C_pulse)  # TODO
 
+    @overrides
     def is_valid(self) -> bool:
         C_cont = self._C_cont.get()
         C_pulse = self._C_pulse.get()
@@ -185,12 +189,15 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
 
         return True
 
+    @overrides
     def nominal_voltage(self) -> float:
         return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
 
+    @overrides
     def warn_voltage(self) -> float:
         return self._num_cells.get() * self.WARN_VOLTAGE_PER_CELL
 
+    @overrides
     def fatal_voltage(self) -> float:
         return self._num_cells.get() * self.FATAL_VOLTAGE_PER_CELL
 
@@ -236,6 +243,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         self._rows.addWidget(self._fatal_voltage)
 
+    @overrides
     def is_valid(self) -> bool:
         if self._nominal_voltage.get() <= self._warn_voltage.get():
             q_error_named(
@@ -255,11 +263,14 @@ class BatteryWidget_Other(BatteryWidget_Base):
 
         return True
 
+    @overrides
     def nominal_voltage(self) -> float:
         return self._nominal_voltage.get()
 
+    @overrides
     def warn_voltage(self) -> float:
         return self._warn_voltage.get()
 
+    @overrides
     def fatal_voltage(self) -> float:
         return self._fatal_voltage.get()

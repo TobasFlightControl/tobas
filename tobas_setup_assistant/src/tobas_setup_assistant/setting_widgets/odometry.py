@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -132,10 +133,12 @@ class OdometryWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
 
+    @overrides
     def is_valid(self) -> bool:
         if not self._equipped.isChecked():
             return True

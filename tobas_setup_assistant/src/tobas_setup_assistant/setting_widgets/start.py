@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import roslaunch
+from overrides import overrides
 from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -37,9 +38,11 @@ class StartWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         self.robot_model_loader.define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 

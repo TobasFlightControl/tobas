@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import re
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -57,11 +58,13 @@ class RosPackageWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.pkg_path.define_connections()
         self.pkg_path.path_changed.connect(self._on_path_changed)
 
+    @overrides
     def is_valid(self) -> bool:
         pardir = self.pkg_path.pardir
         if not osp.isdir(pardir):
