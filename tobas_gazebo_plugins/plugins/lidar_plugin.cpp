@@ -28,7 +28,7 @@ void GazeboLidarPlugin::Load(gazebo::sensors::SensorPtr sensor, sdf::ElementPtr 
   vector<vector<double>> datas;
   if (!CsvReader::readCsvFile(file_name_, datas))
   {
-    gzthrow(kPluginName << ": Failed to get csv file: " << file_name_);
+    gzthrow(kPluginName << ": Failed to get CSV file '" << file_name_ << "'.");
   }
 
   ray_sensor_ = sensor;
@@ -86,7 +86,7 @@ void GazeboLidarPlugin::OnNewLaserScans()
   initializeScan(scan);
 
   sensor_msgs::PointCloud scan_point;
-  scan_point.header.stamp = ros::Time::now();
+  scan_point.header.stamp = ros::Time::now();  // TODO: Gazebo時間に
   scan_point.header.frame_id = ray_sensor_->Name();
 
   for (const auto& pair : points_pair)
