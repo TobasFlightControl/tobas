@@ -15,7 +15,7 @@ from ..parameter_getters import *
 
 
 class GpsWidget(BaseSettingWidget):
-    
+
     NAME = "GPS"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -25,9 +25,10 @@ class GpsWidget(BaseSettingWidget):
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         super().__init__(main, title_text, abst_text)
 
-        self.no_sensor = QCheckBox("The drone is not equipped with GPS.")
-        self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.no_sensor)
+        self._equipped = QCheckBox("GPS Equipped")
+        self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        self._equipped.setChecked(True)
+        self._rows.addWidget(self._equipped)
 
         offset_description = "ルートリンクに対するGPSレシーバの位置のオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
@@ -107,30 +108,30 @@ class GpsWidget(BaseSettingWidget):
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.no_sensor.toggled.connect(self._update_visibility)
+        self._equipped.toggled.connect(self._update_visibility)
 
     def is_valid(self) -> bool:
-        if self.no_sensor.isChecked():
+        if not self._equipped.isChecked():
             return True
 
         return True
 
     def equipped(self) -> bool:
-        return not self.no_sensor.isChecked()
+        return self._equipped.isChecked()
 
     @pyqtSlot()
     def _update_visibility(self) -> None:
-        if self.no_sensor.isChecked():
-            self.offset.setVisible(False)
-            self.update_rate.setVisible(False)
-            self.horizontal_pos_std.setVisible(False)
-            self.vertical_pos_std.setVisible(False)
-            self.horizontal_vel_std.setVisible(False)
-            self.vertical_vel_std.setVisible(False)
-        else:
+        if self._equipped.isChecked():
             self.offset.setVisible(True)
             self.update_rate.setVisible(True)
             self.horizontal_pos_std.setVisible(True)
             self.vertical_pos_std.setVisible(True)
             self.horizontal_vel_std.setVisible(True)
             self.vertical_vel_std.setVisible(True)
+        else:
+            self.offset.setVisible(False)
+            self.update_rate.setVisible(False)
+            self.horizontal_pos_std.setVisible(False)
+            self.vertical_pos_std.setVisible(False)
+            self.horizontal_vel_std.setVisible(False)
+            self.vertical_vel_std.setVisible(False)

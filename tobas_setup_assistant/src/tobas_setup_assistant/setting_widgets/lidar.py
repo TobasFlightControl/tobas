@@ -22,12 +22,13 @@ class LidarWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define LiDAR"
-        abst_text = "TODO: abstruct"
+        abst_text = "3D LiDARの設定を行います．データシートを確認し，各値を入力してください．"
         super().__init__(main, title_text, abst_text)
 
-        self.no_sensor = QCheckBox("The drone is not equipped with LiDAR.")
-        self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.no_sensor)
+        self._equipped = QCheckBox("LiDAR Equipped")
+        self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        self._equipped.setChecked(False)
+        self._rows.addWidget(self._equipped)
 
         offset_description = "ルートリンクに対するLiDARの位置のオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
@@ -122,7 +123,7 @@ class LidarWidget(BaseSettingWidget):
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.no_sensor.toggled.connect(self._update_visibility)
+        self._equipped.toggled.connect(self._update_visibility)
 
     def is_valid(self) -> bool:
         if not self.hor_fov.is_valid():
@@ -138,21 +139,11 @@ class LidarWidget(BaseSettingWidget):
         return True
 
     def equipped(self) -> bool:
-        return not self.no_sensor.isChecked()
+        return self._equipped.isChecked()
 
     @pyqtSlot()
     def _update_visibility(self) -> None:
-        if self.no_sensor.isChecked():
-            self.offset.setVisible(False)
-            self.update_rate.setVisible(False)
-            self.hor_samples.setVisible(False)
-            self.hor_fov.setVisible(False)
-            self.ver_samples.setVisible(False)
-            self.ver_fov.setVisible(False)
-            self.range.setVisible(False)
-            self.resolution.setVisible(False)
-            self.noise_stddev.setVisible(False)
-        else:
+        if self._equipped.isChecked():
             self.offset.setVisible(True)
             self.update_rate.setVisible(True)
             self.hor_samples.setVisible(True)
@@ -162,3 +153,13 @@ class LidarWidget(BaseSettingWidget):
             self.range.setVisible(True)
             self.resolution.setVisible(True)
             self.noise_stddev.setVisible(True)
+        else:
+            self.offset.setVisible(False)
+            self.update_rate.setVisible(False)
+            self.hor_samples.setVisible(False)
+            self.hor_fov.setVisible(False)
+            self.ver_samples.setVisible(False)
+            self.ver_fov.setVisible(False)
+            self.range.setVisible(False)
+            self.resolution.setVisible(False)
+            self.noise_stddev.setVisible(False)

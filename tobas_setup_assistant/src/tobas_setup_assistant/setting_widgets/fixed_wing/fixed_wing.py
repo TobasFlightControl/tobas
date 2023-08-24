@@ -27,7 +27,7 @@ class FixedWingWidget(BaseSettingWidget):
             + "設定方法を選択し，必要事項を入力してください．"
         super().__init__(main, title_text, abst_text)
 
-        self.has_fixed_wing = QCheckBox("Add fixed wing")
+        self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")
         self.has_fixed_wing.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self.has_fixed_wing.setChecked(False)
         self._rows.addWidget(self.has_fixed_wing)

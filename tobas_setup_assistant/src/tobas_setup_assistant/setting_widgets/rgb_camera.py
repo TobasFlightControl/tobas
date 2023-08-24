@@ -24,9 +24,10 @@ class RgbCameraWidget(BaseSettingWidget):
         abst_text = "RGBカメラの設定を行います．データシートを確認し，各値を入力してください．"
         super().__init__(main, title_text, abst_text)
 
-        self.no_sensor = QCheckBox("The drone is not equipped with RGB camera.")
-        self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.no_sensor)
+        self._equipped = QCheckBox("RGB Camera Equipped")
+        self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        self._equipped.setChecked(False)
+        self._rows.addWidget(self._equipped)
 
         link_description = "カメラが取り付けられたフレームの名前．"
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
@@ -106,11 +107,11 @@ class RgbCameraWidget(BaseSettingWidget):
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.no_sensor.toggled.connect(self._update_visibility)
+        self._equipped.toggled.connect(self._update_visibility)
         self._main.urdf_parser.robot_model_updated.connect(self._add_links)
 
     def is_valid(self) -> bool:
-        if self.no_sensor.isChecked():
+        if not self._equipped.isChecked():
             return True
 
         if not self.depth_range.is_valid():
@@ -120,20 +121,11 @@ class RgbCameraWidget(BaseSettingWidget):
         return True
 
     def equipped(self) -> bool:
-        return not self.no_sensor.isChecked()
+        return self._equipped.isChecked()
 
     @pyqtSlot()
     def _update_visibility(self) -> None:
-        if self.no_sensor.isChecked():
-            self.link.setVisible(False)
-            self.offset.setVisible(False)
-            self.update_rate.setVisible(False)
-            self.fov.setVisible(False)
-            self.image_width.setVisible(False)
-            self.image_height.setVisible(False)
-            self.depth_range.setVisible(False)
-            self.noise_stddev.setVisible(False)
-        else:
+        if self._equipped.isChecked():
             self.link.setVisible(True)
             self.offset.setVisible(True)
             self.update_rate.setVisible(True)
@@ -142,6 +134,15 @@ class RgbCameraWidget(BaseSettingWidget):
             self.image_height.setVisible(True)
             self.depth_range.setVisible(True)
             self.noise_stddev.setVisible(True)
+        else:
+            self.link.setVisible(False)
+            self.offset.setVisible(False)
+            self.update_rate.setVisible(False)
+            self.fov.setVisible(False)
+            self.image_width.setVisible(False)
+            self.image_height.setVisible(False)
+            self.depth_range.setVisible(False)
+            self.noise_stddev.setVisible(False)
 
     @pyqtSlot()
     def _add_links(self) -> None:

@@ -15,7 +15,7 @@ from ..parameter_getters import *
 
 
 class OdometryWidget(BaseSettingWidget):
-    
+
     NAME = "Odometry"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -24,9 +24,10 @@ class OdometryWidget(BaseSettingWidget):
             + "ホイールエンコーダや，VIO (Visual Inertial Odometry) などが該当します．"
         super().__init__(main, title_text, abst_text)
 
-        self.no_sensor = QCheckBox("The drone is not equipped with odometry publisher.")
-        self.no_sensor.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._rows.addWidget(self.no_sensor)
+        self._equipped = QCheckBox("Odometry Publisher Equipped")
+        self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        self._equipped.setChecked(False)
+        self._rows.addWidget(self._equipped)
 
         offset_description = "ルートリンクに対するオドメトリを得るフレームのオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
@@ -133,28 +134,20 @@ class OdometryWidget(BaseSettingWidget):
 
     def define_connections(self) -> None:
         super().define_connections()
-        self.no_sensor.toggled.connect(self._update_visibility)
+        self._equipped.toggled.connect(self._update_visibility)
 
     def is_valid(self) -> bool:
+        if not self._equipped.isChecked():
+            return True
+
         return True
 
     def equipped(self) -> bool:
-        return not self.no_sensor.isChecked()
+        return self._equipped.isChecked()
 
     @pyqtSlot()
     def _update_visibility(self) -> None:
-        if self.no_sensor.isChecked():
-            self.offset.setVisible(False)
-            self.update_rate.setVisible(False)
-            self.pos_normal_noise_std.setVisible(False)
-            self.rot_normal_noise_std.setVisible(False)
-            self.linvel_normal_noise_std.setVisible(False)
-            self.angvel_normal_noise_std.setVisible(False)
-            self.pos_uniform_noise_scale.setVisible(False)
-            self.rot_uniform_noise_scale.setVisible(False)
-            self.linvel_uniform_noise_scale.setVisible(False)
-            self.angvel_uniform_noise_scale.setVisible(False)
-        else:
+        if self._equipped.isChecked():
             self.offset.setVisible(True)
             self.update_rate.setVisible(True)
             self.pos_normal_noise_std.setVisible(True)
@@ -165,3 +158,14 @@ class OdometryWidget(BaseSettingWidget):
             self.rot_uniform_noise_scale.setVisible(True)
             self.linvel_uniform_noise_scale.setVisible(True)
             self.angvel_uniform_noise_scale.setVisible(True)
+        else:
+            self.offset.setVisible(False)
+            self.update_rate.setVisible(False)
+            self.pos_normal_noise_std.setVisible(False)
+            self.rot_normal_noise_std.setVisible(False)
+            self.linvel_normal_noise_std.setVisible(False)
+            self.angvel_normal_noise_std.setVisible(False)
+            self.pos_uniform_noise_scale.setVisible(False)
+            self.rot_uniform_noise_scale.setVisible(False)
+            self.linvel_uniform_noise_scale.setVisible(False)
+            self.angvel_uniform_noise_scale.setVisible(False)
