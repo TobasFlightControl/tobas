@@ -1,62 +1,163 @@
-#pragma once
+/*
+ * Copyright (C) 2012-2014 Open Source Robotics Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+/*
+ * Desc: ros laser controller.
+ * Author: Nathan Koenig
+ * Date: 01 Feb 2007
+ */
 
+#ifndef GAZEBO_ROS_BLOCK_LASER_HH
+#define GAZEBO_ROS_BLOCK_LASER_HH
+
+// Custom Callback Queue
 #include <ros/ros.h>
-#include <gazebo/gazebo.hh>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
+
+#include <sdf/Param.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/plugins/RayPlugin.hh>
-#include <gazebo_plugins/PubQueue.h>
-#include <laser_geometry/laser_geometry.h>
-#include <sensor_msgs/LaserScan.h>
+
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include <sensor_msgs/PointCloud.h>
 
 namespace gazebo
 {
-// Constants
-static const std::string kPluginName = "lidar_plugin";
 
-// Default values
-static const std::string kDefaultFrameName = "world";
-static const std::string kDefaultTopicName = "point_cloud";
-
-class GazeboLidarPlugin : public RayPlugin
+class GazeboRosBlockLaser : public RayPlugin
 {
-  using super = RayPlugin;
-
+  /// \brief Constructor
+  /// \param parent The parent entity, must be a Model or a Sensor
 public:
-  explicit GazeboLidarPlugin();
+  GazeboRosBlockLaser();
 
-  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
+  /// \brief Destructor
+public:
+  ~GazeboRosBlockLaser();
+
+  /// \brief Load the plugin
+  /// \param take in SDF root element
+public:
+  void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
+
+  /// \brief Update the controller
+protected:
+  virtual void OnNewLaserScans();
+
+  /// \brief Put laser data to the ROS topic
+private:
+  void PutLaserData(common::Time& _updateTime);
 
 private:
-  ros::NodeHandle ros_node_;
-  gazebo::transport::NodePtr gazebo_node_;
+  common::Time last_update_time_;
 
-  // SDF parameters
-  std::string ns_;
-  std::string frame_name_;  // Frame transform name, should match link name
-  std::string topic_name_;  // Topic name
+  /// \brief Keep track of number of connctions
+private:
+  int laser_connect_count_;
 
-  laser_geometry::LaserProjection laser_projector_;
-  sensor_msgs::LaserScan laser_msg_;
-  sensor_msgs::PointCloud pc_msg_;
+private:
+  void LaserConnect();
 
-  uint32_t laser_connect_count_ = 0;  // Keep track of number of connctions
+private:
+  void LaserDisconnect();
+
+  // Pointer to the model
+private:
   physics::WorldPtr world_;
-  sensors::RaySensorPtr parent_;  // The parent sensor
-  boost::thread deferred_load_thread_;
+  /// \brief The parent sensor
+private:
+  sensors::SensorPtr parent_sensor_;
 
-  ros::Publisher pc_pub_;
-  gazebo::transport::SubscriberPtr laser_sub_;
-  PubQueue<sensor_msgs::PointCloud>::Ptr pc_pub_queue_;
-  PubMultiQueue pmq_;  // Prevents blocking
+private:
+  sensors::RaySensorPtr parent_ray_sensor_;
 
-  void loadThread();
-  void getSdfParams(sdf::ElementPtr sdf);
+  /// \brief pointer to ros node
+private:
+  ros::NodeHandle* rosnode_;
 
-  void laserConnect();
-  void laserDisconnect();
+private:
+  ros::Publisher pub_;
 
-  /* Convert new Gazebo message to ROS message and publish it. */
-  void onScan(ConstLaserScanStampedPtr& msg);
+  /// \brief ros message
+private:
+  sensor_msgs::PointCloud cloud_msg_;
+
+  /// \brief topic name
+private:
+  std::string topic_name_;
+
+  /// \brief frame transform name, should match link name
+private:
+  std::string frame_name_;
+
+  /// \brief Gaussian noise
+private:
+  double gaussian_noise_;
+
+  /// \brief Gaussian noise generator
+private:
+  double GaussianKernel(double mu, double sigma);
+
+  /// \brief A mutex to lock access to fields that are used in message callbacks
+private:
+  boost::mutex lock;
+
+  /// \brief hack to mimic hokuyo intensity cutoff of 100
+  // private: ParamT<double> *hokuyoMinIntensityP;
+private:
+  double hokuyo_min_intensity_;
+
+  /// update rate of this sensor
+private:
+  double update_rate_;
+
+  /// \brief for setting ROS name space
+private:
+  std::string robot_namespace_;
+
+  // Custom Callback Queue
+private:
+  ros::CallbackQueue laser_queue_;
+
+private:
+  void LaserQueueThread();
+
+private:
+  boost::thread callback_laser_queue_thread_;
+
+  // subscribe to world stats
+private:
+  transport::NodePtr node_;
+
+private:
+  common::Time sim_time_;
+
+public:
+  void OnStats(const boost::shared_ptr<msgs::WorldStatistics const>& _msg);
 };
+
 }  // namespace gazebo
+
+#endif

@@ -34,6 +34,8 @@ include_directories(
 	${OpenCV_INCLUDE_DIRS}
 )
 
+link_directories(${GAZEBO_LIBRARY_DIRS})  # RayPluginを使うために必要
+
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES})
@@ -49,6 +51,7 @@ foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 		${catkin_LIBRARIES}
 		${GAZEBO_LIBRARIES}
 		${OpenCV_LIBRARIES}
+		RayPlugin  # lidar_pluginに必要
 		${PROJECT_NAME}
 	)
 endforeach()
