@@ -1,435 +1,242 @@
-/*
- * Copyright 2013 Open Source Robotics Foundation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-/*
- * Desc: Ros Block Laser controller.
- * Author: Nathan Koenig
- * Date: 01 Feb 2007
- */
-
-#include <algorithm>
-#include <assert.h>
-#include <limits>
-
 #include "./lidar_plugin.hpp"
-#include <gazebo_plugins/gazebo_ros_utils.h>
+#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 
-#include <gazebo/physics/World.hh>
-#include <gazebo/physics/HingeJoint.hh>
-#include <gazebo/sensors/Sensor.hh>
-#include <sdf/sdf.hh>
-#include <sdf/Param.hh>
-#include <gazebo/common/Exception.hh>
-#include <gazebo/sensors/RaySensor.hh>
-#include <gazebo/sensors/SensorTypes.hh>
-#include <gazebo/transport/Node.hh>
-
-#ifdef ENABLE_PROFILER
-#include <ignition/common/Profiler.hh>
-#endif
-
-#include <geometry_msgs/Point32.h>
-#include <sensor_msgs/ChannelFloat32.h>
-
-#include <tf/tf.h>
-
-#define EPSILON_DIFF 0.000001
+using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
-// Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosBlockLaser)
-
-////////////////////////////////////////////////////////////////////////////////
-// Constructor
-GazeboRosBlockLaser::GazeboRosBlockLaser()
+GazeboLidarPlugin::GazeboLidarPlugin()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Destructor
-GazeboRosBlockLaser::~GazeboRosBlockLaser()
+GazeboLidarPlugin::~GazeboLidarPlugin()
 {
-  ////////////////////////////////////////////////////////////////////////////////
   // Finalize the controller / Custom Callback Queue
-  this->laser_queue_.clear();
-  this->laser_queue_.disable();
-  this->rosnode_->shutdown();
-  this->callback_laser_queue_thread_.join();
-
-  delete this->rosnode_;
+  laser_queue_.clear();
+  laser_queue_.disable();
+  nh_.shutdown();
+  callback_laser_queue_thread_.join();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Load the controller
-void GazeboRosBlockLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
-  // load plugin
-  RayPlugin::Load(_parent, _sdf);
+  gzmsg << "Loading " << kPluginName << "." << endl;
+
+  RayPlugin::Load(parent, sdf);
+  getSdfParams(sdf);
 
   // Get then name of the parent sensor
-  this->parent_sensor_ = _parent;
-
-  // Get the world name.
-  std::string worldName = _parent->WorldName();
-  this->world_ = physics::get_world(worldName);
-
-#if GAZEBO_MAJOR_VERSION >= 8
-  last_update_time_ = this->world_->SimTime();
-#else
-  last_update_time_ = this->world_->GetSimTime();
-#endif
-
-  this->node_ = transport::NodePtr(new transport::Node());
-  this->node_->Init(worldName);
-
-  GAZEBO_SENSORS_USING_DYNAMIC_POINTER_CAST;
-  this->parent_ray_sensor_ = dynamic_pointer_cast<sensors::RaySensor>(this->parent_sensor_);
-
-  if (!this->parent_ray_sensor_)
-    gzthrow("GazeboRosBlockLaser controller requires a Ray Sensor as its parent");
-
-  this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
-
-  if (!_sdf->HasElement("frameName"))
+  parent_sensor_ = parent;
+  parent_ray_sensor_ = dynamic_pointer_cast<sensors::RaySensor>(parent_sensor_);
+  if (!parent_ray_sensor_)
   {
-    ROS_INFO_NAMED("block_laser", "Block laser plugin missing <frameName>, defaults to /world");
-    this->frame_name_ = "/world";
+    gzthrow(kPluginName << ": Requires a Ray Sensor as its parent.");
   }
-  else
-    this->frame_name_ = _sdf->GetElement("frameName")->Get<std::string>();
 
-  if (!_sdf->HasElement("topicName"))
-  {
-    ROS_INFO_NAMED("block_laser", "Block laser plugin missing <topicName>, defaults to /world");
-    this->topic_name_ = "/world";
-  }
-  else
-    this->topic_name_ = _sdf->GetElement("topicName")->Get<std::string>();
-
-  if (!_sdf->HasElement("gaussianNoise"))
-  {
-    ROS_INFO_NAMED("block_laser", "Block laser plugin missing <gaussianNoise>, defaults to 0.0");
-    this->gaussian_noise_ = 0;
-  }
-  else
-    this->gaussian_noise_ = _sdf->GetElement("gaussianNoise")->Get<double>();
-
-  if (!_sdf->HasElement("hokuyoMinIntensity"))
-  {
-    ROS_INFO_NAMED(
-      "block_laser", "Block laser plugin missing <hokuyoMinIntensity>, defaults to 101");
-    this->hokuyo_min_intensity_ = 101;
-  }
-  else
-    this->hokuyo_min_intensity_ = _sdf->GetElement("hokuyoMinIntensity")->Get<double>();
-
-  ROS_DEBUG_NAMED(
-    "block_laser",
-    "gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters.",
-    this->hokuyo_min_intensity_);
-
-  if (!_sdf->HasElement("updateRate"))
-  {
-    ROS_INFO_NAMED("block_laser", "Block laser plugin missing <updateRate>, defaults to 0");
-    this->update_rate_ = 0;
-  }
-  else
-    this->update_rate_ = _sdf->GetElement("updateRate")->Get<double>();
-  // FIXME:  update the update_rate_
-
-  this->laser_connect_count_ = 0;
+  world_ = physics::get_world(parent->WorldName());
+  last_update_time_ = world_->SimTime();
 
   // Make sure the ROS node for Gazebo has already been initialized
   if (!ros::isInitialized())
   {
-    ROS_FATAL_STREAM_NAMED(
-      "block_laser", "A ROS node for Gazebo has not been initialized, unable to load plugin. "
-                       << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the "
-                          "gazebo_ros package)");
-    return;
+    gzthrow(
+      "A ROS node for Gazebo has not been initialized, unable to load plugin. "
+      << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the gazebo_ros package.");
   }
 
-  this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
-
-  // resolve tf prefix
-  std::string prefix;
-  this->rosnode_->getParam(std::string("tf_prefix"), prefix);
-  this->frame_name_ = tf::resolve(prefix, this->frame_name_);
-
-  // set size of cloud message, starts at 0!! FIXME: not necessary
-  this->cloud_msg_.points.clear();
-  this->cloud_msg_.channels.clear();
-  this->cloud_msg_.channels.push_back(sensor_msgs::ChannelFloat32());
-
-  if (this->topic_name_ != "")
-  {
-    // Custom Callback Queue
-    ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::PointCloud>(
-      this->topic_name_, 1, boost::bind(&GazeboRosBlockLaser::LaserConnect, this),
-      boost::bind(&GazeboRosBlockLaser::LaserDisconnect, this), ros::VoidPtr(),
-      &this->laser_queue_);
-    this->pub_ = this->rosnode_->advertise(ao);
-  }
-
-  // Initialize the controller
+  // Custom Callback Queue
+  ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::PointCloud>(
+    "/" + ns_ + "/" + topic_name_, 1, boost::bind(&GazeboLidarPlugin::laserConnect, this),
+    boost::bind(&GazeboLidarPlugin::laserDisconnect, this), ros::VoidPtr(), &laser_queue_);
+  pub_ = nh_.advertise(ao);
 
   // sensor generation off by default
-  this->parent_ray_sensor_->SetActive(false);
+  parent_ray_sensor_->SetActive(false);
+
   // start custom queue for laser
-  this->callback_laser_queue_thread_ =
-    boost::thread(boost::bind(&GazeboRosBlockLaser::LaserQueueThread, this));
+  callback_laser_queue_thread_ =
+    boost::thread(boost::bind(&GazeboLidarPlugin::laserQueueThread, this));
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Increment count
-void GazeboRosBlockLaser::LaserConnect()
+void GazeboLidarPlugin::onStats(const boost::shared_ptr<msgs::WorldStatistics const>& msg)
 {
-  this->laser_connect_count_++;
-  this->parent_ray_sensor_->SetActive(true);
-}
-////////////////////////////////////////////////////////////////////////////////
-// Decrement count
-void GazeboRosBlockLaser::LaserDisconnect()
-{
-  this->laser_connect_count_--;
+  sim_time_ = msgs::Convert(msg->sim_time());
 
-  if (this->laser_connect_count_ == 0)
-    this->parent_ray_sensor_->SetActive(false);
+  Pose3d pose;
+  pose.Pos().X() = 0.5 * sin(0.01 * sim_time_.Double());
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Update the controller
-void GazeboRosBlockLaser::OnNewLaserScans()
+void GazeboLidarPlugin::laserConnect()
 {
-#ifdef ENABLE_PROFILER
-  IGN_PROFILE("GazeboRosBlockLaser::OnNewLaserScans");
-#endif
-  if (this->topic_name_ != "")
+  ++laser_connect_count_;
+  parent_ray_sensor_->SetActive(true);
+}
+
+void GazeboLidarPlugin::laserDisconnect()
+{
+  if (--laser_connect_count_ == 0)
+    parent_ray_sensor_->SetActive(false);
+}
+
+void GazeboLidarPlugin::OnNewLaserScans()
+{
+  common::Time sensor_update_time = parent_sensor_->LastUpdateTime();
+  if (sensor_update_time < last_update_time_)
   {
-    common::Time sensor_update_time = this->parent_sensor_->LastUpdateTime();
-    if (sensor_update_time < last_update_time_)
-    {
-      ROS_WARN_NAMED("block_laser", "Negative sensor update time difference detected.");
-      last_update_time_ = sensor_update_time;
-    }
-
-    if (last_update_time_ < sensor_update_time)
-    {
-#ifdef ENABLE_PROFILER
-      IGN_PROFILE_BEGIN("PutLaserData");
-#endif
-      this->PutLaserData(sensor_update_time);
-#ifdef ENABLE_PROFILER
-      IGN_PROFILE_END();
-#endif
-      last_update_time_ = sensor_update_time;
-    }
+    ROS_WARN_NAMED("block_laser", "Negative sensor update time difference detected.");
+    last_update_time_ = sensor_update_time;
   }
-  else
+
+  if (last_update_time_ < sensor_update_time)
   {
-    ROS_INFO_NAMED("block_laser", "gazebo_ros_block_laser topic name not set");
+    putLaserData(sensor_update_time);
+    last_update_time_ = sensor_update_time;
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Put laser data to the interface
-void GazeboRosBlockLaser::PutLaserData(common::Time& _updateTime)
+void GazeboLidarPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
-  int i, hja, hjb;
-  int j, vja, vjb;
-  double vb, hb;
-  int j1, j2, j3, j4;        // four corners indices
-  double r1, r2, r3, r4, r;  // four corner values + interpolated range
-  double intensity;
+  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
+  getSdfParam(sdf, "topicName", topic_name_, kDefaultTopicName);
+  getSdfParam(sdf, "gaussianNoise", gaussian_noise_, kDefaultGaussianNoise);
+  getSdfParam(sdf, "hokuyoMinIntensity", hokuyo_min_intensity_, kDefaultHokuyoMinIntensity);
+}
 
-  this->parent_ray_sensor_->SetActive(false);
+void GazeboLidarPlugin::putLaserData(common::Time& update_time)
+{
+  parent_ray_sensor_->SetActive(false);
 
-  auto maxAngle = this->parent_ray_sensor_->AngleMax();
-  auto minAngle = this->parent_ray_sensor_->AngleMin();
+  const auto max_angle = parent_ray_sensor_->AngleMax();
+  const auto min_angle = parent_ray_sensor_->AngleMin();
 
-  double maxRange = this->parent_ray_sensor_->RangeMax();
-  double minRange = this->parent_ray_sensor_->RangeMin();
-  int rayCount = this->parent_ray_sensor_->RayCount();
-  int rangeCount = this->parent_ray_sensor_->RangeCount();
+  const auto max_range = parent_ray_sensor_->RangeMax();
+  const auto min_range = parent_ray_sensor_->RangeMin();
+  const auto ray_count = parent_ray_sensor_->RayCount();
+  const auto range_count = parent_ray_sensor_->RangeCount();
 
-  int verticalRayCount = this->parent_ray_sensor_->VerticalRayCount();
-  int verticalRangeCount = this->parent_ray_sensor_->VerticalRangeCount();
-  auto verticalMaxAngle = this->parent_ray_sensor_->VerticalAngleMax();
-  auto verticalMinAngle = this->parent_ray_sensor_->VerticalAngleMin();
+  const auto ver_ray_count = parent_ray_sensor_->VerticalRayCount();
+  const auto ver_range_count = parent_ray_sensor_->VerticalRangeCount();
+  const auto ver_max_range = parent_ray_sensor_->VerticalAngleMax();
+  const auto ver_min_range = parent_ray_sensor_->VerticalAngleMin();
 
-  double yDiff = maxAngle.Radian() - minAngle.Radian();
-  double pDiff = verticalMaxAngle.Radian() - verticalMinAngle.Radian();
+  const auto y_diff = max_angle.Radian() - min_angle.Radian();
+  const auto p_diff = ver_max_range.Radian() - ver_min_range.Radian();
 
-  // set size of cloud message everytime!
-  // int r_size = rangeCount * verticalRangeCount;
-  this->cloud_msg_.points.clear();
-  this->cloud_msg_.channels.clear();
-  this->cloud_msg_.channels.push_back(sensor_msgs::ChannelFloat32());
+  // set size of cloud message everytime
+  cloud_msg_.points.clear();
+  cloud_msg_.channels.clear();
+  cloud_msg_.channels.push_back(sensor_msgs::ChannelFloat32());
 
-  /***************************************************************/
-  /*                                                             */
-  /*  point scan from laser                                      */
-  /*                                                             */
-  /***************************************************************/
-  boost::mutex::scoped_lock sclock(this->lock);
+  // Point scan from laser
+  boost::mutex::scoped_lock sclock(lock_);
+
   // Add Frame Name
-  this->cloud_msg_.header.frame_id = this->frame_name_;
-  this->cloud_msg_.header.stamp.sec = _updateTime.sec;
-  this->cloud_msg_.header.stamp.nsec = _updateTime.nsec;
+  cloud_msg_.header.frame_id = frame_name_;
+  cloud_msg_.header.stamp.sec = update_time.sec;
+  cloud_msg_.header.stamp.nsec = update_time.nsec;
 
-  for (j = 0; j < verticalRangeCount; j++)
+  for (int j = 0; j < ver_range_count; j++)
   {
     // interpolating in vertical direction
-    vb =
-      (verticalRangeCount == 1) ? 0 : (double)j * (verticalRayCount - 1) / (verticalRangeCount - 1);
-    vja = (int)floor(vb);
-    vjb = std::min(vja + 1, verticalRayCount - 1);
+    double vb =
+      (ver_range_count == 1) ? 0 : (double)j * (ver_ray_count - 1) / (ver_range_count - 1);
+    const int vja = (int)floor(vb);
+    const int vjb = min(vja + 1, ver_ray_count - 1);
     vb = vb - floor(vb);  // fraction from min
 
-    assert(vja >= 0 && vja < verticalRayCount);
-    assert(vjb >= 0 && vjb < verticalRayCount);
+    assert(vja >= 0 && vja < ver_ray_count);
+    assert(vjb >= 0 && vjb < ver_ray_count);
 
-    for (i = 0; i < rangeCount; i++)
+    for (int i = 0; i < range_count; i++)
     {
       // Interpolate the range readings from the rays in horizontal direction
-      hb = (rangeCount == 1) ? 0 : (double)i * (rayCount - 1) / (rangeCount - 1);
-      hja = (int)floor(hb);
-      hjb = std::min(hja + 1, rayCount - 1);
+      double hb = (range_count == 1) ? 0. : (double)i * (ray_count - 1) / (range_count - 1);
+      const int hja = (int)floor(hb);
+      const int hjb = min(hja + 1, ray_count - 1);
       hb = hb - floor(hb);  // fraction from min
 
-      assert(hja >= 0 && hja < rayCount);
-      assert(hjb >= 0 && hjb < rayCount);
+      assert(hja >= 0 && hja < ray_count);
+      assert(hjb >= 0 && hjb < ray_count);
 
       // indices of 4 corners
-      j1 = hja + vja * rayCount;
-      j2 = hjb + vja * rayCount;
-      j3 = hja + vjb * rayCount;
-      j4 = hjb + vjb * rayCount;
+      const int j1 = hja + vja * ray_count;
+      const int j2 = hjb + vja * ray_count;
+      const int j3 = hja + vjb * ray_count;
+      const int j4 = hjb + vjb * ray_count;
+
       // range readings of 4 corners
-      r1 = this->parent_ray_sensor_->LaserShape()->GetRange(j1);
-      r2 = this->parent_ray_sensor_->LaserShape()->GetRange(j2);
-      r3 = this->parent_ray_sensor_->LaserShape()->GetRange(j3);
-      r4 = this->parent_ray_sensor_->LaserShape()->GetRange(j4);
+      const double r1 = parent_ray_sensor_->LaserShape()->GetRange(j1);
+      const double r2 = parent_ray_sensor_->LaserShape()->GetRange(j2);
+      const double r3 = parent_ray_sensor_->LaserShape()->GetRange(j3);
+      const double r4 = parent_ray_sensor_->LaserShape()->GetRange(j4);
 
-      // Range is linear interpolation if values are close,
-      // and min if they are very different
-      r = (1 - vb) * ((1 - hb) * r1 + hb * r2) + vb * ((1 - hb) * r3 + hb * r4);
-
-      // REP 117 says readings too close to the sensor become -inf, and too far away +inf
-      // if (r < minRange)
-      // {
-      //   r = -std::numeric_limits<double>::infinity();
-      // }
-      // else if (r > maxRange)
-      // {
-      //   r = std::numeric_limits<double>::infinity();
-      // }
+      // Range is linear interpolation if values are close, and min if they are very different
+      const double r = (1 - vb) * ((1 - hb) * r1 + hb * r2) + vb * ((1 - hb) * r3 + hb * r4);
 
       // 範囲外もしくは障害物に当たっていない場合はスキップ
-      if (r < minRange || maxRange - EPSILON_DIFF < r)
+      if (r < min_range || max_range - kEpsilonDiff < r)
       {
         continue;
       }
 
       // Intensity is averaged
-      intensity = 0.25*(this->parent_ray_sensor_->LaserShape()->GetRetro(j1) +
-                        this->parent_ray_sensor_->LaserShape()->GetRetro(j2) +
-                        this->parent_ray_sensor_->LaserShape()->GetRetro(j3) +
-                        this->parent_ray_sensor_->LaserShape()->GetRetro(j4));
-
-      // std::cout << " block debug "
-      //           << "  ij("<<i<<","<<j<<")"
-      //           << "  j1234("<<j1<<","<<j2<<","<<j3<<","<<j4<<")"
-      //           << "  r1234("<<r1<<","<<r2<<","<<r3<<","<<r4<<")"
-      //           << std::endl;
+      const auto intensity = (parent_ray_sensor_->LaserShape()->GetRetro(j1)
+                              + parent_ray_sensor_->LaserShape()->GetRetro(j2)
+                              + parent_ray_sensor_->LaserShape()->GetRetro(j3)
+                              + parent_ray_sensor_->LaserShape()->GetRetro(j4))
+                             / 4;
 
       // get angles of ray to get xyz for point
-      double yAngle = 0.5 * (hja + hjb) * yDiff / (rayCount - 1) + minAngle.Radian();
-      double pAngle =
-        0.5 * (vja + vjb) * pDiff / (verticalRayCount - 1) + verticalMinAngle.Radian();
+      const auto y_angle = (hja + hjb) * y_diff / (ray_count - 1) / 2 + min_angle.Radian();
+      const auto p_angle = (vja + vjb) * p_diff / (ver_ray_count - 1) / 2 + ver_min_range.Radian();
 
-      /***************************************************************/
-      /*                                                             */
-      /*  point scan from laser                                      */
-      /*                                                             */
-      /***************************************************************/
+      // Point scan from laser
       geometry_msgs::Point32 point;
-      // pAngle is rotated by yAngle:
-      point.x = r * cos(pAngle) * cos(yAngle);
-      point.y = r * cos(pAngle) * sin(yAngle);
-      point.z = r * sin(pAngle);
+      // p_angle is rotated by y_angle:
+      point.x = r * cos(p_angle) * cos(y_angle);
+      point.y = r * cos(p_angle) * sin(y_angle);
+      point.z = r * sin(p_angle);
 
-      if (fabs(maxRange - r) > EPSILON_DIFF)
+      // add noise to range only if not at max range
+      if (max_range - r > kEpsilonDiff)
       {
-        // add noise to range only if not at max range
-        point.x += this->GaussianKernel(0, this->gaussian_noise_);
-        point.y += this->GaussianKernel(0, this->gaussian_noise_);
-        point.z += this->GaussianKernel(0, this->gaussian_noise_);
+        point.x += gaussianKernel(0, gaussian_noise_);
+        point.y += gaussianKernel(0, gaussian_noise_);
+        point.z += gaussianKernel(0, gaussian_noise_);
       }
-      this->cloud_msg_.points.push_back(point);
 
-      // this->cloud_msg_.channels[0].values.push_back(
-      //   intensity + this->GaussianKernel(0, this->gaussian_noise_));
+      cloud_msg_.points.push_back(point);
+      cloud_msg_.channels[0].values.push_back(intensity + gaussianKernel(0, gaussian_noise_));
     }
   }
-  this->parent_ray_sensor_->SetActive(true);
+  parent_ray_sensor_->SetActive(true);
 
   // send data out via ros message
-  this->pub_.publish(this->cloud_msg_);
+  pub_.publish(cloud_msg_);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Utility for adding noise
-double GazeboRosBlockLaser::GaussianKernel(double mu, double sigma)
+double GazeboLidarPlugin::gaussianKernel(double mu, double sigma)
 {
   // using Box-Muller transform to generate two independent standard normally disbributed normal
   // variables see wikipedia
-  double U = (double)rand() / (double)RAND_MAX;  // normalized uniform random variable
-  double V = (double)rand() / (double)RAND_MAX;  // normalized uniform random variable
-  double X = sqrt(-2.0 * ::log(U)) * cos(2.0 * M_PI * V);
-  // double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V); // the other indep. normal variable
-  //  we'll just use X
-  //  scale to our mu and sigma
+  const double U = (double)rand() / (double)RAND_MAX;  // normalized uniform random variable
+  const double V = (double)rand() / (double)RAND_MAX;  // normalized uniform random variable
+  double X = sqrt(-2 * log(U)) * cos(2 * M_PI * V);
+
+  // we will just use X scale to our mu and sigma
   X = sigma * X + mu;
   return X;
 }
 
-// Custom Callback Queue
-////////////////////////////////////////////////////////////////////////////////
-// custom callback queue thread
-void GazeboRosBlockLaser::LaserQueueThread()
+void GazeboLidarPlugin::laserQueueThread()
 {
-  static const double timeout = 0.01;
-
-  while (this->rosnode_->ok())
+  while (nh_.ok())
   {
-    this->laser_queue_.callAvailable(ros::WallDuration(timeout));
+    laser_queue_.callAvailable(ros::WallDuration(kTimeout));
   }
 }
 
-void GazeboRosBlockLaser::OnStats(const boost::shared_ptr<msgs::WorldStatistics const>& _msg)
-{
-  this->sim_time_ = msgs::Convert(_msg->sim_time());
-
-  ignition::math::Pose3d pose;
-  pose.Pos().X() = 0.5 * sin(0.01 * this->sim_time_.Double());
-  gzdbg << "plugin simTime [" << this->sim_time_.Double() << "] update pose [" << pose.Pos().X()
-        << "]\n";
-}
+GZ_REGISTER_SENSOR_PLUGIN(GazeboLidarPlugin);
 }  // namespace gazebo
