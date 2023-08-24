@@ -19,7 +19,6 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   getSdfParams(sdf);
 
   world_ = physics::get_world(sensor->WorldName());
-  robot_namespace_ = GetRobotNamespace(sensor, sdf, "Laser");
 
   parent_ = dynamic_pointer_cast<sensors::RaySensor>(sensor);
   if (!parent_)
@@ -46,7 +45,7 @@ void GazeboLidarPlugin::loadThread()
   pmq_.startServiceThread();
 
   ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::PointCloud>(
-    topic_name_, 1, boost::bind(&GazeboLidarPlugin::laserConnect, this),
+    "/" + ns_ + "/" + topic_name_, 1, boost::bind(&GazeboLidarPlugin::laserConnect, this),
     boost::bind(&GazeboLidarPlugin::laserDisconnect, this), ros::VoidPtr(), NULL);
   pc_pub_ = ros_node_.advertise(ao);
   pc_pub_queue_ = pmq_.addPub<sensor_msgs::PointCloud>();
@@ -57,6 +56,7 @@ void GazeboLidarPlugin::loadThread()
 
 void GazeboLidarPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
+  getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
   getSdfParam(sdf, "topicName", topic_name_, kDefaultTopicName);
 }

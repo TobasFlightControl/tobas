@@ -32,6 +32,7 @@ private:
   gazebo::transport::NodePtr gazebo_node_;
 
   // SDF parameters
+  std::string ns_;
   std::string frame_name_;  // Frame transform name, should match link name
   std::string topic_name_;  // Topic name
 
@@ -40,7 +41,6 @@ private:
   sensor_msgs::PointCloud pc_msg_;
 
   uint32_t laser_connect_count_ = 0;  // Keep track of number of connctions
-  std::string robot_namespace_;       // For setting ROS name space
   physics::WorldPtr world_;
   sensors::RaySensorPtr parent_;  // The parent sensor
   boost::thread deferred_load_thread_;
