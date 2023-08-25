@@ -33,7 +33,7 @@ void AccelCalibrator::run()
 
   // オフセットを計算
   const Vector3f acc_offset = acc_top - Vector3f(0., 0., tobas::kGravity);
-  cout << "The estimated accelerometer offset is: " << acc_offset << endl;
+  cout << "The estimated accelerometer offset is: " << acc_offset.transpose() << endl;
 
   // Configに保存
   boost::property_tree::ptree pt;
@@ -62,7 +62,8 @@ Vector3f AccelCalibrator::readAccel()
 
   // 平均を計算
   const Vector3f acc_mean = acc_sum / kDataCount;
-  cout << "Finished reading. The average value of accelerometer readings is: " << acc_mean << endl;
+  cout << "Finished reading. The average value of accelerometer readings is: "
+       << acc_mean.transpose() << endl;
   return acc_mean;
 }
 }  // namespace tobas_real
