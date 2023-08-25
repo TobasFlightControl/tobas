@@ -1,17 +1,9 @@
 #include <moveit/robot_state/conversions.h>
-#include <rviz/visualization_manager.h>
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
-#include <rviz/properties/property.h>
-#include <rviz/properties/string_property.h>
-#include <rviz/properties/bool_property.h>
-#include <rviz/properties/float_property.h>
-#include <rviz/properties/ros_topic_property.h>
-#include <rviz/properties/color_property.h>
 #include <rviz/display_context.h>
 #include <rviz/frame_manager.h>
-#include <OgreSceneManager.h>
-#include <OgreSceneNode.h>
+#include <rviz/visualization_manager.h>
 
 #include "../include/robot_state_rviz_plugin/robot_state_display.hpp"
 
@@ -243,7 +235,7 @@ void RobotStateDisplay::changedAttachedBodyColor()
 {
   if (robot_)
   {
-    QColor color = attached_body_color_property_->getColor();
+    const QColor color = attached_body_color_property_->getColor();
     std_msgs::ColorRGBA color_msg;
     color_msg.r = color.redF();
     color_msg.g = color.greenF();
@@ -271,7 +263,7 @@ void RobotStateDisplay::changedRobotSceneAlpha()
   if (robot_)
   {
     robot_->setAlpha(robot_alpha_property_->getFloat());
-    QColor color = attached_body_color_property_->getColor();
+    const QColor color = attached_body_color_property_->getColor();
     std_msgs::ColorRGBA color_msg;
     color_msg.r = color.redF();
     color_msg.g = color.greenF();
@@ -293,7 +285,7 @@ void RobotStateDisplay::changedRobotStateTopic()
   }
   update_state_ = true;
 
-  robot_state_subscriber_ = root_nh_.subscribe(
+  robot_state_subscriber_ = nh_.subscribe(
     robot_state_topic_property_->getStdString(), 10, &RobotStateDisplay::newRobotStateCallback,
     this);
 }

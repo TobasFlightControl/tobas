@@ -2,29 +2,19 @@
 
 #include <ros/ros.h>
 #include <rviz/display.h>
+#include <rviz/properties/property.h>
+#include <rviz/properties/string_property.h>
+#include <rviz/properties/bool_property.h>
+#include <rviz/properties/float_property.h>
+#include <rviz/properties/ros_topic_property.h>
+#include <rviz/properties/color_property.h>
+#include <OgreSceneNode.h>
 #include <moveit/rdf_loader/rdf_loader.h>
 #include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
 #include <moveit_msgs/DisplayRobotState.h>
 
-namespace Ogre
-{
-class SceneNode;
-}
-
-namespace rviz
-{
-class Robot;
-class StringProperty;
-class BoolProperty;
-class FloatProperty;
-class RosTopicProperty;
-class ColorProperty;
-}  // namespace rviz
-
 namespace moveit_rviz_plugin
 {
-class RobotStateVisualization;
-
 /**
  * @brief
  * https://github.com/ros-planning/moveit/blob/master/moveit_ros/visualization/robot_state_rviz_plugin/include/moveit/robot_state_rviz_plugin/robot_state_display.h
@@ -37,8 +27,8 @@ class RobotStateDisplay : public rviz::Display
 public:
   RobotStateDisplay();
 
-  virtual void update(float wall_dt, float ros_dt);
-  virtual void reset();
+  void update(float wall_dt, float ros_dt) override;
+  void reset() override;
 
   const robot_model::RobotModelConstPtr& getRobotModel() const
   {
@@ -80,13 +70,13 @@ protected:
   void unsetHighlight(const std::string& link_name);
 
   // overrides from Display
-  virtual void onInitialize();
-  virtual void onEnable();
-  virtual void onDisable();
-  virtual void fixedFrameChanged();
+  void onInitialize() override;
+  void onEnable() override;
+  void onDisable() override;
+  void fixedFrameChanged() override;
 
   // render the robot
-  ros::NodeHandle root_nh_;
+  ros::NodeHandle nh_;
   ros::Subscriber robot_state_subscriber_;
 
   RobotStateVisualizationPtr robot_;
