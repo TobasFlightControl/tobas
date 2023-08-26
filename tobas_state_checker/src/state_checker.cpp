@@ -1,4 +1,3 @@
-#include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -6,14 +5,17 @@
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_state_checker/state_checker.hpp"
-#include "../include/tobas_state_checker/common.hpp"
 
 using namespace std;
 
 namespace tobas_state_checker
 {
 MultirotorStateChecker::MultirotorStateChecker()
-  : super(), bs_received_(false), cmd_received_(false), ac_(tobas::kLandingAction)
+  : super(),
+    battery_received_(false),
+    bs_received_(false),
+    cmd_received_(false),
+    ac_(tobas::kLandingAction)
 {
   getRosParams();
 
@@ -54,13 +56,7 @@ void MultirotorStateChecker::run()
 
 void MultirotorStateChecker::getRosParams()
 {
-  dh_ros::getParam("~warn_battery_voltage", warn_voltage_, dh_ros::POSITIVE);
-  dh_ros::getParam("~fatal_battery_voltage", fatal_voltage_, dh_ros::POSITIVE);
-
-  if (warn_voltage_ <= fatal_voltage_)
-  {
-    rosthrow("warn_battery_voltage must be greater than fatal_battery_voltage.");
-  }
+  dh_ros::getParam("~battery_voltage_threshold", voltage_threshold_, dh_ros::POSITIVE);
 }
 
 void MultirotorStateChecker::registerPublishers()
@@ -133,19 +129,29 @@ void MultirotorStateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
 
 void MultirotorStateChecker::batteryCb(const tobas_msgs::Battery& battery)
 {
-  // 電圧の警告ライン
-  if (battery.voltage < warn_voltage_)
+  if (battery.voltage > voltage_threshold_)
+  {
+    t_last_valid_voltage_ = battery.header.stamp;
+    return;
+  }
+
+  // バッテリー電圧が閾値を下回ってからの経過時間をチェック
+  const auto invalid_time = (battery.header.stamp - t_last_valid_voltage_).toSec();
+  if (invalid_time > kBatteryVoltageFatalTime)
+  {
+    rosFatal(
+      "Battery voltage is lower than threshold for " << kBatteryVoltageFatalTime
+                                                     << " seconds. Issuing a landing command.");
+    requestLanding();
+  }
+  else if (invalid_time > kBatteryVoltageWarnTime)
   {
     rosWarnThrottle(
       kWarnPeriod,
       "Battery voltage is too low: " << battery.voltage << "V. It is time to stop flying.");
-  }
-
-  // 電圧の危険ライン
-  if (battery.voltage < fatal_voltage_)
-  {
-    rosFatal("Battery voltage is too low: " << battery.voltage << "V. Issuing a landing command.");
-    requestLanding();
+    rosWarnOnce(
+      "If the battery voltage remains too low for "
+      << kBatteryVoltageFatalTime << " seconds, a landing command wil be issued.");
   }
 }
 

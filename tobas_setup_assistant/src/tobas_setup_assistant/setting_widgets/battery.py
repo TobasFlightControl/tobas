@@ -107,19 +107,14 @@ class BatteryWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
-    def warn_voltage(self) -> float:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def fatal_voltage(self) -> float:
+    def voltage_threshold(self) -> float:
         raise NotImplementedError()
 
 
 class BatteryWidget_LiPo(BatteryWidget_Base):
 
     NOMINAL_VOLTAGE_PER_CELL = 3.7  # 1セルあたりの定格電圧
-    WARN_VOLTAGE_PER_CELL = 3.5
-    FATAL_VOLTAGE_PER_CELL = 3.4
+    VOLTAGE_THR_PER_CELL = 3.4
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
@@ -194,12 +189,8 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
 
     @overrides
-    def warn_voltage(self) -> float:
-        return self._num_cells.get() * self.WARN_VOLTAGE_PER_CELL
-
-    @overrides
-    def fatal_voltage(self) -> float:
-        return self._num_cells.get() * self.FATAL_VOLTAGE_PER_CELL
+    def voltage_threshold(self) -> float:
+        return self._num_cells.get() * self.VOLTAGE_THR_PER_CELL
 
 
 class BatteryWidget_Other(BatteryWidget_Base):
@@ -221,56 +212,32 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         self._rows.addWidget(self._nominal_voltage)
 
-        warn_voltage_description = "バッテリー電圧がこれ以下になると警告を出す．"
-        self._warn_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Warning Voltage Threshold",
-            warn_voltage_description,
-            decimals=1,
-            minimum=0.1,
-            default=14.0,
-            suffix=" V",
-        )
-        self._rows.addWidget(self._warn_voltage)
-
-        fatal_voltage_description = "バッテリー電圧がこれ以下になると強制的に着陸指令を出す．"
-        self._fatal_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Fatal Voltage Threshold",
-            fatal_voltage_description,
+        voltage_threshold_description = "バッテリー電圧がこれ以下になると警告を出し，"\
+            + "さらに一定時間経過すると強制的に着陸指令を出します．"
+        self._voltage_threshold = ParamGetterWidget_DoubleSpinBox(
+            "Voltage Threshold",
+            voltage_threshold_description,
             decimals=1,
             minimum=0.1,
             default=13.6,
             suffix=" V",
         )
-        self._rows.addWidget(self._fatal_voltage)
+        self._rows.addWidget(self._voltage_threshold)
 
     @overrides
     def is_valid(self) -> bool:
-        if self._nominal_voltage.get() <= self._warn_voltage.get():
+        if self._nominal_voltage.get() <= self._voltage_threshold.get():
             q_error_named(
                 self._main,
                 self._main.settings.battery.OTHER,
-                "Nominal voltage must be greater than warning voltage threshold.",
+                "Nominal voltage must be greater than voltage threshold.",
             )
             return False
-
-        if self._warn_voltage.get() <= self._fatal_voltage.get():
-            q_error_named(
-                self._main,
-                self._main.settings.battery.OTHER,
-                "Warning voltage threshold must be greater than fatal voltage threshold.",
-            )
-            return False
-
-        return True
 
     @overrides
     def nominal_voltage(self) -> float:
         return self._nominal_voltage.get()
 
     @overrides
-    def warn_voltage(self) -> float:
-        return self._warn_voltage.get()
-
-    @overrides
-    def fatal_voltage(self) -> float:
-        return self._fatal_voltage.get()
+    def voltage_threshold(self) -> float:
+        return self._voltage_threshold.get()

@@ -343,8 +343,7 @@ class PackageGenerator(QObject):
 
         items = dict()
         items["state_checker"] = {
-            "warn_battery_voltage": battery.warn_voltage(),
-            "fatal_battery_voltage": battery.fatal_voltage(),
+            "battery_voltage_threshold": battery.voltage_threshold(),
         }
 
         file_path = osp.join(config_dir, "state_checker.yaml")
