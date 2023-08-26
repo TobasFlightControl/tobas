@@ -66,10 +66,10 @@ void MeasureSensorNoise::run()
     barometer_.refreshPressure();
     usleep(kWaitToUpdateSensor);
 
-    // モータが動いている状態でのノイズを計測するため，Armコマンドを送信
+    // モータが動いている状態でのノイズを計測するため，PWMコマンドを送信
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
-      if (!pwm_.set_duty_cycle(channel, kPwmArm))
+      if (!pwm_.set_duty_cycle(channel, kPwmNeutral))
       {
         throw runtime_error("Failed to set PWM duty cycle.");
       }
