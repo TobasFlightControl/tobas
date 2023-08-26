@@ -27,10 +27,14 @@ double getMass()
 geomag::Elements geomag(double lat, double lon, double height)
 {
   const auto year_frac = dh_std::yearFraction();
+  if (year_frac < 2020)
+  {
+    throw runtime_error("Invalid year: " + to_string(year_frac));
+  }
 
   // 5年ごとに新しいデータが出るので，それを過ぎたら警告する
   // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
-  if (year_frac - 2020 > 5 + 1)
+  if (year_frac - 2020 > 5)
   {
     dh_std::warn("It is time to replace the WMM data with the latest version.");
   }
