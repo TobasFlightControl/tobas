@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "tobas_multirotor_rotation_controller");
+  ros::init(argc, argv, "rotation_controller");
   tobas_multirotor_controller::RotationControllerRos node;
   ros::spin();
 }
