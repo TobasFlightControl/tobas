@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
+  <arg name="nodelet" default="false"/>
 
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen"/>
