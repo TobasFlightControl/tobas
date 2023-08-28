@@ -40,7 +40,7 @@ $ git clone https://github.com/liuq/QuadProgpp.git
 $ cd QuadProgpp
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
 $ make -j
 $ sudo make install
 ```
@@ -51,7 +51,7 @@ $ git clone https://github.com/coin-or/qpOASES.git -b stable/3.2
 $ cd qpOASES
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
 $ make -j
 $ sudo make install
 ```
