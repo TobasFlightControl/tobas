@@ -293,6 +293,7 @@ void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
 
   // Check delay
   const auto delay = prev_sim_time_ - cmd.header.stamp.toSec();
+  // cout << "delay: " << delay << " [s]" << endl;
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(

@@ -128,9 +128,11 @@ void RotationControllerRos::runOnce()
   // 姿勢制御器
   try
   {
+    // stopwatch_.start();
     rot_controller_.update(
       bs_.pose.euler, bs_.twist.rot, q_, battery_.voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
       u_opt_);
+    // stopwatch_.stop();
   }
   catch (const exception& e)  // MPCがコケたり
   {

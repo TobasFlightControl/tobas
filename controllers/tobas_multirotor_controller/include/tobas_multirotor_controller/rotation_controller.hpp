@@ -4,6 +4,7 @@
 #include <kdl/frames.hpp>
 
 #include <dh_kdl/euler.hpp>
+#include <dh_linear_control/c2d/tustin.hpp>
 #include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
@@ -54,9 +55,10 @@ private:
 
   tobas::RotorAxisExtractor z_rotors_;
 
-  MultiRotorDynamics cont_;   // 連続時間線形状態方程式
-  ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
-  ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御
+  MultiRotorDynamics cont_;
+  ctrl::C2D_Tustin c2d_;
+  // ctrl::C2D_RK4 c2d_;
+  ctrl::LinearDenseMPC mpc_;
 
   void updateCurrentState(const KDL::Euler& cur_rpy, const KDL::Vector& cur_angvel_B);
   void updateSetState(const KDL::Euler& tar_rpy);

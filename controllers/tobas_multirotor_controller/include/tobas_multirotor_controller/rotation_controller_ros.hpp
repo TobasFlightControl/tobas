@@ -5,6 +5,7 @@
 
 #include <dh_kdl/treejntnameparser.hpp>
 #include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/stopwatch.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
@@ -72,6 +73,9 @@ private:
 
   // Dynamic Reconfigure
   ConfigServer server_;
+
+  // Other
+  dh_ros::Stopwatch stopwatch_;
 
   void getRosParams() override;
   void registerPublishers() override;
