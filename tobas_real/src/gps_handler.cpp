@@ -26,7 +26,7 @@ GpsHandler::GpsHandler() : super(), gps_fix_ok_(false), cov_received_(false)
 
 void GpsHandler::run()
 {
-  dh_ros::Stopwatch stopwatch;
+  // dh_ros::Stopwatch stopwatch;
 
   while (ros::ok())
   {
