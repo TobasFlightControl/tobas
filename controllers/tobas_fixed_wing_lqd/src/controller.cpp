@@ -57,7 +57,7 @@ Controller::Controller()
   lqd_.current_state.resize(eom_.kStateSize);
   lqd_.target_state.resize(eom_.kStateSize);
 
-  reconfigure(cfg_);
+  configure(cfg_);
 
   registerPublishers();
   registerSubscribers();
@@ -285,7 +285,7 @@ void Controller::publishFeedback(const Eigen::VectorXd& du)
   feedback_pub_.publish(feedback_msg_);
 }
 
-void Controller::reconfigure(const ConfigType& cfg)
+void Controller::configure(const ConfigType& cfg)
 {
   ROS_ASSERT(cfg.forward_speed_weight > 0.);
   ROS_ASSERT(cfg.alpha_weight > 0.);
@@ -442,6 +442,6 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  reconfigure(cfg);
+  configure(cfg);
 }
 }  // namespace tobas_fixed_wing_lqd

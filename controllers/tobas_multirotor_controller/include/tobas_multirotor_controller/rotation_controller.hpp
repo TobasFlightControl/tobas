@@ -47,7 +47,7 @@ public:
     const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
 
-  void reconfigure(const RotationControllerDynamicParams& params);
+  void configure(const RotationControllerDynamicParams& params);
 
 private:
   const tobas::Drone& drone_;

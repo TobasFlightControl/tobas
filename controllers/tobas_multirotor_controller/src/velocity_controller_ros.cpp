@@ -32,8 +32,8 @@ VelocityControllerRos::VelocityControllerRos()
 {
   getRosParams();
 
-  vel_controller_.reconfigure(dynamic_params_vel_);
-  acc_controller_.reconfigure(dynamic_params_acc_);
+  vel_controller_.configure(dynamic_params_vel_);
+  acc_controller_.configure(dynamic_params_acc_);
 
   registerPublishers();
   registerSubscribers();
@@ -217,8 +217,8 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  vel_controller_.reconfigure(dynamic_params_vel_);
-  acc_controller_.reconfigure(dynamic_params_acc_);
+  vel_controller_.configure(dynamic_params_vel_);
+  acc_controller_.configure(dynamic_params_acc_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

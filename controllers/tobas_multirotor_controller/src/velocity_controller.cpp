@@ -26,7 +26,7 @@ void VelocityController::update(const Vector& cur_vel, const Vector& tar_vel, Ve
   tar_acc.z(ver_kv_ * (tar_vz - cur_vel.z()));
 }
 
-void VelocityController::reconfigure(const VelocityControllerDynamicParams& params)
+void VelocityController::configure(const VelocityControllerDynamicParams& params)
 {
   assert(params.hor_natural_freq > 0.);
   assert(params.hor_damp_ratio > 0.);

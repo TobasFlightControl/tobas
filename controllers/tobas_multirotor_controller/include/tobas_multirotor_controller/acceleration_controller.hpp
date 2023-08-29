@@ -25,7 +25,7 @@ public:
     double& U_out,
     double& roll_out,
     double& pitch_out);
-  void reconfigure(const AccelerationControllerDynamicParams& params);
+  void configure(const AccelerationControllerDynamicParams& params);
 
 private:
   double mass_;

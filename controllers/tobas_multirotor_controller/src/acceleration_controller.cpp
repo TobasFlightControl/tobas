@@ -42,7 +42,7 @@ void AccelerationController::update(
   U_out = z / (cos(pitch_out) * cos(roll_out));
 }
 
-void AccelerationController::reconfigure(const AccelerationControllerDynamicParams& params)
+void AccelerationController::configure(const AccelerationControllerDynamicParams& params)
 {
   assert(params.max_hor_acc > 0.);
   assert(params.max_ver_acc > 0.);

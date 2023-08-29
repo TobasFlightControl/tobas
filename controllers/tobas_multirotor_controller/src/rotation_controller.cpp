@@ -73,7 +73,7 @@ void RotationController::update(
   // cout << mpc_ << endl;
 }
 
-void RotationController::reconfigure(const RotationControllerDynamicParams& params)
+void RotationController::configure(const RotationControllerDynamicParams& params)
 {
   assert(params.pred_horizon > 0.);
   assert(params.pred_steps > 0);

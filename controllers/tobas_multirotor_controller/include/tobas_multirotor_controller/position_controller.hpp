@@ -18,7 +18,7 @@ public:
   explicit PositionController();
 
   void update(const KDL::Vector& cur_pos, const KDL::Vector& tar_pos, KDL::Vector& tar_vel);
-  void reconfigure(const PositionControllerDynamicParams& params);
+  void configure(const PositionControllerDynamicParams& params);
 
 private:
   double hor_kp_;

@@ -37,7 +37,7 @@ RotationControllerRos::RotationControllerRos()
   z_rotors_.updateInternalDataStructures();
 
   rot_controller_.updateInternalDataStructures();
-  rot_controller_.reconfigure(dynamic_params_);
+  rot_controller_.configure(dynamic_params_);
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
@@ -401,7 +401,7 @@ void RotationControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void RotationControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  rot_controller_.reconfigure(dynamic_params_);
+  rot_controller_.configure(dynamic_params_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

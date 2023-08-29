@@ -103,7 +103,7 @@ private:
   void updateRotorSpeeds(const Eigen::VectorXd& thrust);
   void updateDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
-  void reconfigure(const ConfigType& cfg);
+  void configure(const ConfigType& cfg);
 
   void eventCb(const tobas_msgs::Event& event) override;
   void airPressureCb(const sensor_msgs::FluidPressure& msg);

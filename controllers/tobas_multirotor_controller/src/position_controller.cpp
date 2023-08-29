@@ -19,7 +19,7 @@ void PositionController::update(const Vector& cur_pos, const Vector& tar_pos, Ve
   tar_vel.z(ver_kp_ * (tar_pos.z() - cur_pos.z()));
 }
 
-void PositionController::reconfigure(const PositionControllerDynamicParams& params)
+void PositionController::configure(const PositionControllerDynamicParams& params)
 {
   assert(params.hor_natural_freq > 0.);
   assert(params.hor_damp_ratio > 0.);

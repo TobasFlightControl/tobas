@@ -20,7 +20,7 @@ public:
   explicit VelocityController();
 
   void update(const KDL::Vector& cur_vel, const KDL::Vector& tar_vel, KDL::Vector& tar_acc);
-  void reconfigure(const VelocityControllerDynamicParams& params);
+  void configure(const VelocityControllerDynamicParams& params);
 
 private:
   double hor_kv_;

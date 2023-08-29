@@ -27,7 +27,7 @@ public:
     const Eigen::Matrix3d& init_grav_cov,
     const double& grav_var);
 
-  void reconfigure(const double& grav_var);
+  void configure(const double& grav_var);
 
   void predict(const Eigen::Quaterniond& quat, const Eigen::Matrix3d& acc_cov, double dt);
 

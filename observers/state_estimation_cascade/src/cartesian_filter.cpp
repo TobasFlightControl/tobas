@@ -57,7 +57,7 @@ void CartesianFilter::initialize(
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
 
-void CartesianFilter::reconfigure(const double& grav_var)
+void CartesianFilter::configure(const double& grav_var)
 {
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
