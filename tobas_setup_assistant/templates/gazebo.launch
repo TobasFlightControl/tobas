@@ -5,6 +5,8 @@
   <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
   <arg name="verbose" default="true"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="headless" default="false"/>
   <arg name="user_debug" default="false"/>
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
@@ -21,6 +23,8 @@
     <arg name="paused" value="$(arg paused)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="verbose" value="$(arg verbose)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
   </include>
 
   <!-- Load environment configurations from YAML file to parameter server -->
