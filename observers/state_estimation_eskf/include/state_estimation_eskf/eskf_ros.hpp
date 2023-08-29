@@ -8,6 +8,7 @@
 #include <sensor_msgs/NavSatFix.h>
 
 #include <dh_ros_tools/timer.hpp>
+#include <dh_ros_tools/stopwatch.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
@@ -44,6 +45,14 @@ public:
   explicit ErrorStateKalmanFilterRos();
 
 private:
+  enum Stage
+  {
+    FIRST_IMU,
+    WAIT_TOPICS,
+    SET_FIRST_TIME,
+    RUNNING,
+  };
+
   tobas::Drone drone_;
 
   // 固定値
@@ -54,12 +63,12 @@ private:
   double alt_0_bar_;         // 気圧高度のゼロ点 (Base Frame)
   Eigen::Quaterniond q_0_;   // 姿勢の初期値 (Base Frame)
 
+  Stage stage_;
   bool imu_received_;
   bool mag_received_;
   bool bar_received_;
   bool gps_received_;
   bool vel_received_;
-  bool is_initialized_;
   ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
   ros::Time t_last_;
   StateMsg state_;  // 発行する状態
@@ -103,12 +112,16 @@ private:
   // Dynamic Reconfigure
   ConfigServer server_;
 
+  // Other
+  dh_ros::Stopwatch stopwatch_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   bool isReady();
-  void initialize(const ros::Time& stamp);
+  bool isValidDeltaTime(double dt);
+  void initialize();
   tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
 

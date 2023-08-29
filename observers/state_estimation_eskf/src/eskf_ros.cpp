@@ -27,12 +27,12 @@ namespace state_estimation_eskf
 {
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
   : super(),
+    stage_(FIRST_IMU),
     imu_received_(false),
     mag_received_(false),
     bar_received_(false),
     gps_received_(false),
     vel_received_(false),
-    is_initialized_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -138,11 +138,31 @@ bool ErrorStateKalmanFilterRos::isReady()
   return ok;
 }
 
-void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
+bool ErrorStateKalmanFilterRos::isValidDeltaTime(double dt)
 {
-  // 初期化処理の開始時間
-  ros::Time start_time = ros::Time::now();
+  if (dt == 0.)
+  {
+    rosError("The time gap between 2 IMU messages is 0.");
+    return false;
+  }
 
+  if (dt < 0.)
+  {
+    rosError("The time gap between 2 IMU messages is negative: " << dt << " [s]");
+    return false;
+  }
+
+  if (dt > kImuTimeGapThreshold)
+  {
+    rosError("The time gap between 2 IMU messages is too large: " << dt << " [s]");
+    return false;
+  }
+
+  return true;
+}
+
+void ErrorStateKalmanFilterRos::initialize()
+{
   // 静止状態でのセンサデータを平均してゼロ点を決める
   const auto result = setZeroPositions();
 
@@ -176,10 +196,6 @@ void ErrorStateKalmanFilterRos::initialize(const ros::Time& stamp)
   quaternionToEuler(q_0_.x(), q_0_.y(), q_0_.z(), q_0_.w(), roll, pitch, yaw_prev_);
 
   yaw_jump_count_ = 0;
-
-  // IMUのタイムスタンプに初期化に要した時間を足した時間を最新のセンサ時間とする
-  const auto duration = ros::Time::now() - start_time;
-  t_last_ = t_ready_ = stamp + duration;
 }
 
 tobas_common_actions::StaticStateDeterminationResultConstPtr
@@ -319,46 +335,58 @@ void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::Event& event)
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
 {
-  if (!imu_received_)
+  switch (stage_)
   {
-    imu_received_ = true;
-  }
-
-  if (!is_initialized_)
-  {
-    if (isReady())
+    case FIRST_IMU:
     {
-      check_topics_timer_.stop();
-      initialize(imu.header.stamp);
-      is_initialized_ = true;
-      rosInfo(
-        "All necessary messages are received. Wait to publish states for " << kWaitToPublish
-                                                                           << " seconds.");
+      imu_received_ = true;
+      stage_ = WAIT_TOPICS;
+      break;
     }
-    return;
-  }
+    case WAIT_TOPICS:
+    {
+      if (isReady())
+      {
+        check_topics_timer_.stop();
+        initialize();
+        rosInfo("All messages are received. Wait to publish for " << kWaitToPublish << " seconds.");
+        stage_ = SET_FIRST_TIME;
+      }
+      break;
+    }
+    case SET_FIRST_TIME:
+    {
+      t_ready_ = t_last_ = imu.header.stamp;
+      stage_ = RUNNING;
+      break;
+    }
+    case RUNNING:
+    {
+      const double dt = (imu.header.stamp - t_last_).toSec();
+      t_last_ = imu.header.stamp;
+      if (!isValidDeltaTime(dt))
+      {
+        return;
+      }
 
-  const double dt = (imu.header.stamp - t_last_).toSec();
-  t_last_ = imu.header.stamp;
-  if (dt <= 0. || kImuTimeGapThreshold < dt)
-  {
-    return;
-  }
+      tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
+      tf::vectorMsgToEigen(imu.angular_velocity, w_m_);
 
-  tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
-  tf::vectorMsgToEigen(imu.angular_velocity, w_m_);
+      // 事前予測
+      eskf_.predictIMU(a_m_, w_m_, dt);
 
-  // 事前予測
-  eskf_.predictIMU(a_m_, w_m_, dt);
+      // 重力方向の観測
+      eskf_.measureAcceleration(a_m_, rot_acc_cov_);
 
-  // 重力方向の観測
-  eskf_.measureAcceleration(a_m_, rot_acc_cov_);
+      // 推定状態を発行
+      if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
+      {
+        updateBaseStateMsg(imu);
+        posevel_pub_.publish(state_);
+      }
 
-  // 推定状態を発行
-  if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
-  {
-    updateBaseStateMsg(imu);
-    posevel_pub_.publish(state_);
+      break;
+    }
   }
 }
 
@@ -369,7 +397,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
     mag_received_ = true;
   }
 
-  if (!is_initialized_)
+  if (stage_ < RUNNING)
   {
     return;
   }
@@ -396,7 +424,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
     bar_received_ = true;
   }
 
-  if (!is_initialized_)
+  if (stage_ < RUNNING)
   {
     return;
   }
@@ -415,7 +443,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
     gps_received_ = true;
   }
 
-  if (!is_initialized_)
+  if (stage_ < RUNNING)
   {
     return;
   }
@@ -441,7 +469,7 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
     vel_received_ = true;
   }
 
-  if (!is_initialized_)
+  if (stage_ < RUNNING)
   {
     return;
   }
