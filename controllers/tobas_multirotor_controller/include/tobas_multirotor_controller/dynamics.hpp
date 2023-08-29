@@ -34,6 +34,8 @@ public:
    */
   explicit MultiRotorDynamics(const tobas::Drone& drone);
 
+  void updateInternalDataStructures();
+
   /**
    * @brief 状態方程式を更新する．
    *

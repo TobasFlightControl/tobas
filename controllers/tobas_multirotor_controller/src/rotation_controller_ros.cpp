@@ -16,6 +16,7 @@ RotationControllerRos::RotationControllerRos()
   : super(),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    rot_controller_(drone_),
     is_initialized_(false),
     battery_received_(false),
     bs_received_(false),
@@ -35,7 +36,8 @@ RotationControllerRos::RotationControllerRos()
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
-  rot_controller_.reset(new RotationController(drone_, dynamic_params_rot_));
+  rot_controller_.updateInternalDataStructures();
+  rot_controller_.reconfigure(dynamic_params_);
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
@@ -53,17 +55,16 @@ RotationControllerRos::RotationControllerRos()
 
 void RotationControllerRos::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/prediction_horizon", dynamic_params_rot_.pred_horizon);
-  dh_ros::getParam(kCtrlName + "/prediction_steps", dynamic_params_rot_.pred_steps);
-  dh_ros::getParam(kCtrlName + "/attitude_decay", dynamic_params_rot_.attitude_decay);
-  dh_ros::getParam(kCtrlName + "/heading_decay", dynamic_params_rot_.heading_decay);
-  dh_ros::getParam(kCtrlName + "/angular_velocity_decay", dynamic_params_rot_.angvel_decay);
-  dh_ros::getParam(kCtrlName + "/attitude_weight", dynamic_params_rot_.attitude_weight);
-  dh_ros::getParam(kCtrlName + "/heading_weight", dynamic_params_rot_.heading_weight);
-  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", dynamic_params_rot_.angvel_weight);
-  dh_ros::getParam(kCtrlName + "/thrust_weight_exp", dynamic_params_rot_.thrust_weight_exp);
-  dh_ros::getParam(
-    kCtrlName + "/thrust_rate_weight_exp", dynamic_params_rot_.thrust_rate_weight_exp);
+  dh_ros::getParam(kCtrlName + "/prediction_horizon", dynamic_params_.pred_horizon);
+  dh_ros::getParam(kCtrlName + "/prediction_steps", dynamic_params_.pred_steps);
+  dh_ros::getParam(kCtrlName + "/attitude_decay", dynamic_params_.attitude_decay);
+  dh_ros::getParam(kCtrlName + "/heading_decay", dynamic_params_.heading_decay);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_decay", dynamic_params_.angvel_decay);
+  dh_ros::getParam(kCtrlName + "/attitude_weight", dynamic_params_.attitude_weight);
+  dh_ros::getParam(kCtrlName + "/heading_weight", dynamic_params_.heading_weight);
+  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", dynamic_params_.angvel_weight);
+  dh_ros::getParam(kCtrlName + "/thrust_weight_exp", dynamic_params_.thrust_weight_exp);
+  dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", dynamic_params_.thrust_rate_weight_exp);
 }
 
 void RotationControllerRos::registerPublishers()
@@ -110,16 +111,16 @@ void RotationControllerRos::initialize()
 
 void RotationControllerRos::updateDynamicParams(const ConfigType& cfg)
 {
-  dynamic_params_rot_.pred_horizon = cfg.prediction_horizon;
-  dynamic_params_rot_.pred_steps = cfg.prediction_steps;
-  dynamic_params_rot_.attitude_decay = cfg.attitude_decay;
-  dynamic_params_rot_.heading_decay = cfg.heading_decay;
-  dynamic_params_rot_.angvel_decay = cfg.angular_velocity_decay;
-  dynamic_params_rot_.attitude_weight = cfg.attitude_weight;
-  dynamic_params_rot_.heading_weight = cfg.heading_weight;
-  dynamic_params_rot_.angvel_weight = cfg.angular_velocity_weight;
-  dynamic_params_rot_.thrust_weight_exp = cfg.thrust_weight_exp;
-  dynamic_params_rot_.thrust_rate_weight_exp = cfg.thrust_rate_weight_exp;
+  dynamic_params_.pred_horizon = cfg.prediction_horizon;
+  dynamic_params_.pred_steps = cfg.prediction_steps;
+  dynamic_params_.attitude_decay = cfg.attitude_decay;
+  dynamic_params_.heading_decay = cfg.heading_decay;
+  dynamic_params_.angvel_decay = cfg.angular_velocity_decay;
+  dynamic_params_.attitude_weight = cfg.attitude_weight;
+  dynamic_params_.heading_weight = cfg.heading_weight;
+  dynamic_params_.angvel_weight = cfg.angular_velocity_weight;
+  dynamic_params_.thrust_weight_exp = cfg.thrust_weight_exp;
+  dynamic_params_.thrust_rate_weight_exp = cfg.thrust_rate_weight_exp;
 }
 
 void RotationControllerRos::runOnce()
@@ -127,7 +128,7 @@ void RotationControllerRos::runOnce()
   // 姿勢制御器
   try
   {
-    rot_controller_->update(
+    rot_controller_.update(
       bs_.pose.euler, bs_.twist.rot, q_, battery_.voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
       u_opt_);
   }
@@ -400,7 +401,7 @@ void RotationControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void RotationControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   updateDynamicParams(cfg);
-  rot_controller_->reconfigure(dynamic_params_rot_);
+  rot_controller_.reconfigure(dynamic_params_);
   rosInfo("Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

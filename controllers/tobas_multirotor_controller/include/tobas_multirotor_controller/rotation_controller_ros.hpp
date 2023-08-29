@@ -36,11 +36,10 @@ public:
 
 private:
   tobas::Drone drone_;
-
   KDL::TreeJointNameParser jnt_name_parser_;
   tobas::RotorAxisExtractor z_rotors_;
 
-  std::shared_ptr<RotationController> rot_controller_;
+  RotationController rot_controller_;
 
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
   bool is_initialized_;
@@ -58,7 +57,7 @@ private:
   tobas_msgs::RotorSpeeds rotor_speeds_;  // モータの回転数 (出力)
 
   // RosParams
-  RotationControllerDynamicParams dynamic_params_rot_;
+  RotationControllerDynamicParams dynamic_params_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;

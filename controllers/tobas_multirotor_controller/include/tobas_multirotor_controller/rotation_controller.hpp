@@ -34,9 +34,9 @@ struct RotationControllerDynamicParams
 class RotationController
 {
 public:
-  explicit RotationController(
-    const tobas::Drone& drone,
-    const RotationControllerDynamicParams& params);
+  explicit RotationController(const tobas::Drone& drone);
+
+  void updateInternalDataStructures();
 
   void update(
     const KDL::Euler& cur_rpy,

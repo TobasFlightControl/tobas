@@ -14,17 +14,12 @@ using namespace KDL;
 
 namespace tobas_multirotor_controller
 {
-RotationController::RotationController(
-  const tobas::Drone& drone,
-  const RotationControllerDynamicParams& params)
+RotationController::RotationController(const tobas::Drone& drone)
   : drone_(drone),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE),
     cont_(drone),
     c2d_(STATE_SIZE, z_rotors_.count())
 {
-  assert(drone.tree().getNrOfJoints() > 0);
-  assert(z_rotors_.count() > 0);
-
   mpc_.Cz = MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
   mpc_.decay_time_consts.resize(STATE_SIZE);
   setScales();
@@ -37,8 +32,21 @@ RotationController::RotationController(
   mpc_.current_state.resize(STATE_SIZE);
   mpc_.set_state.resize(STATE_SIZE);
   mpc_.last_input = VectorXd::Zero(z_rotors_.count());
+}
 
-  reconfigure(params);
+void RotationController::updateInternalDataStructures()
+{
+  z_rotors_.updateInternalDataStructures();
+  cont_.updateInternalDataStructures();
+
+  c2d_.resize(STATE_SIZE, z_rotors_.count());
+
+  setScales();
+  mpc_.input_rate_weight.resize(z_rotors_.count());
+  mpc_.input_weight.resize(z_rotors_.count());
+  mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
+  setInputConstraintBase();
+  mpc_.last_input = VectorXd::Zero(z_rotors_.count());
 }
 
 void RotationController::update(

@@ -23,6 +23,15 @@ MultiRotorDynamics::MultiRotorDynamics(const tobas::Drone& drone)
   resize(STATE_SIZE, z_rotors_.count());
 }
 
+void MultiRotorDynamics::updateInternalDataStructures()
+{
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
+  z_rotors_.updateInternalDataStructures();
+
+  resize(STATE_SIZE, z_rotors_.count());
+}
+
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
 {
   updateA(roll, pitch);
