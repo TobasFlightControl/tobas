@@ -14,7 +14,8 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/BaseState.h>
-#include <tobas_common_actions/StaticStateDeterminationAction.h>
+#include <tobas_msgs/StaticStateDeterminationAction.h>
+
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
 
 #include "./eskf.hpp"
@@ -122,7 +123,7 @@ private:
   bool isReady();
   bool isValidDeltaTime(double dt);
   void initialize();
-  tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
+  tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
 
   void eventCb(const tobas_msgs::Event& event) override;

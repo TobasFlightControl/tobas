@@ -13,10 +13,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 find_package(catkin REQUIRED COMPONENTS
 	dh_kdl
+	message_generation
 	kdl_msgs
 	std_msgs
+	sensor_msgs
 	actionlib_msgs
-	message_generation
 )
 
 # catkin_python_setup()
@@ -31,13 +32,20 @@ add_action_files(FILES ${ACTION_FILES})
 generate_messages(DEPENDENCIES
 	kdl_msgs
 	std_msgs
+	sensor_msgs
 	actionlib_msgs
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 # 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS dh_kdl kdl_msgs std_msgs actionlib_msgs message_generation
+	CATKIN_DEPENDS
+		dh_kdl
+		message_generation
+		kdl_msgs
+		std_msgs
+		sensor_msgs
+		actionlib_msgs 
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

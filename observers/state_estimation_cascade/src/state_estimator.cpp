@@ -11,8 +11,6 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
-#include <tobas_common_actions/common.hpp>
-
 #include "../include/state_estimation_cascade/state_estimator.hpp"
 
 using namespace std;
@@ -133,16 +131,15 @@ void StateEstimator::initialize(const ImuMsg& imu)
   t_last_ = imu.header.stamp + duration;
 }
 
-tobas_common_actions::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositions()
+tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositions()
 {
   constexpr char action_name[] = "static_state_determination";
-  actionlib::SimpleActionClient<tobas_common_actions::StaticStateDeterminationAction> ac(
-    action_name);
+  actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(action_name);
   rosInfo("Waiting for action server '" << action_name << "' to start.");
   ac.waitForServer();
 
   rosInfo("Action server '" << action_name << "' started, sending goal.");
-  tobas_common_actions::StaticStateDeterminationGoal goal;
+  tobas_msgs::StaticStateDeterminationGoal goal;
   goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
   goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
   ac.sendGoal(goal);
@@ -156,7 +153,7 @@ tobas_common_actions::StaticStateDeterminationResultConstPtr StateEstimator::set
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
-  if (result->error_code != tobas_common_actions::StaticStateDeterminationResult::NO_ERROR)
+  if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
     rosError(
       "'" << action_name << "' finished with error: " << state.getText()

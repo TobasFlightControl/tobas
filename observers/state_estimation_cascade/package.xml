@@ -12,9 +12,10 @@
 	<depend>eigen_conversions</depend>
 	<depend>kdl_conversions</depend>
 	<depend>dynamic_reconfigure</depend>
+	<depend>actionlib</depend>
 
 	<depend>dh_linear_control</depend>
 
-	<depend>tobas_common_actions</depend>
+	<depend>tobas_tools</depend>
 
 </package>

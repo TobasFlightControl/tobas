@@ -11,6 +11,7 @@
 
 	<depend>message_generation</depend>
 	<depend>std_msgs</depend>
+	<depend>sensor_msgs</depend>
 	<depend>actionlib_msgs</depend>
 	<depend>kdl_msgs</depend>
 

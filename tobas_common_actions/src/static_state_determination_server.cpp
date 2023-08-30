@@ -142,7 +142,7 @@ bool StaticStateDeterminationServer::isStatic()
   // ジャイロが閾値を超えたらダメ
   if (dh_ros::norm(gyro_) > kStaticGyroThreshold)
   {
-    result_.error_code = StaticStateDeterminationResult::NOT_STATIC;
+    result_.error_code = ResultType::NOT_STATIC;
     as_.setAborted(result_, "Rotation of the aircraft is detected.");
     return false;
   }
@@ -152,7 +152,7 @@ bool StaticStateDeterminationServer::isStatic()
   {
     if (pressure_alt_stat_.getVariance() > kStaticAirPressureAltVarThreshold)
     {
-      result_.error_code = StaticStateDeterminationResult::NOT_STATIC;
+      result_.error_code = ResultType::NOT_STATIC;
       as_.setAborted(result_, "A drift in barometric altitude is detected.");
       return false;
     }

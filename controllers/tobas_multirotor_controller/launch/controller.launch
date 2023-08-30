@@ -1,10 +1,8 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
-  <arg name="nodelet_manager" default="true"/>
 
   <group if="$(arg nodelet)">
-    <node if="$(arg nodelet_manager)" pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="position_controller" args="load tobas_multirotor_controller/PositionControllerNodelet nodelet_manager" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="velocity_controller" args="load tobas_multirotor_controller/VelocityControllerNodelet nodelet_manager" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="rotation_controller" args="load tobas_multirotor_controller/RotationControllerNodelet nodelet_manager" output="screen"/>

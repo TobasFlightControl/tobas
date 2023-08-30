@@ -8,7 +8,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_common_actions/WaitForStillnessAction.h>
+#include <tobas_msgs/WaitForStillnessAction.h>
 #include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
 
 namespace tobas_multirotor_takeoff
@@ -50,12 +50,12 @@ public:
 private:
   tobas_msgs::PositionYaw pos_yaw_;
   ResultType result_;
-  tobas_common_actions::WaitForStillnessGoal wait_for_stillness_goal_;
+  tobas_msgs::WaitForStillnessGoal wait_for_stillness_goal_;
 
   ros::Publisher pos_yaw_pub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
-  actionlib::SimpleActionClient<tobas_common_actions::WaitForStillnessAction> wait_for_stillness_;
+  actionlib::SimpleActionClient<tobas_msgs::WaitForStillnessAction> wait_for_stillness_;
 
   void getRosParams() override;
   void registerPublishers() override;

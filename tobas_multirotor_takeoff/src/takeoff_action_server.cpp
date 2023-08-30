@@ -83,8 +83,7 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
   rosInfo("Checking stillness.");
   wait_for_stillness_.sendGoalAndWait(wait_for_stillness_goal_);
   const auto wait_for_stillness_result = wait_for_stillness_.getResult();
-  if (
-    wait_for_stillness_result->error_code != tobas_common_actions::WaitForStillnessResult::NO_ERROR)
+  if (wait_for_stillness_result->error_code != tobas_msgs::WaitForStillnessResult::NO_ERROR)
   {
     rosInfo("'" << WAIT_FOR_STILLNESS << "' action failed.");
     result_.error_code = ResultType::NOT_READY;

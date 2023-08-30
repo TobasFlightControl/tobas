@@ -9,6 +9,9 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>tobas_common_actions</depend>
+	<depend>actionlib</depend>
+	<depend>actionlib_msgs</depend>
+
+	<depend>tobas_tools</depend>
 
 </package>

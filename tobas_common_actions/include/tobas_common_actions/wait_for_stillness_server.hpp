@@ -4,8 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
-
-#include <tobas_common_actions/WaitForStillnessAction.h>
+#include <tobas_msgs/WaitForStillnessAction.h>
 
 namespace tobas_common_actions
 {
@@ -15,10 +14,10 @@ class WaitForStillnessServer : public tobas::BaseNode
 
   using super = tobas::BaseNode;
 
-  using ActionType = tobas_common_actions::WaitForStillnessAction;
-  using GoalType = tobas_common_actions::WaitForStillnessGoalConstPtr;
-  using ResultType = tobas_common_actions::WaitForStillnessResult;
-  using FeedbackType = tobas_common_actions::WaitForStillnessFeedback;
+  using ActionType = tobas_msgs::WaitForStillnessAction;
+  using GoalType = tobas_msgs::WaitForStillnessGoalConstPtr;
+  using ResultType = tobas_msgs::WaitForStillnessResult;
+  using FeedbackType = tobas_msgs::WaitForStillnessFeedback;
 
 public:
   explicit WaitForStillnessServer();

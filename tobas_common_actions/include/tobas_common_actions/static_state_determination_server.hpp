@@ -6,7 +6,7 @@
 #include <dh_std_tools/statistics.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_common_actions/StaticStateDeterminationAction.h>
+#include <tobas_msgs/StaticStateDeterminationAction.h>
 
 namespace tobas_common_actions
 {
@@ -31,10 +31,10 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
-  using ActionType = tobas_common_actions::StaticStateDeterminationAction;
-  using GoalType = tobas_common_actions::StaticStateDeterminationGoalConstPtr;
-  using ResultType = tobas_common_actions::StaticStateDeterminationResult;
-  using FeedbackType = tobas_common_actions::StaticStateDeterminationFeedback;
+  using ActionType = tobas_msgs::StaticStateDeterminationAction;
+  using GoalType = tobas_msgs::StaticStateDeterminationGoalConstPtr;
+  using ResultType = tobas_msgs::StaticStateDeterminationResult;
+  using FeedbackType = tobas_msgs::StaticStateDeterminationFeedback;
 
 public:
   explicit StaticStateDeterminationServer();
