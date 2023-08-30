@@ -1,9 +1,22 @@
 <launch>
 
-  <!-- Static State Determinator -->
-  <include file="$(find tobas_common_actions)/launch/static_state_determination.launch"/>
+  <arg name="nodelet" default="true"/>
+  <arg name="nodelet_manager" default="true"/>
 
   <!-- State Estimator -->
-  <node pkg="state_estimation_eskf" type="eskf_node" name="state_estimator_eskf" output="screen"/>
+  <group if="$(arg nodelet)">
+    <node if="$(arg nodelet_manager)" pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="state_estimator_eskf" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="state_estimation_eskf" type="eskf_node" name="state_estimator_eskf" output="screen"/>
+  </group>
+
+  <!-- Static State Determinator -->
+  <include file="$(find tobas_common_actions)/launch/static_state_determination.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="nodelet_manager" value="false"/>
+  </include>
 
 </launch>

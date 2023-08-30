@@ -1,0 +1,11 @@
+<library path="lib/libtobas_common_actions_nodelet">
+
+  <class name="tobas_common_actions/StaticStateDeterminationServerNodelet" type="tobas_common_actions::StaticStateDeterminationServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_common_actions/WaitForStillnessServerNodelet" type="tobas_common_actions::WaitForStillnessServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

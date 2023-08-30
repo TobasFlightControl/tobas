@@ -11,7 +11,13 @@
 
 	<depend>eigen_conversions</depend>
 	<depend>dynamic_reconfigure</depend>
+	<depend>nodelet</depend>
+	<depend>pluginlib</depend>
 
 	<depend>tobas_common_actions</depend>
+
+	<export>
+		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export>
 
 </package>
