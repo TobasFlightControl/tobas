@@ -38,7 +38,7 @@ catkin_package(
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-# Library
+# Static Library
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
@@ -49,12 +49,12 @@ target_link_libraries(
 	/usr/local/lib/libqpOASES.a
 )
 
-# Nodelet library
+# Nodelet Library
 file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
 add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
 target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
 
-# Executable nodes
+# Executables
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 foreach(FILE IN LISTS NODE_FILES)
 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
