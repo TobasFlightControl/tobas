@@ -6,6 +6,7 @@ namespace tobas_multirotor_controller
 {
 void VelocityControllerNodelet::onInit()
 {
+  node_.reset(new VelocityControllerRos());
 }
 }  // namespace tobas_multirotor_controller
 

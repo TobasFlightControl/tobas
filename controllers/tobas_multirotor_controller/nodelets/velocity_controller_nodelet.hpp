@@ -12,6 +12,6 @@ public:
   void onInit() override;
 
 private:
-  VelocityControllerRos node_;
+  std::shared_ptr<VelocityControllerRos> node_;
 };
 }  // namespace tobas_multirotor_controller

@@ -12,6 +12,6 @@ public:
   void onInit() override;
 
 private:
-  PositionControllerRos node_;
+  std::shared_ptr<PositionControllerRos> node_;
 };
 }  // namespace tobas_multirotor_controller
