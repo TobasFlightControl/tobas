@@ -1,0 +1,15 @@
+<launch>
+
+  <arg name="nodelet" default="true"/>
+
+  <arg name="node_name" value="rc_teleop"/>
+
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_rc_teleop/RcinToRollPitchYawrateThrustNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_rc_teleop" type="roll_pitch_yawrate_thrust_node" name="$(arg node_name)" output="screen"/>
+  </group>
+
+</launch>
