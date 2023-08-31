@@ -34,7 +34,7 @@ class MultirotorLMPC(BaseController):
         PositionYaw,
     ]
 
-    MIN_PROP_NUM = 3
+    MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = "位置制御にPD制御，姿勢制御に線形モデル予測制御を用いた制御器です．"
@@ -270,7 +270,7 @@ class MultirotorLMPC(BaseController):
 
         # プロペラの個数条件
         prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
-        if len(prop_jnt_names) < self.MIN_PROP_NUM:
+        if len(prop_jnt_names) < self.MIN_NUM_PROP:
             return False
 
         # Z軸正方向のプロペラのみ

@@ -27,7 +27,8 @@ class FixedWingLQR(BaseController):
 
     COMMAND_MSGS = [SpeedRollDeltaPitch]
 
-    MIN_PROP_NUM = 1
+    MIN_NUM_PROP = 1
+    MIN_NUM_CS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = "TODO"
@@ -130,9 +131,13 @@ class FixedWingLQR(BaseController):
         if not fixed_wing.has_fixed_wing.isChecked():
             return False
 
+        # 制御面の個数条件
+        if fixed_wing.num_control_surfaces() < self.MIN_NUM_CS:
+            return False
+
         # プロペラの個数条件
         prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
-        if len(prop_jnt_names) < self.MIN_PROP_NUM:
+        if len(prop_jnt_names) < self.MIN_NUM_PROP:
             return False
 
         # X軸正方向のプロペラのみ

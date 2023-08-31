@@ -70,6 +70,9 @@ class FixedWingWidget(BaseSettingWidget):
 
         return True
 
+    def num_control_surfaces(self) -> int:
+        return self.control_surfaces.selected.count()
+
     def _update_visibility(self) -> None:
         if self.has_fixed_wing.isChecked():
             self.vehicle.setVisible(True)

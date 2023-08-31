@@ -21,6 +21,8 @@ from .common import STABILITY_COEF_DECIMALS
 class ControlSurface:
 
     def __init__(self) -> None:
+        self.joint_name = ""
+
         self.min_angle = 0.
         self.max_angle = 0.
         self.max_angle_rate = 0.
@@ -75,6 +77,7 @@ class ControlSurfacesWidget(QWidget):
     def control_surfaces(self) -> List[ControlSurface]:
         res = [ControlSurface() for _ in range(self.selected.count())]
         for i in range(self.selected.count()):
+            res[i].joint_name = self.selected.joint_names[i].text()
             res[i].min_angle = self.selected.min_angles[i].value()
             res[i].max_angle = self.selected.max_angles[i].value()
             res[i].max_angle_rate = self.selected.max_angle_rates[i].value()
@@ -378,6 +381,7 @@ class SelectedLinksWidget(QTableWidget):
         self.setCellWidget(row, 10, c_yaw_delta)
 
         self.link_added.emit(selected_link)
+        self._main.signals.airframe_updated.emit()
 
     @pyqtSlot()
     def _delete_cur_row(self) -> None:
@@ -398,3 +402,5 @@ class SelectedLinksWidget(QTableWidget):
         self.c_roll_delta.pop(row)
         self.c_pitch_delta.pop(row)
         self.c_yaw_delta.pop(row)
+
+        self._main.signals.airframe_updated.emit()

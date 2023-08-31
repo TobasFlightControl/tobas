@@ -78,6 +78,7 @@ class FixedWingModel(ET.Element):
         for idx, cs in enumerate(control_surfaces):
             cs_elem = ET.SubElement(plugin, "controlSurface")
             ET.SubElement(cs_elem, "index").text = str(idx)
+            ET.SubElement(cs_elem, "jointName").text = cs.joint_name
             ET.SubElement(cs_elem, "minAngle").text = str(cs.min_angle)
             ET.SubElement(cs_elem, "maxAngle").text = str(cs.max_angle)
             ET.SubElement(cs_elem, "maxAngleRate").text = str(cs.max_angle_rate)
