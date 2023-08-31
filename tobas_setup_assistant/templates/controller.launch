@@ -1,15 +1,25 @@
 <launch>
 
+  <arg name="nodelet" default="true"/>
+
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
     <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
 
     <!-- Bringup controller -->
-    <include file="$(find {{ controller_pkg }})/launch/controller.launch"/>
+    <include file="$(find {{ controller_pkg }})/launch/controller.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
 
     <!-- Bringup takeoff and landing action servers at the same time -->
-    <include file="$(find {{ takeoff_pkg }})/launch/takeoff_action_server.launch"/>
-    <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch"/>
+    <include file="$(find {{ takeoff_pkg }})/launch/takeoff_action_server.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+
+    <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+
   </group>
 
 </launch>

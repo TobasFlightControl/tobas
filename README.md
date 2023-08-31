@@ -102,27 +102,19 @@ $ ssh (user)@(host)
 
 4. Execute real.launch with superuser privileges
 
+Please make sure that the RC transmitter and receiver can communicate correctly.
+
 ```bash
 $ su
 $ source ~/catkin_ws/devel/setup.bash
 $ roslaunch (tobas_config_pkg) real.launch
 ```
 
-### 3. Bringup control nodes
-
-Launch the nodes for drone control. This is common for both simulation and the real world.\
-Please make sure that the RC transmitter and receiver can communicate correctly.
-
-```bash
-$ roslaunch (tabas_config_pkg) bringup.launch
-```
-
-### 4. Teleoperation
+### 3. Teleoperation
 
 ```bash
 $ roslaunch (tobas_config_pkg) keyboard_teleop.launch  # By keyboard
 $ roslaunch (tobas_config_pkg) gui_teleop.launch       # By GUI application
-$ roslaunch (tobas_config_pkg) rc_teleop.launch        # By RC transmitter
 ```
 
 ## Advanced usage

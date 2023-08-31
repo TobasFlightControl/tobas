@@ -1,0 +1,7 @@
+<launch>
+
+  <group ns="{{ drone_name }}">
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen"/>
+  </group>
+
+</launch>

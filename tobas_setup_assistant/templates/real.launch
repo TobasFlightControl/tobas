@@ -1,5 +1,10 @@
 <launch>
 
+  <arg name="nodelet" default="true"/>
+
+  <!-- Launch nodelet manager -->
+  <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
+
   <!-- Load environment configurations from YAML file to parameter server -->
   <rosparam file="$(find {{ pkg_name }})/config/environment.yaml" command="load"/>
 
@@ -11,7 +16,14 @@
     <param name="robot_description" command="$(find xacro)/xacro '$(find {{ pkg_name }})/urdf/{{ drone_name }}.xacro' DEBUG:=false"/>
 
     <!-- Bringup the nodes required for connections between hardware and software -->
-    <include file="$(find tobas_real)/launch/hardware_interfaces.launch"/>
+    <include file="$(find tobas_real)/launch/hardware_interfaces.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
   </group>
+
+  <!-- Bringup Tobas software -->
+  <include file="$(find {{ pkg_name }})/launch/bringup.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
 
 </launch>

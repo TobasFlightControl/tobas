@@ -136,6 +136,8 @@ class PackageGenerator(QObject):
         self._generate_from_template(
             items, "environment.yaml", osp.join(config_dir, "environment.yaml"))
         self._generate_from_template(
+            items, "nodelet_manager.launch", osp.join(launch_dir, "nodelet_manager.launch"))
+        self._generate_from_template(
             items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch"))
         self._generate_from_template(
             items, "real.launch", osp.join(launch_dir, "real.launch"))

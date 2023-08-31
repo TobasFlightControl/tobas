@@ -1,5 +1,6 @@
 <launch>
 
+  <arg name="nodelet" default="true"/>
   <arg name="world_path" default="$(find tobas_gazebo)/worlds/basic.world"/>
   <arg name="debug" default="false"/>
   <arg name="paused" default="false"/>
@@ -15,6 +16,9 @@
 
   <arg name="pi" value="3.14159265359"/>
   <arg name="yaw_rad" value="$(eval arg('yaw') * arg('pi') / 180)"/>
+
+  <!-- Launch nodelet manager -->
+  <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
 
   <!-- Bringup a Gazebo world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -46,5 +50,10 @@
     <!-- Load the joint controllers -->
     <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
   </group>
+
+  <!-- Bringup Tobas software -->
+  <include file="$(find {{ pkg_name }})/launch/bringup.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
 
 </launch>

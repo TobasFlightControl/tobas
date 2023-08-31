@@ -1,7 +1,11 @@
 <launch>
 
+  <arg name="nodelet" default="true"/>
+
   <group ns="{{ drone_name }}">
-    <node pkg="tobas_rc_teleop" type="velocity_yaw_node" name="rcin_to_velocity_yaw" output="screen"/>
+    <include file="$(find tobas_rc_teleop)/launch/velocity_yaw.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
   </group>
 
 </launch>
