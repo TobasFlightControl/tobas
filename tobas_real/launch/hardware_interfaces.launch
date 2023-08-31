@@ -1,7 +1,17 @@
 <launch>
 
-  <include file="$(find tobas_real)/launch/sensors.launch"/>
-  <include file="$(find tobas_real)/launch/motors.launch"/>
-  <include file="$(find tobas_real)/launch/rc_input.launch"/>
+  <arg name="nodelet" default="true"/>
+
+  <include file="$(find tobas_real)/launch/sensors.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+  <include file="$(find tobas_real)/launch/motors.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+  <include file="$(find tobas_real)/launch/rc_input.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
 
 </launch>
