@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "battery_handler");
-  tobas_real::BatteryHandler node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_real::BatteryHandler node(nh, pnh);
   node.run();
 }

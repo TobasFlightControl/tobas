@@ -12,8 +12,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-PositionControllerRos::PositionControllerRos()
-  : super(),
+PositionControllerRos::PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     is_initialized_(false),
     bs_received_(false),
     cmd_received_(false),
@@ -40,10 +40,12 @@ PositionControllerRos::PositionControllerRos()
 
 void PositionControllerRos::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/horizontal_natural_frequency", dynamic_params_.hor_natural_freq);
-  dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
-  dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
-  dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
+  dh_ros::getParam(
+    nh_, kCtrlName + "/horizontal_natural_frequency", dynamic_params_.hor_natural_freq);
+  dh_ros::getParam(nh_, kCtrlName + "/horizontal_damping_ratio", dynamic_params_.hor_damp_ratio);
+  dh_ros::getParam(
+    nh_, kCtrlName + "/vertical_natural_frequency", dynamic_params_.ver_natural_freq);
+  dh_ros::getParam(nh_, kCtrlName + "/vertical_damping_ratio", dynamic_params_.ver_damp_ratio);
 }
 
 void PositionControllerRos::registerPublishers()

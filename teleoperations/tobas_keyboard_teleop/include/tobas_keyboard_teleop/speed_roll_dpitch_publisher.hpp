@@ -28,7 +28,7 @@ class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit SpeedRollDeltaPitchPublisher();
+  explicit SpeedRollDeltaPitchPublisher(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

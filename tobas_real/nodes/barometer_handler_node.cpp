@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "barometer_handler");
-  tobas_real::BarometerHandler node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_real::BarometerHandler node(nh, pnh);
   node.run();
 }

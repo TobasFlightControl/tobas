@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "rc_input_handler");
-  tobas_real::RCInputHandler node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_real::RCInputHandler node(nh, pnh);
   node.run();
 }

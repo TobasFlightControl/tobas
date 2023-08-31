@@ -26,7 +26,7 @@ class ImuHandler : public tobas::BaseNode
   using ImuPtr = std::unique_ptr<InertialSensor>;
 
 public:
-  explicit ImuHandler();
+  explicit ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

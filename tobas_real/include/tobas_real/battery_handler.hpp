@@ -15,7 +15,7 @@ class BatteryHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryHandler();
+  explicit BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

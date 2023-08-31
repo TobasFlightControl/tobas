@@ -15,7 +15,7 @@ class CpuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit CpuHandler();
+  explicit CpuHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

@@ -33,7 +33,7 @@ class Controller : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller();
+  explicit Controller(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   enum State

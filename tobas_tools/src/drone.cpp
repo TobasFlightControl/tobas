@@ -17,24 +17,24 @@ Drone::Drone() : is_loaded_(false)
 {
 }
 
-void Drone::loadFromParam(const string& ns)
+void Drone::loadFromParam(ros::NodeHandle& nh)
 {
-  if (!kdl_parser::treeFromParam(ns + "/robot_description", tree_))
+  if (!kdl_parser::treeFromParam("robot_description", tree_))
   {
     rosthrow("Failed to get KDL tree.");
   }
 
-  dh_ros::getParam(ns + "/imu_offset", imu_offset_);
-  dh_ros::getParam(ns + "/barometer_offset", bar_offset_);
-  dh_ros::getParam(ns + "/gps_offset", gps_offset_);
-  dh_ros::getParam(ns + "/posture_defining_joint_names", posture_defining_joints_);
+  dh_ros::getParam(nh, "imu_offset", imu_offset_);
+  dh_ros::getParam(nh, "barometer_offset", bar_offset_);
+  dh_ros::getParam(nh, "gps_offset", gps_offset_);
+  dh_ros::getParam(nh, "posture_defining_joint_names", posture_defining_joints_);
 
-  getRotorConfigs(ns);
+  getRotorConfigs(nh);
 
-  has_fixed_wing_ = dh_ros::match(ns + "/fixed_wing");
+  has_fixed_wing_ = dh_ros::match(nh, "fixed_wing");
   if (has_fixed_wing_)
   {
-    getFixedWingConfig(ns);
+    getFixedWingConfig(nh);
   }
 
   is_loaded_ = true;
@@ -152,27 +152,27 @@ double Drone::rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
 }
 
-void Drone::getRotorConfigs(const string& ns)
+void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
   uint32_t rotor_idx = 0;
-  while (dh_ros::match(ns + "/rotor_" + to_string(rotor_idx)))
+  while (dh_ros::match(nh, "rotor_" + to_string(rotor_idx)))
   {
-    rotor_configs_.push_back(getRotorConfig(ns, rotor_idx));
+    rotor_configs_.push_back(getRotorConfig(nh, rotor_idx));
     ++rotor_idx;
   }
 }
 
-RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
+RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, uint32_t rotor_idx)
 {
-  const string prefix = ns + "/rotor_" + to_string(rotor_idx);
+  const string prefix = "rotor_" + to_string(rotor_idx);
   RotorConfig res;
 
   // Link name
-  dh_ros::getParam(prefix + "/link_name", res.link_name);
+  dh_ros::getParam(nh, prefix + "/link_name", res.link_name);
 
   // Axis
   string axis;
-  dh_ros::getParam(prefix + "/axis", axis);
+  dh_ros::getParam(nh, prefix + "/axis", axis);
   if (axis == "x_positive")
   {
     res.axis = Axis::X_POSITIVE;
@@ -188,7 +188,7 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 
   // Direction
   string direction;
-  dh_ros::getParam(prefix + "/direction", direction);
+  dh_ros::getParam(nh, prefix + "/direction", direction);
   if (direction == "ccw")
   {
     res.direction = 1;
@@ -202,10 +202,10 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
     rosthrow("Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
   }
 
-  dh_ros::getParam(prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
 
-  dh_ros::getParam(prefix + "/rot_speed_coefs", res.rot_speed_coefs);
+  dh_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
   if (res.rot_speed_coefs.first <= 0.)
   {
     rosthrow("The first term of 'rot_speed_coefs' must be positive.");
@@ -215,7 +215,7 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
     rosthrow("The second term of 'rot_speed_coefs' must be non-negative.");
   }
 
-  dh_ros::getParam(prefix + "/pin", res.pin);
+  dh_ros::getParam(nh, prefix + "/pin", res.pin);
   if (res.pin < kMinPinId || kMaxPinId < res.pin)
   {
     rosthrow("Invalid rotor pin number: " << res.pin);
@@ -223,7 +223,7 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
 
   // ESC
   string esc_type;
-  dh_ros::getParam(prefix + "/esc_type", esc_type);
+  dh_ros::getParam(nh, prefix + "/esc_type", esc_type);
   if (esc_type == "pwm")
   {
     res.esc_type = ESCType::PWM;
@@ -240,24 +240,24 @@ RotorConfig Drone::getRotorConfig(const string& ns, uint32_t rotor_idx)
   return res;
 }
 
-void Drone::getFixedWingConfig(const string& ns)
+void Drone::getFixedWingConfig(ros::NodeHandle& nh)
 {
-  getVehicleParameters(ns);
-  getAerodynamicsCoefficients(ns);
-  getControlSurfaces(ns);
+  getVehicleParameters(nh);
+  getAerodynamicsCoefficients(nh);
+  getControlSurfaces(nh);
 }
 
-void Drone::getVehicleParameters(const string& ns)
+void Drone::getVehicleParameters(ros::NodeHandle& nh)
 {
-  const string prefix = ns + "/fixed_wing/vehicle";
+  const string prefix = "fixed_wing/vehicle";
   auto& des = fixed_wing_config_.vehicle;
 
-  dh_ros::getParam(prefix + "/wing_surface", des.wing_surface, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/wing_span", des.wing_span, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/mean_aerodynamic_chord", des.mac, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/wing_surface", des.wing_surface, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/wing_span", des.wing_span, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/mean_aerodynamic_chord", des.mac, dh_ros::POSITIVE);
 
   vector<double> ac;
-  dh_ros::getParam<vector<double>>(prefix + "/aerodynamic_center", ac);
+  dh_ros::getParam(nh, prefix + "/aerodynamic_center", ac);
   if (ac.size() != 3)
   {
     rosthrow("Size mismatch: The size of aerodynamic_center must be 3.");
@@ -266,73 +266,73 @@ void Drone::getVehicleParameters(const string& ns)
   des.ac.y(ac[1]);
   des.ac.z(ac[2]);
 
-  dh_ros::getParam(prefix + "/alpha_limit/lower", des.alpha_limit.lower);
-  dh_ros::getParam(prefix + "/alpha_limit/upper", des.alpha_limit.upper);
+  dh_ros::getParam(nh, prefix + "/alpha_limit/lower", des.alpha_limit.lower);
+  dh_ros::getParam(nh, prefix + "/alpha_limit/upper", des.alpha_limit.upper);
   if (!des.alpha_limit.isValid())
   {
     rosthrow("Invalid stall angles");
   }
 }
 
-void Drone::getAerodynamicsCoefficients(const string& ns)
+void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 {
-  const string prefix = ns + "/fixed_wing/aerodynamic_coefficients";
+  const string prefix = "fixed_wing/aerodynamic_coefficients";
   auto& des = fixed_wing_config_.aerodynamics;
 
-  dh_ros::getParam(prefix + "/c_lift_0", des.c_lift_0, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/c_lift_alpha", des.c_lift_alpha, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/c_drag_0", des.c_drag_0, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/c_drag_alpha", des.c_drag_alpha, dh_ros::POSITIVE);
-  dh_ros::getParam(prefix + "/c_side_beta", des.c_side_beta, dh_ros::NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/c_lift_0", des.c_lift_0, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/c_lift_alpha", des.c_lift_alpha, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/c_drag_0", des.c_drag_0, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/c_drag_alpha", des.c_drag_alpha, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/c_side_beta", des.c_side_beta, dh_ros::NEGATIVE);
 
-  dh_ros::getParam(prefix + "/c_roll_beta", des.c_roll_beta, dh_ros::NEGATIVE);
-  dh_ros::getParam(prefix + "/c_roll_p", des.c_roll_p, dh_ros::NEGATIVE);
-  dh_ros::getParam(prefix + "/c_roll_r", des.c_roll_r);
+  dh_ros::getParam(nh, prefix + "/c_roll_beta", des.c_roll_beta, dh_ros::NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/c_roll_p", des.c_roll_p, dh_ros::NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/c_roll_r", des.c_roll_r);
 
-  dh_ros::getParam(prefix + "/c_pitch_0", des.c_pitch_0);
-  dh_ros::getParam(prefix + "/c_pitch_alpha", des.c_pitch_alpha, dh_ros::NEGATIVE);
-  dh_ros::getParam(prefix + "/c_pitch_abs_beta", des.c_pitch_abs_beta);
-  dh_ros::getParam(prefix + "/c_pitch_alpha_rate", des.c_pitch_alpha_rate);
-  dh_ros::getParam(prefix + "/c_pitch_q", des.c_pitch_q, dh_ros::NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/c_pitch_0", des.c_pitch_0);
+  dh_ros::getParam(nh, prefix + "/c_pitch_alpha", des.c_pitch_alpha, dh_ros::NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/c_pitch_abs_beta", des.c_pitch_abs_beta);
+  dh_ros::getParam(nh, prefix + "/c_pitch_alpha_rate", des.c_pitch_alpha_rate);
+  dh_ros::getParam(nh, prefix + "/c_pitch_q", des.c_pitch_q, dh_ros::NEGATIVE);
 
-  dh_ros::getParam(prefix + "/c_yaw_beta", des.c_yaw_beta);
-  dh_ros::getParam(prefix + "/c_yaw_p", des.c_yaw_p);
-  dh_ros::getParam(prefix + "/c_yaw_r", des.c_yaw_r, dh_ros::NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/c_yaw_beta", des.c_yaw_beta);
+  dh_ros::getParam(nh, prefix + "/c_yaw_p", des.c_yaw_p);
+  dh_ros::getParam(nh, prefix + "/c_yaw_r", des.c_yaw_r, dh_ros::NEGATIVE);
 }
 
-void Drone::getControlSurfaces(const string& ns)
+void Drone::getControlSurfaces(ros::NodeHandle& nh)
 {
   uint32_t cs_idx = 0;
-  while (dh_ros::match(ns + "/fixed_wing/control_surface_" + to_string(cs_idx)))
+  while (dh_ros::match(nh, "fixed_wing/control_surface_" + to_string(cs_idx)))
   {
-    fixed_wing_config_.control_surfaces.push_back(getControlSurface(ns, cs_idx));
+    fixed_wing_config_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
     ++cs_idx;
   }
 }
 
-ControlSurface Drone::getControlSurface(const string& ns, uint32_t cs_idx)
+ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, uint32_t cs_idx)
 {
-  const string prefix = ns + "/fixed_wing/control_surface_" + to_string(cs_idx);
+  const string prefix = "fixed_wing/control_surface_" + to_string(cs_idx);
   ControlSurface res;
 
   // indexはprefixの番号と同じ
   res.index = cs_idx;
 
-  dh_ros::getParam(prefix + "/angle_limit/lower", res.angle_limit.lower);
-  dh_ros::getParam(prefix + "/angle_limit/upper", res.angle_limit.upper);
+  dh_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
+  dh_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
   if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0.))
   {
     rosthrow("Invalid range of control surface angle");
   }
 
-  dh_ros::getParam(prefix + "/max_angle_rate", res.max_angle_rate, dh_ros::POSITIVE);
+  dh_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, dh_ros::POSITIVE);
 
-  dh_ros::getParam(prefix + "/c_lift_delta", res.c_lift_delta);
-  dh_ros::getParam(prefix + "/c_drag_abs_delta", res.c_drag_abs_delta);
-  dh_ros::getParam(prefix + "/c_side_delta", res.c_side_delta);
-  dh_ros::getParam(prefix + "/c_roll_delta", res.c_roll_delta);
-  dh_ros::getParam(prefix + "/c_pitch_delta", res.c_pitch_delta);
-  dh_ros::getParam(prefix + "/c_yaw_delta", res.c_yaw_delta);
+  dh_ros::getParam(nh, prefix + "/c_lift_delta", res.c_lift_delta);
+  dh_ros::getParam(nh, prefix + "/c_drag_abs_delta", res.c_drag_abs_delta);
+  dh_ros::getParam(nh, prefix + "/c_side_delta", res.c_side_delta);
+  dh_ros::getParam(nh, prefix + "/c_roll_delta", res.c_roll_delta);
+  dh_ros::getParam(nh, prefix + "/c_pitch_delta", res.c_pitch_delta);
+  dh_ros::getParam(nh, prefix + "/c_yaw_delta", res.c_yaw_delta);
 
   return res;
 }

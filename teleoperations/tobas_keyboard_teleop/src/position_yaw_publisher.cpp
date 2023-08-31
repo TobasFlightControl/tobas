@@ -24,7 +24,8 @@ ostream& operator<<(ostream& os, const tobas_msgs::PositionYaw& arg)
   return os;
 }
 
-PositionYawPublisher::PositionYawPublisher() : super(), keyboard_(getKeyboardControls())
+PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh), keyboard_(getKeyboardControls())
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -146,18 +147,18 @@ void PositionYawPublisher::run()
 void PositionYawPublisher::getRosParams()
 {
   dh_ros::getParam(
-    "~max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, dh_ros::POSITIVE);
+    pnh_, "max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, dh_ros::POSITIVE);
   dh_ros::getParam(
-    "~max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, dh_ros::POSITIVE);
+    pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, dh_ros::POSITIVE);
 
-  dh_ros::getParam("~pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
-  dh_ros::getParam("~pose_limit/x/max", x_limit_.upper, kDefaultMaximumX);
-  dh_ros::getParam("~pose_limit/y/min", y_limit_.lower, kDefaultMinimumY);
-  dh_ros::getParam("~pose_limit/y/max", y_limit_.upper, kDefaultMaximumY);
-  dh_ros::getParam("~pose_limit/z/min", z_limit_.lower, kDefaultMinimumZ);
-  dh_ros::getParam("~pose_limit/z/max", z_limit_.upper, kDefaultMaximumZ);
-  dh_ros::getParam("~pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
-  dh_ros::getParam("~pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
+  dh_ros::getParam(pnh_, "pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
+  dh_ros::getParam(pnh_, "pose_limit/x/max", x_limit_.upper, kDefaultMaximumX);
+  dh_ros::getParam(pnh_, "pose_limit/y/min", y_limit_.lower, kDefaultMinimumY);
+  dh_ros::getParam(pnh_, "pose_limit/y/max", y_limit_.upper, kDefaultMaximumY);
+  dh_ros::getParam(pnh_, "pose_limit/z/min", z_limit_.lower, kDefaultMinimumZ);
+  dh_ros::getParam(pnh_, "pose_limit/z/max", z_limit_.upper, kDefaultMaximumZ);
+  dh_ros::getParam(pnh_, "pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
+  dh_ros::getParam(pnh_, "pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
   ROS_ASSERT(x_limit_.isValid());
   ROS_ASSERT(y_limit_.isValid());
   ROS_ASSERT(z_limit_.isValid());

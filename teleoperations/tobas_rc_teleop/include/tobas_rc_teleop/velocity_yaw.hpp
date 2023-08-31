@@ -19,7 +19,7 @@ class RcinToVelocityYaw : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RcinToVelocityYaw();
+  explicit RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   enum State

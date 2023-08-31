@@ -11,6 +11,8 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/state_estimation_cascade/state_estimator.hpp"
 
 using namespace std;
@@ -19,8 +21,8 @@ using namespace dh_std;
 
 namespace state_estimation_cascade
 {
-StateEstimator::StateEstimator()
-  : super(),
+StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     is_initialized_(false),
     imu_received_(false),
     bar_received_(false),
@@ -38,18 +40,16 @@ StateEstimator::StateEstimator()
 
 void StateEstimator::getRosParams()
 {
-  dh_ros::getParam("/gravity", gravity_, dh_ros::POSITIVE);
-
-  dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
+  dh_ros::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
-    "~gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
+    pnh_, "gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
     kDefaultGpsHorPosStddevThreshold, dh_ros::POSITIVE);
   dh_ros::getParam(
-    "~gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
+    pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
 
   // Dynamic parameters
-  dh_ros::getParam("~gravity_variance", grav_var_, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "gravity_variance", grav_var_, dh_ros::POSITIVE);
 }
 
 void StateEstimator::registerPublishers()
@@ -108,15 +108,15 @@ void StateEstimator::initialize(const ImuMsg& imu)
   // カルマンフィルタを初期化
   // 完全な停止状態で起動するため初期状態の不確かさはかなり小さい想定
   cart_filter_.initialize(
-    Vector3d::Zero(),             // init position
-    Vector3d::Zero(),             // init velocity
-    Vector3d::Zero(),             // init acceleration without gravity
-    Vector3d(0., 0., -gravity_),  // init gravity
+    Vector3d::Zero(),                    // Inittial position
+    Vector3d::Zero(),                    // Inittial velocity
+    Vector3d::Zero(),                    // Inittial acceleration without gravity
+    Vector3d(0., 0., -tobas::kGravity),  // Inittial gravity
     Map<const Matrix3d>(result->gps.position_covariance.data()),  // Initial position cov
     Map<const Matrix3d>(result->ground_speed.covariance.data()),  // Initial velocity cov
-    Matrix3d::Zero(),                                             // init acceleration cov
-    Matrix3d::Zero(),                                             // init gravity cov
-    grav_var_                                                     // gravity variance
+    Matrix3d::Zero(),                                             // Initial acceleration cov
+    Matrix3d::Zero(),                                             // Initial gravity cov
+    grav_var_                                                     // Gravity variance
   );
 
   // ヨー角の初期値

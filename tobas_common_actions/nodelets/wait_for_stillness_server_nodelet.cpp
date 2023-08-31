@@ -7,7 +7,11 @@ namespace tobas_common_actions
 void WaitForStillnessServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Wait For Stillness Server Nodelet.");
-  node_.reset(new WaitForStillnessServer());
+
+  ros::NodeHandle nh = getNodeHandle();
+  ros::NodeHandle pnh = getPrivateNodeHandle();
+
+  node_.reset(new WaitForStillnessServer(nh, pnh));
 }
 }  // namespace tobas_common_actions
 

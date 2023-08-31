@@ -17,8 +17,10 @@ namespace tobas_trajectory_commander
 {
 constexpr char FollowPositionYawTrajectoryServer::kActionName[];
 
-FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer()
-  : super(),
+FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh)
+  : super(nh, pnh),
     as_(
       nh_,
       kActionName,

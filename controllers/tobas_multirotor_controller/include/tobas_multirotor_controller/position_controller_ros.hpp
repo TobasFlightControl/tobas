@@ -25,7 +25,7 @@ class PositionControllerRos : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit PositionControllerRos();
+  explicit PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   bool is_initialized_;

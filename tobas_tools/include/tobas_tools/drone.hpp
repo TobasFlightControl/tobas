@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ros/ros.h>
 #include <kdl/tree.hpp>
 
 #include "./rotor_property.hpp"
@@ -16,7 +17,7 @@ public:
   explicit Drone();
 
   /* Load drone configurations from ROS parameter server. */
-  void loadFromParam(const std::string& ns);
+  void loadFromParam(ros::NodeHandle& nh);
 
   const KDL::Tree& tree() const;
   const Eigen::Vector3d& imuOffset() const;
@@ -61,13 +62,13 @@ private:
   bool has_fixed_wing_;
   bool is_loaded_;
 
-  void getRotorConfigs(const std::string& ns);
-  RotorConfig getRotorConfig(const std::string& ns, uint32_t rotor_idx);
+  void getRotorConfigs(ros::NodeHandle& nh);
+  RotorConfig getRotorConfig(ros::NodeHandle& nh, uint32_t rotor_idx);
 
-  void getFixedWingConfig(const std::string& ns);
-  void getVehicleParameters(const std::string& ns);
-  void getAerodynamicsCoefficients(const std::string& ns);
-  void getControlSurfaces(const std::string& ns);
-  ControlSurface getControlSurface(const std::string& ns, uint32_t cs_idx);
+  void getFixedWingConfig(ros::NodeHandle& nh);
+  void getVehicleParameters(ros::NodeHandle& nh);
+  void getAerodynamicsCoefficients(ros::NodeHandle& nh);
+  void getControlSurfaces(ros::NodeHandle& nh);
+  ControlSurface getControlSurface(ros::NodeHandle& nh, uint32_t cs_idx);
 };
 }  // namespace tobas

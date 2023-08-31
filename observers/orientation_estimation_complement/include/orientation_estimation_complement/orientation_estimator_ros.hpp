@@ -36,7 +36,7 @@ class OrientationEstimatorRos : public tobas::BaseNode
   using MagSubscriber = message_filters::Subscriber<MagMsg>;
 
 public:
-  explicit OrientationEstimatorRos();
+  explicit OrientationEstimatorRos(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   OrientationEstimator filter_;

@@ -25,8 +25,8 @@ using namespace dh_std;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
-  : super(),
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     stage_(FIRST_IMU),
     imu_received_(false),
     mag_received_(false),
@@ -40,7 +40,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
       this)
 {
   getRosParams();
-  drone_.loadFromParam(ns_);
+  drone_.loadFromParam(nh_);
 
   imu2gps_ = drone_.gpsOffset() - drone_.imuOffset();
 
@@ -59,22 +59,23 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos()
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  dh_ros::getParam("~gyro_noise_density", gyro_noise_density_, dh_ros::POSITIVE);
-  dh_ros::getParam("~gyro_random_walk", gyro_random_walk_, dh_ros::POSITIVE);
-  dh_ros::getParam("~acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
-  dh_ros::getParam("~acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "gyro_noise_density", gyro_noise_density_, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "gyro_random_walk", gyro_random_walk_, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
 
-  dh_ros::getParam("~use_barometer", use_bar_, kDefaultUseBarometer);
-  dh_ros::getParam("~use_gps", use_gps_, kDefaultUseGps);
+  dh_ros::getParam(pnh_, "use_barometer", use_bar_, kDefaultUseBarometer);
+  dh_ros::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
-    "~gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
+    pnh_, "gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
     kDefaultGpsHorPosStddevThreshold, dh_ros::POSITIVE);
   dh_ros::getParam(
-    "~gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
+    pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
 
   string geomag_observe_method;
-  dh_ros::getParam("~geomag_observe_method", geomag_observe_method, kDefaultGeomagObserveMethod);
+  dh_ros::getParam(
+    pnh_, "geomag_observe_method", geomag_observe_method, kDefaultGeomagObserveMethod);
   if (geomag_observe_method == "rpy")
   {
     geomag_observe_method_ = GeomagObserveMethod::RPY;
@@ -89,8 +90,9 @@ void ErrorStateKalmanFilterRos::getRosParams()
   }
 
   // Dynamic parameters
-  dh_ros::getParam("~rotation_variance_grav", cfg_.rotation_variance_grav, dh_ros::POSITIVE);
-  dh_ros::getParam("~rotation_variance_geomag", cfg_.rotation_variance_geomag, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "rotation_variance_grav", cfg_.rotation_variance_grav, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh_, "rotation_variance_geomag", cfg_.rotation_variance_geomag, dh_ros::POSITIVE);
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()

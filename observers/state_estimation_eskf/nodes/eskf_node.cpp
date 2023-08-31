@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "state_estimator_eskf");
-  state_estimation_eskf::ErrorStateKalmanFilterRos node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  state_estimation_eskf::ErrorStateKalmanFilterRos node(nh, pnh);
   ros::spin();
 }

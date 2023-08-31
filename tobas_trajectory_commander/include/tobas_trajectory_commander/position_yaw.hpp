@@ -25,7 +25,7 @@ class FollowPositionYawTrajectoryServer : tobas::BaseNode
   using FeedbackType = tobas_trajectory_commander::FollowPositionYawTrajectoryFeedback;
 
 public:
-  explicit FollowPositionYawTrajectoryServer();
+  explicit FollowPositionYawTrajectoryServer(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   ResultType result_;

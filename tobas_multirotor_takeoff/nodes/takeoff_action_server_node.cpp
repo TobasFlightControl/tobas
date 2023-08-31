@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "takeoff_action_server");
-  tobas_multirotor_takeoff::MultirotorTakeoffServer node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_multirotor_takeoff::MultirotorTakeoffServer node(nh, pnh);
   ros::spin();
 }

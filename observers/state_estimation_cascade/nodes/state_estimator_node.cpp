@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "state_estimator_cascade");
-  state_estimation_cascade::StateEstimator node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  state_estimation_cascade::StateEstimator node(nh, pnh);
   ros::spin();
 }

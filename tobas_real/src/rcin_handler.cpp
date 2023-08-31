@@ -13,7 +13,7 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-RCInputHandler::RCInputHandler()
+RCInputHandler::RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
 {
   getRosParams();
 
@@ -44,8 +44,7 @@ void RCInputHandler::run()
     rcin_msg_.roll = remap<double>(roll_period, roll_range_.lower, roll_range_.upper, -1, 1);
     rcin_msg_.pitch = -remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
     rcin_msg_.yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
-    rcin_msg_.thrust =
-      remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
+    rcin_msg_.thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
     rcin_msg_.toggle = toggle_period < toggle_range_.mean();
 
     // Publish message

@@ -22,7 +22,7 @@ class RcinToRollPitchYawrateThrust : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RcinToRollPitchYawrateThrust();
+  explicit RcinToRollPitchYawrateThrust(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   enum State

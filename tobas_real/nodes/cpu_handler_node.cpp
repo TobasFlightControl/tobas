@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "cpu_handler");
-  tobas_real::CpuHandler node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_real::CpuHandler node(nh, pnh);
   node.run();
 }

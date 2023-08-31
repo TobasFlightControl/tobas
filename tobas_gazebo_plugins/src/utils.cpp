@@ -30,5 +30,5 @@ Matrix3d skewMatrix(const Vector3d& v)
   res(2, 1) = v.X();
   res(2, 2) = 0.;
   return res;
-}\
+}
 }  // namespace gazebo

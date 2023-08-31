@@ -43,7 +43,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   };
 
 public:
-  explicit ErrorStateKalmanFilterRos();
+  explicit ErrorStateKalmanFilterRos(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   enum Stage

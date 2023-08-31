@@ -2,7 +2,7 @@
 
 namespace tobas
 {
-BaseNode::BaseNode() : ns_(ros::this_node::getNamespace())
+BaseNode::BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh) : nh_(nh), pnh_(pnh)
 {
 }
 

@@ -35,7 +35,7 @@ class StateEstimator : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit StateEstimator();
+  explicit StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   // 固定値
@@ -61,7 +61,6 @@ private:
   CartesianFilter cart_filter_;
 
   // rosparams
-  double gravity_;
   bool use_gps_;
   double gps_hor_pos_stddev_thr_;  // [m]
   double gps_ver_pos_stddev_thr_;  // [m]

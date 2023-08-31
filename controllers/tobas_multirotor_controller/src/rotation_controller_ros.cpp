@@ -12,8 +12,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-RotationControllerRos::RotationControllerRos()
-  : super(),
+RotationControllerRos::RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     rot_controller_(drone_),
@@ -31,7 +31,7 @@ RotationControllerRos::RotationControllerRos()
     server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
-  drone_.loadFromParam(ns_);
+  drone_.loadFromParam(nh_);
 
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
@@ -55,16 +55,17 @@ RotationControllerRos::RotationControllerRos()
 
 void RotationControllerRos::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/prediction_horizon", dynamic_params_.pred_horizon);
-  dh_ros::getParam(kCtrlName + "/prediction_steps", dynamic_params_.pred_steps);
-  dh_ros::getParam(kCtrlName + "/attitude_decay", dynamic_params_.attitude_decay);
-  dh_ros::getParam(kCtrlName + "/heading_decay", dynamic_params_.heading_decay);
-  dh_ros::getParam(kCtrlName + "/angular_velocity_decay", dynamic_params_.angvel_decay);
-  dh_ros::getParam(kCtrlName + "/attitude_weight", dynamic_params_.attitude_weight);
-  dh_ros::getParam(kCtrlName + "/heading_weight", dynamic_params_.heading_weight);
-  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", dynamic_params_.angvel_weight);
-  dh_ros::getParam(kCtrlName + "/thrust_weight_exp", dynamic_params_.thrust_weight_exp);
-  dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", dynamic_params_.thrust_rate_weight_exp);
+  dh_ros::getParam(nh_, kCtrlName + "/prediction_horizon", dynamic_params_.pred_horizon);
+  dh_ros::getParam(nh_, kCtrlName + "/prediction_steps", dynamic_params_.pred_steps);
+  dh_ros::getParam(nh_, kCtrlName + "/attitude_decay", dynamic_params_.attitude_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/heading_decay", dynamic_params_.heading_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_decay", dynamic_params_.angvel_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/attitude_weight", dynamic_params_.attitude_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/heading_weight", dynamic_params_.heading_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_weight", dynamic_params_.angvel_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/thrust_weight_exp", dynamic_params_.thrust_weight_exp);
+  dh_ros::getParam(
+    nh_, kCtrlName + "/thrust_rate_weight_exp", dynamic_params_.thrust_rate_weight_exp);
 }
 
 void RotationControllerRos::registerPublishers()

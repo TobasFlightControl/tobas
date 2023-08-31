@@ -13,12 +13,12 @@ class BaseNode
 {
 protected:
   ros::NodeHandle nh_;
-  const std::string ns_;
+  ros::NodeHandle pnh_;
 
   ros::Publisher event_pub_;
   ros::Subscriber event_sub_;
 
-  explicit BaseNode();
+  explicit BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   virtual void getRosParams() = 0;
   virtual void registerPublishers() = 0;

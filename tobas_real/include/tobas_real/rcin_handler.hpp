@@ -17,7 +17,7 @@ class RCInputHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RCInputHandler();
+  explicit RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

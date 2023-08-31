@@ -13,8 +13,8 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler_PWM::MotorsHandler_PWM()
-  : super(),
+MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     last_cmd_time_(0.),
     is_activated_(false),
     is_initialized_(false),
@@ -27,7 +27,7 @@ MotorsHandler_PWM::MotorsHandler_PWM()
   }
 
   getRosParams();
-  drone_.loadFromParam(ns_);
+  drone_.loadFromParam(nh_);
 
   // PWMドライバのセットアップ
   for (const auto& rotor_config : drone_.rotorConfigs())

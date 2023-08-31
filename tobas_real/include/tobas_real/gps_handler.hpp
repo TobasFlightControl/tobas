@@ -22,7 +22,7 @@ class GpsHandler : public tobas::BaseNode
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
-  explicit GpsHandler();
+  explicit GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

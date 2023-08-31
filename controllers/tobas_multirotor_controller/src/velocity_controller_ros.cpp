@@ -17,8 +17,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-VelocityControllerRos::VelocityControllerRos()
-  : super(),
+VelocityControllerRos::VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     cmd_level_(tobas_msgs::CommandLevel::NORMAL),
     is_initialized_(false),
     bs_received_(false),
@@ -47,15 +47,17 @@ VelocityControllerRos::VelocityControllerRos()
 void VelocityControllerRos::getRosParams()
 {
   dh_ros::getParam(
-    kCtrlName + "/horizontal_natural_frequency", dynamic_params_vel_.hor_natural_freq);
-  dh_ros::getParam(kCtrlName + "/horizontal_damping_ratio", dynamic_params_vel_.hor_damp_ratio);
-  dh_ros::getParam(kCtrlName + "/vertical_natural_frequency", dynamic_params_vel_.ver_natural_freq);
-  dh_ros::getParam(kCtrlName + "/vertical_damping_ratio", dynamic_params_vel_.ver_damp_ratio);
-  dh_ros::getParam(kCtrlName + "/max_horizontal_velocity", dynamic_params_vel_.max_hor_vel);
-  dh_ros::getParam(kCtrlName + "/max_vertical_velocity", dynamic_params_vel_.max_ver_vel);
+    nh_, kCtrlName + "/horizontal_natural_frequency", dynamic_params_vel_.hor_natural_freq);
+  dh_ros::getParam(
+    nh_, kCtrlName + "/horizontal_damping_ratio", dynamic_params_vel_.hor_damp_ratio);
+  dh_ros::getParam(
+    nh_, kCtrlName + "/vertical_natural_frequency", dynamic_params_vel_.ver_natural_freq);
+  dh_ros::getParam(nh_, kCtrlName + "/vertical_damping_ratio", dynamic_params_vel_.ver_damp_ratio);
+  dh_ros::getParam(nh_, kCtrlName + "/max_horizontal_velocity", dynamic_params_vel_.max_hor_vel);
+  dh_ros::getParam(nh_, kCtrlName + "/max_vertical_velocity", dynamic_params_vel_.max_ver_vel);
 
-  dh_ros::getParam(kCtrlName + "/max_horizontal_accel", dynamic_params_acc_.max_hor_acc);
-  dh_ros::getParam(kCtrlName + "/max_vertical_accel", dynamic_params_acc_.max_ver_acc);
+  dh_ros::getParam(nh_, kCtrlName + "/max_horizontal_accel", dynamic_params_acc_.max_hor_acc);
+  dh_ros::getParam(nh_, kCtrlName + "/max_vertical_accel", dynamic_params_acc_.max_ver_acc);
 }
 
 void VelocityControllerRos::registerPublishers()

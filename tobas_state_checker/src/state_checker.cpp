@@ -10,8 +10,8 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-MultirotorStateChecker::MultirotorStateChecker()
-  : super(),
+MultirotorStateChecker::MultirotorStateChecker(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     battery_received_(false),
     bs_received_(false),
     cmd_received_(false),
@@ -56,7 +56,7 @@ void MultirotorStateChecker::run()
 
 void MultirotorStateChecker::getRosParams()
 {
-  dh_ros::getParam("~battery_voltage_threshold", voltage_threshold_, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "battery_voltage_threshold", voltage_threshold_, dh_ros::POSITIVE);
 }
 
 void MultirotorStateChecker::registerPublishers()

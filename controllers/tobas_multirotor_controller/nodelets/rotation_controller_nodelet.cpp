@@ -7,7 +7,11 @@ namespace tobas_multirotor_controller
 void RotationControllerNodelet::onInit()
 {
   NODELET_INFO("Initializing Rotation Controller Nodelet.");
-  node_.reset(new RotationControllerRos());
+
+  ros::NodeHandle nh = getNodeHandle();
+  ros::NodeHandle pnh = getPrivateNodeHandle();
+
+  node_.reset(new RotationControllerRos(nh, pnh));
 }
 }  // namespace tobas_multirotor_controller
 

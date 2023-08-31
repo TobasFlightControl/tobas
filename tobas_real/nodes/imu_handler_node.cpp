@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "imu_handler");
-  tobas_real::ImuHandler node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_real::ImuHandler node(nh, pnh);
   node.run();
 }

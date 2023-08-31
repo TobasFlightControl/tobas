@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "keyboard_teleop");
-  tobas_keyboard_teleop::SpeedRollDeltaPitchPublisher node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_keyboard_teleop::SpeedRollDeltaPitchPublisher node(nh, pnh);
   node.run();
 }

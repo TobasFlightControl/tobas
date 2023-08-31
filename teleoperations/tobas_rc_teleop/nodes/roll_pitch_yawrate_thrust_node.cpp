@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "rc_teleop");
-  tobas_rc_teleop::RcinToRollPitchYawrateThrust node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_rc_teleop::RcinToRollPitchYawrateThrust node(nh, pnh);
   ros::spin();
 }

@@ -8,7 +8,8 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RcinToVelocityYaw::RcinToVelocityYaw() : super(), state_(CHECK_PREREQUISITES), bs_received_(false)
+RcinToVelocityYaw::RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh), state_(CHECK_PREREQUISITES), bs_received_(false)
 {
   getRosParams();
 
@@ -25,12 +26,13 @@ RcinToVelocityYaw::RcinToVelocityYaw() : super(), state_(CHECK_PREREQUISITES), b
 void RcinToVelocityYaw::getRosParams()
 {
   dh_ros::getParam(
-    "~max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorizontalVelocity, dh_ros::POSITIVE);
+    pnh_, "max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorizontalVelocity, dh_ros::POSITIVE);
   dh_ros::getParam(
-    "~max_vertical_velocity", max_ver_vel_, kDefaultMaxVerticalVelocity, dh_ros::POSITIVE);
-  dh_ros::getParam("~max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
+    pnh_, "max_vertical_velocity", max_ver_vel_, kDefaultMaxVerticalVelocity, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
 
-  dh_ros::getParam("~dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
+  dh_ros::getParam(
+    pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1.)
   {
     rosthrow("'dead_zone_rate' must be lower than 1.");

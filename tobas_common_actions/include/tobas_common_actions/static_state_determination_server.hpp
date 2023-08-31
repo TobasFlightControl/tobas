@@ -37,7 +37,7 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::StaticStateDeterminationFeedback;
 
 public:
-  explicit StaticStateDeterminationServer();
+  explicit StaticStateDeterminationServer(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   ResultType result_;

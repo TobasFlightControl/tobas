@@ -29,7 +29,7 @@ class VelocityControllerRos : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit VelocityControllerRos();
+  explicit VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   uint8_t cmd_level_;

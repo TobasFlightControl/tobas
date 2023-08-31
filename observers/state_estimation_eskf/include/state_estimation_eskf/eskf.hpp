@@ -133,8 +133,8 @@ private:
   double acc_random_walk_;     // [m/s^3/sqrt(Hz)]
   double gyro_random_walk_;    // [rad/s^2/sqrt(Hz)]
 
-  Eigen::Vector3d grav_W_;     // Acceleration due to gravity wrt. world frame [m/s^2]
-  Eigen::Vector3d mag_W_;      // Magnetic field wrt. world frame [T]
+  Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
+  Eigen::Vector3d mag_W_;   // Magnetic field wrt. world frame [T]
 
   StateVector nominal_state_;  // State vector of the filter
   DeltaStateMatrix P_;         // Covariance of the error state

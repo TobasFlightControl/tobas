@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "orientation_estimation_complement");
-  OrientationEstimatorRos node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  OrientationEstimatorRos node(nh, pnh);
   ros::spin();
 }

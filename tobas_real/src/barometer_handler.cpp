@@ -9,7 +9,7 @@
 
 namespace tobas_real
 {
-BarometerHandler::BarometerHandler() : super()
+BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
 {
   getRosParams();
 

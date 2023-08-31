@@ -17,7 +17,7 @@ class BarometerHandler : public tobas::BaseNode
   using BarMsg = sensor_msgs::FluidPressure;
 
 public:
-  explicit BarometerHandler();
+  explicit BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

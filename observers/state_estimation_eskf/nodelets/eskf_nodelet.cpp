@@ -7,7 +7,11 @@ namespace state_estimation_eskf
 void ErrorStateKalmanFilterNodelet::onInit()
 {
   NODELET_INFO("Initializing Error State Kalman Filter Nodelet.");
-  node_.reset(new ErrorStateKalmanFilterRos());
+
+  ros::NodeHandle nh = getNodeHandle();
+  ros::NodeHandle pnh = getPrivateNodeHandle();
+
+  node_.reset(new ErrorStateKalmanFilterRos(nh, pnh));
 }
 }  // namespace state_estimation_eskf
 

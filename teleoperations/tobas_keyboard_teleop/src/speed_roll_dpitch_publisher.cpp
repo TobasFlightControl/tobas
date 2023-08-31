@@ -16,8 +16,8 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher()
-  : super(),
+SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     trim_(drone_),
     keyboard_(getKeyboardControls()),
     is_initialized_(false),
@@ -43,7 +43,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher()
                  "Ctrl-C    : Quit\n";
 
   getRosParams();
-  drone_.loadFromParam(ns_);
+  drone_.loadFromParam(nh_);
 
   trim_.updateInternalDataStructures();
   q_0_.resize(drone_.tree().getNrOfJoints());
@@ -132,12 +132,12 @@ void SpeedRollDeltaPitchPublisher::run()
 void SpeedRollDeltaPitchPublisher::getRosParams()
 {
   dh_ros::getParam(
-    "~max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration, dh_ros::POSITIVE);
+    pnh_, "max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration, dh_ros::POSITIVE);
   dh_ros::getParam(
-    "~max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, dh_ros::POSITIVE);
-  dh_ros::getParam("~maximum_roll", max_roll_, kDefaultMaximumRoll, dh_ros::POSITIVE);
+    pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "maximum_roll", max_roll_, kDefaultMaximumRoll, dh_ros::POSITIVE);
   dh_ros::getParam(
-    "~maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, dh_ros::POSITIVE);
+    pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, dh_ros::POSITIVE);
 }
 
 void SpeedRollDeltaPitchPublisher::registerPublishers()

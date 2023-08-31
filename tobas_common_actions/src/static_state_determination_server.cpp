@@ -13,8 +13,10 @@ using namespace dh_std;
 
 namespace tobas_common_actions
 {
-StaticStateDeterminationServer::StaticStateDeterminationServer()
-  : super(),
+StaticStateDeterminationServer::StaticStateDeterminationServer(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh)
+  : super(nh, pnh),
     is_action_running_(false),
     as_(nh_, kActionName, boost::bind(&StaticStateDeterminationServer::executeCb, this, _1), false)
 {

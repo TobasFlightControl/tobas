@@ -3,6 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "static_state_determination_server");
-  tobas_common_actions::StaticStateDeterminationServer node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  tobas_common_actions::StaticStateDeterminationServer node(nh, pnh);
   ros::spin();
 }

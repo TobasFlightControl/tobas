@@ -32,7 +32,7 @@ class MultirotorStateChecker : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit MultirotorStateChecker();
+  explicit MultirotorStateChecker(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

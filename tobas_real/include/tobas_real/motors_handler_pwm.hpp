@@ -21,7 +21,7 @@ class MotorsHandler_PWM : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit MotorsHandler_PWM();
+  explicit MotorsHandler_PWM(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 

@@ -21,15 +21,15 @@ using namespace dh_std;
 
 namespace tobas_fixed_wing_mpc
 {
-Controller::Controller()
-  : super(),
+Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(ros::NodeHandle(kCtrlName))
 {
   getRosParams();
-  drone_.loadFromParam(ns_);
+  drone_.loadFromParam(nh_);
 
   x_rotors_.updateInternalDataStructures();
   eom_.updateInternalDataStructures();
@@ -77,25 +77,25 @@ Controller::Controller()
 
 void Controller::getRosParams()
 {
-  dh_ros::getParam(kCtrlName + "/prediction_horizon", cfg_.prediction_horizon);
-  dh_ros::getParam(kCtrlName + "/prediction_steps", cfg_.prediction_steps);
+  dh_ros::getParam(nh_, kCtrlName + "/prediction_horizon", cfg_.prediction_horizon);
+  dh_ros::getParam(nh_, kCtrlName + "/prediction_steps", cfg_.prediction_steps);
 
-  dh_ros::getParam(kCtrlName + "/forward_speed_decay", cfg_.forward_speed_decay);
-  dh_ros::getParam(kCtrlName + "/alpha_decay", cfg_.alpha_decay);
-  dh_ros::getParam(kCtrlName + "/beta_decay", cfg_.beta_decay);
-  dh_ros::getParam(kCtrlName + "/attitude_decay", cfg_.attitude_decay);
-  dh_ros::getParam(kCtrlName + "/angular_velocity_decay", cfg_.angular_velocity_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/forward_speed_decay", cfg_.forward_speed_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/alpha_decay", cfg_.alpha_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/beta_decay", cfg_.beta_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/attitude_decay", cfg_.attitude_decay);
+  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_decay", cfg_.angular_velocity_decay);
 
-  dh_ros::getParam(kCtrlName + "/forward_speed_weight", cfg_.forward_speed_weight);
-  dh_ros::getParam(kCtrlName + "/alpha_weight", cfg_.alpha_weight);
-  dh_ros::getParam(kCtrlName + "/beta_weight", cfg_.beta_weight);
-  dh_ros::getParam(kCtrlName + "/attitude_weight", cfg_.attitude_weight);
-  dh_ros::getParam(kCtrlName + "/angular_velocity_weight", cfg_.angular_velocity_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/forward_speed_weight", cfg_.forward_speed_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/alpha_weight", cfg_.alpha_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/beta_weight", cfg_.beta_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/attitude_weight", cfg_.attitude_weight);
+  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_weight", cfg_.angular_velocity_weight);
 
-  dh_ros::getParam(kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
-  dh_ros::getParam(kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
-  dh_ros::getParam(kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
-  dh_ros::getParam(kCtrlName + "/deflection_rate_weight_exp", cfg_.deflection_rate_weight_exp);
+  dh_ros::getParam(nh_, kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
+  dh_ros::getParam(nh_, kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
+  dh_ros::getParam(nh_, kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
+  dh_ros::getParam(nh_, kCtrlName + "/deflection_rate_weight_exp", cfg_.deflection_rate_weight_exp);
 }
 
 void Controller::registerPublishers()

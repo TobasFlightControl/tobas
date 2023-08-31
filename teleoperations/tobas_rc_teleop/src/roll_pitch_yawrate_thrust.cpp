@@ -11,12 +11,12 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust()
-  : super(), z_rotors_(drone_, tobas::Axis::Z_POSITIVE), battery_received_(false)
+RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh), z_rotors_(drone_, tobas::Axis::Z_POSITIVE), battery_received_(false)
 {
   getRosParams();
 
-  drone_.loadFromParam(ns_);
+  drone_.loadFromParam(nh_);
   z_rotors_.updateInternalDataStructures();
 
   const auto mass = tobas::getMass();
@@ -35,17 +35,18 @@ RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust()
 
 void RcinToRollPitchYawrateThrust::getRosParams()
 {
-  dh_ros::getParam("~max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
-  dh_ros::getParam("~max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
 
-  dh_ros::getParam("~max_acceleration", max_acc_, kDefaultMaxAcceleration, dh_ros::POSITIVE);
-  dh_ros::getParam("~min_acceleration", min_acc_, kDefaultMinAcceleration, dh_ros::NEGATIVE);
+  dh_ros::getParam(pnh_, "max_acceleration", max_acc_, kDefaultMaxAcceleration, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "min_acceleration", min_acc_, kDefaultMinAcceleration, dh_ros::NEGATIVE);
   if (min_acc_ < -tobas::kGravity)
   {
     rosthrow("'min_acceleration' must be greater than -Gravity.");
   }
 
-  dh_ros::getParam("~dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
+  dh_ros::getParam(
+    pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1.)
   {
     rosthrow("'dead_zone_rate' must be lower than 1.");

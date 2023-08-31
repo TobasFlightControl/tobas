@@ -13,8 +13,8 @@
 using namespace std;
 using namespace Eigen;
 
-OrientationEstimatorRos::OrientationEstimatorRos()
-  : super(),
+OrientationEstimatorRos::OrientationEstimatorRos(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh),
     is_initialized_(false),
     check_topics_timer_(nh_, kTimerPeriod, &OrientationEstimatorRos::checkTopicsTimerCb, this)
 {
@@ -26,11 +26,11 @@ OrientationEstimatorRos::OrientationEstimatorRos()
 
 void OrientationEstimatorRos::getRosParams()
 {
-  dh_ros::getParam("~gain_acc", gain_acc_, kDefaultGainAcc);
-  dh_ros::getParam("~gain_mag", gain_mag_, kDefaultGainMag);
-  dh_ros::getParam("~bias_alpha", bias_alpha_, kDefaultBiasAlpha);
-  dh_ros::getParam("~do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
-  dh_ros::getParam("~do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
+  dh_ros::getParam(pnh_, "gain_acc", gain_acc_, kDefaultGainAcc);
+  dh_ros::getParam(pnh_, "gain_mag", gain_mag_, kDefaultGainMag);
+  dh_ros::getParam(pnh_, "bias_alpha", bias_alpha_, kDefaultBiasAlpha);
+  dh_ros::getParam(pnh_, "do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
+  dh_ros::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
 }
 
 void OrientationEstimatorRos::registerPublishers()
