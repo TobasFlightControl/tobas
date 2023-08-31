@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <ros/timer.h>
 #include <Navio2/RCInput_Navio2.h>
 
 #include <dh_std_tools/range.hpp>
@@ -19,8 +20,6 @@ class RCInputHandler : public tobas::BaseNode
 public:
   explicit RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
-  void run();
-
 private:
   RCInput_Navio2 rcin_;
   tobas_msgs::RCInput rcin_msg_;
@@ -35,6 +34,9 @@ private:
   // Publisher
   ros::Publisher rcin_pub_;
 
+  // Timer
+  ros::Timer main_timer_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -42,5 +44,6 @@ private:
   void getRcPeriodRanges();
 
   void eventCb(const tobas_msgs::Event& event) override;
+  void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

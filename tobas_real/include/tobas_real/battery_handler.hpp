@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <ros/timer.h>
 #include <Navio2/ADC_Navio2.h>
 
 #include <tobas_tools/node.hpp>
@@ -17,15 +18,18 @@ class BatteryHandler : public tobas::BaseNode
 public:
   explicit BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
-  void run();
-
 private:
   ADC_Navio2 adc_;
-  double adc_coef_;
   tobas_msgs::Battery battery_msg_;
+
+  // Config
+  double adc_coef_;
 
   // Publisher
   ros::Publisher battery_pub_;
+
+  // Timer
+  ros::Timer main_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -34,5 +38,6 @@ private:
   void getAdcCoefficient();
 
   void eventCb(const tobas_msgs::Event& event) override;
+  void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

@@ -2,6 +2,7 @@
 
 #include <Eigen/Core>
 #include <ros/ros.h>
+#include <ros/timer.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
@@ -23,12 +24,9 @@ class ImuHandler : public tobas::BaseNode
 
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
-  using ImuPtr = std::unique_ptr<InertialSensor>;
 
 public:
   explicit ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
-
-  void run();
 
 private:
   ImuDevice imu_;
@@ -53,6 +51,9 @@ private:
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
+  // Timer
+  ros::Timer main_timer_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -63,5 +64,6 @@ private:
   void setGyroBias();
 
   void eventCb(const tobas_msgs::Event& event) override;
+  void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

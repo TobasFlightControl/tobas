@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <ros/timer.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Cpu.h>
@@ -17,18 +18,21 @@ class CpuHandler : public tobas::BaseNode
 public:
   explicit CpuHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
-  void run();
-
 private:
   int temp_millidegrees_;
   tobas_msgs::Cpu cpu_msg_;
 
+  // Publisher
   ros::Publisher cpu_pub_;
+
+  // Timer
+  ros::Timer main_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::Event& event) override;
+  void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

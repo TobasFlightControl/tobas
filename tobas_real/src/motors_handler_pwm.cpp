@@ -13,13 +13,8 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
-    last_cmd_time_(0.),
-    is_activated_(false),
-    is_initialized_(false),
-    battery_received_(false),
-    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &MotorsHandler_PWM::checkTopicsTimerCb, this)
+MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh)
+  : super(nh, pnh), is_activated_(false), battery_received_(false)
 {
   if (getuid())
   {
@@ -36,90 +31,62 @@ MotorsHandler_PWM::MotorsHandler_PWM(ros::NodeHandle nh, ros::NodeHandle pnh)
     setupRCOutput(pwm_, channel);
   }
 
-  // コマンドの初期値はArm
-  pwm_periods_.resize(drone_.numRotors(), kPwmArm);
-
-  registerPublishers();
-  registerSubscribers();
-}
-
-void MotorsHandler_PWM::run()
-{
+  // Send disarm command
   rosInfo("Sending disarm command for " << kDisarmDuration << " seconds.");
   sendDisarm();
   rosInfo("Disarming finished. The motors are ready to rotate.");
 
-  dh_ros::Rate rate(kControlRate);
-  while (ros::ok())
-  {
-    // Check elapsed time after last command
-    const auto time_after_last_cmd = (ros::Time::now() - last_cmd_time_).toSec();
-    if (is_activated_ && time_after_last_cmd > kAutoStopTimeThreshold)
-    {
-      dh_std::fill(pwm_periods_, kPwmArm);
-      is_activated_ = false;
-      rosInfo(
-        "The rotors automatically slow down because "
-        << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
-    }
+  registerPublishers();
+  registerSubscribers();
 
-    // Set PWM duty cycles
-    for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
-    {
-      const auto& rotor_config = drone_.rotorConfig(rotor_idx);
-      const auto& pin = rotor_config.pin;
-      if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_periods_[rotor_idx]))
-      {
-        rosFatal("Failed to set PWM duty cycle on PIN" << pin << ".");
-        // TODO: Request shutdown
-      }
-    }
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  check_interval_timer_ = nh_.createTimer(
+    ros::Duration(1 / kCheckIntervalRate), &MotorsHandler::checkIntervalTimerCb, this);
 }
 
-void MotorsHandler_PWM::getRosParams()
+void MotorsHandler::getRosParams()
 {
 }
 
-void MotorsHandler_PWM::registerPublishers()
+void MotorsHandler::registerPublishers()
 {
 }
 
-void MotorsHandler_PWM::registerSubscribers()
+void MotorsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler_PWM::eventCb, this);
-  rotor_speeds_sub_ =
-    nh_.subscribe("command/motor_speed", 1, &MotorsHandler_PWM::rotorSpeedsCb, this);
-  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler_PWM::batteryCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler::eventCb, this);
+  rotor_speeds_sub_ = nh_.subscribe("command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler::batteryCb, this);
 }
 
-bool MotorsHandler_PWM::isReady()
+bool MotorsHandler::isReady()
 {
   return battery_received_;
 }
 
-void MotorsHandler_PWM::sendDisarm()
+void MotorsHandler::sendDisarm()
 {
   const ros::Time start_time = ros::Time::now();
   while ((ros::Time::now() - start_time).toSec() < kDisarmDuration)
   {
-    for (const auto& rotor_config : drone_.rotorConfigs())
-    {
-      const auto& pin = rotor_config.pin;
-      if (!pwm_.set_duty_cycle(channelFromPin(pin), kPwmDisarm))
-      {
-        rosFatal("Failed to set PWM duty cycle on PIN " << pin << ".");
-        // TODO: Request shutdown
-      }
-    }
+    setPeriodOnAllChannels(kPwmDisarm);
     ros::Duration(kDisarmInterval).sleep();
   }
 }
 
-void MotorsHandler_PWM::eventCb(const tobas_msgs::Event& event)
+void MotorsHandler::setPeriodOnAllChannels(double period)
+{
+  for (const auto& rotor_config : drone_.rotorConfigs())
+  {
+    const auto& pin = rotor_config.pin;
+    if (!pwm_.set_duty_cycle(channelFromPin(pin), period))
+    {
+      rosFatal("Failed to set PWM duty cycle on PIN " << pin << ".");
+      // TODO: Request shutdown
+    }
+  }
+}
+
+void MotorsHandler::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
   {
@@ -131,20 +98,12 @@ void MotorsHandler_PWM::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
+void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
 {
-  if (!is_initialized_)
+  if (!battery_received_)
   {
-    if (isReady())
-    {
-      check_topics_timer_.stop();
-      is_initialized_ = true;
-    }
-    else
-    {
-      rosError("The rotors cannot be rotated because some topics have not been received yet.");
-      return;
-    }
+    rosWarn("The rotors cannot be rotated because battery state has not been received yet.");
+    return;
   }
 
   // Check array size
@@ -196,17 +155,24 @@ void MotorsHandler_PWM::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speed
     }
 
     // スロットルをパルス幅に変換
-    pwm_periods_[rotor_idx] = remap(tar_throttle, 0., 1., kPwmMin, kPwmMax);
+    const auto pwm_period = remap(tar_throttle, 0., 1., kPwmMin, kPwmMax);
+
+    // Set PWM duty cycle
+    if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_period))
+    {
+      rosFatal("Failed to set PWM duty cycle on PIN" << pin << ".");
+      // TODO: Request shutdown
+    }
   }
 
   // Update last commanded time
   last_cmd_time_ = cur_time;
 
-  // Now the motor is activated
+  // Now the motors are activated
   is_activated_ = true;
 }
 
-void MotorsHandler_PWM::batteryCb(const tobas_msgs::Battery& battery)
+void MotorsHandler::batteryCb(const tobas_msgs::Battery& battery)
 {
   if (!battery_received_)
   {
@@ -216,11 +182,22 @@ void MotorsHandler_PWM::batteryCb(const tobas_msgs::Battery& battery)
   battery_ = battery;
 }
 
-void MotorsHandler_PWM::checkTopicsTimerCb(const ros::TimerEvent&)
+void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
 {
-  if (!battery_received_)
+  if (!is_activated_)
   {
-    rosWarn("Battery state is not received yet.");
+    return;
+  }
+
+  // Check elapsed time after last command
+  const auto time_after_last_cmd = (event.current_real - last_cmd_time_).toSec();
+  if (time_after_last_cmd > kAutoStopTimeThreshold)
+  {
+    setPeriodOnAllChannels(kPwmArm);
+    is_activated_ = false;
+    rosInfo(
+      "The rotors are automatically slowed down because "
+      << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
   }
 }
 }  // namespace tobas_real

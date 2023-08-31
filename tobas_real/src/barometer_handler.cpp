@@ -24,32 +24,9 @@ BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : su
 
   registerPublishers();
   registerSubscribers();
-}
 
-void BarometerHandler::run()
-{
-  dh_ros::Rate rate(kUpdateRate);
-
-  while (ros::ok())
-  {
-    barometer_.refreshPressure();
-    usleep(kWaitToUpdateSensor);  // この待ち時間が必須
-    barometer_.readPressure();
-    barometer_.calculatePressureAndTemperature();
-
-    const auto pressure = barometer_.getPressure() * 100;  // mbar -> Pa
-    if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
-    {
-      rosError("Strange air pressure: " << pressure << " [Pa]");
-      continue;
-    }
-
-    bar_msg_.fluid_pressure = pressure;
-    bar_pub_.publish(bar_msg_);
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  main_timer_ =
+    nh_.createTimer(ros::Duration(1 / kUpdateRate), &BarometerHandler::mainTimerCb, this);
 }
 
 void BarometerHandler::getRosParams()
@@ -58,7 +35,7 @@ void BarometerHandler::getRosParams()
 
 void BarometerHandler::registerPublishers()
 {
-  bar_pub_ = nh_.advertise<BarMsg>("air_pressure", 1);
+  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>("air_pressure", 1);
 }
 
 void BarometerHandler::registerSubscribers()
@@ -84,5 +61,24 @@ void BarometerHandler::eventCb(const tobas_msgs::Event& event)
     default:
       break;
   }
+}
+
+void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
+{
+  barometer_.refreshPressure();
+  usleep(kWaitToUpdateSensor);  // この待ち時間が必須
+  barometer_.readPressure();
+  barometer_.calculatePressureAndTemperature();
+
+  const auto pressure = barometer_.getPressure() * 100;  // mbar -> Pa
+  if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
+  {
+    rosError("Strange air pressure: " << pressure << " [Pa]");
+    return;
+  }
+
+  bar_msg_.header.stamp = event.current_real;
+  bar_msg_.fluid_pressure = pressure;
+  bar_pub_.publish(bar_msg_);
 }
 }  // namespace tobas_real

@@ -29,46 +29,8 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
 
   registerPublishers();
   registerSubscribers();
-}
 
-void ImuHandler::run()
-{
-  dh_ros::Rate rate(kUpdateRate);
-  while (ros::ok())
-  {
-    const ros::Time now = ros::Time::now();
-    imu_msg_.header.stamp = now;
-    mag_msg_.header.stamp = now;
-
-    // 各センサのメッセージを更新
-    // センサの座標系をNWU座標系に変換する
-    imu_.update();
-
-    imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
-    const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
-    imu_msg_.linear_acceleration.x = acc.y();
-    imu_msg_.linear_acceleration.y = -acc.x();
-    imu_msg_.linear_acceleration.z = acc.z();
-
-    imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
-    const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
-    imu_msg_.angular_velocity.x = gyro.y();
-    imu_msg_.angular_velocity.y = -gyro.x();
-    imu_msg_.angular_velocity.z = gyro.z();
-
-    imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
-    const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 原点中心の単位球に射影
-    mag_msg_.magnetic_field.x = mag.x();
-    mag_msg_.magnetic_field.y = -mag.y();
-    mag_msg_.magnetic_field.z = -mag.z();
-
-    // Publish messages
-    imu_pub_.publish(imu_msg_);
-    mag_pub_.publish(mag_msg_);
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  main_timer_ = nh_.createTimer(ros::Duration(1 / kUpdateRate), &ImuHandler::mainTimerCb, this);
 }
 
 void ImuHandler::getRosParams()
@@ -174,5 +136,37 @@ void ImuHandler::eventCb(const tobas_msgs::Event& event)
     default:
       break;
   }
+}
+
+void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
+{
+  imu_msg_.header.stamp = event.current_real;
+  mag_msg_.header.stamp = event.current_real;
+
+  // 各センサのメッセージを更新
+  // センサの座標系をNWU座標系に変換する
+  imu_.update();
+
+  imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
+  const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
+  imu_msg_.linear_acceleration.x = acc.y();
+  imu_msg_.linear_acceleration.y = -acc.x();
+  imu_msg_.linear_acceleration.z = acc.z();
+
+  imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+  const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
+  imu_msg_.angular_velocity.x = gyro.y();
+  imu_msg_.angular_velocity.y = -gyro.x();
+  imu_msg_.angular_velocity.z = gyro.z();
+
+  imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+  const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 原点中心の単位球に射影
+  mag_msg_.magnetic_field.x = mag.x();
+  mag_msg_.magnetic_field.y = -mag.y();
+  mag_msg_.magnetic_field.z = -mag.z();
+
+  // Publish messages
+  imu_pub_.publish(imu_msg_);
+  mag_pub_.publish(mag_msg_);
 }
 }  // namespace tobas_real

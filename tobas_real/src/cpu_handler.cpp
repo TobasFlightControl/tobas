@@ -17,29 +17,8 @@ CpuHandler::CpuHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
   getRosParams();
   registerPublishers();
   registerSubscribers();
-}
 
-void CpuHandler::run()
-{
-  dh_ros::Rate rate(kUpdateRate);
-
-  while (ros::ok())
-  {
-    ifstream file(kTemperatureFilePath);
-    if (!file)
-    {
-      rosErrorThrottle(kErrorPeriod, "Failed to open " << kTemperatureFilePath << ".");
-    }
-    file >> temp_millidegrees_;
-
-    cpu_msg_.header.stamp = ros::Time::now();
-    cpu_msg_.temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
-
-    cpu_pub_.publish(cpu_msg_);
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  main_timer_ = nh_.createTimer(ros::Duration(1 / kUpdateRate), &CpuHandler::mainTimerCb, this);
 }
 
 void CpuHandler::getRosParams()
@@ -66,5 +45,21 @@ void CpuHandler::eventCb(const tobas_msgs::Event& event)
     default:
       break;
   }
+}
+
+void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
+{
+  ifstream file(kTemperatureFilePath);
+  if (!file)
+  {
+    rosErrorThrottle(kErrorPeriod, "Failed to open " << kTemperatureFilePath << ".");
+    return;
+  }
+  file >> temp_millidegrees_;
+
+  cpu_msg_.header.stamp = event.current_real;
+  cpu_msg_.temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
+
+  cpu_pub_.publish(cpu_msg_);
 }
 }  // namespace tobas_real

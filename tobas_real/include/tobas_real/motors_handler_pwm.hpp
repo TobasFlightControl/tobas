@@ -1,9 +1,8 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <ros/timer.h>
 #include <Navio2/RCOutput_Navio2.h>
-
-#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
@@ -12,18 +11,16 @@
 
 namespace tobas_real
 {
-class MotorsHandler_PWM : public tobas::BaseNode
+class MotorsHandler : public tobas::BaseNode
 {
-  static constexpr double kControlRate = 800.;           // [Hz]
+  static constexpr double kCheckIntervalRate = 10.;      // [Hz]
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
   static constexpr double kThrottleMargin = 0.01;
 
   using super = tobas::BaseNode;
 
 public:
-  explicit MotorsHandler_PWM(ros::NodeHandle nh, ros::NodeHandle pnh);
-
-  void run();
+  explicit MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   tobas::Drone drone_;
@@ -31,9 +28,7 @@ private:
 
   ros::Time last_cmd_time_;  // [s]
   bool is_activated_;
-  bool is_initialized_;
   bool battery_received_;
-  std::vector<double> pwm_periods_;
   tobas_msgs::Battery battery_;
 
   // PubSub
@@ -41,7 +36,7 @@ private:
   ros::Subscriber battery_sub_;
 
   // Timer
-  dh_ros::Timer check_topics_timer_;
+  ros::Timer check_interval_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -49,11 +44,12 @@ private:
 
   bool isReady();
   void sendDisarm();
+  void setPeriodOnAllChannels(double period);
 
   void eventCb(const tobas_msgs::Event& event) override;
   void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
   void batteryCb(const tobas_msgs::Battery& battery);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
+  void checkIntervalTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

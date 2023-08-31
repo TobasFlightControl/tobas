@@ -20,32 +20,8 @@ BatteryHandler::BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(
 
   registerPublishers();
   registerSubscribers();
-}
 
-void BatteryHandler::run()
-{
-  dh_ros::Rate rate(kUpdateRate);
-
-  while (ros::ok())
-  {
-    // Read battery voltage
-    const int a2_value = adc_.read(kPowerModuleVoltageChannel);
-    if (a2_value < 0)
-    {
-      rosError("Failed to read battery voltage.");
-      continue;
-    }
-
-    // Fill battery message
-    battery_msg_.header.stamp = ros::Time::now();
-    battery_msg_.voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
-
-    // Publish battery message
-    battery_pub_.publish(battery_msg_);
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  main_timer_ = nh_.createTimer(ros::Duration(1 / kUpdateRate), &BatteryHandler::mainTimerCb, this);
 }
 
 void BatteryHandler::getRosParams()
@@ -86,5 +62,23 @@ void BatteryHandler::eventCb(const tobas_msgs::Event& event)
     default:
       break;
   }
+}
+
+void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
+{
+  // Read battery voltage
+  const int a2_value = adc_.read(kPowerModuleVoltageChannel);
+  if (a2_value < 0)
+  {
+    rosError("Failed to read battery voltage.");
+    return;
+  }
+
+  // Fill battery message
+  battery_msg_.header.stamp = event.current_real;
+  battery_msg_.voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+
+  // Publish battery message
+  battery_pub_.publish(battery_msg_);
 }
 }  // namespace tobas_real

@@ -22,37 +22,8 @@ RCInputHandler::RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(
 
   registerPublishers();
   registerSubscribers();
-}
 
-void RCInputHandler::run()
-{
-  dh_ros::Rate rate(kUpdateRate);
-
-  while (ros::ok())
-  {
-    rcin_msg_.header.stamp = ros::Time::now();
-
-    // Read RC input periods
-    const auto roll_period = rcin_.read(kRCInputChannelRoll);
-    const auto pitch_period = rcin_.read(kRCInputChannelPitch);
-    const auto yaw_period = rcin_.read(kRCInputChannelYaw);
-    const auto thrust_period = rcin_.read(kRCInputChannelThrust);
-    const auto toggle_period = rcin_.read(kRCInputChannelToggle);
-
-    // Fill message
-    // TODO: Consider neutoral positions
-    rcin_msg_.roll = remap<double>(roll_period, roll_range_.lower, roll_range_.upper, -1, 1);
-    rcin_msg_.pitch = -remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
-    rcin_msg_.yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
-    rcin_msg_.thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
-    rcin_msg_.toggle = toggle_period < toggle_range_.mean();
-
-    // Publish message
-    rcin_pub_.publish(rcin_msg_);
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  main_timer_ = nh_.createTimer(ros::Duration(1 / kUpdateRate), &RCInputHandler::mainTimerCb, this);
 }
 
 void RCInputHandler::getRosParams()
@@ -100,5 +71,28 @@ void RCInputHandler::eventCb(const tobas_msgs::Event& event)
     default:
       break;
   }
+}
+
+void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
+{
+  rcin_msg_.header.stamp = event.current_real;
+
+  // Read RC input periods
+  const auto roll_period = rcin_.read(kRCInputChannelRoll);
+  const auto pitch_period = rcin_.read(kRCInputChannelPitch);
+  const auto yaw_period = rcin_.read(kRCInputChannelYaw);
+  const auto thrust_period = rcin_.read(kRCInputChannelThrust);
+  const auto toggle_period = rcin_.read(kRCInputChannelToggle);
+
+  // Fill message
+  // TODO: Consider neutoral positions
+  rcin_msg_.roll = remap<double>(roll_period, roll_range_.lower, roll_range_.upper, -1, 1);
+  rcin_msg_.pitch = -remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
+  rcin_msg_.yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
+  rcin_msg_.thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
+  rcin_msg_.toggle = toggle_period < toggle_range_.mean();
+
+  // Publish message
+  rcin_pub_.publish(rcin_msg_);
 }
 }  // namespace tobas_real

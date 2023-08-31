@@ -1,5 +1,5 @@
 <launch>
 
-  <node pkg="tobas_real" name="motors_handler_pwm" type="motors_handler_pwm_node" output="screen"/>
+  <node pkg="tobas_real" name="motors_handler" type="motors_handler_pwm_node" output="screen"/>
 
 </launch>
