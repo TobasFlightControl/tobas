@@ -9,11 +9,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	actionlib
+	nodelet
+	pluginlib
 	actionlib_msgs
 )
 
@@ -31,10 +33,12 @@ generate_messages(DEPENDENCIES
 
 catkin_package(
 	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME}
+	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_tools
 		actionlib
+		nodelet
+		pluginlib
 		actionlib_msgs
 )
 
@@ -45,10 +49,13 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
+file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
+add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
+target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
+
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 foreach(FILE IN LISTS NODE_FILES)
 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
 	add_executable(${NODE_NAME} ${FILE})
-	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 endforeach()

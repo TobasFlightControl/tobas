@@ -2,16 +2,20 @@
 
   <arg name="nodelet" default="true"/>
 
+  <arg name="pos_name" value="position_controller"/>
+  <arg name="vel_name" value="velocity_controller"/>
+  <arg name="rot_name" value="rotation_controller"/>
+
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="position_controller" args="load tobas_multirotor_controller/PositionControllerNodelet nodelet_manager" output="screen"/>
-    <node pkg="nodelet" type="nodelet" name="velocity_controller" args="load tobas_multirotor_controller/VelocityControllerNodelet nodelet_manager" output="screen"/>
-    <node pkg="nodelet" type="nodelet" name="rotation_controller" args="load tobas_multirotor_controller/RotationControllerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg pos_name)" args="load tobas_multirotor_controller/PositionControllerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg vel_name)" args="load tobas_multirotor_controller/VelocityControllerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg rot_name)" args="load tobas_multirotor_controller/RotationControllerNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_multirotor_controller" type="position_controller_node" name="position_controller" output="screen"/>
-    <node pkg="tobas_multirotor_controller" type="velocity_controller_node" name="velocity_controller" output="screen"/>
-    <node pkg="tobas_multirotor_controller" type="rotation_controller_node" name="rotation_controller" output="screen"/>
+    <node pkg="tobas_multirotor_controller" type="position_controller_node" name="$(arg pos_name)" output="screen"/>
+    <node pkg="tobas_multirotor_controller" type="velocity_controller_node" name="$(arg vel_name)" output="screen"/>
+    <node pkg="tobas_multirotor_controller" type="rotation_controller_node" name="$(arg rot_name)" output="screen"/>
   </group>
 
 </launch>

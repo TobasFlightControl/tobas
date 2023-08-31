@@ -13,6 +13,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace orientation_estimation_complement
+{
 OrientationEstimatorRos::OrientationEstimatorRos(ros::NodeHandle nh, ros::NodeHandle pnh)
   : super(nh, pnh),
     is_initialized_(false),
@@ -138,3 +140,4 @@ void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   rosWarn("IMU data is not received yet.");
 }
+}  // namespace orientation_estimation_complement

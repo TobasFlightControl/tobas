@@ -3,6 +3,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+namespace orientation_estimation_complement
+{
 /**
  * @brief Keeping a Good Attitude: A Quaternion-Based Orientation Filter for IMUs and MARGs
  * [Valenti+, 2015]
@@ -65,3 +67,4 @@ private:
   Eigen::Quaterniond getMagCorrection(const Eigen::Vector3d& m, const Eigen::Quaterniond& p) const;
   double getAdaptiveGain(double alpha, const Eigen::Vector3d& a) const;
 };
+}  // namespace orientation_estimation_complement

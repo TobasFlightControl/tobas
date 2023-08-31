@@ -18,13 +18,15 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_conversions
 	dynamic_reconfigure
 	actionlib
+	nodelet
+	pluginlib
 )
 
 generate_dynamic_reconfigure_options(cfg/StateEstimationCascade.cfg)
 
 catkin_package(
 	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME}
+	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_tools
 		dh_linear_control
@@ -32,6 +34,8 @@ catkin_package(
 		kdl_conversions
 		dynamic_reconfigure
 		actionlib
+		nodelet
+		pluginlib
 )
 
 include_directories(${catkin_INCLUDE_DIRS})
@@ -40,6 +44,10 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+
+file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
+add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
+target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
 
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 foreach(FILE IN LISTS NODE_FILES)

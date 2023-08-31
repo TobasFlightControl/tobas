@@ -10,7 +10,7 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-MultirotorStateChecker::MultirotorStateChecker(ros::NodeHandle nh, ros::NodeHandle pnh)
+StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh)
   : super(nh, pnh),
     battery_received_(false),
     bs_received_(false),
@@ -32,7 +32,7 @@ MultirotorStateChecker::MultirotorStateChecker(ros::NodeHandle nh, ros::NodeHand
   }
 }
 
-void MultirotorStateChecker::run()
+void StateChecker::run()
 {
   dh_ros::Rate rate(kUpdateRate);
 
@@ -54,25 +54,25 @@ void MultirotorStateChecker::run()
   }
 }
 
-void MultirotorStateChecker::getRosParams()
+void StateChecker::getRosParams()
 {
   dh_ros::getParam(pnh_, "battery_voltage_threshold", voltage_threshold_, dh_ros::POSITIVE);
 }
 
-void MultirotorStateChecker::registerPublishers()
+void StateChecker::registerPublishers()
 {
   event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
 }
 
-void MultirotorStateChecker::registerSubscribers()
+void StateChecker::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MultirotorStateChecker::eventCb, this);
-  cpu_sub_ = nh_.subscribe("cpu", 1, &MultirotorStateChecker::cpuCb, this);
-  battery_sub_ = nh_.subscribe("battery", 1, &MultirotorStateChecker::batteryCb, this);
-  bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorStateChecker::baseStateCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &StateChecker::eventCb, this);
+  cpu_sub_ = nh_.subscribe("cpu", 1, &StateChecker::cpuCb, this);
+  battery_sub_ = nh_.subscribe("battery", 1, &StateChecker::batteryCb, this);
+  bs_sub_ = nh_.subscribe("base_state", 1, &StateChecker::baseStateCb, this);
 }
 
-void MultirotorStateChecker::requestLanding()
+void StateChecker::requestLanding()
 {
   tobas_msgs::LandGoal goal;
   goal.level.data = tobas_msgs::CommandLevel::DEFENSIVE;
@@ -97,7 +97,7 @@ void MultirotorStateChecker::requestLanding()
   requestShutdown();
 }
 
-void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
+void StateChecker::eventCb(const tobas_msgs::Event& event)
 {
   switch (event.data)
   {
@@ -109,7 +109,7 @@ void MultirotorStateChecker::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void MultirotorStateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
+void StateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
 {
   // 温度の警告ライン
   if (cpu.temperature > kWarnCpuTemperature)
@@ -127,7 +127,7 @@ void MultirotorStateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
   }
 }
 
-void MultirotorStateChecker::batteryCb(const tobas_msgs::Battery& battery)
+void StateChecker::batteryCb(const tobas_msgs::Battery& battery)
 {
   if (battery.voltage > voltage_threshold_)
   {
@@ -155,7 +155,7 @@ void MultirotorStateChecker::batteryCb(const tobas_msgs::Battery& battery)
   }
 }
 
-void MultirotorStateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
+void StateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
 {
   t_last_bs_ = ros::Time::now();
   if (!bs_received_)

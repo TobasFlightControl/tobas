@@ -1,5 +1,15 @@
 <launch>
 
-  <node pkg="tobas_state_checker" type="state_checker_node" name="state_checker" output="screen"/>
+  <arg name="nodelet" default="true"/>
+
+  <arg name="node_name" value="state_checker"/>
+
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_state_checker" type="state_checker_node" name="$(arg node_name)" output="screen"/>
+  </group>
 
 </launch>

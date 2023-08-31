@@ -2,6 +2,8 @@
 
 using namespace Eigen;
 
+namespace orientation_estimation_complement
+{
 void scaleQuaternion(double gain, Quaterniond& dq)
 {
   if (dq.w() < 0.)  // 0.9
@@ -26,3 +28,4 @@ void scaleQuaternion(double gain, Quaterniond& dq)
 
   dq.normalize();
 }
+}  // namespace orientation_estimation_complement

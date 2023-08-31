@@ -13,6 +13,8 @@
 
 #include "./orientation_estimator.hpp"
 
+namespace orientation_estimation_complement
+{
 class OrientationEstimatorRos : public tobas::BaseNode
 {
   // Constants
@@ -72,3 +74,4 @@ private:
   void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
+}  // namespace orientation_estimation_complement

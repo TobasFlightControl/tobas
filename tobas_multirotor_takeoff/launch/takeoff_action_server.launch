@@ -2,8 +2,18 @@
 
   <arg name="nodelet" default="true"/>
 
-  <node pkg="tobas_multirotor_takeoff" type="takeoff_action_server_node" name="takeoff_action_server" output="screen"/>
+  <arg name="node_name" value="takeoff_action_server"/>
 
+  <!-- Takeff Action Server -->
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/MultirotorTakeoffServerNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_multirotor_takeoff" type="takeoff_action_server_node" name="$(arg node_name)" output="screen"/>
+  </group>
+
+  <!-- Wait For Stillness Action Server -->
   <include file="$(find tobas_common_actions)/launch/wait_for_stillness.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>

@@ -2,13 +2,15 @@
 
   <arg name="nodelet" default="true"/>
 
+  <arg name="node_name" value="state_estimator_eskf"/>
+
   <!-- State Estimator -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="state_estimator_eskf" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="state_estimation_eskf" type="eskf_node" name="state_estimator_eskf" output="screen"/>
+    <node pkg="state_estimation_eskf" type="eskf_node" name="$(arg node_name)" output="screen"/>
   </group>
 
   <!-- Static State Determinator -->

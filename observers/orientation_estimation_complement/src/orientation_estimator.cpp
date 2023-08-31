@@ -19,6 +19,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace orientation_estimation_complement
+{
 OrientationEstimator::OrientationEstimator()
   : gravity_(DEFAULT_GRAVITY),
     gain_acc_(DEFAULT_GAIN_ACC),
@@ -316,3 +318,4 @@ double OrientationEstimator::getAdaptiveGain(double alpha, const Vector3d& a) co
 
   return factor * alpha;
 }
+}  // namespace orientation_estimation_complement

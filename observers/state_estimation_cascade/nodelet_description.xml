@@ -1,0 +1,7 @@
+<library path="lib/libstate_estimation_cascade_nodelet">
+
+  <class name="state_estimation_cascade/StateEstimatorNodelet" type="state_estimation_cascade::StateEstimatorNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

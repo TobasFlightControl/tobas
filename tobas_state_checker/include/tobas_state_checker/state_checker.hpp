@@ -27,12 +27,12 @@ static constexpr double kAttitudeThreshold = dh_std::deg2rad(90.);       // [rad
 static constexpr double kBatteryVoltageWarnTime = 3.;                    // [s]
 static constexpr double kBatteryVoltageFatalTime = 60.;                  // [s]
 
-class MultirotorStateChecker : public tobas::BaseNode
+class StateChecker : public tobas::BaseNode
 {
   using super = tobas::BaseNode;
 
 public:
-  explicit MultirotorStateChecker(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh);
 
   void run();
 
