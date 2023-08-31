@@ -6,6 +6,7 @@ namespace tobas_common_actions
 {
 void StaticStateDeterminationServerNodelet::onInit()
 {
+  NODELET_INFO("Initializing Static State Determination Server Nodelet.");
   node_.reset(new StaticStateDeterminationServer());
 }
 }  // namespace tobas_common_actions

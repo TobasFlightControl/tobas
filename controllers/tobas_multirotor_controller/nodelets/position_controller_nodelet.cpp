@@ -6,6 +6,7 @@ namespace tobas_multirotor_controller
 {
 void PositionControllerNodelet::onInit()
 {
+  NODELET_INFO("Initializing Position Controller Nodelet.");
   node_.reset(new PositionControllerRos());
 }
 }  // namespace tobas_multirotor_controller
