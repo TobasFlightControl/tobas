@@ -137,7 +137,7 @@ double RCInputCalibrator::readRCInput(uint32_t channel)
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const auto period = rcin_.read(channel);
-    if (period < 0)
+    if (period <= 0)
     {
       throw runtime_error("Failed to read RC input.");
     }

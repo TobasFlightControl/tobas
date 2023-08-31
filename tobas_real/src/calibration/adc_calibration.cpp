@@ -41,6 +41,10 @@ void AdcCalibrator::run()
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const int a2_value = adc_.read(kPowerModuleVoltageChannel);
+    if (a2_value <= 0)
+    {
+      throw runtime_error("Failed to read power module voltage.");
+    }
     cout << "A2 value: " << a2_value << endl;
     a2_sum += a2_value;
     usleep(kSleepTime);
