@@ -1,17 +1,22 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="delay" default="0"/>
 
   <include file="$(find {{ pkg_name }})/launch/bringup.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="delay" value="$(arg delay)"/>
   </include>
 
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_real)/launch/motors.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
+
     <include file="$(find tobas_real)/launch/rc_input.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
   </group>
 

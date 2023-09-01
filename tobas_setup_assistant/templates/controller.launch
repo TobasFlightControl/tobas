@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="delay" default="0"/>
 
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
@@ -9,15 +10,18 @@
     <!-- Bringup controller -->
     <include file="$(find {{ controller_pkg }})/launch/controller.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
 
     <!-- Bringup takeoff and landing action servers at the same time -->
     <include file="$(find {{ takeoff_pkg }})/launch/takeoff_action_server.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
 
     <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
 
   </group>

@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="delay" default="5"/>
 
   <!-- Launch nodelet manager -->
   <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
@@ -18,12 +19,14 @@
     <!-- Bringup the nodes required for connections between hardware and software -->
     <include file="$(find tobas_real)/launch/hardware_interfaces.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
   </group>
 
   <!-- Bringup Tobas software -->
   <include file="$(find {{ pkg_name }})/launch/bringup.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="delay" value="$(arg delay)"/>
   </include>
 
 </launch>

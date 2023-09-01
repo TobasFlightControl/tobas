@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="delay" default="0"/>
 
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
@@ -9,6 +10,7 @@
     <!-- Bringup observer -->
     <include file="$(find {{ observer_pkg }})/launch/observer.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
   </group>
 

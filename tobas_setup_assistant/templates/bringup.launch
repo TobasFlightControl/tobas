@@ -1,20 +1,24 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="delay" default="0"/>
 
   <!-- Bringup controller -->
   <include file="$(find {{ pkg_name }})/launch/controller.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="delay" value="$(arg delay)"/>
   </include>
 
   <!-- Bringup observer -->
   <include file="$(find {{ pkg_name }})/launch/observer.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="delay" value="$(arg delay)"/>
   </include>
 
   <!-- For safety reasons, bringup RC teleoperation by default -->
   <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="delay" value="$(arg delay)"/>
   </include>
 
   <!-- Bringup state checker -->
@@ -22,6 +26,7 @@
     <rosparam file="$(find {{ pkg_name }})/config/state_checker.yaml" command="load"/>
     <include file="$(find tobas_state_checker)/launch/state_checker.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="delay" value="$(arg delay)"/>
     </include>
   </group>
 
