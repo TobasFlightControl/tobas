@@ -1,15 +1,16 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="delay" default="0"/>
 
   <arg name="pos_name" value="position_controller"/>
   <arg name="vel_name" value="velocity_controller"/>
   <arg name="rot_name" value="rotation_controller"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg pos_name)" args="load tobas_multirotor_controller/PositionControllerNodelet nodelet_manager" output="screen"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg vel_name)" args="load tobas_multirotor_controller/VelocityControllerNodelet nodelet_manager" output="screen"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg rot_name)" args="load tobas_multirotor_controller/RotationControllerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg pos_name)" args="load tobas_multirotor_controller/PositionControllerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg vel_name)" args="load tobas_multirotor_controller/VelocityControllerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg rot_name)" args="load tobas_multirotor_controller/RotationControllerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
   </group>
 
   <group unless="$(arg nodelet)">
