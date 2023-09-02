@@ -27,9 +27,6 @@ class Controller : public tobas::BaseNode
 {
   using super = tobas::BaseNode;
 
-  using StateMsg = tobas_msgs::BaseState;
-  using CmdMsg = tobas_msgs::SpeedRollDeltaPitch;
-
   using ConfigType = tobas_fixed_wing_mpc::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
@@ -37,12 +34,12 @@ public:
   explicit Controller(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
-  enum State
+  enum Stage
   {
     START,
     TAKEOFF,
     FLIGHT,
-    LANDING
+    LANDING,
   };
 
   tobas::Drone drone_;
@@ -56,20 +53,17 @@ private:
   // 固定値
   KDL::JntArray q_0_;
 
-  bool pressure_received_;
-  bool battery_received_;
-  bool bs_received_;
-  State state_;                  // 飛行フェーズ
-  double air_density_;           // 現在の大気密度
-  tobas_msgs::Battery battery_;  // 現在のバッテリーの状態
-  StateMsg bs_ned_;              // 現在の状態 (NED座標系)
-  CmdMsg cmd_ned_;               // 現在のコマンド (NED座標系)
-  tobas_msgs::RotorSpeeds rotor_speeds_msg_;
-  tobas_msgs::ControlSurfaceDeflections deflections_msg_;
-  tobas_msgs::FixedWingControllerFeedback feedback_msg_;
+  bool pressure_received_ = false;
+  bool battery_received_ = false;
+  bool bs_received_ = false;
+  Stage state_ = START;                      // 飛行フェーズ
+  double air_density_;                       // 現在の大気密度
+  tobas_msgs::BatteryConstPtr battery_;      // 現在のバッテリーの状態
+  tobas_msgs::BaseState bs_ned_;             // 現在の状態 (NED座標系)
+  tobas_msgs::SpeedRollDeltaPitch cmd_ned_;  // 現在のコマンド (NED座標系)
 
-  std::shared_ptr<ctrl::C2D_RK4> c2d_;  // 状態方程式を離散化
-  ctrl::LinearDenseMPC mpc_;            // 線形モデル予測制御
+  ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
+  ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
@@ -100,16 +94,17 @@ private:
   void setInputRateConstraint();
   void updateCurrentStateVector();
   void updateSetStateVector(double tar_roll, double tar_delta_pitch);
-  void updateRotorSpeeds(const Eigen::VectorXd& thrust);
-  void updateDeflections(const Eigen::VectorXd& deflections);
+  void publishRotorSpeeds(const Eigen::VectorXd& thrust);
+  void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
   void configure(const ConfigType& cfg);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void airPressureCb(const sensor_msgs::FluidPressure& msg);
-  void batteryCb(const tobas_msgs::Battery& battery);
-  void baseStateCb(const StateMsg& bs_nwu);
-  void commandCb(const CmdMsg& cmd_nwu);
+  void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu);
+  void commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu);
+
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
 };
