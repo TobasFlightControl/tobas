@@ -9,7 +9,6 @@
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/VelocityYaw.h>
-#include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
 #include "./velocity_controller.hpp"
@@ -33,10 +32,10 @@ public:
 
 private:
   uint8_t cmd_level_;
-  tobas_msgs::BaseState cur_bs_;               // 現在のベースの状態
-  tobas_msgs::RollPitchYawThrust rpy_thrust_;  // 姿勢+推力 (出力)
+  tobas_msgs::BaseStateConstPtr cur_bs_;       // 現在のベースの状態
   KDL::Vector tar_vel_W_;
   KDL::Vector tar_acc_W_;
+  double tar_yaw_;
 
   bool is_initialized_;
   bool bs_received_;
@@ -69,9 +68,9 @@ private:
   void updateDynamicParams(const ConfigType& cfg);
   void runOnce();
 
-  void eventCb(const tobas_msgs::Event& event) override;
-  void baseStateCb(const tobas_msgs::BaseState& bs);
-  void velocityYawCb(const tobas_msgs::VelocityYaw& vel_yaw);
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void velocityYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

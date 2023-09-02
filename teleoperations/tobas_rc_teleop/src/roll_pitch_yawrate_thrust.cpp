@@ -66,9 +66,9 @@ void RcinToRollPitchYawrateThrust::registerSubscribers()
   rcin_sub_ = nh_.subscribe("rc_input", 1, &RcinToRollPitchYawrateThrust::rcInputCb, this);
 }
 
-void RcinToRollPitchYawrateThrust::eventCb(const tobas_msgs::Event& event)
+void RcinToRollPitchYawrateThrust::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

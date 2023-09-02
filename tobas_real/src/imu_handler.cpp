@@ -126,9 +126,9 @@ void ImuHandler::setGyroBias()
   rosInfo("Finished measuring gyro bias. It is estimated to be:\n" << gyro_bias_);
 }
 
-void ImuHandler::eventCb(const tobas_msgs::Event& event)
+void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       // nh_.shutdown();

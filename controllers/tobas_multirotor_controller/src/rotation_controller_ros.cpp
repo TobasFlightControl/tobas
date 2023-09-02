@@ -42,7 +42,6 @@ RotationControllerRos::RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
   rpy_thrust_.level.data = tobas_msgs::CommandLevel::NORMAL;
-  rotor_speeds_.speeds.resize(drone_.numRotors(), 0.);
 
   registerPublishers();
   registerSubscribers();
@@ -131,7 +130,7 @@ void RotationControllerRos::runOnce()
   {
     // stopwatch_.start();
     rot_controller_.update(
-      bs_.pose.euler, bs_.twist.rot, q_, battery_.voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
+      bs_->pose.euler, bs_->twist.rot, q_, battery_->voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
       u_opt_);
     // stopwatch_.stop();
   }
@@ -141,17 +140,19 @@ void RotationControllerRos::runOnce()
     return;
   }
 
-  // 各モータの回転速度メッセージを更新
-  rotor_speeds_.header.stamp = bs_.header.stamp;
-  ctrlInputToRotorSpeeds(u_opt_, rotor_speeds_);
+  // モータ速度メッセージを作成
+  auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  rotor_speeds->header.stamp = bs_->header.stamp;
+  rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
+  ctrlInputToRotorSpeeds(u_opt_, rotor_speeds);
 
   // モータ速度を発行
-  rotor_speeds_pub_.publish(rotor_speeds_);
+  rotor_speeds_pub_.publish(rotor_speeds);
 }
 
 void RotationControllerRos::ctrlInputToRotorSpeeds(
   const VectorXd& u,
-  tobas_msgs::RotorSpeeds& speeds)
+  tobas_msgs::RotorSpeedsPtr& speeds)
 {
   assert(u.rows() == z_rotors_.count());
 
@@ -163,7 +164,7 @@ void RotationControllerRos::ctrlInputToRotorSpeeds(
       // TODO: 防御モードに移行
     }
 
-    speeds.speeds[z_rotors_.rotorIdx(i)] = z_rotors_.rotSpeedFromThrust(i, max(0., u(i)));
+    speeds->speeds[z_rotors_.rotorIdx(i)] = z_rotors_.rotSpeedFromThrust(i, max(0., u(i)));
   }
 }
 
@@ -172,14 +173,14 @@ double RotationControllerRos::maxThrustSum()
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    res += z_rotors_.thrustFromVoltage(i, battery_.voltage);
+    res += z_rotors_.thrustFromVoltage(i, battery_->voltage);
   }
   return res;
 }
 
 double RotationControllerRos::minThrustSum()
 {
-  const auto min_voltage = battery_.voltage * tobas::kMotorSpinArm;
+  const auto min_voltage = battery_->voltage * tobas::kMotorSpinArm;
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
@@ -245,9 +246,9 @@ void RotationControllerRos::updateTargetThrust(double tar_thrust)
   rpy_thrust_.thrust = clamp(tar_thrust, min_U, max_U);
 }
 
-void RotationControllerRos::eventCb(const tobas_msgs::Event& event)
+void RotationControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();
@@ -257,7 +258,7 @@ void RotationControllerRos::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void RotationControllerRos::batteryCb(const tobas_msgs::Battery& battery)
+void RotationControllerRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   if (!battery_received_)
   {
@@ -267,7 +268,7 @@ void RotationControllerRos::batteryCb(const tobas_msgs::Battery& battery)
   battery_ = battery;
 }
 
-void RotationControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
+void RotationControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
   if (!bs_received_)
   {
@@ -292,9 +293,9 @@ void RotationControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
   runOnce();
 }
 
-void RotationControllerRos::jointStateCb(const sensor_msgs::JointState& js)
+void RotationControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 {
-  if (js.name.size() != js.position.size())
+  if (js->name.size() != js->position.size())
   {
     rosError("The size of joint name and position is different.");
     return;
@@ -304,8 +305,8 @@ void RotationControllerRos::jointStateCb(const sensor_msgs::JointState& js)
   {
     try
     {
-      const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
-      const auto& jnt_pos = js.position[msg_idx];
+      const auto msg_idx = dh_std::findIndex(js->name, jnt_name);  // msg内でのインデックス
+      const auto& jnt_pos = js->position[msg_idx];
       const auto& kdl_idx = jnt_name_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
       q_(kdl_idx) = jnt_pos;
     }
@@ -322,24 +323,24 @@ void RotationControllerRos::jointStateCb(const sensor_msgs::JointState& js)
   }
 }
 
-void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rpy_thrust)
+void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust)
 {
   if (!bs_received_)
   {
     return;
   }
 
-  if (!isCommandLevelOk(rpy_thrust.level))
+  if (!isCommandLevelOk(rpy_thrust->level))
   {
     return;
   }
 
-  updateTargetRoll(rpy_thrust.rpy.roll);
-  updateTargetPitch(rpy_thrust.rpy.pitch);
-  updateTargetThrust(rpy_thrust.thrust);
+  updateTargetRoll(rpy_thrust->rpy.roll);
+  updateTargetPitch(rpy_thrust->rpy.pitch);
+  updateTargetThrust(rpy_thrust->thrust);
 
   // Yawの目標値を更新
-  rpy_thrust_.rpy.yaw = rpy_thrust.rpy.yaw;
+  rpy_thrust_.rpy.yaw = rpy_thrust->rpy.yaw;
 
   if (!rpy_thrust_received_)
   {
@@ -347,21 +348,22 @@ void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rp
   }
 }
 
-void RotationControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrust& rpyd_thrust)
+void RotationControllerRos::rpydThrustCb(
+  const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust)
 {
   if (!bs_received_)
   {
     return;
   }
 
-  if (!isCommandLevelOk(rpyd_thrust.level))
+  if (!isCommandLevelOk(rpyd_thrust->level))
   {
     return;
   }
 
-  updateTargetRoll(rpyd_thrust.roll);
-  updateTargetPitch(rpyd_thrust.pitch);
-  updateTargetThrust(rpyd_thrust.thrust);
+  updateTargetRoll(rpyd_thrust->roll);
+  updateTargetPitch(rpyd_thrust->pitch);
+  updateTargetThrust(rpyd_thrust->thrust);
 
   // Yawの目標値を更新
   if (rpyd_thrust_received_)
@@ -377,12 +379,12 @@ void RotationControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrus
       rpyd_thrust_received_ = false;
       return;
     }
-    rpy_thrust_.rpy.yaw += rpyd_thrust.yawrate * dt;
+    rpy_thrust_.rpy.yaw += rpyd_thrust->yawrate * dt;
   }
   else
   {
     t_last_rpyd_thrust_ = ros::Time::now();
-    rpy_thrust_.rpy.yaw = bs_.pose.euler.yaw;  // 最初は現在のヨー角を指令
+    rpy_thrust_.rpy.yaw = bs_->pose.euler.yaw;  // 最初は現在のヨー角を指令
     rpyd_thrust_received_ = true;
   }
 }

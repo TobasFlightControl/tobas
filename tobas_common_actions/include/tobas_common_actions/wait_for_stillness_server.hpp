@@ -44,7 +44,7 @@ private:
   bool isConditionsMet();
   void fillResult();
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void baseStateCb(const tobas_msgs::BaseState& bs);
 
   void executeCb(const GoalType& goal);

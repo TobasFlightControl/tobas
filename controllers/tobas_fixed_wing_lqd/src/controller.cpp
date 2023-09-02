@@ -316,9 +316,9 @@ void Controller::configure(const ConfigType& cfg)
   lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
 }
 
-void Controller::eventCb(const tobas_msgs::Event& event)
+void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

@@ -382,9 +382,9 @@ void Controller::configure(const ConfigType& cfg)
     .fill(pow(10, cfg.deflection_rate_weight_exp));
 }
 
-void Controller::eventCb(const tobas_msgs::Event& event)
+void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

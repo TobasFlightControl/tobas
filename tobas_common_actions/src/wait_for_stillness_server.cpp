@@ -149,9 +149,9 @@ void WaitForStillnessServer::fillResult()
   result_.base_state = bs_history_.back();
 }
 
-void WaitForStillnessServer::eventCb(const tobas_msgs::Event& event)
+void WaitForStillnessServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

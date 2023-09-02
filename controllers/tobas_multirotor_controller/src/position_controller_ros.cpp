@@ -2,7 +2,7 @@
 
 #include <dh_ros_tools/rosparam.hpp>
 
-#include <tobas_msgs/FrameId.h>
+#include <tobas_msgs/VelocityYaw.h>
 
 #include "../include/tobas_multirotor_controller/position_controller_ros.hpp"
 #include "../include/tobas_multirotor_controller/constants.hpp"
@@ -27,7 +27,6 @@ PositionControllerRos::PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle
   getRosParams();
 
   pos_controller_.configure(dynamic_params_);
-  vel_yaw_out_.frame_id.data = tobas_msgs::FrameId::GLOBAL;
 
   registerPublishers();
   registerSubscribers();
@@ -78,9 +77,9 @@ void PositionControllerRos::updateDynamicParams(const ConfigType& cfg)
   dynamic_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
 }
 
-void PositionControllerRos::eventCb(const tobas_msgs::Event& event)
+void PositionControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();
@@ -90,7 +89,7 @@ void PositionControllerRos::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
+void PositionControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
   bs_ = bs;
 
@@ -116,16 +115,19 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
     return;
   }
 
+  auto vel_yaw_out = boost::make_shared<tobas_msgs::VelocityYaw>();
+  vel_yaw_out->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+
   // Update VelocityYaw message
-  pos_controller_.update(bs.pose.pos, pos_yaw_in_.pos, vel_yaw_out_.vel);
-  vel_yaw_out_.level = pos_yaw_in_.level;
-  vel_yaw_out_.yaw = pos_yaw_in_.yaw;  // ヨー角は位置指令をそのまま流す
+  pos_controller_.update(bs->pose.pos, pos_yaw_in_->pos, vel_yaw_out->vel);
+  vel_yaw_out->level = pos_yaw_in_->level;
+  vel_yaw_out->yaw = pos_yaw_in_->yaw;  // ヨー角は位置指令をそのまま流す
 
   // Publish VelocityYaw message
-  vel_yaw_pub_.publish(vel_yaw_out_);
+  vel_yaw_pub_.publish(vel_yaw_out);
 }
 
-void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw)
+void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYawConstPtr& pos_yaw)
 {
   if (!bs_received_)
   {
@@ -133,7 +135,7 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYaw& pos_
   }
 
   // 指令位置と現在位置が離れすぎていないか確認
-  const auto dist = (pos_yaw.pos - bs_.pose.pos).Norm();
+  const auto dist = (pos_yaw->pos - bs_->pose.pos).Norm();
   if (dist > kMaxCommandPositionDeviation)
   {
     rosError(

@@ -82,9 +82,9 @@ void OrientationEstimatorRos::initializeFilter()
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
 }
 
-void OrientationEstimatorRos::eventCb(const tobas_msgs::Event& event)
+void OrientationEstimatorRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

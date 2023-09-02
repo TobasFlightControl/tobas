@@ -43,9 +43,9 @@ void MultirotorLandServer::reset()
   alt_history_.clear();
 }
 
-void MultirotorLandServer::eventCb(const tobas_msgs::Event& event)
+void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

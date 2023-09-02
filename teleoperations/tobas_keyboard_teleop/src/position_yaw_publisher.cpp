@@ -175,9 +175,9 @@ void PositionYawPublisher::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this);
 }
 
-void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
+void PositionYawPublisher::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

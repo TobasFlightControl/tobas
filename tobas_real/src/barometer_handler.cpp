@@ -51,9 +51,9 @@ void BarometerHandler::readConfig()
   pressure_noise_density_ = pt.get<double>(kConfigKey_PressureNoiseDensity);
 }
 
-void BarometerHandler::eventCb(const tobas_msgs::Event& event)
+void BarometerHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       // nh_.shutdown();

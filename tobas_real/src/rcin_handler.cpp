@@ -61,9 +61,9 @@ void RCInputHandler::getRcPeriodRanges()
   toggle_range_.upper = pt.get<double>(kConfigKey_RcToggleDown);
 }
 
-void RCInputHandler::eventCb(const tobas_msgs::Event& event)
+void RCInputHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       // nh_.shutdown();

@@ -74,7 +74,7 @@ private:
   bool isValidResult(const GoalType& goal);
   bool isStatic();
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuCb(const ImuMsg& imu);
   void magCb(const MagMsg& mag);
   void barCb(const BarMsg& bar);

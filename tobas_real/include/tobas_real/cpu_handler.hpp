@@ -32,7 +32,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

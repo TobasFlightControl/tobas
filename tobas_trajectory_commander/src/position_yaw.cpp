@@ -104,9 +104,9 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   return true;
 }
 
-void FollowPositionYawTrajectoryServer::eventCb(const tobas_msgs::Event& event)
+void FollowPositionYawTrajectoryServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

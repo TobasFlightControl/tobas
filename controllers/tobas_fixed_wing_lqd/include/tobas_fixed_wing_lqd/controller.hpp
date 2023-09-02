@@ -101,7 +101,7 @@ private:
   void publishFeedback(const Eigen::VectorXd& du);
   void configure(const ConfigType& cfg);
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void airPressureCb(const sensor_msgs::FluidPressure& msg);
   void batteryCb(const tobas_msgs::Battery& battery);
   void baseStateCb(const StateMsg& bs_nwu);

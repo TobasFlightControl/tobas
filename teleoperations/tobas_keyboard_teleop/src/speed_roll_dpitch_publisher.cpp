@@ -167,9 +167,9 @@ void SpeedRollDeltaPitchPublisher::initialize()
   rosInfo(instruction_);
 }
 
-void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::Event& event)
+void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

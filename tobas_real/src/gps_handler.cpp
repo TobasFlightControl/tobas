@@ -89,9 +89,9 @@ bool GpsHandler::isReadyToPublish() const
   return gps_fix_ok_ && cov_received_;
 }
 
-void GpsHandler::eventCb(const tobas_msgs::Event& event)
+void GpsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       // nh_.shutdown();

@@ -230,9 +230,9 @@ void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)
   state_.angular_velocity_covariance = imu.angular_velocity_covariance;
 }
 
-void StateEstimator::eventCb(const tobas_msgs::Event& event)
+void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

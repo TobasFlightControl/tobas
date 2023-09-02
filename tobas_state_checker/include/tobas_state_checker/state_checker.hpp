@@ -59,7 +59,7 @@ private:
 
   void requestLanding();
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void cpuCb(const tobas_msgs::Cpu& cpu);
   void batteryCb(const tobas_msgs::Battery& battery);
   void baseStateCb(const tobas_msgs::BaseState& bs);

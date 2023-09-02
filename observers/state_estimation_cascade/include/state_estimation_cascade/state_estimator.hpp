@@ -88,7 +88,7 @@ private:
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updatePoseVelMsg(const ImuMsg& imu);
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void filteredImuCb(const ImuMsg& imu);
   void barometerCb(const BarMsg& bar);
   void gpsPositionCb(const GpsMsg& gps);

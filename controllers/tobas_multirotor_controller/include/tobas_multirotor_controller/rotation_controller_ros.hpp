@@ -50,12 +50,11 @@ private:
   bool rpy_thrust_received_;
   bool rpyd_thrust_received_;
   ros::Time t_last_rpyd_thrust_;
-  tobas_msgs::Battery battery_;                // 現在のバッテリーの状態
-  tobas_msgs::BaseState bs_;                   // 現在のベースの状態
+  tobas_msgs::BatteryConstPtr battery_;        // 現在のバッテリーの状態
+  tobas_msgs::BaseStateConstPtr bs_;           // 現在のベースの状態
   KDL::JntArray q_;                            // 全ての非固定関節の角度
   tobas_msgs::RollPitchYawThrust rpy_thrust_;  // 姿勢+推力 (入力)
   Eigen::VectorXd u_opt_;
-  tobas_msgs::RotorSpeeds rotor_speeds_;  // モータの回転数 (出力)
 
   // RosParams
   RotationControllerDynamicParams dynamic_params_;
@@ -85,7 +84,7 @@ private:
   void initialize();
   void updateDynamicParams(const ConfigType& cfg);
   void runOnce();
-  void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeeds& speeds);
+  void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeedsPtr& speeds);
   double maxThrustSum();
   double minThrustSum();
   bool isCommandLevelOk(const tobas_msgs::CommandLevel& level);
@@ -93,12 +92,12 @@ private:
   void updateTargetPitch(double tar_pitch);
   void updateTargetThrust(double tar_thrust);
 
-  void eventCb(const tobas_msgs::Event& event) override;
-  void batteryCb(const tobas_msgs::Battery& battery);
-  void baseStateCb(const tobas_msgs::BaseState& bs);
-  void jointStateCb(const sensor_msgs::JointState& js);
-  void rpyThrustCb(const tobas_msgs::RollPitchYawThrust& rpy_thrust);
-  void rpydThrustCb(const tobas_msgs::RollPitchYawrateThrust& rpyd_thrust);
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
+  void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
+  void rpydThrustCb(const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

@@ -321,9 +321,9 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   // cout << "Estimated gyroscope bias:" << endl << eskf_.getGyroBias() << endl;
 }
 
-void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::Event& event)
+void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

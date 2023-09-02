@@ -35,9 +35,9 @@ void CpuHandler::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &CpuHandler::eventCb, this);
 }
 
-void CpuHandler::eventCb(const tobas_msgs::Event& event)
+void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       // nh_.shutdown();

@@ -70,7 +70,7 @@ private:
 
   void initializeFilter();
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };

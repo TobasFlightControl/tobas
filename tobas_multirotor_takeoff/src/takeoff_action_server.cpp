@@ -53,9 +53,9 @@ void MultirotorTakeoffServer::fillResult()
   result_.last_command = pos_yaw_;
 }
 
-void MultirotorTakeoffServer::eventCb(const tobas_msgs::Event& event)
+void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

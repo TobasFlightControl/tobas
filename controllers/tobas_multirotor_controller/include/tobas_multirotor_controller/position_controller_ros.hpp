@@ -8,7 +8,6 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/BaseState.h>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_msgs/VelocityYaw.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
 #include "./position_controller.hpp"
@@ -31,9 +30,8 @@ private:
   bool is_initialized_;
   bool bs_received_;
   bool cmd_received_;
-  tobas_msgs::BaseState bs_;
-  tobas_msgs::PositionYaw pos_yaw_in_;   // 受け取る位置コマンド
-  tobas_msgs::VelocityYaw vel_yaw_out_;  // 発行する速度コマンド
+  tobas_msgs::BaseStateConstPtr bs_;
+  tobas_msgs::PositionYawConstPtr pos_yaw_in_;   // 受け取る位置コマンド
 
   PositionController pos_controller_;
 
@@ -59,9 +57,9 @@ private:
   void initialize();
   void updateDynamicParams(const ConfigType& cfg);
 
-  void eventCb(const tobas_msgs::Event& event) override;
-  void baseStateCb(const tobas_msgs::BaseState& bs);
-  void targetPositionCb(const tobas_msgs::PositionYaw& pos_yaw);
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void targetPositionCb(const tobas_msgs::PositionYawConstPtr& pos_yaw);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

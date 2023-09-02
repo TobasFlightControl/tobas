@@ -24,7 +24,7 @@ protected:
   virtual void registerPublishers() = 0;
   virtual void registerSubscribers() = 0;
 
-  virtual void eventCb(const tobas_msgs::Event& event) = 0;
+  virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
 
   void requestShutdown();
 };

@@ -6,7 +6,7 @@
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/operators.hpp>
 
-#include <tobas_msgs/FrameId.h>
+#include <tobas_msgs/RollPitchYawThrust.h>
 
 #include "../include/tobas_multirotor_controller/velocity_controller_ros.hpp"
 #include "../include/tobas_multirotor_controller/constants.hpp"
@@ -104,21 +104,25 @@ void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 void VelocityControllerRos::runOnce()
 {
   // 速度制御器
-  const auto cur_vel_W = cur_bs_.pose.euler * cur_bs_.twist.vel;
+  const auto cur_vel_W = cur_bs_->pose.euler * cur_bs_->twist.vel;
   vel_controller_.update(cur_vel_W, tar_vel_W_, tar_acc_W_);
 
   // 非線形変換
+  auto rpy_thrust = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
   acc_controller_.update(
-    tar_acc_W_, cur_bs_.pose.euler.yaw, rpy_thrust_.thrust, rpy_thrust_.rpy.roll,
-    rpy_thrust_.rpy.pitch);
+    tar_acc_W_, cur_bs_->pose.euler.yaw, rpy_thrust->thrust, rpy_thrust->rpy.roll,
+    rpy_thrust->rpy.pitch);
+
+  // 目標ヨー各を更新
+  rpy_thrust->rpy.yaw = tar_yaw_;
 
   // 目標姿勢とスラストを発行
-  rpy_thrust_pub_.publish(rpy_thrust_);
+  rpy_thrust_pub_.publish(rpy_thrust);
 }
 
-void VelocityControllerRos::eventCb(const tobas_msgs::Event& event)
+void VelocityControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();
@@ -128,7 +132,7 @@ void VelocityControllerRos::eventCb(const tobas_msgs::Event& event)
   }
 }
 
-void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
+void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
   if (!bs_received_)
   {
@@ -153,7 +157,7 @@ void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseState& bs)
   runOnce();
 }
 
-void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYaw& vel_yaw)
+void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw)
 {
   if (!bs_received_)
   {
@@ -161,45 +165,45 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYaw& vel_yaw
   }
 
   // コマンドレベルの処理
-  if (vel_yaw.level.data < cmd_level_)
+  if (vel_yaw->level.data < cmd_level_)
   {
     rosErrorThrottle(
       kErrorPeriod, "The command is ignored because its level "
-                      << static_cast<int>(vel_yaw.level.data)
+                      << static_cast<int>(vel_yaw->level.data)
                       << "is lower than the current command level " << static_cast<int>(cmd_level_)
                       << ".");
     return;
   }
-  if (vel_yaw.level.data > cmd_level_)
+  if (vel_yaw->level.data > cmd_level_)
   {
     rosInfo(
       "The command level is raised from " << static_cast<int>(cmd_level_) << " to "
-                                          << static_cast<int>(vel_yaw.level.data) << ".");
-    cmd_level_ = vel_yaw.level.data;
+                                          << static_cast<int>(vel_yaw->level.data) << ".");
+    cmd_level_ = vel_yaw->level.data;
   }
 
   // 目標速度を更新
-  switch (vel_yaw.frame_id.data)
+  switch (vel_yaw->frame_id.data)
   {
     case tobas_msgs::FrameId::GLOBAL:
     {
-      tar_vel_W_ = vel_yaw.vel;
+      tar_vel_W_ = vel_yaw->vel;
       break;
     }
     case tobas_msgs::FrameId::LOCAL:
     {
-      tar_vel_W_ = cur_bs_.pose.euler * vel_yaw.vel;
+      tar_vel_W_ = cur_bs_->pose.euler * vel_yaw->vel;
       break;
     }
     default:
     {
-      rosError("Invalid FrameId: " << static_cast<int>(vel_yaw.frame_id.data));
+      rosError("Invalid FrameId: " << static_cast<int>(vel_yaw->frame_id.data));
       return;
     }
   }
 
   // 目標ヨー角を更新 (そのまま流すだけ)
-  rpy_thrust_.rpy.yaw = vel_yaw.yaw;
+  tar_yaw_ = vel_yaw->yaw;
 
   if (!vel_yaw_received_)
   {

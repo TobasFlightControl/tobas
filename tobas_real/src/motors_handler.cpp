@@ -86,9 +86,9 @@ void MotorsHandler::setPeriodOnAllChannels(double period)
   }
 }
 
-void MotorsHandler::eventCb(const tobas_msgs::Event& event)
+void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       nh_.shutdown();

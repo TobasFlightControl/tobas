@@ -52,9 +52,9 @@ void BatteryHandler::getAdcCoefficient()
   rosInfo("ADC coefficient: " << adc_coef_);
 }
 
-void BatteryHandler::eventCb(const tobas_msgs::Event& event)
+void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  switch (event.data)
+  switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
       // nh_.shutdown();

@@ -126,7 +126,7 @@ private:
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updateBaseStateMsg(const ImuMsg& imu);
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuCb(const ImuMsg& imu);
   void magCb(const MagMsg& mag);
   void barCb(const BarMsg& bar);
