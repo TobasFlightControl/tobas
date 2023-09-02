@@ -55,7 +55,7 @@ void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseState& bs)
+void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
   if (!is_action_running_)
   {
@@ -63,8 +63,8 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 
   // 現在の時刻と高度を履歴に追加
-  const auto& cur_time = bs.header.stamp;
-  const auto& altitude = bs.pose.pos.z();
+  const auto& cur_time = bs->header.stamp;
+  const auto& altitude = bs->pose.pos.z();
   alt_history_.emplace_back(cur_time, altitude);
 
   // 古い履歴を削除
@@ -108,10 +108,10 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   // 速度指令だと水平位置が制御できないため，位置指令にする
   // 現在の位置を初期目標位置に設定
   cmd_.level = goal->level;
-  cmd_.pos = bs_.pose.pos;
-  cmd_.yaw = bs_.pose.euler.yaw;
+  cmd_.pos = bs_->pose.pos;
+  cmd_.yaw = bs_->pose.euler.yaw;
 
-  const auto start_alt = bs_.pose.pos.z();
+  const auto start_alt = bs_->pose.pos.z();
   const auto start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
 
@@ -130,7 +130,8 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
     cmd_.pos.z(start_alt - kVerticalSpeed * t);
 
     // コマンドを発行
-    cmd_pub_.publish(cmd_);
+    const auto cmd_ptr = boost::make_shared<tobas_msgs::PositionYaw>(cmd_);
+    cmd_pub_.publish(cmd_ptr);
 
     if (is_history_filled_)
     {

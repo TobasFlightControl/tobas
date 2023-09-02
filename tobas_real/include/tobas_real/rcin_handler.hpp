@@ -7,7 +7,6 @@
 #include <dh_std_tools/range.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/RCInput.h>
 
 namespace tobas_real
 {
@@ -22,7 +21,6 @@ public:
 
 private:
   RCInput_Navio2 rcin_;
-  tobas_msgs::RCInput rcin_msg_;
 
   // RC input period ranges
   dh_std::Range<double> roll_range_;

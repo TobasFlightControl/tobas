@@ -75,11 +75,11 @@ private:
   bool isStatic();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void imuCb(const ImuMsg& imu);
-  void magCb(const MagMsg& mag);
-  void barCb(const BarMsg& bar);
-  void gpsCb(const GpsMsg& gps);
-  void velCb(const VelMsg& vel);
+  void imuCb(const ImuMsg::ConstPtr& imu);
+  void magCb(const MagMsg::ConstPtr& mag);
+  void barCb(const BarMsg::ConstPtr& bar);
+  void gpsCb(const GpsMsg::ConstPtr& gps);
+  void velCb(const VelMsg::ConstPtr& vel);
 
   void executeCb(const GoalType& goal);
 };

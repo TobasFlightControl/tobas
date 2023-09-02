@@ -11,11 +11,7 @@ using namespace std;
 namespace tobas_state_checker
 {
 StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
-    battery_received_(false),
-    bs_received_(false),
-    cmd_received_(false),
-    ac_(tobas::kLandingAction)
+  : super(nh, pnh), ac_(tobas::kLandingAction)
 {
   getRosParams();
 
@@ -109,34 +105,35 @@ void StateChecker::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void StateChecker::cpuCb(const tobas_msgs::Cpu& cpu)
+void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
 {
   // 温度の警告ライン
-  if (cpu.temperature > kWarnCpuTemperature)
+  if (cpu->temperature > kWarnCpuTemperature)
   {
     rosWarnThrottle(
       kWarnPeriod,
-      "CPU temperature is too high: " << cpu.temperature << "℃. It is time to stop flying.");
+      "CPU temperature is too high: " << cpu->temperature << "℃. It is time to stop flying.");
   }
 
   // 温度の危険ライン
-  if (cpu.temperature > kFatalCpuTemperture)
+  if (cpu->temperature > kFatalCpuTemperture)
   {
-    rosFatal("CPU temperature is too high: " << cpu.temperature << "℃. Issuing a landing command.");
+    rosFatal(
+      "CPU temperature is too high: " << cpu->temperature << "℃. Issuing a landing command.");
     requestLanding();
   }
 }
 
-void StateChecker::batteryCb(const tobas_msgs::Battery& battery)
+void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
-  if (battery.voltage > voltage_threshold_)
+  if (battery->voltage > voltage_threshold_)
   {
-    t_last_valid_voltage_ = battery.header.stamp;
+    t_last_valid_voltage_ = battery->header.stamp;
     return;
   }
 
   // バッテリー電圧が閾値を下回ってからの経過時間をチェック
-  const auto invalid_time = (battery.header.stamp - t_last_valid_voltage_).toSec();
+  const auto invalid_time = (battery->header.stamp - t_last_valid_voltage_).toSec();
   if (invalid_time > kBatteryVoltageFatalTime)
   {
     rosFatal(
@@ -148,14 +145,14 @@ void StateChecker::batteryCb(const tobas_msgs::Battery& battery)
   {
     rosWarnThrottle(
       kWarnPeriod,
-      "Battery voltage is too low: " << battery.voltage << "V. It is time to stop flying.");
+      "Battery voltage is too low: " << battery->voltage << "V. It is time to stop flying.");
     rosWarnOnce(
       "If the battery voltage remains too low for "
       << kBatteryVoltageFatalTime << " seconds, a landing command wil be issued.");
   }
 }
 
-void StateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
+void StateChecker::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
   t_last_bs_ = ros::Time::now();
   if (!bs_received_)
@@ -164,8 +161,8 @@ void StateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 
   // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
-  const auto& pos_cov = bs.position_covariance;
-  const auto& rot_cov = bs.orientation_covariance;
+  const auto& pos_cov = bs->position_covariance;
+  const auto& rot_cov = bs->orientation_covariance;
   if (max(pos_cov[0], pos_cov[4]) > dh_std::sqr(kHorizontalPositionStddevThreshold))
   {
     rosFatal("Horizontal Position covariance exceeds the threshold. Issuing a landing command.");
@@ -188,7 +185,7 @@ void StateChecker::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 
   // 姿勢角が閾値を超えていたら落とす
-  const auto& euler = bs.pose.euler;
+  const auto& euler = bs->pose.euler;
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
     rosFatal("The attitude angle exceeds the threshold. Shutting down the system.");

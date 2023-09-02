@@ -4,6 +4,8 @@
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
+#include <tobas_msgs/Battery.h>
+
 #include "../include/tobas_real/battery_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
@@ -74,11 +76,12 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
     return;
   }
 
-  // Fill battery message
-  battery_msg_.header.stamp = event.current_real;
-  battery_msg_.voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  // Creata battery message
+  const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
+  battery_msg->header.stamp = event.current_real;
+  battery_msg->voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
 
   // Publish battery message
-  battery_pub_.publish(battery_msg_);
+  battery_pub_.publish(battery_msg);
 }
 }  // namespace tobas_real

@@ -161,7 +161,7 @@ void WaitForStillnessServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseState& bs)
+void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
   if (!is_action_running_)
   {
@@ -169,10 +169,10 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 
   // 現在の時刻と高度を履歴に追加
-  bs_history_.push_back(bs);
+  bs_history_.push_back(*bs);
 
   // 古い履歴を削除
-  while (bs.header.stamp - bs_history_.front().header.stamp > goal_->time_window)
+  while (bs->header.stamp - bs_history_.front().header.stamp > goal_->time_window)
   {
     bs_history_.pop_front();
     if (!is_history_filled_)
@@ -182,30 +182,30 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseState& bs)
   }
 
   // 最後に姿勢角が閾値を下回った時刻を更新
-  const auto& roll = bs.pose.euler.roll;
-  const auto& pitch = bs.pose.euler.pitch;
+  const auto& roll = bs->pose.euler.roll;
+  const auto& pitch = bs->pose.euler.pitch;
   if (abs(roll) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod,
       "Roll angle is over threshold: |" << roll << "| > " << goal_->attitude_threshold);
-    t_last_valid_attitude_ = bs.header.stamp;
+    t_last_valid_attitude_ = bs->header.stamp;
   }
   if (abs(pitch) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod,
       "Pitch angle is over threshold: |" << pitch << "| > " << goal_->attitude_threshold);
-    t_last_valid_attitude_ = bs.header.stamp;
+    t_last_valid_attitude_ = bs->header.stamp;
   }
 
   // 最後に速度が閾値を下回った時刻を更新
-  if (bs.twist.vel.Norm() > goal_->velocity_threshold)
+  if (bs->twist.vel.Norm() > goal_->velocity_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod, "The norm of velocity is over threshold: " << bs.twist.vel.Norm() << " > "
+      kWarnPeriod, "The norm of velocity is over threshold: " << bs->twist.vel.Norm() << " > "
                                                               << goal_->velocity_threshold);
-    t_last_valid_velocity_ = bs.header.stamp;
+    t_last_valid_velocity_ = bs->header.stamp;
   }
 }
 

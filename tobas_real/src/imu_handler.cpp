@@ -1,4 +1,6 @@
 #include <boost/property_tree/ini_parser.hpp>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/MagneticField.h>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/boost.hpp>
@@ -19,13 +21,9 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
   getRosParams();
   readConfig();
 
-  setCovarianceMatrices();
   setupImu();
-  setGyroBias();
+  measureGyroBias();
   mag_trans_.initialize();
-
-  imu_msg_.header.frame_id = "imu_frame";
-  mag_msg_.header.frame_id = "mag_frame";
 
   registerPublishers();
   registerSubscribers();
@@ -39,8 +37,8 @@ void ImuHandler::getRosParams()
 
 void ImuHandler::registerPublishers()
 {
-  imu_pub_ = nh_.advertise<ImuMsg>("imu", 1);
-  mag_pub_ = nh_.advertise<MagMsg>("magnetic_field", 1);
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("imu", 1);
+  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("magnetic_field", 1);
 }
 
 void ImuHandler::registerSubscribers()
@@ -73,20 +71,6 @@ void ImuHandler::readConfig()
   mag_trans_.c = pt.get<double>(kConfigKey_MagEllipseC);
 }
 
-void ImuHandler::setCovarianceMatrices()
-{
-  // Accelerometer
-  const double acc_var = dh_std::sqr(acc_noise_density_) * kUpdateRate;  // [m^2/s^4]
-  dh_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
-
-  // Gyroscope
-  const double gyro_var = dh_std::sqr(gyro_noise_density_) * kUpdateRate;  // [rad^2/s^2]
-  dh_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
-
-  const double mag_var = dh_std::sqr(mag_noise_density_) * kUpdateRate;
-  dh_std::fillMatrix3Diag(mag_msg_.magnetic_field_covariance, mag_var);
-}
-
 void ImuHandler::setupImu()
 {
   imu_.initialize();
@@ -96,7 +80,7 @@ void ImuHandler::setupImu()
   }
 }
 
-void ImuHandler::setGyroBias()
+void ImuHandler::measureGyroBias()
 {
   rosInfo("Measuring gyro bias. Please do not move the aircraft.");
 
@@ -140,33 +124,50 @@ void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  imu_msg_.header.stamp = event.current_real;
-  mag_msg_.header.stamp = event.current_real;
-
-  // 各センサのメッセージを更新
-  // センサの座標系をNWU座標系に変換する
+  // Update IMU
   imu_.update();
 
+  // Read IMU
   imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
-  const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
-  imu_msg_.linear_acceleration.x = acc.y();
-  imu_msg_.linear_acceleration.y = -acc.x();
-  imu_msg_.linear_acceleration.z = acc.z();
-
   imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
-  const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
-  imu_msg_.angular_velocity.x = gyro.y();
-  imu_msg_.angular_velocity.y = -gyro.x();
-  imu_msg_.angular_velocity.z = gyro.z();
-
   imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+
+  // Create messages
+  const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
+  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+
+  // Fill headers
+  imu_msg->header.stamp = event.current_real;
+  mag_msg->header.stamp = event.current_real;
+  imu_msg->header.frame_id = "imu_frame";
+  mag_msg->header.frame_id = "mag_frame";
+
+  // Fill covariance matrices
+  const auto acc_var = dh_std::sqr(acc_noise_density_) * kUpdateRate;    // [m^2/s^4]
+  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * kUpdateRate;  // [rad^2/s^2]
+  const auto mag_var = dh_std::sqr(mag_noise_density_) * kUpdateRate;
+  dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
+  dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
+  dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
+
+  // Fill data (Convert to NWU coordinate system)
+  const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
+  imu_msg->linear_acceleration.x = acc.y();
+  imu_msg->linear_acceleration.y = -acc.x();
+  imu_msg->linear_acceleration.z = acc.z();
+
+  const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
+  imu_msg->angular_velocity.x = gyro.y();
+  imu_msg->angular_velocity.y = -gyro.x();
+  imu_msg->angular_velocity.z = gyro.z();
+
   const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 原点中心の単位球に射影
-  mag_msg_.magnetic_field.x = mag.x();
-  mag_msg_.magnetic_field.y = -mag.y();
-  mag_msg_.magnetic_field.z = -mag.z();
+  mag_msg->magnetic_field.x = mag.x();
+  mag_msg->magnetic_field.y = -mag.y();
+  mag_msg->magnetic_field.z = -mag.z();
 
   // Publish messages
-  imu_pub_.publish(imu_msg_);
-  mag_pub_.publish(mag_msg_);
+  imu_pub_.publish(imu_msg);
+  mag_pub_.publish(mag_msg);
 }
 }  // namespace tobas_real

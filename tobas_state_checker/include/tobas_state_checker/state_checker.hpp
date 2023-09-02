@@ -40,9 +40,7 @@ private:
   // rosparams
   double voltage_threshold_;  // 飛行を継続できる電圧の閾値
 
-  bool battery_received_;
-  bool bs_received_;
-  bool cmd_received_;
+  bool bs_received_ = false;
   ros::Time t_last_valid_voltage_;
   ros::Time t_last_bs_;
 
@@ -60,8 +58,8 @@ private:
   void requestLanding();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void cpuCb(const tobas_msgs::Cpu& cpu);
-  void batteryCb(const tobas_msgs::Battery& battery);
-  void baseStateCb(const tobas_msgs::BaseState& bs);
+  void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
 };
 }  // namespace tobas_state_checker

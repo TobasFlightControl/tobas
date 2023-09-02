@@ -3,6 +3,8 @@
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_msgs/Cpu.h>
+
 #include "../include/tobas_real/cpu_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
@@ -57,9 +59,10 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
   }
   file >> temp_millidegrees_;
 
-  cpu_msg_.header.stamp = event.current_real;
-  cpu_msg_.temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
+  const auto cpu_msg = boost::make_shared<tobas_msgs::Cpu>();
+  cpu_msg->header.stamp = event.current_real;
+  cpu_msg->temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
 
-  cpu_pub_.publish(cpu_msg_);
+  cpu_pub_.publish(cpu_msg);
 }
 }  // namespace tobas_real

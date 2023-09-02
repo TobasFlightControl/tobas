@@ -5,7 +5,6 @@
 #include <Navio2/ADC_Navio2.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Battery.h>
 
 namespace tobas_real
 {
@@ -20,7 +19,6 @@ public:
 
 private:
   ADC_Navio2 adc_;
-  tobas_msgs::Battery battery_msg_;
 
   // Config
   double adc_coef_;

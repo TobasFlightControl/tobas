@@ -5,6 +5,8 @@
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
+#include <tobas_msgs/RCInput.h>
+
 #include "../include/tobas_real/rcin_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
@@ -75,8 +77,6 @@ void RCInputHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  rcin_msg_.header.stamp = event.current_real;
-
   // Read RC input periods
   const auto roll_period = rcin_.read(kRCInputChannelRoll);
   const auto pitch_period = rcin_.read(kRCInputChannelPitch);
@@ -84,15 +84,17 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto thrust_period = rcin_.read(kRCInputChannelThrust);
   const auto toggle_period = rcin_.read(kRCInputChannelToggle);
 
-  // Fill message
-  // TODO: Consider neutoral positions
-  rcin_msg_.roll = remap<double>(roll_period, roll_range_.lower, roll_range_.upper, -1, 1);
-  rcin_msg_.pitch = -remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
-  rcin_msg_.yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
-  rcin_msg_.thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
-  rcin_msg_.toggle = toggle_period < toggle_range_.mean();
+  // Create message
+  // TODO: Consider neutoral positions?
+  const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
+  rcin_msg->header.stamp = event.current_real;
+  rcin_msg->roll = remap<double>(roll_period, roll_range_.lower, roll_range_.upper, -1, 1);
+  rcin_msg->pitch = -remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
+  rcin_msg->yaw = -remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
+  rcin_msg->thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
+  rcin_msg->toggle = toggle_period < toggle_range_.mean();
 
   // Publish message
-  rcin_pub_.publish(rcin_msg_);
+  rcin_pub_.publish(rcin_msg);
 }
 }  // namespace tobas_real

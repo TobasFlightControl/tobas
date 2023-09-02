@@ -50,7 +50,7 @@ void MultirotorTakeoffServer::registerSubscribers()
 
 void MultirotorTakeoffServer::fillResult()
 {
-  result_.last_command = pos_yaw_;
+  result_.last_command = cmd_;
 }
 
 void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -97,10 +97,10 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
 
   // 位置制御コマンド
   // x, y, yawは初期値を維持する
-  pos_yaw_.level = goal->level;
-  pos_yaw_.pos.x(init_bs.pose.pos.x());
-  pos_yaw_.pos.y(init_bs.pose.pos.y());
-  pos_yaw_.yaw = init_bs.pose.euler.yaw;
+  cmd_.level = goal->level;
+  cmd_.pos.x(init_bs.pose.pos.x());
+  cmd_.pos.y(init_bs.pose.pos.y());
+  cmd_.yaw = init_bs.pose.euler.yaw;
 
   // 初期状態
   const auto start_alt = init_bs.pose.pos.z();
@@ -120,10 +120,11 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
     // 時間とともに目標高度を上げていく
     const double t = (ros::Time::now() - start_time).toSec();
     const auto elevation = kInitElevation + kElevationSpeed * t;
-    pos_yaw_.pos.z(start_alt + elevation);
+    cmd_.pos.z(start_alt + elevation);
 
     // コマンドを発行
-    pos_yaw_pub_.publish(pos_yaw_);
+    const auto cmd_ptr = boost::make_shared<tobas_msgs::PositionYaw>(cmd_);
+    pos_yaw_pub_.publish(cmd_ptr);
 
     // 目標高度を指令したら終了
     if (elevation > kTargetElevation)

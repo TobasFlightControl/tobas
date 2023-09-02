@@ -123,12 +123,8 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
     return;
   }
 
-  CommandType cmd;
-  cmd.level = goal->level;
-
-  const auto& waypoints = goal->waypoints;
-
   // Prepare time and position vectors for spline fitting
+  const auto& waypoints = goal->waypoints;
   VectorXd times(waypoints.size());
   vector<VectorXd> positions(COMMAND_DIMENSION, VectorXd::Zero(waypoints.size()));
   for (uint32_t i = 0; i < waypoints.size(); ++i)
@@ -158,14 +154,19 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
       return;
     }
 
-    cmd.pos.x(splines[0](t));
-    cmd.pos.y(splines[1](t));
-    cmd.pos.z(splines[2](t));
-    cmd.yaw = splines[3](t);
+    // Create command message
+    const auto cmd = boost::make_shared<CommandType>();
+    cmd->level = goal->level;
+    cmd->pos.x(splines[0](t));
+    cmd->pos.y(splines[1](t));
+    cmd->pos.z(splines[2](t));
+    cmd->yaw = splines[3](t);
 
+    // Publish command message
     cmd_pub_.publish(cmd);
 
-    ros::Duration(kControlnterval).sleep();  // Sleep for control rate
+    // Sleep for control rate
+    ros::Duration(kControlnterval).sleep();
   }
 
   result_.error_code = ResultType::NO_ERROR;

@@ -13,8 +13,7 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh), is_activated_(false), battery_received_(false)
+MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
 {
   if (getuid())
   {
@@ -58,11 +57,6 @@ void MotorsHandler::registerSubscribers()
   battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler::batteryCb, this);
 }
 
-bool MotorsHandler::isReady()
-{
-  return battery_received_;
-}
-
 void MotorsHandler::sendDisarm()
 {
   const ros::Time start_time = ros::Time::now();
@@ -98,27 +92,27 @@ void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
+void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
 {
-  if (!battery_received_)
+  if (battery_ = nullptr)
   {
     rosWarn("The rotors cannot be rotated because battery state has not been received yet.");
     return;
   }
 
   // Check array size
-  if (rotor_speeds.speeds.size() != drone_.numRotors())
+  if (rotor_speeds->speeds.size() != drone_.numRotors())
   {
     rosErrorThrottle(
       kErrorPeriod,
-      "Size mismatch: " << rotor_speeds.speeds.size() << " != " << drone_.numRotors());
+      "Size mismatch: " << rotor_speeds->speeds.size() << " != " << drone_.numRotors());
     return;
   }
 
   const auto cur_time = ros::Time::now();
 
   // Check delay
-  const auto delay = (cur_time - rotor_speeds.header.stamp).toSec();
+  const auto delay = (cur_time - rotor_speeds->header.stamp).toSec();
   // rosInfo("The delay from IMU to the motor command: " << delay << "[s]");
   if (delay > kCheckDelayThreshold)
   {
@@ -137,8 +131,8 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
     // スロットルを決定
     // 電圧とスロットルの関係は線形だが，電圧と回転数の関係は非線形であることに注意
     const auto& pin = drone_.rotorConfig(rotor_idx).pin;
-    const auto cmd_voltage = drone_.voltageFromRotSpeed(rotor_idx, rotor_speeds.speeds[rotor_idx]);
-    auto tar_throttle = cmd_voltage / battery_.voltage;  // [0, 1]
+    const auto cmd_voltage = drone_.voltageFromRotSpeed(rotor_idx, rotor_speeds->speeds[rotor_idx]);
+    auto tar_throttle = cmd_voltage / battery_->voltage;  // [0, 1]
     if (tar_throttle < tobas::kMotorSpinArm - kThrottleMargin)
     {
       rosErrorThrottle(
@@ -172,13 +166,8 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeeds& rotor_speeds)
   is_activated_ = true;
 }
 
-void MotorsHandler::batteryCb(const tobas_msgs::Battery& battery)
+void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
-  if (!battery_received_)
-  {
-    battery_received_ = true;
-  }
-
   battery_ = battery;
 }
 

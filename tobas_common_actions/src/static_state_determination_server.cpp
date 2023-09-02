@@ -175,7 +175,7 @@ void StaticStateDeterminationServer::eventCb(const tobas_msgs::EventConstPtr& ev
   }
 }
 
-void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
+void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
 {
   if (!is_action_running_)
   {
@@ -184,18 +184,18 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg& imu)
 
   ++imu_count_;
 
-  imu_sum_.angular_velocity = imu_sum_.angular_velocity + imu.angular_velocity;
-  imu_sum_.linear_acceleration = imu_sum_.linear_acceleration + imu.linear_acceleration;
+  imu_sum_.angular_velocity = imu_sum_.angular_velocity + imu->angular_velocity;
+  imu_sum_.linear_acceleration = imu_sum_.linear_acceleration + imu->linear_acceleration;
 
   imu_sum_.angular_velocity_covariance =
-    imu_sum_.angular_velocity_covariance + imu.angular_velocity_covariance;
+    imu_sum_.angular_velocity_covariance + imu->angular_velocity_covariance;
   imu_sum_.linear_acceleration_covariance =
-    imu_sum_.linear_acceleration_covariance + imu.linear_acceleration_covariance;
+    imu_sum_.linear_acceleration_covariance + imu->linear_acceleration_covariance;
 
-  gyro_ = imu.angular_velocity;
+  gyro_ = imu->angular_velocity;
 }
 
-void StaticStateDeterminationServer::magCb(const MagMsg& mag)
+void StaticStateDeterminationServer::magCb(const MagMsg::ConstPtr& mag)
 {
   if (!is_action_running_)
   {
@@ -204,12 +204,12 @@ void StaticStateDeterminationServer::magCb(const MagMsg& mag)
 
   ++mag_count_;
 
-  mag_sum_.magnetic_field = mag_sum_.magnetic_field + mag.magnetic_field;
+  mag_sum_.magnetic_field = mag_sum_.magnetic_field + mag->magnetic_field;
   mag_sum_.magnetic_field_covariance =
-    mag_sum_.magnetic_field_covariance + mag.magnetic_field_covariance;
+    mag_sum_.magnetic_field_covariance + mag->magnetic_field_covariance;
 }
 
-void StaticStateDeterminationServer::barCb(const BarMsg& bar)
+void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
 {
   if (!is_action_running_)
   {
@@ -218,14 +218,14 @@ void StaticStateDeterminationServer::barCb(const BarMsg& bar)
 
   ++bar_count_;
 
-  bar_sum_.fluid_pressure += bar.fluid_pressure;
-  bar_sum_.variance += bar.variance;
+  bar_sum_.fluid_pressure += bar->fluid_pressure;
+  bar_sum_.variance += bar->variance;
 
-  const auto pressure_alt = pressureToAltitude(bar.fluid_pressure);
+  const auto pressure_alt = pressureToAltitude(bar->fluid_pressure);
   pressure_alt_stat_.addData(pressure_alt);
 }
 
-void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
+void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
 {
   if (!is_action_running_)
   {
@@ -234,14 +234,14 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg& gps)
 
   ++gps_count_;
 
-  gps_sum_.latitude += gps.latitude;
-  gps_sum_.longitude += gps.longitude;
-  gps_sum_.altitude += gps.altitude;
+  gps_sum_.latitude += gps->latitude;
+  gps_sum_.longitude += gps->longitude;
+  gps_sum_.altitude += gps->altitude;
 
-  gps_sum_.position_covariance = gps_sum_.position_covariance + gps.position_covariance;
+  gps_sum_.position_covariance = gps_sum_.position_covariance + gps->position_covariance;
 }
 
-void StaticStateDeterminationServer::velCb(const VelMsg& vel)
+void StaticStateDeterminationServer::velCb(const VelMsg::ConstPtr& vel)
 {
   if (!is_action_running_)
   {
@@ -250,8 +250,8 @@ void StaticStateDeterminationServer::velCb(const VelMsg& vel)
 
   ++vel_count_;
 
-  vel_sum_.vel += vel.vel;
-  vel_sum_.covariance = vel_sum_.covariance + vel.covariance;
+  vel_sum_.vel += vel->vel;
+  vel_sum_.covariance = vel_sum_.covariance + vel->covariance;
 }
 
 void StaticStateDeterminationServer::executeCb(const GoalType& goal)

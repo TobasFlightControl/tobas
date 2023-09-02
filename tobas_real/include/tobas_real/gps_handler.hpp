@@ -30,8 +30,6 @@ private:
   NavStatusPayload status_;
   NavPvtPayload pvt_;
   NavCovPayload cov_;
-  GpsMsg gps_msg_;
-  VelMsg vel_msg_;
   bool gps_fix_ok_;
   bool cov_received_;
 

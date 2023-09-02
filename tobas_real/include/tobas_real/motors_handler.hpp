@@ -27,9 +27,8 @@ private:
   RCOutput_Navio2 pwm_;
 
   ros::Time last_cmd_time_;  // [s]
-  bool is_activated_;
-  bool battery_received_;
-  tobas_msgs::Battery battery_;
+  bool is_activated_=false;
+  tobas_msgs::BatteryConstPtr battery_;
 
   // PubSub
   ros::Subscriber rotor_speeds_sub_;
@@ -42,13 +41,12 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  bool isReady();
   void sendDisarm();
   void setPeriodOnAllChannels(double period);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeeds& speeds);
-  void batteryCb(const tobas_msgs::Battery& battery);
+  void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& speeds);
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
 
   void checkIntervalTimerCb(const ros::TimerEvent& event);
 };

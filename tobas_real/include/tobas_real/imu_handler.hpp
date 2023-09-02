@@ -3,8 +3,6 @@
 #include <Eigen/Core>
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/MagneticField.h>
 
 #include <tobas_tools/node.hpp>
 
@@ -22,17 +20,12 @@ class ImuHandler : public tobas::BaseNode
 
   using super = tobas::BaseNode;
 
-  using ImuMsg = sensor_msgs::Imu;
-  using MagMsg = sensor_msgs::MagneticField;
-
 public:
   explicit ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
   ImuDevice imu_;
 
-  ImuMsg imu_msg_;
-  MagMsg mag_msg_;
   Eigen::Vector3f acc_;
   Eigen::Vector3f gyro_;
   Eigen::Vector3f mag_;
@@ -59,9 +52,8 @@ private:
   void registerSubscribers() override;
 
   void readConfig();
-  void setCovarianceMatrices();
   void setupImu();
-  void setGyroBias();
+  void measureGyroBias();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);

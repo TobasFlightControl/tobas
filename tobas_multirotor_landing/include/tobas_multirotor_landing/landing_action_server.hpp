@@ -32,7 +32,7 @@ private:
   bool bs_received_;
   bool is_history_filled_;  // 時間窓分だけ履歴が溜まっている場合にtrue
   std::deque<std::pair<ros::Time, double>> alt_history_;
-  tobas_msgs::BaseState bs_;
+  tobas_msgs::BaseStateConstPtr bs_;
   tobas_msgs::PositionYaw cmd_;
   ResultType result_;
 
@@ -48,7 +48,8 @@ private:
   void reset();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void baseStateCb(const tobas_msgs::BaseState& bs);
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+
   void executeCb(const GoalType& goal);
 };
 }  // namespace tobas_multirotor_landing

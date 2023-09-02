@@ -4,7 +4,6 @@
 #include <ros/timer.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Cpu.h>
 
 namespace tobas_real
 {
@@ -20,7 +19,6 @@ public:
 
 private:
   int temp_millidegrees_;
-  tobas_msgs::Cpu cpu_msg_;
 
   // Publisher
   ros::Publisher cpu_pub_;

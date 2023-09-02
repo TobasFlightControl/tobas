@@ -1,4 +1,5 @@
 #include <boost/property_tree/ini_parser.hpp>
+#include <sensor_msgs/FluidPressure.h>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -18,9 +19,6 @@ BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : su
   {
     rosthrow("Barometer test failed.");
   }
-
-  bar_msg_.header.frame_id = "barometer_frame";
-  bar_msg_.variance = dh_std::sqr(pressure_noise_density_) * kUpdateRate;  // [Pa^2]
 
   registerPublishers();
   registerSubscribers();
@@ -65,11 +63,13 @@ void BarometerHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
+  // バロメータを更新
   barometer_.refreshPressure();
   usleep(kWaitToUpdateSensor);  // この待ち時間が必須
   barometer_.readPressure();
   barometer_.calculatePressureAndTemperature();
 
+  // 気圧を求める
   const auto pressure = barometer_.getPressure() * 100;  // mbar -> Pa
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
@@ -77,8 +77,14 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
     return;
   }
 
-  bar_msg_.header.stamp = event.current_real;
-  bar_msg_.fluid_pressure = pressure;
-  bar_pub_.publish(bar_msg_);
+  // メッセージを作成
+  const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
+  bar_msg->header.stamp = event.current_real;
+  bar_msg->header.frame_id = "barometer_frame";
+  bar_msg->fluid_pressure = pressure;
+  bar_msg->variance = dh_std::sqr(pressure_noise_density_) * kUpdateRate;  // [Pa^2]
+
+  // メッセージを発行
+  bar_pub_.publish(bar_msg);
 }
 }  // namespace tobas_real

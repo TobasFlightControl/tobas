@@ -48,7 +48,7 @@ public:
   explicit MultirotorTakeoffServer(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
-  tobas_msgs::PositionYaw pos_yaw_;
+  tobas_msgs::PositionYaw cmd_;
   ResultType result_;
   tobas_msgs::WaitForStillnessGoal wait_for_stillness_goal_;
 
@@ -64,6 +64,7 @@ private:
   void fillResult();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
+
   void executeCb(const GoalType& goal);
 };
 }  // namespace tobas_multirotor_takeoff
