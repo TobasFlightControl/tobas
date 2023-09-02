@@ -84,7 +84,6 @@ private:
   void initialize();
   void updateDynamicParams(const ConfigType& cfg);
   void runOnce();
-  void ctrlInputToRotorSpeeds(const Eigen::VectorXd& u, tobas_msgs::RotorSpeedsPtr& speeds);
   double maxThrustSum();
   double minThrustSum();
   bool isCommandLevelOk(const tobas_msgs::CommandLevel& level);

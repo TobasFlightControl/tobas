@@ -144,28 +144,19 @@ void RotationControllerRos::runOnce()
   auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   rotor_speeds->header.stamp = bs_->header.stamp;
   rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-  ctrlInputToRotorSpeeds(u_opt_, rotor_speeds);
+  for (uint32_t i = 0; i < u_opt_.rows(); ++i)
+  {
+    if (u_opt_(i) < -1.)
+    {
+      rosFatal("Negative thrust force: " << u_opt_(i) << " [N]");
+      // TODO: 防御モードに移行
+    }
+    rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
+      z_rotors_.rotSpeedFromThrust(i, max(0., u_opt_(i)));
+  }
 
   // モータ速度を発行
   rotor_speeds_pub_.publish(rotor_speeds);
-}
-
-void RotationControllerRos::ctrlInputToRotorSpeeds(
-  const VectorXd& u,
-  tobas_msgs::RotorSpeedsPtr& speeds)
-{
-  assert(u.rows() == z_rotors_.count());
-
-  for (uint32_t i = 0; i < u.rows(); ++i)
-  {
-    if (u(i) < -1.)
-    {
-      rosFatal("Negative thrust force: " << u(i) << " [N]");
-      // TODO: 防御モードに移行
-    }
-
-    speeds->speeds[z_rotors_.rotorIdx(i)] = z_rotors_.rotSpeedFromThrust(i, max(0., u(i)));
-  }
 }
 
 double RotationControllerRos::maxThrustSum()
