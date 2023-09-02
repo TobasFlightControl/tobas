@@ -20,8 +20,6 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(ros::NodeHandle nh, r
   : super(nh, pnh),
     trim_(drone_),
     keyboard_(getKeyboardControls()),
-    is_initialized_(false),
-    pressure_received_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -79,6 +77,7 @@ void SpeedRollDeltaPitchPublisher::run()
 
     trim_.update(cmd_.speed, air_density_, q_0_);
 
+    // コマンドを更新
     const auto c = key_reader_.readKey();
     switch (c)
     {
@@ -122,7 +121,9 @@ void SpeedRollDeltaPitchPublisher::run()
       }
     }
 
-    cmd_pub_.publish(cmd_);
+    // コマンドを発行
+    const auto cmd_ptr = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>(cmd_);
+    cmd_pub_.publish(cmd_ptr);
 
     ros::spinOnce();
     rate.sleep();
@@ -179,14 +180,14 @@ void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& even
   }
 }
 
-void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressure& msg)
+void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
 {
+  air_density_ = dh_std::pressureToDensity(msg->fluid_pressure);
+
   if (!pressure_received_)
   {
     pressure_received_ = true;
   }
-
-  air_density_ = dh_std::pressureToDensity(msg.fluid_pressure);
 }
 
 void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)

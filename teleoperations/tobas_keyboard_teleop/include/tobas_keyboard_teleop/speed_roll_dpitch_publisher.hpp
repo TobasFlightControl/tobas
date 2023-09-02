@@ -45,8 +45,8 @@ private:
   double delta_rot_;    // 1度のキーボード入力での回転位置の変化量
 
   // 可変値
-  bool is_initialized_;
-  bool pressure_received_;
+  bool is_initialized_ = false;
+  bool pressure_received_ = false;
   double air_density_;  // 現在の大気密度
   tobas_msgs::SpeedRollDeltaPitch cmd_;
 
@@ -72,7 +72,7 @@ private:
   void initialize();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void airPressureCb(const sensor_msgs::FluidPressure& msg);
+  void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void instructionTimerCb(const ros::TimerEvent&);

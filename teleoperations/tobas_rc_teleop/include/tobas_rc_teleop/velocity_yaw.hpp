@@ -22,7 +22,7 @@ public:
   explicit RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
-  enum State
+  enum Stage
   {
     CHECK_PREREQUISITES,
     FIRST_RCIN,
@@ -30,10 +30,9 @@ private:
     TOGGLE_ON,
   };
 
-  State state_;
-  tobas_msgs::BaseState bs_;
+  Stage stage_ = CHECK_PREREQUISITES;
+  tobas_msgs::BaseStateConstPtr bs_;
   tobas_msgs::VelocityYaw vel_yaw_;
-  bool bs_received_;
   ros::Time t_last_rcin_;
 
   // ROS parameters
@@ -55,7 +54,7 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void baseStateCb(const tobas_msgs::BaseState& bs);
-  void rcInputCb(const tobas_msgs::RCInput& rcin);
+  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);
 };
 }  // namespace tobas_rc_teleop

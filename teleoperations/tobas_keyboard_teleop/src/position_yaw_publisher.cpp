@@ -137,7 +137,8 @@ void PositionYawPublisher::run()
     }
 
     // コマンドを発行
-    cmd_pub_.publish(cmd);
+    const auto cmd_ptr = boost::make_shared<tobas_msgs::PositionYaw>(cmd);
+    cmd_pub_.publish(cmd_ptr);
 
     ros::spinOnce();
     rate.sleep();

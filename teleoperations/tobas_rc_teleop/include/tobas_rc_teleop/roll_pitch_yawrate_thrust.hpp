@@ -25,7 +25,7 @@ public:
   explicit RcinToRollPitchYawrateThrust(ros::NodeHandle nh, ros::NodeHandle pnh);
 
 private:
-  enum State
+  enum Stage
   {
     CHECK_PREREQUISITES,
     FIRST_RCIN,
@@ -36,10 +36,8 @@ private:
   tobas::Drone drone_;
   tobas::RotorAxisExtractor z_rotors_;
 
-  State state_;
-  tobas_msgs::Battery battery_;
-  tobas_msgs::RollPitchYawrateThrust rpydt_;
-  bool battery_received_;
+  Stage stage_ = CHECK_PREREQUISITES;
+  tobas_msgs::BatteryConstPtr battery_;
 
   // ROS parameters
   double max_attitude_;  // [rad]
@@ -63,7 +61,7 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void batteryCb(const tobas_msgs::Battery& battery);
-  void rcInputCb(const tobas_msgs::RCInput& rcin);
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);
 };
 }  // namespace tobas_rc_teleop

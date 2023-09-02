@@ -12,7 +12,7 @@ using namespace dh_std;
 namespace tobas_rc_teleop
 {
 RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh), z_rotors_(drone_, tobas::Axis::Z_POSITIVE), battery_received_(false)
+  : super(nh, pnh), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
 {
   getRosParams();
 
@@ -25,9 +25,6 @@ RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust(ros::NodeHandle nh, r
 
   dead_zone_.lower = -dead_zone_rate_ / 2;
   dead_zone_.upper = dead_zone_rate_ / 2;
-
-  // プロポによる制御を最大の優先順位に設定
-  rpydt_.level.data = tobas_msgs::CommandLevel::MANUAL;
 
   registerPublishers();
   registerSubscribers();
@@ -78,32 +75,27 @@ void RcinToRollPitchYawrateThrust::eventCb(const tobas_msgs::EventConstPtr& even
   }
 }
 
-void RcinToRollPitchYawrateThrust::batteryCb(const tobas_msgs::Battery& battery)
+void RcinToRollPitchYawrateThrust::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
-
-  if (!battery_received_)
-  {
-    battery_received_ = true;
-  }
 }
 
-void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
+void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 {
-  switch (state_)
+  switch (stage_)
   {
     case CHECK_PREREQUISITES:
     {
-      if (battery_received_)
+      if (battery_ != nullptr)
       {
-        state_ = FIRST_RCIN;
+        stage_ = FIRST_RCIN;
       }
       break;
     }
 
     case FIRST_RCIN:
     {
-      if (rcin.toggle)
+      if (rcin->toggle)
       {
         rosErrorThrottle(
           kErrorPeriod, "Please start with the transmitter's toggle in the OFF position.");
@@ -111,51 +103,53 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
       else
       {
         rosInfo("RC transmitter is ready. Toggle on to start control.");
-        state_ = TOGGLE_OFF;
+        stage_ = TOGGLE_OFF;
       }
       break;
     }
 
     case TOGGLE_OFF:
     {
-      if (rcin.toggle)
+      if (rcin->toggle)
       {
-        state_ = TOGGLE_ON;
+        stage_ = TOGGLE_ON;
       }
       break;
     }
 
     case TOGGLE_ON:
     {
-      if (!rcin.toggle)
+      if (!rcin->toggle)
       {
         rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
         requestShutdown();
         nh_.shutdown();
       }
 
-      // コマンドを更新
-      rpydt_.roll = dead_zone_.inRange(rcin.roll) ?
+      // コマンドを作成
+      auto rpydt = boost::make_shared<tobas_msgs::RollPitchYawrateThrust>();
+      rpydt->level.data = tobas_msgs::CommandLevel::MANUAL;  // 最大優先順位
+      rpydt->roll = dead_zone_.inRange(rcin->roll) ?
                       0. :
-                      remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-      rpydt_.pitch = dead_zone_.inRange(rcin.pitch) ?
+                      remap(rcin->roll, -1., 1., -max_attitude_, max_attitude_);
+      rpydt->pitch = dead_zone_.inRange(rcin->pitch) ?
                        0. :
-                       remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
-      rpydt_.yawrate =
-        dead_zone_.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+                       remap(rcin->pitch, -1., 1., -max_attitude_, max_attitude_);
+      rpydt->yawrate =
+        dead_zone_.inRange(rcin->yaw) ? 0. : remap(rcin->yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
-      const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_.voltage));
-      const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_.voltage));
-      rpydt_.thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
+      const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_->voltage));
+      const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_->voltage));
+      rpydt->thrust = remap(rcin->thrust, 0., 1., min_thrust, max_thrust);
 
       // コマンドを発行
-      rpydt_pub_.publish(rpydt_);
+      rpydt_pub_.publish(rpydt);
       break;
     }
 
     default:
     {
-      rosthrow("Invalid state: " << state_);
+      rosthrow("Invalid state: " << stage_);
     }
   }
 }

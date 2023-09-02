@@ -8,8 +8,7 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RcinToVelocityYaw::RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh), state_(CHECK_PREREQUISITES), bs_received_(false)
+RcinToVelocityYaw::RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
 {
   getRosParams();
 
@@ -63,32 +62,27 @@ void RcinToVelocityYaw::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void RcinToVelocityYaw::baseStateCb(const tobas_msgs::BaseState& bs)
+void RcinToVelocityYaw::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 {
-  if (!bs_received_)
-  {
-    bs_received_ = true;
-  }
-
   bs_ = bs;
 }
 
-void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInput& rcin)
+void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 {
-  switch (state_)
+  switch (stage_)
   {
     case CHECK_PREREQUISITES:
     {
-      if (bs_received_)
+      if (bs_ != nullptr)
       {
-        state_ = FIRST_RCIN;
+        stage_ = FIRST_RCIN;
       }
       break;
     }
 
     case FIRST_RCIN:
     {
-      if (rcin.toggle)
+      if (rcin->toggle)
       {
         rosErrorThrottle(
           kErrorPeriod, "Please start with the transmitter's toggle in the OFF position.");
@@ -96,25 +90,25 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInput& rcin)
       else
       {
         rosInfo("RC transmitter is ready. Toggle on to start control.");
-        state_ = TOGGLE_OFF;
+        stage_ = TOGGLE_OFF;
       }
       break;
     }
 
     case TOGGLE_OFF:
     {
-      if (rcin.toggle)
+      if (rcin->toggle)
       {
         t_last_rcin_ = ros::Time::now();
-        vel_yaw_.yaw = bs_.pose.euler.yaw;  // 最初は現在のヨー角を指令
-        state_ = TOGGLE_ON;
+        vel_yaw_.yaw = bs_->pose.euler.yaw;  // 最初は現在のヨー角を指令
+        stage_ = TOGGLE_ON;
       }
       break;
     }
 
     case TOGGLE_ON:
     {
-      if (!rcin.toggle)
+      if (!rcin->toggle)
       {
         rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
         requestShutdown();
@@ -123,30 +117,32 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInput& rcin)
 
       // 並進速度を更新
       vel_yaw_.vel.x(
-        dead_zone_.inRange(rcin.pitch) ? 0. :
-                                         remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
+        dead_zone_.inRange(rcin->pitch) ? 0. :
+                                          remap(rcin->pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
       vel_yaw_.vel.y(
-        dead_zone_.inRange(rcin.roll) ? 0. :
-                                        -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
-      vel_yaw_.vel.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));
+        dead_zone_.inRange(rcin->roll) ? 0. :
+                                         -remap(rcin->roll, -1., 1., -max_hor_vel_, max_hor_vel_));
+      vel_yaw_.vel.z(remap(rcin->thrust, 0., 1., -max_ver_vel_, max_ver_vel_));
 
       // Yawの目標値を更新
-      const ros::Time now = ros::Time::now();
-      const auto dt = (now - t_last_rcin_).toSec();
-      t_last_rcin_ = now;
+      const ros::Time cur_time = ros::Time::now();
+      const auto dt = (cur_time - t_last_rcin_).toSec();
+      t_last_rcin_ = cur_time;
       const auto yawrate =
-        dead_zone_.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+        dead_zone_.inRange(rcin->yaw) ? 0. : remap(rcin->yaw, -1., 1., -max_yawrate_, max_yawrate_);
       vel_yaw_.yaw += yawrate * dt;
 
       // コマンドを発行
-      vel_yaw_pub_.publish(vel_yaw_);
+      // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
+      const auto vel_yaw_ptr = boost::make_shared<tobas_msgs::VelocityYaw>(vel_yaw_);
+      vel_yaw_pub_.publish(vel_yaw_ptr);
 
       break;
     }
 
     default:
     {
-      rosthrow("Invalid state: " << state_);
+      rosthrow("Invalid state: " << stage_);
     }
   }
 }
