@@ -36,7 +36,7 @@ void StateChecker::run()
 {
   dh_ros::Rate rate(kUpdateRate);
 
-  while (ros::ok())
+  while (nh_.ok())
   {
     const auto cur_time = ros::Time::now();
 
@@ -102,7 +102,7 @@ void StateChecker::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;

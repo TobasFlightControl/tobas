@@ -154,7 +154,7 @@ void WaitForStillnessServer::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;
@@ -223,7 +223,7 @@ void WaitForStillnessServer::executeCb(const GoalType& goal)
   goal_ = goal;
 
   ros::Rate rate(kUpdateRate);
-  while (ros::ok())
+  while (nh_.ok())
   {
     if (as_.isPreemptRequested())
     {

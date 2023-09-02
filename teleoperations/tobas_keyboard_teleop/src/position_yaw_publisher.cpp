@@ -77,7 +77,7 @@ void PositionYawPublisher::run()
 
   // キーボード入力による位置コマンドを発行し続ける
   dh_ros::Rate rate(kUpdateRate);
-  while (ros::ok())
+  while (nh_.ok())
   {
     // インストラクション
     rosInfoThrottle(kInstructionTimerPeriod, instruction_);
@@ -180,7 +180,7 @@ void PositionYawPublisher::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;

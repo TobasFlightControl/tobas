@@ -71,7 +71,7 @@ void RcinToRollPitchYawrateThrust::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;
@@ -131,7 +131,7 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInput& rcin)
       {
         rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
         requestShutdown();
-        ros::shutdown();
+        nh_.shutdown();
       }
 
       // コマンドを更新

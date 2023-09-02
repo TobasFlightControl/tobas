@@ -66,7 +66,7 @@ void RCInputHandler::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      // ros::shutdown();
+      // nh_.shutdown();
       break;
     default:
       break;

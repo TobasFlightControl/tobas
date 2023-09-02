@@ -168,7 +168,7 @@ void StaticStateDeterminationServer::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;
@@ -267,7 +267,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
   is_action_running_ = true;
 
   ros::Rate rate(kUpdateRate);
-  while (ros::ok())
+  while (nh_.ok())
   {
     if (as_.isPreemptRequested())
     {

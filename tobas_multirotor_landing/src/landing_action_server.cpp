@@ -48,7 +48,7 @@ void MultirotorLandServer::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;
@@ -115,7 +115,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   const auto start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
 
-  while (ros::ok())
+  while (nh_.ok())
   {
     if (as_.isPreemptRequested())
     {

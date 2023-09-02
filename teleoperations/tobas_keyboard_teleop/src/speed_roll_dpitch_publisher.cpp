@@ -63,7 +63,7 @@ void SpeedRollDeltaPitchPublisher::run()
   check_topics_timer_.start();
 
   dh_ros::Rate rate(kUpdateRate);
-  while (ros::ok())
+  while (nh_.ok())
   {
     if (!is_initialized_)
     {
@@ -172,7 +172,7 @@ void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::Event& event)
   switch (event.data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      ros::shutdown();
+      nh_.shutdown();
       break;
     default:
       break;
