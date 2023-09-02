@@ -120,7 +120,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   const auto q = filter_.getOrientation();
 
   // Create fitlered IMU message
-  auto filtered_imu = boost::make_shared<ImuMsg>(*imu);
+  const auto filtered_imu = boost::make_shared<ImuMsg>(*imu);
   filtered_imu->orientation_covariance.fill(-1);
   tf::quaternionEigenToMsg(q, filtered_imu->orientation);
 

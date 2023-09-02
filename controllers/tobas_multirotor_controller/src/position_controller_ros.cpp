@@ -115,7 +115,7 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
     return;
   }
 
-  auto vel_yaw_out = boost::make_shared<tobas_msgs::VelocityYaw>();
+  const auto vel_yaw_out = boost::make_shared<tobas_msgs::VelocityYaw>();
   vel_yaw_out->frame_id.data = tobas_msgs::FrameId::GLOBAL;
 
   // Update VelocityYaw message

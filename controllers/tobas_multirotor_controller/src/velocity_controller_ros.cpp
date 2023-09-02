@@ -108,7 +108,7 @@ void VelocityControllerRos::runOnce()
   vel_controller_.update(cur_vel_W, tar_vel_W_, tar_acc_W_);
 
   // 非線形変換
-  auto rpy_thrust = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
+  const auto rpy_thrust = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
   acc_controller_.update(
     tar_acc_W_, cur_bs_->pose.euler.yaw, rpy_thrust->thrust, rpy_thrust->rpy.roll,
     rpy_thrust->rpy.pitch);

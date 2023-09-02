@@ -280,7 +280,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
   cart_filter_.measureAcceleration(a_m_, acc_cov);
 
   // 推定した状態を発行
-  auto state = boost::make_shared<StateMsg>();
+  const auto state = boost::make_shared<StateMsg>();
   updatePoseVelMsg(*imu, *state);
   posevel_pub_.publish(state);
 }

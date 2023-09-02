@@ -95,7 +95,7 @@ bool Controller::isReady()
 void Controller::publishTakeoffCommand()
 {
   // 各ロータの回転数を発行
-  auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
   rotor_speeds_msg->header.stamp = bs_ned_.header.stamp;
   rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
   for (uint32_t i = 0; i < x_rotors_.count(); ++i)
@@ -106,7 +106,7 @@ void Controller::publishTakeoffCommand()
   rotor_speeds_pub_.publish(rotor_speeds_msg);
 
   // 各操舵面の偏角を発行
-  auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
+  const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
   deflections_msg->header.stamp = bs_ned_.header.stamp;
   deflections_msg->deflections.resize(drone_.numControlSurfaces(), 0.);
   deflections_msg->deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
@@ -220,7 +220,7 @@ void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 
 void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
 {
-  auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
   rotor_speeds_msg->header.stamp = bs_ned_.header.stamp;
 
   rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
@@ -241,7 +241,7 @@ void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
 
 void Controller::publishDeflections(const Eigen::VectorXd& deflections)
 {
-  auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
+  const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
   deflections_msg->header.stamp = bs_ned_.header.stamp;
   deflections_msg->deflections = eigen_tools::toStdVector(deflections);
   deflections_pub_.publish(deflections_msg);
@@ -250,7 +250,7 @@ void Controller::publishDeflections(const Eigen::VectorXd& deflections)
 void Controller::publishFeedback(const Eigen::VectorXd& du)
 {
   const auto& trim = eom_.trimCondition();
-  auto feedback = boost::make_shared<tobas_msgs::FixedWingControllerFeedback>();
+  const auto feedback = boost::make_shared<tobas_msgs::FixedWingControllerFeedback>();
 
   feedback->trim_thrusts.resize(drone_.numRotors());
   feedback->delta_thrusts.resize(drone_.numRotors());

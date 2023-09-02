@@ -141,7 +141,7 @@ void RotationControllerRos::runOnce()
   }
 
   // モータ速度メッセージを作成
-  auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   rotor_speeds->header.stamp = bs_->header.stamp;
   rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
   for (uint32_t i = 0; i < u_opt_.rows(); ++i)

@@ -374,7 +374,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // 推定状態を発行
       if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
       {
-        auto state = boost::make_shared<StateMsg>();
+        const auto state = boost::make_shared<StateMsg>();
         updatePoseVelMsg(*imu, *state);
         posevel_pub_.publish(state);
       }

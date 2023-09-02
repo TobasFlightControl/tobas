@@ -127,7 +127,7 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInputConstPtr& 
       }
 
       // コマンドを作成
-      auto rpydt = boost::make_shared<tobas_msgs::RollPitchYawrateThrust>();
+      const auto rpydt = boost::make_shared<tobas_msgs::RollPitchYawrateThrust>();
       rpydt->level.data = tobas_msgs::CommandLevel::MANUAL;  // 最大優先順位
       rpydt->roll = dead_zone_.inRange(rcin->roll) ?
                       0. :
