@@ -1,7 +1,6 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
-  <arg name="delay" default="0"/>
 
   <arg name="cpu_name" value="cpu_handler"/>
   <arg name="bat_name" value="battery_handler"/>
@@ -10,11 +9,11 @@
   <arg name="gps_name" value="gps_handler"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_real/CpuHandlerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg bat_name)" args="load tobas_real/BatteryHandlerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_real/ImuHandlerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg bar_name)" args="load tobas_real/BarometerHandlerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg gps_name)" args="load tobas_real/GpsHandlerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_real/CpuHandlerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg bat_name)" args="load tobas_real/BatteryHandlerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_real/ImuHandlerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg bar_name)" args="load tobas_real/BarometerHandlerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg gps_name)" args="load tobas_real/GpsHandlerNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">

@@ -1,12 +1,10 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
-  <arg name="delay" default="0"/>
 
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_rc_teleop)/launch/velocity_yaw.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
-      <arg name="delay" value="$(arg delay)"/>
     </include>
   </group>
 

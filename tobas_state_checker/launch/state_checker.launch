@@ -1,12 +1,11 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
-  <arg name="delay" default="0"/>
 
   <arg name="node_name" value="state_checker"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">

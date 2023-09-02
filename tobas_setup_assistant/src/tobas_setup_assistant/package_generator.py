@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
     from .setting_widgets.propulsion_system.selected_links import SelectedLinkTabWidget
@@ -27,7 +28,6 @@ from .xml_nodes import *
 
 
 class PackageGenerator(QObject):
-
     generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
@@ -38,14 +38,16 @@ class PackageGenerator(QObject):
         self._template_env = Environment(
             loader=FileSystemLoader(osp.join(self._proj_path, "templates")),
             trim_blocks=True,
-            lstrip_blocks=True)
+            lstrip_blocks=True,
+        )
 
         self._drone_name = ""
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._main.settings.ros_package.generate_button.clicked.connect(
-            self._on_generate_button_clicked)
+            self._on_generate_button_clicked
+        )
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
@@ -118,57 +120,91 @@ class PackageGenerator(QObject):
         # 各ディレクトリのパス
         pkg_path = self._main.settings.ros_package.pkg_path.text()
         config_dir = osp.join(pkg_path, "config")
+        scripts_dir = osp.join(pkg_path, "scripts")
         launch_dir = osp.join(pkg_path, "launch")
         urdf_dir = osp.join(pkg_path, "urdf")
 
         # ディレクトリを作る
         os.mkdir(pkg_path)
         os.mkdir(config_dir)
+        os.mkdir(scripts_dir)
         os.mkdir(launch_dir)
         os.mkdir(urdf_dir)
 
         # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(
-            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt"))
+            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt")
+        )
         self._generate_from_template(
-            items, "package.xml", osp.join(pkg_path, "package.xml"))
+            items, "package.xml", osp.join(pkg_path, "package.xml")
+        )
         self._generate_from_template(
-            items, "environment.yaml", osp.join(config_dir, "environment.yaml"))
+            items, "environment.yaml", osp.join(config_dir, "environment.yaml")
+        )
         self._generate_from_template(
-            items, "nodelet_manager.launch", osp.join(launch_dir, "nodelet_manager.launch"))
+            items,
+            "simulation_launcher_node.py",
+            osp.join(scripts_dir, "simulation_launcher_node.py"),
+        )
         self._generate_from_template(
-            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch"))
+            items,
+            "real_launcher_node.py",
+            osp.join(scripts_dir, "real_launcher_node.py"),
+        )
         self._generate_from_template(
-            items, "real.launch", osp.join(launch_dir, "real.launch"))
+            items,
+            "nodelet_manager.launch",
+            osp.join(launch_dir, "nodelet_manager.launch"),
+        )
         self._generate_from_template(
-            items, "controller.launch", osp.join(launch_dir, "controller.launch"))
+            items, "common_params.launch", osp.join(launch_dir, "common_params.launch")
+        )
         self._generate_from_template(
-            items, "observer.launch", osp.join(launch_dir, "observer.launch"))
+            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch")
+        )
         self._generate_from_template(
-            items, "bringup.launch", osp.join(launch_dir, "bringup.launch"))
+            items, "simulation.launch", osp.join(launch_dir, "simulation.launch")
+        )
         self._generate_from_template(
-            items, "hil.launch", osp.join(launch_dir, "hil.launch"))
+            items, "real.launch", osp.join(launch_dir, "real.launch")
+        )
         self._generate_from_template(
-            items, "motors.launch", osp.join(launch_dir, "motors.launch"))
+            items, "controller.launch", osp.join(launch_dir, "controller.launch")
+        )
         self._generate_from_template(
-            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch"))
+            items, "observer.launch", osp.join(launch_dir, "observer.launch")
+        )
+        self._generate_from_template(
+            items, "bringup.launch", osp.join(launch_dir, "bringup.launch")
+        )
+        self._generate_from_template(
+            items,
+            "hardware_interfaces.launch",
+            osp.join(launch_dir, "hardware_interfaces.launch"),
+        )
+        self._generate_from_template(
+            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+        )
 
         command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
         if PositionYaw in command_msgs:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/position_yaw.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"))
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
             self._generate_from_template(
                 items,
                 "gui_teleop/position_yaw.launch",
-                osp.join(launch_dir, "gui_teleop.launch"))
+                osp.join(launch_dir, "gui_teleop.launch"),
+            )
         elif SpeedRollDeltaPitch in command_msgs:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/speed_roll_dpitch.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"))
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
@@ -208,12 +244,14 @@ class PackageGenerator(QObject):
         # Joint Controllers
         joint_controllers = "joint_state_controller"
         for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
-            joint_controllers += f' {jnt_name}_controller'
+            joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
         return template_items
 
-    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
+    def _generate_from_template(
+        self, items: dict, template_file: str, out_path: str
+    ) -> None:
         template = self._template_env.get_template(template_file)
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
         with open(out_path, "w") as f:
@@ -235,7 +273,7 @@ class PackageGenerator(QObject):
             selected: SelectedLinkTabWidget = propulsion_system.widget(i)
 
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
-            drone_config[f'rotor_{i}'] = {
+            drone_config[f"rotor_{i}"] = {
                 "link_name": selected.link_name(),
                 "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
@@ -244,13 +282,15 @@ class PackageGenerator(QObject):
                 "time_constant_down": float(selected.motor.time_const_down()),
                 "motor_constant": float(selected.aerodynamics.motor_const()),
                 "moment_constant": float(selected.aerodynamics.moment_const()),
-                "rotor_drag_coefficient": float(selected.aerodynamics.rotor_drag_coef()),
+                "rotor_drag_coefficient": float(
+                    selected.aerodynamics.rotor_drag_coef()
+                ),
                 "pin": i + 1,
             }
 
             esc = selected.esc
             esc_type = esc.esc_type.currentText()
-            drone_config[f'rotor_{i}']["esc_type"] = esc_type.lower()
+            drone_config[f"rotor_{i}"]["esc_type"] = esc_type.lower()
 
         # Fixed wing
         fixed_wing = self._main.settings.fixed_wing
@@ -291,7 +331,7 @@ class PackageGenerator(QObject):
 
             control_surfaces = fixed_wing.control_surfaces
             for idx, cs in enumerate(control_surfaces.control_surfaces()):
-                drone_config["fixed_wing"][f'control_surface_{idx}'] = {
+                drone_config["fixed_wing"][f"control_surface_{idx}"] = {
                     "angle_limit": {
                         "lower": cs.min_angle,
                         "upper": cs.max_angle,
@@ -306,7 +346,7 @@ class PackageGenerator(QObject):
                 }
 
         # TBSFファイルを作成
-        drone_config_path = osp.join(config_dir, f'{self._drone_name}.tbsf')
+        drone_config_path = osp.join(config_dir, f"{self._drone_name}.tbsf")
         with open(drone_config_path, "w") as f:
             yaml.dump(drone_config, f)
 
@@ -315,10 +355,10 @@ class PackageGenerator(QObject):
         items = dict()
         items["joint_state_controller"] = {
             "type": "joint_state_controller/JointStateController",
-            "publish_rate": 1000.
+            "publish_rate": 1000.0,
         }
         for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
-            items[f'{jnt_name}_controller'] = {
+            items[f"{jnt_name}_controller"] = {
                 "type": "position_controllers/JointPositionController",
                 "joint": jnt_name,
             }
@@ -354,7 +394,7 @@ class PackageGenerator(QObject):
 
     def _generate_urdf(self, urdf_dir: str) -> None:
         robot = self._make_urdf_with_plugins()
-        urdf_path = osp.join(urdf_dir, f'{self._drone_name}.xacro')
+        urdf_path = osp.join(urdf_dir, f"{self._drone_name}.xacro")
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
@@ -371,7 +411,7 @@ class PackageGenerator(QObject):
         return robot
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
-        """ 悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す． """
+        """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
         for child in robot:
             # transmissionは問答無用で消す
             if child.tag == "transmission":
@@ -393,17 +433,19 @@ class PackageGenerator(QObject):
                     elif gchild.tag == "sensor":
                         self._remove_or_keep_gazebo_child(child, gchild)
 
-    def _remove_or_keep_gazebo_child(self, gazebo: ET.Element, child: ET.Element) -> None:
-        """ 属性を確認した上でGazeboの子ノードを削除する． """
+    def _remove_or_keep_gazebo_child(
+        self, gazebo: ET.Element, child: ET.Element
+    ) -> None:
+        """属性を確認した上でGazeboの子ノードを削除する．"""
         msg_box = QMessageBox(self._main)  # 親を設定しておけば一緒に落とせる
 
         # テキストの設定
-        text = f'Gazebo {child.tag} is detected.\n\n'
+        text = f"Gazebo {child.tag} is detected.\n\n"
         for key, value in child.attrib.items():
-            text += f'    {key}: {value}\n'
+            text += f"    {key}: {value}\n"
         text += "\nThis may interfere with components automatically added by Tobas."
         msg_box.setText(text)
-        msg_box.setInformativeText(f'Do you remove this {child.tag} or keep it?')
+        msg_box.setInformativeText(f"Do you remove this {child.tag} or keep it?")
 
         # ボタンの設定
         remove_button = msg_box.addButton("Remove", QMessageBox.ActionRole)
@@ -591,7 +633,7 @@ class PackageGenerator(QObject):
                 near=rgb_camera.depth_range.min(),
                 far=rgb_camera.depth_range.max(),
                 fov=rgb_camera.fov.get(),
-                noise_mean=0.,
+                noise_mean=0.0,
                 noise_stddev=rgb_camera.noise_stddev.get(),
             )
 
@@ -625,7 +667,9 @@ class PackageGenerator(QObject):
                 robot=robot,
                 ns=self._drone_name,
                 link_name=root_link,
-                offset=Origin.Trans(lidar.offset.x(), lidar.offset.y(), lidar.offset.z()),
+                offset=Origin.Trans(
+                    lidar.offset.x(), lidar.offset.y(), lidar.offset.z()
+                ),
                 update_rate=lidar.update_rate.get(),
                 hor_samples=lidar.hor_samples.get(),
                 ver_samples=lidar.ver_samples.get(),

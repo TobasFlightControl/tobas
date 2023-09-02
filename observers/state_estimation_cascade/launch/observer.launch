@@ -1,13 +1,12 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
-  <arg name="delay" default="0"/>
 
   <arg name="node_name" value="state_estimator_cascade"/>
 
   <!-- State Estimator -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_cascade/StateEstimatorNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_cascade/StateEstimatorNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">
@@ -17,13 +16,11 @@
   <!-- Orientation Estimator -->
   <include file="$(find orientation_estimation_complement)/launch/orientation_estimation.launch">
     <arg name ="nodelet" value="$(arg nodelet)"/>
-    <arg name="delay" value="$(arg delay)"/>
   </include>
 
   <!-- Static State Determinator -->
   <include file="$(find tobas_common_actions)/launch/static_state_determination.launch">
     <arg name ="nodelet" value="$(arg nodelet)"/>
-    <arg name="delay" value="$(arg delay)"/>
   </include>
 
 </launch>

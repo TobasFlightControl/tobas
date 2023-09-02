@@ -1,13 +1,12 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
-  <arg name="delay" default="0"/>
 
   <arg name="node_name" value="takeoff_action_server"/>
 
   <!-- Takeff Action Server -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/MultirotorTakeoffServerNodelet nodelet_manager" output="screen" launch-prefix="bash -c 'sleep $(arg delay); $0 $@'"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/MultirotorTakeoffServerNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">
@@ -17,7 +16,6 @@
   <!-- Wait For Stillness Action Server -->
   <include file="$(find tobas_common_actions)/launch/wait_for_stillness.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
-    <arg name="delay" value="$(arg delay)"/>
   </include>
 
 </launch>

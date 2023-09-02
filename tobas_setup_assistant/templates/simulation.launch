@@ -1,0 +1,39 @@
+<launch>
+
+  <arg name="nodelet" default="true"/>
+  <arg name="user_debug" default="false"/>
+  <arg name="world_path" default="$(find tobas_gazebo)/worlds/basic.world"/>
+  <arg name="debug" default="false"/>
+  <arg name="paused" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="verbose" default="true"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.3"/>
+  <arg name="yaw" default="0.0" doc="Initial yaw angle in degrees."/>
+
+  <include file="$(find {{ pkg_name }})/launch/common_params.launch">
+    <arg name="user_debug" value="$(arg user_debug)"/>
+  </include>
+
+  <include file="$(find {{ pkg_name }})/launch/gazebo.launch">
+    <arg name="world_path" value="$(arg world_path)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
+  </include>
+
+  <node pkg="{{ pkg_name }}" type="simulation_launcher_node.py" name="simulation_launcher" output="screen">
+    <param name="nodelet" value="$(arg nodelet)"/>
+  </node>
+
+</launch>
