@@ -8,7 +8,6 @@ from ..common import *
 
 
 class IntGetter(QWidget):
-
     def __init__(
         self,
         name: str,
@@ -46,7 +45,6 @@ class IntGetter(QWidget):
 
 
 class DoubleGetter(QWidget):
-
     def __init__(
         self,
         name: str,
@@ -59,7 +57,7 @@ class DoubleGetter(QWidget):
     ) -> None:
         assert decimals >= 0
         assert minimum < maximum
-        assert single_step > 0.
+        assert single_step > 0.0
 
         super().__init__()
 

@@ -9,7 +9,6 @@ from .base import ParamGetterWidget
 
 
 class ParamGetterWidget_ComboBox(ParamGetterWidget):
-
     text_changed = pyqtSignal(str)
 
     def __init__(
@@ -33,7 +32,7 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
 
     def get(self) -> str:
         return self.box.currentText()
-    
+
     def set(self, text: str) -> None:
         self.box.setCurrentText(text)
 

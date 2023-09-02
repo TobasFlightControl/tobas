@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -12,7 +13,6 @@ from ...common import *
 
 
 class BaseController(QWidget):
-
     NAME = "Unknown"
 
     CONTROLLER_PKG = "Unknown"

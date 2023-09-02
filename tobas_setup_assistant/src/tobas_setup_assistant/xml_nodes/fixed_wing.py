@@ -5,7 +5,6 @@ from ..setting_widgets.fixed_wing.control_surfaces import ControlSurface
 
 
 class FixedWingModel(ET.Element):
-
     def __init__(
         self,
         ns: str,
@@ -34,15 +33,15 @@ class FixedWingModel(ET.Element):
         c_yaw_r: float,
         control_surfaces: List[ControlSurface],
     ):
-        assert wing_surface > 0.
-        assert wing_span > 0.
-        assert alpha_limit[0] < 0. < alpha_limit[1]
+        assert wing_surface > 0.0
+        assert wing_span > 0.0
+        assert alpha_limit[0] < 0.0 < alpha_limit[1]
 
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")
         plugin.attrib["filename"] = "libtobas_gazebo_fixed_wing_plugin.so"
-        plugin.attrib["name"] = f'{ns}_fixed_wing_plugin'
+        plugin.attrib["name"] = f"{ns}_fixed_wing_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
@@ -52,7 +51,9 @@ class FixedWingModel(ET.Element):
         ET.SubElement(plugin, "wingSurface").text = str(wing_surface)
         ET.SubElement(plugin, "wingSpan").text = str(wing_span)
         ET.SubElement(plugin, "meanAerodynamicChord").text = str(mean_aerodynamic_chord)
-        ET.SubElement(plugin, "aerodynamicCenter").text = " ".join(map(str, aerodynamic_center))
+        ET.SubElement(plugin, "aerodynamicCenter").text = " ".join(
+            map(str, aerodynamic_center)
+        )
         ET.SubElement(plugin, "lowerStallAngle").text = str(alpha_limit[0])
         ET.SubElement(plugin, "upperStallAngle").text = str(alpha_limit[1])
 

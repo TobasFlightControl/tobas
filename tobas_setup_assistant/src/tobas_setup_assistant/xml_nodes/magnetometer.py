@@ -5,7 +5,6 @@ from .sensor import SensorModel
 
 
 class MagnetometerModel(SensorModel):
-
     def __init__(
         self,
         ns: str,
@@ -18,12 +17,12 @@ class MagnetometerModel(SensorModel):
         gauss_noise: float,
         uniform_noise: float,
     ) -> None:
-        assert update_rate > 0.
-        assert gauss_noise > 0., f'gauss_noise = {gauss_noise} nT'
-        assert uniform_noise > 0., f'uniform_noise = {uniform_noise} nT'
+        assert update_rate > 0.0
+        assert gauss_noise > 0.0, f"gauss_noise = {gauss_noise} nT"
+        assert uniform_noise > 0.0, f"uniform_noise = {uniform_noise} nT"
 
         # 便宜的にセンサタイプをIMUにしている
-        super().__init__(link_name, f'{ns}_magnetometer', "imu", update_rate)
+        super().__init__(link_name, f"{ns}_magnetometer", "imu", update_rate)
 
         # robot/gazebo/sensor/plugin
         plugin = ET.SubElement(self.sensor, "plugin")
@@ -38,4 +37,6 @@ class MagnetometerModel(SensorModel):
         ET.SubElement(plugin, "longitudeZero").text = str(longitude_0)
         ET.SubElement(plugin, "altitudeZero").text = str(altitude_0)
         ET.SubElement(plugin, "noiseNormal").text = " ".join([str(gauss_noise)] * 3)
-        ET.SubElement(plugin, "noiseUniformInitialBias").text = " ".join([str(uniform_noise)] * 3)
+        ET.SubElement(plugin, "noiseUniformInitialBias").text = " ".join(
+            [str(uniform_noise)] * 3
+        )

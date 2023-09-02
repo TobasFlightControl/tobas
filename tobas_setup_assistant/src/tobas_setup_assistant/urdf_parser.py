@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
@@ -17,7 +18,6 @@ from kdl_sympy.joint import JointType
 
 
 class URDFParser(QObject):
-
     robot_model_updated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
@@ -27,7 +27,9 @@ class URDFParser(QObject):
         self._tree = Tree()
 
     def define_connections(self) -> None:
-        self._main.settings.start.robot_model_loader.urdf_loaded.connect(self._on_urdf_loaded)
+        self._main.settings.start.robot_model_loader.urdf_loaded.connect(
+            self._on_urdf_loaded
+        )
 
     @pyqtSlot()
     def _on_urdf_loaded(self) -> None:
@@ -78,10 +80,10 @@ class URDFParser(QObject):
         return self._tree.joint_names()
 
     def mobile_joint_names(self) -> List[str]:
-        """ 可動関節名のリストを返す． """
+        """可動関節名のリストを返す．"""
         res = []
         for joint_name in self._tree.joint_names():
-            if (not self._tree.is_fixed_joint(joint_name)):
+            if not self._tree.is_fixed_joint(joint_name):
                 res.append(joint_name)
         return res
 
@@ -92,11 +94,13 @@ class URDFParser(QObject):
         """
         mobile_joints = set(self.mobile_joint_names())
         prop_joints = set(self._main.settings.propulsion_system.selected.joint_names())
-        cs_joints = set(self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names())
+        cs_joints = set(
+            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
+        )
         return list(mobile_joints - prop_joints - cs_joints)
 
     def link_names_with_mobile_joint(self) -> List[str]:
-        """ 可動関節をもつリンク名のリストを返す． """
+        """可動関節をもつリンク名のリストを返す．"""
         mobile_joints = set(self.mobile_joint_names())
         res = []
         for link in self._tree.get_links():
@@ -123,7 +127,7 @@ class URDFParser(QObject):
         return self._nwu_fixed_link_names_rec(root_link.name)
 
     def _nwu_fixed_link_names_rec(self, parent_name: str) -> List[str]:
-        """ parent以下の固定リンクの名前の配列を返す． """
+        """parent以下の固定リンクの名前の配列を返す．"""
         res = [parent_name]
 
         if self.is_end_link(parent_name):
@@ -148,11 +152,11 @@ class URDFParser(QObject):
         return res
 
     def _is_valid_robot(self) -> bool:
-        """ 有効なロボットかどうかを判定する． """
+        """有効なロボットかどうかを判定する．"""
         # 多自由度関節を持たないことを保証
         for joint in self.get_joints():
             if joint.type in {JointType.PLANER, JointType.FLOATING}:
-                q_error(self._main, f'Invalid joint type: {joint.type}')
+                q_error(self._main, f"Invalid joint type: {joint.type}")
                 return False
 
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致することを保証

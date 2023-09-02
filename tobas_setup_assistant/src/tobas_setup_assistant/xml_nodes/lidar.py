@@ -19,29 +19,31 @@ def add_lidar_model(
     resolution: float,
     noise_stddev: float,
 ) -> None:
-    assert update_rate > 0.
+    assert update_rate > 0.0
     assert hor_samples > 0
     assert ver_samples > 0
     assert hor_fov[0] <= hor_fov[1]
     assert ver_fov[0] <= ver_fov[1]
     assert dist_range[0] <= dist_range[1]
-    assert resolution > 0.
-    assert noise_stddev >= 0.
+    assert resolution > 0.0
+    assert noise_stddev >= 0.0
 
     # TODO: リンク名やジョイント名が被っている場合は名前を変更する
-    lidar_link = f'{ns}/lidar_link'
+    lidar_link = f"{ns}/lidar_link"
 
     # robot/link
     robot.append(DummyLink(lidar_link))
 
     # robot/joint
-    robot.append(Joint(
-        name=f'{ns}/lidar_joint',
-        type="fixed",
-        parent=link_name,
-        child=lidar_link,
-        origin=offset,
-    ))
+    robot.append(
+        Joint(
+            name=f"{ns}/lidar_joint",
+            type="fixed",
+            parent=link_name,
+            child=lidar_link,
+            origin=offset,
+        )
+    )
 
     # robot/gazebo
     gazebo = ET.SubElement(robot, "gazebo")
@@ -49,7 +51,7 @@ def add_lidar_model(
 
     # robot/gazebo/sensor
     sensor = ET.SubElement(gazebo, "sensor")
-    sensor.attrib["name"] = f'{ns}_lidar'
+    sensor.attrib["name"] = f"{ns}_lidar"
     sensor.attrib["type"] = "ray"
     ET.SubElement(sensor, "always_on").text = "true"
     ET.SubElement(sensor, "update_rate").text = str(update_rate)

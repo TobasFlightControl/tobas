@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -20,16 +21,17 @@ from .fixed_wing_lqr import FixedWingLQR
 
 
 class ControllerWidget(BaseSettingWidget):
-
     NAME = "Controller"
 
     NO_SELECT = "Select controller type"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Controller"
-        abst_text = "飛行制御器の設定を行います．"\
-            + "手法を1つ選択し，各パラメータを設定してください．"\
+        abst_text = (
+            "飛行制御器の設定を行います．"
+            + "手法を1つ選択し，各パラメータを設定してください．"
             + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self.type = ComboBox()
@@ -72,7 +74,7 @@ class ControllerWidget(BaseSettingWidget):
         elif controller_type == FixedWingLQR.NAME:
             return self.fixed_wing_lqr
         else:
-            raise RuntimeError(f'Invalid controller type: {controller_type}')
+            raise RuntimeError(f"Invalid controller type: {controller_type}")
 
     def get_type(self) -> str:
         return self.type.currentText()
@@ -116,7 +118,7 @@ class ControllerWidget(BaseSettingWidget):
             self.multirotor_lmpc.setVisible(False)
             self.fixed_wing_lqr.setVisible(True)
         else:
-            raise RuntimeError(f'Unknown controller type: {controller_type}')
+            raise RuntimeError(f"Unknown controller type: {controller_type}")
 
     @pyqtSlot(str)
     def _on_type_changed(self, controller_type: str) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -13,7 +14,6 @@ from ...common import *
 
 
 class BladeGeometry(QWidget):
-
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 
@@ -81,17 +81,17 @@ class BladeGeometry(QWidget):
         return self._num_blade.get()
 
     def propeller_diameter(self) -> float:
-        """ [m] """
-        return self._diameter.get() / 1000.
+        """[m]"""
+        return self._diameter.get() / 1000.0
 
     def propeller_radius(self) -> float:
-        """ [m] """
+        """[m]"""
         return self.propeller_diameter() / 2
 
     def blade_chord(self) -> float:
-        """ [m] """
-        return self._blade_chord.get() / 1000.
+        """[m]"""
+        return self._blade_chord.get() / 1000.0
 
     def pitch_angle(self) -> float:
-        """ [rad] """
+        """[rad]"""
         return math.radians(self._pitch_angle.get())

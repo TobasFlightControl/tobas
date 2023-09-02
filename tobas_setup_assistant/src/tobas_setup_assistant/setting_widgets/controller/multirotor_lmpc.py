@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -12,7 +13,12 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.messages import q_error_named
 from kdl_sympy.frames import Vector
 
-from tobas_msgs.msg import RollPitchYawThrust, RollPitchYawrateThrust, VelocityYaw, PositionYaw
+from tobas_msgs.msg import (
+    RollPitchYawThrust,
+    RollPitchYawrateThrust,
+    VelocityYaw,
+    PositionYaw,
+)
 
 from ...parameter_getters import *
 from ...common import *
@@ -20,7 +26,6 @@ from .base import BaseController
 
 
 class MultirotorLMPC(BaseController):
-
     NAME = "Linear Model Predictive Control"
 
     CONTROLLER_PKG = "tobas_multirotor_controller"
@@ -40,61 +45,69 @@ class MultirotorLMPC(BaseController):
         abst_text = "位置制御にPD制御，姿勢制御に線形モデル予測制御を用いた制御器です．"
         super().__init__(main, abst_text)
 
-        hor_natural_freq_description = "PD制御における水平方向の自然周波数．"\
-            + "大きいほど応答速度が速くなりますが，"\
+        hor_natural_freq_description = (
+            "PD制御における水平方向の自然周波数．"
+            + "大きいほど応答速度が速くなりますが，"
             + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
+        )
         self.hor_natural_freq = ParamGetterWidget_DoubleSpinBox(
             "Horizontal natural frequency (Translation controller)",
             hor_natural_freq_description,
             decimals=2,
             minimum=0.1,
-            default=1.,
+            default=1.0,
             suffix=" Hz",
         )
         self._rows.addWidget(self.hor_natural_freq)
 
-        hor_damp_ratio_description = "PD制御における水平方向の減衰比．"\
-            + "大きいほどオーバーシュートが小さくなりますが，"\
-            + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"\
-            + "逆に小さいほど応答速度が速くなりますが，"\
-            + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"\
-            + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
+        hor_damp_ratio_description = (
+            "PD制御における水平方向の減衰比．"
+            + "大きいほどオーバーシュートが小さくなりますが，"
+            + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"
+            + "逆に小さいほど応答速度が速くなりますが，"
+            + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"
+            + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"
             + "オーバーシュートなく最速で目標位置に収束します．"
+        )
         self.hor_damp_ratio = ParamGetterWidget_DoubleSpinBox(
             "Horizontal damping ratio (Translation controller)",
             hor_damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
-            default=1.,
+            default=1.0,
         )
         self._rows.addWidget(self.hor_damp_ratio)
 
-        ver_natural_freq_description = "PD制御における垂直方向の自然周波数．"\
-            + "大きいほど応答速度が速くなりますが，"\
+        ver_natural_freq_description = (
+            "PD制御における垂直方向の自然周波数．"
+            + "大きいほど応答速度が速くなりますが，"
             + "大きすぎると遅延やモデル化誤差などの要因により振動が発生する恐れがあります．"
+        )
         self.ver_natural_freq = ParamGetterWidget_DoubleSpinBox(
             "Vertical natural frequency (Translation controller)",
             ver_natural_freq_description,
             decimals=2,
             minimum=0.1,
-            default=2.,
+            default=2.0,
             suffix=" Hz",
         )
         self._rows.addWidget(self.ver_natural_freq)
 
-        ver_damp_ratio_description = "PD制御における垂直方向の減衰比．"\
-            + "大きいほどオーバーシュートが小さくなりますが，"\
-            + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"\
-            + "逆に小さいほど応答速度が速くなりますが，"\
-            + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"\
-            + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"\
+        ver_damp_ratio_description = (
+            "PD制御における垂直方向の減衰比．"
+            + "大きいほどオーバーシュートが小さくなりますが，"
+            + "大きすぎると速度変化に過剰に反応して振動が発生する恐れがあります．"
+            + "逆に小さいほど応答速度が速くなりますが，"
+            + "小さすぎるとオーバーシュートが大きくなり目標位置付近での振動が大きくなります．"
+            + "遅延，モデル化誤差などの無い理想的な状況では1のときに臨界減衰となり，"
             + "オーバーシュートなく最速で目標位置に収束します．"
+        )
         self.ver_damp_ratio = ParamGetterWidget_DoubleSpinBox(
             "Vertical damping ratio (Translation controller)",
             ver_damp_ratio_description,
             decimals=2,
             minimum=math.sqrt(0.5),
-            default=1.,
+            default=1.0,
         )
         self._rows.addWidget(self.ver_damp_ratio)
 
@@ -103,9 +116,9 @@ class MultirotorLMPC(BaseController):
             "Maximum horizontal velocity (Translation controller)",
             max_hor_vel_description,
             decimals=1,
-            minimum=1.,
-            maximum=10.,
-            default=3.,
+            minimum=1.0,
+            maximum=10.0,
+            default=3.0,
             suffix=" m/s",
         )
         self._rows.addWidget(self.max_hor_vel)
@@ -115,9 +128,9 @@ class MultirotorLMPC(BaseController):
             "Maximum vertical velocity (Translation controller)",
             max_ver_vel_description,
             decimals=1,
-            minimum=1.,
-            maximum=10.,
-            default=3.,
+            minimum=1.0,
+            maximum=10.0,
+            default=3.0,
             suffix=" m/s",
         )
         self._rows.addWidget(self.max_ver_vel)
@@ -127,9 +140,9 @@ class MultirotorLMPC(BaseController):
             "Maximum horizontal acceleration (Translation controller)",
             max_hor_acc_description,
             decimals=1,
-            minimum=1.,
-            maximum=10.,
-            default=5.,
+            minimum=1.0,
+            maximum=10.0,
+            default=5.0,
             suffix=" m/s^2",
         )
         self._rows.addWidget(self.max_hor_acc)
@@ -139,30 +152,33 @@ class MultirotorLMPC(BaseController):
             "Maximum vertical acceleration (Translation controller)",
             max_ver_acc_description,
             decimals=1,
-            minimum=1.,
-            maximum=10.,
-            default=5.,
+            minimum=1.0,
+            maximum=10.0,
+            default=5.0,
             suffix=" m/s^2",
         )
         self._rows.addWidget(self.max_ver_acc)
 
-        pred_horizon_description = "モデル予測制御の予測区間の長さ．"\
-            + "理論的には大きいほど制御性能が良くなりますが，"\
-            + "大きくするほど離散化誤差や計算機の数値誤差が大きくなります．"\
+        pred_horizon_description = (
+            "モデル予測制御の予測区間の長さ．"
+            + "理論的には大きいほど制御性能が良くなりますが，"
+            + "大きくするほど離散化誤差や計算機の数値誤差が大きくなります．"
             + "最低でもシステム (ここでは姿勢制御) の応答時間の数倍以上にすべきだと言われています．"
+        )
         self.pred_horizon = ParamGetterWidget_DoubleSpinBox(
             "Predictin horizon (Rotation controller)",
             pred_horizon_description,
             decimals=2,
             minimum=0.1,
-            maximum=3.,
-            default=1.,
+            maximum=3.0,
+            default=1.0,
             suffix=" s",
         )
         self._rows.addWidget(self.pred_horizon)
 
-        pred_steps_description = "モデル予測制御の予測区間の分割数．"\
-            + "大きいほど離散化誤差が小さくなりますが，計算量は分割数の3乗に比例します．"
+        pred_steps_description = (
+            "モデル予測制御の予測区間の分割数．" + "大きいほど離散化誤差が小さくなりますが，計算量は分割数の3乗に比例します．"
+        )
         self.pred_steps = ParamGetterWidget_SpinBox(
             "Prediction steps (Rotation controller)",
             pred_steps_description,
@@ -172,41 +188,40 @@ class MultirotorLMPC(BaseController):
         )
         self._rows.addWidget(self.pred_steps)
 
-        attitude_decay_description = "モデル予測制御における，ロール角とピッチ角の参照値の追従時定数．"\
-            + "大きいほど目標値に滑らかに追従します．"
+        attitude_decay_description = (
+            "モデル予測制御における，ロール角とピッチ角の参照値の追従時定数．" + "大きいほど目標値に滑らかに追従します．"
+        )
         self.attitude_decay = ParamGetterWidget_DoubleSpinBox(
             "Attitude decay time constant (Rotation controller)",
             attitude_decay_description,
             decimals=2,
-            minimum=0.,
-            maximum=1.,
+            minimum=0.0,
+            maximum=1.0,
             default=0.2,
             suffix=" s",
         )
         self._rows.addWidget(self.attitude_decay)
 
-        heading_decay_description = "モデル予測制御における，ヨー角の参照値の追従時定数．"\
-            + "大きいほど目標値に滑らかに追従します．"
+        heading_decay_description = "モデル予測制御における，ヨー角の参照値の追従時定数．" + "大きいほど目標値に滑らかに追従します．"
         self.heading_decay = ParamGetterWidget_DoubleSpinBox(
             "Heading decay time constant (Rotation controller)",
             heading_decay_description,
             decimals=2,
-            minimum=0.,
-            maximum=1.,
+            minimum=0.0,
+            maximum=1.0,
             default=0.2,
             suffix=" s",
         )
         self._rows.addWidget(self.heading_decay)
 
-        angvel_decay_description = "モデル予測制御における，角速度の参照値の追従時定数．"\
-            + "大きいほど目標値に滑らかに追従します．"
+        angvel_decay_description = "モデル予測制御における，角速度の参照値の追従時定数．" + "大きいほど目標値に滑らかに追従します．"
         self.angvel_decay = ParamGetterWidget_DoubleSpinBox(
             "Angular velocity decay time constant (Rotation controller)",
             angvel_decay_description,
             decimals=2,
-            minimum=0.,
-            maximum=1.,
-            default=0.,
+            minimum=0.0,
+            maximum=1.0,
+            default=0.0,
             suffix=" s",
         )
         self._rows.addWidget(self.angvel_decay)

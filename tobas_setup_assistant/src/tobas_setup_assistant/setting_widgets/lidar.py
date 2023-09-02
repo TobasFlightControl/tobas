@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -18,7 +19,6 @@ from ..common import *
 
 
 class LidarWidget(BaseSettingWidget):
-
     NAME = "LiDAR"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -72,7 +72,7 @@ class LidarWidget(BaseSettingWidget):
             "Horizontal Field of View",
             hor_fov_description,
             decimals=3,
-            default=(0., 2 * math.pi),
+            default=(0.0, 2 * math.pi),
             suffix=" rad",
         )
         self._rows.addWidget(self.hor_fov)
@@ -92,7 +92,7 @@ class LidarWidget(BaseSettingWidget):
             "Laser distance range",
             range_description,
             decimals=3,
-            default=(0.1, 200.),
+            default=(0.1, 200.0),
             suffix=" m",
         )
         self._rows.addWidget(self.range)
@@ -113,7 +113,7 @@ class LidarWidget(BaseSettingWidget):
             "Standard deviation of gaussian noise",
             noise_stddev_description,
             decimals=3,
-            minimum=0.,
+            minimum=0.0,
             default=0.01,
             suffix=" m",
         )

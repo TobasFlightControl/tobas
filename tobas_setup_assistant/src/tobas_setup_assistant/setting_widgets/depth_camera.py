@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -19,7 +20,6 @@ from ..common import *
 
 
 class DepthNoiseModel(Enum):
-
     KINECT = "Kinect"
     PMD = "PMD"
     D435 = "D435"
@@ -30,7 +30,6 @@ class DepthNoiseModel(Enum):
 
 
 class DepthCameraWidget(BaseSettingWidget):
-
     NAME = "Depth Camera"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -56,11 +55,7 @@ class DepthCameraWidget(BaseSettingWidget):
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update Rate",
-            update_rate_description,
-            minimum=1,
-            default=30,
-            suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=30, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
@@ -69,7 +64,7 @@ class DepthCameraWidget(BaseSettingWidget):
             "Horizontal Field of View",
             fov_description,
             decimals=6,
-            minimum=0.,
+            minimum=0.0,
             default=1.59174,
             suffix=" rad",
         )
@@ -80,7 +75,7 @@ class DepthCameraWidget(BaseSettingWidget):
             "Baseline",  # TODO
             baseline_description,
             decimals=6,
-            minimum=0.,
+            minimum=0.0,
             default=0.05,
             suffix="",  # TODO
         )
@@ -106,13 +101,12 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.image_height)
 
-        depth_range_description = "カメラで観測可能な深さの範囲．"\
-            + "シミュレーションでは，この範囲外にある物体は切り捨てられます．"
+        depth_range_description = "カメラで観測可能な深さの範囲．" + "シミュレーションでは，この範囲外にある物体は切り捨てられます．"
         self.depth_range = ParamGetterWidget_DoubleRange(
             "Depth Range",
             depth_range_description,
-            minimum=0.,
-            default=(0.195, 50.),
+            minimum=0.0,
+            default=(0.195, 50.0),
             suffix=" m",
         )
         self._rows.addWidget(self.depth_range)
@@ -175,5 +169,7 @@ class DepthCameraWidget(BaseSettingWidget):
     def _add_links(self) -> None:
         # Gazeboの仕様で，ルートリンクまたは可動関節をもつリンクのみ指定可能
         root_name = self._main.urdf_parser.get_root().name
-        body_choices = [root_name] + self._main.urdf_parser.link_names_with_mobile_joint()
+        body_choices = [
+            root_name
+        ] + self._main.urdf_parser.link_names_with_mobile_joint()
         self.link.box.addItems(body_choices)

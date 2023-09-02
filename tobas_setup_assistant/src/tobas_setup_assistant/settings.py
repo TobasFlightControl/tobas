@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
@@ -12,7 +13,6 @@ from .setting_widgets import *
 
 
 class SettingsWidget(VerticalTabWidget):
-
     TAB_HEIGHT = 30  # 30以上無いと何故かTabBarの文字が横に見切れてしまう
     TAB_WIDTH = 70
     MIN_HEIGHT = 300
@@ -59,7 +59,7 @@ class SettingsWidget(VerticalTabWidget):
 
         self.setMinimumHeight(self.MIN_HEIGHT)
         self.setStyleSheet(
-            f'QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}'
+            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
         )
 
     def define_connections(self) -> None:

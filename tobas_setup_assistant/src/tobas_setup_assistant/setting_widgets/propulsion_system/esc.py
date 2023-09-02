@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -18,7 +19,6 @@ from .common import ROTARY_WINGS
 
 
 class EscWidget(QWidget):
-
     NO_SELECT = "Select ESC type"
     PWM = "PWM"
     DSHOT = "DSHOT"
@@ -55,7 +55,7 @@ class EscWidget(QWidget):
         if self.esc_type.currentText() == self.NO_SELECT:
             q_error_named(self._main, ROTARY_WINGS, "Please select ESC type.")
             return False
-        
+
         if not self.selected().is_valid():
             return False
 
@@ -94,7 +94,7 @@ class EscWidget(QWidget):
             self.pwm.setVisible(False)
             self.dshot.setVisible(True)
         else:
-            raise RuntimeError(f'Unknown ESC type: {esc_type}')
+            raise RuntimeError(f"Unknown ESC type: {esc_type}")
 
     @pyqtSlot(str)
     def _on_type_changed(self, esc_type: str) -> None:
@@ -102,7 +102,6 @@ class EscWidget(QWidget):
 
 
 class EscWidget_Base(QWidget):
-
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 
@@ -119,7 +118,6 @@ class EscWidget_Base(QWidget):
 
 
 class EscWidget_PWM(EscWidget_Base):
-
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
@@ -143,7 +141,6 @@ class EscWidget_PWM(EscWidget_Base):
 
 
 class EscWidget_DSHOT(EscWidget_Base):
-
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 

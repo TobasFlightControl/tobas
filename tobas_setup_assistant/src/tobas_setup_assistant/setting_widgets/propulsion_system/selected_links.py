@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -22,7 +23,6 @@ from .aerodynamics import AerodynamicsWidget
 
 
 class SelectedLinksWidget(TabWidget):
-
     TAB_HEIGHT = 50
     TAB_WIDTH = 150
 
@@ -32,7 +32,7 @@ class SelectedLinksWidget(TabWidget):
         self._main = main
 
         self.setStyleSheet(
-            f'QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}'
+            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
         )
         self.setMovable(True)
         self.setTabsClosable(True)
@@ -52,7 +52,10 @@ class SelectedLinksWidget(TabWidget):
         # 最低1つは登録されていなければならない
         if num_rotors == 0:
             q_error_named(
-                self._main, ROTARY_WINGS, "Please register at least 1 propulsion systems.")
+                self._main,
+                ROTARY_WINGS,
+                "Please register at least 1 propulsion systems.",
+            )
             return
 
         return True
@@ -62,13 +65,13 @@ class SelectedLinksWidget(TabWidget):
         self.addTab(tab, link_name)
 
     def get_index(self, link_name: str) -> int:
-        """ タブのインデックスを返す． """
+        """タブのインデックスを返す．"""
         for idx in range(self.count()):
             tab: SelectedLinkTabWidget = self.widget(idx)
             if tab.link_name() == link_name:
                 return idx
         else:
-            raise RuntimeError(f'Link name not found: {link_name}')
+            raise RuntimeError(f"Link name not found: {link_name}")
 
     def get_tab(self, link_name: str) -> SelectedLinkTabWidget:
         idx = self.get_index(link_name)
@@ -87,7 +90,7 @@ class SelectedLinksWidget(TabWidget):
         return self.get_tab(link_name).aerodynamics
 
     def link_names(self) -> List[str]:
-        """ 選択テーブル内のリンクの名前のリストを返す． """
+        """選択テーブル内のリンクの名前のリストを返す．"""
         res = []
         for idx in range(self.count()):
             tab: SelectedLinkTabWidget = self.widget(idx)
@@ -95,7 +98,7 @@ class SelectedLinksWidget(TabWidget):
         return res
 
     def joint_names(self) -> List[str]:
-        """ 選択テーブル内のジョイントの名前のリストを返す． """
+        """選択テーブル内のジョイントの名前のリストを返す．"""
         res = []
         for idx in range(self.count()):
             tab: SelectedLinkTabWidget = self.widget(idx)
@@ -103,7 +106,7 @@ class SelectedLinksWidget(TabWidget):
         return res
 
     def directions(self) -> List[str]:
-        """ 選択テーブル内の回転方向 ('cw' or 'ccw') のリストを返す． """
+        """選択テーブル内の回転方向 ('cw' or 'ccw') のリストを返す．"""
         return [self.widget(i).motor.direction() for i in range(self.count())]
 
     @pyqtSlot(int)
@@ -116,7 +119,6 @@ class SelectedLinksWidget(TabWidget):
 
 
 class SelectedLinkTabWidget(QWidget):
-
     CP_BUTTON_HEIGHT = 40
     CP_BUTTON_WIDTH = 150
     RM_BUTTON_HEIGHT = 40
@@ -132,7 +134,9 @@ class SelectedLinkTabWidget(QWidget):
         self.setLayout(self._rows)
 
         self.copy_button = add_center_button("Copy from left tab", self._rows)
-        self.copy_button.setFixedSize(QSize(self.CP_BUTTON_WIDTH, self.CP_BUTTON_HEIGHT))
+        self.copy_button.setFixedSize(
+            QSize(self.CP_BUTTON_WIDTH, self.CP_BUTTON_HEIGHT)
+        )
 
         self.esc = EscWidget(main, link_name)
         self._rows.addWidget(self.esc)
@@ -175,7 +179,7 @@ class SelectedLinkTabWidget(QWidget):
             return AxisType.Z_POSITIVE
         else:
             # TODO: その他の回転軸に対応
-            raise RuntimeError(f'Invalid rotation axis: {axis}')
+            raise RuntimeError(f"Invalid rotation axis: {axis}")
 
     def _define_connections(self) -> None:
         self.copy_button.clicked.connect(self._copy_from_left_tab)

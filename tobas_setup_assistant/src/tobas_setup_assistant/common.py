@@ -14,5 +14,4 @@ BODY_PSIZE = 9
 
 
 class Signals(QObject):
-    
     airframe_updated = pyqtSignal()

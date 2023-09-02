@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -16,13 +17,13 @@ from ..parameter_getters import *
 
 
 class SimulationWidget(BaseSettingWidget):
-
     NAME = "Simulation"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Gazebo Simulation"
-        abst_text = "Gazeboシミュレーション環境の設定を行います．"\
-            "シミュレーションの精度を向上させるために，実際の実行環境の情報を入力してください．"
+        abst_text = (
+            "Gazeboシミュレーション環境の設定を行います．" "シミュレーションの精度を向上させるために，実際の実行環境の情報を入力してください．"
+        )
         super().__init__(main, title_text, abst_text)
 
         gravity_description = ""
@@ -30,7 +31,7 @@ class SimulationWidget(BaseSettingWidget):
             "Gravity",
             gravity_description,
             decimals=6,
-            minimum=0.,
+            minimum=0.0,
             default=9.80665,  # 標準重力加速度
             suffix=" m/s^2",
         )
@@ -42,8 +43,8 @@ class SimulationWidget(BaseSettingWidget):
             "Latitude of origin",
             latitude_0_description,
             decimals=6,
-            minimum=-90.,
-            maximum=+90.,
+            minimum=-90.0,
+            maximum=+90.0,
             default=35.658099,  # 日本: 北緯35度39分29秒
             suffix=" deg",
         )
@@ -54,8 +55,8 @@ class SimulationWidget(BaseSettingWidget):
             "Longitude of origin",
             longitude_0_description,
             decimals=6,
-            minimum=-180.,
-            maximum=+180.,
+            minimum=-180.0,
+            maximum=+180.0,
             default=139.741354,  # 日本: 東経139度44分28秒8759
             suffix=" deg",
         )
@@ -76,8 +77,8 @@ class SimulationWidget(BaseSettingWidget):
             "Mean wind speed",
             mean_wind_speed_description,
             decimals=1,
-            minimum=0.,
-            default=0.,
+            minimum=0.0,
+            default=0.0,
             suffix=" m/s",
         )
         self._rows.addWidget(self.mean_wind_speed)
@@ -87,9 +88,9 @@ class SimulationWidget(BaseSettingWidget):
             "Constant wind direction (Yaw angle)",
             const_wind_direction_description,
             decimals=2,
-            minimum=0.,
+            minimum=0.0,
             maximum=2 * math.pi,
-            default=0.,
+            default=0.0,
             suffix=" m/s",
         )
         self._rows.addWidget(self.const_wind_direction)

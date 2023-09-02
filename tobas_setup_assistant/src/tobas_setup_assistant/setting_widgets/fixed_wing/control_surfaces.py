@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -19,24 +20,22 @@ from .common import STABILITY_COEF_DECIMALS
 
 
 class ControlSurface:
-
     def __init__(self) -> None:
         self.joint_name = ""
 
-        self.min_angle = 0.
-        self.max_angle = 0.
-        self.max_angle_rate = 0.
+        self.min_angle = 0.0
+        self.max_angle = 0.0
+        self.max_angle_rate = 0.0
 
-        self.c_lift_delta = 0.      # [/rad]
-        self.c_drag_abs_delta = 0.  # [/rad]
-        self.c_side_delta = 0.      # [/rad]
-        self.c_roll_delta = 0.      # [/rad]
-        self.c_pitch_delta = 0.     # [/rad]
-        self.c_yaw_delta = 0.       # [/rad]
+        self.c_lift_delta = 0.0  # [/rad]
+        self.c_drag_abs_delta = 0.0  # [/rad]
+        self.c_side_delta = 0.0  # [/rad]
+        self.c_roll_delta = 0.0  # [/rad]
+        self.c_pitch_delta = 0.0  # [/rad]
+        self.c_yaw_delta = 0.0  # [/rad]
 
 
 class ControlSurfacesWidget(QWidget):
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
@@ -50,7 +49,9 @@ class ControlSurfacesWidget(QWidget):
         self._rows.addWidget(label)
 
         available_links_label = QLabel("Available Links")
-        available_links_label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
+        available_links_label.setFont(
+            QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold)
+        )
         available_links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(available_links_label)
 
@@ -92,7 +93,6 @@ class ControlSurfacesWidget(QWidget):
 
 
 class AvailableLinksWidget(QListWidget):
-
     link_added = pyqtSignal()
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -102,13 +102,17 @@ class AvailableLinksWidget(QListWidget):
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
         self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(
-            self._add_selected_link)
+            self._add_selected_link
+        )
         self._main.settings.fixed_wing.control_surfaces.selected.link_added.connect(
-            self._delete_selected_link)
+            self._delete_selected_link
+        )
 
     def add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(link_name), f'Unknown link: {link_name}'
-        assert not self._link_exists_in_list(link_name), f'Duplicated: {link_name}'
+        assert self._main.urdf_parser.link_exists(
+            link_name
+        ), f"Unknown link: {link_name}"
+        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
         self.addItem(link_name)
 
     def delete_link(self, link_name: str) -> None:
@@ -148,11 +152,11 @@ class AvailableLinksWidget(QListWidget):
                 continue
 
             # リミットが正しく設定されている
-            if not joint.limit.lower < 0. < joint.limit.upper:
+            if not joint.limit.lower < 0.0 < joint.limit.upper:
                 continue
-            if joint.limit.velocity <= 0.:
+            if joint.limit.velocity <= 0.0:
                 continue
-            if joint.limit.effort <= 0.:
+            if joint.limit.effort <= 0.0:
                 continue
 
             # エンドリンクである
@@ -169,7 +173,9 @@ class AvailableLinksWidget(QListWidget):
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
-        selected_link = self._main.settings.fixed_wing.control_surfaces.selected.selected_link()
+        selected_link = (
+            self._main.settings.fixed_wing.control_surfaces.selected.selected_link()
+        )
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return
@@ -189,7 +195,6 @@ class AvailableLinksWidget(QListWidget):
 
 
 class AddDeleteButtonsWidget(QWidget):
-
     BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
 
@@ -225,7 +230,6 @@ class AddDeleteButtonsWidget(QWidget):
 
 
 class SelectedLinksWidget(QTableWidget):
-
     COL_WIDTH = 120
     COEF_DECIMALS = 6
     ANGLE_LIMIT = math.pi / 4
@@ -269,9 +273,11 @@ class SelectedLinksWidget(QTableWidget):
     def define_connections(self) -> None:
         # 必ずAdd -> Deleteの順に実行する
         self._main.settings.fixed_wing.control_surfaces.add_delete.add.connect(
-            self._add_selected_link)
+            self._add_selected_link
+        )
         self._main.settings.fixed_wing.control_surfaces.available_links.link_added.connect(
-            self._delete_cur_row)
+            self._delete_cur_row
+        )
 
     def is_valid(self) -> bool:
         return True
@@ -284,20 +290,22 @@ class SelectedLinksWidget(QTableWidget):
         return self.link_names[row].text()
 
     def count(self) -> int:
-        """ 選択テーブル内のプロペラの個数を返す． """
+        """選択テーブル内のプロペラの個数を返す．"""
         return len(self.link_names)
 
     def get_link_names(self) -> List[str]:
-        """ 選択テーブル内のリンクの名前のリストを返す． """
+        """選択テーブル内のリンクの名前のリストを返す．"""
         return [link_name.text() for link_name in self.link_names]
 
     def get_joint_names(self) -> List[str]:
-        """ 選択テーブル内のジョイントの名前のリストを返す． """
+        """選択テーブル内のジョイントの名前のリストを返す．"""
         return [joint_name.text() for joint_name in self.joint_names]
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
-        selected_link = self._main.settings.fixed_wing.control_surfaces.available_links.selected_link()
+        selected_link = (
+            self._main.settings.fixed_wing.control_surfaces.available_links.selected_link()
+        )
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return
@@ -320,7 +328,7 @@ class SelectedLinksWidget(QTableWidget):
 
         min_angle = DoubleSpinBox()
         min_angle.setMinimum(-self.ANGLE_LIMIT)
-        min_angle.setMaximum(0.)
+        min_angle.setMaximum(0.0)
         min_angle.setDecimals(3)
         min_angle.setSuffix(" rad")
         min_angle.setValue(joint.limit.lower)
@@ -328,7 +336,7 @@ class SelectedLinksWidget(QTableWidget):
         self.setCellWidget(row, 2, min_angle)
 
         max_angle = DoubleSpinBox()
-        max_angle.setMinimum(0.)
+        max_angle.setMinimum(0.0)
         max_angle.setMaximum(self.ANGLE_LIMIT)
         max_angle.setDecimals(3)
         max_angle.setSuffix(" rad")

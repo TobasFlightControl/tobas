@@ -10,9 +10,8 @@ from .common import FollowTrajectoryClient
 
 
 class FollowTrajectoryClient_Circle(FollowTrajectoryClient):
-
-    RADIUS = 3.   # [m]
-    PERIOD = 10.  # [s]
+    RADIUS = 3.0  # [m]
+    PERIOD = 10.0  # [s]
 
     def __init__(self) -> None:
         super().__init__()
@@ -29,13 +28,13 @@ class FollowTrajectoryClient_Circle(FollowTrajectoryClient):
         goal.waypoints.append(deepcopy(point))
 
         # 上昇
-        point.pos.z = 2.
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.pos.z = 2.0
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         # 円運動
         circle_start_time = point.time_from_start
-        ts = np.linspace(0.,  self.PERIOD, 100)[1:]
+        ts = np.linspace(0.0, self.PERIOD, 100)[1:]
         for t in ts:
             theta = 2 * np.pi * t / self.PERIOD
             point.pos.x = self.RADIUS * np.sin(theta)
@@ -44,8 +43,8 @@ class FollowTrajectoryClient_Circle(FollowTrajectoryClient):
             goal.waypoints.append(deepcopy(point))
 
         # 下降
-        point.pos.z = -2.  # 安全のため余分に下げる
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.pos.z = -2.0  # 安全のため余分に下げる
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         return goal

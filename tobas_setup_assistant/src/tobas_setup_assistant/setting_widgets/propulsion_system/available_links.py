@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -15,7 +16,6 @@ from ...common import *
 
 
 class AvailableLinksWidget(QListWidget):
-
     HEIGHT = 200
     ITEM_HEIGHT = 40
 
@@ -33,8 +33,10 @@ class AvailableLinksWidget(QListWidget):
         return True
 
     def add(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(link_name), f'Unknown link: {link_name}'
-        assert not self._link_exists_in_list(link_name), f'Duplicated: {link_name}'
+        assert self._main.urdf_parser.link_exists(
+            link_name
+        ), f"Unknown link: {link_name}"
+        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
 
         item = ListWidgetItem()
         item.setSizeHint(QSize(0, self.ITEM_HEIGHT))  # 横幅が小さすぎる場合は自動で引き伸ばされる
@@ -54,7 +56,7 @@ class AvailableLinksWidget(QListWidget):
                 self.takeItem(row)
                 return
         else:
-            raise RuntimeError(f'Link name not found: {link_name}')
+            raise RuntimeError(f"Link name not found: {link_name}")
 
     @pyqtSlot()
     def _add_available_links(self) -> None:
@@ -86,7 +88,6 @@ class AvailableLinksWidget(QListWidget):
 
 
 class AvailableLinkItemWidget(QListWidget):
-
     BUTTON_HEIGHT = 20
     BUTTON_WIDTH = 60
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -15,7 +16,6 @@ from .common import STABILITY_COEF_DECIMALS
 
 
 class AerodynamicsCoefficientsWidget(QWidget):
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main

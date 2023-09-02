@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -16,14 +17,15 @@ from ..parameter_getters import *
 
 
 class GpsWidget(BaseSettingWidget):
-
     NAME = "GPS"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Global Positioning System"
-        abst_text = "GPSの設定を行います．データシートを確認し，各値を入力してください．"\
-            + "緯度，経度，高度に加え，NWU世界座標系に対する絶対速度が得られるものを想定しています．"\
+        abst_text = (
+            "GPSの設定を行います．データシートを確認し，各値を入力してください．"
+            + "緯度，経度，高度に加え，NWU世界座標系に対する絶対速度が得られるものを想定しています．"
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("GPS Equipped")
@@ -54,7 +56,7 @@ class GpsWidget(BaseSettingWidget):
             "Communication delay",
             delay_description,
             decimals=2,
-            minimum=0.,
+            minimum=0.0,
             default=0.2,
             suffix=" s",
         )
@@ -65,8 +67,8 @@ class GpsWidget(BaseSettingWidget):
             "Standard deviation for horizontal position noise",
             horizontal_pos_std_description,
             decimals=2,
-            minimum=0.,
-            default=3.,
+            minimum=0.0,
+            default=3.0,
             suffix=" m",
         )
         self._rows.addWidget(self.horizontal_pos_std)
@@ -76,8 +78,8 @@ class GpsWidget(BaseSettingWidget):
             "Standard deviation for vertical position noise",
             vertical_pos_std_description,
             decimals=2,
-            minimum=0.,
-            default=6.,
+            minimum=0.0,
+            default=6.0,
             suffix=" m",
         )
         self._rows.addWidget(self.vertical_pos_std)
@@ -87,7 +89,7 @@ class GpsWidget(BaseSettingWidget):
             "Standard deviation for horizontal speed noise",
             horizontal_vel_std_description,
             decimals=2,
-            minimum=0.,
+            minimum=0.0,
             default=0.1,
             suffix=" m/s",
         )
@@ -98,7 +100,7 @@ class GpsWidget(BaseSettingWidget):
             "Standard deviation for vertical speed noise",
             vertical_vel_std_description,
             decimals=2,
-            minimum=0.,
+            minimum=0.0,
             default=0.1,
             suffix=" m/s",
         )

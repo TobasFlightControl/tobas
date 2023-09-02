@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
     from .esc import EscWidget_Base
@@ -23,7 +24,6 @@ from .common import ROTARY_WINGS
 
 
 class MotorWidget(QWidget):
-
     NO_SELECT = "Select setting method"
     MANUAL = "Set manually"
     EXPERIMENT = "Set from experimental data (recommended)"
@@ -43,7 +43,7 @@ class MotorWidget(QWidget):
         self._rows.addWidget(title)
 
         self.setting_method = ComboBox()
-        self.setting_method.addItems([self.NO_SELECT, self.MANUAL,  self.EXPERIMENT])
+        self.setting_method.addItems([self.NO_SELECT, self.MANUAL, self.EXPERIMENT])
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
 
@@ -59,7 +59,9 @@ class MotorWidget(QWidget):
     def is_valid(self) -> bool:
         if self.setting_method.currentText() == self.NO_SELECT:
             print(self.setting_method.currentText())
-            q_error_named(self._main, ROTARY_WINGS, "Please select motor setting method.")
+            q_error_named(
+                self._main, ROTARY_WINGS, "Please select motor setting method."
+            )
             return False
         else:
             if not self.selected().is_valid():
@@ -78,19 +80,19 @@ class MotorWidget(QWidget):
             raise RuntimeError()
 
     def direction(self) -> str:
-        """ 'cw' or 'ccw' """
+        """'cw' or 'ccw'"""
         return self._selected().direction()
 
     def time_const_up(self) -> float:
-        """ [s] """
+        """[s]"""
         return self._selected().time_const_up()
 
     def time_const_down(self) -> float:
-        """ [s] """
+        """[s]"""
         return self._selected().time_const_down()
 
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        """ V = a w + b w^2 (V[V], w[rad/s]) """
+        """V = a w + b w^2 (V[V], w[rad/s])"""
         return self._selected().rot_speed_coefs()
 
     def copy_from(self, src: MotorWidget) -> None:
@@ -116,7 +118,7 @@ class MotorWidget(QWidget):
             self.manual.setVisible(False)
             self.experiment.setVisible(True)
         else:
-            raise RuntimeError(f'Unknown setting method: {setting_method}')
+            raise RuntimeError(f"Unknown setting method: {setting_method}")
 
     def _selected(self) -> MotorWidget_Base:
         setting_method = self.setting_method.currentText()
@@ -126,7 +128,7 @@ class MotorWidget(QWidget):
         elif setting_method == self.EXPERIMENT:
             return self.experiment
         else:
-            raise RuntimeError(f'Unknown setting method: {setting_method}')
+            raise RuntimeError(f"Unknown setting method: {setting_method}")
 
     @pyqtSlot(str)
     def _on_type_changed(self, setting_method: str) -> None:
@@ -134,7 +136,6 @@ class MotorWidget(QWidget):
 
 
 class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
-
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 
@@ -144,9 +145,11 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        direction_description = "モータの回転方向．"\
-            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"\
+        direction_description = (
+            "モータの回転方向．"
+            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
             + "例えば回転翼機の場合，通常は対角に位置するプロペラが同じ回転方向になります．"
+        )
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
             direction_description,
@@ -180,7 +183,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
 
     @abstractmethod
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        """ V = a w + b w^2 (V[V], w[rad/s]) """
+        """V = a w + b w^2 (V[V], w[rad/s])"""
         raise NotImplementedError()
 
     @abstractmethod
@@ -191,22 +194,21 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
 
     @final
     def direction(self) -> str:
-        """ 'cw' or 'ccw' """
+        """'cw' or 'ccw'"""
         return self._direction.get().lower()
 
     @final
     def time_const_up(self) -> float:
-        """ [s] """
+        """[s]"""
         return self._time_const_up.get() * 1e-3
 
     @final
     def time_const_down(self) -> float:
-        """ [s] """
+        """[s]"""
         return self._time_const_down.get() * 1e-3
 
 
 class MotorWidget_Manual(MotorWidget_Base):
-
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
@@ -227,8 +229,8 @@ class MotorWidget_Manual(MotorWidget_Base):
 
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        a = 1. / rpm_to_rad_per_sec(self._kv.get())  # 発電係数
-        b = 0.  # 内部抵抗を無視 (回転数が大きいほど誤差が大きくなる)
+        a = 1.0 / rpm_to_rad_per_sec(self._kv.get())  # 発電係数
+        b = 0.0  # 内部抵抗を無視 (回転数が大きいほど誤差が大きくなる)
         return a, b
 
     @overrides
@@ -238,24 +240,25 @@ class MotorWidget_Manual(MotorWidget_Base):
 
 
 class MotorWidget_Experiment(MotorWidget_Base):
-
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        data_description = "Thrust Stand実験のデータから，ESCへのPWM信号とモータの回転数の関係を推定します．"\
-            + "データを直接入力するか，CSVファイルを読み込んでください．"\
-            + "実験には必ず機体に搭載するバッテリーを用い，実際のプロペラを取り付けた状態で行ってください．\n"\
+        data_description = (
+            "Thrust Stand実験のデータから，ESCへのPWM信号とモータの回転数の関係を推定します．"
+            + "データを直接入力するか，CSVファイルを読み込んでください．"
+            + "実験には必ず機体に搭載するバッテリーを用い，実際のプロペラを取り付けた状態で行ってください．\n"
             + "Thrust Standの例: https://www.tytorobotics.com/pages/series-1580-1585"
+        )
         self._data = ParamGetterWidget_DoubleTable(
             "Experimental data",
             ["Throttle", "Voltage", "RPM"],
             description_text=data_description,
         )
-        self._data.set_minimum([1., 1., 1.])
-        self._data.set_maximum([100., 1e+9, 1e+9])
+        self._data.set_minimum([1.0, 1.0, 1.0])
+        self._data.set_maximum([100.0, 1e9, 1e9])
         self._data.set_decimals([0, 6, 0])
         self._data.set_suffix([" %", " V", " rpm"])
         self._data.set_fixed_height(self.TABLE_HEIGHT)
@@ -278,7 +281,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         # データを取得
         data = self._data.get()
         throttle, battery_voltage, rpm = np.hsplit(data, 3)
-        motor_voltage = battery_voltage * throttle / 100.
+        motor_voltage = battery_voltage * throttle / 100.0
         omega = rpm_to_rad_per_sec(rpm)
 
         # 最小二乗法で係数を推定

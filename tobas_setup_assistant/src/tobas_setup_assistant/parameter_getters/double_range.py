@@ -8,7 +8,6 @@ from .utils import DoubleGetter
 
 
 class ParamGetterWidget_DoubleRange(ParamGetterWidget):
-
     value_changed = pyqtSignal(float, float)
 
     def __init__(
@@ -16,10 +15,10 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
         param_name: str,
         description_text: str = None,
         decimals: int = 3,
-        minimum: float = -1e+9,
-        maximum: float = +1e+9,
-        single_step: float = 1.,
-        default: Tuple[float, float] = (0., 0.),
+        minimum: float = -1e9,
+        maximum: float = +1e9,
+        single_step: float = 1.0,
+        default: Tuple[float, float] = (0.0, 0.0),
         suffix: str = "",
     ) -> None:
         super().__init__(param_name, description_text)
@@ -27,10 +26,14 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
         self._cols = QHBoxLayout()
         self._rows.addLayout(self._cols)
 
-        self._min = DoubleGetter("min", decimals, minimum, maximum, single_step, default[0], suffix)
+        self._min = DoubleGetter(
+            "min", decimals, minimum, maximum, single_step, default[0], suffix
+        )
         self._cols.addWidget(self._min)
 
-        self._max = DoubleGetter("max", decimals, minimum, maximum, single_step, default[1], suffix)
+        self._max = DoubleGetter(
+            "max", decimals, minimum, maximum, single_step, default[1], suffix
+        )
         self._cols.addWidget(self._max)
 
         self._min.data.valueChanged.connect(self._on_value_changed)

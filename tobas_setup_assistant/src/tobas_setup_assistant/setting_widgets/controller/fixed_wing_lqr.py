@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -18,7 +19,6 @@ from .base import BaseController
 
 
 class FixedWingLQR(BaseController):
-
     NAME = "Linear Quadratic Legulator"
 
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"

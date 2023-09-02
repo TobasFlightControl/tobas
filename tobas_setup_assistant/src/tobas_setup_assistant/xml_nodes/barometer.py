@@ -5,7 +5,6 @@ from .sensor import SensorModel
 
 
 class BarometerModel(SensorModel):
-
     def __init__(
         self,
         ns: str,
@@ -15,12 +14,12 @@ class BarometerModel(SensorModel):
         altitude_0: float,
         pressure_var: float,
     ) -> None:
-        assert update_rate > 0.
-        assert altitude_0 >= 0.
-        assert pressure_var > 0.
+        assert update_rate > 0.0
+        assert altitude_0 >= 0.0
+        assert pressure_var > 0.0
 
         # 便宜的にセンサタイプをIMUにしている
-        super().__init__(link_name, f'{ns}_barometer', "imu", update_rate)
+        super().__init__(link_name, f"{ns}_barometer", "imu", update_rate)
 
         # robot/gazebo/sensor/plugin
         plugin = ET.SubElement(self.sensor, "plugin")

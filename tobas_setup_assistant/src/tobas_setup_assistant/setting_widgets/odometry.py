@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -16,13 +17,14 @@ from ..parameter_getters import *
 
 
 class OdometryWidget(BaseSettingWidget):
-
     NAME = "Odometry"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Odometry Publisher"
-        abst_text = "オドメトリを発行する機器の設定を行います．データシートを確認し，各値を入力してください．"\
+        abst_text = (
+            "オドメトリを発行する機器の設定を行います．データシートを確認し，各値を入力してください．"
             + "ホイールエンコーダや，VIO (Visual Inertial Odometry) などが該当します．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("Odometry Publisher Equipped")
@@ -54,7 +56,7 @@ class OdometryWidget(BaseSettingWidget):
         self.pos_normal_noise_std = ParamGetterWidget_Vector3d(
             "Position normal noise std. dev",
             pos_normal_noise_std_descripiton,
-            minimum=[0.] * 3,
+            minimum=[0.0] * 3,
             default=[0.01] * 3,
             suffix=" m",
         )
@@ -64,7 +66,7 @@ class OdometryWidget(BaseSettingWidget):
         self.rot_normal_noise_std = ParamGetterWidget_Vector3d(
             "Rotation normal noise std. dev",
             rot_normal_noise_std_descripiton,
-            minimum=[0.] * 3,
+            minimum=[0.0] * 3,
             default=[0.017] * 3,
             suffix=" rad",
         )
@@ -74,8 +76,8 @@ class OdometryWidget(BaseSettingWidget):
         self.linvel_normal_noise_std = ParamGetterWidget_Vector3d(
             "Linear velocity normal noise std. dev",
             linvel_normal_noise_std_descripiton,
-            minimum=[0.] * 3,
-            default=[0.] * 3,
+            minimum=[0.0] * 3,
+            default=[0.0] * 3,
             suffix=" m/s",
         )
         self._rows.addWidget(self.linvel_normal_noise_std)
@@ -84,8 +86,8 @@ class OdometryWidget(BaseSettingWidget):
         self.angvel_normal_noise_std = ParamGetterWidget_Vector3d(
             "Angular velocity normal noise std. dev",
             angvel_normal_noise_std_descripiton,
-            minimum=[0.] * 3,
-            default=[0.] * 3,
+            minimum=[0.0] * 3,
+            default=[0.0] * 3,
             suffix=" rad/s",
         )
         self._rows.addWidget(self.angvel_normal_noise_std)
@@ -94,8 +96,8 @@ class OdometryWidget(BaseSettingWidget):
         self.pos_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Position uniform noise scale",
             pos_uniform_noise_scale_descripiton,
-            minimum=[0.] * 3,
-            default=[0.] * 3,
+            minimum=[0.0] * 3,
+            default=[0.0] * 3,
             suffix=" m",
         )
         self._rows.addWidget(self.pos_uniform_noise_scale)
@@ -104,8 +106,8 @@ class OdometryWidget(BaseSettingWidget):
         self.rot_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Rotation uniform noise scale",
             rot_uniform_noise_scale_descripiton,
-            minimum=[0.] * 3,
-            default=[0.] * 3,
+            minimum=[0.0] * 3,
+            default=[0.0] * 3,
             suffix=" rad",
         )
         self._rows.addWidget(self.rot_uniform_noise_scale)
@@ -114,8 +116,8 @@ class OdometryWidget(BaseSettingWidget):
         self.linvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Linear velocity uniform noise scale",
             linvel_uniform_noise_scale_descripiton,
-            minimum=[0.] * 3,
-            default=[0.] * 3,
+            minimum=[0.0] * 3,
+            default=[0.0] * 3,
             suffix=" m/s",
         )
         self._rows.addWidget(self.linvel_uniform_noise_scale)
@@ -124,8 +126,8 @@ class OdometryWidget(BaseSettingWidget):
         self.angvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
             "Angular velocity uniform noise scale",
             angvel_uniform_noise_scale_descripiton,
-            minimum=[0.] * 3,
-            default=[0.] * 3,
+            minimum=[0.0] * 3,
+            default=[0.0] * 3,
             suffix=" rad/s",
         )
         self._rows.addWidget(self.angvel_uniform_noise_scale)

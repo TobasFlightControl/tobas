@@ -9,7 +9,6 @@ from .utils import DoubleGetter
 
 
 class ParamGetterWidget_Pose(ParamGetterWidget):
-
     value_changed = pyqtSignal(float, float, float, float, float, float)
 
     def __init__(
@@ -17,13 +16,13 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
         param_name: str,
         description_text: str = None,
         decimals: int = 3,
-        xyz_min: Tuple[float, float, float] = (-1e+9,) * 3,
-        xyz_max: Tuple[float, float, float] = (+1e+9,) * 3,
-        xyz_default: Tuple[float, float, float] = (0.,) * 3,
+        xyz_min: Tuple[float, float, float] = (-1e9,) * 3,
+        xyz_max: Tuple[float, float, float] = (+1e9,) * 3,
+        xyz_default: Tuple[float, float, float] = (0.0,) * 3,
         xyz_suffix: str = " m",
         rpy_min: Tuple[float, float, float] = (-math.pi,) * 3,
         rpy_max: Tuple[float, float, float] = (+math.pi,) * 3,
-        rpy_default: Tuple[float, float, float] = (0.,) * 3,
+        rpy_default: Tuple[float, float, float] = (0.0,) * 3,
         rpy_suffix: str = " rad",
     ) -> None:
         super().__init__(param_name, description_text)
@@ -94,7 +93,9 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
     def get(self) -> Tuple[float, float, float, float, float, float]:
         return self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw()
 
-    def set(self, x: float, y: float, z: float, roll: float, pitch: float, yaw: float) -> None:
+    def set(
+        self, x: float, y: float, z: float, roll: float, pitch: float, yaw: float
+    ) -> None:
         self._x.data.setValue(x)
         self._y.data.setValue(y)
         self._z.data.setValue(z)
@@ -104,4 +105,6 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:
-        self.value_changed.emit(self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw())
+        self.value_changed.emit(
+            self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw()
+        )

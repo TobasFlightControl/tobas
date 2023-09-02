@@ -7,7 +7,6 @@ from ..common import *
 
 
 class ParamGetterWidget(QWidget):
-
     def __init__(
         self,
         param_name: str,

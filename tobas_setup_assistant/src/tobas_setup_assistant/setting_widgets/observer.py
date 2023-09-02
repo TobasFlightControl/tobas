@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -18,16 +19,17 @@ from ..common import *
 
 
 class ObserverWidget(BaseSettingWidget):
-
     NAME = "Observer"
 
     NO_SELECT = "Select observer type"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Observer"
-        abst_text = "状態推定器の設定を行います．"\
-            + "手法を1つ選択し，各パラメータを設定してください．"\
+        abst_text = (
+            "状態推定器の設定を行います．"
+            + "手法を1つ選択し，各パラメータを設定してください．"
             + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self.type = ComboBox()
@@ -72,7 +74,7 @@ class ObserverWidget(BaseSettingWidget):
         elif observer_type == ObserverWidget_ESKF.NAME:
             return self.eskf
         else:
-            raise RuntimeError(f'Unknown observer type: {observer_type}')
+            raise RuntimeError(f"Unknown observer type: {observer_type}")
 
     def get_type(self) -> str:
         return self.type.currentText()
@@ -97,11 +99,10 @@ class ObserverWidget(BaseSettingWidget):
             self.cascade.setVisible(False)
             self.eskf.setVisible(True)
         else:
-            raise RuntimeError(f'Unknown observer type: {observer_type}')
+            raise RuntimeError(f"Unknown observer type: {observer_type}")
 
 
 class ObserverWidget_Base(QWidget):
-
     NAME = "Unknown"
     PACKAGE_NAME = "Unknown"
 
@@ -120,31 +121,35 @@ class ObserverWidget_Base(QWidget):
         abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
-        gps_hor_pos_stddev_threshold_description = "GPSを用いて初期位置合わせをする際の，"\
-            + "水平位置の真値に対する標準偏差の閾値．"\
+        gps_hor_pos_stddev_threshold_description = (
+            "GPSを用いて初期位置合わせをする際の，"
+            + "水平位置の真値に対する標準偏差の閾値．"
             + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
+        )
         self.gps_hor_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
             "GPS horizontal position std. dev threshold",
             gps_hor_pos_stddev_threshold_description,
             decimals=2,
             minimum=0.01,
-            maximum=1.,
+            maximum=1.0,
             default=0.3,
-            suffix=" m"
+            suffix=" m",
         )
         self._rows.addWidget(self.gps_hor_pos_stddev_threshold)
 
-        gps_ver_pos_stddev_threshold_description = "GPSを用いて初期位置合わせをする際の，"\
-            + "垂直位置の真値に対する標準偏差の閾値．"\
+        gps_ver_pos_stddev_threshold_description = (
+            "GPSを用いて初期位置合わせをする際の，"
+            + "垂直位置の真値に対する標準偏差の閾値．"
             + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
+        )
         self.gps_ver_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
             "GPS vertical position std. dev threshold",
             gps_ver_pos_stddev_threshold_description,
             decimals=2,
             minimum=0.01,
-            maximum=1.,
+            maximum=1.0,
             default=0.6,
-            suffix=" m"
+            suffix=" m",
         )
         self._rows.addWidget(self.gps_ver_pos_stddev_threshold)
 
@@ -158,14 +163,15 @@ class ObserverWidget_Base(QWidget):
 
 
 class ObserverWidget_Cascade(ObserverWidget_Base):
-
     NAME = "Cascade Kalman Filter"
     PACKAGE_NAME = "state_estimation_cascade"
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "この状態推定器は，姿勢推定器と位置推定器の2つの部分に分かれています．"\
-            + "6軸IMUと地磁気センサの情報から相補フィルタにより姿勢を推定し，"\
+        abst_text = (
+            "この状態推定器は，姿勢推定器と位置推定器の2つの部分に分かれています．"
+            + "6軸IMUと地磁気センサの情報から相補フィルタにより姿勢を推定し，"
             + "推定した姿勢と他のセンサの情報から線形カルマンフィルタにより3次元位置を推定します．"
+        )
         super().__init__(main, abst_text)
 
         gain_acc_description = "Accelerometer gain for the orientation estimation."
@@ -173,8 +179,8 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
             "Acelerometer gain",
             gain_acc_description,
             decimals=3,
-            minimum=0.,
-            maximum=1.,
+            minimum=0.0,
+            maximum=1.0,
             default=0.01,
         )
         self._rows.addWidget(self.gain_acc)
@@ -184,8 +190,8 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
             "Magnetometer gain",
             gain_mag_description,
             decimals=3,
-            minimum=0.,
-            maximum=1.,
+            minimum=0.0,
+            maximum=1.0,
             default=0.01,
         )
         self._rows.addWidget(self.gain_mag)
@@ -195,14 +201,16 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
             "Bias estimation gain",
             bias_alpha_description,
             decimals=3,
-            minimum=0.,
-            maximum=1.,
+            minimum=0.0,
+            maximum=1.0,
             default=0.01,
         )
         self._rows.addWidget(self.bias_alpha)
 
-        do_bias_estimation_description = "Whether to do bias estimation of the gyroscope readings "\
+        do_bias_estimation_description = (
+            "Whether to do bias estimation of the gyroscope readings "
             + "for the orientation estimation."
+        )
         self.do_bias_estimation = ParamGetterWidget_CheckBox(
             "Do bias estimation",
             do_bias_estimation_description,
@@ -211,7 +219,9 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
         )
         self._rows.addWidget(self.do_bias_estimation)
 
-        do_adaptive_gain_description = "Whether to do adaptive gain for the orientation estimation."
+        do_adaptive_gain_description = (
+            "Whether to do adaptive gain for the orientation estimation."
+        )
         self.do_adaptive_gain = ParamGetterWidget_CheckBox(
             "Do adaptive gain",
             do_adaptive_gain_description,
@@ -266,13 +276,14 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
 
 
 class ObserverWidget_ESKF(ObserverWidget_Base):
-
     NAME = "Error State Kalman Filter"
     PACKAGE_NAME = "state_estimation_eskf"
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "An implementation of <a href='https://arxiv.org/abs/1711.02508'>"\
+        abst_text = (
+            "An implementation of <a href='https://arxiv.org/abs/1711.02508'>"
             + "Quaternion kinematics for the error-state Kalman filter [Joan Sola, 2017]</a>."
+        )
         super().__init__(main, abst_text)
 
         rot_var_grav_description = "重力ベクトルの観測に用いる分散．"

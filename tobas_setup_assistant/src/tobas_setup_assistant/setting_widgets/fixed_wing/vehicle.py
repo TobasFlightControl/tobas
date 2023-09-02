@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -12,7 +13,6 @@ from ...common import *
 
 
 class VehicleParametersWidget(QWidget):
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
@@ -63,7 +63,7 @@ class VehicleParametersWidget(QWidget):
             "Aerodynamic Center",
             aerodynamic_center_description,
             decimals=3,
-            default=(0.1, 0., 0.),
+            default=(0.1, 0.0, 0.0),
             suffix=" m",
         )
         self._rows.addWidget(self.aerodynamic_center)

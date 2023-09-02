@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .gui_teleop import GuiTeleopWidget
 
@@ -10,7 +11,6 @@ from PyQt5.QtGui import *
 
 
 class PoseButtonsWidget(QWidget):
-
     BUTTON_HEIGHT = 30
     INTERVAL = 0.1
 
@@ -35,7 +35,7 @@ class PoseButtonsWidget(QWidget):
 
     @pyqtSlot()
     def _random_event(self) -> None:
-        """ 全ての関節角をランダム値に設定する． """
+        """全ての関節角をランダム値に設定する．"""
         self.setEnabled(False)
 
         # 一気に指令すると反映されないので，間隔を開けながら指令する
@@ -47,7 +47,7 @@ class PoseButtonsWidget(QWidget):
 
     @pyqtSlot()
     def _center_event(self) -> None:
-        """ 全ての関節角を中央の値に設定する． """
+        """全ての関節角を中央の値に設定する．"""
         self.setEnabled(False)
 
         for joint_cmd in self._main.commanders.joint_cmds:

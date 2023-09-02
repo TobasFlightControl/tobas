@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -19,13 +20,11 @@ from .control_surfaces import ControlSurfacesWidget
 
 
 class FixedWingWidget(BaseSettingWidget):
-
     NAME = "Fixed Wing"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Fixed Wing"
-        abst_text = "固定翼の設定を行います．"\
-            + "設定方法を選択し，必要事項を入力してください．"
+        abst_text = "固定翼の設定を行います．" + "設定方法を選択し，必要事項を入力してください．"
         super().__init__(main, title_text, abst_text)
 
         self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")

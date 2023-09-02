@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -16,13 +17,13 @@ from ..parameter_getters import *
 
 
 class BarometerWidget(BaseSettingWidget):
-
     NAME = "Barometer"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Air Pressure Sensor"
-        abst_text = "気圧センサの設定を行います．データシートを確認し，各値を入力してください．"\
-            + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
+        abst_text = (
+            "気圧センサの設定を行います．データシートを確認し，各値を入力してください．" + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
+        )
         super().__init__(main, title_text, abst_text)
 
         offset_description = "ルートリンクに対するセンサ位置のオフセット．"
@@ -48,9 +49,9 @@ class BarometerWidget(BaseSettingWidget):
             "the air pressure variance",
             pressure_var_description,
             decimals=2,
-            minimum=0.,
-            default=10.,
-            suffix=" Pa^2"
+            minimum=0.0,
+            default=10.0,
+            suffix=" Pa^2",
         )
         self._rows.addWidget(self.pressure_var)
 

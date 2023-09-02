@@ -9,8 +9,7 @@ from .common import FollowTrajectoryClient
 
 
 class FollowTrajectoryClient_Square(FollowTrajectoryClient):
-
-    EDGE_LENGTH = 3.  # [m]
+    EDGE_LENGTH = 3.0  # [m]
 
     def __init__(self) -> None:
         super().__init__()
@@ -27,30 +26,30 @@ class FollowTrajectoryClient_Square(FollowTrajectoryClient):
         goal.waypoints.append(deepcopy(point))
 
         # 上昇
-        point.pos.z = 2.
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.pos.z = 2.0
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         # 正方形
         point.pos.x = self.EDGE_LENGTH
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         point.pos.y = self.EDGE_LENGTH
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
-        point.pos.x = 0.
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.pos.x = 0.0
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
-        point.pos.y = 0.
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.pos.y = 0.0
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         # 下降
-        point.pos.z = -2.  # 安全のため余分に下げる
-        point.time_from_start += rospy.Duration.from_sec(5.)
+        point.pos.z = -2.0  # 安全のため余分に下げる
+        point.time_from_start += rospy.Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         return goal

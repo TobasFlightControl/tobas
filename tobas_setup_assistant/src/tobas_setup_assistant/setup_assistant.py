@@ -16,7 +16,6 @@ from .common import *
 
 
 class SetupAssistant(QWidget):
-
     POS_X_KEY = "main_window/pos_x"
     POS_Y_KEY = "main_window/pos_y"
     WIDTH_KEY = "main_window/width"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .gui_teleop import GuiTeleopWidget
 
@@ -20,17 +21,16 @@ from .utils import remap
 
 
 class CommandersWidget(QScrollArea):
-
     LABEL_PSIZE = 12
-    CONTROL_RATE = 30.  # [Hz]
+    CONTROL_RATE = 30.0  # [Hz]
 
-    DEFAULT_INITIAL_ELEVATION = 0.  # [m]
-    DEFAULT_MINIMUM_X = -10.  # [m]
-    DEFAULT_MAXIMUM_X = 10.  # [m]
-    DEFAULT_MINIMUM_Y = -10.  # [m]
-    DEFAULT_MAXIMUM_Y = 10.  # [m]
-    DEFAULT_MINIMUM_Z = -10.  # [m]
-    DEFAULT_MAXIMUM_Z = 10.  # [m]
+    DEFAULT_INITIAL_ELEVATION = 0.0  # [m]
+    DEFAULT_MINIMUM_X = -10.0  # [m]
+    DEFAULT_MAXIMUM_X = 10.0  # [m]
+    DEFAULT_MINIMUM_Y = -10.0  # [m]
+    DEFAULT_MAXIMUM_Y = 10.0  # [m]
+    DEFAULT_MINIMUM_Z = -10.0  # [m]
+    DEFAULT_MAXIMUM_Z = 10.0  # [m]
     DEFAULT_MINIMUM_YAW = -math.pi  # [rad]
     DEFAULT_MAXIMUM_YAW = math.pi  # [rad]
 
@@ -39,15 +39,15 @@ class CommandersWidget(QScrollArea):
         self._main = main
 
         # RosParams
-        self._x_min = 0.
-        self._x_max = 0.
-        self._y_min = 0.
-        self._y_max = 0.
-        self._z_min = 0.
-        self._z_max = 0.
-        self._yaw_min = 0.
-        self._yaw_max = 0.
-        self._init_elevation = 0.
+        self._x_min = 0.0
+        self._x_max = 0.0
+        self._y_min = 0.0
+        self._y_max = 0.0
+        self._z_min = 0.0
+        self._z_max = 0.0
+        self._yaw_min = 0.0
+        self._yaw_max = 0.0
+        self._init_elevation = 0.0
         self._joint_names: List[str] = []
         self._get_params()
 
@@ -102,15 +102,19 @@ class CommandersWidget(QScrollArea):
                 joint_name,
                 joint.limit.lower,
                 joint.limit.upper,
-                f'{joint_name}_controller/command',
+                f"{joint_name}_controller/command",
             )
             commander.update()
             self.joint_cmds.append(commander)
             self._rows.addWidget(commander)
 
         # PubSub
-        self._drone_cmd_pub = rospy.Publisher("command/position_yaw", PositionYaw, queue_size=1)
-        self._bs_sub = rospy.Subscriber("base_state", BaseState, self._base_state_cb, queue_size=1)
+        self._drone_cmd_pub = rospy.Publisher(
+            "command/position_yaw", PositionYaw, queue_size=1
+        )
+        self._bs_sub = rospy.Subscriber(
+            "base_state", BaseState, self._base_state_cb, queue_size=1
+        )
 
         add_expanding_widget(self._rows)
 
@@ -121,7 +125,7 @@ class CommandersWidget(QScrollArea):
         self.drone_cmd_yaw.value_changed.connect(self._publish_drone_cmd)
 
     def publish(self) -> None:
-        """ 現在設定されている値を全て発行する． """
+        """現在設定されている値を全て発行する．"""
         self._publish_drone_cmd()
 
         for joint_cmd in self.joint_cmds:
@@ -136,14 +140,16 @@ class CommandersWidget(QScrollArea):
         self._z_max = rospy.get_param("~pose_limit/z/max", self.DEFAULT_MAXIMUM_Z)
         self._yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MINIMUM_YAW)
         self._yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAXIMUM_YAW)
-        self._init_elevation = rospy.get_param("~initial_elevation", self.DEFAULT_INITIAL_ELEVATION)
+        self._init_elevation = rospy.get_param(
+            "~initial_elevation", self.DEFAULT_INITIAL_ELEVATION
+        )
         self._joint_names = rospy.get_param("posture_defining_joint_names")
 
         assert self._x_min <= self._x_max
         assert self._y_min <= self._y_max
         assert self._z_min <= self._z_max
         assert self._yaw_min <= self._yaw_max
-        assert self._init_elevation >= 0.
+        assert self._init_elevation >= 0.0
 
     @pyqtSlot()
     def _publish_drone_cmd(self) -> None:
@@ -176,13 +182,14 @@ class CommandersWidget(QScrollArea):
 
 
 class Commander(QWidget):
-
     PSIZE = 9
     RANGE = 10000
 
     value_changed = pyqtSignal(float)
 
-    def __init__(self, name: str, minimum: float, maximum: float, topic: str = None) -> None:
+    def __init__(
+        self, name: str, minimum: float, maximum: float, topic: str = None
+    ) -> None:
         super().__init__()
         self._min = minimum
         self._max = maximum
@@ -230,7 +237,7 @@ class Commander(QWidget):
         self.set_value(value)
 
     def set_center_value(self) -> None:
-        value = (self._min + self._max) / 2.
+        value = (self._min + self._max) / 2.0
         self.set_value(value)
 
     def publish(self) -> None:
@@ -241,14 +248,14 @@ class Commander(QWidget):
     @pyqtSlot()
     def _on_value_changed(self) -> None:
         value = self._slider_to_value()
-        self.value.setText(f'{value:.2f}')
+        self.value.setText(f"{value:.2f}")
         self.value_changed.emit(value)
         self.publish()
 
     def _slider_to_value(self) -> float:
         x = float(self.slider.value())
-        return remap(x, 0., self.RANGE, self._min, self._max)
+        return remap(x, 0.0, self.RANGE, self._min, self._max)
 
     def _value_to_slider(self, value: float) -> int:
         assert self._min <= value <= self._max
-        return int(remap(value, self._min, self._max, 0., self.RANGE))
+        return int(remap(value, self._min, self._max, 0.0, self.RANGE))

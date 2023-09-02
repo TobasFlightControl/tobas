@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -16,14 +17,15 @@ from ..parameter_getters import *
 
 
 class MagnetometerWidget(BaseSettingWidget):
-
     NAME = "Compass"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Magnetometer"
-        abst_text = "地磁気センサの設定を行います．データシートを確認し，各値を入力してください．"\
-            + "センサフレームは機体フレームに平行であり，値はNWU座標系で得られることを想定しています．"\
+        abst_text = (
+            "地磁気センサの設定を行います．データシートを確認し，各値を入力してください．"
+            + "センサフレームは機体フレームに平行であり，値はNWU座標系で得られることを想定しています．"
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
+        )
         super().__init__(main, title_text, abst_text)
 
         offset_description = "ルートリンクに対するセンサ位置のオフセット．"

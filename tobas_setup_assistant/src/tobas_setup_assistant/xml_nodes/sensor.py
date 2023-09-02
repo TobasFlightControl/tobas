@@ -3,7 +3,6 @@ from typing import List
 
 
 class SensorModel(ET.Element):
-
     def __init__(
         self,
         link_name: str,
@@ -12,9 +11,9 @@ class SensorModel(ET.Element):
         update_rate: float,
         always_on: bool = True,
         visualize: bool = False,
-        pose: List[float] = [0.] * 6,
+        pose: List[float] = [0.0] * 6,
     ):
-        assert update_rate >= 0.  # 0のときは寧ろ毎シミュレーション周期発行
+        assert update_rate >= 0.0  # 0のときは寧ろ毎シミュレーション周期発行
         assert len(pose) == 6
 
         # robot/gazebo
