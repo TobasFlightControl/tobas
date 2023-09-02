@@ -64,15 +64,14 @@ private:
   double alt_0_bar_;         // 気圧高度のゼロ点 (Base Frame)
   Eigen::Quaterniond q_0_;   // 姿勢の初期値 (Base Frame)
 
-  Stage stage_;
-  bool imu_received_;
-  bool mag_received_;
-  bool bar_received_;
-  bool gps_received_;
-  bool vel_received_;
+  Stage stage_ = FIRST_IMU;
+  bool imu_received_ = false;
+  bool mag_received_ = false;
+  bool bar_received_ = false;
+  bool gps_received_ = false;
+  bool vel_received_ = false;
   ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
   ros::Time t_last_;
-  StateMsg state_;  // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
@@ -124,14 +123,14 @@ private:
   bool isValidDeltaTime(double dt);
   void initialize();
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
-  void updateBaseStateMsg(const ImuMsg& imu);
+  void updatePoseVelMsg(const ImuMsg& imu, StateMsg& state);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void imuCb(const ImuMsg& imu);
-  void magCb(const MagMsg& mag);
-  void barCb(const BarMsg& bar);
-  void gpsCb(const GpsMsg& gps);
-  void velCb(const VelMsg& vel);
+  void imuCb(const ImuMsg::ConstPtr& imu);
+  void magCb(const MagMsg::ConstPtr& mag);
+  void barCb(const BarMsg::ConstPtr& bar);
+  void gpsCb(const GpsMsg::ConstPtr& gps);
+  void velCb(const VelMsg::ConstPtr& vel);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

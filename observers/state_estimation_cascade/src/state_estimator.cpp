@@ -189,17 +189,17 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   return result;
 }
 
-void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)
+void StateEstimator::updatePoseVelMsg(const ImuMsg& imu, StateMsg& state)
 {
   // Time stamp
-  state_.header.stamp = imu.header.stamp;
+  state.header.stamp = imu.header.stamp;
 
   // Position
-  tf::vectorEigenToKDL(cart_filter_.getXYZ(), state_.pose.pos);
+  tf::vectorEigenToKDL(cart_filter_.getXYZ(), state.pose.pos);
 
   // Roll, Pitch
   const auto& q = imu.orientation;
-  auto& rpy = state_.pose.euler;
+  auto& rpy = state.pose.euler;
   quaternionToEuler(q.x, q.y, q.z, q.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // Yaw
@@ -215,19 +215,18 @@ void StateEstimator::updatePoseVelMsg(const ImuMsg& imu)
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Linear velocity (Local)
-  tf::vectorEigenToKDL(cart_filter_.getVelocity(), state_.twist.vel);
-  state_.twist.vel = state_.pose.euler.Inverse(state_.twist.vel);  // World -> Local
+  tf::vectorEigenToKDL(cart_filter_.getVelocity(), state.twist.vel);
+  state.twist.vel = state.pose.euler.Inverse(state.twist.vel);  // World -> Local
 
   // Angular velocity (Local)
-  tf::vectorMsgToKDL(imu.angular_velocity, state_.twist.rot);
+  tf::vectorMsgToKDL(imu.angular_velocity, state.twist.rot);
 
   // Covariances
+  eigen_tools::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), state.position_covariance);
+  state.orientation_covariance.fill(-1);  // TODO: 相補フィルタから推定
   eigen_tools::matrix3EigenToBoost(
-    cart_filter_.getPositionCovariance(), state_.position_covariance);
-  state_.orientation_covariance.fill(-1);  // TODO: 相補フィルタから推定
-  eigen_tools::matrix3EigenToBoost(
-    cart_filter_.getVelocityCovariance(), state_.linear_velocity_covariance);
-  state_.angular_velocity_covariance = imu.angular_velocity_covariance;
+    cart_filter_.getVelocityCovariance(), state.linear_velocity_covariance);
+  state.angular_velocity_covariance = imu.angular_velocity_covariance;
 }
 
 void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -242,7 +241,7 @@ void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void StateEstimator::filteredImuCb(const ImuMsg& imu)
+void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
 {
   if (!imu_received_)
   {
@@ -254,24 +253,24 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
     if (isReady())
     {
       check_topics_timer_.stop();
-      initialize(imu);
+      initialize(*imu);
       is_initialized_ = true;
       rosInfo("State estimator is ready.");
     }
     return;
   }
 
-  const double dt = (imu.header.stamp - t_last_).toSec();
-  t_last_ = imu.header.stamp;
+  const double dt = (imu->header.stamp - t_last_).toSec();
+  t_last_ = imu->header.stamp;
   if (dt <= 0. || kImuTimeGapThreshold < dt)
   {
     return;
   }
 
-  tf::quaternionMsgToEigen(imu.orientation, quat_);
-  tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
+  tf::quaternionMsgToEigen(imu->orientation, quat_);
+  tf::vectorMsgToEigen(imu->linear_acceleration, a_m_);
 
-  auto acc_cov_data = imu.linear_acceleration_covariance;
+  auto acc_cov_data = imu->linear_acceleration_covariance;
   Matrix3d acc_cov = Map<Matrix3d>(acc_cov_data.data());
 
   // 公称状態を更新
@@ -281,11 +280,12 @@ void StateEstimator::filteredImuCb(const ImuMsg& imu)
   cart_filter_.measureAcceleration(a_m_, acc_cov);
 
   // 推定した状態を発行
-  updatePoseVelMsg(imu);
-  posevel_pub_.publish(state_);
+  auto state = boost::make_shared<StateMsg>();
+  updatePoseVelMsg(*imu, *state);
+  posevel_pub_.publish(state);
 }
 
-void StateEstimator::barometerCb(const BarMsg& bar)
+void StateEstimator::barometerCb(const BarMsg::ConstPtr& bar)
 {
   if (!bar_received_)
   {
@@ -298,13 +298,13 @@ void StateEstimator::barometerCb(const BarMsg& bar)
   }
 
   double z_abs, z_var;
-  pressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
+  pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
 
   const double z_m = z_abs - alt_0_;
   cart_filter_.measureAltitude(z_m, z_var);
 }
 
-void StateEstimator::gpsPositionCb(const GpsMsg& gps)
+void StateEstimator::gpsPositionCb(const GpsMsg::ConstPtr& gps)
 {
   if (!gps_received_)
   {
@@ -316,18 +316,18 @@ void StateEstimator::gpsPositionCb(const GpsMsg& gps)
     return;
   }
 
-  gpsToCartRelative(gps.latitude, gps.longitude, lat_0_, lon_0_, xy_m_.x(), xy_m_.y());
+  gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, xy_m_.x(), xy_m_.y());
 
   Matrix2d cov;
-  cov(0, 0) = gps.position_covariance[0];
-  cov(0, 1) = gps.position_covariance[1];
-  cov(1, 0) = gps.position_covariance[3];
-  cov(1, 1) = gps.position_covariance[4];
+  cov(0, 0) = gps->position_covariance[0];
+  cov(0, 1) = gps->position_covariance[1];
+  cov(1, 0) = gps->position_covariance[3];
+  cov(1, 1) = gps->position_covariance[4];
 
   cart_filter_.measureXY(xy_m_, cov);
 }
 
-void StateEstimator::gpsVelocityCb(const VelMsg& vel)
+void StateEstimator::gpsVelocityCb(const VelMsg::ConstPtr& vel)
 {
   if (!vel_received_)
   {
@@ -339,10 +339,8 @@ void StateEstimator::gpsVelocityCb(const VelMsg& vel)
     return;
   }
 
-  tf::vectorKDLToEigen(vel.vel, v_m_);
-
-  auto cov_copy = vel.covariance;
-  Matrix3d cov = Map<Matrix3d>(cov_copy.data());
+  tf::vectorKDLToEigen(vel->vel, v_m_);
+  const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
 
   cart_filter_.measureVelocity(v_m_, cov);
 }

@@ -57,9 +57,9 @@ private:
 
   // PubSub
   ros::Publisher imu_pub_;
-  std::shared_ptr<ImuSubscriber> imu_sub_;
-  std::shared_ptr<MagSubscriber> mag_sub_;
-  std::shared_ptr<Synchronizer> sync_;
+  ImuSubscriber imu_sub_;
+  MagSubscriber mag_sub_;
+  Synchronizer sync_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;
@@ -71,7 +71,7 @@ private:
   void initializeFilter();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void imuMagCb(const ImuMsg& imu, const MagMsg& mag);
+  void imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag);
   void checkTopicsTimerCb(const ros::TimerEvent&);
 };
 }  // namespace orientation_estimation_complement

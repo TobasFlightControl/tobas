@@ -53,7 +53,6 @@ private:
   Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
   Eigen::Vector3d v_m_;      // 絶対速度の測定値 (world)
   Eigen::Vector3d a_m_;      // 加速度の観測値 (local)
-  StateMsg state_;           // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
@@ -86,13 +85,13 @@ private:
   bool isReady();
   void initialize(const ImuMsg& imu);
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
-  void updatePoseVelMsg(const ImuMsg& imu);
+  void updatePoseVelMsg(const ImuMsg& imu, StateMsg& state);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void filteredImuCb(const ImuMsg& imu);
-  void barometerCb(const BarMsg& bar);
-  void gpsPositionCb(const GpsMsg& gps);
-  void gpsVelocityCb(const VelMsg& vel);
+  void filteredImuCb(const ImuMsg::ConstPtr& imu);
+  void barometerCb(const BarMsg::ConstPtr& bar);
+  void gpsPositionCb(const GpsMsg::ConstPtr& gps);
+  void gpsVelocityCb(const VelMsg::ConstPtr& vel);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

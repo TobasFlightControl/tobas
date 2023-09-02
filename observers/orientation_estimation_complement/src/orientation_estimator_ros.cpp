@@ -18,6 +18,9 @@ namespace orientation_estimation_complement
 OrientationEstimatorRos::OrientationEstimatorRos(ros::NodeHandle nh, ros::NodeHandle pnh)
   : super(nh, pnh),
     is_initialized_(false),
+    imu_sub_(nh_, "imu", kQueueSize),
+    mag_sub_(nh_, "magnetic_field", kQueueSize),
+    sync_(SyncPolicy(kQueueSize), imu_sub_, mag_sub_),
     check_topics_timer_(nh_, kTimerPeriod, &OrientationEstimatorRos::checkTopicsTimerCb, this)
 {
   getRosParams();
@@ -43,11 +46,7 @@ void OrientationEstimatorRos::registerPublishers()
 void OrientationEstimatorRos::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &OrientationEstimatorRos::eventCb, this);
-
-  imu_sub_.reset(new ImuSubscriber(nh_, "imu", kQueueSize));
-  mag_sub_.reset(new MagSubscriber(nh_, "magnetic_field", kQueueSize));
-  sync_.reset(new Synchronizer(SyncPolicy(kQueueSize), *imu_sub_, *mag_sub_));
-  sync_->registerCallback(&OrientationEstimatorRos::imuMagCb, this);
+  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::initializeFilter()
@@ -94,42 +93,42 @@ void OrientationEstimatorRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void OrientationEstimatorRos::imuMagCb(const ImuMsg& imu, const MagMsg& mag)
+void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag)
 {
-  const ros::Time& time = imu.header.stamp;
-  tf::vectorMsgToEigen(imu.linear_acceleration, a_);
-  tf::vectorMsgToEigen(imu.angular_velocity, w_);
-  tf::vectorMsgToEigen(mag.magnetic_field, m_);
+  const auto& cur_time = imu->header.stamp;
+  tf::vectorMsgToEigen(imu->linear_acceleration, a_);
+  tf::vectorMsgToEigen(imu->angular_velocity, w_);
+  tf::vectorMsgToEigen(mag->magnetic_field, m_);
 
   // Initialize
   if (!is_initialized_)
   {
     check_topics_timer_.stop();
-    time_prev_ = time;
+    time_prev_ = cur_time;
     is_initialized_ = true;
     return;
   }
 
   // Calculate dt
-  const double dt = (time - time_prev_).toSec();
-  time_prev_ = time;
+  const auto dt = (cur_time - time_prev_).toSec();
+  time_prev_ = cur_time;
 
   // Update the filter
   filter_.update(a_, w_, m_, dt);
 
   // Get the orientation
-  Quaterniond q = filter_.getOrientation();
+  const auto q = filter_.getOrientation();
 
   // Create fitlered IMU message
-  ImuMsg filtered_imu = imu;
-  filtered_imu.orientation_covariance.fill(-1);
-  tf::quaternionEigenToMsg(q, filtered_imu.orientation);
+  auto filtered_imu = boost::make_shared<ImuMsg>(*imu);
+  filtered_imu->orientation_covariance.fill(-1);
+  tf::quaternionEigenToMsg(q, filtered_imu->orientation);
 
   // Account for biases
   if (do_bias_estimation_)
   {
     w_ -= filter_.getAngularVelocityBias();
-    tf::vectorEigenToMsg(w_, filtered_imu.angular_velocity);
+    tf::vectorEigenToMsg(w_, filtered_imu->angular_velocity);
   }
 
   // Publish filtered IMU message

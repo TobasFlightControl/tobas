@@ -27,12 +27,6 @@ namespace state_estimation_eskf
 {
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle nh, ros::NodeHandle pnh)
   : super(nh, pnh),
-    stage_(FIRST_IMU),
-    imu_received_(false),
-    mag_received_(false),
-    bar_received_(false),
-    gps_received_(false),
-    vel_received_(false),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,
@@ -268,7 +262,7 @@ tobas_msgs::StaticStateDeterminationResultConstPtr ErrorStateKalmanFilterRos::se
   return result;
 }
 
-void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
+void ErrorStateKalmanFilterRos::updatePoseVelMsg(const ImuMsg& imu, StateMsg& state)
 {
   const Vector3d W_Pos_WI = eskf_.getXYZ();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -278,18 +272,18 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
   // Time stamp
-  state_.header.stamp = imu.header.stamp;
+  state.header.stamp = imu.header.stamp;
 
   // Position (Global): IMU frame -> Base frame
   const Vector3d W_Pos_WB = W_Pos_WI - W_Rot_B * B_Pos_BI;
-  tf::vectorEigenToKDL(W_Pos_WB, state_.pose.pos);
+  tf::vectorEigenToKDL(W_Pos_WB, state.pose.pos);
 
   // Linear velocity (Local): IMU frame -> Base frame
   const Vector3d B_Vel_WB = B_Rot_W * W_Vel_WI - B_omega.cross(B_Pos_BI);
-  tf::vectorEigenToKDL(B_Vel_WB, state_.twist.vel);
+  tf::vectorEigenToKDL(B_Vel_WB, state.twist.vel);
 
   // Roll, Pitch
-  auto& rpy = state_.pose.euler;
+  auto& rpy = state.pose.euler;
   quaternionToEuler(
     W_Rot_B.x(), W_Rot_B.y(), W_Rot_B.z(), W_Rot_B.w(), rpy.roll, rpy.pitch, yaw_now_);
 
@@ -306,14 +300,13 @@ void ErrorStateKalmanFilterRos::updateBaseStateMsg(const ImuMsg& imu)
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Angular velocity (Local)
-  tf::vectorEigenToKDL(B_omega, state_.twist.rot);
+  tf::vectorEigenToKDL(B_omega, state.twist.rot);
 
   // Covariances
-  eigen_tools::matrix3EigenToBoost(eskf_.getPositionCovariance(), state_.position_covariance);
-  eigen_tools::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state_.orientation_covariance);
-  eigen_tools::matrix3EigenToBoost(
-    eskf_.getVelocityCovariance(), state_.linear_velocity_covariance);
-  state_.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
+  eigen_tools::matrix3EigenToBoost(eskf_.getPositionCovariance(), state.position_covariance);
+  eigen_tools::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state.orientation_covariance);
+  eigen_tools::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state.linear_velocity_covariance);
+  state.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
 
   // For debug
   // cout << "Estiamted Quaternion:" << endl << W_Rot_B << endl;
@@ -333,7 +326,7 @@ void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
+void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 {
   switch (stage_)
   {
@@ -356,21 +349,21 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
     }
     case SET_FIRST_TIME:
     {
-      t_ready_ = t_last_ = imu.header.stamp;
+      t_ready_ = t_last_ = imu->header.stamp;
       stage_ = RUNNING;
       break;
     }
     case RUNNING:
     {
-      const double dt = (imu.header.stamp - t_last_).toSec();
-      t_last_ = imu.header.stamp;
+      const double dt = (imu->header.stamp - t_last_).toSec();
+      t_last_ = imu->header.stamp;
       if (!isValidDeltaTime(dt))
       {
         return;
       }
 
-      tf::vectorMsgToEigen(imu.linear_acceleration, a_m_);
-      tf::vectorMsgToEigen(imu.angular_velocity, w_m_);
+      tf::vectorMsgToEigen(imu->linear_acceleration, a_m_);
+      tf::vectorMsgToEigen(imu->angular_velocity, w_m_);
 
       // 事前予測
       eskf_.predictIMU(a_m_, w_m_, dt);
@@ -381,8 +374,9 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
       // 推定状態を発行
       if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
       {
-        updateBaseStateMsg(imu);
-        posevel_pub_.publish(state_);
+        auto state = boost::make_shared<StateMsg>();
+        updatePoseVelMsg(*imu, *state);
+        posevel_pub_.publish(state);
       }
 
       break;
@@ -390,7 +384,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg& imu)
   }
 }
 
-void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
+void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 {
   if (!mag_received_)
   {
@@ -402,7 +396,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
     return;
   }
 
-  tf::vectorMsgToEigen(mag.magnetic_field, mag_m_);
+  tf::vectorMsgToEigen(mag->magnetic_field, mag_m_);
 
   switch (geomag_observe_method_)
   {
@@ -417,7 +411,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg& mag)
   }
 }
 
-void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
+void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 {
   if (!bar_received_)
   {
@@ -430,13 +424,13 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg& bar)
   }
 
   double z_abs, z_var;
-  pressureToAltitude(bar.fluid_pressure, bar.variance, z_abs, z_var);
+  pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
 
   const double z_m = z_abs - alt_0_bar_;
   eskf_.measureAltitude(z_m, z_var);
 }
 
-void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
+void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 {
   if (!gps_received_)
   {
@@ -448,21 +442,18 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg& gps)
     return;
   }
 
-  gpsToCartRelative(gps.latitude, gps.longitude, lat_0_, lon_0_, pos_m_.x(), pos_m_.y());
-  pos_m_.z() = gps.altitude - alt_0_gps_;
-  // cout << "Measured position: " << endl << pos_m_ << endl;
-
-  auto cov_copy = gps.position_covariance;
-  Matrix3d cov = Map<Matrix3d>(cov_copy.data());
+  gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_m_.x(), pos_m_.y());
+  pos_m_.z() = gps->altitude - alt_0_gps_;
+  const Matrix3d cov = Map<const Matrix3d>(gps->position_covariance.data());
 
   eskf_.measureXYZ(pos_m_, cov, imu2gps_);
 
   // トピック通信の遅延チェック
-  // const auto delay = (ros::Time::now() - gps.header.stamp).toSec();
+  // const auto delay = (ros::Time::now() - gps->header.stamp).toSec();
   // rosInfo("NavSatFix communication delay: " << delay << "[s]");
 }
 
-void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
+void ErrorStateKalmanFilterRos::velCb(const VelMsg::ConstPtr& vel)
 {
   if (!vel_received_)
   {
@@ -474,10 +465,8 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg& vel)
     return;
   }
 
-  tf::vectorKDLToEigen(vel.vel, vel_m_);
-
-  auto cov_copy = vel.covariance;
-  Matrix3d cov = Map<Matrix3d>(cov_copy.data());
+  tf::vectorKDLToEigen(vel->vel, vel_m_);
+  const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
 
   eskf_.measureVelocity(vel_m_, cov, w_m_, imu2gps_);
 }
