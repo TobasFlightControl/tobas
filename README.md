@@ -81,7 +81,7 @@ Launch the drivers for the drone's sensors and propulsing system in Gazebo or in
 #### In the case of Gazebo simulation
 
 ```bash
-$ roslaunch (tobas_config_pkg) gazebo.launch
+$ roslaunch (tobas_config_pkg) simulation.launch
 ```
 
 #### In the case of the real world
@@ -141,27 +141,6 @@ $ export ROS_MASTER_URI=http://(IP address of FC):11311
 
 ```bash
 $ rosnode ping /rosout
-```
-
-### Hardware in the Loop (HIL)
-
-1. Launch roscore on FC
-
-```bash
-$ roscore
-```
-
-2. Launch Gazebo simulation on the external PC
-
-```bash
-$ roslaunch (tobas_config_pkg) gazebo.launch
-```
-
-3. Launch motors handler on FC. Make sure that the battery is properly connected and that the propellers are NOT attached to the motors.
-
-```bash
-$ su
-$ roslaunch (tobas_config_pkg) hil.launch
 ```
 
 ## Calibration
