@@ -19,7 +19,6 @@
     <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
-
   </group>
 
 </launch>
