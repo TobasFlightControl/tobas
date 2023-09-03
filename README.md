@@ -81,7 +81,8 @@ Launch the drivers for the drone's sensors and propulsing system in Gazebo or in
 #### In the case of Gazebo simulation
 
 ```bash
-$ roslaunch (tobas_config_pkg) gazebo.launch
+$ roslaunch (tobas_config_pkg) gazebo.launch  # Wait until the drone stops
+$ roslaunch (tobas_config_pkg) bringup.launch  # Launch Tobas control software
 ```
 
 #### In the case of the real world
