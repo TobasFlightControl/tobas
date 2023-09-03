@@ -13,7 +13,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
 
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
@@ -31,7 +31,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
-  using StateMsg = tobas_msgs::BaseState;
+  using StateMsg = tobas_msgs::PoseTwist;
 
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;

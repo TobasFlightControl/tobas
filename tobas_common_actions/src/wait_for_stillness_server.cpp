@@ -32,13 +32,13 @@ void WaitForStillnessServer::registerPublishers()
 void WaitForStillnessServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &WaitForStillnessServer::eventCb, this);
-  bs_sub_ = nh_.subscribe("base_state", 1, &WaitForStillnessServer::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &WaitForStillnessServer::poseTwistCb, this);
 }
 
 void WaitForStillnessServer::reset()
 {
   is_history_filled_ = false;
-  bs_history_.clear();
+  pt_history_.clear();
   t_last_valid_velocity_ = ros::Time::now();
 }
 
@@ -97,12 +97,12 @@ bool WaitForStillnessServer::isConditionsMet()
   }
 
   // FIXME: 本当は最初と最後の差ではなく，範囲つまり最大値と最小値の差で評価すべき
-  const auto& bs_front = bs_history_.front();
-  const auto& bs_back = bs_history_.back();
+  const auto& pt_front = pt_history_.front();
+  const auto& pt_back = pt_history_.back();
 
   bool res = true;
 
-  const auto dp = bs_back.pose.pos - bs_front.pose.pos;
+  const auto dp = pt_back.pose.pos - pt_front.pose.pos;
   const auto hor_pos_var_norm = sqrt(sqr(dp.x()) + sqr(dp.y()));
   if (hor_pos_var_norm > goal_->horizontal_position_variance_threshold)
   {
@@ -123,7 +123,7 @@ bool WaitForStillnessServer::isConditionsMet()
     res = false;
   }
 
-  const auto yaw_diff = bs_back.pose.euler.yaw - bs_front.pose.euler.yaw;
+  const auto yaw_diff = pt_back.pose.euler.yaw - pt_front.pose.euler.yaw;
   if (abs(yaw_diff) > goal_->heading_variance_threshold)
   {
     rosWarnThrottle(
@@ -134,12 +134,12 @@ bool WaitForStillnessServer::isConditionsMet()
     res = false;
   }
 
-  if (bs_back.header.stamp - t_last_valid_attitude_ < goal_->time_window)
+  if (pt_back.header.stamp - t_last_valid_attitude_ < goal_->time_window)
   {
     res = false;
   }
 
-  if (bs_back.header.stamp - t_last_valid_velocity_ < goal_->time_window)
+  if (pt_back.header.stamp - t_last_valid_velocity_ < goal_->time_window)
   {
     res = false;
   }
@@ -149,7 +149,7 @@ bool WaitForStillnessServer::isConditionsMet()
 
 void WaitForStillnessServer::fillResult()
 {
-  result_.base_state = bs_history_.back();
+  result_.pose_twist = pt_history_.back();
 }
 
 void WaitForStillnessServer::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -164,7 +164,7 @@ void WaitForStillnessServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void WaitForStillnessServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   if (!is_action_running_)
   {
@@ -172,12 +172,12 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs
   }
 
   // 現在の時刻と高度を履歴に追加
-  bs_history_.push_back(*bs);
+  pt_history_.push_back(*pt);
 
   // 古い履歴を削除
-  while (bs->header.stamp - bs_history_.front().header.stamp > goal_->time_window)
+  while (pt->header.stamp - pt_history_.front().header.stamp > goal_->time_window)
   {
-    bs_history_.pop_front();
+    pt_history_.pop_front();
     if (!is_history_filled_)
     {
       is_history_filled_ = true;
@@ -185,31 +185,31 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs
   }
 
   // 最後に姿勢角が閾値を下回った時刻を更新
-  const auto& roll = bs->pose.euler.roll;
-  const auto& pitch = bs->pose.euler.pitch;
+  const auto& roll = pt->pose.euler.roll;
+  const auto& pitch = pt->pose.euler.pitch;
   if (abs(roll) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
       "Roll angle is over threshold: |" << roll << "| > " << goal_->attitude_threshold);
-    t_last_valid_attitude_ = bs->header.stamp;
+    t_last_valid_attitude_ = pt->header.stamp;
   }
   if (abs(pitch) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
       "Pitch angle is over threshold: |" << pitch << "| > " << goal_->attitude_threshold);
-    t_last_valid_attitude_ = bs->header.stamp;
+    t_last_valid_attitude_ = pt->header.stamp;
   }
 
   // 最後に速度が閾値を下回った時刻を更新
-  if (bs->twist.vel.Norm() > goal_->velocity_threshold)
+  if (pt->twist.vel.Norm() > goal_->velocity_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
-      "The norm of velocity is over threshold: " << bs->twist.vel.Norm() << " > "
+      "The norm of velocity is over threshold: " << pt->twist.vel.Norm() << " > "
                                                  << goal_->velocity_threshold);
-    t_last_valid_velocity_ = bs->header.stamp;
+    t_last_valid_velocity_ = pt->header.stamp;
   }
 }
 

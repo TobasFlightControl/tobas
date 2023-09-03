@@ -4,7 +4,7 @@
 #include <dh_std_tools/range.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RCInput.h>
 
@@ -34,7 +34,7 @@ private:
   };
 
   Stage stage_ = CHECK_PREREQUISITES;
-  tobas_msgs::BaseStateConstPtr bs_;
+  tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::VelocityYaw vel_yaw_;
   ros::Time t_last_rcin_;
 
@@ -49,7 +49,7 @@ private:
 
   // PubSub
   ros::Publisher vel_yaw_pub_;
-  ros::Subscriber bs_sub_;
+  ros::Subscriber pt_sub_;
   ros::Subscriber rcin_sub_;
 
   void getRosParams() override;
@@ -57,7 +57,7 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);
 };
 }  // namespace tobas_rc_teleop

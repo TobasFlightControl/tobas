@@ -10,7 +10,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.459085" left="231.040000" top="2.845770" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/pose/pos/x" color="#1f77b4"/>
+         <curve name="/x500v2/pose_twist/pose/pos/x" color="#1f77b4"/>
          <curve name="/x500v2/command/position_yaw/pos/x" color="#f14cc1"/>
         </plot>
        </DockArea>
@@ -18,7 +18,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.584056" left="231.040000" top="0.139394" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/pose/pos/y" color="#d62728"/>
+         <curve name="/x500v2/pose_twist/pose/pos/y" color="#d62728"/>
          <curve name="/x500v2/command/position_yaw/pos/y" color="#9467bd"/>
         </plot>
        </DockArea>
@@ -26,7 +26,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="3.541805" left="231.040000" top="3.804015" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/pose/pos/z" color="#1ac938"/>
+         <curve name="/x500v2/pose_twist/pose/pos/z" color="#1ac938"/>
          <curve name="/x500v2/command/position_yaw/pos/z" color="#17becf"/>
         </plot>
        </DockArea>
@@ -36,7 +36,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.191771" left="231.040000" top="-0.046643" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/pose/euler/roll" color="#ff7f0e"/>
+         <curve name="/x500v2/pose_twist/pose/euler/roll" color="#ff7f0e"/>
          <curve name="/x500v2/command/rpy_thrust/rpy/roll" color="#ff7f0e"/>
         </plot>
        </DockArea>
@@ -44,7 +44,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.338261" left="231.040000" top="-0.056635" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/pose/euler/pitch" color="#f14cc1"/>
+         <curve name="/x500v2/pose_twist/pose/euler/pitch" color="#f14cc1"/>
          <curve name="/x500v2/command/rpy_thrust/rpy/pitch" color="#f14cc1"/>
         </plot>
        </DockArea>
@@ -52,7 +52,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="0.529095" left="231.040000" top="0.561835" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/pose/euler/yaw" color="#9467bd"/>
+         <curve name="/x500v2/pose_twist/pose/euler/yaw" color="#9467bd"/>
          <curve name="/x500v2/command/position_yaw/yaw" color="#bcbd22"/>
         </plot>
        </DockArea>
@@ -70,7 +70,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-1.619470" left="231.040000" top="0.301155" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/twist/linear/x" color="#17becf"/>
+         <curve name="/x500v2/pose_twist/twist/linear/x" color="#17becf"/>
          <curve name="/x500v2/command/velocity_yaw/vel/x" color="#1f77b4"/>
         </plot>
        </DockArea>
@@ -78,7 +78,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.153492" left="231.040000" top="0.208233" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/twist/linear/y" color="#bcbd22"/>
+         <curve name="/x500v2/pose_twist/twist/linear/y" color="#bcbd22"/>
          <curve name="/x500v2/command/velocity_yaw/vel/y" color="#d62728"/>
         </plot>
        </DockArea>
@@ -86,7 +86,7 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.257846" left="231.040000" top="0.083310" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/twist/linear/z" color="#1f77b4"/>
+         <curve name="/x500v2/pose_twist/twist/linear/z" color="#1f77b4"/>
          <curve name="/x500v2/command/velocity_yaw/vel/z" color="#1ac938"/>
         </plot>
        </DockArea>
@@ -96,21 +96,21 @@
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.164533" left="231.040000" top="0.145381" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/twist/angular/x" color="#d62728"/>
+         <curve name="/x500v2/pose_twist/twist/angular/x" color="#d62728"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.208891" left="231.040000" top="0.196997" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/twist/angular/y" color="#1ac938"/>
+         <curve name="/x500v2/pose_twist/twist/angular/y" color="#1ac938"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
          <range bottom="-0.050645" left="231.040000" top="0.043062" right="241.040000"/>
          <limitY/>
-         <curve name="/x500v2/base_state/twist/angular/z" color="#ff7f0e"/>
+         <curve name="/x500v2/pose_twist/twist/angular/z" color="#ff7f0e"/>
         </plot>
        </DockArea>
       </DockSplitter>

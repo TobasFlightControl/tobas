@@ -11,7 +11,7 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RollPitchYawrateThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -48,13 +48,13 @@ private:
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
   bool is_initialized_;
   bool battery_received_;
-  bool bs_received_;
+  bool pt_received_;
   bool js_received_;
   bool rpy_thrust_received_;
   bool rpyd_thrust_received_;
   ros::Time t_last_rpyd_thrust_;
   tobas_msgs::BatteryConstPtr battery_;        // 現在のバッテリーの状態
-  tobas_msgs::BaseStateConstPtr bs_;           // 現在のベースの状態
+  tobas_msgs::PoseTwistConstPtr pt_;           // 現在のベースの状態
   KDL::JntArray q_;                            // 全ての非固定関節の角度
   tobas_msgs::RollPitchYawThrust rpy_thrust_;  // 姿勢+推力 (入力)
   Eigen::VectorXd u_opt_;
@@ -68,7 +68,7 @@ private:
   // PubSub
   ros::Publisher rotor_speeds_pub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber base_state_sub_;
+  ros::Subscriber pt_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber rpy_thrust_sub_;
   ros::Subscriber rpyd_thrust_sub_;
@@ -96,7 +96,7 @@ private:
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
   void rpydThrustCb(const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust);

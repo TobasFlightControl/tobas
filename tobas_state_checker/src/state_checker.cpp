@@ -37,10 +37,10 @@ void StateChecker::run()
     const auto cur_time = ros::Time::now();
 
     // ベースの状態が一定時間得られていない場合は落とす
-    if (bs_received_ && (cur_time - t_last_bs_).toSec() > kBaseStateTimeout)
+    if (pt_received_ && (cur_time - t_last_pt_).toSec() > kPoseTwistTimeout)
     {
       rosFatal(
-        name_, "The base state is not received for " << kBaseStateTimeout
+        name_, "The Pose & Twist is not received for " << kPoseTwistTimeout
                                                      << " seconds. Shutting down the system.");
       requestShutdown();
     }
@@ -65,7 +65,7 @@ void StateChecker::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &StateChecker::eventCb, this);
   cpu_sub_ = nh_.subscribe("cpu", 1, &StateChecker::cpuCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &StateChecker::batteryCb, this);
-  bs_sub_ = nh_.subscribe("base_state", 1, &StateChecker::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &StateChecker::poseTwistCb, this);
 }
 
 void StateChecker::requestLanding()
@@ -153,17 +153,17 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void StateChecker::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void StateChecker::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
-  t_last_bs_ = ros::Time::now();
-  if (!bs_received_)
+  t_last_pt_ = ros::Time::now();
+  if (!pt_received_)
   {
-    bs_received_ = true;
+    pt_received_ = true;
   }
 
   // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
-  const auto& pos_cov = bs->position_covariance;
-  const auto& rot_cov = bs->orientation_covariance;
+  const auto& pos_cov = pt->position_covariance;
+  const auto& rot_cov = pt->orientation_covariance;
   if (max(pos_cov[0], pos_cov[4]) > dh_std::sqr(kHorizontalPositionStddevThreshold))
   {
     rosFatal(
@@ -187,7 +187,7 @@ void StateChecker::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
   }
 
   // 姿勢角が閾値を超えていたら落とす
-  const auto& euler = bs->pose.euler;
+  const auto& euler = pt->pose.euler;
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");

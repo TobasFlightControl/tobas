@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import Slider, add_expanding_widget
-from tobas_msgs.msg import PositionYaw, CommandLevel, BaseState
+from tobas_msgs.msg import PositionYaw, CommandLevel, PoseTwist
 
 from .utils import remap
 
@@ -62,7 +62,7 @@ class CommandersWidget(QScrollArea):
         self._drone_cmd = PositionYaw()
         self._drone_cmd.level.data = CommandLevel.NORMAL
 
-        self._bs_received = False
+        self._pt_received = False
 
         # ドローンの位置姿勢
         drone_label = QLabel("Multirotor Command")
@@ -113,7 +113,7 @@ class CommandersWidget(QScrollArea):
             "command/position_yaw", PositionYaw, queue_size=1
         )
         self._bs_sub = rospy.Subscriber(
-            "base_state", BaseState, self._base_state_cb, queue_size=1
+            "pose_twist", PoseTwist, self._pose_twist_cb, queue_size=1
         )
 
         add_expanding_widget(self._rows)
@@ -160,15 +160,15 @@ class CommandersWidget(QScrollArea):
 
         self._drone_cmd_pub.publish(self._drone_cmd)
 
-    def _base_state_cb(self, bs: BaseState) -> None:
-        if self._bs_received:
+    def _pose_twist_cb(self, pt: PoseTwist) -> None:
+        if self._pt_received:
             return
 
         # 最初に受け取った状態を初期コマンドにする
-        self.drone_cmd_x.set_value(bs.pose.pos.x)
-        self.drone_cmd_y.set_value(bs.pose.pos.y)
-        self.drone_cmd_z.set_value(bs.pose.pos.z + self._init_elevation)
-        self.drone_cmd_yaw.set_value(bs.pose.euler.yaw)
+        self.drone_cmd_x.set_value(pt.pose.pos.x)
+        self.drone_cmd_y.set_value(pt.pose.pos.y)
+        self.drone_cmd_z.set_value(pt.pose.pos.z + self._init_elevation)
+        self.drone_cmd_yaw.set_value(pt.pose.euler.yaw)
 
         # バーを有効化
         self.drone_cmd_x.setEnabled(True)
@@ -176,7 +176,7 @@ class CommandersWidget(QScrollArea):
         self.drone_cmd_z.setEnabled(True)
         self.drone_cmd_yaw.setEnabled(True)
 
-        self._bs_received = True
+        self._pt_received = True
 
         rospy.loginfo("GUI teleoperation is ready.")
 

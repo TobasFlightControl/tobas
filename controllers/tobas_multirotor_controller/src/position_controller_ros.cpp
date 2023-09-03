@@ -16,7 +16,7 @@ namespace tobas_multirotor_controller
 PositionControllerRos::PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
     is_initialized_(false),
-    bs_received_(false),
+    pt_received_(false),
     cmd_received_(false),
     check_topics_timer_(
       nh_,
@@ -56,14 +56,14 @@ void PositionControllerRos::registerPublishers()
 void PositionControllerRos::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &PositionControllerRos::eventCb, this);
-  base_state_sub_ = nh_.subscribe("base_state", 1, &PositionControllerRos::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &PositionControllerRos::poseTwistCb, this);
   pos_yaw_sub_ =
     nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
 }
 
 bool PositionControllerRos::isReady()
 {
-  return bs_received_ && cmd_received_;
+  return pt_received_ && cmd_received_;
 }
 
 void PositionControllerRos::initialize()
@@ -90,13 +90,13 @@ void PositionControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void PositionControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void PositionControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
-  bs_ = bs;
+  pt_ = pt;
 
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    bs_received_ = true;
+    pt_received_ = true;
   }
 
   if (!is_initialized_)
@@ -120,7 +120,7 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
   vel_yaw_out->frame_id.data = tobas_msgs::FrameId::GLOBAL;
 
   // Update VelocityYaw message
-  pos_controller_.update(bs->pose.pos, pos_yaw_in_->pos, vel_yaw_out->vel);
+  pos_controller_.update(pt->pose.pos, pos_yaw_in_->pos, vel_yaw_out->vel);
   vel_yaw_out->level = pos_yaw_in_->level;
   vel_yaw_out->yaw = pos_yaw_in_->yaw;  // ヨー角は位置指令をそのまま流す
 
@@ -130,13 +130,13 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 
 void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYawConstPtr& pos_yaw)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
     return;
   }
 
   // 指令位置と現在位置が離れすぎていないか確認
-  const auto dist = (pos_yaw->pos - bs_->pose.pos).Norm();
+  const auto dist = (pos_yaw->pos - pt_->pose.pos).Norm();
   if (dist > kMaxCommandPositionDeviation)
   {
     rosError(
@@ -156,9 +156,9 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYawConstP
 
 void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    rosWarn(name_, "Base state is not received yet.");
+    rosWarn(name_, "Pose & Twist is not received yet.");
   }
 
   if (!cmd_received_)

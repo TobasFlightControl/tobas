@@ -20,7 +20,7 @@ RotationControllerRos::RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle
     rot_controller_(drone_),
     is_initialized_(false),
     battery_received_(false),
-    bs_received_(false),
+    pt_received_(false),
     js_received_(false),
     rpy_thrust_received_(false),
     rpyd_thrust_received_(false),
@@ -77,7 +77,7 @@ void RotationControllerRos::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &RotationControllerRos::eventCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &RotationControllerRos::batteryCb, this);
-  base_state_sub_ = nh_.subscribe("base_state", 1, &RotationControllerRos::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &RotationControllerRos::poseTwistCb, this);
   if (is_transformable_)
   {
     joint_state_sub_ = nh_.subscribe("joint_states", 1, &RotationControllerRos::jointStateCb, this);
@@ -93,7 +93,7 @@ bool RotationControllerRos::isReady()
   if (!battery_received_)
     return false;
 
-  if (!bs_received_)
+  if (!pt_received_)
     return false;
 
   if (is_transformable_ && !js_received_)
@@ -131,7 +131,7 @@ void RotationControllerRos::runOnce()
   {
     // stopwatch_.start();
     rot_controller_.update(
-      bs_->pose.euler, bs_->twist.rot, q_, battery_->voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
+      pt_->pose.euler, pt_->twist.rot, q_, battery_->voltage, rpy_thrust_.thrust, rpy_thrust_.rpy,
       u_opt_);
     // stopwatch_.stop();
   }
@@ -143,7 +143,7 @@ void RotationControllerRos::runOnce()
 
   // モータ速度メッセージを作成
   const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds->header.stamp = bs_->header.stamp;
+  rotor_speeds->header.stamp = pt_->header.stamp;
   rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
   for (uint32_t i = 0; i < u_opt_.rows(); ++i)
   {
@@ -263,14 +263,14 @@ void RotationControllerRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery
   battery_ = battery;
 }
 
-void RotationControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void RotationControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    bs_received_ = true;
+    pt_received_ = true;
   }
 
-  bs_ = bs;
+  pt_ = pt;
 
   if (!is_initialized_)
   {
@@ -320,7 +320,7 @@ void RotationControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& 
 
 void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
     return;
   }
@@ -346,7 +346,7 @@ void RotationControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustCons
 void RotationControllerRos::rpydThrustCb(
   const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
     return;
   }
@@ -379,7 +379,7 @@ void RotationControllerRos::rpydThrustCb(
   else
   {
     t_last_rpyd_thrust_ = ros::Time::now();
-    rpy_thrust_.rpy.yaw = bs_->pose.euler.yaw;  // 最初は現在のヨー角を指令
+    rpy_thrust_.rpy.yaw = pt_->pose.euler.yaw;  // 最初は現在のヨー角を指令
     rpyd_thrust_received_ = true;
   }
 }
@@ -389,8 +389,8 @@ void RotationControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (!battery_received_)
     rosWarn(name_, "Battery state is not received yet.");
 
-  if (!bs_received_)
-    rosWarn(name_, "Base state is not received yet.");
+  if (!pt_received_)
+    rosWarn(name_, "Pose & Twist is not received yet.");
 
   if (is_transformable_ && !js_received_)
     rosWarn(name_, "Joint states are not received yet.");

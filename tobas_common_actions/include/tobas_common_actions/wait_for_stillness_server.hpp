@@ -30,11 +30,11 @@ private:
   bool is_history_filled_;           // 時間窓分だけ履歴が溜まっている場合にtrue
   ros::Time t_last_valid_attitude_;  // 最後に姿勢角が閾値内に入った時刻
   ros::Time t_last_valid_velocity_;  // 最後に速度が閾値内に入った時刻
-  std::deque<tobas_msgs::BaseState> bs_history_;
+  std::deque<tobas_msgs::PoseTwist> pt_history_;
   GoalType goal_;
   ResultType result_;
 
-  ros::Subscriber bs_sub_;
+  ros::Subscriber pt_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
@@ -48,7 +48,7 @@ private:
   void fillResult();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
 
   void executeCb(const GoalType& goal);
 };

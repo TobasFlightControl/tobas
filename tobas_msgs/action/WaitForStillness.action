@@ -10,7 +10,7 @@ float64 velocity_threshold                      # [m/s]
 ---
 
 # result
-tobas_msgs/BaseState base_state
+tobas_msgs/PoseTwist pose_twist
 
 int8 error_code
 int8 NO_ERROR = 0

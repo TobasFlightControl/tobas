@@ -7,7 +7,7 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 
 namespace gazebo
 {
@@ -15,13 +15,13 @@ namespace gazebo
 static const std::string kPluginName = "ground_truth_state_plugin";
 
 // Default values
-static const std::string kDefaultStateTopic = "ground_truth/base_state";
+static const std::string kDefaultStateTopic = "ground_truth/pose_twist";
 
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
   using super = ModelPlugin;
 
-  using StateMsg = tobas_msgs::BaseState;
+  using StateMsg = tobas_msgs::PoseTwist;
 
 public:
   explicit GazeboGroundTruthStatePlugin();

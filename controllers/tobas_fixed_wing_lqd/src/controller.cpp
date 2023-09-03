@@ -84,20 +84,20 @@ void Controller::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &Controller::eventCb, this);
   air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
   battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this);
-  base_state_sub_ = nh_.subscribe("base_state", 1, &Controller::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &Controller::poseTwistCb, this);
   cmd_sub_ = nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this);
 }
 
 bool Controller::isReady()
 {
-  return pressure_received_ && battery_received_ && bs_received_;
+  return pressure_received_ && battery_received_ && pt_received_;
 }
 
 void Controller::publishTakeoffCommand()
 {
   // 各ロータの回転数を発行
   const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds_msg->header.stamp = bs_ned_.header.stamp;
+  rotor_speeds_msg->header.stamp = pt_ned_.header.stamp;
   rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
   for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
@@ -108,7 +108,7 @@ void Controller::publishTakeoffCommand()
 
   // 各操舵面の偏角を発行
   const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = bs_ned_.header.stamp;
+  deflections_msg->header.stamp = pt_ned_.header.stamp;
   deflections_msg->deflections.resize(drone_.numControlSurfaces(), 0.);
   deflections_msg->deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
   deflections_pub_.publish(deflections_msg);
@@ -117,7 +117,7 @@ void Controller::publishTakeoffCommand()
 void Controller::initialize()
 {
   // 最新の制御時刻
-  t_last_loop_ = bs_ned_.header.stamp;
+  t_last_loop_ = pt_ned_.header.stamp;
 
   // 制御入力の初期値
   lqd_.last_input = VectorXd::Zero(eom_.inputSize());
@@ -132,12 +132,12 @@ void Controller::initialize()
 void Controller::runOnce()
 {
   // 時刻を更新
-  const auto& cur_time = bs_ned_.header.stamp;
+  const auto& cur_time = pt_ned_.header.stamp;
   const auto dt = (cur_time - t_last_loop_).toSec();
   t_last_loop_ = cur_time;
 
   // 現在の速度を使って状態方程式を更新
-  if (eom_.update(bs_ned_.twist.vel.Norm(), air_density_, battery_->voltage, q_0_) < 0)
+  if (eom_.update(pt_ned_.twist.vel.Norm(), air_density_, battery_->voltage, q_0_) < 0)
   {
     rosError(name_, eom_.errorMessage());
   }
@@ -194,14 +194,14 @@ void Controller::updateCurrentStateVector()
   const auto& trim = eom_.trimCondition();
 
   // TODO: 横系のトリムも考慮
-  lqd_.current_state(eom_.kStateIdx_u) = bs_ned_.twist.vel.x() - trim.u();
-  lqd_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(bs_ned_.twist.vel) - trim.alpha();
-  lqd_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(bs_ned_.twist.vel);
-  lqd_.current_state(eom_.kStateIdx_phi) = bs_ned_.pose.euler.roll;
-  lqd_.current_state(eom_.kStateIdx_theta) = bs_ned_.pose.euler.pitch - trim.theta();
-  lqd_.current_state(eom_.kStateIdx_p) = bs_ned_.twist.rot.x();
-  lqd_.current_state(eom_.kStateIdx_q) = bs_ned_.twist.rot.y();
-  lqd_.current_state(eom_.kStateIdx_r) = bs_ned_.twist.rot.z();
+  lqd_.current_state(eom_.kStateIdx_u) = pt_ned_.twist.vel.x() - trim.u();
+  lqd_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(pt_ned_.twist.vel) - trim.alpha();
+  lqd_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(pt_ned_.twist.vel);
+  lqd_.current_state(eom_.kStateIdx_phi) = pt_ned_.pose.euler.roll;
+  lqd_.current_state(eom_.kStateIdx_theta) = pt_ned_.pose.euler.pitch - trim.theta();
+  lqd_.current_state(eom_.kStateIdx_p) = pt_ned_.twist.rot.x();
+  lqd_.current_state(eom_.kStateIdx_q) = pt_ned_.twist.rot.y();
+  lqd_.current_state(eom_.kStateIdx_r) = pt_ned_.twist.rot.z();
 }
 
 void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
@@ -222,7 +222,7 @@ void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
 void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
 {
   const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds_msg->header.stamp = bs_ned_.header.stamp;
+  rotor_speeds_msg->header.stamp = pt_ned_.header.stamp;
 
   rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
   for (uint32_t i = 0; i < thrust.rows(); ++i)
@@ -243,7 +243,7 @@ void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
 void Controller::publishDeflections(const Eigen::VectorXd& deflections)
 {
   const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = bs_ned_.header.stamp;
+  deflections_msg->header.stamp = pt_ned_.header.stamp;
   deflections_msg->deflections = eigen_tools::toStdVector(deflections);
   deflections_pub_.publish(deflections_msg);
 }
@@ -340,14 +340,14 @@ void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void Controller::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu)
+void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
 {
   // コールバックの時点で全てNED座標系に変換しておく
-  tf::baseStateNwuToNed(*bs_nwu, bs_ned_);
+  tf::baseStateNwuToNed(*pt_nwu, pt_ned_);
 
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    bs_received_ = true;
+    pt_received_ = true;
   }
 
   switch (state_)
@@ -364,7 +364,7 @@ void Controller::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu)
     }
     case TAKEOFF:
     {
-      const auto cur_V = bs_ned_.twist.vel.Norm();
+      const auto cur_V = pt_ned_.twist.vel.Norm();
       const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
       const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_->voltage, q_0_);
       if (eom_error < 0)
@@ -375,7 +375,7 @@ void Controller::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu)
       publishTakeoffCommand();
 
       // 最低速度を上回ったら制御開始
-      const auto cur_speed = bs_nwu->twist.vel.Norm();
+      const auto cur_speed = pt_nwu->twist.vel.Norm();
       if (cur_speed > eom_.trimCondition().minimumSpeed(air_density_))
       {
         initialize();
@@ -426,9 +426,9 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn(name_, "Battery state is not received yet.");
   }
 
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    rosWarn(name_, "Base state is not received yet.");
+    rosWarn(name_, "Pose & Twist is not received yet.");
   }
 }
 

@@ -6,7 +6,7 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
@@ -31,9 +31,9 @@ public:
 
 private:
   bool is_initialized_;
-  bool bs_received_;
+  bool pt_received_;
   bool cmd_received_;
-  tobas_msgs::BaseStateConstPtr bs_;
+  tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::PositionYawConstPtr pos_yaw_in_;  // 受け取る位置コマンド
 
   PositionController pos_controller_;
@@ -43,7 +43,7 @@ private:
 
   // PubSub
   ros::Publisher vel_yaw_pub_;
-  ros::Subscriber base_state_sub_;
+  ros::Subscriber pt_sub_;
   ros::Subscriber pos_yaw_sub_;
 
   // Timer
@@ -61,7 +61,7 @@ private:
   void updateDynamicParams(const ConfigType& cfg);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void targetPositionCb(const tobas_msgs::PositionYawConstPtr& pos_yaw);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);

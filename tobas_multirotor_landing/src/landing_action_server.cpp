@@ -33,12 +33,12 @@ void MultirotorLandServer::registerPublishers()
 void MultirotorLandServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &MultirotorLandServer::eventCb, this);
-  bs_sub_ = nh_.subscribe("base_state", 1, &MultirotorLandServer::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &MultirotorLandServer::poseTwistCb, this);
 }
 
 void MultirotorLandServer::reset()
 {
-  bs_received_ = false;
+  pt_received_ = false;
   is_history_filled_ = false;
   alt_history_.clear();
 }
@@ -55,7 +55,7 @@ void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void MultirotorLandServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   if (!is_action_running_)
   {
@@ -63,8 +63,8 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
   }
 
   // 現在の時刻と高度を履歴に追加
-  const auto& cur_time = bs->header.stamp;
-  const auto& altitude = bs->pose.pos.z();
+  const auto& cur_time = pt->header.stamp;
+  const auto& altitude = pt->pose.pos.z();
   alt_history_.emplace_back(cur_time, altitude);
 
   // 古い履歴を削除
@@ -79,11 +79,11 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
   }
 
   // 最新の状態を更新
-  bs_ = bs;
+  pt_ = pt;
 
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    bs_received_ = true;
+    pt_received_ = true;
   }
 }
 
@@ -97,21 +97,21 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   // 現在の状態を取得
   ros::spinOnce();
   ros::Duration(0.1).sleep();  // ベース状態が更新されるよう少し待機
-  if (!bs_received_)
+  if (!pt_received_)
   {
     is_action_running_ = false;
     result_.error_code = ResultType::NOT_READY;
-    as_.setAborted(result_, "Failed to get base state.");
+    as_.setAborted(result_, "Failed to get pose & twist.");
     return;
   }
 
   // 速度指令だと水平位置が制御できないため，位置指令にする
   // 現在の位置を初期目標位置に設定
   cmd_.level = goal->level;
-  cmd_.pos = bs_->pose.pos;
-  cmd_.yaw = bs_->pose.euler.yaw;
+  cmd_.pos = pt_->pose.pos;
+  cmd_.yaw = pt_->pose.euler.yaw;
 
-  const auto start_alt = bs_->pose.pos.z();
+  const auto start_alt = pt_->pose.pos.z();
   const auto start_time = ros::Time::now();
   ros::Rate rate(kUpdateRate);
 

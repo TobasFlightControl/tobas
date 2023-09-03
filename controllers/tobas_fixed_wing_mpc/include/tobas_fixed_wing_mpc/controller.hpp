@@ -13,7 +13,7 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_tools/micro_disturbance_eom.hpp>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
@@ -58,11 +58,11 @@ private:
 
   bool pressure_received_ = false;
   bool battery_received_ = false;
-  bool bs_received_ = false;
+  bool pt_received_ = false;
   Stage state_ = START;                      // 飛行フェーズ
   double air_density_;                       // 現在の大気密度
   tobas_msgs::BatteryConstPtr battery_;      // 現在のバッテリーの状態
-  tobas_msgs::BaseState bs_ned_;             // 現在の状態 (NED座標系)
+  tobas_msgs::PoseTwist pt_ned_;             // 現在の状態 (NED座標系)
   tobas_msgs::SpeedRollDeltaPitch cmd_ned_;  // 現在のコマンド (NED座標系)
 
   ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
@@ -74,7 +74,7 @@ private:
   ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber base_state_sub_;
+  ros::Subscriber pt_sub_;
   ros::Subscriber cmd_sub_;
 
   // Timer
@@ -105,7 +105,7 @@ private:
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu);
   void commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);

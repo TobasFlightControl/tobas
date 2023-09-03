@@ -7,7 +7,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Event.h>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
@@ -35,13 +35,13 @@ public:
 
 private:
   uint8_t cmd_level_;
-  tobas_msgs::BaseStateConstPtr cur_bs_;  // 現在のベースの状態
+  tobas_msgs::PoseTwistConstPtr cur_pt_;  // 現在のベースの状態
   KDL::Vector tar_vel_W_;
   KDL::Vector tar_acc_W_;
   double tar_yaw_;
 
   bool is_initialized_;
-  bool bs_received_;
+  bool pt_received_;
   bool vel_yaw_received_;
 
   VelocityController vel_controller_;
@@ -56,7 +56,7 @@ private:
 
   // PubSub
   ros::Publisher rpy_thrust_pub_;
-  ros::Subscriber base_state_sub_;
+  ros::Subscriber pt_sub_;
   ros::Subscriber vel_yaw_sub_;
 
   // Dynamic Reconfigure
@@ -72,7 +72,7 @@ private:
   void runOnce();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void baseStateCb(const tobas_msgs::BaseStateConstPtr& bs);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void velocityYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);

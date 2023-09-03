@@ -15,4 +15,4 @@ class GroundTruthStateModel(ET.Element):
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
-        ET.SubElement(plugin, "stateTopic").text = "ground_truth/base_state"
+        ET.SubElement(plugin, "stateTopic").text = "ground_truth/pose_twist"

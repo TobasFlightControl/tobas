@@ -55,7 +55,7 @@ void StateEstimator::getRosParams()
 void StateEstimator::registerPublishers()
 {
   event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
-  posevel_pub_ = nh_.advertise<StateMsg>("base_state", 1);
+  posevel_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
 }
 
 void StateEstimator::registerSubscribers()

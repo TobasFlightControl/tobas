@@ -49,7 +49,7 @@ void RcinToVelocityYaw::registerPublishers()
 
 void RcinToVelocityYaw::registerSubscribers()
 {
-  bs_sub_ = nh_.subscribe("base_state", 1, &RcinToVelocityYaw::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &RcinToVelocityYaw::poseTwistCb, this);
   rcin_sub_ = nh_.subscribe("rc_input", 1, &RcinToVelocityYaw::rcInputCb, this);
 }
 
@@ -65,9 +65,9 @@ void RcinToVelocityYaw::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void RcinToVelocityYaw::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void RcinToVelocityYaw::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
-  bs_ = bs;
+  pt_ = pt;
 }
 
 void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
@@ -76,7 +76,7 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
   {
     case CHECK_PREREQUISITES:
     {
-      if (bs_ != nullptr)
+      if (pt_ != nullptr)
       {
         stage_ = FIRST_RCIN;
       }
@@ -103,7 +103,7 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       if (rcin->toggle)
       {
         t_last_rcin_ = ros::Time::now();
-        vel_yaw_.yaw = bs_->pose.euler.yaw;  // 最初は現在のヨー角を指令
+        vel_yaw_.yaw = pt_->pose.euler.yaw;  // 最初は現在のヨー角を指令
         stage_ = TOGGLE_ON;
       }
       break;

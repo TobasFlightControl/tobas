@@ -96,17 +96,17 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
 
   // 初期状態を取得
   rosInfo(name_, "Stillness is confirmed");
-  const auto& init_bs = wait_for_stillness_result->base_state;
+  const auto& init_pt = wait_for_stillness_result->pose_twist;
 
   // 位置制御コマンド
   // x, y, yawは初期値を維持する
   cmd_.level = goal->level;
-  cmd_.pos.x(init_bs.pose.pos.x());
-  cmd_.pos.y(init_bs.pose.pos.y());
-  cmd_.yaw = init_bs.pose.euler.yaw;
+  cmd_.pos.x(init_pt.pose.pos.x());
+  cmd_.pos.y(init_pt.pose.pos.y());
+  cmd_.yaw = init_pt.pose.euler.yaw;
 
   // 初期状態
-  const auto start_alt = init_bs.pose.pos.z();
+  const auto start_alt = init_pt.pose.pos.z();
   const auto start_time = ros::Time::now();
 
   // 目標高度に到達するまで徐々に推力を上げていく

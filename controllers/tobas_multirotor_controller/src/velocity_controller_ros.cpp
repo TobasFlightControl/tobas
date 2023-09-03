@@ -22,7 +22,7 @@ VelocityControllerRos::VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle
   : super(nh, pnh, name),
     cmd_level_(tobas_msgs::CommandLevel::NORMAL),
     is_initialized_(false),
-    bs_received_(false),
+    pt_received_(false),
     vel_yaw_received_(false),
     check_topics_timer_(
       nh_,
@@ -69,14 +69,14 @@ void VelocityControllerRos::registerPublishers()
 void VelocityControllerRos::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &VelocityControllerRos::eventCb, this);
-  base_state_sub_ = nh_.subscribe("base_state", 1, &VelocityControllerRos::baseStateCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &VelocityControllerRos::poseTwistCb, this);
   vel_yaw_sub_ =
     nh_.subscribe("command/velocity_yaw", 1, &VelocityControllerRos::velocityYawCb, this);
 }
 
 bool VelocityControllerRos::isReady()
 {
-  if (!bs_received_)
+  if (!pt_received_)
     return false;
 
   if (!vel_yaw_received_)
@@ -105,13 +105,13 @@ void VelocityControllerRos::updateDynamicParams(const ConfigType& cfg)
 void VelocityControllerRos::runOnce()
 {
   // 速度制御器
-  const auto cur_vel_W = cur_bs_->pose.euler * cur_bs_->twist.vel;
+  const auto cur_vel_W = cur_pt_->pose.euler * cur_pt_->twist.vel;
   vel_controller_.update(cur_vel_W, tar_vel_W_, tar_acc_W_);
 
   // 非線形変換
   const auto rpy_thrust = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
   acc_controller_.update(
-    tar_acc_W_, cur_bs_->pose.euler.yaw, rpy_thrust->thrust, rpy_thrust->rpy.roll,
+    tar_acc_W_, cur_pt_->pose.euler.yaw, rpy_thrust->thrust, rpy_thrust->rpy.roll,
     rpy_thrust->rpy.pitch);
 
   // 目標ヨー各を更新
@@ -133,14 +133,14 @@ void VelocityControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
+void VelocityControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
-    bs_received_ = true;
+    pt_received_ = true;
   }
 
-  cur_bs_ = bs;
+  cur_pt_ = pt;
 
   if (!is_initialized_)
   {
@@ -160,7 +160,7 @@ void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 
 void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw)
 {
-  if (!bs_received_)
+  if (!pt_received_)
   {
     return;
   }
@@ -193,7 +193,7 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr&
     }
     case tobas_msgs::FrameId::LOCAL:
     {
-      tar_vel_W_ = cur_bs_->pose.euler * vel_yaw->vel;
+      tar_vel_W_ = cur_pt_->pose.euler * vel_yaw->vel;
       break;
     }
     default:
@@ -214,8 +214,8 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr&
 
 void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (!bs_received_)
-    rosWarn(name_, "Base state is not received yet.");
+  if (!pt_received_)
+    rosWarn(name_, "Pose & Twist is not received yet.");
 
   if (!vel_yaw_received_)
     rosInfo(name_, "Waiting for Velocity & Yaw command.");
