@@ -3,7 +3,7 @@
   <arg name="nodelet" default="true"/>
   <arg name="world_path" default="$(find tobas_gazebo)/worlds/basic.world"/>
   <arg name="debug" default="false"/>
-  <arg name="paused" default="true"/>
+  <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
   <arg name="verbose" default="true"/>
   <arg name="use_sim_time" default="true"/>
@@ -46,10 +46,5 @@
 
   <!-- Launch nodelet manager -->
   <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
-
-  <!-- Bringup Tobas software -->
-  <include file="$(find {{ pkg_name }})/launch/bringup.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
 
 </launch>
