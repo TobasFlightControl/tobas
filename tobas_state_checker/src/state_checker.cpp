@@ -22,8 +22,8 @@ StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh)
   if (!ac_.waitForServer(ros::Duration(kWaitForActionServer)))
   {
     rosError(
-      "'" << tobas::kLandingAction << "' action server failed to start within "
-          << kWaitForActionServer << " seconds. Please check the server status.");
+      name_, "'" << tobas::kLandingAction << "' action server failed to start within "
+                 << kWaitForActionServer << " seconds. Please check the server status.");
     requestShutdown();
   }
 }
@@ -40,8 +40,8 @@ void StateChecker::run()
     if (bs_received_ && (cur_time - t_last_bs_).toSec() > kBaseStateTimeout)
     {
       rosFatal(
-        "The base state is not received for " << kBaseStateTimeout
-                                              << " seconds. Shutting down the system.");
+        name_, "The base state is not received for " << kBaseStateTimeout
+                                                     << " seconds. Shutting down the system.");
       requestShutdown();
     }
 
@@ -79,17 +79,17 @@ void StateChecker::requestLanding()
   const auto state = ac_.getState();
   if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
   {
-    rosInfo(state.getText());
-    rosInfo("Landing action finished successfully.");
+    rosInfo(name_, state.getText());
+    rosInfo(name_, "Landing action finished successfully.");
   }
   else
   {
-    rosError(state.getText());
-    rosFatal("Landing action failed.");
+    rosError(name_, state.getText());
+    rosFatal(name_, "Landing action failed.");
   }
 
   // 全てのシステムを停止する
-  rosInfo("Shutting down the system.");
+  rosInfo(name_, "Shutting down the system.");
   requestShutdown();
 }
 
@@ -111,7 +111,7 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
   if (cpu->temperature > kWarnCpuTemperature)
   {
     rosWarnThrottle(
-      kWarnPeriod,
+      kWarnPeriod, name_,
       "CPU temperature is too high: " << cpu->temperature << "℃. It is time to stop flying.");
   }
 
@@ -119,6 +119,7 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
   if (cpu->temperature > kFatalCpuTemperture)
   {
     rosFatal(
+      name_,
       "CPU temperature is too high: " << cpu->temperature << "℃. Issuing a landing command.");
     requestLanding();
   }
@@ -137,18 +138,18 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   if (invalid_time > kBatteryVoltageFatalTime)
   {
     rosFatal(
-      "Battery voltage is lower than threshold for " << kBatteryVoltageFatalTime
-                                                     << " seconds. Issuing a landing command.");
+      name_, "Battery voltage is lower than threshold for "
+               << kBatteryVoltageFatalTime << " seconds. Issuing a landing command.");
     requestLanding();
   }
   else if (invalid_time > kBatteryVoltageWarnTime)
   {
     rosWarnThrottle(
-      kWarnPeriod,
+      kWarnPeriod, name_,
       "Battery voltage is too low: " << battery->voltage << "V. It is time to stop flying.");
     rosWarnOnce(
-      "If the battery voltage remains too low for "
-      << kBatteryVoltageFatalTime << " seconds, a landing command wil be issued.");
+      name_, "If the battery voltage remains too low for "
+               << kBatteryVoltageFatalTime << " seconds, a landing command wil be issued.");
   }
 }
 
@@ -165,22 +166,23 @@ void StateChecker::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
   const auto& rot_cov = bs->orientation_covariance;
   if (max(pos_cov[0], pos_cov[4]) > dh_std::sqr(kHorizontalPositionStddevThreshold))
   {
-    rosFatal("Horizontal Position covariance exceeds the threshold. Issuing a landing command.");
+    rosFatal(
+      name_, "Horizontal Position covariance exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
   if (pos_cov[8] > dh_std::sqr(kVerticalPositionStddevThreshold))
   {
-    rosFatal("Vertical Position variance exceeds the threshold. Issuing a landing command.");
+    rosFatal(name_, "Vertical Position variance exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
   if (max(rot_cov[0], rot_cov[4]) > dh_std::sqr(kAttitudeStddevThreshold))
   {
-    rosFatal("Attitude covariance value exceeds the threshold. Issuing a landing command.");
+    rosFatal(name_, "Attitude covariance value exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
   if (rot_cov[8] > dh_std::sqr(kHeadingStddevThreshold))
   {
-    rosFatal("Heading covariance value exceeds the threshold. Issuing a landing command.");
+    rosFatal(name_, "Heading covariance value exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
 
@@ -188,7 +190,7 @@ void StateChecker::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
   const auto& euler = bs->pose.euler;
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
-    rosFatal("The attitude angle exceeds the threshold. Shutting down the system.");
+    rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");
     requestShutdown();
   }
 }

@@ -43,42 +43,42 @@ void GpsHandler::registerSubscribers()
 void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
-    rosthrow("Failed to disable all navigation messsages.");
+    rosthrow(name_, "Failed to disable all navigation messsages.");
 
   if (!gps_.enableMsg(Ublox::NAV_STATUS, true))
-    rosthrow("Failed to enable NAV_STATUS");
+    rosthrow(name_, "Failed to enable NAV_STATUS");
 
   if (!gps_.enableMsg(Ublox::NAV_PVT, true))
-    rosthrow("Failed to enable NAV_PVT");
+    rosthrow(name_, "Failed to enable NAV_PVT");
 
   if (!gps_.enableMsg(Ublox::NAV_COV, true))
-    rosthrow("Failed to enable NAV_COV");
+    rosthrow(name_, "Failed to enable NAV_COV");
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
-    rosthrow("Failed to set measurement rate.");
+    rosthrow(name_, "Failed to set measurement rate.");
 
   if (!gps_.configureDynamicsModel(Ublox::AIRBORNE_2G))
-    rosthrow("Failed to set dynamics model.");
+    rosthrow(name_, "Failed to set dynamics model.");
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-    rosthrow("Failed to configure GPS.");
+    rosthrow(name_, "Failed to configure GPS.");
 
   if (!gps_.configureGnss_SBAS(true))
-    rosthrow("Failed to configure SBAS.");
+    rosthrow(name_, "Failed to configure SBAS.");
 
   if (!gps_.configureGnss_Galileo(false))
-    rosthrow("Failed to configure Galileo.");
+    rosthrow(name_, "Failed to configure Galileo.");
 
   if (!gps_.configureGnss_BeiDou(false))
-    rosthrow("Failed to configure BeiDou.");
+    rosthrow(name_, "Failed to configure BeiDou.");
 
   if (!gps_.configureGnss_QZSS(true))
-    rosthrow("Failed to configure QZSS.");
+    rosthrow(name_, "Failed to configure QZSS.");
 
   if (!gps_.configureGnss_GLONASS(false))
-    rosthrow("Failed to configure GLONASS.");
+    rosthrow(name_, "Failed to configure GLONASS.");
 }
 
 bool GpsHandler::isReadyToPublish() const
@@ -113,7 +113,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       if (!gps_fix_ok_)
       {
         rosErrorThrottle(
-          kErrorPeriod, "GPS no fix. Please check GNSS signal and connection strength.");
+          kErrorPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
       }
 
       break;
@@ -135,7 +135,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
       // cout << "GPS time:" << endl << gps_tm << endl;
       // cout << "Current time:" << endl << dh_std::timePointToTm(cur_tp) << endl;
-      // rosInfo("GPS delay: " << gps_delay.count() << "[ms]");
+      // rosInfo(name_, "GPS delay: " << gps_delay.count() << "[ms]");
 
       // Create GPS position message
       const auto gps_msg = boost::make_shared<GpsMsg>();
@@ -190,7 +190,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
     }
     default:
     {
-      rosWarn("Unnecessary UBX message: " << msg);
+      rosWarn(name_, "Unnecessary UBX message: " << msg);
       break;
     }
   }

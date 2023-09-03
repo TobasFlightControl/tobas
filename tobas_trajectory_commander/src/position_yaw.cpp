@@ -57,7 +57,7 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (goal->degree < 1 || 3 < goal->degree)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError("Spline degree is " << goal->degree << ". It must be in range of [1, 3].");
+    rosError(name_, "Spline degree is " << goal->degree << ". It must be in range of [1, 3].");
     as_.setAborted(result_);
     return false;
   }
@@ -66,7 +66,7 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (waypoints.size() < 2)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError("Waypoints must include more than 1 points.");
+    rosError(name_, "Waypoints must include more than 1 points.");
     as_.setAborted(result_);
     return false;
   }
@@ -75,7 +75,7 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (waypoints.size() > kMaxNrOfTrajPoint)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError("Too many number of trajectory points.");
+    rosError(name_, "Too many number of trajectory points.");
     as_.setAborted(result_);
     return false;
   }
@@ -84,7 +84,7 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
   if (waypoints[0].time_from_start.toSec() != 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError("The duration of the first trajectory point must be 0.");
+    rosError(name_, "The duration of the first trajectory point must be 0.");
     as_.setAborted(result_);
     return false;
   }
@@ -95,7 +95,7 @@ bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
     if (waypoints[i].time_from_start >= waypoints[i + 1].time_from_start)
     {
       result_.error_code = ResultType::INVALID_GOAL;
-      rosError("The durations must be strictly increasing.");
+      rosError(name_, "The durations must be strictly increasing.");
       as_.setAborted(result_);
       return false;
     }
@@ -149,7 +149,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
     if (as_.isPreemptRequested())
     {
       result_.error_code = ResultType::PREEMPTED;
-      rosWarn("Preempt requested.");
+      rosWarn(name_, "Preempt requested.");
       as_.setPreempted(result_);
       return;
     }

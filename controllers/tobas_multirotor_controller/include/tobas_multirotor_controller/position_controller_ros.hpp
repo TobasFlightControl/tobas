@@ -31,7 +31,7 @@ private:
   bool bs_received_;
   bool cmd_received_;
   tobas_msgs::BaseStateConstPtr bs_;
-  tobas_msgs::PositionYawConstPtr pos_yaw_in_;   // 受け取る位置コマンド
+  tobas_msgs::PositionYawConstPtr pos_yaw_in_;  // 受け取る位置コマンド
 
   PositionController pos_controller_;
 

@@ -107,17 +107,19 @@ bool WaitForStillnessServer::isConditionsMet()
   if (hor_pos_var_norm > goal_->horizontal_position_variance_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod, "The variance of horizontal position in "
-                     << goal_->time_window << " seconds is over threshold: " << hor_pos_var_norm
-                     << " > " << goal_->horizontal_position_variance_threshold);
+      kWarnPeriod, name_,
+      "The variance of horizontal position in "
+        << goal_->time_window << " seconds is over threshold: " << hor_pos_var_norm << " > "
+        << goal_->horizontal_position_variance_threshold);
     res = false;
   }
   if (abs(dp.z()) > goal_->vertical_position_variance_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod, "The variance of altitude in "
-                     << goal_->time_window << " seconds is over threshold: " << abs(dp.z()) << " > "
-                     << goal_->vertical_position_variance_threshold);
+      kWarnPeriod, name_,
+      "The variance of altitude in " << goal_->time_window
+                                     << " seconds is over threshold: " << abs(dp.z()) << " > "
+                                     << goal_->vertical_position_variance_threshold);
     res = false;
   }
 
@@ -125,9 +127,10 @@ bool WaitForStillnessServer::isConditionsMet()
   if (abs(yaw_diff) > goal_->heading_variance_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod, "The variance of yaw angle in "
-                     << goal_->time_window << " seconds is over threshold: " << abs(yaw_diff)
-                     << " > " << goal_->heading_variance_threshold);
+      kWarnPeriod, name_,
+      "The variance of yaw angle in " << goal_->time_window
+                                      << " seconds is over threshold: " << abs(yaw_diff) << " > "
+                                      << goal_->heading_variance_threshold);
     res = false;
   }
 
@@ -187,14 +190,14 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs
   if (abs(roll) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod,
+      kWarnPeriod, name_,
       "Roll angle is over threshold: |" << roll << "| > " << goal_->attitude_threshold);
     t_last_valid_attitude_ = bs->header.stamp;
   }
   if (abs(pitch) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod,
+      kWarnPeriod, name_,
       "Pitch angle is over threshold: |" << pitch << "| > " << goal_->attitude_threshold);
     t_last_valid_attitude_ = bs->header.stamp;
   }
@@ -203,15 +206,16 @@ void WaitForStillnessServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs
   if (bs->twist.vel.Norm() > goal_->velocity_threshold)
   {
     rosWarnThrottle(
-      kWarnPeriod, "The norm of velocity is over threshold: " << bs->twist.vel.Norm() << " > "
-                                                              << goal_->velocity_threshold);
+      kWarnPeriod, name_,
+      "The norm of velocity is over threshold: " << bs->twist.vel.Norm() << " > "
+                                                 << goal_->velocity_threshold);
     t_last_valid_velocity_ = bs->header.stamp;
   }
 }
 
 void WaitForStillnessServer::executeCb(const GoalType& goal)
 {
-  rosInfo("Action is called.");
+  rosInfo(name_, "Action is called.");
 
   if (!isValidGoal(goal))
   {
@@ -235,7 +239,7 @@ void WaitForStillnessServer::executeCb(const GoalType& goal)
 
     if (isConditionsMet())
     {
-      rosInfo("All conditions are met.");
+      rosInfo(name_, "All conditions are met.");
       is_action_running_ = false;
       fillResult();
       result_.error_code = ResultType::NO_ERROR;

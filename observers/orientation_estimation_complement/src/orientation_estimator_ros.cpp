@@ -4,6 +4,7 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/util.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -54,26 +55,26 @@ void OrientationEstimatorRos::initializeFilter()
   sensor_msgs::NavSatFix gps;
   if (!dh_ros::subscribeOnce(gps, "gps", nh_))
   {
-    rosthrow("Failed to get GPS message.");
+    rosthrow(name_, "Failed to get GPS message.");
   }
   const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
   filter_.setReferenceMagneticField(mag.north, mag.east);
 
   if (!filter_.setGravity(tobas::kGravity))
   {
-    rosthrow("Invalid gravity");
+    rosthrow(name_, "Invalid gravity");
   }
 
   if (!filter_.setGainAcc(gain_acc_))
   {
-    rosthrow("Invalid gain_acc");
+    rosthrow(name_, "Invalid gain_acc");
   }
 
   if (do_bias_estimation_)
   {
     if (!filter_.setBiasAlpha(bias_alpha_))
     {
-      rosthrow("Invalid bias_alpha");
+      rosthrow(name_, "Invalid bias_alpha");
     }
   }
 
@@ -137,6 +138,6 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn("IMU data is not received yet.");
+  rosWarn(name_, "IMU data is not received yet.");
 }
 }  // namespace orientation_estimation_complement

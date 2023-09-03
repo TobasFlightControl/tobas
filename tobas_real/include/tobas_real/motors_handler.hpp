@@ -27,7 +27,7 @@ private:
   RCOutput_Navio2 pwm_;
 
   ros::Time last_cmd_time_;  // [s]
-  bool is_activated_=false;
+  bool is_activated_ = false;
   tobas_msgs::BatteryConstPtr battery_;
 
   // PubSub

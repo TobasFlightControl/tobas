@@ -2,6 +2,7 @@
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_std_tools/vector.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/rate.hpp>
 
@@ -17,7 +18,7 @@ MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh
 {
   if (getuid())
   {
-    rosthrow("Not root.");
+    rosthrow(name_, "Not root.");
   }
 
   getRosParams();
@@ -31,9 +32,9 @@ MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh
   }
 
   // Send disarm command
-  rosInfo("Sending disarm command for " << kDisarmDuration << " seconds.");
+  rosInfo(name_, "Sending disarm command for " << kDisarmDuration << " seconds.");
   sendDisarm();
-  rosInfo("Disarming finished. The motors are ready to rotate.");
+  rosInfo(name_, "Disarming finished. The motors are ready to rotate.");
 
   registerPublishers();
   registerSubscribers();
@@ -74,7 +75,7 @@ void MotorsHandler::setPeriodOnAllChannels(double period)
     const auto& pin = rotor_config.pin;
     if (!pwm_.set_duty_cycle(channelFromPin(pin), period))
     {
-      rosFatal("Failed to set PWM duty cycle on PIN " << pin << ".");
+      rosFatal(name_, "Failed to set PWM duty cycle on PIN " << pin << ".");
       // TODO: Request shutdown
     }
   }
@@ -96,7 +97,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
 {
   if (battery_ = nullptr)
   {
-    rosWarn("The rotors cannot be rotated because battery state has not been received yet.");
+    rosWarn(name_, "The rotors cannot be rotated because battery state has not been received yet.");
     return;
   }
 
@@ -104,7 +105,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   if (rotor_speeds->speeds.size() != drone_.numRotors())
   {
     rosErrorThrottle(
-      kErrorPeriod,
+      kErrorPeriod, name_,
       "Size mismatch: " << rotor_speeds->speeds.size() << " != " << drone_.numRotors());
     return;
   }
@@ -113,16 +114,18 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
 
   // Check delay
   const auto delay = (cur_time - rotor_speeds->header.stamp).toSec();
-  // rosInfo("The delay from IMU to the motor command: " << delay << "[s]");
+  // rosInfo(name_, "The delay from IMU to the motor command: " << delay << "[s]");
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(
-      kErrorPeriod, "The delay from IMU to the motor command is "
-                      << delay << ", which exceeds the threshold " << kCheckDelayThreshold);
+      kErrorPeriod, name_,
+      "The delay from IMU to the motor command is " << delay << ", which exceeds the threshold "
+                                                    << kCheckDelayThreshold);
   }
   else if (delay < 0.)
   {
-    rosErrorThrottle(kErrorPeriod, "The timestamp of the motor command precedes the current time.");
+    rosErrorThrottle(
+      kErrorPeriod, name_, "The timestamp of the motor command precedes the current time.");
   }
 
   // Update PWM periods
@@ -136,14 +139,15 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     if (tar_throttle < tobas::kMotorSpinArm - kThrottleMargin)
     {
       rosErrorThrottle(
-        kErrorPeriod, "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
-                                               << tobas::kMotorSpinArm);
+        kErrorPeriod, name_,
+        "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
+                                 << tobas::kMotorSpinArm);
       tar_throttle = tobas::kMotorSpinArm;
     }
     if (tar_throttle > 1. + kThrottleMargin)
     {
       rosErrorThrottle(
-        kErrorPeriod,
+        kErrorPeriod, name_,
         "Target throttle on PIN" << pin << " is too high: " << tar_throttle << " > 1");
       tar_throttle = 1.;
     }
@@ -154,7 +158,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     // Set PWM duty cycle
     if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_period))
     {
-      rosFatal("Failed to set PWM duty cycle on PIN" << pin << ".");
+      rosFatal(name_, "Failed to set PWM duty cycle on PIN" << pin << ".");
       // TODO: Request shutdown
     }
   }
@@ -185,8 +189,8 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     setPeriodOnAllChannels(kPwmArm);
     is_activated_ = false;
     rosInfo(
-      "The rotors are automatically slowed down because "
-      << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
+      name_, "The rotors are automatically slowed down because "
+               << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
   }
 }
 }  // namespace tobas_real

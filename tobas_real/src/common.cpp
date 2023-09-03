@@ -12,17 +12,17 @@ void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel)
 
   if (!pwm.initialize(channel))
   {
-    rosthrow("Failed to initialize RC output on PIN" << pin << ".");
+    throw runtime_error("Failed to initialize RC output on PIN" + to_string(pin) + ".");
   }
 
   if (!pwm.set_frequency(channel, kPwmFrequency))
   {
-    rosthrow("Failed to set PWM frequency on PIN" << pin << ".");
+    throw runtime_error("Failed to set PWM frequency on PIN" + to_string(pin) + ".");
   }
 
   if (!pwm.enable(channel))
   {
-    rosthrow("RC output on PIN" << pin << " is disabled.");
+    throw runtime_error("RC output on PIN" + to_string(pin) + " is disabled.");
   }
 }
 

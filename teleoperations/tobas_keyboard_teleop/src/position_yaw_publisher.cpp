@@ -38,7 +38,7 @@ PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle p
   getRosParams();
 
   const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
-  rosInfo("Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
+  rosInfo(name_, "Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
 
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
@@ -52,27 +52,27 @@ void PositionYawPublisher::run()
   // 離陸アクションクライアントを用意
   actionlib::SimpleActionClient<tobas_multirotor_takeoff::MultirotorTakeoffAction> takeoff(
     tobas::kTakeoffAction);
-  rosInfo("Waiting for '" << tobas::kTakeoffAction << "' action server.");
+  rosInfo(name_, "Waiting for '" << tobas::kTakeoffAction << "' action server.");
   if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    rosInfo("Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
+    rosInfo(name_, "Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
     return;
   }
 
   // 離陸
-  rosInfo("Requesting takeoff action.");
+  rosInfo(name_, "Requesting takeoff action.");
   tobas_multirotor_takeoff::MultirotorTakeoffGoal takeoff_goal;
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
   takeoff.sendGoalAndWait(takeoff_goal);
   const auto takeoff_result = takeoff.getResult();
   if (takeoff_result->error_code != tobas_multirotor_takeoff::MultirotorTakeoffResult::NO_ERROR)
   {
-    rosInfo("'" << tobas::kTakeoffAction << "' action failed.");
+    rosInfo(name_, "'" << tobas::kTakeoffAction << "' action failed.");
     return;
   }
 
   // 初期コマンドを取得
-  rosInfo("Takeoff finished successfully. Start teleoperation!");
+  rosInfo(name_, "Takeoff finished successfully. Start teleoperation!");
   auto cmd = takeoff_result->last_command;
 
   // キーボード入力による位置コマンドを発行し続ける
@@ -80,7 +80,7 @@ void PositionYawPublisher::run()
   while (nh_.ok())
   {
     // インストラクション
-    rosInfoThrottle(kInstructionTimerPeriod, instruction_);
+    rosInfoThrottle(kInstructionTimerPeriod, name_, instruction_);
 
     // キーボード入力に依ってコマンドを更新
     const auto c = key_reader_.readKey();
@@ -89,49 +89,49 @@ void PositionYawPublisher::run()
       case kKeyCode_W:  // X+
       {
         cmd.pos.x(x_limit_.clamp(cmd.pos.x() + delta_pos_));
-        rosInfo("Moving forward: " << cmd);
+        rosInfo(name_, "Moving forward: " << cmd);
         break;
       }
       case kKeyCode_S:  // X-
       {
         cmd.pos.x(x_limit_.clamp(cmd.pos.x() - delta_pos_));
-        rosInfo("Moving backward: " << cmd);
+        rosInfo(name_, "Moving backward: " << cmd);
         break;
       }
       case kKeyCode_A:  // Y+
       {
         cmd.pos.y(y_limit_.clamp(cmd.pos.y() + delta_pos_));
-        rosInfo("Moving left: " << cmd);
+        rosInfo(name_, "Moving left: " << cmd);
         break;
       }
       case kKeyCode_D:  // Y-
       {
         cmd.pos.y(y_limit_.clamp(cmd.pos.y() - delta_pos_));
-        rosInfo("Moving right: " << cmd);
+        rosInfo(name_, "Moving right: " << cmd);
         break;
       }
       case kKeyCode_Up:  // Z+
       {
         cmd.pos.z(z_limit_.clamp(cmd.pos.z() + delta_pos_));
-        rosInfo("Moving up: " << cmd);
+        rosInfo(name_, "Moving up: " << cmd);
         break;
       }
       case kKeyCode_Down:  // Z-
       {
         cmd.pos.z(z_limit_.clamp(cmd.pos.z() - delta_pos_));
-        rosInfo("Moving down: " << cmd);
+        rosInfo(name_, "Moving down: " << cmd);
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
         cmd.yaw = yaw_limit_.clamp(cmd.yaw + delta_rot_);
-        rosInfo("Rotating left: " << cmd);
+        rosInfo(name_, "Rotating left: " << cmd);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
         cmd.yaw = yaw_limit_.clamp(cmd.yaw - delta_rot_);
-        rosInfo("Rotating right: " << cmd);
+        rosInfo(name_, "Rotating right: " << cmd);
         break;
       }
     }

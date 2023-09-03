@@ -67,32 +67,32 @@ void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void MultirotorTakeoffServer::executeCb(const GoalType& goal)
 {
-  rosInfo("Action is called.");
+  rosInfo(name_, "Action is called.");
 
   // 静止チェッカーを用意
-  rosInfo("Waiting for '" << WAIT_FOR_STILLNESS << "' action server.");
+  rosInfo(name_, "Waiting for '" << WAIT_FOR_STILLNESS << "' action server.");
   if (!wait_for_stillness_.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    rosInfo("Failed to connect to '" << WAIT_FOR_STILLNESS << "' action server.");
+    rosInfo(name_, "Failed to connect to '" << WAIT_FOR_STILLNESS << "' action server.");
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_);
     return;
   }
 
   // 静止チェック
-  rosInfo("Checking stillness.");
+  rosInfo(name_, "Checking stillness.");
   wait_for_stillness_.sendGoalAndWait(wait_for_stillness_goal_);
   const auto wait_for_stillness_result = wait_for_stillness_.getResult();
   if (wait_for_stillness_result->error_code != tobas_msgs::WaitForStillnessResult::NO_ERROR)
   {
-    rosInfo("'" << WAIT_FOR_STILLNESS << "' action failed.");
+    rosInfo(name_, "'" << WAIT_FOR_STILLNESS << "' action failed.");
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_);
     return;
   }
 
   // 初期状態を取得
-  rosInfo("Stillness is confirmed");
+  rosInfo(name_, "Stillness is confirmed");
   const auto& init_bs = wait_for_stillness_result->base_state;
 
   // 位置制御コマンド
@@ -129,7 +129,7 @@ void MultirotorTakeoffServer::executeCb(const GoalType& goal)
     // 目標高度を指令したら終了
     if (elevation > kTargetElevation)
     {
-      rosInfo("Target altitude is commanded.");
+      rosInfo(name_, "Target altitude is commanded.");
       fillResult();
       result_.error_code = ResultType::NO_ERROR;
       as_.setSucceeded(result_);

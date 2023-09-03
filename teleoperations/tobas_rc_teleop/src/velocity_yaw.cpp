@@ -1,4 +1,6 @@
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_rc_teleop/velocity_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -34,7 +36,7 @@ void RcinToVelocityYaw::getRosParams()
     pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1.)
   {
-    rosthrow("'dead_zone_rate' must be lower than 1.");
+    rosthrow(name_, "'dead_zone_rate' must be lower than 1.");
   }
 }
 
@@ -85,11 +87,11 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       if (rcin->toggle)
       {
         rosErrorThrottle(
-          kErrorPeriod, "Please start with the transmitter's toggle in the OFF position.");
+          kErrorPeriod, name_, "Please start with the transmitter's toggle in the OFF position.");
       }
       else
       {
-        rosInfo("RC transmitter is ready. Toggle on to start control.");
+        rosInfo(name_, "RC transmitter is ready. Toggle on to start control.");
         stage_ = TOGGLE_OFF;
       }
       break;
@@ -110,7 +112,7 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (!rcin->toggle)
       {
-        rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
+        rosInfo(name_, "The toggle has changed from ON to OFF. Shutting down the system.");
         requestShutdown();
         nh_.shutdown();
       }
@@ -142,7 +144,7 @@ void RcinToVelocityYaw::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     default:
     {
-      rosthrow("Invalid state: " << stage_);
+      rosthrow(name_, "Invalid state: " << stage_);
     }
   }
 }

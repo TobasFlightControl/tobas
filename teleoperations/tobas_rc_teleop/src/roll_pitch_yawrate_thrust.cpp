@@ -1,4 +1,6 @@
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -39,14 +41,14 @@ void RcinToRollPitchYawrateThrust::getRosParams()
   dh_ros::getParam(pnh_, "min_acceleration", min_acc_, kDefaultMinAcceleration, dh_ros::NEGATIVE);
   if (min_acc_ < -tobas::kGravity)
   {
-    rosthrow("'min_acceleration' must be greater than -Gravity.");
+    rosthrow(name_, "'min_acceleration' must be greater than -Gravity.");
   }
 
   dh_ros::getParam(
     pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1.)
   {
-    rosthrow("'dead_zone_rate' must be lower than 1.");
+    rosthrow(name_, "'dead_zone_rate' must be lower than 1.");
   }
 }
 
@@ -98,11 +100,11 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInputConstPtr& 
       if (rcin->toggle)
       {
         rosErrorThrottle(
-          kErrorPeriod, "Please start with the transmitter's toggle in the OFF position.");
+          kErrorPeriod, name_, "Please start with the transmitter's toggle in the OFF position.");
       }
       else
       {
-        rosInfo("RC transmitter is ready. Toggle on to start control.");
+        rosInfo(name_, "RC transmitter is ready. Toggle on to start control.");
         stage_ = TOGGLE_OFF;
       }
       break;
@@ -121,7 +123,7 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInputConstPtr& 
     {
       if (!rcin->toggle)
       {
-        rosInfo("The toggle has changed from ON to OFF. Shutting down the system.");
+        rosInfo(name_, "The toggle has changed from ON to OFF. Shutting down the system.");
         requestShutdown();
         nh_.shutdown();
       }
@@ -149,7 +151,7 @@ void RcinToRollPitchYawrateThrust::rcInputCb(const tobas_msgs::RCInputConstPtr& 
 
     default:
     {
-      rosthrow("Invalid state: " << stage_);
+      rosthrow(name_, "Invalid state: " << stage_);
     }
   }
 }

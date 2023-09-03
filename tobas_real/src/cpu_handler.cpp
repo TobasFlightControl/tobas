@@ -54,7 +54,7 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
   ifstream file(kTemperatureFilePath);
   if (!file)
   {
-    rosErrorThrottle(kErrorPeriod, "Failed to open " << kTemperatureFilePath << ".");
+    rosErrorThrottle(kErrorPeriod, name_, "Failed to open " << kTemperatureFilePath << ".");
     return;
   }
   file >> temp_millidegrees_;

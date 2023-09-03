@@ -135,10 +135,10 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
 {
   constexpr char action_name[] = "static_state_determination";
   actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(action_name);
-  rosInfo("Waiting for action server '" << action_name << "' to start.");
+  rosInfo(name_, "Waiting for action server '" << action_name << "' to start.");
   ac.waitForServer();
 
-  rosInfo("Action server '" << action_name << "' started, sending goal.");
+  rosInfo(name_, "Action server '" << action_name << "' started, sending goal.");
   tobas_msgs::StaticStateDeterminationGoal goal;
   goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
   goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
@@ -147,7 +147,7 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosError("Action did not finish before timeout. Shutting down the system.");
+    rosError(name_, "Action did not finish before timeout. Shutting down the system.");
     requestShutdown();
   }
 
@@ -156,28 +156,28 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
     rosError(
-      "'" << action_name << "' finished with error: " << state.getText()
-          << " Shutting down the system.");
+      name_, "'" << action_name << "' finished with error: " << state.getText()
+                 << " Shutting down the system.");
     requestShutdown();
   }
 
   rosInfo(
-    "The result of " << action_name << ":\n"
-                     << "IMU count: " << result->imu_count << endl
-                     << "Magnetometer count: " << result->mag_count << endl
-                     << "Barometer count: " << result->bar_count << endl
-                     << "GPS position count: " << result->gps_count << endl
-                     << "GPS velocity count: " << result->vel_count << endl
-                     << "IMU:\n"
-                     << result->imu << endl
-                     << "Magnetic Field:\n"
-                     << result->magnetic_field << endl
-                     << "Air Pressure:\n"
-                     << result->air_pressure << endl
-                     << "GPS:\n"
-                     << result->gps << endl
-                     << "Ground Speed:\n"
-                     << result->ground_speed);
+    name_, "The result of " << action_name << ":\n"
+                            << "IMU count: " << result->imu_count << endl
+                            << "Magnetometer count: " << result->mag_count << endl
+                            << "Barometer count: " << result->bar_count << endl
+                            << "GPS position count: " << result->gps_count << endl
+                            << "GPS velocity count: " << result->vel_count << endl
+                            << "IMU:\n"
+                            << result->imu << endl
+                            << "Magnetic Field:\n"
+                            << result->magnetic_field << endl
+                            << "Air Pressure:\n"
+                            << result->air_pressure << endl
+                            << "GPS:\n"
+                            << result->gps << endl
+                            << "Ground Speed:\n"
+                            << result->ground_speed);
 
   // 経緯度
   lat_0_ = result->gps.latitude;
@@ -255,7 +255,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
       check_topics_timer_.stop();
       initialize(*imu);
       is_initialized_ = true;
-      rosInfo("State estimator is ready.");
+      rosInfo(name_, "State estimator is ready.");
     }
     return;
   }
@@ -350,13 +350,13 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
   // IMU
   if (!imu_received_)
   {
-    rosWarn("Filtered IMU data is not received yet.");
+    rosWarn(name_, "Filtered IMU data is not received yet.");
   }
 
   // Barometer
   if (!bar_received_)
   {
-    rosWarn("Barometer data is not received yet.");
+    rosWarn(name_, "Barometer data is not received yet.");
   }
 
   if (use_gps_)
@@ -364,13 +364,13 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
     // GPS position
     if (!gps_received_)
     {
-      rosWarn("GPS position data is not received yet.");
+      rosWarn(name_, "GPS position data is not received yet.");
     }
 
     // GPS velocity
     if (!vel_received_)
     {
-      rosWarn("GPS velocity data is not received yet.");
+      rosWarn(name_, "GPS velocity data is not received yet.");
     }
   }
 }

@@ -3,6 +3,7 @@
 
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/operators.hpp>
 
@@ -148,7 +149,7 @@ void VelocityControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
       check_topics_timer_.stop();
       initialize();
       is_initialized_ = true;
-      rosInfo("Velocity controller is ready.");
+      rosInfo(name_, "Velocity controller is ready.");
     }
     return;
   }
@@ -168,17 +169,17 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr&
   if (vel_yaw->level.data < cmd_level_)
   {
     rosErrorThrottle(
-      kErrorPeriod, "The command is ignored because its level "
-                      << static_cast<int>(vel_yaw->level.data)
-                      << "is lower than the current command level " << static_cast<int>(cmd_level_)
-                      << ".");
+      kErrorPeriod, name_,
+      "The command is ignored because its level " << static_cast<int>(vel_yaw->level.data)
+                                                  << "is lower than the current command level "
+                                                  << static_cast<int>(cmd_level_) << ".");
     return;
   }
   if (vel_yaw->level.data > cmd_level_)
   {
     rosInfo(
-      "The command level is raised from " << static_cast<int>(cmd_level_) << " to "
-                                          << static_cast<int>(vel_yaw->level.data) << ".");
+      name_, "The command level is raised from " << static_cast<int>(cmd_level_) << " to "
+                                                 << static_cast<int>(vel_yaw->level.data) << ".");
     cmd_level_ = vel_yaw->level.data;
   }
 
@@ -197,7 +198,7 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr&
     }
     default:
     {
-      rosError("Invalid FrameId: " << static_cast<int>(vel_yaw->frame_id.data));
+      rosError(name_, "Invalid FrameId: " << static_cast<int>(vel_yaw->frame_id.data));
       return;
     }
   }
@@ -214,10 +215,10 @@ void VelocityControllerRos::velocityYawCb(const tobas_msgs::VelocityYawConstPtr&
 void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!bs_received_)
-    rosWarn("Base state is not received yet.");
+    rosWarn(name_, "Base state is not received yet.");
 
   if (!vel_yaw_received_)
-    rosInfo("Waiting for Velocity & Yaw command.");
+    rosInfo(name_, "Waiting for Velocity & Yaw command.");
 }
 
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
@@ -225,6 +226,6 @@ void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t
   updateDynamicParams(cfg);
   vel_controller_.configure(dynamic_params_vel_);
   acc_controller_.configure(dynamic_params_acc_);
-  rosInfo("Dynamic parameters are updated.");
+  rosInfo(name_, "Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

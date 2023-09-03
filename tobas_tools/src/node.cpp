@@ -2,7 +2,8 @@
 
 namespace tobas
 {
-BaseNode::BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh) : nh_(nh), pnh_(pnh)
+BaseNode::BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh, const std::string& name)
+  : nh_(nh), pnh_(pnh), name_(name)
 {
 }
 

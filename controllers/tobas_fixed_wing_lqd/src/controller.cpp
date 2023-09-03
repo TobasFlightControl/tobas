@@ -4,6 +4,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/conversions/coordinates.hpp>
@@ -34,7 +35,7 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh)
 
   if (x_rotors_.count() == 0)
   {
-    rosthrow("The number of propellers is zero.");
+    rosthrow(name_, "The number of propellers is zero.");
   }
 
   q_0_.resize(drone_.tree().getNrOfJoints());
@@ -138,7 +139,7 @@ void Controller::runOnce()
   // 現在の速度を使って状態方程式を更新
   if (eom_.update(bs_ned_.twist.vel.Norm(), air_density_, battery_->voltage, q_0_) < 0)
   {
-    rosError(eom_.errorMessage());
+    rosError(name_, eom_.errorMessage());
   }
 
   lqd_.dynamics.A = eom_.A();
@@ -228,7 +229,7 @@ void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
   {
     if (thrust(i) < -1.)
     {
-      rosFatal("Negative thrust force: " << thrust(i) << " [N]");
+      rosFatal(name_, "Negative thrust force: " << thrust(i) << " [N]");
       // TODO: 防御モードに移行
     }
 
@@ -355,7 +356,7 @@ void Controller::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu)
     {
       if (isReady())
       {
-        rosInfo("Controller is ready.");
+        rosInfo(name_, "Controller is ready.");
         check_topics_timer_.stop();
         state_ = TAKEOFF;
       }
@@ -368,7 +369,7 @@ void Controller::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu)
       const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_->voltage, q_0_);
       if (eom_error < 0)
       {
-        rosError(eom_.errorMessage());
+        rosError(name_, eom_.errorMessage());
       }
 
       publishTakeoffCommand();
@@ -379,7 +380,7 @@ void Controller::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs_nwu)
       {
         initialize();
         state_ = FLIGHT;
-        rosInfo("The aircraft takes off and begins flight control.");
+        rosInfo(name_, "The aircraft takes off and begins flight control.");
       }
       break;
     }
@@ -400,13 +401,13 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 {
   if (!(state_ == FLIGHT))
   {
-    rosError("Not in flight state.");
+    rosError(name_, "Not in flight state.");
     return;
   }
 
   if (!eom_.trimCondition().speedLimit(air_density_).inRange(cmd_nwu->speed))
   {
-    rosError("Invalid speed is commanded.");
+    rosError(name_, "Invalid speed is commanded.");
     return;
   }
 
@@ -417,17 +418,17 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
   {
-    rosWarn("Air pressure is not received yet.");
+    rosWarn(name_, "Air pressure is not received yet.");
   }
 
   if (!battery_received_)
   {
-    rosWarn("Battery state is not received yet.");
+    rosWarn(name_, "Battery state is not received yet.");
   }
 
   if (!bs_received_)
   {
-    rosWarn("Base state is not received yet.");
+    rosWarn(name_, "Base state is not received yet.");
   }
 }
 

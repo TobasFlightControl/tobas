@@ -4,6 +4,8 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
+#include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_real/barometer_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -17,7 +19,7 @@ BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : su
   barometer_.initialize();
   if (!barometer_.testConnection())
   {
-    rosthrow("Barometer test failed.");
+    rosthrow(name_, "Barometer test failed.");
   }
 
   registerPublishers();
@@ -73,7 +75,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto pressure = barometer_.getPressure() * 100;  // mbar -> Pa
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
-    rosError("Strange air pressure: " << pressure << " [Pa]");
+    rosError(name_, "Strange air pressure: " << pressure << " [Pa]");
     return;
   }
 

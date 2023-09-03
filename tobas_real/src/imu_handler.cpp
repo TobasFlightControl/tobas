@@ -76,13 +76,13 @@ void ImuHandler::setupImu()
   imu_.initialize();
   if (!imu_.probe())
   {
-    rosthrow("IMU not enabled.");
+    rosthrow(name_, "IMU not enabled.");
   }
 }
 
 void ImuHandler::measureGyroBias()
 {
-  rosInfo("Measuring gyro bias. Please do not move the aircraft.");
+  rosInfo(name_, "Measuring gyro bias. Please do not move the aircraft.");
 
   Vector3f gyro_sum = Vector3f::Zero();
   uint32_t cnt = 0;
@@ -95,7 +95,7 @@ void ImuHandler::measureGyroBias()
 
     if (gyro_.norm() > kStaticGyroThreshold)
     {
-      rosError("Movement of the aircraft is detected while measuring gyro bias.");
+      rosError(name_, "Movement of the aircraft is detected while measuring gyro bias.");
       gyro_sum.setZero();
       cnt = 0;
       continue;
@@ -107,7 +107,7 @@ void ImuHandler::measureGyroBias()
 
   gyro_bias_ = gyro_sum / kMeasureGyroBiasCount;
 
-  rosInfo("Finished measuring gyro bias. It is estimated to be:\n" << gyro_bias_);
+  rosInfo(name_, "Finished measuring gyro bias. It is estimated to be:\n" << gyro_bias_);
 }
 
 void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)

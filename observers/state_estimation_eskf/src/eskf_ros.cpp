@@ -80,7 +80,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
   }
   else
   {
-    rosthrow("Invalid geomagnetism observation method: " << geomag_observe_method);
+    rosthrow(name_, "Invalid geomagnetism observation method: " << geomag_observe_method);
   }
 
   // Dynamic parameters
@@ -138,19 +138,19 @@ bool ErrorStateKalmanFilterRos::isValidDeltaTime(double dt)
 {
   if (dt == 0.)
   {
-    rosError("The time gap between 2 IMU messages is 0.");
+    rosError(name_, "The time gap between 2 IMU messages is 0.");
     return false;
   }
 
   if (dt < 0.)
   {
-    rosError("The time gap between 2 IMU messages is negative: " << dt << " [s]");
+    rosError(name_, "The time gap between 2 IMU messages is negative: " << dt << " [s]");
     return false;
   }
 
   if (dt > kImuTimeGapThreshold)
   {
-    rosError("The time gap between 2 IMU messages is too large: " << dt << " [s]");
+    rosError(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
     return false;
   }
 
@@ -198,10 +198,10 @@ tobas_msgs::StaticStateDeterminationResultConstPtr ErrorStateKalmanFilterRos::se
 {
   constexpr char action_name[] = "static_state_determination";
   actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(action_name);
-  rosInfo("Waiting for action server '" << action_name << "' to start.");
+  rosInfo(name_, "Waiting for action server '" << action_name << "' to start.");
   ac.waitForServer();
 
-  rosInfo("Action server '" << action_name << "' started, sending goal.");
+  rosInfo(name_, "Action server '" << action_name << "' started, sending goal.");
   tobas_msgs::StaticStateDeterminationGoal goal;
   goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
   goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
@@ -210,7 +210,7 @@ tobas_msgs::StaticStateDeterminationResultConstPtr ErrorStateKalmanFilterRos::se
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosError("Action did not finish before timeout. Shutting down the system.");
+    rosError(name_, "Action did not finish before timeout. Shutting down the system.");
     requestShutdown();
   }
 
@@ -219,28 +219,28 @@ tobas_msgs::StaticStateDeterminationResultConstPtr ErrorStateKalmanFilterRos::se
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
     rosError(
-      "'" << action_name << "' finished with error: " << state.getText()
-          << " Shutting down the system.");
+      name_, "'" << action_name << "' finished with error: " << state.getText()
+                 << " Shutting down the system.");
     requestShutdown();
   }
 
   rosInfo(
-    "The result of " << action_name << ":\n"
-                     << "IMU count: " << result->imu_count << endl
-                     << "Magnetometer count: " << result->mag_count << endl
-                     << "Barometer count: " << result->bar_count << endl
-                     << "GPS position count: " << result->gps_count << endl
-                     << "GPS velocity count: " << result->vel_count << endl
-                     << "IMU:\n"
-                     << result->imu << endl
-                     << "Magnetic Field:\n"
-                     << result->magnetic_field << endl
-                     << "Air Pressure:\n"
-                     << result->air_pressure << endl
-                     << "GPS:\n"
-                     << result->gps << endl
-                     << "Ground Speed:\n"
-                     << result->ground_speed);
+    name_, "The result of " << action_name << ":\n"
+                            << "IMU count: " << result->imu_count << endl
+                            << "Magnetometer count: " << result->mag_count << endl
+                            << "Barometer count: " << result->bar_count << endl
+                            << "GPS position count: " << result->gps_count << endl
+                            << "GPS velocity count: " << result->vel_count << endl
+                            << "IMU:\n"
+                            << result->imu << endl
+                            << "Magnetic Field:\n"
+                            << result->magnetic_field << endl
+                            << "Air Pressure:\n"
+                            << result->air_pressure << endl
+                            << "GPS:\n"
+                            << result->gps << endl
+                            << "Ground Speed:\n"
+                            << result->ground_speed);
 
   // GPS
   // TODO: IMUフレームに変換
@@ -342,7 +342,9 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       {
         check_topics_timer_.stop();
         initialize();
-        rosInfo("All messages are received. Wait to publish for " << kWaitToPublish << " seconds.");
+        rosInfo(
+          name_,
+          "All messages are received. Wait to publish for " << kWaitToPublish << " seconds.");
         stage_ = SET_FIRST_TIME;
       }
       break;
@@ -450,7 +452,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 
   // トピック通信の遅延チェック
   // const auto delay = (ros::Time::now() - gps->header.stamp).toSec();
-  // rosInfo("NavSatFix communication delay: " << delay << "[s]");
+  // rosInfo(name_, "NavSatFix communication delay: " << delay << "[s]");
 }
 
 void ErrorStateKalmanFilterRos::velCb(const VelMsg::ConstPtr& vel)
@@ -475,29 +477,29 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!imu_received_)
   {
-    rosWarn("IMU data is not received yet.");
+    rosWarn(name_, "IMU data is not received yet.");
   }
 
   if (!mag_received_)
   {
-    rosWarn("Magnetometer data is not received yet.");
+    rosWarn(name_, "Magnetometer data is not received yet.");
   }
 
   if (use_bar_ && !bar_received_)
   {
-    rosWarn("Barometer data is not received yet.");
+    rosWarn(name_, "Barometer data is not received yet.");
   }
 
   if (use_gps_)
   {
     if (!gps_received_)
     {
-      rosWarn("GPS position data is not received yet.");
+      rosWarn(name_, "GPS position data is not received yet.");
     }
 
     if (!vel_received_)
     {
-      rosWarn("GPS velocity data is not received yet.");
+      rosWarn(name_, "GPS velocity data is not received yet.");
     }
   }
 }
@@ -507,6 +509,6 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
   rot_acc_cov_.diagonal().fill(cfg.rotation_variance_grav);
   rot_mag_cov_.diagonal().fill(cfg.rotation_variance_geomag);
 
-  rosInfo("New dynamic parameters are set.");
+  rosInfo(name_, "New dynamic parameters are set.");
 }
 }  // namespace state_estimation_eskf

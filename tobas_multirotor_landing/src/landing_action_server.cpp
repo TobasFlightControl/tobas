@@ -89,7 +89,7 @@ void MultirotorLandServer::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
 
 void MultirotorLandServer::executeCb(const GoalType& goal)
 {
-  rosInfo("Action is called.");
+  rosInfo(name_, "Action is called.");
 
   reset();
   is_action_running_ = true;
@@ -140,8 +140,8 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
       if (alt_range < kStableAltitudeRange)
       {
         rosInfo(
-          "Altitude has remained stable for "
-          << kTimeWindow << " seconds. Probably the drone has landed successfully.");
+          name_, "Altitude has remained stable for "
+                   << kTimeWindow << " seconds. Probably the drone has landed successfully.");
         is_action_running_ = false;
         result_.error_code = ResultType::NO_ERROR;
         as_.setSucceeded(result_);

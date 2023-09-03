@@ -1,6 +1,7 @@
 #include <eigen_conversions/eigen_msg.h>
 
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_msgs/VelocityYaw.h>
 
@@ -105,7 +106,7 @@ void PositionControllerRos::baseStateCb(const tobas_msgs::BaseStateConstPtr& bs)
       check_topics_timer_.stop();
       initialize();
       is_initialized_ = true;
-      rosInfo("Position controller is ready.");
+      rosInfo(name_, "Position controller is ready.");
     }
     return;
   }
@@ -139,9 +140,9 @@ void PositionControllerRos::targetPositionCb(const tobas_msgs::PositionYawConstP
   if (dist > kMaxCommandPositionDeviation)
   {
     rosError(
-      "The distance between current position and commanded position is "
-      << dist << " m, which exceeds the limit: " << kMaxCommandPositionDeviation
-      << " m. The command is ignored.");
+      name_, "The distance between current position and commanded position is "
+               << dist << " m, which exceeds the limit: " << kMaxCommandPositionDeviation
+               << " m. The command is ignored.");
     return;
   }
 
@@ -157,12 +158,12 @@ void PositionControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!bs_received_)
   {
-    rosWarn("Base state is not received yet.");
+    rosWarn(name_, "Base state is not received yet.");
   }
 
   if (!cmd_received_)
   {
-    rosInfo("Waiting for Position & Yaw command.");
+    rosInfo(name_, "Waiting for Position & Yaw command.");
   }
 }
 
@@ -170,6 +171,6 @@ void PositionControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t
 {
   updateDynamicParams(cfg);
   pos_controller_.configure(dynamic_params_);
-  rosInfo("Dynamic parameters are updated.");
+  rosInfo(name_, "Dynamic parameters are updated.");
 }
 }  // namespace tobas_multirotor_controller

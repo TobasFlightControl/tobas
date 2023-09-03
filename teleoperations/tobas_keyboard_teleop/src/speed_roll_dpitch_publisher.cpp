@@ -47,7 +47,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(ros::NodeHandle nh, r
   q_0_.resize(drone_.tree().getNrOfJoints());
 
   const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
-  rosInfo("Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
+  rosInfo(name_, "Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
 
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
@@ -84,39 +84,39 @@ void SpeedRollDeltaPitchPublisher::run()
       case kKeyCode_W:
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
-        rosInfoThrottle(kInfoPeriod, "Increase speed");
+        rosInfoThrottle(kInfoPeriod, name_, "Increase speed");
         break;
       }
       case kKeyCode_S:
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
-        rosInfoThrottle(kInfoPeriod, "Decrease speed");
+        rosInfoThrottle(kInfoPeriod, name_, "Decrease speed");
         break;
       }
       case kKeyCode_Up:
       {
         cmd_.delta_pitch =
           dh_std::clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        rosInfoThrottle(kInfoPeriod, "Nose up");
+        rosInfoThrottle(kInfoPeriod, name_, "Nose up");
         break;
       }
       case kKeyCode_Down:
       {
         cmd_.delta_pitch =
           dh_std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        rosInfoThrottle(kInfoPeriod, "Nose down");
+        rosInfoThrottle(kInfoPeriod, name_, "Nose down");
         break;
       }
       case kKeyCode_Left:
       {
         cmd_.roll = dh_std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        rosInfoThrottle(kInfoPeriod, "Turn left");
+        rosInfoThrottle(kInfoPeriod, name_, "Turn left");
         break;
       }
       case kKeyCode_Right:
       {
         cmd_.roll = dh_std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        rosInfoThrottle(kInfoPeriod, "Turn right");
+        rosInfoThrottle(kInfoPeriod, name_, "Turn right");
         break;
       }
     }
@@ -165,7 +165,7 @@ void SpeedRollDeltaPitchPublisher::initialize()
 
   // インストラクションを開始
   instruction_timer_.start();
-  rosInfo(instruction_);
+  rosInfo(name_, instruction_);
 }
 
 void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -194,12 +194,12 @@ void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
   {
-    rosWarn("Air pressure is not received yet.");
+    rosWarn(name_, "Air pressure is not received yet.");
   }
 }
 
 void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)
 {
-  rosInfo(instruction_);
+  rosInfo(name_, instruction_);
 }
 }  // namespace tobas_keyboard_teleop

@@ -17,7 +17,7 @@ double getMass()
   KDL::Tree tree;
   if (!kdl_parser::treeFromParam(ros::this_node::getNamespace() + "/robot_description", tree))
   {
-    rosthrow("Failed to get KDL tree.");
+    throw runtime_error("Failed to get KDL tree.");
   }
 
   KDL::TreeJntToInertiaSolver inertia_solver_(tree);

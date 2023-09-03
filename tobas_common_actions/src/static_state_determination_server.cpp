@@ -256,7 +256,7 @@ void StaticStateDeterminationServer::velCb(const VelMsg::ConstPtr& vel)
 
 void StaticStateDeterminationServer::executeCb(const GoalType& goal)
 {
-  rosInfo("Action is called.");
+  rosInfo(name_, "Action is called.");
 
   if (!isValidGoal(goal))
   {
@@ -294,9 +294,9 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
 
       // コンソールにもフィードバックを出す
       rosInfoThrottle(
-        kInfoPeriod, "GPS position std. dev [m]: (" << feedback_.gps_x_stddev << ", "
-                                                    << feedback_.gps_y_stddev << ", "
-                                                    << feedback_.gps_z_stddev << ")");
+        kInfoPeriod, name_,
+        "GPS position std. dev [m]: (" << feedback_.gps_x_stddev << ", " << feedback_.gps_y_stddev
+                                       << ", " << feedback_.gps_z_stddev << ")");
     }
 
     // 条件を満たしていれば終了

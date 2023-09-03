@@ -48,10 +48,10 @@ void BatteryHandler::getAdcCoefficient()
   adc_coef_ = pt.get<double>(kConfigKey_AdcCoef);
   if (adc_coef_ <= 0.)
   {
-    rosthrow("Negative ADC coefficient: " << adc_coef_);
+    rosthrow(name_, "Negative ADC coefficient: " << adc_coef_);
   }
 
-  rosInfo("ADC coefficient: " << adc_coef_);
+  rosInfo(name_, "ADC coefficient: " << adc_coef_);
 }
 
 void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -72,7 +72,7 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   const int a2_value = adc_.read(kPowerModuleVoltageChannel);
   if (a2_value < 0)
   {
-    rosError("Failed to read battery voltage.");
+    rosError(name_, "Failed to read battery voltage.");
     return;
   }
 

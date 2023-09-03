@@ -32,7 +32,7 @@ public:
 
 private:
   uint8_t cmd_level_;
-  tobas_msgs::BaseStateConstPtr cur_bs_;       // 現在のベースの状態
+  tobas_msgs::BaseStateConstPtr cur_bs_;  // 現在のベースの状態
   KDL::Vector tar_vel_W_;
   KDL::Vector tar_acc_W_;
   double tar_yaw_;
