@@ -121,14 +121,12 @@ class PackageGenerator(QObject):
         pkg_path = self._main.settings.ros_package.pkg_path.text()
         config_dir = osp.join(pkg_path, "config")
         launch_dir = osp.join(pkg_path, "launch")
-        scripts_dir = osp.join(pkg_path, "scripts")
         urdf_dir = osp.join(pkg_path, "urdf")
 
         # ディレクトリを作る
         os.mkdir(pkg_path)
         os.mkdir(config_dir)
         os.mkdir(launch_dir)
-        os.mkdir(scripts_dir)
         os.mkdir(urdf_dir)
 
         # テンプレートから生成
@@ -152,9 +150,6 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch")
-        )
-        self._generate_from_template(
-            items, "simulation.launch", osp.join(launch_dir, "simulation.launch")
         )
         self._generate_from_template(
             items, "real.launch", osp.join(launch_dir, "real.launch")
@@ -195,22 +190,6 @@ class PackageGenerator(QObject):
                 "keyboard_teleop/speed_roll_dpitch.launch",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
-
-        # scriptsは作成後に実行権限を与える
-        sim_launcher_path = osp.join(scripts_dir, "simulation_launcher_node.py")
-        real_launcher_path = osp.join(scripts_dir, "real_launcher_node.py")
-        self._generate_from_template(
-            items,
-            "simulation_launcher_node.py",
-            sim_launcher_path,
-        )
-        self._generate_from_template(
-            items,
-            "real_launcher_node.py",
-            real_launcher_path,
-        )
-        os.chmod(sim_launcher_path, 0o755)
-        os.chmod(real_launcher_path, 0o755)
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
