@@ -8,10 +8,11 @@ void GpsHandlerNodelet::onInit()
 {
   NODELET_INFO("Initializing GPS Handler Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new GpsHandler(nh, pnh));
+  node_.reset(new GpsHandler(nh, pnh, name));
 }
 }  // namespace tobas_real
 

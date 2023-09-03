@@ -10,7 +10,8 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RcinToVelocityYaw::RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
+RcinToVelocityYaw::RcinToVelocityYaw(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name)
 {
   getRosParams();
 

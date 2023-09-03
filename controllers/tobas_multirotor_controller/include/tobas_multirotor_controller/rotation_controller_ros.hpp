@@ -33,7 +33,10 @@ class RotationControllerRos : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit RotationControllerRos(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   tobas::Drone drone_;

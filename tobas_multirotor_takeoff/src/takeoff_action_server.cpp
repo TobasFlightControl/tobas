@@ -10,8 +10,11 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-MultirotorTakeoffServer::MultirotorTakeoffServer(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+MultirotorTakeoffServer::MultirotorTakeoffServer(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name),
     as_(
       nh_,
       tobas::kTakeoffAction,

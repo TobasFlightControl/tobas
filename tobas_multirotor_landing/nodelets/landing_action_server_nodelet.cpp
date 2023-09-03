@@ -8,10 +8,11 @@ void MultirotorLandServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Multirotor Landing Action Server Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new MultirotorLandServer(nh, pnh));
+  node_.reset(new MultirotorLandServer(nh, pnh, name));
 }
 }  // namespace tobas_multirotor_landing
 

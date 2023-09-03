@@ -20,7 +20,10 @@ class MotorsHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit MotorsHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   tobas::Drone drone_;

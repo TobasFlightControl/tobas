@@ -8,10 +8,11 @@ void PositionControllerNodelet::onInit()
 {
   NODELET_INFO("Initializing Position Controller Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new PositionControllerRos(nh, pnh));
+  node_.reset(new PositionControllerRos(nh, pnh, name));
 }
 }  // namespace tobas_multirotor_controller
 

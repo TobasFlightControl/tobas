@@ -13,8 +13,11 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
+RcinToRollPitchYawrateThrust::RcinToRollPitchYawrateThrust(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
 {
   getRosParams();
 

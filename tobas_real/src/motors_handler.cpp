@@ -14,7 +14,8 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
+MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name)
 {
   if (getuid())
   {

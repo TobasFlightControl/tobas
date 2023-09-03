@@ -8,8 +8,8 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-MultirotorLandServer::MultirotorLandServer(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+MultirotorLandServer::MultirotorLandServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name),
     is_action_running_(false),
     as_(nh_, tobas::kLandingAction, boost::bind(&MultirotorLandServer::executeCb, this, _1), false)
 {

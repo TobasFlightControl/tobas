@@ -45,7 +45,10 @@ class MultirotorTakeoffServer : public tobas::BaseNode
   using FeedbackType = tobas_multirotor_takeoff::MultirotorTakeoffFeedback;
 
 public:
-  explicit MultirotorTakeoffServer(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit MultirotorTakeoffServer(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   tobas_msgs::PositionYaw cmd_;

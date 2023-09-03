@@ -8,10 +8,11 @@ void FollowPositionYawTrajectoryServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Follow Trajectory Server Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new FollowPositionYawTrajectoryServer(nh, pnh));
+  node_.reset(new FollowPositionYawTrajectoryServer(nh, pnh, name));
 }
 }  // namespace tobas_trajectory_commander
 

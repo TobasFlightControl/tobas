@@ -15,8 +15,9 @@ namespace tobas_common_actions
 {
 StaticStateDeterminationServer::StaticStateDeterminationServer(
   ros::NodeHandle nh,
-  ros::NodeHandle pnh)
-  : super(nh, pnh),
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name),
     is_action_running_(false),
     as_(nh_, kActionName, boost::bind(&StaticStateDeterminationServer::executeCb, this, _1), false)
 {

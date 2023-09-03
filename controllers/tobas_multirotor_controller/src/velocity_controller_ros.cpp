@@ -18,8 +18,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-VelocityControllerRos::VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+VelocityControllerRos::VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name),
     cmd_level_(tobas_msgs::CommandLevel::NORMAL),
     is_initialized_(false),
     bs_received_(false),

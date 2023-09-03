@@ -21,7 +21,10 @@ class ImuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit ImuHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   ImuDevice imu_;

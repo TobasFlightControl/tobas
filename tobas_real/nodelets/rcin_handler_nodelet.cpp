@@ -8,10 +8,11 @@ void RCInputHandlerNodelet::onInit()
 {
   NODELET_INFO("Initializing RC Input Handler Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new RCInputHandler(nh, pnh));
+  node_.reset(new RCInputHandler(nh, pnh, name));
 }
 }  // namespace tobas_real
 

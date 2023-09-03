@@ -15,7 +15,10 @@ class BatteryHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit BatteryHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   ADC_Navio2 adc_;

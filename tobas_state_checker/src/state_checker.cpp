@@ -10,8 +10,8 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh), ac_(tobas::kLandingAction)
+StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name), ac_(tobas::kLandingAction)
 {
   getRosParams();
 

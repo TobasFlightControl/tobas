@@ -8,10 +8,11 @@ void StateEstimatorNodelet::onInit()
 {
   NODELET_INFO("Initializing State Estimator Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new StateEstimator(nh, pnh));
+  node_.reset(new StateEstimator(nh, pnh, name));
 }
 }  // namespace state_estimation_cascade
 

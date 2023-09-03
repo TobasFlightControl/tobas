@@ -8,10 +8,11 @@ void StateCheckerNodelet::onInit()
 {
   NODELET_INFO("Initializing State Checker Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new StateChecker(nh, pnh));
+  node_.reset(new StateChecker(nh, pnh, name));
 }
 }  // namespace tobas_state_checker
 

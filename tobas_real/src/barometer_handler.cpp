@@ -10,9 +10,12 @@
 #include "../include/tobas_real/barometer_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
+using namespace std;
+
 namespace tobas_real
 {
-BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
+BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name)
 {
   getRosParams();
 

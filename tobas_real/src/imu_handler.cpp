@@ -16,7 +16,7 @@ using namespace Eigen;
 
 namespace tobas_real
 {
-ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh) : super(nh, pnh)
+ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
 {
   getRosParams();
   readConfig();

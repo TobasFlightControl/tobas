@@ -13,8 +13,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-PositionControllerRos::PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+PositionControllerRos::PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name),
     is_initialized_(false),
     bs_received_(false),
     cmd_received_(false),

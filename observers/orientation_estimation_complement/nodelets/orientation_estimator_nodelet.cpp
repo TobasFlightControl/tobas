@@ -8,10 +8,11 @@ void OrientationEstimatorNodelet::onInit()
 {
   NODELET_INFO("Initializing Complementary Orientation Estimator Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new OrientationEstimatorRos(nh, pnh));
+  node_.reset(new OrientationEstimatorRos(nh, pnh, name));
 }
 }  // namespace orientation_estimation_complement
 

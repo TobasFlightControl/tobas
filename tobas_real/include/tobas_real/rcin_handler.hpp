@@ -17,7 +17,10 @@ class RCInputHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit RCInputHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   RCInput_Navio2 rcin_;

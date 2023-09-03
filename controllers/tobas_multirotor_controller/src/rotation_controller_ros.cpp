@@ -13,8 +13,8 @@ using namespace Eigen;
 
 namespace tobas_multirotor_controller
 {
-RotationControllerRos::RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+RotationControllerRos::RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     rot_controller_(drone_),

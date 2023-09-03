@@ -8,10 +8,11 @@ void ControllerNodelet::onInit()
 {
   NODELET_INFO("Initializing Tobas Fixed Wing MPC Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new Controller(nh, pnh));
+  node_.reset(new Controller(nh, pnh, name));
 }
 }  // namespace tobas_fixed_wing_mpc
 

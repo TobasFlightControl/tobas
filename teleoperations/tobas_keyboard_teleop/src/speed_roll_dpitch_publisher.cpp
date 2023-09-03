@@ -16,8 +16,11 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name),
     trim_(drone_),
     keyboard_(getKeyboardControls()),
     check_topics_timer_(

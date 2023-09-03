@@ -20,7 +20,10 @@ class WaitForStillnessServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::WaitForStillnessFeedback;
 
 public:
-  explicit WaitForStillnessServer(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit WaitForStillnessServer(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   bool is_action_running_;

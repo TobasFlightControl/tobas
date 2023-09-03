@@ -16,8 +16,11 @@ using namespace Eigen;
 
 namespace orientation_estimation_complement
 {
-OrientationEstimatorRos::OrientationEstimatorRos(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+OrientationEstimatorRos::OrientationEstimatorRos(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name),
     is_initialized_(false),
     imu_sub_(nh_, "imu", kQueueSize),
     mag_sub_(nh_, "magnetic_field", kQueueSize),

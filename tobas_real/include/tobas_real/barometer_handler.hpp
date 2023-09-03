@@ -15,7 +15,10 @@ class BarometerHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit BarometerHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   MS5611 barometer_;

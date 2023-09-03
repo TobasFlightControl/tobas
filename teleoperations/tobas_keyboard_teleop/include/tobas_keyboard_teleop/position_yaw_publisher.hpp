@@ -28,7 +28,10 @@ class PositionYawPublisher : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit PositionYawPublisher(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
   void run();
 

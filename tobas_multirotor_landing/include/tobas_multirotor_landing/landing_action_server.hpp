@@ -25,7 +25,10 @@ class MultirotorLandServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::LandFeedback;
 
 public:
-  explicit MultirotorLandServer(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit MultirotorLandServer(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   bool is_action_running_;

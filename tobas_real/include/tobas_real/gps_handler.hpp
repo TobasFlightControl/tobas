@@ -23,7 +23,10 @@ class GpsHandler : public tobas::BaseNode
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
-  explicit GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit GpsHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   Ublox gps_;

@@ -25,8 +25,11 @@ using namespace dh_std;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
+  ros::NodeHandle nh,
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name),
     check_topics_timer_(
       nh_,
       kCheckTopicsTimerPeriod,

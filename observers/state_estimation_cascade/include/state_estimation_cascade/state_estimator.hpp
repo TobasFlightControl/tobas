@@ -35,7 +35,10 @@ class StateEstimator : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit StateEstimator(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   // 固定値

@@ -21,8 +21,8 @@ using namespace dh_std;
 
 namespace state_estimation_cascade
 {
-StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name),
     is_initialized_(false),
     imu_received_(false),
     bar_received_(false),

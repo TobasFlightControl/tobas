@@ -8,10 +8,11 @@ void MotorsHandlerNodelet::onInit()
 {
   NODELET_INFO("Initializing Motors Handler Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new MotorsHandler(nh, pnh));
+  node_.reset(new MotorsHandler(nh, pnh, name));
 }
 }  // namespace tobas_real
 

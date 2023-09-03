@@ -31,7 +31,10 @@ class Controller : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit Controller(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   enum Stage

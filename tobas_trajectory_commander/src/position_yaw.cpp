@@ -19,8 +19,9 @@ constexpr char FollowPositionYawTrajectoryServer::kActionName[];
 
 FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
   ros::NodeHandle nh,
-  ros::NodeHandle pnh)
-  : super(nh, pnh),
+  ros::NodeHandle pnh,
+  string name)
+  : super(nh, pnh, name),
     as_(
       nh_,
       kActionName,

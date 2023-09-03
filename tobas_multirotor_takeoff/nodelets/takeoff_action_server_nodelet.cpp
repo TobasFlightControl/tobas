@@ -8,10 +8,11 @@ void MultirotorTakeoffServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Multirotor Takeoff Action Server Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new MultirotorTakeoffServer(nh, pnh));
+  node_.reset(new MultirotorTakeoffServer(nh, pnh, name));
 }
 }  // namespace tobas_multirotor_takeoff
 

@@ -8,10 +8,11 @@ void BatteryHandlerNodelet::onInit()
 {
   NODELET_INFO("Initializing Battery Handler Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new BatteryHandler(nh, pnh));
+  node_.reset(new BatteryHandler(nh, pnh, name));
 }
 }  // namespace tobas_real
 

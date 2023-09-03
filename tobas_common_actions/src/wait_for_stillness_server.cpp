@@ -9,8 +9,8 @@ using namespace dh_std;
 
 namespace tobas_common_actions
 {
-WaitForStillnessServer::WaitForStillnessServer(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh),
+WaitForStillnessServer::WaitForStillnessServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name),
     is_action_running_(false),
     as_(nh_, kActionName, boost::bind(&WaitForStillnessServer::executeCb, this, _1), false)
 {

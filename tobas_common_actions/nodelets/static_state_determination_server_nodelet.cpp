@@ -8,10 +8,11 @@ void StaticStateDeterminationServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Static State Determination Server Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new StaticStateDeterminationServer(nh, pnh));
+  node_.reset(new StaticStateDeterminationServer(nh, pnh, name));
 }
 }  // namespace tobas_common_actions
 

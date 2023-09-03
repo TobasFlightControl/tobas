@@ -8,10 +8,11 @@ void VelocityControllerNodelet::onInit()
 {
   NODELET_INFO("Initializing Velocity Controller Nodelet.");
 
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  const auto& nh = getNodeHandle();
+  const auto& pnh = getPrivateNodeHandle();
+  const auto& name = getName();
 
-  node_.reset(new VelocityControllerRos(nh, pnh));
+  node_.reset(new VelocityControllerRos(nh, pnh, name));
 }
 }  // namespace tobas_multirotor_controller
 

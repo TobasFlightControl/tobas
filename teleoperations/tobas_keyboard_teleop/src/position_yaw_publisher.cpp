@@ -24,8 +24,8 @@ ostream& operator<<(ostream& os, const tobas_msgs::PositionYaw& arg)
   return os;
 }
 
-PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : super(nh, pnh), keyboard_(getKeyboardControls())
+PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+  : super(nh, pnh, name), keyboard_(getKeyboardControls())
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"

@@ -32,7 +32,10 @@ class StateChecker : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh);
+  explicit StateChecker(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
   void run();
 
