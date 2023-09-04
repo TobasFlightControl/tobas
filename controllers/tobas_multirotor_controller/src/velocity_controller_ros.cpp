@@ -68,10 +68,10 @@ void VelocityControllerRos::registerPublishers()
 
 void VelocityControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &VelocityControllerRos::eventCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &VelocityControllerRos::poseTwistCb, this);
-  vel_yaw_sub_ =
-    nh_.subscribe("command/velocity_yaw", 1, &VelocityControllerRos::velocityYawCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &VelocityControllerRos::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &VelocityControllerRos::poseTwistCb, this, tcpNoDelay());
+  vel_yaw_sub_ = nh_.subscribe(
+    "command/velocity_yaw", 1, &VelocityControllerRos::velocityYawCb, this, tcpNoDelay());
 }
 
 bool VelocityControllerRos::isReady()

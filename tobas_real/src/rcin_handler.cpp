@@ -40,7 +40,7 @@ void RCInputHandler::registerPublishers()
 
 void RCInputHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &RCInputHandler::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &RCInputHandler::eventCb, this, tcpNoDelay());
 }
 
 void RCInputHandler::getRcPeriodRanges()

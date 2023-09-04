@@ -173,7 +173,7 @@ void PositionYawPublisher::registerPublishers()
 
 void PositionYawPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this, tcpNoDelay());
 }
 
 void PositionYawPublisher::eventCb(const tobas_msgs::EventConstPtr& event)

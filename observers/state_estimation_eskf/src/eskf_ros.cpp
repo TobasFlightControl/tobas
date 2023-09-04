@@ -100,19 +100,22 @@ void ErrorStateKalmanFilterRos::registerPublishers()
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &ErrorStateKalmanFilterRos::eventCb, this);
-  imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this);
-  mag_sub_ = nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &ErrorStateKalmanFilterRos::eventCb, this, tcpNoDelay());
+  imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this, tcpNoDelay());
+  mag_sub_ =
+    nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this, tcpNoDelay());
 
   if (use_bar_)
   {
-    bar_sub_ = nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this);
+    bar_sub_ =
+      nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this, tcpNoDelay());
   }
 
   if (use_gps_)
   {
-    gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this);
-    vel_sub_ = nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this);
+    gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this, tcpNoDelay());
+    vel_sub_ =
+      nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this, tcpNoDelay());
   }
 }
 

@@ -81,11 +81,13 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &Controller::eventCb, this);
-  air_pressure_sub_ = nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this);
-  battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &Controller::poseTwistCb, this);
-  cmd_sub_ = nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &Controller::eventCb, this, tcpNoDelay());
+  air_pressure_sub_ =
+    nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &Controller::poseTwistCb, this, tcpNoDelay());
+  cmd_sub_ =
+    nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this, tcpNoDelay());
 }
 
 bool Controller::isReady()

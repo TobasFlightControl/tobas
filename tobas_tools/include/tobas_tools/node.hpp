@@ -28,5 +28,8 @@ protected:
   virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
 
   void requestShutdown();
+
+  /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
+  static ros::TransportHints tcpNoDelay(bool nodelay = true);
 };
 }  // namespace tobas

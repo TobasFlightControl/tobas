@@ -48,7 +48,7 @@ void MultirotorTakeoffServer::registerPublishers()
 
 void MultirotorTakeoffServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MultirotorTakeoffServer::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &MultirotorTakeoffServer::eventCb, this, tcpNoDelay());
 }
 
 void MultirotorTakeoffServer::fillResult()

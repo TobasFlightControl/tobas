@@ -49,8 +49,8 @@ void RcinToVelocityYaw::registerPublishers()
 
 void RcinToVelocityYaw::registerSubscribers()
 {
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &RcinToVelocityYaw::poseTwistCb, this);
-  rcin_sub_ = nh_.subscribe("rc_input", 1, &RcinToVelocityYaw::rcInputCb, this);
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &RcinToVelocityYaw::poseTwistCb, this, tcpNoDelay());
+  rcin_sub_ = nh_.subscribe("rc_input", 1, &RcinToVelocityYaw::rcInputCb, this, tcpNoDelay());
 }
 
 void RcinToVelocityYaw::eventCb(const tobas_msgs::EventConstPtr& event)

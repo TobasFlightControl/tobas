@@ -37,7 +37,7 @@ void GpsHandler::registerPublishers()
 
 void GpsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &GpsHandler::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &GpsHandler::eventCb, this, tcpNoDelay());
 }
 
 void GpsHandler::configureGnssReceiver()

@@ -60,14 +60,16 @@ void StateEstimator::registerPublishers()
 
 void StateEstimator::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &StateEstimator::eventCb, this);
-  filtered_imu_sub_ = nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this);
-  bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &StateEstimator::eventCb, this, tcpNoDelay());
+  filtered_imu_sub_ =
+    nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this, tcpNoDelay());
+  bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this, tcpNoDelay());
 
   if (use_gps_)
   {
-    gps_pos_sub_ = nh_.subscribe("gps", 1, &StateEstimator::gpsPositionCb, this);
-    gps_vel_sub_ = nh_.subscribe("ground_speed", 1, &StateEstimator::gpsVelocityCb, this);
+    gps_pos_sub_ = nh_.subscribe("gps", 1, &StateEstimator::gpsPositionCb, this, tcpNoDelay());
+    gps_vel_sub_ =
+      nh_.subscribe("ground_speed", 1, &StateEstimator::gpsVelocityCb, this, tcpNoDelay());
   }
 }
 

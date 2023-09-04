@@ -34,7 +34,7 @@ void CpuHandler::registerPublishers()
 
 void CpuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &CpuHandler::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &CpuHandler::eventCb, this, tcpNoDelay());
 }
 
 void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)

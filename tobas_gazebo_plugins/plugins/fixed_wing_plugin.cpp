@@ -189,9 +189,10 @@ void GazeboFixedWingPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_msgs::FixedWingDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
 
   deflections_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this);
-  wind_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this);
+    "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
+    tcpNoDelay());
+  wind_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this, tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)

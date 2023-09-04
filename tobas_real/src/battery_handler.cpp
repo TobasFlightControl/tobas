@@ -9,6 +9,8 @@
 #include "../include/tobas_real/battery_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
+#include <netinet/tcp.h>
+
 using namespace std;
 
 namespace tobas_real
@@ -38,7 +40,7 @@ void BatteryHandler::registerPublishers()
 
 void BatteryHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &BatteryHandler::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &BatteryHandler::eventCb, this, tcpNoDelay());
 }
 
 void BatteryHandler::getAdcCoefficient()

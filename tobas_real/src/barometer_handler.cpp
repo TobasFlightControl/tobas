@@ -43,7 +43,7 @@ void BarometerHandler::registerPublishers()
 
 void BarometerHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &BarometerHandler::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &BarometerHandler::eventCb, this, tcpNoDelay());
 }
 
 void BarometerHandler::readConfig()

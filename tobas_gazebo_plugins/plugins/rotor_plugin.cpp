@@ -200,12 +200,12 @@ void GazeboRotorPlugin::registerPubSub()
 {
   debug_pub_ = nh_.advertise<tobas_msgs::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
 
-  command_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this);
-  battery_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this);
-  wind_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this);
+  command_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this, tcpNoDelay());
+  wind_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this, tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()

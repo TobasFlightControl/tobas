@@ -43,7 +43,7 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &ImuHandler::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &ImuHandler::eventCb, this, tcpNoDelay());
 }
 
 void ImuHandler::readConfig()

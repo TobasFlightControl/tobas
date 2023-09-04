@@ -14,4 +14,9 @@ void BaseNode::requestShutdown()
   event_pub_.publish(event);
   nh_.shutdown();  // 自身のノードも落とす
 }
+
+ros::TransportHints BaseNode::tcpNoDelay(bool nodelay)
+{
+  return ros::TransportHints().reliable().tcpNoDelay(nodelay);
+}
 }  // namespace tobas

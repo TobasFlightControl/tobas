@@ -75,17 +75,19 @@ void RotationControllerRos::registerPublishers()
 
 void RotationControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &RotationControllerRos::eventCb, this);
-  battery_sub_ = nh_.subscribe("battery", 1, &RotationControllerRos::batteryCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &RotationControllerRos::poseTwistCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &RotationControllerRos::eventCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe("battery", 1, &RotationControllerRos::batteryCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &RotationControllerRos::poseTwistCb, this, tcpNoDelay());
   if (is_transformable_)
   {
-    joint_state_sub_ = nh_.subscribe("joint_states", 1, &RotationControllerRos::jointStateCb, this);
+    joint_state_sub_ =
+      nh_.subscribe("joint_states", 1, &RotationControllerRos::jointStateCb, this, tcpNoDelay());
   }
   rpy_thrust_sub_ =
-    nh_.subscribe("command/rpy_thrust", 1, &RotationControllerRos::rpyThrustCb, this);
+    nh_.subscribe("command/rpy_thrust", 1, &RotationControllerRos::rpyThrustCb, this, tcpNoDelay());
   rpyd_thrust_sub_ = nh_.subscribe(
-    "command/roll_pitch_yawrate_thrust", 1, &RotationControllerRos::rpydThrustCb, this);
+    "command/roll_pitch_yawrate_thrust", 1, &RotationControllerRos::rpydThrustCb, this,
+    tcpNoDelay());
 }
 
 bool RotationControllerRos::isReady()

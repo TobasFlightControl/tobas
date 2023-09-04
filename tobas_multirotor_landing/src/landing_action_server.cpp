@@ -32,8 +32,8 @@ void MultirotorLandServer::registerPublishers()
 
 void MultirotorLandServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MultirotorLandServer::eventCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &MultirotorLandServer::poseTwistCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &MultirotorLandServer::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &MultirotorLandServer::poseTwistCb, this, tcpNoDelay());
 }
 
 void MultirotorLandServer::reset()

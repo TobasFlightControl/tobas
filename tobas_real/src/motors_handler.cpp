@@ -54,9 +54,10 @@ void MotorsHandler::registerPublishers()
 
 void MotorsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler::eventCb, this);
-  rotor_speeds_sub_ = nh_.subscribe("command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this);
-  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler::batteryCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &MotorsHandler::eventCb, this, tcpNoDelay());
+  rotor_speeds_sub_ =
+    nh_.subscribe("command/motor_speed", 1, &MotorsHandler::rotorSpeedsCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe("battery", 1, &MotorsHandler::batteryCb, this, tcpNoDelay());
 }
 
 void MotorsHandler::sendDisarm()

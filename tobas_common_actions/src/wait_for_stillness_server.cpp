@@ -31,8 +31,9 @@ void WaitForStillnessServer::registerPublishers()
 
 void WaitForStillnessServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &WaitForStillnessServer::eventCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &WaitForStillnessServer::poseTwistCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &WaitForStillnessServer::eventCb, this, tcpNoDelay());
+  pt_sub_ =
+    nh_.subscribe("pose_twist", 1, &WaitForStillnessServer::poseTwistCb, this, tcpNoDelay());
 }
 
 void WaitForStillnessServer::reset()

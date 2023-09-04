@@ -64,8 +64,10 @@ void RcinToRollPitchYawrateThrust::registerPublishers()
 
 void RcinToRollPitchYawrateThrust::registerSubscribers()
 {
-  battery_sub_ = nh_.subscribe("battery", 1, &RcinToRollPitchYawrateThrust::batteryCb, this);
-  rcin_sub_ = nh_.subscribe("rc_input", 1, &RcinToRollPitchYawrateThrust::rcInputCb, this);
+  battery_sub_ =
+    nh_.subscribe("battery", 1, &RcinToRollPitchYawrateThrust::batteryCb, this, tcpNoDelay());
+  rcin_sub_ =
+    nh_.subscribe("rc_input", 1, &RcinToRollPitchYawrateThrust::rcInputCb, this, tcpNoDelay());
 }
 
 void RcinToRollPitchYawrateThrust::eventCb(const tobas_msgs::EventConstPtr& event)

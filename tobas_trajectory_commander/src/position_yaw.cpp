@@ -47,7 +47,8 @@ void FollowPositionYawTrajectoryServer::registerPublishers()
 
 void FollowPositionYawTrajectoryServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &FollowPositionYawTrajectoryServer::eventCb, this);
+  event_sub_ =
+    nh_.subscribe("event", 1, &FollowPositionYawTrajectoryServer::eventCb, this, tcpNoDelay());
 }
 
 bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)

@@ -151,9 +151,10 @@ void SpeedRollDeltaPitchPublisher::registerPublishers()
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &SpeedRollDeltaPitchPublisher::eventCb, this);
-  air_pressure_sub_ =
-    nh_.subscribe("air_pressure", 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this);
+  event_sub_ =
+    nh_.subscribe("event", 1, &SpeedRollDeltaPitchPublisher::eventCb, this, tcpNoDelay());
+  air_pressure_sub_ = nh_.subscribe(
+    "air_pressure", 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this, tcpNoDelay());
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()

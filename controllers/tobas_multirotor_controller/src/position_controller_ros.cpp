@@ -55,10 +55,10 @@ void PositionControllerRos::registerPublishers()
 
 void PositionControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &PositionControllerRos::eventCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &PositionControllerRos::poseTwistCb, this);
-  pos_yaw_sub_ =
-    nh_.subscribe("command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &PositionControllerRos::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &PositionControllerRos::poseTwistCb, this, tcpNoDelay());
+  pos_yaw_sub_ = nh_.subscribe(
+    "command/position_yaw", 1, &PositionControllerRos::targetPositionCb, this, tcpNoDelay());
 }
 
 bool PositionControllerRos::isReady()

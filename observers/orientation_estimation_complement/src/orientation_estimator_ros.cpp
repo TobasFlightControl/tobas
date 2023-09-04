@@ -22,8 +22,8 @@ OrientationEstimatorRos::OrientationEstimatorRos(
   string name)
   : super(nh, pnh, name),
     is_initialized_(false),
-    imu_sub_(nh_, "imu", kQueueSize),
-    mag_sub_(nh_, "magnetic_field", kQueueSize),
+    imu_sub_(nh_, "imu", kQueueSize, tcpNoDelay()),
+    mag_sub_(nh_, "magnetic_field", kQueueSize, tcpNoDelay()),
     sync_(SyncPolicy(kQueueSize), imu_sub_, mag_sub_),
     check_topics_timer_(nh_, kTimerPeriod, &OrientationEstimatorRos::checkTopicsTimerCb, this)
 {
@@ -49,7 +49,7 @@ void OrientationEstimatorRos::registerPublishers()
 
 void OrientationEstimatorRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &OrientationEstimatorRos::eventCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &OrientationEstimatorRos::eventCb, this, tcpNoDelay());
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 

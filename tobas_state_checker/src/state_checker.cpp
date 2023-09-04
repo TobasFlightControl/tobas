@@ -41,7 +41,7 @@ void StateChecker::run()
     {
       rosFatal(
         name_, "The Pose & Twist is not received for " << kPoseTwistTimeout
-                                                     << " seconds. Shutting down the system.");
+                                                       << " seconds. Shutting down the system.");
       requestShutdown();
     }
 
@@ -62,10 +62,10 @@ void StateChecker::registerPublishers()
 
 void StateChecker::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &StateChecker::eventCb, this);
-  cpu_sub_ = nh_.subscribe("cpu", 1, &StateChecker::cpuCb, this);
-  battery_sub_ = nh_.subscribe("battery", 1, &StateChecker::batteryCb, this);
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &StateChecker::poseTwistCb, this);
+  event_sub_ = nh_.subscribe("event", 1, &StateChecker::eventCb, this, tcpNoDelay());
+  cpu_sub_ = nh_.subscribe("cpu", 1, &StateChecker::cpuCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe("battery", 1, &StateChecker::batteryCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe("pose_twist", 1, &StateChecker::poseTwistCb, this, tcpNoDelay());
 }
 
 void StateChecker::requestLanding()
