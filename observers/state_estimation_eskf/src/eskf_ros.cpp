@@ -342,7 +342,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
     {
       // Compute IMU time gap
       const double dt = (imu->header.stamp - t_last_).toSec();
-      // cout << "dt[s]" << dt << endl;
+      // cout << "dt[s] " << dt << endl;
       t_last_ = imu->header.stamp;
 
       // Check IMU time gap

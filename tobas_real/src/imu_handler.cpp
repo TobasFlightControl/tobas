@@ -124,6 +124,8 @@ void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
 {
+  // rosInfo(name_, "IMU timer callback is called.");
+
   // Update IMU
   imu_.update();
 
