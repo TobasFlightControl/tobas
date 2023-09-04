@@ -123,7 +123,6 @@ private:
   void registerSubscribers() override;
 
   bool isReady();
-  bool isValidDeltaTime(double dt);
   void initialize();
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
   void updatePoseVelMsg(const ImuMsg& imu, StateMsg& state);

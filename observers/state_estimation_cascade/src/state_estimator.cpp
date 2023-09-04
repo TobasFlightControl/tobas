@@ -262,6 +262,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
     return;
   }
 
+  // TODO: ESKFのようにdtのチェック
   const double dt = (imu->header.stamp - t_last_).toSec();
   t_last_ = imu->header.stamp;
   if (dt <= 0. || kImuTimeGapThreshold < dt)

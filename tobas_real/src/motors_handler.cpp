@@ -116,7 +116,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
 
   // Check delay
   const auto delay = (cur_time - rotor_speeds->header.stamp).toSec();
-  // rosInfo(name_, "The delay from IMU to the motor command: " << delay << "[s]");
+  // cout << "Delay[s]: " << delay << endl;
   if (delay > kCheckDelayThreshold)
   {
     rosWarnThrottle(

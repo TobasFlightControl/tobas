@@ -140,29 +140,6 @@ bool ErrorStateKalmanFilterRos::isReady()
   return ok;
 }
 
-bool ErrorStateKalmanFilterRos::isValidDeltaTime(double dt)
-{
-  if (dt == 0.)
-  {
-    rosError(name_, "The time gap between 2 IMU messages is 0.");
-    return false;
-  }
-
-  if (dt < 0.)
-  {
-    rosError(name_, "The time gap between 2 IMU messages is negative: " << dt << " [s]");
-    return false;
-  }
-
-  if (dt > kImuTimeGapThreshold)
-  {
-    rosError(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
-    return false;
-  }
-
-  return true;
-}
-
 void ErrorStateKalmanFilterRos::initialize()
 {
   // 静止状態でのセンサデータを平均してゼロ点を決める
@@ -363,13 +340,28 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
     }
     case RUNNING:
     {
+      // Compute IMU time gap
       const double dt = (imu->header.stamp - t_last_).toSec();
+      // cout << "dt[s]" << dt << endl;
       t_last_ = imu->header.stamp;
-      if (!isValidDeltaTime(dt))
+
+      // Check IMU time gap
+      if (dt == 0.)
       {
-        return;
+        rosError(name_, "The time gap between 2 IMU messages is 0.");
+        break;
+      }
+      if (dt < 0.)
+      {
+        rosError(name_, "The time gap between 2 IMU messages is negative: " << dt << " [s]");
+        break;
+      }
+      if (dt > kImuTimeGapThreshold)
+      {
+        rosWarn(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
       }
 
+      // Convert ROS messages to Eigen vectors
       tf::vectorMsgToEigen(imu->linear_acceleration, a_m_);
       tf::vectorMsgToEigen(imu->angular_velocity, w_m_);
 
