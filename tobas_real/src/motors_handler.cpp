@@ -97,7 +97,7 @@ void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
 {
-  if (battery_ = nullptr)
+  if (battery_ == nullptr)
   {
     rosWarn(name_, "The rotors cannot be rotated because battery state has not been received yet.");
     return;
