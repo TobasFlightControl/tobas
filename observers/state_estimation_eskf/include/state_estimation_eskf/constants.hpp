@@ -35,7 +35,7 @@ static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
 // その他定数
 static constexpr double kInfoPeriod = 5.;              // [s]
 static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
-static constexpr double kImuTimeGapThreshold = 0.02;   // [s]
+static constexpr double kImuTimeGapThreshold = 0.05;   // [s]
 static constexpr double kWaitToPublish = 3.;  // [s] 状態安定のためESKFが稼働してから少し待つ
 static constexpr double kInitRotStddev = dh_std::deg2rad(10.);  // [rad]
 }  // namespace state_estimation_eskf

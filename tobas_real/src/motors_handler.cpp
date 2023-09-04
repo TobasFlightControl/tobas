@@ -152,12 +152,11 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     }
   }
 
-  // Check latency
+  // Check latency: 多少の外れ値を許容するため，LPFを通したレイテンシで評価
+  // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
   if (is_activated_)
   {
     const auto latency = (cur_time - rotor_speeds->header.stamp).toSec();
-    // cout << "Latency[s]: " << latency << endl;
-
     if (latency < 0.)
     {
       rosErrorThrottle(
@@ -173,6 +172,9 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
         name_, "The time averaged latency from IMU to the motor command is "
                  << filtered_latency << ", which exceeds the threshold " << kCheckLatencyThreshold);
     }
+
+    // cout << "Raw Latency[s]     : " << latency << endl;
+    // cout << "Filtered latency[s]: " << filtered_latency << endl;
   }
 
   // Update last commanded time
