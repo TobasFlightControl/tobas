@@ -191,21 +191,18 @@ void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
 {
-  if (!is_activated_)
-  {
-    return;
-  }
-
-  // Check elapsed time after last command
   const auto time_after_last_cmd = (event.current_real - last_cmd_time_).toSec();
   if (time_after_last_cmd > kAutoStopTimeThreshold)
   {
     setPeriodOnAllChannels(kPwmArm);
-    latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
-    is_activated_ = false;
-    rosInfo(
-      name_, "The rotors are automatically slowed down because "
-               << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
+    if (is_activated_)
+    {
+      latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
+      is_activated_ = false;
+      rosInfo(
+        name_, "The rotors are automatically slowed down because "
+                 << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
+    }
   }
 }
 }  // namespace tobas_real
