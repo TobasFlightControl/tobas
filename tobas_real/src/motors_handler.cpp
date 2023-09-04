@@ -199,6 +199,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
   if (time_after_last_cmd > kAutoStopTimeThreshold)
   {
     setPeriodOnAllChannels(kPwmArm);
+    latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
     is_activated_ = false;
     rosInfo(
       name_, "The rotors are automatically slowed down because "
