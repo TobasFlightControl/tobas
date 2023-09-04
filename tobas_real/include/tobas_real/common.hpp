@@ -71,7 +71,8 @@ static constexpr double kDisarmDuration = 3.;           // [s]
 static constexpr double kDisarmInterval = 0.1;          // [s]
 static constexpr double kErrorPeriod = 1.;              // [s]
 static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
-static constexpr double kCheckDelayThreshold = 0.02;    // [s]
+static constexpr double kCheckLatencyTimeConst = 1.;    // [s]
+static constexpr double kCheckLatencyThreshold = 0.02;  // [s]
 
 static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)

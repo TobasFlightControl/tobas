@@ -25,6 +25,8 @@ MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   getRosParams();
   drone_.loadFromParam(nh_);
 
+  latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
+
   // PWMドライバのセットアップ
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
@@ -112,23 +114,8 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     return;
   }
 
+  // Get current time
   const auto cur_time = ros::Time::now();
-
-  // Check delay
-  const auto delay = (cur_time - rotor_speeds->header.stamp).toSec();
-  // cout << "Delay[s]: " << delay << endl;
-  if (delay > kCheckDelayThreshold)
-  {
-    rosWarnThrottle(
-      kErrorPeriod, name_,
-      "The delay from IMU to the motor command is " << delay << ", which exceeds the threshold "
-                                                    << kCheckDelayThreshold);
-  }
-  else if (delay < 0.)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_, "The timestamp of the motor command precedes the current time.");
-  }
 
   // Update PWM periods
   for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
@@ -162,6 +149,29 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     {
       rosFatal(name_, "Failed to set PWM duty cycle on PIN" << pin << ".");
       // TODO: Request shutdown
+    }
+  }
+
+  // Check latency
+  if (is_activated_)
+  {
+    const auto latency = (cur_time - rotor_speeds->header.stamp).toSec();
+    // cout << "Latency[s]: " << latency << endl;
+
+    if (latency < 0.)
+    {
+      rosErrorThrottle(
+        kErrorPeriod, name_, "The timestamp of the motor command precedes the current time.");
+      return;
+    }
+
+    const auto dt = (cur_time - last_cmd_time_).toSec();
+    const auto filtered_latency = latency_filter_.updateFilter(latency, dt);
+    if (filtered_latency > kCheckLatencyThreshold)
+    {
+      rosWarn(
+        name_, "The time averaged latency from IMU to the motor command is "
+                 << filtered_latency << ", which exceeds the threshold " << kCheckLatencyThreshold);
     }
   }
 

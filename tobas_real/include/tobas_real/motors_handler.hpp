@@ -4,6 +4,8 @@
 #include <ros/timer.h>
 #include <Navio2/RCOutput_Navio2.h>
 
+#include <dh_std_tools/first_order_filter.hpp>
+
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -32,6 +34,7 @@ private:
   ros::Time last_cmd_time_;  // [s]
   bool is_activated_ = false;
   tobas_msgs::BatteryConstPtr battery_;
+  dh_std::FirstOrderFilter<double> latency_filter_;
 
   // PubSub
   ros::Subscriber rotor_speeds_sub_;
