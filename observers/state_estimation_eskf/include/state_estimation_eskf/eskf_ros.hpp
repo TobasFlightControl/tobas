@@ -14,7 +14,6 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/LinearVelocityWithCovariance.h>
 #include <tobas_msgs/PoseTwist.h>
-#include <tobas_msgs/StaticStateDeterminationAction.h>
 
 #include <state_estimation_eskf/ErrorStateKalmanFilterFeedback.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
@@ -125,8 +124,8 @@ private:
 
   bool isReady();
   void initialize();
-  tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
-  void updatePoseVelMsg(const ImuMsg& imu, StateMsg& state);
+  void setZeroPositions();
+  StateMsg::ConstPtr makePoseVelMsg(const ImuMsg& imu);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuCb(const ImuMsg::ConstPtr& imu);

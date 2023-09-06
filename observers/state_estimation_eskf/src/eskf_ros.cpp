@@ -16,12 +16,15 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
+#include <tobas_msgs/StaticStateDeterminationAction.h>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
+
+namespace et = eigen_tools;
 
 namespace state_estimation_eskf
 {
@@ -140,7 +143,7 @@ bool ErrorStateKalmanFilterRos::isReady()
 void ErrorStateKalmanFilterRos::initialize()
 {
   // 静止状態でのセンサデータを平均してゼロ点を決める
-  const auto result = setZeroPositions();
+  setZeroPositions();
 
   // GPSの初期値から地磁気の参照値を求める
   // TODO: 位置の変化に合わせてオンラインで参照値を求める
@@ -151,16 +154,16 @@ void ErrorStateKalmanFilterRos::initialize()
   // ISKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
   eskf_.initialize(
-    Vector3d(0., 0., -tobas::kGravity),                           // Gravity vector
-    Vector3d(mag.north, -mag.east, -mag.down),                    // Magnetic field (NWU)
-    Vector3d::Zero(),                                             // Init position
-    Vector3d::Zero(),                                             // Init velocity
-    q_0_,                                                         // Init quaternion
-    Map<const Matrix3d>(result->gps.position_covariance.data()),  // Init position cov
-    Map<const Matrix3d>(result->ground_speed.covariance.data()),  // Init velocity cov
-    Vector3d::Constant(kInitRotStddev).asDiagonal(),              // Init quaternion cov
-    Matrix3d::Zero(),                                             // Init accel bias cov
-    Matrix3d::Zero()                                              // Init gyro bias cov
+    Vector3d(0., 0., -tobas::kGravity),                        // Gravity vector
+    Vector3d(mag.north, -mag.east, -mag.down),                 // Magnetic field (NWU)
+    Vector3d::Zero(),                                          // Init position
+    Vector3d::Zero(),                                          // Init velocity
+    q_0_,                                                      // Init quaternion
+    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),      // Init position cov
+    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),      // Init velocity cov
+    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),      // Init rotation cov
+    Vector3d::Constant(sqr(kInitAccBiasStddev)).asDiagonal(),  // Init accel bias cov
+    Vector3d::Constant(sqr(kInitGyroBiasStddev)).asDiagonal()  // Init gyro bias cov
   );
 
   // ヨー角の初期値
@@ -170,7 +173,7 @@ void ErrorStateKalmanFilterRos::initialize()
   yaw_jump_count_ = 0;
 }
 
-tobas_msgs::StaticStateDeterminationResultConstPtr ErrorStateKalmanFilterRos::setZeroPositions()
+void ErrorStateKalmanFilterRos::setZeroPositions()
 {
   constexpr char action_name[] = "static_state_determination";
   actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(action_name);
@@ -233,12 +236,11 @@ tobas_msgs::StaticStateDeterminationResultConstPtr ErrorStateKalmanFilterRos::se
   tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
   const auto mag = tobas::geomag(result->gps.latitude, result->gps.longitude, result->gps.altitude);
   const Vector3d m0(mag.north, -mag.east, -mag.down);  // NED -> NWU
-  eigen_tools::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
-
-  return result;
+  et::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
 }
 
-void ErrorStateKalmanFilterRos::updatePoseVelMsg(const ImuMsg& imu, StateMsg& state)
+ErrorStateKalmanFilterRos::StateMsg::ConstPtr
+ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
 {
   const Vector3d W_Pos_WI = eskf_.getXYZ();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -247,19 +249,21 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg(const ImuMsg& imu, StateMsg& st
   const Vector3d B_omega = w_m_ - eskf_.getGyroBias();
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
+  auto state = boost::make_shared<StateMsg>();
+
   // Time stamp
-  state.header.stamp = imu.header.stamp;
+  state->header.stamp = imu.header.stamp;
 
   // Position (Global): IMU frame -> Base frame
   const Vector3d W_Pos_WB = W_Pos_WI - W_Rot_B * B_Pos_BI;
-  tf::vectorEigenToKDL(W_Pos_WB, state.pose.pos);
+  tf::vectorEigenToKDL(W_Pos_WB, state->pose.pos);
 
   // Linear velocity (Local): IMU frame -> Base frame
   const Vector3d B_Vel_WB = B_Rot_W * W_Vel_WI - B_omega.cross(B_Pos_BI);
-  tf::vectorEigenToKDL(B_Vel_WB, state.twist.vel);
+  tf::vectorEigenToKDL(B_Vel_WB, state->twist.vel);
 
   // Roll, Pitch
-  auto& rpy = state.pose.euler;
+  auto& rpy = state->pose.euler;
   quaternionToEuler(
     W_Rot_B.x(), W_Rot_B.y(), W_Rot_B.z(), W_Rot_B.w(), rpy.roll, rpy.pitch, yaw_now_);
 
@@ -276,13 +280,15 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg(const ImuMsg& imu, StateMsg& st
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Angular velocity (Local)
-  tf::vectorEigenToKDL(B_omega, state.twist.rot);
+  tf::vectorEigenToKDL(B_omega, state->twist.rot);
 
   // Covariances
-  eigen_tools::matrix3EigenToBoost(eskf_.getPositionCovariance(), state.position_covariance);
-  eigen_tools::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state.orientation_covariance);
-  eigen_tools::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state.linear_velocity_covariance);
-  state.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
+  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
+  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state->orientation_covariance);
+  et::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state->linear_velocity_covariance);
+  state->angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
+
+  return state;
 }
 
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -367,8 +373,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // 推定状態を発行
       if ((imu->header.stamp - t_ready_).toSec() > kWaitToPublish)
       {
-        const auto state = boost::make_shared<StateMsg>();
-        updatePoseVelMsg(*imu, *state);
+        const auto state = makePoseVelMsg(*imu);
         posevel_pub_.publish(state);
       }
 
@@ -377,6 +382,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       feedback->header = imu->header;
       tf::vectorEigenToKDL(eskf_.getAccelBias(), feedback->acc_bias);
       tf::vectorEigenToKDL(eskf_.getGyroBias(), feedback->gyro_bias);
+      et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
+      et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
       feedback_pub_.publish(feedback);
 
       break;

@@ -9,6 +9,7 @@
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
+
 namespace et = eigen_tools;
 
 namespace state_estimation_eskf
