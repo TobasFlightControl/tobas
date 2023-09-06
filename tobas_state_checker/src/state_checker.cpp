@@ -164,25 +164,40 @@ void StateChecker::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   // 状態推定の共分散が閾値を超えた場合は着陸指令を出す
   const auto& pos_cov = pt->position_covariance;
   const auto& rot_cov = pt->orientation_covariance;
-  if (max(pos_cov[0], pos_cov[4]) > dh_std::sqr(kHorizontalPositionStddevThreshold))
+
+  const auto hor_pos_var = max(pos_cov[0], pos_cov[4]);
+  if (hor_pos_var > dh_std::sqr(kHorizontalPositionStddevThreshold))
   {
     rosFatal(
-      name_, "Horizontal Position covariance exceeds the threshold. Issuing a landing command.");
+      name_, "Horizontal Position variance "
+               << hor_pos_var << " exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
-  if (pos_cov[8] > dh_std::sqr(kVerticalPositionStddevThreshold))
+
+  const auto ver_pos_var = pos_cov[8];
+  if (ver_pos_var > dh_std::sqr(kVerticalPositionStddevThreshold))
   {
-    rosFatal(name_, "Vertical Position variance exceeds the threshold. Issuing a landing command.");
+    rosFatal(
+      name_, "Vertical Position variance " << ver_pos_var
+                                           << " exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
-  if (max(rot_cov[0], rot_cov[4]) > dh_std::sqr(kAttitudeStddevThreshold))
+
+  const auto attitude_var = max(rot_cov[0], rot_cov[4]);
+  if (attitude_var > dh_std::sqr(kAttitudeStddevThreshold))
   {
-    rosFatal(name_, "Attitude covariance value exceeds the threshold. Issuing a landing command.");
+    rosFatal(
+      name_,
+      "Attitude variance " << attitude_var << " exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
-  if (rot_cov[8] > dh_std::sqr(kHeadingStddevThreshold))
+
+  const auto heading_var = rot_cov[8];
+  if (heading_var > dh_std::sqr(kHeadingStddevThreshold))
   {
-    rosFatal(name_, "Heading covariance value exceeds the threshold. Issuing a landing command.");
+    rosFatal(
+      name_,
+      "Heading variance " << heading_var << " exceeds the threshold. Issuing a landing command.");
     requestLanding();
   }
 
