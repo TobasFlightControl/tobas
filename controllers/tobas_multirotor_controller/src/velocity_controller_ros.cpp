@@ -31,6 +31,11 @@ VelocityControllerRos::VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle
       this),
     server_(ros::NodeHandle(kCtrlName))
 {
+  // Dynamic Reconfigure
+  // ConfigServer::CallbackType f =
+  //   boost::bind(&VelocityControllerRos::dynamicReconfigureCb, this, _1, _2);
+  // server_.setCallback(f);
+
   getRosParams();
 
   vel_controller_.configure(dynamic_params_vel_);
@@ -38,11 +43,6 @@ VelocityControllerRos::VelocityControllerRos(ros::NodeHandle nh, ros::NodeHandle
 
   registerPublishers();
   registerSubscribers();
-
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f =
-    boost::bind(&VelocityControllerRos::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
 }
 
 void VelocityControllerRos::getRosParams()

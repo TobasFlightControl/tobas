@@ -27,6 +27,10 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(ros::NodeHandle(kCtrlName))
 {
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
+
   getRosParams();
   drone_.loadFromParam(nh_);
 
@@ -51,10 +55,6 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
 
   registerPublishers();
   registerSubscribers();
-
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
 }
 
 void Controller::getRosParams()

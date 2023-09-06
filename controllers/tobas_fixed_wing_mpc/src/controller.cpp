@@ -30,6 +30,10 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(ros::NodeHandle(kCtrlName))
 {
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
+
   getRosParams();
   drone_.loadFromParam(nh_);
 
@@ -60,10 +64,6 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
 
   registerPublishers();
   registerSubscribers();
-
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
 }
 
 void Controller::getRosParams()
@@ -375,8 +375,7 @@ void Controller::configure(const ConfigType& cfg)
 
   // 制御入力の重み
   mpc_.input_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_weight_exp));
-  mpc_.input_weight.bottomRows(drone_.numControlSurfaces())
-    .fill(exp10(cfg.deflection_weight_exp));
+  mpc_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_weight_exp));
 
   // 制御入力の変化率の重み
   mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_exp));

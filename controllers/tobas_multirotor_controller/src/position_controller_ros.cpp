@@ -25,17 +25,17 @@ PositionControllerRos::PositionControllerRos(ros::NodeHandle nh, ros::NodeHandle
       this),
     server_(ros::NodeHandle(kCtrlName))
 {
+  // Dynamic Reconfigure
+  // ConfigServer::CallbackType f =
+  //   boost::bind(&PositionControllerRos::dynamicReconfigureCb, this, _1, _2);
+  // server_.setCallback(f);
+
   getRosParams();
 
   pos_controller_.configure(dynamic_params_);
 
   registerPublishers();
   registerSubscribers();
-
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f =
-    boost::bind(&PositionControllerRos::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
 }
 
 void PositionControllerRos::getRosParams()

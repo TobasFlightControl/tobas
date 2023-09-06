@@ -23,19 +23,17 @@ namespace state_estimation_cascade
 {
 StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
-    is_initialized_(false),
-    imu_received_(false),
-    bar_received_(false),
-    gps_received_(false),
-    vel_received_(false),
     check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-
   ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
+
+  getRosParams();
+
+  cart_filter_.configure(grav_var_);
+
+  registerPublishers();
+  registerSubscribers();
 }
 
 void StateEstimator::getRosParams()

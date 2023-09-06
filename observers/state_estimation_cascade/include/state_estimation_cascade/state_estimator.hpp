@@ -46,11 +46,11 @@ private:
   double lon_0_;  // 経度のゼロ点
   double alt_0_;  // 高度のゼロ点
 
-  bool is_initialized_;
-  bool imu_received_;
-  bool bar_received_;
-  bool gps_received_;
-  bool vel_received_;
+  bool is_initialized_ = false;
+  bool imu_received_ = false;
+  bool bar_received_ = false;
+  bool gps_received_ = false;
+  bool vel_received_ = false;
   ros::Time t_last_;
   Eigen::Quaterniond quat_;  // 推定された姿勢
   Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)

@@ -39,22 +39,22 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
       &ErrorStateKalmanFilterRos::checkTopicsTimerCb,
       this)
 {
-  getRosParams();
-  drone_.loadFromParam(nh_);
-
-  imu2gps_ = drone_.gpsOffset() - drone_.imuOffset();
-
-  rot_acc_cov_.setZero();
-  rot_mag_cov_.setZero();
-
-  dynamicReconfigureCb(cfg_, 0);
-
-  registerPublishers();
-  registerSubscribers();
-
+  // Dynamic Reconfigureの設定
+  // この時点でコールバックが呼ばれるが，Nodeletの場合はなぜかrosparamが反映されない！
   ConfigServer::CallbackType f =
     boost::bind(&ErrorStateKalmanFilterRos::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
+
+  getRosParams();
+  drone_.loadFromParam(nh_);
+
+  // Dynamic Reconfigureの設定後に手動でパラメータを設定する必要がある！
+  dynamicReconfigureCb(cfg_, 0);
+
+  imu2gps_ = drone_.gpsOffset() - drone_.imuOffset();
+
+  registerPublishers();
+  registerSubscribers();
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()
