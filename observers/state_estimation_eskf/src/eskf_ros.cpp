@@ -203,23 +203,23 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
     requestShutdown();
   }
 
-  rosInfo(
-    name_, "The result of " << action_name << ":\n"
-                            << "IMU count: " << result->imu_count << endl
-                            << "Magnetometer count: " << result->mag_count << endl
-                            << "Barometer count: " << result->bar_count << endl
-                            << "GPS position count: " << result->gps_count << endl
-                            << "GPS velocity count: " << result->vel_count << endl
-                            << "IMU:\n"
-                            << result->imu << endl
-                            << "Magnetic Field:\n"
-                            << result->magnetic_field << endl
-                            << "Air Pressure:\n"
-                            << result->air_pressure << endl
-                            << "GPS:\n"
-                            << result->gps << endl
-                            << "Ground Speed:\n"
-                            << result->ground_speed);
+  // rosInfo(
+  //   name_, "The result of " << action_name << ":\n"
+  //                           << "IMU count: " << result->imu_count << endl
+  //                           << "Magnetometer count: " << result->mag_count << endl
+  //                           << "Barometer count: " << result->bar_count << endl
+  //                           << "GPS position count: " << result->gps_count << endl
+  //                           << "GPS velocity count: " << result->vel_count << endl
+  //                           << "IMU:\n"
+  //                           << result->imu << endl
+  //                           << "Magnetic Field:\n"
+  //                           << result->magnetic_field << endl
+  //                           << "Air Pressure:\n"
+  //                           << result->air_pressure << endl
+  //                           << "GPS:\n"
+  //                           << result->gps << endl
+  //                           << "Ground Speed:\n"
+  //                           << result->ground_speed);
 
   // GPS
   // TODO: IMUフレームに変換
