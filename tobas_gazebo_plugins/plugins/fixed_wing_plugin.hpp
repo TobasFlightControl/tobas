@@ -11,7 +11,7 @@
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/Wind.h>
-#include <tobas_msgs/FixedWingDebug.h>
+#include <tobas_gazebo_plugins/FixedWingDebug.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
@@ -74,7 +74,7 @@ private:
   bool cs_activated_;
   ignition::math::Vector3d wind_vel_W_;                   // 風速 [m/s]
   tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [rad]
-  tobas_msgs::FixedWingDebug debug_msg_;
+  tobas_gazebo_plugins::FixedWingDebug debug_msg_;
 
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;

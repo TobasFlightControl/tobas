@@ -1,10 +1,13 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/boost.hpp>
 
+#include <tobas_gazebo_plugins/ImuDebug.h>
+
 #include "./imu_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -58,6 +61,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   // Advertise
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + ns_ + "/" + imu_topic_, 1);
+  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::ImuDebug>("/" + ns_ + "/" + debug_topic_, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboImuPlugin::onUpdate, this));
@@ -68,6 +72,7 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "imuTopic", imu_topic_, kDefaultImuTopic);
+  getSdfParam(sdf, "debugTopic", debug_topic_, kDefaultDebugTopic);
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(
     sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity, POSITIVE);
@@ -126,9 +131,11 @@ void GazeboImuPlugin::onUpdate()
   // Publish IMU message
   imu_pub_.publish(imu_msg_);
 
-  // For debug
-  // cout << "Accelerometer bias: " << acc_bias_ << endl;
-  // cout << "Gyroscope bias: " << gyro_bias_ << endl;
+  // Fill and publish debug message
+  debug_msg_.header = imu_msg_.header;
+  vectorGazeboToKDL(acc_bias_, debug_msg_.acc_bias);
+  vectorGazeboToKDL(gyro_bias_, debug_msg_.gyro_bias);
+  debug_pub_.publish(debug_msg_);
 }
 
 void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, double dt)

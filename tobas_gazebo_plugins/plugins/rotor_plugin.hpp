@@ -11,7 +11,7 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
-#include <tobas_msgs/RotorDebug.h>
+#include <tobas_gazebo_plugins/RotorDebug.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
@@ -69,7 +69,7 @@ private:
   bool battery_received_;
   bool wind_received_;
   dh_std::FirstOrderFilter<double> rotor_speed_filter_;
-  tobas_msgs::RotorDebug debug_msg_;
+  tobas_gazebo_plugins::RotorDebug debug_msg_;
 
   physics::ModelPtr model_;
   physics::JointPtr joint_;

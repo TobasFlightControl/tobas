@@ -16,6 +16,7 @@
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
 
+#include <state_estimation_eskf/ErrorStateKalmanFilterFeedback.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
 
 #include "./eskf.hpp"
@@ -32,6 +33,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
   using StateMsg = tobas_msgs::PoseTwist;
+  using FeedbackMsg = state_estimation_eskf::ErrorStateKalmanFilterFeedback;
 
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
@@ -101,6 +103,7 @@ private:
 
   // PubSub
   ros::Publisher posevel_pub_;
+  ros::Publisher feedback_pub_;
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;

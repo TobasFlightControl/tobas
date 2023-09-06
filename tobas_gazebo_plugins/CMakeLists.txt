@@ -17,9 +17,22 @@ find_package(catkin REQUIRED COMPONENTS
 	laser_geometry
 	sensor_msgs
 	geometry_msgs
+	message_generation
 )
 find_package(gazebo REQUIRED)
 find_package(OpenCV REQUIRED)
+
+file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
+add_message_files(FILES ${MSG_FILES})
+# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
+# add_service_files(FILES ${SRV_FILES})
+# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
+# add_action_files(FILES ${ACTION_FILES})
+
+generate_messages(DEPENDENCIES
+	kdl_msgs
+	std_msgs
+)
 
 catkin_package(
 	INCLUDE_DIRS include
@@ -39,6 +52,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})  # RayPluginを使うために必要
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # プラグインごとに共有ライブラリを作成

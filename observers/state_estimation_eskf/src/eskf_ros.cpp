@@ -91,8 +91,8 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
   posevel_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
+  feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
 }
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
@@ -283,11 +283,6 @@ void ErrorStateKalmanFilterRos::updatePoseVelMsg(const ImuMsg& imu, StateMsg& st
   eigen_tools::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state.orientation_covariance);
   eigen_tools::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state.linear_velocity_covariance);
   state.angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
-
-  // For debug
-  // cout << "Estiamted Quaternion:" << endl << W_Rot_B << endl;
-  // cout << "Estimated accelerometer bias:" << endl << eskf_.getAccelBias() << endl;
-  // cout << "Estimated gyroscope bias:" << endl << eskf_.getGyroBias() << endl;
 }
 
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -376,6 +371,13 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
         updatePoseVelMsg(*imu, *state);
         posevel_pub_.publish(state);
       }
+
+      // フィードバックを発行
+      const auto feedback = boost::make_shared<FeedbackMsg>();
+      feedback->header = imu->header;
+      tf::vectorEigenToKDL(eskf_.getAccelBias(), feedback->acc_bias);
+      tf::vectorEigenToKDL(eskf_.getGyroBias(), feedback->gyro_bias);
+      feedback_pub_.publish(feedback);
 
       break;
     }

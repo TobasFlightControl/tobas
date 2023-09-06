@@ -186,7 +186,8 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = nh_.advertise<tobas_msgs::FixedWingDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+  debug_pub_ =
+    nh_.advertise<tobas_gazebo_plugins::FixedWingDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
 
   deflections_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this,

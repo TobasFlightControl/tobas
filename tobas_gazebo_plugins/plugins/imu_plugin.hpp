@@ -18,6 +18,7 @@ static const std::string kPluginName = "imu_plugin";
 
 // Default values
 static const std::string kDefaultImuTopic = "imu";
+static const std::string kDefaultDebugTopic = "ground_truth/imu_debug";
 static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * kDegreeToRadian;
 static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * kDegreeToRadian;
 static constexpr double kDefaultGyroBiasCorrTime = 1000.;
@@ -43,6 +44,7 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string imu_topic_;
+  std::string debug_topic_;
   SdfVector3 offset_;               // B_Pos_BS
   double gyro_noise_density_;       // Gyroscope noise density spectrum [rad/s/sqrt(Hz)]
   double gyro_random_walk_;         // Gyroscope bias random walk [rad/s/s/sqrt(Hz)]
@@ -58,6 +60,7 @@ private:
   event::ConnectionPtr update_connection_;
   common::Time last_time_;
   sensor_msgs::Imu imu_msg_;
+  tobas_gazebo_plugins::ImuDebug debug_msg_;
   ignition::math::Vector3d gyro_bias_;
   ignition::math::Vector3d acc_bias_;
   ignition::math::Vector3d gyro_turn_on_bias_;
@@ -68,6 +71,7 @@ private:
   NormalDistribution noise_;
 
   ros::Publisher imu_pub_;
+  ros::Publisher debug_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();

@@ -13,6 +13,7 @@
 	<depend>laser_geometry</depend>
 	<depend>sensor_msgs</depend>
 	<depend>geometry_msgs</depend>
+	<depend>message_generation</depend>
 
 	<depend>tobas_tools</depend>
 

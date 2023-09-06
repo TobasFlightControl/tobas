@@ -198,7 +198,8 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  debug_pub_ = nh_.advertise<tobas_msgs::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+  debug_pub_ =
+    nh_.advertise<tobas_gazebo_plugins::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
 
   command_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this,
