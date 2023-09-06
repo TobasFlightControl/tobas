@@ -52,7 +52,7 @@ void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
 {
-  const auto T_W_B = link_->WorldPose();
+  const auto& T_W_B = link_->WorldPose();
 
   // Update time stamp
   timeGazeboToRos(world_->SimTime(), state_msg_.header.stamp);
