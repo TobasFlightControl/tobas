@@ -298,14 +298,14 @@ void Controller::configure(const ConfigType& cfg)
   lqd_.state_weight(eom_.kStateIdx_r) = cfg.angular_velocity_weight;
 
   // 制御入力の重み
-  const auto thrust_weight = pow(10, cfg.thrust_weight_exp);
-  const auto deflection_weight = pow(10, cfg.deflection_weight_exp);
+  const auto thrust_weight = exp10(cfg.thrust_weight_exp);
+  const auto deflection_weight = exp10(cfg.deflection_weight_exp);
   lqd_.input_weight.topRows(x_rotors_.count()).fill(thrust_weight);
   lqd_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_weight);
 
   // 制御入力の変化率の重み
-  const auto thrust_rate_weight = pow(10, cfg.thrust_rate_weight_exp);
-  const auto deflection_rate_weight = pow(10, cfg.deflection_rate_weight_exp);
+  const auto thrust_rate_weight = exp10(cfg.thrust_rate_weight_exp);
+  const auto deflection_rate_weight = exp10(cfg.deflection_rate_weight_exp);
   lqd_.input_rate_weight.topRows(x_rotors_.count()).fill(thrust_rate_weight);
   lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
 }

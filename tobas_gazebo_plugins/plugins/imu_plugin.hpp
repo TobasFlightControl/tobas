@@ -7,6 +7,8 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/Imu.h>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
 namespace gazebo
@@ -16,20 +18,18 @@ static const std::string kPluginName = "imu_plugin";
 
 // Default values
 static const std::string kDefaultImuTopic = "imu";
-static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. / 180. * M_PI;
-static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. / 180. * M_PI;
-static constexpr double kDefaultGyroBiasCorrTime = 1e+3;
-static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 / 180.0 * M_PI;
+static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * kDegreeToRadian;
+static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * kDegreeToRadian;
+static constexpr double kDefaultGyroBiasCorrTime = 1000.;
+static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * kDegreeToRadian;
 static constexpr double kDefaultAccNoiseDensity = 2. * 2e-3;
 static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
 static constexpr double kDefaultAccBiasCorrTime = 300.;
-static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * 9.80665;
+static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas::kGravity;
 
 class GazeboImuPlugin : public SensorPlugin
 {
   using super = SensorPlugin;
-
-  using ImuMsg = sensor_msgs::Imu;
 
 public:
   explicit GazeboImuPlugin();
@@ -57,7 +57,7 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
   common::Time last_time_;
-  ImuMsg imu_msg_;
+  sensor_msgs::Imu imu_msg_;
   ignition::math::Vector3d gyro_bias_;
   ignition::math::Vector3d acc_bias_;
   ignition::math::Vector3d gyro_turn_on_bias_;

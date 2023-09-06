@@ -63,7 +63,4 @@ static constexpr double kDefaultAltitudeZero = 0.;           // [m]
 static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 static constexpr double kDefaultCheckDelayThreshold = 0.02;   // [s]
 static constexpr double kDefaultAutoStopTimeThreshold = 0.5;  // [s]
-
-/* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
-ros::TransportHints tcpNoDelay(bool nodelay = true);
 }  // namespace gazebo

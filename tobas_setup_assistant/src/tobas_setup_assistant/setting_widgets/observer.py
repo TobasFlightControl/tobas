@@ -279,32 +279,18 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
     NAME = "Error State Kalman Filter"
     PACKAGE_NAME = "state_estimation_eskf"
 
+    # 動的パラメータのデフォルト値
+    DEFAULT_ROTATION_VARIANCE_GRAV = 100.0
+    DEFAULT_ROTATION_VARIANCE_GEOMAG = 1.0
+    DEFAULT_ACC_BIAS_NOISE_VAR_LOG10 = -5
+    DEFAULT_GYRO_BIAS_NOISE_VAR_LOG10 = -9
+
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
             "An implementation of <a href='https://arxiv.org/abs/1711.02508'>"
             + "Quaternion kinematics for the error-state Kalman filter [Joan Sola, 2017]</a>."
         )
         super().__init__(main, abst_text)
-
-        rot_var_grav_description = "重力ベクトルの観測に用いる分散．"
-        self.rot_var_grav = ParamGetterWidget_SpinBox(
-            "Rotation variance (Gravity vector)",
-            rot_var_grav_description,
-            minimum=1,
-            maximum=5000,
-            default=100,
-        )
-        self._rows.addWidget(self.rot_var_grav)
-
-        rot_var_geomag_description = "地磁気ベクトルの観測に用いる分散．"
-        self.rot_var_geomag = ParamGetterWidget_SpinBox(
-            "Rotation variance (Geomagnetic vector)",
-            rot_var_geomag_description,
-            minimum=1,
-            maximum=5000,
-            default=1,
-        )
-        self._rows.addWidget(self.rot_var_geomag)
 
     @overrides
     def is_valid(self) -> bool:
@@ -323,22 +309,19 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
 
     @overrides
     def parameter_dict(self) -> dict:
-        imu = self._main.settings.imu
         gps = self._main.settings.gps
 
         res = dict()
         res["state_estimator_eskf"] = {
-            "gyro_noise_density": imu.gyro_noise_density.get(),
-            "gyro_random_walk": imu.gyro_random_walk.get(),
-            "acc_noise_density": imu.acc_noise_density.get(),
-            "acc_random_walk": imu.acc_random_walk.get(),
             "use_barometer": False,  # TODO: 選択できるように
             "use_gps": gps.equipped(),
             "gps_horizontal_position_stddev_threshold": self.gps_hor_pos_stddev_threshold.get(),
             "gps_vertical_position_stddev_threshold": self.gps_ver_pos_stddev_threshold.get(),
             "geomag_observe_method": "yaw_only",
-            "rotation_variance_grav": self.rot_var_grav.get(),
-            "rotation_variance_geomag": self.rot_var_geomag.get(),
+            "rotation_variance_grav": self.DEFAULT_ROTATION_VARIANCE_GRAV,
+            "rotation_variance_geomag": self.DEFAULT_ROTATION_VARIANCE_GEOMAG,
+            "acc_bias_noise_var_exp": self.DEFAULT_ACC_BIAS_NOISE_VAR_LOG10,
+            "gyro_bias_noise_var_exp": self.DEFAULT_GYRO_BIAS_NOISE_VAR_LOG10,
         }
 
         return res

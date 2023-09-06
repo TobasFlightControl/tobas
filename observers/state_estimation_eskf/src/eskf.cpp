@@ -18,10 +18,6 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  double acc_noise_density,
-  double gyro_noise_density,
-  double acc_random_walk,
-  double gyro_random_walk,
   const Vector3d& grav_W,
   const Vector3d& mag_W,
   const Vector3d& init_pos,
@@ -33,21 +29,13 @@ void ErrorStateKalmanFilter::initialize(
   const Matrix3d& init_acc_bias_cov,
   const Matrix3d& init_gyro_bias_cov)
 {
-  assert(acc_noise_density > 0.);
-  assert(gyro_noise_density > 0.);
-  assert(acc_random_walk > 0.);
-  assert(gyro_random_walk > 0.);
   assert(grav_W.z() < 0.);
-  assert(et::isSymmetric(init_pos_cov) && et::isSemiPositive(init_pos_cov));
-  assert(et::isSymmetric(init_vel_cov) && et::isSemiPositive(init_vel_cov));
-  assert(et::isSymmetric(init_dtheta_cov) && et::isSemiPositive(init_dtheta_cov));
-  assert(et::isSymmetric(init_acc_bias_cov) && et::isSemiPositive(init_acc_bias_cov));
-  assert(et::isSymmetric(init_gyro_bias_cov) && et::isSemiPositive(init_gyro_bias_cov));
+  assert(et::isSymmetricSemiPositiveDefinite(init_pos_cov));
+  assert(et::isSymmetricSemiPositiveDefinite(init_vel_cov));
+  assert(et::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
+  assert(et::isSymmetricSemiPositiveDefinite(init_acc_bias_cov));
+  assert(et::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
 
-  acc_noise_density_ = acc_noise_density;
-  gyro_noise_density_ = gyro_noise_density;
-  acc_random_walk_ = acc_random_walk;
-  gyro_random_walk_ = gyro_random_walk;
   grav_W_ = grav_W;
   mag_W_ = mag_W;
 
@@ -144,21 +132,30 @@ Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
   return P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx);
 }
 
-void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m, double dt)
+void ErrorStateKalmanFilter::predictIMU(
+  const Vector3d& acc_meas,
+  const Vector3d& gyro_meas,
+  double acc_noise_var,
+  double gyro_noise_var,
+  double acc_bias_noise_var,
+  double gyro_bias_noise_var,
+  double dt)
 {
+  assert(acc_noise_var > 0.);
+  assert(gyro_noise_var > 0.);
+  assert(acc_bias_noise_var > 0.);
+  assert(gyro_bias_noise_var > 0.);
   assert(dt > 0.);  // クオータニオンの正規化のためにdt = 0を許容できない
-  assert(dt < kImuTimeGapThreshold);
 
   const Matrix3d Rot = getDCM();
-  const Vector3d acc_B = a_m - getAccelBias();
+  const Vector3d acc_B = acc_meas - getAccelBias();
   const Vector3d acc_W = Rot * acc_B;
-  const Vector3d delta_theta = (w_m - getGyroBias()) * dt;
+  const Vector3d delta_theta = (gyro_meas - getGyroBias()) * dt;
   const Quaterniond q_delta_theta = et::angleAxisToQuaternion(delta_theta);
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
   nominal_state_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * sqr(dt);
-  // nominal_state_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt;  // 加速度の位置への寄与を無視
   nominal_state_.block<3, 1>(kVelIdx, 0) += (acc_W + grav_W_) * dt;
   nominal_state_.block<4, 1>(kQuatIdx, 0) =
     et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
@@ -170,25 +167,19 @@ void ErrorStateKalmanFilter::predictIMU(const Vector3d& a_m, const Vector3d& w_m
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
-  // (269): 共分散行列の予測値を更新
+  // (269)第一項: 共分散行列の予測値を更新
+  // TODO: sympyを用いて行列積を効率化
   P_ = F_x_ * P_ * F_x_.transpose();
 
   // 無理やり対称化 (これが必須)
-  // プロセスノイズを加える前に対称化する必要がある
+  // プロセスノイズを加える前に対称化する必要がある？
   et::symmetrise(P_);
 
-  // Noise variance
-  // FIXME: (264), (265)は論文と単位が異なるが，無理にdtの数で論文に単位を合わせると性能が劣化する
-  const double sigma2_an = sqr(acc_noise_density_) / dt;   // (262) [m^2/s^4]
-  const double sigma2_wn = sqr(gyro_noise_density_) / dt;  // (263) [rad^2/s^2]
-  const double sigma2_aw = sqr(acc_random_walk_) / dt;     // (264) [m^2/s^6]
-  const double sigma2_ww = sqr(gyro_random_walk_) / dt;    // (265) [rad^2/s^4]
-
-  // Inject process noise
-  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += sigma2_an * sqr(dt);
-  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += sigma2_wn * sqr(dt);
-  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += sigma2_aw * dt;
-  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += sigma2_ww * dt;
+  // (269)第二項: プロセスノイズを印加
+  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += acc_noise_var * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += gyro_noise_var * sqr(dt);
+  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += acc_bias_noise_var;
+  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += gyro_bias_noise_var;
 
   // NaN検出
   assert(et::isFinite(nominal_state_));

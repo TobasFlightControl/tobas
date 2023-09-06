@@ -37,10 +37,10 @@ void CartesianFilter::initialize(
   const Matrix3d& init_grav_cov,
   const double& grav_var)
 {
-  assert(eigen_tools::isSymmetric(init_pos_cov) && eigen_tools::isSemiPositive(init_pos_cov));
-  assert(eigen_tools::isSymmetric(init_vel_cov) && eigen_tools::isSemiPositive(init_vel_cov));
-  assert(eigen_tools::isSymmetric(init_acc_cov) && eigen_tools::isSemiPositive(init_acc_cov));
-  assert(eigen_tools::isSymmetric(init_grav_cov) && eigen_tools::isSemiPositive(init_grav_cov));
+  assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_pos_cov));
+  assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_vel_cov));
+  assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_acc_cov));
+  assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_grav_cov));
   assert(grav_var > 0.);
 
   x_.block(kPosIdx, 0, 3, 1) = init_pos;
@@ -85,7 +85,7 @@ void CartesianFilter::predict(const Quaterniond& quat, const Matrix3d& init_acc_
 
 void CartesianFilter::measureXYZ(const Vector3d& p_m, const Matrix3d& cov)
 {
-  assert(eigen_tools::isPositive(cov));
+  assert(eigen_tools::isSymmetricPositiveDefinite(cov));
 
   const Vector3d dpos = p_m - getXYZ();
   const Matrix<double, 3, kStateSize> C = C_.block(kPosIdx, 0, 3, kStateSize);
@@ -94,7 +94,7 @@ void CartesianFilter::measureXYZ(const Vector3d& p_m, const Matrix3d& cov)
 
 void CartesianFilter::measureXY(const Vector2d& xy_m, const Matrix2d& cov)
 {
-  assert(eigen_tools::isPositive(cov));
+  assert(eigen_tools::isSymmetricPositiveDefinite(cov));
 
   const Vector2d dxy = xy_m - getXY();
   const Matrix<double, 2, kStateSize> C = C_.block(kPosIdx, 0, 2, kStateSize);
@@ -112,7 +112,7 @@ void CartesianFilter::measureAltitude(const double& z_m, const double& var)
 
 void CartesianFilter::measureVelocity(const Vector3d& v_m, const Matrix3d& cov)
 {
-  assert(eigen_tools::isPositive(cov));
+  assert(eigen_tools::isSymmetricPositiveDefinite(cov));
 
   const Vector3d dvel = v_m - getVelocity();
   const Matrix<double, 3, kStateSize> C = C_.block(kVelIdx, 0, 3, kStateSize);
@@ -121,7 +121,7 @@ void CartesianFilter::measureVelocity(const Vector3d& v_m, const Matrix3d& cov)
 
 void CartesianFilter::measureAcceleration(const Vector3d& a_m, const Matrix3d& cov)
 {
-  assert(eigen_tools::isPositive(cov));
+  assert(eigen_tools::isSymmetricPositiveDefinite(cov));
 
   const Vector3d dacc = a_m - getAcceleration();
   const Matrix<double, 3, kStateSize> C = C_.block(kAccIdx, 0, 3, kStateSize);

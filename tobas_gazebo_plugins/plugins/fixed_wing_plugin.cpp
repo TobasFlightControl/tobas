@@ -190,9 +190,10 @@ void GazeboFixedWingPlugin::registerPubSub()
 
   deflections_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
-    tcpNoDelay());
+    ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this, tcpNoDelay());
+    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this,
+    ros::TransportHints().reliable().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)

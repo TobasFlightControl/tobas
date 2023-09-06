@@ -56,11 +56,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  dh_ros::getParam(pnh_, "gyro_noise_density", gyro_noise_density_, dh_ros::POSITIVE);
-  dh_ros::getParam(pnh_, "gyro_random_walk", gyro_random_walk_, dh_ros::POSITIVE);
-  dh_ros::getParam(pnh_, "acc_noise_density", acc_noise_density_, dh_ros::POSITIVE);
-  dh_ros::getParam(pnh_, "acc_random_walk", acc_random_walk_, dh_ros::POSITIVE);
-
   dh_ros::getParam(pnh_, "use_barometer", use_bar_, kDefaultUseBarometer);
   dh_ros::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
@@ -90,6 +85,8 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(pnh_, "rotation_variance_grav", cfg_.rotation_variance_grav, dh_ros::POSITIVE);
   dh_ros::getParam(
     pnh_, "rotation_variance_geomag", cfg_.rotation_variance_geomag, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "acc_bias_noise_var_exp", cfg_.acc_bias_noise_var_exp);
+  dh_ros::getParam(pnh_, "gyro_bias_noise_var_exp", cfg_.gyro_bias_noise_var_exp);
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()
@@ -154,10 +151,6 @@ void ErrorStateKalmanFilterRos::initialize()
   // ISKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
   eskf_.initialize(
-    acc_noise_density_,                                           // Accelerometer noise density
-    gyro_noise_density_,                                          // Gyrometer noise density
-    acc_random_walk_,                                             // Accelerometer random walk
-    gyro_random_walk_,                                            // Gyrometer random walk
     Vector3d(0., 0., -tobas::kGravity),                           // Gravity vector
     Vector3d(mag.north, -mag.east, -mag.down),                    // Magnetic field (NWU)
     Vector3d::Zero(),                                             // Init position
@@ -365,14 +358,19 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       tf::vectorMsgToEigen(imu->linear_acceleration, a_m_);
       tf::vectorMsgToEigen(imu->angular_velocity, w_m_);
 
+      // 観測ノイズの分散を計算
+      const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
+      const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
+
       // 事前予測
-      eskf_.predictIMU(a_m_, w_m_, dt);
+      eskf_.predictIMU(
+        a_m_, w_m_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_, dt);
 
       // 重力方向の観測
       eskf_.measureAcceleration(a_m_, rot_acc_cov_);
 
       // 推定状態を発行
-      if ((ros::Time::now() - t_ready_).toSec() > kWaitToPublish)
+      if ((imu->header.stamp - t_ready_).toSec() > kWaitToPublish)
       {
         const auto state = boost::make_shared<StateMsg>();
         updatePoseVelMsg(*imu, *state);
@@ -506,6 +504,8 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
 {
   rot_acc_cov_.diagonal().fill(cfg.rotation_variance_grav);
   rot_mag_cov_.diagonal().fill(cfg.rotation_variance_geomag);
+  acc_bias_noise_var_ = exp10(cfg.acc_bias_noise_var_exp);
+  gyro_bias_noise_var_ = exp10(cfg.gyro_bias_noise_var_exp);
 
   rosInfo(name_, "New dynamic parameters are set.");
 }

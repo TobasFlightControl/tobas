@@ -31,10 +31,6 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    double acc_noise_density,
-    double gyro_noise_density,
-    double acc_random_walk,
-    double gyro_random_walk,
     const Eigen::Vector3d& grav_W,
     const Eigen::Vector3d& mag_W,
     const Eigen::Vector3d& init_pos,
@@ -62,7 +58,25 @@ public:
   Eigen::Matrix3d getAccelBiasCovariance() const;
   Eigen::Matrix3d getGyroBiasCovariance() const;
 
-  void predictIMU(const Eigen::Vector3d& a_m, const Eigen::Vector3d& w_m, double dt);
+  /**
+   * @brief 加速度とジャイロから次の状態を予測する．
+   *
+   * @param acc_meas [m/s^2] 加速度の観測値
+   * @param gyro_meas [rad/s] ジャイロの観測値
+   * @param acc_noise_var [m^2/s^4] 加速度の観測ノイズの分散
+   * @param gyro_noise_var [rad^2/s^2] ジャイロの観測ノイズの分散
+   * @param acc_bias_noise_var [m^2/s^4] 加速度バイアスの観測ノイズの分散
+   * @param gyro_bias_noise_var [rad^2/s^2] ジャイロバイアスの観測ノイズの分散
+   * @param dt [s] 前回の予測からの経過時間
+   */
+  void predictIMU(
+    const Eigen::Vector3d& acc_meas,
+    const Eigen::Vector3d& gyro_meas,
+    double acc_noise_var,
+    double gyro_noise_var,
+    double acc_bias_noise_var,
+    double gyro_bias_noise_var,
+    double dt);
 
   void measureXYZ(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
   /**
@@ -128,11 +142,6 @@ public:
   void measureMagneticFieldYaw(double mag_meas_x, double mag_meas_y, double yaw_var);
 
 private:
-  double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
-  double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
-  double acc_random_walk_;     // [m/s^3/sqrt(Hz)]
-  double gyro_random_walk_;    // [rad/s^2/sqrt(Hz)]
-
   Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
   Eigen::Vector3d mag_W_;   // Magnetic field wrt. world frame [T]
 
@@ -169,7 +178,7 @@ void ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, M>& meas_cov,
   const Eigen::Matrix<double, M, kDeltaStateSize>& H)
 {
-  assert(eigen_tools::isPositive(meas_cov));
+  assert(eigen_tools::isSymmetricPositiveDefinite(meas_cov));
   assert(H.norm() > 0.);  // Hが変更されないバグがあったため，Hに非ゼロの要素が含まれることを保証．
 
   // Kalman gain

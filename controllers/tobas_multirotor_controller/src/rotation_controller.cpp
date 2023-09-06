@@ -99,8 +99,8 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   mpc_.control_weight(YAW) = params.heading_weight;
   mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
     params.angvel_weight;
-  mpc_.input_weight.fill(pow(10, params.thrust_weight_exp));
-  mpc_.input_rate_weight.fill(pow(10, params.thrust_rate_weight_exp));
+  mpc_.input_weight.fill(exp10(params.thrust_weight_exp));
+  mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_exp));
 }
 
 void RotationController::updateCurrentState(const Euler& cur_rpy, const Vector& cur_angvel_B)

@@ -201,11 +201,14 @@ void GazeboRotorPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_msgs::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
 
   command_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this, tcpNoDelay());
+    "/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this,
+    ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this, tcpNoDelay());
+    "/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this,
+    ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this, tcpNoDelay());
+    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this,
+    ros::TransportHints().reliable().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()
