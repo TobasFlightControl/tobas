@@ -183,6 +183,8 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
       const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
       rosInfo(name_, "TIMEUTC delay: " << gps_delay.count() << "[ms]");
+
+      break;
     }
     default:
     {
