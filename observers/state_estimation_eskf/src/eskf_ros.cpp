@@ -376,7 +376,6 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
           kPrintStddevPeriod, "Vertical Position std. dev [m]: " << sqrt(ver_pos_var));
         ROS_INFO_STREAM_THROTTLE(kPrintStddevPeriod, "Velocity std. dev [m/s]: " << sqrt(vel_var));
         ROS_INFO_STREAM_THROTTLE(kPrintStddevPeriod, "Rotation std. dev [rad]: " << sqrt(rot_var));
-        cout << endl;
 
         if (hor_pos_var > sqr(kHorPosStddevThreshold))
           break;
