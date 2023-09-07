@@ -53,20 +53,31 @@ void RotationController::update(
   const Euler& cur_rpy,
   const Vector& cur_angvel_B,
   const JntArray& q,
-  const double& battery_voltage,
-  const double& U,
+  double battery_voltage,
+  double thrust_sum,
   const Euler& tar_rpy,
   VectorXd& u_opt)
 {
   assert(battery_voltage > 0.);
-  assert(U >= 0.);
-  assert(u_opt.rows() == z_rotors_.count());
 
+  // 目標姿勢を制限
+  const auto tar_roll = clamp(tar_rpy.roll, -kMaxAttitude, kMaxAttitude);
+  const auto tar_pitch = clamp(tar_rpy.pitch, -kMaxAttitude, kMaxAttitude);
+  const auto yaw_error = clamp(tar_rpy.yaw - cur_rpy.yaw, -kMaxHeadingError, kMaxHeadingError);
+  const auto tar_yaw = cur_rpy.yaw + yaw_error;
+
+  // 目標推力を制限
+  const auto max_thrust_sum = maxThrustSum(battery_voltage);
+  const auto min_thrust_sum = minThrustSum(battery_voltage);
+  thrust_sum = clamp(thrust_sum, min_thrust_sum, max_thrust_sum);
+
+  // MPCの最適制御問題を構築
   updateCurrentState(cur_rpy, cur_angvel_B);
-  updateSetState(tar_rpy);
-  updateDynamics(cur_rpy, tar_rpy, q);
-  updateInputConstraint(battery_voltage, U);
+  updateSetState(tar_roll, tar_pitch, tar_yaw);
+  updateDynamics(cur_rpy, tar_roll, tar_pitch, q);
+  updateInputConstraint(battery_voltage, thrust_sum);
 
+  // MPCを解く
   u_opt = mpc_.solveMPC();
 
   // For debug
@@ -103,20 +114,42 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_exp));
 }
 
+double RotationController::maxThrustSum(double battery_voltage) const
+{
+  double res = 0.;
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  {
+    res += z_rotors_.thrustFromVoltage(i, battery_voltage);
+  }
+  return res;
+}
+
+double RotationController::minThrustSum(double battery_voltage) const
+{
+  const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
+  double res = 0.;
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  {
+    res += z_rotors_.thrustFromVoltage(i, min_voltage);
+  }
+  return res;
+}
+
 void RotationController::updateCurrentState(const Euler& cur_rpy, const Vector& cur_angvel_B)
 {
   mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_angvel_B.x(),
     cur_angvel_B.y(), cur_angvel_B.z();
 }
 
-void RotationController::updateSetState(const Euler& tar_rpy)
+void RotationController::updateSetState(double tar_roll, double tar_pitch, double tar_yaw)
 {
-  mpc_.set_state << tar_rpy.roll, tar_rpy.pitch, tar_rpy.yaw, 0., 0., 0.;
+  mpc_.set_state << tar_roll, tar_pitch, tar_yaw, 0., 0., 0.;
 }
 
 void RotationController::updateDynamics(
   const Euler& cur_rpy,
-  const Euler& tar_rpy,
+  double tar_roll,
+  double tar_pitch,
   const JntArray& q)
 {
   double t;
@@ -127,8 +160,8 @@ void RotationController::updateDynamics(
     t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
 
     // 時刻tにおけるドローンの姿勢の参照値
-    roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts(ROLL), t);
-    pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts(PITCH), t);
+    roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_roll, mpc_.decay_time_consts(ROLL), t);
+    pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_pitch, mpc_.decay_time_consts(PITCH), t);
 
     cont_.update(roll_k, pitch_k, q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);

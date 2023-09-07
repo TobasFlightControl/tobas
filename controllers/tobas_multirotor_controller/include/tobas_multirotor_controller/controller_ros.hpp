@@ -101,11 +101,6 @@ private:
 
   bool isReady() const;
   bool isCommandLevelOk(const tobas_msgs::CommandLevel& level);
-  void updateTargetRoll(double tar_roll);
-  void updateTargetPitch(double tar_pitch);
-  void updateTargetThrust(double tar_thrust);
-  double maxThrustSum();
-  double minThrustSum();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);

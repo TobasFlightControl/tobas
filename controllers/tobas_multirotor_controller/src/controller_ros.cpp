@@ -28,12 +28,10 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
-
   rot_controller_.updateInternalDataStructures();
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
-  u_opt_ = VectorXd::Zero(z_rotors_.count());
 
   registerPublishers();
   registerSubscribers();
@@ -109,64 +107,6 @@ bool ControllerRos::isCommandLevelOk(const tobas_msgs::CommandLevel& level)
   }
 
   return true;
-}
-
-void ControllerRos::updateTargetRoll(double tar_roll)
-{
-  if (abs(tar_roll) > kMaxAttitude)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "roll = " << tar_roll << " is out of range [" << -kMaxAttitude << ", " << kMaxAttitude
-                << "].");
-  }
-  tar_rpy_thrust_->rpy.roll = clamp(tar_roll, -kMaxAttitude, kMaxAttitude);
-}
-
-void ControllerRos::updateTargetPitch(double tar_pitch)
-{
-  if (abs(tar_pitch) > kMaxAttitude)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "pitch = " << tar_pitch << " is out of range [" << -kMaxAttitude << ", " << kMaxAttitude
-                 << "].");
-  }
-  tar_rpy_thrust_->rpy.pitch = clamp(tar_pitch, -kMaxAttitude, kMaxAttitude);
-}
-
-void ControllerRos::updateTargetThrust(double tar_thrust)
-{
-  const auto max_U = maxThrustSum();
-  const auto min_U = minThrustSum();
-  if (tar_thrust < min_U || max_U < tar_thrust)
-  {
-    rosWarnThrottle(
-      kWarnPeriod, name_,
-      "thrust = " << tar_thrust << " is out of range [" << min_U << ", " << max_U << "].");
-  }
-  tar_rpy_thrust_->thrust = clamp(tar_thrust, min_U, max_U);
-}
-
-double ControllerRos::maxThrustSum()
-{
-  double res = 0.;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
-  {
-    res += z_rotors_.thrustFromVoltage(i, battery_->voltage);
-  }
-  return res;
-}
-
-double ControllerRos::minThrustSum()
-{
-  const auto min_voltage = battery_->voltage * tobas::kMotorSpinArm;
-  double res = 0.;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
-  {
-    res += z_rotors_.thrustFromVoltage(i, min_voltage);
-  }
-  return res;
 }
 
 void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -447,24 +387,13 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
     return;
   }
 
-  // メモリ確保
-  if (tar_rpy_thrust_ == nullptr)
-  {
-    tar_rpy_thrust_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
-  }
-
   // 外側の制御を止める
   tar_pos_yaw_ = nullptr;
   tar_vel_yaw_ = nullptr;
   tar_acc_yaw_ = nullptr;
 
-  // ロール角，ピッチ角，推力和の目標値を更新
-  updateTargetRoll(rpy_thrust->rpy.roll);
-  updateTargetPitch(rpy_thrust->rpy.pitch);
-  updateTargetThrust(rpy_thrust->thrust);
-
-  // Yawの目標値を更新
-  tar_rpy_thrust_->rpy.yaw = rpy_thrust->rpy.yaw;
+  // コマンドを更新
+  tar_rpy_thrust_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpy_thrust);
 }
 
 void ControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust)
@@ -491,14 +420,14 @@ void ControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrustConstPt
   tar_acc_yaw_ = nullptr;
 
   // ロール角，ピッチ角，推力和の目標値を更新
-  updateTargetRoll(rpyd_thrust->roll);
-  updateTargetPitch(rpyd_thrust->pitch);
-  updateTargetThrust(rpyd_thrust->thrust);
+  tar_rpy_thrust_->rpy.roll = rpyd_thrust->roll;
+  tar_rpy_thrust_->rpy.pitch = rpyd_thrust->pitch;
+  tar_rpy_thrust_->thrust = rpyd_thrust->thrust;
 
   // ヨー角の目標値を更新
   if (rpyd_thrust_received_)
   {
-    const ros::Time cur_time = ros::Time::now();
+    const auto cur_time = ros::Time::now();
     const auto dt = (cur_time - t_last_rpyd_thrust_).toSec();
     t_last_rpyd_thrust_ = cur_time;
     if (dt > kRollPitchYawrateThrustTimeout)

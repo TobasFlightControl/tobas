@@ -43,8 +43,8 @@ public:
     const KDL::Euler& cur_rpy,
     const KDL::Vector& cur_angvel_B,
     const KDL::JntArray& q,
-    const double& battery_voltage,
-    const double& U,
+    double battery_voltage,
+    double thrust_sum,
     const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
 
@@ -52,7 +52,6 @@ public:
 
 private:
   const tobas::Drone& drone_;
-
   tobas::RotorAxisExtractor z_rotors_;
 
   MultiRotorDynamics cont_;
@@ -60,9 +59,15 @@ private:
   // ctrl::C2D_RK4 c2d_;
   ctrl::LinearDenseMPC mpc_;
 
+  double maxThrustSum(double battery_voltage) const;
+  double minThrustSum(double battery_voltage) const;
   void updateCurrentState(const KDL::Euler& cur_rpy, const KDL::Vector& cur_angvel_B);
-  void updateSetState(const KDL::Euler& tar_rpy);
-  void updateDynamics(const KDL::Euler& cur_rpy, const KDL::Euler& tar_rpy, const KDL::JntArray& q);
+  void updateSetState(double tar_roll, double tar_pitch, double tar_yaw);
+  void updateDynamics(
+    const KDL::Euler& cur_rpy,
+    double tar_roll,
+    double tar_pitch,
+    const KDL::JntArray& q);
   void setScales();
   void setInputConstraintBase();
   void updateInputConstraint(double battery_voltage, double U);
