@@ -105,6 +105,10 @@ class ControllerWidget(BaseSettingWidget):
                 self.type.setCurrentText(self.NO_SELECT)
                 self.type.remove_text(FixedWingLQR.NAME)
 
+        # 選択可能なコントローラが1種類の場合は自動的にそれを選択
+        if self.type.count() == 2:
+            self.type.setCurrentIndex(1)  # idx = 0がNO_SELECTで，その次に設定
+
     def _update_visibility(self) -> None:
         controller_type = self.type.currentText()
 
