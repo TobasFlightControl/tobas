@@ -309,16 +309,14 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       {
         check_topics_timer_.stop();
         initialize();
-        rosInfo(
-          name_,
-          "All messages are received. Wait to publish for " << kWaitToPublish << " seconds.");
+        rosInfo(name_, "All messages are received. Initializing kalman filter.");
         stage_ = SET_FIRST_TIME;
       }
       break;
     }
     case SET_FIRST_TIME:
     {
-      t_ready_ = t_last_ = imu->header.stamp;
+      t_last_ = imu->header.stamp;
       stage_ = RUNNING;
       break;
     }
@@ -360,12 +358,41 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // 重力方向の観測
       eskf_.measureAcceleration(a_m_, rot_acc_cov_);
 
-      // 推定状態を発行
-      if ((imu->header.stamp - t_ready_).toSec() > kWaitToPublish)
+      // 共分散の収束を確認
+      if (!is_initialized_)
       {
-        const auto state = makePoseVelMsg(*imu);
-        posevel_pub_.publish(state);
+        const auto pos_cov = eskf_.getPositionCovariance();
+        const auto vel_cov = eskf_.getVelocityCovariance();
+        const auto rot_cov = eskf_.getOrientationCovariance();
+
+        const auto hor_pos_var = max(pos_cov(0, 0), pos_cov(1, 1));
+        const auto ver_pos_var = pos_cov(2, 2);
+        const auto vel_var = vel_cov.diagonal().maxCoeff();
+        const auto rot_var = rot_cov.diagonal().maxCoeff();
+
+        ROS_INFO_STREAM_THROTTLE(
+          kPrintStddevPeriod, "Horizontal Position std. dev [m]: " << sqrt(hor_pos_var));
+        ROS_INFO_STREAM_THROTTLE(
+          kPrintStddevPeriod, "Vertical Position std. dev [m]: " << sqrt(ver_pos_var));
+        ROS_INFO_STREAM_THROTTLE(kPrintStddevPeriod, "Velocity std. dev [m/s]: " << sqrt(vel_var));
+        ROS_INFO_STREAM_THROTTLE(kPrintStddevPeriod, "Rotation std. dev [rad]: " << sqrt(rot_var));
+        cout << endl;
+
+        if (hor_pos_var > sqr(kHorPosStddevThreshold))
+          break;
+        if (ver_pos_var > sqr(kVerPosStddevThreshold))
+          break;
+        if (vel_var > sqr(kVelStddevThreshold))
+          break;
+        if (rot_var > sqr(kRotStddevThreshold))
+          break;
+
+        is_initialized_ = true;
       }
+
+      // 推定状態を発行
+      const auto state = makePoseVelMsg(*imu);
+      posevel_pub_.publish(state);
 
       // フィードバックを発行
       const auto feedback = boost::make_shared<FeedbackMsg>();

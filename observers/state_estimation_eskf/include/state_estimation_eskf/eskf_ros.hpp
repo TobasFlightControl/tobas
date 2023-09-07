@@ -69,12 +69,12 @@ private:
   Eigen::Quaterniond q_0_;   // 姿勢の初期値 (Base Frame)
 
   Stage stage_ = FIRST_IMU;
+  bool is_initialized_ = false;
   bool imu_received_ = false;
   bool mag_received_ = false;
   bool bar_received_ = false;
   bool gps_received_ = false;
   bool vel_received_ = false;
-  ros::Time t_ready_;  // 全てのメッセージが確認され，ESKFが状態を更新し始める時刻
   ros::Time t_last_;
   double yaw_now_;
   double yaw_prev_;
