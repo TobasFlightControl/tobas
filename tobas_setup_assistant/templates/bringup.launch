@@ -2,6 +2,9 @@
 
   <arg name="nodelet" default="true"/>
 
+  <!-- Launch nodelet manager -->
+  <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
+
   <!-- Bringup controller -->
   <include file="$(find {{ pkg_name }})/launch/controller.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>

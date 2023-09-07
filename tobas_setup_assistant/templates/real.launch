@@ -7,15 +7,12 @@
     <arg name="user_debug" value="false"/>
   </include>
 
-  <!-- Launch nodelet manager -->
-  <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
-
   <!-- Launch hardware interfaces -->
   <include file="$(find {{ pkg_name }})/launch/hardware_interfaces.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <!-- Bringup Tobas software -->
+  <!-- Bringup Tobas core software -->
   <include file="$(find {{ pkg_name }})/launch/bringup.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>

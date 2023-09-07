@@ -1,6 +1,5 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
   <arg name="world_path" default="$(find tobas_gazebo)/worlds/basic.world"/>
   <arg name="debug" default="false"/>
   <arg name="paused" default="false"/>
@@ -43,8 +42,5 @@
     <!-- Load the joint controllers -->
     <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
   </group>
-
-  <!-- Launch nodelet manager -->
-  <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
 
 </launch>
