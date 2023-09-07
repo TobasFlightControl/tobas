@@ -39,9 +39,9 @@ static constexpr double kInitAccBiasStddev = 1.;    // [m/s^2]
 static constexpr double kInitGyroBiasStddev = 0.1;  // [rad/s]
 
 // 状態を発行し始めるための標準偏差の閾値
-static constexpr double kHorPosStddevThreshold = 0.3;     // [m]
-static constexpr double kVerPosStddevThreshold = 0.6;     // [m]
-static constexpr double kVelStddevThreshold = 0.1;        // [m/s]
+static constexpr double kHorPosStddevThreshold = 0.5;     // [m]
+static constexpr double kVerPosStddevThreshold = 1.;      // [m]
+static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
 static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
 
 // その他定数

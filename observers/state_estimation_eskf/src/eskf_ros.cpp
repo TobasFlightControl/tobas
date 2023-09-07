@@ -370,23 +370,37 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
         const auto vel_var = vel_cov.diagonal().maxCoeff();
         const auto rot_var = rot_cov.diagonal().maxCoeff();
 
-        ROS_INFO_STREAM_THROTTLE(
-          kPrintStddevPeriod, "Horizontal Position std. dev [m]: " << sqrt(hor_pos_var));
-        ROS_INFO_STREAM_THROTTLE(
-          kPrintStddevPeriod, "Vertical Position std. dev [m]: " << sqrt(ver_pos_var));
-        ROS_INFO_STREAM_THROTTLE(kPrintStddevPeriod, "Velocity std. dev [m/s]: " << sqrt(vel_var));
-        ROS_INFO_STREAM_THROTTLE(kPrintStddevPeriod, "Rotation std. dev [rad]: " << sqrt(rot_var));
-
+        bool cov_ok = true;
         if (hor_pos_var > sqr(kHorPosStddevThreshold))
-          break;
+        {
+          ROS_INFO_STREAM_THROTTLE(
+            kPrintStddevPeriod, "Horizontal Position std. dev [m]: " << sqrt(hor_pos_var) << " > "
+                                                                     << kHorPosStddevThreshold);
+          cov_ok = false;
+        }
         if (ver_pos_var > sqr(kVerPosStddevThreshold))
-          break;
+        {
+          ROS_INFO_STREAM_THROTTLE(
+            kPrintStddevPeriod, "Vertical Position std. dev [m]: " << sqrt(ver_pos_var) << " > "
+                                                                   << kVerPosStddevThreshold);
+          cov_ok = false;
+        }
         if (vel_var > sqr(kVelStddevThreshold))
-          break;
+        {
+          ROS_INFO_STREAM_THROTTLE(
+            kPrintStddevPeriod,
+            "Velocity std. dev [m/s]: " << sqrt(vel_var) << " > " << kVelStddevThreshold);
+          cov_ok = false;
+        }
         if (rot_var > sqr(kRotStddevThreshold))
-          break;
+        {
+          ROS_INFO_STREAM_THROTTLE(
+            kPrintStddevPeriod,
+            "Rotation std. dev [rad]: " << sqrt(rot_var) << " > " << kRotStddevThreshold);
+          cov_ok = false;
+        }
 
-        is_initialized_ = true;
+        is_initialized_ = cov_ok;
       }
 
       // 推定状態を発行
