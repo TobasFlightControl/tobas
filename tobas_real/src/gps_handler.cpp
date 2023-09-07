@@ -12,8 +12,7 @@ using namespace std;
 
 namespace tobas_real
 {
-GpsHandler::GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
-  : super(nh, pnh, name), gps_fix_ok_(false), cov_received_(false)
+GpsHandler::GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
 {
   getRosParams();
   configureGnssReceiver();
@@ -44,9 +43,6 @@ void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
     rosthrow(name_, "Failed to disable all navigation messsages.");
-
-  if (!gps_.enableMsg(Ublox::NAV_STATUS, true))
-    rosthrow(name_, "Failed to enable NAV_STATUS");
 
   if (!gps_.enableMsg(Ublox::NAV_PVT, true))
     rosthrow(name_, "Failed to enable NAV_PVT");
@@ -81,11 +77,6 @@ void GpsHandler::configureGnssReceiver()
     rosthrow(name_, "Failed to configure GLONASS.");
 }
 
-bool GpsHandler::isReadyToPublish() const
-{
-  return gps_fix_ok_ && cov_received_;
-}
-
 void GpsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -105,22 +96,9 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
   switch (msg)
   {
-    case Ublox::NAV_STATUS:
-    {
-      gps_.decode(status_);
-      gps_fix_ok_ = status_.flags & 1;  // p.288, Bitfield flags
-
-      if (!gps_fix_ok_)
-      {
-        rosErrorThrottle(
-          kErrorPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
-      }
-
-      break;
-    }
     case Ublox::NAV_PVT:
     {
-      if (!isReadyToPublish())
+      if (!cov_received_)
       {
         break;
       }
@@ -128,14 +106,18 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_.decode(pvt_);
       // cout << pvt_ << endl;
 
-      // auto gps_tm =
-      //   dh_std::tmFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec);
-      // const auto gps_tp = dh_std::tmToTimePoint(gps_tm);
+      // const auto gps_tp = dh_std::timePointFromUTC(
+      //   pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
       // const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
       // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
-      // cout << "GPS time:" << endl << gps_tm << endl;
-      // cout << "Current time:" << endl << dh_std::timePointToTm(cur_tp) << endl;
       // rosInfo(name_, "GPS delay: " << gps_delay.count() << "[ms]");
+
+      if (!pvt_.gnssFixOk || pvt_.fixType != Ublox::FIX_3D)
+      {
+        rosWarnThrottle(
+          kErrorPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
+        break;
+      }
 
       // Create GPS position message
       const auto gps_msg = boost::make_shared<GpsMsg>();

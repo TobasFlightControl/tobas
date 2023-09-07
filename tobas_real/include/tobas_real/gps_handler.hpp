@@ -30,11 +30,9 @@ public:
 
 private:
   Ublox gps_;
-  NavStatusPayload status_;
   NavPvtPayload pvt_;
   NavCovPayload cov_;
-  bool gps_fix_ok_;
-  bool cov_received_;
+  bool cov_received_ = false;
 
   // Publisher
   ros::Publisher gps_pub_;
@@ -48,7 +46,6 @@ private:
   void registerSubscribers() override;
 
   void configureGnssReceiver();
-  bool isReadyToPublish() const;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);
