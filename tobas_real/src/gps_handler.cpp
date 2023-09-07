@@ -50,9 +50,6 @@ void GpsHandler::configureGnssReceiver()
   if (!gps_.enableMsg(Ublox::NAV_COV, true))
     rosthrow(name_, "Failed to enable NAV_COV");
 
-  if (!gps_.enableMsg(Ublox::NAV_TIMEUTC, true))
-    rosthrow(name_, "Failed to enable NAV_TIMEUTC");
-
   if (!gps_.configureSolutionRate(kMeasurementRate))
     rosthrow(name_, "Failed to set measurement rate.");
 
@@ -170,19 +167,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       {
         cov_received_ = true;
       }
-
-      break;
-    }
-    case Ublox::NAV_TIMEUTC:
-    {
-      gps_.decode(timeutc_);
-
-      const auto gps_tp = dh_std::timePointFromUTC(
-        timeutc_.year, timeutc_.month, timeutc_.day, timeutc_.hour, timeutc_.min, timeutc_.sec,
-        timeutc_.nano);
-      const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
-      const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
-      rosInfo(name_, "TIMEUTC delay: " << gps_delay.count() << "[ms]");
 
       break;
     }
