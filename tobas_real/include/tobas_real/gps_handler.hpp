@@ -32,6 +32,7 @@ private:
   Ublox gps_;
   NavPvtPayload pvt_;
   NavCovPayload cov_;
+  NavTimeutcPayload timeutc_;
   bool cov_received_ = false;
 
   // Publisher
