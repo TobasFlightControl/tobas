@@ -15,7 +15,7 @@ namespace tobas_state_checker
 {
 static constexpr double kUpdateRate = 10.;                               // [Hz]
 static constexpr double kWarnPeriod = 3.;                                // [s]
-static constexpr double kWaitForActionServer = 3.;                       // [s]
+static constexpr double kWaitForActionServer = 10.;                      // [s]
 static constexpr double kWarnCpuTemperature = 70.;                       // [degree celsius]
 static constexpr double kFatalCpuTemperture = 80.;                       // [degree celsius]
 static constexpr double kHorizontalPositionStddevThreshold = 1.;         // [m]
