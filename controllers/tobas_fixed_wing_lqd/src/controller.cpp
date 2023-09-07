@@ -25,12 +25,8 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
-    server_(ros::NodeHandle(kCtrlName))
+    server_(pnh_)
 {
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-
   getRosParams();
   drone_.loadFromParam(nh_);
 
@@ -51,24 +47,16 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   lqd_.current_state.resize(eom_.kStateSize);
   lqd_.target_state.resize(eom_.kStateSize);
 
-  configure(cfg_);
-
   registerPublishers();
   registerSubscribers();
+
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void Controller::getRosParams()
 {
-  dh_ros::getParam(nh_, kCtrlName + "/forward_speed_weight", cfg_.forward_speed_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/alpha_weight", cfg_.alpha_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/beta_weight", cfg_.beta_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/attitude_weight", cfg_.attitude_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_weight", cfg_.angular_velocity_weight);
-
-  dh_ros::getParam(nh_, kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
-  dh_ros::getParam(nh_, kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
-  dh_ros::getParam(nh_, kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
-  dh_ros::getParam(nh_, kCtrlName + "/deflection_rate_weight_exp", cfg_.deflection_rate_weight_exp);
 }
 
 void Controller::registerPublishers()
@@ -279,37 +267,6 @@ void Controller::publishFeedback(const Eigen::VectorXd& du)
   feedback_pub_.publish(feedback);
 }
 
-void Controller::configure(const ConfigType& cfg)
-{
-  ROS_ASSERT(cfg.forward_speed_weight > 0.);
-  ROS_ASSERT(cfg.alpha_weight > 0.);
-  ROS_ASSERT(cfg.beta_weight > 0.);
-  ROS_ASSERT(cfg.attitude_weight > 0.);
-  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
-
-  // 状態変数の重み
-  lqd_.state_weight(eom_.kStateIdx_u) = cfg.forward_speed_weight;
-  lqd_.state_weight(eom_.kStateIdx_alpha) = cfg.alpha_weight;
-  lqd_.state_weight(eom_.kStateIdx_beta) = cfg.beta_weight;
-  lqd_.state_weight(eom_.kStateIdx_phi) = cfg.attitude_weight;
-  lqd_.state_weight(eom_.kStateIdx_theta) = cfg.attitude_weight;
-  lqd_.state_weight(eom_.kStateIdx_p) = cfg.angular_velocity_weight;
-  lqd_.state_weight(eom_.kStateIdx_q) = cfg.angular_velocity_weight;
-  lqd_.state_weight(eom_.kStateIdx_r) = cfg.angular_velocity_weight;
-
-  // 制御入力の重み
-  const auto thrust_weight = exp10(cfg.thrust_weight_exp);
-  const auto deflection_weight = exp10(cfg.deflection_weight_exp);
-  lqd_.input_weight.topRows(x_rotors_.count()).fill(thrust_weight);
-  lqd_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_weight);
-
-  // 制御入力の変化率の重み
-  const auto thrust_rate_weight = exp10(cfg.thrust_rate_weight_exp);
-  const auto deflection_rate_weight = exp10(cfg.deflection_rate_weight_exp);
-  lqd_.input_rate_weight.topRows(x_rotors_.count()).fill(thrust_rate_weight);
-  lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
-}
-
 void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -436,6 +393,32 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  configure(cfg);
+  ROS_ASSERT(cfg.forward_speed_weight > 0.);
+  ROS_ASSERT(cfg.alpha_weight > 0.);
+  ROS_ASSERT(cfg.beta_weight > 0.);
+  ROS_ASSERT(cfg.attitude_weight > 0.);
+  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
+
+  // 状態変数の重み
+  lqd_.state_weight(eom_.kStateIdx_u) = cfg.forward_speed_weight;
+  lqd_.state_weight(eom_.kStateIdx_alpha) = cfg.alpha_weight;
+  lqd_.state_weight(eom_.kStateIdx_beta) = cfg.beta_weight;
+  lqd_.state_weight(eom_.kStateIdx_phi) = cfg.attitude_weight;
+  lqd_.state_weight(eom_.kStateIdx_theta) = cfg.attitude_weight;
+  lqd_.state_weight(eom_.kStateIdx_p) = cfg.angular_velocity_weight;
+  lqd_.state_weight(eom_.kStateIdx_q) = cfg.angular_velocity_weight;
+  lqd_.state_weight(eom_.kStateIdx_r) = cfg.angular_velocity_weight;
+
+  // 制御入力の重み
+  const auto thrust_weight = exp10(cfg.thrust_weight_exp);
+  const auto deflection_weight = exp10(cfg.deflection_weight_exp);
+  lqd_.input_weight.topRows(x_rotors_.count()).fill(thrust_weight);
+  lqd_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_weight);
+
+  // 制御入力の変化率の重み
+  const auto thrust_rate_weight = exp10(cfg.thrust_rate_weight_exp);
+  const auto deflection_rate_weight = exp10(cfg.deflection_rate_weight_exp);
+  lqd_.input_rate_weight.topRows(x_rotors_.count()).fill(thrust_rate_weight);
+  lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
 }
 }  // namespace tobas_fixed_wing_lqd

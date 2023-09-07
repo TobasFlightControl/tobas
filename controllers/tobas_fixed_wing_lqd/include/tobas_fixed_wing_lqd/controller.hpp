@@ -49,9 +49,6 @@ private:
   tobas::RotorAxisExtractor x_rotors_;
   tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
-  // RosParams
-  ConfigType cfg_;  // 動的パラメータの初期値
-
   // 固定値
   KDL::JntArray q_0_;
 
@@ -96,7 +93,6 @@ private:
   void publishRotorSpeeds(const Eigen::VectorXd& thrust);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
-  void configure(const ConfigType& cfg);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);

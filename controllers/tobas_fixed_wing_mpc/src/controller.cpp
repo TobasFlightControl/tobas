@@ -28,12 +28,8 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
-    server_(ros::NodeHandle(kCtrlName))
+    server_(pnh_)
 {
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-
   getRosParams();
   drone_.loadFromParam(nh_);
 
@@ -60,33 +56,16 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(eom_.inputSize());
 
-  configure(cfg_);
-
   registerPublishers();
   registerSubscribers();
+
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void Controller::getRosParams()
 {
-  dh_ros::getParam(nh_, kCtrlName + "/prediction_horizon", cfg_.prediction_horizon);
-  dh_ros::getParam(nh_, kCtrlName + "/prediction_steps", cfg_.prediction_steps);
-
-  dh_ros::getParam(nh_, kCtrlName + "/forward_speed_decay", cfg_.forward_speed_decay);
-  dh_ros::getParam(nh_, kCtrlName + "/alpha_decay", cfg_.alpha_decay);
-  dh_ros::getParam(nh_, kCtrlName + "/beta_decay", cfg_.beta_decay);
-  dh_ros::getParam(nh_, kCtrlName + "/attitude_decay", cfg_.attitude_decay);
-  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_decay", cfg_.angular_velocity_decay);
-
-  dh_ros::getParam(nh_, kCtrlName + "/forward_speed_weight", cfg_.forward_speed_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/alpha_weight", cfg_.alpha_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/beta_weight", cfg_.beta_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/attitude_weight", cfg_.attitude_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_weight", cfg_.angular_velocity_weight);
-
-  dh_ros::getParam(nh_, kCtrlName + "/thrust_weight_exp", cfg_.thrust_weight_exp);
-  dh_ros::getParam(nh_, kCtrlName + "/thrust_rate_weight_exp", cfg_.thrust_rate_weight_exp);
-  dh_ros::getParam(nh_, kCtrlName + "/deflection_weight_exp", cfg_.deflection_weight_exp);
-  dh_ros::getParam(nh_, kCtrlName + "/deflection_rate_weight_exp", cfg_.deflection_rate_weight_exp);
 }
 
 void Controller::registerPublishers()
@@ -333,56 +312,6 @@ void Controller::publishFeedback(const Eigen::VectorXd& du)
   feedback_pub_.publish(feedback);
 }
 
-void Controller::configure(const ConfigType& cfg)
-{
-  ROS_ASSERT(cfg.prediction_horizon > 0.);
-  ROS_ASSERT(cfg.prediction_steps > 0);
-  ROS_ASSERT(cfg.forward_speed_decay >= 0.);
-  ROS_ASSERT(cfg.alpha_decay >= 0.);
-  ROS_ASSERT(cfg.beta_decay >= 0.);
-  ROS_ASSERT(cfg.attitude_decay >= 0.);
-  ROS_ASSERT(cfg.angular_velocity_decay >= 0.);
-  ROS_ASSERT(cfg.forward_speed_weight > 0.);
-  ROS_ASSERT(cfg.alpha_weight > 0.);
-  ROS_ASSERT(cfg.beta_weight > 0.);
-  ROS_ASSERT(cfg.attitude_weight > 0.);
-  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
-
-  mpc_.time_step = cfg.prediction_horizon / cfg.prediction_steps;
-  mpc_.prediction_steps = mpc_.input_steps = cfg.prediction_steps;
-  mpc_.decay_time_consts(kCtrlIdx_u) = cfg.forward_speed_decay;
-  mpc_.decay_time_consts(kCtrlIdx_alpha) = cfg.alpha_decay;
-  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.beta_decay;
-  mpc_.decay_time_consts(kCtrlIdx_phi) = cfg.attitude_decay;
-  mpc_.decay_time_consts(kCtrlIdx_theta) = cfg.attitude_decay;
-  mpc_.decay_time_consts(kCtrlIdx_p) = cfg.angular_velocity_decay;
-  mpc_.decay_time_consts(kCtrlIdx_q) = cfg.angular_velocity_decay;
-  mpc_.decay_time_consts(kCtrlIdx_r) = cfg.angular_velocity_decay;
-
-  const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
-  const auto disc = c2d_.convert(cont, mpc_.time_step);
-  mpc_.discrete_dynamics.resize(cfg.prediction_steps, disc);
-
-  // 制御変数の重み
-  mpc_.control_weight(kCtrlIdx_u) = cfg.forward_speed_weight;
-  mpc_.control_weight(kCtrlIdx_alpha) = cfg.alpha_weight;
-  mpc_.control_weight(kCtrlIdx_beta) = cfg.beta_weight;
-  mpc_.control_weight(kCtrlIdx_phi) = cfg.attitude_weight;
-  mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
-  mpc_.control_weight(kCtrlIdx_p) = cfg.angular_velocity_weight;
-  mpc_.control_weight(kCtrlIdx_q) = cfg.angular_velocity_weight;
-  mpc_.control_weight(kCtrlIdx_r) = cfg.angular_velocity_weight;
-
-  // 制御入力の重み
-  mpc_.input_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_weight_exp));
-  mpc_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_weight_exp));
-
-  // 制御入力の変化率の重み
-  mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_exp));
-  mpc_.input_rate_weight.bottomRows(drone_.numControlSurfaces())
-    .fill(exp10(cfg.deflection_rate_weight_exp));
-}
-
 void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -509,6 +438,51 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  configure(cfg);
+  ROS_ASSERT(cfg.prediction_horizon > 0.);
+  ROS_ASSERT(cfg.prediction_steps > 0);
+  ROS_ASSERT(cfg.forward_speed_decay >= 0.);
+  ROS_ASSERT(cfg.alpha_decay >= 0.);
+  ROS_ASSERT(cfg.beta_decay >= 0.);
+  ROS_ASSERT(cfg.attitude_decay >= 0.);
+  ROS_ASSERT(cfg.angular_velocity_decay >= 0.);
+  ROS_ASSERT(cfg.forward_speed_weight > 0.);
+  ROS_ASSERT(cfg.alpha_weight > 0.);
+  ROS_ASSERT(cfg.beta_weight > 0.);
+  ROS_ASSERT(cfg.attitude_weight > 0.);
+  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
+
+  mpc_.time_step = cfg.prediction_horizon / cfg.prediction_steps;
+  mpc_.prediction_steps = mpc_.input_steps = cfg.prediction_steps;
+  mpc_.decay_time_consts(kCtrlIdx_u) = cfg.forward_speed_decay;
+  mpc_.decay_time_consts(kCtrlIdx_alpha) = cfg.alpha_decay;
+  mpc_.decay_time_consts(kCtrlIdx_beta) = cfg.beta_decay;
+  mpc_.decay_time_consts(kCtrlIdx_phi) = cfg.attitude_decay;
+  mpc_.decay_time_consts(kCtrlIdx_theta) = cfg.attitude_decay;
+  mpc_.decay_time_consts(kCtrlIdx_p) = cfg.angular_velocity_decay;
+  mpc_.decay_time_consts(kCtrlIdx_q) = cfg.angular_velocity_decay;
+  mpc_.decay_time_consts(kCtrlIdx_r) = cfg.angular_velocity_decay;
+
+  const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
+  const auto disc = c2d_.convert(cont, mpc_.time_step);
+  mpc_.discrete_dynamics.resize(cfg.prediction_steps, disc);
+
+  // 制御変数の重み
+  mpc_.control_weight(kCtrlIdx_u) = cfg.forward_speed_weight;
+  mpc_.control_weight(kCtrlIdx_alpha) = cfg.alpha_weight;
+  mpc_.control_weight(kCtrlIdx_beta) = cfg.beta_weight;
+  mpc_.control_weight(kCtrlIdx_phi) = cfg.attitude_weight;
+  mpc_.control_weight(kCtrlIdx_theta) = cfg.attitude_weight;
+  mpc_.control_weight(kCtrlIdx_p) = cfg.angular_velocity_weight;
+  mpc_.control_weight(kCtrlIdx_q) = cfg.angular_velocity_weight;
+  mpc_.control_weight(kCtrlIdx_r) = cfg.angular_velocity_weight;
+
+  // 制御入力の重み
+  mpc_.input_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_weight_exp));
+  mpc_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_weight_exp));
+
+  // 制御入力の変化率の重み
+  mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_exp));
+  mpc_.input_rate_weight.bottomRows(drone_.numControlSurfaces())
+    .fill(exp10(cfg.deflection_rate_weight_exp));
 }
 }  // namespace tobas_fixed_wing_mpc

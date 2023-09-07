@@ -23,17 +23,16 @@ namespace state_estimation_cascade
 {
 StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
-    check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this)
+    check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this),
+    server_(pnh_)
 {
-  ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-
   getRosParams();
-
-  cart_filter_.configure(grav_var_);
 
   registerPublishers();
   registerSubscribers();
+
+  ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void StateEstimator::getRosParams()
@@ -45,9 +44,6 @@ void StateEstimator::getRosParams()
   dh_ros::getParam(
     pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
-
-  // Dynamic parameters
-  dh_ros::getParam(pnh_, "gravity_variance", grav_var_, dh_ros::POSITIVE);
 }
 
 void StateEstimator::registerPublishers()
@@ -115,8 +111,7 @@ void StateEstimator::initialize(const ImuMsg& imu)
     Map<const Matrix3d>(result->gps.position_covariance.data()),  // Initial position cov
     Map<const Matrix3d>(result->ground_speed.covariance.data()),  // Initial velocity cov
     Matrix3d::Zero(),                                             // Initial acceleration cov
-    Matrix3d::Zero(),                                             // Initial gravity cov
-    grav_var_                                                     // Gravity variance
+    Matrix3d::Zero()                                              // Initial gravity cov
   );
 
   // ヨー角の初期値

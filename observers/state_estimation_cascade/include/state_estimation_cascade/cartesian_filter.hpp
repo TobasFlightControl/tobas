@@ -24,8 +24,7 @@ public:
     const Eigen::Matrix3d& init_pos_cov,
     const Eigen::Matrix3d& init_vel_cov,
     const Eigen::Matrix3d& init_acc_cov,
-    const Eigen::Matrix3d& init_grav_cov,
-    const double& grav_var);
+    const Eigen::Matrix3d& init_grav_cov);
 
   void configure(const double& grav_var);
 

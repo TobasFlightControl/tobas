@@ -37,24 +37,21 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
       nh_,
       kCheckTopicsTimerPeriod,
       &ErrorStateKalmanFilterRos::checkTopicsTimerCb,
-      this)
+      this),
+    server_(pnh_)  // NodeletのときはPrivate NodeHandleを明示的に渡す必要がある
 {
-  // Dynamic Reconfigureの設定
-  // この時点でコールバックが呼ばれるが，Nodeletの場合はなぜかrosparamが反映されない！
-  ConfigServer::CallbackType f =
-    boost::bind(&ErrorStateKalmanFilterRos::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-
   getRosParams();
   drone_.loadFromParam(nh_);
-
-  // Dynamic Reconfigureの設定後に手動でパラメータを設定する必要がある！
-  dynamicReconfigureCb(cfg_, 0);
 
   imu2gps_ = drone_.gpsOffset() - drone_.imuOffset();
 
   registerPublishers();
   registerSubscribers();
+
+  // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
+  ConfigServer::CallbackType f =
+    boost::bind(&ErrorStateKalmanFilterRos::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()
@@ -83,13 +80,6 @@ void ErrorStateKalmanFilterRos::getRosParams()
   {
     rosthrow(name_, "Invalid geomagnetism observation method: " << geomag_observe_method);
   }
-
-  // Dynamic parameters
-  dh_ros::getParam(pnh_, "rotation_variance_grav", cfg_.rotation_variance_grav, dh_ros::POSITIVE);
-  dh_ros::getParam(
-    pnh_, "rotation_variance_geomag", cfg_.rotation_variance_geomag, dh_ros::POSITIVE);
-  dh_ros::getParam(pnh_, "acc_bias_noise_var_exp", cfg_.acc_bias_noise_var_exp);
-  dh_ros::getParam(pnh_, "gyro_bias_noise_var_exp", cfg_.gyro_bias_noise_var_exp);
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()

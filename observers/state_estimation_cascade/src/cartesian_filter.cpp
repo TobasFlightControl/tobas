@@ -34,14 +34,12 @@ void CartesianFilter::initialize(
   const Matrix3d& init_pos_cov,
   const Matrix3d& init_vel_cov,
   const Matrix3d& init_acc_cov,
-  const Matrix3d& init_grav_cov,
-  const double& grav_var)
+  const Matrix3d& init_grav_cov)
 {
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_pos_cov));
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_vel_cov));
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_acc_cov));
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_grav_cov));
-  assert(grav_var > 0.);
 
   x_.block(kPosIdx, 0, 3, 1) = init_pos;
   x_.block(kVelIdx, 0, 3, 1) = init_vel;
@@ -53,12 +51,11 @@ void CartesianFilter::initialize(
   P_.block(kVelIdx, kVelIdx, 3, 3) = init_vel_cov;
   P_.block(kAccIdx, kAccIdx, 3, 3) = init_acc_cov;
   P_.block(kGravIdx, kGravIdx, 3, 3) = init_grav_cov;
-
-  Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
 
 void CartesianFilter::configure(const double& grav_var)
 {
+  assert(grav_var > 0.);
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
 
