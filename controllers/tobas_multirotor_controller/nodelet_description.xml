@@ -1,14 +1,6 @@
 <library path="lib/libtobas_multirotor_controller_nodelet">
 
-  <class name="tobas_multirotor_controller/PositionControllerNodelet" type="tobas_multirotor_controller::PositionControllerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-  <class name="tobas_multirotor_controller/VelocityControllerNodelet" type="tobas_multirotor_controller::VelocityControllerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-  <class name="tobas_multirotor_controller/RotationControllerNodelet" type="tobas_multirotor_controller::RotationControllerNodelet" base_class_type="nodelet::Nodelet">
+  <class name="tobas_multirotor_controller/ControllerNodelet" type="tobas_multirotor_controller::ControllerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
 

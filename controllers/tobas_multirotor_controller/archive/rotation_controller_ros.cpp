@@ -43,7 +43,6 @@ RotationControllerRos::RotationControllerRos(ros::NodeHandle nh, ros::NodeHandle
   z_rotors_.updateInternalDataStructures();
 
   rot_controller_.updateInternalDataStructures();
-  ROS_ERROR_STREAM(dynamic_params_.pred_steps);
   rot_controller_.configure(dynamic_params_);
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
@@ -403,7 +402,6 @@ void RotationControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void RotationControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  ROS_ERROR_STREAM(cfg.prediction_horizon);
   updateDynamicParams(cfg);
   rot_controller_.configure(dynamic_params_);
   rosInfo(name_, "Dynamic parameters are updated.");

@@ -9,7 +9,6 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Event.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/RollPitchYawThrust.h>

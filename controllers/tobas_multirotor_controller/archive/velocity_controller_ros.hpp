@@ -6,7 +6,6 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Event.h>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
