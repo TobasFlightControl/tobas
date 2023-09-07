@@ -175,7 +175,7 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
         super().__init__(main, abst_text)
 
         gain_acc_description = "Accelerometer gain for the orientation estimation."
-        self.gain_acc = ParamGetterWidget_DoubleSpinBox(
+        self._gain_acc = ParamGetterWidget_DoubleSpinBox(
             "Acelerometer gain",
             gain_acc_description,
             decimals=3,
@@ -183,10 +183,10 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
             maximum=1.0,
             default=0.01,
         )
-        self._rows.addWidget(self.gain_acc)
+        self._rows.addWidget(self._gain_acc)
 
         gain_mag_description = "Magnetometer gain for the orientation estimation."
-        self.gain_mag = ParamGetterWidget_DoubleSpinBox(
+        self._gain_mag = ParamGetterWidget_DoubleSpinBox(
             "Magnetometer gain",
             gain_mag_description,
             decimals=3,
@@ -194,7 +194,7 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
             maximum=1.0,
             default=0.01,
         )
-        self._rows.addWidget(self.gain_mag)
+        self._rows.addWidget(self._gain_mag)
 
         bias_alpha_description = "Bias estimation gain for the orientation estimation."
         self.bias_alpha = ParamGetterWidget_DoubleSpinBox(
@@ -211,34 +211,34 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
             "Whether to do bias estimation of the gyroscope readings "
             + "for the orientation estimation."
         )
-        self.do_bias_estimation = ParamGetterWidget_CheckBox(
+        self._do_bias_estimation = ParamGetterWidget_CheckBox(
             "Do bias estimation",
             do_bias_estimation_description,
             check_box_text="Do bias estimation",
             default=True,
         )
-        self._rows.addWidget(self.do_bias_estimation)
+        self._rows.addWidget(self._do_bias_estimation)
 
         do_adaptive_gain_description = (
             "Whether to do adaptive gain for the orientation estimation."
         )
-        self.do_adaptive_gain = ParamGetterWidget_CheckBox(
+        self._do_adaptive_gain = ParamGetterWidget_CheckBox(
             "Do adaptive gain",
             do_adaptive_gain_description,
             check_box_text="Do adaptive gain",
             default=False,
         )
-        self._rows.addWidget(self.do_adaptive_gain)
+        self._rows.addWidget(self._do_adaptive_gain)
 
         grav_var_description = "The process noise variance of the gravity vector."
-        self.grav_var = ParamGetterWidget_SpinBox(
+        self._grav_var = ParamGetterWidget_SpinBox(
             "Gravity variance",
             grav_var_description,
             minimum=1,
             maximum=1000,
             default=100,
         )
-        self._rows.addWidget(self.grav_var)
+        self._rows.addWidget(self._grav_var)
 
     @overrides
     def is_valid(self) -> bool:
@@ -259,17 +259,17 @@ class ObserverWidget_Cascade(ObserverWidget_Base):
     def parameter_dict(self) -> dict:
         res = dict()
         res["orientation_estimator_complement"] = {
-            "gain_acc": self.gain_acc.get(),
-            "gain_mag": self.gain_mag.get(),
+            "gain_acc": self._gain_acc.get(),
+            "gain_mag": self._gain_mag.get(),
             "bias_alpha": self.bias_alpha.get(),
-            "do_bias_estimation": self.do_bias_estimation.get(),
-            "do_adaptive_gain": self.do_adaptive_gain.get(),
+            "do_bias_estimation": self._do_bias_estimation.get(),
+            "do_adaptive_gain": self._do_adaptive_gain.get(),
         }
         res["state_estimator_cascade"] = {
             "use_gps": self._main.settings.gps.equipped(),
             "gps_horizontal_position_stddev_threshold": self.gps_hor_pos_stddev_threshold.get(),
             "gps_vertical_position_stddev_threshold": self.gps_ver_pos_stddev_threshold.get(),
-            "gravity_variance": self.grav_var.get(),
+            "gravity_variance": self._grav_var.get(),
         }
 
         return res
@@ -279,18 +279,52 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
     NAME = "Error State Kalman Filter"
     PACKAGE_NAME = "state_estimation_eskf"
 
-    # 動的パラメータのデフォルト値
-    DEFAULT_ROTATION_VARIANCE_GRAV = 100.0
-    DEFAULT_ROTATION_VARIANCE_GEOMAG = 1.0
-    DEFAULT_ACC_BIAS_NOISE_VAR_LOG10 = -5
-    DEFAULT_GYRO_BIAS_NOISE_VAR_LOG10 = -9
-
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
             "An implementation of <a href='https://arxiv.org/abs/1711.02508'>"
             + "Quaternion kinematics for the error-state Kalman filter [Joan Sola, 2017]</a>."
         )
         super().__init__(main, abst_text)
+
+        rot_var_grav_description = "重力ベクトルの観測に用いる分散．"
+        self._rot_var_grav = ParamGetterWidget_SpinBox(
+            "Rotation variance (Gravity vector)",
+            rot_var_grav_description,
+            minimum=1,
+            maximum=5000,
+            default=100,
+        )
+        self._rows.addWidget(self._rot_var_grav)
+
+        rot_var_geomag_description = "地磁気ベクトルの観測に用いる分散．"
+        self._rot_var_geomag = ParamGetterWidget_SpinBox(
+            "Rotation variance (Geomagnetic vector)",
+            rot_var_geomag_description,
+            minimum=1,
+            maximum=5000,
+            default=1,
+        )
+        self._rows.addWidget(self._rot_var_geomag)
+
+        acc_bias_noise_var_description = "加速度センサバイアスの観測ノイズの分散の常用対数．"
+        self._acc_bias_noise_var_log10 = ParamGetterWidget_SpinBox(
+            "Accelerometer bias noise variance level",
+            acc_bias_noise_var_description,
+            minimum=-12,
+            maximum=0,
+            default=-5,
+        )
+        self._rows.addWidget(self._acc_bias_noise_var_log10)
+
+        gyro_bias_noise_var_description = "加速度センサバイアスの観測ノイズの分散の常用対数．"
+        self._gyro_bias_noise_var_log10 = ParamGetterWidget_SpinBox(
+            "Gyroscope bias noise variance level",
+            gyro_bias_noise_var_description,
+            minimum=-12,
+            maximum=0,
+            default=-9,
+        )
+        self._rows.addWidget(self._gyro_bias_noise_var_log10)
 
     @overrides
     def is_valid(self) -> bool:
@@ -318,10 +352,10 @@ class ObserverWidget_ESKF(ObserverWidget_Base):
             "gps_horizontal_position_stddev_threshold": self.gps_hor_pos_stddev_threshold.get(),
             "gps_vertical_position_stddev_threshold": self.gps_ver_pos_stddev_threshold.get(),
             "geomag_observe_method": "yaw_only",
-            "rotation_variance_grav": self.DEFAULT_ROTATION_VARIANCE_GRAV,
-            "rotation_variance_geomag": self.DEFAULT_ROTATION_VARIANCE_GEOMAG,
-            "acc_bias_noise_var_exp": self.DEFAULT_ACC_BIAS_NOISE_VAR_LOG10,
-            "gyro_bias_noise_var_exp": self.DEFAULT_GYRO_BIAS_NOISE_VAR_LOG10,
+            "rotation_variance_grav": self._rot_var_grav.get(),
+            "rotation_variance_geomag": self._rot_var_geomag.get(),
+            "acc_bias_noise_var_log10": self._acc_bias_noise_var_log10.get(),
+            "gyro_bias_noise_var_log10": self._gyro_bias_noise_var_log10.get(),
         }
 
         return res

@@ -63,9 +63,9 @@ void RotationControllerRos::getRosParams()
   dh_ros::getParam(nh_, kCtrlName + "/attitude_weight", dynamic_params_.attitude_weight);
   dh_ros::getParam(nh_, kCtrlName + "/heading_weight", dynamic_params_.heading_weight);
   dh_ros::getParam(nh_, kCtrlName + "/angular_velocity_weight", dynamic_params_.angvel_weight);
-  dh_ros::getParam(nh_, kCtrlName + "/thrust_weight_exp", dynamic_params_.thrust_weight_exp);
+  dh_ros::getParam(nh_, kCtrlName + "/thrust_weight_log10", dynamic_params_.thrust_weight_log10);
   dh_ros::getParam(
-    nh_, kCtrlName + "/thrust_rate_weight_exp", dynamic_params_.thrust_rate_weight_exp);
+    nh_, kCtrlName + "/thrust_rate_weight_log10", dynamic_params_.thrust_rate_weight_log10);
 }
 
 void RotationControllerRos::registerPublishers()
@@ -122,8 +122,8 @@ void RotationControllerRos::updateDynamicParams(const ConfigType& cfg)
   dynamic_params_.attitude_weight = cfg.attitude_weight;
   dynamic_params_.heading_weight = cfg.heading_weight;
   dynamic_params_.angvel_weight = cfg.angular_velocity_weight;
-  dynamic_params_.thrust_weight_exp = cfg.thrust_weight_exp;
-  dynamic_params_.thrust_rate_weight_exp = cfg.thrust_rate_weight_exp;
+  dynamic_params_.thrust_weight_log10 = cfg.thrust_weight_log10;
+  dynamic_params_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
 }
 
 void RotationControllerRos::runOnce()

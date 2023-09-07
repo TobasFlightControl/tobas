@@ -503,8 +503,8 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
 {
   rot_acc_cov_.diagonal().fill(cfg.rotation_variance_grav);
   rot_mag_cov_.diagonal().fill(cfg.rotation_variance_geomag);
-  acc_bias_noise_var_ = exp10(cfg.acc_bias_noise_var_exp);
-  gyro_bias_noise_var_ = exp10(cfg.gyro_bias_noise_var_exp);
+  acc_bias_noise_var_ = exp10(cfg.acc_bias_noise_var_log10);
+  gyro_bias_noise_var_ = exp10(cfg.gyro_bias_noise_var_log10);
 
   rosInfo(name_, "New dynamic parameters are set.");
 }

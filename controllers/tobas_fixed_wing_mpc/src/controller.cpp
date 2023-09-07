@@ -477,12 +477,12 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   mpc_.control_weight(kCtrlIdx_r) = cfg.angular_velocity_weight;
 
   // 制御入力の重み
-  mpc_.input_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_weight_exp));
-  mpc_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_weight_exp));
+  mpc_.input_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_weight_log10));
+  mpc_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_weight_log10));
 
   // 制御入力の変化率の重み
-  mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_exp));
+  mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_log10));
   mpc_.input_rate_weight.bottomRows(drone_.numControlSurfaces())
-    .fill(exp10(cfg.deflection_rate_weight_exp));
+    .fill(exp10(cfg.deflection_rate_weight_log10));
 }
 }  // namespace tobas_fixed_wing_mpc
