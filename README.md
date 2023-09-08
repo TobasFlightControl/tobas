@@ -191,7 +191,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
 <strong>Warning: This operation will rotate the motors.</strong>
 
 The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit), so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions. In this case, make sure that the battery, ESC (Electronic Speed Controller), motors, and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
-Execute the following in FC:
+Execute the following in FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
 $ su
