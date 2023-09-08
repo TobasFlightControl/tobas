@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="nodelet" default="true"/>
+
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_rc_teleop)/launch/roll_pitch_yawrate_thrust.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+  </group>
+
+</launch>

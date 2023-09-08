@@ -21,7 +21,7 @@ from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
 
-from tobas_msgs.msg import PositionYaw, SpeedRollDeltaPitch
+from tobas_msgs.msg import *
 
 from .utils import *
 from .xml_nodes import *
@@ -169,27 +169,10 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "hardware_interfaces.launch"),
         )
         self._generate_from_template(
-            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+            items, "hil.launch", osp.join(launch_dir, "hil.launch")
         )
 
-        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
-        if PositionYaw in command_msgs:
-            self._generate_from_template(
-                items,
-                "keyboard_teleop/position_yaw.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
-            )
-            self._generate_from_template(
-                items,
-                "gui_teleop/position_yaw.launch",
-                osp.join(launch_dir, "gui_teleop.launch"),
-            )
-        elif SpeedRollDeltaPitch in command_msgs:
-            self._generate_from_template(
-                items,
-                "keyboard_teleop/speed_roll_dpitch.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
-            )
+        self._generate_teleop_launches(items, launch_dir)
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
@@ -241,6 +224,46 @@ class PackageGenerator(QObject):
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
         with open(out_path, "w") as f:
             f.write(content)
+
+    def _generate_teleop_launches(self, items: dict, launch_dir: str) -> None:
+        """コマンドのメッセージ型を参照し，遠隔操縦用のlaunchファイルを生成する．"""
+        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
+
+        # Keyboard Teleop
+        if PositionYaw in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/position_yaw.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
+        elif SpeedRollDeltaPitch in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/speed_roll_dpitch.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
+
+        # GUI Teleop
+        if PositionYaw in command_msgs:
+            self._generate_from_template(
+                items,
+                "gui_teleop/position_yaw.launch",
+                osp.join(launch_dir, "gui_teleop.launch"),
+            )
+
+        # RC Teleop
+        if VelocityYaw in command_msgs:
+            self._generate_from_template(
+                items,
+                "rc_teleop/velocity_yaw.launch",
+                osp.join(launch_dir, "rc_teleop.launch"),
+            )
+        elif RollPitchYawrateThrust in command_msgs:
+            self._generate_from_template(
+                items,
+                "rc_teleop/roll_pitch_yawrate_thrust.launch",
+                osp.join(launch_dir, "rc_teleop.launch"),
+            )
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
