@@ -93,9 +93,13 @@ void ImuHandler::measureGyroBias()
     imu_.update();
     imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
+    // cout << "Gyro norm: " << gyro_.norm() << " [rad/s]" << endl;
     if (gyro_.norm() > kStaticGyroThreshold)
     {
-      rosError(name_, "Movement of the aircraft is detected while measuring gyro bias.");
+      rosError(
+        name_,
+        "Movement of the aircraft is detected while measuring gyro bias. The norm of gyro is "
+          << gyro_.norm() << " rad/s.");
       gyro_sum.setZero();
       cnt = 0;
       continue;
