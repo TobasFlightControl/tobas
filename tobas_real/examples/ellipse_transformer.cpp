@@ -2,7 +2,7 @@
 
 #include <dh_std_tools/math.hpp>
 
-#include "../include/tobas_real/ellipse_transformer.hpp"
+#include <tobas_real/ellipse_transformer.hpp>
 
 using namespace std;
 using namespace Eigen;
