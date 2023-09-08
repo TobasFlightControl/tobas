@@ -71,7 +71,7 @@
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor robot_namespace="${namespace}"
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
     direction="ccw"
     parent="${namespace}/base_link"
@@ -85,13 +85,13 @@
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor robot_namespace="${namespace}"
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
     direction="cw"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
-    motor_number=""
+    motor_number="3"
     color="Blue"
     use_own_mesh="false"
     mesh="">

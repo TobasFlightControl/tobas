@@ -70,7 +70,7 @@
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor robot_namespace="${namespace}"
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
     direction="cw"
     parent="${namespace}/base_link"
@@ -84,7 +84,7 @@
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor robot_namespace="${namespace}"
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
     direction="cw"
     parent="${namespace}/base_link"
