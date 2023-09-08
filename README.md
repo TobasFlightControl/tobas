@@ -163,6 +163,7 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 
 ```bash
 $ su
+$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch (tobas_config_pkg) hil.launch
 ```
 
