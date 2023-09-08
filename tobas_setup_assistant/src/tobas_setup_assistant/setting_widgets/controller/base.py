@@ -5,9 +5,14 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
+from typing import List, final
+from dynamic_reconfigure import client
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from dh_rqt_tools.roslaunch import rosrun
+from dh_rqt_tools.dynamic_reconfigure import get_param_config
 
 from ...common import *
 
@@ -35,6 +40,11 @@ class BaseController(QWidget):
         abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
+        # 動的パラメータをパラメータサーバに登録
+        rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
+        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
+        self._configs: List[dict] = cli.get_parameter_descriptions()
+
     @abstractmethod
     def is_applicable(self) -> bool:
         """
@@ -58,3 +68,7 @@ class BaseController(QWidget):
     @abstractmethod
     def parameter_dict(self) -> dict:
         raise NotImplementedError()
+
+    @final
+    def _get_param_config(self, name: str) -> dict:
+        return get_param_config(self._configs, name)

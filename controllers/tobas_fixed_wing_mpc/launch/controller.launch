@@ -3,7 +3,7 @@
   <arg name="nodelet" default="true"/>
   <arg name="ground_truth" default="false"/>
 
-  <arg name="node_name" value="tobas_fixed_wing_lqd"/>
+  <arg name="node_name" value="tobas_fixed_wing_mpc"/>
 
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_fixed_wing_mpc/ControllerNodelet nodelet_manager" output="screen">

@@ -356,7 +356,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
         a_m_, w_m_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_, dt);
 
       // 重力方向の観測
-      eskf_.measureAcceleration(a_m_, rot_acc_cov_);
+      eskf_.measureAcceleration(a_m_, grav_cov_);
 
       // 共分散の収束を確認
       if (!is_initialized_)
@@ -400,7 +400,11 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
           cov_ok = false;
         }
 
-        is_initialized_ = cov_ok;
+        if (cov_ok)
+        {
+          is_initialized_ = true;
+          rosInfo(name_, "Kalman filter is initialized. Start to publish pose & twist.");
+        }
       }
 
       // 推定状態を発行
@@ -541,8 +545,8 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  rot_acc_cov_.diagonal().fill(cfg.rotation_variance_grav);
-  rot_mag_cov_.diagonal().fill(cfg.rotation_variance_geomag);
+  grav_cov_.diagonal().fill(cfg.gravity_variance);
+  rot_mag_cov_.diagonal().fill(cfg.yaw_variance);
   acc_bias_noise_var_ = exp10(cfg.acc_bias_noise_var_log10);
   gyro_bias_noise_var_ = exp10(cfg.gyro_bias_noise_var_log10);
 

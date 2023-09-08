@@ -85,7 +85,7 @@ private:
   Eigen::Vector3d mag_m_;
   Eigen::Vector3d pos_m_;
   Eigen::Vector3d vel_m_;
-  Eigen::Matrix3d rot_acc_cov_ = Eigen::Matrix3d::Zero();
+  Eigen::Matrix3d grav_cov_ = Eigen::Matrix3d::Zero();
   Eigen::Matrix3d rot_mag_cov_ = Eigen::Matrix3d::Zero();
   double acc_bias_noise_var_;
   double gyro_bias_noise_var_;

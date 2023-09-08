@@ -27,6 +27,17 @@ class FixedWingLQR(BaseController):
 
     COMMAND_MSGS = [SpeedRollDeltaPitch]
 
+    # Dynamic Parameters
+    FORWARD_SPEED_WEIGHT = "forward_speed_weight"
+    ALPHA_WEIGHT = "alpha_weight"
+    BETA_WEIGHT = "beta_weight"
+    ATTITUDE_WEIGHT = "attitude_weight"
+    ANGVEL_WEIGHT = "angular_velocity_weight"
+    THRUST_WEIGHT_LOG10 = "thrust_weight_log10"
+    THRUST_RATE_WEIGHT_LOG10 = "thrust_rate_weight_log10"
+    DEFLECTION_WEIGHT_LOG10 = "deflection_weight_log10"
+    DEFLECTION_RATE_WEIGHT_LOG10 = "deflection_rate_weight_log10"
+
     MIN_NUM_PROP = 1
     MIN_NUM_CS = 2
 
@@ -34,93 +45,93 @@ class FixedWingLQR(BaseController):
         abst_text = "TODO"
         super().__init__(main, abst_text)
 
-        forward_speed_weight_description = "最適制御における推進速度の重み．"
+        config = self._get_param_config(self.FORWARD_SPEED_WEIGHT)
         self._forward_speed_weight = ParamGetterWidget_SpinBox(
             "Weight on forward speed",
-            forward_speed_weight_description,
-            minimum=1,
-            maximum=100,
-            default=1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._forward_speed_weight)
 
-        alpha_weight_description = "最適制御における迎角の重み．"
+        config = self._get_param_config(self.ALPHA_WEIGHT)
         self._alpha_weight = ParamGetterWidget_SpinBox(
             "Weight on angle of attack",
-            alpha_weight_description,
-            minimum=1,
-            maximum=100,
-            default=1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._alpha_weight)
 
-        beta_weight_description = "最適制御における推進速度の重み．"
+        config = self._get_param_config(self.BETA_WEIGHT)
         self._beta_weight = ParamGetterWidget_SpinBox(
             "Weight on angle of sideslip",
-            beta_weight_description,
-            minimum=1,
-            maximum=100,
-            default=1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._beta_weight)
 
-        attitude_weight_description = "最適制御における姿勢角の重み．"
+        config = self._get_param_config(self.ATTITUDE_WEIGHT)
         self._attitude_weight = ParamGetterWidget_SpinBox(
             "Weight on attitude",
-            attitude_weight_description,
-            minimum=1,
-            maximum=100,
-            default=1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._attitude_weight)
 
-        angvel_weight_description = "最適制御における角速度の重み．"
+        config = self._get_param_config(self.ANGVEL_WEIGHT)
         self._angvel_weight = ParamGetterWidget_SpinBox(
             "Weight on angular velocity",
-            angvel_weight_description,
-            minimum=1,
-            maximum=100,
-            default=1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._angvel_weight)
 
-        thrust_weight_log10_description = "最適制御における，プロペラ推力の重みの常用対数．"
+        config = self._get_param_config(self.THRUST_WEIGHT_LOG10)
         self._thrust_weight_log10 = ParamGetterWidget_SpinBox(
             "Weight on thrust level",
-            thrust_weight_log10_description,
-            minimum=-6,
-            maximum=0,
-            default=-3,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._thrust_weight_log10)
 
-        thrust_rate_weight_log10_description = "最適制御における，プロペラ推力の変化率の重みの常用対数．"
+        config = self._get_param_config(self.THRUST_RATE_WEIGHT_LOG10)
         self._thrust_rate_weight_log10 = ParamGetterWidget_SpinBox(
             "Weight on thrust rate level",
-            thrust_rate_weight_log10_description,
-            minimum=-6,
-            maximum=0,
-            default=-1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._thrust_rate_weight_log10)
 
-        deflection_weight_log10_description = "最適制御における，操舵角の重みの常用対数．"
+        config = self._get_param_config(self.DEFLECTION_WEIGHT_LOG10)
         self._deflection_weight_log10 = ParamGetterWidget_SpinBox(
             "Weight on deflection level",
-            deflection_weight_log10_description,
-            minimum=-6,
-            maximum=0,
-            default=-3,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._deflection_weight_log10)
 
-        deflection_rate_weight_log10_description = "最適制御における，操舵角の変化率の重みの常用対数．"
+        config = self._get_param_config(self.DEFLECTION_RATE_WEIGHT_LOG10)
         self._deflection_rate_weight_log10 = ParamGetterWidget_SpinBox(
             "Weight on deflection rate level",
-            deflection_rate_weight_log10_description,
-            minimum=-6,
-            maximum=0,
-            default=-1,
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
         )
         self._rows.addWidget(self._deflection_rate_weight_log10)
 
@@ -157,15 +168,15 @@ class FixedWingLQR(BaseController):
     def parameter_dict(self) -> dict:
         res = dict()
         res["tobas_fixed_wing_lqd"] = {
-            "forward_speed_weight": self._forward_speed_weight.get(),
-            "alpha_weight": self._alpha_weight.get(),
-            "beta_weight": self._beta_weight.get(),
-            "attitude_weight": self._attitude_weight.get(),
-            "angular_velocity_weight": self._angvel_weight.get(),
-            "thrust_weight_log10": self._thrust_weight_log10.get(),
-            "thrust_rate_weight_log10": self._thrust_rate_weight_log10.get(),
-            "deflection_weight_log10": self._deflection_weight_log10.get(),
-            "deflection_rate_weight_log10": self._deflection_rate_weight_log10.get(),
+            self.FORWARD_SPEED_WEIGHT: self._forward_speed_weight.get(),
+            self.ALPHA_WEIGHT: self._alpha_weight.get(),
+            self.BETA_WEIGHT: self._beta_weight.get(),
+            self.ATTITUDE_WEIGHT: self._attitude_weight.get(),
+            self.ANGVEL_WEIGHT: self._angvel_weight.get(),
+            self.THRUST_WEIGHT_LOG10: self._thrust_weight_log10.get(),
+            self.THRUST_RATE_WEIGHT_LOG10: self._thrust_rate_weight_log10.get(),
+            self.DEFLECTION_WEIGHT_LOG10: self._deflection_weight_log10.get(),
+            self.DEFLECTION_RATE_WEIGHT_LOG10: self._deflection_rate_weight_log10.get(),
         }
 
         return res
