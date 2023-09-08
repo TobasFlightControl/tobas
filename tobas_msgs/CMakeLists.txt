@@ -13,10 +13,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	dh_kdl
+	kdl_conversions
 	message_generation
 	kdl_msgs
 	std_msgs
 	sensor_msgs
+	nav_msgs
 	actionlib_msgs
 )
 
@@ -38,29 +40,31 @@ generate_messages(DEPENDENCIES
 
 catkin_package(
 	INCLUDE_DIRS include
-# 	LIBRARIES ${PROJECT_NAME}
+	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS
 		dh_kdl
+		kdl_conversions
 		message_generation
 		kdl_msgs
 		std_msgs
 		sensor_msgs
+		nav_msgs
 		actionlib_msgs 
 )
 
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS} include)
 
-# ライブラリを作成
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-# add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+# Library
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# ノードの実行ファイルを作成
-# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp) # src内のノードへのパスを取得
+# Executables
+# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 # foreach(FILE IN LISTS NODE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE) # 拡張子を除いたファイル名を取得
-# 	add_executable(${NODE_NAME} ${FILE}) # コンパイル
+# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
+# 	add_executable(${NODE_NAME} ${FILE})
 # 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES}) # リンク
+# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES})
 # endforeach()

@@ -12,6 +12,7 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/conversions/msg_msg.hpp>
 
 #include "../include/state_estimation_cascade/state_estimator.hpp"
 
@@ -49,7 +50,8 @@ void StateEstimator::getRosParams()
 void StateEstimator::registerPublishers()
 {
   event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
-  posevel_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
+  pt_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
+  odom_pub_ = nh_.advertise<OdomMsg>("odom", 1);
 }
 
 void StateEstimator::registerSubscribers()
@@ -184,17 +186,19 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   return result;
 }
 
-void StateEstimator::updatePoseVelMsg(const ImuMsg& imu, StateMsg& state)
+StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& imu)
 {
+  auto state = boost::make_shared<StateMsg>();
+
   // Time stamp
-  state.header.stamp = imu.header.stamp;
+  state->header.stamp = imu.header.stamp;
 
   // Position
-  tf::vectorEigenToKDL(cart_filter_.getXYZ(), state.pose.pos);
+  tf::vectorEigenToKDL(cart_filter_.getXYZ(), state->pose.pos);
 
   // Roll, Pitch
   const auto& q = imu.orientation;
-  auto& rpy = state.pose.euler;
+  auto& rpy = state->pose.euler;
   quaternionToEuler(q.x, q.y, q.z, q.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // Yaw
@@ -210,18 +214,19 @@ void StateEstimator::updatePoseVelMsg(const ImuMsg& imu, StateMsg& state)
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Linear velocity (Local)
-  tf::vectorEigenToKDL(cart_filter_.getVelocity(), state.twist.vel);
-  state.twist.vel = state.pose.euler.Inverse(state.twist.vel);  // World -> Local
+  tf::vectorEigenToKDL(cart_filter_.getVelocity(), state->twist.vel);
+  state->twist.vel = state->pose.euler.Inverse(state->twist.vel);  // World -> Local
 
   // Angular velocity (Local)
-  tf::vectorMsgToKDL(imu.angular_velocity, state.twist.rot);
+  tf::vectorMsgToKDL(imu.angular_velocity, state->twist.rot);
 
   // Covariances
-  eigen_tools::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), state.position_covariance);
-  state.orientation_covariance.fill(-1);  // TODO: 相補フィルタから推定
   eigen_tools::matrix3EigenToBoost(
-    cart_filter_.getVelocityCovariance(), state.linear_velocity_covariance);
-  state.angular_velocity_covariance = imu.angular_velocity_covariance;
+    cart_filter_.getPositionCovariance(), state->position_covariance);
+  state->orientation_covariance.fill(-1);  // TODO: 相補フィルタから推定
+  eigen_tools::matrix3EigenToBoost(
+    cart_filter_.getVelocityCovariance(), state->linear_velocity_covariance);
+  state->angular_velocity_covariance = imu.angular_velocity_covariance;
 }
 
 void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -275,10 +280,14 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
   // 加速度の観測
   cart_filter_.measureAcceleration(a_m_, acc_cov);
 
-  // 推定した状態を発行
-  const auto state = boost::make_shared<StateMsg>();
-  updatePoseVelMsg(*imu, *state);
-  posevel_pub_.publish(state);
+  // 推定状態を発行
+  const auto state = makePoseVelMsg(*imu);
+  pt_pub_.publish(state);
+
+  // オドメトリを発行
+  const auto odom = boost::make_shared<OdomMsg>();
+  tobas::odometryTobasToMsg(*state, *odom);
+  odom_pub_.publish(odom);
 }
 
 void StateEstimator::barometerCb(const BarMsg::ConstPtr& bar)

@@ -6,6 +6,7 @@
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <nav_msgs/Odometry.h>
 
 #include <dh_ros_tools/timer.hpp>
 #include <dh_ros_tools/stopwatch.hpp>
@@ -32,6 +33,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using GpsMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
   using StateMsg = tobas_msgs::PoseTwist;
+  using OdomMsg = nav_msgs::Odometry;
   using FeedbackMsg = state_estimation_eskf::ErrorStateKalmanFilterFeedback;
 
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
@@ -93,7 +95,8 @@ private:
   double gps_ver_pos_stddev_thr_;  // [m]
 
   // PubSub
-  ros::Publisher posevel_pub_;
+  ros::Publisher pt_pub_;
+  ros::Publisher odom_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;

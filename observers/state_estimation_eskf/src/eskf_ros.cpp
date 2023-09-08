@@ -17,6 +17,7 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
+#include <tobas_msgs/conversions/msg_msg.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
@@ -68,7 +69,8 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  posevel_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
+  pt_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
+  odom_pub_ = nh_.advertise<OdomMsg>("odom", 1);
   feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
 }
 
@@ -393,7 +395,12 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 
       // 推定状態を発行
       const auto state = makePoseVelMsg(*imu);
-      posevel_pub_.publish(state);
+      pt_pub_.publish(state);
+
+      // オドメトリを発行
+      const auto odom = boost::make_shared<OdomMsg>();
+      tobas::odometryTobasToMsg(*state, *odom);
+      odom_pub_.publish(odom);
 
       // フィードバックを発行
       const auto feedback = boost::make_shared<FeedbackMsg>();
