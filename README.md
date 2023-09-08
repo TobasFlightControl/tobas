@@ -67,8 +67,6 @@ $ catkin build
 ### 1. Create Tobas configuration package using setup assistant.
 
 ```bash
-$ cd ~/catkin_ws
-$ source devel/setup.bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 ```
 
