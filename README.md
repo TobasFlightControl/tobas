@@ -142,6 +142,28 @@ $ export ROS_MASTER_URI=http://(IP address of FC):11311
 $ rosnode ping /rosout
 ```
 
+### Hardware in the Loop (HIL)
+
+1. Launch roscore on FC.
+
+```bash
+$ roscore
+```
+
+2. Launch Gazebo simulation on the external PC.
+
+```bash
+$ roslaunch (tobas_config_pkg) gazebo.launch
+```
+
+3. Launch HIL software on FC.\
+Make sure battery and motors are connected to FC properly and the propellers are NOT attached to the motors.
+
+```bash
+$ su
+$ roslaunch (tobas_config_pkg) hil.launch
+```
+
 ## Calibration
 
 ### Accelerometer Calibration
@@ -176,7 +198,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### ESC Calibration
 
-Make sure battery and ESCs are connected to FC properly and the propellers are NOT attached to the airframe.\
+Make sure battery and ESCs are connected to FC properly and the propellers are NOT attached to the motors.\
 Execute the following in FC:
 
 ```bash
