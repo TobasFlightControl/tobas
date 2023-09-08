@@ -30,6 +30,11 @@ class BaseController(QWidget):
         super().__init__()
         self._main = main
 
+        # 動的パラメータの設定を取得
+        rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
+        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
+        self._configs: List[dict] = cli.get_parameter_descriptions()
+
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
@@ -39,11 +44,6 @@ class BaseController(QWidget):
         abst.setWordWrap(True)
         abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
-
-        # 動的パラメータをパラメータサーバに登録
-        rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
-        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
-        self._configs: List[dict] = cli.get_parameter_descriptions()
 
     @abstractmethod
     def is_applicable(self) -> bool:

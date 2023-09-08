@@ -29,7 +29,7 @@ class BaseObserver(QWidget):
         super().__init__()
         self._main = main
 
-        # 動的パラメータをパラメータサーバに登録
+        # 動的パラメータの設定を取得
         rosrun(self.PACKAGE_NAME, "parameter_server_node.py", self.PACKAGE_NAME)
         cli = client.Client(self.PACKAGE_NAME, timeout=ROSLAUNCH_TIMEOUT)
         self._configs: List[dict] = cli.get_parameter_descriptions()
