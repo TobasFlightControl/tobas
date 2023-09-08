@@ -178,7 +178,9 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### ESC Calibration
 
-Make sure battery and ESCs are connected to FC properly.\
+<strong>Warning: This operation will send a rotation command to the motors.</strong>
+
+Make sure battery and ESCs are connected to FC properly and the propellers are NOT attached to the airframe.\
 Execute the following in FC:
 
 ```bash
@@ -188,7 +190,9 @@ $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
 
 ### Measure sensor noise
 
-Make sure battery and ESCs are connected to FC properly.\
+<strong>Warning: This operation will send a rotation command to the motors.</strong>
+
+The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit), so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions. In this case, make sure that the battery, ESC (Electronic Speed Controller), motors, and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
 Execute the following in FC:
 
 ```bash
@@ -200,7 +204,8 @@ $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 
 ### Robot meshes not visible [WSL]
 
-With WSL there are still some issues with using GPU, and in particular OpenGL, and this creates problems for visualizing meshes in rviz. A temporary fix would be to export:
+With WSL there are still some issues with using GPU, and in particular OpenGL, and this creates problems for visualizing meshes in rviz.\
+A temporary fix would be to export:
 
 ```bash
 $ export LIBGL_ALWAYS_SOFTWARE=1
