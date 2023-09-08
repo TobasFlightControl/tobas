@@ -316,7 +316,7 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
   correct<3>(delta_acc, acc_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureMagneticFieldRPY(
+void ErrorStateKalmanFilter::measureMagneticField(
   const Vector3d& mag_meas,
   const Matrix3d& mag_cov)
 {
@@ -332,7 +332,7 @@ void ErrorStateKalmanFilter::measureMagneticFieldRPY(
   correct<3>(delta_mag, mag_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureMagneticFieldYaw(
+void ErrorStateKalmanFilter::measureMagneticField(
   double mag_meas_x,
   double mag_meas_y,
   double yaw_var)

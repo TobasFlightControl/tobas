@@ -64,22 +64,6 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(
     pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
-
-  string geomag_observe_method;
-  dh_ros::getParam(
-    pnh_, "geomag_observe_method", geomag_observe_method, kDefaultGeomagObserveMethod);
-  if (geomag_observe_method == "rpy")
-  {
-    geomag_observe_method_ = GeomagObserveMethod::RPY;
-  }
-  else if (geomag_observe_method == "yaw_only")
-  {
-    geomag_observe_method_ = GeomagObserveMethod::YAW_ONLY;
-  }
-  else
-  {
-    rosthrow(name_, "Invalid geomagnetism observation method: " << geomag_observe_method);
-  }
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()
@@ -109,7 +93,7 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
   }
 }
 
-bool ErrorStateKalmanFilterRos::isReady()
+bool ErrorStateKalmanFilterRos::isReady() const
 {
   bool ok = true;
 
@@ -437,19 +421,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
     return;
   }
 
-  tf::vectorMsgToEigen(mag->magnetic_field, mag_m_);
-
-  switch (geomag_observe_method_)
-  {
-    case GeomagObserveMethod::RPY:
-      eskf_.measureMagneticFieldRPY(mag_m_, rot_mag_cov_);
-      break;
-    case GeomagObserveMethod::YAW_ONLY:
-      eskf_.measureMagneticFieldYaw(mag_m_.x(), mag_m_.y(), rot_mag_cov_(0, 0));
-      break;
-    default:
-      throw NotImplementedError();
-  }
+  eskf_.measureMagneticField(mag->magnetic_field.x, mag->magnetic_field.y, yaw_var_);
 }
 
 void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
@@ -546,7 +518,7 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   grav_cov_.diagonal().fill(cfg.gravity_variance);
-  rot_mag_cov_.diagonal().fill(cfg.yaw_variance);
+  yaw_var_ = cfg.yaw_variance;
   acc_bias_noise_var_ = exp10(cfg.acc_bias_noise_var_log10);
   gyro_bias_noise_var_ = exp10(cfg.gyro_bias_noise_var_log10);
 

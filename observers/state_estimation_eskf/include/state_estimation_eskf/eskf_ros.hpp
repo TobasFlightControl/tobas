@@ -37,12 +37,6 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
-  enum GeomagObserveMethod
-  {
-    RPY,
-    YAW_ONLY,
-  };
-
 public:
   explicit ErrorStateKalmanFilterRos(
     ros::NodeHandle nh,
@@ -86,7 +80,7 @@ private:
   Eigen::Vector3d pos_m_;
   Eigen::Vector3d vel_m_;
   Eigen::Matrix3d grav_cov_ = Eigen::Matrix3d::Zero();
-  Eigen::Matrix3d rot_mag_cov_ = Eigen::Matrix3d::Zero();
+  double yaw_var_;
   double acc_bias_noise_var_;
   double gyro_bias_noise_var_;
 
@@ -97,7 +91,6 @@ private:
   bool use_gps_;
   double gps_hor_pos_stddev_thr_;  // [m]
   double gps_ver_pos_stddev_thr_;  // [m]
-  GeomagObserveMethod geomag_observe_method_;
 
   // PubSub
   ros::Publisher posevel_pub_;
@@ -121,7 +114,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  bool isReady();
+  bool isReady() const;
   void initialize();
   void setZeroPositions();
   StateMsg::ConstPtr makePoseVelMsg(const ImuMsg& imu);

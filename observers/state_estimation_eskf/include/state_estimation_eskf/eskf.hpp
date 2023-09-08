@@ -129,7 +129,7 @@ public:
    * 地磁気センサのバイアスが大きく，ロールピッチの観測に用いると姿勢推定の精度が落ちる恐れがあるため，
    * 地磁気はヨー角の観測にのみ用いるべきという意見もある．
    */
-  void measureMagneticFieldRPY(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
+  void measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
 
   /**
    * @brief 地磁気の観測．ヨー角の修正に用いる．
@@ -139,7 +139,7 @@ public:
    * @param yaw_var 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    */
-  void measureMagneticFieldYaw(double mag_meas_x, double mag_meas_y, double yaw_var);
+  void measureMagneticField(double mag_meas_x, double mag_meas_y, double yaw_var);
 
 private:
   Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
