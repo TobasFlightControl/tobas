@@ -12,6 +12,9 @@ namespace tobas_real
 class MeasureSensorNoise
 {
   static constexpr uint32_t kDataCount = 1000;
+  static constexpr double kMaxThrottle = 0.5;
+  static constexpr double kPwmUpDownTime = 5000000;  // [us]
+  static constexpr uint32_t kPwmSleep = 1000;        // [us]
 
 public:
   explicit MeasureSensorNoise();
@@ -23,6 +26,9 @@ private:
   MS5611 barometer_;
   RCOutput_Navio2 pwm_;
 
+  void setPeriodOnAllChannels(double period);
   void sendDisarm();
+  void accelerateMotors();
+  void decelerateMotors();
 };
 }  // namespace tobas_real

@@ -51,14 +51,18 @@ void MeasureSensorNoise::run()
   cout << "Sending disarm command for " << kDisarmDuration << " seconds." << endl;
   sendDisarm();
 
+  cout << "Sampling sensor data while rotating motors." << endl;
+
+  // 徐々に回転数を上げる
+  accelerateMotors();
+
   // センサデータを取得
   Matrix<float, kDataCount, 3> acc_data;
   Matrix<float, kDataCount, 3> gyro_data;
   Matrix<float, kDataCount, 3> mag_data;
   Matrix<float, kDataCount, 1> pres_data;
 
-  cout << "Sampling sensor data while rotating motors." << endl;
-  const auto start_time = system_clock::now();
+  const auto t_get_data_start = system_clock::now();
   for (uint32_t i = 0; i < kDataCount; ++i)
   {
     // センサ情報を更新
@@ -67,13 +71,8 @@ void MeasureSensorNoise::run()
     usleep(kWaitToUpdateSensor);
 
     // モータが動いている状態でのノイズを計測するため，PWMコマンドを送信
-    for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
-    {
-      if (!pwm_.set_duty_cycle(channel, kPwmNeutral))
-      {
-        throw runtime_error("Failed to set PWM duty cycle.");
-      }
-    }
+    constexpr double max_pwm_period = kPwmMin + (kPwmMax - kPwmMin) * kMaxThrottle;
+    setPeriodOnAllChannels(max_pwm_period);
 
     // センサ情報を読み取る
     imu_.read_accelerometer(&acc_data(i, 0), &acc_data(i, 1), &acc_data(i, 2));
@@ -88,10 +87,13 @@ void MeasureSensorNoise::run()
       throw runtime_error("Strange air pressure: " + to_string(pres_data(i)) + " [Pa]");
     }
   }
-  const auto end_time = system_clock::now();
+  const auto t_get_data_end = system_clock::now();
+
+  // 徐々に回転数を下げる
+  decelerateMotors();
 
   // サンプリング周波数を計算
-  const auto elapsed_time = duration_cast<microseconds>(end_time - start_time).count();
+  const auto elapsed_time = duration_cast<microseconds>(t_get_data_end - t_get_data_start).count();
   const auto sample_freq = static_cast<float>(kDataCount * 1000000) / elapsed_time;
   cout << "Sampling frequency: " << sample_freq << " Hz" << endl;
 
@@ -130,22 +132,55 @@ void MeasureSensorNoise::run()
   pt.put(kConfigKey_PressureNoiseDensity, pres_noise_density);
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
   cout << "The result is saved to '" << kConfigPath << "'." << endl;
+}  // namespace tobas_real
+
+void MeasureSensorNoise::setPeriodOnAllChannels(double period)
+{
+  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+  {
+    if (!pwm_.set_duty_cycle(channel, period))
+    {
+      throw runtime_error("Failed to set PWM duty cycle.");
+    }
+  }
 }
 
 void MeasureSensorNoise::sendDisarm()
 {
-  const auto start_time = system_clock::now();
-  while (duration_cast<milliseconds>(system_clock::now() - start_time).count()
+  const auto t_get_data_start = system_clock::now();
+  while (duration_cast<milliseconds>(system_clock::now() - t_get_data_start).count()
          < kDisarmDuration * 1000)
   {
-    for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
-    {
-      if (!pwm_.set_duty_cycle(channel, kPwmDisarm))
-      {
-        throw runtime_error("Failed to set PWM duty cycle.");
-      }
-    }
+    setPeriodOnAllChannels(kPwmDisarm);
     usleep(kDisarmInterval * 1000000);
+  }
+}
+
+void MeasureSensorNoise::accelerateMotors()
+{
+  double elapsed_time = 0.;  // [us]
+  const auto t_motor_up_start = system_clock::now();
+  while (elapsed_time < kPwmUpDownTime)
+  {
+    elapsed_time = duration_cast<microseconds>(system_clock::now() - t_motor_up_start).count();
+    const auto throttle = kMaxThrottle * elapsed_time / kPwmUpDownTime;
+    const auto pwm_period = kPwmMin + (kPwmMax - kPwmMin) * throttle;
+    setPeriodOnAllChannels(pwm_period);
+    usleep(kPwmSleep);
+  }
+}
+
+void MeasureSensorNoise::decelerateMotors()
+{
+  double elapsed_time = 0.;  // [us]
+  const auto t_motor_down_start = system_clock::now();
+  while (elapsed_time < kPwmUpDownTime)
+  {
+    elapsed_time = duration_cast<microseconds>(system_clock::now() - t_motor_down_start).count();
+    const auto throttle = kMaxThrottle * (kPwmUpDownTime - elapsed_time) / kPwmUpDownTime;
+    const auto pwm_period = kPwmMin + (kPwmMax - kPwmMin) * throttle;
+    setPeriodOnAllChannels(pwm_period);
+    usleep(kPwmSleep);
   }
 }
 }  // namespace tobas_real
