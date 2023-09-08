@@ -144,6 +144,8 @@ $ rosnode ping /rosout
 
 ### Hardware in the Loop (HIL)
 
+<strong>Warning: This operation will rotate the motors.</strong>
+
 1. Launch roscore on FC.
 
 ```bash
@@ -157,7 +159,7 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 ```
 
 3. Launch HIL software on FC.\
-Make sure battery and motors are connected to FC properly and the propellers are NOT attached to the motors.
+   Make sure battery and motors are connected to FC properly and the propellers are NOT attached to the motors.
 
 ```bash
 $ su
