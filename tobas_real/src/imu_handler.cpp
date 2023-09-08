@@ -93,7 +93,6 @@ void ImuHandler::measureGyroBias()
     imu_.update();
     imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
-    // cout << "Gyro norm: " << gyro_.norm() << " [rad/s]" << endl;
     if (gyro_.norm() > kStaticGyroThreshold)
     {
       rosError(
@@ -102,6 +101,7 @@ void ImuHandler::measureGyroBias()
           << gyro_.norm() << " rad/s.");
       gyro_sum.setZero();
       cnt = 0;
+      rate.sleep();
       continue;
     }
 
