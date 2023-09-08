@@ -227,6 +227,8 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   eigen_tools::matrix3EigenToBoost(
     cart_filter_.getVelocityCovariance(), state->linear_velocity_covariance);
   state->angular_velocity_covariance = imu.angular_velocity_covariance;
+
+  return state;
 }
 
 void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
