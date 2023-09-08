@@ -178,8 +178,6 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### ESC Calibration
 
-<strong>Warning: This operation will send a rotation command to the motors.</strong>
-
 Make sure battery and ESCs are connected to FC properly and the propellers are NOT attached to the airframe.\
 Execute the following in FC:
 
@@ -190,7 +188,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
 
 ### Measure sensor noise
 
-<strong>Warning: This operation will send a rotation command to the motors.</strong>
+<strong>Warning: This operation will rotate the motors.</strong>
 
 The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit), so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions. In this case, make sure that the battery, ESC (Electronic Speed Controller), motors, and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
 Execute the following in FC:
