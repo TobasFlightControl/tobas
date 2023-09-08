@@ -397,7 +397,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       const auto state = makePoseVelMsg(*imu);
       pt_pub_.publish(state);
 
-      // オドメトリを発行
+      // 外部用にオドメトリを発行
       const auto odom = boost::make_shared<OdomMsg>();
       tobas::odometryTobasToMsg(*state, *odom);
       odom_pub_.publish(odom);
