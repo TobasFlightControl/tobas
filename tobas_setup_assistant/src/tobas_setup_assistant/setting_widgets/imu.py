@@ -52,7 +52,7 @@ class ImuWidget(BaseSettingWidget):
             gyro_noise_density_description,
             decimals=9,
             minimum=0.0,
-            default=5e-4,
+            default=0.01,
             suffix=" rad/s/sqrt(Hz)",
         )
         self._rows.addWidget(self.gyro_noise_density)
@@ -63,7 +63,7 @@ class ImuWidget(BaseSettingWidget):
             gyro_random_walk_description,
             decimals=9,
             minimum=0.0,
-            default=3.8785e-5,
+            default=1e-4,
             suffix=" rad/s^2/sqrt(Hz)",
         )
         self._rows.addWidget(self.gyro_random_walk)
@@ -84,7 +84,7 @@ class ImuWidget(BaseSettingWidget):
             gyro_turn_on_bias_sigma_description,
             decimals=9,
             minimum=0.0,
-            default=8.7e-3,
+            default=0.05,
             suffix=" rad/s",
         )
         self._rows.addWidget(self.gyro_turn_on_bias_sigma)
@@ -95,7 +95,7 @@ class ImuWidget(BaseSettingWidget):
             acc_noise_density_description,
             decimals=9,
             minimum=0.0,
-            default=5e-2,
+            default=0.1,
             suffix=" m/s^2/sqrt(Hz)",
         )
         self._rows.addWidget(self.acc_noise_density)
@@ -106,7 +106,7 @@ class ImuWidget(BaseSettingWidget):
             acc_random_walk_description,
             decimals=9,
             minimum=0.0,
-            default=6e-3,
+            default=0.01,
             suffix=" m/s^3/sqrt(Hz)",
         )
         self._rows.addWidget(self.acc_random_walk)
@@ -127,7 +127,7 @@ class ImuWidget(BaseSettingWidget):
             acc_turn_on_bias_sigma_description,
             decimals=9,
             minimum=0.0,
-            default=0.196,
+            default=0.2,
             suffix=" m/s^2",
         )
         self._rows.addWidget(self.acc_turn_on_bias_sigma)
