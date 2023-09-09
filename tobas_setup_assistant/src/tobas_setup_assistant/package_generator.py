@@ -276,7 +276,10 @@ class PackageGenerator(QObject):
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
+
         num_rotors = propulsion_system.count()
+        drone_config["num_rotors"] = num_rotors
+
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = propulsion_system.widget(i)
 
@@ -305,6 +308,7 @@ class PackageGenerator(QObject):
         if fixed_wing.has_fixed_wing.isChecked():
             drone_config["fixed_wing"] = dict()
 
+            # Vehicle
             vehicle = fixed_wing.vehicle
             drone_config["fixed_wing"]["vehicle"] = {
                 "wing_surface": vehicle.wing_surface.get(),
@@ -317,6 +321,7 @@ class PackageGenerator(QObject):
                 },
             }
 
+            # Aerodynamic Coefficients
             aero_coefs = fixed_wing.aero_coefs
             drone_config["fixed_wing"]["aerodynamic_coefficients"] = {
                 "c_lift_0": aero_coefs.c_lift_0.value(),
@@ -337,7 +342,12 @@ class PackageGenerator(QObject):
                 "c_yaw_r": aero_coefs.c_yaw_r.value(),
             }
 
+            # Control Surfaces
             control_surfaces = fixed_wing.control_surfaces
+
+            num_cs = fixed_wing.num_control_surfaces()
+            drone_config["fixed_wing"]["num_control_surface"] = num_cs
+
             for idx, cs in enumerate(control_surfaces.control_surfaces()):
                 drone_config["fixed_wing"][f"control_surface_{idx}"] = {
                     "angle_limit": {

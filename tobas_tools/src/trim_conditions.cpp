@@ -177,6 +177,8 @@ double TrimConditions::takeOffSpeed(double rho) const
 
 void TrimConditions::setElevatorIndex()
 {
+  assert(drone_.numControlSurfaces() > 0);
+
   double max_c_pitch_delta = numeric_limits<double>::lowest();
   for (uint32_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
   {

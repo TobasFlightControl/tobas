@@ -154,11 +154,12 @@ double Drone::rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const
 
 void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
-  uint32_t rotor_idx = 0;
-  while (dh_ros::match(nh, "rotor_" + to_string(rotor_idx)))
+  uint32_t num_rotors;
+  dh_ros::getParam(nh, "num_rotors", num_rotors);
+
+  for (uint32_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
   {
     rotor_configs_.push_back(getRotorConfig(nh, rotor_idx));
-    ++rotor_idx;
   }
 }
 
@@ -303,11 +304,14 @@ void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 
 void Drone::getControlSurfaces(ros::NodeHandle& nh)
 {
-  uint32_t cs_idx = 0;
-  while (dh_ros::match(nh, "control_surface_" + to_string(cs_idx)))
+  // fixed_wing/controll_surface_0などにはnh.searchParam()が使えないため，
+  // 制御面の個数を明示的にパラメータサーバから取得する．
+  uint32_t num_cs;
+  dh_ros::getParam(nh, "fixed_wing/num_control_surfaces", num_cs);
+
+  for (uint32_t cs_idx = 0; cs_idx < num_cs; ++cs_idx)
   {
     fixed_wing_config_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
-    ++cs_idx;
   }
 }
 
