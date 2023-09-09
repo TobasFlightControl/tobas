@@ -87,17 +87,13 @@ class URDFParser(QObject):
                 res.append(joint_name)
         return res
 
-    def posture_defining_joint_names(self) -> List[str]:
-        """
-        ロボットの形状を決めるのに必要な関節名のリストを返す．\\
-        プロペラや固定翼機の操舵面に設定されていない可動リンクがあるかどうかを調べる．
-        """
-        mobile_joints = set(self.mobile_joint_names())
-        prop_joints = set(self._main.settings.propulsion_system.selected.joint_names())
-        cs_joints = set(
-            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
-        )
-        return list(mobile_joints - prop_joints - cs_joints)
+    def search_joint_type(self, jnt_type: JointType) -> List[str]:
+        """指定したタイプのジョイント名のリストを返す．"""
+        res = []
+        for joint in self._tree.get_joints():
+            if joint.type == jnt_type:
+                res.append(joint.name)
+        return res
 
     def link_names_with_mobile_joint(self) -> List[str]:
         """可動関節をもつリンク名のリストを返す．"""

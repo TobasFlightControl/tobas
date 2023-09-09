@@ -9,6 +9,7 @@ import os
 import os.path as osp
 import yaml
 import rospy
+from typing import List
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 from PyQt5.QtCore import *
@@ -20,6 +21,7 @@ from urdf_tools_py.gazebo import GazeboRosControl
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
+from kdl_sympy.joint import JointType
 
 from tobas_msgs.msg import *
 
@@ -211,7 +213,7 @@ class PackageGenerator(QObject):
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
-        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
+        for jnt_name in self._posture_defining_joint_names():
             joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
@@ -271,7 +273,7 @@ class PackageGenerator(QObject):
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
-            "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
+            "posture_defining_joint_names": self._posture_defining_joint_names(),
         }
 
         # Propulsion System
@@ -375,7 +377,7 @@ class PackageGenerator(QObject):
             "type": "joint_state_controller/JointStateController",
             "publish_rate": 1000.0,
         }
-        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
+        for jnt_name in self._posture_defining_joint_names():
             items[f"{jnt_name}_controller"] = {
                 "type": "position_controllers/JointPositionController",
                 "joint": jnt_name,
@@ -725,6 +727,23 @@ class PackageGenerator(QObject):
         robot.append(ros_control)
 
         # Transmissions
-        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
+        for jnt_name in self._posture_defining_joint_names():
             transmission = Transmission(jnt_name, interface=Transmission.POSITION)
             robot.append(transmission)
+
+    def _posture_defining_joint_names(self) -> List[str]:
+        """ロボットの形状を決めるのに必要な関節名のリストを返す．"""
+        # 固定翼機の車輪などのTransmissionがシミュレーションに悪影響なので，continuousは含めない
+        # TODO: いずれは選択制にする (それでもcontinuousは除くべきかも)
+        urdf_parser = self._main.urdf_parser
+        revolute_joints = set(urdf_parser.search_joint_type(JointType.REVOLUTE))
+        prismatic_joints = set(urdf_parser.search_joint_type(JointType.PRISMATIC))
+        mobile_joints = revolute_joints | prismatic_joints
+
+        prop_joints = set(self._main.settings.propulsion_system.selected.joint_names())
+        cs_joints = set(
+            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
+        )
+
+        # set演算では"|"よりも"-"が優先されることに注意
+        return list(mobile_joints - prop_joints - cs_joints)
