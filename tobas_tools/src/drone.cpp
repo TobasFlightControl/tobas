@@ -304,7 +304,7 @@ void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 void Drone::getControlSurfaces(ros::NodeHandle& nh)
 {
   uint32_t cs_idx = 0;
-  while (dh_ros::match(nh, "fixed_wing/control_surface_" + to_string(cs_idx)))
+  while (dh_ros::match(nh, "control_surface_" + to_string(cs_idx)))
   {
     fixed_wing_config_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
     ++cs_idx;
