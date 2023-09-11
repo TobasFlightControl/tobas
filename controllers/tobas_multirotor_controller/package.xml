@@ -14,6 +14,7 @@
 	<depend>kdl_conversions</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
+	<depend>message_generation</depend>
 
 	<depend>dh_linear_control</depend>
 

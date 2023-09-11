@@ -19,6 +19,20 @@ find_package(catkin REQUIRED COMPONENTS
 	dynamic_reconfigure
 	nodelet
 	pluginlib
+	message_generation
+)
+
+file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
+add_message_files(FILES ${MSG_FILES})
+# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
+# add_service_files(FILES ${SRV_FILES})
+# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
+# add_action_files(FILES ${ACTION_FILES})
+
+generate_messages(DEPENDENCIES
+	tobas_msgs
+	kdl_msgs
+	std_msgs
 )
 
 generate_dynamic_reconfigure_options(cfg/Controller.cfg)
@@ -34,12 +48,14 @@ catkin_package(
 		dynamic_reconfigure
 		nodelet
 		pluginlib
+		message_generation
 )
 
 include_directories(${catkin_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 target_link_libraries(
 	${PROJECT_NAME}

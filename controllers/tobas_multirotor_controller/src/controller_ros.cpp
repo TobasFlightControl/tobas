@@ -5,6 +5,7 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_multirotor_controller/MultirotorControllerFeedback.h>
 
 #include "../include/tobas_multirotor_controller/controller_ros.hpp"
 #include "../include/tobas_multirotor_controller/constants.hpp"
@@ -47,6 +48,8 @@ void ControllerRos::getRosParams()
 void ControllerRos::registerPublishers()
 {
   rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
+  feedback_pub_ = nh_.advertise<tobas_multirotor_controller::MultirotorControllerFeedback>(
+    "multirotor_controller_feedback", 1);
 }
 
 void ControllerRos::registerSubscribers()
@@ -136,6 +139,10 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     return;
   }
 
+  // Create a feedback message
+  auto feedback = boost::make_shared<tobas_multirotor_controller::MultirotorControllerFeedback>();
+  feedback->header.stamp = pt->header.stamp;
+
   // Position Controller
   if (tar_pos_yaw_ != nullptr)
   {
@@ -151,6 +158,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // コマンドレベルとヨー角は位置指令をそのまま流す
     tar_vel_yaw_->level = tar_pos_yaw_->level;
     tar_vel_yaw_->yaw = tar_pos_yaw_->yaw;
+
+    // Fill feedback
+    feedback->target_position = tar_pos_yaw_->pos;
   }
 
   // Velocity Controller
@@ -171,6 +181,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // コマンドレベルとヨー角は速度指令をそのまま流す
     tar_acc_yaw_->level = tar_vel_yaw_->level;
     tar_acc_yaw_->yaw = tar_vel_yaw_->yaw;
+
+    // Fill feedback
+    feedback->target_velocity = tar_vel_yaw_->vel;
   }
 
   // Acceleration Controller
@@ -189,6 +202,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // コマンドレベルとヨー角は加速度指令をそのまま流す
     tar_rpy_thrust_->level = tar_acc_yaw_->level;
     tar_rpy_thrust_->rpy.yaw = tar_acc_yaw_->yaw;
+
+    // Fill feedback
+    feedback->target_acceleration = tar_acc_yaw_->acc;
   }
 
   // Rotation Controller
@@ -246,6 +262,13 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
     // モータ速度を発行
     rotor_speeds_pub_.publish(rotor_speeds);
+
+    // Fill feedback
+    feedback->target_rotation = tar_rpy_thrust_->rpy;
+    feedback->target_thrust = tar_rpy_thrust_->thrust;
+
+    // Publish feedback
+    feedback_pub_.publish(feedback);
   }
 }
 

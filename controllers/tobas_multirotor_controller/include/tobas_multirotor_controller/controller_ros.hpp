@@ -75,6 +75,7 @@ private:
 
   // Publishers
   ros::Publisher rotor_speeds_pub_;
+  ros::Publisher feedback_pub_;
 
   // Subscribers
   ros::Subscriber pt_sub_;
