@@ -95,13 +95,13 @@ void ImuHandler::measureGyroBias()
 
     if (gyro_.norm() > kStaticGyroThreshold)
     {
-      rosError(
+      rosWarn(
         name_,
         "Movement of the aircraft is detected while measuring gyro bias. The norm of gyro is "
-          << gyro_.norm() << " rad/s.");
+          << gyro_.norm() << " rad/s. Retrying...");
       gyro_sum.setZero();
       cnt = 0;
-      rate.sleep();
+      sleep(kMeasureGyroBiasFailSleep);  // 少し待ってから再挑戦
       continue;
     }
 
@@ -111,7 +111,7 @@ void ImuHandler::measureGyroBias()
 
   gyro_bias_ = gyro_sum / kMeasureGyroBiasCount;
 
-  rosInfo(name_, "Finished measuring gyro bias. It is estimated to be:\n" << gyro_bias_);
+  rosInfo(name_, "Finished measuring gyro bias. It is estimated to be: " << gyro_bias_.transpose());
 }
 
 void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
