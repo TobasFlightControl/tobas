@@ -22,13 +22,19 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   readConfig();
 
   setupImu();
-  measureGyroBias();
   mag_trans_.initialize();
 
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(ros::Duration(1 / kUpdateRate), &ImuHandler::mainTimerCb, this);
+  // まずジャイロのバイアスを測定する
+  // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
+  measure_gyro_bias_timer_ = nh_.createTimer(
+    ros::Duration(1 / kMeasureGyroBiasRate), &ImuHandler::measureGyroBiasTimerCb, this);
+
+  // メインタイマーはジャイロのバイアスが測定してからスタートする
+  main_timer_ =
+    nh_.createTimer(ros::Duration(1 / kUpdateRate), &ImuHandler::mainTimerCb, this, false, false);
 }
 
 void ImuHandler::getRosParams()
@@ -78,40 +84,6 @@ void ImuHandler::setupImu()
   {
     rosthrow(name_, "IMU not enabled.");
   }
-}
-
-void ImuHandler::measureGyroBias()
-{
-  rosInfo(name_, "Measuring gyro bias. Please do not move the aircraft.");
-
-  Vector3f gyro_sum = Vector3f::Zero();
-  uint32_t cnt = 0;
-
-  dh_ros::Rate rate(kMeasureGyroBiasRate);
-  while (cnt++ < kMeasureGyroBiasCount)
-  {
-    imu_.update();
-    imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
-
-    if (gyro_.norm() > kStaticGyroThreshold)
-    {
-      rosWarn(
-        name_,
-        "Movement of the aircraft is detected while measuring gyro bias. The norm of gyro is "
-          << gyro_.norm() << " rad/s. Retrying...");
-      gyro_sum.setZero();
-      cnt = 0;
-      sleep(kMeasureGyroBiasFailSleep);  // 少し待ってから再挑戦
-      continue;
-    }
-
-    gyro_sum += gyro_;
-    rate.sleep();
-  }
-
-  gyro_bias_ = gyro_sum / kMeasureGyroBiasCount;
-
-  rosInfo(name_, "Finished measuring gyro bias. It is estimated to be: " << gyro_bias_.transpose());
 }
 
 void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -175,5 +147,33 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   // Publish messages
   imu_pub_.publish(imu_msg);
   mag_pub_.publish(mag_msg);
+}
+
+void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
+{
+  if (gyro_cnt_ == kMeasureGyroBiasCount)
+  {
+    gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
+    rosInfo(
+      name_, "Finished measuring gyro bias. It is estimated to be: " << gyro_bias_.transpose());
+    measure_gyro_bias_timer_.stop();
+    main_timer_.start();
+  }
+
+  imu_.update();
+  imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+
+  if (gyro_.norm() > kStaticGyroThreshold)
+  {
+    rosWarn(
+      name_, "Movement of the aircraft is detected while measuring gyro bias. The norm of gyro is "
+               << gyro_.norm() << " rad/s. Retrying...");
+    gyro_sum_.setZero();
+    gyro_cnt_ = 0;
+    return;
+  }
+
+  gyro_cnt_++;
+  gyro_sum_ += gyro_;
 }
 }  // namespace tobas_real
