@@ -166,8 +166,8 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
   if (gyro_.norm() > kStaticGyroThreshold)
   {
     rosWarn(
-      name_, "Movement of the aircraft is detected while measuring gyro bias. The norm of gyro is "
-               << gyro_.norm() << " rad/s. Retrying...");
+      name_, "Perturbation is detected while measuring gyro bias: " << gyro_.transpose()
+                                                                    << " [rad/s]. Retrying...");
     gyro_sum_.setZero();
     gyro_cnt_ = 0;
     return;
