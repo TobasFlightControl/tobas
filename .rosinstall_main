@@ -35,12 +35,6 @@
 }
 
 - git: {
-  local-name: qpipm,
-  uri: "git@github.com:TobasFlightControl/qpipm.git",
-  version: main,
-}
-
-- git: {
   local-name: dh_linear_control,
   uri: "git@github.com:TobasFlightControl/dh_linear_control.git",
   version: main,
