@@ -35,6 +35,12 @@
 }
 
 - git: {
+  local-name: dh_quadprog,
+  uri: "git@github.com:TobasFlightControl/dh_quadprog.git",
+  version: develop,
+}
+
+- git: {
   local-name: dh_linear_control,
   uri: "git@github.com:TobasFlightControl/dh_linear_control.git",
   version: develop,
