@@ -42,11 +42,14 @@ void RotationController::updateInternalDataStructures()
   c2d_.resize(STATE_SIZE, z_rotors_.count());
 
   setScales();
-  mpc_.input_rate_weight.resize(z_rotors_.count());
-  mpc_.input_weight = VectorXd::Zero(z_rotors_.count());  // 推力和は固定だから正則化は無意味
-  mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
   setInputConstraintBase();
   mpc_.last_input = VectorXd::Zero(z_rotors_.count());
+  mpc_.input_rate_weight.resize(z_rotors_.count());
+  mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
+
+  // 推力の和が一定だから，推力の二乗和の重みが大きいほど各プロペラの推力を均等にしようとする力が働く．
+  // 回転翼機の制御においてそれは致命傷になりうるため，推力の重みは0で固定する．
+  mpc_.input_weight = VectorXd::Zero(z_rotors_.count());
 }
 
 void RotationController::update(
