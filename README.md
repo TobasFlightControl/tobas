@@ -32,31 +32,7 @@ $ rosdep install --from-paths . --ignore-src -ry
 $ pip install -r tobas/requirements.txt
 ```
 
-4. Install [QuadProgpp](https://github.com/liuq/QuadProgpp) and [qpOASES](https://github.com/coin-or/qpOASES)
-
-```bash
-# Install QuadProgpp
-$ git clone https://github.com/liuq/QuadProgpp.git
-$ cd QuadProgpp
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
-$ make -j
-$ sudo make install
-```
-
-```bash
-# Install qpOASES
-$ git clone https://github.com/coin-or/qpOASES.git -b stable/3.2
-$ cd qpOASES
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
-$ make -j
-$ sudo make install
-```
-
-5. Build catkin workspace
+4. Build catkin workspace
 
 ```bash
 $ catkin build

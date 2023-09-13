@@ -60,8 +60,8 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 target_link_libraries(
 	${PROJECT_NAME}
 	${catkin_LIBRARIES}
-	/usr/local/lib/libquadprog.a
-	/usr/local/lib/libqpOASES.a
+	# /usr/local/lib/libquadprog.a
+	# /usr/local/lib/libqpOASES.a
 )
 
 file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
