@@ -71,7 +71,7 @@ void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  // Read battery voltage
+  // Read from ADC converter
   const int a2_value = adc_.read(kPowerModuleVoltageChannel);
   if (a2_value < 0)
   {
@@ -79,10 +79,20 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
     return;
   }
 
-  // Creata battery message
+  // Compute voltage
+  const double voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  if (voltage < kVoltageThreshold)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, name_,
+      "Battery voltage is abnormal: " << voltage << "V. Please check the ADC connection.");
+    return;
+  }
+
+  // Create battery message
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   battery_msg->header.stamp = event.current_real;
-  battery_msg->voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  battery_msg->voltage = voltage;
 
   // Publish battery message
   battery_pub_.publish(battery_msg);
