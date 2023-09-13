@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
+  <arg name="nodelet" default="false"/>
 
   <arg name="node_name" value="state_checker"/>
 

@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
+  <arg name="nodelet" default="false"/>
 
   <include file="$(find tobas_real)/launch/sensors.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>

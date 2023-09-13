@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
+  <arg name="nodelet" default="false"/>
 
   <arg name="cpu_name" value="cpu_handler"/>
   <arg name="bat_name" value="battery_handler"/>
