@@ -3,7 +3,6 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/stopwatch.hpp>
 
 #include "../include/tobas_real/gps_handler.hpp"
 #include "../include/tobas_real/common.hpp"

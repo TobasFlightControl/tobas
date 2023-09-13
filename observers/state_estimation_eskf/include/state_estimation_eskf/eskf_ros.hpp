@@ -8,8 +8,8 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
 
+#include <dh_std_tools/stopwatch.hpp>
 #include <dh_ros_tools/timer.hpp>
-#include <dh_ros_tools/stopwatch.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
@@ -111,7 +111,7 @@ private:
   ConfigServer server_;
 
   // Other
-  dh_ros::Stopwatch stopwatch_;
+  dh_std::Stopwatch stopwatch_;
 
   void getRosParams() override;
   void registerPublishers() override;
