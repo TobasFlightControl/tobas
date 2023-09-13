@@ -43,7 +43,7 @@ void RotationController::updateInternalDataStructures()
 
   setScales();
   mpc_.input_rate_weight.resize(z_rotors_.count());
-  mpc_.input_weight.resize(z_rotors_.count());
+  mpc_.input_weight = VectorXd::Zero(z_rotors_.count());  // 推力和は固定だから正則化は無意味
   mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
   setInputConstraintBase();
   mpc_.last_input = VectorXd::Zero(z_rotors_.count());
@@ -110,7 +110,6 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   mpc_.control_weight(YAW) = params.heading_weight;
   mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
     params.angvel_weight;
-  mpc_.input_weight.fill(exp10(params.thrust_weight_log10));
   mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_log10));
 }
 

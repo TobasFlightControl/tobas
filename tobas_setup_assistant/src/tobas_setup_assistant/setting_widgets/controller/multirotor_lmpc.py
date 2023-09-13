@@ -57,7 +57,6 @@ class MultirotorLMPC(BaseController):
     ATTITUDE_WEIGHT = "attitude_weight"
     HEADING_WEIGHT = "heading_weight"
     ANGVEL_WEIGHT = "angular_velocity_weight"
-    THRUST_WEIGHT_LOG10 = "thrust_weight_log10"
     THRUST_RATE_WEIGHT_LOG10 = "thrust_rate_weight_log10"
 
     MIN_NUM_PROP = 3
@@ -248,16 +247,6 @@ class MultirotorLMPC(BaseController):
         )
         self._rows.addWidget(self._angvel_weight)
 
-        config = self._get_param_config(self.THRUST_WEIGHT_LOG10)
-        self._thrust_weight_log10 = ParamGetterWidget_SpinBox(
-            "Thrust weight level (Rotation controller)",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._thrust_weight_log10)
-
         config = self._get_param_config(self.THRUST_RATE_WEIGHT_LOG10)
         self._thrust_rate_weight_log10 = ParamGetterWidget_SpinBox(
             "Thrust rate weight level (Rotation controller)",
@@ -348,7 +337,6 @@ class MultirotorLMPC(BaseController):
             self.ATTITUDE_WEIGHT: self._attitude_weight.get(),
             self.HEADING_WEIGHT: self._heading_weight.get(),
             self.ANGVEL_WEIGHT: self._angvel_weight.get(),
-            self.THRUST_WEIGHT_LOG10: self._thrust_weight_log10.get(),
             self.THRUST_RATE_WEIGHT_LOG10: self._thrust_rate_weight_log10.get(),
         }
 
