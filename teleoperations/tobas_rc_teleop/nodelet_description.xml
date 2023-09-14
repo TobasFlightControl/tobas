@@ -1,10 +1,6 @@
 <library path="lib/libtobas_rc_teleop_nodelet">
 
-  <class name="tobas_rc_teleop/RcinToVelocityYawNodelet" type="tobas_rc_teleop::RcinToVelocityYawNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-  <class name="tobas_rc_teleop/RcinToRollPitchYawrateThrustNodelet" type="tobas_rc_teleop::RcinToRollPitchYawrateThrustNodelet" base_class_type="nodelet::Nodelet">
+  <class name="tobas_rc_teleop/RCTeleopNodelet" type="tobas_rc_teleop::RCTeleopNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
 

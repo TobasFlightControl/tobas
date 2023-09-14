@@ -1,10 +1,10 @@
 #include <pluginlib/class_list_macros.hpp>
 
-#include "./velocity_yaw_nodelet.hpp"
+#include "./rc_teleop_nodelet.hpp"
 
 namespace tobas_rc_teleop
 {
-void RcinToVelocityYawNodelet::onInit()
+void RCTeleopNodelet::onInit()
 {
   NODELET_INFO("Initializing RC Teleoperation Nodelet.");
 
@@ -12,8 +12,8 @@ void RcinToVelocityYawNodelet::onInit()
   const auto& pnh = getPrivateNodeHandle();
   const auto& name = getName();
 
-  node_.reset(new RcinToVelocityYaw(nh, pnh, name));
+  node_.reset(new RCTeleop(nh, pnh, name));
 }
 }  // namespace tobas_rc_teleop
 
-PLUGINLIB_EXPORT_CLASS(tobas_rc_teleop::RcinToVelocityYawNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_rc_teleop::RCTeleopNodelet, nodelet::Nodelet);
