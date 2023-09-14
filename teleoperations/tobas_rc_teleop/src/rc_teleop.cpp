@@ -179,6 +179,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
         rosInfo(name_, "Command type changed from " << last_cmd_type_ << " to " << cmd_type << ".");
         last_cmd_type_ = cmd_type;
+        break;
       }
 
       switch (cmd_type)
