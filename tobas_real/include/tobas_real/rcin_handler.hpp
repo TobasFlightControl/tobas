@@ -25,12 +25,13 @@ public:
 private:
   RCInput_Navio2 rcin_;
 
-  // RC input period ranges
+  // Config
   dh_std::Range<double> roll_range_;
   dh_std::Range<double> pitch_range_;
   dh_std::Range<double> yaw_range_;
   dh_std::Range<double> thrust_range_;
-  dh_std::Range<double> toggle_range_;
+  dh_std::Range<double> estop_range_;
+  std::vector<double> modes_;
 
   // Publisher
   ros::Publisher rcin_pub_;
@@ -42,7 +43,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void getRcPeriodRanges();
+  void readConfig();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);

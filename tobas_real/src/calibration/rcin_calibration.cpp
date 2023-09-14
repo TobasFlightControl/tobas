@@ -17,94 +17,161 @@ RCInputCalibrator::RCInputCalibrator()
 
 void RCInputCalibrator::run()
 {
-  // Roll Neutoral
-  cout << "Please set the ROLL lever to NEUTORAL and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto roll_neutoral = readRCInput(kRCInputChannelRoll);
+  double roll_left, roll_right;
+  double pitch_up, pitch_down;
+  double yaw_left, yaw_right;
+  double thrust_up, thrust_down;
+  double estop_up, estop_down;
+  int num_modes;
+  vector<double> modes;
 
-  // Roll Left
-  cout << "Please set the ROLL lever to LEFT and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto roll_left = readRCInput(kRCInputChannelRoll);
-
-  // Roll Right
-  cout << "Please set the ROLL lever to RIGHT and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto roll_right = readRCInput(kRCInputChannelRoll);
-
-  if (!(roll_left + kPeriodMargin < roll_neutoral && roll_neutoral + kPeriodMargin < roll_right))
+  // Roll
+  while (true)
   {
-    throw runtime_error("Invalid value on ROLL. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
+    // Left
+    cout << "Please set the ROLL (CH" << kRcChannelRoll + 1 << ") lever to LEFT and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    roll_left = readRCInput(kRcChannelRoll);
+
+    // Right
+    cout << "Please set the ROLL (CH" << kRcChannelRoll + 1 << ") lever to RIGHT and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    roll_right = readRCInput(kRcChannelRoll);
+
+    if (abs(roll_left - roll_right) < kPeriodDiffThreshold)
+    {
+      cout << "The signals on Roll channel are too close. Please retry." << endl;
+      continue;
+    }
+
+    break;
   }
 
-  // Pitch Neutoral
-  cout << "Please set the PITCH lever to NEUTORAL and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto pitch_neutoral = readRCInput(kRCInputChannelPitch);
-
-  // Pitch Up
-  cout << "Please set the PITCH lever to UP and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto pitch_up = readRCInput(kRCInputChannelPitch);
-
-  // Pitch Down
-  cout << "Please set the PITCH lever to DOWN and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto pitch_down = readRCInput(kRCInputChannelPitch);
-
-  if (!(pitch_up + kPeriodMargin < pitch_neutoral && pitch_neutoral + kPeriodMargin < pitch_down))
+  // Pitch
+  while (true)
   {
-    throw runtime_error("Invalid period on PITCH. 'UP < NEUTORAL < DOWN' must be satisfied.");
+    // Up
+    cout << "Please set the PITCH (CH" << kRcChannelPitch + 1 << ") lever to UP and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    pitch_up = readRCInput(kRcChannelPitch);
+
+    // Down
+    cout << "Please set the PITCH (CH" << kRcChannelPitch + 1 << ") lever to DOWN and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    pitch_down = readRCInput(kRcChannelPitch);
+
+    if (abs(pitch_up - pitch_down) < kPeriodDiffThreshold)
+    {
+      cout << "The signals on Pitch channel are too close. Please retry." << endl;
+      continue;
+    }
+
+    break;
   }
 
-  // Yaw Neutoral
-  cout << "Please set the YAW lever to NEUTORAL and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto yaw_neutoral = readRCInput(kRCInputChannelYaw);
-
-  // Yaw Left
-  cout << "Please set the YAW lever to LEFT and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto yaw_left = readRCInput(kRCInputChannelYaw);
-
-  // Yaw Right
-  cout << "Please set the YAW lever to RIGHT and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto yaw_right = readRCInput(kRCInputChannelYaw);
-
-  if (!(yaw_left + kPeriodMargin < yaw_neutoral && yaw_neutoral + kPeriodMargin < yaw_right))
+  // Yaw
+  while (true)
   {
-    throw runtime_error("Invalid value on YAW. 'LEFT < NEUTORAL < RIGHT' must be satisfied.");
+    // Left
+    cout << "Please set the YAW (CH" << kRcChannelYaw + 1 << ") lever to LEFT and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    yaw_left = readRCInput(kRcChannelYaw);
+
+    // Right
+    cout << "Please set the YAW (CH" << kRcChannelYaw + 1 << ") lever to RIGHT and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    yaw_right = readRCInput(kRcChannelYaw);
+
+    if (abs(yaw_left - yaw_right) < kPeriodDiffThreshold)
+    {
+      cout << "The signals on Yaw channel are too close. Please retry." << endl;
+      continue;
+    }
+
+    break;
   }
 
-  // Thrust Up
-  cout << "Please set the THRUST lever to UP and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto thrust_up = readRCInput(kRCInputChannelThrust);
-
-  // Thrust Down
-  cout << "Please set the THRUST lever to DOWN and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto thrust_down = readRCInput(kRCInputChannelThrust);
-
-  if (!(thrust_down + kPeriodMargin < thrust_up))
+  // Thrust
+  while (true)
   {
-    throw runtime_error("Invalid period on THRUST. 'DOWN < UP' must be satisfied.");
+    // Up
+    cout << "Please set the THRUST (CH" << kRcChannelThrust + 1 << ") lever to UP and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    thrust_up = readRCInput(kRcChannelThrust);
+
+    // Down
+    cout << "Please set the THRUST (CH" << kRcChannelThrust + 1
+         << ") lever to DOWN and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    thrust_down = readRCInput(kRcChannelThrust);
+
+    if (abs(thrust_up - thrust_down) < kPeriodDiffThreshold)
+    {
+      cout << "The signals on Thrust channel are too close. Please retry." << endl;
+      continue;
+    }
+
+    break;
   }
 
-  // Toggle Up
-  cout << "Please set the TOGGLE-A to UP and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto toggle_up = readRCInput(kRCInputChannelToggle);
-
-  // Toggle Down
-  cout << "Please set the TOGGLE-A to DOWN and press Enter:";
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  const auto toggle_down = readRCInput(kRCInputChannelToggle);
-
-  if (!(toggle_up + kPeriodMargin < toggle_down))
+  // E-Stop
+  while (true)
   {
-    throw runtime_error("Invalid period on TOGGLE-A. 'UP < DOWN' must be satisfied.");
+    // Up
+    cout << "Please set the E-STOP (CH" << kRcChannelEStop << ") to UP and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    estop_up = readRCInput(kRcChannelEStop);
+
+    // Down
+    cout << "Please set the E-STOP (CH" << kRcChannelEStop << ") to DOWN and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    estop_down = readRCInput(kRcChannelEStop);
+
+    if (abs(estop_up - estop_down) < kPeriodDiffThreshold)
+    {
+      cout << "The signals on E-Stop channel are too close. Please retry." << endl;
+      continue;
+    }
+
+    break;
+  }
+
+  // Mode
+  while (true)
+  {
+    cout << "Please enter the number of flight modes: ";
+    cin >> num_modes;
+    if (num_modes <= 0)
+    {
+      cout << "The number of flight modes must be positive. Please retry." << endl;
+      continue;
+    }
+    else if (static_cast<uint32_t>(num_modes) > kMaxNrOfFlightModes)
+    {
+      cout << "The number of flight modes is too large. Please retry." << endl;
+      continue;
+    }
+    break;
+  }
+
+  modes.resize(num_modes);
+  while (true)
+  {
+    for (int i = 0; i < num_modes; ++i)
+    {
+      cout << "Please set the MODE (CH" << kRcChannelMode << ") to " << i + 1
+           << " and press Enter:";
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+      modes[i] = readRCInput(kRcChannelMode);
+    }
+
+    if (isDifferentModesTooClose(modes))
+    {
+      cout << "The signals of different modes are too close. Please retry." << endl;
+      continue;
+    }
+
+    break;
   }
 
   // Configに保存
@@ -113,19 +180,25 @@ void RCInputCalibrator::run()
   {
     boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
   }
-  pt.put(kConfigKey_RcRollNeutoral, roll_neutoral);
+
   pt.put(kConfigKey_RcRollLeft, roll_left);
   pt.put(kConfigKey_RcRollRight, roll_right);
-  pt.put(kConfigKey_RcPitchNeutoral, pitch_neutoral);
   pt.put(kConfigKey_RcPitchUp, pitch_up);
   pt.put(kConfigKey_RcPitchDown, pitch_down);
-  pt.put(kConfigKey_RcYawNeutoral, yaw_neutoral);
   pt.put(kConfigKey_RcYawLeft, yaw_left);
   pt.put(kConfigKey_RcYawRight, yaw_right);
   pt.put(kConfigKey_RcThrustUp, thrust_up);
   pt.put(kConfigKey_RcThrustDown, thrust_down);
-  pt.put(kConfigKey_RcToggleUp, toggle_up);
-  pt.put(kConfigKey_RcToggleDown, toggle_down);
+  pt.put(kConfigKey_RcEStopUp, estop_up);
+  pt.put(kConfigKey_RcEStopDown, estop_down);
+
+  pt.put(kConfigKey_RcNrOfModes, num_modes);
+  for (int i = 0; i < num_modes; ++i)
+  {
+    const string key = kConfigKey_RcModePrefix + to_string(i);
+    pt.put(key, modes[i]);
+  }
+
   boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
@@ -133,7 +206,7 @@ void RCInputCalibrator::run()
 double RCInputCalibrator::readRCInput(uint32_t channel)
 {
   // RC入力を取得
-  int period_sum = 0;
+  uint32_t period_sum = 0;
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     const auto period = rcin_.read(channel);
@@ -141,14 +214,23 @@ double RCInputCalibrator::readRCInput(uint32_t channel)
     {
       throw runtime_error("Failed to read RC input.");
     }
-    cout << "Period on channel " << channel << ": " << period << endl;
     period_sum += period;
     usleep(kSleepTime);
   }
 
   // 平均を計算
   const auto period_mean = static_cast<double>(period_sum) / kDataCount;
-  cout << "Finished reading. Mean period on channel " << channel << " is: " << period_mean << endl;
+  cout << "Finished reading. Mean period on CH" << channel + 1 << " is: " << period_mean << endl;
   return period_mean;
+}
+
+bool RCInputCalibrator::isDifferentModesTooClose(const vector<double>& modes) const
+{
+  for (size_t i = 0; i < modes.size(); ++i)
+    for (size_t j = i + 1; j < modes.size(); ++j)
+      if (abs(modes[i] - modes[j]) < kPeriodDiffThreshold)
+        return true;
+
+  return false;
 }
 }  // namespace tobas_real

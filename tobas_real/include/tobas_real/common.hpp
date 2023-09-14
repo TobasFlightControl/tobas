@@ -35,19 +35,18 @@ static constexpr char kConfigKey_MagEllipseBy[] = "DEFAULT.mag_ellipse/b_y";
 static constexpr char kConfigKey_MagEllipseBz[] = "DEFAULT.mag_ellipse/b_z";
 static constexpr char kConfigKey_MagEllipseC[] = "DEFAULT.mag_ellipse/c";
 
-static constexpr char kConfigKey_RcRollNeutoral[] = "DEFAULT.rc_input/roll/neutoral";
 static constexpr char kConfigKey_RcRollLeft[] = "DEFAULT.rc_input/roll/left";
 static constexpr char kConfigKey_RcRollRight[] = "DEFAULT.rc_input/roll/right";
-static constexpr char kConfigKey_RcPitchNeutoral[] = "DEFAULT.rc_input/pitch/neutoral";
 static constexpr char kConfigKey_RcPitchUp[] = "DEFAULT.rc_input/pitch/up";
 static constexpr char kConfigKey_RcPitchDown[] = "DEFAULT.rc_input/pitch/down";
-static constexpr char kConfigKey_RcYawNeutoral[] = "DEFAULT.rc_input/yaw/neutoral";
 static constexpr char kConfigKey_RcYawLeft[] = "DEFAULT.rc_input/yaw/left";
 static constexpr char kConfigKey_RcYawRight[] = "DEFAULT.rc_input/yaw/right";
 static constexpr char kConfigKey_RcThrustUp[] = "DEFAULT.rc_input/thrust/up";
 static constexpr char kConfigKey_RcThrustDown[] = "DEFAULT.rc_input/thrust/down";
-static constexpr char kConfigKey_RcToggleUp[] = "DEFAULT.rc_input/toggle/up";
-static constexpr char kConfigKey_RcToggleDown[] = "DEFAULT.rc_input/toggle/down";
+static constexpr char kConfigKey_RcEStopUp[] = "DEFAULT.rc_input/e_stop/up";
+static constexpr char kConfigKey_RcEStopDown[] = "DEFAULT.rc_input/e_stop/down";
+static constexpr char kConfigKey_RcNrOfModes[] = "DEFAULT.rc_input/num_modes";
+static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 
 // https://docs.emlid.com/navio2/dev/adc/
 static constexpr uint32_t kPowerModuleVoltageChannel = 2;
@@ -60,11 +59,12 @@ static constexpr double kPwmNeutral = 1500.;   // [us]
 static constexpr double kPwmDisarm = 900.;     // [us]
 static constexpr double kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorSpinArm;  // [us]
 
-static constexpr uint32_t kRCInputChannelYaw = 0;
-static constexpr uint32_t kRCInputChannelPitch = 1;
-static constexpr uint32_t kRCInputChannelThrust = 2;
-static constexpr uint32_t kRCInputChannelRoll = 3;
-static constexpr uint32_t kRCInputChannelToggle = 4;
+static constexpr uint32_t kRcChannelRoll = 0;
+static constexpr uint32_t kRcChannelPitch = 1;
+static constexpr uint32_t kRcChannelThrust = 2;
+static constexpr uint32_t kRcChannelYaw = 3;
+static constexpr uint32_t kRcChannelMode = 4;
+static constexpr uint32_t kRcChannelEStop = 5;
 
 static constexpr uint32_t kWaitToUpdateSensor = 10000;  // [us]
 static constexpr double kDisarmDuration = 3.;           // [s]
