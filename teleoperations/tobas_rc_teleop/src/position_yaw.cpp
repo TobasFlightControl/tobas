@@ -4,6 +4,7 @@
 #include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_rc_teleop/position_yaw.hpp"
+#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 using namespace dh_std;

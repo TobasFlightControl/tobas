@@ -8,6 +8,7 @@
 #include <tobas_msgs/RollPitchYawThrust.h>
 
 #include "../include/tobas_rc_teleop/rpy_thrust.hpp"
+#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 using namespace dh_std;

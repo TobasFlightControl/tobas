@@ -12,10 +12,6 @@ namespace tobas_rc_teleop
 {
 class PositionYawController : public BaseController
 {
-  static constexpr double kDefaultMaxHorizontalVelocity = 3.;  // [m/s]
-  static constexpr double kDefaultMaxVerticalVelocity = 3.;    // [m/s]
-  static constexpr double kDefaultMaxYawrate = M_PI;           // [rad/s]
-
   using super = BaseController;
 
 public:

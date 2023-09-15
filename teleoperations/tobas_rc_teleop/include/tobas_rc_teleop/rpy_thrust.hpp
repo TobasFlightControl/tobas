@@ -13,14 +13,7 @@ namespace tobas_rc_teleop
 {
 class RollPitchYawThrustController : public BaseController
 {
-  // Constants
   static constexpr char kControllerName[] = "roll_pitch_yaw_thrust_controller";
-
-  // Default parameters
-  static constexpr double kDefaultMaxAttitude = M_PI / 6;  // [rad]
-  static constexpr double kDefaultMaxYawrate = M_PI;       // [rad/s]
-  static constexpr double kDefaultMaxAcceleration = 3.;    // [m/s^2]
-  static constexpr double kDefaultMinAcceleration = -3.;   // [m/s^2]
 
   using super = BaseController;
 
