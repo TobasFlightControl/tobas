@@ -31,7 +31,7 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
     if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(POSITION_YAW);
-      rosError(name_, "Not implemented yet.");  // TODO
+      position_yaw_ctrl_.initialize(nh, pnh);
     }
     else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
     {
@@ -165,7 +165,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         switch (cmd_type)
         {
           case POSITION_YAW:
-            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
+            position_yaw_ctrl_.reset(*pt_);
             break;
           case VELOCITY_YAW:
             velocity_yaw_ctrl_.reset(*pt_);
@@ -194,7 +194,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       switch (cmd_type)
       {
         case POSITION_YAW:
-          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
+          position_yaw_ctrl_.update(*rcin, dead_zone_);
           break;
         case VELOCITY_YAW:
           velocity_yaw_ctrl_.update(*rcin, dead_zone_);

@@ -5,6 +5,7 @@
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
 
+#include "./position_yaw.hpp"
 #include "./velocity_yaw.hpp"
 #include "./roll_pitch_yawrate_thrust.hpp"
 
@@ -60,6 +61,7 @@ private:
   std::vector<command_t> mode2cmd_;
 
   // Controllers
+  PositionYawController position_yaw_ctrl_;
   VelocityYawController velocity_yaw_ctrl_;
   RollPitchYawrateThrustController roll_pitch_yawrate_thrust_ctrl_;
 
