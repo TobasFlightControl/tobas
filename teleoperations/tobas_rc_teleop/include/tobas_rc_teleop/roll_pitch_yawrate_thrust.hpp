@@ -6,7 +6,6 @@
 #include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/RCInput.h>
-#include <tobas_msgs/VelocityYaw.h>
 
 #include "./base_controller.hpp"
 

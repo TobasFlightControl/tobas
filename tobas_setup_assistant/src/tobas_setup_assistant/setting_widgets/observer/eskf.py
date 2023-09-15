@@ -35,7 +35,7 @@ class ErrorStateKalmanFilter(BaseObserver):
 
         config = self._get_param_config(self.GRAV_VAR)
         self._grav_var = ParamGetterWidget_SpinBox(
-            "Rotation variance (Gravity vector)",
+            "Dynamic gravity variance",
             config["description"],
             minimum=config["min"],
             maximum=config["max"],
@@ -46,7 +46,7 @@ class ErrorStateKalmanFilter(BaseObserver):
 
         config = self._get_param_config(self.YAW_VAR)
         self._yaw_var = ParamGetterWidget_SpinBox(
-            "Rotation variance (Geomagnetic vector)",
+            "Magnetic yaw angle variance",
             config["description"],
             minimum=config["min"],
             maximum=config["max"],

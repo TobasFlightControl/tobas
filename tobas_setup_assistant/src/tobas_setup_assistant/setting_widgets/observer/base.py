@@ -37,11 +37,7 @@ class BaseObserver(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        abst.setOpenExternalLinks(True)
+        abst = Description(abst_text)
         self._rows.addWidget(abst)
 
         gps_hor_pos_stddev_threshold_description = (

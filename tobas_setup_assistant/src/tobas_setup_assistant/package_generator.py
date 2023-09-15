@@ -100,6 +100,9 @@ class PackageGenerator(QObject):
         if not self._main.settings.odometry.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.odometry)
             return False
+        if not self._main.settings.rc_transmitter.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.rc_transmitter)
+            return False
         if not self._main.settings.controller.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
@@ -173,12 +176,38 @@ class PackageGenerator(QObject):
         self._generate_from_template(
             items, "hil.launch", osp.join(launch_dir, "hil.launch")
         )
+        self._generate_from_template(
+            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+        )
 
-        self._generate_teleop_launches(items, launch_dir)
+        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
+
+        # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
+        if PositionYaw.__name__ in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/position_yaw.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
+        elif SpeedRollDeltaPitch.__name__ in command_msgs:
+            self._generate_from_template(
+                items,
+                "keyboard_teleop/speed_roll_dpitch.launch",
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
+
+        # GUI Teleop (コントローラの対応コマンドによって場合分け)
+        if PositionYaw.__name__ in command_msgs:
+            self._generate_from_template(
+                items,
+                "gui_teleop/position_yaw.launch",
+                osp.join(launch_dir, "gui_teleop.launch"),
+            )
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
         self._generate_joint_control_config(config_dir)
+        self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
         self._generate_state_checker_config(config_dir)
@@ -226,46 +255,6 @@ class PackageGenerator(QObject):
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
         with open(out_path, "w") as f:
             f.write(content)
-
-    def _generate_teleop_launches(self, items: dict, launch_dir: str) -> None:
-        """コマンドのメッセージ型を参照し，遠隔操縦用のlaunchファイルを生成する．"""
-        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
-
-        # Keyboard Teleop
-        if PositionYaw in command_msgs:
-            self._generate_from_template(
-                items,
-                "keyboard_teleop/position_yaw.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
-            )
-        elif SpeedRollDeltaPitch in command_msgs:
-            self._generate_from_template(
-                items,
-                "keyboard_teleop/speed_roll_dpitch.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
-            )
-
-        # GUI Teleop
-        if PositionYaw in command_msgs:
-            self._generate_from_template(
-                items,
-                "gui_teleop/position_yaw.launch",
-                osp.join(launch_dir, "gui_teleop.launch"),
-            )
-
-        # RC Teleop
-        if VelocityYaw in command_msgs:
-            self._generate_from_template(
-                items,
-                "rc_teleop/velocity_yaw.launch",
-                osp.join(launch_dir, "rc_teleop.launch"),
-            )
-        elif RollPitchYawrateThrust in command_msgs:
-            self._generate_from_template(
-                items,
-                "rc_teleop/roll_pitch_yawrate_thrust.launch",
-                osp.join(launch_dir, "rc_teleop.launch"),
-            )
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
@@ -388,16 +377,30 @@ class PackageGenerator(QObject):
         with open(jnt_ctrl_path, "w") as f:
             yaml.dump(items, f)
 
+    def _generate_rc_teleop_config(self, config_dir: str) -> None:
+        rc_transmitter = self._main.settings.rc_transmitter
+        controller = self._main.settings.controller.selected()
+
+        items = dict()
+        items["rc_teleop"] = {
+            "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
+            "mode_names": controller.flight_modes.mode_names(),
+        }
+
+        file_path = osp.join(config_dir, "rc_teleop.yaml")
+        with open(file_path, "w") as f:
+            yaml.dump(items, f)
+
     def _generate_controller_config(self, config_dir: str) -> None:
         items = self._main.settings.controller.selected().parameter_dict()
-        controller_path = osp.join(config_dir, "controller.yaml")
-        with open(controller_path, "w") as f:
+        file_path = osp.join(config_dir, "controller.yaml")
+        with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
         items = self._main.settings.observer.selected().parameter_dict()
-        observer_path = osp.join(config_dir, "observer.yaml")
-        with open(observer_path, "w") as f:
+        file_path = osp.join(config_dir, "observer.yaml")
+        with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_state_checker_config(self, config_dir: str) -> None:

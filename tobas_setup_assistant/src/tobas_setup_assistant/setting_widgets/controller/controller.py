@@ -52,6 +52,9 @@ class ControllerWidget(BaseSettingWidget):
         super().define_connections()
         self.type.currentTextChanged.connect(self._on_type_changed)
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
+        
+        self.multirotor_lmpc.define_connections()
+        self.fixed_wing_lqr.define_connections()
 
     @overrides
     def is_valid(self) -> bool:

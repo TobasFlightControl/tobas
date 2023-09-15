@@ -35,12 +35,8 @@ class BaseSettingWidget(QScrollArea):
         title.setAlignment(Qt.AlignTop)
         self._rows.addWidget(title)
 
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        abst = Description(abst_text)
         abst.setFixedHeight(self.ABST_HEIGHT)
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
     @abstractmethod

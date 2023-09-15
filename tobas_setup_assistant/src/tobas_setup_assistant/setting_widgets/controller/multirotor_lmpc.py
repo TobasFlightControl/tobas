@@ -33,11 +33,11 @@ class MultirotorLMPC(BaseController):
     LANDING_PKG = "tobas_multirotor_landing"
 
     COMMAND_MSGS = [
-        PositionYaw,
-        VelocityYaw,
-        AccelerationYaw,
-        RollPitchYawThrust,
-        RollPitchYawrateThrust,
+        PositionYaw.__name__,
+        VelocityYaw.__name__,
+        AccelerationYaw.__name__,
+        RollPitchYawThrust.__name__,
+        RollPitchYawrateThrust.__name__,
     ]
 
     # Dynamic Parameters

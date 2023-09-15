@@ -25,7 +25,7 @@ class FixedWingLQR(BaseController):
     TAKEOFF_PKG = "TODO"  # TODO
     LANDING_PKG = "TODO"  # TODO
 
-    COMMAND_MSGS = [SpeedRollDeltaPitch]
+    COMMAND_MSGS = [SpeedRollDeltaPitch.__name__]
 
     # Dynamic Parameters
     FORWARD_SPEED_WEIGHT = "forward_speed_weight"

@@ -1,11 +1,20 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/string.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_msgs/PositionYaw.h>
+#include <tobas_msgs/VelocityYaw.h>
+#include <tobas_msgs/AccelerationYaw.h>
+#include <tobas_msgs/RollPitchYawThrust.h>
+#include <tobas_msgs/RollPitchYawrateThrust.h>
+#include <tobas_msgs/SpeedRollDeltaPitch.h>
+
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
 
 using namespace std;
+using namespace ros::message_traits;
 using namespace dh_std;
 
 namespace tobas_rc_teleop
@@ -19,32 +28,32 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
 
   for (const auto& mode_name : mode_names_)
   {
-    if (mode_name == "position_yaw")
+    if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(POSITION_YAW);
       rosError(name_, "Not implemented yet.");  // TODO
     }
-    else if (mode_name == "velocity_yaw")
+    else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(VELOCITY_YAW);
       velocity_yaw_ctrl_.initialize(nh, pnh);
     }
-    else if (mode_name == "acceleration_yaw")
+    else if (mode_name == split(DataType<tobas_msgs::AccelerationYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(ACCELERATION_YAW);
       rosError(name_, "Not implemented yet.");  // TODO
     }
-    else if (mode_name == "roll_pitch_yaw_thrust")
+    else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
     {
       mode2cmd_.push_back(ROLL_PITCH_YAW_THRUST);
       rosError(name_, "Not implemented yet.");  // TODO
     }
-    else if (mode_name == "roll_pitch_yawrate_thrust")
+    else if (mode_name == split(DataType<tobas_msgs::RollPitchYawrateThrust>::value(), '/').back())
     {
       mode2cmd_.push_back(ROLL_PITCH_YAWRATE_THRUST);
       roll_pitch_yawrate_thrust_ctrl_.initialize(nh, pnh);
     }
-    else if (mode_name == "speed_roll_dpitch")
+    else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {
       mode2cmd_.push_back(SPEED_ROLL_DPITCH);
       rosError(name_, "Not implemented yet.");  // TODO
