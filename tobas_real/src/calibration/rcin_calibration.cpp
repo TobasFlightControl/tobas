@@ -2,6 +2,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/fstream.hpp>
+#include <dh_std_tools/iostream.hpp>
 
 #include "../../include/tobas_real/calibration/rcin_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -40,7 +41,7 @@ void RCInputCalibrator::run()
 
     if (abs(roll_left - roll_right) < kPeriodDiffThreshold)
     {
-      cout << "The signals on Roll channel are too close. Please retry." << endl;
+      dh_std::error("The signals on Roll channel are too close. Please retry.");
       continue;
     }
 
@@ -62,7 +63,7 @@ void RCInputCalibrator::run()
 
     if (abs(pitch_up - pitch_down) < kPeriodDiffThreshold)
     {
-      cout << "The signals on Pitch channel are too close. Please retry." << endl;
+      dh_std::error("The signals on Pitch channel are too close. Please retry.");
       continue;
     }
 
@@ -84,7 +85,7 @@ void RCInputCalibrator::run()
 
     if (abs(yaw_left - yaw_right) < kPeriodDiffThreshold)
     {
-      cout << "The signals on Yaw channel are too close. Please retry." << endl;
+      dh_std::error("The signals on Yaw channel are too close. Please retry.");
       continue;
     }
 
@@ -107,7 +108,7 @@ void RCInputCalibrator::run()
 
     if (abs(thrust_up - thrust_down) < kPeriodDiffThreshold)
     {
-      cout << "The signals on Thrust channel are too close. Please retry." << endl;
+      dh_std::error("The signals on Thrust channel are too close. Please retry.");
       continue;
     }
 
@@ -118,18 +119,18 @@ void RCInputCalibrator::run()
   while (true)
   {
     // Up
-    cout << "Please set the E-STOP (CH" << kRcChannelEStop << ") to UP and press Enter:";
+    cout << "Please set the E-STOP (CH" << kRcChannelEStop + 1 << ") to UP and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     estop_up = readRCInput(kRcChannelEStop);
 
     // Down
-    cout << "Please set the E-STOP (CH" << kRcChannelEStop << ") to DOWN and press Enter:";
+    cout << "Please set the E-STOP (CH" << kRcChannelEStop + 1 << ") to DOWN and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     estop_down = readRCInput(kRcChannelEStop);
 
     if (abs(estop_up - estop_down) < kPeriodDiffThreshold)
     {
-      cout << "The signals on E-Stop channel are too close. Please retry." << endl;
+      dh_std::error("The signals on E-Stop channel are too close. Please retry.");
       continue;
     }
 
@@ -143,12 +144,12 @@ void RCInputCalibrator::run()
     cin >> num_modes;
     if (num_modes <= 0)
     {
-      cout << "The number of flight modes must be positive. Please retry." << endl;
+      dh_std::error("The number of flight modes must be positive. Please retry.");
       continue;
     }
     else if (static_cast<uint32_t>(num_modes) > kMaxNrOfFlightModes)
     {
-      cout << "The number of flight modes is too large. Please retry." << endl;
+      dh_std::error("The number of flight modes is too large. Please retry.");
       continue;
     }
     break;
@@ -159,7 +160,7 @@ void RCInputCalibrator::run()
   {
     for (int i = 0; i < num_modes; ++i)
     {
-      cout << "Please set the MODE (CH" << kRcChannelMode << ") to " << i + 1
+      cout << "Please set the MODE (CH" << kRcChannelMode + 1 << ") to " << i + 1
            << " and press Enter:";
       cin.ignore(numeric_limits<streamsize>::max(), '\n');
       modes[i] = readRCInput(kRcChannelMode);
@@ -167,7 +168,7 @@ void RCInputCalibrator::run()
 
     if (isDifferentModesTooClose(modes))
     {
-      cout << "The signals of different modes are too close. Please retry." << endl;
+      dh_std::error("The signals of different modes are too close. Please retry.");
       continue;
     }
 

@@ -44,7 +44,7 @@ void PositionYawController::update(
   vel_.y(
     dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
   vel_.z(
-    dead_zone.inRange(rcin.thrust) ? 0. : remap(rcin.thrust, -1., 1., -max_ver_vel_, max_ver_vel_));
+    dead_zone.inRange(rcin.thrust) ? 0. : remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));
   const auto yawrate =
     dead_zone.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
