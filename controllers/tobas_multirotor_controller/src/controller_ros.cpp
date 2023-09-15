@@ -71,8 +71,6 @@ void ControllerRos::registerSubscribers()
     nh_.subscribe("command/acceleration_yaw", 1, &ControllerRos::accYawCb, this, tcpNoDelay());
   rpy_thrust_sub_ =
     nh_.subscribe("command/rpy_thrust", 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
-  rpyd_thrust_sub_ = nh_.subscribe(
-    "command/roll_pitch_yawrate_thrust", 1, &ControllerRos::rpydThrustCb, this, tcpNoDelay());
 }
 
 bool ControllerRos::isReady() const
@@ -417,58 +415,6 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 
   // コマンドを更新
   tar_rpy_thrust_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpy_thrust);
-}
-
-void ControllerRos::rpydThrustCb(const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust)
-{
-  if (pt_ == nullptr)
-  {
-    return;
-  }
-
-  if (!isCommandLevelOk(rpyd_thrust->level))
-  {
-    return;
-  }
-
-  // メモリ確保
-  if (tar_rpy_thrust_ == nullptr)
-  {
-    tar_rpy_thrust_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
-  }
-
-  // 外側の制御を止める
-  tar_pos_yaw_ = nullptr;
-  tar_vel_yaw_ = nullptr;
-  tar_acc_yaw_ = nullptr;
-
-  // ロール角，ピッチ角，推力和の目標値を更新
-  tar_rpy_thrust_->rpy.roll = rpyd_thrust->roll;
-  tar_rpy_thrust_->rpy.pitch = rpyd_thrust->pitch;
-  tar_rpy_thrust_->thrust = rpyd_thrust->thrust;
-
-  // ヨー角の目標値を更新
-  if (rpyd_thrust_received_)
-  {
-    const auto cur_time = ros::Time::now();
-    const auto dt = (cur_time - t_last_rpyd_thrust_).toSec();
-    t_last_rpyd_thrust_ = cur_time;
-    if (dt > kRollPitchYawrateThrustTimeout)
-    {
-      rosInfo(
-        name_, "The time gap from the previous command is over "
-                 << kRollPitchYawrateThrustTimeout << " seconds. The command is reset.");
-      rpyd_thrust_received_ = false;
-      return;
-    }
-    tar_rpy_thrust_->rpy.yaw += rpyd_thrust->yawrate * dt;  // 変化量を足す
-  }
-  else
-  {
-    t_last_rpyd_thrust_ = ros::Time::now();
-    tar_rpy_thrust_->rpy.yaw = pt_->pose.euler.yaw;  // 最初は現在のヨー角を指令
-    rpyd_thrust_received_ = true;
-  }
 }
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)

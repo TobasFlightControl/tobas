@@ -16,16 +16,13 @@ VelocityYawController::VelocityYawController() : super()
 
 void VelocityYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
-  vel_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
-  vel_yaw_.frame_id.data = tobas_msgs::FrameId::GLOBAL;
-
   getRosParams(pnh);
   registerPublishers(nh);
 }
 
 void VelocityYawController::reset(const tobas_msgs::PoseTwist& pt)
 {
-  vel_yaw_.yaw = pt.pose.euler.yaw;  // 最初は現在のヨー角を指令
+  yaw_ = pt.pose.euler.yaw;
   t_last_rcin_ = ros::Time::now();
 }
 
@@ -33,25 +30,30 @@ void VelocityYawController::update(
   const tobas_msgs::RCInput& rcin,
   const dh_std::Range<double>& dead_zone)
 {
-  // 並進速度を更新
-  vel_yaw_.vel.x(
-    dead_zone.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_yaw_.vel.y(
-    dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_yaw_.vel.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));
-
   // Yawの目標値を更新
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
   t_last_rcin_ = cur_time;
   const auto yawrate =
     dead_zone.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
-  vel_yaw_.yaw += yawrate * dt;
+  yaw_ += yawrate * dt;
+
+  // コマンドを作成
+  const auto vel_yaw = boost::make_shared<tobas_msgs::VelocityYaw>();
+  vel_yaw->level.data = tobas_msgs::CommandLevel::MANUAL;
+  vel_yaw->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+
+  // 速度とヨー角を埋める
+  vel_yaw->vel.x(
+    dead_zone.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
+  vel_yaw->vel.y(
+    dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
+  vel_yaw->vel.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));
+  vel_yaw->yaw = yaw_;
 
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
-  const auto vel_yaw_ptr = boost::make_shared<tobas_msgs::VelocityYaw>(vel_yaw_);
-  vel_yaw_pub_.publish(vel_yaw_ptr);
+  vel_yaw_pub_.publish(vel_yaw);
 }
 
 void VelocityYawController::getRosParams(ros::NodeHandle& pnh)

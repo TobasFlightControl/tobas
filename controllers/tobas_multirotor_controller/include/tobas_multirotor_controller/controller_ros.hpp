@@ -13,7 +13,6 @@
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
-#include <tobas_msgs/RollPitchYawrateThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_multirotor_controller/ControllerConfig.h>
 
@@ -68,8 +67,6 @@ private:
   tobas_msgs::RollPitchYawThrustPtr tar_rpy_thrust_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
-  bool rpyd_thrust_received_ = false;
-  ros::Time t_last_rpyd_thrust_;
   KDL::JntArray q_;  // 全ての非固定関節の角度
   Eigen::VectorXd u_opt_;
 
@@ -85,7 +82,6 @@ private:
   ros::Subscriber vel_yaw_sub_;
   ros::Subscriber acc_yaw_sub_;
   ros::Subscriber rpy_thrust_sub_;
-  ros::Subscriber rpyd_thrust_sub_;
 
   // Timers
   dh_ros::Timer check_topics_timer_;
@@ -111,7 +107,6 @@ private:
   void velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw);
   void accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
-  void rpydThrustCb(const tobas_msgs::RollPitchYawrateThrustConstPtr& rpyd_thrust);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

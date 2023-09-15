@@ -8,7 +8,6 @@
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
-#include <tobas_msgs/RollPitchYawrateThrust.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
@@ -31,12 +30,12 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
     if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(POSITION_YAW);
-      position_yaw_ctrl_.initialize(nh, pnh);
+      pos_yaw_ctrl_.initialize(nh, pnh);
     }
     else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(VELOCITY_YAW);
-      velocity_yaw_ctrl_.initialize(nh, pnh);
+      vel_yaw_ctrl_.initialize(nh, pnh);
     }
     else if (mode_name == split(DataType<tobas_msgs::AccelerationYaw>::value(), '/').back())
     {
@@ -45,13 +44,8 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
     }
     else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
     {
-      mode2cmd_.push_back(ROLL_PITCH_YAW_THRUST);
-      rosError(name_, "Not implemented yet.");  // TODO
-    }
-    else if (mode_name == split(DataType<tobas_msgs::RollPitchYawrateThrust>::value(), '/').back())
-    {
-      mode2cmd_.push_back(ROLL_PITCH_YAWRATE_THRUST);
-      roll_pitch_yawrate_thrust_ctrl_.initialize(nh, pnh);
+      mode2cmd_.push_back(RPY_THRUST);
+      rpy_thrust_ctrl_.initialize(nh, pnh);
     }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {
@@ -165,19 +159,16 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         switch (cmd_type)
         {
           case POSITION_YAW:
-            position_yaw_ctrl_.reset(*pt_);
+            pos_yaw_ctrl_.reset(*pt_);
             break;
           case VELOCITY_YAW:
-            velocity_yaw_ctrl_.reset(*pt_);
+            vel_yaw_ctrl_.reset(*pt_);
             break;
           case ACCELERATION_YAW:
             rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
             break;
-          case ROLL_PITCH_YAW_THRUST:
-            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-            break;
-          case ROLL_PITCH_YAWRATE_THRUST:
-            roll_pitch_yawrate_thrust_ctrl_.reset();
+          case RPY_THRUST:
+            rpy_thrust_ctrl_.reset(*pt_);
             break;
           case SPEED_ROLL_DPITCH:
             rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
@@ -194,19 +185,16 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       switch (cmd_type)
       {
         case POSITION_YAW:
-          position_yaw_ctrl_.update(*rcin, dead_zone_);
+          pos_yaw_ctrl_.update(*rcin, dead_zone_);
           break;
         case VELOCITY_YAW:
-          velocity_yaw_ctrl_.update(*rcin, dead_zone_);
+          vel_yaw_ctrl_.update(*rcin, dead_zone_);
           break;
         case ACCELERATION_YAW:
           rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
           break;
-        case ROLL_PITCH_YAW_THRUST:
-          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-          break;
-        case ROLL_PITCH_YAWRATE_THRUST:
-          roll_pitch_yawrate_thrust_ctrl_.update(*rcin, battery_->voltage, dead_zone_);
+        case RPY_THRUST:
+          rpy_thrust_ctrl_.update(*rcin, battery_->voltage, dead_zone_);
           break;
         case SPEED_ROLL_DPITCH:
           rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO

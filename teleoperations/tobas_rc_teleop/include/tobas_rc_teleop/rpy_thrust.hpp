@@ -11,10 +11,10 @@
 
 namespace tobas_rc_teleop
 {
-class RollPitchYawrateThrustController : public BaseController
+class RollPitchYawThrustController : public BaseController
 {
   // Constants
-  static constexpr char kControllerName[] = "roll_pitch_yawrate_thrust_controller";
+  static constexpr char kControllerName[] = "roll_pitch_yaw_thrust_controller";
 
   // Default parameters
   static constexpr double kDefaultMaxAttitude = M_PI / 6;  // [rad]
@@ -25,10 +25,10 @@ class RollPitchYawrateThrustController : public BaseController
   using super = BaseController;
 
 public:
-  explicit RollPitchYawrateThrustController();
+  explicit RollPitchYawThrustController();
 
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
-  void reset();
+  void reset(const tobas_msgs::PoseTwist& pt) override;
   void update(
     const tobas_msgs::RCInput& rcin,
     const double& battery_voltage,
@@ -37,6 +37,9 @@ public:
 private:
   tobas::Drone drone_;
   tobas::RotorAxisExtractor z_rotors_;
+
+  double yaw_;
+  ros::Time t_last_rcin_;
 
   // rosparams
   double max_attitude_;  // [rad]
@@ -49,7 +52,7 @@ private:
   double min_thrust_;  // [N] ドローンの最小合計推力
 
   // PubSub
-  ros::Publisher rpydt_pub_;
+  ros::Publisher rpy_thrust_pub_;
 
   void getRosParams(ros::NodeHandle& pnh);
   void registerPublishers(ros::NodeHandle& nh);

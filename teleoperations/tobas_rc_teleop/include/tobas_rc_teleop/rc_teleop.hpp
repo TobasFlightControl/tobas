@@ -7,7 +7,7 @@
 
 #include "./position_yaw.hpp"
 #include "./velocity_yaw.hpp"
-#include "./roll_pitch_yawrate_thrust.hpp"
+#include "./rpy_thrust.hpp"
 
 namespace tobas_rc_teleop
 {
@@ -42,8 +42,7 @@ private:
     POSITION_YAW,
     VELOCITY_YAW,
     ACCELERATION_YAW,
-    ROLL_PITCH_YAW_THRUST,
-    ROLL_PITCH_YAWRATE_THRUST,
+    RPY_THRUST,
     SPEED_ROLL_DPITCH,
   };
 
@@ -61,12 +60,11 @@ private:
   std::vector<command_t> mode2cmd_;
 
   // Controllers
-  PositionYawController position_yaw_ctrl_;
-  VelocityYawController velocity_yaw_ctrl_;
-  RollPitchYawrateThrustController roll_pitch_yawrate_thrust_ctrl_;
+  PositionYawController pos_yaw_ctrl_;
+  VelocityYawController vel_yaw_ctrl_;
+  RollPitchYawThrustController rpy_thrust_ctrl_;
 
   // PubSub
-  ros::Publisher vel_yaw_pub_;
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;

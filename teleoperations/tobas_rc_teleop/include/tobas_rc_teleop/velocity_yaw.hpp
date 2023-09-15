@@ -22,12 +22,11 @@ public:
   explicit VelocityYawController();
 
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
-
-  void reset(const tobas_msgs::PoseTwist& pt);
+  void reset(const tobas_msgs::PoseTwist& pt) override;
   void update(const tobas_msgs::RCInput& rcin, const dh_std::Range<double>& dead_zone);
 
 private:
-  tobas_msgs::VelocityYaw vel_yaw_;
+  double yaw_;
   ros::Time t_last_rcin_;
 
   // rosparams

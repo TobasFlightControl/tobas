@@ -5,21 +5,21 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
-#include <tobas_msgs/RollPitchYawrateThrust.h>
+#include <tobas_msgs/RollPitchYawThrust.h>
 
-#include "../include/tobas_rc_teleop/roll_pitch_yawrate_thrust.hpp"
+#include "../include/tobas_rc_teleop/rpy_thrust.hpp"
 
 using namespace std;
 using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RollPitchYawrateThrustController::RollPitchYawrateThrustController()
+RollPitchYawThrustController::RollPitchYawThrustController()
   : super(), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
 {
 }
 
-void RollPitchYawrateThrustController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
 
@@ -33,11 +33,13 @@ void RollPitchYawrateThrustController::initialize(ros::NodeHandle& nh, ros::Node
   registerPublishers(nh);
 }
 
-void RollPitchYawrateThrustController::reset()
+void RollPitchYawThrustController::reset(const tobas_msgs::PoseTwist& pt)
 {
+  yaw_ = pt.pose.euler.yaw;
+  t_last_rcin_ = ros::Time::now();
 }
 
-void RollPitchYawrateThrustController::getRosParams(ros::NodeHandle& pnh)
+void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
 {
   dh_ros::getParam(pnh, "max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
   dh_ros::getParam(pnh, "max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
@@ -50,34 +52,43 @@ void RollPitchYawrateThrustController::getRosParams(ros::NodeHandle& pnh)
   }
 }
 
-void RollPitchYawrateThrustController::registerPublishers(ros::NodeHandle& nh)
+void RollPitchYawThrustController::registerPublishers(ros::NodeHandle& nh)
 {
-  rpydt_pub_ =
-    nh.advertise<tobas_msgs::RollPitchYawrateThrust>("command/roll_pitch_yawrate_thrust", 1);
+  rpy_thrust_pub_ =
+    nh.advertise<tobas_msgs::RollPitchYawThrust>("command/roll_pitch_yaw_thrust", 1);
 }
 
-void RollPitchYawrateThrustController::update(
+void RollPitchYawThrustController::update(
   const tobas_msgs::RCInput& rcin,
   const double& battery_voltage,
   const dh_std::Range<double>& dead_zone)
 {
   assert(battery_voltage > 0.);
 
-  // コマンドを作成
-  const auto rpydt = boost::make_shared<tobas_msgs::RollPitchYawrateThrust>();
-  rpydt->level.data = tobas_msgs::CommandLevel::MANUAL;  // 最大優先順位
-  rpydt->roll =
-    dead_zone.inRange(rcin.roll) ? 0. : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-  rpydt->pitch =
-    dead_zone.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
-  rpydt->yawrate =
+  // Yawの目標値を更新
+  const ros::Time cur_time = ros::Time::now();
+  const auto dt = (cur_time - t_last_rcin_).toSec();
+  t_last_rcin_ = cur_time;
+  const auto yawrate =
     dead_zone.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  yaw_ += yawrate * dt;
+
+  // コマンドを作成
+  const auto rpyt = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
+  rpyt->level.data = tobas_msgs::CommandLevel::MANUAL;
+
+  // 姿勢と推力を埋める
+  rpyt->rpy.roll =
+    dead_zone.inRange(rcin.roll) ? 0. : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
+  rpyt->rpy.pitch =
+    dead_zone.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+  rpyt->rpy.yaw = yaw_;
 
   const auto min_thrust = max(min_thrust_, z_rotors_.minThrustSum(battery_voltage));
   const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_voltage));
-  rpydt->thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
+  rpyt->thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
 
   // コマンドを発行
-  rpydt_pub_.publish(rpydt);
+  rpy_thrust_pub_.publish(rpyt);
 }
 }  // namespace tobas_rc_teleop

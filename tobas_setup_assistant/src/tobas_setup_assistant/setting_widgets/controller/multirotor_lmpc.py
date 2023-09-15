@@ -17,7 +17,6 @@ from tobas_msgs.msg import (
     VelocityYaw,
     AccelerationYaw,
     RollPitchYawThrust,
-    RollPitchYawrateThrust,
 )
 
 from ...parameter_getters import *
@@ -37,7 +36,6 @@ class MultirotorLMPC(BaseController):
         VelocityYaw.__name__,
         AccelerationYaw.__name__,
         RollPitchYawThrust.__name__,
-        RollPitchYawrateThrust.__name__,
     ]
 
     # Dynamic Parameters
