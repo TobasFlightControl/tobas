@@ -2,7 +2,7 @@
 
 #include <kdl/frames.hpp>
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_translation_pid
 {
 struct PositionControllerDynamicParams
 {
@@ -24,4 +24,4 @@ private:
   double hor_kp_;
   double ver_kp_;
 };
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_translation_pid

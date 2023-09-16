@@ -10,15 +10,12 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>dynamic_reconfigure</depend>
-	<depend>eigen_conversions</depend>
-	<depend>kdl_conversions</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
 	<depend>message_generation</depend>
 
-	<depend>dh_linear_control</depend>
-
-	<depend>tobas_tools</depend>
+	<depend>tobas_mr_rotation_mpc</depend>
+	<depend>tobas_mr_translation_pid</depend>
 
 	<export>
 		<nodelet plugin="${prefix}/nodelet_description.xml"/>

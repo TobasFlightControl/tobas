@@ -19,7 +19,7 @@
 #define ANGVEL_Y 4
 #define ANGVEL_Z 5
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_rotation_mpc
 {
 /**
  * @brief クアッドロータの連続時間状態方程式．
@@ -66,4 +66,4 @@ private:
   void updateA(const double& roll, const double& pitch);
   void updateB(const KDL::JntArray& q);
 };
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_rotation_mpc

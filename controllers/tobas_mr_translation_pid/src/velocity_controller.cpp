@@ -1,11 +1,11 @@
 #include <dh_std_tools/algorithm.hpp>
 
-#include "../include/tobas_multirotor_controller/velocity_controller.hpp"
+#include "../include/tobas_mr_translation_pid/velocity_controller.hpp"
 
 using namespace std;
 using namespace KDL;
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_translation_pid
 {
 VelocityController::VelocityController()
 {
@@ -42,4 +42,4 @@ void VelocityController::configure(const VelocityControllerDynamicParams& params
   max_hor_vel_ = params.max_hor_vel;
   max_ver_vel_ = params.max_ver_vel;
 }
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_translation_pid

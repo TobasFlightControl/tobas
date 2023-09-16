@@ -10,7 +10,7 @@
 
 #include "./dynamics.hpp"
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_rotation_mpc
 {
 /**
  * @brief RotationControllerの動的パラメータをまとめた構造体．
@@ -71,4 +71,4 @@ private:
   void setInputConstraintBase();
   void updateInputConstraint(double battery_voltage, double U);
 };
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_rotation_mpc

@@ -1,11 +1,11 @@
 #include <dh_std_tools/algorithm.hpp>
 
-#include "../include/tobas_multirotor_controller/position_controller.hpp"
+#include "../include/tobas_mr_translation_pid/position_controller.hpp"
 
 using namespace std;
 using namespace KDL;
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_translation_pid
 {
 PositionController::PositionController()
 {
@@ -30,4 +30,4 @@ void PositionController::configure(const PositionControllerDynamicParams& params
   hor_kp_ = 0.5 * params.hor_natural_freq / params.hor_damp_ratio;
   ver_kp_ = 0.5 * params.ver_natural_freq / params.ver_damp_ratio;
 }
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_translation_pid

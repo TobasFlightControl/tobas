@@ -8,7 +8,6 @@
 #include <tobas_multirotor_controller/MultirotorControllerFeedback.h>
 
 #include "../include/tobas_multirotor_controller/controller_ros.hpp"
-#include "../include/tobas_multirotor_controller/constants.hpp"
 
 using namespace std;
 using namespace KDL;

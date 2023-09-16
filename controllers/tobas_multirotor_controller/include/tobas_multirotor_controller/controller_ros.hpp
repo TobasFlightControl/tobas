@@ -14,17 +14,22 @@
 #include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
-#include <tobas_multirotor_controller/ControllerConfig.h>
 
-#include "./position_controller.hpp"
-#include "./velocity_controller.hpp"
-#include "./acceleration_controller.hpp"
-#include "./rotation_controller.hpp"
+#include <tobas_mr_translation_pid/position_controller.hpp>
+#include <tobas_mr_translation_pid/velocity_controller.hpp>
+#include <tobas_mr_rotation_mpc/acceleration_controller.hpp>
+#include <tobas_mr_rotation_mpc/rotation_controller.hpp>
+
+#include <tobas_multirotor_controller/ControllerConfig.h>
 
 namespace tobas_multirotor_controller
 {
 class ControllerRos : public tobas::BaseNode
 {
+  static constexpr double kWarnPeriod = 1.;              // [s]
+  static constexpr double kErrorPeriod = 1.;             // [s]
+  static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
+
   using super = tobas::BaseNode;
 
   using ConfigType = tobas_multirotor_controller::ControllerConfig;
@@ -43,16 +48,16 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  PositionController pos_controller_;
-  VelocityController vel_controller_;
-  AccelerationController acc_controller_;
-  RotationController rot_controller_;
+  tobas_mr_translation_pid::PositionController pos_controller_;
+  tobas_mr_translation_pid::VelocityController vel_controller_;
+  tobas_mr_rotation_mpc::AccelerationController acc_controller_;
+  tobas_mr_rotation_mpc::RotationController rot_controller_;
 
   // Dynamic parameters
-  PositionControllerDynamicParams pos_params_;
-  VelocityControllerDynamicParams vel_params_;
-  AccelerationControllerDynamicParams acc_params_;
-  RotationControllerDynamicParams rot_params_;
+  tobas_mr_translation_pid::PositionControllerDynamicParams pos_params_;
+  tobas_mr_translation_pid::VelocityControllerDynamicParams vel_params_;
+  tobas_mr_rotation_mpc::AccelerationControllerDynamicParams acc_params_;
+  tobas_mr_rotation_mpc::RotationControllerDynamicParams rot_params_;
 
   // Constant variables
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か

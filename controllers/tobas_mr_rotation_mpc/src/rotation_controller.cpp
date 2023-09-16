@@ -5,14 +5,14 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
-#include "../include/tobas_multirotor_controller/rotation_controller.hpp"
-#include "../include/tobas_multirotor_controller/constants.hpp"
+#include "../include/tobas_mr_rotation_mpc/rotation_controller.hpp"
+#include "../include/tobas_mr_rotation_mpc/constants.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_rotation_mpc
 {
 RotationController::RotationController(const tobas::Drone& drone)
   : drone_(drone),
@@ -214,4 +214,4 @@ void RotationController::updateInputConstraint(double battery_voltage, double U)
   mpc_.input_constraint.b(z_rotors_.count() * 2) = U;
   mpc_.input_constraint.b(z_rotors_.count() * 2 + 1) = -U;
 }
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_rotation_mpc

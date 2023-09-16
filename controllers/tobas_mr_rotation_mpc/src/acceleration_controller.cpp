@@ -4,12 +4,12 @@
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_multirotor_controller/acceleration_controller.hpp"
+#include "../include/tobas_mr_rotation_mpc/acceleration_controller.hpp"
 
 using namespace std;
 using namespace KDL;
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_rotation_mpc
 {
 AccelerationController::AccelerationController()
 {
@@ -50,4 +50,4 @@ void AccelerationController::configure(const AccelerationControllerDynamicParams
   max_hor_acc_ = params.max_hor_acc;
   max_ver_acc_ = params.max_ver_acc;
 }
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_rotation_mpc

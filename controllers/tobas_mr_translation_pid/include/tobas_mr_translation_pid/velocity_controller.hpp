@@ -2,7 +2,7 @@
 
 #include <kdl/frames.hpp>
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_translation_pid
 {
 struct VelocityControllerDynamicParams
 {
@@ -28,4 +28,4 @@ private:
   double max_hor_vel_;
   double max_ver_vel_;
 };
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_translation_pid

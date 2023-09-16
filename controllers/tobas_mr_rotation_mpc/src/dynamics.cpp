@@ -4,7 +4,7 @@
 #include <dh_kdl/util.hpp>
 #include <dh_kdl/conversion/kdl_eigen.hpp>
 
-#include "../include/tobas_multirotor_controller/dynamics.hpp"
+#include "../include/tobas_mr_rotation_mpc/dynamics.hpp"
 
 #define Z_AXIS Vector3d(0., 0., 1.)
 
@@ -12,7 +12,7 @@ using namespace std;
 using namespace KDL;
 using namespace Eigen;
 
-namespace tobas_multirotor_controller
+namespace tobas_mr_rotation_mpc
 {
 MultiRotorDynamics::MultiRotorDynamics(const tobas::Drone& drone)
   : drone_(drone),
@@ -62,4 +62,4 @@ void MultiRotorDynamics::updateB(const JntArray& q)
     B.block(3, i, 3, 1) = I_cog_inv_ * (P_cog_rotor_eigen_.cross(Z_AXIS) - (d * c) * Z_AXIS);
   }
 }
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_rotation_mpc

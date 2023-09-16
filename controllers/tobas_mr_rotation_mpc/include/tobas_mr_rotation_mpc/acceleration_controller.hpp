@@ -1,12 +1,8 @@
 #pragma once
 
 #include <kdl/frames.hpp>
-#include <kdl/tree.hpp>
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
-
-namespace tobas_multirotor_controller
+namespace tobas_mr_rotation_mpc
 {
 struct AccelerationControllerDynamicParams
 {
@@ -33,4 +29,4 @@ private:
   double max_hor_acc_;
   double max_ver_acc_;
 };
-}  // namespace tobas_multirotor_controller
+}  // namespace tobas_mr_rotation_mpc

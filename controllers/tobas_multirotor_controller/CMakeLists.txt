@@ -12,10 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	tobas_tools
-	dh_linear_control
-	kdl_conversions
-	eigen_conversions
+	tobas_mr_rotation_mpc
+	tobas_mr_translation_pid
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -41,10 +39,8 @@ catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
-		tobas_tools
-		dh_linear_control
-		kdl_conversions
-		eigen_conversions
+		tobas_mr_rotation_mpc
+		tobas_mr_translation_pid
 		dynamic_reconfigure
 		nodelet
 		pluginlib
