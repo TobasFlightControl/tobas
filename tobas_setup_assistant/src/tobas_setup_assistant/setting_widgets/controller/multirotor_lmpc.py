@@ -27,7 +27,7 @@ from .base import BaseController
 class MultirotorLMPC(BaseController):
     NAME = "Linear Model Predictive Control"
 
-    CONTROLLER_PKG = "tobas_multirotor_controller"
+    CONTROLLER_PKG = "tobas_mr_pidmpc"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
 
@@ -318,7 +318,7 @@ class MultirotorLMPC(BaseController):
     @overrides
     def parameter_dict(self) -> dict:
         res = dict()
-        res["tobas_multirotor_controller"] = {
+        res["tobas_mr_pidmpc"] = {
             self.HOR_NATURAL_FREQ: self._hor_natural_freq.get(),
             self.HOR_DAMP_RATIO: self._hor_damp_ratio.get(),
             self.VER_NATURAL_FREQ: self._ver_natural_freq.get(),

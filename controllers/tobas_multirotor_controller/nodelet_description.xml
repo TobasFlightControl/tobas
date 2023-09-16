@@ -1,7 +1,0 @@
-<library path="lib/libtobas_multirotor_controller_nodelet">
-
-  <class name="tobas_multirotor_controller/ControllerNodelet" type="tobas_multirotor_controller::ControllerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

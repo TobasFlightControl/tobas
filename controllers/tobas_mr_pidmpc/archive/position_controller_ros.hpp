@@ -1,0 +1,70 @@
+#pragma once
+
+#include <ros/ros.h>
+#include <dynamic_reconfigure/server.h>
+
+#include <dh_ros_tools/timer.hpp>
+
+#include <tobas_tools/node.hpp>
+#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/PositionYaw.h>
+#include <tobas_mr_pidmpc/ControllerConfig.h>
+
+#include "./position_controller.hpp"
+
+namespace tobas_mr_pidmpc
+{
+class PositionControllerRos : public tobas::BaseNode
+{
+  static constexpr double kMaxCommandPositionDeviation = 100.;  // TODO
+
+  using super = tobas::BaseNode;
+
+  using ConfigType = tobas_mr_pidmpc::ControllerConfig;
+  using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
+
+public:
+  explicit PositionControllerRos(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
+
+private:
+  bool is_initialized_;
+  bool pt_received_;
+  bool cmd_received_;
+  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::PositionYawConstPtr pos_yaw_in_;  // 受け取る位置コマンド
+
+  PositionController pos_controller_;
+
+  // rosparams
+  PositionControllerDynamicParams dynamic_params_;
+
+  // PubSub
+  ros::Publisher vel_yaw_pub_;
+  ros::Subscriber pt_sub_;
+  ros::Subscriber pos_yaw_sub_;
+
+  // Timer
+  dh_ros::Timer check_topics_timer_;
+
+  // Dynamic Reconfigure
+  ConfigServer server_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  bool isReady();
+  void initialize();
+  void updateDynamicParams(const ConfigType& cfg);
+
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void targetPositionCb(const tobas_msgs::PositionYawConstPtr& pos_yaw);
+
+  void checkTopicsTimerCb(const ros::TimerEvent&);
+  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
+};
+}  // namespace tobas_mr_pidmpc
