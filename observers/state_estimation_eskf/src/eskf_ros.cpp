@@ -127,7 +127,7 @@ void ErrorStateKalmanFilterRos::initialize()
   cout << "The magnetic field of the initial point:" << endl;
   cout << "North: " << mag.north << ", East: " << mag.east << ", Down: " << mag.down << endl;
 
-  // ISKFを初期化
+  // ESKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
   eskf_.initialize(
     Vector3d(0., 0., -tobas::kGravity),                        // Gravity vector
@@ -141,6 +141,11 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d::Constant(sqr(kInitAccBiasStddev)).asDiagonal(),  // Init accel bias cov
     Vector3d::Constant(sqr(kInitGyroBiasStddev)).asDiagonal()  // Init gyro bias cov
   );
+
+  // LPFを初期化
+  // カットオフ周波数をナイキスト周波数に設定
+  const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(tobas::kImuSamplingRate / 2);
+  gyro_lpf_.initialize(lpf_time_const, Vector3d::Zero());
 
   // ヨー角の初期値
   double roll, pitch;
@@ -204,11 +209,11 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
 
   // 初期姿勢
-  tf::vectorMsgToEigen(result->imu.linear_acceleration, a_m_);
-  tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_m_);
+  tf::vectorMsgToEigen(result->imu.linear_acceleration, acc_meas_);
+  tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_meas_);
   const auto mag = tobas::geomag(result->gps.latitude, result->gps.longitude, result->gps.altitude);
   const Vector3d m0(mag.north, -mag.east, -mag.down);  // NED -> NWU
-  et::imuToQuaternion(a_m_, mag_m_, m0, q_0_);
+  et::imuToQuaternion(acc_meas_, mag_meas_, m0, q_0_);
 }
 
 ErrorStateKalmanFilterRos::StateMsg::ConstPtr
@@ -218,7 +223,7 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
-  const Vector3d B_omega = w_m_ - eskf_.getGyroBias();
+  const Vector3d B_omega = gyro_filtered_ - eskf_.getGyroBias();
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
   auto state = boost::make_shared<StateMsg>();
@@ -326,19 +331,26 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       }
 
       // Convert ROS messages to Eigen vectors
-      tf::vectorMsgToEigen(imu->linear_acceleration, a_m_);
-      tf::vectorMsgToEigen(imu->angular_velocity, w_m_);
+      tf::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
+      tf::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
+
+      // ジャイロはそのままではノイズが多いのでLPFに通す．
+      // ジャイロは駆動ノイズを持たないため，カルマンフィルタの状態にはできない．
+      // カルマンフィルタの状態には駆動ノイズが必要，つまり積分により不確かさが上昇する必要がある．
+      // さもないと分散が0に近づき，観測を与えても全く更新されなくなってしまう．
+      gyro_filtered_ = gyro_lpf_.update(gyro_meas_, dt);
 
       // 観測ノイズの分散を計算
       const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
       const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
 
-      // 事前予測
+      // 事前予測 (KFにはジャイロの生データを渡す)
       eskf_.predictIMU(
-        a_m_, w_m_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_, dt);
+        acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
+        gyro_bias_noise_var_, dt);
 
       // 重力方向の観測
-      eskf_.measureAcceleration(a_m_, grav_cov_);
+      eskf_.measureAcceleration(acc_meas_, grav_cov_);
 
       // 共分散の収束を確認
       if (!is_initialized_)
@@ -458,11 +470,11 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
     return;
   }
 
-  gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_m_.x(), pos_m_.y());
-  pos_m_.z() = gps->altitude - alt_0_gps_;
+  gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
+  pos_meas_.z() = gps->altitude - alt_0_gps_;
   const Matrix3d cov = Map<const Matrix3d>(gps->position_covariance.data());
 
-  eskf_.measureXYZ(pos_m_, cov, imu2gps_);
+  eskf_.measureXYZ(pos_meas_, cov, imu2gps_);
 
   // トピック通信の遅延チェック
   // const auto delay = (ros::Time::now() - gps->header.stamp).toSec();
@@ -481,10 +493,10 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg::ConstPtr& vel)
     return;
   }
 
-  tf::vectorKDLToEigen(vel->vel, vel_m_);
+  tf::vectorKDLToEigen(vel->vel, vel_meas_);
   const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
 
-  eskf_.measureVelocity(vel_m_, cov, w_m_, imu2gps_);
+  eskf_.measureVelocity(vel_meas_, cov, gyro_filtered_, imu2gps_);
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)

@@ -6,14 +6,13 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <dh_std_tools/first_order_filter.hpp>
-
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
 #include <tobas_gazebo_plugins/RotorDebug.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
 namespace gazebo
 {
@@ -68,7 +67,7 @@ private:
   bool is_initialized_;
   bool battery_received_;
   bool wind_received_;
-  dh_std::FirstOrderFilter<double> rotor_speed_filter_;
+  AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
   tobas_gazebo_plugins::RotorDebug debug_msg_;
 
   physics::ModelPtr model_;

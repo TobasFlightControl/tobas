@@ -281,7 +281,7 @@ void GazeboRotorPlugin::updateRotationSpeed(double dt)
   }
 
   // Apply the filter on the rotation speed
-  const auto ref_rot_speed = rotor_speed_filter_.updateFilter(set_rot_speed, dt);
+  const auto ref_rot_speed = rotor_speed_filter_.update(set_rot_speed, dt);
   joint_->SetVelocity(0, direction_ * ref_rot_speed / rotor_speed_slowdown_sim_);
 }
 

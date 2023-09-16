@@ -165,7 +165,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     }
 
     const auto dt = (cur_time - last_cmd_time_).toSec();
-    const auto filtered_latency = latency_filter_.updateFilter(latency, dt);
+    const auto filtered_latency = latency_filter_.update(latency, dt);
     if (filtered_latency > kCheckLatencyThreshold)
     {
       rosWarn(
