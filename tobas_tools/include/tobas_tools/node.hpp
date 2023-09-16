@@ -16,7 +16,6 @@ protected:
   ros::NodeHandle pnh_;
   const std::string name_;
 
-  ros::Publisher event_pub_;
   ros::Subscriber event_sub_;
 
   explicit BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh, const std::string& name);
@@ -26,8 +25,6 @@ protected:
   virtual void registerSubscribers() = 0;
 
   virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
-
-  void requestShutdown();
 
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
   static ros::TransportHints tcpNoDelay(bool nodelay = true);

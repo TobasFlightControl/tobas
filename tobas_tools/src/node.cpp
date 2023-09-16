@@ -7,14 +7,6 @@ BaseNode::BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh, const std::string& n
 {
 }
 
-void BaseNode::requestShutdown()
-{
-  tobas_msgs::Event event;
-  event.data = tobas_msgs::Event::SHUTDOWN;
-  event_pub_.publish(event);
-  nh_.shutdown();  // 自身のノードも落とす
-}
-
 ros::TransportHints BaseNode::tcpNoDelay(bool nodelay)
 {
   return ros::TransportHints().reliable().tcpNoDelay(nodelay);

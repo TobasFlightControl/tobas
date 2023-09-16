@@ -10,6 +10,7 @@
 #include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/conversions/msg_msg.hpp>
@@ -49,7 +50,6 @@ void StateEstimator::getRosParams()
 
 void StateEstimator::registerPublishers()
 {
-  event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
   pt_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
   odom_pub_ = nh_.advertise<OdomMsg>("odom", 1);
 }
@@ -144,18 +144,14 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosError(name_, "Action did not finish before timeout. Shutting down the system.");
-    requestShutdown();
+    rosthrow(name_, "'" << action_name << "' did not finish before timeout.");
   }
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
-    rosError(
-      name_, "'" << action_name << "' finished with error: " << state.getText()
-                 << " Shutting down the system.");
-    requestShutdown();
+    rosthrow(name_, "'" << action_name << "' finished with error: " << state.getText());
   }
 
   // 経緯度

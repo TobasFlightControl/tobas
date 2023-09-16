@@ -11,15 +11,15 @@
 
 namespace tobas_state_checker
 {
-static constexpr double kUpdateRate = 10.;                        // [Hz]
-static constexpr double kWarnPeriod = 3.;                         // [s]
-static constexpr double kWaitForActionServer = 10.;               // [s]
-static constexpr double kWarnCpuTemperature = 70.;                // [degree celsius]
-static constexpr double kFatalCpuTemperture = 80.;                // [degree celsius]
-static constexpr double kPoseTwistTimeout = 0.5;                  // [s]
-static constexpr double kAttitudeThreshold = M_PI_2;              // [rad]
-static constexpr double kBatteryVoltageWarnTime = 3.;             // [s]
-static constexpr double kBatteryVoltageFatalTime = 60.;           // [s]
+static constexpr double kUpdateRate = 10.;               // [Hz]
+static constexpr double kWarnPeriod = 3.;                // [s]
+static constexpr double kWaitForActionServer = 10.;      // [s]
+static constexpr double kWarnCpuTemperature = 70.;       // [degree celsius]
+static constexpr double kFatalCpuTemperture = 80.;       // [degree celsius]
+static constexpr double kPoseTwistTimeout = 0.5;         // [s]
+static constexpr double kAttitudeThreshold = M_PI_2;     // [rad]
+static constexpr double kBatteryVoltageWarnTime = 3.;    // [s]
+static constexpr double kBatteryVoltageFatalTime = 60.;  // [s]
 
 class StateChecker : public tobas::BaseNode
 {
@@ -41,6 +41,8 @@ private:
   ros::Time t_last_valid_voltage_;
   ros::Time t_last_pt_;
 
+  // PubSub
+  ros::Publisher event_pub_;
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber pt_sub_;
@@ -52,6 +54,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void requestShutdown();
   void requestLanding();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;

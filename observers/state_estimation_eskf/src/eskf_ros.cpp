@@ -165,18 +165,14 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosError(name_, "Action did not finish before timeout. Shutting down the system.");
-    requestShutdown();
+    rosthrow(name_, "'" << action_name << "' did not finish before timeout.");
   }
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
-    rosError(
-      name_, "'" << action_name << "' finished with error: " << state.getText()
-                 << " Shutting down the system.");
-    requestShutdown();
+    rosthrow(name_, "'" << action_name << "' finished with error: " << state.getText());
   }
 
   // rosInfo(

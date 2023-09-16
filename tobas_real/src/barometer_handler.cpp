@@ -59,7 +59,7 @@ void BarometerHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   switch (event->data)
   {
     case tobas_msgs::Event::SHUTDOWN:
-      // nh_.shutdown();
+      nh_.shutdown();
       break;
     default:
       break;

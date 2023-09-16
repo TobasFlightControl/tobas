@@ -69,6 +69,14 @@ void StateChecker::registerSubscribers()
   pt_sub_ = nh_.subscribe("pose_twist", 1, &StateChecker::poseTwistCb, this, tcpNoDelay());
 }
 
+void StateChecker::requestShutdown()
+{
+  auto event = boost::make_shared<tobas_msgs::Event>();
+  event->data = tobas_msgs::Event::SHUTDOWN;
+  event_pub_.publish(event);
+  nh_.shutdown();  // 自身のノードも落とす
+}
+
 void StateChecker::requestLanding()
 {
   tobas_msgs::LandGoal goal;

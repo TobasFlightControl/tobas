@@ -81,6 +81,7 @@ void RCTeleop::registerPublishers()
 
 void RCTeleop::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe("event", 1, &RCTeleop::eventCb, this, tcpNoDelay());
   pt_sub_ = nh_.subscribe("pose_twist", 1, &RCTeleop::poseTwistCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe("battery", 1, &RCTeleop::batteryCb, this, tcpNoDelay());
   rcin_sub_ = nh_.subscribe("rc_input", 1, &RCTeleop::rcInputCb, this, tcpNoDelay());
@@ -149,7 +150,10 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       if (rcin->e_stop)
       {
         rosWarn(name_, "Emergency stop requested. Shutting down the system.");
-        requestShutdown();
+        auto event = boost::make_shared<tobas_msgs::Event>();
+        event->data = tobas_msgs::Event::SHUTDOWN;
+        event_pub_.publish(event);
+        nh_.shutdown();
       }
 
       const auto& cmd_type = mode2cmd_[rcin->mode];

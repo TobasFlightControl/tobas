@@ -65,6 +65,7 @@ private:
   RollPitchYawThrustController rpy_thrust_ctrl_;
 
   // PubSub
+  ros::Publisher event_pub_;
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;
