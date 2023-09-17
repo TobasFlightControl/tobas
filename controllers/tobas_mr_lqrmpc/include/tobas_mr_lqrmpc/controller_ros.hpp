@@ -1,3 +1,4 @@
+#include <Eigen/Core>
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
@@ -10,13 +11,11 @@
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_translation_pid/position_controller.hpp>
-#include <tobas_mr_translation_pid/velocity_controller.hpp>
+#include <tobas_mr_translation_lqr/controller.hpp>
 #include <tobas_mr_rotation_mpc/acceleration_controller.hpp>
 #include <tobas_mr_rotation_mpc/rotation_controller.hpp>
 
@@ -48,14 +47,12 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas_mr_translation_pid::PositionController pos_controller_;
-  tobas_mr_translation_pid::VelocityController vel_controller_;
+  tobas_mr_translation_lqr::Controller pos_controller_;
   tobas_mr_rotation_mpc::AccelerationController acc_controller_;
   tobas_mr_rotation_mpc::RotationController rot_controller_;
 
   // Dynamic parameters
-  tobas_mr_translation_pid::PositionControllerDynamicParams pos_params_;
-  tobas_mr_translation_pid::VelocityControllerDynamicParams vel_params_;
+  tobas_mr_translation_lqr::Config pos_params_;
   tobas_mr_rotation_mpc::AccelerationControllerDynamicParams acc_params_;
   tobas_mr_rotation_mpc::RotationControllerDynamicParams rot_params_;
 
@@ -67,13 +64,13 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::PositionYawPtr tar_pos_yaw_;      // PositionYawの目標値
-  tobas_msgs::VelocityYawPtr tar_vel_yaw_;      // VelocityYawの目標値 (世界座標系)
   tobas_msgs::AccelerationYawPtr tar_acc_yaw_;  // AccelerationYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpy_thrust_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   KDL::JntArray q_;  // 全ての非固定関節の角度
   Eigen::VectorXd u_opt_;
+  ros::Time t_last_loop_;
 
   // Publishers
   ros::Publisher rotor_speeds_pub_;
@@ -84,7 +81,6 @@ private:
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber pos_yaw_sub_;
-  ros::Subscriber vel_yaw_sub_;
   ros::Subscriber acc_yaw_sub_;
   ros::Subscriber rpy_thrust_sub_;
 
@@ -109,7 +105,6 @@ private:
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void posYawCb(const tobas_msgs::PositionYawConstPtr& pos_yaw);
-  void velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw);
   void accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
 

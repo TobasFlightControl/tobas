@@ -1,3 +1,4 @@
+#include <Eigen/Core>
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
