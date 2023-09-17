@@ -17,6 +17,8 @@
 
 #include "../include/state_estimation_cascade/state_estimator.hpp"
 
+#define INF numeric_limits<double>::max()
+
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
@@ -198,6 +200,13 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   // Angular velocity (Local)
   tf::vectorMsgToKDL(imu.angular_velocity, state->twist.rot);
 
+  // Linear acceleration (Local)
+  tf::vectorMsgToKDL(imu.linear_acceleration, state->accel.linear);
+  state->accel.linear += rpy.Inverse(KDL::Vector(0, 0, -tobas::kGravity));  // 重力を除く
+
+  // Angular acceleration (Local)
+  state->accel.angular = KDL::Vector(INF, INF, INF);  // Unknown
+
   // Covariances
   eigen_tools::matrix3EigenToBoost(
     cart_filter_.getPositionCovariance(), state->position_covariance);
@@ -205,6 +214,8 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   eigen_tools::matrix3EigenToBoost(
     cart_filter_.getVelocityCovariance(), state->linear_velocity_covariance);
   state->angular_velocity_covariance = imu.angular_velocity_covariance;
+  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
+  state->angular_acceleration_covariance.fill(-1);  // Unknown
 
   return state;
 }

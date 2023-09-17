@@ -21,6 +21,8 @@
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
+#define INF numeric_limits<double>::max()
+
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
@@ -145,6 +147,7 @@ void ErrorStateKalmanFilterRos::initialize()
   // LPFを初期化
   // カットオフ周波数をナイキスト周波数に設定
   const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(tobas::kImuSamplingRate / 2);
+  acc_lpf_.initialize(lpf_time_const, Vector3d::Zero());
   gyro_lpf_.initialize(lpf_time_const, Vector3d::Zero());
 
   // ヨー角の初期値
@@ -223,7 +226,9 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
-  const Vector3d B_omega = gyro_filtered_ - eskf_.getGyroBias();
+  const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
+  const Vector3d B_Acc = acc_filtered_ - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Gyro = gyro_filtered_ - eskf_.getGyroBias();
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
   auto state = boost::make_shared<StateMsg>();
@@ -236,7 +241,7 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   tf::vectorEigenToKDL(W_Pos_WB, state->pose.pos);
 
   // Linear velocity (Local): IMU frame -> Base frame
-  const Vector3d B_Vel_WB = B_Rot_W * W_Vel_WI - B_omega.cross(B_Pos_BI);
+  const Vector3d B_Vel_WB = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
   tf::vectorEigenToKDL(B_Vel_WB, state->twist.vel);
 
   // Roll, Pitch
@@ -257,13 +262,21 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Angular velocity (Local)
-  tf::vectorEigenToKDL(B_omega, state->twist.rot);
+  tf::vectorEigenToKDL(B_Gyro, state->twist.rot);
+
+  // Linear acceleration (Local)
+  tf::vectorEigenToKDL(B_Acc, state->accel.linear);
+
+  // Angular acceleration (Local)
+  state->accel.angular = KDL::Vector(INF, INF, INF);  // Unknown
 
   // Covariances
   et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
   et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state->orientation_covariance);
   et::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state->linear_velocity_covariance);
-  state->angular_velocity_covariance = imu.angular_velocity_covariance;  // ジャイロはそのまま
+  state->angular_velocity_covariance = imu.angular_velocity_covariance;
+  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
+  state->angular_acceleration_covariance.fill(-1);  // Unknown
 
   return state;
 }
@@ -334,17 +347,18 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       tf::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
       tf::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
 
-      // ジャイロはそのままではノイズが多いのでLPFに通す．
-      // ジャイロは駆動ノイズを持たないため，カルマンフィルタの状態にはできない．
+      // IMUはそのままではノイズが多いのでLPFに通す．
+      // IMUは駆動ノイズを持たないため，カルマンフィルタの状態にはできない．
       // カルマンフィルタの状態には駆動ノイズが必要，つまり積分により不確かさが上昇する必要がある．
       // さもないと分散が0に近づき，観測を与えても全く更新されなくなってしまう．
+      acc_filtered_ = acc_lpf_.update(acc_meas_, dt);
       gyro_filtered_ = gyro_lpf_.update(gyro_meas_, dt);
 
       // 観測ノイズの分散を計算
       const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
       const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
 
-      // 事前予測 (KFにはジャイロの生データを渡す)
+      // 事前予測 (KFにはIMUの生データを渡す)
       eskf_.predictIMU(
         acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
         gyro_bias_noise_var_, dt);

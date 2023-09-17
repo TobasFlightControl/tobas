@@ -82,6 +82,7 @@ private:
   Eigen::Vector3d mag_meas_;
   Eigen::Vector3d pos_meas_;
   Eigen::Vector3d vel_meas_;
+  Eigen::Vector3d acc_filtered_;
   Eigen::Vector3d gyro_filtered_;
   Eigen::Matrix3d grav_cov_ = Eigen::Matrix3d::Zero();
   double yaw_var_;
@@ -89,6 +90,7 @@ private:
   double gyro_bias_noise_var_;
 
   ErrorStateKalmanFilter eskf_;
+  dh_std::FirstOrderFilter<Eigen::Vector3d> acc_lpf_;
   dh_std::FirstOrderFilter<Eigen::Vector3d> gyro_lpf_;
 
   // rosparams
