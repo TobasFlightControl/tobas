@@ -29,7 +29,7 @@ class CommandersWidget(QScrollArea):
     DEFAULT_MAXIMUM_X = 10.0  # [m]
     DEFAULT_MINIMUM_Y = -10.0  # [m]
     DEFAULT_MAXIMUM_Y = 10.0  # [m]
-    DEFAULT_MINIMUM_Z = -10.0  # [m]
+    DEFAULT_MINIMUM_Z = -3.0  # [m]
     DEFAULT_MAXIMUM_Z = 10.0  # [m]
     DEFAULT_MINIMUM_YAW = -math.pi  # [rad]
     DEFAULT_MAXIMUM_YAW = math.pi  # [rad]
