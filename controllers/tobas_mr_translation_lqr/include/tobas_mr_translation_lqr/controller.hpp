@@ -23,6 +23,8 @@ class Controller
   static constexpr uint32_t kStateSize = kAccIdx + 3;
   static constexpr uint32_t kInputSize = 3;
 
+  static constexpr double kVerAccDecayTimeConst = 0.02;  // [s]
+
 public:
   explicit Controller();
 

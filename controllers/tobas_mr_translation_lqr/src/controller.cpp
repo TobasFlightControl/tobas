@@ -44,8 +44,13 @@ void Controller::configure(const Config& config)
   assert(config.acc_weight > 0);
   assert(config.jerk_weight > 0);
 
-  lqd_.dynamics.A.block<3, 3>(kAccIdx, kAccIdx).diagonal().fill(-1 / config.acc_delay_time_const);
-  lqd_.dynamics.B.block<3, 3>(kAccIdx, 0).diagonal().fill(1 / config.acc_delay_time_const);
+  // 水平方向の加速度は姿勢制御の追従遅れを経て実現される
+  lqd_.dynamics.A.block<2, 2>(kAccIdx, kAccIdx).diagonal().fill(-1 / config.acc_delay_time_const);
+  lqd_.dynamics.B.block<2, 2>(kAccIdx, 0).diagonal().fill(1 / config.acc_delay_time_const);
+
+  // 垂直方向の加速度は非常に短時間で実現されるとする
+  lqd_.dynamics.A(kAccIdx + 2, kAccIdx + 2) = -1 / kVerAccDecayTimeConst;
+  lqd_.dynamics.B(kAccIdx + 2, 2) = 1 / kVerAccDecayTimeConst;
 
   lqd_.state_weight.block<3, 1>(kPosIdx, 0).fill(config.pos_weight);
   lqd_.state_weight.block<3, 1>(kVelIdx, 0).fill(config.vel_weight);
