@@ -217,7 +217,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     {
       // stopwatch_.start();
       rot_controller_.update(
-        pt->pose.euler, pt->twist.rot, q_, battery_->voltage, tar_rpy_thrust_->thrust,
+        pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpy_thrust_->thrust,
         tar_rpy_thrust_->rpy, u_opt_);
       // stopwatch_.stop();
     }

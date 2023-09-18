@@ -99,7 +99,7 @@ class AerodynamicsWidget(QWidget):
             raise RuntimeError()
 
     def motor_const(self) -> float:
-        """[kg*m/s^2]"""
+        """[kg*m/rad^2]"""
         return self.selected().motor_const()
 
     def moment_const(self) -> float:
@@ -107,7 +107,7 @@ class AerodynamicsWidget(QWidget):
         return self.selected().moment_const()
 
     def rotor_drag_coef(self) -> float:
-        """[Ns^2/m^2]"""
+        """[kg/rad]"""
         return self.selected().rotor_drag_coef()
 
     def copy_from(self, src: AerodynamicsWidget) -> None:

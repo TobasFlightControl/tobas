@@ -1,3 +1,5 @@
+#include <kdl/frames_io.hpp>
+
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_linear_control/util.hpp>
@@ -16,26 +18,32 @@ namespace tobas_mr_rotation_mpc
 {
 RotationController::RotationController(const tobas::Drone& drone)
   : drone_(drone),
+    fk_solver_(drone.tree()),
+    inertia_solver_(drone.tree()),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE),
     cont_(drone),
     c2d_(kStateSize, z_rotors_.count())
 {
-  mpc_.Cz = MatrixXd::Identity(kStateSize, kStateSize);
-  mpc_.decay_time_consts.resize(kStateSize);
+  mpc_.Cz = MatrixXd::Zero(kCtrlSize, kStateSize);
+  mpc_.Cz.block<kCtrlSize, kCtrlSize>(kRotIdx, kRotIdx).diagonal().fill(1);
+
+  mpc_.decay_time_consts.resize(kCtrlSize);
   setScales();
   mpc_.input_rate_weight.resize(z_rotors_.count());
   mpc_.input_weight.resize(z_rotors_.count());
-  mpc_.control_weight.resize(kStateSize);
+  mpc_.control_weight.resize(kCtrlSize);
   mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
   setInputConstraintBase();
-  mpc_.control_constraint.resize(kStateSize, 0);
+  mpc_.control_constraint.resize(kCtrlSize, 0);
   mpc_.current_state.resize(kStateSize);
-  mpc_.set_state.resize(kStateSize);
+  mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(z_rotors_.count());
 }
 
 void RotationController::updateInternalDataStructures()
 {
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
   cont_.updateInternalDataStructures();
 
@@ -54,7 +62,7 @@ void RotationController::updateInternalDataStructures()
 
 void RotationController::update(
   const Euler& cur_rpy,
-  const Vector& cur_angvel_B,
+  const Twist& cur_twist_B,
   const JntArray& q,
   double battery_voltage,
   double thrust_sum,
@@ -75,7 +83,7 @@ void RotationController::update(
   thrust_sum = clamp(thrust_sum, min_thrust_sum, max_thrust_sum);
 
   // MPCの最適制御問題を構築
-  updateCurrentState(cur_rpy, cur_angvel_B);
+  updateCurrentState(cur_rpy, cur_twist_B, q, thrust_sum);
   updateSetState(tar_roll, tar_pitch, tar_yaw);
   updateDynamics(cur_rpy, tar_roll, tar_pitch, q);
   updateInputConstraint(battery_voltage, thrust_sum);
@@ -135,10 +143,40 @@ double RotationController::minThrustSum(double battery_voltage) const
   return res;
 }
 
-void RotationController::updateCurrentState(const Euler& cur_rpy, const Vector& cur_angvel_B)
+void RotationController::updateCurrentState(
+  const Euler& cur_rpy,
+  const Twist& cur_twist_B,
+  const JntArray& q,
+  double thrust_sum)
 {
-  mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_angvel_B.x(),
-    cur_angvel_B.y(), cur_angvel_B.z();
+  const auto& vel = cur_twist_B.vel;
+  const auto& gyro = cur_twist_B.rot;
+
+  // 機体速度のプロペラに対する水平成分を求める．機体座標系ではZ成分のみ0としたベクトルに等しい．
+  const Vector vel_perp(vel.x(), vel.y(), 0);
+
+  // 重心を求める
+  inertia_solver_.JntToCart(q, P_base_cog_, I_cog_);
+
+  // 簡単のため全プロペラの推力が等しいとしてH-forceの和を計算
+  // TODO: より真値に近い回転数を用いて計算
+  const double thrust_mean = thrust_sum / z_rotors_.count();
+  Vector sum = Vector::Zero();
+  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  {
+    // CoG -> Rotor の位置を求める
+    fk_solver_.JntToCart(q, z_rotors_.linkName(i), T_base_rotor_);
+    const Vector P_cog_rotor = T_base_rotor_.p - P_base_cog_;
+
+    const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);
+    sum += z_rotors_.dragConstant(i) * rot_speed * P_cog_rotor;
+  }
+  const Vector h_moment = -sum * vel_perp;
+  // cout << "H-moment [Nm]: " << h_moment << endl;
+
+  // 現在の状態を更新
+  mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, gyro.x(), gyro.y(), gyro.z(),
+    h_moment.x(), h_moment.y(), h_moment.z();
 }
 
 void RotationController::updateSetState(double tar_roll, double tar_pitch, double tar_yaw)
@@ -175,11 +213,11 @@ void RotationController::setScales()
 {
   // 状態変数のスケール
   mpc_.state_scale.resize(kStateSize);
-  mpc_.state_scale.block<3, 1>(kRollIdx, 0).fill(M_PI);
+  mpc_.state_scale.block<3, 1>(kRotIdx, 0).fill(M_PI);
   mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
 
   // 制御変数は状態変数と等しい
-  mpc_.control_scale = mpc_.state_scale;
+  mpc_.control_scale = mpc_.state_scale.topRows(kCtrlSize);
 
   // 制御入力のスケール
   mpc_.input_scale.resize(z_rotors_.count());

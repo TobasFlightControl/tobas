@@ -17,11 +17,6 @@ namespace tobas_mr_rotation_mpc
 class MultiRotorDynamics : public ctrl::LinearDynamics
 {
 public:
-  /**
-   * @brief Construct a new MultiRotorDynamics object
-   *
-   * @param tree 全身のTree
-   */
   explicit MultiRotorDynamics(const tobas::Drone& drone);
 
   void updateInternalDataStructures();
@@ -31,7 +26,7 @@ public:
    *
    * @param roll {world}に対する{base}のロール角
    * @param pitch {world}に対する{base}のピッチ角
-   * @param q アームの関節角
+   * @param q 関節角
    */
   void update(const double& roll, const double& pitch, const KDL::JntArray& q);
 
@@ -49,8 +44,5 @@ private:
   KDL::Frame T_base_rotor_;
   KDL::RotationalInertia I_cog_kdl_;  // CoG周りの回転慣性テンソル
   Eigen::Matrix3d I_cog_eigen_;       // CoG周りの回転慣性テンソル
-
-  void updateA(const double& roll, const double& pitch);
-  void updateB(const KDL::JntArray& q);
 };
 }  // namespace tobas_mr_rotation_mpc

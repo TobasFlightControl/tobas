@@ -284,9 +284,7 @@ class PackageGenerator(QObject):
                 "time_constant_down": float(selected.motor.time_const_down()),
                 "motor_constant": float(selected.aerodynamics.motor_const()),
                 "moment_constant": float(selected.aerodynamics.moment_const()),
-                "rotor_drag_coefficient": float(
-                    selected.aerodynamics.rotor_drag_coef()
-                ),
+                "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
                 "pin": i + 1,
             }
 

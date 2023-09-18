@@ -29,11 +29,14 @@ public:
   /* 回転方向: CCW(1) or CW(-1)． */
   const int& direction(uint32_t inner_idx) const;
 
-  /* 推力係数 [N*s^2/rad^2]． */
+  /* 推力係数 [kg*m/rad^2]． */
   const double& motorConstant(uint32_t inner_idx) const;
 
   /* 反トルク係数 [m]． */
   const double& momentConstant(uint32_t inner_idx) const;
+
+  /* 空気効力定数 [kg/rad]． */
+  const double& dragConstant(uint32_t inner_idx) const;
 
   /* 回転数と電圧の関係式の係数: V = c1 w + c2 w^2 (V[V], w[rad/s]) */
   const std::pair<double, double>& rotSpeedCoefs(uint32_t inner_idx) const;

@@ -206,6 +206,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, uint32_t rotor_idx)
 
   dh_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
   dh_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
+  dh_ros::getParam(nh, prefix + "/drag_constant", res.drag_constant, dh_ros::NON_NEGATIVE);
 
   dh_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
   if (res.rot_speed_coefs.first <= 0.)

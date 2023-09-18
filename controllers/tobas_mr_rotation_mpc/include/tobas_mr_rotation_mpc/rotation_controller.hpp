@@ -4,6 +4,8 @@
 #include <kdl/frames.hpp>
 
 #include <dh_kdl/euler.hpp>
+#include <dh_kdl/treefksolverpos.hpp>
+#include <dh_kdl/treejnttoinertiasolver.hpp>
 #include <dh_linear_control/c2d/tustin.hpp>
 #include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
@@ -40,7 +42,7 @@ public:
 
   void update(
     const KDL::Euler& cur_rpy,
-    const KDL::Vector& cur_angvel_B,
+    const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
     double battery_voltage,
     double thrust_sum,
@@ -51,6 +53,9 @@ public:
 
 private:
   const tobas::Drone& drone_;
+
+  KDL::ExtTreeFkSolverPos fk_solver_;
+  KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 
   MultiRotorDynamics cont_;
@@ -58,9 +63,17 @@ private:
   // ctrl::C2D_RK4 c2d_;
   ctrl::LinearDenseMPC mpc_;
 
+  KDL::Frame T_base_rotor_;
+  KDL::Vector P_base_cog_;
+  KDL::RotationalInertia I_cog_;  // CoG周りの回転慣性テンソル
+
   double maxThrustSum(double battery_voltage) const;
   double minThrustSum(double battery_voltage) const;
-  void updateCurrentState(const KDL::Euler& cur_rpy, const KDL::Vector& cur_angvel_B);
+  void updateCurrentState(
+    const KDL::Euler& cur_rpy,
+    const KDL::Twist& cur_twist_B,
+    const KDL::JntArray& q,
+    double thrust_sum);
   void updateSetState(double tar_roll, double tar_pitch, double tar_yaw);
   void updateDynamics(
     const KDL::Euler& cur_rpy,

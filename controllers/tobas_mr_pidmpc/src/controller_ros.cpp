@@ -47,8 +47,8 @@ void ControllerRos::getRosParams()
 void ControllerRos::registerPublishers()
 {
   rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
-  feedback_pub_ = nh_.advertise<tobas_mr_pidmpc::ControllerFeedback>(
-    "multirotor_controller_feedback", 1);
+  feedback_pub_ =
+    nh_.advertise<tobas_mr_pidmpc::ControllerFeedback>("multirotor_controller_feedback", 1);
 }
 
 void ControllerRos::registerSubscribers()
@@ -232,7 +232,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     {
       // stopwatch_.start();
       rot_controller_.update(
-        pt->pose.euler, pt->twist.rot, q_, battery_->voltage, tar_rpy_thrust_->thrust,
+        pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpy_thrust_->thrust,
         tar_rpy_thrust_->rpy, u_opt_);
       // stopwatch_.stop();
     }

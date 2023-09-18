@@ -53,6 +53,11 @@ const double& RotorAxisExtractor::momentConstant(uint32_t inner_idx) const
   return drone_.rotorConfig(rotorIdx(inner_idx)).moment_constant;
 }
 
+const double& RotorAxisExtractor::dragConstant(uint32_t inner_idx) const
+{
+  return drone_.rotorConfig(rotorIdx(inner_idx)).drag_constant;
+}
+
 const pair<double, double>& RotorAxisExtractor::rotSpeedCoefs(uint32_t inner_idx) const
 {
   return drone_.rotorConfig(rotorIdx(inner_idx)).rot_speed_coefs;
