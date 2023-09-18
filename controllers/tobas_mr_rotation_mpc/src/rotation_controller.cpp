@@ -153,6 +153,7 @@ void RotationController::updateCurrentState(
   const auto& gyro = cur_twist_B.rot;
 
   // 機体速度のプロペラに対する水平成分を求める．機体座標系ではZ成分のみ0としたベクトルに等しい．
+  // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
   const Vector vel_perp(vel.x(), vel.y(), 0);
 
   // 重心を求める
