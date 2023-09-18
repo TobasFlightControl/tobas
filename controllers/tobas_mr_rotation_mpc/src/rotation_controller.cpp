@@ -1,5 +1,3 @@
-#include <kdl/frames_io.hpp>
-
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_linear_control/util.hpp>
@@ -105,6 +103,7 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   assert(params.attitude_weight > 0.);
   assert(params.heading_weight > 0.);
   assert(params.angvel_weight > 0.);
+  assert(0. <= params.h_force_comp_rate && params.h_force_comp_rate <= 1.);
 
   mpc_.time_step = params.pred_horizon / params.pred_steps;
   mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
@@ -115,11 +114,12 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   mpc_.discrete_dynamics.resize(
     params.pred_steps, ctrl::LinearDynamics(kStateSize, z_rotors_.count()));
 
-  // Update weights
   mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = params.attitude_weight;
   mpc_.control_weight(kYawIdx) = params.heading_weight;
   mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(params.angvel_weight);
   mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_log10));
+
+  h_force_coef_ = params.h_force_comp_rate;
 }
 
 double RotationController::maxThrustSum(double battery_voltage) const
@@ -171,12 +171,12 @@ void RotationController::updateCurrentState(
     const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);
     sum += z_rotors_.dragConstant(i) * rot_speed * P_cog_rotor;
   }
-  const Vector h_moment = -sum * vel_perp;
-  // cout << "H-moment [Nm]: " << h_moment << endl;
+  const Vector h_moment_raw = -sum * vel_perp;
+  const Vector h_moment_comp = h_moment_raw * h_force_coef_;  // H-forceによるモーメントの補償分
 
   // 現在の状態を更新
   mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, gyro.x(), gyro.y(), gyro.z(),
-    h_moment.x(), h_moment.y(), h_moment.z();
+    h_moment_comp.x(), h_moment_comp.y(), h_moment_comp.z();
 }
 
 void RotationController::updateSetState(double tar_roll, double tar_pitch, double tar_yaw)

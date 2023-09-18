@@ -457,6 +457,7 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   rot_params_.heading_weight = cfg.heading_weight;
   rot_params_.angvel_weight = cfg.angular_velocity_weight;
   rot_params_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
+  rot_params_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
   rot_controller_.configure(rot_params_);
 
   rosInfo(name_, "Dynamic parameters are updated.");

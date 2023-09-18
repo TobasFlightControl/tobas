@@ -31,6 +31,7 @@ struct RotationControllerDynamicParams
   double heading_weight;
   double angvel_weight;
   int thrust_rate_weight_log10;
+  double h_force_comp_rate;  // H-forceの理論値に対する補償項の割合 [0, 1]
 };
 
 class RotationController
@@ -66,6 +67,8 @@ private:
   KDL::Frame T_base_rotor_;
   KDL::Vector P_base_cog_;
   KDL::RotationalInertia I_cog_;  // CoG周りの回転慣性テンソル
+
+  double h_force_coef_ = 1.;
 
   double maxThrustSum(double battery_voltage) const;
   double minThrustSum(double battery_voltage) const;
