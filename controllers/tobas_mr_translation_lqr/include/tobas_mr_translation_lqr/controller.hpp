@@ -40,6 +40,6 @@ public:
   void configure(const Config& config);
 
 private:
-  ctrl::LQD lqd_;
+  ctrl::LQD lqd_;  // TODO: いずれは状態のハード制約を考慮したMPCにする
 };
 }  // namespace tobas_mr_translation_lqr
