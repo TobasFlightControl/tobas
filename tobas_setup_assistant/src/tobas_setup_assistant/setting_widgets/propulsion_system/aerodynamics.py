@@ -183,7 +183,7 @@ class AerodynamicsWidget_Base(QWidget):
 
     @abstractmethod
     def motor_const(self) -> float:
-        """[kg*m/s^2]"""
+        """[kg*m/rad^2]"""
         raise NotImplementedError()
 
     @abstractmethod
@@ -193,7 +193,7 @@ class AerodynamicsWidget_Base(QWidget):
 
     @abstractmethod
     def rotor_drag_coef(self) -> float:
-        """[Ns^2/m^2]"""
+        """[kg/rad]"""
         raise NotImplementedError()
 
     @abstractmethod
