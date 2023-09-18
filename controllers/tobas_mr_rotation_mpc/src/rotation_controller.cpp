@@ -18,19 +18,19 @@ RotationController::RotationController(const tobas::Drone& drone)
   : drone_(drone),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE),
     cont_(drone),
-    c2d_(STATE_SIZE, z_rotors_.count())
+    c2d_(kStateSize, z_rotors_.count())
 {
-  mpc_.Cz = MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
-  mpc_.decay_time_consts.resize(STATE_SIZE);
+  mpc_.Cz = MatrixXd::Identity(kStateSize, kStateSize);
+  mpc_.decay_time_consts.resize(kStateSize);
   setScales();
   mpc_.input_rate_weight.resize(z_rotors_.count());
   mpc_.input_weight.resize(z_rotors_.count());
-  mpc_.control_weight.resize(STATE_SIZE);
+  mpc_.control_weight.resize(kStateSize);
   mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
   setInputConstraintBase();
-  mpc_.control_constraint.resize(STATE_SIZE, 0);
-  mpc_.current_state.resize(STATE_SIZE);
-  mpc_.set_state.resize(STATE_SIZE);
+  mpc_.control_constraint.resize(kStateSize, 0);
+  mpc_.current_state.resize(kStateSize);
+  mpc_.set_state.resize(kStateSize);
   mpc_.last_input = VectorXd::Zero(z_rotors_.count());
 }
 
@@ -39,7 +39,7 @@ void RotationController::updateInternalDataStructures()
   z_rotors_.updateInternalDataStructures();
   cont_.updateInternalDataStructures();
 
-  c2d_.resize(STATE_SIZE, z_rotors_.count());
+  c2d_.resize(kStateSize, z_rotors_.count());
 
   setScales();
   setInputConstraintBase();
@@ -100,19 +100,17 @@ void RotationController::configure(const RotationControllerDynamicParams& params
 
   mpc_.time_step = params.pred_horizon / params.pred_steps;
   mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
-  mpc_.decay_time_consts(ROLL) = mpc_.decay_time_consts(PITCH) = params.attitude_decay;
-  mpc_.decay_time_consts(YAW) = params.heading_decay;
-  mpc_.decay_time_consts(ANGVEL_X) = mpc_.decay_time_consts(ANGVEL_Y) =
-    mpc_.decay_time_consts(ANGVEL_Z) = params.angvel_decay;
+  mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = params.attitude_decay;
+  mpc_.decay_time_consts(kYawIdx) = params.heading_decay;
+  mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(params.angvel_decay);
 
   mpc_.discrete_dynamics.resize(
-    params.pred_steps, ctrl::LinearDynamics(STATE_SIZE, z_rotors_.count()));
+    params.pred_steps, ctrl::LinearDynamics(kStateSize, z_rotors_.count()));
 
   // Update weights
-  mpc_.control_weight(ROLL) = mpc_.control_weight(PITCH) = params.attitude_weight;
-  mpc_.control_weight(YAW) = params.heading_weight;
-  mpc_.control_weight(ANGVEL_X) = mpc_.control_weight(ANGVEL_Y) = mpc_.control_weight(ANGVEL_Z) =
-    params.angvel_weight;
+  mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = params.attitude_weight;
+  mpc_.control_weight(kYawIdx) = params.heading_weight;
+  mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(params.angvel_weight);
   mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_log10));
 }
 
@@ -162,8 +160,8 @@ void RotationController::updateDynamics(
     t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
 
     // 時刻tにおけるドローンの姿勢の参照値
-    roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_roll, mpc_.decay_time_consts(ROLL), t);
-    pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_pitch, mpc_.decay_time_consts(PITCH), t);
+    roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_roll, mpc_.decay_time_consts(kRollIdx), t);
+    pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_pitch, mpc_.decay_time_consts(kPitchIdx), t);
 
     cont_.update(roll_k, pitch_k, q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
@@ -176,9 +174,9 @@ void RotationController::updateDynamics(
 void RotationController::setScales()
 {
   // 状態変数のスケール
-  mpc_.state_scale.resize(STATE_SIZE);
-  mpc_.state_scale(ROLL) = mpc_.state_scale(PITCH) = mpc_.state_scale(YAW) = M_PI;
-  mpc_.state_scale(ANGVEL_X) = mpc_.state_scale(ANGVEL_Y) = mpc_.state_scale(ANGVEL_Z) = M_PI;
+  mpc_.state_scale.resize(kStateSize);
+  mpc_.state_scale.block<3, 1>(kRollIdx, 0).fill(M_PI);
+  mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
 
   // 制御変数は状態変数と等しい
   mpc_.control_scale = mpc_.state_scale;
