@@ -30,6 +30,7 @@ void AccelerationController::update(
   const auto tar_az = clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_);
 
   // 3元非線形方程式の解析解を計算
+  // TODO: 姿勢制御と同様にH-forceを考慮する
   const auto x = mass_ * tar_ax;
   const auto y = mass_ * tar_ay;
   const auto z = mass_ * (tar_az + tobas::kGravity);
