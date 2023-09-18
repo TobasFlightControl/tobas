@@ -9,8 +9,10 @@ namespace tobas_mr_translation_lqr
 struct Config
 {
   double acc_delay_time_const;
-  double pos_weight;
-  double vel_weight;
+  double hor_pos_weight;
+  double ver_pos_weight;
+  double hor_vel_weight;
+  double ver_vel_weight;
   double acc_weight;
   double jerk_weight;
 };

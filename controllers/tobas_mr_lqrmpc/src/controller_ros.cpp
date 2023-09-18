@@ -367,9 +367,11 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   pos_params_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
-  pos_params_.pos_weight = cfg.pos_weight;
-  pos_params_.vel_weight = cfg.vel_weight;
-  pos_params_.acc_weight = cfg.acc_weight;
+  pos_params_.hor_pos_weight = cfg.horizontal_position_weight;
+  pos_params_.ver_pos_weight = cfg.vertical_position_weight;
+  pos_params_.hor_vel_weight = cfg.horizontal_velocity_weight;
+  pos_params_.ver_vel_weight = cfg.vertical_velocity_weight;
+  pos_params_.acc_weight = cfg.accel_weight;
   pos_params_.jerk_weight = cfg.jerk_weight;
   pos_controller_.configure(pos_params_);
 

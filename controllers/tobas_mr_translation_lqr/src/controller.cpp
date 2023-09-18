@@ -39,8 +39,10 @@ void Controller::update(
 void Controller::configure(const Config& config)
 {
   assert(config.acc_delay_time_const > 0);
-  assert(config.pos_weight > 0);
-  assert(config.vel_weight > 0);
+  assert(config.hor_pos_weight > 0);
+  assert(config.ver_pos_weight > 0);
+  assert(config.hor_vel_weight > 0);
+  assert(config.ver_vel_weight > 0);
   assert(config.acc_weight > 0);
   assert(config.jerk_weight > 0);
 
@@ -52,8 +54,10 @@ void Controller::configure(const Config& config)
   lqd_.dynamics.A(kAccIdx + 2, kAccIdx + 2) = -1 / kVerAccDecayTimeConst;
   lqd_.dynamics.B(kAccIdx + 2, 2) = 1 / kVerAccDecayTimeConst;
 
-  lqd_.state_weight.block<3, 1>(kPosIdx, 0).fill(config.pos_weight);
-  lqd_.state_weight.block<3, 1>(kVelIdx, 0).fill(config.vel_weight);
+  lqd_.state_weight.block<2, 1>(kPosIdx, 0).fill(config.hor_pos_weight);
+  lqd_.state_weight(kPosIdx + 2, 0) = config.ver_pos_weight;
+  lqd_.state_weight.block<2, 1>(kVelIdx, 0).fill(config.hor_vel_weight);
+  lqd_.state_weight(kVelIdx + 2, 0) = config.ver_vel_weight;
   lqd_.state_weight.block<3, 1>(kAccIdx, 0).fill(config.acc_weight);
   lqd_.input_weight.fill(0);  // 加速度の目標値は実際の加速度ではないため重みはかけない
   lqd_.input_rate_weight.fill(config.jerk_weight);  // 加速度の観測ノイズの補償
