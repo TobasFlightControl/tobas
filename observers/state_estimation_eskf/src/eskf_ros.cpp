@@ -413,6 +413,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
           is_initialized_ = true;
           rosInfo(name_, "Kalman filter is initialized. Start to publish pose & twist.");
         }
+
+        return;
       }
 
       // 推定状態を発行
