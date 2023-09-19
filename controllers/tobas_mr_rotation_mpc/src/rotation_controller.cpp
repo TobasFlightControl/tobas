@@ -216,6 +216,7 @@ void RotationController::setScales()
   mpc_.state_scale.resize(kStateSize);
   mpc_.state_scale.block<3, 1>(kRotIdx, 0).fill(M_PI);
   mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
+  mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(1);  // テキトー．X500V2で1e-2くらい．
 
   // 制御変数は状態変数と等しい
   mpc_.control_scale = mpc_.state_scale.topRows(kCtrlSize);
