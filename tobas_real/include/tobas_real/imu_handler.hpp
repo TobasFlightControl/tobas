@@ -15,7 +15,7 @@ class ImuHandler : public tobas::BaseNode
 {
   static constexpr double kMeasureGyroBiasRate = 200.;  // [Hz]
   static constexpr uint32_t kMeasureGyroBiasCount = 1000;
-  static constexpr double kStaticGyroThreshold = 0.1;  // [rad/s]
+  static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
 
   using super = tobas::BaseNode;
 
