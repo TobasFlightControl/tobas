@@ -13,12 +13,6 @@ namespace tobas_rc_teleop
 {
 class RCTeleop : public tobas::BaseNode
 {
-  // Constants
-  static constexpr double kErrorPeriod = 3.;  // [s]
-
-  // Default parameters
-  static constexpr double kDefaultDeadZoneRate = 0.1;
-
   using super = tobas::BaseNode;
 
 public:

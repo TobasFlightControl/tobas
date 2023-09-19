@@ -37,12 +37,10 @@ private:
   // rosparams
   double max_attitude_;  // [rad]
   double max_yawrate_;   // [rad/s]
-  double max_acc_;       // [m/s^2] 垂直上方向の加速度の最大値
-  double min_acc_;       // [m/s^2] 垂直下方向の加速度の最大値
+  double max_ver_acc_;   // [m/s^2] 垂直方向の加速度の最大値
 
   // Constant values
-  double max_thrust_;  // [N] ドローンの最大合計推力
-  double min_thrust_;  // [N] ドローンの最小合計推力
+  double max_thrust_;  // [N] ドローンの最大推力和
 
   // PubSub
   ros::Publisher rpy_thrust_pub_;

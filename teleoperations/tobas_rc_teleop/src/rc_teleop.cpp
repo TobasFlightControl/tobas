@@ -11,6 +11,7 @@
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
+#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 using namespace ros::message_traits;
