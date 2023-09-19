@@ -56,6 +56,7 @@ class MultirotorLMPC(BaseController):
     HEADING_WEIGHT = "heading_weight"
     ANGVEL_WEIGHT = "angular_velocity_weight"
     THRUST_RATE_WEIGHT_LOG10 = "thrust_rate_weight_log10"
+    H_FORCE_COMPENSATION_RATE = "horizontal_force_compensation_rate"
 
     MIN_NUM_PROP = 3
 
@@ -255,6 +256,17 @@ class MultirotorLMPC(BaseController):
         )
         self._rows.addWidget(self._thrust_rate_weight_log10)
 
+        config = self._get_param_config(self.H_FORCE_COMPENSATION_RATE)
+        self._h_force_comp_rate = ParamGetterWidget_DoubleSpinBox(
+            "Horizontal force compensation rate (Rotation controller)",
+            config["description"],
+            decimals=2,
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
+        )
+        self._rows.addWidget(self._h_force_comp_rate)
+
     @overrides
     def is_applicable(self) -> bool:
         # 固定翼は持たない
@@ -336,6 +348,7 @@ class MultirotorLMPC(BaseController):
             self.HEADING_WEIGHT: self._heading_weight.get(),
             self.ANGVEL_WEIGHT: self._angvel_weight.get(),
             self.THRUST_RATE_WEIGHT_LOG10: self._thrust_rate_weight_log10.get(),
+            self.H_FORCE_COMPENSATION_RATE: self._h_force_comp_rate.get(),
         }
 
         return res
