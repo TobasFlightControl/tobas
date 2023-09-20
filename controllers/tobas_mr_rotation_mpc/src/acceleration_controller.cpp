@@ -36,7 +36,7 @@ void AccelerationController::update(
   const auto z = mass_ * (tar_az + tobas::kGravity);
 
   // 姿勢の限界を考慮してx, yを制限
-  // さもないと姿勢制御器での目標姿勢角のクランプにより推力だけ異常に大きくなる恐れがある
+  // さもないと姿勢制御器での目標姿勢角のクランプにより推力が過剰になる恐れがある
   const auto tan_max_atti = tan(kMaxAttitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   dh_std::clamp2d(x, y, max_xy_norm);
