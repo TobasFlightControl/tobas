@@ -6,7 +6,7 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <dh_ros_tools/timer.hpp>
-#include <dh_linear_control/lqr.hpp>
+#include <dh_linear_control/lqd.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>

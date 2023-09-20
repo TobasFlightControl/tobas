@@ -2,7 +2,7 @@
 
 #include <kdl/frames.hpp>
 
-#include <dh_linear_control/lqr.hpp>
+#include <dh_linear_control/lqd.hpp>
 
 namespace tobas_mr_translation_lqr
 {
