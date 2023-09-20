@@ -17,4 +17,6 @@ static constexpr uint32_t kYawIdx = kPitchIdx + 1;
 
 static constexpr double kMaxAttitude = M_PI / 3;  // [rad]
 static constexpr double kMaxHeadingError = M_PI;  // [rad]
+
+static constexpr double kHMomentScale = 1.;  // テキトー．X500V2で1e-2くらい．
 }  // namespace tobas_mr_rotation_mpc

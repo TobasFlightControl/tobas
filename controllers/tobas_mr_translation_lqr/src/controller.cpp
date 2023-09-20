@@ -13,12 +13,12 @@ Controller::Controller()
   lqd_.resize(kStateSize, kInputSize);
 
   // ダイナミクスの固定部分を埋める
-  lqd_.dynamics.A.block<3, 3>(kPosIdx, kVelIdx).diagonal().fill(1);
-  lqd_.dynamics.A.block<3, 3>(kVelIdx, kAccIdx).diagonal().fill(1);
+  lqd_.dynamics.A.block<3, 3>(kPosIdx, kVelIdx).diagonal().setOnes();
+  lqd_.dynamics.A.block<3, 3>(kVelIdx, kAccIdx).diagonal().setOnes();
 
   // 変数のスケールは全て同じとする
-  lqd_.state_scale.fill(1);
-  lqd_.input_scale.fill(1);
+  lqd_.state_scale.setOnes();
+  lqd_.input_scale.setOnes();
 }
 
 void Controller::update(
@@ -59,7 +59,7 @@ void Controller::configure(const Config& config)
   lqd_.state_weight.block<2, 1>(kVelIdx, 0).fill(config.hor_vel_weight);
   lqd_.state_weight(kVelIdx + 2, 0) = config.ver_vel_weight;
   lqd_.state_weight.block<3, 1>(kAccIdx, 0).fill(config.acc_weight);
-  lqd_.input_weight.fill(0);  // 加速度の目標値は実際の加速度ではないため重みはかけない
+  lqd_.input_weight.setZero();  // 加速度の目標値は実際の加速度ではないため重みはかけない
   lqd_.input_rate_weight.fill(config.jerk_weight);  // 加速度の観測ノイズの補償
 
   lqd_.updateGain();

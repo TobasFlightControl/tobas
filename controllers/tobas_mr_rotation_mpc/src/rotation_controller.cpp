@@ -23,7 +23,7 @@ RotationController::RotationController(const tobas::Drone& drone)
     c2d_(kStateSize, z_rotors_.count())
 {
   mpc_.Cz = MatrixXd::Zero(kCtrlSize, kStateSize);
-  mpc_.Cz.block<kCtrlSize, kCtrlSize>(kRotIdx, kRotIdx).diagonal().fill(1);
+  mpc_.Cz.block<kCtrlSize, kCtrlSize>(kRotIdx, kRotIdx).diagonal().setOnes();
 
   mpc_.decay_time_consts.resize(kCtrlSize);
   setScales();
@@ -216,7 +216,7 @@ void RotationController::setScales()
   mpc_.state_scale.resize(kStateSize);
   mpc_.state_scale.block<3, 1>(kRotIdx, 0).fill(M_PI);
   mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
-  mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(1);  // テキトー．X500V2で1e-2くらい．
+  mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(kHMomentScale);
 
   // 制御変数は状態変数と等しい
   mpc_.control_scale = mpc_.state_scale.topRows(kCtrlSize);

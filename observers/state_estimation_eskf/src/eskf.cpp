@@ -56,10 +56,10 @@ void ErrorStateKalmanFilter::initialize(
 
   // (270) ヤコビアンの不変部分を埋める
   F_x_.setZero();
-  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx).diagonal().fill(1.);
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx).diagonal().fill(1.);
-  F_x_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx).diagonal().fill(1.);
-  F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().fill(1.);
+  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx).diagonal().setOnes();
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx).diagonal().setOnes();
+  F_x_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx).diagonal().setOnes();
+  F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().setOnes();
 }
 
 Vector3d ErrorStateKalmanFilter::getXYZ() const
@@ -194,7 +194,7 @@ void ErrorStateKalmanFilter::measureXYZ(const Vector3d& pos_meas, const Matrix3d
 
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, kDeltaPosIdx).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
 
   correct<3>(delta_pos, pos_cov, H);
 }
@@ -211,7 +211,7 @@ void ErrorStateKalmanFilter::measureXYZ(
   H.setZero();
 
   // 位置による偏微分
-  H.block<3, 3>(0, kDeltaPosIdx).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(offset);
@@ -227,7 +227,7 @@ void ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& 
 
   Matrix<double, 2, kDeltaStateSize> H;
   H.setZero();
-  H.block<2, 2>(0, kDeltaPosIdx).diagonal().fill(1.);
+  H.block<2, 2>(0, kDeltaPosIdx).diagonal().setOnes();
 
   correct<2>(delta_xy, xy_cov, H);
 }
@@ -253,7 +253,7 @@ void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Mat
 
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, kDeltaVelIdx).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaVelIdx).diagonal().setOnes();
 
   correct<3>(delta_vel, vel_cov, H);
 }
@@ -273,7 +273,7 @@ void ErrorStateKalmanFilter::measureVelocity(
   H.setZero();
 
   // 速度による偏微分
-  H.block<3, 3>(0, kDeltaVelIdx).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaVelIdx).diagonal().setOnes();
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(gyro_offset);
@@ -295,7 +295,7 @@ void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const 
   // 回転の誤差を3次元ベクトルとして観測
   Matrix<double, 3, kDeltaStateSize> H;
   H.setZero();
-  H.block<3, 3>(0, kDeltaThetaIdx).diagonal().fill(1.);
+  H.block<3, 3>(0, kDeltaThetaIdx).diagonal().setOnes();
 
   // 事後推定を計算
   correct<3>(delta_theta, theta_cov, H);
@@ -316,9 +316,7 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
   correct<3>(delta_acc, acc_cov, H);
 }
 
-void ErrorStateKalmanFilter::measureMagneticField(
-  const Vector3d& mag_meas,
-  const Matrix3d& mag_cov)
+void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, const Matrix3d& mag_cov)
 {
   const Quaterniond Q_W_B = getQuaternion();
   const Vector3d mag_B = Q_W_B.conjugate() * mag_W_;

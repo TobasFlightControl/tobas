@@ -18,9 +18,9 @@ CartesianFilter::CartesianFilter()
   A_.setIdentity();
   B_.setZero();
   C_.setZero();
-  C_.block(kPosIdx, kPosIdx, 3, 3).diagonal().fill(1.);
-  C_.block(kVelIdx, kVelIdx, 3, 3).diagonal().fill(1.);
-  C_.block(kAccIdx, kAccIdx, 3, 3).diagonal().fill(1.);
+  C_.block(kPosIdx, kPosIdx, 3, 3).diagonal().setOnes();
+  C_.block(kVelIdx, kVelIdx, 3, 3).diagonal().setOnes();
+  C_.block(kAccIdx, kAccIdx, 3, 3).diagonal().setOnes();
 
   P_.setZero();
   Q_.setZero();
