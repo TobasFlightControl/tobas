@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+  <arg name="nodelet" default="true"/>
 
   <!-- Bringup Tobas core software -->
   <include file="$(find {{ pkg_name }})/launch/bringup.launch">
