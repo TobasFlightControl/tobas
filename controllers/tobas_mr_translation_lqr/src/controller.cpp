@@ -1,5 +1,7 @@
 #include <eigen_conversions/eigen_kdl.h>
 
+#include <dh_std_tools/algorithm.hpp>
+
 #include "../include/tobas_mr_translation_lqr/controller.hpp"
 
 using namespace std;
@@ -21,8 +23,13 @@ void VelocityController::update(
   const double& dt,
   Vector& ta)
 {
+  auto tvx = tv.x();
+  auto tvy = tv.y();
+  dh_std::clamp2d(tvx, tvy, max_hor_vel_);
+  const auto tvz = clamp(tv.z(), -max_ver_vel_, max_ver_vel_);
+
   lqid_.current_state << cv.x(), cv.y(), cv.z(), ca.x(), ca.y(), ca.z();
-  lqid_.target_state << tv.x(), tv.y(), tv.z(), 0, 0, 0;
+  lqid_.target_state << tvx, tvy, tvz, 0, 0, 0;
 
   const auto ta_eigen = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
   tf::vectorEigenToKDL(ta_eigen, ta);
@@ -40,6 +47,8 @@ void VelocityController::configure(const Config& config)
   assert(config.jerk_weight > 0);
   assert(config.max_hor_pos_error > 0);
   assert(config.max_ver_pos_error > 0);
+  assert(config.max_hor_vel > 0);
+  assert(config.max_ver_vel > 0);
 
   // 水平方向の加速度は姿勢制御の追従遅れを経て実現される
   lqid_.dynamics.A.block(kAccIdx, kAccIdx, 2, 2).diagonal().fill(-1 / config.acc_delay_time_const);
@@ -66,5 +75,8 @@ void VelocityController::configure(const Config& config)
   lqid_.max_integrated_error(2) = config.max_ver_pos_error;
 
   lqid_.updateGain();
+
+  max_hor_vel_ = config.max_hor_vel;
+  max_ver_vel_ = config.max_ver_vel;
 }
 }  // namespace tobas_mr_translation_lqr

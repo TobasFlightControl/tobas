@@ -18,6 +18,8 @@ struct Config
   double jerk_weight;
   double max_hor_pos_error;
   double max_ver_pos_error;
+  double max_hor_vel;
+  double max_ver_vel;
 };
 
 class VelocityController
@@ -44,6 +46,9 @@ public:
   void configure(const Config& config);
 
 private:
+  double max_hor_vel_;
+  double max_ver_vel_;
+
   ctrl::LQID lqid_;
 };
 }  // namespace tobas_mr_translation_lqr

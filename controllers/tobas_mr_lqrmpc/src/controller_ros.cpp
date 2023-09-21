@@ -375,6 +375,8 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   vel_params_.jerk_weight = cfg.jerk_weight;
   vel_params_.max_hor_pos_error = cfg.max_horizontal_position_error;
   vel_params_.max_ver_pos_error = cfg.max_vertical_position_error;
+  vel_params_.max_hor_vel = cfg.max_horizontal_velocity;
+  vel_params_.max_ver_vel = cfg.max_vertical_velocity;
   vel_controller_.configure(vel_params_);
 
   acc_params_.max_hor_acc = cfg.max_horizontal_accel;
