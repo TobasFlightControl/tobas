@@ -10,7 +10,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/PositionYaw.h>
+#include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -47,12 +47,12 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas_mr_translation_lqr::Controller pos_controller_;
+  tobas_mr_translation_lqr::VelocityController vel_controller_;
   tobas_mr_rotation_mpc::AccelerationController acc_controller_;
   tobas_mr_rotation_mpc::RotationController rot_controller_;
 
   // Dynamic parameters
-  tobas_mr_translation_lqr::Config pos_params_;
+  tobas_mr_translation_lqr::Config vel_params_;
   tobas_mr_rotation_mpc::AccelerationControllerDynamicParams acc_params_;
   tobas_mr_rotation_mpc::RotationControllerDynamicParams rot_params_;
 
@@ -63,7 +63,7 @@ private:
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
-  tobas_msgs::PositionYawPtr tar_pos_yaw_;      // PositionYawの目標値
+  tobas_msgs::VelocityYawPtr tar_vel_yaw_;      // VelocityYawの目標値
   tobas_msgs::AccelerationYawPtr tar_acc_yaw_;  // AccelerationYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpy_thrust_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
@@ -80,7 +80,7 @@ private:
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
-  ros::Subscriber pos_yaw_sub_;
+  ros::Subscriber vel_yaw_sub_;
   ros::Subscriber acc_yaw_sub_;
   ros::Subscriber rpy_thrust_sub_;
 
@@ -104,7 +104,7 @@ private:
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
-  void posYawCb(const tobas_msgs::PositionYawConstPtr& pos_yaw);
+  void velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw);
   void accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
 

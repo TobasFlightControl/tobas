@@ -62,8 +62,8 @@ void ControllerRos::registerSubscribers()
       nh_.subscribe("joint_states", 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
   }
 
-  pos_yaw_sub_ =
-    nh_.subscribe("command/position_yaw", 1, &ControllerRos::posYawCb, this, tcpNoDelay());
+  vel_yaw_sub_ =
+    nh_.subscribe("command/velocity_yaw", 1, &ControllerRos::velYawCb, this, tcpNoDelay());
   acc_yaw_sub_ =
     nh_.subscribe("command/acceleration_yaw", 1, &ControllerRos::accYawCb, this, tcpNoDelay());
   rpy_thrust_sub_ =
@@ -143,8 +143,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   auto feedback = boost::make_shared<tobas_mr_lqrmpc::ControllerFeedback>();
   feedback->header.stamp = pt->header.stamp;
 
-  // Position Controller
-  if (tar_pos_yaw_ != nullptr)
+  // Velocity Controller
+  if (tar_vel_yaw_ != nullptr)
   {
     if (tar_acc_yaw_ == nullptr)
     {
@@ -157,15 +157,14 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_acc_W = pt->pose.euler * pt->accel.linear;
 
     // 目標加速度を計算
-    pos_controller_.update(
-      pt->pose.pos, cur_vel_W, cur_acc_W, tar_pos_yaw_->pos, dt, tar_acc_yaw_->acc);
+    vel_controller_.update(cur_vel_W, cur_acc_W, tar_vel_yaw_->vel, dt, tar_acc_yaw_->acc);
 
     // コマンドレベルとヨー角は位置指令をそのまま流す
-    tar_acc_yaw_->level = tar_pos_yaw_->level;
-    tar_acc_yaw_->yaw = tar_pos_yaw_->yaw;
+    tar_acc_yaw_->level = tar_vel_yaw_->level;
+    tar_acc_yaw_->yaw = tar_vel_yaw_->yaw;
 
     // Fill feedback
-    feedback->target_position = tar_pos_yaw_->pos;
+    feedback->target_velocity = tar_vel_yaw_->vel;
   }
 
   // Acceleration Controller
@@ -270,19 +269,19 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
   js_ = js;
 }
 
-void ControllerRos::posYawCb(const tobas_msgs::PositionYawConstPtr& pos_yaw)
+void ControllerRos::velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw)
 {
   if (pt_ == nullptr)
   {
     return;
   }
 
-  if (!isCommandLevelOk(pos_yaw->level))
+  if (!isCommandLevelOk(vel_yaw->level))
   {
     return;
   }
 
-  tar_pos_yaw_ = boost::make_shared<tobas_msgs::PositionYaw>(*pos_yaw);
+  tar_vel_yaw_ = boost::make_shared<tobas_msgs::VelocityYaw>(*vel_yaw);
 }
 
 void ControllerRos::accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw)
@@ -306,7 +305,7 @@ void ControllerRos::accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw)
   }
 
   // 外側の制御を止める
-  tar_pos_yaw_ = nullptr;
+  tar_vel_yaw_ = nullptr;
 
   // 目標速度を更新
   switch (acc_yaw->frame_id.data)
@@ -345,7 +344,7 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
   }
 
   // 外側の制御を止める
-  tar_pos_yaw_ = nullptr;
+  tar_vel_yaw_ = nullptr;
   tar_acc_yaw_ = nullptr;
 
   // コマンドを更新
@@ -366,14 +365,17 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  pos_params_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
-  pos_params_.hor_pos_weight = cfg.horizontal_position_weight;
-  pos_params_.ver_pos_weight = cfg.vertical_position_weight;
-  pos_params_.hor_vel_weight = cfg.horizontal_velocity_weight;
-  pos_params_.ver_vel_weight = cfg.vertical_velocity_weight;
-  pos_params_.acc_weight = cfg.accel_weight;
-  pos_params_.jerk_weight = cfg.jerk_weight;
-  pos_controller_.configure(pos_params_);
+  vel_params_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
+  vel_params_.hor_pos_weight = cfg.horizontal_position_weight;
+  vel_params_.ver_pos_weight = cfg.vertical_position_weight;
+  vel_params_.hor_vel_weight = cfg.horizontal_velocity_weight;
+  vel_params_.ver_vel_weight = cfg.vertical_velocity_weight;
+  vel_params_.hor_acc_weight = cfg.horizontal_accel_weight;
+  vel_params_.ver_acc_weight = cfg.vertical_accel_weight;
+  vel_params_.jerk_weight = cfg.jerk_weight;
+  vel_params_.max_hor_pos_error = cfg.max_horizontal_position_error;
+  vel_params_.max_ver_pos_error = cfg.max_vertical_position_error;
+  vel_controller_.configure(vel_params_);
 
   acc_params_.max_hor_acc = cfg.max_horizontal_accel;
   acc_params_.max_ver_acc = cfg.max_vertical_accel;

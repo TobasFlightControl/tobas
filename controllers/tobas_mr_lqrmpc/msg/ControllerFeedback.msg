@@ -1,5 +1,6 @@
 std_msgs/Header header
 kdl_msgs/Vector target_position
+kdl_msgs/Vector target_velocity
 kdl_msgs/Vector target_acceleration
 tobas_msgs/Euler target_rotation
 float64 target_thrust
