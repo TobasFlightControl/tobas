@@ -78,9 +78,10 @@ void RotationController::update(
   assert(battery_voltage > 0.);
 
   // 目標姿勢を制限
-  const double tar_roll = clamp(tar_rpy.roll, -kMaxAttitude, kMaxAttitude);
-  const double tar_pitch = clamp(tar_rpy.pitch, -kMaxAttitude, kMaxAttitude);
-  const double yaw_error = clamp(tar_rpy.yaw - cur_rpy.yaw, -kMaxHeadingError, kMaxHeadingError);
+  const double tar_roll = clamp(tar_rpy.roll, -max_attitude_, max_attitude_);
+  const double tar_pitch = clamp(tar_rpy.pitch, -max_attitude_, max_attitude_);
+  const double yaw_error =
+    clamp(tar_rpy.yaw - cur_rpy.yaw, -max_heading_error_, max_heading_error_);
   const double tar_yaw = cur_rpy.yaw + yaw_error;
 
   // 目標とする姿勢と合計推力から，重力方向の推力を計算
@@ -128,8 +129,11 @@ void RotationController::update(
   u_opt = mpc_.solveMPC();
 }
 
-void RotationController::configure(const RotationControllerDynamicParams& params)
+void RotationController::configure(const RotationControllerConfig& params)
 {
+  assert(0. <= params.max_attitude && params.max_attitude < M_PI_2);
+  assert(params.max_heading_error >= 0.);
+  assert(0. <= params.h_force_comp_rate && params.h_force_comp_rate <= 1.);
   assert(params.pred_horizon > 0.);
   assert(params.pred_steps > 0);
   assert(params.attitude_decay >= 0.);
@@ -138,7 +142,10 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   assert(params.attitude_weight > 0.);
   assert(params.heading_weight > 0.);
   assert(params.angvel_weight > 0.);
-  assert(0. <= params.h_force_comp_rate && params.h_force_comp_rate <= 1.);
+
+  max_attitude_ = params.max_attitude;
+  max_heading_error_ = params.max_heading_error;
+  h_force_coef_ = params.h_force_comp_rate;
 
   mpc_.time_step = params.pred_horizon / params.pred_steps;
   mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
@@ -159,8 +166,6 @@ void RotationController::configure(const RotationControllerDynamicParams& params
 
   mpc_.input_constraints.resize(mpc_.prediction_steps);
   fillInputConstraintFixedParts();
-
-  h_force_coef_ = params.h_force_comp_rate;
 }
 
 double RotationController::maxThrustSum(double battery_voltage) const

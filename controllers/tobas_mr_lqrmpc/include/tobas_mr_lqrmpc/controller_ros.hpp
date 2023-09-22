@@ -52,9 +52,9 @@ private:
   tobas_mr_rotation_mpc::RotationController rot_controller_;
 
   // Dynamic parameters
-  tobas_mr_translation_lqr::Config vel_params_;
-  tobas_mr_rotation_mpc::AccelerationControllerDynamicParams acc_params_;
-  tobas_mr_rotation_mpc::RotationControllerDynamicParams rot_params_;
+  tobas_mr_translation_lqr::Config vel_config_;
+  tobas_mr_rotation_mpc::AccelerationControllerConfig acc_config_;
+  tobas_mr_rotation_mpc::RotationControllerConfig rot_config_;
 
   // Constant variables
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か

@@ -430,35 +430,38 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  pos_params_.hor_natural_freq = cfg.horizontal_natural_frequency;
-  pos_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
-  pos_params_.ver_natural_freq = cfg.vertical_natural_frequency;
-  pos_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
-  pos_controller_.configure(pos_params_);
+  pos_config_.hor_natural_freq = cfg.horizontal_natural_frequency;
+  pos_config_.hor_damp_ratio = cfg.horizontal_damping_ratio;
+  pos_config_.ver_natural_freq = cfg.vertical_natural_frequency;
+  pos_config_.ver_damp_ratio = cfg.vertical_damping_ratio;
+  pos_controller_.configure(pos_config_);
 
-  vel_params_.hor_natural_freq = cfg.horizontal_natural_frequency;
-  vel_params_.hor_damp_ratio = cfg.horizontal_damping_ratio;
-  vel_params_.ver_natural_freq = cfg.vertical_natural_frequency;
-  vel_params_.ver_damp_ratio = cfg.vertical_damping_ratio;
-  vel_params_.max_hor_vel = cfg.max_horizontal_velocity;
-  vel_params_.max_ver_vel = cfg.max_vertical_velocity;
-  vel_controller_.configure(vel_params_);
+  vel_config_.hor_natural_freq = cfg.horizontal_natural_frequency;
+  vel_config_.hor_damp_ratio = cfg.horizontal_damping_ratio;
+  vel_config_.ver_natural_freq = cfg.vertical_natural_frequency;
+  vel_config_.ver_damp_ratio = cfg.vertical_damping_ratio;
+  vel_config_.max_hor_vel = cfg.max_horizontal_velocity;
+  vel_config_.max_ver_vel = cfg.max_vertical_velocity;
+  vel_controller_.configure(vel_config_);
 
-  acc_params_.max_hor_acc = cfg.max_horizontal_accel;
-  acc_params_.max_ver_acc = cfg.max_vertical_accel;
-  acc_controller_.configure(acc_params_);
+  acc_config_.max_hor_acc = cfg.max_horizontal_accel;
+  acc_config_.max_ver_acc = cfg.max_vertical_accel;
+  acc_config_.max_attitude = cfg.max_attitude;
+  acc_controller_.configure(acc_config_);
 
-  rot_params_.pred_horizon = cfg.prediction_horizon;
-  rot_params_.pred_steps = cfg.prediction_steps;
-  rot_params_.attitude_decay = cfg.attitude_decay;
-  rot_params_.heading_decay = cfg.heading_decay;
-  rot_params_.angvel_decay = cfg.angular_velocity_decay;
-  rot_params_.attitude_weight = cfg.attitude_weight;
-  rot_params_.heading_weight = cfg.heading_weight;
-  rot_params_.angvel_weight = cfg.angular_velocity_weight;
-  rot_params_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
-  rot_params_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
-  rot_controller_.configure(rot_params_);
+  rot_config_.max_attitude = cfg.max_attitude;
+  rot_config_.max_heading_error = cfg.max_heading_error;
+  rot_config_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  rot_config_.pred_horizon = cfg.prediction_horizon;
+  rot_config_.pred_steps = cfg.prediction_steps;
+  rot_config_.attitude_decay = cfg.attitude_decay;
+  rot_config_.heading_decay = cfg.heading_decay;
+  rot_config_.angvel_decay = cfg.angular_velocity_decay;
+  rot_config_.attitude_weight = cfg.attitude_weight;
+  rot_config_.heading_weight = cfg.heading_weight;
+  rot_config_.angvel_weight = cfg.angular_velocity_weight;
+  rot_config_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
+  rot_controller_.configure(rot_config_);
 
   rosInfo(name_, "Dynamic parameters are updated.");
 }

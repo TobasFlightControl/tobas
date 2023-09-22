@@ -20,8 +20,12 @@ namespace tobas_mr_rotation_mpc
  * @note 姿勢角をattitude (roll + pitch) とheading (yaw) を分けているのは，
  * 一般に前者の方が後者に比べて重要度が高いため．
  */
-struct RotationControllerDynamicParams
+struct RotationControllerConfig
 {
+  double max_attitude;       // [rad]
+  double max_heading_error;  // [rad]
+  double h_force_comp_rate;  // H-forceの理論値に対する補償項の割合 [0, 1]
+
   double pred_horizon;
   int pred_steps;
   double attitude_decay;
@@ -31,7 +35,6 @@ struct RotationControllerDynamicParams
   double heading_weight;
   double angvel_weight;
   int thrust_rate_weight_log10;
-  double h_force_comp_rate;  // H-forceの理論値に対する補償項の割合 [0, 1]
 };
 
 class RotationController
@@ -50,7 +53,7 @@ public:
     const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
 
-  void configure(const RotationControllerDynamicParams& params);
+  void configure(const RotationControllerConfig& params);
 
 private:
   const tobas::Drone& drone_;
@@ -58,8 +61,6 @@ private:
   KDL::ExtTreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
-
-  double mass_;// 機体の質量
 
   MultiRotorDynamics cont_;
   ctrl::C2D_Tustin c2d_;
@@ -70,7 +71,9 @@ private:
   KDL::Vector P_base_cog_;
   KDL::RotationalInertia I_cog_;  // CoG周りの回転慣性テンソル
 
-  double h_force_coef_ = 1.;
+  double max_attitude_;
+  double max_heading_error_;
+  double h_force_coef_;
 
   double maxThrustSum(double battery_voltage) const;
   double minThrustSum(double battery_voltage) const;

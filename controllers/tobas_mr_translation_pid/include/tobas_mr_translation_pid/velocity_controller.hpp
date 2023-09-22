@@ -4,7 +4,7 @@
 
 namespace tobas_mr_translation_pid
 {
-struct VelocityControllerDynamicParams
+struct VelocityControllerConfig
 {
   double hor_natural_freq;
   double hor_damp_ratio;
@@ -20,7 +20,7 @@ public:
   explicit VelocityController();
 
   void update(const KDL::Vector& cur_vel, const KDL::Vector& tar_vel, KDL::Vector& tar_acc);
-  void configure(const VelocityControllerDynamicParams& params);
+  void configure(const VelocityControllerConfig& params);
 
 private:
   double hor_kv_;

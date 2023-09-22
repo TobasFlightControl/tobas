@@ -4,10 +4,11 @@
 
 namespace tobas_mr_rotation_mpc
 {
-struct AccelerationControllerDynamicParams
+struct AccelerationControllerConfig
 {
   double max_hor_acc;
   double max_ver_acc;
+  double max_attitude;
 };
 
 class AccelerationController
@@ -21,12 +22,11 @@ public:
     double& U_out,
     double& roll_out,
     double& pitch_out);
-  void configure(const AccelerationControllerDynamicParams& params);
+  void configure(const AccelerationControllerConfig& config);
 
 private:
   double mass_;
 
-  double max_hor_acc_;
-  double max_ver_acc_;
+  AccelerationControllerConfig config_;
 };
 }  // namespace tobas_mr_rotation_mpc

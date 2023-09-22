@@ -27,8 +27,8 @@ void AccelerationController::update(
   // 目標加速度を制限
   auto tar_ax = tar_acc.x();
   auto tar_ay = tar_acc.y();
-  dh_std::clamp2d(tar_ax, tar_ay, max_hor_acc_);
-  const auto tar_az = clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_);
+  dh_std::clamp2d(tar_ax, tar_ay, config_.max_hor_acc);
+  const auto tar_az = clamp(tar_acc.z(), -config_.max_ver_acc, config_.max_ver_acc);
 
   // 並進のEoMの左辺
   auto x = mass_ * tar_ax;
@@ -37,7 +37,7 @@ void AccelerationController::update(
 
   // 姿勢の限界を考慮してx, yを制限
   // さもないと姿勢制御器での目標姿勢角のクランプにより推力が過剰になる恐れがある
-  const auto tan_max_atti = tan(kMaxAttitude);
+  const auto tan_max_atti = tan(config_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   dh_std::clamp2d(x, y, max_xy_norm);
 
@@ -50,12 +50,12 @@ void AccelerationController::update(
   U_out = z / (cos(pitch_out) * cos(roll_out));
 }
 
-void AccelerationController::configure(const AccelerationControllerDynamicParams& params)
+void AccelerationController::configure(const AccelerationControllerConfig& config)
 {
-  assert(params.max_hor_acc > 0.);
-  assert(params.max_ver_acc > 0.);
+  assert(config.max_hor_acc > 0.);
+  assert(config.max_ver_acc > 0.);
+  assert(0. <= config.max_attitude && config.max_attitude < M_PI_2);
 
-  max_hor_acc_ = params.max_hor_acc;
-  max_ver_acc_ = params.max_ver_acc;
+  config_ = config;
 }
 }  // namespace tobas_mr_rotation_mpc

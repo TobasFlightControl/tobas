@@ -4,7 +4,7 @@
 
 namespace tobas_mr_translation_pid
 {
-struct PositionControllerDynamicParams
+struct PositionControllerConfig
 {
   double hor_natural_freq;
   double hor_damp_ratio;
@@ -18,7 +18,7 @@ public:
   explicit PositionController();
 
   void update(const KDL::Vector& cur_pos, const KDL::Vector& tar_pos, KDL::Vector& tar_vel);
-  void configure(const PositionControllerDynamicParams& params);
+  void configure(const PositionControllerConfig& params);
 
 private:
   double hor_kp_;
