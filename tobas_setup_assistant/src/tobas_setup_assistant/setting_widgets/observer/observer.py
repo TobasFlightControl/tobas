@@ -34,18 +34,18 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self.type = ComboBox()
-        self.type.addItem(self.NO_SELECT)
-        self.type.addItem(CascadeKalmanFilter.NAME)
-        self.type.addItem(ErrorStateKalmanFilter.NAME)
-        self.type.setCurrentText(ErrorStateKalmanFilter.NAME)
-        self._rows.addWidget(self.type)
+        self._type = ComboBox()
+        self._type.addItem(self.NO_SELECT)
+        self._type.addItem(CascadeKalmanFilter.NAME)
+        self._type.addItem(ErrorStateKalmanFilter.NAME)
+        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)
+        self._rows.addWidget(self._type)
 
-        self.cascade = CascadeKalmanFilter(main)
-        self._rows.addWidget(self.cascade)
+        self._cascade = CascadeKalmanFilter(main)
+        self._rows.addWidget(self._cascade)
 
-        self.eskf = ErrorStateKalmanFilter(main)
-        self._rows.addWidget(self.eskf)
+        self._eskf = ErrorStateKalmanFilter(main)
+        self._rows.addWidget(self._eskf)
 
         add_expanding_widget(self._rows)
         self._update_visibility()
@@ -53,7 +53,7 @@ class ObserverWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self.type.currentTextChanged.connect(self._on_type_changed)
+        self._type.currentTextChanged.connect(self._on_type_changed)
 
     @overrides
     def is_valid(self) -> bool:
@@ -72,14 +72,14 @@ class ObserverWidget(BaseSettingWidget):
         if observer_type == self.NO_SELECT:
             raise RuntimeError("Observer type is not selected.")
         elif observer_type == CascadeKalmanFilter.NAME:
-            return self.cascade
+            return self._cascade
         elif observer_type == ErrorStateKalmanFilter.NAME:
-            return self.eskf
+            return self._eskf
         else:
             raise RuntimeError(f"Unknown observer type: {observer_type}")
 
     def get_type(self) -> str:
-        return self.type.currentText()
+        return self._type.currentText()
 
     def pkg_name(self) -> str:
         return self.selected().PACKAGE_NAME
@@ -92,13 +92,13 @@ class ObserverWidget(BaseSettingWidget):
         observer_type = self.get_type()
 
         if observer_type == self.NO_SELECT:
-            self.cascade.setVisible(False)
-            self.eskf.setVisible(False)
+            self._cascade.setVisible(False)
+            self._eskf.setVisible(False)
         elif observer_type == CascadeKalmanFilter.NAME:
-            self.cascade.setVisible(True)
-            self.eskf.setVisible(False)
+            self._cascade.setVisible(True)
+            self._eskf.setVisible(False)
         elif observer_type == ErrorStateKalmanFilter.NAME:
-            self.cascade.setVisible(False)
-            self.eskf.setVisible(True)
+            self._cascade.setVisible(False)
+            self._eskf.setVisible(True)
         else:
             raise RuntimeError(f"Unknown observer type: {observer_type}")
