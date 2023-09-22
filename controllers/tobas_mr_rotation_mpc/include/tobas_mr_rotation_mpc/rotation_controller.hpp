@@ -46,7 +46,7 @@ public:
     const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
     double battery_voltage,
-    double thrust_sum,
+    double tar_U,
     const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
 
@@ -58,6 +58,8 @@ private:
   KDL::ExtTreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
+
+  double mass_;// 機体の質量
 
   MultiRotorDynamics cont_;
   ctrl::C2D_Tustin c2d_;
@@ -76,15 +78,8 @@ private:
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
-    double thrust_sum);
+    double thrust_z);
   void updateSetState(double tar_roll, double tar_pitch, double tar_yaw);
-  void updateDynamics(
-    const KDL::Euler& cur_rpy,
-    double tar_roll,
-    double tar_pitch,
-    const KDL::JntArray& q);
-  void setScales();
-  void setInputConstraintBase();
-  void updateInputConstraint(double battery_voltage, double U);
+  void fillInputConstraintFixedParts();
 };
 }  // namespace tobas_mr_rotation_mpc

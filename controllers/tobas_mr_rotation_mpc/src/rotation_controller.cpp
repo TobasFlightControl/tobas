@@ -26,16 +26,21 @@ RotationController::RotationController(const tobas::Drone& drone)
   mpc_.Cz.block<kCtrlSize, kCtrlSize>(kRotIdx, kRotIdx).diagonal().setOnes();
 
   mpc_.decay_time_consts.resize(kCtrlSize);
-  setScales();
-  mpc_.input_rate_weight.resize(z_rotors_.count());
-  mpc_.input_weight.resize(z_rotors_.count());
+
+  // 状態変数のスケール
+  mpc_.state_scale.resize(kStateSize);
+  mpc_.state_scale.block<3, 1>(kRotIdx, 0).fill(M_PI);
+  mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
+  mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(kHMomentScale);
+
+  // 制御変数のスケールは状態変数と等しい
+  mpc_.control_scale = mpc_.state_scale.topRows(kCtrlSize);
+
   mpc_.control_weight.resize(kCtrlSize);
-  mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
-  setInputConstraintBase();
-  mpc_.control_constraint.resize(kCtrlSize, 0);
   mpc_.current_state.resize(kStateSize);
   mpc_.set_state.resize(kCtrlSize);
-  mpc_.last_input = VectorXd::Zero(z_rotors_.count());
+
+  updateInternalDataStructures();
 }
 
 void RotationController::updateInternalDataStructures()
@@ -47,15 +52,18 @@ void RotationController::updateInternalDataStructures()
 
   c2d_.resize(kStateSize, z_rotors_.count());
 
-  setScales();
-  setInputConstraintBase();
-  mpc_.last_input = VectorXd::Zero(z_rotors_.count());
-  mpc_.input_rate_weight.resize(z_rotors_.count());
-  mpc_.input_rate_constraint.resize(z_rotors_.count(), 0);
+  // 制御入力のスケール
+  mpc_.input_scale.resize(z_rotors_.count());
+  mpc_.input_scale.fill(tobas::getMass() * tobas::kGravity / z_rotors_.count());
 
   // 推力の和が一定だから，推力の二乗和の重みが大きいほど各プロペラの推力を均等にしようとする力が働く．
   // 回転翼機の制御においてそれは致命傷になりうるため，推力の重みは0で固定する．
   mpc_.input_weight = VectorXd::Zero(z_rotors_.count());
+  mpc_.input_rate_weight.resize(z_rotors_.count());
+
+  mpc_.last_input = VectorXd::Zero(z_rotors_.count());
+
+  fillInputConstraintFixedParts();
 }
 
 void RotationController::update(
@@ -63,34 +71,61 @@ void RotationController::update(
   const Twist& cur_twist_B,
   const JntArray& q,
   double battery_voltage,
-  double thrust_sum,
+  double tar_U,
   const Euler& tar_rpy,
   VectorXd& u_opt)
 {
   assert(battery_voltage > 0.);
 
   // 目標姿勢を制限
-  const auto tar_roll = clamp(tar_rpy.roll, -kMaxAttitude, kMaxAttitude);
-  const auto tar_pitch = clamp(tar_rpy.pitch, -kMaxAttitude, kMaxAttitude);
-  const auto yaw_error = clamp(tar_rpy.yaw - cur_rpy.yaw, -kMaxHeadingError, kMaxHeadingError);
-  const auto tar_yaw = cur_rpy.yaw + yaw_error;
+  const double tar_roll = clamp(tar_rpy.roll, -kMaxAttitude, kMaxAttitude);
+  const double tar_pitch = clamp(tar_rpy.pitch, -kMaxAttitude, kMaxAttitude);
+  const double yaw_error = clamp(tar_rpy.yaw - cur_rpy.yaw, -kMaxHeadingError, kMaxHeadingError);
+  const double tar_yaw = cur_rpy.yaw + yaw_error;
 
-  // 目標推力を制限
-  const auto max_thrust_sum = maxThrustSum(battery_voltage);
-  const auto min_thrust_sum = minThrustSum(battery_voltage);
-  thrust_sum = clamp(thrust_sum, min_thrust_sum, max_thrust_sum);
+  // 目標とする姿勢と合計推力から，重力方向の推力を計算
+  const double thrust_z = tar_U * cos(tar_roll) * cos(tar_pitch);
 
   // MPCの最適制御問題を構築
-  updateCurrentState(cur_rpy, cur_twist_B, q, thrust_sum);
+  updateCurrentState(cur_rpy, cur_twist_B, q, thrust_z);
   updateSetState(tar_roll, tar_pitch, tar_yaw);
-  updateDynamics(cur_rpy, tar_roll, tar_pitch, q);
-  updateInputConstraint(battery_voltage, thrust_sum);
+
+  const double min_voltage = battery_voltage * tobas::kMotorSpinArm;
+  const double max_thrust_sum = maxThrustSum(battery_voltage);
+  const double min_thrust_sum = minThrustSum(battery_voltage);
+
+  // ダイナミクスと制御入力の制約を更新
+  // 姿勢や推力の目標値をそのまま使うと追従性能が悪い場合に想定外の動きになるため，
+  // 参照起動からダイナミクスや制約を構成する．
+  for (uint32_t k = 0; k < mpc_.prediction_steps; ++k)
+  {
+    const double t = mpc_.time_step * k;  // 計画開始時刻 (= 0) からの経過時間
+
+    // ダイナミクスを更新
+    const double roll_k =
+      ctrl::firstOrderPos(cur_rpy.roll, tar_roll, mpc_.decay_time_consts(kRollIdx), t);
+    const double pitch_k =
+      ctrl::firstOrderPos(cur_rpy.pitch, tar_pitch, mpc_.decay_time_consts(kPitchIdx), t);
+    cont_.update(roll_k, pitch_k, q);
+    mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
+
+    // 個々のプロペラの推力の限界に関する不等式制約
+    for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+    {
+      mpc_.input_constraints[k].b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
+      mpc_.input_constraints[k].b(z_rotors_.count() + i) =
+        -z_rotors_.thrustFromVoltage(i, min_voltage);
+    }
+
+    // 全てのプロペラの推力の合計に関する等式制約
+    const double thrust_k =
+      clamp(thrust_z / (cos(roll_k) * cos(pitch_k)), min_thrust_sum, max_thrust_sum);
+    mpc_.input_constraints[k].b(z_rotors_.count() * 2) = thrust_k;
+    mpc_.input_constraints[k].b(z_rotors_.count() * 2 + 1) = -thrust_k;
+  }
 
   // MPCを解く
   u_opt = mpc_.solveMPC();
-
-  // For debug
-  // cout << mpc_ << endl;
 }
 
 void RotationController::configure(const RotationControllerDynamicParams& params)
@@ -118,6 +153,12 @@ void RotationController::configure(const RotationControllerDynamicParams& params
   mpc_.control_weight(kYawIdx) = params.heading_weight;
   mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(params.angvel_weight);
   mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_log10));
+
+  mpc_.input_rate_constraints.resize(params.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
+  mpc_.control_constraints.resize(params.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
+
+  mpc_.input_constraints.resize(mpc_.prediction_steps);
+  fillInputConstraintFixedParts();
 
   h_force_coef_ = params.h_force_comp_rate;
 }
@@ -147,7 +188,7 @@ void RotationController::updateCurrentState(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
-  double thrust_sum)
+  double thrust_z)
 {
   const auto& vel = cur_twist_B.vel;
   const auto& gyro = cur_twist_B.rot;
@@ -161,7 +202,8 @@ void RotationController::updateCurrentState(
 
   // 簡単のため全プロペラの推力が等しいとしてH-forceの和を計算
   // TODO: より真値に近い回転数を用いて計算
-  const double thrust_mean = thrust_sum / z_rotors_.count();
+  const double thrust = thrust_z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 合計推力
+  const double thrust_mean = thrust / z_rotors_.count();
   Vector sum = Vector::Zero();
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
@@ -185,71 +227,17 @@ void RotationController::updateSetState(double tar_roll, double tar_pitch, doubl
   mpc_.set_state << tar_roll, tar_pitch, tar_yaw, 0., 0., 0.;
 }
 
-void RotationController::updateDynamics(
-  const Euler& cur_rpy,
-  double tar_roll,
-  double tar_pitch,
-  const JntArray& q)
+void RotationController::fillInputConstraintFixedParts()
 {
-  double t;
-  double roll_k, pitch_k;
-
-  for (uint32_t k = 0; k < mpc_.prediction_steps; ++k)
+  for (auto& u_const : mpc_.input_constraints)
   {
-    t = mpc_.time_step * k;  // 計画開始時刻(= 0)からの経過時間
+    u_const.resize(z_rotors_.count(), z_rotors_.count() * 2 + 2);
+    u_const.setZero();
 
-    // 時刻tにおけるドローンの姿勢の参照値
-    roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_roll, mpc_.decay_time_consts(kRollIdx), t);
-    pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_pitch, mpc_.decay_time_consts(kPitchIdx), t);
-
-    cont_.update(roll_k, pitch_k, q);
-    mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
-
-    // For debug
-    // cout << cont_ << endl;
+    u_const.A.block(0, 0, z_rotors_.count(), z_rotors_.count()).diagonal().fill(1);
+    u_const.A.block(z_rotors_.count(), 0, z_rotors_.count(), z_rotors_.count()).diagonal().fill(-1);
+    u_const.A.block(z_rotors_.count() * 2, 0, 1, z_rotors_.count()).fill(1);
+    u_const.A.block(z_rotors_.count() * 2 + 1, 0, 1, z_rotors_.count()).fill(-1);
   }
-}
-
-void RotationController::setScales()
-{
-  // 状態変数のスケール
-  mpc_.state_scale.resize(kStateSize);
-  mpc_.state_scale.block<3, 1>(kRotIdx, 0).fill(M_PI);
-  mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
-  mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(kHMomentScale);
-
-  // 制御変数は状態変数と等しい
-  mpc_.control_scale = mpc_.state_scale.topRows(kCtrlSize);
-
-  // 制御入力のスケール
-  mpc_.input_scale.resize(z_rotors_.count());
-  mpc_.input_scale.fill(tobas::getMass() * tobas::kGravity / z_rotors_.count());
-}
-
-void RotationController::setInputConstraintBase()
-{
-  const MatrixXd E = MatrixXd::Identity(z_rotors_.count(), z_rotors_.count());
-  const VectorXd ones = VectorXd::Ones(z_rotors_.count());
-
-  mpc_.input_constraint.resize(z_rotors_.count(), z_rotors_.count() * 2 + 2);
-
-  mpc_.input_constraint.A.block(0, 0, z_rotors_.count(), z_rotors_.count()) = E;
-  mpc_.input_constraint.A.block(z_rotors_.count(), 0, z_rotors_.count(), z_rotors_.count()) = -E;
-  mpc_.input_constraint.A.block(z_rotors_.count() * 2, 0, 1, z_rotors_.count()) = ones.transpose();
-  mpc_.input_constraint.A.block(z_rotors_.count() * 2 + 1, 0, 1, z_rotors_.count()) =
-    -ones.transpose();
-}
-
-void RotationController::updateInputConstraint(double battery_voltage, double U)
-{
-  const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
-  {
-    mpc_.input_constraint.b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
-    mpc_.input_constraint.b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
-  }
-
-  mpc_.input_constraint.b(z_rotors_.count() * 2) = U;
-  mpc_.input_constraint.b(z_rotors_.count() * 2 + 1) = -U;
 }
 }  // namespace tobas_mr_rotation_mpc

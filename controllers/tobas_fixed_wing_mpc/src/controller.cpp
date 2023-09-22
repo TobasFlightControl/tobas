@@ -50,8 +50,6 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   mpc_.input_rate_weight.resize(eom_.inputSize());
   mpc_.input_weight.resize(eom_.inputSize());
   mpc_.control_weight.resize(kCtrlSize);
-  setInputRateConstraint();
-  mpc_.control_constraint.resize(kCtrlSize, 0);
   mpc_.current_state.resize(eom_.kStateSize);
   mpc_.set_state.resize(kCtrlSize);
   mpc_.last_input = VectorXd::Zero(eom_.inputSize());
@@ -201,10 +199,9 @@ void Controller::setScales()
 
 void Controller::setInputConstraint()
 {
-  const auto lb = eom_.minDeltaInput();
-  const auto ub = eom_.maxDeltaInput();
-  mpc_.input_constraint = ctrl::matIneqFromRange(lb, ub);
-  // cout << mpc_.input_constraint << endl;
+  const VectorXd lb = eom_.minDeltaInput();
+  const VectorXd ub = eom_.maxDeltaInput();
+  dh_std::fill(mpc_.input_constraints, ctrl::matIneqFromRange(lb, ub));
 }
 
 void Controller::setInputRateConstraint()
@@ -220,8 +217,7 @@ void Controller::setInputRateConstraint()
     ub(x_rotors_.count() + i) = +max_angle_rate;
   }
 
-  mpc_.input_rate_constraint = ctrl::matIneqFromRange(lb, ub);
-  // cout << mpc_.input_rate_constraint << endl;
+  dh_std::fill(mpc_.input_rate_constraints, ctrl::matIneqFromRange(lb, ub));
 }
 
 void Controller::updateCurrentStateVector()
@@ -478,11 +474,18 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 
   // 制御入力の重み
   mpc_.input_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_weight_log10));
-  mpc_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_weight_log10));
+  mpc_.input_weight.bottomRows(drone_.numControlSurfaces())
+    .fill(exp10(cfg.deflection_weight_log10));
 
   // 制御入力の変化率の重み
   mpc_.input_rate_weight.topRows(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_log10));
   mpc_.input_rate_weight.bottomRows(drone_.numControlSurfaces())
     .fill(exp10(cfg.deflection_rate_weight_log10));
+
+  mpc_.input_rate_constraints.resize(cfg.prediction_steps);
+  mpc_.input_constraints.resize(cfg.prediction_steps);
+  mpc_.control_constraints.resize(cfg.prediction_steps, ctrl::LinearEquation(kCtrlSize, 0));
+
+  setInputRateConstraint();
 }
 }  // namespace tobas_fixed_wing_mpc
