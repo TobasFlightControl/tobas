@@ -180,7 +180,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     tar_acc_yaw_->yaw = tar_vel_yaw_->yaw;
 
     // Fill feedback
-    feedback->target_velocity = tar_vel_yaw_->vel;
+    feedback->target_velocity_global = tar_vel_yaw_->vel;
+    feedback->target_velocity_local = pt->pose.euler * tar_vel_yaw_->vel;
   }
 
   // Acceleration Controller
@@ -201,7 +202,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     tar_rpy_thrust_->rpy.yaw = tar_acc_yaw_->yaw;
 
     // Fill feedback
-    feedback->target_acceleration = tar_acc_yaw_->acc;
+    feedback->target_acceleration_global = tar_acc_yaw_->acc;
+    feedback->target_acceleration_local = pt->pose.euler * tar_acc_yaw_->acc;
   }
 
   // Rotation Controller

@@ -33,6 +33,8 @@ void VelocityController::update(
 
   const auto ta_eigen = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
   tf::vectorEigenToKDL(ta_eigen, ta);
+
+  // cout << lqid_ << endl;
 }
 
 void VelocityController::configure(const Config& config)
