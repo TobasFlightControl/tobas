@@ -149,6 +149,7 @@ void RotationController::configure(const RotationControllerConfig& params)
 
   mpc_.time_step = params.pred_horizon / params.pred_steps;
   mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
+
   mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = params.attitude_decay;
   mpc_.decay_time_consts(kYawIdx) = params.heading_decay;
   mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(params.angvel_decay);
