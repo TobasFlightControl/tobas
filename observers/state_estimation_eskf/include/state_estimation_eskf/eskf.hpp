@@ -78,7 +78,6 @@ public:
     const double& gyro_bias_noise_var,
     const double& dt);
 
-  void measureXYZ(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
   /**
    * @brief 位置の観測をノミナル状態に反映させる．
    *
@@ -86,10 +85,10 @@ public:
    * @param pos_cov 位置の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    */
-  void measureXYZ(
+  void measurePosition(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
-    const Eigen::Vector3d& offset);
+    const Eigen::Vector3d& offset = Eigen::Vector3d::Zero());
   void measureXY(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
   void measureAltitude(const double& z_meas, const double& z_var);
   void measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
@@ -149,6 +148,15 @@ private:
   StateVector nominal_state_;  // State vector of the filter
   DeltaStateMatrix P_;         // Covariance of the error state
   DeltaStateMatrix F_x_;       // Jacobian of the state transition
+
+  Eigen::Matrix<double, 3, kDeltaStateSize> H_pos_;
+  Eigen::Matrix<double, 2, kDeltaStateSize> H_xy_;
+  Eigen::Matrix<double, 1, kDeltaStateSize> H_z_;
+  Eigen::Matrix<double, 3, kDeltaStateSize> H_vel_;
+  Eigen::Matrix<double, 3, kDeltaStateSize> H_theta_;
+  Eigen::Matrix<double, 3, kDeltaStateSize> H_acc_;
+  Eigen::Matrix<double, 3, kDeltaStateSize> H_mag_rpy_;
+  Eigen::Matrix<double, 1, kDeltaStateSize> H_mag_yaw_;
 
   /**
    * @brief クオータニオンをベクトルの形で得る．

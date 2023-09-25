@@ -490,7 +490,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   pos_meas_.z() = gps->altitude - alt_0_gps_;
   const Matrix3d cov = Map<const Matrix3d>(gps->position_covariance.data());
 
-  eskf_.measureXYZ(pos_meas_, cov, imu2gps_);
+  eskf_.measurePosition(pos_meas_, cov, imu2gps_);
 
   // トピック通信の遅延チェック
   // const auto delay = (ros::Time::now() - gps->header.stamp).toSec();
