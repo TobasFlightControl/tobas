@@ -216,7 +216,7 @@ void GazeboLidarPlugin::putLaserData(common::Time& update_time)
   pub_.publish(cloud_msg_);
 }
 
-double GazeboLidarPlugin::gaussianKernel(double mu, double sigma)
+double GazeboLidarPlugin::gaussianKernel(const double& mu, const double& sigma)
 {
   // using Box-Muller transform to generate two independent standard normally disbributed normal
   // variables see wikipedia

@@ -28,7 +28,7 @@ public:
 
   void configure(const double& grav_var);
 
-  void predict(const Eigen::Quaterniond& quat, const Eigen::Matrix3d& acc_cov, double dt);
+  void predict(const Eigen::Quaterniond& quat, const Eigen::Matrix3d& acc_cov, const double& dt);
 
   /* 絶対位置の観測． */
   void measureXYZ(const Eigen::Vector3d& p_m, const Eigen::Matrix3d& cov);

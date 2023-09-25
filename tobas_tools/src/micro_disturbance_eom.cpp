@@ -44,8 +44,11 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-MicroDisturbanceEoM::ErrorCode
-MicroDisturbanceEoM::update(double V, double rho, double battery_voltage, const JntArray& q)
+MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
+  const double& V,
+  const double& rho,
+  const double& battery_voltage,
+  const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
@@ -504,7 +507,7 @@ const double& MicroDisturbanceEoM::r_delta(uint32_t cs_idx) const
   return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
 }
 
-void MicroDisturbanceEoM::setInputLimits(double battery_voltage)
+void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
 {
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);

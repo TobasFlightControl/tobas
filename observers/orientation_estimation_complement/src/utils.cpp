@@ -4,14 +4,14 @@ using namespace Eigen;
 
 namespace orientation_estimation_complement
 {
-void scaleQuaternion(double gain, Quaterniond& dq)
+void scaleQuaternion(const double& gain, Quaterniond& dq)
 {
   if (dq.w() < 0.)  // 0.9
   {
     // Slerp (Spherical linear interpolation)
-    double angle = acos(dq.w());
-    double A = sin(angle * (1. - gain)) / sin(angle);
-    double B = sin(angle * gain) / sin(angle);
+    const double angle = acos(dq.w());
+    const double A = sin(angle * (1. - gain)) / sin(angle);
+    const double B = sin(angle * gain) / sin(angle);
     dq.w() = A + B * dq.w();
     dq.x() = B * dq.x();
     dq.y() = B * dq.y();

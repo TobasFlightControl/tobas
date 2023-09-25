@@ -217,7 +217,7 @@ bool GazeboRotorPlugin::isReady()
   return battery_received_ && wind_received_;
 }
 
-void GazeboRotorPlugin::applyForceAndTorque(double rot_speed, const common::Time cur_time)
+void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const common::Time cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
@@ -255,7 +255,7 @@ void GazeboRotorPlugin::applyForceAndTorque(double rot_speed, const common::Time
   debug_pub_.publish(debug_msg_);
 }
 
-void GazeboRotorPlugin::updateRotationSpeed(double dt)
+void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 {
   assert(dt > 0.);
 

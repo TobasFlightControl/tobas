@@ -72,11 +72,11 @@ public:
   void predictIMU(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Vector3d& gyro_meas,
-    double acc_noise_var,
-    double gyro_noise_var,
-    double acc_bias_noise_var,
-    double gyro_bias_noise_var,
-    double dt);
+    const double& acc_noise_var,
+    const double& gyro_noise_var,
+    const double& acc_bias_noise_var,
+    const double& gyro_bias_noise_var,
+    const double& dt);
 
   void measureXYZ(const Eigen::Vector3d& pos_meas, const Eigen::Matrix3d& pos_cov);
   /**
@@ -139,7 +139,8 @@ public:
    * @param yaw_var 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    */
-  void measureMagneticField(double mag_meas_x, double mag_meas_y, double yaw_var);
+  void
+  measureMagneticField(const double& mag_meas_x, const double& mag_meas_y, const double& yaw_var);
 
 private:
   Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]

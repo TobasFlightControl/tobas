@@ -24,7 +24,7 @@ double getMass()
   return inertia_solver_.JntToMass();
 }
 
-geomag::Elements geomag(double lat, double lon, double height)
+geomag::Elements geomag(const double& lat, const double& lon, const double& height)
 {
   const auto year_frac = dh_std::yearFraction();
   if (year_frac < 2020)

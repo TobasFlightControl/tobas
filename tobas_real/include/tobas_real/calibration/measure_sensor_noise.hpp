@@ -26,7 +26,7 @@ private:
   MS5611 barometer_;
   RCOutput_Navio2 pwm_;
 
-  void setPeriodOnAllChannels(double period);
+  void setPeriodOnAllChannels(const double& period);
   void sendDisarm();
   void accelerateMotors();
   void decelerateMotors();

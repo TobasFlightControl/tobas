@@ -11,9 +11,9 @@ class AsymmetricFirstOrderFilter
 public:
   explicit AsymmetricFirstOrderFilter();
 
-  void initialize(double time_const_up, double time_const_down, T init_state);
+  void initialize(const double& time_const_up, const double& time_const_down, T init_state);
 
-  T update(T input_state, double sampling_time);
+  T update(T input_state, const double& sampling_time);
 
 private:
   bool is_initialized_ = false;
@@ -29,8 +29,8 @@ AsymmetricFirstOrderFilter<T>::AsymmetricFirstOrderFilter()
 
 template <typename T>
 void AsymmetricFirstOrderFilter<T>::initialize(
-  double time_const_up,
-  double time_const_down,
+  const double& time_const_up,
+  const double& time_const_down,
   T init_state)
 {
   assert(time_const_up >= 0);
@@ -44,7 +44,7 @@ void AsymmetricFirstOrderFilter<T>::initialize(
 }
 
 template <typename T>
-T AsymmetricFirstOrderFilter<T>::update(T input_state, double sampling_time)
+T AsymmetricFirstOrderFilter<T>::update(T input_state, const double& sampling_time)
 {
   assert(is_initialized_);
   assert(sampling_time > 0);

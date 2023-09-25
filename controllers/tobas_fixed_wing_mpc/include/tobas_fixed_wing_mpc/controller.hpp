@@ -93,7 +93,7 @@ private:
   void setInputConstraint();
   void setInputRateConstraint();
   void updateCurrentStateVector();
-  void updateSetStateVector(double tar_roll, double tar_delta_pitch);
+  void updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch);
   void publishRotorSpeeds(const Eigen::VectorXd& thrust);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);

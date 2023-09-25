@@ -136,11 +136,11 @@ Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
 void ErrorStateKalmanFilter::predictIMU(
   const Vector3d& acc_meas,
   const Vector3d& gyro_meas,
-  double acc_noise_var,
-  double gyro_noise_var,
-  double acc_bias_noise_var,
-  double gyro_bias_noise_var,
-  double dt)
+  const double& acc_noise_var,
+  const double& gyro_noise_var,
+  const double& acc_bias_noise_var,
+  const double& gyro_bias_noise_var,
+  const double& dt)
 {
   assert(acc_noise_var > 0.);
   assert(gyro_noise_var > 0.);
@@ -331,9 +331,9 @@ void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, cons
 }
 
 void ErrorStateKalmanFilter::measureMagneticField(
-  double mag_meas_x,
-  double mag_meas_y,
-  double yaw_var)
+  const double& mag_meas_x,
+  const double& mag_meas_y,
+  const double& yaw_var)
 {
   assert(yaw_var > 0.);
 

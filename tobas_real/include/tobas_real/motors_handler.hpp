@@ -48,7 +48,7 @@ private:
   void registerSubscribers() override;
 
   void sendDisarm();
-  void setPeriodOnAllChannels(double period);
+  void setPeriodOnAllChannels(const double& period);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& speeds);

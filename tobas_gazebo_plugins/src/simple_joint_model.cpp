@@ -8,7 +8,7 @@ using namespace std;
 
 namespace gazebo
 {
-SimpleJointModel::SimpleJointModel(const dh_std::Range<double>& pos_limit, const double max_vel)
+SimpleJointModel::SimpleJointModel(const dh_std::Range<double>& pos_limit, const double& max_vel)
   : pos_limit_(pos_limit), max_vel_(max_vel)
 {
   assert(pos_limit.isValid());

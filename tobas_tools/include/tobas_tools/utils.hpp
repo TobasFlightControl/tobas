@@ -17,5 +17,5 @@ double getMass();
  * @param height WGS84楕円体上の高度 [m]
  * @return geomag::Elements
  */
-geomag::Elements geomag(double lat, double lon, double height);
+geomag::Elements geomag(const double& lat, const double& lon, const double& height);
 }  // namespace tobas

@@ -138,7 +138,7 @@ void GazeboImuPlugin::onUpdate()
   debug_pub_.publish(debug_msg_);
 }
 
-void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, double dt)
+void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, const double& dt)
 {
   // Gyrosocpe
   const auto tau_g = gyro_bias_corr_time_;

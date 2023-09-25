@@ -48,8 +48,8 @@ public:
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
-    double battery_voltage,
-    double tar_U,
+    const double& battery_voltage,
+    const double& tar_U,
     const KDL::Euler& tar_rpy,
     Eigen::VectorXd& u_opt);
 
@@ -75,14 +75,14 @@ private:
   double max_heading_error_;
   double h_force_coef_;
 
-  double maxThrustSum(double battery_voltage) const;
-  double minThrustSum(double battery_voltage) const;
+  double maxThrustSum(const double& battery_voltage) const;
+  double minThrustSum(const double& battery_voltage) const;
   void updateCurrentState(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
-    double thrust_z);
-  void updateSetState(double tar_roll, double tar_pitch, double tar_yaw);
+    const double& thrust_z);
+  void updateSetState(const double& tar_roll, const double& tar_pitch, const double& tar_yaw);
   void fillInputConstraintFixedParts();
 };
 }  // namespace tobas_mr_rotation_mpc

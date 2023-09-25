@@ -72,7 +72,7 @@ void MotorsHandler::sendDisarm()
   }
 }
 
-void MotorsHandler::setPeriodOnAllChannels(double period)
+void MotorsHandler::setPeriodOnAllChannels(const double& period)
 {
   for (const auto& rotor_config : drone_.rotorConfigs())
   {

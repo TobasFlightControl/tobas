@@ -87,17 +87,25 @@ private:
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
-  void updateDeflections(double dt);
-  ignition::math::Vector3d nonDimentionalAeroCoefs_Force(double alpha, double beta);
-  ignition::math::Vector3d
-  nonDimentionalAeroCoefs_Moment(double alpha, double beta, double alpha_rate, double V);
-  double liftCoefficient(double alpha);
-  double dragCoefficient(double alpha);
-  double sideCoefficient(double beta);
-  double rollCoefficient(double beta, double p, double r, double V);
-  double pitchCoefficient(double alpha, double beta, double alpha_rate, double q, double V);
-  double yawCoefficient(double beta, double p, double r, double V);
-  double dynamicPressure(double V);
+  void updateDeflections(const double& dt);
+  ignition::math::Vector3d nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta);
+  ignition::math::Vector3d nonDimentionalAeroCoefs_Moment(
+    const double& alpha,
+    const double& beta,
+    const double& alpha_rate,
+    const double& V);
+  double liftCoefficient(const double& alpha);
+  double dragCoefficient(const double& alpha);
+  double sideCoefficient(const double& beta);
+  double rollCoefficient(const double& beta, const double& p, const double& r, const double& V);
+  double pitchCoefficient(
+    const double& alpha,
+    const double& beta,
+    const double& alpha_rate,
+    const double& q,
+    const double& V);
+  double yawCoefficient(const double& beta, const double& p, const double& r, const double& V);
+  double dynamicPressure(const double& V);
 
   void deflectionsCb(const CmdMsg& deflections);
   void windSpeedCb(const WindMsg& wind);

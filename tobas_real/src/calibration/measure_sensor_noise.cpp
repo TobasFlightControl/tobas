@@ -134,7 +134,7 @@ void MeasureSensorNoise::run()
   cout << "The result is saved to '" << kConfigPath << "'." << endl;
 }  // namespace tobas_real
 
-void MeasureSensorNoise::setPeriodOnAllChannels(double period)
+void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 {
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
   {

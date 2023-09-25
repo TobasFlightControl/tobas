@@ -86,8 +86,8 @@ private:
   void onUpdate(const common::UpdateInfo& info);
   void registerPubSub();
   bool isReady();
-  void applyForceAndTorque(double rot_speed, const common::Time cur_time);
-  void updateRotationSpeed(double dt);
+  void applyForceAndTorque(const double& rot_speed, const common::Time cur_time);
+  void updateRotationSpeed(const double& dt);
   double maxRotSpeed();
   double minRotSpeed();
 

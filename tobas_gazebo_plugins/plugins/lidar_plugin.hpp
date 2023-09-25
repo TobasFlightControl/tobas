@@ -64,7 +64,7 @@ private:
   void putLaserData(common::Time& update_time);
   void laserConnect();
   void laserDisconnect();
-  double gaussianKernel(double mu, double sigma);
+  double gaussianKernel(const double& mu, const double& sigma);
   void laserQueueThread();
 };
 }  // namespace gazebo

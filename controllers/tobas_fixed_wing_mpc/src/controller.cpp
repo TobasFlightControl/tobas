@@ -235,7 +235,7 @@ void Controller::updateCurrentStateVector()
   mpc_.current_state(eom_.kStateIdx_r) = pt_ned_.twist.rot.z();
 }
 
-void Controller::updateSetStateVector(double tar_roll, double tar_delta_pitch)
+void Controller::updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch)
 {
   const auto& trim = eom_.trimCondition();
   const auto tar_u = cmd_ned_.speed * cos(eom_.trimCondition().alpha());

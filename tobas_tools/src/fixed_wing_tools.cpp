@@ -9,7 +9,7 @@ using namespace KDL;
 
 namespace tobas
 {
-double angleOfAttack(double u, double w)
+double angleOfAttack(const double& u, const double& w)
 {
   return u > kMinAirSpeedThresh ? atan(w / u) : 0.;
 }
@@ -19,9 +19,9 @@ double angleOfAttack(const Vector& linvel_B)
   return angleOfAttack(linvel_B.x(), linvel_B.z());
 }
 
-double angleOfSideSlip(double u, double v, double w)
+double angleOfSideSlip(const double& u, const double& v, const double& w)
 {
-  double V = dh_std::norm(u, v, w);
+  const double V = dh_std::norm(u, v, w);
   return V > kMinAirSpeedThresh ? asin(v / V) : 0.;
 }
 
@@ -30,7 +30,7 @@ double angleOfSideSlip(const Vector& linvel_B)
   return angleOfSideSlip(linvel_B.x(), linvel_B.y(), linvel_B.z());
 }
 
-double dynamicPressure(double rho, double V)
+double dynamicPressure(const double& rho, const double& V)
 {
   assert(rho > 0.);
   assert(V >= 0.);

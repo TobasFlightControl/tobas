@@ -70,8 +70,8 @@ void RotationController::update(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
-  double battery_voltage,
-  double tar_U,
+  const double& battery_voltage,
+  const double& tar_U,
   const Euler& tar_rpy,
   VectorXd& u_opt)
 {
@@ -169,7 +169,7 @@ void RotationController::configure(const RotationControllerConfig& params)
   fillInputConstraintFixedParts();
 }
 
-double RotationController::maxThrustSum(double battery_voltage) const
+double RotationController::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
@@ -179,7 +179,7 @@ double RotationController::maxThrustSum(double battery_voltage) const
   return res;
 }
 
-double RotationController::minThrustSum(double battery_voltage) const
+double RotationController::minThrustSum(const double& battery_voltage) const
 {
   const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
   double res = 0.;
@@ -194,7 +194,7 @@ void RotationController::updateCurrentState(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
-  double thrust_z)
+  const double& thrust_z)
 {
   const auto& vel = cur_twist_B.vel;
   const auto& gyro = cur_twist_B.rot;
@@ -228,7 +228,10 @@ void RotationController::updateCurrentState(
     h_moment_comp.x(), h_moment_comp.y(), h_moment_comp.z();
 }
 
-void RotationController::updateSetState(double tar_roll, double tar_pitch, double tar_yaw)
+void RotationController::updateSetState(
+  const double& tar_roll,
+  const double& tar_pitch,
+  const double& tar_yaw)
 {
   mpc_.set_state << tar_roll, tar_pitch, tar_yaw, 0., 0., 0.;
 }

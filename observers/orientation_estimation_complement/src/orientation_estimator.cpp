@@ -36,7 +36,7 @@ OrientationEstimator::OrientationEstimator()
 {
 }
 
-bool OrientationEstimator::setGravity(double gravity)
+bool OrientationEstimator::setGravity(const double& gravity)
 {
   if (gravity >= 0.)
   {
@@ -49,7 +49,7 @@ bool OrientationEstimator::setGravity(double gravity)
   }
 }
 
-bool OrientationEstimator::setGainAcc(double gain)
+bool OrientationEstimator::setGainAcc(const double& gain)
 {
   if (0. <= gain && gain <= 1.)
   {
@@ -61,7 +61,7 @@ bool OrientationEstimator::setGainAcc(double gain)
     return false;
   }
 }
-bool OrientationEstimator::setGainMag(double gain)
+bool OrientationEstimator::setGainMag(const double& gain)
 {
   if (0. <= gain && gain <= 1.)
   {
@@ -74,7 +74,7 @@ bool OrientationEstimator::setGainMag(double gain)
   }
 }
 
-bool OrientationEstimator::setBiasAlpha(double bias_alpha)
+bool OrientationEstimator::setBiasAlpha(const double& bias_alpha)
 {
   if (0. <= bias_alpha && bias_alpha <= 1.)
   {
@@ -87,12 +87,12 @@ bool OrientationEstimator::setBiasAlpha(double bias_alpha)
   }
 }
 
-void OrientationEstimator::setDoBiasEstimation(bool do_bias_estimation)
+void OrientationEstimator::setDoBiasEstimation(const bool& do_bias_estimation)
 {
   do_bias_estimation_ = do_bias_estimation;
 }
 
-void OrientationEstimator::setDoAdaptiveGain(bool do_adaptive_gain)
+void OrientationEstimator::setDoAdaptiveGain(const bool& do_adaptive_gain)
 {
   do_adaptive_gain_ = do_adaptive_gain;
 }
@@ -112,9 +112,11 @@ Quaterniond OrientationEstimator::getOrientation() const
   return (q_WF_ * q_BF_.conjugate()).normalized();
 }
 
-void OrientationEstimator::setReferenceMagneticField(double ref_mag_north, double ref_mag_east)
+void OrientationEstimator::setReferenceMagneticField(
+  const double& ref_mag_north,
+  const double& ref_mag_east)
 {
-  double yaw_angle = -atan2(ref_mag_east, ref_mag_north);
+  const double yaw_angle = -atan2(ref_mag_east, ref_mag_north);
   q_WF_.w() = cos(yaw_angle / 2.);
   q_WF_.x() = 0.;
   q_WF_.y() = 0.;
@@ -125,7 +127,7 @@ void OrientationEstimator::update(
   const Vector3d& a,
   const Vector3d& w,
   const Vector3d& m,
-  double dt)
+  const double& dt)
 {
   if (!is_initialized_)
   {
@@ -200,7 +202,7 @@ bool OrientationEstimator::checkState(const Vector3d& a, const Vector3d& w) cons
   return true;
 }
 
-Quaterniond OrientationEstimator::getPrediction(const Vector3d& w, double dt) const
+Quaterniond OrientationEstimator::getPrediction(const Vector3d& w, const double& dt) const
 {
   const Vector3d w_unb = w - w_bias_;
 
@@ -229,7 +231,7 @@ Quaterniond OrientationEstimator::getMeasurement(const Vector3d& a, const Vector
   }
   else
   {
-    double X = sqrt((1. - a_norm.z()) / 2.);
+    const double X = sqrt((1. - a_norm.z()) / 2.);
     q_acc.w() = -a_norm.y() / (2. * X);
     q_acc.x() = X;
     q_acc.y() = 0.;
@@ -293,7 +295,7 @@ Quaterniond OrientationEstimator::getMagCorrection(const Vector3d& m, const Quat
   return dq;
 }
 
-double OrientationEstimator::getAdaptiveGain(double alpha, const Vector3d& a) const
+double OrientationEstimator::getAdaptiveGain(const double& alpha, const Vector3d& a) const
 {
   constexpr double error1 = 0.1;
   constexpr double error2 = 0.2;

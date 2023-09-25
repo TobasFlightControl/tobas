@@ -87,7 +87,7 @@ struct FixedWingConfig
  * @param u,w 風に対する相対的な機体速度 (NED座標系) [m/s]
  * @return double 迎角 [rad]
  */
-double angleOfAttack(double u, double w);
+double angleOfAttack(const double& u, const double& w);
 
 /**
  * @brief 迎角 (alpha) を計算する．
@@ -103,7 +103,7 @@ double angleOfAttack(const KDL::Vector& linvel_B);
  * @param u,v,w 風に対する相対的な機体速度 (NED座標系) [m/s]
  * @return double 横滑り角 [rad]
  */
-double angleOfSideSlip(double u, double v, double w);
+double angleOfSideSlip(const double& u, const double& v, const double& w);
 
 /**
  * @brief 横滑り角 (beta) を計算する．
@@ -120,5 +120,5 @@ double angleOfSideSlip(const KDL::Vector& linvel_B);
  * @param V 風に対する相対的な機体速度の絶対値 [m/s]
  * @return double 動圧 [Pa]
  */
-double dynamicPressure(double rho, double V);
+double dynamicPressure(const double& rho, const double& V);
 }  // namespace tobas

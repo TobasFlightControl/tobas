@@ -75,6 +75,9 @@ private:
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();
-  void addNoise(ignition::math::Vector3d& acc_meas, ignition::math::Vector3d& gyro_meas, double dt);
+  void addNoise(
+    ignition::math::Vector3d& acc_meas,
+    ignition::math::Vector3d& gyro_meas,
+    const double& dt);
 };
 }  // namespace gazebo
