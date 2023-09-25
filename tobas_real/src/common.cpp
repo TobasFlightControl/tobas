@@ -6,7 +6,7 @@ using namespace std;
 
 namespace tobas_real
 {
-void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel)
+void setupRCOutput(RCOutput_Navio2& pwm, const uint32_t& channel)
 {
   const auto pin = pinFromChannel(channel);
 
@@ -26,13 +26,13 @@ void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel)
   }
 }
 
-uint32_t channelFromPin(uint32_t pin)
+uint32_t channelFromPin(const uint32_t& pin)
 {
   assert(1 <= pin && pin <= kServoRailSize);
   return pin - 1;
 }
 
-uint32_t pinFromChannel(uint32_t channel)
+uint32_t pinFromChannel(const uint32_t& channel)
 {
   assert(channel < kServoRailSize);
   return channel + 1;

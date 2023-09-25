@@ -70,7 +70,7 @@ const RotorConfigs& Drone::rotorConfigs() const
   return rotor_configs_;
 }
 
-const RotorConfig& Drone::rotorConfig(uint32_t rotor_idx) const
+const RotorConfig& Drone::rotorConfig(const uint32_t& rotor_idx) const
 {
   return rotor_configs_[rotor_idx];
 }
@@ -95,7 +95,7 @@ const ControlSurfaces& Drone::controlSurfaces() const
   return fixed_wing_config_.control_surfaces;
 }
 
-const ControlSurface& Drone::controlSurface(uint32_t cs_idx) const
+const ControlSurface& Drone::controlSurface(const uint32_t& cs_idx) const
 {
   return fixed_wing_config_.control_surfaces[cs_idx];
 }
@@ -120,7 +120,7 @@ uint32_t Drone::numControlSurfaces() const
   return fixed_wing_config_.control_surfaces.size();
 }
 
-double Drone::thrustFromVoltage(uint32_t rotor_idx, double voltage) const
+double Drone::thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const
 {
   assert(voltage > 0.);
 
@@ -128,7 +128,7 @@ double Drone::thrustFromVoltage(uint32_t rotor_idx, double voltage) const
   return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
 }
 
-double Drone::voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const
+double Drone::voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const
 {
   assert(rot_speed >= 0.);
 
@@ -137,7 +137,7 @@ double Drone::voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const
   return a * rot_speed + b * sqr(rot_speed);
 }
 
-double Drone::rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const
+double Drone::rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const
 {
   assert(voltage >= 0.);
 
@@ -146,7 +146,7 @@ double Drone::rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const
   return b > 0 ? (sqrt(sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
-double Drone::rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const
+double Drone::rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const
 {
   assert(thrust >= 0.);
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
@@ -163,7 +163,7 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
   }
 }
 
-RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, uint32_t rotor_idx)
+RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx)
 {
   const string prefix = "rotor_" + to_string(rotor_idx);
   RotorConfig res;
@@ -316,7 +316,7 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
   }
 }
 
-ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, uint32_t cs_idx)
+ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx)
 {
   const string prefix = "fixed_wing/control_surface_" + to_string(cs_idx);
   ControlSurface res;

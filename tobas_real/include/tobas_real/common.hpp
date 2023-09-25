@@ -77,8 +77,8 @@ static constexpr double kCheckLatencyThreshold = 0.02;  // [s]
 static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
-void setupRCOutput(RCOutput_Navio2& pwm, uint32_t channel);
+void setupRCOutput(RCOutput_Navio2& pwm, const uint32_t& channel);
 
-uint32_t channelFromPin(uint32_t pin);
-uint32_t pinFromChannel(uint32_t channel);
+uint32_t channelFromPin(const uint32_t& pin);
+uint32_t pinFromChannel(const uint32_t& channel);
 }  // namespace tobas_real

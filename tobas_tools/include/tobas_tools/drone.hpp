@@ -25,12 +25,12 @@ public:
   const Eigen::Vector3d& gpsOffset() const;
   const std::vector<std::string>& postureDefiningJoints() const;
   const RotorConfigs& rotorConfigs() const;
-  const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
+  const RotorConfig& rotorConfig(const uint32_t& rotor_idx) const;
   const FixedWingConfig& fixedWing() const;
   const VehicleParameters& vehicle() const;
   const AerodynamicsCoefficients& aerodynamics() const;
   const ControlSurfaces& controlSurfaces() const;
-  const ControlSurface& controlSurface(uint32_t cs_idx) const;
+  const ControlSurface& controlSurface(const uint32_t& cs_idx) const;
 
   const bool& hasFixedWing() const;
   const bool& isLoaded() const;
@@ -39,16 +39,16 @@ public:
   uint32_t numControlSurfaces() const;
 
   /* 指定したロータの推力 [N]． */
-  double thrustFromVoltage(uint32_t rotor_idx, double voltage) const;
+  double thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
 
   /* 指定したロータの回転数から印加電圧を求める． */
-  double voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const;
+  double voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
 
   /* 指定したロータの印加電圧から回転数を求める． */
-  double rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const;
+  double rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
 
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
-  double rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const;
+  double rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const;
 
 private:
   KDL::Tree tree_;
@@ -63,12 +63,12 @@ private:
   bool is_loaded_;
 
   void getRotorConfigs(ros::NodeHandle& nh);
-  RotorConfig getRotorConfig(ros::NodeHandle& nh, uint32_t rotor_idx);
+  RotorConfig getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx);
 
   void getFixedWingConfig(ros::NodeHandle& nh);
   void getVehicleParameters(ros::NodeHandle& nh);
   void getAerodynamicsCoefficients(ros::NodeHandle& nh);
   void getControlSurfaces(ros::NodeHandle& nh);
-  ControlSurface getControlSurface(ros::NodeHandle& nh, uint32_t cs_idx);
+  ControlSurface getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx);
 };
 }  // namespace tobas

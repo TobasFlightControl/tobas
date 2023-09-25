@@ -124,15 +124,15 @@ public:
   double u_thrust() const;
 
   // Z_delta_bar (2.2-37)
-  const double& alpha_delta(uint32_t cs_idx) const;
+  const double& alpha_delta(const uint32_t& cs_idx) const;
   // Y_delta_bar (3.2-20)
-  const double& beta_delta(uint32_t cs_idx) const;
+  const double& beta_delta(const uint32_t& cs_idx) const;
   // L_delta_bar (3.2-21)
-  const double& p_delta(uint32_t cs_idx) const;
+  const double& p_delta(const uint32_t& cs_idx) const;
   // M_delta_bar (2.2-38)
-  const double& q_delta(uint32_t cs_idx) const;
+  const double& q_delta(const uint32_t& cs_idx) const;
   // N_delta_bar (3.2.22)
-  const double& r_delta(uint32_t cs_idx) const;
+  const double& r_delta(const uint32_t& cs_idx) const;
 
 private:
   ErrorCode error_code_;

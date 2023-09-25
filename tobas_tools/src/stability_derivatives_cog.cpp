@@ -56,12 +56,12 @@ double StabilityDerivativesCG::cYawBeta() const
   return c_yaw_beta_cg_;
 }
 
-double StabilityDerivativesCG::cPitchDelta(uint32_t cs_idx) const
+double StabilityDerivativesCG::cPitchDelta(const uint32_t& cs_idx) const
 {
   return c_pitch_delta_cg_[cs_idx];
 }
 
-double StabilityDerivativesCG::cYawDelta(uint32_t cs_idx) const
+double StabilityDerivativesCG::cYawDelta(const uint32_t& cs_idx) const
 {
   return c_yaw_delta_cg_[cs_idx];
 }

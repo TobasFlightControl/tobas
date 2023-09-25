@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Eigen;
 
-DepthNoiseModel::DepthNoiseModel(float min_depth, float max_depth)
+DepthNoiseModel::DepthNoiseModel(const float& min_depth, const float& max_depth)
   : bad_point_(numeric_limits<float>::quiet_NaN()),
     rnd_gen_(rnd_dev_()),
     min_depth_(min_depth),
@@ -15,17 +15,17 @@ DepthNoiseModel::DepthNoiseModel(float min_depth, float max_depth)
 {
 }
 
-bool DepthNoiseModel::inRange(float depth) const
+bool DepthNoiseModel::inRange(const float& depth) const
 {
   return min_depth_ < depth && depth < max_depth_;
 }
 
-KinectDepthNoiseModel::KinectDepthNoiseModel(float min_depth, float max_depth)
+KinectDepthNoiseModel::KinectDepthNoiseModel(const float& min_depth, const float& max_depth)
   : super(min_depth, max_depth)
 {
 }
 
-void KinectDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* data)
+void KinectDepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& height, float* data)
 {
   if (data == nullptr)
   {
@@ -53,12 +53,12 @@ void KinectDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* d
   }
 }
 
-PMDDepthNoiseModel::PMDDepthNoiseModel(float min_depth, float max_depth)
+PMDDepthNoiseModel::PMDDepthNoiseModel(const float& min_depth, const float& max_depth)
   : super(min_depth, max_depth)
 {
 }
 
-void PMDDepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* data)
+void PMDDepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& height, float* data)
 {
   if (data == nullptr)
   {
@@ -92,7 +92,7 @@ D435DepthNoiseModel::D435DepthNoiseModel(
 {
 }
 
-void D435DepthNoiseModel::applyNoise(uint32_t width, uint32_t height, float* data)
+void D435DepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& height, float* data)
 {
   if (data == nullptr)
   {

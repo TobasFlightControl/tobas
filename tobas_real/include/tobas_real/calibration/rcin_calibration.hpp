@@ -21,7 +21,7 @@ public:
 private:
   RCInput_Navio2 rcin_;
 
-  double readRCInput(uint32_t channel);
+  double readRCInput(const uint32_t& channel);
   bool isDifferentModesTooClose(const std::vector<double>& modes) const;
 };
 }  // namespace tobas_real

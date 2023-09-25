@@ -482,27 +482,27 @@ double MicroDisturbanceEoM::u_thrust() const
   return 1 / mass_;
 }
 
-const double& MicroDisturbanceEoM::alpha_delta(uint32_t cs_idx) const
+const double& MicroDisturbanceEoM::alpha_delta(const uint32_t& cs_idx) const
 {
   return B_(kStateIdx_alpha, x_rotors_.count() + cs_idx);
 }
 
-const double& MicroDisturbanceEoM::beta_delta(uint32_t cs_idx) const
+const double& MicroDisturbanceEoM::beta_delta(const uint32_t& cs_idx) const
 {
   return B_(kStateIdx_beta, x_rotors_.count() + cs_idx);
 }
 
-const double& MicroDisturbanceEoM::p_delta(uint32_t cs_idx) const
+const double& MicroDisturbanceEoM::p_delta(const uint32_t& cs_idx) const
 {
   return B_(kStateIdx_p, x_rotors_.count() + cs_idx);
 }
 
-const double& MicroDisturbanceEoM::q_delta(uint32_t cs_idx) const
+const double& MicroDisturbanceEoM::q_delta(const uint32_t& cs_idx) const
 {
   return B_(kStateIdx_q, x_rotors_.count() + cs_idx);
 }
 
-const double& MicroDisturbanceEoM::r_delta(uint32_t cs_idx) const
+const double& MicroDisturbanceEoM::r_delta(const uint32_t& cs_idx) const
 {
   return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
 }

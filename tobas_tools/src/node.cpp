@@ -7,7 +7,7 @@ BaseNode::BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh, const std::string& n
 {
 }
 
-ros::TransportHints BaseNode::tcpNoDelay(bool nodelay)
+ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
 {
   return ros::TransportHints().reliable().tcpNoDelay(nodelay);
 }

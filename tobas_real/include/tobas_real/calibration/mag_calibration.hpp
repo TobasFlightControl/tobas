@@ -29,6 +29,6 @@ private:
   EllipseTransformer mag_trans_;
 
   void getMagData();
-  void readMag(uint32_t idx);
+  void readMag(const uint32_t& idx);
 };
 }  // namespace tobas_real

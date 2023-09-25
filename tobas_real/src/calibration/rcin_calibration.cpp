@@ -204,7 +204,7 @@ void RCInputCalibrator::run()
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 
-double RCInputCalibrator::readRCInput(uint32_t channel)
+double RCInputCalibrator::readRCInput(const uint32_t& channel)
 {
   // RC入力を取得
   uint32_t period_sum = 0;

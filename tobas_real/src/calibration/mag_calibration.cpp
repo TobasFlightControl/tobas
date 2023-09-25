@@ -202,7 +202,7 @@ void MagnetometerCalibrator::getMagData()
   readMag(5);
 }
 
-void MagnetometerCalibrator::readMag(uint32_t idx)
+void MagnetometerCalibrator::readMag(const uint32_t& idx)
 {
   RowVector3f tmp;
   for (uint32_t i = 0; i < kDataCount; ++i)
