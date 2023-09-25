@@ -38,12 +38,15 @@ public:
   explicit VelocityController();
 
   void update(
-    const KDL::Vector& cur_vel,
-    const KDL::Vector& cur_acc,
-    const KDL::Vector& tar_vel,
+    const KDL::Vector& cur_vel_W,
+    const KDL::Vector& cur_acc_w,
+    const KDL::Vector& tar_vel_W,
     const double& dt,
-    KDL::Vector& tar_acc);
+    KDL::Vector& tar_acc_W);
   void configure(const Config& config);
+
+  /* 速度の積分誤差． */
+  Eigen::VectorXd integratedVelocityError() const;
 
 private:
   double max_hor_vel_;

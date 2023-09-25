@@ -81,4 +81,9 @@ void VelocityController::configure(const Config& config)
   max_hor_vel_ = config.max_hor_vel;
   max_ver_vel_ = config.max_ver_vel;
 }
+
+VectorXd VelocityController::integratedVelocityError() const
+{
+  return lqid_.integratedError();
+}
 }  // namespace tobas_mr_translation_lqr

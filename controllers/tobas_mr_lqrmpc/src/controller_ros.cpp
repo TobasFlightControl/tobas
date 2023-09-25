@@ -1,4 +1,5 @@
 #include <eigen_conversions/eigen_msg.h>
+#include <eigen_conversions/eigen_kdl.h>
 
 #include <dh_std_tools/vector.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -166,6 +167,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // Fill feedback
     feedback->target_velocity_global = tar_vel_yaw_->vel;
     feedback->target_velocity_local = pt->pose.euler.Inverse(tar_vel_yaw_->vel);
+    tf::vectorEigenToKDL(
+      vel_controller_.integratedVelocityError(), feedback->integrated_velocity_error);
   }
 
   // Acceleration Controller
