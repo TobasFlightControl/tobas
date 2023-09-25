@@ -83,7 +83,7 @@ void CartesianFilter::predict(
   eigen_tools::symmetrise(P_);
 }
 
-void CartesianFilter::measureXYZ(const Vector3d& p_m, const Matrix3d& cov)
+void CartesianFilter::measurePosition(const Vector3d& p_m, const Matrix3d& cov)
 {
   assert(eigen_tools::isSymmetricPositiveDefinite(cov));
 

@@ -31,7 +31,7 @@ public:
   void predict(const Eigen::Quaterniond& quat, const Eigen::Matrix3d& acc_cov, const double& dt);
 
   /* 絶対位置の観測． */
-  void measureXYZ(const Eigen::Vector3d& p_m, const Eigen::Matrix3d& cov);
+  void measurePosition(const Eigen::Vector3d& p_m, const Eigen::Matrix3d& cov);
 
   /* 絶対平面位置の観測． */
   void measureXY(const Eigen::Vector2d& xy_m, const Eigen::Matrix2d& cov);
