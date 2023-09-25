@@ -278,12 +278,44 @@ void ControllerRos::velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw)
     return;
   }
 
+  // コマンドレベルの処理
   if (!isCommandLevelOk(vel_yaw->level))
   {
     return;
   }
 
-  tar_vel_yaw_ = boost::make_shared<tobas_msgs::VelocityYaw>(*vel_yaw);
+  // メモリ確保
+  if (tar_vel_yaw_ == nullptr)
+  {
+    tar_vel_yaw_ = boost::make_shared<tobas_msgs::VelocityYaw>();
+    tar_vel_yaw_->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+  }
+
+  // 外側の制御を止める
+  // tar_pos_yaw_ = nullptr;
+
+  // 目標速度を更新
+  switch (vel_yaw->frame_id.data)
+  {
+    case tobas_msgs::FrameId::GLOBAL:
+    {
+      tar_vel_yaw_->vel = vel_yaw->vel;
+      break;
+    }
+    case tobas_msgs::FrameId::LOCAL:
+    {
+      tar_vel_yaw_->vel = pt_->pose.euler * vel_yaw->vel;
+      break;
+    }
+    default:
+    {
+      rosError(name_, "Invalid FrameId: " << static_cast<int>(vel_yaw->frame_id.data));
+      return;
+    }
+  }
+
+  // 目標ヨー角を更新 (そのまま流すだけ)
+  tar_vel_yaw_->yaw = vel_yaw->yaw;
 }
 
 void ControllerRos::accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw)
@@ -307,6 +339,7 @@ void ControllerRos::accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw)
   }
 
   // 外側の制御を止める
+  // tar_pos_yaw_ = nullptr;
   tar_vel_yaw_ = nullptr;
 
   // 目標速度を更新
