@@ -1,6 +1,7 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/VelocityYaw.h>
 
 #include "../include/tobas_multirotor_landing/landing_action_server.hpp"
 
@@ -27,7 +28,7 @@ void MultirotorLandServer::getRosParams()
 
 void MultirotorLandServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::PositionYaw>("command/position_yaw", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
 }
 
 void MultirotorLandServer::registerSubscribers()
@@ -105,16 +106,18 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
     return;
   }
 
-  // 速度指令だと水平位置が制御できないため，位置指令にする
-  // 現在の位置を初期目標位置に設定
-  cmd_.level = goal->level;
-  cmd_.pos = pt_->pose.pos;
-  cmd_.yaw = pt_->pose.euler.yaw;
+  // 着陸コマンドを作成
+  const auto cmd = boost::make_shared<tobas_msgs::VelocityYaw>();
+  cmd->level = goal->level;
+  cmd->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+  cmd->vel.z(-kVerticalSpeed);
+  cmd->yaw = pt_->pose.euler.yaw;  // 現在のヨー角を初期目標位置に設定
 
-  const auto start_alt = pt_->pose.pos.z();
-  const auto start_time = ros::Time::now();
+  // 着陸コマンドを発行
+  cmd_pub_.publish(cmd);
+
+  // 高度チェック
   ros::Rate rate(kUpdateRate);
-
   while (nh_.ok())
   {
     if (as_.isPreemptRequested())
@@ -124,14 +127,6 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
       as_.setPreempted(result_);
       return;
     }
-
-    // コマンドを更新
-    const auto t = (ros::Time::now() - start_time).toSec();
-    cmd_.pos.z(start_alt - kVerticalSpeed * t);
-
-    // コマンドを発行
-    const auto cmd_ptr = boost::make_shared<tobas_msgs::PositionYaw>(cmd_);
-    cmd_pub_.publish(cmd_ptr);
 
     if (is_history_filled_)
     {

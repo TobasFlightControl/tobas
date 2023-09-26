@@ -1,10 +1,9 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/VelocityYaw.h>
 
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
-
-#define WAIT_FOR_STILLNESS "wait_for_stillness"
 
 using namespace std;
 
@@ -19,17 +18,9 @@ MultirotorTakeoffServer::MultirotorTakeoffServer(
       nh_,
       tobas::kTakeoffAction,
       boost::bind(&MultirotorTakeoffServer::executeCb, this, _1),
-      false),
-    wait_for_stillness_(WAIT_FOR_STILLNESS)
+      false)
 {
   getRosParams();
-
-  wait_for_stillness_goal_.time_window = ros::Duration(kTimeWindow);
-  wait_for_stillness_goal_.horizontal_position_variance_threshold = kHorPosVarThr;
-  wait_for_stillness_goal_.vertical_position_variance_threshold = kVerPosVarThr;
-  wait_for_stillness_goal_.heading_variance_threshold = kHeadingThreshold;
-  wait_for_stillness_goal_.attitude_threshold = kAttitudeThreshold;
-  wait_for_stillness_goal_.velocity_threshold = kVelThreshold;
 
   registerPublishers();
   registerSubscribers();
@@ -43,17 +34,14 @@ void MultirotorTakeoffServer::getRosParams()
 
 void MultirotorTakeoffServer::registerPublishers()
 {
-  pos_yaw_pub_ = nh_.advertise<tobas_msgs::PositionYaw>("command/position_yaw", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
 }
 
 void MultirotorTakeoffServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe("event", 1, &MultirotorTakeoffServer::eventCb, this, tcpNoDelay());
-}
-
-void MultirotorTakeoffServer::fillResult()
-{
-  result_.last_command = cmd_;
+  pt_sub_ =
+    nh_.subscribe("pose_twist", 1, &MultirotorTakeoffServer::poseTwistCb, this, tcpNoDelay());
 }
 
 void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -68,74 +56,58 @@ void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
+void MultirotorTakeoffServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+{
+  pt_ = pt;
+}
+
 void MultirotorTakeoffServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
-  // 静止チェッカーを用意
-  rosInfo(name_, "Waiting for '" << WAIT_FOR_STILLNESS << "' action server.");
-  if (!wait_for_stillness_.waitForServer(ros::Duration(kWaitForExternalActionServer)))
+  ResultType result;
+
+  if (pt_ == nullptr)
   {
-    rosInfo(name_, "Failed to connect to '" << WAIT_FOR_STILLNESS << "' action server.");
-    result_.error_code = ResultType::NOT_READY;
-    as_.setAborted(result_);
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Pose & Twist is not received yet.");
     return;
   }
 
-  // 静止チェック
-  rosInfo(name_, "Checking stillness.");
-  wait_for_stillness_.sendGoalAndWait(wait_for_stillness_goal_);
-  const auto wait_for_stillness_result = wait_for_stillness_.getResult();
-  if (wait_for_stillness_result->error_code != tobas_msgs::WaitForStillnessResult::NO_ERROR)
-  {
-    rosInfo(name_, "'" << WAIT_FOR_STILLNESS << "' action failed.");
-    result_.error_code = ResultType::NOT_READY;
-    as_.setAborted(result_);
-    return;
-  }
+  // 離陸コマンドを作成
+  const auto cmd = boost::make_shared<tobas_msgs::VelocityYaw>();
+  cmd->level = goal->level;
+  cmd->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+  cmd->vel.z(kElevationSpeed);
+  cmd->yaw = pt_->pose.euler.yaw;  // yawはアクションが呼ばれたときの値を維持する
 
-  // 初期状態を取得
-  rosInfo(name_, "Stillness is confirmed");
-  const auto& init_pt = wait_for_stillness_result->pose_twist;
-
-  // 位置制御コマンド
-  // x, y, yawは初期値を維持する
-  cmd_.level = goal->level;
-  cmd_.pos.x(init_pt.pose.pos.x());
-  cmd_.pos.y(init_pt.pose.pos.y());
-  cmd_.yaw = init_pt.pose.euler.yaw;
+  // 離陸コマンドを発行
+  cmd_pub_.publish(cmd);
 
   // 初期状態
-  const auto start_alt = init_pt.pose.pos.z();
-  const auto start_time = ros::Time::now();
+  const auto start_alt = pt_->pose.pos.z();
 
-  // 目標高度に到達するまで徐々に推力を上げていく
+  // 高度チェック
   ros::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::PREEMPTED;
-      as_.setPreempted(result_);
+      result.error_code = ResultType::PREEMPTED;
+      as_.setPreempted(result);
       return;
     }
 
-    // 時間とともに目標高度を上げていく
-    const double t = (ros::Time::now() - start_time).toSec();
-    const auto elevation = kInitElevation + kElevationSpeed * t;
-    cmd_.pos.z(start_alt + elevation);
-
-    // コマンドを発行
-    const auto cmd_ptr = boost::make_shared<tobas_msgs::PositionYaw>(cmd_);
-    pos_yaw_pub_.publish(cmd_ptr);
-
-    // 目標高度を指令したら終了
-    if (elevation > kTargetElevation)
+    // 目標高度に到達したら停止して終了
+    if (pt_->pose.pos.z() - start_alt > kTargetElevation)
     {
-      rosInfo(name_, "Target altitude is commanded.");
-      fillResult();
-      result_.error_code = ResultType::NO_ERROR;
-      as_.setSucceeded(result_);
+      rosInfo(name_, "Target altitude is reached.");
+
+      cmd->vel.z(0.);
+      cmd_pub_.publish(cmd);
+
+      result.error_code = ResultType::NO_ERROR;
+      as_.setSucceeded(result);
       return;
     }
 

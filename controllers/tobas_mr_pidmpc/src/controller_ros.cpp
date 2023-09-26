@@ -341,6 +341,7 @@ void ControllerRos::velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw)
     default:
     {
       rosError(name_, "Invalid FrameId: " << static_cast<int>(vel_yaw->frame_id.data));
+      tar_vel_yaw_ = nullptr;
       return;
     }
   }
@@ -389,6 +390,7 @@ void ControllerRos::accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw)
     default:
     {
       rosError(name_, "Invalid FrameId: " << static_cast<int>(acc_yaw->frame_id.data));
+      tar_acc_yaw_ = nullptr;
       return;
     }
   }

@@ -3,6 +3,7 @@
 #include <dh_std_tools/range.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_msgs/PoseTwist.h>
 
 #include "../../include/tobas_keyboard_teleop/x11.hpp"
 #include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
@@ -39,6 +40,8 @@ private:
   const XkbControlsPtr keyboard_;
   KeyboardReader key_reader_;
 
+  tobas_msgs::PoseTwistConstPtr pt_;
+
   // 固定値
   std::string instruction_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
@@ -54,11 +57,13 @@ private:
 
   // PubSub
   ros::Publisher cmd_pub_;
+  ros::Subscriber pt_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
 };
 }  // namespace tobas_keyboard_teleop

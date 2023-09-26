@@ -14,8 +14,8 @@
   </group>
 
   <!-- Wait For Stillness Action Server -->
-  <include file="$(find tobas_common_actions)/launch/wait_for_stillness.launch">
+  <!-- <include file="$(find tobas_common_actions)/launch/wait_for_stillness.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
+  </include> -->
 
 </launch>
