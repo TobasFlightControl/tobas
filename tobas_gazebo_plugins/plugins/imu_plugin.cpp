@@ -75,7 +75,11 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "debugTopic", debug_topic_, kDefaultDebugTopic);
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(
-    sdf, "gyroscopeNoiseDensity", gyro_noise_density_, kDefaultGyroNoiseDensity, POSITIVE);
+    sdf, "gyroscopeNoiseDensityOnSignal", gyro_noise_density_sig_, kDefaultGyroNoiseDensity,
+    POSITIVE);
+  getSdfParam(
+    sdf, "gyroscopeNoiseDensityObserved", gyro_noise_density_obs_, kDefaultGyroNoiseDensity,
+    POSITIVE);
   getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
   getSdfParam(
     sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
@@ -83,7 +87,11 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
     sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma,
     POSITIVE);
   getSdfParam(
-    sdf, "accelerometerNoiseDensity", acc_noise_density_, kDefaultAccNoiseDensity, POSITIVE);
+    sdf, "accelerometerNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity,
+    POSITIVE);
+  getSdfParam(
+    sdf, "accelerometerNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity,
+    POSITIVE);
   getSdfParam(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
   getSdfParam(
     sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime,
@@ -122,10 +130,10 @@ void GazeboImuPlugin::onUpdate()
   vectorGazeboToRos(acc_meas, imu_msg_.linear_acceleration);
   vectorGazeboToRos(gyro_meas, imu_msg_.angular_velocity);
 
-  const double acc_var = sqr(acc_noise_density_) / dt;
+  const double acc_var = sqr(acc_noise_density_obs_) / dt;
   fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
-  const double gyro_var = sqr(gyro_noise_density_) / dt;
+  const double gyro_var = sqr(gyro_noise_density_obs_) / dt;
   fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
@@ -143,7 +151,7 @@ void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, const do
   // Gyrosocpe
   const auto tau_g = gyro_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_g_d = gyro_noise_density_ / sqrt(dt);  // [rad/s]
+  const auto sigma_g_d = gyro_noise_density_sig_ / sqrt(dt);  // [rad/s]
   const auto sigma_b_g = gyro_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
   const auto sigma_b_g_d = sigma_b_g * sqrt(tau_g / 2 * (1 - exp(-2 * dt / tau_g)));  // [rad/s]
@@ -160,7 +168,7 @@ void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, const do
   // Accelerometer
   const auto tau_a = acc_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_a_d = acc_noise_density_ / sqrt(dt);  // [m/s^2]
+  const auto sigma_a_d = acc_noise_density_sig_ / sqrt(dt);  // [m/s^2]
   const auto sigma_b_a = acc_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
   const auto sigma_b_a_d = sigma_b_a * sqrt(tau_a / 2 * (1 - exp(-2 * dt / tau_a)));  // [m/s^2]

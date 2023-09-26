@@ -41,7 +41,12 @@ class ImuModel(SensorModel):
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "imuTopic").text = "imu"
         ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
-        ET.SubElement(plugin, "gyroscopeNoiseDensity").text = str(gyro_noise_density)
+        ET.SubElement(plugin, "gyroscopeNoiseDensityOnSignal").text = str(
+            gyro_noise_density
+        )
+        ET.SubElement(plugin, "gyroscopeNoiseDensityObserved").text = str(
+            gyro_noise_density
+        )
         ET.SubElement(plugin, "gyroscopeRandomWalk").text = str(gyro_random_walk)
         ET.SubElement(plugin, "gyroscopeBiasCorrelationTime").text = str(
             gyro_bias_corr_time
@@ -49,7 +54,12 @@ class ImuModel(SensorModel):
         ET.SubElement(plugin, "gyroscopeTurnOnBiasSigma").text = str(
             gyro_turn_on_bias_sigma
         )
-        ET.SubElement(plugin, "accelerometerNoiseDensity").text = str(acc_noise_density)
+        ET.SubElement(plugin, "accelerometerNoiseDensityOnSignal").text = str(
+            acc_noise_density
+        )
+        ET.SubElement(plugin, "accelerometerNoiseDensityObserved").text = str(
+            acc_noise_density
+        )
         ET.SubElement(plugin, "accelerometerRandomWalk").text = str(acc_random_walk)
         ET.SubElement(plugin, "accelerometerBiasCorrelationTime").text = str(
             acc_bias_corr_time

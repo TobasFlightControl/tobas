@@ -46,14 +46,16 @@ private:
   std::string imu_topic_;
   std::string debug_topic_;
   SdfVector3 offset_;               // B_Pos_BS
-  double gyro_noise_density_;       // Gyroscope noise density spectrum [rad/s/sqrt(Hz)]
-  double gyro_random_walk_;         // Gyroscope bias random walk [rad/s/s/sqrt(Hz)]
-  double gyro_bias_corr_time_;      // Gyroscope bias correlation time constant [s]
-  double gyro_turn_on_bias_sigma_;  // Gyroscope turn on bias standard deviation [rad/s]
-  double acc_noise_density_;        // Accelerometer noise density spectrum [m/s^2/sqrt(Hz)]
-  double acc_random_walk_;          // Accelerometer bias random walk [m/s^2/s/sqrt(Hz)]
-  double acc_bias_corr_time_;       // Accelerometer bias correlation time constant [s]
-  double acc_turn_on_bias_sigma_;   // Accelerometer turn on bias standard deviation [m/s^2]
+  double gyro_noise_density_sig_;   // Gyro noise density actually added to signal [rad/s/sqrt(Hz)]
+  double gyro_noise_density_obs_;   // Gyro noise density that is observed [rad/s/sqrt(Hz)]
+  double gyro_random_walk_;         // Gyro bias random walk [rad/s/s/sqrt(Hz)]
+  double gyro_bias_corr_time_;      // Gyro bias correlation time constant [s]
+  double gyro_turn_on_bias_sigma_;  // Gyro turn on bias standard deviation [rad/s]
+  double acc_noise_density_sig_;    // Accel noise density actually added to signal [m/s^2/sqrt(Hz)]
+  double acc_noise_density_obs_;    // Accel noise density that is observerd [m/s^2/sqrt(Hz)]
+  double acc_random_walk_;          // Accel bias random walk [m/s^2/s/sqrt(Hz)]
+  double acc_bias_corr_time_;       // Accel bias correlation time constant [s]
+  double acc_turn_on_bias_sigma_;   // Accel turn on bias standard deviation [m/s^2]
 
   physics::WorldPtr world_;
   physics::LinkPtr link_;
