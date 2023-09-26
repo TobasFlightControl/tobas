@@ -273,9 +273,8 @@ void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const
   const Vector3d grav_B = Q_W_B.conjugate() * grav_W_;
   const Vector3d acc_nominal = -grav_B;
   const Vector3d delta_acc = acc_meas - acc_nominal;
-  const Matrix3d grav_B_cross = et::crossMat(grav_B);  // 一時objectをblockに代入すると反映されない
 
-  H_acc_.block(0, kDeltaThetaIdx, 3, 3) = -2 * grav_B_cross;
+  H_acc_.block(0, kDeltaThetaIdx, 3, 3) = -2 * et::crossMat(grav_B);
   correct<3>(delta_acc, acc_cov, H_acc_);
 }
 
@@ -284,9 +283,8 @@ void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, cons
   const Quaterniond Q_W_B = getQuaternion();
   const Vector3d mag_B = Q_W_B.conjugate() * mag_W_;
   const Vector3d delta_mag = mag_meas - mag_B;
-  const Matrix3d mag_B_cross = et::crossMat(mag_B);
 
-  H_mag_rpy_.block<3, 3>(0, kDeltaThetaIdx) = 2 * mag_B_cross;
+  H_mag_rpy_.block<3, 3>(0, kDeltaThetaIdx) = 2 * et::crossMat(mag_B);
   correct<3>(delta_mag, mag_cov, H_mag_rpy_);
 }
 
