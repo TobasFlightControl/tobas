@@ -24,32 +24,21 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   setupImu();
   mag_trans_.initialize();
 
-  const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(lpf_cutoff_freq_);
-  acc_lpf_.initialize(lpf_time_const, Vector3f(0., 0., tobas::kGravity));
-  gyro_lpf_.initialize(lpf_time_const, Vector3f::Zero());
-
   registerPublishers();
   registerSubscribers();
-
-  const auto sampling_rate = tobas::kImuPublishRate * over_sampling_;
 
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
   measure_gyro_bias_timer_ =
-    nh_.createTimer(sampling_rate, &ImuHandler::measureGyroBiasTimerCb, this);
+    nh_.createTimer(kMeasureGyroBiasRate, &ImuHandler::measureGyroBiasTimerCb, this);
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
-  main_timer_ = nh_.createTimer(sampling_rate, &ImuHandler::mainTimerCb, this, false, false);
+  main_timer_ =
+    nh_.createTimer(tobas::kImuPublishRate, &ImuHandler::mainTimerCb, this, false, false);
 }
 
 void ImuHandler::getRosParams()
 {
-  dh_ros::getParam(pnh_, "over_sampling", over_sampling_, kDefaultOverSampling);
-  if (over_sampling_ <= 0)
-    rosthrow(name_, "Over sampling number must be positive.");
-
-  dh_ros::getParam(
-    pnh_, "lpf_cutoff_freq", lpf_cutoff_freq_, kDefaultLpfCutoffFreq, dh_ros::POSITIVE);
 }
 
 void ImuHandler::registerPublishers()
@@ -114,60 +103,50 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   // Update IMU
   imu_.updateAccelerometer();
   imu_.updateGyroscope();
+  imu_.updateMagnetometer();
+
+  // Read IMU
   imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
   imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+  imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
-  // Compute sampling time
-  const auto ts = (event.current_real - event.last_real).toSec();
+  // Create messages
+  const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
+  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
 
-  // Update LPF
-  acc_lpf_.update(acc_, ts);
-  gyro_lpf_.update(gyro_, ts);
+  // Fill headers
+  imu_msg->header.stamp = event.current_real;
+  mag_msg->header.stamp = event.current_real;
+  imu_msg->header.frame_id = "imu_frame";
+  mag_msg->header.frame_id = "mag_frame";
 
-  if (++loop_cnt_ % over_sampling_ == 0)
-  {
-    // Update magnetometer
-    imu_.updateMagnetometer();
-    imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+  // Fill covariance matrices
+  const auto acc_var = dh_std::sqr(acc_noise_density_) * tobas::kImuPublishRate;    // [m^2/s^4]
+  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * tobas::kImuPublishRate;  // [rad^2/s^2]
+  const auto mag_var = dh_std::sqr(mag_noise_density_) * tobas::kImuPublishRate;
+  dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
+  dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
+  dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
 
-    // Create messages
-    const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
-    const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+  // Fill data (Convert to NWU coordinate system)
+  const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
+  imu_msg->linear_acceleration.x = acc.y();
+  imu_msg->linear_acceleration.y = -acc.x();
+  imu_msg->linear_acceleration.z = acc.z();
 
-    // Fill headers
-    imu_msg->header.stamp = event.current_real;
-    mag_msg->header.stamp = event.current_real;
-    imu_msg->header.frame_id = "imu_frame";
-    mag_msg->header.frame_id = "mag_frame";
+  const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
+  imu_msg->angular_velocity.x = gyro.y();
+  imu_msg->angular_velocity.y = -gyro.x();
+  imu_msg->angular_velocity.z = gyro.z();
 
-    // Fill covariance matrices
-    const auto acc_var = dh_std::sqr(acc_noise_density_) * tobas::kImuPublishRate;    // [m^2/s^4]
-    const auto gyro_var = dh_std::sqr(gyro_noise_density_) * tobas::kImuPublishRate;  // [rad^2/s^2]
-    const auto mag_var = dh_std::sqr(mag_noise_density_) * tobas::kImuPublishRate;
-    dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
-    dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
-    dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
+  const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
+  mag_msg->magnetic_field.x = mag.x();
+  mag_msg->magnetic_field.y = -mag.y();
+  mag_msg->magnetic_field.z = -mag.z();
 
-    // Fill data (Convert to NWU coordinate system)
-    const Vector3f acc = acc_lpf_.getState() - acc_bias_;  // バイアスを除く
-    imu_msg->linear_acceleration.x = acc.y();
-    imu_msg->linear_acceleration.y = -acc.x();
-    imu_msg->linear_acceleration.z = acc.z();
-
-    const Vector3f gyro = gyro_lpf_.getState() - gyro_bias_;  // バイアスを除く
-    imu_msg->angular_velocity.x = gyro.y();
-    imu_msg->angular_velocity.y = -gyro.x();
-    imu_msg->angular_velocity.z = gyro.z();
-
-    const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
-    mag_msg->magnetic_field.x = mag.x();
-    mag_msg->magnetic_field.y = -mag.y();
-    mag_msg->magnetic_field.z = -mag.z();
-
-    // Publish messages
-    imu_pub_.publish(imu_msg);
-    mag_pub_.publish(mag_msg);
-  }
+  // Publish messages
+  imu_pub_.publish(imu_msg);
+  mag_pub_.publish(mag_msg);
 }
 
 void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
@@ -177,15 +156,12 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
     gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
     rosInfo(
       name_, "Finished measuring gyro bias. It is estimated to be: " << gyro_bias_.transpose());
-
     measure_gyro_bias_timer_.stop();
     main_timer_.start();
-
-    loop_cnt_ = 0;
     return;
   }
 
-  imu_.update();
+  imu_.updateGyroscope();
   imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
   if (gyro_.norm() > kStaticGyroThreshold)

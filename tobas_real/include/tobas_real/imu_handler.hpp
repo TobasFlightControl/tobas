@@ -4,8 +4,6 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
 
-#include <dh_std_tools/first_order_filter.hpp>
-
 #include <tobas_tools/node.hpp>
 
 #include "./ellipse_transformer.hpp"
@@ -17,11 +15,8 @@ class ImuHandler : public tobas::BaseNode
 {
   // Constants
   static constexpr uint32_t kMeasureGyroBiasCount = 1000;
+  static constexpr double kMeasureGyroBiasRate = 400;
   static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
-
-  // Default parameters
-  static constexpr uint32_t kDefaultOverSampling = 8;
-  static constexpr double kDefaultLpfCutoffFreq = 30.;  // [Hz]
 
   using super = tobas::BaseNode;
 
@@ -38,11 +33,9 @@ private:
   Eigen::Vector3f gyro_;
   Eigen::Vector3f mag_;
   EllipseTransformer mag_trans_;
-  dh_std::FirstOrderFilter<Eigen::Vector3f> acc_lpf_;
-  dh_std::FirstOrderFilter<Eigen::Vector3f> gyro_lpf_;
-  uint32_t loop_cnt_ = 0;
 
   // ジャイロバイアス関連
+  uint32_t loop_cnt_ = 0;
   Eigen::Vector3f gyro_sum_ = Eigen::Vector3f::Zero();
   Eigen::Vector3f gyro_bias_;
 
@@ -51,10 +44,6 @@ private:
   double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
   double mag_noise_density_;   // [/sqrt(Hz)]
   Eigen::Vector3f acc_bias_;
-
-  // rosparams
-  uint32_t over_sampling_;
-  double lpf_cutoff_freq_;
 
   // Publisher
   ros::Publisher imu_pub_;
