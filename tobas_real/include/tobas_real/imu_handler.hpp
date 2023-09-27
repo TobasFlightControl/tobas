@@ -20,7 +20,7 @@ class ImuHandler : public tobas::BaseNode
   static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
 
   // Default parameters
-  static constexpr uint32_t kDefaultOverSampling = 8;
+  static constexpr uint32_t kDefaultOverSampling = 4;   // 8だと間に合わない
   static constexpr double kDefaultLpfCutoffFreq = 50.;  // [Hz]
 
   using super = tobas::BaseNode;
