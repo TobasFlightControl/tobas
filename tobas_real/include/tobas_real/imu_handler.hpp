@@ -15,10 +15,13 @@ namespace tobas_real
 {
 class ImuHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kOverSampling = 8;
+  // Constants
   static constexpr uint32_t kMeasureGyroBiasCount = 1000;
-  static constexpr double kLpfCutoffFreq = 50.;        // [Hz]
   static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
+
+  // Default parameters
+  static constexpr uint32_t kDefaultOverSampling = 8;
+  static constexpr double kDefaultLpfCutoffFreq = 50.;  // [Hz]
 
   using super = tobas::BaseNode;
 
@@ -50,6 +53,10 @@ private:
   double mag_noise_density_;   // [/sqrt(Hz)]
   Eigen::Vector3f acc_bias_;
 
+  // rosparams
+  uint32_t over_sampling_;
+  double lpf_cutoff_freq_;
+
   // Publisher
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
@@ -67,6 +74,6 @@ private:
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);
-  void measureGyroBiasTimerCb(const ros::TimerEvent& event);
+  void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

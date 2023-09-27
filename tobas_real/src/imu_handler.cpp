@@ -6,7 +6,7 @@
 #include <dh_std_tools/boost.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
-#include <dh_ros_tools/rate.hpp>
+#include <dh_ros_tools/rosparam.hpp>
 
 #include "../include/tobas_real/imu_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -24,7 +24,7 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   setupImu();
   mag_trans_.initialize();
 
-  const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(kLpfCutoffFreq);
+  const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(lpf_cutoff_freq_);
   acc_lpf_.initialize(lpf_time_const, Vector3f::Zero());
   gyro_lpf_.initialize(lpf_time_const, Vector3f::Zero());
   mag_lpf_.initialize(lpf_time_const, Vector3f::Zero());
@@ -32,7 +32,7 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   registerPublishers();
   registerSubscribers();
 
-  constexpr double sampling_rate = tobas::kImuPublishRate * kOverSampling;
+  const auto sampling_rate = tobas::kImuPublishRate * over_sampling_;
 
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
@@ -45,6 +45,12 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
 
 void ImuHandler::getRosParams()
 {
+  dh_ros::getParam(pnh_, "over_sampling", over_sampling_, kDefaultOverSampling);
+  if (over_sampling_ <= 0)
+    rosthrow(name_, "Over sampling number must be positive.");
+
+  dh_ros::getParam(
+    pnh_, "lpf_cutoff_freq", lpf_cutoff_freq_, kDefaultLpfCutoffFreq, dh_ros::POSITIVE);
 }
 
 void ImuHandler::registerPublishers()
@@ -122,7 +128,7 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   gyro_lpf_.update(gyro_, ts);
   mag_lpf_.update(mag_, ts);
 
-  if (++loop_cnt_ % kOverSampling == 0)
+  if (++loop_cnt_ % over_sampling_ == 0)
   {
     // Create messages
     const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
@@ -164,7 +170,7 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   }
 }
 
-void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent& event)
+void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
 {
   if (loop_cnt_ == kMeasureGyroBiasCount)
   {
