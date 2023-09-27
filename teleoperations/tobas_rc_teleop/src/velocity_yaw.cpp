@@ -53,8 +53,8 @@ void VelocityYawController::update(
   vel_raw_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
 
   // 速度をフィルタリングしてコマンドに
-  const Vector3d vel_filtered = vel_filter_.update(vel_raw_, dt);
-  tf::vectorEigenToKDL(vel_filtered, vel_yaw->vel);
+  vel_filter_.update(vel_raw_, dt);
+  tf::vectorEigenToKDL(vel_filter_.getState(), vel_yaw->vel);
 
   // ヨー角を更新
   const auto yawrate =

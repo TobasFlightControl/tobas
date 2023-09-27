@@ -42,8 +42,8 @@ MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   registerPublishers();
   registerSubscribers();
 
-  check_interval_timer_ = nh_.createTimer(
-    ros::Duration(1 / kCheckIntervalRate), &MotorsHandler::checkIntervalTimerCb, this);
+  check_interval_timer_ =
+    nh_.createTimer(kCheckIntervalRate, &MotorsHandler::checkIntervalTimerCb, this);
 }
 
 void MotorsHandler::getRosParams()
@@ -165,7 +165,8 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     }
 
     const auto dt = (cur_time - last_cmd_time_).toSec();
-    const auto filtered_latency = latency_filter_.update(latency, dt);
+    latency_filter_.update(latency, dt);
+    const auto& filtered_latency = latency_filter_.getState();
     if (filtered_latency > kCheckLatencyThreshold)
     {
       rosWarn(

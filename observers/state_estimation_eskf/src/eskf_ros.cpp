@@ -144,12 +144,6 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d::Constant(sqr(kInitGyroBiasStddev)).asDiagonal()  // Init gyro bias cov
   );
 
-  // LPFを初期化
-  // カットオフ周波数をナイキスト周波数に設定
-  const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(tobas::kImuSamplingRate / 2);
-  acc_lpf_.initialize(lpf_time_const, Vector3d::Zero());
-  gyro_lpf_.initialize(lpf_time_const, Vector3d::Zero());
-
   // ヨー角の初期値
   double roll, pitch;
   quaternionToEuler(q_0_.x(), q_0_.y(), q_0_.z(), q_0_.w(), roll, pitch, yaw_prev_);
@@ -227,8 +221,8 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
-  const Vector3d B_Acc = acc_filtered_ - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
-  const Vector3d B_Gyro = gyro_filtered_ - eskf_.getGyroBias();
+  const Vector3d B_Acc = acc_meas_ - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Gyro = gyro_meas_ - eskf_.getGyroBias();
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
   auto state = boost::make_shared<StateMsg>();
@@ -346,13 +340,6 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // Convert ROS messages to Eigen vectors
       tf::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
       tf::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
-
-      // IMUはそのままではノイズが多いのでLPFに通す．
-      // IMUは駆動ノイズを持たないため，カルマンフィルタの状態にはできない．
-      // カルマンフィルタの状態には駆動ノイズが必要，つまり積分により不確かさが上昇する必要がある．
-      // さもないと分散が0に近づき，観測を与えても全く更新されなくなってしまう．
-      acc_filtered_ = acc_lpf_.update(acc_meas_, dt);
-      gyro_filtered_ = gyro_lpf_.update(gyro_meas_, dt);
 
       // 観測ノイズの分散を計算
       const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
@@ -512,7 +499,7 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg::ConstPtr& vel)
   tf::vectorKDLToEigen(vel->vel, vel_meas_);
   const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
 
-  eskf_.measureVelocity(vel_meas_, cov, gyro_filtered_, imu2gps_);
+  eskf_.measureVelocity(vel_meas_, cov, gyro_meas_, imu2gps_);
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)

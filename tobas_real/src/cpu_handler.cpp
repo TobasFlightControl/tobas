@@ -20,7 +20,7 @@ CpuHandler::CpuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(ros::Duration(1 / kUpdateRate), &CpuHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kUpdateRate, &CpuHandler::mainTimerCb, this);
 }
 
 void CpuHandler::getRosParams()

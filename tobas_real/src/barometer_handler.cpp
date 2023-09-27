@@ -28,8 +28,7 @@ BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh, stri
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ =
-    nh_.createTimer(ros::Duration(1 / kUpdateRate), &BarometerHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kUpdateRate, &BarometerHandler::mainTimerCb, this);
 }
 
 void BarometerHandler::getRosParams()

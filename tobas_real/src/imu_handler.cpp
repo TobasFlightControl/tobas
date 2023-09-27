@@ -24,17 +24,23 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   setupImu();
   mag_trans_.initialize();
 
+  const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(kLpfCutoffFreq);
+  acc_lpf_.initialize(lpf_time_const, Vector3f::Zero());
+  gyro_lpf_.initialize(lpf_time_const, Vector3f::Zero());
+  mag_lpf_.initialize(lpf_time_const, Vector3f::Zero());
+
   registerPublishers();
   registerSubscribers();
 
+  constexpr double sampling_rate = tobas::kImuPublishRate * kOverSampling;
+
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
-  measure_gyro_bias_timer_ = nh_.createTimer(
-    ros::Duration(1 / kMeasureGyroBiasRate), &ImuHandler::measureGyroBiasTimerCb, this);
+  measure_gyro_bias_timer_ =
+    nh_.createTimer(sampling_rate, &ImuHandler::measureGyroBiasTimerCb, this);
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
-  main_timer_ = nh_.createTimer(
-    ros::Duration(1 / tobas::kImuSamplingRate), &ImuHandler::mainTimerCb, this, false, false);
+  main_timer_ = nh_.createTimer(sampling_rate, &ImuHandler::mainTimerCb, this, false, false);
 }
 
 void ImuHandler::getRosParams()
@@ -100,8 +106,6 @@ void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  // rosInfo(name_, "IMU timer callback is called.");
-
   // Update IMU
   imu_.update();
 
@@ -110,54 +114,69 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
   imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
-  // Create messages
-  const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
-  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+  // Compute sampling time
+  const auto ts = (event.current_real - event.last_real).toSec();
 
-  // Fill headers
-  imu_msg->header.stamp = event.current_real;
-  mag_msg->header.stamp = event.current_real;
-  imu_msg->header.frame_id = "imu_frame";
-  mag_msg->header.frame_id = "mag_frame";
+  // Update LPF
+  acc_lpf_.update(acc_, ts);
+  gyro_lpf_.update(gyro_, ts);
+  mag_lpf_.update(mag_, ts);
 
-  // Fill covariance matrices
-  const auto acc_var = dh_std::sqr(acc_noise_density_) * tobas::kImuSamplingRate;    // [m^2/s^4]
-  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * tobas::kImuSamplingRate;  // [rad^2/s^2]
-  const auto mag_var = dh_std::sqr(mag_noise_density_) * tobas::kImuSamplingRate;
-  dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
-  dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
-  dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
+  if (++loop_cnt_ % kOverSampling == 0)
+  {
+    // Create messages
+    const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
+    const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
 
-  // Fill data (Convert to NWU coordinate system)
-  const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
-  imu_msg->linear_acceleration.x = acc.y();
-  imu_msg->linear_acceleration.y = -acc.x();
-  imu_msg->linear_acceleration.z = acc.z();
+    // Fill headers
+    imu_msg->header.stamp = event.current_real;
+    mag_msg->header.stamp = event.current_real;
+    imu_msg->header.frame_id = "imu_frame";
+    mag_msg->header.frame_id = "mag_frame";
 
-  const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
-  imu_msg->angular_velocity.x = gyro.y();
-  imu_msg->angular_velocity.y = -gyro.x();
-  imu_msg->angular_velocity.z = gyro.z();
+    // Fill covariance matrices
+    const auto acc_var = dh_std::sqr(acc_noise_density_) * tobas::kImuPublishRate;    // [m^2/s^4]
+    const auto gyro_var = dh_std::sqr(gyro_noise_density_) * tobas::kImuPublishRate;  // [rad^2/s^2]
+    const auto mag_var = dh_std::sqr(mag_noise_density_) * tobas::kImuPublishRate;
+    dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
+    dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
+    dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
 
-  const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 原点中心の単位球に射影
-  mag_msg->magnetic_field.x = mag.x();
-  mag_msg->magnetic_field.y = -mag.y();
-  mag_msg->magnetic_field.z = -mag.z();
+    // Fill data (Convert to NWU coordinate system)
+    const Vector3f acc = acc_lpf_.getState() - acc_bias_;  // バイアスを除く
+    imu_msg->linear_acceleration.x = acc.y();
+    imu_msg->linear_acceleration.y = -acc.x();
+    imu_msg->linear_acceleration.z = acc.z();
 
-  // Publish messages
-  imu_pub_.publish(imu_msg);
-  mag_pub_.publish(mag_msg);
+    const Vector3f gyro = gyro_lpf_.getState() - gyro_bias_;  // バイアスを除く
+    imu_msg->angular_velocity.x = gyro.y();
+    imu_msg->angular_velocity.y = -gyro.x();
+    imu_msg->angular_velocity.z = gyro.z();
+
+    const Vector3d mag = mag_trans_.transform(mag_lpf_.getState().cast<double>());  // 単位球に射影
+    mag_msg->magnetic_field.x = mag.x();
+    mag_msg->magnetic_field.y = -mag.y();
+    mag_msg->magnetic_field.z = -mag.z();
+
+    // Publish messages
+    imu_pub_.publish(imu_msg);
+    mag_pub_.publish(mag_msg);
+  }
 }
 
-void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
+void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent& event)
 {
-  if (gyro_cnt_ == kMeasureGyroBiasCount)
+  if (loop_cnt_ == kMeasureGyroBiasCount)
   {
     gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
     rosInfo(
       name_, "Finished measuring gyro bias. It is estimated to be: " << gyro_bias_.transpose());
+
     measure_gyro_bias_timer_.stop();
     main_timer_.start();
+
+    loop_cnt_ = 0;
+    return;
   }
 
   imu_.update();
@@ -169,11 +188,11 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
       name_, "Perturbation is detected while measuring gyro bias: " << gyro_.transpose()
                                                                     << " [rad/s]. Retrying...");
     gyro_sum_.setZero();
-    gyro_cnt_ = 0;
+    loop_cnt_ = 0;
     return;
   }
 
-  gyro_cnt_++;
+  ++loop_cnt_;
   gyro_sum_ += gyro_;
 }
 }  // namespace tobas_real
