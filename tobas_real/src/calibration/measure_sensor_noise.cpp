@@ -75,9 +75,9 @@ void MeasureSensorNoise::run()
     setPeriodOnAllChannels(max_pwm_period);
 
     // センサ情報を読み取る
-    imu_.read_accelerometer(&acc_data(i, 0), &acc_data(i, 1), &acc_data(i, 2));
-    imu_.read_gyroscope(&gyro_data(i, 0), &gyro_data(i, 1), &gyro_data(i, 2));
-    imu_.read_magnetometer(&mag_data(i, 0), &mag_data(i, 1), &mag_data(i, 2));
+    imu_.readAccelerometer(&acc_data(i, 0), &acc_data(i, 1), &acc_data(i, 2));
+    imu_.readGyroscope(&gyro_data(i, 0), &gyro_data(i, 1), &gyro_data(i, 2));
+    imu_.readMagnetometer(&mag_data(i, 0), &mag_data(i, 1), &mag_data(i, 2));
 
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();

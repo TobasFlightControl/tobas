@@ -208,7 +208,7 @@ void MagnetometerCalibrator::readMag(const uint32_t& idx)
   for (uint32_t i = 0; i < kDataCount; ++i)
   {
     imu_.update();
-    imu_.read_magnetometer(&tmp(0), &tmp(1), &tmp(2));
+    imu_.readMagnetometer(&tmp(0), &tmp(1), &tmp(2));
 
     const auto row = kDataCount * idx + i;
     mag_data_.block(row, 0, 1, 3) = tmp.cast<double>();

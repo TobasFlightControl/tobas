@@ -55,7 +55,7 @@ Vector3f AccelCalibrator::readAccel()
   for (uint32_t _ = 0; _ < kDataCount; ++_)
   {
     imu_.update();
-    imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
+    imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
     acc_sum += acc_;
     usleep(kSleepTime);
   }

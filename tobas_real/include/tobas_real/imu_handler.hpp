@@ -20,8 +20,8 @@ class ImuHandler : public tobas::BaseNode
   static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
 
   // Default parameters
-  static constexpr uint32_t kDefaultOverSampling = 4;   // 8だと間に合わない
-  static constexpr double kDefaultLpfCutoffFreq = 50.;  // [Hz]
+  static constexpr uint32_t kDefaultOverSampling = 8;
+  static constexpr double kDefaultLpfCutoffFreq = 30.;  // [Hz]
 
   using super = tobas::BaseNode;
 
@@ -40,7 +40,6 @@ private:
   EllipseTransformer mag_trans_;
   dh_std::FirstOrderFilter<Eigen::Vector3f> acc_lpf_;
   dh_std::FirstOrderFilter<Eigen::Vector3f> gyro_lpf_;
-  dh_std::FirstOrderFilter<Eigen::Vector3f> mag_lpf_;
   uint32_t loop_cnt_ = 0;
 
   // ジャイロバイアス関連

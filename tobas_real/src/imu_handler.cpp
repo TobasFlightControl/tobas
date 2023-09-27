@@ -25,9 +25,8 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   mag_trans_.initialize();
 
   const auto lpf_time_const = dh_std::timeConstFromCutoffFreq(lpf_cutoff_freq_);
-  acc_lpf_.initialize(lpf_time_const, Vector3f::Zero());
+  acc_lpf_.initialize(lpf_time_const, Vector3f(0., 0., tobas::kGravity));
   gyro_lpf_.initialize(lpf_time_const, Vector3f::Zero());
-  mag_lpf_.initialize(lpf_time_const, Vector3f::Zero());
 
   registerPublishers();
   registerSubscribers();
@@ -113,12 +112,10 @@ void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // Update IMU
-  imu_.update();
-
-  // Read IMU
-  imu_.read_accelerometer(&acc_.x(), &acc_.y(), &acc_.z());
-  imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
-  imu_.read_magnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+  imu_.updateAccelerometer();
+  imu_.updateGyroscope();
+  imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
+  imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
   // Compute sampling time
   const auto ts = (event.current_real - event.last_real).toSec();
@@ -126,10 +123,13 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   // Update LPF
   acc_lpf_.update(acc_, ts);
   gyro_lpf_.update(gyro_, ts);
-  mag_lpf_.update(mag_, ts);
 
   if (++loop_cnt_ % over_sampling_ == 0)
   {
+    // Update magnetometer
+    imu_.updateMagnetometer();
+    imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+
     // Create messages
     const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
     const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
@@ -159,7 +159,7 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
     imu_msg->angular_velocity.y = -gyro.x();
     imu_msg->angular_velocity.z = gyro.z();
 
-    const Vector3d mag = mag_trans_.transform(mag_lpf_.getState().cast<double>());  // 単位球に射影
+    const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
     mag_msg->magnetic_field.x = mag.x();
     mag_msg->magnetic_field.y = -mag.y();
     mag_msg->magnetic_field.z = -mag.z();
@@ -186,7 +186,7 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
   }
 
   imu_.update();
-  imu_.read_gyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
+  imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
   if (gyro_.norm() > kStaticGyroThreshold)
   {
