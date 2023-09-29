@@ -39,7 +39,7 @@ void EscCalibrator::setHigh()
   {
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
-      if (!pwm_.set_duty_cycle(channel, kPwmMax))
+      if (!pwm_.setDutyCycle(channel, kPwmMax))
       {
         throw runtime_error("Failed to set high duty cycle.");
       }
@@ -57,7 +57,7 @@ void EscCalibrator::setLow()
   {
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
-      if (!pwm_.set_duty_cycle(channel, kPwmMin))
+      if (!pwm_.setDutyCycle(channel, kPwmMin))
       {
         throw runtime_error("Failed to set low duty cycle.");
       }

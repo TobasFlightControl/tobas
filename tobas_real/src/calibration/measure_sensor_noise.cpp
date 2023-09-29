@@ -138,7 +138,7 @@ void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 {
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
   {
-    if (!pwm_.set_duty_cycle(channel, period))
+    if (!pwm_.setDutyCycle(channel, period))
     {
       throw runtime_error("Failed to set PWM duty cycle.");
     }

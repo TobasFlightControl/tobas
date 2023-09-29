@@ -77,7 +77,7 @@ void MotorsHandler::setPeriodOnAllChannels(const double& period)
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
     const auto& pin = rotor_config.pin;
-    if (!pwm_.set_duty_cycle(channelFromPin(pin), period))
+    if (!pwm_.setDutyCycle(channelFromPin(pin), period))
     {
       rosFatal(name_, "Failed to set PWM duty cycle on PIN " << pin << ".");
       // TODO: Request shutdown
@@ -145,7 +145,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     const auto pwm_period = remap(tar_throttle, 0., 1., kPwmMin, kPwmMax);
 
     // Set PWM duty cycle
-    if (!pwm_.set_duty_cycle(channelFromPin(pin), pwm_period))
+    if (!pwm_.setDutyCycle(channelFromPin(pin), pwm_period))
     {
       rosFatal(name_, "Failed to set PWM duty cycle on PIN" << pin << ".");
       // TODO: Request shutdown
