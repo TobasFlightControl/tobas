@@ -19,8 +19,7 @@ GpsHandler::GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   registerPublishers();
   registerSubscribers();
 
-  // Create first one-shot timer
-  main_timer_ = nh_.createTimer(ros::Duration(kSleepTime), &GpsHandler::mainTimerCb, this, true);
+  main_timer_ = nh_.createTimer(kMainTimerRate, &GpsHandler::mainTimerCb, this);
 }
 
 void GpsHandler::getRosParams()
@@ -42,10 +41,8 @@ void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
     rosthrow(name_, "Failed to disable all navigation messsages.");
-
   if (!gps_.enableMsg(Ublox::NAV_PVT, true))
     rosthrow(name_, "Failed to enable NAV_PVT");
-
   if (!gps_.enableMsg(Ublox::NAV_COV, true))
     rosthrow(name_, "Failed to enable NAV_COV");
 
@@ -59,19 +56,14 @@ void GpsHandler::configureGnssReceiver()
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
     rosthrow(name_, "Failed to configure GPS.");
-
   if (!gps_.configureGnss_SBAS(true))
     rosthrow(name_, "Failed to configure SBAS.");
-
   if (!gps_.configureGnss_Galileo(false))
     rosthrow(name_, "Failed to configure Galileo.");
-
   if (!gps_.configureGnss_BeiDou(false))
     rosthrow(name_, "Failed to configure BeiDou.");
-
   if (!gps_.configureGnss_QZSS(true))
     rosthrow(name_, "Failed to configure QZSS.");
-
   if (!gps_.configureGnss_GLONASS(false))
     rosthrow(name_, "Failed to configure GLONASS.");
 }
@@ -175,8 +167,5 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       break;
     }
   }
-
-  // Update one-shot timer
-  main_timer_ = nh_.createTimer(ros::Duration(kSleepTime), &GpsHandler::mainTimerCb, this, true);
 }
 }  // namespace tobas_real
