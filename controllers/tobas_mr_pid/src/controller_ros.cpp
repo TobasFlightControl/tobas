@@ -219,7 +219,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
       rpy.toVector(), rpyd, tar_rpy_thrust_->rpy.toVector(), Vector::Zero(), tar_rpydd_, dt);
 
     // オイラー角加速度から角加速度を計算
-    euleraccFromAngaccLocal(rpy.roll, rpy.pitch, rpyd, tar_rpydd_, tar_dgyro_);
+    angaccFromEuleraccLocal(rpy.roll, rpy.pitch, rpyd, tar_rpydd_, tar_dgyro_);
 
     // プロペラの推力を計算
     const VectorXd thrusts = mixer_.solve(pt->twist.rot, tar_dgyro_, q_, tar_rpy_thrust_->thrust);
