@@ -1,0 +1,8 @@
+std_msgs/Header header
+kdl_msgs/Vector target_position
+kdl_msgs/Vector target_velocity_global
+kdl_msgs/Vector target_velocity_local
+kdl_msgs/Vector target_acceleration_global
+kdl_msgs/Vector target_acceleration_local
+tobas_msgs/Euler target_rotation
+float64 target_thrust
