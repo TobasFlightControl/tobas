@@ -15,6 +15,7 @@
 	<depend>message_generation</depend>
 
 	<depend>tobas_tools</depend>
+	<depend>tobas_mr_common</depend>
 
 	<export>
 		<nodelet plugin="${prefix}/nodelet_description.xml"/>
