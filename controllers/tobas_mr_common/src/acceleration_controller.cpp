@@ -4,13 +4,12 @@
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_mr_rotation_mpc/acceleration_controller.hpp"
-#include "../include/tobas_mr_rotation_mpc/constants.hpp"
+#include "../include/tobas_mr_common/acceleration_controller.hpp"
 
 using namespace std;
 using namespace KDL;
 
-namespace tobas_mr_rotation_mpc
+namespace tobas_mr_common
 {
 AccelerationController::AccelerationController()
 {
@@ -58,4 +57,4 @@ void AccelerationController::configure(const AccelerationControllerConfig& confi
 
   config_ = config;
 }
-}  // namespace tobas_mr_rotation_mpc
+}  // namespace tobas_mr_common

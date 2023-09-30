@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_mr_rotation_mpc
 	tobas_mr_translation_pid
+	tobas_mr_common
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -41,6 +42,7 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_mr_rotation_mpc
 		tobas_mr_translation_pid
+		tobas_mr_common
 		dynamic_reconfigure
 		nodelet
 		pluginlib

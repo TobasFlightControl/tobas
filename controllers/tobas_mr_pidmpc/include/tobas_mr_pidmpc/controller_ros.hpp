@@ -18,7 +18,7 @@
 
 #include <tobas_mr_translation_pid/position_controller.hpp>
 #include <tobas_mr_translation_pid/velocity_controller.hpp>
-#include <tobas_mr_rotation_mpc/acceleration_controller.hpp>
+#include <tobas_mr_common/acceleration_controller.hpp>
 #include <tobas_mr_rotation_mpc/rotation_controller.hpp>
 
 #include <tobas_mr_pidmpc/ControllerConfig.h>
@@ -51,13 +51,13 @@ private:
   // Controllers
   tobas_mr_translation_pid::PositionController pos_controller_;
   tobas_mr_translation_pid::VelocityController vel_controller_;
-  tobas_mr_rotation_mpc::AccelerationController acc_controller_;
+  tobas_mr_common::AccelerationController acc_controller_;
   tobas_mr_rotation_mpc::RotationController rot_controller_;
 
   // Dynamic parameters
   tobas_mr_translation_pid::PositionControllerConfig pos_config_;
   tobas_mr_translation_pid::VelocityControllerConfig vel_config_;
-  tobas_mr_rotation_mpc::AccelerationControllerConfig acc_config_;
+  tobas_mr_common::AccelerationControllerConfig acc_config_;
   tobas_mr_rotation_mpc::RotationControllerConfig rot_config_;
 
   // Constant variables

@@ -16,7 +16,7 @@
 #include <tobas_msgs/RotorSpeeds.h>
 
 #include <tobas_mr_translation_lqr/controller.hpp>
-#include <tobas_mr_rotation_mpc/acceleration_controller.hpp>
+#include <tobas_mr_common/acceleration_controller.hpp>
 #include <tobas_mr_rotation_mpc/rotation_controller.hpp>
 
 #include <tobas_mr_lqrmpc/ControllerConfig.h>
@@ -48,12 +48,12 @@ private:
 
   // Controllers
   tobas_mr_translation_lqr::VelocityController vel_controller_;
-  tobas_mr_rotation_mpc::AccelerationController acc_controller_;
+  tobas_mr_common::AccelerationController acc_controller_;
   tobas_mr_rotation_mpc::RotationController rot_controller_;
 
   // Dynamic parameters
   tobas_mr_translation_lqr::Config vel_config_;
-  tobas_mr_rotation_mpc::AccelerationControllerConfig acc_config_;
+  tobas_mr_common::AccelerationControllerConfig acc_config_;
   tobas_mr_rotation_mpc::RotationControllerConfig rot_config_;
 
   // Constant variables

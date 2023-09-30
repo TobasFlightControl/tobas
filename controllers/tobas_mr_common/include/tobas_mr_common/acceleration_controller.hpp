@@ -2,7 +2,7 @@
 
 #include <kdl/frames.hpp>
 
-namespace tobas_mr_rotation_mpc
+namespace tobas_mr_common
 {
 struct AccelerationControllerConfig
 {
@@ -29,4 +29,4 @@ private:
 
   AccelerationControllerConfig config_;
 };
-}  // namespace tobas_mr_rotation_mpc
+}  // namespace tobas_mr_common
