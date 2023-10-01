@@ -11,7 +11,6 @@
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PosVelAccYaw.h>
-#include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
@@ -66,7 +65,7 @@ private:
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
-  tobas_msgs::PosVelAccYawPtr tar_pvay_;           // PosVelYawの目標値 (世界座標系)
+  tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
@@ -85,16 +84,13 @@ private:
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber pvay_sub_;
-  ros::Subscriber rpy_thrust_sub_;
+  ros::Subscriber rpyt_sub_;
 
   // Timers
   dh_ros::Timer check_topics_timer_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
-
-  // Other
-  dh_std::Stopwatch stopwatch_;
 
   void getRosParams() override;
   void registerPublishers() override;

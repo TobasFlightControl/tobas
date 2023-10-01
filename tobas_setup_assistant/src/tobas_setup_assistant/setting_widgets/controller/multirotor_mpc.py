@@ -12,11 +12,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.messages import q_error_named
 from kdl_sympy.frames import Vector
 
-from tobas_msgs.msg import (
-    VelocityYaw,
-    AccelerationYaw,
-    RollPitchYawThrust,
-)
+from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrust
 
 from ...parameter_getters import *
 from ...common import *
@@ -30,11 +26,7 @@ class MultirotorMpc(BaseController):
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
 
-    COMMAND_MSGS = [
-        VelocityYaw.__name__,
-        AccelerationYaw.__name__,
-        RollPitchYawThrust.__name__,
-    ]
+    COMMAND_MSGS = [PosVelAccYaw.__name__, RollPitchYawThrust.__name__]
 
     MIN_NUM_PROP = 3
 

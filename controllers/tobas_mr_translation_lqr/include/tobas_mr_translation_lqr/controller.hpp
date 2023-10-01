@@ -2,20 +2,22 @@
 
 #include <kdl/frames.hpp>
 
-#include <dh_linear_control/lqid.hpp>
+#include <dh_linear_control/lqd.hpp>
 
 namespace tobas_mr_translation_lqr
 {
 struct Config
 {
   double acc_delay_time_const;
+
   double hor_pos_weight;
   double ver_pos_weight;
   double hor_vel_weight;
   double ver_vel_weight;
   double hor_acc_weight;
   double ver_acc_weight;
-  double jerk_weight;
+  int jerk_weight_log10;
+
   double max_hor_pos_error;
   double max_ver_pos_error;
   double max_hor_vel;
@@ -24,13 +26,11 @@ struct Config
 
 class VelocityController
 {
-  static constexpr uint32_t kVelSize = 3;
-  static constexpr uint32_t kAccSize = 3;
-  static constexpr uint32_t kVelIdx = 0;
-  static constexpr uint32_t kAccIdx = kVelIdx + kVelSize;
-  static constexpr uint32_t kStateSize = kAccIdx + kAccSize;
-  static constexpr uint32_t kInputSize = kAccSize;
-  static constexpr uint32_t kIntegrateSize = kVelSize;
+  static constexpr uint32_t kPosIdx = 0;
+  static constexpr uint32_t kVelIdx = kPosIdx + 3;
+  static constexpr uint32_t kAccIdx = kVelIdx + 3;
+  static constexpr uint32_t kStateSize = kAccIdx + 3;
+  static constexpr uint32_t kInputSize = 3;
 
   static constexpr double kVerAccDecayTimeConst = 0.02;  // [s]
 
@@ -38,20 +38,22 @@ public:
   explicit VelocityController();
 
   void update(
+    const KDL::Vector& cur_pos,
     const KDL::Vector& cur_vel_W,
     const KDL::Vector& cur_acc_w,
-    const KDL::Vector& tar_vel_W,
+    KDL::Vector tar_pos,
+    KDL::Vector tar_vel_W,
     const double& dt,
     KDL::Vector& tar_acc_W);
+
   void configure(const Config& config);
 
-  /* 速度の積分誤差． */
-  Eigen::VectorXd integratedVelocityError() const;
-
 private:
+  double max_hor_pos_error_;
+  double max_ver_pos_error_;
   double max_hor_vel_;
   double max_ver_vel_;
 
-  ctrl::LQID lqid_;
+  ctrl::LQD lqd_;
 };
 }  // namespace tobas_mr_translation_lqr

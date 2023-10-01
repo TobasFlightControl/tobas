@@ -44,14 +44,13 @@ public:
 
   void updateInternalDataStructures();
 
-  void update(
+  Eigen::VectorXd update(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
     const double& battery_voltage,
     const double& tar_U,
-    const KDL::Euler& tar_rpy,
-    Eigen::VectorXd& u_opt);
+    const KDL::Euler& tar_rpy);
 
   void configure(const RotationControllerConfig& params);
 

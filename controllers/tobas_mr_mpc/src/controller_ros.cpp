@@ -6,6 +6,7 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_mr_mpc/ControllerFeedback.h>
 
 #include "../include/tobas_mr_mpc/controller_ros.hpp"
@@ -63,11 +64,9 @@ void ControllerRos::registerSubscribers()
       nh_.subscribe("joint_states", 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
   }
 
-  vel_yaw_sub_ =
-    nh_.subscribe("command/velocity_yaw", 1, &ControllerRos::velYawCb, this, tcpNoDelay());
-  acc_yaw_sub_ =
-    nh_.subscribe("command/acceleration_yaw", 1, &ControllerRos::accYawCb, this, tcpNoDelay());
-  rpy_thrust_sub_ =
+  pvay_sub_ =
+    nh_.subscribe("command/pos_vel_acc_yaw", 1, &ControllerRos::posVelAccYawCb, this, tcpNoDelay());
+  rpyt_sub_ =
     nh_.subscribe("command/rpy_thrust", 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
 }
 
@@ -144,13 +143,12 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
   feedback->header.stamp = pt->header.stamp;
 
-  // Velocity Controller
-  if (tar_vel_yaw_ != nullptr)
+  // Translation Controller
+  if (tar_pvay_ != nullptr)
   {
-    if (tar_acc_yaw_ == nullptr)
+    if (tar_rpyt_ == nullptr)
     {
-      tar_acc_yaw_ = boost::make_shared<tobas_msgs::AccelerationYaw>();
-      tar_acc_yaw_->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+      tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
     }
 
     // 世界座標系から見た現在の速度，加速度を計算
@@ -158,43 +156,28 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_acc_W = pt->pose.euler * pt->accel.linear;
 
     // 目標加速度を計算
-    vel_controller_.update(cur_vel_W, cur_acc_W, tar_vel_yaw_->vel, dt, tar_acc_yaw_->acc);
-
-    // コマンドレベルとヨー角は位置指令をそのまま流す
-    tar_acc_yaw_->level = tar_vel_yaw_->level;
-    tar_acc_yaw_->yaw = tar_vel_yaw_->yaw;
-
-    // Fill feedback
-    feedback->target_velocity_global = tar_vel_yaw_->vel;
-    feedback->target_velocity_local = pt->pose.euler.Inverse(tar_vel_yaw_->vel);
-    tf::vectorEigenToKDL(
-      vel_controller_.integratedVelocityError(), feedback->integrated_velocity_error);
-  }
-
-  // Acceleration Controller
-  if (tar_acc_yaw_ != nullptr)
-  {
-    if (tar_rpy_thrust_ == nullptr)
-    {
-      tar_rpy_thrust_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
-    }
+    vel_controller_.update(
+      pt->pose.pos, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
+    const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
 
     // 推力和と目標姿勢を計算
     acc_controller_.update(
-      tar_acc_yaw_->acc, pt->pose.euler.yaw, tar_rpy_thrust_->thrust, tar_rpy_thrust_->rpy.roll,
-      tar_rpy_thrust_->rpy.pitch);
+      tar_acc, pt->pose.euler.yaw, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
-    // コマンドレベルとヨー角は加速度指令をそのまま流す
-    tar_rpy_thrust_->level = tar_acc_yaw_->level;
-    tar_rpy_thrust_->rpy.yaw = tar_acc_yaw_->yaw;
+    // コマンドレベルとヨー角は位置指令をそのまま流す
+    tar_rpyt_->level = tar_pvay_->level;
+    tar_rpyt_->rpy.yaw = tar_pvay_->yaw;
 
     // Fill feedback
-    feedback->target_acceleration_global = tar_acc_yaw_->acc;
-    feedback->target_acceleration_local = pt->pose.euler * tar_acc_yaw_->acc;
+    feedback->target_position = tar_pvay_->pos;
+    feedback->target_velocity_global = tar_pvay_->vel;
+    feedback->target_velocity_local = pt->pose.euler.Inverse(tar_pvay_->vel);
+    feedback->target_acceleration_global = tar_acc;
+    feedback->target_acceleration_local = pt->pose.euler * tar_acc;
   }
 
   // Rotation Controller
-  if (tar_rpy_thrust_ != nullptr)
+  if (tar_rpyt_ != nullptr)
   {
     // 可動関節角を更新
     // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
@@ -220,9 +203,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     try
     {
       // stopwatch_.start();
-      rot_controller_.update(
-        pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpy_thrust_->thrust,
-        tar_rpy_thrust_->rpy, u_opt_);
+      thrusts_ = rot_controller_.update(
+        pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
     catch (const exception& e)  // MPCがコケたり
@@ -235,23 +217,23 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
     rotor_speeds->header.stamp = pt->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    for (uint32_t i = 0; i < u_opt_.rows(); ++i)
+    for (uint32_t i = 0; i < thrusts_.rows(); ++i)
     {
-      if (u_opt_(i) < -1.)
+      if (thrusts_(i) < -1.)
       {
-        rosFatal(name_, "Negative thrust force: " << u_opt_(i) << " [N]");
+        rosFatal(name_, "Negative thrust force: " << thrusts_(i) << " [N]");
         // TODO: 防御モードに移行
       }
       rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
-        z_rotors_.rotSpeedFromThrust(i, max(0., u_opt_(i)));
+        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts_(i)));
     }
 
     // モータ速度を発行
     rotor_speeds_pub_.publish(rotor_speeds);
 
     // Fill feedback
-    feedback->target_rotation = tar_rpy_thrust_->rpy;
-    feedback->target_thrust = tar_rpy_thrust_->thrust;
+    feedback->target_rotation = tar_rpyt_->rpy;
+    feedback->target_thrust = tar_rpyt_->thrust;
 
     // Publish feedback
     feedback_pub_.publish(feedback);
@@ -274,121 +256,40 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
   js_ = js;
 }
 
-void ControllerRos::velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw)
+void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 {
   if (pt_ == nullptr)
-  {
     return;
-  }
 
   // コマンドレベルの処理
-  if (!isCommandLevelOk(vel_yaw->level))
+  if (!isCommandLevelOk(pvay->level))
+    return;
+
+  // コマンドを更新
+  tar_pvay_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
+
+  // グローバル座標系に変換
+  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, pt_->pose.euler, *tar_pvay_))
   {
+    rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
+    tar_pvay_ = nullptr;
     return;
   }
-
-  // メモリ確保
-  if (tar_vel_yaw_ == nullptr)
-  {
-    tar_vel_yaw_ = boost::make_shared<tobas_msgs::VelocityYaw>();
-    tar_vel_yaw_->frame_id.data = tobas_msgs::FrameId::GLOBAL;
-  }
-
-  // 外側の制御を止める
-  // tar_pos_yaw_ = nullptr;
-
-  // 目標速度を更新
-  switch (vel_yaw->frame_id.data)
-  {
-    case tobas_msgs::FrameId::GLOBAL:
-    {
-      tar_vel_yaw_->vel = vel_yaw->vel;
-      break;
-    }
-    case tobas_msgs::FrameId::LOCAL:
-    {
-      tar_vel_yaw_->vel = pt_->pose.euler * vel_yaw->vel;
-      break;
-    }
-    default:
-    {
-      rosError(name_, "Invalid FrameId: " << static_cast<int>(vel_yaw->frame_id.data));
-      tar_vel_yaw_ = nullptr;
-      return;
-    }
-  }
-
-  // 目標ヨー角を更新 (そのまま流すだけ)
-  tar_vel_yaw_->yaw = vel_yaw->yaw;
-}
-
-void ControllerRos::accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw)
-{
-  if (pt_ == nullptr)
-  {
-    return;
-  }
-
-  // コマンドレベルの処理
-  if (!isCommandLevelOk(acc_yaw->level))
-  {
-    return;
-  }
-
-  // メモリ確保
-  if (tar_acc_yaw_ == nullptr)
-  {
-    tar_acc_yaw_ = boost::make_shared<tobas_msgs::AccelerationYaw>();
-    tar_acc_yaw_->frame_id.data = tobas_msgs::FrameId::GLOBAL;
-  }
-
-  // 外側の制御を止める
-  // tar_pos_yaw_ = nullptr;
-  tar_vel_yaw_ = nullptr;
-
-  // 目標速度を更新
-  switch (acc_yaw->frame_id.data)
-  {
-    case tobas_msgs::FrameId::GLOBAL:
-    {
-      tar_acc_yaw_->acc = acc_yaw->acc;
-      break;
-    }
-    case tobas_msgs::FrameId::LOCAL:
-    {
-      tar_acc_yaw_->acc = pt_->pose.euler * acc_yaw->acc;
-      break;
-    }
-    default:
-    {
-      rosError(name_, "Invalid FrameId: " << static_cast<int>(acc_yaw->frame_id.data));
-      tar_acc_yaw_ = nullptr;
-      return;
-    }
-  }
-
-  // 目標ヨー角を更新 (そのまま流すだけ)
-  tar_acc_yaw_->yaw = acc_yaw->yaw;
 }
 
 void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust)
 {
   if (pt_ == nullptr)
-  {
     return;
-  }
 
   if (!isCommandLevelOk(rpy_thrust->level))
-  {
     return;
-  }
 
   // 外側の制御を止める
-  tar_vel_yaw_ = nullptr;
-  tar_acc_yaw_ = nullptr;
+  tar_pvay_ = nullptr;
 
   // コマンドを更新
-  tar_rpy_thrust_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpy_thrust);
+  tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpy_thrust);
 }
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
@@ -412,7 +313,7 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   vel_config_.ver_vel_weight = cfg.vertical_velocity_weight;
   vel_config_.hor_acc_weight = cfg.horizontal_accel_weight;
   vel_config_.ver_acc_weight = cfg.vertical_accel_weight;
-  vel_config_.jerk_weight = cfg.jerk_weight;
+  vel_config_.jerk_weight_log10 = cfg.jerk_weight_log10;
   vel_config_.max_hor_pos_error = cfg.max_horizontal_position_error;
   vel_config_.max_ver_pos_error = cfg.max_vertical_position_error;
   vel_config_.max_hor_vel = cfg.max_horizontal_velocity;

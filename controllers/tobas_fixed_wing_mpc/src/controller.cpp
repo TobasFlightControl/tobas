@@ -133,7 +133,7 @@ void Controller::runOnce()
   updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
 
   // MPCを解いて最適制御入力を求める
-  const auto du = mpc_.solveMPC();
+  const auto du = mpc_.solve();
   const auto u = eom_.trimInput() + du;
 
   // For debug

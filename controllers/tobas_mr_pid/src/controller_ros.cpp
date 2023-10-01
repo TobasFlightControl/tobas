@@ -66,7 +66,7 @@ void ControllerRos::registerSubscribers()
 
   pvay_sub_ =
     nh_.subscribe("command/pos_vel_acc_yaw", 1, &ControllerRos::posVelAccYawCb, this, tcpNoDelay());
-  rpy_thrust_sub_ =
+  rpyt_sub_ =
     nh_.subscribe("command/rpy_thrust", 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
 }
 

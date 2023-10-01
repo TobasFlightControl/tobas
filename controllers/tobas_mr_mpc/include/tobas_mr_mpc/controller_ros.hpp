@@ -10,8 +10,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/VelocityYaw.h>
-#include <tobas_msgs/AccelerationYaw.h>
+#include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
@@ -63,13 +62,13 @@ private:
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
-  tobas_msgs::VelocityYawPtr tar_vel_yaw_;      // VelocityYawの目標値
-  tobas_msgs::AccelerationYawPtr tar_acc_yaw_;  // AccelerationYawの目標値 (世界座標系)
-  tobas_msgs::RollPitchYawThrustPtr tar_rpy_thrust_;  // RollPitchYawThrustの目標値
+  tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
+  tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   KDL::JntArray q_;  // 全ての非固定関節の角度
-  Eigen::VectorXd u_opt_;
+  KDL::Vector tar_acc_fb_;
+  Eigen::VectorXd thrusts_;
   ros::Time t_last_loop_;
 
   // Publishers
@@ -80,9 +79,8 @@ private:
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
-  ros::Subscriber vel_yaw_sub_;
-  ros::Subscriber acc_yaw_sub_;
-  ros::Subscriber rpy_thrust_sub_;
+  ros::Subscriber pvay_sub_;
+  ros::Subscriber rpyt_sub_;
 
   // Timers
   dh_ros::Timer check_topics_timer_;
@@ -104,8 +102,7 @@ private:
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
-  void velYawCb(const tobas_msgs::VelocityYawConstPtr& vel_yaw);
-  void accYawCb(const tobas_msgs::AccelerationYawConstPtr& acc_yaw);
+  void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);

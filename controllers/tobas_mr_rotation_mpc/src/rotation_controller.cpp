@@ -66,14 +66,13 @@ void RotationController::updateInternalDataStructures()
   fillInputConstraintFixedParts();
 }
 
-void RotationController::update(
+VectorXd RotationController::update(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
   const double& battery_voltage,
   const double& tar_U,
-  const Euler& tar_rpy,
-  VectorXd& u_opt)
+  const Euler& tar_rpy)
 {
   assert(battery_voltage > 0.);
 
@@ -126,7 +125,7 @@ void RotationController::update(
   }
 
   // MPCを解く
-  u_opt = mpc_.solveMPC();
+  return mpc_.solve();
 }
 
 void RotationController::configure(const RotationControllerConfig& params)

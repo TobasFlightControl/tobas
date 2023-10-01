@@ -7,5 +7,3 @@ kdl_msgs/Vector target_acceleration_global
 kdl_msgs/Vector target_acceleration_local
 tobas_msgs/Euler target_rotation
 float64 target_thrust
-
-kdl_msgs/Vector integrated_velocity_error  # Integrated velocity error wrt. world coordinates
