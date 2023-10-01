@@ -1,5 +1,3 @@
-#pragma once
-
 #include <cassert>
 
 #include <dh_std_tools/algorithm.hpp>
@@ -31,7 +29,7 @@ void TranslationController::update(
 
   // 誤差を計算
   const auto ep = tar_pos - cur_pos;
-  ei_ += (tar_pos - cur_pos) * dt;
+  ei_ += ep * dt;
   const auto ed = tar_vel - cur_vel;
 
   // 目標加速度を計算
