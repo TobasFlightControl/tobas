@@ -57,6 +57,7 @@ VectorXd Mixer::solve(
   }
 
   // bを更新
+  // TODO: H-forceを考慮
   tf::vectorKDLToEigen(cur_gyro_B, cur_gyro_eigen_);
   tf::vectorKDLToEigen(tar_dgyro_B, tar_dgyro_eigen_);
   const auto inertia_force = I_cog_eigen_ * tar_dgyro_eigen_;
