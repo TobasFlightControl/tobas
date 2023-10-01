@@ -4,6 +4,7 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/AccelerationYaw.h>
@@ -28,7 +29,12 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
 
   for (const auto& mode_name : mode_names_)
   {
-    if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
+    if (mode_name == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
+    {
+      mode2cmd_.push_back(POS_VEL_ACC_YAW);
+      pvay_ctrl_.initialize(nh, pnh);
+    }
+    else if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(POSITION_YAW);
       pos_yaw_ctrl_.initialize(nh, pnh);
@@ -163,6 +169,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       {
         switch (cmd_type)
         {
+          case POS_VEL_ACC_YAW:
+            pvay_ctrl_.reset(*pt_);
+            break;
           case POSITION_YAW:
             pos_yaw_ctrl_.reset(*pt_);
             break;
@@ -189,6 +198,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
       switch (cmd_type)
       {
+        case POS_VEL_ACC_YAW:
+          pvay_ctrl_.update(*rcin, dead_zone_);
+          break;
         case POSITION_YAW:
           pos_yaw_ctrl_.update(*rcin, dead_zone_);
           break;

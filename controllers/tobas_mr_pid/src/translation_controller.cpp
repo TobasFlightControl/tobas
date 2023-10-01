@@ -32,7 +32,7 @@ void TranslationController::update(
   // 誤差を計算
   const auto ep = tar_pos - cur_pos;
   ei_ += (tar_pos - cur_pos) * dt;
-  const auto ed = cur_vel - tar_vel;
+  const auto ed = tar_vel - cur_vel;
 
   // 目標加速度を計算
   tar_acc.x(config_.hor_kp * ep.x() + config_.hor_ki * ei_.x() + config_.hor_kd * ed.x());

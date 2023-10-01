@@ -5,6 +5,7 @@
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
 
+#include "./pos_vel_acc_yaw.hpp"
 #include "./position_yaw.hpp"
 #include "./velocity_yaw.hpp"
 #include "./rpy_thrust.hpp"
@@ -33,6 +34,7 @@ private:
   enum command_t
   {
     NONE,
+    POS_VEL_ACC_YAW,
     POSITION_YAW,
     VELOCITY_YAW,
     ACCELERATION_YAW,
@@ -54,6 +56,7 @@ private:
   std::vector<command_t> mode2cmd_;
 
   // Controllers
+  PosVelAccYawController pvay_ctrl_;
   PositionYawController pos_yaw_ctrl_;
   VelocityYawController vel_yaw_ctrl_;
   RollPitchYawThrustController rpy_thrust_ctrl_;

@@ -1,6 +1,6 @@
 #include <dh_kdl/conversion/coordinates.hpp>
 
-#include "../../include/tobas_tools/conversions/coordinates.hpp"
+#include "../include/tobas_tools/conversions/coordinates.hpp"
 
 namespace tf
 {
