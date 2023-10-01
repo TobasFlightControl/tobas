@@ -39,6 +39,8 @@ VectorXd Mixer::solve(
   const JntArray& q,
   const double& tar_thrust_sum)
 {
+  assert(tar_thrust_sum >= 0);
+
   // 重心と慣性テンソルを計算
   inertia_solver_.JntToCart(q, P_base_cog_, I_cog_kdl_);
   tf::rotInertiaKDLToEigen(I_cog_kdl_, I_cog_eigen_);
@@ -63,6 +65,6 @@ VectorXd Mixer::solve(
   b_.block<3, 1>(1, 0) = inertia_force + coriolis_force;
 
   // 最小二乗解を計算
-  return A_.colPivHouseholderQr().solve(b_).cwiseMax(0);
+  return A_.colPivHouseholderQr().solve(b_);
 }
 }  // namespace tobas_mr_pid
