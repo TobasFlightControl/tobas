@@ -1,7 +1,0 @@
-<library path="lib/libtobas_mr_pidmpc_nodelet">
-
-  <class name="tobas_mr_pidmpc/ControllerNodelet" type="tobas_mr_pidmpc::ControllerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

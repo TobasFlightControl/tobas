@@ -16,7 +16,6 @@ from ...parameter_getters import *
 from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseController
-from .mr_pidmpc import MultirotorPidMpc
 from .mr_lqrmpc import MultirotorLqrMpc
 from .fixed_wing_lqr import FixedWingLQR
 
@@ -39,9 +38,6 @@ class ControllerWidget(BaseSettingWidget):
         self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
-        self._mr_pidmpc = MultirotorPidMpc(main)
-        self._rows.addWidget(self._mr_pidmpc)
-
         self._mr_lqrmpc = MultirotorLqrMpc(main)
         self._rows.addWidget(self._mr_lqrmpc)
 
@@ -57,7 +53,6 @@ class ControllerWidget(BaseSettingWidget):
         self._type.currentTextChanged.connect(self._on_type_changed)
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
 
-        self._mr_pidmpc.define_connections()
         self._mr_lqrmpc.define_connections()
         self._fw_lqr.define_connections()
 
@@ -77,8 +72,6 @@ class ControllerWidget(BaseSettingWidget):
 
         if controller_type == self.NO_SELECT:
             raise RuntimeError("Controller type is not selected.")
-        elif controller_type == MultirotorPidMpc.NAME:
-            return self._mr_pidmpc
         elif controller_type == MultirotorLqrMpc.NAME:
             return self._mr_lqrmpc
         elif controller_type == FixedWingLQR.NAME:
@@ -99,14 +92,6 @@ class ControllerWidget(BaseSettingWidget):
         return self.selected().LANDING_PKG
 
     def _update_controller_types(self) -> None:
-        if self._mr_pidmpc.is_applicable():
-            if not self._type.contains(MultirotorPidMpc.NAME):
-                self._type.addItem(MultirotorPidMpc.NAME)
-        else:
-            if self._type.contains(MultirotorPidMpc.NAME):
-                self._type.setCurrentText(self.NO_SELECT)
-                self._type.remove_text(MultirotorPidMpc.NAME)
-
         if self._mr_lqrmpc.is_applicable():
             if not self._type.contains(MultirotorLqrMpc.NAME):
                 self._type.addItem(MultirotorLqrMpc.NAME)
@@ -131,19 +116,12 @@ class ControllerWidget(BaseSettingWidget):
         controller_type = self._type.currentText()
 
         if controller_type == self.NO_SELECT:
-            self._mr_pidmpc.setVisible(False)
-            self._mr_lqrmpc.setVisible(False)
-            self._fw_lqr.setVisible(False)
-        elif controller_type == MultirotorPidMpc.NAME:
-            self._mr_pidmpc.setVisible(True)
             self._mr_lqrmpc.setVisible(False)
             self._fw_lqr.setVisible(False)
         elif controller_type == MultirotorLqrMpc.NAME:
-            self._mr_pidmpc.setVisible(False)
             self._mr_lqrmpc.setVisible(True)
             self._fw_lqr.setVisible(False)
         elif controller_type == FixedWingLQR.NAME:
-            self._mr_pidmpc.setVisible(False)
             self._mr_lqrmpc.setVisible(False)
             self._fw_lqr.setVisible(True)
         else:
