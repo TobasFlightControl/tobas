@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(tobas_mr_lqrmpc)
+project(tobas_mr_mpc)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)

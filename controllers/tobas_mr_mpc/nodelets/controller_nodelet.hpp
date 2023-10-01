@@ -2,9 +2,9 @@
 
 #include <nodelet/nodelet.h>
 
-#include "../include/tobas_mr_lqrmpc/controller_ros.hpp"
+#include "../include/tobas_mr_mpc/controller_ros.hpp"
 
-namespace tobas_mr_lqrmpc
+namespace tobas_mr_mpc
 {
 class ControllerNodelet : public nodelet::Nodelet
 {
@@ -14,4 +14,4 @@ public:
 private:
   std::shared_ptr<ControllerRos> node_;
 };
-}  // namespace tobas_mr_lqrmpc
+}  // namespace tobas_mr_mpc

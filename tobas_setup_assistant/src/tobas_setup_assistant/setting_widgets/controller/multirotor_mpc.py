@@ -23,10 +23,10 @@ from ...common import *
 from .base import BaseController
 
 
-class MultirotorLqrMpc(BaseController):
-    NAME = "Multirotor controller combining LQR and MPC"
+class MultirotorMpc(BaseController):
+    NAME = "Linear Model Predictive Control"
 
-    CONTROLLER_PKG = "tobas_mr_lqrmpc"
+    CONTROLLER_PKG = "tobas_mr_mpc"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
 

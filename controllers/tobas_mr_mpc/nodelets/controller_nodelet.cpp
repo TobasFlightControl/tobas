@@ -2,7 +2,7 @@
 
 #include "./controller_nodelet.hpp"
 
-namespace tobas_mr_lqrmpc
+namespace tobas_mr_mpc
 {
 void ControllerNodelet::onInit()
 {
@@ -14,6 +14,6 @@ void ControllerNodelet::onInit()
 
   node_.reset(new ControllerRos(nh, pnh, name));
 }
-}  // namespace tobas_mr_lqrmpc
+}  // namespace tobas_mr_mpc
 
-PLUGINLIB_EXPORT_CLASS(tobas_mr_lqrmpc::ControllerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_mr_mpc::ControllerNodelet, nodelet::Nodelet);

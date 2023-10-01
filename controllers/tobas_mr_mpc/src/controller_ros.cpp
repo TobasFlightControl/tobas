@@ -6,15 +6,15 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_mr_lqrmpc/ControllerFeedback.h>
+#include <tobas_mr_mpc/ControllerFeedback.h>
 
-#include "../include/tobas_mr_lqrmpc/controller_ros.hpp"
+#include "../include/tobas_mr_mpc/controller_ros.hpp"
 
 using namespace std;
 using namespace KDL;
 using namespace Eigen;
 
-namespace tobas_mr_lqrmpc
+namespace tobas_mr_mpc
 {
 ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
@@ -49,7 +49,7 @@ void ControllerRos::registerPublishers()
 {
   rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
   feedback_pub_ =
-    nh_.advertise<tobas_mr_lqrmpc::ControllerFeedback>("multirotor_controller_feedback", 1);
+    nh_.advertise<tobas_mr_mpc::ControllerFeedback>("multirotor_controller_feedback", 1);
 }
 
 void ControllerRos::registerSubscribers()
@@ -141,7 +141,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   t_last_loop_ = pt->header.stamp;
 
   // Create a feedback message
-  auto feedback = boost::make_shared<tobas_mr_lqrmpc::ControllerFeedback>();
+  auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
   feedback->header.stamp = pt->header.stamp;
 
   // Velocity Controller
@@ -441,4 +441,4 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 
   rosInfo(name_, "Dynamic parameters are updated.");
 }
-}  // namespace tobas_mr_lqrmpc
+}  // namespace tobas_mr_mpc

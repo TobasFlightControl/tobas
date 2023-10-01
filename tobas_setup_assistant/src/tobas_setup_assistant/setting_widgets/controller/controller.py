@@ -16,7 +16,7 @@ from ...parameter_getters import *
 from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseController
-from .mr_lqrmpc import MultirotorLqrMpc
+from .multirotor_mpc import MultirotorMpc
 from .fixed_wing_lqr import FixedWingLQR
 
 
@@ -38,7 +38,7 @@ class ControllerWidget(BaseSettingWidget):
         self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
-        self._mr_lqrmpc = MultirotorLqrMpc(main)
+        self._mr_lqrmpc = MultirotorMpc(main)
         self._rows.addWidget(self._mr_lqrmpc)
 
         self._fw_lqr = FixedWingLQR(main)
@@ -72,7 +72,7 @@ class ControllerWidget(BaseSettingWidget):
 
         if controller_type == self.NO_SELECT:
             raise RuntimeError("Controller type is not selected.")
-        elif controller_type == MultirotorLqrMpc.NAME:
+        elif controller_type == MultirotorMpc.NAME:
             return self._mr_lqrmpc
         elif controller_type == FixedWingLQR.NAME:
             return self._fw_lqr
@@ -93,12 +93,12 @@ class ControllerWidget(BaseSettingWidget):
 
     def _update_controller_types(self) -> None:
         if self._mr_lqrmpc.is_applicable():
-            if not self._type.contains(MultirotorLqrMpc.NAME):
-                self._type.addItem(MultirotorLqrMpc.NAME)
+            if not self._type.contains(MultirotorMpc.NAME):
+                self._type.addItem(MultirotorMpc.NAME)
         else:
-            if self._type.contains(MultirotorLqrMpc.NAME):
+            if self._type.contains(MultirotorMpc.NAME):
                 self._type.setCurrentText(self.NO_SELECT)
-                self._type.remove_text(MultirotorLqrMpc.NAME)
+                self._type.remove_text(MultirotorMpc.NAME)
 
         if self._fw_lqr.is_applicable():
             if not self._type.contains(FixedWingLQR.NAME):
@@ -118,7 +118,7 @@ class ControllerWidget(BaseSettingWidget):
         if controller_type == self.NO_SELECT:
             self._mr_lqrmpc.setVisible(False)
             self._fw_lqr.setVisible(False)
-        elif controller_type == MultirotorLqrMpc.NAME:
+        elif controller_type == MultirotorMpc.NAME:
             self._mr_lqrmpc.setVisible(True)
             self._fw_lqr.setVisible(False)
         elif controller_type == FixedWingLQR.NAME:

@@ -4,7 +4,7 @@ import rospy
 import rospkg
 from dynamic_reconfigure import server
 
-from tobas_mr_lqrmpc.cfg import ControllerConfig
+from tobas_mr_mpc.cfg import ControllerConfig
 
 
 def dynamicReconfigureCb(config: ControllerConfig, level: int) -> ControllerConfig:

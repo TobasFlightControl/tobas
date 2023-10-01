@@ -19,9 +19,9 @@
 #include <tobas_mr_common/acceleration_controller.hpp>
 #include <tobas_mr_rotation_mpc/rotation_controller.hpp>
 
-#include <tobas_mr_lqrmpc/ControllerConfig.h>
+#include <tobas_mr_mpc/ControllerConfig.h>
 
-namespace tobas_mr_lqrmpc
+namespace tobas_mr_mpc
 {
 class ControllerRos : public tobas::BaseNode
 {
@@ -31,7 +31,7 @@ class ControllerRos : public tobas::BaseNode
 
   using super = tobas::BaseNode;
 
-  using ConfigType = tobas_mr_lqrmpc::ControllerConfig;
+  using ConfigType = tobas_mr_mpc::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
@@ -111,4 +111,4 @@ private:
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
 };
-}  // namespace tobas_mr_lqrmpc
+}  // namespace tobas_mr_mpc
