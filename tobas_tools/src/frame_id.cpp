@@ -1,5 +1,3 @@
-#pragma once
-
 #include "../include/tobas_tools/conversions/frame_id.hpp"
 
 using namespace KDL;
