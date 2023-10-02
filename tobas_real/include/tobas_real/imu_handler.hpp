@@ -14,10 +14,10 @@ namespace tobas_real
 class ImuHandler : public tobas::BaseNode
 {
   // Constants
-  static constexpr uint32_t kPublishRate = 400;  // [Hz]
+  static constexpr uint32_t kPublishRate = 100;  // [Hz]
   static constexpr uint32_t kMeasureGyroBiasCount = 1000;
-  static constexpr uint32_t kMeasureGyroBiasRate = 400;
-  static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
+  static constexpr uint32_t kMeasureGyroBiasRate = 400;  // [Hz]
+  static constexpr double kStaticGyroThreshold = 0.2;    // [rad/s]
 
   using super = tobas::BaseNode;
 
