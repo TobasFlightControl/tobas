@@ -24,9 +24,8 @@ namespace tobas_mr_mpc
 {
 class ControllerRos : public tobas::BaseNode
 {
-  static constexpr double kWarnPeriod = 1.;              // [s]
-  static constexpr double kErrorPeriod = 1.;             // [s]
-  static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
+  static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
+  static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 
   using super = tobas::BaseNode;
 

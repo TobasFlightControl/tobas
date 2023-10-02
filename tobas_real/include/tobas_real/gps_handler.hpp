@@ -17,7 +17,7 @@ class GpsHandler : public tobas::BaseNode
   // SPI通信の読み出しが間に合わないとFIFOにデータが溜まり遅延が発生すると思われる．
   // TODO: 10Hzに上げてみる
   static constexpr uint32_t kMeasurementRate = 1000 / 5;
-  static constexpr double kMainTimerRate = 1000.;
+  static constexpr uint32_t kMainTimerRate = 1000;  // [Hz]
 
   using super = tobas::BaseNode;
 

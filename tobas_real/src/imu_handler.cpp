@@ -32,8 +32,7 @@ ImuHandler::ImuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
     nh_.createTimer(kMeasureGyroBiasRate, &ImuHandler::measureGyroBiasTimerCb, this);
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
-  main_timer_ =
-    nh_.createTimer(tobas::kImuPublishRate, &ImuHandler::mainTimerCb, this, false, false);
+  main_timer_ = nh_.createTimer(kPublishRate, &ImuHandler::mainTimerCb, this, false, false);
 }
 
 void ImuHandler::getRosParams()
@@ -120,9 +119,9 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   mag_msg->header.frame_id = "mag_frame";
 
   // Fill covariance matrices
-  const auto acc_var = dh_std::sqr(acc_noise_density_) * tobas::kImuPublishRate;    // [m^2/s^4]
-  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * tobas::kImuPublishRate;  // [rad^2/s^2]
-  const auto mag_var = dh_std::sqr(mag_noise_density_) * tobas::kImuPublishRate;
+  const auto acc_var = dh_std::sqr(acc_noise_density_) * kPublishRate;    // [m^2/s^4]
+  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * kPublishRate;  // [rad^2/s^2]
+  const auto mag_var = dh_std::sqr(mag_noise_density_) * kPublishRate;
   dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
   dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
   dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);

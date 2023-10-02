@@ -38,7 +38,7 @@ class ObserverWidget(BaseSettingWidget):
         self._type.addItem(self.NO_SELECT)
         self._type.addItem(CascadeKalmanFilter.NAME)
         self._type.addItem(ErrorStateKalmanFilter.NAME)
-        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)
+        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)  # Default
         self._rows.addWidget(self._type)
 
         self._cascade = CascadeKalmanFilter(main)

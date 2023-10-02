@@ -10,7 +10,7 @@ namespace tobas_real
 {
 class BarometerHandler : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 50.;  // [Hz]
+  static constexpr uint32_t kUpdateRate = 20;  // [Hz]
 
   using super = tobas::BaseNode;
 

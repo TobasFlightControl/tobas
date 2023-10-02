@@ -68,7 +68,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // バロメータを更新
   barometer_.refreshPressure();
-  usleep(kWaitToUpdateSensor);  // この待ち時間が必須
+  usleep(kWaitToRefreshBarometer);  // この待ち時間が必須
   barometer_.readPressure();
   barometer_.calculatePressureAndTemperature();
 

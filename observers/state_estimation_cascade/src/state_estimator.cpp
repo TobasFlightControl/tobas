@@ -132,12 +132,16 @@ void StateEstimator::initialize(const ImuMsg& imu)
 
 tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositions()
 {
-  constexpr char action_name[] = "static_state_determination";
-  actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(action_name);
-  rosInfo(name_, "Waiting for action server '" << action_name << "' to start.");
+  actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(
+    tobas::kStaticStateDeterminationAction);
+  rosInfo(
+    name_,
+    "Waiting for action server '" << tobas::kStaticStateDeterminationAction << "' to start.");
   ac.waitForServer();
 
-  rosInfo(name_, "Action server '" << action_name << "' started, sending goal.");
+  rosInfo(
+    name_,
+    "Action server '" << tobas::kStaticStateDeterminationAction << "' started, sending goal.");
   tobas_msgs::StaticStateDeterminationGoal goal;
   goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
   goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
@@ -146,14 +150,17 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosthrow(name_, "'" << action_name << "' did not finish before timeout.");
+    rosthrow(
+      name_, "'" << tobas::kStaticStateDeterminationAction << "' did not finish before timeout.");
   }
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
-    rosthrow(name_, "'" << action_name << "' finished with error: " << state.getText());
+    rosthrow(
+      name_, "'" << tobas::kStaticStateDeterminationAction
+                 << "' finished with error: " << state.getText());
   }
 
   // 経緯度

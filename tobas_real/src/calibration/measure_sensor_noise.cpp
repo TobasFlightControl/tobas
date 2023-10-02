@@ -68,7 +68,7 @@ void MeasureSensorNoise::run()
     // センサ情報を更新
     imu_.update();
     barometer_.refreshPressure();
-    usleep(kWaitToUpdateSensor);
+    usleep(kWaitToRefreshBarometer);
 
     // モータが動いている状態でのノイズを計測するため，PWMコマンドを送信
     constexpr double max_pwm_period = kPwmMin + (kPwmMax - kPwmMin) * kMaxThrottle;

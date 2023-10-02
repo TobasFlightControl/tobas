@@ -12,8 +12,6 @@ namespace tobas_common_actions
 {
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
-  static constexpr char kActionName[] = "static_state_determination";
-
   // 中心極限定理によると，データ数が30以上なら多くの分布に対してサンプル平均の分布は近似的に正規分布になる．
   // よって，データ数がそれ以上ならば平均と分散の推定がより信頼できると一般的には考えられる． (GPT4)
   static constexpr uint32_t kMinimumImuCount = 100;

@@ -89,7 +89,7 @@ bool ControllerRos::isCommandLevelOk(const tobas_msgs::CommandLevel& level)
   if (level.data < cmd_level_)
   {
     rosErrorThrottle(
-      kErrorPeriod, name_,
+      kCommandLevelErrorPeriod, name_,
       "The command is ignored because its level " << static_cast<int>(level.data)
                                                   << "is lower than the current command level "
                                                   << static_cast<int>(cmd_level_) << ".");
@@ -121,8 +121,10 @@ void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
+  // 状態を更新
   pt_ = pt;
 
+  // 初期化
   if (!is_initialized_)
   {
     if (isReady())

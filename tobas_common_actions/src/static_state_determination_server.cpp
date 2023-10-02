@@ -5,6 +5,8 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/util.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_common_actions/static_state_determination_server.hpp"
 #include "../include/tobas_common_actions/common.hpp"
 
@@ -19,7 +21,11 @@ StaticStateDeterminationServer::StaticStateDeterminationServer(
   string name)
   : super(nh, pnh, name),
     is_action_running_(false),
-    as_(nh_, kActionName, boost::bind(&StaticStateDeterminationServer::executeCb, this, _1), false)
+    as_(
+      nh_,
+      tobas::kStaticStateDeterminationAction,
+      boost::bind(&StaticStateDeterminationServer::executeCb, this, _1),
+      false)
 {
   getRosParams();
   registerPublishers();

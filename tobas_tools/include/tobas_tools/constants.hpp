@@ -16,6 +16,5 @@ static constexpr double kMotorSpinArm = 0.1;
 
 static constexpr char kLandingAction[] = "landing_action";
 static constexpr char kTakeoffAction[] = "takeoff_action";
-
-static constexpr double kImuPublishRate = 100.;  // [Hz]
+static constexpr char kStaticStateDeterminationAction[] = "static_state_determination";
 }  // namespace tobas

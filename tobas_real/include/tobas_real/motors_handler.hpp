@@ -15,7 +15,7 @@ namespace tobas_real
 {
 class MotorsHandler : public tobas::BaseNode
 {
-  static constexpr double kCheckIntervalRate = 10.;      // [Hz]
+  static constexpr uint32_t kCheckIntervalRate = 10;     // [Hz]
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
   static constexpr double kThrottleMargin = 0.01;
 
