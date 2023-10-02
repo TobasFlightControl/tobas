@@ -11,15 +11,14 @@
 
 namespace tobas_state_checker
 {
-static constexpr double kUpdateRate = 10.;               // [Hz]
-static constexpr double kWarnPeriod = 3.;                // [s]
-static constexpr double kWaitForActionServer = 10.;      // [s]
-static constexpr double kWarnCpuTemperature = 70.;       // [degree celsius]
-static constexpr double kFatalCpuTemperture = 80.;       // [degree celsius]
-static constexpr double kPoseTwistTimeout = 0.5;         // [s]
-static constexpr double kAttitudeThreshold = M_PI_2;     // [rad]
-static constexpr double kBatteryVoltageWarnTime = 3.;    // [s]
-static constexpr double kBatteryVoltageFatalTime = 60.;  // [s]
+static constexpr uint32_t kUpdateRate = 10;                // [Hz]
+static constexpr double kWarnPeriod = 3.;                  // [s]
+static constexpr double kWaitForActionServerTimeout = 5.;  // [s]
+static constexpr double kWarnCpuTemperature = 70.;         // [degree celsius]
+static constexpr double kFatalCpuTemperture = 80.;         // [degree celsius]
+static constexpr double kAttitudeThreshold = M_PI_2;       // [rad]
+static constexpr double kBatteryVoltageWarnTime = 3.;      // [s]
+static constexpr double kBatteryVoltageFatalTime = 60.;    // [s]
 
 class StateChecker : public tobas::BaseNode
 {
@@ -30,8 +29,6 @@ public:
     ros::NodeHandle nh,
     ros::NodeHandle pnh,
     std::string name = ros::this_node::getName());
-
-  void run();
 
 private:
   // rosparams
@@ -61,5 +58,7 @@ private:
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+
+  void waitForLandingActionTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_state_checker

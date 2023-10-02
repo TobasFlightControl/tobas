@@ -19,36 +19,9 @@ StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   registerPublishers();
   registerSubscribers();
 
-  // Wait for landing action server to start
-  if (!ac_.waitForServer(ros::Duration(kWaitForActionServer)))
-  {
-    rosError(
-      name_, "'" << tobas::kLandingAction << "' action server failed to start within "
-                 << kWaitForActionServer << " seconds. Please check the server status.");
-    requestShutdown();
-  }
-}
-
-void StateChecker::run()
-{
-  dh_ros::Rate rate(kUpdateRate);
-
-  while (nh_.ok())
-  {
-    const auto cur_time = ros::Time::now();
-
-    // ベースの状態が一定時間得られていない場合は落とす
-    if (pt_received_ && (cur_time - t_last_pt_).toSec() > kPoseTwistTimeout)
-    {
-      rosFatal(
-        name_, "The Pose & Twist is not received for " << kPoseTwistTimeout
-                                                       << " seconds. Shutting down the system.");
-      requestShutdown();
-    }
-
-    ros::spinOnce();
-    rate.sleep();
-  }
+  // 着陸アクションが準備できるまで待機
+  // コンストラクタでのスタックを防ぐために別スレッドで実行する
+  nh_.createTimer(ros::Duration(0), &StateChecker::waitForLandingActionTimerCb, this, true);
 }
 
 void StateChecker::getRosParams()
@@ -175,6 +148,17 @@ void StateChecker::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");
+    requestShutdown();
+  }
+}
+
+void StateChecker::waitForLandingActionTimerCb(const ros::TimerEvent&)
+{
+  if (!ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
+  {
+    rosError(
+      name_, "'" << tobas::kLandingAction << "' action server failed to start within "
+                 << kWaitForActionServerTimeout << " seconds. Please check the server status.");
     requestShutdown();
   }
 }

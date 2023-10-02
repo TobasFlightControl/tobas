@@ -6,5 +6,5 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   tobas_state_checker::StateChecker node(nh, pnh);
-  node.run();
+  ros::spin();
 }
