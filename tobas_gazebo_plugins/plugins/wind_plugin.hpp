@@ -7,8 +7,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/Wind.h>
-
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
 namespace gazebo
@@ -22,6 +20,10 @@ static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
 static constexpr double kDefaultMeanWindSpeed = 0.;
 static constexpr double kDefaultConstantWindDirection = 0.;
 
+/**
+ * @brief Dryden Wind Turbulence Model (Low-Altitude Model)
+ * https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
+ */
 class GazeboWindPlugin : public ModelPlugin
 {
   using super = ModelPlugin;
@@ -45,10 +47,9 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
-  tobas_msgs::Wind wind_;
   double prev_sim_time_;
-  ignition::math::Vector3d const_wind_W_;  // 定常風 (World)
-  double gust_u_, gust_v_, gust_w_;        // 突風成分 (World)
+  ignition::math::Vector3d const_wind_W_;  // [m] 定常風 (World)
+  double gust_u_, gust_v_, gust_w_;        // [m] 突風成分 (World)
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
