@@ -2,14 +2,11 @@
 
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
-#include <dh_ros_tools/rate.hpp>
 
 #include <tobas_msgs/Battery.h>
 
 #include "../include/tobas_real/battery_handler.hpp"
 #include "../include/tobas_real/common.hpp"
-
-#include <netinet/tcp.h>
 
 using namespace std;
 

@@ -1,6 +1,5 @@
 #include <fstream>
 
-#include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_msgs/Cpu.h>

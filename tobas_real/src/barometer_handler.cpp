@@ -3,7 +3,6 @@
 
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 

@@ -6,7 +6,6 @@
 #include <dh_std_tools/boost.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
-#include <dh_ros_tools/rosparam.hpp>
 
 #include "../include/tobas_real/imu_handler.hpp"
 #include "../include/tobas_real/common.hpp"
