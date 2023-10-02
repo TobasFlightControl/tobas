@@ -19,8 +19,8 @@ BatteryHandler::BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string n
   : super(nh, pnh, name)
 {
   getRosParams();
-
   getAdcCoefficient();
+
   adc_.initialize();
 
   registerPublishers();
@@ -80,19 +80,30 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   }
 
   // Compute voltage
-  const double voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
-  if (voltage < kVoltageThreshold)
+  const double voltage_raw = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  if (voltage_raw < kVoltageThreshold)
   {
     rosErrorThrottle(
       kErrorPeriod, name_,
-      "Battery voltage is abnormal: " << voltage << "V. Please check the ADC connection.");
+      "Battery voltage is abnormal: " << voltage_raw << "V. Please check the ADC connection.");
     return;
+  }
+
+  // Filtering
+  if (lpf_.isInitialized())
+  {
+    const auto ts = (event.current_real - event.last_real).toSec();
+    lpf_.update(voltage_raw, ts);
+  }
+  else
+  {
+    lpf_.initialize(dh_std::timeConstFromCutoffFreq(kLpfCutoffFreq), voltage_raw);
   }
 
   // Create battery message
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   battery_msg->header.stamp = event.current_real;
-  battery_msg->voltage = voltage;
+  battery_msg->voltage = lpf_.getState();
 
   // Publish battery message
   battery_pub_.publish(battery_msg);
