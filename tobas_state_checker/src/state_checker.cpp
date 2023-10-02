@@ -12,16 +12,12 @@ using namespace std;
 namespace tobas_state_checker
 {
 StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
-  : super(nh, pnh, name), ac_(tobas::kLandingAction)
+  : super(nh, pnh, name), landing_client_(tobas::kLandingAction)
 {
   getRosParams();
 
   registerPublishers();
   registerSubscribers();
-
-  // 着陸アクションが準備できるまで待機
-  // コンストラクタでのスタックを防ぐために別スレッドで実行する
-  nh_.createTimer(ros::Duration(0), &StateChecker::waitForLandingActionTimerCb, this, true);
 }
 
 void StateChecker::getRosParams()
@@ -52,13 +48,21 @@ void StateChecker::requestShutdown()
 
 void StateChecker::requestLanding()
 {
+  if (!landing_client_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
+  {
+    rosError(
+      name_, "'" << tobas::kLandingAction << "' action server failed to start within "
+                 << kWaitForActionServerTimeout << " seconds. Please check the server status.");
+    return;
+  }
+
   tobas_msgs::LandGoal goal;
   goal.level.data = tobas_msgs::CommandLevel::DEFENSIVE;
-  ac_.sendGoal(goal);
-  ac_.waitForResult();
+  landing_client_.sendGoal(goal);
+  landing_client_.waitForResult();
 
-  const auto result = ac_.getResult();
-  const auto state = ac_.getState();
+  const auto result = landing_client_.getResult();
+  const auto state = landing_client_.getState();
   if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
   {
     rosInfo(name_, state.getText());
@@ -69,10 +73,6 @@ void StateChecker::requestLanding()
     rosError(name_, state.getText());
     rosFatal(name_, "Landing action failed.");
   }
-
-  // 全てのシステムを停止する
-  rosInfo(name_, "Shutting down the system.");
-  requestShutdown();
 }
 
 void StateChecker::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -148,17 +148,6 @@ void StateChecker::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");
-    requestShutdown();
-  }
-}
-
-void StateChecker::waitForLandingActionTimerCb(const ros::TimerEvent&)
-{
-  if (!ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
-  {
-    rosError(
-      name_, "'" << tobas::kLandingAction << "' action server failed to start within "
-                 << kWaitForActionServerTimeout << " seconds. Please check the server status.");
     requestShutdown();
   }
 }

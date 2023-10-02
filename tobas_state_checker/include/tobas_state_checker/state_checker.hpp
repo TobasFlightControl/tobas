@@ -13,7 +13,7 @@ namespace tobas_state_checker
 {
 static constexpr uint32_t kUpdateRate = 10;                // [Hz]
 static constexpr double kWarnPeriod = 3.;                  // [s]
-static constexpr double kWaitForActionServerTimeout = 5.;  // [s]
+static constexpr double kWaitForActionServerTimeout = 3.;  // [s]
 static constexpr double kWarnCpuTemperature = 70.;         // [degree celsius]
 static constexpr double kFatalCpuTemperture = 80.;         // [degree celsius]
 static constexpr double kAttitudeThreshold = M_PI_2;       // [rad]
@@ -45,7 +45,7 @@ private:
   ros::Subscriber pt_sub_;
   ros::Subscriber cmd_sub_;
 
-  actionlib::SimpleActionClient<tobas_msgs::LandAction> ac_;
+  actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_client_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -58,7 +58,5 @@ private:
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
-
-  void waitForLandingActionTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_state_checker
