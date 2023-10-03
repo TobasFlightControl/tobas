@@ -24,8 +24,13 @@ static constexpr double kDefaultGustDuration = 5.;           // [s]
 static constexpr double kDefaultGustInterval = 10.;          // [s]
 
 /**
- * @brief Dryden Wind Turbulence Model (Low-Altitude Model)
- * https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
+ * @brief Modeling of Wind Phenomena and Analysis of Their Effects on UAV Trajectory Tracking
+ * Performance [Siqueira+, 2017] の4つの風を実装． \n
+ *
+ * - Constant wind: \n
+ * - Turbulance: https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html \n
+ * - Wind gust: 1-cosine model (https://aero.w3.kanazawa-u.ac.jp/cgi-bin/wiki.cgi?page=DISTB) \n
+ * - Wind shear: // TODO: An overview of various kinds of wind effects on unmanned aerial vehicle \n
  */
 class GazeboWindPlugin : public ModelPlugin
 {
