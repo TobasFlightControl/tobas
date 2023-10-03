@@ -47,9 +47,9 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
-  double prev_sim_time_;
-  ignition::math::Vector3d const_wind_W_;  // [m] 定常風 (World)
-  double gust_u_, gust_v_, gust_w_;        // [m] 突風成分 (World)
+  double prev_sim_time_ = 0.;
+  ignition::math::Vector3d const_wind_W_;    // [m] 定常風 (World)
+  ignition::math::Vector3d gust_B_ = zero3;  // [m] 突風成分 (Base)
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;

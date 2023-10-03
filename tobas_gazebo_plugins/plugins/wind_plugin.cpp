@@ -2,13 +2,14 @@
 
 #include "./wind_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
+using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboWindPlugin::GazeboWindPlugin()
-  : super(), prev_sim_time_(0.), gust_u_(0.), gust_v_(0.), gust_w_(0.), rnd_gen_(rnd_dev_())
+GazeboWindPlugin::GazeboWindPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 
@@ -46,8 +47,13 @@ void GazeboWindPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
 {
+  // 機体フレームの状態を取得
+  const auto& T_W_B = link_->WorldPose();
+  const auto& P_W_B = T_W_B.Pos();
+  const auto& R_W_B = T_W_B.Rot();
+
   // 地面からの高度を取得
-  const auto h = max(link_->WorldPose().Pos().Z(), kMinimumAltitude);  // [m]
+  const auto h = max(P_W_B.Z(), kMinimumAltitude);  // [m]
   const auto h_ft = h * kMeterToFeet;
   if (h_ft > kLowAltitudeThreshold)
   {
@@ -70,19 +76,22 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   const auto L_uv = h / pow(tmp, 1.2);            // [m]
   const auto sigma_w = 0.1 * mean_speed_;         // [m/s]
   const auto sigma_uv = sigma_w / pow(tmp, 0.4);  // [m/s]
+  const auto r_uv = V / L_uv * dt;                // [-]
+  const auto r_w = V / L_w * dt;                  // [-]
 
   // 乱流の成分を更新
   // 突風の波長が一定の場合，相対的な風速が大きいほど周波数が大きくなる (ドップラー効果)
-  gust_u_ = (1 - V / L_uv * dt) * gust_u_ + sqrt(2 * V / L_uv * dt) * sigma_uv * noise_(rnd_gen_);
-  gust_v_ = (1 - V / L_uv * dt) * gust_v_ + sqrt(2 * V / L_uv * dt) * sigma_uv * noise_(rnd_gen_);
-  gust_w_ = (1 - V / L_w * dt) * gust_w_ + sqrt(2 * V / L_w * dt) * sigma_w * noise_(rnd_gen_);
+  gust_B_.X() = (1 - r_uv) * gust_B_.X() + sqrt(2 * r_uv) * sigma_uv * noise_(rnd_gen_);
+  gust_B_.Y() = (1 - r_uv) * gust_B_.Y() + sqrt(2 * r_uv) * sigma_uv * noise_(rnd_gen_);
+  gust_B_.Z() = (1 - r_w) * gust_B_.Z() + sqrt(2 * r_w) * sigma_w * noise_(rnd_gen_);
+
+  // 全体の風速を計算
+  const auto wind_W = const_wind_W_ + R_W_B * gust_B_;
 
   // 風速メッセージを作成
   auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
   wind_msg->header.frame_id = "world";
-  wind_msg->vel.x(const_wind_W_.X() + gust_u_);
-  wind_msg->vel.y(const_wind_W_.Y() + gust_v_);
-  wind_msg->vel.z(const_wind_W_.Z() + gust_w_);
+  vectorGazeboToKDL(wind_W, wind_msg->vel);
 
   // 風速を発行
   wind_pub_.publish(wind_msg);
