@@ -25,10 +25,6 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
 
-  const_wind_W_.X() = mean_speed_ * cos(direction_);
-  const_wind_W_.Y() = mean_speed_ * sin(direction_);
-  const_wind_W_.Z() = 0.;  // 定常風の垂直成分はゼロ
-
   noise_ = NormalDistribution(0., 1.);
 
   registerPubSub();
@@ -41,8 +37,11 @@ void GazeboWindPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "windPubTopic", wind_topic_, kDefaultWindTopic);
-  getSdfParam(sdf, "meanWindSpeed", mean_speed_, kDefaultMeanWindSpeed);
+  getSdfParam(sdf, "meanWindSpeed", mean_speed_, kDefaultMeanWindSpeed, NON_NEGATIVE);
   getSdfParam(sdf, "constantWindDirection", direction_, kDefaultConstantWindDirection);
+  getSdfParam(sdf, "gustSpeedFactor", gust_speed_factor_, kDefaultGustSpeedFactor, NON_NEGATIVE);
+  getSdfParam(sdf, "gustDuration", gust_duration_, kDefaultGustDuration, POSITIVE);
+  getSdfParam(sdf, "gustInterval", gust_interval_, kDefaultGustInterval, NON_NEGATIVE);
 }
 
 void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
@@ -62,13 +61,52 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   }
 
   // 時刻を更新
-  const auto cur_time = info.simTime.Double();
-  const auto dt = cur_time - prev_sim_time_;
+  const auto& cur_time = info.simTime;
+  const auto dt = (cur_time - prev_sim_time_).Double();
   prev_sim_time_ = cur_time;
 
+  // 突風
+  const auto gust_time = (cur_time - gust_state_change_time_).Double();
+  switch (gust_state_)
+  {
+    case GUST:
+    {
+      if (gust_time > gust_duration_)
+      {
+        gust_state_ = NO_GUST;
+        gust_state_change_time_ = cur_time;
+        break;
+      }
+
+      const auto max_gust_speed = mean_speed_ * gust_speed_factor_;
+      gust_speed_ = 0.5 * max_gust_speed * (1 - cos(2 * M_PI * gust_time / gust_duration_));
+      break;
+    }
+    case NO_GUST:
+    {
+      if (gust_time > gust_interval_)
+      {
+        gust_state_ = GUST;
+        gust_state_change_time_ = cur_time;
+        break;
+      }
+
+      gust_speed_ = 0.;
+      break;
+    }
+    default:
+    {
+      gzthrow("Invalid gust state: " << static_cast<int>(gust_state_));
+    }
+  }
+
+  // 定常風 (平均風速 + 突風)
+  const auto v_steady_wind = mean_speed_ + gust_speed_;
+  const Vector3d steady_W(v_steady_wind * cos(direction_), v_steady_wind * sin(direction_), 0.);
+
   // リンクに対する定常風の相対速度を計算
-  const auto relative_wind_vel_W = const_wind_W_ - link_->WorldLinearVel();  // [m/s]
-  const auto V = relative_wind_vel_W.Length();                               // [m/s]
+  const auto relative_wind_vel_W = steady_W - link_->WorldLinearVel();  // [m/s]
+  const auto V = relative_wind_vel_W.Length();                          // [m/s]
 
   // スケール長と乱流の速度の標準偏差を計算
   const auto tmp = 0.177 + 0.000823 * h_ft;       // [-]
@@ -79,14 +117,14 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   const auto r_uv = V / L_uv * dt;                // [-]
   const auto r_w = V / L_w * dt;                  // [-]
 
-  // 乱流の成分を更新
+  // 乱流を更新
   // 突風の波長が一定の場合，相対的な風速が大きいほど周波数が大きくなる (ドップラー効果)
-  gust_B_.X() = (1 - r_uv) * gust_B_.X() + sqrt(2 * r_uv) * sigma_uv * noise_(rnd_gen_);
-  gust_B_.Y() = (1 - r_uv) * gust_B_.Y() + sqrt(2 * r_uv) * sigma_uv * noise_(rnd_gen_);
-  gust_B_.Z() = (1 - r_w) * gust_B_.Z() + sqrt(2 * r_w) * sigma_w * noise_(rnd_gen_);
+  turb_B_.X() = (1 - r_uv) * turb_B_.X() + sqrt(2 * r_uv) * sigma_uv * noise_(rnd_gen_);
+  turb_B_.Y() = (1 - r_uv) * turb_B_.Y() + sqrt(2 * r_uv) * sigma_uv * noise_(rnd_gen_);
+  turb_B_.Z() = (1 - r_w) * turb_B_.Z() + sqrt(2 * r_w) * sigma_w * noise_(rnd_gen_);
 
   // 全体の風速を計算
-  const auto wind_W = const_wind_W_ + R_W_B * gust_B_;
+  const auto wind_W = steady_W + R_W_B * turb_B_;
 
   // 風速メッセージを作成
   auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
