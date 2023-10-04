@@ -10,7 +10,7 @@ using namespace KDL;
 
 namespace tobas_mr_translation_lqr
 {
-VelocityController::VelocityController() : lqid_(kStateSize, 3, 3)
+TranslationController::TranslationController() : lqid_(kStateSize, 3, 3)
 {
   lqid_.dynamics.A.block<3, 3>(kPosIdx, kVelIdx).diagonal().setOnes();
   lqid_.dynamics.A.block<3, 3>(kVelIdx, kAccIdx).diagonal().setOnes();
@@ -18,7 +18,7 @@ VelocityController::VelocityController() : lqid_(kStateSize, 3, 3)
   lqid_.C.block<3, 3>(0, kPosIdx).diagonal().setOnes();  // 位置に対してI制御を行う
 }
 
-void VelocityController::update(
+void TranslationController::update(
   const Vector& cp,
   const Vector& cv,
   const Vector& ca,
@@ -41,7 +41,7 @@ void VelocityController::update(
   tf::vectorEigenToKDL(ta_eigen, ta);
 }
 
-void VelocityController::configure(const Config& config)
+void TranslationController::configure(const Config& config)
 {
   assert(config.acc_delay_time_const > 0);
   assert(config.hor_pos_weight >= 0);
@@ -86,5 +86,10 @@ void VelocityController::configure(const Config& config)
 
   max_hor_vel_ = config.max_hor_vel;
   max_ver_vel_ = config.max_ver_vel;
+}
+
+Vector3d TranslationController::positionIntegralError() const
+{
+  return lqid_.integralError();
 }
 }  // namespace tobas_mr_translation_lqr

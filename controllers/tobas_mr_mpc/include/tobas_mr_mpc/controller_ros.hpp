@@ -45,14 +45,14 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas_mr_translation_lqr::VelocityController vel_controller_;
-  tobas_mr_common::AccelerationController acc_controller_;
-  tobas_mr_rotation_mpc::RotationController rot_controller_;
+  tobas_mr_translation_lqr::TranslationController trans_ctrl_;
+  tobas_mr_common::AccelerationController acc_ctrl_;
+  tobas_mr_rotation_mpc::RotationController rot_ctrl_;
 
   // Dynamic parameters
-  tobas_mr_translation_lqr::Config vel_config_;
-  tobas_mr_common::AccelerationControllerConfig acc_config_;
-  tobas_mr_rotation_mpc::RotationControllerConfig rot_config_;
+  tobas_mr_translation_lqr::Config trans_cfg_;
+  tobas_mr_common::AccelerationControllerConfig acc_cfg_;
+  tobas_mr_rotation_mpc::RotationControllerConfig rot_cfg_;
 
   // Constant variables
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か

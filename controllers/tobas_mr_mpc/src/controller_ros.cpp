@@ -21,7 +21,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    rot_controller_(drone_),
+    rot_ctrl_(drone_),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &ControllerRos::checkTopicsTimerCb, this),
     server_(pnh_)
 {
@@ -30,7 +30,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
-  rot_controller_.updateInternalDataStructures();
+  rot_ctrl_.updateInternalDataStructures();
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
@@ -158,12 +158,12 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_acc_W = pt->pose.euler * pt->accel.linear;
 
     // 目標加速度を計算
-    vel_controller_.update(
+    trans_ctrl_.update(
       pt->pose.pos, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
 
     // 推力和と目標姿勢を計算
-    acc_controller_.update(
+    acc_ctrl_.update(
       tar_acc, pt->pose.euler.yaw, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は位置指令をそのまま流す
@@ -176,6 +176,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     feedback->target_velocity_local = pt->pose.euler.Inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = pt->pose.euler * tar_acc;
+    tf::vectorEigenToKDL(trans_ctrl_.positionIntegralError(), feedback->position_integral_error);
   }
 
   // Rotation Controller
@@ -205,7 +206,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     try
     {
       // stopwatch_.start();
-      thrusts_ = rot_controller_.update(
+      thrusts_ = rot_ctrl_.update(
         pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
@@ -308,41 +309,41 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  vel_config_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
-  vel_config_.hor_pos_weight = cfg.horizontal_position_weight;
-  vel_config_.ver_pos_weight = cfg.vertical_position_weight;
-  vel_config_.hor_vel_weight = cfg.horizontal_velocity_weight;
-  vel_config_.ver_vel_weight = cfg.vertical_velocity_weight;
-  vel_config_.hor_acc_weight = cfg.horizontal_accel_weight;
-  vel_config_.ver_acc_weight = cfg.vertical_accel_weight;
-  vel_config_.hor_posint_weight = cfg.horizontal_position_integral_weight;
-  vel_config_.ver_posint_weight = cfg.vertical_position_integral_weight;
-  vel_config_.jerk_weight_log10 = cfg.jerk_weight_log10;
-  vel_config_.max_hor_posint_error = cfg.max_horizontal_position_integral_error;
-  vel_config_.max_ver_posint_error = cfg.max_vertical_position_integral_error;
-  vel_config_.max_hor_vel = cfg.max_horizontal_velocity;
-  vel_config_.max_ver_vel = cfg.max_vertical_velocity;
-  vel_controller_.configure(vel_config_);
+  trans_cfg_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
+  trans_cfg_.hor_pos_weight = cfg.horizontal_position_weight;
+  trans_cfg_.ver_pos_weight = cfg.vertical_position_weight;
+  trans_cfg_.hor_vel_weight = cfg.horizontal_velocity_weight;
+  trans_cfg_.ver_vel_weight = cfg.vertical_velocity_weight;
+  trans_cfg_.hor_acc_weight = cfg.horizontal_accel_weight;
+  trans_cfg_.ver_acc_weight = cfg.vertical_accel_weight;
+  trans_cfg_.hor_posint_weight = cfg.horizontal_position_integral_weight;
+  trans_cfg_.ver_posint_weight = cfg.vertical_position_integral_weight;
+  trans_cfg_.jerk_weight_log10 = cfg.jerk_weight_log10;
+  trans_cfg_.max_hor_posint_error = cfg.max_horizontal_position_integral_error;
+  trans_cfg_.max_ver_posint_error = cfg.max_vertical_position_integral_error;
+  trans_cfg_.max_hor_vel = cfg.max_horizontal_velocity;
+  trans_cfg_.max_ver_vel = cfg.max_vertical_velocity;
+  trans_ctrl_.configure(trans_cfg_);
 
-  acc_config_.max_hor_acc = cfg.max_horizontal_accel;
-  acc_config_.max_ver_acc = cfg.max_vertical_accel;
-  acc_config_.max_attitude = cfg.max_attitude;
-  acc_controller_.configure(acc_config_);
+  acc_cfg_.max_hor_acc = cfg.max_horizontal_accel;
+  acc_cfg_.max_ver_acc = cfg.max_vertical_accel;
+  acc_cfg_.max_attitude = cfg.max_attitude;
+  acc_ctrl_.configure(acc_cfg_);
 
-  rot_config_.max_attitude = cfg.max_attitude;
-  rot_config_.max_heading_error = cfg.max_heading_error;
-  rot_config_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
-  rot_config_.pred_horizon = cfg.prediction_horizon;
-  rot_config_.pred_steps = cfg.prediction_steps;
-  rot_config_.attitude_decay = cfg.attitude_decay;
-  rot_config_.heading_decay = cfg.heading_decay;
-  rot_config_.angvel_decay = cfg.angular_velocity_decay;
-  rot_config_.attitude_weight = cfg.attitude_weight;
-  rot_config_.heading_weight = cfg.heading_weight;
-  rot_config_.angvel_weight = cfg.angular_velocity_weight;
-  rot_config_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
-  rot_config_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
-  rot_controller_.configure(rot_config_);
+  rot_cfg_.max_attitude = cfg.max_attitude;
+  rot_cfg_.max_heading_error = cfg.max_heading_error;
+  rot_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  rot_cfg_.pred_horizon = cfg.prediction_horizon;
+  rot_cfg_.pred_steps = cfg.prediction_steps;
+  rot_cfg_.attitude_decay = cfg.attitude_decay;
+  rot_cfg_.heading_decay = cfg.heading_decay;
+  rot_cfg_.angvel_decay = cfg.angular_velocity_decay;
+  rot_cfg_.attitude_weight = cfg.attitude_weight;
+  rot_cfg_.heading_weight = cfg.heading_weight;
+  rot_cfg_.angvel_weight = cfg.angular_velocity_weight;
+  rot_cfg_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
+  rot_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  rot_ctrl_.configure(rot_cfg_);
 
   rosInfo(name_, "Dynamic parameters are updated.");
 }

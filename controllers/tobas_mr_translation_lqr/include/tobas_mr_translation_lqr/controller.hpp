@@ -26,7 +26,7 @@ struct Config
   double max_ver_vel;
 };
 
-class VelocityController
+class TranslationController
 {
   static constexpr uint32_t kPosIdx = 0;
   static constexpr uint32_t kVelIdx = kPosIdx + 3;
@@ -36,7 +36,7 @@ class VelocityController
   static constexpr double kVerAccDecayTimeConst = 0.02;  // [s]
 
 public:
-  explicit VelocityController();
+  explicit TranslationController();
 
   void update(
     const KDL::Vector& cur_pos,
@@ -48,6 +48,8 @@ public:
     KDL::Vector& tar_acc_W);
 
   void configure(const Config& config);
+
+  Eigen::Vector3d positionIntegralError() const;
 
 private:
   double max_hor_vel_;

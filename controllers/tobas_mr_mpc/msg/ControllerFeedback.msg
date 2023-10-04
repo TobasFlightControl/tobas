@@ -7,3 +7,5 @@ kdl_msgs/Vector target_acceleration_global
 kdl_msgs/Vector target_acceleration_local
 tobas_msgs/Euler target_rotation
 float64 target_thrust
+
+kdl_msgs/Vector position_integral_error
