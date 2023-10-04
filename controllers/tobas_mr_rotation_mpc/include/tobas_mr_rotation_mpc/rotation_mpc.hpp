@@ -20,7 +20,7 @@ namespace tobas_mr_rotation_mpc
  * @note 姿勢角をattitude (roll + pitch) とheading (yaw) を分けているのは，
  * 一般に前者の方が後者に比べて重要度が高いため．
  */
-struct RotationControllerConfig
+struct RotationMpcConfig
 {
   double max_attitude;       // [rad]
   double max_heading_error;  // [rad]
@@ -37,10 +37,10 @@ struct RotationControllerConfig
   int thrust_rate_weight_log10;
 };
 
-class RotationController
+class RotationMpc
 {
 public:
-  explicit RotationController(const tobas::Drone& drone);
+  explicit RotationMpc(const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -52,7 +52,7 @@ public:
     const double& tar_U,
     const KDL::Euler& tar_rpy);
 
-  void configure(const RotationControllerConfig& params);
+  void configure(const RotationMpcConfig& params);
 
 private:
   const tobas::Drone& drone_;

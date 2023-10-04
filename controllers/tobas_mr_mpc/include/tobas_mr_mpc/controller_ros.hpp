@@ -16,7 +16,7 @@
 
 #include <tobas_mr_translation_lqr/controller.hpp>
 #include <tobas_mr_common/acceleration_controller.hpp>
-#include <tobas_mr_rotation_mpc/rotation_controller.hpp>
+#include <tobas_mr_rotation_mpc/rotation_mpc.hpp>
 
 #include <tobas_mr_mpc/ControllerConfig.h>
 
@@ -47,12 +47,12 @@ private:
   // Controllers
   tobas_mr_translation_lqr::TranslationController trans_ctrl_;
   tobas_mr_common::AccelerationController acc_ctrl_;
-  tobas_mr_rotation_mpc::RotationController rot_ctrl_;
+  tobas_mr_rotation_mpc::RotationMpc rot_ctrl_;
 
   // Dynamic parameters
   tobas_mr_translation_lqr::Config trans_cfg_;
   tobas_mr_common::AccelerationControllerConfig acc_cfg_;
-  tobas_mr_rotation_mpc::RotationControllerConfig rot_cfg_;
+  tobas_mr_rotation_mpc::RotationMpcConfig rot_cfg_;
 
   // Constant variables
   bool is_transformable_;  // プロペラ以外の可動関節を持つか否か

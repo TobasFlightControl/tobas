@@ -5,7 +5,7 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
-#include "../include/tobas_mr_rotation_mpc/rotation_controller.hpp"
+#include "../include/tobas_mr_rotation_mpc/rotation_mpc.hpp"
 #include "../include/tobas_mr_rotation_mpc/constants.hpp"
 
 using namespace std;
@@ -14,7 +14,7 @@ using namespace KDL;
 
 namespace tobas_mr_rotation_mpc
 {
-RotationController::RotationController(const tobas::Drone& drone)
+RotationMpc::RotationMpc(const tobas::Drone& drone)
   : drone_(drone),
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
@@ -43,7 +43,7 @@ RotationController::RotationController(const tobas::Drone& drone)
   updateInternalDataStructures();
 }
 
-void RotationController::updateInternalDataStructures()
+void RotationMpc::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -66,7 +66,7 @@ void RotationController::updateInternalDataStructures()
   fillInputConstraintFixedParts();
 }
 
-VectorXd RotationController::update(
+VectorXd RotationMpc::update(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
@@ -128,7 +128,7 @@ VectorXd RotationController::update(
   return mpc_.solve();
 }
 
-void RotationController::configure(const RotationControllerConfig& params)
+void RotationMpc::configure(const RotationMpcConfig& params)
 {
   assert(0. <= params.max_attitude && params.max_attitude < M_PI_2);
   assert(params.max_heading_error >= 0.);
@@ -168,7 +168,7 @@ void RotationController::configure(const RotationControllerConfig& params)
   fillInputConstraintFixedParts();
 }
 
-double RotationController::maxThrustSum(const double& battery_voltage) const
+double RotationMpc::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
@@ -178,7 +178,7 @@ double RotationController::maxThrustSum(const double& battery_voltage) const
   return res;
 }
 
-double RotationController::minThrustSum(const double& battery_voltage) const
+double RotationMpc::minThrustSum(const double& battery_voltage) const
 {
   const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
   double res = 0.;
@@ -189,7 +189,7 @@ double RotationController::minThrustSum(const double& battery_voltage) const
   return res;
 }
 
-void RotationController::updateCurrentState(
+void RotationMpc::updateCurrentState(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
@@ -227,7 +227,7 @@ void RotationController::updateCurrentState(
     h_moment_comp.x(), h_moment_comp.y(), h_moment_comp.z();
 }
 
-void RotationController::updateSetState(
+void RotationMpc::updateSetState(
   const double& tar_roll,
   const double& tar_pitch,
   const double& tar_yaw)
@@ -235,7 +235,7 @@ void RotationController::updateSetState(
   mpc_.set_state << tar_roll, tar_pitch, tar_yaw, 0., 0., 0.;
 }
 
-void RotationController::fillInputConstraintFixedParts()
+void RotationMpc::fillInputConstraintFixedParts()
 {
   for (auto& u_const : mpc_.input_constraints)
   {
