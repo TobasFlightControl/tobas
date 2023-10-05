@@ -22,7 +22,11 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     mixer_(drone_),
-    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &ControllerRos::checkTopicsTimerCb, this),
+    check_topics_timer_(
+      nh_,
+      tobas::kCheckTopicsTimerPeriod,
+      &ControllerRos::checkTopicsTimerCb,
+      this),
     server_(pnh_)
 {
   getRosParams();
@@ -89,7 +93,7 @@ bool ControllerRos::isCommandLevelOk(const tobas_msgs::CommandLevel& level)
   if (level.data < cmd_level_)
   {
     rosErrorThrottle(
-      kErrorPeriod, name_,
+      tobas::kCommandLevelErrorPeriod, name_,
       "The command is ignored because its level " << static_cast<int>(level.data)
                                                   << "is lower than the current command level "
                                                   << static_cast<int>(cmd_level_) << ".");

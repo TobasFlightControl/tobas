@@ -9,6 +9,8 @@
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_keyboard_teleop/speed_roll_dpitch_publisher.hpp"
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
@@ -25,7 +27,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
     keyboard_(getKeyboardControls()),
     check_topics_timer_(
       nh_,
-      kCheckTopicsTimerPeriod,
+      tobas::kCheckTopicsTimerPeriod,
       &SpeedRollDeltaPitchPublisher::checkTopicsTimerCb,
       this,
       false),

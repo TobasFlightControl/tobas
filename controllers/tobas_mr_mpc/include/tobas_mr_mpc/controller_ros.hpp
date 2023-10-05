@@ -54,9 +54,6 @@ private:
   tobas_mr_common::AccelerationControllerConfig acc_cfg_;
   tobas_mr_rotation_mpc::RotationMpcConfig rot_cfg_;
 
-  // Constant variables
-  bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
-
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
@@ -67,7 +64,6 @@ private:
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   KDL::JntArray q_;  // 全ての非固定関節の角度
   KDL::Vector tar_acc_fb_;
-  Eigen::VectorXd thrusts_;
   ros::Time t_last_loop_;
 
   // Publishers

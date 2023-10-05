@@ -34,6 +34,7 @@ public:
 
   const bool& hasFixedWing() const;
   const bool& isLoaded() const;
+  bool isTransformable() const;
 
   uint32_t numRotors() const;
   uint32_t numControlSurfaces() const;

@@ -70,7 +70,6 @@ static constexpr uint32_t kWaitToRefreshBarometer = 10000;  // [us]
 static constexpr double kDisarmDuration = 3.;               // [s]
 static constexpr double kDisarmInterval = 0.1;              // [s]
 static constexpr double kErrorPeriod = 1.;                  // [s]
-static constexpr double kCheckTopicsTimerPeriod = 5.;       // [s]
 static constexpr double kCheckLatencyTimeConst = 1.;        // [s]
 static constexpr double kCheckLatencyThreshold = 0.02;      // [s]
 

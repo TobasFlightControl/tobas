@@ -1,5 +1,9 @@
+#include <eigen_conversions/eigen_kdl.h>
+
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
+#include <dh_eigen_tools/geometry.hpp>
+#include <dh_kdl/conversion/kdl_eigen.hpp>
 #include <dh_linear_control/util.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -66,7 +70,7 @@ void RotationMpc::updateInternalDataStructures()
   fillInputConstraintFixedParts();
 }
 
-VectorXd RotationMpc::update(
+void RotationMpc::update(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const JntArray& q,
@@ -97,7 +101,8 @@ VectorXd RotationMpc::update(
   // ダイナミクスと制御入力の制約を更新
   // 姿勢や推力の目標値をそのまま使うと追従性能が悪い場合に想定外の動きになるため，
   // 参照起動からダイナミクスや制約を構成する．
-  for (uint32_t k = 0; k < mpc_.prediction_steps; ++k)
+  // 初期状態のダイナミクスを保持するため，後ろから順に処理する
+  for (int k = mpc_.prediction_steps - 1; k >= 0; --k)
   {
     const double t = mpc_.time_step * k;  // 計画開始時刻 (= 0) からの経過時間
 
@@ -125,47 +130,92 @@ VectorXd RotationMpc::update(
   }
 
   // MPCを解く
-  return mpc_.solve();
+  mpc_.solve();
+
+  // 角加速度を更新
+  const VectorXd xd = cont_.dynamics(mpc_.current_state, mpc_.optimalControlInput());
+  opt_dgyro_ = xd.block<3, 1>(kGyroIdx, 0);
 }
 
-void RotationMpc::configure(const RotationMpcConfig& params)
+void RotationMpc::configure(const RotationMpcConfig& config)
 {
-  assert(0. <= params.max_attitude && params.max_attitude < M_PI_2);
-  assert(params.max_heading_error >= 0.);
-  assert(0. <= params.h_force_comp_rate && params.h_force_comp_rate <= 1.);
-  assert(params.pred_horizon > 0.);
-  assert(params.pred_steps > 0);
-  assert(params.attitude_decay >= 0.);
-  assert(params.heading_decay >= 0.);
-  assert(params.angvel_decay >= 0.);
-  assert(params.attitude_weight > 0.);
-  assert(params.heading_weight > 0.);
-  assert(params.angvel_weight > 0.);
+  assert(0 <= config.max_attitude && config.max_attitude < M_PI_2);
+  assert(config.max_heading_error >= 0);
+  assert(0 <= config.h_force_comp_rate && config.h_force_comp_rate <= 1);
+  assert(config.pred_horizon > 0);
+  assert(config.pred_steps > 0);
+  assert(config.attitude_decay >= 0);
+  assert(config.heading_decay >= 0);
+  assert(config.angvel_decay >= 0);
+  assert(config.attitude_weight > 0);
+  assert(config.heading_weight > 0);
+  assert(config.angvel_weight > 0);
 
-  max_attitude_ = params.max_attitude;
-  max_heading_error_ = params.max_heading_error;
-  h_force_coef_ = params.h_force_comp_rate;
+  max_attitude_ = config.max_attitude;
+  max_heading_error_ = config.max_heading_error;
+  h_force_coef_ = config.h_force_comp_rate;
 
-  mpc_.time_step = params.pred_horizon / params.pred_steps;
-  mpc_.prediction_steps = mpc_.input_steps = params.pred_steps;
+  mpc_.time_step = config.pred_horizon / config.pred_steps;
+  mpc_.prediction_steps = mpc_.input_steps = config.pred_steps;
 
-  mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = params.attitude_decay;
-  mpc_.decay_time_consts(kYawIdx) = params.heading_decay;
-  mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(params.angvel_decay);
+  mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = config.attitude_decay;
+  mpc_.decay_time_consts(kYawIdx) = config.heading_decay;
+  mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(config.angvel_decay);
 
   mpc_.discrete_dynamics.resize(
-    params.pred_steps, ctrl::LinearDynamics(kStateSize, z_rotors_.count()));
+    config.pred_steps, ctrl::LinearDynamics(kStateSize, z_rotors_.count()));
 
-  mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = params.attitude_weight;
-  mpc_.control_weight(kYawIdx) = params.heading_weight;
-  mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(params.angvel_weight);
-  mpc_.input_rate_weight.fill(exp10(params.thrust_rate_weight_log10));
+  mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = config.attitude_weight;
+  mpc_.control_weight(kYawIdx) = config.heading_weight;
+  mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(config.angvel_weight);
+  mpc_.input_rate_weight.fill(exp10(config.thrust_rate_weight_log10));
 
-  mpc_.input_rate_constraints.resize(params.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
-  mpc_.control_constraints.resize(params.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_constraints.resize(config.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
+  mpc_.control_constraints.resize(config.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
 
   mpc_.input_constraints.resize(mpc_.prediction_steps);
   fillInputConstraintFixedParts();
+}
+
+const VectorXd& RotationMpc::optimalThrusts() const
+{
+  return mpc_.optimalControlInput();
+}
+
+Vector RotationMpc::optimalDgyro() const
+{
+  Vector res;
+  tf::vectorEigenToKDL(opt_dgyro_, res);
+  return res;
+}
+
+Vector RotationMpc::optimalGyro(const double& dt) const
+{
+  assert(0 <= dt && dt < mpc_.time_step);
+
+  const auto gyro_0 = mpc_.current_state.block<3, 1>(kGyroIdx, 0);
+  const auto gyro = gyro_0 + opt_dgyro_ * dt;
+
+  Vector res;
+  tf::vectorEigenToKDL(gyro, res);
+  return res;
+}
+
+Rotation RotationMpc::optimalRot(const double& dt) const
+{
+  assert(0 <= dt && dt < mpc_.time_step);
+
+  const Vector3d gyro_0 = mpc_.current_state.block<3, 1>(kGyroIdx, 0);
+  const Vector3d rpy_0 = mpc_.current_state.block<3, 1>(kRotIdx, 0);
+  const Matrix3d rot_0 = eigen_tools::dcmFromRPY(rpy_0.x(), rpy_0.y(), rpy_0.z());
+
+  const Vector3d angleaxis = gyro_0 * dt + 0.5 * opt_dgyro_ * dh_std::sqr(dt);  // 角度の増加分
+  const AngleAxisd delta_rot(angleaxis.norm(), angleaxis.normalized());
+  const Matrix3d rot = rot_0 * delta_rot;
+
+  Rotation res;
+  tf::rotationEigenToKDL(rot, res);
+  return res;
 }
 
 double RotationMpc::maxThrustSum(const double& battery_voltage) const

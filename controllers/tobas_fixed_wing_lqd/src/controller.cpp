@@ -24,7 +24,7 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
-    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
+    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(pnh_)
 {
   getRosParams();

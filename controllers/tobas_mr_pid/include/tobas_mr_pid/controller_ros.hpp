@@ -26,10 +26,6 @@ namespace tobas_mr_pid
 {
 class ControllerRos : public tobas::BaseNode
 {
-  static constexpr double kWarnPeriod = 1.;              // [s]
-  static constexpr double kErrorPeriod = 1.;             // [s]
-  static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
-
   using super = tobas::BaseNode;
 
   using ConfigType = tobas_mr_pid::ControllerConfig;

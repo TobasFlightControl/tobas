@@ -32,7 +32,6 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   z_rotors_.updateInternalDataStructures();
   rot_ctrl_.updateInternalDataStructures();
 
-  is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
 
   registerPublishers();
@@ -58,7 +57,7 @@ void ControllerRos::registerSubscribers()
   event_sub_ = nh_.subscribe("event", 1, &ControllerRos::eventCb, this, tcpNoDelay());
   pt_sub_ = nh_.subscribe("pose_twist", 1, &ControllerRos::poseTwistCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe("battery", 1, &ControllerRos::batteryCb, this, tcpNoDelay());
-  if (is_transformable_)
+  if (drone_.isTransformable())
   {
     joint_state_sub_ =
       nh_.subscribe("joint_states", 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
@@ -78,7 +77,7 @@ bool ControllerRos::isReady() const
   if (battery_ == nullptr)
     return false;
 
-  if (is_transformable_ && js_ == nullptr)
+  if (drone_.isTransformable() && js_ == nullptr)
     return false;
 
   return true;
@@ -184,7 +183,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   {
     // 可動関節角を更新
     // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
-    if (is_transformable_)
+    if (drone_.isTransformable())
     {
       for (const auto& jnt_name : drone_.postureDefiningJoints())
       {
@@ -206,7 +205,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     try
     {
       // stopwatch_.start();
-      thrusts_ = rot_ctrl_.update(
+      rot_ctrl_.update(
         pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
@@ -220,15 +219,16 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
     rotor_speeds->header.stamp = pt->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    for (uint32_t i = 0; i < thrusts_.rows(); ++i)
+    const VectorXd& thrusts = rot_ctrl_.optimalThrusts();
+    for (uint32_t i = 0; i < thrusts.rows(); ++i)
     {
-      if (thrusts_(i) < -1.)
+      if (thrusts(i) < 0)
       {
-        rosFatal(name_, "Negative thrust force: " << thrusts_(i) << " [N]");
+        rosFatal(name_, "Negative thrust force: " << thrusts(i) << " [N]");
         // TODO: 防御モードに移行
       }
       rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
-        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts_(i)));
+        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts(i)));
     }
 
     // モータ速度を発行
@@ -303,7 +303,7 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (pt_ == nullptr)
     rosWarn(name_, "Pose & Twist is not received yet.");
 
-  if (is_transformable_ && js_ == nullptr)
+  if (drone_.isTransformable() && js_ == nullptr)
     rosWarn(name_, "Joint states are not received yet.");
 }
 

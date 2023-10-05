@@ -44,7 +44,7 @@ public:
 
   void updateInternalDataStructures();
 
-  Eigen::VectorXd update(
+  void update(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::JntArray& q,
@@ -52,7 +52,12 @@ public:
     const double& tar_U,
     const KDL::Euler& tar_rpy);
 
-  void configure(const RotationMpcConfig& params);
+  void configure(const RotationMpcConfig& config);
+
+  const Eigen::VectorXd& optimalThrusts() const;
+  KDL::Vector optimalDgyro() const;
+  KDL::Vector optimalGyro(const double& dt) const;
+  KDL::Rotation optimalRot(const double& dt) const;
 
 private:
   const tobas::Drone& drone_;
@@ -69,6 +74,7 @@ private:
   KDL::Frame T_base_rotor_;
   KDL::Vector P_base_cog_;
   KDL::RotationalInertia I_cog_;  // CoG周りの回転慣性テンソル
+  Eigen::Vector3d opt_dgyro_;
 
   double max_attitude_;
   double max_heading_error_;

@@ -27,7 +27,7 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
-    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
+    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(pnh_)
 {
   getRosParams();
@@ -133,8 +133,9 @@ void Controller::runOnce()
   updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
 
   // MPCを解いて最適制御入力を求める
-  const auto du = mpc_.solve();
-  const auto u = eom_.trimInput() + du;
+  mpc_.solve();
+  const VectorXd& du = mpc_.optimalControlInput();
+  const VectorXd u = eom_.trimInput() + du;
 
   // For debug
   // cout << "A_cont:" << endl << eom_.A() << endl;

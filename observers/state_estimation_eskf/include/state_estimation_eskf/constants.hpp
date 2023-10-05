@@ -45,6 +45,5 @@ static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
 
 // その他定数
 static constexpr double kPrintStddevPeriod = 1.;       // [s]
-static constexpr double kCheckTopicsTimerPeriod = 5.;  // [s]
 static constexpr double kImuTimeGapThreshold = 0.05;   // [s]
 }  // namespace state_estimation_eskf

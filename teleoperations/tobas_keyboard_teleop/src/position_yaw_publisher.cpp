@@ -52,7 +52,7 @@ void PositionYawPublisher::run()
 {
   while (pt_ == nullptr)
   {
-    rosWarnThrottle(kCheckTopicsTimerPeriod, name_, "Pose & Twist is not received yet.");
+    rosWarnThrottle(tobas::kCheckTopicsTimerPeriod, name_, "Pose & Twist is not received yet.");
     sleep(0.1);
     ros::spinOnce();
   }

@@ -38,7 +38,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   : super(nh, pnh, name),
     check_topics_timer_(
       nh_,
-      kCheckTopicsTimerPeriod,
+      tobas::kCheckTopicsTimerPeriod,
       &ErrorStateKalmanFilterRos::checkTopicsTimerCb,
       this),
     server_(pnh_)  // NodeletのときはPrivate NodeHandleを明示的に渡す必要がある

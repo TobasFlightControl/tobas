@@ -110,6 +110,11 @@ const bool& Drone::isLoaded() const
   return is_loaded_;
 }
 
+bool Drone::isTransformable() const
+{
+  return posture_defining_joints_.size() > 0;
+}
+
 uint32_t Drone::numRotors() const
 {
   return rotor_configs_.size();
