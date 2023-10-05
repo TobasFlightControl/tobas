@@ -39,10 +39,7 @@ private:
 
   KDL::Rotation rpyvel_angvel_kdl_;
   Eigen::Matrix3d rpyvel_angvel_eigen_;
-  KDL::Vector P_base_cog_;
-  Eigen::Vector3d P_cog_rotor_eigen_;
-  KDL::Frame T_base_rotor_;
-  KDL::RotationalInertia I_cog_kdl_;  // CoG周りの回転慣性テンソル
-  Eigen::Matrix3d I_cog_eigen_;       // CoG周りの回転慣性テンソル
+  Eigen::Vector3d P_cog_rotor_;
+  Eigen::Matrix3d I_cog_;  // CoG周りの回転慣性テンソル
 };
 }  // namespace tobas_mr_rotation_mpc

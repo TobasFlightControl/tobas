@@ -28,9 +28,6 @@ private:
 
   KDL::TreeJntToInertiaSolver inertia_solver_;
 
-  KDL::Vector cog_;
-  KDL::RotationalInertia I_;
-
   double c_pitch_alpha_cg_;
   double c_yaw_beta_cg_;
   std::vector<double> c_pitch_delta_cg_;

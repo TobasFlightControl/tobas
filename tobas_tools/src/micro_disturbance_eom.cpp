@@ -75,12 +75,14 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
-  inertia_solver_.JntToCart(q, P_base_cog_, I_kdl_);
+  auto I_base = inertia_solver_.JntToCart(q);
+  const auto P_base_cog = I_base.getCOG();
+  const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
-  const auto I_x = I_kdl_.data[0];
-  const auto I_y = I_kdl_.data[4];
-  const auto I_z = I_kdl_.data[8];
-  const auto I_xz = I_kdl_.data[2];
+  const auto I_x = I_cog.data[0];
+  const auto I_y = I_cog.data[4];
+  const auto I_z = I_cog.data[8];
+  const auto I_xz = I_cog.data[2];
 
   // p.97
   const auto tmp = 1. - sqr(I_xz) / (I_x * I_z);
@@ -171,17 +173,17 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   }
 
   // thrust -> p,q,r
-  tf::rotInertiaKDLToEigen(I_kdl_, I_eigen_);
-  const auto I_inv = I_eigen_.inverse();
+  tf::rotInertiaKDLToEigen(I_cog, I_cog_);
+  const auto I_cog_inv = I_cog_.inverse();
   for (uint32_t i = 0; i < x_rotors_.count(); ++i)
   {
-    fk_solver_.JntToCart(q, x_rotors_.linkName(i), T_base_rotor_);
-    const auto P_cog_rotor_kdl = T_base_rotor_.p - P_base_cog_;
-    tf::vectorKDLToEigen(P_cog_rotor_kdl, P_cog_rotor_eigen_);
+    const auto T_base_rotor = fk_solver_.JntToCart(q, x_rotors_.linkName(i));
+    const auto P_cog_rotor_kdl = T_base_rotor.p - P_base_cog;
+    tf::vectorKDLToEigen(P_cog_rotor_kdl, P_cog_rotor_);
     const auto& d = x_rotors_.direction(i);
     const auto& c = x_rotors_.momentConstant(i);
-    Vector3d v = I_inv * (P_cog_rotor_eigen_.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
-    eigen_tools::vectorNwuToNed(v);                                              // NWU -> NED
+    Vector3d v = I_cog_inv * (P_cog_rotor_.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
+    eigen_tools::vectorNwuToNed(v);                                            // NWU -> NED
     B_.block(kStateIdx_p, i, 3, 1) = v;
   }
 

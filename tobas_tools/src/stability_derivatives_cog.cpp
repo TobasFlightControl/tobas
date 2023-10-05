@@ -28,10 +28,11 @@ void StabilityDerivativesCG::update(const JntArray& q)
   const auto& aero = drone_.aerodynamics();
 
   // CoGを更新
-  inertia_solver_.JntToCart(q, cog_, I_);
+  const auto I_base = inertia_solver_.JntToCart(q);
+  const auto cog = I_base.getCOG();
 
   // 安定微係数を更新: (2.2-40), (3.2-23)
-  const auto dx = drone_.vehicle().ac.x() - cog_.x();
+  const auto dx = drone_.vehicle().ac.x() - cog.x();
   const auto dx_b = dx / drone_.vehicle().wing_span;
   const auto dx_c = dx / drone_.vehicle().mac;
 

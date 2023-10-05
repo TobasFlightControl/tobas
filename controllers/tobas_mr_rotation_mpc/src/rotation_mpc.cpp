@@ -253,7 +253,8 @@ void RotationMpc::updateCurrentState(
   const Vector vel_perp(vel.x(), vel.y(), 0);
 
   // 重心を求める
-  inertia_solver_.JntToCart(q, P_base_cog_, I_cog_);
+  const auto I_base = inertia_solver_.JntToCart(q);
+  const auto P_base_cog = I_base.getCOG();
 
   // 簡単のため全プロペラの推力が等しいとしてH-forceの和を計算
   // TODO: より真値に近い回転数を用いて計算
@@ -263,8 +264,8 @@ void RotationMpc::updateCurrentState(
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     // CoG -> Rotor の位置を求める
-    fk_solver_.JntToCart(q, z_rotors_.linkName(i), T_base_rotor_);
-    const Vector P_cog_rotor = T_base_rotor_.p - P_base_cog_;
+    const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));
+    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
 
     const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);
     sum += z_rotors_.dragConstant(i) * rot_speed * P_cog_rotor;

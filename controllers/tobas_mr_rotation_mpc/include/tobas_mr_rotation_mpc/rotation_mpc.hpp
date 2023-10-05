@@ -71,9 +71,6 @@ private:
   // ctrl::C2D_RK4 c2d_;
   ctrl::LinearDenseMPC mpc_;
 
-  KDL::Frame T_base_rotor_;
-  KDL::Vector P_base_cog_;
-  KDL::RotationalInertia I_cog_;  // CoG周りの回転慣性テンソル
   Eigen::Vector3d opt_dgyro_;
 
   double max_attitude_;

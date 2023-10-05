@@ -160,11 +160,8 @@ private:
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
 
   // 可変値
-  KDL::Vector P_base_cog_;        // 重心 [m]
-  KDL::RotationalInertia I_kdl_;  // 重心周りの慣性テンソル [kg*m^2]
-  Eigen::Matrix3d I_eigen_;       // 重心周りの慣性テンソル [kg*m^2]
-  Eigen::Vector3d P_cog_rotor_eigen_;
-  KDL::Frame T_base_rotor_;
+  Eigen::Matrix3d I_cog_;  // 重心周りの慣性テンソル [kg*m^2]
+  Eigen::Vector3d P_cog_rotor_;
 
   void setInputLimits(const double& battery_voltage);
 };

@@ -35,10 +35,12 @@ void MultiRotorDynamics::updateInternalDataStructures()
 
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
 {
-  // 慣性テンソルの逆行列を計算
-  inertia_solver_.JntToCart(q, P_base_cog_, I_cog_kdl_);
-  tf::rotInertiaKDLToEigen(I_cog_kdl_, I_cog_eigen_);
-  const Matrix3d I_cog_inv = I_cog_eigen_.inverse();
+  // 慣性テンソルと重心を計算
+  auto I_base = inertia_solver_.JntToCart(q);
+  const auto P_base_cog = I_base.getCOG();
+  const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
+  tf::rotInertiaKDLToEigen(I_cog, I_cog_);
+  const Matrix3d I_cog_inv = I_cog_.inverse();
 
   // Update A
   eulerrateFromAngvelLocal(roll, pitch, rpyvel_angvel_kdl_);
@@ -49,12 +51,12 @@ void MultiRotorDynamics::update(const double& roll, const double& pitch, const J
   // Update B
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    fk_solver_.JntToCart(q, z_rotors_.linkName(i), T_base_rotor_);
-    const auto P_cog_rotor_kdl = T_base_rotor_.p - P_base_cog_;
-    tf::vectorKDLToEigen(P_cog_rotor_kdl, P_cog_rotor_eigen_);
+    const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));
+    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
+    tf::vectorKDLToEigen(P_cog_rotor, P_cog_rotor_);
     const auto& d = z_rotors_.direction(i);
     const auto& cm = z_rotors_.momentConstant(i);
-    B.block<3, 1>(kGyroIdx, i) = I_cog_inv * (P_cog_rotor_eigen_.cross(UNIT_Z) - (d * cm) * UNIT_Z);
+    B.block<3, 1>(kGyroIdx, i) = I_cog_inv * (P_cog_rotor_.cross(UNIT_Z) - (d * cm) * UNIT_Z);
   }
 }
 }  // namespace tobas_mr_rotation_mpc

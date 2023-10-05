@@ -61,26 +61,28 @@ VectorXd Mixer::solve(
   tf::vectorKDLToEigen(cur_gyro_B, cur_gyro_);
   tf::vectorKDLToEigen(tar_dgyro_B, tar_dgyro_);
 
-  // 重心と慣性テンソルを更新
-  inertia_solver_.JntToCart(cur_q, P_base_cog_, I_cog_kdl_);
-  tf::rotInertiaKDLToEigen(I_cog_kdl_, I_cog_eigen_);
+  // 慣性テンソルと重心を計算
+  auto I_base = inertia_solver_.JntToCart(cur_q);
+  const auto P_base_cog = I_base.getCOG();
+  const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
+  tf::rotInertiaKDLToEigen(I_cog, I_cog_);
 
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    fk_solver_.JntToCart(cur_q, z_rotors_.linkName(i), T_base_rotor_);
-    const auto P_cog_rotor_kdl = T_base_rotor_.p - P_base_cog_;
-    tf::vectorKDLToEigen(P_cog_rotor_kdl, P_cog_rotor_eigen_);
+    const auto T_base_rotor = fk_solver_.JntToCart(cur_q, z_rotors_.linkName(i));
+    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
+    tf::vectorKDLToEigen(P_cog_rotor, P_cog_rotor_);
     const auto& d = z_rotors_.direction(i);
     const auto& cm = z_rotors_.momentConstant(i);
-    A_.col(i) = (d * cm) * UNIT_Z - P_cog_rotor_eigen_.cross(UNIT_Z);
+    A_.col(i) = (d * cm) * UNIT_Z - P_cog_rotor_.cross(UNIT_Z);
   }
 
-  qp_solver_.problem.G.topLeftCorner(3, 3) = I_cog_eigen_;
+  qp_solver_.problem.G.topLeftCorner(3, 3) = I_cog_;
   qp_solver_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
 
   // TODO: H-forceを考慮
-  const auto inertia_torque = I_cog_eigen_ * tar_dgyro_;
-  const auto coriolis_torque = cur_gyro_.cross(I_cog_eigen_ * cur_gyro_);
+  const auto inertia_torque = I_cog_ * tar_dgyro_;
+  const auto coriolis_torque = cur_gyro_.cross(I_cog_ * cur_gyro_);
   qp_solver_.problem.h.topRows(3) = -inertia_torque - coriolis_torque - A_ * tar_thrusts;
 
   const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;

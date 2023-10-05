@@ -56,11 +56,8 @@ private:
 
   Eigen::Vector3d cur_gyro_;
   Eigen::Vector3d tar_dgyro_;
-  KDL::Vector P_base_cog_;
-  Eigen::Vector3d P_cog_rotor_eigen_;
-  KDL::Frame T_base_rotor_;
-  KDL::RotationalInertia I_cog_kdl_;  // CoG周りの回転慣性テンソル
-  Eigen::Matrix3d I_cog_eigen_;       // CoG周りの回転慣性テンソル
+  Eigen::Vector3d P_cog_rotor_;
+  Eigen::Matrix3d I_cog_;  // CoG周りの回転慣性テンソル
 
   Eigen::Matrix3Xd A_;
   Eigen::VectorXd max_thrusts_;
