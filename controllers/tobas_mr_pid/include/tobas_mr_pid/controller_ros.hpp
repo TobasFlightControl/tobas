@@ -15,12 +15,12 @@
 #include <tobas_msgs/RotorSpeeds.h>
 
 #include <tobas_mr_common/acceleration_controller.hpp>
+#include <tobas_mr_common/mixer.hpp>
 
 #include <tobas_mr_pid/ControllerConfig.h>
 
 #include "./translation_controller.hpp"
 #include "./rotation_controller.hpp"
-#include "./mixer.hpp"
 
 namespace tobas_mr_pid
 {
@@ -47,7 +47,7 @@ private:
   TranslationController trans_controller_;
   tobas_mr_common::AccelerationController acc_controller_;
   RotationController rot_controller_;
-  Mixer mixer_;
+  tobas_mr_common::Mixer mixer_;
 
   // Dynamic parameters
   TranslationControllerConfig trans_config_;

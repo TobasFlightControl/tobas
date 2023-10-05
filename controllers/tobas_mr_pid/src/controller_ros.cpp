@@ -213,7 +213,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // tar_dgyro_ = tar_rpydd_;  // 姿勢，角速度を0と近似した場合
 
     // プロペラの推力を計算
-    const VectorXd thrusts = mixer_.solve(pt->twist.rot, tar_dgyro_, q_, tar_rpyt_->thrust);
+    const VectorXd thrusts =
+      mixer_.solve(battery_->voltage, q_, pt->twist.rot, tar_dgyro_, tar_rpyt_->thrust);
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
@@ -327,6 +328,8 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   rot_config_.max_attitude = cfg.max_attitude;
   rot_config_.max_heading_error = cfg.max_heading_error;
   rot_controller_.configure(rot_config_);
+
+  // TODO: Mixerの設定
 
   rosInfo(name_, "Dynamic parameters are updated.");
 }
