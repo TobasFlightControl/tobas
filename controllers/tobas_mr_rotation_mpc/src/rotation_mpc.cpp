@@ -65,8 +65,6 @@ void RotationMpc::updateInternalDataStructures()
   mpc_.input_weight = VectorXd::Zero(z_rotors_.count());
   mpc_.input_rate_weight.resize(z_rotors_.count());
 
-  mpc_.last_input = VectorXd::Zero(z_rotors_.count());
-
   fillInputConstraintFixedParts();
 }
 

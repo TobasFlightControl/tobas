@@ -52,7 +52,6 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   mpc_.control_weight.resize(kCtrlSize);
   mpc_.current_state.resize(eom_.kStateSize);
   mpc_.set_state.resize(kCtrlSize);
-  mpc_.last_input = VectorXd::Zero(eom_.inputSize());
 
   registerPublishers();
   registerSubscribers();
