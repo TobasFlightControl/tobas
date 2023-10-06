@@ -201,7 +201,7 @@ void Controller::setInputConstraint()
 {
   const VectorXd lb = eom_.minDeltaInput();
   const VectorXd ub = eom_.maxDeltaInput();
-  dh_std::fill(mpc_.input_constraints, ctrl::matIneqFromRange(lb, ub));
+  dh_std::fill(mpc_.input_ineqs, ctrl::matIneqFromRange(lb, ub));
 }
 
 void Controller::setInputRateConstraint()
@@ -217,7 +217,7 @@ void Controller::setInputRateConstraint()
     ub(x_rotors_.count() + i) = +max_angle_rate;
   }
 
-  dh_std::fill(mpc_.input_rate_constraints, ctrl::matIneqFromRange(lb, ub));
+  dh_std::fill(mpc_.input_rate_ineqs, ctrl::matIneqFromRange(lb, ub));
 }
 
 void Controller::updateCurrentStateVector()
@@ -482,9 +482,12 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   mpc_.input_rate_weight.bottomRows(drone_.numControlSurfaces())
     .fill(exp10(cfg.deflection_rate_weight_log10));
 
-  mpc_.input_rate_constraints.resize(cfg.prediction_steps);
-  mpc_.input_constraints.resize(cfg.prediction_steps);
-  mpc_.control_constraints.resize(cfg.prediction_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_eqs.resize(cfg.prediction_steps, ctrl::LinearEquation(eom_.inputSize(), 0));
+  mpc_.input_eqs.resize(cfg.prediction_steps, ctrl::LinearEquation(eom_.inputSize(), 0));
+  mpc_.control_eqs.resize(cfg.prediction_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_ineqs.resize(cfg.prediction_steps);
+  mpc_.input_ineqs.resize(cfg.prediction_steps);
+  mpc_.control_ineqs.resize(cfg.prediction_steps, ctrl::LinearEquation(kCtrlSize, 0));
 
   setInputRateConstraint();
 }

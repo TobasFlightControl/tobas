@@ -115,16 +115,14 @@ void RotationMpc::update(
     // 個々のプロペラの推力の限界に関する不等式制約
     for (uint32_t i = 0; i < z_rotors_.count(); ++i)
     {
-      mpc_.input_constraints[k].b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
-      mpc_.input_constraints[k].b(z_rotors_.count() + i) =
-        -z_rotors_.thrustFromVoltage(i, min_voltage);
+      mpc_.input_ineqs[k].b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
+      mpc_.input_ineqs[k].b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
     }
 
     // 全てのプロペラの推力の合計に関する等式制約
     const double thrust_k =
       clamp(thrust_z / (cos(roll_k) * cos(pitch_k)), min_thrust_sum, max_thrust_sum);
-    mpc_.input_constraints[k].b(z_rotors_.count() * 2) = thrust_k;
-    mpc_.input_constraints[k].b(z_rotors_.count() * 2 + 1) = -thrust_k;
+    mpc_.input_eqs[k].b(0) = thrust_k;
   }
 
   // MPCを解く
@@ -168,10 +166,13 @@ void RotationMpc::configure(const RotationMpcConfig& config)
   mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(config.angvel_weight);
   mpc_.input_rate_weight.fill(exp10(config.thrust_rate_weight_log10));
 
-  mpc_.input_rate_constraints.resize(config.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
-  mpc_.control_constraints.resize(config.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_eqs.resize(config.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
+  mpc_.control_eqs.resize(config.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_ineqs.resize(config.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
+  mpc_.control_ineqs.resize(config.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
 
-  mpc_.input_constraints.resize(mpc_.prediction_steps);
+  mpc_.input_eqs.resize(mpc_.prediction_steps);
+  mpc_.input_ineqs.resize(mpc_.prediction_steps);
   fillInputConstraintFixedParts();
 }
 
@@ -286,15 +287,19 @@ void RotationMpc::updateSetState(
 
 void RotationMpc::fillInputConstraintFixedParts()
 {
-  for (auto& u_const : mpc_.input_constraints)
+  for (auto& u_eq : mpc_.input_eqs)
   {
-    u_const.resize(z_rotors_.count(), z_rotors_.count() * 2 + 2);
-    u_const.setZero();
+    u_eq.resize(z_rotors_.count(), 1);
+    u_eq.A.setOnes();
+  }
 
-    u_const.A.block(0, 0, z_rotors_.count(), z_rotors_.count()).diagonal().fill(1);
-    u_const.A.block(z_rotors_.count(), 0, z_rotors_.count(), z_rotors_.count()).diagonal().fill(-1);
-    u_const.A.block(z_rotors_.count() * 2, 0, 1, z_rotors_.count()).fill(1);
-    u_const.A.block(z_rotors_.count() * 2 + 1, 0, 1, z_rotors_.count()).fill(-1);
+  for (auto& u_ineq : mpc_.input_ineqs)
+  {
+    u_ineq.resize(z_rotors_.count(), z_rotors_.count() * 2);
+    u_ineq.setZero();
+
+    u_ineq.A.topRows(z_rotors_.count()).diagonal().fill(1);
+    u_ineq.A.bottomRows(z_rotors_.count()).diagonal().fill(-1);
   }
 }
 }  // namespace tobas_mr_rotation_mpc
