@@ -20,4 +20,6 @@ static constexpr char kStaticStateDeterminationAction[] = "static_state_determin
 
 static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
+
+static constexpr uint32_t kStopwatchSamples = 100;
 }  // namespace tobas

@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <kdl/frames.hpp>
 
+#include <dh_std_tools/stopwatch.hpp>
 #include <dh_kdl/euler.hpp>
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
@@ -73,9 +74,12 @@ private:
 
   Eigen::Vector3d opt_dgyro_;
 
+  // Config
   double max_attitude_;
   double max_heading_error_;
   double h_force_coef_;
+
+  dh_std::Stopwatch stopwatch_;
 
   double maxThrustSum(const double& battery_voltage) const;
   double minThrustSum(const double& battery_voltage) const;

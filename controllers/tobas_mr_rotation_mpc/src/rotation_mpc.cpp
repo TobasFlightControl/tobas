@@ -24,7 +24,8 @@ RotationMpc::RotationMpc(const tobas::Drone& drone)
     inertia_solver_(drone.tree()),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE),
     cont_(drone),
-    c2d_(kStateSize, z_rotors_.count())
+    c2d_(kStateSize, z_rotors_.count()),
+    stopwatch_(tobas::kStopwatchSamples)
 {
   mpc_.Cz = MatrixXd::Zero(kCtrlSize, kStateSize);
   mpc_.Cz.block<kCtrlSize, kCtrlSize>(kRotIdx, kRotIdx).diagonal().setOnes();
@@ -126,7 +127,9 @@ void RotationMpc::update(
   }
 
   // MPCを解く
+  // stopwatch_.start();
   mpc_.solve();
+  // stopwatch_.stop();
 
   // 角加速度を更新
   const VectorXd xd = cont_.dynamics(mpc_.current_state, mpc_.optimalControlInput());
