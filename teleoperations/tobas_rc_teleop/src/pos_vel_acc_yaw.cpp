@@ -5,6 +5,7 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
@@ -93,6 +94,6 @@ void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
 
 void PosVelAccYawController::registerPublishers(ros::NodeHandle& nh)
 {
-  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>("command/pos_vel_acc_yaw", 1);
+  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

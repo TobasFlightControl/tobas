@@ -6,8 +6,5 @@
 
 namespace tobas
 {
-bool changeFrame(
-  const uint8_t& frame_id,
-  const KDL::Euler& R_gl,
-  tobas_msgs::PosVelAccYaw& msg);
+bool changeFrame(const uint8_t& frame_id, const KDL::Euler& R_gl, tobas_msgs::PosVelAccYaw& msg);
 }

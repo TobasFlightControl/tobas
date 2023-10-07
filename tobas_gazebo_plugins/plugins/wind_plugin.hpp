@@ -12,7 +12,7 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "wind_plugin";
+static constexpr char kPluginName[] = "wind_plugin";
 static constexpr double kMinimumAltitude = 1.;          // [m]
 static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
 
@@ -54,7 +54,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string wind_topic_;
   double mean_speed_;         // [m/s] 地面からの高度20ftで測った平均風速
   double direction_;          // [rad] 風向 (ヨー角)
   double gust_speed_factor_;  // 定常風速に対する突風成分の風速の比率

@@ -18,14 +18,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboFixedWingPlugin::GazeboFixedWingPlugin()
-  : super(),
-    prev_alpha_(0.),
-    prev_sim_time_(0.),
-    last_cmd_time_(0.),
-    is_initialized_(false),
-    cs_activated_(false),
-    wind_vel_W_(0., 0., 0.)
+GazeboFixedWingPlugin::GazeboFixedWingPlugin() : super()
 {
 }
 
@@ -85,9 +78,6 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
-  getSdfParam(sdf, "deflectionsSubTopic", deflections_sub_topic_, kDefaultDeflectionsSubTopic);
-  getSdfParam(sdf, "windSubTopic", wind_sub_topic_, kDefaultWindTopic);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
   getSdfParam(
@@ -187,13 +177,13 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboFixedWingPlugin::registerPubSub()
 {
   debug_pub_ =
-    nh_.advertise<tobas_gazebo_plugins::FixedWingDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+    nh_.advertise<tobas_gazebo_plugins::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   deflections_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + deflections_sub_topic_, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
+    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboFixedWingPlugin::windSpeedCb, this,
+    "/" + ns_ + "/" + tobas::kWindTopic, 1, &GazeboFixedWingPlugin::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 

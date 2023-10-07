@@ -27,15 +27,17 @@ void StateChecker::getRosParams()
 
 void StateChecker::registerPublishers()
 {
-  event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
+  event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 }
 
 void StateChecker::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &StateChecker::eventCb, this, tcpNoDelay());
-  cpu_sub_ = nh_.subscribe("cpu", 1, &StateChecker::cpuCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe("battery", 1, &StateChecker::batteryCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &StateChecker::poseTwistCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &StateChecker::eventCb, this, tcpNoDelay());
+  cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &StateChecker::cpuCb, this, tcpNoDelay());
+  battery_sub_ =
+    nh_.subscribe(tobas::kBatteryTopic, 1, &StateChecker::batteryCb, this, tcpNoDelay());
+  pt_sub_ =
+    nh_.subscribe(tobas::kPoseTwistTopic, 1, &StateChecker::poseTwistCb, this, tcpNoDelay());
 }
 
 void StateChecker::requestShutdown()

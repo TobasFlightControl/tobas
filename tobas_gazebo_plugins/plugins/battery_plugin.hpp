@@ -9,7 +9,7 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "battery_plugin";
+static constexpr char kPluginName[] = "battery_plugin";
 
 class GazeboBatteryPlugin : public ModelPlugin
 {
@@ -26,7 +26,6 @@ private:
 
   // SDF parameters
   std::string ns_;
-  std::string battery_pub_topic_;
   double nominal_voltage_;  // 定格電圧
 
   tobas_msgs::Battery battery_msg_;

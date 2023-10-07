@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
 #include "./magnetometer_plugin.hpp"
@@ -56,7 +57,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   mag_msg_.magnetic_field_covariance[8] = dh_std::sqr(noise_normal_.Z());
 
   // Advertise publisher
-  mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + mag_topic_, 1);
+  mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + tobas::kMagTopic, 1);
 
   // Listen to the update event
   update_connection_ =
@@ -67,7 +68,6 @@ void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "magnetometerTopic", mag_topic_, kDefaultMagTopic);
   getSdfParam(sdf, "offset", offset_, zero3);
 
   getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);

@@ -19,11 +19,10 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "fixed_wing_plugin";
+static constexpr char kPluginName[] = "fixed_wing_plugin";
+static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
 
 // Default values
-static const std::string kDefaultDebugPubTopic = "ground_truth/fixed_wing_debug";
-static const std::string kDefaultDeflectionsSubTopic = "command/deflections";
 static constexpr double kDefaultLowerStallAngle = -10. * kDegreeToRadian;
 static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
 
@@ -54,9 +53,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string debug_pub_topic_;
-  std::string deflections_sub_topic_;
-  std::string wind_sub_topic_;
   double alt_0_;  // 基準点の幾何的高度
   double check_delay_threshold_;
   double auto_reset_time_thr_;
@@ -67,12 +63,12 @@ private:
   std::vector<physics::JointPtr> cs_joints_;       // 制御面のジョイントへのポインタ
   std::vector<SimpleJointModel> cs_angle_models_;  // 制御面の角度モデル
 
-  double prev_alpha_;
-  double prev_sim_time_;
-  double last_cmd_time_;
-  bool is_initialized_;
-  bool cs_activated_;
-  ignition::math::Vector3d wind_vel_W_;                   // 風速 [m/s]
+  double prev_alpha_ = 0.;
+  double prev_sim_time_ = 0.;
+  double last_cmd_time_ = 0.;
+  bool is_initialized_ = false;
+  bool cs_activated_ = false;
+  ignition::math::Vector3d wind_vel_W_ = zero3;           // 風速 [m/s]
   tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [rad]
   tobas_gazebo_plugins::FixedWingDebug debug_msg_;
 

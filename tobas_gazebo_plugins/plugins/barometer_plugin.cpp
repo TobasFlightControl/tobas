@@ -1,5 +1,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "./barometer_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
@@ -38,7 +40,7 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   pressure_msg_.variance = pressure_var_;
 
   // Advertise
-  pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + pressure_topic_, 1);
+  pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboBarometerPlugin::onUpdate, this));
@@ -48,7 +50,6 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "pressureTopic", pressure_topic_, kDefaultPressurePubTopic);
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
   getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);

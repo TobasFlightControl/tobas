@@ -5,6 +5,8 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_rc_teleop/velocity_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
 
@@ -84,6 +86,6 @@ void VelocityYawController::getRosParams(ros::NodeHandle& pnh)
 
 void VelocityYawController::registerPublishers(ros::NodeHandle& nh)
 {
-  vel_yaw_pub_ = nh.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
+  vel_yaw_pub_ = nh.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

@@ -1,3 +1,5 @@
+#include <tobas_tools/constants.hpp>
+
 #include "./battery_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -24,13 +26,12 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
-  getSdfParam(sdf, "batteryPubTopic", battery_pub_topic_, kDefaultBatteryTopic);
   getSdfParam(sdf, "nominalVoltage", nominal_voltage_, POSITIVE);
 }
 
 void GazeboBatteryPlugin::registerPubSub()
 {
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>("/" + ns_ + "/" + battery_pub_topic_, 1);
+  battery_pub_ = nh_.advertise<tobas_msgs::Battery>("/" + ns_ + "/" + tobas::kBatteryTopic, 1);
 }
 
 void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)

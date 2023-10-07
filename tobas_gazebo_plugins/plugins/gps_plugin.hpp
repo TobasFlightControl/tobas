@@ -15,11 +15,9 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "gps_plugin";
+static constexpr char kPluginName[] = "gps_plugin";
 
 // Default values
-static const std::string kDefaultGpsTopic = "gps";
-static const std::string kDefaultGroundSpeedTopic = "ground_speed";
 static constexpr double kDefaultHorPosStdDev = 3.;
 static constexpr double kDefaultVerPosStdDev = 6.;
 static constexpr double kDefaultHorVelStdDev = 0.1;
@@ -52,8 +50,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string gps_topic_;
-  std::string vel_topic_;
   SdfVector3 offset_;   // B_Pos_BS
   double update_rate_;  // 更新頻度 [Hz]
   double delay_;        // GPSの遅延時間 [s]

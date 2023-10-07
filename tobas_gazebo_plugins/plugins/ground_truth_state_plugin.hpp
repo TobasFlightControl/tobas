@@ -12,10 +12,8 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "ground_truth_state_plugin";
-
-// Default values
-static const std::string kDefaultStateTopic = "ground_truth/pose_twist";
+static constexpr char kPluginName[] = "ground_truth_state_plugin";
+static constexpr char kStatePubTopic[] = "ground_truth/pose_twist";
 
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
@@ -34,7 +32,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string state_topic_;
 
   physics::WorldPtr world_;
   physics::ModelPtr model_;

@@ -32,12 +32,12 @@ void BatteryHandler::getRosParams()
 
 void BatteryHandler::registerPublishers()
 {
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>("battery", 1);
+  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
 }
 
 void BatteryHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &BatteryHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &BatteryHandler::eventCb, this, tcpNoDelay());
 }
 
 void BatteryHandler::getAdcCoefficient()

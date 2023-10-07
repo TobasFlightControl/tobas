@@ -27,13 +27,13 @@ void GpsHandler::getRosParams()
 
 void GpsHandler::registerPublishers()
 {
-  gps_pub_ = nh_.advertise<GpsMsg>("gps", 1);
-  vel_pub_ = nh_.advertise<VelMsg>("ground_speed", 1);
+  gps_pub_ = nh_.advertise<GpsMsg>(tobas::kGpsTopic, 1);
+  vel_pub_ = nh_.advertise<VelMsg>(tobas::kGroundSpeedTopic, 1);
 }
 
 void GpsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &GpsHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &GpsHandler::eventCb, this, tcpNoDelay());
 }
 
 void GpsHandler::configureGnssReceiver()

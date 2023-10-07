@@ -14,6 +14,31 @@ constexpr uint32_t kMaxPinId = 14;
 // TODO: Ardupilotを参考にGUIで設定できるようにする
 static constexpr double kMotorSpinArm = 0.1;
 
+// ROS topics
+static constexpr char kBatteryTopic[] = "battery";
+static constexpr char kCpuTopic[] = "cpu";
+static constexpr char kRcInputTopic[] = "rc_input";
+static constexpr char kImuTopic[] = "imu";
+static constexpr char kMagTopic[] = "magnetic_field";
+static constexpr char kAirPressureTopic[] = "air_pressure";
+static constexpr char kGpsTopic[] = "gps";
+static constexpr char kGroundSpeedTopic[] = "ground_speed";
+static constexpr char kLidarTopic[] = "point_cloud";
+static constexpr char kWindTopic[] = "wind";
+static constexpr char kOdomTopic[] = "odom";
+static constexpr char kExternalOdomTopic[] = "external_odometry";
+static constexpr char kEventTopic[] = "event";
+static constexpr char kPoseTwistTopic[] = "pose_twist";
+static constexpr char kJointStatesTopic[] = "joint_states";
+static constexpr char kRotorCmdTopic[] = "command/motor_speed";
+static constexpr char kDeflectionCmdTopic[] = "command/deflections";
+static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
+static constexpr char kPositionYawCmdTopic[] = "command/position_yaw";
+static constexpr char kVelocityYawCmdTopic[] = "command/velocity_yaw";
+static constexpr char kRpyThrustCmdTopic[] = "command/rpy_thrust";
+static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
+
+// ROS actions
 static constexpr char kLandingAction[] = "landing_action";
 static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kStaticStateDeterminationAction[] = "static_state_determination";

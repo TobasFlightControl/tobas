@@ -28,12 +28,12 @@ void CpuHandler::getRosParams()
 
 void CpuHandler::registerPublishers()
 {
-  cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>("cpu", 1);
+  cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
 }
 
 void CpuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &CpuHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &CpuHandler::eventCb, this, tcpNoDelay());
 }
 
 void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)

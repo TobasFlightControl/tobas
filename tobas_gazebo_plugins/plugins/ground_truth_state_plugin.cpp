@@ -36,7 +36,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
   state_msg_.header.frame_id = link_name_;
 
   // Advertise publisher
-  state_pub_ = nh_.advertise<StateMsg>("/" + ns_ + "/" + state_topic_, 1);
+  state_pub_ = nh_.advertise<StateMsg>("/" + ns_ + "/" + kStatePubTopic, 1);
 
   // Listen to the update event
   update_connection_ = event::Events::ConnectWorldUpdateBegin(
@@ -47,7 +47,6 @@ void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "stateTopic", state_topic_, kDefaultStateTopic);
 }
 
 void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)

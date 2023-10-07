@@ -3,6 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <dh_std_tools/math.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "./odometry_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -42,7 +43,6 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "odometryTopic", odometry_pub_topic_, kDefaultOdometryTopic);
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
   getSdfParam(sdf, "noiseNormalRotation", noise_normal_rotation_, zero3);
@@ -108,7 +108,7 @@ void GazeboOdometryPlugin::setRandomDistributions()
 
 void GazeboOdometryPlugin::registerPublishers()
 {
-  odometry_pub_ = nh_.advertise<nav_msgs::Odometry>("/" + ns_ + "/" + odometry_pub_topic_, 1);
+  odometry_pub_ = nh_.advertise<nav_msgs::Odometry>("/" + ns_ + "/" + tobas::kExternalOdomTopic, 1);
 }
 
 void GazeboOdometryPlugin::onUpdate()

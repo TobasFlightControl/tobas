@@ -14,11 +14,10 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "imu_plugin";
+static constexpr char kPluginName[] = "imu_plugin";
+static constexpr char kDebugPubTopic[] = "ground_truth/imu_debug";
 
 // Default values
-static const std::string kDefaultImuTopic = "imu";
-static const std::string kDefaultDebugTopic = "ground_truth/imu_debug";
 static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * kDegreeToRadian;
 static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * kDegreeToRadian;
 static constexpr double kDefaultGyroBiasCorrTime = 1000.;
@@ -43,8 +42,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string imu_topic_;
-  std::string debug_topic_;
   SdfVector3 offset_;               // B_Pos_BS
   double gyro_noise_density_sig_;   // Gyro noise density actually added to signal [rad/s/sqrt(Hz)]
   double gyro_noise_density_obs_;   // Gyro noise density that is observed [rad/s/sqrt(Hz)]

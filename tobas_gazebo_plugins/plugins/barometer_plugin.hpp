@@ -12,10 +12,9 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "barometer_plugin";
+static constexpr char kPluginName[] = "barometer_plugin";
 
 // Default values
-static const std::string kDefaultPressurePubTopic = "air_pressure";
 static constexpr double kDefaultPressureVar = 1.;  // [Pa]
 
 class GazeboBarometerPlugin : public SensorPlugin
@@ -35,7 +34,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string pressure_topic_;
   SdfVector3 offset_;  // B_Pos_BS
   double alt_0_;
   double pressure_var_;

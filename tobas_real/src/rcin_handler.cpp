@@ -35,12 +35,12 @@ void RCInputHandler::getRosParams()
 
 void RCInputHandler::registerPublishers()
 {
-  rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>("rc_input", 1);
+  rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
 }
 
 void RCInputHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &RCInputHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &RCInputHandler::eventCb, this, tcpNoDelay());
 }
 
 void RCInputHandler::readConfig()

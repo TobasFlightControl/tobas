@@ -52,22 +52,24 @@ void StateEstimator::getRosParams()
 
 void StateEstimator::registerPublishers()
 {
-  pt_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
-  odom_pub_ = nh_.advertise<OdomMsg>("odom", 1);
+  pt_pub_ = nh_.advertise<StateMsg>(tobas::kPoseTwistTopic, 1);
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdomTopic, 1);
 }
 
 void StateEstimator::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &StateEstimator::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &StateEstimator::eventCb, this, tcpNoDelay());
   filtered_imu_sub_ =
     nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this, tcpNoDelay());
-  bar_sub_ = nh_.subscribe("air_pressure", 1, &StateEstimator::barometerCb, this, tcpNoDelay());
+  bar_sub_ =
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &StateEstimator::barometerCb, this, tcpNoDelay());
 
   if (use_gps_)
   {
-    gps_pos_sub_ = nh_.subscribe("gps", 1, &StateEstimator::gpsPositionCb, this, tcpNoDelay());
-    gps_vel_sub_ =
-      nh_.subscribe("ground_speed", 1, &StateEstimator::gpsVelocityCb, this, tcpNoDelay());
+    gps_pos_sub_ =
+      nh_.subscribe(tobas::kGpsTopic, 1, &StateEstimator::gpsPositionCb, this, tcpNoDelay());
+    gps_vel_sub_ = nh_.subscribe(
+      tobas::kGroundSpeedTopic, 1, &StateEstimator::gpsVelocityCb, this, tcpNoDelay());
   }
 }
 

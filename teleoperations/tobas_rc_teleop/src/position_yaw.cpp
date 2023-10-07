@@ -3,6 +3,8 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_rc_teleop/position_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
 
@@ -71,6 +73,6 @@ void PositionYawController::getRosParams(ros::NodeHandle& pnh)
 
 void PositionYawController::registerPublishers(ros::NodeHandle& nh)
 {
-  pos_yaw_pub_ = nh.advertise<tobas_msgs::PositionYaw>("command/position_yaw", 1);
+  pos_yaw_pub_ = nh.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

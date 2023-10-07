@@ -67,21 +67,22 @@ void Controller::getRosParams()
 
 void Controller::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
-  deflections_pub_ = nh_.advertise<tobas_msgs::ControlSurfaceDeflections>("command/deflections", 1);
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorCmdTopic, 1);
+  deflections_pub_ =
+    nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
 }
 
 void Controller::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &Controller::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &Controller::eventCb, this, tcpNoDelay());
   air_pressure_sub_ =
-    nh_.subscribe("air_pressure", 1, &Controller::airPressureCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe("battery", 1, &Controller::batteryCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &Controller::poseTwistCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &Controller::poseTwistCb, this, tcpNoDelay());
   cmd_sub_ =
-    nh_.subscribe("command/speed_roll_delta_pitch", 1, &Controller::commandCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &Controller::commandCb, this, tcpNoDelay());
 }
 
 bool Controller::isReady()

@@ -36,12 +36,12 @@ void BarometerHandler::getRosParams()
 
 void BarometerHandler::registerPublishers()
 {
-  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>("air_pressure", 1);
+  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
 }
 
 void BarometerHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &BarometerHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &BarometerHandler::eventCb, this, tcpNoDelay());
 }
 
 void BarometerHandler::readConfig()

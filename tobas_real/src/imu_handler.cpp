@@ -41,13 +41,13 @@ void ImuHandler::getRosParams()
 
 void ImuHandler::registerPublishers()
 {
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("imu", 1);
-  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("magnetic_field", 1);
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
+  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
 }
 
 void ImuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &ImuHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &ImuHandler::eventCb, this, tcpNoDelay());
 }
 
 void ImuHandler::readConfig()

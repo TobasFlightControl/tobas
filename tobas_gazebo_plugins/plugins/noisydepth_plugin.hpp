@@ -13,7 +13,7 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "noisydepth_plugin";
+static constexpr char kPluginName[] = "noisydepth_plugin";
 
 // Default values
 static const std::string kDefaultIrImageTopic = "ir/image_raw";

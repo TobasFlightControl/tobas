@@ -1,6 +1,8 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_common_actions/wait_for_stillness_server.hpp"
 #include "../include/tobas_common_actions/common.hpp"
 
@@ -31,9 +33,10 @@ void WaitForStillnessServer::registerPublishers()
 
 void WaitForStillnessServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &WaitForStillnessServer::eventCb, this, tcpNoDelay());
-  pt_sub_ =
-    nh_.subscribe("pose_twist", 1, &WaitForStillnessServer::poseTwistCb, this, tcpNoDelay());
+  event_sub_ =
+    nh_.subscribe(tobas::kEventTopic, 1, &WaitForStillnessServer::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(
+    tobas::kPoseTwistTopic, 1, &WaitForStillnessServer::poseTwistCb, this, tcpNoDelay());
 }
 
 void WaitForStillnessServer::reset()

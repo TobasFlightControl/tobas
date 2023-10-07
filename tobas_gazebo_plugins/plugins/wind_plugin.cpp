@@ -1,3 +1,4 @@
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Wind.h>
 
 #include "./wind_plugin.hpp"
@@ -36,7 +37,6 @@ void GazeboWindPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "windPubTopic", wind_topic_, kDefaultWindTopic);
   getSdfParam(sdf, "meanWindSpeed", mean_speed_, kDefaultMeanWindSpeed, NON_NEGATIVE);
   getSdfParam(sdf, "constantWindDirection", direction_, kDefaultConstantWindDirection);
   getSdfParam(sdf, "gustSpeedFactor", gust_speed_factor_, kDefaultGustSpeedFactor, NON_NEGATIVE);
@@ -137,7 +137,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboWindPlugin::registerPubSub()
 {
-  wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + wind_topic_, 1);
+  wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + tobas::kWindTopic, 1);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboWindPlugin);

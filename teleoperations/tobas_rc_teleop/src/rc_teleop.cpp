@@ -4,6 +4,7 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
@@ -83,15 +84,15 @@ void RCTeleop::getRosParams()
 
 void RCTeleop::registerPublishers()
 {
-  event_pub_ = nh_.advertise<tobas_msgs::Event>("event", 1);
+  event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 }
 
 void RCTeleop::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &RCTeleop::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &RCTeleop::poseTwistCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe("battery", 1, &RCTeleop::batteryCb, this, tcpNoDelay());
-  rcin_sub_ = nh_.subscribe("rc_input", 1, &RCTeleop::rcInputCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &RCTeleop::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &RCTeleop::poseTwistCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &RCTeleop::batteryCb, this, tcpNoDelay());
+  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &RCTeleop::rcInputCb, this, tcpNoDelay());
 }
 
 void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)

@@ -14,10 +14,9 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "odometry_plugin";
+static constexpr char kPluginName[] = "odometry_plugin";
 
 // Default values
-static const std::string kDefaultOdometryTopic = "odometry";
 static constexpr double kDefaultCovarianceImageScale = 1.;
 
 class GazeboOdometryPlugin : public SensorPlugin
@@ -37,7 +36,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string odometry_pub_topic_;
   SdfVector3 offset_;  // B_Pos_BS
   SdfVector3 noise_normal_position_;
   SdfVector3 noise_normal_rotation_;

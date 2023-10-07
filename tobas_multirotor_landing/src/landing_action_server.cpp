@@ -28,13 +28,15 @@ void MultirotorLandServer::getRosParams()
 
 void MultirotorLandServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
 }
 
 void MultirotorLandServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MultirotorLandServer::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &MultirotorLandServer::poseTwistCb, this, tcpNoDelay());
+  event_sub_ =
+    nh_.subscribe(tobas::kEventTopic, 1, &MultirotorLandServer::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(
+    tobas::kPoseTwistTopic, 1, &MultirotorLandServer::poseTwistCb, this, tcpNoDelay());
 }
 
 void MultirotorLandServer::reset()

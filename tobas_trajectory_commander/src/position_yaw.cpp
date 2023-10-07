@@ -2,6 +2,8 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/rate.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_trajectory_commander/position_yaw.hpp"
 #include "../include/tobas_trajectory_commander/common.hpp"
 
@@ -42,13 +44,13 @@ void FollowPositionYawTrajectoryServer::getRosParams()
 
 void FollowPositionYawTrajectoryServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<CommandType>("command/position_yaw", 1);
+  cmd_pub_ = nh_.advertise<CommandType>(tobas::kPositionYawCmdTopic, 1);
 }
 
 void FollowPositionYawTrajectoryServer::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe("event", 1, &FollowPositionYawTrajectoryServer::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(
+    tobas::kEventTopic, 1, &FollowPositionYawTrajectoryServer::eventCb, this, tcpNoDelay());
 }
 
 bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)

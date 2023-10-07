@@ -13,10 +13,7 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "magnetometer_plugin";
-
-// Default values
-static const std::string kDefaultMagTopic = "magnetic_field";
+static constexpr char kPluginName[] = "magnetometer_plugin";
 
 class GazeboMagnetometerPlugin : public SensorPlugin
 {
@@ -35,7 +32,6 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  std::string mag_topic_;
   SdfVector3 offset_;                      // [m] B_Pos_BS
   double lat_0_;                           // [deg] 原点の北緯
   double lon_0_;                           // [deg] 原点の東経

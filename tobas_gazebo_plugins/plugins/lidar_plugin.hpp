@@ -11,13 +11,12 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "lidar_plugin";
+static constexpr char kPluginName[] = "lidar_plugin";
 static constexpr double kEpsilonDiff = 1e-6;
 static constexpr double kTimeout = 1e-2;
 
 // Default values
 static const std::string kDefaultFrameName = "world";
-static const std::string kDefaultTopicName = "point_cloud";
 static constexpr double kDefaultNoiseStddev = 0.;
 
 /**
@@ -41,7 +40,6 @@ private:
 
   // SDF parameters
   std::string ns_;
-  std::string topic_name_;  // topic name
   std::string frame_name_;  // frame transform name, should match link name
   double noise_stddev_;     // Gaussian noise
 

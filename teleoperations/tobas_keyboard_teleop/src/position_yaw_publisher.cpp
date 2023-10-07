@@ -177,13 +177,15 @@ void PositionYawPublisher::getRosParams()
 
 void PositionYawPublisher::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::PositionYaw>("command/position_yaw", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
 }
 
 void PositionYawPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &PositionYawPublisher::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &PositionYawPublisher::poseTwistCb, this, tcpNoDelay());
+  event_sub_ =
+    nh_.subscribe(tobas::kEventTopic, 1, &PositionYawPublisher::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(
+    tobas::kPoseTwistTopic, 1, &PositionYawPublisher::poseTwistCb, this, tcpNoDelay());
 }
 
 void PositionYawPublisher::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)

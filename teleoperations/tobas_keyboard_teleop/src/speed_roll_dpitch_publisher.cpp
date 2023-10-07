@@ -148,15 +148,15 @@ void SpeedRollDeltaPitchPublisher::getRosParams()
 
 void SpeedRollDeltaPitchPublisher::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>("command/speed_roll_delta_pitch", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
 }
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe("event", 1, &SpeedRollDeltaPitchPublisher::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(
+    tobas::kEventTopic, 1, &SpeedRollDeltaPitchPublisher::eventCb, this, tcpNoDelay());
   air_pressure_sub_ = nh_.subscribe(
-    "air_pressure", 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this, tcpNoDelay());
+    tobas::kAirPressureTopic, 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this, tcpNoDelay());
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()

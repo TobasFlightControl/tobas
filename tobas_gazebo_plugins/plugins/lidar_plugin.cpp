@@ -1,3 +1,5 @@
+#include <tobas_tools/constants.hpp>
+
 #include "./lidar_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 
@@ -47,7 +49,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 
   // Custom Callback Queue
   ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::PointCloud>(
-    "/" + ns_ + "/" + topic_name_, 1, boost::bind(&GazeboLidarPlugin::laserConnect, this),
+    "/" + ns_ + "/" + tobas::kLidarTopic, 1, boost::bind(&GazeboLidarPlugin::laserConnect, this),
     boost::bind(&GazeboLidarPlugin::laserDisconnect, this), ros::VoidPtr(), &laser_queue_);
   pub_ = nh_.advertise(ao);
 
@@ -99,7 +101,6 @@ void GazeboLidarPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
-  getSdfParam(sdf, "topicName", topic_name_, kDefaultTopicName);
   getSdfParam(sdf, "gaussianNoiseStddev", noise_stddev_, kDefaultNoiseStddev);
 }
 

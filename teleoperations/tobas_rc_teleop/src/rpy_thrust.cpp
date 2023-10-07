@@ -54,7 +54,7 @@ void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
 
 void RollPitchYawThrustController::registerPublishers(ros::NodeHandle& nh)
 {
-  rpy_thrust_pub_ = nh.advertise<tobas_msgs::RollPitchYawThrust>("command/rpy_thrust", 1);
+  rpy_thrust_pub_ = nh.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
 }
 
 void RollPitchYawThrustController::update(

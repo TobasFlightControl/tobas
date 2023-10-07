@@ -9,7 +9,6 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
-#include <tobas_gazebo_plugins/RotorDebug.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/first_order_filter.hpp"
@@ -17,13 +16,11 @@
 namespace gazebo
 {
 // Constants
-static const std::string kPluginName = "motor_model_plugin";
+static constexpr char kPluginName[] = "motor_model_plugin";
+static constexpr char kDebugPubTopic[] = "ground_truth/rotor_debug";
+static constexpr char kRotorSpeedPubTopic[] = "ground_truth/motor_speed";
 static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
 static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
-
-// Default values
-static const std::string kDefaultDebugPubTopic = "ground_truth/rotor_debug";
-static const std::string kDefaultCmdSubTopic = "command/motor_speed";
 
 class GazeboRotorPlugin : public ModelPlugin
 {
@@ -43,11 +40,7 @@ private:
   std::string link_name_;
   std::string joint_name_;
   int motor_number_;
-  int direction_;  // turning direction. 1(CCW) or -1(CW).
-  std::string debug_pub_topic_;
-  std::string cmd_sub_topic_;
-  std::string battery_sub_topic_;
-  std::string wind_sub_topic_;
+  int direction_;               // turning direction. 1(CCW) or -1(CW).
   SdfVector2 rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
   double motor_const_;
   double moment_const_;
@@ -68,7 +61,6 @@ private:
   bool battery_received_;
   bool wind_received_;
   AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
-  tobas_gazebo_plugins::RotorDebug debug_msg_;
 
   physics::ModelPtr model_;
   physics::JointPtr joint_;
@@ -78,7 +70,8 @@ private:
 
   // PubSub
   ros::Publisher debug_pub_;
-  ros::Subscriber command_sub_;
+  ros::Publisher rotor_speed_pub_;
+  ros::Subscriber rotor_speed_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
 

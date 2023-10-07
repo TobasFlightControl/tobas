@@ -2,6 +2,8 @@
 #include <dh_std_tools/algorithm.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/RotorSpeed.h>
+#include <tobas_gazebo_plugins/RotorDebug.h>
 
 #include "./rotor_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -117,11 +119,6 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
            << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
   }
 
-  getSdfParam(sdf, "debugPubTopic", debug_pub_topic_, kDefaultDebugPubTopic);
-  getSdfParam(sdf, "commandSubTopic", cmd_sub_topic_, kDefaultCmdSubTopic);
-  getSdfParam(sdf, "batterySubTopic", battery_sub_topic_, kDefaultBatteryTopic);
-  getSdfParam(sdf, "windSubTopic", wind_sub_topic_, kDefaultWindTopic);
-
   getSdfParam(
     sdf, "rotorSpeedSlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim, false);
   if (rotor_speed_slowdown_sim_ < 1.)
@@ -194,21 +191,29 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   // Update simulation state
   applyForceAndTorque(rot_speed_real, info.simTime);
   updateRotationSpeed(dt);
+
+  // Publish rotor speed
+  auto rotor_speed_msg = boost::make_shared<tobas_msgs::RotorSpeed>();
+  timeGazeboToRos(cur_time, rotor_speed_msg->header.stamp);
+  rotor_speed_msg->speed = rot_speed_real;
+  rotor_speed_pub_.publish(rotor_speed_msg);
 }
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  debug_pub_ =
-    nh_.advertise<tobas_gazebo_plugins::RotorDebug>("/" + ns_ + "/" + debug_pub_topic_, 1);
+  rotor_speed_pub_ = nh_.advertise<tobas_msgs::RotorSpeed>(
+    "/" + ns_ + "/" + kRotorSpeedPubTopic + "_" + to_string(motor_number_), 1);
+  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::RotorDebug>(
+    "/" + ns_ + "/" + kDebugPubTopic + "_" + to_string(motor_number_), 1);
 
-  command_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + cmd_sub_topic_, 1, &GazeboRotorPlugin::commandCb, this,
+  rotor_speed_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + tobas::kRotorCmdTopic, 1, &GazeboRotorPlugin::commandCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + battery_sub_topic_, 1, &GazeboRotorPlugin::batteryCb, this,
+    "/" + ns_ + "/" + tobas::kBatteryTopic, 1, &GazeboRotorPlugin::batteryCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + wind_sub_topic_, 1, &GazeboRotorPlugin::windSpeedCb, this,
+    "/" + ns_ + "/" + tobas::kWindTopic, 1, &GazeboRotorPlugin::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 
@@ -247,12 +252,13 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
   // Publish debug message
-  timeGazeboToRos(cur_time, debug_msg_.header.stamp);
-  debug_msg_.rotation_speed = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;
-  vectorGazeboToKDL(thrust_W, debug_msg_.thrust_force);
-  vectorGazeboToKDL(h_force_W, debug_msg_.horizontal_force);
-  vectorGazeboToKDL(drag_torque_parent, debug_msg_.drag_torque);
-  debug_pub_.publish(debug_msg_);
+  auto debug_msg = boost::make_shared<tobas_gazebo_plugins::RotorDebug>();
+  timeGazeboToRos(cur_time, debug_msg->header.stamp);
+  debug_msg->rotation_speed = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;
+  vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);
+  vectorGazeboToKDL(h_force_W, debug_msg->horizontal_force);
+  vectorGazeboToKDL(drag_torque_parent, debug_msg->drag_torque);
+  debug_pub_.publish(debug_msg);
 }
 
 void GazeboRotorPlugin::updateRotationSpeed(const double& dt)

@@ -71,29 +71,32 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  pt_pub_ = nh_.advertise<StateMsg>("pose_twist", 1);
-  odom_pub_ = nh_.advertise<OdomMsg>("odom", 1);
+  pt_pub_ = nh_.advertise<StateMsg>(tobas::kPoseTwistTopic, 1);
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdomTopic, 1);
   feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
 }
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &ErrorStateKalmanFilterRos::eventCb, this, tcpNoDelay());
-  imu_sub_ = nh_.subscribe("imu", 1, &ErrorStateKalmanFilterRos::imuCb, this, tcpNoDelay());
+  event_sub_ =
+    nh_.subscribe(tobas::kEventTopic, 1, &ErrorStateKalmanFilterRos::eventCb, this, tcpNoDelay());
+  imu_sub_ =
+    nh_.subscribe(tobas::kImuTopic, 1, &ErrorStateKalmanFilterRos::imuCb, this, tcpNoDelay());
   mag_sub_ =
-    nh_.subscribe("magnetic_field", 1, &ErrorStateKalmanFilterRos::magCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kMagTopic, 1, &ErrorStateKalmanFilterRos::magCb, this, tcpNoDelay());
 
   if (use_bar_)
   {
-    bar_sub_ =
-      nh_.subscribe("air_pressure", 1, &ErrorStateKalmanFilterRos::barCb, this, tcpNoDelay());
+    bar_sub_ = nh_.subscribe(
+      tobas::kAirPressureTopic, 1, &ErrorStateKalmanFilterRos::barCb, this, tcpNoDelay());
   }
 
   if (use_gps_)
   {
-    gps_sub_ = nh_.subscribe("gps", 1, &ErrorStateKalmanFilterRos::gpsCb, this, tcpNoDelay());
-    vel_sub_ =
-      nh_.subscribe("ground_speed", 1, &ErrorStateKalmanFilterRos::velCb, this, tcpNoDelay());
+    gps_sub_ =
+      nh_.subscribe(tobas::kGpsTopic, 1, &ErrorStateKalmanFilterRos::gpsCb, this, tcpNoDelay());
+    vel_sub_ = nh_.subscribe(
+      tobas::kGroundSpeedTopic, 1, &ErrorStateKalmanFilterRos::velCb, this, tcpNoDelay());
   }
 }
 

@@ -1,6 +1,8 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "./gps_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
@@ -40,9 +42,6 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-
-  getSdfParam(sdf, "gpsTopic", gps_topic_, kDefaultGpsTopic);
-  getSdfParam(sdf, "groundSpeedTopic", vel_topic_, kDefaultGroundSpeedTopic);
 
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, POSITIVE);
@@ -100,8 +99,8 @@ void GazeboGpsPlugin::setRandomDistribuitons()
 
 void GazeboGpsPlugin::registerPublishers()
 {
-  pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + gps_topic_, 1);
-  vel_pub_ = nh_.advertise<VelMsg>("/" + ns_ + "/" + vel_topic_, 1);
+  pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + tobas::kGpsTopic, 1);
+  vel_pub_ = nh_.advertise<VelMsg>("/" + ns_ + "/" + tobas::kGroundSpeedTopic, 1);
 }
 
 void GazeboGpsPlugin::onUpdate()

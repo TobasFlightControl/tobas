@@ -52,26 +52,28 @@ void ControllerRos::getRosParams()
 
 void ControllerRos::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("command/motor_speed", 1);
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_mr_pid::ControllerFeedback>("multirotor_controller_feedback", 1);
 }
 
 void ControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &ControllerRos::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe("pose_twist", 1, &ControllerRos::poseTwistCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe("battery", 1, &ControllerRos::batteryCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &ControllerRos::eventCb, this, tcpNoDelay());
+  pt_sub_ =
+    nh_.subscribe(tobas::kPoseTwistTopic, 1, &ControllerRos::poseTwistCb, this, tcpNoDelay());
+  battery_sub_ =
+    nh_.subscribe(tobas::kBatteryTopic, 1, &ControllerRos::batteryCb, this, tcpNoDelay());
   if (is_transformable_)
   {
     joint_state_sub_ =
-      nh_.subscribe("joint_states", 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
+      nh_.subscribe(tobas::kJointStatesTopic, 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
   }
 
-  pvay_sub_ =
-    nh_.subscribe("command/pos_vel_acc_yaw", 1, &ControllerRos::posVelAccYawCb, this, tcpNoDelay());
+  pvay_sub_ = nh_.subscribe(
+    tobas::kPosVelAccYawCmdTopic, 1, &ControllerRos::posVelAccYawCb, this, tcpNoDelay());
   rpyt_sub_ =
-    nh_.subscribe("command/rpy_thrust", 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
 }
 
 bool ControllerRos::isReady() const

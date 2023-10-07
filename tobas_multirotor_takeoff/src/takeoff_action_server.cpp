@@ -34,14 +34,15 @@ void MultirotorTakeoffServer::getRosParams()
 
 void MultirotorTakeoffServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>("command/velocity_yaw", 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
 }
 
 void MultirotorTakeoffServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe("event", 1, &MultirotorTakeoffServer::eventCb, this, tcpNoDelay());
-  pt_sub_ =
-    nh_.subscribe("pose_twist", 1, &MultirotorTakeoffServer::poseTwistCb, this, tcpNoDelay());
+  event_sub_ =
+    nh_.subscribe(tobas::kEventTopic, 1, &MultirotorTakeoffServer::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(
+    tobas::kPoseTwistTopic, 1, &MultirotorTakeoffServer::poseTwistCb, this, tcpNoDelay());
 }
 
 void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)

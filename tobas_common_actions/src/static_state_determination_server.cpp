@@ -44,16 +44,18 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe("event", 1, &StaticStateDeterminationServer::eventCb, this, tcpNoDelay());
-  imu_sub_ = nh_.subscribe("imu", 1, &StaticStateDeterminationServer::imuCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(
+    tobas::kEventTopic, 1, &StaticStateDeterminationServer::eventCb, this, tcpNoDelay());
+  imu_sub_ =
+    nh_.subscribe(tobas::kImuTopic, 1, &StaticStateDeterminationServer::imuCb, this, tcpNoDelay());
   mag_sub_ =
-    nh_.subscribe("magnetic_field", 1, &StaticStateDeterminationServer::magCb, this, tcpNoDelay());
-  bar_sub_ =
-    nh_.subscribe("air_pressure", 1, &StaticStateDeterminationServer::barCb, this, tcpNoDelay());
-  gps_sub_ = nh_.subscribe("gps", 1, &StaticStateDeterminationServer::gpsCb, this, tcpNoDelay());
-  vel_sub_ =
-    nh_.subscribe("ground_speed", 1, &StaticStateDeterminationServer::velCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kMagTopic, 1, &StaticStateDeterminationServer::magCb, this, tcpNoDelay());
+  bar_sub_ = nh_.subscribe(
+    tobas::kAirPressureTopic, 1, &StaticStateDeterminationServer::barCb, this, tcpNoDelay());
+  gps_sub_ =
+    nh_.subscribe(tobas::kGpsTopic, 1, &StaticStateDeterminationServer::gpsCb, this, tcpNoDelay());
+  vel_sub_ = nh_.subscribe(
+    tobas::kGroundSpeedTopic, 1, &StaticStateDeterminationServer::velCb, this, tcpNoDelay());
 }
 
 void StaticStateDeterminationServer::reset()
