@@ -3,7 +3,6 @@ from typing import Tuple
 
 
 class MotorModel(ET.Element):
-
     def __init__(
         self,
         ns: str,

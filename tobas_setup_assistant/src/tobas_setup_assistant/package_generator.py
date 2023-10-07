@@ -503,7 +503,14 @@ class PackageGenerator(QObject):
         base_fix_joint = BaseStaticJoint(root_link=root_link)
         robot.append(base_fix_joint)
 
-        # Wind
+        # Base plugin
+        base_plugin = BasePlugin(
+            ns=self._drone_name,
+            rotor_joint_names=propulsion_system.joint_names(),
+        )
+        robot.append(base_plugin)
+
+        # Wind plugin
         wind_model = WindModel(
             ns=self._drone_name,
             link_name=root_link,
@@ -512,14 +519,14 @@ class PackageGenerator(QObject):
         )
         robot.append(wind_model)
 
-        # Battery
+        # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
             nominal_voltage=battery.selected().nominal_voltage(),
         )
         robot.append(battery_model)
 
-        # Propulsion System
+        # Propulsion System plugin
         for i in range(propulsion_system.count()):
             selected: SelectedLinkTabWidget = propulsion_system.widget(i)
             motor_model = MotorModel(
@@ -537,7 +544,7 @@ class PackageGenerator(QObject):
             )
             robot.append(motor_model)
 
-        # Fixed wing
+        # Fixed wing plugin
         if fixed_wing.has_fixed_wing.isChecked():
             vehicle = fixed_wing.vehicle
             aero_coefs = fixed_wing.aero_coefs
@@ -571,7 +578,7 @@ class PackageGenerator(QObject):
             )
             robot.append(fixed_wing_model)
 
-        # IMU
+        # IMU plugin
         if imu.equipped():
             imu_model = ImuModel(
                 ns=self._drone_name,
@@ -589,7 +596,7 @@ class PackageGenerator(QObject):
             )
             robot.append(imu_model)
 
-        # Magnetometer
+        # Magnetometer plugin
         if magnetometer.equipped():
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
@@ -604,7 +611,7 @@ class PackageGenerator(QObject):
             )
             robot.append(mag_model)
 
-        # Barometer
+        # Barometer plugin
         if barometer.equipped():
             bar_model = BarometerModel(
                 ns=self._drone_name,
@@ -616,7 +623,7 @@ class PackageGenerator(QObject):
             )
             robot.append(bar_model)
 
-        # GPS
+        # GPS plugin
         if gps.equipped():
             gps_model = GpsModel(
                 ns=self._drone_name,
@@ -634,7 +641,7 @@ class PackageGenerator(QObject):
             )
             robot.append(gps_model)
 
-        # RGB Camera
+        # RGB Camera plugin
         if rgb_camera.equipped():
             add_rgb_camera_model(
                 robot=robot,
@@ -658,7 +665,7 @@ class PackageGenerator(QObject):
                 noise_stddev=rgb_camera.noise_stddev.get(),
             )
 
-        # Depth Camera
+        # Depth Camera plugin
         if depth_camera.equipped():
             add_depth_camera_model(
                 robot=robot,
@@ -682,7 +689,7 @@ class PackageGenerator(QObject):
                 noise_model=depth_camera.noise_model.get(),
             )
 
-        # LiDAR
+        # LiDAR plugin
         if lidar.equipped():
             add_lidar_model(
                 robot=robot,
@@ -701,7 +708,7 @@ class PackageGenerator(QObject):
                 noise_stddev=lidar.noise_stddev.get(),
             )
 
-        # Odometry
+        # Odometry plugin
         if odometry.equipped():
             odometry_model = OdometryModel(
                 ns=self._drone_name,
@@ -719,7 +726,7 @@ class PackageGenerator(QObject):
             )
             robot.append(odometry_model)
 
-        # Ground Truth State
+        # Ground Truth State plugin
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)
         robot.append(state_gt_model)
 
