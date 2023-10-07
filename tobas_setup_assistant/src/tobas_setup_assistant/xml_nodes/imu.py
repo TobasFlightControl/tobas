@@ -39,7 +39,6 @@ class ImuModel(SensorModel):
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
-        ET.SubElement(plugin, "imuTopic").text = "imu"
         ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
         ET.SubElement(plugin, "gyroscopeNoiseDensityOnSignal").text = str(
             gyro_noise_density

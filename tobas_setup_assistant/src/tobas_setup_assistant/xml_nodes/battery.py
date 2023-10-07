@@ -18,5 +18,4 @@ class BatteryModel(ET.Element):
         plugin.attrib["name"] = f"{ns}_battery_plugin"
 
         ET.SubElement(plugin, "robotNamespace").text = ns
-        ET.SubElement(plugin, "batteryPubTopic").text = "battery"
         ET.SubElement(plugin, "nominalVoltage").text = str(nominal_voltage)
