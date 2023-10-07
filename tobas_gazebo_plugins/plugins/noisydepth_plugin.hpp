@@ -12,26 +12,26 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "noisydepth_plugin";
-
-// Default values
-static const std::string kDefaultIrImageTopic = "ir/image_raw";
-static const std::string kDefaultIrInfoTopic = "ir/image_info";
-static const std::string kDefaultDepthImageTopic = "depth/image_raw";
-static const std::string kDefaultDepthInfoTopic = "depth/image_info";
-static const std::string kDefaultDepthNoiseModel = "Kinect";
-static constexpr float kDefaultDepthNoiseMinDist = 0.0f;
-static constexpr float kDefaultDepthNoiseMaxDist = 1e+9f;
-static constexpr float kDefaultHorizontalFOV = M_PI_2f32;
-static constexpr float kDefaultBaseline = 0.05f;
-
 /**
  * @brief DepthCamera + Noise
  * cf. https://github.com/gazebosim/gazebo-classic/blob/gazebo11/plugins/DepthCameraPlugin.cc
  */
 class GazeboNoisyDepthPlugin : public SensorPlugin, GazeboRosCameraUtils
 {
+  // Constants
+  static constexpr char kPluginName[] = "noisydepth_plugin";
+
+  // Default values
+  const std::string kDefaultIrImageTopic = "ir/image_raw";
+  const std::string kDefaultIrInfoTopic = "ir/image_info";
+  const std::string kDefaultDepthImageTopic = "depth/image_raw";
+  const std::string kDefaultDepthInfoTopic = "depth/image_info";
+  const std::string kDefaultDepthNoiseModel = "Kinect";
+  static constexpr float kDefaultDepthNoiseMinDist = 0.0f;
+  static constexpr float kDefaultDepthNoiseMaxDist = 1e+9f;
+  static constexpr float kDefaultHorizontalFOV = M_PI_2f32;
+  static constexpr float kDefaultBaseline = 0.05f;
+
 public:
   explicit GazeboNoisyDepthPlugin();
   ~GazeboNoisyDepthPlugin();

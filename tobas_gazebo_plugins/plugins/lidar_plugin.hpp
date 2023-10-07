@@ -10,21 +10,23 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "lidar_plugin";
-static constexpr double kEpsilonDiff = 1e-6;
-static constexpr double kTimeout = 1e-2;
-
-// Default values
-static const std::string kDefaultFrameName = "world";
-static constexpr double kDefaultNoiseStddev = 0.;
-
 /**
  * @brief 3D LiDAR Plugin.
  * https://github.com/ros-simulation/gazebo_ros_pkgs/blob/noetic-devel/gazebo_plugins/include/gazebo_plugins/gazebo_ros_block_laser.h
  */
 class GazeboLidarPlugin : public RayPlugin
 {
+  // Constants
+  static constexpr char kPluginName[] = "lidar_plugin";
+  static constexpr double kEpsilonDiff = 1e-6;
+  static constexpr double kTimeout = 1e-2;
+
+  // Default values
+  const std::string kDefaultFrameName = "world";
+  static constexpr double kDefaultNoiseStddev = 0.;
+
+  using super = RayPlugin;
+
 public:
   explicit GazeboLidarPlugin();
   ~GazeboLidarPlugin();

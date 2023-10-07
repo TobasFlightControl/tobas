@@ -12,13 +12,12 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "magnetometer_plugin";
-
 class GazeboMagnetometerPlugin : public SensorPlugin
 {
-  using super = SensorPlugin;
+  // Constants
+  static constexpr char kPluginName[] = "magnetometer_plugin";
 
+  using super = SensorPlugin;
   using MagMsg = sensor_msgs::MagneticField;
 
 public:

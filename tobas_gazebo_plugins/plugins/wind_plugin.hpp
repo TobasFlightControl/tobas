@@ -11,18 +11,6 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "wind_plugin";
-static constexpr double kMinimumAltitude = 1.;          // [m]
-static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
-
-// Default parameters
-static constexpr double kDefaultMeanWindSpeed = 0.;          // [m/s]
-static constexpr double kDefaultConstantWindDirection = 0.;  // [rad]
-static constexpr double kDefaultGustSpeedFactor = 1.;        // [-]
-static constexpr double kDefaultGustDuration = 5.;           // [s]
-static constexpr double kDefaultGustInterval = 10.;          // [s]
-
 /**
  * @brief Modeling of Wind Phenomena and Analysis of Their Effects on UAV Trajectory Tracking
  * Performance [Siqueira+, 2017] の4つの風を実装． \n
@@ -34,6 +22,18 @@ static constexpr double kDefaultGustInterval = 10.;          // [s]
  */
 class GazeboWindPlugin : public ModelPlugin
 {
+  // Constants
+  static constexpr char kPluginName[] = "wind_plugin";
+  static constexpr double kMinimumAltitude = 1.;          // [m]
+  static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
+
+  // Default parameters
+  static constexpr double kDefaultMeanWindSpeed = 0.;          // [m/s]
+  static constexpr double kDefaultConstantWindDirection = 0.;  // [rad]
+  static constexpr double kDefaultGustSpeedFactor = 1.;        // [-]
+  static constexpr double kDefaultGustDuration = 5.;           // [s]
+  static constexpr double kDefaultGustInterval = 10.;          // [s]
+
   using super = ModelPlugin;
 
 public:

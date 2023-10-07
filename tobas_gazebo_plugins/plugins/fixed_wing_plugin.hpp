@@ -18,14 +18,6 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "fixed_wing_plugin";
-static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
-
-// Default values
-static constexpr double kDefaultLowerStallAngle = -10. * kDegreeToRadian;
-static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
-
 /**
  * @brief 固定翼機に作用する空気力のプラグイン．
  * cf. 航空機の飛行力学と制御: https://www.morikita.co.jp/books/mid/069081
@@ -36,8 +28,15 @@ static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
  */
 class GazeboFixedWingPlugin : public ModelPlugin
 {
-  using super = ModelPlugin;
+  // Constants
+  static constexpr char kPluginName[] = "fixed_wing_plugin";
+  static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
 
+  // Default values
+  static constexpr double kDefaultLowerStallAngle = -10. * kDegreeToRadian;
+  static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
+
+  using super = ModelPlugin;
   using CmdMsg = tobas_msgs::ControlSurfaceDeflections;
   using WindMsg = tobas_msgs::Wind;
 

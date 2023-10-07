@@ -11,14 +11,13 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "ground_truth_state_plugin";
-static constexpr char kStatePubTopic[] = "ground_truth/pose_twist";
-
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
-  using super = ModelPlugin;
+  // Constants
+  static constexpr char kPluginName[] = "ground_truth_state_plugin";
+  static constexpr char kStatePubTopic[] = "ground_truth/pose_twist";
 
+  using super = ModelPlugin;
   using StateMsg = tobas_msgs::PoseTwist;
 
 public:

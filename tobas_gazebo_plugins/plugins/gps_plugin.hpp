@@ -14,17 +14,6 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "gps_plugin";
-
-// Default values
-static constexpr double kDefaultHorPosStdDev = 3.;
-static constexpr double kDefaultVerPosStdDev = 6.;
-static constexpr double kDefaultHorVelStdDev = 0.1;
-static constexpr double kDefaultVerVelStdDev = 0.1;
-static constexpr double kDefaultUpdateRate = 5.;
-static constexpr double kDefaultDelay = 0.;
-
 /**
  * @brief GPSの位置データと速度データを発行するプラグイン．
  *
@@ -32,8 +21,18 @@ static constexpr double kDefaultDelay = 0.;
  */
 class GazeboGpsPlugin : public SensorPlugin
 {
-  using super = SensorPlugin;
+  // Constants
+  static constexpr char kPluginName[] = "gps_plugin";
 
+  // Default values
+  static constexpr double kDefaultHorPosStdDev = 3.;
+  static constexpr double kDefaultVerPosStdDev = 6.;
+  static constexpr double kDefaultHorVelStdDev = 0.1;
+  static constexpr double kDefaultVerVelStdDev = 0.1;
+  static constexpr double kDefaultUpdateRate = 5.;
+  static constexpr double kDefaultDelay = 0.;
+
+  using super = SensorPlugin;
   using PosMsg = sensor_msgs::NavSatFix;
   using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
   using HistoryType = std::

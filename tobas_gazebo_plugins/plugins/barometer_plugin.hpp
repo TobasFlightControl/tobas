@@ -11,16 +11,15 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "barometer_plugin";
-
-// Default values
-static constexpr double kDefaultPressureVar = 1.;  // [Pa]
-
 class GazeboBarometerPlugin : public SensorPlugin
 {
-  using super = SensorPlugin;
+  // Constants
+  static constexpr char kPluginName[] = "barometer_plugin";
 
+  // Default values
+  static constexpr double kDefaultPressureVar = 1.;  // [Pa]
+
+  using super = SensorPlugin;
   using PressureMsg = sensor_msgs::FluidPressure;
 
 public:

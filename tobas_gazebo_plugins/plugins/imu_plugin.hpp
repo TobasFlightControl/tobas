@@ -13,22 +13,22 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "imu_plugin";
-static constexpr char kDebugPubTopic[] = "ground_truth/imu_debug";
-
-// Default values
-static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * kDegreeToRadian;
-static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * kDegreeToRadian;
-static constexpr double kDefaultGyroBiasCorrTime = 1000.;
-static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * kDegreeToRadian;
-static constexpr double kDefaultAccNoiseDensity = 2. * 2e-3;
-static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
-static constexpr double kDefaultAccBiasCorrTime = 300.;
-static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas::kGravity;
-
 class GazeboImuPlugin : public SensorPlugin
 {
+  // Constants
+  static constexpr char kPluginName[] = "imu_plugin";
+  static constexpr char kDebugPubTopic[] = "ground_truth/imu_debug";
+
+  // Default values
+  static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * kDegreeToRadian;
+  static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * kDegreeToRadian;
+  static constexpr double kDefaultGyroBiasCorrTime = 1000.;
+  static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * kDegreeToRadian;
+  static constexpr double kDefaultAccNoiseDensity = 2. * 2e-3;
+  static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
+  static constexpr double kDefaultAccBiasCorrTime = 300.;
+  static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas::kGravity;
+
   using super = SensorPlugin;
 
 public:

@@ -8,11 +8,11 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "battery_plugin";
-
 class GazeboBatteryPlugin : public ModelPlugin
 {
+  // Constants
+  static constexpr char kPluginName[] = "battery_plugin";
+
   using super = ModelPlugin;
 
 public:

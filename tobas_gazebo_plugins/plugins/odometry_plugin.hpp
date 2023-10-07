@@ -13,16 +13,14 @@
 
 namespace gazebo
 {
-// Constants
-static constexpr char kPluginName[] = "odometry_plugin";
-
-// Default values
-static constexpr double kDefaultCovarianceImageScale = 1.;
-
 class GazeboOdometryPlugin : public SensorPlugin
-{
-  using super = SensorPlugin;
+{  // Constants
+  static constexpr char kPluginName[] = "odometry_plugin";
 
+  // Default values
+  static constexpr double kDefaultCovarianceImageScale = 1.;
+
+  using super = SensorPlugin;
   using CovarianceMatrix = boost::array<double, 36>;
 
 public:
