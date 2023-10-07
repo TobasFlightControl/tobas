@@ -51,12 +51,12 @@ static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 3.;
 static constexpr double kErrorPeriod = 1.;
 static constexpr double kCheckTopicsTimeThreshold = 1.;  // [s]
+static constexpr double kRotorSpeedSlowdownSim = 10.;
 
 static constexpr double kDefaultLatitudeZero = 35.658099;    // 日本: 北緯35度39分29秒
 static constexpr double kDefaultLongitudeZero = 139.741354;  // 日本: 東経139度44分28秒8759
 static constexpr double kDefaultAltitudeZero = 0.;           // [m]
 
-static constexpr double kDefaultRotorSpeedSlowdownSim = 10.;
 static constexpr double kDefaultCheckDelayThreshold = 0.02;   // [s]
 static constexpr double kDefaultAutoStopTimeThreshold = 0.5;  // [s]
 }  // namespace gazebo

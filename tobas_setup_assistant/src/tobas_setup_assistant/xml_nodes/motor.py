@@ -3,7 +3,6 @@ from typing import Tuple
 
 
 class MotorModel(ET.Element):
-    SLOWDOWN_SIM = 10.0
 
     def __init__(
         self,
@@ -46,4 +45,3 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "rotorDragCoefficient").text = str(rotor_drag_coef)
         ET.SubElement(plugin, "timeConstantUp").text = str(time_const_up)
         ET.SubElement(plugin, "timeConstantDown").text = str(time_const_down)
-        ET.SubElement(plugin, "rotorSpeedSlowdownSim").text = str(self.SLOWDOWN_SIM)

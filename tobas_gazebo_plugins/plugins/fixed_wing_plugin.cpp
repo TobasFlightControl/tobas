@@ -30,7 +30,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   // ボディフレームを取得
   link_ = model->GetLink(link_name_);
-  if (link_ == NULL)
+  if (link_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
@@ -40,7 +40,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   {
     // ジョイントを取得
     const auto joint = model->GetJoint(cs.joint_name);
-    if (joint == NULL)
+    if (joint == nullptr)
     {
       gzthrow(
         kPluginName << ": Couldn't find the control surface joint \"" << cs.joint_name << "\".");

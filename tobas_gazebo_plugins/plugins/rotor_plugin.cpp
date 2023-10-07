@@ -2,7 +2,6 @@
 #include <dh_std_tools/algorithm.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/RotorSpeed.h>
 #include <tobas_gazebo_plugins/RotorDebug.h>
 
 #include "./rotor_plugin.hpp"
@@ -17,15 +16,7 @@ using namespace dh_std;
 
 namespace gazebo
 {
-GazeboRotorPlugin::GazeboRotorPlugin()
-  : super(),
-    wind_vel_W_(zero3),
-    prev_sim_time_(0.),
-    last_cmd_time_(0.),
-    is_activated_(false),
-    is_initialized_(false),
-    battery_received_(false),
-    wind_received_(false)
+GazeboRotorPlugin::GazeboRotorPlugin() : super()
 {
 }
 
@@ -41,13 +32,13 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   // Get the pointer to the joint and the link
   joint_ = model_->GetJoint(joint_name_);
-  if (joint_ == NULL)
+  if (joint_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified joint \"" << joint_name_ << "\".");
   }
 
   link_ = model_->GetLink(link_name_);
-  if (link_ == NULL)
+  if (link_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
@@ -120,15 +111,6 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   getSdfParam(
-    sdf, "rotorSpeedSlowdownSim", rotor_speed_slowdown_sim_, kDefaultRotorSpeedSlowdownSim, false);
-  if (rotor_speed_slowdown_sim_ < 1.)
-  {
-    gzerr << kPluginName << ": Invalid rotorSpeedSlowdownSim: " << rotor_speed_slowdown_sim_
-          << ". The default value " << kDefaultRotorSpeedSlowdownSim << " is used." << endl;
-    rotor_speed_slowdown_sim_ = kDefaultRotorSpeedSlowdownSim;
-  }
-
-  getSdfParam(
     sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
   getSdfParam(
     sdf, "autoResetTimeThreshold", auto_reset_time_thr_, kDefaultAutoStopTimeThreshold, false);
@@ -173,7 +155,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
   // Get rotation speed
   const auto rot_speed_sim = joint_->GetVelocity(0);
-  const auto rot_speed_real = rot_speed_sim * rotor_speed_slowdown_sim_;
+  const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
 
   // Compute time after previous simulation time
   const auto dt = cur_time - prev_sim_time_;
@@ -184,29 +166,20 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   {
     GZ_WARN_THROTTLE(
       kWarnPeriod, kPluginName << ": Aliasing on motor [" << motor_number_
-                               << "] might occur. Lower simulation time step or raise "
-                                  "rotorSpeedSlowdownSim.");
+                               << "] might occur. Lower simulation time step.");
   }
 
   // Update simulation state
   applyForceAndTorque(rot_speed_real, info.simTime);
   updateRotationSpeed(dt);
-
-  // Publish rotor speed
-  auto rotor_speed_msg = boost::make_shared<tobas_msgs::RotorSpeed>();
-  timeGazeboToRos(cur_time, rotor_speed_msg->header.stamp);
-  rotor_speed_msg->speed = rot_speed_real;
-  rotor_speed_pub_.publish(rotor_speed_msg);
 }
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  rotor_speed_pub_ = nh_.advertise<tobas_msgs::RotorSpeed>(
-    "/" + ns_ + "/" + kRotorSpeedPubTopic + "_" + to_string(motor_number_), 1);
   debug_pub_ = nh_.advertise<tobas_gazebo_plugins::RotorDebug>(
-    "/" + ns_ + "/" + kDebugPubTopic + "_" + to_string(motor_number_), 1);
+    "/" + ns_ + "/" + kDebugTopicPrefix + "_" + to_string(motor_number_), 1);
 
-  rotor_speed_sub_ = nh_.subscribe(
+  rotor_speeds_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + tobas::kRotorCmdTopic, 1, &GazeboRotorPlugin::commandCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
@@ -254,7 +227,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   // Publish debug message
   auto debug_msg = boost::make_shared<tobas_gazebo_plugins::RotorDebug>();
   timeGazeboToRos(cur_time, debug_msg->header.stamp);
-  debug_msg->rotation_speed = joint_->GetVelocity(0) * rotor_speed_slowdown_sim_;
+  debug_msg->rotation_speed = joint_->GetVelocity(0) * kRotorSpeedSlowdownSim;
   vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);
   vectorGazeboToKDL(h_force_W, debug_msg->horizontal_force);
   vectorGazeboToKDL(drag_torque_parent, debug_msg->drag_torque);
@@ -288,7 +261,7 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 
   // Apply the filter on the rotation speed
   const auto ref_rot_speed = rotor_speed_filter_.update(set_rot_speed, dt);
-  joint_->SetVelocity(0, direction_ * ref_rot_speed / rotor_speed_slowdown_sim_);
+  joint_->SetVelocity(0, direction_ * ref_rot_speed / kRotorSpeedSlowdownSim);
 }
 
 void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)

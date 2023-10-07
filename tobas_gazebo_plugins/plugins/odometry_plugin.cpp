@@ -30,7 +30,7 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   world_ = physics::get_world(sensor->WorldName());
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
-  if (link_ == NULL)
+  if (link_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
@@ -57,7 +57,7 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
   {
     const auto image_name = sdf->GetElement("covarianceImage")->Get<string>();
     covariance_image_ = cv::imread(image_name, cv::IMREAD_GRAYSCALE);
-    if (covariance_image_.data == NULL)
+    if (covariance_image_.data == nullptr)
     {
       gzthrow(kPluginName << ": Loading covariance image " << image_name << " failed.");
     }
@@ -125,7 +125,7 @@ void GazeboOdometryPlugin::onUpdate()
   auto B_Angvel_WS = B_Angvel_WB;  // オフセットが並進のみならば角速度は同じ
 
   // Check if odometry is available
-  if (covariance_image_.data != NULL)
+  if (covariance_image_.data != nullptr)
   {
     // Image is always centered around the origin
     const auto width = covariance_image_.cols;

@@ -27,7 +27,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
 
   // Get the pointer to the link
   link_ = model_->GetLink(link_name_);
-  if (link_ == NULL)
+  if (link_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }

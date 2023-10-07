@@ -30,7 +30,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
 
   // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
-  if (link_ == NULL)
+  if (link_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }

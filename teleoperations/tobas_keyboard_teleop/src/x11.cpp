@@ -12,13 +12,13 @@ XkbControlsPtr getKeyboardControls()
   XkbDescPtr kb;
 
   // Open display
-  if ((display = XOpenDisplay(NULL)) == NULL)
+  if ((display = XOpenDisplay(nullptr)) == nullptr)
   {
     throw runtime_error("Couldn't open X11 display");
   }
 
   // Get keyboard map
-  if ((kb = XkbGetMap(display, XkbAllComponentsMask, XkbUseCoreKbd)) == NULL)
+  if ((kb = XkbGetMap(display, XkbAllComponentsMask, XkbUseCoreKbd)) == nullptr)
   {
     throw runtime_error("Couldn't get keyboard map");
   }

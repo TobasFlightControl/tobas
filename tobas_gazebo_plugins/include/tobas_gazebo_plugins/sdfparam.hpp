@@ -60,7 +60,7 @@ void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
   }
   else
   {
-    gzthrow("Please specify " << name << ".");
+    gzthrow("Please specify '" << name << "'.");
   }
 }
 
@@ -104,5 +104,26 @@ void getSdfParam(
 {
   getSdfParam(sdf, name, param, default_value);
   checkConstraint(name, param, constraint);
+}
+
+/* SDFからリストを取得． */
+template <typename T>
+void getSdfParam(sdf::ElementPtr sdf, const std::string& name, std::vector<T>& params)
+{
+  params.clear();
+
+  auto list_elem = sdf->GetElement(name);
+  if (list_elem == nullptr)
+  {
+    gzthrow("Please specify '" << name << "'.");
+  }
+
+  auto item_elem = list_elem->GetElement("item");
+  while (item_elem)
+  {
+    const auto value = item_elem->Get<T>();
+    params.push_back(value);
+    item_elem = item_elem->GetNextElement("item");
+  }
 }
 }  // namespace gazebo

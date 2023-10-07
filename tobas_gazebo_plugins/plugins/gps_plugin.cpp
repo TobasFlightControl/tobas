@@ -27,7 +27,7 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   world_ = physics::get_world(sensor->WorldName());
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
-  if (link_ == NULL)
+  if (link_ == nullptr)
   {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }

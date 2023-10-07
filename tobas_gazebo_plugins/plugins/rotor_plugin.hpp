@@ -17,8 +17,7 @@ namespace gazebo
 {
 // Constants
 static constexpr char kPluginName[] = "motor_model_plugin";
-static constexpr char kDebugPubTopic[] = "ground_truth/rotor_debug";
-static constexpr char kRotorSpeedPubTopic[] = "ground_truth/motor_speed";
+static constexpr char kDebugTopicPrefix[] = "ground_truth/rotor_debug";
 static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
 static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
 
@@ -47,21 +46,21 @@ private:
   double rotor_drag_coef_;
   double time_const_up_;
   double time_const_down_;
-  double rotor_speed_slowdown_sim_;
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
   double cmd_rot_speed_;  // [rad/s]
   tobas_msgs::Battery battery_;
-  ignition::math::Vector3d wind_vel_W_;  // [m/s]
-  double prev_sim_time_;                 // [s]
-  double last_cmd_time_;                 // [s]
-  bool is_activated_;
-  bool is_initialized_;
-  bool battery_received_;
-  bool wind_received_;
+  ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
+  double prev_sim_time_ = 0.;                    // [s]
+  double last_cmd_time_ = 0.;                    // [s]
+  bool is_activated_ = false;
+  bool is_initialized_ = false;
+  bool battery_received_ = false;
+  bool wind_received_ = false;
   AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
 
+  // Gazebo objects
   physics::ModelPtr model_;
   physics::JointPtr joint_;
   physics::LinkPtr link_;
@@ -70,8 +69,7 @@ private:
 
   // PubSub
   ros::Publisher debug_pub_;
-  ros::Publisher rotor_speed_pub_;
-  ros::Subscriber rotor_speed_sub_;
+  ros::Subscriber rotor_speeds_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
 
