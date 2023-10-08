@@ -54,11 +54,6 @@ private:
 
   quadprog::DualActiveSetSolver qp_solver_;
 
-  Eigen::Vector3d cur_gyro_;
-  Eigen::Vector3d tar_dgyro_;
-  Eigen::Vector3d P_cog_rotor_;
-  Eigen::Matrix3d I_cog_;  // CoG周りの回転慣性テンソル
-
   Eigen::Matrix3Xd A_;
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_thrusts_;

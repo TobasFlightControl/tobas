@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	dh_linear_control
 	kdl_conversions
-	eigen_conversions
 )
 
 catkin_package(
@@ -25,7 +24,6 @@ catkin_package(
 		tobas_tools
 		dh_linear_control
 		kdl_conversions
-		eigen_conversions
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

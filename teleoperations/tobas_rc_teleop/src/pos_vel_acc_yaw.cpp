@@ -1,5 +1,3 @@
-#include <eigen_conversions/eigen_kdl.h>
-
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -69,8 +67,8 @@ void PosVelAccYawController::update(
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
   cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
-  tf::vectorEigenToKDL(tar_vel_filtered, cmd->vel);
-  tf::vectorEigenToKDL(tar_pos_, cmd->pos);
+  cmd->vel.data = tar_vel_filtered;
+  cmd->pos.data = tar_pos_;
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行

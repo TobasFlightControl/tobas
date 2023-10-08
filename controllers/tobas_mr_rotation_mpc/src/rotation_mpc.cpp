@@ -1,9 +1,6 @@
-#include <eigen_conversions/eigen_kdl.h>
-
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/geometry.hpp>
-#include <dh_kdl/conversion/kdl_eigen.hpp>
 #include <dh_linear_control/util.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -184,26 +181,20 @@ const VectorXd& RotationMpc::optimalThrusts() const
   return mpc_.optimalControlInput();
 }
 
-Vector RotationMpc::optimalDgyro() const
+const Vector3d& RotationMpc::optimalDgyro() const
 {
-  Vector res;
-  tf::vectorEigenToKDL(opt_dgyro_, res);
-  return res;
+  return opt_dgyro_;
 }
 
-Vector RotationMpc::optimalGyro(const double& dt) const
+Vector3d RotationMpc::optimalGyro(const double& dt) const
 {
   assert(0 <= dt && dt < mpc_.time_step);
 
   const auto gyro_0 = mpc_.current_state.block<3, 1>(kGyroIdx, 0);
-  const auto gyro = gyro_0 + opt_dgyro_ * dt;
-
-  Vector res;
-  tf::vectorEigenToKDL(gyro, res);
-  return res;
+  return gyro_0 + opt_dgyro_ * dt;
 }
 
-Rotation RotationMpc::optimalRot(const double& dt) const
+Matrix3d RotationMpc::optimalRot(const double& dt) const
 {
   assert(0 <= dt && dt < mpc_.time_step);
 
@@ -213,11 +204,8 @@ Rotation RotationMpc::optimalRot(const double& dt) const
 
   const Vector3d angleaxis = gyro_0 * dt + 0.5 * opt_dgyro_ * dh_std::sqr(dt);  // 角度の増加分
   const AngleAxisd delta_rot(angleaxis.norm(), angleaxis.normalized());
-  const Matrix3d rot = rot_0 * delta_rot;
 
-  Rotation res;
-  tf::rotationEigenToKDL(rot, res);
-  return res;
+  return rot_0 * delta_rot;
 }
 
 double RotationMpc::maxThrustSum(const double& battery_voltage) const

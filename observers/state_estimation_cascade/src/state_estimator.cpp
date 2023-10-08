@@ -1,6 +1,5 @@
 #include <actionlib/client/simple_action_client.h>
 #include <eigen_conversions/eigen_msg.h>
-#include <eigen_conversions/eigen_kdl.h>
 #include <kdl_conversions/kdl_msg.h>
 
 #include <dh_std_tools/math.hpp>
@@ -183,7 +182,7 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   state->header.stamp = imu.header.stamp;
 
   // Position
-  tf::vectorEigenToKDL(cart_filter_.getXYZ(), state->pose.pos);
+  state->pose.pos.data = cart_filter_.getXYZ();
 
   // Roll, Pitch
   const auto& q = imu.orientation;
@@ -203,7 +202,7 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Linear velocity (Local)
-  tf::vectorEigenToKDL(cart_filter_.getVelocity(), state->twist.vel);
+  state->twist.vel = cart_filter_.getVelocity();
   state->twist.vel = state->pose.euler.Inverse(state->twist.vel);  // World -> Local
 
   // Angular velocity (Local)
@@ -344,10 +343,8 @@ void StateEstimator::gpsVelocityCb(const VelMsg::ConstPtr& vel)
     return;
   }
 
-  tf::vectorKDLToEigen(vel->vel, v_m_);
   const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
-
-  cart_filter_.measureVelocity(v_m_, cov);
+  cart_filter_.measureVelocity(vel->vel.data, cov);
 }
 
 void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)

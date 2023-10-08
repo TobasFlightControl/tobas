@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	dh_linear_control
 	kdl_conversions
-	eigen_conversions
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -30,7 +29,6 @@ catkin_package(
 		tobas_tools
 		dh_linear_control
 		kdl_conversions
-		eigen_conversions
 		dynamic_reconfigure
 		nodelet
 		pluginlib

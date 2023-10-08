@@ -1,6 +1,5 @@
 #include <actionlib/client/simple_action_client.h>
 #include <eigen_conversions/eigen_msg.h>
-#include <eigen_conversions/eigen_kdl.h>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
@@ -223,12 +222,10 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   state->header.stamp = imu.header.stamp;
 
   // Position (Global): IMU frame -> Base frame
-  const Vector3d W_Pos_WB = W_Pos_WI - W_Rot_B * B_Pos_BI;
-  tf::vectorEigenToKDL(W_Pos_WB, state->pose.pos);
+  state->pose.pos.data = W_Pos_WI - W_Rot_B * B_Pos_BI;
 
   // Linear velocity (Local): IMU frame -> Base frame
-  const Vector3d B_Vel_WB = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
-  tf::vectorEigenToKDL(B_Vel_WB, state->twist.vel);
+  state->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
 
   // Roll, Pitch
   auto& rpy = state->pose.euler;
@@ -248,10 +245,10 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Angular velocity (Local)
-  tf::vectorEigenToKDL(B_Gyro, state->twist.rot);
+  state->twist.rot.data = B_Gyro;
 
   // Linear acceleration (Local)
-  tf::vectorEigenToKDL(B_Acc, state->accel.linear);
+  state->accel.linear.data = B_Acc;
 
   // Angular acceleration (Local)
   state->accel.angular = KDL::Vector(INF, INF, INF);  // Unknown
@@ -408,8 +405,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // フィードバックを発行
       const auto feedback = boost::make_shared<FeedbackMsg>();
       feedback->header = imu->header;
-      tf::vectorEigenToKDL(eskf_.getAccelBias(), feedback->acc_bias);
-      tf::vectorEigenToKDL(eskf_.getGyroBias(), feedback->gyro_bias);
+      feedback->acc_bias = eskf_.getAccelBias();
+      feedback->gyro_bias = eskf_.getGyroBias();
       et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
       et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
       feedback_pub_.publish(feedback);
@@ -488,10 +485,8 @@ void ErrorStateKalmanFilterRos::velCb(const VelMsg::ConstPtr& vel)
     return;
   }
 
-  tf::vectorKDLToEigen(vel->vel, vel_meas_);
   const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
-
-  eskf_.measureVelocity(vel_meas_, cov, gyro_meas_, imu2gps_);
+  eskf_.measureVelocity(vel->vel.data, cov, gyro_meas_, imu2gps_);
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)

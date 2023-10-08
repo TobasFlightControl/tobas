@@ -56,7 +56,6 @@ private:
   ros::Time t_last_;
   Eigen::Quaterniond quat_;  // 推定された姿勢
   Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
-  Eigen::Vector3d v_m_;      // 絶対速度の測定値 (world)
   Eigen::Vector3d a_m_;      // 加速度の観測値 (local)
   double yaw_now_;
   double yaw_prev_;

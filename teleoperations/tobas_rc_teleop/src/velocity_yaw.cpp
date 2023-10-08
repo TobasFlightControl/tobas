@@ -1,5 +1,3 @@
-#include <eigen_conversions/eigen_kdl.h>
-
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -56,7 +54,7 @@ void VelocityYawController::update(
 
   // 速度をフィルタリングしてコマンドに
   vel_filter_.update(vel_raw_, dt);
-  tf::vectorEigenToKDL(vel_filter_.getState(), vel_yaw->vel);
+  vel_yaw->vel.data = vel_filter_.getState();
 
   // ヨー角を更新
   const auto yawrate =

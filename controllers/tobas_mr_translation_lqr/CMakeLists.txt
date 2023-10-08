@@ -13,14 +13,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	dh_linear_control
-	eigen_conversions
 	orocos_kdl
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS dh_linear_control eigen_conversions
+	CATKIN_DEPENDS dh_linear_control
 	DEPENDS orocos_kdl
 )
 

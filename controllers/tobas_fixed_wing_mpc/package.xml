@@ -10,7 +10,6 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>dynamic_reconfigure</depend>
-	<depend>eigen_conversions</depend>
 	<depend>kdl_conversions</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>

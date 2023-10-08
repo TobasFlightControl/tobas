@@ -1,6 +1,3 @@
-#include <eigen_conversions/eigen_msg.h>
-#include <eigen_conversions/eigen_kdl.h>
-
 #include <dh_std_tools/vector.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -177,7 +174,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     feedback->target_velocity_local = pt->pose.euler.Inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = pt->pose.euler * tar_acc;
-    tf::vectorEigenToKDL(trans_ctrl_.positionIntegralError(), feedback->position_integral_error);
+    feedback->position_integral_error = Vector(trans_ctrl_.positionIntegralError());
   }
 
   // Rotation Controller

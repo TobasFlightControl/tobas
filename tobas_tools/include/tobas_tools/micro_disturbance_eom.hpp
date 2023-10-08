@@ -159,10 +159,6 @@ private:
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
 
-  // 可変値
-  Eigen::Matrix3d I_cog_;  // 重心周りの慣性テンソル [kg*m^2]
-  Eigen::Vector3d P_cog_rotor_;
-
   void setInputLimits(const double& battery_voltage);
 };
 }  // namespace tobas

@@ -56,9 +56,9 @@ public:
   void configure(const RotationMpcConfig& config);
 
   const Eigen::VectorXd& optimalThrusts() const;
-  KDL::Vector optimalDgyro() const;
-  KDL::Vector optimalGyro(const double& dt) const;
-  KDL::Rotation optimalRot(const double& dt) const;
+  const Eigen::Vector3d& optimalDgyro() const;
+  Eigen::Vector3d optimalGyro(const double& dt) const;
+  Eigen::Matrix3d optimalRot(const double& dt) const;
 
 private:
   const tobas::Drone& drone_;

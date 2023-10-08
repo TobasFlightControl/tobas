@@ -9,7 +9,6 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>eigen_conversions</depend>
 	<depend>kdl_conversions</depend>
 
 	<depend>dh_linear_control</depend>

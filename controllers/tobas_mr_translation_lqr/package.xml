@@ -10,7 +10,6 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>orocos_kdl</depend>
-	<depend>eigen_conversions</depend>
 
 	<depend>dh_linear_control</depend>
 

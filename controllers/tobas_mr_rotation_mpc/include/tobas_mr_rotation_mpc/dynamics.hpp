@@ -37,9 +37,6 @@ private:
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 
-  KDL::Rotation rpyvel_angvel_kdl_;
-  Eigen::Matrix3d rpyvel_angvel_eigen_;
-  Eigen::Vector3d P_cog_rotor_;
-  Eigen::Matrix3d I_cog_;  // CoG周りの回転慣性テンソル
+  KDL::Rotation rpyvel_angvel_;
 };
 }  // namespace tobas_mr_rotation_mpc

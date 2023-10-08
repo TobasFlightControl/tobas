@@ -1,10 +1,6 @@
 #ifndef TOBAS_MSGS_MESSAGE_EULER_H
 #define TOBAS_MSGS_MESSAGE_EULER_H
 
-#include <string>
-#include <vector>
-#include <memory>
-
 #include <ros/types.h>
 #include <ros/serialization.h>
 #include <ros/builtin_message_traits.h>
@@ -79,14 +75,12 @@ bool operator!=(
   return !(lhs == rhs);
 }
 Commented out to here */
-
 }  // namespace tobas_msgs
 
 namespace ros
 {
 namespace message_traits
 {
-
 // edit: removed all template parameters
 template <>
 struct IsMessage<KDL::Euler> : TrueType
@@ -163,7 +157,6 @@ struct Definition<KDL::Euler>
     return value();
   }
 };
-
 }  // namespace message_traits
 }  // namespace ros
 
@@ -171,7 +164,6 @@ namespace ros
 {
 namespace serialization
 {
-
 template <>
 struct Serializer<KDL::Euler>
 {
@@ -193,7 +185,6 @@ namespace ros
 {
 namespace message_operations
 {
-
 template <>
 struct Printer<KDL::Euler>
 {
@@ -208,7 +199,6 @@ struct Printer<KDL::Euler>
     Printer<double>::stream(s, indent + "  ", v.yaw);
   }
 };
-
 }  // namespace message_operations
 }  // namespace ros
 

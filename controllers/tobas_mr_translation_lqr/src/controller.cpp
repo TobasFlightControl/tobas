@@ -1,5 +1,3 @@
-#include <eigen_conversions/eigen_kdl.h>
-
 #include <dh_std_tools/algorithm.hpp>
 
 #include "../include/tobas_mr_translation_lqr/controller.hpp"
@@ -37,8 +35,7 @@ void TranslationController::update(
   lqid_.target_state << tp.x(), tp.y(), tp.z(), tv.x(), tv.y(), tv.z(), 0, 0, 0;
 
   // 最適指令加速度を計算
-  const auto ta_eigen = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
-  tf::vectorEigenToKDL(ta_eigen, ta);
+  ta.data = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
 }
 
 void TranslationController::configure(const Config& config)

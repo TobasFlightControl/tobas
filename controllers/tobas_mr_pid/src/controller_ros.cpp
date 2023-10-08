@@ -1,5 +1,3 @@
-#include <eigen_conversions/eigen_msg.h>
-
 #include <dh_std_tools/vector.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>

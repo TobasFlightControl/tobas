@@ -1,7 +1,3 @@
-#include <eigen_conversions/eigen_kdl.h>
-
-#include <dh_kdl/conversion/kdl_eigen.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_common/mixer.hpp"
@@ -58,31 +54,26 @@ VectorXd Mixer::solve(
   const Vector& tar_dgyro_B,
   const VectorXd& tar_thrusts)
 {
-  tf::vectorKDLToEigen(cur_gyro_B, cur_gyro_);
-  tf::vectorKDLToEigen(tar_dgyro_B, tar_dgyro_);
-
   // 慣性テンソルと重心を計算
   auto I_base = inertia_solver_.JntToCart(cur_q);
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
-  tf::rotInertiaKDLToEigen(I_cog, I_cog_);
 
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto T_base_rotor = fk_solver_.JntToCart(cur_q, z_rotors_.linkName(i));
     const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
-    tf::vectorKDLToEigen(P_cog_rotor, P_cog_rotor_);
     const auto& d = z_rotors_.direction(i);
     const auto& cm = z_rotors_.momentConstant(i);
-    A_.col(i) = (d * cm) * UNIT_Z - P_cog_rotor_.cross(UNIT_Z);
+    A_.col(i) = (d * cm) * UNIT_Z - P_cog_rotor.data.cross(UNIT_Z);
   }
 
-  qp_solver_.problem.G.topLeftCorner(3, 3) = I_cog_;
+  qp_solver_.problem.G.topLeftCorner(3, 3) = I_cog.data;
   qp_solver_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
 
   // TODO: H-forceを考慮
-  const auto inertia_torque = I_cog_ * tar_dgyro_;
-  const auto coriolis_torque = cur_gyro_.cross(I_cog_ * cur_gyro_);
+  const auto inertia_torque = I_cog.data * tar_dgyro_B.data;
+  const auto coriolis_torque = cur_gyro_B.data.cross(I_cog.data * cur_gyro_B.data);
   qp_solver_.problem.h.topRows(3) = -inertia_torque - coriolis_torque - A_ * tar_thrusts;
 
   const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
