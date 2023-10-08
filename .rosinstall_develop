@@ -1,16 +1,4 @@
 - git: {
-  local-name: orocos_kinematics_dynamics,
-  uri: "git@github.com:TobasFlightControl/orocos_kinematics_dynamics.git",
-  version: master,
-}
-
-- git: {
-  local-name: kdl_msgs,
-  uri: "https://github.com/orocos/kdl_msgs.git",
-  version: master,
-}
-
-- git: {
   local-name: Navio2,
   uri: "git@github.com:TobasFlightControl/Navio2.git",
   version: develop,
@@ -49,6 +37,12 @@
 - git: {
   local-name: dh_kdl,
   uri: "git@github.com:TobasFlightControl/dh_kdl.git",
+  version: develop,
+}
+
+- git: {
+  local-name: dh_kdl_msgs,
+  uri: "git@github.com:TobasFlightControl/dh_kdl_msgs.git",
   version: develop,
 }
 

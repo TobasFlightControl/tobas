@@ -29,7 +29,7 @@ add_message_files(FILES ${MSG_FILES})
 # add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
-	kdl_msgs
+	dh_kdl_msgs
 	std_msgs
 )
 

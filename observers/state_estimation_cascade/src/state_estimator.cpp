@@ -1,12 +1,12 @@
 #include <actionlib/client/simple_action_client.h>
 #include <eigen_conversions/eigen_msg.h>
-#include <kdl_conversions/kdl_msg.h>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
 #include <dh_eigen_tools/conversion/eigen_boost.hpp>
+#include <dh_kdl/conversion/kdl_msg.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -20,6 +20,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace KDL;
 using namespace dh_std;
 
 namespace state_estimation_cascade
@@ -202,18 +203,18 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
   // Linear velocity (Local)
-  state->twist.vel = cart_filter_.getVelocity();
+  state->twist.vel.data = cart_filter_.getVelocity();
   state->twist.vel = state->pose.euler.Inverse(state->twist.vel);  // World -> Local
 
   // Angular velocity (Local)
-  tf::vectorMsgToKDL(imu.angular_velocity, state->twist.rot);
+  vectorMsgToKDL(imu.angular_velocity, state->twist.rot);
 
   // Linear acceleration (Local)
-  tf::vectorMsgToKDL(imu.linear_acceleration, state->accel.linear);
-  state->accel.linear += rpy.Inverse(KDL::Vector(0, 0, -tobas::kGravity));  // 重力を除く
+  vectorMsgToKDL(imu.linear_acceleration, state->accel.linear);
+  state->accel.linear += rpy.Inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
 
   // Angular acceleration (Local)
-  state->accel.angular = KDL::Vector(INF, INF, INF);  // Unknown
+  state->accel.angular = Vector(INF, INF, INF);  // Unknown
 
   // Covariances
   eigen_tools::matrix3EigenToBoost(

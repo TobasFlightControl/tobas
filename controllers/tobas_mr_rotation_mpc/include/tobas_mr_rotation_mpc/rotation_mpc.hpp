@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <kdl/frames.hpp>
 
 #include <dh_std_tools/stopwatch.hpp>
+#include <dh_kdl/frames.hpp>
 #include <dh_kdl/euler.hpp>
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
@@ -63,7 +63,7 @@ public:
 private:
   const tobas::Drone& drone_;
 
-  KDL::ExtTreeFkSolverPos fk_solver_;
+  KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 

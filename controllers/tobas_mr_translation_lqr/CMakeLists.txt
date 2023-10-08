@@ -13,14 +13,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	dh_linear_control
-	orocos_kdl
+	dh_kdl
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS dh_linear_control
-	DEPENDS orocos_kdl
+	CATKIN_DEPENDS dh_linear_control dh_kdl
+	# DEPENDS
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

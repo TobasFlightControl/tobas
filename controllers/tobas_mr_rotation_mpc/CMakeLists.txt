@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	dh_linear_control
-	kdl_conversions
 )
 
 catkin_package(
@@ -23,7 +22,6 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_tools
 		dh_linear_control
-		kdl_conversions
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

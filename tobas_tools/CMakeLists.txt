@@ -16,14 +16,13 @@ find_package(catkin REQUIRED COMPONENTS
 	dh_ros_tools
 	dh_eigen_tools
 	dh_std_tools
-	kdl_parser
 	tobas_msgs
 )
 
 catkin_package(
 	INCLUDE_DIRS include XYZgeomag/src
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS dh_kdl dh_ros_tools dh_eigen_tools dh_std_tools kdl_parser tobas_msgs
+	CATKIN_DEPENDS dh_kdl dh_ros_tools dh_eigen_tools dh_std_tools tobas_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} XYZgeomag/src)

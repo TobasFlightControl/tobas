@@ -46,7 +46,7 @@ public:
 private:
   const tobas::Drone& drone_;
 
-  KDL::ExtTreeFkSolverPos fk_solver_;
+  KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 

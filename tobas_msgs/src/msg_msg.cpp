@@ -1,4 +1,4 @@
-#include <kdl_conversions/kdl_msg.h>
+#include <dh_kdl/conversion/kdl_msg.hpp>
 
 #include "../include/tobas_msgs/conversions/msg_msg.hpp"
 
@@ -8,7 +8,7 @@ namespace tobas
 {
 void poseTobasToMsg(const tobas_msgs::Pose& t, geometry_msgs::Pose& m)
 {
-  tf::pointKDLToMsg(t.pos, m.position);
+  pointKDLToMsg(t.pos, m.position);
 
   const auto rot = Rotation::RPY(t.euler.roll, t.euler.pitch, t.euler.yaw);
   rot.GetQuaternion(m.orientation.x, m.orientation.y, m.orientation.z, m.orientation.w);
@@ -19,7 +19,7 @@ void odometryTobasToMsg(const tobas_msgs::PoseTwist& t, nav_msgs::Odometry& m)
   m.header = t.header;
 
   poseTobasToMsg(t.pose, m.pose.pose);
-  tf::twistKDLToMsg(t.twist, m.twist.twist);
+  twistKDLToMsg(t.twist, m.twist.twist);
 
   for (int i = 0; i < 3; ++i)
   {

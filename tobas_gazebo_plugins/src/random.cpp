@@ -1,11 +1,12 @@
 #include "../include/tobas_gazebo_plugins/random.hpp"
 
+using namespace std;
 using namespace ignition::math;
 
 namespace gazebo
 {
 NormalDistribution3d::NormalDistribution3d(
-  std::random_device& rnd_dev,
+  random_device& rnd_dev,
   const Vector3d& mean,
   const Vector3d& stddev)
   : rnd_gen_(rnd_dev())
@@ -26,7 +27,7 @@ Vector3d NormalDistribution3d::get()
 }
 
 UniformDistribution3d::UniformDistribution3d(
-  std::random_device& rnd_dev,
+  random_device& rnd_dev,
   const Vector3d& lb,
   const Vector3d& ub)
   : rnd_gen_(rnd_dev())

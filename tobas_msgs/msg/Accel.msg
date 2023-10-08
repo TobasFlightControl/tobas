@@ -1,2 +1,2 @@
-kdl_msgs/Vector linear
-kdl_msgs/Vector angular
+dh_kdl_msgs/Vector linear
+dh_kdl_msgs/Vector angular

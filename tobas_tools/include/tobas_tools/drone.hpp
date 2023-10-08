@@ -1,7 +1,8 @@
 #pragma once
 
 #include <ros/ros.h>
-#include <kdl/tree.hpp>
+
+#include <dh_kdl/tree.hpp>
 
 #include "./rotor_property.hpp"
 #include "./fixed_wing_tools.hpp"

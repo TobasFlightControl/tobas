@@ -1,7 +1,7 @@
 std_msgs/Header header
 
 Pose pose
-kdl_msgs/Twist twist
+dh_kdl_msgs/Twist twist
 Accel accel
 
 float64[9] position_covariance

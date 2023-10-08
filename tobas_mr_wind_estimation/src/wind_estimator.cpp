@@ -15,7 +15,7 @@ namespace tobas_mr_wind_estimation
 WindEstimator::WindEstimator(
   ros::NodeHandle nh,
   ros::NodeHandle pnh,
-  std::string name = ros::this_node::getName())
+  string name = ros::this_node::getName())
   : super(nh, pnh, name),
     fk_solver_(drone_.tree()),
     inertia_solver_(drone_.tree()),

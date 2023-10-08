@@ -23,7 +23,7 @@ MagnetometerCalibrator::MagnetometerCalibrator() : mag_data_(kDataCount * kDirec
   }
 }
 
-void MagnetometerCalibrator::run(const std::string& method)
+void MagnetometerCalibrator::run(const string& method)
 {
   mag_data_.setZero();
 

@@ -1,8 +1,6 @@
-#include <kdl/frames.hpp>
-#include <kdl_parser/kdl_parser.hpp>
-
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_eigen_tools/core.hpp>
+#include <dh_kdl/frames.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>

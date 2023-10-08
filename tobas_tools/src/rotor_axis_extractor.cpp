@@ -28,7 +28,7 @@ const uint32_t& RotorAxisExtractor::rotorIdx(const uint32_t& inner_idx) const
   return rotor_idxs_[inner_idx];
 }
 
-const std::string& RotorAxisExtractor::linkName(const uint32_t& inner_idx) const
+const string& RotorAxisExtractor::linkName(const uint32_t& inner_idx) const
 {
   return drone_.rotorConfig(rotorIdx(inner_idx)).link_name;
 }

@@ -1,7 +1,6 @@
-#include <kdl_parser/kdl_parser.hpp>
-
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_std_tools/math.hpp>
+#include <dh_kdl/kdl_parser.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
 #include "../include/tobas_tools/drone.hpp"
@@ -19,7 +18,7 @@ Drone::Drone() : is_loaded_(false)
 
 void Drone::loadFromParam(ros::NodeHandle& nh)
 {
-  if (!kdl_parser::treeFromParam("robot_description", tree_))
+  if (!treeFromParam("robot_description", tree_))
   {
     throw runtime_error("Failed to get KDL tree.");
   }

@@ -140,7 +140,7 @@ private:
 
   const Drone& drone_;
 
-  KDL::ExtTreeFkSolverPos fk_solver_;
+  KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;

@@ -1,21 +1,22 @@
 #include <chrono>
-#include <kdl_parser/kdl_parser.hpp>
 
 #include <dh_std_tools/time.hpp>
 #include <dh_std_tools/iostream.hpp>
+#include <dh_kdl/kdl_parser.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_tools/utils.hpp"
 
 using namespace std;
+using namespace KDL;
 
 namespace tobas
 {
 double getMass()
 {
   KDL::Tree tree;
-  if (!kdl_parser::treeFromParam(ros::this_node::getNamespace() + "/robot_description", tree))
+  if (!treeFromParam(ros::this_node::getNamespace() + "/robot_description", tree))
   {
     throw runtime_error("Failed to get KDL tree.");
   }

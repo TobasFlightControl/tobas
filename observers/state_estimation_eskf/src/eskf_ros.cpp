@@ -405,8 +405,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // フィードバックを発行
       const auto feedback = boost::make_shared<FeedbackMsg>();
       feedback->header = imu->header;
-      feedback->acc_bias = eskf_.getAccelBias();
-      feedback->gyro_bias = eskf_.getGyroBias();
+      feedback->acc_bias.data = eskf_.getAccelBias();
+      feedback->gyro_bias.data = eskf_.getGyroBias();
       et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
       et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
       feedback_pub_.publish(feedback);
