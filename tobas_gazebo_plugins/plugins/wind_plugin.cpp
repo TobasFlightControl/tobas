@@ -137,7 +137,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboWindPlugin::registerPubSub()
 {
-  wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + tobas::kWindTopic, 1);
+  wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboWindPlugin);

@@ -186,7 +186,7 @@ void GazeboRotorPlugin::registerPubSub()
     "/" + ns_ + "/" + tobas::kBatteryTopic, 1, &GazeboRotorPlugin::batteryCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kWindTopic, 1, &GazeboRotorPlugin::windSpeedCb, this,
+    "/" + ns_ + "/" + kWindGtTopic, 1, &GazeboRotorPlugin::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 

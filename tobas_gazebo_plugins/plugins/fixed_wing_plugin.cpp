@@ -183,7 +183,7 @@ void GazeboFixedWingPlugin::registerPubSub()
     "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kWindTopic, 1, &GazeboFixedWingPlugin::windSpeedCb, this,
+    "/" + ns_ + "/" + kWindGtTopic, 1, &GazeboFixedWingPlugin::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 

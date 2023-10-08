@@ -41,7 +41,6 @@ using SdfVector3 = ignition::math::Vector3d;
 using NormalDistribution = std::normal_distribution<double>;
 using UniformDistribution = std::uniform_real_distribution<double>;
 
-// Constants
 static constexpr double kDegreeToRadian = M_PI / 180.;
 static constexpr double kRadianToDegree = 1 / kDegreeToRadian;
 static constexpr double kFeetToMeter = 0.3048;
@@ -59,4 +58,6 @@ static constexpr double kDefaultAltitudeZero = 0.;           // [m]
 
 static constexpr double kDefaultCheckDelayThreshold = 0.02;   // [s]
 static constexpr double kDefaultAutoStopTimeThreshold = 0.5;  // [s]
+
+static constexpr char kWindGtTopic[] = "ground_truth/wind";
 }  // namespace gazebo
