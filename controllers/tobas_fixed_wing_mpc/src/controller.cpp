@@ -363,7 +363,7 @@ void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
     }
     case TAKEOFF:
     {
-      const auto cur_V = pt_ned_.twist.vel.Norm();
+      const auto cur_V = pt_ned_.twist.vel.norm();
       const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
       const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_->voltage, q_0_);
       if (eom_error < 0)
@@ -374,7 +374,7 @@ void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
       publishTakeoffCommand();
 
       // 最低速度を上回ったら制御開始
-      const auto cur_speed = pt_nwu->twist.vel.Norm();
+      const auto cur_speed = pt_nwu->twist.vel.norm();
       if (cur_speed > eom_.trimCondition().minimumSpeed(air_density_))
       {
         setInitialTarget();

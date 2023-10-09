@@ -207,11 +207,11 @@ void WaitForStillnessServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt
   }
 
   // 最後に速度が閾値を下回った時刻を更新
-  if (pt->twist.vel.Norm() > goal_->velocity_threshold)
+  if (pt->twist.vel.norm() > goal_->velocity_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
-      "The norm of velocity is over threshold: " << pt->twist.vel.Norm() << " > "
+      "The norm of velocity is over threshold: " << pt->twist.vel.norm() << " > "
                                                  << goal_->velocity_threshold);
     t_last_valid_velocity_ = pt->header.stamp;
   }
