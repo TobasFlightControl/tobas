@@ -1,3 +1,6 @@
+#include <Eigen/QR>
+#include <Eigen/SVD>
+
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Wind.h>
 
@@ -91,8 +94,10 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
   const Matrix3d Cv = velCoef(pt->pose.euler);
 
-  const Vector2d right = (acc_B + grav_B + Cv * vel_W).head(2);
-  const Vector3d wind_W = Cv.colPivHouseholderQr().solve(right);
+  const auto A = Cv.topRows(2);
+  const auto b = (acc_B + grav_B + Cv * vel_W).head(2);
+  const Vector3d wind_W = A.colPivHouseholderQr().solve(b);  // 冗長なZ成分は0になる
+  // const Vector3d wind_W = A.jacobiSvd(ComputeThinU | ComputeThinV).solve(b);  // 最小二乗解
 
   // Publish wind message
   auto wind_msg = boost::make_shared<tobas_msgs::Wind>();

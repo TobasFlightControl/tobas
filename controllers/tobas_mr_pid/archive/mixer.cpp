@@ -1,4 +1,4 @@
-#include <Eigen/QR>
+#include <Eigen/SVD>
 #include <eigen_conversions/eigen_kdl.h>
 
 #include <dh_kdl/util.hpp>
@@ -66,6 +66,6 @@ VectorXd Mixer::solve(
   b_.block<3, 1>(1, 0) = inertia_force + coriolis_force;
 
   // 最小二乗解を計算
-  return A_.colPivHouseholderQr().solve(b_);
+  return A_.jacobiSvd(ComputeThinU | ComputeThinV).solve(b_);
 }
 }  // namespace tobas_mr_pid
