@@ -31,8 +31,8 @@ void Mixer::updateInternalDataStructures()
   // QPの決定変数のスケール
   constexpr double dgyro_scale = M_PI;
   const auto thrust_scale = inertia_solver_.JntToMass() * tobas::kGravity / z_rotors_.count();
-  qp_solver_.x_scale.topRows(3).fill(dgyro_scale);
-  qp_solver_.x_scale.bottomRows(z_rotors_.count()).fill(thrust_scale);
+  qp_solver_.x_scale.head(3).fill(dgyro_scale);
+  qp_solver_.x_scale.tail(z_rotors_.count()).fill(thrust_scale);
 
   // QPPの定数部分
   qp_solver_.problem.G.bottomRightCorner(1, z_rotors_.count()).fill(1);
@@ -74,7 +74,7 @@ VectorXd Mixer::solve(
   // TODO: H-forceを考慮
   const auto inertia_torque = I_cog.data * tar_dgyro_B;
   const auto coriolis_torque = cur_gyro_B.cross(I_cog.data * cur_gyro_B);
-  qp_solver_.problem.h.topRows(3) = -inertia_torque - coriolis_torque - A_ * tar_thrusts;
+  qp_solver_.problem.h.head(3) = -inertia_torque - coriolis_torque - A_ * tar_thrusts;
 
   const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
@@ -85,11 +85,11 @@ VectorXd Mixer::solve(
 
   const auto max_dthrusts = max_thrusts_ - tar_thrusts;
   const auto min_dthrusts = min_thrusts_ - tar_thrusts;
-  qp_solver_.problem.b.topRows(z_rotors_.count()) = max_dthrusts;
-  qp_solver_.problem.b.bottomRows(z_rotors_.count()) = -min_dthrusts;
+  qp_solver_.problem.b.head(z_rotors_.count()) = max_dthrusts;
+  qp_solver_.problem.b.tail(z_rotors_.count()) = -min_dthrusts;
 
   const VectorXd dx = qp_solver_.solve();
-  const auto dthrust = dx.bottomRows(z_rotors_.count());
+  const auto dthrust = dx.tail(z_rotors_.count());
   return tar_thrusts + dthrust;
 }
 
@@ -118,7 +118,7 @@ void Mixer::configure(const MixerConfig& cfg)
 
 void Mixer::updateQpWeight()
 {
-  qp_solver_.problem.P.diagonal().topRows(3).fill(cfg_.dgyro_weight);
-  qp_solver_.problem.P.diagonal().bottomRows(z_rotors_.count()).fill(cfg_.thrust_weight);
+  qp_solver_.problem.P.diagonal().head(3).fill(cfg_.dgyro_weight);
+  qp_solver_.problem.P.diagonal().tail(z_rotors_.count()).fill(cfg_.thrust_weight);
 }
 }  // namespace tobas_mr_common

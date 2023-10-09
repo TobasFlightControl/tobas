@@ -411,13 +411,13 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   // 制御入力の重み
   const auto thrust_weight = exp10(cfg.thrust_weight_log10);
   const auto deflection_weight = exp10(cfg.deflection_weight_log10);
-  lqd_.input_weight.topRows(x_rotors_.count()).fill(thrust_weight);
-  lqd_.input_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_weight);
+  lqd_.input_weight.head(x_rotors_.count()).fill(thrust_weight);
+  lqd_.input_weight.tail(drone_.numControlSurfaces()).fill(deflection_weight);
 
   // 制御入力の変化率の重み
   const auto thrust_rate_weight = exp10(cfg.thrust_rate_weight_log10);
   const auto deflection_rate_weight = exp10(cfg.deflection_rate_weight_log10);
-  lqd_.input_rate_weight.topRows(x_rotors_.count()).fill(thrust_rate_weight);
-  lqd_.input_rate_weight.bottomRows(drone_.numControlSurfaces()).fill(deflection_rate_weight);
+  lqd_.input_rate_weight.head(x_rotors_.count()).fill(thrust_rate_weight);
+  lqd_.input_rate_weight.tail(drone_.numControlSurfaces()).fill(deflection_rate_weight);
 }
 }  // namespace tobas_fixed_wing_lqd

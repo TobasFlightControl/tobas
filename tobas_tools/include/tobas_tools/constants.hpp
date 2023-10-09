@@ -14,6 +14,9 @@ constexpr uint32_t kMaxPinId = 14;
 // TODO: Ardupilotを参考にGUIで設定できるようにする
 static constexpr double kMotorSpinArm = 0.1;
 
+// Frames
+static constexpr char kWorldFrame[] = "world";
+
 // ROS topics
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kCpuTopic[] = "cpu";

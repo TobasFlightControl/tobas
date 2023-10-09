@@ -36,7 +36,7 @@ RotationMpc::RotationMpc(const tobas::Drone& drone)
   mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(kHMomentScale);
 
   // 制御変数のスケールは状態変数と等しい
-  mpc_.control_scale = mpc_.state_scale.topRows(kCtrlSize);
+  mpc_.control_scale = mpc_.state_scale.head(kCtrlSize);
 
   mpc_.control_weight.resize(kCtrlSize);
   mpc_.current_state.resize(kStateSize);

@@ -21,7 +21,7 @@ public:
   explicit WindEstimator(
     ros::NodeHandle nh,
     ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const std::string& name = ros::this_node::getName());
 
   void updateInternalDataStructures();
 
@@ -46,6 +46,7 @@ private:
 
   Eigen::Matrix3d velCoef(const KDL::Euler& R_W_B);
 
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
 };
