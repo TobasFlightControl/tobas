@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
 
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
@@ -9,6 +10,7 @@
     <!-- Bringup controller -->
     <include file="$(find {{ controller_pkg }})/launch/controller.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
     </include>
 
     <!-- Bringup takeoff and landing action servers at the same time -->

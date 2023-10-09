@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="ground_truth" default="false"/>
 
   <!-- Launch nodelet manager -->
   <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
@@ -8,6 +9,7 @@
   <!-- Bringup controller -->
   <include file="$(find {{ pkg_name }})/launch/controller.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="ground_truth" value="$(arg ground_truth)"/>
   </include>
 
   <!-- Bringup observer -->
