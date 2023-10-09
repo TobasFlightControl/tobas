@@ -221,9 +221,12 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
 
   // Position (Global): IMU frame -> Base frame
   state->pose.pos.data = W_Pos_WI - W_Rot_B * B_Pos_BI;
+  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
 
   // Linear velocity (Local): IMU frame -> Base frame
   state->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
+  const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
+  et::matrix3EigenToBoost(vel_cov_B, state->linear_velocity_covariance);
 
   // Roll, Pitch
   auto& rpy = state->pose.euler;
@@ -232,31 +235,24 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
 
   // Yaw
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
-  {
     --yaw_jump_count_;
-  }
   else if (yaw_now_ - yaw_prev_ < -M_PI)  // 正方向のジャンプを検出
-  {
     ++yaw_jump_count_;
-  }
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
+  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state->orientation_covariance);
+
   // Angular velocity (Local)
   state->twist.rot.data = B_Gyro;
+  state->angular_velocity_covariance = imu.angular_velocity_covariance;
 
   // Linear acceleration (Local)
   state->accel.linear.data = B_Acc;
+  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)
   state->accel.angular.fill(nan(tobas::kUnknown));
-
-  // Covariances
-  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
-  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state->orientation_covariance);
-  et::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state->linear_velocity_covariance);
-  state->angular_velocity_covariance = imu.angular_velocity_covariance;
-  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
   state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
   return state;

@@ -20,6 +20,7 @@ using namespace std;
 using namespace Eigen;
 using namespace KDL;
 using namespace dh_std;
+namespace et = eigen_tools;
 
 namespace state_estimation_cascade
 {
@@ -182,6 +183,7 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
 
   // Position
   state->pose.pos.data = cart_filter_.getXYZ();
+  et::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), state->position_covariance);
 
   // Roll, Pitch
   const auto& q = imu.orientation;
@@ -190,38 +192,32 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
 
   // Yaw
   if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
-  {
     --yaw_jump_count_;
-  }
   else if (yaw_now_ - yaw_prev_ < -M_PI)  // 正方向のジャンプを検出
-  {
     ++yaw_jump_count_;
-  }
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
+  state->orientation_covariance.fill(nan(tobas::kUnknown));  // TODO: 相補フィルタから推定
+
   // Linear velocity (Local)
   state->twist.vel.data = cart_filter_.getVelocity();
-  state->twist.vel = state->pose.euler.Inverse(state->twist.vel);  // World -> Local
+  state->twist.vel = rpy.Inverse(state->twist.vel);  // World -> Local
+  const Matrix3d R_W_B = rpy.toRotation().data;
+  const Matrix3d vel_cov_B = R_W_B.transpose() * cart_filter_.getVelocityCovariance() * R_W_B;
+  et::matrix3EigenToBoost(vel_cov_B, state->linear_velocity_covariance);
 
   // Angular velocity (Local)
   vectorMsgToKDL(imu.angular_velocity, state->twist.rot);
+  state->angular_velocity_covariance = imu.angular_velocity_covariance;
 
   // Linear acceleration (Local)
   vectorMsgToKDL(imu.linear_acceleration, state->accel.linear);
   state->accel.linear += rpy.Inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
+  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)
   state->accel.angular.fill(nan(tobas::kUnknown));
-
-  // Covariances
-  eigen_tools::matrix3EigenToBoost(
-    cart_filter_.getPositionCovariance(), state->position_covariance);
-  state->orientation_covariance.fill(nan(tobas::kUnknown));  // TODO: 相補フィルタから推定
-  eigen_tools::matrix3EigenToBoost(
-    cart_filter_.getVelocityCovariance(), state->linear_velocity_covariance);
-  state->angular_velocity_covariance = imu.angular_velocity_covariance;
-  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
   state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
   return state;
