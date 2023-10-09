@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Eigen/Core>
+
 #include <dh_quadprog/dual_active_set.hpp>
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
@@ -30,15 +32,15 @@ public:
   Eigen::VectorXd solve(
     const double& cur_voltage,
     const KDL::JntArray& cur_q,
-    const KDL::Vector& cur_gyro_B,
-    const KDL::Vector& tar_dgyro_B,
+    const Eigen::Vector3d& cur_gyro_B,
+    const Eigen::Vector3d& tar_dgyro_B,
     const Eigen::VectorXd& tar_thrusts);
 
   Eigen::VectorXd solve(
     const double& cur_voltage,
     const KDL::JntArray& cur_q,
-    const KDL::Vector& cur_gyro_B,
-    const KDL::Vector& tar_dgyro_B,
+    const Eigen::Vector3d& cur_gyro_B,
+    const Eigen::Vector3d& tar_dgyro_B,
     const double& tar_thrusts_sum);
 
   void configure(const MixerConfig& cfg);

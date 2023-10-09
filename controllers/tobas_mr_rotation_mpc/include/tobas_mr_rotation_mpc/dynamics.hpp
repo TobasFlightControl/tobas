@@ -36,7 +36,5 @@ private:
   KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
-
-  KDL::Rotation rpyvel_angvel_;
 };
 }  // namespace tobas_mr_rotation_mpc

@@ -50,8 +50,8 @@ void Mixer::updateInternalDataStructures()
 VectorXd Mixer::solve(
   const double& cur_voltage,
   const JntArray& cur_q,
-  const Vector& cur_gyro_B,
-  const Vector& tar_dgyro_B,
+  const Vector3d& cur_gyro_B,
+  const Vector3d& tar_dgyro_B,
   const VectorXd& tar_thrusts)
 {
   // 慣性テンソルと重心を計算
@@ -72,8 +72,8 @@ VectorXd Mixer::solve(
   qp_solver_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
 
   // TODO: H-forceを考慮
-  const auto inertia_torque = I_cog.data * tar_dgyro_B.data;
-  const auto coriolis_torque = cur_gyro_B.data.cross(I_cog.data * cur_gyro_B.data);
+  const auto inertia_torque = I_cog.data * tar_dgyro_B;
+  const auto coriolis_torque = cur_gyro_B.cross(I_cog.data * cur_gyro_B);
   qp_solver_.problem.h.topRows(3) = -inertia_torque - coriolis_torque - A_ * tar_thrusts;
 
   const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
@@ -96,8 +96,8 @@ VectorXd Mixer::solve(
 VectorXd Mixer::solve(
   const double& cur_voltage,
   const JntArray& cur_q,
-  const Vector& cur_gyro_B,
-  const Vector& tar_dgyro_B,
+  const Vector3d& cur_gyro_B,
+  const Vector3d& tar_dgyro_B,
   const double& tar_thrusts_sum)
 {
   // 均等に推力が分散されている状態を参照とする

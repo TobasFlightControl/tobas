@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dh_kdl/frames.hpp>
+#include <Eigen/Core>
 
 namespace tobas_mr_pid
 {
@@ -22,17 +22,16 @@ class RotationController
 public:
   explicit RotationController();
 
-  void update(
-    const KDL::Vector& cur_pos,
-    const KDL::Vector& cur_vel,
-    KDL::Vector tar_pos,
-    const KDL::Vector& tar_vel,
-    KDL::Vector& tar_acc,
+  Eigen::Vector3d update(
+    const Eigen::Vector3d& cur_pos,
+    const Eigen::Vector3d& cur_vel,
+    Eigen::Vector3d tar_pos,
+    const Eigen::Vector3d& tar_vel,
     const double& dt);
   void configure(const RotationControllerConfig& config);
 
 private:
   RotationControllerConfig config_;
-  KDL::Vector ei_;
+  Eigen::Vector3d ei_;
 };
 }  // namespace tobas_mr_pid

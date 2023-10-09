@@ -1,6 +1,6 @@
 #include <Eigen/LU>
 
-#include <dh_kdl/util.hpp>
+#include <dh_eigen_tools/geometry.hpp>
 
 #include "../include/tobas_mr_rotation_mpc/dynamics.hpp"
 #include "../include/tobas_mr_rotation_mpc/constants.hpp"
@@ -40,8 +40,7 @@ void MultiRotorDynamics::update(const double& roll, const double& pitch, const J
   const Matrix3d I_cog_inv = I_cog.data.inverse();
 
   // Update A
-  eulerrateFromAngvelLocal(roll, pitch, rpyvel_angvel_);
-  A.block<3, 3>(kRotIdx, kGyroIdx) = rpyvel_angvel_.data;
+  A.block<3, 3>(kRotIdx, kGyroIdx) = eigen_tools::eulerrateFromAngvelLocal(roll, pitch);
   A.block<3, 3>(kGyroIdx, kHForceIdx) = I_cog_inv;
 
   // Update B

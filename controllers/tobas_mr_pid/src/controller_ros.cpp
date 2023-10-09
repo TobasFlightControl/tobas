@@ -1,7 +1,7 @@
 #include <dh_std_tools/vector.hpp>
+#include <dh_eigen_tools/geometry.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
-#include <dh_kdl/util.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
@@ -204,17 +204,18 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
     // 目標オイラー角加速度を計算
     const auto& rpy = pt->pose.euler;
-    const auto rpyd = eulerrateFromAngvelLocal(pt->twist.rot, rpy.roll, rpy.pitch);
-    rot_controller_.update(
-      rpy.toVector(), rpyd, tar_rpyt_->rpy.toVector(), Vector::Zero(), tar_rpydd_, dt);
+    const Vector3d rpyd =
+      eigen_tools::eulerrateFromAngvelLocal(pt->twist.rot.data, rpy.roll, rpy.pitch);
+    const Vector3d tar_rpydd = rot_controller_.update(
+      rpy.toVector().data, rpyd, tar_rpyt_->rpy.toVector().data, Vector3d::Zero(), dt);
 
     // オイラー角加速度から角加速度を計算
-    angaccFromEuleraccLocal(rpy.roll, rpy.pitch, rpyd, tar_rpydd_, tar_dgyro_);
-    // tar_dgyro_ = tar_rpydd_;  // 姿勢，角速度を0と近似した場合
+    const Vector3d tar_dgyro =
+      eigen_tools::angaccFromEuleraccLocal(rpy.roll, rpy.pitch, rpyd, tar_rpydd);
 
     // プロペラの推力を計算
     const VectorXd thrusts =
-      mixer_.solve(battery_->voltage, q_, pt->twist.rot, tar_dgyro_, tar_rpyt_->thrust);
+      mixer_.solve(battery_->voltage, q_, pt->twist.rot.data, tar_dgyro, tar_rpyt_->thrust);
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();

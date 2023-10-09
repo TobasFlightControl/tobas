@@ -67,8 +67,6 @@ private:
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   KDL::JntArray q_;  // 全ての非固定関節の角度
   KDL::Vector tar_acc_fb_;
-  KDL::Vector tar_rpydd_;
-  KDL::Vector tar_dgyro_;
   ros::Time t_last_loop_;
 
   // Publishers
