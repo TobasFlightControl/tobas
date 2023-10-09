@@ -16,8 +16,6 @@
 
 #include "../include/state_estimation_cascade/state_estimator.hpp"
 
-#define INF numeric_limits<double>::max()
-
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
@@ -214,17 +212,17 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   state->accel.linear += rpy.Inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
 
   // Angular acceleration (Local)
-  state->accel.angular = Vector(INF, INF, INF);  // Unknown
+  state->accel.angular.fill(nan(tobas::kUnknown));
 
   // Covariances
   eigen_tools::matrix3EigenToBoost(
     cart_filter_.getPositionCovariance(), state->position_covariance);
-  state->orientation_covariance.fill(-1);  // TODO: 相補フィルタから推定
+  state->orientation_covariance.fill(nan(tobas::kUnknown));  // TODO: 相補フィルタから推定
   eigen_tools::matrix3EigenToBoost(
     cart_filter_.getVelocityCovariance(), state->linear_velocity_covariance);
   state->angular_velocity_covariance = imu.angular_velocity_covariance;
   state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
-  state->angular_acceleration_covariance.fill(-1);  // Unknown
+  state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
   return state;
 }

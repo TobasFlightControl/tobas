@@ -52,12 +52,12 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   imu_msg_.linear_acceleration_covariance.fill(0.);
   imu_msg_.angular_velocity_covariance.fill(0.);
-  imu_msg_.orientation_covariance.fill(-1.);
+  imu_msg_.orientation_covariance.fill(nan(tobas::kUnknown));
 
-  imu_msg_.orientation.x = -1;
-  imu_msg_.orientation.y = -1;
-  imu_msg_.orientation.z = -1;
-  imu_msg_.orientation.w = -1;
+  imu_msg_.orientation.x = nan(tobas::kUnknown);
+  imu_msg_.orientation.y = nan(tobas::kUnknown);
+  imu_msg_.orientation.z = nan(tobas::kUnknown);
+  imu_msg_.orientation.w = nan(tobas::kUnknown);
 
   // Advertise
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);

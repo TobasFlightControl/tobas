@@ -20,8 +20,6 @@
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
-#define INF numeric_limits<double>::max()
-
 using namespace std;
 using namespace Eigen;
 using namespace dh_std;
@@ -251,7 +249,7 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   state->accel.linear.data = B_Acc;
 
   // Angular acceleration (Local)
-  state->accel.angular = KDL::Vector(INF, INF, INF);  // Unknown
+  state->accel.angular.fill(nan(tobas::kUnknown));
 
   // Covariances
   et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
@@ -259,7 +257,7 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   et::matrix3EigenToBoost(eskf_.getVelocityCovariance(), state->linear_velocity_covariance);
   state->angular_velocity_covariance = imu.angular_velocity_covariance;
   state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
-  state->angular_acceleration_covariance.fill(-1);  // Unknown
+  state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
   return state;
 }

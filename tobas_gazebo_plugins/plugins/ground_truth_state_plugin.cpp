@@ -70,6 +70,12 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   // Update angular velocity (Local)
   vectorGazeboToKDL(link_->RelativeAngularVel(), state_msg_.twist.rot);
 
+  // Update linear acceleration (Local)
+  vectorGazeboToKDL(link_->RelativeLinearAccel(), state_msg_.accel.linear);
+
+  // Update angular acceleration (Local)
+  vectorGazeboToKDL(link_->RelativeAngularAccel(), state_msg_.accel.angular);
+
   // Publish state message
   state_pub_.publish(state_msg_);
 }

@@ -56,7 +56,7 @@ void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
   {
     const auto rot_speed_sim = joint->GetVelocity(0);
     const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
-    rotor_speeds->speeds.push_back(rot_speed_real);
+    rotor_speeds->speeds.push_back(abs(rot_speed_real));
   }
   rotor_speeds_pub_.publish(rotor_speeds);
 }
