@@ -76,10 +76,10 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
-  const auto& I_x = I_cog.data(0, 0);
-  const auto& I_y = I_cog.data(1, 1);
-  const auto& I_z = I_cog.data(2, 2);
-  const auto& I_xz = I_cog.data(0, 2);
+  const auto I_x = I_cog.ixx();
+  const auto I_y = I_cog.iyy();
+  const auto I_z = I_cog.izz();
+  const auto I_xz = I_cog.ixz();
 
   // p.97
   const auto tmp = 1 - sqr(I_xz) / (I_x * I_z);
