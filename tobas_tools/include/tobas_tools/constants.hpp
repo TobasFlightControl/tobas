@@ -1,13 +1,19 @@
 #pragma once
 
 #include <cinttypes>
+#include <cmath>
 
 namespace tobas
 {
-constexpr double kGravity = 9.80665;        // 重力加速度 [m/s^2]
-constexpr double kMinAirSpeedThresh = 0.1;  // 空力計算を行う最小の風速 [m/s]
-constexpr uint32_t kMinPinId = 1;
-constexpr uint32_t kMaxPinId = 14;
+static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
+static constexpr double kDegreeToRadian = M_PI / 180.;
+static constexpr double kRadianToDegree = 1 / kDegreeToRadian;
+static constexpr double kFeetToMeter = 0.3048;
+static constexpr double kMeterToFeet = 1 / kFeetToMeter;
+
+static constexpr double kMinAirSpeedThresh = 0.1;  // 空力計算を行う最小の風速 [m/s]
+static constexpr uint32_t kMinPinId = 1;
+static constexpr uint32_t kMaxPinId = 14;
 
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html

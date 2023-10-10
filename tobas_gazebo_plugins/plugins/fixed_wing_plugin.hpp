@@ -33,8 +33,8 @@ class GazeboFixedWingPlugin : public ModelPlugin
   static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
 
   // Default values
-  static constexpr double kDefaultLowerStallAngle = -10. * kDegreeToRadian;
-  static constexpr double kDefaultUpperStallAngle = 20. * kDegreeToRadian;
+  static constexpr double kDefaultLowerStallAngle = -10. * tobas::kDegreeToRadian;
+  static constexpr double kDefaultUpperStallAngle = 20. * tobas::kDegreeToRadian;
 
   using super = ModelPlugin;
   using CmdMsg = tobas_msgs::ControlSurfaceDeflections;

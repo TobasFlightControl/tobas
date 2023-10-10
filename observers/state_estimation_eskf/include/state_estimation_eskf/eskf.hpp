@@ -188,15 +188,14 @@ void ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, kDeltaStateSize>& H)
 {
   assert(eigen_tools::isSymmetricPositiveDefinite(meas_cov));
-  assert(H.norm() > 0.);  // Hが変更されないバグがあったため，Hに非ゼロの要素が含まれることを保証．
 
   // Kalman gain
-  const auto PHt = P_ * H.transpose();
-  const auto K = PHt * (H * PHt + meas_cov).inverse();
+  const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * H.transpose();
+  const Eigen::Matrix<double, kDeltaStateSize, M> K = PHt * (H * PHt + meas_cov).inverse();
 
   // Correction error state
-  const auto error_state = K * delta_meas;
-  const auto I_KH = DeltaStateMatrix::Identity() - K * H;
+  const DeltaStateVector error_state = K * delta_meas;
+  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
 
   // Update covariance matrix
   // P_ = I_KH * P_;  // Simple form

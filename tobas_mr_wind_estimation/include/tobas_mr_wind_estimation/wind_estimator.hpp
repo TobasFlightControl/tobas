@@ -4,10 +4,12 @@
 
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
+#include <dh_linear_control/kalman_filter.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
+#include <tobas_tools/dryden_wind_model.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
@@ -15,6 +17,10 @@ namespace tobas_mr_wind_estimation
 {
 class WindEstimator : public tobas::BaseNode
 {
+  static constexpr uint32_t kStateSize = 2;
+  static constexpr double kInitWindStddev = 10.;    // [m/s]
+  static constexpr double kAltitudeThreshold = 1.;  // [m] 推定を開始する対地高度
+
   using super = tobas::BaseNode;
 
 public:
@@ -32,6 +38,11 @@ private:
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
   double mass_;
+
+  bool is_initialized_ = false;
+  ros::Time t_last_loop_;
+  ctrl::IdentityKalmanFilter kf_;
+  tobas::DrydenComponents dryden_;
 
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
 

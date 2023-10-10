@@ -10,9 +10,11 @@ namespace tobas_mr_translation_lqr
 {
 TranslationController::TranslationController() : lqid_(kStateSize, 3, 3)
 {
+  lqid_.dynamics.setZero();
   lqid_.dynamics.A.block<3, 3>(kPosIdx, kVelIdx).diagonal().setOnes();
   lqid_.dynamics.A.block<3, 3>(kVelIdx, kAccIdx).diagonal().setOnes();
 
+  lqid_.C.setZero();
   lqid_.C.block<3, 3>(0, kPosIdx).diagonal().setOnes();  // 位置に対してI制御を行う
 }
 

@@ -1,7 +1,5 @@
-#include <chrono>
-
 #include <dh_std_tools/time.hpp>
-#include <dh_std_tools/iostream.hpp>
+#include <dh_std_tools/console.hpp>
 #include <dh_kdl/kdl_parser.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -37,7 +35,7 @@ geomag::Elements geomag(const double& lat, const double& lon, const double& heig
   // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
   if (year_frac - 2020 > 5)
   {
-    dh_std::warn("It is time to replace the WMM data with the latest version.");
+    DH_WARN("It is time to replace the WMM data with the latest version.");
   }
 
   const auto position = geomag::geodetic2ecef(lat, lon, height);

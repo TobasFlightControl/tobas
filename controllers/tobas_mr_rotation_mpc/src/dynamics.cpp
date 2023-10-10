@@ -19,7 +19,7 @@ MultiRotorDynamics::MultiRotorDynamics(const tobas::Drone& drone)
     inertia_solver_(drone.tree()),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE)
 {
-  resize(kStateSize, z_rotors_.count());
+  updateInternalDataStructures();
 }
 
 void MultiRotorDynamics::updateInternalDataStructures()
@@ -29,6 +29,7 @@ void MultiRotorDynamics::updateInternalDataStructures()
   z_rotors_.updateInternalDataStructures();
 
   resize(kStateSize, z_rotors_.count());
+  setZero();
 }
 
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)

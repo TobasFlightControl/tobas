@@ -41,11 +41,6 @@ using SdfVector3 = ignition::math::Vector3d;
 using NormalDistribution = std::normal_distribution<double>;
 using UniformDistribution = std::uniform_real_distribution<double>;
 
-static constexpr double kDegreeToRadian = M_PI / 180.;
-static constexpr double kRadianToDegree = 1 / kDegreeToRadian;
-static constexpr double kFeetToMeter = 0.3048;
-static constexpr double kMeterToFeet = 1 / kFeetToMeter;
-
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 3.;
 static constexpr double kErrorPeriod = 1.;

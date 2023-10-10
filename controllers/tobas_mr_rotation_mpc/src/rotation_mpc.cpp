@@ -158,8 +158,7 @@ void RotationMpc::configure(const RotationMpcConfig& config)
   mpc_.decay_time_consts(kYawIdx) = config.heading_decay;
   mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(config.angvel_decay);
 
-  mpc_.discrete_dynamics.resize(
-    config.pred_steps, ctrl::LinearDynamics(kStateSize, z_rotors_.count()));
+  mpc_.discrete_dynamics.resize(config.pred_steps);
 
   mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = config.attitude_weight;
   mpc_.control_weight(kYawIdx) = config.heading_weight;

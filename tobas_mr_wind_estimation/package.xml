@@ -9,6 +9,7 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>dh_linear_control</depend>
 	<depend>tobas_tools</depend>
 
 	<export>

@@ -7,6 +7,8 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
+#include <tobas_tools/dryden_wind_model.hpp>
+
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
 namespace gazebo
@@ -24,8 +26,6 @@ class GazeboWindPlugin : public ModelPlugin
 {
   // Constants
   static constexpr char kPluginName[] = "wind_plugin";
-  static constexpr double kMinimumAltitude = 1.;          // [m]
-  static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
 
   // Default parameters
   static constexpr double kDefaultMeanWindSpeed = 0.;          // [m/s]
@@ -67,11 +67,7 @@ private:
   common::Time gust_state_change_time_ = 0;
   gust_state_t gust_state_ = NO_GUST;
   double gust_speed_ = 0.;
-  ignition::math::Vector3d turb_B_ = zero3;  // [m/s] Turbulence (Dryden model)
-
-  std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
-  NormalDistribution noise_;
+  tobas::DrydenSimulator dryden_;
 
   // PubSub
   ros::Publisher wind_pub_;
