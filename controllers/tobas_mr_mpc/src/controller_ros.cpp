@@ -56,6 +56,7 @@ void ControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kPoseTwistTopic, 1, &ControllerRos::poseTwistCb, this, tcpNoDelay());
   battery_sub_ =
     nh_.subscribe(tobas::kBatteryTopic, 1, &ControllerRos::batteryCb, this, tcpNoDelay());
+  wind_sub_ = nh_.subscribe(tobas::kWindTopic, 1, &ControllerRos::windCb, this, tcpNoDelay());
   if (drone_.isTransformable())
   {
     joint_state_sub_ =
@@ -74,6 +75,9 @@ bool ControllerRos::isReady() const
     return false;
 
   if (battery_ == nullptr)
+    return false;
+
+  if (wind_ == nullptr)
     return false;
 
   if (drone_.isTransformable() && js_ == nullptr)
@@ -205,7 +209,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     {
       // stopwatch_.start();
       rot_ctrl_.update(
-        pt->pose.euler, pt->twist, q_, battery_->voltage, tar_rpyt_->thrust, tar_rpyt_->rpy);
+        pt->pose.euler, pt->twist, wind_->vel, q_, battery_->voltage, tar_rpyt_->thrust,
+        tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
     catch (const exception& e)  // MPCがコケたり
@@ -245,6 +250,11 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 void ControllerRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
+}
+
+void ControllerRos::windCb(const tobas_msgs::WindConstPtr& wind)
+{
+  wind_ = wind;
 }
 
 void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
@@ -296,11 +306,14 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
+  if (pt_ == nullptr)
+    rosWarn(name_, "Pose & Twist is not received yet.");
+
   if (battery_ == nullptr)
     rosWarn(name_, "Battery state is not received yet.");
 
-  if (pt_ == nullptr)
-    rosWarn(name_, "Pose & Twist is not received yet.");
+  if (wind_ == nullptr)
+    rosWarn(name_, "Wind speed is not received yet.");
 
   if (drone_.isTransformable() && js_ == nullptr)
     rosWarn(name_, "Joint states are not received yet.");

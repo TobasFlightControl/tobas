@@ -69,6 +69,7 @@ void RotationMpc::updateInternalDataStructures()
 void RotationMpc::update(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
+  const Vector& cur_wind_W,
   const JntArray& q,
   const double& battery_voltage,
   const double& tar_U,
@@ -87,7 +88,7 @@ void RotationMpc::update(
   const double thrust_z = tar_U * cos(tar_roll) * cos(tar_pitch);
 
   // MPCの最適制御問題を構築
-  updateCurrentState(cur_rpy, cur_twist_B, q, thrust_z);
+  updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, q, thrust_z);
   updateSetState(tar_roll, tar_pitch, tar_yaw);
 
   const double min_voltage = battery_voltage * tobas::kMotorSpinArm;
@@ -231,22 +232,21 @@ double RotationMpc::minThrustSum(const double& battery_voltage) const
 void RotationMpc::updateCurrentState(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
+  const Vector& cur_wind_W,
   const JntArray& q,
   const double& thrust_z)
 {
-  const auto& vel = cur_twist_B.vel;
-  const auto& gyro = cur_twist_B.rot;
-
   // 機体速度のプロペラに対する水平成分を求める．機体座標系ではZ成分のみ0としたベクトルに等しい．
   // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
-  const Vector vel_perp(vel.x(), vel.y(), 0);
+  const auto relative_vel_B = cur_twist_B.vel - cur_rpy.Inverse(cur_wind_W);  // 風に対する相対速度
+  const Vector vel_perp(relative_vel_B.x(), relative_vel_B.y(), 0);
 
   // 重心を求める
   const auto I_base = inertia_solver_.JntToCart(q);
   const auto P_base_cog = I_base.getCOG();
 
   // 簡単のため全プロペラの推力が等しいとしてH-forceの和を計算
-  // TODO: より真値に近い回転数を用いて計算
+  // TODO: 予測区間での推力の変化を反映し，より真値に近い回転数を用いて計算
   const double thrust = thrust_z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 合計推力
   const double thrust_mean = thrust / z_rotors_.count();
   Vector sum = Vector::Zero();
@@ -259,12 +259,13 @@ void RotationMpc::updateCurrentState(
     const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);
     sum += z_rotors_.dragConstant(i) * rot_speed * P_cog_rotor;
   }
-  const Vector h_moment_raw = -sum * vel_perp;
+  const Vector h_moment_raw = -sum * vel_perp;  // H-forceによるモーメント (予測区間で一定)
   const Vector h_moment_comp = h_moment_raw * h_force_coef_;  // H-forceによるモーメントの補償分
 
   // 現在の状態を更新
-  mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, gyro.x(), gyro.y(), gyro.z(),
-    h_moment_comp.x(), h_moment_comp.y(), h_moment_comp.z();
+  mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_twist_B.rot.x(),
+    cur_twist_B.rot.y(), cur_twist_B.rot.z(), h_moment_comp.x(), h_moment_comp.y(),
+    h_moment_comp.z();
 }
 
 void RotationMpc::updateSetState(

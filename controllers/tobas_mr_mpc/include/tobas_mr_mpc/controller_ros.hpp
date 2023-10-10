@@ -10,6 +10,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
+#include <tobas_msgs/Wind.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -57,6 +58,7 @@ private:
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
+  tobas_msgs::WindConstPtr wind_;  // 風速 (世界座標系)
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
@@ -73,6 +75,7 @@ private:
   // Subscribers
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
+  ros::Subscriber wind_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber pvay_sub_;
   ros::Subscriber rpyt_sub_;
@@ -96,6 +99,7 @@ private:
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void windCb(const tobas_msgs::WindConstPtr& wind);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);

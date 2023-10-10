@@ -48,6 +48,7 @@ public:
   void update(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
+    const KDL::Vector& cur_wind_W,
     const KDL::JntArray& q,
     const double& battery_voltage,
     const double& tar_U,
@@ -86,6 +87,7 @@ private:
   void updateCurrentState(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
+    const KDL::Vector& cur_wind_W,
     const KDL::JntArray& q,
     const double& thrust_z);
   void updateSetState(const double& tar_roll, const double& tar_pitch, const double& tar_yaw);

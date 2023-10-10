@@ -98,6 +98,14 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
       is_initialized_ = true;
       rosInfo(name_, "Start to estimate wind speed.");
     }
+
+    // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．
+    auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
+    wind_msg->header.frame_id = tobas::kWorldFrame;
+    wind_msg->header.stamp = pt->header.stamp;
+    wind_msg->vel.data.setZero();
+    wind_pub_.publish(wind_msg);
+
     return;
   }
 
