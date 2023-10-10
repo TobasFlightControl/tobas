@@ -109,14 +109,23 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   const Vector3d vel_W = R_W_B * pt->twist.vel.data;
   const Vector3d& acc_B = pt->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
+
+  // 速度から加速度への係数行列を計算
+  // Cvのランクは2だから，
+  // 1. 最小二乗法で3軸とも推定
+  // 2. 風速の水平成分のみを推定
+  // の2つの選択肢がある．
+  // 1の場合は水平成分の大きな誤差を垂直成分で説明しようとしてしまい精度が落ちるため，2を採用している．
   const Matrix3d Cv = velCoef(pt->pose.euler);
   const Matrix2d Cv_hor_inv = Cv.topLeftCorner(kStateSize, kStateSize).inverse();  // 水平成分のみ
 
   // 風速の観測値
-  kf_.y = Cv_hor_inv * (acc_B + grav_B + Cv * vel_W).head(kStateSize);
+  const Vector2d wind_W_meas = Cv_hor_inv * (acc_B + grav_B + Cv * vel_W).head(kStateSize);
+  kf_.y = wind_W_meas;
 
   // プロセスノイズの共分散
-  dryden_.update(pt->twist.vel.norm(), pt->pose.pos.z(), dt);
+  const Vector2d relative_wind_vel = kf_.state() - pt->twist.vel.data.head(kStateSize);  // 相対風速
+  dryden_.update(relative_wind_vel.norm(), pt->pose.pos.z(), dt);
   kf_.Q(0, 0) = dh_std::sqr(dryden_.noiseStddevLon());
   kf_.Q(1, 1) = dh_std::sqr(dryden_.noiseStddevLat());
 
@@ -129,13 +138,13 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   kf_.R = hor_vel_cov_W + Cv_hor_inv * hor_acc_cov_B * Cv_hor_inv.transpose();
 
   // カルマンフィルタを更新
-  const Vector2d hor_wind_W = kf_.step();
+  kf_.update();
 
   // Publish wind message
   auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
   wind_msg->header.frame_id = tobas::kWorldFrame;
   wind_msg->header.stamp = pt->header.stamp;
-  wind_msg->vel.data.head(kStateSize) = hor_wind_W;
+  wind_msg->vel.data.head(kStateSize) = kf_.state();
   wind_pub_.publish(wind_msg);
 }
 
