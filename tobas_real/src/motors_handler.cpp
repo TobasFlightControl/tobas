@@ -40,8 +40,7 @@ MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   registerPublishers();
   registerSubscribers();
 
-  check_interval_timer_ =
-    nh_.createTimer(kCheckIntervalRate, &MotorsHandler::checkIntervalTimerCb, this);
+  check_interval_timer_ = nh_.createTimer(kCheckIntervalRate, &self::checkIntervalTimerCb, this);
 }
 
 void MotorsHandler::getRosParams()
@@ -50,15 +49,15 @@ void MotorsHandler::getRosParams()
 
 void MotorsHandler::registerPublishers()
 {
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsTopic, 1);
 }
 
 void MotorsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &MotorsHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorCmdTopic, 1, &MotorsHandler::rotorSpeedsCb, this, tcpNoDelay());
-  battery_sub_ =
-    nh_.subscribe(tobas::kBatteryTopic, 1, &MotorsHandler::batteryCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kRotorCmdTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
 void MotorsHandler::sendDisarm()
@@ -116,6 +115,11 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   // Get current time
   const auto cur_time = ros::Time::now();
 
+  // Create real rotating speeds
+  auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  real_speeds->header.stamp = cur_time;
+  real_speeds->speeds.resize(drone_.numRotors());
+
   // Update PWM periods
   for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
@@ -149,7 +153,15 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
       rosFatal(name_, "Failed to set PWM duty cycle on PIN" << pin << ".");
       // TODO: Request shutdown
     }
+
+    // 実際に印加される電圧から回転数を計算．モータ遅延は無視している．
+    // TODO: エンコーダを用いて真の回転数が取得できる場合に対応
+    const auto real_voltage = battery_->voltage * tar_throttle;
+    real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
   }
+
+  // Publish real rotating speeds
+  rotor_speeds_pub_.publish(real_speeds);
 
   // Check latency: 多少の外れ値を許容するため，LPFを通したレイテンシで評価
   // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
@@ -202,6 +214,22 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
       rosInfo(
         name_, "The rotors are automatically slowed down because "
                  << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
+    }
+
+    // Publish arming speeds
+    if (battery_ != nullptr)
+    {
+      auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+      real_speeds->header.stamp = event.current_real;
+      real_speeds->speeds.resize(drone_.numRotors());
+
+      const auto real_voltage = battery_->voltage * tobas::kMotorSpinArm;
+      for (uint32_t rotor_idx; rotor_idx < drone_.numRotors(); ++rotor_idx)
+      {
+        real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
+      }
+
+      rotor_speeds_pub_.publish(real_speeds);
     }
   }
 }

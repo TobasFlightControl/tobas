@@ -19,6 +19,7 @@ class MotorsHandler : public tobas::BaseNode
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
   static constexpr double kThrottleMargin = 0.01;
 
+  using self = MotorsHandler;
   using super = tobas::BaseNode;
 
 public:
@@ -37,6 +38,7 @@ private:
   dh_std::FirstOrderFilter<double> latency_filter_;
 
   // PubSub
+  ros::Publisher rotor_speeds_pub_;
   ros::Subscriber rotor_speeds_sub_;
   ros::Subscriber battery_sub_;
 

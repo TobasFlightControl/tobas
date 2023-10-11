@@ -40,16 +40,16 @@ public:
   uint32_t numRotors() const;
   uint32_t numControlSurfaces() const;
 
-  /* 指定したロータの推力 [N]． */
+  /* 印加電圧から推力[N]を計算する． */
   double thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
 
-  /* 指定したロータの回転数から印加電圧を求める． */
+  /* 回転数から印加電圧を求める． */
   double voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
 
-  /* 指定したロータの印加電圧から回転数を求める． */
+  /* 印加電圧から回転数を求める． */
   double rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
 
-  /* 推力 [N] からロータの回転数 [rad/s] を求める． */
+  /* 推力[N]から回転数[rad/s]を求める． */
   double rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const;
 
 private:
