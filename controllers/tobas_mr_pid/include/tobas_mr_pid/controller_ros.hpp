@@ -14,7 +14,7 @@
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_common/acceleration_controller.hpp>
+#include <tobas_mr_common/accel_attitude_converter.hpp>
 #include <tobas_mr_common/mixer.hpp>
 
 #include <tobas_mr_pid/ControllerConfig.h>
@@ -45,13 +45,13 @@ private:
 
   // Controllers
   TranslationController trans_controller_;
-  tobas_mr_common::AccelerationController acc_controller_;
+  tobas_mr_common::AccelAttitudeConverter acc_controller_;
   RotationController rot_controller_;
   tobas_mr_common::Mixer mixer_;
 
   // Dynamic parameters
   TranslationControllerConfig trans_config_;
-  tobas_mr_common::AccelerationControllerConfig acc_config_;
+  tobas_mr_common::AccelAttitudeConverterConfig acc_config_;
   RotationControllerConfig rot_config_;
 
   // Constant variables

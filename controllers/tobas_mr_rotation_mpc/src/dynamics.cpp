@@ -35,7 +35,7 @@ void MultiRotorDynamics::updateInternalDataStructures()
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
 {
   // 慣性テンソルと重心を計算
-  auto I_base = inertia_solver_.JntToCart(q);
+  const auto I_base = inertia_solver_.JntToCart(q);
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
   const Matrix3d I_cog_inv = I_cog.data.inverse();

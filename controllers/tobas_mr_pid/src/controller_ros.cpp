@@ -19,6 +19,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    acc_controller_(drone_),
     mixer_(drone_),
     check_topics_timer_(
       nh_,
@@ -165,7 +166,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
     // 推力和と目標姿勢を計算
     acc_controller_.update(
-      tar_acc, pt->pose.euler.yaw, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+      pt->pose.euler, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は加速度指令をそのまま流す
     tar_rpyt_->level = tar_pvay_->level;
@@ -318,6 +319,7 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   acc_config_.max_hor_acc = cfg.max_horizontal_accel;
   acc_config_.max_ver_acc = cfg.max_vertical_accel;
   acc_config_.max_attitude = cfg.max_attitude;
+  acc_config_.h_force_coef = 0;  // TODO
   acc_controller_.configure(acc_config_);
 
   rot_config_.atti_kp = cfg.attitude_p_gain;

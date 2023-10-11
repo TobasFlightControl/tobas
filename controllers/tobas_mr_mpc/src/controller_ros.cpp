@@ -18,8 +18,9 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    acc_ctrl_(drone_),
     rot_ctrl_(drone_),
-    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &ControllerRos::checkTopicsTimerCb, this),
+    check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
 {
   getRosParams();
@@ -27,6 +28,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
+  acc_ctrl_.updateInternalDataStructures();
   rot_ctrl_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
@@ -34,7 +36,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   registerPublishers();
   registerSubscribers();
 
-  ConfigServer::CallbackType f = boost::bind(&ControllerRos::dynamicReconfigureCb, this, _1, _2);
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
 }
 
@@ -51,22 +53,21 @@ void ControllerRos::registerPublishers()
 
 void ControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &ControllerRos::eventCb, this, tcpNoDelay());
-  pt_sub_ =
-    nh_.subscribe(tobas::kPoseTwistTopic, 1, &ControllerRos::poseTwistCb, this, tcpNoDelay());
-  battery_sub_ =
-    nh_.subscribe(tobas::kBatteryTopic, 1, &ControllerRos::batteryCb, this, tcpNoDelay());
-  wind_sub_ = nh_.subscribe(tobas::kWindTopic, 1, &ControllerRos::windCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  wind_sub_ = nh_.subscribe(tobas::kWindTopic, 1, &self::windCb, this, tcpNoDelay());
+  rotor_speeds_sub_ =
+    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
   if (drone_.isTransformable())
   {
     joint_state_sub_ =
-      nh_.subscribe(tobas::kJointStatesTopic, 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
+      nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
   }
 
-  pvay_sub_ = nh_.subscribe(
-    tobas::kPosVelAccYawCmdTopic, 1, &ControllerRos::posVelAccYawCb, this, tcpNoDelay());
-  rpyt_sub_ =
-    nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
+  pvay_sub_ =
+    nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
+  rpyt_sub_ = nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &self::rpyThrustCb, this, tcpNoDelay());
 }
 
 bool ControllerRos::isReady() const
@@ -78,6 +79,9 @@ bool ControllerRos::isReady() const
     return false;
 
   if (wind_ == nullptr)
+    return false;
+
+  if (rotor_speeds_ == nullptr)
     return false;
 
   if (drone_.isTransformable() && js_ == nullptr)
@@ -166,7 +170,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
     // 推力和と目標姿勢を計算
     acc_ctrl_.update(
-      tar_acc, pt->pose.euler.yaw, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+      pt->pose.euler, pt->twist.vel, wind_->vel, rotor_speeds_->speeds, tar_acc, tar_rpyt_->thrust,
+      tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は位置指令をそのまま流す
     tar_rpyt_->level = tar_pvay_->level;
@@ -257,6 +262,11 @@ void ControllerRos::windCb(const tobas_msgs::WindConstPtr& wind)
   wind_ = wind;
 }
 
+void ControllerRos::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
+{
+  rotor_speeds_ = rotor_speeds;
+}
+
 void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 {
   if (js->name.size() != js->position.size())
@@ -315,6 +325,9 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (wind_ == nullptr)
     rosWarn(name_, "Wind speed is not received yet.");
 
+  if (rotor_speeds_ == nullptr)
+    rosWarn(name_, "Rotor speeds are not received yet.");
+
   if (drone_.isTransformable() && js_ == nullptr)
     rosWarn(name_, "Joint states are not received yet.");
 }
@@ -340,6 +353,7 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   acc_cfg_.max_hor_acc = cfg.max_horizontal_accel;
   acc_cfg_.max_ver_acc = cfg.max_vertical_accel;
   acc_cfg_.max_attitude = cfg.max_attitude;
+  acc_cfg_.h_force_coef = cfg.horizontal_force_compensation_rate;
   acc_ctrl_.configure(acc_cfg_);
 
   rot_cfg_.max_attitude = cfg.max_attitude;

@@ -2,14 +2,12 @@
 
 #include <ros/ros.h>
 
-#include <dh_kdl/treefksolverpos.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
 #include <dh_linear_control/kalman_filter.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_tools/dryden_wind_model.hpp>
+#include <tobas_mr_common/dynamics.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
@@ -21,6 +19,7 @@ class WindEstimator : public tobas::BaseNode
   static constexpr double kInitWindStddev = 10.;    // [m/s]
   static constexpr double kAltitudeThreshold = 1.;  // [m] 推定を開始する対地高度
 
+  using self = WindEstimator;
   using super = tobas::BaseNode;
 
 public:
@@ -33,11 +32,7 @@ public:
 
 private:
   tobas::Drone drone_;
-
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
-  tobas::RotorAxisExtractor z_rotors_;
-  double mass_;
+  tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
   bool is_initialized_ = false;
   ros::Time t_last_loop_;

@@ -18,11 +18,7 @@ using namespace KDL;
 namespace tobas_mr_wind_estimation
 {
 WindEstimator::WindEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, const string& name)
-  : super(nh, pnh, name),
-    fk_solver_(drone_.tree()),
-    inertia_solver_(drone_.tree()),
-    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    kf_(kStateSize)
+  : super(nh, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -37,11 +33,7 @@ WindEstimator::WindEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, const stri
 
 void WindEstimator::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  z_rotors_.updateInternalDataStructures();
-
-  mass_ = inertia_solver_.JntToMass();
+  dynamics_.updateInternalDataStructures();
 }
 
 void WindEstimator::getRosParams()
@@ -55,25 +47,17 @@ void WindEstimator::registerPublishers()
 
 void WindEstimator::registerSubscribers()
 {
-  pt_sub_ =
-    nh_.subscribe(tobas::kPoseTwistTopic, 1, &WindEstimator::poseTwistCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &WindEstimator::rotorSpeedsCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 Matrix3d WindEstimator::velCoef(const Euler& R_W_B)
 {
-  double sum = 0.;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
-  {
-    const auto& rotor_idx = z_rotors_.rotorIdx(i);
-    const auto& cd = z_rotors_.dragConstant(i);
-    const auto& rot_speed = rotor_speeds_->speeds[rotor_idx];
-    sum += cd * abs(rot_speed);
-  }
-
+  const auto drag_rotor_sum = dynamics_.dragRotorSum(rotor_speeds_->speeds);
+  const auto mass = dynamics_.mass();
   const Matrix3d R_B_W = R_W_B.toRotation().Inverse().data;
-  return (sum / mass_) * E_XY * R_B_W;
+  return (drag_rotor_sum / mass) * E_XY * R_B_W;
 }
 
 void WindEstimator::eventCb(const tobas_msgs::EventConstPtr& event)

@@ -26,6 +26,7 @@ namespace state_estimation_eskf
 {
 class ErrorStateKalmanFilterRos : public tobas::BaseNode
 {
+  using self = ErrorStateKalmanFilterRos;
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
