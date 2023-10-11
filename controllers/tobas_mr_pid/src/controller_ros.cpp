@@ -33,6 +33,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
+  acc_controller_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
   is_transformable_ = drone_.postureDefiningJoints().size() > 0;

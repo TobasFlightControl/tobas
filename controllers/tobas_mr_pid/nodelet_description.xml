@@ -1,4 +1,4 @@
-<library path="lib/libtobas_mr_pidmpc_nodelet">
+<library path="lib/libtobas_mr_pid_nodelet">
 
   <class name="tobas_mr_pid/ControllerNodelet" type="tobas_mr_pid::ControllerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
