@@ -5,6 +5,7 @@
 
   <arg name="node_name" value="tobas_mr_mpc"/>
 
+  <!-- Controller -->
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_mpc/ControllerNodelet nodelet_manager" output="screen">
       <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
@@ -16,5 +17,11 @@
       <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
     </node>
   </group>
+
+  <!-- Wind Estimator -->
+  <include file="$(find tobas_mr_wind_estimation)/launch/wind_estimation.launch">
+    <arg name ="nodelet" value="$(arg nodelet)"/>
+    <arg name ="ground_truth" value="$(arg ground_truth)"/>
+  </include>
 
 </launch>

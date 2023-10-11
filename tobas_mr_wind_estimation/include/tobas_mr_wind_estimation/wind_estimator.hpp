@@ -17,7 +17,7 @@ class WindEstimator : public tobas::BaseNode
 {
   static constexpr uint32_t kStateSize = 2;
   static constexpr double kInitWindStddev = 10.;    // [m/s]
-  static constexpr double kAltitudeThreshold = 1.;  // [m] 推定を開始する対地高度
+  static constexpr double kAltitudeThreshold = 2.;  // [m] 推定を開始する対地高度
 
   using self = WindEstimator;
   using super = tobas::BaseNode;
