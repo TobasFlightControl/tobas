@@ -9,10 +9,10 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>message_generation</depend>
 	<depend>dynamic_reconfigure</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
-	<depend>message_generation</depend>
 
 	<depend>tobas_tools</depend>
 	<depend>tobas_mr_common</depend>
