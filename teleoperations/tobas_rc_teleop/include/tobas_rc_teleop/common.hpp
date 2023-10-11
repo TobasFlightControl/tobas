@@ -9,7 +9,7 @@ static constexpr double kErrorPeriod = 3.;  // [s]
 
 // Default parameters
 static constexpr double kDefaultDeadZoneRate = 0.1;
-static constexpr double kDefaultMaxHorizontalVelocity = 5.;  // [m/s]
+static constexpr double kDefaultMaxHorizontalVelocity = 3.;  // [m/s]
 static constexpr double kDefaultMaxVerticalVelocity = 3.;    // [m/s]
 static constexpr double kDefaultMaxHorizontalAccel = 5.;     // [m/s^2]
 static constexpr double kDefaultMaxVerticalAccel = 4.;       // [m/s^2]

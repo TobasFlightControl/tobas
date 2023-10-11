@@ -44,7 +44,8 @@ void AccelAttitudeConverter::update(
 
   // 並進EoMの左辺
   const auto& mass = dynamics_.mass();
-  const auto xyz = mass * (tar_acc_W + grav_W_) + cfg_.h_force_coef * air_drag_W;
+  const auto xyz = mass * (tar_acc_W + grav_W_);  // FIXME: 風の補償項を入れるとオーバーシュート過大
+  // const auto xyz = mass * (tar_acc_W + grav_W_) + cfg_.h_force_coef * air_drag_W;
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();
