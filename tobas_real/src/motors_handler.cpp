@@ -224,7 +224,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
       real_speeds->speeds.resize(drone_.numRotors());
 
       const auto real_voltage = battery_->voltage * tobas::kMotorSpinArm;
-      for (uint32_t rotor_idx; rotor_idx < drone_.numRotors(); ++rotor_idx)
+      for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
       {
         real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
       }
