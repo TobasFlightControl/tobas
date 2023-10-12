@@ -53,6 +53,9 @@ public:
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
   double rotSpeedFromThrust(const uint32_t& inner_idx, const double& thrust) const;
 
+  /* 回転数から合計推力を求める． */
+  double thrustSum(const std::vector<double>& rot_speeds);
+
   /* 最大推力の合計 [N]． */
   double maxThrustSum(const double& battery_voltage) const;
 

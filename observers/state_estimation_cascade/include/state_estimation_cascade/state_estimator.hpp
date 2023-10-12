@@ -24,6 +24,7 @@ namespace state_estimation_cascade
 {
 class StateEstimator : public tobas::BaseNode
 {
+  using self = StateEstimator;
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;

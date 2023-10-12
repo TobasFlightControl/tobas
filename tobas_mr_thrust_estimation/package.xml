@@ -9,6 +9,7 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>dynamic_reconfigure</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
 

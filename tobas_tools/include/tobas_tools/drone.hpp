@@ -40,6 +40,9 @@ public:
   uint32_t numRotors() const;
   uint32_t numControlSurfaces() const;
 
+  /* 回転数[rad/s]から推力[N]を計算する． */
+  double thrustFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
+
   /* 印加電圧から推力[N]を計算する． */
   double thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
 

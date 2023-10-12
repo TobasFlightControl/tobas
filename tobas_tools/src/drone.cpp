@@ -124,17 +124,22 @@ uint32_t Drone::numControlSurfaces() const
   return fixed_wing_config_.control_surfaces.size();
 }
 
+double Drone::thrustFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const
+{
+  return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
+}
+
 double Drone::thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const
 {
-  assert(voltage > 0.);
+  assert(voltage > 0);
 
   const auto rot_speed = rotSpeedFromVoltage(rotor_idx, voltage);
-  return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
+  return thrustFromRotSpeed(rotor_idx, voltage);
 }
 
 double Drone::voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const
 {
-  assert(rot_speed >= 0.);
+  assert(rot_speed >= 0);
 
   const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
@@ -143,7 +148,7 @@ double Drone::voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_s
 
 double Drone::rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const
 {
-  assert(voltage >= 0.);
+  assert(voltage >= 0);
 
   const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
@@ -152,7 +157,7 @@ double Drone::rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& volta
 
 double Drone::rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const
 {
-  assert(thrust >= 0.);
+  assert(thrust >= 0);
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
 }
 
@@ -213,11 +218,11 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
   dh_ros::getParam(nh, prefix + "/drag_constant", res.drag_constant, dh_ros::NON_NEGATIVE);
 
   dh_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
-  if (res.rot_speed_coefs.first <= 0.)
+  if (res.rot_speed_coefs.first <= 0)
   {
     throw runtime_error("The first term of 'rot_speed_coefs' must be positive.");
   }
-  if (res.rot_speed_coefs.second < 0.)
+  if (res.rot_speed_coefs.second < 0)
   {
     throw runtime_error("The second term of 'rot_speed_coefs' must be non-negative.");
   }
@@ -330,7 +335,7 @@ ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_
 
   dh_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
   dh_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
-  if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0.))
+  if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0))
   {
     throw runtime_error("Invalid range of control surface angle");
   }

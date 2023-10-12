@@ -85,6 +85,18 @@ double RotorAxisExtractor::rotSpeedFromThrust(const uint32_t& inner_idx, const d
   return drone_.rotSpeedFromThrust(rotorIdx(inner_idx), thrust);
 }
 
+double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds)
+{
+  assert(rot_speeds.size() == drone_.numRotors());
+
+  double res = 0.;
+  for (const auto& rotor_idx : rotor_idxs_)
+  {
+    res += drone_.thrustFromRotSpeed(rotor_idx, rot_speeds[rotor_idx]);
+  }
+  return res;
+}
+
 double RotorAxisExtractor::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;

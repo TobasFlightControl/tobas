@@ -26,7 +26,7 @@ namespace state_estimation_cascade
 {
 StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
-    check_topics_timer_(nh_, kTimerPeriod, &StateEstimator::checkTopicsTimerCb, this),
+    check_topics_timer_(nh_, kTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
 {
   getRosParams();
@@ -34,7 +34,7 @@ StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, string n
   registerPublishers();
   registerSubscribers();
 
-  ConfigServer::CallbackType f = boost::bind(&StateEstimator::dynamicReconfigureCb, this, _1, _2);
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
 }
 
@@ -57,18 +57,15 @@ void StateEstimator::registerPublishers()
 
 void StateEstimator::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &StateEstimator::eventCb, this, tcpNoDelay());
-  filtered_imu_sub_ =
-    nh_.subscribe("filtered_imu", 1, &StateEstimator::filteredImuCb, this, tcpNoDelay());
-  bar_sub_ =
-    nh_.subscribe(tobas::kAirPressureTopic, 1, &StateEstimator::barometerCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  filtered_imu_sub_ = nh_.subscribe("filtered_imu", 1, &self::filteredImuCb, this, tcpNoDelay());
+  bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barometerCb, this, tcpNoDelay());
 
   if (use_gps_)
   {
-    gps_pos_sub_ =
-      nh_.subscribe(tobas::kGpsTopic, 1, &StateEstimator::gpsPositionCb, this, tcpNoDelay());
-    gps_vel_sub_ = nh_.subscribe(
-      tobas::kGroundSpeedTopic, 1, &StateEstimator::gpsVelocityCb, this, tcpNoDelay());
+    gps_pos_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsPositionCb, this, tcpNoDelay());
+    gps_vel_sub_ =
+      nh_.subscribe(tobas::kGroundSpeedTopic, 1, &self::gpsVelocityCb, this, tcpNoDelay());
   }
 }
 

@@ -20,7 +20,10 @@ public:
   const double& mass() const;
 
   /* 空気効力定数と回転数の積の和． */
-  double dragRotorSum(const std::vector<double>& rotor_speeds) const;
+  double dragRotorSum(const std::vector<double>& rot_speeds) const;
+
+  /* 回転数から合計推力を求める． */
+  double thrustSum(const std::vector<double>& rot_speeds);
 
 private:
   const tobas::Drone& drone_;

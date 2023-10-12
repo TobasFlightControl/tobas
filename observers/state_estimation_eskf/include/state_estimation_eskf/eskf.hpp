@@ -25,7 +25,6 @@ class ErrorStateKalmanFilter
   using DeltaStateMatrix = Eigen::Matrix<double, kDeltaStateSize, kDeltaStateSize>;
   using DeltaStateVector = Eigen::Matrix<double, kDeltaStateSize, 1>;
   using RowDeltaStateVector = Eigen::Matrix<double, 1, kDeltaStateSize>;
-  using Scalar = Eigen::Matrix<double, 1, 1>;
 
 public:
   explicit ErrorStateKalmanFilter();

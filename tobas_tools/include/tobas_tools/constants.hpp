@@ -6,7 +6,7 @@
 namespace tobas
 {
 static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
-static constexpr double kDegreeToRadian = M_PI / 180.;
+static constexpr double kDegreeToRadian = M_PI / 180;
 static constexpr double kRadianToDegree = 1 / kDegreeToRadian;
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
@@ -37,6 +37,8 @@ static constexpr char kEventTopic[] = "event";
 static constexpr char kPoseTwistTopic[] = "pose_twist";
 static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
+static constexpr char kThrustCorrectionFactor[] = "thrust_correction_factor";
+
 static constexpr char kRotorCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
@@ -59,4 +61,5 @@ static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
 
 static constexpr uint32_t kStopwatchSamples = 100;
+static constexpr double kModelEstimationAltThr = 2.;  // [m] モデル推定を開始する対地高度
 }  // namespace tobas

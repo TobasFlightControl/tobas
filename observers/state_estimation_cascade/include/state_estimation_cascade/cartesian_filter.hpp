@@ -11,7 +11,6 @@ class CartesianFilter
 {
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Matrix<double, kStateSize, 1>;
-  using Scalar = Eigen::Matrix<double, 1, 1>;
 
 public:
   explicit CartesianFilter();

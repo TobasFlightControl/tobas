@@ -29,18 +29,23 @@ const double& MultirotorDynamicsComponents::mass() const
   return mass_;
 }
 
-double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rotor_speeds) const
+double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_speeds) const
 {
-  assert(rotor_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == drone_.numRotors());
 
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto& rotor_idx = z_rotors_.rotorIdx(i);
     const auto& cd = z_rotors_.dragConstant(i);
-    const auto& rot_speed = rotor_speeds[rotor_idx];
+    const auto& rot_speed = rot_speeds[rotor_idx];
     res += cd * abs(rot_speed);
   }
   return res;
+}
+
+double MultirotorDynamicsComponents::thrustSum(const vector<double>& rot_speeds)
+{
+  return z_rotors_.thrustSum(rot_speeds);
 }
 }  // namespace tobas_mr_common

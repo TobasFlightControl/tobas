@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/linalg.hpp>
 #include <dh_eigen_tools/geometry.hpp>
+#include <dh_eigen_tools/typedef.hpp>
 
 #include "../include/state_estimation_eskf/eskf.hpp"
 
@@ -228,7 +229,7 @@ void ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& 
 void ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
 {
   const double delta_z = z_meas - getAltitude();
-  correct<1>(Scalar(delta_z), Scalar(z_var), H_z_);
+  correct<1>(Scalard(delta_z), Scalard(z_var), H_z_);
 }
 
 void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
@@ -366,7 +367,7 @@ void ErrorStateKalmanFilter::measureMagneticField(
   H_mag_yaw_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
 
   // Update the quaternion states and covariance matrix
-  correct<1>(Scalar(delta_yaw), Scalar(yaw_var), H_mag_yaw_);
+  correct<1>(Scalard(delta_yaw), Scalard(yaw_var), H_mag_yaw_);
 }
 
 Vector4d ErrorStateKalmanFilter::getHamilton() const

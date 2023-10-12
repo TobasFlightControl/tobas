@@ -76,7 +76,7 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   if (!is_initialized_)
   {
-    if (rotor_speeds_ != nullptr && pt->pose.pos.z() > kAltitudeThreshold)
+    if (rotor_speeds_ != nullptr && pt->pose.pos.z() > tobas::kModelEstimationAltThr)
     {
       t_last_loop_ = pt->header.stamp;
       is_initialized_ = true;

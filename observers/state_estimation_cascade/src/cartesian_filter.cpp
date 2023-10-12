@@ -1,5 +1,6 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_eigen_tools/linalg.hpp>
+#include <dh_eigen_tools/typedef.hpp>
 #include <dh_linear_control/util.hpp>
 #include <dh_linear_control/dare.hpp>
 
@@ -107,7 +108,7 @@ void CartesianFilter::measureAltitude(const double& z_m, const double& var)
 
   const double dz = z_m - getAltitude();
   const Matrix<double, 1, kStateSize> C = C_.block(kAltIdx, 0, 1, kStateSize);
-  correct<1>(Scalar(dz), Scalar(var), C);
+  correct<1>(Scalard(dz), Scalard(var), C);
 }
 
 void CartesianFilter::measureVelocity(const Vector3d& v_m, const Matrix3d& cov)

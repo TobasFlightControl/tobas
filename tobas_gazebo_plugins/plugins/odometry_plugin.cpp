@@ -3,6 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_eigen_tools/typedef.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "./odometry_plugin.hpp"
@@ -74,16 +75,16 @@ void GazeboOdometryPlugin::fillMessageStaticParts()
   odom_msg_.child_frame_id = link_name_;
 
   // Fill in pose covariance
-  Map<Matrix<double, 6, 6>> pose_covariance(odom_msg_.pose.covariance.data());
-  Matrix<double, 6, 1> pose_covd;
+  Map<Matrix6d> pose_covariance(odom_msg_.pose.covariance.data());
+  Vector6d pose_covd;
   pose_covd << sqr(noise_normal_position_.X()), sqr(noise_normal_position_.Y()),
     sqr(noise_normal_position_.Z()), sqr(noise_normal_rotation_.X()),
     sqr(noise_normal_rotation_.Y()), sqr(noise_normal_rotation_.Z());
   pose_covariance = pose_covd.asDiagonal();
 
   // Fill in twist covariance
-  Map<Matrix<double, 6, 6>> twist_covariance(odom_msg_.twist.covariance.data());
-  Matrix<double, 6, 1> twist_covd;
+  Map<Matrix6d> twist_covariance(odom_msg_.twist.covariance.data());
+  Vector6d twist_covd;
   twist_covd << sqr(noise_normal_linvel_.X()), sqr(noise_normal_linvel_.Y()),
     sqr(noise_normal_linvel_.Z()), sqr(noise_normal_angvel_.X()), sqr(noise_normal_angvel_.Y()),
     sqr(noise_normal_angvel_.Z());
