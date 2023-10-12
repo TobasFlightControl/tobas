@@ -141,6 +141,8 @@ public:
   measureMagneticField(const double& mag_meas_x, const double& mag_meas_y, const double& yaw_var);
 
 private:
+  bool is_initialized_ = false;
+
   Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
   Eigen::Vector3d mag_W_;   // Magnetic field wrt. world frame [T]
 
@@ -199,6 +201,7 @@ void ErrorStateKalmanFilter::correct(
   // Update covariance matrix
   // P_ = I_KH * P_;  // Simple form
   P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // Joseph form
+  eigen_tools::symmetrise(P_);                                       // 対称化
 
   injectErrorState(error_state);
 

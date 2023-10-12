@@ -67,7 +67,7 @@ private:
   Eigen::Quaterniond q_0_;   // 姿勢の初期値 (Base Frame)
 
   Stage stage_ = FIRST_IMU;
-  bool is_initialized_ = false;
+  bool cov_converged_ = false;
   bool imu_received_ = false;
   bool mag_received_ = false;
   bool bar_received_ = false;

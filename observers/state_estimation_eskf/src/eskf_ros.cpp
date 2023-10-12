@@ -317,7 +317,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
       const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
 
-      // 事前予測 (KFにはIMUの生データを渡す)
+      // 事前予測
       eskf_.predictIMU(
         acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
         gyro_bias_noise_var_, dt);
@@ -326,7 +326,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       eskf_.measureAcceleration(acc_meas_, grav_cov_);
 
       // 共分散の収束を確認
-      if (!is_initialized_)
+      if (!cov_converged_)
       {
         const auto pos_cov = eskf_.getPositionCovariance();
         const auto vel_cov = eskf_.getVelocityCovariance();
@@ -369,7 +369,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 
         if (cov_ok)
         {
-          is_initialized_ = true;
+          cov_converged_ = true;
           rosInfo(name_, "Kalman filter is initialized. Start to publish pose & twist.");
         }
 

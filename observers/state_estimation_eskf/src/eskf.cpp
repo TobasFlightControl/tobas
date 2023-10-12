@@ -1,5 +1,5 @@
 #include <dh_std_tools/math.hpp>
-#include <dh_eigen_tools/linalg.hpp>
+#include <dh_std_tools/assert.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_eigen_tools/typedef.hpp>
 
@@ -76,6 +76,8 @@ void ErrorStateKalmanFilter::initialize(
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx).diagonal().setOnes();
   F_x_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx).diagonal().setOnes();
   F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().setOnes();
+
+  is_initialized_ = true;
 }
 
 Vector3d ErrorStateKalmanFilter::getXYZ() const
@@ -158,6 +160,7 @@ void ErrorStateKalmanFilter::predictIMU(
   const double& gyro_bias_noise_var,
   const double& dt)
 {
+  assert(is_initialized_);
   assert(acc_noise_var > 0.);
   assert(gyro_noise_var > 0.);
   assert(acc_bias_noise_var > 0.);
@@ -187,10 +190,7 @@ void ErrorStateKalmanFilter::predictIMU(
   // (269)第一項: 共分散行列の予測値を更新
   // TODO: sympyを用いて行列積を効率化
   P_ = F_x_ * P_ * F_x_.transpose();
-
-  // 無理やり対称化 (これが必須)
-  // プロセスノイズを加える前に対称化する必要がある？
-  et::symmetrise(P_);
+  et::symmetrise(P_);  // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
   P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += acc_noise_var * sqr(dt);
@@ -199,9 +199,9 @@ void ErrorStateKalmanFilter::predictIMU(
   P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += gyro_bias_noise_var;
 
   // NaN検出
-  assert(et::isFinite(nominal_state_));
-  assert(et::isFinite(F_x_));
-  assert(et::isFinite(P_));
+  assertWithMsg(et::isFinite(nominal_state_), "Nominal state:" << nominal_state_.transpose());
+  assertWithMsg(et::isFinite(F_x_), "F_x:\n" << F_x_);
+  assertWithMsg(et::isFinite(P_), "Covariance matrix:\n" << P_);
 }
 
 void ErrorStateKalmanFilter::measurePosition(
