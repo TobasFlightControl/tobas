@@ -9,6 +9,7 @@
 
 #include "../include/tobas_mr_thrust_estimation/thrust_estimator.hpp"
 
+#define EPS 1e-6
 #define GRAV_W Vector3d(0, 0, tobas::kGravity)
 
 using namespace std;
@@ -73,15 +74,11 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   {
     if (rotor_speeds_ != nullptr && pt->pose.pos.z() > kAltitudeThreshold)
     {
-      t_last_loop_ = pt->header.stamp;
       is_initialized_ = true;
       rosInfo(name_, "Start to estimate thrust correction factor.");
     }
+    return;
   }
-
-  // 時刻を更新
-  const auto dt = (pt->header.stamp - t_last_loop_).toSec();
-  t_last_loop_ = pt->header.stamp;
 
   const Matrix3d R_W_B = pt->pose.euler.toRotation().data;
   const Vector3d& acc_B = pt->accel.linear.data;
@@ -93,7 +90,7 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   kf_.y(0) = factor_meas;
 
   // 観測ノイズの共分散
-  kf_.R(0, 0) = pt->linear_acceleration_covariance[8];
+  kf_.R(0, 0) = pt->linear_acceleration_covariance[8] + EPS;
 
   // カルマンフィルタを更新
   kf_.update();
@@ -112,6 +109,7 @@ void ThrustEstimator::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor
 void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   // プロセスノイズの分散
-  kf_.Q(0, 0) = cfg.process_noise_variance;
+  // TODO: dtを反映
+  kf_.Q(0, 0) = cfg.process_noise_variance + EPS;
 }
 }  // namespace tobas_mr_thrust_estimation

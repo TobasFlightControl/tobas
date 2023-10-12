@@ -38,7 +38,6 @@ private:
   tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
   bool is_initialized_ = false;
-  ros::Time t_last_loop_;
   ctrl::IdentityKalmanFilter kf_;
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
 

@@ -134,7 +134,7 @@ double Drone::thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage
   assert(voltage > 0);
 
   const auto rot_speed = rotSpeedFromVoltage(rotor_idx, voltage);
-  return thrustFromRotSpeed(rotor_idx, voltage);
+  return thrustFromRotSpeed(rotor_idx, rot_speed);
 }
 
 double Drone::voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const

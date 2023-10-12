@@ -24,4 +24,10 @@
     <arg name ="ground_truth" value="$(arg ground_truth)"/>
   </include>
 
+  <!-- Thrust Estimator -->
+  <include file="$(find tobas_mr_thrust_estimation)/launch/thrust_estimation.launch">
+    <arg name ="nodelet" value="$(arg nodelet)"/>
+    <arg name ="ground_truth" value="$(arg ground_truth)"/>
+  </include>
+
 </launch>
