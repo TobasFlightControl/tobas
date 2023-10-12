@@ -110,6 +110,6 @@ void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
   // プロセスノイズの分散
   // TODO: dtを反映
-  kf_.Q(0, 0) = cfg.process_noise_variance + EPS;
+  kf_.Q(0, 0) = exp10(cfg.process_noise_variance_log10);
 }
 }  // namespace tobas_mr_thrust_estimation

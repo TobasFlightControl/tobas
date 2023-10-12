@@ -6,7 +6,7 @@ namespace tobas_mr_thrust_estimation
 {
 void ThrustEstimatorNodelet::onInit()
 {
-  NODELET_INFO("Initializing Wind Estimator Nodelet.");
+  NODELET_INFO("Initializing Thrust Estimator Nodelet.");
 
   const auto& nh = getNodeHandle();
   const auto& pnh = getPrivateNodeHandle();
