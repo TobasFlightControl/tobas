@@ -94,7 +94,7 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   }
   else
   {
-    lpf_.initialize(dh_std::timeConstFromCutoffFreq(kLpfCutoffFreq), voltage_raw);
+    lpf_.initialize(kLpfTimeConst, voltage_raw);
   }
 
   // Create battery message
