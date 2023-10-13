@@ -1,7 +1,5 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/assert.hpp>
-#include <dh_eigen_tools/geometry.hpp>
-#include <dh_eigen_tools/typedef.hpp>
 
 #include "../include/state_estimation_eskf/eskf.hpp"
 
@@ -81,88 +79,6 @@ void ErrorStateKalmanFilter::initialize(
   F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().setOnes();
 
   is_initialized_ = true;
-}
-
-Vector3d ErrorStateKalmanFilter::getPosition() const
-{
-  return nominal_state_.block<3, 1>(kPosIdx, 0);
-}
-
-Vector3d ErrorStateKalmanFilter::getPosition(const Vector3d& offset) const
-{
-  return getPosition() + getQuaternion() * offset;
-}
-
-Vector2d ErrorStateKalmanFilter::getXY() const
-{
-  return nominal_state_.block<2, 1>(kPosIdx, 0);
-}
-
-double ErrorStateKalmanFilter::getAltitude() const
-{
-  return nominal_state_(kAltIdx);
-}
-
-Vector3d ErrorStateKalmanFilter::getVelocity() const
-{
-  return nominal_state_.block<3, 1>(kVelIdx, 0);
-}
-
-Vector3d
-ErrorStateKalmanFilter::getVelocity(const Vector3d& offset, const Vector3d& gyro_meas) const
-{
-  return getVelocity() + getQuaternion() * (gyro_meas - getGyroBias()).cross(offset);
-}
-
-Quaterniond ErrorStateKalmanFilter::getQuaternion() const
-{
-  return et::hamiltonToQuaternion(getHamilton());
-}
-
-Vector3d ErrorStateKalmanFilter::getAccelBias() const
-{
-  return nominal_state_.block<3, 1>(kAccBiasIdx, 0);
-}
-
-Vector3d ErrorStateKalmanFilter::getGyroBias() const
-{
-  return nominal_state_.block<3, 1>(kGyroBiasIdx, 0);
-}
-
-Matrix3d ErrorStateKalmanFilter::getDCM() const
-{
-  return getQuaternion().toRotationMatrix();
-}
-
-double ErrorStateKalmanFilter::getYaw() const
-{
-  const auto R_W_B = getDCM();
-  return atan2(R_W_B(1, 0), R_W_B(0, 0));
-}
-
-Matrix3d ErrorStateKalmanFilter::getPositionCovariance() const
-{
-  return P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx);
-}
-
-Matrix3d ErrorStateKalmanFilter::getVelocityCovariance() const
-{
-  return P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx);
-}
-
-Matrix3d ErrorStateKalmanFilter::getOrientationCovariance() const
-{
-  return P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx);
-}
-
-Matrix3d ErrorStateKalmanFilter::getAccelBiasCovariance() const
-{
-  return P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx);
-}
-
-Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
-{
-  return P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx);
 }
 
 void ErrorStateKalmanFilter::predictIMU(

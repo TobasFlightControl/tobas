@@ -5,7 +5,9 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <dh_eigen_tools/typedef.hpp>
 #include <dh_eigen_tools/linalg.hpp>
+#include <dh_eigen_tools/geometry.hpp>
 
 #include "./constants.hpp"
 
@@ -41,24 +43,24 @@ public:
     const Eigen::Matrix3d& init_acc_bias_cov,
     const Eigen::Matrix3d& init_gyro_bias_cov);
 
-  Eigen::Vector3d getPosition() const;
-  Eigen::Vector3d getPosition(const Eigen::Vector3d& offset) const;
-  Eigen::Vector2d getXY() const;
-  double getAltitude() const;
-  Eigen::Vector3d getVelocity() const;
-  Eigen::Vector3d
+  inline Eigen::Vector3d getPosition() const;
+  inline Eigen::Vector3d getPosition(const Eigen::Vector3d& offset) const;
+  inline Eigen::Vector2d getXY() const;
+  inline double getAltitude() const;
+  inline Eigen::Vector3d getVelocity() const;
+  inline Eigen::Vector3d
   getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
-  Eigen::Quaterniond getQuaternion() const;
-  Eigen::Vector3d getAccelBias() const;
-  Eigen::Vector3d getGyroBias() const;
-  Eigen::Matrix3d getDCM() const;
-  double getYaw() const;
+  inline Eigen::Quaterniond getQuaternion() const;
+  inline Eigen::Vector3d getAccelBias() const;
+  inline Eigen::Vector3d getGyroBias() const;
+  inline Eigen::Matrix3d getDCM() const;
+  inline double getYaw() const;
 
-  Eigen::Matrix3d getPositionCovariance() const;
-  Eigen::Matrix3d getVelocityCovariance() const;
-  Eigen::Matrix3d getOrientationCovariance() const;
-  Eigen::Matrix3d getAccelBiasCovariance() const;
-  Eigen::Matrix3d getGyroBiasCovariance() const;
+  inline Eigen::Matrix3d getPositionCovariance() const;
+  inline Eigen::Matrix3d getVelocityCovariance() const;
+  inline Eigen::Matrix3d getOrientationCovariance() const;
+  inline Eigen::Matrix3d getAccelBiasCovariance() const;
+  inline Eigen::Matrix3d getGyroBiasCovariance() const;
 
   /**
    * @brief 加速度とジャイロから次の状態を予測する．
@@ -192,6 +194,89 @@ private:
 
   void injectErrorState(const DeltaStateVector& error_state);
 };
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition() const
+{
+  return nominal_state_.block<3, 1>(kPosIdx, 0);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const Eigen::Vector3d& offset) const
+{
+  return getPosition() + getQuaternion() * offset;
+}
+
+inline Eigen::Vector2d ErrorStateKalmanFilter::getXY() const
+{
+  return nominal_state_.block<2, 1>(kPosIdx, 0);
+}
+
+inline double ErrorStateKalmanFilter::getAltitude() const
+{
+  return nominal_state_(kAltIdx);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity() const
+{
+  return nominal_state_.block<3, 1>(kVelIdx, 0);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
+  const Eigen::Vector3d& offset,
+  const Eigen::Vector3d& gyro_meas) const
+{
+  return getVelocity() + getQuaternion() * (gyro_meas - getGyroBias()).cross(offset);
+}
+
+inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion() const
+{
+  return eigen_tools::hamiltonToQuaternion(getHamilton());
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias() const
+{
+  return nominal_state_.block<3, 1>(kAccBiasIdx, 0);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias() const
+{
+  return nominal_state_.block<3, 1>(kGyroBiasIdx, 0);
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM() const
+{
+  return getQuaternion().toRotationMatrix();
+}
+
+inline double ErrorStateKalmanFilter::getYaw() const
+{
+  const auto R_W_B = getDCM();
+  return atan2(R_W_B(1, 0), R_W_B(0, 0));
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getPositionCovariance() const
+{
+  return P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx);
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getVelocityCovariance() const
+{
+  return P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx);
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getOrientationCovariance() const
+{
+  return P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx);
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getAccelBiasCovariance() const
+{
+  return P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx);
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
+{
+  return P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx);
+}
 
 template <size_t M>
 void ErrorStateKalmanFilter::correct(
