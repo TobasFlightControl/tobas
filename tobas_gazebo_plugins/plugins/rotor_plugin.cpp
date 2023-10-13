@@ -183,7 +183,7 @@ void GazeboRotorPlugin::registerPubSub()
     "/" + ns_ + "/" + tobas::kRotorCmdTopic, 1, &GazeboRotorPlugin::commandCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kBatteryTopic, 1, &GazeboRotorPlugin::batteryCb, this,
+    "/" + ns_ + "/" + kBatteryGtTopic, 1, &GazeboRotorPlugin::batteryCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + kWindGtTopic, 1, &GazeboRotorPlugin::windSpeedCb, this,

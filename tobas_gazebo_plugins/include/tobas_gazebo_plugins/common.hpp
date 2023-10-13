@@ -54,5 +54,6 @@ static constexpr double kDefaultAltitudeZero = 0.;           // [m]
 static constexpr double kDefaultCheckDelayThreshold = 0.02;   // [s]
 static constexpr double kDefaultAutoStopTimeThreshold = 0.5;  // [s]
 
+static constexpr char kBatteryGtTopic[] = "ground_truth/battery";
 static constexpr char kWindGtTopic[] = "ground_truth/wind";
 }  // namespace gazebo
