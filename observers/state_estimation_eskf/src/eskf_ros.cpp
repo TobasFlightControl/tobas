@@ -39,7 +39,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   getRosParams();
   drone_.loadFromParam(nh_);
 
-  imu2gps_ = drone_.gpsOffset() - drone_.imuOffset();
+  imu2gps_B_ = drone_.gpsOffset() - drone_.imuOffset();
 
   registerPublishers();
   registerSubscribers();
@@ -447,7 +447,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
 
   // ESKFを更新
-  eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_, gyro_meas_);
+  eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_B_, gyro_meas_);
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
@@ -462,7 +462,7 @@ void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn(name_, "Barometer data is not received yet.");
 
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, "GPS position data is not received yet.");
+    rosWarn(name_, "GPS data is not received yet.");
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

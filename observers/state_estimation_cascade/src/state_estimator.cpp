@@ -321,7 +321,7 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 
   // GPS
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, "GPS position data is not received yet.");
+    rosWarn(name_, "GPS data is not received yet.");
 }
 
 void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
