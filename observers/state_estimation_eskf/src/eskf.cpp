@@ -22,6 +22,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
   H_xy_.setZero();
   H_z_.setZero();
   H_vel_.setZero();
+  H_pv_.setZero();
   H_theta_.setZero();
   H_acc_.setZero();
   H_mag_rpy_.setZero();
@@ -31,6 +32,8 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
   H_xy_.block<2, 2>(0, kDeltaPosIdx).diagonal().setOnes();
   H_z_(0, kDeltaAltIdx) = 1.;
   H_vel_.block<3, 3>(0, kDeltaVelIdx).diagonal().setOnes();
+  H_pv_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
+  H_pv_.block<3, 3>(3, kDeltaVelIdx).diagonal().setOnes();
   H_theta_.block<3, 3>(0, kDeltaThetaIdx).diagonal().setOnes();  // 回転の誤差を3Dベクトルとして観測
 }
 
@@ -80,9 +83,14 @@ void ErrorStateKalmanFilter::initialize(
   is_initialized_ = true;
 }
 
-Vector3d ErrorStateKalmanFilter::getXYZ() const
+Vector3d ErrorStateKalmanFilter::getPosition() const
 {
   return nominal_state_.block<3, 1>(kPosIdx, 0);
+}
+
+Vector3d ErrorStateKalmanFilter::getPosition(const Vector3d& offset) const
+{
+  return getPosition() + getQuaternion() * offset;
 }
 
 Vector2d ErrorStateKalmanFilter::getXY() const
@@ -98,6 +106,12 @@ double ErrorStateKalmanFilter::getAltitude() const
 Vector3d ErrorStateKalmanFilter::getVelocity() const
 {
   return nominal_state_.block<3, 1>(kVelIdx, 0);
+}
+
+Vector3d
+ErrorStateKalmanFilter::getVelocity(const Vector3d& offset, const Vector3d& gyro_meas) const
+{
+  return getVelocity() + getQuaternion() * (gyro_meas - getGyroBias()).cross(offset);
 }
 
 Quaterniond ErrorStateKalmanFilter::getQuaternion() const
@@ -209,8 +223,7 @@ void ErrorStateKalmanFilter::measurePosition(
   const Matrix3d& pos_cov,
   const Vector3d& offset)
 {
-  const Vector3d pos_nominal = getXYZ() + getQuaternion() * offset;
-  const Vector3d delta_pos = pos_meas - pos_nominal;
+  const Vector3d delta_pos = pos_meas - getPosition(offset);
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(offset);
@@ -240,8 +253,8 @@ void ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Mat
 void ErrorStateKalmanFilter::measureVelocity(
   const Vector3d& vel_meas,
   const Matrix3d& vel_cov,
-  const Vector3d& gyro_meas,
-  const Vector3d& offset)
+  const Vector3d& offset,
+  const Vector3d& gyro_meas)
 {
   const Vector3d gyro_nominal = gyro_meas - getGyroBias();
   const Vector3d gyro_offset = gyro_nominal.cross(offset);
@@ -257,6 +270,40 @@ void ErrorStateKalmanFilter::measureVelocity(
   H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
 
   correct<3>(delta_vel, vel_cov, H_vel_);
+}
+
+void ErrorStateKalmanFilter::measurePosVel(
+  const Vector3d& pos_meas,
+  const Matrix3d& pos_cov,
+  const Vector3d& vel_meas,
+  const Matrix3d& vel_cov,
+  const Vector3d& offset,
+  const Vector3d& gyro_meas)
+{
+  // 観測誤差
+  Vector6d delta;
+  const Vector3d gyro_nominal = gyro_meas - getGyroBias();
+  const Vector3d gyro_offset = gyro_nominal.cross(offset);
+  const Vector3d vel_nominal = getVelocity() + getQuaternion() * gyro_offset;
+  delta.head<3>() = pos_meas - getPosition(offset);  // 位置の誤差
+  delta.tail<3>() = vel_meas - vel_nominal;          // 速度の誤差
+
+  // 観測方程式
+  const auto Q_dtheta = getQ_dtheta();
+  const auto pos_q_deriv = quatRotationDerivative(offset);
+  const auto vel_q_deriv = quatRotationDerivative(gyro_offset);
+  H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // 位置の姿勢による偏微分
+  H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
+
+  // 共分散
+  Matrix6d cov;
+  cov.topLeftCorner<3, 3>() = pos_cov;
+  cov.bottomRightCorner<3, 3>() = vel_cov;
+  cov.topRightCorner<3, 3>().setZero();
+  cov.bottomLeftCorner<3, 3>().setZero();
+
+  // 事後推定を更新
+  correct<6>(delta, cov, H_pv_);
 }
 
 void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)

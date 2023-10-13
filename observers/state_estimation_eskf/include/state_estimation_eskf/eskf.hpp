@@ -41,10 +41,13 @@ public:
     const Eigen::Matrix3d& init_acc_bias_cov,
     const Eigen::Matrix3d& init_gyro_bias_cov);
 
-  Eigen::Vector3d getXYZ() const;
+  Eigen::Vector3d getPosition() const;
+  Eigen::Vector3d getPosition(const Eigen::Vector3d& offset) const;
   Eigen::Vector2d getXY() const;
   double getAltitude() const;
   Eigen::Vector3d getVelocity() const;
+  Eigen::Vector3d
+  getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
   Eigen::Quaterniond getQuaternion() const;
   Eigen::Vector3d getAccelBias() const;
   Eigen::Vector3d getGyroBias() const;
@@ -96,14 +99,21 @@ public:
    *
    * @param pos_meas 世界座標系で表現された速度の観測値
    * @param pos_cov 速度の観測ノイズの共分散
-   * @param gyro_meas ジャイロセンサの読み
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
+   * @param gyro_meas ジャイロセンサの読み
    */
   void measureVelocity(
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
-    const Eigen::Vector3d& gyro_meas,
-    const Eigen::Vector3d& offset);
+    const Eigen::Vector3d& offset,
+    const Eigen::Vector3d& gyro_meas);
+  void measurePosVel(
+    const Eigen::Vector3d& pos_meas,
+    const Eigen::Matrix3d& pos_cov,
+    const Eigen::Vector3d& vel_meas,
+    const Eigen::Matrix3d& vel_cov,
+    const Eigen::Vector3d& offset,
+    const Eigen::Vector3d& gyro_meas);
   void measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
 
   /**
@@ -154,6 +164,7 @@ private:
   Eigen::Matrix<double, 2, kDeltaStateSize> H_xy_;
   Eigen::Matrix<double, 1, kDeltaStateSize> H_z_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_vel_;
+  Eigen::Matrix<double, 6, kDeltaStateSize> H_pv_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_theta_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_acc_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_mag_rpy_;
@@ -170,7 +181,7 @@ private:
   /* (281) */
   Eigen::Matrix<double, 4, 3> getQ_dtheta() const;
 
-  /* vのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
+  /* ベクトルvのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
   Eigen::Matrix<double, 3, 4> quatRotationDerivative(const Eigen::Vector3d& a) const;
 
   template <size_t M>

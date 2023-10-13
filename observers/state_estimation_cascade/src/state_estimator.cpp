@@ -58,39 +58,23 @@ void StateEstimator::registerPublishers()
 void StateEstimator::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
-  filtered_imu_sub_ = nh_.subscribe("filtered_imu", 1, &self::filteredImuCb, this, tcpNoDelay());
+  filtered_imu_sub_ = nh_.subscribe(kFilteredImuTopic, 1, &self::filteredImuCb, this, tcpNoDelay());
   bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barometerCb, this, tcpNoDelay());
 
   if (use_gps_)
   {
-    gps_pos_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsPositionCb, this, tcpNoDelay());
-    gps_vel_sub_ =
-      nh_.subscribe(tobas::kGroundSpeedTopic, 1, &self::gpsVelocityCb, this, tcpNoDelay());
+    gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsPositionCb, this, tcpNoDelay());
   }
 }
 
 bool StateEstimator::isReady()
 {
   if (!imu_received_)
-  {
     return false;
-  }
   if (!bar_received_)
-  {
     return false;
-  }
-
-  if (use_gps_)
-  {
-    if (!gps_received_)
-    {
-      return false;
-    }
-    if (!vel_received_)
-    {
-      return false;
-    }
-  }
+  if (use_gps_ && !gps_received_)
+    return false;
 
   return true;
 }
@@ -111,7 +95,7 @@ void StateEstimator::initialize(const ImuMsg& imu)
     Vector3d::Zero(),                    // Inittial acceleration without gravity
     Vector3d(0., 0., -tobas::kGravity),  // Inittial gravity
     Map<const Matrix3d>(result->gps.position_covariance.data()),  // Initial position cov
-    Map<const Matrix3d>(result->ground_speed.covariance.data()),  // Initial velocity cov
+    Map<const Matrix3d>(result->gps.velocity_covariance.data()),  // Initial velocity cov
     Matrix3d::Zero(),                                             // Initial acceleration cov
     Matrix3d::Zero()                                              // Initial gravity cov
   );
@@ -179,7 +163,7 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   state->header.stamp = imu.header.stamp;
 
   // Position
-  state->pose.pos.data = cart_filter_.getXYZ();
+  state->pose.pos.data = cart_filter_.getPosition();
   et::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), state->position_covariance);
 
   // Roll, Pitch
@@ -312,61 +296,32 @@ void StateEstimator::gpsPositionCb(const GpsMsg::ConstPtr& gps)
     return;
   }
 
+  // TODO: 位置と速度を同時にフィードバック
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, xy_m_.x(), xy_m_.y());
+  Matrix2d pos_cov;
+  pos_cov(0, 0) = gps->position_covariance[0];
+  pos_cov(0, 1) = gps->position_covariance[1];
+  pos_cov(1, 0) = gps->position_covariance[3];
+  pos_cov(1, 1) = gps->position_covariance[4];
+  cart_filter_.measureXY(xy_m_, pos_cov);
 
-  Matrix2d cov;
-  cov(0, 0) = gps->position_covariance[0];
-  cov(0, 1) = gps->position_covariance[1];
-  cov(1, 0) = gps->position_covariance[3];
-  cov(1, 1) = gps->position_covariance[4];
-
-  cart_filter_.measureXY(xy_m_, cov);
-}
-
-void StateEstimator::gpsVelocityCb(const VelMsg::ConstPtr& vel)
-{
-  if (!vel_received_)
-  {
-    vel_received_ = true;
-  }
-
-  if (!is_initialized_)
-  {
-    return;
-  }
-
-  const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
-  cart_filter_.measureVelocity(vel->vel.data, cov);
+  const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
+  cart_filter_.measureVelocity(gps->ground_speed.data, vel_cov);
 }
 
 void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   // IMU
   if (!imu_received_)
-  {
     rosWarn(name_, "Filtered IMU data is not received yet.");
-  }
 
   // Barometer
   if (!bar_received_)
-  {
     rosWarn(name_, "Barometer data is not received yet.");
-  }
 
-  if (use_gps_)
-  {
-    // GPS position
-    if (!gps_received_)
-    {
-      rosWarn(name_, "GPS position data is not received yet.");
-    }
-
-    // GPS velocity
-    if (!vel_received_)
-    {
-      rosWarn(name_, "GPS velocity data is not received yet.");
-    }
-  }
+  // GPS
+  if (use_gps_ && !gps_received_)
+    rosWarn(name_, "GPS position data is not received yet.");
 }
 
 void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

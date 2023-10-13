@@ -28,7 +28,6 @@ static constexpr char kImuTopic[] = "imu";
 static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGpsTopic[] = "gps";
-static constexpr char kGroundSpeedTopic[] = "ground_speed";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kWindTopic[] = "wind";
 static constexpr char kOdomTopic[] = "odom";

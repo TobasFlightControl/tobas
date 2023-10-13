@@ -26,8 +26,7 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
-  using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
+  using GpsMsg = tobas_msgs::Gps;
 
   using ActionType = tobas_msgs::StaticStateDeterminationAction;
   using GoalType = tobas_msgs::StaticStateDeterminationGoalConstPtr;
@@ -48,12 +47,10 @@ private:
   uint32_t mag_count_;
   uint32_t bar_count_;
   uint32_t gps_count_;
-  uint32_t vel_count_;
   ImuMsg imu_sum_;
   MagMsg mag_sum_;
   BarMsg bar_sum_;
   GpsMsg gps_sum_;
-  VelMsg vel_sum_;
   geometry_msgs::Vector3 gyro_;
   dh_std::OnlineStatistics pressure_alt_stat_;
 
@@ -61,7 +58,6 @@ private:
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
-  ros::Subscriber vel_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
@@ -80,7 +76,6 @@ private:
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
-  void velCb(const VelMsg::ConstPtr& vel);
 
   void executeCb(const GoalType& goal);
 };

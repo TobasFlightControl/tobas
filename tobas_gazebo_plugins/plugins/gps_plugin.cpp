@@ -33,7 +33,7 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   registerPublishers();
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboGpsPlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&self::onUpdate, this));
 
   t_last_ = world_->SimTime();
 }
@@ -60,33 +60,27 @@ void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboGpsPlugin::fillMessageStaticParts()
 {
   // Fill the static parts of the GPS message
-  pos_msg_.header.frame_id = link_name_;
-  pos_msg_.status.service = sensor_msgs::NavSatStatus::SERVICE_GPS;
-  pos_msg_.status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
-  pos_msg_.position_covariance_type = PosMsg::COVARIANCE_TYPE_KNOWN;
+  gps_msg_.header.frame_id = link_name_;
 
-  pos_msg_.position_covariance[0] = dh_std::sqr(hor_pos_std_dev_);
-  pos_msg_.position_covariance[1] = 0.;
-  pos_msg_.position_covariance[2] = 0.;
-  pos_msg_.position_covariance[3] = 0.;
-  pos_msg_.position_covariance[4] = dh_std::sqr(hor_pos_std_dev_);
-  pos_msg_.position_covariance[5] = 0.;
-  pos_msg_.position_covariance[6] = 0.;
-  pos_msg_.position_covariance[7] = 0.;
-  pos_msg_.position_covariance[8] = dh_std::sqr(ver_pos_std_dev_);
+  gps_msg_.position_covariance[0] = dh_std::sqr(hor_pos_std_dev_);
+  gps_msg_.position_covariance[1] = 0.;
+  gps_msg_.position_covariance[2] = 0.;
+  gps_msg_.position_covariance[3] = 0.;
+  gps_msg_.position_covariance[4] = dh_std::sqr(hor_pos_std_dev_);
+  gps_msg_.position_covariance[5] = 0.;
+  gps_msg_.position_covariance[6] = 0.;
+  gps_msg_.position_covariance[7] = 0.;
+  gps_msg_.position_covariance[8] = dh_std::sqr(ver_pos_std_dev_);
 
-  // Fill the static parts of the ground speed message
-  vel_msg_.header.frame_id = link_name_;
-
-  vel_msg_.covariance[0] = dh_std::sqr(hor_vel_std_dev_);
-  vel_msg_.covariance[1] = 0.;
-  vel_msg_.covariance[2] = 0.;
-  vel_msg_.covariance[3] = 0.;
-  vel_msg_.covariance[4] = dh_std::sqr(hor_vel_std_dev_);
-  vel_msg_.covariance[5] = 0.;
-  vel_msg_.covariance[6] = 0.;
-  vel_msg_.covariance[7] = 0.;
-  vel_msg_.covariance[8] = dh_std::sqr(ver_vel_std_dev_);
+  gps_msg_.velocity_covariance[0] = dh_std::sqr(hor_vel_std_dev_);
+  gps_msg_.velocity_covariance[1] = 0.;
+  gps_msg_.velocity_covariance[2] = 0.;
+  gps_msg_.velocity_covariance[3] = 0.;
+  gps_msg_.velocity_covariance[4] = dh_std::sqr(hor_vel_std_dev_);
+  gps_msg_.velocity_covariance[5] = 0.;
+  gps_msg_.velocity_covariance[6] = 0.;
+  gps_msg_.velocity_covariance[7] = 0.;
+  gps_msg_.velocity_covariance[8] = dh_std::sqr(ver_vel_std_dev_);
 }
 
 void GazeboGpsPlugin::setRandomDistribuitons()
@@ -99,8 +93,7 @@ void GazeboGpsPlugin::setRandomDistribuitons()
 
 void GazeboGpsPlugin::registerPublishers()
 {
-  pos_pub_ = nh_.advertise<PosMsg>("/" + ns_ + "/" + tobas::kGpsTopic, 1);
-  vel_pub_ = nh_.advertise<VelMsg>("/" + ns_ + "/" + tobas::kGroundSpeedTopic, 1);
+  gps_pub_ = nh_.advertise<tobas_msgs::Gps>("/" + ns_ + "/" + tobas::kGpsTopic, 1);
 }
 
 void GazeboGpsPlugin::onUpdate()
@@ -143,15 +136,15 @@ void GazeboGpsPlugin::onUpdate()
   tie(gps_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
 
   // 位置と速度のメッセージを更新
-  updatePosition(gps_time, T_W_B);
-  updateVelocity(gps_time, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
+  timeGazeboToRos(gps_time, gps_msg_.header.stamp);
+  updatePosition(T_W_B);
+  updateVelocity(T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
 
   // メッセージを発行
-  pos_pub_.publish(pos_msg_);
-  vel_pub_.publish(vel_msg_);
+  gps_pub_.publish(gps_msg_);
 }
 
-void GazeboGpsPlugin::updatePosition(const common::Time& gps_time, const Pose3d& T_W_B)
+void GazeboGpsPlugin::updatePosition(const Pose3d& T_W_B)
 {
   // オフセットを考慮してGPSレシーバーの位置を計算
   const Vector3d& W_Pos_WB = T_W_B.Pos();
@@ -165,14 +158,12 @@ void GazeboGpsPlugin::updatePosition(const common::Time& gps_time, const Pose3d&
   W_Pos_WS += pos_noise_->get();
 
   // Fill the GPS message
-  timeGazeboToRos(gps_time, pos_msg_.header.stamp);
   dh_std::cartToGpsRelative(
-    W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, pos_msg_.latitude, pos_msg_.longitude);
-  pos_msg_.altitude = W_Pos_WS.Z();
+    W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, gps_msg_.latitude, gps_msg_.longitude);
+  gps_msg_.altitude = W_Pos_WS.Z();
 }
 
 void GazeboGpsPlugin::updateVelocity(
-  const common::Time& gps_time,
   const Quaterniond& W_Rot_B,
   const Vector3d& W_Linvel_WB,
   const Vector3d& B_Angvel_WB)
@@ -184,8 +175,7 @@ void GazeboGpsPlugin::updateVelocity(
   W_Linvel_WS += vel_noise_->get();
 
   // Fill the ground speed message.
-  timeGazeboToRos(gps_time, vel_msg_.header.stamp);
-  vectorGazeboToKDL(W_Linvel_WS, vel_msg_.vel);
+  vectorGazeboToKDL(W_Linvel_WS, gps_msg_.ground_speed);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboGpsPlugin);

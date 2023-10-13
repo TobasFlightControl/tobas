@@ -44,7 +44,7 @@ public:
   /* 期待座標系における加速度センサの観測． */
   void measureAcceleration(const Eigen::Vector3d& a_m, const Eigen::Matrix3d& cov);
 
-  Eigen::Vector3d getXYZ() const;
+  Eigen::Vector3d getPosition() const;
   Eigen::Vector2d getXY() const;
   double getAltitude() const;
   Eigen::Vector3d getVelocity() const;

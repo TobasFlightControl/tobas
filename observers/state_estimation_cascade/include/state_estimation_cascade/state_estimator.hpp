@@ -6,13 +6,12 @@
 #include <Eigen/Geometry>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/FluidPressure.h>
-#include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
 
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/LinearVelocityWithCovariance.h>
+#include <tobas_msgs/Gps.h>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
 
@@ -29,8 +28,7 @@ class StateEstimator : public tobas::BaseNode
 
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
-  using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
+  using GpsMsg = tobas_msgs::Gps;
   using StateMsg = tobas_msgs::PoseTwist;
   using OdomMsg = nav_msgs::Odometry;
 
@@ -53,7 +51,6 @@ private:
   bool imu_received_ = false;
   bool bar_received_ = false;
   bool gps_received_ = false;
-  bool vel_received_ = false;
   ros::Time t_last_;
   Eigen::Quaterniond quat_;  // 推定された姿勢
   Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
@@ -74,8 +71,7 @@ private:
   ros::Publisher odom_pub_;
   ros::Subscriber filtered_imu_sub_;
   ros::Subscriber bar_sub_;
-  ros::Subscriber gps_pos_sub_;
-  ros::Subscriber gps_vel_sub_;
+  ros::Subscriber gps_sub_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;
@@ -96,7 +92,6 @@ private:
   void filteredImuCb(const ImuMsg::ConstPtr& imu);
   void barometerCb(const BarMsg::ConstPtr& bar);
   void gpsPositionCb(const GpsMsg::ConstPtr& gps);
-  void gpsVelocityCb(const VelMsg::ConstPtr& vel);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

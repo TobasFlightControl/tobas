@@ -2,12 +2,10 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <sensor_msgs/NavSatFix.h>
 
 #include <Common/Ublox.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/LinearVelocityWithCovariance.h>
 
 namespace tobas_real
 {
@@ -19,10 +17,8 @@ class GpsHandler : public tobas::BaseNode
   static constexpr uint32_t kMeasurementRate = 1000 / 5;
   static constexpr uint32_t kMainTimerRate = 1000;  // [Hz]
 
+  using self = GpsHandler;
   using super = tobas::BaseNode;
-
-  using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
 
 public:
   explicit GpsHandler(
@@ -39,7 +35,6 @@ private:
 
   // Publisher
   ros::Publisher gps_pub_;
-  ros::Publisher vel_pub_;
 
   // Timer
   ros::Timer main_timer_;

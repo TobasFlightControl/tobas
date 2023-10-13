@@ -5,9 +5,8 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <sensor_msgs/NavSatFix.h>
 
-#include <tobas_msgs/LinearVelocityWithCovariance.h>
+#include <tobas_msgs/Gps.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
@@ -32,9 +31,8 @@ class GazeboGpsPlugin : public SensorPlugin
   static constexpr double kDefaultUpdateRate = 5.;
   static constexpr double kDefaultDelay = 0.;
 
+  using self = GazeboGpsPlugin;
   using super = SensorPlugin;
-  using PosMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
   using HistoryType = std::
     tuple<common::Time, ignition::math::Pose3d, ignition::math::Vector3d, ignition::math::Vector3d>;
 
@@ -67,25 +65,22 @@ private:
   std::deque<HistoryType> history_;
   bool is_history_filled_;
   common::Time t_last_;
-  PosMsg pos_msg_;
-  VelMsg vel_msg_;
+  tobas_msgs::Gps gps_msg_;
 
   std::random_device rnd_dev_;
   NormalDistribution3dPtr pos_noise_;
   NormalDistribution3dPtr vel_noise_;
 
   // Publishers
-  ros::Publisher pos_pub_;
-  ros::Publisher vel_pub_;
+  ros::Publisher gps_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void fillMessageStaticParts();
   void setRandomDistribuitons();
   void registerPublishers();
   void onUpdate();
-  void updatePosition(const common::Time& gps_time, const ignition::math::Pose3d& T_W_B);
+  void updatePosition(const ignition::math::Pose3d& T_W_B);
   void updateVelocity(
-    const common::Time& gps_time,
     const ignition::math::Quaterniond& W_Rot_B,
     const ignition::math::Vector3d& W_Linvel_WB,
     const ignition::math::Vector3d& B_Angvel_WB);

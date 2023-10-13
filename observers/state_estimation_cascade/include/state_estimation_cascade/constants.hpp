@@ -13,6 +13,8 @@ static constexpr uint32_t kStateSize = kGravIdx + 3;
 static constexpr uint32_t kInputSize = 6;
 static constexpr uint32_t kOutputSize = 9;
 
+static constexpr char kFilteredImuTopic[] = "filtered_imu";
+
 static constexpr double kTimerPeriod = 5.;           // [s]
 static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
 

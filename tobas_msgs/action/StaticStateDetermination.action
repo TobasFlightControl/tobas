@@ -8,14 +8,12 @@ float64 gps_vertical_position_stddev_threshold    # [m]
 sensor_msgs/Imu imu
 sensor_msgs/MagneticField magnetic_field
 sensor_msgs/FluidPressure air_pressure
-sensor_msgs/NavSatFix gps
-tobas_msgs/LinearVelocityWithCovariance ground_speed
+tobas_msgs/Gps gps
 
 int32 imu_count
 int32 mag_count
 int32 bar_count
 int32 gps_count
-int32 vel_count
 
 int8 error_code
 int8 NO_ERROR = 0

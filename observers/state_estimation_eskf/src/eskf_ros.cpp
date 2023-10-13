@@ -79,36 +79,24 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
   mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
 
   if (use_bar_)
-  {
     bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
-  }
 
   if (use_gps_)
-  {
     gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
-    vel_sub_ = nh_.subscribe(tobas::kGroundSpeedTopic, 1, &self::velCb, this, tcpNoDelay());
-  }
 }
 
 bool ErrorStateKalmanFilterRos::isReady() const
 {
-  bool ok = true;
+  if (!imu_received_)
+    return false;
+  if (!mag_received_)
+    return false;
+  if (use_bar_ && !bar_received_)
+    return false;
+  if (use_gps_ && !gps_received_)
+    return false;
 
-  ok &= imu_received_;
-  ok &= mag_received_;
-
-  if (use_bar_)
-  {
-    ok &= bar_received_;
-  }
-
-  if (use_gps_)
-  {
-    ok &= gps_received_;
-    ok &= vel_received_;
-  }
-
-  return ok;
+  return true;
 }
 
 void ErrorStateKalmanFilterRos::initialize()
@@ -198,7 +186,7 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
 ErrorStateKalmanFilterRos::StateMsg::ConstPtr
 ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
 {
-  const Vector3d W_Pos_WI = eskf_.getXYZ();
+  const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
@@ -265,6 +253,11 @@ void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 {
+  // 加速度とジャイロを更新
+  // 他のコールバックで使用する場合があるので，この更新だけは先にやっておく
+  tf::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
+  tf::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
+
   switch (stage_)
   {
     case FIRST_IMU:
@@ -312,10 +305,6 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       {
         rosWarn(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
       }
-
-      // Convert ROS messages to Eigen vectors
-      tf::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
-      tf::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
 
       // 観測ノイズの分散を計算
       const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
@@ -449,62 +438,31 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
     return;
   }
 
+  // 位置の観測値
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
   pos_meas_.z() = gps->altitude - alt_0_gps_;
-  const Matrix3d cov = Map<const Matrix3d>(gps->position_covariance.data());
 
-  eskf_.measurePosition(pos_meas_, cov, imu2gps_);
+  // 共分散
+  const Matrix3d pos_cov = Map<const Matrix3d>(gps->position_covariance.data());
+  const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
 
-  // トピック通信の遅延チェック
-  // const auto delay = (ros::Time::now() - gps->header.stamp).toSec();
-  // rosInfo(name_, "NavSatFix communication delay: " << delay << "[s]");
-}
-
-void ErrorStateKalmanFilterRos::velCb(const VelMsg::ConstPtr& vel)
-{
-  if (!vel_received_)
-  {
-    vel_received_ = true;
-  }
-
-  if (stage_ < RUNNING)
-  {
-    return;
-  }
-
-  const Matrix3d cov = Map<const Matrix3d>(vel->covariance.data());
-  eskf_.measureVelocity(vel->vel.data, cov, gyro_meas_, imu2gps_);
+  // ESKFを更新
+  eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_, gyro_meas_);
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!imu_received_)
-  {
     rosWarn(name_, "IMU data is not received yet.");
-  }
 
   if (!mag_received_)
-  {
     rosWarn(name_, "Magnetometer data is not received yet.");
-  }
 
   if (use_bar_ && !bar_received_)
-  {
     rosWarn(name_, "Barometer data is not received yet.");
-  }
 
-  if (use_gps_)
-  {
-    if (!gps_received_)
-    {
-      rosWarn(name_, "GPS position data is not received yet.");
-    }
-
-    if (!vel_received_)
-    {
-      rosWarn(name_, "GPS velocity data is not received yet.");
-    }
-  }
+  if (use_gps_ && !gps_received_)
+    rosWarn(name_, "GPS position data is not received yet.");
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

@@ -88,7 +88,7 @@ void CartesianFilter::measurePosition(const Vector3d& p_m, const Matrix3d& cov)
 {
   assert(eigen_tools::isSymmetricPositiveDefinite(cov));
 
-  const Vector3d dpos = p_m - getXYZ();
+  const Vector3d dpos = p_m - getPosition();
   const Matrix<double, 3, kStateSize> C = C_.block(kPosIdx, 0, 3, kStateSize);
   correct<3>(dpos, cov, C);
 }
@@ -129,7 +129,7 @@ void CartesianFilter::measureAcceleration(const Vector3d& a_m, const Matrix3d& c
   correct<3>(dacc, cov, C);
 }
 
-Vector3d CartesianFilter::getXYZ() const
+Vector3d CartesianFilter::getPosition() const
 {
   return x_.block(kPosIdx, 0, 3, 1);
 }

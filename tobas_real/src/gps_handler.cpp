@@ -3,6 +3,8 @@
 #include <dh_ros_tools/exception.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
+#include <tobas_msgs/Gps.h>
+
 #include "../include/tobas_real/gps_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
@@ -18,7 +20,7 @@ GpsHandler::GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : s
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kMainTimerRate, &GpsHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kMainTimerRate, &self::mainTimerCb, this);
 }
 
 void GpsHandler::getRosParams()
@@ -27,13 +29,12 @@ void GpsHandler::getRosParams()
 
 void GpsHandler::registerPublishers()
 {
-  gps_pub_ = nh_.advertise<GpsMsg>(tobas::kGpsTopic, 1);
-  vel_pub_ = nh_.advertise<VelMsg>(tobas::kGroundSpeedTopic, 1);
+  gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 }
 
 void GpsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &GpsHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
 }
 
 void GpsHandler::configureGnssReceiver()
@@ -109,11 +110,12 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
         break;
       }
 
-      // Create GPS position message
-      const auto gps_msg = boost::make_shared<GpsMsg>();
+      // Create GPS message
+      const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
       gps_msg->header.stamp = event.current_real;
       gps_msg->header.frame_id = "gps_frame";
-      gps_msg->position_covariance_type = GpsMsg::COVARIANCE_TYPE_KNOWN;
+
+      // Fill GPS position
       gps_msg->latitude = pvt_.lat;                     // Latitude [deg]
       gps_msg->longitude = pvt_.lon;                    // Longitude [deg]
       gps_msg->altitude = pvt_.hMSL;                    // Height above ellipsoid [m]
@@ -127,25 +129,23 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->position_covariance[7] = cov_.posCovED;  // DE
       gps_msg->position_covariance[8] = cov_.posCovDD;  // DD
 
-      // Create GPS velocity message
-      const auto vel_msg = boost::make_shared<VelMsg>();
-      vel_msg->header.stamp = event.current_real;
-      vel_msg->vel.x(pvt_.velN);               // North velocity [m]
-      vel_msg->vel.y(-pvt_.velE);              // West velocity [m]
-      vel_msg->vel.z(-pvt_.velD);              // Up velocity [m]
-      vel_msg->covariance[0] = cov_.velCovNN;  // NN
-      vel_msg->covariance[1] = cov_.velCovNE;  // NE
-      vel_msg->covariance[2] = cov_.velCovND;  // ND
-      vel_msg->covariance[3] = cov_.velCovNE;  // EN
-      vel_msg->covariance[4] = cov_.velCovEE;  // EE
-      vel_msg->covariance[5] = cov_.velCovED;  // ED
-      vel_msg->covariance[6] = cov_.velCovND;  // DN
-      vel_msg->covariance[7] = cov_.velCovED;  // DE
-      vel_msg->covariance[8] = cov_.velCovDD;  // DD
+      // Fill GPS velocity
+      gps_msg->header.stamp = event.current_real;
+      gps_msg->ground_speed.x(pvt_.velN);               // North velocity [m/s]
+      gps_msg->ground_speed.y(-pvt_.velE);              // West velocity [m/s]
+      gps_msg->ground_speed.z(-pvt_.velD);              // Up velocity [m/s]
+      gps_msg->velocity_covariance[0] = cov_.velCovNN;  // NN
+      gps_msg->velocity_covariance[1] = cov_.velCovNE;  // NE
+      gps_msg->velocity_covariance[2] = cov_.velCovND;  // ND
+      gps_msg->velocity_covariance[3] = cov_.velCovNE;  // EN
+      gps_msg->velocity_covariance[4] = cov_.velCovEE;  // EE
+      gps_msg->velocity_covariance[5] = cov_.velCovED;  // ED
+      gps_msg->velocity_covariance[6] = cov_.velCovND;  // DN
+      gps_msg->velocity_covariance[7] = cov_.velCovED;  // DE
+      gps_msg->velocity_covariance[8] = cov_.velCovDD;  // DD
 
-      // Publish messages
+      // Publish GPS message
       gps_pub_.publish(gps_msg);
-      vel_pub_.publish(vel_msg);
 
       break;
     }

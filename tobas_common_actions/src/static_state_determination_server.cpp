@@ -54,8 +54,6 @@ void StaticStateDeterminationServer::registerSubscribers()
     tobas::kAirPressureTopic, 1, &StaticStateDeterminationServer::barCb, this, tcpNoDelay());
   gps_sub_ =
     nh_.subscribe(tobas::kGpsTopic, 1, &StaticStateDeterminationServer::gpsCb, this, tcpNoDelay());
-  vel_sub_ = nh_.subscribe(
-    tobas::kGroundSpeedTopic, 1, &StaticStateDeterminationServer::velCb, this, tcpNoDelay());
 }
 
 void StaticStateDeterminationServer::reset()
@@ -64,13 +62,11 @@ void StaticStateDeterminationServer::reset()
   mag_count_ = 0;
   bar_count_ = 0;
   gps_count_ = 0;
-  vel_count_ = 0;
 
   imu_sum_ = ImuMsg();
   mag_sum_ = MagMsg();
   bar_sum_ = BarMsg();
   gps_sum_ = GpsMsg();
-  vel_sum_ = VelMsg();
 
   pressure_alt_stat_.reset();
 }
@@ -81,7 +77,6 @@ void StaticStateDeterminationServer::fillResult()
   result_.mag_count = mag_count_;
   result_.bar_count = bar_count_;
   result_.gps_count = gps_count_;
-  result_.vel_count = vel_count_;
 
   const double imu_count = static_cast<double>(imu_count_);
   result_.imu.angular_velocity = imu_sum_.angular_velocity / imu_count;
@@ -103,11 +98,9 @@ void StaticStateDeterminationServer::fillResult()
   result_.gps.latitude = gps_sum_.latitude / gps_count;
   result_.gps.longitude = gps_sum_.longitude / gps_count;
   result_.gps.altitude = gps_sum_.altitude / gps_count;
+  result_.gps.ground_speed = gps_sum_.ground_speed / gps_count;
   result_.gps.position_covariance = gps_sum_.position_covariance / sqr(gps_count);
-
-  const double vel_count = static_cast<double>(vel_count_);
-  result_.ground_speed.vel = vel_sum_.vel / vel_count;
-  result_.ground_speed.covariance = vel_sum_.covariance / sqr(vel_count);
+  result_.gps.velocity_covariance = gps_sum_.velocity_covariance / sqr(gps_count);
 }
 
 bool StaticStateDeterminationServer::isValidGoal(const GoalType& goal)
@@ -133,8 +126,6 @@ bool StaticStateDeterminationServer::isValidResult(const GoalType& goal)
   if (bar_count_ < kMinimumBarCount)
     return false;
   if (gps_count_ < kMinimumGpsCount)
-    return false;
-  if (vel_count_ < kMinimumGpsCount)
     return false;
 
   const auto gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
@@ -250,21 +241,10 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
   gps_sum_.latitude += gps->latitude;
   gps_sum_.longitude += gps->longitude;
   gps_sum_.altitude += gps->altitude;
-
   gps_sum_.position_covariance = gps_sum_.position_covariance + gps->position_covariance;
-}
 
-void StaticStateDeterminationServer::velCb(const VelMsg::ConstPtr& vel)
-{
-  if (!is_action_running_)
-  {
-    return;
-  }
-
-  ++vel_count_;
-
-  vel_sum_.vel += vel->vel;
-  vel_sum_.covariance = vel_sum_.covariance + vel->covariance;
+  gps_sum_.ground_speed += gps->ground_speed;
+  gps_sum_.velocity_covariance = gps_sum_.velocity_covariance + gps->velocity_covariance;
 }
 
 void StaticStateDeterminationServer::executeCb(const GoalType& goal)

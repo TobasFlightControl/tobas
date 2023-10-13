@@ -5,7 +5,6 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
-#include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
 
 #include <dh_std_tools/first_order_filter.hpp>
@@ -14,7 +13,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/LinearVelocityWithCovariance.h>
+#include <tobas_msgs/Gps.h>
 #include <tobas_msgs/PoseTwist.h>
 
 #include <state_estimation_eskf/ErrorStateKalmanFilterFeedback.h>
@@ -32,8 +31,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using ImuMsg = sensor_msgs::Imu;
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
-  using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
+  using GpsMsg = tobas_msgs::Gps;
   using StateMsg = tobas_msgs::PoseTwist;
   using OdomMsg = nav_msgs::Odometry;
   using FeedbackMsg = state_estimation_eskf::ErrorStateKalmanFilterFeedback;
@@ -72,7 +70,6 @@ private:
   bool mag_received_ = false;
   bool bar_received_ = false;
   bool gps_received_ = false;
-  bool vel_received_ = false;
   ros::Time t_last_;
   double yaw_now_;
   double yaw_prev_;
@@ -105,7 +102,6 @@ private:
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
-  ros::Subscriber vel_sub_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;
@@ -130,7 +126,6 @@ private:
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
-  void velCb(const VelMsg::ConstPtr& vel);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
