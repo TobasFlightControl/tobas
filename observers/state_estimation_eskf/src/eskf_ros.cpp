@@ -54,6 +54,10 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(pnh_, "use_barometer", use_bar_, kDefaultUseBarometer);
   dh_ros::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
   dh_ros::getParam(
+    pnh_, "do_acc_bias_estimation", do_acc_bias_estimation_, kDefaultDoAccBiasEstimation);
+  dh_ros::getParam(
+    pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
+  dh_ros::getParam(
     pnh_, "gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
     kDefaultGpsHorPosStddevThreshold, dh_ros::POSITIVE);
   dh_ros::getParam(
@@ -507,8 +511,8 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
 {
   grav_cov_.diagonal().fill(cfg.gravity_variance);
   yaw_var_ = cfg.yaw_variance;
-  acc_bias_noise_var_ = exp10(cfg.acc_bias_noise_var_log10);
-  gyro_bias_noise_var_ = exp10(cfg.gyro_bias_noise_var_log10);
+  acc_bias_noise_var_ = do_acc_bias_estimation_ ? exp10(cfg.acc_bias_noise_var_log10) : 0;
+  gyro_bias_noise_var_ = do_gyro_bias_estimation_ ? exp10(cfg.gyro_bias_noise_var_log10) : 0;
 
   rosInfo(name_, "New dynamic parameters are set.");
 }

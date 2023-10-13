@@ -161,11 +161,11 @@ void ErrorStateKalmanFilter::predictIMU(
   const double& dt)
 {
   assert(is_initialized_);
-  assert(acc_noise_var > 0.);
-  assert(gyro_noise_var > 0.);
-  assert(acc_bias_noise_var > 0.);
-  assert(gyro_bias_noise_var > 0.);
-  assert(dt > 0.);  // クオータニオンの正規化のためにdt = 0を許容できない
+  assert(acc_noise_var >= 0);
+  assert(gyro_noise_var >= 0);
+  assert(acc_bias_noise_var >= 0);
+  assert(gyro_bias_noise_var >= 0);
+  assert(dt > 0);  // クオータニオンの正規化のためにdt = 0を許容できない
 
   const Matrix3d Rot = getDCM();
   const Vector3d acc_B = acc_meas - getAccelBias();
