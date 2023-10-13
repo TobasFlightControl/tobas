@@ -31,7 +31,7 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "nominalVoltage", nominal_voltage_, POSITIVE);
-  getSdfParam(sdf, "voltageNoiseStddev", noise_stddev_, kDefaultVoltageNoiseStddev, POSITIVE);
+  getSdfParam(sdf, "voltageNoiseStddev", noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
 }
 
 void GazeboBatteryPlugin::registerPubSub()
