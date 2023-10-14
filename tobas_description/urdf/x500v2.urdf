@@ -22,10 +22,22 @@
         <color rgba="1.0 1.0 1.0 1.0"/>
       </material>
     </visual>
-    <collision>
+    <!-- <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="package://tobas_description/meshes/x500v2/frame.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+    </collision> -->
+    <collision>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.3 0.25"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0.03" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.4 0.4 0.05"/>
       </geometry>
     </collision>
   </link>
