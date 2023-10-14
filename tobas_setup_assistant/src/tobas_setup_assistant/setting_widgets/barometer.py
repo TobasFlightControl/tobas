@@ -39,7 +39,7 @@ class BarometerWidget(BaseSettingWidget):
             "Update rate",
             update_rate_description,
             minimum=1,
-            default=100,
+            default=50,
             suffix=" Hz",
         )
         self._rows.addWidget(self.update_rate)
