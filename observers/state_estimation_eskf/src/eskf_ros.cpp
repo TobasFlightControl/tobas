@@ -58,6 +58,9 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(
     pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
   dh_ros::getParam(
+    pnh_, "check_covariance_convergence", check_covariance_convergence_,
+    kDefaultCheckCovarianceConvergence);
+  dh_ros::getParam(
     pnh_, "gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
     kDefaultGpsHorPosStddevThreshold, dh_ros::POSITIVE);
   dh_ros::getParam(
@@ -321,7 +324,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       eskf_.measureGravity(acc_meas_, grav_cov_);
 
       // 共分散の収束を確認
-      if (!cov_converged_)
+      if (check_covariance_convergence_ && !cov_converged_)
       {
         const auto pos_cov = eskf_.getPositionCovariance();
         const auto vel_cov = eskf_.getVelocityCovariance();

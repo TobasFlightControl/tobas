@@ -28,6 +28,7 @@ static constexpr bool kDefaultUseBarometer = true;
 static constexpr bool kDefaultUseGps = true;
 static constexpr bool kDefaultDoAccBiasEstimation = true;
 static constexpr bool kDefaultDoGyroBiasEstimation = true;
+static constexpr bool kDefaultCheckCovarianceConvergence = true;
 static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]
 static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
 
