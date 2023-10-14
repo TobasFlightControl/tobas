@@ -106,7 +106,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       if (!pvt_.gnssFixOk || pvt_.fixType != Ublox::FIX_3D)
       {
         rosWarnThrottle(
-          kErrorPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
+          kWarnPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
         break;
       }
 
