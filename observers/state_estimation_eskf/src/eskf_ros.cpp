@@ -112,17 +112,19 @@ void ErrorStateKalmanFilterRos::initialize()
 
   // ESKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
+  const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0.;
+  const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0.;
   eskf_.initialize(
-    Vector3d(0., 0., -tobas::kGravity),                        // Gravity vector
-    Vector3d(mag.north, -mag.east, -mag.down),                 // Magnetic field (NWU)
-    Vector3d::Zero(),                                          // Init position
-    Vector3d::Zero(),                                          // Init velocity
-    q_0_,                                                      // Init quaternion
-    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),      // Init position cov
-    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),      // Init velocity cov
-    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),      // Init rotation cov
-    Vector3d::Constant(sqr(kInitAccBiasStddev)).asDiagonal(),  // Init accel bias cov
-    Vector3d::Constant(sqr(kInitGyroBiasStddev)).asDiagonal()  // Init gyro bias cov
+    Vector3d(0., 0., -tobas::kGravity),                          // Gravity vector
+    Vector3d(mag.north, -mag.east, -mag.down),                   // Magnetic field (NWU)
+    Vector3d::Zero(),                                            // Init position
+    Vector3d::Zero(),                                            // Init velocity
+    q_0_,                                                        // Init quaternion
+    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),        // Init position cov
+    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),        // Init velocity cov
+    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),        // Init rotation cov
+    Vector3d::Constant(sqr(init_acc_bias_stddev)).asDiagonal(),  // Init accel bias cov
+    Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal()  // Init gyro bias cov
   );
 
   // ヨー角の初期値

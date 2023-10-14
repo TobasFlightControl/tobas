@@ -158,9 +158,9 @@ private:
   Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
   Eigen::Vector3d mag_W_;   // Magnetic field wrt. world frame [T]
 
-  StateVector nominal_state_;  // State vector of the filter
-  DeltaStateMatrix P_;         // Covariance of the error state
-  DeltaStateMatrix F_x_;       // Jacobian of the state transition
+  StateVector x_;         // State vector of the filter
+  DeltaStateMatrix P_;    // Covariance of the error state
+  DeltaStateMatrix F_x_;  // Jacobian of the state transition
 
   Eigen::Matrix<double, 3, kDeltaStateSize> H_pos_;
   Eigen::Matrix<double, 2, kDeltaStateSize> H_xy_;
@@ -178,7 +178,7 @@ private:
    *
    * @return Eigen::Vector4d ハミルトン形式のクオータニオン
    */
-  Eigen::Vector4d getHamilton() const;
+  inline Eigen::Vector4d getHamilton() const;
 
   /* (281) */
   Eigen::Matrix<double, 4, 3> getQ_dtheta() const;
@@ -197,7 +197,7 @@ private:
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition() const
 {
-  return nominal_state_.block<3, 1>(kPosIdx, 0);
+  return x_.block<3, 1>(kPosIdx, 0);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const Eigen::Vector3d& offset) const
@@ -207,17 +207,17 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const Eigen::Vector3d
 
 inline Eigen::Vector2d ErrorStateKalmanFilter::getXY() const
 {
-  return nominal_state_.block<2, 1>(kPosIdx, 0);
+  return x_.block<2, 1>(kPosIdx, 0);
 }
 
 inline double ErrorStateKalmanFilter::getAltitude() const
 {
-  return nominal_state_(kAltIdx);
+  return x_(kAltIdx);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity() const
 {
-  return nominal_state_.block<3, 1>(kVelIdx, 0);
+  return x_.block<3, 1>(kVelIdx, 0);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
@@ -234,12 +234,12 @@ inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion() const
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias() const
 {
-  return nominal_state_.block<3, 1>(kAccBiasIdx, 0);
+  return x_.block<3, 1>(kAccBiasIdx, 0);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias() const
 {
-  return nominal_state_.block<3, 1>(kGyroBiasIdx, 0);
+  return x_.block<3, 1>(kGyroBiasIdx, 0);
 }
 
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM() const
@@ -276,6 +276,11 @@ inline Eigen::Matrix3d ErrorStateKalmanFilter::getAccelBiasCovariance() const
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
 {
   return P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx);
+}
+
+inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
+{
+  return x_.block<4, 1>(kQuatIdx, 0);
 }
 
 template <size_t M>
