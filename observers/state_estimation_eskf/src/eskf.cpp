@@ -231,15 +231,15 @@ void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const 
   correct<3>(delta_theta, theta_cov, H_theta_);
 }
 
-void ErrorStateKalmanFilter::measureAcceleration(const Vector3d& acc_meas, const Matrix3d& acc_cov)
+void ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
 {
   const Quaterniond Q_W_B = getQuaternion();
   const Vector3d grav_B = Q_W_B.conjugate() * grav_W_;
-  const Vector3d acc_nominal = -grav_B;
-  const Vector3d delta_acc = acc_meas - acc_nominal;
+  const Vector3d acc_ref = -grav_B;  // 機体に動的な加速度が生じていないときに観測されるべき加速度
+  const Vector3d delta_acc = acc_meas - getAccelBias() - acc_ref;
 
   H_acc_.block(0, kDeltaThetaIdx, 3, 3) = -2 * et::crossMat(grav_B);
-  correct<3>(delta_acc, acc_cov, H_acc_);
+  correct<3>(delta_acc, grav_cov, H_acc_);
 }
 
 void ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, const Matrix3d& mag_cov)

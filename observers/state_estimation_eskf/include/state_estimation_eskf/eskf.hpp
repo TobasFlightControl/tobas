@@ -123,16 +123,16 @@ public:
    * https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
    *
    * @param acc_meas 加速度センサの読み．
-   * @param cov 観測による修正量を決めるパラメータ．
+   * @param grav_cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    */
-  void measureAcceleration(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& acc_cov);
+  void measureGravity(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& grav_cov);
 
   /**
    * @brief 地磁気の観測．姿勢の修正に用いる．
    *
    * @param mag_meas 地磁気センサの読み．
-   * @param cov 観測による修正量を決めるパラメータ．
+   * @param mag_cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    *
    * @note

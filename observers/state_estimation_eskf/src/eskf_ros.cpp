@@ -316,7 +316,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
         gyro_bias_noise_var_, dt);
 
       // 重力方向の観測
-      eskf_.measureAcceleration(acc_meas_, grav_cov_);
+      eskf_.measureGravity(acc_meas_, grav_cov_);
 
       // 共分散の収束を確認
       if (!cov_converged_)
