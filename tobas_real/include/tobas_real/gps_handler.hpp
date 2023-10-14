@@ -11,11 +11,8 @@ namespace tobas_real
 {
 class GpsHandler : public tobas::BaseNode
 {
-  // GPSレシーバの更新周期[ms]．
-  // SPI通信の読み出しが間に合わないとFIFOにデータが溜まり遅延が発生すると思われる．
-  // TODO: 10Hzに上げてみる
-  static constexpr uint32_t kMeasurementRate = 1000 / 5;
-  static constexpr uint32_t kMainTimerRate = 1000;  // [Hz]
+  static constexpr uint32_t kMeasurementRate = 1000 / 10;  // GPSレシーバの更新周期 [ms]
+  static constexpr uint32_t kMainTimerRate = 1000;         // [Hz]
 
   using self = GpsHandler;
   using super = tobas::BaseNode;
