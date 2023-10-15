@@ -4,9 +4,9 @@
   xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find tobas_description)/urdf/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
-  <!-- Properties -->
+  <!-- Properties: https://www.dji.com/jp/spreading-wings-s900 -->
   <xacro:property name="center_frame_width" value="0.3"/>
   <xacro:property name="center_frame_height" value="0.15"/>
   <xacro:property name="center_frame_mass" value="1.065"/>
@@ -27,6 +27,7 @@
   <xacro:property name="motor_radius" value="0.0225"/>
   <xacro:property name="motor_height" value="0.027"/>
   <xacro:property name="motor_mass" value="0.158"/>
+  <xacro:property name="propeller_radius" value="0.191"/>
   <xacro:property name="propeller_height" value="0.011"/>
   <xacro:property name="propeller_mass" value="0.013"/>
 
@@ -35,12 +36,12 @@
     <inertial>
       <mass value="${center_frame_mass}"/>
       <origin xyz="0 0 ${-center_frame_height/2}" rpy="0 0 0"/>
-      <xacro:box_inertia x="${center_frame_width}" y="{center_frame_width}" z="{center_frame_height}" mass="${center_frame_mass}"/>
+      <xacro:box_inertia x="${center_frame_width}" y="${center_frame_width}" z="${center_frame_height}" mass="${center_frame_mass}"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://tobas_description/meshes/s900/cener_frame.stl" scale="1e-3 1e-3 1e-3"/>
+        <mesh filename="package://tobas_description/meshes/s900/center_frame.stl" scale="1e-3 1e-3 1e-3"/>
       </geometry>
       <material name="White">
         <color rgba="1 1 1 1"/>
@@ -49,7 +50,7 @@
     <collision>
       <origin xyz="0 0 ${-center_frame_height/2}" rpy="0 0 0"/>
       <geometry>
-        <box size="${center_frame_width} ${center_frame_width} {center_frame_height}"/>
+        <box size="${center_frame_width} ${center_frame_width} ${center_frame_height}"/>
       </geometry>
     </collision>
   </link>
@@ -64,7 +65,7 @@
     <inertial>
       <mass value="${battery_mass}"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <xacro:box_inertia x="${battery_width}" y="{battery_width}" z="{battery_height}" mass="${battery_mass}"/>
+      <xacro:box_inertia x="${battery_x}" y="${battery_y}" z="${battery_z}" mass="${battery_mass}"/>
     </inertial>
     <visual>
       <geometry>
@@ -77,7 +78,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="${battery_width} ${battery_width} ${battery_height}"/>
+        <box size="${battery_x} ${battery_y} ${battery_z}"/>
       </geometry>
     </collision>
   </link>
@@ -155,7 +156,7 @@
     <link name="arm_${index}">
       <inertial>
         <mass value="${arm_mass}"/>
-        <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
+        <origin xyz="${arm_length/2} 0 0" rpy="0 ${pi/2} 0"/>
         <xacro:cylinder_inertia radius="${arm_radius}" length="${arm_length}" mass="${arm_mass}"/>
       </inertial>
       <visual>
@@ -167,7 +168,7 @@
         </material>
       </visual>
       <collision>
-        <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
+        <origin xyz="${arm_length/2} 0 0" rpy="0 ${pi/2} 0"/>
         <geometry>
           <cylinder radius="${arm_radius}" length="${arm_length}"/>
         </geometry>
@@ -177,7 +178,7 @@
     <!-- Motor -->
     <joint name="motor_${index}_joint" type="fixed">
       <origin xyz="0.251 0 0.005" rpy="0 0 0"/>
-      <parent link="arm_${index}_joint"/>
+      <parent link="arm_${index}"/>
       <child link="motor_${index}"/>
     </joint>
     <link name="motor_${index}">
@@ -206,10 +207,10 @@
     <joint name="propeller_${index}_joint" type="continuous">
       <origin xyz="0 0 ${motor_height}" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
-      <parent link="base_link"/>
-      <child link="propeller_{index}"/>
+      <parent link="motor_${index}"/>
+      <child link="propeller_${index}"/>
     </joint>
-    <link name="propeller_{index}">
+    <link name="propeller_${index}">
       <inertial>
         <mass value="${propeller_mass}"/>
         <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
@@ -233,8 +234,10 @@
   </xacro:macro>
 
   <xacro:propulsion_system index="0" yaw_deg="30" origin_x="${arm_offset*cos30}" origin_y="${arm_offset*sin30}" direction="ccw"/>
-  <xacro:propulsion_system index="0" yaw_deg="90" origin_x="0" origin_y="${arm_offset}" direction="cw"/>
-  <xacro:propulsion_system index="0" yaw_deg="150" origin_x="${-arm_offset*cos30}" origin_y="${arm_offset*sin30}" direction="ccw"/>
-  <xacro:propulsion_system index="0" yaw_deg="210" origin_x="${-arm_offset*cos30}" origin_y="${-arm_offset*sin30}" direction="cw"/>
-  <xacro:propulsion_system index="0" yaw_deg="270" origin_x="0" origin_y="${-arm_offset}" direction="ccw"/>
-  <xacro:propulsion_system index="0" yaw_deg="330" origin_x="${arm_offset*cos30}" origin_y="${-arm_offset*sin30}" direction="cw"/>
+  <xacro:propulsion_system index="1" yaw_deg="90" origin_x="0" origin_y="${arm_offset}" direction="cw"/>
+  <xacro:propulsion_system index="2" yaw_deg="150" origin_x="${-arm_offset*cos30}" origin_y="${arm_offset*sin30}" direction="ccw"/>
+  <xacro:propulsion_system index="3" yaw_deg="210" origin_x="${-arm_offset*cos30}" origin_y="${-arm_offset*sin30}" direction="cw"/>
+  <xacro:propulsion_system index="4" yaw_deg="270" origin_x="0" origin_y="${-arm_offset}" direction="ccw"/>
+  <xacro:propulsion_system index="5" yaw_deg="330" origin_x="${arm_offset*cos30}" origin_y="${-arm_offset*sin30}" direction="cw"/>
+
+</robot>
