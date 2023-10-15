@@ -2,9 +2,27 @@
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
+  <!-- Constants -->
+  <xacro:property name="sin30" value="0.5"/>
+  <xacro:property name="cos30" value="0.866025403784"/>
+
+  <!-- Properties -->
+  <xacro:property name="deg2rad" value="${pi / 180}"/>
+  <xacro:property name="rad2deg" value="${180 / pi}"/>
+
+  <!-- Macro for the inertia of a cylinder -->
+	<xacro:macro name="cylinder_inertia" params="radius length mass">
+		<inertia ixx="${mass*radius*radius/4 + mass*length*length/12}" ixy="0.0" ixz="0.0" iyy="${mass*radius*radius/4 + mass*length*length/12}" iyz="0.0" izz="${mass*radius*radius/2}" />
+	</xacro:macro>
+
+  <!-- Macro for the inertia of a sphere -->
+	<xacro:macro name="sphere_inertia" params="radius mass">
+		<inertia ixx="${0.4 * mass * radius*radius}" ixy="0.0" ixz="0.0" iyy="${0.4 * mass * radius*radius}" iyz="0.0" izz="${0.4 * mass * radius*radius}" />
+	</xacro:macro>
+
   <!-- Macro for the inertia of a box -->
   <xacro:macro name="box_inertia" params="x y z mass">
-    <inertia ixx="${0.0833333 * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0" iyy="${0.0833333 * mass * (x*x + z*z)}" iyz="0.0" izz="${0.0833333 * mass * (x*x + y*y)}" />
+    <inertia ixx="${mass * (y*y + z*z) / 12}" ixy="0.0" ixz="0.0" iyy="${mass * (x*x + z*z) / 12}" iyz="0.0" izz="${mass * (x*x + y*y) / 12}" />
   </xacro:macro>
 
   <!-- Macro for the inertial properties of a box -->
