@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants -->
+  <xacro:property name="sin30" value="0.5"/>
+  <xacro:property name="cos30" value="0.866025403784"/>
+
+  <!-- Properties -->
+  <xacro:property name="deg2rad" value="${pi / 180}"/>
+  <xacro:property name="rad2deg" value="${180 / pi}"/>
+
+  <!-- Colors -->
+  <xacro:property name="black">
+    <material name="black">
+      <color rgba="0 0 0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="white">
+    <material name="white">
+      <color rgba="1 1 1 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="red">
+    <material name="red">
+      <color rgba="1 0 0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="green">
+    <material name="green">
+      <color rgba="0 1 0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="blue">
+    <material name="blue">
+      <color rgba="0 0 1 1"/>
+    </material>
+  </xacro:property>
+
+  <!-- Inertia of primitive shapes -->
+  <xacro:macro name="cylinder_inertia" params="radius length mass">
+    <inertia ixx="${mass*radius*radius/4 + mass*length*length/12}" ixy="0.0" ixz="0.0" iyy="${mass*radius*radius/4 + mass*length*length/12}" iyz="0.0" izz="${mass*radius*radius/2}" />
+  </xacro:macro>
+  <xacro:macro name="sphere_inertia" params="radius mass">
+    <inertia ixx="${0.4 * mass * radius*radius}" ixy="0.0" ixz="0.0" iyy="${0.4 * mass * radius*radius}" iyz="0.0" izz="${0.4 * mass * radius*radius}" />
+  </xacro:macro>
+  <xacro:macro name="box_inertia" params="x y z mass">
+    <inertia ixx="${mass * (y*y + z*z) / 12}" ixy="0.0" ixz="0.0" iyy="${mass * (x*x + z*z) / 12}" iyz="0.0" izz="${mass * (x*x + y*y) / 12}" />
+  </xacro:macro>
+
+  <!-- Macro for the inertial properties of a box -->
+  <xacro:macro name="box_inertial" params="x y z mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <xacro:insert_block name="origin" />
+      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}" />
+    </inertial>
+  </xacro:macro>
+
+</robot>

@@ -38,9 +38,7 @@
       <geometry>
         <mesh filename="package://tobas_description/meshes/s900/center_frame.stl" scale="1e-3 1e-3 1e-3"/>
       </geometry>
-      <material name="White">
-        <color rgba="1 1 1 1"/>
-      </material>
+      <xacro:insert_block name="white"/>
     </visual>
     <inertial>
       <mass value="${center_frame_mass}"/>
@@ -66,9 +64,7 @@
       <geometry>
         <mesh filename="package://tobas_description/meshes/s900/battery.stl" scale="1e-3 1e-3 1e-3"/>
       </geometry>
-      <material name="Black">
-        <color rgba="0 0 0 1"/>
-      </material>
+      <xacro:insert_block name="black"/>
     </visual>
     <inertial>
       <mass value="${battery_mass}"/>
@@ -96,9 +92,7 @@
         <geometry>
           <mesh filename="package://tobas_description/meshes/s900/landing_gear_upper.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
-        <material name="Black">
-          <color rgba="0 0 0 1"/>
-        </material>
+        <xacro:insert_block name="black"/>
       </visual>
       <inertial>
         <mass value="${landing_gear_upper_mass}"/>
@@ -124,9 +118,7 @@
         <geometry>
           <mesh filename="package://tobas_description/meshes/s900/landing_gear_lower.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
-        <material name="Black">
-          <color rgba="0 0 0 1"/>
-        </material>
+        <xacro:insert_block name="black"/>
       </visual>
       <inertial>
         <mass value="${landing_gear_lower_mass}"/>
@@ -158,9 +150,7 @@
         <geometry>
           <mesh filename="package://tobas_description/meshes/s900/arm.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
-        <material name="Black">
-          <color rgba="0 0 0 1"/>
-        </material>
+        <xacro:insert_block name="black"/>
       </visual>
       <inertial>
         <mass value="${arm_mass}"/>
@@ -186,9 +176,7 @@
         <geometry>
           <mesh filename="package://tobas_description/meshes/s900/motor.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
-        <material name="Black">
-          <color rgba="0 0 0 1"/>
-        </material>
+        <xacro:insert_block name="black"/>
       </visual>
       <inertial>
         <mass value="${motor_mass}"/>
@@ -215,9 +203,7 @@
         <geometry>
           <mesh filename="package://tobas_description/meshes/s900/propeller_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
-        <material name="Black">
-          <color rgba="0.0 0.0 0.0 1.0"/>
-        </material>
+        <xacro:insert_block name="black"/>
       </visual>
       <inertial>
         <mass value="${propeller_mass}"/>
