@@ -44,6 +44,8 @@ $ catkin build
 
 ```bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
+$ cd ~/catkin_ws
+$ catkin build (tobas_config_pkg)
 ```
 
 Examples of robot description can be found in `tobas/tobas_description/urdf/`.
@@ -55,6 +57,7 @@ Launch the drivers for the drone's sensors and propulsing system in Gazebo or in
 #### In the case of Gazebo simulation
 
 ```bash
+$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch (tobas_config_pkg) gazebo.launch  # Wait until the drone stops
 $ roslaunch (tobas_config_pkg) bringup.launch  # Launch Tobas control software
 ```
