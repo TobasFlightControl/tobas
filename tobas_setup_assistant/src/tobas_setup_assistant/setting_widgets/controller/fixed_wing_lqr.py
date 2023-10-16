@@ -154,7 +154,7 @@ class FixedWingLQR(BaseController):
         # X軸正方向のプロペラのみ
         for joint_name in prop_jnt_names:
             axis = self._main.urdf_parser.global_axis(joint_name)
-            if not axis.is_collinear(Vector.UnitX()):
+            if not axis.is_collinear(Vector.UnitX(), PROP_TILT_TOL):
                 return False
 
         return True

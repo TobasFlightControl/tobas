@@ -1,4 +1,5 @@
 import os.path as osp
+import math
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,6 +15,8 @@ DEFAULT = "DEFAULT"
 TITLE_PSIZE = 18
 LABEL_PSIZE = 12
 BODY_PSIZE = 9
+
+PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
 
 # Default Parameters
 DEFAULT_NUM_FLIGHT_MODES = 2

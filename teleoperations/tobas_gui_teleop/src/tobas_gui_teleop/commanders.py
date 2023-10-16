@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import Slider, add_expanding_widget
-from tobas_msgs.msg import PositionYaw, CommandLevel, PoseTwist
+from tobas_msgs.msg import PositionYaw, PosVelAccYaw, CommandLevel, PoseTwist
 
 from .utils import remap
 
@@ -58,9 +58,6 @@ class CommandersWidget(QScrollArea):
         self.setWidget(inner)
         self._rows = QVBoxLayout()
         inner.setLayout(self._rows)
-
-        self._drone_cmd = PositionYaw()
-        self._drone_cmd.level.data = CommandLevel.NORMAL
 
         self._pt_received = False
 
@@ -109,8 +106,11 @@ class CommandersWidget(QScrollArea):
             self._rows.addWidget(commander)
 
         # PubSub
-        self._drone_cmd_pub = rospy.Publisher(
+        self._pos_yaw_pub = rospy.Publisher(
             "command/position_yaw", PositionYaw, queue_size=1
+        )
+        self._pvay_pub = rospy.Publisher(
+            "command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1
         )
         self._bs_sub = rospy.Subscriber(
             "pose_twist", PoseTwist, self._pose_twist_cb, queue_size=1
@@ -153,12 +153,21 @@ class CommandersWidget(QScrollArea):
 
     @pyqtSlot()
     def _publish_drone_cmd(self) -> None:
-        self._drone_cmd.pos.x = self.drone_cmd_x.get_value()
-        self._drone_cmd.pos.y = self.drone_cmd_y.get_value()
-        self._drone_cmd.pos.z = self.drone_cmd_z.get_value()
-        self._drone_cmd.yaw = self.drone_cmd_yaw.get_value()
+        pos_yaw = PositionYaw()
+        pos_yaw.level.data = CommandLevel.NORMAL
+        pos_yaw.pos.x = self.drone_cmd_x.get_value()
+        pos_yaw.pos.y = self.drone_cmd_y.get_value()
+        pos_yaw.pos.z = self.drone_cmd_z.get_value()
+        pos_yaw.yaw = self.drone_cmd_yaw.get_value()
+        self._pos_yaw_pub.publish(pos_yaw)
 
-        self._drone_cmd_pub.publish(self._drone_cmd)
+        pvay = PosVelAccYaw()
+        pvay.level.data = CommandLevel.NORMAL
+        pvay.pos.x = self.drone_cmd_x.get_value()
+        pvay.pos.y = self.drone_cmd_y.get_value()
+        pvay.pos.z = self.drone_cmd_z.get_value()
+        pvay.yaw = self.drone_cmd_yaw.get_value()
+        self._pvay_pub.publish(pvay)
 
     def _pose_twist_cb(self, pt: PoseTwist) -> None:
         if self._pt_received:

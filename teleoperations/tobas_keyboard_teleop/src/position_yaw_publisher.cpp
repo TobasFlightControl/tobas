@@ -7,6 +7,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PositionYaw.h>
+#include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
 
 #include "../include/tobas_keyboard_teleop/position_yaw_publisher.hpp"
@@ -16,15 +17,6 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-ostream& operator<<(ostream& os, const tobas_msgs::PositionYaw& arg)
-{
-  os << "x = " << arg.pos.x() << "[m], ";
-  os << "y = " << arg.pos.y() << "[m], ";
-  os << "z = " << arg.pos.z() << "[m], ";
-  os << "yaw = " << arg.yaw << "[rad]";
-  return os;
-}
-
 PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name), keyboard_(getKeyboardControls())
 {
@@ -81,9 +73,8 @@ void PositionYawPublisher::run()
   rosInfo(name_, "Takeoff finished successfully. Start teleoperation!");
 
   // 初期コマンドを設定
-  auto cmd = boost::make_shared<tobas_msgs::PositionYaw>();
-  cmd->pos = pt_->pose.pos;
-  cmd->yaw = pt_->pose.euler.yaw;
+  cmd_pos_ = pt_->pose.pos;
+  cmd_yaw_ = pt_->pose.euler.yaw;
 
   // キーボード入力による位置コマンドを発行し続ける
   dh_ros::Rate rate(kUpdateRate);
@@ -98,56 +89,66 @@ void PositionYawPublisher::run()
     {
       case kKeyCode_W:  // X+
       {
-        cmd->pos.x(x_limit_.clamp(cmd->pos.x() + delta_pos_));
-        rosInfo(name_, "Moving forward: " << cmd);
+        cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));
+        rosInfo(name_, "[Moving forward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_S:  // X-
       {
-        cmd->pos.x(x_limit_.clamp(cmd->pos.x() - delta_pos_));
-        rosInfo(name_, "Moving backward: " << cmd);
+        cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() - delta_pos_));
+        rosInfo(name_, "[Moving backward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_A:  // Y+
       {
-        cmd->pos.y(y_limit_.clamp(cmd->pos.y() + delta_pos_));
-        rosInfo(name_, "Moving left: " << cmd);
+        cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() + delta_pos_));
+        rosInfo(name_, "[Moving left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_D:  // Y-
       {
-        cmd->pos.y(y_limit_.clamp(cmd->pos.y() - delta_pos_));
-        rosInfo(name_, "Moving right: " << cmd);
+        cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() - delta_pos_));
+        rosInfo(name_, "[Moving right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Up:  // Z+
       {
-        cmd->pos.z(z_limit_.clamp(cmd->pos.z() + delta_pos_));
-        rosInfo(name_, "Moving up: " << cmd);
+        cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() + delta_pos_));
+        rosInfo(name_, "[Moving up] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Down:  // Z-
       {
-        cmd->pos.z(z_limit_.clamp(cmd->pos.z() - delta_pos_));
-        rosInfo(name_, "Moving down: " << cmd);
+        cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() - delta_pos_));
+        rosInfo(name_, "[Moving down] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
-        cmd->yaw = yaw_limit_.clamp(cmd->yaw + delta_rot_);
-        rosInfo(name_, "Rotating left: " << cmd);
+        cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ + delta_rot_);
+        rosInfo(name_, "[Rotating left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
-        cmd->yaw = yaw_limit_.clamp(cmd->yaw - delta_rot_);
-        rosInfo(name_, "Rotating right: " << cmd);
+        cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ - delta_rot_);
+        rosInfo(name_, "[Rotating right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
     }
 
     // コマンドを発行
-    cmd_pub_.publish(cmd);
+    auto pos_yaw_msg = boost::make_shared<tobas_msgs::PositionYaw>();
+    pos_yaw_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
+    pos_yaw_msg->pos = cmd_pos_;
+    pos_yaw_msg->yaw = cmd_yaw_;
+    pos_yaw_pub_.publish(pos_yaw_msg);
+
+    auto pvay_msg = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    pvay_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
+    pvay_msg->pos = cmd_pos_;
+    pvay_msg->yaw = cmd_yaw_;
+    pvay_pub_.publish(pvay_msg);
 
     ros::spinOnce();
     rate.sleep();
@@ -177,7 +178,8 @@ void PositionYawPublisher::getRosParams()
 
 void PositionYawPublisher::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
+  pos_yaw_pub_ = nh_.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
+  pvay_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void PositionYawPublisher::registerSubscribers()

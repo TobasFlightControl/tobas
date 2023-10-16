@@ -41,6 +41,8 @@ private:
   KeyboardReader key_reader_;
 
   tobas_msgs::PoseTwistConstPtr pt_;
+  KDL::Vector cmd_pos_;
+  double cmd_yaw_;
 
   // 固定値
   std::string instruction_;
@@ -56,7 +58,8 @@ private:
   dh_std::Range<double> yaw_limit_;
 
   // PubSub
-  ros::Publisher cmd_pub_;
+  ros::Publisher pos_yaw_pub_;
+  ros::Publisher pvay_pub_;
   ros::Subscriber pt_sub_;
 
   void getRosParams() override;

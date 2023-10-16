@@ -53,7 +53,7 @@ class MultirotorMpc(BaseController):
         # FIXME: 特殊なドローンの場合はZ成分にシンボルが含まれる可能性がある
         for joint_name in prop_jnt_names:
             axis = self._main.urdf_parser.global_axis(joint_name)
-            if not axis.is_collinear(Vector.UnitZ()):
+            if not axis.is_collinear(Vector.UnitZ(), PROP_TILT_TOL):
                 return False
 
         return True

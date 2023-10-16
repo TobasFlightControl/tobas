@@ -18,12 +18,12 @@ class MotorModel(ET.Element):
         time_const_down: float,
     ) -> None:
         assert direction in {"cw", "ccw"}, direction
-        assert rot_speed_coefs[0] > 0.0 and rot_speed_coefs[1] >= 0.0
-        assert motor_const > 0.0, motor_const
-        assert moment_const > 0.0, moment_const
-        assert rotor_drag_coef > 0.0, rotor_drag_coef
-        assert time_const_up > 0.0, time_const_up
-        assert time_const_down > 0.0, time_const_down
+        assert rot_speed_coefs[0] >= 0.0 and rot_speed_coefs[1] >= 0.0
+        assert motor_const >= 0.0, motor_const
+        assert moment_const >= 0.0, moment_const
+        assert rotor_drag_coef >= 0.0, rotor_drag_coef
+        assert time_const_up >= 0.0, time_const_up
+        assert time_const_down >= 0.0, time_const_down
 
         super().__init__("gazebo")
 

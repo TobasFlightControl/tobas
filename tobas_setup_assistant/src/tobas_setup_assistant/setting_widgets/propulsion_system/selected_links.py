@@ -173,9 +173,9 @@ class SelectedLinkTabWidget(QWidget):
 
     def axis_type(self) -> str:
         axis = self._main.urdf_parser.global_axis(self.joint_name())
-        if axis.is_collinear(Vector.UnitX()):
+        if axis.is_collinear(Vector.UnitX(), PROP_TILT_TOL):
             return AxisType.X_POSITIVE
-        elif axis.is_collinear(Vector.UnitZ()):
+        elif axis.is_collinear(Vector.UnitZ(), PROP_TILT_TOL):
             return AxisType.Z_POSITIVE
         else:
             # TODO: その他の回転軸に対応

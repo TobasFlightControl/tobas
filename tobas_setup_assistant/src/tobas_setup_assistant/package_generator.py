@@ -183,7 +183,10 @@ class PackageGenerator(QObject):
         command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
-        if PositionYaw.__name__ in command_msgs:
+        if (
+            PositionYaw.__name__ in command_msgs
+            or PosVelAccYaw.__name__ in command_msgs
+        ):
             self._generate_from_template(
                 items,
                 "keyboard_teleop/position_yaw.launch",
@@ -197,7 +200,10 @@ class PackageGenerator(QObject):
             )
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
-        if PositionYaw.__name__ in command_msgs:
+        if (
+            PositionYaw.__name__ in command_msgs
+            or PosVelAccYaw.__name__ in command_msgs
+        ):
             self._generate_from_template(
                 items,
                 "gui_teleop/position_yaw.launch",

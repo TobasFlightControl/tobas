@@ -31,8 +31,16 @@
   <xacro:property name="propeller_height" value="0.011"/>
   <xacro:property name="propeller_mass" value="0.013"/>
 
+  <!-- Base Link -->
+  <link name="base_link"/>
+
   <!-- Center Frame -->
-  <link name="base_link">
+  <joint name="center_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="center_frame"/>
+  </joint>
+  <link name="center_frame">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
