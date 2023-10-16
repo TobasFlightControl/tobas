@@ -149,7 +149,7 @@
   <xacro:macro name="propulsion_system" params="index yaw_deg origin_x origin_y direction">
     <!-- Arm -->
     <joint name="arm_${index}_joint" type="fixed">
-      <origin xyz="${origin_x} ${origin_y} -0.015" rpy="${-3.238*deg2rad} 0 ${yaw_deg*deg2rad}"/>
+      <origin xyz="${origin_x} ${origin_y} -0.015" rpy="0 ${-3.238*deg2rad} ${yaw_deg*deg2rad}"/>
       <parent link="base_link"/>
       <child link="arm_${index}"/>
     </joint>
