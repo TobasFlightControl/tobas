@@ -1,3 +1,6 @@
 [submodule "tobas_tools/XYZgeomag"]
 	path = tobas_tools/XYZgeomag
 	url = https://github.com/nhz2/XYZgeomag.git
+[submodule "controllers/tobas_mr_arducopter/ardupilot"]
+	path = controllers/tobas_mr_arducopter/ardupilot
+	url = https://github.com/ArduPilot/ardupilot.git
