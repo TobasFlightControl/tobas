@@ -19,7 +19,7 @@ from .base import BaseController
 
 
 class FixedWingLQR(BaseController):
-    NAME = "Linear Quadratic Legulator"
+    NAME = "Fixed Wing LQR"
 
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"
     TAKEOFF_PKG = "TODO"  # TODO

@@ -19,10 +19,10 @@ from ...common import *
 from .base import BaseController
 
 
-class MultirotorMpc(BaseController):
-    NAME = "Multirotor MPC"
+class MultirotorPid(BaseController):
+    NAME = "Multirotor PID"
 
-    CONTROLLER_PKG = "tobas_mr_mpc"
+    CONTROLLER_PKG = "tobas_mr_pid"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
 
@@ -31,7 +31,7 @@ class MultirotorMpc(BaseController):
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "位置制御にLQR，姿勢制御に線形モデル予測制御を用いた制御器です．"
+        abst_text = "位置制御，姿勢制御共にPIDを用いた制御器です．"
         super().__init__(main, abst_text)
 
         # TODO: 設定項目
