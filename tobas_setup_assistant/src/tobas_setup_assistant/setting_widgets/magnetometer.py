@@ -28,10 +28,9 @@ class MagnetometerWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        offset_description = "ルートリンクに対するセンサ位置のオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
             "Offset",
-            offset_description,
+            SENSOR_OFFSET_DESCRIPTION,
             suffix=" m",
         )
         self._rows.addWidget(self.offset)

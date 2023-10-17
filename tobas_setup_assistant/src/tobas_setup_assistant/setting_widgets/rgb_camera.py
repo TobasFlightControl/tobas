@@ -34,11 +34,7 @@ class RgbCameraWidget(BaseSettingWidget):
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
-        offset_description = "選択したリンクに対するカメラ位置のオフセット．"
-        self.offset = ParamGetterWidget_Pose(
-            "Offset",
-            offset_description,
-        )
+        self.offset = ParamGetterWidget_Pose("Offset", CAMERA_OFFSET_DESCRIPTION)
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""

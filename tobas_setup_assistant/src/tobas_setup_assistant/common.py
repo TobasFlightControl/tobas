@@ -16,10 +16,13 @@ TITLE_PSIZE = 18
 LABEL_PSIZE = 12
 BODY_PSIZE = 9
 
-PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
-
 # Default Parameters
 DEFAULT_NUM_FLIGHT_MODES = 2
+
+PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
+
+SENSOR_OFFSET_DESCRIPTION = "ルートリンクの基準点 (ドローンウィンドウ中の座標軸の交点) に対するセンサフレームの基準点のオフセット．"
+CAMERA_OFFSET_DESCRIPTION = "選択したフレームの基準点に対するカメラフレームの基準点のオフセット．"
 
 
 class Signals(QObject):

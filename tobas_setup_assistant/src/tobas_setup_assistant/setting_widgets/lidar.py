@@ -31,10 +31,9 @@ class LidarWidget(BaseSettingWidget):
         self._equipped.setChecked(False)
         self._rows.addWidget(self._equipped)
 
-        offset_description = "ルートリンクに対するLiDARの位置のオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
             "Offset",
-            offset_description,
+            SENSOR_OFFSET_DESCRIPTION,
             suffix=" m",
         )
         self._rows.addWidget(self.offset)
