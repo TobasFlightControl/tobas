@@ -46,7 +46,7 @@ void ThrustEstimator::getRosParams()
 
 void ThrustEstimator::registerPublishers()
 {
-  factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactor, 1);
+  factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
 }
 
 void ThrustEstimator::registerSubscribers()

@@ -11,7 +11,7 @@
          <range bottom="-0.916865" top="1.369324" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/pose/pos/x" color="#b41f8f"/>
-         <curve name="/s900/multirotor_controller_feedback/target_position/x" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_position/x" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/pose/pos/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -20,7 +20,7 @@
          <range bottom="-1.357009" top="0.680815" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/pose/pos/y" color="#d627b1"/>
-         <curve name="/s900/multirotor_controller_feedback/target_position/y" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_position/y" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/pose/pos/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -29,7 +29,7 @@
          <range bottom="18.960963" top="21.388992" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/pose/pos/z" color="#c91aad"/>
-         <curve name="/s900/multirotor_controller_feedback/target_position/z" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_position/z" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/pose/pos/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -40,7 +40,7 @@
          <range bottom="-0.264508" top="0.181468" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/pose/euler/roll" color="#ff0eca"/>
-         <curve name="/s900/multirotor_controller_feedback/target_rotation/roll" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_rotation/roll" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/pose/euler/roll" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -49,7 +49,7 @@
          <range bottom="-0.272144" top="0.202540" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/pose/euler/pitch" color="#f14cc1"/>
-         <curve name="/s900/multirotor_controller_feedback/target_rotation/pitch" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_rotation/pitch" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/pose/euler/pitch" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -58,7 +58,7 @@
          <range bottom="-0.031590" top="0.029753" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/pose/euler/yaw" color="#bd67b2"/>
-         <curve name="/s900/multirotor_controller_feedback/target_rotation/yaw" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_rotation/yaw" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/pose/euler/yaw" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -77,7 +77,7 @@
          <range bottom="-0.626971" top="0.877941" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/twist/linear/x" color="#cf17ab"/>
-         <curve name="/s900/multirotor_controller_feedback/target_velocity_local/x" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_velocity_local/x" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/twist/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -86,7 +86,7 @@
          <range bottom="-0.972995" top="0.936510" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/twist/linear/y" color="#bd2287"/>
-         <curve name="/s900/multirotor_controller_feedback/target_velocity_local/y" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_velocity_local/y" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/twist/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -95,7 +95,7 @@
          <range bottom="-1.339110" top="1.349564" right="934.900000" left="924.900000"/>
          <limitY/>
          <curve name="/s900/pose_twist/twist/linear/z" color="#b41fad"/>
-         <curve name="/s900/multirotor_controller_feedback/target_velocity_local/z" color="#cdd420"/>
+         <curve name="/s900/controller_feedback/target_velocity_local/z" color="#cdd420"/>
          <curve name="/s900/ground_truth/pose_twist/twist/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -441,14 +441,14 @@
        <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
         <range bottom="-2.625470" top="2.078955" right="934.900000" left="924.900000"/>
         <limitY/>
-        <curve name="/s900/multirotor_controller_feedback/target_acceleration_global/x" color="#ff7f0e"/>
+        <curve name="/s900/controller_feedback/target_acceleration_global/x" color="#ff7f0e"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
         <range bottom="-1.316212" top="1.756433" right="934.900000" left="924.900000"/>
         <limitY/>
-        <curve name="/s900/multirotor_controller_feedback/position_integral_error/x" color="#1f77b4"/>
+        <curve name="/s900/controller_feedback/position_integral_error/x" color="#1f77b4"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -457,14 +457,14 @@
        <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
         <range bottom="-1.645750" top="2.606355" right="934.900000" left="924.900000"/>
         <limitY/>
-        <curve name="/s900/multirotor_controller_feedback/target_acceleration_global/y" color="#f14cc1"/>
+        <curve name="/s900/controller_feedback/target_acceleration_global/y" color="#f14cc1"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
         <range bottom="-0.016322" top="3.997422" right="934.900000" left="924.900000"/>
         <limitY/>
-        <curve name="/s900/multirotor_controller_feedback/position_integral_error/y" color="#d62728"/>
+        <curve name="/s900/controller_feedback/position_integral_error/y" color="#d62728"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -473,14 +473,14 @@
        <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
         <range bottom="-2.114786" top="2.005758" right="934.900000" left="924.900000"/>
         <limitY/>
-        <curve name="/s900/multirotor_controller_feedback/target_acceleration_global/z" color="#9467bd"/>
+        <curve name="/s900/controller_feedback/target_acceleration_global/z" color="#9467bd"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
         <range bottom="0.470044" top="1.854550" right="934.900000" left="924.900000"/>
         <limitY/>
-        <curve name="/s900/multirotor_controller_feedback/position_integral_error/z" color="#1ac938"/>
+        <curve name="/s900/controller_feedback/position_integral_error/z" color="#1ac938"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -488,7 +488,7 @@
       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
        <range bottom="12.647275" top="19.430742" right="934.900000" left="924.900000"/>
        <limitY/>
-       <curve name="/s900/multirotor_controller_feedback/target_thrust" color="#f14cc1"/>
+       <curve name="/s900/controller_feedback/target_thrust" color="#f14cc1"/>
       </plot>
      </DockArea>
     </DockSplitter>

@@ -48,7 +48,7 @@ void ControllerRos::registerPublishers()
 {
   rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorCmdTopic, 1);
   feedback_pub_ =
-    nh_.advertise<tobas_mr_mpc::ControllerFeedback>("multirotor_controller_feedback", 1);
+    nh_.advertise<tobas_mr_mpc::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
 
 void ControllerRos::registerSubscribers()

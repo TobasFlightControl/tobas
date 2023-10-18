@@ -36,8 +36,9 @@ static constexpr char kEventTopic[] = "event";
 static constexpr char kPoseTwistTopic[] = "pose_twist";
 static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
-static constexpr char kThrustCorrectionFactor[] = "thrust_correction_factor";
-
+static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
+static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
+static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
 static constexpr char kRotorCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";

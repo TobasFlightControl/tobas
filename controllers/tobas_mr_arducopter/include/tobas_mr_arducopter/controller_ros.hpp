@@ -1,35 +1,27 @@
-#include <Eigen/Core>
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
-#include <sensor_msgs/JointState.h>
-
-#include <dh_std_tools/stopwatch.hpp>
-#include <dh_kdl/treejntnameparser.hpp>
-#include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/drone.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_common/accel_attitude_converter.hpp>
-#include <tobas_mr_common/mixer.hpp>
+#include <tobas_mr_arducopter/ControllerConfig.h>
 
-#include <tobas_mr_pid/ControllerConfig.h>
+#include "./attitude_controller.hpp"
+#include "./position_controller.hpp"
 
-#include "./translation_controller.hpp"
-#include "./rotation_controller.hpp"
-
-namespace tobas_mr_pid
+namespace tobas_mr_arducopter
 {
 class ControllerRos : public tobas::BaseNode
 {
   using self = ControllerRos;
   using super = tobas::BaseNode;
 
-  using ConfigType = tobas_mr_pid::ControllerConfig;
+  using ConfigType = tobas_mr_arducopter::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
@@ -41,34 +33,19 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
-  KDL::TreeJointNameParser jnt_name_parser_;
-  tobas::RotorAxisExtractor z_rotors_;
-
-  // Controllers
-  TranslationController trans_controller_;
-  tobas_mr_common::AccelAttitudeConverter acc_controller_;
-  RotationController rot_controller_;
-  tobas_mr_common::Mixer mixer_;
-
-  // Dynamic parameters
-  TranslationControllerConfig trans_config_;
-  tobas_mr_common::AccelAttitudeConverterConfig acc_config_;
-  RotationControllerConfig rot_config_;
-
-  // Constant variables
-  bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
 
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
-  sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
-  KDL::JntArray q_;  // 全ての非固定関節の角度
-  KDL::Vector tar_acc_fb_;
   ros::Time t_last_loop_;
+
+  // ArduPilot
+  AttitudeController attitude_control_;
+  PositionController pos_control_;
 
   // Publishers
   ros::Publisher rotor_speeds_pub_;
@@ -77,12 +54,11 @@ private:
   // Subscribers
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber joint_state_sub_;
   ros::Subscriber pvay_sub_;
   ros::Subscriber rpyt_sub_;
 
   // Timers
-  dh_ros::Timer check_topics_timer_;
+  ros::Timer check_topics_timer_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
@@ -94,14 +70,25 @@ private:
   bool isReady() const;
   bool isCommandLevelOk(const tobas_msgs::CommandLevel& level);
 
+  /* ===== ArduCopter fast tasks ===== */
+  /* Update rate controllers and output to roll, pitch and yaw actuators. */
+  void runRateController();
+  void motorsOutput();
+  void readAHRS();
+  void readInertia();
+  void ckeckEkfReset();
+  void updateFlightMode();
+  void updateHomeFromEkf();
+  void updateLandAndCrashDetectors();
+  void updateRangeFinderTerrainOffset();
+
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
 };
-}  // namespace tobas_mr_pid
+}  // namespace tobas_mr_arducopter

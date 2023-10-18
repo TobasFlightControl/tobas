@@ -6,7 +6,7 @@ namespace tobas_mr_pid
 {
 void ControllerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Position Controller Nodelet.");
+  NODELET_INFO("Initializing Multirotor PID Controller Nodelet.");
 
   const auto& nh = getNodeHandle();
   const auto& pnh = getPrivateNodeHandle();

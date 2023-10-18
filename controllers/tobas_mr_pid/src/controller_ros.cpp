@@ -21,11 +21,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     acc_controller_(drone_),
     mixer_(drone_),
-    check_topics_timer_(
-      nh_,
-      tobas::kCheckTopicsTimerPeriod,
-      &ControllerRos::checkTopicsTimerCb,
-      this),
+    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
 {
   getRosParams();
@@ -42,7 +38,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
   registerPublishers();
   registerSubscribers();
 
-  ConfigServer::CallbackType f = boost::bind(&ControllerRos::dynamicReconfigureCb, this, _1, _2);
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
 }
 
@@ -54,26 +50,23 @@ void ControllerRos::registerPublishers()
 {
   rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorCmdTopic, 1);
   feedback_pub_ =
-    nh_.advertise<tobas_mr_pid::ControllerFeedback>("multirotor_controller_feedback", 1);
+    nh_.advertise<tobas_mr_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
 
 void ControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &ControllerRos::eventCb, this, tcpNoDelay());
-  pt_sub_ =
-    nh_.subscribe(tobas::kPoseTwistTopic, 1, &ControllerRos::poseTwistCb, this, tcpNoDelay());
-  battery_sub_ =
-    nh_.subscribe(tobas::kBatteryTopic, 1, &ControllerRos::batteryCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (is_transformable_)
   {
     joint_state_sub_ =
-      nh_.subscribe(tobas::kJointStatesTopic, 1, &ControllerRos::jointStateCb, this, tcpNoDelay());
+      nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
   }
 
-  pvay_sub_ = nh_.subscribe(
-    tobas::kPosVelAccYawCmdTopic, 1, &ControllerRos::posVelAccYawCb, this, tcpNoDelay());
-  rpyt_sub_ =
-    nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &ControllerRos::rpyThrustCb, this, tcpNoDelay());
+  pvay_sub_ =
+    nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
+  rpyt_sub_ = nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &self::rpyThrustCb, this, tcpNoDelay());
 }
 
 bool ControllerRos::isReady() const
