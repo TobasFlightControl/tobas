@@ -16,23 +16,19 @@ find_package(catkin REQUIRED COMPONENTS
 	dynamic_reconfigure
 	nodelet
 	pluginlib
-	message_generation
 )
 
 # catkin_python_setup()
 
-file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
-add_message_files(FILES ${MSG_FILES})
+# file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
+# add_message_files(FILES ${MSG_FILES})
 # file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
 # add_service_files(FILES ${SRV_FILES})
 # file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
 # add_action_files(FILES ${ACTION_FILES})
 
-generate_messages(DEPENDENCIES
-	tobas_msgs
-	dh_kdl_msgs
-	std_msgs
-)
+# generate_messages(DEPENDENCIES
+# )
 
 generate_dynamic_reconfigure_options(cfg/Controller.cfg)
 
@@ -44,25 +40,24 @@ catkin_package(
 		dynamic_reconfigure
 		nodelet
 		pluginlib
-		message_generation
 	# 	DEPENDS
 )
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-# add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
-# add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
-# target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
+file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
+add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
+target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
 
-# file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-# foreach(FILE IN LISTS EXE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-# 	add_executable(${NODE_NAME} ${FILE})
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-# endforeach()
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+foreach(FILE IN LISTS EXE_FILES)
+	get_filename_component(NODE_NAME ${FILE} NAME_WE)
+	add_executable(${NODE_NAME} ${FILE})
+	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+endforeach()

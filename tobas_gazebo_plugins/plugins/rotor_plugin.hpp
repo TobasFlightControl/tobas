@@ -7,6 +7,7 @@
 #include <gazebo/physics/physics.hh>
 
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Throttles.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
 
@@ -23,6 +24,7 @@ static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
 
 class GazeboRotorPlugin : public ModelPlugin
 {
+  using self = GazeboRotorPlugin;
   using super = ModelPlugin;
 
 public:
@@ -50,7 +52,7 @@ private:
   double auto_reset_time_thr_;
 
   double cmd_rot_speed_;  // [rad/s]
-  tobas_msgs::Battery battery_;
+  tobas_msgs::BatteryConstPtr battery_;
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   double prev_sim_time_ = 0.;                    // [s]
   double last_cmd_time_ = 0.;                    // [s]
@@ -70,6 +72,7 @@ private:
   // PubSub
   ros::Publisher debug_pub_;
   ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber throttles_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
 
@@ -79,11 +82,14 @@ private:
   bool isReady();
   void applyForceAndTorque(const double& rot_speed, const common::Time cur_time);
   void updateRotationSpeed(const double& dt);
+  double rotSpeedFromVoltage(const double& voltage);
   double maxRotSpeed();
   double minRotSpeed();
+  void processCommandCommon(const uint32_t& data_size, const ros::Time& stamp);
 
-  void commandCb(const tobas_msgs::RotorSpeeds& cmd);
-  void batteryCb(const tobas_msgs::Battery& battery);
-  void windSpeedCb(const tobas_msgs::Wind& wind);
+  void rotorSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
+  void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void windSpeedCb(const tobas_msgs::WindConstPtr& wind);
 };
 }  // namespace gazebo

@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
 
@@ -12,7 +14,6 @@
 
 using namespace std;
 using namespace ignition::math;
-using namespace dh_std;
 
 namespace gazebo
 {
@@ -51,7 +52,7 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   // Listen to the update event
   update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRotorPlugin::onUpdate, this, _1));
+    event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -180,13 +181,16 @@ void GazeboRotorPlugin::registerPubSub()
     "/" + ns_ + "/" + kDebugTopicPrefix + "_" + to_string(motor_number_), 1);
 
   rotor_speeds_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kRotorCmdTopic, 1, &GazeboRotorPlugin::commandCb, this,
+    "/" + ns_ + "/" + tobas::kRotorSpeedsCmdTopic, 1, &self::rotorSpeedsCmdCb, this,
+    ros::TransportHints().reliable().tcpNoDelay());
+  throttles_sub_ = nh_.subscribe(
+    "/" + ns_ + "/" + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + kBatteryGtTopic, 1, &GazeboRotorPlugin::batteryCb, this,
+    "/" + ns_ + "/" + kBatteryGtTopic, 1, &self::batteryCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + kWindGtTopic, 1, &GazeboRotorPlugin::windSpeedCb, this,
+    "/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 
@@ -207,8 +211,8 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   const auto local_axis = joint_->LocalAxis(0);
 
   // (1) first term: Thrust Force
-  const auto rot_speed_sgn = sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * sqr(rot_speed);
+  const auto rot_speed_sgn = dh_std::sign(rot_speed);
+  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * dh_std::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
 
@@ -264,18 +268,18 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   joint_->SetVelocity(0, direction_ * ref_rot_speed / kRotorSpeedSlowdownSim);
 }
 
-void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
+void GazeboRotorPlugin::processCommandCommon(const uint32_t& data_size, const ros::Time& stamp)
 {
   // Check index
-  if (motor_number_ >= static_cast<int>(cmd.speeds.size()))
+  if (motor_number_ >= static_cast<int>(data_size))
   {
     gzerr << kPluginName << ": You tried to access index " << motor_number_
-          << " of the RotorSpeeds message array which is of size " << cmd.speeds.size() << endl;
+          << " of the rotor command message array which is of size " << data_size << endl;
     return;
   }
 
   // Check delay
-  const auto delay = prev_sim_time_ - cmd.header.stamp.toSec();
+  const auto delay = prev_sim_time_ - stamp.toSec();
   // cout << "delay: " << delay << " [s]" << endl;
   if (delay > check_delay_threshold_)
   {
@@ -289,9 +293,6 @@ void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
       kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
   }
 
-  // Get Commanded speed
-  cmd_rot_speed_ = cmd.speeds[motor_number_];
-
   // Update last commanded time
   last_cmd_time_ = prev_sim_time_;
 
@@ -299,12 +300,16 @@ void GazeboRotorPlugin::commandCb(const tobas_msgs::RotorSpeeds& cmd)
   is_activated_ = true;
 }
 
-double GazeboRotorPlugin::maxRotSpeed()
+double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
 {
   const auto& a = rot_speed_coefs_.X();
   const auto& b = rot_speed_coefs_.Y();
-  const auto& V = battery_.voltage;
-  return b > 0 ? (sqrt(sqr(a) + 4 * b * V) - a) / (2 * b) : V / a;
+  return b > 0 ? (sqrt(dh_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+}
+
+double GazeboRotorPlugin::maxRotSpeed()
+{
+  return rotSpeedFromVoltage(battery_->voltage);
 }
 
 double GazeboRotorPlugin::minRotSpeed()
@@ -312,7 +317,26 @@ double GazeboRotorPlugin::minRotSpeed()
   return maxRotSpeed() * tobas::kMotorSpinArm;
 }
 
-void GazeboRotorPlugin::batteryCb(const tobas_msgs::Battery& battery)
+void GazeboRotorPlugin::rotorSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
+{
+  if (!battery_received_)
+    return;
+
+  processCommandCommon(rotor_speeds->speeds.size(), rotor_speeds->header.stamp);
+  cmd_rot_speed_ = rotor_speeds->speeds[motor_number_];
+}
+
+void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
+{
+  if (!battery_received_)
+    return;
+
+  processCommandCommon(throttles->data.size(), throttles->header.stamp);
+  const auto input_voltage = battery_->voltage * std::clamp(throttles->data[motor_number_], 0., 1.);
+  cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
+}
+
+void GazeboRotorPlugin::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
 
@@ -324,9 +348,9 @@ void GazeboRotorPlugin::batteryCb(const tobas_msgs::Battery& battery)
   }
 }
 
-void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::Wind& wind)
+void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
 {
-  vectorKDLToGazebo(wind.vel, wind_vel_W_);
+  vectorKDLToGazebo(wind->vel, wind_vel_W_);
 
   if (!wind_received_)
   {

@@ -56,7 +56,7 @@ void MotorsHandler::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorCmdTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
