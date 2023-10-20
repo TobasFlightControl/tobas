@@ -1,0 +1,7 @@
+<library path="lib/libtobas_arducopter_takeoff_nodelet">
+
+  <class name="tobas_arducopter_takeoff/TakeoffActionServerNodelet" type="tobas_arducopter_takeoff::TakeoffActionServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>
