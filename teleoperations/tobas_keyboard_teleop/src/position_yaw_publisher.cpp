@@ -8,7 +8,7 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/PosVelAccYaw.h>
-#include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
+#include <tobas_msgs/TakeoffAction.h>
 
 #include "../include/tobas_keyboard_teleop/position_yaw_publisher.hpp"
 #include "../include/tobas_keyboard_teleop/constants.hpp"
@@ -50,8 +50,7 @@ void PositionYawPublisher::run()
   }
 
   // 離陸アクションクライアントを用意
-  actionlib::SimpleActionClient<tobas_multirotor_takeoff::MultirotorTakeoffAction> takeoff(
-    tobas::kTakeoffAction);
+  actionlib::SimpleActionClient<tobas_msgs::TakeoffAction> takeoff(tobas::kTakeoffAction);
   rosInfo(name_, "Waiting for '" << tobas::kTakeoffAction << "' action server.");
   if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
@@ -61,11 +60,11 @@ void PositionYawPublisher::run()
 
   // 離陸
   rosInfo(name_, "Requesting takeoff action.");
-  tobas_multirotor_takeoff::MultirotorTakeoffGoal takeoff_goal;
+  tobas_msgs::TakeoffGoal takeoff_goal;
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
   takeoff.sendGoalAndWait(takeoff_goal);
   const auto takeoff_result = takeoff.getResult();
-  if (takeoff_result->error_code != tobas_multirotor_takeoff::MultirotorTakeoffResult::NO_ERROR)
+  if (takeoff_result->error_code != tobas_msgs::TakeoffResult::NO_ERROR)
   {
     rosInfo(name_, "'" << tobas::kTakeoffAction << "' action failed.");
     return;

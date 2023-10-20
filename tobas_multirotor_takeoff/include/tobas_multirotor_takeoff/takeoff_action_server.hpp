@@ -6,7 +6,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PoseTwist.h>
 
-#include <tobas_multirotor_takeoff/MultirotorTakeoffAction.h>
+#include <tobas_msgs/TakeoffAction.h>
 
 namespace tobas_multirotor_takeoff
 {
@@ -26,10 +26,10 @@ class MultirotorTakeoffServer : public tobas::BaseNode
 
   using super = tobas::BaseNode;
 
-  using ActionType = tobas_multirotor_takeoff::MultirotorTakeoffAction;
-  using GoalType = tobas_multirotor_takeoff::MultirotorTakeoffGoalConstPtr;
-  using ResultType = tobas_multirotor_takeoff::MultirotorTakeoffResult;
-  using FeedbackType = tobas_multirotor_takeoff::MultirotorTakeoffFeedback;
+  using ActionType = tobas_msgs::TakeoffAction;
+  using GoalType = tobas_msgs::TakeoffGoalConstPtr;
+  using ResultType = tobas_msgs::TakeoffResult;
+  using FeedbackType = tobas_msgs::TakeoffFeedback;
 
 public:
   explicit MultirotorTakeoffServer(

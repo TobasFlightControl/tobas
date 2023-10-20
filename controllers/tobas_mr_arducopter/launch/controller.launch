@@ -1,0 +1,30 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
+  <arg name="fcu_url" default="udp://127.0.0.1:14550@14555"/>
+
+  <arg name="node_name" value="tobas_mr_arducopter"/>
+
+  <!-- APM -->
+  <include file="$(find mavros)/launch/apm.launch">
+    <arg name="fcu_url" value="$(arg fcu_url)"/>
+    <arg name="respawn_mavros" value="true"/>
+  </include>
+
+  <!-- sim_vehicle.py -->
+  <node pkg="tobas_mr_arducopter" type="sim_vehicle_node.py" name="sim_vehicle" output="screen"/>
+
+  <!-- Controller -->
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
+  </group>
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_mr_arducopter" type="controller_node" name="$(arg node_name)" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
+  </group>
+
+</launch>

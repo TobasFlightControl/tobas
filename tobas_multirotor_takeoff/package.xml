@@ -12,7 +12,6 @@
 	<depend>actionlib</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
-	<depend>actionlib_msgs</depend>
 
 	<depend>tobas_tools</depend>
 
