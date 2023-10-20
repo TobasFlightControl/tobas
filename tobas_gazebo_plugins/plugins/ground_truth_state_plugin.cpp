@@ -1,5 +1,7 @@
 #include <dh_std_tools/geometry.hpp>
 
+#include <tobas_msgs/PoseTwist.h>
+
 #include "./ground_truth_state_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
@@ -32,15 +34,12 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
 
-  // Fill the static parts of the state message
-  state_msg_.header.frame_id = link_name_;
-
   // Advertise publisher
-  state_pub_ = nh_.advertise<StateMsg>("/" + ns_ + "/" + kStatePubTopic, 1);
+  pt_pub_ = nh_.advertise<tobas_msgs::PoseTwist>("/" + ns_ + "/" + kStatePubTopic, 1);
 
   // Listen to the update event
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(
-    boost::bind(&GazeboGroundTruthStatePlugin::onUpdate, this, _1));
+  update_connection_ =
+    event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -53,31 +52,35 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
 {
   const auto& T_W_B = link_->WorldPose();
 
+  // Create Pose & Twist message
+  auto pt = boost::make_shared<tobas_msgs::PoseTwist>();
+  pt->header.frame_id = link_name_;
+
   // Update time stamp
-  timeGazeboToRos(world_->SimTime(), state_msg_.header.stamp);
+  timeGazeboToRos(world_->SimTime(), pt->header.stamp);
 
   // Update position
-  vectorGazeboToKDL(T_W_B.Pos(), state_msg_.pose.pos);
+  vectorGazeboToKDL(T_W_B.Pos(), pt->pose.pos);
 
   // Update rotation
   const auto& q = T_W_B.Rot();
-  auto& e = state_msg_.pose.euler;
+  auto& e = pt->pose.euler;
   dh_std::quaternionToEuler(q.X(), q.Y(), q.Z(), q.W(), e.roll, e.pitch, e.yaw);
 
   // Update linear velocity (Local)
-  vectorGazeboToKDL(link_->RelativeLinearVel(), state_msg_.twist.vel);
+  vectorGazeboToKDL(link_->RelativeLinearVel(), pt->twist.vel);
 
   // Update angular velocity (Local)
-  vectorGazeboToKDL(link_->RelativeAngularVel(), state_msg_.twist.rot);
+  vectorGazeboToKDL(link_->RelativeAngularVel(), pt->twist.rot);
 
   // Update linear acceleration (Local)
-  vectorGazeboToKDL(link_->RelativeLinearAccel(), state_msg_.accel.linear);
+  vectorGazeboToKDL(link_->RelativeLinearAccel(), pt->accel.linear);
 
   // Update angular acceleration (Local)
-  vectorGazeboToKDL(link_->RelativeAngularAccel(), state_msg_.accel.angular);
+  vectorGazeboToKDL(link_->RelativeAngularAccel(), pt->accel.angular);
 
   // Publish state message
-  state_pub_.publish(state_msg_);
+  pt_pub_.publish(pt);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboGroundTruthStatePlugin);

@@ -191,17 +191,14 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressur
   air_density_ = dh_std::pressureToDensity(msg->fluid_pressure);
 
   if (!pressure_received_)
-  {
     pressure_received_ = true;
-  }
 }
 
 void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-  {
-    rosWarn(name_, "Air pressure is not received yet.");
-  }
+    rosWarn(
+      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
 }
 
 void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)

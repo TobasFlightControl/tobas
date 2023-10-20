@@ -10,7 +10,8 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>roscpp</depend>
-	<depend>geometry_msgs</depend>
+	<depend>nodelet</depend>
+	<depend>pluginlib</depend>
 
 	<depend>tobas_tools</depend>
 

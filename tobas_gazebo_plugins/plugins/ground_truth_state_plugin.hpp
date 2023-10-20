@@ -7,8 +7,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/PoseTwist.h>
-
 namespace gazebo
 {
 class GazeboGroundTruthStatePlugin : public ModelPlugin
@@ -17,8 +15,8 @@ class GazeboGroundTruthStatePlugin : public ModelPlugin
   static constexpr char kPluginName[] = "ground_truth_state_plugin";
   static constexpr char kStatePubTopic[] = "ground_truth/pose_twist";
 
+  using self = GazeboGroundTruthStatePlugin;
   using super = ModelPlugin;
-  using StateMsg = tobas_msgs::PoseTwist;
 
 public:
   explicit GazeboGroundTruthStatePlugin();
@@ -36,9 +34,8 @@ private:
   physics::ModelPtr model_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
-  StateMsg state_msg_;
 
-  ros::Publisher state_pub_;
+  ros::Publisher pt_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo&);

@@ -157,7 +157,7 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosthrow(
+    ROS_THROW_NAMED(
       name_, "'" << tobas::kStaticStateDeterminationAction << "' did not finish before timeout.");
   }
 
@@ -165,7 +165,7 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
-    rosthrow(
+    ROS_THROW_NAMED(
       name_, "'" << tobas::kStaticStateDeterminationAction
                  << "' finished with error: " << state.getText());
   }
@@ -458,16 +458,17 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!imu_received_)
-    rosWarn(name_, "IMU data is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kImuTopic << " is not received yet.");
 
   if (!mag_received_)
-    rosWarn(name_, "Magnetometer data is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kMagTopic << " is not received yet.");
 
   if (use_bar_ && !bar_received_)
-    rosWarn(name_, "Barometer data is not received yet.");
+    rosWarn(
+      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
 
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, "GPS data is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

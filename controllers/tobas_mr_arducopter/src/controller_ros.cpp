@@ -37,11 +37,11 @@ void ControllerRos::getRosParams()
 
   dh_ros::getParam(pnh_, "num_rotors", num_rotors_);
   if (num_rotors_ > kMaxMotors)
-    rosthrow(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
+    ROS_THROW_NAMED(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
 
   dh_ros::getParam(pnh_, "channels", channels_);
   if (!dh_std::isUnique(channels_))
-    rosthrow(name_, "channels are not unique.");
+    ROS_THROW_NAMED(name_, "channels are not unique.");
 }
 
 void ControllerRos::registerPublishers()
@@ -58,10 +58,10 @@ void ControllerRos::registerSubscribers()
 void ControllerRos::initializeSockets()
 {
   if (!socket_in_.bind(kFdmAddr, kFdmPortIn))
-    rosthrow(name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortIn << ".");
+    ROS_THROW_NAMED(name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortIn << ".");
 
   if (!socket_out_.connect(kFdmAddr, kFdmPortOut))
-    rosthrow(name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortOut << ".");
+    ROS_THROW_NAMED(name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortOut << ".");
 }
 
 void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
@@ -153,7 +153,8 @@ void ControllerRos::sendState(const tobas_msgs::PoseTwist& pt)
   pkt.timestamp = pt.header.stamp.toSec();
 
   // Linear acceleration (Local)
-  const auto acc_B_ned = R_nwu_ned_.Inverse(pt.accel.linear);
+  const auto grav_B_nwu = pt.pose.euler.Inverse(Vector(0, 0, tobas::kGravity));
+  const auto acc_B_ned = R_nwu_ned_.Inverse(pt.accel.linear + grav_B_nwu);
   pkt.imuLinearAccelerationXYZ[0] = acc_B_ned.x();
   pkt.imuLinearAccelerationXYZ[1] = acc_B_ned.y();
   pkt.imuLinearAccelerationXYZ[2] = acc_B_ned.z();
@@ -187,6 +188,12 @@ void ControllerRos::sendState(const tobas_msgs::PoseTwist& pt)
 
   // send packet
   socket_out_.send(&pkt, sizeof(pkt));
+
+  // cout << "Linear acceleration: " << acc_B_ned << endl;
+  // cout << "Angular velocity: " << gyro_B_ned << endl;
+  // cout << "Position: " << pos_W_ned << endl;
+  // cout << "Orientation: " << quat_ned << endl;
+  // cout << "Linear velocity: " << vel_W_ned << endl;
 }
 
 void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)

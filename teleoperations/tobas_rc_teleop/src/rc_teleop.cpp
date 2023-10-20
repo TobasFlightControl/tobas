@@ -76,7 +76,7 @@ void RCTeleop::getRosParams()
     pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1.)
   {
-    rosthrow(name_, "'dead_zone_rate' must be lower than 1.");
+    ROS_THROW_NAMED(name_, "'dead_zone_rate' must be lower than 1.");
   }
 
   dh_ros::getParam(pnh_, "mode_names", mode_names_);
@@ -226,7 +226,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     default:
     {
-      rosthrow(name_, "Invalid state: " << static_cast<int>(stage_));
+      ROS_THROW_NAMED(name_, "Invalid state: " << static_cast<int>(stage_));
     }
   }
 }

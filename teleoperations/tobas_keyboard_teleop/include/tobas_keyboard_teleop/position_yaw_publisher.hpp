@@ -1,9 +1,9 @@
 #pragma once
 
 #include <dh_std_tools/range.hpp>
+#include <dh_kdl/frames.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
 
 #include "../../include/tobas_keyboard_teleop/x11.hpp"
 #include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
@@ -26,6 +26,7 @@ class PositionYawPublisher : public tobas::BaseNode
   static constexpr double kDefaultMinimumYaw = -M_PI;           // [rad]
   static constexpr double kDefaultMaximumYaw = M_PI;            // [rad]
 
+  using self = PositionYawPublisher;
   using super = tobas::BaseNode;
 
 public:
@@ -40,7 +41,6 @@ private:
   const XkbControlsPtr keyboard_;
   KeyboardReader key_reader_;
 
-  tobas_msgs::PoseTwistConstPtr pt_;
   KDL::Vector cmd_pos_;
   double cmd_yaw_;
 
@@ -57,16 +57,14 @@ private:
   dh_std::Range<double> z_limit_;
   dh_std::Range<double> yaw_limit_;
 
-  // PubSub
+  // Publishers
   ros::Publisher pos_yaw_pub_;
   ros::Publisher pvay_pub_;
-  ros::Subscriber pt_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
 };
 }  // namespace tobas_keyboard_teleop

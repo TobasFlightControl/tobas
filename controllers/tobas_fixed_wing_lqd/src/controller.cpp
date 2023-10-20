@@ -33,7 +33,7 @@ Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
 
   if (x_rotors_.count() == 0)
   {
-    rosthrow(name_, "The number of propellers is zero.");
+    ROS_THROW_NAMED(name_, "The number of propellers is zero.");
   }
 
   q_0_.resize(drone_.tree().getNrOfJoints());
@@ -375,19 +375,14 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-  {
-    rosWarn(name_, "Air pressure is not received yet.");
-  }
+    rosWarn(
+      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
 
   if (!battery_received_)
-  {
-    rosWarn(name_, "Battery state is not received yet.");
-  }
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
 
   if (!pt_received_)
-  {
-    rosWarn(name_, "Pose & Twist is not received yet.");
-  }
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
 }
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

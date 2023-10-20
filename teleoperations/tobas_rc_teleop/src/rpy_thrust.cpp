@@ -48,7 +48,7 @@ void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
     pnh, "max_vertical_accel", max_ver_acc_, kDefaultMaxVerticalAccel, dh_ros::POSITIVE);
   if (max_ver_acc_ >= tobas::kGravity)
   {
-    rosthrow(kControllerName, "Maximum vertical acceleration must be lower than gravity.");
+    ROS_THROW_NAMED(kControllerName, "Maximum vertical acceleration must be lower than gravity.");
   }
 }
 

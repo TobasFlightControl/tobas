@@ -6,12 +6,12 @@ import subprocess
 
 
 class SimVehicleLauncher:
-    DEFAULT_FRAME_TYPE = "quad"
+    DEFAULT_FRAME_TYPE = "gazebo-iris"
 
     def __init__(self) -> None:
         self._frame_type = rospy.get_param("~frame_type", self.DEFAULT_FRAME_TYPE)
 
-        self._timer = rospy.Timer(rospy.Time(0), self._run_sim_vehicle, oneshot=True)
+        self._timer = rospy.Timer(rospy.Duration(1e-3), self._run_sim_vehicle, oneshot=True)
 
     def _run_sim_vehicle(self, event) -> None:
         subprocess.run(

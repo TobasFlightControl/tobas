@@ -21,7 +21,7 @@ BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh, stri
   barometer_.initialize();
   if (!barometer_.testConnection())
   {
-    rosthrow(name_, "Barometer test failed.");
+    ROS_THROW_NAMED(name_, "Barometer test failed.");
   }
 
   registerPublishers();

@@ -289,13 +289,14 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (battery_ == nullptr)
-    rosWarn(name_, "Battery state is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
 
   if (pt_ == nullptr)
-    rosWarn(name_, "Pose & Twist is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
 
   if (is_transformable_ && js_ == nullptr)
-    rosWarn(name_, "Joint states are not received yet.");
+    rosWarn(
+      name_, nh_.getNamespace() << "/" << tobas::kJointStatesTopic << " is not received yet.");
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

@@ -132,7 +132,7 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    rosthrow(
+    ROS_THROW_NAMED(
       name_, "'" << tobas::kStaticStateDeterminationAction << "' did not finish before timeout.");
   }
 
@@ -140,7 +140,7 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
   {
-    rosthrow(
+    ROS_THROW_NAMED(
       name_, "'" << tobas::kStaticStateDeterminationAction
                  << "' finished with error: " << state.getText());
   }
@@ -313,15 +313,16 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   // IMU
   if (!imu_received_)
-    rosWarn(name_, "Filtered IMU data is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << kFilteredImuTopic << " is not received yet.");
 
   // Barometer
   if (!bar_received_)
-    rosWarn(name_, "Barometer data is not received yet.");
+    rosWarn(
+      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
 
   // GPS
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, "GPS data is not received yet.");
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
 }
 
 void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)

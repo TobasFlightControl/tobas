@@ -4,8 +4,10 @@
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/util.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/TakeoffAction.h>
@@ -42,19 +44,12 @@ PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle p
 
 void PositionYawPublisher::run()
 {
-  while (pt_ == nullptr)
-  {
-    rosWarnThrottle(tobas::kCheckTopicsTimerPeriod, name_, "Pose & Twist is not received yet.");
-    sleep(0.1);
-    ros::spinOnce();
-  }
-
   // 離陸アクションクライアントを用意
   actionlib::SimpleActionClient<tobas_msgs::TakeoffAction> takeoff(tobas::kTakeoffAction);
   rosInfo(name_, "Waiting for '" << tobas::kTakeoffAction << "' action server.");
   if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    rosInfo(name_, "Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
+    rosError(name_, "Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
     return;
   }
 
@@ -64,16 +59,26 @@ void PositionYawPublisher::run()
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
   takeoff.sendGoalAndWait(takeoff_goal);
   const auto takeoff_result = takeoff.getResult();
+  const auto takeoff_state = takeoff.getState();
   if (takeoff_result->error_code != tobas_msgs::TakeoffResult::NO_ERROR)
   {
-    rosInfo(name_, "'" << tobas::kTakeoffAction << "' action failed.");
+    rosError(name_, "'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
     return;
   }
   rosInfo(name_, "Takeoff finished successfully. Start teleoperation!");
 
   // 初期コマンドを設定
-  cmd_pos_ = pt_->pose.pos;
-  cmd_yaw_ = pt_->pose.euler.yaw;
+  tobas_msgs::PoseTwist pt;
+  if (dh_ros::subscribeOnce(pt, tobas::kPoseTwistTopic, nh_))
+  {
+    cmd_pos_ = pt.pose.pos;
+    cmd_yaw_ = pt.pose.euler.yaw;
+  }
+  else
+  {
+    rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << ".");
+    // TODO: 初期コマンドを離陸コマンドと同じに設定
+  }
 
   // キーボード入力による位置コマンドを発行し続ける
   dh_ros::Rate rate(kUpdateRate);
@@ -183,15 +188,7 @@ void PositionYawPublisher::registerPublishers()
 
 void PositionYawPublisher::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &PositionYawPublisher::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(
-    tobas::kPoseTwistTopic, 1, &PositionYawPublisher::poseTwistCb, this, tcpNoDelay());
-}
-
-void PositionYawPublisher::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
-{
-  pt_ = pt;
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
 }
 
 void PositionYawPublisher::eventCb(const tobas_msgs::EventConstPtr& event)

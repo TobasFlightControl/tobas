@@ -14,7 +14,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	roscpp
-	geometry_msgs
+	nodelet
+	pluginlib
 )
 
 # catkin_python_setup()
@@ -35,7 +36,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_tools roscpp geometry_msgs
+	CATKIN_DEPENDS tobas_tools roscpp nodelet pluginlib
 # 	DEPENDS
 )
 

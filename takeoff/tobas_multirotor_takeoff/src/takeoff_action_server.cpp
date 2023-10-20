@@ -62,7 +62,8 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   if (pt_ == nullptr)
   {
     result.error_code = ResultType::NOT_READY;
-    as_.setAborted(result, "Pose & Twist is not received yet.");
+    as_.setAborted(
+      result, nh_.getNamespace() + "/" + tobas::kPoseTwistTopic + " is not received yet.");
     return;
   }
 

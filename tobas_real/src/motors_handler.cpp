@@ -17,7 +17,7 @@ MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 {
   if (getuid())
   {
-    rosthrow(name_, "Not root.");
+    ROS_THROW_NAMED(name_, "Not root.");
   }
 
   getRosParams();

@@ -134,11 +134,13 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     {
       if (!battery_received_)
       {
-        gzerr << kPluginName << ": Battery state is not received yet." << endl;
+        gzerr << kPluginName << ": " << ns_ << "/" << kBatteryGtTopic << " is not received yet."
+              << endl;
       }
       if (!wind_received_)
       {
-        gzerr << kPluginName << ": Wind speed is not received yet." << endl;
+        gzerr << kPluginName << ": " << ns_ << "/" << kWindGtTopic << " is not received yet."
+              << endl;
       }
     }
     return;

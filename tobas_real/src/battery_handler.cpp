@@ -48,7 +48,7 @@ void BatteryHandler::getAdcCoefficient()
   adc_coef_ = pt.get<double>(kConfigKey_AdcCoef);
   if (adc_coef_ <= 0.)
   {
-    rosthrow(name_, "Negative ADC coefficient: " << adc_coef_);
+    ROS_THROW_NAMED(name_, "Negative ADC coefficient: " << adc_coef_);
   }
 
   rosInfo(name_, "ADC coefficient: " << adc_coef_);

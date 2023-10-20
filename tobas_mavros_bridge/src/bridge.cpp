@@ -52,8 +52,15 @@ void TobasMavrosBridge::eventCb(const tobas_msgs::EventConstPtr& event)
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)
 {
   auto mav = boost::make_shared<geometry_msgs::PoseStamped>();
-  pointKDLToMsg(tbs->pos, mav->pose.position);
-  quaternionKDLToMsg(Quaternion::RPY(0, 0, tbs->yaw), mav->pose.orientation);
+
+  // NWU -> ENU
+  mav->pose.position.x = -tbs->pos.y();
+  mav->pose.position.y = tbs->pos.x();
+  mav->pose.position.z = tbs->pos.z();
+
+  const auto quat = Quaternion::RPY(0, 0, tbs->yaw + M_PI_2);
+  quaternionKDLToMsg(quat, mav->pose.orientation);
+
   setpoint_pos_local_pub_.publish(mav);
 }
 }  // namespace tobas_mavros_bridge

@@ -80,7 +80,7 @@ void ImuHandler::setupImu()
   imu_.initialize();
   if (!imu_.probe())
   {
-    rosthrow(name_, "IMU not enabled.");
+    ROS_THROW_NAMED(name_, "IMU not enabled.");
   }
 }
 

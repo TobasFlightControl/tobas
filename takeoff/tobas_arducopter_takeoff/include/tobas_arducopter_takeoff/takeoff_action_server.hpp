@@ -2,11 +2,9 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
-#include <mavros_msgs/SetMode.h>
-#include <mavros_msgs/CommandBool.h>
-#include <mavros_msgs/CommandTOL.h>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_msgs/PoseTwist.h>
 
 #include <tobas_msgs/TakeoffAction.h>
 
@@ -18,10 +16,14 @@ class TakeoffActionServer : public tobas::BaseNode
   const std::string kArmingSrvName = "mavros/cmd/arming";
   const std::string kTakeoffSrvName = "mavros/cmd/takeoff";
 
-  static constexpr double kWaitForService = 3.;  // [s]
+  static constexpr double kWaitForService = 1.;         // [s]
+  static constexpr double kWaitForArming = 1.;          // [s]
+  static constexpr double kRetryInterval = 3.;          // [s]
+  static constexpr double kTakeoffCheckThreshold = 2.;  // [m]
 
   // TODO: ActionGoalで指定できるように
-  static constexpr double kTargetElevation = 2.;  // [m]
+  static constexpr double kTargetElevation = 5.;  // Check: kTakeoffCheckThresholdよりは大きい
+  static constexpr double kTimeout = 1e+9;
 
   using self = TakeoffActionServer;
   using super = tobas::BaseNode;
@@ -38,12 +40,9 @@ public:
     std::string name = ros::this_node::getName());
 
 private:
-  mavros_msgs::SetModeRequest set_mode_req_;
-  mavros_msgs::SetModeResponse set_mode_res_;
-  mavros_msgs::CommandBoolRequest arming_req_;
-  mavros_msgs::CommandBoolResponse arming_res_;
-  mavros_msgs::CommandTOLRequest takeoff_req_;
-  mavros_msgs::CommandTOLResponse takeoff_res_;
+  tobas_msgs::PoseTwistConstPtr pt_;
+
+  ros::Subscriber pt_sub_;
 
   ros::ServiceClient set_mode_ac_;
   ros::ServiceClient arming_ac_;
@@ -56,6 +55,7 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
 
   void executeCb(const GoalType& goal);
 };
