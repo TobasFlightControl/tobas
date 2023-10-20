@@ -9,18 +9,19 @@ using namespace std;
 
 namespace tobas_arducopter_takeoff
 {
-TakeoffActionServer::TakeoffActionServer(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+TakeoffActionServer::TakeoffActionServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
-    as_(
-      nh_,
-      tobas::kTakeoffAction,
-      boost::bind(&TakeoffActionServer::executeCb, this, _1),
-      false)
+    as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
+
+  set_mode_req_.custom_mode = "GUIDED";
+  arming_req_.value = true;
+  takeoff_req_.altitude = kTargetElevation;
+
+  set_mode_ac_ = nh_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
+  arming_ac_ = nh_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
+  takeoff_ac_ = nh_.serviceClient<mavros_msgs::CommandTOL>(kTakeoffSrvName);
 
   registerPublishers();
   registerSubscribers();
@@ -34,15 +35,11 @@ void TakeoffActionServer::getRosParams()
 
 void TakeoffActionServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
 }
 
 void TakeoffActionServer::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &TakeoffActionServer::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(
-    tobas::kPoseTwistTopic, 1, &TakeoffActionServer::poseTwistCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
 }
 
 void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -57,63 +54,65 @@ void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void TakeoffActionServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
-{
-  pt_ = pt;
-}
-
 void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
   ResultType result;
 
-  if (pt_ == nullptr)
+  // Set mode
+  if (!set_mode_ac_.waitForExistence(ros::Duration(kWaitForService)))
   {
     result.error_code = ResultType::NOT_READY;
-    as_.setAborted(result, "Pose & Twist is not received yet.");
-    return;
+    as_.setAborted(result, "Failed to connect to '" + kSetModeSrvName + "' service server.");
   }
-
-  // 離陸コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::VelocityYaw>();
-  cmd->level = goal->level;
-  cmd->frame_id.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->vel.z(kElevationSpeed);
-  cmd->yaw = pt_->pose.euler.yaw;  // yawはアクションが呼ばれたときの値を維持する
-
-  // 離陸コマンドを発行
-  cmd_pub_.publish(cmd);
-
-  // 初期状態
-  const auto start_alt = pt_->pose.pos.z();
-
-  // 高度チェック
-  ros::Rate rate(kUpdateRate);
-  while (nh_.ok())
+  if (!set_mode_ac_.call(set_mode_req_, set_mode_res_))
   {
-    if (as_.isPreemptRequested())
-    {
-      result.error_code = ResultType::PREEMPTED;
-      as_.setPreempted(result);
-      return;
-    }
-
-    // 目標高度に到達したら停止して終了
-    if (pt_->pose.pos.z() - start_alt > kTargetElevation)
-    {
-      rosInfo(name_, "Target altitude is reached.");
-
-      cmd->vel.z(0.);
-      cmd_pub_.publish(cmd);
-
-      result.error_code = ResultType::NO_ERROR;
-      as_.setSucceeded(result);
-      return;
-    }
-
-    ros::spinOnce();
-    rate.sleep();
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to call '" + kSetModeSrvName + "'.");
   }
+  if (!set_mode_res_.mode_sent)
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to set flight mode.");
+  }
+
+  // Arming
+  if (!arming_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to connect to '" + kArmingSrvName + "' service server.");
+  }
+  if (!arming_ac_.call(arming_req_, arming_res_))
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to call '" + kArmingSrvName + "'.");
+  }
+  if (!arming_res_.success)
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to arm.");
+  }
+
+  // Takeoff
+  if (!takeoff_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
+  }
+  if (!takeoff_ac_.call(takeoff_req_, takeoff_res_))
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to call '" + kTakeoffSrvName + "'.");
+  }
+  if (!takeoff_res_.success)
+  {
+    result.error_code = ResultType::NOT_READY;
+    as_.setAborted(result, "Failed to takeoff.");
+  }
+
+  // Succeeded
+  result.error_code = ResultType::NO_ERROR;
+  as_.setSucceeded(result);
 }
 }  // namespace tobas_arducopter_takeoff

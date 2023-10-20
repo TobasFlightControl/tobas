@@ -2,28 +2,28 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
+#include <mavros_msgs/SetMode.h>
+#include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandTOL.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
 
 #include <tobas_msgs/TakeoffAction.h>
 
 namespace tobas_arducopter_takeoff
 {
-/**
- * @brief マルチコプターの離陸指令を発行するアクションサーバ．
- * X,Y,Yawをアクション開始時の値に保ったままZのみを増やしていく．
- * cf. https://docs.px4.io/main/en/flight_modes/takeoff.html
- */
 class TakeoffActionServer : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;                 // [Hz]
-  static constexpr double kWaitForExternalActionServer = 3.;  // [s]
+  const std::string kSetModeSrvName = "mavros/set_mode";
+  const std::string kArmingSrvName = "mavros/cmd/arming";
+  const std::string kTakeoffSrvName = "mavros/cmd/takeoff";
+
+  static constexpr double kWaitForService = 3.;  // [s]
 
   // TODO: ActionGoalで指定できるように
   static constexpr double kTargetElevation = 2.;  // [m]
-  static constexpr double kElevationSpeed = 1.;   // [m]
 
+  using self = TakeoffActionServer;
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::TakeoffAction;
@@ -38,10 +38,16 @@ public:
     std::string name = ros::this_node::getName());
 
 private:
-  tobas_msgs::PoseTwistConstPtr pt_;
+  mavros_msgs::SetModeRequest set_mode_req_;
+  mavros_msgs::SetModeResponse set_mode_res_;
+  mavros_msgs::CommandBoolRequest arming_req_;
+  mavros_msgs::CommandBoolResponse arming_res_;
+  mavros_msgs::CommandTOLRequest takeoff_req_;
+  mavros_msgs::CommandTOLResponse takeoff_res_;
 
-  ros::Publisher cmd_pub_;
-  ros::Subscriber pt_sub_;
+  ros::ServiceClient set_mode_ac_;
+  ros::ServiceClient arming_ac_;
+  ros::ServiceClient takeoff_ac_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
@@ -50,7 +56,6 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
 
   void executeCb(const GoalType& goal);
 };
