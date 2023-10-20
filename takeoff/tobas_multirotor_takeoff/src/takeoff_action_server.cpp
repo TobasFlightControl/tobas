@@ -9,16 +9,9 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-MultirotorTakeoffServer::MultirotorTakeoffServer(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+TakeoffActionServer::TakeoffActionServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
-    as_(
-      nh_,
-      tobas::kTakeoffAction,
-      boost::bind(&MultirotorTakeoffServer::executeCb, this, _1),
-      false)
+    as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
 
@@ -28,24 +21,22 @@ MultirotorTakeoffServer::MultirotorTakeoffServer(
   as_.start();
 }
 
-void MultirotorTakeoffServer::getRosParams()
+void TakeoffActionServer::getRosParams()
 {
 }
 
-void MultirotorTakeoffServer::registerPublishers()
+void TakeoffActionServer::registerPublishers()
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
 }
 
-void MultirotorTakeoffServer::registerSubscribers()
+void TakeoffActionServer::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &MultirotorTakeoffServer::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(
-    tobas::kPoseTwistTopic, 1, &MultirotorTakeoffServer::poseTwistCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
 }
 
-void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
+void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
@@ -57,12 +48,12 @@ void MultirotorTakeoffServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MultirotorTakeoffServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void TakeoffActionServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   pt_ = pt;
 }
 
-void MultirotorTakeoffServer::executeCb(const GoalType& goal)
+void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 

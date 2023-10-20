@@ -6,12 +6,12 @@
 
 namespace tobas_multirotor_takeoff
 {
-class MultirotorTakeoffServerNodelet : public nodelet::Nodelet
+class TakeoffActionServerNodelet : public nodelet::Nodelet
 {
 public:
   void onInit() override;
 
 private:
-  std::shared_ptr<MultirotorTakeoffServer> node_;
+  std::shared_ptr<TakeoffActionServer> node_;
 };
 }  // namespace tobas_multirotor_takeoff

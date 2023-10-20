@@ -6,7 +6,7 @@
 
   <!-- Takeff Action Server -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/MultirotorTakeoffServerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/TakeoffActionServerNodelet nodelet_manager" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">

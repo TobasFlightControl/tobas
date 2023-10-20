@@ -65,16 +65,19 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to connect to '" + kSetModeSrvName + "' service server.");
+    return;
   }
   if (!set_mode_ac_.call(set_mode_req_, set_mode_res_))
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to call '" + kSetModeSrvName + "'.");
+    return;
   }
   if (!set_mode_res_.mode_sent)
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to set flight mode.");
+    return;
   }
 
   // Arming
@@ -82,16 +85,19 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to connect to '" + kArmingSrvName + "' service server.");
+    return;
   }
   if (!arming_ac_.call(arming_req_, arming_res_))
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to call '" + kArmingSrvName + "'.");
+    return;
   }
   if (!arming_res_.success)
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to arm.");
+    return;
   }
 
   // Takeoff
@@ -99,16 +105,19 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
+    return;
   }
   if (!takeoff_ac_.call(takeoff_req_, takeoff_res_))
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to call '" + kTakeoffSrvName + "'.");
+    return;
   }
   if (!takeoff_res_.success)
   {
     result.error_code = ResultType::NOT_READY;
     as_.setAborted(result, "Failed to takeoff.");
+    return;
   }
 
   // Succeeded

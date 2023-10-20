@@ -15,7 +15,7 @@ namespace tobas_multirotor_takeoff
  * X,Y,Yawをアクション開始時の値に保ったままZのみを増やしていく．
  * cf. https://docs.px4.io/main/en/flight_modes/takeoff.html
  */
-class MultirotorTakeoffServer : public tobas::BaseNode
+class TakeoffActionServer : public tobas::BaseNode
 {
   static constexpr double kUpdateRate = 100.;                 // [Hz]
   static constexpr double kWaitForExternalActionServer = 3.;  // [s]
@@ -24,6 +24,7 @@ class MultirotorTakeoffServer : public tobas::BaseNode
   static constexpr double kTargetElevation = 2.;  // [m]
   static constexpr double kElevationSpeed = 1.;   // [m]
 
+  using self = TakeoffActionServer;
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::TakeoffAction;
@@ -32,7 +33,7 @@ class MultirotorTakeoffServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::TakeoffFeedback;
 
 public:
-  explicit MultirotorTakeoffServer(
+  explicit TakeoffActionServer(
     ros::NodeHandle nh,
     ros::NodeHandle pnh,
     std::string name = ros::this_node::getName());
