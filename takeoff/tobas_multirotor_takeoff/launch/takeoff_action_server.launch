@@ -1,21 +1,20 @@
 <launch>
 
   <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
 
   <arg name="node_name" value="takeoff_action_server"/>
 
-  <!-- Takeff Action Server -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/TakeoffActionServerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_takeoff/TakeoffActionServerNodelet nodelet_manager" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_multirotor_takeoff" type="takeoff_action_server_node" name="$(arg node_name)" output="screen"/>
+    <node pkg="tobas_multirotor_takeoff" type="takeoff_action_server_node" name="$(arg node_name)" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
   </group>
-
-  <!-- Wait For Stillness Action Server -->
-  <!-- <include file="$(find tobas_common_actions)/launch/wait_for_stillness.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include> -->
 
 </launch>
