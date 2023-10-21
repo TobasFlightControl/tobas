@@ -20,10 +20,6 @@ class TakeoffActionServer : public tobas::BaseNode
   static constexpr double kUpdateRate = 100.;                 // [Hz]
   static constexpr double kWaitForExternalActionServer = 3.;  // [s]
 
-  // TODO: ActionGoalで指定できるように
-  static constexpr double kTargetElevation = 2.;  // [m]
-  static constexpr double kElevationSpeed = 1.;   // [m]
-
   using self = TakeoffActionServer;
   using super = tobas::BaseNode;
 
@@ -40,6 +36,7 @@ public:
 
 private:
   tobas_msgs::PoseTwistConstPtr pt_;
+  ResultType result_;
 
   ros::Publisher cmd_pub_;
   ros::Subscriber pt_sub_;
@@ -49,6 +46,8 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  bool isGoalValid(const GoalType& goal);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);

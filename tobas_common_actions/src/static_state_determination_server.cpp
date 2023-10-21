@@ -103,7 +103,7 @@ void StaticStateDeterminationServer::fillResult()
   result_.gps.velocity_covariance = gps_sum_.velocity_covariance / sqr(gps_count);
 }
 
-bool StaticStateDeterminationServer::isValidGoal(const GoalType& goal)
+bool StaticStateDeterminationServer::isGoalValid(const GoalType& goal)
 {
   if (
     goal->gps_horizontal_position_stddev_threshold <= 0.
@@ -251,7 +251,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
-  if (!isValidGoal(goal))
+  if (!isGoalValid(goal))
   {
     return;
   }

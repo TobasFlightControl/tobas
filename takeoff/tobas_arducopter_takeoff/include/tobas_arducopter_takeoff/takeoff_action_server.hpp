@@ -16,14 +16,10 @@ class TakeoffActionServer : public tobas::BaseNode
   const std::string kArmingSrvName = "mavros/cmd/arming";
   const std::string kTakeoffSrvName = "mavros/cmd/takeoff";
 
-  static constexpr double kWaitForService = 1.;         // [s]
-  static constexpr double kWaitForArming = 1.;          // [s]
-  static constexpr double kRetryInterval = 3.;          // [s]
-  static constexpr double kTakeoffCheckThreshold = 2.;  // [m]
-
-  // TODO: ActionGoalで指定できるように
-  static constexpr double kTargetElevation = 5.;  // Check: kTakeoffCheckThresholdよりは大きい
-  static constexpr double kTimeout = 1e+9;
+  static constexpr double kWaitForService = 1.;            // [s]
+  static constexpr double kWaitForArming = 1.;             // [s]
+  static constexpr double kRetryInterval = 3.;             // [s]
+  static constexpr double kTakeoffCheckAltThreshold = 1.5;  // [m]
 
   using self = TakeoffActionServer;
   using super = tobas::BaseNode;
@@ -41,6 +37,8 @@ public:
 
 private:
   tobas_msgs::PoseTwistConstPtr pt_;
+  ResultType result_;
+  ros::Time action_called_time_;
 
   ros::Subscriber pt_sub_;
 
@@ -53,6 +51,14 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  bool isGoalValid(const GoalType& goal);
+  bool waitForServiceExistence();
+  bool waitForPoseTwistReceived(const double& timeout);
+  bool setMode(const double& timeout);
+  bool arming(const double& timeout);
+  bool takeoff(const double& timeout, const double& target_altitude);
+  void setSucceeded();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);

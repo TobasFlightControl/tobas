@@ -42,7 +42,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  bool isValidGoal(const GoalType& goal);
+  bool isGoalValid(const GoalType& goal);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void executeCb(const GoalType& goal);

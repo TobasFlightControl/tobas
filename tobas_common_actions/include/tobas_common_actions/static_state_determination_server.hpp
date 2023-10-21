@@ -67,7 +67,7 @@ private:
 
   void reset();
   void fillResult();
-  bool isValidGoal(const GoalType& goal);
+  bool isGoalValid(const GoalType& goal);
   bool isValidResult(const GoalType& goal);
   bool isStatic();
 

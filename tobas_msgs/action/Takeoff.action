@@ -1,5 +1,8 @@
 # goal
 tobas_msgs/CommandLevel level
+float64 target_altitude = 3.0          # [m]
+float64 target_elevation_speed = 1.0   # [m/s]
+float64 timeout = 1e+9                 # [s]
 
 ---
 

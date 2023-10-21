@@ -53,7 +53,7 @@ void FollowPositionYawTrajectoryServer::registerSubscribers()
     tobas::kEventTopic, 1, &FollowPositionYawTrajectoryServer::eventCb, this, tcpNoDelay());
 }
 
-bool FollowPositionYawTrajectoryServer::isValidGoal(const GoalType& goal)
+bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
 {
   const auto& waypoints = goal->waypoints;
 
@@ -122,7 +122,7 @@ void FollowPositionYawTrajectoryServer::eventCb(const tobas_msgs::EventConstPtr&
 
 void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
 {
-  if (!isValidGoal(goal))
+  if (!isGoalValid(goal))
   {
     return;
   }

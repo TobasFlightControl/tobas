@@ -46,7 +46,7 @@ void WaitForStillnessServer::reset()
   t_last_valid_velocity_ = ros::Time::now();
 }
 
-bool WaitForStillnessServer::isValidGoal(const GoalType& goal)
+bool WaitForStillnessServer::isGoalValid(const GoalType& goal)
 {
   if (goal->time_window <= ros::Duration(0.))
   {
@@ -221,7 +221,7 @@ void WaitForStillnessServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
-  if (!isValidGoal(goal))
+  if (!isGoalValid(goal))
   {
     return;
   }

@@ -43,7 +43,7 @@ private:
   void registerSubscribers() override;
 
   void reset();
-  bool isValidGoal(const GoalType& goal);
+  bool isGoalValid(const GoalType& goal);
   bool isConditionsMet();
   void fillResult();
 

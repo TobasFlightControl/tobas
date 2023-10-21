@@ -43,6 +43,224 @@ void TakeoffActionServer::registerSubscribers()
   pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
 }
 
+bool TakeoffActionServer::isGoalValid(const GoalType& goal)
+{
+  if (goal->target_altitude < kTakeoffCheckAltThreshold)
+  {
+    result_.error_code = ResultType::INVALID_GOAL;
+    as_.setAborted(
+      result_,
+      "Target elevation must be greater than " + to_string(kTakeoffCheckAltThreshold) + " [m].");
+    return false;
+  }
+
+  if (goal->timeout <= 0)
+  {
+    result_.error_code = ResultType::INVALID_GOAL;
+    as_.setAborted(result_, "Timeout must be positive.");
+    return false;
+  }
+
+  return true;
+}
+
+bool TakeoffActionServer::waitForServiceExistence()
+{
+  if (!set_mode_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
+    return false;
+  }
+
+  if (!arming_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
+    return false;
+  }
+
+  if (!takeoff_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
+    return false;
+  }
+
+  return true;
+}
+
+bool TakeoffActionServer::waitForPoseTwistReceived(const double& timeout)
+{
+  while (pt_ == nullptr)
+  {
+    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    {
+      result_.error_code = ResultType::TIMEOUT;
+      as_.setAborted(result_, "Timeout while setting flight mode.");
+      return false;
+    }
+
+    if (as_.isPreemptRequested())
+    {
+      result_.error_code = ResultType::PREEMPTED;
+      as_.setPreempted(result_);
+      return false;
+    }
+
+    rosWarnThrottle(
+      kRetryInterval, name_,
+      nh_.getNamespace() + "/" + tobas::kPoseTwistTopic + " is not received yet.");
+    ros::Duration(1e-2).sleep();
+    ros::spinOnce();
+  }
+
+  return true;
+}
+
+bool TakeoffActionServer::setMode(const double& timeout)
+{
+  rosInfo(name_, "Setting flight mode.");
+
+  mavros_msgs::SetMode set_mode_msg;
+  set_mode_msg.request.custom_mode = "GUIDED";
+  set_mode_msg.response.mode_sent = false;
+
+  while (!set_mode_msg.response.mode_sent)
+  {
+    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    {
+      result_.error_code = ResultType::TIMEOUT;
+      as_.setAborted(result_, "Timeout while setting flight mode.");
+      return false;
+    }
+
+    if (as_.isPreemptRequested())
+    {
+      result_.error_code = ResultType::PREEMPTED;
+      as_.setPreempted(result_);
+      return false;
+    }
+
+    if (!set_mode_ac_.call(set_mode_msg))
+    {
+      rosWarn(name_, "Failed to call '" + kSetModeSrvName + "'. Retrying...");
+      ros::Duration(kRetryInterval).sleep();
+      ros::spinOnce();
+      continue;
+    }
+
+    if (!set_mode_msg.response.mode_sent)
+    {
+      rosWarn(name_, "Failed to send mode. Retrying...");
+      ros::Duration(kRetryInterval).sleep();
+      ros::spinOnce();
+      continue;
+    }
+  }
+
+  return true;
+}
+
+bool TakeoffActionServer::arming(const double& timeout)
+{
+  rosInfo(name_, "Arming");
+
+  mavros_msgs::CommandBool arming_msg;
+  arming_msg.request.value = true;
+  arming_msg.response.success = false;
+
+  while (!arming_msg.response.success)
+  {
+    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    {
+      result_.error_code = ResultType::TIMEOUT;
+      as_.setAborted(result_, "Timeout while arming.");
+      return false;
+    }
+
+    if (as_.isPreemptRequested())
+    {
+      result_.error_code = ResultType::PREEMPTED;
+      as_.setPreempted(result_);
+      return false;
+    }
+
+    if (!arming_ac_.call(arming_msg))
+    {
+      rosWarn(name_, "Failed to call '" + kArmingSrvName + "'. Retrying...");
+      ros::Duration(kRetryInterval).sleep();
+      ros::spinOnce();
+      continue;
+    }
+
+    if (!arming_msg.response.success)
+    {
+      rosWarn(name_, "Arming failed. Retrying...");
+      ros::Duration(kRetryInterval).sleep();
+      ros::spinOnce();
+      continue;
+    }
+  }
+
+  ros::Duration(kWaitForArming).sleep();  // Armに若干時間がかかるため待機
+  return true;
+}
+
+bool TakeoffActionServer::takeoff(const double& timeout, const double& target_altitude)
+{
+  rosInfo(name_, "Takeoff");
+
+  mavros_msgs::CommandTOL takeoff_msg;
+  takeoff_msg.request.altitude = target_altitude;
+  // takeoff_msg.request.yaw = pt_->pose.euler.yaw + M_PI_2;  // ヨーは反映されない
+
+  // 最低1回は実行するためにDo-While文を用いる
+  do
+  {
+    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    {
+      result_.error_code = ResultType::TIMEOUT;
+      as_.setAborted(result_, "Timeout while takeoff.");
+      return false;
+    }
+
+    if (as_.isPreemptRequested())
+    {
+      result_.error_code = ResultType::PREEMPTED;
+      as_.setPreempted(result_);
+      return false;
+    }
+
+    if (!takeoff_ac_.call(takeoff_msg))
+    {
+      rosWarn(name_, "Failed to call '" + kTakeoffSrvName + "'. Retrying...");
+      ros::Duration(kRetryInterval).sleep();
+      ros::spinOnce();
+      continue;
+    }
+
+    if (!takeoff_msg.response.success)
+    {
+      rosWarn(name_, "Failed to takeoff. Retrying...");
+      ros::Duration(kRetryInterval).sleep();
+      ros::spinOnce();
+      continue;
+    }
+
+    ros::Duration(kRetryInterval).sleep();
+    ros::spinOnce();
+  } while (pt_->pose.pos.z() < kTakeoffCheckAltThreshold);
+
+  return true;
+}
+
+void TakeoffActionServer::setSucceeded()
+{
+  result_.error_code = ResultType::NO_ERROR;
+  as_.setSucceeded(result_);
+}
+
 void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -63,135 +281,26 @@ void TakeoffActionServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
+  action_called_time_ = ros::Time::now();
 
-  const auto start_time = ros::Time::now();
-  ResultType result;
-
-  if (pt_ == nullptr)
-  {
-    result.error_code = ResultType::NOT_READY;
-    as_.setAborted(
-      result, nh_.getNamespace() + "/" + tobas::kPoseTwistTopic + " is not received yet.");
+  if (!isGoalValid(goal))
     return;
-  }
 
-  // Check services existence
-  if (!set_mode_ac_.waitForExistence(ros::Duration(kWaitForService)))
-  {
-    result.error_code = ResultType::NOT_READY;
-    as_.setAborted(result, "Failed to connect to '" + kSetModeSrvName + "' service server.");
+  if (!waitForServiceExistence())
     return;
-  }
-  if (!arming_ac_.waitForExistence(ros::Duration(kWaitForService)))
-  {
-    result.error_code = ResultType::NOT_READY;
-    as_.setAborted(result, "Failed to connect to '" + kArmingSrvName + "' service server.");
+
+  if (!waitForPoseTwistReceived(goal->timeout))
     return;
-  }
-  if (!takeoff_ac_.waitForExistence(ros::Duration(kWaitForService)))
-  {
-    result.error_code = ResultType::NOT_READY;
-    as_.setAborted(result, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
+
+  if (!setMode(goal->timeout))
     return;
-  }
 
-  // Set mode
-  rosInfo(name_, "Setting flight mode.");
-  mavros_msgs::SetMode set_mode_msg;
-  set_mode_msg.request.custom_mode = "GUIDED";
-  set_mode_msg.response.mode_sent = false;
-  while (!set_mode_msg.response.mode_sent)
-  {
-    if ((ros::Time::now() - start_time).toSec() > kTimeout)
-    {
-      result.error_code = ResultType::TIMEOUT;
-      as_.setAborted(result, "Timeout while setting flight mode.");
-      return;
-    }
+  if (!arming(goal->timeout))
+    return;
 
-    if (!set_mode_ac_.call(set_mode_msg))
-    {
-      rosWarn(name_, "Failed to call '" + kSetModeSrvName + "'. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
-      continue;
-    }
+  if (!takeoff(goal->timeout, goal->target_altitude))
+    return;
 
-    if (!set_mode_msg.response.mode_sent)
-    {
-      rosWarn(name_, "Failed to send mode. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
-      continue;
-    }
-  }
-
-  // Arming
-  rosInfo(name_, "Arming");
-  mavros_msgs::CommandBool arming_msg;
-  arming_msg.request.value = true;
-  arming_msg.response.success = false;
-  while (!arming_msg.response.success)
-  {
-    if ((ros::Time::now() - start_time).toSec() > kTimeout)
-    {
-      result.error_code = ResultType::TIMEOUT;
-      as_.setAborted(result, "Timeout while arming.");
-      return;
-    }
-
-    if (!arming_ac_.call(arming_msg))
-    {
-      rosWarn(name_, "Failed to call '" + kArmingSrvName + "'. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
-      continue;
-    }
-
-    if (!arming_msg.response.success)
-    {
-      rosWarn(name_, "Arming failed. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
-      continue;
-    }
-  }
-  ros::Duration(kWaitForArming).sleep();  // Armに若干時間がかかるため待機
-
-  // Takeoff
-  rosInfo(name_, "Takeoff");
-  mavros_msgs::CommandTOL takeoff_msg;
-  takeoff_msg.request.altitude = kTargetElevation;
-  // takeoff_msg.request.yaw = pt_->pose.euler.yaw + M_PI_2;  // ヨーは反映されない
-  // 最低1回は実行するためにDo-While文を用いる
-  do
-  {
-    if ((ros::Time::now() - start_time).toSec() > kTimeout)
-    {
-      result.error_code = ResultType::TIMEOUT;
-      as_.setAborted(result, "Timeout while takeoff.");
-      return;
-    }
-
-    if (!takeoff_ac_.call(takeoff_msg))
-    {
-      rosWarn(name_, "Failed to call '" + kTakeoffSrvName + "'. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
-      continue;
-    }
-
-    if (!takeoff_msg.response.success)
-    {
-      rosWarn(name_, "Failed to takeoff. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
-      continue;
-    }
-  } while (pt_->pose.pos.z() < kTakeoffCheckThreshold);
-
-  // Succeeded
-  result.error_code = ResultType::NO_ERROR;
-  as_.setSucceeded(result);
+  setSucceeded();
 }
 }  // namespace tobas_arducopter_takeoff
