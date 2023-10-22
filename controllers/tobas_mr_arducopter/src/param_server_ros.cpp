@@ -3,6 +3,7 @@
 #include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_mr_arducopter/param_server_ros.hpp"
+#include "../include/tobas_mr_arducopter/constants.hpp"
 
 using namespace std;
 using namespace KDL;
@@ -14,16 +15,12 @@ ParamServerRos::ParamServerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string n
 {
   getRosParams();
 
-  param_set_msg_.request.value.integer = 0;
   param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrvName);
   if (!param_set_sc_.waitForExistence())
     ROS_THROW_NAMED(name_, "Failed to connect to '" << kParamSetSrvName << "' service server.");
 
   registerPublishers();
   registerSubscribers();
-
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
 }
 
 void ParamServerRos::getRosParams()
@@ -36,6 +33,60 @@ void ParamServerRos::registerPublishers()
 
 void ParamServerRos::registerSubscribers()
 {
+  local_pos_sub_ = nh_.subscribe("mavros/local_position/pose", 1, &self::localPositionCb, this);
+  param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);
+}
+
+void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
+{
+  for (const auto& param : cfg->ints)
+  {
+    if (dh_std::isClose(int_params_[param.name], param.value))
+      continue;
+
+    param_set_msg_.request.param_id = param.name;
+    param_set_msg_.request.value.integer = param.value;
+    param_set_msg_.request.value.real = 0;
+
+    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
+    {
+      int_params_[param.name] = param.value;
+    }
+    else
+    {
+      rosError(name_, "Failed to set " << param.name << ".");
+      ros::param::set(param.name, int_params_[param.name]);
+    }
+  }
+
+  for (const auto& param : cfg->doubles)
+  {
+    if (dh_std::isClose(double_params_[param.name], param.value))
+      continue;
+
+    param_set_msg_.request.param_id = param.name;
+    param_set_msg_.request.value.integer = 0;
+    param_set_msg_.request.value.real = param.value;
+
+    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
+    {
+      double_params_[param.name] = param.value;
+    }
+    else
+    {
+      rosError(name_, "Failed to set " << param.name << ".");
+      ros::param::set(param.name, double_params_[param.name]);
+    }
+  }
+}
+
+void ParamServerRos::setParamsMap(const dynamic_reconfigure::ConfigConstPtr& cfg)
+{
+  for (const auto& param : cfg->ints)
+    int_params_[param.name] = param.value;
+
+  for (const auto& param : cfg->doubles)
+    double_params_[param.name] = param.value;
 }
 
 void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -50,327 +101,45 @@ void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ParamServerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void ParamServerRos::localPositionCb(const geometry_msgs::PoseStampedConstPtr&)
 {
-  param_id_ = "ATC_ANG_RLL_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_ANG_RLL_P))
+  // 状態推定の開始を確認してから初期パラメータの設定を行う
+  if (is_first_local_pos_)
   {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_ANG_RLL_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
+    rosInfo(
+      name_, "First local position is received. The parameter server will be ready in "
+               << kActivationDelayFromFirstState << " seconds.");
+    is_first_local_pos_ = false;
+    set_init_params_timer_ = nh_.createTimer(
+      ros::Duration(kActivationDelayFromFirstState), &self::setInitParamsTimerCb, this, true);
+  }
+}
+
+void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& cfg)
+{
+  // サーバ起動時に呼ばれる最初のコールバックではパラメータの設定は行わず，値を保持しておく
+  if (is_first_update_)
+  {
+    init_cfg_ = cfg;
+    setParamsMap(cfg);
+    is_first_update_ = false;
+    return;
   }
 
-  param_id_ = "ATC_ANG_PIT_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_ANG_PIT_P))
+  if (!is_init_params_set_)
   {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_ANG_PIT_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
+    rosError(name_, "Parameter server is not ready.");
+    return;
   }
 
-  param_id_ = "ATC_ANG_YAW_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_ANG_YAW_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_ANG_YAW_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
+  setParams(cfg);
+  rosInfo(name_, "Parameters are updated.");
+}
 
-  param_id_ = "ATC_RAT_RLL_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_RLL_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_RLL_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_PIT_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_PIT_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_PIT_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_YAW_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_YAW_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_YAW_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_RLL_I";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_RLL_I))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_RLL_I;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_PIT_I";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_PIT_I))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_PIT_I;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_YAW_I";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_YAW_I))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_YAW_I;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_RLL_D";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_RLL_D))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_RLL_D;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_PIT_D";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_PIT_D))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_PIT_D;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_YAW_D";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_YAW_D))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_YAW_D;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_RLL_FF";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_RLL_FF))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_RLL_FF;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_PIT_FF";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_PIT_FF))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_PIT_FF;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "ATC_RAT_YAW_FF";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.ATC_RAT_YAW_FF))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.ATC_RAT_YAW_FF;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_POSZ_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_POSZ_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_POSZ_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELZ_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELZ_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELZ_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELZ_I";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELZ_I))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELZ_I;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELZ_D";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELZ_D))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELZ_D;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELZ_FF";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELZ_FF))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELZ_FF;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_ACCZ_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_ACCZ_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_ACCZ_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_ACCZ_I";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_ACCZ_I))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_ACCZ_I;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_ACCZ_D";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_ACCZ_D))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_ACCZ_D;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_ACCZ_FF";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_ACCZ_FF))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_ACCZ_FF;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_POSXY_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_POSXY_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_POSXY_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELXY_P";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELXY_P))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELXY_P;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELXY_I";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELXY_I))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELXY_I;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELXY_D";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELXY_D))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELXY_D;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  param_id_ = "PSC_VELXY_FF";
-  if (!params_.contains(param_id_) || !dh_std::isClose(params_[param_id_], cfg.PSC_VELXY_FF))
-  {
-    param_set_msg_.request.param_id = param_id_;
-    param_set_msg_.request.value.real = cfg.PSC_VELXY_FF;
-    if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
-      params_[param_id_] = param_set_msg_.response.value.real;
-    else
-      rosError(name_, "Failed to set " << param_id_ << ".");
-  }
-
-  rosInfo(name_, "Dynamic parameters are updated.");
+void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
+{
+  setParams(init_cfg_);
+  is_init_params_set_ = true;
+  rosInfo(name_, "Initial parameters are set.");
 }
 }  // namespace tobas_mr_arducopter

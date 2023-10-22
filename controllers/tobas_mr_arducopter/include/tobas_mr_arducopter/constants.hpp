@@ -10,6 +10,8 @@ static constexpr uint32_t kFdmPortIn = 9002;
 static constexpr uint32_t kFdmPortOut = 9003;
 static constexpr char kFdmAddr[] = "127.0.0.1";
 
+static constexpr double kActivationDelayFromFirstState = 5.;  // [s]
+
 // Default parameters
 static constexpr uint32_t kDefaultMaxConnectionTimeoutCount = 10;
 }  // namespace tobas_mr_arducopter
