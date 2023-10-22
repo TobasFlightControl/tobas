@@ -4,4 +4,8 @@
     <description>TODO</description>
   </class>
 
+  <class name="tobas_mr_arducopter/ParamServerNodelet" type="tobas_mr_arducopter::ParamServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
 </library>

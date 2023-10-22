@@ -4,7 +4,8 @@
   <arg name="ground_truth" default="false"/>
   <arg name="fcu_url" default="udp://127.0.0.1:14550@14555"/>
 
-  <arg name="node_name" value="tobas_mr_arducopter"/>
+  <arg name="controller_node_name" value="tobas_mr_arducopter"/>
+  <arg name="param_server_node_name" value="param_server"/>
 
   <!-- APM -->
   <!-- <include file="$(find mavros)/launch/apm.launch"> -->
@@ -23,12 +24,24 @@
 
   <!-- Controller -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen">
+    <node pkg="nodelet" type="nodelet" name="$(arg controller_node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen">
       <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
     </node>
   </group>
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_mr_arducopter" type="controller_node" name="$(arg node_name)" output="screen">
+    <node pkg="tobas_mr_arducopter" type="controller_node" name="$(arg controller_node_name)" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
+  </group>
+
+  <!-- Parameter Server -->
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg param_server_node_name)" args="load tobas_mr_arducopter/ParamServerNodelet nodelet_manager" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
+  </group>
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_mr_arducopter" type="param_server_node" name="$(arg param_server_node_name)" output="screen">
       <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
     </node>
   </group>
