@@ -41,7 +41,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 {
   for (const auto& param : cfg->ints)
   {
-    if (dh_std::isClose(int_params_[param.name], param.value))
+    if (int_params_[param.name] == param.value)
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -55,7 +55,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
     else
     {
       rosError(name_, "Failed to set " << param.name << ".");
-      ros::param::set(param.name, int_params_[param.name]);
+      pnh_.setParam(param.name, int_params_[param.name]);
     }
   }
 
@@ -75,7 +75,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
     else
     {
       rosError(name_, "Failed to set " << param.name << ".");
-      ros::param::set(param.name, double_params_[param.name]);
+      pnh_.setParam(param.name, double_params_[param.name]);
     }
   }
 }

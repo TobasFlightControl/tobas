@@ -4,8 +4,8 @@
   <arg name="ground_truth" default="false"/>
   <arg name="fcu_url" default="udp://127.0.0.1:14550@14555"/>
 
-  <arg name="controller_node_name" value="tobas_mr_arducopter"/>
-  <arg name="param_server_node_name" value="param_server"/>
+  <arg name="controller_node_name" value="arducopter_controller"/>
+  <arg name="param_server_node_name" value="arducopter_param_server"/>
 
   <!-- APM -->
   <!-- <include file="$(find mavros)/launch/apm.launch"> -->
