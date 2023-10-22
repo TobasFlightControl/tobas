@@ -8,4 +8,8 @@
     <description>TODO</description>
   </class>
 
+  <class name="tobas_mr_arducopter/TakeoffActionServerNodelet" type="tobas_mr_arducopter::TakeoffActionServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
 </library>

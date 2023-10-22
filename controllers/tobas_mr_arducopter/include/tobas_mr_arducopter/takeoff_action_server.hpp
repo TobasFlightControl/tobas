@@ -8,7 +8,7 @@
 
 #include <tobas_msgs/TakeoffAction.h>
 
-namespace tobas_arducopter_takeoff
+namespace tobas_mr_arducopter
 {
 class TakeoffActionServer : public tobas::BaseNode
 {
@@ -65,4 +65,4 @@ private:
 
   void executeCb(const GoalType& goal);
 };
-}  // namespace tobas_arducopter_takeoff
+}  // namespace tobas_mr_arducopter

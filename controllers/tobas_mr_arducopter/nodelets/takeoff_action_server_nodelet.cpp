@@ -2,7 +2,7 @@
 
 #include "./takeoff_action_server_nodelet.hpp"
 
-namespace tobas_arducopter_takeoff
+namespace tobas_mr_arducopter
 {
 void TakeoffActionServerNodelet::onInit()
 {
@@ -14,6 +14,6 @@ void TakeoffActionServerNodelet::onInit()
 
   node_.reset(new TakeoffActionServer(nh, pnh, name));
 }
-}  // namespace tobas_arducopter_takeoff
+}  // namespace tobas_mr_arducopter
 
-PLUGINLIB_EXPORT_CLASS(tobas_arducopter_takeoff::TakeoffActionServerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_mr_arducopter::TakeoffActionServerNodelet, nodelet::Nodelet);

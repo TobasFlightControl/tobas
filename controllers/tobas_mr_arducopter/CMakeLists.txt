@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	dynamic_reconfigure
+	actionlib
 	nodelet
 	pluginlib
 )
@@ -38,6 +39,7 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_tools
 		dynamic_reconfigure
+		actionlib
 		nodelet
 		pluginlib
 	# 	DEPENDS

@@ -7,11 +7,12 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/VelocityYaw.h>
 
-#include "../include/tobas_arducopter_takeoff/takeoff_action_server.hpp"
+#include "../include/tobas_mr_arducopter/takeoff_action_server.hpp"
+#include "../include/tobas_mr_arducopter/constants.hpp"
 
 using namespace std;
 
-namespace tobas_arducopter_takeoff
+namespace tobas_mr_arducopter
 {
 TakeoffActionServer::TakeoffActionServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
   : super(nh, pnh, name),
@@ -40,7 +41,7 @@ void TakeoffActionServer::registerPublishers()
 void TakeoffActionServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
-  local_pos_sub_ = nh_.subscribe("mavros/local_position/pose", 1, &self::localPositionCb, this);
+  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
 }
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
@@ -301,4 +302,4 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
 
   setSucceeded();
 }
-}  // namespace tobas_arducopter_takeoff
+}  // namespace tobas_mr_arducopter

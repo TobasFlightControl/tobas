@@ -19,7 +19,7 @@ namespace tobas_mr_arducopter
  */
 class ParamServerRos : public tobas::BaseNode
 {
-  const std::string kParamSetSrvName = "mavros/param/set";
+  static constexpr char kParamSetSrvName[] = "mavros/param/set";
 
   using self = ParamServerRos;
   using super = tobas::BaseNode;

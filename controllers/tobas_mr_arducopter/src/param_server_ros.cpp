@@ -33,7 +33,7 @@ void ParamServerRos::registerPublishers()
 
 void ParamServerRos::registerSubscribers()
 {
-  local_pos_sub_ = nh_.subscribe("mavros/local_position/pose", 1, &self::localPositionCb, this);
+  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
 
