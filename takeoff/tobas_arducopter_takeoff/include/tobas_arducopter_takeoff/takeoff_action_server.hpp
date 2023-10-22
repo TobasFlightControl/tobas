@@ -1,10 +1,10 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
 
 #include <tobas_msgs/TakeoffAction.h>
 
@@ -16,9 +16,9 @@ class TakeoffActionServer : public tobas::BaseNode
   const std::string kArmingSrvName = "mavros/cmd/arming";
   const std::string kTakeoffSrvName = "mavros/cmd/takeoff";
 
-  static constexpr double kWaitForService = 1.;            // [s]
-  static constexpr double kWaitForArming = 1.;             // [s]
-  static constexpr double kRetryInterval = 3.;             // [s]
+  static constexpr double kWaitForService = 1.;             // [s]
+  static constexpr double kWaitForArming = 1.;              // [s]
+  static constexpr double kRetryInterval = 3.;              // [s]
   static constexpr double kTakeoffCheckAltThreshold = 1.5;  // [m]
 
   using self = TakeoffActionServer;
@@ -36,11 +36,11 @@ public:
     std::string name = ros::this_node::getName());
 
 private:
-  tobas_msgs::PoseTwistConstPtr pt_;
+  geometry_msgs::PoseStampedConstPtr pose_;
   ResultType result_;
   ros::Time action_called_time_;
 
-  ros::Subscriber pt_sub_;
+  ros::Subscriber local_pos_sub_;
 
   ros::ServiceClient set_mode_sc_;
   ros::ServiceClient arming_sc_;
@@ -54,14 +54,14 @@ private:
 
   bool isGoalValid(const GoalType& goal);
   bool waitForServiceExistence();
-  bool waitForPoseTwistReceived(const double& timeout);
+  bool waitForPoseReceived(const double& timeout);
   bool setMode(const double& timeout);
   bool arming(const double& timeout);
   bool takeoff(const double& timeout, const double& target_altitude);
   void setSucceeded();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose);
 
   void executeCb(const GoalType& goal);
 };

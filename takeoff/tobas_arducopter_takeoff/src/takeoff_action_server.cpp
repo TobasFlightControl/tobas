@@ -40,7 +40,7 @@ void TakeoffActionServer::registerPublishers()
 void TakeoffActionServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  local_pos_sub_ = nh_.subscribe("mavros/local_position/pose", 1, &self::localPositionCb, this);
 }
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
@@ -90,9 +90,9 @@ bool TakeoffActionServer::waitForServiceExistence()
   return true;
 }
 
-bool TakeoffActionServer::waitForPoseTwistReceived(const double& timeout)
+bool TakeoffActionServer::waitForPoseReceived(const double& timeout)
 {
-  while (pt_ == nullptr)
+  while (pose_ == nullptr)
   {
     if ((ros::Time::now() - action_called_time_).toSec() > timeout)
     {
@@ -108,9 +108,7 @@ bool TakeoffActionServer::waitForPoseTwistReceived(const double& timeout)
       return false;
     }
 
-    rosWarnThrottle(
-      kRetryInterval, name_,
-      nh_.getNamespace() + "/" + tobas::kPoseTwistTopic + " is not received yet.");
+    rosInfoThrottle(kRetryInterval, name_, "Waiting for ArduCopter to be ready.");
     ros::Duration(1e-2).sleep();
     ros::spinOnce();
   }
@@ -211,9 +209,9 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
 {
   rosInfo(name_, "Takeoff");
 
+  // リクエストを作成．ヨーは反映されないため高度のみ指定．
   mavros_msgs::CommandTOL takeoff_msg;
   takeoff_msg.request.altitude = target_altitude;
-  // takeoff_msg.request.yaw = pt_->pose.euler.yaw + M_PI_2;  // ヨーは反映されない
 
   // 最低1回は実行するためにDo-While文を用いる
   do
@@ -250,7 +248,7 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
 
     ros::Duration(kRetryInterval).sleep();
     ros::spinOnce();
-  } while (pt_->pose.pos.z() < kTakeoffCheckAltThreshold);
+  } while (pose_->pose.position.z < kTakeoffCheckAltThreshold);
 
   return true;
 }
@@ -273,9 +271,9 @@ void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void TakeoffActionServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void TakeoffActionServer::localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose)
 {
-  pt_ = pt;
+  pose_ = pose;
 }
 
 void TakeoffActionServer::executeCb(const GoalType& goal)
@@ -289,7 +287,7 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   if (!waitForServiceExistence())
     return;
 
-  if (!waitForPoseTwistReceived(goal->timeout))
+  if (!waitForPoseReceived(goal->timeout))
     return;
 
   if (!setMode(goal->timeout))
