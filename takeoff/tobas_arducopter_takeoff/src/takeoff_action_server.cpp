@@ -19,9 +19,9 @@ TakeoffActionServer::TakeoffActionServer(ros::NodeHandle nh, ros::NodeHandle pnh
 {
   getRosParams();
 
-  set_mode_ac_ = nh_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
-  arming_ac_ = nh_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
-  takeoff_ac_ = nh_.serviceClient<mavros_msgs::CommandTOL>(kTakeoffSrvName);
+  set_mode_sc_ = nh_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
+  arming_sc_ = nh_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
+  takeoff_sc_ = nh_.serviceClient<mavros_msgs::CommandTOL>(kTakeoffSrvName);
 
   registerPublishers();
   registerSubscribers();
@@ -66,21 +66,21 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::waitForServiceExistence()
 {
-  if (!set_mode_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!set_mode_sc_.waitForExistence(ros::Duration(kWaitForService)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
     return false;
   }
 
-  if (!arming_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!arming_sc_.waitForExistence(ros::Duration(kWaitForService)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
     return false;
   }
 
-  if (!takeoff_ac_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!takeoff_sc_.waitForExistence(ros::Duration(kWaitForService)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
@@ -142,7 +142,7 @@ bool TakeoffActionServer::setMode(const double& timeout)
       return false;
     }
 
-    if (!set_mode_ac_.call(set_mode_msg))
+    if (!set_mode_sc_.call(set_mode_msg))
     {
       rosWarn(name_, "Failed to call '" + kSetModeSrvName + "'. Retrying...");
       ros::Duration(kRetryInterval).sleep();
@@ -186,7 +186,7 @@ bool TakeoffActionServer::arming(const double& timeout)
       return false;
     }
 
-    if (!arming_ac_.call(arming_msg))
+    if (!arming_sc_.call(arming_msg))
     {
       rosWarn(name_, "Failed to call '" + kArmingSrvName + "'. Retrying...");
       ros::Duration(kRetryInterval).sleep();
@@ -232,7 +232,7 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
       return false;
     }
 
-    if (!takeoff_ac_.call(takeoff_msg))
+    if (!takeoff_sc_.call(takeoff_msg))
     {
       rosWarn(name_, "Failed to call '" + kTakeoffSrvName + "'. Retrying...");
       ros::Duration(kRetryInterval).sleep();

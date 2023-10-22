@@ -7,7 +7,8 @@
   <arg name="node_name" value="tobas_mr_arducopter"/>
 
   <!-- APM -->
-  <include file="$(find mavros)/launch/apm.launch">
+  <!-- <include file="$(find mavros)/launch/apm.launch"> -->
+  <include file="$(find tobas_mr_arducopter)/launch/apm.launch">
     <arg name="fcu_url" value="$(arg fcu_url)"/>
     <arg name="respawn_mavros" value="true"/>
   </include>

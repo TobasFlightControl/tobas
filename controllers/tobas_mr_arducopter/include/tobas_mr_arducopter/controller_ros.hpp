@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
+#include <mavros_msgs/ParamSet.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PoseTwist.h>
@@ -11,8 +12,14 @@
 
 namespace tobas_mr_arducopter
 {
+/**
+ * @brief ArduCopter Controller \n
+ * cf. [ArduPilot Gazebo Plugin](https://github.com/ArduPilot/ardupilot_gazebo)
+ */
 class ControllerRos : public tobas::BaseNode
 {
+  const std::string kParamSetSrvName = "mavros/param/set";
+
   using self = ControllerRos;
   using super = tobas::BaseNode;
 
@@ -46,6 +53,11 @@ private:
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
+
+  std::string param_id_;
+  std::unordered_map<std::string, double> params_;
+  mavros_msgs::ParamSet param_set_msg_;
+  ros::ServiceClient param_set_sc_;
 
   void getRosParams() override;
   void registerPublishers() override;

@@ -42,9 +42,9 @@ private:
 
   ros::Subscriber pt_sub_;
 
-  ros::ServiceClient set_mode_ac_;
-  ros::ServiceClient arming_ac_;
-  ros::ServiceClient takeoff_ac_;
+  ros::ServiceClient set_mode_sc_;
+  ros::ServiceClient arming_sc_;
+  ros::ServiceClient takeoff_sc_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
