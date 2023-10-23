@@ -67,6 +67,11 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(
     pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
+
+  // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
+  if (do_acc_bias_estimation_ && do_grav_estimation_)
+    ROS_THROW_NAMED(
+      name_, "You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
 void ErrorStateKalmanFilterRos::registerPublishers()
