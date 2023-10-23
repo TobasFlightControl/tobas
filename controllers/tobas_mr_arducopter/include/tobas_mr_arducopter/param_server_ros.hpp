@@ -2,6 +2,8 @@
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_reconfigure/Config.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <mavros_msgs/State.h>
+#include <mavros_msgs/CompanionProcessStatus.h>
 #include <mavros_msgs/ParamSet.h>
 
 #include <tobas_tools/node.hpp>
@@ -20,6 +22,7 @@ namespace tobas_mr_arducopter
 class ParamServerRos : public tobas::BaseNode
 {
   static constexpr char kParamSetSrvName[] = "mavros/param/set";
+  static constexpr double kActivationDelayFromFirstPose = 5.;  // [s]
 
   using self = ParamServerRos;
   using super = tobas::BaseNode;
@@ -34,7 +37,6 @@ public:
     std::string name = ros::this_node::getName());
 
 private:
-  bool is_first_local_pos_ = true;
   bool is_first_update_ = true;
   bool is_init_params_set_ = false;
   dynamic_reconfigure::ConfigConstPtr init_cfg_;
@@ -44,10 +46,14 @@ private:
   mavros_msgs::ParamSet param_set_msg_;
   ros::ServiceClient param_set_sc_;
 
+  ros::Subscriber state_sub_;
   ros::Subscriber local_pos_sub_;
   ros::Subscriber param_updates_sub_;
 
+  ros::Timer config_timer_;
+  ros::Timer set_init_config_timer_;
   ros::Timer set_init_params_timer_;
+
   ConfigServer server_;
 
   void getRosParams() override;
@@ -58,9 +64,11 @@ private:
   void setParamsMap(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void stateCb(const mavros_msgs::StateConstPtr& state);
   void localPositionCb(const geometry_msgs::PoseStampedConstPtr&);
   void paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
+  void setInitConfigTimerCb(const ros::TimerEvent&);
   void setInitParamsTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_mr_arducopter

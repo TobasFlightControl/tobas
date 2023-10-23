@@ -33,6 +33,7 @@ void ParamServerRos::registerPublishers()
 
 void ParamServerRos::registerSubscribers()
 {
+  state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
@@ -101,18 +102,30 @@ void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
+void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
+{
+  if (state->system_status != mavros_msgs::CompanionProcessStatus::MAV_STATE_STANDBY)
+    return;
+
+  rosInfo(name_, "System status has become MAV_STATE_STANDBY.");
+  set_init_config_timer_ =
+    nh_.createTimer(ros::Duration(10), &self::setInitConfigTimerCb, this, true);
+
+  // Unsubscribe
+  state_sub_.shutdown();
+}
+
 void ParamServerRos::localPositionCb(const geometry_msgs::PoseStampedConstPtr&)
 {
   // 状態推定の開始を確認してから初期パラメータの設定を行う
-  if (is_first_local_pos_)
-  {
-    rosInfo(
-      name_, "First local position is received. The parameter server will be ready in "
-               << kActivationDelayFromFirstState << " seconds.");
-    is_first_local_pos_ = false;
-    set_init_params_timer_ = nh_.createTimer(
-      ros::Duration(kActivationDelayFromFirstState), &self::setInitParamsTimerCb, this, true);
-  }
+  rosInfo(
+    name_, "First local position is received. The parameter server will be ready in "
+             << kActivationDelayFromFirstPose << " seconds.");
+  set_init_params_timer_ = nh_.createTimer(
+    ros::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
+
+  // Unsubscribe
+  local_pos_sub_.shutdown();
 }
 
 void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& cfg)
@@ -134,6 +147,19 @@ void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& c
 
   setParams(cfg);
   rosInfo(name_, "Parameters are updated.");
+}
+
+void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
+{
+  // ARMING_CHECK
+  param_set_msg_.request.param_id = "ARMING_CHECK";
+  param_set_msg_.request.value.integer = (1 << 20);  // Disable all
+  param_set_msg_.request.value.real = 0;
+  while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
+  {
+    rosWarnThrottle(kWarnPeriod, name_, "Failed to set configuration. Retrying...");
+    ros::Duration(1).sleep();
+  }
 }
 
 void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
