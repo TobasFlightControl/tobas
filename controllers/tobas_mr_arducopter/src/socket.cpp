@@ -38,6 +38,7 @@ bool ArduPilotSocket::bind(const char* _address, const uint16_t _port)
     close(fd_);
     return false;
   }
+
   int one = 1;
   setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&one), sizeof(one));
 
@@ -56,6 +57,7 @@ bool ArduPilotSocket::connect(const char* _address, const uint16_t _port)
     close(fd_);
     return false;
   }
+
   int one = 1;
   setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&one), sizeof(one));
 
@@ -80,7 +82,7 @@ ssize_t ArduPilotSocket::send(const void* _buf, size_t _size)
   return ::send(fd_, _buf, _size, 0);
 }
 
-ssize_t ArduPilotSocket::recv(void* _buf, const size_t _size, uint32_t _timeoutMs)
+ssize_t ArduPilotSocket::recv(void* _buf, const size_t _size, uint32_t _timeout_ms)
 {
   fd_set fds;
   struct timeval tv;
@@ -88,13 +90,11 @@ ssize_t ArduPilotSocket::recv(void* _buf, const size_t _size, uint32_t _timeoutM
   FD_ZERO(&fds);
   FD_SET(fd_, &fds);
 
-  tv.tv_sec = _timeoutMs / 1000;
-  tv.tv_usec = (_timeoutMs % 1000) * 1000UL;
+  tv.tv_sec = _timeout_ms / 1000;
+  tv.tv_usec = (_timeout_ms % 1000) * 1000;
 
   if (select(fd_ + 1, &fds, NULL, NULL, &tv) != 1)
-  {
     return -1;
-  }
 
   return ::recv(fd_, _buf, _size, 0);
 }

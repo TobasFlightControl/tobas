@@ -34,8 +34,8 @@ public:
   /// \brief Receive data
   /// \param[out] _buf Buffer that receives the data.
   /// \param[in] _size Size of the buffer.
-  /// \param[in] _timeoutMS Milliseconds to wait for data.
-  ssize_t recv(void* _buf, const size_t _size, uint32_t _timeoutMs);
+  /// \param[in] _timeout_ms Milliseconds to wait for data.
+  ssize_t recv(void* _buf, const size_t _size, uint32_t _timeout_ms);
 
 private:
   int fd_;
