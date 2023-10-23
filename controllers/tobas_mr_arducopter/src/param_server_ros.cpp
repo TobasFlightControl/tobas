@@ -109,7 +109,7 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
 
   rosInfo(name_, "System status has become MAV_STATE_STANDBY.");
   set_init_config_timer_ =
-    nh_.createTimer(ros::Duration(10), &self::setInitConfigTimerCb, this, true);
+    nh_.createTimer(ros::Duration(20), &self::setInitConfigTimerCb, this, true);
 
   // Unsubscribe
   state_sub_.shutdown();
