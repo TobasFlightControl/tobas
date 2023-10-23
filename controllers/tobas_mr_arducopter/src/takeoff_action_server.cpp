@@ -42,6 +42,8 @@ void TakeoffActionServer::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
+  param_server_state_sub_ =
+    nh_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);
 }
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
@@ -91,9 +93,9 @@ bool TakeoffActionServer::waitForServiceExistence()
   return true;
 }
 
-bool TakeoffActionServer::waitForPoseReceived(const double& timeout)
+bool TakeoffActionServer::waitForParamServer(const double& timeout)
 {
-  while (pose_ == nullptr)
+  while (!is_param_server_ok_)
   {
     if ((ros::Time::now() - action_called_time_).toSec() > timeout)
     {
@@ -277,6 +279,11 @@ void TakeoffActionServer::localPositionCb(const geometry_msgs::PoseStampedConstP
   pose_ = pose;
 }
 
+void TakeoffActionServer::paramServerStateCb(const std_msgs::BoolConstPtr& state)
+{
+  is_param_server_ok_ = state->data;
+}
+
 void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
@@ -288,7 +295,7 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   if (!waitForServiceExistence())
     return;
 
-  if (!waitForPoseReceived(goal->timeout))
+  if (!waitForParamServer(goal->timeout))
     return;
 
   if (!setMode(goal->timeout))

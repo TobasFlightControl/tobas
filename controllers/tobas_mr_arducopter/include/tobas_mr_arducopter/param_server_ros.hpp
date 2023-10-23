@@ -46,6 +46,7 @@ private:
   mavros_msgs::ParamSet param_set_msg_;
   ros::ServiceClient param_set_sc_;
 
+  ros::Publisher server_state_pub_;
   ros::Subscriber state_sub_;
   ros::Subscriber local_pos_sub_;
   ros::Subscriber param_updates_sub_;

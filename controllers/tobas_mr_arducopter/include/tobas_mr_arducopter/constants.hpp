@@ -13,6 +13,8 @@ static constexpr char kFdmAddr[] = "127.0.0.1";
 static constexpr char kStateTopic[] = "mavros/state";
 static constexpr char kLocalPositionPoseTopic[] = "mavros/local_position/pose";
 
+static constexpr char kParamServerStateTopic[] = "param_server_state";
+
 // Default parameters
 static constexpr uint32_t kDefaultMaxConnectionTimeoutCount = 10;
 static constexpr double kWarnPeriod = 3.;  // [s]

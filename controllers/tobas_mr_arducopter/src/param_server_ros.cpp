@@ -1,3 +1,5 @@
+#include <std_msgs/Bool.h>
+
 #include <dh_std_tools/math.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -29,6 +31,7 @@ void ParamServerRos::getRosParams()
 
 void ParamServerRos::registerPublishers()
 {
+  server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
 }
 
 void ParamServerRos::registerSubscribers()
@@ -157,5 +160,10 @@ void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
   setParams(init_cfg_);
   is_init_params_set_ = true;
   rosInfo(name_, "Initial parameters are set.");
+
+  // サーバの準備が完了したことをROSメッセージで他のノードに伝える
+  auto server_state = boost::make_shared<std_msgs::Bool>();
+  server_state->data = true;
+  server_state_pub_.publish(server_state);
 }
 }  // namespace tobas_mr_arducopter

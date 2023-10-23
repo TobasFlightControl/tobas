@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <actionlib/server/simple_action_server.h>
 
@@ -36,11 +37,13 @@ public:
     std::string name = ros::this_node::getName());
 
 private:
+  bool is_param_server_ok_ = false;
   geometry_msgs::PoseStampedConstPtr pose_;
   ResultType result_;
   ros::Time action_called_time_;
 
   ros::Subscriber local_pos_sub_;
+  ros::Subscriber param_server_state_sub_;
 
   ros::ServiceClient set_mode_sc_;
   ros::ServiceClient arming_sc_;
@@ -54,7 +57,7 @@ private:
 
   bool isGoalValid(const GoalType& goal);
   bool waitForServiceExistence();
-  bool waitForPoseReceived(const double& timeout);
+  bool waitForParamServer(const double& timeout);
   bool setMode(const double& timeout);
   bool arming(const double& timeout);
   bool takeoff(const double& timeout, const double& target_altitude);
@@ -62,6 +65,7 @@ private:
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose);
+  void paramServerStateCb(const std_msgs::BoolConstPtr& state);
 
   void executeCb(const GoalType& goal);
 };
