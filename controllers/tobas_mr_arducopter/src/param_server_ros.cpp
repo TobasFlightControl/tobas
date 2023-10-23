@@ -42,7 +42,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 {
   for (const auto& param : cfg->ints)
   {
-    if (int_params_[param.name] == param.value)
+    if (ints_.contains(param.name) && ints_[param.name] == param.value)
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -51,18 +51,18 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 
     if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
     {
-      int_params_[param.name] = param.value;
+      ints_[param.name] = param.value;
     }
     else
     {
       rosError(name_, "Failed to set " << param.name << ".");
-      pnh_.setParam(param.name, int_params_[param.name]);
+      pnh_.setParam(param.name, ints_[param.name]);
     }
   }
 
   for (const auto& param : cfg->doubles)
   {
-    if (dh_std::isClose(double_params_[param.name], param.value))
+    if (doubles_.contains(param.name) && dh_std::isClose(doubles_[param.name], param.value))
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -71,23 +71,14 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 
     if (param_set_sc_.call(param_set_msg_) && param_set_msg_.response.success)
     {
-      double_params_[param.name] = param.value;
+      doubles_[param.name] = param.value;
     }
     else
     {
       rosError(name_, "Failed to set " << param.name << ".");
-      pnh_.setParam(param.name, double_params_[param.name]);
+      pnh_.setParam(param.name, doubles_[param.name]);
     }
   }
-}
-
-void ParamServerRos::setParamsMap(const dynamic_reconfigure::ConfigConstPtr& cfg)
-{
-  for (const auto& param : cfg->ints)
-    int_params_[param.name] = param.value;
-
-  for (const auto& param : cfg->doubles)
-    double_params_[param.name] = param.value;
 }
 
 void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -134,7 +125,6 @@ void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& c
   if (is_first_update_)
   {
     init_cfg_ = cfg;
-    setParamsMap(cfg);
     is_first_update_ = false;
     return;
   }

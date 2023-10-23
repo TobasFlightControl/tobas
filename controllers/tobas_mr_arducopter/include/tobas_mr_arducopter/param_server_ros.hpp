@@ -40,8 +40,8 @@ private:
   bool is_first_update_ = true;
   bool is_init_params_set_ = false;
   dynamic_reconfigure::ConfigConstPtr init_cfg_;
-  std::unordered_map<std::string, int> int_params_;
-  std::unordered_map<std::string, double> double_params_;
+  std::unordered_map<std::string, int> ints_;        // Int parameters
+  std::unordered_map<std::string, double> doubles_;  // Double parameters
 
   mavros_msgs::ParamSet param_set_msg_;
   ros::ServiceClient param_set_sc_;
@@ -61,7 +61,6 @@ private:
   void registerSubscribers() override;
 
   void setParams(const dynamic_reconfigure::ConfigConstPtr& cfg);
-  void setParamsMap(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void stateCb(const mavros_msgs::StateConstPtr& state);
