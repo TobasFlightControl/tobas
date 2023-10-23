@@ -100,6 +100,7 @@ class ErrorStateKalmanFilter(BaseObserver):
             "use_gps": gps.equipped(),
             "do_acc_bias_estimation": False,
             "do_gyro_bias_estimation": True,
+            "do_gravity_estimation": True,
             "check_covariance_convergence": True,
             self.GPS_HOR_POS_STDDEV_THRESHOLD: self.gps_hor_pos_stddev_threshold.get(),
             self.GPS_VER_POS_STDDEV_THRESHOLD: self.gps_ver_pos_stddev_threshold.get(),

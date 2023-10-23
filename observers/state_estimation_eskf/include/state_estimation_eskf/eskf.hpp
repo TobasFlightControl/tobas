@@ -32,7 +32,6 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    const Eigen::Vector3d& grav_W,
     const Eigen::Vector3d& mag_W,
     const Eigen::Vector3d& init_pos,
     const Eigen::Vector3d& init_vel,
@@ -41,7 +40,8 @@ public:
     const Eigen::Matrix3d& init_vel_cov,
     const Eigen::Matrix3d& init_dtheta_cov,
     const Eigen::Matrix3d& init_acc_bias_cov,
-    const Eigen::Matrix3d& init_gyro_bias_cov);
+    const Eigen::Matrix3d& init_gyro_bias_cov,
+    const double& init_grav_var);
 
   inline Eigen::Vector3d getPosition() const;
   inline Eigen::Vector3d getPosition(const Eigen::Vector3d& offset) const;
@@ -53,6 +53,8 @@ public:
   inline Eigen::Quaterniond getQuaternion() const;
   inline Eigen::Vector3d getAccelBias() const;
   inline Eigen::Vector3d getGyroBias() const;
+  inline double getGravity() const;
+  inline Eigen::Vector3d getGravVector() const;
   inline Eigen::Matrix3d getDCM() const;
   inline double getYaw() const;
 
@@ -61,6 +63,7 @@ public:
   inline Eigen::Matrix3d getOrientationCovariance() const;
   inline Eigen::Matrix3d getAccelBiasCovariance() const;
   inline Eigen::Matrix3d getGyroBiasCovariance() const;
+  inline double getGravityVariance() const;
 
   /**
    * @brief 加速度とジャイロから次の状態を予測する．
@@ -80,6 +83,7 @@ public:
     const double& gyro_noise_var,
     const double& acc_bias_noise_var,
     const double& gyro_bias_noise_var,
+    const double& grav_var,
     const double& dt);
 
   /**
@@ -153,10 +157,7 @@ public:
   measureMagneticField(const double& mag_meas_x, const double& mag_meas_y, const double& yaw_var);
 
 private:
-  bool is_initialized_ = false;
-
-  Eigen::Vector3d grav_W_;  // Acceleration due to gravity wrt. world frame [m/s^2]
-  Eigen::Vector3d mag_W_;   // Magnetic field wrt. world frame [T]
+  Eigen::Vector3d mag_W_;  // Magnetic field wrt. world frame [T]
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
@@ -242,6 +243,16 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias() const
   return x_.block<3, 1>(kGyroBiasIdx, 0);
 }
 
+inline double ErrorStateKalmanFilter::getGravity() const
+{
+  return x_(kGravIdx);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getGravVector() const
+{
+  return Eigen::Vector3d(0, 0, -getGravity());
+}
+
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM() const
 {
   return getQuaternion().toRotationMatrix();
@@ -276,6 +287,11 @@ inline Eigen::Matrix3d ErrorStateKalmanFilter::getAccelBiasCovariance() const
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getGyroBiasCovariance() const
 {
   return P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx);
+}
+
+inline double ErrorStateKalmanFilter::getGravityVariance() const
+{
+  return P_(kDeltaGravIdx, kDeltaGravIdx);
 }
 
 inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const

@@ -57,6 +57,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
     pnh_, "do_acc_bias_estimation", do_acc_bias_estimation_, kDefaultDoAccBiasEstimation);
   dh_ros::getParam(
     pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
+  dh_ros::getParam(pnh_, "do_gravity_estimation", do_grav_estimation_, kDefaultDoGravEstimation);
   dh_ros::getParam(
     pnh_, "check_covariance_convergence", check_covariance_convergence_,
     kDefaultCheckCovarianceConvergence);
@@ -115,19 +116,20 @@ void ErrorStateKalmanFilterRos::initialize()
 
   // ESKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
-  const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0.;
-  const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0.;
+  const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0;
+  const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0;
+  const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0;
   eskf_.initialize(
-    Vector3d(0., 0., -tobas::kGravity),                          // Gravity vector
-    Vector3d(mag.north, -mag.east, -mag.down),                   // Magnetic field (NWU)
-    Vector3d::Zero(),                                            // Init position
-    Vector3d::Zero(),                                            // Init velocity
-    q_0_,                                                        // Init quaternion
-    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),        // Init position cov
-    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),        // Init velocity cov
-    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),        // Init rotation cov
-    Vector3d::Constant(sqr(init_acc_bias_stddev)).asDiagonal(),  // Init accel bias cov
-    Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal()  // Init gyro bias cov
+    Vector3d(mag.north, -mag.east, -mag.down),                    // Magnetic field (NWU)
+    Vector3d::Zero(),                                             // Init position
+    Vector3d::Zero(),                                             // Init velocity
+    q_0_,                                                         // Init quaternion
+    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
+    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
+    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
+    Vector3d::Constant(sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
+    Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
+    sqr(init_grav_stddev)                                         // Init gravity var
   );
 
   // ヨー角の初期値
@@ -318,7 +320,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // 事前予測
       eskf_.predictIMU(
         acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
-        gyro_bias_noise_var_, dt);
+        gyro_bias_noise_var_, grav_noise_var_, dt);
 
       // 重力方向の観測
       eskf_.measureGravity(acc_meas_, grav_cov_);
@@ -388,8 +390,10 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       feedback->header = imu->header;
       feedback->acc_bias.data = eskf_.getAccelBias();
       feedback->gyro_bias.data = eskf_.getGyroBias();
+      feedback->gravity = eskf_.getGravity();
       et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
       et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
+      feedback->gravity_variance = eskf_.getGravityVariance();
       feedback_pub_.publish(feedback);
 
       break;
@@ -477,6 +481,7 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint
   yaw_var_ = cfg.yaw_variance;
   acc_bias_noise_var_ = do_acc_bias_estimation_ ? exp10(cfg.acc_bias_noise_var_log10) : 0;
   gyro_bias_noise_var_ = do_gyro_bias_estimation_ ? exp10(cfg.gyro_bias_noise_var_log10) : 0;
+  grav_noise_var_ = do_grav_estimation_ ? exp10(cfg.gravity_noise_var_log10) : 0;
 
   rosInfo(name_, "New dynamic parameters are set.");
 }

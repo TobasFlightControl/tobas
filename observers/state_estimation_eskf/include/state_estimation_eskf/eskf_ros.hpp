@@ -81,8 +81,9 @@ private:
   Eigen::Vector3d pos_meas_;
   Eigen::Matrix3d grav_cov_ = Eigen::Matrix3d::Zero();
   double yaw_var_;
-  double acc_bias_noise_var_;
-  double gyro_bias_noise_var_;
+  double acc_bias_noise_var_;   // 加速度バイアスののプロセスノイズの分散
+  double gyro_bias_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
+  double grav_noise_var_;       // 重力加速度のプロセスノイズの分散
 
   ErrorStateKalmanFilter eskf_;
 
@@ -91,6 +92,7 @@ private:
   bool use_gps_;
   bool do_acc_bias_estimation_;
   bool do_gyro_bias_estimation_;
+  bool do_grav_estimation_;
   bool check_covariance_convergence_;
   double gps_hor_pos_stddev_thr_;  // [m]
   double gps_ver_pos_stddev_thr_;  // [m]

@@ -1,6 +1,8 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/assert.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/state_estimation_eskf/eskf.hpp"
 
 #define I3 Matrix3d::Identity()
@@ -37,7 +39,6 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  const Vector3d& grav_W,
   const Vector3d& mag_W,
   const Vector3d& init_pos,
   const Vector3d& init_vel,
@@ -46,16 +47,16 @@ void ErrorStateKalmanFilter::initialize(
   const Matrix3d& init_vel_cov,
   const Matrix3d& init_dtheta_cov,
   const Matrix3d& init_acc_bias_cov,
-  const Matrix3d& init_gyro_bias_cov)
+  const Matrix3d& init_gyro_bias_cov,
+  const double& init_grav_var)
 {
-  assert(grav_W.z() < 0);
   assert(et::isSymmetricSemiPositiveDefinite(init_pos_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_vel_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_acc_bias_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
+  assert(init_grav_var >= 0);
 
-  grav_W_ = grav_W;
   mag_W_ = mag_W;
 
   // ノミナル状態を初期化
@@ -63,6 +64,7 @@ void ErrorStateKalmanFilter::initialize(
   x_.block<3, 1>(kPosIdx, 0) = init_pos;
   x_.block<3, 1>(kVelIdx, 0) = init_vel;
   x_.block<4, 1>(kQuatIdx, 0) = et::quaternionToHamilton(init_quat).normalized();
+  x_(kGravIdx) = tobas::kGravity;
 
   // 共分散行列を初期化
   P_.setZero();
@@ -71,15 +73,10 @@ void ErrorStateKalmanFilter::initialize(
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = init_dtheta_cov;
   P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = init_acc_bias_cov;
   P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = init_gyro_bias_cov;
+  P_(kDeltaGravIdx, kDeltaGravIdx) = init_grav_var;
 
   // (270) ヤコビアンの不変部分を埋める
-  F_x_.setZero();
-  F_x_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx).diagonal().setOnes();
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx).diagonal().setOnes();
-  F_x_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx).diagonal().setOnes();
-  F_x_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx).diagonal().setOnes();
-
-  is_initialized_ = true;
+  F_x_.setIdentity();
 }
 
 void ErrorStateKalmanFilter::predictIMU(
@@ -89,13 +86,14 @@ void ErrorStateKalmanFilter::predictIMU(
   const double& gyro_noise_var,
   const double& acc_bias_noise_var,
   const double& gyro_bias_noise_var,
+  const double& grav_var,
   const double& dt)
 {
-  assert(is_initialized_);
   assert(acc_noise_var >= 0);
   assert(gyro_noise_var >= 0);
   assert(acc_bias_noise_var >= 0);
   assert(gyro_bias_noise_var >= 0);
+  assert(grav_var >= 0);
   assert(dt > 0);  // クオータニオンの正規化のためにdt = 0を許容できない
 
   const Matrix3d Rot = getDCM();
@@ -106,9 +104,9 @@ void ErrorStateKalmanFilter::predictIMU(
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
-  // x_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + grav_W_) * sqr(dt);
+  // x_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * sqr(dt);
   x_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
-  x_.block<3, 1>(kVelIdx, 0) += (acc_W + grav_W_) * dt;
+  x_.block<3, 1>(kVelIdx, 0) += (acc_W + getGravVector()) * dt;
   x_.block<4, 1>(kQuatIdx, 0) =
     et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
 
@@ -116,6 +114,7 @@ void ErrorStateKalmanFilter::predictIMU(
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -Rot * et::crossMat(acc_B) * dt;
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -Rot * dt;
+  F_x_(kDeltaVelIdx + 2, kDeltaGravIdx) = -dt;
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
@@ -129,6 +128,7 @@ void ErrorStateKalmanFilter::predictIMU(
   P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += gyro_noise_var * sqr(dt);
   P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += acc_bias_noise_var;
   P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += gyro_bias_noise_var;
+  P_(kDeltaGravIdx, kDeltaGravIdx) += grav_var;
 
   // NaN検出
   assertWithMsg(et::isFinite(x_), "Nominal state:" << x_.transpose());
@@ -236,12 +236,13 @@ void ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const 
 
 void ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
 {
-  const Quaterniond Q_W_B = getQuaternion();
-  const Vector3d grav_B = Q_W_B.conjugate() * grav_W_;
+  const Matrix3d R_B_W = getDCM().transpose();
+  const Vector3d grav_B = R_B_W * getGravVector();
   const Vector3d acc_ref = getAccelBias() - grav_B;  // 動的な加速度なしで観測されるべき加速度
   const Vector3d delta_acc = acc_meas - acc_ref;
 
   H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::crossMat(grav_B);
+  H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
   correct<3>(delta_acc, grav_cov, H_acc_);
 }
 
@@ -260,7 +261,7 @@ void ErrorStateKalmanFilter::measureMagneticField(
   const double& mag_meas_y,
   const double& yaw_var)
 {
-  assert(yaw_var > 0.);
+  assert(yaw_var > 0);
 
   // Compute innovation
   const double yaw_meas = wrapPi(atan2(mag_W_.y(), mag_W_.x()) - atan2(mag_meas_y, mag_meas_x));
@@ -374,6 +375,7 @@ void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_stat
   x_.block<4, 1>(kQuatIdx, 0) = et::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
   x_.block<3, 1>(kAccBiasIdx, 0) += error_state.block<3, 1>(kDeltaAccBiasIdx, 0);
   x_.block<3, 1>(kGyroBiasIdx, 0) += error_state.block<3, 1>(kDeltaGyroBiasIdx, 0);
+  x_(kGravIdx) += error_state(kDeltaGravIdx);
 
   // (286) ESKFを初期化 (不要)
   // FIXME: これをやるとバグる問題．symmetriseを挟むと若干マシになるがそれでもやらないほうがマシ．

@@ -12,7 +12,8 @@ static constexpr uint32_t kVelIdx = kPosIdx + 3;
 static constexpr uint32_t kQuatIdx = kVelIdx + 3;
 static constexpr uint32_t kAccBiasIdx = kQuatIdx + 4;
 static constexpr uint32_t kGyroBiasIdx = kAccBiasIdx + 3;
-static constexpr uint32_t kStateSize = kGyroBiasIdx + 3;
+static constexpr uint32_t kGravIdx = kGyroBiasIdx + 3;
+static constexpr uint32_t kStateSize = kGravIdx + 1;
 
 // 誤差状態の添字
 static constexpr uint32_t kDeltaPosIdx = 0;
@@ -21,13 +22,15 @@ static constexpr uint32_t kDeltaVelIdx = kDeltaPosIdx + 3;
 static constexpr uint32_t kDeltaThetaIdx = kDeltaVelIdx + 3;
 static constexpr uint32_t kDeltaAccBiasIdx = kDeltaThetaIdx + 3;
 static constexpr uint32_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
-static constexpr uint32_t kDeltaStateSize = kDeltaGyroBiasIdx + 3;
+static constexpr uint32_t kDeltaGravIdx = kDeltaGyroBiasIdx + 3;
+static constexpr uint32_t kDeltaStateSize = kDeltaGravIdx + 1;
 
 // rosparamのデフォルト
 static constexpr bool kDefaultUseBarometer = true;
 static constexpr bool kDefaultUseGps = true;
 static constexpr bool kDefaultDoAccBiasEstimation = true;
 static constexpr bool kDefaultDoGyroBiasEstimation = true;
+static constexpr bool kDefaultDoGravEstimation = true;
 static constexpr bool kDefaultCheckCovarianceConvergence = true;
 static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]
 static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
@@ -39,6 +42,7 @@ static constexpr double kInitVelStddev = 1.;        // [m/s]
 static constexpr double kInitRotStddev = M_PI_4;    // [rad]
 static constexpr double kInitAccBiasStddev = 1.;    // [m/s^2]
 static constexpr double kInitGyroBiasStddev = 0.1;  // [rad/s]
+static constexpr double kInitGravStddev = 0.1;      // [m/s^2]
 
 // 状態を発行し始めるための標準偏差の閾値
 static constexpr double kHorPosStddevThreshold = 0.5;     // [m]
