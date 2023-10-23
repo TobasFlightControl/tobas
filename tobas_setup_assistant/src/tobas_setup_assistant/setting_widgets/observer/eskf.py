@@ -98,7 +98,7 @@ class ErrorStateKalmanFilter(BaseObserver):
         res["state_estimator_eskf"] = {
             "use_barometer": False,  # TODO: 選択できるように
             "use_gps": gps.equipped(),
-            "do_acc_bias_estimation": True,
+            "do_acc_bias_estimation": False,
             "do_gyro_bias_estimation": True,
             "check_covariance_convergence": True,
             self.GPS_HOR_POS_STDDEV_THRESHOLD: self.gps_hor_pos_stddev_threshold.get(),
