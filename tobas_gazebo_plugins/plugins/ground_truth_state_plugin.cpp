@@ -1,5 +1,6 @@
 #include <dh_std_tools/geometry.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PoseTwist.h>
 
 #include "./ground_truth_state_plugin.hpp"
@@ -35,7 +36,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
   }
 
   // Advertise publisher
-  pt_pub_ = nh_.advertise<tobas_msgs::PoseTwist>("/" + ns_ + "/" + kStatePubTopic, 1);
+  pt_pub_ = nh_.advertise<tobas_msgs::PoseTwist>("/" + ns_ + "/" + tobas::kPoseTwistGtTopic, 1);
 
   // Listen to the update event
   update_connection_ =

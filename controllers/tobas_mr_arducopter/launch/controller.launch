@@ -23,27 +23,11 @@
   </include>
 
   <!-- Controller -->
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg controller_node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen">
-      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
-    </node>
-  </group>
-  <group unless="$(arg nodelet)">
-    <node pkg="tobas_mr_arducopter" type="controller_node" name="$(arg controller_node_name)" output="screen">
-      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
-    </node>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg controller_node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen"/>
+  <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="controller_node" name="$(arg controller_node_name)" output="screen"/>
 
   <!-- Parameter Server -->
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg param_server_node_name)" args="load tobas_mr_arducopter/ParamServerNodelet nodelet_manager" output="screen">
-      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
-    </node>
-  </group>
-  <group unless="$(arg nodelet)">
-    <node pkg="tobas_mr_arducopter" type="param_server_node" name="$(arg param_server_node_name)" output="screen">
-      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
-    </node>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg param_server_node_name)" args="load tobas_mr_arducopter/ParamServerNodelet nodelet_manager" output="screen"/>
+  <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="param_server_node" name="$(arg param_server_node_name)" output="screen"/>
 
 </launch>

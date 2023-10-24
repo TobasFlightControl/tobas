@@ -134,12 +134,12 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     {
       if (!battery_received_)
       {
-        gzerr << kPluginName << ": " << ns_ << "/" << kBatteryGtTopic << " is not received yet."
-              << endl;
+        gzerr << kPluginName << ": " << ns_ << "/" << tobas::kBatteryGtTopic
+              << " is not received yet." << endl;
       }
       if (!wind_received_)
       {
-        gzerr << kPluginName << ": " << ns_ << "/" << kWindGtTopic << " is not received yet."
+        gzerr << kPluginName << ": " << ns_ << "/" << tobas::kWindGtTopic << " is not received yet."
               << endl;
       }
     }
@@ -189,10 +189,10 @@ void GazeboRotorPlugin::registerPubSub()
     "/" + ns_ + "/" + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + kBatteryGtTopic, 1, &self::batteryCb, this,
+    "/" + ns_ + "/" + tobas::kBatteryGtTopic, 1, &self::batteryCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this,
+    "/" + ns_ + "/" + tobas::kWindGtTopic, 1, &self::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 

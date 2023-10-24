@@ -37,7 +37,7 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboBatteryPlugin::registerPubSub()
 {
   battery_pub_ = nh_.advertise<tobas_msgs::Battery>("/" + ns_ + "/" + tobas::kBatteryTopic, 1);
-  battery_gt_pub_ = nh_.advertise<tobas_msgs::Battery>("/" + ns_ + "/" + kBatteryGtTopic, 1);
+  battery_gt_pub_ = nh_.advertise<tobas_msgs::Battery>("/" + ns_ + "/" + tobas::kBatteryGtTopic, 1);
 }
 
 void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)

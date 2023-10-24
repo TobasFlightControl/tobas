@@ -13,7 +13,6 @@ class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
   // Constants
   static constexpr char kPluginName[] = "ground_truth_state_plugin";
-  static constexpr char kStatePubTopic[] = "ground_truth/pose_twist";
 
   using self = GazeboGroundTruthStatePlugin;
   using super = ModelPlugin;

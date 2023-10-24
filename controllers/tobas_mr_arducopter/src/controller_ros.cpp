@@ -50,7 +50,8 @@ void ControllerRos::registerPublishers()
 void ControllerRos::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(
+    tobas::kPoseTwistGtTopic, 1, &self::poseTwistCb, this, tcpNoDelay());  // Ground Truthのみ
 }
 
 void ControllerRos::initializeSockets()
