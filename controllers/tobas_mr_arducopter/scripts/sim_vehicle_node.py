@@ -6,16 +6,17 @@ import subprocess
 
 
 class SimVehicleLauncher:
-    DEFAULT_FRAME_TYPE = "gazebo-iris"
-
     def __init__(self) -> None:
-        self._frame_type = rospy.get_param("~frame_type", self.DEFAULT_FRAME_TYPE)
-
-        self._timer = rospy.Timer(rospy.Duration(1e-3), self._run_sim_vehicle, oneshot=True)
+        self._timer = rospy.Timer(
+            rospy.Duration(1e-3), self._run_sim_vehicle, oneshot=True
+        )
 
     def _run_sim_vehicle(self, event) -> None:
+        # ArduCopterのシミュレータを起動
+        # フレームタイプ (-fオプション) の頭に"gazebo-"とつく場合はGazeboインターフェースが起動する模様
+        # Iris固有の設定は"ardupilot/Tools/autotest/default_params/gazebo-iris.parm"に書いてある
         subprocess.run(
-            f"sim_vehicle.py -v ArduCopter -f {self._frame_type}",
+            "sim_vehicle.py -v ArduCopter -f gazebo-iris -d 0 -w --ekf-single",
             shell=True,
             check=True,
         )
