@@ -29,7 +29,7 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 
 void ControllerRos::getRosParams()
 {
-  dh_ros::getParam(pnh_, "channels", channels_);
+  dh_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
   if (channels_.size() > kMaxMotors)
     ROS_THROW_NAMED(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
   if (!dh_std::isUnique(channels_))

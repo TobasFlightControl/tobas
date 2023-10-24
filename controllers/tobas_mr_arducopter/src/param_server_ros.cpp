@@ -1,11 +1,14 @@
 #include <std_msgs/Bool.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_mr_arducopter/param_server_ros.hpp"
 #include "../include/tobas_mr_arducopter/constants.hpp"
+
+#define RETRY_SLEEP 1
 
 using namespace std;
 using namespace KDL;
@@ -27,6 +30,8 @@ ParamServerRos::ParamServerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string n
 
 void ParamServerRos::getRosParams()
 {
+  dh_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
+  dh_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
 }
 
 void ParamServerRos::registerPublishers()
@@ -144,14 +149,34 @@ void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& c
 
 void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
 {
+  // FRAME_CLASS
+  param_set_msg_.request.param_id = kFrameClass;
+  param_set_msg_.request.value.integer = frame_class_;
+  param_set_msg_.request.value.real = 0;
+  while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
+  {
+    rosWarnThrottle(kWarnPeriod, name_, "Failed to set " << kFrameClass << ". Retrying...");
+    ros::Duration(RETRY_SLEEP).sleep();
+  }
+
+  // FRAME_TYPE
+  param_set_msg_.request.param_id = kFrameType;
+  param_set_msg_.request.value.integer = frame_type_;
+  param_set_msg_.request.value.real = 0;
+  while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
+  {
+    rosWarnThrottle(kWarnPeriod, name_, "Failed to set " << kFrameType << ". Retrying...");
+    ros::Duration(RETRY_SLEEP).sleep();
+  }
+
   // ARMING_CHECK
-  param_set_msg_.request.param_id = "ARMING_CHECK";
+  param_set_msg_.request.param_id = kArmingCheck;
   param_set_msg_.request.value.integer = (1 << 20);  // Disable all
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    rosWarnThrottle(kWarnPeriod, name_, "Failed to set configuration. Retrying...");
-    ros::Duration(1).sleep();
+    rosWarnThrottle(kWarnPeriod, name_, "Failed to set " << kArmingCheck << ". Retrying...");
+    ros::Duration(RETRY_SLEEP).sleep();
   }
 }
 

@@ -332,7 +332,7 @@ class ArduCopter(BaseController):
     @overrides
     def parameter_dict(self) -> dict:
         return {
-            "arducopter_controller": {
+            "arducopter": {
                 "frame_class": self._selected().class_id(),
                 "frame_type": self._selected().type_id(),
                 "channels": self._channels.channels(),

@@ -37,6 +37,10 @@ public:
     std::string name = ros::this_node::getName());
 
 private:
+  // rosparams
+  int frame_class_;
+  int frame_type_;
+
   bool is_first_update_ = true;
   bool is_init_params_set_ = false;
   dynamic_reconfigure::ConfigConstPtr init_cfg_;
