@@ -10,6 +10,8 @@ ROSLAUNCH_TIMEOUT = 5  # [s]
 # ConfigParser
 CONFIG_PATH = osp.join(osp.expanduser("~"), ".config/tobas_setup_assistant/config.ini")
 DEFAULT = "DEFAULT"
+CW = "CW"
+CCW = "CCW"
 
 # Point Sizes
 TITLE_PSIZE = 18

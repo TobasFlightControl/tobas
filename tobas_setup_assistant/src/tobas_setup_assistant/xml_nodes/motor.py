@@ -1,6 +1,8 @@
 from xml.etree import ElementTree as ET
 from typing import Tuple
 
+from ..common import *
+
 
 class MotorModel(ET.Element):
     def __init__(
@@ -17,7 +19,7 @@ class MotorModel(ET.Element):
         time_const_up: float,
         time_const_down: float,
     ) -> None:
-        assert direction in {"cw", "ccw"}, direction
+        assert direction.upper() in {CW, CCW}, direction
         assert rot_speed_coefs[0] >= 0.0 and rot_speed_coefs[1] >= 0.0
         assert motor_const >= 0.0, motor_const
         assert moment_const >= 0.0, moment_const
@@ -35,7 +37,7 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "motorNumber").text = str(motor_number)
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "jointName").text = joint_name
-        ET.SubElement(plugin, "turningDirection").text = direction
+        ET.SubElement(plugin, "turningDirection").text = direction.lower()
         ET.SubElement(plugin, "rotSpeedCoefficients").text = " ".join(
             map(str, rot_speed_coefs)
         )

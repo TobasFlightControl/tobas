@@ -32,8 +32,6 @@ private:
   ArduPilotSocket socket_out_;
 
   // rosparam
-  uint32_t max_connection_timeout_count_;
-  uint32_t num_rotors_;
   std::vector<int> channels_;  // ArduPilotにおける各モータのチャンネル
 
   // Publishers

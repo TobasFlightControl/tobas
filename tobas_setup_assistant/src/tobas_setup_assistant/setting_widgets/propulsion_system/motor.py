@@ -80,7 +80,7 @@ class MotorWidget(QWidget):
             raise RuntimeError()
 
     def direction(self) -> str:
-        """'cw' or 'ccw'"""
+        """CW or CCW"""
         return self._selected().direction()
 
     def time_const_up(self) -> float:
@@ -153,7 +153,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
             direction_description,
-            ["CW", "CCW"],
+            [CW, CCW],
         )
         self._rows.addWidget(self._direction)
 
@@ -194,8 +194,8 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
 
     @final
     def direction(self) -> str:
-        """'cw' or 'ccw'"""
-        return self._direction.get().lower()
+        """CW or CCW"""
+        return self._direction.get()
 
     @final
     def time_const_up(self) -> float:

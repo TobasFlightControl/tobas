@@ -89,25 +89,30 @@ class SelectedLinksWidget(TabWidget):
     def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
         return self.get_tab(link_name).aerodynamics
 
+    def link_name(self, rotor_idx: int) -> str:
+        tab: SelectedLinkTabWidget = self.widget(rotor_idx)
+        return tab.link_name()
+
     def link_names(self) -> List[str]:
         """選択テーブル内のリンクの名前のリストを返す．"""
-        res = []
-        for idx in range(self.count()):
-            tab: SelectedLinkTabWidget = self.widget(idx)
-            res.append(tab.link_name())
-        return res
+        return [self.link_name(i) for i in range(self.count())]
+
+    def joint_name(self, rotor_idx: int) -> str:
+        tab: SelectedLinkTabWidget = self.widget(rotor_idx)
+        return tab.joint_name()
 
     def joint_names(self) -> List[str]:
         """選択テーブル内のジョイントの名前のリストを返す．"""
-        res = []
-        for idx in range(self.count()):
-            tab: SelectedLinkTabWidget = self.widget(idx)
-            res.append(tab.joint_name())
-        return res
+        return [self.joint_name(i) for i in range(self.count())]
+
+    def direction(self, rotor_idx: int) -> str:
+        """CW or CCW"""
+        tab: SelectedLinkTabWidget = self.widget(rotor_idx)
+        return tab.motor.direction()
 
     def directions(self) -> List[str]:
-        """選択テーブル内の回転方向 ('cw' or 'ccw') のリストを返す．"""
-        return [self.widget(i).motor.direction() for i in range(self.count())]
+        """選択テーブル内の回転方向 (CW or CCW) のリストを返す．"""
+        return [self.direction(i) for i in range(self.count())]
 
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:

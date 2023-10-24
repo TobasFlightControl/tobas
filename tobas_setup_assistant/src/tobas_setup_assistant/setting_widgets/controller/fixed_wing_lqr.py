@@ -136,6 +136,10 @@ class FixedWingLQR(BaseController):
         self._rows.addWidget(self._deflection_rate_weight_log10)
 
     @overrides
+    def define_connections(self) -> None:
+        super().define_connections()
+
+    @overrides
     def is_applicable(self) -> bool:
         # 固定翼を持つ
         fixed_wing = self._main.settings.fixed_wing

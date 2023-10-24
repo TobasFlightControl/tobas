@@ -145,7 +145,7 @@ class SelectedPropellersWidget(QTableWidget):
         self.setCellWidget(row, 1, joint_name)
 
         direction = ComboBox()
-        direction.addItems(["CW", "CCW"])
+        direction.addItems([CW, CCW])
         self.directions.append(direction)
         self.setCellWidget(row, 2, direction)
 

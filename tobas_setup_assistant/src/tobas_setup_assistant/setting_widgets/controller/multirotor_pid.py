@@ -37,6 +37,10 @@ class MultirotorPid(BaseController):
         # TODO: 設定項目
 
     @overrides
+    def define_connections(self) -> None:
+        super().define_connections()
+
+    @overrides
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing

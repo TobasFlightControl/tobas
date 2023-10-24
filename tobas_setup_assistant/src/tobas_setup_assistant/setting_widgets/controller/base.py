@@ -47,6 +47,7 @@ class BaseController(QWidget):
         self.flight_modes.set_num_modes(DEFAULT_NUM_FLIGHT_MODES, self.COMMAND_MSGS)
         self._rows.addWidget(self.flight_modes)
 
+    @abstractmethod
     def define_connections(self) -> None:
         self._main.signals.num_modes_updated.connect(self._on_num_modes_updated)
 
@@ -126,7 +127,6 @@ class FlightModesWidget(QWidget):
     def mode_names(self) -> List[str]:
         res = []
         for i in range(self._form.rowCount()):
-            item = self._form.itemAt(i, FormLayout.FieldRole)  # 2列目 (Field) を指定
-            combo: ComboBox = item.widget()
+            combo: ComboBox = self._form.get_widget(i)
             res.append(combo.currentText())
         return res

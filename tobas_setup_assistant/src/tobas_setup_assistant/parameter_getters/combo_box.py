@@ -20,21 +20,24 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
     ) -> None:
         super().__init__(param_name, description_text)
 
-        self.box = ComboBox()
-        self._rows.addWidget(self.box)
+        self._box = ComboBox()
+        self._rows.addWidget(self._box)
 
-        self.box.addItems(choices)
+        self._box.addItems(choices)
 
         if default is not None:
-            self.box.setCurrentText(default)
+            self._box.setCurrentText(default)
 
-        self.box.currentTextChanged.connect(self._on_text_changed)
+        self._box.currentTextChanged.connect(self._on_text_changed)
 
     def get(self) -> str:
-        return self.box.currentText()
+        return self._box.currentText()
 
     def set(self, text: str) -> None:
-        self.box.setCurrentText(text)
+        self._box.setCurrentText(text)
+
+    def cur_index(self) -> int:
+        return self._box.currentIndex()
 
     @pyqtSlot(str)
     def _on_text_changed(self, text: str) -> None:

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from typing import List
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -19,6 +20,7 @@ from .base import BaseController
 from .multirotor_pid import MultirotorPid
 from .multirotor_mpc import MultirotorMpc
 from .fixed_wing_lqr import FixedWingLQR
+from .arducopter import ArduCopter
 
 
 class ControllerWidget(BaseSettingWidget):
@@ -39,14 +41,14 @@ class ControllerWidget(BaseSettingWidget):
         self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
-        self._mr_pid = MultirotorPid(main)
-        self._rows.addWidget(self._mr_pid)
-
-        self._mr_mpc = MultirotorMpc(main)
-        self._rows.addWidget(self._mr_mpc)
-
-        self._fw_lqr = FixedWingLQR(main)
-        self._rows.addWidget(self._fw_lqr)
+        self._controllers: List[BaseController] = [
+            MultirotorPid(main),
+            MultirotorMpc(main),
+            ArduCopter(main),
+            FixedWingLQR(main),
+        ]
+        for controller in self._controllers:
+            self._rows.addWidget(controller)
 
         add_expanding_widget(self._rows)
         self._update_visibility()
@@ -57,9 +59,8 @@ class ControllerWidget(BaseSettingWidget):
         self._type.currentTextChanged.connect(self._on_type_changed)
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
 
-        self._mr_pid.define_connections()
-        self._mr_mpc.define_connections()
-        self._fw_lqr.define_connections()
+        for controller in self._controllers:
+            controller.define_connections()
 
     @overrides
     def is_valid(self) -> bool:
@@ -77,14 +78,12 @@ class ControllerWidget(BaseSettingWidget):
 
         if controller_type == self.NO_SELECT:
             raise RuntimeError("Controller type is not selected.")
-        elif controller_type == MultirotorPid.NAME:
-            return self._mr_pid
-        elif controller_type == MultirotorMpc.NAME:
-            return self._mr_mpc
-        elif controller_type == FixedWingLQR.NAME:
-            return self._fw_lqr
-        else:
-            raise RuntimeError(f"Invalid controller type: {controller_type}")
+
+        for controller in self._controllers:
+            if controller_type == controller.NAME:
+                return controller
+
+        raise RuntimeError(f"Invalid controller type: {controller_type}")
 
     def get_type(self) -> str:
         return self._type.currentText()
@@ -99,29 +98,15 @@ class ControllerWidget(BaseSettingWidget):
         return self.selected().LANDING_PKG
 
     def _update_controller_types(self) -> None:
-        if self._mr_pid.is_applicable():
-            if not self._type.contains(MultirotorPid.NAME):
-                self._type.addItem(MultirotorPid.NAME)
-        else:
-            if self._type.contains(MultirotorPid.NAME):
-                self._type.setCurrentText(self.NO_SELECT)
-                self._type.remove_text(MultirotorPid.NAME)
-
-        if self._mr_mpc.is_applicable():
-            if not self._type.contains(MultirotorMpc.NAME):
-                self._type.addItem(MultirotorMpc.NAME)
-        else:
-            if self._type.contains(MultirotorMpc.NAME):
-                self._type.setCurrentText(self.NO_SELECT)
-                self._type.remove_text(MultirotorMpc.NAME)
-
-        if self._fw_lqr.is_applicable():
-            if not self._type.contains(FixedWingLQR.NAME):
-                self._type.addItem(FixedWingLQR.NAME)
-        else:
-            if self._type.contains(FixedWingLQR.NAME):
-                self._type.setCurrentText(self.NO_SELECT)
-                self._type.remove_text(FixedWingLQR.NAME)
+        for controller in self._controllers:
+            name = controller.NAME
+            if controller.is_applicable():
+                if not self._type.contains(name):
+                    self._type.addItem(name)
+            else:
+                if self._type.contains(name):
+                    self._type.setCurrentText(self.NO_SELECT)
+                    self._type.remove_text(name)
 
         # 選択可能なコントローラが1種類の場合は自動的にそれを選択
         if self._type.count() == 2:
@@ -130,24 +115,13 @@ class ControllerWidget(BaseSettingWidget):
     def _update_visibility(self) -> None:
         controller_type = self._type.currentText()
 
-        if controller_type == self.NO_SELECT:
-            self._mr_pid.setVisible(False)
-            self._mr_mpc.setVisible(False)
-            self._fw_lqr.setVisible(False)
-        elif controller_type == MultirotorPid.NAME:
-            self._mr_pid.setVisible(True)
-            self._mr_mpc.setVisible(False)
-            self._fw_lqr.setVisible(False)
-        elif controller_type == MultirotorMpc.NAME:
-            self._mr_pid.setVisible(False)
-            self._mr_mpc.setVisible(True)
-            self._fw_lqr.setVisible(False)
-        elif controller_type == FixedWingLQR.NAME:
-            self._mr_pid.setVisible(False)
-            self._mr_mpc.setVisible(False)
-            self._fw_lqr.setVisible(True)
-        else:
-            raise RuntimeError(f"Unknown controller type: {controller_type}")
+        for controller in self._controllers:
+            controller.setVisible(False)
+
+        for controller in self._controllers:
+            if controller.NAME == controller_type:
+                controller.setVisible(True)
+                return
 
     @pyqtSlot(str)
     def _on_type_changed(self, controller_type: str) -> None:

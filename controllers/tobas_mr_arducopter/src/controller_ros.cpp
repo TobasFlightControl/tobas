@@ -29,15 +29,9 @@ ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string nam
 
 void ControllerRos::getRosParams()
 {
-  dh_ros::getParam(
-    pnh_, "max_connection_timeout_count", max_connection_timeout_count_,
-    kDefaultMaxConnectionTimeoutCount);
-
-  dh_ros::getParam(pnh_, "num_rotors", num_rotors_);
-  if (num_rotors_ > kMaxMotors)
-    ROS_THROW_NAMED(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
-
   dh_ros::getParam(pnh_, "channels", channels_);
+  if (channels_.size() > kMaxMotors)
+    ROS_THROW_NAMED(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
   if (!dh_std::isUnique(channels_))
     ROS_THROW_NAMED(name_, "channels are not unique.");
 }
@@ -92,8 +86,8 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
     {
       rosWarn(
         name_, "Broken ArduPilot connection, count [" << connection_timeout_count_ << "/"
-                                                      << max_connection_timeout_count_ << "]");
-      if (++connection_timeout_count_ > max_connection_timeout_count_)
+                                                      << kMaxConnectionTimeoutCount << "]");
+      if (++connection_timeout_count_ > kMaxConnectionTimeoutCount)
       {
         connection_timeout_count_ = 0;
         ardupilot_online_ = false;
@@ -103,7 +97,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
     return;
   }
 
-  const ssize_t expected_pkt_size = sizeof(pkt.motorSpeed[0]) * num_rotors_;
+  const ssize_t expected_pkt_size = sizeof(pkt.motorSpeed[0]) * channels_.size();
   if (recv_size < expected_pkt_size)
   {
     rosError(
@@ -122,10 +116,10 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   // Create throttle command message
   auto throttles = boost::make_shared<tobas_msgs::Throttles>();
   throttles->header.stamp = imu_time;
-  throttles->data.resize(num_rotors_, 0.);
+  throttles->data.resize(channels_.size(), 0.);
 
   // Fill throttle
-  for (uint32_t i = 0; i < num_rotors_; ++i)
+  for (uint32_t i = 0; i < channels_.size(); ++i)
   {
     if (channels_[i] < recv_channels)
     {
