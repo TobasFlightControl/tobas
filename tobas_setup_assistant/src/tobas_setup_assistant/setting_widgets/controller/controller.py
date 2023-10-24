@@ -37,16 +37,17 @@ class ControllerWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._type = ComboBox()
-        self._type.addItem(self.NO_SELECT)
-        self._rows.addWidget(self._type)
-
         self._controllers: List[BaseController] = [
             MultirotorPid(main),
             MultirotorMpc(main),
             ArduCopter(main),
             FixedWingLQR(main),
         ]
+
+        self._type = ComboBox()
+        self._type.addItem(self.NO_SELECT)
+        self._rows.addWidget(self._type)
+
         for controller in self._controllers:
             self._rows.addWidget(controller)
 
@@ -124,7 +125,7 @@ class ControllerWidget(BaseSettingWidget):
                 return
 
     @pyqtSlot(str)
-    def _on_type_changed(self, controller_type: str) -> None:
+    def _on_type_changed(self, _: str) -> None:
         self._update_visibility()
 
     @pyqtSlot()

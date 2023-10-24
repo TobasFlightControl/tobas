@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from typing import List
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -34,18 +35,20 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
+        self._observers: List[BaseObserver] = [
+            CascadeKalmanFilter(main),
+            ErrorStateKalmanFilter(main),
+        ]
+
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
-        self._type.addItem(CascadeKalmanFilter.NAME)
-        self._type.addItem(ErrorStateKalmanFilter.NAME)
-        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)  # Default
         self._rows.addWidget(self._type)
 
-        self._cascade = CascadeKalmanFilter(main)
-        self._rows.addWidget(self._cascade)
+        for observer in self._observers:
+            self._rows.addWidget(observer)
+            self._type.addItem(observer.NAME)
 
-        self._eskf = ErrorStateKalmanFilter(main)
-        self._rows.addWidget(self._eskf)
+        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)  # Default
 
         add_expanding_widget(self._rows)
         self._update_visibility()
@@ -71,12 +74,12 @@ class ObserverWidget(BaseSettingWidget):
 
         if observer_type == self.NO_SELECT:
             raise RuntimeError("Observer type is not selected.")
-        elif observer_type == CascadeKalmanFilter.NAME:
-            return self._cascade
-        elif observer_type == ErrorStateKalmanFilter.NAME:
-            return self._eskf
-        else:
-            raise RuntimeError(f"Unknown observer type: {observer_type}")
+
+        for observer in self._observers:
+            if observer_type == observer.NAME:
+                return observer
+
+        RuntimeError(f"Unknown observer type: {observer_type}")
 
     def get_type(self) -> str:
         return self._type.currentText()
@@ -85,20 +88,16 @@ class ObserverWidget(BaseSettingWidget):
         return self.selected().PACKAGE_NAME
 
     @pyqtSlot(str)
-    def _on_type_changed(self, observer_type: str) -> None:
+    def _on_type_changed(self, _: str) -> None:
         self._update_visibility()
 
     def _update_visibility(self) -> None:
         observer_type = self.get_type()
 
-        if observer_type == self.NO_SELECT:
-            self._cascade.setVisible(False)
-            self._eskf.setVisible(False)
-        elif observer_type == CascadeKalmanFilter.NAME:
-            self._cascade.setVisible(True)
-            self._eskf.setVisible(False)
-        elif observer_type == ErrorStateKalmanFilter.NAME:
-            self._cascade.setVisible(False)
-            self._eskf.setVisible(True)
-        else:
-            raise RuntimeError(f"Unknown observer type: {observer_type}")
+        for observer in self._observers:
+            observer.setVisible(False)
+
+        for observer in self._observers:
+            if observer.NAME == observer_type:
+                observer.setVisible(True)
+                return
