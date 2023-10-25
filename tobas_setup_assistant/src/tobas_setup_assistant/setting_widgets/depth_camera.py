@@ -168,4 +168,4 @@ class DepthCameraWidget(BaseSettingWidget):
         body_choices = [
             root_name
         ] + self._main.urdf_parser.link_names_with_mobile_joint()
-        self.link.box.addItems(body_choices)
+        self.link.add_items(body_choices)

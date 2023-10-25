@@ -9,6 +9,7 @@ from .base import ParamGetterWidget
 
 
 class ParamGetterWidget_ComboBox(ParamGetterWidget):
+    index_changed = pyqtSignal(int)
     text_changed = pyqtSignal(str)
 
     def __init__(
@@ -28,6 +29,7 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
         if default is not None:
             self._box.setCurrentText(default)
 
+        self._box.currentIndexChanged.connect(self._on_index_changed)
         self._box.currentTextChanged.connect(self._on_text_changed)
 
     def get(self) -> str:
@@ -38,6 +40,13 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
 
     def cur_index(self) -> int:
         return self._box.currentIndex()
+    
+    def add_items(self, items: List[str])->None:
+        self._box.addItems(items)
+
+    @pyqtSlot(int)
+    def _on_index_changed(self, idx: int) -> None:
+        self.index_changed.emit(idx)
 
     @pyqtSlot(str)
     def _on_text_changed(self, text: str) -> None:

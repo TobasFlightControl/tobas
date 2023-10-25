@@ -27,9 +27,7 @@ class URDFParser(QObject):
         self._tree = Tree()
 
     def define_connections(self) -> None:
-        self._main.settings.start.robot_model_loader.urdf_loaded.connect(
-            self._on_urdf_loaded
-        )
+        self._main.signals.urdf_loaded.connect(self._on_urdf_loaded)
 
     @pyqtSlot()
     def _on_urdf_loaded(self) -> None:

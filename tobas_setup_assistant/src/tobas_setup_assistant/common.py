@@ -28,6 +28,7 @@ CAMERA_OFFSET_DESCRIPTION = "選択したフレームの基準点に対するカ
 
 
 class Signals(QObject):
+    urdf_loaded = pyqtSignal()
     airframe_updated = pyqtSignal()
     num_modes_updated = pyqtSignal(int)
 

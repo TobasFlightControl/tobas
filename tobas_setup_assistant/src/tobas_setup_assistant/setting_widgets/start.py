@@ -53,7 +53,6 @@ class StartWidget(BaseSettingWidget):
 class RobotModelLoaderWidget(QWidget):
     KEY = "last_opened_dir/robot_model_loader"
 
-    urdf_loaded = pyqtSignal()
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -160,7 +159,7 @@ class RobotModelLoaderWidget(QWidget):
         self.browse_button.setEnabled(False)
         self.load_button.setEnabled(False)
 
-        self.urdf_loaded.emit()
+        self._main.signals.urdf_loaded.emit()
 
     def _launch_file(self) -> None:
         # description.launchで使われる環境変数を設定
