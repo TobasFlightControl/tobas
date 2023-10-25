@@ -38,6 +38,23 @@ $ pip install -r tobas/requirements.txt
 $ catkin build
 ```
 
+### Other Installation
+
+You can skip each feature if you do not wish to use it.
+
+#### ArduPIlot
+
+```bash
+$ git clone https://github.com/ArduPilot/ardupilot.git
+$ cd ardupilot
+$ git checkout ArduCopter-stable
+$ Tools/environment_install/install-prereqs-ubuntu.sh -y
+$ . ~/.profile
+$ git submodule update --init --recursive
+$ ./waf configure --board linux
+$ ./waf copter
+```
+
 ## Basic Usage
 
 ### 1. Create Tobas configuration package using setup assistant.
