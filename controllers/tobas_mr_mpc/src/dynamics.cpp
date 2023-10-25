@@ -2,8 +2,8 @@
 
 #include <dh_eigen_tools/geometry.hpp>
 
-#include "../include/tobas_mr_rotation_mpc/dynamics.hpp"
-#include "../include/tobas_mr_rotation_mpc/constants.hpp"
+#include "../include/tobas_mr_mpc/dynamics.hpp"
+#include "../include/tobas_mr_mpc/constants.hpp"
 
 #define UNIT_Z Vector3d::UnitZ()
 
@@ -11,7 +11,7 @@ using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
-namespace tobas_mr_rotation_mpc
+namespace tobas_mr_mpc
 {
 MultiRotorDynamics::MultiRotorDynamics(const tobas::Drone& drone)
   : drone_(drone),
@@ -54,4 +54,4 @@ void MultiRotorDynamics::update(const double& roll, const double& pitch, const J
     B.block<3, 1>(kGyroIdx, i) = I_cog_inv * (P_cog_rotor.data.cross(UNIT_Z) - (d * cm) * UNIT_Z);
   }
 }
-}  // namespace tobas_mr_rotation_mpc
+}  // namespace tobas_mr_mpc

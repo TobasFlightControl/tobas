@@ -15,8 +15,7 @@
 	<depend>message_generation</depend>
 
 	<depend>tobas_mr_common</depend>
-	<depend>tobas_mr_rotation_mpc</depend>
-	<depend>tobas_mr_translation_lqr</depend>
+	<depend>dh_linear_control</depend>
 
 	<export>
 		<nodelet plugin="${prefix}/nodelet_description.xml"/>

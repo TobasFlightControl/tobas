@@ -13,7 +13,7 @@
 
 #include "./dynamics.hpp"
 
-namespace tobas_mr_rotation_mpc
+namespace tobas_mr_mpc
 {
 /**
  * @brief RotationControllerの動的パラメータをまとめた構造体．
@@ -21,7 +21,7 @@ namespace tobas_mr_rotation_mpc
  * @note 姿勢角をattitude (roll + pitch) とheading (yaw) を分けているのは，
  * 一般に前者の方が後者に比べて重要度が高いため．
  */
-struct RotationMpcConfig
+struct OrientationControllerConfig
 {
   double max_attitude;       // [rad]
   double max_heading_error;  // [rad]
@@ -38,10 +38,10 @@ struct RotationMpcConfig
   int thrust_rate_weight_log10;
 };
 
-class RotationMpc
+class OrientationController
 {
 public:
-  explicit RotationMpc(const tobas::Drone& drone);
+  explicit OrientationController(const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -54,7 +54,7 @@ public:
     const double& tar_U,
     const KDL::Euler& tar_rpy);
 
-  void configure(const RotationMpcConfig& config);
+  void configure(const OrientationControllerConfig& config);
 
   const Eigen::VectorXd& optimalThrusts() const;
   const Eigen::Vector3d& optimalDgyro() const;
@@ -93,4 +93,4 @@ private:
   void updateSetState(const double& tar_roll, const double& tar_pitch, const double& tar_yaw);
   void fillInputConstraintFixedParts();
 };
-}  // namespace tobas_mr_rotation_mpc
+}  // namespace tobas_mr_mpc

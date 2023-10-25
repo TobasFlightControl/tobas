@@ -3,9 +3,9 @@
 #include <dh_kdl/frames.hpp>
 #include <dh_linear_control/lqid.hpp>
 
-namespace tobas_mr_translation_lqr
+namespace tobas_mr_mpc
 {
-struct Config
+struct PositionControllerConfig
 {
   double acc_delay_time_const;
 
@@ -25,7 +25,7 @@ struct Config
   double max_ver_vel;
 };
 
-class TranslationController
+class PositionController
 {
   static constexpr uint32_t kPosIdx = 0;
   static constexpr uint32_t kVelIdx = kPosIdx + 3;
@@ -35,7 +35,7 @@ class TranslationController
   static constexpr double kVerAccDecayTimeConst = 0.02;  // [s]
 
 public:
-  explicit TranslationController();
+  explicit PositionController();
 
   void update(
     const KDL::Vector& cur_pos,
@@ -46,7 +46,7 @@ public:
     const double& dt,
     KDL::Vector& tar_acc_W);
 
-  void configure(const Config& config);
+  void configure(const PositionControllerConfig& config);
 
   Eigen::Vector3d positionIntegralError() const;
 
@@ -56,4 +56,4 @@ private:
 
   ctrl::LQID lqid_;
 };
-}  // namespace tobas_mr_translation_lqr
+}  // namespace tobas_mr_mpc

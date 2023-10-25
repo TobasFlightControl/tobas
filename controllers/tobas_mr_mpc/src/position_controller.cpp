@@ -1,14 +1,14 @@
 #include <dh_std_tools/algorithm.hpp>
 
-#include "../include/tobas_mr_translation_lqr/controller.hpp"
+#include "../include/tobas_mr_mpc/position_controller.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
-namespace tobas_mr_translation_lqr
+namespace tobas_mr_mpc
 {
-TranslationController::TranslationController() : lqid_(kStateSize, 3, 3)
+PositionController::PositionController() : lqid_(kStateSize, 3, 3)
 {
   lqid_.dynamics.setZero();
   lqid_.dynamics.A.block<3, 3>(kPosIdx, kVelIdx).diagonal().setOnes();
@@ -18,7 +18,7 @@ TranslationController::TranslationController() : lqid_(kStateSize, 3, 3)
   lqid_.C.block<3, 3>(0, kPosIdx).diagonal().setOnes();  // 位置に対してI制御を行う
 }
 
-void TranslationController::update(
+void PositionController::update(
   const Vector& cp,
   const Vector& cv,
   const Vector& ca,
@@ -40,7 +40,7 @@ void TranslationController::update(
   ta.data = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
 }
 
-void TranslationController::configure(const Config& config)
+void PositionController::configure(const PositionControllerConfig& config)
 {
   assert(config.acc_delay_time_const > 0);
   assert(config.hor_pos_weight >= 0);
@@ -87,8 +87,8 @@ void TranslationController::configure(const Config& config)
   max_ver_vel_ = config.max_ver_vel;
 }
 
-Vector3d TranslationController::positionIntegralError() const
+Vector3d PositionController::positionIntegralError() const
 {
   return lqid_.integralError();
 }
-}  // namespace tobas_mr_translation_lqr
+}  // namespace tobas_mr_mpc

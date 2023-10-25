@@ -9,7 +9,7 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
 
-namespace tobas_mr_rotation_mpc
+namespace tobas_mr_mpc
 {
 /**
  * @brief クアッドロータの連続時間状態方程式．
@@ -37,4 +37,4 @@ private:
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 };
-}  // namespace tobas_mr_rotation_mpc
+}  // namespace tobas_mr_mpc

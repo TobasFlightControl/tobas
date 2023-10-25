@@ -6,16 +6,16 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
-#include "../include/tobas_mr_rotation_mpc/rotation_mpc.hpp"
-#include "../include/tobas_mr_rotation_mpc/constants.hpp"
+#include "../include/tobas_mr_mpc/orientation_controller.hpp"
+#include "../include/tobas_mr_mpc/constants.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
-namespace tobas_mr_rotation_mpc
+namespace tobas_mr_mpc
 {
-RotationMpc::RotationMpc(const tobas::Drone& drone)
+OrientationController::OrientationController(const tobas::Drone& drone)
   : drone_(drone),
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
@@ -45,7 +45,7 @@ RotationMpc::RotationMpc(const tobas::Drone& drone)
   updateInternalDataStructures();
 }
 
-void RotationMpc::updateInternalDataStructures()
+void OrientationController::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -66,7 +66,7 @@ void RotationMpc::updateInternalDataStructures()
   fillInputConstraintFixedParts();
 }
 
-void RotationMpc::update(
+void OrientationController::update(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
@@ -134,7 +134,7 @@ void RotationMpc::update(
   opt_dgyro_ = xd.block<3, 1>(kGyroIdx, 0);
 }
 
-void RotationMpc::configure(const RotationMpcConfig& config)
+void OrientationController::configure(const OrientationControllerConfig& config)
 {
   assert(0 <= config.max_attitude && config.max_attitude < M_PI_2);
   assert(config.max_heading_error >= 0);
@@ -176,17 +176,17 @@ void RotationMpc::configure(const RotationMpcConfig& config)
   fillInputConstraintFixedParts();
 }
 
-const VectorXd& RotationMpc::optimalThrusts() const
+const VectorXd& OrientationController::optimalThrusts() const
 {
   return mpc_.optimalControlInput();
 }
 
-const Vector3d& RotationMpc::optimalDgyro() const
+const Vector3d& OrientationController::optimalDgyro() const
 {
   return opt_dgyro_;
 }
 
-Vector3d RotationMpc::optimalGyro(const double& dt) const
+Vector3d OrientationController::optimalGyro(const double& dt) const
 {
   assert(0 <= dt && dt < mpc_.time_step);
 
@@ -194,7 +194,7 @@ Vector3d RotationMpc::optimalGyro(const double& dt) const
   return gyro_0 + opt_dgyro_ * dt;
 }
 
-Matrix3d RotationMpc::optimalRot(const double& dt) const
+Matrix3d OrientationController::optimalRot(const double& dt) const
 {
   assert(0 <= dt && dt < mpc_.time_step);
 
@@ -208,7 +208,7 @@ Matrix3d RotationMpc::optimalRot(const double& dt) const
   return rot_0 * delta_rot;
 }
 
-double RotationMpc::maxThrustSum(const double& battery_voltage) const
+double OrientationController::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
@@ -218,7 +218,7 @@ double RotationMpc::maxThrustSum(const double& battery_voltage) const
   return res;
 }
 
-double RotationMpc::minThrustSum(const double& battery_voltage) const
+double OrientationController::minThrustSum(const double& battery_voltage) const
 {
   const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
   double res = 0.;
@@ -229,7 +229,7 @@ double RotationMpc::minThrustSum(const double& battery_voltage) const
   return res;
 }
 
-void RotationMpc::updateCurrentState(
+void OrientationController::updateCurrentState(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
@@ -268,7 +268,7 @@ void RotationMpc::updateCurrentState(
     h_moment_comp.z();
 }
 
-void RotationMpc::updateSetState(
+void OrientationController::updateSetState(
   const double& tar_roll,
   const double& tar_pitch,
   const double& tar_yaw)
@@ -276,7 +276,7 @@ void RotationMpc::updateSetState(
   mpc_.set_state << tar_roll, tar_pitch, tar_yaw, 0., 0., 0.;
 }
 
-void RotationMpc::fillInputConstraintFixedParts()
+void OrientationController::fillInputConstraintFixedParts()
 {
   for (auto& u_eq : mpc_.input_eqs)
   {
@@ -293,4 +293,4 @@ void RotationMpc::fillInputConstraintFixedParts()
     u_ineq.A.bottomRows(z_rotors_.count()).diagonal().fill(-1);
   }
 }
-}  // namespace tobas_mr_rotation_mpc
+}  // namespace tobas_mr_mpc

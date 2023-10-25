@@ -19,7 +19,7 @@ ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& p
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     acc_ctrl_(drone_),
-    rot_ctrl_(drone_),
+    ori_ctrl_(drone_),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
 {
@@ -29,7 +29,7 @@ ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& p
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
   acc_ctrl_.updateInternalDataStructures();
-  rot_ctrl_.updateInternalDataStructures();
+  ori_ctrl_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
 
@@ -141,7 +141,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_acc_W = pt->pose.euler * pt->accel.linear;
 
     // 目標加速度を計算
-    trans_ctrl_.update(
+    pos_ctrl_.update(
       pt->pose.pos, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
 
@@ -160,7 +160,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     feedback->target_velocity_local = pt->pose.euler.Inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = pt->pose.euler * tar_acc;
-    feedback->position_integral_error = Vector(trans_ctrl_.positionIntegralError());
+    feedback->position_integral_error = Vector(pos_ctrl_.positionIntegralError());
   }
 
   // Rotation Controller
@@ -190,7 +190,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     try
     {
       // stopwatch_.start();
-      rot_ctrl_.update(
+      ori_ctrl_.update(
         pt->pose.euler, pt->twist, wind_->vel, q_, battery_->voltage, tar_rpyt_->thrust,
         tar_rpyt_->rpy);
       // stopwatch_.stop();
@@ -205,7 +205,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
     rotor_speeds->header.stamp = pt->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    const VectorXd& thrusts = rot_ctrl_.optimalThrusts();
+    const VectorXd& thrusts = ori_ctrl_.optimalThrusts();
     for (uint32_t i = 0; i < thrusts.rows(); ++i)
     {
       if (thrusts(i) < 0)
@@ -313,21 +313,21 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  trans_cfg_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
-  trans_cfg_.hor_pos_weight = cfg.horizontal_position_weight;
-  trans_cfg_.ver_pos_weight = cfg.vertical_position_weight;
-  trans_cfg_.hor_vel_weight = cfg.horizontal_velocity_weight;
-  trans_cfg_.ver_vel_weight = cfg.vertical_velocity_weight;
-  trans_cfg_.hor_acc_weight = cfg.horizontal_accel_weight;
-  trans_cfg_.ver_acc_weight = cfg.vertical_accel_weight;
-  trans_cfg_.hor_posint_weight = cfg.horizontal_position_integral_weight;
-  trans_cfg_.ver_posint_weight = cfg.vertical_position_integral_weight;
-  trans_cfg_.jerk_weight_log10 = cfg.jerk_weight_log10;
-  trans_cfg_.max_hor_posint_error = cfg.max_horizontal_position_integral_error;
-  trans_cfg_.max_ver_posint_error = cfg.max_vertical_position_integral_error;
-  trans_cfg_.max_hor_vel = cfg.max_horizontal_velocity;
-  trans_cfg_.max_ver_vel = cfg.max_vertical_velocity;
-  trans_ctrl_.configure(trans_cfg_);
+  pos_cfg_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
+  pos_cfg_.hor_pos_weight = cfg.horizontal_position_weight;
+  pos_cfg_.ver_pos_weight = cfg.vertical_position_weight;
+  pos_cfg_.hor_vel_weight = cfg.horizontal_velocity_weight;
+  pos_cfg_.ver_vel_weight = cfg.vertical_velocity_weight;
+  pos_cfg_.hor_acc_weight = cfg.horizontal_accel_weight;
+  pos_cfg_.ver_acc_weight = cfg.vertical_accel_weight;
+  pos_cfg_.hor_posint_weight = cfg.horizontal_position_integral_weight;
+  pos_cfg_.ver_posint_weight = cfg.vertical_position_integral_weight;
+  pos_cfg_.jerk_weight_log10 = cfg.jerk_weight_log10;
+  pos_cfg_.max_hor_posint_error = cfg.max_horizontal_position_integral_error;
+  pos_cfg_.max_ver_posint_error = cfg.max_vertical_position_integral_error;
+  pos_cfg_.max_hor_vel = cfg.max_horizontal_velocity;
+  pos_cfg_.max_ver_vel = cfg.max_vertical_velocity;
+  pos_ctrl_.configure(pos_cfg_);
 
   acc_cfg_.max_hor_acc = cfg.max_horizontal_accel;
   acc_cfg_.max_ver_acc = cfg.max_vertical_accel;
@@ -335,20 +335,20 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   acc_cfg_.h_force_coef = cfg.horizontal_force_compensation_rate;
   acc_ctrl_.configure(acc_cfg_);
 
-  rot_cfg_.max_attitude = cfg.max_attitude;
-  rot_cfg_.max_heading_error = cfg.max_heading_error;
-  rot_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
-  rot_cfg_.pred_horizon = cfg.prediction_horizon;
-  rot_cfg_.pred_steps = cfg.prediction_steps;
-  rot_cfg_.attitude_decay = cfg.attitude_decay;
-  rot_cfg_.heading_decay = cfg.heading_decay;
-  rot_cfg_.angvel_decay = cfg.angular_velocity_decay;
-  rot_cfg_.attitude_weight = cfg.attitude_weight;
-  rot_cfg_.heading_weight = cfg.heading_weight;
-  rot_cfg_.angvel_weight = cfg.angular_velocity_weight;
-  rot_cfg_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
-  rot_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
-  rot_ctrl_.configure(rot_cfg_);
+  ori_cfg_.max_attitude = cfg.max_attitude;
+  ori_cfg_.max_heading_error = cfg.max_heading_error;
+  ori_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  ori_cfg_.pred_horizon = cfg.prediction_horizon;
+  ori_cfg_.pred_steps = cfg.prediction_steps;
+  ori_cfg_.attitude_decay = cfg.attitude_decay;
+  ori_cfg_.heading_decay = cfg.heading_decay;
+  ori_cfg_.angvel_decay = cfg.angular_velocity_decay;
+  ori_cfg_.attitude_weight = cfg.attitude_weight;
+  ori_cfg_.heading_weight = cfg.heading_weight;
+  ori_cfg_.angvel_weight = cfg.angular_velocity_weight;
+  ori_cfg_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
+  ori_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  ori_ctrl_.configure(ori_cfg_);
 
   rosInfo(name_, "Dynamic parameters are updated.");
 }

@@ -16,11 +16,11 @@
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_translation_lqr/controller.hpp>
 #include <tobas_mr_common/accel_attitude_converter.hpp>
-#include <tobas_mr_rotation_mpc/rotation_mpc.hpp>
-
 #include <tobas_mr_mpc/ControllerConfig.h>
+
+#include "./position_controller.hpp"
+#include "./orientation_controller.hpp"
 
 namespace tobas_mr_mpc
 {
@@ -48,14 +48,14 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas_mr_translation_lqr::TranslationController trans_ctrl_;
+  tobas_mr_mpc::PositionController pos_ctrl_;
   tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
-  tobas_mr_rotation_mpc::RotationMpc rot_ctrl_;
+  tobas_mr_mpc::OrientationController ori_ctrl_;
 
   // Dynamic parameters
-  tobas_mr_translation_lqr::Config trans_cfg_;
+  tobas_mr_mpc::PositionControllerConfig pos_cfg_;
   tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
-  tobas_mr_rotation_mpc::RotationMpcConfig rot_cfg_;
+  tobas_mr_mpc::OrientationControllerConfig ori_cfg_;
 
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;
