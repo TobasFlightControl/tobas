@@ -11,7 +11,7 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+StateChecker::StateChecker(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), landing_client_(tobas::kLandingAction)
 {
   getRosParams();

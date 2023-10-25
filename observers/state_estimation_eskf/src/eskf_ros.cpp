@@ -29,9 +29,9 @@ namespace et = eigen_tools;
 namespace state_estimation_eskf
 {
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)  // NodeletのときはPrivate NodeHandleを明示的に渡す必要がある

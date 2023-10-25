@@ -18,7 +18,7 @@ using namespace dh_std;
 
 namespace tobas_fixed_wing_lqd
 {
-Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),

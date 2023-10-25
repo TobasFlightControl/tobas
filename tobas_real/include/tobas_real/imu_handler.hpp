@@ -23,9 +23,9 @@ class ImuHandler : public tobas::BaseNode
 
 public:
   explicit ImuHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   ImuDevice imu_;

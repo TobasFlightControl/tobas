@@ -13,7 +13,7 @@ namespace tobas_real
 {
 constexpr char CpuHandler::kTemperatureFilePath[];
 
-CpuHandler::CpuHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
+CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   getRosParams();
   registerPublishers();

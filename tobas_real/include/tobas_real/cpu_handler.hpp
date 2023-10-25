@@ -16,9 +16,9 @@ class CpuHandler : public tobas::BaseNode
 
 public:
   explicit CpuHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   int temp_millidegrees_;

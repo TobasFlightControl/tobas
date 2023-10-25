@@ -21,7 +21,8 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
+RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name)
 {
   getRosParams();
 
@@ -33,17 +34,17 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
     if (mode_name == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(POS_VEL_ACC_YAW);
-      pvay_ctrl_.initialize(nh, pnh);
+      pvay_ctrl_.initialize(nh_, pnh_);
     }
     else if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(POSITION_YAW);
-      pos_yaw_ctrl_.initialize(nh, pnh);
+      pos_yaw_ctrl_.initialize(nh_, pnh_);
     }
     else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
     {
       mode2cmd_.push_back(VELOCITY_YAW);
-      vel_yaw_ctrl_.initialize(nh, pnh);
+      vel_yaw_ctrl_.initialize(nh_, pnh_);
     }
     else if (mode_name == split(DataType<tobas_msgs::AccelerationYaw>::value(), '/').back())
     {
@@ -53,7 +54,7 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
     else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
     {
       mode2cmd_.push_back(RPY_THRUST);
-      rpy_thrust_ctrl_.initialize(nh, pnh);
+      rpy_thrust_ctrl_.initialize(nh_, pnh_);
     }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {

@@ -13,7 +13,7 @@ using namespace std;
 
 namespace tobas_real
 {
-BarometerHandler::BarometerHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();

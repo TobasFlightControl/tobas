@@ -11,7 +11,7 @@ using namespace dh_std;
 
 namespace tobas_common_actions
 {
-WaitForStillnessServer::WaitForStillnessServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+WaitForStillnessServer::WaitForStillnessServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
     as_(nh_, kActionName, boost::bind(&WaitForStillnessServer::executeCb, this, _1), false)

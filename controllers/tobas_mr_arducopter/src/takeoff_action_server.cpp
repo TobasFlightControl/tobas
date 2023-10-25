@@ -14,7 +14,7 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-TakeoffActionServer::TakeoffActionServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+TakeoffActionServer::TakeoffActionServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
 {

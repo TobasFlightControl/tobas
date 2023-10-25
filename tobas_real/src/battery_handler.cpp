@@ -12,7 +12,7 @@ using namespace std;
 
 namespace tobas_real
 {
-BatteryHandler::BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();

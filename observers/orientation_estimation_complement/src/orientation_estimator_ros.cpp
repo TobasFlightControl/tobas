@@ -17,9 +17,9 @@ using namespace Eigen;
 namespace orientation_estimation_complement
 {
 OrientationEstimatorRos::OrientationEstimatorRos(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     is_initialized_(false),
     imu_sub_(nh_, tobas::kImuTopic, kQueueSize, tcpNoDelay()),

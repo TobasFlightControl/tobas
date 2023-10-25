@@ -15,7 +15,7 @@ using namespace Eigen;
 
 namespace tobas_mr_pid
 {
-ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),

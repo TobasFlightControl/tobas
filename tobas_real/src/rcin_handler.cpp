@@ -15,7 +15,7 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-RCInputHandler::RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();

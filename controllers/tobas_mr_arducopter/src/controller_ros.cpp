@@ -17,7 +17,7 @@ using namespace KDL;
 
 namespace tobas_mr_arducopter
 {
-ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();

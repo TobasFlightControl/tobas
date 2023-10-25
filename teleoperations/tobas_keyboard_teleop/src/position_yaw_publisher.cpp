@@ -19,7 +19,7 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+PositionYawPublisher::PositionYawPublisher(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), keyboard_(getKeyboardControls())
 {
   instruction_ = "Control your drone!\n"

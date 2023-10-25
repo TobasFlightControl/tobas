@@ -12,7 +12,7 @@ using namespace std;
 
 namespace tobas_real
 {
-GpsHandler::GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
+GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   getRosParams();
   configureGnssReceiver();

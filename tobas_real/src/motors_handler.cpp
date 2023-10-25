@@ -12,7 +12,7 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler::MotorsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+MotorsHandler::MotorsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   if (getuid())
