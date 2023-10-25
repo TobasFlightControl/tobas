@@ -91,7 +91,7 @@ class SimulationWidget(BaseSettingWidget):
             minimum=0.0,
             maximum=2 * math.pi,
             default=0.0,
-            suffix=" m/s",
+            suffix=" rad",
         )
         self._rows.addWidget(self.const_wind_direction)
 
