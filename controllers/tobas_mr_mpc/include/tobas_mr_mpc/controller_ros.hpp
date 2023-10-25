@@ -68,8 +68,9 @@ private:
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   KDL::JntArray q_;  // 全ての非固定関節の角度
-  KDL::Vector tar_acc_fb_;
   ros::Time t_last_loop_;
+  KDL::Vector tar_acc_fb_;
+  Eigen::VectorXd thrusts_;
 
   // Publishers
   ros::Publisher rotor_speeds_pub_;

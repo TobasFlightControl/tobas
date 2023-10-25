@@ -8,8 +8,9 @@
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 #include <dh_linear_control/c2d/tustin.hpp>
-#include <dh_linear_control/c2d/rk4.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
+
+#include <tobas_mr_common/mixer.hpp>
 
 #include "./dynamics.hpp"
 
@@ -26,6 +27,8 @@ struct OrientationControllerConfig
   double max_attitude;       // [rad]
   double max_heading_error;  // [rad]
   double h_force_comp_rate;  // H-forceの理論値に対する補償項の割合 [0, 1]
+  double kp;                 // モデル化誤差を含む外乱補償用のPゲイン
+  double kd;                 // モデル化誤差を含む外乱補償用のDゲイン
 
   double pred_horizon;
   int pred_steps;
@@ -45,21 +48,18 @@ public:
 
   void updateInternalDataStructures();
 
-  void update(
+  Eigen::VectorXd solve(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::Vector& cur_wind_W,
     const KDL::JntArray& q,
     const double& battery_voltage,
     const double& tar_U,
-    const KDL::Euler& tar_rpy);
+    KDL::Euler tar_rpy);
 
   void configure(const OrientationControllerConfig& config);
 
-  const Eigen::VectorXd& optimalThrusts() const;
-  const Eigen::Vector3d& optimalDgyro() const;
-  Eigen::Vector3d optimalGyro(const double& dt) const;
-  Eigen::Matrix3d optimalRot(const double& dt) const;
+  const Eigen::VectorXd& mpcThrusts() const;
 
 private:
   const tobas::Drone& drone_;
@@ -67,18 +67,18 @@ private:
   KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
+  tobas_mr_common::Mixer mixer_;
 
   MultiRotorDynamics cont_;
   ctrl::C2D_Tustin c2d_;
-  // ctrl::C2D_RK4 c2d_;
   ctrl::LinearDenseMPC mpc_;
-
-  Eigen::Vector3d opt_dgyro_;
 
   // Config
   double max_attitude_;
   double max_heading_error_;
   double h_force_coef_;
+  double kp_;
+  double kd_;
 
   dh_std::Stopwatch stopwatch_;
 
@@ -90,7 +90,7 @@ private:
     const KDL::Vector& cur_wind_W,
     const KDL::JntArray& q,
     const double& thrust_z);
-  void updateSetState(const double& tar_roll, const double& tar_pitch, const double& tar_yaw);
+  void updateSetState(const KDL::Euler& tar_rpy);
   void fillInputConstraintFixedParts();
 };
 }  // namespace tobas_mr_mpc

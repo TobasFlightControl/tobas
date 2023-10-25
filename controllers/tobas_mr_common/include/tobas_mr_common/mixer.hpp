@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Eigen/Core>
-
 #include <dh_quadprog/dual_active_set.hpp>
 #include <dh_kdl/treefksolverpos.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
@@ -13,8 +11,8 @@ namespace tobas_mr_common
 {
 struct MixerConfig
 {
-  double dgyro_weight = 1.;
-  double thrust_weight = 10.;
+  double dgyro_weight = 1e+3;
+  double thrust_weight = 1.;
 };
 
 /**

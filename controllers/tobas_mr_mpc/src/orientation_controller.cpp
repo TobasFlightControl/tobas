@@ -20,6 +20,7 @@ OrientationController::OrientationController(const tobas::Drone& drone)
     fk_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE),
+    mixer_(drone),
     cont_(drone),
     c2d_(kStateSize, z_rotors_.count()),
     stopwatch_(tobas::kStopwatchSamples)
@@ -50,6 +51,7 @@ void OrientationController::updateInternalDataStructures()
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
+  mixer_.updateInternalDataStructures();
   cont_.updateInternalDataStructures();
 
   c2d_.resize(kStateSize, z_rotors_.count());
@@ -66,30 +68,30 @@ void OrientationController::updateInternalDataStructures()
   fillInputConstraintFixedParts();
 }
 
-void OrientationController::update(
+VectorXd OrientationController::solve(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
   const JntArray& q,
   const double& battery_voltage,
   const double& tar_U,
-  const Euler& tar_rpy)
+  Euler tar_rpy)
 {
-  assert(battery_voltage > 0.);
+  assert(battery_voltage > 0);
 
   // 目標姿勢を制限
-  const double tar_roll = clamp(tar_rpy.roll, -max_attitude_, max_attitude_);
-  const double tar_pitch = clamp(tar_rpy.pitch, -max_attitude_, max_attitude_);
+  tar_rpy.roll = clamp(tar_rpy.roll, -max_attitude_, max_attitude_);
+  tar_rpy.pitch = clamp(tar_rpy.pitch, -max_attitude_, max_attitude_);
   const double yaw_error =
     clamp(tar_rpy.yaw - cur_rpy.yaw, -max_heading_error_, max_heading_error_);
-  const double tar_yaw = cur_rpy.yaw + yaw_error;
+  tar_rpy.yaw = cur_rpy.yaw + yaw_error;
 
   // 目標とする姿勢と合計推力から，重力方向の推力を計算
-  const double thrust_z = tar_U * cos(tar_roll) * cos(tar_pitch);
+  const double thrust_z = tar_U * cos(tar_rpy.roll) * cos(tar_rpy.pitch);
 
   // MPCの最適制御問題を構築
   updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, q, thrust_z);
-  updateSetState(tar_roll, tar_pitch, tar_yaw);
+  updateSetState(tar_rpy);
 
   const double min_voltage = battery_voltage * tobas::kMotorSpinArm;
   const double max_thrust_sum = maxThrustSum(battery_voltage);
@@ -105,9 +107,9 @@ void OrientationController::update(
 
     // ダイナミクスを更新
     const double roll_k =
-      ctrl::firstOrderPos(cur_rpy.roll, tar_roll, mpc_.decay_time_consts(kRollIdx), t);
+      ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts(kRollIdx), t);
     const double pitch_k =
-      ctrl::firstOrderPos(cur_rpy.pitch, tar_pitch, mpc_.decay_time_consts(kPitchIdx), t);
+      ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts(kPitchIdx), t);
     cont_.update(roll_k, pitch_k, q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
 
@@ -129,9 +131,18 @@ void OrientationController::update(
   mpc_.solve();
   // stopwatch_.stop();
 
-  // 角加速度を更新
-  const VectorXd xd = cont_.dynamics(mpc_.current_state, mpc_.optimalControlInput());
-  opt_dgyro_ = xd.block<3, 1>(kGyroIdx, 0);
+  // MPCの解
+  const VectorXd& thrusts_des = mpc_.optimalControlInput();
+  const VectorXd xd = cont_.dynamics(mpc_.current_state, thrusts_des);
+  const Vector3d dgyro_mpc = xd.block<3, 1>(kGyroIdx, 0);
+
+  // 外乱補償用の微分先行型PD
+  const Vector error_B = (cur_rpy.toRotation().Inverse() * tar_rpy.toRotation()).GetRot();
+  const Vector dgyro_pd = kp_ * error_B - kd_ * cur_twist_B.rot;
+
+  // Mixerで最終的な推力を計算
+  const Vector3d dgyro_des = dgyro_mpc + dgyro_pd.data;  // FF + FB (二自由度制御)
+  return mixer_.solve(battery_voltage, q, cur_twist_B.rot.data, dgyro_des, thrusts_des);
 }
 
 void OrientationController::configure(const OrientationControllerConfig& config)
@@ -139,6 +150,8 @@ void OrientationController::configure(const OrientationControllerConfig& config)
   assert(0 <= config.max_attitude && config.max_attitude < M_PI_2);
   assert(config.max_heading_error >= 0);
   assert(0 <= config.h_force_comp_rate && config.h_force_comp_rate <= 1);
+  assert(config.kp >= 0);
+  assert(config.kd >= 0);
   assert(config.pred_horizon > 0);
   assert(config.pred_steps > 0);
   assert(config.attitude_decay >= 0);
@@ -151,6 +164,8 @@ void OrientationController::configure(const OrientationControllerConfig& config)
   max_attitude_ = config.max_attitude;
   max_heading_error_ = config.max_heading_error;
   h_force_coef_ = config.h_force_comp_rate;
+  kp_ = config.kp;
+  kd_ = config.kd;
 
   mpc_.time_step = config.pred_horizon / config.pred_steps;
   mpc_.prediction_steps = mpc_.input_steps = config.pred_steps;
@@ -176,41 +191,14 @@ void OrientationController::configure(const OrientationControllerConfig& config)
   fillInputConstraintFixedParts();
 }
 
-const VectorXd& OrientationController::optimalThrusts() const
+const VectorXd& OrientationController::mpcThrusts() const
 {
   return mpc_.optimalControlInput();
 }
 
-const Vector3d& OrientationController::optimalDgyro() const
-{
-  return opt_dgyro_;
-}
-
-Vector3d OrientationController::optimalGyro(const double& dt) const
-{
-  assert(0 <= dt && dt < mpc_.time_step);
-
-  const auto gyro_0 = mpc_.current_state.block<3, 1>(kGyroIdx, 0);
-  return gyro_0 + opt_dgyro_ * dt;
-}
-
-Matrix3d OrientationController::optimalRot(const double& dt) const
-{
-  assert(0 <= dt && dt < mpc_.time_step);
-
-  const Vector3d gyro_0 = mpc_.current_state.block<3, 1>(kGyroIdx, 0);
-  const Vector3d rpy_0 = mpc_.current_state.block<3, 1>(kRotIdx, 0);
-  const Matrix3d rot_0 = eigen_tools::dcmFromRPY(rpy_0.x(), rpy_0.y(), rpy_0.z());
-
-  const Vector3d angleaxis = gyro_0 * dt + 0.5 * opt_dgyro_ * dh_std::sqr(dt);  // 角度の増加分
-  const AngleAxisd delta_rot(angleaxis.norm(), angleaxis.normalized());
-
-  return rot_0 * delta_rot;
-}
-
 double OrientationController::maxThrustSum(const double& battery_voltage) const
 {
-  double res = 0.;
+  double res = 0;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     res += z_rotors_.thrustFromVoltage(i, battery_voltage);
@@ -221,7 +209,7 @@ double OrientationController::maxThrustSum(const double& battery_voltage) const
 double OrientationController::minThrustSum(const double& battery_voltage) const
 {
   const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
-  double res = 0.;
+  double res = 0;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
     res += z_rotors_.thrustFromVoltage(i, min_voltage);
@@ -268,12 +256,9 @@ void OrientationController::updateCurrentState(
     h_moment_comp.z();
 }
 
-void OrientationController::updateSetState(
-  const double& tar_roll,
-  const double& tar_pitch,
-  const double& tar_yaw)
+void OrientationController::updateSetState(const Euler& tar_rpy)
 {
-  mpc_.set_state << tar_roll, tar_pitch, tar_yaw, 0., 0., 0.;
+  mpc_.set_state << tar_rpy.roll, tar_rpy.pitch, tar_rpy.yaw, 0, 0, 0;
 }
 
 void OrientationController::fillInputConstraintFixedParts()

@@ -1,4 +1,5 @@
 #include <dh_std_tools/vector.hpp>
+#include <dh_eigen_tools/core.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
@@ -14,7 +15,10 @@ using namespace Eigen;
 
 namespace tobas_mr_mpc
 {
-ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+ControllerRos::ControllerRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
@@ -32,6 +36,7 @@ ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& p
   ori_ctrl_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
+  thrusts_ = VectorXd::Zero(z_rotors_.count());
 
   registerPublishers();
   registerSubscribers();
@@ -190,31 +195,30 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     try
     {
       // stopwatch_.start();
-      ori_ctrl_.update(
+      thrusts_ = ori_ctrl_.solve(
         pt->pose.euler, pt->twist, wind_->vel, q_, battery_->voltage, tar_rpyt_->thrust,
         tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
-    catch (const exception& e)  // MPCがコケたり
+    catch (const exception& e)
     {
-      rosError(name_, e.what());
-      return;
+      // MPCがコケたり．前回の推力をそのまま継続して印加する．
+      rosFatal(name_, e.what());
     }
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
     rotor_speeds->header.stamp = pt->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    const VectorXd& thrusts = ori_ctrl_.optimalThrusts();
-    for (uint32_t i = 0; i < thrusts.rows(); ++i)
+    for (uint32_t i = 0; i < thrusts_.rows(); ++i)
     {
-      if (thrusts(i) < 0)
+      if (thrusts_(i) < 0)
       {
-        rosFatal(name_, "Negative thrust force: " << thrusts(i) << " [N]");
+        rosFatal(name_, "Negative thrust force: " << thrusts_(i) << " [N]");
         // TODO: 防御モードに移行
       }
       rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
-        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts(i)));
+        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts_(i)));
     }
 
     // モータ速度を発行
@@ -223,6 +227,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // Fill feedback
     feedback->target_rotation = tar_rpyt_->rpy;
     feedback->target_thrust = tar_rpyt_->thrust;
+    feedback->target_thrusts = eigen_tools::toStdVector(thrusts_);
+    feedback->mpc_thrusts = eigen_tools::toStdVector(ori_ctrl_.mpcThrusts());
 
     // Publish feedback
     feedback_pub_.publish(feedback);
@@ -338,6 +344,8 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   ori_cfg_.max_attitude = cfg.max_attitude;
   ori_cfg_.max_heading_error = cfg.max_heading_error;
   ori_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  ori_cfg_.kp = cfg.orientation_kp;
+  ori_cfg_.kd = cfg.orientation_kd;
   ori_cfg_.pred_horizon = cfg.prediction_horizon;
   ori_cfg_.pred_steps = cfg.prediction_steps;
   ori_cfg_.attitude_decay = cfg.attitude_decay;
@@ -347,7 +355,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   ori_cfg_.heading_weight = cfg.heading_weight;
   ori_cfg_.angvel_weight = cfg.angular_velocity_weight;
   ori_cfg_.thrust_rate_weight_log10 = cfg.thrust_rate_weight_log10;
-  ori_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
   ori_ctrl_.configure(ori_cfg_);
 
   rosInfo(name_, "Dynamic parameters are updated.");
