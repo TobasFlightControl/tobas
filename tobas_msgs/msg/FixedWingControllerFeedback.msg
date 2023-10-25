@@ -1,3 +1,4 @@
+std_msgs/Header header
 float64 trim_u
 float64 trim_alpha
 float64[] trim_thrusts

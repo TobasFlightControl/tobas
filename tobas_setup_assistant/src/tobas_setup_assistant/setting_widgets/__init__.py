@@ -1,6 +1,6 @@
 from .start import StartWidget
 from .battery import BatteryWidget
-from .rotary_wings import RotaryWingsWidget
+from .propulsion_system import PropulsionSystemWidget
 from .fixed_wing.fixed_wing import FixedWingWidget
 from .imu import ImuWidget
 from .magnetometer import MagnetometerWidget
@@ -10,7 +10,8 @@ from .rgb_camera import RgbCameraWidget
 from .depth_camera import DepthCameraWidget
 from .lidar import LidarWidget
 from .odometry import OdometryWidget
-from .controller.controller import ControllerWidget
+from .rc_transmitter import RCTransmitterWidget
+from .controller import ControllerWidget
 from .observer import ObserverWidget
 from .simulation import SimulationWidget
 from .author_information import AuthorInformationWidget

@@ -1,11 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 import os
 import os.path as osp
 import roslaunch
+from roslaunch import rlutil, parent
+from overrides import overrides
 from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -20,12 +23,15 @@ from ..common import *
 
 
 class StartWidget(BaseSettingWidget):
+    NAME = "Start"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Tobas Setup Assistant"
-        abst_text = "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために"\
-            + "必要な設定ファイルを作成するのを手助けするツールです．"\
+        abst_text = (
+            "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために"
+            + "必要な設定ファイルを作成するのを手助けするツールです．"
             + "ここでの設定が完了すれば，すぐにあなたのドローンを飛ばすことができます．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self.setEnabled(True)  # Startだけは初めからアクティブにしておく
@@ -35,18 +41,18 @@ class StartWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         self.robot_model_loader.define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 
 
 class RobotModelLoaderWidget(QWidget):
-
     KEY = "last_opened_dir/robot_model_loader"
 
-    urdf_loaded = pyqtSignal()
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -55,10 +61,10 @@ class RobotModelLoaderWidget(QWidget):
 
         self._config = ConfigParser()
 
-        description_loader_uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        description_launch_path = osp.join(get_proj_path(), "launch/description.launch")
+        description_loader_uuid = rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(description_loader_uuid)
-        self.description_launcher = roslaunch.parent.ROSLaunchParent(
+        description_launch_path = osp.join(get_proj_path(), "launch/description.launch")
+        self.description_launcher = parent.ROSLaunchParent(
             description_loader_uuid, [description_launch_path]
         )
 
@@ -112,13 +118,19 @@ class RobotModelLoaderWidget(QWidget):
     def _on_browse_button_clicked(self) -> None:
         # 前回開いたパスを取得
         self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(DEFAULT, self.KEY, fallback=osp.expanduser("~"))
+        last_opened_dir = self._config.get(
+            DEFAULT, self.KEY, fallback=osp.expanduser("~")
+        )
 
         # URDFのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, last_opened_dir, "Robot Description (*.urdf *.xacro)", options=options
+            self,
+            TITLE,
+            last_opened_dir,
+            "Robot Description (*.urdf *.xacro)",
+            options=options,
         )
 
         # キャンセルの場合は何もせずに終了
@@ -140,14 +152,14 @@ class RobotModelLoaderWidget(QWidget):
         try:
             self._launch_file()
         except Exception as e:
-            q_error(self._main, f'Failed to load robot description:\n\n{e}')
+            q_error(self._main, f"Failed to load robot description:\n\n{e}")
             return
 
         self.file_text.setEnabled(False)
         self.browse_button.setEnabled(False)
         self.load_button.setEnabled(False)
 
-        self.urdf_loaded.emit()
+        self._main.signals.urdf_loaded.emit()
 
     def _launch_file(self) -> None:
         # description.launchで使われる環境変数を設定
@@ -158,6 +170,6 @@ class RobotModelLoaderWidget(QWidget):
         self.description_launcher.start()
 
     def _is_valid_path(self, file_path: str) -> bool:
-        """ 引数が実在するロボット記述言語かどうかを判定する． """
+        """引数が実在するロボット記述言語かどうかを判定する．"""
         _, ext = osp.splitext(file_path)
-        return ext.lower() in {'.urdf', '.xacro'} and osp.isfile(file_path)
+        return ext.lower() in {".urdf", ".xacro"} and osp.isfile(file_path)

@@ -9,7 +9,6 @@ from ..common import *
 
 
 class ParamGetterWidget_FileDialog(ParamGetterWidget):
-
     path_changed = pyqtSignal(str)
 
     def __init__(
@@ -24,7 +23,9 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
 
         # 最後に開かれたディレクトリの記録用
         self._config = ConfigParser()
-        self._key = f'last_opened_dir/file_dialog/{param_name.lower().replace(" ", "_")}'
+        self._key = (
+            f'last_opened_dir/file_dialog/{param_name.lower().replace(" ", "_")}'
+        )
 
         self._options = QFileDialog.Options()
         self._options |= QFileDialog.DontUseNativeDialog
@@ -56,7 +57,9 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
         self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(DEFAULT, self._key, fallback=osp.expanduser("~"))
+        last_opened_dir = self._config.get(
+            DEFAULT, self._key, fallback=osp.expanduser("~")
+        )
 
         path, _ = QFileDialog.getOpenFileName(
             self, TITLE, last_opened_dir, self._init_filter, self._options

@@ -5,7 +5,6 @@ from .sensor import SensorModel
 
 
 class GpsModel(SensorModel):
-
     def __init__(
         self,
         ns: str,
@@ -45,23 +44,23 @@ class GpsModel(SensorModel):
         ver_vel_std : float
             垂直速度のノイズの標準偏差
         latitude_0 : float
-            原点の緯度．北緯を正とする．
+            原点の緯度 [deg]．北緯を正とする．
         longitude_0 : float
-            原点の経度．東経を正とする．
+            原点の経度 [deg]．東経を正とする．
         altitude_0: float
-            原点の高度．上方を正とする．
+            原点の高度 [m]．上方を正とする．
         """
-        assert update_rate > 0.
-        assert delay >= 0.
-        assert hor_pos_std > 0.
-        assert ver_pos_std > 0.
-        assert hor_vel_std > 0.
-        assert ver_vel_std > 0.
-        assert -90. <= latitude_0 <= 90.
-        assert -180 <= longitude_0 <= 180.
-        assert altitude_0 >= 0.
+        assert update_rate > 0.0
+        assert delay >= 0.0
+        assert hor_pos_std > 0.0
+        assert ver_pos_std > 0.0
+        assert hor_vel_std > 0.0
+        assert ver_vel_std > 0.0
+        assert -90.0 <= latitude_0 <= 90.0
+        assert -180 <= longitude_0 <= 180.0
+        assert altitude_0 >= 0.0
 
-        super().__init__(link_name, f'{ns}_gps', "gps", 0.)  # プラグイン自体は毎周期呼ぶ
+        super().__init__(link_name, f"{ns}_gps", "gps", 0.0)  # プラグイン自体は毎周期呼ぶ
 
         # robot/gazebo/sensor/plugin
         plugin = ET.SubElement(self.sensor, "plugin")
@@ -70,8 +69,6 @@ class GpsModel(SensorModel):
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
-        ET.SubElement(plugin, "gpsTopic").text = "gps"
-        ET.SubElement(plugin, "groundSpeedTopic").text = "ground_speed"
         ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
         ET.SubElement(plugin, "updateRate").text = str(update_rate)
         ET.SubElement(plugin, "delay").text = str(delay)

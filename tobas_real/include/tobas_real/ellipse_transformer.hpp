@@ -5,7 +5,7 @@
 namespace tobas_real
 {
 /**
- * @brief 任意の楕円体 (x^T A x + b^T x + 1 = 0) を原点中心の単位球に射影する．
+ * @brief 任意の楕円体 (x^T A x + b^T x + c = 0) を原点中心の単位球に射影する．
  * https://rikei-tawamure.com/entry/2021/09/27/111205
  */
 class EllipseTransformer
@@ -34,8 +34,8 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
 
 private:
-  Eigen::Vector3d xc_;  // 元の座標系における中心
-  Eigen::Vector3d S_;   // 3軸方向の半径
+  Eigen::Vector3d center_;  // 元の座標系における中心
+  Eigen::Vector3d radius_;  // 3軸方向の半径
   Eigen::Matrix3d PSPt_;
 };
 }  // namespace tobas_real

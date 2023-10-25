@@ -1,10 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 import os.path as osp
 import re
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -20,7 +22,6 @@ from ..utils import get_drone_name
 
 
 class RosPackageWidget(BaseSettingWidget):
-
     NAME = "ROS Package"
 
     TEXT_HEIGHT = 50
@@ -29,12 +30,16 @@ class RosPackageWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Generate ROS Package"
-        abst_text = "これまでの設定を元にTobasを使用するのに必要なROSパッケージを生成します．"\
+        abst_text = (
+            "これまでの設定を元にTobasを使用するのに必要なROSパッケージを生成します．"
             + "パッケージのパスを指定し，Generateボタンを押してください．"
+        )
         super().__init__(main, title_text, abst_text)
 
         pardir_description = ""
-        self.pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
+        self.pardir = ParamGetterWidget_DirDialog(
+            "Parent Directory", pardir_description
+        )
         self._rows.addWidget(self.pardir)
 
         pkg_name_description = ""
@@ -57,25 +62,27 @@ class RosPackageWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.pkg_path.define_connections()
         self.pkg_path.path_changed.connect(self._on_path_changed)
 
+    @overrides
     def is_valid(self) -> bool:
         pardir = self.pkg_path.pardir
         if not osp.isdir(pardir):
-            q_error_named(self._main, self.NAME, f'{pardir} does not exist.')
+            q_error_named(self._main, self.NAME, f"{pardir} does not exist.")
             return False
 
         pkg_name = self.pkg_path.pkg_name
         if pkg_name.count("/") > 0 or pkg_name.count(" "):
-            q_error_named(self._main, self.NAME, f'Invalid package name: {pkg_name}')
+            q_error_named(self._main, self.NAME, f"Invalid package name: {pkg_name}")
             return False
 
         pkg_path = self.pkg_path.text()
         if osp.exists(pkg_path):
-            q_error_named(self._main, self.NAME, f'{pkg_path} already exists.')
+            q_error_named(self._main, self.NAME, f"{pkg_path} already exists.")
             return False
 
         return True
@@ -90,7 +97,6 @@ class RosPackageWidget(BaseSettingWidget):
 
 
 class PackagePath(QLabel):
-
     HEIGHT = 50
 
     path_changed = pyqtSignal(str, str)
@@ -109,8 +115,12 @@ class PackagePath(QLabel):
         self._update()
 
     def define_connections(self) -> None:
-        self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
-        self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
+        self._main.settings.ros_package.pardir.path_changed.connect(
+            self._on_pardir_changed
+        )
+        self._main.settings.ros_package.pkg_name.text_changed.connect(
+            self._on_pkg_name_changed
+        )
         self._main.urdf_parser.robot_model_updated.connect(self._set_defaults)
 
     def _update(self) -> None:
@@ -132,10 +142,10 @@ class PackagePath(QLabel):
 
     @pyqtSlot()
     def _set_defaults(self) -> None:
-        par_dir = f'{get_workspace_path()}/src'
+        par_dir = f"{get_workspace_path()}/src"
         self._main.settings.ros_package.pardir.set(par_dir)
 
-        pkg_name = f'tobas_{get_drone_name()}_config'
+        pkg_name = f"tobas_{get_drone_name()}_config"
         self._main.settings.ros_package.pkg_name.set(pkg_name)
 
         self._update()

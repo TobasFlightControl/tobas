@@ -2,69 +2,67 @@
 
 #include <Eigen/Core>
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/MagneticField.h>
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
+#include <ros/timer.h>
 
 #include <tobas_tools/node.hpp>
 
 #include "./ellipse_transformer.hpp"
+#include "./common.hpp"
 
 namespace tobas_real
 {
 class ImuHandler : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;           // [Hz]
-  static constexpr double kMeasureGyroBiasRate = 200.;  // [Hz]
+  // Constants
+  static constexpr uint32_t kPublishRate = 200;  // [Hz]
   static constexpr uint32_t kMeasureGyroBiasCount = 1000;
-  static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
-
-  // MPU9250
-  // https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf
-  static constexpr double kAccNoiseDensity = 300.;  // ug/sqrt(hz)  // TODO: 実際は遥かに大きい
-  static constexpr double kGyroNoiseDensity = 0.01;  // deg/s/sqrt(hz)
-  static constexpr double kMagNoiseStd = 0.;  // TODO: データシートに無かったため計測する
+  static constexpr uint32_t kMeasureGyroBiasRate = 400;  // [Hz]
+  static constexpr double kStaticGyroThreshold = 0.2;    // [rad/s]
 
   using super = tobas::BaseNode;
 
-  using ImuMsg = sensor_msgs::Imu;
-  using MagMsg = sensor_msgs::MagneticField;
-  using ImuPtr = std::unique_ptr<InertialSensor>;
-
 public:
-  explicit ImuHandler();
-
-  void run();
+  explicit ImuHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
-  // MPU9250 imu_;
-  LSM9DS1 imu_;
+  ImuDevice imu_;
 
-  ImuMsg imu_msg_;
-  MagMsg mag_msg_;
   Eigen::Vector3f acc_;
   Eigen::Vector3f gyro_;
   Eigen::Vector3f mag_;
   EllipseTransformer mag_trans_;
 
-  // 固定値
-  Eigen::Vector3f acc_bias_;
+  // ジャイロバイアス関連
+  uint32_t loop_cnt_ = 0;
+  Eigen::Vector3f gyro_sum_ = Eigen::Vector3f::Zero();
   Eigen::Vector3f gyro_bias_;
+
+  // Config
+  double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
+  double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
+  double mag_noise_density_;   // [/sqrt(Hz)]
+  Eigen::Vector3f acc_bias_;
 
   // Publisher
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
+
+  // Timer
+  ros::Timer main_timer_;
+  ros::Timer measure_gyro_bias_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void readConfig();
-  void setCovarianceMatrices();
   void setupImu();
-  void setGyroBias();
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void mainTimerCb(const ros::TimerEvent& event);
+  void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_real

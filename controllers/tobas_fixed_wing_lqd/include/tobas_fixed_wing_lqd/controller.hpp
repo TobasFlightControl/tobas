@@ -6,13 +6,13 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <dh_ros_tools/timer.hpp>
-#include <dh_linear_control/lqr.hpp>
+#include <dh_linear_control/lqd.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_tools/micro_disturbance_eom.hpp>
-#include <tobas_msgs/BaseState.h>
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
@@ -26,17 +26,17 @@ class Controller : public tobas::BaseNode
 {
   using super = tobas::BaseNode;
 
-  using StateMsg = tobas_msgs::BaseState;
-  using CmdMsg = tobas_msgs::SpeedRollDeltaPitch;
-
   using ConfigType = tobas_fixed_wing_lqd::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller();
+  explicit Controller(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
-  enum State
+  enum Stage
   {
     START,
     TAKEOFF,
@@ -49,24 +49,18 @@ private:
   tobas::RotorAxisExtractor x_rotors_;
   tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
-  // RosParams
-  ConfigType cfg_;  // 動的パラメータの初期値
-
   // 固定値
   KDL::JntArray q_0_;
 
   ros::Time t_last_loop_;
-  bool pressure_received_;
-  bool battery_received_;
-  bool bs_received_;
-  State state_;                  // 飛行フェーズ
-  double air_density_;           // 現在の大気密度
-  tobas_msgs::Battery battery_;  // 現在のバッテリーの状態
-  StateMsg bs_ned_;              // 現在の状態 (NED座標系)
-  CmdMsg cmd_ned_;               // 現在のコマンド (NED座標系)
-  tobas_msgs::RotorSpeeds rotor_speeds_msg_;
-  tobas_msgs::ControlSurfaceDeflections deflections_msg_;
-  tobas_msgs::FixedWingControllerFeedback feedback_msg_;
+  bool pressure_received_ = false;
+  bool battery_received_ = false;
+  bool pt_received_ = false;
+  Stage state_ = START;                      // 飛行フェーズ
+  double air_density_;                       // 現在の大気密度
+  tobas_msgs::BatteryConstPtr battery_;      // 現在のバッテリーの状態
+  tobas_msgs::PoseTwist pt_ned_;             // 現在の状態 (NED座標系)
+  tobas_msgs::SpeedRollDeltaPitch cmd_ned_;  // 現在のコマンド (NED座標系)
 
   ctrl::LQD lqd_;  // 最適レギュレータ
 
@@ -76,7 +70,7 @@ private:
   ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber base_state_sub_;
+  ros::Subscriber pt_sub_;
   ros::Subscriber cmd_sub_;
 
   // Timer
@@ -95,17 +89,16 @@ private:
   void runOnce();
   void setScales();
   void updateCurrentStateVector();
-  void updateSetStateVector(double tar_roll, double tar_delta_pitch);
-  void updateRotorSpeeds(const Eigen::VectorXd& thrust);
-  void updateDeflections(const Eigen::VectorXd& deflections);
+  void updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch);
+  void publishRotorSpeeds(const Eigen::VectorXd& thrust);
+  void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
-  void reconfigure(const ConfigType& cfg);
 
-  void eventCb(const tobas_msgs::Event& event) override;
-  void airPressureCb(const sensor_msgs::FluidPressure& msg);
-  void batteryCb(const tobas_msgs::Battery& battery);
-  void baseStateCb(const StateMsg& bs_nwu);
-  void commandCb(const CmdMsg& cmd_nwu);
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
+  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu);
+  void commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

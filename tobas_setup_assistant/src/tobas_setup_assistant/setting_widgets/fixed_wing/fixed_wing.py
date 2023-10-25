@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -18,16 +20,14 @@ from .control_surfaces import ControlSurfacesWidget
 
 
 class FixedWingWidget(BaseSettingWidget):
-
     NAME = "Fixed Wing"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Fixed Wing"
-        abst_text = "固定翼の設定を行います．"\
-            + "設定方法を選択し，必要事項を入力してください．"
+        abst_text = "固定翼の設定を行います．" + "設定方法を選択し，必要事項を入力してください．"
         super().__init__(main, title_text, abst_text)
 
-        self.has_fixed_wing = QCheckBox("Add fixed wing")
+        self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")
         self.has_fixed_wing.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self.has_fixed_wing.setChecked(False)
         self._rows.addWidget(self.has_fixed_wing)
@@ -47,6 +47,7 @@ class FixedWingWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
@@ -54,6 +55,7 @@ class FixedWingWidget(BaseSettingWidget):
         self.aero_coefs.define_connections()
         self.control_surfaces.define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         if not self.has_fixed_wing.isChecked():
             return True
@@ -66,6 +68,9 @@ class FixedWingWidget(BaseSettingWidget):
             return False
 
         return True
+
+    def num_control_surfaces(self) -> int:
+        return self.control_surfaces.selected.count()
 
     def _update_visibility(self) -> None:
         if self.has_fixed_wing.isChecked():

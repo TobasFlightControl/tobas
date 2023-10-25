@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_state_checker" type="multirotor_state_checker_node" name="multirotor_state_checker" output="screen"/>
-
-</launch>

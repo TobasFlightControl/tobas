@@ -1,61 +1,47 @@
 #pragma once
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/range.hpp>
+#include <Eigen/Core>
 
-#include <tobas_tools/node.hpp>
-#include <tobas_msgs/BaseState.h>
-#include <tobas_msgs/VelocityYaw.h>
+#include <dh_std_tools/range.hpp>
+#include <dh_std_tools/first_order_filter.hpp>
+
+#include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/RCInput.h>
+#include <tobas_msgs/VelocityYaw.h>
+
+#include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
-class RcinToVelocityYaw : public tobas::BaseNode
+class VelocityYawController : public BaseController
 {
-  static constexpr double kDefaultMaxHorizontalVelocity = 3.;
-  static constexpr double kDefaultMaxVerticalVelocity = 3.;
-  static constexpr double kDefaultMaxYawrate = dh_std::deg2rad(180.);
+  static constexpr double kDefaultDelayTimeConst = 0.;  // [s] 応答が悪くなるからデフォルトは遅延0
 
-  using super = tobas::BaseNode;
+  using super = BaseController;
 
 public:
-  explicit RcinToVelocityYaw();
+  explicit VelocityYawController();
+
+  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void reset(const tobas_msgs::PoseTwist& pt) override;
+  void update(const tobas_msgs::RCInput& rcin, const dh_std::Range<double>& dead_zone);
 
 private:
-  enum State
-  {
-    CHECK_PREREQUISITES,
-    FIRST_RCIN,
-    TOGGLE_OFF,
-    TOGGLE_ON,
-  };
-
-  State state_;
-  tobas_msgs::BaseState bs_;
-  tobas_msgs::VelocityYaw vel_yaw_;
-  bool bs_received_;
   ros::Time t_last_rcin_;
+  dh_std::FirstOrderFilter<Eigen::Vector3d> vel_filter_;
+  Eigen::Vector3d vel_raw_;
+  double yaw_;
 
-  // ROS parameters
-  double max_hor_vel_;  // [m/s]
-  double max_ver_vel_;  // [m/s]
-  double max_yawrate_;  // [rad/s]
-  double dead_zone_rate_;
+  // rosparams
+  double max_hor_vel_;       // [m/s]
+  double max_ver_vel_;       // [m/s]
+  double max_yawrate_;       // [rad/s]
+  double delay_time_const_;  // [s]
 
-  // Constant values
-  dh_std::Range<double> dead_zone_;
-
-  // PubSub
+  // Publisher
   ros::Publisher vel_yaw_pub_;
-  ros::Subscriber bs_sub_;
-  ros::Subscriber rcin_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
-  void eventCb(const tobas_msgs::Event& event) override;
-  void baseStateCb(const tobas_msgs::BaseState& bs);
-  void rcInputCb(const tobas_msgs::RCInput& rcin);
+  void getRosParams(ros::NodeHandle& pnh);
+  void registerPublishers(ros::NodeHandle& nh);
 };
 }  // namespace tobas_rc_teleop

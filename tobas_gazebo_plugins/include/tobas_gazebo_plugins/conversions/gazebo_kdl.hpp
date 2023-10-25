@@ -1,7 +1,8 @@
 #pragma once
 
-#include <kdl/frames.hpp>
 #include <gazebo/gazebo.hh>
+
+#include <dh_kdl/frames.hpp>
 
 namespace gazebo
 {

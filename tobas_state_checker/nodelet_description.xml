@@ -1,0 +1,7 @@
+<library path="lib/libtobas_state_checker_nodelet">
+
+  <class name="tobas_state_checker/StateCheckerNodelet" type="tobas_state_checker::StateCheckerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
@@ -12,8 +13,9 @@ from ..common import *
 
 
 class BaseSettingWidget(QScrollArea):
-
     ABST_HEIGHT = 100
+
+    NAME = "Unknown"
 
     def __init__(self, main: SetupAssistant, title_text: str, abst_text: str) -> None:
         super().__init__()
@@ -29,24 +31,22 @@ class BaseSettingWidget(QScrollArea):
         inner.setLayout(self._rows)
 
         title = QLabel(title_text)
-        title.setFont(QFont('Default', pointSize=TITLE_PSIZE, weight=QFont.Bold))
+        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
         self._rows.addWidget(title)
 
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        abst = Description(abst_text)
         abst.setFixedHeight(self.ABST_HEIGHT)
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        abst.setOpenExternalLinks(True)
         self._rows.addWidget(abst)
 
     @abstractmethod
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(lambda: self.setEnabled(True))
+        self._main.urdf_parser.robot_model_updated.connect(
+            lambda: self.setEnabled(True)
+        )
         self._main.pkg_generator.generated.connect(lambda: self.setEnabled(False))
 
     @abstractmethod
     def is_valid(self) -> bool:
-        """ Returns true if user configuration is valid. """
+        """Returns true if user configuration is valid."""
         raise NotImplementedError()

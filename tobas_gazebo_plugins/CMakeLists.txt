@@ -9,33 +9,54 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	gazebo_plugins
+	laser_geometry
 	sensor_msgs
 	geometry_msgs
+	message_generation
 )
 find_package(gazebo REQUIRED)
 find_package(OpenCV REQUIRED)
 
+file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
+add_message_files(FILES ${MSG_FILES})
+# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
+# add_service_files(FILES ${SRV_FILES})
+# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
+# add_action_files(FILES ${ACTION_FILES})
+
+generate_messages(DEPENDENCIES
+	dh_kdl_msgs
+	std_msgs
+)
+
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_tools gazebo_plugins sensor_msgs geometry_msgs
+	CATKIN_DEPENDS tobas_tools gazebo_plugins laser_geometry sensor_msgs geometry_msgs
 	DEPENDS GAZEBO OpenCV
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+include_directories(
+	${catkin_INCLUDE_DIRS}
+	${GAZEBO_INCLUDE_DIRS}
+	${OpenCV_INCLUDE_DIRS}
+)
+
+link_directories(${GAZEBO_LIBRARY_DIRS})  # RayPluginを使うために必要
 
 # ライブラリを作成 (後でプラグインとリンクするために共有ライブラリにしておく)
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/${PROJECT_NAME}/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # プラグインごとに共有ライブラリを作成
-file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/plugins/[^.]*_plugin.cpp)
+file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*_plugin.cpp)
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 	get_filename_component(FILE_NAME ${FILE} NAME_WE)
 	set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
@@ -44,6 +65,7 @@ foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 		${catkin_LIBRARIES}
 		${GAZEBO_LIBRARIES}
 		${OpenCV_LIBRARIES}
+		RayPlugin  # lidar_pluginに必要
 		${PROJECT_NAME}
 	)
 endforeach()

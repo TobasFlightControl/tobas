@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
@@ -9,7 +10,6 @@ from PyQt5.QtGui import *
 
 
 class FrameTreeWidget(QTreeWidget):
-
     WIDTH = 300
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -47,7 +47,7 @@ class FrameTreeWidget(QTreeWidget):
 
     @pyqtSlot()
     def _resize_columns(self) -> None:
-        """ 文字列の長さに応じて列の幅を調整する． """
+        """文字列の長さに応じて列の幅を調整する．"""
         self.resizeColumnToContents(0)
 
     def _add_tree_items_rec(self, parent_item: QTreeWidgetItem) -> None:

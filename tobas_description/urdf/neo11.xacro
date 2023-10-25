@@ -3,11 +3,10 @@
 <robot name="neo11" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find tobas_description)/urdf/multirotor_base.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro" />
 
   <!-- Properties -->
   <xacro:property name="namespace" value="neo11" />
-  <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
   <xacro:property name="use_mesh_file" value="true" />
   <xacro:property name="mesh_file" value="package://tobas_description/meshes/neo11.dae" />
   <xacro:property name="mass" value="3.42" /> <!-- [kg] -->
@@ -17,30 +16,21 @@
   <xacro:property name="arm_length" value="0.2895" /> <!-- [m] -->
   <xacro:property name="rotor_offset_top" value="0.028" /> <!-- [m] -->
   <xacro:property name="radius_rotor" value="0.1397" /> <!-- [m] -->
-  <xacro:property name="motor_constant" value="1.269e-05" /> <!-- [kg m/s^2] -->
-  <xacro:property name="moment_constant" value="0.016754" /> <!-- [m] -->
-  <xacro:property name="time_constant_up" value="0.0182" /> <!-- [s] -->
-  <xacro:property name="time_constant_down" value="0.0182" /> <!-- [s] -->
-  <xacro:property name="max_rot_velocity" value="1047.2" /> <!-- [rad/s] -->
-  <xacro:property name="sin30" value="0.5" />
-  <xacro:property name="cos30" value="0.866025403784" />
   <xacro:property name="front_propeller_x" value="0.247" />
   <xacro:property name="front_propeller_y" value="0.1506" />
   <xacro:property name="side_propeller_x" value="-0.00067" />
   <xacro:property name="side_propeller_y" value="0.28929" />
   <xacro:property name="back_propeller_x" value="-0.2501" />
   <xacro:property name="back_propeller_y" value="0.1454" />
-  <xacro:property name="rotor_drag_coefficient" value="2.0673e-04" />
-  <xacro:property name="rolling_moment_coefficient" value="0.0" />
 
   <!-- Property Blocks -->
   <xacro:property name="body_inertia">
-    <inertia ixx="6.08870e-02" ixy="0.0" ixz="0.0" iyy="6.87913e-02" iyz="0.0" izz="1.48916e-01" /> <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
+    <inertia ixx="6.08870e-02" ixy="0.0" ixz="0.0" iyy="6.87913e-02" iyz="0.0" izz="1.48916e-01" /> <!-- [kg m^2] -->
   </xacro:property>
 
   <!-- inertia of a single rotor, assuming it is a cuboid. Height=3mm, width=15mm -->
   <xacro:property name="rotor_inertia">
-    <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor*rotor_velocity_slowdown_sim}" />
+    <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor}" />
   </xacro:property>
 
   <!-- Instantiate multirotor_base_macro once -->

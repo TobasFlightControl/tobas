@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_multirotor_landing" type="landing_action_server_node" name="landing_action_server" output="screen"/>
-
-</launch>

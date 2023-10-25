@@ -15,10 +15,9 @@ from ..common import *
 
 
 class ParamGetterWidget_DoubleTable(ParamGetterWidget):
-
     BTN_HEIGHT = 30
     BTN_WIDTH = 100
-    DEFAULT_VALUE = 0.
+    DEFAULT_VALUE = 0.0
     DEFAULT_DECIMALS = 2
 
     data_changed = pyqtSignal()
@@ -33,12 +32,14 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         # 最後に開かれたディレクトリの記録用
         self._config = ConfigParser()
-        self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
+        self._path_key = (
+            f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
+        )
 
         self._labels = labels
         self._num_entry = len(labels)
-        self._minimum = [-1e+9] * self._num_entry
-        self._maximum = [+1e+9] * self._num_entry
+        self._minimum = [-1e9] * self._num_entry
+        self._maximum = [+1e9] * self._num_entry
         self._default = [self.DEFAULT_VALUE] * self._num_entry
         self._decimals = [self.DEFAULT_DECIMALS] * self._num_entry
         self._suffix = [""] * self._num_entry
@@ -159,7 +160,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             self._table.setColumnWidth(col, width)
 
     def count(self) -> int:
-        """ Returns the number of samples. """
+        """Returns the number of samples."""
         return self._table.rowCount()
 
     @pyqtSlot()
@@ -204,8 +205,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         except Exception as e:
             q_error(
                 self.parent(),
-                f'Invalid column names: {df.columns.to_list()} \n'
-                f'The required names are: {self._labels}'
+                f"Invalid column names: {df.columns.to_list()} \n"
+                f"The required names are: {self._labels}",
             )
             return
 
@@ -214,7 +215,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         except Exception as e:
             q_error(
                 self.parent(),
-                f'The data contains invalid data type. The error message is: {e}'
+                f"The data contains invalid data type. The error message is: {e}",
             )
             return
 
@@ -225,7 +226,9 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
     def _get_csv_file_path(self) -> str:
         self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(DEFAULT, self._path_key, fallback=osp.expanduser("~"))
+        last_opened_dir = self._config.get(
+            DEFAULT, self._path_key, fallback=osp.expanduser("~")
+        )
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -251,7 +254,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
                 if not self._minimum[col] <= val <= self._maximum[col]:
                     q_error(
                         self.parent(),
-                        f'{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.',
+                        f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.",
                     )
                     return False
 

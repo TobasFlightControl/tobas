@@ -8,7 +8,6 @@ from .base import ParamGetterWidget
 
 
 class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
-
     value_changed = pyqtSignal(float)
 
     def __init__(
@@ -16,14 +15,14 @@ class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
         param_name: str,
         description_text: str = None,
         decimals: int = 12,
-        minimum: float = -1e+9,
-        maximum: float = +1e+9,
-        single_step: float = 1.,
+        minimum: float = -1e9,
+        maximum: float = +1e9,
+        single_step: float = 1.0,
         default: float = None,
         suffix: str = "",
     ) -> None:
         assert minimum < maximum
-        assert single_step > 0.
+        assert single_step > 0.0
         assert decimals >= 0
 
         super().__init__(param_name, description_text)

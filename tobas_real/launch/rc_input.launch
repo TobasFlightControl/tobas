@@ -1,5 +1,15 @@
 <launch>
 
-  <node pkg="tobas_real" name="rcin_handler" type="rcin_handler_node" output="screen"/>
+  <arg name="nodelet" default="false"/>
+
+  <arg name="node_name" value="rcin_handler"/>
+
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_real/RCInputHandlerNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_real" type="rcin_handler_node" name="$(arg node_name)" output="screen"/>
+  </group>
 
 </launch>

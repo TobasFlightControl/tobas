@@ -8,7 +8,7 @@ namespace gazebo
 class SimpleJointModel
 {
 public:
-  explicit SimpleJointModel(const dh_std::Range<double>& pos_limit, const double max_vel);
+  explicit SimpleJointModel(const dh_std::Range<double>& pos_limit, const double& max_vel);
 
   void update(double tar_pos, double dt);
   const double& currentPosition() const;

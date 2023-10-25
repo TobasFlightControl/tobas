@@ -1,0 +1,237 @@
+<?xml version="1.0"?>
+
+<robot name="s900"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+
+  <!-- Properties: https://www.dji.com/jp/spreading-wings-s900 -->
+  <xacro:property name="center_frame_width" value="0.3"/>
+  <xacro:property name="center_frame_height" value="0.15"/>
+  <xacro:property name="center_frame_mass" value="1.065"/>
+  <xacro:property name="battery_x" value="0.180"/>
+  <xacro:property name="battery_y" value="0.070"/>
+  <xacro:property name="battery_z" value="0.051"/>
+  <xacro:property name="battery_mass" value="1.424"/>
+  <xacro:property name="landing_gear_upper_radius" value="0.0125"/>
+  <xacro:property name="landing_gear_upper_length" value="0.35"/>
+  <xacro:property name="landing_gear_upper_mass" value="0.06"/>
+  <xacro:property name="landing_gear_lower_radius" value="0.009"/>
+  <xacro:property name="landing_gear_lower_length" value="0.457"/>
+  <xacro:property name="landing_gear_lower_mass" value="0.06"/>
+  <xacro:property name="arm_offset" value="0.155"/>
+  <xacro:property name="arm_radius" value="0.0125"/>
+  <xacro:property name="arm_length" value="0.3"/>
+  <xacro:property name="arm_mass" value="0.158"/>
+  <xacro:property name="motor_radius" value="0.0225"/>
+  <xacro:property name="motor_height" value="0.027"/>
+  <xacro:property name="motor_mass" value="0.158"/>
+  <xacro:property name="propeller_radius" value="0.191"/>
+  <xacro:property name="propeller_height" value="0.011"/>
+  <xacro:property name="propeller_mass" value="0.013"/>
+
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- Center Frame -->
+  <joint name="center_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="center_frame"/>
+  </joint>
+  <link name="center_frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/s900/center_frame.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+      <xacro:insert_block name="white"/>
+    </visual>
+    <inertial>
+      <mass value="${center_frame_mass}"/>
+      <origin xyz="0 0 ${-center_frame_height/2}" rpy="0 0 0"/>
+      <xacro:box_inertia x="${center_frame_width}" y="${center_frame_width}" z="${center_frame_height}" mass="${center_frame_mass}"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 ${-center_frame_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${center_frame_width} ${center_frame_width} ${center_frame_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Battery -->
+  <joint name="battery_joint" type="fixed">
+    <origin xyz="0.068 0 -0.103" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="battery"/>
+  </joint>
+  <link name="battery">
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/s900/battery.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+      <xacro:insert_block name="black"/>
+    </visual>
+    <inertial>
+      <mass value="${battery_mass}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <xacro:box_inertia x="${battery_x}" y="${battery_y}" z="${battery_z}" mass="${battery_mass}"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${battery_x} ${battery_y} ${battery_z}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Landing Gears -->
+  <xacro:macro name="landing_gear" params="direction suffix">
+    <!-- Upper Part -->
+    <joint name="landing_gear_${suffix}_upper_joint" type="fixed">
+      <origin xyz="0 ${direction*0.068} -0.088" rpy="${direction*24.542*deg2rad} 0 0"/>
+      <parent link="base_link"/>
+      <child link="landing_gear_${suffix}_upper"/>
+    </joint>
+    <link name="landing_gear_${suffix}_upper">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/s900/landing_gear_upper.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${landing_gear_upper_mass}"/>
+        <origin xyz="0 0 ${-landing_gear_upper_length/2}" rpy="0 0 0"/>
+        <xacro:cylinder_inertia radius="${landing_gear_upper_radius}" length="${landing_gear_upper_length}" mass="${landing_gear_upper_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 ${-landing_gear_upper_length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${landing_gear_upper_radius}" length="${landing_gear_upper_length}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Lower Part -->
+    <joint name="landing_gear_${suffix}_lower_joint" type="fixed">
+      <origin xyz="0 0 -0.344" rpy="0 0 0"/>
+      <parent link="landing_gear_${suffix}_upper"/>
+      <child link="landing_gear_${suffix}_lower"/>
+    </joint>
+    <link name="landing_gear_${suffix}_lower">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/s900/landing_gear_lower.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${landing_gear_lower_mass}"/>
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        <xacro:cylinder_inertia radius="${landing_gear_lower_radius}" length="${landing_gear_lower_length}" mass="${landing_gear_lower_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${landing_gear_lower_radius}" length="${landing_gear_lower_length}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <xacro:landing_gear direction="1" suffix="left"/>
+  <xacro:landing_gear direction="-1" suffix="right"/>
+
+  <!-- Propulsion Systems -->
+  <xacro:macro name="propulsion_system" params="index yaw_deg origin_x origin_y direction">
+    <!-- Arm -->
+    <joint name="arm_${index}_joint" type="fixed">
+      <origin xyz="${origin_x} ${origin_y} -0.015" rpy="0 ${-3.238*deg2rad} ${yaw_deg*deg2rad}"/>
+      <parent link="base_link"/>
+      <child link="arm_${index}"/>
+    </joint>
+    <link name="arm_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/s900/arm.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${arm_mass}"/>
+        <origin xyz="${arm_length/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <xacro:cylinder_inertia radius="${arm_radius}" length="${arm_length}" mass="${arm_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="${arm_length/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${arm_radius}" length="${arm_length}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Motor -->
+    <joint name="motor_${index}_joint" type="fixed">
+      <origin xyz="0.251 0 0.005" rpy="0 0 0"/>
+      <parent link="arm_${index}"/>
+      <child link="motor_${index}"/>
+    </joint>
+    <link name="motor_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/s900/motor.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${motor_mass}"/>
+        <origin xyz="0 0 ${motor_height/2}" rpy="0 0 0"/>
+        <xacro:cylinder_inertia radius="${motor_radius}" length="${motor_height}" mass="${motor_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 ${motor_height/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${motor_radius}" length="${motor_height}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Propeller -->
+    <joint name="propeller_${index}_joint" type="continuous">
+      <origin xyz="0 0 ${motor_height}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <parent link="motor_${index}"/>
+      <child link="propeller_${index}"/>
+    </joint>
+    <link name="propeller_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/s900/propeller_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${propeller_mass}"/>
+        <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
+        <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${propeller_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${propeller_radius}" length="${propeller_height}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <xacro:propulsion_system index="0" yaw_deg="30" origin_x="${arm_offset*cos30}" origin_y="${arm_offset*sin30}" direction="ccw"/>
+  <xacro:propulsion_system index="1" yaw_deg="90" origin_x="0" origin_y="${arm_offset}" direction="cw"/>
+  <xacro:propulsion_system index="2" yaw_deg="150" origin_x="${-arm_offset*cos30}" origin_y="${arm_offset*sin30}" direction="ccw"/>
+  <xacro:propulsion_system index="3" yaw_deg="210" origin_x="${-arm_offset*cos30}" origin_y="${-arm_offset*sin30}" direction="cw"/>
+  <xacro:propulsion_system index="4" yaw_deg="270" origin_x="0" origin_y="${-arm_offset}" direction="ccw"/>
+  <xacro:propulsion_system index="5" yaw_deg="330" origin_x="${arm_offset*cos30}" origin_y="${-arm_offset*sin30}" direction="cw"/>
+
+</robot>

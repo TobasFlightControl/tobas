@@ -1,13 +1,15 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
-    from .setting_widgets.rotary_wings.selected_links import SelectedLinkTabWidget
+    from .setting_widgets.propulsion_system.selected_links import SelectedLinkTabWidget
 
 import os
 import os.path as osp
 import yaml
 import rospy
+from typing import List
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 from PyQt5.QtCore import *
@@ -19,15 +21,15 @@ from urdf_tools_py.gazebo import GazeboRosControl
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
+from kdl_sympy.joint import JointType
 
-from tobas_msgs.msg import PositionYaw, SpeedRollDeltaPitch
+from tobas_msgs.msg import *
 
 from .utils import *
 from .xml_nodes import *
 
 
 class PackageGenerator(QObject):
-
     generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
@@ -38,14 +40,16 @@ class PackageGenerator(QObject):
         self._template_env = Environment(
             loader=FileSystemLoader(osp.join(self._proj_path, "templates")),
             trim_blocks=True,
-            lstrip_blocks=True)
+            lstrip_blocks=True,
+        )
 
         self._drone_name = ""
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._main.settings.ros_package.generate_button.clicked.connect(
-            self._on_generate_button_clicked)
+            self._on_generate_button_clicked
+        )
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
@@ -61,38 +65,58 @@ class PackageGenerator(QObject):
 
     def _is_valid_config(self) -> bool:
         if not self._main.settings.start.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.start)
             return False
         if not self._main.settings.battery.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.battery)
             return False
-        if not self._main.settings.rotary_wings.is_valid():
+        if not self._main.settings.propulsion_system.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.propulsion_system)
             return False
         if not self._main.settings.fixed_wing.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.fixed_wing)
             return False
         if not self._main.settings.imu.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.imu)
             return False
         if not self._main.settings.magnetometer.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.magnetometer)
             return False
         if not self._main.settings.barometer.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.barometer)
             return False
         if not self._main.settings.gps.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.gps)
             return False
         if not self._main.settings.rgb_camera.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.rgb_camera)
             return False
         if not self._main.settings.depth_camera.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.depth_camera)
             return False
         if not self._main.settings.lidar.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.lidar)
             return False
         if not self._main.settings.odometry.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.odometry)
+            return False
+        if not self._main.settings.rc_transmitter.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.rc_transmitter)
             return False
         if not self._main.settings.controller.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
         if not self._main.settings.observer.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.observer)
             return False
         if not self._main.settings.simulation.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.simulation)
             return False
         if not self._main.settings.author_information.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.author_information)
             return False
         if not self._main.settings.ros_package.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.ros_package)
             return False
 
         return True
@@ -113,47 +137,83 @@ class PackageGenerator(QObject):
         # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(
-            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt"))
+            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt")
+        )
         self._generate_from_template(
-            items, "package.xml", osp.join(pkg_path, "package.xml"))
+            items, "package.xml", osp.join(pkg_path, "package.xml")
+        )
         self._generate_from_template(
-            items, "environment.yaml", osp.join(config_dir, "environment.yaml"))
+            items, "environment.yaml", osp.join(config_dir, "environment.yaml")
+        )
         self._generate_from_template(
-            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch"))
+            items,
+            "nodelet_manager.launch",
+            osp.join(launch_dir, "nodelet_manager.launch"),
+        )
         self._generate_from_template(
-            items, "real.launch", osp.join(launch_dir, "real.launch"))
+            items, "common_params.launch", osp.join(launch_dir, "common_params.launch")
+        )
         self._generate_from_template(
-            items, "controller.launch", osp.join(launch_dir, "controller.launch"))
+            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch")
+        )
         self._generate_from_template(
-            items, "observer.launch", osp.join(launch_dir, "observer.launch"))
+            items, "real.launch", osp.join(launch_dir, "real.launch")
+        )
         self._generate_from_template(
-            items, "bringup.launch", osp.join(launch_dir, "bringup.launch"))
+            items, "controller.launch", osp.join(launch_dir, "controller.launch")
+        )
         self._generate_from_template(
-            items, "hil.launch", osp.join(launch_dir, "hil.launch"))
+            items, "observer.launch", osp.join(launch_dir, "observer.launch")
+        )
         self._generate_from_template(
-            items, "motors.launch", osp.join(launch_dir, "motors.launch"))
+            items, "bringup.launch", osp.join(launch_dir, "bringup.launch")
+        )
         self._generate_from_template(
-            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch"))
+            items,
+            "hardware_interfaces.launch",
+            osp.join(launch_dir, "hardware_interfaces.launch"),
+        )
+        self._generate_from_template(
+            items, "hil.launch", osp.join(launch_dir, "hil.launch")
+        )
+        self._generate_from_template(
+            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+        )
 
         command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
-        if PositionYaw in command_msgs:
+
+        # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
+        if (
+            PositionYaw.__name__ in command_msgs
+            or PosVelAccYaw.__name__ in command_msgs
+        ):
             self._generate_from_template(
                 items,
                 "keyboard_teleop/position_yaw.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"))
-            self._generate_from_template(
-                items,
-                "gui_teleop/position_yaw.launch",
-                osp.join(launch_dir, "gui_teleop.launch"))
-        elif SpeedRollDeltaPitch in command_msgs:
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
+        elif SpeedRollDeltaPitch.__name__ in command_msgs:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/speed_roll_dpitch.launch",
-                osp.join(launch_dir, "keyboard_teleop.launch"))
+                osp.join(launch_dir, "keyboard_teleop.launch"),
+            )
+
+        # GUI Teleop (コントローラの対応コマンドによって場合分け)
+        if (
+            PositionYaw.__name__ in command_msgs
+            or PosVelAccYaw.__name__ in command_msgs
+        ):
+            self._generate_from_template(
+                items,
+                "gui_teleop/position_yaw.launch",
+                osp.join(launch_dir, "gui_teleop.launch"),
+            )
 
         # Pythonで自動生成
         self._generate_drone_config(config_dir)
         self._generate_joint_control_config(config_dir)
+        self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
         self._generate_state_checker_config(config_dir)
@@ -176,9 +236,6 @@ class PackageGenerator(QObject):
         # Simulation
         simulation = self._main.settings.simulation
         template_items["gravity"] = simulation.gravity.get()
-        template_items["ref_mag_north"] = simulation.ref_mag_north.get() * 1e-9
-        template_items["ref_mag_east"] = simulation.ref_mag_east.get() * 1e-9
-        template_items["ref_mag_down"] = simulation.ref_mag_down.get() * 1e-9
 
         # Author Info
         author_info = self._main.settings.author_information
@@ -191,13 +248,15 @@ class PackageGenerator(QObject):
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
-        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
-            joint_controllers += f' {jnt_name}_controller'
+        for jnt_name in self._posture_defining_joint_names():
+            joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
         return template_items
 
-    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
+    def _generate_from_template(
+        self, items: dict, template_file: str, out_path: str
+    ) -> None:
         template = self._template_env.get_template(template_file)
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
         with open(out_path, "w") as f:
@@ -209,17 +268,20 @@ class PackageGenerator(QObject):
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
-            "posture_defining_joint_names": self._main.urdf_parser.posture_defining_joint_names(),
+            "posture_defining_joint_names": self._posture_defining_joint_names(),
         }
 
-        # Rotary wings
-        rotary_wings = self._main.settings.rotary_wings.selected
-        num_rotors = rotary_wings.count()
+        # Propulsion System
+        propulsion_system = self._main.settings.propulsion_system.selected
+
+        num_rotors = propulsion_system.count()
+        drone_config["num_rotors"] = num_rotors
+
         for i in range(num_rotors):
-            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+            selected: SelectedLinkTabWidget = propulsion_system.widget(i)
 
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
-            drone_config[f'rotor_{i}'] = {
+            drone_config[f"rotor_{i}"] = {
                 "link_name": selected.link_name(),
                 "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
@@ -228,19 +290,20 @@ class PackageGenerator(QObject):
                 "time_constant_down": float(selected.motor.time_const_down()),
                 "motor_constant": float(selected.aerodynamics.motor_const()),
                 "moment_constant": float(selected.aerodynamics.moment_const()),
-                "rotor_drag_coefficient": float(selected.aerodynamics.rotor_drag_coef()),
+                "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
                 "pin": i + 1,
             }
 
             esc = selected.esc
             esc_type = esc.esc_type.currentText()
-            drone_config[f'rotor_{i}']["esc_type"] = esc_type.lower()
+            drone_config[f"rotor_{i}"]["esc_type"] = esc_type.lower()
 
         # Fixed wing
         fixed_wing = self._main.settings.fixed_wing
         if fixed_wing.has_fixed_wing.isChecked():
             drone_config["fixed_wing"] = dict()
 
+            # Vehicle
             vehicle = fixed_wing.vehicle
             drone_config["fixed_wing"]["vehicle"] = {
                 "wing_surface": vehicle.wing_surface.get(),
@@ -253,6 +316,7 @@ class PackageGenerator(QObject):
                 },
             }
 
+            # Aerodynamic Coefficients
             aero_coefs = fixed_wing.aero_coefs
             drone_config["fixed_wing"]["aerodynamic_coefficients"] = {
                 "c_lift_0": aero_coefs.c_lift_0.value(),
@@ -273,9 +337,14 @@ class PackageGenerator(QObject):
                 "c_yaw_r": aero_coefs.c_yaw_r.value(),
             }
 
+            # Control Surfaces
             control_surfaces = fixed_wing.control_surfaces
+
+            num_cs = fixed_wing.num_control_surfaces()
+            drone_config["fixed_wing"]["num_control_surface"] = num_cs
+
             for idx, cs in enumerate(control_surfaces.control_surfaces()):
-                drone_config["fixed_wing"][f'control_surface_{idx}'] = {
+                drone_config["fixed_wing"][f"control_surface_{idx}"] = {
                     "angle_limit": {
                         "lower": cs.min_angle,
                         "upper": cs.max_angle,
@@ -290,7 +359,7 @@ class PackageGenerator(QObject):
                 }
 
         # TBSFファイルを作成
-        drone_config_path = osp.join(config_dir, f'{self._drone_name}.tbsf')
+        drone_config_path = osp.join(config_dir, f"{self._drone_name}.tbsf")
         with open(drone_config_path, "w") as f:
             yaml.dump(drone_config, f)
 
@@ -299,10 +368,10 @@ class PackageGenerator(QObject):
         items = dict()
         items["joint_state_controller"] = {
             "type": "joint_state_controller/JointStateController",
-            "publish_rate": 1000.
+            "publish_rate": 1000.0,
         }
-        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
-            items[f'{jnt_name}_controller'] = {
+        for jnt_name in self._posture_defining_joint_names():
+            items[f"{jnt_name}_controller"] = {
                 "type": "position_controllers/JointPositionController",
                 "joint": jnt_name,
             }
@@ -312,25 +381,38 @@ class PackageGenerator(QObject):
         with open(jnt_ctrl_path, "w") as f:
             yaml.dump(items, f)
 
+    def _generate_rc_teleop_config(self, config_dir: str) -> None:
+        rc_transmitter = self._main.settings.rc_transmitter
+        controller = self._main.settings.controller.selected()
+
+        items = dict()
+        items["rc_teleop"] = {
+            "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
+            "mode_names": controller.flight_modes.mode_names(),
+        }
+
+        file_path = osp.join(config_dir, "rc_teleop.yaml")
+        with open(file_path, "w") as f:
+            yaml.dump(items, f)
+
     def _generate_controller_config(self, config_dir: str) -> None:
         items = self._main.settings.controller.selected().parameter_dict()
-        controller_path = osp.join(config_dir, "controller.yaml")
-        with open(controller_path, "w") as f:
+        file_path = osp.join(config_dir, "controller.yaml")
+        with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
         items = self._main.settings.observer.selected().parameter_dict()
-        observer_path = osp.join(config_dir, "observer.yaml")
-        with open(observer_path, "w") as f:
+        file_path = osp.join(config_dir, "observer.yaml")
+        with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_state_checker_config(self, config_dir: str) -> None:
         battery = self._main.settings.battery.selected()
 
         items = dict()
-        items["multirotor_state_checker"] = {
-            "warn_battery_voltage": battery.warn_voltage(),
-            "fatal_battery_voltage": battery.fatal_voltage(),
+        items["state_checker"] = {
+            "battery_voltage_threshold": battery.voltage_threshold(),
         }
 
         file_path = osp.join(config_dir, "state_checker.yaml")
@@ -339,7 +421,7 @@ class PackageGenerator(QObject):
 
     def _generate_urdf(self, urdf_dir: str) -> None:
         robot = self._make_urdf_with_plugins()
-        urdf_path = osp.join(urdf_dir, f'{self._drone_name}.xacro')
+        urdf_path = osp.join(urdf_dir, f"{self._drone_name}.xacro")
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
@@ -356,7 +438,7 @@ class PackageGenerator(QObject):
         return robot
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
-        """ 悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す． """
+        """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
         for child in robot:
             # transmissionは問答無用で消す
             if child.tag == "transmission":
@@ -378,17 +460,19 @@ class PackageGenerator(QObject):
                     elif gchild.tag == "sensor":
                         self._remove_or_keep_gazebo_child(child, gchild)
 
-    def _remove_or_keep_gazebo_child(self, gazebo: ET.Element, child: ET.Element) -> None:
-        """ 属性を確認した上でGazeboの子ノードを削除する． """
+    def _remove_or_keep_gazebo_child(
+        self, gazebo: ET.Element, child: ET.Element
+    ) -> None:
+        """属性を確認した上でGazeboの子ノードを削除する．"""
         msg_box = QMessageBox(self._main)  # 親を設定しておけば一緒に落とせる
 
         # テキストの設定
-        text = f'Gazebo {child.tag} is detected.\n\n'
+        text = f"Gazebo {child.tag} is detected.\n\n"
         for key, value in child.attrib.items():
-            text += f'    {key}: {value}\n'
+            text += f"    {key}: {value}\n"
         text += "\nThis may interfere with components automatically added by Tobas."
         msg_box.setText(text)
-        msg_box.setInformativeText(f'Do you remove this {child.tag} or keep it?')
+        msg_box.setInformativeText(f"Do you remove this {child.tag} or keep it?")
 
         # ボタンの設定
         remove_button = msg_box.addButton("Remove", QMessageBox.ActionRole)
@@ -405,7 +489,7 @@ class PackageGenerator(QObject):
     def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
 
-        rotary_wings = self._main.settings.rotary_wings.selected
+        propulsion_system = self._main.settings.propulsion_system.selected
         fixed_wing = self._main.settings.fixed_wing
         battery = self._main.settings.battery
         imu = self._main.settings.imu
@@ -414,6 +498,7 @@ class PackageGenerator(QObject):
         gps = self._main.settings.gps
         rgb_camera = self._main.settings.rgb_camera
         depth_camera = self._main.settings.depth_camera
+        lidar = self._main.settings.lidar
         odometry = self._main.settings.odometry
         simulation = self._main.settings.simulation
 
@@ -424,7 +509,14 @@ class PackageGenerator(QObject):
         base_fix_joint = BaseStaticJoint(root_link=root_link)
         robot.append(base_fix_joint)
 
-        # Wind
+        # Base plugin
+        base_plugin = BasePlugin(
+            ns=self._drone_name,
+            rotor_joint_names=propulsion_system.joint_names(),
+        )
+        robot.append(base_plugin)
+
+        # Wind plugin
         wind_model = WindModel(
             ns=self._drone_name,
             link_name=root_link,
@@ -433,16 +525,16 @@ class PackageGenerator(QObject):
         )
         robot.append(wind_model)
 
-        # Battery
+        # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
             nominal_voltage=battery.selected().nominal_voltage(),
         )
         robot.append(battery_model)
 
-        # Rotary wings
-        for i in range(rotary_wings.count()):
-            selected: SelectedLinkTabWidget = rotary_wings.widget(i)
+        # Propulsion System plugin
+        for i in range(propulsion_system.count()):
+            selected: SelectedLinkTabWidget = propulsion_system.widget(i)
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,
@@ -458,7 +550,7 @@ class PackageGenerator(QObject):
             )
             robot.append(motor_model)
 
-        # Fixed wing
+        # Fixed wing plugin
         if fixed_wing.has_fixed_wing.isChecked():
             vehicle = fixed_wing.vehicle
             aero_coefs = fixed_wing.aero_coefs
@@ -492,7 +584,7 @@ class PackageGenerator(QObject):
             )
             robot.append(fixed_wing_model)
 
-        # IMU
+        # IMU plugin
         if imu.equipped():
             imu_model = ImuModel(
                 ns=self._drone_name,
@@ -510,21 +602,22 @@ class PackageGenerator(QObject):
             )
             robot.append(imu_model)
 
-        # Magnetometer
+        # Magnetometer plugin
         if magnetometer.equipped():
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
                 update_rate=magnetometer.update_rate.get(),
-                ref_mag_north=simulation.ref_mag_north.get() * 1e-9,
-                ref_mag_east=simulation.ref_mag_east.get() * 1e-9,
-                ref_mag_down=simulation.ref_mag_down.get() * 1e-9,
-                gauss_noise=magnetometer.gauss_noise.get() * 1e-9,
-                uniform_noise=magnetometer.uniform_noise.get() * 1e-9,
+                offset=magnetometer.offset.get(),
+                latitude_0=simulation.latitude_0.get(),
+                longitude_0=simulation.longitude_0.get(),
+                altitude_0=simulation.altitude_0.get(),
+                gauss_noise=magnetometer.gauss_noise.get(),
+                uniform_noise=magnetometer.uniform_noise.get(),
             )
             robot.append(mag_model)
 
-        # Barometer
+        # Barometer plugin
         if barometer.equipped():
             bar_model = BarometerModel(
                 ns=self._drone_name,
@@ -536,7 +629,7 @@ class PackageGenerator(QObject):
             )
             robot.append(bar_model)
 
-        # GPS
+        # GPS plugin
         if gps.equipped():
             gps_model = GpsModel(
                 ns=self._drone_name,
@@ -554,7 +647,7 @@ class PackageGenerator(QObject):
             )
             robot.append(gps_model)
 
-        # RGB Camera
+        # RGB Camera plugin
         if rgb_camera.equipped():
             add_rgb_camera_model(
                 robot=robot,
@@ -574,11 +667,11 @@ class PackageGenerator(QObject):
                 near=rgb_camera.depth_range.min(),
                 far=rgb_camera.depth_range.max(),
                 fov=rgb_camera.fov.get(),
-                noise_mean=0.,
+                noise_mean=0.0,
                 noise_stddev=rgb_camera.noise_stddev.get(),
             )
 
-        # Depth Camera
+        # Depth Camera plugin
         if depth_camera.equipped():
             add_depth_camera_model(
                 robot=robot,
@@ -602,7 +695,26 @@ class PackageGenerator(QObject):
                 noise_model=depth_camera.noise_model.get(),
             )
 
-        # Odometry
+        # LiDAR plugin
+        if lidar.equipped():
+            add_lidar_model(
+                robot=robot,
+                ns=self._drone_name,
+                link_name=root_link,
+                offset=Origin.Trans(
+                    lidar.offset.x(), lidar.offset.y(), lidar.offset.z()
+                ),
+                update_rate=lidar.update_rate.get(),
+                hor_samples=lidar.hor_samples.get(),
+                ver_samples=lidar.ver_samples.get(),
+                hor_fov=lidar.hor_fov.get(),
+                ver_fov=lidar.ver_fov.get(),
+                dist_range=lidar.range.get(),
+                resolution=lidar.resolution.get(),
+                noise_stddev=lidar.noise_stddev.get(),
+            )
+
+        # Odometry plugin
         if odometry.equipped():
             odometry_model = OdometryModel(
                 ns=self._drone_name,
@@ -620,7 +732,7 @@ class PackageGenerator(QObject):
             )
             robot.append(odometry_model)
 
-        # Ground Truth State
+        # Ground Truth State plugin
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)
         robot.append(state_gt_model)
 
@@ -629,6 +741,23 @@ class PackageGenerator(QObject):
         robot.append(ros_control)
 
         # Transmissions
-        for jnt_name in self._main.urdf_parser.posture_defining_joint_names():
+        for jnt_name in self._posture_defining_joint_names():
             transmission = Transmission(jnt_name, interface=Transmission.POSITION)
             robot.append(transmission)
+
+    def _posture_defining_joint_names(self) -> List[str]:
+        """ロボットの形状を決めるのに必要な関節名のリストを返す．"""
+        # 固定翼機の車輪などのTransmissionがシミュレーションに悪影響なので，continuousは含めない
+        # TODO: いずれは選択制にする (それでもcontinuousは除くべきかも)
+        urdf_parser = self._main.urdf_parser
+        revolute_joints = set(urdf_parser.search_joint_type(JointType.REVOLUTE))
+        prismatic_joints = set(urdf_parser.search_joint_type(JointType.PRISMATIC))
+        mobile_joints = revolute_joints | prismatic_joints
+
+        prop_joints = set(self._main.settings.propulsion_system.selected.joint_names())
+        cs_joints = set(
+            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
+        )
+
+        # set演算では"|"よりも"-"が優先されることに注意
+        return list(mobile_joints - prop_joints - cs_joints)

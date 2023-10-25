@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..src.tobas_setup_assistant.setup_assistant import SetupAssistant
 
@@ -17,16 +18,17 @@ from ..src.tobas_setup_assistant.common import *
 
 
 class PropellersWidget(BaseSettingWidget):
-
     LABEL_PSIZE = 12
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = 'Define Propellers'
-        abst_text = 'TODO: abstruct'
+        title_text = "Define Propellers"
+        abst_text = "TODO: abstruct"
         super().__init__(main, title_text, abst_text)
 
         propellers_label = QLabel("Propellers")
-        propellers_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
+        propellers_label.setFont(
+            QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold)
+        )
         propellers_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(propellers_label)
 
@@ -37,7 +39,9 @@ class PropellersWidget(BaseSettingWidget):
         self._rows.addWidget(self.add_delete)
 
         links_label = QLabel("Available Links")
-        links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
+        links_label.setFont(
+            QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold)
+        )
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
@@ -54,7 +58,6 @@ class PropellersWidget(BaseSettingWidget):
 
 
 class SelectedPropellersWidget(QTableWidget):
-
     COL_WIDTH = 150
     LABELS = [
         "Link Name",
@@ -96,7 +99,9 @@ class SelectedPropellersWidget(QTableWidget):
     def define_connections(self) -> None:
         # 必ずAdd -> Deleteの順に実行する
         self._main.settings.propellers.add_delete.add.connect(self._add_selected_link)
-        self._main.settings.propellers.available_links.link_added.connect(self._delete_cur_row)
+        self._main.settings.propellers.available_links.link_added.connect(
+            self._delete_cur_row
+        )
 
     def selected_link(self) -> Union[str, None]:
         row = self.currentRow()
@@ -106,15 +111,15 @@ class SelectedPropellersWidget(QTableWidget):
         return self.link_names[row].text()
 
     def count(self) -> int:
-        """ 選択テーブル内のプロペラの個数を返す． """
+        """選択テーブル内のプロペラの個数を返す．"""
         return len(self.link_names)
 
     def get_link_names(self) -> List[str]:
-        """ 選択テーブル内のリンクの名前のリストを返す． """
+        """選択テーブル内のリンクの名前のリストを返す．"""
         return [link_name.text() for link_name in self.link_names]
 
     def get_joint_names(self) -> List[str]:
-        """ 選択テーブル内のジョイントの名前のリストを返す． """
+        """選択テーブル内のジョイントの名前のリストを返す．"""
         return [joint_name.text() for joint_name in self.joint_names]
 
     @pyqtSlot()
@@ -140,26 +145,26 @@ class SelectedPropellersWidget(QTableWidget):
         self.setCellWidget(row, 1, joint_name)
 
         direction = ComboBox()
-        direction.addItems(["CW", "CCW"])
+        direction.addItems([CW, CCW])
         self.directions.append(direction)
         self.setCellWidget(row, 2, direction)
 
         motor_const = DoubleSpinBox()
-        motor_const.setMinimum(0.)
+        motor_const.setMinimum(0.0)
         motor_const.setDecimals(12)
         motor_const.setSuffix(" kg*m/s^2")
         self.motor_consts.append(motor_const)
         self.setCellWidget(row, 3, motor_const)
 
         moment_const = DoubleSpinBox()
-        moment_const.setMinimum(0.)
+        moment_const.setMinimum(0.0)
         moment_const.setDecimals(6)
         moment_const.setSuffix(" m")
         self.moment_consts.append(moment_const)
         self.setCellWidget(row, 4, moment_const)
 
         drag_coef = DoubleSpinBox()
-        drag_coef.setMinimum(0.)
+        drag_coef.setMinimum(0.0)
         drag_coef.setDecimals(9)
         drag_coef.setSuffix(" Ns^2/m^2")
         self.rotor_drag_coefs.append(drag_coef)
@@ -243,7 +248,6 @@ class SelectedPropellersWidget(QTableWidget):
 
 
 class AddDeleteButtonsWidget(QWidget):
-
     BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
 
@@ -279,7 +283,6 @@ class AddDeleteButtonsWidget(QWidget):
 
 
 class AvailableLinksWidget(QListWidget):
-
     link_added = pyqtSignal()
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -288,12 +291,18 @@ class AvailableLinksWidget(QListWidget):
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
-        self._main.settings.propellers.add_delete.delete.connect(self._add_selected_link)
-        self._main.settings.propellers.selected.link_added.connect(self._delete_selected_link)
+        self._main.settings.propellers.add_delete.delete.connect(
+            self._add_selected_link
+        )
+        self._main.settings.propellers.selected.link_added.connect(
+            self._delete_selected_link
+        )
 
     def add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(link_name), f'Unknown link: {link_name}'
-        assert not self._link_exists_in_list(link_name), f'Duplicated: {link_name}'
+        assert self._main.urdf_parser.link_exists(
+            link_name
+        ), f"Unknown link: {link_name}"
+        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
         self.addItem(link_name)
 
     def delete_link(self, link_name: str) -> None:
@@ -311,7 +320,7 @@ class AvailableLinksWidget(QListWidget):
 
     @pyqtSlot()
     def _add_available_links(self) -> None:
-        """ rootから複数のfixedと1つのcontinuousで繋がったリンクのみプロペラ候補とする． """
+        """rootから複数のfixedと1つのcontinuousで繋がったリンクのみプロペラ候補とする．"""
         root_link = self._main.urdf_parser.get_root()
         links = self._main.urdf_parser.get_links()
         fixed_link_names = self._main.urdf_parser.nwu_fixed_link_names()

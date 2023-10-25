@@ -43,7 +43,8 @@ public:
    *
    * @return ErrorCode Error code
    */
-  ErrorCode update(double V, double rho, double battery_voltage, const KDL::JntArray& q);
+  ErrorCode
+  update(const double& V, const double& rho, const double& battery_voltage, const KDL::JntArray& q);
 
   const ErrorCode& errorCode() const;
   const std::string& errorMessage() const;
@@ -123,15 +124,15 @@ public:
   double u_thrust() const;
 
   // Z_delta_bar (2.2-37)
-  const double& alpha_delta(uint32_t cs_idx) const;
+  const double& alpha_delta(const uint32_t& cs_idx) const;
   // Y_delta_bar (3.2-20)
-  const double& beta_delta(uint32_t cs_idx) const;
+  const double& beta_delta(const uint32_t& cs_idx) const;
   // L_delta_bar (3.2-21)
-  const double& p_delta(uint32_t cs_idx) const;
+  const double& p_delta(const uint32_t& cs_idx) const;
   // M_delta_bar (2.2-38)
-  const double& q_delta(uint32_t cs_idx) const;
+  const double& q_delta(const uint32_t& cs_idx) const;
   // N_delta_bar (3.2.22)
-  const double& r_delta(uint32_t cs_idx) const;
+  const double& r_delta(const uint32_t& cs_idx) const;
 
 private:
   ErrorCode error_code_;
@@ -139,7 +140,7 @@ private:
 
   const Drone& drone_;
 
-  KDL::ExtTreeFkSolverPos fk_solver_;
+  KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
@@ -158,13 +159,6 @@ private:
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
 
-  // 可変値
-  KDL::Vector P_base_cog_;        // 重心 [m]
-  KDL::RotationalInertia I_kdl_;  // 重心周りの慣性テンソル [kg*m^2]
-  Eigen::Matrix3d I_eigen_;       // 重心周りの慣性テンソル [kg*m^2]
-  Eigen::Vector3d P_cog_rotor_eigen_;
-  KDL::Frame T_base_rotor_;
-
-  void setInputLimits(double battery_voltage);
+  void setInputLimits(const double& battery_voltage);
 };
 }  // namespace tobas

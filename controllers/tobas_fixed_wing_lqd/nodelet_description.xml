@@ -1,0 +1,7 @@
+<library path="lib/libtobas_fixed_wing_lqd_nodelet">
+
+  <class name="tobas_fixed_wing_lqd/ControllerNodelet" type="tobas_fixed_wing_lqd::ControllerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

@@ -1,0 +1,31 @@
+<library path="lib/libtobas_real_nodelet">
+
+  <class name="tobas_real/CpuHandlerNodelet" type="tobas_real::CpuHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/BatteryHandlerNodelet" type="tobas_real::BatteryHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/ImuHandlerNodelet" type="tobas_real::ImuHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/BarometerHandlerNodelet" type="tobas_real::BarometerHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/GpsHandlerNodelet" type="tobas_real::GpsHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/MotorsHandlerNodelet" type="tobas_real::MotorsHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/RCInputHandlerNodelet" type="tobas_real::RCInputHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

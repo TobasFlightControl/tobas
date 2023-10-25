@@ -1,46 +1,51 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <ros/timer.h>
 #include <Navio2/RCInput_Navio2.h>
 
 #include <dh_std_tools/range.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/RCInput.h>
 
 namespace tobas_real
 {
 class RCInputHandler : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;  // [Hz]
+  static constexpr uint32_t kUpdateRate = 100;  // [Hz]
 
   using super = tobas::BaseNode;
 
 public:
-  explicit RCInputHandler();
-
-  void run();
+  explicit RCInputHandler(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   RCInput_Navio2 rcin_;
-  tobas_msgs::RCInput rcin_msg_;
 
-  // RC input period ranges
+  // Config
   dh_std::Range<double> roll_range_;
   dh_std::Range<double> pitch_range_;
   dh_std::Range<double> yaw_range_;
   dh_std::Range<double> thrust_range_;
-  dh_std::Range<double> toggle_range_;
+  dh_std::Range<double> estop_range_;
+  std::vector<double> modes_;
 
   // Publisher
   ros::Publisher rcin_pub_;
+
+  // Timer
+  ros::Timer main_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void getRcPeriodRanges();
+  void readConfig();
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

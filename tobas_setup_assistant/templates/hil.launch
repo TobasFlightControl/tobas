@@ -1,12 +1,20 @@
 <launch>
 
+  <arg name="nodelet" default="true"/>
+
+  <!-- Bringup Tobas core software -->
   <include file="$(find {{ pkg_name }})/launch/bringup.launch">
-    <arg name="control_mode" value="position"/>
+    <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
+  <!-- Launch hardware interfaces -->
   <group ns="{{ drone_name }}">
-    <include file="$(find tobas_real)/launch/motors.launch"/>
-    <include file="$(find tobas_real)/launch/rc_input.launch"/>
+    <include file="$(find tobas_real)/launch/rc_input.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+    <include file="$(find tobas_real)/launch/motors.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
   </group>
 
 </launch>

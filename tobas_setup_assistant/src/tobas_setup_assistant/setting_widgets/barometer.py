@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -15,19 +17,18 @@ from ..parameter_getters import *
 
 
 class BarometerWidget(BaseSettingWidget):
-
     NAME = "Barometer"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Air Pressure Sensor"
-        abst_text = "気圧センサの設定を行います．データシートを確認し，各値を入力してください．"\
-            + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
+        abst_text = (
+            "気圧センサの設定を行います．データシートを確認し，各値を入力してください．" + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
+        )
         super().__init__(main, title_text, abst_text)
 
-        offset_description = "ルートリンクに対するセンサ位置のオフセット．"
         self.offset = ParamGetterWidget_Vector3d(
             "Offset",
-            offset_description,
+            SENSOR_OFFSET_DESCRIPTION,
             suffix=" m",
         )
         self._rows.addWidget(self.offset)
@@ -37,7 +38,7 @@ class BarometerWidget(BaseSettingWidget):
             "Update rate",
             update_rate_description,
             minimum=1,
-            default=100,
+            default=50,
             suffix=" Hz",
         )
         self._rows.addWidget(self.update_rate)
@@ -47,17 +48,19 @@ class BarometerWidget(BaseSettingWidget):
             "the air pressure variance",
             pressure_var_description,
             decimals=2,
-            minimum=0.,
-            default=10.,
-            suffix=" Pa^2"
+            minimum=0.0,
+            default=10.0,
+            suffix=" Pa^2",
         )
         self._rows.addWidget(self.pressure_var)
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         return True
 

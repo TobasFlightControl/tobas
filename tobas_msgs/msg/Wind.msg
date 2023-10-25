@@ -1,2 +1,2 @@
 std_msgs/Header header
-kdl_msgs/Vector vel  # [m/s]
+dh_kdl_msgs/Vector vel  # [m/s]

@@ -6,7 +6,6 @@ from .base import ParamGetterWidget
 
 
 class ParamGetterWidget_CheckBox(ParamGetterWidget):
-
     toggled = pyqtSignal(bool)
 
     def __init__(

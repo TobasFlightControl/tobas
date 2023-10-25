@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <cinttypes>
 #include <Navio2/ADC_Navio2.h>
 
 namespace tobas_real
@@ -18,7 +18,6 @@ public:
   void run();
 
 private:
-  ros::NodeHandle nh_;
   ADC_Navio2 adc_;
 };
 }  // namespace tobas_real

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
@@ -8,14 +9,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import DoubleSpinBox
+from dh_rqt_tools.layouts import FormLayout
 
 from ...parameter_getters import *
 from ...common import *
-from .common import *
+from .common import STABILITY_COEF_DECIMALS
 
 
 class AerodynamicsCoefficientsWidget(QWidget):
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
@@ -28,7 +29,7 @@ class AerodynamicsCoefficientsWidget(QWidget):
         label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(label)
 
-        self._form = QFormLayout()
+        self._form = FormLayout()
         self._rows.addLayout(self._form)
 
         self.c_lift_0 = DoubleSpinBox()

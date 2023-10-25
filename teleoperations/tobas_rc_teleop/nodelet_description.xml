@@ -1,0 +1,7 @@
+<library path="lib/libtobas_rc_teleop_nodelet">
+
+  <class name="tobas_rc_teleop/RCTeleopNodelet" type="tobas_rc_teleop::RCTeleopNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

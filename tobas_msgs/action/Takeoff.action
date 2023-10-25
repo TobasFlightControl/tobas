@@ -1,0 +1,20 @@
+# goal
+tobas_msgs/CommandLevel level
+float64 target_altitude = 3.0          # [m]
+float64 target_elevation_speed = 1.0   # [m/s]
+float64 timeout = 1e+9                 # [s]
+
+---
+
+# result
+int8 error_code
+int8 NO_ERROR = 0
+int8 NOT_READY = -1
+int8 INVALID_GOAL = -2
+int8 PREEMPTED = -3
+int8 TIMEOUT = -4
+int8 UNKNOWN_ERROR = -5
+
+---
+
+# feedback

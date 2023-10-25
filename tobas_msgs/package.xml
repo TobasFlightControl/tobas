@@ -11,9 +11,11 @@
 
 	<depend>message_generation</depend>
 	<depend>std_msgs</depend>
+	<depend>sensor_msgs</depend>
+	<depend>nav_msgs</depend>
 	<depend>actionlib_msgs</depend>
-	<depend>kdl_msgs</depend>
 
 	<depend>dh_kdl</depend>
+	<depend>dh_kdl_msgs</depend>
 
 </package>

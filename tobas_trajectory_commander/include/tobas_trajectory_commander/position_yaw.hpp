@@ -25,7 +25,10 @@ class FollowPositionYawTrajectoryServer : tobas::BaseNode
   using FeedbackType = tobas_trajectory_commander::FollowPositionYawTrajectoryFeedback;
 
 public:
-  explicit FollowPositionYawTrajectoryServer();
+  explicit FollowPositionYawTrajectoryServer(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   ResultType result_;
@@ -39,9 +42,9 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  bool isValidGoal(const GoalType& goal);
+  bool isGoalValid(const GoalType& goal);
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void executeCb(const GoalType& goal);
 };
 }  // namespace tobas_trajectory_commander

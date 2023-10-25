@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -16,13 +18,13 @@ from ..utils import is_valid_email, get_git_user_name, get_git_user_email
 
 
 class AuthorInformationWidget(BaseSettingWidget):
-
-    NAME = "Author Information"
+    NAME = "Author Info"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Specify Author Information"
-        abst_text = "生成されるパッケージの管理者に関する情報を入力してください．"\
-            + "ここで指定した情報はパッケージのpackage.xmlに反映されます．"
+        abst_text = (
+            "生成されるパッケージの管理者に関する情報を入力してください．" + "ここで指定した情報はパッケージのpackage.xmlに反映されます．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self.name = ParamGetterWidget_LineEdit(
@@ -39,9 +41,11 @@ class AuthorInformationWidget(BaseSettingWidget):
 
         add_expanding_widget(self._rows)
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
 
+    @overrides
     def is_valid(self) -> bool:
         author_name = self.name.get()
         if author_name == "":

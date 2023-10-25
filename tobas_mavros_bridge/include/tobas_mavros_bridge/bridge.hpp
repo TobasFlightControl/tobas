@@ -1,0 +1,31 @@
+#include <ros/ros.h>
+
+#include <tobas_tools/node.hpp>
+#include <tobas_msgs/PositionYaw.h>
+
+namespace tobas_mavros_bridge
+{
+class TobasMavrosBridge : public tobas::BaseNode
+{
+  using self = TobasMavrosBridge;
+  using super = tobas::BaseNode;
+
+public:
+  explicit TobasMavrosBridge(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    const std::string& name = ros::this_node::getName());
+
+private:
+  // PubSub
+  ros::Publisher setpoint_pos_local_pub_;
+  ros::Subscriber pos_yaw_sub_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs);
+};
+}  // namespace tobas_mavros_bridge

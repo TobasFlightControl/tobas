@@ -3,6 +3,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+namespace orientation_estimation_complement
+{
 /**
  * @brief Keeping a Good Attitude: A Quaternion-Based Orientation Filter for IMUs and MARGs
  * [Valenti+, 2015]
@@ -12,12 +14,12 @@ class OrientationEstimator
 public:
   explicit OrientationEstimator();
 
-  bool setGravity(double gravity);
-  bool setGainAcc(double gain);
-  bool setGainMag(double gain);
-  bool setBiasAlpha(double bias_alpha);
-  void setDoBiasEstimation(bool do_bias_estimation);
-  void setDoAdaptiveGain(bool do_adaptive_gain);
+  bool setGravity(const double& gravity);
+  bool setGainAcc(const double& gain);
+  bool setGainMag(const double& gain);
+  bool setBiasAlpha(const double& bias_alpha);
+  void setDoBiasEstimation(const bool& do_bias_estimation);
+  void setDoAdaptiveGain(const bool& do_adaptive_gain);
 
   Eigen::Vector3d getAngularVelocityBias() const;
 
@@ -26,7 +28,7 @@ public:
   /* {world} -> {base} */
   Eigen::Quaterniond getOrientation() const;
 
-  void setReferenceMagneticField(double ref_mag_north, double ref_mag_east);
+  void setReferenceMagneticField(const double& ref_mag_north, const double& ref_mag_east);
 
   /**
    * @brief Update from accelerometer, gyroscope, and magnetometer data.
@@ -36,8 +38,11 @@ public:
    * @param m Magnetic field, units irrelevant
    * @param dt time delta [s]
    */
-  void
-  update(const Eigen::Vector3d& a, const Eigen::Vector3d& w, const Eigen::Vector3d& m, double dt);
+  void update(
+    const Eigen::Vector3d& a,
+    const Eigen::Vector3d& w,
+    const Eigen::Vector3d& m,
+    const double& dt);
 
   /* Reset the filter to the initial state. */
   void reset();
@@ -59,9 +64,10 @@ private:
 
   void updateBiases(const Eigen::Vector3d& a, const Eigen::Vector3d& w);
   bool checkState(const Eigen::Vector3d& a, const Eigen::Vector3d& w) const;
-  Eigen::Quaterniond getPrediction(const Eigen::Vector3d& w, double dt) const;
+  Eigen::Quaterniond getPrediction(const Eigen::Vector3d& w, const double& dt) const;
   Eigen::Quaterniond getMeasurement(const Eigen::Vector3d& a, const Eigen::Vector3d& m) const;
   Eigen::Quaterniond getAccCorrection(const Eigen::Vector3d& a, const Eigen::Quaterniond& p) const;
   Eigen::Quaterniond getMagCorrection(const Eigen::Vector3d& m, const Eigen::Quaterniond& p) const;
-  double getAdaptiveGain(double alpha, const Eigen::Vector3d& a) const;
+  double getAdaptiveGain(const double& alpha, const Eigen::Vector3d& a) const;
 };
+}  // namespace orientation_estimation_complement

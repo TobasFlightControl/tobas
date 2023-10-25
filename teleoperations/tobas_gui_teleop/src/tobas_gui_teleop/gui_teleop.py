@@ -11,7 +11,6 @@ from .pose_buttons import PoseButtonsWidget
 
 
 class GuiTeleopWidget(QWidget):
-
     WAIT_TO_CONNECT = 0.5  # [s]
 
     def __init__(self) -> None:

@@ -6,14 +6,15 @@
 #include <Eigen/Geometry>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/FluidPressure.h>
-#include <sensor_msgs/NavSatFix.h>
+#include <nav_msgs/Odometry.h>
 
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/LinearVelocityWithCovariance.h>
-#include <tobas_msgs/BaseState.h>
-#include <tobas_common_actions/StaticStateDeterminationAction.h>
+#include <tobas_msgs/Gps.h>
+#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/StaticStateDeterminationAction.h>
+
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
 #include "./cartesian_filter.hpp"
@@ -22,19 +23,23 @@ namespace state_estimation_cascade
 {
 class StateEstimator : public tobas::BaseNode
 {
+  using self = StateEstimator;
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
-  using GpsMsg = sensor_msgs::NavSatFix;
-  using VelMsg = tobas_msgs::LinearVelocityWithCovariance;
-  using StateMsg = tobas_msgs::BaseState;
+  using GpsMsg = tobas_msgs::Gps;
+  using StateMsg = tobas_msgs::PoseTwist;
+  using OdomMsg = nav_msgs::Odometry;
 
   using ConfigType = state_estimation_cascade::StateEstimationCascadeConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit StateEstimator();
+  explicit StateEstimator(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
 private:
   // 固定値
@@ -42,17 +47,14 @@ private:
   double lon_0_;  // 経度のゼロ点
   double alt_0_;  // 高度のゼロ点
 
-  bool is_initialized_;
-  bool imu_received_;
-  bool bar_received_;
-  bool gps_received_;
-  bool vel_received_;
+  bool is_initialized_ = false;
+  bool imu_received_ = false;
+  bool bar_received_ = false;
+  bool gps_received_ = false;
   ros::Time t_last_;
   Eigen::Quaterniond quat_;  // 推定された姿勢
   Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
-  Eigen::Vector3d v_m_;      // 絶対速度の測定値 (world)
   Eigen::Vector3d a_m_;      // 加速度の観測値 (local)
-  StateMsg state_;           // 発行する状態
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
@@ -60,18 +62,16 @@ private:
   CartesianFilter cart_filter_;
 
   // rosparams
-  double gravity_;
   bool use_gps_;
   double gps_hor_pos_stddev_thr_;  // [m]
   double gps_ver_pos_stddev_thr_;  // [m]
-  double grav_var_;
 
   // PubSub
-  ros::Publisher posevel_pub_;
+  ros::Publisher pt_pub_;
+  ros::Publisher odom_pub_;
   ros::Subscriber filtered_imu_sub_;
   ros::Subscriber bar_sub_;
-  ros::Subscriber gps_pos_sub_;
-  ros::Subscriber gps_vel_sub_;
+  ros::Subscriber gps_sub_;
 
   // Timer
   dh_ros::Timer check_topics_timer_;
@@ -85,14 +85,13 @@ private:
 
   bool isReady();
   void initialize(const ImuMsg& imu);
-  tobas_common_actions::StaticStateDeterminationResultConstPtr setZeroPositions();
-  void updatePoseVelMsg(const ImuMsg& imu);
+  tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
+  StateMsg::ConstPtr makePoseVelMsg(const ImuMsg& imu);
 
-  void eventCb(const tobas_msgs::Event& event) override;
-  void filteredImuCb(const ImuMsg& imu);
-  void barometerCb(const BarMsg& bar);
-  void gpsPositionCb(const GpsMsg& gps);
-  void gpsVelocityCb(const VelMsg& vel);
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
+  void filteredImuCb(const ImuMsg::ConstPtr& imu);
+  void barometerCb(const BarMsg::ConstPtr& bar);
+  void gpsPositionCb(const GpsMsg::ConstPtr& gps);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

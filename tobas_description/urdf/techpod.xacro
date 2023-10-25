@@ -2,13 +2,13 @@
 
 <robot name="techpod" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Global properties -->
-  <xacro:property name="namespace" value="techpod" />
-  <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
-  <xacro:property name="use_mesh" value="true" />
-
   <!-- Constants -->
   <xacro:property name="PI" value="3.1415926535897931" />
+  <xacro:property name="DEG2RAD" value="${PI / 180.0}" />
+
+  <!-- Global properties -->
+  <xacro:property name="namespace" value="techpod" />
+  <xacro:property name="use_mesh" value="true" />
 
   <!-- Component masses -->
   <xacro:property name="mass_fuselage" value="2.05" /> <!-- [kg] -->
@@ -29,8 +29,10 @@
   <xacro:property name="aileron_length" value="0.053" /> <!-- [m] -->
   <xacro:property name="aileron_width" value="0.349" /> <!-- [m] -->
   <xacro:property name="aileron_height" value="0.013" /> <!-- [m] -->
-  <xacro:property name="aileron_min_angle" value="-0.349066" /> <!-- [rad] -->
-  <xacro:property name="aileron_max_angle" value="0.349066" /> <!-- [rad] -->
+  <xacro:property name="aileron_min_angle" value="-${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="aileron_max_angle" value="${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="aileron_max_velocity" value="10.0" /> <!-- [rad/s] -->
+  <xacro:property name="aileron_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="aileron_color" value="Red" />
   <xacro:property name="aileron_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_left.dae" />
   <xacro:property name="aileron_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_right.dae" />
@@ -39,8 +41,10 @@
   <xacro:property name="elevator_length" value="0.051" /> <!-- [m] -->
   <xacro:property name="elevator_width" value="0.457" /> <!-- [m] -->
   <xacro:property name="elevator_height" value="0.012" /> <!-- [m] -->
-  <xacro:property name="elevator_min_angle" value="-0.349066" /> <!-- [rad] -->
-  <xacro:property name="elevator_max_angle" value="0.349066" /> <!-- [rad] -->
+  <xacro:property name="elevator_min_angle" value="-${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="elevator_max_angle" value="${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="elevator_max_velocity" value="10.0" /> <!-- [rad/s] -->
+  <xacro:property name="elevator_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="elevator_color" value="Blue" />
   <xacro:property name="elevator_mesh_file" value="package://tobas_description/meshes/techpod/techpod_elevator.dae" />
 
@@ -48,8 +52,10 @@
   <xacro:property name="flap_length" value="0.076" /> <!-- [m] -->
   <xacro:property name="flap_width" value="0.459" /> <!-- [m] -->
   <xacro:property name="flap_height" value="0.016" /> <!-- [m] -->
-  <xacro:property name="flap_min_angle" value="0.0" /> <!-- [rad] -->
-  <xacro:property name="flap_max_angle" value="0.0" /> <!-- [rad] -->
+  <xacro:property name="flap_min_angle" value="-${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="flap_max_angle" value="${20.0 * DEG2RAD}" /> <!-- [rad] -->
+  <xacro:property name="flap_max_velocity" value="10.0" /> <!-- [rad/s] -->
+  <xacro:property name="flap_max_effort" value="1e+6" /> <!-- [Nm] -->
   <xacro:property name="flap_color" value="Yellow" />
   <xacro:property name="flap_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_left.dae" />
   <xacro:property name="flap_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_right.dae" />
@@ -58,8 +64,10 @@
   <xacro:property name="rudder_length" value="0.129" />
   <xacro:property name="rudder_width" value="0.018" />
   <xacro:property name="rudder_height" value="0.241" />
-  <xacro:property name="rudder_min_angle" value="-0.349066" />
-  <xacro:property name="rudder_max_angle" value="0.349066" />
+  <xacro:property name="rudder_min_angle" value="-${20.0 * DEG2RAD}" />
+  <xacro:property name="rudder_max_angle" value="${20.0 * DEG2RAD}" />
+  <xacro:property name="rudder_max_velocity" value="10.0" />
+  <xacro:property name="rudder_max_effort" value="1e+6" />
   <xacro:property name="rudder_color" value="Orange" />
   <xacro:property name="rudder_mesh_file" value="package://tobas_description/meshes/techpod/techpod_rudder.dae" />
 
@@ -69,6 +77,12 @@
   <xacro:property name="propeller_height" value="0.003" />
   <xacro:property name="propeller_color" value="Gray" />
   <xacro:property name="propeller_mesh_file" value="package://tobas_description/meshes/propeller_${propeller_direction}.dae" />
+
+  <!-- Wheel properties -->
+  <xacro:property name="wheel_mass" value="0.1"/>
+  <xacro:property name="wheel_radius" value="0.05"/>
+  <xacro:property name="wheel_height" value="0.025"/>
+  <xacro:property name="wheel_color" value="Black"/>
 
   <!-- Inertia of the main body -->
   <xacro:property name="body_inertia">
@@ -97,31 +111,17 @@
 
   <!-- Inertia of the propeller, assuming it is a cylinder -->
   <xacro:property name="propeller_inertia">
-    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller*rotor_velocity_slowdown_sim}" />
+    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller}" />
+  </xacro:property>
+
+  <!-- Inertia of the wheels, assuming it is a cylinder -->
+  <xacro:property name="wheel_inertia">
+    <xacro:cylinder_inertia r="${wheel_radius}" h="${wheel_height}" mass="${wheel_mass}" />
   </xacro:property>
 
   <!-- Included URDF Files -->
-  <!-- <xacro:include filename="$(find rotors_description)/urdf/fixed_wing_base.xacro" /> -->
-  <xacro:include filename="$(find tobas_description)/urdf/fixed_wing_base.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/fixed_wing_base.xacro" />
 
-  <!-- Instantiate fixed_wing_base_macro once -->
-  <!-- <xacro:fixed_wing_base_macro
-    robot_namespace="${namespace}"
-    mass="${mass_fuselage}"
-    length="${body_length}"
-    width="${body_width}"
-    height="${body_height}"
-    color="${body_color}"
-    use_mesh_file="${use_mesh}"
-    mesh_file="${body_mesh_file}"
-    aero_params_yaml="$(arg aero_params_yaml_file)"
-    vehicle_params_yaml="$(arg vehicle_params_yaml_file)"
-    is_input_joystick="$(arg is_input_joystick)">
-    <origin xyz="0 0 0" rpy="0 0 0" />
-    <xacro:insert_block name="body_inertia" />
-  </xacro:fixed_wing_base_macro> -->
-
-  <!-- Added from here -->
   <xacro:fixed_wing_base_macro
     robot_namespace="${namespace}"
     mass="${mass_fuselage}"
@@ -130,93 +130,47 @@
     height="${body_height}"
     color="${body_color}"
     use_mesh_file="${use_mesh}"
-    mesh_file="${body_mesh_file}"
-    aero_params_yaml="hoge"
-    vehicle_params_yaml="fuga"
-    is_input_joystick="piyo">
+    mesh_file="${body_mesh_file}">
     <origin xyz="0 0 0" rpy="0 0 0" />
     <xacro:insert_block name="body_inertia" />
   </xacro:fixed_wing_base_macro>
-  <!-- Added to here -->
 
   <!-- Instantiate the wheels -->
-	<joint name="techpod/wheel_left_joint" type="continuous">
-		<parent link="techpod/base_link"/>
-		<child link="techpod/wheel_left"/>
-		<origin xyz="0.3 0.2 -0.2" rpy="1.5707963267948966 0 0" />
-		<axis xyz="0 0 1" />
-	</joint>
-	<link name="techpod/wheel_left">
-		<inertial>
-			<mass value="1e-3" />
-			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
-		</inertial>
-		<visual>
-			<geometry>
-				<cylinder length="0.025" radius="0.05"/>
-			</geometry>
-		</visual>
-		<collision>
-			<geometry>
-				<cylinder length="0.025" radius="0.05"/>
-			</geometry>
-		</collision>
-	</link>
-	<gazebo reference="techpod/wheel_left">
-		<material>Gazebo/Black</material>
-	</gazebo>
+  <xacro:wheel
+    robot_namespace="${namespace}"
+    suffix="left"
+    parent="${namespace}/base_link"
+    mass="${wheel_mass}"
+    height="${wheel_height}"
+    radius="${wheel_radius}"
+    color="${wheel_color}">
+		<origin xyz="0.3 0.2 -0.2" rpy="${PI / 2} 0 0" />
+    <xacro:insert_block name="wheel_inertia" />
+  </xacro:wheel>
 
-	<joint name="techpod/wheel_right_joint" type="continuous">
-		<parent link="techpod/base_link"/>
-		<child link="techpod/wheel_right"/>
-		<origin xyz="0.3 -0.2 -0.2" rpy="1.5707963267948966 0 0" />
-		<axis xyz="0 0 1" />
-	</joint>
-	<link name="techpod/wheel_right">
-		<inertial>
-			<mass value="1e-3" />
-			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
-		</inertial>
-		<visual>
-			<geometry>
-				<cylinder length="0.025" radius="0.05"/>
-			</geometry>
-		</visual>
-		<collision>
-			<geometry>
-				<cylinder length="0.025" radius="0.05"/>
-			</geometry>
-		</collision>
-	</link>
-	<gazebo reference="techpod/wheel_right">
-		<material>Gazebo/Black</material>
-	</gazebo>
+  <xacro:wheel
+    robot_namespace="${namespace}"
+    suffix="right"
+    parent="${namespace}/base_link"
+    mass="${wheel_mass}"
+    height="${wheel_height}"
+    radius="${wheel_radius}"
+    color="${wheel_color}">
+		<origin xyz="0.3 -0.2 -0.2" rpy="${PI / 2} 0 0" />
+    <xacro:insert_block name="wheel_inertia" />
+  </xacro:wheel>
 
-	<joint name="techpod/wheel_rear_joint" type="continuous">
-		<parent link="techpod/base_link"/>
-		<child link="techpod/wheel_rear"/>
-		<origin xyz="-0.3 0 -0.2" rpy="1.5707963267948966 0 0" />
-		<axis xyz="0 0 1" />
-	</joint>
-	<link name="techpod/wheel_rear">
-		<inertial>
-			<mass value="1e-3" />
-			<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
-		</inertial>
-		<visual>
-			<geometry>
-				<cylinder length="0.025" radius="0.05"/>
-			</geometry>
-		</visual>
-		<collision>
-			<geometry>
-				<cylinder length="0.025" radius="0.05"/>
-			</geometry>
-		</collision>
-	</link>
-	<gazebo reference="techpod/wheel_rear">
-		<material>Gazebo/Black</material>
-	</gazebo>
+  <xacro:wheel
+    robot_namespace="${namespace}"
+    suffix="rear"
+    parent="${namespace}/base_link"
+    mass="${wheel_mass}"
+    height="${wheel_height}"
+    radius="${wheel_radius}"
+    color="${wheel_color}">
+		<origin xyz="-0.3 0 -0.2" rpy="${PI / 2} 0 0" />
+    <xacro:insert_block name="wheel_inertia" />
+  </xacro:wheel>
 
   <!-- Instantiate the ailerons -->
   <xacro:control_surface
@@ -226,6 +180,8 @@
     mass_surface="${mass_aileron}"
     min_angle="${aileron_min_angle}"
     max_angle="${aileron_max_angle}"
+    max_velocity="${aileron_max_velocity}"
+    max_effort="${aileron_max_effort}"
     color="${aileron_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${aileron_left_mesh_file}"
@@ -245,6 +201,8 @@
     mass_surface="${mass_aileron}"
     min_angle="${aileron_min_angle}"
     max_angle="${aileron_max_angle}"
+    max_velocity="${aileron_max_velocity}"
+    max_effort="${aileron_max_effort}"
     color="${aileron_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${aileron_right_mesh_file}"
@@ -265,6 +223,8 @@
     mass_surface="${mass_elevator}"
     min_angle="${elevator_min_angle}"
     max_angle="${elevator_max_angle}"
+    max_velocity="${elevator_max_velocity}"
+    max_effort="${elevator_max_effort}"
     color="${elevator_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${elevator_mesh_file}"
@@ -277,6 +237,42 @@
     <xacro:insert_block name="elevator_inertia" />
   </xacro:control_surface>
 
+  <!-- Instantiate the rudder -->
+  <xacro:control_surface
+    robot_namespace="${namespace}"
+    surface_name="rudder"
+    parent="${namespace}/base_link"
+    mass_surface="${mass_rudder}"
+    min_angle="${rudder_min_angle}"
+    max_angle="${rudder_max_angle}"
+    max_velocity="${rudder_max_velocity}"
+    max_effort="${rudder_max_effort}"
+    color="${rudder_color}"
+    use_mesh_file="${use_mesh}"
+    mesh_file="${rudder_mesh_file}"
+    surface_length="${rudder_length}"
+    surface_width="${rudder_width}"
+    surface_height="${rudder_height}">
+    <axis xyz="0 0 1" />   <!-- Joint axis -->
+    <origin xyz="-0.428 0 0" rpy="0 -0.25 0" />   <!-- Joint origin -->
+    <origin xyz="0 0 0" rpy="0 0.25 0" />   <!-- Link origin -->
+    <xacro:insert_block name="rudder_inertia" />
+  </xacro:control_surface>
+
+  <!-- Instantiate the propeller -->
+  <xacro:propeller
+    robot_namespace="${namespace}"
+    suffix="0"
+    parent="${namespace}/base_link"
+    mass_propeller="${mass_propeller}"
+    propeller_radius="${propeller_radius}"
+    color="${propeller_color}"
+    use_mesh_file="${use_mesh}"
+    mesh_file="${propeller_mesh_file}">
+    <origin xyz="-0.025 0 0.15" rpy="0 ${PI / 2} 0" />
+    <xacro:insert_block name="propeller_inertia" />
+  </xacro:propeller>
+
   <!-- Instantiate the flaps -->
   <xacro:control_surface
     robot_namespace="${namespace}"
@@ -285,6 +281,8 @@
     mass_surface="${mass_flap}"
     min_angle="${flap_min_angle}"
     max_angle="${flap_max_angle}"
+    max_velocity="${flap_max_velocity}"
+    max_effort="${flap_max_effort}"
     color="${flap_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${flap_left_mesh_file}"
@@ -304,6 +302,8 @@
     mass_surface="${mass_flap}"
     min_angle="${flap_min_angle}"
     max_angle="${flap_max_angle}"
+    max_velocity="${flap_max_velocity}"
+    max_effort="${flap_max_effort}"
     color="${flap_color}"
     use_mesh_file="${use_mesh}"
     mesh_file="${flap_right_mesh_file}"
@@ -315,39 +315,5 @@
     <origin xyz="0 0 0" rpy="0 0 0" />   <!-- Link origin -->
     <xacro:insert_block name="flap_inertia" />
   </xacro:control_surface>
-
-  <!-- Instantiate the rudder -->
-  <xacro:control_surface
-    robot_namespace="${namespace}"
-    surface_name="rudder"
-    parent="${namespace}/base_link"
-    mass_surface="${mass_rudder}"
-    min_angle="${rudder_min_angle}"
-    max_angle="${rudder_max_angle}"
-    color="${rudder_color}"
-    use_mesh_file="${use_mesh}"
-    mesh_file="${rudder_mesh_file}"
-    surface_length="${rudder_length}"
-    surface_width="${rudder_width}"
-    surface_height="${rudder_height}">
-    <axis xyz="0 0 1" />   <!-- Joint axis -->
-    <origin xyz="-0.428 0 0" rpy="0 -0.25 0" />   <!-- Joint origin -->
-    <origin xyz="0 0 0" rpy="0 0.25 0" />   <!-- Link origin -->
-    <xacro:insert_block name="rudder_inertia" />
-  </xacro:control_surface>
-
-  <!-- Instantiate the propeller -->
-  <xacro:propeller
-    robot_namespace="${namespace}"
-    suffix=""
-    parent="${namespace}/base_link"
-    mass_propeller="${mass_propeller}"
-    propeller_radius="${propeller_radius}"
-    color="${propeller_color}"
-    use_mesh_file="${use_mesh}"
-    mesh_file="${propeller_mesh_file}">
-    <origin xyz="-0.025 0 0.15" rpy="0 ${0.5*PI} 0" />
-    <xacro:insert_block name="propeller_inertia" />
-  </xacro:propeller>
 
 </robot>

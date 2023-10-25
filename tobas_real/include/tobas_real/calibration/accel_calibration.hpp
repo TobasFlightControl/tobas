@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ros/ros.h>
 #include <Eigen/Core>
-#include <Common/MPU9250.h>
+
+#include "../common.hpp"
 
 namespace tobas_real
 {
@@ -17,8 +17,8 @@ public:
   void run();
 
 private:
-  ros::NodeHandle nh_;
-  MPU9250 imu_;
+  ImuDevice imu_;
+
   Eigen::Vector3f acc_;
 
   Eigen::Vector3f readAccel();

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Eigen/Core>
 #include <Eigen/Geometry>
 
-void scaleQuaternion(double gain, Eigen::Quaterniond& q);
+namespace orientation_estimation_complement
+{
+void scaleQuaternion(const double& gain, Eigen::Quaterniond& q);
+}

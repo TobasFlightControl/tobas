@@ -1,5 +1,15 @@
 <launch>
 
-  <node pkg="tobas_common_actions" type="static_state_determination_server_node" name="static_state_determination_server" output="screen"/>
+  <arg name="nodelet" default="false"/>
+
+  <arg name="node_name" value="static_state_determination_server"/>
+
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_common_actions/StaticStateDeterminationServerNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_common_actions" type="static_state_determination_server_node" name="$(arg node_name)" output="screen"/>
+  </group>
 
 </launch>

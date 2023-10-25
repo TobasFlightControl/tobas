@@ -8,15 +8,14 @@ from .utils import IntGetter
 
 
 class ParamGetterWidget_IntRange(ParamGetterWidget):
-
     value_changed = pyqtSignal(int, int)
 
     def __init__(
         self,
         param_name: str,
         description_text: str = None,
-        minimum: int = -10**9,
-        maximum: int = +10**9,
+        minimum: int = -(10**9),
+        maximum: int = +(10**9),
         single_step: int = 1,
         default: Tuple[int, int] = (0, 0),
         suffix: str = "",

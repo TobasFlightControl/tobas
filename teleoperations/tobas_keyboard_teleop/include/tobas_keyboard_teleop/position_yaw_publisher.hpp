@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dh_std_tools/range.hpp>
+#include <dh_kdl/frames.hpp>
 
 #include <tobas_tools/node.hpp>
 
@@ -14,8 +15,6 @@ namespace tobas_keyboard_teleop
  */
 class PositionYawPublisher : public tobas::BaseNode
 {
-  static constexpr char kTakeoffActionName[] = "multirotor_takeoff";
-
   static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
   static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
   static constexpr double kDefaultMinimumX = -10.;              // [m]
@@ -27,16 +26,23 @@ class PositionYawPublisher : public tobas::BaseNode
   static constexpr double kDefaultMinimumYaw = -M_PI;           // [rad]
   static constexpr double kDefaultMaximumYaw = M_PI;            // [rad]
 
+  using self = PositionYawPublisher;
   using super = tobas::BaseNode;
 
 public:
-  explicit PositionYawPublisher();
+  explicit PositionYawPublisher(
+    ros::NodeHandle nh,
+    ros::NodeHandle pnh,
+    std::string name = ros::this_node::getName());
 
   void run();
 
 private:
   const XkbControlsPtr keyboard_;
   KeyboardReader key_reader_;
+
+  KDL::Vector cmd_pos_;
+  double cmd_yaw_;
 
   // 固定値
   std::string instruction_;
@@ -51,13 +57,14 @@ private:
   dh_std::Range<double> z_limit_;
   dh_std::Range<double> yaw_limit_;
 
-  // PubSub
-  ros::Publisher cmd_pub_;
+  // Publishers
+  ros::Publisher pos_yaw_pub_;
+  ros::Publisher pvay_pub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void eventCb(const tobas_msgs::Event& event) override;
+  void eventCb(const tobas_msgs::EventConstPtr& event) override;
 };
 }  // namespace tobas_keyboard_teleop

@@ -20,16 +20,13 @@ public:
 
   double cPitchAlpha() const;
   double cYawBeta() const;
-  double cPitchDelta(uint32_t cs_idx) const;
-  double cYawDelta(uint32_t cs_idx) const;
+  double cPitchDelta(const uint32_t& cs_idx) const;
+  double cYawDelta(const uint32_t& cs_idx) const;
 
 private:
   const Drone& drone_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;
-
-  KDL::Vector cog_;
-  KDL::RotationalInertia I_;
 
   double c_pitch_alpha_cg_;
   double c_yaw_beta_cg_;

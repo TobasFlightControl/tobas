@@ -1,6 +1,8 @@
 #pragma once
 
-#include <kdl/tree.hpp>
+#include <ros/ros.h>
+
+#include <dh_kdl/tree.hpp>
 
 #include "./rotor_property.hpp"
 #include "./fixed_wing_tools.hpp"
@@ -16,7 +18,7 @@ public:
   explicit Drone();
 
   /* Load drone configurations from ROS parameter server. */
-  void loadFromParam(const std::string& ns);
+  void loadFromParam(ros::NodeHandle& nh);
 
   const KDL::Tree& tree() const;
   const Eigen::Vector3d& imuOffset() const;
@@ -24,30 +26,34 @@ public:
   const Eigen::Vector3d& gpsOffset() const;
   const std::vector<std::string>& postureDefiningJoints() const;
   const RotorConfigs& rotorConfigs() const;
-  const RotorConfig& rotorConfig(uint32_t rotor_idx) const;
+  const RotorConfig& rotorConfig(const uint32_t& rotor_idx) const;
   const FixedWingConfig& fixedWing() const;
   const VehicleParameters& vehicle() const;
   const AerodynamicsCoefficients& aerodynamics() const;
   const ControlSurfaces& controlSurfaces() const;
-  const ControlSurface& controlSurface(uint32_t cs_idx) const;
+  const ControlSurface& controlSurface(const uint32_t& cs_idx) const;
 
   const bool& hasFixedWing() const;
   const bool& isLoaded() const;
+  bool isTransformable() const;
 
   uint32_t numRotors() const;
   uint32_t numControlSurfaces() const;
 
-  /* 指定したロータの推力 [N]． */
-  double thrustFromVoltage(uint32_t rotor_idx, double voltage) const;
+  /* 回転数[rad/s]から推力[N]を計算する． */
+  double thrustFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
 
-  /* 指定したロータの回転数から印加電圧を求める． */
-  double voltageFromRotSpeed(uint32_t rotor_idx, double rot_speed) const;
+  /* 印加電圧から推力[N]を計算する． */
+  double thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
 
-  /* 指定したロータの印加電圧から回転数を求める． */
-  double rotSpeedFromVoltage(uint32_t rotor_idx, double voltage) const;
+  /* 回転数から印加電圧を求める． */
+  double voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
 
-  /* 推力 [N] からロータの回転数 [rad/s] を求める． */
-  double rotSpeedFromThrust(uint32_t rotor_idx, double thrust) const;
+  /* 印加電圧から回転数を求める． */
+  double rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
+
+  /* 推力[N]から回転数[rad/s]を求める． */
+  double rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const;
 
 private:
   KDL::Tree tree_;
@@ -61,13 +67,13 @@ private:
   bool has_fixed_wing_;
   bool is_loaded_;
 
-  void getRotorConfigs(const std::string& ns);
-  RotorConfig getRotorConfig(const std::string& ns, uint32_t rotor_idx);
+  void getRotorConfigs(ros::NodeHandle& nh);
+  RotorConfig getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx);
 
-  void getFixedWingConfig(const std::string& ns);
-  void getVehicleParameters(const std::string& ns);
-  void getAerodynamicsCoefficients(const std::string& ns);
-  void getControlSurfaces(const std::string& ns);
-  ControlSurface getControlSurface(const std::string& ns, uint32_t cs_idx);
+  void getFixedWingConfig(ros::NodeHandle& nh);
+  void getVehicleParameters(ros::NodeHandle& nh);
+  void getAerodynamicsCoefficients(ros::NodeHandle& nh);
+  void getControlSurfaces(ros::NodeHandle& nh);
+  ControlSurface getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx);
 };
 }  // namespace tobas

@@ -1,7 +1,0 @@
-<launch>
-
-  <include file="$(find tobas_common_actions)/launch/wait_for_stillness.launch"/>
-
-  <node pkg="tobas_multirotor_takeoff" type="takeoff_action_server_node" name="takeoff_action_server" output="screen"/>
-
-</launch>

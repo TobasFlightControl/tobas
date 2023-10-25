@@ -1,7 +1,0 @@
-<launch>
-
-  <group ns="{{ drone_name }}">
-    <include file="$(find tobas_real)/launch/motors.launch"/>
-  </group>
-
-</launch>

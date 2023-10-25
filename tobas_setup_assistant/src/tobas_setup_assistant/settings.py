@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
@@ -12,7 +13,6 @@ from .setting_widgets import *
 
 
 class SettingsWidget(VerticalTabWidget):
-
     TAB_HEIGHT = 30  # 30以上無いと何故かTabBarの文字が横に見切れてしまう
     TAB_WIDTH = 70
     MIN_HEIGHT = 300
@@ -23,7 +23,7 @@ class SettingsWidget(VerticalTabWidget):
 
         self.start = StartWidget(main)
         self.battery = BatteryWidget(main)
-        self.rotary_wings = RotaryWingsWidget(main)
+        self.propulsion_system = PropulsionSystemWidget(main)
         self.fixed_wing = FixedWingWidget(main)
         self.imu = ImuWidget(main)
         self.magnetometer = MagnetometerWidget(main)
@@ -33,39 +33,41 @@ class SettingsWidget(VerticalTabWidget):
         self.depth_camera = DepthCameraWidget(main)
         self.lidar = LidarWidget(main)
         self.odometry = OdometryWidget(main)
+        self.rc_transmitter = RCTransmitterWidget(main)
         self.controller = ControllerWidget(main)
         self.observer = ObserverWidget(main)
         self.simulation = SimulationWidget(main)
         self.author_information = AuthorInformationWidget(main)
         self.ros_package = RosPackageWidget(main)
 
-        self.addTab(self.start, "Start")
-        self.addTab(self.battery, "Battery")
-        self.addTab(self.rotary_wings, "Rotary Wings")
-        self.addTab(self.fixed_wing, "Fixed Wing")
-        self.addTab(self.imu, "IMU")
-        self.addTab(self.magnetometer, "Magnetic")
-        self.addTab(self.barometer, "Barometer")
-        self.addTab(self.gps, "GPS")
-        self.addTab(self.rgb_camera, "RGB Camera")
-        self.addTab(self.depth_camera, "Depth Camera")
-        # self.addTab(self.lidar, "LiDAR")  # TODO
-        self.addTab(self.odometry, "Odometry")
-        self.addTab(self.controller, "Controller")
-        self.addTab(self.observer, "Observer")
-        self.addTab(self.simulation, "Simulation")
-        self.addTab(self.author_information, "Author Info")
-        self.addTab(self.ros_package, "ROS Package")
+        self.addTab(self.start, StartWidget.NAME)
+        self.addTab(self.battery, BatteryWidget.NAME)
+        self.addTab(self.propulsion_system, PropulsionSystemWidget.NAME)
+        self.addTab(self.fixed_wing, FixedWingWidget.NAME)
+        self.addTab(self.imu, ImuWidget.NAME)
+        self.addTab(self.magnetometer, MagnetometerWidget.NAME)
+        self.addTab(self.barometer, BarometerWidget.NAME)
+        self.addTab(self.gps, GpsWidget.NAME)
+        self.addTab(self.rgb_camera, RgbCameraWidget.NAME)
+        self.addTab(self.depth_camera, DepthCameraWidget.NAME)
+        self.addTab(self.lidar, LidarWidget.NAME)
+        self.addTab(self.odometry, OdometryWidget.NAME)
+        self.addTab(self.rc_transmitter, RCTransmitterWidget.NAME)
+        self.addTab(self.controller, ControllerWidget.NAME)
+        self.addTab(self.observer, ObserverWidget.NAME)
+        self.addTab(self.simulation, SimulationWidget.NAME)
+        self.addTab(self.author_information, AuthorInformationWidget.NAME)
+        self.addTab(self.ros_package, RosPackageWidget.NAME)
 
         self.setMinimumHeight(self.MIN_HEIGHT)
         self.setStyleSheet(
-            f'QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}'
+            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
         )
 
     def define_connections(self) -> None:
         self.start.define_connections()
         self.battery.define_connections()
-        self.rotary_wings.define_connections()
+        self.propulsion_system.define_connections()
         self.fixed_wing.define_connections()
         self.imu.define_connections()
         self.magnetometer.define_connections()
@@ -75,8 +77,14 @@ class SettingsWidget(VerticalTabWidget):
         self.depth_camera.define_connections()
         self.lidar.define_connections()
         self.odometry.define_connections()
+        self.rc_transmitter.define_connections()
         self.controller.define_connections()
         self.observer.define_connections()
         self.simulation.define_connections()
         self.author_information.define_connections()
         self.ros_package.define_connections()
+
+    def switch_to_tab(self, tab: QWidget) -> None:
+        idx = self.indexOf(tab)
+        assert idx >= 0
+        self.setCurrentIndex(idx)

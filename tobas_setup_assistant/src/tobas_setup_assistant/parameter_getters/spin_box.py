@@ -8,15 +8,14 @@ from .base import ParamGetterWidget
 
 
 class ParamGetterWidget_SpinBox(ParamGetterWidget):
-
     value_changed = pyqtSignal(int)
 
     def __init__(
         self,
         param_name: str,
         description_text: str = None,
-        minimum: int = -10**9,
-        maximum: int = +10**9,
+        minimum: int = -(10**9),
+        maximum: int = +(10**9),
         single_step: int = 1,
         default: int = None,
         suffix: str = "",

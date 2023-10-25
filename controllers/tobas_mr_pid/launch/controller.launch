@@ -1,0 +1,20 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <arg name="node_name" value="tobas_mr_pid"/>
+
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_pid/ControllerNodelet nodelet_manager" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_mr_pid" type="controller_node" name="$(arg node_name)" output="screen">
+      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+    </node>
+  </group>
+
+</launch>

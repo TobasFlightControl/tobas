@@ -2,7 +2,6 @@ from xml.etree import ElementTree as ET
 
 
 class GroundTruthStateModel(ET.Element):
-
     def __init__(
         self,
         ns: str,
@@ -16,4 +15,3 @@ class GroundTruthStateModel(ET.Element):
 
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
-        ET.SubElement(plugin, "stateTopic").text = "ground_truth/base_state"

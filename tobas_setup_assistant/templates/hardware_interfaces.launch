@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_real)/launch/hardware_interfaces.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+  </group>
+
+</launch>

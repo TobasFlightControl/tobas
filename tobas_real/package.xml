@@ -9,7 +9,14 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>nodelet</depend>
+	<depend>pluginlib</depend>
+
 	<depend>navio</depend>
 	<depend>tobas_tools</depend>
+
+	<export>
+		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export>
 
 </package>

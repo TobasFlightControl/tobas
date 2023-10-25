@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
@@ -12,7 +13,6 @@ from .rviz import RvizWidget
 
 
 class RobotVisualizerWidget(QWidget):
-
     HEIGHT = 350
 
     def __init__(self, main: SetupAssistant) -> None:

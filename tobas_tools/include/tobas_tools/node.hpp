@@ -13,19 +13,20 @@ class BaseNode
 {
 protected:
   ros::NodeHandle nh_;
-  const std::string ns_;
+  ros::NodeHandle pnh_;
+  const std::string name_;
 
-  ros::Publisher event_pub_;
   ros::Subscriber event_sub_;
 
-  explicit BaseNode();
+  explicit BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh, const std::string& name);
 
   virtual void getRosParams() = 0;
   virtual void registerPublishers() = 0;
   virtual void registerSubscribers() = 0;
 
-  virtual void eventCb(const tobas_msgs::Event& event) = 0;
+  virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
 
-  void requestShutdown();
+  /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
+  static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };
 }  // namespace tobas

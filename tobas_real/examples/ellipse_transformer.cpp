@@ -2,7 +2,7 @@
 
 #include <dh_std_tools/math.hpp>
 
-#include "../include/tobas_real/ellipse_transformer.hpp"
+#include <tobas_real/ellipse_transformer.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -10,7 +10,7 @@ using namespace dh_std;
 
 int main()
 {
-  // 変換元の楕円を定義
+  // 変換元の楕円体を定義
   const double rx = 2, ry = 1, rz = 1;  // 半径
   const double x0 = 2, y0 = 1, z0 = 1;  // 中心
 
@@ -29,6 +29,11 @@ int main()
 
   trans.initialize();
 
+  // 中心と半径を表示
+  cout << "Center:" << trans.getCenter().transpose() << endl;
+  cout << "Radius:" << trans.getRadius().transpose() << endl;
+
+  // 楕円体上の点を単位球上の点に写像
   const Vector3d x_raw(4, 1, 1);
   const Vector3d x_unit = trans.transform(x_raw);
   cout << "Raw vector: " << x_raw.transpose() << endl;

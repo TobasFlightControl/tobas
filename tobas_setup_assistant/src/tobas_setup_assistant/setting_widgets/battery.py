@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from abc import abstractmethod
+from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -16,7 +18,6 @@ from ..parameter_getters import *
 
 
 class BatteryWidget(BaseSettingWidget):
-
     NAME = "Battery"
 
     NO_SELECT = "Select battery type"
@@ -25,9 +26,11 @@ class BatteryWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Battery"
-        abst_text = "LiPoバッテリーの設定を行います．"\
-            + "1つのバッテリーで全てのモータを駆動することを想定しています．"\
+        abst_text = (
+            "LiPoバッテリーの設定を行います．"
+            + "1つのバッテリーで全てのモータを駆動することを想定しています．"
             + "つまり，ここでの設定は全てのモータの制御に影響します．"
+        )
         super().__init__(main, title_text, abst_text)
 
         self.battery_type = ComboBox()
@@ -44,10 +47,12 @@ class BatteryWidget(BaseSettingWidget):
         add_expanding_widget(self._rows)
         self._update_visibility()
 
+    @overrides
     def define_connections(self) -> None:
         super().define_connections()
         self.battery_type.currentTextChanged.connect(self._on_type_changed)
 
+    @overrides
     def is_valid(self) -> bool:
         if self.battery_type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select battery type.")
@@ -66,7 +71,7 @@ class BatteryWidget(BaseSettingWidget):
         elif battery_type == self.OTHER:
             return self.other
         else:
-            raise RuntimeError(f'Invalid battery type: {battery_type}')
+            raise RuntimeError(f"Invalid battery type: {battery_type}")
 
     def _update_visibility(self) -> None:
         battery_type = self.battery_type.currentText()
@@ -81,7 +86,7 @@ class BatteryWidget(BaseSettingWidget):
             self.lipo.setVisible(False)
             self.other.setVisible(True)
         else:
-            raise RuntimeError(f'Invalid battery type: {battery_type}')
+            raise RuntimeError(f"Invalid battery type: {battery_type}")
 
     @pyqtSlot(str)
     def _on_type_changed(self, battery_type: str) -> None:
@@ -89,7 +94,6 @@ class BatteryWidget(BaseSettingWidget):
 
 
 class BatteryWidget_Base(QWidget):
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
 
@@ -104,19 +108,13 @@ class BatteryWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
-    def warn_voltage(self) -> float:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def fatal_voltage(self) -> float:
+    def voltage_threshold(self) -> float:
         raise NotImplementedError()
 
 
 class BatteryWidget_LiPo(BatteryWidget_Base):
-
     NOMINAL_VOLTAGE_PER_CELL = 3.7  # 1セルあたりの定格電圧
-    WARN_VOLTAGE_PER_CELL = 3.5
-    FATAL_VOLTAGE_PER_CELL = 3.4
+    VOLTAGE_THR_PER_CELL = 3.4
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
@@ -134,8 +132,10 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         self._rows.addWidget(self._num_cells)
 
-        capacity_description = "バッテリーが1時間に供給できる電流の量．"\
+        capacity_description = (
+            "バッテリーが1時間に供給できる電流の量．"
             + "例えば，5000mAhのバッテリーは1時間に5000mA (5A) の電流を供給することができます．"
+        )
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity",
             capacity_description,
@@ -145,12 +145,14 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         # self._rows.addWidget(self._capacity)  # TODO
 
-        C_cont_description = "バッテリーが連続的に放電できる最大の電流を示す値．"\
-            + "このレートを超えてバッテリーを使用すると，過熱，パフォーマンスの低下，寿命の短縮，"\
-            + "または最悪の場合，火災や爆発などの危険が発生する可能性があります．"\
-            + "この値は通常，バッテリーの容量 (mAh) の倍数 (Cレートとも呼ばれます) で示されます．"\
-            + "例えば，1000mAhのバッテリーが2Cの連続放電電流レートを持つ場合，"\
+        C_cont_description = (
+            "バッテリーが連続的に放電できる最大の電流を示す値．"
+            + "このレートを超えてバッテリーを使用すると，過熱，パフォーマンスの低下，寿命の短縮，"
+            + "または最悪の場合，火災や爆発などの危険が発生する可能性があります．"
+            + "この値は通常，バッテリーの容量 (mAh) の倍数 (Cレートとも呼ばれます) で示されます．"
+            + "例えば，1000mAhのバッテリーが2Cの連続放電電流レートを持つ場合，"
             + "そのバッテリーは最大2000mA (2A) の電流を連続的に供給できます．"
+        )
         self._C_cont = ParamGetterWidget_SpinBox(
             "Continuous Discharge Current Rate",
             C_cont_description,
@@ -160,8 +162,9 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         # self._rows.addWidget(self._C_cont)  # TODO
 
-        C_pulse_description = "バッテリーが短時間で放電できる最大電流．"\
-            + "これは，バッテリーが連続的には処理できない大きな電流を一時的に供給する場合の最大レートを示します．"
+        C_pulse_description = (
+            "バッテリーが短時間で放電できる最大電流．" + "これは，バッテリーが連続的には処理できない大きな電流を一時的に供給する場合の最大レートを示します．"
+        )
         self._C_pulse = ParamGetterWidget_SpinBox(
             "Pulse Discharge Current Rate",
             C_pulse_description,
@@ -171,6 +174,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         # self._rows.addWidget(self._C_pulse)  # TODO
 
+    @overrides
     def is_valid(self) -> bool:
         C_cont = self._C_cont.get()
         C_pulse = self._C_pulse.get()
@@ -179,24 +183,22 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
                 self._main,
                 self._main.settings.battery.LIPO,
                 "Continuous discharge current rate cannot be "
-                "greater than pulse discharge current rate."
+                "greater than pulse discharge current rate.",
             )
             return False
 
         return True
 
+    @overrides
     def nominal_voltage(self) -> float:
         return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
 
-    def warn_voltage(self) -> float:
-        return self._num_cells.get() * self.WARN_VOLTAGE_PER_CELL
-
-    def fatal_voltage(self) -> float:
-        return self._num_cells.get() * self.FATAL_VOLTAGE_PER_CELL
+    @overrides
+    def voltage_threshold(self) -> float:
+        return self._num_cells.get() * self.VOLTAGE_THR_PER_CELL
 
 
 class BatteryWidget_Other(BatteryWidget_Base):
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
@@ -214,52 +216,33 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         self._rows.addWidget(self._nominal_voltage)
 
-        warn_voltage_description = "バッテリー電圧がこれ以下になると警告を出す．"
-        self._warn_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Warning Voltage Threshold",
-            warn_voltage_description,
-            decimals=1,
-            minimum=0.1,
-            default=14.0,
-            suffix=" V",
+        voltage_threshold_description = (
+            "バッテリー電圧がこれ以下になると警告を出し，" + "さらに一定時間経過すると強制的に着陸指令を出します．"
         )
-        self._rows.addWidget(self._warn_voltage)
-
-        fatal_voltage_description = "バッテリー電圧がこれ以下になると強制的に着陸指令を出す．"
-        self._fatal_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Fatal Voltage Threshold",
-            fatal_voltage_description,
+        self._voltage_threshold = ParamGetterWidget_DoubleSpinBox(
+            "Voltage Threshold",
+            voltage_threshold_description,
             decimals=1,
             minimum=0.1,
             default=13.6,
             suffix=" V",
         )
-        self._rows.addWidget(self._fatal_voltage)
+        self._rows.addWidget(self._voltage_threshold)
 
+    @overrides
     def is_valid(self) -> bool:
-        if self._nominal_voltage.get() <= self._warn_voltage.get():
+        if self._nominal_voltage.get() <= self._voltage_threshold.get():
             q_error_named(
                 self._main,
                 self._main.settings.battery.OTHER,
-                "Nominal voltage must be greater than warning voltage threshold.",
+                "Nominal voltage must be greater than voltage threshold.",
             )
             return False
 
-        if self._warn_voltage.get() <= self._fatal_voltage.get():
-            q_error_named(
-                self._main,
-                self._main.settings.battery.OTHER,
-                "Warning voltage threshold must be greater than fatal voltage threshold.",
-            )
-            return False
-
-        return True
-
+    @overrides
     def nominal_voltage(self) -> float:
         return self._nominal_voltage.get()
 
-    def warn_voltage(self) -> float:
-        return self._warn_voltage.get()
-
-    def fatal_voltage(self) -> float:
-        return self._fatal_voltage.get()
+    @overrides
+    def voltage_threshold(self) -> float:
+        return self._voltage_threshold.get()

@@ -32,7 +32,7 @@ public:
    *
    * @return ErrorCode Error code
    */
-  ErrorCode update(double V, double rho, const KDL::JntArray& q);
+  ErrorCode update(const double& V, const double& rho, const KDL::JntArray& q);
 
   const ErrorCode& errorCode() const;
   const std::string& errorMessage() const;
@@ -64,13 +64,13 @@ public:
    * @param rho 大気密度 [kg/m^3]
    * @return dh_std::Range<double> 速度の大きさの範囲
    */
-  dh_std::Range<double> speedLimit(double rho) const;
+  dh_std::Range<double> speedLimit(const double& rho) const;
 
-  double minimumSpeed(double rho) const;
-  double maximumSpeed(double rho) const;
+  double minimumSpeed(const double& rho) const;
+  double maximumSpeed(const double& rho) const;
 
   /* 迎角が0でも機体を持ち上げるだけの揚力が発生する速度． */
-  double takeOffSpeed(double rho) const;
+  double takeOffSpeed(const double& rho) const;
 
 private:
   ErrorCode error_code_;

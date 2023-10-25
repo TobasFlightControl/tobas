@@ -7,7 +7,6 @@ from ..common import *
 
 
 class ParamGetterWidget(QWidget):
-
     def __init__(
         self,
         param_name: str,
@@ -24,11 +23,7 @@ class ParamGetterWidget(QWidget):
         self._rows.addWidget(label)
 
         if description_text:
-            description = QLabel(description_text)
-            description.setFont(QFont("Default", pointSize=BODY_PSIZE))
-            description.setAlignment(Qt.AlignTop)
-            description.setWordWrap(True)
-            description.setOpenExternalLinks(True)
+            description = Description(description_text)
             self._rows.addWidget(description)
 
     @abstractmethod

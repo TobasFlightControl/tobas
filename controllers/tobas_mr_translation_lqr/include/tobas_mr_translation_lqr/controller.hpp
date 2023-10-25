@@ -1,0 +1,59 @@
+#pragma once
+
+#include <dh_kdl/frames.hpp>
+#include <dh_linear_control/lqid.hpp>
+
+namespace tobas_mr_translation_lqr
+{
+struct Config
+{
+  double acc_delay_time_const;
+
+  double hor_pos_weight;
+  double ver_pos_weight;
+  double hor_vel_weight;
+  double ver_vel_weight;
+  double hor_acc_weight;
+  double ver_acc_weight;
+  double hor_posint_weight;
+  double ver_posint_weight;
+  int jerk_weight_log10;
+
+  double max_hor_posint_error;
+  double max_ver_posint_error;
+  double max_hor_vel;
+  double max_ver_vel;
+};
+
+class TranslationController
+{
+  static constexpr uint32_t kPosIdx = 0;
+  static constexpr uint32_t kVelIdx = kPosIdx + 3;
+  static constexpr uint32_t kAccIdx = kVelIdx + 3;
+  static constexpr uint32_t kStateSize = kAccIdx + 3;
+
+  static constexpr double kVerAccDecayTimeConst = 0.02;  // [s]
+
+public:
+  explicit TranslationController();
+
+  void update(
+    const KDL::Vector& cur_pos,
+    const KDL::Vector& cur_vel_W,
+    const KDL::Vector& cur_acc_w,
+    const KDL::Vector& tar_pos,
+    KDL::Vector tar_vel_W,
+    const double& dt,
+    KDL::Vector& tar_acc_W);
+
+  void configure(const Config& config);
+
+  Eigen::Vector3d positionIntegralError() const;
+
+private:
+  double max_hor_vel_;
+  double max_ver_vel_;
+
+  ctrl::LQID lqid_;
+};
+}  // namespace tobas_mr_translation_lqr
