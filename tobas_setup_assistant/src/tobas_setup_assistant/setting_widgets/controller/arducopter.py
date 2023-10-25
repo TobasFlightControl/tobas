@@ -187,7 +187,11 @@ class ArduCopter(BaseController):
     MIN_NUM_PROPS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "ArduCopterをGazebo上でシミュレーションします．ArduPilotを用いる場合，オブザーバは使用しません．"
+        abst_text = (
+            "ArduCopterをGazebo上でシミュレーションします．"
+            + "この機能を使う場合，<a href='https://github.com/TobasFlightControl/tobas/tree/develop#ardupilot'>"
+            + "Other Installation/ArduPilot</a>に従ってArduPilotをインストールする必要があります．"
+        )
         super().__init__(main, abst_text)
 
         # Frame Classes
@@ -266,8 +270,6 @@ class ArduCopter(BaseController):
                 plus,
                 [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW],
             ),
-            # Custom Frames
-            # TODO
         ]
 
         frame_description = (

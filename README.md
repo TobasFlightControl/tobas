@@ -42,10 +42,10 @@ $ catkin build
 
 You can skip each feature if you do not wish to use it.
 
-#### ArduPIlot
+#### ArduPilot
 
 ```bash
-$ git clone https://github.com/ArduPilot/ardupilot.git
+$ git clone https://github.com/ArduPilot/ardupilot.git  # Anywhere
 $ cd ardupilot
 $ git checkout ArduCopter-stable
 $ Tools/environment_install/install-prereqs-ubuntu.sh -y
