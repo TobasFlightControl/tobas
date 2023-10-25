@@ -90,29 +90,6 @@ bool ControllerRos::isReady() const
   return true;
 }
 
-bool ControllerRos::isCommandLevelOk(const tobas_msgs::CommandLevel& level)
-{
-  if (level.data < cmd_level_)
-  {
-    rosErrorThrottle(
-      kCommandLevelErrorPeriod, name_,
-      "The command is ignored because its level " << static_cast<int>(level.data)
-                                                  << "is lower than the current command level "
-                                                  << static_cast<int>(cmd_level_) << ".");
-    return false;
-  }
-
-  if (level.data > cmd_level_)
-  {
-    rosInfo(
-      name_, "The command level is raised from " << static_cast<int>(cmd_level_) << " to "
-                                                 << static_cast<int>(level.data) << ".");
-    cmd_level_ = level.data;
-  }
-
-  return true;
-}
-
 void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -284,7 +261,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
     return;
 
   // コマンドレベルの処理
-  if (!isCommandLevelOk(pvay->level))
+  if (!updateCommandLevel(cmd_level_, pvay->level.data))
     return;
 
   // コマンドを更新
@@ -304,7 +281,7 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
   if (pt_ == nullptr)
     return;
 
-  if (!isCommandLevelOk(rpy_thrust->level))
+  if (!updateCommandLevel(cmd_level_, rpy_thrust->level.data))
     return;
 
   // 外側の制御を止める
