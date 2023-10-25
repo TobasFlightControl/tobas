@@ -40,7 +40,7 @@ $ catkin build
 
 ### Other Installation
 
-You can skip each feature if you do not wish to use it.
+You can skip each step if you do not use the feature.
 
 #### ArduPilot
 
