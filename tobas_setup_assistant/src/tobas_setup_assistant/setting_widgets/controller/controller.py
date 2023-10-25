@@ -112,6 +112,8 @@ class ControllerWidget(BaseSettingWidget):
         # 選択可能なコントローラが1種類の場合は自動的にそれを選択
         if self._type.count() == 2:
             self._type.setCurrentIndex(1)  # idx = 0がNO_SELECTで，その次に設定
+        else:
+            self._type.setCurrentIndex(0)  # NO_SELECT
 
     def _update_visibility(self) -> None:
         controller_type = self._type.currentText()

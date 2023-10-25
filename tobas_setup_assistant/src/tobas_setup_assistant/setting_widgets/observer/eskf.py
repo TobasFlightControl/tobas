@@ -25,6 +25,7 @@ class ErrorStateKalmanFilter(BaseObserver):
     YAW_VAR = "yaw_variance"
     ACC_BIAS_NOISE_VAR_LOG10 = "acc_bias_noise_var_log10"
     GYRO_BIAS_NOISE_VAR_LOG10 = "gyro_bias_noise_var_log10"
+    GRAV_NOISE_VAR_LOG10 = "gravity_noise_var_log10"
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
@@ -57,7 +58,7 @@ class ErrorStateKalmanFilter(BaseObserver):
 
         config = self._get_param_config(self.ACC_BIAS_NOISE_VAR_LOG10)
         self._acc_bias_noise_var_log10 = ParamGetterWidget_SpinBox(
-            "Accelerometer bias noise variance level",
+            "Accelerometer bias process noise variance level",
             config["description"],
             minimum=config["min"],
             maximum=config["max"],
@@ -67,13 +68,23 @@ class ErrorStateKalmanFilter(BaseObserver):
 
         config = self._get_param_config(self.GYRO_BIAS_NOISE_VAR_LOG10)
         self._gyro_bias_noise_var_log10 = ParamGetterWidget_SpinBox(
-            "Gyroscope bias noise variance level",
+            "Gyroscope bias process noise variance level",
             config["description"],
             minimum=config["min"],
             maximum=config["max"],
             default=config["default"],
         )
         self._rows.addWidget(self._gyro_bias_noise_var_log10)
+
+        config = self._get_param_config(self.GRAV_NOISE_VAR_LOG10)
+        self._gravity_noise_var_log10 = ParamGetterWidget_SpinBox(
+            "Gravity process noise variance level",
+            config["description"],
+            minimum=config["min"],
+            maximum=config["max"],
+            default=config["default"],
+        )
+        self._rows.addWidget(self._gravity_noise_var_log10)
 
     @overrides
     def is_valid(self) -> bool:

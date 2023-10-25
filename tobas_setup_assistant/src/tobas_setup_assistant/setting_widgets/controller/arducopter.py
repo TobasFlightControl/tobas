@@ -96,6 +96,9 @@ class ChannelsWidget(QWidget):
         label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(label)
 
+        description = Description("選択したフレームタイプの各チャンネルに対応するリンクを選択してください．")
+        self._rows.addWidget(description)
+
         self._form = FormLayout()
         self._rows.addLayout(self._form)
 
@@ -267,7 +270,10 @@ class ArduCopter(BaseController):
             # TODO
         ]
 
-        frame_description = ""  # TODO
+        frame_description = (
+            "<a href='https://ardupilot.org/copter/docs/connect-escs-and-motors.html#motor-order-diagrams'>"
+            + "Motor order diagrams</a>から，あなたの機体に該当するフレームタイプを選択してください．"
+        )
         self._frame = ParamGetterWidget_ComboBox(
             "Frame Type",
             frame_description,
