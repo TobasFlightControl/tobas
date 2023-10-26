@@ -67,6 +67,7 @@ void OrientationController::updateInternalDataStructures()
 }
 
 VectorXd OrientationController::solve(
+  const double& dt,
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
@@ -145,7 +146,7 @@ VectorXd OrientationController::solve(
     dynamics_.horizontalMoment(cur_rpy, cur_twist_B.vel, cur_wind_W, cur_q, cur_rot_speeds);
   const Vector h_moment_comp = h_force_comp_rate_ * h_moment_raw;
   return mixer_.solve(
-    cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
+    dt, cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
 }
 
 void OrientationController::configure(const OrientationControllerConfig& config)

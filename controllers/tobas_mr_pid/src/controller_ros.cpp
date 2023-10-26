@@ -191,7 +191,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // プロペラの推力を計算
     // TODO: H-momentを考慮
     const VectorXd thrusts = mixer_.solve(
-      battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro, tar_rpyt_->thrust);
+      dt, battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro,
+      tar_rpyt_->thrust);
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();

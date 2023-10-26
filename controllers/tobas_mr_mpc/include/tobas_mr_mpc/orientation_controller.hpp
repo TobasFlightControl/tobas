@@ -48,6 +48,7 @@ public:
   void updateInternalDataStructures();
 
   Eigen::VectorXd solve(
+    const double& dt,
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::Vector& cur_wind_W,
@@ -80,7 +81,6 @@ private:
   double kd_;
 
   dh_std::Stopwatch stopwatch_;
-
 
   void updateCurrentState(
     const KDL::Euler& cur_rpy,
