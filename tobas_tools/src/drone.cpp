@@ -1,5 +1,6 @@
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/string.hpp>
 #include <dh_kdl/kdl_parser.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
@@ -98,6 +99,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
   // Axis
   string axis;
   dh_ros::getParam(nh, prefix + "/axis", axis);
+  axis = dh_std::toLower(axis);
   if (axis == "x_positive")
   {
     res.axis = Axis::X_POSITIVE;
@@ -114,6 +116,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
   // Direction
   string direction;
   dh_ros::getParam(nh, prefix + "/direction", direction);
+  direction = dh_std::toLower(direction);
   if (direction == "ccw")
   {
     res.direction = 1;
