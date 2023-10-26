@@ -40,7 +40,7 @@ class ImuWidget(BaseSettingWidget):
             "Update rate",
             update_rate_description,
             minimum=1,
-            default=200,
+            default=400,
             suffix=" Hz",
         )
         self._rows.addWidget(self.update_rate)

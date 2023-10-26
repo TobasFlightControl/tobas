@@ -4,6 +4,7 @@
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
@@ -15,7 +16,8 @@ using namespace Eigen;
 
 namespace tobas_real
 {
-ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name)
 {
   getRosParams();
   readConfig();
@@ -29,14 +31,15 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
   measure_gyro_bias_timer_ =
-    nh_.createTimer(kMeasureGyroBiasRate, &ImuHandler::measureGyroBiasTimerCb, this);
+    nh_.createTimer(kMeasureGyroBiasRate, &self::measureGyroBiasTimerCb, this);
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
-  main_timer_ = nh_.createTimer(kPublishRate, &ImuHandler::mainTimerCb, this, false, false);
+  main_timer_ = nh_.createTimer(update_rate_, &self::mainTimerCb, this, false, false);
 }
 
 void ImuHandler::getRosParams()
 {
+  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void ImuHandler::registerPublishers()
@@ -47,7 +50,7 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &ImuHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
 }
 
 void ImuHandler::readConfig()
@@ -119,9 +122,9 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   mag_msg->header.frame_id = "mag_frame";
 
   // Fill covariance matrices
-  const auto acc_var = dh_std::sqr(acc_noise_density_) * kPublishRate;    // [m^2/s^4]
-  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * kPublishRate;  // [rad^2/s^2]
-  const auto mag_var = dh_std::sqr(mag_noise_density_) * kPublishRate;
+  const auto acc_var = dh_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
+  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
+  const auto mag_var = dh_std::sqr(mag_noise_density_) * update_rate_;
   dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
   dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
   dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);

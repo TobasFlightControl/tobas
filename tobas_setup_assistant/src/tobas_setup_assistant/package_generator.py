@@ -147,6 +147,11 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items,
+            "hardware_interfaces.yaml",
+            osp.join(config_dir, "hardware_interfaces.yaml"),
+        )
+        self._generate_from_template(
+            items,
             "nodelet_manager.launch",
             osp.join(launch_dir, "nodelet_manager.launch"),
         )
@@ -220,30 +225,35 @@ class PackageGenerator(QObject):
         self._generate_urdf(urdf_dir)
 
     def _make_template_items(self) -> None:
-        template_items = dict()
+        settings = self._main.settings
 
+        template_items = dict()
         template_items["drone_name"] = self._drone_name
 
+        # Sensors
+        template_items["imu_update_rate"] = settings.imu.update_rate.get()
+        template_items["bar_update_rate"] = settings.barometer.update_rate.get()
+
         # Controller
-        controller = self._main.settings.controller
+        controller = settings.controller
         template_items["controller_pkg"] = controller.controller_pkg()
         template_items["takeoff_pkg"] = controller.takeoff_pkg()
         template_items["landing_pkg"] = controller.landing_pkg()
 
         # Observer
-        template_items["observer_pkg"] = self._main.settings.observer.pkg_name()
+        template_items["observer_pkg"] = settings.observer.pkg_name()
 
         # Simulation
-        simulation = self._main.settings.simulation
+        simulation = settings.simulation
         template_items["gravity"] = simulation.gravity.get()
 
         # Author Info
-        author_info = self._main.settings.author_information
+        author_info = settings.author_information
         template_items["author_name"] = author_info.name.get()
         template_items["author_email"] = author_info.email.get()
 
         # Ros Package
-        ros_pkg = self._main.settings.ros_package
+        ros_pkg = settings.ros_package
         template_items["pkg_name"] = ros_pkg.pkg_name.get()
 
         # Joint Controllers

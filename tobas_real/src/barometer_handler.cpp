@@ -13,7 +13,10 @@ using namespace std;
 
 namespace tobas_real
 {
-BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+BarometerHandler::BarometerHandler(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();
@@ -27,11 +30,12 @@ BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHan
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kUpdateRate, &BarometerHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(update_rate_, &self::mainTimerCb, this);
 }
 
 void BarometerHandler::getRosParams()
 {
+  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void BarometerHandler::registerPublishers()
@@ -41,7 +45,7 @@ void BarometerHandler::registerPublishers()
 
 void BarometerHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &BarometerHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
 }
 
 void BarometerHandler::readConfig()
@@ -85,7 +89,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   bar_msg->header.stamp = event.current_real;
   bar_msg->header.frame_id = "barometer_frame";
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = dh_std::sqr(pressure_noise_density_) * kUpdateRate;  // [Pa^2]
+  bar_msg->variance = dh_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);
