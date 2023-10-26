@@ -181,6 +181,7 @@ class ArduCopter(BaseController):
     CONTROLLER_PKG = "tobas_mr_arducopter"
     TAKEOFF_PKG = "tobas_mr_arducopter"
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    PARAM_SERVER_NODE = "arducopter_param_server"
 
     COMMAND_MSGS = [PositionYaw.__name__]
 

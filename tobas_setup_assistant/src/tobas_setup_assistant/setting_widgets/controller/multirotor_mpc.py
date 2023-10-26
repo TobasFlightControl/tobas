@@ -25,6 +25,7 @@ class MultirotorMpc(BaseController):
     CONTROLLER_PKG = "tobas_mr_mpc"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
+    PARAM_SERVER_NODE = "tobas_mr_mpc"
 
     COMMAND_MSGS = [PosVelAccYaw.__name__, RollPitchYawThrust.__name__]
 
@@ -81,4 +82,4 @@ class MultirotorMpc(BaseController):
 
     @overrides
     def parameter_dict(self) -> dict:
-        return dict()  # TODO
+        return super().parameter_dict()  # TODO

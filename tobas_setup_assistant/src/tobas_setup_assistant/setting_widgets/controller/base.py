@@ -6,7 +6,9 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from typing import List, final
+import rospy
 from dynamic_reconfigure import client
+from dynamic_reconfigure.msg import ConfigDescription
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -18,6 +20,8 @@ from dh_rqt_tools.layouts import FormLayout
 
 from ...common import *
 
+PARAM_DESCRIPTION_TIMEOUT = 3
+
 
 class BaseController(QWidget):
     NAME = "Unknown"
@@ -25,6 +29,7 @@ class BaseController(QWidget):
     CONTROLLER_PKG = "Unknown"
     TAKEOFF_PKG = "Unknown"
     LANDING_PKG = "Unknown"
+    PARAM_SERVER_NODE = "Unknown"
 
     COMMAND_MSGS = ["Unknown"]
 
@@ -73,7 +78,21 @@ class BaseController(QWidget):
 
     @abstractmethod
     def parameter_dict(self) -> dict:
-        raise NotImplementedError()
+        # 動的パラメータを取得
+        cfg: ConfigDescription = rospy.wait_for_message(
+            f"/{self.CONTROLLER_PKG}/parameter_descriptions",
+            ConfigDescription,
+            PARAM_DESCRIPTION_TIMEOUT,
+        )
+        dflt = cfg.dflt
+
+        # デフォルトのパラメータを入れる
+        res = {self.PARAM_SERVER_NODE: dict()}
+        for defaults in [dflt.ints, dflt.doubles, dflt.strs, dflt.bools]:
+            for param in defaults:
+                res[self.PARAM_SERVER_NODE][param.name] = param.value
+
+        return res
 
     @final
     def _get_param_config(self, name: str) -> dict:

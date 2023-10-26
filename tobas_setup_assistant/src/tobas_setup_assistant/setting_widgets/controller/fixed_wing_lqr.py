@@ -22,8 +22,9 @@ class FixedWingLQR(BaseController):
     NAME = "Fixed Wing LQR"
 
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"
-    TAKEOFF_PKG = "TODO"  # TODO
-    LANDING_PKG = "TODO"  # TODO
+    TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
+    LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"
 
     COMMAND_MSGS = [SpeedRollDeltaPitch.__name__]
 
