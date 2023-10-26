@@ -20,9 +20,7 @@ Drone::Drone() : is_loaded_(false)
 void Drone::loadFromParam(ros::NodeHandle& nh)
 {
   if (!treeFromParam("robot_description", tree_))
-  {
     throw runtime_error("Failed to get KDL tree.");
-  }
 
   dh_ros::getParam(nh, "imu_offset", imu_offset_);
   dh_ros::getParam(nh, "barometer_offset", bar_offset_);
@@ -33,9 +31,7 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
 
   has_fixed_wing_ = dh_ros::match(nh, "fixed_wing");
   if (has_fixed_wing_)
-  {
     getFixedWingConfig(nh);
-  }
 
   is_loaded_ = true;
 }
@@ -83,9 +79,7 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
   dh_ros::getParam(nh, "num_rotors", num_rotors);
 
   for (uint32_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
-  {
     rotor_configs_.push_back(getRotorConfig(nh, rotor_idx));
-  }
 }
 
 RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx)
@@ -101,35 +95,23 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
   dh_ros::getParam(nh, prefix + "/axis", axis);
   axis = dh_std::toLower(axis);
   if (axis == "x_positive")
-  {
     res.axis = Axis::X_POSITIVE;
-  }
   else if (axis == "z_positive")
-  {
     res.axis = Axis::Z_POSITIVE;
-  }
   else
-  {
     throw runtime_error("Invalid rotation axis: " + axis);
-  }
 
   // Direction
   string direction;
   dh_ros::getParam(nh, prefix + "/direction", direction);
   direction = dh_std::toLower(direction);
   if (direction == "ccw")
-  {
     res.direction = 1;
-  }
   else if (direction == "cw")
-  {
     res.direction = -1;
-  }
   else
-  {
     throw runtime_error(
       "Invalid rotation direction: " + direction + ". direction must be 'cw' or 'ccw'.");
-  }
 
   dh_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
   dh_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
@@ -137,35 +119,24 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
 
   dh_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
   if (res.rot_speed_coefs.first <= 0)
-  {
     throw runtime_error("The first term of 'rot_speed_coefs' must be positive.");
-  }
   if (res.rot_speed_coefs.second < 0)
-  {
     throw runtime_error("The second term of 'rot_speed_coefs' must be non-negative.");
-  }
 
   dh_ros::getParam(nh, prefix + "/pin", res.pin);
   if (res.pin < kMinPinId || kMaxPinId < res.pin)
-  {
     throw runtime_error("Invalid rotor pin number: " + to_string(res.pin));
-  }
 
   // ESC
   string esc_type;
   dh_ros::getParam(nh, prefix + "/esc_type", esc_type);
+  esc_type = dh_std::toLower(esc_type);
   if (esc_type == "pwm")
-  {
     res.esc_type = ESCType::PWM;
-  }
   else if (esc_type == "dshot")
-  {
     res.esc_type = ESCType::DSHOT;
-  }
   else
-  {
     throw runtime_error("Unknown ESC type: " + esc_type);
-  }
 
   return res;
 }
@@ -189,9 +160,7 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
   vector<double> ac;
   dh_ros::getParam(nh, prefix + "/aerodynamic_center", ac);
   if (ac.size() != 3)
-  {
     throw runtime_error("Size mismatch: The size of aerodynamic_center must be 3.");
-  }
   des.ac.x(ac[0]);
   des.ac.y(ac[1]);
   des.ac.z(ac[2]);
@@ -199,9 +168,7 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
   dh_ros::getParam(nh, prefix + "/alpha_limit/lower", des.alpha_limit.lower);
   dh_ros::getParam(nh, prefix + "/alpha_limit/upper", des.alpha_limit.upper);
   if (!des.alpha_limit.isValid())
-  {
     throw runtime_error("Invalid stall angles");
-  }
 }
 
 void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
@@ -238,9 +205,7 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
   dh_ros::getParam(nh, "fixed_wing/num_control_surfaces", num_cs);
 
   for (uint32_t cs_idx = 0; cs_idx < num_cs; ++cs_idx)
-  {
     fixed_wing_config_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
-  }
 }
 
 ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx)
@@ -254,9 +219,7 @@ ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_
   dh_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
   dh_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
   if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0))
-  {
     throw runtime_error("Invalid range of control surface angle");
-  }
 
   dh_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, dh_ros::POSITIVE);
 
