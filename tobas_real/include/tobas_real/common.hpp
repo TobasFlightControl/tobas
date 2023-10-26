@@ -52,12 +52,12 @@ static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 static constexpr uint32_t kPowerModuleVoltageChannel = 2;
 
 static constexpr uint32_t kServoRailSize = 14;
-static constexpr double kPwmFrequency = 400.;  // [Hz] PX4のデフォルト値
-static constexpr double kPwmMin = 1000.;       // [us]
-static constexpr double kPwmMax = 2000.;       // [us]
-static constexpr double kPwmNeutral = 1500.;   // [us]
-static constexpr double kPwmDisarm = 900.;     // [us]
-static constexpr double kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorSpinArm;  // [us]
+static constexpr uint32_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
+static constexpr uint32_t kPwmMin = 1000;       // [us]
+static constexpr uint32_t kPwmMax = 2000;       // [us]
+static constexpr uint32_t kPwmNeutral = 1500;   // [us]
+static constexpr uint32_t kPwmDisarm = 900;     // [us]
+static constexpr uint32_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorSpinArm;  // [us]
 
 static constexpr uint32_t kRcChannelRoll = 0;
 static constexpr uint32_t kRcChannelPitch = 1;

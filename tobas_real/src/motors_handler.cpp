@@ -12,7 +12,10 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-MotorsHandler::MotorsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+MotorsHandler::MotorsHandler(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   if (getuid())
@@ -145,7 +148,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
     }
 
     // スロットルをパルス幅に変換
-    const auto pwm_period = remap(tar_throttle, 0., 1., kPwmMin, kPwmMax);
+    const auto pwm_period = remap<double>(tar_throttle, 0., 1., kPwmMin, kPwmMax);
 
     // Set PWM duty cycle
     if (!pwm_.setDutyCycle(channelFromPin(pin), pwm_period))
