@@ -13,9 +13,7 @@ TrimConditions::TrimConditions(const Drone& drone)
   : drone_(drone), inertia_solver_(drone.tree()), asd_cog_(drone)
 {
   if (drone.isLoaded())
-  {
     updateInternalDataStructures();
-  }
 }
 
 void TrimConditions::updateInternalDataStructures()
@@ -83,61 +81,6 @@ TrimConditions::update(const double& V, const double& rho, const JntArray& q)
   return error_code_;
 }
 
-const TrimConditions::ErrorCode& TrimConditions::errorCode() const
-{
-  return error_code_;
-}
-
-const string& TrimConditions::errorMessage() const
-{
-  return error_msg_;
-}
-
-const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const
-{
-  return asd_cog_;
-}
-
-const uint32_t& TrimConditions::elevatorIndex() const
-{
-  return elev_idx_;
-}
-
-const double& TrimConditions::alpha() const
-{
-  return alpha_;
-}
-
-const double& TrimConditions::theta() const
-{
-  return alpha_;  // 水平飛行より theta = alpha
-}
-
-const double& TrimConditions::elevator() const
-{
-  return elevator_;
-}
-
-const double& TrimConditions::c_L() const
-{
-  return c_L_;
-}
-
-const double& TrimConditions::c_D() const
-{
-  return c_D_;
-}
-
-const double& TrimConditions::c_T() const
-{
-  return c_T_;
-}
-
-const double& TrimConditions::u() const
-{
-  return u_;
-}
-
 dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
   assert(rho > 0.);
@@ -155,16 +98,6 @@ dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
 
   return dh_std::Range<double>(V_min, V_max);
-}
-
-double TrimConditions::minimumSpeed(const double& rho) const
-{
-  return speedLimit(rho).lower;
-}
-
-double TrimConditions::maximumSpeed(const double& rho) const
-{
-  return speedLimit(rho).upper;
 }
 
 double TrimConditions::takeOffSpeed(const double& rho) const

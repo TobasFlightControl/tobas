@@ -18,10 +18,10 @@ public:
 
   void update(const KDL::JntArray& q);
 
-  double cPitchAlpha() const;
-  double cYawBeta() const;
-  double cPitchDelta(const uint32_t& cs_idx) const;
-  double cYawDelta(const uint32_t& cs_idx) const;
+  inline double cPitchAlpha() const;
+  inline double cYawBeta() const;
+  inline double cPitchDelta(const uint32_t& cs_idx) const;
+  inline double cYawDelta(const uint32_t& cs_idx) const;
 
 private:
   const Drone& drone_;
@@ -33,4 +33,24 @@ private:
   std::vector<double> c_pitch_delta_cg_;
   std::vector<double> c_yaw_delta_cg_;
 };
+
+inline double StabilityDerivativesCG::cPitchAlpha() const
+{
+  return c_pitch_alpha_cg_;
+}
+
+inline double StabilityDerivativesCG::cYawBeta() const
+{
+  return c_yaw_beta_cg_;
+}
+
+inline double StabilityDerivativesCG::cPitchDelta(const uint32_t& cs_idx) const
+{
+  return c_pitch_delta_cg_[cs_idx];
+}
+
+inline double StabilityDerivativesCG::cYawDelta(const uint32_t& cs_idx) const
+{
+  return c_yaw_delta_cg_[cs_idx];
+}
 }  // namespace tobas

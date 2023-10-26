@@ -36,6 +36,11 @@ protected:
   bool updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level);
 
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
-  static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
+  static inline ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };
+
+inline ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
+{
+  return ros::TransportHints().reliable().tcpNoDelay(nodelay);
+}
 }  // namespace tobas

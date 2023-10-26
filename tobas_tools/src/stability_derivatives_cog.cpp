@@ -46,24 +46,4 @@ void StabilityDerivativesCG::update(const JntArray& q)
     c_yaw_delta_cg_[i] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }
 }
-
-double StabilityDerivativesCG::cPitchAlpha() const
-{
-  return c_pitch_alpha_cg_;
-}
-
-double StabilityDerivativesCG::cYawBeta() const
-{
-  return c_yaw_beta_cg_;
-}
-
-double StabilityDerivativesCG::cPitchDelta(const uint32_t& cs_idx) const
-{
-  return c_pitch_delta_cg_[cs_idx];
-}
-
-double StabilityDerivativesCG::cYawDelta(const uint32_t& cs_idx) const
-{
-  return c_yaw_delta_cg_[cs_idx];
-}
 }  // namespace tobas

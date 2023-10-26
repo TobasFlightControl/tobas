@@ -46,66 +46,6 @@ void DrydenComponents::setMeanWindSpeed(const double& mean_wind_speed)
   mean_speed_ = mean_wind_speed;
 }
 
-const double& DrydenComponents::scaleLengthLon() const
-{
-  return L_uv_;
-}
-
-const double& DrydenComponents::scaleLengthLat() const
-{
-  return L_uv_;
-}
-
-const double& DrydenComponents::scaleLengthVer() const
-{
-  return L_w_;
-}
-
-const double& DrydenComponents::intensityLon() const
-{
-  return sigma_uv_;
-}
-
-const double& DrydenComponents::intensityLat() const
-{
-  return sigma_uv_;
-}
-
-const double& DrydenComponents::intensityVer() const
-{
-  return sigma_w_;
-}
-
-const double& DrydenComponents::updateRateLon() const
-{
-  return r_uv_;
-}
-
-const double& DrydenComponents::updateRateLat() const
-{
-  return r_uv_;
-}
-
-const double& DrydenComponents::updateRateVer() const
-{
-  return r_w_;
-}
-
-double DrydenComponents::noiseStddevLon() const
-{
-  return sqrt(2 * r_uv_) * sigma_uv_;
-}
-
-double DrydenComponents::noiseStddevLat() const
-{
-  return sqrt(2 * r_uv_) * sigma_uv_;
-}
-
-double DrydenComponents::noiseStddevVer() const
-{
-  return sqrt(2 * r_w_) * sigma_w_;
-}
-
 DrydenSimulator::DrydenSimulator(const double& mean_wind_speed)
   : components_(mean_wind_speed), rnd_gen_(rnd_dev_()), noise_(0, 1)
 {
@@ -128,20 +68,5 @@ void DrydenSimulator::update(
 void DrydenSimulator::setMeanWindSpeed(const double& mean_wind_speed)
 {
   components_.setMeanWindSpeed(mean_wind_speed);
-}
-
-const double& DrydenSimulator::u() const
-{
-  return u_;
-}
-
-const double& DrydenSimulator::v() const
-{
-  return v_;
-}
-
-const double& DrydenSimulator::w() const
-{
-  return w_;
 }
 }  // namespace tobas

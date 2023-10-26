@@ -34,28 +34,31 @@ public:
    */
   ErrorCode update(const double& V, const double& rho, const KDL::JntArray& q);
 
-  const ErrorCode& errorCode() const;
-  const std::string& errorMessage() const;
+  inline const ErrorCode& errorCode() const;
+  inline const std::string& errorMessage() const;
 
-  const StabilityDerivativesCG& stabilityDerivativesCG() const;
+  inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  const uint32_t& elevatorIndex() const;
+  inline const uint32_t& elevatorIndex() const;
 
   /* 迎角 [rad] */
-  const double& alpha() const;
+  inline const double& alpha() const;
   /* ピッチ角 [rad] */
-  const double& theta() const;
+  inline const double& theta() const;
   /* エレベーター舵角 [rad] */
-  const double& elevator() const;
+  inline const double& elevator() const;
   /* 揚力係数 [-] */
-  const double& c_L() const;
+  inline const double& c_L() const;
   /* 抗力係数 [-] */
-  const double& c_D() const;
+  inline const double& c_D() const;
   /* 推力係数 [-] */
-  const double& c_T() const;
+  inline const double& c_T() const;
   /* X軸方向の速さ [m/s] */
-  const double& u() const;
+  inline const double& u() const;
+
+  inline double minimumSpeed(const double& rho) const;
+  inline double maximumSpeed(const double& rho) const;
 
   /**
    * @brief 失速しないための速度の大きさの範囲．
@@ -65,9 +68,6 @@ public:
    * @return dh_std::Range<double> 速度の大きさの範囲
    */
   dh_std::Range<double> speedLimit(const double& rho) const;
-
-  double minimumSpeed(const double& rho) const;
-  double maximumSpeed(const double& rho) const;
 
   /* 迎角が0でも機体を持ち上げるだけの揚力が発生する速度． */
   double takeOffSpeed(const double& rho) const;
@@ -95,4 +95,69 @@ private:
 
   void setElevatorIndex();
 };
+
+inline const TrimConditions::ErrorCode& TrimConditions::errorCode() const
+{
+  return error_code_;
+}
+
+inline const std::string& TrimConditions::errorMessage() const
+{
+  return error_msg_;
+}
+
+inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const
+{
+  return asd_cog_;
+}
+
+inline const uint32_t& TrimConditions::elevatorIndex() const
+{
+  return elev_idx_;
+}
+
+inline const double& TrimConditions::alpha() const
+{
+  return alpha_;
+}
+
+inline const double& TrimConditions::theta() const
+{
+  return alpha_;  // 水平飛行より theta = alpha
+}
+
+inline const double& TrimConditions::elevator() const
+{
+  return elevator_;
+}
+
+inline const double& TrimConditions::c_L() const
+{
+  return c_L_;
+}
+
+inline const double& TrimConditions::c_D() const
+{
+  return c_D_;
+}
+
+inline const double& TrimConditions::c_T() const
+{
+  return c_T_;
+}
+
+inline const double& TrimConditions::u() const
+{
+  return u_;
+}
+
+inline double TrimConditions::minimumSpeed(const double& rho) const
+{
+  return speedLimit(rho).lower;
+}
+
+inline double TrimConditions::maximumSpeed(const double& rho) const
+{
+  return speedLimit(rho).upper;
+}
 }  // namespace tobas
