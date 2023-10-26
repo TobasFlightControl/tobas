@@ -22,7 +22,7 @@ class ImuWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Inertial Measurement Unit"
         abst_text = (
-            "6軸IMUの設定を行います．データシートを確認し，各値を入力してください．"
+            "9軸IMUの設定を行います．データシートを確認し，各値を入力してください．"
             + "センサフレームは機体フレームに平行であり，値はNWU座標系で得られることを想定しています．"
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         )
