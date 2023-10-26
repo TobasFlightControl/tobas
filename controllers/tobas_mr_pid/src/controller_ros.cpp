@@ -15,7 +15,10 @@ using namespace Eigen;
 
 namespace tobas_mr_pid
 {
-ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+ControllerRos::ControllerRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
@@ -186,8 +189,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
       eigen_tools::angaccFromEuleraccLocal(rpy.roll, rpy.pitch, rpyd, tar_rpydd);
 
     // プロペラの推力を計算
-    const VectorXd thrusts =
-      mixer_.solve(battery_->voltage, q_, pt->twist.rot.data, tar_dgyro, tar_rpyt_->thrust);
+    // TODO: H-momentを考慮
+    const VectorXd thrusts = mixer_.solve(
+      battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro, tar_rpyt_->thrust);
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();

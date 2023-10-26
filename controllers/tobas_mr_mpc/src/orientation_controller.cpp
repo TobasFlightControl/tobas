@@ -17,9 +17,8 @@ namespace tobas_mr_mpc
 {
 OrientationController::OrientationController(const tobas::Drone& drone)
   : drone_(drone),
-    fk_solver_(drone.tree()),
-    inertia_solver_(drone.tree()),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE),
+    dynamics_(drone),
     mixer_(drone),
     cont_(drone),
     c2d_(kStateSize, z_rotors_.count()),
@@ -48,9 +47,8 @@ OrientationController::OrientationController(const tobas::Drone& drone)
 
 void OrientationController::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
+  dynamics_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
   cont_.updateInternalDataStructures();
 
@@ -72,12 +70,13 @@ VectorXd OrientationController::solve(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
-  const JntArray& q,
-  const double& battery_voltage,
+  const JntArray& cur_q,
+  const double& cur_voltage,
+  const vector<double>& cur_rot_speeds,
   const double& tar_U,
   Euler tar_rpy)
 {
-  assert(battery_voltage > 0);
+  assert(cur_voltage > 0);
 
   // 目標姿勢を制限
   tar_rpy.roll = clamp(tar_rpy.roll, -max_attitude_, max_attitude_);
@@ -90,12 +89,12 @@ VectorXd OrientationController::solve(
   const double thrust_z = tar_U * cos(tar_rpy.roll) * cos(tar_rpy.pitch);
 
   // MPCの最適制御問題を構築
-  updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, q, thrust_z);
+  updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, cur_q, thrust_z);
   updateSetState(tar_rpy);
 
-  const double min_voltage = battery_voltage * tobas::kMotorSpinArm;
-  const double max_thrust_sum = maxThrustSum(battery_voltage);
-  const double min_thrust_sum = minThrustSum(battery_voltage);
+  const double min_voltage = cur_voltage * tobas::kMotorSpinArm;
+  const double max_thrust_sum = dynamics_.maxThrustSum(cur_voltage);
+  const double min_thrust_sum = dynamics_.minThrustSum(cur_voltage);
 
   // ダイナミクスと制御入力の制約を更新
   // 姿勢や推力の目標値をそのまま使うと追従性能が悪い場合に想定外の動きになるため，
@@ -110,13 +109,13 @@ VectorXd OrientationController::solve(
       ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts(kRollIdx), t);
     const double pitch_k =
       ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts(kPitchIdx), t);
-    cont_.update(roll_k, pitch_k, q);
+    cont_.update(roll_k, pitch_k, cur_q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
 
     // 個々のプロペラの推力の限界に関する不等式制約
     for (uint32_t i = 0; i < z_rotors_.count(); ++i)
     {
-      mpc_.input_ineqs[k].b(i) = z_rotors_.thrustFromVoltage(i, battery_voltage);
+      mpc_.input_ineqs[k].b(i) = z_rotors_.thrustFromVoltage(i, cur_voltage);
       mpc_.input_ineqs[k].b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
     }
 
@@ -142,7 +141,11 @@ VectorXd OrientationController::solve(
 
   // Mixerで最終的な推力を計算
   const Vector3d dgyro_des = dgyro_mpc + dgyro_pd.data;  // FF + FB (二自由度制御)
-  return mixer_.solve(battery_voltage, q, cur_twist_B.rot.data, dgyro_des, thrusts_des);
+  const Vector h_moment_raw =
+    dynamics_.horizontalMoment(cur_rpy, cur_twist_B.vel, cur_wind_W, cur_q, cur_rot_speeds);
+  const Vector h_moment_comp = h_force_comp_rate_ * h_moment_raw;
+  return mixer_.solve(
+    cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
 }
 
 void OrientationController::configure(const OrientationControllerConfig& config)
@@ -163,7 +166,7 @@ void OrientationController::configure(const OrientationControllerConfig& config)
 
   max_attitude_ = config.max_attitude;
   max_heading_error_ = config.max_heading_error;
-  h_force_coef_ = config.h_force_comp_rate;
+  h_force_comp_rate_ = config.h_force_comp_rate;
   kp_ = config.kp;
   kd_ = config.kd;
 
@@ -196,59 +199,29 @@ const VectorXd& OrientationController::mpcThrusts() const
   return mpc_.optimalControlInput();
 }
 
-double OrientationController::maxThrustSum(const double& battery_voltage) const
-{
-  double res = 0;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
-  {
-    res += z_rotors_.thrustFromVoltage(i, battery_voltage);
-  }
-  return res;
-}
-
-double OrientationController::minThrustSum(const double& battery_voltage) const
-{
-  const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
-  double res = 0;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
-  {
-    res += z_rotors_.thrustFromVoltage(i, min_voltage);
-  }
-  return res;
-}
-
 void OrientationController::updateCurrentState(
   const Euler& cur_rpy,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
-  const JntArray& q,
+  const JntArray& cur_q,
   const double& thrust_z)
 {
-  // 機体速度のプロペラに対する水平成分を求める．機体座標系ではZ成分のみ0としたベクトルに等しい．
-  // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
-  const auto relative_vel_B = cur_twist_B.vel - cur_rpy.Inverse(cur_wind_W);  // 風に対する相対速度
-  const Vector vel_perp(relative_vel_B.x(), relative_vel_B.y(), 0);
-
-  // 重心を求める
-  const auto I_base = inertia_solver_.JntToCart(q);
-  const auto P_base_cog = I_base.getCOG();
-
-  // 簡単のため全プロペラの推力が等しいとしてH-forceの和を計算
+  // 簡単のため全プロペラの推力が等しいとしてプロペラの回転数を計算
   // TODO: 予測区間での推力の変化を反映し，より真値に近い回転数を用いて計算
-  const double thrust = thrust_z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 合計推力
-  const double thrust_mean = thrust / z_rotors_.count();
-  Vector sum = Vector::Zero();
+  const double thrust_sum = thrust_z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 合計推力
+  const double thrust_mean = thrust_sum / z_rotors_.count();
+  vector<double> rot_speeds(drone_.numRotors(), 0);
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
-    // CoG -> Rotor の位置を求める
-    const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));
-    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
-
     const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);
-    sum += z_rotors_.dragConstant(i) * rot_speed * P_cog_rotor;
+    rot_speeds[z_rotors_.rotorIdx(i)] = rot_speed;
   }
-  const Vector h_moment_raw = -sum * vel_perp;  // H-forceによるモーメント (予測区間で一定)
-  const Vector h_moment_comp = h_moment_raw * h_force_coef_;  // H-forceによるモーメントの補償分
+
+  // H-forceによるモーメントを計算
+  // TODO: H-momentの時間変化を考慮
+  const Vector h_moment_raw =
+    dynamics_.horizontalMoment(cur_rpy, cur_twist_B.vel, cur_wind_W, cur_q, rot_speeds);
+  const Vector h_moment_comp = h_moment_raw * h_force_comp_rate_;  // H-momentの補償分
 
   // 現在の状態を更新
   mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_twist_B.rot.x(),

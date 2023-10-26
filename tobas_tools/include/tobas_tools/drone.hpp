@@ -20,25 +20,25 @@ public:
   /* Load drone configurations from ROS parameter server. */
   void loadFromParam(ros::NodeHandle& nh);
 
-  const KDL::Tree& tree() const;
-  const Eigen::Vector3d& imuOffset() const;
-  const Eigen::Vector3d& barometerOffset() const;
-  const Eigen::Vector3d& gpsOffset() const;
-  const std::vector<std::string>& postureDefiningJoints() const;
-  const RotorConfigs& rotorConfigs() const;
-  const RotorConfig& rotorConfig(const uint32_t& rotor_idx) const;
-  const FixedWingConfig& fixedWing() const;
-  const VehicleParameters& vehicle() const;
-  const AerodynamicsCoefficients& aerodynamics() const;
-  const ControlSurfaces& controlSurfaces() const;
-  const ControlSurface& controlSurface(const uint32_t& cs_idx) const;
+  inline const KDL::Tree& tree() const;
+  inline const Eigen::Vector3d& imuOffset() const;
+  inline const Eigen::Vector3d& barometerOffset() const;
+  inline const Eigen::Vector3d& gpsOffset() const;
+  inline const std::vector<std::string>& postureDefiningJoints() const;
+  inline const RotorConfigs& rotorConfigs() const;
+  inline const RotorConfig& rotorConfig(const uint32_t& rotor_idx) const;
+  inline const FixedWingConfig& fixedWing() const;
+  inline const VehicleParameters& vehicle() const;
+  inline const AerodynamicsCoefficients& aerodynamics() const;
+  inline const ControlSurfaces& controlSurfaces() const;
+  inline const ControlSurface& controlSurface(const uint32_t& cs_idx) const;
 
-  const bool& hasFixedWing() const;
-  const bool& isLoaded() const;
-  bool isTransformable() const;
+  inline const bool& hasFixedWing() const;
+  inline const bool& isLoaded() const;
+  inline bool isTransformable() const;
 
-  uint32_t numRotors() const;
-  uint32_t numControlSurfaces() const;
+  inline uint32_t numRotors() const;
+  inline uint32_t numControlSurfaces() const;
 
   /* 回転数[rad/s]から推力[N]を計算する． */
   double thrustFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
@@ -76,4 +76,89 @@ private:
   void getControlSurfaces(ros::NodeHandle& nh);
   ControlSurface getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx);
 };
+
+inline const KDL::Tree& Drone::tree() const
+{
+  return tree_;
+}
+
+inline const Eigen::Vector3d& Drone::imuOffset() const
+{
+  return imu_offset_;
+}
+
+inline const Eigen::Vector3d& Drone::barometerOffset() const
+{
+  return bar_offset_;
+}
+
+inline const Eigen::Vector3d& Drone::gpsOffset() const
+{
+  return gps_offset_;
+}
+
+inline const std::vector<std::string>& Drone::postureDefiningJoints() const
+{
+  return posture_defining_joints_;
+}
+
+inline const RotorConfigs& Drone::rotorConfigs() const
+{
+  return rotor_configs_;
+}
+
+inline const RotorConfig& Drone::rotorConfig(const uint32_t& rotor_idx) const
+{
+  return rotor_configs_[rotor_idx];
+}
+
+inline const FixedWingConfig& Drone::fixedWing() const
+{
+  return fixed_wing_config_;
+}
+
+inline const VehicleParameters& Drone::vehicle() const
+{
+  return fixed_wing_config_.vehicle;
+}
+
+inline const AerodynamicsCoefficients& Drone::aerodynamics() const
+{
+  return fixed_wing_config_.aerodynamics;
+}
+
+inline const ControlSurfaces& Drone::controlSurfaces() const
+{
+  return fixed_wing_config_.control_surfaces;
+}
+
+inline const ControlSurface& Drone::controlSurface(const uint32_t& cs_idx) const
+{
+  return fixed_wing_config_.control_surfaces[cs_idx];
+}
+
+inline const bool& Drone::hasFixedWing() const
+{
+  return has_fixed_wing_;
+}
+
+inline const bool& Drone::isLoaded() const
+{
+  return is_loaded_;
+}
+
+inline bool Drone::isTransformable() const
+{
+  return posture_defining_joints_.size() > 0;
+}
+
+inline uint32_t Drone::numRotors() const
+{
+  return rotor_configs_.size();
+}
+
+inline uint32_t Drone::numControlSurfaces() const
+{
+  return fixed_wing_config_.control_surfaces.size();
+}
 }  // namespace tobas

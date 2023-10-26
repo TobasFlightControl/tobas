@@ -51,9 +51,12 @@ VectorXd Mixer::solve(
   const double& cur_voltage,
   const JntArray& cur_q,
   const Vector3d& cur_gyro_B,
+  const Vector3d& cur_h_moment_B,
   const Vector3d& tar_dgyro_B,
   const VectorXd& tar_thrusts)
 {
+  assert(tar_thrusts.size() == z_rotors_.count());
+
   // 慣性テンソルと重心を計算
   const auto I_base = inertia_solver_.JntToCart(cur_q);
   const auto P_base_cog = I_base.getCOG();
@@ -72,9 +75,9 @@ VectorXd Mixer::solve(
   qp_solver_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
 
   // TODO: H-forceを考慮
-  const auto inertia_torque = I_cog.data * tar_dgyro_B;
-  const auto coriolis_torque = cur_gyro_B.cross(I_cog.data * cur_gyro_B);
-  qp_solver_.problem.h.head(3) = -inertia_torque - coriolis_torque - A_ * tar_thrusts;
+  const auto m_inertia = I_cog.data * tar_dgyro_B;  // 慣性力によるモーメント
+  const auto m_coriolis = cur_gyro_B.cross(I_cog.data * cur_gyro_B);  // コリオリ力によるモーメント
+  qp_solver_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - A_ * tar_thrusts;
 
   const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
@@ -97,6 +100,7 @@ VectorXd Mixer::solve(
   const double& cur_voltage,
   const JntArray& cur_q,
   const Vector3d& cur_gyro_B,
+  const Vector3d& cur_h_moment_B,
   const Vector3d& tar_dgyro_B,
   const double& tar_thrusts_sum)
 {
@@ -104,7 +108,7 @@ VectorXd Mixer::solve(
   VectorXd tar_thrusts(z_rotors_.count());
   tar_thrusts.fill(tar_thrusts_sum / z_rotors_.count());
 
-  return solve(cur_voltage, cur_q, cur_gyro_B, tar_dgyro_B, tar_thrusts);
+  return solve(cur_voltage, cur_q, cur_gyro_B, cur_h_moment_B, tar_dgyro_B, tar_thrusts);
 }
 
 void Mixer::configure(const MixerConfig& cfg)

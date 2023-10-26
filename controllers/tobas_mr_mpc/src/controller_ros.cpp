@@ -196,8 +196,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     {
       // stopwatch_.start();
       thrusts_ = ori_ctrl_.solve(
-        pt->pose.euler, pt->twist, wind_->vel, q_, battery_->voltage, tar_rpyt_->thrust,
-        tar_rpyt_->rpy);
+        pt->pose.euler, pt->twist, wind_->vel, q_, battery_->voltage, rotor_speeds_->speeds,
+        tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
     catch (const exception& e)

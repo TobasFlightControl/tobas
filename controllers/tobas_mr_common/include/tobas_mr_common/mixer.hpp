@@ -31,6 +31,7 @@ public:
     const double& cur_voltage,
     const KDL::JntArray& cur_q,
     const Eigen::Vector3d& cur_gyro_B,
+    const Eigen::Vector3d& cur_h_moment_B,
     const Eigen::Vector3d& tar_dgyro_B,
     const Eigen::VectorXd& tar_thrusts);
 
@@ -38,6 +39,7 @@ public:
     const double& cur_voltage,
     const KDL::JntArray& cur_q,
     const Eigen::Vector3d& cur_gyro_B,
+    const Eigen::Vector3d& cur_h_moment_B,
     const Eigen::Vector3d& tar_dgyro_B,
     const double& tar_thrusts_sum);
 

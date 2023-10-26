@@ -5,11 +5,10 @@
 #include <dh_std_tools/stopwatch.hpp>
 #include <dh_kdl/frames.hpp>
 #include <dh_kdl/euler.hpp>
-#include <dh_kdl/treefksolverpos.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
 #include <dh_linear_control/c2d/tustin.hpp>
 #include <dh_linear_control/mpc/linear_dense.hpp>
 
+#include <tobas_mr_common/dynamics.hpp>
 #include <tobas_mr_common/mixer.hpp>
 
 #include "./dynamics.hpp"
@@ -52,8 +51,9 @@ public:
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::Vector& cur_wind_W,
-    const KDL::JntArray& q,
-    const double& battery_voltage,
+    const KDL::JntArray& cur_q,
+    const double& cur_voltage,
+    const std::vector<double>& cur_rot_speeds,
     const double& tar_U,
     KDL::Euler tar_rpy);
 
@@ -64,9 +64,8 @@ public:
 private:
   const tobas::Drone& drone_;
 
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
+  tobas_mr_common::MultirotorDynamicsComponents dynamics_;
   tobas_mr_common::Mixer mixer_;
 
   MultiRotorDynamics cont_;
@@ -76,19 +75,18 @@ private:
   // Config
   double max_attitude_;
   double max_heading_error_;
-  double h_force_coef_;
+  double h_force_comp_rate_;
   double kp_;
   double kd_;
 
   dh_std::Stopwatch stopwatch_;
 
-  double maxThrustSum(const double& battery_voltage) const;
-  double minThrustSum(const double& battery_voltage) const;
+
   void updateCurrentState(
     const KDL::Euler& cur_rpy,
     const KDL::Twist& cur_twist_B,
     const KDL::Vector& cur_wind_W,
-    const KDL::JntArray& q,
+    const KDL::JntArray& cur_q,
     const double& thrust_z);
   void updateSetState(const KDL::Euler& tar_rpy);
   void fillInputConstraintFixedParts();
