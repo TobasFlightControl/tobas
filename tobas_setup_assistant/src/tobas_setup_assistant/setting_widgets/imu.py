@@ -131,6 +131,26 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.acc_turn_on_bias_sigma)
 
+        mag_gauss_noise_description = ""
+        self.mag_gauss_noise = ParamGetterWidget_SpinBox(
+            "Magnetometer standard deviation of additive white gaussian noise",
+            mag_gauss_noise_description,
+            minimum=0,
+            default=80,
+            suffix=" nT",
+        )
+        self._rows.addWidget(self.mag_gauss_noise)
+
+        mag_uniform_noise_description = ""
+        self.mag_uniform_noise = ParamGetterWidget_SpinBox(
+            "Magnetometer symmetric bounds of uniform noise for initial sensor bias",
+            mag_uniform_noise_description,
+            minimum=0,
+            default=400,
+            suffix=" nT",
+        )
+        self._rows.addWidget(self.mag_uniform_noise)
+
         add_expanding_widget(self._rows)
 
     @overrides

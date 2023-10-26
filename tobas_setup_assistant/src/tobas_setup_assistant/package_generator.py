@@ -79,9 +79,6 @@ class PackageGenerator(QObject):
         if not self._main.settings.imu.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.imu)
             return False
-        if not self._main.settings.magnetometer.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.magnetometer)
-            return False
         if not self._main.settings.barometer.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.barometer)
             return False
@@ -503,7 +500,6 @@ class PackageGenerator(QObject):
         fixed_wing = self._main.settings.fixed_wing
         battery = self._main.settings.battery
         imu = self._main.settings.imu
-        magnetometer = self._main.settings.magnetometer
         barometer = self._main.settings.barometer
         gps = self._main.settings.gps
         rgb_camera = self._main.settings.rgb_camera
@@ -594,8 +590,8 @@ class PackageGenerator(QObject):
             )
             robot.append(fixed_wing_model)
 
-        # IMU plugin
         if imu.equipped():
+            # IMU plugin
             imu_model = ImuModel(
                 ns=self._drone_name,
                 link_name=root_link,
@@ -612,18 +608,17 @@ class PackageGenerator(QObject):
             )
             robot.append(imu_model)
 
-        # Magnetometer plugin
-        if magnetometer.equipped():
+            # Magnetometer plugin
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=magnetometer.update_rate.get(),
-                offset=magnetometer.offset.get(),
+                update_rate=imu.update_rate.get(),
+                offset=imu.offset.get(),
                 latitude_0=simulation.latitude_0.get(),
                 longitude_0=simulation.longitude_0.get(),
                 altitude_0=simulation.altitude_0.get(),
-                gauss_noise=magnetometer.gauss_noise.get(),
-                uniform_noise=magnetometer.uniform_noise.get(),
+                gauss_noise=imu.mag_gauss_noise.get(),
+                uniform_noise=imu.mag_uniform_noise.get(),
             )
             robot.append(mag_model)
 
