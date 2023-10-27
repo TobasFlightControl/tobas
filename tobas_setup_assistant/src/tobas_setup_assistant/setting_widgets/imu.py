@@ -51,7 +51,7 @@ class ImuWidget(BaseSettingWidget):
             gyro_noise_density_description,
             decimals=9,
             minimum=0.0,
-            default=0.005,
+            default=0.01,
             suffix=" rad/s/sqrt(Hz)",
         )
         self._rows.addWidget(self.gyro_noise_density)
@@ -88,13 +88,24 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gyro_turn_on_bias_sigma)
 
+        gyro_lpf_cutoff_freq_description = ""
+        self.gyro_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
+            "Gyroscope LPF cutoff frequency",
+            gyro_lpf_cutoff_freq_description,
+            minimum=1,
+            maximum=400,
+            default=20,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.gyro_lpf_cutoff_freq)
+
         acc_noise_density_description = ""
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer noise density (two-sided spectrum)",
             acc_noise_density_description,
             decimals=9,
             minimum=0.0,
-            default=0.05,
+            default=0.1,
             suffix=" m/s^2/sqrt(Hz)",
         )
         self._rows.addWidget(self.acc_noise_density)
@@ -130,6 +141,17 @@ class ImuWidget(BaseSettingWidget):
             suffix=" m/s^2",
         )
         self._rows.addWidget(self.acc_turn_on_bias_sigma)
+
+        acc_lpf_cutoff_freq_description = ""
+        self.acc_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
+            "Accelerometer LPF cutoff frequency",
+            acc_lpf_cutoff_freq_description,
+            minimum=1,
+            maximum=400,
+            default=20,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.acc_lpf_cutoff_freq)
 
         mag_gauss_noise_description = ""
         self.mag_gauss_noise = ParamGetterWidget_SpinBox(

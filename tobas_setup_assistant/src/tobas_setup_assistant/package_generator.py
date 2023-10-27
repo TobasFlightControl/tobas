@@ -601,10 +601,12 @@ class PackageGenerator(QObject):
                 gyro_random_walk=imu.gyro_random_walk.get(),
                 gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
                 gyro_turn_on_bias_sigma=imu.gyro_turn_on_bias_sigma.get(),
+                gyro_lpf_cutoff_freq=imu.gyro_lpf_cutoff_freq.get(),
                 acc_noise_density=imu.acc_noise_density.get(),
                 acc_random_walk=imu.acc_random_walk.get(),
                 acc_bias_corr_time=imu.acc_bias_corr_time.get(),
                 acc_turn_on_bias_sigma=imu.acc_turn_on_bias_sigma.get(),
+                acc_lpf_cutoff_freq=imu.acc_lpf_cutoff_freq.get(),
             )
             robot.append(imu_model)
 
