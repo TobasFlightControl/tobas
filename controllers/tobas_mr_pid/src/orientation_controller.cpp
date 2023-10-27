@@ -3,18 +3,18 @@
 
 #include <dh_eigen_tools/geometry.hpp>
 
-#include "../include/tobas_mr_pid/rotation_controller.hpp"
+#include "../include/tobas_mr_pid/orientation_controller.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace tobas_mr_pid
 {
-RotationController::RotationController()
+OrientationController::OrientationController()
 {
 }
 
-Vector3d RotationController::update(
+Vector3d OrientationController::update(
   const Vector3d& cur_pos,
   const Vector3d& cur_vel,
   const Vector3d& tar_pos,
@@ -40,7 +40,7 @@ Vector3d RotationController::update(
   return tar_dgyro;
 }
 
-void RotationController::configure(const RotationControllerConfig& config)
+void OrientationController::configure(const OrientationControllerConfig& config)
 {
   assert(config.atti_kp >= 0);
   assert(config.atti_ki >= 0);

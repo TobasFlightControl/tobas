@@ -16,7 +16,7 @@
 namespace tobas_mr_mpc
 {
 /**
- * @brief RotationControllerの動的パラメータをまとめた構造体．
+ * @brief OrientationControllerの動的パラメータをまとめた構造体．
  *
  * @note 姿勢角をattitude (roll + pitch) とheading (yaw) を分けているのは，
  * 一般に前者の方が後者に比べて重要度が高いため．

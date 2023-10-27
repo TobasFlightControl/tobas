@@ -2,18 +2,18 @@
 
 #include <dh_std_tools/algorithm.hpp>
 
-#include "../include/tobas_mr_pid/translation_controller.hpp"
+#include "../include/tobas_mr_pid/position_controller.hpp"
 
 using namespace std;
 using namespace KDL;
 
 namespace tobas_mr_pid
 {
-TranslationController::TranslationController()
+PositionController::PositionController()
 {
 }
 
-void TranslationController::update(
+void PositionController::update(
   const Vector& cur_pos,
   const Vector& cur_vel,
   const Vector& tar_pos,
@@ -38,7 +38,7 @@ void TranslationController::update(
   tar_acc.z() = clamp(tar_acc.z(), -cfg_.max_ver_acc, cfg_.max_ver_acc);
 }
 
-void TranslationController::configure(const TranslationControllerConfig& cfg)
+void PositionController::configure(const PositionControllerConfig& cfg)
 {
   assert(cfg.hor_kp >= 0);
   assert(cfg.hor_ki >= 0);

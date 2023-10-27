@@ -4,7 +4,7 @@
 
 namespace tobas_mr_pid
 {
-struct TranslationControllerConfig
+struct PositionControllerConfig
 {
   double hor_kp;
   double hor_ki;
@@ -17,10 +17,10 @@ struct TranslationControllerConfig
   double max_ver_acc;
 };
 
-class TranslationController
+class PositionController
 {
 public:
-  explicit TranslationController();
+  explicit PositionController();
 
   void update(
     const KDL::Vector& cur_pos,
@@ -29,10 +29,10 @@ public:
     const KDL::Vector& tar_vel,
     KDL::Vector& tar_acc,
     const double& dt);
-  void configure(const TranslationControllerConfig& cfg);
+  void configure(const PositionControllerConfig& cfg);
 
 private:
-  TranslationControllerConfig cfg_;
+  PositionControllerConfig cfg_;
   KDL::Vector ei_ = KDL::Vector::Zero();  // 位置の積分誤差
 };
 }  // namespace tobas_mr_pid

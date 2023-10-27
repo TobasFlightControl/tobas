@@ -22,7 +22,7 @@ ControllerRos::ControllerRos(
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    acc_controller_(drone_),
+    acc_ctrl_(drone_),
     mixer_(drone_),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
@@ -32,10 +32,9 @@ ControllerRos::ControllerRos(
 
   jnt_name_parser_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
-  acc_controller_.updateInternalDataStructures();
+  acc_ctrl_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
-  is_transformable_ = drone_.postureDefiningJoints().size() > 0;
   q_.resize(drone_.tree().getNrOfJoints());
 
   registerPublishers();
@@ -61,7 +60,7 @@ void ControllerRos::registerSubscribers()
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
   pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  if (is_transformable_)
+  if (drone_.isTransformable())
   {
     joint_state_sub_ =
       nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
@@ -80,7 +79,7 @@ bool ControllerRos::isReady() const
   if (battery_ == nullptr)
     return false;
 
-  if (is_transformable_ && js_ == nullptr)
+  if (drone_.isTransformable() && js_ == nullptr)
     return false;
 
   return true;
@@ -134,12 +133,11 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;
 
     // 目標加速度を計算
-    trans_controller_.update(
-      pt->pose.pos, cur_vel_W, tar_pvay_->pos, tar_pvay_->vel, tar_acc_fb_, dt);
+    pos_ctrl_.update(pt->pose.pos, cur_vel_W, tar_pvay_->pos, tar_pvay_->vel, tar_acc_fb_, dt);
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
 
     // 推力和と目標姿勢を計算
-    acc_controller_.update(
+    acc_ctrl_.update(
       pt->pose.euler, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は加速度指令をそのまま流す
@@ -159,7 +157,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   {
     // 可動関節角を更新
     // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
-    if (is_transformable_)
+    if (drone_.isTransformable())
     {
       for (const auto& jnt_name : drone_.postureDefiningJoints())
       {
@@ -181,7 +179,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const auto& rpy = pt->pose.euler;
     const Vector3d rpyd =
       eigen_tools::eulerrateFromAngvelLocal(pt->twist.rot.data, rpy.roll, rpy.pitch);
-    const Vector3d tar_dgyro = rot_controller_.update(
+    const Vector3d tar_dgyro = ori_ctrl_.update(
       rpy.toVector().data, rpyd, tar_rpyt_->rpy.toVector().data, Vector3d::Zero(), dt);
 
     // プロペラの推力を計算
@@ -272,34 +270,34 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (pt_ == nullptr)
     rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
 
-  if (is_transformable_ && js_ == nullptr)
+  if (drone_.isTransformable() && js_ == nullptr)
     rosWarn(
       name_, nh_.getNamespace() << "/" << tobas::kJointStatesTopic << " is not received yet.");
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
 {
-  trans_config_.hor_kp = cfg.horizontal_p_gain;
-  trans_config_.hor_ki = cfg.horizontal_i_gain;
-  trans_config_.hor_kd = cfg.horizontal_d_gain;
-  trans_config_.ver_kp = cfg.vertical_p_gain;
-  trans_config_.ver_ki = cfg.vertical_i_gain;
-  trans_config_.ver_kd = cfg.vertical_d_gain;
-  trans_config_.max_hor_acc = cfg.max_horizontal_accel;
-  trans_config_.max_ver_acc = cfg.max_vertical_accel;
-  trans_controller_.configure(trans_config_);
+  pos_cfg_.hor_kp = cfg.horizontal_p_gain;
+  pos_cfg_.hor_ki = cfg.horizontal_i_gain;
+  pos_cfg_.hor_kd = cfg.horizontal_d_gain;
+  pos_cfg_.ver_kp = cfg.vertical_p_gain;
+  pos_cfg_.ver_ki = cfg.vertical_i_gain;
+  pos_cfg_.ver_kd = cfg.vertical_d_gain;
+  pos_cfg_.max_hor_acc = cfg.max_horizontal_accel;
+  pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
+  pos_ctrl_.configure(pos_cfg_);
 
-  acc_config_.max_attitude = cfg.max_attitude;
-  acc_config_.h_force_comp_rate = 0;  // TODO
-  acc_controller_.configure(acc_config_);
+  acc_cfg_.max_attitude = cfg.max_attitude;
+  acc_cfg_.h_force_comp_rate = 0;  // TODO
+  acc_ctrl_.configure(acc_cfg_);
 
-  rot_config_.atti_kp = cfg.attitude_p_gain;
-  rot_config_.atti_ki = cfg.attitude_i_gain;
-  rot_config_.atti_kd = cfg.attitude_d_gain;
-  rot_config_.head_kp = cfg.heading_p_gain;
-  rot_config_.head_ki = cfg.heading_i_gain;
-  rot_config_.head_kd = cfg.heading_d_gain;
-  rot_controller_.configure(rot_config_);
+  ori_cfg_.atti_kp = cfg.attitude_p_gain;
+  ori_cfg_.atti_ki = cfg.attitude_i_gain;
+  ori_cfg_.atti_kd = cfg.attitude_d_gain;
+  ori_cfg_.head_kp = cfg.heading_p_gain;
+  ori_cfg_.head_ki = cfg.heading_i_gain;
+  ori_cfg_.head_kd = cfg.heading_d_gain;
+  ori_ctrl_.configure(ori_cfg_);
 
   // TODO: Mixerの設定
 

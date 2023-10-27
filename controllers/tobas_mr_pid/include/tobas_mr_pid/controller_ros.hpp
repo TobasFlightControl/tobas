@@ -19,8 +19,8 @@
 
 #include <tobas_mr_pid/ControllerConfig.h>
 
-#include "./translation_controller.hpp"
-#include "./rotation_controller.hpp"
+#include "./position_controller.hpp"
+#include "./orientation_controller.hpp"
 
 namespace tobas_mr_pid
 {
@@ -45,18 +45,15 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  TranslationController trans_controller_;
-  tobas_mr_common::AccelAttitudeConverter acc_controller_;
-  RotationController rot_controller_;
+  PositionController pos_ctrl_;
+  tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
+  OrientationController ori_ctrl_;
   tobas_mr_common::Mixer mixer_;
 
   // Dynamic parameters
-  TranslationControllerConfig trans_config_;
-  tobas_mr_common::AccelAttitudeConverterConfig acc_config_;
-  RotationControllerConfig rot_config_;
-
-  // Constant variables
-  bool is_transformable_;  // プロペラ以外の可動関節を持つか否か
+  PositionControllerConfig pos_cfg_;
+  tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
+  OrientationControllerConfig ori_cfg_;
 
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;

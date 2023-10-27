@@ -4,7 +4,7 @@
 
 namespace tobas_mr_pid
 {
-struct RotationControllerConfig
+struct OrientationControllerConfig
 {
   double atti_kp;
   double atti_ki;
@@ -14,10 +14,10 @@ struct RotationControllerConfig
   double head_kd;
 };
 
-class RotationController
+class OrientationController
 {
 public:
-  explicit RotationController();
+  explicit OrientationController();
 
   Eigen::Vector3d update(
     const Eigen::Vector3d& cur_pos,
@@ -25,10 +25,10 @@ public:
     const Eigen::Vector3d& tar_pos,
     const Eigen::Vector3d& tar_vel,
     const double& dt);
-  void configure(const RotationControllerConfig& config);
+  void configure(const OrientationControllerConfig& config);
 
 private:
-  RotationControllerConfig config_;
+  OrientationControllerConfig config_;
   Eigen::Vector3d ei_;
 };
 }  // namespace tobas_mr_pid
