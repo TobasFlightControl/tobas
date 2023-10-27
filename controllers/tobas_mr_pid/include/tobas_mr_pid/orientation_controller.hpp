@@ -12,6 +12,8 @@ struct OrientationControllerConfig
   double head_kp;
   double head_ki;
   double head_kd;
+
+  double max_jerk;
 };
 
 class OrientationController
@@ -25,10 +27,10 @@ public:
     const Eigen::Vector3d& tar_pos,
     const Eigen::Vector3d& tar_vel,
     const double& dt);
-  void configure(const OrientationControllerConfig& config);
+  void configure(const OrientationControllerConfig& cfg);
 
 private:
-  OrientationControllerConfig config_;
-  Eigen::Vector3d ei_;
+  OrientationControllerConfig cfg_;
+  Eigen::Vector3d ei_ = Eigen::Vector3d::Zero();
 };
 }  // namespace tobas_mr_pid

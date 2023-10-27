@@ -33,9 +33,17 @@ void PositionController::update(
   tar_acc.y(cfg_.hor_kp * ep.y() + cfg_.hor_ki * ei_.y() + cfg_.hor_kd * ed.y());
   tar_acc.z(cfg_.ver_kp * ep.z() + cfg_.ver_ki * ei_.z() + cfg_.ver_kd * ed.z());
 
-  // 目標加速度をクランプ
+  // 目標加速度を制限
   dh_std::clamp2d(tar_acc.x(), tar_acc.y(), cfg_.max_hor_acc);
   tar_acc.z() = clamp(tar_acc.z(), -cfg_.max_ver_acc, cfg_.max_ver_acc);
+
+  // 目標加速度の変化量を制限
+  const double max_delta_acc = cfg_.max_jerk * dt;
+  const Vector delta_acc = (tar_acc - last_ta_).clamp(-max_delta_acc, max_delta_acc);
+  tar_acc = last_ta_ + delta_acc;
+
+  // 最新の目標加速度を更新
+  last_ta_ = tar_acc;
 }
 
 void PositionController::configure(const PositionControllerConfig& cfg)
@@ -48,6 +56,7 @@ void PositionController::configure(const PositionControllerConfig& cfg)
   assert(cfg.ver_kd >= 0);
   assert(cfg.max_hor_acc >= 0);
   assert(cfg.max_ver_acc >= 0);
+  assert(cfg.max_jerk >= 0);
 
   cfg_ = cfg;
 }

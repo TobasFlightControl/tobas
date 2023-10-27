@@ -75,16 +75,9 @@ VectorXd OrientationController::solve(
   const double& cur_voltage,
   const vector<double>& cur_rot_speeds,
   const double& tar_U,
-  Euler tar_rpy)
+  const Euler& tar_rpy)
 {
   assert(cur_voltage > 0);
-
-  // 目標姿勢を制限
-  tar_rpy.roll = clamp(tar_rpy.roll, -max_attitude_, max_attitude_);
-  tar_rpy.pitch = clamp(tar_rpy.pitch, -max_attitude_, max_attitude_);
-  const double yaw_error =
-    clamp(tar_rpy.yaw - cur_rpy.yaw, -max_heading_error_, max_heading_error_);
-  tar_rpy.yaw = cur_rpy.yaw + yaw_error;
 
   // 目標とする姿勢と合計推力から，重力方向の推力を計算
   const double thrust_z = tar_U * cos(tar_rpy.roll) * cos(tar_rpy.pitch);
@@ -151,8 +144,6 @@ VectorXd OrientationController::solve(
 
 void OrientationController::configure(const OrientationControllerConfig& config)
 {
-  assert(0 <= config.max_attitude && config.max_attitude < M_PI_2);
-  assert(config.max_heading_error >= 0);
   assert(0 <= config.h_force_comp_rate && config.h_force_comp_rate <= 1);
   assert(config.kp >= 0);
   assert(config.kd >= 0);
@@ -165,8 +156,6 @@ void OrientationController::configure(const OrientationControllerConfig& config)
   assert(config.heading_weight > 0);
   assert(config.angvel_weight > 0);
 
-  max_attitude_ = config.max_attitude;
-  max_heading_error_ = config.max_heading_error;
   h_force_comp_rate_ = config.h_force_comp_rate;
   kp_ = config.kp;
   kd_ = config.kd;

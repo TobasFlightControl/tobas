@@ -339,8 +339,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   acc_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
   acc_ctrl_.configure(acc_cfg_);
 
-  ori_cfg_.max_attitude = cfg.max_attitude;
-  ori_cfg_.max_heading_error = cfg.max_heading_error;
   ori_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
   ori_cfg_.kp = cfg.orientation_kp;
   ori_cfg_.kd = cfg.orientation_kd;

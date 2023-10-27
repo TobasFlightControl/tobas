@@ -23,8 +23,6 @@ namespace tobas_mr_mpc
  */
 struct OrientationControllerConfig
 {
-  double max_attitude;       // [rad]
-  double max_heading_error;  // [rad]
   double h_force_comp_rate;  // H-forceの理論値に対する補償項の割合 [0, 1]
   double kp;                 // モデル化誤差を含む外乱補償用のPゲイン
   double kd;                 // モデル化誤差を含む外乱補償用のDゲイン
@@ -56,7 +54,7 @@ public:
     const double& cur_voltage,
     const std::vector<double>& cur_rot_speeds,
     const double& tar_U,
-    KDL::Euler tar_rpy);
+    const KDL::Euler& tar_rpy);
 
   void configure(const OrientationControllerConfig& config);
 
@@ -74,8 +72,6 @@ private:
   ctrl::LinearDenseMPC mpc_;
 
   // Config
-  double max_attitude_;
-  double max_heading_error_;
   double h_force_comp_rate_;
   double kp_;
   double kd_;

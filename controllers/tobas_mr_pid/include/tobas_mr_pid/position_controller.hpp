@@ -15,6 +15,7 @@ struct PositionControllerConfig
 
   double max_hor_acc;
   double max_ver_acc;
+  double max_jerk;
 };
 
 class PositionController
@@ -33,6 +34,7 @@ public:
 
 private:
   PositionControllerConfig cfg_;
-  KDL::Vector ei_ = KDL::Vector::Zero();  // 位置の積分誤差
+  KDL::Vector ei_ = KDL::Vector::Zero();  // [ms] 位置の積分誤差
+  KDL::Vector last_ta_;                   // [m/s^2] 最新の目標加速度
 };
 }  // namespace tobas_mr_pid
