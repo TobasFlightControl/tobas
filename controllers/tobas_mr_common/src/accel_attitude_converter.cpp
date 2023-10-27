@@ -26,7 +26,7 @@ void AccelAttitudeConverter::update(
   const Vector& cur_vel_B,
   const Vector& cur_wind_W,
   const vector<double>& cur_rotor_speeds,
-  Vector tar_acc_W,
+  const Vector& tar_acc_W,
   double& U_out,
   double& roll_out,
   double& pitch_out)
@@ -50,7 +50,6 @@ void AccelAttitudeConverter::update(
   dh_std::clamp2d(x, y, max_xy_norm);
 
   // 3元非線形方程式の解析解を計算
-  // TODO: 姿勢制御と同様にH-forceを考慮する
   const auto cos_yaw = cos(cur_rpy.yaw);
   const auto sin_yaw = sin(cur_rpy.yaw);
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
@@ -60,7 +59,7 @@ void AccelAttitudeConverter::update(
 
 void AccelAttitudeConverter::update(
   const Euler& cur_rpy,
-  Vector tar_acc_W,
+  const Vector& tar_acc_W,
   double& U_out,
   double& roll_out,
   double& pitch_out)

@@ -26,7 +26,7 @@ public:
     const KDL::Vector& cur_vel_B,
     const KDL::Vector& cur_wind_W,
     const std::vector<double>& cur_rotor_speeds,
-    KDL::Vector tar_acc_W,
+    const KDL::Vector& tar_acc_W,
     double& U_out,
     double& roll_out,
     double& pitch_out);
@@ -34,7 +34,7 @@ public:
   /* 空気効力を考慮しない場合． */
   void update(
     const KDL::Euler& cur_rpy,
-    KDL::Vector tar_acc_W,
+    const KDL::Vector& tar_acc_W,
     double& U_out,
     double& roll_out,
     double& pitch_out);
