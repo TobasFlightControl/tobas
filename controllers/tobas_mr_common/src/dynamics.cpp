@@ -68,6 +68,19 @@ Vector MultirotorDynamicsComponents::relativePerpVel(
   return Vector(relative_vel_B.x(), relative_vel_B.y(), 0);
 }
 
+Vector MultirotorDynamicsComponents::horizontalForce(
+  const Euler& rpy,
+  const Vector& vel_B,
+  const Vector& wind_W,
+  const vector<double>& rot_speeds)
+{
+  assert(rot_speeds.size() == drone_.numRotors());
+
+  const auto drag_rotor_sum = dragRotorSum(rot_speeds);
+  const auto rel_vel_perp = relativePerpVel(rpy, vel_B, wind_W);
+  return -drag_rotor_sum * rel_vel_perp;
+}
+
 Vector MultirotorDynamicsComponents::horizontalMoment(
   const Euler& rpy,
   const Vector& vel_B,

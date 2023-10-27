@@ -23,21 +23,20 @@ void PositionController::update(
   const Vector& cv,
   const Vector& ca,
   const Vector& tp,
-  Vector tv,
+  const Vector& tv,
   const double& dt,
   Vector& ta)
 {
-  // 目標速度をクランプ
-  // TODO: MPCで最大速度をハード制約にする
-  dh_std::clamp2d(tv[0], tv[1], max_hor_vel_);
-  tv.z(clamp(tv.z(), -max_ver_vel_, max_ver_vel_));
-
   // 現在の状態と設定値を埋める
   lqid_.current_state << cp.x(), cp.y(), cp.z(), cv.x(), cv.y(), cv.z(), ca.x(), ca.y(), ca.z();
   lqid_.target_state << tp.x(), tp.y(), tp.z(), tv.x(), tv.y(), tv.z(), 0, 0, 0;
 
   // 最適指令加速度を計算
   ta.data = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
+
+  // 目標加速度をクランプ
+  dh_std::clamp2d(ta.x(), ta.y(), max_hor_acc_);
+  ta.z() = clamp(ta.z(), -max_ver_acc_, max_ver_acc_);
 }
 
 void PositionController::configure(const PositionControllerConfig& config)
@@ -53,8 +52,8 @@ void PositionController::configure(const PositionControllerConfig& config)
   assert(config.ver_posint_weight >= 0);
   assert(config.max_hor_posint_error >= 0);
   assert(config.max_ver_posint_error >= 0);
-  assert(config.max_hor_vel >= 0);
-  assert(config.max_ver_vel >= 0);
+  assert(config.max_hor_acc >= 0);
+  assert(config.max_ver_acc >= 0);
 
   // 水平方向の加速度は姿勢制御の追従遅れを経て実現される
   lqid_.dynamics.A.block<2, 2>(kAccIdx, kAccIdx).diagonal().fill(-1 / config.acc_delay_time_const);
@@ -83,8 +82,8 @@ void PositionController::configure(const PositionControllerConfig& config)
 
   lqid_.updateGain();
 
-  max_hor_vel_ = config.max_hor_vel;
-  max_ver_vel_ = config.max_ver_vel;
+  max_hor_acc_ = config.max_hor_acc;
+  max_ver_acc_ = config.max_ver_acc;
 }
 
 Vector3d PositionController::positionIntegralError() const

@@ -9,10 +9,8 @@ namespace tobas_mr_common
 {
 struct AccelAttitudeConverterConfig
 {
-  double max_hor_acc;
-  double max_ver_acc;
   double max_attitude;
-  double h_force_coef;
+  double h_force_comp_rate;
 };
 
 class AccelAttitudeConverter

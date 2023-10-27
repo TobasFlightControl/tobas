@@ -21,8 +21,8 @@ struct PositionControllerConfig
 
   double max_hor_posint_error;
   double max_ver_posint_error;
-  double max_hor_vel;
-  double max_ver_vel;
+  double max_hor_acc;
+  double max_ver_acc;
 };
 
 class PositionController
@@ -42,7 +42,7 @@ public:
     const KDL::Vector& cur_vel_W,
     const KDL::Vector& cur_acc_w,
     const KDL::Vector& tar_pos,
-    KDL::Vector tar_vel_W,
+    const KDL::Vector& tar_vel_W,
     const double& dt,
     KDL::Vector& tar_acc_W);
 
@@ -51,8 +51,8 @@ public:
   Eigen::Vector3d positionIntegralError() const;
 
 private:
-  double max_hor_vel_;
-  double max_ver_vel_;
+  double max_hor_acc_;
+  double max_ver_acc_;
 
   ctrl::LQID lqid_;
 };

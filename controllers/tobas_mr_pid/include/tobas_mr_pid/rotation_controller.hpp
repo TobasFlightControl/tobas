@@ -12,9 +12,6 @@ struct RotationControllerConfig
   double head_kp;
   double head_ki;
   double head_kd;
-
-  double max_attitude;
-  double max_heading_error;
 };
 
 class RotationController
@@ -25,7 +22,7 @@ public:
   Eigen::Vector3d update(
     const Eigen::Vector3d& cur_pos,
     const Eigen::Vector3d& cur_vel,
-    Eigen::Vector3d tar_pos,
+    const Eigen::Vector3d& tar_pos,
     const Eigen::Vector3d& tar_vel,
     const double& dt);
   void configure(const RotationControllerConfig& config);

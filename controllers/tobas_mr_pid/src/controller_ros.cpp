@@ -177,16 +177,12 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
       }
     }
 
-    // 目標オイラー角加速度を計算
+    // 目標角加速度を計算
     const auto& rpy = pt->pose.euler;
     const Vector3d rpyd =
       eigen_tools::eulerrateFromAngvelLocal(pt->twist.rot.data, rpy.roll, rpy.pitch);
-    const Vector3d tar_rpydd = rot_controller_.update(
+    const Vector3d tar_dgyro = rot_controller_.update(
       rpy.toVector().data, rpyd, tar_rpyt_->rpy.toVector().data, Vector3d::Zero(), dt);
-
-    // オイラー角加速度から角加速度を計算
-    const Vector3d tar_dgyro =
-      eigen_tools::angaccFromEuleraccLocal(rpy.roll, rpy.pitch, rpyd, tar_rpydd);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
@@ -289,14 +285,12 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   trans_config_.ver_kp = cfg.vertical_p_gain;
   trans_config_.ver_ki = cfg.vertical_i_gain;
   trans_config_.ver_kd = cfg.vertical_d_gain;
-  trans_config_.max_hor_vel = cfg.max_horizontal_velocity;
-  trans_config_.max_ver_vel = cfg.max_vertical_velocity;
+  trans_config_.max_hor_acc = cfg.max_horizontal_accel;
+  trans_config_.max_ver_acc = cfg.max_vertical_accel;
   trans_controller_.configure(trans_config_);
 
-  acc_config_.max_hor_acc = cfg.max_horizontal_accel;
-  acc_config_.max_ver_acc = cfg.max_vertical_accel;
   acc_config_.max_attitude = cfg.max_attitude;
-  acc_config_.h_force_coef = 0;  // TODO
+  acc_config_.h_force_comp_rate = 0;  // TODO
   acc_controller_.configure(acc_config_);
 
   rot_config_.atti_kp = cfg.attitude_p_gain;
@@ -305,8 +299,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   rot_config_.head_kp = cfg.heading_p_gain;
   rot_config_.head_ki = cfg.heading_i_gain;
   rot_config_.head_kd = cfg.heading_d_gain;
-  rot_config_.max_attitude = cfg.max_attitude;
-  rot_config_.max_heading_error = cfg.max_heading_error;
   rot_controller_.configure(rot_config_);
 
   // TODO: Mixerの設定

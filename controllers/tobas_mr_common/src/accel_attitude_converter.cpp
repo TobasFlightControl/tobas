@@ -31,27 +31,20 @@ void AccelAttitudeConverter::update(
   double& roll_out,
   double& pitch_out)
 {
-  // 目標加速度をクランプ
-  dh_std::clamp2d(tar_acc_W.x(), tar_acc_W.y(), cfg_.max_hor_acc);
-  tar_acc_W.z() = clamp(tar_acc_W.z(), -cfg_.max_ver_acc, cfg_.max_ver_acc);
-
   // 現在の空気効力
   // TODO: 本来は空気効力に含まれる姿勢も未知数として扱う必要がある
-  const auto drag_rotor_sum = dynamics_.dragRotorSum(cur_rotor_speeds);
-  auto rel_vel_perp = cur_vel_B - cur_rpy.Inverse(cur_wind_W);  // 風に対する相対速度
-  rel_vel_perp.z() = 0;                                         // xy成分のみ利用
-  const auto air_drag_W = cur_rpy * (drag_rotor_sum * rel_vel_perp);
+  const auto air_drag_W =
+    cur_rpy * dynamics_.horizontalForce(cur_rpy, cur_vel_B, cur_wind_W, cur_rotor_speeds);
 
   // 並進EoMの左辺
   const auto& mass = dynamics_.mass();
   const auto xyz = mass * (tar_acc_W + grav_W_);  // FIXME: 風の補償項を入れるとオーバーシュート過大
-  // const auto xyz = mass * (tar_acc_W + grav_W_) + cfg_.h_force_coef * air_drag_W;
+  // const auto xyz = mass * (tar_acc_W + grav_W_) - cfg_.h_force_comp_rate * air_drag_W;
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();
 
-  // 姿勢の限界を考慮してx, yを制限
-  // さもないと姿勢制御器での目標姿勢角のクランプにより推力が過剰になる恐れがある
+  // 姿勢の制限を考慮してx, yをクランプ
   const auto tan_max_atti = tan(cfg_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   dh_std::clamp2d(x, y, max_xy_norm);
@@ -79,10 +72,8 @@ void AccelAttitudeConverter::update(
 
 void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)
 {
-  assert(cfg.max_hor_acc > 0);
-  assert(cfg.max_ver_acc > 0);
   assert(0 <= cfg.max_attitude && cfg.max_attitude < M_PI_2);
-  assert(0 <= cfg.h_force_coef && cfg.h_force_coef <= 1);
+  assert(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
 
   cfg_ = cfg;
 }

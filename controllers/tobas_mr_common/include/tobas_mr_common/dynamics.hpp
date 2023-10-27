@@ -36,7 +36,14 @@ public:
   KDL::Vector
   relativePerpVel(const KDL::Euler& rpy, const KDL::Vector& vel_B, const KDL::Vector& wind_W);
 
-  /* H-forceによるモーメント (memo: 2-34) */
+  /* 機体座標系から見たH-force */
+  KDL::Vector horizontalForce(
+    const KDL::Euler& rpy,
+    const KDL::Vector& vel_B,
+    const KDL::Vector& wind_W,
+    const std::vector<double>& rot_speeds);
+
+  /* 機体座標系から見たH-forceによるモーメント (memo: 2-34) */
   KDL::Vector horizontalMoment(
     const KDL::Euler& rpy,
     const KDL::Vector& vel_B,

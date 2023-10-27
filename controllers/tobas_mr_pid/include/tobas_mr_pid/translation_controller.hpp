@@ -13,8 +13,8 @@ struct TranslationControllerConfig
   double ver_ki;
   double ver_kd;
 
-  double max_hor_vel;
-  double max_ver_vel;
+  double max_hor_acc;
+  double max_ver_acc;
 };
 
 class TranslationController
@@ -26,13 +26,13 @@ public:
     const KDL::Vector& cur_pos,
     const KDL::Vector& cur_vel,
     const KDL::Vector& tar_pos,
-    KDL::Vector tar_vel,
+    const KDL::Vector& tar_vel,
     KDL::Vector& tar_acc,
     const double& dt);
-  void configure(const TranslationControllerConfig& config);
+  void configure(const TranslationControllerConfig& cfg);
 
 private:
-  TranslationControllerConfig config_;
-  KDL::Vector ei_;  // 位置の積分誤差
+  TranslationControllerConfig cfg_;
+  KDL::Vector ei_ = KDL::Vector::Zero();  // 位置の積分誤差
 };
 }  // namespace tobas_mr_pid

@@ -17,15 +17,11 @@ void TranslationController::update(
   const Vector& cur_pos,
   const Vector& cur_vel,
   const Vector& tar_pos,
-  Vector tar_vel,
+  const Vector& tar_vel,
   Vector& tar_acc,
   const double& dt)
 {
   assert(dt >= 0);
-
-  // 目標速度をクランプ
-  dh_std::clamp2d(tar_vel[0], tar_vel[1], config_.max_hor_vel);
-  tar_vel.z(clamp(tar_vel.z(), -config_.max_ver_vel, config_.max_ver_vel));
 
   // 誤差を計算
   const auto ep = tar_pos - cur_pos;
@@ -33,20 +29,26 @@ void TranslationController::update(
   const auto ed = tar_vel - cur_vel;
 
   // 目標加速度を計算
-  tar_acc.x(config_.hor_kp * ep.x() + config_.hor_ki * ei_.x() + config_.hor_kd * ed.x());
-  tar_acc.y(config_.hor_kp * ep.y() + config_.hor_ki * ei_.y() + config_.hor_kd * ed.y());
-  tar_acc.z(config_.ver_kp * ep.z() + config_.ver_ki * ei_.z() + config_.ver_kd * ed.z());
+  tar_acc.x(cfg_.hor_kp * ep.x() + cfg_.hor_ki * ei_.x() + cfg_.hor_kd * ed.x());
+  tar_acc.y(cfg_.hor_kp * ep.y() + cfg_.hor_ki * ei_.y() + cfg_.hor_kd * ed.y());
+  tar_acc.z(cfg_.ver_kp * ep.z() + cfg_.ver_ki * ei_.z() + cfg_.ver_kd * ed.z());
+
+  // 目標加速度をクランプ
+  dh_std::clamp2d(tar_acc.x(), tar_acc.y(), cfg_.max_hor_acc);
+  tar_acc.z() = clamp(tar_acc.z(), -cfg_.max_ver_acc, cfg_.max_ver_acc);
 }
 
-void TranslationController::configure(const TranslationControllerConfig& config)
+void TranslationController::configure(const TranslationControllerConfig& cfg)
 {
-  assert(config.hor_kp >= 0);
-  assert(config.hor_ki >= 0);
-  assert(config.hor_kd >= 0);
-  assert(config.ver_kp >= 0);
-  assert(config.ver_ki >= 0);
-  assert(config.ver_kd >= 0);
+  assert(cfg.hor_kp >= 0);
+  assert(cfg.hor_ki >= 0);
+  assert(cfg.hor_kd >= 0);
+  assert(cfg.ver_kp >= 0);
+  assert(cfg.ver_ki >= 0);
+  assert(cfg.ver_kd >= 0);
+  assert(cfg.max_hor_acc >= 0);
+  assert(cfg.max_ver_acc >= 0);
 
-  config_ = config;
+  cfg_ = cfg;
 }
 }  // namespace tobas_mr_pid

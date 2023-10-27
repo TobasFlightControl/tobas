@@ -331,14 +331,12 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   pos_cfg_.jerk_weight_log10 = cfg.jerk_weight_log10;
   pos_cfg_.max_hor_posint_error = cfg.max_horizontal_position_integral_error;
   pos_cfg_.max_ver_posint_error = cfg.max_vertical_position_integral_error;
-  pos_cfg_.max_hor_vel = cfg.max_horizontal_velocity;
-  pos_cfg_.max_ver_vel = cfg.max_vertical_velocity;
+  pos_cfg_.max_hor_acc = cfg.max_horizontal_accel;
+  pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
   pos_ctrl_.configure(pos_cfg_);
 
-  acc_cfg_.max_hor_acc = cfg.max_horizontal_accel;
-  acc_cfg_.max_ver_acc = cfg.max_vertical_accel;
   acc_cfg_.max_attitude = cfg.max_attitude;
-  acc_cfg_.h_force_coef = cfg.horizontal_force_compensation_rate;
+  acc_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
   acc_ctrl_.configure(acc_cfg_);
 
   ori_cfg_.max_attitude = cfg.max_attitude;
