@@ -285,7 +285,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   pos_cfg_.ver_kd = cfg.vertical_d_gain;
   pos_cfg_.max_hor_acc = cfg.max_horizontal_accel;
   pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
-  pos_cfg_.max_jerk = cfg.max_translation_jerk;
   pos_ctrl_.configure(pos_cfg_);
 
   acc_cfg_.max_attitude = cfg.max_attitude;
@@ -298,7 +297,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   ori_cfg_.head_kp = cfg.heading_p_gain;
   ori_cfg_.head_ki = cfg.heading_i_gain;
   ori_cfg_.head_kd = cfg.heading_d_gain;
-  ori_cfg_.max_jerk = cfg.max_orientation_jerk;
   ori_ctrl_.configure(ori_cfg_);
 
   // TODO: Mixerの設定

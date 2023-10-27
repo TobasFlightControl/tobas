@@ -48,7 +48,6 @@ void OrientationController::configure(const OrientationControllerConfig& cfg)
   assert(cfg.head_kp >= 0);
   assert(cfg.head_ki >= 0);
   assert(cfg.head_kd >= 0);
-  assert(cfg.max_jerk >= 0);
 
   cfg_ = cfg;
 }

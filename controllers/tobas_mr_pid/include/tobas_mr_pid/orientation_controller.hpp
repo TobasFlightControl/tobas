@@ -12,8 +12,6 @@ struct OrientationControllerConfig
   double head_kp;
   double head_ki;
   double head_kd;
-
-  double max_jerk;
 };
 
 class OrientationController
