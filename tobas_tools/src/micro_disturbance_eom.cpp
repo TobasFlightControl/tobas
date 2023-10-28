@@ -72,7 +72,7 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   // 重心と慣性テンソル
   const auto I_base = inertia_solver_.JntToCart(q);
   const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
+  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
   const auto I_x = I_cog.ixx();
   const auto I_y = I_cog.iyy();

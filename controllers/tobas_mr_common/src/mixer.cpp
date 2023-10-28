@@ -66,7 +66,7 @@ VectorXd Mixer::solve(
   // 慣性テンソルと重心を計算
   const auto I_base = inertia_solver_.JntToCart(cur_q);
   const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
+  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
 
   for (uint32_t i = 0; i < z_rotors_.count(); ++i)
   {
