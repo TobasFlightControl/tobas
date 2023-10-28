@@ -10,11 +10,11 @@
   <xacro:property name="battery_x" value="0.106"/>
   <xacro:property name="battery_y" value="0.035"/>
   <xacro:property name="battery_z" value="0.026"/>
-  <xacro:property name="battery_mass" value="0.18"/>
+  <xacro:property name="battery_mass" value="0.186"/>
   <xacro:property name="propeller_offset" value="0.225"/>
   <xacro:property name="propeller_radius" value="0.125"/>
   <xacro:property name="propeller_height" value="0.009"/>
-  <xacro:property name="propeller_mass" value="0.01"/>
+  <xacro:property name="propeller_mass" value="0.012"/>
 
   <!-- Base Link -->
   <link name="base_link"/>
@@ -34,7 +34,7 @@
       <xacro:insert_block name="white"/>
     </visual>
     <inertial>
-      <mass value="0.83"/>
+      <mass value="0.780"/>
       <origin xyz="0.001573 -0.000596 -0.003436" rpy="0 0 0"/>
       <inertia ixx="9.613e-3" ixy="-6.070442e-6" ixz="-4.7933683e-5" iyy="9.702e-3" iyz="-3.987551e-6" izz="1.867e-2"/>
     </inertial>
