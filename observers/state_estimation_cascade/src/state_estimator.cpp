@@ -183,7 +183,7 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
 
   // Linear velocity (Local)
   state->twist.vel.data = cart_filter_.getVelocity();
-  state->twist.vel = rpy.Inverse(state->twist.vel);  // World -> Local
+  state->twist.vel = rpy.inverse(state->twist.vel);  // World -> Local
   const Matrix3d R_W_B = rpy.toRotation().data;
   const Matrix3d vel_cov_B = R_W_B.transpose() * cart_filter_.getVelocityCovariance() * R_W_B;
   et::matrix3EigenToBoost(vel_cov_B, state->linear_velocity_covariance);
@@ -194,7 +194,7 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
 
   // Linear acceleration (Local)
   vectorMsgToKDL(imu.linear_acceleration, state->accel.linear);
-  state->accel.linear += rpy.Inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
+  state->accel.linear += rpy.inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
   state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)

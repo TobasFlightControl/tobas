@@ -56,7 +56,7 @@ Matrix3d WindEstimator::velCoef(const Euler& R_W_B)
 {
   const auto drag_rotor_sum = dynamics_.dragRotorSum(rotor_speeds_->speeds);
   const auto mass = dynamics_.mass();
-  const Matrix3d R_B_W = R_W_B.toRotation().Inverse().data;
+  const Matrix3d R_B_W = R_W_B.toRotation().inverse().data;
   return (drag_rotor_sum / mass) * E_XY * R_B_W;
 }
 

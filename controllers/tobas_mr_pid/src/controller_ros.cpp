@@ -147,7 +147,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // Fill feedback
     feedback->target_position = tar_pvay_->pos;
     feedback->target_velocity_global = tar_pvay_->vel;
-    feedback->target_velocity_local = pt->pose.euler.Inverse(tar_pvay_->vel);
+    feedback->target_velocity_local = pt->pose.euler.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = pt->pose.euler * tar_acc;
   }

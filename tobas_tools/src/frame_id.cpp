@@ -46,7 +46,7 @@ bool changeFrame(const uint8_t& frame_id, const Euler& R_gl, PosVelAccYaw& msg)
       switch (msg.vel_frame.data)
       {
         case FrameId::GLOBAL:
-          msg.vel = R_gl.Inverse(msg.vel);
+          msg.vel = R_gl.inverse(msg.vel);
           break;
         case FrameId::LOCAL:
           break;
@@ -58,7 +58,7 @@ bool changeFrame(const uint8_t& frame_id, const Euler& R_gl, PosVelAccYaw& msg)
       switch (msg.acc_frame.data)
       {
         case FrameId::GLOBAL:
-          msg.acc = R_gl.Inverse(msg.acc);
+          msg.acc = R_gl.inverse(msg.acc);
           break;
         case FrameId::LOCAL:
           break;

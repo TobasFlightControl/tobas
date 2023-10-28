@@ -64,7 +64,7 @@ Vector MultirotorDynamicsComponents::relativePerpVel(
   const Vector& wind_W)
 {
   // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
-  const auto relative_vel_B = vel_B - rpy.Inverse(wind_W);  // 風に対する相対速度
+  const auto relative_vel_B = vel_B - rpy.inverse(wind_W);  // 風に対する相対速度
   return Vector(relative_vel_B.x(), relative_vel_B.y(), 0);
 }
 
