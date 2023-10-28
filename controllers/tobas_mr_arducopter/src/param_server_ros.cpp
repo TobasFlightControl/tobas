@@ -1,6 +1,7 @@
 #include <std_msgs/Bool.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/unordered_map.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -15,7 +16,10 @@ using namespace KDL;
 
 namespace tobas_mr_arducopter
 {
-ParamServerRos::ParamServerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+ParamServerRos::ParamServerRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
   getRosParams();
@@ -50,7 +54,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 {
   for (const auto& param : cfg->ints)
   {
-    if (ints_.contains(param.name) && ints_[param.name] == param.value)
+    if (dh_std::contains(ints_, param.name) && ints_[param.name] == param.value)
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -70,7 +74,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 
   for (const auto& param : cfg->doubles)
   {
-    if (doubles_.contains(param.name) && dh_std::isClose(doubles_[param.name], param.value))
+    if (dh_std::contains(doubles_, param.name) && dh_std::isClose(doubles_[param.name], param.value))
       continue;
 
     param_set_msg_.request.param_id = param.name;
