@@ -3,8 +3,14 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Constants -->
+  <xacro:property name="sqrt2" value="1.4142135623730951"/>
+  <xacro:property name="sqrt3" value="1.73205080757"/>
   <xacro:property name="sin30" value="0.5"/>
-  <xacro:property name="cos30" value="0.866025403784"/>
+  <xacro:property name="cos30" value="${sqrt3 / 2}"/>
+  <xacro:property name="sin45" value="${1 / sqrt2}"/>
+  <xacro:property name="cos45" value="${sin45}"/>
+  <xacro:property name="sin60" value="${cos30}"/>
+  <xacro:property name="cos60" value="${sin30}"/>
 
   <!-- Properties -->
   <xacro:property name="deg2rad" value="${pi / 180}"/>
