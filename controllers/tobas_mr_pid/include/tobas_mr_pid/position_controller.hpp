@@ -31,8 +31,15 @@ public:
     const double& dt);
   void configure(const PositionControllerConfig& cfg);
 
+  inline const KDL::Vector& integralError() const;
+
 private:
   PositionControllerConfig cfg_;
   KDL::Vector ei_ = KDL::Vector::Zero();  // [ms] 位置の積分誤差
 };
+
+inline const KDL::Vector& PositionController::integralError() const
+{
+  return ei_;
+}
 }  // namespace tobas_mr_pid

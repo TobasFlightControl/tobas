@@ -85,9 +85,4 @@ void PositionController::configure(const PositionControllerConfig& config)
   max_hor_acc_ = config.max_hor_acc;
   max_ver_acc_ = config.max_ver_acc;
 }
-
-Vector3d PositionController::positionIntegralError() const
-{
-  return lqid_.integralError();
-}
 }  // namespace tobas_mr_mpc

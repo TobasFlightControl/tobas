@@ -48,7 +48,7 @@ public:
 
   void configure(const PositionControllerConfig& config);
 
-  Eigen::Vector3d positionIntegralError() const;
+  inline Eigen::Vector3d positionIntegralError() const;
 
 private:
   double max_hor_acc_;
@@ -56,4 +56,9 @@ private:
 
   ctrl::LQID lqid_;
 };
+
+inline Eigen::Vector3d PositionController::positionIntegralError() const
+{
+  return lqid_.integralError();
+}
 }  // namespace tobas_mr_mpc
