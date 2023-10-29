@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dh_std_tools/first_order_filter.hpp>
 #include <dh_kdl/euler.hpp>
 
 namespace tobas_mr_pid
@@ -16,6 +17,9 @@ struct OrientationControllerConfig
 
 class OrientationController
 {
+  // Constants
+  static constexpr uint32_t kGyroLpfCutoff = 20;
+
 public:
   explicit OrientationController();
 
@@ -32,6 +36,8 @@ private:
   KDL::Vector kp_;
   KDL::Vector ki_;
   KDL::Vector kd_;
+
+  dh_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
 
   KDL::Vector ei_ = KDL::Vector::Zero();
 };

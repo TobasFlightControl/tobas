@@ -1,5 +1,7 @@
 #include <cassert>
 
+#include <dh_eigen_tools/geometry.hpp>
+
 #include "../include/tobas_mr_pid/orientation_controller.hpp"
 
 using namespace std;
@@ -9,6 +11,7 @@ namespace tobas_mr_pid
 {
 OrientationController::OrientationController()
 {
+  gyro_lpf_.initialize(dh_std::timeConstFromCutoffFreq(kGyroLpfCutoff), Vector::Zero());
 }
 
 Vector OrientationController::update(
@@ -20,12 +23,26 @@ Vector OrientationController::update(
 {
   assert(dt >= 0);
 
-  // オイラー角ではなく，機体座標系から見た角軸ベクトル空間で誤差を計算
-  const auto ep = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).GetRot();
-  ei_ += ep * dt;
-  const auto ed = tar_gyro - cur_gyro;
+  // ジャイロノイズ (によるDジャイロのZ成分のノイズ) が回転数に大きく影響するためLPFに通す
+  gyro_lpf_.update(cur_gyro, dt);
 
-  // PIDで角加速度を計算
+  // オイラー角で誤差を計算する場合
+  Vector ep;
+  ep.x(tar_rpy.roll - cur_rpy.roll);
+  ep.y(tar_rpy.pitch - cur_rpy.pitch);
+  ep.z(tar_rpy.yaw - cur_rpy.yaw);
+  ei_ += ep * dt;
+
+  const auto gyro_error = tar_gyro - gyro_lpf_.getState();
+  const auto ed =
+    Vector(eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
+
+  // 機体座標系から見た角軸ベクトルで誤差を計算する場合
+  // const auto ep = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).GetRot();
+  // ei_ += ep * dt;
+  // const auto ed = tar_gyro - gyro_lpf_.getState();
+
+  // PID
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 
