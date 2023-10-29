@@ -1,4 +1,5 @@
 std_msgs/Header header
+
 dh_kdl_msgs/Vector target_position
 dh_kdl_msgs/Vector target_velocity_global
 dh_kdl_msgs/Vector target_velocity_local
@@ -6,3 +7,5 @@ dh_kdl_msgs/Vector target_acceleration_global
 dh_kdl_msgs/Vector target_acceleration_local
 dh_kdl_msgs/Euler target_rotation
 float64 target_thrust
+
+dh_kdl_msgs/Vector position_integral_error

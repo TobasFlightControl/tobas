@@ -62,7 +62,7 @@ private:
 
   MixerConfig cfg_;
 
-  quadprog::DualActiveSetSolver qp_solver_;
+  quadprog::DualActiveSetSolver qp_;
 
   Eigen::Matrix3Xd A_;
   Eigen::VectorXd max_thrusts_;

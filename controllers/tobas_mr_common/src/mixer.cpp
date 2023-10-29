@@ -27,19 +27,19 @@ void Mixer::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
-  qp_solver_.resize(3 + z_rotors_.count(), kEqualityConstSize, z_rotors_.count() * 2);
-  qp_solver_.setZero();
+  qp_.resize(3 + z_rotors_.count(), kEqualityConstSize, z_rotors_.count() * 2);
+  qp_.setZero();
 
   // QPの決定変数のスケール
   constexpr double dgyro_scale = M_PI;
   const auto thrust_scale = inertia_solver_.JntToMass() * tobas::kGravity / z_rotors_.count();
-  qp_solver_.x_scale.head(3).fill(dgyro_scale);
-  qp_solver_.x_scale.tail(z_rotors_.count()).fill(thrust_scale);
+  qp_.x_scale.head(3).fill(dgyro_scale);
+  qp_.x_scale.tail(z_rotors_.count()).fill(thrust_scale);
 
   // QPPの定数部分
-  qp_solver_.problem.G.bottomRightCorner(1, z_rotors_.count()).fill(1);
-  qp_solver_.problem.A.topRightCorner(z_rotors_.count(), z_rotors_.count()).diagonal().fill(1);
-  qp_solver_.problem.A.bottomRightCorner(z_rotors_.count(), z_rotors_.count()).diagonal().fill(-1);
+  qp_.problem.G.bottomRightCorner(1, z_rotors_.count()).fill(1);
+  qp_.problem.A.topRightCorner(z_rotors_.count(), z_rotors_.count()).diagonal().fill(1);
+  qp_.problem.A.bottomRightCorner(z_rotors_.count(), z_rotors_.count()).diagonal().fill(-1);
 
   // QPの重み
   updateQpWeight();
@@ -77,20 +77,21 @@ VectorXd Mixer::solve(
     A_.col(i) = (d * cm) * UNIT_Z - P_cog_rotor.data.cross(UNIT_Z);
   }
 
-  qp_solver_.problem.G.topLeftCorner(3, 3) = I_cog.data;
-  qp_solver_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
+  qp_.problem.G.topLeftCorner(3, 3) = I_cog.data;
+  qp_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
 
   const auto m_inertia = I_cog.data * tar_dgyro_B;  // 慣性力によるモーメント
   const auto m_coriolis = cur_gyro_B.cross(I_cog.data * cur_gyro_B);  // コリオリ力によるモーメント
-  qp_solver_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - A_ * tar_thrusts;
+  qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - A_ * tar_thrusts;
+  // qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - A_ * tar_thrusts;  // コリオリ力無視の場合
 
   updateThrustLimits(dt, cur_voltage, tar_thrusts.sum());
   const auto max_dthrusts = max_thrusts_ - tar_thrusts;
   const auto min_dthrusts = min_thrusts_ - tar_thrusts;
-  qp_solver_.problem.b.head(z_rotors_.count()) = max_dthrusts;
-  qp_solver_.problem.b.tail(z_rotors_.count()) = -min_dthrusts;
+  qp_.problem.b.head(z_rotors_.count()) = max_dthrusts;
+  qp_.problem.b.tail(z_rotors_.count()) = -min_dthrusts;
 
-  const VectorXd dx = qp_solver_.solve();
+  const VectorXd dx = qp_.solve();
   const auto dthrust = dx.tail(z_rotors_.count());
   return last_thrusts_ = tar_thrusts + dthrust;
 }
@@ -121,8 +122,8 @@ void Mixer::configure(const MixerConfig& cfg)
 
 void Mixer::updateQpWeight()
 {
-  qp_solver_.problem.P.diagonal().head(3).fill(cfg_.dgyro_weight);
-  qp_solver_.problem.P.diagonal().tail(z_rotors_.count()).fill(cfg_.thrust_weight);
+  qp_.problem.P.diagonal().head(3).fill(cfg_.dgyro_weight);
+  qp_.problem.P.diagonal().tail(z_rotors_.count()).fill(cfg_.thrust_weight);
 }
 
 void Mixer::updateThrustLimits(
