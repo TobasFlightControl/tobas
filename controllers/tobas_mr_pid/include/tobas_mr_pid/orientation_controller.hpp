@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Core>
+#include <dh_kdl/euler.hpp>
 
 namespace tobas_mr_pid
 {
@@ -19,16 +19,20 @@ class OrientationController
 public:
   explicit OrientationController();
 
-  Eigen::Vector3d update(
-    const Eigen::Vector3d& cur_pos,
-    const Eigen::Vector3d& cur_vel,
-    const Eigen::Vector3d& tar_pos,
-    const Eigen::Vector3d& tar_vel,
+  KDL::Vector update(
+    const KDL::Euler& cur_rpy,
+    const KDL::Vector& cur_gyro,
+    const KDL::Euler& tar_rpy,
+    const KDL::Vector& tar_gyro,
     const double& dt);
   void configure(const OrientationControllerConfig& cfg);
 
 private:
-  OrientationControllerConfig cfg_;
-  Eigen::Vector3d ei_ = Eigen::Vector3d::Zero();
+  // Config
+  KDL::Vector kp_;
+  KDL::Vector ki_;
+  KDL::Vector kd_;
+
+  KDL::Vector ei_ = KDL::Vector::Zero();
 };
 }  // namespace tobas_mr_pid

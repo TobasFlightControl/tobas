@@ -176,16 +176,13 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     }
 
     // 目標角加速度を計算
-    const auto& rpy = pt->pose.euler;
-    const Vector3d rpyd =
-      eigen_tools::eulerrateFromAngvelLocal(pt->twist.rot.data, rpy.roll, rpy.pitch);
-    const Vector3d tar_dgyro = ori_ctrl_.update(
-      rpy.toVector().data, rpyd, tar_rpyt_->rpy.toVector().data, Vector3d::Zero(), dt);
+    const auto tar_dgyro =
+      ori_ctrl_.update(pt->pose.euler, pt->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
     const VectorXd thrusts = mixer_.solve(
-      dt, battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro,
+      dt, battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
       tar_rpyt_->thrust);
 
     // モータ速度メッセージを作成
