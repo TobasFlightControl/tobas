@@ -13,29 +13,32 @@ PositionController::PositionController()
 {
 }
 
-void PositionController::update(
+Vector PositionController::update(
   const Vector& cur_pos,
   const Vector& cur_vel,
   const Vector& tar_pos,
   const Vector& tar_vel,
-  Vector& tar_acc,
   const double& dt)
 {
   assert(dt >= 0);
 
   // 誤差を計算
-  const auto ep = tar_pos - cur_pos;
+  const Vector ep = tar_pos - cur_pos;
   ei_ += ep * dt;
-  const auto ed = tar_vel - cur_vel;
+  const Vector ed = tar_vel - cur_vel;
+
+  // アンチワインドアップ
+  dh_std::clamp2d(ei_.x(), ei_.y(), max_hor_int_err_);
+  ei_.z(clamp(ei_.z(), -max_ver_int_err_, max_ver_int_err_));
 
   // 目標加速度を計算
-  tar_acc.x(cfg_.hor_kp * ep.x() + cfg_.hor_ki * ei_.x() + cfg_.hor_kd * ed.x());
-  tar_acc.y(cfg_.hor_kp * ep.y() + cfg_.hor_ki * ei_.y() + cfg_.hor_kd * ed.y());
-  tar_acc.z(cfg_.ver_kp * ep.z() + cfg_.ver_ki * ei_.z() + cfg_.ver_kd * ed.z());
+  Vector tar_acc = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 
   // 目標加速度を制限
-  dh_std::clamp2d(tar_acc.x(), tar_acc.y(), cfg_.max_hor_acc);
-  tar_acc.z() = clamp(tar_acc.z(), -cfg_.max_ver_acc, cfg_.max_ver_acc);
+  dh_std::clamp2d(tar_acc.x(), tar_acc.y(), max_hor_acc_);
+  tar_acc.z(clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_));
+
+  return tar_acc;
 }
 
 void PositionController::configure(const PositionControllerConfig& cfg)
@@ -48,7 +51,23 @@ void PositionController::configure(const PositionControllerConfig& cfg)
   assert(cfg.ver_kd >= 0);
   assert(cfg.max_hor_acc >= 0);
   assert(cfg.max_ver_acc >= 0);
+  assert(cfg.max_hor_acc_int >= 0);
+  assert(cfg.max_ver_acc_int >= 0);
 
-  cfg_ = cfg;
+  kp_.x(cfg.hor_kp);
+  kp_.y(cfg.hor_kp);
+  kp_.z(cfg.ver_kp);
+  ki_.x(cfg.hor_ki);
+  ki_.y(cfg.hor_ki);
+  ki_.z(cfg.ver_ki);
+  kd_.x(cfg.hor_kd);
+  kd_.y(cfg.hor_kd);
+  kd_.z(cfg.ver_kd);
+
+  max_hor_acc_ = cfg.max_hor_acc;
+  max_ver_acc_ = cfg.max_ver_acc;
+
+  max_hor_int_err_ = cfg.hor_ki > 0 ? cfg.max_hor_acc_int / cfg.hor_ki : 0;
+  max_ver_int_err_ = cfg.ver_ki > 0 ? cfg.max_ver_acc_int / cfg.ver_ki : 0;
 }
 }  // namespace tobas_mr_pid

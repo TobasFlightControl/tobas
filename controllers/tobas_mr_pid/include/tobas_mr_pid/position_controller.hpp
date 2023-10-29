@@ -15,6 +15,8 @@ struct PositionControllerConfig
 
   double max_hor_acc;
   double max_ver_acc;
+  double max_hor_acc_int;  // [m/s^2] I成分によって生成される加速度の水平成分の最大値
+  double max_ver_acc_int;  // [m/s^2] I成分によって生成される加速度の垂直成分の最大値
 };
 
 class PositionController
@@ -22,19 +24,27 @@ class PositionController
 public:
   explicit PositionController();
 
-  void update(
+  KDL::Vector update(
     const KDL::Vector& cur_pos,
     const KDL::Vector& cur_vel,
     const KDL::Vector& tar_pos,
     const KDL::Vector& tar_vel,
-    KDL::Vector& tar_acc,
     const double& dt);
+
   void configure(const PositionControllerConfig& cfg);
 
   inline const KDL::Vector& integralError() const;
 
 private:
-  PositionControllerConfig cfg_;
+  // Config
+  KDL::Vector kp_;
+  KDL::Vector ki_;
+  KDL::Vector kd_;
+  double max_hor_acc_;
+  double max_ver_acc_;
+  double max_hor_int_err_;  // [ms] 積分誤差の水平成分の最大値
+  double max_ver_int_err_;  // [ms] 積分誤差の垂直成分の最大値
+
   KDL::Vector ei_ = KDL::Vector::Zero();  // [ms] 位置の積分誤差
 };
 

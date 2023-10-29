@@ -13,6 +13,9 @@ struct OrientationControllerConfig
   double head_kp;
   double head_ki;
   double head_kd;
+
+  double max_atti_acc_int;  // [rad/s^2] I成分によって生成される角加速度の姿勢成分の最大値
+  double max_head_acc_int;  // [rad/s^2] I成分によって生成される角加速度の方位成分の最大値
 };
 
 class OrientationController
@@ -29,6 +32,7 @@ public:
     const KDL::Euler& tar_rpy,
     const KDL::Vector& tar_gyro,
     const double& dt);
+
   void configure(const OrientationControllerConfig& cfg);
 
 private:
@@ -36,6 +40,8 @@ private:
   KDL::Vector kp_;
   KDL::Vector ki_;
   KDL::Vector kd_;
+  double max_atti_int_err_;  // [rads] 積分誤差の姿勢成分の最大値
+  double max_head_int_err_;  // [rads] 積分誤差の方位成分の最大値
 
   dh_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
 

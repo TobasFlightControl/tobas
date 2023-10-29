@@ -133,8 +133,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;
 
     // 目標加速度を計算
-    pos_ctrl_.update(pt->pose.pos, cur_vel_W, tar_pvay_->pos, tar_pvay_->vel, tar_acc_fb_, dt);
-    const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
+    const auto tar_acc_fb =
+      pos_ctrl_.update(pt->pose.pos, cur_vel_W, tar_pvay_->pos, tar_pvay_->vel, dt);
+    const auto tar_acc = tar_pvay_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算
     acc_ctrl_.update(
@@ -283,6 +284,8 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   pos_cfg_.ver_kd = cfg.vertical_d_gain;
   pos_cfg_.max_hor_acc = cfg.max_horizontal_accel;
   pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
+  pos_cfg_.max_hor_acc_int = cfg.max_horizontal_accel_I;
+  pos_cfg_.max_ver_acc_int = cfg.max_vertical_accel_I;
   pos_ctrl_.configure(pos_cfg_);
 
   acc_cfg_.max_attitude = cfg.max_attitude;
@@ -295,6 +298,8 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   ori_cfg_.head_kp = cfg.heading_p_gain;
   ori_cfg_.head_ki = cfg.heading_i_gain;
   ori_cfg_.head_kd = cfg.heading_d_gain;
+  ori_cfg_.max_atti_acc_int = cfg.max_attitude_accel_I;
+  ori_cfg_.max_head_acc_int = cfg.max_heading_accel_I;
   ori_ctrl_.configure(ori_cfg_);
 
   // TODO: Mixerの設定
