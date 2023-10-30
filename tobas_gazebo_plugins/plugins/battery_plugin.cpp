@@ -45,8 +45,8 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   // TODO: バッテリーの充放電モデル
   // TODO: 放電限界電圧になったらエラー
 
-  auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
-  auto battery_gt_msg = boost::make_shared<tobas_msgs::Battery>();
+  const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
+  const auto battery_gt_msg = boost::make_shared<tobas_msgs::Battery>();
 
   timeGazeboToRos(info.simTime, battery_msg->header.stamp);
   timeGazeboToRos(info.simTime, battery_gt_msg->header.stamp);

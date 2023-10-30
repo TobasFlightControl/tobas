@@ -207,7 +207,7 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   const Vector3d B_Gyro = gyro_meas_ - eskf_.getGyroBias();
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
-  auto state = boost::make_shared<StateMsg>();
+  const auto state = boost::make_shared<StateMsg>();
 
   // Time stamp
   state->header.stamp = imu.header.stamp;

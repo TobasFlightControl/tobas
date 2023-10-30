@@ -99,7 +99,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   const auto wind_W = steady_W + link_->WorldPose().Rot() * turb_B;
 
   // 風速メッセージを作成
-  auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
+  const auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
   wind_msg->header.frame_id = "world";
   vectorGazeboToKDL(wind_W, wind_msg->vel);
 

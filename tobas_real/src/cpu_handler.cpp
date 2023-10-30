@@ -11,8 +11,6 @@ using namespace std;
 
 namespace tobas_real
 {
-constexpr char CpuHandler::kTemperatureFilePath[];
-
 CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
@@ -20,7 +18,7 @@ CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kUpdateRate, &CpuHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
 void CpuHandler::getRosParams()
@@ -34,7 +32,7 @@ void CpuHandler::registerPublishers()
 
 void CpuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &CpuHandler::eventCb, this, tcpNoDelay());
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
 }
 
 void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)

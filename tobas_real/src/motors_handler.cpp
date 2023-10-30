@@ -120,7 +120,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   const auto cur_time = ros::Time::now();
 
   // Create real rotating speeds
-  auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   real_speeds->header.stamp = cur_time;
   real_speeds->speeds.resize(drone_.numRotors());
 
@@ -223,7 +223,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     // Publish arming speeds
     if (battery_ != nullptr)
     {
-      auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+      const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
       real_speeds->header.stamp = event.current_real;
       real_speeds->speeds.resize(drone_.numRotors());
 

@@ -117,7 +117,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   }
 
   // Create throttle command message
-  auto throttles = boost::make_shared<tobas_msgs::Throttles>();
+  const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
   throttles->header.stamp = imu_time;
   throttles->data.resize(channels_.size(), 0.);
 

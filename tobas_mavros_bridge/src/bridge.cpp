@@ -54,7 +54,7 @@ void TobasMavrosBridge::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)
 {
-  auto mav = boost::make_shared<geometry_msgs::PoseStamped>();
+  const auto mav = boost::make_shared<geometry_msgs::PoseStamped>();
 
   // NWU -> ENU
   mav->pose.position.x = -tbs->pos.y();

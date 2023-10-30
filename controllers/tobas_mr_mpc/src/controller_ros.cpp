@@ -131,7 +131,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   t_last_loop_ = pt->header.stamp;
 
   // Create a feedback message
-  auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
+  const auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
   feedback->header.stamp = pt->header.stamp;
 
   // Translation Controller

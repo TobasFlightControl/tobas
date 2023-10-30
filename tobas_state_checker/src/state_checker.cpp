@@ -45,7 +45,7 @@ void StateChecker::registerSubscribers()
 
 void StateChecker::requestShutdown()
 {
-  auto event = boost::make_shared<tobas_msgs::Event>();
+  const auto event = boost::make_shared<tobas_msgs::Event>();
   event->data = tobas_msgs::Event::STOP;
   event_pub_.publish(event);
 }

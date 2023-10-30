@@ -159,7 +159,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       if (rcin->e_stop)
       {
         rosWarn(name_, "Emergency stop requested. Shutting down the system.");
-        auto event = boost::make_shared<tobas_msgs::Event>();
+        const auto event = boost::make_shared<tobas_msgs::Event>();
         event->data = tobas_msgs::Event::STOP;
         event_pub_.publish(event);
       }

@@ -12,6 +12,7 @@ class CpuHandler : public tobas::BaseNode
   static constexpr uint32_t kUpdateRate = 10;  // [Hz]
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
 
+  using self = CpuHandler;
   using super = tobas::BaseNode;
 
 public:

@@ -231,7 +231,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
   // Publish debug message
-  auto debug_msg = boost::make_shared<tobas_gazebo_plugins::RotorDebug>();
+  const auto debug_msg = boost::make_shared<tobas_gazebo_plugins::RotorDebug>();
   timeGazeboToRos(cur_time, debug_msg->header.stamp);
   debug_msg->rotation_speed = joint_->GetVelocity(0) * kRotorSpeedSlowdownSim;
   vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);

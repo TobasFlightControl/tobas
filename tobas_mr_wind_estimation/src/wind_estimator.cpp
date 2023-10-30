@@ -87,7 +87,7 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     }
 
     // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．
-    auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
+    const auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
     wind_msg->header.frame_id = tobas::kWorldFrame;
     wind_msg->header.stamp = pt->header.stamp;
     wind_msg->vel.data.setZero();
@@ -136,7 +136,7 @@ void WindEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   kf_.update();
 
   // Publish wind message
-  auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
+  const auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
   wind_msg->header.frame_id = tobas::kWorldFrame;
   wind_msg->header.stamp = pt->header.stamp;
   wind_msg->vel.data.head(kStateSize) = kf_.state();

@@ -103,7 +103,7 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   kf_.update();
 
   // Publish estimated thrust correction factor
-  auto factor_msg = boost::make_shared<std_msgs::Float64>();
+  const auto factor_msg = boost::make_shared<std_msgs::Float64>();
   factor_msg->data = kf_.state()(0);
   factor_pub_.publish(factor_msg);
 }

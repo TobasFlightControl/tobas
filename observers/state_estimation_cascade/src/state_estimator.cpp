@@ -160,7 +160,7 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
 
 StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& imu)
 {
-  auto state = boost::make_shared<StateMsg>();
+  const auto state = boost::make_shared<StateMsg>();
 
   // Time stamp
   state->header.stamp = imu.header.stamp;
