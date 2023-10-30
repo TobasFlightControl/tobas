@@ -11,7 +11,9 @@ namespace tobas_real
 {
 class GpsHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kMeasurementRate = 1000 / 10;  // GPSレシーバの更新周期 [ms]
+  // GPSレシーバの更新周期 [ms]
+  // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
+  static constexpr uint32_t kMeasurementRate = 1000 / 5;
   static constexpr uint32_t kMainTimerRate = 1000;         // [Hz]
 
   using self = GpsHandler;
