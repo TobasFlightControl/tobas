@@ -60,7 +60,7 @@ void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
     default:

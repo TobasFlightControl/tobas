@@ -100,7 +100,7 @@ void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
     default:
@@ -160,9 +160,8 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       {
         rosWarn(name_, "Emergency stop requested. Shutting down the system.");
         auto event = boost::make_shared<tobas_msgs::Event>();
-        event->data = tobas_msgs::Event::SHUTDOWN;
+        event->data = tobas_msgs::Event::STOP;
         event_pub_.publish(event);
-        nh_.shutdown();
       }
 
       const auto& cmd_type = mode2cmd_[rcin->mode];

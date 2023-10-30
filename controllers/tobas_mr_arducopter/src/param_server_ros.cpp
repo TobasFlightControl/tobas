@@ -97,8 +97,10 @@ void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      set_init_config_timer_.stop();
+      set_init_params_timer_.stop();
       break;
     default:
       break;

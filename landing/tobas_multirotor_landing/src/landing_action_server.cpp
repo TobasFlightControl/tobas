@@ -9,7 +9,10 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-MultirotorLandServer::MultirotorLandServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+MultirotorLandServer::MultirotorLandServer(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
     as_(nh_, tobas::kLandingAction, boost::bind(&MultirotorLandServer::executeCb, this, _1), false)
@@ -50,8 +53,9 @@ void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      as_.shutdown();
       break;
     default:
       break;

@@ -178,8 +178,10 @@ void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& even
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      check_topics_timer_.stop();
+      instruction_timer_.stop();
       break;
     default:
       break;
