@@ -16,7 +16,7 @@ namespace tobas_mr_wind_estimation
 class WindEstimator : public tobas::BaseNode
 {
   static constexpr uint32_t kStateSize = 2;
-  static constexpr double kInitWindStddev = 10.;    // [m/s]
+  static constexpr double kInitWindStddev = 10.;  // [m/s]
 
   using self = WindEstimator;
   using super = tobas::BaseNode;

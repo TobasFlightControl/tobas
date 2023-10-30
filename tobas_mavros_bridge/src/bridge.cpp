@@ -12,7 +12,10 @@ using namespace KDL;
 
 namespace tobas_mavros_bridge
 {
-TobasMavrosBridge::TobasMavrosBridge(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+TobasMavrosBridge::TobasMavrosBridge(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();

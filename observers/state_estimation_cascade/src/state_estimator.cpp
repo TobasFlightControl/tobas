@@ -24,7 +24,10 @@ namespace et = eigen_tools;
 
 namespace state_estimation_cascade
 {
-StateEstimator::StateEstimator(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+StateEstimator::StateEstimator(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     check_topics_timer_(nh_, kTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
