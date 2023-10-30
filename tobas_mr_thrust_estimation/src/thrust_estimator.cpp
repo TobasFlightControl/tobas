@@ -87,12 +87,16 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   const Vector3d& acc_B = pt->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
 
-  // 風速の観測値
-  const auto model_thrust_sum = dynamics_.thrustSum(rotor_speeds_->speeds);
-  const auto factor_meas = dynamics_.mass() * (acc_B + grav_B).z() / model_thrust_sum;
+  // 実際の推力に対するモデル推力の比率の観測値
+  const auto real_thrust = dynamics_.mass() * (acc_B + grav_B).z();
+  const auto model_thrust = dynamics_.thrustSum(rotor_speeds_->speeds);
+  const auto factor_meas = model_thrust / real_thrust;
   kf_.y(0) = factor_meas;
 
   // 観測ノイズの共分散
+  // 実際は加速度ノイズとジャイロノイズの分散に比例する値のはずだが，
+  // どうせプロセスノイズのスケールがわからないため観測ノイズのスケールも適当でよい．
+  // 簡単のため最も影響の大きいと思われる加速度ノイズの分散をそのまま使う．
   kf_.R(0, 0) = pt->linear_acceleration_covariance[8] + EPS;
 
   // カルマンフィルタを更新
