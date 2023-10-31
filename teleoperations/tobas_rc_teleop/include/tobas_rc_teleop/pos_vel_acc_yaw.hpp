@@ -23,19 +23,27 @@ public:
 
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::PoseTwist& pt) override;
-  void update(const tobas_msgs::RCInput& rcin, const dh_std::Range<double>& dead_zone);
+  void update(
+    const tobas_msgs::RCInput& rcin,
+    const dh_std::Range<double>& dead_zone,
+    const KDL::Vector& cur_pos,
+    const double& cur_yaw);
 
 private:
   ros::Time t_last_rcin_;
-  dh_std::FirstOrderFilter<Eigen::Vector3d> vel_filter_;
-  Eigen::Vector3d tar_vel_;
-  Eigen::Vector3d tar_pos_;
+  dh_std::FirstOrderFilter<KDL::Vector> vel_filter_;
+  KDL::Vector tar_vel_;
+  KDL::Vector tar_pos_;
   double tar_yaw_;
+  KDL::Vector max_pos_err_;
 
   // rosparams
+  double max_hor_pos_err_;   // [m]
+  double max_ver_pos_err_;   // [m]
   double max_hor_vel_;       // [m/s]
   double max_ver_vel_;       // [m/s]
   double max_yawrate_;       // [rad/s]
+  double max_yaw_err_;       // [rad]
   double delay_time_const_;  // [s]
 
   // Publisher

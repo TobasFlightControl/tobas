@@ -70,11 +70,9 @@ void VelocityYawController::update(
 void VelocityYawController::getRosParams(ros::NodeHandle& pnh)
 {
   dh_ros::getParam(
-    pnh, "velocity_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorizontalVelocity,
-    dh_ros::POSITIVE);
+    pnh, "velocity_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, dh_ros::POSITIVE);
   dh_ros::getParam(
-    pnh, "velocity_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerticalVelocity,
-    dh_ros::POSITIVE);
+    pnh, "velocity_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, dh_ros::POSITIVE);
   dh_ros::getParam(
     pnh, "velocity_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
   dh_ros::getParam(

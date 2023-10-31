@@ -101,26 +101,26 @@ void SpeedRollDeltaPitchPublisher::run()
       case kKeyCode_Up:
       {
         cmd_.delta_pitch =
-          dh_std::clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+          clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
         rosInfoThrottle(kInfoPeriod, name_, "Nose up");
         break;
       }
       case kKeyCode_Down:
       {
         cmd_.delta_pitch =
-          dh_std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+          clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
         rosInfoThrottle(kInfoPeriod, name_, "Nose down");
         break;
       }
       case kKeyCode_Left:
       {
-        cmd_.roll = dh_std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
+        cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
         rosInfoThrottle(kInfoPeriod, name_, "Turn left");
         break;
       }
       case kKeyCode_Right:
       {
-        cmd_.roll = dh_std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
+        cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
         rosInfoThrottle(kInfoPeriod, name_, "Turn right");
         break;
       }

@@ -41,11 +41,13 @@ void RollPitchYawThrustController::reset(const tobas_msgs::PoseTwist& pt)
 
 void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
 {
-  dh_ros::getParam(pnh, "max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
-  dh_ros::getParam(pnh, "max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
 
   dh_ros::getParam(
-    pnh, "max_vertical_accel", max_ver_acc_, kDefaultMaxVerticalAccel, dh_ros::POSITIVE);
+    pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, dh_ros::POSITIVE);
   if (max_ver_acc_ >= tobas::kGravity)
   {
     ROS_THROW_NAMED(kControllerName, "Maximum vertical acceleration must be lower than gravity.");

@@ -8,7 +8,6 @@
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
-#include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
@@ -45,11 +44,6 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
     {
       mode2cmd_.push_back(VELOCITY_YAW);
       vel_yaw_ctrl_.initialize(nh_, pnh_);
-    }
-    else if (mode_name == split(DataType<tobas_msgs::AccelerationYaw>::value(), '/').back())
-    {
-      mode2cmd_.push_back(ACCELERATION_YAW);
-      rosError(name_, "Not implemented yet.");  // TODO
     }
     else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
     {
@@ -113,6 +107,7 @@ void RCTeleop::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   pt_ = pt;
 }
+
 void RCTeleop::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
@@ -180,9 +175,6 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
           case VELOCITY_YAW:
             vel_yaw_ctrl_.reset(*pt_);
             break;
-          case ACCELERATION_YAW:
-            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-            break;
           case RPY_THRUST:
             rpy_thrust_ctrl_.reset(*pt_);
             break;
@@ -201,16 +193,13 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       switch (cmd_type)
       {
         case POS_VEL_ACC_YAW:
-          pvay_ctrl_.update(*rcin, dead_zone_);
+          pvay_ctrl_.update(*rcin, dead_zone_, pt_->pose.pos, pt_->pose.euler.yaw);
           break;
         case POSITION_YAW:
           pos_yaw_ctrl_.update(*rcin, dead_zone_);
           break;
         case VELOCITY_YAW:
           vel_yaw_ctrl_.update(*rcin, dead_zone_);
-          break;
-        case ACCELERATION_YAW:
-          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
           break;
         case RPY_THRUST:
           rpy_thrust_ctrl_.update(*rcin, battery_->voltage, dead_zone_);
