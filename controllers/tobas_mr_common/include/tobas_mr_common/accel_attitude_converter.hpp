@@ -27,7 +27,7 @@ public:
     const KDL::Vector& cur_wind_W,
     const std::vector<double>& cur_rotor_speeds,
     const KDL::Vector& tar_acc_W,
-    double& U_out,
+    double& thrust_out,
     double& roll_out,
     double& pitch_out);
 
@@ -35,7 +35,7 @@ public:
   void update(
     const KDL::Euler& cur_rpy,
     const KDL::Vector& tar_acc_W,
-    double& U_out,
+    double& thrust_out,
     double& roll_out,
     double& pitch_out);
 

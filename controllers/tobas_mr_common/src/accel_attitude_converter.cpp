@@ -27,7 +27,7 @@ void AccelAttitudeConverter::update(
   const Vector& cur_wind_W,
   const vector<double>& cur_rotor_speeds,
   const Vector& tar_acc_W,
-  double& U_out,
+  double& thrust_out,
   double& roll_out,
   double& pitch_out)
 {
@@ -38,8 +38,7 @@ void AccelAttitudeConverter::update(
 
   // 並進EoMの左辺
   const auto& mass = dynamics_.mass();
-  const auto xyz = mass * (tar_acc_W + grav_W_);  // FIXME: 風の補償項を入れるとオーバーシュート過大
-  // const auto xyz = mass * (tar_acc_W + grav_W_) - cfg_.h_force_comp_rate * air_drag_W;
+  const auto xyz = mass * (tar_acc_W + grav_W_) - cfg_.h_force_comp_rate * air_drag_W;
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();
@@ -54,18 +53,19 @@ void AccelAttitudeConverter::update(
   const auto sin_yaw = sin(cur_rpy.yaw);
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
-  U_out = z / (cos(pitch_out) * cos(roll_out));
+  // thrust_out = z / (cos(pitch_out) * cos(roll_out));  // 非線形方程式の解析解
+  thrust_out = z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 現在の姿勢でZ軸加速度を満たす解
 }
 
 void AccelAttitudeConverter::update(
   const Euler& cur_rpy,
   const Vector& tar_acc_W,
-  double& U_out,
+  double& thrust_out,
   double& roll_out,
   double& pitch_out)
 {
   update(
-    cur_rpy, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, U_out, roll_out,
+    cur_rpy, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, thrust_out, roll_out,
     pitch_out);
 }
 

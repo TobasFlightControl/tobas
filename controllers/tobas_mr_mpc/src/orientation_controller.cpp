@@ -74,13 +74,13 @@ VectorXd OrientationController::solve(
   const JntArray& cur_q,
   const double& cur_voltage,
   const vector<double>& cur_rot_speeds,
-  const double& tar_U,
+  const double& tar_thrust,
   const Euler& tar_rpy)
 {
   assert(cur_voltage > 0);
 
-  // 目標とする姿勢と合計推力から，重力方向の推力を計算
-  const double thrust_z = tar_U * cos(tar_rpy.roll) * cos(tar_rpy.pitch);
+  // 現在の姿勢と合計推力から，重力方向の推力を計算
+  const double thrust_z = tar_thrust * cos(cur_rpy.roll) * cos(cur_rpy.pitch);
 
   // MPCの最適制御問題を構築
   updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, cur_q, thrust_z);

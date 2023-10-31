@@ -53,7 +53,7 @@ public:
     const KDL::JntArray& cur_q,
     const double& cur_voltage,
     const std::vector<double>& cur_rot_speeds,
-    const double& tar_U,
+    const double& tar_thrust,
     const KDL::Euler& tar_rpy);
 
   void configure(const OrientationControllerConfig& config);
