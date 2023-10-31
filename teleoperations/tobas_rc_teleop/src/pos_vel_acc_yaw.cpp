@@ -30,7 +30,7 @@ void PosVelAccYawController::reset(const tobas_msgs::PoseTwist& pt)
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector3d::Zero());
   tar_vel_.setZero();
-  tar_pos_.setZero();
+  tar_pos_ = pt.pose.pos.data;
   tar_yaw_ = pt.pose.euler.yaw;
 }
 
@@ -54,7 +54,7 @@ void PosVelAccYawController::update(
   vel_filter_.update(tar_vel_, dt);
   const Vector3d& tar_vel_filtered = vel_filter_.getState();
 
-  // 速度を更新
+  // 位置を更新
   tar_pos_ += tar_vel_filtered * dt;
 
   // ヨー角を更新
