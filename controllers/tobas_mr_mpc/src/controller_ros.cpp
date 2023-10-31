@@ -337,7 +337,8 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   pos_ctrl_.configure(pos_cfg_);
 
   acc_cfg_.max_attitude = cfg.max_attitude;
-  acc_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  // acc_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
+  acc_cfg_.h_force_comp_rate = 0;  // FIXME: 並進EoMで風外乱を考慮するとオーバーシュートが過大
   acc_ctrl_.configure(acc_cfg_);
 
   ori_cfg_.h_force_comp_rate = cfg.horizontal_force_compensation_rate;
