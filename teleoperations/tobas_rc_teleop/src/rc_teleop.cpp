@@ -196,7 +196,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
           pvay_ctrl_.update(*rcin, dead_zone_, pt_->pose.pos, pt_->pose.euler.yaw);
           break;
         case POSITION_YAW:
-          pos_yaw_ctrl_.update(*rcin, dead_zone_);
+          pos_yaw_ctrl_.update(*rcin, dead_zone_, pt_->pose.pos, pt_->pose.euler.yaw);
           break;
         case VELOCITY_YAW:
           vel_yaw_ctrl_.update(*rcin, dead_zone_);

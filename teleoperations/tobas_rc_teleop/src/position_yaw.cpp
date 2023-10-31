@@ -9,6 +9,7 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
+using namespace KDL;
 using namespace dh_std;
 
 namespace tobas_rc_teleop
@@ -19,9 +20,14 @@ PositionYawController::PositionYawController() : super()
 
 void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
+  getRosParams(pnh);
+
+  max_pos_err_.x(max_hor_pos_err_);
+  max_pos_err_.y(max_hor_pos_err_);
+  max_pos_err_.z(max_ver_pos_err_);
+
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
 
-  getRosParams(pnh);
   registerPublishers(nh);
 }
 
@@ -34,7 +40,9 @@ void PositionYawController::reset(const tobas_msgs::PoseTwist& pt)
 
 void PositionYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const dh_std::Range<double>& dead_zone)
+  const dh_std::Range<double>& dead_zone,
+  const Vector& cur_pos,
+  const double& cur_yaw)
 {
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
@@ -53,6 +61,10 @@ void PositionYawController::update(
   pos_yaw_.pos += vel_ * dt;
   pos_yaw_.yaw += yawrate * dt;
 
+  // 誤差を制限
+  pos_yaw_.pos = pos_yaw_.pos.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
+  pos_yaw_.yaw = clamp(pos_yaw_.yaw, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
+
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
   const auto pos_yaw_ptr = boost::make_shared<tobas_msgs::PositionYaw>(pos_yaw_);
@@ -67,6 +79,14 @@ void PositionYawController::getRosParams(ros::NodeHandle& pnh)
     pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, dh_ros::POSITIVE);
   dh_ros::getParam(
     pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "pos_vel_acc_yaw/max_horizontal_position_error", max_hor_pos_err_, kDefaultMaxHorPosErr,
+    dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "pos_vel_acc_yaw/max_vertical_position_error", max_ver_pos_err_, kDefaultMaxVerPosErr,
+    dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "pos_vel_acc_yaw/max_yaw_error", max_yaw_err_, kDefaultMaxYawErr, dh_ros::POSITIVE);
 }
 
 void PositionYawController::registerPublishers(ros::NodeHandle& nh)
