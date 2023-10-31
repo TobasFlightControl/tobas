@@ -17,7 +17,6 @@ namespace tobas_mr_thrust_estimation
 class ThrustEstimator : public tobas::BaseNode
 {
   static constexpr double kInitFactorStddev = 0.;   // [-]
-  static constexpr double kAltitudeThreshold = 2.;  // [m] 推定を開始する対地高度
 
   using self = ThrustEstimator;
   using super = tobas::BaseNode;
@@ -37,6 +36,7 @@ private:
   tobas::Drone drone_;
   tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
+  bool is_flying_ = false;
   bool is_initialized_ = false;
   ctrl::IdentityKalmanFilter kf_;
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;

@@ -65,5 +65,4 @@ static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
 
 static constexpr uint32_t kStopwatchSamples = 100;
-static constexpr double kModelEstimationAltThr = 2.;  // [m] モデル推定を開始する対地高度
 }  // namespace tobas

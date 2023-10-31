@@ -54,6 +54,7 @@ void ThrustEstimator::registerPublishers()
 
 void ThrustEstimator::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
   pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
@@ -66,6 +67,9 @@ void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
     case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
+    case tobas_msgs::Event::TAKEOFF_DETECTED:
+      is_flying_ = true;
+      break;
     default:
       break;
   }
@@ -75,7 +79,7 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   if (!is_initialized_)
   {
-    if (rotor_speeds_ != nullptr && pt->pose.pos.z() > kAltitudeThreshold)
+    if (rotor_speeds_ != nullptr && is_flying_)
     {
       is_initialized_ = true;
       rosInfo(name_, "Start to estimate thrust correction factor.");

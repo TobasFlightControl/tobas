@@ -33,6 +33,7 @@ private:
   tobas::Drone drone_;
   tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
+  bool is_flying_ = false;
   bool is_initialized_ = false;
   ros::Time t_last_loop_;
   ctrl::IdentityKalmanFilter kf_;
