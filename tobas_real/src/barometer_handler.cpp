@@ -45,7 +45,7 @@ void BarometerHandler::registerPublishers()
 
 void BarometerHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void BarometerHandler::readConfig()

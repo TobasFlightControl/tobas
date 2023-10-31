@@ -60,7 +60,8 @@ void StateEstimator::registerPublishers()
 
 void StateEstimator::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   filtered_imu_sub_ = nh_.subscribe(kFilteredImuTopic, 1, &self::filteredImuCb, this, tcpNoDelay());
   bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barometerCb, this, tcpNoDelay());
 

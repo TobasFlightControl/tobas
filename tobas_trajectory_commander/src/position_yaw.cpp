@@ -23,12 +23,7 @@ FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name),
-    as_(
-      nh_,
-      kActionName,
-      boost::bind(&FollowPositionYawTrajectoryServer::executeCb, this, _1),
-      false)
+  : super(nh, pnh, name), as_(nh_, kActionName, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
 
@@ -49,8 +44,7 @@ void FollowPositionYawTrajectoryServer::registerPublishers()
 
 void FollowPositionYawTrajectoryServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(
-    tobas::kEventTopic, 1, &FollowPositionYawTrajectoryServer::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)

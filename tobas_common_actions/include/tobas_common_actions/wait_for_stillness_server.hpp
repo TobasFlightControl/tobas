@@ -12,6 +12,7 @@ class WaitForStillnessServer : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "wait_for_stillness";
 
+  using self = WaitForStillnessServer;
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::WaitForStillnessAction;

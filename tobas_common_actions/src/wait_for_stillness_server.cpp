@@ -17,7 +17,7 @@ WaitForStillnessServer::WaitForStillnessServer(
   const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
-    as_(nh_, kActionName, boost::bind(&WaitForStillnessServer::executeCb, this, _1), false)
+    as_(nh_, kActionName, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
   registerPublishers();
@@ -36,10 +36,9 @@ void WaitForStillnessServer::registerPublishers()
 
 void WaitForStillnessServer::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &WaitForStillnessServer::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(
-    tobas::kPoseTwistTopic, 1, &WaitForStillnessServer::poseTwistCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
 }
 
 void WaitForStillnessServer::reset()
@@ -51,42 +50,42 @@ void WaitForStillnessServer::reset()
 
 bool WaitForStillnessServer::isGoalValid(const GoalType& goal)
 {
-  if (goal->time_window <= ros::Duration(0.))
+  if (goal->time_window <= ros::Duration(0))
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'time_window' must be positive.");
     return false;
   }
 
-  if (goal->horizontal_position_variance_threshold <= 0.)
+  if (goal->horizontal_position_variance_threshold <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'horizontal_position_variance_threshold' must be positive.");
     return false;
   }
 
-  if (goal->vertical_position_variance_threshold <= 0.)
+  if (goal->vertical_position_variance_threshold <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'vertical_position_variance_threshold' must be positive.");
     return false;
   }
 
-  if (goal->heading_variance_threshold <= 0.)
+  if (goal->heading_variance_threshold <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'heading_variance_threshold' must be positive.");
     return false;
   }
 
-  if (goal->attitude_threshold <= 0.)
+  if (goal->attitude_threshold <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'attitude_threshold' must be positive.");
     return false;
   }
 
-  if (goal->velocity_threshold <= 0.)
+  if (goal->velocity_threshold <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "'velocity_threshold' must be positive.");

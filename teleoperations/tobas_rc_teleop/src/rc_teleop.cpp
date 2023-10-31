@@ -90,7 +90,8 @@ void RCTeleop::registerPublishers()
 
 void RCTeleop::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &RCTeleop::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &RCTeleop::poseTwistCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &RCTeleop::batteryCb, this, tcpNoDelay());
   rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &RCTeleop::rcInputCb, this, tcpNoDelay());

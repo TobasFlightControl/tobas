@@ -35,7 +35,8 @@ void TakeoffActionServer::registerPublishers()
 
 void TakeoffActionServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
 }
 

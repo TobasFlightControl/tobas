@@ -49,8 +49,8 @@ void OrientationEstimatorRos::registerPublishers()
 
 void OrientationEstimatorRos::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &OrientationEstimatorRos::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 

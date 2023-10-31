@@ -45,6 +45,8 @@ void ParamServerRos::registerPublishers()
 
 void ParamServerRos::registerSubscribers()
 {
+  super::registerSubscribers();
+
   state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);

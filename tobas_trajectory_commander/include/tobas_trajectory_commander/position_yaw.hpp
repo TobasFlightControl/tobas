@@ -15,6 +15,7 @@ class FollowPositionYawTrajectoryServer : tobas::BaseNode
   static constexpr char kActionName[] = "follow_trajectory_position_yaw";
   static constexpr uint32_t kMaxNrOfTrajPoint = 1000;  // TODO: メモリ的な限界値を探す
 
+  using self = FollowPositionYawTrajectoryServer;
   using super = tobas::BaseNode;
 
   using CommandType = tobas_msgs::PositionYaw;

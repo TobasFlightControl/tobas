@@ -15,7 +15,7 @@ MultirotorLandServer::MultirotorLandServer(
   const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
-    as_(nh_, tobas::kLandingAction, boost::bind(&MultirotorLandServer::executeCb, this, _1), false)
+    as_(nh_, tobas::kLandingAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
 
@@ -36,10 +36,9 @@ void MultirotorLandServer::registerPublishers()
 
 void MultirotorLandServer::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &MultirotorLandServer::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(
-    tobas::kPoseTwistTopic, 1, &MultirotorLandServer::poseTwistCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
 }
 
 void MultirotorLandServer::reset()

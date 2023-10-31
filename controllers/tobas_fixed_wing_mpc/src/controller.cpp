@@ -74,7 +74,8 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &Controller::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &Controller::batteryCb, this, tcpNoDelay());

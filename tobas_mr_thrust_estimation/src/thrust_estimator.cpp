@@ -54,7 +54,8 @@ void ThrustEstimator::registerPublishers()
 
 void ThrustEstimator::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());

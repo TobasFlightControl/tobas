@@ -43,7 +43,8 @@ void TakeoffActionServer::registerPublishers()
 
 void TakeoffActionServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_server_state_sub_ =
     nh_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);

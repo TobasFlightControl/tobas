@@ -16,6 +16,7 @@ class MultirotorLandServer : public tobas::BaseNode
   static constexpr double kTimeWindow = 3.;      // [s] 高度の変化を見る時間窓の長さ
   static constexpr double kStableAltitudeRange = 0.03;  // [m]
 
+  using self = MultirotorLandServer;
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::LandAction;

@@ -35,7 +35,7 @@ void GpsHandler::registerPublishers()
 
 void GpsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void GpsHandler::configureGnssReceiver()

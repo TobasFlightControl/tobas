@@ -32,7 +32,7 @@ void CpuHandler::registerPublishers()
 
 void CpuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)

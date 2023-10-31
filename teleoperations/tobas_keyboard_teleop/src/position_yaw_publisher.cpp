@@ -191,7 +191,7 @@ void PositionYawPublisher::registerPublishers()
 
 void PositionYawPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void PositionYawPublisher::eventCb(const tobas_msgs::EventConstPtr& event)

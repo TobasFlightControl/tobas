@@ -35,7 +35,8 @@ void TobasMavrosBridge::registerPublishers()
 
 void TobasMavrosBridge::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   pos_yaw_sub_ =
     nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
 }

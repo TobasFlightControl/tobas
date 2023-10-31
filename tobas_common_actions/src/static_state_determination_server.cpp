@@ -44,8 +44,8 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(
-    tobas::kEventTopic, 1, &StaticStateDeterminationServer::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   imu_sub_ =
     nh_.subscribe(tobas::kImuTopic, 1, &StaticStateDeterminationServer::imuCb, this, tcpNoDelay());
   mag_sub_ =

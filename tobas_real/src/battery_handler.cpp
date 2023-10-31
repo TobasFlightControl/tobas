@@ -40,7 +40,7 @@ void BatteryHandler::registerPublishers()
 
 void BatteryHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &BatteryHandler::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void BatteryHandler::getAdcCoefficient()

@@ -153,8 +153,8 @@ void SpeedRollDeltaPitchPublisher::registerPublishers()
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(
-    tobas::kEventTopic, 1, &SpeedRollDeltaPitchPublisher::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   air_pressure_sub_ = nh_.subscribe(
     tobas::kAirPressureTopic, 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this, tcpNoDelay());
 }

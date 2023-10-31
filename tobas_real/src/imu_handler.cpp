@@ -50,7 +50,7 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void ImuHandler::readConfig()

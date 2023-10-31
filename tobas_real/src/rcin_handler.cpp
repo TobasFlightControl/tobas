@@ -43,7 +43,7 @@ void RCInputHandler::registerPublishers()
 
 void RCInputHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &RCInputHandler::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void RCInputHandler::readConfig()
