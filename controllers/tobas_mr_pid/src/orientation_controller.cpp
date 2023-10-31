@@ -37,7 +37,7 @@ Vector OrientationController::update(
 
   // 機体座標系から見た角軸ベクトルで誤差を計算する場合
   // Z成分にはロールピッチの誤差も含まれ，Z成分のゲインを下げると姿勢追従性能が低下してしまうためボツ
-  // const auto ep = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).GetRot();
+  // const auto ep = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).getRot();
   // ei_ += ep * dt;
   // const auto ed = tar_gyro - gyro_lpf_.getState();
 

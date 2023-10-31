@@ -130,7 +130,7 @@ VectorXd OrientationController::solve(
   const Vector3d dgyro_mpc = xd.block<3, 1>(kGyroIdx, 0);
 
   // 外乱補償用の微分先行型PD
-  const Vector error_B = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).GetRot();
+  const Vector error_B = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).getRot();
   const Vector dgyro_pd = kp_ * error_B - kd_ * cur_twist_B.rot;
 
   // Mixerで最終的な推力を計算

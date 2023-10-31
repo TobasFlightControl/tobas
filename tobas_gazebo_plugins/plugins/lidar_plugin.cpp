@@ -137,7 +137,7 @@ void GazeboLidarPlugin::putLaserData(common::Time& update_time)
   cloud_msg_.header.stamp.sec = update_time.sec;
   cloud_msg_.header.stamp.nsec = update_time.nsec;
 
-  for (int j = 0; j < ver_range_count; j++)
+  for (int j = 0; j < ver_range_count; ++j)
   {
     // interpolating in vertical direction
     double vb =
@@ -149,7 +149,7 @@ void GazeboLidarPlugin::putLaserData(common::Time& update_time)
     assert(vja >= 0 && vja < ver_ray_count);
     assert(vjb >= 0 && vjb < ver_ray_count);
 
-    for (int i = 0; i < range_count; i++)
+    for (int i = 0; i < range_count; ++i)
     {
       // Interpolate the range readings from the rays in horizontal direction
       double hb = (range_count == 1) ? 0. : (double)i * (ray_count - 1) / (range_count - 1);
