@@ -26,6 +26,11 @@
       <color rgba="1 1 1 1"/>
     </material>
   </xacro:property>
+  <xacro:property name="gray">
+    <material name="gray">
+      <color rgba="0.5 0.5 0.5 1"/>
+    </material>
+  </xacro:property>
   <xacro:property name="red">
     <material name="red">
       <color rgba="1 0 0 1"/>
