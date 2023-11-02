@@ -7,14 +7,14 @@
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
   <!-- Properties: https://www.dji.com/jp/spreading-wings-f550_non_planar -->
-  <xacro:property name="frame_radius" value="0.588"/>
+  <xacro:property name="frame_radius" value="0.294"/>
   <xacro:property name="frame_height" value="0.056"/>
   <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
   <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
   <xacro:property name="propeller_height" value="0.01"/>
   <xacro:property name="propeller_mass" value="0.011"/>
   <xacro:property name="propeller_origin_z" value="0.061289"/>
-  <xacro:property name="rotor_tilt" value="30*deg2rad"/>
+  <xacro:property name="rotor_tilt" value="${30*deg2rad}"/>
 
   <!-- Base Link -->
   <link name="base_link"/>
@@ -76,22 +76,22 @@
   </xacro:macro>
 
   <xacro:propeller index="0" direction="ccw">
-    <origin xyz="0.242282 0.130356 ${propeller_origin_z}" rpy="${rotor_tilt} 0 0"/>
+    <origin xyz="0.242282 0.130356 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${30*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="1" direction="cw">
-    <origin xyz="-0.008251 0.27500 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 0"/>
+    <origin xyz="-0.008251 0.27500 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${90*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="2" direction="ccw">
-    <origin xyz="-0.234032 0.144644 ${propeller_origin_z}" rpy="${rotor_tilt} 0 0"/>
+    <origin xyz="-0.234032 0.144644 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${150*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="3" direction="cw">
-    <origin xyz="-0.234032 -0.144645 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 0"/>
+    <origin xyz="-0.234032 -0.144645 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${210*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="4" direction="ccw">
-    <origin xyz="-0.00825 -0.27500 ${propeller_origin_z}" rpy="${rotor_tilt} 0 0"/>
+    <origin xyz="-0.00825 -0.27500 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${270*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="5" direction="cw">
-    <origin xyz="0.242282 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 0"/>
+    <origin xyz="0.242282 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${330*deg2rad}"/>
   </xacro:propeller>
 
 </robot>
