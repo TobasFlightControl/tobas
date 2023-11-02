@@ -11,10 +11,9 @@
   <xacro:property name="cos45" value="${sin45}"/>
   <xacro:property name="sin60" value="${cos30}"/>
   <xacro:property name="cos60" value="${sin30}"/>
-
-  <!-- Properties -->
   <xacro:property name="deg2rad" value="${pi / 180}"/>
   <xacro:property name="rad2deg" value="${180 / pi}"/>
+  <xacro:property name="inch2meter" value="0.0254"/>
 
   <!-- Colors -->
   <xacro:property name="black">

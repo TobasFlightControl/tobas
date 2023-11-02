@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+
+<robot name="f550_non_planar"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+
+  <!-- Properties: https://www.dji.com/jp/spreading-wings-f550_non_planar -->
+  <xacro:property name="frame_radius" value="0.588"/>
+  <xacro:property name="frame_height" value="0.056"/>
+  <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
+  <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
+  <xacro:property name="propeller_height" value="0.01"/>
+  <xacro:property name="propeller_mass" value="0.011"/>
+  <xacro:property name="propeller_origin_z" value="0.061289"/>
+  <xacro:property name="rotor_tilt" value="30*deg2rad"/>
+
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- Frame -->
+  <joint name="frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="frame"/>
+  </joint>
+  <link name="frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/f550_non_planar/frame.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+      <xacro:insert_block name="black"/>
+    </visual>
+    <inertial>
+      <mass value="2.015"/>
+      <origin xyz="4.12e-4 8.34e-4 1.0917e-2" rpy="0 0 0"/>
+      <inertia ixx="4.970e-2" ixy="-1.85346e-7" ixz="-8.26373e-6" iyy="4.975e-2" iyz="-5.7596072e-5" izz="9.558e-2"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 ${-frame_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${frame_radius}" length="${frame_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Propellers -->
+  <xacro:macro name="propeller" params="index direction *origin">
+    <joint name="propeller_${index}_joint" type="continuous">
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <parent link="base_link"/>
+      <child link="propeller_${index}"/>
+    </joint>
+    <link name="propeller_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/f550_non_planar/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="white"/>
+      </visual>
+      <inertial>
+        <mass value="${propeller_mass}"/>
+        <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
+        <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${propeller_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${propeller_radius}" length="${propeller_height}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <xacro:propeller index="0" direction="ccw">
+    <origin xyz="0.242282 0.130356 ${propeller_origin_z}" rpy="${rotor_tilt} 0 0"/>
+  </xacro:propeller>
+  <xacro:propeller index="1" direction="cw">
+    <origin xyz="-0.008251 0.27500 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 0"/>
+  </xacro:propeller>
+  <xacro:propeller index="2" direction="ccw">
+    <origin xyz="-0.234032 0.144644 ${propeller_origin_z}" rpy="${rotor_tilt} 0 0"/>
+  </xacro:propeller>
+  <xacro:propeller index="3" direction="cw">
+    <origin xyz="-0.234032 -0.144645 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 0"/>
+  </xacro:propeller>
+  <xacro:propeller index="4" direction="ccw">
+    <origin xyz="-0.00825 -0.27500 ${propeller_origin_z}" rpy="${rotor_tilt} 0 0"/>
+  </xacro:propeller>
+  <xacro:propeller index="5" direction="cw">
+    <origin xyz="0.242282 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 0"/>
+  </xacro:propeller>
+
+</robot>
