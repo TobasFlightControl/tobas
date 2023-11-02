@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
-    from .blade_geometry import BladeGeometry
 
 import math
 import numpy as np
 from numpy.typing import NDArray
 from abc import abstractmethod
 from overrides import overrides
+from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -21,14 +21,11 @@ from ...parameter_getters import *
 from ...common import *
 from ...utils import rpm_to_rad_per_sec
 from .common import ROTARY_WINGS
+from .blade_theory import BladeTheory
 
 
 class AerodynamicsWidget(QWidget):
     NO_SELECT = "Select setting method"
-    MANUAL = "Set manually"
-    BLADE_THEORY = "Set from blade geometry"
-    THRUST_STAND = "Set from thrust stand data"
-    UIUC = "Set from UIUC propeller data site (recommended)"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -44,36 +41,26 @@ class AerodynamicsWidget(QWidget):
         title.setAlignment(Qt.AlignTop)
         self._rows.addWidget(title)
 
-        self.setting_method = ComboBox()
-        self.setting_method.addItems(
-            [
-                self.NO_SELECT,
-                self.MANUAL,
-                self.BLADE_THEORY,
-                self.THRUST_STAND,
-                self.UIUC,
-            ]
-        )
-        self.setting_method.setCurrentText(self.NO_SELECT)
-        self._rows.addWidget(self.setting_method)
+        self._methods: List[AerodynamicsWidget_Base] = [
+            AerodynamicsWidget_Manual(main, link_name),
+            AerodynamicsWidget_BladeTheory(main, link_name),
+            AerodynamicsWidget_ThrustStand(main, link_name),
+            AerodynamicsWidget_UIUC(main, link_name),
+        ]
 
-        self.manual = AerodynamicsWidget_Manual(main, link_name)
-        self._rows.addWidget(self.manual)
+        self._method_name = ComboBox()
+        self._method_name.addItem(self.NO_SELECT)
+        self._rows.addWidget(self._method_name)
 
-        self.blade_theory = AerodynamicsWidget_BladeTheory(main, link_name)
-        self._rows.addWidget(self.blade_theory)
-
-        self.thrust_stand = AerodynamicsWidget_ThrustStand(main, link_name)
-        self._rows.addWidget(self.thrust_stand)
-
-        self.uiuc = AerodynamicsWidget_UIUC(main, link_name)
-        self._rows.addWidget(self.uiuc)
+        for method in self._methods:
+            self._method_name.addItem(method.NAME)
+            self._rows.addWidget(method)
 
         self._update_visibility()
         self._define_connections()
 
     def is_valid(self) -> bool:
-        if self.setting_method.currentText() == self.NO_SELECT:
+        if self._method_name.currentText() == self.NO_SELECT:
             q_error_named(
                 self._main, ROTARY_WINGS, "Please select aerodynamics setting method."
             )
@@ -85,18 +72,16 @@ class AerodynamicsWidget(QWidget):
         return True
 
     def selected(self) -> AerodynamicsWidget:
-        setting_method = self.setting_method.currentText()
+        method_name = self._method_name.currentText()
 
-        if setting_method == self.MANUAL:
-            return self.manual
-        elif setting_method == self.BLADE_THEORY:
-            return self.blade_theory
-        elif setting_method == self.THRUST_STAND:
-            return self.thrust_stand
-        elif setting_method == self.UIUC:
-            return self.uiuc
-        else:
-            raise RuntimeError()
+        if method_name == self.NO_SELECT:
+            raise RuntimeError("Setting method is not selected.")
+
+        for method in self._methods:
+            if method_name == method.NAME:
+                return method
+
+        raise RuntimeError(f"Invalid setting method: {method_name}")
 
     def motor_const(self) -> float:
         """[kg*m/rad^2]"""
@@ -111,59 +96,34 @@ class AerodynamicsWidget(QWidget):
         return self.selected().rotor_drag_coef()
 
     def copy_from(self, src: AerodynamicsWidget) -> None:
-        self.setting_method.setCurrentText(src.setting_method.currentText())
-        self.manual.copy_from(src.manual)
-        self.blade_theory.copy_from(src.blade_theory)
-        self.thrust_stand.copy_from(src.thrust_stand)
-        self.uiuc.copy_from(src.uiuc)
+        self._method_name.setCurrentText(src._method_name.currentText())
+
+        for des_method, src_method in zip(self._methods, src._methods):
+            des_method.copy_from(src_method)
 
         self._update_visibility()
 
     def _define_connections(self) -> None:
-        self.setting_method.currentTextChanged.connect(self._on_type_changed)
+        self._method_name.currentTextChanged.connect(self._on_type_changed)
 
     def _update_visibility(self) -> None:
-        setting_method = self.setting_method.currentText()
+        method_name = self._method_name.currentText()
 
-        if setting_method == self.NO_SELECT:
-            self.manual.setVisible(False)
-            self.blade_theory.setVisible(False)
-            self.thrust_stand.setVisible(False)
-            self.uiuc.setVisible(False)
-        elif setting_method == self.MANUAL:
-            self.manual.setVisible(True)
-            self.blade_theory.setVisible(False)
-            self.thrust_stand.setVisible(False)
-            self.uiuc.setVisible(False)
-        elif setting_method == self.BLADE_THEORY:
-            self.manual.setVisible(False)
-            self.blade_theory.setVisible(True)
-            self.thrust_stand.setVisible(False)
-            self.uiuc.setVisible(False)
-        elif setting_method == self.THRUST_STAND:
-            self.manual.setVisible(False)
-            self.blade_theory.setVisible(False)
-            self.thrust_stand.setVisible(True)
-            self.uiuc.setVisible(False)
-        elif setting_method == self.UIUC:
-            self.manual.setVisible(False)
-            self.blade_theory.setVisible(False)
-            self.thrust_stand.setVisible(False)
-            self.uiuc.setVisible(True)
-        else:
-            raise RuntimeError(f"Unknown setting method: {setting_method}")
+        for method in self._methods:
+            method.setVisible(False)
+
+        for method in self._methods:
+            if method.NAME == method_name:
+                method.setVisible(True)
+                return
 
     @pyqtSlot(str)
-    def _on_type_changed(self, setting_method: str) -> None:
+    def _on_type_changed(self, _: str) -> None:
         self._update_visibility()
 
 
 class AerodynamicsWidget_Base(QWidget):
-    rho = 1.225  # Air density [kg/m^3]
-    a = 2 * math.pi  # 2D lift curve slope (ideal value)
-    B = 0.9  # Tip loss factor
-    gamma = 8.0  # Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
-    C_d0 = 0.02  # Profile drag coefficient (typical value)
+    NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, link_name: str, abst_text: str) -> None:
         super().__init__()
@@ -202,6 +162,8 @@ class AerodynamicsWidget_Base(QWidget):
 
 
 class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
+    NAME = "Set manually"
+
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         abst_text = "プロペラ空気力学定数を直接設定します．"
         super().__init__(main, link_name, abst_text)
@@ -278,6 +240,8 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019]"""
 
+    NAME = "Set from blade geometry"
+
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         abst_text = (
             "上で設定したプロペラの幾何形状から"
@@ -293,76 +257,29 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     @overrides
     def motor_const(self) -> float:
-        return 4 * math.pi * self._C_T() * self.rho * self._R() ** 4
+        return self._blade_thory().motor_const()
 
     @overrides
     def moment_const(self) -> float:
-        return self._R() * self._lambda()
+        return self._blade_thory().moment_const()
 
     @overrides
     def rotor_drag_coef(self) -> float:
-        return 4 * math.pi * self.rho * self._R() ** 3 * self._C_H()
+        return self._blade_thory().rotor_drag_coef()
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
         pass
 
-    def _blade(self) -> BladeGeometry:
-        return self._main.settings.propulsion_system.selected.get_blade_geometry(
+    def _blade_thory(self) -> BladeTheory:
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
             self._link_name
         )
-
-    def _N(self) -> int:
-        """Number of blades"""
-        return self._blade().num_blade()
-
-    def _R(self) -> float:
-        """Rotor radius [m]"""
-        return self._blade().propeller_radius()
-
-    def _c(self) -> float:
-        """Blade chord [m]"""
-        return self._blade().blade_chord()
-
-    def _theta(self) -> float:
-        """Blade pitch angle [rad]"""
-        return self._blade().pitch_angle()
-
-    def _sigma(self) -> float:
-        """Solidity"""
-        return (self._N() * self._c()) / (math.pi * self._R())
-
-    def _lambda(self) -> float:
-        """Inflow ratio"""
-        a_B_sigma = self.a * self.B * self._sigma()
-        return (
-            a_B_sigma
-            * self.B
-            / 16
-            * (math.sqrt(1 + (64 * self._theta()) / (3 * a_B_sigma)) - 1)
-        )
-
-    def _C_T(self) -> float:
-        """Thrust coefficient"""
-        return 2 * self._lambda() ** 2
-
-    def _C_H(self) -> float:
-        """Horizontal force coefficient (devided by mu)"""
-        theta = self._theta()
-        sigma = self._sigma()
-        lam = self._lambda()
-        b0 = 0.5 * self.gamma * (theta / 4 - lam / 3)
-        b1c = 2 * (lam - (4 / 3) * theta)  # devided by mu
-        b1s = -(4 / 3) * b0  # devided by mu
-        return (sigma / 4) * (
-            self.C_d0
-            + (self.a / 6)
-            * (
-                2 * theta * (3 * lam - 2 * b1c)
-                + 9 * lam * b1c
-                + 2 * b0 * b1s
-                + 3 * b0**2
-            )
+        return BladeTheory(
+            blade.num_blade(),
+            blade.propeller_radius(),
+            blade.blade_chord(),
+            blade.pitch_angle(),
         )
 
 
@@ -371,6 +288,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     推力係数とトルク係数はThrust Standの実験データから求める．\\
     空気抗力係数はBlade Theoryから求める．
     """
+
+    NAME = "Set from thrust stand data"
 
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
@@ -424,11 +343,17 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     @overrides
     def rotor_drag_coef(self) -> float:
-        # Blade Theoryと同じ計算方法
-        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(
+        # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
             self._link_name
         )
-        return aero_dynamics.blade_theory.rotor_drag_coef()
+        blade_theory = BladeTheory(
+            blade.num_blade(),
+            blade.propeller_radius(),
+            blade.blade_chord(),
+            blade.pitch_angle(),
+        )
+        return blade_theory.rotor_drag_coef()
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
@@ -436,6 +361,8 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
 
 class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
+    NAME = "Set from UIUC propeller data site"
+
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
 
@@ -480,7 +407,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
             self._link_name
         )
-        return (CT * self.rho * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
+        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
 
     @overrides
     def moment_const(self) -> float:
@@ -499,11 +426,17 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
     @overrides
     def rotor_drag_coef(self) -> float:
-        # Blade Theoryと同じ計算方法
-        aero_dynamics = self._main.settings.propulsion_system.selected.get_aerodynamics(
+        # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
             self._link_name
         )
-        return aero_dynamics.blade_theory.rotor_drag_coef()
+        blade_theory = BladeTheory(
+            blade.num_blade(),
+            blade.propeller_radius(),
+            blade.blade_chord(),
+            blade.pitch_angle(),
+        )
+        return blade_theory.rotor_drag_coef()
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:

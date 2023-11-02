@@ -19,8 +19,8 @@ from ...parameter_getters import *
 
 
 class BaseObserver(QWidget):
-    NAME = "Unknown"
-    PACKAGE_NAME = "Unknown"
+    NAME = UNKNOWN
+    PACKAGE_NAME = UNKNOWN
 
     GPS_HOR_POS_STDDEV_THRESHOLD = "gps_horizontal_position_stddev_threshold"
     GPS_VER_POS_STDDEV_THRESHOLD = "gps_vertical_position_stddev_threshold"

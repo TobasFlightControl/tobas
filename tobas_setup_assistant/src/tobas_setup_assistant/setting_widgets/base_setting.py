@@ -15,7 +15,7 @@ from ..common import *
 class BaseSettingWidget(QScrollArea):
     ABST_HEIGHT = 100
 
-    NAME = "Unknown"
+    NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, title_text: str, abst_text: str) -> None:
         super().__init__()

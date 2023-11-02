@@ -24,14 +24,14 @@ PARAM_DESCRIPTION_TIMEOUT = 3
 
 
 class BaseController(QWidget):
-    NAME = "Unknown"
+    NAME = UNKNOWN
 
-    CONTROLLER_PKG = "Unknown"
-    TAKEOFF_PKG = "Unknown"
-    LANDING_PKG = "Unknown"
-    PARAM_SERVER_NODE = "Unknown"
+    CONTROLLER_PKG = UNKNOWN
+    TAKEOFF_PKG = UNKNOWN
+    LANDING_PKG = UNKNOWN
+    PARAM_SERVER_NODE = UNKNOWN
 
-    COMMAND_MSGS = ["Unknown"]
+    COMMAND_MSGS = [UNKNOWN]
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()
