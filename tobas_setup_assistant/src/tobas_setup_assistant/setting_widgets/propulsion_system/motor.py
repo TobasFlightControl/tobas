@@ -25,7 +25,7 @@ from .common import ROTARY_WINGS
 
 class MotorWidget(QWidget):
     NO_SELECT = "Select setting method"
-    MANUAL = "Set manually"
+    MOTOR_SPEC = "Set from motor spec"
     EXPERIMENT = "Set from experimental data (recommended)"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -43,15 +43,15 @@ class MotorWidget(QWidget):
         self._rows.addWidget(title)
 
         self.setting_method = ComboBox()
-        self.setting_method.addItems([self.NO_SELECT, self.MANUAL, self.EXPERIMENT])
+        self.setting_method.addItems([self.NO_SELECT, self.MOTOR_SPEC, self.EXPERIMENT])
         self.setting_method.setCurrentText(self.NO_SELECT)
         self._rows.addWidget(self.setting_method)
 
-        self.manual = MotorWidget_Manual(main, link_name)
-        self._rows.addWidget(self.manual)
+        self._motor_spec = MotorWidget_MotorSpec(main, link_name)
+        self._rows.addWidget(self._motor_spec)
 
-        self.experiment = MotorWidget_Experiment(main, link_name)
-        self._rows.addWidget(self.experiment)
+        self._experiment = MotorWidget_Experiment(main, link_name)
+        self._rows.addWidget(self._experiment)
 
         self._update_visibility()
         self._define_connections()
@@ -72,10 +72,10 @@ class MotorWidget(QWidget):
     def selected(self) -> EscWidget_Base:
         setting_method = self.setting_method.currentText()
 
-        if setting_method == self.MANUAL:
-            return self.manual
+        if setting_method == self.MOTOR_SPEC:
+            return self._motor_spec
         elif setting_method == self.EXPERIMENT:
-            return self.experiment
+            return self._experiment
         else:
             raise RuntimeError()
 
@@ -97,8 +97,8 @@ class MotorWidget(QWidget):
 
     def copy_from(self, src: MotorWidget) -> None:
         self.setting_method.setCurrentText(src.setting_method.currentText())
-        self.manual.copy_from(src.manual)
-        self.experiment.copy_from(src.experiment)
+        self._motor_spec.copy_from(src._motor_spec)
+        self._experiment.copy_from(src._experiment)
 
         self._update_visibility()
 
@@ -109,24 +109,24 @@ class MotorWidget(QWidget):
         setting_method = self.setting_method.currentText()
 
         if setting_method == self.NO_SELECT:
-            self.manual.setVisible(False)
-            self.experiment.setVisible(False)
-        elif setting_method == self.MANUAL:
-            self.manual.setVisible(True)
-            self.experiment.setVisible(False)
+            self._motor_spec.setVisible(False)
+            self._experiment.setVisible(False)
+        elif setting_method == self.MOTOR_SPEC:
+            self._motor_spec.setVisible(True)
+            self._experiment.setVisible(False)
         elif setting_method == self.EXPERIMENT:
-            self.manual.setVisible(False)
-            self.experiment.setVisible(True)
+            self._motor_spec.setVisible(False)
+            self._experiment.setVisible(True)
         else:
             raise RuntimeError(f"Unknown setting method: {setting_method}")
 
     def _selected(self) -> MotorWidget_Base:
         setting_method = self.setting_method.currentText()
 
-        if setting_method == self.MANUAL:
-            return self.manual
+        if setting_method == self.MOTOR_SPEC:
+            return self._motor_spec
         elif setting_method == self.EXPERIMENT:
-            return self.experiment
+            return self._experiment
         else:
             raise RuntimeError(f"Unknown setting method: {setting_method}")
 
@@ -208,7 +208,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         return self._time_const_down.get() * 1e-3
 
 
-class MotorWidget_Manual(MotorWidget_Base):
+class MotorWidget_MotorSpec(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
@@ -223,18 +223,40 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._kv)
 
+        resistance_description = "モータの内部抵抗値．"
+        self._resistance = ParamGetterWidget_SpinBox(
+            "Internal Registance",
+            resistance_description,
+            minimum=1,
+            default=100,
+            suffix=" mΩ",
+        )
+        self._rows.addWidget(self._resistance)
+
     @overrides
     def is_valid(self) -> bool:
         return True
 
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        a = 1.0 / rpm_to_rad_per_sec(self._kv.get())  # 発電係数
-        b = 0.0  # 内部抵抗を無視 (回転数が大きいほど誤差が大きくなる)
+        kv_si = rpm_to_rad_per_sec(self._kv.get())  # [rad/s/V]
+        R = self._resistance.get() / 1000  # [Ω]
+
+        # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
+        ke = 1 / kv_si  # 発電係数 [Vs/rad]
+        kt = 1 / kv_si  # トルク定数 [Nm/A]
+
+        # 空力特性を取得
+        aero = self._main.settings.propulsion_system.selected.get_aerodynamics(
+            self._link_name
+        )
+
+        a = ke
+        b = R * aero.motor_const() * aero.moment_const() / kt
         return a, b
 
     @overrides
-    def copy_from(self, src: MotorWidget_Manual) -> None:
+    def copy_from(self, src: MotorWidget_MotorSpec) -> None:
         super().copy_from(src)
         self._kv.set(src._kv.get())
 
