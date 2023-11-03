@@ -5,7 +5,7 @@
 #include "../include/tobas_mr_pid/position_controller.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace Eigen;
 
 namespace tobas_mr_pid
 {
@@ -13,30 +13,23 @@ PositionController::PositionController()
 {
 }
 
-Vector PositionController::update(
-  const Vector& cur_pos,
-  const Vector& cur_vel,
-  const Vector& tar_pos,
-  const Vector& tar_vel,
+Vector3d PositionController::update(
+  const Vector3d& cur_pos,
+  const Vector3d& cur_vel,
+  const Vector3d& tar_pos,
+  const Vector3d& tar_vel,
   const double& dt)
 {
-  assert(dt >= 0);
-
   // 誤差を計算
-  const Vector ep = tar_pos - cur_pos;
-  ei_ += ep * dt;
-  const Vector ed = tar_vel - cur_vel;
-
-  // アンチワインドアップ
-  dh_std::clamp2d(ei_.x(), ei_.y(), max_hor_int_err_);
-  ei_.z(clamp(ei_.z(), -max_ver_int_err_, max_ver_int_err_));
+  const auto ep = tar_pos - cur_pos;
+  const auto ed = tar_vel - cur_vel;
 
   // 目標加速度を計算
-  Vector tar_acc = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
+  Vector3d tar_acc = pid_.update(ep, ed, dt);
 
   // 目標加速度を制限
   dh_std::clamp2d(tar_acc.x(), tar_acc.y(), max_hor_acc_);
-  tar_acc.z(clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_));
+  tar_acc.z() = clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_);
 
   return tar_acc;
 }
@@ -54,20 +47,23 @@ void PositionController::configure(const PositionControllerConfig& cfg)
   assert(cfg.max_hor_acc_int >= 0);
   assert(cfg.max_ver_acc_int >= 0);
 
-  kp_.x(cfg.hor_kp);
-  kp_.y(cfg.hor_kp);
-  kp_.z(cfg.ver_kp);
-  ki_.x(cfg.hor_ki);
-  ki_.y(cfg.hor_ki);
-  ki_.z(cfg.ver_ki);
-  kd_.x(cfg.hor_kd);
-  kd_.y(cfg.hor_kd);
-  kd_.z(cfg.ver_kd);
+  pid_.kp.x() = cfg.hor_kp;
+  pid_.kp.y() = cfg.hor_kp;
+  pid_.kp.z() = cfg.ver_kp;
+  pid_.ki.x() = cfg.hor_ki;
+  pid_.ki.y() = cfg.hor_ki;
+  pid_.ki.z() = cfg.ver_ki;
+  pid_.kd.x() = cfg.hor_kd;
+  pid_.kd.y() = cfg.hor_kd;
+  pid_.kd.z() = cfg.ver_kd;
 
   max_hor_acc_ = cfg.max_hor_acc;
   max_ver_acc_ = cfg.max_ver_acc;
 
-  max_hor_int_err_ = cfg.hor_ki > 0 ? cfg.max_hor_acc_int / cfg.hor_ki : 0;
-  max_ver_int_err_ = cfg.ver_ki > 0 ? cfg.max_ver_acc_int / cfg.ver_ki : 0;
+  const double max_hor_int_err = cfg.hor_ki > 0 ? cfg.max_hor_acc_int / cfg.hor_ki : 0;
+  const double max_ver_int_err = cfg.ver_ki > 0 ? cfg.max_ver_acc_int / cfg.ver_ki : 0;
+  pid_.i_max.x() = max_hor_int_err;
+  pid_.i_max.y() = max_hor_int_err;
+  pid_.i_max.z() = max_ver_int_err;
 }
 }  // namespace tobas_mr_pid

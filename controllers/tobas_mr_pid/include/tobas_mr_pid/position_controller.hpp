@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dh_kdl/frames.hpp>
+#include <dh_linear_control/pid3.hpp>
 
 namespace tobas_mr_pid
 {
@@ -24,32 +24,27 @@ class PositionController
 public:
   explicit PositionController();
 
-  KDL::Vector update(
-    const KDL::Vector& cur_pos,
-    const KDL::Vector& cur_vel,
-    const KDL::Vector& tar_pos,
-    const KDL::Vector& tar_vel,
+  Eigen::Vector3d update(
+    const Eigen::Vector3d& cur_pos,
+    const Eigen::Vector3d& cur_vel,
+    const Eigen::Vector3d& tar_pos,
+    const Eigen::Vector3d& tar_vel,
     const double& dt);
 
   void configure(const PositionControllerConfig& cfg);
 
-  inline const KDL::Vector& integralError() const;
+  inline const Eigen::Vector3d& integralError() const;
 
 private:
   // Config
-  KDL::Vector kp_;
-  KDL::Vector ki_;
-  KDL::Vector kd_;
   double max_hor_acc_;
   double max_ver_acc_;
-  double max_hor_int_err_;  // [ms] 積分誤差の水平成分の最大値
-  double max_ver_int_err_;  // [ms] 積分誤差の垂直成分の最大値
 
-  KDL::Vector ei_ = KDL::Vector::Zero();  // [ms] 位置の積分誤差
+  ctrl::PID3 pid_;
 };
 
-inline const KDL::Vector& PositionController::integralError() const
+inline const Eigen::Vector3d& PositionController::integralError() const
 {
-  return ei_;
+  return pid_.integralError();
 }
 }  // namespace tobas_mr_pid

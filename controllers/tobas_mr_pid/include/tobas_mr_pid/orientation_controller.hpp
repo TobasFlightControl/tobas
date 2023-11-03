@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dh_std_tools/first_order_filter.hpp>
+#include <dh_linear_control/pid3.hpp>
 #include <dh_kdl/euler.hpp>
 
 namespace tobas_mr_pid
@@ -35,16 +36,15 @@ public:
 
   void configure(const OrientationControllerConfig& cfg);
 
+  inline KDL::Vector integralError() const;
+
 private:
-  // Config
-  KDL::Vector kp_;
-  KDL::Vector ki_;
-  KDL::Vector kd_;
-  double max_atti_int_err_;  // [rads] 積分誤差の姿勢成分の最大値
-  double max_head_int_err_;  // [rads] 積分誤差の方位成分の最大値
-
   dh_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
-
-  KDL::Vector ei_ = KDL::Vector::Zero();
+  ctrl::PID3 pid_;
 };
+
+inline KDL::Vector OrientationController::integralError() const
+{
+  return KDL::Vector(pid_.integralError());
+}
 }  // namespace tobas_mr_pid

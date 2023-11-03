@@ -135,8 +135,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;
 
     // 目標加速度を計算
-    const auto tar_acc_fb =
-      pos_ctrl_.update(pt->pose.pos, cur_vel_W, tar_pvay_->pos, tar_pvay_->vel, dt);
+    const Vector tar_acc_fb = Vector(pos_ctrl_.update(
+      pt->pose.pos.data, cur_vel_W.data, tar_pvay_->pos.data, tar_pvay_->vel.data, dt));
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算
@@ -153,7 +153,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     feedback->target_velocity_local = pt->pose.euler.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = pt->pose.euler * tar_acc;
-    feedback->position_integral_error = pos_ctrl_.integralError();
+    feedback->position_integral_error.data = pos_ctrl_.integralError();
   }
 
   // Rotation Controller

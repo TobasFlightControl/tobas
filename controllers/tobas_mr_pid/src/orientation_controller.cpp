@@ -6,6 +6,7 @@
 #include "../include/tobas_mr_pid/orientation_controller.hpp"
 
 using namespace std;
+using namespace Eigen;
 using namespace KDL;
 
 namespace tobas_mr_pid
@@ -22,31 +23,23 @@ Vector OrientationController::update(
   const Vector& tar_gyro,
   const double& dt)
 {
-  assert(dt >= 0);
-
   // ジャイロノイズ (によるDジャイロのZ成分のノイズ) が回転数に大きく影響するためLPFに通す
   gyro_lpf_.update(cur_gyro, dt);
 
   // オイラー角で誤差を計算する場合
-  const Vector ep(
+  const Vector3d ep(
     tar_rpy.roll - cur_rpy.roll, tar_rpy.pitch - cur_rpy.pitch, tar_rpy.yaw - cur_rpy.yaw);
-  ei_ += ep * dt;
   const Vector gyro_error = tar_gyro - gyro_lpf_.getState();
-  const Vector ed =
-    Vector(eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
+  const Vector3d ed =
+    eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch);
 
   // 機体座標系から見た角軸ベクトルで誤差を計算する場合
   // Z成分にはロールピッチの誤差も含まれ，Z成分のゲインを下げると姿勢追従性能が低下してしまうためボツ
   // const auto ep = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).getRot();
-  // ei_ += ep * dt;
   // const auto ed = tar_gyro - gyro_lpf_.getState();
 
-  // アンチワインドアップ
-  dh_std::clamp2d(ei_.x(), ei_.y(), max_atti_int_err_);
-  ei_.z(clamp(ei_.z(), -max_head_int_err_, max_head_int_err_));
-
-  // PID
-  return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
+  // 目標角加速度を計算
+  return Vector(pid_.update(ep, ed, dt));
 }
 
 void OrientationController::configure(const OrientationControllerConfig& cfg)
@@ -60,17 +53,20 @@ void OrientationController::configure(const OrientationControllerConfig& cfg)
   assert(cfg.max_atti_acc_int >= 0);
   assert(cfg.max_head_acc_int >= 0);
 
-  kp_.x(cfg.atti_kp);
-  kp_.y(cfg.atti_kp);
-  kp_.z(cfg.head_kp);
-  ki_.x(cfg.atti_ki);
-  ki_.y(cfg.atti_ki);
-  ki_.z(cfg.head_ki);
-  kd_.x(cfg.atti_kd);
-  kd_.y(cfg.atti_kd);
-  kd_.z(cfg.head_kd);
+  pid_.kp.x() = cfg.atti_kp;
+  pid_.kp.y() = cfg.atti_kp;
+  pid_.kp.z() = cfg.head_kp;
+  pid_.ki.x() = cfg.atti_ki;
+  pid_.ki.y() = cfg.atti_ki;
+  pid_.ki.z() = cfg.head_ki;
+  pid_.kd.x() = cfg.atti_kd;
+  pid_.kd.y() = cfg.atti_kd;
+  pid_.kd.z() = cfg.head_kd;
 
-  max_atti_int_err_ = cfg.atti_ki > 0 ? cfg.max_atti_acc_int / cfg.atti_ki : 0;
-  max_head_int_err_ = cfg.head_ki > 0 ? cfg.max_head_acc_int / cfg.head_ki : 0;
+  const double max_atti_int_err = cfg.atti_ki > 0 ? cfg.max_atti_acc_int / cfg.atti_ki : 0;
+  const double max_head_int_err = cfg.head_ki > 0 ? cfg.max_head_acc_int / cfg.head_ki : 0;
+  pid_.i_max.x() = max_atti_int_err;
+  pid_.i_max.y() = max_atti_int_err;
+  pid_.i_max.z() = max_head_int_err;
 }
 }  // namespace tobas_mr_pid
