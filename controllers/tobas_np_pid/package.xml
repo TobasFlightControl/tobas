@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>tobas_np_pid</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<depend>message_generation</depend>
+	<depend>dynamic_reconfigure</depend>
+	<depend>nodelet</depend>
+	<depend>pluginlib</depend>
+
+	<depend>tobas_mr_common</depend>
+
+	<export>
+		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export>
+
+</package>
