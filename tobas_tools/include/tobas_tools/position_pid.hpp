@@ -2,9 +2,9 @@
 
 #include <dh_linear_control/pid3.hpp>
 
-namespace tobas_mr_pid
+namespace tobas
 {
-struct PositionControllerConfig
+struct PositionPidConfig
 {
   double hor_kp;
   double hor_ki;
@@ -19,10 +19,10 @@ struct PositionControllerConfig
   double max_ver_acc_int;  // [m/s^2] I成分によって生成される加速度の垂直成分の最大値
 };
 
-class PositionController
+class PositionPid
 {
 public:
-  explicit PositionController();
+  explicit PositionPid();
 
   Eigen::Vector3d update(
     const Eigen::Vector3d& cur_pos,
@@ -31,7 +31,7 @@ public:
     const Eigen::Vector3d& tar_vel,
     const double& dt);
 
-  void configure(const PositionControllerConfig& cfg);
+  void configure(const PositionPidConfig& cfg);
 
   inline const Eigen::Vector3d& integralError() const;
 
@@ -43,7 +43,7 @@ private:
   ctrl::PID3 pid_;
 };
 
-inline const Eigen::Vector3d& PositionController::integralError() const
+inline const Eigen::Vector3d& PositionPid::integralError() const
 {
   return pid_.integralError();
 }

@@ -3,20 +3,20 @@
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 
-#include "../include/tobas_mr_pid/orientation_controller.hpp"
+#include "../include/tobas_tools/orientation_pid.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
 
-namespace tobas_mr_pid
+namespace tobas
 {
-OrientationController::OrientationController()
+OrientationPid::OrientationPid()
 {
   gyro_lpf_.initialize(dh_std::timeConstFromCutoffFreq(kGyroLpfCutoff), Vector::Zero());
 }
 
-Vector OrientationController::update(
+Vector OrientationPid::update(
   const Euler& cur_rpy,
   const Vector& cur_gyro,
   const Euler& tar_rpy,
@@ -42,7 +42,7 @@ Vector OrientationController::update(
   return Vector(pid_.update(ep, ed, dt));
 }
 
-void OrientationController::configure(const OrientationControllerConfig& cfg)
+void OrientationPid::configure(const OrientationPidConfig& cfg)
 {
   assert(cfg.atti_kp >= 0);
   assert(cfg.atti_ki >= 0);

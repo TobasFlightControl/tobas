@@ -12,17 +12,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	dh_kdl
 	dh_ros_tools
-	dh_eigen_tools
-	dh_std_tools
+	dh_kdl
+	dh_linear_control
 	tobas_msgs
 )
 
 catkin_package(
 	INCLUDE_DIRS include XYZgeomag/src
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS dh_kdl dh_ros_tools dh_eigen_tools dh_std_tools tobas_msgs
+	CATKIN_DEPENDS dh_ros_tools dh_kdl dh_linear_control tobas_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} XYZgeomag/src)

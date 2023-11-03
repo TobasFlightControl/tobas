@@ -2,18 +2,18 @@
 
 #include <dh_std_tools/algorithm.hpp>
 
-#include "../include/tobas_mr_pid/position_controller.hpp"
+#include "../include/tobas_tools/position_pid.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_mr_pid
+namespace tobas
 {
-PositionController::PositionController()
+PositionPid::PositionPid()
 {
 }
 
-Vector3d PositionController::update(
+Vector3d PositionPid::update(
   const Vector3d& cur_pos,
   const Vector3d& cur_vel,
   const Vector3d& tar_pos,
@@ -34,7 +34,7 @@ Vector3d PositionController::update(
   return tar_acc;
 }
 
-void PositionController::configure(const PositionControllerConfig& cfg)
+void PositionPid::configure(const PositionPidConfig& cfg)
 {
   assert(cfg.hor_kp >= 0);
   assert(cfg.hor_ki >= 0);

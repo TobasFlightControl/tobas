@@ -4,9 +4,9 @@
 #include <dh_linear_control/pid3.hpp>
 #include <dh_kdl/euler.hpp>
 
-namespace tobas_mr_pid
+namespace tobas
 {
-struct OrientationControllerConfig
+struct OrientationPidConfig
 {
   double atti_kp;
   double atti_ki;
@@ -19,13 +19,13 @@ struct OrientationControllerConfig
   double max_head_acc_int;  // [rad/s^2] I成分によって生成される角加速度の方位成分の最大値
 };
 
-class OrientationController
+class OrientationPid
 {
   // Constants
   static constexpr uint32_t kGyroLpfCutoff = 20;
 
 public:
-  explicit OrientationController();
+  explicit OrientationPid();
 
   KDL::Vector update(
     const KDL::Euler& cur_rpy,
@@ -34,7 +34,7 @@ public:
     const KDL::Vector& tar_gyro,
     const double& dt);
 
-  void configure(const OrientationControllerConfig& cfg);
+  void configure(const OrientationPidConfig& cfg);
 
   inline KDL::Vector integralError() const;
 
@@ -43,7 +43,7 @@ private:
   ctrl::PID3 pid_;
 };
 
-inline KDL::Vector OrientationController::integralError() const
+inline KDL::Vector OrientationPid::integralError() const
 {
   return KDL::Vector(pid_.integralError());
 }

@@ -8,19 +8,17 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/position_pid.hpp>
+#include <tobas_tools/orientation_pid.hpp>
+#include <tobas_mr_common/accel_attitude_converter.hpp>
+#include <tobas_mr_common/mixer.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_common/accel_attitude_converter.hpp>
-#include <tobas_mr_common/mixer.hpp>
-
 #include <tobas_mr_pid/ControllerConfig.h>
-
-#include "./position_controller.hpp"
-#include "./orientation_controller.hpp"
 
 namespace tobas_mr_pid
 {
@@ -45,15 +43,15 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  PositionController pos_ctrl_;
+  tobas::PositionPid pos_ctrl_;
   tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
-  OrientationController ori_ctrl_;
+  tobas::OrientationPid ori_ctrl_;
   tobas_mr_common::Mixer mixer_;
 
   // Dynamic parameters
-  PositionControllerConfig pos_cfg_;
+  tobas::PositionPidConfig pos_cfg_;
   tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
-  OrientationControllerConfig ori_cfg_;
+  tobas::OrientationPidConfig ori_cfg_;
 
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;
