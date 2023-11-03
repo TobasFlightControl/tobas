@@ -13,8 +13,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_mr_common
-	tobas_tools
-	dh_linear_control
 	message_generation
 	dynamic_reconfigure
 	nodelet
@@ -41,8 +39,6 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_mr_common
-		tobas_tools
-		dh_linear_control
 		message_generation
 		dynamic_reconfigure
 		nodelet

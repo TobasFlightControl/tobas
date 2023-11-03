@@ -15,8 +15,6 @@
 	<depend>pluginlib</depend>
 
 	<depend>tobas_mr_common</depend>
-	<depend>tobas_tools</depend>
-	<depend>dh_linear_control</depend>
 
 	<export>
 		<nodelet plugin="${prefix}/nodelet_description.xml"/>
