@@ -1,24 +1,24 @@
-#include <Eigen/Core>
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
 #include <dh_std_tools/stopwatch.hpp>
+#include <dh_kdl/jntarray.hpp>
 #include <dh_kdl/treejntnameparser.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/drone.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
-#include <tobas_mr_common/accel_attitude_converter.hpp>
-#include <tobas_mr_common/mixer.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/PosVelAccYaw.h>
-#include <tobas_msgs/RollPitchYawThrust.h>
+#include <tobas_msgs/PoseTwistAccelCommand.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
 #include <tobas_np_pid/ControllerConfig.h>
+
+#include "./mixer.hpp"
 
 namespace tobas_np_pid
 {
@@ -40,25 +40,22 @@ private:
   // Drone
   tobas::Drone drone_;
   KDL::TreeJointNameParser jnt_name_parser_;
-  tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas::PositionPid pos_ctrl_;
-  tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
-  tobas::OrientationPid ori_ctrl_;
-  tobas_mr_common::Mixer mixer_;
+  tobas::PositionPid pos_pid_;
+  tobas::OrientationPid ori_pid_;
+  Mixer mixer_;
 
   // Dynamic parameters
   tobas::PositionPidConfig pos_cfg_;
-  tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
   tobas::OrientationPidConfig ori_cfg_;
+  MixerConfig mixer_cfg_;
 
   // Mutable variables
   tobas_msgs::PoseTwistConstPtr pt_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
-  tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
-  tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
+  tobas_msgs::PoseTwistAccelCommandConstPtr cmd_;
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   KDL::JntArray q_;  // 全ての非固定関節の角度
@@ -72,8 +69,7 @@ private:
   ros::Subscriber pt_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
-  ros::Subscriber pvay_sub_;
-  ros::Subscriber rpyt_sub_;
+  ros::Subscriber cmd_sub_;
 
   // Timers
   dh_ros::Timer check_topics_timer_;
@@ -86,13 +82,13 @@ private:
   void registerSubscribers() override;
 
   bool isReady() const;
+  void updateJointArray();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
-  void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);
-  void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt);
+  void commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);

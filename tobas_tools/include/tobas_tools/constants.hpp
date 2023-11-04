@@ -3,6 +3,8 @@
 #include <cinttypes>
 #include <cmath>
 
+#include <dh_kdl/vector.hpp>
+
 namespace tobas
 {
 static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
@@ -46,6 +48,7 @@ static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
 static constexpr char kPositionYawCmdTopic[] = "command/position_yaw";
 static constexpr char kVelocityYawCmdTopic[] = "command/velocity_yaw";
 static constexpr char kRpyThrustCmdTopic[] = "command/rpy_thrust";
+static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
 static constexpr char kBatteryGtTopic[] = "ground_truth/battery";
 static constexpr char kWindGtTopic[] = "ground_truth/wind";
@@ -65,4 +68,6 @@ static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
 
 static constexpr uint32_t kStopwatchSamples = 100;
+
+static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
 }  // namespace tobas

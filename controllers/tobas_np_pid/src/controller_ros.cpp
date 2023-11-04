@@ -21,8 +21,6 @@ ControllerRos::ControllerRos(
   const string& name)
   : super(nh, pnh, name),
     jnt_name_parser_(drone_.tree()),
-    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    acc_ctrl_(drone_),
     mixer_(drone_),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
@@ -31,8 +29,6 @@ ControllerRos::ControllerRos(
   drone_.loadFromParam(nh_);
 
   jnt_name_parser_.updateInternalDataStructures();
-  z_rotors_.updateInternalDataStructures();
-  acc_ctrl_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
@@ -67,9 +63,7 @@ void ControllerRos::registerSubscribers()
       nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
   }
 
-  pvay_sub_ =
-    nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
-  rpyt_sub_ = nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &self::rpyThrustCb, this, tcpNoDelay());
+  cmd_sub_ = nh_.subscribe(tobas::kPoseTwistAccelCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 }
 
 bool ControllerRos::isReady() const
@@ -84,6 +78,23 @@ bool ControllerRos::isReady() const
     return false;
 
   return true;
+}
+
+void ControllerRos::updateJointArray()
+{
+  for (const auto& jnt_name : drone_.postureDefiningJoints())
+  {
+    try
+    {
+      const auto& kdl_idx = jnt_name_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
+      const auto msg_idx = dh_std::findIndex(js_->name, jnt_name);  // msg内でのインデックス
+      q_(kdl_idx) = js_->position[msg_idx];
+    }
+    catch (const exception& e)
+    {
+      rosError(name_, e.what());
+    }
+  }
 }
 
 void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -119,96 +130,49 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   const auto dt = (pt->header.stamp - t_last_loop_).toSec();
   t_last_loop_ = pt->header.stamp;
 
-  // Create a feedback message
+  // コマンドが来ていなければスキップ
+  if (cmd_ == nullptr)
+    return;
+
+  // 可動関節の角度を更新
+  if (drone_.isTransformable())
+    updateJointArray();
+
+  // 位置制御器
+  const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;  // 世界座標系から見た現在の速度
+  const Vector tar_acc_fb(
+    pos_pid_.update(pt->pose.pos.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
+  const Vector tar_acc_W = cmd_->acc + tar_acc_fb;
+
+  // 姿勢制御器
+  const Vector tar_dgyro_fb =
+    ori_pid_.update(pt->pose.euler, pt->twist.rot, cmd_->rpy, cmd_->gyro, dt);
+  const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
+
+  // プロペラの推力を計算
+  // TODO: H-momentを考慮
+  const VectorXd thrusts =
+    mixer_.solve(battery_->voltage, q_, pt->pose.euler, pt->twist.rot, tar_acc_W, tar_dgyro_B);
+
+  // 回転数を発行
+  const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  rotor_speeds->header.stamp = pt->header.stamp;
+  rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
+  for (uint32_t i = 0; i < thrusts.rows(); ++i)
+    rotor_speeds->speeds[i] = drone_.rotSpeedFromThrust(i, max(0., thrusts(i)));
+  rotor_speeds_pub_.publish(rotor_speeds);
+
+  // フィードバックを発行
   auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();
   feedback->header.stamp = pt->header.stamp;
-
-  // Translation Controller
-  if (tar_pvay_ != nullptr)
-  {
-    if (tar_rpyt_ == nullptr)
-    {
-      tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
-    }
-
-    // 世界座標系から見た現在の速度を計算
-    const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;
-
-    // 目標加速度を計算
-    const Vector tar_acc_fb = Vector(pos_ctrl_.update(
-      pt->pose.pos.data, cur_vel_W.data, tar_pvay_->pos.data, tar_pvay_->vel.data, dt));
-    const auto tar_acc = tar_pvay_->acc + tar_acc_fb;
-
-    // 推力和と目標姿勢を計算
-    acc_ctrl_.update(
-      pt->pose.euler, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
-
-    // コマンドレベルとヨー角は加速度指令をそのまま流す
-    tar_rpyt_->level = tar_pvay_->level;
-    tar_rpyt_->rpy.yaw = tar_pvay_->yaw;
-
-    // Fill feedback
-    feedback->target_position = tar_pvay_->pos;
-    feedback->target_velocity_global = tar_pvay_->vel;
-    feedback->target_velocity_local = pt->pose.euler.inverse(tar_pvay_->vel);
-    feedback->target_acceleration_global = tar_acc;
-    feedback->target_acceleration_local = pt->pose.euler * tar_acc;
-    feedback->position_integral_error.data = pos_ctrl_.integralError();
-  }
-
-  // Rotation Controller
-  if (tar_rpyt_ != nullptr)
-  {
-    // 可動関節角を更新
-    // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
-    if (drone_.isTransformable())
-    {
-      for (const auto& jnt_name : drone_.postureDefiningJoints())
-      {
-        try
-        {
-          const auto msg_idx = dh_std::findIndex(js_->name, jnt_name);  // msg内でのインデックス
-          const auto& jnt_pos = js_->position[msg_idx];
-          const auto& kdl_idx = jnt_name_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
-          q_(kdl_idx) = jnt_pos;
-        }
-        catch (const exception& e)
-        {
-          rosError(name_, e.what());
-        }
-      }
-    }
-
-    // 目標角加速度を計算
-    const auto tar_dgyro =
-      ori_ctrl_.update(pt->pose.euler, pt->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
-
-    // プロペラの推力を計算
-    // TODO: H-momentを考慮
-    const VectorXd thrusts = mixer_.solve(
-      dt, battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
-      tar_rpyt_->thrust);
-
-    // モータ速度メッセージを作成
-    const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-    rotor_speeds->header.stamp = pt->header.stamp;
-    rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    for (uint32_t i = 0; i < thrusts.rows(); ++i)
-    {
-      rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
-        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts(i)));
-    }
-
-    // モータ速度を発行
-    rotor_speeds_pub_.publish(rotor_speeds);
-
-    // Fill feedback
-    feedback->target_rotation = tar_rpyt_->rpy;
-    feedback->target_thrust = tar_rpyt_->thrust;
-
-    // Publish feedback
-    feedback_pub_.publish(feedback);
-  }
+  feedback->target_position = cmd_->pos;
+  feedback->target_velocity_global = cmd_->vel;
+  feedback->target_velocity_local = pt->pose.euler.inverse(cmd_->vel);
+  feedback->target_acceleration_global = tar_acc_W;
+  feedback->target_acceleration_local = pt->pose.euler.inverse(tar_acc_W);
+  feedback->target_orientation = cmd_->rpy;
+  feedback->position_integral_error.data = pos_pid_.integralError();
+  feedback_pub_.publish(feedback);
 }
 
 void ControllerRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
@@ -227,40 +191,17 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
   js_ = js;
 }
 
-void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
+void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd)
 {
   if (pt_ == nullptr)
     return;
 
   // コマンドレベルの処理
-  if (!updateCommandLevel(cmd_level_, pvay->level.data))
+  if (!updateCommandLevel(cmd_level_, cmd->level.data))
     return;
 
   // コマンドを更新
-  tar_pvay_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
-
-  // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, pt_->pose.euler, *tar_pvay_))
-  {
-    rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
-    tar_pvay_ = nullptr;
-    return;
-  }
-}
-
-void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt)
-{
-  if (pt_ == nullptr)
-    return;
-
-  if (!updateCommandLevel(cmd_level_, rpyt->level.data))
-    return;
-
-  // 外側の制御を止める
-  tar_pvay_ = nullptr;
-
-  // コマンドを更新
-  tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpyt);
+  cmd_ = cmd;
 }
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
@@ -288,11 +229,7 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
   pos_cfg_.max_hor_acc_int = cfg.max_horizontal_accel_I;
   pos_cfg_.max_ver_acc_int = cfg.max_vertical_accel_I;
-  pos_ctrl_.configure(pos_cfg_);
-
-  acc_cfg_.max_attitude = cfg.max_attitude;
-  acc_cfg_.h_force_comp_rate = 0;  // TODO
-  acc_ctrl_.configure(acc_cfg_);
+  pos_pid_.configure(pos_cfg_);
 
   ori_cfg_.atti_kp = cfg.attitude_p_gain;
   ori_cfg_.atti_ki = cfg.attitude_i_gain;
@@ -302,7 +239,7 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   ori_cfg_.head_kd = cfg.heading_d_gain;
   ori_cfg_.max_atti_acc_int = cfg.max_attitude_accel_I;
   ori_cfg_.max_head_acc_int = cfg.max_heading_accel_I;
-  ori_ctrl_.configure(ori_cfg_);
+  ori_pid_.configure(ori_cfg_);
 
   // TODO: Mixerの設定
 
