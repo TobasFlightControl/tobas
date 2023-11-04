@@ -150,7 +150,6 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // プロペラの推力を計算
-  // TODO: H-momentを考慮
   const VectorXd thrusts =
     mixer_.solve(battery_->voltage, q_, pt->pose.euler, pt->twist.rot, tar_acc_W, tar_dgyro_B);
 
@@ -241,7 +240,10 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
   ori_cfg_.max_head_acc_int = cfg.max_heading_accel_I;
   ori_pid_.configure(ori_cfg_);
 
-  // TODO: Mixerの設定
+  mixer_cfg_.linear_weight = cfg.mixer_linear_weight;
+  mixer_cfg_.angular_weight = cfg.mixer_angular_weight;
+  mixer_cfg_.thrust_weight_log10 = cfg.mixer_thrust_weight_log10;
+  mixer_.configure(mixer_cfg_);
 
   rosInfo(name_, "Dynamic parameters are updated.");
 }

@@ -11,6 +11,7 @@ enum struct Axis
 {
   X_POSITIVE,
   Z_POSITIVE,
+  UNKNOWN,  // TODO
 };
 
 enum struct ESCType

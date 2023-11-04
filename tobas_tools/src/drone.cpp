@@ -99,7 +99,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
   else if (axis == "z_positive")
     res.axis = Axis::Z_POSITIVE;
   else
-    throw runtime_error("Invalid rotation axis: " + axis);
+    res.axis = Axis::UNKNOWN;
 
   // Direction
   string direction;

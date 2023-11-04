@@ -183,8 +183,7 @@ class SelectedLinkTabWidget(QWidget):
         elif axis.is_collinear(Vector.UnitZ(), PROP_TILT_TOL):
             return AxisType.Z_POSITIVE
         else:
-            # TODO: その他の回転軸に対応
-            raise RuntimeError(f"Invalid rotation axis: {axis}")
+            return UNKNOWN  # TODO
 
     def _define_connections(self) -> None:
         self.copy_button.clicked.connect(self._copy_from_left_tab)

@@ -455,6 +455,10 @@ class PackageGenerator(QObject):
             if child.tag == "gazebo":
                 for gchild in child:
                     if gchild.tag == "plugin":
+                        # Tobasのプラグインは問答無用で消す
+                        if gchild.attrib["filename"].startswith("libtobas"):
+                            robot.remove(child)
+                            continue
                         # RotorSのプラグインは問答無用で消す
                         if gchild.attrib["filename"].startswith("librotors"):
                             robot.remove(child)
