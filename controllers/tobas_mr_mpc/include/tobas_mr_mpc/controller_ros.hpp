@@ -99,6 +99,7 @@ private:
   void registerSubscribers() override;
 
   bool isReady() const;
+  void updateJointArray();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);

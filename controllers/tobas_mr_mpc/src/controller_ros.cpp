@@ -96,6 +96,23 @@ bool ControllerRos::isReady() const
   return true;
 }
 
+void ControllerRos::updateJointArray()
+{
+  for (const auto& jnt_name : drone_.postureDefiningJoints())
+  {
+    try
+    {
+      const auto& kdl_idx = jnt_name_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
+      const auto msg_idx = dh_std::findIndex(js_->name, jnt_name);  // msg内でのインデックス
+      q_(kdl_idx) = js_->position[msg_idx];
+    }
+    catch (const exception& e)
+    {
+      rosError(name_, e.what());
+    }
+  }
+}
+
 void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -166,7 +183,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     feedback->target_velocity_global = tar_pvay_->vel;
     feedback->target_velocity_local = pt->pose.euler.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
-    feedback->target_acceleration_local = pt->pose.euler * tar_acc;
+    feedback->target_acceleration_local = pt->pose.euler.inverse(tar_acc);
     feedback->position_integral_error = Vector(pos_ctrl_.positionIntegralError());
   }
 
@@ -176,22 +193,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // 可動関節角を更新
     // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
     if (drone_.isTransformable())
-    {
-      for (const auto& jnt_name : drone_.postureDefiningJoints())
-      {
-        try
-        {
-          const auto msg_idx = dh_std::findIndex(js_->name, jnt_name);  // msg内でのインデックス
-          const auto& jnt_pos = js_->position[msg_idx];
-          const auto& kdl_idx = jnt_name_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
-          q_(kdl_idx) = jnt_pos;
-        }
-        catch (const exception& e)
-        {
-          rosError(name_, e.what());
-        }
-      }
-    }
+      updateJointArray();
 
     // プロペラ推力を計算
     try
