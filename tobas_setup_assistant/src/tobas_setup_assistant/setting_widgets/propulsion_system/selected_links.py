@@ -183,7 +183,7 @@ class SelectedLinkTabWidget(QWidget):
         elif axis.is_collinear(Vector.UnitZ(), PROP_TILT_TOL):
             return AxisType.Z_POSITIVE
         else:
-            return UNKNOWN  # TODO
+            return AxisType.UNKNOWN
 
     def _define_connections(self) -> None:
         self.copy_button.clicked.connect(self._copy_from_left_tab)
