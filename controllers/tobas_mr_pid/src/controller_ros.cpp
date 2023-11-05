@@ -204,7 +204,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     rotor_speeds_pub_.publish(rotor_speeds);
 
     // Fill feedback
-    feedback->target_rotation = tar_rpyt_->rpy;
+    feedback->target_orientation = tar_rpyt_->rpy;
     feedback->target_thrust = tar_rpyt_->thrust;
 
     // Publish feedback

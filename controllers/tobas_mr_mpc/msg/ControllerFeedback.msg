@@ -5,7 +5,7 @@ dh_kdl_msgs/Vector target_velocity_global
 dh_kdl_msgs/Vector target_velocity_local
 dh_kdl_msgs/Vector target_acceleration_global
 dh_kdl_msgs/Vector target_acceleration_local
-dh_kdl_msgs/Euler target_rotation
+dh_kdl_msgs/Euler target_orientation
 float64 target_thrust
 float64[] target_thrusts
 float64[] mpc_thrusts
