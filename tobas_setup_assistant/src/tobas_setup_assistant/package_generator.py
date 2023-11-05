@@ -205,6 +205,7 @@ class PackageGenerator(QObject):
         if (
             PositionYaw.__name__ in command_msgs
             or PosVelAccYaw.__name__ in command_msgs
+            or PoseTwistAccelCommand.__name__ in command_msgs
         ):
             self._generate_from_template(
                 items,

@@ -12,7 +12,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.messages import *
 from kdl_sympy.frames import Vector
 
-from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrust
+from tobas_msgs.msg import PoseTwistAccelCommand
 
 from ...parameter_getters import *
 from ...common import *
@@ -27,7 +27,7 @@ class NonPlanarPid(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     PARAM_SERVER_NODE = "tobas_np_pid"
 
-    COMMAND_MSGS = [PosVelAccYaw.__name__, RollPitchYawThrust.__name__]
+    COMMAND_MSGS = [PoseTwistAccelCommand.__name__]
 
     MIN_NUM_PROP = 3
 

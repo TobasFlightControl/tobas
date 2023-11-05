@@ -15,24 +15,33 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import Slider, add_expanding_widget
-from tobas_msgs.msg import PositionYaw, PosVelAccYaw, CommandLevel, PoseTwist
+from tobas_msgs.msg import (
+    PositionYaw,
+    PosVelAccYaw,
+    PoseTwistAccelCommand,
+    CommandLevel,
+    PoseTwist,
+)
 
 from .utils import remap
 
 
 class CommandersWidget(QScrollArea):
     LABEL_PSIZE = 12
-    CONTROL_RATE = 30.0  # [Hz]
 
-    DEFAULT_INITIAL_ELEVATION = 0.0  # [m]
-    DEFAULT_MINIMUM_X = -10.0  # [m]
-    DEFAULT_MAXIMUM_X = 10.0  # [m]
-    DEFAULT_MINIMUM_Y = -10.0  # [m]
-    DEFAULT_MAXIMUM_Y = 10.0  # [m]
-    DEFAULT_MINIMUM_Z = -3.0  # [m]
-    DEFAULT_MAXIMUM_Z = 10.0  # [m]
-    DEFAULT_MINIMUM_YAW = -math.pi  # [rad]
-    DEFAULT_MAXIMUM_YAW = math.pi  # [rad]
+    DEFAULT_INIT_ELEVATION = 0.0  # [m]
+    DEFAULT_MIN_X = -10.0  # [m]
+    DEFAULT_MAX_X = 10.0  # [m]
+    DEFAULT_MIN_Y = -10.0  # [m]
+    DEFAULT_MAX_Y = 10.0  # [m]
+    DEFAULT_MIN_Z = -3.0  # [m]
+    DEFAULT_MAX_Z = 10.0  # [m]
+    DEFAULT_MIN_ROLL = -math.pi / 3  # [rad]
+    DEFAULT_MAX_ROLL = math.pi / 3  # [rad]
+    DEFAULT_MIN_PITCH = -math.pi / 3  # [rad]
+    DEFAULT_MAX_PITCH = math.pi / 3  # [rad]
+    DEFAULT_MIN_YAW = -math.pi  # [rad]
+    DEFAULT_MAX_YAW = math.pi  # [rad]
 
     def __init__(self, main: GuiTeleopWidget) -> None:
         super().__init__()
@@ -45,6 +54,10 @@ class CommandersWidget(QScrollArea):
         self._y_max = 0.0
         self._z_min = 0.0
         self._z_max = 0.0
+        self._roll_min = 0.0
+        self._roll_max = 0.0
+        self._pitch_min = 0.0
+        self._pitch_max = 0.0
         self._yaw_min = 0.0
         self._yaw_max = 0.0
         self._init_elevation = 0.0
@@ -67,21 +80,27 @@ class CommandersWidget(QScrollArea):
         drone_label.setAlignment(Qt.AlignCenter)
         self._rows.addWidget(drone_label)
 
-        # X, Y, Z, Yawに対応するバーを追加
-        self.drone_cmd_x = Commander("multirotor/x", self._x_min, self._x_max)
-        self.drone_cmd_y = Commander("multirotor/y", self._y_min, self._y_max)
-        self.drone_cmd_z = Commander("multirotor/z", self._z_min, self._z_max)
-        self.drone_cmd_yaw = Commander("multirotor/yaw", self._yaw_min, self._yaw_max)
-        self._rows.addWidget(self.drone_cmd_x)
-        self._rows.addWidget(self.drone_cmd_y)
-        self._rows.addWidget(self.drone_cmd_z)
-        self._rows.addWidget(self.drone_cmd_yaw)
+        # XYZRPYに対応するバーを追加
+        self._drone_cmd_x = Commander("x", self._x_min, self._x_max)
+        self._drone_cmd_y = Commander("y", self._y_min, self._y_max)
+        self._drone_cmd_z = Commander("z", self._z_min, self._z_max)
+        self._drone_cmd_roll = Commander("roll", self._roll_min, self._roll_max)
+        self._drone_cmd_pitch = Commander("pitch", self._pitch_min, self._pitch_max)
+        self._drone_cmd_yaw = Commander("yaw", self._yaw_min, self._yaw_max)
+        self._rows.addWidget(self._drone_cmd_x)
+        self._rows.addWidget(self._drone_cmd_y)
+        self._rows.addWidget(self._drone_cmd_z)
+        self._rows.addWidget(self._drone_cmd_roll)
+        self._rows.addWidget(self._drone_cmd_pitch)
+        self._rows.addWidget(self._drone_cmd_yaw)
 
         # 最初はバーを無効化
-        self.drone_cmd_x.setEnabled(False)
-        self.drone_cmd_y.setEnabled(False)
-        self.drone_cmd_z.setEnabled(False)
-        self.drone_cmd_yaw.setEnabled(False)
+        self._drone_cmd_x.setEnabled(False)
+        self._drone_cmd_y.setEnabled(False)
+        self._drone_cmd_z.setEnabled(False)
+        self._drone_cmd_roll.setEnabled(False)
+        self._drone_cmd_pitch.setEnabled(False)
+        self._drone_cmd_yaw.setEnabled(False)
 
         # その他の可動関節
         robot: Robot = Robot.from_parameter_server("robot_description")
@@ -112,6 +131,9 @@ class CommandersWidget(QScrollArea):
         self._pvay_pub = rospy.Publisher(
             "command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1
         )
+        self._pta_pub = rospy.Publisher(
+            "command/pose_twist_accel", PoseTwistAccelCommand, queue_size=1
+        )
         self._bs_sub = rospy.Subscriber(
             "pose_twist", PoseTwist, self._pose_twist_cb, queue_size=1
         )
@@ -119,10 +141,12 @@ class CommandersWidget(QScrollArea):
         add_expanding_widget(self._rows)
 
     def define_connections(self) -> None:
-        self.drone_cmd_x.value_changed.connect(self._publish_drone_cmd)
-        self.drone_cmd_y.value_changed.connect(self._publish_drone_cmd)
-        self.drone_cmd_z.value_changed.connect(self._publish_drone_cmd)
-        self.drone_cmd_yaw.value_changed.connect(self._publish_drone_cmd)
+        self._drone_cmd_x.value_changed.connect(self._publish_drone_cmd)
+        self._drone_cmd_y.value_changed.connect(self._publish_drone_cmd)
+        self._drone_cmd_z.value_changed.connect(self._publish_drone_cmd)
+        self._drone_cmd_roll.value_changed.connect(self._publish_drone_cmd)
+        self._drone_cmd_pitch.value_changed.connect(self._publish_drone_cmd)
+        self._drone_cmd_yaw.value_changed.connect(self._publish_drone_cmd)
 
     def publish(self) -> None:
         """現在設定されている値を全て発行する．"""
@@ -132,22 +156,32 @@ class CommandersWidget(QScrollArea):
             joint_cmd.publish()
 
     def _get_params(self) -> None:
-        self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MINIMUM_X)
-        self._x_max = rospy.get_param("~pose_limit/x/max", self.DEFAULT_MAXIMUM_X)
-        self._y_min = rospy.get_param("~pose_limit/y/min", self.DEFAULT_MINIMUM_Y)
-        self._y_max = rospy.get_param("~pose_limit/y/max", self.DEFAULT_MAXIMUM_Y)
-        self._z_min = rospy.get_param("~pose_limit/z/min", self.DEFAULT_MINIMUM_Z)
-        self._z_max = rospy.get_param("~pose_limit/z/max", self.DEFAULT_MAXIMUM_Z)
-        self._yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MINIMUM_YAW)
-        self._yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAXIMUM_YAW)
+        self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
+        self._x_max = rospy.get_param("~pose_limit/x/max", self.DEFAULT_MAX_X)
+        self._y_min = rospy.get_param("~pose_limit/y/min", self.DEFAULT_MIN_Y)
+        self._y_max = rospy.get_param("~pose_limit/y/max", self.DEFAULT_MAX_Y)
+        self._z_min = rospy.get_param("~pose_limit/z/min", self.DEFAULT_MIN_Z)
+        self._z_max = rospy.get_param("~pose_limit/z/max", self.DEFAULT_MAX_Z)
+        self._roll_min = rospy.get_param("~pose_limit/roll/min", self.DEFAULT_MIN_ROLL)
+        self._roll_max = rospy.get_param("~pose_limit/roll/max", self.DEFAULT_MAX_ROLL)
+        self._pitch_min = rospy.get_param(
+            "~pose_limit/pitch/min", self.DEFAULT_MIN_PITCH
+        )
+        self._pitch_max = rospy.get_param(
+            "~pose_limit/pitch/max", self.DEFAULT_MAX_PITCH
+        )
+        self._yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MIN_YAW)
+        self._yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAX_YAW)
         self._init_elevation = rospy.get_param(
-            "~initial_elevation", self.DEFAULT_INITIAL_ELEVATION
+            "~initial_elevation", self.DEFAULT_INIT_ELEVATION
         )
         self._joint_names = rospy.get_param("posture_defining_joint_names")
 
         assert self._x_min <= self._x_max
         assert self._y_min <= self._y_max
         assert self._z_min <= self._z_max
+        assert self._roll_min <= 0.0 <= self._roll_max
+        assert self._pitch_min <= 0.0 <= self._pitch_max
         assert self._yaw_min <= self._yaw_max
         assert self._init_elevation >= 0.0
 
@@ -155,35 +189,49 @@ class CommandersWidget(QScrollArea):
     def _publish_drone_cmd(self) -> None:
         pos_yaw = PositionYaw()
         pos_yaw.level.data = CommandLevel.NORMAL
-        pos_yaw.pos.x = self.drone_cmd_x.get_value()
-        pos_yaw.pos.y = self.drone_cmd_y.get_value()
-        pos_yaw.pos.z = self.drone_cmd_z.get_value()
-        pos_yaw.yaw = self.drone_cmd_yaw.get_value()
+        pos_yaw.pos.x = self._drone_cmd_x.get_value()
+        pos_yaw.pos.y = self._drone_cmd_y.get_value()
+        pos_yaw.pos.z = self._drone_cmd_z.get_value()
+        pos_yaw.yaw = self._drone_cmd_yaw.get_value()
         self._pos_yaw_pub.publish(pos_yaw)
 
         pvay = PosVelAccYaw()
         pvay.level.data = CommandLevel.NORMAL
-        pvay.pos.x = self.drone_cmd_x.get_value()
-        pvay.pos.y = self.drone_cmd_y.get_value()
-        pvay.pos.z = self.drone_cmd_z.get_value()
-        pvay.yaw = self.drone_cmd_yaw.get_value()
+        pvay.pos.x = self._drone_cmd_x.get_value()
+        pvay.pos.y = self._drone_cmd_y.get_value()
+        pvay.pos.z = self._drone_cmd_z.get_value()
+        pvay.yaw = self._drone_cmd_yaw.get_value()
         self._pvay_pub.publish(pvay)
+
+        pta = PoseTwistAccelCommand()
+        pta.level.data = CommandLevel.NORMAL
+        pta.pos.x = self._drone_cmd_x.get_value()
+        pta.pos.y = self._drone_cmd_y.get_value()
+        pta.pos.z = self._drone_cmd_z.get_value()
+        pta.rpy.roll = self._drone_cmd_roll.get_value()
+        pta.rpy.pitch = self._drone_cmd_pitch.get_value()
+        pta.rpy.yaw = self._drone_cmd_yaw.get_value()
+        self._pta_pub.publish(pta)
 
     def _pose_twist_cb(self, pt: PoseTwist) -> None:
         if self._pt_received:
             return
 
-        # 最初に受け取った状態を初期コマンドにする
-        self.drone_cmd_x.set_value(pt.pose.pos.x)
-        self.drone_cmd_y.set_value(pt.pose.pos.y)
-        self.drone_cmd_z.set_value(pt.pose.pos.z + self._init_elevation)
-        self.drone_cmd_yaw.set_value(pt.pose.euler.yaw)
+        # 初期コマンドを設定
+        self._drone_cmd_x.set_value(pt.pose.pos.x)
+        self._drone_cmd_y.set_value(pt.pose.pos.y)
+        self._drone_cmd_z.set_value(pt.pose.pos.z + self._init_elevation)
+        self._drone_cmd_roll.set_value(0.0)
+        self._drone_cmd_pitch.set_value(0.0)
+        self._drone_cmd_yaw.set_value(pt.pose.euler.yaw)
 
         # バーを有効化
-        self.drone_cmd_x.setEnabled(True)
-        self.drone_cmd_y.setEnabled(True)
-        self.drone_cmd_z.setEnabled(True)
-        self.drone_cmd_yaw.setEnabled(True)
+        self._drone_cmd_x.setEnabled(True)
+        self._drone_cmd_y.setEnabled(True)
+        self._drone_cmd_z.setEnabled(True)
+        self._drone_cmd_roll.setEnabled(True)
+        self._drone_cmd_pitch.setEnabled(True)
+        self._drone_cmd_yaw.setEnabled(True)
 
         self._pt_received = True
 
