@@ -47,6 +47,28 @@
     </material>
   </xacro:property>
 
+  <!-- Collisions -->
+  <xacro:macro name="hexagonal_prism_collision" params="side height x0 y0 z0">
+    <collision>
+      <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${sqrt3*side} ${side} ${height}"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 ${60*deg2rad}"/>
+      <geometry>
+        <box size="${sqrt3*side} ${side} ${height}"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 ${-60*deg2rad}"/>
+      <geometry>
+        <box size="${sqrt3*side} ${side} ${height}"/>
+      </geometry>
+    </collision>
+  </xacro:macro>
+
   <!-- Inertia of primitive shapes -->
   <xacro:macro name="cylinder_inertia" params="radius length mass">
     <inertia ixx="${mass*radius*radius/4 + mass*length*length/12}" ixy="0.0" ixz="0.0" iyy="${mass*radius*radius/4 + mass*length*length/12}" iyz="0.0" izz="${mass*radius*radius/2}" />
@@ -62,8 +84,8 @@
   <xacro:macro name="box_inertial" params="x y z mass *origin">
     <inertial>
       <mass value="${mass}" />
-      <xacro:insert_block name="origin" />
-      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}" />
+      <xacro:insert_block name="origin"/>
+      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
     </inertial>
   </xacro:macro>
 

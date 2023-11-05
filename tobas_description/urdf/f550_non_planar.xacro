@@ -38,12 +38,7 @@
       <origin xyz="4.12e-4 8.34e-4 1.0917e-2" rpy="0 0 0"/>
       <inertia ixx="4.970e-2" ixy="-1.85346e-7" ixz="-8.26373e-6" iyy="4.975e-2" iyz="-5.7596072e-5" izz="9.558e-2"/>
     </inertial>
-    <collision>
-      <origin xyz="0 0 ${-frame_height/2}" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="${frame_radius}" length="${frame_height}"/>
-      </geometry>
-    </collision>
+    <xacro:hexagonal_prism_collision side="${frame_radius}" height="${frame_height}" x0="0" y0="0" z0="${-frame_height/2}"/>
   </link>
 
   <!-- Propellers -->
