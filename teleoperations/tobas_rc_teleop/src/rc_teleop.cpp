@@ -9,6 +9,7 @@
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
+#include <tobas_msgs/PoseTwistAccelCommand.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
@@ -49,6 +50,11 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
     {
       mode2cmd_.push_back(RPY_THRUST);
       rpy_thrust_ctrl_.initialize(nh_, pnh_);
+    }
+    else if (mode_name == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
+    {
+      mode2cmd_.push_back(POSE_TWIST_ACCEL);
+      rosError(name_, "Not implemented yet.");  // TODO
     }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {
@@ -178,6 +184,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
           case RPY_THRUST:
             rpy_thrust_ctrl_.reset(*pt_);
             break;
+          case POSE_TWIST_ACCEL:
+            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
+            break;
           case SPEED_ROLL_DPITCH:
             rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
             break;
@@ -203,6 +212,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
           break;
         case RPY_THRUST:
           rpy_thrust_ctrl_.update(*rcin, battery_->voltage, dead_zone_);
+          break;
+        case POSE_TWIST_ACCEL:
+          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
           break;
         case SPEED_ROLL_DPITCH:
           rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO

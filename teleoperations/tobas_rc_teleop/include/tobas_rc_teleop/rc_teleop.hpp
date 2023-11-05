@@ -38,6 +38,7 @@ private:
     POSITION_YAW,
     VELOCITY_YAW,
     RPY_THRUST,
+    POSE_TWIST_ACCEL,
     SPEED_ROLL_DPITCH,
   };
 
