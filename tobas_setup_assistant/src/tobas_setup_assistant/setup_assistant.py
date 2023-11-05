@@ -1,11 +1,9 @@
-import os
 import os.path as osp
-from overrides import overrides
-from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import MainWidget
 from dh_rqt_tools.path import get_proj_path
 
 from .urdf_parser import URDFParser
@@ -15,14 +13,9 @@ from .settings import SettingsWidget
 from .common import *
 
 
-class SetupAssistant(QWidget):
-    POS_X_KEY = "main_window/pos_x"
-    POS_Y_KEY = "main_window/pos_y"
-    WIDTH_KEY = "main_window/width"
-    HEIGHT_KEY = "main_window/height"
-
+class SetupAssistant(MainWidget):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(CONFIG_PATH, DEFAULT)
 
         proj_path = get_proj_path()
         icon_path = osp.join(proj_path, "resources/tobas_icon.png")
@@ -43,20 +36,6 @@ class SetupAssistant(QWidget):
         self.settings = SettingsWidget(self)
         self._rows.addWidget(self.settings)
 
-        # configがなければ作成
-        config_dir = osp.dirname(CONFIG_PATH)
-        os.makedirs(config_dir, exist_ok=True)
-
-        # 最新のウィンドウの位置とサイズを反映
-        self._config = ConfigParser()
-        self._config.read(CONFIG_PATH)
-        pos_x = self._config.getint(DEFAULT, self.POS_X_KEY, fallback=-1)
-        pos_y = self._config.getint(DEFAULT, self.POS_Y_KEY, fallback=-1)
-        width = self._config.getint(DEFAULT, self.WIDTH_KEY, fallback=-1)
-        height = self._config.getint(DEFAULT, self.HEIGHT_KEY, fallback=-1)
-        if pos_x >= 0 and pos_y >= 0 and width > 0 and height > 0:
-            self.setGeometry(pos_x, pos_y, width, height)
-
         # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
         self.define_connections()
 
@@ -68,27 +47,3 @@ class SetupAssistant(QWidget):
 
         # パッケージの作成が完了したら閉じる
         self.pkg_generator.generated.connect(self.close)
-
-    @overrides
-    def moveEvent(self, event: QMoveEvent) -> None:
-        # 現在のウィンドウ位置を保存
-        self._config.read(CONFIG_PATH)
-        cur_pos = self.pos()
-        self._config[DEFAULT][self.POS_X_KEY] = str(cur_pos.x())
-        self._config[DEFAULT][self.POS_Y_KEY] = str(cur_pos.y())
-        with open(CONFIG_PATH, "w") as f:
-            self._config.write(f)
-
-        return super().moveEvent(event)
-
-    @overrides
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        # 現在のウィンドウサイズを保存
-        self._config.read(CONFIG_PATH)
-        cur_size = self.size()
-        self._config[DEFAULT][self.WIDTH_KEY] = str(cur_size.width())
-        self._config[DEFAULT][self.HEIGHT_KEY] = str(cur_size.height())
-        with open(CONFIG_PATH, "w") as f:
-            self._config.write(f)
-
-        return super().resizeEvent(event)

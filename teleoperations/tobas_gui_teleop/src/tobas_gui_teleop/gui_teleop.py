@@ -4,17 +4,19 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import MainWidget
 from dh_rqt_tools.path import get_proj_path
 
+from .common import *
 from .commanders import CommandersWidget
 from .pose_buttons import PoseButtonsWidget
 
 
-class GuiTeleopWidget(QWidget):
+class GuiTeleopWidget(MainWidget):
     WAIT_TO_CONNECT = 0.5  # [s]
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(CONFIG_PATH, DEFAULT)
 
         proj_path = get_proj_path()
         icon_path = osp.join(proj_path, "resources/icon.png")
