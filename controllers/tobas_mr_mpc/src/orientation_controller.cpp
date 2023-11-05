@@ -1,5 +1,6 @@
 #include <dh_std_tools/vector.hpp>
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/check.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_linear_control/util.hpp>
 
@@ -142,42 +143,42 @@ VectorXd OrientationController::solve(
     dt, cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
 }
 
-void OrientationController::configure(const OrientationControllerConfig& config)
+void OrientationController::configure(const OrientationControllerConfig& cfg)
 {
-  assert(0 <= config.h_force_comp_rate && config.h_force_comp_rate <= 1);
-  assert(config.kp >= 0);
-  assert(config.kd >= 0);
-  assert(config.pred_horizon > 0);
-  assert(config.pred_steps > 0);
-  assert(config.attitude_decay >= 0);
-  assert(config.heading_decay >= 0);
-  assert(config.angvel_decay >= 0);
-  assert(config.attitude_weight > 0);
-  assert(config.heading_weight > 0);
-  assert(config.angvel_weight > 0);
+  CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
+  CHECK(cfg.kp >= 0);
+  CHECK(cfg.kd >= 0);
+  CHECK(cfg.pred_horizon > 0);
+  CHECK(cfg.pred_steps > 0);
+  CHECK(cfg.attitude_decay >= 0);
+  CHECK(cfg.heading_decay >= 0);
+  CHECK(cfg.angvel_decay >= 0);
+  CHECK(cfg.attitude_weight > 0);
+  CHECK(cfg.heading_weight > 0);
+  CHECK(cfg.angvel_weight > 0);
 
-  h_force_comp_rate_ = config.h_force_comp_rate;
-  kp_ = config.kp;
-  kd_ = config.kd;
+  h_force_comp_rate_ = cfg.h_force_comp_rate;
+  kp_ = cfg.kp;
+  kd_ = cfg.kd;
 
-  mpc_.time_step = config.pred_horizon / config.pred_steps;
-  mpc_.prediction_steps = mpc_.input_steps = config.pred_steps;
+  mpc_.time_step = cfg.pred_horizon / cfg.pred_steps;
+  mpc_.prediction_steps = mpc_.input_steps = cfg.pred_steps;
 
-  mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = config.attitude_decay;
-  mpc_.decay_time_consts(kYawIdx) = config.heading_decay;
-  mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(config.angvel_decay);
+  mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = cfg.attitude_decay;
+  mpc_.decay_time_consts(kYawIdx) = cfg.heading_decay;
+  mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(cfg.angvel_decay);
 
-  mpc_.discrete_dynamics.resize(config.pred_steps);
+  mpc_.discrete_dynamics.resize(cfg.pred_steps);
 
-  mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = config.attitude_weight;
-  mpc_.control_weight(kYawIdx) = config.heading_weight;
-  mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(config.angvel_weight);
-  mpc_.input_rate_weight.fill(exp10(config.thrust_rate_weight_log10));
+  mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = cfg.attitude_weight;
+  mpc_.control_weight(kYawIdx) = cfg.heading_weight;
+  mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(cfg.angvel_weight);
+  mpc_.input_rate_weight.fill(exp10(cfg.thrust_rate_weight_log10));
 
-  mpc_.input_rate_eqs.resize(config.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
-  mpc_.control_eqs.resize(config.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
-  mpc_.input_rate_ineqs.resize(config.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
-  mpc_.control_ineqs.resize(config.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_eqs.resize(cfg.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
+  mpc_.control_eqs.resize(cfg.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
+  mpc_.input_rate_ineqs.resize(cfg.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));
+  mpc_.control_ineqs.resize(cfg.pred_steps, ctrl::LinearEquation(kCtrlSize, 0));
 
   mpc_.input_eqs.resize(mpc_.prediction_steps);
   mpc_.input_ineqs.resize(mpc_.prediction_steps);

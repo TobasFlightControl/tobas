@@ -1,4 +1,5 @@
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/check.hpp>
 
 #include "../include/tobas_mr_mpc/position_controller.hpp"
 
@@ -39,50 +40,50 @@ void PositionController::update(
   ta.z() = clamp(ta.z(), -max_ver_acc_, max_ver_acc_);
 }
 
-void PositionController::configure(const PositionControllerConfig& config)
+void PositionController::configure(const PositionControllerConfig& cfg)
 {
-  assert(config.acc_delay_time_const > 0);
-  assert(config.hor_pos_weight >= 0);
-  assert(config.ver_pos_weight >= 0);
-  assert(config.hor_vel_weight >= 0);
-  assert(config.ver_vel_weight >= 0);
-  assert(config.hor_acc_weight >= 0);
-  assert(config.ver_acc_weight >= 0);
-  assert(config.hor_posint_weight >= 0);
-  assert(config.ver_posint_weight >= 0);
-  assert(config.max_hor_posint_error >= 0);
-  assert(config.max_ver_posint_error >= 0);
-  assert(config.max_hor_acc >= 0);
-  assert(config.max_ver_acc >= 0);
+  CHECK(cfg.acc_delay_time_const > 0);
+  CHECK(cfg.hor_pos_weight >= 0);
+  CHECK(cfg.ver_pos_weight >= 0);
+  CHECK(cfg.hor_vel_weight >= 0);
+  CHECK(cfg.ver_vel_weight >= 0);
+  CHECK(cfg.hor_acc_weight >= 0);
+  CHECK(cfg.ver_acc_weight >= 0);
+  CHECK(cfg.hor_posint_weight >= 0);
+  CHECK(cfg.ver_posint_weight >= 0);
+  CHECK(cfg.max_hor_posint_error >= 0);
+  CHECK(cfg.max_ver_posint_error >= 0);
+  CHECK(cfg.max_hor_acc >= 0);
+  CHECK(cfg.max_ver_acc >= 0);
 
   // 水平方向の加速度は姿勢制御の追従遅れを経て実現される
-  lqid_.dynamics.A.block<2, 2>(kAccIdx, kAccIdx).diagonal().fill(-1 / config.acc_delay_time_const);
-  lqid_.dynamics.B.block<2, 2>(kAccIdx, 0).diagonal().fill(1 / config.acc_delay_time_const);
+  lqid_.dynamics.A.block<2, 2>(kAccIdx, kAccIdx).diagonal().fill(-1 / cfg.acc_delay_time_const);
+  lqid_.dynamics.B.block<2, 2>(kAccIdx, 0).diagonal().fill(1 / cfg.acc_delay_time_const);
 
   // 垂直方向の加速度は非常に短時間で実現されるとする
   lqid_.dynamics.A(kAccIdx + 2, kAccIdx + 2) = -1 / kVerAccDecayTimeConst;
   lqid_.dynamics.B(kAccIdx + 2, 2) = 1 / kVerAccDecayTimeConst;
 
   // 重みを更新
-  lqid_.state_weight.block<2, 1>(kPosIdx, 0).fill(config.hor_pos_weight);
-  lqid_.state_weight(kPosIdx + 2) = config.ver_pos_weight;
-  lqid_.state_weight.block<2, 1>(kVelIdx, 0).fill(config.hor_vel_weight);
-  lqid_.state_weight(kVelIdx + 2) = config.ver_vel_weight;
-  lqid_.state_weight.block<2, 1>(kAccIdx, 0).fill(config.hor_acc_weight);
-  lqid_.state_weight(kAccIdx + 2) = config.ver_acc_weight;
+  lqid_.state_weight.block<2, 1>(kPosIdx, 0).fill(cfg.hor_pos_weight);
+  lqid_.state_weight(kPosIdx + 2) = cfg.ver_pos_weight;
+  lqid_.state_weight.block<2, 1>(kVelIdx, 0).fill(cfg.hor_vel_weight);
+  lqid_.state_weight(kVelIdx + 2) = cfg.ver_vel_weight;
+  lqid_.state_weight.block<2, 1>(kAccIdx, 0).fill(cfg.hor_acc_weight);
+  lqid_.state_weight(kAccIdx + 2) = cfg.ver_acc_weight;
 
-  lqid_.integrated_error_weight.block<2, 1>(0, 0).fill(config.hor_posint_weight);
-  lqid_.integrated_error_weight(2) = config.ver_posint_weight;
+  lqid_.integrated_error_weight.block<2, 1>(0, 0).fill(cfg.hor_posint_weight);
+  lqid_.integrated_error_weight(2) = cfg.ver_posint_weight;
 
   lqid_.input_weight.setZero();  // 加速度の目標値は実際の加速度ではないため重みはかけない
-  lqid_.input_rate_weight.fill(exp10(config.jerk_weight_log10));  // 加速度の観測ノイズの補償
+  lqid_.input_rate_weight.fill(exp10(cfg.jerk_weight_log10));  // 加速度の観測ノイズの補償
 
-  lqid_.max_integrated_error.block<2, 1>(0, 0).fill(config.max_hor_posint_error);
-  lqid_.max_integrated_error(2) = config.max_ver_posint_error;
+  lqid_.max_integrated_error.block<2, 1>(0, 0).fill(cfg.max_hor_posint_error);
+  lqid_.max_integrated_error(2) = cfg.max_ver_posint_error;
 
   lqid_.updateGain();
 
-  max_hor_acc_ = config.max_hor_acc;
-  max_ver_acc_ = config.max_ver_acc;
+  max_hor_acc_ = cfg.max_hor_acc;
+  max_ver_acc_ = cfg.max_ver_acc;
 }
 }  // namespace tobas_mr_mpc

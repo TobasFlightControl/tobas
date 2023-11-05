@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/check.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 
 #include "../include/tobas_tools/orientation_pid.hpp"
@@ -44,14 +45,14 @@ Vector OrientationPid::update(
 
 void OrientationPid::configure(const OrientationPidConfig& cfg)
 {
-  assert(cfg.atti_kp >= 0);
-  assert(cfg.atti_ki >= 0);
-  assert(cfg.atti_kd >= 0);
-  assert(cfg.head_kp >= 0);
-  assert(cfg.head_ki >= 0);
-  assert(cfg.head_kd >= 0);
-  assert(cfg.max_atti_acc_int >= 0);
-  assert(cfg.max_head_acc_int >= 0);
+  CHECK(cfg.atti_kp >= 0);
+  CHECK(cfg.atti_ki >= 0);
+  CHECK(cfg.atti_kd >= 0);
+  CHECK(cfg.head_kp >= 0);
+  CHECK(cfg.head_ki >= 0);
+  CHECK(cfg.head_kd >= 0);
+  CHECK(cfg.max_atti_acc_int >= 0);
+  CHECK(cfg.max_head_acc_int >= 0);
 
   pid_.kp.x() = cfg.atti_kp;
   pid_.kp.y() = cfg.atti_kp;
@@ -69,4 +70,4 @@ void OrientationPid::configure(const OrientationPidConfig& cfg)
   pid_.i_max.y() = max_atti_int_err;
   pid_.i_max.z() = max_head_int_err;
 }
-}  // namespace tobas_mr_pid
+}  // namespace tobas

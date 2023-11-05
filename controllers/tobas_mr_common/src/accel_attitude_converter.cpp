@@ -1,5 +1,6 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/check.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -71,8 +72,8 @@ void AccelAttitudeConverter::update(
 
 void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)
 {
-  assert(0 <= cfg.max_attitude && cfg.max_attitude < M_PI_2);
-  assert(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
+  CHECK(0 <= cfg.max_attitude && cfg.max_attitude < M_PI_2);
+  CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
 
   cfg_ = cfg;
 }

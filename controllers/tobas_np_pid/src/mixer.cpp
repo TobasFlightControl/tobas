@@ -1,4 +1,5 @@
 #include <dh_std_tools/console.hpp>
+#include <dh_std_tools/check.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -111,10 +112,8 @@ void Mixer::configure(const MixerConfig& cfg)
   if (!drone_.isLoaded())
     throw runtime_error("Drone is not loaded yet.");
 
-  if (cfg.linear_weight <= 0)
-    throw runtime_error("Linear weight must be positive.");
-  if (cfg.angular_weight <= 0)
-    throw runtime_error("Angular weight must be positive.");
+  CHECK(cfg.linear_weight > 0);
+  CHECK(cfg.angular_weight > 0);
 
   const auto inertia = inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints()));
   const auto mass = inertia.getMass();

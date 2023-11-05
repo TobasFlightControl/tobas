@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/check.hpp>
 #include <dh_eigen_tools/linalg.hpp>
 #include <dh_eigen_tools/typedef.hpp>
 #include <dh_linear_control/util.hpp>
@@ -56,7 +57,8 @@ void CartesianFilter::initialize(
 
 void CartesianFilter::configure(const double& grav_var)
 {
-  assert(grav_var > 0.);
+  CHECK(grav_var > 0.);
+
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
 

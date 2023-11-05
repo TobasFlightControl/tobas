@@ -56,7 +56,7 @@ public:
     const double& tar_thrust,
     const KDL::Euler& tar_rpy);
 
-  void configure(const OrientationControllerConfig& config);
+  void configure(const OrientationControllerConfig& cfg);
 
   const Eigen::VectorXd& mpcThrusts() const;
 

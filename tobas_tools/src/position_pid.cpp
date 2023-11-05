@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/check.hpp>
 
 #include "../include/tobas_tools/position_pid.hpp"
 
@@ -36,16 +37,16 @@ Vector3d PositionPid::update(
 
 void PositionPid::configure(const PositionPidConfig& cfg)
 {
-  assert(cfg.hor_kp >= 0);
-  assert(cfg.hor_ki >= 0);
-  assert(cfg.hor_kd >= 0);
-  assert(cfg.ver_kp >= 0);
-  assert(cfg.ver_ki >= 0);
-  assert(cfg.ver_kd >= 0);
-  assert(cfg.max_hor_acc >= 0);
-  assert(cfg.max_ver_acc >= 0);
-  assert(cfg.max_hor_acc_int >= 0);
-  assert(cfg.max_ver_acc_int >= 0);
+  CHECK(cfg.hor_kp >= 0);
+  CHECK(cfg.hor_ki >= 0);
+  CHECK(cfg.hor_kd >= 0);
+  CHECK(cfg.ver_kp >= 0);
+  CHECK(cfg.ver_ki >= 0);
+  CHECK(cfg.ver_kd >= 0);
+  CHECK(cfg.max_hor_acc >= 0);
+  CHECK(cfg.max_ver_acc >= 0);
+  CHECK(cfg.max_hor_acc_int >= 0);
+  CHECK(cfg.max_ver_acc_int >= 0);
 
   pid_.kp.x() = cfg.hor_kp;
   pid_.kp.y() = cfg.hor_kp;
@@ -66,4 +67,4 @@ void PositionPid::configure(const PositionPidConfig& cfg)
   pid_.i_max.y() = max_hor_int_err;
   pid_.i_max.z() = max_ver_int_err;
 }
-}  // namespace tobas_mr_pid
+}  // namespace tobas

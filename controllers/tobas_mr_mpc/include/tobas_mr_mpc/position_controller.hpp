@@ -46,7 +46,7 @@ public:
     const double& dt,
     KDL::Vector& tar_acc_W);
 
-  void configure(const PositionControllerConfig& config);
+  void configure(const PositionControllerConfig& cfg);
 
   inline Eigen::Vector3d positionIntegralError() const;
 
