@@ -15,7 +15,7 @@ public:
   void updateInternalDataStructures();
 
   /* 抽出したロータの個数． */
-  inline uint32_t count() const;
+  inline const uint32_t& count() const;
 
   /* 抽出したロータ配列の添字から元のロータ配列の添字を取得． */
   inline const uint32_t& rotorIdx(const uint32_t& inner_idx) const;
@@ -66,14 +66,13 @@ private:
   const Drone& drone_;
   const Axis axis_;
 
+  uint32_t count_;  // The number of rotors with the specified rotation axis
   std::vector<uint32_t> rotor_idxs_;
-
-  void setRotorIdxs();
 };
 
-inline uint32_t RotorAxisExtractor::count() const
+inline const uint32_t& RotorAxisExtractor::count() const
 {
-  return rotor_idxs_.size();
+  return count_;
 }
 
 inline const uint32_t& RotorAxisExtractor::rotorIdx(const uint32_t& inner_idx) const

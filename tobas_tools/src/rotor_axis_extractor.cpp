@@ -13,7 +13,17 @@ RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, Axis axis) : drone_(d
 
 void RotorAxisExtractor::updateInternalDataStructures()
 {
-  setRotorIdxs();
+  count_ = 0;
+  rotor_idxs_.clear();
+
+  for (uint32_t i = 0; i < drone_.numRotors(); ++i)
+  {
+    if (drone_.rotorConfig(i).axis == axis_)
+    {
+      ++count_;
+      rotor_idxs_.emplace_back(i);
+    }
+  }
 }
 
 double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds) const
@@ -41,16 +51,5 @@ double RotorAxisExtractor::minThrustSum(const double& battery_voltage) const
   for (const auto& rotor_idx : rotor_idxs_)
     res += drone_.thrustFromVoltage(rotor_idx, min_voltage);
   return res;
-}
-
-void RotorAxisExtractor::setRotorIdxs()
-{
-  rotor_idxs_.clear();
-
-  for (uint32_t i = 0; i < drone_.numRotors(); ++i)
-  {
-    if (drone_.rotorConfig(i).axis == axis_)
-      rotor_idxs_.emplace_back(i);
-  }
 }
 }  // namespace tobas
