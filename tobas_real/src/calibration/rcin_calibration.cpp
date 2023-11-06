@@ -23,6 +23,8 @@ void RCInputCalibrator::run()
   double yaw_left, yaw_right;
   double thrust_up, thrust_down;
   double estop_up, estop_down;
+  double gpsw1_up, gpsw1_down;
+  double gpsw2_up, gpsw2_down;
   int num_modes;
   vector<double> modes;
 
@@ -137,6 +139,50 @@ void RCInputCalibrator::run()
     break;
   }
 
+  // GPSw-1
+  while (true)
+  {
+    // Up
+    cout << "Please set the GPSw-1 (CH" << kRcChannelGPSw1 + 1 << ") to UP and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    gpsw1_up = readRCInput(kRcChannelGPSw1);
+
+    // Down
+    cout << "Please set the GPSw-1 (CH" << kRcChannelGPSw1 + 1 << ") to DOWN and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    gpsw1_down = readRCInput(kRcChannelGPSw1);
+
+    if (abs(gpsw1_up - gpsw1_down) < kPeriodDiffThreshold)
+    {
+      DH_ERROR("The signals on GPSw-1 channel are too close. Please retry.");
+      continue;
+    }
+
+    break;
+  }
+
+  // GPSw-2
+  while (true)
+  {
+    // Up
+    cout << "Please set the GPSw-2 (CH" << kRcChannelGPSw2 + 1 << ") to UP and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    gpsw2_up = readRCInput(kRcChannelGPSw2);
+
+    // Down
+    cout << "Please set the GPSw-2 (CH" << kRcChannelGPSw2 + 1 << ") to DOWN and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    gpsw2_down = readRCInput(kRcChannelGPSw2);
+
+    if (abs(gpsw2_up - gpsw2_down) < kPeriodDiffThreshold)
+    {
+      DH_ERROR("The signals on GPSw-2 channel are too close. Please retry.");
+      continue;
+    }
+
+    break;
+  }
+
   // Mode
   while (true)
   {
@@ -192,6 +238,10 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcThrustDown, thrust_down);
   pt.put(kConfigKey_RcEStopUp, estop_up);
   pt.put(kConfigKey_RcEStopDown, estop_down);
+  pt.put(kConfigKey_RcGPSw1On, gpsw1_up);
+  pt.put(kConfigKey_RcGPSw1Off, gpsw1_down);
+  pt.put(kConfigKey_RcGPSw2On, gpsw2_up);
+  pt.put(kConfigKey_RcGPSw2Off, gpsw2_down);
 
   pt.put(kConfigKey_RcNrOfModes, num_modes);
   for (int i = 0; i < num_modes; ++i)

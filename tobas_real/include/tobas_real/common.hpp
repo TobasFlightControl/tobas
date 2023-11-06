@@ -45,6 +45,10 @@ static constexpr char kConfigKey_RcThrustUp[] = "DEFAULT.rc_input/thrust/up";
 static constexpr char kConfigKey_RcThrustDown[] = "DEFAULT.rc_input/thrust/down";
 static constexpr char kConfigKey_RcEStopUp[] = "DEFAULT.rc_input/e_stop/up";
 static constexpr char kConfigKey_RcEStopDown[] = "DEFAULT.rc_input/e_stop/down";
+static constexpr char kConfigKey_RcGPSw1On[] = "DEFAULT.rc_input/gpsw1/on";
+static constexpr char kConfigKey_RcGPSw1Off[] = "DEFAULT.rc_input/gpsw1/off";
+static constexpr char kConfigKey_RcGPSw2On[] = "DEFAULT.rc_input/gpsw2/on";
+static constexpr char kConfigKey_RcGPSw2Off[] = "DEFAULT.rc_input/gpsw2/off";
 static constexpr char kConfigKey_RcNrOfModes[] = "DEFAULT.rc_input/num_modes";
 static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 
@@ -65,6 +69,8 @@ static constexpr uint32_t kRcChannelThrust = 2;
 static constexpr uint32_t kRcChannelYaw = 3;
 static constexpr uint32_t kRcChannelMode = 4;
 static constexpr uint32_t kRcChannelEStop = 5;
+static constexpr uint32_t kRcChannelGPSw1 = 6;
+static constexpr uint32_t kRcChannelGPSw2 = 7;
 
 static constexpr uint32_t kWaitToRefreshBarometer = 10000;  // [us]
 static constexpr double kDisarmDuration = 3.;               // [s]

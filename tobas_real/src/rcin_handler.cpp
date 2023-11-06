@@ -66,6 +66,12 @@ void RCInputHandler::readConfig()
   estop_range_.lower = pt.get<double>(kConfigKey_RcEStopDown);
   estop_range_.upper = pt.get<double>(kConfigKey_RcEStopUp);
 
+  gpsw1_range_.lower = pt.get<double>(kConfigKey_RcGPSw1Off);
+  gpsw1_range_.upper = pt.get<double>(kConfigKey_RcGPSw1On);
+
+  gpsw2_range_.lower = pt.get<double>(kConfigKey_RcGPSw2Off);
+  gpsw2_range_.upper = pt.get<double>(kConfigKey_RcGPSw2On);
+
   const auto num_modes = pt.get<uint32_t>(kConfigKey_RcNrOfModes);
   modes_.resize(num_modes);
   for (uint32_t i = 0; i < num_modes; ++i)
@@ -97,6 +103,8 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto thrust_period = rcin_.read(kRcChannelThrust);
   const auto estop_period = rcin_.read(kRcChannelEStop);
   const auto mode_period = rcin_.read(kRcChannelMode);
+  const auto gpsw1_period = rcin_.read(kRcChannelGPSw1);
+  const auto gpsw2_period = rcin_.read(kRcChannelGPSw2);
 
   // Create message
   const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
@@ -105,8 +113,10 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->pitch = remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
   rcin_msg->yaw = remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
   rcin_msg->thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
-  rcin_msg->e_stop = estop_period < estop_range_.mean();
   rcin_msg->mode = dh_std::closestIndex<double>(modes_, mode_period);
+  rcin_msg->e_stop = estop_period < estop_range_.mean();
+  rcin_msg->gpsw1 = gpsw1_period < gpsw1_range_.mean();
+  rcin_msg->gpsw2 = gpsw2_period < gpsw2_range_.mean();
 
   // Publish message
   rcin_pub_.publish(rcin_msg);

@@ -31,6 +31,8 @@ private:
   dh_std::Range<double> yaw_range_;
   dh_std::Range<double> thrust_range_;
   dh_std::Range<double> estop_range_;
+  dh_std::Range<double> gpsw1_range_;
+  dh_std::Range<double> gpsw2_range_;
   std::vector<double> modes_;
 
   // Publisher
