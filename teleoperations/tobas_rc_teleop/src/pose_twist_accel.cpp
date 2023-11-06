@@ -65,7 +65,7 @@ void PoseTwistAccelController::update(
     tar_rpy_.roll = 0;
     tar_rpy_.pitch = 0;
   }
-  if (rcin.gpsw1)  // 位置固定で姿勢制御
+  else  // 位置固定で姿勢制御
   {
     // RC入力から目標姿勢を計算
     tar_rpy_.roll =

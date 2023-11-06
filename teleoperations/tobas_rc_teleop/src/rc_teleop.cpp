@@ -136,8 +136,8 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (!rcin->e_stop)
       {
-        rosErrorThrottle(
-          kErrorPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
+        rosInfoThrottle(
+          kInfoPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
       }
       else
       {
@@ -166,6 +166,15 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         event_pub_.publish(event);
       }
 
+      if (rcin->mode >= mode2cmd_.size())
+      {
+        rosErrorThrottle(
+          kErrorPeriod, name_,
+          "You tried to set flight mode " << static_cast<int>(rcin->mode)
+                                          << ", which is out of range.");
+        return;
+      }
+
       const auto& cmd_type = mode2cmd_[rcin->mode];
 
       if (cmd_type != last_cmd_type_)
@@ -191,7 +200,8 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
             rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
             break;
           default:
-            throw runtime_error("Invalid command type: " + to_string(cmd_type));
+            rosError(name_, "Invalid command type: " << static_cast<int>(cmd_type));
+            return;
         }
 
         rosInfo(name_, "Command type changed from " << last_cmd_type_ << " to " << cmd_type << ".");
@@ -220,7 +230,8 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
           rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
           break;
         default:
-          throw runtime_error("Invalid command type: " + to_string(cmd_type));
+          rosError(name_, "Invalid command type: " << static_cast<int>(cmd_type));
+          return;
       }
 
       break;
