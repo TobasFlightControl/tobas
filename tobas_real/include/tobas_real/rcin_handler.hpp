@@ -30,10 +30,10 @@ private:
   dh_std::Range<double> pitch_range_;
   dh_std::Range<double> yaw_range_;
   dh_std::Range<double> thrust_range_;
-  dh_std::Range<double> estop_range_;
-  dh_std::Range<double> gpsw1_range_;
-  dh_std::Range<double> gpsw2_range_;
   std::vector<double> modes_;
+  double estop_on_, estop_off_;
+  double gpsw1_on_, gpsw1_off_;
+  double gpsw2_on_, gpsw2_off_;
 
   // Publisher
   ros::Publisher rcin_pub_;

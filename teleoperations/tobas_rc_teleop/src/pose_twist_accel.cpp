@@ -50,8 +50,6 @@ void PoseTwistAccelController::update(
 
   // Aliases
   const auto& cur_pos = pt.pose.pos;
-  const auto& cur_roll = pt.pose.euler.roll;
-  const auto& cur_pitch = pt.pose.euler.pitch;
   const auto& cur_yaw = pt.pose.euler.yaw;
 
   // GPSw-1の状態によって水平速度制御モードと姿勢制御モードを切り替える

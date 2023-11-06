@@ -201,6 +201,7 @@ void RCInputCalibrator::run()
     break;
   }
 
+  sleep(1);
   modes.resize(num_modes);
   while (true)
   {
@@ -236,8 +237,8 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcYawRight, yaw_right);
   pt.put(kConfigKey_RcThrustUp, thrust_up);
   pt.put(kConfigKey_RcThrustDown, thrust_down);
-  pt.put(kConfigKey_RcEStopUp, estop_up);
-  pt.put(kConfigKey_RcEStopDown, estop_down);
+  pt.put(kConfigKey_RcEStopOn, estop_up);
+  pt.put(kConfigKey_RcEStopOff, estop_down);
   pt.put(kConfigKey_RcGPSw1On, gpsw1_up);
   pt.put(kConfigKey_RcGPSw1Off, gpsw1_down);
   pt.put(kConfigKey_RcGPSw2On, gpsw2_up);

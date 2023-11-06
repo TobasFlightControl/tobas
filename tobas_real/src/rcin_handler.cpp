@@ -63,14 +63,14 @@ void RCInputHandler::readConfig()
   thrust_range_.lower = pt.get<double>(kConfigKey_RcThrustDown);
   thrust_range_.upper = pt.get<double>(kConfigKey_RcThrustUp);
 
-  estop_range_.lower = pt.get<double>(kConfigKey_RcEStopDown);
-  estop_range_.upper = pt.get<double>(kConfigKey_RcEStopUp);
+  estop_on_ = pt.get<double>(kConfigKey_RcEStopOn);
+  estop_off_ = pt.get<double>(kConfigKey_RcEStopOff);
 
-  gpsw1_range_.lower = pt.get<double>(kConfigKey_RcGPSw1Off);
-  gpsw1_range_.upper = pt.get<double>(kConfigKey_RcGPSw1On);
+  gpsw1_on_ = pt.get<double>(kConfigKey_RcGPSw1On);
+  gpsw1_off_ = pt.get<double>(kConfigKey_RcGPSw1Off);
 
-  gpsw2_range_.lower = pt.get<double>(kConfigKey_RcGPSw2Off);
-  gpsw2_range_.upper = pt.get<double>(kConfigKey_RcGPSw2On);
+  gpsw2_on_ = pt.get<double>(kConfigKey_RcGPSw2On);
+  gpsw2_off_ = pt.get<double>(kConfigKey_RcGPSw2Off);
 
   const auto num_modes = pt.get<uint32_t>(kConfigKey_RcNrOfModes);
   modes_.resize(num_modes);
@@ -114,9 +114,9 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->yaw = remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
   rcin_msg->thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
   rcin_msg->mode = dh_std::closestIndex<double>(modes_, mode_period);
-  rcin_msg->e_stop = estop_period < estop_range_.mean();
-  rcin_msg->gpsw1 = gpsw1_period < gpsw1_range_.mean();
-  rcin_msg->gpsw2 = gpsw2_period < gpsw2_range_.mean();
+  rcin_msg->e_stop = abs(estop_period - estop_on_) < abs(estop_period - estop_off_);
+  rcin_msg->gpsw1 = abs(gpsw1_period - gpsw1_on_) < abs(gpsw1_period - gpsw1_off_);
+  rcin_msg->gpsw2 = abs(gpsw2_period - gpsw2_on_) < abs(gpsw2_period - gpsw2_off_);
 
   // Publish message
   rcin_pub_.publish(rcin_msg);
