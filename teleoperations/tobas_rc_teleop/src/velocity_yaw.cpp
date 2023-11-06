@@ -14,10 +14,6 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-VelocityYawController::VelocityYawController() : super()
-{
-}
-
 void VelocityYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
@@ -33,7 +29,9 @@ void VelocityYawController::reset(const tobas_msgs::PoseTwist& pt)
 
 void VelocityYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const dh_std::Range<double>& dead_zone)
+  const tobas_msgs::PoseTwist&,
+  const double&,
+  const Range<double>& dead_zone)
 {
   // 時刻を更新
   const ros::Time cur_time = ros::Time::now();
@@ -47,9 +45,9 @@ void VelocityYawController::update(
 
   // RC入力から速度を計算
   vel_raw_.x() =
-    dead_zone.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
+    dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
   vel_raw_.y() =
-    dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
+    dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
   vel_raw_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
 
   // 速度をフィルタリングしてコマンドに
@@ -58,7 +56,7 @@ void VelocityYawController::update(
 
   // ヨー角を更新
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
   yaw_ += yawrate * dt;
   vel_yaw->yaw = yaw_;
 

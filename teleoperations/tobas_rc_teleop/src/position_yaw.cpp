@@ -14,10 +14,6 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-PositionYawController::PositionYawController() : super()
-{
-}
-
 void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
@@ -40,9 +36,9 @@ void PositionYawController::reset(const tobas_msgs::PoseTwist& pt)
 
 void PositionYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const dh_std::Range<double>& dead_zone,
-  const Vector& cur_pos,
-  const double& cur_yaw)
+  const tobas_msgs::PoseTwist& pt,
+  const double&,
+  const Range<double>& dead_zone)
 {
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
@@ -55,13 +51,15 @@ void PositionYawController::update(
     dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
   vel_.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));  // スラストレバーに遊びはなし
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // コマンドを更新
   pos_yaw_.pos += vel_ * dt;
   pos_yaw_.yaw += yawrate * dt;
 
   // 誤差を制限
+  const auto& cur_pos = pt.pose.pos;
+  const auto& cur_yaw = pt.pose.euler.yaw;
   pos_yaw_.pos = pos_yaw_.pos.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
   pos_yaw_.yaw = clamp(pos_yaw_.yaw, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
 

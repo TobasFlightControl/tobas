@@ -2,11 +2,7 @@
 
 #include <Eigen/Core>
 
-#include <dh_std_tools/range.hpp>
 #include <dh_std_tools/first_order_filter.hpp>
-
-#include <tobas_msgs/PoseTwist.h>
-#include <tobas_msgs/RCInput.h>
 
 #include "./base_controller.hpp"
 
@@ -17,14 +13,13 @@ class PoseTwistAccelController : public BaseController
   using super = BaseController;
 
 public:
-  explicit PoseTwistAccelController();
-
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::PoseTwist& pt) override;
   void update(
     const tobas_msgs::RCInput& rcin,
     const tobas_msgs::PoseTwist& pt,
-    const dh_std::Range<double>& dead_zone);
+    const double& battery_voltage,
+    const dh_std::Range<double>& dead_zone) override;
 
 private:
   // rosparams

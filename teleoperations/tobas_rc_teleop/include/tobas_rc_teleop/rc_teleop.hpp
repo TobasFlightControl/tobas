@@ -1,15 +1,13 @@
 #pragma once
 
+#include <memory>
+
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PoseTwist.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
 
-#include "./pos_vel_acc_yaw.hpp"
-#include "./position_yaw.hpp"
-#include "./velocity_yaw.hpp"
-#include "./rpy_thrust.hpp"
-#include "./pose_twist_accel.hpp"
+#include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
@@ -33,36 +31,21 @@ private:
     RUNNING,
   };
 
-  enum command_t
-  {
-    NONE,
-    POS_VEL_ACC_YAW,
-    POSITION_YAW,
-    VELOCITY_YAW,
-    RPY_THRUST,
-    POSE_TWIST_ACCEL,
-    SPEED_ROLL_DPITCH,
-  };
-
-  stage_t stage_ = CHECK_PREREQUISITES;
-  command_t last_cmd_type_ = NONE;
-  tobas_msgs::PoseTwistConstPtr pt_;
-  tobas_msgs::BatteryConstPtr battery_;
-
   // rosparams
   double dead_zone_rate_;
   std::vector<std::string> mode_names_;
 
-  // Constant values
+  // Constants
   dh_std::Range<double> dead_zone_;
-  std::vector<command_t> mode2cmd_;
+
+  // Mutables
+  stage_t stage_ = CHECK_PREREQUISITES;
+  int last_mode_ = -1;
+  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::BatteryConstPtr battery_;
 
   // Controllers
-  PosVelAccYawController pvay_ctrl_;
-  PositionYawController pos_yaw_ctrl_;
-  VelocityYawController vel_yaw_ctrl_;
-  RollPitchYawThrustController rpy_thrust_ctrl_;
-  PoseTwistAccelController pta_ctrl_;
+  std::vector<std::unique_ptr<BaseController>> controllers_;
 
   // PubSub
   ros::Publisher event_pub_;

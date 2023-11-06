@@ -19,15 +19,13 @@ class PosVelAccYawController : public BaseController
   using super = BaseController;
 
 public:
-  explicit PosVelAccYawController();
-
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::PoseTwist& pt) override;
   void update(
     const tobas_msgs::RCInput& rcin,
-    const dh_std::Range<double>& dead_zone,
-    const KDL::Vector& cur_pos,
-    const double& cur_yaw);
+    const tobas_msgs::PoseTwist& pt,
+    const double& battery_voltage,
+    const dh_std::Range<double>& dead_zone) override;
 
 private:
   ros::Time t_last_rcin_;

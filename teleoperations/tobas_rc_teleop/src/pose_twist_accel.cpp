@@ -15,10 +15,6 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-PoseTwistAccelController::PoseTwistAccelController() : super()
-{
-}
-
 void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
@@ -41,7 +37,8 @@ void PoseTwistAccelController::reset(const tobas_msgs::PoseTwist& pt)
 void PoseTwistAccelController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::PoseTwist& pt,
-  const dh_std::Range<double>& dead_zone)
+  const double&,
+  const Range<double>& dead_zone)
 {
   // 時刻を更新
   const ros::Time cur_time = ros::Time::now();

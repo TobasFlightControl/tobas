@@ -15,10 +15,6 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-PosVelAccYawController::PosVelAccYawController() : super()
-{
-}
-
 void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
@@ -41,35 +37,37 @@ void PosVelAccYawController::reset(const tobas_msgs::PoseTwist& pt)
 
 void PosVelAccYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const dh_std::Range<double>& dead_zone,
-  const Vector& cur_pos,
-  const double& cur_yaw)
+  const tobas_msgs::PoseTwist& pt,
+  const double&,
+  const Range<double>& dead_zone)
 {
   // 時刻を更新
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
   t_last_rcin_ = cur_time;
 
-  // RC入力から目標速度を計算
+  // RC入力を速度とヨーレートに変換
   tar_vel_.x() =
     dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
   tar_vel_.y() =
     dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
   tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
+  const auto yawrate =
+    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 目標速度をフィルタリング
   vel_filter_.update(tar_vel_, dt);
   const auto& tar_vel_filtered = vel_filter_.getState();
 
-  // 目標速度を積分して目標位置を計算
-  // 離陸前に誤差が過大になるのを防ぐため，現在の位置との誤差を制限する
+  // 速度とヨーレートを積分
   tar_pos_ += tar_vel_filtered * dt;
-  tar_pos_ = tar_pos_.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
+  tar_yaw_ += yawrate * dt;
 
-  // 目標ヨー角を更新
-  const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
-  tar_yaw_ = clamp(tar_yaw_ + yawrate * dt, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
+  // 誤差を制限
+  const auto& cur_pos = pt.pose.pos;
+  const auto& cur_yaw = pt.pose.euler.yaw;
+  tar_pos_ = tar_pos_.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
+  tar_yaw_ = clamp(tar_yaw_, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();

@@ -24,8 +24,9 @@ public:
   void reset(const tobas_msgs::PoseTwist& pt) override;
   void update(
     const tobas_msgs::RCInput& rcin,
+    const tobas_msgs::PoseTwist& pt,
     const double& battery_voltage,
-    const dh_std::Range<double>& dead_zone);
+    const dh_std::Range<double>& dead_zone) override;
 
 private:
   tobas::Drone drone_;
