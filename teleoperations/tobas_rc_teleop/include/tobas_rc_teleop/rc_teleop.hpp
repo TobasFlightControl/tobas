@@ -9,11 +9,13 @@
 #include "./position_yaw.hpp"
 #include "./velocity_yaw.hpp"
 #include "./rpy_thrust.hpp"
+#include "./pose_twist_accel.hpp"
 
 namespace tobas_rc_teleop
 {
 class RCTeleop : public tobas::BaseNode
 {
+  using self = RCTeleop;
   using super = tobas::BaseNode;
 
 public:
@@ -60,6 +62,7 @@ private:
   PositionYawController pos_yaw_ctrl_;
   VelocityYawController vel_yaw_ctrl_;
   RollPitchYawThrustController rpy_thrust_ctrl_;
+  PoseTwistAccelController pta_ctrl_;
 
   // PubSub
   ros::Publisher event_pub_;

@@ -54,7 +54,7 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
     else if (mode_name == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
     {
       mode2cmd_.push_back(POSE_TWIST_ACCEL);
-      rosError(name_, "Not implemented yet.");  // TODO
+      pta_ctrl_.initialize(nh_, pnh_);
     }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {
@@ -92,9 +92,9 @@ void RCTeleop::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &RCTeleop::poseTwistCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &RCTeleop::batteryCb, this, tcpNoDelay());
-  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &RCTeleop::rcInputCb, this, tcpNoDelay());
+  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
 }
 
 void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -185,7 +185,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
             rpy_thrust_ctrl_.reset(*pt_);
             break;
           case POSE_TWIST_ACCEL:
-            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
+            pta_ctrl_.reset(*pt_);
             break;
           case SPEED_ROLL_DPITCH:
             rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
@@ -214,7 +214,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
           rpy_thrust_ctrl_.update(*rcin, battery_->voltage, dead_zone_);
           break;
         case POSE_TWIST_ACCEL:
-          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
+          pta_ctrl_.update(*rcin, *pt_, dead_zone_);
           break;
         case SPEED_ROLL_DPITCH:
           rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
