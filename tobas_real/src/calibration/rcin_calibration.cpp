@@ -188,6 +188,7 @@ void RCInputCalibrator::run()
   {
     cout << "Please enter the number of flight modes: ";
     cin >> num_modes;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');  // ストリームに残っている改行を処理
     if (num_modes <= 0)
     {
       DH_ERROR("The number of flight modes must be positive. Please retry.");
@@ -201,7 +202,6 @@ void RCInputCalibrator::run()
     break;
   }
 
-  sleep(1);
   modes.resize(num_modes);
   while (true)
   {
