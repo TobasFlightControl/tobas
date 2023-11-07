@@ -51,7 +51,7 @@ $ git checkout ArduCopter-stable
 $ Tools/environment_install/install-prereqs-ubuntu.sh -y
 $ . ~/.profile
 $ git submodule update --init --recursive
-$ ./waf configure --board linux
+$ ./waf configure --board sitl
 $ ./waf copter
 ```
 

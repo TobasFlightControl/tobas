@@ -222,7 +222,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         if not self.set(data):
             return
 
-        q_info(self.parent(), "Data is successfully loaded.")
+        q_info(self.parent(), "Data is loaded successfully.")
 
     def _get_csv_file_path(self) -> str:
         self._config.read(CONFIG_PATH)

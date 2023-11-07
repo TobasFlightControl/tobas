@@ -142,7 +142,7 @@ class DynamicConfigurationWidget(MainWidget):
                     continue
 
         if len(fail_params) == 0:
-            q_info(self, "Parameters are successfully loaded.")
+            q_info(self, "Parameters are loaded successfully.")
         else:
             fail_params_str = "\n".join(fail_params)
             q_error(self, f"Failed to set following parameters:\n{fail_params_str}")
