@@ -6,6 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from geometry_msgs.msg import PoseStamped
 from mavros_msgs.srv import ParamSet, ParamSetRequest, ParamSetResponse
 
 from dh_rqt_tools.widgets import *
@@ -23,8 +24,6 @@ class DynamicConfigurationWidget(MainWidget):
     def __init__(self) -> None:
         super().__init__(CONFIG_PATH, DEFAULT)
 
-        self._param_set_sc = rospy.ServiceProxy(PARAM_SET_SRV_NAME, ParamSet)
-
         proj_path = get_proj_path()
         icon_path = osp.join(proj_path, "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
@@ -37,9 +36,11 @@ class DynamicConfigurationWidget(MainWidget):
         rows.addLayout(cols)
 
         self._load_button = QPushButton("Load")
+        self._load_button.setEnabled(False)
         cols.addWidget(self._load_button)
 
         self._save_button = QPushButton("Save")
+        self._save_button.setEnabled(False)
         cols.addWidget(self._save_button)
 
         self._form = FormLayout()
@@ -51,6 +52,12 @@ class DynamicConfigurationWidget(MainWidget):
         rows.addWidget(scroll_area)
 
         self.define_connections()
+
+        self._params = dict()
+        self._local_pose_sub = rospy.Subscriber(
+            "mavros/local_position/pose", PoseStamped, self._local_pose_cb, queue_size=1
+        )
+        self._param_set_sc = rospy.ServiceProxy(PARAM_SET_SRV_NAME, ParamSet)
 
     def define_connections(self) -> None:
         self._load_button.clicked.connect(self._on_load_button_clicked)
@@ -94,8 +101,9 @@ class DynamicConfigurationWidget(MainWidget):
         with open(CONFIG_PATH, "w") as f:
             self._config.write(f)
 
-        # フォームを初期化
+        # フォームと辞書を初期化
         self._form.clear()
+        self._params.clear()
 
         # パラメータを読み込む
         self._load_params(file_path)
@@ -119,36 +127,45 @@ class DynamicConfigurationWidget(MainWidget):
 
                 # 行からパラメータデータを抽出
                 try:
-                    vehicle_id, component_id, param_name, value, param_type = row
+                    vehicle_id, component_id, name, value, type_ = row
                 except ValueError as e:
-                    rospy.logerr(f"Error parsing line: {row}. Error: {e}")
+                    rospy.logerr(f"Failed to parse line: {row}. Error: {e}")
                     continue
 
+                # パラメータを辞書に保存
+                self._params[name] = {
+                    "vehicle_id": vehicle_id,
+                    "component_id": component_id,
+                    "name": name,
+                    "value": value,
+                    "type": type_,
+                }
+
                 # 使用するセクションでない場合はスキップ
-                section = param_name.split("_")[0]
+                section = name.split("_")[0]
                 if section not in self.SECTIONS:
                     continue
 
                 # ArduPilot SITLに反映
-                req.param_id = param_name
+                req.param_id = name
                 try:
                     res: ParamSetResponse = self._param_set_sc(req)
                 except rospy.ServiceException as e:
-                    rospy.logerr(f"Failed to set {param_name}: {e}")
-                    fail_params.append(param_name)
+                    rospy.logerr(f"Failed to set {name}: {e}")
+                    fail_params.append(name)
                     continue
 
                 if not res.success:
-                    rospy.logerr(f"Failed to set {param_name}.")
-                    fail_params.append(param_name)
+                    rospy.logerr(f"Failed to set {name}.")
+                    fail_params.append(name)
                     continue
 
-                if int(param_type) == 9:
+                if int(type_) == 9:
                     # パラメータをフォームに追加
                     spin_box = DoubleSpinBox()
                     spin_box.setDecimals(FLOAT_DECIMALS)
                     spin_box.setValue(float(value))
-                    self._form.addRow(QLabel(param_name), spin_box)
+                    self._form.addRow(QLabel(name), spin_box)
 
                     # サービスリクエストを埋める
                     req.value.integer = 0
@@ -157,7 +174,7 @@ class DynamicConfigurationWidget(MainWidget):
                     # パラメータをフォームに追加
                     spin_box = SpinBox()
                     spin_box.setValue(int(value))
-                    self._form.addRow(QLabel(param_name), spin_box)
+                    self._form.addRow(QLabel(name), spin_box)
 
                     # サービスリクエストを埋める
                     req.value.integer = int(value)
@@ -168,3 +185,9 @@ class DynamicConfigurationWidget(MainWidget):
         else:
             fail_params_str = "\n".join(fail_params)
             q_error(self, f"Failed to set following parameters:\n\n{fail_params_str}")
+
+    def _local_pose_cb(self, _: PoseStamped) -> None:
+        self._load_button.setEnabled(True)
+        self._save_button.setEnabled(True)
+        rospy.loginfo("Dynamic configuration is ready.")
+        self._local_pose_sub.unregister()
