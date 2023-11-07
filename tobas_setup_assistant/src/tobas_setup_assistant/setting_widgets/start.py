@@ -53,7 +53,6 @@ class StartWidget(BaseSettingWidget):
 class RobotModelLoaderWidget(QWidget):
     KEY = "last_opened_dir/robot_model_loader"
 
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
@@ -133,8 +132,7 @@ class RobotModelLoaderWidget(QWidget):
             options=options,
         )
 
-        # キャンセルの場合は何もせずに終了
-        # でないと空文字が設定されてしまう
+        # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
         if file_path == "":
             return
 

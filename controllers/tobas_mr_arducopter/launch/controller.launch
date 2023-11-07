@@ -30,4 +30,7 @@
   <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg param_server_node_name)" args="load tobas_mr_arducopter/ParamServerNodelet nodelet_manager" output="screen"/>
   <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="param_server_node" name="$(arg param_server_node_name)" output="screen"/>
 
+  <!-- Dynamic Configuration -->
+  <include file="$(find ardupilot_dynamic_configuration)/launch/dynamic_configuration.launch"/>
+
 </launch>

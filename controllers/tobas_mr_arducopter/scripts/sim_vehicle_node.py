@@ -3,7 +3,7 @@
 import rospy
 import os.path as osp
 import subprocess
-
+import signal
 
 class SimVehicleLauncher:
     def __init__(self) -> None:
@@ -26,4 +26,5 @@ if __name__ == "__main__":
     node_name = osp.splitext(osp.basename(__file__))[0]
     rospy.init_node(node_name)
     node = SimVehicleLauncher()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     rospy.spin()
