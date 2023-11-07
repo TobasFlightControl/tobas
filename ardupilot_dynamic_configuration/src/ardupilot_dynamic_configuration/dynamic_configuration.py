@@ -21,6 +21,7 @@ from .param_holders import *
 
 
 class DynamicConfigurationWidget(MainWidget):
+    BUTTON_HEIGHT = 30
     LAST_OPENED_DIR = "last_opened_dir"
     SECTIONS = ["ATC", "PSC"]
 
@@ -39,10 +40,12 @@ class DynamicConfigurationWidget(MainWidget):
         rows.addLayout(cols)
 
         self._load_button = QPushButton("Load")
+        self._load_button.setFixedHeight(self.BUTTON_HEIGHT)
         self._load_button.setEnabled(False)
         cols.addWidget(self._load_button)
 
         self._save_button = QPushButton("Save")
+        self._save_button.setFixedHeight(self.BUTTON_HEIGHT)
         self._save_button.setEnabled(False)
         cols.addWidget(self._save_button)
 
@@ -142,7 +145,7 @@ class DynamicConfigurationWidget(MainWidget):
             q_info(self, "Parameters are successfully loaded.")
         else:
             fail_params_str = "\n".join(fail_params)
-            q_error(self, f"Failed to set following parameters:\n\n{fail_params_str}")
+            q_error(self, f"Failed to set following parameters:\n{fail_params_str}")
 
     def _send_param_set_request(self, req: ParamSetRequest) -> bool:
         try:
