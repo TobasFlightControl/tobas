@@ -1,7 +1,7 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/VelocityYaw.h>
+#include <tobas_msgs/PosVelAccYaw.h>
 
 #include "../include/tobas_multirotor_landing/landing_action_server.hpp"
 
@@ -31,7 +31,7 @@ void MultirotorLandServer::getRosParams()
 
 void MultirotorLandServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void MultirotorLandServer::registerSubscribers()
@@ -43,7 +43,7 @@ void MultirotorLandServer::registerSubscribers()
 
 void MultirotorLandServer::reset()
 {
-  pt_received_ = false;
+  pt_ = nullptr;
   is_history_filled_ = false;
   alt_history_.clear();
 }
@@ -64,9 +64,7 @@ void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
 void MultirotorLandServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 {
   if (!is_action_running_)
-  {
     return;
-  }
 
   // 現在の時刻と高度を履歴に追加
   const auto& cur_time = pt->header.stamp;
@@ -79,18 +77,11 @@ void MultirotorLandServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   {
     alt_history_.pop_front();
     if (!is_history_filled_)
-    {
       is_history_filled_ = true;
-    }
   }
 
   // 最新の状態を更新
   pt_ = pt;
-
-  if (!pt_received_)
-  {
-    pt_received_ = true;
-  }
 }
 
 void MultirotorLandServer::executeCb(const GoalType& goal)
@@ -103,7 +94,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   // 現在の状態を取得
   ros::spinOnce();
   ros::Duration(0.1).sleep();  // ベース状態が更新されるよう少し待機
-  if (!pt_received_)
+  if (pt_ == nullptr)
   {
     is_action_running_ = false;
     result_.error_code = ResultType::NOT_READY;
@@ -111,16 +102,12 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
     return;
   }
 
-  // 着陸コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::VelocityYaw>();
-  cmd->level = goal->level;
-  cmd->frame_id.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->vel.x() = cmd->vel.y() = 0;
-  cmd->vel.z(-kVerticalSpeed);
-  cmd->yaw = pt_->pose.euler.yaw;  // 現在のヨー角を初期目標位置に設定
-
-  // 着陸コマンドを発行
-  cmd_pub_.publish(cmd);
+  // 初期状態
+  const auto start_time = ros::Time::now();
+  const auto start_x = pt_->pose.pos.x();
+  const auto start_y = pt_->pose.pos.y();
+  const auto start_z = pt_->pose.pos.z();
+  const auto start_yaw = pt_->pose.euler.yaw;
 
   // 高度チェック
   ros::Rate rate(kUpdateRate);
@@ -140,15 +127,31 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
       const auto alt_range = abs(alt_history_.front().second - alt_history_.back().second);
       if (alt_range < kStableAltitudeRange)
       {
-        rosInfo(
-          name_, "Altitude has remained stable for "
-                   << kTimeWindow << " seconds. Probably the drone has landed successfully.");
+        rosInfo(name_, "Landing detected.");
         is_action_running_ = false;
         result_.error_code = ResultType::NO_ERROR;
         as_.setSucceeded(result_);
         return;
       }
     }
+
+    // コマンドを作成
+    const auto t = (ros::Time::now() - start_time).toSec();
+    const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    cmd->level = goal->level;
+    cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->pos.x(start_x);
+    cmd->pos.y(start_y);
+    cmd->pos.z(start_z - kVerticalSpeed * t);
+    cmd->vel.x(0);
+    cmd->vel.y(0);
+    cmd->vel.z(-kVerticalSpeed);
+    cmd->acc.setZero();
+    cmd->yaw = start_yaw;
+
+    // コマンドを発行
+    cmd_pub_.publish(cmd);
 
     ros::spinOnce();
     rate.sleep();

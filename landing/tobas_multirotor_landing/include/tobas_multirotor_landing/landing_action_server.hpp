@@ -32,7 +32,6 @@ public:
 
 private:
   bool is_action_running_;
-  bool pt_received_;
   bool is_history_filled_;  // 時間窓分だけ履歴が溜まっている場合にtrue
   std::deque<std::pair<ros::Time, double>> alt_history_;
   tobas_msgs::PoseTwistConstPtr pt_;

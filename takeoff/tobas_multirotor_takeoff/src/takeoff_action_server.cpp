@@ -112,7 +112,7 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
 
   // 軌道を発行
   ros::Rate rate(kUpdateRate);
-  while (true)
+  while (nh_.ok())
   {
     const auto t = (ros::Time::now() - start_time).toSec();
 
