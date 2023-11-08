@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
 from dh_rqt_tools.path import get_proj_path
+from dh_rqt_tools.widgets import add_expanding_widget
 
 import os.path as osp
 from rviz import bindings as rviz
@@ -15,6 +16,8 @@ from PyQt5.QtGui import *
 
 class RvizWidget(QWidget):
     MIN_WIDTH = 300
+    DEFAULT_VISUAL_ENABLED = True
+    DEFAULT_COLLISION_ENABLED = False
 
     def __init__(self, main: SetupAssistant):
         super().__init__()
@@ -42,19 +45,38 @@ class RvizWidget(QWidget):
         self._display = manager.getRootDisplayGroup().getDisplayAt(2)
         self._display.setBool(False)
 
-        # robot_model_displayのサブプロパティを取得
+        # ハイライトプロパティ
         self._highlight_link = self._display.subProp("Highlight Link")
         self._unhighlight_link = self._display.subProp("Unhighlight Link")
 
-        # Layout
+        # 可視化プロパティ
+        self._enable_visual = self._display.subProp("Visual Enabled")
+        self._enable_collision = self._display.subProp("Collision Enabled")
+        self._enable_visual.setBool(self.DEFAULT_VISUAL_ENABLED)
+        self._enable_collision.setBool(self.DEFAULT_COLLISION_ENABLED)
+
+        # 可視化ボタン
+        self._visual_box = QCheckBox("Visual Enabled")
+        self._visual_box.setChecked(self.DEFAULT_VISUAL_ENABLED)
+        self._collision_box = QCheckBox("Collision Enabled")
+        self._collision_box.setChecked(self.DEFAULT_COLLISION_ENABLED)
+
+        # レイアウト
         self._rows = QVBoxLayout()
-        self._rows.addWidget(self._frame)
+        self._cols = QHBoxLayout()
         self.setLayout(self._rows)
+        self._rows.addWidget(self._frame)
+        self._rows.addLayout(self._cols)
+        add_expanding_widget(self._cols)
+        self._cols.addWidget(self._visual_box)
+        self._cols.addWidget(self._collision_box)
 
         self.setMinimumWidth(self.MIN_WIDTH)
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._visual_box.toggled.connect(self._on_visual_box_toggled)
+        self._collision_box.toggled.connect(self._on_collision_box_toggled)
 
     def highlight_link(self, link_name: str) -> None:
         if link_name == self._highlighted_link:
@@ -74,3 +96,11 @@ class RvizWidget(QWidget):
         root_link = self._main.urdf_parser.get_root()
         self._frame.getManager().setFixedFrame(root_link.name)
         self._display.setBool(True)
+
+    @pyqtSlot(bool)
+    def _on_visual_box_toggled(self, checked: bool) -> None:
+        self._enable_visual.setBool(checked)
+
+    @pyqtSlot(bool)
+    def _on_collision_box_toggled(self, checked: bool) -> None:
+        self._enable_collision.setBool(checked)
