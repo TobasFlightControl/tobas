@@ -16,16 +16,16 @@ class ParamGetterWidget_LineEdit(ParamGetterWidget):
     ) -> None:
         super().__init__(param_name, description_text)
 
-        self.line = QLineEdit(default)
-        self._rows.addWidget(self.line)
+        self._line = QLineEdit(default)
+        self._rows.addWidget(self._line)
 
-        self.line.textChanged.connect(self._on_text_changed)
+        self._line.textChanged.connect(self._on_text_changed)
 
     def get(self) -> str:
-        return self.line.text()
+        return self._line.text()
 
     def set(self, text: str) -> None:
-        self.line.setText(text)
+        self._line.setText(text)
 
     @pyqtSlot(str)
     def _on_text_changed(self, text: str) -> None:

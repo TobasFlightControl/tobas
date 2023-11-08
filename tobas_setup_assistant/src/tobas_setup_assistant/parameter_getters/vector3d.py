@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from typing import Tuple, List
 
 from .base import ParamGetterWidget
-from .utils import DoubleGetter
+from .utils import FloatGetter
 
 
 class ParamGetterWidget_Vector3d(ParamGetterWidget):
@@ -26,24 +26,24 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
         self._cols = QHBoxLayout()
         self._rows.addLayout(self._cols)
 
-        self._x = DoubleGetter(
+        self._x = FloatGetter(
             "x", decimals, minimum[0], maximum[0], single_step[0], default[0], suffix
         )
         self._cols.addWidget(self._x)
 
-        self._y = DoubleGetter(
+        self._y = FloatGetter(
             "y", decimals, minimum[1], maximum[1], single_step[1], default[1], suffix
         )
         self._cols.addWidget(self._y)
 
-        self._z = DoubleGetter(
+        self._z = FloatGetter(
             "z", decimals, minimum[2], maximum[2], single_step[2], default[2], suffix
         )
         self._cols.addWidget(self._z)
 
-        self._x.data.valueChanged.connect(self._on_value_changed)
-        self._y.data.valueChanged.connect(self._on_value_changed)
-        self._z.data.valueChanged.connect(self._on_value_changed)
+        self._x.value_changed.connect(self._on_value_changed)
+        self._y.value_changed.connect(self._on_value_changed)
+        self._z.value_changed.connect(self._on_value_changed)
 
     def x(self) -> float:
         return self._x.get()
@@ -59,9 +59,9 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
         return [self.x(), self.y(), self.z()]
 
     def set(self, x: float, y: float, z: float) -> None:
-        self._x.data.setValue(x)
-        self._y.data.setValue(y)
-        self._z.data.setValue(z)
+        self._x.set(x)
+        self._y.set(y)
+        self._z.set(z)
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:

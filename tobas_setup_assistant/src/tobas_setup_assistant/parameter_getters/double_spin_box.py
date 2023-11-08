@@ -27,25 +27,25 @@ class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
 
         super().__init__(param_name, description_text)
 
-        self.spin_box = DoubleSpinBox()
-        self._rows.addWidget(self.spin_box)
+        self._spin_box = DoubleSpinBox()
+        self._rows.addWidget(self._spin_box)
 
-        self.spin_box.setDecimals(decimals)  # 桁数の設定を最初にしないと，デフォルト値などが潰れてしまう
-        self.spin_box.setMinimum(minimum)
-        self.spin_box.setMaximum(maximum)
-        self.spin_box.setSingleStep(single_step)
+        self._spin_box.setDecimals(decimals)  # 桁数の設定を最初にしないと，デフォルト値などが潰れてしまう
+        self._spin_box.setMinimum(minimum)
+        self._spin_box.setMaximum(maximum)
+        self._spin_box.setSingleStep(single_step)
         if default is not None:
             assert minimum <= default <= maximum
-            self.spin_box.setValue(default)
-        self.spin_box.setSuffix(suffix)
+            self._spin_box.setValue(default)
+        self._spin_box.setSuffix(suffix)
 
-        self.spin_box.valueChanged.connect(self._on_value_changed)
+        self._spin_box.valueChanged.connect(self._on_value_changed)
 
     def get(self) -> float:
-        return self.spin_box.value()
+        return self._spin_box.value()
 
     def set(self, value: float) -> None:
-        self.spin_box.setValue(value)
+        self._spin_box.setValue(value)
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:
