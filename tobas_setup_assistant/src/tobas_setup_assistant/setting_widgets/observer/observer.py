@@ -60,17 +60,23 @@ class ObserverWidget(BaseSettingWidget):
 
     @overrides
     def is_valid(self) -> bool:
-        if self.get_type() == self.NO_SELECT:
+        if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select observer type.")
             return False
 
-        if not self.selected().is_valid():
+        if not self._selected().is_valid():
             return False
 
         return True
 
-    def selected(self) -> BaseObserver:
-        observer_type = self.get_type()
+    def pkg_name(self) -> str:
+        return self._selected().PACKAGE_NAME
+
+    def parameter_dict(self) -> dict:
+        return self._selected().parameter_dict()
+
+    def _selected(self) -> BaseObserver:
+        observer_type = self._type.currentText()
 
         if observer_type == self.NO_SELECT:
             raise RuntimeError("Observer type is not selected.")
@@ -81,18 +87,8 @@ class ObserverWidget(BaseSettingWidget):
 
         RuntimeError(f"Unknown observer type: {observer_type}")
 
-    def get_type(self) -> str:
-        return self._type.currentText()
-
-    def pkg_name(self) -> str:
-        return self.selected().PACKAGE_NAME
-
-    @pyqtSlot(str)
-    def _on_type_changed(self, _: str) -> None:
-        self._update_visibility()
-
     def _update_visibility(self) -> None:
-        observer_type = self.get_type()
+        observer_type = self._type.currentText()
 
         for observer in self._observers:
             observer.setVisible(False)
@@ -101,3 +97,7 @@ class ObserverWidget(BaseSettingWidget):
             if observer.NAME == observer_type:
                 observer.setVisible(True)
                 return
+
+    @pyqtSlot(str)
+    def _on_type_changed(self, _: str) -> None:
+        self._update_visibility()

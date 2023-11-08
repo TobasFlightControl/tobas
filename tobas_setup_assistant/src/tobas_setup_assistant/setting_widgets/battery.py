@@ -33,16 +33,16 @@ class BatteryWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self.battery_type = ComboBox()
-        self.battery_type.addItems([self.NO_SELECT, self.LIPO, self.OTHER])
-        self.battery_type.setCurrentText(self.LIPO)
-        self._rows.addWidget(self.battery_type)
+        self._type = ComboBox()
+        self._type.addItems([self.NO_SELECT, self.LIPO, self.OTHER])
+        self._type.setCurrentText(self.LIPO)
+        self._rows.addWidget(self._type)
 
-        self.lipo = BatteryWidget_LiPo(main)
-        self._rows.addWidget(self.lipo)
+        self._lipo = BatteryWidget_LiPo(main)
+        self._rows.addWidget(self._lipo)
 
-        self.other = BatteryWidget_Other(main)
-        self._rows.addWidget(self.other)
+        self._other = BatteryWidget_Other(main)
+        self._rows.addWidget(self._other)
 
         add_expanding_widget(self._rows)
         self._update_visibility()
@@ -50,46 +50,52 @@ class BatteryWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self.battery_type.currentTextChanged.connect(self._on_type_changed)
+        self._type.currentTextChanged.connect(self._on_type_changed)
 
     @overrides
     def is_valid(self) -> bool:
-        if self.battery_type.currentText() == self.NO_SELECT:
+        if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select battery type.")
             return False
 
-        if not self.selected().is_valid():
+        if not self._selected().is_valid():
             return False
 
         return True
 
-    def selected(self) -> BatteryWidget_Base:
-        battery_type = self.battery_type.currentText()
+    def nominal_voltage(self) -> float:
+        return self._selected().nominal_voltage()
 
-        if battery_type == self.LIPO:
-            return self.lipo
-        elif battery_type == self.OTHER:
-            return self.other
+    def voltage_threshold(self) -> float:
+        return self._selected().voltage_threshold()
+
+    def _selected(self) -> BatteryWidget_Base:
+        _type = self._type.currentText()
+
+        if _type == self.LIPO:
+            return self._lipo
+        elif _type == self.OTHER:
+            return self._other
         else:
-            raise RuntimeError(f"Invalid battery type: {battery_type}")
+            raise RuntimeError(f"Invalid battery type: {_type}")
 
     def _update_visibility(self) -> None:
-        battery_type = self.battery_type.currentText()
+        _type = self._type.currentText()
 
-        if battery_type == self.NO_SELECT:
-            self.lipo.setVisible(False)
-            self.other.setVisible(False)
-        elif battery_type == self.LIPO:
-            self.lipo.setVisible(True)
-            self.other.setVisible(False)
-        elif battery_type == self.OTHER:
-            self.lipo.setVisible(False)
-            self.other.setVisible(True)
+        if _type == self.NO_SELECT:
+            self._lipo.setVisible(False)
+            self._other.setVisible(False)
+        elif _type == self.LIPO:
+            self._lipo.setVisible(True)
+            self._other.setVisible(False)
+        elif _type == self.OTHER:
+            self._lipo.setVisible(False)
+            self._other.setVisible(True)
         else:
-            raise RuntimeError(f"Invalid battery type: {battery_type}")
+            raise RuntimeError(f"Invalid battery type: {_type}")
 
     @pyqtSlot(str)
-    def _on_type_changed(self, battery_type: str) -> None:
+    def _on_type_changed(self, _type: str) -> None:
         self._update_visibility()
 
 

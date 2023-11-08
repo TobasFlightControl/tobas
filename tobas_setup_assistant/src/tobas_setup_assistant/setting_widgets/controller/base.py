@@ -48,9 +48,9 @@ class BaseController(QWidget):
         abst = Description(abst_text)
         self._rows.addWidget(abst)
 
-        self.flight_modes = FlightModesWidget()
-        self.flight_modes.set_num_modes(DEFAULT_NUM_FLIGHT_MODES, self.COMMAND_MSGS)
-        self._rows.addWidget(self.flight_modes)
+        self._flight_modes = FlightModesWidget()
+        self._flight_modes.set_num_modes(DEFAULT_NUM_FLIGHT_MODES, self.COMMAND_MSGS)
+        self._rows.addWidget(self._flight_modes)
 
     @abstractmethod
     def define_connections(self) -> None:
@@ -95,13 +95,17 @@ class BaseController(QWidget):
         return res
 
     @final
+    def flight_mode_names(self) -> List[str]:
+        return self._flight_modes.mode_names()
+
+    @final
     def _get_param_config(self, name: str) -> dict:
         return get_param_config(self._configs, name)
 
     @final
     @pyqtSlot(int)
     def _on_num_modes_updated(self, num_modes: int) -> None:
-        self.flight_modes.set_num_modes(num_modes, self.COMMAND_MSGS)
+        self._flight_modes.set_num_modes(num_modes, self.COMMAND_MSGS)
 
 
 class FlightModesWidget(QWidget):

@@ -73,21 +73,17 @@ class SelectedLinksWidget(TabWidget):
         else:
             raise RuntimeError(f"Link name not found: {link_name}")
 
-    def get_tab(self, link_name: str) -> SelectedLinkTabWidget:
-        idx = self.get_index(link_name)
-        return self.widget(idx)
-
     def get_esc(self, link_name: str) -> EscWidget:
-        return self.get_tab(link_name).esc
+        return self._get_tab(link_name).esc
 
     def get_motor(self, link_name: str) -> MotorWidget:
-        return self.get_tab(link_name).motor
+        return self._get_tab(link_name).motor
 
     def get_blade_geometry(self, link_name: str) -> BladeGeometry:
-        return self.get_tab(link_name).blade_geometry
+        return self._get_tab(link_name).blade_geometry
 
     def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
-        return self.get_tab(link_name).aerodynamics
+        return self._get_tab(link_name).aerodynamics
 
     def link_name(self, rotor_idx: int) -> str:
         tab: SelectedLinkTabWidget = self.widget(rotor_idx)
@@ -113,6 +109,10 @@ class SelectedLinksWidget(TabWidget):
     def directions(self) -> List[str]:
         """選択テーブル内の回転方向 (CW or CCW) のリストを返す．"""
         return [self.direction(i) for i in range(self.count())]
+
+    def _get_tab(self, link_name: str) -> SelectedLinkTabWidget:
+        idx = self.get_index(link_name)
+        return self.widget(idx)
 
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:

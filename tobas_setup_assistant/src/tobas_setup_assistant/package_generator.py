@@ -182,7 +182,7 @@ class PackageGenerator(QObject):
             items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
         )
 
-        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
+        command_msgs = self._main.settings.controller.command_msgs()
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
         if (
@@ -300,11 +300,8 @@ class PackageGenerator(QObject):
                 "moment_constant": float(selected.aerodynamics.moment_const()),
                 "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
                 "pin": i + 1,
+                "esc_type": selected.esc.esc_type().lower(),
             }
-
-            esc = selected.esc
-            esc_type = esc.esc_type.currentText()
-            drone_config[f"rotor_{i}"]["esc_type"] = esc_type.lower()
 
         # Fixed wing
         fixed_wing = self._main.settings.fixed_wing
@@ -391,12 +388,12 @@ class PackageGenerator(QObject):
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
         rc_transmitter = self._main.settings.rc_transmitter
-        controller = self._main.settings.controller.selected()
+        controller = self._main.settings.controller
 
         items = dict()
         items["rc_teleop"] = {
             "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
-            "mode_names": controller.flight_modes.mode_names(),
+            "mode_names": controller.flight_mode_names(),
         }
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")
@@ -404,23 +401,21 @@ class PackageGenerator(QObject):
             yaml.dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        items = self._main.settings.controller.selected().parameter_dict()
+        items = self._main.settings.controller.parameter_dict()
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        items = self._main.settings.observer.selected().parameter_dict()
+        items = self._main.settings.observer.parameter_dict()
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_state_checker_config(self, config_dir: str) -> None:
-        battery = self._main.settings.battery.selected()
-
         items = dict()
         items["state_checker"] = {
-            "battery_voltage_threshold": battery.voltage_threshold(),
+            "battery_voltage_threshold": self._main.settings.battery.voltage_threshold(),
         }
 
         file_path = osp.join(config_dir, "state_checker.yaml")
@@ -539,7 +534,7 @@ class PackageGenerator(QObject):
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
-            nominal_voltage=battery.selected().nominal_voltage(),
+            nominal_voltage=battery.nominal_voltage(),
         )
         robot.append(battery_model)
 

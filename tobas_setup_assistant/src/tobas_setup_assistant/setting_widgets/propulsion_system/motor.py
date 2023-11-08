@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
-    from .esc import EscWidget_Base
 
 import numpy as np
 from numpy import linalg as LA
@@ -64,38 +63,26 @@ class MotorWidget(QWidget):
             )
             return False
         else:
-            if not self.selected().is_valid():
+            if not self._selected().is_valid():
                 return False
 
         return True
 
-    def selected(self) -> MotorWidget_Base:
-        method_name = self._method_name.currentText()
-
-        if method_name == self.NO_SELECT:
-            raise RuntimeError("Setting method is not selected.")
-
-        for method in self._methods:
-            if method_name == method.NAME:
-                return method
-
-        raise RuntimeError(f"Invalid setting method: {method_name}")
-
     def direction(self) -> str:
         """CW or CCW"""
-        return self.selected().direction()
+        return self._selected().direction()
 
     def time_const_up(self) -> float:
         """[s]"""
-        return self.selected().time_const_up()
+        return self._selected().time_const_up()
 
     def time_const_down(self) -> float:
         """[s]"""
-        return self.selected().time_const_down()
+        return self._selected().time_const_down()
 
     def rot_speed_coefs(self) -> Tuple[float, float]:
         """V = a w + b w^2 (V[V], w[rad/s])"""
-        return self.selected().rot_speed_coefs()
+        return self._selected().rot_speed_coefs()
 
     def copy_from(self, src: MotorWidget) -> None:
         self._method_name.setCurrentText(src._method_name.currentText())
@@ -107,6 +94,18 @@ class MotorWidget(QWidget):
 
     def _define_connections(self) -> None:
         self._method_name.currentTextChanged.connect(self._on_type_changed)
+
+    def _selected(self) -> MotorWidget_Base:
+        method_name = self._method_name.currentText()
+
+        if method_name == self.NO_SELECT:
+            raise RuntimeError("Setting method is not selected.")
+
+        for method in self._methods:
+            if method_name == method.NAME:
+                return method
+
+        raise RuntimeError(f"Invalid setting method: {method_name}")
 
     def _update_visibility(self) -> None:
         method_name = self._method_name.currentText()

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from typing import List
+from typing import List, FrozenSet
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -71,34 +71,28 @@ class ControllerWidget(BaseSettingWidget):
             q_error_named(self._main, self.NAME, "Please select controller type.")
             return False
 
-        if not self.selected().is_valid():
+        if not self._selected().is_valid():
             return False
 
         return True
 
-    def selected(self) -> BaseController:
-        controller_type = self._type.currentText()
-
-        if controller_type == self.NO_SELECT:
-            raise RuntimeError("Controller type is not selected.")
-
-        for controller in self._controllers:
-            if controller_type == controller.NAME:
-                return controller
-
-        raise RuntimeError(f"Invalid controller type: {controller_type}")
-
-    def get_type(self) -> str:
-        return self._type.currentText()
-
     def controller_pkg(self) -> str:
-        return self.selected().CONTROLLER_PKG
+        return self._selected().CONTROLLER_PKG
 
     def takeoff_pkg(self) -> str:
-        return self.selected().TAKEOFF_PKG
+        return self._selected().TAKEOFF_PKG
 
     def landing_pkg(self) -> str:
-        return self.selected().LANDING_PKG
+        return self._selected().LANDING_PKG
+
+    def command_msgs(self) -> FrozenSet[str]:
+        return self._selected().COMMAND_MSGS
+
+    def flight_mode_names(self) -> List[str]:
+        return self._selected().flight_mode_names()
+
+    def parameter_dict(self) -> dict:
+        return self._selected().parameter_dict()
 
     def _update_controller_types(self) -> None:
         for controller in self._controllers:
@@ -116,6 +110,18 @@ class ControllerWidget(BaseSettingWidget):
             self._type.setCurrentIndex(1)  # idx = 0がNO_SELECTで，その次に設定
         else:
             self._type.setCurrentIndex(0)  # NO_SELECT
+
+    def _selected(self) -> BaseController:
+        controller_type = self._type.currentText()
+
+        if controller_type == self.NO_SELECT:
+            raise RuntimeError("Controller type is not selected.")
+
+        for controller in self._controllers:
+            if controller_type == controller.NAME:
+                return controller
+
+        raise RuntimeError(f"Invalid controller type: {controller_type}")
 
     def _update_visibility(self) -> None:
         controller_type = self._type.currentText()

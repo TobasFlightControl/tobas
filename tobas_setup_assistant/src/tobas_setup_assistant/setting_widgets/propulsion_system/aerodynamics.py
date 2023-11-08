@@ -66,34 +66,22 @@ class AerodynamicsWidget(QWidget):
             )
             return False
         else:
-            if not self.selected().is_valid():
+            if not self._selected().is_valid():
                 return False
 
         return True
 
-    def selected(self) -> AerodynamicsWidget:
-        method_name = self._method_name.currentText()
-
-        if method_name == self.NO_SELECT:
-            raise RuntimeError("Setting method is not selected.")
-
-        for method in self._methods:
-            if method_name == method.NAME:
-                return method
-
-        raise RuntimeError(f"Invalid setting method: {method_name}")
-
     def motor_const(self) -> float:
         """[kg*m/rad^2]"""
-        return self.selected().motor_const()
+        return self._selected().motor_const()
 
     def moment_const(self) -> float:
         """[m]"""
-        return self.selected().moment_const()
+        return self._selected().moment_const()
 
     def rotor_drag_coef(self) -> float:
         """[kg/rad]"""
-        return self.selected().rotor_drag_coef()
+        return self._selected().rotor_drag_coef()
 
     def copy_from(self, src: AerodynamicsWidget) -> None:
         self._method_name.setCurrentText(src._method_name.currentText())
@@ -105,6 +93,18 @@ class AerodynamicsWidget(QWidget):
 
     def _define_connections(self) -> None:
         self._method_name.currentTextChanged.connect(self._on_type_changed)
+
+    def _selected(self) -> AerodynamicsWidget_Base:
+        method_name = self._method_name.currentText()
+
+        if method_name == self.NO_SELECT:
+            raise RuntimeError("Setting method is not selected.")
+
+        for method in self._methods:
+            if method_name == method.NAME:
+                return method
+
+        raise RuntimeError(f"Invalid setting method: {method_name}")
 
     def _update_visibility(self) -> None:
         method_name = self._method_name.currentText()
