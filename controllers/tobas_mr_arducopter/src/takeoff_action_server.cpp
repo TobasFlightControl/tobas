@@ -5,7 +5,6 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/VelocityYaw.h>
 
 #include "../include/tobas_mr_arducopter/takeoff_action_server.hpp"
 #include "../include/tobas_mr_arducopter/constants.hpp"

@@ -1,7 +1,8 @@
+#include <dh_std_tools/trajectory.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/VelocityYaw.h>
+#include <tobas_msgs/PosVelAccYaw.h>
 
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
 
@@ -30,7 +31,7 @@ void TakeoffActionServer::getRosParams()
 
 void TakeoffActionServer::registerPublishers()
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::VelocityYaw>(tobas::kVelocityYawCmdTopic, 1);
+  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void TakeoffActionServer::registerSubscribers()
@@ -49,10 +50,10 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
     return false;
   }
 
-  if (goal->target_elevation_speed <= 0)
+  if (goal->target_duration <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Target elevation speed must be positive.");
+    as_.setAborted(result_, "Target duration must be positive.");
     return false;
   }
 
@@ -100,28 +101,25 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   if (!isGoalValid(goal))
     return;
 
-  // 離陸コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::VelocityYaw>();
-  cmd->level = goal->level;
-  cmd->frame_id.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->vel.z(goal->target_elevation_speed);
-  cmd->yaw = pt_->pose.euler.yaw;  // yawはアクションが呼ばれたときの値を維持する
-
-  // 離陸コマンドを発行
-  cmd_pub_.publish(cmd);
+  // 軌道を生成
+  dh_std::CubicSpline traj_z(pt_->pose.pos.z(), goal->target_altitude, goal->target_duration);
 
   // 初期状態
-  const auto start_alt = pt_->pose.pos.z();
   const auto start_time = ros::Time::now();
+  const auto start_x = pt_->pose.pos.x();
+  const auto start_y = pt_->pose.pos.y();
+  const auto start_yaw = pt_->pose.euler.yaw;
 
-  // 高度チェック
+  // 軌道を発行
   ros::Rate rate(kUpdateRate);
-  while (nh_.ok())
+  while (true)
   {
-    if ((ros::Time::now() - start_time).toSec() > goal->timeout)
+    const auto t = (ros::Time::now() - start_time).toSec();
+
+    if (t > traj_z.duration())
     {
-      result_.error_code = ResultType::TIMEOUT;
-      as_.setAborted(result_, "Timeout while takeoff.");
+      result_.error_code = ResultType::NO_ERROR;
+      as_.setSucceeded(result_);
       return;
     }
 
@@ -132,18 +130,25 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
       return;
     }
 
-    // 目標高度に到達したら停止して終了
-    if (pt_->pose.pos.z() - start_alt > goal->target_altitude)
-    {
-      rosInfo(name_, "Target altitude is reached.");
+    // コマンドを作成
+    const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    cmd->level = goal->level;
+    cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->pos.setZero();
+    cmd->vel.setZero();
+    cmd->acc.setZero();
 
-      cmd->vel.z(0.);
-      cmd_pub_.publish(cmd);
+    // 水平位置とヨー角は初期状態を維持
+    cmd->pos.x() = start_x;
+    cmd->pos.y() = start_y;
+    cmd->yaw = start_yaw;
 
-      result_.error_code = ResultType::NO_ERROR;
-      as_.setSucceeded(result_);
-      return;
-    }
+    // 鉛直方向の軌道を生成
+    traj_z.get(t, cmd->pos.z(), cmd->vel.z(), cmd->acc.z());
+
+    // コマンドを発行
+    cmd_pub_.publish(cmd);
 
     ros::spinOnce();
     rate.sleep();

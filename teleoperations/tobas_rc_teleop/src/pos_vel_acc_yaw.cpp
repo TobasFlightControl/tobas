@@ -30,8 +30,8 @@ void PosVelAccYawController::reset(const tobas_msgs::PoseTwist& pt)
 {
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector::Zero());
-  setToZero(tar_vel_);
   tar_pos_ = pt.pose.pos;
+  tar_vel_.setZero();
   tar_yaw_ = pt.pose.euler.yaw;
 }
 
@@ -74,8 +74,9 @@ void PosVelAccYawController::update(
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
   cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->vel = tar_vel_filtered;
   cmd->pos = tar_pos_;
+  cmd->vel = tar_vel_filtered;
+  cmd->acc.setZero();
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行

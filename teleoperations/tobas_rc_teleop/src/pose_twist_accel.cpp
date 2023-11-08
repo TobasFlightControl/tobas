@@ -91,9 +91,12 @@ void PoseTwistAccelController::update(
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
-  cmd->vel = tar_vel_;
   cmd->pos = tar_pos_;
+  cmd->vel = tar_vel_;
+  cmd->acc.setZero();
   cmd->rpy = tar_rpy_;
+  cmd->gyro.setZero();
+  cmd->dgyro.setZero();
 
   // コマンドを発行
   cmd_pub_.publish(cmd);

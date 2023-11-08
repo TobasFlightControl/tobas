@@ -115,6 +115,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   const auto cmd = boost::make_shared<tobas_msgs::VelocityYaw>();
   cmd->level = goal->level;
   cmd->frame_id.data = tobas_msgs::FrameId::GLOBAL;
+  cmd->vel.x() = cmd->vel.y() = 0;
   cmd->vel.z(-kVerticalSpeed);
   cmd->yaw = pt_->pose.euler.yaw;  // 現在のヨー角を初期目標位置に設定
 

@@ -154,6 +154,8 @@ void PositionYawPublisher::run()
     const auto pvay_msg = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     pvay_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pvay_msg->pos = cmd_pos_;
+    pvay_msg->vel.setZero();
+    pvay_msg->acc.setZero();
     pvay_msg->yaw = cmd_yaw_;
     pvay_pub_.publish(pvay_msg);
 
