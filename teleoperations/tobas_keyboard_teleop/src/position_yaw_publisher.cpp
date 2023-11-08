@@ -68,7 +68,7 @@ void PositionYawPublisher::run()
     rosError(name_, "'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
     return;
   }
-  rosInfo(name_, "Takeoff finished successfully. Start teleoperation!");
+  rosInfo(name_, "Takeoff finished successfully.");
 
   // 初期コマンドを設定
   tobas_msgs::PoseTwist pt;
@@ -80,7 +80,10 @@ void PositionYawPublisher::run()
   else
   {
     rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << ".");
-    // TODO: 初期コマンドを離陸コマンドと同じに設定
+    cmd_pos_.x() = 0;
+    cmd_pos_.y() = 0;
+    cmd_pos_.z() = takeoff_goal.target_altitude;
+    cmd_yaw_ = 0;
   }
 
   // キーボード入力による位置コマンドを発行し続ける
