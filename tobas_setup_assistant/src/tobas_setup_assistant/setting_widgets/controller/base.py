@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from typing import List, final
+from typing import List, final, FrozenSet
 import rospy
 from dynamic_reconfigure import client
 from dynamic_reconfigure.msg import ConfigDescription
@@ -31,7 +31,7 @@ class BaseController(QWidget):
     LANDING_PKG = UNKNOWN
     PARAM_SERVER_NODE = UNKNOWN
 
-    COMMAND_MSGS = [UNKNOWN]
+    COMMAND_MSGS: FrozenSet[str] = frozenset()
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()

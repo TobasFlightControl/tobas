@@ -27,7 +27,7 @@ class MultirotorMpc(BaseController):
     LANDING_PKG = "tobas_multirotor_landing"
     PARAM_SERVER_NODE = "tobas_mr_mpc"
 
-    COMMAND_MSGS = [PosVelAccYaw.__name__, RollPitchYawThrust.__name__]
+    COMMAND_MSGS = frozenset([PosVelAccYaw.__name__, RollPitchYawThrust.__name__])
 
     MIN_NUM_PROP = 3
 

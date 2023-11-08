@@ -27,7 +27,7 @@ class NonPlanarPid(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     PARAM_SERVER_NODE = "tobas_np_pid"
 
-    COMMAND_MSGS = [PoseTwistAccelCommand.__name__]
+    COMMAND_MSGS = frozenset([PoseTwistAccelCommand.__name__])
 
     MIN_NUM_PROP = 3
 

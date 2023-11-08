@@ -26,7 +26,7 @@ class FixedWingLQR(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"
 
-    COMMAND_MSGS = [SpeedRollDeltaPitch.__name__]
+    COMMAND_MSGS = frozenset([SpeedRollDeltaPitch.__name__])
 
     # Dynamic Parameters
     FORWARD_SPEED_WEIGHT = "forward_speed_weight"

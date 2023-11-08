@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 from overrides import overrides
 from typing import List
+from dataclasses import dataclass
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -24,39 +25,31 @@ from .base import BaseController
 ARDUPILOT = "ArduPilot"
 
 
+@dataclass(frozen=True)
 class FrameClass:
     """FRAME_CLASS: https://ardupilot.org/copter/docs/parameters.html#frame-class"""
 
-    def __init__(self, value: int, meaning: str, num_props: int) -> None:
-        self.value = value
-        self.meaning = meaning
-        self.num_props = num_props
+    value: int
+    meaning: str
+    num_props: int
 
 
+@dataclass(frozen=True)
 class FrameType:
     """FRAME_TYPE: https://ardupilot.org/copter/docs/parameters.html#frame-type"""
 
-    def __init__(self, value: int, meaning: str) -> None:
-        self.value = value
-        self.meaning = meaning
+    value: int
+    meaning: str
 
 
+@dataclass(frozen=True)
 class Frame:
     """Motor order diagrams: https://ardupilot.org/copter/docs/connect-escs-and-motors.html#motor-order-diagrams"""
 
-    def __init__(
-        self,
-        name: str,
-        frame_class: FrameClass,
-        frame_type: FrameType,
-        directions: List[str],
-    ) -> None:
-        assert len(directions) == frame_class.num_props
-
-        self._name = name
-        self._frame_class = frame_class
-        self._frame_type = frame_type
-        self._directions = directions
+    _name: str
+    _frame_class: FrameClass
+    _frame_type: FrameType
+    _directions: List[str]
 
     def name(self) -> str:
         return self._name
@@ -67,9 +60,6 @@ class Frame:
             0 <= channel < self._frame_class.num_props
         ), f"Number of propellers: {self._frame_class.num_props}, channel: {channel}"
         return self._directions[channel]
-
-    def directions(self) -> List[str]:
-        return self._directions
 
     def class_id(self) -> int:
         return self._frame_class.value
@@ -183,7 +173,7 @@ class ArduCopter(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     PARAM_SERVER_NODE = "arducopter_param_server"
 
-    COMMAND_MSGS = [PositionYaw.__name__]
+    COMMAND_MSGS = frozenset([PositionYaw.__name__])
 
     MIN_NUM_PROPS = 2
 
