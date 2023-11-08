@@ -8,7 +8,7 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/dryden_wind_model.hpp>
 #include <tobas_mr_common/dynamics.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
 namespace tobas_mr_wind_estimation
@@ -43,7 +43,7 @@ private:
 
   // PubSub
   ros::Publisher wind_pub_;
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
   ros::Subscriber rotor_speeds_sub_;
 
   void getRosParams() override;
@@ -53,7 +53,7 @@ private:
   Eigen::Matrix3d velCoef(const KDL::Euler& R_W_B);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
 };
 }  // namespace tobas_mr_wind_estimation

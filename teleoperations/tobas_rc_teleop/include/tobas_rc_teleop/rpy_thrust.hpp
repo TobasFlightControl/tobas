@@ -4,7 +4,7 @@
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/RCInput.h>
 
 #include "./base_controller.hpp"
@@ -21,10 +21,10 @@ public:
   explicit RollPitchYawThrustController();
 
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
-  void reset(const tobas_msgs::PoseTwist& pt) override;
+  void reset(const tobas_msgs::Odometry& odom) override;
   void update(
     const tobas_msgs::RCInput& rcin,
-    const tobas_msgs::PoseTwist& pt,
+    const tobas_msgs::Odometry& odom,
     const double& battery_voltage,
     const dh_std::Range<double>& dead_zone) override;
 

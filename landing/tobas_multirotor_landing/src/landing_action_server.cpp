@@ -38,12 +38,12 @@ void MultirotorLandServer::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void MultirotorLandServer::reset()
 {
-  pt_ = nullptr;
+  odom_ = nullptr;
   is_history_filled_ = false;
   alt_history_.clear();
 }
@@ -61,14 +61,14 @@ void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MultirotorLandServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_action_running_)
     return;
 
   // 現在の時刻と高度を履歴に追加
-  const auto& cur_time = pt->header.stamp;
-  const auto& altitude = pt->pose.pos.z();
+  const auto& cur_time = odom->header.stamp;
+  const auto& altitude = odom->pose.pos.z();
   alt_history_.emplace_back(cur_time, altitude);
 
   // 古い履歴を削除
@@ -81,7 +81,7 @@ void MultirotorLandServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   }
 
   // 最新の状態を更新
-  pt_ = pt;
+  odom_ = odom;
 }
 
 void MultirotorLandServer::executeCb(const GoalType& goal)
@@ -94,7 +94,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
   // 現在の状態を取得
   ros::spinOnce();
   ros::Duration(0.1).sleep();  // ベース状態が更新されるよう少し待機
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
   {
     is_action_running_ = false;
     result_.error_code = ResultType::NOT_READY;
@@ -104,10 +104,10 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
 
   // 初期状態
   const auto start_time = ros::Time::now();
-  const auto start_x = pt_->pose.pos.x();
-  const auto start_y = pt_->pose.pos.y();
-  const auto start_z = pt_->pose.pos.z();
-  const auto start_yaw = pt_->pose.euler.yaw;
+  const auto start_x = odom_->pose.pos.x();
+  const auto start_y = odom_->pose.pos.y();
+  const auto start_z = odom_->pose.pos.z();
+  const auto start_yaw = odom_->pose.euler.yaw;
 
   // 高度チェック
   ros::Rate rate(kUpdateRate);

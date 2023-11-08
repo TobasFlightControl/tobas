@@ -2,7 +2,7 @@
 
 #include <dh_std_tools/range.hpp>
 
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/RCInput.h>
 #include <tobas_msgs/PositionYaw.h>
 
@@ -16,10 +16,10 @@ class PositionYawController : public BaseController
 
 public:
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
-  void reset(const tobas_msgs::PoseTwist& pt) override;
+  void reset(const tobas_msgs::Odometry& odom) override;
   void update(
     const tobas_msgs::RCInput& rcin,
-    const tobas_msgs::PoseTwist& pt,
+    const tobas_msgs::Odometry& odom,
     const double& battery_voltage,
     const dh_std::Range<double>& dead_zone) override;
 

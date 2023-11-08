@@ -7,7 +7,7 @@
 #include <mavros_msgs/ParamSet.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 
 #include <tobas_mr_arducopter/ControllerConfig.h>
 

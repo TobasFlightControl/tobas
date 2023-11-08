@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
 
@@ -41,7 +41,7 @@ private:
   // Mutables
   stage_t stage_ = CHECK_PREREQUISITES;
   int last_mode_ = -1;
-  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
 
   // Controllers
@@ -49,7 +49,7 @@ private:
 
   // PubSub
   ros::Publisher event_pub_;
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;
 
@@ -58,7 +58,7 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);
 };

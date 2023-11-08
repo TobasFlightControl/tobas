@@ -7,7 +7,7 @@
 #include <dh_ros_tools/util.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/TakeoffAction.h>
@@ -71,15 +71,15 @@ void PositionYawPublisher::run()
   rosInfo(name_, "Takeoff finished successfully.");
 
   // 初期コマンドを設定
-  tobas_msgs::PoseTwist pt;
-  if (dh_ros::subscribeOnce(pt, tobas::kPoseTwistTopic, nh_))
+  tobas_msgs::Odometry odom;
+  if (dh_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_))
   {
-    cmd_pos_ = pt.pose.pos;
-    cmd_yaw_ = pt.pose.euler.yaw;
+    cmd_pos_ = odom.pose.pos;
+    cmd_yaw_ = odom.pose.euler.yaw;
   }
   else
   {
-    rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << ".");
+    rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kOdometryTopic << ".");
     cmd_pos_.x() = 0;
     cmd_pos_.y() = 0;
     cmd_pos_.z() = takeoff_goal.target_altitude;

@@ -10,27 +10,27 @@
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.916865" top="1.369324" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/pose/pos/x" color="#b41f8f"/>
+         <curve name="/s900/odom/pose/pos/x" color="#b41f8f"/>
          <curve name="/s900/controller_feedback/target_position/x" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/pose/pos/x" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/pose/pos/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-1.357009" top="0.680815" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/pose/pos/y" color="#d627b1"/>
+         <curve name="/s900/odom/pose/pos/y" color="#d627b1"/>
          <curve name="/s900/controller_feedback/target_position/y" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/pose/pos/y" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/pose/pos/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="18.960963" top="21.388992" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/pose/pos/z" color="#c91aad"/>
+         <curve name="/s900/odom/pose/pos/z" color="#c91aad"/>
          <curve name="/s900/controller_feedback/target_position/z" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/pose/pos/z" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/pose/pos/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -39,27 +39,27 @@
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.264508" top="0.181468" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/pose/euler/roll" color="#ff0eca"/>
+         <curve name="/s900/odom/pose/euler/roll" color="#ff0eca"/>
          <curve name="/s900/controller_feedback/target_orientation/roll" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/pose/euler/roll" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/pose/euler/roll" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.272144" top="0.202540" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/pose/euler/pitch" color="#f14cc1"/>
+         <curve name="/s900/odom/pose/euler/pitch" color="#f14cc1"/>
          <curve name="/s900/controller_feedback/target_orientation/pitch" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/pose/euler/pitch" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/pose/euler/pitch" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.031590" top="0.029753" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/pose/euler/yaw" color="#bd67b2"/>
+         <curve name="/s900/odom/pose/euler/yaw" color="#bd67b2"/>
          <curve name="/s900/controller_feedback/target_orientation/yaw" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/pose/euler/yaw" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/pose/euler/yaw" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -76,27 +76,27 @@
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.626971" top="0.877941" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/twist/linear/x" color="#cf17ab"/>
+         <curve name="/s900/odom/twist/linear/x" color="#cf17ab"/>
          <curve name="/s900/controller_feedback/target_velocity_local/x" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/twist/linear/x" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/twist/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.972995" top="0.936510" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/twist/linear/y" color="#bd2287"/>
+         <curve name="/s900/odom/twist/linear/y" color="#bd2287"/>
          <curve name="/s900/controller_feedback/target_velocity_local/y" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/twist/linear/y" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/twist/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-1.339110" top="1.349564" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/twist/linear/z" color="#b41fad"/>
+         <curve name="/s900/odom/twist/linear/z" color="#b41fad"/>
          <curve name="/s900/controller_feedback/target_velocity_local/z" color="#cdd420"/>
-         <curve name="/s900/ground_truth/pose_twist/twist/linear/z" color="#21dad3"/>
+         <curve name="/s900/ground_truth/odom/twist/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -105,24 +105,24 @@
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.381983" top="0.385689" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/twist/angular/x" color="#d627b9"/>
-         <curve name="/s900/ground_truth/pose_twist/twist/angular/x" color="#21dad3"/>
+         <curve name="/s900/odom/twist/angular/x" color="#d627b9"/>
+         <curve name="/s900/ground_truth/odom/twist/angular/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.468871" top="0.443205" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/twist/angular/y" color="#c91a9f"/>
-         <curve name="/s900/ground_truth/pose_twist/twist/angular/y" color="#21dad3"/>
+         <curve name="/s900/odom/twist/angular/y" color="#c91a9f"/>
+         <curve name="/s900/ground_truth/odom/twist/angular/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-0.186226" top="0.161728" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/twist/angular/z" color="#ff0ecf"/>
-         <curve name="/s900/ground_truth/pose_twist/twist/angular/z" color="#21dad3"/>
+         <curve name="/s900/odom/twist/angular/z" color="#ff0ecf"/>
+         <curve name="/s900/ground_truth/odom/twist/angular/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -139,24 +139,24 @@
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-2.945353" top="2.852565" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/accel/linear/x" color="#e02dc7"/>
-         <curve name="/s900/ground_truth/pose_twist/accel/linear/x" color="#21dad3"/>
+         <curve name="/s900/odom/accel/linear/x" color="#e02dc7"/>
+         <curve name="/s900/ground_truth/odom/accel/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-1.858130" top="2.855372" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/accel/linear/y" color="#e02dc7"/>
-         <curve name="/s900/ground_truth/pose_twist/accel/linear/y" color="#21dad3"/>
+         <curve name="/s900/odom/accel/linear/y" color="#e02dc7"/>
+         <curve name="/s900/ground_truth/odom/accel/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
          <range bottom="-2.223624" top="2.651233" right="934.900000" left="924.900000"/>
          <limitY/>
-         <curve name="/s900/pose_twist/accel/linear/z" color="#e02dc7"/>
-         <curve name="/s900/ground_truth/pose_twist/accel/linear/z" color="#21dad3"/>
+         <curve name="/s900/odom/accel/linear/z" color="#e02dc7"/>
+         <curve name="/s900/ground_truth/odom/accel/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>

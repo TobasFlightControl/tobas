@@ -14,7 +14,7 @@ void poseTobasToMsg(const tobas_msgs::Pose& t, geometry_msgs::Pose& m)
   rot.getQuaternion(m.orientation.x, m.orientation.y, m.orientation.z, m.orientation.w);
 }
 
-void odometryTobasToMsg(const tobas_msgs::PoseTwist& t, nav_msgs::Odometry& m)
+void odometryTobasToMsg(const tobas_msgs::Odometry& t, nav_msgs::Odometry& m)
 {
   m.header = t.header;
 

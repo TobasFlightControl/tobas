@@ -26,18 +26,18 @@ void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pn
   registerPublishers(nh);
 }
 
-void PosVelAccYawController::reset(const tobas_msgs::PoseTwist& pt)
+void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector::Zero());
-  tar_pos_ = pt.pose.pos;
+  tar_pos_ = odom.pose.pos;
   tar_vel_.setZero();
-  tar_yaw_ = pt.pose.euler.yaw;
+  tar_yaw_ = odom.pose.euler.yaw;
 }
 
 void PosVelAccYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::PoseTwist& pt,
+  const tobas_msgs::Odometry& odom,
   const double&,
   const Range<double>& dead_zone)
 {
@@ -64,8 +64,8 @@ void PosVelAccYawController::update(
   tar_yaw_ += yawrate * dt;
 
   // 誤差を制限
-  const auto& cur_pos = pt.pose.pos;
-  const auto& cur_yaw = pt.pose.euler.yaw;
+  const auto& cur_pos = odom.pose.pos;
+  const auto& cur_yaw = odom.pose.euler.yaw;
   tar_pos_ = tar_pos_.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
   tar_yaw_ = clamp(tar_yaw_, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
 

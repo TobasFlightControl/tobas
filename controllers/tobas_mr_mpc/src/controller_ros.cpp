@@ -60,7 +60,7 @@ void ControllerRos::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
   wind_sub_ = nh_.subscribe(tobas::kWindTopic, 1, &self::windCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
@@ -78,7 +78,7 @@ void ControllerRos::registerSubscribers()
 
 bool ControllerRos::isReady() const
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return false;
 
   if (battery_ == nullptr)
@@ -126,10 +126,10 @@ void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   // 状態を更新
-  pt_ = pt;
+  odom_ = odom;
 
   // 初期化
   if (!is_initialized_)
@@ -137,7 +137,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     if (isReady())
     {
       check_topics_timer_.stop();
-      t_last_loop_ = pt->header.stamp;
+      t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
       rosInfo(name_, "Controller is ready.");
     }
@@ -145,12 +145,12 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   }
 
   // 時刻を更新
-  const auto dt = (pt->header.stamp - t_last_loop_).toSec();
-  t_last_loop_ = pt->header.stamp;
+  const auto dt = (odom->header.stamp - t_last_loop_).toSec();
+  t_last_loop_ = odom->header.stamp;
 
   // Create a feedback message
   const auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
-  feedback->header.stamp = pt->header.stamp;
+  feedback->header.stamp = odom->header.stamp;
 
   // Translation Controller
   if (tar_pvay_ != nullptr)
@@ -161,18 +161,18 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     }
 
     // 世界座標系から見た現在の速度，加速度を計算
-    const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;
-    const Vector cur_acc_W = pt->pose.euler * pt->accel.linear;
+    const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;
+    const Vector cur_acc_W = odom->pose.euler * odom->accel.linear;
 
     // 目標加速度を計算
     pos_ctrl_.update(
-      pt->pose.pos, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
+      odom->pose.pos, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
 
     // 推力和と目標姿勢を計算
     acc_ctrl_.update(
-      pt->pose.euler, pt->twist.vel, wind_->vel, rotor_speeds_->speeds, tar_acc, tar_rpyt_->thrust,
-      tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+      odom->pose.euler, odom->twist.vel, wind_->vel, rotor_speeds_->speeds, tar_acc,
+      tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は位置指令をそのまま流す
     tar_rpyt_->level = tar_pvay_->level;
@@ -181,9 +181,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // Fill feedback
     feedback->target_position = tar_pvay_->pos;
     feedback->target_velocity_global = tar_pvay_->vel;
-    feedback->target_velocity_local = pt->pose.euler.inverse(tar_pvay_->vel);
+    feedback->target_velocity_local = odom->pose.euler.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
-    feedback->target_acceleration_local = pt->pose.euler.inverse(tar_acc);
+    feedback->target_acceleration_local = odom->pose.euler.inverse(tar_acc);
     feedback->position_integral_error = Vector(pos_ctrl_.positionIntegralError());
   }
 
@@ -200,7 +200,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     {
       // stopwatch_.start();
       thrusts_ = ori_ctrl_.solve(
-        dt, pt->pose.euler, pt->twist, wind_->vel, q_, battery_->voltage, rotor_speeds_->speeds,
+        dt, odom->pose.euler, odom->twist, wind_->vel, q_, battery_->voltage, rotor_speeds_->speeds,
         tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
@@ -212,7 +212,7 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-    rotor_speeds->header.stamp = pt->header.stamp;
+    rotor_speeds->header.stamp = odom->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
     for (uint32_t i = 0; i < thrusts_.rows(); ++i)
     {
@@ -267,7 +267,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 
 void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return;
 
   // コマンドレベルの処理
@@ -278,7 +278,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   tar_pvay_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, pt_->pose.euler, *tar_pvay_))
+  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, odom_->pose.euler, *tar_pvay_))
   {
     rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
     tar_pvay_ = nullptr;
@@ -288,7 +288,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 
 void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust)
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return;
 
   if (!updateCommandLevel(cmd_level_, rpy_thrust->level.data))
@@ -303,8 +303,8 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (pt_ == nullptr)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
+  if (odom_ == nullptr)
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kOdometryTopic << " is not received yet.");
 
   if (battery_ == nullptr)
     rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");

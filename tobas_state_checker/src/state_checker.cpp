@@ -39,7 +39,7 @@ void StateChecker::registerSubscribers()
 
   cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void StateChecker::requestLanding()
@@ -110,10 +110,10 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void StateChecker::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   // 離陸チェック
-  if (!is_flying_ && pt->pose.pos.z() > kTakeoffAltitudeThreshold)
+  if (!is_flying_ && odom->pose.pos.z() > kTakeoffAltitudeThreshold)
   {
     rosInfo(name_, "Takeoff detected.");
     is_flying_ = true;
@@ -121,7 +121,7 @@ void StateChecker::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   }
 
   // 姿勢角が閾値を超えていたら落とす
-  const auto& euler = pt->pose.euler;
+  const auto& euler = odom->pose.euler;
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");

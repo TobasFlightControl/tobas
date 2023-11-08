@@ -32,10 +32,9 @@ static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGpsTopic[] = "gps";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kWindTopic[] = "wind";
-static constexpr char kOdomTopic[] = "odom";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kEventTopic[] = "event";
-static constexpr char kPoseTwistTopic[] = "pose_twist";
+static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
@@ -52,7 +51,7 @@ static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
 static constexpr char kBatteryGtTopic[] = "ground_truth/battery";
 static constexpr char kWindGtTopic[] = "ground_truth/wind";
-static constexpr char kPoseTwistGtTopic[] = "ground_truth/pose_twist";
+static constexpr char kOdometryGtTopic[] = "ground_truth/odom";
 
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";

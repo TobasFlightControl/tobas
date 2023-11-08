@@ -6,13 +6,12 @@
 #include <Eigen/Geometry>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/FluidPressure.h>
-#include <nav_msgs/Odometry.h>
 
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Gps.h>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
 
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
@@ -29,8 +28,7 @@ class StateEstimator : public tobas::BaseNode
   using ImuMsg = sensor_msgs::Imu;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
-  using StateMsg = tobas_msgs::PoseTwist;
-  using OdomMsg = nav_msgs::Odometry;
+  using OdomMsg = tobas_msgs::Odometry;
 
   using ConfigType = state_estimation_cascade::StateEstimationCascadeConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
@@ -67,7 +65,6 @@ private:
   double gps_ver_pos_stddev_thr_;  // [m]
 
   // PubSub
-  ros::Publisher pt_pub_;
   ros::Publisher odom_pub_;
   ros::Subscriber filtered_imu_sub_;
   ros::Subscriber bar_sub_;
@@ -86,7 +83,7 @@ private:
   bool isReady();
   void initialize(const ImuMsg& imu);
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
-  StateMsg::ConstPtr makePoseVelMsg(const ImuMsg& imu);
+  OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void filteredImuCb(const ImuMsg::ConstPtr& imu);

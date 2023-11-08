@@ -25,24 +25,24 @@ void poseNwuToNed(tobas_msgs::Pose& arg)
   poseNwuToNed(arg, arg);
 }
 
-void baseStateNedToNwu(const tobas_msgs::PoseTwist& src, tobas_msgs::PoseTwist& des)
+void baseStateNedToNwu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
 {
   des.header = src.header;
   poseNedToNwu(src.pose, des.pose);
   twistNedToNwu(src.twist, des.twist);
 }
 
-void baseStateNwuToNed(const tobas_msgs::PoseTwist& src, tobas_msgs::PoseTwist& des)
+void baseStateNwuToNed(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
 {
   baseStateNedToNwu(src, des);
 }
 
-void baseStateNedToNwu(tobas_msgs::PoseTwist& arg)
+void baseStateNedToNwu(tobas_msgs::Odometry& arg)
 {
   baseStateNedToNwu(arg, arg);
 }
 
-void baseStateNwuToNed(tobas_msgs::PoseTwist& arg)
+void baseStateNwuToNed(tobas_msgs::Odometry& arg)
 {
   baseStateNwuToNed(arg, arg);
 }

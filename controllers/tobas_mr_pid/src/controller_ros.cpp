@@ -59,7 +59,7 @@ void ControllerRos::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (drone_.isTransformable())
   {
@@ -74,7 +74,7 @@ void ControllerRos::registerSubscribers()
 
 bool ControllerRos::isReady() const
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return false;
 
   if (battery_ == nullptr)
@@ -116,16 +116,16 @@ void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  pt_ = pt;
+  odom_ = odom;
 
   if (!is_initialized_)
   {
     if (isReady())
     {
       check_topics_timer_.stop();
-      t_last_loop_ = pt->header.stamp;
+      t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
       rosInfo(name_, "Controller is ready.");
     }
@@ -133,12 +133,12 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   }
 
   // 時刻を更新
-  const auto dt = (pt->header.stamp - t_last_loop_).toSec();
-  t_last_loop_ = pt->header.stamp;
+  const auto dt = (odom->header.stamp - t_last_loop_).toSec();
+  t_last_loop_ = odom->header.stamp;
 
   // Create a feedback message
   auto feedback = boost::make_shared<tobas_mr_pid::ControllerFeedback>();
-  feedback->header.stamp = pt->header.stamp;
+  feedback->header.stamp = odom->header.stamp;
 
   // Translation Controller
   if (tar_pvay_ != nullptr)
@@ -149,16 +149,16 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     }
 
     // 世界座標系から見た現在の速度を計算
-    const auto cur_vel_W = pt->pose.euler * pt->twist.vel;
+    const auto cur_vel_W = odom->pose.euler * odom->twist.vel;
 
     // 目標加速度を計算
     const Vector tar_acc_fb(pos_ctrl_.update(
-      pt->pose.pos.data, cur_vel_W.data, tar_pvay_->pos.data, tar_pvay_->vel.data, dt));
+      odom->pose.pos.data, cur_vel_W.data, tar_pvay_->pos.data, tar_pvay_->vel.data, dt));
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算
     acc_ctrl_.update(
-      pt->pose.euler, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+      odom->pose.euler, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は加速度指令をそのまま流す
     tar_rpyt_->level = tar_pvay_->level;
@@ -167,9 +167,9 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     // Fill feedback
     feedback->target_position = tar_pvay_->pos;
     feedback->target_velocity_global = tar_pvay_->vel;
-    feedback->target_velocity_local = pt->pose.euler.inverse(tar_pvay_->vel);
+    feedback->target_velocity_local = odom->pose.euler.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
-    feedback->target_acceleration_local = pt->pose.euler.inverse(tar_acc);
+    feedback->target_acceleration_local = odom->pose.euler.inverse(tar_acc);
     feedback->position_integral_error.data = pos_ctrl_.integralError();
   }
 
@@ -182,17 +182,17 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
     // 目標角加速度を計算
     const auto tar_dgyro =
-      ori_ctrl_.update(pt->pose.euler, pt->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
+      ori_ctrl_.update(odom->pose.euler, odom->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
     const VectorXd thrusts = mixer_.solve(
-      dt, battery_->voltage, q_, pt->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
+      dt, battery_->voltage, q_, odom->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
       tar_rpyt_->thrust);
 
     // モータ速度メッセージを作成
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-    rotor_speeds->header.stamp = pt->header.stamp;
+    rotor_speeds->header.stamp = odom->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
     for (uint32_t i = 0; i < thrusts.rows(); ++i)
     {
@@ -230,7 +230,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 
 void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return;
 
   // コマンドレベルの処理
@@ -241,7 +241,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   tar_pvay_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, pt_->pose.euler, *tar_pvay_))
+  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, odom_->pose.euler, *tar_pvay_))
   {
     rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
     tar_pvay_ = nullptr;
@@ -251,7 +251,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 
 void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt)
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return;
 
   if (!updateCommandLevel(cmd_level_, rpyt->level.data))
@@ -269,8 +269,8 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (battery_ == nullptr)
     rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
 
-  if (pt_ == nullptr)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
+  if (odom_ == nullptr)
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kOdometryTopic << " is not received yet.");
 
   if (drone_.isTransformable() && js_ == nullptr)
     rosWarn(

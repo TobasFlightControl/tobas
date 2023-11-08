@@ -92,7 +92,7 @@ void RCTeleop::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
   rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
 }
@@ -109,9 +109,9 @@ void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void RCTeleop::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void RCTeleop::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  pt_ = pt;
+  odom_ = odom;
 }
 
 void RCTeleop::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
@@ -125,7 +125,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
   {
     case CHECK_PREREQUISITES:
     {
-      if (pt_ != nullptr && battery_ != nullptr)
+      if (odom_ != nullptr && battery_ != nullptr)
       {
         stage_ = FIRST_RCIN;
       }
@@ -178,13 +178,13 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
       if (cur_mode != last_mode_)
       {
-        controllers_[cur_mode]->reset(*pt_);
+        controllers_[cur_mode]->reset(*odom_);
         rosInfo(name_, "Command type changed from " << last_mode_ << " to " << cur_mode << ".");
         last_mode_ = cur_mode;
         break;
       }
 
-      controllers_[cur_mode]->update(*rcin, *pt_, battery_->voltage, dead_zone_);
+      controllers_[cur_mode]->update(*rcin, *odom_, battery_->voltage, dead_zone_);
 
       break;
     }

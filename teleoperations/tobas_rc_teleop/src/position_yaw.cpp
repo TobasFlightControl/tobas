@@ -27,16 +27,16 @@ void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh
   registerPublishers(nh);
 }
 
-void PositionYawController::reset(const tobas_msgs::PoseTwist& pt)
+void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 {
-  pos_yaw_.pos = pt.pose.pos;
-  pos_yaw_.yaw = pt.pose.euler.yaw;
+  pos_yaw_.pos = odom.pose.pos;
+  pos_yaw_.yaw = odom.pose.euler.yaw;
   t_last_rcin_ = ros::Time::now();
 }
 
 void PositionYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::PoseTwist& pt,
+  const tobas_msgs::Odometry& odom,
   const double&,
   const Range<double>& dead_zone)
 {
@@ -58,8 +58,8 @@ void PositionYawController::update(
   pos_yaw_.yaw += yawrate * dt;
 
   // 誤差を制限
-  const auto& cur_pos = pt.pose.pos;
-  const auto& cur_yaw = pt.pose.euler.yaw;
+  const auto& cur_pos = odom.pose.pos;
+  const auto& cur_yaw = odom.pose.euler.yaw;
   pos_yaw_.pos = pos_yaw_.pos.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
   pos_yaw_.yaw = clamp(pos_yaw_.yaw, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
 

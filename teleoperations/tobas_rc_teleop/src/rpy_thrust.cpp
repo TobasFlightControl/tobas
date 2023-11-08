@@ -33,15 +33,15 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
   registerPublishers(nh);
 }
 
-void RollPitchYawThrustController::reset(const tobas_msgs::PoseTwist& pt)
+void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 {
-  yaw_ = pt.pose.euler.yaw;
+  yaw_ = odom.pose.euler.yaw;
   t_last_rcin_ = ros::Time::now();
 }
 
 void RollPitchYawThrustController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::PoseTwist&,
+  const tobas_msgs::Odometry&,
   const double& battery_voltage,
   const Range<double>& dead_zone)
 {

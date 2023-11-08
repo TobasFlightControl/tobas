@@ -38,7 +38,7 @@ void TakeoffActionServer::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
@@ -80,20 +80,20 @@ void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void TakeoffActionServer::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void TakeoffActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  pt_ = pt;
+  odom_ = odom;
 }
 
 void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(
-      result_, nh_.getNamespace() + "/" + tobas::kPoseTwistTopic + " is not received yet.");
+      result_, nh_.getNamespace() + "/" + tobas::kOdometryTopic + " is not received yet.");
     return;
   }
 
@@ -102,13 +102,13 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
     return;
 
   // 軌道を生成
-  dh_std::CubicSpline traj_z(pt_->pose.pos.z(), goal->target_altitude, goal->target_duration);
+  dh_std::CubicSpline traj_z(odom_->pose.pos.z(), goal->target_altitude, goal->target_duration);
 
   // 初期状態
   const auto start_time = ros::Time::now();
-  const auto start_x = pt_->pose.pos.x();
-  const auto start_y = pt_->pose.pos.y();
-  const auto start_yaw = pt_->pose.euler.yaw;
+  const auto start_x = odom_->pose.pos.x();
+  const auto start_y = odom_->pose.pos.y();
+  const auto start_yaw = odom_->pose.euler.yaw;
 
   // 軌道を発行
   ros::Rate rate(kUpdateRate);

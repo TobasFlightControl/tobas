@@ -4,7 +4,7 @@
 
   <group ns="{{ drone_name }}">
     <node pkg="tobas_gui_teleop" type="gui_teleop_node.py" name="gui_teleop" output="screen">
-      <remap if="$(arg ground_truth)" from="pose_twist" to="ground_truth/pose_twist"/>
+      <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
     </node>
   </group>
 

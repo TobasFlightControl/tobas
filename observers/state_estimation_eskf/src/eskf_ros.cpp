@@ -76,8 +76,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  pt_pub_ = nh_.advertise<StateMsg>(tobas::kPoseTwistTopic, 1);
-  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdomTopic, 1);
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
   feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
 }
 
@@ -196,8 +195,8 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   et::imuToQuaternion(acc_meas_, mag_meas_, m0, q_0_);
 }
 
-ErrorStateKalmanFilterRos::StateMsg::ConstPtr
-ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
+ErrorStateKalmanFilterRos::OdomMsg::ConstPtr
+ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
 {
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -208,22 +207,22 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   const Vector3d B_Gyro = gyro_meas_ - eskf_.getGyroBias();
   const Vector3d B_Pos_BI = drone_.imuOffset();
 
-  const auto state = boost::make_shared<StateMsg>();
+  const auto odom = boost::make_shared<OdomMsg>();
 
   // Time stamp
-  state->header.stamp = imu.header.stamp;
+  odom->header.stamp = imu.header.stamp;
 
   // Position (Global): IMU frame -> Base frame
-  state->pose.pos.data = W_Pos_WI - W_Rot_B * B_Pos_BI;
-  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
+  odom->pose.pos.data = W_Pos_WI - W_Rot_B * B_Pos_BI;
+  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), odom->position_covariance);
 
   // Linear velocity (Local): IMU frame -> Base frame
-  state->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
+  odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
   const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
-  et::matrix3EigenToBoost(vel_cov_B, state->linear_velocity_covariance);
+  et::matrix3EigenToBoost(vel_cov_B, odom->linear_velocity_covariance);
 
   // Roll, Pitch
-  auto& rpy = state->pose.euler;
+  auto& rpy = odom->pose.euler;
   quaternionToEuler(
     W_Rot_B.x(), W_Rot_B.y(), W_Rot_B.z(), W_Rot_B.w(), rpy.roll, rpy.pitch, yaw_now_);
 
@@ -235,21 +234,21 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
-  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state->orientation_covariance);
+  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), odom->orientation_covariance);
 
   // Angular velocity (Local)
-  state->twist.rot.data = B_Gyro;
-  state->angular_velocity_covariance = imu.angular_velocity_covariance;
+  odom->twist.rot.data = B_Gyro;
+  odom->angular_velocity_covariance = imu.angular_velocity_covariance;
 
   // Linear acceleration (Local)
-  state->accel.linear.data = B_Acc;
-  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
+  odom->accel.linear.data = B_Acc;
+  odom->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)
-  state->accel.angular.fill(nan(tobas::kUnknown));
-  state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
+  odom->accel.angular.fill(nan(tobas::kUnknown));
+  odom->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
-  return state;
+  return odom;
 }
 
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -384,12 +383,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       }
 
       // 推定状態を発行
-      const auto state = makePoseVelMsg(*imu);
-      pt_pub_.publish(state);
-
-      // 外部用にオドメトリを発行
-      const auto odom = boost::make_shared<OdomMsg>();
-      tobas::odometryTobasToMsg(*state, *odom);
+      const auto odom = makeOdometryMsg(*imu);
       odom_pub_.publish(odom);
 
       // フィードバックを発行

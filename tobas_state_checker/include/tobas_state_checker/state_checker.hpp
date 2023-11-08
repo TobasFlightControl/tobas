@@ -6,7 +6,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/LandAction.h>
 
 namespace tobas_state_checker
@@ -38,7 +38,7 @@ private:
   ros::Publisher event_pub_;
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
   ros::Subscriber cmd_sub_;
 
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_client_;
@@ -53,6 +53,6 @@ private:
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 };
 }  // namespace tobas_state_checker

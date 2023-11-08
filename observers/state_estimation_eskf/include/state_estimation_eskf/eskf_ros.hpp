@@ -5,7 +5,6 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
-#include <nav_msgs/Odometry.h>
 
 #include <dh_std_tools/first_order_filter.hpp>
 #include <dh_std_tools/stopwatch.hpp>
@@ -14,7 +13,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Gps.h>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 
 #include <state_estimation_eskf/ErrorStateKalmanFilterFeedback.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
@@ -32,8 +31,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
-  using StateMsg = tobas_msgs::PoseTwist;
-  using OdomMsg = nav_msgs::Odometry;
+  using OdomMsg = tobas_msgs::Odometry;
   using FeedbackMsg = state_estimation_eskf::ErrorStateKalmanFilterFeedback;
 
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
@@ -98,7 +96,6 @@ private:
   double gps_ver_pos_stddev_thr_;  // [m]
 
   // PubSub
-  ros::Publisher pt_pub_;
   ros::Publisher odom_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber imu_sub_;
@@ -122,7 +119,7 @@ private:
   bool isReady() const;
   void initialize();
   void setZeroPositions();
-  StateMsg::ConstPtr makePoseVelMsg(const ImuMsg& imu);
+  OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuCb(const ImuMsg::ConstPtr& imu);

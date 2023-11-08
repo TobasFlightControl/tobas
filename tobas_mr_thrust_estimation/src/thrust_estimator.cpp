@@ -56,7 +56,7 @@ void ThrustEstimator::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
@@ -76,7 +76,7 @@ void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_initialized_)
   {
@@ -88,8 +88,8 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     return;
   }
 
-  const Matrix3d R_W_B = pt->pose.euler.toRotation().data;
-  const Vector3d& acc_B = pt->accel.linear.data;
+  const Matrix3d R_W_B = odom->pose.euler.toRotation().data;
+  const Vector3d& acc_B = odom->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
 
   // 実際の推力に対するモデル推力の比率の観測値
@@ -102,7 +102,7 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   // 実際は加速度ノイズとジャイロノイズの分散に比例する値のはずだが，
   // どうせプロセスノイズのスケールがわからないため観測ノイズのスケールも適当でよい．
   // 簡単のため最も影響の大きいと思われる加速度ノイズの分散をそのまま使う．
-  kf_.R(0, 0) = pt->linear_acceleration_covariance[8] + EPS;
+  kf_.R(0, 0) = odom->linear_acceleration_covariance[8] + EPS;
 
   // カルマンフィルタを更新
   kf_.update();

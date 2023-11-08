@@ -10,27 +10,27 @@
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="1.530323" bottom="0.141828"/>
          <limitY/>
-         <curve name="/f450/pose_twist/pose/pos/x" color="#b41f8f"/>
+         <curve name="/f450/odom/pose/pos/x" color="#b41f8f"/>
          <curve name="/f450/controller_feedback/target_position/x" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/pose/pos/x" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/pose/pos/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="1.446124" bottom="-0.063000"/>
          <limitY/>
-         <curve name="/f450/pose_twist/pose/pos/y" color="#d627b1"/>
+         <curve name="/f450/odom/pose/pos/y" color="#d627b1"/>
          <curve name="/f450/controller_feedback/target_position/y" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/pose/pos/y" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/pose/pos/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="3.548281" bottom="1.987908"/>
          <limitY/>
-         <curve name="/f450/pose_twist/pose/pos/z" color="#c91aad"/>
+         <curve name="/f450/odom/pose/pos/z" color="#c91aad"/>
          <curve name="/f450/controller_feedback/target_position/z" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/pose/pos/z" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/pose/pos/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -39,27 +39,27 @@
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.080632" bottom="-0.075247"/>
          <limitY/>
-         <curve name="/f450/pose_twist/pose/euler/roll" color="#ff0eca"/>
+         <curve name="/f450/odom/pose/euler/roll" color="#ff0eca"/>
          <curve name="/f450/controller_feedback/target_orientation/roll" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/pose/euler/roll" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/pose/euler/roll" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.066744" bottom="-0.110632"/>
          <limitY/>
-         <curve name="/f450/pose_twist/pose/euler/pitch" color="#f14cc1"/>
+         <curve name="/f450/odom/pose/euler/pitch" color="#f14cc1"/>
          <curve name="/f450/controller_feedback/target_orientation/pitch" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/pose/euler/pitch" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/pose/euler/pitch" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.018622" bottom="-0.015201"/>
          <limitY/>
-         <curve name="/f450/pose_twist/pose/euler/yaw" color="#bd67b2"/>
+         <curve name="/f450/odom/pose/euler/yaw" color="#bd67b2"/>
          <curve name="/f450/controller_feedback/target_orientation/yaw" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/pose/euler/yaw" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/pose/euler/yaw" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -76,27 +76,27 @@
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.494468" bottom="-0.449383"/>
          <limitY/>
-         <curve name="/f450/pose_twist/twist/linear/x" color="#cf17ab"/>
+         <curve name="/f450/odom/twist/linear/x" color="#cf17ab"/>
          <curve name="/f450/controller_feedback/target_velocity_local/x" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/twist/linear/x" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/twist/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.479272" bottom="-0.535590"/>
          <limitY/>
-         <curve name="/f450/pose_twist/twist/linear/y" color="#bd2287"/>
+         <curve name="/f450/odom/twist/linear/y" color="#bd2287"/>
          <curve name="/f450/controller_feedback/target_velocity_local/y" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/twist/linear/y" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/twist/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.335876" bottom="-0.561800"/>
          <limitY/>
-         <curve name="/f450/pose_twist/twist/linear/z" color="#b41fad"/>
+         <curve name="/f450/odom/twist/linear/z" color="#b41fad"/>
          <curve name="/f450/controller_feedback/target_velocity_local/z" color="#cdd420"/>
-         <curve name="/f450/ground_truth/pose_twist/twist/linear/z" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/twist/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -105,24 +105,24 @@
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.384420" bottom="-0.339660"/>
          <limitY/>
-         <curve name="/f450/pose_twist/twist/angular/x" color="#d627b9"/>
-         <curve name="/f450/ground_truth/pose_twist/twist/angular/x" color="#21dad3"/>
+         <curve name="/f450/odom/twist/angular/x" color="#d627b9"/>
+         <curve name="/f450/ground_truth/odom/twist/angular/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.422650" bottom="-0.385147"/>
          <limitY/>
-         <curve name="/f450/pose_twist/twist/angular/y" color="#c91a9f"/>
-         <curve name="/f450/ground_truth/pose_twist/twist/angular/y" color="#21dad3"/>
+         <curve name="/f450/odom/twist/angular/y" color="#c91a9f"/>
+         <curve name="/f450/ground_truth/odom/twist/angular/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.150544" bottom="-0.140002"/>
          <limitY/>
-         <curve name="/f450/pose_twist/twist/angular/z" color="#ff0ecf"/>
-         <curve name="/f450/ground_truth/pose_twist/twist/angular/z" color="#21dad3"/>
+         <curve name="/f450/odom/twist/angular/z" color="#ff0ecf"/>
+         <curve name="/f450/ground_truth/odom/twist/angular/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -139,24 +139,24 @@
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="3.057086" bottom="-3.074480"/>
          <limitY/>
-         <curve name="/f450/pose_twist/accel/linear/x" color="#e02dc7"/>
-         <curve name="/f450/ground_truth/pose_twist/accel/linear/x" color="#21dad3"/>
+         <curve name="/f450/odom/accel/linear/x" color="#e02dc7"/>
+         <curve name="/f450/ground_truth/odom/accel/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="3.184825" bottom="-2.787807"/>
          <limitY/>
-         <curve name="/f450/pose_twist/accel/linear/y" color="#e02dc7"/>
-         <curve name="/f450/ground_truth/pose_twist/accel/linear/y" color="#21dad3"/>
+         <curve name="/f450/odom/accel/linear/y" color="#e02dc7"/>
+         <curve name="/f450/ground_truth/odom/accel/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="4.203406" bottom="-3.166930"/>
          <limitY/>
-         <curve name="/f450/pose_twist/accel/linear/z" color="#e02dc7"/>
-         <curve name="/f450/ground_truth/pose_twist/accel/linear/z" color="#21dad3"/>
+         <curve name="/f450/odom/accel/linear/z" color="#e02dc7"/>
+         <curve name="/f450/ground_truth/odom/accel/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -165,21 +165,21 @@
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="6.517258" bottom="-3.850434"/>
          <limitY/>
-         <curve name="/f450/ground_truth/pose_twist/accel/angular/x" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/accel/angular/x" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="5.010723" bottom="-3.772068"/>
          <limitY/>
-         <curve name="/f450/ground_truth/pose_twist/accel/angular/y" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/accel/angular/y" color="#21dad3"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
          <range left="129.517000" right="139.518000" top="0.170800" bottom="-0.137141"/>
          <limitY/>
-         <curve name="/f450/ground_truth/pose_twist/accel/angular/z" color="#21dad3"/>
+         <curve name="/f450/ground_truth/odom/accel/angular/z" color="#21dad3"/>
         </plot>
        </DockArea>
       </DockSplitter>

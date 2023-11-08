@@ -11,7 +11,7 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -52,7 +52,7 @@ private:
   MixerConfig mixer_cfg_;
 
   // Mutable variables
-  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::PoseTwistAccelCommandConstPtr cmd_;
@@ -66,7 +66,7 @@ private:
   ros::Publisher feedback_pub_;
 
   // Subscribers
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
   ros::Subscriber cmd_sub_;
@@ -85,7 +85,7 @@ private:
   void updateJointArray();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd);

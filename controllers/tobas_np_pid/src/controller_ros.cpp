@@ -55,7 +55,7 @@ void ControllerRos::registerSubscribers()
 {
   super::registerSubscribers();
 
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (drone_.isTransformable())
   {
@@ -68,7 +68,7 @@ void ControllerRos::registerSubscribers()
 
 bool ControllerRos::isReady() const
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return false;
 
   if (battery_ == nullptr)
@@ -110,16 +110,16 @@ void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  pt_ = pt;
+  odom_ = odom;
 
   if (!is_initialized_)
   {
     if (isReady())
     {
       check_topics_timer_.stop();
-      t_last_loop_ = pt->header.stamp;
+      t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
       rosInfo(name_, "Controller is ready.");
     }
@@ -127,8 +127,8 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
   }
 
   // 時刻を更新
-  const auto dt = (pt->header.stamp - t_last_loop_).toSec();
-  t_last_loop_ = pt->header.stamp;
+  const auto dt = (odom->header.stamp - t_last_loop_).toSec();
+  t_last_loop_ = odom->header.stamp;
 
   // コマンドが来ていなければスキップ
   if (cmd_ == nullptr)
@@ -139,23 +139,23 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     updateJointArray();
 
   // 位置制御器
-  const Vector cur_vel_W = pt->pose.euler * pt->twist.vel;  // 世界座標系から見た現在の速度
+  const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;  // 世界座標系から見た現在の速度
   const Vector tar_acc_fb(
-    pos_pid_.update(pt->pose.pos.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
+    pos_pid_.update(odom->pose.pos.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
   const Vector tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
   const Vector tar_dgyro_fb =
-    ori_pid_.update(pt->pose.euler, pt->twist.rot, cmd_->rpy, cmd_->gyro, dt);
+    ori_pid_.update(odom->pose.euler, odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
   const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // プロペラの推力を計算
   const VectorXd thrusts =
-    mixer_.solve(battery_->voltage, q_, pt->pose.euler, pt->twist.rot, tar_acc_W, tar_dgyro_B);
+    mixer_.solve(battery_->voltage, q_, odom->pose.euler, odom->twist.rot, tar_acc_W, tar_dgyro_B);
 
   // 回転数を発行
   const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds->header.stamp = pt->header.stamp;
+  rotor_speeds->header.stamp = odom->header.stamp;
   rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
   for (uint32_t i = 0; i < thrusts.rows(); ++i)
     rotor_speeds->speeds[i] = drone_.rotSpeedFromThrust(i, max(0., thrusts(i)));
@@ -163,12 +163,12 @@ void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
 
   // フィードバックを発行
   auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();
-  feedback->header.stamp = pt->header.stamp;
+  feedback->header.stamp = odom->header.stamp;
   feedback->target_position = cmd_->pos;
   feedback->target_velocity_global = cmd_->vel;
-  feedback->target_velocity_local = pt->pose.euler.inverse(cmd_->vel);
+  feedback->target_velocity_local = odom->pose.euler.inverse(cmd_->vel);
   feedback->target_acceleration_global = tar_acc_W;
-  feedback->target_acceleration_local = pt->pose.euler.inverse(tar_acc_W);
+  feedback->target_acceleration_local = odom->pose.euler.inverse(tar_acc_W);
   feedback->target_orientation = cmd_->rpy;
   feedback->position_integral_error.data = pos_pid_.integralError();
   feedback_pub_.publish(feedback);
@@ -192,7 +192,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 
 void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd)
 {
-  if (pt_ == nullptr)
+  if (odom_ == nullptr)
     return;
 
   // コマンドレベルの処理
@@ -208,8 +208,8 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
   if (battery_ == nullptr)
     rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
 
-  if (pt_ == nullptr)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
+  if (odom_ == nullptr)
+    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kOdometryTopic << " is not received yet.");
 
   if (drone_.isTransformable() && js_ == nullptr)
     rosWarn(

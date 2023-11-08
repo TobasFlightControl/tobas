@@ -34,7 +34,7 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
-  ros::Publisher pt_pub_;
+  ros::Publisher odom_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo&);

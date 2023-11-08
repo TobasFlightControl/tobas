@@ -20,16 +20,16 @@ void VelocityYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh
   registerPublishers(nh);
 }
 
-void VelocityYawController::reset(const tobas_msgs::PoseTwist& pt)
+void VelocityYawController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector3d::Zero());
-  yaw_ = pt.pose.euler.yaw;
+  yaw_ = odom.pose.euler.yaw;
 }
 
 void VelocityYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::PoseTwist&,
+  const tobas_msgs::Odometry&,
   const double&,
   const Range<double>& dead_zone)
 {

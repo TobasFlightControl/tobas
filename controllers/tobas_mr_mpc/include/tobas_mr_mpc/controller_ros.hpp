@@ -8,7 +8,7 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -58,7 +58,7 @@ private:
   tobas_mr_mpc::OrientationControllerConfig ori_cfg_;
 
   // Mutable variables
-  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
   tobas_msgs::WindConstPtr wind_;  // 風速 (世界座標系)
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
@@ -77,7 +77,7 @@ private:
   ros::Publisher feedback_pub_;
 
   // Subscribers
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
   ros::Subscriber rotor_speeds_sub_;
@@ -102,7 +102,7 @@ private:
   void updateJointArray();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void windCb(const tobas_msgs::WindConstPtr& wind);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);

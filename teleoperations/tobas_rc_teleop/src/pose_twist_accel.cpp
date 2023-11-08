@@ -26,17 +26,17 @@ void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& 
   registerPublishers(nh);
 }
 
-void PoseTwistAccelController::reset(const tobas_msgs::PoseTwist& pt)
+void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
   setToZero(tar_vel_);
-  tar_pos_ = pt.pose.pos;
-  tar_rpy_.yaw = pt.pose.euler.yaw;
+  tar_pos_ = odom.pose.pos;
+  tar_rpy_.yaw = odom.pose.euler.yaw;
 }
 
 void PoseTwistAccelController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::PoseTwist& pt,
+  const tobas_msgs::Odometry& odom,
   const double&,
   const Range<double>& dead_zone)
 {
@@ -46,8 +46,8 @@ void PoseTwistAccelController::update(
   t_last_rcin_ = cur_time;
 
   // Aliases
-  const auto& cur_pos = pt.pose.pos;
-  const auto& cur_yaw = pt.pose.euler.yaw;
+  const auto& cur_pos = odom.pose.pos;
+  const auto& cur_yaw = odom.pose.euler.yaw;
 
   // GPSw-1の状態によって水平速度制御モードと姿勢制御モードを切り替える
   if (rcin.gpsw1)  // 姿勢固定で位置制御

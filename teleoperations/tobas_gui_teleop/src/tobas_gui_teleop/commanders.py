@@ -20,7 +20,7 @@ from tobas_msgs.msg import (
     PosVelAccYaw,
     PoseTwistAccelCommand,
     CommandLevel,
-    PoseTwist,
+    Odometry,
 )
 
 from .utils import remap
@@ -72,7 +72,7 @@ class CommandersWidget(QScrollArea):
         self._rows = QVBoxLayout()
         inner.setLayout(self._rows)
 
-        self._pt_received = False
+        self._odom_received = False
 
         # ドローンの位置姿勢
         drone_label = QLabel("Multirotor Command")
@@ -134,9 +134,7 @@ class CommandersWidget(QScrollArea):
         self._pta_pub = rospy.Publisher(
             "command/pose_twist_accel", PoseTwistAccelCommand, queue_size=1
         )
-        self._bs_sub = rospy.Subscriber(
-            "pose_twist", PoseTwist, self._pose_twist_cb, queue_size=1
-        )
+        self._odom_sub = rospy.Subscriber("odom", Odometry, self._odom_cb, queue_size=1)
 
         add_expanding_widget(self._rows)
 
@@ -213,17 +211,17 @@ class CommandersWidget(QScrollArea):
         pta.rpy.yaw = self._drone_cmd_yaw.get_value()
         self._pta_pub.publish(pta)
 
-    def _pose_twist_cb(self, pt: PoseTwist) -> None:
-        if self._pt_received:
+    def _odom_cb(self, odom: Odometry) -> None:
+        if self._odom_received:
             return
 
         # 初期コマンドを設定
-        self._drone_cmd_x.set_value(pt.pose.pos.x)
-        self._drone_cmd_y.set_value(pt.pose.pos.y)
-        self._drone_cmd_z.set_value(pt.pose.pos.z + self._init_elevation)
+        self._drone_cmd_x.set_value(odom.pose.pos.x)
+        self._drone_cmd_y.set_value(odom.pose.pos.y)
+        self._drone_cmd_z.set_value(odom.pose.pos.z + self._init_elevation)
         self._drone_cmd_roll.set_value(0.0)
         self._drone_cmd_pitch.set_value(0.0)
-        self._drone_cmd_yaw.set_value(pt.pose.euler.yaw)
+        self._drone_cmd_yaw.set_value(odom.pose.euler.yaw)
 
         # バーを有効化
         self._drone_cmd_x.setEnabled(True)
@@ -233,7 +231,7 @@ class CommandersWidget(QScrollArea):
         self._drone_cmd_pitch.setEnabled(True)
         self._drone_cmd_yaw.setEnabled(True)
 
-        self._pt_received = True
+        self._odom_received = True
 
         rospy.loginfo("GUI teleoperation is ready.")
 

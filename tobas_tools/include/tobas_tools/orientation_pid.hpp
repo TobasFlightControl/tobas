@@ -47,4 +47,4 @@ inline KDL::Vector OrientationPid::integralError() const
 {
   return KDL::Vector(pid_.integralError());
 }
-}  // namespace tobas_mr_pid
+}  // namespace tobas
