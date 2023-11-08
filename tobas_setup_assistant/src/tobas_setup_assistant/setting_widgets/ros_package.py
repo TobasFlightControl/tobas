@@ -52,8 +52,8 @@ class RosPackageWidget(BaseSettingWidget):
         self.setAlignment(Qt.AlignTop)
         self._rows.addWidget(text)
 
-        self.pkg_path = PackagePath(main)
-        self._rows.addWidget(self.pkg_path)
+        self._pkg_path = PackagePath(main)
+        self._rows.addWidget(self._pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
         self.generate_button = add_center_button("Generate", self._rows)
@@ -65,27 +65,30 @@ class RosPackageWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self.pkg_path.define_connections()
-        self.pkg_path.path_changed.connect(self._on_path_changed)
+        self._pkg_path.define_connections()
+        self._pkg_path.path_changed.connect(self._on_path_changed)
 
     @overrides
     def is_valid(self) -> bool:
-        pardir = self.pkg_path.pardir
+        pardir = self._pkg_path.pardir
         if not osp.isdir(pardir):
             q_error_named(self._main, self.NAME, f"{pardir} does not exist.")
             return False
 
-        pkg_name = self.pkg_path.pkg_name
+        pkg_name = self._pkg_path.pkg_name
         if pkg_name.count("/") > 0 or pkg_name.count(" "):
             q_error_named(self._main, self.NAME, f"Invalid package name: {pkg_name}")
             return False
 
-        pkg_path = self.pkg_path.text()
+        pkg_path = self._pkg_path.text()
         if osp.exists(pkg_path):
             q_error_named(self._main, self.NAME, f"{pkg_path} already exists.")
             return False
 
         return True
+
+    def pkg_path(self) -> str:
+        return self._pkg_path.text()
 
     @pyqtSlot(str, str)
     def _on_path_changed(self, pardir: str, pkg_name: str) -> None:

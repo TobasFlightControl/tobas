@@ -22,19 +22,22 @@ class RobotVisualizerWidget(QWidget):
         self._cols = QHBoxLayout()
         self.setLayout(self._cols)
 
-        self.frame_tree = FrameTreeWidget(main)
-        self._cols.addWidget(self.frame_tree)
+        self._frame_tree = FrameTreeWidget(main)
+        self._cols.addWidget(self._frame_tree)
 
-        self.rviz = RvizWidget(main)
-        self._cols.addWidget(self.rviz)
+        self._rviz = RvizWidget(main)
+        self._cols.addWidget(self._rviz)
 
         self.setFixedHeight(self.HEIGHT)
         self.setVisible(False)
 
     def define_connections(self) -> None:
-        self.frame_tree.define_connections()
-        self.rviz.define_connections()
+        self._frame_tree.define_connections()
+        self._rviz.define_connections()
         self._main.urdf_parser.robot_model_updated.connect(self._visualize)
+
+    def highlight_link(self, link_name: str) -> None:
+        return self._rviz.highlight_link(link_name)
 
     @pyqtSlot()
     def _visualize(self) -> None:

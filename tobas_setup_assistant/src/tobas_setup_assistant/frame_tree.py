@@ -30,7 +30,7 @@ class FrameTreeWidget(QTreeWidget):
     def _on_item_clicked(self, item: QTreeWidgetItem, col: int) -> None:
         assert col == 0
         link_name = item.text(col)
-        self._main.robot_visualizer.rviz.highlight_link(link_name)
+        self._main.robot_visualizer.highlight_link(link_name)
 
     @pyqtSlot()
     def _add_tree_items(self) -> None:

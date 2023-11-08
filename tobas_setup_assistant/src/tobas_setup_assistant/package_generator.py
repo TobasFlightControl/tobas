@@ -120,7 +120,7 @@ class PackageGenerator(QObject):
 
     def _generate_pkg(self) -> None:
         # 各ディレクトリのパス
-        pkg_path = self._main.settings.ros_package.pkg_path.text()
+        pkg_path = self._main.settings.ros_package.pkg_path()
         config_dir = osp.join(pkg_path, "config")
         launch_dir = osp.join(pkg_path, "launch")
         urdf_dir = osp.join(pkg_path, "urdf")

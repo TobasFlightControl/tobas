@@ -36,14 +36,14 @@ class StartWidget(BaseSettingWidget):
 
         self.setEnabled(True)  # Startだけは初めからアクティブにしておく
 
-        self.robot_model_loader = RobotModelLoaderWidget(main)
-        self._rows.addWidget(self.robot_model_loader)
+        self._robot_model_loader = RobotModelLoaderWidget(main)
+        self._rows.addWidget(self._robot_model_loader)
 
         add_expanding_widget(self._rows)
 
     @overrides
     def define_connections(self) -> None:
-        self.robot_model_loader.define_connections()
+        self._robot_model_loader.define_connections()
 
     @overrides
     def is_valid(self) -> bool:
