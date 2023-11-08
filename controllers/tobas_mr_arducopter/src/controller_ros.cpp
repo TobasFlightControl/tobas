@@ -72,7 +72,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   // Drain the socket in the case we're backed up
   int counter = 0;
   ServoPacket last_pkt;
-  while (true)
+  while (nh_.ok())
   {
     const ssize_t recv_size_last = socket_in_.recv(&last_pkt, sizeof(ServoPacket), 0);
     if (recv_size_last == -1)
