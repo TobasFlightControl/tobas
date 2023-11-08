@@ -25,15 +25,12 @@ class RobotStateDisplay : public rviz::Display
   Q_OBJECT
 
 public:
-  RobotStateDisplay();
+  explicit RobotStateDisplay();
 
   void update(float wall_dt, float ros_dt) override;
   void reset() override;
 
-  const robot_model::RobotModelConstPtr& getRobotModel() const
-  {
-    return kmodel_;
-  }
+  inline const robot_model::RobotModelConstPtr& getRobotModel() const;
 
   void setLinkColor(const std::string& link_name, const QColor& color);
   void unsetLinkColor(const std::string& link_name);
@@ -64,8 +61,7 @@ protected:
 
   void newRobotStateCallback(const moveit_msgs::DisplayRobotStateConstPtr& state);
 
-  void
-  setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& highlight_links);
+  void setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& links);
   void setHighlight(const std::string& link_name, const std_msgs::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
 
@@ -75,7 +71,6 @@ protected:
   void onDisable() override;
   void fixedFrameChanged() override;
 
-  // render the robot
   ros::NodeHandle nh_;
   ros::Subscriber robot_state_subscriber_;
 
@@ -101,4 +96,9 @@ protected:
   std::shared_ptr<rviz::BoolProperty> enable_collision_visible_;
   std::shared_ptr<rviz::BoolProperty> show_all_links_;
 };
+
+inline const robot_model::RobotModelConstPtr& RobotStateDisplay::getRobotModel() const
+{
+  return kmodel_;
+}
 }  // namespace moveit_rviz_plugin
