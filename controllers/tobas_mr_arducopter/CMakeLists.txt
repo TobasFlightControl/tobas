@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	nodelet
 	pluginlib
+	mavros_msgs
 )
 
 # catkin_python_setup()
@@ -42,6 +43,7 @@ catkin_package(
 		actionlib
 		nodelet
 		pluginlib
+		mavros_msgs
 	# 	DEPENDS
 )
 
