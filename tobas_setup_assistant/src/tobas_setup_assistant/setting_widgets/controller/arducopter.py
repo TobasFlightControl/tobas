@@ -86,7 +86,7 @@ class ChannelsWidget(QWidget):
         label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(label)
 
-        description = Description("選択したフレームタイプの各チャンネルに対応するリンクを選択してください．")
+        description = Description("ダイアグラム上で，選択したフレームのプロペラ番号に対応するリンクを選択してください．")
         self._rows.addWidget(description)
 
         self._form = FormLayout()
@@ -138,7 +138,7 @@ class ChannelsWidget(QWidget):
             choices = ComboBox()
             choices.addItems([self.NO_SELECT] + prop_link_names)
             choices.setCurrentText(self.NO_SELECT)
-            self._form.addRow(QLabel(f"Channel {i + 1}"), choices)
+            self._form.addRow(QLabel(f"ArduPilot CH {i + 1}"), choices)
 
     @pyqtSlot()
     def _on_airframe_updated(self) -> None:
