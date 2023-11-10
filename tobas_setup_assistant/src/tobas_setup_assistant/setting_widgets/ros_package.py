@@ -6,13 +6,14 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import re
+import subprocess
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
-from dh_rqt_tools.messages import q_error_named
+from dh_rqt_tools.messages import *
 from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
@@ -82,8 +83,17 @@ class RosPackageWidget(BaseSettingWidget):
 
         pkg_path = self._pkg_path.text()
         if osp.exists(pkg_path):
-            q_error_named(self._main, self.NAME, f"{pkg_path} already exists.")
-            return False
+            res = QMessageBox.warning(
+                self._main,
+                QMessageLevel.WARN.name,
+                f"{pkg_path} already exists. Do you want to replace it?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if res == QMessageBox.Yes:
+                subprocess.run(["rm", "-r", pkg_path])
+            else:
+                return False
 
         return True
 
