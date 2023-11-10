@@ -238,7 +238,10 @@ $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
 
 <strong>Warning: This operation will rotate the motors.</strong>
 
-The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit), so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions. In this case, make sure that the battery, ESC (Electronic Speed Controller), motors, and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
+The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit),
+so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions.
+In this case, make sure that the battery, ESC (Electronic Speed Controller), motors,
+and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
 Execute the following in FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
@@ -250,7 +253,8 @@ $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 
 ### Robot meshes not visible [WSL]
 
-With WSL there are still some issues with using GPU, and in particular OpenGL, and this creates problems for visualizing meshes in rviz.\
+With WSL there are still some issues with using GPU, and in particular OpenGL,
+and this creates problems for visualizing meshes in rviz.\
 A temporary fix would be to export:
 
 ```bash
@@ -258,7 +262,8 @@ $ export LIBGL_ALWAYS_SOFTWARE=1
 $ export LIBGL_ALWAYS_INDIRECT=0
 ```
 
-and if you are using an Xserver, leave "Native opengl" option unchecked. This however will force the system to work on CPU, but that's what we have for now. \
+and if you are using an Xserver, leave "Native opengl" option unchecked.
+This however will force the system to work on CPU, but that's what we have for now. \
 cf. [Robot meshes not visible in rviz [Windows11, WSL2]](https://answers.ros.org/question/394135/robot-meshes-not-visible-in-rviz-windows11-wsl2/)
 
 ### Unstable takeoff
