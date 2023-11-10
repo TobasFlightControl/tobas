@@ -107,6 +107,7 @@ class DynamicConfigurationWidget(MainWidget):
                     # パラメータをフォームに追加
                     param = FloatParam(name)
                     param.setDecimals(FLOAT_DECIMALS)
+                    param.setSingleStep(10 ** (-FLOAT_DECIMALS))
                     param.setValue(float(value))
                     param.value_changed.connect(self._on_float_param_changed)
                     self._form.addRow(QLabel(name), param)
