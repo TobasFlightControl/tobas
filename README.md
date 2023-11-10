@@ -62,7 +62,7 @@ $ ./waf copter
 ```bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 $ cd ~/catkin_ws
-$ catkin build (tobas_config_pkg)
+$ catkin build your_config_pkg  # Replace "your_config_pkg" with your configuration packege name
 ```
 
 Examples of robot description can be found in `tobas/tobas_description/urdf/`.
@@ -75,8 +75,8 @@ Launch the drivers for the drone's sensors and propulsing system in Gazebo or in
 
 ```bash
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch (tobas_config_pkg) gazebo.launch  # Wait until the drone stops
-$ roslaunch (tobas_config_pkg) bringup.launch  # Launch Tobas control software
+$ roslaunch your_config_pkg gazebo.launch   # Launch Gazebo simulation with your drone
+$ roslaunch your_config_pkg bringup.launch  # Launch Tobas control software
 ```
 
 #### In the case of the real world
@@ -86,13 +86,14 @@ $ roslaunch (tobas_config_pkg) bringup.launch  # Launch Tobas control software
 2. Send configuration package from the PC to FC
 
 ```bash
-$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/
+# e.g.) scp -r ~/catkin_ws/src/tobas_iris_config/ pi@192.168.1.1:/home/pi/catkin_ws/src/
+$ scp -r ~/catkin_ws/src/your_config_pkg/ (user)@(host):/home/(user)/catkin_ws/src/
 ```
 
 3. SSH into FC
 
 ```bash
-$ ssh (user)@(host)
+$ ssh (user)@(host)  # e.g.) ssh pi@192.168.1.1
 ```
 
 4. Execute real.launch with superuser privileges
@@ -102,14 +103,14 @@ Please make sure that the RC transmitter and receiver can communicate correctly.
 ```bash
 $ su
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch (tobas_config_pkg) real.launch
+$ roslaunch your_config_pkg real.launch
 ```
 
 ### 3. Teleoperation
 
 ```bash
-$ roslaunch (tobas_config_pkg) keyboard_teleop.launch  # By keyboard
-$ roslaunch (tobas_config_pkg) gui_teleop.launch       # By GUI application
+$ roslaunch your_config_pkg keyboard_teleop.launch  # By keyboard
+$ roslaunch your_config_pkg gui_teleop.launch       # By GUI application
 ```
 
 ## Advanced usage
@@ -132,6 +133,13 @@ $ export ROS_HOSTNAME=`hostname -I | cut -d' ' -f1`
 $ export ROS_MASTER_URI=http://(IP address of FC):11311
 ```
 
+The IP address of FC can be found by executing following within the FC.
+
+```bash
+$ hostname -I
+>> 192.168.1.1
+```
+
 5. Confirm that the external PC can communicate with the ROS nodes inside the FC.
 
 ```bash
@@ -151,7 +159,7 @@ $ roscore
 2. Launch Gazebo simulation on the external PC.
 
 ```bash
-$ roslaunch (tobas_config_pkg) gazebo.launch
+$ roslaunch your_config_pkg gazebo.launch
 ```
 
 3. Launch HIL software on FC.\
@@ -160,7 +168,7 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 ```bash
 $ su
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch (tobas_config_pkg) hil.launch
+$ roslaunch your_config_pkg hil.launch
 ```
 
 ## Calibration
