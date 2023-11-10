@@ -132,7 +132,7 @@ $ roslaunch your_config_pkg plotjuggler.launch
 
 In the first dialog, select 'ROS Topic Subscriber', and in the second dialog, select all topics using Ctrl + A.\
 You can easily add or remove data to be displayed.
-For more details, please visit [Plotjuggler Tutorials](https://slides.com/davidefaconti/introduction-to-plotjuggler).
+For more details, please visit [PlotJuggler Tutorials](https://slides.com/davidefaconti/introduction-to-plotjuggler).
 
 ## Advanced usage
 
