@@ -49,13 +49,12 @@ class DynamicConfigurationWidget(MainWidget):
         self._save_button.setEnabled(False)
         cols.addWidget(self._save_button)
 
-        self._form = FormLayout()
-        form_widget = QWidget()
-        scroll_area = QScrollArea()
+        scroll_area = ScrollArea()
         scroll_area.setWidgetResizable(True)
-        form_widget.setLayout(self._form)
-        scroll_area.setWidget(form_widget)
         rows.addWidget(scroll_area)
+
+        self._form = FormLayout()
+        scroll_area.setLayout(self._form)
 
         self.define_connections()
 

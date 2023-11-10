@@ -9,10 +9,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.widgets import ScrollArea
+
 from ..common import *
 
 
-class BaseSettingWidget(QScrollArea):
+class BaseSettingWidget(ScrollArea):
     ABST_HEIGHT = 100
 
     NAME = UNKNOWN
@@ -24,11 +26,8 @@ class BaseSettingWidget(QScrollArea):
         self.setWidgetResizable(True)  # この設定が必須．無いとオブジェクトが潰れてしまう．
         self.setEnabled(False)  # 基本的にモデルが読み込まれて初めてアクティブになる
 
-        # QScrollAreaを使う際は，QLayoutの前にQWidgetを挟む必要がある．
-        inner = QWidget()
-        self.setWidget(inner)
         self._rows = QVBoxLayout()
-        inner.setLayout(self._rows)
+        self.setLayout(self._rows)
 
         title = QLabel(title_text)
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
