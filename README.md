@@ -122,6 +122,18 @@ $ roslaunch your_config_pkg keyboard_teleop.launch  # By keyboard
 $ roslaunch your_config_pkg gui_teleop.launch       # By GUI application
 ```
 
+### 4. Plot data
+
+You can use PlotJuggler to monitor various data in real time. Please execute the following:
+
+```bash
+$ roslaunch your_config_pkg plotjuggler.launch
+```
+
+In the first dialog, select 'ROS Topic Subscriber', and in the second dialog, select all topics using Ctrl + A.\
+You can easily add or remove data to be displayed.
+For more details, please visit [Plotjuggler Tutorials](https://slides.com/davidefaconti/introduction-to-plotjuggler).
+
 ## Advanced usage
 
 ### Run FC and external PC on the same ROS network
