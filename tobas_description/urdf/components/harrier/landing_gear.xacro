@@ -7,7 +7,7 @@
 	<xacro:include filename="$(find tobas_description)/urdf/components/harrier/landing_part.xacro"/>
 
 	<xacro:macro name="cylinder_inertia" params="radius length mass">
-		<inertia ixx="${0.25*mass*radius*radius + (1/12)*mass*length*length}" ixy="0.0" ixz="0.0" iyy="${0.25*mass*radius*radius + (1/12)*mass*length*length}" iyz="0.0" izz="${0.5*mass*radius*radius}" />
+		<inertia ixx="${0.25*mass*radius*radius + (1/12)*mass*length*length}" ixy="0.0" ixz="0.0" iyy="${0.25*mass*radius*radius + (1/12)*mass*length*length}" iyz="0.0" izz="${0.5*mass*radius*radius}"/>
 	</xacro:macro>
 
 	<joint name="${namespace}/land1_joint" type="revolute">

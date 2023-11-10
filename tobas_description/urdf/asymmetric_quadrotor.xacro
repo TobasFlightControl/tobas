@@ -3,28 +3,28 @@
 <robot name="asymmetric_quadrotor" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
   <!-- Properties  -->
-  <xacro:property name="namespace" value="asymmetric_quadrotor" />
-  <xacro:property name="use_mesh_file" value="false" />
-  <xacro:property name="mass_arm" value="0.01" /> <!-- [kg] -->
-  <xacro:property name="mass" value="1.0" /> <!-- [kg] -->
-  <xacro:property name="body_width" value="0.2" /> <!-- [m] -->
-  <xacro:property name="body_height" value="0.2" /> <!-- [m] -->
-  <xacro:property name="mass_rotor" value="0.01" /> <!-- [kg] -->
-  <xacro:property name="arm_length" value="0.6" /> <!-- [m] -->
-  <xacro:property name="rotor_offset_top" value="0.03" /> <!-- [m] -->
-  <xacro:property name="radius_rotor" value="0.128" /> <!-- [m] -->
+  <xacro:property name="namespace" value="asymmetric_quadrotor"/>
+  <xacro:property name="use_mesh_file" value="false"/>
+  <xacro:property name="mass_arm" value="0.01"/> <!-- [kg] -->
+  <xacro:property name="mass" value="1.0"/> <!-- [kg] -->
+  <xacro:property name="body_width" value="0.2"/> <!-- [m] -->
+  <xacro:property name="body_height" value="0.2"/> <!-- [m] -->
+  <xacro:property name="mass_rotor" value="0.01"/> <!-- [kg] -->
+  <xacro:property name="arm_length" value="0.6"/> <!-- [m] -->
+  <xacro:property name="rotor_offset_top" value="0.03"/> <!-- [m] -->
+  <xacro:property name="radius_rotor" value="0.128"/> <!-- [m] -->
 
   <!-- Property Blocks -->
   <xacro:property name="body_inertia">
-    <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.02" /> <!-- [kg m^2] -->
+    <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.02"/> <!-- [kg m^2] -->
   </xacro:property>
 
   <!-- inertia of a single rotor, assuming it is a cuboid. Height=3mm, width=15mm -->
   <xacro:property name="rotor_inertia">
-    <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor}" />
+    <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor}"/>
   </xacro:property>
 
   <!-- Instantiate multirotor_base_macro once -->
@@ -35,27 +35,27 @@
     body_height="${body_height}"
     use_mesh_file="${use_mesh_file}"
     mesh_file="">
-    <xacro:insert_block name="body_inertia" />
+    <xacro:insert_block name="body_inertia"/>
   </xacro:multirotor_base_macro>
 
   <joint name="${namespace}/arm0_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0" />
-    <parent link="${namespace}/base_link" />
-    <child link="${namespace}/arm0_link" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="${namespace}/base_link"/>
+    <child link="${namespace}/arm0_link"/>
   </joint>
 
   <link name="${namespace}/arm0_link">
     <xacro:box_inertial x="${arm_length}" y="0.03" z="0.01" mass="${(mass_rotor/3+mass_arm*5/9)*2}">
-      <origin xyz="${arm_length/2} 0 0" />
+      <origin xyz="${arm_length/2} 0 0"/>
     </xacro:box_inertial>
     <visual>
-      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
     </visual>
     <collision>
-      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
@@ -63,23 +63,23 @@
   </link>
 
   <joint name="${namespace}/arm1_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 ${2*pi/3}" />
-    <parent link="${namespace}/base_link" />
-    <child link="${namespace}/arm1_link" />
+    <origin xyz="0 0 0" rpy="0 0 ${2*pi/3}"/>
+    <parent link="${namespace}/base_link"/>
+    <child link="${namespace}/arm1_link"/>
   </joint>
 
   <link name="${namespace}/arm1_link">
     <xacro:box_inertial x="${arm_length}" y="0.03" z="0.01" mass="${mass_arm}">
-      <origin xyz="${arm_length/2} 0 0" />
+      <origin xyz="${arm_length/2} 0 0"/>
     </xacro:box_inertial>
     <visual>
-      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
     </visual>
     <collision>
-      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
@@ -87,23 +87,23 @@
   </link>
 
   <joint name="${namespace}/arm2_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 ${pi}" />
-    <parent link="${namespace}/base_link" />
-    <child link="${namespace}/arm2_link" />
+    <origin xyz="0 0 0" rpy="0 0 ${pi}"/>
+    <parent link="${namespace}/base_link"/>
+    <child link="${namespace}/arm2_link"/>
   </joint>
 
   <link name="${namespace}/arm2_link">
     <xacro:box_inertial x="${arm_length/3}" y="0.03" z="0.01" mass="${mass_arm/3}">
-      <origin xyz="${arm_length/6} 0 0" />
+      <origin xyz="${arm_length/6} 0 0"/>
     </xacro:box_inertial>
     <visual>
-      <origin xyz="${arm_length/6} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/6} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length/3} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
     </visual>
     <collision>
-      <origin xyz="${arm_length/6} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/6} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length/3} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
@@ -111,23 +111,23 @@
   </link>
 
   <joint name="${namespace}/arm3_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 -${2*pi/3}" />
-    <parent link="${namespace}/base_link" />
-    <child link="${namespace}/arm3_link" />
+    <origin xyz="0 0 0" rpy="0 0 -${2*pi/3}"/>
+    <parent link="${namespace}/base_link"/>
+    <child link="${namespace}/arm3_link"/>
   </joint>
 
   <link name="${namespace}/arm3_link">
     <xacro:box_inertial x="${arm_length}" y="0.03" z="0.01" mass="${mass_arm}">
-      <origin xyz="${arm_length/2} 0 0" />
+      <origin xyz="${arm_length/2} 0 0"/>
     </xacro:box_inertial>
     <visual>
-      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
     </visual>
     <collision>
-      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0" />
+      <origin xyz="${arm_length/2} 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="${arm_length} 0.03 0.01"/> <!-- [m] [m] [m] -->
       </geometry>
@@ -145,8 +145,8 @@
     color="Red"
     use_own_mesh="false"
     mesh="">
-    <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0" />
-    <xacro:insert_block name="rotor_inertia" />
+    <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
+    <xacro:insert_block name="rotor_inertia"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -159,8 +159,8 @@
     color="Blue"
     use_own_mesh="false"
     mesh="">
-    <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0" />
-    <xacro:insert_block name="rotor_inertia" />
+    <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
+    <xacro:insert_block name="rotor_inertia"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -173,8 +173,8 @@
     color="Yellow"
     use_own_mesh="false"
     mesh="">
-    <origin xyz="${arm_length/3} 0 ${rotor_offset_top}" rpy="0 0 0" />
-    <xacro:insert_block name="rotor_inertia" />
+    <origin xyz="${arm_length/3} 0 ${rotor_offset_top}" rpy="0 0 0"/>
+    <xacro:insert_block name="rotor_inertia"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -187,8 +187,8 @@
     color="Blue"
     use_own_mesh="false"
     mesh="">
-    <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0" />
-    <xacro:insert_block name="rotor_inertia" />
+    <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
+    <xacro:insert_block name="rotor_inertia"/>
   </xacro:vertical_rotor>
 
 </robot>

@@ -14,9 +14,9 @@
   xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/kinova_inertial.xacro" />
+  <xacro:include filename="$(find tobas_description)/urdf/components/harrier/kinova_inertial.xacro"/>
 
-  <xacro:property name="J_PI" value="3.1415926535897931" />
+  <xacro:property name="J_PI" value="3.1415926535897931"/>
 
   <xacro:macro name="kinova_armlink" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
     <link name="${link_name}">
@@ -25,7 +25,7 @@
           <mesh filename="package://tobas_description/meshes/harrier/${link_mesh}.dae"/>
         </geometry>
         <material name="carbon_fiber">
-          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
         </material>
       </visual>
 

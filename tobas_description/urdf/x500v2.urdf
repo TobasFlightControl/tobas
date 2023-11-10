@@ -47,7 +47,7 @@
 
   <joint name="rotor_0_joint" type="continuous">
     <origin xyz="0.176876 -0.176876 0.0558" rpy="0 0 0"/>
-    <axis xyz="0 0 1" />
+    <axis xyz="0 0 1"/>
     <parent link="base_link"/>
     <child link="rotor_0"/>
   </joint>
@@ -77,7 +77,7 @@
 
   <joint name="rotor_1_joint" type="continuous">
     <origin xyz="-0.176876 0.176876 0.0558" rpy="0 0 0"/>
-    <axis xyz="0 0 1" />
+    <axis xyz="0 0 1"/>
     <parent link="base_link"/>
     <child link="rotor_1"/>
   </joint>
@@ -107,7 +107,7 @@
 
   <joint name="rotor_2_joint" type="continuous">
     <origin xyz="0.176876 0.176876 0.0558" rpy="0 0 0"/>
-    <axis xyz="0 0 1" />
+    <axis xyz="0 0 1"/>
     <parent link="base_link"/>
     <child link="rotor_2"/>
   </joint>
@@ -137,7 +137,7 @@
 
   <joint name="rotor_3_joint" type="continuous">
     <origin xyz="-0.176876 -0.176876 0.0558" rpy="0 0 0"/>
-    <axis xyz="0 0 1" />
+    <axis xyz="0 0 1"/>
     <parent link="base_link"/>
     <child link="rotor_3"/>
   </joint>

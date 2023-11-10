@@ -10,7 +10,7 @@
 	<xacro:property name="z_fat" value="0.03"/>
 
 	<xacro:macro name="boxs_inertia" params="xl yl zl mass">
-		<inertia ixx="${(1/12)*mass*(yl*yl + zl*zl)}" ixy="0.0" ixz="0.0" iyy="${(1/12)*mass*(xl*xl + zl*zl)}" iyz="0.0" izz="${(1/12)*mass*(xl*xl + yl*yl)}" />
+		<inertia ixx="${(1/12)*mass*(yl*yl + zl*zl)}" ixy="0.0" ixz="0.0" iyy="${(1/12)*mass*(xl*xl + zl*zl)}" iyz="0.0" izz="${(1/12)*mass*(xl*xl + yl*yl)}"/>
 	</xacro:macro>
 
 	<xacro:macro name="landing_parts" params="name xl yl zl mass *origin *inertia *color">
