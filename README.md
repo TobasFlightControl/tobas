@@ -14,7 +14,16 @@ $ rosdep update
 $ source /opt/ros/noetic/setup.bash
 ```
 
-2. Create catkin workspace
+2. Install MAVROS
+
+```bash
+$ sudo apt install ros-noetic-mavros ros-noetic-mavros-extras
+$ wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
+$ chmod u+x install_geographiclib_datasets.sh
+$ ./install_geographiclib_datasets.sh
+```
+
+3. Create catkin workspace
 
 ```bash
 $ mkdir -p ~/catkin_ws/src
@@ -22,7 +31,7 @@ $ cd ~/catkin_ws
 $ catkin init
 ```
 
-3. Clone Tobas and install dependencies
+4. Clone Tobas and install dependencies
 
 ```bash
 $ cd ~/catkin_ws/src
@@ -32,7 +41,7 @@ $ rosdep install --from-paths . --ignore-src -ry
 $ pip install -r tobas/requirements.txt
 ```
 
-4. Build catkin workspace
+5. Build catkin workspace
 
 ```bash
 $ catkin build
