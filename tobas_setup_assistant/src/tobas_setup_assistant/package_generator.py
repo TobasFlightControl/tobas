@@ -149,6 +149,11 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items,
+            "plotjuggler_layout.xml",
+            osp.join(config_dir, "plotjuggler_layout.xml"),
+        )
+        self._generate_from_template(
+            items,
             "nodelet_manager.launch",
             osp.join(launch_dir, "nodelet_manager.launch"),
         )
@@ -180,6 +185,9 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+        )
+        self._generate_from_template(
+            items, "plotjuggler.launch", osp.join(launch_dir, "plotjuggler.launch")
         )
 
         command_msgs = self._main.settings.controller.command_msgs()
