@@ -7,8 +7,8 @@ if TYPE_CHECKING:
 import math
 import random
 import rospy
-from typing import List
-from urdf_parser_py.urdf import Robot, Joint
+from typing import List, Callable
+from urdf_parser_py.urdf import Robot, Joint, JointLimit
 from std_msgs.msg import Float64
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -24,11 +24,14 @@ from tobas_msgs.msg import (
 )
 
 from .utils import remap
+from .common import *
 
 
-class CommandersWidget(QScrollArea):
-    LABEL_PSIZE = 12
+class MultirotorCommanderWidget(QWidget):
+    # Constants
+    HOME_ALTITUDE = 3.0
 
+    # Default parameters
     DEFAULT_INIT_ELEVATION = 0.0  # [m]
     DEFAULT_MIN_X = -10.0  # [m]
     DEFAULT_MAX_X = 10.0  # [m]
@@ -47,7 +50,7 @@ class CommandersWidget(QScrollArea):
         super().__init__()
         self._main = main
 
-        # RosParams
+        # rosparams
         self._x_min = 0.0
         self._x_max = 0.0
         self._y_min = 0.0
@@ -61,68 +64,74 @@ class CommandersWidget(QScrollArea):
         self._yaw_min = 0.0
         self._yaw_max = 0.0
         self._init_elevation = 0.0
-        self._joint_names: List[str] = []
         self._get_params()
 
-        self.setWidgetResizable(True)  # この設定が必須．無いとオブジェクトが潰れてしまう．
+        # メインレイアウト
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
-        # QScrollAreaを使う際は，QLayoutの前にQWidgetを挟む必要がある．
-        inner = QWidget()
-        self.setWidget(inner)
-        self._rows = QVBoxLayout()
-        inner.setLayout(self._rows)
-
-        self._odom_received = False
-
-        # ドローンの位置姿勢
-        drone_label = QLabel("Multirotor Command")
-        drone_label.setFont(QFont("Default", self.LABEL_PSIZE, QFont.Bold))
-        drone_label.setAlignment(Qt.AlignCenter)
-        self._rows.addWidget(drone_label)
+        # ラベル
+        label = QLabel("Multirotor Command")
+        label.setFont(QFont("Default", LABEL_PSIZE, QFont.Bold))
+        label.setAlignment(Qt.AlignCenter)
+        rows.addWidget(label)
 
         # XYZRPYに対応するバーを追加
-        self._drone_cmd_x = Commander("x", self._x_min, self._x_max)
-        self._drone_cmd_y = Commander("y", self._y_min, self._y_max)
-        self._drone_cmd_z = Commander("z", self._z_min, self._z_max)
-        self._drone_cmd_roll = Commander("roll", self._roll_min, self._roll_max)
-        self._drone_cmd_pitch = Commander("pitch", self._pitch_min, self._pitch_max)
-        self._drone_cmd_yaw = Commander("yaw", self._yaw_min, self._yaw_max)
-        self._rows.addWidget(self._drone_cmd_x)
-        self._rows.addWidget(self._drone_cmd_y)
-        self._rows.addWidget(self._drone_cmd_z)
-        self._rows.addWidget(self._drone_cmd_roll)
-        self._rows.addWidget(self._drone_cmd_pitch)
-        self._rows.addWidget(self._drone_cmd_yaw)
+        self._cmd_x = Commander(
+            "x",
+            self._x_min,
+            self._x_max,
+            callback=self._publish_current_command,
+        )
+        self._cmd_y = Commander(
+            "y",
+            self._y_min,
+            self._y_max,
+            callback=self._publish_current_command,
+        )
+        self._cmd_z = Commander(
+            "z",
+            self._z_min,
+            self._z_max,
+            callback=self._publish_current_command,
+        )
+        self._cmd_roll = Commander(
+            "roll",
+            self._roll_min,
+            self._roll_max,
+            callback=self._publish_current_command,
+        )
+        self._cmd_pitch = Commander(
+            "pitch",
+            self._pitch_min,
+            self._pitch_max,
+            callback=self._publish_current_command,
+        )
+        self._cmd_yaw = Commander(
+            "yaw",
+            self._yaw_min,
+            self._yaw_max,
+            callback=self._publish_current_command,
+        )
+        rows.addWidget(self._cmd_x)
+        rows.addWidget(self._cmd_y)
+        rows.addWidget(self._cmd_z)
+        rows.addWidget(self._cmd_roll)
+        rows.addWidget(self._cmd_pitch)
+        rows.addWidget(self._cmd_yaw)
+
+        # 初期位置にボタン
+        self._home_button = QPushButton("Home")
+        self._home_button.clicked.connect(self._on_home_button_clicked)
+        rows.addWidget(self._home_button)
 
         # 最初はバーを無効化
-        self._drone_cmd_x.setEnabled(False)
-        self._drone_cmd_y.setEnabled(False)
-        self._drone_cmd_z.setEnabled(False)
-        self._drone_cmd_roll.setEnabled(False)
-        self._drone_cmd_pitch.setEnabled(False)
-        self._drone_cmd_yaw.setEnabled(False)
-
-        # その他の可動関節
-        robot: Robot = Robot.from_parameter_server("robot_description")
-        self.joint_cmds: List[Commander] = []
-
-        if len(self._joint_names) > 0:
-            joint_label = QLabel("Joint Command")
-            joint_label.setFont(QFont("Default", self.LABEL_PSIZE, QFont.Bold))
-            joint_label.setAlignment(Qt.AlignCenter)
-            self._rows.addWidget(joint_label)
-
-        for joint_name in self._joint_names:
-            joint: Joint = robot.joint_map[joint_name]
-            commander = Commander(
-                joint_name,
-                joint.limit.lower,
-                joint.limit.upper,
-                f"{joint_name}_controller/command",
-            )
-            commander.update()
-            self.joint_cmds.append(commander)
-            self._rows.addWidget(commander)
+        self._cmd_x.setEnabled(False)
+        self._cmd_y.setEnabled(False)
+        self._cmd_z.setEnabled(False)
+        self._cmd_roll.setEnabled(False)
+        self._cmd_pitch.setEnabled(False)
+        self._cmd_yaw.setEnabled(False)
 
         # PubSub
         self._pos_yaw_pub = rospy.Publisher(
@@ -136,22 +145,9 @@ class CommandersWidget(QScrollArea):
         )
         self._odom_sub = rospy.Subscriber("odom", Odometry, self._odom_cb, queue_size=1)
 
-        add_expanding_widget(self._rows)
-
-    def define_connections(self) -> None:
-        self._drone_cmd_x.value_changed.connect(self._publish_drone_cmd)
-        self._drone_cmd_y.value_changed.connect(self._publish_drone_cmd)
-        self._drone_cmd_z.value_changed.connect(self._publish_drone_cmd)
-        self._drone_cmd_roll.value_changed.connect(self._publish_drone_cmd)
-        self._drone_cmd_pitch.value_changed.connect(self._publish_drone_cmd)
-        self._drone_cmd_yaw.value_changed.connect(self._publish_drone_cmd)
-
-    def publish(self) -> None:
+    def publish_current_command(self) -> None:
         """現在設定されている値を全て発行する．"""
-        self._publish_drone_cmd()
-
-        for joint_cmd in self.joint_cmds:
-            joint_cmd.publish()
+        self._publish_current_command()
 
     def _get_params(self) -> None:
         self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
@@ -173,67 +169,158 @@ class CommandersWidget(QScrollArea):
         self._init_elevation = rospy.get_param(
             "~initial_elevation", self.DEFAULT_INIT_ELEVATION
         )
-        self._joint_names = rospy.get_param("posture_defining_joint_names")
 
-        assert self._x_min <= self._x_max
-        assert self._y_min <= self._y_max
+        assert self._x_min <= 0.0 <= self._x_max
+        assert self._y_min <= 0.0 <= self._y_max
         assert self._z_min <= self._z_max
         assert self._roll_min <= 0.0 <= self._roll_max
         assert self._pitch_min <= 0.0 <= self._pitch_max
-        assert self._yaw_min <= self._yaw_max
+        assert self._yaw_min <= 0.0 <= self._yaw_max
         assert self._init_elevation >= 0.0
 
+    def _odom_cb(self, odom: Odometry) -> None:
+        # 初期コマンドを設定
+        self._cmd_x.set_value(odom.pose.pos.x)
+        self._cmd_y.set_value(odom.pose.pos.y)
+        self._cmd_z.set_value(odom.pose.pos.z + self._init_elevation)
+        self._cmd_roll.set_value(0.0)
+        self._cmd_pitch.set_value(0.0)
+        self._cmd_yaw.set_value(odom.pose.euler.yaw)
+
+        # バーを有効化
+        self._cmd_x.setEnabled(True)
+        self._cmd_y.setEnabled(True)
+        self._cmd_z.setEnabled(True)
+        self._cmd_roll.setEnabled(True)
+        self._cmd_pitch.setEnabled(True)
+        self._cmd_yaw.setEnabled(True)
+
+        rospy.loginfo("GUI teleoperation is ready.")
+        self._odom_sub.unregister()
+
     @pyqtSlot()
-    def _publish_drone_cmd(self) -> None:
+    def _publish_current_command(self) -> None:
         pos_yaw = PositionYaw()
         pos_yaw.level.data = CommandLevel.NORMAL
-        pos_yaw.pos.x = self._drone_cmd_x.get_value()
-        pos_yaw.pos.y = self._drone_cmd_y.get_value()
-        pos_yaw.pos.z = self._drone_cmd_z.get_value()
-        pos_yaw.yaw = self._drone_cmd_yaw.get_value()
+        pos_yaw.pos.x = self._cmd_x.get_value()
+        pos_yaw.pos.y = self._cmd_y.get_value()
+        pos_yaw.pos.z = self._cmd_z.get_value()
+        pos_yaw.yaw = self._cmd_yaw.get_value()
         self._pos_yaw_pub.publish(pos_yaw)
 
         pvay = PosVelAccYaw()
         pvay.level.data = CommandLevel.NORMAL
-        pvay.pos.x = self._drone_cmd_x.get_value()
-        pvay.pos.y = self._drone_cmd_y.get_value()
-        pvay.pos.z = self._drone_cmd_z.get_value()
-        pvay.yaw = self._drone_cmd_yaw.get_value()
+        pvay.pos.x = self._cmd_x.get_value()
+        pvay.pos.y = self._cmd_y.get_value()
+        pvay.pos.z = self._cmd_z.get_value()
+        pvay.yaw = self._cmd_yaw.get_value()
         self._pvay_pub.publish(pvay)
 
         pta = PoseTwistAccelCommand()
         pta.level.data = CommandLevel.NORMAL
-        pta.pos.x = self._drone_cmd_x.get_value()
-        pta.pos.y = self._drone_cmd_y.get_value()
-        pta.pos.z = self._drone_cmd_z.get_value()
-        pta.rpy.roll = self._drone_cmd_roll.get_value()
-        pta.rpy.pitch = self._drone_cmd_pitch.get_value()
-        pta.rpy.yaw = self._drone_cmd_yaw.get_value()
+        pta.pos.x = self._cmd_x.get_value()
+        pta.pos.y = self._cmd_y.get_value()
+        pta.pos.z = self._cmd_z.get_value()
+        pta.rpy.roll = self._cmd_roll.get_value()
+        pta.rpy.pitch = self._cmd_pitch.get_value()
+        pta.rpy.yaw = self._cmd_yaw.get_value()
         self._pta_pub.publish(pta)
 
-    def _odom_cb(self, odom: Odometry) -> None:
-        if self._odom_received:
+    @pyqtSlot()
+    def _on_home_button_clicked(self) -> None:
+        self._cmd_x.set_value(0.0)
+        self._cmd_y.set_value(0.0)
+        self._cmd_z.set_value(self.HOME_ALTITUDE)
+        self._cmd_roll.set_value(0.0)
+        self._cmd_pitch.set_value(0.0)
+        self._cmd_yaw.set_value(0.0)
+
+
+class JointPositionCommanderWidget(QWidget):
+    INTERVAL = 0.1
+
+    def __init__(self, main: GuiTeleopWidget) -> None:
+        super().__init__()
+        self._main = main
+
+        # Commanders
+        self._commanders: List[Commander] = []
+
+        # rosparams
+        self._joint_names: List[str] = []
+        self._get_params()
+
+        # 可動関節が無い場合は終了
+        if len(self._joint_names) == 0:
             return
 
-        # 初期コマンドを設定
-        self._drone_cmd_x.set_value(odom.pose.pos.x)
-        self._drone_cmd_y.set_value(odom.pose.pos.y)
-        self._drone_cmd_z.set_value(odom.pose.pos.z + self._init_elevation)
-        self._drone_cmd_roll.set_value(0.0)
-        self._drone_cmd_pitch.set_value(0.0)
-        self._drone_cmd_yaw.set_value(odom.pose.euler.yaw)
+        # メインレイアウト
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
-        # バーを有効化
-        self._drone_cmd_x.setEnabled(True)
-        self._drone_cmd_y.setEnabled(True)
-        self._drone_cmd_z.setEnabled(True)
-        self._drone_cmd_roll.setEnabled(True)
-        self._drone_cmd_pitch.setEnabled(True)
-        self._drone_cmd_yaw.setEnabled(True)
+        # ラベル
+        label = QLabel("Joint Position Command")
+        label.setFont(QFont("Default", LABEL_PSIZE, QFont.Bold))
+        label.setAlignment(Qt.AlignCenter)
+        rows.addWidget(label)
 
-        self._odom_received = True
+        # Commandersをセット
+        robot: Robot = Robot.from_parameter_server("robot_description")
+        for joint_name in self._joint_names:
+            joint: Joint = robot.joint_map[joint_name]
+            limit: JointLimit = joint.limit
+            commander = Commander(
+                joint_name,
+                limit.lower,
+                limit.upper,
+                f"{joint_name}_controller/command",
+            )
+            commander.update()
+            self._commanders.append(commander)
+            rows.addWidget(commander)
 
-        rospy.loginfo("GUI teleoperation is ready.")
+        self._random_button = QPushButton("Randomize")
+        self._random_button.setFixedHeight(BUTTON_HEIGHT)
+        self._random_button.clicked.connect(self._on_random_button_clicked)
+        rows.addWidget(self._random_button)
+
+        self._center_button = QPushButton("Center")
+        self._center_button.setFixedHeight(BUTTON_HEIGHT)
+        self._center_button.clicked.connect(self._on_center_button_clicked)
+        rows.addWidget(self._center_button)
+
+        add_expanding_widget(rows)
+
+    def publish_current_command(self) -> None:
+        """現在設定されている値を全て発行する．"""
+        for joint_cmd in self._commanders:
+            joint_cmd.publish_current_command()
+
+    def _get_params(self) -> None:
+        self._joint_names = rospy.get_param("posture_defining_joint_names")
+
+    @pyqtSlot()
+    def _on_random_button_clicked(self) -> None:
+        """全ての関節角をランダム値に設定する．"""
+        self.setEnabled(False)
+
+        # 一気に指令すると反映されないので，間隔を開けながら指令する
+        for joint_cmd in self._commanders:
+            joint_cmd.set_random_value()
+            rospy.sleep(self.INTERVAL)
+
+        self.setEnabled(True)
+
+    @pyqtSlot()
+    def _on_center_button_clicked(self) -> None:
+        """全ての関節角を中央の値に設定する．"""
+        self.setEnabled(False)
+
+        for joint_cmd in self._commanders:
+            joint_cmd.set_center_value()
+            rospy.sleep(self.INTERVAL)
+
+        self.setEnabled(True)
 
 
 class Commander(QWidget):
@@ -243,72 +330,83 @@ class Commander(QWidget):
     value_changed = pyqtSignal(float)
 
     def __init__(
-        self, name: str, minimum: float, maximum: float, topic: str = None
+        self,
+        name: str,
+        minimum: float,
+        maximum: float,
+        pub_topic: str = None,
+        callback: Callable[[float], None] = None,
     ) -> None:
         super().__init__()
         self._min = minimum
         self._max = maximum
-        self._topic = topic
+        self._pub_topic = pub_topic
+        self._callback = callback
 
         font = QFont("Default", self.PSIZE, QFont.Bold)
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        rows.addLayout(cols)
 
-        self.name = QLabel(name)
-        self.name.setFont(font)
-        self._cols.addWidget(self.name)
+        name = QLabel(name)
+        name.setFont(font)
+        cols.addWidget(name)
 
-        self.value = QLineEdit("0.00")
-        self.value.setAlignment(Qt.AlignRight)
-        self.value.setFont(font)
-        self.value.setReadOnly(True)
-        self.value.setFocusPolicy(Qt.NoFocus)
-        self._cols.addWidget(self.value)
+        self._value = QLineEdit("0.00")
+        self._value.setAlignment(Qt.AlignRight)
+        self._value.setFont(font)
+        self._value.setReadOnly(True)
+        self._value.setFocusPolicy(Qt.NoFocus)
+        cols.addWidget(self._value)
 
-        self.slider = Slider(Qt.Horizontal)
-        self.slider.setFont(font)
-        self.slider.setRange(0, self.RANGE)
-        self.slider.setValue(self.RANGE // 2)
-        self._rows.addWidget(self.slider)
+        self._slider = Slider(Qt.Horizontal)
+        self._slider.setFont(font)
+        self._slider.setRange(0, self.RANGE)
+        self._slider.setValue(self.RANGE // 2)
+        rows.addWidget(self._slider)
 
-        if self._topic:
-            self._value_pub = rospy.Publisher(topic, Float64, queue_size=1)
+        if self._pub_topic is not None:
+            self._value_pub = rospy.Publisher(pub_topic, Float64, queue_size=1)
 
-        self.slider.valueChanged.connect(self._on_value_changed)
+        if self._callback is not None:
+            self.value_changed.connect(self._callback)
+
+        self._slider.valueChanged.connect(self._on_value_changed)
 
     def get_value(self) -> float:
-        return float(self.value.text())
+        return float(self._value.text())
 
     def set_value(self, value: float) -> None:
         slider_value = self._value_to_slider(value)
-        self.slider.setValue(slider_value)
+        self._slider.setValue(slider_value)
 
     def set_random_value(self) -> None:
         value = random.uniform(self._min, self._max)
         self.set_value(value)
 
     def set_center_value(self) -> None:
-        value = (self._min + self._max) / 2.0
+        value = (self._min + self._max) / 2
         self.set_value(value)
 
-    def publish(self) -> None:
-        if self._topic:
-            msg = Float64(data=self.get_value())
-            self._value_pub.publish(msg)
+    def publish_current_command(self) -> None:
+        if self._pub_topic is None:
+            return
+
+        msg = Float64(data=self.get_value())
+        self._value_pub.publish(msg)
 
     @pyqtSlot()
     def _on_value_changed(self) -> None:
         value = self._slider_to_value()
-        self.value.setText(f"{value:.2f}")
+        self._value.setText(f"{value:.2f}")
         self.value_changed.emit(value)
-        self.publish()
+        self.publish_current_command()
 
     def _slider_to_value(self) -> float:
-        x = float(self.slider.value())
+        x = float(self._slider.value())
         return remap(x, 0.0, self.RANGE, self._min, self._max)
 
     def _value_to_slider(self, value: float) -> int:

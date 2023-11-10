@@ -4,12 +4,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import MainWidget
+from dh_rqt_tools.widgets import MainWidget, add_expanding_widget
 from dh_rqt_tools.path import get_proj_path
 
 from .common import *
-from .commanders import CommandersWidget
-from .pose_buttons import PoseButtonsWidget
+from .commanders import MultirotorCommanderWidget, JointPositionCommanderWidget
 
 
 class GuiTeleopWidget(MainWidget):
@@ -23,26 +22,18 @@ class GuiTeleopWidget(MainWidget):
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Multirotor GUI Teleop")
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
-        self.commanders = CommandersWidget(self)
-        self._rows.addWidget(self.commanders)
+        self._drone_commander = MultirotorCommanderWidget(self)
+        rows.addWidget(self._drone_commander)
 
-        self.pose_buttons = PoseButtonsWidget(self)
-        self._rows.addWidget(self.pose_buttons)
+        self._joint_commander = JointPositionCommanderWidget(self)
+        rows.addWidget(self._joint_commander)
 
-        # 可動ジョイントが無い場合は姿勢ボタンを不可視にする
-        joint_names = rospy.get_param("posture_defining_joint_names")
-        if len(joint_names) == 0:
-            self.pose_buttons.setVisible(False)
-
-        self.define_connections()
+        add_expanding_widget(rows)
 
         # 接続が完了するまで少し待ってから全ての関節値を発行
         rospy.sleep(self.WAIT_TO_CONNECT)
-        self.commanders.publish()
-
-    def define_connections(self) -> None:
-        self.commanders.define_connections()
-        self.pose_buttons.define_connections()
+        self._drone_commander.publish_current_command()
+        self._joint_commander.publish_current_command()
