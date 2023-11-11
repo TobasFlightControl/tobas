@@ -18,6 +18,7 @@ from PyQt5.QtGui import *
 
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
+from urdf_tools_py.utils import remove_elements_with_tag
 from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
@@ -450,30 +451,28 @@ class PackageGenerator(QObject):
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
-        for child in robot:
-            # transmissionは問答無用で消す
-            if child.tag == "transmission":
-                robot.remove(child)
+        # transmissionは問答無用で消す
+        remove_elements_with_tag(robot, "transmission")
 
-            # gazeboタグの場合はその子ノードを確認する
-            if child.tag == "gazebo":
-                for gchild in child:
-                    if gchild.tag == "plugin":
-                        # Tobasのプラグインは問答無用で消す
-                        if gchild.attrib["filename"].startswith("libtobas"):
-                            robot.remove(child)
-                            continue
-                        # RotorSのプラグインは問答無用で消す
-                        if gchild.attrib["filename"].startswith("librotors"):
-                            robot.remove(child)
-                            continue
-                        # Gazebo ROS Controlは問答無用で消す
-                        if gchild.attrib["filename"] == "libgazebo_ros_control.so":
-                            robot.remove(child)
-                            continue
-                        self._remove_or_keep_gazebo_child(child, gchild)
-                    elif gchild.tag == "sensor":
-                        self._remove_or_keep_gazebo_child(child, gchild)
+        # gazeboタグの場合はその子ノードを確認する
+        for gazebo in robot.iter("gazebo"):
+            for child in gazebo:
+                if child.tag == "plugin":
+                    # Tobasのプラグインは問答無用で消す
+                    if child.attrib["filename"].startswith("libtobas"):
+                        robot.remove(gazebo)
+                        continue
+                    # RotorSのプラグインは問答無用で消す
+                    if child.attrib["filename"].startswith("librotors"):
+                        robot.remove(gazebo)
+                        continue
+                    # Gazebo ROS Controlは問答無用で消す
+                    if child.attrib["filename"] == "libgazebo_ros_control.so":
+                        robot.remove(gazebo)
+                        continue
+                    self._remove_or_keep_gazebo_child(gazebo, child)
+                elif child.tag == "sensor":
+                    self._remove_or_keep_gazebo_child(gazebo, child)
 
     def _remove_or_keep_gazebo_child(
         self, gazebo: ET.Element, child: ET.Element
