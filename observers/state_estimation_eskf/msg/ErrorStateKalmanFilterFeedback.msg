@@ -5,3 +5,4 @@ float64 gravity
 float64[9] acc_bias_covariance
 float64[9] gyro_bias_covariance
 float64 gravity_variance
+float64 gps_anormaly_score

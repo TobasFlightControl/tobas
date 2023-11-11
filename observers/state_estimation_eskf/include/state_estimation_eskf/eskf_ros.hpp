@@ -72,6 +72,7 @@ private:
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
+  double gps_anormaly_score_ = 0.;
 
   Eigen::Vector3d acc_meas_;
   Eigen::Vector3d gyro_meas_;

@@ -395,6 +395,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
       et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
       feedback->gravity_variance = eskf_.getGravityVariance();
+      feedback->gps_anormaly_score = gps_anormaly_score_;
       feedback_pub_.publish(feedback);
 
       break;
@@ -405,14 +406,10 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 {
   if (!mag_received_)
-  {
     mag_received_ = true;
-  }
 
   if (stage_ < RUNNING)
-  {
     return;
-  }
 
   eskf_.measureMagneticField(mag->magnetic_field.x, mag->magnetic_field.y, yaw_var_);
 }
@@ -420,14 +417,10 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 {
   if (!bar_received_)
-  {
     bar_received_ = true;
-  }
 
   if (stage_ < RUNNING)
-  {
     return;
-  }
 
   double z_abs, z_var;
   pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
@@ -439,14 +432,10 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 {
   if (!gps_received_)
-  {
     gps_received_ = true;
-  }
 
   if (stage_ < RUNNING)
-  {
     return;
-  }
 
   // 位置の観測値
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
@@ -457,7 +446,17 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
 
   // ESKFを更新
-  eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_B_, gyro_meas_);
+  gps_anormaly_score_ = eskf_.measurePosVel(
+    pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_B_, gyro_meas_);
+
+  // 異常度が高すぎる場合は警告
+  if (gps_anormaly_score_ > kAnormalyScoreThreshold)
+  {
+    rosWarnThrottle(
+      kWarnPeriod, name_,
+      "The kalman filter is in an abnormal state. There are much larger errors in position or "
+      "velocity than those estimated from the covariance.");
+  }
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
