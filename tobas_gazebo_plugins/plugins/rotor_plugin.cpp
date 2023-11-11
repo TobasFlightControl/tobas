@@ -28,22 +28,29 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   // Get SDF parameters
   getSdfParams(sdf);
 
+  // Add model error to the aerodynamic constants
+  random_device rnd_dev;
+  mt19937 rnd_gen(rnd_dev());
+  UniformDistribution noise(-1, 1);
+  motor_const_ *= (1 + max_model_error_rate_ * noise(rnd_gen));
+  moment_const_ *= (1 + max_model_error_rate_ * noise(rnd_gen));
+  rotor_drag_coef_ *= (1 + max_model_error_rate_ * noise(rnd_gen));
+
   // Store the pointer to the model
   model_ = model;
 
-  // Get the pointer to the joint and the link
+  // Get the pointer to the joint
   joint_ = model_->GetJoint(joint_name_);
   if (joint_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified joint \"" << joint_name_ << "\".");
-  }
 
+  // Get the pointer to the link
   link_ = model_->GetLink(link_name_);
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
   parent_link_ = link_->GetParentJointsLinks()[0];
+
+  // Add model error
 
   // Initialize the first order filter
   rotor_speed_filter_.initialize(time_const_up_, time_const_down_, 0.);
@@ -66,17 +73,11 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   {
     const auto turning_direction = sdf->GetElement("turningDirection")->Get<string>();
     if (turning_direction == "cw")
-    {
       direction_ = -1;
-    }
     else if (turning_direction == "ccw")
-    {
       direction_ = 1;
-    }
     else
-    {
       gzthrow(kPluginName << ": Please only use 'cw' or 'ccw' as turningDirection.");
-    }
   }
   else
   {
@@ -84,32 +85,26 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   }
 
   getSdfParam(sdf, "rotSpeedCoefficients", rot_speed_coefs_);
-  if (rot_speed_coefs_.X() <= 0.)
-  {
+  if (rot_speed_coefs_.X() <= 0)
     gzthrow(kPluginName << ": The first term of 'rotationSpeedCoefficients' must be positive.");
-  }
-  if (rot_speed_coefs_.Y() < 0.)
-  {
+  if (rot_speed_coefs_.Y() < 0)
     gzthrow(
       kPluginName << ": The second term of 'rotationSpeedCoefficients' must be non-negative.");
-  }
 
   getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
+  getSdfParam(
+    sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
   if (time_const_up_ > kTimeConstWarnThreshold)
-  {
     gzwarn << kPluginName << ": The value provided for 'timeConstantUp' appears to be too large: "
            << time_const_up_ << "[s]. Please check settings and datasheet." << endl;
-  }
   if (time_const_down_ > kTimeConstWarnThreshold)
-  {
     gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: "
            << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
-  }
 
   getSdfParam(
     sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
@@ -124,24 +119,18 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   if (!is_initialized_)
   {
     if (isReady())
-    {
       is_initialized_ = true;
-    }
 
     // Check topics
     // ros::Timer cannot be used for shared library.
     if (cur_time > kCheckTopicsTimeThreshold)
     {
       if (!battery_received_)
-      {
         gzerr << kPluginName << ": " << ns_ << "/" << tobas::kBatteryGtTopic
               << " is not received yet." << endl;
-      }
       if (!wind_received_)
-      {
         gzerr << kPluginName << ": " << ns_ << "/" << tobas::kWindGtTopic << " is not received yet."
               << endl;
-      }
     }
     return;
   }

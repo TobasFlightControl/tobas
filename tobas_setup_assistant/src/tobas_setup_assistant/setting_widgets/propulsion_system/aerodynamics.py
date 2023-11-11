@@ -9,7 +9,7 @@ import numpy as np
 from numpy.typing import NDArray
 from abc import abstractmethod
 from overrides import overrides
-from typing import List
+from typing import List, final
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -83,6 +83,10 @@ class AerodynamicsWidget(QWidget):
         """[kg/rad]"""
         return self._selected().rotor_drag_coef()
 
+    def max_model_error_rate(self) -> float:
+        """[-]"""
+        return self._selected().max_model_error_rate()
+
     def copy_from(self, src: AerodynamicsWidget) -> None:
         self._method_name.setCurrentText(src._method_name.currentText())
 
@@ -137,6 +141,17 @@ class AerodynamicsWidget_Base(QWidget):
         abst = Description(abst_text)
         self._rows.addWidget(abst)
 
+        max_model_error_rate_description = "空力定数のモデル化誤差率の最大値．"
+        self._max_model_error_rate = ParamGetterWidget_SpinBox(
+            "Max Model Error Rate",
+            max_model_error_rate_description,
+            minimum=0,
+            maximum=1000,
+            default=10,
+            suffix=" %",
+        )
+        self._rows.addWidget(self._max_model_error_rate)
+
     @abstractmethod
     def is_valid(self) -> bool:
         raise NotImplementedError()
@@ -159,6 +174,11 @@ class AerodynamicsWidget_Base(QWidget):
     @abstractmethod
     def copy_from(self, src) -> None:
         raise NotImplementedError()
+
+    @final
+    def max_model_error_rate(self) -> float:
+        """[-]"""
+        return self._max_model_error_rate.get() / 100.0
 
 
 class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):

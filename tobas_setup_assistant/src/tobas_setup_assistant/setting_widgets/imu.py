@@ -51,7 +51,7 @@ class ImuWidget(BaseSettingWidget):
             gyro_noise_density_description,
             decimals=9,
             minimum=0.0,
-            default=0.01,
+            default=0.005,
             suffix=" rad/s/sqrt(Hz)",
         )
         self._rows.addWidget(self.gyro_noise_density)
@@ -105,7 +105,7 @@ class ImuWidget(BaseSettingWidget):
             acc_noise_density_description,
             decimals=9,
             minimum=0.0,
-            default=0.1,
+            default=0.05,
             suffix=" m/s^2/sqrt(Hz)",
         )
         self._rows.addWidget(self.acc_noise_density)
