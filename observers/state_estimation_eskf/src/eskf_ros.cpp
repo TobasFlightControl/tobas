@@ -454,8 +454,8 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
-      "The kalman filter is in an abnormal state. There are much larger errors in position or "
-      "velocity than those estimated from the covariance.");
+      "The kalman filter is in an abnormal state. There is a very large error between the GPS "
+      "position and velocity information and the estimated values from the Kalman filter.");
   }
 }
 
