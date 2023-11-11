@@ -181,7 +181,8 @@
       <xacro:unless value="${tilt_mode == 1}">
         <origin rpy="0 0 0" xyz="${link_length* 0.5} 0 0.013"/>
       </xacro:unless>
-      <axis xyz="0 0 ${rotor_direction}"/>
+      <!-- <axis xyz="0 0 ${rotor_direction}"/> -->
+      <axis xyz="0 0 1"/>
     </joint>
 
     <link name="thrust${self}">
@@ -283,11 +284,11 @@
     <xacro:if value="${self == 1}">
       <!-- dummy root link for KDL -->
       <link name="root">
-        <inertial>
+        <!-- <inertial>
           <origin xyz="0 0 0" rpy="0 0 0"/>
           <mass value="0.00001"/>
           <inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000002"/>
-        </inertial>
+        </inertial> -->
       </link>
       <joint name="root_joint" type="fixed">
         <parent link="root"/>
