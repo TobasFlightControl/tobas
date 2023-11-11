@@ -51,8 +51,8 @@ static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
 static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
 
 // その他定数
-static constexpr double kWarnPeriod = 1.;              // [s]
-static constexpr double kPrintStddevPeriod = 1.;       // [s]
-static constexpr double kImuTimeGapThreshold = 0.05;   // [s]
-static constexpr double kAnormalyScoreThreshold = 5.;  // [-]
+static constexpr double kWarnPeriod = 1.;               // [s]
+static constexpr double kPrintStddevPeriod = 1.;        // [s]
+static constexpr double kImuTimeGapThreshold = 0.05;    // [s]
+static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
 }  // namespace state_estimation_eskf
