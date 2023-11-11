@@ -31,6 +31,8 @@ from .xml_nodes import *
 
 
 class PackageGenerator(QObject):
+    DEFAULT_P_GAIN = 100.0  # TODO: ゲインを設定するページ
+
     generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
@@ -384,10 +386,15 @@ class PackageGenerator(QObject):
             "type": "joint_state_controller/JointStateController",
             "publish_rate": 1000.0,
         }
+        items["gazebo_ros_control"] = {"pid_gains": dict()}
         for jnt_name in self._posture_defining_joint_names():
             items[f"{jnt_name}_controller"] = {
-                "type": "position_controllers/JointPositionController",
+                "type": "effort_controllers/JointPositionController",
                 "joint": jnt_name,
+                "pid": {"p": self.DEFAULT_P_GAIN},
+            }
+            items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
+                "p": self.DEFAULT_P_GAIN
             }
 
         # yamlファイルを作成
@@ -756,7 +763,8 @@ class PackageGenerator(QObject):
 
         # Transmissions
         for jnt_name in self._posture_defining_joint_names():
-            transmission = Transmission(jnt_name, interface=Transmission.POSITION)
+            # 反作用を考慮するために力制御を指定
+            transmission = Transmission(jnt_name, interface=Transmission.EFFORT)
             robot.append(transmission)
 
     def _posture_defining_joint_names(self) -> List[str]:
