@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import rospy
 from typing import List, Tuple
-from urdf_parser_py.urdf import Link, Joint
+from urdf_parser_py.urdf import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -147,6 +147,8 @@ class URDFParser(QObject):
 
     def _is_valid_robot(self) -> bool:
         """有効なロボットかどうかを判定する．"""
+        root_link = self.get_root()
+
         # 多自由度関節を持たないことを保証
         for joint in self.get_joints():
             if joint.type in {JointType.PLANER, JointType.FLOATING}:
@@ -154,12 +156,21 @@ class URDFParser(QObject):
                 return False
 
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致することを保証
-        root_link = self.get_root()
-        if root_link.origin is not None and root_link.origin.rpy != [0, 0, 0]:
+        origin: Pose = root_link.origin
+        if origin is not None and any(angle != 0 for angle in origin.rpy):
             q_error(
                 self._main,
                 "The frame of the root link must coincide with the NWU coordinate axis.",
             )
             return False
+
+        # ルートリンクがinertiaを持たない
+        if root_link.inertial is not None:
+            q_error(
+                self._main,
+                "The root link base_link has an inertia specified in the URDF, "
+                + "but KDL does not support a root link with an inertia. "
+                + "As a workaround, you can add an extra dummy link to your URDF.",
+            )
 
         return True
