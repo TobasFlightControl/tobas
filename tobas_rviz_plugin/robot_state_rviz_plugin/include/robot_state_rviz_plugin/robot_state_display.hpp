@@ -24,6 +24,9 @@ class RobotStateDisplay : public rviz::Display
 {
   Q_OBJECT
 
+  using self = RobotStateDisplay;
+  using super = rviz::Display;
+
 public:
   explicit RobotStateDisplay();
 

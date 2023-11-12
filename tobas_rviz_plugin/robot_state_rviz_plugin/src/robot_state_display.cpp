@@ -70,7 +70,7 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
 
 void RobotStateDisplay::onInitialize()
 {
-  Display::onInitialize();
+  super::onInitialize();
   robot_.reset(new RobotStateVisualization(scene_node_, context_, "Robot State", this));
   changedEnableVisualVisible();
   changedEnableCollisionVisible();
@@ -81,7 +81,7 @@ void RobotStateDisplay::reset()
 {
   robot_->clear();
   rdf_loader_.reset();
-  Display::reset();
+  super::reset();
 
   loadRobotModel();
 }
@@ -275,8 +275,7 @@ void RobotStateDisplay::changedRobotStateTopic()
   update_state_ = true;
 
   robot_state_subscriber_ = nh_.subscribe(
-    robot_state_topic_property_->getStdString(), 10, &RobotStateDisplay::newRobotStateCallback,
-    this);
+    robot_state_topic_property_->getStdString(), 10, &self::newRobotStateCallback, this);
 }
 
 void RobotStateDisplay::newRobotStateCallback(
@@ -360,7 +359,7 @@ void RobotStateDisplay::loadRobotModel()
 
 void RobotStateDisplay::onEnable()
 {
-  Display::onEnable();
+  super::onEnable();
   load_robot_model_ = true;  // allow loading of robot model in update()
   calculateOffsetPosition();
 }
@@ -370,12 +369,12 @@ void RobotStateDisplay::onDisable()
   robot_state_subscriber_.shutdown();
   if (robot_)
     robot_->setVisible(false);
-  Display::onDisable();
+  super::onDisable();
 }
 
 void RobotStateDisplay::update(float wall_dt, float ros_dt)
 {
-  Display::update(wall_dt, ros_dt);
+  super::update(wall_dt, ros_dt);
 
   if (load_robot_model_)
   {
@@ -409,7 +408,7 @@ void RobotStateDisplay::calculateOffsetPosition()
 
 void RobotStateDisplay::fixedFrameChanged()
 {
-  Display::fixedFrameChanged();
+  super::fixedFrameChanged();
   calculateOffsetPosition();
 }
 }  // namespace moveit_rviz_plugin
