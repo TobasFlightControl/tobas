@@ -1,3 +1,5 @@
+# cf. https://github.com/ros/urdf_tutorial/blob/ros1/rviz/urdf.rviz
+
 Panels:
   - Class: rviz/Displays
     Name: Displays
