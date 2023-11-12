@@ -42,7 +42,7 @@ class RvizWidget(QWidget):
 
         # Setup robot_model_display
         manager = self._frame.getManager()
-        self._display = manager.getRootDisplayGroup().getDisplayAt(2)
+        self._display = manager.getRootDisplayGroup().getDisplayAt(0)
         self._display.setBool(False)
 
         # ハイライトプロパティ
