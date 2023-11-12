@@ -28,16 +28,16 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget):
         self._options |= QFileDialog.ShowDirsOnly
         self._options |= QFileDialog.DontResolveSymlinks
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        self._rows.addLayout(cols)
 
         self._path = QLineEdit(default)
         self._path.setReadOnly(True)
         self._path.setFocusPolicy(Qt.NoFocus)
-        self._cols.addWidget(self._path)
+        cols.addWidget(self._path)
 
         self.browse_button = QPushButton("Browse")
-        self._cols.addWidget(self.browse_button)
+        cols.addWidget(self.browse_button)
 
         self._path.textChanged.connect(self._on_text_changed)
         self.browse_button.clicked.connect(self._on_browse_button_clicked)

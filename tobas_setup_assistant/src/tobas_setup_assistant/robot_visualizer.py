@@ -19,14 +19,14 @@ class RobotVisualizerWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         self._frame_tree = FrameTreeWidget(main)
-        self._cols.addWidget(self._frame_tree)
+        cols.addWidget(self._frame_tree)
 
         self._rviz = RvizWidget(main)
-        self._cols.addWidget(self._rviz)
+        cols.addWidget(self._rviz)
 
         self.setFixedHeight(self.HEIGHT)
         self.setVisible(False)

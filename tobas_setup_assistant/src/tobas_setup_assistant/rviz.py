@@ -62,14 +62,14 @@ class RvizWidget(QWidget):
         self._collision_box.setChecked(self.DEFAULT_COLLISION_ENABLED)
 
         # レイアウト
-        self._rows = QVBoxLayout()
-        self._cols = QHBoxLayout()
-        self.setLayout(self._rows)
-        self._rows.addWidget(self._frame)
-        self._rows.addLayout(self._cols)
-        add_expanding_widget(self._cols)
-        self._cols.addWidget(self._visual_box)
-        self._cols.addWidget(self._collision_box)
+        rows = QVBoxLayout()
+        cols = QHBoxLayout()
+        self.setLayout(rows)
+        rows.addWidget(self._frame)
+        rows.addLayout(cols)
+        add_expanding_widget(cols)
+        cols.addWidget(self._visual_box)
+        cols.addWidget(self._collision_box)
 
         self.setMinimumWidth(self.MIN_WIDTH)
 

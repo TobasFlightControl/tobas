@@ -28,42 +28,42 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
         super().__init__(param_name, description_text)
 
         # XYZ
-        self._cols_xyz = QHBoxLayout()
-        self._rows.addLayout(self._cols_xyz)
+        cols_xyz = QHBoxLayout()
+        self._rows.addLayout(cols_xyz)
 
         self._x = FloatGetter(
             "x", decimals, xyz_min[0], xyz_max[0], 0.1, xyz_default[0], xyz_suffix
         )
-        self._cols_xyz.addWidget(self._x)
+        cols_xyz.addWidget(self._x)
 
         self._y = FloatGetter(
             "y", decimals, xyz_min[1], xyz_max[1], 0.1, xyz_default[1], xyz_suffix
         )
-        self._cols_xyz.addWidget(self._y)
+        cols_xyz.addWidget(self._y)
 
         self._z = FloatGetter(
             "z", decimals, xyz_min[2], xyz_max[2], 0.1, xyz_default[2], xyz_suffix
         )
-        self._cols_xyz.addWidget(self._z)
+        cols_xyz.addWidget(self._z)
 
         # RPY
-        self._cols_rpy = QHBoxLayout()
-        self._rows.addLayout(self._cols_rpy)
+        cols_rpy = QHBoxLayout()
+        self._rows.addLayout(cols_rpy)
 
         self._roll = FloatGetter(
             "roll", decimals, rpy_min[0], rpy_max[0], 0.1, rpy_default[0], rpy_suffix
         )
-        self._cols_rpy.addWidget(self._roll)
+        cols_rpy.addWidget(self._roll)
 
         self._pitch = FloatGetter(
             "pitch", decimals, rpy_min[1], rpy_max[1], 0.1, rpy_default[1], rpy_suffix
         )
-        self._cols_rpy.addWidget(self._pitch)
+        cols_rpy.addWidget(self._pitch)
 
         self._yaw = FloatGetter(
             "yaw", decimals, rpy_min[2], rpy_max[2], 0.1, rpy_default[2], rpy_suffix
         )
-        self._cols_rpy.addWidget(self._yaw)
+        cols_rpy.addWidget(self._yaw)
 
         self._x.value_changed.connect(self._on_value_changed)
         self._y.value_changed.connect(self._on_value_changed)

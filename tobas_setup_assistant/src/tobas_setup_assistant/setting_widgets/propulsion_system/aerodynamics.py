@@ -33,13 +33,13 @@ class AerodynamicsWidget(QWidget):
         self._main = main
         self._link_name = link_name
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         title = QLabel("Aerodynamics")
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(title)
+        rows.addWidget(title)
 
         self._methods: List[AerodynamicsWidget_Base] = [
             AerodynamicsWidget_Manual(main, link_name),
@@ -50,11 +50,11 @@ class AerodynamicsWidget(QWidget):
 
         self._method_name = ComboBox()
         self._method_name.addItem(self.NO_SELECT)
-        self._rows.addWidget(self._method_name)
+        rows.addWidget(self._method_name)
 
         for method in self._methods:
             self._method_name.addItem(method.NAME)
-            self._rows.addWidget(method)
+            rows.addWidget(method)
 
         self._update_visibility()
         self._define_connections()

@@ -78,19 +78,19 @@ class ChannelsWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label = QLabel("Channels")
         label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(label)
+        rows.addWidget(label)
 
         description = Description("ダイアグラム上で，選択したフレームのプロペラ番号に対応するリンクを選択してください．")
-        self._rows.addWidget(description)
+        rows.addWidget(description)
 
         self._form = FormLayout()
-        self._rows.addLayout(self._form)
+        rows.addLayout(self._form)
 
     def define_connections(self) -> None:
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)

@@ -24,12 +24,12 @@ class IntGetter(QWidget):
 
         super().__init__()
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         label = QLabel(name + ":")
         label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._cols.addWidget(label)
+        cols.addWidget(label)
 
         self._data = SpinBox()
         self._data.setMinimum(minimum)
@@ -40,7 +40,7 @@ class IntGetter(QWidget):
             self._data.setValue(default)
         self._data.setSuffix(suffix)
         self._data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._cols.addWidget(self._data)
+        cols.addWidget(self._data)
 
         self._data.valueChanged.connect(self._on_value_changed)
 
@@ -74,12 +74,12 @@ class FloatGetter(QWidget):
 
         super().__init__()
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         label = QLabel(name + ":")
         label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._cols.addWidget(label)
+        cols.addWidget(label)
 
         self._data = DoubleSpinBox()
         self._data.setDecimals(decimals)
@@ -91,7 +91,7 @@ class FloatGetter(QWidget):
             self._data.setValue(default)
         self._data.setSuffix(suffix)
         self._data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._cols.addWidget(self._data)
+        cols.addWidget(self._data)
 
         self._data.valueChanged.connect(self._on_value_changed)
 

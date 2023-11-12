@@ -96,17 +96,17 @@ class AvailableLinkItemWidget(QListWidget):
 
         self._main = main
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         self._link_label = QLabel(link_name)
         self._link_label.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self._link_label.setAlignment(Qt.AlignLeft)
-        self._cols.addWidget(self._link_label)
+        cols.addWidget(self._link_label)
 
         self._add_button = QPushButton("Add")
         self._add_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
-        self._cols.addWidget(self._add_button)
+        cols.addWidget(self._add_button)
 
         self._define_connections()
 

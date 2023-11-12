@@ -44,30 +44,30 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._decimals = [self.DEFAULT_DECIMALS] * self._num_entry
         self._suffix = [""] * self._num_entry
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        self._rows.addLayout(cols)
 
         self._add_row_btn = QPushButton("Add row")
         self._add_row_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
         self._add_row_btn.clicked.connect(self._add_row)
-        self._cols.addWidget(self._add_row_btn)
+        cols.addWidget(self._add_row_btn)
 
         self._delete_row_btn = QPushButton("Delete row")
         self._delete_row_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
         self._delete_row_btn.clicked.connect(self._delete_row)
-        self._cols.addWidget(self._delete_row_btn)
+        cols.addWidget(self._delete_row_btn)
 
         self._clear_btn = QPushButton("Clear")
         self._clear_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
         self._clear_btn.clicked.connect(self._clear)
-        self._cols.addWidget(self._clear_btn)
+        cols.addWidget(self._clear_btn)
 
         self._load_csv_btn = QPushButton("Load CSV")
         self._load_csv_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
         self._load_csv_btn.clicked.connect(self._load_csv)
-        self._cols.addWidget(self._load_csv_btn)
+        cols.addWidget(self._load_csv_btn)
 
-        add_expanding_widget(self._cols)  # ボタンを左詰めにする
+        add_expanding_widget(cols)  # ボタンを左詰めにする
 
         self._table = QTableWidget(0, len(labels))
         self._table.setHorizontalHeaderLabels(labels)

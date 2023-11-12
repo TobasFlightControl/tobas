@@ -21,16 +21,16 @@ class AerodynamicsCoefficientsWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label = QLabel("Aerodynamic Coefficients")
         label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(label)
+        rows.addWidget(label)
 
         self._form = FormLayout()
-        self._rows.addLayout(self._form)
+        rows.addLayout(self._form)
 
         self.c_lift_0 = DoubleSpinBox()
         self.c_lift_0.setDecimals(STABILITY_COEF_DECIMALS)

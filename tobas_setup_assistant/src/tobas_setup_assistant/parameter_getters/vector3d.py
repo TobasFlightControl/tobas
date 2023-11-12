@@ -23,23 +23,23 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
     ) -> None:
         super().__init__(param_name, description_text)
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        self._rows.addLayout(cols)
 
         self._x = FloatGetter(
             "x", decimals, minimum[0], maximum[0], single_step[0], default[0], suffix
         )
-        self._cols.addWidget(self._x)
+        cols.addWidget(self._x)
 
         self._y = FloatGetter(
             "y", decimals, minimum[1], maximum[1], single_step[1], default[1], suffix
         )
-        self._cols.addWidget(self._y)
+        cols.addWidget(self._y)
 
         self._z = FloatGetter(
             "z", decimals, minimum[2], maximum[2], single_step[2], default[2], suffix
         )
-        self._cols.addWidget(self._z)
+        cols.addWidget(self._z)
 
         self._x.value_changed.connect(self._on_value_changed)
         self._y.value_changed.connect(self._on_value_changed)

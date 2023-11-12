@@ -28,13 +28,13 @@ class EscWidget(QWidget):
         self._main = main
         self._link_name = link_name
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         title = QLabel("ESC Settings")
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(title)
+        rows.addWidget(title)
 
         self._escs: List[EscWidget_Base] = [
             EscWidget_PWM(main, link_name),
@@ -43,10 +43,10 @@ class EscWidget(QWidget):
 
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
-        self._rows.addWidget(self._type)
+        rows.addWidget(self._type)
 
         for esc in self._escs:
-            self._rows.addWidget(esc)
+            rows.addWidget(esc)
             self._type.addItem(esc.NAME)
 
         self._type.setCurrentText(EscWidget_PWM.NAME)  # Default
@@ -130,15 +130,15 @@ class EscWidget_PWM(EscWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         abst_text = "周波数50Hzで1000usから2000usのパルス幅を受け取る通常のESCです．"
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
-        self._rows.addWidget(abst)
+        rows.addWidget(abst)
 
     @overrides
     def is_valid(self) -> bool:
@@ -155,15 +155,15 @@ class EscWidget_DSHOT(EscWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         abst_text = "TODO: abstraction"  # TODO
         abst = QLabel(abst_text)
         abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
         abst.setAlignment(Qt.AlignTop)
         abst.setWordWrap(True)
-        self._rows.addWidget(abst)
+        rows.addWidget(abst)
 
     @overrides
     def is_valid(self) -> bool:

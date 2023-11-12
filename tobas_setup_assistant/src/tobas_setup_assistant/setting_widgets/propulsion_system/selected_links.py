@@ -135,27 +135,27 @@ class SelectedLinkTabWidget(QWidget):
         self._main = main
         self._link_name = link_name
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
-        self.copy_button = add_center_button("Copy from left tab", self._rows)
+        self.copy_button = add_center_button("Copy from left tab", rows)
         self.copy_button.setFixedSize(
             QSize(self.CP_BUTTON_WIDTH, self.CP_BUTTON_HEIGHT)
         )
 
         self.esc = EscWidget(main, link_name)
-        self._rows.addWidget(self.esc)
+        rows.addWidget(self.esc)
 
         self.motor = MotorWidget(main, link_name)
-        self._rows.addWidget(self.motor)
+        rows.addWidget(self.motor)
 
         self.blade_geometry = BladeGeometry(main, link_name)
-        self._rows.addWidget(self.blade_geometry)
+        rows.addWidget(self.blade_geometry)
 
         self.aerodynamics = AerodynamicsWidget(main, link_name)
-        self._rows.addWidget(self.aerodynamics)
+        rows.addWidget(self.aerodynamics)
 
-        add_expanding_widget(self._rows)
+        add_expanding_widget(rows)
         self._define_connections()
 
     def is_valid(self) -> bool:

@@ -67,35 +67,35 @@ class RobotModelLoaderWidget(QWidget):
             description_loader_uuid, [description_launch_path]
         )
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label = QLabel("Description Path")
         label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(label)
+        rows.addWidget(label)
 
         instruction_text = "あなたのドローンのURDFを指定し，Loadボタンを押してください．"
         instruction = QLabel(instruction_text)
         instruction.setFont(QFont("Default", pointSize=BODY_PSIZE))
         instruction.setAlignment(Qt.AlignTop)
         instruction.setWordWrap(True)
-        self._rows.addWidget(instruction)
+        rows.addWidget(instruction)
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        rows.addLayout(cols)
 
         self.file_text = QLineEdit("")
         self.file_text.setReadOnly(True)
         self.file_text.setFocusPolicy(Qt.NoFocus)
-        self._cols.addWidget(self.file_text)
+        cols.addWidget(self.file_text)
 
         self.browse_button = QPushButton("Browse")
-        self._cols.addWidget(self.browse_button)
+        cols.addWidget(self.browse_button)
 
         self.load_button = QPushButton("Load")
         self.load_button.setEnabled(False)
-        self._cols.addWidget(self.load_button)
+        cols.addWidget(self.load_button)
 
     def define_connections(self) -> None:
         self.file_text.textChanged.connect(self._on_file_path_changed)

@@ -26,15 +26,15 @@ class SetupAssistant(MainWidget):
         self.pkg_generator = PackageGenerator(self)
         self.signals = Signals()
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         # 高さを指定するために，単なる横並びのレイアウトもウィジェットとして定義している
         self.robot_visualizer = RobotVisualizerWidget(self)
-        self._rows.addWidget(self.robot_visualizer)
+        rows.addWidget(self.robot_visualizer)
 
         self.settings = SettingsWidget(self)
-        self._rows.addWidget(self.settings)
+        rows.addWidget(self.settings)
 
         # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
         self.define_connections()

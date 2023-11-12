@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 
 
 class FrameTreeWidget(QTreeWidget):
-    WIDTH = 300
+    WIDTH = 200
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -19,6 +19,9 @@ class FrameTreeWidget(QTreeWidget):
         self.setFixedWidth(self.WIDTH)
         self.setColumnCount(1)
         self.setHeaderLabels(["Frames Tree"])
+
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def define_connections(self) -> None:
         self.itemClicked.connect(self._on_item_clicked)
