@@ -32,6 +32,8 @@ class RvizWidget(QWidget):
         rviz_config_path = osp.join(get_proj_path(), "config/setup_assistant.rviz")
         reader.readFile(config, rviz_config_path)
 
+        # Setup Visualization Frame
+        # https://docs.ros.org/en/jade/api/rviz/html/c++/visualization__frame_8h_source.html
         self._frame = rviz.VisualizationFrame()
         self._frame.setSplashPath("")
         self._frame.initialize()
@@ -39,6 +41,7 @@ class RvizWidget(QWidget):
         self._frame.setMenuBar(None)
         self._frame.setStatusBar(None)
         self._frame.setHideButtonVisibility(False)
+        self._frame.setStyleSheet("QSizeGrip { width: 0px; height: 0px; }")  # Remove SG
 
         # Setup robot_model_display
         manager = self._frame.getManager()
