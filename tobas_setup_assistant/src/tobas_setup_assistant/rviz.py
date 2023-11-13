@@ -74,7 +74,7 @@ class RvizWidget(QWidget):
         self.setMinimumWidth(self.MIN_WIDTH)
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
         self._visual_box.toggled.connect(self._on_visual_box_toggled)
         self._collision_box.toggled.connect(self._on_collision_box_toggled)
 
@@ -92,7 +92,7 @@ class RvizWidget(QWidget):
         self._unhighlight_link.setValue(link_name)
 
     @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def _on_robot_model_loaded(self) -> None:
         root_link = self._main.urdf_parser.get_root()
         self._frame.getManager().setFixedFrame(root_link.name)
         self._display.setBool(True)

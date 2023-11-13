@@ -122,7 +122,7 @@ class DepthCameraWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_links)
+        self._main.urdf_parser.robot_model_loaded.connect(self._add_links)
 
     @overrides
     def is_valid(self) -> bool:

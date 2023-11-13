@@ -45,13 +45,13 @@ class RobotVisualizerWidget(QWidget):
     def define_connections(self) -> None:
         self._frame_tree.define_connections()
         self._rviz.define_connections()
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
 
     def highlight_link(self, link_name: str) -> None:
         return self._rviz.highlight_link(link_name)
 
     @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def _on_robot_model_loaded(self) -> None:
         # Robot State Publisherを別スレッドで起動
         threading.Thread(target=self._run_rsp).start()
 

@@ -40,7 +40,7 @@ class BaseSettingWidget(ScrollArea):
 
     @abstractmethod
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(
+        self._main.urdf_parser.robot_model_loaded.connect(
             lambda: self.setEnabled(True)
         )
         self._main.pkg_generator.generated.connect(lambda: self.setEnabled(False))

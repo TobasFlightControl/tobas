@@ -27,7 +27,7 @@ class FrameTreeWidget(QTreeWidget):
         self.itemClicked.connect(self._on_item_clicked)
         self.itemExpanded.connect(self._resize_columns)
         self.itemCollapsed.connect(self._resize_columns)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_tree_items)
+        self._main.urdf_parser.robot_model_loaded.connect(self._add_tree_items)
 
     @pyqtSlot(QTreeWidgetItem, int)
     def _on_item_clicked(self, item: QTreeWidgetItem, col: int) -> None:

@@ -134,7 +134,7 @@ class PackagePath(QLabel):
         self._main.settings.ros_package.pkg_name.text_changed.connect(
             self._on_pkg_name_changed
         )
-        self._main.urdf_parser.robot_model_updated.connect(self._set_defaults)
+        self._main.urdf_parser.robot_model_loaded.connect(self._set_defaults)
 
     def _update(self) -> None:
         path = self.pardir + "/" + self.pkg_name

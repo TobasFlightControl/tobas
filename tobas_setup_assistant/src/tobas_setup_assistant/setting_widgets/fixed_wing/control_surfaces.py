@@ -100,7 +100,7 @@ class AvailableLinksWidget(QListWidget):
         self._main = main
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
+        self._main.urdf_parser.robot_model_loaded.connect(self._add_available_links)
         self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(
             self._add_selected_link
         )

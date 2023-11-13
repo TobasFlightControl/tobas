@@ -18,7 +18,7 @@ from kdl_sympy.joint import JointType
 
 
 class URDFParser(QObject):
-    robot_model_updated = pyqtSignal()
+    robot_model_loaded = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
         super().__init__()
@@ -36,7 +36,7 @@ class URDFParser(QObject):
             return
 
         rospy.loginfo("Robot model is loaded successfully.")
-        self.robot_model_updated.emit()
+        self.robot_model_loaded.emit()
 
     def get_links(self) -> List[Link]:
         return self._tree.get_links()
