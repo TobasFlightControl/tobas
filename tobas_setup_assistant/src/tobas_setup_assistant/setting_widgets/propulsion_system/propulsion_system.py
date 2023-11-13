@@ -22,6 +22,9 @@ class PropulsionSystemWidget(BaseSettingWidget):
     NAME = "Propulsion"
     LABEL_PSIZE = 12
 
+    add_link = pyqtSignal(str)  # selectedにリンクを追加
+    remove_link = pyqtSignal(str)  # selectedからリンクを削除
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Propulsion System"
         abst_text = (
@@ -38,8 +41,8 @@ class PropulsionSystemWidget(BaseSettingWidget):
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
-        self.available = AvailableLinksWidget(self._main)
-        self._rows.addWidget(self.available)
+        self._available = AvailableLinksWidget(self._main)
+        self._rows.addWidget(self._available)
 
         self.selected = SelectedLinksWidget(self._main)
         self._rows.addWidget(self.selected)
@@ -49,12 +52,12 @@ class PropulsionSystemWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self.available.define_connections()
+        self._available.define_connections()
         self.selected.define_connections()
 
     @overrides
     def is_valid(self) -> bool:
-        if not self.available.is_valid():
+        if not self._available.is_valid():
             return False
         if not self.selected.is_valid():
             return False

@@ -38,6 +38,8 @@ class SelectedLinksWidget(TabWidget):
         self.setTabsClosable(True)
 
     def define_connections(self):
+        self._main.settings.propulsion_system.add_link.connect(self._add_link)
+        self._main.settings.propulsion_system.remove_link.connect(self._remove_link)
         self.tabCloseRequested.connect(self._on_tab_close_requested)
 
     def is_valid(self) -> bool:
@@ -60,10 +62,6 @@ class SelectedLinksWidget(TabWidget):
 
         return True
 
-    def add(self, link_name: str) -> None:
-        tab = SelectedLinkTabWidget(self._main, link_name)
-        self.addTab(tab, link_name)
-
     def get_index(self, link_name: str) -> int:
         """タブのインデックスを返す．"""
         for idx in range(self.count()):
@@ -85,25 +83,25 @@ class SelectedLinksWidget(TabWidget):
     def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
         return self._get_tab(link_name).aerodynamics
 
-    def link_name(self, rotor_idx: int) -> str:
-        tab: SelectedLinkTabWidget = self.widget(rotor_idx)
+    def link_name(self, idx: int) -> str:
+        tab: SelectedLinkTabWidget = self.widget(idx)
         return tab.link_name()
 
     def link_names(self) -> List[str]:
         """選択テーブル内のリンクの名前のリストを返す．"""
         return [self.link_name(i) for i in range(self.count())]
 
-    def joint_name(self, rotor_idx: int) -> str:
-        tab: SelectedLinkTabWidget = self.widget(rotor_idx)
+    def joint_name(self, idx: int) -> str:
+        tab: SelectedLinkTabWidget = self.widget(idx)
         return tab.joint_name()
 
     def joint_names(self) -> List[str]:
         """選択テーブル内のジョイントの名前のリストを返す．"""
         return [self.joint_name(i) for i in range(self.count())]
 
-    def direction(self, rotor_idx: int) -> str:
+    def direction(self, idx: int) -> str:
         """CW or CCW"""
-        tab: SelectedLinkTabWidget = self.widget(rotor_idx)
+        tab: SelectedLinkTabWidget = self.widget(idx)
         return tab.motor.direction()
 
     def directions(self) -> List[str]:
@@ -114,12 +112,18 @@ class SelectedLinksWidget(TabWidget):
         idx = self.get_index(link_name)
         return self.widget(idx)
 
+    @pyqtSlot(str)
+    def _add_link(self, link_name: str) -> None:
+        tab = SelectedLinkTabWidget(self._main, link_name)
+        self.addTab(tab, link_name)
+
+    @pyqtSlot(str)
+    def _remove_link(self, link_name: str) -> None:
+        self.removeTab(self.get_index(link_name))
+
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:
-        tab: SelectedLinkTabWidget = self.widget(idx)
-        self._main.settings.propulsion_system.available.add(tab.link_name())
-        self.removeTab(idx)
-
+        self._main.settings.propulsion_system.remove_link.emit(self.link_name(idx))
         self._main.signals.airframe_updated.emit()
 
 
