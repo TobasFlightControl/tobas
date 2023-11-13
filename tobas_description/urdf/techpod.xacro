@@ -111,12 +111,12 @@
 
   <!-- Inertia of the propeller, assuming it is a cylinder -->
   <xacro:property name="propeller_inertia">
-    <xacro:cylinder_inertia r="${propeller_radius}" h="${propeller_height}" mass="${mass_propeller}"/>
+    <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${mass_propeller}"/>
   </xacro:property>
 
   <!-- Inertia of the wheels, assuming it is a cylinder -->
   <xacro:property name="wheel_inertia">
-    <xacro:cylinder_inertia r="${wheel_radius}" h="${wheel_height}" mass="${wheel_mass}"/>
+    <xacro:cylinder_inertia radius="${wheel_radius}" length="${wheel_height}" mass="${wheel_mass}"/>
   </xacro:property>
 
   <!-- Included URDF Files -->

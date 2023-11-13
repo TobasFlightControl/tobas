@@ -5,7 +5,8 @@
   <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
 
   <!-- Main multirotor link -->
-  <xacro:macro name="multirotor_base_macro" params="robot_namespace
+  <xacro:macro name="multirotor_base_macro" params="
+      robot_namespace
       mass
       body_width
       body_height
@@ -49,7 +50,8 @@
   </xacro:macro>
 
   <!-- Rotor joint and link -->
-  <xacro:macro name="vertical_rotor" params="robot_namespace
+  <xacro:macro name="vertical_rotor" params="
+      robot_namespace
       direction
       parent
       mass_rotor
