@@ -31,7 +31,7 @@ from .aerodynamics import AerodynamicsWidget
 class SelectedLinksWidget(TabWidget):
     TAB_HEIGHT = 50
     TAB_WIDTH = 150
-    ARROW_LENGTH = 0.3  # 想定される推力の最大値を矢印の長さに反映
+    ARROW_LENGTH = 0.2  # 想定される推力の最大値を矢印の長さに反映
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
