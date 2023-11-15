@@ -11,10 +11,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import q_error
+from dh_rqt_tools.messages import *
 from kdl_sympy.frames import *
 from kdl_sympy.tree import Tree
 from kdl_sympy.joint import JointType
+
+from .utils import is_unique
 
 
 class URDFParser(QObject):
@@ -149,13 +151,21 @@ class URDFParser(QObject):
         """有効なロボットかどうかを判定する．"""
         root_link = self.get_root()
 
-        # 多自由度関節を持たないことを保証
+        # リンク名とジョイント名が一意である
+        if not is_unique(self.link_names()):
+            q_error(self._main, f"Link names are not unique.")
+            return False
+        if not is_unique(self.joint_names()):
+            q_error(self._main, f"Joint names are not unique.")
+            return False
+
+        # 多自由度関節を持たない
         for joint in self.get_joints():
             if joint.type in {JointType.PLANER, JointType.FLOATING}:
                 q_error(self._main, f"Invalid joint type: {joint.type}")
                 return False
 
-        # ルートリンクのフレーム座標軸が XYZ = NWU に一致することを保証
+        # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin
         if origin is not None and any(angle != 0 for angle in origin.rpy):
             q_error(
@@ -166,9 +176,10 @@ class URDFParser(QObject):
 
         # ルートリンクがinertiaを持たない
         if root_link.inertial is not None:
-            q_error(
+            # TODO: q_errorにしてFalseを返す
+            q_warn(
                 self._main,
-                "The root link base_link has an inertia specified in the URDF, "
+                "The root link has an inertia specified in the URDF, "
                 + "but KDL does not support a root link with an inertia. "
                 + "As a workaround, you can add an extra dummy link to your URDF.",
             )
