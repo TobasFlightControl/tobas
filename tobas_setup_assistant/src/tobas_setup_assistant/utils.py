@@ -45,7 +45,9 @@ def get_drone_name() -> str:
     description = rospy.get_param("/robot_description")
     root = ET.fromstring(description)
     assert root.tag == "robot"
-    return root.get("name")
+
+    name = root.get("name")
+    return name if name else "unknown"
 
 
 def is_valid_email(email: str) -> bool:
@@ -87,3 +89,7 @@ def all_le(seq: Sequence[float], x: float) -> bool:
         if elem > x:
             return False
     return True
+
+
+def is_unique(lst: list):
+    return len(lst) == len(set(lst))

@@ -99,6 +99,7 @@ class RobotModelLoaderWidget(QWidget):
         self._file_text.textChanged.connect(self._on_file_path_changed)
         self._browse_button.clicked.connect(self._on_browse_button_clicked)
         self._load_button.clicked.connect(self._on_load_button_clicked)
+        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
 
     @pyqtSlot()
     def _on_file_path_changed(self) -> None:
@@ -151,10 +152,6 @@ class RobotModelLoaderWidget(QWidget):
             q_error(self._main, f"Failed to load robot description:\n\n{e}")
             return
 
-        self._file_text.setEnabled(False)
-        self._browse_button.setEnabled(False)
-        self._load_button.setEnabled(False)
-
         self._main.signals.urdf_loaded.emit()
 
     def _launch_file(self) -> None:
@@ -168,6 +165,11 @@ class RobotModelLoaderWidget(QWidget):
         """引数が実在するロボット記述言語かどうかを判定する．"""
         _, ext = osp.splitext(file_path)
         return ext.lower() in {".urdf", ".xacro"} and osp.isfile(file_path)
+
+    @pyqtSlot()
+    def _on_robot_model_loaded(self) -> None:
+        # 無事にモデルがロードされたら，それ以降モデルの修正はできないようにする
+        self.setEnabled(False)
 
 
 class URDFBuilderLaunchder(QWidget):
