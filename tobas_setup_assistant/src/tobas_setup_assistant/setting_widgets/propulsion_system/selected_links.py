@@ -196,10 +196,8 @@ class SelectedLinksWidget(TabWidget):
 
 
 class SelectedLinkTabWidget(QWidget):
-    CP_BUTTON_HEIGHT = 40
-    CP_BUTTON_WIDTH = 150
-    RM_BUTTON_HEIGHT = 40
-    RM_BUTTON_WIDTH = 100
+    BUTTON_HEIGHT = 40
+    BUTTON_WIDTH = 150
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -210,10 +208,8 @@ class SelectedLinkTabWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self.copy_button = add_center_button("Copy from left tab", rows)
-        self.copy_button.setFixedSize(
-            QSize(self.CP_BUTTON_WIDTH, self.CP_BUTTON_HEIGHT)
-        )
+        self._copy_button = add_center_button("Copy from left tab", rows)
+        self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
 
         self.esc = EscWidget(main, link_name)
         rows.addWidget(self.esc)
@@ -258,7 +254,7 @@ class SelectedLinkTabWidget(QWidget):
             return AxisType.UNKNOWN
 
     def _define_connections(self) -> None:
-        self.copy_button.clicked.connect(self._copy_from_left_tab)
+        self._copy_button.clicked.connect(self._copy_from_left_tab)
 
     @pyqtSlot()
     def _copy_from_left_tab(self) -> None:

@@ -209,11 +209,11 @@ class AddDeleteButtonsWidget(QWidget):
         self.setLayout(cols)
 
         self._add_button = QPushButton("⬇")
-        self._add_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
+        self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         cols.addWidget(self._add_button)
 
         self._delete_button = QPushButton("⬆")
-        self._delete_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
+        self._delete_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         cols.addWidget(self._delete_button)
 
     def define_connections(self) -> None:

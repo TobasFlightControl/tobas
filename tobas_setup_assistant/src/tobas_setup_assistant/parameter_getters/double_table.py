@@ -48,22 +48,22 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._rows.addLayout(cols)
 
         self._add_row_btn = QPushButton("Add row")
-        self._add_row_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
+        self._add_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         self._add_row_btn.clicked.connect(self._add_row)
         cols.addWidget(self._add_row_btn)
 
         self._delete_row_btn = QPushButton("Delete row")
-        self._delete_row_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
+        self._delete_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         self._delete_row_btn.clicked.connect(self._delete_row)
         cols.addWidget(self._delete_row_btn)
 
         self._clear_btn = QPushButton("Clear")
-        self._clear_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
+        self._clear_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         self._clear_btn.clicked.connect(self._clear)
         cols.addWidget(self._clear_btn)
 
         self._load_csv_btn = QPushButton("Load CSV")
-        self._load_csv_btn.setFixedSize(QSize(self.BTN_WIDTH, self.BTN_HEIGHT))
+        self._load_csv_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         self._load_csv_btn.clicked.connect(self._load_csv)
         cols.addWidget(self._load_csv_btn)
 

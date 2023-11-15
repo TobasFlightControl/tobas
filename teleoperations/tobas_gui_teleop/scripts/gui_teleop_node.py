@@ -5,7 +5,7 @@ import signal
 import rospy
 from PyQt5.QtWidgets import QApplication
 
-from tobas_gui_teleop import GuiTeleopWidget
+from tobas_gui_teleop.gui_teleop import GuiTeleopWidget
 
 
 if __name__ == "__main__":

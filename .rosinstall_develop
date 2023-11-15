@@ -57,3 +57,8 @@
     local-name: kdl_sympy
     uri: "git@github.com:TobasFlightControl/kdl_sympy.git"
     version: develop
+
+- git:
+    local-name: urdf_builder
+    uri: "git@github.com:TobasFlightControl/urdf_builder.git"
+    version: develop

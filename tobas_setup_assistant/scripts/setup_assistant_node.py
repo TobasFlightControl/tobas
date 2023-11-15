@@ -6,7 +6,7 @@ import signal
 import rospy
 from PyQt5.QtWidgets import QApplication
 
-from tobas_setup_assistant import SetupAssistant
+from tobas_setup_assistant.setup_assistant import SetupAssistant
 
 
 if __name__ == "__main__":

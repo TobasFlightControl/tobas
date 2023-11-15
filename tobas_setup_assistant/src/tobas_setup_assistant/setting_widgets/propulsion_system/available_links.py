@@ -108,7 +108,7 @@ class AvailableLinkItemWidget(QListWidget):
         cols.addWidget(self._link_label)
 
         self._add_button = QPushButton("Add")
-        self._add_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
+        self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         cols.addWidget(self._add_button)
 
         self._define_connections()

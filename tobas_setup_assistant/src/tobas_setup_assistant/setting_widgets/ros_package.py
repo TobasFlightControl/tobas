@@ -58,7 +58,7 @@ class RosPackageWidget(BaseSettingWidget):
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
         self.generate_button = add_center_button("Generate", self._rows)
-        self.generate_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
+        self.generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self.generate_button.setEnabled(False)
 
         add_expanding_widget(self._rows)

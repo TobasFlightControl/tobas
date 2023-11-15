@@ -6,17 +6,16 @@ if TYPE_CHECKING:
 
 import os
 import os.path as osp
-import roslaunch
-from roslaunch import rlutil, parent
 from overrides import overrides
 from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget
-from dh_rqt_tools.path import get_proj_path
+from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
+from dh_rqt_tools.path import get_pkg_name
 from dh_rqt_tools.messages import q_error
+from dh_rqt_tools.roslaunch import create_launcher
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -24,6 +23,8 @@ from ..common import *
 
 class StartWidget(BaseSettingWidget):
     NAME = "Start"
+
+    SPACE_HEIGHT = 50
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Tobas Setup Assistant"
@@ -39,11 +40,17 @@ class StartWidget(BaseSettingWidget):
         self._robot_model_loader = RobotModelLoaderWidget(main)
         self._rows.addWidget(self._robot_model_loader)
 
+        self._rows.addSpacing(self.SPACE_HEIGHT)
+
+        self._urdf_builder_launcher = URDFBuilderLaunchder(main)
+        self._rows.addWidget(self._urdf_builder_launcher)
+
         add_expanding_widget(self._rows)
 
     @overrides
     def define_connections(self) -> None:
         self._robot_model_loader.define_connections()
+        self._urdf_builder_launcher.define_connections()
 
     @overrides
     def is_valid(self) -> bool:
@@ -56,16 +63,9 @@ class RobotModelLoaderWidget(QWidget):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
-        self.description_path = None
+        self._urdf_path: str = None
 
         self._config = ConfigParser()
-
-        description_loader_uuid = rlutil.get_or_generate_uuid(None, False)
-        roslaunch.configure_logging(description_loader_uuid)
-        description_launch_path = osp.join(get_proj_path(), "launch/description.launch")
-        self.description_launcher = parent.ROSLaunchParent(
-            description_loader_uuid, [description_launch_path]
-        )
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -75,43 +75,41 @@ class RobotModelLoaderWidget(QWidget):
         label.setAlignment(Qt.AlignTop)
         rows.addWidget(label)
 
-        instruction_text = "あなたのドローンのURDFを指定し，Loadボタンを押してください．"
-        instruction = QLabel(instruction_text)
-        instruction.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        instruction.setAlignment(Qt.AlignTop)
-        instruction.setWordWrap(True)
+        instruction = Description(
+            "Please set the path for the robot description and press the load button."
+        )
         rows.addWidget(instruction)
 
         cols = QHBoxLayout()
         rows.addLayout(cols)
 
-        self.file_text = QLineEdit("")
-        self.file_text.setReadOnly(True)
-        self.file_text.setFocusPolicy(Qt.NoFocus)
-        cols.addWidget(self.file_text)
+        self._file_text = QLineEdit("")
+        self._file_text.setReadOnly(True)
+        self._file_text.setFocusPolicy(Qt.NoFocus)
+        cols.addWidget(self._file_text)
 
-        self.browse_button = QPushButton("Browse")
-        cols.addWidget(self.browse_button)
+        self._browse_button = QPushButton("Browse")
+        cols.addWidget(self._browse_button)
 
-        self.load_button = QPushButton("Load")
-        self.load_button.setEnabled(False)
-        cols.addWidget(self.load_button)
+        self._load_button = QPushButton("Load")
+        self._load_button.setEnabled(False)
+        cols.addWidget(self._load_button)
 
     def define_connections(self) -> None:
-        self.file_text.textChanged.connect(self._on_file_path_changed)
-        self.browse_button.clicked.connect(self._on_browse_button_clicked)
-        self.load_button.clicked.connect(self._on_load_button_clicked)
+        self._file_text.textChanged.connect(self._on_file_path_changed)
+        self._browse_button.clicked.connect(self._on_browse_button_clicked)
+        self._load_button.clicked.connect(self._on_load_button_clicked)
 
     @pyqtSlot()
     def _on_file_path_changed(self) -> None:
-        file_path = self.file_text.text().strip()
+        file_path = self._file_text.text().strip()
 
         if not self._is_valid_path(file_path):
-            self.load_button.setEnabled(False)
+            self._load_button.setEnabled(False)
             return
 
-        self.description_path = file_path
-        self.load_button.setEnabled(True)
+        self._urdf_path = file_path
+        self._load_button.setEnabled(True)
 
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
@@ -137,7 +135,7 @@ class RobotModelLoaderWidget(QWidget):
             return
 
         # パスをテキストに設定
-        self.file_text.setText(file_path)
+        self._file_text.setText(file_path)
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
@@ -153,21 +151,46 @@ class RobotModelLoaderWidget(QWidget):
             q_error(self._main, f"Failed to load robot description:\n\n{e}")
             return
 
-        self.file_text.setEnabled(False)
-        self.browse_button.setEnabled(False)
-        self.load_button.setEnabled(False)
+        self._file_text.setEnabled(False)
+        self._browse_button.setEnabled(False)
+        self._load_button.setEnabled(False)
 
         self._main.signals.urdf_loaded.emit()
 
     def _launch_file(self) -> None:
         # description.launchで使われる環境変数を設定
-        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = self.description_path
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = self._urdf_path
 
         # robot_descriptionをrosparamに登録
-        self.description_launcher.shutdown()
-        self.description_launcher.start()
+        create_launcher(get_pkg_name(), "description.launch")
 
     def _is_valid_path(self, file_path: str) -> bool:
         """引数が実在するロボット記述言語かどうかを判定する．"""
         _, ext = osp.splitext(file_path)
         return ext.lower() in {".urdf", ".xacro"} and osp.isfile(file_path)
+
+
+class URDFBuilderLaunchder(QWidget):
+    BUTTON_HEIGHT = 40
+
+    def __init__(self, main: SetupAssistant) -> None:
+        super().__init__()
+        self._main = main
+
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
+        instruction = Description("Or you can create URDF using URDF Builder.")
+        rows.addWidget(instruction)
+
+        self._open_button = add_center_button("Open URDF Builder", rows)
+        self._open_button.setFixedHeight(self.BUTTON_HEIGHT)
+        self._open_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+
+    def define_connections(self) -> None:
+        self._open_button.clicked.connect(self._on_open_button_clicked)
+
+    @pyqtSlot()
+    def _on_open_button_clicked(self) -> None:
+        create_launcher("urdf_builder", "urdf_builder.launch")
+        self._open_button.setEnabled(False)  # FIXME: URDF Builderを2つ立ち上げるとバグる
