@@ -169,7 +169,9 @@ class RobotModelLoaderWidget(QWidget):
     @pyqtSlot()
     def _on_robot_model_loaded(self) -> None:
         # 無事にモデルがロードされたら，それ以降モデルの修正はできないようにする
-        self.setEnabled(False)
+        self._file_text.setEnabled(False)
+        self._browse_button.setEnabled(False)
+        self._load_button.setEnabled(False)
 
 
 class URDFBuilderLaunchder(QWidget):
@@ -193,8 +195,13 @@ class URDFBuilderLaunchder(QWidget):
 
     def define_connections(self) -> None:
         self._open_button.clicked.connect(self._on_open_button_clicked)
+        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
 
     @pyqtSlot()
     def _on_open_button_clicked(self) -> None:
         create_launcher("urdf_builder", "urdf_builder.launch")
         self._open_button.setEnabled(False)  # FIXME: URDF Builderを2つ立ち上げるとバグる
+
+    @pyqtSlot()
+    def _on_robot_model_loaded(self) -> None:
+        self._open_button.setEnabled(False)
