@@ -9,11 +9,12 @@
   <!-- Properties: https://www.dji.com/jp/spreading-wings-f550_non_planar -->
   <xacro:property name="frame_radius" value="0.294"/>
   <xacro:property name="frame_height" value="0.056"/>
+  <xacro:property name="frame_mass" value="1.615"/>
   <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
   <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
   <xacro:property name="propeller_height" value="0.01"/>
   <xacro:property name="propeller_mass" value="0.011"/>
-  <xacro:property name="propeller_origin_z" value="0.061289"/>
+  <xacro:property name="propeller_origin_z" value="0.060597"/>
   <xacro:property name="rotor_tilt" value="${30*deg2rad}"/>
 
   <!-- Base Link -->
@@ -34,9 +35,9 @@
       <xacro:insert_block name="black"/>
     </visual>
     <inertial>
-      <mass value="2.015"/>
-      <origin xyz="4.12e-4 8.34e-4 1.0917e-2" rpy="0 0 0"/>
-      <inertia ixx="4.970e-2" ixy="-1.85346e-7" ixz="-8.26373e-6" iyy="4.975e-2" iyz="-5.7596072e-5" izz="9.558e-2"/>
+      <mass value="${frame_mass}"/>
+      <origin xyz="5.5e-4 1.04e-3 9.895e-3" rpy="0 0 0"/>
+      <inertia ixx="3.720e-2" ixy="4.6919e-8" ixz="-6.275258e-6" iyy="3.725e-2" iyz="-5.9311674e-5" izz="7.102e-2"/>
     </inertial>
     <xacro:hexagonal_prism_collision side="${frame_radius}" height="${frame_height}" x0="0" y0="0" z0="${-frame_height/2}"/>
   </link>
@@ -71,22 +72,22 @@
   </xacro:macro>
 
   <xacro:propeller index="0" direction="ccw">
-    <origin xyz="0.242282 0.130356 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${30*deg2rad}"/>
+    <origin xyz="0.242082 0.130702 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${30*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="1" direction="cw">
-    <origin xyz="-0.008251 0.27500 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${90*deg2rad}"/>
+    <origin xyz="-0.007851 0.27500 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${90*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="2" direction="ccw">
-    <origin xyz="-0.234032 0.144644 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${150*deg2rad}"/>
+    <origin xyz="-0.234232 0.144298 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${150*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="3" direction="cw">
-    <origin xyz="-0.234032 -0.144645 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${210*deg2rad}"/>
+    <origin xyz="-0.234232 -0.144645 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${210*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="4" direction="ccw">
-    <origin xyz="-0.00825 -0.27500 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${270*deg2rad}"/>
+    <origin xyz="-0.007851 -0.27500 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${270*deg2rad}"/>
   </xacro:propeller>
   <xacro:propeller index="5" direction="cw">
-    <origin xyz="0.242282 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${330*deg2rad}"/>
+    <origin xyz="0.242082 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${330*deg2rad}"/>
   </xacro:propeller>
 
 </robot>
