@@ -182,7 +182,9 @@ class URDFBuilderLaunchder(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        instruction = Description("Or you can create URDF using URDF Builder.")
+        instruction = Description(
+            "If you do not have URDF, you can create one using URDF Builder."
+        )
         rows.addWidget(instruction)
 
         self._open_button = add_center_button("Open URDF Builder", rows)
