@@ -2,6 +2,6 @@
 
 int main()
 {
-  tobas_real::EscCalibrator node;
+  tobas_real::EscCalibration node;
   node.run();
 }
