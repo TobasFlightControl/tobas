@@ -3,6 +3,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/fstream.hpp>
+#include <dh_std_tools/unix.hpp>
 #include <dh_eigen_tools/core.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -19,9 +20,9 @@ namespace tobas_real
 MeasureSensorNoise::MeasureSensorNoise()
 {
   // ルート権限を確認
-  if (getuid())
+  if (!dh_std::isSuperUser())
   {
-    throw runtime_error("Not root.");
+    throw runtime_error("Please execute with root privileges.");
   }
 
   // IMUドライバをセットアップ

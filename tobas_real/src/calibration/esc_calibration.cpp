@@ -4,6 +4,7 @@
 
 #include <dh_std_tools/time.hpp>
 #include <dh_std_tools/console.hpp>
+#include <dh_std_tools/unix.hpp>
 
 #include "../../include/tobas_real/calibration/esc_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -15,9 +16,9 @@ namespace tobas_real
 {
 EscCalibration::EscCalibration()
 {
-  if (getuid())
+  if (!dh_std::isSuperUser())
   {
-    throw runtime_error("Not root.");
+    throw runtime_error("Please execute with root privileges.");
   }
 
   for (uint32_t channel = 0; channel < kServoRailSize; ++channel)

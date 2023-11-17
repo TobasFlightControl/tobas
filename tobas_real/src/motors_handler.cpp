@@ -1,6 +1,7 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_std_tools/vector.hpp>
+#include <dh_std_tools/unix.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
@@ -18,9 +19,9 @@ MotorsHandler::MotorsHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  if (getuid())
+  if (!dh_std::isSuperUser())
   {
-    ROS_THROW_NAMED(name_, "Not root.");
+    ROS_THROW_NAMED(name_, "Please execute with root privileges.");
   }
 
   getRosParams();
