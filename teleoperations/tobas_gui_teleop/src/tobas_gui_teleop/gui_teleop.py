@@ -15,7 +15,7 @@ class GuiTeleopWidget(MainWidget):
     WAIT_TO_CONNECT = 0.5  # [s]
 
     def __init__(self) -> None:
-        super().__init__(CONFIG_PATH, DEFAULT)
+        super().__init__()
 
         proj_path = get_proj_path()
         icon_path = osp.join(proj_path, "resources/icon.png")

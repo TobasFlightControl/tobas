@@ -4,11 +4,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.path import get_pkg_name
+
 # Physics Constants
 AIR_DENSITY = 1.225  # [kg/m^3]
 
 # ConfigParser
-CONFIG_PATH = osp.join(osp.expanduser("~"), ".config/tobas_setup_assistant/config.ini")
+CONFIG_PATH = osp.join(osp.expanduser("~"), f".config/{get_pkg_name()}/config.ini")
 DEFAULT = "DEFAULT"
 
 # Point Sizes
