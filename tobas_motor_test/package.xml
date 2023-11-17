@@ -9,7 +9,6 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>navio</depend>
-	<depend>roscpp</depend>
+	<depend>tobas_real</depend>
 
 </package>
