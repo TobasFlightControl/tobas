@@ -14,6 +14,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from dh_rqt_tools.utils import remap
 from dh_rqt_tools.widgets import Slider, add_expanding_widget
 from tobas_msgs.msg import (
     PositionYaw,
@@ -23,7 +24,6 @@ from tobas_msgs.msg import (
     Odometry,
 )
 
-from .utils import remap
 from .common import *
 
 
