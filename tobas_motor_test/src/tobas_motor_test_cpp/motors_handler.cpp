@@ -7,6 +7,11 @@
 
 #include "../../include/tobas_motor_test/motors_handler.hpp"
 
+#define PWM_FAIL_ERROR(channel)                                                                    \
+  {                                                                                                \
+    ROS_ERROR_STREAM("Failed to set PWM duty cycle on PIN " << pinFromChannel(channel) << ".");    \
+  }
+
 using namespace std;
 using namespace tobas_real;
 
@@ -62,7 +67,7 @@ void MotorsHandler::sendDisarm()
     for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
     {
       if (!pwm_.setDutyCycle(channel, kPwmDisarm))
-        rosError(name_, "Failed to set PWM duty cycle on PIN " << pinFromChannel(channel) << ".");
+        PWM_FAIL_ERROR(channel);
     }
 
     ros::Duration(kDisarmInterval).sleep();
@@ -88,17 +93,24 @@ void MotorsHandler::throttlesCb(const tobas_msgs::ThrottlesConstPtr& throttles)
 
 void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
 {
+  // コマンドが来るまでは，ESCの自動停止を防ぐために最小値を指令して終了
   if (throttles_ == nullptr)
   {
-    rosInfoThrottle(
-      kInfoPeriod, name_,
-      "Waiting for " << nh_.getNamespace() << "/" << tobas::kThrottlesCmdTopic << ".");
+    rosInfoThrottle(kInfoPeriod, name_, "Waiting for " << tobas::kThrottlesCmdTopic << ".");
+
+    for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+    {
+      if (!pwm_.setDutyCycle(channel, kPwmMin))
+        PWM_FAIL_ERROR(channel);
+    }
+
     return;
   }
 
-  uint32_t data_size = throttles_->data.size();
+  rosInfoOnce(name_, "First throttle command is received.");
 
-  // Check array size
+  // データサイズを決定
+  uint32_t data_size = throttles_->data.size();
   if (data_size > kServoRailSize)
   {
     rosWarnThrottle(
@@ -110,19 +122,19 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   }
 
   // 与えられたスロットルを指令
-  for (uint32_t channel = 0; channel < min(data_size, kServoRailSize); ++channel)
+  for (uint32_t channel = 0; channel < data_size; ++channel)
   {
     const auto throttle = clamp(throttles_->data[channel], 0., 1.);
     const auto period = dh_std::remap<double>(throttle, 0., 1., kPwmMin, kPwmMax);
     if (!pwm_.setDutyCycle(channel, period))
-      rosError(name_, "Failed to set PWM duty cycle on PIN " << pinFromChannel(channel) << ".");
+      PWM_FAIL_ERROR(channel);
   }
 
-  // ESCの自動停止を防ぐため，足りない分は全て最小値を指令
+  // 足りない分は全て最小値を指令
   for (uint32_t channel = data_size; channel < kServoRailSize; ++channel)
   {
     if (!pwm_.setDutyCycle(channel, kPwmMin))
-      rosError(name_, "Failed to set PWM duty cycle on PIN " << pinFromChannel(channel) << ".");
+      PWM_FAIL_ERROR(channel);
   }
 }
 }  // namespace tobas_motor_test
