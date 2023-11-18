@@ -169,7 +169,7 @@ $ rosnode ping /rosout
 
 ### Hardware in the Loop (HIL)
 
-<strong>Warning: This operation will rotate the motors.</strong>
+<span style="color: yellow;">Warning: Make sure propellers are removed from motors.</span>
 
 1. Launch roscore on FC.
 
@@ -226,7 +226,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### ESC Calibration
 
-<strong>Warning: Make sure propellers are removed from motors.</strong>
+<span style="color: yellow;">Warning: Make sure propellers are removed from motors.</span>
 
 1. Please confirm the following:
 
@@ -265,7 +265,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### Measure sensor noise
 
-<strong>Warning: Make sure propellers are removed from motors.</strong>
+<span style="color: yellow;">Warning: Make sure propellers are removed from motors.</span>
 
 The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit),
 so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions.
