@@ -209,7 +209,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/mag_calibration
 ### ADC Calibration
 
 Make sure battery is connected to FC properly.\
-Execute the following in FC:
+Execute the following on FC:
 
 ```bash
 $ ~/catkin_ws/devel/lib/tobas_real/adc_calibration
@@ -218,7 +218,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/adc_calibration
 ### RC Input Calibration
 
 Make sure RC receiver is connected to FC properly and it can communicate with a transmitter.\
-Execute the following in FC:
+Execute the following on FC:
 
 ```bash
 $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
@@ -226,26 +226,56 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### ESC Calibration
 
-Make sure battery and ESCs are connected to FC properly and the propellers are NOT attached to the motors.\
-Execute the following in FC:
+<strong>Warning: Make sure propellers are removed from motors.</strong>
 
-```bash
-$ su
-$ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
-```
+1. Please confirm the following:
+
+   - The ESCs are connected to the FC in the correct order.
+   - The battery is disconnected from the power distributor, and the FC is powered only via a type-C connection.
+
+2. Please execute the following on FC and follow the instructions displayed on the console:
+
+   ```bash
+   $ su
+   $ source ~/catkin_ws/devel/setup.bash
+   $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
+   ```
+
+3. Verify that the calibration was successful.
+
+   Please execute the following on FC:
+
+   ```bash
+   $ su
+   $ source ~/catkin_ws/devel/setup.bash
+   $ roslaunch tobas_motor_test motors_handler.launch
+   ```
+
+   Please execute the following on the external PC:
+
+   ```bash
+   $ roslaunch tobas_motor_test motor_test_gui.launch
+   ```
+
+   Then, confirm the following for all motors:
+
+   - When the throttle is at 0.0, the motor does not rotate.
+   - When the throttle is at 0.1, the motor rotates slowly.
+   - As the throttle is increased to 1.0, the rotation sound gradually becomes higher.
 
 ### Measure sensor noise
 
-<strong>Warning: This operation will rotate the motors.</strong>
+<strong>Warning: Make sure propellers are removed from motors.</strong>
 
 The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit),
 so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions.
 In this case, make sure that the battery, ESC (Electronic Speed Controller), motors,
 and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
-Execute the following in FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
+Execute the following on FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
 $ su
+$ source ~/catkin_ws/devel/setup.bash
 $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 ```
 
