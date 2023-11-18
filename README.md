@@ -107,7 +107,7 @@ $ ssh (user)@(host)  # e.g.) ssh pi@192.168.1.1
 
 4. Execute real.launch with superuser privileges
 
-Please make sure that the RC transmitter and receiver can communicate correctly.
+   Please make sure that the RC transmitter and receiver can communicate correctly.
 
 ```bash
 $ su
