@@ -88,13 +88,21 @@ void MotorsHandler::throttlesCb(const tobas_msgs::ThrottlesConstPtr& throttles)
 
 void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
 {
+  if (throttles_ == nullptr)
+  {
+    rosInfoThrottle(
+      kInfoPeriod, name_,
+      "Waiting for " << nh_.getNamespace() << "/" << tobas::kThrottlesCmdTopic << ".");
+    return;
+  }
+
   uint32_t data_size = throttles_->data.size();
 
   // Check array size
   if (data_size > kServoRailSize)
   {
     rosWarnThrottle(
-      kWarnPeriod, name_,
+      kInfoPeriod, name_,
       "The size of throttle data is "
         << data_size << ", which is larger than the size of servo rail " << kServoRailSize
         << ". The excess will be ignored.");
