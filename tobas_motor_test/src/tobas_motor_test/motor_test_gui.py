@@ -11,10 +11,16 @@ from dh_rqt_tools.path import get_proj_path
 from tobas_msgs.msg import Throttles
 
 SERVO_RAIL_SIZE = 14
-MAX_ROWS = SERVO_RAIL_SIZE // 2
 
 
 class MotorTestGui(MainWidget):
+    MAX_ROWS = SERVO_RAIL_SIZE // 2
+    BUTTON_HEIGHT = 30
+
+    MIN_THROTTLE = 0.0
+    MAX_THROTTLE = 1.0
+    ARM_THROTTLE = 0.1
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -31,11 +37,23 @@ class MotorTestGui(MainWidget):
 
         self._commanders: List[FloatSliderDisplay] = []
         for i in range(SERVO_RAIL_SIZE):
-            commander = FloatSliderDisplay(f"PIN {i + 1}", 0.0, 1.0)
-            commander.set_value(0.0)
+            commander = FloatSliderDisplay(
+                f"PIN {i + 1}", self.MIN_THROTTLE, self.MAX_THROTTLE
+            )
+            commander.set_value(self.MIN_THROTTLE)
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
-            grid.addWidget(commander, i % MAX_ROWS, i // MAX_ROWS)
+            grid.addWidget(commander, i % self.MAX_ROWS, i // self.MAX_ROWS)
+
+        self._minimum_button = QPushButton("Minimum")
+        self._minimum_button.clicked.connect(self._on_minimum_button_clicked)
+        self._minimum_button.setFixedHeight(self.BUTTON_HEIGHT)
+        rows.addWidget(self._minimum_button)
+
+        self._arming_button = QPushButton("Arming")
+        self._arming_button.clicked.connect(self._on_arming_button_clicked)
+        self._arming_button.setFixedHeight(self.BUTTON_HEIGHT)
+        rows.addWidget(self._arming_button)
 
         add_expanding_widget(rows)
 
@@ -45,6 +63,19 @@ class MotorTestGui(MainWidget):
 
     @pyqtSlot()
     def _on_value_changed(self) -> None:
+        self._publish_current_values()
+
+    @pyqtSlot()
+    def _on_minimum_button_clicked(self) -> None:
+        self._set_all_values(self.MIN_THROTTLE)
+        self._publish_current_values()
+
+    @pyqtSlot()
+    def _on_arming_button_clicked(self) -> None:
+        self._set_all_values(self.ARM_THROTTLE)
+        self._publish_current_values()
+
+    def _publish_current_values(self) -> None:
         throttles = Throttles()
         throttles.header.stamp = rospy.Time.now()
 
@@ -52,3 +83,9 @@ class MotorTestGui(MainWidget):
             throttles.data.append(commander.get_value())
 
         self._throttles_pub.publish(throttles)
+
+    def _set_all_values(self, value: float) -> None:
+        for commander in self._commanders:
+            commander.blockSignals(True)
+            commander.set_value(value)
+            commander.blockSignals(False)
