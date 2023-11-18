@@ -263,6 +263,9 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
    - When the throttle is at 0.1, the motor rotates slowly.
    - As the throttle is increased to 1.0, the rotation sound gradually becomes higher.
 
+   If these conditions are not met, the ESCs are not properly calibrated.
+   In that case, please do the above calibration again or use a tool such as BLHeli-Suite to adjust the PWM signal range.
+
 ### Measure sensor noise
 
 <span style="color: yellow;"><strong>Warning: Make sure propellers are removed from motors.</strong></span>

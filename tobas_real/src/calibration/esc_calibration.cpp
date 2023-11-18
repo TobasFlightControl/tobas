@@ -47,7 +47,7 @@ void EscCalibration::waitForBatteryDisconnected()
 
   while (isBatteryConnected())
   {
-    sleep(kInterval);
+    usleep(kInterval);
   }
 
   cout << "Battery disconnection detected." << endl;
