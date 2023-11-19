@@ -57,9 +57,6 @@ public:
 
 private:
   KDL::Tree tree_;
-  Eigen::Vector3d imu_offset_;  // ルートリンクに対するIMUの位置をベースで表現したベクトル
-  Eigen::Vector3d bar_offset_;  // ルートリンクに対する気圧センサの位置をベースで表現したベクトル
-  Eigen::Vector3d gps_offset_;  // ルートリンクに対するGPSレシーバの位置をベースで表現したベクトル
   std::vector<std::string> posture_defining_joints_;
   RotorConfigs rotor_configs_;
   FixedWingConfig fixed_wing_config_;
@@ -80,21 +77,6 @@ private:
 inline const KDL::Tree& Drone::tree() const
 {
   return tree_;
-}
-
-inline const Eigen::Vector3d& Drone::imuOffset() const
-{
-  return imu_offset_;
-}
-
-inline const Eigen::Vector3d& Drone::barometerOffset() const
-{
-  return bar_offset_;
-}
-
-inline const Eigen::Vector3d& Drone::gpsOffset() const
-{
-  return gps_offset_;
 }
 
 inline const std::vector<std::string>& Drone::postureDefiningJoints() const

@@ -40,9 +40,6 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   DH_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
 
   getRosParams();
-  drone_.loadFromParam(nh_);
-
-  imu2gps_B_ = drone_.gpsOffset() - drone_.imuOffset();
 
   registerPublishers();
   registerSubscribers();
@@ -70,6 +67,9 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(
     pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
+  dh_ros::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
+  dh_ros::getParam(pnh_, "gps_offset", gps_offset_, Vector3d::Zero());
 
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
@@ -216,7 +216,6 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
   const Vector3d B_Acc = acc_meas_ - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
   const Vector3d B_Gyro = gyro_meas_ - eskf_.getGyroBias();
-  const Vector3d B_Pos_BI = drone_.imuOffset();
 
   const auto odom = boost::make_shared<OdomMsg>();
 
@@ -224,11 +223,11 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   odom->header.stamp = imu.header.stamp;
 
   // Position (Global): IMU frame -> Base frame
-  odom->pose.pos.data = W_Pos_WI - W_Rot_B * B_Pos_BI;
+  odom->pose.pos.data = W_Pos_WI - W_Rot_B * imu_offset_;
   et::matrix3EigenToBoost(eskf_.getPositionCovariance(), odom->position_covariance);
 
   // Linear velocity (Local): IMU frame -> Base frame
-  odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
+  odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
   const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
   et::matrix3EigenToBoost(vel_cov_B, odom->linear_velocity_covariance);
 
@@ -436,6 +435,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
   double z_abs, z_var;
   pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
 
+  // TODO: bar_offsetを考慮
   const double z_m = z_abs - alt_0_bar_;
   eskf_.measureAltitude(z_m, z_var);
 }
@@ -457,8 +457,9 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
 
   // ESKFを更新
-  gps_anormaly_score_ = eskf_.measurePosVel(
-    pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_B_, gyro_meas_);
+  const auto imu2gps = gps_offset_ - imu_offset_;
+  gps_anormaly_score_ =
+    eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps, gyro_meas_);
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > kAnormalyScoreThreshold)

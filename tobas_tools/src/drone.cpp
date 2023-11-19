@@ -26,9 +26,6 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
   if (!treeFromParam("robot_description", tree_))
     throw runtime_error("Failed to get KDL tree.");
 
-  dh_ros::getParam(nh, "imu_offset", imu_offset_);
-  dh_ros::getParam(nh, "barometer_offset", bar_offset_);
-  dh_ros::getParam(nh, "gps_offset", gps_offset_);
   dh_ros::getParam(nh, "posture_defining_joint_names", posture_defining_joints_);
 
   getRotorConfigs(nh);

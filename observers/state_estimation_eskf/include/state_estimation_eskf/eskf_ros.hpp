@@ -51,15 +51,12 @@ private:
     RUNNING,
   };
 
-  tobas::Drone drone_;
-
   // 固定値
-  Eigen::Vector3d imu2gps_B_;  // IMUに対するGPSレシーバの位置
-  double lat_0_;               // 緯度のゼロ点 (Base Frame)
-  double lon_0_;               // 経度のゼロ点 (Base Frame)
-  double alt_0_gps_;           // GPS高度のゼロ点 (Base Frame)
-  double alt_0_bar_;           // 気圧高度のゼロ点 (Base Frame)
-  Eigen::Quaterniond q_0_;     // 姿勢の初期値 (Base Frame)
+  double lat_0_;            // 緯度のゼロ点 (Base Frame)
+  double lon_0_;            // 経度のゼロ点 (Base Frame)
+  double alt_0_gps_;        // GPS高度のゼロ点 (Base Frame)
+  double alt_0_bar_;        // 気圧高度のゼロ点 (Base Frame)
+  Eigen::Quaterniond q_0_;  // 姿勢の初期値 (Base Frame)
 
   Stage stage_ = FIRST_IMU;
   bool cov_converged_ = false;
@@ -92,6 +89,9 @@ private:
   bool do_gyro_bias_estimation_;
   bool do_grav_estimation_;
   bool check_covariance_convergence_;
+  Eigen::Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
+  Eigen::Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
+  Eigen::Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
   double gps_hor_pos_stddev_thr_;  // [m]
   double gps_ver_pos_stddev_thr_;  // [m]
 

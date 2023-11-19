@@ -284,9 +284,6 @@ class PackageGenerator(QObject):
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
         drone_config = {
-            "imu_offset": self._main.settings.imu.offset.get(),
-            "barometer_offset": self._main.settings.barometer.offset.get(),
-            "gps_offset": self._main.settings.gps.offset.get(),
             "posture_defining_joint_names": self._posture_defining_joint_names(),
         }
 
