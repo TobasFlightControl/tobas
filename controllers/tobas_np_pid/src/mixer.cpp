@@ -1,5 +1,6 @@
 #include <dh_std_tools/console.hpp>
 #include <dh_std_tools/check.hpp>
+#include <dh_std_tools/console.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -20,11 +21,15 @@ Mixer::Mixer(const tobas::Drone& drone)
     jnt_axis_solver_(drone.tree()),
     inertia_solver_(drone.tree())
 {
+  DH_DEBUG("Mixer::Mixer");
+
   updateInternalDataStructures();
 }
 
 void Mixer::updateInternalDataStructures()
 {
+  DH_DEBUG("Mixer::updateInternalDataStructures");
+
   fk_solver_.updateInternalDataStructures();
   jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -53,6 +58,8 @@ VectorXd Mixer::solve(
   const Vector& tar_acc_W,
   const Vector& tar_dgyro_B)
 {
+  DH_DEBUG_ONCE("Mixer::solve");
+
   assert(cur_voltage > 0);
 
   // 質量特性を計算
@@ -109,6 +116,8 @@ VectorXd Mixer::solve(
 
 void Mixer::configure(const MixerConfig& cfg)
 {
+  DH_DEBUG("Mixer::configure");
+
   if (!drone_.isLoaded())
     throw runtime_error("Drone is not loaded yet.");
 

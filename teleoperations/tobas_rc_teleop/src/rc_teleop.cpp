@@ -166,7 +166,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         event_pub_.publish(event);
       }
 
-      const int cur_mode = static_cast<int>(rcin->mode);
+      const auto cur_mode = static_cast<int>(rcin->mode);
 
       if (cur_mode >= controllers_.size())
       {

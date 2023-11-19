@@ -1,5 +1,6 @@
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/assert.hpp>
+#include <dh_std_tools/console.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -17,6 +18,8 @@ namespace state_estimation_eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 {
+  DH_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
+
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
   H_xy_.setZero();
@@ -50,6 +53,8 @@ void ErrorStateKalmanFilter::initialize(
   const Matrix3d& init_gyro_bias_cov,
   const double& init_grav_var)
 {
+  DH_DEBUG("ErrorStateKalmanFilter::initialize");
+
   assert(et::isSymmetricSemiPositiveDefinite(init_pos_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_vel_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
@@ -89,6 +94,8 @@ void ErrorStateKalmanFilter::predictIMU(
   const double& grav_var,
   const double& dt)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
+
   assert(acc_noise_var >= 0);
   assert(gyro_noise_var >= 0);
   assert(acc_bias_noise_var >= 0);
@@ -141,6 +148,8 @@ double ErrorStateKalmanFilter::measurePosition(
   const Matrix3d& pos_cov,
   const Vector3d& offset)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
+
   const Vector3d delta_pos = pos_meas - getPosition(offset);
 
   // 姿勢による偏微分
@@ -153,18 +162,24 @@ double ErrorStateKalmanFilter::measurePosition(
 
 double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
+
   const Vector2d delta_xy = xy_meas - getXY();
   return correct<2>(delta_xy, xy_cov, H_xy_);
 }
 
 double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
+
   const double delta_z = z_meas - getAltitude();
   return correct<1>(Scalard(delta_z), Scalard(z_var), H_z_);
 }
 
 double ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
+
   return measureVelocity(vel_meas, vel_cov, Vector3d::Zero(), Vector3d::Zero());
 }
 
@@ -174,6 +189,8 @@ double ErrorStateKalmanFilter::measureVelocity(
   const Vector3d& offset,
   const Vector3d& gyro_meas)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
+
   const Vector3d gyro_nominal = gyro_meas - getGyroBias();
   const Vector3d gyro_offset = gyro_nominal.cross(offset);
   const Vector3d vel_nominal = getVelocity() + getQuaternion() * gyro_offset;
@@ -198,6 +215,8 @@ double ErrorStateKalmanFilter::measurePosVel(
   const Vector3d& offset,
   const Vector3d& gyro_meas)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosVel");
+
   // 観測誤差
   Vector6d delta;
   const Vector3d gyro_nominal = gyro_meas - getGyroBias();
@@ -228,6 +247,8 @@ double ErrorStateKalmanFilter::measurePosVel(
 double
 ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
+
   const Quaterniond q_nominal = getQuaternion();
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
   const Vector3d delta_theta = et::quaternionToAngleAxis(q_error);
@@ -237,6 +258,8 @@ ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matri
 
 double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureGravity");
+
   const Matrix3d R_B_W = getDCM().transpose();
   const Vector3d grav_B = R_B_W * getGravVector();
   const Vector3d acc_ref = getAccelBias() - grav_B;  // 動的な加速度なしで観測されるべき加速度
@@ -250,6 +273,8 @@ double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Ma
 double
 ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, const Matrix3d& mag_cov)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
+
   const Quaterniond Q_W_B = getQuaternion();
   const Vector3d mag_B = Q_W_B.conjugate() * mag_W_;
   const Vector3d delta_mag = mag_meas - mag_B;
@@ -263,6 +288,8 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const double& mag_meas_y,
   const double& yaw_var)
 {
+  DH_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
+
   assert(yaw_var > 0);
 
   // Compute innovation

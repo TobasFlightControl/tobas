@@ -6,6 +6,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
 #include <dh_std_tools/exception.hpp>
+#include <dh_std_tools/debug.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_eigen_tools/iostream.hpp>
 #include <dh_eigen_tools/conversion/eigen_boost.hpp>
@@ -36,6 +37,8 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)  // NodeletのときはPrivate NodeHandleを明示的に渡す必要がある
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
+
   getRosParams();
   drone_.loadFromParam(nh_);
 
@@ -76,12 +79,16 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::registerPublishers");
+
   odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
   feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
 }
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
+
   super::registerSubscribers();
 
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
@@ -110,6 +117,8 @@ bool ErrorStateKalmanFilterRos::isReady() const
 
 void ErrorStateKalmanFilterRos::initialize()
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::initialize");
+
   // 静止状態でのセンサデータを平均してゼロ点を決める
   setZeroPositions();
 
@@ -146,6 +155,8 @@ void ErrorStateKalmanFilterRos::initialize()
 
 void ErrorStateKalmanFilterRos::setZeroPositions()
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::setZeroPositions");
+
   actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(
     tobas::kStaticStateDeterminationAction);
   rosInfo(
