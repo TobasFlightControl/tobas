@@ -28,7 +28,7 @@ static constexpr uint32_t kDeltaStateSize = kDeltaGravIdx + 1;
 // rosparamのデフォルト
 static constexpr bool kDefaultUseBarometer = true;
 static constexpr bool kDefaultUseGps = true;
-static constexpr bool kDefaultDoAccBiasEstimation = true;
+static constexpr bool kDefaultDoAccBiasEstimation = false;
 static constexpr bool kDefaultDoGyroBiasEstimation = true;
 static constexpr bool kDefaultDoGravEstimation = true;
 static constexpr bool kDefaultCheckCovarianceConvergence = true;

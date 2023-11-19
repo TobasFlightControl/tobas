@@ -7,7 +7,6 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <dh_std_tools/first_order_filter.hpp>
-#include <dh_std_tools/stopwatch.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
@@ -109,9 +108,6 @@ private:
 
   // Dynamic Reconfigure
   ConfigServer server_;
-
-  // Other
-  dh_std::Stopwatch stopwatch_;
 
   void getRosParams() override;
   void registerPublishers() override;
