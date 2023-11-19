@@ -1,6 +1,7 @@
 #include <dh_std_tools/unordered_set.hpp>
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/string.hpp>
+#include <dh_std_tools/console.hpp>
 #include <dh_kdl/kdl_parser.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 
@@ -15,10 +16,13 @@ namespace tobas
 {
 Drone::Drone()
 {
+  DH_DEBUG("Drone::Drone");
 }
 
 void Drone::loadFromParam(ros::NodeHandle& nh)
 {
+  DH_DEBUG("Drone::loadFromParam");
+
   if (!treeFromParam("robot_description", tree_))
     throw runtime_error("Failed to get KDL tree.");
 
@@ -75,6 +79,8 @@ double Drone::rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust
 
 void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
+  DH_DEBUG("Drone::getRotorConfigs");
+
   uint32_t num_rotors;
   dh_ros::getParam(nh, "num_rotors", num_rotors);
 
@@ -84,6 +90,8 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
 
 RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx)
 {
+  DH_DEBUG("Drone::getRotorConfigs(" << rotor_idx << ")");
+
   const string prefix = "rotor_" + to_string(rotor_idx);
   RotorConfig res;
 
@@ -143,6 +151,8 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx
 
 void Drone::getFixedWingConfig(ros::NodeHandle& nh)
 {
+  DH_DEBUG("Drone::getFixedWingConfig");
+
   getVehicleParameters(nh);
   getAerodynamicsCoefficients(nh);
   getControlSurfaces(nh);
@@ -150,6 +160,8 @@ void Drone::getFixedWingConfig(ros::NodeHandle& nh)
 
 void Drone::getVehicleParameters(ros::NodeHandle& nh)
 {
+  DH_DEBUG("Drone::getVehicleParameters");
+
   const string prefix = "fixed_wing/vehicle";
   auto& des = fixed_wing_config_.vehicle;
 
@@ -173,6 +185,8 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
 
 void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 {
+  DH_DEBUG("Drone::getAerodynamicsCoefficients");
+
   const string prefix = "fixed_wing/aerodynamic_coefficients";
   auto& des = fixed_wing_config_.aerodynamics;
 
@@ -199,6 +213,8 @@ void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 
 void Drone::getControlSurfaces(ros::NodeHandle& nh)
 {
+  DH_DEBUG("Drone::getControlSurfaces");
+
   // fixed_wing/controll_surface_0などにはnh.searchParam()が使えないため，
   // 制御面の個数を明示的にパラメータサーバから取得する．
   uint32_t num_cs;
@@ -210,6 +226,8 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
 
 ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx)
 {
+  DH_DEBUG("Drone::getRotorConfigs(" << cs_idx << ")");
+
   const string prefix = "fixed_wing/control_surface_" + to_string(cs_idx);
   ControlSurface res;
 
