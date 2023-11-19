@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 
-<robot name="f550_non_planar"
+<robot name="f550_np"
   xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
-  <!-- Properties: https://www.dji.com/jp/spreading-wings-f550_non_planar -->
+  <!-- Properties -->
   <xacro:property name="frame_radius" value="0.294"/>
   <xacro:property name="frame_height" value="0.056"/>
   <xacro:property name="frame_mass" value="1.615"/>
@@ -30,7 +30,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://tobas_description/meshes/f550_non_planar/frame.stl" scale="1e-3 1e-3 1e-3"/>
+        <mesh filename="package://tobas_description/meshes/f550_np/frame.stl" scale="1e-3 1e-3 1e-3"/>
       </geometry>
       <xacro:insert_block name="black"/>
     </visual>
@@ -53,7 +53,7 @@
     <link name="propeller_${index}">
       <visual>
         <geometry>
-          <mesh filename="package://tobas_description/meshes/f550_non_planar/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
+          <mesh filename="package://tobas_description/meshes/f550_np/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
         <xacro:insert_block name="white"/>
       </visual>
