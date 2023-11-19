@@ -95,8 +95,8 @@ $ roslaunch your_config_pkg bringup.launch  # Launch Tobas control software
 2. Send configuration package from the PC to FC
 
 ```bash
-# e.g.) scp -r ~/catkin_ws/src/tobas_iris_config/ pi@192.168.1.1:/home/pi/catkin_ws/src/
-$ scp -r ~/catkin_ws/src/your_config_pkg/ (user)@(host):/home/(user)/catkin_ws/src/
+# e.g.) scp -r ~/catkin_ws/src/tobas_iris_config/ pi@192.168.1.1:~/catkin_ws/src/
+$ scp -r ~/catkin_ws/src/your_config_pkg/ (user)@(host):~/catkin_ws/src/
 ```
 
 3. SSH into FC
