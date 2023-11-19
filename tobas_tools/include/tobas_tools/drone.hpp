@@ -65,7 +65,7 @@ private:
   FixedWingConfig fixed_wing_config_;
 
   bool has_fixed_wing_;
-  bool is_loaded_;
+  bool is_loaded_ = false;
 
   void getRotorConfigs(ros::NodeHandle& nh);
   RotorConfig getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx);

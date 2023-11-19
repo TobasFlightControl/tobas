@@ -13,7 +13,7 @@ using namespace KDL;
 
 namespace tobas
 {
-Drone::Drone() : is_loaded_(false)
+Drone::Drone()
 {
 }
 
