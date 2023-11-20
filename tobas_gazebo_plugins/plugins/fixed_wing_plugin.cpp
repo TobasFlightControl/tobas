@@ -12,6 +12,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+#include "../include/tobas_gazebo_plugins/time.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -190,7 +191,7 @@ void GazeboFixedWingPlugin::registerPubSub()
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 {
   // 最新のコマンドからの経過時間を確認
-  const auto cur_time = info.simTime.Double();
+  const auto& cur_time = info.simTime;
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
   if (cs_activated_ && time_after_last_cmd > auto_reset_time_thr_)
   {
@@ -238,7 +239,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   }
 
   // 時刻と迎角の変化率を更新
-  const auto dt = cur_time - prev_sim_time_;
+  const auto dt = (cur_time - prev_sim_time_).Double();
   const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
   prev_sim_time_ = cur_time;
   prev_alpha_ = alpha;
@@ -474,7 +475,7 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
   }
 
   // Check delay
-  const auto delay = prev_sim_time_ - deflections.header.stamp.toSec();
+  const auto delay = (prev_sim_time_ - deflections.header.stamp).toSec();
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(

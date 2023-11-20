@@ -58,8 +58,8 @@ private:
   double cmd_rot_speed_;  // [rad/s]
   tobas_msgs::BatteryConstPtr battery_;
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
-  double prev_sim_time_ = 0.;                    // [s]
-  double last_cmd_time_ = 0.;                    // [s]
+  common::Time prev_sim_time_;
+  common::Time last_cmd_time_;
   bool is_activated_ = false;
   bool is_initialized_ = false;
   bool battery_received_ = false;

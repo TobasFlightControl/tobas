@@ -9,6 +9,7 @@
 #include "./rotor_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/time.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
@@ -114,7 +115,7 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  const auto cur_time = info.simTime.Double();
+  const auto& cur_time = info.simTime;
 
   if (!is_initialized_)
   {
@@ -150,7 +151,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
 
   // Compute time after previous simulation time
-  const auto dt = cur_time - prev_sim_time_;
+  const auto dt = (cur_time - prev_sim_time_).Double();
   prev_sim_time_ = cur_time;
 
   // Check aliasing
@@ -270,15 +271,15 @@ void GazeboRotorPlugin::processCommandCommon(const size_t& data_size, const ros:
   }
 
   // Check delay
-  const auto delay = prev_sim_time_ - stamp.toSec();
-  // cout << "delay: " << delay << " [s]" << endl;
+  const auto delay = (prev_sim_time_ - stamp).toSec();
+  cout << "delay: " << delay << " [s]" << endl;
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(
       kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay
                                << "[s] is over " << check_delay_threshold_ << "[s].");
   }
-  else if (delay < 0.)
+  else if (delay < 0)
   {
     GZ_ERROR_THROTTLE(
       kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
