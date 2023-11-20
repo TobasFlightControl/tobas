@@ -84,6 +84,7 @@ private:
   void onUpdate(const common::UpdateInfo& info);
   void registerPubSub();
   bool isReady();
+  void addModelError();
   void applyForceAndTorque(const double& rot_speed, const common::Time cur_time);
   void updateRotationSpeed(const double& dt);
   double rotSpeedFromVoltage(const double& voltage);

@@ -29,13 +29,8 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   // Get SDF parameters
   getSdfParams(sdf);
 
-  // Add model error to the aerodynamic constants
-  random_device rnd_dev;
-  mt19937 rnd_gen(rnd_dev());
-  UniformDistribution noise(-1, 1);
-  motor_const_ *= (1 + max_model_error_rate_ * noise(rnd_gen));
-  moment_const_ *= (1 + max_model_error_rate_ * noise(rnd_gen));
-  rotor_drag_coef_ *= (1 + max_model_error_rate_ * noise(rnd_gen));
+  // Add model error to the model constants
+  addModelError();
 
   // Store the pointer to the model
   model_ = model;
@@ -95,6 +90,7 @@ void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
+
   getSdfParam(
     sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 
@@ -191,6 +187,23 @@ bool GazeboRotorPlugin::isReady()
   return battery_received_ && wind_received_;
 }
 
+void GazeboRotorPlugin::addModelError()
+{
+  // 一様乱数を作成
+  random_device rnd_dev;
+  mt19937 rnd_gen(rnd_dev());
+  UniformDistribution uniform(-1, 1);
+
+  // 回転数-電圧の関係式
+  // 1次の係数はKv値から概ね正確な値が分かるため，2次の係数にのみ誤差を加える．
+  rot_speed_coefs_.Y() *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+
+  // 空力定数
+  motor_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  moment_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+}
+
 void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const common::Time cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
@@ -272,7 +285,7 @@ void GazeboRotorPlugin::processCommandCommon(const size_t& data_size, const ros:
 
   // Check delay
   const auto delay = (prev_sim_time_ - stamp).toSec();
-  cout << "delay: " << delay << " [s]" << endl;
+  // cout << "delay: " << delay << " [s]" << endl;
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(
