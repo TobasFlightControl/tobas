@@ -46,11 +46,10 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   parent_link_ = link_->GetParentJointsLinks()[0];
 
-  // Add model error
-
   // Initialize the first order filter
   rotor_speed_filter_.initialize(time_const_up_, time_const_down_, 0.);
 
+  // Register publishers and subscribers to the ROS master
   registerPubSub();
 
   // Listen to the update event
