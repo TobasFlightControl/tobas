@@ -87,7 +87,7 @@ VectorXd OrientationController::solve(
   updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, cur_q, thrust_z);
   updateSetState(tar_rpy);
 
-  const double min_voltage = cur_voltage * tobas::kMotorSpinArm;
+  const double min_voltage = cur_voltage * tobas::kArmThrottle;
   const double max_thrust_sum = dynamics_.maxThrustSum(cur_voltage);
   const double min_thrust_sum = dynamics_.minThrustSum(cur_voltage);
 

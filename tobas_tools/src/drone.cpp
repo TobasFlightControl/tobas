@@ -74,6 +74,16 @@ double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) 
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
 }
 
+double Drone::throttleFromThrust(
+  const size_t& rotor_idx,
+  const double& thrust,
+  const double& battery_voltage) const
+{
+  const auto rot_speed = rotSpeedFromThrust(rotor_idx, thrust);
+  const auto voltage = voltageFromRotSpeed(rotor_idx, rot_speed);
+  return voltage / battery_voltage;
+}
+
 void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
   DH_DEBUG("Drone::getRotorConfigs");

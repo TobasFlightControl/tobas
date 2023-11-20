@@ -57,12 +57,12 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboRotorPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "jointName", joint_name_);
-  getSdfParam(sdf, "motorNumber", motor_number_, NON_NEGATIVE);
+  getSdfParam(sdf, "motorNumber", motor_number_);
 
   if (sdf->HasElement("turningDirection"))
   {
@@ -167,9 +167,6 @@ void GazeboRotorPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_gazebo_plugins::RotorDebug>(
     "/" + ns_ + "/" + kDebugTopicPrefix + "_" + to_string(motor_number_), 1);
 
-  rotor_speeds_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kRotorSpeedsCmdTopic, 1, &self::rotorSpeedsCmdCb, this,
-    ros::TransportHints().reliable().tcpNoDelay());
   throttles_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
@@ -203,7 +200,7 @@ void GazeboRotorPlugin::addModelError()
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 }
 
-void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const common::Time cur_time)
+void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const common::Time& cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
@@ -272,10 +269,31 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   joint_->SetVelocity(0, direction_ * ref_rot_speed / kRotorSpeedSlowdownSim);
 }
 
-void GazeboRotorPlugin::processCommandCommon(const size_t& data_size, const ros::Time& stamp)
+double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
 {
+  const auto& a = rot_speed_coefs_.X();
+  const auto& b = rot_speed_coefs_.Y();
+  return b > 0 ? (sqrt(dh_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+}
+
+double GazeboRotorPlugin::maxRotSpeed()
+{
+  return rotSpeedFromVoltage(battery_->voltage);
+}
+
+double GazeboRotorPlugin::minRotSpeed()
+{
+  return maxRotSpeed() * tobas::kArmThrottle;
+}
+
+void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
+{
+  if (!battery_received_)
+    return;
+
   // Check index
-  if (motor_number_ >= static_cast<int>(data_size))
+  const auto data_size = throttles->data.size();
+  if (motor_number_ >= data_size)
   {
     gzerr << kPluginName << ": You tried to access index " << motor_number_
           << " of the rotor command message array which is of size " << data_size << endl;
@@ -283,7 +301,7 @@ void GazeboRotorPlugin::processCommandCommon(const size_t& data_size, const ros:
   }
 
   // Check delay
-  const auto delay = (prev_sim_time_ - stamp).toSec();
+  const auto delay = (prev_sim_time_ - throttles->header.stamp).toSec();
   // cout << "delay: " << delay << " [s]" << endl;
   if (delay > check_delay_threshold_)
   {
@@ -302,40 +320,7 @@ void GazeboRotorPlugin::processCommandCommon(const size_t& data_size, const ros:
 
   // Now the motor is activated
   is_activated_ = true;
-}
 
-double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
-{
-  const auto& a = rot_speed_coefs_.X();
-  const auto& b = rot_speed_coefs_.Y();
-  return b > 0 ? (sqrt(dh_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
-}
-
-double GazeboRotorPlugin::maxRotSpeed()
-{
-  return rotSpeedFromVoltage(battery_->voltage);
-}
-
-double GazeboRotorPlugin::minRotSpeed()
-{
-  return maxRotSpeed() * tobas::kMotorSpinArm;
-}
-
-void GazeboRotorPlugin::rotorSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
-{
-  if (!battery_received_)
-    return;
-
-  processCommandCommon(rotor_speeds->speeds.size(), rotor_speeds->header.stamp);
-  cmd_rot_speed_ = rotor_speeds->speeds[motor_number_];
-}
-
-void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
-{
-  if (!battery_received_)
-    return;
-
-  processCommandCommon(throttles->data.size(), throttles->header.stamp);
   const auto input_voltage = battery_->voltage * std::clamp(throttles->data[motor_number_], 0., 1.);
   cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
 }

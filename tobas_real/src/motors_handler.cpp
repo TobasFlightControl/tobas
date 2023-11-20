@@ -60,8 +60,8 @@ void MotorsHandler::registerSubscribers()
 {
   super::registerSubscribers();
 
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  throttles_sub_ =
+    nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
@@ -101,7 +101,7 @@ void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
+void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
 {
   if (battery_ == nullptr)
   {
@@ -110,11 +110,9 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   }
 
   // Check array size
-  if (rotor_speeds->speeds.size() != drone_.numRotors())
+  if (throttles->data.size() != drone_.numRotors())
   {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "Size mismatch: " << rotor_speeds->speeds.size() << " != " << drone_.numRotors());
+    rosError(name_, "Size mismatch: " << throttles->data.size() << " != " << drone_.numRotors());
     return;
   }
 
@@ -129,29 +127,28 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   // Update PWM periods
   for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
-    // スロットルを決定
-    // 電圧とスロットルの関係は線形だが，電圧と回転数の関係は非線形であることに注意
     const auto& pin = drone_.rotorConfig(rotor_idx).pin;
-    const auto cmd_voltage = drone_.voltageFromRotSpeed(rotor_idx, rotor_speeds->speeds[rotor_idx]);
-    auto tar_throttle = cmd_voltage / battery_->voltage;  // [0, 1]
-    if (tar_throttle < tobas::kMotorSpinArm - kThrottleMargin)
+
+    // スロットルを決定
+    auto tar_throttle = throttles->data[rotor_idx];
+    if (tar_throttle < tobas::kArmThrottle - kThrottleMargin)
     {
-      rosErrorThrottle(
-        kErrorPeriod, name_,
-        "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
-                                 << tobas::kMotorSpinArm);
-      tar_throttle = tobas::kMotorSpinArm;
+      rosError(
+        name_, "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
+                                        << tobas::kArmThrottle);
+      tar_throttle = tobas::kArmThrottle;
     }
-    if (tar_throttle > 1. + kThrottleMargin)
+    if (tar_throttle > tobas::kMaxThrottle + kThrottleMargin)
     {
-      rosErrorThrottle(
-        kErrorPeriod, name_,
-        "Target throttle on PIN" << pin << " is too high: " << tar_throttle << " > 1");
-      tar_throttle = 1.;
+      rosError(
+        name_, "Target throttle on PIN" << pin << " is too high: " << tar_throttle << " > "
+                                        << tobas::kMaxThrottle);
+      tar_throttle = tobas::kMaxThrottle;
     }
 
     // スロットルをパルス幅に変換
-    const auto pwm_period = remap<double>(tar_throttle, 0., 1., kPwmMin, kPwmMax);
+    const auto pwm_period =
+      remap<double>(tar_throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
 
     // Set PWM duty cycle
     if (!pwm_.setDutyCycle(channelFromPin(pin), pwm_period))
@@ -173,8 +170,8 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
   if (is_activated_)
   {
-    const auto latency = (cur_time - rotor_speeds->header.stamp).toSec();
-    if (latency < 0.)
+    const auto latency = (cur_time - throttles->header.stamp).toSec();
+    if (latency < 0)
     {
       rosErrorThrottle(
         kErrorPeriod, name_, "The timestamp of the motor command precedes the current time.");
@@ -229,7 +226,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
       real_speeds->header.stamp = event.current_real;
       real_speeds->speeds.resize(drone_.numRotors());
 
-      const auto real_voltage = battery_->voltage * tobas::kMotorSpinArm;
+      const auto real_voltage = battery_->voltage * tobas::kArmThrottle;
       for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
       {
         real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);

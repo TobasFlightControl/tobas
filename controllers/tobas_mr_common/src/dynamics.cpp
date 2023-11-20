@@ -36,7 +36,7 @@ double MultirotorDynamicsComponents::maxThrustSum(const double& battery_voltage)
 
 double MultirotorDynamicsComponents::minThrustSum(const double& battery_voltage) const
 {
-  const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
+  const auto min_voltage = battery_voltage * tobas::kArmThrottle;
   double res = 0;
   for (size_t i = 0; i < z_rotors_.count(); ++i)
     res += z_rotors_.thrustFromVoltage(i, min_voltage);

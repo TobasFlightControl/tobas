@@ -61,7 +61,7 @@ static constexpr size_t kPwmMin = 1000;       // [us]
 static constexpr size_t kPwmMax = 2000;       // [us]
 static constexpr size_t kPwmNeutral = 1500;   // [us]
 static constexpr size_t kPwmDisarm = 900;     // [us]
-static constexpr size_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorSpinArm;  // [us]
+static constexpr size_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kArmThrottle;  // [us]
 
 static constexpr size_t kRcChannelRoll = 0;
 static constexpr size_t kRcChannelPitch = 1;

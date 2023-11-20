@@ -16,7 +16,6 @@
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
-#include <tobas_msgs/RotorSpeeds.h>
 
 #include <tobas_mr_pid/ControllerConfig.h>
 
@@ -65,7 +64,7 @@ private:
   ros::Time t_last_loop_;
 
   // Publishers
-  ros::Publisher rotor_speeds_pub_;
+  ros::Publisher throttles_pub_;
   ros::Publisher feedback_pub_;
 
   // Subscribers

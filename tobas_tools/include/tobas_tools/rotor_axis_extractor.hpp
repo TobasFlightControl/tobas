@@ -53,6 +53,10 @@ public:
   /* 推力 [N] からロータの回転数 [rad/s] を求める． */
   inline double rotSpeedFromThrust(const size_t& inner_idx, const double& thrust) const;
 
+  /* 推力 [N] からスロットル [0,1] を求める． */
+  inline double
+  throttleFromThrust(const size_t& inner_idx, const double& thrust, const double& battery_voltage);
+
   /* 回転数から合計推力を求める． */
   double thrustSum(const std::vector<double>& rot_speeds) const;
 
@@ -138,5 +142,13 @@ inline double
 RotorAxisExtractor::rotSpeedFromThrust(const size_t& inner_idx, const double& thrust) const
 {
   return drone_.rotSpeedFromThrust(rotorIdx(inner_idx), thrust);
+}
+
+inline double RotorAxisExtractor::throttleFromThrust(
+  const size_t& inner_idx,
+  const double& thrust,
+  const double& battery_voltage)
+{
+  return drone_.throttleFromThrust(rotorIdx(inner_idx), thrust, battery_voltage);
 }
 }  // namespace tobas

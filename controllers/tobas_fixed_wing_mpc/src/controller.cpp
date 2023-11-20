@@ -11,6 +11,7 @@
 #include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/Throttles.h>
 
 #include "../include/tobas_fixed_wing_mpc/controller.hpp"
 #include "../include/tobas_fixed_wing_mpc/constants.hpp"
@@ -65,7 +66,7 @@ void Controller::getRosParams()
 
 void Controller::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
   deflections_pub_ =
     nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
   feedback_pub_ =
@@ -91,16 +92,11 @@ bool Controller::isReady()
 
 void Controller::publishTakeoffCommand()
 {
-  // 各ロータの回転数を発行
-  const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds_msg->header.stamp = odom_ned_.header.stamp;
-  rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
-  for (size_t i = 0; i < x_rotors_.count(); ++i)
-  {
-    rotor_speeds_msg->speeds[x_rotors_.rotorIdx(i)] =
-      x_rotors_.rotSpeedFromVoltage(i, battery_->voltage);
-  }
-  rotor_speeds_pub_.publish(rotor_speeds_msg);
+  // 全モータを最大出力にする
+  const auto throttles_msg = boost::make_shared<tobas_msgs::Throttles>();
+  throttles_msg->header.stamp = odom_ned_.header.stamp;
+  throttles_msg->data.resize(drone_.numRotors(), tobas::kMaxThrottle);
+  throttles_pub_.publish(throttles_msg);
 
   // 各操舵面の偏角を発行
   const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
@@ -253,23 +249,17 @@ void Controller::updateSetStateVector(const double& tar_roll, const double& tar_
 
 void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
 {
-  const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds_msg->header.stamp = odom_ned_.header.stamp;
+  const auto throttles_msg = boost::make_shared<tobas_msgs::Throttles>();
+  throttles_msg->header.stamp = odom_ned_.header.stamp;
 
-  rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
-  for (size_t i = 0; i < thrust.rows(); ++i)
+  throttles_msg->data.resize(drone_.numRotors(), tobas::kArmThrottle);
+  for (int i = 0; i < thrust.rows(); ++i)
   {
-    if (thrust(i) < -1.)
-    {
-      rosFatal(name_, "Negative thrust force: " << thrust(i) << " [N]");
-      // TODO: 防御モードに移行
-    }
-
-    rotor_speeds_msg->speeds[x_rotors_.rotorIdx(i)] =
-      x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
+    throttles_msg->data[x_rotors_.rotorIdx(i)] =
+      x_rotors_.throttleFromThrust(i, max(0., thrust(i)), battery_->voltage);
   }
 
-  rotor_speeds_pub_.publish(rotor_speeds_msg);
+  throttles_pub_.publish(throttles_msg);
 }
 
 void Controller::publishDeflections(const Eigen::VectorXd& deflections)

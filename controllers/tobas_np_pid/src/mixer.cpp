@@ -102,7 +102,7 @@ VectorXd Mixer::solve(
   qp_.problem.q = -h_.transpose() * Q_ * G_;
 
   // 不等式制約
-  const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
+  const auto min_voltage = cur_voltage * tobas::kArmThrottle;
   for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     qp_.problem.b(i) = drone_.thrustFromVoltage(i, cur_voltage);

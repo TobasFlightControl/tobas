@@ -5,6 +5,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
+#include <tobas_msgs/Throttles.h>
 #include <tobas_mr_mpc/ControllerFeedback.h>
 
 #include "../include/tobas_mr_mpc/controller_ros.hpp"
@@ -36,7 +37,6 @@ ControllerRos::ControllerRos(
   ori_ctrl_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
-  thrusts_ = VectorXd::Zero(z_rotors_.count());
 
   registerPublishers();
   registerSubscribers();
@@ -51,7 +51,7 @@ void ControllerRos::getRosParams()
 
 void ControllerRos::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_mr_mpc::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
@@ -196,10 +196,11 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
       updateJointArray();
 
     // プロペラ推力を計算
+    Eigen::VectorXd thrusts;
     try
     {
       // stopwatch_.start();
-      thrusts_ = ori_ctrl_.solve(
+      thrusts = ori_ctrl_.solve(
         dt, odom->pose.euler, odom->twist, wind_->vel, q_, battery_->voltage, rotor_speeds_->speeds,
         tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
@@ -210,31 +211,23 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
       rosFatal(name_, e.what());
     }
 
-    // モータ速度メッセージを作成
-    const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-    rotor_speeds->header.stamp = odom->header.stamp;
-    rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    for (int i = 0; i < thrusts_.rows(); ++i)
+    // スロットルを発行
+    const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
+    throttles->header.stamp = odom->header.stamp;
+    throttles->data.resize(drone_.numRotors(), tobas::kArmThrottle);
+    for (int i = 0; i < thrusts.rows(); ++i)
     {
-      if (thrusts_(i) < 0)
-      {
-        rosFatal(name_, "Negative thrust force: " << thrusts_(i) << " [N]");
-        // TODO: 防御モードに移行
-      }
-      rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
-        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts_(i)));
+      const auto thrust = max(0., thrusts(i));
+      const auto& rotor_idx = z_rotors_.rotorIdx(i);
+      throttles->data[rotor_idx] = z_rotors_.throttleFromThrust(i, thrust, battery_->voltage);
     }
+    throttles_pub_.publish(throttles);
 
-    // モータ速度を発行
-    rotor_speeds_pub_.publish(rotor_speeds);
-
-    // Fill feedback
+    // フィードバックを発行
     feedback->target_orientation = tar_rpyt_->rpy;
     feedback->target_thrust = tar_rpyt_->thrust;
-    feedback->target_thrusts = eigen_tools::toStdVector(thrusts_);
+    feedback->target_thrusts = eigen_tools::toStdVector(thrusts);
     feedback->mpc_thrusts = eigen_tools::toStdVector(ori_ctrl_.mpcThrusts());
-
-    // Publish feedback
     feedback_pub_.publish(feedback);
   }
 }

@@ -40,20 +40,26 @@ public:
   inline size_t numRotors() const;
   inline size_t numControlSurfaces() const;
 
-  /* 回転数[rad/s]から推力[N]を計算する． */
+  /* 回転数 [rad/s] から推力 [N] を求める． */
   double thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
 
-  /* 印加電圧から推力[N]を計算する． */
+  /* 印加電圧から推力 [N] を求める． */
   double thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const;
 
-  /* 回転数から印加電圧を求める． */
+  /* 回転数 [rad/s] から印加電圧 [V] を求める． */
   double voltageFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
 
-  /* 印加電圧から回転数を求める． */
+  /* 印加電圧 [V] から回転数 [rad/s] を求める． */
   double rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const;
 
-  /* 推力[N]から回転数[rad/s]を求める． */
+  /* 推力 [N] から回転数 [rad/s] を求める． */
   double rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const;
+
+  /* 推力 [N] からスロットル [0,1] を求める． */
+  double throttleFromThrust(
+    const size_t& rotor_idx,
+    const double& thrust,
+    const double& battery_voltage) const;
 
 private:
   KDL::Tree tree_;

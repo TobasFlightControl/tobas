@@ -6,7 +6,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Throttles.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
@@ -43,7 +42,7 @@ private:
   std::string ns_;
   std::string link_name_;
   std::string joint_name_;
-  int motor_number_;
+  size_t motor_number_;
   int direction_;               // turning direction. 1(CCW) or -1(CW).
   SdfVector2 rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
   double motor_const_;
@@ -75,24 +74,21 @@ private:
 
   // PubSub
   ros::Publisher debug_pub_;
-  ros::Subscriber rotor_speeds_sub_;
   ros::Subscriber throttles_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
   void registerPubSub();
   bool isReady();
   void addModelError();
-  void applyForceAndTorque(const double& rot_speed, const common::Time cur_time);
+  void applyForceAndTorque(const double& rot_speed, const common::Time& cur_time);
   void updateRotationSpeed(const double& dt);
   double rotSpeedFromVoltage(const double& voltage);
   double maxRotSpeed();
   double minRotSpeed();
-  void processCommandCommon(const size_t& data_size, const ros::Time& stamp);
 
-  void rotorSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
   void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void windSpeedCb(const tobas_msgs::WindConstPtr& wind);

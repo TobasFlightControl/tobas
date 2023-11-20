@@ -8,6 +8,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
+#include <tobas_msgs/Throttles.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 
@@ -39,7 +40,7 @@ private:
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
-  ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber throttles_sub_;
   ros::Subscriber battery_sub_;
 
   // Timer
@@ -53,7 +54,7 @@ private:
   void setPeriodOnAllChannels(const double& period);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& speeds);
+  void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
 
   void checkIntervalTimerCb(const ros::TimerEvent& event);

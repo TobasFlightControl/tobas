@@ -15,7 +15,6 @@
 #include <tobas_tools/micro_disturbance_eom.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
-#include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/FixedWingControllerFeedback.h>
@@ -66,7 +65,7 @@ private:
   ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御
 
   // PubSub
-  ros::Publisher rotor_speeds_pub_;
+  ros::Publisher throttles_pub_;
   ros::Publisher deflections_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;

@@ -5,6 +5,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
+#include <tobas_msgs/Throttles.h>
 #include <tobas_np_pid/ControllerFeedback.h>
 
 #include "../include/tobas_np_pid/controller_ros.hpp"
@@ -46,7 +47,7 @@ void ControllerRos::getRosParams()
 
 void ControllerRos::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
@@ -153,13 +154,16 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   const VectorXd thrusts =
     mixer_.solve(battery_->voltage, q_, odom->pose.euler, odom->twist.rot, tar_acc_W, tar_dgyro_B);
 
-  // 回転数を発行
-  const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds->header.stamp = odom->header.stamp;
-  rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
+  // スロットルを発行
+  const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
+  throttles->header.stamp = odom->header.stamp;
+  throttles->data.resize(drone_.numRotors(), tobas::kArmThrottle);
   for (int i = 0; i < thrusts.rows(); ++i)
-    rotor_speeds->speeds[i] = drone_.rotSpeedFromThrust(i, max(0., thrusts(i)));
-  rotor_speeds_pub_.publish(rotor_speeds);
+  {
+    const auto thrust = max(0., thrusts(i));
+    throttles->data[i] = drone_.throttleFromThrust(i, thrust, battery_->voltage);
+  }
+  throttles_pub_.publish(throttles);
 
   // フィードバックを発行
   auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();

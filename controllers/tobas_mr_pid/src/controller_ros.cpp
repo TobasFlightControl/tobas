@@ -5,6 +5,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
+#include <tobas_msgs/Throttles.h>
 #include <tobas_mr_pid/ControllerFeedback.h>
 
 #include "../include/tobas_mr_pid/controller_ros.hpp"
@@ -50,7 +51,7 @@ void ControllerRos::getRosParams()
 
 void ControllerRos::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_mr_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
@@ -190,24 +191,21 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
       dt, battery_->voltage, q_, odom->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
       tar_rpyt_->thrust);
 
-    // モータ速度メッセージを作成
-    const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-    rotor_speeds->header.stamp = odom->header.stamp;
-    rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
+    // スロットルを発行
+    const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
+    throttles->header.stamp = odom->header.stamp;
+    throttles->data.resize(drone_.numRotors(), tobas::kArmThrottle);
     for (int i = 0; i < thrusts.rows(); ++i)
     {
-      rotor_speeds->speeds[z_rotors_.rotorIdx(i)] =
-        z_rotors_.rotSpeedFromThrust(i, max(0., thrusts(i)));
+      const auto thrust = max(0., thrusts(i));
+      const auto& rotor_idx = z_rotors_.rotorIdx(i);
+      throttles->data[rotor_idx] = z_rotors_.throttleFromThrust(i, thrust, battery_->voltage);
     }
+    throttles_pub_.publish(throttles);
 
-    // モータ速度を発行
-    rotor_speeds_pub_.publish(rotor_speeds);
-
-    // Fill feedback
+    // フィードバックを発行
     feedback->target_orientation = tar_rpyt_->rpy;
     feedback->target_thrust = tar_rpyt_->thrust;
-
-    // Publish feedback
     feedback_pub_.publish(feedback);
   }
 }

@@ -20,7 +20,9 @@ static constexpr size_t kMaxPinId = 14;
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
 // TODO: Ardupilotを参考にGUIで設定できるようにする
-static constexpr double kMotorSpinArm = 0.1;
+static constexpr double kArmThrottle = 0.1;
+static constexpr double kMinThrottle = 0.;
+static constexpr double kMaxThrottle = 1.;
 
 // ROS topics
 static constexpr char kBatteryTopic[] = "battery";
@@ -40,7 +42,6 @@ static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
 static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
-static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";

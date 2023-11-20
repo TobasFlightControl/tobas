@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
- <tabbed_widget parent="main_window" name="Main Window">
+ <tabbed_widget name="Main Window" parent="main_window">
   <Tab containers="1" tab_name="pose">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.498927;0.501073">
-      <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.499076;0.500924" count="2">
+      <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="6.509240" left="1794.558000" right="1804.559000" bottom="5.350210"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-2.667334" right="241.124000" left="231.124000" top="-1.853733"/>
          <limitY/>
          <curve color="#b41f8f" name="/f550_np/odom/pose/pos/x"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_position/x"/>
@@ -16,8 +16,8 @@
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.759850" left="1794.558000" right="1804.559000" bottom="-0.888213"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-2.209833" right="241.124000" left="231.124000" top="-0.325467"/>
          <limitY/>
          <curve color="#d627b1" name="/f550_np/odom/pose/pos/y"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_position/y"/>
@@ -25,8 +25,8 @@
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="4.699502" left="1794.558000" right="1804.559000" bottom="3.094359"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="2.430542" right="241.124000" left="231.124000" top="3.209758"/>
          <limitY/>
          <curve color="#c91aad" name="/f550_np/odom/pose/pos/z"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_position/z"/>
@@ -34,10 +34,10 @@
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.025733" left="1794.558000" right="1804.559000" bottom="-0.030211"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.024094" right="241.124000" left="231.124000" top="0.038814"/>
          <limitY/>
          <curve color="#ff0eca" name="/f550_np/odom/pose/euler/roll"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_orientation/roll"/>
@@ -45,8 +45,8 @@
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.095903" left="1794.558000" right="1804.559000" bottom="-0.012018"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.002092" right="241.124000" left="231.124000" top="0.042969"/>
          <limitY/>
          <curve color="#f14cc1" name="/f550_np/odom/pose/euler/pitch"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_orientation/pitch"/>
@@ -54,8 +54,8 @@
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="1.414349" left="1794.558000" right="1804.559000" bottom="1.277822"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-3.060556" right="241.124000" left="231.124000" top="-2.834621"/>
          <limitY/>
          <curve color="#bd67b2" name="/f550_np/odom/pose/euler/yaw"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_orientation/yaw"/>
@@ -69,12 +69,12 @@
   </Tab>
   <Tab containers="1" tab_name="twist">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.500536;0.499464">
-      <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500462;0.499538" count="2">
+      <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.607577" left="1794.558000" right="1804.559000" bottom="-0.573198"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.304463" right="241.124000" left="231.124000" top="0.421523"/>
          <limitY/>
          <curve color="#cf17ab" name="/f550_np/odom/twist/linear/x"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_velocity_local/x"/>
@@ -82,8 +82,8 @@
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.384382" left="1794.558000" right="1804.559000" bottom="-0.409635"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.546723" right="241.124000" left="231.124000" top="0.403481"/>
          <limitY/>
          <curve color="#bd2287" name="/f550_np/odom/twist/linear/y"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_velocity_local/y"/>
@@ -91,8 +91,8 @@
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.574923" left="1794.558000" right="1804.559000" bottom="-0.489067"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.381479" right="241.124000" left="231.124000" top="0.330585"/>
          <limitY/>
          <curve color="#b41fad" name="/f550_np/odom/twist/linear/z"/>
          <curve color="#cdd420" name="/f550_np/controller_feedback/target_velocity_local/z"/>
@@ -100,26 +100,26 @@
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.281991" left="1794.558000" right="1804.559000" bottom="-0.361016"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.205794" right="241.124000" left="231.124000" top="0.184967"/>
          <limitY/>
          <curve color="#d627b9" name="/f550_np/odom/twist/angular/x"/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/twist/angular/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.320907" left="1794.558000" right="1804.559000" bottom="-0.366811"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.195063" right="241.124000" left="231.124000" top="0.174526"/>
          <limitY/>
          <curve color="#c91a9f" name="/f550_np/odom/twist/angular/y"/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/twist/angular/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.296961" left="1794.558000" right="1804.559000" bottom="-0.300395"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.152874" right="241.124000" left="231.124000" top="0.137598"/>
          <limitY/>
          <curve color="#ff0ecf" name="/f550_np/odom/twist/angular/z"/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/twist/angular/z"/>
@@ -132,52 +132,52 @@
   </Tab>
   <Tab containers="1" tab_name="accel">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="2.981005" left="1794.558000" right="1804.559000" bottom="-2.726981"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-2.006675" right="241.124000" left="231.124000" top="1.473948"/>
          <limitY/>
          <curve color="#e02dc7" name="/f550_np/odom/accel/linear/x"/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/accel/linear/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="3.033808" left="1794.558000" right="1804.559000" bottom="-3.613505"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-1.693298" right="241.124000" left="231.124000" top="1.904296"/>
          <limitY/>
          <curve color="#e02dc7" name="/f550_np/odom/accel/linear/y"/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/accel/linear/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="2.791772" left="1794.558000" right="1804.559000" bottom="-3.474182"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-1.690445" right="241.124000" left="231.124000" top="2.237986"/>
          <limitY/>
          <curve color="#e02dc7" name="/f550_np/odom/accel/linear/z"/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/accel/linear/z"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="4.059461" left="1794.558000" right="1804.559000" bottom="-4.161101"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-1.893789" right="241.124000" left="231.124000" top="1.727143"/>
          <limitY/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/accel/angular/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="3.286603" left="1794.558000" right="1804.559000" bottom="-3.201069"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-1.856903" right="241.124000" left="231.124000" top="2.141517"/>
          <limitY/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/accel/angular/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.301663" left="1794.558000" right="1804.559000" bottom="-0.262755"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.227411" right="241.124000" left="231.124000" top="0.165240"/>
          <limitY/>
          <curve color="#21dad3" name="/f550_np/ground_truth/odom/accel/angular/z"/>
         </plot>
@@ -189,10 +189,10 @@
   </Tab>
   <Tab containers="1" tab_name="cpu">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
+    <DockSplitter orientation="-" sizes="1" count="1">
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="0.100000" left="0.000000" right="0.000000" bottom="-0.100000"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-0.100000" right="0.000000" left="0.000000" top="0.100000"/>
        <limitY/>
        <curve color="#1f77b4" name="/f550_np/cpu/temperature"/>
       </plot>
@@ -202,10 +202,10 @@
   </Tab>
   <Tab containers="1" tab_name="battery">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
+    <DockSplitter orientation="-" sizes="1" count="1">
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="14.900000" left="1794.559000" right="1804.559000" bottom="14.700000"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="11.000000" right="241.124000" left="231.124000" top="11.200000"/>
        <limitY/>
        <curve color="#9467bd" name="/f550_np/battery/voltage"/>
        <curve color="#c4d226" name="/f550_np/ground_truth/battery/voltage"/>
@@ -216,49 +216,49 @@
   </Tab>
   <Tab containers="1" tab_name="imu">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.500536;0.499464">
-      <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500462;0.499538" count="2">
+      <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="2.965960" left="1794.558000" right="1804.557000" bottom="-2.797286"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-2.096965" right="241.122000" left="231.123000" top="1.426511"/>
          <limitY/>
          <curve color="#f14cc1" name="/f550_np/imu/linear_acceleration/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="3.020337" left="1794.558000" right="1804.557000" bottom="-3.534894"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-1.835655" right="241.122000" left="231.123000" top="1.772170"/>
          <limitY/>
          <curve color="#9467bd" name="/f550_np/imu/linear_acceleration/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="12.598081" left="1794.558000" right="1804.557000" bottom="6.332463"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="8.114820" right="241.122000" left="231.123000" top="12.043679"/>
          <limitY/>
          <curve color="#17becf" name="/f550_np/imu/linear_acceleration/z"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.279978" left="1794.558000" right="1804.557000" bottom="-0.363320"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.162351" right="241.122000" left="231.123000" top="0.227778"/>
          <limitY/>
          <curve color="#bcbd22" name="/f550_np/imu/angular_velocity/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.278364" left="1794.558000" right="1804.557000" bottom="-0.410210"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.184287" right="241.122000" left="231.123000" top="0.185593"/>
          <limitY/>
          <curve color="#1f77b4" name="/f550_np/imu/angular_velocity/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.293079" left="1794.558000" right="1804.557000" bottom="-0.304330"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.200240" right="241.122000" left="231.123000" top="0.089729"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/imu/angular_velocity/z"/>
         </plot>
@@ -270,24 +270,24 @@
   </Tab>
   <Tab containers="1" tab_name="magnetomer">
    <Container>
-    <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
+    <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="14012.783751" left="1794.558000" right="1804.557000" bottom="10607.281735"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-29818.288780" right="241.122000" left="231.123000" top="-28365.732940"/>
        <limitY/>
        <curve color="#1ac938" name="/f550_np/magnetic_field/magnetic_field/x"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="-27741.862455" left="1794.558000" right="1804.557000" bottom="-29796.002380"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-1747.109206" right="241.122000" left="231.123000" top="529.663318"/>
        <limitY/>
        <curve color="#ff7f0e" name="/f550_np/magnetic_field/magnetic_field/y"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="-33868.360469" left="1794.558000" right="1804.557000" bottom="-35839.698291"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-37025.682338" right="241.122000" left="231.123000" top="-35801.222613"/>
        <limitY/>
        <curve color="#f14cc1" name="/f550_np/magnetic_field/magnetic_field/z"/>
       </plot>
@@ -297,10 +297,10 @@
   </Tab>
   <Tab containers="1" tab_name="barometer">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
+    <DockSplitter orientation="-" sizes="1" count="1">
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="100995.486404" left="1794.573000" right="1804.554000" bottom="100967.609238"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="100988.527103" right="241.113000" left="231.114000" top="101012.508753"/>
        <limitY/>
        <curve color="#17becf" name="/f550_np/air_pressure/fluid_pressure"/>
       </plot>
@@ -310,49 +310,49 @@
   </Tab>
   <Tab containers="1" tab_name="gps">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.500536;0.499464">
-      <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500462;0.499538" count="2">
+      <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="35.658223" left="1794.708000" right="1804.557000" bottom="35.658090"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="35.658013" right="240.966000" left="231.117000" top="35.658137"/>
          <limitY/>
          <curve color="#bcbd22" name="/f550_np/gps/latitude"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="139.741449" left="1794.708000" right="1804.557000" bottom="139.741286"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="139.741270" right="240.966000" left="231.117000" top="139.741467"/>
          <limitY/>
          <curve color="#1f77b4" name="/f550_np/gps/longitude"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="43.244020" left="1794.708000" right="1804.557000" bottom="11.482171"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="16.383958" right="240.966000" left="231.117000" top="49.443690"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/gps/altitude"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.576724" left="1794.708000" right="1804.557000" bottom="-0.719166"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.708361" right="240.966000" left="231.117000" top="0.785794"/>
          <limitY/>
          <curve color="#1f77b4" name="/f550_np/gps/ground_speed/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="1.127583" left="1794.708000" right="1804.557000" bottom="-0.973628"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-1.061370" right="240.966000" left="231.117000" top="1.054847"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/gps/ground_speed/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.834564" left="1794.708000" right="1804.557000" bottom="-0.578493"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.802852" right="240.966000" left="231.117000" top="1.021290"/>
          <limitY/>
          <curve color="#1ac938" name="/f550_np/gps/ground_speed/z"/>
         </plot>
@@ -362,59 +362,107 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab containers="1" tab_name="motor">
+  <Tab containers="1" tab_name="rot_speed">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="619.543947" left="1794.558000" right="1804.558000" bottom="422.065536"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="348.011293" right="241.124000" left="231.124000" top="485.562595"/>
          <limitY/>
-         <curve color="#ced523" name="/f550_np/command/rotor_speeds/speeds.0"/>
          <curve color="#1b24d6" name="/f550_np/rotor_speeds/speeds.0"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="669.920835" left="1794.558000" right="1804.558000" bottom="485.863363"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="434.613829" right="241.124000" left="231.124000" top="549.583641"/>
          <limitY/>
-         <curve color="#ced523" name="/f550_np/command/rotor_speeds/speeds.1"/>
          <curve color="#1b24d6" name="/f550_np/rotor_speeds/speeds.1"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="571.057947" left="1794.558000" right="1804.558000" bottom="388.235399"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="396.197751" right="241.124000" left="231.124000" top="516.091155"/>
          <limitY/>
-         <curve color="#ced523" name="/f550_np/command/rotor_speeds/speeds.2"/>
          <curve color="#1b24d6" name="/f550_np/rotor_speeds/speeds.2"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="560.263002" left="1794.558000" right="1804.558000" bottom="387.443549"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="458.389615" right="241.124000" left="231.124000" top="608.327818"/>
          <limitY/>
-         <curve color="#ced523" name="/f550_np/command/rotor_speeds/speeds.5"/>
          <curve color="#1b24d6" name="/f550_np/rotor_speeds/speeds.5"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="673.713566" left="1794.558000" right="1804.558000" bottom="479.578707"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="398.957196" right="241.124000" left="231.124000" top="527.909955"/>
          <limitY/>
-         <curve color="#ced523" name="/f550_np/command/rotor_speeds/speeds.4"/>
          <curve color="#1b24d6" name="/f550_np/rotor_speeds/speeds.4"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="611.541910" left="1794.558000" right="1804.558000" bottom="413.348046"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="333.776250" right="241.124000" left="231.124000" top="482.347590"/>
          <limitY/>
-         <curve color="#ced523" name="/f550_np/command/rotor_speeds/speeds.3"/>
          <curve color="#1b24d6" name="/f550_np/rotor_speeds/speeds.3"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab containers="1" tab_name="throttle">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="0.364301" right="241.124000" left="231.124000" top="0.556344"/>
+         <limitY/>
+         <curve color="#ff00ae" name="/f550_np/command/throttles/data.0"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="0.477292" right="241.124000" left="231.124000" top="0.648317"/>
+         <limitY/>
+         <curve color="#ff00ae" name="/f550_np/command/throttles/data.1"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="0.419285" right="241.124000" left="231.124000" top="0.588288"/>
+         <limitY/>
+         <curve color="#ff00ae" name="/f550_np/command/throttles/data.2"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
+       <DockArea name="...">
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="0.479514" right="241.124000" left="231.124000" top="0.675086"/>
+         <limitY/>
+         <curve color="#ff00ae" name="/f550_np/command/throttles/data.5"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="0.435737" right="241.124000" left="231.124000" top="0.620113"/>
+         <limitY/>
+         <curve color="#ff00ae" name="/f550_np/command/throttles/data.4"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="0.349000" right="241.124000" left="231.124000" top="0.552828"/>
+         <limitY/>
+         <curve color="#ff00ae" name="/f550_np/command/throttles/data.3"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -424,24 +472,24 @@
   </Tab>
   <Tab containers="1" tab_name="wind">
    <Container>
-    <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
+    <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="0.100000" left="1794.558000" right="1804.558000" bottom="-0.100000"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-0.100000" right="241.124000" left="231.124000" top="0.100000"/>
        <limitY/>
        <curve color="#b2cc24" name="/f550_np/ground_truth/wind/vel/x"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="0.100000" left="1794.558000" right="1804.558000" bottom="-0.100000"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-0.100000" right="241.124000" left="231.124000" top="0.100000"/>
        <limitY/>
        <curve color="#b2cc24" name="/f550_np/ground_truth/wind/vel/y"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-       <range top="0.100000" left="1794.558000" right="1804.558000" bottom="-0.100000"/>
+      <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+       <range bottom="-0.100000" right="241.124000" left="231.124000" top="0.100000"/>
        <limitY/>
        <curve color="#b2cc24" name="/f550_np/ground_truth/wind/vel/z"/>
       </plot>
@@ -451,50 +499,50 @@
   </Tab>
   <Tab containers="1" tab_name="ctrl_fb_1">
    <Container>
-    <DockSplitter orientation="-" count="3" sizes="0.332859;0.334282;0.332859">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+    <DockSplitter orientation="-" sizes="0.332859;0.334282;0.332859" count="3">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
       <DockArea name="...">
-       <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-        <range top="0.861588" left="1794.558000" right="1804.557000" bottom="-0.549816"/>
+       <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+        <range bottom="-0.157314" right="241.124000" left="231.124000" top="0.884637"/>
         <limitY/>
         <curve color="#ff7f0e" name="/f550_np/controller_feedback/target_acceleration_global/x"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-        <range top="0.935874" left="1794.558000" right="1804.557000" bottom="-0.831555"/>
+       <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+        <range bottom="3.003166" right="241.124000" left="231.124000" top="4.192159"/>
         <limitY/>
         <curve color="#1f77b4" name="/f550_np/controller_feedback/position_integral_error/x"/>
        </plot>
       </DockArea>
      </DockSplitter>
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
       <DockArea name="...">
-       <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-        <range top="0.252293" left="1794.558000" right="1804.557000" bottom="-1.335688"/>
+       <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+        <range bottom="-1.088337" right="241.124000" left="231.124000" top="0.384119"/>
         <limitY/>
         <curve color="#f14cc1" name="/f550_np/controller_feedback/target_acceleration_global/y"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-        <range top="-5.024268" left="1794.558000" right="1804.557000" bottom="-5.924241"/>
+       <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+        <range bottom="-2.582847" right="241.124000" left="231.124000" top="-1.624134"/>
         <limitY/>
         <curve color="#d62728" name="/f550_np/controller_feedback/position_integral_error/y"/>
        </plot>
       </DockArea>
      </DockSplitter>
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
       <DockArea name="...">
-       <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-        <range top="0.993874" left="1794.558000" right="1804.557000" bottom="-1.338055"/>
+       <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+        <range bottom="-1.949635" right="241.124000" left="231.124000" top="0.546934"/>
         <limitY/>
         <curve color="#9467bd" name="/f550_np/controller_feedback/target_acceleration_global/z"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-        <range top="0.293960" left="1794.558000" right="1804.557000" bottom="-0.486614"/>
+       <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+        <range bottom="-3.947362" right="241.124000" left="231.124000" top="-3.553779"/>
         <limitY/>
         <curve color="#1ac938" name="/f550_np/controller_feedback/position_integral_error/z"/>
        </plot>
@@ -505,61 +553,61 @@
   </Tab>
   <Tab containers="1" tab_name="obsv_fb">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockSplitter orientation="-" count="4" sizes="0.249822;0.250534;0.249822;0.249822">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockSplitter orientation="-" sizes="0.249822;0.250534;0.249822;0.249822" count="4">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.052474" left="1794.558000" right="1804.557000" bottom="-0.001280"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.205740" right="241.123000" left="231.123000" top="0.005018"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/eskf_feedback/acc_bias/x"/>
          <curve color="#23d3cb" name="/f550_np/ground_truth/imu_debug/acc_bias/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.009440" left="1794.558000" right="1804.557000" bottom="-0.048016"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.328172" right="241.123000" left="231.123000" top="0.008004"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/eskf_feedback/acc_bias/y"/>
          <curve color="#23d3cb" name="/f550_np/ground_truth/imu_debug/acc_bias/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.069614" left="1794.558000" right="1804.557000" bottom="-0.001698"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.006293" right="241.123000" left="231.123000" top="0.258005"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/eskf_feedback/acc_bias/z"/>
          <curve color="#23d3cb" name="/f550_np/ground_truth/imu_debug/acc_bias/z"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="9.510532" left="1794.558000" right="1804.557000" bottom="9.482531"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="10.165976" right="241.123000" left="231.123000" top="10.194800"/>
          <limitY/>
          <curve color="#1f77b4" name="/f550_np/eskf_feedback/gravity"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" count="3" sizes="0.33357;0.332859;0.33357">
+      <DockSplitter orientation="-" sizes="0.33357;0.332859;0.33357" count="3">
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="0.000587" left="1794.558000" right="1804.557000" bottom="-0.005423"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.003983" right="241.123000" left="231.123000" top="0.044653"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/eskf_feedback/gyro_bias/x"/>
          <curve color="#23d3cb" name="/f550_np/ground_truth/imu_debug/gyro_bias/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="-0.001415" left="1794.558000" right="1804.557000" bottom="-0.044835"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.001108" right="241.123000" left="231.123000" top="0.012126"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/eskf_feedback/gyro_bias/y"/>
          <curve color="#23d3cb" name="/f550_np/ground_truth/imu_debug/gyro_bias/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" flip_y="false" style="Lines" mode="TimeSeries">
-         <range top="-0.001014" left="1794.558000" right="1804.557000" bottom="-0.004420"/>
+        <plot flip_x="false" style="Lines" flip_y="false" mode="TimeSeries">
+         <range bottom="-0.049184" right="241.123000" left="231.123000" top="0.001966"/>
          <limitY/>
          <curve color="#d62728" name="/f550_np/eskf_feedback/gyro_bias/z"/>
          <curve color="#23d3cb" name="/f550_np/ground_truth/imu_debug/gyro_bias/z"/>
@@ -570,14 +618,14 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <currentTabIndex index="12"/>
+  <currentTabIndex index="10"/>
  </tabbed_widget>
  <use_relative_time_offset enabled="0"/>
  <!-- - - - - - - - - - - - - - - -->
  <!-- - - - - - - - - - - - - - - -->
  <Plugins>
   <plugin ID="DataLoad CSV">
-   <default delimiter="0" time_axis=""/>
+   <default time_axis="" delimiter="0"/>
   </plugin>
   <plugin ID="DataLoad MCAP"/>
   <plugin ID="DataLoad ROS bags">

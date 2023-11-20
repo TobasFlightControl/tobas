@@ -61,7 +61,7 @@ VectorXd Mixer::solve(
 {
   assert(dt > 0);
   assert(cur_voltage > 0);
-  assert(tar_thrusts.size() == z_rotors_.count());
+  assert(static_cast<size_t>(tar_thrusts.size()) == z_rotors_.count());
 
   // 慣性テンソルと重心を計算
   const auto I_base = inertia_solver_.JntToCart(cur_q);
@@ -131,7 +131,7 @@ void Mixer::updateThrustLimits(
   const double& cur_voltage,
   const double& thrusts_sum)
 {
-  const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
+  const auto min_voltage = cur_voltage * tobas::kArmThrottle;
   dh_std::Range<double> thrust_limit_1;
   dh_std::Range<double> thrust_limit_2;
 
