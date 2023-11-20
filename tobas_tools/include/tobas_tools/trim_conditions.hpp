@@ -40,7 +40,7 @@ public:
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  inline const uint32_t& elevatorIndex() const;
+  inline const size_t& elevatorIndex() const;
 
   /* 迎角 [rad] */
   inline const double& alpha() const;
@@ -82,9 +82,9 @@ private:
   StabilityDerivativesCG asd_cog_;
 
   // 固定値
-  double W_;           // 機体の重量 [N]
-  uint32_t elev_idx_;  // ピッチ回転の釣り合いに使う舵面の添字
-  double a_, b_;       // (2.9-49)の定数部分
+  double W_;         // 機体の重量 [N]
+  size_t elev_idx_;  // ピッチ回転の釣り合いに使う舵面の添字
+  double a_, b_;     // (2.9-49)の定数部分
 
   double alpha_;     // トリム時の迎角 [rad]
   double elevator_;  // トリム時の昇降舵の偏角 [rad]
@@ -111,7 +111,7 @@ inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() co
   return asd_cog_;
 }
 
-inline const uint32_t& TrimConditions::elevatorIndex() const
+inline const size_t& TrimConditions::elevatorIndex() const
 {
   return elev_idx_;
 }

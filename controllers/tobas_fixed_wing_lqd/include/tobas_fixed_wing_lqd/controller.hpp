@@ -101,6 +101,6 @@ private:
   void commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_fixed_wing_lqd

@@ -69,7 +69,7 @@ VectorXd Mixer::solve(
   const auto& mass = inertia.getMass();
 
   // プロペラの位置と回転軸を更新
-  for (uint32_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     const auto& link_name = drone_.rotorConfig(i).link_name;
     const auto T_base_prop = fk_solver_.JntToCart(cur_q, link_name);
@@ -78,7 +78,7 @@ VectorXd Mixer::solve(
   }
 
   // EoM行列等式の左辺
-  for (uint32_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     // 並進
     G_.block<3, 1>(0, i) = axis_B_[i].data;
@@ -103,7 +103,7 @@ VectorXd Mixer::solve(
 
   // 不等式制約
   const auto min_voltage = cur_voltage * tobas::kMotorSpinArm;
-  for (uint32_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     qp_.problem.b(i) = drone_.thrustFromVoltage(i, cur_voltage);
     qp_.problem.b(drone_.numRotors() + i) = -drone_.thrustFromVoltage(i, min_voltage);

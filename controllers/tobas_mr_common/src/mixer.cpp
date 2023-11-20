@@ -68,7 +68,7 @@ VectorXd Mixer::solve(
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
 
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto T_base_rotor = fk_solver_.JntToCart(cur_q, z_rotors_.linkName(i));
     const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
@@ -135,7 +135,7 @@ void Mixer::updateThrustLimits(
   dh_std::Range<double> thrust_limit_1;
   dh_std::Range<double> thrust_limit_2;
 
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     // ハードウェアによる制約
     thrust_limit_1.upper = z_rotors_.thrustFromVoltage(i, cur_voltage);

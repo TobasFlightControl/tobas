@@ -37,12 +37,12 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
   is_loaded_ = true;
 }
 
-double Drone::thrustFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const
+double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const
 {
   return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
 }
 
-double Drone::thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const
+double Drone::thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const
 {
   assert(voltage > 0);
 
@@ -50,7 +50,7 @@ double Drone::thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage
   return thrustFromRotSpeed(rotor_idx, rot_speed);
 }
 
-double Drone::voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const
+double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const
 {
   assert(rot_speed >= 0);
 
@@ -59,7 +59,7 @@ double Drone::voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_s
   return a * rot_speed + b * sqr(rot_speed);
 }
 
-double Drone::rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const
+double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const
 {
   assert(voltage >= 0);
 
@@ -68,7 +68,7 @@ double Drone::rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& volta
   return b > 0 ? (sqrt(sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
-double Drone::rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const
+double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const
 {
   assert(thrust >= 0);
   return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
@@ -78,14 +78,14 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
   DH_DEBUG("Drone::getRotorConfigs");
 
-  uint32_t num_rotors;
+  size_t num_rotors;
   dh_ros::getParam(nh, "num_rotors", num_rotors);
 
-  for (uint32_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
+  for (size_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
     rotor_configs_.push_back(getRotorConfig(nh, rotor_idx));
 }
 
-RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx)
+RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
 {
   DH_DEBUG("Drone::getRotorConfigs(" << rotor_idx << ")");
 
@@ -214,14 +214,14 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
 
   // fixed_wing/controll_surface_0などにはnh.searchParam()が使えないため，
   // 制御面の個数を明示的にパラメータサーバから取得する．
-  uint32_t num_cs;
+  size_t num_cs;
   dh_ros::getParam(nh, "fixed_wing/num_control_surfaces", num_cs);
 
-  for (uint32_t cs_idx = 0; cs_idx < num_cs; ++cs_idx)
+  for (size_t cs_idx = 0; cs_idx < num_cs; ++cs_idx)
     fixed_wing_config_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
 }
 
-ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx)
+ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_idx)
 {
   DH_DEBUG("Drone::getRotorConfigs(" << cs_idx << ")");
 

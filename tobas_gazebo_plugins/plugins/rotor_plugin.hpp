@@ -89,7 +89,7 @@ private:
   double rotSpeedFromVoltage(const double& voltage);
   double maxRotSpeed();
   double minRotSpeed();
-  void processCommandCommon(const uint32_t& data_size, const ros::Time& stamp);
+  void processCommandCommon(const size_t& data_size, const ros::Time& stamp);
 
   void rotorSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
   void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);

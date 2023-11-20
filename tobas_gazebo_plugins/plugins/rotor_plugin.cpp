@@ -259,7 +259,7 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   joint_->SetVelocity(0, direction_ * ref_rot_speed / kRotorSpeedSlowdownSim);
 }
 
-void GazeboRotorPlugin::processCommandCommon(const uint32_t& data_size, const ros::Time& stamp)
+void GazeboRotorPlugin::processCommandCommon(const size_t& data_size, const ros::Time& stamp)
 {
   // Check index
   if (motor_number_ >= static_cast<int>(data_size))

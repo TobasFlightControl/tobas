@@ -37,7 +37,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   noise_ = NormalDistribution(0, 1);
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
   {
     acc_turn_on_bias_[i] = acc_turn_on_bias_sigma_ * noise_(rnd_gen_);
     gyro_turn_on_bias_[i] = gyro_turn_on_bias_sigma_ * noise_(rnd_gen_);
@@ -159,7 +159,7 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
   // Compute state-transition
   const auto phi_g_d = exp(-dt / tau_g);
   // Simulate gyroscope noise processes and add them to the true angular rate
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
   {
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
     gyro[i] += gyro_bias_[i] + sigma_g_d * noise_(rnd_gen_) + gyro_turn_on_bias_[i];
@@ -175,7 +175,7 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
   // Compute state-transition
   const auto phi_a_d = exp(-dt / tau_a);
   // Simulate accelerometer noise processes and add them to the true linear acceleration
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
   {
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
     acc[i] += acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];

@@ -19,7 +19,7 @@ class OrientationEstimatorRos : public tobas::BaseNode
 {
   // Constants
   static constexpr double kTimerPeriod = 5.;
-  static constexpr uint32_t kQueueSize = 5;
+  static constexpr size_t kQueueSize = 5;
 
   // Default parameters
   static constexpr double kDefaultGainAcc = 0.01;

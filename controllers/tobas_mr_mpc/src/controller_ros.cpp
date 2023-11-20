@@ -321,7 +321,7 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
       name_, nh_.getNamespace() << "/" << tobas::kJointStatesTopic << " is not received yet.");
 }
 
-void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   pos_cfg_.acc_delay_time_const = cfg.attitude_decay;  // 加速度の遅延 = 姿勢の遅延
   pos_cfg_.hor_pos_weight = cfg.horizontal_position_weight;

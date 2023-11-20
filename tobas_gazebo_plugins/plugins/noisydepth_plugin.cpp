@@ -61,9 +61,9 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
 
 void GazeboNoisyDepthPlugin::onNewImageFrame(
   const u_char* image,
-  uint32_t width,
-  uint32_t height,
-  uint32_t depth,
+  size_t width,
+  size_t height,
+  size_t depth,
   const string& format)
 {
   if (!initialized_ || height <= 0 || width <= 0)
@@ -100,9 +100,9 @@ void GazeboNoisyDepthPlugin::onNewImageFrame(
 
 void GazeboNoisyDepthPlugin::onNewDepthFrame(
   const float* image,
-  uint32_t width,
-  uint32_t height,
-  uint32_t depth,
+  size_t width,
+  size_t height,
+  size_t depth,
   const string& format)
 {
   if (!initialized_ || height <= 0 || width <= 0)
@@ -236,9 +236,9 @@ void GazeboNoisyDepthPlugin::fillDepthImage(const float* src)
 }
 
 bool GazeboNoisyDepthPlugin::fillDepthImageHelper(
-  const uint32_t rows_arg,
-  const uint32_t cols_arg,
-  const uint32_t step_arg,
+  const size_t rows_arg,
+  const size_t cols_arg,
+  const size_t step_arg,
   const float* data_arg,
   sensor_msgs::Image& image_msg)
 {

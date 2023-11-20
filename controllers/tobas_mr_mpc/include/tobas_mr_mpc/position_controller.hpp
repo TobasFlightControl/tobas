@@ -27,10 +27,10 @@ struct PositionControllerConfig
 
 class PositionController
 {
-  static constexpr uint32_t kPosIdx = 0;
-  static constexpr uint32_t kVelIdx = kPosIdx + 3;
-  static constexpr uint32_t kAccIdx = kVelIdx + 3;
-  static constexpr uint32_t kStateSize = kAccIdx + 3;
+  static constexpr size_t kPosIdx = 0;
+  static constexpr size_t kVelIdx = kPosIdx + 3;
+  static constexpr size_t kAccIdx = kVelIdx + 3;
+  static constexpr size_t kStateSize = kAccIdx + 3;
 
   static constexpr double kVerAccDecayTimeConst = 0.02;  // [s]
 

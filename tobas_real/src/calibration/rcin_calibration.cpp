@@ -194,7 +194,7 @@ void RCInputCalibrator::run()
       DH_ERROR("The number of flight modes must be positive. Please retry.");
       continue;
     }
-    else if (static_cast<uint32_t>(num_modes) > kMaxNrOfFlightModes)
+    else if (static_cast<size_t>(num_modes) > kMaxNrOfFlightModes)
     {
       DH_ERROR("The number of flight modes is too large. Please retry.");
       continue;
@@ -255,11 +255,11 @@ void RCInputCalibrator::run()
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 
-double RCInputCalibrator::readRCInput(const uint32_t& channel)
+double RCInputCalibrator::readRCInput(const size_t& channel)
 {
   // RC入力を取得
-  uint32_t period_sum = 0;
-  for (uint32_t _ = 0; _ < kDataCount; ++_)
+  size_t period_sum = 0;
+  for (size_t _ = 0; _ < kDataCount; ++_)
   {
     const auto period = rcin_.read(channel);
     if (period <= 0)

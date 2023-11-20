@@ -72,9 +72,9 @@ void RCInputHandler::readConfig()
   gpsw2_on_ = pt.get<double>(kConfigKey_RcGPSw2On);
   gpsw2_off_ = pt.get<double>(kConfigKey_RcGPSw2Off);
 
-  const auto num_modes = pt.get<uint32_t>(kConfigKey_RcNrOfModes);
+  const auto num_modes = pt.get<size_t>(kConfigKey_RcNrOfModes);
   modes_.resize(num_modes);
-  for (uint32_t i = 0; i < num_modes; ++i)
+  for (size_t i = 0; i < num_modes; ++i)
   {
     const string key = kConfigKey_RcModePrefix + to_string(i);
     modes_[i] = pt.get<double>(key);

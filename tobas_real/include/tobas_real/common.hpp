@@ -53,38 +53,38 @@ static constexpr char kConfigKey_RcNrOfModes[] = "DEFAULT.rc_input/num_modes";
 static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 
 // https://docs.emlid.com/navio2/dev/adc/
-static constexpr uint32_t kPowerModuleVoltageChannel = 2;
+static constexpr size_t kPowerModuleVoltageChannel = 2;
 
-static constexpr uint32_t kServoRailSize = 14;
-static constexpr uint32_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
-static constexpr uint32_t kPwmMin = 1000;       // [us]
-static constexpr uint32_t kPwmMax = 2000;       // [us]
-static constexpr uint32_t kPwmNeutral = 1500;   // [us]
-static constexpr uint32_t kPwmDisarm = 900;     // [us]
-static constexpr uint32_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorSpinArm;  // [us]
+static constexpr size_t kServoRailSize = 14;
+static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
+static constexpr size_t kPwmMin = 1000;       // [us]
+static constexpr size_t kPwmMax = 2000;       // [us]
+static constexpr size_t kPwmNeutral = 1500;   // [us]
+static constexpr size_t kPwmDisarm = 900;     // [us]
+static constexpr size_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kMotorSpinArm;  // [us]
 
-static constexpr uint32_t kRcChannelRoll = 0;
-static constexpr uint32_t kRcChannelPitch = 1;
-static constexpr uint32_t kRcChannelThrust = 2;
-static constexpr uint32_t kRcChannelYaw = 3;
-static constexpr uint32_t kRcChannelMode = 4;
-static constexpr uint32_t kRcChannelEStop = 5;
-static constexpr uint32_t kRcChannelGPSw1 = 6;
-static constexpr uint32_t kRcChannelGPSw2 = 7;
+static constexpr size_t kRcChannelRoll = 0;
+static constexpr size_t kRcChannelPitch = 1;
+static constexpr size_t kRcChannelThrust = 2;
+static constexpr size_t kRcChannelYaw = 3;
+static constexpr size_t kRcChannelMode = 4;
+static constexpr size_t kRcChannelEStop = 5;
+static constexpr size_t kRcChannelGPSw1 = 6;
+static constexpr size_t kRcChannelGPSw2 = 7;
 
-static constexpr uint32_t kWaitToRefreshBarometer = 10000;  // [us]
-static constexpr double kDisarmDuration = 3.;               // [s]
-static constexpr double kDisarmInterval = 0.1;              // [s]
-static constexpr double kWarnPeriod = 3.;                   // [s]
-static constexpr double kErrorPeriod = 1.;                  // [s]
-static constexpr double kCheckLatencyTimeConst = 1.;        // [s]
-static constexpr double kCheckLatencyThreshold = 0.02;      // [s]
+static constexpr size_t kWaitToRefreshBarometer = 10000;  // [us]
+static constexpr double kDisarmDuration = 3.;             // [s]
+static constexpr double kDisarmInterval = 0.1;            // [s]
+static constexpr double kWarnPeriod = 3.;                 // [s]
+static constexpr double kErrorPeriod = 1.;                // [s]
+static constexpr double kCheckLatencyTimeConst = 1.;      // [s]
+static constexpr double kCheckLatencyThreshold = 0.02;    // [s]
 
 static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
-void setupRCOutput(RCOutput_Navio2& pwm, const uint32_t& channel);
+void setupRCOutput(RCOutput_Navio2& pwm, const size_t& channel);
 
-uint32_t channelFromPin(const uint32_t& pin);
-uint32_t pinFromChannel(const uint32_t& channel);
+size_t channelFromPin(const size_t& pin);
+size_t pinFromChannel(const size_t& channel);
 }  // namespace tobas_real

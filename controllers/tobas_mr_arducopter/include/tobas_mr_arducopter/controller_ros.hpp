@@ -27,7 +27,7 @@ private:
   const KDL::Rotation R_nwu_ned_ = KDL::Rotation::RotX(M_PI);
 
   bool ardupilot_online_ = false;
-  uint32_t connection_timeout_count_ = 0;
+  size_t connection_timeout_count_ = 0;
   ArduPilotSocket socket_in_;
   ArduPilotSocket socket_out_;
 

@@ -65,7 +65,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
 {
   // If ArduPilot is online, increase timeout for receive once we detect a packet from FCS.
   // Otherwise skip quickly and do not set control force.
-  const uint32_t wait_ms = ardupilot_online_ ? 1000 : 1;
+  const size_t wait_ms = ardupilot_online_ ? 1000 : 1;
   ServoPacket pkt;
   ssize_t recv_size = socket_in_.recv(&pkt, sizeof(ServoPacket), wait_ms);
 
@@ -123,7 +123,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   throttles->data.resize(channels_.size(), 0.);
 
   // Fill throttle
-  for (uint32_t i = 0; i < channels_.size(); ++i)
+  for (size_t i = 0; i < channels_.size(); ++i)
   {
     if (channels_[i] < recv_channels)
     {

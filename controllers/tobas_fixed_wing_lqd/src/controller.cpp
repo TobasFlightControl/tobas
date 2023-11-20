@@ -89,7 +89,7 @@ void Controller::publishTakeoffCommand()
   const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
   rotor_speeds_msg->header.stamp = odom_ned_.header.stamp;
   rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     rotor_speeds_msg->speeds[x_rotors_.rotorIdx(i)] =
       x_rotors_.rotSpeedFromVoltage(i, battery_->voltage);
@@ -173,7 +173,7 @@ void Controller::setScales()
   lqd_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     lqd_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
   }
@@ -216,7 +216,7 @@ void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
   rotor_speeds_msg->header.stamp = odom_ned_.header.stamp;
 
   rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
-  for (uint32_t i = 0; i < thrust.rows(); ++i)
+  for (size_t i = 0; i < thrust.rows(); ++i)
   {
     if (thrust(i) < -1.)
     {
@@ -252,13 +252,13 @@ void Controller::publishFeedback(const Eigen::VectorXd& du)
   feedback->trim_u = trim.u();
   feedback->trim_alpha = trim.alpha();
 
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     feedback->trim_thrusts[x_rotors_.rotorIdx(i)] = eom_.trimInput()(i);
     feedback->delta_thrusts[x_rotors_.rotorIdx(i)] = du(i);
   }
 
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto u_idx = x_rotors_.count() + i;
     feedback->trim_deflections[i] = eom_.trimInput()[u_idx];
@@ -388,7 +388,7 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn(name_, nh_.getNamespace() << "/" << tobas::kOdometryTopic << " is not received yet.");
 }
 
-void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   ROS_ASSERT(cfg.forward_speed_weight > 0.);
   ROS_ASSERT(cfg.alpha_weight > 0.);

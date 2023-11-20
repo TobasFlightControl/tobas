@@ -13,15 +13,15 @@ namespace tobas
 class MicroDisturbanceEoM
 {
 public:
-  static constexpr uint32_t kStateSize = 8;
-  static constexpr uint32_t kStateIdx_u = 0;
-  static constexpr uint32_t kStateIdx_alpha = 1;
-  static constexpr uint32_t kStateIdx_beta = 2;
-  static constexpr uint32_t kStateIdx_phi = 3;
-  static constexpr uint32_t kStateIdx_theta = 4;
-  static constexpr uint32_t kStateIdx_p = 5;
-  static constexpr uint32_t kStateIdx_q = 6;
-  static constexpr uint32_t kStateIdx_r = 7;
+  static constexpr size_t kStateSize = 8;
+  static constexpr size_t kStateIdx_u = 0;
+  static constexpr size_t kStateIdx_alpha = 1;
+  static constexpr size_t kStateIdx_beta = 2;
+  static constexpr size_t kStateIdx_phi = 3;
+  static constexpr size_t kStateIdx_theta = 4;
+  static constexpr size_t kStateIdx_p = 5;
+  static constexpr size_t kStateIdx_q = 6;
+  static constexpr size_t kStateIdx_r = 7;
 
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Matrix<double, kStateSize, 1>;
@@ -63,8 +63,8 @@ public:
   inline Eigen::VectorXd maxDeltaInput() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  inline const uint32_t& elevatorIndex() const;
-  inline const uint32_t& inputSize() const;
+  inline const size_t& elevatorIndex() const;
+  inline const size_t& inputSize() const;
 
   inline const Eigen::Matrix<double, kStateSize, kStateSize>& A() const;
   inline const Eigen::Matrix<double, kStateSize, Eigen::Dynamic>& B() const;
@@ -127,15 +127,15 @@ public:
   inline double u_thrust() const;
 
   // Z_delta_bar (2.2-37)
-  inline const double& alpha_delta(const uint32_t& cs_idx) const;
+  inline const double& alpha_delta(const size_t& cs_idx) const;
   // Y_delta_bar (3.2-20)
-  inline const double& beta_delta(const uint32_t& cs_idx) const;
+  inline const double& beta_delta(const size_t& cs_idx) const;
   // L_delta_bar (3.2-21)
-  inline const double& p_delta(const uint32_t& cs_idx) const;
+  inline const double& p_delta(const size_t& cs_idx) const;
   // M_delta_bar (2.2-38)
-  inline const double& q_delta(const uint32_t& cs_idx) const;
+  inline const double& q_delta(const size_t& cs_idx) const;
   // N_delta_bar (3.2.22)
-  inline const double& r_delta(const uint32_t& cs_idx) const;
+  inline const double& r_delta(const size_t& cs_idx) const;
 
 private:
   ErrorCode error_code_;
@@ -150,7 +150,7 @@ private:
 
   // 固定値
   double mass_;  // 機体の質量 [kg]
-  uint32_t u_size_;
+  size_t u_size_;
   Eigen::VectorXd min_u_;  // 制御入力の最小値
   Eigen::VectorXd max_u_;  // 制御入力の最大値
 
@@ -215,12 +215,12 @@ inline Eigen::VectorXd MicroDisturbanceEoM::maxDeltaInput() const
   return max_u_ - u_0_;
 }
 
-inline const uint32_t& MicroDisturbanceEoM::elevatorIndex() const
+inline const size_t& MicroDisturbanceEoM::elevatorIndex() const
 {
   return trim_.elevatorIndex();
 }
 
-inline const uint32_t& MicroDisturbanceEoM::inputSize() const
+inline const size_t& MicroDisturbanceEoM::inputSize() const
 {
   return u_size_;
 }
@@ -401,27 +401,27 @@ inline double MicroDisturbanceEoM::u_thrust() const
   return 1 / mass_;
 }
 
-inline const double& MicroDisturbanceEoM::alpha_delta(const uint32_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::alpha_delta(const size_t& cs_idx) const
 {
   return B_(kStateIdx_alpha, x_rotors_.count() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::beta_delta(const uint32_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::beta_delta(const size_t& cs_idx) const
 {
   return B_(kStateIdx_beta, x_rotors_.count() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::p_delta(const uint32_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::p_delta(const size_t& cs_idx) const
 {
   return B_(kStateIdx_p, x_rotors_.count() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::q_delta(const uint32_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::q_delta(const size_t& cs_idx) const
 {
   return B_(kStateIdx_q, x_rotors_.count() + cs_idx);
 }
 
-inline const double& MicroDisturbanceEoM::r_delta(const uint32_t& cs_idx) const
+inline const double& MicroDisturbanceEoM::r_delta(const size_t& cs_idx) const
 {
   return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
 }

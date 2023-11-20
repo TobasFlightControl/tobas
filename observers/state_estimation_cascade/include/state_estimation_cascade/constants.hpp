@@ -4,14 +4,14 @@
 
 namespace state_estimation_cascade
 {
-static constexpr uint32_t kPosIdx = 0;
-static constexpr uint32_t kAltIdx = kPosIdx + 2;
-static constexpr uint32_t kVelIdx = kPosIdx + 3;
-static constexpr uint32_t kAccIdx = kVelIdx + 3;
-static constexpr uint32_t kGravIdx = kAccIdx + 3;
-static constexpr uint32_t kStateSize = kGravIdx + 3;
-static constexpr uint32_t kInputSize = 6;
-static constexpr uint32_t kOutputSize = 9;
+static constexpr size_t kPosIdx = 0;
+static constexpr size_t kAltIdx = kPosIdx + 2;
+static constexpr size_t kVelIdx = kPosIdx + 3;
+static constexpr size_t kAccIdx = kVelIdx + 3;
+static constexpr size_t kGravIdx = kAccIdx + 3;
+static constexpr size_t kStateSize = kGravIdx + 3;
+static constexpr size_t kInputSize = 6;
+static constexpr size_t kOutputSize = 9;
 
 static constexpr char kFilteredImuTopic[] = "filtered_imu";
 

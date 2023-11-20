@@ -91,6 +91,6 @@ private:
   void commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_np_pid

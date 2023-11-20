@@ -20,8 +20,8 @@ public:
 
   inline double cPitchAlpha() const;
   inline double cYawBeta() const;
-  inline double cPitchDelta(const uint32_t& cs_idx) const;
-  inline double cYawDelta(const uint32_t& cs_idx) const;
+  inline double cPitchDelta(const size_t& cs_idx) const;
+  inline double cYawDelta(const size_t& cs_idx) const;
 
 private:
   const Drone& drone_;
@@ -44,12 +44,12 @@ inline double StabilityDerivativesCG::cYawBeta() const
   return c_yaw_beta_cg_;
 }
 
-inline double StabilityDerivativesCG::cPitchDelta(const uint32_t& cs_idx) const
+inline double StabilityDerivativesCG::cPitchDelta(const size_t& cs_idx) const
 {
   return c_pitch_delta_cg_[cs_idx];
 }
 
-inline double StabilityDerivativesCG::cYawDelta(const uint32_t& cs_idx) const
+inline double StabilityDerivativesCG::cYawDelta(const size_t& cs_idx) const
 {
   return c_yaw_delta_cg_[cs_idx];
 }

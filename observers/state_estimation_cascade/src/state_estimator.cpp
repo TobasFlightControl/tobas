@@ -324,7 +324,7 @@ void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
     rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
 }
 
-void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   cart_filter_.configure(cfg.gravity_variance);
 }

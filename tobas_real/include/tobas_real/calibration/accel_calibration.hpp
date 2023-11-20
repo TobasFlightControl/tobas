@@ -8,8 +8,8 @@ namespace tobas_real
 {
 class AccelCalibrator
 {
-  static constexpr uint32_t kDataCount = 1000;
-  static constexpr uint32_t kSleepTime = 10000;  // [us]
+  static constexpr size_t kDataCount = 1000;
+  static constexpr size_t kSleepTime = 10000;  // [us]
 
 public:
   explicit AccelCalibrator();

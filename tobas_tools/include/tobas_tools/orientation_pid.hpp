@@ -22,7 +22,7 @@ struct OrientationPidConfig
 class OrientationPid
 {
   // Constants
-  static constexpr uint32_t kGyroLpfCutoff = 20;
+  static constexpr size_t kGyroLpfCutoff = 20;
 
 public:
   explicit OrientationPid();

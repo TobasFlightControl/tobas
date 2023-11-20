@@ -108,7 +108,7 @@ VectorXd OrientationController::solve(
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
 
     // 個々のプロペラの推力の限界に関する不等式制約
-    for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+    for (size_t i = 0; i < z_rotors_.count(); ++i)
     {
       mpc_.input_ineqs[k].b(i) = z_rotors_.thrustFromVoltage(i, cur_voltage);
       mpc_.input_ineqs[k].b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
@@ -202,7 +202,7 @@ void OrientationController::updateCurrentState(
   const double thrust_sum = thrust_z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 合計推力
   const double thrust_mean = thrust_sum / z_rotors_.count();
   vector<double> rot_speeds(drone_.numRotors(), 0);
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);
     rot_speeds[z_rotors_.rotorIdx(i)] = rot_speed;

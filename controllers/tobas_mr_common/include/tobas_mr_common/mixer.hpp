@@ -26,7 +26,7 @@ struct MixerConfig
  */
 class Mixer
 {
-  static constexpr uint32_t kEqualityConstSize = 4;
+  static constexpr size_t kEqualityConstSize = 4;
 
 public:
   explicit Mixer(const tobas::Drone& drone);

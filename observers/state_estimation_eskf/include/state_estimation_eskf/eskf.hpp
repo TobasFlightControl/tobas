@@ -92,7 +92,7 @@ public:
    * @param pos_meas 世界座標系で表現された位置の観測値
    * @param pos_cov 位置の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
-   * 
+   *
    * @return Anormaly score
    */
   double measurePosition(
@@ -109,7 +109,7 @@ public:
    * @param pos_cov 速度の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    * @param gyro_meas ジャイロセンサの読み
-   * 
+   *
    * @return Anormaly score
    */
   double measureVelocity(
@@ -133,7 +133,7 @@ public:
    * @param acc_meas 加速度センサの読み．
    * @param grav_cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
-   * 
+   *
    * @return Anormaly score
    */
   double measureGravity(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& grav_cov);
@@ -148,7 +148,7 @@ public:
    * @note
    * 地磁気センサのバイアスが大きく，ロールピッチの観測に用いると姿勢推定の精度が落ちる恐れがあるため，
    * 地磁気はヨー角の観測にのみ用いるべきという意見もある．
-   * 
+   *
    * @return Anormaly score
    */
   double measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
@@ -160,7 +160,7 @@ public:
    * @param mag_meas 地磁気センサの読み．
    * @param yaw_var 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
-   * 
+   *
    * @return Anormaly score
    */
   double
@@ -204,7 +204,7 @@ private:
    * @param delta_meas 観測とノミナル状態の誤差
    * @param meas_cov 観測ノイズの共分散
    * @param H 観測方程式
-   * 
+   *
    * @return Anormaly score
    */
   template <size_t M>

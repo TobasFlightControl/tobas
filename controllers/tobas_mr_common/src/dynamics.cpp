@@ -29,7 +29,7 @@ void MultirotorDynamicsComponents::updateInternalDataStructures()
 double MultirotorDynamicsComponents::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
     res += z_rotors_.thrustFromVoltage(i, battery_voltage);
   return res;
 }
@@ -38,7 +38,7 @@ double MultirotorDynamicsComponents::minThrustSum(const double& battery_voltage)
 {
   const auto min_voltage = battery_voltage * tobas::kMotorSpinArm;
   double res = 0;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
     res += z_rotors_.thrustFromVoltage(i, min_voltage);
   return res;
 }
@@ -48,7 +48,7 @@ double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_spee
   assert(rot_speeds.size() == drone_.numRotors());
 
   double res = 0.;
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto& rotor_idx = z_rotors_.rotorIdx(i);
     const auto& cd = z_rotors_.dragConstant(i);
@@ -96,7 +96,7 @@ Vector MultirotorDynamicsComponents::horizontalMoment(
 
   // 擬似的なモーメントアーム [Ns] を求める
   Vector h_momemt_arm = Vector::Zero();
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     // CoG -> Rotor の位置を求める
     const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));

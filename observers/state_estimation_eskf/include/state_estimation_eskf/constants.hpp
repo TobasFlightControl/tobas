@@ -6,24 +6,24 @@
 namespace state_estimation_eskf
 {
 // ノミナル状態の添字
-static constexpr uint32_t kPosIdx = 0;
-static constexpr uint32_t kAltIdx = kPosIdx + 2;
-static constexpr uint32_t kVelIdx = kPosIdx + 3;
-static constexpr uint32_t kQuatIdx = kVelIdx + 3;
-static constexpr uint32_t kAccBiasIdx = kQuatIdx + 4;
-static constexpr uint32_t kGyroBiasIdx = kAccBiasIdx + 3;
-static constexpr uint32_t kGravIdx = kGyroBiasIdx + 3;
-static constexpr uint32_t kStateSize = kGravIdx + 1;
+static constexpr size_t kPosIdx = 0;
+static constexpr size_t kAltIdx = kPosIdx + 2;
+static constexpr size_t kVelIdx = kPosIdx + 3;
+static constexpr size_t kQuatIdx = kVelIdx + 3;
+static constexpr size_t kAccBiasIdx = kQuatIdx + 4;
+static constexpr size_t kGyroBiasIdx = kAccBiasIdx + 3;
+static constexpr size_t kGravIdx = kGyroBiasIdx + 3;
+static constexpr size_t kStateSize = kGravIdx + 1;
 
 // 誤差状態の添字
-static constexpr uint32_t kDeltaPosIdx = 0;
-static constexpr uint32_t kDeltaAltIdx = kDeltaPosIdx + 2;
-static constexpr uint32_t kDeltaVelIdx = kDeltaPosIdx + 3;
-static constexpr uint32_t kDeltaThetaIdx = kDeltaVelIdx + 3;
-static constexpr uint32_t kDeltaAccBiasIdx = kDeltaThetaIdx + 3;
-static constexpr uint32_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
-static constexpr uint32_t kDeltaGravIdx = kDeltaGyroBiasIdx + 3;
-static constexpr uint32_t kDeltaStateSize = kDeltaGravIdx + 1;
+static constexpr size_t kDeltaPosIdx = 0;
+static constexpr size_t kDeltaAltIdx = kDeltaPosIdx + 2;
+static constexpr size_t kDeltaVelIdx = kDeltaPosIdx + 3;
+static constexpr size_t kDeltaThetaIdx = kDeltaVelIdx + 3;
+static constexpr size_t kDeltaAccBiasIdx = kDeltaThetaIdx + 3;
+static constexpr size_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
+static constexpr size_t kDeltaGravIdx = kDeltaGyroBiasIdx + 3;
+static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
 
 // rosparamのデフォルト
 static constexpr bool kDefaultUseBarometer = true;

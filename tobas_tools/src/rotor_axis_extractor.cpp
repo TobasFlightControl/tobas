@@ -16,7 +16,7 @@ void RotorAxisExtractor::updateInternalDataStructures()
   count_ = 0;
   rotor_idxs_.clear();
 
-  for (uint32_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     if (drone_.rotorConfig(i).axis == axis_)
     {

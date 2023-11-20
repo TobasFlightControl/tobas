@@ -26,34 +26,34 @@ public:
   inline const Eigen::Vector3d& gpsOffset() const;
   inline const std::vector<std::string>& postureDefiningJoints() const;
   inline const RotorConfigs& rotorConfigs() const;
-  inline const RotorConfig& rotorConfig(const uint32_t& rotor_idx) const;
+  inline const RotorConfig& rotorConfig(const size_t& rotor_idx) const;
   inline const FixedWingConfig& fixedWing() const;
   inline const VehicleParameters& vehicle() const;
   inline const AerodynamicsCoefficients& aerodynamics() const;
   inline const ControlSurfaces& controlSurfaces() const;
-  inline const ControlSurface& controlSurface(const uint32_t& cs_idx) const;
+  inline const ControlSurface& controlSurface(const size_t& cs_idx) const;
 
   inline const bool& hasFixedWing() const;
   inline const bool& isLoaded() const;
   inline bool isTransformable() const;
 
-  inline uint32_t numRotors() const;
-  inline uint32_t numControlSurfaces() const;
+  inline size_t numRotors() const;
+  inline size_t numControlSurfaces() const;
 
   /* 回転数[rad/s]から推力[N]を計算する． */
-  double thrustFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
+  double thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
 
   /* 印加電圧から推力[N]を計算する． */
-  double thrustFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
+  double thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const;
 
   /* 回転数から印加電圧を求める． */
-  double voltageFromRotSpeed(const uint32_t& rotor_idx, const double& rot_speed) const;
+  double voltageFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
 
   /* 印加電圧から回転数を求める． */
-  double rotSpeedFromVoltage(const uint32_t& rotor_idx, const double& voltage) const;
+  double rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const;
 
   /* 推力[N]から回転数[rad/s]を求める． */
-  double rotSpeedFromThrust(const uint32_t& rotor_idx, const double& thrust) const;
+  double rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const;
 
 private:
   KDL::Tree tree_;
@@ -65,13 +65,13 @@ private:
   bool is_loaded_ = false;
 
   void getRotorConfigs(ros::NodeHandle& nh);
-  RotorConfig getRotorConfig(ros::NodeHandle& nh, const uint32_t& rotor_idx);
+  RotorConfig getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx);
 
   void getFixedWingConfig(ros::NodeHandle& nh);
   void getVehicleParameters(ros::NodeHandle& nh);
   void getAerodynamicsCoefficients(ros::NodeHandle& nh);
   void getControlSurfaces(ros::NodeHandle& nh);
-  ControlSurface getControlSurface(ros::NodeHandle& nh, const uint32_t& cs_idx);
+  ControlSurface getControlSurface(ros::NodeHandle& nh, const size_t& cs_idx);
 };
 
 inline const KDL::Tree& Drone::tree() const
@@ -89,7 +89,7 @@ inline const RotorConfigs& Drone::rotorConfigs() const
   return rotor_configs_;
 }
 
-inline const RotorConfig& Drone::rotorConfig(const uint32_t& rotor_idx) const
+inline const RotorConfig& Drone::rotorConfig(const size_t& rotor_idx) const
 {
   return rotor_configs_[rotor_idx];
 }
@@ -114,7 +114,7 @@ inline const ControlSurfaces& Drone::controlSurfaces() const
   return fixed_wing_config_.control_surfaces;
 }
 
-inline const ControlSurface& Drone::controlSurface(const uint32_t& cs_idx) const
+inline const ControlSurface& Drone::controlSurface(const size_t& cs_idx) const
 {
   return fixed_wing_config_.control_surfaces[cs_idx];
 }
@@ -134,12 +134,12 @@ inline bool Drone::isTransformable() const
   return posture_defining_joints_.size() > 0;
 }
 
-inline uint32_t Drone::numRotors() const
+inline size_t Drone::numRotors() const
 {
   return rotor_configs_.size();
 }
 
-inline uint32_t Drone::numControlSurfaces() const
+inline size_t Drone::numControlSurfaces() const
 {
   return fixed_wing_config_.control_surfaces.size();
 }

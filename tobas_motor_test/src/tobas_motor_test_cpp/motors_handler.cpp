@@ -29,7 +29,7 @@ MotorsHandler::MotorsHandler(
   getRosParams();
 
   // Setup PWM driver
-  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
     setupRCOutput(pwm_, channel);
 
   // Send disarm command
@@ -64,7 +64,7 @@ void MotorsHandler::sendDisarm()
   const ros::Time start_time = ros::Time::now();
   while ((ros::Time::now() - start_time).toSec() < kDisarmDuration)
   {
-    for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+    for (size_t channel = 0; channel < kServoRailSize; ++channel)
     {
       if (!pwm_.setDutyCycle(channel, kPwmDisarm))
         PWM_FAIL_ERROR(channel);
@@ -98,7 +98,7 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   {
     rosInfoThrottle(kInfoPeriod, name_, "Waiting for " << tobas::kThrottlesCmdTopic << ".");
 
-    for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+    for (size_t channel = 0; channel < kServoRailSize; ++channel)
     {
       if (!pwm_.setDutyCycle(channel, kPwmMin))
         PWM_FAIL_ERROR(channel);
@@ -110,7 +110,7 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   rosInfoOnce(name_, "First throttle command is received.");
 
   // データサイズを決定
-  uint32_t data_size = throttles_->data.size();
+  size_t data_size = throttles_->data.size();
   if (data_size > kServoRailSize)
   {
     rosWarnThrottle(
@@ -122,7 +122,7 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   }
 
   // 与えられたスロットルを指令
-  for (uint32_t channel = 0; channel < data_size; ++channel)
+  for (size_t channel = 0; channel < data_size; ++channel)
   {
     const auto throttle = clamp(throttles_->data[channel], 0., 1.);
     const auto period = dh_std::remap<double>(throttle, 0., 1., kPwmMin, kPwmMax);
@@ -131,7 +131,7 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   }
 
   // 足りない分は全て最小値を指令
-  for (uint32_t channel = data_size; channel < kServoRailSize; ++channel)
+  for (size_t channel = data_size; channel < kServoRailSize; ++channel)
   {
     if (!pwm_.setDutyCycle(channel, kPwmMin))
       PWM_FAIL_ERROR(channel);

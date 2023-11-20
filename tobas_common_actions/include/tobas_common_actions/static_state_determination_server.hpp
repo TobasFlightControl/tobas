@@ -14,9 +14,9 @@ class StaticStateDeterminationServer : public tobas::BaseNode
 {
   // 中心極限定理によると，データ数が30以上なら多くの分布に対してサンプル平均の分布は近似的に正規分布になる．
   // よって，データ数がそれ以上ならば平均と分散の推定がより信頼できると一般的には考えられる． (GPT4)
-  static constexpr uint32_t kMinimumImuCount = 100;
-  static constexpr uint32_t kMinimumBarCount = 100;
-  static constexpr uint32_t kMinimumGpsCount = 50;
+  static constexpr size_t kMinimumImuCount = 100;
+  static constexpr size_t kMinimumBarCount = 100;
+  static constexpr size_t kMinimumGpsCount = 50;
 
   static constexpr double kStaticGyroThreshold = 1e+300;               // [rad/s] // TODO
   static constexpr double kStaticAirPressureAltVarThreshold = 1e+300;  // [m]  // TODO
@@ -43,10 +43,10 @@ private:
   ResultType result_;
   FeedbackType feedback_;
   bool is_action_running_;
-  uint32_t imu_count_;
-  uint32_t mag_count_;
-  uint32_t bar_count_;
-  uint32_t gps_count_;
+  size_t imu_count_;
+  size_t mag_count_;
+  size_t bar_count_;
+  size_t gps_count_;
   ImuMsg imu_sum_;
   MagMsg mag_sum_;
   BarMsg bar_sum_;

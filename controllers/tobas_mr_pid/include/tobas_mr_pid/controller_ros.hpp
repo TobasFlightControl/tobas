@@ -96,6 +96,6 @@ private:
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_mr_pid

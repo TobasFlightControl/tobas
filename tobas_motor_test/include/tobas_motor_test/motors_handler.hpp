@@ -11,8 +11,8 @@ namespace tobas_motor_test
 {
 class MotorsHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kUpdateRate = 100;  // [Hz]
-  static constexpr double kInfoPeriod = 3.;     // [s]
+  static constexpr size_t kUpdateRate = 100;  // [Hz]
+  static constexpr double kInfoPeriod = 3.;   // [s]
 
   using self = MotorsHandler;
   using super = tobas::BaseNode;

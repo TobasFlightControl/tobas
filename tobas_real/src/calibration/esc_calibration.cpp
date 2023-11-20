@@ -21,7 +21,7 @@ EscCalibration::EscCalibration()
     throw runtime_error("Please execute with root privileges.");
   }
 
-  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     setupRCOutput(pwm_, channel);
   }
@@ -91,7 +91,7 @@ void EscCalibration::sendMinimum()
 
 void EscCalibration::setPeriod(const double& period)
 {
-  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     if (!pwm_.setDutyCycle(channel, period))
       throw runtime_error("Failed to set PWM duty cycle.");

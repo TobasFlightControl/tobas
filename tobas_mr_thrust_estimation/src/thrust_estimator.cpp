@@ -118,7 +118,7 @@ void ThrustEstimator::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor
   rotor_speeds_ = rotor_speeds;
 }
 
-void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   // プロセスノイズの分散
   // TODO: dtを反映

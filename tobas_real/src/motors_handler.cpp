@@ -127,7 +127,7 @@ void MotorsHandler::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   real_speeds->speeds.resize(drone_.numRotors());
 
   // Update PWM periods
-  for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
+  for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
     // スロットルを決定
     // 電圧とスロットルの関係は線形だが，電圧と回転数の関係は非線形であることに注意
@@ -230,7 +230,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
       real_speeds->speeds.resize(drone_.numRotors());
 
       const auto real_voltage = battery_->voltage * tobas::kMotorSpinArm;
-      for (uint32_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
+      for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
       {
         real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
       }

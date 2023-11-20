@@ -45,7 +45,7 @@ void MultiRotorDynamics::update(const double& roll, const double& pitch, const J
   A.block<3, 3>(kGyroIdx, kHForceIdx) = I_cog_inv;
 
   // Update B
-  for (uint32_t i = 0; i < z_rotors_.count(); ++i)
+  for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));
     const auto P_cog_rotor = T_base_rotor.p - P_base_cog;

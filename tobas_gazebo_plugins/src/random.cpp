@@ -11,13 +11,13 @@ NormalDistribution3d::NormalDistribution3d(
   const Vector3d& stddev)
   : rnd_gen_(rnd_dev())
 {
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
     noise_[i] = NormalDistribution(mean[i], stddev[i]);
 }
 
 Vector3d NormalDistribution3d::get()
 {
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
     values_[i] = noise_[i](rnd_gen_);
   return values_;
 }
@@ -28,13 +28,13 @@ UniformDistribution3d::UniformDistribution3d(
   const Vector3d& ub)
   : rnd_gen_(rnd_dev())
 {
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
     noise_[i] = UniformDistribution(lb[i], ub[i]);
 }
 
 Vector3d UniformDistribution3d::get()
 {
-  for (uint32_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
     values_[i] = noise_[i](rnd_gen_);
   return values_;
 }

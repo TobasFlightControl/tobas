@@ -162,14 +162,14 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
 
   // Bを更新
   // thrust -> u
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     B_(kStateIdx_u, i) = 1 / mass_;
   }
 
   // thrust -> p,q,r
   const auto I_cog_inv = I_cog.data.inverse();
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     const auto T_base_rotor = fk_solver_.JntToCart(q, x_rotors_.linkName(i));
     const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
@@ -181,7 +181,7 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   }
 
   // deflection
-  for (uint32_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
+  for (size_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
   {
     const auto& cs = drone_.controlSurface(cs_idx);
 
@@ -225,7 +225,7 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
   const auto thrust_avg = thrust_sum / x_rotors_.count();
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     const auto max_thrust = x_rotors_.thrustFromVoltage(i, battery_voltage);
     if (thrust_avg > max_thrust)
@@ -246,13 +246,13 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);
 
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     min_u_(i) = 0.;
     max_u_(i) = x_rotors_.thrustFromVoltage(i, battery_voltage);
   }
 
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& cs = drone_.controlSurface(i);
     min_u_(x_rotors_.count() + i) = cs.angle_limit.lower;

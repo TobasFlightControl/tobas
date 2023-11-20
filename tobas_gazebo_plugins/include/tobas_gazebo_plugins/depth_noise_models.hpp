@@ -7,7 +7,7 @@ class DepthNoiseModel
 public:
   explicit DepthNoiseModel(const float& min_depth, const float& max_depth);
 
-  virtual void applyNoise(const uint32_t& width, const uint32_t& height, float* data) = 0;
+  virtual void applyNoise(const size_t& width, const size_t& height, float* data) = 0;
 
 protected:
   const float bad_point_;
@@ -31,7 +31,7 @@ class KinectDepthNoiseModel : public DepthNoiseModel
 public:
   explicit KinectDepthNoiseModel(const float& min_depth, const float& max_depth);
 
-  void applyNoise(const uint32_t& width, const uint32_t& height, float* data) override;
+  void applyNoise(const size_t& width, const size_t& height, float* data) override;
 };
 
 class PMDDepthNoiseModel : public DepthNoiseModel
@@ -41,7 +41,7 @@ class PMDDepthNoiseModel : public DepthNoiseModel
 public:
   explicit PMDDepthNoiseModel(const float& min_depth, const float& max_depth);
 
-  void applyNoise(const uint32_t& width, const uint32_t& height, float* data) override;
+  void applyNoise(const size_t& width, const size_t& height, float* data) override;
 };
 
 class D435DepthNoiseModel : public DepthNoiseModel
@@ -58,7 +58,7 @@ public:
     float horizontal_fov,
     float baseline);
 
-  void applyNoise(const uint32_t& width, const uint32_t& height, float* data) override;
+  void applyNoise(const size_t& width, const size_t& height, float* data) override;
 
 private:
   const float horizontal_fov_;

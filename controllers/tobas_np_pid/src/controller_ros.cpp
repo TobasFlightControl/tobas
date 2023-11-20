@@ -216,7 +216,7 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
       name_, nh_.getNamespace() << "/" << tobas::kJointStatesTopic << " is not received yet.");
 }
 
-void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   pos_cfg_.hor_kp = cfg.horizontal_p_gain;
   pos_cfg_.hor_ki = cfg.horizontal_i_gain;
