@@ -244,7 +244,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
 
 void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 {
-  assert(dt > 0.);
+  assert(dt > 0);
 
   // Check rotor speed limit and get set value
   auto set_rot_speed = cmd_rot_speed_;
@@ -253,7 +253,7 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   if (cmd_rot_speed_ < min_rot_speed)
   {
     // エラーを出すのは指令値が負のときのみ．[0, min_rot_speed]の時は修正するだけにする．
-    if (cmd_rot_speed_ < 0.)
+    if (cmd_rot_speed_ < 0)
     {
       gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_
             << ": " << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
