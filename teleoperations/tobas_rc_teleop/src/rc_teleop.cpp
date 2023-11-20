@@ -127,22 +127,22 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (odom_ != nullptr && battery_ != nullptr)
       {
-        stage_ = FIRST_RCIN;
+        stage_ = WAIT_FOR_ESTOP;
       }
       break;
     }
 
-    case FIRST_RCIN:
+    case WAIT_FOR_ESTOP:
     {
-      if (!rcin->e_stop)
-      {
-        rosInfoThrottle(
-          kInfoPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
-      }
-      else
+      if (rcin->e_stop)
       {
         rosInfo(name_, "RC transmitter is ready. Set E-Stop toggle OFF to start control.");
         stage_ = ESTOP_ON;
+      }
+      else
+      {
+        rosInfoThrottle(
+          kInfoPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
       }
       break;
     }
@@ -151,8 +151,28 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (!rcin->e_stop)
       {
-        stage_ = RUNNING;
+        stage_ = FIRST_COMMAND;
       }
+      break;
+    }
+
+    case FIRST_COMMAND:
+    {
+      const auto& cur_mode = rcin->mode;
+      if (cur_mode >= controllers_.size())
+      {
+        rosErrorThrottle(
+          kErrorPeriod, name_,
+          "You tried to set flight mode " << static_cast<int>(cur_mode)
+                                          << ", which is out of range.");
+        return;
+      }
+
+      controllers_[cur_mode]->reset(*odom_);
+      last_mode_ = cur_mode;
+      rosInfo(name_, "First flight mode is set to " << static_cast<int>(cur_mode));
+
+      stage_ = RUNNING;
       break;
     }
 
@@ -166,20 +186,22 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         event_pub_.publish(event);
       }
 
-      const auto cur_mode = static_cast<int>(rcin->mode);
-
+      const auto& cur_mode = rcin->mode;
       if (cur_mode >= controllers_.size())
       {
         rosErrorThrottle(
           kErrorPeriod, name_,
-          "You tried to set flight mode " << cur_mode << ", which is out of range.");
+          "You tried to set flight mode " << static_cast<int>(cur_mode)
+                                          << ", which is out of range.");
         return;
       }
 
       if (cur_mode != last_mode_)
       {
         controllers_[cur_mode]->reset(*odom_);
-        rosInfo(name_, "Command type changed from " << last_mode_ << " to " << cur_mode << ".");
+        rosInfo(
+          name_, "Flight mode changed from " << static_cast<int>(last_mode_) << " to "
+                                             << static_cast<int>(cur_mode) << ".");
         last_mode_ = cur_mode;
         break;
       }
@@ -191,7 +213,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     default:
     {
-      ROS_THROW_NAMED(name_, "Invalid state: " << static_cast<int>(stage_));
+      ROS_THROW_NAMED(name_, "Invalid stage: " << static_cast<int>(stage_));
     }
   }
 }

@@ -26,8 +26,9 @@ private:
   enum stage_t
   {
     CHECK_PREREQUISITES,
-    FIRST_RCIN,
+    WAIT_FOR_ESTOP,
     ESTOP_ON,
+    FIRST_COMMAND,
     RUNNING,
   };
 
@@ -40,7 +41,7 @@ private:
 
   // Mutables
   stage_t stage_ = CHECK_PREREQUISITES;
-  int last_mode_ = -1;
+  uint8_t last_mode_;
   tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
 
