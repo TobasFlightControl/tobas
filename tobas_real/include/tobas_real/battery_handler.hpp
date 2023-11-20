@@ -13,7 +13,7 @@ namespace tobas_real
 class BatteryHandler : public tobas::BaseNode
 {
   static constexpr size_t kUpdateRate = 100;       // [Hz]
-  static constexpr double kLpfTimeConst = 60.;     // [s]
+  static constexpr double kLpfTimeConst = 10.;     // [s]
   static constexpr double kVoltageThreshold = 3.;  // [V]
 
   using super = tobas::BaseNode;
