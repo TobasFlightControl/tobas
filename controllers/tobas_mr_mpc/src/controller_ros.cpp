@@ -214,7 +214,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
     rotor_speeds->header.stamp = odom->header.stamp;
     rotor_speeds->speeds.resize(drone_.numRotors(), 0.);
-    for (uint32_t i = 0; i < thrusts_.rows(); ++i)
+    for (int i = 0; i < thrusts_.rows(); ++i)
     {
       if (thrusts_(i) < 0)
       {
