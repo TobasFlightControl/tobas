@@ -220,7 +220,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
             "Internal Registance",
             resistance_description,
             minimum=1,
-            default=100,
+            default=200,
             suffix=" mΩ",
         )
         self._rows.addWidget(self._resistance)
@@ -232,7 +232,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
         kv_si = rpm_to_rad_per_sec(self._kv.get())  # [rad/s/V]
-        R = self._resistance.get() / 1000  # [Ω]
+        R = self._resistance.get() * 1e-3  # [Ω]
 
         # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
         ke = 1 / kv_si  # 発電係数 [Vs/rad]
