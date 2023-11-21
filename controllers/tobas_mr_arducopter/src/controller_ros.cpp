@@ -48,8 +48,7 @@ void ControllerRos::registerSubscribers()
 {
   super::registerSubscribers();
 
-  odom_sub_ =
-    nh_.subscribe(tobas::kOdometryGtTopic, 1, &self::odomCb, this, tcpNoDelay());  // GT only
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void ControllerRos::initializeSockets()

@@ -22,9 +22,13 @@
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <!-- Controller -->
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg controller_node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen" required="true"/>
-  <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="controller_node" name="$(arg controller_node_name)" output="screen" required="true"/>
+  <!-- Controller -->  <!-- TODO: Use estimated odometry -->
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg controller_node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen" required="true">
+    <remap from="odom" to="ground_truth/odom"/>
+  </node>
+  <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="controller_node" name="$(arg controller_node_name)" output="screen" required="true">
+    <remap from="odom" to="ground_truth/odom"/>
+  </node>
 
   <!-- Parameter Server -->
   <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg param_server_node_name)" args="load tobas_mr_arducopter/ParamServerNodelet nodelet_manager" output="screen" required="true"/>
