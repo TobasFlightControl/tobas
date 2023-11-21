@@ -20,7 +20,7 @@ void DrydenComponents::update(
   const double& dt)
 {
   assert(relative_wind_speed >= 0);
-  assert(dt > 0);
+  assert(dt >= 0);
 
   const auto h = max(altitude, dryden::kMinimumAltitude);  // 高度が正であることを保証
   const auto h_ft = h * kMeterToFeet;

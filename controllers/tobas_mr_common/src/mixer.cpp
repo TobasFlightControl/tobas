@@ -59,7 +59,7 @@ VectorXd Mixer::solve(
   const Vector3d& tar_dgyro_B,
   const VectorXd& tar_thrusts)
 {
-  assert(dt > 0);
+  assert(dt >= 0);
   assert(cur_voltage > 0);
   assert(static_cast<size_t>(tar_thrusts.size()) == z_rotors_.count());
 

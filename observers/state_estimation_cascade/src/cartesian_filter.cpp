@@ -67,7 +67,7 @@ void CartesianFilter::predict(
   const Matrix3d& init_acc_cov,
   const double& dt)
 {
-  assert(dt > 0.);  // バグ予防のため一応dt = 0を許容しないでおく
+  assert(dt > 0);  // バグ予防のため一応dt = 0を許容しないでおく
   assert(dt < kImuTimeGapThreshold);
 
   A_.block(kPosIdx, kVelIdx, 3, 3).diagonal().fill(dt);

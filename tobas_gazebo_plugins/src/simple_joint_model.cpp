@@ -19,7 +19,7 @@ SimpleJointModel::SimpleJointModel(const dh_std::Range<double>& pos_limit, const
 
 void SimpleJointModel::update(double tar_pos, double dt)
 {
-  assert(dt > 0.);
+  assert(dt >= 0);
 
   if (!pos_limit_.inRange(tar_pos, POS_MARGIN))
   {

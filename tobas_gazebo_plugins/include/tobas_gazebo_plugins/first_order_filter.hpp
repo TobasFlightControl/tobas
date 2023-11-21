@@ -47,7 +47,7 @@ template <typename T>
 T AsymmetricFirstOrderFilter<T>::update(T input_state, const double& sampling_time)
 {
   assert(is_initialized_);
-  assert(sampling_time > 0);
+  assert(sampling_time >= 0);
 
   T output_state;
   if (input_state > prev_state_)

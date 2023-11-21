@@ -241,7 +241,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
 
 void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 {
-  assert(dt > 0);
+  assert(dt >= 0);
 
   // Check rotor speed limit and get set value
   auto set_rot_speed = cmd_rot_speed_;
