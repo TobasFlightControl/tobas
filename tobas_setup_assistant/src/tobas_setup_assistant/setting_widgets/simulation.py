@@ -72,29 +72,6 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.altitude_0)
 
-        mean_wind_speed_description = ""
-        self.mean_wind_speed = ParamGetterWidget_DoubleSpinBox(
-            "Mean wind speed",
-            mean_wind_speed_description,
-            decimals=1,
-            minimum=0.0,
-            default=0.0,
-            suffix=" m/s",
-        )
-        self._rows.addWidget(self.mean_wind_speed)
-
-        const_wind_direction_description = ""
-        self.const_wind_direction = ParamGetterWidget_DoubleSpinBox(
-            "Constant wind direction (Yaw angle)",
-            const_wind_direction_description,
-            decimals=2,
-            minimum=0.0,
-            maximum=2 * math.pi,
-            default=0.0,
-            suffix=" rad",
-        )
-        self._rows.addWidget(self.const_wind_direction)
-
         add_expanding_widget(self._rows)
 
     @overrides

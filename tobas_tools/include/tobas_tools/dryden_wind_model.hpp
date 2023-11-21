@@ -8,7 +8,6 @@ namespace dryden
 {
 static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
 static constexpr double kMinimumAltitude = 1.;          // [m]
-static constexpr double kDefaultMeanWindSpeed = 5.;     // [m/s]
 };                                                      // namespace dryden
 
 /**
@@ -18,7 +17,7 @@ static constexpr double kDefaultMeanWindSpeed = 5.;     // [m/s]
 class DrydenComponents
 {
 public:
-  explicit DrydenComponents(const double& mean_wind_speed = dryden::kDefaultMeanWindSpeed);
+  explicit DrydenComponents();
 
   void update(const double& relative_wind_speed, const double& altitude, const double& dt);
   void setMeanWindSpeed(const double& mean_wind_speed);
@@ -37,7 +36,7 @@ public:
   inline double noiseStddevVer() const;
 
 private:
-  double mean_speed_;
+  double mean_speed_ = 0.;
 
   double L_uv_, L_w_;          // [m] 乱流のスケール長
   double sigma_uv_, sigma_w_;  // [m/s] 風速の標準偏差
@@ -51,7 +50,7 @@ private:
 class DrydenSimulator
 {
 public:
-  explicit DrydenSimulator(const double& mean_wind_speed = dryden::kDefaultMeanWindSpeed);
+  explicit DrydenSimulator();
 
   void update(const double& relative_wind_speed, const double& altitude, const double& dt);
   void setMeanWindSpeed(const double& mean_wind_speed);

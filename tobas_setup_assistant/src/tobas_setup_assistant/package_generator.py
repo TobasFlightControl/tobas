@@ -534,12 +534,7 @@ class PackageGenerator(QObject):
         robot.append(base_plugin)
 
         # Wind plugin
-        wind_model = WindModel(
-            ns=self._drone_name,
-            link_name=root_link,
-            mean_wind_speed=simulation.mean_wind_speed.get(),
-            const_wind_direction=simulation.const_wind_direction.get(),
-        )
+        wind_model = WindModel(ns=self._drone_name, link_name=root_link)
         robot.append(wind_model)
 
         # Battery plugin

@@ -1,0 +1,16 @@
+float64 mean_speed         # [m/s] 地面からの高度20ftで測った平均風速
+float64 direction          # [rad] 風向 (ヨー角)
+float64 gust_speed_factor  # [-] 定常風速に対する突風成分の風速の比率
+float64 gust_duration      # [s] 突風の発生時間
+float64 gust_interval      # [s] 突風が過ぎ去ってから次の突風が来るまでの時間
+
+---
+
+bool success
+
+# 設定された値
+float64 mean_speed
+float64 direction
+float64 gust_speed_factor
+float64 gust_duration
+float64 gust_interval

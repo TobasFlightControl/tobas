@@ -9,9 +9,8 @@ using namespace std;
 
 namespace tobas
 {
-DrydenComponents::DrydenComponents(const double& mean_wind_speed)
+DrydenComponents::DrydenComponents()
 {
-  setMeanWindSpeed(mean_wind_speed);
 }
 
 void DrydenComponents::update(
@@ -46,8 +45,7 @@ void DrydenComponents::setMeanWindSpeed(const double& mean_wind_speed)
   mean_speed_ = mean_wind_speed;
 }
 
-DrydenSimulator::DrydenSimulator(const double& mean_wind_speed)
-  : components_(mean_wind_speed), rnd_gen_(rnd_dev_()), noise_(0, 1)
+DrydenSimulator::DrydenSimulator() : rnd_gen_(rnd_dev_()), noise_(0, 1)
 {
 }
 

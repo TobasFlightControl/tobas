@@ -8,6 +8,7 @@
 #include <gazebo/physics/physics.hh>
 
 #include <tobas_tools/dryden_wind_model.hpp>
+#include <tobas_gazebo_plugins/SetWindParameters.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
@@ -34,6 +35,7 @@ class GazeboWindPlugin : public ModelPlugin
   static constexpr double kDefaultGustDuration = 5.;           // [s]
   static constexpr double kDefaultGustInterval = 10.;          // [s]
 
+  using self = GazeboWindPlugin;
   using super = ModelPlugin;
 
 public:
@@ -54,26 +56,31 @@ private:
   // SDF parameters
   std::string ns_;
   std::string link_name_;
-  double mean_speed_;         // [m/s] 地面からの高度20ftで測った平均風速
-  double direction_;          // [rad] 風向 (ヨー角)
-  double gust_speed_factor_;  // 定常風速に対する突風成分の風速の比率
-  double gust_duration_;      // 突風の発生時間
-  double gust_interval_;      // 突風が過ぎ去ってから次の突風が来るまでの時間
+
+  // Wind parameters
+  double mean_speed_ = kDefaultMeanWindSpeed;
+  double direction_ = kDefaultConstantWindDirection;
+  double gust_speed_factor_ = kDefaultGustSpeedFactor;
+  double gust_duration_ = kDefaultGustDuration;
+  double gust_interval_ = kDefaultGustInterval;
 
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
-  common::Time prev_sim_time_ = 0;
-  common::Time gust_state_change_time_ = 0;
+  common::Time prev_sim_time_;
+  common::Time gust_state_change_time_;
   gust_state_t gust_state_ = NO_GUST;
-  double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
-  // PubSub
   ros::Publisher wind_pub_;
+
+  ros::ServiceServer set_wind_params_srv_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);
-  void registerPubSub();
+
+  bool setWindParametersCb(
+    tobas_gazebo_plugins::SetWindParametersRequest& req,
+    tobas_gazebo_plugins::SetWindParametersResponse& res);
 };
 }  // namespace gazebo
