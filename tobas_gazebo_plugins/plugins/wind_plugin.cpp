@@ -130,24 +130,23 @@ bool GazeboWindPlugin::setWindParametersCb(
   if (req.gust_speed_factor > 0)
     gust_speed_factor_ = res.gust_speed_factor = req.gust_speed_factor;
   else
-    gzmsg << kPluginName << ": Gust speed factor remains unchanged." << endl;
+    gzwarn << kPluginName << ": Gust speed factor remains unchanged." << endl;
 
   // Gust duration
   if (req.gust_duration > 0)
     gust_duration_ = res.gust_duration = req.gust_duration;
   else
-    gzmsg << kPluginName << ": Gust duration remains unchanged." << endl;
+    gzwarn << kPluginName << ": Gust duration remains unchanged." << endl;
 
   // Gust interval
   if (req.gust_interval > 0)
     gust_interval_ = res.gust_interval = req.gust_interval;
   else
-    gzmsg << kPluginName << ": Gust interval remains unchanged." << endl;
+    gzwarn << kPluginName << ": Gust interval remains unchanged." << endl;
 
   // Update dryden wind model
   dryden_.setMeanWindSpeed(req.mean_speed);
 
-  gzmsg << kPluginName << ": Wind parameters are updated." << endl;
   res.success = true;
   return true;
 }
