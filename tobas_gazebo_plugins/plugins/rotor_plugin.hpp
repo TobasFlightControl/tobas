@@ -51,6 +51,7 @@ private:
   double max_model_error_rate_;
   double time_const_up_;
   double time_const_down_;
+  double max_current_;  // [A] ESCの最大電流
   double check_delay_threshold_;
   double auto_reset_time_thr_;
 
@@ -73,6 +74,7 @@ private:
   event::ConnectionPtr update_connection_;
 
   // PubSub
+  ros::Publisher rotor_state_pub_;
   ros::Publisher debug_pub_;
   ros::Subscriber throttles_sub_;
   ros::Subscriber battery_sub_;

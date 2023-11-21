@@ -4,6 +4,7 @@
 #include <dh_std_tools/algorithm.hpp>
 
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/RotorState.h>
 #include <tobas_gazebo_plugins/RotorDebug.h>
 
 #include "./rotor_plugin.hpp"
@@ -102,6 +103,8 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
     gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: "
            << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
 
+  getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
+
   getSdfParam(
     sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
   getSdfParam(
@@ -122,10 +125,10 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     if (cur_time > kCheckTopicsTimeThreshold)
     {
       if (!battery_received_)
-        gzerr << kPluginName << ": " << ns_ << "/" << tobas::kBatteryGtTopic
-              << " is not received yet." << endl;
+        gzerr << kPluginName << ": " << ns_ << "/" << kBatteryGtTopic << " is not received yet."
+              << endl;
       if (!wind_received_)
-        gzerr << kPluginName << ": " << ns_ << "/" << tobas::kWindGtTopic << " is not received yet."
+        gzerr << kPluginName << ": " << ns_ << "/" << kWindGtTopic << " is not received yet."
               << endl;
     }
     return;
@@ -164,17 +167,22 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::RotorDebug>(
-    "/" + ns_ + "/" + kDebugTopicPrefix + "_" + to_string(motor_number_), 1);
+  const string prefix = "/" + ns_ + "/";
+  const string suffix = "_" + to_string(motor_number_);
+
+  rotor_state_pub_ =
+    nh_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
+  debug_pub_ =
+    nh_.advertise<tobas_gazebo_plugins::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
 
   throttles_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
+    prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   battery_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kBatteryGtTopic, 1, &self::batteryCb, this,
+    prefix + kBatteryGtTopic, 1, &self::batteryCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
   wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kWindGtTopic, 1, &self::windSpeedCb, this,
+    prefix + kWindGtTopic, 1, &self::windSpeedCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 
@@ -225,9 +233,26 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
 
   // (2) first term: Rotor drag torque
   const auto pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
-  const auto drag_torque_child = (-direction_ * thrust * moment_const_) * local_axis;
+  const auto torque = moment_const_ * thrust;
+  const auto drag_torque_child = (-direction_ * torque) * local_axis;
   const auto drag_torque_parent = pose_diff.Rot().RotateVector(drag_torque_child);
   parent_link_->AddRelativeTorque(drag_torque_parent);
+
+  // Compute electric current
+  const auto& kt = rot_speed_coefs_.X();  // トルク定数をKvの逆数(=発電係数)で推定
+  const auto current = torque / kt;
+  if (current > max_current_)
+  {
+    gzwarn << kPluginName << ": The electric current of rotor " << motor_number_
+           << " is over limit: " << current << " > " << max_current_ << " [A]" << endl;
+  }
+
+  // Publish rotor state
+  const auto rotor_state = boost::make_shared<tobas_msgs::RotorState>();
+  timeGazeboToRos(cur_time, rotor_state->header.stamp);
+  rotor_state->speed = rot_speed;
+  rotor_state->current = current;
+  rotor_state_pub_.publish(rotor_state);
 
   // Publish debug message
   const auto debug_msg = boost::make_shared<tobas_gazebo_plugins::RotorDebug>();

@@ -50,7 +50,7 @@ class BatteryWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self._type.currentTextChanged.connect(self._on_type_changed)
+        self._type.currentTextChanged.connect(self._on_battery_typechanged)
 
     @overrides
     def is_valid(self) -> bool:
@@ -63,39 +63,42 @@ class BatteryWidget(BaseSettingWidget):
 
         return True
 
-    def nominal_voltage(self) -> float:
-        return self._selected().nominal_voltage()
+    def max_voltage(self) -> float:
+        return self._selected().max_voltage()
+
+    def max_current(self) -> float:
+        return self._selected().max_current()
 
     def voltage_threshold(self) -> float:
         return self._selected().voltage_threshold()
 
     def _selected(self) -> BatteryWidget_Base:
-        _type = self._type.currentText()
+        battery_type = self._type.currentText()
 
-        if _type == self.LIPO:
+        if battery_type == self.LIPO:
             return self._lipo
-        elif _type == self.OTHER:
+        elif battery_type == self.OTHER:
             return self._other
         else:
-            raise RuntimeError(f"Invalid battery type: {_type}")
+            raise RuntimeError(f"Invalid battery type: {battery_type}")
 
     def _update_visibility(self) -> None:
-        _type = self._type.currentText()
+        battery_type = self._type.currentText()
 
-        if _type == self.NO_SELECT:
+        if battery_type == self.NO_SELECT:
             self._lipo.setVisible(False)
             self._other.setVisible(False)
-        elif _type == self.LIPO:
+        elif battery_type == self.LIPO:
             self._lipo.setVisible(True)
             self._other.setVisible(False)
-        elif _type == self.OTHER:
+        elif battery_type == self.OTHER:
             self._lipo.setVisible(False)
             self._other.setVisible(True)
         else:
-            raise RuntimeError(f"Invalid battery type: {_type}")
+            raise RuntimeError(f"Invalid battery type: {battery_type}")
 
     @pyqtSlot(str)
-    def _on_type_changed(self, _type: str) -> None:
+    def _on_battery_typechanged(self, _: str) -> None:
         self._update_visibility()
 
 
@@ -110,17 +113,24 @@ class BatteryWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
-    def nominal_voltage(self) -> float:
+    def max_voltage(self) -> float:
+        """[V]"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def max_current(self) -> float:
+        """[A]"""
         raise NotImplementedError()
 
     @abstractmethod
     def voltage_threshold(self) -> float:
+        """[V]"""
         raise NotImplementedError()
 
 
 class BatteryWidget_LiPo(BatteryWidget_Base):
-    NOMINAL_VOLTAGE_PER_CELL = 3.7  # 1セルあたりの定格電圧
-    VOLTAGE_THR_PER_CELL = 3.4
+    MAX_VOLTAGE_PER_CELL = 4.2  # 1セルあたりの最大電圧
+    VOLTAGE_THR_PER_CELL = 3.5
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
@@ -130,7 +140,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
 
         num_cells_description = "セル数．1セルあたりの定格電圧は3.7V．"
         self._num_cells = ParamGetterWidget_SpinBox(
-            "Number of cells",
+            "Number of Cells",
             num_cells_description,
             minimum=1,
             maximum=8,
@@ -149,7 +159,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             default=5000,
             suffix=" mAh",
         )
-        # self._rows.addWidget(self._capacity)  # TODO
+        self._rows.addWidget(self._capacity)
 
         C_cont_description = (
             "バッテリーが連続的に放電できる最大の電流を示す値．"
@@ -166,38 +176,19 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             default=50,
             suffix=" /h",
         )
-        # self._rows.addWidget(self._C_cont)  # TODO
-
-        C_pulse_description = (
-            "バッテリーが短時間で放電できる最大電流．" + "これは，バッテリーが連続的には処理できない大きな電流を一時的に供給する場合の最大レートを示します．"
-        )
-        self._C_pulse = ParamGetterWidget_SpinBox(
-            "Pulse Discharge Current Rate",
-            C_pulse_description,
-            minimum=1,
-            default=100,
-            suffix=" /h",
-        )
-        # self._rows.addWidget(self._C_pulse)  # TODO
+        self._rows.addWidget(self._C_cont)
 
     @overrides
     def is_valid(self) -> bool:
-        C_cont = self._C_cont.get()
-        C_pulse = self._C_pulse.get()
-        if C_cont > C_pulse:
-            q_error_named(
-                self._main,
-                self._main.settings.battery.LIPO,
-                "Continuous discharge current rate cannot be "
-                "greater than pulse discharge current rate.",
-            )
-            return False
-
         return True
 
     @overrides
-    def nominal_voltage(self) -> float:
-        return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
+    def max_voltage(self) -> float:
+        return self._num_cells.get() * self.MAX_VOLTAGE_PER_CELL
+
+    @overrides
+    def max_current(self) -> float:
+        return self._capacity.get() * self._C_cont.get() / 1000
 
     @overrides
     def voltage_threshold(self) -> float:
@@ -211,43 +202,56 @@ class BatteryWidget_Other(BatteryWidget_Base):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        nominal_voltage_description = "バッテリーの定格電圧．"
-        self._nominal_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Nominal Voltage",
-            nominal_voltage_description,
+        max_voltage_description = "バッテリーの最大電圧．"
+        self._max_voltage = ParamGetterWidget_DoubleSpinBox(
+            "Maximum Voltage",
+            max_voltage_description,
             decimals=1,
             minimum=0.1,
-            default=14.8,
+            default=16.8,
             suffix=" V",
         )
-        self._rows.addWidget(self._nominal_voltage)
+        self._rows.addWidget(self._max_voltage)
 
-        voltage_threshold_description = (
-            "バッテリー電圧がこれ以下になると警告を出し，" + "さらに一定時間経過すると強制的に着陸指令を出します．"
+        max_current_description = "バッテリーの最大電流．"
+        self._max_current = ParamGetterWidget_DoubleSpinBox(
+            "Maximum Current",
+            max_current_description,
+            decimals=1,
+            minimum=0.1,
+            default=250.0,
+            suffix=" A",
         )
+        self._rows.addWidget(self._max_voltage)
+
+        voltage_threshold_description = "安全に飛行できるバッテリー電圧の下限．"
         self._voltage_threshold = ParamGetterWidget_DoubleSpinBox(
             "Voltage Threshold",
             voltage_threshold_description,
             decimals=1,
             minimum=0.1,
-            default=13.6,
+            default=14.0,
             suffix=" V",
         )
         self._rows.addWidget(self._voltage_threshold)
 
     @overrides
     def is_valid(self) -> bool:
-        if self._nominal_voltage.get() <= self._voltage_threshold.get():
+        if self._max_voltage.get() <= self._voltage_threshold.get():
             q_error_named(
                 self._main,
                 self._main.settings.battery.OTHER,
-                "Nominal voltage must be greater than voltage threshold.",
+                "Maximum voltage must be greater than voltage threshold.",
             )
             return False
 
     @overrides
-    def nominal_voltage(self) -> float:
-        return self._nominal_voltage.get()
+    def max_voltage(self) -> float:
+        return self._max_voltage.get()
+
+    @overrides
+    def max_current(self) -> float:
+        return self._max_current.get()
 
     @overrides
     def voltage_threshold(self) -> float:

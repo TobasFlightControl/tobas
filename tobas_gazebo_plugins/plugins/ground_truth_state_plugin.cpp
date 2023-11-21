@@ -4,6 +4,7 @@
 #include <tobas_msgs/Odometry.h>
 
 #include "./ground_truth_state_plugin.hpp"
+#include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
@@ -36,7 +37,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
   }
 
   // Advertise publisher
-  odom_pub_ = nh_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + tobas::kOdometryGtTopic, 1);
+  odom_pub_ = nh_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic, 1);
 
   // Listen to the update event
   update_connection_ =

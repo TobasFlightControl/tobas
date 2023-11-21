@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from overrides import overrides
-from typing import List
+from typing import List, final
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -38,7 +38,7 @@ class EscWidget(QWidget):
 
         self._escs: List[EscWidget_Base] = [
             EscWidget_PWM(main, link_name),
-            # EscWidget_DSHOT(main, link_name),
+            # EscWidget_DSHOT(main, link_name),  # TODO
         ]
 
         self._type = ComboBox()
@@ -74,6 +74,9 @@ class EscWidget(QWidget):
 
     def esc_type(self) -> str:
         return self._type.currentText()
+
+    def max_current(self) -> float:
+        return self._selected().max_current()
 
     def _define_connections(self) -> None:
         self._type.currentTextChanged.connect(self._on_type_changed)
@@ -115,13 +118,34 @@ class EscWidget_Base(QWidget):
         self._main = main
         self._link_name = link_name
 
+        self._rows = QVBoxLayout()
+        self.setLayout(self._rows)
+
+        max_current_description = (
+            "ESCが安全に処理できる電流の最大値．"
+            + "最大値を超えた電流を流すと，ESCが過熱したり損傷したりする可能性があり，"
+            + "最悪の場合は故障や発火を引き起こすこともあります．"
+        )
+        self._max_current = ParamGetterWidget_SpinBox(
+            "Maximum Current",
+            max_current_description,
+            minimum=1,
+            default=20,
+            suffix=" A",
+        )
+        self._rows.addWidget(self._max_current)
+
     @abstractmethod
     def is_valid(self) -> bool:
         raise NotImplementedError()
 
     @abstractmethod
-    def copy_from(self, src) -> None:
-        raise NotImplementedError()
+    def copy_from(self, src: EscWidget_Base) -> None:
+        self._max_current.set(src._max_current.get())
+
+    @final
+    def max_current(self) -> float:
+        return self._max_current.get()
 
 
 class EscWidget_PWM(EscWidget_Base):
@@ -130,15 +154,8 @@ class EscWidget_PWM(EscWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        abst_text = "周波数50Hzで1000usから2000usのパルス幅を受け取る通常のESCです．"
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        rows.addWidget(abst)
+        abst = Description("周波数50Hzで1000usから2000usのパルス幅を受け取る通常のESCです．")
+        self._rows.addWidget(abst)
 
     @overrides
     def is_valid(self) -> bool:
@@ -146,7 +163,7 @@ class EscWidget_PWM(EscWidget_Base):
 
     @overrides
     def copy_from(self, src: EscWidget_PWM) -> None:
-        pass
+        super().copy_from(src)
 
 
 class EscWidget_DSHOT(EscWidget_Base):
@@ -155,15 +172,8 @@ class EscWidget_DSHOT(EscWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        abst_text = "TODO: abstraction"  # TODO
-        abst = QLabel(abst_text)
-        abst.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        abst.setAlignment(Qt.AlignTop)
-        abst.setWordWrap(True)
-        rows.addWidget(abst)
+        abst = Description("TODO: abstraction")  # TODO
+        self._rows.addWidget(abst)
 
     @overrides
     def is_valid(self) -> bool:
@@ -171,4 +181,4 @@ class EscWidget_DSHOT(EscWidget_Base):
 
     @overrides
     def copy_from(self, src: EscWidget_DSHOT) -> None:
-        pass
+        super().copy_from(src)

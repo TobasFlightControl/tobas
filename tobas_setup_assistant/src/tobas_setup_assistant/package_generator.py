@@ -540,7 +540,9 @@ class PackageGenerator(QObject):
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
-            nominal_voltage=battery.nominal_voltage(),
+            max_voltage=battery.max_voltage(),
+            max_current=battery.max_current(),
+            num_rotors=propulsion_system.count(),
         )
         robot.append(battery_model)
 
@@ -560,6 +562,7 @@ class PackageGenerator(QObject):
                 max_model_error_rate=selected.aerodynamics.max_model_error_rate(),
                 time_const_up=selected.motor.time_const_up(),
                 time_const_down=selected.motor.time_const_down(),
+                max_current=selected.esc.max_current(),
             )
             robot.append(motor_model)
 
