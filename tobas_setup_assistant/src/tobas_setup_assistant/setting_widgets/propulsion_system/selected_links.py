@@ -214,11 +214,11 @@ class SelectedLinkTabWidget(QWidget):
         self.esc = EscWidget(main, link_name)
         rows.addWidget(self.esc)
 
-        self.motor = MotorWidget(main, link_name)
-        rows.addWidget(self.motor)
-
         self.blade_geometry = BladeGeometry(main, link_name)
         rows.addWidget(self.blade_geometry)
+
+        self.motor = MotorWidget(main, link_name)
+        rows.addWidget(self.motor)
 
         self.aerodynamics = AerodynamicsWidget(main, link_name)
         rows.addWidget(self.aerodynamics)
@@ -229,9 +229,9 @@ class SelectedLinkTabWidget(QWidget):
     def is_valid(self) -> bool:
         if not self.esc.is_valid():
             return False
-        if not self.motor.is_valid():
-            return False
         if not self.blade_geometry.is_valid():
+            return False
+        if not self.motor.is_valid():
             return False
         if not self.aerodynamics.is_valid():
             return False
@@ -266,6 +266,6 @@ class SelectedLinkTabWidget(QWidget):
 
         left: SelectedLinkTabWidget = selected.widget(self_idx - 1)
         self.esc.copy_from(left.esc)
-        self.motor.copy_from(left.motor)
         self.blade_geometry.copy_from(left.blade_geometry)
+        self.motor.copy_from(left.motor)
         self.aerodynamics.copy_from(left.aerodynamics)

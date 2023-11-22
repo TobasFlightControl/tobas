@@ -142,17 +142,6 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   if (res.pin < kMinPinId || kMaxPinId < res.pin)
     throw runtime_error("Invalid rotor pin number: " + to_string(res.pin));
 
-  // ESC
-  string esc_type;
-  dh_ros::getParam(nh, prefix + "/esc_type", esc_type);
-  esc_type = dh_std::toLower(esc_type);
-  if (esc_type == "pwm")
-    res.esc_type = ESCType::PWM;
-  else if (esc_type == "dshot")
-    res.esc_type = ESCType::DSHOT;
-  else
-    throw runtime_error("Unknown ESC type: " + esc_type);
-
   return res;
 }
 

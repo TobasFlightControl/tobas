@@ -308,7 +308,6 @@ class PackageGenerator(QObject):
                 "moment_constant": float(selected.aerodynamics.moment_const()),
                 "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
                 "pin": i + 1,
-                "esc_type": selected.esc.esc_type().lower(),
             }
 
         # Fixed wing

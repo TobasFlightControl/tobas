@@ -14,12 +14,6 @@ enum struct Axis
   UNKNOWN,  // TODO
 };
 
-enum struct ESCType
-{
-  PWM,
-  DSHOT,
-};
-
 struct RotorConfig
 {
   std::string link_name;                      // プロペラのリンク名
@@ -30,7 +24,6 @@ struct RotorConfig
   double drag_constant;                       // 空気効力定数 [kg/rad]
   std::pair<double, double> rot_speed_coefs;  // V = c1 w + c2 w^2 (V[V], w[rad/s])
   size_t pin;                                 // モータが接続されているピン番号
-  ESCType esc_type;
 };
 
 using RotorConfigs = std::vector<RotorConfig>;
