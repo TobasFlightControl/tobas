@@ -540,7 +540,9 @@ class PackageGenerator(QObject):
         battery_model = BatteryModel(
             ns=self._drone_name,
             max_voltage=battery.max_voltage(),
+            sag_voltage=battery.sag_voltage(),
             max_current=battery.max_current(),
+            capacity=battery.capacity(),
             num_rotors=propulsion_system.count(),
         )
         robot.append(battery_model)

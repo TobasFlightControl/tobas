@@ -23,6 +23,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   getSdfParams(sdf);
 
   currents_.resize(num_rotors_, 0.);
+  q_ = capacity_;
 
   registerPubSub();
   update_connection_ =
@@ -33,7 +34,9 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
+  getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
+  getSdfParam(sdf, "currentCapacity", capacity_, POSITIVE);
   getSdfParam(sdf, "numRotors", num_rotors_, NON_NEGATIVE);
 }
 
@@ -43,6 +46,7 @@ void GazeboBatteryPlugin::registerPubSub()
 
   battery_pub_ = nh_.advertise<tobas_msgs::Battery>(prefix + tobas::kBatteryTopic, 1);
 
+  // モータ状態のコールバックとサブスクライバを設定
   for (size_t i = 0; i < num_rotors_; ++i)
   {
     rotor_state_cbs_.push_back(
@@ -57,22 +61,42 @@ void GazeboBatteryPlugin::registerPubSub()
 
 void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  // TODO: バッテリーの充放電モデル
-  // TODO: 放電限界電圧になったらエラー
+  // 時刻を更新
+  const auto dt = (info.simTime - t_last_).Double();
+  t_last_ = info.simTime;
 
-  // 電流
-  const auto current_sum = dh_std::sum(currents_);
-  if (current_sum > max_current_)
+  // 電流を計算
+  const auto current = dh_std::sum(currents_);
+  if (current > max_current_)
   {
-    gzwarn << kPluginName << ": The battery current is over limit: " << current_sum << " > "
+    gzwarn << kPluginName << ": The battery current is over limit: " << current << " > "
            << max_current_ << " [A]" << endl;
   }
 
+  // 電気容量の減少
+  q_ = max(q_ - current * dt, 0.);
+
+  // 電圧を計算
+  const auto voltage = currentVoltage();
+
+  // バッテリーの状態を発行
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   timeGazeboToRos(info.simTime, battery_msg->header.stamp);
-  battery_msg->voltage = max_voltage_;
-  battery_msg->current = current_sum;
+  battery_msg->voltage = voltage;
+  battery_msg->current = current;
   battery_pub_.publish(battery_msg);
+}
+
+double GazeboBatteryPlugin::currentVoltage()
+{
+  // memo: 2-50
+  const auto rate = q_ / capacity_;
+  if (rate < 0.)
+    return 0.;
+  else if (rate < kSagCapRate)
+    return sag_voltage_ * rate / kSagCapRate;
+  else
+    return (max_voltage_ - sag_voltage_) * (rate - kSagCapRate) / (1 - kSagCapRate) + sag_voltage_;
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboBatteryPlugin);

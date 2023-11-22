@@ -70,8 +70,14 @@ class BatteryWidget(BaseSettingWidget):
     def max_voltage(self) -> float:
         return self._selected().max_voltage()
 
+    def sag_voltage(self) -> float:
+        return self._selected().sag_voltage()
+
     def max_current(self) -> float:
         return self._selected().max_current()
+
+    def capacity(self) -> float:
+        return self._selected().capacity()
 
     def voltage_threshold(self) -> float:
         return self._selected().voltage_threshold()
@@ -122,8 +128,18 @@ class BatteryWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
+    def sag_voltage(self) -> float:
+        """[V]"""
+        raise NotImplementedError()
+
+    @abstractmethod
     def max_current(self) -> float:
         """[A]"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def capacity(self) -> float:
+        """[As]"""
         raise NotImplementedError()
 
     @abstractmethod
@@ -136,6 +152,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
     NAME = "Lithium Polymer Battery (LiPo)"
 
     MAX_VOLTAGE_PER_CELL = 4.2  # 1セルあたりの最大電圧
+    SAG_VOLTAGE_PER_CELL = 3.4  # 放電特性が急激に変化する電圧
     VOLTAGE_THR_PER_CELL = 3.5
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -144,7 +161,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        num_cells_description = "セル数．1セルあたりの定格電圧は3.7V．"
+        num_cells_description = "バッテリーのセル数．"
         self._num_cells = ParamGetterWidget_SpinBox(
             "Number of Cells",
             num_cells_description,
@@ -154,10 +171,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         self._rows.addWidget(self._num_cells)
 
-        capacity_description = (
-            "バッテリーが1時間に供給できる電流の量．"
-            + "例えば，5000mAhのバッテリーは1時間に5000mA (5A) の電流を供給することができます．"
-        )
+        capacity_description = "バッテリーから取り出すことのできる電気量．"
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity",
             capacity_description,
@@ -193,8 +207,16 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         return self._num_cells.get() * self.MAX_VOLTAGE_PER_CELL
 
     @overrides
+    def sag_voltage(self) -> float:
+        return self._num_cells.get() * self.SAG_VOLTAGE_PER_CELL
+
+    @overrides
     def max_current(self) -> float:
         return self._capacity.get() * self._C_cont.get() / 1000
+
+    @overrides
+    def capacity(self) -> float:
+        return self._capacity.get() * 3600 / 1000
 
     @overrides
     def voltage_threshold(self) -> float:
@@ -221,6 +243,17 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         self._rows.addWidget(self._max_voltage)
 
+        sag_voltage_description = "放電特性が急激に変化する電圧．"
+        self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
+            "Voltage Threshold",
+            sag_voltage_description,
+            decimals=1,
+            minimum=0.1,
+            default=13.6,
+            suffix=" V",
+        )
+        self._rows.addWidget(self._sag_voltage)
+
         max_current_description = "バッテリーの最大電流．"
         self._max_current = ParamGetterWidget_DoubleSpinBox(
             "Maximum Current",
@@ -232,20 +265,19 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         self._rows.addWidget(self._max_voltage)
 
-        voltage_threshold_description = "安全に飛行できるバッテリー電圧の下限．"
-        self._voltage_threshold = ParamGetterWidget_DoubleSpinBox(
-            "Voltage Threshold",
-            voltage_threshold_description,
-            decimals=1,
-            minimum=0.1,
-            default=14.0,
-            suffix=" V",
+        capacity_description = "バッテリーから取り出すことのできる電気量．"
+        self._capacity = ParamGetterWidget_SpinBox(
+            "Current Capacity",
+            capacity_description,
+            minimum=1,
+            default=5000,
+            suffix=" mAh",
         )
-        self._rows.addWidget(self._voltage_threshold)
+        self._rows.addWidget(self._capacity)
 
     @overrides
     def is_valid(self) -> bool:
-        if self._max_voltage.get() <= self._voltage_threshold.get():
+        if self._max_voltage.get() <= self._sag_voltage.get():
             q_error_named(
                 self._main,
                 self.NAME,
@@ -258,9 +290,17 @@ class BatteryWidget_Other(BatteryWidget_Base):
         return self._max_voltage.get()
 
     @overrides
+    def sag_voltage(self) -> float:
+        return self._sag_voltage.get()
+
+    @overrides
     def max_current(self) -> float:
         return self._max_current.get()
 
     @overrides
+    def capacity(self) -> float:
+        return self._capacity.get() * 3600 / 1000
+
+    @overrides
     def voltage_threshold(self) -> float:
-        return self._voltage_threshold.get()
+        return self.sag_voltage()  # TODO: sag_voltageとは分けるべきかも
