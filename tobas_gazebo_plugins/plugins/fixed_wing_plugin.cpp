@@ -482,7 +482,7 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
       kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay
                                << "[s] is over " << check_delay_threshold_ << "[s].");
   }
-  else if (delay < 0.)
+  else if (delay < -kNegativeCmdDelayErrThreshold)
   {
     GZ_ERROR_THROTTLE(
       kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
