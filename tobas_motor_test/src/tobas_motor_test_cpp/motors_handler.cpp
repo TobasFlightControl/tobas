@@ -96,7 +96,7 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   // コマンドが来るまでは，ESCの自動停止を防ぐために最小値を指令して終了
   if (throttles_ == nullptr)
   {
-    rosInfoThrottle(kInfoPeriod, name_, "Waiting for " << tobas::kThrottlesCmdTopic << ".");
+    rosInfoThrottle(kInfoPeriod, name_, "Waiting for " << tobas::kThrottlesCmdTopic);
 
     for (size_t channel = 0; channel < kServoRailSize; ++channel)
     {

@@ -124,12 +124,11 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     // ros::Timer cannot be used for shared library.
     if (cur_time > kCheckTopicsTimeThreshold)
     {
+      const auto ns = ns_ + "/";
       if (!battery_received_)
-        gzerr << kPluginName << ": " << ns_ << "/" << kBatteryGtTopic << " is not received yet."
-              << endl;
+        gzerr << kPluginName << ": " << ns << kBatteryGtTopic << " is not received yet." << endl;
       if (!wind_received_)
-        gzerr << kPluginName << ": " << ns_ << "/" << kWindGtTopic << " is not received yet."
-              << endl;
+        gzerr << kPluginName << ": " << ns << kWindGtTopic << " is not received yet." << endl;
     }
     return;
   }

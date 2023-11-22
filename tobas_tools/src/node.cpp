@@ -39,4 +39,9 @@ bool BaseNode::updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level)
 
   return true;
 }
+
+ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
+{
+  return ros::TransportHints().reliable().tcpNoDelay(nodelay);
+}
 }  // namespace tobas

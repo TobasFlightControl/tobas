@@ -368,14 +368,13 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
   if (!battery_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryTopic);
 
   if (!odom_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kOdometryTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
 }
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)

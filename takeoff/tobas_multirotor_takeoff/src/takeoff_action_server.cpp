@@ -93,8 +93,7 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
 
   while (odom_ == nullptr)
   {
-    rosInfoThrottle(
-      kInfoPeriod, name_, "Waiting for " << nh_.getNamespace() + "/" + tobas::kOdometryTopic);
+    rosInfoThrottle(kInfoPeriod, name_, "Waiting for " << ns() << tobas::kOdometryTopic);
     ros::spinOnce();
     rate.sleep();
   }

@@ -310,18 +310,14 @@ void StateEstimator::gpsPositionCb(const GpsMsg::ConstPtr& gps)
 
 void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  // IMU
   if (!imu_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << kFilteredImuTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << kFilteredImuTopic);
 
-  // Barometer
   if (!bar_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
-  // GPS
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kGpsTopic);
 }
 
 void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)

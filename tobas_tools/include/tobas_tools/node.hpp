@@ -25,6 +25,8 @@ protected:
   virtual void registerSubscribers() = 0;
   virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
 
+  inline std::string ns();
+
   /**
    * @brief コマンドレベルを更新する．
    *
@@ -36,11 +38,11 @@ protected:
   bool updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level);
 
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
-  static inline ros::TransportHints tcpNoDelay(const bool& nodelay = true);
+  static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };
 
-inline ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
+inline std::string BaseNode::ns()
 {
-  return ros::TransportHints().reliable().tcpNoDelay(nodelay);
+  return nh_.getNamespace() + "/";
 }
 }  // namespace tobas

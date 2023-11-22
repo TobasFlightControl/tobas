@@ -474,17 +474,16 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!imu_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kImuTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
 
   if (!mag_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kMagTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kMagTopic);
 
   if (use_bar_ && !bar_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kGpsTopic);
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

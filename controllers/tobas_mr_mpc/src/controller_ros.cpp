@@ -297,21 +297,19 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (odom_ == nullptr)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kOdometryTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
 
   if (battery_ == nullptr)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryTopic);
 
   if (wind_ == nullptr)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kWindTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kWindTopic);
 
   if (rotor_speeds_ == nullptr)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kRotorSpeedsTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kRotorSpeedsTopic);
 
   if (drone_.isTransformable() && js_ == nullptr)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kJointStatesTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic);
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

@@ -143,6 +143,6 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn(name_, nh_.getNamespace() << "/" << tobas::kImuTopic << " is not received yet.");
+  rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
 }
 }  // namespace orientation_estimation_complement
