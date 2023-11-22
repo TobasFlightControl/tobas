@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
+#include <std_srvs/Empty.h>
 
 #include <tobas_msgs/RotorState.h>
 
@@ -50,9 +51,14 @@ private:
   std::vector<ros::Subscriber> rotor_state_subs_;
   std::vector<std::function<void(const tobas_msgs::RotorStateConstPtr&)>> rotor_state_cbs_;
 
+  // Service servers
+  ros::ServiceServer charge_srv_;
+
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
   double currentVoltage();
+
+  bool chargeCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
 };
 }  // namespace gazebo

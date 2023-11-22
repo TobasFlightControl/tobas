@@ -26,6 +26,8 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   q_ = capacity_;
 
   registerPubSub();
+  charge_srv_ = nh_.advertiseService("/" + ns_ + "/charge_battery", &self::chargeCb, this);
+
   update_connection_ =
     event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
@@ -97,6 +99,13 @@ double GazeboBatteryPlugin::currentVoltage()
     return sag_voltage_ * rate / kSagCapRate;
   else
     return (max_voltage_ - sag_voltage_) * (rate - kSagCapRate) / (1 - kSagCapRate) + sag_voltage_;
+}
+
+bool GazeboBatteryPlugin::chargeCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)
+{
+  q_ = capacity_;
+  gzmsg << kPluginName << ": Battery is charged." << endl;
+  return true;
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboBatteryPlugin);
