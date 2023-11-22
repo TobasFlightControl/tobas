@@ -28,7 +28,7 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
   set_wind_params_srv_ =
-    nh_.advertiseService("/" + ns_ + "/set_wind_parameters", &self::setWindParametersCb, this);
+    nh_.advertiseService("/" + ns_ + "/gazebo/set_wind_parameters", &self::setWindParametersCb, this);
 
   update_connection_ =
     event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));

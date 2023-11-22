@@ -26,7 +26,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   q_ = capacity_;
 
   registerPubSub();
-  charge_srv_ = nh_.advertiseService("/" + ns_ + "/charge_battery", &self::chargeCb, this);
+  charge_srv_ = nh_.advertiseService("/" + ns_ + "/gazebo/charge_battery", &self::chargeCb, this);
 
   update_connection_ =
     event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
