@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from overrides import overrides
+from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -15,14 +16,13 @@ from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
+from ..common import *
 
 
 class BatteryWidget(BaseSettingWidget):
     NAME = "Battery"
 
     NO_SELECT = "Select battery type"
-    LIPO = "Lithium Polymer Battery (LiPo)"
-    OTHER = "Other Battery"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Battery"
@@ -33,16 +33,20 @@ class BatteryWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
+        self._batteries: List[BatteryWidget_Base] = [
+            BatteryWidget_LiPo(main),
+            BatteryWidget_Other(main),
+        ]
+
         self._type = ComboBox()
-        self._type.addItems([self.NO_SELECT, self.LIPO, self.OTHER])
-        self._type.setCurrentText(self.LIPO)
+        self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
-        self._lipo = BatteryWidget_LiPo(main)
-        self._rows.addWidget(self._lipo)
+        for battery in self._batteries:
+            self._rows.addWidget(battery)
+            self._type.addItem(battery.NAME)
 
-        self._other = BatteryWidget_Other(main)
-        self._rows.addWidget(self._other)
+        self._type.setCurrentText(BatteryWidget_LiPo.NAME)  # Default
 
         add_expanding_widget(self._rows)
         self._update_visibility()
@@ -50,7 +54,7 @@ class BatteryWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self._type.currentTextChanged.connect(self._on_battery_typechanged)
+        self._type.currentTextChanged.connect(self._on_battery_type_changed)
 
     @overrides
     def is_valid(self) -> bool:
@@ -75,34 +79,34 @@ class BatteryWidget(BaseSettingWidget):
     def _selected(self) -> BatteryWidget_Base:
         battery_type = self._type.currentText()
 
-        if battery_type == self.LIPO:
-            return self._lipo
-        elif battery_type == self.OTHER:
-            return self._other
-        else:
-            raise RuntimeError(f"Invalid battery type: {battery_type}")
+        if battery_type == self.NO_SELECT:
+            raise RuntimeError("Battery type is not selected.")
+
+        for battery in self._batteries:
+            if battery_type == battery.NAME:
+                return battery
+
+        RuntimeError(f"Unknown battery type: {battery_type}")
 
     def _update_visibility(self) -> None:
         battery_type = self._type.currentText()
 
-        if battery_type == self.NO_SELECT:
-            self._lipo.setVisible(False)
-            self._other.setVisible(False)
-        elif battery_type == self.LIPO:
-            self._lipo.setVisible(True)
-            self._other.setVisible(False)
-        elif battery_type == self.OTHER:
-            self._lipo.setVisible(False)
-            self._other.setVisible(True)
-        else:
-            raise RuntimeError(f"Invalid battery type: {battery_type}")
+        for battery in self._batteries:
+            battery.setVisible(False)
+
+        for battery in self._batteries:
+            if battery.NAME == battery_type:
+                battery.setVisible(True)
+                return
 
     @pyqtSlot(str)
-    def _on_battery_typechanged(self, _: str) -> None:
+    def _on_battery_type_changed(self, _: str) -> None:
         self._update_visibility()
 
 
 class BatteryWidget_Base(QWidget):
+    NAME = UNKNOWN
+
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
 
@@ -129,6 +133,8 @@ class BatteryWidget_Base(QWidget):
 
 
 class BatteryWidget_LiPo(BatteryWidget_Base):
+    NAME = "Lithium Polymer Battery (LiPo)"
+
     MAX_VOLTAGE_PER_CELL = 4.2  # 1セルあたりの最大電圧
     VOLTAGE_THR_PER_CELL = 3.5
 
@@ -196,6 +202,8 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
 
 
 class BatteryWidget_Other(BatteryWidget_Base):
+    NAME = "Other Battery"
+
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
@@ -240,7 +248,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
         if self._max_voltage.get() <= self._voltage_threshold.get():
             q_error_named(
                 self._main,
-                self._main.settings.battery.OTHER,
+                self.NAME,
                 "Maximum voltage must be greater than voltage threshold.",
             )
             return False
