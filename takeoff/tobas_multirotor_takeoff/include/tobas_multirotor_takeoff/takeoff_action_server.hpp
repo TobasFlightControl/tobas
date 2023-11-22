@@ -19,6 +19,7 @@ class TakeoffActionServer : public tobas::BaseNode
 {
   static constexpr double kUpdateRate = 100.;                 // [Hz]
   static constexpr double kWaitForExternalActionServer = 3.;  // [s]
+  static constexpr double kInfoPeriod = 3.;                   // [s]
 
   using self = TakeoffActionServer;
   using super = tobas::BaseNode;

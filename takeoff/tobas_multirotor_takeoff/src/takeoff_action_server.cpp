@@ -89,12 +89,14 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
-  if (odom_ == nullptr)
+  ros::Rate rate(kUpdateRate);
+
+  while (odom_ == nullptr)
   {
-    result_.error_code = ResultType::NOT_READY;
-    as_.setAborted(
-      result_, nh_.getNamespace() + "/" + tobas::kOdometryTopic + " is not received yet.");
-    return;
+    rosInfoThrottle(
+      kInfoPeriod, name_, "Waiting for " << nh_.getNamespace() + "/" + tobas::kOdometryTopic);
+    ros::spinOnce();
+    rate.sleep();
   }
 
   // Check goal validity
@@ -111,7 +113,6 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
   const auto start_yaw = odom_->pose.euler.yaw;
 
   // 軌道を発行
-  ros::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     const auto t = (ros::Time::now() - start_time).toSec();
