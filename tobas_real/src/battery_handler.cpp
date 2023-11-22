@@ -105,6 +105,7 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   battery_msg->header.stamp = event.current_real;
   battery_msg->voltage = lpf_.getState();
+  battery_msg->current = nan(tobas::kUnknown);
 
   // Publish battery message
   battery_pub_.publish(battery_msg);
