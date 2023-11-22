@@ -136,7 +136,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        rosInfo(name_, "RC transmitter is ready. Set E-Stop toggle OFF to start control.");
+        DH_GOOD("RC transmitter is ready. Set E-Stop toggle OFF to start control.");
         stage_ = ESTOP_ON;
       }
       else

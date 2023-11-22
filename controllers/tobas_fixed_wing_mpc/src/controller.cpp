@@ -348,7 +348,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
     {
       if (isReady())
       {
-        rosInfo(name_, "Controller is ready.");
+        DH_GOOD("Controller is ready.");
         check_topics_timer_.stop();
         state_ = TAKEOFF;
       }

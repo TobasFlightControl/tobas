@@ -5,6 +5,7 @@
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_std_tools/console.hpp>
 #include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_kdl/conversion/kdl_msg.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -234,7 +235,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
       check_topics_timer_.stop();
       initialize(*imu);
       is_initialized_ = true;
-      rosInfo(name_, "State estimator is ready.");
+      DH_GOOD("State estimator is ready.");
     }
     return;
   }
