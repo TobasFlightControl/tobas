@@ -138,7 +138,7 @@ class URDFParser(QObject):
                 continue
 
             # 親フレームと子フレームの回転が一致していることを保証
-            if link.origin is not None and link.origin.rpy != [0, 0, 0]:
+            if link.origin is not None and not link.origin.rpy != [0, 0, 0]:
                 continue
             if joint.origin is not None and joint.origin.rpy != [0, 0, 0]:
                 continue
@@ -180,7 +180,7 @@ class URDFParser(QObject):
             mass = inertial.mass
             inertia: Inertia = inertial.inertia
 
-            if mass != 0.0 or any(0.0 in row for row in inertia.to_matrix()):
+            if mass != 0 or any(row != [0, 0, 0] for row in inertia.to_matrix()):
                 q_error(
                     self._main,
                     "The root link has an inertia specified in the URDF, "
