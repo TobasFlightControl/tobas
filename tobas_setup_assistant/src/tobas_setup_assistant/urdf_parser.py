@@ -174,14 +174,19 @@ class URDFParser(QObject):
             )
             return False
 
-        # ルートリンクがinertiaを持たない
+        # ルートリンクがInertialを持たない
         if root_link.inertial is not None:
-            # TODO: q_errorにしてFalseを返す
-            q_warn(
-                self._main,
-                "The root link has an inertia specified in the URDF, "
-                + "but KDL does not support a root link with an inertia. "
-                + "As a workaround, you can add an extra dummy link to your URDF.",
-            )
+            inertial: Inertial = root_link.inertial
+            mass = inertial.mass
+            inertia: Inertia = inertial.inertia
+
+            if mass != 0.0 or any(0.0 in row for row in inertia.to_matrix()):
+                q_error(
+                    self._main,
+                    "The root link has an inertia specified in the URDF, "
+                    + "but KDL does not support a root link with an inertia. "
+                    + "As a workaround, you can add an extra dummy link to your URDF.",
+                )
+                return False
 
         return True
