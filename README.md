@@ -262,6 +262,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
    - When the throttle is at 0.0, the motor does not rotate.
    - When the throttle is at 0.1, the motor rotates slowly.
    - As the throttle is increased to 1.0, the rotation sound gradually becomes higher.
+   - Two motors of the same model will produce rotational sounds of approximately the same pitch when set to the same throttle.
 
    If these conditions are not met, the ESCs are not properly calibrated.
    In that case, please do the above calibration again or use a tool such as BLHeli-Suite to adjust the PWM signal range.
