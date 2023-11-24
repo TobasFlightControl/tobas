@@ -9,6 +9,7 @@ import os
 import os.path as osp
 import yaml
 import rospy
+import shutil
 from typing import List
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -19,7 +20,7 @@ from PyQt5.QtGui import *
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
 from urdf_tools_py.utils import remove_elements_with_tag
-from dh_rqt_tools.path import get_proj_path
+from dh_rqt_tools.path import get_proj_path, resolve_uri
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
 from kdl_sympy.joint import JointType
@@ -127,12 +128,14 @@ class PackageGenerator(QObject):
         config_dir = osp.join(pkg_path, "config")
         launch_dir = osp.join(pkg_path, "launch")
         urdf_dir = osp.join(pkg_path, "urdf")
+        mesh_dir = osp.join(pkg_path, "mesh")
 
         # ディレクトリを作る
         os.mkdir(pkg_path)
         os.mkdir(config_dir)
         os.mkdir(launch_dir)
         os.mkdir(urdf_dir)
+        os.mkdir(mesh_dir)
 
         # テンプレートから生成
         items = self._make_template_items()
@@ -231,7 +234,7 @@ class PackageGenerator(QObject):
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
         self._generate_state_checker_config(config_dir)
-        self._generate_urdf(urdf_dir)
+        self._generate_urdf(urdf_dir, mesh_dir)
 
     def _make_template_items(self) -> None:
         settings = self._main.settings
@@ -434,23 +437,33 @@ class PackageGenerator(QObject):
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
-    def _generate_urdf(self, urdf_dir: str) -> None:
-        robot = self._make_urdf_with_plugins()
+    def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
+        robot = self._make_urdf_with_plugins(mesh_dir)
         urdf_path = osp.join(urdf_dir, f"{self._drone_name}.xacro")
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
         prettify_and_save(robot, urdf_path)
 
-    def _make_urdf_with_plugins(self) -> ET.Element:
+    def _make_urdf_with_plugins(self, mesh_dir: str) -> ET.Element:
         description = rospy.get_param("/robot_description")
         robot = ET.fromstring(description)
         assert robot.tag == "robot"
 
+        self._resolve_mesh_files(robot, mesh_dir)
         self._screen_xml_elements(robot)
         self._add_xml_elements(robot)
 
         return robot
+
+    def _resolve_mesh_files(self, robot: ET.Element, mesh_dir: str) -> None:
+        """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
+        pkg_name = self._main.settings.ros_package.pkg_name.get()
+        for mesh in robot.iter("mesh"):
+            abs_path = resolve_uri(mesh.attrib["filename"])
+            base_name = osp.basename(abs_path)
+            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
+            mesh.attrib["filename"] = f"package://{pkg_name}/mesh/{base_name}"
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
