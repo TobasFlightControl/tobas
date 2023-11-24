@@ -309,19 +309,19 @@ void RobotStateDisplay::setLinkColor(
   const QColor& color)
 {
   auto* link = robot->getLink(link_name);
+  if (link == nullptr)
+    return;
 
-  // Check if link exists
-  if (link != nullptr)
-    link->setColor(color.redF(), color.greenF(), color.blueF());
+  link->setColor(color.redF(), color.greenF(), color.blueF());
 }
 
 void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const string& link_name)
 {
   auto* link = robot->getLink(link_name);
+  if (link == nullptr)
+    return;
 
-  // Check if link exists
-  if (link != nullptr)
-    link->unsetColor();
+  link->unsetColor();
 }
 
 void RobotStateDisplay::loadRobotModel()
