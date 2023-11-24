@@ -8,8 +8,8 @@ Panels:
 
 Visualization Manager:
   Displays:
-    - Attached Body Color: 150; 50; 150
-      Class: tobas/RobotState
+    - Class: tobas/RobotState
+      Attached Body Color: 150; 50; 150
       Collision Enabled: false
       Enabled: true
       Highlight Link: ""
@@ -28,8 +28,8 @@ Visualization Manager:
       Unhighlight Link: ""
       Value: true
       Visual Enabled: true
-    - Alpha: 1
-      Class: rviz/Axes
+    - Class: rviz/Axes
+      Alpha: 1
       Enabled: true
       Length: 0.1
       Name: Axes

@@ -82,8 +82,8 @@ protected:
   robot_model::RobotModelConstPtr kmodel_;
   robot_state::RobotStatePtr kstate_;
   std::map<std::string, std_msgs::ColorRGBA> highlights_;
-  bool update_state_;
-  bool load_robot_model_;  // for delayed robot initialization
+  bool update_state_ = false;
+  bool load_robot_model_ = false;  // for delayed robot initialization
 
   std::shared_ptr<rviz::StringProperty> robot_description_property_;
   std::shared_ptr<rviz::StringProperty> root_link_name_property_;

@@ -16,7 +16,7 @@ using namespace std;
 
 namespace moveit_rviz_plugin
 {
-RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_robot_model_(false)
+RobotStateDisplay::RobotStateDisplay()
 {
   robot_description_property_.reset(new rviz::StringProperty(
     "Robot Description", "robot_description",
@@ -100,22 +100,22 @@ void RobotStateDisplay::changedAllLinks()
 
 void RobotStateDisplay::setHighlight(const string& link_name, const std_msgs::ColorRGBA& color)
 {
-  rviz::RobotLink* link = robot_->getRobot().getLink(link_name);
-  if (link)
-  {
-    link->setColor(color.r, color.g, color.b);
-    link->setRobotAlpha(color.a * robot_alpha_property_->getFloat());
-  }
+  auto* link = robot_->getRobot().getLink(link_name);
+  if (link == nullptr)
+    return;
+
+  link->setColor(color.r, color.g, color.b);
+  link->setRobotAlpha(color.a * robot_alpha_property_->getFloat());
 }
 
 void RobotStateDisplay::unsetHighlight(const string& link_name)
 {
-  rviz::RobotLink* link = robot_->getRobot().getLink(link_name);
-  if (link)
-  {
-    link->unsetColor();
-    link->setRobotAlpha(robot_alpha_property_->getFloat());
-  }
+  auto* link = robot_->getRobot().getLink(link_name);
+  if (link == nullptr)
+    return;
+
+  link->unsetColor();
+  link->setRobotAlpha(robot_alpha_property_->getFloat());
 }
 
 void RobotStateDisplay::changedEnableLinkHighlight()
@@ -269,7 +269,7 @@ void RobotStateDisplay::changedRobotStateTopic()
   robot_state_subscriber_.shutdown();
 
   // Reset model to default state, we don't want to show previous messages
-  if (static_cast<bool>(kstate_))
+  if (kstate_ != nullptr)
     kstate_->setToDefaultValues();
 
   update_state_ = true;
@@ -281,10 +281,10 @@ void RobotStateDisplay::changedRobotStateTopic()
 void RobotStateDisplay::newRobotStateCallback(
   const moveit_msgs::DisplayRobotStateConstPtr& state_msg)
 {
-  if (!kmodel_)
+  if (kmodel_ == nullptr)
     return;
 
-  if (!kstate_)
+  if (kstate_ == nullptr)
     kstate_.reset(new robot_state::RobotState(kmodel_));
 
   // Use TF to construct a robot_state::Transforms object to pass in to the conversion function?
@@ -308,19 +308,19 @@ void RobotStateDisplay::setLinkColor(
   const string& link_name,
   const QColor& color)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  auto* link = robot->getLink(link_name);
 
   // Check if link exists
-  if (link)
+  if (link != nullptr)
     link->setColor(color.redF(), color.greenF(), color.blueF());
 }
 
 void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const string& link_name)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  auto* link = robot->getLink(link_name);
 
   // Check if link exists
-  if (link)
+  if (link != nullptr)
     link->unsetColor();
 }
 
@@ -328,7 +328,7 @@ void RobotStateDisplay::loadRobotModel()
 {
   load_robot_model_ = false;
 
-  if (!rdf_loader_)
+  if (rdf_loader_ == nullptr)
     rdf_loader_.reset(new rdf_loader::RDFLoader(robot_description_property_->getStdString()));
 
   if (rdf_loader_->getURDF())
@@ -383,7 +383,7 @@ void RobotStateDisplay::update(float wall_dt, float ros_dt)
   }
 
   calculateOffsetPosition();
-  if (robot_ && update_state_ && kstate_)
+  if (update_state_ && robot_ != nullptr && kstate_ != nullptr)
   {
     update_state_ = false;
     kstate_->update();
