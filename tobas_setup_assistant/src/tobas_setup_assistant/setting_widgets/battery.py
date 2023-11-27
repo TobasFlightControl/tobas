@@ -166,7 +166,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             "Number of Cells",
             num_cells_description,
             minimum=1,
-            maximum=8,
+            maximum=100,
             default=4,
         )
         self._rows.addWidget(self._num_cells)
