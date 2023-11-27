@@ -33,7 +33,12 @@ class URDFParser(QObject):
 
     @pyqtSlot()
     def _on_urdf_loaded(self) -> None:
-        self._tree.load_from_param()
+        try:
+            self._tree.load_from_param()
+        except Exception as e:
+            q_error(self._main, f"Failed to load robot: {e}")
+            return
+
         if not self._is_valid_robot():
             return
 
