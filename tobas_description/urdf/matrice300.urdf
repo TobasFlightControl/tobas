@@ -28,7 +28,7 @@
       <inertia ixx="0.1864" ixy="0" ixz="0" iyy="0.0962" iyz="0" izz="0.1802" />
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0 -0 0" />
+      <origin xyz="0 0 0" rpy="1.57 0 1.57" />
       <geometry>
         <mesh filename="package://tobas_description/meshes/matrice300/frame.stl" scale="0.001 0.001 0.001" />
       </geometry>
