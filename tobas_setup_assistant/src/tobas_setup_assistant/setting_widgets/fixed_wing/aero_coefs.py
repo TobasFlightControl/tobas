@@ -48,7 +48,7 @@ class AerodynamicsCoefficientsWidget(QWidget):
         self.c_drag_0.setDecimals(STABILITY_COEF_DECIMALS)
         self.c_drag_0.setSuffix(" [-]")
         self.c_drag_0.setValue(0.136)
-        self._form.addRow(QLabel("c_lift_0"), self.c_drag_0)
+        self._form.addRow(QLabel("c_drag_0"), self.c_drag_0)
 
         self.c_drag_alpha = DoubleSpinBox()
         self.c_drag_alpha.setDecimals(STABILITY_COEF_DECIMALS)
