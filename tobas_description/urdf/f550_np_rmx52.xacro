@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 
-<robot name="f550_np"
+<robot name="f550_np_rmx52"
   xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/rmx52/rmx52.xacro"/>
 
   <!-- Properties -->
   <xacro:property name="frame_mass" value="1.579"/>
@@ -123,5 +124,13 @@
   <xacro:propeller index="5" direction="cw">
     <origin xyz="0.242082 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${330*deg2rad}"/>
   </xacro:propeller>
+
+  <!-- Robot Arm -->
+  <joint name="rmx52_joint" type="fixed">
+    <origin xyz="0.004 0 -0.0445" rpy="${pi} 0 0"/>
+    <parent link="base_link"/>
+    <child link="rmx52/link1"/>
+  </joint>
+  <xacro:rmx52/>
 
 </robot>

@@ -46,6 +46,16 @@
       <color rgba="0 0 1 1"/>
     </material>
   </xacro:property>
+  <xacro:property name="orange">
+    <material name="orange">
+      <color rgba="${255/255} ${108/255} ${10/255} 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="brown">
+    <material name="brown">
+      <color rgba="${222/255} ${207/255} ${195/255} 1"/>
+    </material>
+  </xacro:property>
 
   <!-- Collisions -->
   <xacro:macro name="hexagonal_prism_collision" params="side height x0 y0 z0">
