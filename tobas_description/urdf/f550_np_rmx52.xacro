@@ -7,7 +7,7 @@
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
   <!-- Properties -->
-  <xacro:property name="frame_mass" value="1.619"/>
+  <xacro:property name="frame_mass" value="1.579"/>
   <xacro:property name="battery_x" value="0.155"/>
   <xacro:property name="battery_y" value="0.048"/>
   <xacro:property name="battery_z" value="0.032"/>
@@ -38,8 +38,8 @@
     </visual>
     <inertial>
       <mass value="${frame_mass}"/>
-      <origin xyz="0.549e-3 1.038e-3 2.206e-3" rpy="0 0 0"/>
-      <inertia ixx="4.255e-2" ixy="1.7385e-8" ixz="-1.3101809e-5" iyy="4.217e-2" iyz="-7.2223721e-5" izz="7.701e-2"/>
+      <origin xyz="0.562e-3 1.064e-3 3.537e-3" rpy="0 0 0"/>
+      <inertia ixx="4.242e-2" ixy="5.5253e-8" ixz="-1.192013e-5" iyy="4.204e-2" iyz="-6.9988639e-5" izz="7.699e-2"/>
     </inertial>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
