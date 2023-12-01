@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Gazebo Reference macro -->
-  <xacro:macro name="RefLink" params="ref">
+  <xacro:macro name="ref_link" params="ref">
     <gazebo reference="${ref}">
       <kp>1000000.0</kp>
       <kd>100.0</kd>
@@ -15,25 +15,25 @@
   </xacro:macro>
 
   <!-- Link1 -->
-  <RefLink ref="rmx52/link1"/>
+  <xacro:ref_link ref="rmx52/link1"/>
 
   <!-- Link2 -->
-  <RefLink ref="rmx52/link2"/>
+  <xacro:ref_link ref="rmx52/link2"/>
 
   <!-- Link3 -->
-  <RefLink ref="rmx52/link3"/>
+  <xacro:ref_link ref="rmx52/link3"/>
 
   <!-- Link4 -->
-  <RefLink ref="rmx52/link4"/>
+  <xacro:ref_link ref="rmx52/link4"/>
 
   <!-- Link5 -->
-  <RefLink ref="rmx52/link5"/>
+  <xacro:ref_link ref="rmx52/link5"/>
 
   <!-- gripper_link -->
-  <RefLink ref="rmx52/gripper_link"/>
+  <xacro:ref_link ref="rmx52/gripper_link"/>
 
   <!-- gripper_link_sub -->
-  <RefLink ref="rmx52/gripper_link_sub"/>
+  <xacro:ref_link ref="rmx52/gripper_link_sub"/>
 
   <!-- end effector link -->
   <gazebo reference="rmx52/end_effector_link">
@@ -42,7 +42,7 @@
 
   <!-- loading plugin: mimic joints works in gazebo now -->
   <gazebo>
-    <plugin name="gazebo_gripper_ros_control" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
+    <plugin name="gazebo_gripper_ros_control" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
       <joint>rmx52/gripper</joint>
       <mimicJoint>rmx52/gripper_sub</mimicJoint>
       <multiplier>1.0</multiplier>
