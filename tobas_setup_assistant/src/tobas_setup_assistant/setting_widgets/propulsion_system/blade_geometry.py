@@ -42,8 +42,8 @@ class BladeGeometry(QWidget):
             "Propeller Diameter",
             diameter_description,
             minimum=1,
-            default=250,
-            suffix=" mm",
+            default=10,
+            suffix=" inch",
         )
         rows.addWidget(self._diameter)
 
@@ -82,7 +82,7 @@ class BladeGeometry(QWidget):
 
     def propeller_diameter(self) -> float:
         """[m]"""
-        return self._diameter.get() / 1000.0
+        return self._diameter.get() * 0.0254
 
     def propeller_radius(self) -> float:
         """[m]"""
@@ -90,7 +90,7 @@ class BladeGeometry(QWidget):
 
     def blade_chord(self) -> float:
         """[m]"""
-        return self._blade_chord.get() / 1000.0
+        return self._blade_chord.get() / 1000
 
     def pitch_angle(self) -> float:
         """[rad]"""
