@@ -2,7 +2,7 @@
 <sdf version="1.4">
   <world name="default">
 
-    <!-- gazebo_models: https://github.com/osrf/gazebo_models -->
+    <!-- Available models: http://models.gazebosim.org/ -->
 
     <include>
       <uri>model://ground_plane</uri>
