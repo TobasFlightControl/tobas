@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="default">
+
+    <!-- gazebo_models: https://github.com/osrf/gazebo_models -->
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <uri>model://coke_can</uri>
+    </include>
+
+    <include>
+      <uri>model://table</uri>
+    </include>
+
+  </world>
+</sdf>
