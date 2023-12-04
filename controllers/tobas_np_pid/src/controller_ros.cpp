@@ -21,7 +21,7 @@ ControllerRos::ControllerRos(
   const ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
-    jnt_name_parser_(drone_.tree()),
+    jnt_parser_(drone_.tree()),
     mixer_(drone_),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
@@ -29,7 +29,7 @@ ControllerRos::ControllerRos(
   getRosParams();
   drone_.loadFromParam(nh_);
 
-  jnt_name_parser_.updateInternalDataStructures();
+  jnt_parser_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
@@ -87,7 +87,7 @@ void ControllerRos::updateJointArray()
   {
     try
     {
-      const auto& kdl_idx = jnt_name_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
+      const auto& kdl_idx = jnt_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
       const auto msg_idx = dh_std::findIndex(js_->name, jnt_name);  // msg内でのインデックス
       q_(kdl_idx) = js_->position[msg_idx];
     }

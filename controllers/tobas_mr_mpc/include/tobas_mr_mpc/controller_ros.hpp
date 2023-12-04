@@ -4,7 +4,7 @@
 #include <sensor_msgs/JointState.h>
 
 #include <dh_std_tools/stopwatch.hpp>
-#include <dh_kdl/treejntnameparser.hpp>
+#include <dh_kdl/treejntparser.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
@@ -44,7 +44,7 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
-  KDL::TreeJointNameParser jnt_name_parser_;
+  KDL::TreeJointParser jnt_parser_;
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
