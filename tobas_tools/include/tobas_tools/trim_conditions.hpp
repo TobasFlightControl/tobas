@@ -3,6 +3,7 @@
 #include <dh_std_tools/range.hpp>
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
+#include "./solveri.hpp"
 #include "./stability_derivatives_cog.hpp"
 
 namespace tobas
@@ -10,7 +11,7 @@ namespace tobas
 /**
  * @brief 縦系のトリム状態を求める．
  */
-class TrimConditions
+class TrimConditions : public SolverI
 {
 public:
   enum ErrorCode
@@ -21,7 +22,7 @@ public:
 
   explicit TrimConditions(const Drone& drone);
 
-  void updateInternalDataStructures();
+  void updateInternalDataStructures() override;
 
   /**
    * @brief 内部状態を更新する．

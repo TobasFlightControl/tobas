@@ -2,6 +2,7 @@
 
 #include <dh_kdl/treejnttoinertiasolver.hpp>
 
+#include "./solveri.hpp"
 #include "./drone.hpp"
 
 namespace tobas
@@ -9,12 +10,12 @@ namespace tobas
 /**
  * @brief モーメントに関する空力安定微係数の参照フレームを空力中心周りから重心周り変換する．
  */
-class StabilityDerivativesCG
+class StabilityDerivativesCG : public SolverI
 {
 public:
   explicit StabilityDerivativesCG(const Drone& drone);
 
-  void updateInternalDataStructures();
+  void updateInternalDataStructures() override;
 
   void update(const KDL::JntArray& q);
 

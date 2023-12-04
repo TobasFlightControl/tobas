@@ -2,6 +2,7 @@
 
 #include <dh_kdl/treefksolverpos.hpp>
 
+#include "./solveri.hpp"
 #include "./rotor_axis_extractor.hpp"
 #include "./trim_conditions.hpp"
 
@@ -10,7 +11,7 @@ namespace tobas
 /**
  * @brief トリム状態周りの微小擾乱運動方程式．有次元空力安定微係数を個別に提供する．
  */
-class MicroDisturbanceEoM
+class MicroDisturbanceEoM : public SolverI
 {
 public:
   static constexpr size_t kStateSize = 8;
@@ -35,7 +36,7 @@ public:
 
   explicit MicroDisturbanceEoM(const Drone& drone);
 
-  void updateInternalDataStructures();
+  void updateInternalDataStructures() override;
 
   /**
    * @brief 内部状態を更新する．

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "./solveri.hpp"
 #include "./drone.hpp"
 
 namespace tobas
@@ -7,12 +8,12 @@ namespace tobas
 /**
  * @brief 特定の回転軸を持つロータを抽出する．
  */
-class RotorAxisExtractor
+class RotorAxisExtractor : public SolverI
 {
 public:
   explicit RotorAxisExtractor(const Drone& drone, Axis axis);
 
-  void updateInternalDataStructures();
+  void updateInternalDataStructures() override;
 
   /* 抽出したロータの個数． */
   inline const size_t& count() const;
