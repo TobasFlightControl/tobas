@@ -21,7 +21,7 @@ ControllerRos::ControllerRos(
   const ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
-    jnt_parser_(drone_.tree()),
+    js_converter_(drone_),
     mixer_(drone_),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
@@ -29,7 +29,7 @@ ControllerRos::ControllerRos(
   getRosParams();
   drone_.loadFromParam(nh_);
 
-  jnt_parser_.updateInternalDataStructures();
+  js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
@@ -81,23 +81,6 @@ bool ControllerRos::isReady() const
   return true;
 }
 
-void ControllerRos::updateJointArray()
-{
-  for (const auto& jnt_name : drone_.postureDefiningJoints())
-  {
-    try
-    {
-      const auto& kdl_idx = jnt_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
-      const auto msg_idx = dh_std::findIndex(js_->name, jnt_name);  // msg内でのインデックス
-      q_(kdl_idx) = js_->position[msg_idx];
-    }
-    catch (const exception& e)
-    {
-      rosError(name_, e.what());
-    }
-  }
-}
-
 void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
@@ -136,8 +119,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     return;
 
   // 可動関節の角度を更新
-  if (drone_.isTransformable())
-    updateJointArray();
+  if (drone_.isTransformable() && !js_converter_.convert(*js_, q_))
+    rosError(name_, "Failed to parse JointState.");
 
   // 位置制御器
   const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;  // 世界座標系から見た現在の速度

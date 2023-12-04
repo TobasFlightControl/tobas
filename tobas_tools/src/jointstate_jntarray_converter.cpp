@@ -7,7 +7,7 @@ using namespace KDL;
 
 namespace tobas
 {
-explicit JointStateJntArrayConverter::JointStateJntArrayConverter(const Drone& drone)
+JointStateJntArrayConverter::JointStateJntArrayConverter(const Drone& drone)
   : drone_(drone), jnt_parser_(drone_.tree())
 {
   updateInternalDataStructures();

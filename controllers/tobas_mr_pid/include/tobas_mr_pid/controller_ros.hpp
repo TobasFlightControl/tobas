@@ -8,6 +8,7 @@
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/jointstate_jntarray_converter.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
 #include <tobas_mr_common/accel_attitude_converter.hpp>
@@ -38,8 +39,8 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
-  KDL::TreeJointParser jnt_parser_;
   tobas::RotorAxisExtractor z_rotors_;
+  tobas::JointStateJntArrayConverter js_converter_;
 
   // Controllers
   tobas::PositionPid pos_ctrl_;
@@ -85,7 +86,6 @@ private:
   void registerSubscribers() override;
 
   bool isReady() const;
-  void updateJointArray();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
