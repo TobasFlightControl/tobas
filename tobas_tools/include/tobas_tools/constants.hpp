@@ -50,6 +50,7 @@ static constexpr char kVelocityYawCmdTopic[] = "command/velocity_yaw";
 static constexpr char kRpyThrustCmdTopic[] = "command/rpy_thrust";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
+static constexpr char kCartStateCmdTopic[] = "command/cartesian_state";
 
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";
