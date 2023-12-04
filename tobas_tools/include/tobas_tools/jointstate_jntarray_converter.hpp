@@ -16,12 +16,10 @@ public:
 
   void updateInternalDataStructures() override;
 
-  const KDL::JntArray& convert(const sensor_msgs::JointState& js);
+  bool convert(const sensor_msgs::JointState& js, KDL::JntArray& q);
 
 private:
   const Drone& drone_;
   KDL::TreeJointParser jnt_parser_;
-  size_t nj_;
-  KDL::JntArray q_;
 };
 }  // namespace tobas

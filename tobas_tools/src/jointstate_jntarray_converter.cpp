@@ -16,20 +16,27 @@ explicit JointStateJntArrayConverter::JointStateJntArrayConverter(const Drone& d
 void JointStateJntArrayConverter::updateInternalDataStructures()
 {
   jnt_parser_.updateInternalDataStructures();
-
-  nj_ = drone_.tree().getNrOfJoints();
-  q_.resize(nj_);
 }
 
-const JntArray& JointStateJntArrayConverter::convert(const sensor_msgs::JointState& js)
+bool JointStateJntArrayConverter::convert(const sensor_msgs::JointState& js, JntArray& q)
 {
-  // FIXME: segfaultのリスクあり
+  if (q.rows() != drone_.tree().getNrOfJoints())
+    return false;
+
   for (const auto& jnt_name : drone_.postureDefiningJoints())
   {
-    const auto& kdl_idx = jnt_parser_.jointIndex(jnt_name);     // Tree内でのインデックス
-    const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
-    q_(kdl_idx) = js.position[msg_idx];
+    try
+    {
+      const auto& kdl_idx = jnt_parser_.jointIndex(jnt_name);     // Tree内でのインデックス
+      const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
+      q(kdl_idx) = js.position[msg_idx];
+    }
+    catch (...)
+    {
+      return false;
+    }
   }
-  return q_;
+
+  return true;
 }
 }  // namespace tobas
