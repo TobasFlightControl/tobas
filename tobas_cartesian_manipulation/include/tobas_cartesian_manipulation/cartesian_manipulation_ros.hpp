@@ -35,7 +35,7 @@ private:
   ros::Time t_last_;
   KDL::JntArray q_;
   KDL::Frame frame_;
-  KDL::Frames frames_;
+  KDL::FrameMap frames_;
 
   // Publishers
   ros::V_Publisher cmd_pubs_;
