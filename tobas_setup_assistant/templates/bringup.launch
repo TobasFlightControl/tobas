@@ -6,28 +6,33 @@
   <!-- Launch nodelet manager -->
   <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
 
-  <!-- Bringup controller -->
+  <!-- Launch controller -->
   <include file="$(find {{ pkg_name }})/launch/controller.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
     <arg name="ground_truth" value="$(arg ground_truth)"/>
   </include>
 
-  <!-- Bringup observer -->
+  <!-- Launch observer -->
   <include file="$(find {{ pkg_name }})/launch/observer.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <!-- For safety reasons, bringup RC teleoperation by default -->
+  <!-- Launch RC teleoperation -->
   <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <!-- Bringup state checker -->
+  <!-- Launch state checker -->
   <group ns="{{ drone_name }}">
     <rosparam file="$(find {{ pkg_name }})/config/state_checker.yaml" command="load"/>
     <include file="$(find tobas_state_checker)/launch/state_checker.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
+  </group>
+
+  <!-- Launch robot state publisher -->
+  <group ns="{{ drone_name }}">
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
   </group>
 
 </launch>
