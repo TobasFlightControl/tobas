@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_cartesian_manipulation" type="cartesian_manipulation_node" name="cartesian_manipulation" output="screen"/>
+
+</launch>
