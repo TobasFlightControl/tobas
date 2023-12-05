@@ -29,6 +29,9 @@ CartesianManipulationRos::CartesianManipulationRos(
 
   registerPublishers();
   registerSubscribers();
+
+  check_topics_timer_ =
+    nh_.createTimer(ros::Duration(tobas::kCheckTopicsTimerPeriod), &self::checkTopicsTimerCb, this);
 }
 
 void CartesianManipulationRos::getRosParams()
@@ -65,13 +68,15 @@ void CartesianManipulationRos::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  odom_ = odom;
+
   if (!is_initialized_)
   {
     if (js_ != nullptr && cs_ != nullptr)
     {
+      check_topics_timer_.stop();
       t_last_ = odom->header.stamp;
       is_initialized_ = true;
-      DH_GOOD("Cartesian controller is ready.");
     }
     return;
   }
@@ -146,5 +151,14 @@ void CartesianManipulationRos::cartStateCb(const tobas_msgs::CartesianStateConst
   }
 
   cs_ = cs;
+}
+
+void CartesianManipulationRos::checkTopicsTimerCb(const ros::TimerEvent&)
+{
+  if (odom_ == nullptr)
+    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
+
+  if (js_ == nullptr)
+    rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic)
 }
 }  // namespace tobas_cartesian_manipulation

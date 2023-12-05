@@ -28,6 +28,7 @@ private:
   KDL::TreeJointParser jnt_parser_;
   tobas::JointStateJntArrayConverter js_converter_;
 
+  tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::CartesianStateConstPtr cs_;
   bool is_initialized_ = false;
@@ -44,6 +45,9 @@ private:
   ros::Subscriber js_sub_;
   ros::Subscriber cs_sub_;
 
+  // Timer
+  ros::Timer check_topics_timer_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -52,5 +56,7 @@ private:
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void cartStateCb(const tobas_msgs::CartesianStateConstPtr& cs);
+
+  void checkTopicsTimerCb(const ros::TimerEvent& e);
 };
 }  // namespace tobas_cartesian_manipulation
