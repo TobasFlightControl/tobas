@@ -23,7 +23,8 @@ void MultirotorDynamicsComponents::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
-  mass_ = inertia_solver_.JntToMass();
+  if (inertia_solver_.JntToMass(mass_) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 }
 
 double MultirotorDynamicsComponents::maxThrustSum(const double& battery_voltage) const
@@ -91,16 +92,18 @@ Vector MultirotorDynamicsComponents::horizontalMoment(
   assert(rot_speeds.size() == drone_.numRotors());
 
   // 重心を求める
-  const auto I_base = inertia_solver_.JntToCart(q);
-  const auto P_base_cog = I_base.getCOG();
+  if (inertia_solver_.JntToCart(q, I_base_) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  const auto P_base_cog = I_base_.getCOG();
 
   // 擬似的なモーメントアーム [Ns] を求める
   Vector h_momemt_arm = Vector::Zero();
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     // CoG -> Rotor の位置を求める
-    const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));
-    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
+    if (fk_solver_.JntToCart(q, z_rotors_.linkName(i), T_base_rotor_) < 0)
+      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
+    const auto P_cog_rotor = T_base_rotor_.p - P_base_cog;
 
     const auto& rotor_idx = z_rotors_.rotorIdx(i);
     const auto& cd = z_rotors_.dragConstant(i);

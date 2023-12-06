@@ -15,12 +15,13 @@ double getMass()
 {
   KDL::Tree tree;
   if (!treeFromParam(ros::this_node::getNamespace() + "/robot_description", tree))
-  {
     throw runtime_error("Failed to get KDL tree.");
-  }
 
-  KDL::TreeJntToInertiaSolver inertia_solver_(tree);
-  return inertia_solver_.JntToMass();
+  KDL::TreeJntToInertiaSolver inertia_solver(tree);
+  double mass;
+  if (inertia_solver.JntToMass(mass) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver.errorMessage());
+  return mass;
 }
 
 geomag::Elements geomag(const double& lat, const double& lon, const double& height)

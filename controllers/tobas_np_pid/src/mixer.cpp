@@ -63,18 +63,21 @@ VectorXd Mixer::solve(
   assert(cur_voltage > 0);
 
   // 質量特性を計算
-  const auto inertia = inertia_solver_.JntToCart(cur_q);
-  const auto B_Pos_B2G = inertia.getCOG();
-  const auto I_B = inertia.refPoint(B_Pos_B2G).getRotationalInertia();
-  const auto& mass = inertia.getMass();
+  if (inertia_solver_.JntToCart(cur_q, inertia_) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  const auto B_Pos_B2G = inertia_.getCOG();
+  const auto I_B = inertia_.refPoint(B_Pos_B2G).getRotationalInertia();
+  const auto& mass = inertia_.getMass();
 
   // プロペラの位置と回転軸を更新
   for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     const auto& link_name = drone_.rotorConfig(i).link_name;
-    const auto T_base_prop = fk_solver_.JntToCart(cur_q, link_name);
-    cog2prop_B_[i] = T_base_prop.p - B_Pos_B2G;
-    axis_B_[i] = jnt_axis_solver_.JntToCart(cur_q, link_name);
+    if (fk_solver_.JntToCart(cur_q, link_name, T_base_rotor_) < 0)
+      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
+    cog2prop_B_[i] = T_base_rotor_.p - B_Pos_B2G;
+    if (jnt_axis_solver_.JntToCart(cur_q, link_name, axis_B_[i]) < 0)
+      throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
   }
 
   // EoM行列等式の左辺
@@ -124,9 +127,10 @@ void Mixer::configure(const MixerConfig& cfg)
   CHECK(cfg.linear_weight > 0);
   CHECK(cfg.angular_weight > 0);
 
-  const auto inertia = inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints()));
-  const auto mass = inertia.getMass();
-  const auto I = inertia.getRotationalInertia();
+  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints()), inertia_) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  const auto& mass = inertia_.getMass();
+  const auto& I = inertia_.getRotationalInertia();
 
   const auto linear_scale = mass * ACC_SCALE;
   const auto angular_scale = I.trace() / 3 * DGYRO_SCALE;

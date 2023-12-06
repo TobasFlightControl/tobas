@@ -68,6 +68,8 @@ private:
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_thrusts_;
   Eigen::VectorXd last_thrusts_;
+  KDL::Frame T_base_rotor_;
+  KDL::RigidBodyInertia I_base_;
 
   void updateQpWeight();
   void updateThrustLimits(const double& dt, const double& cur_voltage, const double& thrusts_sum);

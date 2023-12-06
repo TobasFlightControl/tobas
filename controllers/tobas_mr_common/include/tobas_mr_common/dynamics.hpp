@@ -59,6 +59,8 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   double mass_;
+  KDL::Frame T_base_rotor_;
+  KDL::RigidBodyInertia I_base_;
 };
 
 inline const double& MultirotorDynamicsComponents::mass() const

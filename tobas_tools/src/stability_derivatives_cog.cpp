@@ -9,9 +9,7 @@ StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone)
   : drone_(drone), inertia_solver_(drone.tree())
 {
   if (drone.isLoaded())
-  {
     updateInternalDataStructures();
-  }
 }
 
 void StabilityDerivativesCG::updateInternalDataStructures()
@@ -22,14 +20,15 @@ void StabilityDerivativesCG::updateInternalDataStructures()
   c_yaw_delta_cg_.resize(drone_.numControlSurfaces());
 }
 
-void StabilityDerivativesCG::update(const JntArray& q)
+int StabilityDerivativesCG::update(const JntArray& q)
 {
   // エイリアス
   const auto& aero = drone_.aerodynamics();
 
   // CoGを更新
-  const auto I_base = inertia_solver_.JntToCart(q);
-  const auto cog = I_base.getCOG();
+  if (inertia_solver_.JntToCart(q, I_base_) < 0)
+    return -1;
+  const auto cog = I_base_.getCOG();
 
   // 安定微係数を更新: (2.2-40), (3.2-23)
   const auto dx = drone_.vehicle().ac.x() - cog.x();
@@ -45,5 +44,7 @@ void StabilityDerivativesCG::update(const JntArray& q)
     c_pitch_delta_cg_[i] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
     c_yaw_delta_cg_[i] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }
+
+  return 0;
 }
 }  // namespace tobas

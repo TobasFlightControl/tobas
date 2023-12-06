@@ -32,6 +32,7 @@ public:
     E_NOERROR = 0,
     E_THRUST_OVERLIMIT = -1,
     E_TRIM_ERROR = -2,
+    E_KDL_ERROR = -3,
   };
 
   explicit MicroDisturbanceEoM(const Drone& drone);
@@ -162,6 +163,10 @@ private:
   // 各係数のバッファ
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
+
+  // その他
+  KDL::Frame T_base_rotor_;
+  KDL::RigidBodyInertia I_base_;
 
   void setInputLimits(const double& battery_voltage);
 };

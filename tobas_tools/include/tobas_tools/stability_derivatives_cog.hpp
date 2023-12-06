@@ -17,7 +17,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  void update(const KDL::JntArray& q);
+  int update(const KDL::JntArray& q);
 
   inline double cPitchAlpha() const;
   inline double cYawBeta() const;
@@ -33,6 +33,7 @@ private:
   double c_yaw_beta_cg_;
   std::vector<double> c_pitch_delta_cg_;
   std::vector<double> c_yaw_delta_cg_;
+  KDL::RigidBodyInertia I_base_;
 };
 
 inline double StabilityDerivativesCG::cPitchAlpha() const

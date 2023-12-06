@@ -53,5 +53,7 @@ private:
   Eigen::Vector6d h_;                    // EoM行列等式の右辺
   std::vector<KDL::Vector> cog2prop_B_;  // Translation from CoG to propellers wrt. base frame
   std::vector<KDL::Vector> axis_B_;      // Rotating axes wrt. base frame
+  KDL::Frame T_base_rotor_;
+  KDL::RigidBodyInertia inertia_;
 };
 }  // namespace tobas_np_pid

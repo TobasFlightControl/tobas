@@ -35,9 +35,10 @@ void MultiRotorDynamics::updateInternalDataStructures()
 void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
 {
   // 慣性テンソルと重心を計算
-  const auto I_base = inertia_solver_.JntToCart(q);
-  const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
+  if (inertia_solver_.JntToCart(q, I_base_) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  const auto P_base_cog = I_base_.getCOG();
+  const auto I_cog = I_base_.refPoint(P_base_cog).getRotationalInertia();
   const Matrix3d I_cog_inv = I_cog.data.inverse();
 
   // Update A
@@ -47,8 +48,9 @@ void MultiRotorDynamics::update(const double& roll, const double& pitch, const J
   // Update B
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
-    const auto T_base_rotor = fk_solver_.JntToCart(q, z_rotors_.linkName(i));
-    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
+    if (fk_solver_.JntToCart(q, z_rotors_.linkName(i), T_base_rotor_) < 0)
+      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
+    const auto P_cog_rotor = T_base_rotor_.p - P_base_cog;
     const auto& d = z_rotors_.direction(i);
     const auto& cm = z_rotors_.momentConstant(i);
     B.block<3, 1>(kGyroIdx, i) = I_cog_inv * (P_cog_rotor.data.cross(UNIT_Z) - (d * cm) * UNIT_Z);

@@ -21,7 +21,11 @@ void TrimConditions::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   asd_cog_.updateInternalDataStructures();
 
-  W_ = inertia_solver_.JntToMass() * kGravity;
+  double mass;
+  if (inertia_solver_.JntToMass(mass) < 0)
+    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  W_ = mass * kGravity;
+
   setElevatorIndex();
 
   const auto& aero = drone_.aerodynamics();
@@ -41,15 +45,13 @@ TrimConditions::update(const double& V, const double& rho, const JntArray& q)
   assert(rho > 0.);
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
-  error_code_ = E_NOERROR;
-  error_msg_ = "No error";
-
   const auto speed_limit = speedLimit(rho);
   if (!speed_limit.inRange(V))
   {
     error_code_ = E_INVALID_SPEED;
     error_msg_ = "V = " + to_string(V) + " is out of valid speed range ["
                  + to_string(speed_limit.lower) + ", " + to_string(speed_limit.upper) + "].";
+    return error_code_;
   }
 
   // エイリアス
@@ -78,6 +80,8 @@ TrimConditions::update(const double& V, const double& rho, const JntArray& q)
   // その他依存変数
   u_ = V * cos(alpha_);
 
+  error_code_ = E_NOERROR;
+  error_msg_ = "No error";
   return error_code_;
 }
 
