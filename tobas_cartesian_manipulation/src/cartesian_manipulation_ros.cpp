@@ -57,7 +57,7 @@ void CartesianManipulationRos::registerSubscribers()
 {
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
-  cs_sub_ = nh_.subscribe(tobas::kCartStateCmdTopic, 1, &self::cartStateCb, this, tcpNoDelay());
+  cs_sub_ = nh_.subscribe(tobas::kCartStatesCmdTopic, 1, &self::cartStateCb, this, tcpNoDelay());
 }
 
 void CartesianManipulationRos::eventCb(const tobas_msgs::EventConstPtr& event)
