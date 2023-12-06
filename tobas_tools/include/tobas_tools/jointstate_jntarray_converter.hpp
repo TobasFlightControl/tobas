@@ -16,7 +16,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  bool convert(const sensor_msgs::JointState& js, KDL::JntArray& q);
+  int convert(const sensor_msgs::JointState& js, KDL::JntArray& q);
 
 private:
   const Drone& drone_;

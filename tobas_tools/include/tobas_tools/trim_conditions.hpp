@@ -14,12 +14,6 @@ namespace tobas
 class TrimConditions : public SolverI
 {
 public:
-  enum ErrorCode
-  {
-    E_NOERROR = 0,
-    E_INVALID_SPEED = -1,
-  };
-
   explicit TrimConditions(const Drone& drone);
 
   void updateInternalDataStructures() override;
@@ -33,10 +27,7 @@ public:
    *
    * @return ErrorCode Error code
    */
-  ErrorCode update(const double& V, const double& rho, const KDL::JntArray& q);
-
-  inline const ErrorCode& errorCode() const;
-  inline const std::string& errorMessage() const;
+  int update(const double& V, const double& rho, const KDL::JntArray& q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
@@ -74,9 +65,6 @@ public:
   double takeOffSpeed(const double& rho) const;
 
 private:
-  ErrorCode error_code_;
-  std::string error_msg_;
-
   const Drone& drone_;
 
   KDL::TreeJntToInertiaSolver inertia_solver_;
@@ -96,16 +84,6 @@ private:
 
   void setElevatorIndex();
 };
-
-inline const TrimConditions::ErrorCode& TrimConditions::errorCode() const
-{
-  return error_code_;
-}
-
-inline const std::string& TrimConditions::errorMessage() const
-{
-  return error_msg_;
-}
 
 inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const
 {

@@ -126,6 +126,7 @@ void Controller::runOnce()
   if (eom_.update(odom_ned_.twist.vel.norm(), air_density_, battery_->voltage, q_0_) < 0)
   {
     rosError(name_, eom_.errorMessage());
+    return;
   }
 
   lqd_.dynamics.A = eom_.A();

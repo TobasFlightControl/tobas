@@ -33,24 +33,26 @@ void TrimConditions::updateInternalDataStructures()
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
-  assert(a_ > 0.);
-  assert(b_ > 0.);
+  assert(a_ > 0);
+  assert(b_ > 0);
 }
 
-TrimConditions::ErrorCode
-TrimConditions::update(const double& V, const double& rho, const JntArray& q)
+int TrimConditions::update(const double& V, const double& rho, const JntArray& q)
 {
-  assert(V > 0.);
-  assert(rho > 0.);
-  assert(q.rows() == drone_.tree().getNrOfJoints());
+  assert(V > 0);
+  assert(rho > 0);
+
+  if (q.rows() != drone_.tree().getNrOfJoints())
+  {
+    error_msg_ = kErrorSizeMismatch;
+    return -1;
+  }
 
   const auto speed_limit = speedLimit(rho);
   if (!speed_limit.inRange(V))
   {
-    error_code_ = E_INVALID_SPEED;
-    error_msg_ = "V = " + to_string(V) + " is out of valid speed range ["
-                 + to_string(speed_limit.lower) + ", " + to_string(speed_limit.upper) + "].";
-    return error_code_;
+    error_msg_ = "V = " + to_string(V) + " is out of valid speed range " + speed_limit.toString();
+    return -1;
   }
 
   // エイリアス
@@ -58,10 +60,18 @@ TrimConditions::update(const double& V, const double& rho, const JntArray& q)
   const auto& elev_cs = drone_.controlSurface(elev_idx_);
 
   // CoGまわりの安定微係数
-  asd_cog_.update(q);
+  if (asd_cog_.update(q) < 0)
+  {
+    error_msg_ = asd_cog_.errorMessage();
+    return -1;
+  }
   const auto c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
   const auto c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_idx_);
-  assert(c_pitch_elev_cg != 0.);
+  if (c_pitch_elev_cg == 0)
+  {
+    error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero";
+    return -1;
+  }
 
   // 引数に依存する定数
   const auto q_bar = dynamicPressure(rho, V);
@@ -73,22 +83,29 @@ TrimConditions::update(const double& V, const double& rho, const JntArray& q)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;  // TODO: 2次以上も考慮
   c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * abs(elevator_);       // (1.8-3)
   c_T_ = c_D_ / cos(alpha_);                                          // (2.2-10b)
-  assert(-M_PI_2 < alpha_ && alpha_ < M_PI_2);
-  assert(drone_.controlSurface(elev_idx_).angle_limit.inRange(elevator_));
 
   // その他依存変数
   u_ = V * cos(alpha_);
 
-  error_code_ = E_NOERROR;
-  error_msg_ = "No error";
-  return error_code_;
+  if (alpha_ < -M_PI_2 || M_PI_2 < alpha_)
+  {
+    error_msg_ = "The angle of attack in the trimmed condition exceeds π/2";
+    return -1;
+  }
+  if (!drone_.controlSurface(elev_idx_).angle_limit.inRange(elevator_))
+  {
+    error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
+    return -1;
+  }
+
+  return 0;
 }
 
 dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
-  assert(rho > 0.);
+  assert(rho > 0);
 
-  const auto c = 2. * W_ / rho / drone_.vehicle().wing_surface;
+  const auto c = 2 * W_ / rho / drone_.vehicle().wing_surface;
 
   // 迎角の最大値から最小速度を求める
   const auto max_den = a_ * drone_.vehicle().alpha_limit.upper + b_;
@@ -105,9 +122,9 @@ dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
 
 double TrimConditions::takeOffSpeed(const double& rho) const
 {
-  assert(rho > 0.);
+  assert(rho > 0);
 
-  const auto c = 2. * W_ / rho / drone_.vehicle().wing_surface;
+  const auto c = 2 * W_ / rho / drone_.vehicle().wing_surface;
   constexpr double alpha_zero = 0.;
   return sqrt(c / (a_ * alpha_zero + b_));
 }

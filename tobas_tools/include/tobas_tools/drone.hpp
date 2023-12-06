@@ -21,9 +21,6 @@ public:
   void loadFromParam(ros::NodeHandle& nh);
 
   inline const KDL::Tree& tree() const;
-  inline const Eigen::Vector3d& imuOffset() const;
-  inline const Eigen::Vector3d& barometerOffset() const;
-  inline const Eigen::Vector3d& gpsOffset() const;
   inline const std::vector<std::string>& postureDefiningJoints() const;
   inline const RotorConfigs& rotorConfigs() const;
   inline const RotorConfig& rotorConfig(const size_t& rotor_idx) const;

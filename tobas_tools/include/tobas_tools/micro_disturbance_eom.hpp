@@ -14,7 +14,6 @@ namespace tobas
 class MicroDisturbanceEoM : public SolverI
 {
 public:
-  static constexpr size_t kStateSize = 8;
   static constexpr size_t kStateIdx_u = 0;
   static constexpr size_t kStateIdx_alpha = 1;
   static constexpr size_t kStateIdx_beta = 2;
@@ -23,17 +22,10 @@ public:
   static constexpr size_t kStateIdx_p = 5;
   static constexpr size_t kStateIdx_q = 6;
   static constexpr size_t kStateIdx_r = 7;
+  static constexpr size_t kStateSize = 8;
 
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Matrix<double, kStateSize, 1>;
-
-  enum ErrorCode
-  {
-    E_NOERROR = 0,
-    E_THRUST_OVERLIMIT = -1,
-    E_TRIM_ERROR = -2,
-    E_KDL_ERROR = -3,
-  };
 
   explicit MicroDisturbanceEoM(const Drone& drone);
 
@@ -45,14 +37,12 @@ public:
    * @param V 大気に対する機体速度の絶対値 [m/s]
    * @param rho 大気密度 [kg/m^3]
    * @param q 可動関節の角度 [rad]
-   *
-   * @return ErrorCode Error code
    */
-  ErrorCode
-  update(const double& V, const double& rho, const double& battery_voltage, const KDL::JntArray& q);
-
-  inline const ErrorCode& errorCode() const;
-  inline const std::string& errorMessage() const;
+  int update(
+    const double& V,
+    const double& rho,
+    const double& battery_voltage,
+    const KDL::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -140,9 +130,6 @@ public:
   inline const double& r_delta(const size_t& cs_idx) const;
 
 private:
-  ErrorCode error_code_;
-  std::string error_msg_;
-
   const Drone& drone_;
 
   KDL::TreeFkSolverPos fk_solver_;
@@ -162,16 +149,6 @@ private:
 
   void setInputLimits(const double& battery_voltage);
 };
-
-inline const MicroDisturbanceEoM::ErrorCode& MicroDisturbanceEoM::errorCode() const
-{
-  return error_code_;
-}
-
-inline const std::string& MicroDisturbanceEoM::errorMessage() const
-{
-  return error_msg_;
-}
 
 inline const TrimConditions& MicroDisturbanceEoM::trimCondition() const
 {

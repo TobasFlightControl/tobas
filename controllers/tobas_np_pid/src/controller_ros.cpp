@@ -119,8 +119,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     return;
 
   // 可動関節の角度を更新
-  if (drone_.isTransformable() && !js_converter_.convert(*js_, q_))
-    rosError(name_, "Failed to parse JointState.");
+  if (drone_.isTransformable() && js_converter_.convert(*js_, q_) < 0)
+    rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
   // 位置制御器
   const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;  // 世界座標系から見た現在の速度

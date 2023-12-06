@@ -27,7 +27,10 @@ int StabilityDerivativesCG::update(const JntArray& q)
 
   // CoGを更新
   if (inertia_solver_.JntToCart(q) < 0)
+  {
+    error_msg_ = inertia_solver_.errorMessage();
     return -1;
+  }
   const auto cog = inertia_solver_.getInertia().getCOG();
 
   // 安定微係数を更新: (2.2-40), (3.2-23)

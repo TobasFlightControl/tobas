@@ -18,11 +18,13 @@ void JointStateJntArrayConverter::updateInternalDataStructures()
   jnt_parser_.updateInternalDataStructures();
 }
 
-bool JointStateJntArrayConverter::convert(const sensor_msgs::JointState& js, JntArray& q)
+int JointStateJntArrayConverter::convert(const sensor_msgs::JointState& js, JntArray& q)
 {
   if (q.rows() != drone_.tree().getNrOfJoints())
-    return false;
-
+  {
+    error_msg_ = "Joint array size mismatch.";
+    return -1;
+  }
   for (const auto& jnt_name : drone_.postureDefiningJoints())
   {
     try
@@ -31,12 +33,13 @@ bool JointStateJntArrayConverter::convert(const sensor_msgs::JointState& js, Jnt
       const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
       q(kdl_idx) = js.position[msg_idx];
     }
-    catch (...)
+    catch (const exception& e)
     {
-      return false;
+      error_msg_ = e.what();
+      return -1;
     }
   }
 
-  return true;
+  return 0;
 }
 }  // namespace tobas

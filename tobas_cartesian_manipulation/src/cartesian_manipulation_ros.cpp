@@ -92,7 +92,11 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   t_last_ = odom->header.stamp;
 
   // 現在の関節角を更新
-  js_converter_.convert(*js_, q_);
+  if (js_converter_.convert(*js_, q_) < 0)
+  {
+    rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
+    return;
+  }
 
   // デカルト座標系の目標値を更新
   frames_.clear();
@@ -127,7 +131,7 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   ik_solver.setMaxAngularVelocity(max_angvel_);
   if (ik_solver.CartToJnt(q_, frames_, dt) < 0)
   {
-    rosError(name_, "Inverse kinematics finished with error: " << ik_solver.errorMessage());
+    rosError(name_, "Inverse kinematics failed: " << ik_solver.errorMessage());
     return;
   }
   const auto& q_des = ik_solver.getSolution();

@@ -38,7 +38,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
+int MicroDisturbanceEoM::update(
   const double& V,
   const double& rho,
   const double& battery_voltage,
@@ -55,8 +55,8 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   // トリム状態を更新
   if (trim_.update(V, rho, q) < 0)
   {
-    error_code_ = E_TRIM_ERROR;
     error_msg_ = trim_.errorMessage();
+    return -1;
   }
 
   // エイリアス
@@ -67,9 +67,8 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   // 重心と慣性テンソル
   if (inertia_solver_.JntToCart(q) < 0)
   {
-    error_code_ = E_KDL_ERROR;
     error_msg_ = inertia_solver_.errorMessage();
-    return error_code_;
+    return -1;
   }
   const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
@@ -174,9 +173,8 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   {
     if (fk_solver_.JntToCart(q, x_rotors_.linkName(i)) < 0)
     {
-      error_code_ = E_KDL_ERROR;
       error_msg_ = fk_solver_.errorMessage();
-      return error_code_;
+      return -1;
     }
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto& d = x_rotors_.direction(i);
@@ -236,17 +234,15 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
     const auto max_thrust = x_rotors_.thrustFromVoltage(i, battery_voltage);
     if (thrust_avg > max_thrust)
     {
-      error_code_ = E_THRUST_OVERLIMIT;
       error_msg_ = "Average thrust " + to_string(thrust_avg) + "[N] is over the maximum limit "
                    + to_string(max_thrust) + "[N].";
+      return -1;
     }
   }
   u_0_.block(0, 0, x_rotors_.count(), 1).fill(thrust_avg);
   u_0_(x_rotors_.count() + trim_.elevatorIndex()) = trim_.elevator();
 
-  error_code_ = E_NOERROR;
-  error_msg_ = "No error";
-  return error_code_;
+  return 0;
 }
 
 void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)

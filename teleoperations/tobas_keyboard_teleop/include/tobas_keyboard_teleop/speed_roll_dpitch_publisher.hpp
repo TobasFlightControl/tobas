@@ -25,6 +25,7 @@ class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
   static constexpr double kDefaultMaximumRoll = M_PI_2;
   static constexpr double kDefaultMaximumDeltaPitch = M_PI_4;
 
+  using self = SpeedRollDeltaPitchPublisher;
   using super = tobas::BaseNode;
 
 public:

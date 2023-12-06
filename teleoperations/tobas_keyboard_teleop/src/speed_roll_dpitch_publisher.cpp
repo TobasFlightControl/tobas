@@ -28,15 +28,10 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
     check_topics_timer_(
       nh_,
       tobas::kCheckTopicsTimerPeriod,
-      &SpeedRollDeltaPitchPublisher::checkTopicsTimerCb,
+      &self::checkTopicsTimerCb,
       this,
       false),
-    instruction_timer_(
-      nh_,
-      kInstructionTimerPeriod,
-      &SpeedRollDeltaPitchPublisher::instructionTimerCb,
-      this,
-      false)
+    instruction_timer_(nh_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -81,7 +76,11 @@ void SpeedRollDeltaPitchPublisher::run()
       continue;
     }
 
-    trim_.update(cmd_.speed, air_density_, q_0_);
+    if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
+    {
+      rosError(name_, trim_.errorMessage());
+      continue;
+    }
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
@@ -156,8 +155,8 @@ void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
   super::registerSubscribers();
 
-  air_pressure_sub_ = nh_.subscribe(
-    tobas::kAirPressureTopic, 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this, tcpNoDelay());
+  air_pressure_sub_ =
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()

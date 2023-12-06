@@ -118,7 +118,11 @@ void Controller::setInitialTarget()
 void Controller::runOnce()
 {
   // 状態方程式を更新
-  eom_.update(cmd_ned_.speed, air_density_, battery_->voltage, q_0_);
+  if (eom_.update(cmd_ned_.speed, air_density_, battery_->voltage, q_0_) < 0)
+  {
+    rosError(name_, eom_.errorMessage());
+    return;
+  }
   const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
   const auto disc = c2d_.convert(cont, mpc_.time_step);
   fill(mpc_.discrete_dynamics, disc);
