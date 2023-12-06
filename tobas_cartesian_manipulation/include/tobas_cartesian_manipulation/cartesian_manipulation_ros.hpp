@@ -34,8 +34,13 @@ private:
   bool is_initialized_ = false;
   ros::Time t_last_;
   KDL::JntArray q_;
+  KDL::JntArray q_des_;
   KDL::Frame frame_;
   KDL::FrameMap frames_;
+
+  // rosparams
+  double max_linvel_;
+  double max_angvel_;
 
   // Publishers
   ros::V_Publisher cmd_pubs_;

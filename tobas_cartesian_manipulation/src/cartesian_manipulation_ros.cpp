@@ -26,6 +26,7 @@ CartesianManipulationRos::CartesianManipulationRos(
   js_converter_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
+  q_des_.resize(drone_.tree().getNrOfJoints());
 
   registerPublishers();
   registerSubscribers();
@@ -36,6 +37,12 @@ CartesianManipulationRos::CartesianManipulationRos(
 
 void CartesianManipulationRos::getRosParams()
 {
+  dh_ros::getParam(
+    pnh_, "max_linear_velocity", max_linvel_, TreeIkSolverPos_Online::kDefaultMaxLinearVelocity,
+    dh_ros::NON_NEGATIVE);
+  dh_ros::getParam(
+    pnh_, "max_angular_velocity", max_angvel_, TreeIkSolverPos_Online::kDefaultMaxAngularVelocity,
+    dh_ros::NON_NEGATIVE);
 }
 
 void CartesianManipulationRos::registerPublishers()
@@ -117,7 +124,9 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // IKを解く
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
   TreeIkSolverPos_Online ik_solver(drone_.tree(), cs_->name);
-  const auto q_des = ik_solver.CartToJnt(q_, frames_, dt);
+  ik_solver.setMaxLinearVelocity(max_linvel_);
+  ik_solver.setMaxAngularVelocity(max_angvel_);
+  ik_solver.CartToJnt(q_, frames_, q_des_, dt);
 
   // 位置コマンドを発行
   for (size_t i = 0; i < drone_.postureDefiningJoints().size(); ++i)
@@ -126,7 +135,7 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     const auto& q_nr = jnt_parser_.jointIndex(jnt_name);
 
     const auto cmd = boost::make_shared<std_msgs::Float64>();
-    cmd->data = q_des(q_nr);
+    cmd->data = q_des_(q_nr);
     cmd_pubs_[i].publish(cmd);
   }
 }
