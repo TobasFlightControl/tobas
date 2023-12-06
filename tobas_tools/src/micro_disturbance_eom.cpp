@@ -30,9 +30,6 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   x_rotors_.updateInternalDataStructures();
   trim_.updateInternalDataStructures();
 
-  double mass;
-  if (inertia_solver_.JntToMass(mass) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
@@ -68,14 +65,15 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
-  if (inertia_solver_.JntToCart(q, I_base_) < 0)
+  if (inertia_solver_.JntToCart(q) < 0)
   {
     error_code_ = E_KDL_ERROR;
     error_msg_ = inertia_solver_.errorMessage();
     return error_code_;
   }
-  const auto P_base_cog = I_base_.getCOG();
-  const auto I_cog = I_base_.refPoint(P_base_cog).getRotationalInertia();
+  const auto& I_base = inertia_solver_.getInertia();
+  const auto P_base_cog = I_base.getCOG();
+  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
   const auto I_x = I_cog.ixx();
   const auto I_y = I_cog.iyy();
@@ -95,17 +93,17 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   const auto rho_V_S = rho * V * vehicle.wing_surface;
   const auto rho_V_S_b2 = rho_V_S * sqr(vehicle.wing_span);
   const auto rho_V_S_c2 = rho_V_S * sqr(vehicle.mac);
-  const auto P = mass_ * V;  // 運動量
+  const auto P = I_base.getMass() * V;  // 運動量
 
   // (2.2-45)
-  const auto X_u = -rho_V_S / mass_ * trim_.c_D();
-  const auto X_alpha = -q_S / mass_ * (aero.c_drag_alpha - trim_.c_L());
+  const auto X_u = -rho_V_S / I_base.getMass() * trim_.c_D();
+  const auto X_alpha = -q_S / I_base.getMass() * (aero.c_drag_alpha - trim_.c_L());
 
   // (3.2-20)
   const auto Y_beta_bar = q_S / P * aero.c_side_beta;
 
   // (2.2-46)
-  const auto Z_u_bar = -rho * vehicle.wing_surface / mass_ * trim_.c_L();
+  const auto Z_u_bar = -rho * vehicle.wing_surface / I_base.getMass() * trim_.c_L();
   const auto Z_alpha_bar = -q_S / P * (aero.c_lift_alpha + 2 * trim_.c_L() * tan(trim_.alpha()));
 
   // (3.2-21)
@@ -167,20 +165,20 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   // thrust -> u
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    B_(kStateIdx_u, i) = 1 / mass_;
+    B_(kStateIdx_u, i) = 1 / I_base.getMass();
   }
 
   // thrust -> p,q,r
   const auto I_cog_inv = I_cog.data.inverse();
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    if (fk_solver_.JntToCart(q, x_rotors_.linkName(i), T_base_rotor_) < 0)
+    if (fk_solver_.JntToCart(q, x_rotors_.linkName(i)) < 0)
     {
       error_code_ = E_KDL_ERROR;
       error_msg_ = fk_solver_.errorMessage();
       return error_code_;
     }
-    const auto P_cog_rotor = T_base_rotor_.p - P_base_cog;
+    const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto& d = x_rotors_.direction(i);
     const auto& c = x_rotors_.momentConstant(i);
     Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU

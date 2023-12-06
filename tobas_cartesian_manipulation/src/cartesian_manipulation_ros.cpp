@@ -26,7 +26,6 @@ CartesianManipulationRos::CartesianManipulationRos(
   js_converter_.updateInternalDataStructures();
 
   q_.resize(drone_.tree().getNrOfJoints());
-  q_des_.resize(drone_.tree().getNrOfJoints());
 
   registerPublishers();
   registerSubscribers();
@@ -126,7 +125,12 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   TreeIkSolverPos_Online ik_solver(drone_.tree(), cs_->name);
   ik_solver.setMaxLinearVelocity(max_linvel_);
   ik_solver.setMaxAngularVelocity(max_angvel_);
-  ik_solver.CartToJnt(q_, frames_, q_des_, dt);
+  if (ik_solver.CartToJnt(q_, frames_, dt) < 0)
+  {
+    rosError(name_, "Inverse kinematics finished with error: " << ik_solver.errorMessage());
+    return;
+  }
+  const auto& q_des = ik_solver.getSolution();
 
   // 位置コマンドを発行
   for (size_t i = 0; i < drone_.postureDefiningJoints().size(); ++i)
@@ -135,7 +139,7 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     const auto& q_nr = jnt_parser_.jointIndex(jnt_name);
 
     const auto cmd = boost::make_shared<std_msgs::Float64>();
-    cmd->data = q_des_(q_nr);
+    cmd->data = q_des(q_nr);
     cmd_pubs_[i].publish(cmd);
   }
 }

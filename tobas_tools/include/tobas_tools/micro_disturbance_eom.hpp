@@ -150,23 +150,15 @@ private:
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 
-  // 固定値
-  double mass_;  // 機体の質量 [kg]
   size_t u_size_;
-  Eigen::VectorXd min_u_;  // 制御入力の最小値
-  Eigen::VectorXd max_u_;  // 制御入力の最大値
-
-  // トリム
+  Eigen::VectorXd min_u_;                     // 制御入力の最小値
+  Eigen::VectorXd max_u_;                     // 制御入力の最大値
   Eigen::Matrix<double, kStateSize, 1> x_0_;  // トリム時の状態
   Eigen::VectorXd u_0_;                       // トリム時の制御入力
 
   // 各係数のバッファ
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
-
-  // その他
-  KDL::Frame T_base_rotor_;
-  KDL::RigidBodyInertia I_base_;
 
   void setInputLimits(const double& battery_voltage);
 };
@@ -404,7 +396,7 @@ inline const double& MicroDisturbanceEoM::r_phi() const
 
 inline double MicroDisturbanceEoM::u_thrust() const
 {
-  return 1 / mass_;
+  return 1 / inertia_solver_.getInertia().getMass();
 }
 
 inline const double& MicroDisturbanceEoM::alpha_delta(const size_t& cs_idx) const

@@ -55,7 +55,6 @@ public:
 
 private:
   const tobas::Drone& drone_;
-
   KDL::TreeFkSolverPos fk_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
@@ -63,13 +62,10 @@ private:
   MixerConfig cfg_;
 
   quadprog::DualActiveSetSolver qp_;
-
   Eigen::Matrix3Xd A_;
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_thrusts_;
   Eigen::VectorXd last_thrusts_;
-  KDL::Frame T_base_rotor_;
-  KDL::RigidBodyInertia I_base_;
 
   void updateQpWeight();
   void updateThrustLimits(const double& dt, const double& cur_voltage, const double& thrusts_sum);

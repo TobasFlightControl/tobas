@@ -21,10 +21,9 @@ void TrimConditions::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   asd_cog_.updateInternalDataStructures();
 
-  double mass;
-  if (inertia_solver_.JntToMass(mass) < 0)
+  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
-  W_ = mass * kGravity;
+  W_ = inertia_solver_.getInertia().getMass() * kGravity;
 
   setElevatorIndex();
 

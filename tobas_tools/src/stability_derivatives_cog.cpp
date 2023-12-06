@@ -26,9 +26,9 @@ int StabilityDerivativesCG::update(const JntArray& q)
   const auto& aero = drone_.aerodynamics();
 
   // CoGを更新
-  if (inertia_solver_.JntToCart(q, I_base_) < 0)
+  if (inertia_solver_.JntToCart(q) < 0)
     return -1;
-  const auto cog = I_base_.getCOG();
+  const auto cog = inertia_solver_.getInertia().getCOG();
 
   // 安定微係数を更新: (2.2-40), (3.2-23)
   const auto dx = drone_.vehicle().ac.x() - cog.x();

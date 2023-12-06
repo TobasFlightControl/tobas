@@ -18,10 +18,10 @@ double getMass()
     throw runtime_error("Failed to get KDL tree.");
 
   KDL::TreeJntToInertiaSolver inertia_solver(tree);
-  double mass;
-  if (inertia_solver.JntToMass(mass) < 0)
+  if (inertia_solver.JntToCart(JntArray::Zero(tree.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver.errorMessage());
-  return mass;
+
+  return inertia_solver.getInertia().getMass();
 }
 
 geomag::Elements geomag(const double& lat, const double& lon, const double& height)

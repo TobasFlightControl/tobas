@@ -33,7 +33,6 @@ private:
   double c_yaw_beta_cg_;
   std::vector<double> c_pitch_delta_cg_;
   std::vector<double> c_yaw_delta_cg_;
-  KDL::RigidBodyInertia I_base_;
 };
 
 inline double StabilityDerivativesCG::cPitchAlpha() const
