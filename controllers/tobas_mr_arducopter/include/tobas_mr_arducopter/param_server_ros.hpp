@@ -21,7 +21,7 @@ namespace tobas_mr_arducopter
  */
 class ParamServerRos : public tobas::BaseNode
 {
-  static constexpr char kParamSetSrvName[] = "mavros/param/set";
+  static constexpr char kParamSetSrv[] = "mavros/param/set";
   static constexpr double kActivationDelayFromFirstPose = 5.;  // [s]
 
   using self = ParamServerRos;

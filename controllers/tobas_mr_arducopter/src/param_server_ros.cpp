@@ -6,6 +6,8 @@
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
+
 #include "../include/tobas_mr_arducopter/param_server_ros.hpp"
 #include "../include/tobas_mr_arducopter/constants.hpp"
 
@@ -24,9 +26,9 @@ ParamServerRos::ParamServerRos(
 {
   getRosParams();
 
-  param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrvName);
-  if (!param_set_sc_.waitForExistence())
-    ROS_THROW_NAMED(name_, "Failed to connect to '" << kParamSetSrvName << "' service server.");
+  param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
+  if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+    ROS_THROW_NAMED(name_, "Failed to connect to '" << kParamSetSrv << "' service server.");
 
   registerPublishers();
   registerSubscribers();

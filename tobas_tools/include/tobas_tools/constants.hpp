@@ -24,6 +24,10 @@ static constexpr double kArmThrottle = 0.1;
 static constexpr double kMinThrottle = 0.;
 static constexpr double kMaxThrottle = 1.;
 
+// ROS parameters
+static constexpr char kRobotDescriptionParam[] = "robot_description";
+static constexpr char kPostureDefiningJointsParam[] = "posture_defining_joint_names";
+
 // ROS topics
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kCpuTopic[] = "cpu";
@@ -50,7 +54,11 @@ static constexpr char kVelocityYawCmdTopic[] = "command/velocity_yaw";
 static constexpr char kRpyThrustCmdTopic[] = "command/rpy_thrust";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
+static constexpr char kJointStatesCmdTopic[] = "command/joint_states";
 static constexpr char kCartStatesCmdTopic[] = "command/cartesian_states";
+
+// ROS services
+static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";
@@ -64,6 +72,7 @@ static constexpr char kUnknown[] = "unknown";
 
 static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
+static constexpr double kWaitForServiceExistence = 1.;  // [s]
 
 static constexpr size_t kStopwatchSamples = 100;
 

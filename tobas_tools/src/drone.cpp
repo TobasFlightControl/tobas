@@ -23,10 +23,10 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
 {
   DH_DEBUG("Drone::loadFromParam");
 
-  if (!treeFromParam("robot_description", tree_))
+  if (!treeFromParam(kRobotDescriptionParam, tree_))
     throw runtime_error("Failed to get KDL tree.");
 
-  dh_ros::getParam(nh, "posture_defining_joint_names", posture_defining_joints_);
+  dh_ros::getParam(nh, kPostureDefiningJointsParam, posture_defining_joints_);
 
   getRotorConfigs(nh);
 

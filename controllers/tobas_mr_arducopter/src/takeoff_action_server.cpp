@@ -72,21 +72,21 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::waitForServiceExistence()
 {
-  if (!set_mode_sc_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!set_mode_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
     return false;
   }
 
-  if (!arming_sc_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!arming_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
     return false;
   }
 
-  if (!takeoff_sc_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!takeoff_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
