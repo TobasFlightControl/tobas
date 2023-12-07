@@ -1,15 +1,10 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .gui_teleop import GuiTeleopWidget
-
 import math
 import random
 import rospy
 from typing import List, Callable
+from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
-from std_msgs.msg import Float64
+from sensor_msgs.msg import JointState
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -29,7 +24,7 @@ from .common import *
 
 class MultirotorCommanderWidget(QWidget):
     # Constants
-    HOME_ALTITUDE = 3.0
+    HOME_ALTITUDE = 3.0  # [ m]
 
     # Default parameters
     DEFAULT_INIT_ELEVATION = 0.0  # [m]
@@ -46,9 +41,8 @@ class MultirotorCommanderWidget(QWidget):
     DEFAULT_MIN_YAW = -math.pi  # [rad]
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
-    def __init__(self, main: GuiTeleopWidget) -> None:
-        super().__init__()
-        self._main = main
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent=parent)
 
         # rosparams
         self._x_min = 0.0
@@ -71,43 +65,49 @@ class MultirotorCommanderWidget(QWidget):
         self.setLayout(rows)
 
         # ラベル
-        label = QLabel("Multirotor Command")
+        label = QLabel("Multirotor Command", parent=self)
         label.setFont(QFont("Default", LABEL_PSIZE, QFont.Bold))
         label.setAlignment(Qt.AlignCenter)
         rows.addWidget(label)
 
         # XYZRPYに対応するバーを追加
         self._cmd_x = Commander(
+            self,
             "x",
             self._x_min,
             self._x_max,
             callback=self._publish_current_command,
         )
         self._cmd_y = Commander(
+            self,
             "y",
             self._y_min,
             self._y_max,
             callback=self._publish_current_command,
         )
         self._cmd_z = Commander(
+            self,
             "z",
             self._z_min,
             self._z_max,
             callback=self._publish_current_command,
         )
         self._cmd_roll = Commander(
+            self,
             "roll",
             self._roll_min,
             self._roll_max,
             callback=self._publish_current_command,
         )
         self._cmd_pitch = Commander(
+            self,
             "pitch",
             self._pitch_min,
             self._pitch_max,
             callback=self._publish_current_command,
         )
         self._cmd_yaw = Commander(
+            self,
             "yaw",
             self._yaw_min,
             self._yaw_max,
@@ -121,7 +121,8 @@ class MultirotorCommanderWidget(QWidget):
         rows.addWidget(self._cmd_yaw)
 
         # 初期位置にボタン
-        self._home_button = QPushButton("Home")
+        self._home_button = QPushButton("Home", parent=self)
+        self._home_button.setFixedHeight(BUTTON_HEIGHT)
         self._home_button.clicked.connect(self._on_home_button_clicked)
         rows.addWidget(self._home_button)
 
@@ -237,11 +238,8 @@ class MultirotorCommanderWidget(QWidget):
 
 
 class JointPositionCommanderWidget(QWidget):
-    INTERVAL = 0.1
-
-    def __init__(self, main: GuiTeleopWidget) -> None:
-        super().__init__()
-        self._main = main
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent=parent)
 
         # Commanders
         self._commanders: List[Commander] = []
@@ -251,63 +249,84 @@ class JointPositionCommanderWidget(QWidget):
         self._get_params()
 
         # 可動関節が無い場合は終了
-        if len(self._joint_names) == 0:
+        nj = len(self._joint_names)
+        if nj == 0:
             return
+
+        # コマンド
+        self._cmd = JointState()
+        self._cmd.name = sorted(self._joint_names)
+        self._cmd.position = [0] * nj
+        self._cmd.velocity = [0] * nj
+        self._cmd.effort = [0] * nj
+
+        # Publisher
+        self._cmd_pub = rospy.Publisher(
+            "command/joint_states", JointState, queue_size=1
+        )
 
         # メインレイアウト
         rows = QVBoxLayout()
         self.setLayout(rows)
 
         # ラベル
-        label = QLabel("Joint Position Command")
+        label = QLabel("Joint Position Command", parent=self)
         label.setFont(QFont("Default", LABEL_PSIZE, QFont.Bold))
         label.setAlignment(Qt.AlignCenter)
         rows.addWidget(label)
 
         # Commandersをセット
         robot: Robot = Robot.from_parameter_server("robot_description")
-        for joint_name in self._joint_names:
-            joint: Joint = robot.joint_map[joint_name]
+        for i, jnt_name in enumerate(self._cmd.name):
+            joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
             commander = Commander(
-                joint_name,
+                self,
+                jnt_name,
                 limit.lower,
                 limit.upper,
-                f"{joint_name}_controller/command",
+                callback=partial(self._on_value_changed, idx=i),
             )
             commander.update()
             self._commanders.append(commander)
             rows.addWidget(commander)
 
-        self._random_button = QPushButton("Randomize")
-        self._random_button.setFixedHeight(BUTTON_HEIGHT)
-        self._random_button.clicked.connect(self._on_random_button_clicked)
-        rows.addWidget(self._random_button)
+        self._home_button = QPushButton("Home", parent=self)
+        self._home_button.setFixedHeight(BUTTON_HEIGHT)
+        self._home_button.clicked.connect(self._on_home_button_clicked)
+        rows.addWidget(self._home_button)
 
-        self._center_button = QPushButton("Center")
+        self._center_button = QPushButton("Center", parent=self)
         self._center_button.setFixedHeight(BUTTON_HEIGHT)
         self._center_button.clicked.connect(self._on_center_button_clicked)
         rows.addWidget(self._center_button)
+
+        self._random_button = QPushButton("Randomize", parent=self)
+        self._random_button.setFixedHeight(BUTTON_HEIGHT)
+        self._random_button.clicked.connect(self._on_random_button_clicked)
+        rows.addWidget(self._random_button)
 
         add_expanding_widget(rows)
 
     def publish_current_command(self) -> None:
         """現在設定されている値を全て発行する．"""
-        for joint_cmd in self._commanders:
-            joint_cmd.publish_current_command()
+        self._cmd_pub.publish(self._cmd)
 
     def _get_params(self) -> None:
         self._joint_names = rospy.get_param("posture_defining_joint_names")
 
+    @pyqtSlot(float)
+    def _on_value_changed(self, value: float, idx: int) -> None:
+        self._cmd.position[idx] = value
+        self._cmd_pub.publish(self._cmd)
+
     @pyqtSlot()
-    def _on_random_button_clicked(self) -> None:
-        """全ての関節角をランダム値に設定する．"""
+    def _on_home_button_clicked(self) -> None:
+        """全ての関節角をホームポジションに設定する．"""
         self.setEnabled(False)
 
-        # 一気に指令すると反映されないので，間隔を開けながら指令する
         for joint_cmd in self._commanders:
-            joint_cmd.set_random_value()
-            rospy.sleep(self.INTERVAL)
+            joint_cmd.set_value(0.0)  # TODO: 0以外がホームポジションになり得る？
 
         self.setEnabled(True)
 
@@ -318,7 +337,16 @@ class JointPositionCommanderWidget(QWidget):
 
         for joint_cmd in self._commanders:
             joint_cmd.set_center_value()
-            rospy.sleep(self.INTERVAL)
+
+        self.setEnabled(True)
+
+    @pyqtSlot()
+    def _on_random_button_clicked(self) -> None:
+        """全ての関節角をランダム値に設定する．"""
+        self.setEnabled(False)
+
+        for joint_cmd in self._commanders:
+            joint_cmd.set_random_value()
 
         self.setEnabled(True)
 
@@ -331,17 +359,15 @@ class Commander(QWidget):
 
     def __init__(
         self,
+        parent: QWidget,
         name: str,
         minimum: float,
         maximum: float,
-        pub_topic: str = None,
         callback: Callable[[float], None] = None,
     ) -> None:
-        super().__init__()
+        super().__init__(parent=parent)
         self._min = minimum
         self._max = maximum
-        self._pub_topic = pub_topic
-        self._callback = callback
 
         font = QFont("Default", self.PSIZE, QFont.Bold)
 
@@ -351,28 +377,25 @@ class Commander(QWidget):
         cols = QHBoxLayout()
         rows.addLayout(cols)
 
-        name = QLabel(name)
+        name = QLabel(name, parent=self)
         name.setFont(font)
         cols.addWidget(name)
 
-        self._value = QLineEdit("0.00")
+        self._value = QLineEdit("0.00", parent=parent)
         self._value.setAlignment(Qt.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
         self._value.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._value)
 
-        self._slider = Slider(Qt.Horizontal)
+        self._slider = Slider(Qt.Horizontal, parent=parent)
         self._slider.setFont(font)
         self._slider.setRange(0, self.RANGE)
         self._slider.setValue(self.RANGE // 2)
         rows.addWidget(self._slider)
 
-        if self._pub_topic is not None:
-            self._value_pub = rospy.Publisher(pub_topic, Float64, queue_size=1)
-
-        if self._callback is not None:
-            self.value_changed.connect(self._callback)
+        if callback is not None:
+            self.value_changed.connect(callback)
 
         self._slider.valueChanged.connect(self._on_value_changed)
 
@@ -381,7 +404,10 @@ class Commander(QWidget):
 
     def set_value(self, value: float) -> None:
         slider_value = self._value_to_slider(value)
-        self._slider.setValue(slider_value)
+        if slider_value == self._slider.value():
+            self._slider.valueChanged.emit(slider_value)  # 値が変化しない場合でもシグナルは出す
+        else:
+            self._slider.setValue(slider_value)
 
     def set_random_value(self) -> None:
         value = random.uniform(self._min, self._max)
@@ -391,19 +417,11 @@ class Commander(QWidget):
         value = (self._min + self._max) / 2
         self.set_value(value)
 
-    def publish_current_command(self) -> None:
-        if self._pub_topic is None:
-            return
-
-        msg = Float64(data=self.get_value())
-        self._value_pub.publish(msg)
-
     @pyqtSlot()
     def _on_value_changed(self) -> None:
         value = self._slider_to_value()
         self._value.setText(f"{value:.2f}")
         self.value_changed.emit(value)
-        self.publish_current_command()
 
     def _slider_to_value(self) -> float:
         x = float(self._slider.value())
