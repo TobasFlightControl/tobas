@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_joint_control" type="joint_control_node" name="joint_control" output="screen"/>
-
-</launch>

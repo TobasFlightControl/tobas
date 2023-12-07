@@ -7,14 +7,14 @@
 
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_joint_control/joint_control_ros.hpp"
+#include "../include/tobas_gazebo/joint_command_handler.hpp"
 
 using namespace std;
 using namespace KDL;
 
-namespace tobas_joint_control
+namespace tobas_gazebo
 {
-JointControlRos::JointControlRos(
+JointCommandHandler::JointCommandHandler(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
@@ -26,11 +26,11 @@ JointControlRos::JointControlRos(
   registerSubscribers();
 }
 
-void JointControlRos::getRosParams()
+void JointCommandHandler::getRosParams()
 {
 }
 
-void JointControlRos::registerPublishers()
+void JointCommandHandler::registerPublishers()
 {
   for (const auto& [jnt_name, ctrl_info] : ctrl_info_map_)
   {
@@ -39,13 +39,13 @@ void JointControlRos::registerPublishers()
   }
 }
 
-void JointControlRos::registerSubscribers()
+void JointCommandHandler::registerSubscribers()
 {
   js_sub_ =
     nh_.subscribe(tobas::kJointStatesCmdTopic, 1, &self::jointStateCmdCb, this, tcpNoDelay());
 }
 
-void JointControlRos::getCommandTypes()
+void JointCommandHandler::getCommandTypes()
 {
   ros::ServiceClient sc =
     nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
@@ -84,7 +84,7 @@ void JointControlRos::getCommandTypes()
   }
 }
 
-void JointControlRos::eventCb(const tobas_msgs::EventConstPtr& event)
+void JointCommandHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
@@ -96,7 +96,7 @@ void JointControlRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void JointControlRos::jointStateCmdCb(const sensor_msgs::JointStateConstPtr& js)
+void JointCommandHandler::jointStateCmdCb(const sensor_msgs::JointStateConstPtr& js)
 {
   if (!dh_ros::isFieldSizeMatch(*js))
   {
@@ -134,4 +134,4 @@ void JointControlRos::jointStateCmdCb(const sensor_msgs::JointStateConstPtr& js)
     cmd_pub_map_[jnt_name].publish(cmd);
   }
 }
-}  // namespace tobas_joint_control
+}  // namespace tobas_gazebo

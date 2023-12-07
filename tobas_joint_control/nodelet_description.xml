@@ -1,7 +1,0 @@
-<library path="lib/libtobas_joint_control_nodelet">
-
-  <class name="tobas_joint_control/JointControlNodelet" type="tobas_joint_control::JointControlNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

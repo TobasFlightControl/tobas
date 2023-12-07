@@ -4,7 +4,7 @@
 
 #include <tobas_tools/node.hpp>
 
-namespace tobas_joint_control
+namespace tobas_gazebo
 {
 struct JointControlInfo
 {
@@ -18,13 +18,13 @@ struct JointControlInfo
   } command_type;
 };
 
-class JointControlRos : public tobas::BaseNode
+class JointCommandHandler : public tobas::BaseNode
 {
-  using self = JointControlRos;
+  using self = JointCommandHandler;
   using super = tobas::BaseNode;
 
 public:
-  explicit JointControlRos(
+  explicit JointCommandHandler(
     const ros::NodeHandle& nh,
     const ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
@@ -45,4 +45,4 @@ private:
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void jointStateCmdCb(const sensor_msgs::JointStateConstPtr& js);
 };
-}  // namespace tobas_joint_control
+}  // namespace tobas_gazebo
