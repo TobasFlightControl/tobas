@@ -6,18 +6,6 @@
 
 namespace tobas_gazebo
 {
-struct JointControlInfo
-{
-  std::string controller_name;
-
-  enum command_type_t : int
-  {
-    POSITION,
-    VELOCITY,
-    EFFORT,
-  } command_type;
-};
-
 class JointCommandHandler : public tobas::BaseNode
 {
   using self = JointCommandHandler;
@@ -30,17 +18,21 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  std::unordered_map<std::string, JointControlInfo> ctrl_info_map_;
+  enum command_type_t : int
+  {
+    POSITION,
+    VELOCITY,
+    EFFORT,
+  };
 
-  // PubSub
-  std::unordered_map<std::string, ros::Publisher> cmd_pub_map_;
+  std::unordered_map<std::string, std::pair<command_type_t, ros::Publisher>> ctrl_map_;
   ros::Subscriber js_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void getCommandTypes();
+  int initialize();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void jointStateCmdCb(const sensor_msgs::JointStateConstPtr& js);

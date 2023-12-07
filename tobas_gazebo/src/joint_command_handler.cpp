@@ -21,7 +21,6 @@ JointCommandHandler::JointCommandHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
-  getCommandTypes();
   registerPublishers();
   registerSubscribers();
 }
@@ -32,11 +31,6 @@ void JointCommandHandler::getRosParams()
 
 void JointCommandHandler::registerPublishers()
 {
-  for (const auto& [jnt_name, ctrl_info] : ctrl_info_map_)
-  {
-    const auto topic = ctrl_info.controller_name + "/command";
-    cmd_pub_map_[jnt_name] = nh_.advertise<std_msgs::Float64>(topic, 1);
-  }
 }
 
 void JointCommandHandler::registerSubscribers()
@@ -45,43 +39,51 @@ void JointCommandHandler::registerSubscribers()
     nh_.subscribe(tobas::kJointStatesCmdTopic, 1, &self::jointStateCmdCb, this, tcpNoDelay());
 }
 
-void JointCommandHandler::getCommandTypes()
+int JointCommandHandler::initialize()
 {
+  // ノードの起動順が不確定なため，サービスコールをコンストラクタでやるべきではない
+  // 制限時間を設けて成功するまで何度も繰り返すのが正しい
   ros::ServiceClient sc =
     nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
   if (!sc.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-    ROS_THROW_NAMED(
-      name_, "Failed to connect to '" << tobas::kListControllersSrv << "' service server.");
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kListControllersSrv << "' service server.");
+    return -1;
+  }
 
   controller_manager_msgs::ListControllers msg;
   if (!sc.call(msg))
-    ROS_THROW_NAMED(name_, "Failed to call '" << tobas::kListControllersSrv << "'.");
+  {
+    rosError(name_, "Failed to call '" << tobas::kListControllersSrv << "'.");
+    return -1;
+  }
 
+  command_type_t cmd_type;
   for (const auto& item : msg.response.controller)
   {
     if (item.claimed_resources.size() != 1)
-      return;
+      continue;
     if (item.claimed_resources[0].resources.size() != 1)
-      return;
-
-    JointControlInfo info;
-    info.controller_name = item.name;
+      continue;
 
     if (item.type.ends_with("JointPositionController"))
-      info.command_type = JointControlInfo::POSITION;
+      cmd_type = POSITION;
     else if (item.type.ends_with("JointVelocityController"))
-      info.command_type = JointControlInfo::VELOCITY;
+      cmd_type = VELOCITY;
     else if (item.type.ends_with("JointEffortController"))
-      info.command_type = JointControlInfo::EFFORT;
+      cmd_type = EFFORT;
     else
     {
       rosError(name_, "Unknown controller type: " << item.type);
-      continue;
+      return -1;
     }
 
     const auto& jnt_name = item.claimed_resources[0].resources[0];
-    ctrl_info_map_[jnt_name] = info;
+    const auto topic = item.name + "/command";
+    ctrl_map_[jnt_name] = make_pair(cmd_type, nh_.advertise<std_msgs::Float64>(topic, 1));
   }
+
+  return 0;
 }
 
 void JointCommandHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -104,34 +106,42 @@ void JointCommandHandler::jointStateCmdCb(const sensor_msgs::JointStateConstPtr&
     return;
   }
 
+  if (ctrl_map_.size() == 0 && initialize() < 0)
+  {
+    ctrl_map_.clear();
+    return;
+  }
+
   for (size_t i = 0; i < js->name.size(); ++i)
   {
     const auto& jnt_name = js->name[i];
 
-    if (!ctrl_info_map_.contains(jnt_name))
+    if (!ctrl_map_.contains(jnt_name))
     {
-      rosError(name_, "Controller for joint " << jnt_name << " is not found.");
+      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
     }
 
+    const auto& [type, pub] = ctrl_map_[jnt_name];
     const auto cmd = boost::make_shared<std_msgs::Float64>();
-    switch (ctrl_info_map_[jnt_name].command_type)
+
+    switch (type)
     {
-      case JointControlInfo::POSITION:
+      case POSITION:
         cmd->data = js->position[i];
         break;
-      case JointControlInfo::VELOCITY:
+      case VELOCITY:
         cmd->data = js->velocity[i];
         break;
-      case JointControlInfo::EFFORT:
+      case EFFORT:
         cmd->data = js->effort[i];
         break;
       default:
-        rosError(name_, "Unknown command type: " << ctrl_info_map_[jnt_name].command_type);
+        rosError(name_, "Unknown command type: " << type);
         continue;
     }
 
-    cmd_pub_map_[jnt_name].publish(cmd);
+    pub.publish(cmd);
   }
 }
 }  // namespace tobas_gazebo
