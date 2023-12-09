@@ -33,12 +33,25 @@ int JointStateJntArrayConverter::jointStateToJntArray(const sensor_msgs::JointSt
     return -1;
   }
 
+  const auto size = js.name.size();
+  if (js.position.size() != size || js.velocity.size() != size || js.effort.size() != size)
+  {
+    error_msg_ = "The size of all fields in JointState must be same.";
+    return -1;
+  }
+
   for (const auto& jnt_name : drone_.postureDefiningJoints())
   {
+    const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
+    if (msg_idx < 0)
+    {
+      error_msg_ = "Required joint name '" + jnt_name + "' is not found in name list.";
+      return -1;
+    }
+
     try
     {
-      const auto& kdl_idx = jnt_parser_.jointIndex(jnt_name);     // Tree内でのインデックス
-      const auto msg_idx = dh_std::findIndex(js.name, jnt_name);  // msg内でのインデックス
+      const auto& kdl_idx = jnt_parser_.jointIndex(jnt_name);  // Tree内でのインデックス
       q_out_(kdl_idx) = js.position.at(msg_idx);
       qd_out_(kdl_idx) = js.velocity.at(msg_idx);
       f_out_(kdl_idx) = js.effort.at(msg_idx);

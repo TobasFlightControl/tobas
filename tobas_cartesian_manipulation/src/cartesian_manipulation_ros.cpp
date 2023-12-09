@@ -92,7 +92,6 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   }
   const auto& cur_q = js_converter_.getPositions();
   const auto& cur_qd = js_converter_.getVelocities();
-  const auto& cur_f = js_converter_.getEfforts();
 
   // デカルト座標系の目標値を更新
   KDL::FrameMap tar_p;
