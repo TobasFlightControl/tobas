@@ -32,8 +32,6 @@ ControllerRos::ControllerRos(
   js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
-  q_.resize(drone_.tree().getNrOfJoints());
-
   registerPublishers();
   registerSubscribers();
 
@@ -119,7 +117,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     return;
 
   // 可動関節の角度を更新
-  if (drone_.isTransformable() && js_converter_.convert(*js_, q_) < 0)
+  if (drone_.isTransformable() && js_converter_.jointStateToJntArray(*js_) < 0)
     rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
   // 位置制御器
@@ -134,8 +132,9 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // プロペラの推力を計算
-  const VectorXd thrusts =
-    mixer_.solve(battery_->voltage, q_, odom->pose.euler, odom->twist.rot, tar_acc_W, tar_dgyro_B);
+  const VectorXd thrusts = mixer_.solve(
+    battery_->voltage, js_converter_.getPositions(), odom->pose.euler, odom->twist.rot, tar_acc_W,
+    tar_dgyro_B);
 
   // スロットルを発行
   const auto throttles = boost::make_shared<tobas_msgs::Throttles>();

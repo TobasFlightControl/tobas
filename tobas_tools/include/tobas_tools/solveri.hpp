@@ -7,7 +7,9 @@ namespace tobas
 class SolverI
 {
 protected:
+  static constexpr char kErrorNotUpToDate[] = "Internal data structures not up to date with Tree";
   static constexpr char kErrorSizeMismatch[] = "The size of input doesn't match the internal state";
+  static constexpr char kOutOfRange[] = "The requested index is out of range";
 
 public:
   virtual void updateInternalDataStructures() = 0;

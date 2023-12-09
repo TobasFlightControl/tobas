@@ -36,8 +36,6 @@ ControllerRos::ControllerRos(
   acc_ctrl_.updateInternalDataStructures();
   ori_ctrl_.updateInternalDataStructures();
 
-  q_.resize(drone_.tree().getNrOfJoints());
-
   registerPublishers();
   registerSubscribers();
 
@@ -175,7 +173,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   {
     // 可動関節角を更新
     // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
-    if (drone_.isTransformable() && js_converter_.convert(*js_, q_) < 0)
+    if (drone_.isTransformable() && js_converter_.jointStateToJntArray(*js_) < 0)
       rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
     // プロペラ推力を計算
@@ -184,8 +182,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       // stopwatch_.start();
       thrusts = ori_ctrl_.solve(
-        dt, odom->pose.euler, odom->twist, wind_->vel, q_, battery_->voltage, rotor_speeds_->speeds,
-        tar_rpyt_->thrust, tar_rpyt_->rpy);
+        dt, odom->pose.euler, odom->twist, wind_->vel, js_converter_.getPositions(),
+        battery_->voltage, rotor_speeds_->speeds, tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }
     catch (const exception& e)
