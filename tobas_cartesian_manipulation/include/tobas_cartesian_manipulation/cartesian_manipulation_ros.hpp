@@ -2,7 +2,7 @@
 
 #include <sensor_msgs/JointState.h>
 
-#include <dh_kdl/treeiksolverpos_online.hpp>
+#include <dh_kdl/treetaskspacepid.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
@@ -28,21 +28,18 @@ private:
   KDL::TreeJointParser jnt_parser_;
   tobas::JointStateJntArrayConverter js_converter_;
 
+  size_t nj_;
+  KDL::JntArray jntarraynull_;
+  
   tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::CartesianStateConstPtr cs_;
   bool is_initialized_ = false;
-  ros::Time t_last_;
-  KDL::JntArray q_;
-  KDL::Frame frame_;
-  KDL::FrameMap frames_;
-
-  // rosparams
-  double max_linvel_;
-  double max_angvel_;
+  KDL::Frame tar_pi_;
+  KDL::Frame T_W_B_;
 
   // Publishers
-  ros::V_Publisher cmd_pubs_;
+  ros::Publisher js_cmd_pub_;
 
   // Subscribers
   ros::Subscriber odom_sub_;

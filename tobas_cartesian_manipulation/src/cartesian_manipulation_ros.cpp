@@ -1,5 +1,3 @@
-#include <std_msgs/Float64.h>
-
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
@@ -25,7 +23,8 @@ CartesianManipulationRos::CartesianManipulationRos(
   jnt_parser_.updateInternalDataStructures();
   js_converter_.updateInternalDataStructures();
 
-  q_.resize(drone_.tree().getNrOfJoints());
+  nj_ = drone_.tree().getNrOfJoints();
+  jntarraynull_ = JntArray::Zero(nj_);
 
   registerPublishers();
   registerSubscribers();
@@ -36,21 +35,11 @@ CartesianManipulationRos::CartesianManipulationRos(
 
 void CartesianManipulationRos::getRosParams()
 {
-  dh_ros::getParam(
-    pnh_, "max_linear_velocity", max_linvel_, TreeIkSolverPos_Online::kDefaultMaxLinearVelocity,
-    dh_ros::NON_NEGATIVE);
-  dh_ros::getParam(
-    pnh_, "max_angular_velocity", max_angvel_, TreeIkSolverPos_Online::kDefaultMaxAngularVelocity,
-    dh_ros::NON_NEGATIVE);
 }
 
 void CartesianManipulationRos::registerPublishers()
 {
-  for (const auto& jnt_name : drone_.postureDefiningJoints())
-  {
-    const auto topic = jnt_name + "_controller/command";
-    cmd_pubs_.push_back(nh_.advertise<std_msgs::Float64>(topic, 1));
-  }
+  js_cmd_pub_ = nh_.advertise<sensor_msgs::JointState>(tobas::kJointStatesCmdTopic, 1);
 }
 
 void CartesianManipulationRos::registerSubscribers()
@@ -81,35 +70,51 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     if (js_ != nullptr && cs_ != nullptr)
     {
       check_topics_timer_.stop();
-      t_last_ = odom->header.stamp;
       is_initialized_ = true;
     }
     return;
   }
 
-  // 時刻を更新
-  const auto dt = (odom->header.stamp - t_last_).toSec();
-  t_last_ = odom->header.stamp;
-
-  // 現在の関節角を更新
-  if (js_converter_.convert(*js_, q_) < 0)
+  const auto np = cs_->name.size();  // The number of endpoints
+  if (
+    cs_->frame_id.size() != np || cs_->pose.size() != np || cs_->twist.size() != np
+    || cs_->wrench.size() != np)
   {
-    rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
+    rosError(name_, "Cartesian state size mismatch.");
     return;
   }
 
-  // デカルト座標系の目標値を更新
-  frames_.clear();
-  for (size_t i = 0; i < cs_->name.size(); ++i)
+  // JointState -> JntArray
+  if (js_converter_.jointStateToJntArray(*js_) < 0)
   {
-    tobas::poseTobasToKDL(cs_->pose[i], frame_);
+    rosError(name_, "Failed to convert JointState to Jntarray: " << js_converter_.errorMessage());
+    return;
+  }
+  const auto& cur_q = js_converter_.getPositions();
+  const auto& cur_qd = js_converter_.getVelocities();
+  const auto& cur_f = js_converter_.getEfforts();
+
+  // デカルト座標系の目標値を更新
+  KDL::FrameMap tar_p;
+  KDL::TwistMap tar_v;
+  KDL::AccelMap a_ff;
+  KDL::WrenchMap f_ext;
+  for (size_t i = 0; i < np; ++i)
+  {
+    const auto& seg_name = cs_->name[i];
+    tobas::poseTobasToKDL(cs_->pose[i], tar_pi_);
+    auto tar_vi = cs_->twist[i];
+    auto ai_ff = cs_->accel[i];
+    auto fi_ext = cs_->wrench[i];
     switch (cs_->frame_id[i].data)
     {
       case tobas_msgs::FrameId::GLOBAL:
       {
-        Frame T_W_B;
-        tobas::poseTobasToKDL(odom->pose, T_W_B);
-        frame_ = T_W_B.inverse() * frame_;  // T_B_P = T_B_W * T_W_P
+        tobas::poseTobasToKDL(odom->pose, T_W_B_);
+        tar_pi_ = T_W_B_.inverse() * tar_pi_;  // T_B_P = T_B_W * T_W_P
+        tar_vi = T_W_B_.M.inverse(tar_vi);
+        ai_ff = T_W_B_.M.inverse(ai_ff);
+        fi_ext = T_W_B_.M.inverse(fi_ext);
       }
       case tobas_msgs::FrameId::LOCAL:
       {
@@ -121,31 +126,32 @@ void CartesianManipulationRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
         break;
       }
     }
-    frames_[cs_->name[i]] = frame_;  // Base -> Tip
+    tar_p[seg_name] = tar_pi_;  // Base -> Segment tip
+    tar_v[seg_name] = tar_vi;
+    a_ff[seg_name] = ai_ff;
+    f_ext[seg_name] = fi_ext;
   }
 
-  // IKを解く
+  // PIDで関節トルクを計算
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
-  TreeIkSolverPos_Online ik_solver(drone_.tree(), cs_->name);
-  ik_solver.setMaxLinearVelocity(max_linvel_);
-  ik_solver.setMaxAngularVelocity(max_angvel_);
-  if (ik_solver.CartToJnt(q_, frames_, dt) < 0)
+  TreeTaskSpacePID pid(drone_.tree(), cs_->name);
+  if (pid.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
-    rosError(name_, "Inverse kinematics failed: " << ik_solver.errorMessage());
+    rosError(name_, "Cartesian PID failed: " << pid.errorMessage());
     return;
   }
-  const auto& q_des = ik_solver.getSolution();
 
-  // 位置コマンドを発行
-  for (size_t i = 0; i < drone_.postureDefiningJoints().size(); ++i)
+  // JntArray -> JointState
+  // TODO: FDでdt後の位置と速度を計算して埋める
+  if (js_converter_.jntArrayToJointState(jntarraynull_, jntarraynull_, pid.getEfforts()) < 0)
   {
-    const auto& jnt_name = drone_.postureDefiningJoints()[i];
-    const auto& q_nr = jnt_parser_.jointIndex(jnt_name);
-
-    const auto cmd = boost::make_shared<std_msgs::Float64>();
-    cmd->data = q_des(q_nr);
-    cmd_pubs_[i].publish(cmd);
+    rosError(name_, "Failed to convert Jntarray to JointState: " << js_converter_.errorMessage());
+    return;
   }
+
+  // コマンドを発行
+  auto js_cmd = boost::make_shared<sensor_msgs::JointState>(js_converter_.getJointState());
+  js_cmd_pub_.publish(js_cmd);
 }
 
 void CartesianManipulationRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
