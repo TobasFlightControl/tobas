@@ -67,7 +67,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   {
     check_topics_timer_.stop();
     is_initialized_ = true;
-    DH_GOOD("Joint controller is ready.");
+    DH_GOOD("Joint space velocity controller is ready.");
   }
 
   if (tar_js_ == nullptr)

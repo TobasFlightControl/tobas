@@ -68,7 +68,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   {
     check_topics_timer_.stop();
     is_initialized_ = true;
-    DH_GOOD("Joint controller is ready.");
+    DH_GOOD("Joint space effort controller is ready.");
   }
 
   if (tar_js_ == nullptr)

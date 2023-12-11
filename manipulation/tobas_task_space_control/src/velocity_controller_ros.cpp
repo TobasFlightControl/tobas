@@ -74,6 +74,7 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& 
     {
       check_topics_timer_.stop();
       is_initialized_ = true;
+      DH_GOOD("Task space velocity controller is ready.");
     }
     return;
   }
