@@ -196,6 +196,11 @@ class PackageGenerator(QObject):
             items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
         )
         self._generate_from_template(
+            items,
+            "jointpos_commander.launch",
+            osp.join(launch_dir, "jointpos_commander.launch"),
+        )
+        self._generate_from_template(
             items, "plotjuggler.launch", osp.join(launch_dir, "plotjuggler.launch")
         )
 
