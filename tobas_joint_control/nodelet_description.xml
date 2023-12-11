@@ -1,5 +1,9 @@
 <library path="lib/libtobas_joint_control_nodelet">
 
+  <class name="tobas_joint_control/VelocityControllerNodelet" type="tobas_joint_control::VelocityControllerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
   <class name="tobas_joint_control/EffortControllerNodelet" type="tobas_joint_control::EffortControllerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
