@@ -6,7 +6,7 @@ namespace tobas_cartesian_manipulation
 {
 void EffortControllerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Cartesian Manipulation Nodelet.");
+  NODELET_INFO("Initializing Cartesian Manipulation Effort Controller Nodelet.");
 
   const auto& nh = getNodeHandle();
   const auto& pnh = getPrivateNodeHandle();

@@ -2,7 +2,7 @@
 
 #include <sensor_msgs/JointState.h>
 
-#include <dh_kdl/treetaskspacepid.hpp>
+#include <dh_kdl/treetaskspacevelctrl.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
@@ -12,13 +12,13 @@
 
 namespace tobas_cartesian_manipulation
 {
-class EffortControllerRos : public tobas::BaseNode
+class VelocityControllerRos : public tobas::BaseNode
 {
-  using self = EffortControllerRos;
+  using self = VelocityControllerRos;
   using super = tobas::BaseNode;
 
 public:
-  explicit EffortControllerRos(
+  explicit VelocityControllerRos(
     const ros::NodeHandle& nh,
     const ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
@@ -35,7 +35,7 @@ private:
   KDL::Frame T_W_B_;
 
   // Publishers
-  ros::Publisher efforts_pub_;
+  ros::Publisher velocities_pub_;
 
   // Subscribers
   ros::Subscriber odom_sub_;
