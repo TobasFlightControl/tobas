@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
+from dh_rqt_tools.widgets import add_spacer, add_center_button
 from dh_rqt_tools.messages import *
 from dh_rqt_tools.path import get_workspace_path
 
@@ -61,7 +61,7 @@ class RosPackageWidget(BaseSettingWidget):
         self.generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self.generate_button.setEnabled(False)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
 
     @overrides
     def define_connections(self) -> None:

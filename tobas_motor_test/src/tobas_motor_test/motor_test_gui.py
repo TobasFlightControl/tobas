@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_expanding_widget
+from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 from dh_rqt_tools.path import get_proj_path
 
 from tobas_msgs.msg import Throttles
@@ -55,7 +55,7 @@ class MotorTestGui(MainWidget):
         self._arming_button.setFixedHeight(self.BUTTON_HEIGHT)
         rows.addWidget(self._arming_button)
 
-        add_expanding_widget(rows)
+        add_spacer(rows)
 
         self._throttles_pub = rospy.Publisher(
             "command/throttles", Throttles, queue_size=1

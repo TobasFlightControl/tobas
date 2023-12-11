@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_expanding_widget
+from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 from dh_rqt_tools.path import get_proj_path
 from tobas_msgs.msg import (
     PositionYaw,
@@ -116,7 +116,7 @@ class BasePoseCommander(MainWidget):
         rows.addWidget(self._home_button)
 
         # スペーサー
-        add_expanding_widget(rows)
+        add_spacer(rows)
 
         # 最初はバーを無効化
         self._cmd_x.setEnabled(False)

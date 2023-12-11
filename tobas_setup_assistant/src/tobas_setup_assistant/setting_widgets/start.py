@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
+from dh_rqt_tools.widgets import add_spacer, add_center_button
 from dh_rqt_tools.path import get_pkg_name
 from dh_rqt_tools.messages import q_error
 from dh_rqt_tools.roslaunch import create_launcher
@@ -45,7 +45,7 @@ class StartWidget(BaseSettingWidget):
         self._urdf_builder_launcher = URDFBuilderLaunchder(main)
         self._rows.addWidget(self._urdf_builder_launcher)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
 
     @overrides
     def define_connections(self) -> None:

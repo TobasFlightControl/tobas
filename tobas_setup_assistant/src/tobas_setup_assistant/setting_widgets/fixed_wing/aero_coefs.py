@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
+from dh_rqt_tools.widgets import DoubleSpinBox, add_spacer
 from dh_rqt_tools.layouts import FormLayout
 from dh_rqt_tools.messages import q_info, q_error
 
@@ -43,7 +43,7 @@ class AerodynamicsCoefficientsWidget(QWidget):
         self._load_button.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         rows.addWidget(self._load_button)
 
-        add_expanding_widget(cols)
+        add_spacer(cols)
 
         self._form = FormLayout()
         rows.addLayout(self._form)

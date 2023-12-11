@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import DoubleSpinBox, add_expanding_widget
+from dh_rqt_tools.widgets import DoubleSpinBox, add_spacer
 from dh_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
@@ -67,7 +67,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._load_csv_btn.clicked.connect(self._load_csv)
         cols.addWidget(self._load_csv_btn)
 
-        add_expanding_widget(cols)  # ボタンを左詰めにする
+        add_spacer(cols)  # ボタンを左詰めにする
 
         self._table = QTableWidget(0, len(labels))
         self._table.setHorizontalHeaderLabels(labels)

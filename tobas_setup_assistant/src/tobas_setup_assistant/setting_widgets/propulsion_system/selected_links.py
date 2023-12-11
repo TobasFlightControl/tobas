@@ -15,7 +15,7 @@ from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
-from dh_rqt_tools.widgets import TabWidget, add_expanding_widget, add_center_button
+from dh_rqt_tools.widgets import TabWidget, add_spacer, add_center_button
 from dh_rqt_tools.messages import q_error_named
 from kdl_sympy.frames import Vector
 
@@ -223,7 +223,7 @@ class SelectedLinkTabWidget(QWidget):
         self.aerodynamics = AerodynamicsWidget(main, link_name)
         rows.addWidget(self.aerodynamics)
 
-        add_expanding_widget(rows)
+        add_spacer(rows)
         self._define_connections()
 
     def is_valid(self) -> bool:

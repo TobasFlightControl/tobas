@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
 from dh_rqt_tools.path import get_proj_path
-from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.widgets import add_spacer
 
 import os.path as osp
 from rviz import bindings as rviz
@@ -70,7 +70,7 @@ class RvizWidget(QWidget):
         self.setLayout(rows)
         rows.addWidget(self._frame)
         rows.addLayout(cols)
-        add_expanding_widget(cols)
+        add_spacer(cols)
         cols.addWidget(self._visual_box)
         cols.addWidget(self._collision_box)
 

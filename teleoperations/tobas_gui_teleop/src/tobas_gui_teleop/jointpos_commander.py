@@ -8,7 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_expanding_widget
+from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 from dh_rqt_tools.path import get_proj_path
 
 from .common import *
@@ -77,7 +77,7 @@ class JointPositionsCommander(MainWidget):
         self._random_button.clicked.connect(self._on_random_button_clicked)
         rows.addWidget(self._random_button)
 
-        add_expanding_widget(rows)
+        add_spacer(rows)
 
     def _get_params(self) -> None:
         self._joint_names = rospy.get_param("posture_defining_joint_names")

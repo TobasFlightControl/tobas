@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox, add_expanding_widget
+from dh_rqt_tools.widgets import ComboBox, add_spacer
 from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
@@ -53,7 +53,7 @@ class ControllerWidget(BaseSettingWidget):
         for controller in self._controllers:
             self._rows.addWidget(controller)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
         self._update_visibility()
 
     @overrides
