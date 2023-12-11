@@ -1,4 +1,4 @@
-#include <dh_ros_tools/rosparam.hpp>
+#include <dh_std_tools/zip.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -66,22 +66,7 @@ void VelocityControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
 void VelocityControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 {
-  if (js->name.size() != js->position.size())
-  {
-    rosError(name_, "Joint state size mismatch.");
-    return;
-  }
-
   js_ = js;
-}
-
-void VelocityControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& cs)
-{
-  if (cs->name.size() != cs->pose.size())
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
 
   if (!is_initialized_)
   {
@@ -93,22 +78,15 @@ void VelocityControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr
     return;
   }
 
-  const auto np = cs->name.size();  // The number of endpoints
-  if (
-    cs->frame_id.size() != np || cs->pose.size() != np || cs->twist.size() != np
-    || cs->wrench.size() != np)
-  {
-    rosError(name_, "Cartesian state size mismatch.");
+  if (cs_ == nullptr)
     return;
-  }
 
   // デカルト座標系の目標値を更新
   KDL::FrameMap tar_p;
-  for (size_t i = 0; i < np; ++i)
+  for (const auto& [seg_name, frame_id, pose] : dh_std::zip(cs_->name, cs_->frame_id, cs_->pose))
   {
-    const auto& seg_name = cs->name[i];
-    tobas::poseTobasToKDL(cs->pose[i], tar_pi_);
-    switch (cs->frame_id[i].data)
+    tobas::poseTobasToKDL(pose, tar_pi_);
+    switch (frame_id.data)
     {
       case tobas_msgs::FrameId::GLOBAL:
       {
@@ -121,7 +99,7 @@ void VelocityControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr
       }
       default:
       {
-        rosError(name_, "Unknown frame ID: " << static_cast<int>(cs->frame_id[i].data));
+        rosError(name_, "Unknown frame ID: " << static_cast<int>(frame_id.data));
         break;
       }
     }
@@ -138,7 +116,7 @@ void VelocityControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr
 
   // PIDで関節トルクを計算
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
-  TreeTaskSpaceVelCtrl ctrl(drone_.tree(), cs->name);
+  TreeTaskSpaceVelCtrl ctrl(drone_.tree(), cs_->name);
   if (ctrl.CartToJnt(cur_q, tar_p) < 0)
   {
     rosError(name_, "Cartesian controller failed: " << ctrl.errorMessage());
@@ -157,6 +135,18 @@ void VelocityControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr
   velocities_msg->name = js_converter_.getNamesMsg();
   velocities_msg->data = js_converter_.getVelocitiesMsg();
   velocities_pub_.publish(velocities_msg);
+}
+
+void VelocityControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& cs)
+{
+  const auto np = cs->name.size();  // The number of endpoints
+  if (cs->frame_id.size() != np || cs->pose.size() != np)
+  {
+    rosError(name_, "Cartesian state size mismatch.");
+    return;
+  }
+
+  cs_ = cs;
 }
 
 void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)

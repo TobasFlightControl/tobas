@@ -1,4 +1,4 @@
-#include <dh_ros_tools/rosparam.hpp>
+#include <dh_std_tools/zip.hpp>
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -66,22 +66,7 @@ void EffortControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
 void EffortControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 {
-  if (js->name.size() != js->position.size())
-  {
-    rosError(name_, "Joint state size mismatch.");
-    return;
-  }
-
   js_ = js;
-}
-
-void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& cs)
-{
-  if (cs->name.size() != cs->pose.size())
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
 
   if (!is_initialized_)
   {
@@ -89,32 +74,26 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
     {
       check_topics_timer_.stop();
       is_initialized_ = true;
+      DH_GOOD("Task space effort controller is ready.");
     }
-    return;
   }
 
-  const auto np = cs->name.size();  // The number of endpoints
-  if (
-    cs->frame_id.size() != np || cs->pose.size() != np || cs->twist.size() != np
-    || cs->wrench.size() != np)
-  {
-    rosError(name_, "Cartesian state size mismatch.");
+  if (cs_ == nullptr)
     return;
-  }
 
   // デカルト座標系の目標値を更新
   KDL::FrameMap tar_p;
   KDL::TwistMap tar_v;
   KDL::AccelMap a_ff;
   KDL::WrenchMap f_ext;
-  for (size_t i = 0; i < np; ++i)
+  for (const auto& [seg_name, frame_id, pose, twist, accel, wrench] :
+       dh_std::zip(cs_->name, cs_->frame_id, cs_->pose, cs_->twist, cs_->accel, cs_->wrench))
   {
-    const auto& seg_name = cs->name[i];
-    tobas::poseTobasToKDL(cs->pose[i], tar_pi_);
-    auto tar_vi = cs->twist[i];
-    auto ai_ff = cs->accel[i];
-    auto fi_ext = cs->wrench[i];
-    switch (cs->frame_id[i].data)
+    tobas::poseTobasToKDL(pose, tar_pi_);
+    auto tar_vi = twist;
+    auto ai_ff = accel;
+    auto fi_ext = wrench;
+    switch (frame_id.data)
     {
       case tobas_msgs::FrameId::GLOBAL:
       {
@@ -130,7 +109,7 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
       }
       default:
       {
-        rosError(name_, "Unknown frame ID: " << static_cast<int>(cs->frame_id[i].data));
+        rosError(name_, "Unknown frame ID: " << static_cast<int>(frame_id.data));
         break;
       }
     }
@@ -151,7 +130,7 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
 
   // PIDで関節トルクを計算
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
-  TreeTaskSpacePID pid(drone_.tree(), cs->name);
+  TreeTaskSpacePID pid(drone_.tree(), cs_->name);
   if (pid.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
     rosError(name_, "Cartesian PID failed: " << pid.errorMessage());
@@ -170,6 +149,20 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
   efforts_msg->name = js_converter_.getNamesMsg();
   efforts_msg->data = js_converter_.getEffortsMsg();
   efforts_pub_.publish(efforts_msg);
+}
+
+void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& cs)
+{
+  const auto np = cs->name.size();  // The number of endpoints
+  if (
+    cs->frame_id.size() != np || cs->pose.size() != np || cs->twist.size() != np
+    || cs->accel.size() != np || cs->wrench.size() != np)
+  {
+    rosError(name_, "Cartesian state size mismatch.");
+    return;
+  }
+
+  cs_ = cs;
 }
 
 void EffortControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)

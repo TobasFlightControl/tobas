@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "cartesian_controller_velocity");
+  ros::init(argc, argv, "task_space_controller_velocity");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   tobas_task_space_control::VelocityControllerRos node(nh, pnh);

@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "joint_controller_velocity");
+  ros::init(argc, argv, "joint_space_controller_velocity");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   tobas_joint_space_control::VelocityControllerRos node(nh, pnh);

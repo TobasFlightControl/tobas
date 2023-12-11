@@ -30,6 +30,7 @@ private:
 
   tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr js_;
+  tobas_msgs::CartesianStateConstPtr cs_;
   bool is_initialized_ = false;
   KDL::Frame tar_pi_;
   KDL::Frame T_W_B_;
