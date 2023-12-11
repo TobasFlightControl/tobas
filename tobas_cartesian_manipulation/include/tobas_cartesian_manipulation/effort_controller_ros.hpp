@@ -38,7 +38,7 @@ private:
   KDL::Frame T_W_B_;
 
   // Publishers
-  ros::Publisher js_cmd_pub_;
+  ros::Publisher efforts_pub_;
 
   // Subscribers
   ros::Subscriber odom_sub_;

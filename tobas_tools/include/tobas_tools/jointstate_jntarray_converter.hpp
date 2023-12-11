@@ -19,10 +19,15 @@ public:
   int jointStateToJntArray(const sensor_msgs::JointState& js);
   int jntArrayToJointState(const KDL::JntArray& q, const KDL::JntArray& qd, const KDL::JntArray& f);
 
-  inline const KDL::JntArray& getPositions() const;
-  inline const KDL::JntArray& getVelocities() const;
-  inline const KDL::JntArray& getEfforts() const;
+  inline const KDL::JntArray& getPositionsKDL() const;
+  inline const KDL::JntArray& getVelocitiesKDL() const;
+  inline const KDL::JntArray& getEffortsKDL() const;
+
   inline const sensor_msgs::JointState& getJointState() const;
+  inline const std::vector<std::string>& getNamesMsg() const;
+  inline const std::vector<double>& getPositionsMsg() const;
+  inline const std::vector<double>& getVelocitiesMsg() const;
+  inline const std::vector<double>& getEffortsMsg() const;
 
 private:
   const Drone& drone_;
@@ -35,17 +40,17 @@ private:
   sensor_msgs::JointState js_out_;
 };
 
-inline const KDL::JntArray& JointStateJntArrayConverter::getPositions() const
+inline const KDL::JntArray& JointStateJntArrayConverter::getPositionsKDL() const
 {
   return q_out_;
 }
 
-inline const KDL::JntArray& JointStateJntArrayConverter::getVelocities() const
+inline const KDL::JntArray& JointStateJntArrayConverter::getVelocitiesKDL() const
 {
   return qd_out_;
 }
 
-inline const KDL::JntArray& JointStateJntArrayConverter::getEfforts() const
+inline const KDL::JntArray& JointStateJntArrayConverter::getEffortsKDL() const
 {
   return f_out_;
 }
@@ -53,5 +58,25 @@ inline const KDL::JntArray& JointStateJntArrayConverter::getEfforts() const
 inline const sensor_msgs::JointState& JointStateJntArrayConverter::getJointState() const
 {
   return js_out_;
+}
+
+inline const std::vector<std::string>& JointStateJntArrayConverter::getNamesMsg() const
+{
+  return js_out_.name;
+}
+
+inline const std::vector<double>& JointStateJntArrayConverter::getPositionsMsg() const
+{
+  return js_out_.position;
+}
+
+inline const std::vector<double>& JointStateJntArrayConverter::getVelocitiesMsg() const
+{
+  return js_out_.velocity;
+}
+
+inline const std::vector<double>& JointStateJntArrayConverter::getEffortsMsg() const
+{
+  return js_out_.effort;
 }
 }  // namespace tobas

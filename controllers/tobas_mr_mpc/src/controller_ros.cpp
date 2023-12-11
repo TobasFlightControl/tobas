@@ -182,7 +182,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       // stopwatch_.start();
       thrusts = ori_ctrl_.solve(
-        dt, odom->pose.euler, odom->twist, wind_->vel, js_converter_.getPositions(),
+        dt, odom->pose.euler, odom->twist, wind_->vel, js_converter_.getPositionsKDL(),
         battery_->voltage, rotor_speeds_->speeds, tar_rpyt_->thrust, tar_rpyt_->rpy);
       // stopwatch_.stop();
     }

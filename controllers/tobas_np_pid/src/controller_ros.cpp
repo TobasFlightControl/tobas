@@ -133,7 +133,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // プロペラの推力を計算
   const VectorXd thrusts = mixer_.solve(
-    battery_->voltage, js_converter_.getPositions(), odom->pose.euler, odom->twist.rot, tar_acc_W,
+    battery_->voltage, js_converter_.getPositionsKDL(), odom->pose.euler, odom->twist.rot, tar_acc_W,
     tar_dgyro_B);
 
   // スロットルを発行

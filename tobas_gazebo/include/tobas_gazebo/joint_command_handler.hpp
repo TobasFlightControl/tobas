@@ -1,8 +1,9 @@
 #pragma once
 
-#include <sensor_msgs/JointState.h>
-
 #include <tobas_tools/node.hpp>
+#include <tobas_msgs/JointPositions.h>
+#include <tobas_msgs/JointVelocities.h>
+#include <tobas_msgs/JointEfforts.h>
 
 namespace tobas_gazebo
 {
@@ -26,7 +27,9 @@ private:
   };
 
   std::unordered_map<std::string, std::pair<command_type_t, ros::Publisher>> ctrl_map_;
-  ros::Subscriber js_sub_;
+  ros::Subscriber positions_sub_;
+  ros::Subscriber velocities_sub_;
+  ros::Subscriber efforts_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -35,6 +38,8 @@ private:
   int initialize();
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void jointStateCmdCb(const sensor_msgs::JointStateConstPtr& js);
+  void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities);
+  void jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts);
 };
 }  // namespace tobas_gazebo

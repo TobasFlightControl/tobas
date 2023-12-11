@@ -3,6 +3,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/conversions/kdl_msg.hpp>
+#include <tobas_msgs/JointEfforts.h>
 
 #include "../include/tobas_cartesian_manipulation/effort_controller_ros.hpp"
 
@@ -39,7 +40,7 @@ void EffortControllerRos::getRosParams()
 
 void EffortControllerRos::registerPublishers()
 {
-  js_cmd_pub_ = nh_.advertise<sensor_msgs::JointState>(tobas::kJointStatesCmdTopic, 1);
+  efforts_pub_ = nh_.advertise<tobas_msgs::JointEfforts>(tobas::kJointEffortsCmdTopic, 1);
 }
 
 void EffortControllerRos::registerSubscribers()
@@ -104,15 +105,6 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
     return;
   }
 
-  // JointState -> JntArray
-  if (js_converter_.jointStateToJntArray(*js_) < 0)
-  {
-    rosError(name_, "Failed to convert JointState to Jntarray: " << js_converter_.errorMessage());
-    return;
-  }
-  const auto& cur_q = js_converter_.getPositions();
-  const auto& cur_qd = js_converter_.getVelocities();
-
   // デカルト座標系の目標値を更新
   KDL::FrameMap tar_p;
   KDL::TwistMap tar_v;
@@ -151,6 +143,15 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
     f_ext[seg_name] = fi_ext;
   }
 
+  // JointState -> JntArray
+  if (js_converter_.jointStateToJntArray(*js_) < 0)
+  {
+    rosError(name_, "Failed to convert JointState to Jntarray: " << js_converter_.errorMessage());
+    return;
+  }
+  const auto& cur_q = js_converter_.getPositionsKDL();
+  const auto& cur_qd = js_converter_.getVelocitiesKDL();
+
   // PIDで関節トルクを計算
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
   TreeTaskSpacePID pid(drone_.tree(), cs->name);
@@ -169,8 +170,10 @@ void EffortControllerRos::cartStateCb(const tobas_msgs::CartesianStateConstPtr& 
   }
 
   // コマンドを発行
-  auto js_cmd = boost::make_shared<sensor_msgs::JointState>(js_converter_.getJointState());
-  js_cmd_pub_.publish(js_cmd);
+  auto efforts_msg = boost::make_shared<tobas_msgs::JointEfforts>();
+  efforts_msg->name = js_converter_.getNamesMsg();
+  efforts_msg->data = js_converter_.getEffortsMsg();
+  efforts_pub_.publish(efforts_msg);
 }
 
 void EffortControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)

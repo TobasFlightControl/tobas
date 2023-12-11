@@ -169,7 +169,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     // プロペラの推力を計算
     // TODO: H-momentを考慮
     const VectorXd thrusts = mixer_.solve(
-      dt, battery_->voltage, js_converter_.getPositions(), odom->twist.rot.data, Vector3d::Zero(),
+      dt, battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data, Vector3d::Zero(),
       tar_dgyro.data, tar_rpyt_->thrust);
 
     // スロットルを発行
