@@ -1,5 +1,5 @@
 <launch>
 
-  <node pkg="tobas_cartesian_manipulation" type="cartesian_manipulation_node" name="cartesian_manipulation" output="screen"/>
+  <node pkg="tobas_cartesian_manipulation" type="effort_controller_node" name="effort_controller" output="screen"/>
 
 </launch>

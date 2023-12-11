@@ -12,13 +12,13 @@
 
 namespace tobas_cartesian_manipulation
 {
-class CartesianManipulationRos : public tobas::BaseNode
+class EffortControllerRos : public tobas::BaseNode
 {
-  using self = CartesianManipulationRos;
+  using self = EffortControllerRos;
   using super = tobas::BaseNode;
 
 public:
-  explicit CartesianManipulationRos(
+  explicit EffortControllerRos(
     const ros::NodeHandle& nh,
     const ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
@@ -33,7 +33,6 @@ private:
   
   tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr js_;
-  tobas_msgs::CartesianStateConstPtr cs_;
   bool is_initialized_ = false;
   KDL::Frame tar_pi_;
   KDL::Frame T_W_B_;

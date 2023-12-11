@@ -1,10 +1,10 @@
 #include <pluginlib/class_list_macros.hpp>
 
-#include "./cartesian_manipulation_nodelet.hpp"
+#include "./effort_controller_nodelet.hpp"
 
 namespace tobas_cartesian_manipulation
 {
-void CartesianManipulationNodelet::onInit()
+void EffortControllerNodelet::onInit()
 {
   NODELET_INFO("Initializing Cartesian Manipulation Nodelet.");
 
@@ -12,10 +12,8 @@ void CartesianManipulationNodelet::onInit()
   const auto& pnh = getPrivateNodeHandle();
   const auto& name = getName();
 
-  node_.reset(new CartesianManipulationRos(nh, pnh, name));
+  node_.reset(new EffortControllerRos(nh, pnh, name));
 }
 }  // namespace tobas_cartesian_manipulation
 
-PLUGINLIB_EXPORT_CLASS(
-  tobas_cartesian_manipulation::CartesianManipulationNodelet,
-  nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_cartesian_manipulation::EffortControllerNodelet, nodelet::Nodelet);

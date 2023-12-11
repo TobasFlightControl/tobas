@@ -1,6 +1,6 @@
 <library path="lib/libtobas_cartesian_manipulation_nodelet">
 
-  <class name="tobas_cartesian_manipulation/CartesianManipulationNodelet" type="tobas_cartesian_manipulation::CartesianManipulationNodelet" base_class_type="nodelet::Nodelet">
+  <class name="tobas_cartesian_manipulation/EffortControllerNodelet" type="tobas_cartesian_manipulation::EffortControllerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
 
