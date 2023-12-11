@@ -1,0 +1,15 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <arg name="node_name" value="joint_controller_effort"/>
+
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_joint_control/EffortControllerNodelet nodelet_manager" output="screen">
+    <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
+  </node>
+  <node unless="$(arg nodelet)" pkg="tobas_joint_control" type="effort_controller_node" name="$(arg node_name)" output="screen">
+    <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
+  </node>
+
+</launch>
