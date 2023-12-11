@@ -55,6 +55,7 @@ static constexpr char kRpyThrustCmdTopic[] = "command/rpy_thrust";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
 static constexpr char kCartStatesCmdTopic[] = "command/cartesian_states";
+static constexpr char kJointStatesCmdTopic[] = "command/joint_states";
 static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";

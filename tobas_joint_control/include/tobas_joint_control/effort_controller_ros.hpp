@@ -2,13 +2,11 @@
 
 #include <sensor_msgs/JointState.h>
 
-#include <dh_kdl/treetaskspacepid.hpp>
+#include <dh_kdl/treejntspacepid.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/jointstate_jntarray_converter.hpp>
-#include <tobas_msgs/Odometry.h>
-#include <tobas_msgs/CartesianState.h>
 
 namespace tobas_joint_control
 {
@@ -25,22 +23,21 @@ public:
 
 private:
   tobas::Drone drone_;
-  tobas::JointStateJntArrayConverter js_converter_;
+  tobas::JointStateJntArrayConverter cur_js_conv_;
+  tobas::JointStateJntArrayConverter tar_js_conv_;
+  KDL::TreeJntSpacePID pid_;
   KDL::JntArray jntarraynull_;
 
-  tobas_msgs::OdometryConstPtr odom_;
-  sensor_msgs::JointStateConstPtr js_;
   bool is_initialized_ = false;
-  KDL::Frame tar_pi_;
-  KDL::Frame T_W_B_;
+  sensor_msgs::JointStateConstPtr cur_js_;
+  sensor_msgs::JointStateConstPtr tar_js_;
 
   // Publishers
   ros::Publisher efforts_pub_;
 
   // Subscribers
-  ros::Subscriber odom_sub_;
-  ros::Subscriber js_sub_;
-  ros::Subscriber cs_sub_;
+  ros::Subscriber cur_js_sub_;
+  ros::Subscriber tar_js_sub_;
 
   // Timer
   ros::Timer check_topics_timer_;
@@ -50,9 +47,8 @@ private:
   void registerSubscribers() override;
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
-  void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
-  void cartStateCb(const tobas_msgs::CartesianStateConstPtr& cs);
+  void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
+  void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
 
   void checkTopicsTimerCb(const ros::TimerEvent& e);
 };
