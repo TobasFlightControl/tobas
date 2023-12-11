@@ -1,7 +1,6 @@
 import math
-import random
 import rospy
-from typing import List, Callable
+from typing import List
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
 from sensor_msgs.msg import JointState
@@ -9,8 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.utils import remap
-from dh_rqt_tools.widgets import Slider, add_expanding_widget
+from dh_rqt_tools.widgets import FloatSliderDisplay, add_expanding_widget
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -71,43 +69,37 @@ class MultirotorCommanderWidget(QWidget):
         rows.addWidget(label)
 
         # XYZRPYに対応するバーを追加
-        self._cmd_x = Commander(
-            self,
+        self._cmd_x = FloatSliderDisplay(
             "x",
             self._x_min,
             self._x_max,
             callback=self._publish_current_command,
         )
-        self._cmd_y = Commander(
-            self,
+        self._cmd_y = FloatSliderDisplay(
             "y",
             self._y_min,
             self._y_max,
             callback=self._publish_current_command,
         )
-        self._cmd_z = Commander(
-            self,
+        self._cmd_z = FloatSliderDisplay(
             "z",
             self._z_min,
             self._z_max,
             callback=self._publish_current_command,
         )
-        self._cmd_roll = Commander(
-            self,
+        self._cmd_roll = FloatSliderDisplay(
             "roll",
             self._roll_min,
             self._roll_max,
             callback=self._publish_current_command,
         )
-        self._cmd_pitch = Commander(
-            self,
+        self._cmd_pitch = FloatSliderDisplay(
             "pitch",
             self._pitch_min,
             self._pitch_max,
             callback=self._publish_current_command,
         )
-        self._cmd_yaw = Commander(
-            self,
+        self._cmd_yaw = FloatSliderDisplay(
             "yaw",
             self._yaw_min,
             self._yaw_max,
@@ -242,7 +234,7 @@ class JointPositionCommanderWidget(QWidget):
         super().__init__(parent=parent)
 
         # Commanders
-        self._commanders: List[Commander] = []
+        self._commanders: List[FloatSliderDisplay] = []
 
         # rosparams
         self._joint_names: List[str] = []
@@ -280,8 +272,7 @@ class JointPositionCommanderWidget(QWidget):
         for i, jnt_name in enumerate(self._cmd.name):
             joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
-            commander = Commander(
-                self,
+            commander = FloatSliderDisplay(
                 jnt_name,
                 limit.lower,
                 limit.upper,
@@ -349,84 +340,3 @@ class JointPositionCommanderWidget(QWidget):
             joint_cmd.set_random_value()
 
         self.setEnabled(True)
-
-
-class Commander(QWidget):
-    PSIZE = 9
-    RANGE = 10000
-
-    value_changed = pyqtSignal(float)
-
-    def __init__(
-        self,
-        parent: QWidget,
-        name: str,
-        minimum: float,
-        maximum: float,
-        callback: Callable[[float], None] = None,
-    ) -> None:
-        super().__init__(parent=parent)
-        self._min = minimum
-        self._max = maximum
-
-        font = QFont("Default", self.PSIZE, QFont.Bold)
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        cols = QHBoxLayout()
-        rows.addLayout(cols)
-
-        name = QLabel(name, parent=self)
-        name.setFont(font)
-        cols.addWidget(name)
-
-        self._value = QLineEdit("0.00", parent=parent)
-        self._value.setAlignment(Qt.AlignRight)
-        self._value.setFont(font)
-        self._value.setReadOnly(True)
-        self._value.setFocusPolicy(Qt.NoFocus)
-        cols.addWidget(self._value)
-
-        self._slider = Slider(Qt.Horizontal, parent=parent)
-        self._slider.setFont(font)
-        self._slider.setRange(0, self.RANGE)
-        self._slider.setValue(self.RANGE // 2)
-        rows.addWidget(self._slider)
-
-        if callback is not None:
-            self.value_changed.connect(callback)
-
-        self._slider.valueChanged.connect(self._on_value_changed)
-
-    def get_value(self) -> float:
-        return float(self._value.text())
-
-    def set_value(self, value: float) -> None:
-        slider_value = self._value_to_slider(value)
-        if slider_value == self._slider.value():
-            self._slider.valueChanged.emit(slider_value)  # 値が変化しない場合でもシグナルは出す
-        else:
-            self._slider.setValue(slider_value)
-
-    def set_random_value(self) -> None:
-        value = random.uniform(self._min, self._max)
-        self.set_value(value)
-
-    def set_center_value(self) -> None:
-        value = (self._min + self._max) / 2
-        self.set_value(value)
-
-    @pyqtSlot()
-    def _on_value_changed(self) -> None:
-        value = self._slider_to_value()
-        self._value.setText(f"{value:.2f}")
-        self.value_changed.emit(value)
-
-    def _slider_to_value(self) -> float:
-        x = float(self._slider.value())
-        return remap(x, 0.0, self.RANGE, self._min, self._max)
-
-    def _value_to_slider(self, value: float) -> int:
-        assert self._min <= value <= self._max
-        return int(remap(value, self._min, self._max, 0.0, self.RANGE))
