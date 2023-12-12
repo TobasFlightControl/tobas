@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	nodelet
 	pluginlib
+	dynamic_reconfigure
 )
 
 # catkin_python_setup()
@@ -30,7 +31,8 @@ find_package(catkin REQUIRED COMPONENTS
 # 	actionlib_msgs
 # )
 
-# generate_dynamic_reconfigure_options(cfg/RenameMe.cfg)
+file(GLOB_RECURSE CFG_FILES RELATIVE ${PROJECT_SOURCE_DIR} cfg/[^.]*.cfg)
+generate_dynamic_reconfigure_options(${CFG_FILES})
 
 catkin_package(
 	INCLUDE_DIRS include
@@ -44,7 +46,7 @@ include_directories(${catkin_INCLUDE_DIRS} include)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)

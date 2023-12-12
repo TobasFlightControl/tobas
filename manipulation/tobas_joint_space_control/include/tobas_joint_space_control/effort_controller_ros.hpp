@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
 #include <dh_kdl/treejntspacepid.hpp>
@@ -8,12 +9,17 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/jointstate_jntarray_converter.hpp>
 
+#include <tobas_joint_space_control/EffortControllerConfig.h>
+
 namespace tobas_joint_space_control
 {
 class EffortControllerRos : public tobas::BaseNode
 {
   using self = EffortControllerRos;
   using super = tobas::BaseNode;
+
+  using ConfigType = tobas_joint_space_control::EffortControllerConfig;
+  using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
   explicit EffortControllerRos(
@@ -42,6 +48,9 @@ private:
   // Timer
   ros::Timer check_topics_timer_;
 
+  // Dynamic Reconfigure Server
+  ConfigServer server_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -51,5 +60,6 @@ private:
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
 
   void checkTopicsTimerCb(const ros::TimerEvent& e);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_joint_space_control

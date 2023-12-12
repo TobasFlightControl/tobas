@@ -16,7 +16,7 @@ VelocityControllerRos::VelocityControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
-  : super(nh, pnh, name), js_converter_(drone_)
+  : super(nh, pnh, name), js_converter_(drone_), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -29,6 +29,9 @@ VelocityControllerRos::VelocityControllerRos(
 
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(tobas::kCheckTopicsTimerPeriod), &self::checkTopicsTimerCb, this);
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void VelocityControllerRos::getRosParams()
@@ -118,6 +121,10 @@ void VelocityControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& 
   // PIDで関節トルクを計算
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
   TreeTaskSpaceVelCtrl ctrl(drone_.tree(), cs_->name);
+  if (!ctrl.setLinearTimeConst(lin_time_const_))
+    rosError(name_, "Failed to set linear tracking time constant.");
+  if (!ctrl.setAngularTimeConst(ang_time_const_))
+    rosError(name_, "Failed to set angular tracking time constant.");
   if (ctrl.CartToJnt(cur_q, tar_p) < 0)
   {
     rosError(name_, "Cartesian controller failed: " << ctrl.errorMessage());
@@ -157,5 +164,32 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
   if (js_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic)
+}
+
+void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
+{
+  bool success = true;
+
+  if (cfg.linear_time_constant <= 0)
+  {
+    rosError(name_, "Linear time constant must be positive.");
+    success = false;
+  }
+  if (cfg.angular_time_constant <= 0)
+  {
+    rosError(name_, "Angular time constant must be positive.");
+    success = false;
+  }
+
+  if (success)
+  {
+    lin_time_const_.fill(cfg.linear_time_constant);
+    ang_time_const_.fill(cfg.angular_time_constant);
+    rosInfo(name_, "Dynamic parameters are updated.");
+  }
+  else
+  {
+    rosError(name_, "Failed to update dynamic parameters.");
+  }
 }
 }  // namespace tobas_task_space_control

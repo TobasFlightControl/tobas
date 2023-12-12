@@ -14,7 +14,7 @@ VelocityControllerRos::VelocityControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
-  : super(nh, pnh, name), cur_js_conv_(drone_), tar_js_conv_(drone_)
+  : super(nh, pnh, name), cur_js_conv_(drone_), tar_js_conv_(drone_), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -28,6 +28,9 @@ VelocityControllerRos::VelocityControllerRos(
 
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(tobas::kCheckTopicsTimerPeriod), &self::checkTopicsTimerCb, this);
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void VelocityControllerRos::getRosParams()
@@ -115,5 +118,17 @@ void VelocityControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (cur_js_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic)
+}
+
+void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
+{
+  if (cfg.tracking_time_constant <= 0)
+  {
+    rosError(name_, "Tracking time constant must be positive.");
+    return;
+  }
+
+  gain_ = 1 / cfg.tracking_time_constant;
+  rosInfo(name_, "Dynamic parameters are updated.");
 }
 }  // namespace tobas_joint_space_control

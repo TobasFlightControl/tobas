@@ -16,7 +16,7 @@ EffortControllerRos::EffortControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
-  : super(nh, pnh, name), js_converter_(drone_)
+  : super(nh, pnh, name), js_converter_(drone_), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -29,6 +29,9 @@ EffortControllerRos::EffortControllerRos(
 
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(tobas::kCheckTopicsTimerPeriod), &self::checkTopicsTimerCb, this);
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void EffortControllerRos::getRosParams()
@@ -131,6 +134,14 @@ void EffortControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js
   // PIDで関節トルクを計算
   // TODO: 毎周期クラスを初期化するのは無駄なので効率化
   TreeTaskSpacePID pid(drone_.tree(), cs_->name);
+  if (!pid.setLinearStiffness(lin_kp_))
+    rosError(name_, "Failed to set linear stiffness.");
+  if (!pid.setAngularStiffness(ang_kp_))
+    rosError(name_, "Failed to set angular stiffness.");
+  if (!pid.setLinearDamping(lin_kd_))
+    rosError(name_, "Failed to set linear damping.");
+  if (!pid.setAngularDamping(ang_kd_))
+    rosError(name_, "Failed to set angular damping.");
   if (pid.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
     rosError(name_, "Cartesian PID failed: " << pid.errorMessage());
@@ -172,5 +183,44 @@ void EffortControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
   if (js_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic)
+}
+
+void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
+{
+  bool success = true;
+
+  if (cfg.linear_stiffness < 0)
+  {
+    rosError(name_, "Linear stiffness must be non negative.");
+    success = false;
+  }
+  if (cfg.angular_stiffness < 0)
+  {
+    rosError(name_, "Angular stiffness must be non negative.");
+    success = false;
+  }
+  if (cfg.linear_damping < 0)
+  {
+    rosError(name_, "Linear damping must be non negative.");
+    success = false;
+  }
+  if (cfg.angular_damping < 0)
+  {
+    rosError(name_, "Angular damping must be non negative.");
+    success = false;
+  }
+
+  if (success)
+  {
+    lin_kp_.fill(cfg.linear_stiffness);
+    ang_kp_.fill(cfg.angular_stiffness);
+    lin_kd_.fill(cfg.linear_damping);
+    ang_kd_.fill(cfg.angular_damping);
+    rosInfo(name_, "Dynamic parameters are updated.");
+  }
+  else
+  {
+    rosError(name_, "Failed to update dynamic parameters.");
+  }
 }
 }  // namespace tobas_task_space_control

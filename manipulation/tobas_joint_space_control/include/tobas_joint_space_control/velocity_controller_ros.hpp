@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
 #include <dh_kdl/treejntspacepid.hpp>
@@ -8,12 +9,17 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/jointstate_jntarray_converter.hpp>
 
+#include <tobas_joint_space_control/VelocityControllerConfig.h>
+
 namespace tobas_joint_space_control
 {
 class VelocityControllerRos : public tobas::BaseNode
 {
   using self = VelocityControllerRos;
   using super = tobas::BaseNode;
+
+  using ConfigType = tobas_joint_space_control::VelocityControllerConfig;
+  using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
   explicit VelocityControllerRos(
@@ -27,7 +33,7 @@ private:
   tobas::JointStateJntArrayConverter tar_js_conv_;
   KDL::JntArray jntarraynull_;
 
-  double gain_ = 10.;  // TODO: dynamic_reconfigure
+  double gain_;
 
   bool is_initialized_ = false;
   sensor_msgs::JointStateConstPtr cur_js_;
@@ -43,6 +49,9 @@ private:
   // Timer
   ros::Timer check_topics_timer_;
 
+  // Dynamic Reconfigure Server
+  ConfigServer server_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -52,5 +61,6 @@ private:
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
 
   void checkTopicsTimerCb(const ros::TimerEvent& e);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_joint_space_control

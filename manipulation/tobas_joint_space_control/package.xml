@@ -11,6 +11,7 @@
 
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
+	<depend>dynamic_reconfigure</depend>
 
 	<depend>tobas_tools</depend>
 

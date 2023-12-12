@@ -14,7 +14,11 @@ EffortControllerRos::EffortControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
-  : super(nh, pnh, name), cur_js_conv_(drone_), tar_js_conv_(drone_), pid_(drone_.tree())
+  : super(nh, pnh, name),
+    cur_js_conv_(drone_),
+    tar_js_conv_(drone_),
+    pid_(drone_.tree()),
+    server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -29,6 +33,9 @@ EffortControllerRos::EffortControllerRos(
 
   check_topics_timer_ =
     nh_.createTimer(ros::Duration(tobas::kCheckTopicsTimerPeriod), &self::checkTopicsTimerCb, this);
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 void EffortControllerRos::getRosParams()
@@ -124,5 +131,25 @@ void EffortControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (cur_js_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic)
+}
+
+void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
+{
+  bool success = true;
+
+  if (!pid_.setStiffness(cfg.stiffness))
+  {
+    rosError(name_, "Failed to set stiffness.");
+    success = false;
+  }
+
+  if (!pid_.setDamping(cfg.damping))
+  {
+    rosError(name_, "Failed to set damping.");
+    success = false;
+  }
+
+  if (success)
+    rosInfo(name_, "Dynamic parameters are updated.");
 }
 }  // namespace tobas_joint_space_control
