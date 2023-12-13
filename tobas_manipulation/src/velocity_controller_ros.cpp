@@ -81,7 +81,7 @@ int VelocityControllerRos::jointSpaceControl(JntArray& velocities)
 
   // 目標関節速度を計算
   const auto& cur_q = cur_js_conv_.getPositionsKDL();
-  const auto& tar_q = cur_js_conv_.getPositionsKDL();
+  const auto& tar_q = tar_js_conv_.getPositionsKDL();
   const auto gain = 1 / jnt_time_const_;
   velocities = gain * (tar_q - cur_q);
 
