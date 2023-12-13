@@ -4,7 +4,8 @@
 
 #include <dh_kdl/tree.hpp>
 
-#include "./rotor_property.hpp"
+#include "./joint_config.hpp"
+#include "./rotor_config.hpp"
 #include "./fixed_wing_tools.hpp"
 
 namespace tobas
@@ -21,7 +22,8 @@ public:
   void loadFromParam(ros::NodeHandle& nh);
 
   inline const KDL::Tree& tree() const;
-  inline const std::vector<std::string>& postureDefiningJoints() const;
+  inline const JointConfigs& jointConfigs() const;
+  inline const JointConfig& jointConfig(const size_t& joint_idx) const;
   inline const RotorConfigs& rotorConfigs() const;
   inline const RotorConfig& rotorConfig(const size_t& rotor_idx) const;
   inline const FixedWingConfig& fixedWing() const;
@@ -36,6 +38,8 @@ public:
 
   inline size_t numRotors() const;
   inline size_t numControlSurfaces() const;
+
+  std::vector<std::string> postureDefiningJointNames() const;
 
   /* 回転数 [rad/s] から推力 [N] を求める． */
   double thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
@@ -60,12 +64,16 @@ public:
 
 private:
   KDL::Tree tree_;
-  std::vector<std::string> posture_defining_joints_;
-  RotorConfigs rotor_configs_;
-  FixedWingConfig fixed_wing_config_;
+
+  JointConfigs joints_;  // プロペラ，舵面以外の可動関節
+  RotorConfigs rotors_;
+  FixedWingConfig fixed_wing_;
 
   bool has_fixed_wing_;
   bool is_loaded_ = false;
+
+  void getJointConfigs(ros::NodeHandle& nh);
+  JointConfig getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx);
 
   void getRotorConfigs(ros::NodeHandle& nh);
   RotorConfig getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx);
@@ -82,44 +90,49 @@ inline const KDL::Tree& Drone::tree() const
   return tree_;
 }
 
-inline const std::vector<std::string>& Drone::postureDefiningJoints() const
+inline const JointConfigs& Drone::jointConfigs() const
 {
-  return posture_defining_joints_;
+  return joints_;
+}
+
+inline const JointConfig& Drone::jointConfig(const size_t& joint_idx) const
+{
+  return joints_.at(joint_idx);
 }
 
 inline const RotorConfigs& Drone::rotorConfigs() const
 {
-  return rotor_configs_;
+  return rotors_;
 }
 
 inline const RotorConfig& Drone::rotorConfig(const size_t& rotor_idx) const
 {
-  return rotor_configs_[rotor_idx];
+  return rotors_.at(rotor_idx);
 }
 
 inline const FixedWingConfig& Drone::fixedWing() const
 {
-  return fixed_wing_config_;
+  return fixed_wing_;
 }
 
 inline const VehicleParameters& Drone::vehicle() const
 {
-  return fixed_wing_config_.vehicle;
+  return fixed_wing_.vehicle;
 }
 
 inline const AerodynamicsCoefficients& Drone::aerodynamics() const
 {
-  return fixed_wing_config_.aerodynamics;
+  return fixed_wing_.aerodynamics;
 }
 
 inline const ControlSurfaces& Drone::controlSurfaces() const
 {
-  return fixed_wing_config_.control_surfaces;
+  return fixed_wing_.control_surfaces;
 }
 
 inline const ControlSurface& Drone::controlSurface(const size_t& cs_idx) const
 {
-  return fixed_wing_config_.control_surfaces[cs_idx];
+  return fixed_wing_.control_surfaces.at(cs_idx);
 }
 
 inline const bool& Drone::hasFixedWing() const
@@ -134,16 +147,16 @@ inline const bool& Drone::isLoaded() const
 
 inline bool Drone::isTransformable() const
 {
-  return posture_defining_joints_.size() > 0;
+  return joints_.size() > 0;
 }
 
 inline size_t Drone::numRotors() const
 {
-  return rotor_configs_.size();
+  return rotors_.size();
 }
 
 inline size_t Drone::numControlSurfaces() const
 {
-  return fixed_wing_config_.control_surfaces.size();
+  return fixed_wing_.control_surfaces.size();
 }
 }  // namespace tobas

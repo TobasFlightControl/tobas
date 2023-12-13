@@ -21,8 +21,8 @@ ControllerRos::ControllerRos(
   const ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
+    js_converter_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    js_converter_(drone_),
     acc_ctrl_(drone_),
     ori_ctrl_(drone_),
     check_topics_timer_(nh_, kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
@@ -35,6 +35,9 @@ ControllerRos::ControllerRos(
   js_converter_.updateInternalDataStructures();
   acc_ctrl_.updateInternalDataStructures();
   ori_ctrl_.updateInternalDataStructures();
+
+  if (!js_converter_.setJointNames(drone_.postureDefiningJointNames()))
+    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
 
   registerPublishers();
   registerSubscribers();

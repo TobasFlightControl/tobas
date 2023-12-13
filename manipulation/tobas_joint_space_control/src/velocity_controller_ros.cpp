@@ -1,4 +1,5 @@
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/JointVelocities.h>
@@ -14,14 +15,31 @@ VelocityControllerRos::VelocityControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
-  : super(nh, pnh, name), cur_js_conv_(drone_), tar_js_conv_(drone_), server_(pnh_)
+  : super(nh, pnh, name), cur_js_conv_(drone_.tree()), tar_js_conv_(drone_.tree()), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
 
   cur_js_conv_.updateInternalDataStructures();
   tar_js_conv_.updateInternalDataStructures();
+
+  if (!cur_js_conv_.setJointNames(drone_.postureDefiningJointNames()))
+    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
+  if (!tar_js_conv_.setJointNames(drone_.postureDefiningJointNames()))
+    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
+
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
+
+  // Set initial target joint states
+  sensor_msgs::JointState init_tar_js;
+  for (const auto& joint : drone_.jointConfigs())
+  {
+    init_tar_js.name.push_back(joint.name);
+    init_tar_js.position.push_back(joint.init_pos);
+    init_tar_js.velocity.push_back(0.);
+    init_tar_js.effort.push_back(0.);
+  }
+  tar_js_ = boost::make_shared<sensor_msgs::JointState>(init_tar_js);
 
   registerPublishers();
   registerSubscribers();

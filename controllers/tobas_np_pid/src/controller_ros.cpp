@@ -21,7 +21,7 @@ ControllerRos::ControllerRos(
   const ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
-    js_converter_(drone_),
+    js_converter_(drone_.tree()),
     mixer_(drone_),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
@@ -31,6 +31,9 @@ ControllerRos::ControllerRos(
 
   js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
+
+  if (!js_converter_.setJointNames(drone_.postureDefiningJointNames()))
+    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
 
   registerPublishers();
   registerSubscribers();
@@ -133,8 +136,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // プロペラの推力を計算
   const VectorXd thrusts = mixer_.solve(
-    battery_->voltage, js_converter_.getPositionsKDL(), odom->pose.euler, odom->twist.rot, tar_acc_W,
-    tar_dgyro_B);
+    battery_->voltage, js_converter_.getPositionsKDL(), odom->pose.euler, odom->twist.rot,
+    tar_acc_W, tar_dgyro_B);
 
   // スロットルを発行
   const auto throttles = boost::make_shared<tobas_msgs::Throttles>();

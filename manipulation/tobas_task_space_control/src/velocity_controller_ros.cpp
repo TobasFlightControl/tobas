@@ -1,5 +1,6 @@
 #include <dh_std_tools/zip.hpp>
 #include <dh_ros_tools/console_message.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/conversions/kdl_msg.hpp>
@@ -16,12 +17,15 @@ VelocityControllerRos::VelocityControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const std::string& name)
-  : super(nh, pnh, name), js_converter_(drone_), server_(pnh_)
+  : super(nh, pnh, name), js_converter_(drone_.tree()), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
 
   js_converter_.updateInternalDataStructures();
+  if (!js_converter_.setJointNames(drone_.postureDefiningJointNames()))
+    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
+
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
 
   registerPublishers();

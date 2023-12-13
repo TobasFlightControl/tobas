@@ -21,8 +21,8 @@ ControllerRos::ControllerRos(
   const ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
+    js_converter_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
-    js_converter_(drone_),
     acc_ctrl_(drone_),
     mixer_(drone_),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
@@ -35,6 +35,9 @@ ControllerRos::ControllerRos(
   js_converter_.updateInternalDataStructures();
   acc_ctrl_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
+
+  if (!js_converter_.setJointNames(drone_.postureDefiningJointNames()))
+    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
 
   registerPublishers();
   registerSubscribers();
@@ -169,8 +172,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     // プロペラの推力を計算
     // TODO: H-momentを考慮
     const VectorXd thrusts = mixer_.solve(
-      dt, battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data, Vector3d::Zero(),
-      tar_dgyro.data, tar_rpyt_->thrust);
+      dt, battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data,
+      Vector3d::Zero(), tar_dgyro.data, tar_rpyt_->thrust);
 
     // スロットルを発行
     const auto throttles = boost::make_shared<tobas_msgs::Throttles>();

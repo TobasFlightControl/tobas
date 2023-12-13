@@ -4,10 +4,10 @@
 #include <sensor_msgs/JointState.h>
 
 #include <dh_kdl/treejntspacepid.hpp>
+#include <dh_kdl/treejointstateconverter.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_tools/jointstate_jntarray_converter.hpp>
 
 #include <tobas_joint_space_control/VelocityControllerConfig.h>
 
@@ -29,8 +29,8 @@ public:
 
 private:
   tobas::Drone drone_;
-  tobas::JointStateJntArrayConverter cur_js_conv_;
-  tobas::JointStateJntArrayConverter tar_js_conv_;
+  KDL::TreeJointStateConverter cur_js_conv_;
+  KDL::TreeJointStateConverter tar_js_conv_;
   KDL::JntArray jntarraynull_;
 
   double gain_;

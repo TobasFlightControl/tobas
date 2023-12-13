@@ -26,7 +26,6 @@ static constexpr double kMaxThrottle = 1.;
 
 // ROS parameters
 static constexpr char kRobotDescriptionParam[] = "robot_description";
-static constexpr char kPostureDefiningJointsParam[] = "posture_defining_joint_names";
 
 // ROS topics
 static constexpr char kBatteryTopic[] = "battery";

@@ -5,10 +5,10 @@
 
 #include <dh_std_tools/stopwatch.hpp>
 #include <dh_kdl/treejntparser.hpp>
+#include <dh_kdl/treejointstateconverter.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_tools/jointstate_jntarray_converter.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
 #include <tobas_mr_common/accel_attitude_converter.hpp>
@@ -39,8 +39,8 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
+  KDL::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
-  tobas::JointStateJntArrayConverter js_converter_;
 
   // Controllers
   tobas::PositionPid pos_ctrl_;

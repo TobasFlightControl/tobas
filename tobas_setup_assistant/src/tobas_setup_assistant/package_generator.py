@@ -294,9 +294,19 @@ class PackageGenerator(QObject):
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
-        drone_config = {
-            "posture_defining_joint_names": self._posture_defining_joint_names(),
-        }
+        drone_config = dict()
+
+        # Joints
+        jnt_names = self._posture_defining_joint_names()
+        num_joints = len(jnt_names)
+        drone_config["num_joints"] = num_joints
+        for i in range(num_joints):
+            drone_config[f"joint_{i}"] = {
+                "name": jnt_names[i],
+                "init_pos": 0.0,  # TODO
+                "min_pos": -1e9,  # TODO
+                "max_pos": 1e9,  # TODO
+            }
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected

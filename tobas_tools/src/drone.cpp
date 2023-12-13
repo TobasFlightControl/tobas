@@ -4,6 +4,7 @@
 #include <dh_std_tools/console.hpp>
 #include <dh_kdl/kdl_parser.hpp>
 #include <dh_ros_tools/rosparam.hpp>
+#include <dh_ros_tools/exception.hpp>
 
 #include "../include/tobas_tools/drone.hpp"
 #include "../include/tobas_tools/constants.hpp"
@@ -24,10 +25,9 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
   DH_DEBUG("Drone::loadFromParam");
 
   if (!treeFromParam(kRobotDescriptionParam, tree_))
-    throw runtime_error("Failed to get KDL tree.");
+    ROS_THROW("Failed to get KDL tree.");
 
-  dh_ros::getParam(nh, kPostureDefiningJointsParam, posture_defining_joints_);
-
+  getJointConfigs(nh);
   getRotorConfigs(nh);
 
   has_fixed_wing_ = dh_ros::match(nh, "fixed_wing");
@@ -37,9 +37,17 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
   is_loaded_ = true;
 }
 
+vector<string> Drone::postureDefiningJointNames() const
+{
+  vector<string> res;
+  for (const auto& joint : joints_)
+    res.push_back(joint.name);
+  return res;
+}
+
 double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const
 {
-  return rotor_configs_[rotor_idx].motor_constant * sqr(rot_speed);
+  return rotors_[rotor_idx].motor_constant * sqr(rot_speed);
 }
 
 double Drone::thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -54,8 +62,8 @@ double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& rot_spe
 {
   assert(rot_speed >= 0);
 
-  const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
-  const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
+  const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
+  const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
   return a * rot_speed + b * sqr(rot_speed);
 }
 
@@ -63,15 +71,15 @@ double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage
 {
   assert(voltage >= 0);
 
-  const auto& a = rotor_configs_[rotor_idx].rot_speed_coefs.first;
-  const auto& b = rotor_configs_[rotor_idx].rot_speed_coefs.second;
+  const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
+  const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
   return b > 0 ? (sqrt(sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const
 {
   assert(thrust >= 0);
-  return sqrt(thrust / rotor_configs_[rotor_idx].motor_constant);
+  return sqrt(thrust / rotors_[rotor_idx].motor_constant);
 }
 
 double Drone::throttleFromThrust(
@@ -84,6 +92,35 @@ double Drone::throttleFromThrust(
   return voltage / battery_voltage;
 }
 
+void Drone::getJointConfigs(ros::NodeHandle& nh)
+{
+  DH_DEBUG("Drone::getJointConfigs");
+
+  size_t num_joints;
+  dh_ros::getParam(nh, "num_joints", num_joints);
+
+  for (size_t joint_idx = 0; joint_idx < num_joints; ++joint_idx)
+    joints_.push_back(getJointConfig(nh, joint_idx));
+}
+
+JointConfig Drone::getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx)
+{
+  DH_DEBUG("Drone::getJointConfigs(" << joint_idx << ")");
+
+  const string prefix = "joint_" + to_string(joint_idx);
+  JointConfig res;
+
+  dh_ros::getParam(nh, prefix + "/name", res.name);
+  dh_ros::getParam(nh, prefix + "/init_pos", res.init_pos);
+  dh_ros::getParam(nh, prefix + "/min_pos", res.min_pos);
+  dh_ros::getParam(nh, prefix + "/max_pos", res.max_pos);
+
+  if (!(res.min_pos <= res.init_pos && res.init_pos <= res.max_pos))
+    ROS_THROW("Invalid value for joint '" << res.name << "'.");
+
+  return res;
+}
+
 void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
   DH_DEBUG("Drone::getRotorConfigs");
@@ -92,7 +129,7 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
   dh_ros::getParam(nh, "num_rotors", num_rotors);
 
   for (size_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
-    rotor_configs_.push_back(getRotorConfig(nh, rotor_idx));
+    rotors_.push_back(getRotorConfig(nh, rotor_idx));
 }
 
 RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
@@ -125,8 +162,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else if (direction == "cw")
     res.direction = -1;
   else
-    throw runtime_error(
-      "Invalid rotation direction: " + direction + ". direction must be 'cw' or 'ccw'.");
+    ROS_THROW("Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
 
   dh_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, dh_ros::POSITIVE);
   dh_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, dh_ros::NON_NEGATIVE);
@@ -134,13 +170,13 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
 
   dh_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
   if (res.rot_speed_coefs.first <= 0)
-    throw runtime_error("The first term of 'rot_speed_coefs' must be positive.");
+    ROS_THROW("The first term of 'rot_speed_coefs' must be positive.");
   if (res.rot_speed_coefs.second < 0)
-    throw runtime_error("The second term of 'rot_speed_coefs' must be non-negative.");
+    ROS_THROW("The second term of 'rot_speed_coefs' must be non-negative.");
 
   dh_ros::getParam(nh, prefix + "/pin", res.pin);
   if (res.pin < kMinPinId || kMaxPinId < res.pin)
-    throw runtime_error("Invalid rotor pin number: " + to_string(res.pin));
+    ROS_THROW("Invalid rotor pin number: " << res.pin);
 
   return res;
 }
@@ -159,7 +195,7 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
   DH_DEBUG("Drone::getVehicleParameters");
 
   const string prefix = "fixed_wing/vehicle";
-  auto& des = fixed_wing_config_.vehicle;
+  auto& des = fixed_wing_.vehicle;
 
   dh_ros::getParam(nh, prefix + "/wing_surface", des.wing_surface, dh_ros::POSITIVE);
   dh_ros::getParam(nh, prefix + "/wing_span", des.wing_span, dh_ros::POSITIVE);
@@ -168,7 +204,7 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
   vector<double> ac;
   dh_ros::getParam(nh, prefix + "/aerodynamic_center", ac);
   if (ac.size() != 3)
-    throw runtime_error("Size mismatch: The size of aerodynamic_center must be 3.");
+    ROS_THROW("Size mismatch: The size of aerodynamic_center must be 3.");
   des.ac.x(ac[0]);
   des.ac.y(ac[1]);
   des.ac.z(ac[2]);
@@ -176,7 +212,7 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
   dh_ros::getParam(nh, prefix + "/alpha_limit/lower", des.alpha_limit.lower);
   dh_ros::getParam(nh, prefix + "/alpha_limit/upper", des.alpha_limit.upper);
   if (!des.alpha_limit.isValid())
-    throw runtime_error("Invalid stall angles");
+    ROS_THROW("Invalid stall angles");
 }
 
 void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
@@ -184,7 +220,7 @@ void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
   DH_DEBUG("Drone::getAerodynamicsCoefficients");
 
   const string prefix = "fixed_wing/aerodynamic_coefficients";
-  auto& des = fixed_wing_config_.aerodynamics;
+  auto& des = fixed_wing_.aerodynamics;
 
   dh_ros::getParam(nh, prefix + "/c_lift_0", des.c_lift_0, dh_ros::POSITIVE);
   dh_ros::getParam(nh, prefix + "/c_lift_alpha", des.c_lift_alpha, dh_ros::POSITIVE);
@@ -217,7 +253,7 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
   dh_ros::getParam(nh, "fixed_wing/num_control_surfaces", num_cs);
 
   for (size_t cs_idx = 0; cs_idx < num_cs; ++cs_idx)
-    fixed_wing_config_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
+    fixed_wing_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
 }
 
 ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_idx)
@@ -233,7 +269,7 @@ ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_id
   dh_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
   dh_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
   if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0))
-    throw runtime_error("Invalid range of control surface angle");
+    ROS_THROW("Invalid range of control surface angle");
 
   dh_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, dh_ros::POSITIVE);
 

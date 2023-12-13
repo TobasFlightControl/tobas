@@ -4,10 +4,10 @@
 #include <sensor_msgs/JointState.h>
 
 #include <dh_kdl/treetaskspacevelctrl.hpp>
+#include <dh_kdl/treejointstateconverter.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_tools/jointstate_jntarray_converter.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/CartesianState.h>
 
@@ -31,7 +31,7 @@ public:
 
 private:
   tobas::Drone drone_;
-  tobas::JointStateJntArrayConverter js_converter_;
+  KDL::TreeJointStateConverter js_converter_;
   KDL::JntArray jntarraynull_;
 
   KDL::Vector lin_time_const_, ang_time_const_;
