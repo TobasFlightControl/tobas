@@ -24,15 +24,15 @@ class JointPositionsCommander(MainWidget):
         self.setWindowTitle("Joint State Commander")
 
         # rosparams
-        self._joint_names: List[str] = []
+        self._jnt_names: List[str] = []
         self._get_params()
 
         # The number of joints of which command is published
-        nj = len(self._joint_names)
+        nj = len(self._jnt_names)
 
         # コマンド
         self._cmd = JointState()
-        self._cmd.name = sorted(self._joint_names)
+        self._cmd.name = sorted(self._jnt_names)
         self._cmd.position = [0] * nj
         self._cmd.velocity = [0] * nj
         self._cmd.effort = [0] * nj
@@ -80,7 +80,10 @@ class JointPositionsCommander(MainWidget):
         add_spacer(rows)
 
     def _get_params(self) -> None:
-        self._joint_names = rospy.get_param("posture_defining_joint_names")
+        num_joints = rospy.get_param("num_joints")
+        for i in range(num_joints):
+            jnt_name = rospy.get_param(f"joint_{i}/name")
+            self._jnt_names.append(jnt_name)
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float, idx: int) -> None:
