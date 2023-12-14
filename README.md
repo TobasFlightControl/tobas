@@ -17,10 +17,10 @@ $ source /opt/ros/noetic/setup.bash
 2. Install MAVROS
 
 ```bash
-$ sudo apt install ros-noetic-mavros ros-noetic-mavros-extras
+$ sudo apt install -y ros-noetic-mavros ros-noetic-mavros-extras
 $ wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
 $ chmod u+x install_geographiclib_datasets.sh
-$ ./install_geographiclib_datasets.sh
+$ sudo ./install_geographiclib_datasets.sh
 ```
 
 3. Create catkin workspace
