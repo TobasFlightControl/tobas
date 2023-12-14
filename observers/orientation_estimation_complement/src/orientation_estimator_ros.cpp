@@ -17,9 +17,9 @@ using namespace Eigen;
 namespace orientation_estimation_complement
 {
 OrientationEstimatorRos::OrientationEstimatorRos(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     is_initialized_(false),
     imu_sub_(nh_, tobas::kImuTopic, kQueueSize, tcpNoDelay()),
@@ -49,8 +49,8 @@ void OrientationEstimatorRos::registerPublishers()
 
 void OrientationEstimatorRos::registerSubscribers()
 {
-  event_sub_ =
-    nh_.subscribe(tobas::kEventTopic, 1, &OrientationEstimatorRos::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
@@ -90,8 +90,9 @@ void OrientationEstimatorRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      check_topics_timer_.stop();
       break;
     default:
       break;
@@ -142,6 +143,6 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosWarn(name_, nh_.getNamespace() << "/" << tobas::kImuTopic << " is not received yet.");
+  rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
 }
 }  // namespace orientation_estimation_complement

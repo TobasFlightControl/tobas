@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- open_manipulator: https://github.com/ROBOTIS-GIT/open_manipulator -->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="rmx52" params="">
+    <!-- Import URDF -->
+    <xacro:include filename="$(find tobas_description)/urdf/components/rmx52/urdf.xacro"/>
+
+    <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+    <xacro:include filename="$(find tobas_description)/urdf/components/rmx52/gazebo.xacro"/>
+  </xacro:macro>
+
+</robot>

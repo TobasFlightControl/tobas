@@ -10,21 +10,26 @@ namespace tobas_real
 {
 class BarometerHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kUpdateRate = 50;  // [Hz]
+  // Default Parameters
+  static constexpr size_t kDefaultUpdateRate = 50;  // [Hz]
 
+  using self = BarometerHandler;
   using super = tobas::BaseNode;
 
 public:
   explicit BarometerHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   MS5611 barometer_;
 
   // Config
   double pressure_noise_density_;  // [Pa/sqrt(Hz)]
+
+  // rosparam
+  size_t update_rate_;
 
   // Publisher
   ros::Publisher bar_pub_;

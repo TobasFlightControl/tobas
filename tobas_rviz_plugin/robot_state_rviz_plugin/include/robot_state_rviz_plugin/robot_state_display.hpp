@@ -24,16 +24,16 @@ class RobotStateDisplay : public rviz::Display
 {
   Q_OBJECT
 
+  using self = RobotStateDisplay;
+  using super = rviz::Display;
+
 public:
-  RobotStateDisplay();
+  explicit RobotStateDisplay();
 
   void update(float wall_dt, float ros_dt) override;
   void reset() override;
 
-  const robot_model::RobotModelConstPtr& getRobotModel() const
-  {
-    return kmodel_;
-  }
+  inline const robot_model::RobotModelConstPtr& getRobotModel() const;
 
   void setLinkColor(const std::string& link_name, const QColor& color);
   void unsetLinkColor(const std::string& link_name);
@@ -64,8 +64,7 @@ protected:
 
   void newRobotStateCallback(const moveit_msgs::DisplayRobotStateConstPtr& state);
 
-  void
-  setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& highlight_links);
+  void setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& links);
   void setHighlight(const std::string& link_name, const std_msgs::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
 
@@ -75,7 +74,6 @@ protected:
   void onDisable() override;
   void fixedFrameChanged() override;
 
-  // render the robot
   ros::NodeHandle nh_;
   ros::Subscriber robot_state_subscriber_;
 
@@ -84,8 +82,8 @@ protected:
   robot_model::RobotModelConstPtr kmodel_;
   robot_state::RobotStatePtr kstate_;
   std::map<std::string, std_msgs::ColorRGBA> highlights_;
-  bool update_state_;
-  bool load_robot_model_;  // for delayed robot initialization
+  bool update_state_ = false;
+  bool load_robot_model_ = false;  // for delayed robot initialization
 
   std::shared_ptr<rviz::StringProperty> robot_description_property_;
   std::shared_ptr<rviz::StringProperty> root_link_name_property_;
@@ -101,4 +99,9 @@ protected:
   std::shared_ptr<rviz::BoolProperty> enable_collision_visible_;
   std::shared_ptr<rviz::BoolProperty> show_all_links_;
 };
+
+inline const robot_model::RobotModelConstPtr& RobotStateDisplay::getRobotModel() const
+{
+  return kmodel_;
+}
 }  // namespace moveit_rviz_plugin

@@ -14,6 +14,5 @@ public:
 
 private:
   termios tempcopy_, changed_;
-  char buf_;
 };
 }  // namespace tobas_keyboard_teleop

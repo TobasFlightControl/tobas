@@ -13,9 +13,9 @@ class MagnetometerCalibrator
   static constexpr char kDefaultMethod[] = "bounding";
 
   // Constant values
-  static constexpr uint32_t kDataCount = 1000;
-  static constexpr uint32_t kDirections = 6;
-  static constexpr uint32_t kSleepTime = 10000;  // [us]
+  static constexpr size_t kDataCount = 1000;
+  static constexpr size_t kDirections = 6;
+  static constexpr size_t kSleepTime = 10000;  // [us]
 
 public:
   explicit MagnetometerCalibrator();
@@ -29,6 +29,6 @@ private:
   EllipseTransformer mag_trans_;
 
   void getMagData();
-  void readMag(const uint32_t& idx);
+  void readMag(const size_t& idx);
 };
 }  // namespace tobas_real

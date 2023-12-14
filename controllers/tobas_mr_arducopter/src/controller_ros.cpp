@@ -17,7 +17,10 @@ using namespace KDL;
 
 namespace tobas_mr_arducopter
 {
-ControllerRos::ControllerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+ControllerRos::ControllerRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();
@@ -43,9 +46,9 @@ void ControllerRos::registerPublishers()
 
 void ControllerRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
-  pt_sub_ =
-    nh_.subscribe(tobas::kPoseTwistGtTopic, 1, &self::poseTwistCb, this, tcpNoDelay());  // GT only
+  super::registerSubscribers();
+
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void ControllerRos::initializeSockets()
@@ -61,14 +64,14 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
 {
   // If ArduPilot is online, increase timeout for receive once we detect a packet from FCS.
   // Otherwise skip quickly and do not set control force.
-  const uint32_t wait_ms = ardupilot_online_ ? 1000 : 1;
+  const size_t wait_ms = ardupilot_online_ ? 1000 : 1;
   ServoPacket pkt;
   ssize_t recv_size = socket_in_.recv(&pkt, sizeof(ServoPacket), wait_ms);
 
   // Drain the socket in the case we're backed up
   int counter = 0;
   ServoPacket last_pkt;
-  while (true)
+  while (nh_.ok())
   {
     const ssize_t recv_size_last = socket_in_.recv(&last_pkt, sizeof(ServoPacket), 0);
     if (recv_size_last == -1)
@@ -114,12 +117,12 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   }
 
   // Create throttle command message
-  auto throttles = boost::make_shared<tobas_msgs::Throttles>();
+  const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
   throttles->header.stamp = imu_time;
   throttles->data.resize(channels_.size(), 0.);
 
   // Fill throttle
-  for (uint32_t i = 0; i < channels_.size(); ++i)
+  for (size_t i = 0; i < channels_.size(); ++i)
   {
     if (channels_[i] < recv_channels)
     {
@@ -138,34 +141,34 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   throttles_pub_.publish(throttles);
 }
 
-void ControllerRos::sendState(const tobas_msgs::PoseTwist& pt)
+void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
 {
   FdmPacket pkt;
 
   // Timestamp [sec]
-  pkt.timestamp = pt.header.stamp.toSec();
+  pkt.timestamp = odom.header.stamp.toSec();
 
   // Linear acceleration (Local)
-  const auto grav_B_nwu = pt.pose.euler.Inverse(Vector(0, 0, tobas::kGravity));
-  const auto acc_B_ned = R_nwu_ned_.Inverse(pt.accel.linear + grav_B_nwu);
+  const auto grav_B_nwu = odom.pose.euler.inverse(Vector(0, 0, tobas::kGravity));
+  const auto acc_B_ned = R_nwu_ned_.inverse(odom.accel.linear + grav_B_nwu);
   pkt.imuLinearAccelerationXYZ[0] = acc_B_ned.x();
   pkt.imuLinearAccelerationXYZ[1] = acc_B_ned.y();
   pkt.imuLinearAccelerationXYZ[2] = acc_B_ned.z();
 
   // Angular velocity (Local)
-  const auto gyro_B_ned = R_nwu_ned_.Inverse(pt.twist.rot);
+  const auto gyro_B_ned = R_nwu_ned_.inverse(odom.twist.rot);
   pkt.imuAngularVelocityRPY[0] = gyro_B_ned.x();
   pkt.imuAngularVelocityRPY[1] = gyro_B_ned.y();
   pkt.imuAngularVelocityRPY[2] = gyro_B_ned.z();
 
   // Position (Global)
-  const auto pos_W_ned = R_nwu_ned_.Inverse(pt.pose.pos);
+  const auto pos_W_ned = R_nwu_ned_.inverse(odom.pose.pos);
   pkt.positionXYZ[0] = pos_W_ned.x();
   pkt.positionXYZ[1] = pos_W_ned.y();
   pkt.positionXYZ[2] = pos_W_ned.z();
 
   // Orientation (Global)
-  const auto rot_ned = R_nwu_ned_.Inverse() * pt.pose.euler.toRotation() * R_nwu_ned_;
+  const auto rot_ned = R_nwu_ned_.inverse() * odom.pose.euler.toRotation() * R_nwu_ned_;
   const Quaternion quat_ned(rot_ned);
   pkt.imuOrientationQuat[0] = quat_ned.w;
   pkt.imuOrientationQuat[1] = quat_ned.x;
@@ -173,8 +176,8 @@ void ControllerRos::sendState(const tobas_msgs::PoseTwist& pt)
   pkt.imuOrientationQuat[3] = quat_ned.z;
 
   // Linear velocity (Global)
-  const auto vel_W_nwu = pt.pose.euler * pt.twist.vel;
-  const auto vel_W_ned = R_nwu_ned_.Inverse(vel_W_nwu);
+  const auto vel_W_nwu = odom.pose.euler * odom.twist.vel;
+  const auto vel_W_ned = R_nwu_ned_.inverse(vel_W_nwu);
   pkt.velocityXYZ[0] = vel_W_ned.x();
   pkt.velocityXYZ[1] = vel_W_ned.y();
   pkt.velocityXYZ[2] = vel_W_ned.z();
@@ -193,7 +196,7 @@ void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
     default:
@@ -201,9 +204,9 @@ void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void ControllerRos::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  receiveAndPublishMotorCommand(pt->header.stamp);
-  sendState(*pt);
+  receiveAndPublishMotorCommand(odom->header.stamp);
+  sendState(*odom);
 }
 }  // namespace tobas_mr_arducopter

@@ -17,16 +17,16 @@ class ParamGetterWidget_CheckBox(ParamGetterWidget):
     ) -> None:
         super().__init__(param_name, description_text)
 
-        self.box = QCheckBox(check_box_text)
-        self.box.setChecked(default)
-        self.box.toggled.connect(self._on_toggled)
-        self._rows.addWidget(self.box)
+        self._box = QCheckBox(check_box_text)
+        self._box.setChecked(default)
+        self._box.toggled.connect(self._on_toggled)
+        self._rows.addWidget(self._box)
 
     def get(self) -> bool:
-        return self.box.isChecked()
+        return self._box.isChecked()
 
     def set(self, is_checked: bool) -> None:
-        self.box.setChecked(is_checked)
+        self._box.setChecked(is_checked)
 
     @pyqtSlot()
     def _on_toggled(self) -> None:

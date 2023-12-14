@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hydrus_common">
+
+  <!-- general attribute -->
+  <baselink name="fc"/>
+  <thrust_link name="thrust"/>
+
+  <!-- kinematics [m] -->
+  <xacro:property name="link_length" value=".6"/>
+  <xacro:property name="protector_radius" value=".1925"/>
+
+  <xacro:property name="head_leg_offset" value="${0.3 - 0.25884}"/>
+  <xacro:property name="end_leg_offset" value="${0.3 + 0.25884}"/>
+
+  <!-- old version -->
+  <xacro:property name="head_leg_offset_old_version" value="0.0525"/>
+  <xacro:property name="general_leg_offset_old_version" value="0.05"/>
+  <xacro:property name="end_leg_offset_old_version" value="0.5355"/>
+
+  <!-- collision model parameter -->
+  <xacro:property name="leg_collision_model_height" value="0.1715"/>
+
+  <!-- dynamics -->
+  <m_f_rate value="-0.0172"/>
+  <!-- drug torque rate -->
+  <xacro:property name="max_force" value="20.0"/>
+  <!-- [N] -->
+  <xacro:property name="min_force" value="1.0"/>
+  <!-- [N] -->
+
+  <xacro:macro name="link_model" params="type with_leg:=${with_leg} old_version:=${old_version} tilt_mode:=${tilt_mode} tilt_angle:=${tilt_angle} prop_15inch:=${prop_15inch}">
+    <!-- for fcl in planning -->
+    <collision>
+      <xacro:if value="${with_leg == 1}">
+        <origin rpy="0 0 0" xyz="${link_length* 0.5} 0 ${- leg_collision_model_height / 2}"/>
+        <geometry>
+          <box size="${link_length} 0.05 ${leg_collision_model_height}"/>
+        </geometry>
+      </xacro:if>
+      <xacro:unless value="${with_leg == 1}">
+        <origin rpy="0 0 0" xyz="${link_length* 0.5} 0 0"/>
+        <geometry>
+          <box size="${link_length} 0.05 0.1"/>
+        </geometry>
+      </xacro:unless>
+    </collision>
+
+    <visual>
+      <xacro:if value="${old_version == 1}">
+        <origin rpy="0 0 0" xyz="${link_length* 0.5} 0 0"/>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/hydrus/ver1/link/${type}_link.dae"/>
+        </geometry>
+      </xacro:if>
+      <xacro:unless value="${old_version == 1}">
+        <origin rpy="0 0 0" xyz="${link_length* 0.5} 0 0"/>
+        <geometry>
+          <xacro:if value="${tilt_mode == 1}">
+            <xacro:if value="${prop_15inch == 1}">
+              <mesh filename="package://tobas_description/meshes/hydrus/ver2/link/tilt_${tilt_angle}deg_15inch_link${type}.dae"/>
+            </xacro:if>
+            <xacro:unless value="${prop_15inch == 1}">
+              <mesh filename="package://tobas_description/meshes/hydrus/ver2/link/tilt_${tilt_angle}deg_link${type}.dae"/>
+            </xacro:unless>
+          </xacro:if>
+          <xacro:unless value="${tilt_mode == 1}">
+            <mesh filename="package://tobas_description/meshes/hydrus/ver2/link/link${type}.dae"/>
+          </xacro:unless>
+        </geometry>
+      </xacro:unless>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="extra_module" params="name parent *origin *inertial visible:=0 model_url:=1 scale:=1">
+    <joint name="${parent}2${name}" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+      <xacro:insert_block name="origin"/>
+    </joint>
+    <link name="${name}">
+      <xacro:insert_block name="inertial"/>
+      <xacro:if value="${visible == 1}">
+        <visual>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <mesh filename="${model_url}" scale= "${scale} ${scale} ${scale}"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="standard_leg_old_version" params="parent self:=${self} *origin">
+    <xacro:extra_module name="leg${self}" parent="${parent}" visible="1" model_url="package://tobas_description/meshes/hydrus/ver1/leg/standard_legs.dae">
+      <xacro:insert_block name="origin"/>
+      <inertial>
+        <!-- short leg:
+             <origin xyz="0.0 0.0 -0.055380" rpy="0 0 0"/>
+             <mass value="0.043000"/>
+             <inertia ixx="0.000088" iyy="0.000088" izz="0.000000" ixy="0.000000" ixz="0.000000" iyz="0.000000"/>
+        -->
+        <!-- standard leg: -->
+        <origin xyz="0.0 0.0 -0.093" rpy="0 0 0"/>
+        <mass value="0.047000"/>
+        <inertia ixx="0.000259" iyy="0.000281" izz="0.000010" ixy="0.000000" ixz="0.000000" iyz="0.000000"/>
+      </inertial>
+    </xacro:extra_module>
+  </xacro:macro>
+
+  <xacro:macro name="standard_leg_joint" params="parent self:=${self} *origin">
+    <xacro:extra_module name="leg${self}" parent="${parent}" visible="1" model_url="package://tobas_description/meshes/hydrus/ver2/leg/joint_leg.dae">
+      <xacro:insert_block name="origin"/>
+      <inertial>
+        <origin xyz="0.0 0.0005 -0.09521" rpy="0 0 0"/>
+        <mass value="0.0471"/>
+        <inertia ixx="0.000251" iyy="0.000242" izz="0.000011" ixy="0.000000" ixz="0.000000" iyz="0.000000"/>
+      </inertial>
+    </xacro:extra_module>
+  </xacro:macro>
+
+  <xacro:macro name="standard_leg_end" params="parent self:=${self} *origin">
+    <xacro:extra_module name="leg${self}" parent="${parent}" visible="1" model_url="package://tobas_description/meshes/hydrus/ver2/leg/end_leg.dae">
+      <xacro:insert_block name="origin"/>
+      <inertial>
+        <origin xyz="0.0 0.0005 -0.09411" rpy="0 0 0"/>
+        <mass value="0.0471"/>
+        <inertia ixx="0.000251" iyy="0.000242" izz="0.000011" ixy="0.000000" ixz="0.000000" iyz="0.000000"/>
+      </inertial>
+    </xacro:extra_module>
+  </xacro:macro>
+
+  <!-- friction -->
+  <xacro:macro name="friction" params="self">
+    <gazebo reference="link${self}">
+      <mu1>0.1</mu1>
+      <mu2>0.1</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="damping_factor" params="link">
+    <gazebo reference="${link}">
+      <dampingFactor>0.00</dampingFactor>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

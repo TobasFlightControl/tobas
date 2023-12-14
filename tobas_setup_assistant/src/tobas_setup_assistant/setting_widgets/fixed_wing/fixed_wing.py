@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.widgets import add_spacer
 
 from ...parameter_getters import *
 from ...common import *
@@ -44,7 +44,7 @@ class FixedWingWidget(BaseSettingWidget):
         self.control_surfaces = ControlSurfacesWidget(self._main)
         self._rows.addWidget(self.control_surfaces)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
         self._update_visibility()
 
     @overrides

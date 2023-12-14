@@ -4,11 +4,12 @@
 #include <sensor_msgs/JointState.h>
 
 #include <dh_std_tools/stopwatch.hpp>
-#include <dh_kdl/treejntnameparser.hpp>
+#include <dh_kdl/treejntparser.hpp>
+#include <dh_kdl/treejointstateconverter.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -16,11 +17,11 @@
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_translation_lqr/controller.hpp>
 #include <tobas_mr_common/accel_attitude_converter.hpp>
-#include <tobas_mr_rotation_mpc/rotation_mpc.hpp>
-
 #include <tobas_mr_mpc/ControllerConfig.h>
+
+#include "./position_controller.hpp"
+#include "./orientation_controller.hpp"
 
 namespace tobas_mr_mpc
 {
@@ -37,28 +38,28 @@ class ControllerRos : public tobas::BaseNode
 
 public:
   explicit ControllerRos(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   // Drone
   tobas::Drone drone_;
-  KDL::TreeJointNameParser jnt_name_parser_;
+  KDL::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas_mr_translation_lqr::TranslationController trans_ctrl_;
+  tobas_mr_mpc::PositionController pos_ctrl_;
   tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
-  tobas_mr_rotation_mpc::RotationMpc rot_ctrl_;
+  tobas_mr_mpc::OrientationController ori_ctrl_;
 
   // Dynamic parameters
-  tobas_mr_translation_lqr::Config trans_cfg_;
+  tobas_mr_mpc::PositionControllerConfig pos_cfg_;
   tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
-  tobas_mr_rotation_mpc::RotationMpcConfig rot_cfg_;
+  tobas_mr_mpc::OrientationControllerConfig ori_cfg_;
 
   // Mutable variables
-  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
   tobas_msgs::WindConstPtr wind_;  // 風速 (世界座標系)
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
@@ -67,16 +68,15 @@ private:
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
-  KDL::JntArray q_;  // 全ての非固定関節の角度
-  KDL::Vector tar_acc_fb_;
   ros::Time t_last_loop_;
+  KDL::Vector tar_acc_fb_;
 
   // Publishers
-  ros::Publisher rotor_speeds_pub_;
+  ros::Publisher throttles_pub_;
   ros::Publisher feedback_pub_;
 
   // Subscribers
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
   ros::Subscriber rotor_speeds_sub_;
@@ -98,10 +98,9 @@ private:
   void registerSubscribers() override;
 
   bool isReady() const;
-  bool isCommandLevelOk(const tobas_msgs::CommandLevel& level);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void windCb(const tobas_msgs::WindConstPtr& wind);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
@@ -110,6 +109,6 @@ private:
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_mr_mpc

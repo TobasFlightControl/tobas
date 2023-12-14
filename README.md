@@ -14,7 +14,16 @@ $ rosdep update
 $ source /opt/ros/noetic/setup.bash
 ```
 
-2. Create catkin workspace
+2. Install MAVROS
+
+```bash
+$ sudo apt install ros-noetic-mavros ros-noetic-mavros-extras
+$ wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
+$ chmod u+x install_geographiclib_datasets.sh
+$ ./install_geographiclib_datasets.sh
+```
+
+3. Create catkin workspace
 
 ```bash
 $ mkdir -p ~/catkin_ws/src
@@ -22,7 +31,7 @@ $ cd ~/catkin_ws
 $ catkin init
 ```
 
-3. Clone Tobas and install dependencies
+4. Clone Tobas and install dependencies
 
 ```bash
 $ cd ~/catkin_ws/src
@@ -32,7 +41,7 @@ $ rosdep install --from-paths . --ignore-src -ry
 $ pip install -r tobas/requirements.txt
 ```
 
-4. Build catkin workspace
+5. Build catkin workspace
 
 ```bash
 $ catkin build
@@ -51,7 +60,7 @@ $ git checkout ArduCopter-stable
 $ Tools/environment_install/install-prereqs-ubuntu.sh -y
 $ . ~/.profile
 $ git submodule update --init --recursive
-$ ./waf configure --board linux
+$ ./waf configure --board sitl
 $ ./waf copter
 ```
 
@@ -62,7 +71,7 @@ $ ./waf copter
 ```bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
 $ cd ~/catkin_ws
-$ catkin build (tobas_config_pkg)
+$ catkin build your_config_pkg  # Replace "your_config_pkg" with your configuration packege name
 ```
 
 Examples of robot description can be found in `tobas/tobas_description/urdf/`.
@@ -75,8 +84,8 @@ Launch the drivers for the drone's sensors and propulsing system in Gazebo or in
 
 ```bash
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch (tobas_config_pkg) gazebo.launch  # Wait until the drone stops
-$ roslaunch (tobas_config_pkg) bringup.launch  # Launch Tobas control software
+$ roslaunch your_config_pkg gazebo.launch   # Launch Gazebo simulation with your drone
+$ roslaunch your_config_pkg bringup.launch  # Launch Tobas control software
 ```
 
 #### In the case of the real world
@@ -86,31 +95,44 @@ $ roslaunch (tobas_config_pkg) bringup.launch  # Launch Tobas control software
 2. Send configuration package from the PC to FC
 
 ```bash
-$ scp -r ~/catkin_ws/src/(tabas_config_pkg)/ (user)@(host):/home/(user)/catkin_ws/src/
+# e.g.) scp -r ~/catkin_ws/src/tobas_iris_config/ pi@192.168.1.1:~/catkin_ws/src/
+$ scp -r ~/catkin_ws/src/your_config_pkg/ (user)@(host):~/catkin_ws/src/
 ```
 
 3. SSH into FC
 
 ```bash
-$ ssh (user)@(host)
+$ ssh (user)@(host)  # e.g.) ssh pi@192.168.1.1
 ```
 
 4. Execute real.launch with superuser privileges
 
-Please make sure that the RC transmitter and receiver can communicate correctly.
+   Please make sure that the RC transmitter and receiver can communicate correctly.
 
 ```bash
 $ su
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch (tobas_config_pkg) real.launch
+$ roslaunch your_config_pkg real.launch
 ```
 
 ### 3. Teleoperation
 
 ```bash
-$ roslaunch (tobas_config_pkg) keyboard_teleop.launch  # By keyboard
-$ roslaunch (tobas_config_pkg) gui_teleop.launch       # By GUI application
+$ roslaunch your_config_pkg keyboard_teleop.launch  # By keyboard
+$ roslaunch your_config_pkg gui_teleop.launch       # By GUI application
 ```
+
+### 4. Plot data
+
+You can use PlotJuggler to monitor various data in real time. Please execute the following:
+
+```bash
+$ roslaunch your_config_pkg plotjuggler.launch
+```
+
+In the first dialog, select 'ROS Topic Subscriber', and in the second dialog, select all topics using Ctrl + A.\
+You can easily add or remove data to be displayed.
+For more details, please visit [PlotJuggler Tutorials](https://slides.com/davidefaconti/introduction-to-plotjuggler).
 
 ## Advanced usage
 
@@ -132,6 +154,13 @@ $ export ROS_HOSTNAME=`hostname -I | cut -d' ' -f1`
 $ export ROS_MASTER_URI=http://(IP address of FC):11311
 ```
 
+The IP address of FC can be found by executing following within the FC.
+
+```bash
+$ hostname -I
+>> 192.168.1.1
+```
+
 5. Confirm that the external PC can communicate with the ROS nodes inside the FC.
 
 ```bash
@@ -140,7 +169,7 @@ $ rosnode ping /rosout
 
 ### Hardware in the Loop (HIL)
 
-<strong>Warning: This operation will rotate the motors.</strong>
+<span style="color: yellow;"><strong>Warning: Make sure propellers are removed from motors.</strong></span>
 
 1. Launch roscore on FC.
 
@@ -151,7 +180,7 @@ $ roscore
 2. Launch Gazebo simulation on the external PC.
 
 ```bash
-$ roslaunch (tobas_config_pkg) gazebo.launch
+$ roslaunch your_config_pkg gazebo.launch
 ```
 
 3. Launch HIL software on FC.\
@@ -160,7 +189,7 @@ $ roslaunch (tobas_config_pkg) gazebo.launch
 ```bash
 $ su
 $ source ~/catkin_ws/devel/setup.bash
-$ roslaunch (tobas_config_pkg) hil.launch
+$ roslaunch your_config_pkg hil.launch
 ```
 
 ## Calibration
@@ -180,7 +209,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/mag_calibration
 ### ADC Calibration
 
 Make sure battery is connected to FC properly.\
-Execute the following in FC:
+Execute the following on FC:
 
 ```bash
 $ ~/catkin_ws/devel/lib/tobas_real/adc_calibration
@@ -189,7 +218,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/adc_calibration
 ### RC Input Calibration
 
 Make sure RC receiver is connected to FC properly and it can communicate with a transmitter.\
-Execute the following in FC:
+Execute the following on FC:
 
 ```bash
 $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
@@ -197,23 +226,60 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
 ### ESC Calibration
 
-Make sure battery and ESCs are connected to FC properly and the propellers are NOT attached to the motors.\
-Execute the following in FC:
+<span style="color: yellow;"><strong>Warning: Make sure propellers are removed from motors.</strong></span>
 
-```bash
-$ su
-$ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
-```
+1. Please confirm the following:
+
+   - The ESCs are connected to the FC in the correct order.
+   - The battery is disconnected from the power distributor, and the FC is powered only via a type-C connection.
+
+2. Please execute the following on FC and follow the instructions displayed on the console:
+
+   ```bash
+   $ su
+   $ source ~/catkin_ws/devel/setup.bash
+   $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
+   ```
+
+3. Verify that the calibration was successful.
+
+   Please execute the following on FC:
+
+   ```bash
+   $ su
+   $ source ~/catkin_ws/devel/setup.bash
+   $ roslaunch tobas_motor_test motors_handler.launch
+   ```
+
+   Please execute the following on the external PC:
+
+   ```bash
+   $ roslaunch tobas_motor_test motor_test_gui.launch
+   ```
+
+   Then, confirm the following for all motors:
+
+   - When the throttle is at 0.0, the motor does not rotate.
+   - When the throttle is at 0.1, the motor rotates slowly.
+   - As the throttle is increased to 1.0, the rotation sound gradually becomes higher.
+   - Two motors of the same model will produce rotational sounds of approximately the same pitch when set to the same throttle.
+
+   If these conditions are not met, the ESCs are not properly calibrated.
+   In that case, please do the above calibration again or use a tool such as BLHeli-Suite to adjust the PWM signal range.
 
 ### Measure sensor noise
 
-<strong>Warning: This operation will rotate the motors.</strong>
+<span style="color: yellow;"><strong>Warning: Make sure propellers are removed from motors.</strong></span>
 
-The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit), so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions. In this case, make sure that the battery, ESC (Electronic Speed Controller), motors, and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
-Execute the following in FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
+The rotation of the propellers has a significant impact on the IMU (Inertial Measurement Unit),
+so measuring in a state where the propellers are rotating will yield data closer to actual flight conditions.
+In this case, make sure that the battery, ESC (Electronic Speed Controller), motors,
+and FC (Flight Controller) are properly connected, and that the airframe is securely fixed to prevent movement.\
+Execute the following on FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
 $ su
+$ source ~/catkin_ws/devel/setup.bash
 $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 ```
 
@@ -221,7 +287,8 @@ $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 
 ### Robot meshes not visible [WSL]
 
-With WSL there are still some issues with using GPU, and in particular OpenGL, and this creates problems for visualizing meshes in rviz.\
+With WSL there are still some issues with using GPU, and in particular OpenGL,
+and this creates problems for visualizing meshes in rviz.\
 A temporary fix would be to export:
 
 ```bash
@@ -229,7 +296,8 @@ $ export LIBGL_ALWAYS_SOFTWARE=1
 $ export LIBGL_ALWAYS_INDIRECT=0
 ```
 
-and if you are using an Xserver, leave "Native opengl" option unchecked. This however will force the system to work on CPU, but that's what we have for now. \
+and if you are using an Xserver, leave "Native opengl" option unchecked.
+This however will force the system to work on CPU, but that's what we have for now. \
 cf. [Robot meshes not visible in rviz [Windows11, WSL2]](https://answers.ros.org/question/394135/robot-meshes-not-visible-in-rviz-windows11-wsl2/)
 
 ### Unstable takeoff

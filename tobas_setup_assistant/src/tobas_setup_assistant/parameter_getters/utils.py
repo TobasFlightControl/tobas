@@ -8,6 +8,8 @@ from ..common import *
 
 
 class IntGetter(QWidget):
+    value_changed = pyqtSignal(int)
+
     def __init__(
         self,
         name: str,
@@ -22,29 +24,40 @@ class IntGetter(QWidget):
 
         super().__init__()
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         label = QLabel(name + ":")
         label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._cols.addWidget(label)
+        cols.addWidget(label)
 
-        self.data = SpinBox()
-        self.data.setMinimum(minimum)
-        self.data.setMaximum(maximum)
-        self.data.setSingleStep(single_step)
+        self._data = SpinBox()
+        self._data.setMinimum(minimum)
+        self._data.setMaximum(maximum)
+        self._data.setSingleStep(single_step)
         if default is not None:
             assert minimum <= default <= maximum
-            self.data.setValue(default)
-        self.data.setSuffix(suffix)
-        self.data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._cols.addWidget(self.data)
+            self._data.setValue(default)
+        self._data.setSuffix(suffix)
+        self._data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        cols.addWidget(self._data)
+
+        self._data.valueChanged.connect(self._on_value_changed)
 
     def get(self) -> int:
-        return self.data.value()
+        return self._data.value()
+
+    def set(self, value: int) -> None:
+        self._data.setValue(value)
+
+    @pyqtSlot(int)
+    def _on_value_changed(self, value: int) -> None:
+        self.value_changed.emit(value)
 
 
-class DoubleGetter(QWidget):
+class FloatGetter(QWidget):
+    value_changed = pyqtSignal(float)
+
     def __init__(
         self,
         name: str,
@@ -61,24 +74,33 @@ class DoubleGetter(QWidget):
 
         super().__init__()
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         label = QLabel(name + ":")
         label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._cols.addWidget(label)
+        cols.addWidget(label)
 
-        self.data = DoubleSpinBox()
-        self.data.setDecimals(decimals)
-        self.data.setMinimum(minimum)
-        self.data.setMaximum(maximum)
-        self.data.setSingleStep(single_step)
+        self._data = DoubleSpinBox()
+        self._data.setDecimals(decimals)
+        self._data.setMinimum(minimum)
+        self._data.setMaximum(maximum)
+        self._data.setSingleStep(single_step)
         if default is not None:
             assert minimum <= default <= maximum
-            self.data.setValue(default)
-        self.data.setSuffix(suffix)
-        self.data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._cols.addWidget(self.data)
+            self._data.setValue(default)
+        self._data.setSuffix(suffix)
+        self._data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        cols.addWidget(self._data)
+
+        self._data.valueChanged.connect(self._on_value_changed)
 
     def get(self) -> float:
-        return self.data.value()
+        return self._data.value()
+
+    def set(self, value: float) -> None:
+        self._data.setValue(value)
+
+    @pyqtSlot(float)
+    def _on_value_changed(self, value: float) -> None:
+        self.value_changed.emit(value)

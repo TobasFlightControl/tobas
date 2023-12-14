@@ -67,16 +67,16 @@ private:
 
   void onNewImageFrame(
     const u_char* image,
-    uint32_t width,
-    uint32_t height,
-    uint32_t depth,
+    size_t width,
+    size_t height,
+    size_t depth,
     const std::string& format);
 
   void onNewDepthFrame(
     const float* image,
-    uint32_t width,
-    uint32_t height,
-    uint32_t depth,
+    size_t width,
+    size_t height,
+    size_t depth,
     const std::string& format);
 
   void getSdfParams(sdf::ElementPtr sdf);
@@ -88,9 +88,9 @@ private:
   void depthInfoDisconnect();
   void fillDepthImage(const float* src);
   bool fillDepthImageHelper(
-    const uint32_t rows_arg,
-    const uint32_t cols_arg,
-    const uint32_t step_arg,
+    const size_t rows_arg,
+    const size_t cols_arg,
+    const size_t step_arg,
     const float* data_arg,
     sensor_msgs::Image& image_msg);
   void publishCameraInfo();

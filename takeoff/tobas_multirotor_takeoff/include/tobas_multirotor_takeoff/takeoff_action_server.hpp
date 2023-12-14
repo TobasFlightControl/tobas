@@ -4,7 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 
 #include <tobas_msgs/TakeoffAction.h>
 
@@ -19,6 +19,7 @@ class TakeoffActionServer : public tobas::BaseNode
 {
   static constexpr double kUpdateRate = 100.;                 // [Hz]
   static constexpr double kWaitForExternalActionServer = 3.;  // [s]
+  static constexpr double kInfoPeriod = 3.;                   // [s]
 
   using self = TakeoffActionServer;
   using super = tobas::BaseNode;
@@ -30,16 +31,16 @@ class TakeoffActionServer : public tobas::BaseNode
 
 public:
   explicit TakeoffActionServer(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
-  tobas_msgs::PoseTwistConstPtr pt_;
+  tobas_msgs::OdometryConstPtr odom_;
   ResultType result_;
 
   ros::Publisher cmd_pub_;
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
@@ -50,7 +51,7 @@ private:
   bool isGoalValid(const GoalType& goal);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
   void executeCb(const GoalType& goal);
 };

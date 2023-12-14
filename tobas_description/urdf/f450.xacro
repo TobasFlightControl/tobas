@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+
+<robot name="f450"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+
+  <!-- Properties0 -->
+  <xacro:property name="frame_width" value="0.35"/>
+  <xacro:property name="frame_height" value="0.06"/>
+  <xacro:property name="battery_x" value="0.106"/>
+  <xacro:property name="battery_y" value="0.035"/>
+  <xacro:property name="battery_z" value="0.026"/>
+  <xacro:property name="battery_mass" value="0.186"/>
+  <xacro:property name="propeller_offset" value="0.225"/>
+  <xacro:property name="propeller_radius" value="0.125"/>
+  <xacro:property name="propeller_height" value="0.009"/>
+  <xacro:property name="propeller_mass" value="0.012"/>
+
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- Frame -->
+  <joint name="frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="frame"/>
+  </joint>
+  <link name="frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+      <xacro:insert_block name="white"/>
+    </visual>
+    <inertial>
+      <mass value="0.780"/>
+      <origin xyz="0.001573 -0.000596 -0.003436" rpy="0 0 0"/>
+      <inertia ixx="9.613e-3" ixy="-6.070442e-6" ixz="-4.7933683e-5" iyy="9.702e-3" iyz="-3.987551e-6" izz="1.867e-2"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 ${-frame_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${frame_width} ${frame_width} ${frame_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Battery -->
+  <joint name="battery_joint" type="fixed">
+    <origin xyz="-0.035 0 -0.024647" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="battery"/>
+  </joint>
+  <link name="battery">
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/f450/sigp_3s_30c.stl" scale="1e-3 1e-3 1e-3"/>
+      </geometry>
+      <xacro:insert_block name="blue"/>
+    </visual>
+    <inertial>
+      <mass value="${battery_mass}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <xacro:box_inertia x="${battery_x}" y="${battery_y}" z="${battery_z}" mass="${battery_mass}"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${battery_x} ${battery_y} ${battery_z}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Propellers -->
+  <xacro:macro name="propeller" params="index yaw_deg origin_x origin_y">
+    <joint name="propeller_${index}_joint" type="continuous">
+      <origin xyz="${origin_x} ${origin_y} 0.0247" rpy="0 0 ${yaw_deg*deg2rad}"/>
+      <axis xyz="0 0 1"/>
+      <parent link="base_link"/>
+      <child link="propeller_${index}"/>
+    </joint>
+    <link name="propeller_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/f450/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${propeller_mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${propeller_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${propeller_radius}" length="${propeller_height}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <xacro:propeller index="0" yaw_deg="-45" origin_x="${propeller_offset*cos45}" origin_y="${-propeller_offset*cos45}"/>
+  <xacro:propeller index="1" yaw_deg="135" origin_x="${-propeller_offset*cos45}" origin_y="${propeller_offset*cos45}"/>
+  <xacro:propeller index="2" yaw_deg="45" origin_x="${propeller_offset*cos45}" origin_y="${propeller_offset*cos45}"/>
+  <xacro:propeller index="3" yaw_deg="225" origin_x="${-propeller_offset*cos45}" origin_y="${-propeller_offset*cos45}"/>
+
+</robot>

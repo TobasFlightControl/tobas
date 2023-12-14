@@ -16,7 +16,7 @@ using namespace std;
 
 namespace moveit_rviz_plugin
 {
-RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_robot_model_(false)
+RobotStateDisplay::RobotStateDisplay()
 {
   robot_description_property_.reset(new rviz::StringProperty(
     "Robot Description", "robot_description",
@@ -70,7 +70,7 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
 
 void RobotStateDisplay::onInitialize()
 {
-  Display::onInitialize();
+  super::onInitialize();
   robot_.reset(new RobotStateVisualization(scene_node_, context_, "Robot State", this));
   changedEnableVisualVisible();
   changedEnableCollisionVisible();
@@ -81,7 +81,7 @@ void RobotStateDisplay::reset()
 {
   robot_->clear();
   rdf_loader_.reset();
-  Display::reset();
+  super::reset();
 
   loadRobotModel();
 }
@@ -100,22 +100,22 @@ void RobotStateDisplay::changedAllLinks()
 
 void RobotStateDisplay::setHighlight(const string& link_name, const std_msgs::ColorRGBA& color)
 {
-  rviz::RobotLink* link = robot_->getRobot().getLink(link_name);
-  if (link)
-  {
-    link->setColor(color.r, color.g, color.b);
-    link->setRobotAlpha(color.a * robot_alpha_property_->getFloat());
-  }
+  auto* link = robot_->getRobot().getLink(link_name);
+  if (link == nullptr)
+    return;
+
+  link->setColor(color.r, color.g, color.b);
+  link->setRobotAlpha(color.a * robot_alpha_property_->getFloat());
 }
 
 void RobotStateDisplay::unsetHighlight(const string& link_name)
 {
-  rviz::RobotLink* link = robot_->getRobot().getLink(link_name);
-  if (link)
-  {
-    link->unsetColor();
-    link->setRobotAlpha(robot_alpha_property_->getFloat());
-  }
+  auto* link = robot_->getRobot().getLink(link_name);
+  if (link == nullptr)
+    return;
+
+  link->unsetColor();
+  link->setRobotAlpha(robot_alpha_property_->getFloat());
 }
 
 void RobotStateDisplay::changedEnableLinkHighlight()
@@ -123,16 +123,12 @@ void RobotStateDisplay::changedEnableLinkHighlight()
   if (enable_link_highlight_->getBool())
   {
     for (auto it = highlights_.begin(); it != highlights_.end(); ++it)
-    {
       setHighlight(it->first, it->second);
-    }
   }
   else
   {
     for (auto it = highlights_.begin(); it != highlights_.end(); ++it)
-    {
       unsetHighlight(it->first);
-    }
   }
 }
 
@@ -152,18 +148,14 @@ static bool operator!=(const std_msgs::ColorRGBA& a, const std_msgs::ColorRGBA& 
 }
 
 void RobotStateDisplay::setRobotHighlights(
-  const moveit_msgs::DisplayRobotState::_highlight_links_type& highlight_links)
+  const moveit_msgs::DisplayRobotState::_highlight_links_type& links)
 {
-  if (highlight_links.empty() && highlights_.empty())
-  {
+  if (links.empty() && highlights_.empty())
     return;
-  }
 
   map<string, std_msgs::ColorRGBA> highlights;
-  for (auto it = highlight_links.begin(); it != highlight_links.end(); ++it)
-  {
+  for (auto it = links.begin(); it != links.end(); ++it)
     highlights[it->id] = it->color;
-  }
 
   if (enable_link_highlight_->getBool())
   {
@@ -210,48 +202,46 @@ void RobotStateDisplay::setRobotHighlights(
 
 void RobotStateDisplay::changedHighlightColor()
 {
-  if (robot_)
-  {
-    std_msgs::ColorRGBA color_msg;
-    color_msg.r = HIGHLIGHT_R;
-    color_msg.g = HIGHLIGHT_G;
-    color_msg.b = HIGHLIGHT_B;
-    color_msg.a = HIGHLIGHT_A;
-    setHighlight(highlight_link_->getStdString(), color_msg);
-    update_state_ = true;
-  }
+  if (robot_ == nullptr)
+    return;
+
+  std_msgs::ColorRGBA color_msg;
+  color_msg.r = HIGHLIGHT_R;
+  color_msg.g = HIGHLIGHT_G;
+  color_msg.b = HIGHLIGHT_B;
+  color_msg.a = HIGHLIGHT_A;
+  setHighlight(highlight_link_->getStdString(), color_msg);
+  update_state_ = true;
 }
 
 void RobotStateDisplay::changedUnhighlightColor()
 {
-  if (robot_)
-  {
-    unsetHighlight(unhighlight_link_->getStdString());
-    update_state_ = true;
-  }
+  if (robot_ == nullptr)
+    return;
+
+  unsetHighlight(unhighlight_link_->getStdString());
+  update_state_ = true;
 }
 
 void RobotStateDisplay::changedAttachedBodyColor()
 {
-  if (robot_)
-  {
-    const QColor color = attached_body_color_property_->getColor();
-    std_msgs::ColorRGBA color_msg;
-    color_msg.r = color.redF();
-    color_msg.g = color.greenF();
-    color_msg.b = color.blueF();
-    color_msg.a = robot_alpha_property_->getFloat();
-    robot_->setDefaultAttachedObjectColor(color_msg);
-    update_state_ = true;
-  }
+  if (robot_ == nullptr)
+    return;
+
+  const QColor color = attached_body_color_property_->getColor();
+  std_msgs::ColorRGBA color_msg;
+  color_msg.r = color.redF();
+  color_msg.g = color.greenF();
+  color_msg.b = color.blueF();
+  color_msg.a = robot_alpha_property_->getFloat();
+  robot_->setDefaultAttachedObjectColor(color_msg);
+  update_state_ = true;
 }
 
 void RobotStateDisplay::changedRobotDescription()
 {
   if (isEnabled())
-  {
     reset();
-  }
 }
 
 void RobotStateDisplay::changedRootLinkName()
@@ -260,47 +250,43 @@ void RobotStateDisplay::changedRootLinkName()
 
 void RobotStateDisplay::changedRobotSceneAlpha()
 {
-  if (robot_)
-  {
-    robot_->setAlpha(robot_alpha_property_->getFloat());
-    const QColor color = attached_body_color_property_->getColor();
-    std_msgs::ColorRGBA color_msg;
-    color_msg.r = color.redF();
-    color_msg.g = color.greenF();
-    color_msg.b = color.blueF();
-    color_msg.a = robot_alpha_property_->getFloat();
-    robot_->setDefaultAttachedObjectColor(color_msg);
-    update_state_ = true;
-  }
+  if (robot_ == nullptr)
+    return;
+
+  robot_->setAlpha(robot_alpha_property_->getFloat());
+  const QColor color = attached_body_color_property_->getColor();
+  std_msgs::ColorRGBA color_msg;
+  color_msg.r = color.redF();
+  color_msg.g = color.greenF();
+  color_msg.b = color.blueF();
+  color_msg.a = robot_alpha_property_->getFloat();
+  robot_->setDefaultAttachedObjectColor(color_msg);
+  update_state_ = true;
 }
 
 void RobotStateDisplay::changedRobotStateTopic()
 {
   robot_state_subscriber_.shutdown();
 
-  // reset model to default state, we don't want to show previous messages
-  if (static_cast<bool>(kstate_))
-  {
+  // Reset model to default state, we don't want to show previous messages
+  if (kstate_ != nullptr)
     kstate_->setToDefaultValues();
-  }
+
   update_state_ = true;
 
   robot_state_subscriber_ = nh_.subscribe(
-    robot_state_topic_property_->getStdString(), 10, &RobotStateDisplay::newRobotStateCallback,
-    this);
+    robot_state_topic_property_->getStdString(), 10, &self::newRobotStateCallback, this);
 }
 
 void RobotStateDisplay::newRobotStateCallback(
   const moveit_msgs::DisplayRobotStateConstPtr& state_msg)
 {
-  if (!kmodel_)
-  {
+  if (kmodel_ == nullptr)
     return;
-  }
-  if (!kstate_)
-  {
+
+  if (kstate_ == nullptr)
     kstate_.reset(new robot_state::RobotState(kmodel_));
-  }
+
   // Use TF to construct a robot_state::Transforms object to pass in to the conversion function?
   robot_state::robotStateMsgToRobotState(state_msg->state, *kstate_);
   setRobotHighlights(state_msg->highlight_links);
@@ -322,33 +308,28 @@ void RobotStateDisplay::setLinkColor(
   const string& link_name,
   const QColor& color)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  auto* link = robot->getLink(link_name);
+  if (link == nullptr)
+    return;
 
-  // Check if link exists
-  if (link)
-  {
-    link->setColor(color.redF(), color.greenF(), color.blueF());
-  }
+  link->setColor(color.redF(), color.greenF(), color.blueF());
 }
 
 void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const string& link_name)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  auto* link = robot->getLink(link_name);
+  if (link == nullptr)
+    return;
 
-  // Check if link exists
-  if (link)
-  {
-    link->unsetColor();
-  }
+  link->unsetColor();
 }
 
 void RobotStateDisplay::loadRobotModel()
 {
   load_robot_model_ = false;
-  if (!rdf_loader_)
-  {
+
+  if (rdf_loader_ == nullptr)
     rdf_loader_.reset(new rdf_loader::RDFLoader(robot_description_property_->getStdString()));
-  }
 
   if (rdf_loader_->getURDF())
   {
@@ -378,7 +359,7 @@ void RobotStateDisplay::loadRobotModel()
 
 void RobotStateDisplay::onEnable()
 {
-  Display::onEnable();
+  super::onEnable();
   load_robot_model_ = true;  // allow loading of robot model in update()
   calculateOffsetPosition();
 }
@@ -387,15 +368,13 @@ void RobotStateDisplay::onDisable()
 {
   robot_state_subscriber_.shutdown();
   if (robot_)
-  {
     robot_->setVisible(false);
-  }
-  Display::onDisable();
+  super::onDisable();
 }
 
 void RobotStateDisplay::update(float wall_dt, float ros_dt)
 {
-  Display::update(wall_dt, ros_dt);
+  super::update(wall_dt, ros_dt);
 
   if (load_robot_model_)
   {
@@ -404,7 +383,7 @@ void RobotStateDisplay::update(float wall_dt, float ros_dt)
   }
 
   calculateOffsetPosition();
-  if (robot_ && update_state_ && kstate_)
+  if (update_state_ && robot_ != nullptr && kstate_ != nullptr)
   {
     update_state_ = false;
     kstate_->update();
@@ -415,9 +394,7 @@ void RobotStateDisplay::update(float wall_dt, float ros_dt)
 void RobotStateDisplay::calculateOffsetPosition()
 {
   if (!getRobotModel())
-  {
     return;
-  }
 
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
@@ -431,7 +408,7 @@ void RobotStateDisplay::calculateOffsetPosition()
 
 void RobotStateDisplay::fixedFrameChanged()
 {
-  Display::fixedFrameChanged();
+  super::fixedFrameChanged();
   calculateOffsetPosition();
 }
 }  // namespace moveit_rviz_plugin

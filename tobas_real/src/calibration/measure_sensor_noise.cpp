@@ -3,6 +3,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <dh_std_tools/fstream.hpp>
+#include <dh_std_tools/unix.hpp>
 #include <dh_eigen_tools/core.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -19,9 +20,9 @@ namespace tobas_real
 MeasureSensorNoise::MeasureSensorNoise()
 {
   // ルート権限を確認
-  if (getuid())
+  if (!dh_std::isSuperUser())
   {
-    throw runtime_error("Not root.");
+    throw runtime_error("Please execute with root privileges.");
   }
 
   // IMUドライバをセットアップ
@@ -39,7 +40,7 @@ MeasureSensorNoise::MeasureSensorNoise()
   }
 
   // PWMドライバをセットアップ
-  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     setupRCOutput(pwm_, channel);
   }
@@ -63,7 +64,7 @@ void MeasureSensorNoise::run()
   Matrix<float, kDataCount, 1> pres_data;
 
   const auto t_get_data_start = system_clock::now();
-  for (uint32_t i = 0; i < kDataCount; ++i)
+  for (size_t i = 0; i < kDataCount; ++i)
   {
     // センサ情報を更新
     imu_.update();
@@ -98,7 +99,7 @@ void MeasureSensorNoise::run()
   cout << "Sampling frequency: " << sample_freq << " Hz" << endl;
 
   // 差分をとることで定常部分とランダムウォークを除去．分散2倍の白色ノイズのみが残る．
-  constexpr uint32_t num = kDataCount - 1;
+  constexpr size_t num = kDataCount - 1;
   const Matrix<float, num, 3> acc_diff = acc_data.bottomRows(num) - acc_data.topRows(num);
   const Matrix<float, num, 3> gyro_diff = gyro_data.bottomRows(num) - gyro_data.topRows(num);
   const Matrix<float, num, 3> mag_diff = mag_data.bottomRows(num) - mag_data.topRows(num);
@@ -136,7 +137,7 @@ void MeasureSensorNoise::run()
 
 void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 {
-  for (uint32_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     if (!pwm_.setDutyCycle(channel, period))
     {

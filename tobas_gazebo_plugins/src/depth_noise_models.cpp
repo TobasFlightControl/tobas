@@ -25,7 +25,7 @@ KinectDepthNoiseModel::KinectDepthNoiseModel(const float& min_depth, const float
 {
 }
 
-void KinectDepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& height, float* data)
+void KinectDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
 {
   if (data == nullptr)
   {
@@ -40,7 +40,7 @@ void KinectDepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& he
   VectorXf var_noise = 1.2e-3f + 1.9e-3f * (data_vector_map.array() - 0.4f).array().square();
 
   // Sample noise for each pixel and transform variance according to error at this depth.
-  for (uint32_t i = 0; i < width * height; ++i)
+  for (size_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
     {
@@ -58,7 +58,7 @@ PMDDepthNoiseModel::PMDDepthNoiseModel(const float& min_depth, const float& max_
 {
 }
 
-void PMDDepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& height, float* data)
+void PMDDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
 {
   if (data == nullptr)
   {
@@ -70,7 +70,7 @@ void PMDDepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& heigh
   VectorXf var_noise = data_vector_map.array() * 0.01f;
 
   // Sample noise for each pixel and transform variance according to error at this depth.
-  for (uint32_t i = 0; i < width * height; ++i)
+  for (size_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
     {
@@ -92,7 +92,7 @@ D435DepthNoiseModel::D435DepthNoiseModel(
 {
 }
 
-void D435DepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& height, float* data)
+void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
 {
   if (data == nullptr)
   {
@@ -110,7 +110,7 @@ void D435DepthNoiseModel::applyNoise(const uint32_t& width, const uint32_t& heig
   VectorXf noise = rms_noise.array().square();
 
   // Sample noise for each pixel and transform variance according to error at this depth.
-  for (uint32_t i = 0; i < width * height; ++i)
+  for (size_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
     {

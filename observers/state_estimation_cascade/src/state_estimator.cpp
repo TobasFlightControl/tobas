@@ -5,6 +5,7 @@
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
+#include <dh_std_tools/console.hpp>
 #include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_kdl/conversion/kdl_msg.hpp>
 #include <dh_ros_tools/rosparam.hpp>
@@ -24,7 +25,10 @@ namespace et = eigen_tools;
 
 namespace state_estimation_cascade
 {
-StateEstimator::StateEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+StateEstimator::StateEstimator(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     check_topics_timer_(nh_, kTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
@@ -51,13 +55,13 @@ void StateEstimator::getRosParams()
 
 void StateEstimator::registerPublishers()
 {
-  pt_pub_ = nh_.advertise<StateMsg>(tobas::kPoseTwistTopic, 1);
-  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdomTopic, 1);
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
 }
 
 void StateEstimator::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   filtered_imu_sub_ = nh_.subscribe(kFilteredImuTopic, 1, &self::filteredImuCb, this, tcpNoDelay());
   bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barometerCb, this, tcpNoDelay());
 
@@ -155,20 +159,20 @@ tobas_msgs::StaticStateDeterminationResultConstPtr StateEstimator::setZeroPositi
   return result;
 }
 
-StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& imu)
+StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& imu)
 {
-  auto state = boost::make_shared<StateMsg>();
+  const auto odom = boost::make_shared<OdomMsg>();
 
   // Time stamp
-  state->header.stamp = imu.header.stamp;
+  odom->header.stamp = imu.header.stamp;
 
   // Position
-  state->pose.pos.data = cart_filter_.getPosition();
-  et::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), state->position_covariance);
+  odom->pose.pos.data = cart_filter_.getPosition();
+  et::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), odom->position_covariance);
 
   // Roll, Pitch
   const auto& q = imu.orientation;
-  auto& rpy = state->pose.euler;
+  auto& rpy = odom->pose.euler;
   quaternionToEuler(q.x, q.y, q.z, q.w, rpy.roll, rpy.pitch, yaw_now_);
 
   // Yaw
@@ -179,37 +183,38 @@ StateEstimator::StateMsg::ConstPtr StateEstimator::makePoseVelMsg(const ImuMsg& 
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
-  state->orientation_covariance.fill(nan(tobas::kUnknown));  // TODO: 相補フィルタから推定
+  odom->orientation_covariance.fill(nan(tobas::kUnknown));  // TODO: 相補フィルタから推定
 
   // Linear velocity (Local)
-  state->twist.vel.data = cart_filter_.getVelocity();
-  state->twist.vel = rpy.Inverse(state->twist.vel);  // World -> Local
+  odom->twist.vel.data = cart_filter_.getVelocity();
+  odom->twist.vel = rpy.inverse(odom->twist.vel);  // World -> Local
   const Matrix3d R_W_B = rpy.toRotation().data;
   const Matrix3d vel_cov_B = R_W_B.transpose() * cart_filter_.getVelocityCovariance() * R_W_B;
-  et::matrix3EigenToBoost(vel_cov_B, state->linear_velocity_covariance);
+  et::matrix3EigenToBoost(vel_cov_B, odom->linear_velocity_covariance);
 
   // Angular velocity (Local)
-  vectorMsgToKDL(imu.angular_velocity, state->twist.rot);
-  state->angular_velocity_covariance = imu.angular_velocity_covariance;
+  vectorMsgToKDL(imu.angular_velocity, odom->twist.rot);
+  odom->angular_velocity_covariance = imu.angular_velocity_covariance;
 
   // Linear acceleration (Local)
-  vectorMsgToKDL(imu.linear_acceleration, state->accel.linear);
-  state->accel.linear += rpy.Inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
-  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
+  vectorMsgToKDL(imu.linear_acceleration, odom->accel.linear);
+  odom->accel.linear += rpy.inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
+  odom->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)
-  state->accel.angular.fill(nan(tobas::kUnknown));
-  state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
+  odom->accel.angular.fill(nan(tobas::kUnknown));
+  odom->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
-  return state;
+  return odom;
 }
 
 void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      check_topics_timer_.stop();
       break;
     default:
       break;
@@ -230,7 +235,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
       check_topics_timer_.stop();
       initialize(*imu);
       is_initialized_ = true;
-      rosInfo(name_, "State estimator is ready.");
+      DH_GOOD("State estimator is ready.");
     }
     return;
   }
@@ -256,12 +261,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
   cart_filter_.measureAcceleration(a_m_, acc_cov);
 
   // 推定状態を発行
-  const auto state = makePoseVelMsg(*imu);
-  pt_pub_.publish(state);
-
-  // 外部用にオドメトリを発行
-  const auto odom = boost::make_shared<OdomMsg>();
-  tobas::odometryTobasToMsg(*state, *odom);
+  const auto odom = makeOdometryMsg(*imu);
   odom_pub_.publish(odom);
 }
 
@@ -311,21 +311,17 @@ void StateEstimator::gpsPositionCb(const GpsMsg::ConstPtr& gps)
 
 void StateEstimator::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  // IMU
   if (!imu_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << kFilteredImuTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << kFilteredImuTopic);
 
-  // Barometer
   if (!bar_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
-  // GPS
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kGpsTopic);
 }
 
-void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void StateEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   cart_filter_.configure(cfg.gravity_variance);
 }

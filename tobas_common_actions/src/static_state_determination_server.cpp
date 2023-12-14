@@ -16,9 +16,9 @@ using namespace dh_std;
 namespace tobas_common_actions
 {
 StaticStateDeterminationServer::StaticStateDeterminationServer(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
     as_(
@@ -44,8 +44,8 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(
-    tobas::kEventTopic, 1, &StaticStateDeterminationServer::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   imu_sub_ =
     nh_.subscribe(tobas::kImuTopic, 1, &StaticStateDeterminationServer::imuCb, this, tcpNoDelay());
   mag_sub_ =
@@ -171,8 +171,9 @@ void StaticStateDeterminationServer::eventCb(const tobas_msgs::EventConstPtr& ev
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      as_.shutdown();
       break;
     default:
       break;

@@ -5,7 +5,6 @@
 #include <dh_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/VelocityYaw.h>
 
 #include "../include/tobas_mr_arducopter/takeoff_action_server.hpp"
 #include "../include/tobas_mr_arducopter/constants.hpp"
@@ -14,7 +13,10 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-TakeoffActionServer::TakeoffActionServer(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+TakeoffActionServer::TakeoffActionServer(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
 {
@@ -40,7 +42,8 @@ void TakeoffActionServer::registerPublishers()
 
 void TakeoffActionServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_server_state_sub_ =
     nh_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);
@@ -69,21 +72,21 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::waitForServiceExistence()
 {
-  if (!set_mode_sc_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!set_mode_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
     return false;
   }
 
-  if (!arming_sc_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!arming_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
     return false;
   }
 
-  if (!takeoff_sc_.waitForExistence(ros::Duration(kWaitForService)))
+  if (!takeoff_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
@@ -266,8 +269,9 @@ void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      as_.shutdown();
       break;
     default:
       break;

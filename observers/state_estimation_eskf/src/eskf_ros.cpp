@@ -6,6 +6,7 @@
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
 #include <dh_std_tools/exception.hpp>
+#include <dh_std_tools/debug.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_eigen_tools/iostream.hpp>
 #include <dh_eigen_tools/conversion/eigen_boost.hpp>
@@ -29,17 +30,16 @@ namespace et = eigen_tools;
 namespace state_estimation_eskf
 {
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)  // NodeletのときはPrivate NodeHandleを明示的に渡す必要がある
 {
-  getRosParams();
-  drone_.loadFromParam(nh_);
+  DH_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
 
-  imu2gps_B_ = drone_.gpsOffset() - drone_.imuOffset();
+  getRosParams();
 
   registerPublishers();
   registerSubscribers();
@@ -67,6 +67,9 @@ void ErrorStateKalmanFilterRos::getRosParams()
   dh_ros::getParam(
     pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
     kDefaultGpsVerPosStddevThreshold, dh_ros::POSITIVE);
+  dh_ros::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
+  dh_ros::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
+  dh_ros::getParam(pnh_, "gps_offset", gps_offset_, Vector3d::Zero());
 
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
@@ -76,14 +79,18 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  pt_pub_ = nh_.advertise<StateMsg>(tobas::kPoseTwistTopic, 1);
-  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdomTopic, 1);
+  DH_DEBUG("ErrorStateKalmanFilterRos::registerPublishers");
+
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
   feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
 }
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  DH_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
+
+  super::registerSubscribers();
+
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
   mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
 
@@ -110,6 +117,8 @@ bool ErrorStateKalmanFilterRos::isReady() const
 
 void ErrorStateKalmanFilterRos::initialize()
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::initialize");
+
   // 静止状態でのセンサデータを平均してゼロ点を決める
   setZeroPositions();
 
@@ -146,6 +155,8 @@ void ErrorStateKalmanFilterRos::initialize()
 
 void ErrorStateKalmanFilterRos::setZeroPositions()
 {
+  DH_DEBUG("ErrorStateKalmanFilterRos::setZeroPositions");
+
   actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(
     tobas::kStaticStateDeterminationAction);
   rosInfo(
@@ -195,8 +206,8 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   et::imuToQuaternion(acc_meas_, mag_meas_, m0, q_0_);
 }
 
-ErrorStateKalmanFilterRos::StateMsg::ConstPtr
-ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
+ErrorStateKalmanFilterRos::OdomMsg::ConstPtr
+ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
 {
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -205,24 +216,23 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
   const Vector3d B_Acc = acc_meas_ - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
   const Vector3d B_Gyro = gyro_meas_ - eskf_.getGyroBias();
-  const Vector3d B_Pos_BI = drone_.imuOffset();
 
-  auto state = boost::make_shared<StateMsg>();
+  const auto odom = boost::make_shared<OdomMsg>();
 
   // Time stamp
-  state->header.stamp = imu.header.stamp;
+  odom->header.stamp = imu.header.stamp;
 
   // Position (Global): IMU frame -> Base frame
-  state->pose.pos.data = W_Pos_WI - W_Rot_B * B_Pos_BI;
-  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), state->position_covariance);
+  odom->pose.pos.data = W_Pos_WI - W_Rot_B * imu_offset_;
+  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), odom->position_covariance);
 
   // Linear velocity (Local): IMU frame -> Base frame
-  state->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(B_Pos_BI);
+  odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
   const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
-  et::matrix3EigenToBoost(vel_cov_B, state->linear_velocity_covariance);
+  et::matrix3EigenToBoost(vel_cov_B, odom->linear_velocity_covariance);
 
   // Roll, Pitch
-  auto& rpy = state->pose.euler;
+  auto& rpy = odom->pose.euler;
   quaternionToEuler(
     W_Rot_B.x(), W_Rot_B.y(), W_Rot_B.z(), W_Rot_B.w(), rpy.roll, rpy.pitch, yaw_now_);
 
@@ -234,29 +244,30 @@ ErrorStateKalmanFilterRos::makePoseVelMsg(const ImuMsg& imu)
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
-  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), state->orientation_covariance);
+  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), odom->orientation_covariance);
 
   // Angular velocity (Local)
-  state->twist.rot.data = B_Gyro;
-  state->angular_velocity_covariance = imu.angular_velocity_covariance;
+  odom->twist.rot.data = B_Gyro;
+  odom->angular_velocity_covariance = imu.angular_velocity_covariance;
 
   // Linear acceleration (Local)
-  state->accel.linear.data = B_Acc;
-  state->linear_acceleration_covariance = imu.linear_acceleration_covariance;
+  odom->accel.linear.data = B_Acc;
+  odom->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)
-  state->accel.angular.fill(nan(tobas::kUnknown));
-  state->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
+  odom->accel.angular.fill(nan(tobas::kUnknown));
+  odom->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
-  return state;
+  return odom;
 }
 
 void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      check_topics_timer_.stop();
       break;
     default:
       break;
@@ -382,12 +393,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       }
 
       // 推定状態を発行
-      const auto state = makePoseVelMsg(*imu);
-      pt_pub_.publish(state);
-
-      // 外部用にオドメトリを発行
-      const auto odom = boost::make_shared<OdomMsg>();
-      tobas::odometryTobasToMsg(*state, *odom);
+      const auto odom = makeOdometryMsg(*imu);
       odom_pub_.publish(odom);
 
       // フィードバックを発行
@@ -399,6 +405,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
       et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
       feedback->gravity_variance = eskf_.getGravityVariance();
+      feedback->gps_anormaly_score = gps_anormaly_score_;
       feedback_pub_.publish(feedback);
 
       break;
@@ -409,14 +416,10 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 {
   if (!mag_received_)
-  {
     mag_received_ = true;
-  }
 
   if (stage_ < RUNNING)
-  {
     return;
-  }
 
   eskf_.measureMagneticField(mag->magnetic_field.x, mag->magnetic_field.y, yaw_var_);
 }
@@ -424,18 +427,15 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 {
   if (!bar_received_)
-  {
     bar_received_ = true;
-  }
 
   if (stage_ < RUNNING)
-  {
     return;
-  }
 
   double z_abs, z_var;
   pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
 
+  // TODO: bar_offsetを考慮
   const double z_m = z_abs - alt_0_bar_;
   eskf_.measureAltitude(z_m, z_var);
 }
@@ -443,14 +443,10 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 {
   if (!gps_received_)
-  {
     gps_received_ = true;
-  }
 
   if (stage_ < RUNNING)
-  {
     return;
-  }
 
   // 位置の観測値
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
@@ -461,26 +457,36 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
 
   // ESKFを更新
-  eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps_B_, gyro_meas_);
+  const auto imu2gps = gps_offset_ - imu_offset_;
+  gps_anormaly_score_ =
+    eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps, gyro_meas_);
+
+  // 異常度が高すぎる場合は警告
+  if (gps_anormaly_score_ > kAnormalyScoreThreshold)
+  {
+    rosWarnThrottle(
+      kWarnPeriod, name_,
+      "The kalman filter is in an abnormal state. There is a very large error between the GPS "
+      "position and velocity information and the estimated values from the Kalman filter.");
+  }
 }
 
 void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!imu_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kImuTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
 
   if (!mag_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kMagTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kMagTopic);
 
   if (use_bar_ && !bar_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
   if (use_gps_ && !gps_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kGpsTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kGpsTopic);
 }
 
-void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   grav_cov_.diagonal().fill(cfg.gravity_variance);
   yaw_var_ = cfg.yaw_variance;

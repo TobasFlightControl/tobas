@@ -5,43 +5,46 @@
   <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
 
   <!-- Fixed-wing main body link -->
-  <xacro:macro name="fixed_wing_base_macro" params="robot_namespace
-      mass length
-      width height
+  <xacro:macro name="fixed_wing_base_macro" params="
+      robot_namespace
+      mass
+      length
+      width
+      height
       color
-      use_mesh_file 
+      use_mesh_file
       mesh_file
       *origin
       *inertia">
     <link name="${robot_namespace}/base_link"></link>
 
     <joint name="${robot_namespace}/base_joint" type="fixed">
-      <xacro:insert_block name="origin" />
-      <parent link="${robot_namespace}/base_link" />
-      <child link="${robot_namespace}/base_link_inertia" />
+      <xacro:insert_block name="origin"/>
+      <parent link="${robot_namespace}/base_link"/>
+      <child link="${robot_namespace}/base_link_inertia"/>
     </joint>
 
     <link name="${robot_namespace}/base_link_inertia">
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="1 1 1" />
+            <mesh filename="${mesh_file}" scale="1 1 1"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
-            <box size="${length} ${width} ${height}" />
+            <box size="${length} ${width} ${height}"/>
           </xacro:unless>
         </geometry>
       </visual>
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="${length} ${width} ${height}" />
+          <box size="${length} ${width} ${height}"/>
         </geometry>
       </collision>
     </link>
@@ -53,7 +56,8 @@
   </xacro:macro>
 
   <!-- Control surface joint and link -->
-  <xacro:macro name="control_surface" params="robot_namespace
+  <xacro:macro name="control_surface" params="
+      robot_namespace
       surface_name
       parent
       mass_surface
@@ -72,38 +76,38 @@
       *link_origin
       *inertia">
     <joint name="${robot_namespace}/${surface_name}_joint" type="revolute">
-      <xacro:insert_block name="joint_origin" />
-      <xacro:insert_block name="axis" />
-      <parent link="${parent}" />
-      <child link="${robot_namespace}/${surface_name}" />
-      <limit lower="${min_angle}" upper="${max_angle}" velocity="${max_velocity}" effort="${max_effort}" />
+      <xacro:insert_block name="joint_origin"/>
+      <xacro:insert_block name="axis"/>
+      <parent link="${parent}"/>
+      <child link="${robot_namespace}/${surface_name}"/>
+      <limit lower="${min_angle}" upper="${max_angle}" velocity="${max_velocity}" effort="${max_effort}"/>
     </joint>
 
     <link name="${robot_namespace}/${surface_name}">
       <inertial>
-        <xacro:insert_block name="link_origin" />
-        <mass value="${mass_surface}" />
-        <xacro:insert_block name="inertia" />
+        <xacro:insert_block name="link_origin"/>
+        <mass value="${mass_surface}"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
       <visual>
-        <xacro:insert_block name="link_origin" />
+        <xacro:insert_block name="link_origin"/>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="1 1 1" />
+            <mesh filename="${mesh_file}" scale="1 1 1"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
-            <box size="${surface_length} ${surface_width} ${surface_height}" />
+            <box size="${surface_length} ${surface_width} ${surface_height}"/>
           </xacro:unless>
         </geometry>
       </visual>
       <collision>
-        <xacro:insert_block name="link_origin" />
+        <xacro:insert_block name="link_origin"/>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="1 1 1" />
+            <mesh filename="${mesh_file}" scale="1 1 1"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
-            <box size="${surface_length} ${surface_width} ${surface_height}" />
+            <box size="${surface_length} ${surface_width} ${surface_height}"/>
           </xacro:unless>
         </geometry>
       </collision>
@@ -115,7 +119,8 @@
   </xacro:macro>
 
   <!-- Propeller joint and link -->
-  <xacro:macro name="propeller" params="robot_namespace
+  <xacro:macro name="propeller" params="
+      robot_namespace
       suffix
       parent
       mass_propeller
@@ -126,21 +131,21 @@
       *origin
       *inertia">
     <joint name="${robot_namespace}/propeller_{suffix}_joint" type="continuous">
-      <xacro:insert_block name="origin" />
-      <axis xyz="0 0 1" />
-      <parent link="${parent}" />
-      <child link="${robot_namespace}/propeller_${suffix}" />
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <parent link="${parent}"/>
+      <child link="${robot_namespace}/propeller_${suffix}"/>
     </joint>
 
     <link name="${robot_namespace}/propeller_${suffix}">
       <inertial>
-        <mass value="${mass_propeller}" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass_propeller}"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
       <visual>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="${propeller_radius} ${propeller_radius} ${propeller_radius}" />
+            <mesh filename="${mesh_file}" scale="${propeller_radius} ${propeller_radius} ${propeller_radius}"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
             <cylinder length="0.005" radius="${propeller_radius}"/>
@@ -150,7 +155,7 @@
       <collision>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="${propeller_radius} ${propeller_radius} ${propeller_radius}" />
+            <mesh filename="${mesh_file}" scale="${propeller_radius} ${propeller_radius} ${propeller_radius}"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
             <cylinder length="0.005" radius="${propeller_radius}"/>
@@ -165,7 +170,8 @@
   </xacro:macro>
 
   <!-- Wheel joint and link -->
-  <xacro:macro name="wheel" params="robot_namespace
+  <xacro:macro name="wheel" params="
+      robot_namespace
       suffix
       parent
       mass
@@ -177,14 +183,14 @@
     <joint name="techpod/wheel_${suffix}_joint" type="continuous">
       <parent link="${parent}"/>
       <child link="techpod/wheel_${suffix}"/>
-      <xacro:insert_block name="origin" />
-      <axis xyz="0 0 1" />
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
     </joint>
 
     <link name="techpod/wheel_${suffix}">
       <inertial>
-        <mass value="${mass}" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass}"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
       <visual>
         <geometry>

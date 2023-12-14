@@ -8,6 +8,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
+#include <tobas_msgs/Throttles.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
 
@@ -15,7 +16,7 @@ namespace tobas_real
 {
 class MotorsHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kCheckIntervalRate = 10;     // [Hz]
+  static constexpr size_t kCheckIntervalRate = 10;       // [Hz]
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
   static constexpr double kThrottleMargin = 0.01;
 
@@ -24,9 +25,9 @@ class MotorsHandler : public tobas::BaseNode
 
 public:
   explicit MotorsHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   tobas::Drone drone_;
@@ -39,7 +40,7 @@ private:
 
   // PubSub
   ros::Publisher rotor_speeds_pub_;
-  ros::Subscriber rotor_speeds_sub_;
+  ros::Subscriber throttles_sub_;
   ros::Subscriber battery_sub_;
 
   // Timer
@@ -53,7 +54,7 @@ private:
   void setPeriodOnAllChannels(const double& period);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& speeds);
+  void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
 
   void checkIntervalTimerCb(const ros::TimerEvent& event);

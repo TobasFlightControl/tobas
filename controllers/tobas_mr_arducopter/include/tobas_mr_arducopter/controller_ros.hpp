@@ -2,7 +2,7 @@
 #include <sensor_msgs/JointState.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 
 #include "./socket.hpp"
 
@@ -19,15 +19,15 @@ class ControllerRos : public tobas::BaseNode
 
 public:
   explicit ControllerRos(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   const KDL::Rotation R_nwu_ned_ = KDL::Rotation::RotX(M_PI);
 
   bool ardupilot_online_ = false;
-  uint32_t connection_timeout_count_ = 0;
+  size_t connection_timeout_count_ = 0;
   ArduPilotSocket socket_in_;
   ArduPilotSocket socket_out_;
 
@@ -38,7 +38,7 @@ private:
   ros::Publisher throttles_pub_;
 
   // Subscribers
-  ros::Subscriber pt_sub_;
+  ros::Subscriber odom_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -46,9 +46,9 @@ private:
 
   void initializeSockets();
   void receiveAndPublishMotorCommand(const ros::Time& imu_time);
-  void sendState(const tobas_msgs::PoseTwist& pt);
+  void sendState(const tobas_msgs::Odometry& odom);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 };
 }  // namespace tobas_mr_arducopter

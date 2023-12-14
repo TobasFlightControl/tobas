@@ -11,6 +11,7 @@
 #include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/Throttles.h>
 
 #include "../include/tobas_fixed_wing_mpc/controller.hpp"
 #include "../include/tobas_fixed_wing_mpc/constants.hpp"
@@ -21,7 +22,7 @@ using namespace dh_std;
 
 namespace tobas_fixed_wing_mpc
 {
-Controller::Controller(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     x_rotors_(drone_, tobas::Axis::X_POSITIVE),
     eom_(drone_),
@@ -65,7 +66,7 @@ void Controller::getRosParams()
 
 void Controller::registerPublishers()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
   deflections_pub_ =
     nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
   feedback_pub_ =
@@ -74,36 +75,32 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &Controller::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &Controller::poseTwistCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &Controller::odomCb, this, tcpNoDelay());
   cmd_sub_ =
     nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &Controller::commandCb, this, tcpNoDelay());
 }
 
 bool Controller::isReady()
 {
-  return pressure_received_ && battery_received_ && pt_received_;
+  return pressure_received_ && battery_received_ && odom_received_;
 }
 
 void Controller::publishTakeoffCommand()
 {
-  // 各ロータの回転数を発行
-  const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds_msg->header.stamp = pt_ned_.header.stamp;
-  rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
-  {
-    rotor_speeds_msg->speeds[x_rotors_.rotorIdx(i)] =
-      x_rotors_.rotSpeedFromVoltage(i, battery_->voltage);
-  }
-  rotor_speeds_pub_.publish(rotor_speeds_msg);
+  // 全モータを最大出力にする
+  const auto throttles_msg = boost::make_shared<tobas_msgs::Throttles>();
+  throttles_msg->header.stamp = odom_ned_.header.stamp;
+  throttles_msg->data.resize(drone_.numRotors(), tobas::kMaxThrottle);
+  throttles_pub_.publish(throttles_msg);
 
   // 各操舵面の偏角を発行
   const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = pt_ned_.header.stamp;
+  deflections_msg->header.stamp = odom_ned_.header.stamp;
   deflections_msg->deflections.resize(drone_.numControlSurfaces(), 0.);
   deflections_msg->deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
   deflections_pub_.publish(deflections_msg);
@@ -121,7 +118,11 @@ void Controller::setInitialTarget()
 void Controller::runOnce()
 {
   // 状態方程式を更新
-  eom_.update(cmd_ned_.speed, air_density_, battery_->voltage, q_0_);
+  if (eom_.update(cmd_ned_.speed, air_density_, battery_->voltage, q_0_) < 0)
+  {
+    rosError(name_, eom_.errorMessage());
+    return;
+  }
   const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
   const auto disc = c2d_.convert(cont, mpc_.time_step);
   fill(mpc_.discrete_dynamics, disc);
@@ -190,7 +191,7 @@ void Controller::setScales()
   mpc_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
   mpc_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     mpc_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
   }
@@ -209,7 +210,7 @@ void Controller::setInputRateConstraint()
   VectorXd ub = VectorXd::Constant(eom_.inputSize(), numeric_limits<double>::max());
 
   // FIXME: 遅延が大きいなら舵角の変化率の制約は消してもいいかも
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& max_angle_rate = drone_.controlSurface(i).max_angle_rate;
     lb(x_rotors_.count() + i) = -max_angle_rate;
@@ -224,14 +225,15 @@ void Controller::updateCurrentStateVector()
   const auto& trim = eom_.trimCondition();
 
   // TODO: 横系のトリムも考慮
-  mpc_.current_state(eom_.kStateIdx_u) = pt_ned_.twist.vel.x() - trim.u();
-  mpc_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(pt_ned_.twist.vel) - trim.alpha();
-  mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(pt_ned_.twist.vel);
-  mpc_.current_state(eom_.kStateIdx_phi) = pt_ned_.pose.euler.roll;
-  mpc_.current_state(eom_.kStateIdx_theta) = pt_ned_.pose.euler.pitch - trim.theta();
-  mpc_.current_state(eom_.kStateIdx_p) = pt_ned_.twist.rot.x();
-  mpc_.current_state(eom_.kStateIdx_q) = pt_ned_.twist.rot.y();
-  mpc_.current_state(eom_.kStateIdx_r) = pt_ned_.twist.rot.z();
+  mpc_.current_state(eom_.kStateIdx_u) = odom_ned_.twist.vel.x() - trim.u();
+  mpc_.current_state(eom_.kStateIdx_alpha) =
+    tobas::angleOfAttack(odom_ned_.twist.vel) - trim.alpha();
+  mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_ned_.twist.vel);
+  mpc_.current_state(eom_.kStateIdx_phi) = odom_ned_.pose.euler.roll;
+  mpc_.current_state(eom_.kStateIdx_theta) = odom_ned_.pose.euler.pitch - trim.theta();
+  mpc_.current_state(eom_.kStateIdx_p) = odom_ned_.twist.rot.x();
+  mpc_.current_state(eom_.kStateIdx_q) = odom_ned_.twist.rot.y();
+  mpc_.current_state(eom_.kStateIdx_r) = odom_ned_.twist.rot.z();
 }
 
 void Controller::updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch)
@@ -251,29 +253,23 @@ void Controller::updateSetStateVector(const double& tar_roll, const double& tar_
 
 void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
 {
-  const auto rotor_speeds_msg = boost::make_shared<tobas_msgs::RotorSpeeds>();
-  rotor_speeds_msg->header.stamp = pt_ned_.header.stamp;
+  const auto throttles_msg = boost::make_shared<tobas_msgs::Throttles>();
+  throttles_msg->header.stamp = odom_ned_.header.stamp;
 
-  rotor_speeds_msg->speeds.resize(drone_.numRotors(), 0.);
-  for (uint32_t i = 0; i < thrust.rows(); ++i)
+  throttles_msg->data.resize(drone_.numRotors(), tobas::kArmThrottle);
+  for (int i = 0; i < thrust.rows(); ++i)
   {
-    if (thrust(i) < -1.)
-    {
-      rosFatal(name_, "Negative thrust force: " << thrust(i) << " [N]");
-      // TODO: 防御モードに移行
-    }
-
-    rotor_speeds_msg->speeds[x_rotors_.rotorIdx(i)] =
-      x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
+    throttles_msg->data[x_rotors_.rotorIdx(i)] =
+      x_rotors_.throttleFromThrust(i, max(0., thrust(i)), battery_->voltage);
   }
 
-  rotor_speeds_pub_.publish(rotor_speeds_msg);
+  throttles_pub_.publish(throttles_msg);
 }
 
 void Controller::publishDeflections(const Eigen::VectorXd& deflections)
 {
   const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = pt_ned_.header.stamp;
+  deflections_msg->header.stamp = odom_ned_.header.stamp;
   deflections_msg->deflections = eigen_tools::toStdVector(deflections);
   deflections_pub_.publish(deflections_msg);
 }
@@ -291,13 +287,13 @@ void Controller::publishFeedback(const Eigen::VectorXd& du)
   feedback->trim_u = trim.u();
   feedback->trim_alpha = trim.alpha();
 
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     feedback->trim_thrusts[x_rotors_.rotorIdx(i)] = eom_.trimInput()(i);
     feedback->delta_thrusts[x_rotors_.rotorIdx(i)] = du(i);
   }
 
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto u_idx = x_rotors_.count() + i;
     feedback->trim_deflections[i] = eom_.trimInput()[u_idx];
@@ -311,8 +307,9 @@ void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      check_topics_timer_.stop();
       break;
     default:
       break;
@@ -339,14 +336,14 @@ void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
+void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
 {
   // コールバックの時点で全てNED座標系に変換しておく
-  tf::baseStateNwuToNed(*pt_nwu, pt_ned_);
+  tf::baseStateNwuToNed(*odom_nwu, odom_ned_);
 
-  if (!pt_received_)
+  if (!odom_received_)
   {
-    pt_received_ = true;
+    odom_received_ = true;
   }
 
   switch (state_)
@@ -355,7 +352,7 @@ void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
     {
       if (isReady())
       {
-        rosInfo(name_, "Controller is ready.");
+        DH_GOOD("Controller is ready.");
         check_topics_timer_.stop();
         state_ = TAKEOFF;
       }
@@ -363,7 +360,7 @@ void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
     }
     case TAKEOFF:
     {
-      const auto cur_V = pt_ned_.twist.vel.norm();
+      const auto cur_V = odom_ned_.twist.vel.norm();
       const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
       const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_->voltage, q_0_);
       if (eom_error < 0)
@@ -374,7 +371,7 @@ void Controller::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt_nwu)
       publishTakeoffCommand();
 
       // 最低速度を上回ったら制御開始
-      const auto cur_speed = pt_nwu->twist.vel.norm();
+      const auto cur_speed = odom_nwu->twist.vel.norm();
       if (cur_speed > eom_.trimCondition().minimumSpeed(air_density_))
       {
         setInitialTarget();
@@ -416,17 +413,16 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
   if (!battery_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kBatteryTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryTopic);
 
-  if (!pt_received_)
-    rosWarn(name_, nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << " is not received yet.");
+  if (!odom_received_)
+    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
 }
 
-void Controller::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   ROS_ASSERT(cfg.prediction_horizon > 0.);
   ROS_ASSERT(cfg.prediction_steps > 0);

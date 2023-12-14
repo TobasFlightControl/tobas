@@ -30,25 +30,25 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
         self._options = QFileDialog.Options()
         self._options |= QFileDialog.DontUseNativeDialog
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        self._rows.addLayout(cols)
 
-        self.path = QLineEdit(default)
-        self.path.setReadOnly(True)
-        self.path.setFocusPolicy(Qt.NoFocus)
-        self._cols.addWidget(self.path)
+        self._path = QLineEdit(default)
+        self._path.setReadOnly(True)
+        self._path.setFocusPolicy(Qt.NoFocus)
+        cols.addWidget(self._path)
 
         self.browse_button = QPushButton("Browse")
-        self._cols.addWidget(self.browse_button)
+        cols.addWidget(self.browse_button)
 
-        self.path.textChanged.connect(self._on_text_changed)
+        self._path.textChanged.connect(self._on_text_changed)
         self.browse_button.clicked.connect(self._on_browse_button_clicked)
 
     def get(self) -> str:
-        return self.path.text()
+        return self._path.text()
 
     def set(self, text: str) -> None:
-        self.path.setText(text)
+        self._path.setText(text)
 
     @pyqtSlot(str)
     def _on_text_changed(self, text: str) -> None:
@@ -67,7 +67,7 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
         if not path:  # Cancelの場合
             return
 
-        self.path.setText(path)
+        self._path.setText(path)
 
         self._config[DEFAULT][self._key] = osp.dirname(path)
         with open(CONFIG_PATH, "w") as f:

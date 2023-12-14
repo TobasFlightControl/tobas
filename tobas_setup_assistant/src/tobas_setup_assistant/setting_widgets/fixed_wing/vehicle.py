@@ -17,13 +17,13 @@ class VehicleParametersWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label = QLabel("Vehicle Parameters")
         label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(label)
+        rows.addWidget(label)
 
         wing_surface_description = ""
         self.wing_surface = ParamGetterWidget_DoubleSpinBox(
@@ -34,7 +34,7 @@ class VehicleParametersWidget(QWidget):
             default=0.47,
             suffix=" m^2",
         )
-        self._rows.addWidget(self.wing_surface)
+        rows.addWidget(self.wing_surface)
 
         wing_span_description = ""
         self.wing_span = ParamGetterWidget_DoubleSpinBox(
@@ -45,7 +45,7 @@ class VehicleParametersWidget(QWidget):
             default=2.59,
             suffix=" m",
         )
-        self._rows.addWidget(self.wing_span)
+        rows.addWidget(self.wing_span)
 
         mac_description = ""
         self.mac = ParamGetterWidget_DoubleSpinBox(
@@ -56,7 +56,7 @@ class VehicleParametersWidget(QWidget):
             default=0.18,
             suffix=" m",
         )
-        self._rows.addWidget(self.mac)
+        rows.addWidget(self.mac)
 
         aerodynamic_center_description = ""
         self.aerodynamic_center = ParamGetterWidget_Vector3d(
@@ -66,7 +66,7 @@ class VehicleParametersWidget(QWidget):
             default=(0.1, 0.0, 0.0),
             suffix=" m",
         )
-        self._rows.addWidget(self.aerodynamic_center)
+        rows.addWidget(self.aerodynamic_center)
 
         alpha_limit_description = ""
         self.alpha_limit = ParamGetterWidget_DoubleRange(
@@ -76,7 +76,7 @@ class VehicleParametersWidget(QWidget):
             default=(-0.27, 0.27),
             suffix=" rad",
         )
-        self._rows.addWidget(self.alpha_limit)
+        rows.addWidget(self.alpha_limit)
 
     def define_connections(self) -> None:
         pass

@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 from overrides import overrides
 from typing import List
+from dataclasses import dataclass
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -24,39 +25,31 @@ from .base import BaseController
 ARDUPILOT = "ArduPilot"
 
 
+@dataclass(frozen=True)
 class FrameClass:
     """FRAME_CLASS: https://ardupilot.org/copter/docs/parameters.html#frame-class"""
 
-    def __init__(self, value: int, meaning: str, num_props: int) -> None:
-        self.value = value
-        self.meaning = meaning
-        self.num_props = num_props
+    value: int
+    meaning: str
+    num_props: int
 
 
+@dataclass(frozen=True)
 class FrameType:
     """FRAME_TYPE: https://ardupilot.org/copter/docs/parameters.html#frame-type"""
 
-    def __init__(self, value: int, meaning: str) -> None:
-        self.value = value
-        self.meaning = meaning
+    value: int
+    meaning: str
 
 
+@dataclass(frozen=True)
 class Frame:
     """Motor order diagrams: https://ardupilot.org/copter/docs/connect-escs-and-motors.html#motor-order-diagrams"""
 
-    def __init__(
-        self,
-        name: str,
-        frame_class: FrameClass,
-        frame_type: FrameType,
-        directions: List[str],
-    ) -> None:
-        assert len(directions) == frame_class.num_props
-
-        self._name = name
-        self._frame_class = frame_class
-        self._frame_type = frame_type
-        self._directions = directions
+    _name: str
+    _frame_class: FrameClass
+    _frame_type: FrameType
+    _directions: List[str]
 
     def name(self) -> str:
         return self._name
@@ -67,9 +60,6 @@ class Frame:
             0 <= channel < self._frame_class.num_props
         ), f"Number of propellers: {self._frame_class.num_props}, channel: {channel}"
         return self._directions[channel]
-
-    def directions(self) -> List[str]:
-        return self._directions
 
     def class_id(self) -> int:
         return self._frame_class.value
@@ -88,19 +78,19 @@ class ChannelsWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label = QLabel("Channels")
         label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(label)
+        rows.addWidget(label)
 
-        description = Description("選択したフレームタイプの各チャンネルに対応するリンクを選択してください．")
-        self._rows.addWidget(description)
+        description = Description("ダイアグラム上で，選択したフレームのプロペラ番号に対応するリンクを選択してください．")
+        rows.addWidget(description)
 
         self._form = FormLayout()
-        self._rows.addLayout(self._form)
+        rows.addLayout(self._form)
 
     def define_connections(self) -> None:
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
@@ -148,7 +138,7 @@ class ChannelsWidget(QWidget):
             choices = ComboBox()
             choices.addItems([self.NO_SELECT] + prop_link_names)
             choices.setCurrentText(self.NO_SELECT)
-            self._form.addRow(QLabel(f"Channel {i + 1}"), choices)
+            self._form.addRow(QLabel(f"ArduPilot CH {i + 1}"), choices)
 
     @pyqtSlot()
     def _on_airframe_updated(self) -> None:
@@ -181,8 +171,9 @@ class ArduCopter(BaseController):
     CONTROLLER_PKG = "tobas_mr_arducopter"
     TAKEOFF_PKG = "tobas_mr_arducopter"
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    PARAM_SERVER_NODE = "arducopter_param_server"
 
-    COMMAND_MSGS = [PositionYaw.__name__]
+    COMMAND_MSGS = frozenset([PositionYaw.__name__])
 
     MIN_NUM_PROPS = 2
 
@@ -291,7 +282,7 @@ class ArduCopter(BaseController):
         super().define_connections()
         self._channels.define_connections()
         self._frame.index_changed.connect(self._on_frame_idx_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
 
     @overrides
     def is_applicable(self) -> bool:
@@ -367,6 +358,6 @@ class ArduCopter(BaseController):
         self._channels.update_num_channels(self._frames[idx].num_props())
 
     @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def _on_robot_model_loaded(self) -> None:
         cur_idx = self._frame.cur_index()
         self._channels.update_num_channels(self._frames[cur_idx].num_props())

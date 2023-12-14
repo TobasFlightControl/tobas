@@ -9,10 +9,8 @@ namespace tobas_mr_common
 {
 struct AccelAttitudeConverterConfig
 {
-  double max_hor_acc;
-  double max_ver_acc;
   double max_attitude;
-  double h_force_coef;
+  double h_force_comp_rate;
 };
 
 class AccelAttitudeConverter
@@ -28,16 +26,16 @@ public:
     const KDL::Vector& cur_vel_B,
     const KDL::Vector& cur_wind_W,
     const std::vector<double>& cur_rotor_speeds,
-    KDL::Vector tar_acc_W,
-    double& U_out,
+    const KDL::Vector& tar_acc_W,
+    double& thrust_out,
     double& roll_out,
     double& pitch_out);
 
   /* 空気効力を考慮しない場合． */
   void update(
     const KDL::Euler& cur_rpy,
-    KDL::Vector tar_acc_W,
-    double& U_out,
+    const KDL::Vector& tar_acc_W,
+    double& thrust_out,
     double& roll_out,
     double& pitch_out);
 

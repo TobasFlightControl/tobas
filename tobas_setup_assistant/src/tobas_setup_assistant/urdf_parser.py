@@ -6,19 +6,21 @@ if TYPE_CHECKING:
 
 import rospy
 from typing import List, Tuple
-from urdf_parser_py.urdf import Link, Joint
+from urdf_parser_py.urdf import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import q_error
+from dh_rqt_tools.messages import *
 from kdl_sympy.frames import *
 from kdl_sympy.tree import Tree
 from kdl_sympy.joint import JointType
 
+from .utils import is_unique
+
 
 class URDFParser(QObject):
-    robot_model_updated = pyqtSignal()
+    robot_model_loaded = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
         super().__init__()
@@ -31,12 +33,17 @@ class URDFParser(QObject):
 
     @pyqtSlot()
     def _on_urdf_loaded(self) -> None:
-        self._tree.load_from_param()
+        try:
+            self._tree.load_from_param()
+        except Exception as e:
+            q_error(self._main, f"Failed to load robot: {e}")
+            return
+
         if not self._is_valid_robot():
             return
 
         rospy.loginfo("Robot model is loaded successfully.")
-        self.robot_model_updated.emit()
+        self.robot_model_loaded.emit()
 
     def get_links(self) -> List[Link]:
         return self._tree.get_links()
@@ -136,7 +143,7 @@ class URDFParser(QObject):
                 continue
 
             # 親フレームと子フレームの回転が一致していることを保証
-            if link.origin is not None and link.origin.rpy != [0, 0, 0]:
+            if link.origin is not None and not link.origin.rpy != [0, 0, 0]:
                 continue
             if joint.origin is not None and joint.origin.rpy != [0, 0, 0]:
                 continue
@@ -147,19 +154,44 @@ class URDFParser(QObject):
 
     def _is_valid_robot(self) -> bool:
         """有効なロボットかどうかを判定する．"""
-        # 多自由度関節を持たないことを保証
+        root_link = self.get_root()
+
+        # リンク名とジョイント名が一意である
+        if not is_unique(self.link_names()):
+            q_error(self._main, f"Link names are not unique.")
+            return False
+        if not is_unique(self.joint_names()):
+            q_error(self._main, f"Joint names are not unique.")
+            return False
+
+        # 多自由度関節を持たない
         for joint in self.get_joints():
             if joint.type in {JointType.PLANER, JointType.FLOATING}:
                 q_error(self._main, f"Invalid joint type: {joint.type}")
                 return False
 
-        # ルートリンクのフレーム座標軸が XYZ = NWU に一致することを保証
-        root_link = self.get_root()
-        if root_link.origin is not None and root_link.origin.rpy != [0, 0, 0]:
+        # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
+        origin: Pose = root_link.origin
+        if origin is not None and any(angle != 0 for angle in origin.rpy):
             q_error(
                 self._main,
                 "The frame of the root link must coincide with the NWU coordinate axis.",
             )
             return False
+
+        # ルートリンクがInertialを持たない
+        if root_link.inertial is not None:
+            inertial: Inertial = root_link.inertial
+            mass = inertial.mass
+            inertia: Inertia = inertial.inertia
+
+            if mass != 0 or any(row != [0, 0, 0] for row in inertia.to_matrix()):
+                q_error(
+                    self._main,
+                    "The root link has an inertia specified in the URDF, "
+                    + "but KDL does not support a root link with an inertia. "
+                    + "As a workaround, you can add an extra dummy link to your URDF.",
+                )
+                return False
 
         return True

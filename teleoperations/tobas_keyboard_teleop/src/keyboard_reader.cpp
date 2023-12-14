@@ -34,15 +34,9 @@ KeyboardReader::~KeyboardReader()
 
 char KeyboardReader::readKey()
 {
-  // キーボード入力をリセット
-  // リセットしないと入力がない場合に前回のキーを返してしまう．
-  buf_ = 0;
-
-  if (read(kFileDescriptor, &buf_, 1) < 0)
-  {
+  char buf = 0;
+  if (read(kFileDescriptor, &buf, 1) < 0)
     throw runtime_error("Failed to read keyboard input.");
-  }
-
-  return buf_;
+  return buf;
 }
 }  // namespace tobas_keyboard_teleop

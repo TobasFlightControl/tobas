@@ -92,14 +92,16 @@ public:
    * @param pos_meas 世界座標系で表現された位置の観測値
    * @param pos_cov 位置の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
+   *
+   * @return Anormaly score
    */
-  void measurePosition(
+  double measurePosition(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& offset = Eigen::Vector3d::Zero());
-  void measureXY(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
-  void measureAltitude(const double& z_meas, const double& z_var);
-  void measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
+  double measureXY(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
+  double measureAltitude(const double& z_meas, const double& z_var);
+  double measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
   /**
    * @brief 速度の観測をノミナル状態に反映させる．
    *
@@ -107,20 +109,22 @@ public:
    * @param pos_cov 速度の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    * @param gyro_meas ジャイロセンサの読み
+   *
+   * @return Anormaly score
    */
-  void measureVelocity(
+  double measureVelocity(
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas);
-  void measurePosVel(
+  double measurePosVel(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas);
-  void measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
+  double measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
 
   /**
    * @brief 重力方向の観測．姿勢の修正に用いる．
@@ -129,8 +133,10 @@ public:
    * @param acc_meas 加速度センサの読み．
    * @param grav_cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   *
+   * @return Anormaly score
    */
-  void measureGravity(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& grav_cov);
+  double measureGravity(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& grav_cov);
 
   /**
    * @brief 地磁気の観測．姿勢の修正に用いる．
@@ -142,8 +148,10 @@ public:
    * @note
    * 地磁気センサのバイアスが大きく，ロールピッチの観測に用いると姿勢推定の精度が落ちる恐れがあるため，
    * 地磁気はヨー角の観測にのみ用いるべきという意見もある．
+   *
+   * @return Anormaly score
    */
-  void measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
+  double measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
 
   /**
    * @brief 地磁気の観測．ヨー角の修正に用いる．
@@ -152,8 +160,10 @@ public:
    * @param mag_meas 地磁気センサの読み．
    * @param yaw_var 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   *
+   * @return Anormaly score
    */
-  void
+  double
   measureMagneticField(const double& mag_meas_x, const double& mag_meas_y, const double& yaw_var);
 
 private:
@@ -177,7 +187,7 @@ private:
    * @brief クオータニオンをベクトルの形で得る．
    * (w,x,y,z)の順(ハミルトン)だから，w()などでアクセスするとずれることに注意！
    *
-   * @return Eigen::Vector4d ハミルトン形式のクオータニオン
+   * @return ハミルトン形式のクオータニオン
    */
   inline Eigen::Vector4d getHamilton() const;
 
@@ -187,8 +197,18 @@ private:
   /* ベクトルvのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
   Eigen::Matrix<double, 3, 4> quatRotationDerivative(const Eigen::Vector3d& a) const;
 
+  /**
+   * @brief 観測から状態と共分散の事後推定を求める
+   *
+   * @tparam M 観測の次元
+   * @param delta_meas 観測とノミナル状態の誤差
+   * @param meas_cov 観測ノイズの共分散
+   * @param H 観測方程式
+   *
+   * @return Anormaly score
+   */
   template <size_t M>
-  void correct(
+  double correct(
     const Eigen::Matrix<double, M, 1>& delta_meas,
     const Eigen::Matrix<double, M, M>& meas_cov,
     const Eigen::Matrix<double, M, kDeltaStateSize>& H);
@@ -300,7 +320,7 @@ inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
 }
 
 template <size_t M>
-void ErrorStateKalmanFilter::correct(
+double ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, 1>& delta_meas,
   const Eigen::Matrix<double, M, M>& meas_cov,
   const Eigen::Matrix<double, M, kDeltaStateSize>& H)
@@ -309,23 +329,21 @@ void ErrorStateKalmanFilter::correct(
 
   // Kalman gain
   const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * H.transpose();
-  const Eigen::Matrix<double, kDeltaStateSize, M> K = PHt * (H * PHt + meas_cov).inverse();
+  const Eigen::Matrix<double, M, M> Sigma_inv = (H * PHt + meas_cov).inverse();
+  const Eigen::Matrix<double, kDeltaStateSize, M> K = PHt * Sigma_inv;
 
-  // Correction error state
+  // Correct nominal state
   const DeltaStateVector error_state = K * delta_meas;
-  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
+  injectErrorState(error_state);
 
   // Update covariance matrix
+  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
   // P_ = I_KH * P_;  // Simple form
   P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // Joseph form
   eigen_tools::symmetrise(P_);                                       // 対称化
 
-  injectErrorState(error_state);
-
-  // For debug
-  // std::cout << "Delta measure:" << std::endl << delta_meas << std::endl;
-  // std::cout << "Measurement covariance matrix:" << std::endl << meas_cov << std::endl;
-  // std::cout << "Output matrix:" << std::endl << H << std::endl;
-  // std::cout << "Kalman gain:" << std::endl << K << std::endl;
+  // Anormaly score
+  const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
+  return anormaly_score;
 }
 }  // namespace state_estimation_eskf

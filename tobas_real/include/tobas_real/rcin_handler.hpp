@@ -12,15 +12,15 @@ namespace tobas_real
 {
 class RCInputHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kUpdateRate = 100;  // [Hz]
+  static constexpr size_t kUpdateRate = 100;  // [Hz]
 
   using super = tobas::BaseNode;
 
 public:
   explicit RCInputHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   RCInput_Navio2 rcin_;
@@ -30,8 +30,10 @@ private:
   dh_std::Range<double> pitch_range_;
   dh_std::Range<double> yaw_range_;
   dh_std::Range<double> thrust_range_;
-  dh_std::Range<double> estop_range_;
   std::vector<double> modes_;
+  double estop_on_, estop_off_;
+  double gpsw1_on_, gpsw1_off_;
+  double gpsw2_on_, gpsw2_off_;
 
   // Publisher
   ros::Publisher rcin_pub_;

@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 
 
 class FrameTreeWidget(QTreeWidget):
-    WIDTH = 300
+    WIDTH = 200
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -20,17 +20,20 @@ class FrameTreeWidget(QTreeWidget):
         self.setColumnCount(1)
         self.setHeaderLabels(["Frames Tree"])
 
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
     def define_connections(self) -> None:
         self.itemClicked.connect(self._on_item_clicked)
         self.itemExpanded.connect(self._resize_columns)
         self.itemCollapsed.connect(self._resize_columns)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_tree_items)
+        self._main.urdf_parser.robot_model_loaded.connect(self._add_tree_items)
 
     @pyqtSlot(QTreeWidgetItem, int)
     def _on_item_clicked(self, item: QTreeWidgetItem, col: int) -> None:
         assert col == 0
         link_name = item.text(col)
-        self._main.robot_visualizer.rviz.highlight_link(link_name)
+        self._main.robot_visualizer.highlight_link(link_name)
 
     @pyqtSlot()
     def _add_tree_items(self) -> None:

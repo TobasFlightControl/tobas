@@ -5,16 +5,14 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
-#include <nav_msgs/Odometry.h>
 
 #include <dh_std_tools/first_order_filter.hpp>
-#include <dh_std_tools/stopwatch.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Gps.h>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 
 #include <state_estimation_eskf/ErrorStateKalmanFilterFeedback.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
@@ -32,8 +30,7 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using MagMsg = sensor_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
-  using StateMsg = tobas_msgs::PoseTwist;
-  using OdomMsg = nav_msgs::Odometry;
+  using OdomMsg = tobas_msgs::Odometry;
   using FeedbackMsg = state_estimation_eskf::ErrorStateKalmanFilterFeedback;
 
   using ConfigType = state_estimation_eskf::StateEstimationEskfConfig;
@@ -41,9 +38,9 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
 
 public:
   explicit ErrorStateKalmanFilterRos(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   enum Stage
@@ -54,15 +51,12 @@ private:
     RUNNING,
   };
 
-  tobas::Drone drone_;
-
   // 固定値
-  Eigen::Vector3d imu2gps_B_;  // IMUに対するGPSレシーバの位置
-  double lat_0_;               // 緯度のゼロ点 (Base Frame)
-  double lon_0_;               // 経度のゼロ点 (Base Frame)
-  double alt_0_gps_;           // GPS高度のゼロ点 (Base Frame)
-  double alt_0_bar_;           // 気圧高度のゼロ点 (Base Frame)
-  Eigen::Quaterniond q_0_;     // 姿勢の初期値 (Base Frame)
+  double lat_0_;            // 緯度のゼロ点 (Base Frame)
+  double lon_0_;            // 経度のゼロ点 (Base Frame)
+  double alt_0_gps_;        // GPS高度のゼロ点 (Base Frame)
+  double alt_0_bar_;        // 気圧高度のゼロ点 (Base Frame)
+  Eigen::Quaterniond q_0_;  // 姿勢の初期値 (Base Frame)
 
   Stage stage_ = FIRST_IMU;
   bool cov_converged_ = false;
@@ -74,6 +68,7 @@ private:
   double yaw_now_;
   double yaw_prev_;
   int yaw_jump_count_;  // ヨー角の回転回数
+  double gps_anormaly_score_ = 0.;
 
   Eigen::Vector3d acc_meas_;
   Eigen::Vector3d gyro_meas_;
@@ -94,11 +89,13 @@ private:
   bool do_gyro_bias_estimation_;
   bool do_grav_estimation_;
   bool check_covariance_convergence_;
+  Eigen::Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
+  Eigen::Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
+  Eigen::Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
   double gps_hor_pos_stddev_thr_;  // [m]
   double gps_ver_pos_stddev_thr_;  // [m]
 
   // PubSub
-  ros::Publisher pt_pub_;
   ros::Publisher odom_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber imu_sub_;
@@ -112,9 +109,6 @@ private:
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  // Other
-  dh_std::Stopwatch stopwatch_;
-
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
@@ -122,7 +116,7 @@ private:
   bool isReady() const;
   void initialize();
   void setZeroPositions();
-  StateMsg::ConstPtr makePoseVelMsg(const ImuMsg& imu);
+  OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuCb(const ImuMsg::ConstPtr& imu);
@@ -131,6 +125,6 @@ private:
   void gpsCb(const GpsMsg::ConstPtr& gps);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);
-  void dynamicReconfigureCb(const ConfigType& cfg, uint32_t);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace state_estimation_eskf

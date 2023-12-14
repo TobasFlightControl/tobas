@@ -6,15 +6,15 @@
   <xacro:j2s7s300 base_parent="${namespace}/base_link" ns="${namespace}" is_inverted="1"/>
 
   <xacro:macro name="box_inertia" params="x y z mass">
-    <inertia ixx="${0.0833333 * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0" iyy="${0.0833333 * mass * (x*x + z*z)}" iyz="0.0" izz="${0.0833333 * mass * (x*x + y*y)}" />
+    <inertia ixx="${0.0833333 * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0" iyy="${0.0833333 * mass * (x*x + z*z)}" iyz="0.0" izz="${0.0833333 * mass * (x*x + y*y)}"/>
   </xacro:macro>
 
   <!-- Macro for the inertial properties of a box -->
   <xacro:macro name="box_inertial" params="x y z mass *origin">
     <inertial>
-      <mass value="${mass}" />
-      <xacro:insert_block name="origin" />
-      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}" />
+      <mass value="${mass}"/>
+      <xacro:insert_block name="origin"/>
+      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
     </inertial>
   </xacro:macro>
 
@@ -23,24 +23,24 @@
     <link name="${robot_namespace}/base_link"></link>
 
     <joint name="${robot_namespace}/base_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <parent link="${robot_namespace}/base_link" />
-      <child link="${robot_namespace}/base_link_inertia" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${robot_namespace}/base_link"/>
+      <child link="${robot_namespace}/base_link_inertia"/>
     </joint>
 
     <link name="${robot_namespace}/base_link_inertia">
       <origin xyz="0 0 0"/>
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="0 0 0" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="1 1 1" />
+            <mesh filename="${mesh_file}" scale="1 1 1"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
             <box size="${body_width} ${body_width} ${body_height}"/>
@@ -49,9 +49,9 @@
       </visual>
 
       <collision>
-        <origin xyz="0 0 0.07" rpy="0 0 0" />
+        <origin xyz="0 0 0.07" rpy="0 0 0"/>
         <geometry>
-          <box size="${body_width} ${body_width} ${body_height}" />
+          <box size="${body_width} ${body_width} ${body_height}"/>
         </geometry>
       </collision>
     </link>
@@ -60,24 +60,24 @@
   <!-- Rotor joint and link -->
   <xacro:macro name="vertical_rotor" params="robot_namespace direction parent mass_rotor radius_rotor　motor_number *origin *inertia">
     <joint name="${robot_namespace}/rotor_${motor_number}_joint" type="continuous">
-      <xacro:insert_block name="origin" />
-      <axis xyz="0 0 1" />
-      <parent link="${parent}" />
-      <child link="${robot_namespace}/rotor_${motor_number}" />
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <parent link="${parent}"/>
+      <child link="${robot_namespace}/rotor_${motor_number}"/>
     </joint>
     <link name="${robot_namespace}/rotor_${motor_number}">
       <inertial>
-        <mass value="${mass_rotor}" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass_rotor}"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="package://tobas_description/meshes/harrier/black_propeller.stl" scale="${radius_rotor} ${radius_rotor} ${radius_rotor}" />
+          <mesh filename="package://tobas_description/meshes/harrier/black_propeller.stl" scale="${radius_rotor} ${radius_rotor} ${radius_rotor}"/>
         </geometry>
       </visual>
       <collision>
         <geometry>
-          <cylinder length="0.005" radius="${radius_rotor}" />
+          <cylinder length="0.005" radius="${radius_rotor}"/>
         </geometry>
       </collision>
     </link>

@@ -5,8 +5,10 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from typing import List, final
+from typing import List, final, FrozenSet
+import rospy
 from dynamic_reconfigure import client
+from dynamic_reconfigure.msg import ConfigDescription
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -18,15 +20,18 @@ from dh_rqt_tools.layouts import FormLayout
 
 from ...common import *
 
+PARAM_DESCRIPTION_TIMEOUT = 3
+
 
 class BaseController(QWidget):
-    NAME = "Unknown"
+    NAME = UNKNOWN
 
-    CONTROLLER_PKG = "Unknown"
-    TAKEOFF_PKG = "Unknown"
-    LANDING_PKG = "Unknown"
+    CONTROLLER_PKG = UNKNOWN
+    TAKEOFF_PKG = UNKNOWN
+    LANDING_PKG = UNKNOWN
+    PARAM_SERVER_NODE = UNKNOWN
 
-    COMMAND_MSGS = ["Unknown"]
+    COMMAND_MSGS: FrozenSet[str] = frozenset()
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()
@@ -43,9 +48,9 @@ class BaseController(QWidget):
         abst = Description(abst_text)
         self._rows.addWidget(abst)
 
-        self.flight_modes = FlightModesWidget()
-        self.flight_modes.set_num_modes(DEFAULT_NUM_FLIGHT_MODES, self.COMMAND_MSGS)
-        self._rows.addWidget(self.flight_modes)
+        self._flight_modes = FlightModesWidget()
+        self._flight_modes.set_num_modes(DEFAULT_NUM_FLIGHT_MODES, self.COMMAND_MSGS)
+        self._rows.addWidget(self._flight_modes)
 
     @abstractmethod
     def define_connections(self) -> None:
@@ -73,7 +78,25 @@ class BaseController(QWidget):
 
     @abstractmethod
     def parameter_dict(self) -> dict:
-        raise NotImplementedError()
+        # 動的パラメータを取得
+        cfg: ConfigDescription = rospy.wait_for_message(
+            f"/{self.CONTROLLER_PKG}/parameter_descriptions",
+            ConfigDescription,
+            PARAM_DESCRIPTION_TIMEOUT,
+        )
+        dflt = cfg.dflt
+
+        # デフォルトのパラメータを入れる
+        res = {self.PARAM_SERVER_NODE: dict()}
+        for defaults in [dflt.ints, dflt.doubles, dflt.strs, dflt.bools]:
+            for param in defaults:
+                res[self.PARAM_SERVER_NODE][param.name] = param.value
+
+        return res
+
+    @final
+    def flight_mode_names(self) -> List[str]:
+        return self._flight_modes.mode_names()
 
     @final
     def _get_param_config(self, name: str) -> dict:
@@ -82,7 +105,7 @@ class BaseController(QWidget):
     @final
     @pyqtSlot(int)
     def _on_num_modes_updated(self, num_modes: int) -> None:
-        self.flight_modes.set_num_modes(num_modes, self.COMMAND_MSGS)
+        self._flight_modes.set_num_modes(num_modes, self.COMMAND_MSGS)
 
 
 class FlightModesWidget(QWidget):

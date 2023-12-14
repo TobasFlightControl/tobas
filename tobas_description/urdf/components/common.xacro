@@ -3,12 +3,17 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Constants -->
+  <xacro:property name="sqrt2" value="1.4142135623730951"/>
+  <xacro:property name="sqrt3" value="1.73205080757"/>
   <xacro:property name="sin30" value="0.5"/>
-  <xacro:property name="cos30" value="0.866025403784"/>
-
-  <!-- Properties -->
+  <xacro:property name="cos30" value="${sqrt3 / 2}"/>
+  <xacro:property name="sin45" value="${1 / sqrt2}"/>
+  <xacro:property name="cos45" value="${sin45}"/>
+  <xacro:property name="sin60" value="${cos30}"/>
+  <xacro:property name="cos60" value="${sin30}"/>
   <xacro:property name="deg2rad" value="${pi / 180}"/>
   <xacro:property name="rad2deg" value="${180 / pi}"/>
+  <xacro:property name="inch2meter" value="0.0254"/>
 
   <!-- Colors -->
   <xacro:property name="black">
@@ -19,6 +24,11 @@
   <xacro:property name="white">
     <material name="white">
       <color rgba="1 1 1 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="gray">
+    <material name="gray">
+      <color rgba="0.5 0.5 0.5 1"/>
     </material>
   </xacro:property>
   <xacro:property name="red">
@@ -36,24 +46,56 @@
       <color rgba="0 0 1 1"/>
     </material>
   </xacro:property>
+  <xacro:property name="orange">
+    <material name="orange">
+      <color rgba="${255/255} ${108/255} ${10/255} 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="brown">
+    <material name="brown">
+      <color rgba="${222/255} ${207/255} ${195/255} 1"/>
+    </material>
+  </xacro:property>
+
+  <!-- Collisions -->
+  <xacro:macro name="hexagonal_prism_collision" params="side height x0 y0 z0">
+    <collision>
+      <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${sqrt3*side} ${side} ${height}"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 ${60*deg2rad}"/>
+      <geometry>
+        <box size="${sqrt3*side} ${side} ${height}"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 ${-60*deg2rad}"/>
+      <geometry>
+        <box size="${sqrt3*side} ${side} ${height}"/>
+      </geometry>
+    </collision>
+  </xacro:macro>
 
   <!-- Inertia of primitive shapes -->
   <xacro:macro name="cylinder_inertia" params="radius length mass">
-    <inertia ixx="${mass*radius*radius/4 + mass*length*length/12}" ixy="0.0" ixz="0.0" iyy="${mass*radius*radius/4 + mass*length*length/12}" iyz="0.0" izz="${mass*radius*radius/2}" />
+    <inertia ixx="${mass*radius*radius/4 + mass*length*length/12}" ixy="0.0" ixz="0.0" iyy="${mass*radius*radius/4 + mass*length*length/12}" iyz="0.0" izz="${mass*radius*radius/2}"/>
   </xacro:macro>
   <xacro:macro name="sphere_inertia" params="radius mass">
-    <inertia ixx="${0.4 * mass * radius*radius}" ixy="0.0" ixz="0.0" iyy="${0.4 * mass * radius*radius}" iyz="0.0" izz="${0.4 * mass * radius*radius}" />
+    <inertia ixx="${0.4 * mass * radius*radius}" ixy="0.0" ixz="0.0" iyy="${0.4 * mass * radius*radius}" iyz="0.0" izz="${0.4 * mass * radius*radius}"/>
   </xacro:macro>
   <xacro:macro name="box_inertia" params="x y z mass">
-    <inertia ixx="${mass * (y*y + z*z) / 12}" ixy="0.0" ixz="0.0" iyy="${mass * (x*x + z*z) / 12}" iyz="0.0" izz="${mass * (x*x + y*y) / 12}" />
+    <inertia ixx="${mass * (y*y + z*z) / 12}" ixy="0.0" ixz="0.0" iyy="${mass * (x*x + z*z) / 12}" iyz="0.0" izz="${mass * (x*x + y*y) / 12}"/>
   </xacro:macro>
 
   <!-- Macro for the inertial properties of a box -->
   <xacro:macro name="box_inertial" params="x y z mass *origin">
     <inertial>
-      <mass value="${mass}" />
-      <xacro:insert_block name="origin" />
-      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}" />
+      <mass value="${mass}"/>
+      <xacro:insert_block name="origin"/>
+      <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
     </inertial>
   </xacro:macro>
 

@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -54,7 +54,7 @@ class BarometerWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.pressure_var)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
 
     @overrides
     def define_connections(self) -> None:

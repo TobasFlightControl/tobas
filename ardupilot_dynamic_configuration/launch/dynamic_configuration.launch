@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="ardupilot_dynamic_configuration" type="dynamic_configuration_node.py" name="ardupilot_dynamic_configuration" output="screen"/>
+
+</launch>

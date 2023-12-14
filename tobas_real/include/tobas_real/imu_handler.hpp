@@ -14,18 +14,21 @@ namespace tobas_real
 class ImuHandler : public tobas::BaseNode
 {
   // Constants
-  static constexpr uint32_t kPublishRate = 200;  // [Hz]
-  static constexpr uint32_t kMeasureGyroBiasCount = 1000;
-  static constexpr uint32_t kMeasureGyroBiasRate = 400;  // [Hz]
-  static constexpr double kStaticGyroThreshold = 0.2;    // [rad/s]
+  static constexpr size_t kMeasureGyroBiasCount = 1000;
+  static constexpr size_t kMeasureGyroBiasRate = 400;  // [Hz]
+  static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
+  // Default Parameters
+  static constexpr size_t kDefaultUpdateRate = 400;  // [Hz]
+
+  using self = ImuHandler;
   using super = tobas::BaseNode;
 
 public:
   explicit ImuHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   ImuDevice imu_;
@@ -36,7 +39,7 @@ private:
   EllipseTransformer mag_trans_;
 
   // ジャイロバイアス関連
-  uint32_t loop_cnt_ = 0;
+  size_t loop_cnt_ = 0;
   Eigen::Vector3f gyro_sum_ = Eigen::Vector3f::Zero();
   Eigen::Vector3f gyro_bias_;
 
@@ -44,7 +47,10 @@ private:
   double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
   double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
   double mag_noise_density_;   // [/sqrt(Hz)]
-  Eigen::Vector3f acc_bias_;
+  Eigen::Vector3f acc_bias_;   // [m/s^2]
+
+  // rosparams
+  size_t update_rate_;
 
   // Publisher
   ros::Publisher imu_pub_;

@@ -20,13 +20,13 @@ class BladeGeometry(QWidget):
         self._main = main
         self._link_name = link_name
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         title = QLabel("Blade Geometry")
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(title)
+        rows.addWidget(title)
 
         num_blade_description = "1つのプロペラに対するブレードの個数．"
         self._num_blade = ParamGetterWidget_SpinBox(
@@ -35,17 +35,17 @@ class BladeGeometry(QWidget):
             minimum=1,
             default=2,
         )
-        self._rows.addWidget(self._num_blade)
+        rows.addWidget(self._num_blade)
 
         diameter_description = "プロペラの回転面の直径．"
         self._diameter = ParamGetterWidget_SpinBox(
             "Propeller Diameter",
             diameter_description,
             minimum=1,
-            default=250,
-            suffix=" mm",
+            default=10,
+            suffix=" inch",
         )
-        self._rows.addWidget(self._diameter)
+        rows.addWidget(self._diameter)
 
         blade_chord_description = "ブレードの中心から75%の位置での弦長．"
         self._blade_chord = ParamGetterWidget_SpinBox(
@@ -55,7 +55,7 @@ class BladeGeometry(QWidget):
             default=15,
             suffix=" mm",
         )
-        self._rows.addWidget(self._blade_chord)
+        rows.addWidget(self._blade_chord)
 
         pitch_angle_description = "ブレードの中心から75%の位置でのねじれ角．"
         self._pitch_angle = ParamGetterWidget_SpinBox(
@@ -66,7 +66,7 @@ class BladeGeometry(QWidget):
             default=15,
             suffix=" deg",
         )
-        self._rows.addWidget(self._pitch_angle)
+        rows.addWidget(self._pitch_angle)
 
     def is_valid(self) -> bool:
         return True
@@ -82,7 +82,7 @@ class BladeGeometry(QWidget):
 
     def propeller_diameter(self) -> float:
         """[m]"""
-        return self._diameter.get() / 1000.0
+        return self._diameter.get() * 0.0254
 
     def propeller_radius(self) -> float:
         """[m]"""
@@ -90,7 +90,7 @@ class BladeGeometry(QWidget):
 
     def blade_chord(self) -> float:
         """[m]"""
-        return self._blade_chord.get() / 1000.0
+        return self._blade_chord.get() / 1000
 
     def pitch_angle(self) -> float:
         """[rad]"""

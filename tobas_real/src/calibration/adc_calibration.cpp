@@ -38,7 +38,7 @@ void AdcCalibrator::run()
 
   // ADCの測定値を取得
   int a2_sum = 0;
-  for (uint32_t _ = 0; _ < kDataCount; ++_)
+  for (size_t _ = 0; _ < kDataCount; ++_)
   {
     const int a2_value = adc_.read(kPowerModuleVoltageChannel);
     if (a2_value <= 0)

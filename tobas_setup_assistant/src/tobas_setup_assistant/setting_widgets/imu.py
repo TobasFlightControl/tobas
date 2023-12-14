@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -22,7 +22,7 @@ class ImuWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Inertial Measurement Unit"
         abst_text = (
-            "6軸IMUの設定を行います．データシートを確認し，各値を入力してください．"
+            "9軸IMUの設定を行います．データシートを確認し，各値を入力してください．"
             + "センサフレームは機体フレームに平行であり，値はNWU座標系で得られることを想定しています．"
             + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
         )
@@ -40,7 +40,7 @@ class ImuWidget(BaseSettingWidget):
             "Update rate",
             update_rate_description,
             minimum=1,
-            default=200,
+            default=400,
             suffix=" Hz",
         )
         self._rows.addWidget(self.update_rate)
@@ -88,6 +88,17 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.gyro_turn_on_bias_sigma)
 
+        gyro_lpf_cutoff_freq_description = ""
+        self.gyro_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
+            "Gyroscope LPF cutoff frequency",
+            gyro_lpf_cutoff_freq_description,
+            minimum=1,
+            maximum=400,
+            default=20,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.gyro_lpf_cutoff_freq)
+
         acc_noise_density_description = ""
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
             "Accelerometer noise density (two-sided spectrum)",
@@ -131,7 +142,38 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.acc_turn_on_bias_sigma)
 
-        add_expanding_widget(self._rows)
+        acc_lpf_cutoff_freq_description = ""
+        self.acc_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
+            "Accelerometer LPF cutoff frequency",
+            acc_lpf_cutoff_freq_description,
+            minimum=1,
+            maximum=400,
+            default=20,
+            suffix=" Hz",
+        )
+        self._rows.addWidget(self.acc_lpf_cutoff_freq)
+
+        mag_gauss_noise_description = ""
+        self.mag_gauss_noise = ParamGetterWidget_SpinBox(
+            "Magnetometer standard deviation of additive white gaussian noise",
+            mag_gauss_noise_description,
+            minimum=0,
+            default=80,
+            suffix=" nT",
+        )
+        self._rows.addWidget(self.mag_gauss_noise)
+
+        mag_uniform_noise_description = ""
+        self.mag_uniform_noise = ParamGetterWidget_SpinBox(
+            "Magnetometer symmetric bounds of uniform noise for initial sensor bias",
+            mag_uniform_noise_description,
+            minimum=0,
+            default=400,
+            suffix=" nT",
+        )
+        self._rows.addWidget(self.mag_uniform_noise)
+
+        add_spacer(self._rows)
 
     @overrides
     def define_connections(self) -> None:

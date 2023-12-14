@@ -1,4 +1,5 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/check.hpp>
 #include <dh_eigen_tools/linalg.hpp>
 #include <dh_eigen_tools/typedef.hpp>
 #include <dh_linear_control/util.hpp>
@@ -56,7 +57,8 @@ void CartesianFilter::initialize(
 
 void CartesianFilter::configure(const double& grav_var)
 {
-  assert(grav_var > 0.);
+  CHECK(grav_var > 0.);
+
   Q_.block(3, 3, 3, 3).diagonal().fill(grav_var);
 }
 
@@ -65,7 +67,7 @@ void CartesianFilter::predict(
   const Matrix3d& init_acc_cov,
   const double& dt)
 {
-  assert(dt > 0.);  // バグ予防のため一応dt = 0を許容しないでおく
+  assert(dt > 0);  // バグ予防のため一応dt = 0を許容しないでおく
   assert(dt < kImuTimeGapThreshold);
 
   A_.block(kPosIdx, kVelIdx, 3, 3).diagonal().fill(dt);

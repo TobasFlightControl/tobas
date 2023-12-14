@@ -3,6 +3,7 @@
   <arg name="nodelet" default="false"/>
 
   <group ns="{{ drone_name }}">
+    <rosparam file="$(find {{ pkg_name }})/config/hardware_interfaces.yaml" command="load"/>
     <include file="$(find tobas_real)/launch/hardware_interfaces.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>

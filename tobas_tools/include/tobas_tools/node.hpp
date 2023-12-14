@@ -18,15 +18,31 @@ protected:
 
   ros::Subscriber event_sub_;
 
-  explicit BaseNode(ros::NodeHandle nh, ros::NodeHandle pnh, const std::string& name);
+  explicit BaseNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name);
 
   virtual void getRosParams() = 0;
   virtual void registerPublishers() = 0;
   virtual void registerSubscribers() = 0;
-
   virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
+
+  inline std::string ns();
+
+  /**
+   * @brief コマンドレベルを更新する．
+   *
+   * @param cur_level 現在のコマンドレベル．
+   * @param new_level 指令されたコマンドレベル．
+   *
+   * @return 指令されたコマンドが有効な場合にtrueを返す．
+   */
+  bool updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level);
 
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
   static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };
+
+inline std::string BaseNode::ns()
+{
+  return nh_.getNamespace() + "/";
+}
 }  // namespace tobas

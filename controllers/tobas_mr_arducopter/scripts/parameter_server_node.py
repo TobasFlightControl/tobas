@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import signal
 import rospy
 import rospkg
 from dynamic_reconfigure import server
@@ -16,4 +17,5 @@ if __name__ == "__main__":
     rospy.init_node(node_name)
 
     srv = server.Server(ControllerConfig, dynamicReconfigureCb)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     rospy.spin()

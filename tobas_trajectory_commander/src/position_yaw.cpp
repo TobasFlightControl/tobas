@@ -20,15 +20,10 @@ namespace tobas_trajectory_commander
 constexpr char FollowPositionYawTrajectoryServer::kActionName[];
 
 FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
-  : super(nh, pnh, name),
-    as_(
-      nh_,
-      kActionName,
-      boost::bind(&FollowPositionYawTrajectoryServer::executeCb, this, _1),
-      false)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name), as_(nh_, kActionName, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
 
@@ -49,8 +44,7 @@ void FollowPositionYawTrajectoryServer::registerPublishers()
 
 void FollowPositionYawTrajectoryServer::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(
-    tobas::kEventTopic, 1, &FollowPositionYawTrajectoryServer::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
@@ -94,7 +88,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   }
 
   // time_from_startは単純増加でなければならない
-  for (uint32_t i = 0; i < waypoints.size() - 1; ++i)
+  for (size_t i = 0; i < waypoints.size() - 1; ++i)
   {
     if (waypoints[i].time_from_start >= waypoints[i + 1].time_from_start)
     {
@@ -112,8 +106,9 @@ void FollowPositionYawTrajectoryServer::eventCb(const tobas_msgs::EventConstPtr&
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      as_.shutdown();
       break;
     default:
       break;
@@ -131,7 +126,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
   const auto& waypoints = goal->waypoints;
   VectorXd times(waypoints.size());
   vector<VectorXd> positions(COMMAND_DIMENSION, VectorXd::Zero(waypoints.size()));
-  for (uint32_t i = 0; i < waypoints.size(); ++i)
+  for (size_t i = 0; i < waypoints.size(); ++i)
   {
     times(i) = waypoints[i].time_from_start.toSec();
     positions[0](i) = waypoints[i].pos.x();
@@ -142,7 +137,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
 
   // Compute spline fit
   vector<eigen_tools::SplineFunction> splines;
-  for (uint32_t i = 0; i < COMMAND_DIMENSION; ++i)
+  for (size_t i = 0; i < COMMAND_DIMENSION; ++i)
   {
     splines.emplace_back(times, positions[i], goal->degree);
   }

@@ -63,8 +63,8 @@ private:
   std::vector<SimpleJointModel> cs_angle_models_;  // 制御面の角度モデル
 
   double prev_alpha_ = 0.;
-  double prev_sim_time_ = 0.;
-  double last_cmd_time_ = 0.;
+  common::Time prev_sim_time_;
+  common::Time last_cmd_time_;
   bool is_initialized_ = false;
   bool cs_activated_ = false;
   ignition::math::Vector3d wind_vel_W_ = zero3;           // 風速 [m/s]

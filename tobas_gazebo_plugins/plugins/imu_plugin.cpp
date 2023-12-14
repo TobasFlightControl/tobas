@@ -36,22 +36,24 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
   }
 
-  last_time_ = world_->SimTime();
-  gyro_bias_ = zero3;
-  acc_bias_ = zero3;
-
-  noise_ = NormalDistribution(0., 1.);
-  for (int i = 0; i < 3; ++i)
+  noise_ = NormalDistribution(0, 1);
+  for (size_t i = 0; i < 3; ++i)
   {
-    gyro_turn_on_bias_[i] = gyro_turn_on_bias_sigma_ * noise_(rnd_gen_);
     acc_turn_on_bias_[i] = acc_turn_on_bias_sigma_ * noise_(rnd_gen_);
+    gyro_turn_on_bias_[i] = gyro_turn_on_bias_sigma_ * noise_(rnd_gen_);
   }
+
+  // Initialize LPFs
+  const auto tau_acc_lpf = dh_std::timeConstFromCutoffFreq(acc_lpf_cutoff_freq_);
+  const auto tau_gyro_lpf = dh_std::timeConstFromCutoffFreq(gyro_lpf_cutoff_freq_);
+  acc_lpf_.initialize(tau_acc_lpf, zero3);
+  gyro_lpf_.initialize(tau_gyro_lpf, zero3);
 
   // Fill the static parts of the imu message
   imu_msg_.header.frame_id = link_name_;
 
-  imu_msg_.linear_acceleration_covariance.fill(0.);
-  imu_msg_.angular_velocity_covariance.fill(0.);
+  imu_msg_.linear_acceleration_covariance.fill(0);
+  imu_msg_.angular_velocity_covariance.fill(0);
   imu_msg_.orientation_covariance.fill(nan(tobas::kUnknown));
 
   imu_msg_.orientation.x = nan(tobas::kUnknown);
@@ -64,7 +66,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   debug_pub_ = nh_.advertise<tobas_gazebo_plugins::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboImuPlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&self::onUpdate, this));
 }
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -72,31 +74,28 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
+
   getSdfParam(
-    sdf, "gyroscopeNoiseDensityOnSignal", gyro_noise_density_sig_, kDefaultGyroNoiseDensity,
-    POSITIVE);
+    sdf, "accelNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity, POSITIVE);
   getSdfParam(
-    sdf, "gyroscopeNoiseDensityObserved", gyro_noise_density_obs_, kDefaultGyroNoiseDensity,
-    POSITIVE);
-  getSdfParam(sdf, "gyroscopeRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
+    sdf, "accelNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity, POSITIVE);
+  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
   getSdfParam(
-    sdf, "gyroscopeBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
+    sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime, POSITIVE);
   getSdfParam(
-    sdf, "gyroscopeTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma,
-    POSITIVE);
+    sdf, "accelTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma, POSITIVE);
+  getSdfParam(sdf, "accelLpfCutoffFreq", acc_lpf_cutoff_freq_, kDefaultAccLpfCutoffFreq, POSITIVE);
+
   getSdfParam(
-    sdf, "accelerometerNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity,
-    POSITIVE);
+    sdf, "gyroNoiseDensityOnSignal", gyro_noise_density_sig_, kDefaultGyroNoiseDensity, POSITIVE);
   getSdfParam(
-    sdf, "accelerometerNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity,
-    POSITIVE);
-  getSdfParam(sdf, "accelerometerRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
+    sdf, "gyroNoiseDensityObserved", gyro_noise_density_obs_, kDefaultGyroNoiseDensity, POSITIVE);
+  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
   getSdfParam(
-    sdf, "accelerometerBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime,
-    POSITIVE);
+    sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
   getSdfParam(
-    sdf, "accelerometerTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma,
-    POSITIVE);
+    sdf, "gyroTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma, POSITIVE);
+  getSdfParam(sdf, "gyroLpfCutoffFreq", gyro_lpf_cutoff_freq_, kDefaultGyroLpfCutoffFreq, POSITIVE);
 }
 
 void GazeboImuPlugin::onUpdate()
@@ -115,18 +114,22 @@ void GazeboImuPlugin::onUpdate()
   // オフセットによる補正を考慮して加速度センサの読みを計算 (memo: 2-26)
   const Vector3d grav_B = R_W_B.RotateVectorReverse(world_->Gravity());
   const Vector3d acc_corr = omega_B.Cross(omega_B.Cross(offset_)) + domega_B.Cross(offset_);
-  Vector3d acc_meas = acc_B - grav_B + acc_corr;
+  Vector3d acc_raw = acc_B - grav_B + acc_corr;
 
   // オフセットが並進のみならばジャイロセンサの読みはベースフレームの角速度に一致する
-  Vector3d gyro_meas = omega_B;
+  Vector3d gyro_raw = omega_B;
 
   // Add noise to the true values
-  addNoise(acc_meas, gyro_meas, dt);
+  addNoise(acc_raw, gyro_raw, dt);
+
+  // Update LPFs
+  acc_lpf_.update(acc_raw, dt);
+  gyro_lpf_.update(gyro_raw, dt);
 
   // Fill IMU message
   timeGazeboToRos(cur_time, imu_msg_.header.stamp);
-  vectorGazeboToRos(acc_meas, imu_msg_.linear_acceleration);
-  vectorGazeboToRos(gyro_meas, imu_msg_.angular_velocity);
+  vectorGazeboToRos(acc_lpf_.getState(), imu_msg_.linear_acceleration);
+  vectorGazeboToRos(gyro_lpf_.getState(), imu_msg_.angular_velocity);
 
   const double acc_var = sqr(acc_noise_density_obs_) / dt;
   fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
@@ -144,7 +147,7 @@ void GazeboImuPlugin::onUpdate()
   debug_pub_.publish(debug_msg_);
 }
 
-void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, const double& dt)
+void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
 {
   // Gyrosocpe
   const auto tau_g = gyro_bias_corr_time_;
@@ -156,11 +159,10 @@ void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, const do
   // Compute state-transition
   const auto phi_g_d = exp(-dt / tau_g);
   // Simulate gyroscope noise processes and add them to the true angular rate
-  for (int i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
   {
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
-    gyro_meas[i] =
-      gyro_meas[i] + gyro_bias_[i] + sigma_g_d * noise_(rnd_gen_) + gyro_turn_on_bias_[i];
+    gyro[i] += gyro_bias_[i] + sigma_g_d * noise_(rnd_gen_) + gyro_turn_on_bias_[i];
   }
 
   // Accelerometer
@@ -173,10 +175,10 @@ void GazeboImuPlugin::addNoise(Vector3d& acc_meas, Vector3d& gyro_meas, const do
   // Compute state-transition
   const auto phi_a_d = exp(-dt / tau_a);
   // Simulate accelerometer noise processes and add them to the true linear acceleration
-  for (int i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i)
   {
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
-    acc_meas[i] = acc_meas[i] + acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];
+    acc[i] += acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];
   }
 }
 

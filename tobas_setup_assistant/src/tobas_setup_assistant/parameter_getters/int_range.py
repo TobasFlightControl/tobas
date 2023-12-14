@@ -22,17 +22,17 @@ class ParamGetterWidget_IntRange(ParamGetterWidget):
     ) -> None:
         super().__init__(param_name, description_text)
 
-        self._cols = QHBoxLayout()
-        self._rows.addLayout(self._cols)
+        cols = QHBoxLayout()
+        self._rows.addLayout(cols)
 
         self._min = IntGetter("min", minimum, maximum, single_step, default[0], suffix)
-        self._cols.addWidget(self._min)
+        cols.addWidget(self._min)
 
         self._max = IntGetter("max", minimum, maximum, single_step, default[1], suffix)
-        self._cols.addWidget(self._max)
+        cols.addWidget(self._max)
 
-        self._min.data.valueChanged.connect(self._on_value_changed)
-        self._max.data.valueChanged.connect(self._on_value_changed)
+        self._min.value_changed.connect(self._on_value_changed)
+        self._max.value_changed.connect(self._on_value_changed)
 
     def min(self) -> int:
         return self._min.get()

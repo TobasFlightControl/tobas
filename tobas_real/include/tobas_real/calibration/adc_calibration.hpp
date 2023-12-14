@@ -7,8 +7,8 @@ namespace tobas_real
 {
 class AdcCalibrator
 {
-  static constexpr uint32_t kDataCount = 500;
-  static constexpr uint32_t kSleepTime = 10000;  // [us]
+  static constexpr size_t kDataCount = 500;
+  static constexpr size_t kSleepTime = 10000;  // [us]
   static constexpr double kValidAdcCoefMin = 9.;
   static constexpr double kValidAdcCoefMax = 13.;
 

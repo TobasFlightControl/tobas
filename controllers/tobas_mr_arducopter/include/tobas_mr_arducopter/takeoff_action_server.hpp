@@ -17,7 +17,6 @@ class TakeoffActionServer : public tobas::BaseNode
   const std::string kArmingSrvName = "mavros/cmd/arming";
   const std::string kTakeoffSrvName = "mavros/cmd/takeoff";
 
-  static constexpr double kWaitForService = 1.;             // [s]
   static constexpr double kWaitForArming = 1.;              // [s]
   static constexpr double kRetryInterval = 3.;              // [s]
   static constexpr double kTakeoffCheckAltThreshold = 1.5;  // [m]
@@ -32,9 +31,9 @@ class TakeoffActionServer : public tobas::BaseNode
 
 public:
   explicit TakeoffActionServer(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   bool is_param_server_ok_ = false;

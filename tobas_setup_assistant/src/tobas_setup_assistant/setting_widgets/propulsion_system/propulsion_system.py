@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget
+from dh_rqt_tools.widgets import add_spacer
 
 from ...parameter_getters import *
 from ...common import *
@@ -21,6 +21,9 @@ from .selected_links import SelectedLinksWidget
 class PropulsionSystemWidget(BaseSettingWidget):
     NAME = "Propulsion"
     LABEL_PSIZE = 12
+
+    add_link = pyqtSignal(str)  # selectedにリンクを追加
+    remove_link = pyqtSignal(str)  # selectedからリンクを削除
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Propulsion System"
@@ -38,23 +41,23 @@ class PropulsionSystemWidget(BaseSettingWidget):
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
-        self.available = AvailableLinksWidget(self._main)
-        self._rows.addWidget(self.available)
+        self._available = AvailableLinksWidget(self._main)
+        self._rows.addWidget(self._available)
 
         self.selected = SelectedLinksWidget(self._main)
         self._rows.addWidget(self.selected)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
 
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self.available.define_connections()
+        self._available.define_connections()
         self.selected.define_connections()
 
     @overrides
     def is_valid(self) -> bool:
-        if not self.available.is_valid():
+        if not self._available.is_valid():
             return False
         if not self.selected.is_valid():
             return False

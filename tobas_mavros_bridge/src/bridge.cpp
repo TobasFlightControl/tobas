@@ -12,7 +12,10 @@ using namespace KDL;
 
 namespace tobas_mavros_bridge
 {
-TobasMavrosBridge::TobasMavrosBridge(ros::NodeHandle nh, ros::NodeHandle pnh, const string& name)
+TobasMavrosBridge::TobasMavrosBridge(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();
@@ -32,7 +35,8 @@ void TobasMavrosBridge::registerPublishers()
 
 void TobasMavrosBridge::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
   pos_yaw_sub_ =
     nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
 }
@@ -41,7 +45,7 @@ void TobasMavrosBridge::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
     default:
@@ -51,7 +55,7 @@ void TobasMavrosBridge::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)
 {
-  auto mav = boost::make_shared<geometry_msgs::PoseStamped>();
+  const auto mav = boost::make_shared<geometry_msgs::PoseStamped>();
 
   // NWU -> ENU
   mav->pose.position.x = -tbs->pos.y();

@@ -7,7 +7,7 @@
 #include <dh_ros_tools/util.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/TakeoffAction.h>
@@ -19,7 +19,10 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-PositionYawPublisher::PositionYawPublisher(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+PositionYawPublisher::PositionYawPublisher(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name), keyboard_(getKeyboardControls())
 {
   instruction_ = "Control your drone!\n"
@@ -65,19 +68,22 @@ void PositionYawPublisher::run()
     rosError(name_, "'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
     return;
   }
-  rosInfo(name_, "Takeoff finished successfully. Start teleoperation!");
+  rosInfo(name_, "Takeoff finished successfully.");
 
   // 初期コマンドを設定
-  tobas_msgs::PoseTwist pt;
-  if (dh_ros::subscribeOnce(pt, tobas::kPoseTwistTopic, nh_))
+  tobas_msgs::Odometry odom;
+  if (dh_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_))
   {
-    cmd_pos_ = pt.pose.pos;
-    cmd_yaw_ = pt.pose.euler.yaw;
+    cmd_pos_ = odom.pose.pos;
+    cmd_yaw_ = odom.pose.euler.yaw;
   }
   else
   {
-    rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kPoseTwistTopic << ".");
-    // TODO: 初期コマンドを離陸コマンドと同じに設定
+    rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kOdometryTopic << ".");
+    cmd_pos_.x() = 0;
+    cmd_pos_.y() = 0;
+    cmd_pos_.z() = takeoff_goal.target_altitude;
+    cmd_yaw_ = 0;
   }
 
   // キーボード入力による位置コマンドを発行し続ける
@@ -142,15 +148,17 @@ void PositionYawPublisher::run()
     }
 
     // コマンドを発行
-    auto pos_yaw_msg = boost::make_shared<tobas_msgs::PositionYaw>();
+    const auto pos_yaw_msg = boost::make_shared<tobas_msgs::PositionYaw>();
     pos_yaw_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pos_yaw_msg->pos = cmd_pos_;
     pos_yaw_msg->yaw = cmd_yaw_;
     pos_yaw_pub_.publish(pos_yaw_msg);
 
-    auto pvay_msg = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    const auto pvay_msg = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     pvay_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pvay_msg->pos = cmd_pos_;
+    pvay_msg->vel.setZero();
+    pvay_msg->acc.setZero();
     pvay_msg->yaw = cmd_yaw_;
     pvay_pub_.publish(pvay_msg);
 
@@ -188,14 +196,14 @@ void PositionYawPublisher::registerPublishers()
 
 void PositionYawPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void PositionYawPublisher::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
     default:

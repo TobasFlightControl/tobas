@@ -9,16 +9,17 @@ namespace tobas_real
 {
 class CpuHandler : public tobas::BaseNode
 {
-  static constexpr uint32_t kUpdateRate = 10;  // [Hz]
+  static constexpr size_t kUpdateRate = 10;  // [Hz]
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
 
+  using self = CpuHandler;
   using super = tobas::BaseNode;
 
 public:
   explicit CpuHandler(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   int temp_millidegrees_;

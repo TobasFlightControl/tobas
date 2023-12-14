@@ -4,14 +4,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-TITLE = "Tobas Setup Assistant"
-ROSLAUNCH_TIMEOUT = 5  # [s]
+from dh_rqt_tools.path import get_pkg_name
+
+# Physics Constants
+AIR_DENSITY = 1.225  # [kg/m^3]
 
 # ConfigParser
-CONFIG_PATH = osp.join(osp.expanduser("~"), ".config/tobas_setup_assistant/config.ini")
+CONFIG_PATH = osp.join(osp.expanduser("~"), f".config/{get_pkg_name()}/config.ini")
 DEFAULT = "DEFAULT"
-CW = "CW"
-CCW = "CCW"
 
 # Point Sizes
 TITLE_PSIZE = 18
@@ -21,6 +21,12 @@ BODY_PSIZE = 9
 # Default Parameters
 DEFAULT_NUM_FLIGHT_MODES = 2
 
+TITLE = "Tobas Setup Assistant"
+UNKNOWN = "Unknown"
+CW = "CW"
+CCW = "CCW"
+
+ROSLAUNCH_TIMEOUT = 5  # [s]
 PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
 
 SENSOR_OFFSET_DESCRIPTION = "ルートリンクの基準点 (ドローンウィンドウ中の座標軸の交点) に対するセンサフレームの基準点のオフセット．"

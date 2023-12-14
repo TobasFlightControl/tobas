@@ -15,20 +15,24 @@ class ImuModel(SensorModel):
         gyro_random_walk: float,
         gyro_bias_corr_time: float,
         gyro_turn_on_bias_sigma: float,
+        gyro_lpf_cutoff_freq: float,
         acc_noise_density: float,
         acc_random_walk: float,
         acc_bias_corr_time: float,
         acc_turn_on_bias_sigma: float,
+        acc_lpf_cutoff_freq: float,
     ) -> None:
         assert update_rate > 0.0
         assert gyro_noise_density > 0.0
         assert gyro_random_walk > 0.0
         assert gyro_bias_corr_time > 0.0
         assert gyro_turn_on_bias_sigma > 0.0
+        assert gyro_lpf_cutoff_freq > 0.0
         assert acc_noise_density > 0.0
         assert acc_random_walk > 0.0
         assert acc_bias_corr_time > 0.0
         assert acc_turn_on_bias_sigma > 0.0
+        assert acc_lpf_cutoff_freq > 0.0
 
         super().__init__(link_name, f"{ns}_imu", "imu", update_rate)
 
@@ -40,29 +44,17 @@ class ImuModel(SensorModel):
         ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "offset").text = " ".join(map(str, offset))
-        ET.SubElement(plugin, "gyroscopeNoiseDensityOnSignal").text = str(
-            gyro_noise_density
-        )
-        ET.SubElement(plugin, "gyroscopeNoiseDensityObserved").text = str(
-            gyro_noise_density
-        )
-        ET.SubElement(plugin, "gyroscopeRandomWalk").text = str(gyro_random_walk)
-        ET.SubElement(plugin, "gyroscopeBiasCorrelationTime").text = str(
-            gyro_bias_corr_time
-        )
-        ET.SubElement(plugin, "gyroscopeTurnOnBiasSigma").text = str(
-            gyro_turn_on_bias_sigma
-        )
-        ET.SubElement(plugin, "accelerometerNoiseDensityOnSignal").text = str(
-            acc_noise_density
-        )
-        ET.SubElement(plugin, "accelerometerNoiseDensityObserved").text = str(
-            acc_noise_density
-        )
-        ET.SubElement(plugin, "accelerometerRandomWalk").text = str(acc_random_walk)
-        ET.SubElement(plugin, "accelerometerBiasCorrelationTime").text = str(
-            acc_bias_corr_time
-        )
-        ET.SubElement(plugin, "accelerometerTurnOnBiasSigma").text = str(
-            acc_turn_on_bias_sigma
-        )
+
+        ET.SubElement(plugin, "gyroNoiseDensityOnSignal").text = str(gyro_noise_density)
+        ET.SubElement(plugin, "gyroNoiseDensityObserved").text = str(gyro_noise_density)
+        ET.SubElement(plugin, "gyroRandomWalk").text = str(gyro_random_walk)
+        ET.SubElement(plugin, "gyroBiasCorrelationTime").text = str(gyro_bias_corr_time)
+        ET.SubElement(plugin, "gyroTurnOnBiasSigma").text = str(gyro_turn_on_bias_sigma)
+        ET.SubElement(plugin, "gyroLpfCutoffFreq").text = str(gyro_lpf_cutoff_freq)
+
+        ET.SubElement(plugin, "accelNoiseDensityOnSignal").text = str(acc_noise_density)
+        ET.SubElement(plugin, "accelNoiseDensityObserved").text = str(acc_noise_density)
+        ET.SubElement(plugin, "accelRandomWalk").text = str(acc_random_walk)
+        ET.SubElement(plugin, "accelBiasCorrelationTime").text = str(acc_bias_corr_time)
+        ET.SubElement(plugin, "accelTurnOnBiasSigma").text = str(acc_turn_on_bias_sigma)
+        ET.SubElement(plugin, "accelLpfCutoffFreq").text = str(acc_lpf_cutoff_freq)

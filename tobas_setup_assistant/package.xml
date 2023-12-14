@@ -11,6 +11,9 @@
 
 	<depend>rospy</depend>
 	<depend>rviz</depend>
+	<depend>joint_state_publisher</depend>
+	<depend>joint_state_publisher_gui</depend>
+	<depend>moveit_msgs</depend>
 
 	<depend>dh_rqt_tools</depend>
 	<depend>tobas_rviz_plugin</depend>

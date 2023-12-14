@@ -40,29 +40,29 @@ class ControlSurfacesWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label = QLabel("Control Surfaces")
         label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(label)
+        rows.addWidget(label)
 
         available_links_label = QLabel("Available Links")
         available_links_label.setFont(
             QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold)
         )
         available_links_label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(available_links_label)
+        rows.addWidget(available_links_label)
 
         self.available_links = AvailableLinksWidget(main)
-        self._rows.addWidget(self.available_links)
+        rows.addWidget(self.available_links)
 
         self.add_delete = AddDeleteButtonsWidget(main)
-        self._rows.addWidget(self.add_delete)
+        rows.addWidget(self.add_delete)
 
         self.selected = SelectedLinksWidget(main)
-        self._rows.addWidget(self.selected)
+        rows.addWidget(self.selected)
 
     def define_connections(self) -> None:
         self.selected.define_connections()
@@ -100,7 +100,7 @@ class AvailableLinksWidget(QListWidget):
         self._main = main
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
+        self._main.urdf_parser.robot_model_loaded.connect(self._add_available_links)
         self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(
             self._add_selected_link
         )
@@ -205,16 +205,16 @@ class AddDeleteButtonsWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._cols = QHBoxLayout()
-        self.setLayout(self._cols)
+        cols = QHBoxLayout()
+        self.setLayout(cols)
 
         self._add_button = QPushButton("⬇")
-        self._add_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
-        self._cols.addWidget(self._add_button)
+        self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        cols.addWidget(self._add_button)
 
         self._delete_button = QPushButton("⬆")
-        self._delete_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
-        self._cols.addWidget(self._delete_button)
+        self._delete_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        cols.addWidget(self._delete_button)
 
     def define_connections(self) -> None:
         self._add_button.clicked.connect(self._add_button_clicked)

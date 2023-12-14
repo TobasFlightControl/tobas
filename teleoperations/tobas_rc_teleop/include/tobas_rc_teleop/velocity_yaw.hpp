@@ -2,11 +2,8 @@
 
 #include <Eigen/Core>
 
-#include <dh_std_tools/range.hpp>
 #include <dh_std_tools/first_order_filter.hpp>
 
-#include <tobas_msgs/PoseTwist.h>
-#include <tobas_msgs/RCInput.h>
 #include <tobas_msgs/VelocityYaw.h>
 
 #include "./base_controller.hpp"
@@ -20,11 +17,13 @@ class VelocityYawController : public BaseController
   using super = BaseController;
 
 public:
-  explicit VelocityYawController();
-
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
-  void reset(const tobas_msgs::PoseTwist& pt) override;
-  void update(const tobas_msgs::RCInput& rcin, const dh_std::Range<double>& dead_zone);
+  void reset(const tobas_msgs::Odometry& odom) override;
+  void update(
+    const tobas_msgs::RCInput& rcin,
+    const tobas_msgs::Odometry& odom,
+    const double& battery_voltage,
+    const dh_std::Range<double>& dead_zone) override;
 
 private:
   ros::Time t_last_rcin_;

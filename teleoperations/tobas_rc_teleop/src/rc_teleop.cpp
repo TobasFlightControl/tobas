@@ -8,12 +8,17 @@
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/VelocityYaw.h>
-#include <tobas_msgs/AccelerationYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
+#include <tobas_msgs/PoseTwistAccelCommand.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
+#include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
+#include "../include/tobas_rc_teleop/position_yaw.hpp"
+#include "../include/tobas_rc_teleop/velocity_yaw.hpp"
+#include "../include/tobas_rc_teleop/rpy_thrust.hpp"
+#include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
 
 using namespace std;
 using namespace ros::message_traits;
@@ -21,7 +26,8 @@ using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
+RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name)
 {
   getRosParams();
 
@@ -32,32 +38,26 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
   {
     if (mode_name == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
     {
-      mode2cmd_.push_back(POS_VEL_ACC_YAW);
-      pvay_ctrl_.initialize(nh, pnh);
+      controllers_.push_back(make_unique<PosVelAccYawController>());
     }
     else if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
-      mode2cmd_.push_back(POSITION_YAW);
-      pos_yaw_ctrl_.initialize(nh, pnh);
+      controllers_.push_back(make_unique<PositionYawController>());
     }
     else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
     {
-      mode2cmd_.push_back(VELOCITY_YAW);
-      vel_yaw_ctrl_.initialize(nh, pnh);
-    }
-    else if (mode_name == split(DataType<tobas_msgs::AccelerationYaw>::value(), '/').back())
-    {
-      mode2cmd_.push_back(ACCELERATION_YAW);
-      rosError(name_, "Not implemented yet.");  // TODO
+      controllers_.push_back(make_unique<VelocityYawController>());
     }
     else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
     {
-      mode2cmd_.push_back(RPY_THRUST);
-      rpy_thrust_ctrl_.initialize(nh, pnh);
+      controllers_.push_back(make_unique<RollPitchYawThrustController>());
+    }
+    else if (mode_name == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
+    {
+      controllers_.push_back(make_unique<PoseTwistAccelController>());
     }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {
-      mode2cmd_.push_back(SPEED_ROLL_DPITCH);
       rosError(name_, "Not implemented yet.");  // TODO
     }
     else
@@ -65,6 +65,9 @@ RCTeleop::RCTeleop(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super
       throw runtime_error("Invalid flight mode: " + mode_name);
     }
   }
+
+  for (const auto& ctrl : controllers_)
+    ctrl->initialize(nh_, pnh_);
 
   registerPublishers();
   registerSubscribers();
@@ -74,10 +77,8 @@ void RCTeleop::getRosParams()
 {
   dh_ros::getParam(
     pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
-  if (dead_zone_rate_ >= 1.)
-  {
+  if (dead_zone_rate_ >= 1)
     ROS_THROW_NAMED(name_, "'dead_zone_rate' must be lower than 1.");
-  }
 
   dh_ros::getParam(pnh_, "mode_names", mode_names_);
 }
@@ -89,17 +90,18 @@ void RCTeleop::registerPublishers()
 
 void RCTeleop::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &RCTeleop::eventCb, this, tcpNoDelay());
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &RCTeleop::poseTwistCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &RCTeleop::batteryCb, this, tcpNoDelay());
-  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &RCTeleop::rcInputCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
 }
 
 void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
     default:
@@ -107,10 +109,11 @@ void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void RCTeleop::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void RCTeleop::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  pt_ = pt;
+  odom_ = odom;
 }
+
 void RCTeleop::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
@@ -122,24 +125,24 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
   {
     case CHECK_PREREQUISITES:
     {
-      if (pt_ != nullptr && battery_ != nullptr)
+      if (odom_ != nullptr && battery_ != nullptr)
       {
-        stage_ = FIRST_RCIN;
+        stage_ = WAIT_FOR_ESTOP;
       }
       break;
     }
 
-    case FIRST_RCIN:
+    case WAIT_FOR_ESTOP:
     {
-      if (!rcin->e_stop)
+      if (rcin->e_stop)
       {
-        rosErrorThrottle(
-          kErrorPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
+        DH_GOOD("RC transmitter is ready. Set E-Stop toggle OFF to start control.");
+        stage_ = ESTOP_ON;
       }
       else
       {
-        rosInfo(name_, "RC transmitter is ready. Set E-Stop toggle OFF to start control.");
-        stage_ = ESTOP_ON;
+        rosInfoThrottle(
+          kInfoPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
       }
       break;
     }
@@ -148,8 +151,28 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (!rcin->e_stop)
       {
-        stage_ = RUNNING;
+        stage_ = FIRST_COMMAND;
       }
+      break;
+    }
+
+    case FIRST_COMMAND:
+    {
+      const auto& cur_mode = rcin->mode;
+      if (cur_mode >= controllers_.size())
+      {
+        rosErrorThrottle(
+          kErrorPeriod, name_,
+          "You tried to set flight mode " << static_cast<int>(cur_mode)
+                                          << ", which is out of range.");
+        return;
+      }
+
+      controllers_[cur_mode]->reset(*odom_);
+      last_mode_ = cur_mode;
+      rosInfo(name_, "First flight mode is set to " << static_cast<int>(cur_mode));
+
+      stage_ = RUNNING;
       break;
     }
 
@@ -158,75 +181,39 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       if (rcin->e_stop)
       {
         rosWarn(name_, "Emergency stop requested. Shutting down the system.");
-        auto event = boost::make_shared<tobas_msgs::Event>();
-        event->data = tobas_msgs::Event::SHUTDOWN;
+        const auto event = boost::make_shared<tobas_msgs::Event>();
+        event->data = tobas_msgs::Event::STOP;
         event_pub_.publish(event);
-        nh_.shutdown();
       }
 
-      const auto& cmd_type = mode2cmd_[rcin->mode];
-
-      if (cmd_type != last_cmd_type_)
+      const auto& cur_mode = rcin->mode;
+      if (cur_mode >= controllers_.size())
       {
-        switch (cmd_type)
-        {
-          case POS_VEL_ACC_YAW:
-            pvay_ctrl_.reset(*pt_);
-            break;
-          case POSITION_YAW:
-            pos_yaw_ctrl_.reset(*pt_);
-            break;
-          case VELOCITY_YAW:
-            vel_yaw_ctrl_.reset(*pt_);
-            break;
-          case ACCELERATION_YAW:
-            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-            break;
-          case RPY_THRUST:
-            rpy_thrust_ctrl_.reset(*pt_);
-            break;
-          case SPEED_ROLL_DPITCH:
-            rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-            break;
-          default:
-            throw runtime_error("Invalid command type: " + to_string(cmd_type));
-        }
+        rosErrorThrottle(
+          kErrorPeriod, name_,
+          "You tried to set flight mode " << static_cast<int>(cur_mode)
+                                          << ", which is out of range.");
+        return;
+      }
 
-        rosInfo(name_, "Command type changed from " << last_cmd_type_ << " to " << cmd_type << ".");
-        last_cmd_type_ = cmd_type;
+      if (cur_mode != last_mode_)
+      {
+        controllers_[cur_mode]->reset(*odom_);
+        rosInfo(
+          name_, "Flight mode changed from " << static_cast<int>(last_mode_) << " to "
+                                             << static_cast<int>(cur_mode) << ".");
+        last_mode_ = cur_mode;
         break;
       }
 
-      switch (cmd_type)
-      {
-        case POS_VEL_ACC_YAW:
-          pvay_ctrl_.update(*rcin, dead_zone_);
-          break;
-        case POSITION_YAW:
-          pos_yaw_ctrl_.update(*rcin, dead_zone_);
-          break;
-        case VELOCITY_YAW:
-          vel_yaw_ctrl_.update(*rcin, dead_zone_);
-          break;
-        case ACCELERATION_YAW:
-          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-          break;
-        case RPY_THRUST:
-          rpy_thrust_ctrl_.update(*rcin, battery_->voltage, dead_zone_);
-          break;
-        case SPEED_ROLL_DPITCH:
-          rosErrorThrottle(kErrorPeriod, name_, "Not implemented yet.");  // TODO
-          break;
-        default:
-          throw runtime_error("Invalid command type: " + to_string(cmd_type));
-      }
+      controllers_[cur_mode]->update(*rcin, *odom_, battery_->voltage, dead_zone_);
 
       break;
     }
 
     default:
     {
-      ROS_THROW_NAMED(name_, "Invalid state: " << static_cast<int>(stage_));
+      ROS_THROW_NAMED(name_, "Invalid stage: " << static_cast<int>(stage_));
     }
   }
 }

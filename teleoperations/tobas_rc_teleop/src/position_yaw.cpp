@@ -9,32 +9,36 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
+using namespace KDL;
 using namespace dh_std;
 
 namespace tobas_rc_teleop
 {
-PositionYawController::PositionYawController() : super()
-{
-}
-
 void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
+  getRosParams(pnh);
+
+  max_pos_err_.x(max_hor_pos_err_);
+  max_pos_err_.y(max_hor_pos_err_);
+  max_pos_err_.z(max_ver_pos_err_);
+
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
 
-  getRosParams(pnh);
   registerPublishers(nh);
 }
 
-void PositionYawController::reset(const tobas_msgs::PoseTwist& pt)
+void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 {
-  pos_yaw_.pos = pt.pose.pos;
-  pos_yaw_.yaw = pt.pose.euler.yaw;
+  pos_yaw_.pos = odom.pose.pos;
+  pos_yaw_.yaw = odom.pose.euler.yaw;
   t_last_rcin_ = ros::Time::now();
 }
 
 void PositionYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const dh_std::Range<double>& dead_zone)
+  const tobas_msgs::Odometry& odom,
+  const double&,
+  const Range<double>& dead_zone)
 {
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
@@ -47,11 +51,17 @@ void PositionYawController::update(
     dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
   vel_.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));  // スラストレバーに遊びはなし
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0. : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // コマンドを更新
   pos_yaw_.pos += vel_ * dt;
   pos_yaw_.yaw += yawrate * dt;
+
+  // 誤差を制限
+  const auto& cur_pos = odom.pose.pos;
+  const auto& cur_yaw = odom.pose.euler.yaw;
+  pos_yaw_.pos = pos_yaw_.pos.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
+  pos_yaw_.yaw = clamp(pos_yaw_.yaw, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
 
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
@@ -62,13 +72,19 @@ void PositionYawController::update(
 void PositionYawController::getRosParams(ros::NodeHandle& pnh)
 {
   dh_ros::getParam(
-    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorizontalVelocity,
-    dh_ros::POSITIVE);
+    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, dh_ros::POSITIVE);
   dh_ros::getParam(
-    pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerticalVelocity,
-    dh_ros::POSITIVE);
+    pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, dh_ros::POSITIVE);
   dh_ros::getParam(
     pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "pos_vel_acc_yaw/max_horizontal_position_error", max_hor_pos_err_, kDefaultMaxHorPosErr,
+    dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "pos_vel_acc_yaw/max_vertical_position_error", max_ver_pos_err_, kDefaultMaxVerPosErr,
+    dh_ros::POSITIVE);
+  dh_ros::getParam(
+    pnh, "pos_vel_acc_yaw/max_yaw_error", max_yaw_err_, kDefaultMaxYawErr, dh_ros::POSITIVE);
 }
 
 void PositionYawController::registerPublishers(ros::NodeHandle& nh)

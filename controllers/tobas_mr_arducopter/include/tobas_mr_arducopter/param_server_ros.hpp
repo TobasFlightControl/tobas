@@ -7,7 +7,7 @@
 #include <mavros_msgs/ParamSet.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/PoseTwist.h>
+#include <tobas_msgs/Odometry.h>
 
 #include <tobas_mr_arducopter/ControllerConfig.h>
 
@@ -21,7 +21,7 @@ namespace tobas_mr_arducopter
  */
 class ParamServerRos : public tobas::BaseNode
 {
-  static constexpr char kParamSetSrvName[] = "mavros/param/set";
+  static constexpr char kParamSetSrv[] = "mavros/param/set";
   static constexpr double kActivationDelayFromFirstPose = 5.;  // [s]
 
   using self = ParamServerRos;
@@ -32,9 +32,9 @@ class ParamServerRos : public tobas::BaseNode
 
 public:
   explicit ParamServerRos(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   // rosparams

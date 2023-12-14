@@ -1,9 +1,12 @@
 #include <std_msgs/Bool.h>
 
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/unordered_map.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
+
+#include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_arducopter/param_server_ros.hpp"
 #include "../include/tobas_mr_arducopter/constants.hpp"
@@ -15,14 +18,17 @@ using namespace KDL;
 
 namespace tobas_mr_arducopter
 {
-ParamServerRos::ParamServerRos(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+ParamServerRos::ParamServerRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
   getRosParams();
 
-  param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrvName);
-  if (!param_set_sc_.waitForExistence())
-    ROS_THROW_NAMED(name_, "Failed to connect to '" << kParamSetSrvName << "' service server.");
+  param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
+  if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+    ROS_THROW_NAMED(name_, "Failed to connect to '" << kParamSetSrv << "' service server.");
 
   registerPublishers();
   registerSubscribers();
@@ -41,6 +47,8 @@ void ParamServerRos::registerPublishers()
 
 void ParamServerRos::registerSubscribers()
 {
+  super::registerSubscribers();
+
   state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);
@@ -50,7 +58,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 {
   for (const auto& param : cfg->ints)
   {
-    if (ints_.contains(param.name) && ints_[param.name] == param.value)
+    if (dh_std::contains(ints_, param.name) && ints_[param.name] == param.value)
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -70,7 +78,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 
   for (const auto& param : cfg->doubles)
   {
-    if (doubles_.contains(param.name) && dh_std::isClose(doubles_[param.name], param.value))
+    if (dh_std::contains(doubles_, param.name) && dh_std::isClose(doubles_[param.name], param.value))
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -93,8 +101,10 @@ void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      set_init_config_timer_.stop();
+      set_init_params_timer_.stop();
       break;
     default:
       break;
@@ -187,7 +197,7 @@ void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
   rosInfo(name_, "Initial parameters are set.");
 
   // サーバの準備が完了したことをROSメッセージで他のノードに伝える
-  auto server_state = boost::make_shared<std_msgs::Bool>();
+  const auto server_state = boost::make_shared<std_msgs::Bool>();
   server_state->data = true;
   server_state_pub_.publish(server_state);
 }

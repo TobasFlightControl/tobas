@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_motor_test" type="motor_test_gui_node.py" name="motor_test_gui" output="screen" required="true"/>
+
+</launch>

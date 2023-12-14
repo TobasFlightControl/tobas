@@ -1,0 +1,5 @@
+imu_handler:
+  update_rate: {{ imu_update_rate }}
+
+barometer_handler:
+  update_rate: {{ bar_update_rate }}

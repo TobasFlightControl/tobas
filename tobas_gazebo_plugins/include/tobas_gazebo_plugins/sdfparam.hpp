@@ -16,7 +16,7 @@ enum Constraint
 };
 
 template <typename T>
-void checkConstraint(const std::string& name, const T& param, Constraint constraint)
+void checkConstraint(const std::string& name, const T& param, const Constraint& constraint)
 {
   switch (constraint)
   {
@@ -52,7 +52,7 @@ void checkConstraint(const std::string& name, const T& param, Constraint constra
 }
 
 template <typename T>
-void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
+void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param)
 {
   if (sdf->HasElement(name))
   {
@@ -66,11 +66,11 @@ void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param)
 
 template <typename T>
 void getSdfParam(
-  sdf::ElementPtr sdf,
+  const sdf::ElementPtr& sdf,
   const std::string& name,
   T& param,
   const T& default_value,
-  bool verbose = true)
+  const bool& verbose = true)
 {
   if (sdf->HasElement(name))
   {
@@ -88,7 +88,11 @@ void getSdfParam(
 }
 
 template <typename T>
-void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, Constraint constraint)
+void getSdfParam(
+  const sdf::ElementPtr& sdf,
+  const std::string& name,
+  T& param,
+  const Constraint& constraint)
 {
   getSdfParam(sdf, name, param);
   checkConstraint(name, param, constraint);
@@ -96,11 +100,11 @@ void getSdfParam(sdf::ElementPtr sdf, const std::string& name, T& param, Constra
 
 template <typename T>
 void getSdfParam(
-  sdf::ElementPtr sdf,
+  const sdf::ElementPtr& sdf,
   const std::string& name,
   T& param,
   const T& default_value,
-  Constraint constraint)
+  const Constraint& constraint)
 {
   getSdfParam(sdf, name, param, default_value);
   checkConstraint(name, param, constraint);
@@ -108,7 +112,7 @@ void getSdfParam(
 
 /* SDFからリストを取得． */
 template <typename T>
-void getSdfParam(sdf::ElementPtr sdf, const std::string& name, std::vector<T>& params)
+void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, std::vector<T>& params)
 {
   params.clear();
 

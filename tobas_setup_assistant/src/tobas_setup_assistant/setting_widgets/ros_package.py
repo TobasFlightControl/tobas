@@ -6,13 +6,14 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import re
+import subprocess
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_expanding_widget, add_center_button
-from dh_rqt_tools.messages import q_error_named
+from dh_rqt_tools.widgets import add_spacer, add_center_button
+from dh_rqt_tools.messages import *
 from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
@@ -52,40 +53,52 @@ class RosPackageWidget(BaseSettingWidget):
         self.setAlignment(Qt.AlignTop)
         self._rows.addWidget(text)
 
-        self.pkg_path = PackagePath(main)
-        self._rows.addWidget(self.pkg_path)
+        self._pkg_path = PackagePath(main)
+        self._rows.addWidget(self._pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
         self.generate_button = add_center_button("Generate", self._rows)
-        self.generate_button.setFixedSize(QSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT))
+        self.generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self.generate_button.setEnabled(False)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
 
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self.pkg_path.define_connections()
-        self.pkg_path.path_changed.connect(self._on_path_changed)
+        self._pkg_path.define_connections()
+        self._pkg_path.path_changed.connect(self._on_path_changed)
 
     @overrides
     def is_valid(self) -> bool:
-        pardir = self.pkg_path.pardir
+        pardir = self._pkg_path.pardir
         if not osp.isdir(pardir):
             q_error_named(self._main, self.NAME, f"{pardir} does not exist.")
             return False
 
-        pkg_name = self.pkg_path.pkg_name
+        pkg_name = self._pkg_path.pkg_name
         if pkg_name.count("/") > 0 or pkg_name.count(" "):
             q_error_named(self._main, self.NAME, f"Invalid package name: {pkg_name}")
             return False
 
-        pkg_path = self.pkg_path.text()
+        pkg_path = self._pkg_path.text()
         if osp.exists(pkg_path):
-            q_error_named(self._main, self.NAME, f"{pkg_path} already exists.")
-            return False
+            res = QMessageBox.warning(
+                self._main,
+                QMessageLevel.WARN.name,
+                f"{pkg_path} already exists. Do you want to replace it?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if res == QMessageBox.Yes:
+                subprocess.run(["rm", "-r", pkg_path])
+            else:
+                return False
 
         return True
+
+    def pkg_path(self) -> str:
+        return self._pkg_path.text()
 
     @pyqtSlot(str, str)
     def _on_path_changed(self, pardir: str, pkg_name: str) -> None:
@@ -121,7 +134,7 @@ class PackagePath(QLabel):
         self._main.settings.ros_package.pkg_name.text_changed.connect(
             self._on_pkg_name_changed
         )
-        self._main.urdf_parser.robot_model_updated.connect(self._set_defaults)
+        self._main.urdf_parser.robot_model_loaded.connect(self._set_defaults)
 
     def _update(self) -> None:
         path = self.pardir + "/" + self.pkg_name

@@ -49,7 +49,7 @@ private:
   sensors::SensorPtr parent_sensor_;  // The parent sensor
   sensors::RaySensorPtr parent_ray_sensor_;
 
-  uint32_t laser_connect_count_ = 0;  // Keep track of number of connctions
+  size_t laser_connect_count_ = 0;  // Keep track of number of connctions
   common::Time last_update_time_;
   common::Time sim_time_;
   sensor_msgs::PointCloud cloud_msg_;  // ros message

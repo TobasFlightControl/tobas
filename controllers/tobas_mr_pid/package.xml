@@ -14,7 +14,6 @@
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
 
-	<depend>tobas_tools</depend>
 	<depend>tobas_mr_common</depend>
 
 	<export>

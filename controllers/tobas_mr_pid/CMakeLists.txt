@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10)
 project(tobas_mr_pid)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -13,7 +13,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_mr_common
-	tobas_tools
 	message_generation
 	dynamic_reconfigure
 	nodelet
@@ -40,7 +39,6 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_mr_common
-		tobas_tools
 		message_generation
 		dynamic_reconfigure
 		nodelet

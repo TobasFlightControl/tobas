@@ -12,7 +12,8 @@ using namespace std;
 
 namespace tobas_real
 {
-GpsHandler::GpsHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name) : super(nh, pnh, name)
+GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name)
 {
   getRosParams();
   configureGnssReceiver();
@@ -34,7 +35,7 @@ void GpsHandler::registerPublishers()
 
 void GpsHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void GpsHandler::configureGnssReceiver()
@@ -72,8 +73,9 @@ void GpsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      main_timer_.stop();
       break;
     default:
       break;

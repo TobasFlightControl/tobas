@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
-    from .esc import EscWidget_Base
 
 import numpy as np
 from numpy import linalg as LA
 from abc import abstractmethod
-from typing import final, Tuple
+from typing import final, Tuple, List
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -25,8 +24,6 @@ from .common import ROTARY_WINGS
 
 class MotorWidget(QWidget):
     NO_SELECT = "Select setting method"
-    MANUAL = "Set manually"
-    EXPERIMENT = "Set from experimental data (recommended)"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -34,50 +31,42 @@ class MotorWidget(QWidget):
         self._main = main
         self._link_name = link_name
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         title = QLabel("Motor Settings")
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(title)
+        rows.addWidget(title)
 
-        self.setting_method = ComboBox()
-        self.setting_method.addItems([self.NO_SELECT, self.MANUAL, self.EXPERIMENT])
-        self.setting_method.setCurrentText(self.NO_SELECT)
-        self._rows.addWidget(self.setting_method)
+        self._methods: List[MotorWidget_Base] = [
+            MotorWidget_MotorSpec(main, link_name),
+            MotorWidget_Experiment(main, link_name),
+        ]
 
-        self.manual = MotorWidget_Manual(main, link_name)
-        self._rows.addWidget(self.manual)
+        self._method_name = ComboBox()
+        self._method_name.addItem(self.NO_SELECT)
+        rows.addWidget(self._method_name)
 
-        self.experiment = MotorWidget_Experiment(main, link_name)
-        self._rows.addWidget(self.experiment)
+        for method in self._methods:
+            self._method_name.addItem(method.NAME)
+            rows.addWidget(method)
 
         self._update_visibility()
         self._define_connections()
 
     def is_valid(self) -> bool:
-        if self.setting_method.currentText() == self.NO_SELECT:
-            print(self.setting_method.currentText())
+        if self._method_name.currentText() == self.NO_SELECT:
+            print(self._method_name.currentText())
             q_error_named(
                 self._main, ROTARY_WINGS, "Please select motor setting method."
             )
             return False
         else:
-            if not self.selected().is_valid():
+            if not self._selected().is_valid():
                 return False
 
         return True
-
-    def selected(self) -> EscWidget_Base:
-        setting_method = self.setting_method.currentText()
-
-        if setting_method == self.MANUAL:
-            return self.manual
-        elif setting_method == self.EXPERIMENT:
-            return self.experiment
-        else:
-            raise RuntimeError()
 
     def direction(self) -> str:
         """CW or CCW"""
@@ -96,46 +85,47 @@ class MotorWidget(QWidget):
         return self._selected().rot_speed_coefs()
 
     def copy_from(self, src: MotorWidget) -> None:
-        self.setting_method.setCurrentText(src.setting_method.currentText())
-        self.manual.copy_from(src.manual)
-        self.experiment.copy_from(src.experiment)
+        self._method_name.setCurrentText(src._method_name.currentText())
+
+        for des_method, src_method in zip(self._methods, src._methods):
+            des_method.copy_from(src_method)
 
         self._update_visibility()
 
     def _define_connections(self) -> None:
-        self.setting_method.currentTextChanged.connect(self._on_type_changed)
-
-    def _update_visibility(self) -> None:
-        setting_method = self.setting_method.currentText()
-
-        if setting_method == self.NO_SELECT:
-            self.manual.setVisible(False)
-            self.experiment.setVisible(False)
-        elif setting_method == self.MANUAL:
-            self.manual.setVisible(True)
-            self.experiment.setVisible(False)
-        elif setting_method == self.EXPERIMENT:
-            self.manual.setVisible(False)
-            self.experiment.setVisible(True)
-        else:
-            raise RuntimeError(f"Unknown setting method: {setting_method}")
+        self._method_name.currentTextChanged.connect(self._on_type_changed)
 
     def _selected(self) -> MotorWidget_Base:
-        setting_method = self.setting_method.currentText()
+        method_name = self._method_name.currentText()
 
-        if setting_method == self.MANUAL:
-            return self.manual
-        elif setting_method == self.EXPERIMENT:
-            return self.experiment
-        else:
-            raise RuntimeError(f"Unknown setting method: {setting_method}")
+        if method_name == self.NO_SELECT:
+            raise RuntimeError("Setting method is not selected.")
+
+        for method in self._methods:
+            if method_name == method.NAME:
+                return method
+
+        raise RuntimeError(f"Invalid setting method: {method_name}")
+
+    def _update_visibility(self) -> None:
+        method_name = self._method_name.currentText()
+
+        for method in self._methods:
+            method.setVisible(False)
+
+        for method in self._methods:
+            if method.NAME == method_name:
+                method.setVisible(True)
+                return
 
     @pyqtSlot(str)
-    def _on_type_changed(self, setting_method: str) -> None:
+    def _on_type_changed(self, _: str) -> None:
         self._update_visibility()
 
 
 class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
+    NAME = UNKNOWN
+
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 
@@ -157,7 +147,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._direction)
 
-        time_const_up_description = "モータの回転数が増加する際の，指令値に対する一時遅れの時定数．"
+        time_const_up_description = "モータの回転数が増加する際の，指令値に対する追従時定数．"
         self._time_const_up = ParamGetterWidget_SpinBox(
             "Time Constant Up",
             time_const_up_description,
@@ -167,7 +157,7 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._time_const_up)
 
-        time_const_down_description = "モータの回転数が減少する際の，指令値に対する一時遅れの時定数．"
+        time_const_down_description = "モータの回転数が減少する際の，指令値に対する追従時定数．"
         self._time_const_down = ParamGetterWidget_SpinBox(
             "Time Constant Down",
             time_const_down_description,
@@ -208,7 +198,9 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         return self._time_const_down.get() * 1e-3
 
 
-class MotorWidget_Manual(MotorWidget_Base):
+class MotorWidget_MotorSpec(MotorWidget_Base):
+    NAME = "Set from motor spec"
+
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
@@ -223,23 +215,47 @@ class MotorWidget_Manual(MotorWidget_Base):
         )
         self._rows.addWidget(self._kv)
 
+        resistance_description = "モータの内部抵抗値．"
+        self._resistance = ParamGetterWidget_SpinBox(
+            "Internal Registance",
+            resistance_description,
+            minimum=1,
+            default=200,
+            suffix=" mΩ",
+        )
+        self._rows.addWidget(self._resistance)
+
     @overrides
     def is_valid(self) -> bool:
         return True
 
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        a = 1.0 / rpm_to_rad_per_sec(self._kv.get())  # 発電係数
-        b = 0.0  # 内部抵抗を無視 (回転数が大きいほど誤差が大きくなる)
+        kv_si = rpm_to_rad_per_sec(self._kv.get())  # [rad/s/V]
+        R = self._resistance.get() * 1e-3  # [Ω]
+
+        # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
+        ke = 1 / kv_si  # 発電係数 [Vs/rad]
+        kt = 1 / kv_si  # トルク定数 [Nm/A]
+
+        # 空力特性を取得
+        aero = self._main.settings.propulsion_system.selected.get_aerodynamics(
+            self._link_name
+        )
+
+        a = ke
+        b = R * aero.motor_const() * aero.moment_const() / kt
         return a, b
 
     @overrides
-    def copy_from(self, src: MotorWidget_Manual) -> None:
+    def copy_from(self, src: MotorWidget_MotorSpec) -> None:
         super().copy_from(src)
         self._kv.set(src._kv.get())
 
 
 class MotorWidget_Experiment(MotorWidget_Base):
+    NAME = "Set from experimental data (recommended)"
+
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
 

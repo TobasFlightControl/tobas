@@ -13,8 +13,9 @@ namespace tobas_trajectory_commander
 class FollowPositionYawTrajectoryServer : tobas::BaseNode
 {
   static constexpr char kActionName[] = "follow_trajectory_position_yaw";
-  static constexpr uint32_t kMaxNrOfTrajPoint = 1000;  // TODO: メモリ的な限界値を探す
+  static constexpr size_t kMaxNrOfTrajPoint = 1000;  // TODO: メモリ的な限界値を探す
 
+  using self = FollowPositionYawTrajectoryServer;
   using super = tobas::BaseNode;
 
   using CommandType = tobas_msgs::PositionYaw;
@@ -26,9 +27,9 @@ class FollowPositionYawTrajectoryServer : tobas::BaseNode
 
 public:
   explicit FollowPositionYawTrajectoryServer(
-    ros::NodeHandle nh,
-    ros::NodeHandle pnh,
-    std::string name = ros::this_node::getName());
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   ResultType result_;

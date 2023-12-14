@@ -20,9 +20,7 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone)
     trim_(drone)
 {
   if (drone.isLoaded())
-  {
     updateInternalDataStructures();
-  }
 }
 
 void MicroDisturbanceEoM::updateInternalDataStructures()
@@ -32,7 +30,6 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   x_rotors_.updateInternalDataStructures();
   trim_.updateInternalDataStructures();
 
-  mass_ = inertia_solver_.JntToMass();
   u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
@@ -41,7 +38,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
+int MicroDisturbanceEoM::update(
   const double& V,
   const double& rho,
   const double& battery_voltage,
@@ -52,18 +49,14 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   assert(battery_voltage);
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
-  error_code_ = E_NOERROR;
-  error_msg_ = "No error";
-
   // 制御入力の制約を更新
   setInputLimits(battery_voltage);
 
   // トリム状態を更新
-  const auto trim_error = trim_.update(V, rho, q);
-  if (trim_error < 0)
+  if (trim_.update(V, rho, q) < 0)
   {
-    error_code_ = E_TRIM_ERROR;
     error_msg_ = trim_.errorMessage();
+    return -1;
   }
 
   // エイリアス
@@ -72,9 +65,14 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
-  const auto I_base = inertia_solver_.JntToCart(q);
+  if (inertia_solver_.JntToCart(q) < 0)
+  {
+    error_msg_ = inertia_solver_.errorMessage();
+    return -1;
+  }
+  const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.RefPoint(P_base_cog).getRotationalInertia();
+  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
   const auto I_x = I_cog.ixx();
   const auto I_y = I_cog.iyy();
@@ -94,17 +92,17 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   const auto rho_V_S = rho * V * vehicle.wing_surface;
   const auto rho_V_S_b2 = rho_V_S * sqr(vehicle.wing_span);
   const auto rho_V_S_c2 = rho_V_S * sqr(vehicle.mac);
-  const auto P = mass_ * V;  // 運動量
+  const auto P = I_base.getMass() * V;  // 運動量
 
   // (2.2-45)
-  const auto X_u = -rho_V_S / mass_ * trim_.c_D();
-  const auto X_alpha = -q_S / mass_ * (aero.c_drag_alpha - trim_.c_L());
+  const auto X_u = -rho_V_S / I_base.getMass() * trim_.c_D();
+  const auto X_alpha = -q_S / I_base.getMass() * (aero.c_drag_alpha - trim_.c_L());
 
   // (3.2-20)
   const auto Y_beta_bar = q_S / P * aero.c_side_beta;
 
   // (2.2-46)
-  const auto Z_u_bar = -rho * vehicle.wing_surface / mass_ * trim_.c_L();
+  const auto Z_u_bar = -rho * vehicle.wing_surface / I_base.getMass() * trim_.c_L();
   const auto Z_alpha_bar = -q_S / P * (aero.c_lift_alpha + 2 * trim_.c_L() * tan(trim_.alpha()));
 
   // (3.2-21)
@@ -164,17 +162,21 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
 
   // Bを更新
   // thrust -> u
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    B_(kStateIdx_u, i) = 1 / mass_;
+    B_(kStateIdx_u, i) = 1 / I_base.getMass();
   }
 
   // thrust -> p,q,r
   const auto I_cog_inv = I_cog.data.inverse();
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    const auto T_base_rotor = fk_solver_.JntToCart(q, x_rotors_.linkName(i));
-    const auto P_cog_rotor = T_base_rotor.p - P_base_cog;
+    if (fk_solver_.JntToCart(q, x_rotors_.linkName(i)) < 0)
+    {
+      error_msg_ = fk_solver_.errorMessage();
+      return -1;
+    }
+    const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto& d = x_rotors_.direction(i);
     const auto& c = x_rotors_.momentConstant(i);
     Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
@@ -183,7 +185,7 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   }
 
   // deflection
-  for (uint32_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
+  for (size_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
   {
     const auto& cs = drone_.controlSurface(cs_idx);
 
@@ -227,281 +229,20 @@ MicroDisturbanceEoM::ErrorCode MicroDisturbanceEoM::update(
   // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
   const auto thrust_avg = thrust_sum / x_rotors_.count();
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     const auto max_thrust = x_rotors_.thrustFromVoltage(i, battery_voltage);
     if (thrust_avg > max_thrust)
     {
-      error_code_ = E_THRUST_OVERLIMIT;
       error_msg_ = "Average thrust " + to_string(thrust_avg) + "[N] is over the maximum limit "
                    + to_string(max_thrust) + "[N].";
+      return -1;
     }
   }
   u_0_.block(0, 0, x_rotors_.count(), 1).fill(thrust_avg);
   u_0_(x_rotors_.count() + trim_.elevatorIndex()) = trim_.elevator();
 
-  return error_code_;
-}
-
-const MicroDisturbanceEoM::ErrorCode& MicroDisturbanceEoM::errorCode() const
-{
-  return error_code_;
-}
-
-const string& MicroDisturbanceEoM::errorMessage() const
-{
-  return error_msg_;
-}
-
-const TrimConditions& MicroDisturbanceEoM::trimCondition() const
-{
-  return trim_;
-}
-
-const StabilityDerivativesCG& MicroDisturbanceEoM::stabilityDerivativesCG() const
-{
-  return trim_.stabilityDerivativesCG();
-}
-
-const Matrix<double, MicroDisturbanceEoM::kStateSize, 1>& MicroDisturbanceEoM::trimState() const
-{
-  return x_0_;
-}
-
-const VectorXd& MicroDisturbanceEoM::trimInput() const
-{
-  return u_0_;
-}
-
-const VectorXd& MicroDisturbanceEoM::minInput() const
-{
-  return min_u_;
-}
-
-const VectorXd& MicroDisturbanceEoM::maxInput() const
-{
-  return max_u_;
-}
-
-VectorXd MicroDisturbanceEoM::minDeltaInput() const
-{
-  return min_u_ - u_0_;
-}
-
-VectorXd MicroDisturbanceEoM::maxDeltaInput() const
-{
-  return max_u_ - u_0_;
-}
-
-const uint32_t& MicroDisturbanceEoM::elevatorIndex() const
-{
-  return trim_.elevatorIndex();
-}
-
-const uint32_t& MicroDisturbanceEoM::inputSize() const
-{
-  return u_size_;
-}
-
-const Matrix<double, MicroDisturbanceEoM::kStateSize, MicroDisturbanceEoM::kStateSize>&
-MicroDisturbanceEoM::A() const
-{
-  return A_;
-}
-
-const Matrix<double, MicroDisturbanceEoM::kStateSize, Dynamic>& MicroDisturbanceEoM::B() const
-{
-  return B_;
-}
-
-const double& MicroDisturbanceEoM::u_u() const
-{
-  return A_(kStateIdx_u, kStateIdx_u);
-}
-
-const double& MicroDisturbanceEoM::u_alpha() const
-{
-  return A_(kStateIdx_u, kStateIdx_alpha);
-}
-
-const double& MicroDisturbanceEoM::u_q() const
-{
-  return A_(kStateIdx_u, kStateIdx_q);
-}
-
-const double& MicroDisturbanceEoM::u_theta() const
-{
-  return A_(kStateIdx_u, kStateIdx_theta);
-}
-
-const double& MicroDisturbanceEoM::alpha_u() const
-{
-  return A_(kStateIdx_alpha, kStateIdx_u);
-}
-
-const double& MicroDisturbanceEoM::alpha_alpha() const
-{
-  return A_(kStateIdx_alpha, kStateIdx_alpha);
-}
-
-const double& MicroDisturbanceEoM::alpha_q() const
-{
-  return A_(kStateIdx_alpha, kStateIdx_q);
-}
-
-const double& MicroDisturbanceEoM::alpha_theta() const
-{
-  return A_(kStateIdx_alpha, kStateIdx_theta);
-}
-
-const double& MicroDisturbanceEoM::beta_beta() const
-{
-  return A_(kStateIdx_beta, kStateIdx_beta);
-}
-
-const double& MicroDisturbanceEoM::beta_p() const
-{
-  return A_(kStateIdx_beta, kStateIdx_p);
-}
-
-const double& MicroDisturbanceEoM::beta_r() const
-{
-  return A_(kStateIdx_beta, kStateIdx_r);
-}
-
-const double& MicroDisturbanceEoM::beta_phi() const
-{
-  return A_(kStateIdx_beta, kStateIdx_phi);
-}
-
-const double& MicroDisturbanceEoM::phi_beta() const
-{
-  return A_(kStateIdx_phi, kStateIdx_beta);
-}
-
-const double& MicroDisturbanceEoM::phi_p() const
-{
-  return A_(kStateIdx_phi, kStateIdx_p);
-}
-
-const double& MicroDisturbanceEoM::phi_r() const
-{
-  return A_(kStateIdx_phi, kStateIdx_r);
-}
-
-const double& MicroDisturbanceEoM::phi_phi() const
-{
-  return A_(kStateIdx_phi, kStateIdx_phi);
-}
-
-const double& MicroDisturbanceEoM::theta_u() const
-{
-  return A_(kStateIdx_theta, kStateIdx_u);
-}
-
-const double& MicroDisturbanceEoM::theta_alpha() const
-{
-  return A_(kStateIdx_theta, kStateIdx_alpha);
-}
-
-const double& MicroDisturbanceEoM::theta_q() const
-{
-  return A_(kStateIdx_theta, kStateIdx_q);
-}
-
-const double& MicroDisturbanceEoM::theta_theta() const
-{
-  return A_(kStateIdx_theta, kStateIdx_theta);
-}
-
-const double& MicroDisturbanceEoM::p_beta() const
-{
-  return A_(kStateIdx_p, kStateIdx_beta);
-}
-
-const double& MicroDisturbanceEoM::p_p() const
-{
-  return A_(kStateIdx_p, kStateIdx_p);
-}
-
-const double& MicroDisturbanceEoM::p_r() const
-{
-  return A_(kStateIdx_p, kStateIdx_r);
-}
-
-const double& MicroDisturbanceEoM::p_phi() const
-{
-  return A_(kStateIdx_p, kStateIdx_phi);
-}
-
-const double& MicroDisturbanceEoM::q_u() const
-{
-  return A_(kStateIdx_q, kStateIdx_u);
-}
-
-const double& MicroDisturbanceEoM::q_alpha() const
-{
-  return A_(kStateIdx_q, kStateIdx_alpha);
-}
-
-const double& MicroDisturbanceEoM::q_q() const
-{
-  return A_(kStateIdx_q, kStateIdx_q);
-}
-
-const double& MicroDisturbanceEoM::q_theta() const
-{
-  return A_(kStateIdx_q, kStateIdx_theta);
-}
-
-const double& MicroDisturbanceEoM::r_beta() const
-{
-  return A_(kStateIdx_r, kStateIdx_beta);
-}
-
-const double& MicroDisturbanceEoM::r_p() const
-{
-  return A_(kStateIdx_r, kStateIdx_p);
-}
-
-const double& MicroDisturbanceEoM::r_r() const
-{
-  return A_(kStateIdx_r, kStateIdx_r);
-}
-
-const double& MicroDisturbanceEoM::r_phi() const
-{
-  return A_(kStateIdx_r, kStateIdx_phi);
-}
-
-double MicroDisturbanceEoM::u_thrust() const
-{
-  return 1 / mass_;
-}
-
-const double& MicroDisturbanceEoM::alpha_delta(const uint32_t& cs_idx) const
-{
-  return B_(kStateIdx_alpha, x_rotors_.count() + cs_idx);
-}
-
-const double& MicroDisturbanceEoM::beta_delta(const uint32_t& cs_idx) const
-{
-  return B_(kStateIdx_beta, x_rotors_.count() + cs_idx);
-}
-
-const double& MicroDisturbanceEoM::p_delta(const uint32_t& cs_idx) const
-{
-  return B_(kStateIdx_p, x_rotors_.count() + cs_idx);
-}
-
-const double& MicroDisturbanceEoM::q_delta(const uint32_t& cs_idx) const
-{
-  return B_(kStateIdx_q, x_rotors_.count() + cs_idx);
-}
-
-const double& MicroDisturbanceEoM::r_delta(const uint32_t& cs_idx) const
-{
-  return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
+  return 0;
 }
 
 void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
@@ -509,13 +250,13 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);
 
-  for (uint32_t i = 0; i < x_rotors_.count(); ++i)
+  for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     min_u_(i) = 0.;
     max_u_(i) = x_rotors_.thrustFromVoltage(i, battery_voltage);
   }
 
-  for (uint32_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& cs = drone_.controlSurface(i);
     min_u_(x_rotors_.count() + i) = cs.angle_limit.lower;

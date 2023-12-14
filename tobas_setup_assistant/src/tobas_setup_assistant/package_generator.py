@@ -9,6 +9,7 @@ import os
 import os.path as osp
 import yaml
 import rospy
+import shutil
 from typing import List
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -18,7 +19,8 @@ from PyQt5.QtGui import *
 
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
-from dh_rqt_tools.path import get_proj_path
+from urdf_tools_py.utils import remove_elements_with_tag
+from dh_rqt_tools.path import get_proj_path, resolve_uri
 from dh_rqt_tools.messages import q_info
 from dh_rqt_tools.xml import prettify_and_save
 from kdl_sympy.joint import JointType
@@ -30,6 +32,11 @@ from .xml_nodes import *
 
 
 class PackageGenerator(QObject):
+    # TODO: ゲインを設定するページ
+    DEFAULT_P_GAIN = 100.0
+    DEFAULT_I_GAIN = 0.1
+    DEFAULT_D_GAIN = 1.0
+
     generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
@@ -46,13 +53,13 @@ class PackageGenerator(QObject):
         self._drone_name = ""
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
         self._main.settings.ros_package.generate_button.clicked.connect(
             self._on_generate_button_clicked
         )
 
     @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def _on_robot_model_loaded(self) -> None:
         self._drone_name = get_drone_name()
 
     @pyqtSlot()
@@ -78,9 +85,6 @@ class PackageGenerator(QObject):
             return False
         if not self._main.settings.imu.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.imu)
-            return False
-        if not self._main.settings.magnetometer.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.magnetometer)
             return False
         if not self._main.settings.barometer.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.barometer)
@@ -123,16 +127,18 @@ class PackageGenerator(QObject):
 
     def _generate_pkg(self) -> None:
         # 各ディレクトリのパス
-        pkg_path = self._main.settings.ros_package.pkg_path.text()
+        pkg_path = self._main.settings.ros_package.pkg_path()
         config_dir = osp.join(pkg_path, "config")
         launch_dir = osp.join(pkg_path, "launch")
         urdf_dir = osp.join(pkg_path, "urdf")
+        mesh_dir = osp.join(pkg_path, "mesh")
 
         # ディレクトリを作る
         os.mkdir(pkg_path)
         os.mkdir(config_dir)
         os.mkdir(launch_dir)
         os.mkdir(urdf_dir)
+        os.mkdir(mesh_dir)
 
         # テンプレートから生成
         items = self._make_template_items()
@@ -144,6 +150,16 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items, "environment.yaml", osp.join(config_dir, "environment.yaml")
+        )
+        self._generate_from_template(
+            items,
+            "hardware_interfaces.yaml",
+            osp.join(config_dir, "hardware_interfaces.yaml"),
+        )
+        self._generate_from_template(
+            items,
+            "plotjuggler_layout.xml",
+            osp.join(config_dir, "plotjuggler_layout.xml"),
         )
         self._generate_from_template(
             items,
@@ -179,8 +195,16 @@ class PackageGenerator(QObject):
         self._generate_from_template(
             items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
         )
+        self._generate_from_template(
+            items,
+            "jointpos_commander.launch",
+            osp.join(launch_dir, "jointpos_commander.launch"),
+        )
+        self._generate_from_template(
+            items, "plotjuggler.launch", osp.join(launch_dir, "plotjuggler.launch")
+        )
 
-        command_msgs = self._main.settings.controller.selected().COMMAND_MSGS
+        command_msgs = self._main.settings.controller.command_msgs()
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
         if (
@@ -203,6 +227,7 @@ class PackageGenerator(QObject):
         if (
             PositionYaw.__name__ in command_msgs
             or PosVelAccYaw.__name__ in command_msgs
+            or PoseTwistAccelCommand.__name__ in command_msgs
         ):
             self._generate_from_template(
                 items,
@@ -217,33 +242,38 @@ class PackageGenerator(QObject):
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
         self._generate_state_checker_config(config_dir)
-        self._generate_urdf(urdf_dir)
+        self._generate_urdf(urdf_dir, mesh_dir)
 
     def _make_template_items(self) -> None:
-        template_items = dict()
+        settings = self._main.settings
 
+        template_items = dict()
         template_items["drone_name"] = self._drone_name
 
+        # Sensors
+        template_items["imu_update_rate"] = settings.imu.update_rate.get()
+        template_items["bar_update_rate"] = settings.barometer.update_rate.get()
+
         # Controller
-        controller = self._main.settings.controller
+        controller = settings.controller
         template_items["controller_pkg"] = controller.controller_pkg()
         template_items["takeoff_pkg"] = controller.takeoff_pkg()
         template_items["landing_pkg"] = controller.landing_pkg()
 
         # Observer
-        template_items["observer_pkg"] = self._main.settings.observer.pkg_name()
+        template_items["observer_pkg"] = settings.observer.pkg_name()
 
         # Simulation
-        simulation = self._main.settings.simulation
+        simulation = settings.simulation
         template_items["gravity"] = simulation.gravity.get()
 
         # Author Info
-        author_info = self._main.settings.author_information
+        author_info = settings.author_information
         template_items["author_name"] = author_info.name.get()
         template_items["author_email"] = author_info.email.get()
 
         # Ros Package
-        ros_pkg = self._main.settings.ros_package
+        ros_pkg = settings.ros_package
         template_items["pkg_name"] = ros_pkg.pkg_name.get()
 
         # Joint Controllers
@@ -264,12 +294,19 @@ class PackageGenerator(QObject):
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
-        drone_config = {
-            "imu_offset": self._main.settings.imu.offset.get(),
-            "barometer_offset": self._main.settings.barometer.offset.get(),
-            "gps_offset": self._main.settings.gps.offset.get(),
-            "posture_defining_joint_names": self._posture_defining_joint_names(),
-        }
+        drone_config = dict()
+
+        # Joints
+        jnt_names = self._posture_defining_joint_names()
+        num_joints = len(jnt_names)
+        drone_config["num_joints"] = num_joints
+        for i in range(num_joints):
+            drone_config[f"joint_{i}"] = {
+                "name": jnt_names[i],
+                "init_pos": 0.0,  # TODO
+                "min_pos": -1e9,  # TODO
+                "max_pos": 1e9,  # TODO
+            }
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
@@ -293,10 +330,6 @@ class PackageGenerator(QObject):
                 "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
                 "pin": i + 1,
             }
-
-            esc = selected.esc
-            esc_type = esc.esc_type.currentText()
-            drone_config[f"rotor_{i}"]["esc_type"] = esc_type.lower()
 
         # Fixed wing
         fixed_wing = self._main.settings.fixed_wing
@@ -370,11 +403,22 @@ class PackageGenerator(QObject):
             "type": "joint_state_controller/JointStateController",
             "publish_rate": 1000.0,
         }
+        items["gazebo_ros_control"] = {"pid_gains": dict()}
         for jnt_name in self._posture_defining_joint_names():
             items[f"{jnt_name}_controller"] = {
-                "type": "position_controllers/JointPositionController",
+                "type": "effort_controllers/JointEffortController",
                 "joint": jnt_name,
+                # "pid": {
+                #     "p": self.DEFAULT_P_GAIN,
+                #     "i": self.DEFAULT_I_GAIN,
+                #     "d": self.DEFAULT_D_GAIN,
+                # },
             }
+            # items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
+            #     "p": self.DEFAULT_P_GAIN,
+            #     "i": self.DEFAULT_I_GAIN,
+            #     "d": self.DEFAULT_D_GAIN,
+            # }
 
         # yamlファイルを作成
         jnt_ctrl_path = osp.join(config_dir, "joint_control.yaml")
@@ -383,12 +427,12 @@ class PackageGenerator(QObject):
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
         rc_transmitter = self._main.settings.rc_transmitter
-        controller = self._main.settings.controller.selected()
+        controller = self._main.settings.controller
 
         items = dict()
         items["rc_teleop"] = {
             "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
-            "mode_names": controller.flight_modes.mode_names(),
+            "mode_names": controller.flight_mode_names(),
         }
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")
@@ -396,69 +440,79 @@ class PackageGenerator(QObject):
             yaml.dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        items = self._main.settings.controller.selected().parameter_dict()
+        items = self._main.settings.controller.parameter_dict()
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        items = self._main.settings.observer.selected().parameter_dict()
+        items = self._main.settings.observer.parameter_dict()
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_state_checker_config(self, config_dir: str) -> None:
-        battery = self._main.settings.battery.selected()
-
         items = dict()
         items["state_checker"] = {
-            "battery_voltage_threshold": battery.voltage_threshold(),
+            "battery_voltage_threshold": self._main.settings.battery.voltage_threshold(),
         }
 
         file_path = osp.join(config_dir, "state_checker.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
-    def _generate_urdf(self, urdf_dir: str) -> None:
-        robot = self._make_urdf_with_plugins()
+    def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
+        robot = self._make_urdf_with_plugins(mesh_dir)
         urdf_path = osp.join(urdf_dir, f"{self._drone_name}.xacro")
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
         prettify_and_save(robot, urdf_path)
 
-    def _make_urdf_with_plugins(self) -> ET.Element:
+    def _make_urdf_with_plugins(self, mesh_dir: str) -> ET.Element:
         description = rospy.get_param("/robot_description")
         robot = ET.fromstring(description)
         assert robot.tag == "robot"
 
+        self._resolve_mesh_files(robot, mesh_dir)
         self._screen_xml_elements(robot)
         self._add_xml_elements(robot)
 
         return robot
 
+    def _resolve_mesh_files(self, robot: ET.Element, mesh_dir: str) -> None:
+        """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
+        pkg_name = self._main.settings.ros_package.pkg_name.get()
+        for mesh in robot.iter("mesh"):
+            abs_path = resolve_uri(mesh.attrib["filename"])
+            base_name = osp.basename(abs_path)
+            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
+            mesh.attrib["filename"] = f"package://{pkg_name}/mesh/{base_name}"
+
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
-        for child in robot:
-            # transmissionは問答無用で消す
-            if child.tag == "transmission":
-                robot.remove(child)
+        # transmissionは問答無用で消す
+        remove_elements_with_tag(robot, "transmission")
 
-            # gazeboタグの場合はその子ノードを確認する
-            if child.tag == "gazebo":
-                for gchild in child:
-                    if gchild.tag == "plugin":
-                        # RotorSのプラグインは問答無用で消す
-                        if gchild.attrib["filename"].startswith("librotors"):
-                            robot.remove(child)
-                            continue
-                        # Gazebo ROS Controlは問答無用で消す
-                        if gchild.attrib["filename"] == "libgazebo_ros_control.so":
-                            robot.remove(child)
-                            continue
-                        self._remove_or_keep_gazebo_child(child, gchild)
-                    elif gchild.tag == "sensor":
-                        self._remove_or_keep_gazebo_child(child, gchild)
+        # gazeboタグの場合はその子ノードを確認する
+        for gazebo in robot.iter("gazebo"):
+            for child in gazebo:
+                if child.tag == "plugin":
+                    # Tobasのプラグインは問答無用で消す
+                    if child.attrib["filename"].startswith("libtobas"):
+                        robot.remove(gazebo)
+                        continue
+                    # RotorSのプラグインは問答無用で消す
+                    if child.attrib["filename"].startswith("librotors"):
+                        robot.remove(gazebo)
+                        continue
+                    # Gazebo ROS Controlは問答無用で消す
+                    if child.attrib["filename"] == "libgazebo_ros_control.so":
+                        robot.remove(gazebo)
+                        continue
+                    self._remove_or_keep_gazebo_child(gazebo, child)
+                elif child.tag == "sensor":
+                    self._remove_or_keep_gazebo_child(gazebo, child)
 
     def _remove_or_keep_gazebo_child(
         self, gazebo: ET.Element, child: ET.Element
@@ -493,7 +547,6 @@ class PackageGenerator(QObject):
         fixed_wing = self._main.settings.fixed_wing
         battery = self._main.settings.battery
         imu = self._main.settings.imu
-        magnetometer = self._main.settings.magnetometer
         barometer = self._main.settings.barometer
         gps = self._main.settings.gps
         rgb_camera = self._main.settings.rgb_camera
@@ -517,18 +570,17 @@ class PackageGenerator(QObject):
         robot.append(base_plugin)
 
         # Wind plugin
-        wind_model = WindModel(
-            ns=self._drone_name,
-            link_name=root_link,
-            mean_wind_speed=simulation.mean_wind_speed.get(),
-            const_wind_direction=simulation.const_wind_direction.get(),
-        )
+        wind_model = WindModel(ns=self._drone_name, link_name=root_link)
         robot.append(wind_model)
 
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
-            nominal_voltage=battery.selected().nominal_voltage(),
+            max_voltage=battery.max_voltage(),
+            sag_voltage=battery.sag_voltage(),
+            max_current=battery.max_current(),
+            capacity=battery.capacity(),
+            num_rotors=propulsion_system.count(),
         )
         robot.append(battery_model)
 
@@ -545,8 +597,10 @@ class PackageGenerator(QObject):
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),
+                max_model_error_rate=selected.aerodynamics.max_model_error_rate(),
                 time_const_up=selected.motor.time_const_up(),
                 time_const_down=selected.motor.time_const_down(),
+                max_current=selected.esc.max_current(),
             )
             robot.append(motor_model)
 
@@ -584,8 +638,8 @@ class PackageGenerator(QObject):
             )
             robot.append(fixed_wing_model)
 
-        # IMU plugin
         if imu.equipped():
+            # IMU plugin
             imu_model = ImuModel(
                 ns=self._drone_name,
                 link_name=root_link,
@@ -595,25 +649,26 @@ class PackageGenerator(QObject):
                 gyro_random_walk=imu.gyro_random_walk.get(),
                 gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
                 gyro_turn_on_bias_sigma=imu.gyro_turn_on_bias_sigma.get(),
+                gyro_lpf_cutoff_freq=imu.gyro_lpf_cutoff_freq.get(),
                 acc_noise_density=imu.acc_noise_density.get(),
                 acc_random_walk=imu.acc_random_walk.get(),
                 acc_bias_corr_time=imu.acc_bias_corr_time.get(),
                 acc_turn_on_bias_sigma=imu.acc_turn_on_bias_sigma.get(),
+                acc_lpf_cutoff_freq=imu.acc_lpf_cutoff_freq.get(),
             )
             robot.append(imu_model)
 
-        # Magnetometer plugin
-        if magnetometer.equipped():
+            # Magnetometer plugin
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=magnetometer.update_rate.get(),
-                offset=magnetometer.offset.get(),
+                update_rate=imu.update_rate.get(),
+                offset=imu.offset.get(),
                 latitude_0=simulation.latitude_0.get(),
                 longitude_0=simulation.longitude_0.get(),
                 altitude_0=simulation.altitude_0.get(),
-                gauss_noise=magnetometer.gauss_noise.get(),
-                uniform_noise=magnetometer.uniform_noise.get(),
+                gauss_noise=imu.mag_gauss_noise.get(),
+                uniform_noise=imu.mag_uniform_noise.get(),
             )
             robot.append(mag_model)
 
@@ -742,7 +797,7 @@ class PackageGenerator(QObject):
 
         # Transmissions
         for jnt_name in self._posture_defining_joint_names():
-            transmission = Transmission(jnt_name, interface=Transmission.POSITION)
+            transmission = Transmission(jnt_name, interface=Transmission.EFFORT)
             robot.append(transmission)
 
     def _posture_defining_joint_names(self) -> List[str]:

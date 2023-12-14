@@ -5,7 +5,8 @@
   <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
 
   <!-- Main multirotor link -->
-  <xacro:macro name="multirotor_base_macro" params="robot_namespace
+  <xacro:macro name="multirotor_base_macro" params="
+      robot_namespace
       mass
       body_width
       body_height
@@ -15,23 +16,23 @@
     <link name="${robot_namespace}/base_link"></link>
 
     <joint name="${robot_namespace}/base_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <parent link="${robot_namespace}/base_link" />
-      <child link="${robot_namespace}/base_link_inertia" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${robot_namespace}/base_link"/>
+      <child link="${robot_namespace}/base_link_inertia"/>
     </joint>
 
     <link name="${robot_namespace}/base_link_inertia">
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="0 0 0" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="1 1 1" />
+            <mesh filename="${mesh_file}" scale="1 1 1"/>
           </xacro:if>
           <xacro:unless value="${use_mesh_file}">
             <box size="${body_width} ${body_width} ${body_height}"/>
@@ -40,16 +41,17 @@
       </visual>
 
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="${body_width} ${body_width} ${body_height}" />
+          <box size="${body_width} ${body_width} ${body_height}"/>
         </geometry>
       </collision>
     </link>
   </xacro:macro>
 
   <!-- Rotor joint and link -->
-  <xacro:macro name="vertical_rotor" params="robot_namespace
+  <xacro:macro name="vertical_rotor" params="
+      robot_namespace
       direction
       parent
       mass_rotor
@@ -61,30 +63,30 @@
       *origin
       *inertia">
     <joint name="${robot_namespace}/rotor_${motor_number}_joint" type="continuous">
-      <xacro:insert_block name="origin" />
-      <axis xyz="0 0 1" />
-      <parent link="${parent}" />
-      <child link="${robot_namespace}/rotor_${motor_number}" />
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <parent link="${parent}"/>
+      <child link="${robot_namespace}/rotor_${motor_number}"/>
     </joint>
 
     <link name="${robot_namespace}/rotor_${motor_number}">
       <inertial>
-        <mass value="${mass_rotor}" />
-        <xacro:insert_block name="inertia" />
+        <mass value="${mass_rotor}"/>
+        <xacro:insert_block name="inertia"/>
       </inertial>
       <visual>
         <geometry>
           <xacro:if value="${use_own_mesh}">
-            <mesh filename="${mesh}" scale="1 1 1" />
+            <mesh filename="${mesh}" scale="1 1 1"/>
           </xacro:if>
           <xacro:unless value="${use_own_mesh}">
-            <mesh filename="package://tobas_description/meshes/propeller_${direction}.dae" scale="${radius_rotor} ${radius_rotor} ${radius_rotor}" />
+            <mesh filename="package://tobas_description/meshes/propeller_${direction}.dae" scale="${radius_rotor} ${radius_rotor} ${radius_rotor}"/>
           </xacro:unless>
         </geometry>
       </visual>
       <collision>
         <geometry>
-          <cylinder length="0.005" radius="${radius_rotor}" />
+          <cylinder length="0.005" radius="${radius_rotor}"/>
         </geometry>
       </collision>
     </link>

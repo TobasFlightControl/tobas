@@ -10,17 +10,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 
-def remap(x: float, a: float, b: float, c: float, d: float) -> float:
-    """xを[a, b]の範囲から[c, d]の範囲に投影する．"""
-    assert a <= b
-    assert c <= d
-
-    if a == b:
-        return (c + d) / 2.0
-    else:
-        return (c * (b - x) + d * (x - a)) / (b - a)
-
-
 def get_user_name() -> str:
     """PCのユーザ名を返す．"""
     return os.environ["USER"]
@@ -45,7 +34,9 @@ def get_drone_name() -> str:
     description = rospy.get_param("/robot_description")
     root = ET.fromstring(description)
     assert root.tag == "robot"
-    return root.get("name")
+
+    name = root.get("name")
+    return name if name else "unknown"
 
 
 def is_valid_email(email: str) -> bool:
@@ -87,3 +78,7 @@ def all_le(seq: Sequence[float], x: float) -> bool:
         if elem > x:
             return False
     return True
+
+
+def is_unique(lst: list):
+    return len(lst) == len(set(lst))

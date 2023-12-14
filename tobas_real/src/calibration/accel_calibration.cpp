@@ -52,7 +52,7 @@ Vector3f AccelCalibrator::readAccel()
 {
   // 加速度を取得
   Vector3f acc_sum = Vector3f::Zero();
-  for (uint32_t _ = 0; _ < kDataCount; ++_)
+  for (size_t _ = 0; _ < kDataCount; ++_)
   {
     imu_.update();
     imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());

@@ -18,7 +18,10 @@ using namespace KDL;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(ros::NodeHandle nh, ros::NodeHandle pnh, const string& name)
+ThrustEstimator::ThrustEstimator(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(1)
 {
   getRosParams();
@@ -51,7 +54,9 @@ void ThrustEstimator::registerPublishers()
 
 void ThrustEstimator::registerSubscribers()
 {
-  pt_sub_ = nh_.subscribe(tobas::kPoseTwistTopic, 1, &self::poseTwistCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
@@ -60,19 +65,22 @@ void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      break;
+    case tobas_msgs::Event::TAKEOFF_DETECTED:
+      is_flying_ = true;
       break;
     default:
       break;
   }
 }
 
-void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
+void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_initialized_)
   {
-    if (rotor_speeds_ != nullptr && pt->pose.pos.z() > kAltitudeThreshold)
+    if (rotor_speeds_ != nullptr && is_flying_)
     {
       is_initialized_ = true;
       rosInfo(name_, "Start to estimate thrust correction factor.");
@@ -80,23 +88,27 @@ void ThrustEstimator::poseTwistCb(const tobas_msgs::PoseTwistConstPtr& pt)
     return;
   }
 
-  const Matrix3d R_W_B = pt->pose.euler.toRotation().data;
-  const Vector3d& acc_B = pt->accel.linear.data;
+  const Matrix3d R_W_B = odom->pose.euler.toRotation().data;
+  const Vector3d& acc_B = odom->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
 
-  // 風速の観測値
-  const auto model_thrust_sum = dynamics_.thrustSum(rotor_speeds_->speeds);
-  const auto factor_meas = dynamics_.mass() * (acc_B + grav_B).z() / model_thrust_sum;
+  // 実際の推力に対するモデル推力の比率の観測値
+  const auto real_thrust = dynamics_.mass() * (acc_B + grav_B).z();
+  const auto model_thrust = dynamics_.thrustSum(rotor_speeds_->speeds);
+  const auto factor_meas = model_thrust / real_thrust;
   kf_.y(0) = factor_meas;
 
   // 観測ノイズの共分散
-  kf_.R(0, 0) = pt->linear_acceleration_covariance[8] + EPS;
+  // 実際は加速度ノイズとジャイロノイズの分散に比例する値のはずだが，
+  // どうせプロセスノイズのスケールがわからないため観測ノイズのスケールも適当でよい．
+  // 簡単のため最も影響の大きいと思われる加速度ノイズの分散をそのまま使う．
+  kf_.R(0, 0) = odom->linear_acceleration_covariance[8] + EPS;
 
   // カルマンフィルタを更新
   kf_.update();
 
   // Publish estimated thrust correction factor
-  auto factor_msg = boost::make_shared<std_msgs::Float64>();
+  const auto factor_msg = boost::make_shared<std_msgs::Float64>();
   factor_msg->data = kf_.state()(0);
   factor_pub_.publish(factor_msg);
 }
@@ -106,7 +118,7 @@ void ThrustEstimator::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor
   rotor_speeds_ = rotor_speeds;
 }
 
-void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, uint32_t)
+void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   // プロセスノイズの分散
   // TODO: dtを反映

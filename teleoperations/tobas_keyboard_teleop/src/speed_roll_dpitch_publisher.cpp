@@ -19,24 +19,19 @@ using namespace std;
 namespace tobas_keyboard_teleop
 {
 SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
-  ros::NodeHandle nh,
-  ros::NodeHandle pnh,
-  string name)
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name),
     trim_(drone_),
     keyboard_(getKeyboardControls()),
     check_topics_timer_(
       nh_,
       tobas::kCheckTopicsTimerPeriod,
-      &SpeedRollDeltaPitchPublisher::checkTopicsTimerCb,
+      &self::checkTopicsTimerCb,
       this,
       false),
-    instruction_timer_(
-      nh_,
-      kInstructionTimerPeriod,
-      &SpeedRollDeltaPitchPublisher::instructionTimerCb,
-      this,
-      false)
+    instruction_timer_(nh_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -72,6 +67,7 @@ void SpeedRollDeltaPitchPublisher::run()
     {
       if (isReady())
       {
+        check_topics_timer_.stop();
         initialize();
         is_initialized_ = true;
       }
@@ -80,7 +76,11 @@ void SpeedRollDeltaPitchPublisher::run()
       continue;
     }
 
-    trim_.update(cmd_.speed, air_density_, q_0_);
+    if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
+    {
+      rosError(name_, trim_.errorMessage());
+      continue;
+    }
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
@@ -101,26 +101,26 @@ void SpeedRollDeltaPitchPublisher::run()
       case kKeyCode_Up:
       {
         cmd_.delta_pitch =
-          dh_std::clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+          clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
         rosInfoThrottle(kInfoPeriod, name_, "Nose up");
         break;
       }
       case kKeyCode_Down:
       {
         cmd_.delta_pitch =
-          dh_std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+          clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
         rosInfoThrottle(kInfoPeriod, name_, "Nose down");
         break;
       }
       case kKeyCode_Left:
       {
-        cmd_.roll = dh_std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
+        cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
         rosInfoThrottle(kInfoPeriod, name_, "Turn left");
         break;
       }
       case kKeyCode_Right:
       {
-        cmd_.roll = dh_std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
+        cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
         rosInfoThrottle(kInfoPeriod, name_, "Turn right");
         break;
       }
@@ -153,10 +153,10 @@ void SpeedRollDeltaPitchPublisher::registerPublishers()
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(
-    tobas::kEventTopic, 1, &SpeedRollDeltaPitchPublisher::eventCb, this, tcpNoDelay());
-  air_pressure_sub_ = nh_.subscribe(
-    tobas::kAirPressureTopic, 1, &SpeedRollDeltaPitchPublisher::airPressureCb, this, tcpNoDelay());
+  super::registerSubscribers();
+
+  air_pressure_sub_ =
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()
@@ -178,8 +178,10 @@ void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& even
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      check_topics_timer_.stop();
+      instruction_timer_.stop();
       break;
     default:
       break;
@@ -197,8 +199,7 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressur
 void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-    rosWarn(
-      name_, nh_.getNamespace() << "/" << tobas::kAirPressureTopic << " is not received yet.");
+    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 }
 
 void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)

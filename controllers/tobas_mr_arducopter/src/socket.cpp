@@ -82,7 +82,7 @@ ssize_t ArduPilotSocket::send(const void* _buf, size_t _size)
   return ::send(fd_, _buf, _size, 0);
 }
 
-ssize_t ArduPilotSocket::recv(void* _buf, const size_t _size, uint32_t _timeout_ms)
+ssize_t ArduPilotSocket::recv(void* _buf, const size_t _size, size_t _timeout_ms)
 {
   fd_set fds;
   struct timeval tv;

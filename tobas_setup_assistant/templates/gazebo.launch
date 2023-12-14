@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="world_path" default="$(find tobas_gazebo)/worlds/basic.world"/>
+  <arg name="wname" default="basic"/>
   <arg name="debug" default="false"/>
   <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
@@ -23,7 +23,7 @@
 
   <!-- Bringup a Gazebo world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(arg world_path)"/>
+    <arg name="world_name" value="$(find tobas_gazebo)/worlds/$(arg wname).world"/>
     <arg name="debug" value="$(arg debug)"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -41,6 +41,9 @@
 
     <!-- Load the joint controllers -->
     <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
+
+    <!-- Launch joint command handler -->
+    <node pkg="tobas_gazebo" type="joint_command_handler_node" name="joint_command_handler" output="screen"/>
   </group>
 
 </launch>

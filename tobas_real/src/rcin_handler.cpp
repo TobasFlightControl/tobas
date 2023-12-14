@@ -15,7 +15,10 @@ using namespace dh_std;
 
 namespace tobas_real
 {
-RCInputHandler::RCInputHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+RCInputHandler::RCInputHandler(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();
@@ -40,7 +43,7 @@ void RCInputHandler::registerPublishers()
 
 void RCInputHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &RCInputHandler::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void RCInputHandler::readConfig()
@@ -60,12 +63,18 @@ void RCInputHandler::readConfig()
   thrust_range_.lower = pt.get<double>(kConfigKey_RcThrustDown);
   thrust_range_.upper = pt.get<double>(kConfigKey_RcThrustUp);
 
-  estop_range_.lower = pt.get<double>(kConfigKey_RcEStopDown);
-  estop_range_.upper = pt.get<double>(kConfigKey_RcEStopUp);
+  estop_on_ = pt.get<double>(kConfigKey_RcEStopOn);
+  estop_off_ = pt.get<double>(kConfigKey_RcEStopOff);
 
-  const auto num_modes = pt.get<uint32_t>(kConfigKey_RcNrOfModes);
+  gpsw1_on_ = pt.get<double>(kConfigKey_RcGPSw1On);
+  gpsw1_off_ = pt.get<double>(kConfigKey_RcGPSw1Off);
+
+  gpsw2_on_ = pt.get<double>(kConfigKey_RcGPSw2On);
+  gpsw2_off_ = pt.get<double>(kConfigKey_RcGPSw2Off);
+
+  const auto num_modes = pt.get<size_t>(kConfigKey_RcNrOfModes);
   modes_.resize(num_modes);
-  for (uint32_t i = 0; i < num_modes; ++i)
+  for (size_t i = 0; i < num_modes; ++i)
   {
     const string key = kConfigKey_RcModePrefix + to_string(i);
     modes_[i] = pt.get<double>(key);
@@ -76,8 +85,9 @@ void RCInputHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      main_timer_.stop();
       break;
     default:
       break;
@@ -93,6 +103,8 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto thrust_period = rcin_.read(kRcChannelThrust);
   const auto estop_period = rcin_.read(kRcChannelEStop);
   const auto mode_period = rcin_.read(kRcChannelMode);
+  const auto gpsw1_period = rcin_.read(kRcChannelGPSw1);
+  const auto gpsw2_period = rcin_.read(kRcChannelGPSw2);
 
   // Create message
   const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
@@ -101,8 +113,10 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->pitch = remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
   rcin_msg->yaw = remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
   rcin_msg->thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
-  rcin_msg->e_stop = estop_period < estop_range_.mean();
   rcin_msg->mode = dh_std::closestIndex<double>(modes_, mode_period);
+  rcin_msg->e_stop = abs(estop_period - estop_on_) < abs(estop_period - estop_off_);
+  rcin_msg->gpsw1 = abs(gpsw1_period - gpsw1_on_) < abs(gpsw1_period - gpsw1_off_);
+  rcin_msg->gpsw2 = abs(gpsw2_period - gpsw2_on_) < abs(gpsw2_period - gpsw2_off_);
 
   // Publish message
   rcin_pub_.publish(rcin_msg);

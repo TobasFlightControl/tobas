@@ -12,7 +12,10 @@ using namespace std;
 
 namespace tobas_real
 {
-BatteryHandler::BatteryHandler(ros::NodeHandle nh, ros::NodeHandle pnh, string name)
+BatteryHandler::BatteryHandler(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
   : super(nh, pnh, name)
 {
   getRosParams();
@@ -37,7 +40,7 @@ void BatteryHandler::registerPublishers()
 
 void BatteryHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &BatteryHandler::eventCb, this, tcpNoDelay());
+  super::registerSubscribers();
 }
 
 void BatteryHandler::getAdcCoefficient()
@@ -58,8 +61,9 @@ void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SHUTDOWN:
+    case tobas_msgs::Event::STOP:
       nh_.shutdown();
+      main_timer_.stop();
       break;
     default:
       break;
@@ -101,6 +105,7 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   battery_msg->header.stamp = event.current_real;
   battery_msg->voltage = lpf_.getState();
+  battery_msg->current = nan(tobas::kUnknown);
 
   // Publish battery message
   battery_pub_.publish(battery_msg);

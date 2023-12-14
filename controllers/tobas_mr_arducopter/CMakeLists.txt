@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10)
 project(tobas_mr_arducopter)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -17,6 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	nodelet
 	pluginlib
+	mavros
+	mavros_msgs
 )
 
 # catkin_python_setup()
@@ -42,6 +44,8 @@ catkin_package(
 		actionlib
 		nodelet
 		pluginlib
+		mavros
+		mavros_msgs
 	# 	DEPENDS
 )
 

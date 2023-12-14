@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10)
 project(tobas_mr_mpc)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -12,9 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	tobas_mr_rotation_mpc
-	tobas_mr_translation_lqr
 	tobas_mr_common
+	dh_linear_control
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -40,9 +39,8 @@ catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
-		tobas_mr_rotation_mpc
-		tobas_mr_translation_lqr
 		tobas_mr_common
+		dh_linear_control
 		dynamic_reconfigure
 		nodelet
 		pluginlib

@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from typing import List
+from typing import List, FrozenSet
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox, add_expanding_widget
+from dh_rqt_tools.widgets import ComboBox, add_spacer
 from dh_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
@@ -19,6 +19,7 @@ from ..base_setting import BaseSettingWidget
 from .base import BaseController
 from .multirotor_pid import MultirotorPid
 from .multirotor_mpc import MultirotorMpc
+from .non_planar_pid import NonPlanarPid
 from .fixed_wing_lqr import FixedWingLQR
 from .arducopter import ArduCopter
 
@@ -41,6 +42,7 @@ class ControllerWidget(BaseSettingWidget):
             MultirotorPid(main),
             MultirotorMpc(main),
             ArduCopter(main),
+            NonPlanarPid(main),
             FixedWingLQR(main),
         ]
 
@@ -51,7 +53,7 @@ class ControllerWidget(BaseSettingWidget):
         for controller in self._controllers:
             self._rows.addWidget(controller)
 
-        add_expanding_widget(self._rows)
+        add_spacer(self._rows)
         self._update_visibility()
 
     @overrides
@@ -69,34 +71,28 @@ class ControllerWidget(BaseSettingWidget):
             q_error_named(self._main, self.NAME, "Please select controller type.")
             return False
 
-        if not self.selected().is_valid():
+        if not self._selected().is_valid():
             return False
 
         return True
 
-    def selected(self) -> BaseController:
-        controller_type = self._type.currentText()
-
-        if controller_type == self.NO_SELECT:
-            raise RuntimeError("Controller type is not selected.")
-
-        for controller in self._controllers:
-            if controller_type == controller.NAME:
-                return controller
-
-        raise RuntimeError(f"Invalid controller type: {controller_type}")
-
-    def get_type(self) -> str:
-        return self._type.currentText()
-
     def controller_pkg(self) -> str:
-        return self.selected().CONTROLLER_PKG
+        return self._selected().CONTROLLER_PKG
 
     def takeoff_pkg(self) -> str:
-        return self.selected().TAKEOFF_PKG
+        return self._selected().TAKEOFF_PKG
 
     def landing_pkg(self) -> str:
-        return self.selected().LANDING_PKG
+        return self._selected().LANDING_PKG
+
+    def command_msgs(self) -> FrozenSet[str]:
+        return self._selected().COMMAND_MSGS
+
+    def flight_mode_names(self) -> List[str]:
+        return self._selected().flight_mode_names()
+
+    def parameter_dict(self) -> dict:
+        return self._selected().parameter_dict()
 
     def _update_controller_types(self) -> None:
         for controller in self._controllers:
@@ -114,6 +110,18 @@ class ControllerWidget(BaseSettingWidget):
             self._type.setCurrentIndex(1)  # idx = 0がNO_SELECTで，その次に設定
         else:
             self._type.setCurrentIndex(0)  # NO_SELECT
+
+    def _selected(self) -> BaseController:
+        controller_type = self._type.currentText()
+
+        if controller_type == self.NO_SELECT:
+            raise RuntimeError("Controller type is not selected.")
+
+        for controller in self._controllers:
+            if controller_type == controller.NAME:
+                return controller
+
+        raise RuntimeError(f"Invalid controller type: {controller_type}")
 
     def _update_visibility(self) -> None:
         controller_type = self._type.currentText()
