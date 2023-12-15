@@ -26,7 +26,7 @@ static constexpr uint16_t kAddrPresentCurrent = 126;
 static constexpr uint16_t kAddrPresentVelocity = 128;
 static constexpr uint16_t kAddrPresentPosition = 132;
 static constexpr uint16_t kAddrPresentInputVoltage = 144;
-static constexpr uint16_t kAddrPresentTemperatur = 146;
+static constexpr uint16_t kAddrPresentTemperature = 146;
 
 // Model Number
 static constexpr uint16_t kModelNumber_XL430W250 = 1060;

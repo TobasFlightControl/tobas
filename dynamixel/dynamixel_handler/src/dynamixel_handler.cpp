@@ -1,7 +1,6 @@
 #include <fstream>
 
 #include <dh_std_tools/math.hpp>
-#include <dh_std_tools/zip.hpp>
 #include <dh_std_tools/unix.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -214,83 +213,58 @@ void DynamixelHandler::registerSubscribers()
 
 void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 {
+  dynamixel::GroupSyncRead pwm_sync_read(poh_, pah_, kAddrPresentPwm, 2);
+  dynamixel::GroupSyncRead current_sync_read(poh_, pah_, kAddrPresentCurrent, 2);
+  dynamixel::GroupSyncRead pos_sync_read(poh_, pah_, kAddrPresentPosition, 4);
+  dynamixel::GroupSyncRead vel_sync_read(poh_, pah_, kAddrPresentVelocity, 4);
+  dynamixel::GroupSyncRead voltage_sync_read(poh_, pah_, kAddrPresentInputVoltage, 2);
+  dynamixel::GroupSyncRead temp_sync_read(poh_, pah_, kAddrPresentTemperature, 1);
+  if (readSyncPacket(pwm_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present PWM.");
+  if (readSyncPacket(current_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present current.");
+  if (readSyncPacket(pos_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present position.");
+  if (readSyncPacket(vel_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present velocity.");
+  if (readSyncPacket(voltage_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present input voltage.");
+  if (readSyncPacket(temp_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present temperature.");
+
   const auto motor_states = boost::make_shared<dynamixel_msgs::MotorStates>();
   const auto cur_js = boost::make_shared<sensor_msgs::JointState>();
-
   motor_states->header.stamp = cur_time;
   cur_js->header.stamp = cur_time;
 
   for (const auto& [name, cfg] : motors_)
   {
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPresentPwm, (uint16_t*)&present_pwm_) == 0)
+    const int16_t pwm_raw = pos_sync_read.getData(cfg.id, kAddrPresentPwm, 2);
+    motor_state_.pwm = static_cast<double>(pwm_raw) * 100 / 855;
+
+    const int16_t current_raw = current_sync_read.getData(cfg.id, kAddrPresentCurrent, 2);
+    if (cfg.current_available)
     {
-      motor_state_.pwm = static_cast<double>(present_pwm_) * 100 / 855;
+      motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor / 1000;
+      motor_state_.load = nan(kUnavailable);
     }
     else
     {
-      rosError(name_, "Failed to get present PWM of '" << name << "'.");
-      continue;
+      motor_state_.current = nan(kUnavailable);
+      motor_state_.load = static_cast<double>(current_raw) * 0.1;
     }
 
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPresentCurrent, (uint16_t*)&present_current_) == 0)
-    {
-      if (cfg.current_available)
-      {
-        motor_state_.current =
-          static_cast<double>(present_current_) * cfg.current_scaling_factor / 1000;
-        motor_state_.load = nan(kUnavailable);
-      }
-      else
-      {
-        motor_state_.current = nan(kUnavailable);
-        motor_state_.load = static_cast<double>(present_current_) * 0.1;
-      }
-    }
-    else
-    {
-      rosError(name_, "Failed to get present current of '" << name << "'.");
-      continue;
-    }
+    const int32_t pos_raw = pos_sync_read.getData(cfg.id, kAddrPresentPosition, 4);
+    motor_state_.position = dh_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
 
-    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrPresentPosition, (uint32_t*)&present_position_) == 0)
-    {
-      motor_state_.position = dh_std::remap<double>(present_position_, 0, 1 << 12, -M_PI, M_PI);
-    }
-    else
-    {
-      rosError(name_, "Failed to get present position of '" << name << "'.");
-      continue;
-    }
+    const int32_t vel_raw = vel_sync_read.getData(cfg.id, kAddrPresentVelocity, 4);
+    motor_state_.velocity = static_cast<double>(vel_raw) * kVelocityDecodeFactor;
 
-    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrPresentVelocity, (uint32_t*)&present_velocity_) == 0)
-    {
-      motor_state_.velocity = static_cast<double>(present_velocity_) * kVelocityDecodeFactor;
-    }
-    else
-    {
-      rosError(name_, "Failed to get present velocity of '" << name << "'.");
-      continue;
-    }
+    const uint16_t voltage_yaw = voltage_sync_read.getData(cfg.id, kAddrPresentInputVoltage, 2);
+    motor_state_.input_voltage = static_cast<double>(voltage_yaw) * 0.1;
 
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPresentInputVoltage, &present_input_voltage_) == 0)
-    {
-      motor_state_.input_voltage = static_cast<double>(present_input_voltage_) * 0.1;
-    }
-    else
-    {
-      rosError(name_, "Failed to get present input voltage of '" << name << "'.");
-      continue;
-    }
-
-    if (pah_->read1ByteTxRx(poh_, cfg.id, kAddrPresentTemperatur, &present_temperature_) == 0)
-    {
-      motor_state_.temperature = static_cast<double>(present_temperature_) * 1;
-    }
-    else
-    {
-      rosError(name_, "Failed to get present temperature of '" << name << "'.");
-      continue;
-    }
+    const uint8_t temp_raw = temp_sync_read.getData(cfg.id, kAddrPresentTemperature, 1);
+    motor_state_.temperature = static_cast<double>(temp_raw) * 1;
 
     motor_states->names.push_back(name);
     motor_states->states.push_back(motor_state_);
@@ -303,6 +277,19 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
   motor_states_pub_.publish(motor_states);
   cur_js_pub_.publish(cur_js);
+}
+
+int DynamixelHandler::readSyncPacket(dynamixel::GroupSyncRead& sync_read)
+{
+  // sync_read.clearParam();
+
+  for (const auto& [jnt_name, cfg] : motors_)
+  {
+    if (!sync_read.addParam(cfg.id))
+      rosError(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
+  }
+
+  return sync_read.txRxPacket();
 }
 
 void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -319,14 +306,22 @@ void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
 {
-  if (positions->name.size() != positions->data.size())
+  const auto size = positions->name.size();
+
+  if (positions->data.size() != size)
   {
     rosError(name_, "The sizes of name and data in joint positions message do not match.");
     return;
   }
 
-  for (const auto& [jnt_name, tar_pos] : dh_std::zip(positions->name, positions->data))
+  vector<int32_t> goal_positions(size);
+  dynamixel::GroupSyncWrite pos_sync_write(poh_, pah_, kAddrGoalPosition, 4);
+
+  for (size_t i = 0; i < size; ++i)
   {
+    const auto& jnt_name = positions->name[i];
+    const auto& tar_pos = positions->data[i];
+
     if (!motors_.contains(jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -336,35 +331,43 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
     const auto& cfg = motors_.at(jnt_name);
 
     if (cfg.operating_mode == kPositionControlMode)
-      goal_position_ = dh_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
+      goal_positions[i] = dh_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     else if (
       cfg.operating_mode == kExtendedPositionControlMode
       || cfg.operating_mode == kCurrentBasePositionControlMode)
-      goal_position_ = tar_pos * (1 << 12) / (2 * M_PI);
+      goal_positions[i] = tar_pos * (1 << 12) / (2 * M_PI);
     else
     {
       rosError(name_, "The operating mode of joint '" << jnt_name << "' is not position.");
       continue;
     }
 
-    if (pah_->write4ByteTxRx(poh_, cfg.id, kAddrGoalPosition, goal_position_) < 0)
-    {
-      rosError(name_, "Failed to command position to joint '" << jnt_name << "'.");
-      continue;
-    }
+    if (!pos_sync_write.addParam(cfg.id, (uint8_t*)&goal_positions[i]))
+      rosError(name_, "Failed to set goal position of joint '" << jnt_name << "'.");
   }
+
+  if (pos_sync_write.txPacket() < 0)
+    rosError(name_, "Failed to transmit a sync write instruction packet of positions.");
 }
 
 void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities)
 {
-  if (velocities->name.size() != velocities->data.size())
+  const auto size = velocities->name.size();
+
+  if (velocities->data.size() != size)
   {
     rosError(name_, "The sizes of name and data in joint velocities message do not match.");
     return;
   }
 
-  for (const auto& [jnt_name, tar_vel] : dh_std::zip(velocities->name, velocities->data))
+  vector<int32_t> goal_velocities(size);
+  dynamixel::GroupSyncWrite vel_sync_write(poh_, pah_, kAddrGoalVelocity, 4);
+
+  for (size_t i = 0; i < size; ++i)
   {
+    const auto& jnt_name = velocities->name[i];
+    const auto& tar_vel = velocities->data[i];
+
     if (!motors_.contains(jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -379,25 +382,29 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
       continue;
     }
 
-    const int32_t goal_velocity = tar_vel / kVelocityDecodeFactor;
-    if (pah_->write4ByteTxRx(poh_, cfg.id, kAddrGoalVelocity, goal_velocity) < 0)
-    {
-      rosError(name_, "Failed to command velocity to joint '" << jnt_name << "'.");
-      continue;
-    }
+    goal_velocities[i] = tar_vel / kVelocityDecodeFactor;
+    if (!vel_sync_write.addParam(cfg.id, (uint8_t*)&goal_velocities[i]))
+      rosError(name_, "Failed to set goal velocity of joint '" << jnt_name << "'.");
   }
+
+  if (vel_sync_write.txPacket() < 0)
+    rosError(name_, "Failed to transmit a sync write instruction packet of velocities.");
 }
 
 void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts)
 {
-  if (efforts->name.size() != efforts->data.size())
+  const auto size = efforts->name.size();
+
+  if (efforts->data.size() != size)
   {
     rosError(name_, "The sizes of name and data in joint efforts message do not match.");
     return;
   }
 
-  for (const auto& [jnt_name, tar_eff] : dh_std::zip(efforts->name, efforts->data))
+  for (size_t i = 0; i < size; ++i)
   {
+    const auto& jnt_name = efforts->name[i];
+
     if (!motors_.contains(jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
