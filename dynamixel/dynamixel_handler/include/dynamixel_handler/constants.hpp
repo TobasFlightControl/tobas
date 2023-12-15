@@ -14,6 +14,7 @@ static constexpr size_t kMinimumLatency = 1;
 // Addresses
 static constexpr uint16_t kAddrModelNumber = 0;
 static constexpr uint16_t kAddrModelInformation = 2;
+static constexpr uint16_t kAddrReturnDelayTime = 9;
 static constexpr uint16_t kAddrOperatingMode = 11;
 static constexpr uint16_t kAddrToruqeEnable = 64;
 static constexpr uint16_t kAddrGoalPwm = 100;
@@ -47,8 +48,8 @@ static constexpr uint8_t kTorqueDisable = 0;
 // Default Parameters
 static constexpr char kDefaultDeviceName[] = "/dev/ttyUSB0";
 static constexpr float kDefaultProtocolVersion = 2.0;
-static constexpr size_t kDefaultBaudRate = 57600;  // [Hz]
-static constexpr size_t kDefaultUpdateRate = 400;  // [Hz]
+static constexpr size_t kDefaultBaudRate = 57600;      // [Hz]
+static constexpr uint8_t kDefaultReturnDelayTime = 0;  // [us]
 static constexpr uint8_t kDefaultId = 1;
 static constexpr char kDefaultOperatingMode[] = "position";
 }  // namespace dynamixel_handler

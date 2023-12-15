@@ -46,6 +46,10 @@ DynamixelHandler::DynamixelHandler(
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
       ROS_THROW_NAMED(name_, "Failed to disable torque of '" << name << "'.");
 
+    // Set return delay time
+    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrReturnDelayTime, return_delay_time_) < 0)
+      rosError(name_, "Failed to set return delay time of '" << name << "'.");
+
     // Set operating mode
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrOperatingMode, cfg.operating_mode) < 0)
       ROS_THROW_NAMED(name_, "Failed to set operating mode of '" << name << "'.");
@@ -67,8 +71,8 @@ DynamixelHandler::DynamixelHandler(
   registerPublishers();
   registerSubscribers();
 
-  // Start main timer
-  main_timer_ = nh_.createTimer(update_rate_, &self::mainTimerCb, this);
+  // Start main timer with maximum rate
+  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
 }
 
 DynamixelHandler::~DynamixelHandler()
@@ -87,7 +91,7 @@ void DynamixelHandler::getRosParams()
   dh_ros::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
   dh_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
   dh_ros::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
-  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
+  dh_ros::getParam(pnh_, "return_delay_time", return_delay_time_, kDefaultReturnDelayTime);
 }
 
 void DynamixelHandler::setMinimumLatency()

@@ -52,7 +52,7 @@ private:
   std::string device_name_;
   float protocol_version_;
   size_t baudrate_;
-  size_t update_rate_;
+  uint8_t return_delay_time_;
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
