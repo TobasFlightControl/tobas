@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	dynamixel_msgs
-	dh_ros_tools
+	tobas_tools
 	dynamixel_sdk
 	nodelet
 	pluginlib
@@ -38,7 +38,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS dynamixel_msgs dh_ros_tools dynamixel_sdk nodelet pluginlib
+	CATKIN_DEPENDS dynamixel_msgs tobas_tools dynamixel_sdk nodelet pluginlib
 # 	DEPENDS
 )
 

@@ -7,6 +7,6 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "dynamixel_handler");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
-  dynamixel_handler::DynamixelHandler node(nh, pnh, ros::this_node::getName());
+  dynamixel_handler::DynamixelHandler node(nh, pnh);
   ros::spin();
 }

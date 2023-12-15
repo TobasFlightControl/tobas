@@ -1,7 +1,10 @@
 #include <dh_std_tools/math.hpp>
+#include <dh_std_tools/zip.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
+
+#include <tobas_tools/constants.hpp>
 
 #include "../include/dynamixel_handler/dynamixel_handler.hpp"
 #include "../include/dynamixel_handler/constants.hpp"
@@ -14,7 +17,7 @@ DynamixelHandler::DynamixelHandler(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : nh_(nh), pnh_(pnh), name_(name)
+  : super(nh, pnh, name)
 {
   // Get ROS parameters
   getRosParams();
@@ -52,7 +55,8 @@ DynamixelHandler::DynamixelHandler(
   }
 
   // Register publishers and subscribers
-  registerPubSub();
+  registerPublishers();
+  registerSubscribers();
 
   // Start main timer
   main_timer_ = nh_.createTimer(update_rate_, &self::mainTimerCb, this);
@@ -70,6 +74,7 @@ DynamixelHandler::~DynamixelHandler()
 
 void DynamixelHandler::getRosParams()
 {
+  ROS_ERROR_STREAM(pnh_.getNamespace());
   dh_ros::getParam(pnh_, "joint_names", jnt_names_);
   dh_ros::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
   dh_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
@@ -160,12 +165,20 @@ void DynamixelHandler::getMotorConfigs()
   }
 }
 
-void DynamixelHandler::registerPubSub()
+void DynamixelHandler::registerPublishers()
 {
   motor_states_pub_ = nh_.advertise<dynamixel_msgs::MotorStates>("motor_states", 1);
   cur_js_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
+}
 
-  tar_js_sub_ = nh_.subscribe("command/joint_states", 1, &self::targetJointStateCb, this);
+void DynamixelHandler::registerSubscribers()
+{
+  positions_sub_ = nh_.subscribe(
+    tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
+  velocities_sub_ = nh_.subscribe(
+    tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
+  efforts_sub_ =
+    nh_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
 }
 
 void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
@@ -261,78 +274,119 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   cur_js_pub_.publish(cur_js);
 }
 
-void DynamixelHandler::sendCommands()
+void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
 {
-  for (size_t i = 0; i < tar_js_->name.size(); ++i)
+  switch (event->data)
   {
-    const auto& name = tar_js_->name[i];
-    if (!motors_.contains(name))
+    case tobas_msgs::Event::STOP:
+      nh_.shutdown();
+      break;
+    default:
+      break;
+  }
+}
+
+void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
+{
+  if (positions->name.size() != positions->data.size())
+  {
+    rosError(name_, "The sizes of name and data in joint positions message do not match.");
+    return;
+  }
+
+  for (const auto& [jnt_name, tar_pos] : dh_std::zip(positions->name, positions->data))
+  {
+    if (!motors_.contains(jnt_name))
     {
-      rosError(name_, "Controller for joint '" << name << "' is not found.");
+      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
     }
 
-    const auto& cfg = motors_.at(name);
-    if (cfg.operating_mode == kCurrentControlMode || cfg.operating_mode == kPwmControlMode)
-    {
-      rosError(name_, "Effort control is not implemented yet.");  // TODO
-      continue;
-    }
-    else if (cfg.operating_mode == kVelocityControlMode)
-    {
-      if (tar_js_->velocity.size() <= i)
-      {
-        rosError(name_, "Unable to access index " << i << " of velocity array.");
-        continue;
-      }
+    const auto& cfg = motors_.at(jnt_name);
 
-      const int32_t cmd = tar_js_->velocity.at(i) / kVelocityDecodeFactor;
-      if (pah_->write4ByteTxRx(poh_, cfg.id, kAddrGoalVelocity, cmd) < 0)
-      {
-        rosError(name_, "Failed to command velocity to joint '" << name << "'.");
-        continue;
-      }
-    }
+    if (cfg.operating_mode == kPositionControlMode)
+      goal_position_ = dh_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     else if (
-      cfg.operating_mode == kPositionControlMode
-      || cfg.operating_mode == kExtendedPositionControlMode
+      cfg.operating_mode == kExtendedPositionControlMode
       || cfg.operating_mode == kCurrentBasePositionControlMode)
-    {
-      if (tar_js_->position.size() <= i)
-      {
-        rosError(name_, "Unable to access index " << i << " of position array.");
-        continue;
-      }
-
-      const auto& tar_pos = tar_js_->position.at(i);
-      const int32_t cmd = cfg.operating_mode == kPositionControlMode ?
-                            dh_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12) :
-                            tar_pos * (1 << 12) / (2 * M_PI);
-
-      if (pah_->write4ByteTxRx(poh_, cfg.id, kAddrGoalPosition, cmd) < 0)
-      {
-        rosError(name_, "Failed to command position to joint '" << name << "'.");
-        continue;
-      }
-    }
+      goal_position_ = tar_pos * (1 << 12) / (2 * M_PI);
     else
     {
-      rosError(name_, "Unknown operating mode: " << static_cast<int>(cfg.operating_mode));
+      rosError(name_, "The operating mode of joint '" << jnt_name << "' is not position.");
+      continue;
+    }
+
+    if (pah_->write4ByteTxRx(poh_, cfg.id, kAddrGoalPosition, goal_position_) < 0)
+    {
+      rosError(name_, "Failed to command position to joint '" << jnt_name << "'.");
       continue;
     }
   }
 }
 
-void DynamixelHandler::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
+void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities)
 {
-  tar_js_ = tar_js;
+  if (velocities->name.size() != velocities->data.size())
+  {
+    rosError(name_, "The sizes of name and data in joint velocities message do not match.");
+    return;
+  }
+
+  for (const auto& [jnt_name, tar_vel] : dh_std::zip(velocities->name, velocities->data))
+  {
+    if (!motors_.contains(jnt_name))
+    {
+      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
+      continue;
+    }
+
+    const auto& cfg = motors_.at(jnt_name);
+
+    if (cfg.operating_mode != kVelocityControlMode)
+    {
+      rosError(name_, "The operating mode of joint '" << jnt_name << "' is not velocity.");
+      continue;
+    }
+
+    const int32_t goal_velocity = tar_vel / kVelocityDecodeFactor;
+    if (pah_->write4ByteTxRx(poh_, cfg.id, kAddrGoalVelocity, goal_velocity) < 0)
+    {
+      rosError(name_, "Failed to command velocity to joint '" << jnt_name << "'.");
+      continue;
+    }
+  }
+}
+
+void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts)
+{
+  if (efforts->name.size() != efforts->data.size())
+  {
+    rosError(name_, "The sizes of name and data in joint efforts message do not match.");
+    return;
+  }
+
+  for (const auto& [jnt_name, tar_eff] : dh_std::zip(efforts->name, efforts->data))
+  {
+    if (!motors_.contains(jnt_name))
+    {
+      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
+      continue;
+    }
+
+    const auto& cfg = motors_.at(jnt_name);
+
+    if (cfg.operating_mode != kCurrentControlMode && cfg.operating_mode != kPwmControlMode)
+    {
+      rosError(name_, "The operating mode of joint '" << jnt_name << "' is not effort.");
+      continue;
+    }
+
+    rosError(name_, "Effort control is not implemented yet.");  // TODO
+  }
 }
 
 void DynamixelHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   publishCurrentStates(event.current_real);
-
-  if (tar_js_ != nullptr)
-    sendCommands();
 }
 }  // namespace dynamixel_handler
