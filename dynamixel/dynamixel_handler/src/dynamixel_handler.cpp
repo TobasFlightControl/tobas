@@ -1,5 +1,8 @@
+#include <fstream>
+
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/zip.hpp>
+#include <dh_std_tools/unix.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -54,6 +57,12 @@ DynamixelHandler::DynamixelHandler(
     rosInfo(name_, "'" << name << "' is initialized.");
   }
 
+  // Reduce latency
+  if (dh_std::isSuperUser())
+    setMinimumLatency();
+  else
+    rosWarn(name_, "Please execute with root privileges to set minimum communication latency.");
+
   // Register publishers and subscribers
   registerPublishers();
   registerSubscribers();
@@ -74,12 +83,30 @@ DynamixelHandler::~DynamixelHandler()
 
 void DynamixelHandler::getRosParams()
 {
-  ROS_ERROR_STREAM(pnh_.getNamespace());
   dh_ros::getParam(pnh_, "joint_names", jnt_names_);
   dh_ros::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
   dh_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
   dh_ros::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
   dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
+}
+
+void DynamixelHandler::setMinimumLatency()
+{
+  const auto pos = device_name_.rfind('/');
+  const auto port = pos == string::npos ? device_name_ : device_name_.substr(pos + 1);
+  const auto file_path = "/sys/bus/usb-serial/devices/" + port + "/latency_timer";
+  ofstream file(file_path);
+  if (file.is_open())
+  {
+    file << kMinimumLatency;  // uint8だと反映されなかった
+    file.close();
+    rosInfo(name_, "Communication latency is set to " << kMinimumLatency);
+  }
+  else
+  {
+    rosError(
+      name_, "Unable to open file '" << file_path << "'. Communication latency is unchanged.");
+  }
 }
 
 void DynamixelHandler::getMotorConfigs()

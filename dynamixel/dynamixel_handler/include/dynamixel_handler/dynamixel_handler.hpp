@@ -69,6 +69,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void setMinimumLatency();
   void getMotorConfigs();
   void publishCurrentStates(const ros::Time& cur_time);
 

@@ -9,6 +9,7 @@ static constexpr double kDeg2Rad = M_PI / 180;  // degree -> radian
 static constexpr double kRpm2Rps = M_PI / 30;   // rpm -> rad/s
 static constexpr char kUnavailable[] = "unavailable";
 static constexpr double kVelocityDecodeFactor = 0.229 * kRpm2Rps;
+static constexpr size_t kMinimumLatency = 1;
 
 // Addresses
 static constexpr uint16_t kAddrModelNumber = 0;
