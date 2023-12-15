@@ -1,0 +1,6 @@
+dynamixel_handler:
+  joint_names: ["joint_0"]
+
+  joint_0:
+    id: 1
+    operating_mode: "velocity"
