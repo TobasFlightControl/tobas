@@ -280,7 +280,7 @@ void DynamixelHandler::getMotorConfigs()
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0)
     {
-      cfg.pos_limit.upper = static_cast<double>(max_pos_limit) * kDecodeFactorPos;
+      cfg.pos_limit.upper = dh_std::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     }
     else
     {
@@ -290,7 +290,7 @@ void DynamixelHandler::getMotorConfigs()
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0)
     {
-      cfg.pos_limit.lower = static_cast<double>(min_pos_limit) * kDecodeFactorPos;
+      cfg.pos_limit.lower = dh_std::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     }
     else
     {
