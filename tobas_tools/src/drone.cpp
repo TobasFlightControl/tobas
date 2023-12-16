@@ -111,11 +111,11 @@ JointConfig Drone::getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx)
   JointConfig res;
 
   dh_ros::getParam(nh, prefix + "/name", res.name);
-  dh_ros::getParam(nh, prefix + "/init_pos", res.init_pos);
-  dh_ros::getParam(nh, prefix + "/min_pos", res.min_pos);
-  dh_ros::getParam(nh, prefix + "/max_pos", res.max_pos);
+  dh_ros::getParam(nh, prefix + "/home_position", res.home_pos);
+  dh_ros::getParam(nh, prefix + "/min_position", res.min_pos);
+  dh_ros::getParam(nh, prefix + "/max_position", res.max_pos);
 
-  if (!(res.min_pos <= res.init_pos && res.init_pos <= res.max_pos))
+  if (!(res.min_pos <= res.home_pos && res.home_pos <= res.max_pos))
     ROS_THROW("Invalid value for joint '" << res.name << "'.");
 
   return res;

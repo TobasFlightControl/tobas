@@ -43,7 +43,7 @@ EffortControllerRos::EffortControllerRos(
   for (const auto& joint : drone_.jointConfigs())
   {
     init_tar_js.name.push_back(joint.name);
-    init_tar_js.position.push_back(joint.init_pos);
+    init_tar_js.position.push_back(joint.home_pos);
     init_tar_js.velocity.push_back(0.);
     init_tar_js.effort.push_back(0.);
   }

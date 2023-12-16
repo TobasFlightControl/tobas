@@ -303,9 +303,9 @@ class PackageGenerator(QObject):
         for i in range(num_joints):
             drone_config[f"joint_{i}"] = {
                 "name": jnt_names[i],
-                "init_pos": 0.0,  # TODO
-                "min_pos": -1e9,  # TODO
-                "max_pos": 1e9,  # TODO
+                "home_position": 0.0,  # TODO
+                "min_position": -1e9,  # TODO
+                "max_position": 1e9,  # TODO
             }
 
         # Propulsion System
