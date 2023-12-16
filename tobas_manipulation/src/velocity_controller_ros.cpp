@@ -7,6 +7,7 @@
 #include <tobas_msgs/JointVelocities.h>
 
 #include "../include/tobas_manipulation/velocity_controller_ros.hpp"
+#include "../include/tobas_manipulation/common.hpp"
 
 using namespace std;
 using namespace KDL;
@@ -100,8 +101,17 @@ int VelocityControllerRos::taskSpaceControl(JntArray& velocities)
     {
       case tobas_msgs::FrameId::GLOBAL:
       {
+        if (odom_ == nullptr)
+        {
+          rosWarnThrottle(
+            kOdomNotReceivedWarnPeriod, name_,
+            "Since odometry has not been received yet, commands in the global frame is ignored.");
+          return -1;
+        }
+
         tobas::poseTobasToKDL(odom_->pose, T_W_B);
         tar_pi = T_W_B.inverse() * tar_pi;  // T_B_P = T_B_W * T_W_P
+        break;
       }
       case tobas_msgs::FrameId::LOCAL:
       {
@@ -110,7 +120,7 @@ int VelocityControllerRos::taskSpaceControl(JntArray& velocities)
       default:
       {
         rosError(name_, "Unknown frame ID: " << static_cast<int>(frame_id.data));
-        break;
+        return -1;
       }
     }
     tar_p[seg_name] = tar_pi;  // Base -> Segment tip
@@ -176,9 +186,6 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   }
   else if (tar_cs_ != nullptr)
   {
-    if (odom_ == nullptr)
-      return;
-
     if (taskSpaceControl(velocities) < 0)
       return;
   }
