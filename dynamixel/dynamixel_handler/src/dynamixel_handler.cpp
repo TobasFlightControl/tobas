@@ -119,6 +119,15 @@ void DynamixelHandler::getMotorConfigs()
   string operating_mode;
   unordered_set<uint8_t> used_ids;
   uint16_t model_number;
+  uint8_t temp_limit;
+  uint16_t max_voltage_limit;
+  uint16_t min_voltage_limit;
+  uint16_t pwm_limit;
+  uint16_t current_limit;
+  uint32_t acc_limit;
+  uint32_t vel_limit;
+  uint32_t max_pos_limit;
+  uint32_t min_pos_limit;
 
   for (const auto& name : jnt_names_)
   {
@@ -131,7 +140,7 @@ void DynamixelHandler::getMotorConfigs()
     }
     used_ids.insert(cfg.id);
 
-    // Current関連
+    // Current scaling factor
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrModelNumber, &model_number) < 0)
     {
       rosError(name_, "Failed to get model number of '" << name << "'.");
@@ -139,15 +148,15 @@ void DynamixelHandler::getMotorConfigs()
     }
     switch (model_number)
     {
-      case kModelNumber_XL430W250:
+      case kModelNumberXL430W250:
         cfg.current_available = false;
         break;
-      case kModelNumber_XC430W250:
+      case kModelNumberXC430W250:
         cfg.current_available = false;
         break;
-      case kModelNumber_XM430W350:
+      case kModelNumberXM430W350:
         cfg.current_available = true;
-        cfg.current_scaling_factor = 2.69;
+        cfg.current_scaling_factor = 2.69 / 1000;
         break;
       default:
         rosWarn(name_, "Setting for model number " << model_number << " is not implemented yet.");
@@ -164,14 +173,14 @@ void DynamixelHandler::getMotorConfigs()
         rosError(name_, "Current control mode is unavailable for '" << name << "'.");
         continue;
       }
-      cfg.operating_mode = kPositionControlMode;
+      cfg.operating_mode = kControlModePosition;
     }
     else if (operating_mode == "velocity")
-      cfg.operating_mode = kVelocityControlMode;
+      cfg.operating_mode = kControlModeVelocity;
     else if (operating_mode == "position")
-      cfg.operating_mode = kPositionControlMode;
+      cfg.operating_mode = kControlModePosition;
     else if (operating_mode == "extended_position")
-      cfg.operating_mode = kExtendedPositionControlMode;
+      cfg.operating_mode = kControlModeExtendedPosition;
     else if (operating_mode == "current_base_position")
     {
       if (!cfg.current_available)
@@ -179,15 +188,113 @@ void DynamixelHandler::getMotorConfigs()
         rosError(name_, "Current-base position control mode is unavailable for '" << name << "'.");
         continue;
       }
-      cfg.operating_mode = kCurrentBasePositionControlMode;
+      cfg.operating_mode = kControlModeCurrentBasePosition;
     }
     else if (operating_mode == "pwm")
     {
-      cfg.operating_mode = kPwmControlMode;
+      cfg.operating_mode = kControlModePwm;
     }
     else
     {
       rosError(name_, "Unknown operating mode for '" << name << "'.");
+      continue;
+    }
+
+    // Limits
+    if (pah_->read1ByteTxRx(poh_, cfg.id, kAddrTemperatureLimit, &temp_limit) == 0)
+    {
+      cfg.temp_limit = static_cast<double>(temp_limit) * kDecodeFactorTemp;
+    }
+    else
+    {
+      rosError(name_, "Failed to get temperature limit of '" << name << "'.");
+      continue;
+    }
+
+    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMaxVoltageLimit, &max_voltage_limit) == 0)
+    {
+      cfg.voltage_limit.upper = static_cast<double>(max_voltage_limit) * kDecodeFactorVoltage;
+    }
+    else
+    {
+      rosError(name_, "Failed to get maximum voltage limit of '" << name << "'.");
+      continue;
+    }
+
+    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMinVoltageLimit, &min_voltage_limit) == 0)
+    {
+      cfg.voltage_limit.lower = static_cast<double>(min_voltage_limit) * kDecodeFactorVoltage;
+    }
+    else
+    {
+      rosError(name_, "Failed to get minimum voltage limit of '" << name << "'.");
+      continue;
+    }
+
+    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPwmLimit, &pwm_limit) == 0)
+    {
+      cfg.pwm_limit = static_cast<double>(pwm_limit) * kDecodeFactorPwm;
+    }
+    else
+    {
+      rosError(name_, "Failed to get PWM limit of '" << name << "'.");
+      continue;
+    }
+
+    if (cfg.current_available)
+    {
+      if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrCurrentLimit, &current_limit) == 0)
+      {
+        cfg.current_limit = static_cast<double>(current_limit) * cfg.current_scaling_factor;
+      }
+      else
+      {
+        rosError(name_, "Failed to get current limit of '" << name << "'.");
+        continue;
+      }
+    }
+    else
+    {
+      cfg.current_limit = nan(kUnavailable);
+    }
+
+    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrAccelerationLimit, &acc_limit) == 0)
+    {
+      cfg.acc_limit = static_cast<double>(acc_limit) * kDecodeFactorAcc;
+    }
+    else
+    {
+      rosError(name_, "Failed to get acceleration limit of '" << name << "'.");
+      continue;
+    }
+
+    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrVelocityLimit, &vel_limit) == 0)
+    {
+      cfg.vel_limit = static_cast<double>(vel_limit) * kDecodeFactorVel;
+    }
+    else
+    {
+      rosError(name_, "Failed to get velocity limit of '" << name << "'.");
+      continue;
+    }
+
+    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0)
+    {
+      cfg.pos_limit.upper = static_cast<double>(max_pos_limit) * kDecodeFactorPos;
+    }
+    else
+    {
+      rosError(name_, "Failed to get maximum position limit of '" << name << "'.");
+      continue;
+    }
+
+    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0)
+    {
+      cfg.pos_limit.lower = static_cast<double>(min_pos_limit) * kDecodeFactorPos;
+    }
+    else
+    {
+      rosError(name_, "Failed to get minimum position limit of '" << name << "'.");
       continue;
     }
 
@@ -236,12 +343,12 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
     pos[name] = dh_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
 
     const int32_t vel_raw = vel_sync_read.getData(cfg.id, kAddrPresentVelocity, 4);
-    vel[name] = static_cast<double>(vel_raw) * kVelocityDecodeFactor;
+    vel[name] = static_cast<double>(vel_raw) * kDecodeFactorVel;
 
     const int16_t current_raw = current_sync_read.getData(cfg.id, kAddrPresentCurrent, 2);
     if (cfg.current_available)
     {
-      current[name] = static_cast<double>(current_raw) * cfg.current_scaling_factor / 1000;
+      current[name] = static_cast<double>(current_raw) * cfg.current_scaling_factor;
       load[name] = nan(kUnavailable);
     }
     else
@@ -284,13 +391,13 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
     for (const auto& [name, cfg] : motors_)
     {
       const int16_t pwm_raw = pos_sync_read.getData(cfg.id, kAddrPresentPwm, 2);
-      pwm[name] = static_cast<double>(pwm_raw) * 100 / 855;
+      pwm[name] = static_cast<double>(pwm_raw) * kDecodeFactorPwm;
 
       const uint16_t voltage_yaw = voltage_sync_read.getData(cfg.id, kAddrPresentInputVoltage, 2);
-      voltage[name] = static_cast<double>(voltage_yaw) * 0.1;
+      voltage[name] = static_cast<double>(voltage_yaw) * kDecodeFactorVoltage;
 
       const uint8_t temp_raw = temp_sync_read.getData(cfg.id, kAddrPresentTemperature, 1);
-      temp[name] = static_cast<double>(temp_raw) * 1;
+      temp[name] = static_cast<double>(temp_raw) * kDecodeFactorTemp;
     }
 
     // Create motor states message
@@ -355,8 +462,6 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
   for (size_t i = 0; i < size; ++i)
   {
     const auto& jnt_name = positions->name[i];
-    const auto& tar_pos = positions->data[i];
-
     if (!motors_.contains(jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -364,13 +469,21 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
     }
 
     const auto& cfg = motors_.at(jnt_name);
-
-    if (cfg.operating_mode == kPositionControlMode)
+    auto tar_pos = positions->data[i];
+    if (cfg.operating_mode == kControlModePosition)
+    {
+      if (cfg.pos_limit.clamp(tar_pos, tar_pos))
+        rosWarn(
+          name_, "Target position of joint '"
+                   << jnt_name << "' is out of limit. The value is clamped to " << tar_pos);
       goal_positions[i] = dh_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
+    }
     else if (
-      cfg.operating_mode == kExtendedPositionControlMode
-      || cfg.operating_mode == kCurrentBasePositionControlMode)
-      goal_positions[i] = tar_pos * (1 << 12) / (2 * M_PI);
+      cfg.operating_mode == kControlModeExtendedPosition
+      || cfg.operating_mode == kControlModeCurrentBasePosition)
+    {
+      goal_positions[i] = tar_pos / kDecodeFactorPos;
+    }
     else
     {
       rosError(name_, "The operating mode of joint '" << jnt_name << "' is not position.");
@@ -401,8 +514,6 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
   for (size_t i = 0; i < size; ++i)
   {
     const auto& jnt_name = velocities->name[i];
-    const auto& tar_vel = velocities->data[i];
-
     if (!motors_.contains(jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -410,14 +521,22 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
     }
 
     const auto& cfg = motors_.at(jnt_name);
-
-    if (cfg.operating_mode != kVelocityControlMode)
+    if (cfg.operating_mode != kControlModeVelocity)
     {
       rosError(name_, "The operating mode of joint '" << jnt_name << "' is not velocity.");
       continue;
     }
 
-    goal_velocities[i] = tar_vel / kVelocityDecodeFactor;
+    auto tar_vel = velocities->data[i];
+    if (abs(tar_vel) > cfg.vel_limit)
+    {
+      tar_vel = clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
+      rosWarn(
+        name_, "Target velocity of joint '"
+                 << jnt_name << "' is out of limit. The value is clamped to " << tar_vel);
+    }
+
+    goal_velocities[i] = tar_vel / kDecodeFactorVel;
     if (!vel_sync_write.addParam(cfg.id, (uint8_t*)&goal_velocities[i]))
       rosError(name_, "Failed to set goal velocity of joint '" << jnt_name << "'.");
   }
@@ -448,7 +567,7 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr&
 
     const auto& cfg = motors_.at(jnt_name);
 
-    if (cfg.operating_mode != kCurrentControlMode && cfg.operating_mode != kPwmControlMode)
+    if (cfg.operating_mode != kControlModeCurrent && cfg.operating_mode != kControlModePwm)
     {
       rosError(name_, "The operating mode of joint '" << jnt_name << "' is not effort.");
       continue;

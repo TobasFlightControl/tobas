@@ -1,8 +1,9 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
+#include <dynamixel_sdk/dynamixel_sdk.h>
 #include <sensor_msgs/JointState.h>
 
-#include <dynamixel_sdk/dynamixel_sdk.h>
+#include <dh_std_tools/range.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/JointPositions.h>
@@ -16,8 +17,17 @@ struct DynamixelConfig
 {
   uint8_t id;
   uint8_t operating_mode;
+
   bool current_available;
-  double current_scaling_factor;
+  double current_scaling_factor;  // code -> A
+
+  double temp_limit;                    // [degC]
+  dh_std::Range<double> voltage_limit;  // [V]
+  double pwm_limit;                     // [%]
+  double current_limit;                 // [A]
+  double acc_limit;                     // [rad/s^2]
+  double vel_limit;                     // [rad/s]
+  dh_std::Range<double> pos_limit;      // [rad]
 };
 
 class DynamixelHandler : public tobas::BaseNode
