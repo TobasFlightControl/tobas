@@ -57,9 +57,9 @@ class JointPositionsCommander(MainWidget):
                 jnt_name,
                 limit.lower,
                 limit.upper,
+                self._home_positions[jnt_name],
                 callback=partial(self._on_value_changed, idx=i),
             )
-            commander.update()
             self._commanders[jnt_name] = commander
             rows.addWidget(commander)
 
@@ -79,6 +79,8 @@ class JointPositionsCommander(MainWidget):
         rows.addWidget(self._random_button)
 
         add_spacer(rows)
+
+        self._cmd_pub.publish(self._cmd)
 
     def _get_params(self) -> None:
         num_joints = rospy.get_param("num_joints")

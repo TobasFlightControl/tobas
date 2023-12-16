@@ -38,9 +38,11 @@ class MotorTestGui(MainWidget):
         self._commanders: List[FloatSliderDisplay] = []
         for i in range(SERVO_RAIL_SIZE):
             commander = FloatSliderDisplay(
-                f"PIN {i + 1}", self.MIN_THROTTLE, self.MAX_THROTTLE
+                f"PIN {i + 1}",
+                self.MIN_THROTTLE,
+                self.MAX_THROTTLE,
+                self.MIN_THROTTLE,
             )
-            commander.set_value(self.MIN_THROTTLE)
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
             grid.addWidget(commander, i % self.MAX_ROWS, i // self.MAX_ROWS)
