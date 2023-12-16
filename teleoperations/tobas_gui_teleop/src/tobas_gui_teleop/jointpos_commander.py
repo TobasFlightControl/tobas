@@ -1,6 +1,6 @@
 import os.path as osp
 import rospy
-from typing import List
+from typing import List, Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
 from sensor_msgs.msg import JointState
@@ -25,6 +25,7 @@ class JointPositionsCommander(MainWidget):
 
         # rosparams
         self._jnt_names: List[str] = []
+        self._home_positions: Dict[str, float] = {}
         self._get_params()
 
         # The number of joints of which command is published
@@ -48,7 +49,7 @@ class JointPositionsCommander(MainWidget):
 
         # Commandersをセット
         robot: Robot = Robot.from_parameter_server("robot_description")
-        self._commanders: List[FloatSliderDisplay] = []
+        self._commanders: Dict[str, FloatSliderDisplay] = {}
         for i, jnt_name in enumerate(self._cmd.name):
             joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
@@ -59,7 +60,7 @@ class JointPositionsCommander(MainWidget):
                 callback=partial(self._on_value_changed, idx=i),
             )
             commander.update()
-            self._commanders.append(commander)
+            self._commanders[jnt_name] = commander
             rows.addWidget(commander)
 
         self._home_button = QPushButton("Home", parent=self)
@@ -83,7 +84,9 @@ class JointPositionsCommander(MainWidget):
         num_joints = rospy.get_param("num_joints")
         for i in range(num_joints):
             jnt_name = rospy.get_param(f"joint_{i}/name")
+            home_pos = rospy.get_param(f"joint_{i}/home_position")
             self._jnt_names.append(jnt_name)
+            self._home_positions[jnt_name] = home_pos
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float, idx: int) -> None:
@@ -95,8 +98,8 @@ class JointPositionsCommander(MainWidget):
         """全ての関節角をホームポジションに設定する．"""
         self.setEnabled(False)
 
-        for joint_cmd in self._commanders:
-            joint_cmd.set_value(0.0)  # TODO: 0以外がホームポジションになり得る？
+        for jnt_name in self._jnt_names:
+            self._commanders[jnt_name].set_value(self._home_positions[jnt_name])
 
         self.setEnabled(True)
 
@@ -105,7 +108,7 @@ class JointPositionsCommander(MainWidget):
         """全ての関節角を中央の値に設定する．"""
         self.setEnabled(False)
 
-        for joint_cmd in self._commanders:
+        for joint_cmd in self._commanders.values():
             joint_cmd.set_center_value()
 
         self.setEnabled(True)
@@ -115,7 +118,7 @@ class JointPositionsCommander(MainWidget):
         """全ての関節角をランダム値に設定する．"""
         self.setEnabled(False)
 
-        for joint_cmd in self._commanders:
+        for joint_cmd in self._commanders.values():
             joint_cmd.set_random_value()
 
         self.setEnabled(True)
