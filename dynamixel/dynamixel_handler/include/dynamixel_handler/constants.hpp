@@ -50,6 +50,7 @@ static constexpr char kDefaultDeviceName[] = "/dev/ttyUSB0";
 static constexpr float kDefaultProtocolVersion = 2.0;
 static constexpr size_t kDefaultBaudRate = 57600;      // [Hz]
 static constexpr uint8_t kDefaultReturnDelayTime = 0;  // [us]
+static constexpr bool kDefaultPublishMotorStates = false;
 static constexpr uint8_t kDefaultId = 1;
 static constexpr char kDefaultOperatingMode[] = "position";
 }  // namespace dynamixel_handler

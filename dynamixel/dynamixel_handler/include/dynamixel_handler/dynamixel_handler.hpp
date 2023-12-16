@@ -38,18 +38,18 @@ private:
 
   dynamixel_msgs::MotorState motor_state_;
 
-
   // rosparams
   ros::V_string jnt_names_;
   std::string device_name_;
   float protocol_version_;
   size_t baudrate_;
   uint8_t return_delay_time_;
+  bool publish_motor_states_;
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
-  ros::Publisher motor_states_pub_;
   ros::Publisher cur_js_pub_;
+  ros::Publisher motor_states_pub_;
   ros::Subscriber positions_sub_;
   ros::Subscriber velocities_sub_;
   ros::Subscriber efforts_sub_;
