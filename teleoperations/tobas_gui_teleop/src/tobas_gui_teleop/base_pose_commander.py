@@ -70,36 +70,42 @@ class BasePoseCommander(MainWidget):
             "x",
             self._x_min,
             self._x_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_y = FloatSliderDisplay(
             "y",
             self._y_min,
             self._y_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_z = FloatSliderDisplay(
             "z",
             self._z_min,
             self._z_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_roll = FloatSliderDisplay(
             "roll",
             self._roll_min,
             self._roll_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_pitch = FloatSliderDisplay(
             "pitch",
             self._pitch_min,
             self._pitch_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_yaw = FloatSliderDisplay(
             "yaw",
             self._yaw_min,
             self._yaw_max,
+            0.0,
             callback=self._publish_current_command,
         )
         rows.addWidget(self._cmd_x)
