@@ -14,13 +14,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_multirotor_takeoff
 )
-find_package(X11 REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS tobas_multirotor_takeoff
-	DEPENDS X11
 )
 
 include_directories(${catkin_INCLUDE_DIRS})
@@ -28,7 +26,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 # ライブラリを作成
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${X11_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # ノードの実行ファイルを作成
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)

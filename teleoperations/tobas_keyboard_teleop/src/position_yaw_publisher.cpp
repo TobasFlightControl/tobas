@@ -17,6 +17,7 @@
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
+using namespace dh_std;
 
 namespace tobas_keyboard_teleop
 {
@@ -36,7 +37,7 @@ PositionYawPublisher::PositionYawPublisher(
 
   getRosParams();
 
-  const auto repeat_interval = dh_std::getKeyboardRepeatInterval() * 1e-3;  // ms -> s
+  const auto repeat_interval = getKeyboardRepeatInterval() * 1e-3;  // ms -> s
   rosInfo(name_, "Keyboard repeat interval is " << repeat_interval << " [s].");
 
   delta_pos_ = max_linvel_ * repeat_interval;
@@ -96,6 +97,9 @@ void PositionYawPublisher::run()
 
     // キーボード入力に依ってコマンドを更新
     const auto c = key_reader_.readKey();
+    if (c < 0)
+      rosError(name_, "Failed to read keyboard.");
+
     switch (c)
     {
       case kKeyCode_W:  // X+

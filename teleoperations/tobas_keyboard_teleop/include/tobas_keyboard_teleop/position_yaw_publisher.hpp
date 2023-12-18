@@ -14,7 +14,7 @@ namespace tobas_keyboard_teleop
 class PositionYawPublisher : public tobas::BaseNode
 {
   static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
-  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
+  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad/s]
   static constexpr double kDefaultMinimumX = -10.;              // [m]
   static constexpr double kDefaultMaximumX = +10.;              // [m]
   static constexpr double kDefaultMinimumY = -10.;              // [m]

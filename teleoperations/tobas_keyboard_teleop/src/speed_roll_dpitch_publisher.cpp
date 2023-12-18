@@ -16,6 +16,7 @@
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
+using namespace dh_std;
 
 namespace tobas_keyboard_teleop
 {
@@ -46,7 +47,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   trim_.updateInternalDataStructures();
   q_0_.resize(drone_.tree().getNrOfJoints());
 
-  const auto repeat_interval = dh_std::getKeyboardRepeatInterval() * 1e-3;  // ms -> s
+  const auto repeat_interval = getKeyboardRepeatInterval() * 1e-3;  // ms -> s
   rosInfo(name_, "Keyboard repeat interval is " << repeat_interval << " [s].");
 
   delta_speed_ = max_linacc_ * repeat_interval;
@@ -84,6 +85,9 @@ void SpeedRollDeltaPitchPublisher::run()
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
+    if (c < 0)
+      rosError(name_, "Failed to read keyboard.");
+
     switch (c)
     {
       case kKeyCode_W:
@@ -190,7 +194,7 @@ void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& even
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
 {
-  air_density_ = dh_std::pressureToDensity(msg->fluid_pressure);
+  air_density_ = pressureToDensity(msg->fluid_pressure);
 
   if (!pressure_received_)
     pressure_received_ = true;
