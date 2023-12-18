@@ -4,14 +4,12 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <dh_std_tools/range.hpp>
+#include <dh_std_tools/keyboard_reader.hpp>
 #include <dh_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/trim_conditions.hpp>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
-
-#include "../../include/tobas_keyboard_teleop/x11.hpp"
-#include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
 
 namespace tobas_keyboard_teleop
 {
@@ -39,8 +37,7 @@ public:
 private:
   tobas::Drone drone_;
   tobas::TrimConditions trim_;
-  const XkbControlsPtr keyboard_;
-  KeyboardReader key_reader_;
+  dh_std::KeyboardReader key_reader_;
 
   // 固定値
   std::string instruction_;

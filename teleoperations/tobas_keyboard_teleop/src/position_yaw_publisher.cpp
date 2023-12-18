@@ -1,6 +1,7 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/x11.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -23,7 +24,7 @@ PositionYawPublisher::PositionYawPublisher(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name), keyboard_(getKeyboardControls())
+  : super(nh, pnh, name)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -35,8 +36,8 @@ PositionYawPublisher::PositionYawPublisher(
 
   getRosParams();
 
-  const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
-  rosInfo(name_, "Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
+  const auto repeat_interval = dh_std::getKeyboardRepeatInterval() * 1e-3;  // ms -> s
+  rosInfo(name_, "Keyboard repeat interval is " << repeat_interval << " [s].");
 
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;

@@ -1,12 +1,10 @@
 #pragma once
 
 #include <dh_std_tools/range.hpp>
+#include <dh_std_tools/keyboard_reader.hpp>
 #include <dh_kdl/frames.hpp>
 
 #include <tobas_tools/node.hpp>
-
-#include "../../include/tobas_keyboard_teleop/x11.hpp"
-#include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
 
 namespace tobas_keyboard_teleop
 {
@@ -38,8 +36,7 @@ public:
   void run();
 
 private:
-  const XkbControlsPtr keyboard_;
-  KeyboardReader key_reader_;
+  dh_std::KeyboardReader key_reader_;
 
   KDL::Vector cmd_pos_;
   double cmd_yaw_;

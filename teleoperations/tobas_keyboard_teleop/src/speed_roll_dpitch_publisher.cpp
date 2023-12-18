@@ -5,6 +5,7 @@
 
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_std_tools/x11.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -24,7 +25,6 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   const string& name)
   : super(nh, pnh, name),
     trim_(drone_),
-    keyboard_(getKeyboardControls()),
     check_topics_timer_(
       nh_,
       tobas::kCheckTopicsTimerPeriod,
@@ -46,8 +46,8 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   trim_.updateInternalDataStructures();
   q_0_.resize(drone_.tree().getNrOfJoints());
 
-  const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
-  rosInfo(name_, "Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
+  const auto repeat_interval = dh_std::getKeyboardRepeatInterval() * 1e-3;  // ms -> s
+  rosInfo(name_, "Keyboard repeat interval is " << repeat_interval << " [s].");
 
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
