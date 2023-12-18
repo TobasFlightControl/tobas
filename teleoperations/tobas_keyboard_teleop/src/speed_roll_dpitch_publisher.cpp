@@ -45,11 +45,9 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   drone_.loadFromParam(nh_);
 
   trim_.updateInternalDataStructures();
-  q_0_.resize(drone_.tree().getNrOfJoints());
+  q_0_ = KDL::JntArray::Zero(drone_.tree().getNrOfJoints());
 
   const auto repeat_interval = getKeyboardRepeatInterval() * 1e-3;  // ms -> s
-  rosInfo(name_, "Keyboard repeat interval is " << repeat_interval << " [s].");
-
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 

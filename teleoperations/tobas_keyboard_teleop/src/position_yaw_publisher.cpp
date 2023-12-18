@@ -38,8 +38,6 @@ PositionYawPublisher::PositionYawPublisher(
   getRosParams();
 
   const auto repeat_interval = getKeyboardRepeatInterval() * 1e-3;  // ms -> s
-  rosInfo(name_, "Keyboard repeat interval is " << repeat_interval << " [s].");
-
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
