@@ -2,6 +2,8 @@
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/unix.hpp>
+#include <dh_std_tools/unordered_map.hpp>
+#include <dh_std_tools/unordered_set.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
@@ -133,7 +135,7 @@ void DynamixelHandler::getMotorConfigs()
   {
     // ID
     dh_ros::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
-    if (used_ids.contains(cfg.id))
+    if (dh_std::contains(used_ids, cfg.id))
     {
       rosError(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
       continue;
@@ -462,7 +464,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
   for (size_t i = 0; i < size; ++i)
   {
     const auto& jnt_name = positions->name[i];
-    if (!motors_.contains(jnt_name))
+    if (!dh_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
@@ -514,7 +516,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
   for (size_t i = 0; i < size; ++i)
   {
     const auto& jnt_name = velocities->name[i];
-    if (!motors_.contains(jnt_name))
+    if (!dh_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
@@ -559,7 +561,7 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr&
   {
     const auto& jnt_name = efforts->name[i];
 
-    if (!motors_.contains(jnt_name))
+    if (!dh_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
