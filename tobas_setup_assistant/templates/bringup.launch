@@ -23,10 +23,10 @@
   </include>
 
   <!-- Launch joint controller -->
-  <!-- <include file="$(find {{ pkg_name }})/launch/joint_control.launch">
+  <include file="$(find {{ pkg_name }})/launch/joint_control.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
     <arg name="ground_truth" value="$(arg ground_truth)"/>
-  </include> -->
+  </include>
 
   <!-- Launch state checker -->
   <group ns="{{ drone_name }}">

@@ -134,6 +134,7 @@ class AvailableLinksWidget(QListWidget):
         以下の条件を満たすリンクの名前の配列を返す．
         - 回転関節 (Revolute) をもつ．
         - リミットが正しく設定されている．
+        - Transmissionをもたない．
         - エンドリンクである．
         - 親リンクがルートリンクに固定されている．
         """
@@ -157,6 +158,10 @@ class AvailableLinksWidget(QListWidget):
             if joint.limit.velocity <= 0.0:
                 continue
             if joint.limit.effort <= 0.0:
+                continue
+
+            # Transmissionをもたない
+            if self._main.urdf_parser.hardware_interface(joint.name) != None:
                 continue
 
             # エンドリンクである
@@ -233,7 +238,7 @@ class SelectedLinksWidget(QTableWidget):
     COL_WIDTH = 120
     COEF_DECIMALS = 6
     ANGLE_LIMIT = math.pi / 4
-    LABELS = [
+    LABELS = (
         "Link Name",
         "Joint Name",
         "Min Angle",
@@ -245,7 +250,7 @@ class SelectedLinksWidget(QTableWidget):
         "Roll Coef",
         "Pitch Coef",
         "Yaw Coef",
-    ]
+    )
 
     link_added = pyqtSignal(str)
 

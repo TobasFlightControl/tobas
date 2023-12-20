@@ -38,7 +38,8 @@ class AvailableLinksWidget(QListWidget):
     def _add_available_links(self) -> None:
         """
         以下の条件を満たすリンクを推進系候補としてリストに追加する．
-        - continuousタイプのジョイントをもつ．
+        - 回転関節 (continuous) をもつ．
+        - Transmissionをもたない．
         - 回転軸が常にZ軸と一致している．
         """
         urdf_parser = self._main.urdf_parser
@@ -48,9 +49,13 @@ class AvailableLinksWidget(QListWidget):
             if link.name == root_link.name:
                 continue
 
-            # 無制限回転のみ
+            # Continuousのみ
             joint = urdf_parser.get_joint(link.name)
             if joint.type != JointType.CONTINUOUS:
+                continue
+
+            # Transmissionをもたない
+            if urdf_parser.hardware_interface(joint.name) != None:
                 continue
 
             # リンク名をリストに追加

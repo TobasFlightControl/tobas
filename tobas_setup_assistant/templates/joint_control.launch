@@ -1,0 +1,14 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <group ns="f550_np_rmx52">
+    <!-- <include file="$(find tobas_manipulation)/launch/effort_controller.launch"> -->
+    <include file="$(find tobas_manipulation)/launch/velocity_controller.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
+    </include>
+  </group>
+
+</launch>

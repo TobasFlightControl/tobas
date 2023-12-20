@@ -10,7 +10,6 @@ import os.path as osp
 import yaml
 import rospy
 import shutil
-from typing import List
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 from PyQt5.QtCore import *
@@ -19,11 +18,9 @@ from PyQt5.QtGui import *
 
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
-from urdf_tools_py.utils import remove_elements_with_tag
 from dh_rqt_tools.path import get_proj_path, resolve_uri
-from dh_rqt_tools.messages import q_info
+from dh_rqt_tools.messages import q_info, q_error
 from dh_rqt_tools.xml import prettify_and_save
-from kdl_sympy.joint import JointType
 
 from tobas_msgs.msg import *
 
@@ -32,11 +29,6 @@ from .xml_nodes import *
 
 
 class PackageGenerator(QObject):
-    # TODO: ゲインを設定するページ
-    DEFAULT_P_GAIN = 100.0
-    DEFAULT_I_GAIN = 0.1
-    DEFAULT_D_GAIN = 1.0
-
     generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
@@ -83,6 +75,9 @@ class PackageGenerator(QObject):
         if not self._main.settings.fixed_wing.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.fixed_wing)
             return False
+        if not self._main.settings.custom_joints.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.custom_joints)
+            return False
         if not self._main.settings.imu.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.imu)
             return False
@@ -121,6 +116,19 @@ class PackageGenerator(QObject):
             return False
         if not self._main.settings.ros_package.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.ros_package)
+            return False
+
+        # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを保証
+        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
+        cs_jnt_names = (
+            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
+        )
+        custom_jnt_names = self._main.settings.custom_joints.joint_names()
+        if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
+            q_error(
+                self,
+                "The joints set in the propulsion system, control surfaces, and custom joints are duplicated.",
+            )
             return False
 
         return True
@@ -194,6 +202,9 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+        )
+        self._generate_from_template(
+            items, "joint_control.launch", osp.join(launch_dir, "joint_control.launch")
         )
         self._generate_from_template(
             items,
@@ -277,8 +288,10 @@ class PackageGenerator(QObject):
         template_items["pkg_name"] = ros_pkg.pkg_name.get()
 
         # Joint Controllers
+        custom_joints = settings.custom_joints
         joint_controllers = "joint_state_controller"
-        for jnt_name in self._posture_defining_joint_names():
+        for i in range(custom_joints.count()):
+            jnt_name = custom_joints.joint_name(i)
             joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
@@ -295,18 +308,6 @@ class PackageGenerator(QObject):
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
         drone_config = dict()
-
-        # Joints
-        jnt_names = self._posture_defining_joint_names()
-        num_joints = len(jnt_names)
-        drone_config["num_joints"] = num_joints
-        for i in range(num_joints):
-            drone_config[f"joint_{i}"] = {
-                "name": jnt_names[i],
-                "home_position": 0.0,  # TODO
-                "min_position": -1e9,  # TODO
-                "max_position": 1e9,  # TODO
-            }
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
@@ -391,6 +392,18 @@ class PackageGenerator(QObject):
                     "c_yaw_delta": cs.c_yaw_delta,
                 }
 
+        # Joints
+        custom_joints = self._main.settings.custom_joints
+        num_joints = custom_joints.count()
+        drone_config["num_joints"] = num_joints
+        for i in range(num_joints):
+            drone_config[f"joint_{i}"] = {
+                "name": custom_joints.joint_name(i),
+                "home_position": custom_joints.home_position(i),
+                "min_position": custom_joints.min_position(i),
+                "max_position": custom_joints.max_position(i),
+            }
+
         # TBSFファイルを作成
         drone_config_path = osp.join(config_dir, f"{self._drone_name}.tbsf")
         with open(drone_config_path, "w") as f:
@@ -401,24 +414,30 @@ class PackageGenerator(QObject):
         items = dict()
         items["joint_state_controller"] = {
             "type": "joint_state_controller/JointStateController",
-            "publish_rate": 1000.0,
+            "publish_rate": 1000,
         }
         items["gazebo_ros_control"] = {"pid_gains": dict()}
-        for jnt_name in self._posture_defining_joint_names():
-            items[f"{jnt_name}_controller"] = {
-                "type": "effort_controllers/JointEffortController",
+
+        custom_joints = self._main.settings.custom_joints
+        for i in range(custom_joints.count()):
+            jnt_name = custom_joints.joint_name(i)
+            controller_name = f"{jnt_name}_controller"
+            items[controller_name] = {
                 "joint": jnt_name,
-                # "pid": {
-                #     "p": self.DEFAULT_P_GAIN,
-                #     "i": self.DEFAULT_I_GAIN,
-                #     "d": self.DEFAULT_D_GAIN,
-                # },
+                "type": custom_joints.control_type(i),
             }
-            # items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
-            #     "p": self.DEFAULT_P_GAIN,
-            #     "i": self.DEFAULT_I_GAIN,
-            #     "d": self.DEFAULT_D_GAIN,
-            # }
+
+            if custom_joints.pid_enabled(i):
+                items[controller_name]["pid"] = {
+                    "p": custom_joints.p_gain(i),
+                    "i": custom_joints.i_gain(i),
+                    "d": custom_joints.d_gain(i),
+                }
+                items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
+                    "p": custom_joints.p_gain(i),
+                    "i": custom_joints.i_gain(i),
+                    "d": custom_joints.d_gain(i),
+                }
 
         # yamlファイルを作成
         jnt_ctrl_path = osp.join(config_dir, "joint_control.yaml")
@@ -491,9 +510,6 @@ class PackageGenerator(QObject):
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
-        # transmissionは問答無用で消す
-        remove_elements_with_tag(robot, "transmission")
-
         # gazeboタグの場合はその子ノードを確認する
         for gazebo in robot.iter("gazebo"):
             for child in gazebo:
@@ -794,25 +810,3 @@ class PackageGenerator(QObject):
         # ROS Control
         ros_control = GazeboRosControl(self._drone_name)
         robot.append(ros_control)
-
-        # Transmissions
-        for jnt_name in self._posture_defining_joint_names():
-            transmission = Transmission(jnt_name, interface=Transmission.EFFORT)
-            robot.append(transmission)
-
-    def _posture_defining_joint_names(self) -> List[str]:
-        """ロボットの形状を決めるのに必要な関節名のリストを返す．"""
-        # 固定翼機の車輪などのTransmissionがシミュレーションに悪影響なので，continuousは含めない
-        # TODO: いずれは選択制にする (それでもcontinuousは除くべきかも)
-        urdf_parser = self._main.urdf_parser
-        revolute_joints = set(urdf_parser.search_joint_type(JointType.REVOLUTE))
-        prismatic_joints = set(urdf_parser.search_joint_type(JointType.PRISMATIC))
-        mobile_joints = revolute_joints | prismatic_joints
-
-        prop_joints = set(self._main.settings.propulsion_system.selected.joint_names())
-        cs_joints = set(
-            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
-        )
-
-        # set演算では"|"よりも"-"が優先されることに注意
-        return list(mobile_joints - prop_joints - cs_joints)
