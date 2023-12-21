@@ -63,14 +63,16 @@ static constexpr size_t kPwmNeutral = 1500;   // [us]
 static constexpr size_t kPwmDisarm = 900;     // [us]
 static constexpr size_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kArmThrottle;  // [us]
 
-static constexpr size_t kRcChannelRoll = 0;
-static constexpr size_t kRcChannelPitch = 1;
-static constexpr size_t kRcChannelThrust = 2;
-static constexpr size_t kRcChannelYaw = 3;
-static constexpr size_t kRcChannelMode = 4;
-static constexpr size_t kRcChannelEStop = 5;
-static constexpr size_t kRcChannelGPSw1 = 6;
-static constexpr size_t kRcChannelGPSw2 = 7;
+// RCチャンネル
+// フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
+static constexpr size_t kRcChannelRoll = 0;    // CH1
+static constexpr size_t kRcChannelPitch = 1;   // CH2
+static constexpr size_t kRcChannelThrust = 2;  // CH3
+static constexpr size_t kRcChannelYaw = 3;     // CH4
+static constexpr size_t kRcChannelMode = 4;    // CH5
+static constexpr size_t kRcChannelEStop = 6;   // CH7
+static constexpr size_t kRcChannelGPSw1 = 7;   // CH8
+static constexpr size_t kRcChannelGPSw2 = 8;   // CH9
 
 static constexpr size_t kWaitToRefreshBarometer = 10000;  // [us]
 static constexpr double kDisarmDuration = 3.;             // [s]
