@@ -32,9 +32,6 @@ ControllerRos::ControllerRos(
   js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
 
-  if (!js_converter_.setJointNames(drone_.postureDefiningJointNames()))
-    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
-
   registerPublishers();
   registerSubscribers();
 

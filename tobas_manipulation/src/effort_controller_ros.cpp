@@ -4,7 +4,6 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/conversions/kdl_msg.hpp>
-#include <tobas_msgs/JointEfforts.h>
 
 #include "../include/tobas_manipulation/effort_controller_ros.hpp"
 #include "../include/tobas_manipulation/common.hpp"
@@ -21,6 +20,7 @@ EffortControllerRos::EffortControllerRos(
   : super(nh, pnh, name),
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
+    active_jnts_extractor_(drone_.tree()),
     pid_(drone_.tree()),
     server_(pnh_)
 {
@@ -31,23 +31,7 @@ EffortControllerRos::EffortControllerRos(
   tar_js_conv_.updateInternalDataStructures();
   pid_.updateInternalDataStructures();
 
-  if (!cur_js_conv_.setJointNames(drone_.postureDefiningJointNames()))
-    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
-  if (!tar_js_conv_.setJointNames(drone_.postureDefiningJointNames()))
-    ROS_THROW_NAMED(name_, "Failed to set joint names to joint converter.");
-
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
-
-  // Set initial target joint states
-  sensor_msgs::JointState init_tar_js;
-  for (const auto& joint : drone_.jointConfigs())
-  {
-    init_tar_js.name.push_back(joint.name);
-    init_tar_js.position.push_back(joint.home_pos);
-    init_tar_js.velocity.push_back(0.);
-    init_tar_js.effort.push_back(0.);
-  }
-  tar_js_ = boost::make_shared<sensor_msgs::JointState>(init_tar_js);
 
   registerPublishers();
   registerSubscribers();
@@ -70,14 +54,19 @@ void EffortControllerRos::registerSubscribers()
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ =
-    nh_.subscribe(tobas::kJointStatesCmdTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ =
-    nh_.subscribe(tobas::kCartStatesCmdTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+  tar_js_sub_ = nh_.subscribe(kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_cs_sub_ = nh_.subscribe(kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
 }
 
-int EffortControllerRos::jointSpaceControl(JntArray& efforts)
+int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
 {
+  // JointState -> JntArray
+  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  {
+    rosError(
+      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
+    return -1;
+  }
   if (tar_js_conv_.jointStateToJntArray(*tar_js_) < 0)
   {
     rosError(
@@ -96,13 +85,32 @@ int EffortControllerRos::jointSpaceControl(JntArray& efforts)
     rosError(name_, "Joint space PID failed: " << pid_.errorMessage());
     return -1;
   }
-  efforts = tar_js_conv_.getEffortsKDL() + pid_.getEfforts();  // FF + FB
+  const auto efforts = tar_js_conv_.getEffortsKDL() + pid_.getEfforts();  // FF + FB
+
+  // JntArray -> JointState
+  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, tar_js_->name) < 0)
+  {
+    rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
+    return -1;
+  }
+
+  // Fill output message
+  efforts_msg.name = tar_js_conv_.getNamesMsg();
+  efforts_msg.data = tar_js_conv_.getVelocitiesMsg();
 
   return 0;
 }
 
-int EffortControllerRos::taskSpaceControl(JntArray& efforts)
+int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
 {
+  // JointState -> JntArray
+  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  {
+    rosError(
+      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
+    return -1;
+  }
+
   // デカルト座標系の目標値を更新
   Frame tar_pi, T_W_B;
   FrameMap tar_p;
@@ -172,7 +180,20 @@ int EffortControllerRos::taskSpaceControl(JntArray& efforts)
     rosError(name_, "Cartesian PID failed: " << pid.errorMessage());
     return -1;
   }
-  efforts = pid.getEfforts();
+  const auto& efforts = pid.getEfforts();
+
+  // JntArray -> JointState
+  active_jnts_extractor_.solve(tar_cs_->name);
+  const auto& active_joints = active_jnts_extractor_.activeJointNames();
+  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, active_joints) < 0)
+  {
+    rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
+    return -1;
+  }
+
+  // Fill output message
+  efforts_msg.name = tar_js_conv_.getNamesMsg();
+  efforts_msg.data = tar_js_conv_.getVelocitiesMsg();
 
   return 0;
 }
@@ -201,24 +222,18 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   if (tar_js_ == nullptr && tar_cs_ == nullptr)
     return;
 
-  // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
-  {
-    rosError(
-      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
-    return;
-  }
+  // Create joint efforts command
+  const auto efforts_msg = boost::make_shared<tobas_msgs::JointEfforts>();
 
   // Joint space control or Task space control
-  JntArray efforts;
   if (tar_js_ != nullptr)
   {
-    if (jointSpaceControl(efforts) < 0)
+    if (jointSpaceControl(*efforts_msg) < 0)
       return;
   }
   else if (tar_cs_ != nullptr)
   {
-    if (taskSpaceControl(efforts) < 0)
+    if (taskSpaceControl(*efforts_msg) < 0)
       return;
   }
   else
@@ -227,17 +242,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
     return;
   }
 
-  // JntArray -> JointState
-  if (cur_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts) < 0)
-  {
-    rosError(name_, "Failed to convert Jntarray to JointState: " << cur_js_conv_.errorMessage());
-    return;
-  }
-
-  // コマンドを発行
-  auto efforts_msg = boost::make_shared<tobas_msgs::JointEfforts>();
-  efforts_msg->name = cur_js_conv_.getNamesMsg();
-  efforts_msg->data = cur_js_conv_.getEffortsMsg();
+  // Publish joint efforts command
   efforts_pub_.publish(efforts_msg);
 }
 

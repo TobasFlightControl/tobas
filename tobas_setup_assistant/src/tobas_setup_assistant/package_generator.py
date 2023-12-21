@@ -402,6 +402,7 @@ class PackageGenerator(QObject):
                 "home_position": custom_joints.home_position(i),
                 "min_position": custom_joints.min_position(i),
                 "max_position": custom_joints.max_position(i),
+                "command_type": custom_joints.command_type(i),
             }
 
         # TBSFファイルを作成
@@ -424,7 +425,7 @@ class PackageGenerator(QObject):
             controller_name = f"{jnt_name}_controller"
             items[controller_name] = {
                 "joint": jnt_name,
-                "type": custom_joints.control_type(i),
+                "type": custom_joints.controller_type(i),
             }
 
             if custom_joints.pid_enabled(i):

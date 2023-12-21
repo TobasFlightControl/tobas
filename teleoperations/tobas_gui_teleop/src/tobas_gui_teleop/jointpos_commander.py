@@ -1,6 +1,6 @@
 import os.path as osp
 import rospy
-from typing import List, Dict
+from typing import Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
 from sensor_msgs.msg import JointState
@@ -11,10 +11,16 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 from dh_rqt_tools.path import get_proj_path
 
+from tobas_msgs.msg import JointPositions
+
 from .common import *
 
 
 class JointPositionsCommander(MainWidget):
+    POSITION = "position"
+    VELOCITY = "velocity"
+    EFFORT = "effort"
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -24,23 +30,40 @@ class JointPositionsCommander(MainWidget):
         self.setWindowTitle("Joint State Commander")
 
         # rosparams
-        self._jnt_names: List[str] = []
         self._home_positions: Dict[str, float] = {}
+        self._cmd_types: Dict[str, str] = {}
         self._get_params()
 
-        # The number of joints of which command is published
-        nj = len(self._jnt_names)
-
         # コマンド
-        self._cmd = JointState()
-        self._cmd.name = sorted(self._jnt_names)
-        self._cmd.position = [0] * nj
-        self._cmd.velocity = [0] * nj
-        self._cmd.effort = [0] * nj
+        self._tar_pos = JointPositions()
+        self._tar_js_vel = JointState()
+        self._tar_js_eff = JointState()
+        for jnt_name, cmd_type in self._cmd_types.items():
+            if cmd_type == self.POSITION:
+                self._tar_pos.name.append(jnt_name)
+                self._tar_pos.data.append(0)
+            elif cmd_type == self.VELOCITY:
+                self._tar_js_vel.name.append(jnt_name)
+                self._tar_js_vel.position.append(0)
+                self._tar_js_vel.velocity.append(0)
+                self._tar_js_vel.effort.append(0)
+            elif cmd_type == self.EFFORT:
+                self._tar_js_eff.name.append(jnt_name)
+                self._tar_js_eff.position.append(0)
+                self._tar_js_eff.velocity.append(0)
+                self._tar_js_eff.effort.append(0)
+            else:
+                raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 
-        # Publisher
-        self._cmd_pub = rospy.Publisher(
-            "command/joint_states", JointState, queue_size=1
+        # Publishers
+        self._tar_pos_pub = rospy.Publisher(
+            "command/joint_positions", JointPositions, queue_size=1
+        )
+        self._tar_js_vel_pub = rospy.Publisher(
+            "joint_velocity_controller/target_joint_states", JointState, queue_size=1
+        )
+        self._tar_js_eff_pub = rospy.Publisher(
+            "joint_effort_controller/target_joint_states", JointState, queue_size=1
         )
 
         # メインレイアウト
@@ -50,7 +73,7 @@ class JointPositionsCommander(MainWidget):
         # Commandersをセット
         robot: Robot = Robot.from_parameter_server("robot_description")
         self._commanders: Dict[str, FloatSliderDisplay] = {}
-        for i, jnt_name in enumerate(self._cmd.name):
+        for jnt_name in self._cmd_types.keys():
             joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
             commander = FloatSliderDisplay(
@@ -58,7 +81,7 @@ class JointPositionsCommander(MainWidget):
                 limit.lower,
                 limit.upper,
                 self._home_positions[jnt_name],
-                callback=partial(self._on_value_changed, idx=i),
+                callback=partial(self._on_value_changed, jnt_name=jnt_name),
             )
             self._commanders[jnt_name] = commander
             rows.addWidget(commander)
@@ -80,28 +103,45 @@ class JointPositionsCommander(MainWidget):
 
         add_spacer(rows)
 
-        self._cmd_pub.publish(self._cmd)
+        self._tar_pos_pub.publish(self._tar_pos)
+        self._tar_js_vel_pub.publish(self._tar_js_vel)
+        self._tar_js_eff_pub.publish(self._tar_js_eff)
 
     def _get_params(self) -> None:
         num_joints = rospy.get_param("num_joints")
         for i in range(num_joints):
             jnt_name = rospy.get_param(f"joint_{i}/name")
             home_pos = rospy.get_param(f"joint_{i}/home_position")
-            self._jnt_names.append(jnt_name)
+            cmd_type = rospy.get_param(f"joint_{i}/command_type")
             self._home_positions[jnt_name] = home_pos
+            self._cmd_types[jnt_name] = cmd_type
 
     @pyqtSlot(float)
-    def _on_value_changed(self, value: float, idx: int) -> None:
-        self._cmd.position[idx] = value
-        self._cmd_pub.publish(self._cmd)
+    def _on_value_changed(self, value: float, jnt_name: str) -> None:
+        cmd_type = self._cmd_types[jnt_name]
+
+        if cmd_type == self.POSITION:
+            idx = self._tar_pos.name.index(jnt_name)
+            self._tar_pos.data[idx] = value
+            self._tar_pos_pub.publish(self._tar_pos)
+        elif cmd_type == self.VELOCITY:
+            idx = self._tar_js_vel.name.index(jnt_name)
+            self._tar_js_vel.position[idx] = value
+            self._tar_js_vel_pub.publish(self._tar_js_vel)
+        elif cmd_type == self.EFFORT:
+            idx = self._tar_js_eff.name.index(jnt_name)
+            self._tar_js_eff.position[idx] = value
+            self._tar_js_eff_pub.publish(self._tar_js_eff)
+        else:
+            raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 
     @pyqtSlot()
     def _on_home_button_clicked(self) -> None:
         """全ての関節角をホームポジションに設定する．"""
         self.setEnabled(False)
 
-        for jnt_name in self._jnt_names:
-            self._commanders[jnt_name].set_value(self._home_positions[jnt_name])
+        for jnt_name, home_pos in self._home_positions.items():
+            self._commanders[jnt_name].set_value(home_pos)
 
         self.setEnabled(True)
 

@@ -111,12 +111,23 @@ JointConfig Drone::getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx)
   JointConfig res;
 
   dh_ros::getParam(nh, prefix + "/name", res.name);
+
   dh_ros::getParam(nh, prefix + "/home_position", res.home_pos);
   dh_ros::getParam(nh, prefix + "/min_position", res.min_pos);
   dh_ros::getParam(nh, prefix + "/max_position", res.max_pos);
-
   if (!(res.min_pos <= res.home_pos && res.home_pos <= res.max_pos))
     ROS_THROW("Invalid value for joint '" << res.name << "'.");
+
+  string cmd_type;
+  dh_ros::getParam(nh, prefix + "/command_type", cmd_type);
+  if (cmd_type == "position")
+    res.cmd_type = JointConfig::POSITION;
+  else if (cmd_type == "velocity")
+    res.cmd_type = JointConfig::VELOCITY;
+  else if (cmd_type == "effort")
+    res.cmd_type = JointConfig::EFFORT;
+  else
+    ROS_THROW("Invalid command type: " << cmd_type);
 
   return res;
 }

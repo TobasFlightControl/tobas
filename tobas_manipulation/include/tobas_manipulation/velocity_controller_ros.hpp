@@ -4,11 +4,13 @@
 #include <sensor_msgs/JointState.h>
 
 #include <dh_kdl/treejointstateconverter.hpp>
+#include <dh_kdl/treeactivejointsextractor.hpp>
 #include <dh_kdl/treetaskspacevelctrl.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/JointVelocities.h>
 #include <tobas_msgs/CartesianState.h>
 
 #include <tobas_manipulation/VelocityControllerConfig.h>
@@ -33,6 +35,7 @@ private:
   tobas::Drone drone_;
   KDL::TreeJointStateConverter cur_js_conv_;
   KDL::TreeJointStateConverter tar_js_conv_;
+  KDL::TreeActiveJointsExtractor active_jnts_extractor_;
 
   KDL::JntArray jntarraynull_;
   double jnt_time_const_;
@@ -59,8 +62,8 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  int jointSpaceControl(KDL::JntArray& velocities);
-  int taskSpaceControl(KDL::JntArray& velocities);
+  int jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
+  int taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

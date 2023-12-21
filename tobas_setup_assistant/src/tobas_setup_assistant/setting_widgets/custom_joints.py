@@ -21,9 +21,9 @@ from .base_setting import BaseSettingWidget
 class CustomJointsWidget(BaseSettingWidget):
     NAME = "Custom Joints"
 
-    POSITION_CTRL = "Position"
-    VELOCITY_CTRL = "Velocity"
-    EFFORT_CTRL = "Effort"
+    POSITION = "position"
+    VELOCITY = "velocity"
+    EFFORT = "effort"
 
     DEFAULT_P_GAIN = 10.0
     DEFAULT_I_GAIN = 0.1
@@ -89,7 +89,11 @@ class CustomJointsWidget(BaseSettingWidget):
         max_pos: DoubleSpinBox = self._table.cellWidget(row, 3)
         return max_pos.value()
 
-    def control_type(self, row: int) -> str:
+    def command_type(self, row: int) -> str:
+        cmd_type: ComboBox = self._table.cellWidget(row, 4)
+        return cmd_type.currentText()
+
+    def controller_type(self, row: int) -> str:
         jnt_name = self.joint_name(row)
         hi = self._main.urdf_parser.hardware_interface(jnt_name)
         if hi == HardwareInterface.POSITION:
@@ -101,13 +105,12 @@ class CustomJointsWidget(BaseSettingWidget):
         else:
             raise RuntimeError()
 
-        ctrl_type: ComboBox = self._table.cellWidget(row, 4)
-        ctrl_type_text = ctrl_type.currentText()
-        if ctrl_type_text == self.POSITION_CTRL:
+        cmd_type: str = self.command_type(row)
+        if cmd_type == self.POSITION:
             controller = "JointPositionController"
-        elif ctrl_type_text == self.VELOCITY_CTRL:
+        elif cmd_type == self.VELOCITY:
             controller = "JointVelocityController"
-        elif ctrl_type_text == self.EFFORT_CTRL:
+        elif cmd_type == self.EFFORT:
             controller = "JointEffortController"
         else:
             raise RuntimeError()
@@ -129,14 +132,13 @@ class CustomJointsWidget(BaseSettingWidget):
     def pid_enabled(self, row: int) -> bool:
         jnt_name = self.joint_name(row)
         hi = self._main.urdf_parser.hardware_interface(jnt_name)
-        ctrl_type: ComboBox = self._table.cellWidget(row, 4)
-        ctrl_type_text = ctrl_type.currentText()
+        cmd_type: str = self.command_type(row)
 
-        if hi == HardwareInterface.POSITION and ctrl_type_text == self.POSITION_CTRL:
+        if hi == HardwareInterface.POSITION and cmd_type == self.POSITION:
             return False
-        if hi == HardwareInterface.VELOCITY and ctrl_type_text == self.VELOCITY_CTRL:
+        if hi == HardwareInterface.VELOCITY and cmd_type == self.VELOCITY:
             return False
-        if hi == HardwareInterface.EFFORT and ctrl_type_text == self.EFFORT_CTRL:
+        if hi == HardwareInterface.EFFORT and cmd_type == self.EFFORT:
             return False
         return True
 
@@ -187,7 +189,7 @@ class CustomJointsWidget(BaseSettingWidget):
             else:
                 raise RuntimeError(f"Joint type '{joint.type}' is unexpected.")
 
-            ctrl_type = ComboBox()
+            cmd_type = ComboBox()
             p_gain = DoubleSpinBox()
             i_gain = DoubleSpinBox()
             d_gain = DoubleSpinBox()
@@ -201,19 +203,19 @@ class CustomJointsWidget(BaseSettingWidget):
             d_gain.setValue(self.DEFAULT_D_GAIN)
 
             if hi == HardwareInterface.POSITION:
-                ctrl_type.addItem(self.POSITION_CTRL)
+                cmd_type.addItem(self.POSITION)
                 p_gain.setEnabled(False)
                 i_gain.setEnabled(False)
                 d_gain.setEnabled(False)
             elif hi == HardwareInterface.VELOCITY:
-                ctrl_type.addItem(self.POSITION_CTRL)
-                ctrl_type.addItem(self.VELOCITY_CTRL)
-                ctrl_type.setCurrentText(self.VELOCITY_CTRL)
+                cmd_type.addItem(self.POSITION)
+                cmd_type.addItem(self.VELOCITY)
+                cmd_type.setCurrentText(self.VELOCITY)
             elif hi == HardwareInterface.EFFORT:
-                ctrl_type.addItem(self.POSITION_CTRL)
-                ctrl_type.addItem(self.VELOCITY_CTRL)
-                ctrl_type.addItem(self.EFFORT_CTRL)
-                ctrl_type.setCurrentText(self.EFFORT_CTRL)
+                cmd_type.addItem(self.POSITION)
+                cmd_type.addItem(self.VELOCITY)
+                cmd_type.addItem(self.EFFORT)
+                cmd_type.setCurrentText(self.EFFORT)
             else:
                 raise RuntimeError(f"Unknown hardware interface: {hi.value}")
 
@@ -221,7 +223,7 @@ class CustomJointsWidget(BaseSettingWidget):
             self._table.setCellWidget(row, 1, home_pos)
             self._table.setCellWidget(row, 2, min_pos)
             self._table.setCellWidget(row, 3, max_pos)
-            self._table.setCellWidget(row, 4, ctrl_type)
+            self._table.setCellWidget(row, 4, cmd_type)
             self._table.setCellWidget(row, 5, p_gain)
             self._table.setCellWidget(row, 6, i_gain)
             self._table.setCellWidget(row, 7, d_gain)
