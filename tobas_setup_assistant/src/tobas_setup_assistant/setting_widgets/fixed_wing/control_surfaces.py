@@ -78,16 +78,16 @@ class ControlSurfacesWidget(QWidget):
     def control_surfaces(self) -> List[ControlSurface]:
         res = [ControlSurface() for _ in range(self.selected.count())]
         for i in range(self.selected.count()):
-            res[i].joint_name = self.selected.joint_names[i].text()
-            res[i].min_angle = self.selected.min_angles[i].value()
-            res[i].max_angle = self.selected.max_angles[i].value()
-            res[i].max_angle_rate = self.selected.max_angle_rates[i].value()
-            res[i].c_lift_delta = self.selected.c_lift_delta[i].value()
-            res[i].c_drag_abs_delta = self.selected.c_drag_delta[i].value()
-            res[i].c_side_delta = self.selected.c_side_delta[i].value()
-            res[i].c_roll_delta = self.selected.c_roll_delta[i].value()
-            res[i].c_pitch_delta = self.selected.c_pitch_delta[i].value()
-            res[i].c_yaw_delta = self.selected.c_yaw_delta[i].value()
+            res[i].joint_name = self.selected.joint_name(i)
+            res[i].min_angle = self.selected.min_angle(i)
+            res[i].max_angle = self.selected.max_angle(i)
+            res[i].max_angle_rate = self.selected.max_angle_rate(i)
+            res[i].c_lift_delta = self.selected.c_lift_delta(i)
+            res[i].c_drag_abs_delta = self.selected.c_drag_delta(i)
+            res[i].c_side_delta = self.selected.c_side_delta(i)
+            res[i].c_roll_delta = self.selected.c_roll_delta(i)
+            res[i].c_pitch_delta = self.selected.c_pitch_delta(i)
+            res[i].c_yaw_delta = self.selected.c_yaw_delta(i)
 
         return res
 
@@ -258,53 +258,78 @@ class SelectedLinksWidget(QTableWidget):
         super().__init__(0, len(self.LABELS))
         self._main = main
 
-        self.link_names: List[QLabel] = []
-        self.joint_names: List[QLabel] = []
-        self.min_angles: List[DoubleSpinBox] = []
-        self.max_angles: List[DoubleSpinBox] = []
-        self.max_angle_rates: List[DoubleSpinBox] = []
-        self.c_lift_delta: List[DoubleSpinBox] = []
-        self.c_drag_delta: List[DoubleSpinBox] = []
-        self.c_side_delta: List[DoubleSpinBox] = []
-        self.c_roll_delta: List[DoubleSpinBox] = []
-        self.c_pitch_delta: List[DoubleSpinBox] = []
-        self.c_yaw_delta: List[DoubleSpinBox] = []
-
         self.setHorizontalHeaderLabels(self.LABELS)
-
         for c in range(self.columnCount()):
             self.setColumnWidth(c, self.COL_WIDTH)
 
     def define_connections(self) -> None:
         # 必ずAdd -> Deleteの順に実行する
-        self._main.settings.fixed_wing.control_surfaces.add_delete.add.connect(
-            self._add_selected_link
-        )
-        self._main.settings.fixed_wing.control_surfaces.available_links.link_added.connect(
-            self._delete_cur_row
-        )
+        control_surfaces = self._main.settings.fixed_wing.control_surfaces
+        control_surfaces.add_delete.add.connect(self._add_selected_link)
+        control_surfaces.available_links.link_added.connect(self._delete_cur_row)
 
     def is_valid(self) -> bool:
         return True
 
     def selected_link(self) -> Union[str, None]:
         row = self.currentRow()
-        if row < 0:
-            return None
-        # return self.cellWidget(row, 0).property("text")
-        return self.link_names[row].text()
+        return self.link_name(row) if row >= 0 else None
 
     def count(self) -> int:
         """選択テーブル内のプロペラの個数を返す．"""
-        return len(self.link_names)
+        return self.rowCount()
+
+    def link_name(self, row: int) -> str:
+        cell: QLabel = self.cellWidget(row, 0)
+        return cell.text()
+
+    def joint_name(self, row: int) -> str:
+        cell: QLabel = self.cellWidget(row, 1)
+        return cell.text()
+
+    def min_angle(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 2)
+        return cell.value()
+
+    def max_angle(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 3)
+        return cell.value()
+
+    def max_angle_rate(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 4)
+        return cell.value()
+
+    def c_lift_delta(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 5)
+        return cell.value()
+
+    def c_drag_delta(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 6)
+        return cell.value()
+
+    def c_side_delta(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 7)
+        return cell.value()
+
+    def c_roll_delta(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 8)
+        return cell.value()
+
+    def c_pitch_delta(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 9)
+        return cell.value()
+
+    def c_yaw_delta(self, row: int) -> float:
+        cell: DoubleSpinBox = self.cellWidget(row, 10)
+        return cell.value()
 
     def get_link_names(self) -> List[str]:
         """選択テーブル内のリンクの名前のリストを返す．"""
-        return [link_name.text() for link_name in self.link_names]
+        return [self.link_name(row) for row in range(self.count())]
 
     def get_joint_names(self) -> List[str]:
         """選択テーブル内のジョイントの名前のリストを返す．"""
-        return [joint_name.text() for joint_name in self.joint_names]
+        return [self.joint_name(row) for row in range(self.count())]
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
@@ -322,13 +347,11 @@ class SelectedLinksWidget(QTableWidget):
         link_name = QLabel(selected_link)
         link_name.setFont(QFont("Default", pointSize=BODY_PSIZE))
         link_name.setAlignment(Qt.AlignCenter)
-        self.link_names.append(link_name)
         self.setCellWidget(row, 0, link_name)
 
         joint_name = QLabel(joint.name)
         joint_name.setFont(QFont("Default", pointSize=BODY_PSIZE))
         joint_name.setAlignment(Qt.AlignCenter)
-        self.joint_names.append(joint_name)
         self.setCellWidget(row, 1, joint_name)
 
         min_angle = DoubleSpinBox()
@@ -337,7 +360,6 @@ class SelectedLinksWidget(QTableWidget):
         min_angle.setDecimals(3)
         min_angle.setSuffix(" rad")
         min_angle.setValue(joint.limit.lower)
-        self.min_angles.append(min_angle)
         self.setCellWidget(row, 2, min_angle)
 
         max_angle = DoubleSpinBox()
@@ -346,7 +368,6 @@ class SelectedLinksWidget(QTableWidget):
         max_angle.setDecimals(3)
         max_angle.setSuffix(" rad")
         max_angle.setValue(joint.limit.upper)
-        self.max_angles.append(max_angle)
         self.setCellWidget(row, 3, max_angle)
 
         max_angle_rate = DoubleSpinBox()
@@ -354,43 +375,36 @@ class SelectedLinksWidget(QTableWidget):
         max_angle_rate.setDecimals(3)
         max_angle_rate.setSuffix(" rad/s")
         max_angle_rate.setValue(joint.limit.velocity)
-        self.max_angle_rates.append(max_angle_rate)
         self.setCellWidget(row, 4, max_angle_rate)
 
         c_lift_delta = DoubleSpinBox()
         c_lift_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_lift_delta.setSuffix(" /rad")
-        self.c_lift_delta.append(c_lift_delta)
         self.setCellWidget(row, 5, c_lift_delta)
 
         c_drag_delta = DoubleSpinBox()
         c_drag_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_drag_delta.setSuffix(" /rad")
-        self.c_drag_delta.append(c_drag_delta)
         self.setCellWidget(row, 6, c_drag_delta)
 
         c_side_delta = DoubleSpinBox()
         c_side_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_side_delta.setSuffix(" /rad")
-        self.c_side_delta.append(c_side_delta)
         self.setCellWidget(row, 7, c_side_delta)
 
         c_roll_delta = DoubleSpinBox()
         c_roll_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_roll_delta.setSuffix(" /rad")
-        self.c_roll_delta.append(c_roll_delta)
         self.setCellWidget(row, 8, c_roll_delta)
 
         c_pitch_delta = DoubleSpinBox()
         c_pitch_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_pitch_delta.setSuffix(" /rad")
-        self.c_pitch_delta.append(c_pitch_delta)
         self.setCellWidget(row, 9, c_pitch_delta)
 
         c_yaw_delta = DoubleSpinBox()
         c_yaw_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_yaw_delta.setSuffix(" /rad")
-        self.c_yaw_delta.append(c_yaw_delta)
         self.setCellWidget(row, 10, c_yaw_delta)
 
         self.link_added.emit(selected_link)
@@ -403,17 +417,4 @@ class SelectedLinksWidget(QTableWidget):
             return
 
         self.removeRow(row)
-
-        self.link_names.pop(row)
-        self.joint_names.pop(row)
-        self.min_angles.pop(row)
-        self.max_angles.pop(row)
-        self.max_angle_rates.pop(row)
-        self.c_lift_delta.pop(row)
-        self.c_drag_delta.pop(row)
-        self.c_side_delta.pop(row)
-        self.c_roll_delta.pop(row)
-        self.c_pitch_delta.pop(row)
-        self.c_yaw_delta.pop(row)
-
         self._main.signals.airframe_updated.emit()
