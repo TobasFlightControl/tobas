@@ -21,7 +21,8 @@ EffortControllerRos::EffortControllerRos(
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
     active_jnts_extractor_(drone_.tree()),
-    pid_(drone_.tree()),
+    pid_js_(drone_.tree()),
+    pid_ts_(drone_.tree()),
     server_(pnh_)
 {
   getRosParams();
@@ -29,7 +30,9 @@ EffortControllerRos::EffortControllerRos(
 
   cur_js_conv_.updateInternalDataStructures();
   tar_js_conv_.updateInternalDataStructures();
-  pid_.updateInternalDataStructures();
+  active_jnts_extractor_.updateInternalDataStructures();
+  pid_js_.updateInternalDataStructures();
+  pid_ts_.updateInternalDataStructures();
 
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
 
@@ -80,12 +83,12 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
   const auto& tar_qd = tar_js_conv_.getVelocitiesKDL();
 
   // PIDで関節トルクを計算
-  if (pid_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd, jntarraynull_) < 0)
+  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd, jntarraynull_) < 0)
   {
-    rosError(name_, "Joint space PID failed: " << pid_.errorMessage());
+    rosError(name_, "Joint space PID failed: " << pid_js_.errorMessage());
     return -1;
   }
-  const auto efforts = tar_js_conv_.getEffortsKDL() + pid_.getEfforts();  // FF + FB
+  const auto efforts = tar_js_conv_.getEffortsKDL() + pid_js_.getEfforts();  // FF + FB
 
   // JntArray -> JointState
   if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, tar_js_->name) < 0)
@@ -162,25 +165,14 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   }
 
   // PIDで関節トルクを計算
-  // TODO: 毎周期クラスを初期化するのは無駄なので効率化
-  TreeTaskSpacePID pid(drone_.tree(), tar_cs_->name);
-  if (!pid.setLinearStiffness(lin_kp_))
-    rosError(name_, "Failed to set linear stiffness.");
-  if (!pid.setAngularStiffness(ang_kp_))
-    rosError(name_, "Failed to set angular stiffness.");
-  if (!pid.setLinearDamping(lin_kd_))
-    rosError(name_, "Failed to set linear damping.");
-  if (!pid.setAngularDamping(ang_kd_))
-    rosError(name_, "Failed to set angular damping.");
-
   const auto& cur_q = cur_js_conv_.getPositionsKDL();
   const auto& cur_qd = cur_js_conv_.getVelocitiesKDL();
-  if (pid.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
+  if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
-    rosError(name_, "Cartesian PID failed: " << pid.errorMessage());
+    rosError(name_, "Cartesian PID failed: " << pid_ts_.errorMessage());
     return -1;
   }
-  const auto& efforts = pid.getEfforts();
+  const auto& efforts = pid_ts_.getEfforts();
 
   // JntArray -> JointState
   active_jnts_extractor_.solve(tar_cs_->name);
@@ -272,54 +264,24 @@ void EffortControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateCons
 
 void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
-  bool success = true;
-
   // Joint space control
-  if (!pid_.setStiffness(cfg.joint_stiffness))
-  {
+  if (!pid_js_.setStiffness(cfg.joint_stiffness))
     rosError(name_, "Failed to set joint stiffness.");
-    success = false;
-  }
 
-  if (!pid_.setDamping(cfg.joint_damping))
-  {
+  if (!pid_js_.setDamping(cfg.joint_damping))
     rosError(name_, "Failed to set joint damping.");
-    success = false;
-  }
 
   // Task space control
-  if (cfg.linear_stiffness < 0)
-  {
-    rosError(name_, "Linear stiffness must be non negative.");
-    success = false;
-  }
-  if (cfg.angular_stiffness < 0)
-  {
-    rosError(name_, "Angular stiffness must be non negative.");
-    success = false;
-  }
-  if (cfg.linear_damping < 0)
-  {
-    rosError(name_, "Linear damping must be non negative.");
-    success = false;
-  }
-  if (cfg.angular_damping < 0)
-  {
-    rosError(name_, "Angular damping must be non negative.");
-    success = false;
-  }
+  if (!pid_ts_.setLinearStiffness(cfg.linear_stiffness))
+    rosError(name_, "Failed to set linear stiffness.");
 
-  if (success)
-  {
-    lin_kp_.fill(cfg.linear_stiffness);
-    ang_kp_.fill(cfg.angular_stiffness);
-    lin_kd_.fill(cfg.linear_damping);
-    ang_kd_.fill(cfg.angular_damping);
-    rosInfo(name_, "Dynamic parameters are updated.");
-  }
-  else
-  {
-    rosError(name_, "Failed to update dynamic parameters.");
-  }
+  if (!pid_ts_.setAngularStiffness(cfg.angular_stiffness))
+    rosError(name_, "Failed to set angular stiffness.");
+
+  if (!pid_ts_.setLinearDamping(cfg.linear_damping))
+    rosError(name_, "Failed to set linear damping.");
+
+  if (!pid_ts_.setAngularDamping(cfg.angular_damping))
+    rosError(name_, "Failed to set angular damping.");
 }
 }  // namespace tobas_manipulation

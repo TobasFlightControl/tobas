@@ -21,6 +21,7 @@ VelocityControllerRos::VelocityControllerRos(
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
     active_jnts_extractor_(drone_.tree()),
+    vel_ctrl_(drone_.tree()),
     server_(pnh_)
 {
   getRosParams();
@@ -28,6 +29,8 @@ VelocityControllerRos::VelocityControllerRos(
 
   cur_js_conv_.updateInternalDataStructures();
   tar_js_conv_.updateInternalDataStructures();
+  active_jnts_extractor_.updateInternalDataStructures();
+  vel_ctrl_.updateInternalDataStructures();
 
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
 
@@ -138,20 +141,13 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
   }
 
   // 目標関節速度を計算
-  // TODO: 毎周期クラスを初期化するのは無駄なので効率化
-  TreeTaskSpaceVelCtrl ctrl(drone_.tree(), tar_cs_->name);
-  if (!ctrl.setLinearTimeConst(lin_time_const_))
-    rosError(name_, "Failed to set linear tracking time constant.");
-  if (!ctrl.setAngularTimeConst(ang_time_const_))
-    rosError(name_, "Failed to set angular tracking time constant.");
-
   const auto& cur_q = cur_js_conv_.getPositionsKDL();
-  if (ctrl.CartToJnt(cur_q, tar_p) < 0)
+  if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0)
   {
-    rosError(name_, "Cartesian controller failed: " << ctrl.errorMessage());
+    rosError(name_, "Cartesian controller failed: " << vel_ctrl_.errorMessage());
     return -1;
   }
-  const auto& velocities = ctrl.getVelocities();
+  const auto& velocities = vel_ctrl_.getVelocities();
 
   // JntArray -> JointState
   active_jnts_extractor_.solve(tar_cs_->name);
@@ -262,8 +258,10 @@ void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   if (success)
   {
     jnt_time_const_ = cfg.joint_time_constant;
-    lin_time_const_.fill(cfg.linear_time_constant);
-    ang_time_const_.fill(cfg.angular_time_constant);
+    if (!vel_ctrl_.setLinearTimeConst(cfg.linear_time_constant))
+      rosError(name_, "Failed to set linear tracking time constant.");
+    if (!vel_ctrl_.setAngularTimeConst(cfg.angular_time_constant))
+      rosError(name_, "Failed to set angular tracking time constant.");
     rosInfo(name_, "Dynamic parameters are updated.");
   }
   else

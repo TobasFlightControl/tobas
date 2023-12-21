@@ -37,10 +37,10 @@ private:
   KDL::TreeJointStateConverter cur_js_conv_;
   KDL::TreeJointStateConverter tar_js_conv_;
   KDL::TreeActiveJointsExtractor active_jnts_extractor_;
-  KDL::TreeJntSpacePID pid_;
+  KDL::TreeJntSpacePID pid_js_;
+  KDL::TreeTaskSpacePID pid_ts_;
 
   KDL::JntArray jntarraynull_;
-  KDL::Vector lin_kp_, ang_kp_, lin_kd_, ang_kd_;
 
   tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr cur_js_;

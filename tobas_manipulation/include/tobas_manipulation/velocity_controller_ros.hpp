@@ -36,10 +36,10 @@ private:
   KDL::TreeJointStateConverter cur_js_conv_;
   KDL::TreeJointStateConverter tar_js_conv_;
   KDL::TreeActiveJointsExtractor active_jnts_extractor_;
+  KDL::TreeTaskSpaceVelCtrl vel_ctrl_;
 
   KDL::JntArray jntarraynull_;
   double jnt_time_const_;
-  KDL::Vector lin_time_const_, ang_time_const_;
 
   tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr cur_js_;
