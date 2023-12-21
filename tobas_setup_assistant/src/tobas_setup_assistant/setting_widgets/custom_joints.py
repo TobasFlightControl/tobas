@@ -71,27 +71,52 @@ class CustomJointsWidget(BaseSettingWidget):
         return self._table.rowCount()
 
     def joint_name(self, row: int) -> str:
-        jnt_name: QLabel = self._table.cellWidget(row, 0)
-        return jnt_name.text()
+        cell: QLabel = self._table.cellWidget(row, 0)
+        return cell.text()
+
+    def home_position(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, 1)
+        return cell.value()
+
+    def min_position(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, 2)
+        return cell.value()
+
+    def max_position(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, 3)
+        return cell.value()
+
+    def command_type(self, row: int) -> str:
+        cell: ComboBox = self._table.cellWidget(row, 4)
+        return cell.currentText()
+
+    def p_gain(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, 5)
+        return cell.value()
+
+    def i_gain(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, 6)
+        return cell.value()
+
+    def d_gain(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, 7)
+        return cell.value()
+
+    def pid_enabled(self, row: int) -> bool:
+        jnt_name = self.joint_name(row)
+        hi = self._main.urdf_parser.hardware_interface(jnt_name)
+        cmd_type: str = self.command_type(row)
+
+        if hi == HardwareInterface.POSITION and cmd_type == self.POSITION:
+            return False
+        if hi == HardwareInterface.VELOCITY and cmd_type == self.VELOCITY:
+            return False
+        if hi == HardwareInterface.EFFORT and cmd_type == self.EFFORT:
+            return False
+        return True
 
     def joint_names(self) -> List[str]:
         return [self.joint_name(row) for row in range(self.count())]
-
-    def home_position(self, row: int) -> float:
-        home_pos: DoubleSpinBox = self._table.cellWidget(row, 1)
-        return home_pos.value()
-
-    def min_position(self, row: int) -> float:
-        min_pos: DoubleSpinBox = self._table.cellWidget(row, 2)
-        return min_pos.value()
-
-    def max_position(self, row: int) -> float:
-        max_pos: DoubleSpinBox = self._table.cellWidget(row, 3)
-        return max_pos.value()
-
-    def command_type(self, row: int) -> str:
-        cmd_type: ComboBox = self._table.cellWidget(row, 4)
-        return cmd_type.currentText()
 
     def controller_type(self, row: int) -> str:
         jnt_name = self.joint_name(row)
@@ -116,31 +141,6 @@ class CustomJointsWidget(BaseSettingWidget):
             raise RuntimeError()
 
         return f"{group}/{controller}"
-
-    def p_gain(self, row: int) -> float:
-        p_gain: DoubleSpinBox = self._table.cellWidget(row, 5)
-        return p_gain.value()
-
-    def i_gain(self, row: int) -> float:
-        i_gain: DoubleSpinBox = self._table.cellWidget(row, 6)
-        return i_gain.value()
-
-    def d_gain(self, row: int) -> float:
-        d_gain: DoubleSpinBox = self._table.cellWidget(row, 7)
-        return d_gain.value()
-
-    def pid_enabled(self, row: int) -> bool:
-        jnt_name = self.joint_name(row)
-        hi = self._main.urdf_parser.hardware_interface(jnt_name)
-        cmd_type: str = self.command_type(row)
-
-        if hi == HardwareInterface.POSITION and cmd_type == self.POSITION:
-            return False
-        if hi == HardwareInterface.VELOCITY and cmd_type == self.VELOCITY:
-            return False
-        if hi == HardwareInterface.EFFORT and cmd_type == self.EFFORT:
-            return False
-        return True
 
     @pyqtSlot()
     def _on_robot_model_loaded(self) -> None:
