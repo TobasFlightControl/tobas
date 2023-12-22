@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>tobas</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<!-- Controllers -->
+	<exec_depend>tobas_fixed_wing_lqd</exec_depend>
+	<exec_depend>tobas_fixed_wing_mpc</exec_depend>
+	<exec_depend>tobas_mr_pid</exec_depend>
+	<exec_depend>tobas_mr_mpc</exec_depend>
+	<exec_depend>tobas_np_pid</exec_depend>
+	<exec_depend>tobas_np_pid</exec_depend>
+
+	<!-- Observers -->
+	<exec_depend>orientation_estimation_complement</exec_depend>
+	<exec_depend>orientation_estimation_cascade</exec_depend>
+	<exec_depend>orientation_estimation_eskf</exec_depend>
+
+	<!-- Model Estimation -->
+	<exec_depend>tobas_mr_thrust_estimation</exec_depend>
+	<exec_depend>tobas_mr_wind_estimation</exec_depend>
+
+	<!-- Teleoperations -->
+	<exec_depend>tobas_rc_teleop</exec_depend>
+	<exec_depend>tobas_keyboard_teleop</exec_depend>
+	<exec_depend>tobas_gui_teleop</exec_depend>
+
+	<!-- Takeoff & Landing -->
+	<exec_depend>tobas_multirotor_takeoff</exec_depend>
+	<exec_depend>tobas_multirotor_landing</exec_depend>
+
+	<!-- Gazebo -->
+	<exec_depend>tobas_gazebo</exec_depend>
+	<exec_depend>tobas_gazebo_plugins</exec_depend>
+
+	<!-- Setup Assistant -->
+	<exec_depend>tobas_setup_assistant</exec_depend>
+	<exec_depend>tobas_rviz_plugin</exec_depend>
+
+	<!-- Dynamixel -->
+	<exec_depend>dynamixel_handler</exec_depend>
+
+	<!-- ArduPilot -->
+	<!-- TODO -->
+
+	<!-- Others -->
+	<exec_depend>tobas_common_actions</exec_depend>
+	<exec_depend>tobas_description</exec_depend>
+	<exec_depend>tobas_dummpy_pkg</exec_depend>
+	<exec_depend>tobas_manipulation</exec_depend>
+	<exec_depend>tobas_mavros_pridge</exec_depend>
+	<exec_depend>tobas_motor_test</exec_depend>
+	<exec_depend>tobas_multirotor_trajectory</exec_depend>
+	<exec_depend>tobas_real</exec_depend>
+	<exec_depend>tobas_state_checker</exec_depend>
+	<exec_depend>tobas_trajectory_commander</exec_depend>
+	<exec_depend>urdf_builder</exec_depend>
+
+	<export>
+		<metapackage/>
+	</export>
+
+</package>
