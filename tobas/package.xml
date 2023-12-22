@@ -15,7 +15,6 @@
 	<exec_depend>tobas_mr_pid</exec_depend>
 	<exec_depend>tobas_mr_mpc</exec_depend>
 	<exec_depend>tobas_np_pid</exec_depend>
-	<exec_depend>tobas_np_pid</exec_depend>
 
 	<!-- Observers -->
 	<exec_depend>orientation_estimation_complement</exec_depend>

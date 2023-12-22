@@ -27,8 +27,8 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   }
 
   wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
-  set_wind_params_srv_ =
-    nh_.advertiseService("/" + ns_ + "/gazebo/set_wind_parameters", &self::setWindParametersCb, this);
+  set_wind_params_srv_ = nh_.advertiseService(
+    "/" + ns_ + "/gazebo/set_wind_parameters", &self::setWindParametersCb, this);
 
   update_connection_ =
     event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
@@ -49,7 +49,6 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
 
   // 突風
   const auto gust_time = (cur_time - gust_state_change_time_).Double();
-  double gust_speed;
   switch (gust_state_)
   {
     case GUST:
@@ -62,7 +61,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
       }
 
       const auto max_gust_speed = mean_speed_ * gust_speed_factor_;
-      gust_speed = 0.5 * max_gust_speed * (1 - cos(2 * M_PI * gust_time / gust_duration_));
+      gust_speed_ = 0.5 * max_gust_speed * (1 - cos(2 * M_PI * gust_time / gust_duration_));
       break;
     }
     case NO_GUST:
@@ -74,7 +73,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
         break;
       }
 
-      gust_speed = 0.;
+      gust_speed_ = 0.;
       break;
     }
     default:
@@ -84,7 +83,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   }
 
   // 定常風 (平均風速 + 突風)
-  const auto v_steady_wind = mean_speed_ + gust_speed;
+  const auto v_steady_wind = mean_speed_ + gust_speed_;
   const Vector3d steady_W(v_steady_wind * cos(direction_), v_steady_wind * sin(direction_), 0.);
 
   // 乱流成分を更新
