@@ -39,10 +39,13 @@ catkin_package(
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 # target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-# foreach(FILE IN LISTS NODE_FILES)
+# file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+# foreach(FILE IN LISTS EXE_FILES)
 # 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
 # 	add_executable(${NODE_NAME} ${FILE})
 # 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 # 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 # endforeach()
+
+file(GLOB_RECURSE SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} scripts/[^.]*)
+catkin_install_python(PROGRAMS ${SCRIPTS} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

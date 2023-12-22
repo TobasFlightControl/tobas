@@ -57,6 +57,7 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # プラグインごとに共有ライブラリを作成
 file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*_plugin.cpp)
+set(targets_to_install "")
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 	get_filename_component(FILE_NAME ${FILE} NAME_WE)
 	set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
@@ -68,4 +69,10 @@ foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 		RayPlugin  # lidar_pluginに必要
 		${PROJECT_NAME}
 	)
+	list(APPEND targets_to_install ${PLUGIN_NAME})
 endforeach()
+
+install(TARGETS ${targets_to_install}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
