@@ -18,8 +18,8 @@
 
 	<!-- Observers -->
 	<exec_depend>orientation_estimation_complement</exec_depend>
-	<exec_depend>orientation_estimation_cascade</exec_depend>
-	<exec_depend>orientation_estimation_eskf</exec_depend>
+	<exec_depend>state_estimation_cascade</exec_depend>
+	<exec_depend>state_estimation_eskf</exec_depend>
 
 	<!-- Model Estimation -->
 	<exec_depend>tobas_mr_thrust_estimation</exec_depend>
@@ -51,9 +51,9 @@
 	<!-- Others -->
 	<exec_depend>tobas_common_actions</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
-	<exec_depend>tobas_dummpy_pkg</exec_depend>
+	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
-	<exec_depend>tobas_mavros_pridge</exec_depend>
+	<exec_depend>tobas_mavros_bridge</exec_depend>
 	<exec_depend>tobas_motor_test</exec_depend>
 	<exec_depend>tobas_multirotor_trajectory</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
