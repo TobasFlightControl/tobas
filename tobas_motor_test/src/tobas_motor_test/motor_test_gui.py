@@ -1,4 +1,5 @@
 import rospy
+import rospkg
 import os.path as osp
 from typing import List
 from PyQt5.QtCore import *
@@ -21,9 +22,10 @@ class MotorTestGui(MainWidget):
     ARM_THROTTLE = 0.1
 
     def __init__(self) -> None:
-        super().__init__("tobas_motor_test_gui")
+        pkg_name = osp.dirname(__file__)
+        super().__init__(pkg_name)
 
-        icon_path = osp.join(osp.dirname(__file__), "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(pkg_name), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Motor Test")
 

@@ -8,7 +8,7 @@ catkin_python_setup()
 catkin_package()
 
 # Install
-install(DIRECTORY data launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY config data launch resources templates DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(DIRECTORY
   src/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}

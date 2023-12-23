@@ -1,4 +1,3 @@
-PKG_NAME = "ardupilot_dynamic_configuration"
 TITLE = "ArduPilot Dynamic Configuration"
 FLOAT_DECIMALS = 3
 WAIT_FOR_SERVICE = 0.1

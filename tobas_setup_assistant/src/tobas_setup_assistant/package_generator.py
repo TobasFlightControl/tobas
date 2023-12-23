@@ -9,6 +9,7 @@ import os
 import os.path as osp
 import yaml
 import rospy
+import rospkg
 import shutil
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -26,6 +27,7 @@ from tobas_msgs.msg import *
 
 from .utils import *
 from .xml_nodes import *
+from .common import *
 
 
 class PackageGenerator(QObject):
@@ -35,8 +37,9 @@ class PackageGenerator(QObject):
         super().__init__()
         self._main = main
 
+        templates_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "templates")
         self._template_env = Environment(
-            loader=FileSystemLoader(osp.join(osp.dirname(__file__), "templates")),
+            loader=FileSystemLoader(templates_path),
             trim_blocks=True,
             lstrip_blocks=True,
         )

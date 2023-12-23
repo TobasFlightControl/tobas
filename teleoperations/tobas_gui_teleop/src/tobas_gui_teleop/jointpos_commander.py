@@ -1,5 +1,6 @@
 import os.path as osp
 import rospy
+import rospkg
 from typing import Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
@@ -21,9 +22,10 @@ class JointPositionsCommander(MainWidget):
     EFFORT = "effort"
 
     def __init__(self) -> None:
-        super().__init__("tobas_jointpos_commander_gui")
+        pkg_name = osp.dirname(__file__)
+        super().__init__(f"{pkg_name}/jointpos_commander")
 
-        icon_path = osp.join(osp.dirname(__file__), "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(pkg_name), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Joint State Commander")
 

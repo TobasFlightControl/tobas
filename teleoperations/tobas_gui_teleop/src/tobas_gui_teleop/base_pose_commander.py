@@ -1,6 +1,7 @@
 import os.path as osp
 import math
 import rospy
+import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -37,9 +38,10 @@ class BasePoseCommander(MainWidget):
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
     def __init__(self) -> None:
-        super().__init__("tobas_base_pose_commander_gui")
+        pkg_name = osp.dirname(__file__)
+        super().__init__(f"{pkg_name}/base_pose_commander")
 
-        icon_path = osp.join(osp.dirname(__file__), "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(pkg_name), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Base State Commander")
 

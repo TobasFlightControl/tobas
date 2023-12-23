@@ -7,10 +7,13 @@ if TYPE_CHECKING:
 from dh_rqt_tools.widgets import add_spacer
 
 import os.path as osp
+import rospkg
 from rviz import bindings as rviz
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from .common import *
 
 
 class RvizWidget(QWidget):
@@ -28,7 +31,8 @@ class RvizWidget(QWidget):
         # cf. RViz Python Tutorial: https://docs.ros.org/en/indigo/api/rviz_python_tutorial/html/
         reader = rviz.YamlConfigReader()
         config = rviz.Config()
-        rviz_config_path = osp.join(osp.dirname(__file__), "resources/setup_assistant.rviz")
+        pkg_path = rospkg.RosPack().get_path(PKG_NAME)
+        rviz_config_path = osp.join(pkg_path, "config/setup_assistant.rviz")
         reader.readFile(config, rviz_config_path)
 
         # Setup Visualization Frame

@@ -1,4 +1,5 @@
 import os.path as osp
+import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -16,7 +17,7 @@ class SetupAssistant(MainWidget):
     def __init__(self) -> None:
         super().__init__(PKG_NAME, DEFAULT)
 
-        icon_path = osp.join(osp.dirname(__file__), "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle(TITLE)
 
