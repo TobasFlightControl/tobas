@@ -83,4 +83,3 @@ class MultirotorPid(BaseController):
     @overrides
     def parameter_dict(self) -> dict:
         return super().parameter_dict()  # TODO
-

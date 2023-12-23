@@ -40,8 +40,8 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
 
     def cur_index(self) -> int:
         return self._box.currentIndex()
-    
-    def add_items(self, items: List[str])->None:
+
+    def add_items(self, items: List[str]) -> None:
         self._box.addItems(items)
 
     @pyqtSlot(int)

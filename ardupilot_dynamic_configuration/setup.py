@@ -2,8 +2,8 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 setup_args = generate_distutils_setup(
-	packages=['ardupilot_dynamic_configuration'],
-	package_dir={'': 'src'},
+    packages=["ardupilot_dynamic_configuration"],
+    package_dir={"": "src"},
 )
 
 setup(**setup_args)
