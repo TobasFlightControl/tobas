@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from dh_rqt_tools.path import get_proj_path
 from dh_rqt_tools.widgets import add_spacer
 
 import os.path as osp
@@ -29,7 +28,7 @@ class RvizWidget(QWidget):
         # cf. RViz Python Tutorial: https://docs.ros.org/en/indigo/api/rviz_python_tutorial/html/
         reader = rviz.YamlConfigReader()
         config = rviz.Config()
-        rviz_config_path = osp.join(get_proj_path(), "config/setup_assistant.rviz")
+        rviz_config_path = osp.join(osp.dirname(__file__), "resources/setup_assistant.rviz")
         reader.readFile(config, rviz_config_path)
 
         # Setup Visualization Frame

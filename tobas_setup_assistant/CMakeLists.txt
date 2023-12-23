@@ -7,7 +7,14 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_python_setup()
 catkin_package()
 
-install(DIRECTORY config data launch resources templates DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+# Install
+install(DIRECTORY data launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY
+  src/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+  PATTERN "*.pyc" EXCLUDE
+  PATTERN "*.egg-info" EXCLUDE
+)
 
 file(GLOB_RECURSE SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} scripts/[^.]*)
 catkin_install_python(PROGRAMS ${SCRIPTS} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

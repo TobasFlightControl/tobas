@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import add_spacer, add_center_button
-from dh_rqt_tools.path import get_pkg_name
 from dh_rqt_tools.messages import q_error
 from dh_rqt_tools.roslaunch import create_launcher
 
@@ -159,7 +158,7 @@ class RobotModelLoaderWidget(QWidget):
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = self._urdf_path
 
         # robot_descriptionをrosparamに登録
-        create_launcher(get_pkg_name(), "description.launch")
+        create_launcher(PKG_NAME, "description.launch")
 
     def _is_valid_path(self, file_path: str) -> bool:
         """引数が実在するロボット記述言語かどうかを判定する．"""

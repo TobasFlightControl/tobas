@@ -1,11 +1,4 @@
-import os.path as osp
-
-# ConfigParser
-CONFIG_PATH = osp.join(
-    osp.expanduser("~"), ".config/ardupilot_dynamic_configuration/config.ini"
-)
-DEFAULT = "DEFAULT"
-
+PKG_NAME = "ardupilot_dynamic_configuration"
 TITLE = "ArduPilot Dynamic Configuration"
 FLOAT_DECIMALS = 3
 WAIT_FOR_SERVICE = 0.1

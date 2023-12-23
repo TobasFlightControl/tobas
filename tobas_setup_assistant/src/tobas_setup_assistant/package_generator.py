@@ -18,7 +18,7 @@ from PyQt5.QtGui import *
 
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
-from dh_rqt_tools.path import get_proj_path, resolve_uri
+from dh_rqt_tools.path import resolve_uri
 from dh_rqt_tools.messages import q_info, q_error
 from dh_rqt_tools.xml import prettify_and_save
 
@@ -35,9 +35,8 @@ class PackageGenerator(QObject):
         super().__init__()
         self._main = main
 
-        self._proj_path = get_proj_path()
         self._template_env = Environment(
-            loader=FileSystemLoader(osp.join(self._proj_path, "templates")),
+            loader=FileSystemLoader(osp.join(osp.dirname(__file__), "templates")),
             trim_blocks=True,
             lstrip_blocks=True,
         )
@@ -151,68 +150,76 @@ class PackageGenerator(QObject):
         # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(
-            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt")
+            items, "CMakeLists.txt.template", osp.join(pkg_path, "CMakeLists.txt")
         )
         self._generate_from_template(
-            items, "package.xml", osp.join(pkg_path, "package.xml")
+            items, "package.xml.template", osp.join(pkg_path, "package.xml")
         )
         self._generate_from_template(
-            items, "environment.yaml", osp.join(config_dir, "environment.yaml")
+            items, "environment.yaml.template", osp.join(config_dir, "environment.yaml")
         )
         self._generate_from_template(
             items,
-            "hardware_interfaces.yaml",
+            "hardware_interfaces.yaml.template",
             osp.join(config_dir, "hardware_interfaces.yaml"),
         )
         self._generate_from_template(
             items,
-            "plotjuggler_layout.xml",
+            "plotjuggler_layout.xml.template",
             osp.join(config_dir, "plotjuggler_layout.xml"),
         )
         self._generate_from_template(
             items,
-            "nodelet_manager.launch",
+            "nodelet_manager.launch.template",
             osp.join(launch_dir, "nodelet_manager.launch"),
         )
         self._generate_from_template(
-            items, "common_params.launch", osp.join(launch_dir, "common_params.launch")
+            items,
+            "common_params.launch.template",
+            osp.join(launch_dir, "common_params.launch"),
         )
         self._generate_from_template(
-            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch")
+            items, "gazebo.launch.template", osp.join(launch_dir, "gazebo.launch")
         )
         self._generate_from_template(
-            items, "real.launch", osp.join(launch_dir, "real.launch")
-        )
-        self._generate_from_template(
-            items, "controller.launch", osp.join(launch_dir, "controller.launch")
-        )
-        self._generate_from_template(
-            items, "observer.launch", osp.join(launch_dir, "observer.launch")
-        )
-        self._generate_from_template(
-            items, "bringup.launch", osp.join(launch_dir, "bringup.launch")
+            items, "real.launch.template", osp.join(launch_dir, "real.launch")
         )
         self._generate_from_template(
             items,
-            "hardware_interfaces.launch",
+            "controller.launch.template",
+            osp.join(launch_dir, "controller.launch"),
+        )
+        self._generate_from_template(
+            items, "observer.launch.template", osp.join(launch_dir, "observer.launch")
+        )
+        self._generate_from_template(
+            items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch")
+        )
+        self._generate_from_template(
+            items,
+            "hardware_interfaces.launch.template",
             osp.join(launch_dir, "hardware_interfaces.launch"),
         )
         self._generate_from_template(
-            items, "hil.launch", osp.join(launch_dir, "hil.launch")
+            items, "hil.launch.template", osp.join(launch_dir, "hil.launch")
         )
         self._generate_from_template(
-            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
-        )
-        self._generate_from_template(
-            items, "joint_control.launch", osp.join(launch_dir, "joint_control.launch")
+            items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch")
         )
         self._generate_from_template(
             items,
-            "jointpos_commander.launch",
+            "joint_control.launch.template",
+            osp.join(launch_dir, "joint_control.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "jointpos_commander.launch.template",
             osp.join(launch_dir, "jointpos_commander.launch"),
         )
         self._generate_from_template(
-            items, "plotjuggler.launch", osp.join(launch_dir, "plotjuggler.launch")
+            items,
+            "plotjuggler.launch.template",
+            osp.join(launch_dir, "plotjuggler.launch"),
         )
 
         command_msgs = self._main.settings.controller.command_msgs()
@@ -224,13 +231,13 @@ class PackageGenerator(QObject):
         ):
             self._generate_from_template(
                 items,
-                "keyboard_teleop/position_yaw.launch",
+                "keyboard_teleop/position_yaw.launch.template",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
         elif SpeedRollDeltaPitch.__name__ in command_msgs:
             self._generate_from_template(
                 items,
-                "keyboard_teleop/speed_roll_dpitch.launch",
+                "keyboard_teleop/speed_roll_dpitch.launch.template",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
 
@@ -242,7 +249,7 @@ class PackageGenerator(QObject):
         ):
             self._generate_from_template(
                 items,
-                "gui_teleop/position_yaw.launch",
+                "gui_teleop/position_yaw.launch.template",
                 osp.join(launch_dir, "gui_teleop.launch"),
             )
 

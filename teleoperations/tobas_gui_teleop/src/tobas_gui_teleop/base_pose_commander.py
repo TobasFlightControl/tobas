@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
-from dh_rqt_tools.path import get_proj_path
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -38,10 +37,9 @@ class BasePoseCommander(MainWidget):
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__("tobas_base_pose_commander_gui")
 
-        proj_path = get_proj_path()
-        icon_path = osp.join(proj_path, "resources/icon.png")
+        icon_path = osp.join(osp.dirname(__file__), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Base State Commander")
 

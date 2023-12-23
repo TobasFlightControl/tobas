@@ -47,5 +47,12 @@ catkin_package(
 # 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 # endforeach()
 
+install(DIRECTORY
+  src/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+  PATTERN "*.pyc" EXCLUDE
+  PATTERN "*.egg-info" EXCLUDE
+)
+
 file(GLOB_RECURSE SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} scripts/[^.]*)
 catkin_install_python(PROGRAMS ${SCRIPTS} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

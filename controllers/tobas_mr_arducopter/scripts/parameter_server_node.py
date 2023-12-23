@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import signal
 import rospy
-import rospkg
 from dynamic_reconfigure import server
 
 from tobas_mr_arducopter.cfg import ControllerConfig
@@ -13,9 +11,8 @@ def dynamicReconfigureCb(config: ControllerConfig, level: int) -> ControllerConf
 
 
 if __name__ == "__main__":
-    node_name = rospkg.get_package_name(__file__) + "_param_server"
+    node_name = "tobas_mr_arducopter_param_server"
     rospy.init_node(node_name)
 
     srv = server.Server(ControllerConfig, dynamicReconfigureCb)
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
     rospy.spin()

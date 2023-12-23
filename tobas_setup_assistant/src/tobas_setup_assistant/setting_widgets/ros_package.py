@@ -14,7 +14,6 @@ from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import add_spacer, add_center_button
 from dh_rqt_tools.messages import *
-from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -155,8 +154,7 @@ class PackagePath(QLabel):
 
     @pyqtSlot()
     def _set_defaults(self) -> None:
-        par_dir = f"{get_workspace_path()}/src"
-        self._main.settings.ros_package.pardir.set(par_dir)
+        self._main.settings.ros_package.pardir.set("catkin_ws/src")
 
         pkg_name = f"tobas_{get_drone_name()}_config"
         self._main.settings.ros_package.pkg_name.set(pkg_name)
