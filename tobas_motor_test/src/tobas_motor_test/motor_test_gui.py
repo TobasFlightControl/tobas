@@ -1,4 +1,5 @@
 import rospy
+import rospkg
 import os.path as osp
 from typing import List
 from PyQt5.QtCore import *
@@ -6,10 +7,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
-from dh_rqt_tools.path import get_proj_path
 
 from tobas_msgs.msg import Throttles
 
+PKG_NAME = "tobas_motor_test"
 SERVO_RAIL_SIZE = 14
 
 
@@ -22,10 +23,9 @@ class MotorTestGui(MainWidget):
     ARM_THROTTLE = 0.1
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(PKG_NAME)
 
-        proj_path = get_proj_path()
-        icon_path = osp.join(proj_path, "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Motor Test")
 
@@ -38,9 +38,11 @@ class MotorTestGui(MainWidget):
         self._commanders: List[FloatSliderDisplay] = []
         for i in range(SERVO_RAIL_SIZE):
             commander = FloatSliderDisplay(
-                f"PIN {i + 1}", self.MIN_THROTTLE, self.MAX_THROTTLE
+                f"PIN {i + 1}",
+                self.MIN_THROTTLE,
+                self.MAX_THROTTLE,
+                self.MIN_THROTTLE,
             )
-            commander.set_value(self.MIN_THROTTLE)
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
             grid.addWidget(commander, i % self.MAX_ROWS, i // self.MAX_ROWS)

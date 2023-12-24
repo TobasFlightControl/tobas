@@ -1,6 +1,7 @@
 #include <std_msgs/Float64.h>
 #include <controller_manager_msgs/ListControllers.h>
 
+#include <dh_std_tools/unordered_map.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
 
@@ -119,7 +120,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsCo
   {
     const auto& jnt_name = positions->name[i];
 
-    if (!ctrl_map_.contains(jnt_name))
+    if (!dh_std::contains(ctrl_map_, jnt_name))
     {
       rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
       continue;
@@ -161,7 +162,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(
   {
     const auto& jnt_name = velocities->name[i];
 
-    if (!ctrl_map_.contains(jnt_name))
+    if (!dh_std::contains(ctrl_map_, jnt_name))
     {
       rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
       continue;
@@ -202,7 +203,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstP
   {
     const auto& jnt_name = efforts->name[i];
 
-    if (!ctrl_map_.contains(jnt_name))
+    if (!dh_std::contains(ctrl_map_, jnt_name))
     {
       rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
       continue;

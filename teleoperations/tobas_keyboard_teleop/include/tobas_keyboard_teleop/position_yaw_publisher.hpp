@@ -1,12 +1,10 @@
 #pragma once
 
 #include <dh_std_tools/range.hpp>
+#include <dh_std_tools/keyboard_reader.hpp>
 #include <dh_kdl/frames.hpp>
 
 #include <tobas_tools/node.hpp>
-
-#include "../../include/tobas_keyboard_teleop/x11.hpp"
-#include "../../include/tobas_keyboard_teleop/keyboard_reader.hpp"
 
 namespace tobas_keyboard_teleop
 {
@@ -16,7 +14,7 @@ namespace tobas_keyboard_teleop
 class PositionYawPublisher : public tobas::BaseNode
 {
   static constexpr double kDefaultMaxLinearVelocity = 3.;       // [m/s]
-  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad]
+  static constexpr double kDefaultMaxAngularVelocity = M_PI_2;  // [rad/s]
   static constexpr double kDefaultMinimumX = -10.;              // [m]
   static constexpr double kDefaultMaximumX = +10.;              // [m]
   static constexpr double kDefaultMinimumY = -10.;              // [m]
@@ -38,8 +36,7 @@ public:
   void run();
 
 private:
-  const XkbControlsPtr keyboard_;
-  KeyboardReader key_reader_;
+  dh_std::KeyboardReader key_reader_;
 
   KDL::Vector cmd_pos_;
   double cmd_yaw_;

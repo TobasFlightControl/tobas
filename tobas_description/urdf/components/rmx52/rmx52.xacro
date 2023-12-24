@@ -8,6 +8,9 @@
 
     <!-- Import all Gazebo-customization elements, including Gazebo colors -->
     <xacro:include filename="$(find tobas_description)/urdf/components/rmx52/gazebo.xacro"/>
+
+    <!-- Import transmissions -->
+    <xacro:include filename="$(find tobas_description)/urdf/components/rmx52/transmission.xacro"/>
   </xacro:macro>
 
 </robot>

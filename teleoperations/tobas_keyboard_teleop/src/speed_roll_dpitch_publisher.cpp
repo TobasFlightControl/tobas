@@ -5,6 +5,7 @@
 
 #include <dh_std_tools/algorithm.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
+#include <dh_std_tools/x11.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -15,6 +16,7 @@
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
+using namespace dh_std;
 
 namespace tobas_keyboard_teleop
 {
@@ -24,7 +26,6 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   const string& name)
   : super(nh, pnh, name),
     trim_(drone_),
-    keyboard_(getKeyboardControls()),
     check_topics_timer_(
       nh_,
       tobas::kCheckTopicsTimerPeriod,
@@ -44,11 +45,9 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   drone_.loadFromParam(nh_);
 
   trim_.updateInternalDataStructures();
-  q_0_.resize(drone_.tree().getNrOfJoints());
+  q_0_ = KDL::JntArray::Zero(drone_.tree().getNrOfJoints());
 
-  const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
-  rosInfo(name_, "Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
-
+  const auto repeat_interval = getKeyboardRepeatInterval() * 1e-3;  // ms -> s
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
@@ -84,6 +83,9 @@ void SpeedRollDeltaPitchPublisher::run()
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
+    if (c < 0)
+      rosError(name_, "Failed to read keyboard.");
+
     switch (c)
     {
       case kKeyCode_W:
@@ -190,7 +192,7 @@ void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& even
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
 {
-  air_density_ = dh_std::pressureToDensity(msg->fluid_pressure);
+  air_density_ = pressureToDensity(msg->fluid_pressure);
 
   if (!pressure_received_)
     pressure_received_ = true;

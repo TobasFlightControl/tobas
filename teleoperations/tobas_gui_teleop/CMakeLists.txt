@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_gui_teleop)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
@@ -11,42 +11,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(catkin REQUIRED COMPONENTS
-# 	message_generation
-# 	actionlib_msgs
-)
+find_package(catkin REQUIRED COMPONENTS)
 
 catkin_python_setup()
+catkin_package()
 
-# file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
-# add_message_files(FILES ${MSG_FILES})
-# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
-# add_service_files(FILES ${SRV_FILES})
-# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
-# add_action_files(FILES ${ACTION_FILES})
-
-# generate_messages(DEPENDENCIES
-# 	actionlib_msgs
-# )
-
-catkin_package(
-# 	INCLUDE_DIRS include
-# 	LIBRARIES ${PROJECT_NAME}
+install(DIRECTORY resources DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY
+  src/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+  PATTERN "*.pyc" EXCLUDE
+  PATTERN "*.egg-info" EXCLUDE
 )
 
-# include_directories(${catkin_INCLUDE_DIRS})
-
-# ライブラリを作成
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-# add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-# ノードの実行ファイルを作成
-# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp) # src内のノードへのパスを取得
-# foreach(FILE IN LISTS NODE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE) # 拡張子を除いたファイル名を取得
-# 	add_executable(${NODE_NAME} ${FILE}) # コンパイル
-# 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES}) # リンク
-# endforeach()
+file(GLOB_RECURSE SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} scripts/[^.]*)
+catkin_install_python(PROGRAMS ${SCRIPTS} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

@@ -8,6 +8,8 @@
 	<license>TODO</license>
 
 	<buildtool_depend>catkin</buildtool_depend>
+	
+	<depend>pyqt5-dev-tools</depend>
 
 	<depend>rospy</depend>
 	<depend>rviz</depend>
@@ -16,6 +18,9 @@
 	<depend>moveit_msgs</depend>
 
 	<depend>dh_rqt_tools</depend>
+	<depend>kdl_sympy</depend>
+	<depend>urdf_tools_py</depend>
 	<depend>tobas_rviz_plugin</depend>
+	<depend>tobas_msgs</depend>
 
 </package>

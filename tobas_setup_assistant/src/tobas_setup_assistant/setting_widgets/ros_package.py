@@ -8,13 +8,14 @@ import os.path as osp
 import re
 import subprocess
 from overrides import overrides
+from glob import glob
+from typing import Union
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import add_spacer, add_center_button
 from dh_rqt_tools.messages import *
-from dh_rqt_tools.path import get_workspace_path
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -155,10 +156,31 @@ class PackagePath(QLabel):
 
     @pyqtSlot()
     def _set_defaults(self) -> None:
-        par_dir = f"{get_workspace_path()}/src"
-        self._main.settings.ros_package.pardir.set(par_dir)
+        # srcディレクトリ
+        ws_path = self._last_accessed_ws_path()
+        if ws_path is not None:
+            src_dir = osp.join(ws_path, "src")
+            self._main.settings.ros_package.pardir.set(src_dir)
 
+        # パッケージ名
         pkg_name = f"tobas_{get_drone_name()}_config"
         self._main.settings.ros_package.pkg_name.set(pkg_name)
 
         self._update()
+
+    def _last_accessed_ws_path(self) -> Union[str, None]:
+        pattern = osp.expanduser("~/catkin_ws*/")
+        ws_paths = glob(pattern)
+
+        if len(ws_paths) == 0:
+            return None
+
+        cnd_ws = None
+        cnd_time = 0
+        for ws in ws_paths:
+            last_accessed_time = osp.getatime(ws)
+            if last_accessed_time > cnd_time:
+                cnd_ws = ws
+                cnd_time = last_accessed_time
+
+        return cnd_ws

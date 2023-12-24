@@ -70,6 +70,7 @@ private:
   common::Time prev_sim_time_;
   common::Time gust_state_change_time_;
   gust_state_t gust_state_ = NO_GUST;
+  double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
   ros::Publisher wind_pub_;

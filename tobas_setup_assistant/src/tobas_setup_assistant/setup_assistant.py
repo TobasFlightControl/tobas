@@ -1,10 +1,10 @@
 import os.path as osp
+import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import MainWidget
-from dh_rqt_tools.path import get_proj_path
 
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
@@ -15,10 +15,9 @@ from .common import *
 
 class SetupAssistant(MainWidget):
     def __init__(self) -> None:
-        super().__init__(CONFIG_PATH, DEFAULT)
+        super().__init__(PKG_NAME, DEFAULT)
 
-        proj_path = get_proj_path()
-        icon_path = osp.join(proj_path, "resources/tobas_icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle(TITLE)
 

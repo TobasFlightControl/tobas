@@ -1,6 +1,7 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <dh_std_tools/algorithm.hpp>
+#include <dh_std_tools/x11.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/rate.hpp>
 #include <dh_ros_tools/console_message.hpp>
@@ -16,6 +17,7 @@
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
+using namespace dh_std;
 
 namespace tobas_keyboard_teleop
 {
@@ -23,7 +25,7 @@ PositionYawPublisher::PositionYawPublisher(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name), keyboard_(getKeyboardControls())
+  : super(nh, pnh, name)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -35,9 +37,7 @@ PositionYawPublisher::PositionYawPublisher(
 
   getRosParams();
 
-  const auto repeat_interval = keyboard_->repeat_interval * 1e-3;  // ms -> s
-  rosInfo(name_, "Keyboard repeat interval is " << keyboard_->repeat_interval << " [ms].");
-
+  const auto repeat_interval = getKeyboardRepeatInterval() * 1e-3;  // ms -> s
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
@@ -95,6 +95,9 @@ void PositionYawPublisher::run()
 
     // キーボード入力に依ってコマンドを更新
     const auto c = key_reader_.readKey();
+    if (c < 0)
+      rosError(name_, "Failed to read keyboard.");
+
     switch (c)
     {
       case kKeyCode_W:  // X+

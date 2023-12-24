@@ -2,6 +2,7 @@ from .start import StartWidget
 from .battery import BatteryWidget
 from .propulsion_system import PropulsionSystemWidget
 from .fixed_wing.fixed_wing import FixedWingWidget
+from .custom_joints import CustomJointsWidget
 from .imu import ImuWidget
 from .barometer import BarometerWidget
 from .gps import GpsWidget

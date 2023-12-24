@@ -99,4 +99,32 @@
     </inertial>
   </xacro:macro>
 
+  <!-- Transmissions -->
+  <xacro:macro name="simple_transmission" params="jnt_name *hardware_interface">
+    <transmission name="${jnt_name}_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${jnt_name}">
+        <xacro:insert_block name="hardware_interface"/>
+      </joint>
+      <actuator name="${jnt_name}_actuator">
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="simple_transmission_position" params="jnt_name">
+    <xacro:simple_transmission jnt_name="${jnt_name}">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </xacro:simple_transmission>
+  </xacro:macro>
+  <xacro:macro name="simple_transmission_velocity" params="jnt_name">
+    <xacro:simple_transmission jnt_name="${jnt_name}">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </xacro:simple_transmission>
+  </xacro:macro>
+  <xacro:macro name="simple_transmission_effort" params="jnt_name">
+    <xacro:simple_transmission jnt_name="${jnt_name}">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </xacro:simple_transmission>
+  </xacro:macro>
+
 </robot>

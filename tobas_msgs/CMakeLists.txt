@@ -59,10 +59,17 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # Executables
-# file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-# foreach(FILE IN LISTS NODE_FILES)
+# file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+# foreach(FILE IN LISTS EXE_FILES)
 # 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
 # 	add_executable(${NODE_NAME} ${FILE})
 # 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 # 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES})
 # endforeach()
+
+install(TARGETS ${PROJECT_NAME}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
+install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})

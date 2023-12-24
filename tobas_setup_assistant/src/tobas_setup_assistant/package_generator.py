@@ -9,8 +9,8 @@ import os
 import os.path as osp
 import yaml
 import rospy
+import rospkg
 import shutil
-from typing import List
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 from PyQt5.QtCore import *
@@ -19,33 +19,27 @@ from PyQt5.QtGui import *
 
 from urdf_tools_py.core import *
 from urdf_tools_py.gazebo import GazeboRosControl
-from urdf_tools_py.utils import remove_elements_with_tag
-from dh_rqt_tools.path import get_proj_path, resolve_uri
-from dh_rqt_tools.messages import q_info
+from dh_rqt_tools.path import resolve_uri
+from dh_rqt_tools.messages import q_info, q_error
 from dh_rqt_tools.xml import prettify_and_save
-from kdl_sympy.joint import JointType
 
 from tobas_msgs.msg import *
 
 from .utils import *
 from .xml_nodes import *
+from .common import *
 
 
 class PackageGenerator(QObject):
-    # TODO: ゲインを設定するページ
-    DEFAULT_P_GAIN = 100.0
-    DEFAULT_I_GAIN = 0.1
-    DEFAULT_D_GAIN = 1.0
-
     generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
         super().__init__()
         self._main = main
 
-        self._proj_path = get_proj_path()
+        templates_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "templates")
         self._template_env = Environment(
-            loader=FileSystemLoader(osp.join(self._proj_path, "templates")),
+            loader=FileSystemLoader(templates_path),
             trim_blocks=True,
             lstrip_blocks=True,
         )
@@ -82,6 +76,9 @@ class PackageGenerator(QObject):
             return False
         if not self._main.settings.fixed_wing.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.fixed_wing)
+            return False
+        if not self._main.settings.custom_joints.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.custom_joints)
             return False
         if not self._main.settings.imu.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.imu)
@@ -123,6 +120,19 @@ class PackageGenerator(QObject):
             self._main.settings.switch_to_tab(self._main.settings.ros_package)
             return False
 
+        # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを保証
+        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
+        cs_jnt_names = (
+            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
+        )
+        custom_jnt_names = self._main.settings.custom_joints.joint_names()
+        if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
+            q_error(
+                self,
+                "The joints set in the propulsion system, control surfaces, and custom joints are duplicated.",
+            )
+            return False
+
         return True
 
     def _generate_pkg(self) -> None:
@@ -143,65 +153,76 @@ class PackageGenerator(QObject):
         # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(
-            items, "CMakeLists.txt", osp.join(pkg_path, "CMakeLists.txt")
+            items, "CMakeLists.txt.template", osp.join(pkg_path, "CMakeLists.txt")
         )
         self._generate_from_template(
-            items, "package.xml", osp.join(pkg_path, "package.xml")
+            items, "package.xml.template", osp.join(pkg_path, "package.xml")
         )
         self._generate_from_template(
-            items, "environment.yaml", osp.join(config_dir, "environment.yaml")
+            items, "environment.yaml.template", osp.join(config_dir, "environment.yaml")
         )
         self._generate_from_template(
             items,
-            "hardware_interfaces.yaml",
+            "hardware_interfaces.yaml.template",
             osp.join(config_dir, "hardware_interfaces.yaml"),
         )
         self._generate_from_template(
             items,
-            "plotjuggler_layout.xml",
+            "plotjuggler_layout.xml.template",
             osp.join(config_dir, "plotjuggler_layout.xml"),
         )
         self._generate_from_template(
             items,
-            "nodelet_manager.launch",
+            "nodelet_manager.launch.template",
             osp.join(launch_dir, "nodelet_manager.launch"),
         )
         self._generate_from_template(
-            items, "common_params.launch", osp.join(launch_dir, "common_params.launch")
+            items,
+            "common_params.launch.template",
+            osp.join(launch_dir, "common_params.launch"),
         )
         self._generate_from_template(
-            items, "gazebo.launch", osp.join(launch_dir, "gazebo.launch")
+            items, "gazebo.launch.template", osp.join(launch_dir, "gazebo.launch")
         )
         self._generate_from_template(
-            items, "real.launch", osp.join(launch_dir, "real.launch")
-        )
-        self._generate_from_template(
-            items, "controller.launch", osp.join(launch_dir, "controller.launch")
-        )
-        self._generate_from_template(
-            items, "observer.launch", osp.join(launch_dir, "observer.launch")
-        )
-        self._generate_from_template(
-            items, "bringup.launch", osp.join(launch_dir, "bringup.launch")
+            items, "real.launch.template", osp.join(launch_dir, "real.launch")
         )
         self._generate_from_template(
             items,
-            "hardware_interfaces.launch",
+            "controller.launch.template",
+            osp.join(launch_dir, "controller.launch"),
+        )
+        self._generate_from_template(
+            items, "observer.launch.template", osp.join(launch_dir, "observer.launch")
+        )
+        self._generate_from_template(
+            items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch")
+        )
+        self._generate_from_template(
+            items,
+            "hardware_interfaces.launch.template",
             osp.join(launch_dir, "hardware_interfaces.launch"),
         )
         self._generate_from_template(
-            items, "hil.launch", osp.join(launch_dir, "hil.launch")
+            items, "hil.launch.template", osp.join(launch_dir, "hil.launch")
         )
         self._generate_from_template(
-            items, "rc_teleop.launch", osp.join(launch_dir, "rc_teleop.launch")
+            items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch")
         )
         self._generate_from_template(
             items,
-            "jointpos_commander.launch",
+            "joint_control.launch.template",
+            osp.join(launch_dir, "joint_control.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "jointpos_commander.launch.template",
             osp.join(launch_dir, "jointpos_commander.launch"),
         )
         self._generate_from_template(
-            items, "plotjuggler.launch", osp.join(launch_dir, "plotjuggler.launch")
+            items,
+            "plotjuggler.launch.template",
+            osp.join(launch_dir, "plotjuggler.launch"),
         )
 
         command_msgs = self._main.settings.controller.command_msgs()
@@ -213,13 +234,13 @@ class PackageGenerator(QObject):
         ):
             self._generate_from_template(
                 items,
-                "keyboard_teleop/position_yaw.launch",
+                "keyboard_teleop/position_yaw.launch.template",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
         elif SpeedRollDeltaPitch.__name__ in command_msgs:
             self._generate_from_template(
                 items,
-                "keyboard_teleop/speed_roll_dpitch.launch",
+                "keyboard_teleop/speed_roll_dpitch.launch.template",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
 
@@ -231,7 +252,7 @@ class PackageGenerator(QObject):
         ):
             self._generate_from_template(
                 items,
-                "gui_teleop/position_yaw.launch",
+                "gui_teleop/position_yaw.launch.template",
                 osp.join(launch_dir, "gui_teleop.launch"),
             )
 
@@ -277,8 +298,10 @@ class PackageGenerator(QObject):
         template_items["pkg_name"] = ros_pkg.pkg_name.get()
 
         # Joint Controllers
+        custom_joints = settings.custom_joints
         joint_controllers = "joint_state_controller"
-        for jnt_name in self._posture_defining_joint_names():
+        for i in range(custom_joints.count()):
+            jnt_name = custom_joints.joint_name(i)
             joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
@@ -295,18 +318,6 @@ class PackageGenerator(QObject):
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
         drone_config = dict()
-
-        # Joints
-        jnt_names = self._posture_defining_joint_names()
-        num_joints = len(jnt_names)
-        drone_config["num_joints"] = num_joints
-        for i in range(num_joints):
-            drone_config[f"joint_{i}"] = {
-                "name": jnt_names[i],
-                "init_pos": 0.0,  # TODO
-                "min_pos": -1e9,  # TODO
-                "max_pos": 1e9,  # TODO
-            }
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
@@ -391,6 +402,19 @@ class PackageGenerator(QObject):
                     "c_yaw_delta": cs.c_yaw_delta,
                 }
 
+        # Joints
+        custom_joints = self._main.settings.custom_joints
+        num_joints = custom_joints.count()
+        drone_config["num_joints"] = num_joints
+        for i in range(num_joints):
+            drone_config[f"joint_{i}"] = {
+                "name": custom_joints.joint_name(i),
+                "home_position": custom_joints.home_position(i),
+                "min_position": custom_joints.min_position(i),
+                "max_position": custom_joints.max_position(i),
+                "command_type": custom_joints.command_type(i),
+            }
+
         # TBSFファイルを作成
         drone_config_path = osp.join(config_dir, f"{self._drone_name}.tbsf")
         with open(drone_config_path, "w") as f:
@@ -401,24 +425,30 @@ class PackageGenerator(QObject):
         items = dict()
         items["joint_state_controller"] = {
             "type": "joint_state_controller/JointStateController",
-            "publish_rate": 1000.0,
+            "publish_rate": 1000,
         }
         items["gazebo_ros_control"] = {"pid_gains": dict()}
-        for jnt_name in self._posture_defining_joint_names():
-            items[f"{jnt_name}_controller"] = {
-                "type": "effort_controllers/JointEffortController",
+
+        custom_joints = self._main.settings.custom_joints
+        for i in range(custom_joints.count()):
+            jnt_name = custom_joints.joint_name(i)
+            controller_name = f"{jnt_name}_controller"
+            items[controller_name] = {
                 "joint": jnt_name,
-                # "pid": {
-                #     "p": self.DEFAULT_P_GAIN,
-                #     "i": self.DEFAULT_I_GAIN,
-                #     "d": self.DEFAULT_D_GAIN,
-                # },
+                "type": custom_joints.controller_type(i),
             }
-            # items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
-            #     "p": self.DEFAULT_P_GAIN,
-            #     "i": self.DEFAULT_I_GAIN,
-            #     "d": self.DEFAULT_D_GAIN,
-            # }
+
+            if custom_joints.pid_enabled(i):
+                items[controller_name]["pid"] = {
+                    "p": custom_joints.p_gain(i),
+                    "i": custom_joints.i_gain(i),
+                    "d": custom_joints.d_gain(i),
+                }
+                items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
+                    "p": custom_joints.p_gain(i),
+                    "i": custom_joints.i_gain(i),
+                    "d": custom_joints.d_gain(i),
+                }
 
         # yamlファイルを作成
         jnt_ctrl_path = osp.join(config_dir, "joint_control.yaml")
@@ -491,9 +521,6 @@ class PackageGenerator(QObject):
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
-        # transmissionは問答無用で消す
-        remove_elements_with_tag(robot, "transmission")
-
         # gazeboタグの場合はその子ノードを確認する
         for gazebo in robot.iter("gazebo"):
             for child in gazebo:
@@ -794,25 +821,3 @@ class PackageGenerator(QObject):
         # ROS Control
         ros_control = GazeboRosControl(self._drone_name)
         robot.append(ros_control)
-
-        # Transmissions
-        for jnt_name in self._posture_defining_joint_names():
-            transmission = Transmission(jnt_name, interface=Transmission.EFFORT)
-            robot.append(transmission)
-
-    def _posture_defining_joint_names(self) -> List[str]:
-        """ロボットの形状を決めるのに必要な関節名のリストを返す．"""
-        # 固定翼機の車輪などのTransmissionがシミュレーションに悪影響なので，continuousは含めない
-        # TODO: いずれは選択制にする (それでもcontinuousは除くべきかも)
-        urdf_parser = self._main.urdf_parser
-        revolute_joints = set(urdf_parser.search_joint_type(JointType.REVOLUTE))
-        prismatic_joints = set(urdf_parser.search_joint_type(JointType.PRISMATIC))
-        mobile_joints = revolute_joints | prismatic_joints
-
-        prop_joints = set(self._main.settings.propulsion_system.selected.joint_names())
-        cs_joints = set(
-            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
-        )
-
-        # set演算では"|"よりも"-"が優先されることに注意
-        return list(mobile_joints - prop_joints - cs_joints)

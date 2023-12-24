@@ -1,0 +1,34 @@
+#pragma once
+
+#include <map>
+#include <QDialog>
+#include <QDoubleSpinBox>
+
+namespace urdf_builder
+{
+namespace ui
+{
+class DoubleMapInputDialog : public QDialog
+{
+  Q_OBJECT
+
+  static constexpr double kMaxValue = 1000.;
+  static constexpr double kMinValue = 0.;
+  static constexpr double kDefaultValue = kMinValue;
+  static constexpr double kSingleStep = 0.1;
+  static constexpr int kDecimals = 6;
+
+public:
+  explicit DoubleMapInputDialog(const QStringList& field_names, QWidget* parent = nullptr);
+
+  const std::map<QString, double>& map() const;
+
+private Q_SLOTS:
+  void SpinBoxValueChanged(double value);
+
+private:
+  std::map<QString, double> field2value_;
+  std::map<QDoubleSpinBox*, QString> spinbox2field_;
+};
+}  // namespace ui
+}  // namespace urdf_builder

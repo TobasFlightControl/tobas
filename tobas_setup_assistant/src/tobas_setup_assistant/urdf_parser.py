@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
 import rospy
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from urdf_parser_py.urdf import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -14,7 +14,7 @@ from PyQt5.QtGui import *
 from dh_rqt_tools.messages import *
 from kdl_sympy.frames import *
 from kdl_sympy.tree import Tree
-from kdl_sympy.joint import JointType
+from kdl_sympy.joint import *
 
 from .utils import is_unique
 
@@ -57,7 +57,7 @@ class URDFParser(QObject):
     def get_link(self, link_name: str) -> Link:
         return self._tree.get_link(link_name)
 
-    def get_joint(self, link_name: str) -> Joint:
+    def get_joint(self, link_name: str) -> Union[Joint, None]:
         return self._tree.get_joint(link_name)
 
     def get_parent(self, link_name: str) -> Link:
@@ -65,6 +65,9 @@ class URDFParser(QObject):
 
     def get_children(self, link_name: str) -> List[Tuple[str, str]]:
         return self._tree.get_children(link_name)
+
+    def hardware_interface(self, jnt_name: str) -> Union[HardwareInterface, None]:
+        return self._tree.hardware_interface(jnt_name)
 
     def is_end_link(self, link_name: str) -> bool:
         return self._tree.is_end_link(link_name)
@@ -75,8 +78,8 @@ class URDFParser(QObject):
     def link_exists(self, link_name: str) -> bool:
         return self._tree.link_exists(link_name)
 
-    def joint_exists(self, joint_name: str) -> bool:
-        return self._tree.joint_exists(joint_name)
+    def joint_exists(self, jnt_name: str) -> bool:
+        return self._tree.joint_exists(jnt_name)
 
     def link_names(self) -> List[str]:
         return self._tree.link_names()
@@ -87,9 +90,9 @@ class URDFParser(QObject):
     def mobile_joint_names(self) -> List[str]:
         """可動関節名のリストを返す．"""
         res = []
-        for joint_name in self._tree.joint_names():
-            if not self._tree.is_fixed_joint(joint_name):
-                res.append(joint_name)
+        for jnt_name in self._tree.joint_names():
+            if not self._tree.is_fixed_joint(jnt_name):
+                res.append(jnt_name)
         return res
 
     def search_joint_type(self, jnt_type: JointType) -> List[str]:
@@ -115,8 +118,8 @@ class URDFParser(QObject):
     def global_pose(self, link_name: str) -> Frame:
         return self._tree.global_pose(link_name)
 
-    def global_axis(self, joint_name: str) -> Vector:
-        return self._tree.global_axis(joint_name)
+    def global_axis(self, jnt_name: str) -> Vector:
+        return self._tree.global_axis(jnt_name)
 
     def nwu_fixed_link_names(self) -> List[str]:
         """

@@ -1,12 +1,12 @@
 import os.path as osp
 import math
 import rospy
+import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
-from dh_rqt_tools.path import get_proj_path
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -38,10 +38,9 @@ class BasePoseCommander(MainWidget):
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(f"{PKG_NAME}/base_pose_commander")
 
-        proj_path = get_proj_path()
-        icon_path = osp.join(proj_path, "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Base State Commander")
 
@@ -70,36 +69,42 @@ class BasePoseCommander(MainWidget):
             "x",
             self._x_min,
             self._x_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_y = FloatSliderDisplay(
             "y",
             self._y_min,
             self._y_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_z = FloatSliderDisplay(
             "z",
             self._z_min,
             self._z_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_roll = FloatSliderDisplay(
             "roll",
             self._roll_min,
             self._roll_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_pitch = FloatSliderDisplay(
             "pitch",
             self._pitch_min,
             self._pitch_max,
+            0.0,
             callback=self._publish_current_command,
         )
         self._cmd_yaw = FloatSliderDisplay(
             "yaw",
             self._yaw_min,
             self._yaw_max,
+            0.0,
             callback=self._publish_current_command,
         )
         rows.addWidget(self._cmd_x)
