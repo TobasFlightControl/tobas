@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-namespace dynamixel_handler
+namespace tobas_dynamixel_handler
 {
 // Constants
 static constexpr double kDeg2Rad = M_PI / 180;  // degree -> radian
@@ -69,4 +69,4 @@ static constexpr uint8_t kControlModePwm = 16;
 // Torque Enable
 static constexpr uint8_t kTorqueEnable = 1;
 static constexpr uint8_t kTorqueDisable = 0;
-}  // namespace dynamixel_handler
+}  // namespace tobas_dynamixel_handler

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(dynamixel_handler)
+project(tobas_dynamixel_handler)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	dynamixel_msgs
+	tobas_dynamixel_msgs
 	tobas_tools
 	dynamixel_sdk
 	nodelet
@@ -38,7 +38,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS dynamixel_msgs tobas_tools dynamixel_sdk nodelet pluginlib
+	CATKIN_DEPENDS tobas_dynamixel_msgs tobas_tools dynamixel_sdk nodelet pluginlib
 # 	DEPENDS
 )
 

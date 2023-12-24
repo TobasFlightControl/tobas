@@ -1,7 +1,0 @@
-<library path="lib/libdynamixel_handler_nodelet">
-
-  <class name="dynamixel_handler/DynamixelHandlerNodelet" type="dynamixel_handler::DynamixelHandlerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

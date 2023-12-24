@@ -43,7 +43,7 @@
 	<exec_depend>tobas_rviz_plugin</exec_depend>
 
 	<!-- Dynamixel -->
-	<exec_depend>dynamixel_handler</exec_depend>
+	<exec_depend>tobas_dynamixel_handler</exec_depend>
 
 	<!-- ArduPilot -->
 	<!-- TODO -->

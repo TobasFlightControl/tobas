@@ -10,12 +10,12 @@
 
 #include <tobas_tools/constants.hpp>
 
-#include "../include/dynamixel_handler/dynamixel_handler.hpp"
-#include "../include/dynamixel_handler/constants.hpp"
+#include "../include/tobas_dynamixel_handler/dynamixel_handler.hpp"
+#include "../include/tobas_dynamixel_handler/constants.hpp"
 
 using namespace std;
 
-namespace dynamixel_handler
+namespace tobas_dynamixel_handler
 {
 DynamixelHandler::DynamixelHandler(
   const ros::NodeHandle& nh,
@@ -312,7 +312,7 @@ void DynamixelHandler::registerPublishers()
   cur_js_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
 
   if (publish_motor_states_)
-    motor_states_pub_ = nh_.advertise<dynamixel_msgs::MotorStates>("motor_states", 1);
+    motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStates>("motor_states", 1);
 }
 
 void DynamixelHandler::registerSubscribers()
@@ -405,7 +405,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
     }
 
     // Create motor states message
-    const auto motor_states = boost::make_shared<dynamixel_msgs::MotorStates>();
+    const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStates>();
     motor_states->header.stamp = cur_time;
     for (const auto& [name, _] : motors_)
     {
@@ -585,4 +585,4 @@ void DynamixelHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   publishCurrentStates(event.current_real);
 }
-}  // namespace dynamixel_handler
+}  // namespace tobas_dynamixel_handler

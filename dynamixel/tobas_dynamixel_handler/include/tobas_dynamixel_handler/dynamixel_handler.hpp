@@ -9,9 +9,9 @@
 #include <tobas_msgs/JointPositions.h>
 #include <tobas_msgs/JointVelocities.h>
 #include <tobas_msgs/JointEfforts.h>
-#include <dynamixel_msgs/MotorStates.h>
+#include <tobas_dynamixel_msgs/MotorStates.h>
 
-namespace dynamixel_handler
+namespace tobas_dynamixel_handler
 {
 struct DynamixelConfig
 {
@@ -46,7 +46,7 @@ private:
   dynamixel::PortHandler* poh_;
   dynamixel::PacketHandler* pah_;
 
-  dynamixel_msgs::MotorState motor_state_;
+  tobas_dynamixel_msgs::MotorState motor_state_;
 
   // rosparams
   ros::V_string jnt_names_;
@@ -83,4 +83,4 @@ private:
 
   void mainTimerCb(const ros::TimerEvent& event);
 };
-}  // namespace dynamixel_handler
+}  // namespace tobas_dynamixel_handler

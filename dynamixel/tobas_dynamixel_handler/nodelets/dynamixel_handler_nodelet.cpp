@@ -2,11 +2,11 @@
 
 #include "./dynamixel_handler_nodelet.hpp"
 
-namespace dynamixel_handler
+namespace tobas_dynamixel_handler
 {
 void DynamixelHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Multirotor PID Controller Nodelet.");
+  NODELET_INFO("Initializing Dynamixel Handler Nodelet.");
 
   const auto& nh = getNodeHandle();
   const auto& pnh = getPrivateNodeHandle();
@@ -14,6 +14,6 @@ void DynamixelHandlerNodelet::onInit()
 
   node_.reset(new DynamixelHandler(nh, pnh, name));
 }
-}  // namespace dynamixel_handler
+}  // namespace tobas_dynamixel_handler
 
-PLUGINLIB_EXPORT_CLASS(dynamixel_handler::DynamixelHandlerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_dynamixel_handler::DynamixelHandlerNodelet, nodelet::Nodelet);
