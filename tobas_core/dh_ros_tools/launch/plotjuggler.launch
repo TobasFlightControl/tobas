@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="plotjuggler" type="plotjuggler" name="plotjuggler" output="screen"/>
+
+</launch>

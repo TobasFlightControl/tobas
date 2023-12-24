@@ -1,0 +1,10 @@
+#define BLACK_PREFIX "\033[30m"
+#define RED_PREFIX "\033[31m"
+#define GREEN_PREFIX "\033[32m"
+#define YELLOW_PREFIX "\033[33m"
+#define BLUE_PREFIX "\033[34m"
+#define MAGENTA_PREFIX "\033[35m"
+#define CYAN_PREFIX "\033[36m"
+#define WHITE_PREFIX "\033[37m"
+
+#define COLOR_RESET "\033[0m"

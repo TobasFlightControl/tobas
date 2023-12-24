@@ -1,0 +1,12 @@
+<launch>
+
+  <arg name="model"/>
+  <arg name="link_name"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
+
+  <node pkg="kdl_sympy" type="forward_kinematics_node.py" name="forward_kinematics" output="screen" required="true">
+    <param name="link_name" value="$(arg link_name)"/>
+  </node>
+
+</launch>
