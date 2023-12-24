@@ -38,10 +38,9 @@ class BasePoseCommander(MainWidget):
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
     def __init__(self) -> None:
-        pkg_name = osp.dirname(__file__)
-        super().__init__(f"{pkg_name}/base_pose_commander")
+        super().__init__(f"{PKG_NAME}/base_pose_commander")
 
-        icon_path = osp.join(rospkg.RosPack().get_path(pkg_name), "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Base State Commander")
 

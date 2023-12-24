@@ -10,6 +10,7 @@ from dh_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 
 from tobas_msgs.msg import Throttles
 
+PKG_NAME = "tobas_motor_test"
 SERVO_RAIL_SIZE = 14
 
 
@@ -22,10 +23,9 @@ class MotorTestGui(MainWidget):
     ARM_THROTTLE = 0.1
 
     def __init__(self) -> None:
-        pkg_name = osp.dirname(__file__)
-        super().__init__(pkg_name)
+        super().__init__(PKG_NAME)
 
-        icon_path = osp.join(rospkg.RosPack().get_path(pkg_name), "resources/icon.png")
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Motor Test")
 
