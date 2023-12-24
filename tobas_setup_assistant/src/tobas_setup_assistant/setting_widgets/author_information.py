@@ -14,7 +14,7 @@ from dh_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..utils import is_valid_email, get_git_user_name, get_git_user_email
+from ..utils import is_valid_email, get_user_name, get_git_user_email
 
 
 class AuthorInformationWidget(BaseSettingWidget):
@@ -29,7 +29,7 @@ class AuthorInformationWidget(BaseSettingWidget):
 
         self.name = ParamGetterWidget_LineEdit(
             "Name of the Maintainer",
-            default=get_git_user_name(),
+            default=get_user_name(),
         )
         self._rows.addWidget(self.name)
 
