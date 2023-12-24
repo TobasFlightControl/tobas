@@ -1,16 +1,15 @@
 #include <actionlib/client/simple_action_client.h>
-#include <eigen_conversions/eigen_msg.h>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
 #include <dh_std_tools/standard_atmosphere.hpp>
 #include <dh_std_tools/boost.hpp>
 #include <dh_std_tools/console.hpp>
-#include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_kdl/conversion/kdl_msg.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
+#include <dh_ros_tools/eigen_conversion.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/conversions/msg_msg.hpp>
@@ -21,7 +20,6 @@ using namespace std;
 using namespace Eigen;
 using namespace KDL;
 using namespace dh_std;
-namespace et = eigen_tools;
 
 namespace state_estimation_cascade
 {
@@ -168,7 +166,7 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
 
   // Position
   odom->pose.pos.data = cart_filter_.getPosition();
-  et::matrix3EigenToBoost(cart_filter_.getPositionCovariance(), odom->position_covariance);
+  dh_ros::matrix3EigenToMsg(cart_filter_.getPositionCovariance(), odom->position_covariance);
 
   // Roll, Pitch
   const auto& q = imu.orientation;
@@ -190,7 +188,7 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
   odom->twist.vel = rpy.inverse(odom->twist.vel);  // World -> Local
   const Matrix3d R_W_B = rpy.toRotation().data;
   const Matrix3d vel_cov_B = R_W_B.transpose() * cart_filter_.getVelocityCovariance() * R_W_B;
-  et::matrix3EigenToBoost(vel_cov_B, odom->linear_velocity_covariance);
+  dh_ros::matrix3EigenToMsg(vel_cov_B, odom->linear_velocity_covariance);
 
   // Angular velocity (Local)
   vectorMsgToKDL(imu.angular_velocity, odom->twist.rot);
@@ -248,8 +246,8 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
     return;
   }
 
-  tf::quaternionMsgToEigen(imu->orientation, quat_);
-  tf::vectorMsgToEigen(imu->linear_acceleration, a_m_);
+  dh_ros::quaternionMsgToEigen(imu->orientation, quat_);
+  dh_ros::vectorMsgToEigen(imu->linear_acceleration, a_m_);
 
   auto acc_cov_data = imu->linear_acceleration_covariance;
   Matrix3d acc_cov = Map<Matrix3d>(acc_cov_data.data());

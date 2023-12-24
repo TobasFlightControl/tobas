@@ -1,10 +1,10 @@
-#include <eigen_conversions/eigen_msg.h>
 #include <sensor_msgs/NavSatFix.h>
 
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/util.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
+#include <dh_ros_tools/eigen_conversion.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -102,9 +102,9 @@ void OrientationEstimatorRos::eventCb(const tobas_msgs::EventConstPtr& event)
 void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag)
 {
   const auto& cur_time = imu->header.stamp;
-  tf::vectorMsgToEigen(imu->linear_acceleration, a_);
-  tf::vectorMsgToEigen(imu->angular_velocity, w_);
-  tf::vectorMsgToEigen(mag->magnetic_field, m_);
+  dh_ros::vectorMsgToEigen(imu->linear_acceleration, a_);
+  dh_ros::vectorMsgToEigen(imu->angular_velocity, w_);
+  dh_ros::vectorMsgToEigen(mag->magnetic_field, m_);
 
   // Initialize
   if (!is_initialized_)
@@ -128,13 +128,13 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   // Create fitlered IMU message
   const auto filtered_imu = boost::make_shared<ImuMsg>(*imu);
   filtered_imu->orientation_covariance.fill(nan(tobas::kUnknown));
-  tf::quaternionEigenToMsg(q, filtered_imu->orientation);
+  dh_ros::quaternionEigenToMsg(q, filtered_imu->orientation);
 
   // Account for biases
   if (do_bias_estimation_)
   {
     w_ -= filter_.getAngularVelocityBias();
-    tf::vectorEigenToMsg(w_, filtered_imu->angular_velocity);
+    dh_ros::vectorEigenToMsg(w_, filtered_imu->angular_velocity);
   }
 
   // Publish filtered IMU message

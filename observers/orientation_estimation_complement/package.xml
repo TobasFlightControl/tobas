@@ -9,7 +9,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>eigen_conversions</depend>
   <depend>message_filters</depend>
   <depend>nodelet</depend>
   <depend>pluginlib</depend>

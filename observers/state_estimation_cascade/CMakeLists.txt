@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	dh_linear_control
-	eigen_conversions
 	dynamic_reconfigure
 	actionlib
 	nodelet
@@ -29,7 +28,6 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_tools
 		dh_linear_control
-		eigen_conversions
 		dynamic_reconfigure
 		actionlib
 		nodelet

@@ -1,5 +1,4 @@
 #include <actionlib/client/simple_action_client.h>
-#include <eigen_conversions/eigen_msg.h>
 
 #include <dh_std_tools/math.hpp>
 #include <dh_std_tools/geometry.hpp>
@@ -9,10 +8,10 @@
 #include <dh_std_tools/debug.hpp>
 #include <dh_eigen_tools/geometry.hpp>
 #include <dh_eigen_tools/iostream.hpp>
-#include <dh_eigen_tools/conversion/eigen_boost.hpp>
 #include <dh_ros_tools/rosparam.hpp>
 #include <dh_ros_tools/console_message.hpp>
 #include <dh_ros_tools/exception.hpp>
+#include <dh_ros_tools/eigen_conversion.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -199,8 +198,8 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
 
   // 初期姿勢
-  tf::vectorMsgToEigen(result->imu.linear_acceleration, acc_meas_);
-  tf::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_meas_);
+  dh_ros::vectorMsgToEigen(result->imu.linear_acceleration, acc_meas_);
+  dh_ros::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_meas_);
   const auto mag = tobas::geomag(result->gps.latitude, result->gps.longitude, result->gps.altitude);
   const Vector3d m0(mag.north, -mag.east, -mag.down);  // NED -> NWU
   et::imuToQuaternion(acc_meas_, mag_meas_, m0, q_0_);
@@ -224,12 +223,12 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
 
   // Position (Global): IMU frame -> Base frame
   odom->pose.pos.data = W_Pos_WI - W_Rot_B * imu_offset_;
-  et::matrix3EigenToBoost(eskf_.getPositionCovariance(), odom->position_covariance);
+  dh_ros::matrix3EigenToMsg(eskf_.getPositionCovariance(), odom->position_covariance);
 
   // Linear velocity (Local): IMU frame -> Base frame
   odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
   const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
-  et::matrix3EigenToBoost(vel_cov_B, odom->linear_velocity_covariance);
+  dh_ros::matrix3EigenToMsg(vel_cov_B, odom->linear_velocity_covariance);
 
   // Roll, Pitch
   auto& rpy = odom->pose.euler;
@@ -244,7 +243,7 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   yaw_prev_ = yaw_now_;
   rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
 
-  et::matrix3EigenToBoost(eskf_.getOrientationCovariance(), odom->orientation_covariance);
+  dh_ros::matrix3EigenToMsg(eskf_.getOrientationCovariance(), odom->orientation_covariance);
 
   // Angular velocity (Local)
   odom->twist.rot.data = B_Gyro;
@@ -278,8 +277,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 {
   // 加速度とジャイロを更新
   // 他のコールバックで使用する場合があるので，この更新だけは先にやっておく
-  tf::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
-  tf::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
+  dh_ros::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
+  dh_ros::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
 
   switch (stage_)
   {
@@ -402,8 +401,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       feedback->acc_bias.data = eskf_.getAccelBias();
       feedback->gyro_bias.data = eskf_.getGyroBias();
       feedback->gravity = eskf_.getGravity();
-      et::matrix3EigenToBoost(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
-      et::matrix3EigenToBoost(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
+      dh_ros::matrix3EigenToMsg(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
+      dh_ros::matrix3EigenToMsg(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
       feedback->gravity_variance = eskf_.getGravityVariance();
       feedback->gps_anormaly_score = gps_anormaly_score_;
       feedback_pub_.publish(feedback);

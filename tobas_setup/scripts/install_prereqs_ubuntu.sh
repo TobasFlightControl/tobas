@@ -21,8 +21,9 @@ rm ./install_geographiclib_datasets.sh
 
 # Install dependencies
 rosdep install --from-paths . --ignore-src -ry
-pip install numpy sympy pandas pyyaml et-xmlfile jinja2 markdown overrides pyqt-vertical-tab-widget
+pip3 install numpy sympy pandas pyyaml et-xmlfile jinja2 markdown overrides urdf-parser-py pyqt-vertical-tab-widget
 
 # Add setup.bash to .bashrc
 SETUP_BASH_PATH=$(realpath "./setup.bash")
 echo "source ${SETUP_BASH_PATH}" >> ~/.bashrc
+exec bash
