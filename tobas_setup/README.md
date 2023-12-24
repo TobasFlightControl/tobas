@@ -4,7 +4,14 @@
 
 1. Download and extract Tobas
 
-TODO
+Please download "tobas-x.x.x.zip" and place it in a installation directory, such as the home directory.\
+Then extract the zip file.
+
+```bash
+$ sudo apt install -y unzip
+$ cd path/to/installation/directory/
+$ unzip tobas-x.x.x.zip
+```
 
 2. Run installation script
 
@@ -17,22 +24,24 @@ $ ./lib/tobas_setup/install_prereqs_ubuntu.sh
 
 You can skip each step if you do not use the feature.
 
-#### ArduPilot
+#### ArduCopter SITL
 
 ```bash
-$ git clone https://github.com/ArduPilot/ardupilot.git  # Anywhere
-$ cd ardupilot
-$ git checkout ArduCopter-stable
-$ Tools/environment_install/install-prereqs-ubuntu.sh -y
-$ . ~/.profile
-$ git submodule update --init --recursive
-$ ./waf configure --board sitl
-$ ./waf copter
+$ cd tobas-x.x.x/
+$ ./lib/tobas_setup/install_arducopter_sitl.sh
 ```
 
 ## Basic Usage
 
-### 1. Create Tobas configuration package using setup assistant.
+### 1. Create catkin workspace
+
+```bash
+$ mkdir -p ~/catkin_ws/src
+$ cd ~/catkin_ws
+$ catkin init
+```
+
+### 2. Create Tobas configuration package using setup assistant.
 
 ```bash
 $ roslaunch tobas_setup_assistant setup_assistant.launch
@@ -42,7 +51,7 @@ $ catkin build your_config_pkg  # Replace "your_config_pkg" with your configurat
 
 Examples of robot description can be found in `tobas/tobas_description/urdf/`.
 
-### 2. Launch your drone
+### 3. Launch your drone
 
 Launch the drivers for the drone's sensors and propulsing system in Gazebo or in the real world.
 
@@ -81,14 +90,14 @@ $ source ~/catkin_ws/devel/setup.bash
 $ roslaunch your_config_pkg real.launch
 ```
 
-### 3. Teleoperation
+### 4. Teleoperation
 
 ```bash
 $ roslaunch your_config_pkg keyboard_teleop.launch  # By keyboard
 $ roslaunch your_config_pkg gui_teleop.launch       # By GUI application
 ```
 
-### 4. Plot data
+### 5. Plot data
 
 You can use PlotJuggler to monitor various data in real time. Please execute the following:
 
