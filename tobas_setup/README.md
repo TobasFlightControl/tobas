@@ -39,6 +39,7 @@ $ ./lib/tobas_setup/install_arducopter_sitl.sh
 $ mkdir -p ~/catkin_ws/src
 $ cd ~/catkin_ws
 $ catkin init
+$ echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 ```
 
 ### 2. Create Tobas configuration package using setup assistant.
@@ -58,7 +59,6 @@ Launch the drivers for the drone's sensors and propulsing system in Gazebo or in
 #### In the case of Gazebo simulation
 
 ```bash
-$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch your_config_pkg gazebo.launch   # Launch Gazebo simulation with your drone
 $ roslaunch your_config_pkg bringup.launch  # Launch Tobas control software
 ```
