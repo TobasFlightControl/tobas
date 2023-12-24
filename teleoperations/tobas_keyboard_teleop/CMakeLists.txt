@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(tobas_keyboard_teleop)
 
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
+  find_package(catkin REQUIRED)
+  catkin_package()
+  return()
+endif()
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
