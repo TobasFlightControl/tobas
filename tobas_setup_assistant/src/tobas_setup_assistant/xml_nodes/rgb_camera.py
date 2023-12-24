@@ -1,10 +1,10 @@
 import math
 from xml.etree import ElementTree as ET
 
-from urdf_tools_py.core import *
-from urdf_tools_py.dummy import DummyLink
-from urdf_tools_py.gazebo import Camera
-from urdf_tools_py.noise import GaussianNoise
+from tobas_urdf_tools_py.core import *
+from tobas_urdf_tools_py.dummy import DummyLink
+from tobas_urdf_tools_py.gazebo import Camera
+from tobas_urdf_tools_py.noise import GaussianNoise
 
 
 def add_rgb_camera_model(

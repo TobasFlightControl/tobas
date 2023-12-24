@@ -1,12 +1,12 @@
 #include <fstream>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/unix.hpp>
-#include <dh_std_tools/unordered_map.hpp>
-#include <dh_std_tools/unordered_set.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/unix.hpp>
+#include <tobas_std_tools/unordered_map.hpp>
+#include <tobas_std_tools/unordered_set.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -63,7 +63,7 @@ DynamixelHandler::DynamixelHandler(
   }
 
   // Reduce latency
-  if (dh_std::isSuperUser())
+  if (tobas_std::isSuperUser())
     setMinimumLatency();
   else
     rosWarn(name_, "Please execute with root privileges to set minimum communication latency.");
@@ -88,12 +88,13 @@ DynamixelHandler::~DynamixelHandler()
 
 void DynamixelHandler::getRosParams()
 {
-  dh_ros::getParam(pnh_, "joint_names", jnt_names_);
-  dh_ros::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
-  dh_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
-  dh_ros::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
-  dh_ros::getParam(pnh_, "return_delay_time", return_delay_time_, kDefaultReturnDelayTime);
-  dh_ros::getParam(pnh_, "publish_motor_states", publish_motor_states_, kDefaultPublishMotorStates);
+  tobas_ros::getParam(pnh_, "joint_names", jnt_names_);
+  tobas_ros::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
+  tobas_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
+  tobas_ros::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
+  tobas_ros::getParam(pnh_, "return_delay_time", return_delay_time_, kDefaultReturnDelayTime);
+  tobas_ros::getParam(
+    pnh_, "publish_motor_states", publish_motor_states_, kDefaultPublishMotorStates);
 }
 
 void DynamixelHandler::setMinimumLatency()
@@ -134,8 +135,8 @@ void DynamixelHandler::getMotorConfigs()
   for (const auto& name : jnt_names_)
   {
     // ID
-    dh_ros::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
-    if (dh_std::contains(used_ids, cfg.id))
+    tobas_ros::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
+    if (tobas_std::contains(used_ids, cfg.id))
     {
       rosError(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
       continue;
@@ -167,7 +168,8 @@ void DynamixelHandler::getMotorConfigs()
     }
 
     // Operating mode
-    dh_ros::getParam(pnh_, name + "/operating_mode", operating_mode, string(kDefaultOperatingMode));
+    tobas_ros::getParam(
+      pnh_, name + "/operating_mode", operating_mode, string(kDefaultOperatingMode));
     if (operating_mode == "current")
     {
       if (!cfg.current_available)
@@ -282,7 +284,7 @@ void DynamixelHandler::getMotorConfigs()
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0)
     {
-      cfg.pos_limit.upper = dh_std::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
+      cfg.pos_limit.upper = tobas_std::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     }
     else
     {
@@ -292,7 +294,7 @@ void DynamixelHandler::getMotorConfigs()
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0)
     {
-      cfg.pos_limit.lower = dh_std::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
+      cfg.pos_limit.lower = tobas_std::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     }
     else
     {
@@ -342,7 +344,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   for (const auto& [name, cfg] : motors_)
   {
     const int32_t pos_raw = pos_sync_read.getData(cfg.id, kAddrPresentPosition, 4);
-    pos[name] = dh_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
+    pos[name] = tobas_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
 
     const int32_t vel_raw = vel_sync_read.getData(cfg.id, kAddrPresentVelocity, 4);
     vel[name] = static_cast<double>(vel_raw) * kDecodeFactorVel;
@@ -464,7 +466,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
   for (size_t i = 0; i < size; ++i)
   {
     const auto& jnt_name = positions->name[i];
-    if (!dh_std::contains(motors_, jnt_name))
+    if (!tobas_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
@@ -478,7 +480,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
         rosWarn(
           name_, "Target position of joint '"
                    << jnt_name << "' is out of limit. The value is clamped to " << tar_pos);
-      goal_positions[i] = dh_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
+      goal_positions[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     }
     else if (
       cfg.operating_mode == kControlModeExtendedPosition
@@ -516,7 +518,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
   for (size_t i = 0; i < size; ++i)
   {
     const auto& jnt_name = velocities->name[i];
-    if (!dh_std::contains(motors_, jnt_name))
+    if (!tobas_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;
@@ -561,7 +563,7 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr&
   {
     const auto& jnt_name = efforts->name[i];
 
-    if (!dh_std::contains(motors_, jnt_name))
+    if (!tobas_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
       continue;

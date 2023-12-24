@@ -1,7 +1,7 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/unix.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/unix.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
 
 #include <tobas_real/common.hpp>
 
@@ -23,7 +23,7 @@ MotorsHandler::MotorsHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  if (!dh_std::isSuperUser())
+  if (!tobas_std::isSuperUser())
     ROS_THROW_NAMED(name_, "Please execute with root privileges.");
 
   getRosParams();
@@ -125,7 +125,7 @@ void MotorsHandler::mainTimerCb(const ros::TimerEvent&)
   for (size_t channel = 0; channel < data_size; ++channel)
   {
     const auto throttle = clamp(throttles_->data[channel], 0., 1.);
-    const auto period = dh_std::remap<double>(throttle, 0., 1., kPwmMin, kPwmMax);
+    const auto period = tobas_std::remap<double>(throttle, 0., 1., kPwmMin, kPwmMax);
     if (!pwm_.setDutyCycle(channel, period))
       PWM_FAIL_ERROR(channel);
   }

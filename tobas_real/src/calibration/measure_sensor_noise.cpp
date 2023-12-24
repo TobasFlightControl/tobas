@@ -2,9 +2,9 @@
 #include <chrono>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <dh_std_tools/fstream.hpp>
-#include <dh_std_tools/unix.hpp>
-#include <dh_eigen_tools/core.hpp>
+#include <tobas_std_tools/fstream.hpp>
+#include <tobas_std_tools/unix.hpp>
+#include <tobas_eigen_tools/core.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -20,7 +20,7 @@ namespace tobas_real
 MeasureSensorNoise::MeasureSensorNoise()
 {
   // ルート権限を確認
-  if (!dh_std::isSuperUser())
+  if (!tobas_std::isSuperUser())
   {
     throw runtime_error("Please execute with root privileges.");
   }
@@ -123,7 +123,7 @@ void MeasureSensorNoise::run()
 
   // Configに保存
   boost::property_tree::ptree pt;
-  if (dh_std::fileExists(kConfigPath))
+  if (tobas_std::fileExists(kConfigPath))
   {
     boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
   }

@@ -2,9 +2,9 @@
 #include <chrono>
 #include <unistd.h>
 
-#include <dh_std_tools/time.hpp>
-#include <dh_std_tools/console.hpp>
-#include <dh_std_tools/unix.hpp>
+#include <tobas_std_tools/time.hpp>
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/unix.hpp>
 
 #include "../../include/tobas_real/calibration/esc_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -16,7 +16,7 @@ namespace tobas_real
 {
 EscCalibration::EscCalibration()
 {
-  if (!dh_std::isSuperUser())
+  if (!tobas_std::isSuperUser())
   {
     throw runtime_error("Please execute with root privileges.");
   }
@@ -31,7 +31,7 @@ EscCalibration::EscCalibration()
 
 void EscCalibration::run()
 {
-  DH_WARN("Please make sure propellers are memoved from motors and press Enter:");
+  TOBAS_WARN("Please make sure propellers are memoved from motors and press Enter:");
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
   waitForBatteryDisconnected();
@@ -64,7 +64,7 @@ void EscCalibration::sendMaximum()
   }
 
   cout << "Battery connection detected." << endl;
-  cout << "Wait for " << dh_std::secondsFromMicroSeconds(kSleepHigh) << "seconds." << endl;
+  cout << "Wait for " << tobas_std::secondsFromMicroSeconds(kSleepHigh) << "seconds." << endl;
 
   const auto start_time = system_clock::now();
   while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kSleepHigh)
@@ -78,7 +78,7 @@ void EscCalibration::sendMaximum()
 void EscCalibration::sendMinimum()
 {
   cout << "Sending minimum throttle." << endl;
-  cout << "Wait for " << dh_std::secondsFromMicroSeconds(kSleepLow) << "seconds." << endl;
+  cout << "Wait for " << tobas_std::secondsFromMicroSeconds(kSleepLow) << "seconds." << endl;
 
   const auto start_time = system_clock::now();
   while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kSleepLow)

@@ -1,5 +1,5 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/geometry.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/geometry.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -62,25 +62,25 @@ void GazeboGpsPlugin::fillMessageStaticParts()
   // Fill the static parts of the GPS message
   gps_msg_.header.frame_id = link_name_;
 
-  gps_msg_.position_covariance[0] = dh_std::sqr(hor_pos_std_dev_);
+  gps_msg_.position_covariance[0] = tobas_std::sqr(hor_pos_std_dev_);
   gps_msg_.position_covariance[1] = 0.;
   gps_msg_.position_covariance[2] = 0.;
   gps_msg_.position_covariance[3] = 0.;
-  gps_msg_.position_covariance[4] = dh_std::sqr(hor_pos_std_dev_);
+  gps_msg_.position_covariance[4] = tobas_std::sqr(hor_pos_std_dev_);
   gps_msg_.position_covariance[5] = 0.;
   gps_msg_.position_covariance[6] = 0.;
   gps_msg_.position_covariance[7] = 0.;
-  gps_msg_.position_covariance[8] = dh_std::sqr(ver_pos_std_dev_);
+  gps_msg_.position_covariance[8] = tobas_std::sqr(ver_pos_std_dev_);
 
-  gps_msg_.velocity_covariance[0] = dh_std::sqr(hor_vel_std_dev_);
+  gps_msg_.velocity_covariance[0] = tobas_std::sqr(hor_vel_std_dev_);
   gps_msg_.velocity_covariance[1] = 0.;
   gps_msg_.velocity_covariance[2] = 0.;
   gps_msg_.velocity_covariance[3] = 0.;
-  gps_msg_.velocity_covariance[4] = dh_std::sqr(hor_vel_std_dev_);
+  gps_msg_.velocity_covariance[4] = tobas_std::sqr(hor_vel_std_dev_);
   gps_msg_.velocity_covariance[5] = 0.;
   gps_msg_.velocity_covariance[6] = 0.;
   gps_msg_.velocity_covariance[7] = 0.;
-  gps_msg_.velocity_covariance[8] = dh_std::sqr(ver_vel_std_dev_);
+  gps_msg_.velocity_covariance[8] = tobas_std::sqr(ver_vel_std_dev_);
 }
 
 void GazeboGpsPlugin::setRandomDistribuitons()
@@ -158,7 +158,7 @@ void GazeboGpsPlugin::updatePosition(const Pose3d& T_W_B)
   W_Pos_WS += pos_noise_->get();
 
   // Fill the GPS message
-  dh_std::cartToGpsRelative(
+  tobas_std::cartToGpsRelative(
     W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, gps_msg_.latitude, gps_msg_.longitude);
   gps_msg_.altitude = W_Pos_WS.Z();
 }

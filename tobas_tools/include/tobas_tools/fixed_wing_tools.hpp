@@ -3,18 +3,18 @@
 #include <vector>
 #include <Eigen/Core>
 
-#include <dh_std_tools/range.hpp>
-#include <dh_kdl/frames.hpp>
+#include <tobas_std_tools/range.hpp>
+#include <tobas_kdl/frames.hpp>
 
 namespace tobas
 {
 struct VehicleParameters
 {
-  double wing_surface;                // Wing surface [m^2]
-  double wing_span;                   // Wing span [m]
-  double mac;                         // Mean Aerodynamic Chord [m]
-  KDL::Vector ac;                     // Aerodynamic Center wrt the frame origin (NWU) [m]
-  dh_std::Range<double> alpha_limit;  // Stall angles [rad]
+  double wing_surface;                   // Wing surface [m^2]
+  double wing_span;                      // Wing span [m]
+  double mac;                            // Mean Aerodynamic Chord [m]
+  KDL::Vector ac;                        // Aerodynamic Center wrt the frame origin (NWU) [m]
+  tobas_std::Range<double> alpha_limit;  // Stall angles [rad]
 };
 
 /**
@@ -61,7 +61,7 @@ struct ControlSurface
 {
   int index;  // 舵角配列における添字
   std::string joint_name;
-  dh_std::Range<double> angle_limit;
+  tobas_std::Range<double> angle_limit;
   double max_angle_rate;
 
   double c_lift_delta;      // [/rad]

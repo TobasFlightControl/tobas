@@ -1,5 +1,5 @@
-#include <dh_std_tools/standard_atmosphere.hpp>
-#include <dh_std_tools/assert.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/assert.hpp>
 
 #include "../include/tobas_tools/trim_conditions.hpp"
 #include "../include/tobas_tools/constants.hpp"
@@ -101,7 +101,7 @@ int TrimConditions::update(const double& V, const double& rho, const JntArray& q
   return 0;
 }
 
-dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
+tobas_std::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
   assert(rho > 0);
 
@@ -117,7 +117,7 @@ dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
   const auto min_den = a_ * drone_.vehicle().alpha_limit.lower + b_;
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
 
-  return dh_std::Range<double>(V_min, V_max);
+  return tobas_std::Range<double>(V_min, V_max);
 }
 
 double TrimConditions::takeOffSpeed(const double& rho) const

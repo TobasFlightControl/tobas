@@ -2,14 +2,14 @@
 
 #include <string>
 
-#include <dh_std_tools/math.hpp>
+#include <tobas_std_tools/math.hpp>
 
 namespace tobas_fixed_wing_mpc
 {
 static constexpr double kStandardAirDensity = 1.225;  // [kg/m^3]
 
-static constexpr double kWarnPeriod = 1.;                          // [s]
-static constexpr double kInitialDeltaPitch = dh_std::deg2rad(5.);  // TODO: 初期ピッチ角 (NED)
+static constexpr double kWarnPeriod = 1.;                             // [s]
+static constexpr double kInitialDeltaPitch = tobas_std::deg2rad(5.);  // TODO: 初期ピッチ角 (NED)
 
 static constexpr size_t kCtrlSize = 8;
 static constexpr size_t kCtrlIdx_u = 0;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include "./solveri.hpp"
 #include "./drone.hpp"

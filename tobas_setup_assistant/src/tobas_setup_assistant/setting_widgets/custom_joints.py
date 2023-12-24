@@ -10,8 +10,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer, DoubleSpinBox, ComboBox
-from kdl_sympy.joint import *
+from tobas_rqt_tools.widgets import add_spacer, DoubleSpinBox, ComboBox
+from tobas_kdl_sympy.joint import *
 
 from ..parameter_getters import *
 from ..common import *

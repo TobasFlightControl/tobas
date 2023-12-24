@@ -9,8 +9,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import *
-from kdl_sympy.frames import Vector
+from tobas_rqt_tools.messages import *
+from tobas_kdl_sympy.frames import Vector
 
 from tobas_msgs.msg import PoseTwistAccelCommand
 

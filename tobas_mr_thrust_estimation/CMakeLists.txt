@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_mr_common
-	dh_linear_control
+	tobas_linear_control
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -37,7 +37,7 @@ generate_dynamic_reconfigure_options(cfg/ThrustEstimation.cfg)
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_mr_common dh_linear_control dynamic_reconfigure nodelet pluginlib
+	CATKIN_DEPENDS tobas_mr_common tobas_linear_control dynamic_reconfigure nodelet pluginlib
 	# DEPENDS
 )
 

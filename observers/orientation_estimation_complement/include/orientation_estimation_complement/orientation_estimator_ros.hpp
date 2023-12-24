@@ -7,7 +7,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
-#include <dh_ros_tools/timer.hpp>
+#include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 
@@ -65,7 +65,7 @@ private:
   Synchronizer sync_;
 
   // Timer
-  dh_ros::Timer check_topics_timer_;
+  tobas_ros::Timer check_topics_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;

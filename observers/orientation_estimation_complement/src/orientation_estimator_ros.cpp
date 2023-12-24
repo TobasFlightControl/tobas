@@ -1,10 +1,10 @@
 #include <sensor_msgs/NavSatFix.h>
 
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/util.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
-#include <dh_ros_tools/eigen_conversion.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/util.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_ros_tools/eigen_conversion.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -35,11 +35,11 @@ OrientationEstimatorRos::OrientationEstimatorRos(
 
 void OrientationEstimatorRos::getRosParams()
 {
-  dh_ros::getParam(pnh_, "gain_acc", gain_acc_, kDefaultGainAcc);
-  dh_ros::getParam(pnh_, "gain_mag", gain_mag_, kDefaultGainMag);
-  dh_ros::getParam(pnh_, "bias_alpha", bias_alpha_, kDefaultBiasAlpha);
-  dh_ros::getParam(pnh_, "do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
-  dh_ros::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
+  tobas_ros::getParam(pnh_, "gain_acc", gain_acc_, kDefaultGainAcc);
+  tobas_ros::getParam(pnh_, "gain_mag", gain_mag_, kDefaultGainMag);
+  tobas_ros::getParam(pnh_, "bias_alpha", bias_alpha_, kDefaultBiasAlpha);
+  tobas_ros::getParam(pnh_, "do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
+  tobas_ros::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
 }
 
 void OrientationEstimatorRos::registerPublishers()
@@ -57,7 +57,7 @@ void OrientationEstimatorRos::registerSubscribers()
 void OrientationEstimatorRos::initializeFilter()
 {
   sensor_msgs::NavSatFix gps;
-  if (!dh_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
+  if (!tobas_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
   {
     ROS_THROW_NAMED(name_, "Failed to get GPS message.");
   }
@@ -102,9 +102,9 @@ void OrientationEstimatorRos::eventCb(const tobas_msgs::EventConstPtr& event)
 void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag)
 {
   const auto& cur_time = imu->header.stamp;
-  dh_ros::vectorMsgToEigen(imu->linear_acceleration, a_);
-  dh_ros::vectorMsgToEigen(imu->angular_velocity, w_);
-  dh_ros::vectorMsgToEigen(mag->magnetic_field, m_);
+  tobas_ros::vectorMsgToEigen(imu->linear_acceleration, a_);
+  tobas_ros::vectorMsgToEigen(imu->angular_velocity, w_);
+  tobas_ros::vectorMsgToEigen(mag->magnetic_field, m_);
 
   // Initialize
   if (!is_initialized_)
@@ -128,13 +128,13 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   // Create fitlered IMU message
   const auto filtered_imu = boost::make_shared<ImuMsg>(*imu);
   filtered_imu->orientation_covariance.fill(nan(tobas::kUnknown));
-  dh_ros::quaternionEigenToMsg(q, filtered_imu->orientation);
+  tobas_ros::quaternionEigenToMsg(q, filtered_imu->orientation);
 
   // Account for biases
   if (do_bias_estimation_)
   {
     w_ -= filter_.getAngularVelocityBias();
-    dh_ros::vectorEigenToMsg(w_, filtered_imu->angular_velocity);
+    tobas_ros::vectorEigenToMsg(w_, filtered_imu->angular_velocity);
   }
 
   // Publish filtered IMU message

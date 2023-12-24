@@ -1,7 +1,7 @@
 #include <cassert>
 
-#include <dh_std_tools/algorithm.hpp>
-#include <dh_std_tools/check.hpp>
+#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_std_tools/check.hpp>
 
 #include "../include/tobas_tools/position_pid.hpp"
 
@@ -29,7 +29,7 @@ Vector3d PositionPid::update(
   Vector3d tar_acc = pid_.update(ep, ed, dt);
 
   // 目標加速度を制限
-  dh_std::clamp2d(tar_acc.x(), tar_acc.y(), max_hor_acc_);
+  tobas_std::clamp2d(tar_acc.x(), tar_acc.y(), max_hor_acc_);
   tar_acc.z() = clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_);
 
   return tar_acc;

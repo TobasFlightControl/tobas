@@ -11,8 +11,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.roslaunch import rosrun
-from dh_rqt_tools.dynamic_reconfigure import get_param_config
+from tobas_rqt_tools.roslaunch import rosrun
+from tobas_rqt_tools.dynamic_reconfigure import get_param_config
 
 from ...common import *
 from ...parameter_getters import *

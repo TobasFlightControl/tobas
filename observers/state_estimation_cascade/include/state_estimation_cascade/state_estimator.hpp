@@ -7,7 +7,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/FluidPressure.h>
 
-#include <dh_ros_tools/timer.hpp>
+#include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Gps.h>
@@ -71,7 +71,7 @@ private:
   ros::Subscriber gps_sub_;
 
   // Timer
-  dh_ros::Timer check_topics_timer_;
+  tobas_ros::Timer check_topics_timer_;
 
   // Dynamic Reconfigure
   ConfigServer server_;

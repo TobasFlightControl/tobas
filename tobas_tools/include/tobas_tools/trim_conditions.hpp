@@ -1,7 +1,7 @@
 #pragma once
 
-#include <dh_std_tools/range.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_std_tools/range.hpp>
+#include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include "./solveri.hpp"
 #include "./stability_derivatives_cog.hpp"
@@ -57,9 +57,9 @@ public:
    * cf. 青本, p.85, (2.9-47, 2.9-49)
    *
    * @param rho 大気密度 [kg/m^3]
-   * @return dh_std::Range<double> 速度の大きさの範囲
+   * @return tobas_std::Range<double> 速度の大きさの範囲
    */
-  dh_std::Range<double> speedLimit(const double& rho) const;
+  tobas_std::Range<double> speedLimit(const double& rho) const;
 
   /* 迎角が0でも機体を持ち上げるだけの揚力が発生する速度． */
   double takeOffSpeed(const double& rho) const;

@@ -2,7 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import SpinBox, DoubleSpinBox
+from tobas_rqt_tools.widgets import SpinBox, DoubleSpinBox
 
 from ..common import *
 

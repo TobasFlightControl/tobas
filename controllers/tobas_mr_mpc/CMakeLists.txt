@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_mr_common
-	dh_linear_control
+	tobas_linear_control
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -29,7 +29,7 @@ add_message_files(FILES ${MSG_FILES})
 
 generate_messages(DEPENDENCIES
 	tobas_msgs
-	dh_kdl_msgs
+	tobas_kdl_msgs
 	std_msgs
 )
 
@@ -40,7 +40,7 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_mr_common
-		dh_linear_control
+		tobas_linear_control
 		dynamic_reconfigure
 		nodelet
 		pluginlib

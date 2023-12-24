@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ScrollArea
+from tobas_rqt_tools.widgets import ScrollArea
 
 from ..common import *
 

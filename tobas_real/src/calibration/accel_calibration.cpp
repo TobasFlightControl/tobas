@@ -1,7 +1,7 @@
 #include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <dh_std_tools/fstream.hpp>
+#include <tobas_std_tools/fstream.hpp>
 
 #include "../../include/tobas_real/calibration/accel_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -37,7 +37,7 @@ void AccelCalibrator::run()
 
   // Configに保存
   boost::property_tree::ptree pt;
-  if (dh_std::fileExists(kConfigPath))
+  if (tobas_std::fileExists(kConfigPath))
   {
     boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
   }

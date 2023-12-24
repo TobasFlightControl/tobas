@@ -14,8 +14,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer, add_center_button
-from dh_rqt_tools.messages import *
+from tobas_rqt_tools.widgets import add_spacer, add_center_button
+from tobas_rqt_tools.messages import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *

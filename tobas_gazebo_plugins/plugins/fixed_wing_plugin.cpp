@@ -1,7 +1,7 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/vector.hpp>
-#include <dh_std_tools/unordered_set.hpp>
-#include <dh_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/vector.hpp>
+#include <tobas_std_tools/unordered_set.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
 
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_tools/constants.hpp>
@@ -134,7 +134,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
       tobas::ControlSurface cs;
 
       getSdfParam(cs_elem, "index", cs.index, NON_NEGATIVE);
-      if (dh_std::contains(indexes, cs.index))
+      if (tobas_std::contains(indexes, cs.index))
       {
         gzthrow(kPluginName << ": The index of each control surface must be unique.");
       }
@@ -164,7 +164,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
     for (size_t i = 0; i < indexes.size(); ++i)
     {
-      if (!dh_std::contains(indexes, static_cast<int>(i)))
+      if (!tobas_std::contains(indexes, static_cast<int>(i)))
       {
         gzthrow(kPluginName << ": controlSurface index mismatch.");
       }
@@ -195,7 +195,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
   if (cs_activated_ && time_after_last_cmd > auto_reset_time_thr_)
   {
-    dh_std::fill(cs_deflections_.deflections, 0.);
+    tobas_std::fill(cs_deflections_.deflections, 0.);
     cs_activated_ = false;
     gzmsg << kPluginName
           << ": Deflection angles of control surfaces are automatically reset because "
@@ -460,8 +460,8 @@ double GazeboFixedWingPlugin::yawCoefficient(
 double GazeboFixedWingPlugin::dynamicPressure(const double& V)
 {
   const auto altitude = alt_0_ + link_->WorldPose().Pos().Z();
-  const auto rho = dh_std::altitudeToDensity(altitude);
-  return rho * dh_std::sqr(V) / 2.;
+  const auto rho = tobas_std::altitudeToDensity(altitude);
+  return rho * tobas_std::sqr(V) / 2.;
 }
 
 void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)

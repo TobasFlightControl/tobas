@@ -37,7 +37,7 @@ private:
   std::vector<std::string> mode_names_;
 
   // Constants
-  dh_std::Range<double> dead_zone_;
+  tobas_std::Range<double> dead_zone_;
 
   // Mutables
   stage_t stage_ = CHECK_PREREQUISITES;

@@ -1,8 +1,8 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/string.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/string.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
@@ -22,7 +22,7 @@
 
 using namespace std;
 using namespace ros::message_traits;
-using namespace dh_std;
+using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -75,12 +75,12 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
 
 void RCTeleop::getRosParams()
 {
-  dh_ros::getParam(
-    pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, dh_ros::NON_NEGATIVE);
+  tobas_ros::getParam(
+    pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, tobas_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1)
     ROS_THROW_NAMED(name_, "'dead_zone_rate' must be lower than 1.");
 
-  dh_ros::getParam(pnh_, "mode_names", mode_names_);
+  tobas_ros::getParam(pnh_, "mode_names", mode_names_);
 }
 
 void RCTeleop::registerPublishers()
@@ -136,7 +136,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        DH_GOOD("RC transmitter is ready. Set E-Stop toggle OFF to start control.");
+        TOBAS_GOOD("RC transmitter is ready. Set E-Stop toggle OFF to start control.");
         stage_ = ESTOP_ON;
       }
       else

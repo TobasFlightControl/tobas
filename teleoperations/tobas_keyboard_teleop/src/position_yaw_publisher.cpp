@@ -1,11 +1,11 @@
 #include <actionlib/client/simple_action_client.h>
 
-#include <dh_std_tools/algorithm.hpp>
-#include <dh_std_tools/x11.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/rate.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/util.hpp>
+#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_std_tools/x11.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/rate.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/util.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -17,7 +17,7 @@
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
-using namespace dh_std;
+using namespace tobas_std;
 
 namespace tobas_keyboard_teleop
 {
@@ -72,7 +72,7 @@ void PositionYawPublisher::run()
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
-  if (dh_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_))
+  if (tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_))
   {
     cmd_pos_ = odom.pose.pos;
     cmd_yaw_ = odom.pose.euler.yaw;
@@ -87,7 +87,7 @@ void PositionYawPublisher::run()
   }
 
   // キーボード入力による位置コマンドを発行し続ける
-  dh_ros::Rate rate(kUpdateRate);
+  tobas_ros::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     // インストラクション
@@ -172,19 +172,19 @@ void PositionYawPublisher::run()
 
 void PositionYawPublisher::getRosParams()
 {
-  dh_ros::getParam(
-    pnh_, "max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, dh_ros::POSITIVE);
-  dh_ros::getParam(
-    pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, dh_ros::POSITIVE);
+  tobas_ros::getParam(
+    pnh_, "max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, tobas_ros::POSITIVE);
+  tobas_ros::getParam(
+    pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, tobas_ros::POSITIVE);
 
-  dh_ros::getParam(pnh_, "pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
-  dh_ros::getParam(pnh_, "pose_limit/x/max", x_limit_.upper, kDefaultMaximumX);
-  dh_ros::getParam(pnh_, "pose_limit/y/min", y_limit_.lower, kDefaultMinimumY);
-  dh_ros::getParam(pnh_, "pose_limit/y/max", y_limit_.upper, kDefaultMaximumY);
-  dh_ros::getParam(pnh_, "pose_limit/z/min", z_limit_.lower, kDefaultMinimumZ);
-  dh_ros::getParam(pnh_, "pose_limit/z/max", z_limit_.upper, kDefaultMaximumZ);
-  dh_ros::getParam(pnh_, "pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
-  dh_ros::getParam(pnh_, "pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
+  tobas_ros::getParam(pnh_, "pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
+  tobas_ros::getParam(pnh_, "pose_limit/x/max", x_limit_.upper, kDefaultMaximumX);
+  tobas_ros::getParam(pnh_, "pose_limit/y/min", y_limit_.lower, kDefaultMinimumY);
+  tobas_ros::getParam(pnh_, "pose_limit/y/max", y_limit_.upper, kDefaultMaximumY);
+  tobas_ros::getParam(pnh_, "pose_limit/z/min", z_limit_.lower, kDefaultMinimumZ);
+  tobas_ros::getParam(pnh_, "pose_limit/z/max", z_limit_.upper, kDefaultMaximumZ);
+  tobas_ros::getParam(pnh_, "pose_limit/yaw/min", yaw_limit_.lower, kDefaultMinimumYaw);
+  tobas_ros::getParam(pnh_, "pose_limit/yaw/max", yaw_limit_.upper, kDefaultMaximumYaw);
   ROS_ASSERT(x_limit_.isValid());
   ROS_ASSERT(y_limit_.isValid());
   ROS_ASSERT(z_limit_.isValid());

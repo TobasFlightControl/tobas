@@ -1,6 +1,6 @@
 from xml.etree import ElementTree as ET
 
-from urdf_tools_py.core import *
+from tobas_urdf_tools_py.core import *
 
 
 class BaseStaticJoint(ET.Element):

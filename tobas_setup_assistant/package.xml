@@ -17,9 +17,9 @@
 	<depend>joint_state_publisher_gui</depend>
 	<depend>moveit_msgs</depend>
 
-	<depend>dh_rqt_tools</depend>
-	<depend>kdl_sympy</depend>
-	<depend>urdf_tools_py</depend>
+	<depend>tobas_rqt_tools</depend>
+	<depend>tobas_kdl_sympy</depend>
+	<depend>tobas_urdf_tools_py</depend>
 	<depend>tobas_rviz_plugin</depend>
 	<depend>tobas_msgs</depend>
 

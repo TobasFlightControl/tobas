@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import MainWidget
+from tobas_rqt_tools.widgets import MainWidget
 
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator

@@ -1,7 +1,7 @@
 #include <algorithm>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/algorithm.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/algorithm.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/RotorState.h>
@@ -220,8 +220,8 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   const auto local_axis = joint_->LocalAxis(0);
 
   // (1) first term: Thrust Force
-  const auto rot_speed_sgn = dh_std::sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * dh_std::sqr(rot_speed);
+  const auto rot_speed_sgn = tobas_std::sign(rot_speed);
+  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * tobas_std::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
 
@@ -298,7 +298,7 @@ double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
 {
   const auto& a = rot_speed_coefs_.X();
   const auto& b = rot_speed_coefs_.Y();
-  return b > 0 ? (sqrt(dh_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+  return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 double GazeboRotorPlugin::maxRotSpeed()

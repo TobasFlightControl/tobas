@@ -30,7 +30,7 @@ add_service_files(FILES ${SRV_FILES})
 # add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
-	dh_kdl_msgs
+	tobas_kdl_msgs
 	std_msgs
 )
 

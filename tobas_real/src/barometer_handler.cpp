@@ -1,10 +1,10 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <sensor_msgs/FluidPressure.h>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
 
 #include "../include/tobas_real/barometer_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -35,7 +35,7 @@ BarometerHandler::BarometerHandler(
 
 void BarometerHandler::getRosParams()
 {
-  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
+  tobas_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void BarometerHandler::registerPublishers()
@@ -90,7 +90,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   bar_msg->header.stamp = event.current_real;
   bar_msg->header.frame_id = "barometer_frame";
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = dh_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
+  bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);

@@ -1,9 +1,9 @@
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/vector.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/vector.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
 
 #include <tobas_msgs/RCInput.h>
 
@@ -11,7 +11,7 @@
 #include "../include/tobas_real/common.hpp"
 
 using namespace std;
-using namespace dh_std;
+using namespace tobas_std;
 
 namespace tobas_real
 {
@@ -113,7 +113,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->pitch = remap<double>(pitch_period, pitch_range_.lower, pitch_range_.upper, -1, 1);
   rcin_msg->yaw = remap<double>(yaw_period, yaw_range_.lower, yaw_range_.upper, -1, 1);
   rcin_msg->thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
-  rcin_msg->mode = dh_std::closestIndex<double>(modes_, mode_period);
+  rcin_msg->mode = tobas_std::closestIndex<double>(modes_, mode_period);
   rcin_msg->e_stop = abs(estop_period - estop_on_) < abs(estop_period - estop_off_);
   rcin_msg->gpsw1 = abs(gpsw1_period - gpsw1_on_) < abs(gpsw1_period - gpsw1_off_);
   rcin_msg->gpsw2 = abs(gpsw2_period - gpsw2_on_) < abs(gpsw2_period - gpsw2_off_);

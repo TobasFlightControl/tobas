@@ -13,13 +13,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
-	dh_quadprog
+	tobas_quadprog
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_tools dh_quadprog
+	CATKIN_DEPENDS tobas_tools tobas_quadprog
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

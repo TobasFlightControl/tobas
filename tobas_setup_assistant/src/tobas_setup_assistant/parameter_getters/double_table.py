@@ -7,8 +7,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import DoubleSpinBox, add_spacer
-from dh_rqt_tools.messages import q_info, q_error
+from tobas_rqt_tools.widgets import DoubleSpinBox, add_spacer
+from tobas_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
 from ..common import *

@@ -1,9 +1,9 @@
-#include <dh_std_tools/vector.hpp>
-#include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
-#include <dh_kdl/quaternion.hpp>
+#include <tobas_std_tools/vector.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_kdl/quaternion.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Throttles.h>
@@ -32,10 +32,10 @@ ControllerRos::ControllerRos(
 
 void ControllerRos::getRosParams()
 {
-  dh_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
+  tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
   if (channels_.size() > kMaxMotors)
     ROS_THROW_NAMED(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
-  if (!dh_std::isUnique(channels_))
+  if (!tobas_std::isUnique(channels_))
     ROS_THROW_NAMED(name_, "channels are not unique.");
 }
 

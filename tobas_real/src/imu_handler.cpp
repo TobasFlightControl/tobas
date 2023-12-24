@@ -2,11 +2,11 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/boost.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/boost.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
 
 #include "../include/tobas_real/imu_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -39,7 +39,7 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 void ImuHandler::getRosParams()
 {
-  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
+  tobas_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void ImuHandler::registerPublishers()
@@ -124,12 +124,12 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   mag_msg->header.frame_id = "mag_frame";
 
   // Fill covariance matrices
-  const auto acc_var = dh_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
-  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
-  const auto mag_var = dh_std::sqr(mag_noise_density_) * update_rate_;
-  dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
-  dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
-  dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
+  const auto acc_var = tobas_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
+  const auto gyro_var = tobas_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
+  const auto mag_var = tobas_std::sqr(mag_noise_density_) * update_rate_;
+  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
+  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
+  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
 
   // Fill data (Convert to NWU coordinate system)
   const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く

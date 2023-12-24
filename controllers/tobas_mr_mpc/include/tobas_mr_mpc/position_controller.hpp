@@ -1,7 +1,7 @@
 #pragma once
 
-#include <dh_kdl/frames.hpp>
-#include <dh_linear_control/lqid.hpp>
+#include <tobas_kdl/frames.hpp>
+#include <tobas_linear_control/lqid.hpp>
 
 namespace tobas_mr_mpc
 {

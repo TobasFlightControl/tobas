@@ -3,7 +3,7 @@
 #include <dynamixel_sdk/dynamixel_sdk.h>
 #include <sensor_msgs/JointState.h>
 
-#include <dh_std_tools/range.hpp>
+#include <tobas_std_tools/range.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/JointPositions.h>
@@ -21,13 +21,13 @@ struct DynamixelConfig
   bool current_available;
   double current_scaling_factor;  // code -> A
 
-  double temp_limit;                    // [degC]
-  dh_std::Range<double> voltage_limit;  // [V]
-  double pwm_limit;                     // [%]
-  double current_limit;                 // [A]
-  double acc_limit;                     // [rad/s^2]
-  double vel_limit;                     // [rad/s]
-  dh_std::Range<double> pos_limit;      // [rad]
+  double temp_limit;                       // [degC]
+  tobas_std::Range<double> voltage_limit;  // [V]
+  double pwm_limit;                        // [%]
+  double current_limit;                    // [A]
+  double acc_limit;                        // [rad/s^2]
+  double vel_limit;                        // [rad/s]
+  tobas_std::Range<double> pos_limit;      // [rad]
 };
 
 class DynamixelHandler : public tobas::BaseNode

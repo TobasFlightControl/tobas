@@ -1,4 +1,4 @@
-#include <dh_std_tools/console.hpp>
+#include <tobas_std_tools/console.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -140,8 +140,8 @@ void Mixer::updateThrustLimits(
   const double& thrusts_sum)
 {
   const auto min_voltage = cur_voltage * tobas::kArmThrottle;
-  dh_std::Range<double> thrust_limit_1;
-  dh_std::Range<double> thrust_limit_2;
+  tobas_std::Range<double> thrust_limit_1;
+  tobas_std::Range<double> thrust_limit_2;
 
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
@@ -174,7 +174,7 @@ void Mixer::updateThrustLimits(
   // 合計推力の等式制約を満たせない場合は，不等式制約を取り除く
   if (thrusts_sum < min_thrusts_.sum() || max_thrusts_.sum() < thrusts_sum)
   {
-    DH_ERROR("Target thrust sum is not within the limit.");
+    TOBAS_ERROR("Target thrust sum is not within the limit.");
     max_thrusts_.fill(numeric_limits<double>::max());
     min_thrusts_.fill(0);
   }

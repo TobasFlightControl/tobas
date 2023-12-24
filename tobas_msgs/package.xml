@@ -15,7 +15,7 @@
 	<depend>nav_msgs</depend>
 	<depend>actionlib_msgs</depend>
 
-	<depend>dh_kdl</depend>
-	<depend>dh_kdl_msgs</depend>
+	<depend>tobas_kdl</depend>
+	<depend>tobas_kdl_msgs</depend>
 
 </package>

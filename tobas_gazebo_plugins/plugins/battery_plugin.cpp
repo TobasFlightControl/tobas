@@ -1,4 +1,4 @@
-#include <dh_std_tools/vector.hpp>
+#include <tobas_std_tools/vector.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
@@ -68,7 +68,7 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   t_last_ = info.simTime;
 
   // 電流を計算
-  const auto current = dh_std::sum(currents_);
+  const auto current = tobas_std::sum(currents_);
   if (current > max_current_)
   {
     gzwarn << kPluginName << ": The battery current is over limit: " << current << " > "

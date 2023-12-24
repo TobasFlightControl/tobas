@@ -2,9 +2,9 @@
 
 #include <Eigen/Core>
 
-#include <dh_linear_control/state_spaces.hpp>
-#include <dh_kdl/treefksolverpos.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_linear_control/state_spaces.hpp>
+#include <tobas_kdl/treefksolverpos.hpp>
+#include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>

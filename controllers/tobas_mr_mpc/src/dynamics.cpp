@@ -1,6 +1,6 @@
 #include <Eigen/LU>
 
-#include <dh_eigen_tools/geometry.hpp>
+#include <tobas_eigen_tools/geometry.hpp>
 
 #include "../include/tobas_mr_mpc/dynamics.hpp"
 #include "../include/tobas_mr_mpc/constants.hpp"

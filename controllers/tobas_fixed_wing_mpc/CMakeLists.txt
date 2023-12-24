@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
-	dh_linear_control
+	tobas_linear_control
 	dynamic_reconfigure
 	nodelet
 	pluginlib
@@ -26,7 +26,7 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_tools
-		dh_linear_control
+		tobas_linear_control
 		dynamic_reconfigure
 		nodelet
 		pluginlib

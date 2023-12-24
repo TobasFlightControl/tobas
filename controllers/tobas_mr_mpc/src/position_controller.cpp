@@ -1,5 +1,5 @@
-#include <dh_std_tools/algorithm.hpp>
-#include <dh_std_tools/check.hpp>
+#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_std_tools/check.hpp>
 
 #include "../include/tobas_mr_mpc/position_controller.hpp"
 
@@ -36,7 +36,7 @@ void PositionController::update(
   ta.data = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
 
   // 目標加速度をクランプ
-  dh_std::clamp2d(ta.x(), ta.y(), max_hor_acc_);
+  tobas_std::clamp2d(ta.x(), ta.y(), max_hor_acc_);
   ta.z() = clamp(ta.z(), -max_ver_acc_, max_ver_acc_);
 }
 

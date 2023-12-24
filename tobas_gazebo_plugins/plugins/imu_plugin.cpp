@@ -1,5 +1,5 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/boost.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/boost.hpp>
 
 #include <tobas_gazebo_plugins/ImuDebug.h>
 
@@ -11,7 +11,7 @@
 
 using namespace std;
 using namespace ignition::math;
-using namespace dh_std;
+using namespace tobas_std;
 
 namespace gazebo
 {
@@ -44,8 +44,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   // Initialize LPFs
-  const auto tau_acc_lpf = dh_std::timeConstFromCutoffFreq(acc_lpf_cutoff_freq_);
-  const auto tau_gyro_lpf = dh_std::timeConstFromCutoffFreq(gyro_lpf_cutoff_freq_);
+  const auto tau_acc_lpf = tobas_std::timeConstFromCutoffFreq(acc_lpf_cutoff_freq_);
+  const auto tau_gyro_lpf = tobas_std::timeConstFromCutoffFreq(gyro_lpf_cutoff_freq_);
   acc_lpf_.initialize(tau_acc_lpf, zero3);
   gyro_lpf_.initialize(tau_gyro_lpf, zero3);
 

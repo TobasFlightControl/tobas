@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 
-#include <dh_std_tools/range.hpp>
+#include <tobas_std_tools/range.hpp>
 
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/RCInput.h>
@@ -20,7 +20,7 @@ public:
     const tobas_msgs::RCInput& rcin,
     const tobas_msgs::Odometry& odom,
     const double& battery_voltage,
-    const dh_std::Range<double>& dead_zone) = 0;
+    const tobas_std::Range<double>& dead_zone) = 0;
 
 protected:
 };

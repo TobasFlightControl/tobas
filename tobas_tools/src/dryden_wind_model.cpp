@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <dh_std_tools/console.hpp>
+#include <tobas_std_tools/console.hpp>
 
 #include "../include/tobas_tools/dryden_wind_model.hpp"
 #include "../include/tobas_tools/constants.hpp"
@@ -25,7 +25,7 @@ void DrydenComponents::update(
   const auto h_ft = h * kMeterToFeet;
   if (h_ft > dryden::kLowAltitudeThreshold)
   {
-    DH_WARN(
+    TOBAS_WARN(
       "Since the altitude from the ground exceeds "
       << dryden::kLowAltitudeThreshold << " feet, the Dryden wind model might be inaccurate.");
   }

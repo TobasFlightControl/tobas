@@ -7,7 +7,7 @@
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
-#include <dh_std_tools/fstream.hpp>
+#include <tobas_std_tools/fstream.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -30,12 +30,12 @@ namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   : rviz::Panel(item),
-    config_path_(dh_std::expandPath(kConfigPath)),
+    config_path_(tobas_std::expandPath(kConfigPath)),
     ui_(new Ui::URDFBuilderPanelUI()),
     ogre_ctrl_(nullptr)
 {
   // configファイルを作成
-  if (!dh_std::fileExists(config_path_))
+  if (!tobas_std::fileExists(config_path_))
     createConfig();
 
   ui_->setupUi(this);

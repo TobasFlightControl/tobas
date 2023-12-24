@@ -1,11 +1,11 @@
 #pragma once
 
-#include <dh_eigen_tools/typedef.hpp>
-#include <dh_quadprog/dual_active_set.hpp>
-#include <dh_kdl/euler.hpp>
-#include <dh_kdl/treefksolverpos.hpp>
-#include <dh_kdl/treejntaxissolver.hpp>
-#include <dh_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_eigen_tools/typedef.hpp>
+#include <tobas_quadprog/dual_active_set.hpp>
+#include <tobas_kdl/euler.hpp>
+#include <tobas_kdl/treefksolverpos.hpp>
+#include <tobas_kdl/treejntaxissolver.hpp>
+#include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>

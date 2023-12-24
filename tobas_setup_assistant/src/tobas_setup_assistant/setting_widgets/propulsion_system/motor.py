@@ -13,8 +13,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox
-from dh_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *

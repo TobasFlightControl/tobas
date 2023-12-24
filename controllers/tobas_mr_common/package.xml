@@ -10,6 +10,6 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>tobas_tools</depend>
-	<depend>dh_quadprog</depend>
+	<depend>tobas_quadprog</depend>
 
 </package>

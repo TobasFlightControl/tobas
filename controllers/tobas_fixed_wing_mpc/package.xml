@@ -13,7 +13,7 @@
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
 
-	<depend>dh_linear_control</depend>
+	<depend>tobas_linear_control</depend>
 
 	<depend>tobas_tools</depend>
 

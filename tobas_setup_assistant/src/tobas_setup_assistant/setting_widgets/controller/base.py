@@ -13,10 +13,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.roslaunch import rosrun
-from dh_rqt_tools.dynamic_reconfigure import get_param_config
-from dh_rqt_tools.widgets import ComboBox
-from dh_rqt_tools.layouts import FormLayout
+from tobas_rqt_tools.roslaunch import rosrun
+from tobas_rqt_tools.dynamic_reconfigure import get_param_config
+from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.layouts import FormLayout
 
 from ...common import *
 
