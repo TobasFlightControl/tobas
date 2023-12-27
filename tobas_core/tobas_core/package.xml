@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>tobas_core</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<exec_depend>tobas_eigen_tools</exec_depend>
+	<exec_depend>tobas_kdl</exec_depend>
+	<exec_depend>tobas_kdl_msgs</exec_depend>
+	<exec_depend>tobas_kdl_sympy</exec_depend>
+	<exec_depend>tobas_linear_control</exec_depend>
+	<exec_depend>tobas_quadprog</exec_depend>
+	<exec_depend>tobas_ros_tools</exec_depend>
+	<exec_depend>tobas_rospy</exec_depend>
+	<exec_depend>tobas_rqt_tools</exec_depend>
+	<exec_depend>tobas_std_tools</exec_depend>
+	<exec_depend>tobas_urdf_tools_py</exec_depend>
+
+	<export>
+		<metapackage/>
+	</export>
+
+</package>
