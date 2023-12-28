@@ -17,7 +17,7 @@
   <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
   <xacro:property name="propeller_height" value="0.01"/>
   <xacro:property name="propeller_mass" value="0.011"/>
-  <xacro:property name="propeller_origin_z" value="0.048597"/>
+  <xacro:property name="propeller_origin_z" value="0.050597"/>
   <xacro:property name="rotor_tilt" value="${30*deg2rad}"/>
 
   <!-- Base Link -->
@@ -161,7 +161,7 @@
 
   <!-- Robot Arm -->
   <joint name="rmx52_joint" type="fixed">
-    <origin xyz="0.004 0 -0.0445" rpy="${pi} 0 0"/>
+    <origin xyz="0.004 0 -0.0545" rpy="${pi} 0 0"/>
     <parent link="base_link"/>
     <child link="rmx52/link1"/>
   </joint>
