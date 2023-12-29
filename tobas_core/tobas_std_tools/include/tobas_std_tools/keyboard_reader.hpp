@@ -15,7 +15,7 @@ public:
   explicit KeyboardReader();
   ~KeyboardReader();
 
-  char readKey();
+  signed char readKey();
 
 private:
   termios tempcopy_, changed_;

@@ -33,7 +33,7 @@ KeyboardReader::~KeyboardReader()
   tcsetattr(FILE_DESCRIPTOR, TCSANOW, &tempcopy_);
 }
 
-char KeyboardReader::readKey()
+signed char KeyboardReader::readKey()
 {
   char buf = 0;
   if (read(FILE_DESCRIPTOR, &buf, 1) < 0)
