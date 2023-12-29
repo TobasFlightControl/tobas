@@ -133,16 +133,15 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
     auto tar_throttle = throttles->data[rotor_idx];
     if (tar_throttle < tobas::kArmThrottle - kThrottleMargin)
     {
-      rosError(
-        name_, "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
-                                        << tobas::kArmThrottle);
+      rosWarnThrottle(
+        kWarnPeriod, name_,
+        "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
+                                 << tobas::kArmThrottle);
       tar_throttle = tobas::kArmThrottle;
     }
-    if (tar_throttle > tobas::kMaxThrottle + kThrottleMargin)
+    if (tar_throttle > tobas::kMaxThrottle - kThrottleMargin)
     {
-      rosError(
-        name_, "Target throttle on PIN" << pin << " is too high: " << tar_throttle << " > "
-                                        << tobas::kMaxThrottle);
+      rosWarnThrottle(kWarnPeriod, name_, "Full throttle is commanded to PIN " << pin);
       tar_throttle = tobas::kMaxThrottle;
     }
 

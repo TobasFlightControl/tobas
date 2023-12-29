@@ -18,7 +18,7 @@ class MotorsHandler : public tobas::BaseNode
 {
   static constexpr size_t kCheckIntervalRate = 10;       // [Hz]
   static constexpr double kAutoStopTimeThreshold = 0.5;  // [s]
-  static constexpr double kThrottleMargin = 0.01;
+  static constexpr double kThrottleMargin = 1e-3;
 
   using self = MotorsHandler;
   using super = tobas::BaseNode;

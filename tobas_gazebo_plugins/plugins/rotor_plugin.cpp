@@ -346,7 +346,20 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
   // Now the motor is activated
   is_activated_ = true;
 
-  const auto input_voltage = battery_->voltage * std::clamp(throttles->data[motor_number_], 0., 1.);
+  auto throttle = throttles->data[motor_number_];
+  if (throttle < tobas::kMinThrottle)
+  {
+    throttle = tobas::kMinThrottle;
+    GZ_WARN_THROTTLE(
+      kWarnPeriod, "Negative throttle is commanded to motor " << motor_number_ << ".");
+  }
+  else if (throttle >= tobas::kMaxThrottle)
+  {
+    throttle = tobas::kMaxThrottle;
+    GZ_WARN_THROTTLE(kWarnPeriod, "Full throttle is commmanded to motor " << motor_number_ << " .");
+  }
+  const auto input_voltage =
+    tobas_std::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
   cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
 }
 
