@@ -77,7 +77,8 @@ static constexpr uint8_t kTorqueEnable = 1;
 static constexpr uint8_t kTorqueDisable = 0;
 
 // ROS Topics
-static constexpr char kJointPositionsCmdTopic[] = "command/dynamixel/joint_positions";
-static constexpr char kJointVelocitiesCmdTopic[] = "command/dynamixel/joint_velocities";
-static constexpr char kJointEffortsCmdTopic[] = "command/dynamixel/joint_efforts";
+static constexpr char kMotorStatesTopic[] = "dynamixel/motor_states";
+static constexpr char kJointPositionsCmdTopic[] = "dynamixel/command/joint_positions";
+static constexpr char kJointVelocitiesCmdTopic[] = "dynamixel/command/joint_velocities";
+static constexpr char kJointEffortsCmdTopic[] = "dynamixel/command/joint_efforts";
 }  // namespace tobas_dynamixel_handler

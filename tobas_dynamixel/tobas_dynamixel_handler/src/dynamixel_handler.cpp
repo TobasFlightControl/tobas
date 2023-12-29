@@ -313,7 +313,7 @@ void DynamixelHandler::getMotorConfigs()
 
 void DynamixelHandler::registerPublishers()
 {
-  motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStates>("motor_states", 1);
+  motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStates>(kMotorStatesTopic, 1);
 }
 
 void DynamixelHandler::registerSubscribers()
