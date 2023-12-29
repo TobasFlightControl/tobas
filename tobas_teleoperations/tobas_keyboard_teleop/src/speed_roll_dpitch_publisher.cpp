@@ -88,13 +88,13 @@ void SpeedRollDeltaPitchPublisher::run()
 
     switch (c)
     {
-      case kKeyCode_W:
+      case 'w':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
         rosInfoThrottle(kInfoPeriod, name_, "Increase speed");
         break;
       }
-      case kKeyCode_S:
+      case 's':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
         rosInfoThrottle(kInfoPeriod, name_, "Decrease speed");

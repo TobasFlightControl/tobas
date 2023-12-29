@@ -100,25 +100,25 @@ void PositionYawPublisher::run()
 
     switch (c)
     {
-      case kKeyCode_W:  // X+
+      case 'w':  // X+
       {
         cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));
         rosInfo(name_, "[Moving forward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
-      case kKeyCode_S:  // X-
+      case 's':  // X-
       {
         cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() - delta_pos_));
         rosInfo(name_, "[Moving backward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
-      case kKeyCode_A:  // Y+
+      case 'a':  // Y+
       {
         cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() + delta_pos_));
         rosInfo(name_, "[Moving left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
-      case kKeyCode_D:  // Y-
+      case 'd':  // Y-
       {
         cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() - delta_pos_));
         rosInfo(name_, "[Moving right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
