@@ -157,7 +157,7 @@
     <child link="rmx52/gripper_link"/>
     <origin xyz="0.0817 0.021 0.0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit velocity="4.8" effort="1" lower="-0.010" upper="0.019"/>
+    <limit velocity="0.1" effort="1" lower="-0.010" upper="0.019"/>
     <dynamics damping="0" friction="1e-4"/>
   </joint>
 
@@ -189,7 +189,7 @@
     <child link="rmx52/gripper_link_sub"/>
     <origin xyz="0.0817 -0.021 0" rpy="0 0 0"/>
     <axis xyz="0 -1 0"/>
-    <limit velocity="4.8" effort="1" lower="-0.010" upper="0.019"/>
+    <limit velocity="0.1" effort="1" lower="-0.010" upper="0.019"/>
     <dynamics damping="0" friction="1e-4"/>
     <mimic joint="rmx52/gripper" multiplier="1"/>
   </joint>
