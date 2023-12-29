@@ -93,8 +93,12 @@ void DynamixelHandler::getRosParams()
   tobas_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
   tobas_ros::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
   tobas_ros::getParam(pnh_, "return_delay_time", return_delay_time_, kDefaultReturnDelayTime);
-  tobas_ros::getParam(
-    pnh_, "publish_motor_states", publish_motor_states_, kDefaultPublishMotorStates);
+  tobas_ros::getParam(pnh_, "read_pwm", read_pwm_, kDefaultReadPwm);
+  tobas_ros::getParam(pnh_, "read_current", read_current_, kDefaultReadCurrent);
+  tobas_ros::getParam(pnh_, "read_velocity", read_velocity_, kDefaultReadVelocity);
+  tobas_ros::getParam(pnh_, "read_position", read_position_, kDefaultReadPosition);
+  tobas_ros::getParam(pnh_, "read_voltage", read_voltage_, kDefaultReadVoltage);
+  tobas_ros::getParam(pnh_, "read_temperature", read_temperature_, kDefaultReadTemperature);
 }
 
 void DynamixelHandler::setMinimumLatency()
@@ -309,120 +313,124 @@ void DynamixelHandler::getMotorConfigs()
 
 void DynamixelHandler::registerPublishers()
 {
-  cur_js_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
-
-  if (publish_motor_states_)
-    motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStates>("motor_states", 1);
+  motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStates>("motor_states", 1);
 }
 
 void DynamixelHandler::registerSubscribers()
 {
-  positions_sub_ = nh_.subscribe(
-    tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ = nh_.subscribe(
-    tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
+  positions_sub_ =
+    nh_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
+  velocities_sub_ =
+    nh_.subscribe(kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
   efforts_sub_ =
-    nh_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+    nh_.subscribe(kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
 }
 
 void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 {
-  /* ========== Minimal joint states ========== */
+  // Create motor states message
+  const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStates>();
+  motor_states->header.stamp = cur_time;
+
   // Read packets
   dynamixel::GroupSyncRead pos_sync_read(poh_, pah_, kAddrPresentPosition, 4);
   dynamixel::GroupSyncRead vel_sync_read(poh_, pah_, kAddrPresentVelocity, 4);
   dynamixel::GroupSyncRead current_sync_read(poh_, pah_, kAddrPresentCurrent, 2);
-  if (readSyncPacket(pos_sync_read) < 0)
+  dynamixel::GroupSyncRead pwm_sync_read(poh_, pah_, kAddrPresentPwm, 2);
+  dynamixel::GroupSyncRead voltage_sync_read(poh_, pah_, kAddrPresentInputVoltage, 2);
+  dynamixel::GroupSyncRead temp_sync_read(poh_, pah_, kAddrPresentTemperature, 1);
+  if (read_position_ && readSyncPacket(pos_sync_read) < 0)
     rosError(name_, "Failed to receive a sync packet of present position.");
-  if (readSyncPacket(vel_sync_read) < 0)
+  if (read_velocity_ && readSyncPacket(vel_sync_read) < 0)
     rosError(name_, "Failed to receive a sync packet of present velocity.");
-  if (readSyncPacket(current_sync_read) < 0)
+  if (read_current_ && readSyncPacket(current_sync_read) < 0)
     rosError(name_, "Failed to receive a sync packet of present current.");
+  if (read_pwm_ && readSyncPacket(pwm_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present PWM.");
+  if (read_voltage_ && readSyncPacket(voltage_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present input voltage.");
+  if (read_temperature_ && readSyncPacket(temp_sync_read) < 0)
+    rosError(name_, "Failed to receive a sync packet of present temperature.");
 
-  // Compute joint states in the SI unit system.
-  unordered_map<string, double> pos, vel, current, load;
+  // Compute joint states in the SI unit system
   for (const auto& [name, cfg] : motors_)
   {
-    const int32_t pos_raw = pos_sync_read.getData(cfg.id, kAddrPresentPosition, 4);
-    pos[name] = tobas_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
-
-    const int32_t vel_raw = vel_sync_read.getData(cfg.id, kAddrPresentVelocity, 4);
-    vel[name] = static_cast<double>(vel_raw) * kDecodeFactorVel;
-
-    const int16_t current_raw = current_sync_read.getData(cfg.id, kAddrPresentCurrent, 2);
-    if (cfg.current_available)
+    if (read_position_)
     {
-      current[name] = static_cast<double>(current_raw) * cfg.current_scaling_factor;
-      load[name] = nan(kUnavailable);
+      const int32_t pos_raw = pos_sync_read.getData(cfg.id, kAddrPresentPosition, 4);
+      motor_state_.position = tobas_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
     }
     else
     {
-      current[name] = nan(kUnavailable);
-      load[name] = static_cast<double>(current_raw) * 0.1;
+      motor_state_.position = nan(kInactive);
     }
-  }
 
-  // Create joint states message
-  const auto cur_js = boost::make_shared<sensor_msgs::JointState>();
-  cur_js->header.stamp = cur_time;
-  for (const auto& [name, _] : motors_)
-  {
-    cur_js->name.push_back(name);
-    cur_js->position.push_back(pos[name]);
-    cur_js->velocity.push_back(vel[name]);
-    cur_js->effort.push_back(nan(kUnavailable));  // TODO: Estimate torque from current or load
-  }
+    if (read_velocity_)
+    {
+      const int32_t vel_raw = vel_sync_read.getData(cfg.id, kAddrPresentVelocity, 4);
+      motor_state_.velocity = static_cast<double>(vel_raw) * kDecodeFactorVel;
+    }
+    else
+    {
+      motor_state_.velocity = nan(kInactive);
+    }
 
-  // Publish joint states message
-  cur_js_pub_.publish(cur_js);
+    if (read_current_)
+    {
+      const int16_t current_raw = current_sync_read.getData(cfg.id, kAddrPresentCurrent, 2);
+      if (cfg.current_available)
+      {
+        motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
+        motor_state_.load = nan(kUnavailable);
+      }
+      else
+      {
+        motor_state_.current = nan(kUnavailable);
+        motor_state_.load = static_cast<double>(current_raw) * 0.1;
+      }
+    }
+    else
+    {
+      motor_state_.current = nan(kInactive);
+      motor_state_.load = nan(kInactive);
+    }
 
-  /* ========== Additional motor states ========== */
-  if (publish_motor_states_)
-  {
-    // Read packets
-    dynamixel::GroupSyncRead pwm_sync_read(poh_, pah_, kAddrPresentPwm, 2);
-    dynamixel::GroupSyncRead voltage_sync_read(poh_, pah_, kAddrPresentInputVoltage, 2);
-    dynamixel::GroupSyncRead temp_sync_read(poh_, pah_, kAddrPresentTemperature, 1);
-    if (readSyncPacket(pwm_sync_read) < 0)
-      rosError(name_, "Failed to receive a sync packet of present PWM.");
-    if (readSyncPacket(voltage_sync_read) < 0)
-      rosError(name_, "Failed to receive a sync packet of present input voltage.");
-    if (readSyncPacket(temp_sync_read) < 0)
-      rosError(name_, "Failed to receive a sync packet of present temperature.");
-
-    // Compute motor states in the SI unit system.
-    unordered_map<string, double> pwm, voltage, temp;
-    for (const auto& [name, cfg] : motors_)
+    if (read_pwm_)
     {
       const int16_t pwm_raw = pos_sync_read.getData(cfg.id, kAddrPresentPwm, 2);
-      pwm[name] = static_cast<double>(pwm_raw) * kDecodeFactorPwm;
-
-      const uint16_t voltage_yaw = voltage_sync_read.getData(cfg.id, kAddrPresentInputVoltage, 2);
-      voltage[name] = static_cast<double>(voltage_yaw) * kDecodeFactorVoltage;
-
-      const uint8_t temp_raw = temp_sync_read.getData(cfg.id, kAddrPresentTemperature, 1);
-      temp[name] = static_cast<double>(temp_raw) * kDecodeFactorTemp;
+      motor_state_.pwm = static_cast<double>(pwm_raw) * kDecodeFactorPwm;
     }
-
-    // Create motor states message
-    const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStates>();
-    motor_states->header.stamp = cur_time;
-    for (const auto& [name, _] : motors_)
+    else
     {
-      motor_state_.position = pos[name];
-      motor_state_.velocity = vel[name];
-      motor_state_.current = current[name];
-      motor_state_.load = load[name];
-      motor_state_.pwm = pwm[name];
-      motor_state_.input_voltage = voltage[name];
-      motor_state_.temperature = temp[name];
-      motor_states->names.push_back(name);
-      motor_states->states.push_back(motor_state_);
+      motor_state_.pwm = nan(kInactive);
     }
 
-    // Publish motor states message
-    motor_states_pub_.publish(motor_states);
+    if (read_voltage_)
+    {
+      const uint16_t voltage_yaw = voltage_sync_read.getData(cfg.id, kAddrPresentInputVoltage, 2);
+      motor_state_.input_voltage = static_cast<double>(voltage_yaw) * kDecodeFactorVoltage;
+    }
+    else
+    {
+      motor_state_.input_voltage = nan(kInactive);
+    }
+
+    if (read_temperature_)
+    {
+      const uint8_t temp_raw = temp_sync_read.getData(cfg.id, kAddrPresentTemperature, 1);
+      motor_state_.temperature = static_cast<double>(temp_raw) * kDecodeFactorTemp;
+    }
+    else
+    {
+      motor_state_.temperature = nan(kInactive);
+    }
+
+    motor_states->names.push_back(name);
+    motor_states->states.push_back(motor_state_);
   }
+
+  // Publish motor states message
+  motor_states_pub_.publish(motor_states);
 }
 
 int DynamixelHandler::readSyncPacket(dynamixel::GroupSyncRead& sync_read)

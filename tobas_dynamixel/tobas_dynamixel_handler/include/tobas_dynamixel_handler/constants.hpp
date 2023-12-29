@@ -8,6 +8,7 @@ namespace tobas_dynamixel_handler
 static constexpr double kDeg2Rad = M_PI / 180;  // degree -> radian
 static constexpr double kRpm2Rps = M_PI / 30;   // rpm -> rad/s
 static constexpr char kUnavailable[] = "unavailable";
+static constexpr char kInactive[] = "inactive";
 static constexpr size_t kMinimumLatency = 1;
 
 // Decoding Scale Factors
@@ -23,7 +24,12 @@ static constexpr char kDefaultDeviceName[] = "/dev/ttyUSB0";
 static constexpr float kDefaultProtocolVersion = 2.0;
 static constexpr size_t kDefaultBaudRate = 57600;      // [Hz]
 static constexpr uint8_t kDefaultReturnDelayTime = 0;  // [us]
-static constexpr bool kDefaultPublishMotorStates = false;
+static constexpr bool kDefaultReadPwm = false;
+static constexpr bool kDefaultReadCurrent = false;
+static constexpr bool kDefaultReadVelocity = false;
+static constexpr bool kDefaultReadPosition = true;
+static constexpr bool kDefaultReadVoltage = true;
+static constexpr bool kDefaultReadTemperature = false;
 static constexpr uint8_t kDefaultId = 1;
 static constexpr char kDefaultOperatingMode[] = "position";
 
@@ -69,4 +75,9 @@ static constexpr uint8_t kControlModePwm = 16;
 // Torque Enable
 static constexpr uint8_t kTorqueEnable = 1;
 static constexpr uint8_t kTorqueDisable = 0;
+
+// ROS Topics
+static constexpr char kJointPositionsCmdTopic[] = "command/dynamixel/joint_positions";
+static constexpr char kJointVelocitiesCmdTopic[] = "command/dynamixel/joint_velocities";
+static constexpr char kJointEffortsCmdTopic[] = "command/dynamixel/joint_efforts";
 }  // namespace tobas_dynamixel_handler

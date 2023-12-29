@@ -1,7 +1,6 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
 #include <dynamixel_sdk/dynamixel_sdk.h>
-#include <sensor_msgs/JointState.h>
 
 #include <tobas_std_tools/range.hpp>
 
@@ -54,11 +53,15 @@ private:
   float protocol_version_;
   size_t baudrate_;
   uint8_t return_delay_time_;
-  bool publish_motor_states_;
+  bool read_pwm_;
+  bool read_current_;
+  bool read_velocity_;
+  bool read_position_;
+  bool read_voltage_;
+  bool read_temperature_;
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
-  ros::Publisher cur_js_pub_;
   ros::Publisher motor_states_pub_;
   ros::Subscriber positions_sub_;
   ros::Subscriber velocities_sub_;
