@@ -11,7 +11,7 @@
   <xacro:property name="frame_mass" value="1.665"/>
   <xacro:property name="battery_x" value="0.155"/>
   <xacro:property name="battery_y" value="0.048"/>
-  <xacro:property name="battery_z" value="0.048"/>
+  <xacro:property name="battery_z" value="0.042"/>
   <xacro:property name="battery_mass" value="0.725"/>
   <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
   <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
@@ -40,7 +40,7 @@
     <inertial>
       <mass value="${frame_mass}"/>
       <origin xyz="0.486e-3 1.081e-3 -4.42e-3" rpy="0 0 0"/>
-      <inertia ixx="3.962e-2" ixy="-2.133e-6" ixz="-2.014-5" iyy="3.769e-2" iyz="-7.798e-5" izz="7.291e-2"/>
+      <inertia ixx="3.962e-2" ixy="-2.133e-6" ixz="-2.014e-5" iyy="3.769e-2" iyz="-7.798e-5" izz="7.291e-2"/>
     </inertial>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -52,7 +52,7 @@
 
   <!-- Battery -->
   <joint name="battery_joint" type="fixed">
-    <origin xyz="0 0 -0.024" rpy="0 0 0"/>
+    <origin xyz="0 0 -0.023" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="battery"/>
   </joint>
@@ -79,15 +79,15 @@
 
   <!-- Landing Gears -->
   <xacro:macro name="landing_gear" params="direction reverse suffix">
-    <joint name="landing_gear_${suffix}_lower_joint" type="fixed">
+    <joint name="lg_${suffix}_joint" type="revolute">
       <origin xyz="0 ${direction*0.0825} -0.063" rpy="0 0 ${reverse*pi}"/>
       <parent link="base_link"/>
-      <child link="landing_gear_${suffix}"/>
+      <child link="lg_${suffix}"/>
       <axis xyz="1 0 0"/>
-      <limit velocity="1" effort="1" lower="0" upper="${75*rad2deg}"/>  <!-- TODO -->
+      <limit velocity="${pi/2}" effort="1" lower="0" upper="${75*deg2rad}"/>  <!-- TODO -->
       <dynamics damping="0" friction="0.01"/>
     </joint>
-    <link name="landing_gear_${suffix}">
+    <link name="lg_${suffix}">
       <visual>
         <geometry>
           <mesh filename="package://tobas_description/meshes/f550_np_rmx52/landing_gear.stl" scale="1e-3 1e-3 1e-3"/>
@@ -95,7 +95,7 @@
         <xacro:insert_block name="black"/>
       </visual>
       <inertial>
-        <mass value="0.072}"/>
+        <mass value="0.072"/>
         <origin xyz="-0.046 0.211 0" rpy="0 0 0"/>
         <inertia ixx="7.171e-4" ixy="1.208e-4" ixz="-3.102e-9" iyy="2.613e-4" iyz="1.235e-8" izz="5.198e-4"/>
       </inertial>
@@ -106,6 +106,7 @@
         </geometry>
       </collision>
     </link>
+    <xacro:simple_transmission_position jnt_name="lg_${suffix}_joint"/>
   </xacro:macro>
 
   <xacro:landing_gear direction="1" reverse="0" suffix="left"/>
