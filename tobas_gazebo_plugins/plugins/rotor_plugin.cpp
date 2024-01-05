@@ -239,7 +239,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
   // Compute electric current
-  const auto& kt = rot_speed_coefs_.X();  // トルク定数をKvの逆数(=発電係数)で推定
+  const auto& kt = rot_speed_coefs_.X();  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
   const auto current = torque / kt;
   if (current > max_current_)
   {
@@ -367,7 +367,11 @@ void GazeboRotorPlugin::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   // 最初のバッテリー電圧取得時に最小回転数を目標回転数に設定する
   if (battery_ == nullptr)
+  {
+    battery_ = battery;
     cmd_rot_speed_ = minRotSpeed();
+    return;
+  }
 
   battery_ = battery;
 }
