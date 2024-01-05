@@ -124,7 +124,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     // ros::Timer cannot be used for shared library.
     if (cur_time > kCheckTopicsTimeThreshold)
     {
-      if (!battery_received_)
+      if (battery_ == nullptr)
         gzwarn << kPluginName << ": " << ns_ + "/" << tobas::kBatteryTopic
                << " is not received yet." << endl;
       if (!wind_received_)
@@ -188,7 +188,7 @@ void GazeboRotorPlugin::registerPubSub()
 
 bool GazeboRotorPlugin::isReady()
 {
-  return battery_received_ && wind_received_;
+  return battery_ != nullptr && wind_received_;
 }
 
 void GazeboRotorPlugin::addModelError()
@@ -313,7 +313,7 @@ double GazeboRotorPlugin::minRotSpeed()
 
 void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
 {
-  if (!battery_received_)
+  if (battery_ == nullptr)
     return;
 
   // Check index
@@ -365,14 +365,11 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
 
 void GazeboRotorPlugin::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
-  battery_ = battery;
-
   // 最初のバッテリー電圧取得時に最小回転数を目標回転数に設定する
-  if (!battery_received_)
-  {
-    battery_received_ = true;
+  if (battery_ == nullptr)
     cmd_rot_speed_ = minRotSpeed();
-  }
+
+  battery_ = battery;
 }
 
 void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
@@ -380,9 +377,7 @@ void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 
   if (!wind_received_)
-  {
     wind_received_ = true;
-  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRotorPlugin);

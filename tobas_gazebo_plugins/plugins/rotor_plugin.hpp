@@ -62,7 +62,6 @@ private:
   common::Time last_cmd_time_;
   bool is_activated_ = false;
   bool is_initialized_ = false;
-  bool battery_received_ = false;
   bool wind_received_ = false;
   AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
 
