@@ -607,6 +607,7 @@ class PackageGenerator(QObject):
             sag_voltage=battery.sag_voltage(),
             max_current=battery.max_current(),
             capacity=battery.capacity(),
+            internal_registance=battery.internal_registance(),
             num_rotors=propulsion_system.count(),
         )
         robot.append(battery_model)

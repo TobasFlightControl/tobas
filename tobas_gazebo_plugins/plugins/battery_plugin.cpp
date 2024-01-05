@@ -39,6 +39,7 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
   getSdfParam(sdf, "currentCapacity", capacity_, POSITIVE);
+  getSdfParam(sdf, "internalRegistance", registance_, NON_NEGATIVE);
   getSdfParam(sdf, "numRotors", num_rotors_, NON_NEGATIVE);
 }
 
@@ -79,7 +80,8 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   q_ = max(q_ - current * dt, 0.);
 
   // 電圧を計算
-  const auto voltage = currentVoltage();
+  auto voltage = currentVoltage();                     // 真のバッテリー電圧
+  voltage = max(voltage - registance_ * current, 0.);  // 内部抵抗による電圧降下を経て出力される
 
   // バッテリーの状態を発行
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();

@@ -37,6 +37,7 @@ private:
   double sag_voltage_;  // [V] 放電特性が急激に変化する電圧．LiPoなら1セルあたり3.4Vくらい．
   double max_current_;  // [A] 最大電流
   double capacity_;     // [As] 電気容量
+  double registance_;   // [Ω] 内部抵抗値
   size_t num_rotors_;
 
   std::vector<double> currents_;  // [A] 各モータに流れる電流

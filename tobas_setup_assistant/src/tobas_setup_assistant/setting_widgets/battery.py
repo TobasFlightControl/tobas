@@ -79,6 +79,9 @@ class BatteryWidget(BaseSettingWidget):
     def capacity(self) -> float:
         return self._selected().capacity()
 
+    def internal_registance(self) -> float:
+        return self._selected().internal_registance()
+
     def voltage_threshold(self) -> float:
         return self._selected().voltage_threshold()
 
@@ -143,8 +146,13 @@ class BatteryWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
+    def internal_registance(self) -> float:
+        """[Ω] 内部抵抗値．"""
+        raise NotImplementedError()
+
+    @abstractmethod
     def voltage_threshold(self) -> float:
-        """[V]"""
+        """[V] 警告を発する電圧値．"""
         raise NotImplementedError()
 
 
@@ -153,7 +161,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
 
     MAX_VOLTAGE_PER_CELL = 4.2  # 1セルあたりの最大電圧
     SAG_VOLTAGE_PER_CELL = 3.4  # 放電特性が急激に変化する電圧
-    VOLTAGE_THR_PER_CELL = 3.5
+    VOLTAGE_THR_PER_CELL = 3.2  # 内部抵抗による降圧を考慮し，警告の閾値を低めに設定 (3.0V以下で損傷リスク)
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
@@ -198,6 +206,16 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         self._rows.addWidget(self._C_cont)
 
+        registance_description = "1セルあたりの内部抵抗値．"
+        self._registance = ParamGetterWidget_SpinBox(
+            "Internal Registance",
+            registance_description,
+            minimum=0,
+            default=3,
+            suffix=" mΩ",
+        )
+        self._rows.addWidget(self._registance)
+
     @overrides
     def is_valid(self) -> bool:
         return True
@@ -217,6 +235,10 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
     @overrides
     def capacity(self) -> float:
         return self._capacity.get() * 3600 / 1000
+
+    @overrides
+    def internal_registance(self) -> float:
+        return self._num_cells.get() * self._registance.get() / 1000
 
     @overrides
     def voltage_threshold(self) -> float:
@@ -275,6 +297,16 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         self._rows.addWidget(self._capacity)
 
+        registance_description = "バッテリーの内部抵抗値．"
+        self._registance = ParamGetterWidget_SpinBox(
+            "Internal Registance",
+            registance_description,
+            minimum=0,
+            default=12,
+            suffix=" mΩ",
+        )
+        self._rows.addWidget(self._registance)
+
     @overrides
     def is_valid(self) -> bool:
         if self._max_voltage.get() <= self._sag_voltage.get():
@@ -300,6 +332,10 @@ class BatteryWidget_Other(BatteryWidget_Base):
     @overrides
     def capacity(self) -> float:
         return self._capacity.get() * 3600 / 1000
+
+    @overrides
+    def internal_registance(self) -> float:
+        return self._registance.get() / 1000
 
     @overrides
     def voltage_threshold(self) -> float:
