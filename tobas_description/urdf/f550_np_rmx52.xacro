@@ -123,7 +123,7 @@
     <link name="propeller_${index}">
       <visual>
         <geometry>
-          <mesh filename="package://tobas_description/meshes/f550_np/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
+          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
         <xacro:insert_block name="white"/>
       </visual>

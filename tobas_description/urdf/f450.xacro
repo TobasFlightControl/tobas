@@ -33,7 +33,7 @@
       <geometry>
         <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1e-3 1e-3 1e-3"/>
       </geometry>
-      <xacro:insert_block name="white"/>
+      <xacro:insert_block name="black"/>
     </visual>
     <inertial>
       <mass value="0.780"/>
@@ -57,7 +57,7 @@
   <link name="battery">
     <visual>
       <geometry>
-        <mesh filename="package://tobas_description/meshes/f450/sigp_3s_30c.stl" scale="1e-3 1e-3 1e-3"/>
+        <mesh filename="package://tobas_description/meshes/common/battery/sigp_3s_30c.stl" scale="1e-3 1e-3 1e-3"/>
       </geometry>
       <xacro:insert_block name="blue"/>
     </visual>
@@ -75,7 +75,7 @@
   </link>
 
   <!-- Propellers -->
-  <xacro:macro name="propeller" params="index yaw_deg origin_x origin_y">
+  <xacro:macro name="propeller" params="index direction yaw_deg origin_x origin_y">
     <joint name="propeller_${index}_joint" type="continuous">
       <origin xyz="${origin_x} ${origin_y} 0.0247" rpy="0 0 ${yaw_deg*deg2rad}"/>
       <axis xyz="0 0 1"/>
@@ -85,9 +85,9 @@
     <link name="propeller_${index}">
       <visual>
         <geometry>
-          <mesh filename="package://tobas_description/meshes/f450/propeller.stl" scale="1e-3 1e-3 1e-3"/>
+          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
         </geometry>
-        <xacro:insert_block name="black"/>
+        <xacro:insert_block name="white"/>
       </visual>
       <inertial>
         <mass value="${propeller_mass}"/>
@@ -103,9 +103,9 @@
     </link>
   </xacro:macro>
 
-  <xacro:propeller index="0" yaw_deg="-45" origin_x="${propeller_offset*cos45}" origin_y="${-propeller_offset*cos45}"/>
-  <xacro:propeller index="1" yaw_deg="135" origin_x="${-propeller_offset*cos45}" origin_y="${propeller_offset*cos45}"/>
-  <xacro:propeller index="2" yaw_deg="45" origin_x="${propeller_offset*cos45}" origin_y="${propeller_offset*cos45}"/>
-  <xacro:propeller index="3" yaw_deg="225" origin_x="${-propeller_offset*cos45}" origin_y="${-propeller_offset*cos45}"/>
+  <xacro:propeller index="0" direction="ccw" yaw_deg="-45" origin_x="${propeller_offset*cos45}" origin_y="${-propeller_offset*cos45}"/>
+  <xacro:propeller index="1" direction="ccw" yaw_deg="135" origin_x="${-propeller_offset*cos45}" origin_y="${propeller_offset*cos45}"/>
+  <xacro:propeller index="2" direction="cw" yaw_deg="45" origin_x="${propeller_offset*cos45}" origin_y="${propeller_offset*cos45}"/>
+  <xacro:propeller index="3" direction="cw" yaw_deg="225" origin_x="${-propeller_offset*cos45}" origin_y="${-propeller_offset*cos45}"/>
 
 </robot>
