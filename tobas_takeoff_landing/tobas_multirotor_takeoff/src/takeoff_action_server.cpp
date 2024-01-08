@@ -57,13 +57,6 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
     return false;
   }
 
-  if (goal->timeout <= 0)
-  {
-    result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Timeout must be positive.");
-    return false;
-  }
-
   return true;
 }
 
