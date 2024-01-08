@@ -16,6 +16,9 @@
 #include "../include/tobas_keyboard_teleop/position_yaw_publisher.hpp"
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
+#define TAKEOFF_TARGET_ALTITUDE 3.  // [m]
+#define TAKEOFF_TARGET_DURATION 5.  // [s]
+
 using namespace std;
 using namespace tobas_std;
 
@@ -60,6 +63,8 @@ void PositionYawPublisher::run()
   rosInfo(name_, "Requesting takeoff action.");
   tobas_msgs::TakeoffGoal takeoff_goal;
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
+  takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
+  takeoff_goal.target_duration = TAKEOFF_TARGET_DURATION;
   takeoff.sendGoalAndWait(takeoff_goal);
   const auto takeoff_result = takeoff.getResult();
   const auto takeoff_state = takeoff.getState();

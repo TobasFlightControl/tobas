@@ -60,10 +60,10 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
     return false;
   }
 
-  if (goal->timeout <= 0)
+  if (goal->timeout < 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Timeout must be positive.");
+    as_.setAborted(result_, "Timeout must be non-negative.");
     return false;
   }
 
@@ -100,7 +100,7 @@ bool TakeoffActionServer::waitForParamServer(const double& timeout)
 {
   while (!is_param_server_ok_)
   {
-    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
       result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while setting flight mode.");
@@ -132,7 +132,7 @@ bool TakeoffActionServer::setMode(const double& timeout)
 
   while (!set_mode_msg.response.mode_sent)
   {
-    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
       result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while setting flight mode.");
@@ -176,7 +176,7 @@ bool TakeoffActionServer::arming(const double& timeout)
 
   while (!arming_msg.response.success)
   {
-    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
       result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while arming.");
@@ -222,7 +222,7 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
   // 最低1回は実行するためにDo-While文を用いる
   do
   {
-    if ((ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
       result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while takeoff.");
