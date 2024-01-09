@@ -2874,6 +2874,12 @@
                         <property name="decimals">
                           <number>6</number>
                         </property>
+                        <property name="minimum">
+                          <number>-10000</number>
+                        </property>
+                        <property name="maximum">
+                          <number>10000</number>
+                        </property>
                         <property name="singleStep">
                           <double>0.001</double>
                         </property>
@@ -2941,6 +2947,12 @@
                         <property name="decimals">
                           <number>6</number>
                         </property>
+                        <property name="minimum">
+                          <number>0</number>
+                        </property>
+                        <property name="maximum">
+                          <number>10000</number>
+                        </property>
                         <property name="singleStep">
                           <double>0.001</double>
                         </property>
@@ -2950,6 +2962,12 @@
                       <widget class="QDoubleSpinBox" name="InertiaIXXSpinBox">
                         <property name="decimals">
                           <number>6</number>
+                        </property>
+                        <property name="minimum">
+                          <number>0</number>
+                        </property>
+                        <property name="maximum">
+                          <number>10000</number>
                         </property>
                         <property name="singleStep">
                           <double>0.001</double>
@@ -2980,6 +2998,12 @@
                         <property name="decimals">
                           <number>6</number>
                         </property>
+                        <property name="minimum">
+                          <number>-10000</number>
+                        </property>
+                        <property name="maximum">
+                          <number>10000</number>
+                        </property>
                         <property name="singleStep">
                           <double>0.001</double>
                         </property>
@@ -3009,6 +3033,12 @@
                         <property name="decimals">
                           <number>6</number>
                         </property>
+                        <property name="minimum">
+                          <number>-10000</number>
+                        </property>
+                        <property name="maximum">
+                          <number>10000</number>
+                        </property>
                         <property name="singleStep">
                           <double>0.001</double>
                         </property>
@@ -3018,6 +3048,12 @@
                       <widget class="QDoubleSpinBox" name="InertiaIZZSpinBox">
                         <property name="decimals">
                           <number>6</number>
+                        </property>
+                        <property name="minimum">
+                          <number>0</number>
+                        </property>
+                        <property name="maximum">
+                          <number>10000</number>
                         </property>
                         <property name="singleStep">
                           <double>0.001</double>
