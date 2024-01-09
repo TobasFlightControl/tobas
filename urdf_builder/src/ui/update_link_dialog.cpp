@@ -360,16 +360,15 @@ void UpdateLinkDialog::MaterialColorPickButtonClicked()
 
 void UpdateLinkDialog::BuildInertiaBoxButtonClicked()
 {
-  DoubleMapInputDialog dialog({ "X", "Y", "Z" });
-  auto result = dialog.exec();
+  DoubleMapInputDialog dialog("Box Inertia", { "X", "Y", "Z" });
+  const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
-  const auto& field_map = dialog.map();
-  const auto x = field_map.at("X");
-  const auto y = field_map.at("Y");
-  const auto z = field_map.at("Z");
+  const auto& x = dialog.getValue("X");
+  const auto& y = dialog.getValue("Y");
+  const auto& z = dialog.getValue("Z");
 
   vm_->inertial()->buildInertiaBox(x, y, z);
   vm_->sync();
@@ -380,15 +379,14 @@ void UpdateLinkDialog::BuildInertiaBoxButtonClicked()
 
 void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
 {
-  DoubleMapInputDialog dialog({ "Radius", "Length" });
+  DoubleMapInputDialog dialog("Cylinder Inertia", { "Radius", "Length" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
-  const auto& field_map = dialog.map();
-  const auto radius = field_map.at("Radius");
-  const auto length = field_map.at("Length");
+  const auto& radius = dialog.getValue("Radius");
+  const auto& length = dialog.getValue("Length");
 
   vm_->inertial()->buildInertiaCylinder(radius, length);
   vm_->sync();
@@ -399,14 +397,13 @@ void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
 
 void UpdateLinkDialog::BuildInertiaSphereButtonClicked()
 {
-  DoubleMapInputDialog dialog({ "Radius" });
+  DoubleMapInputDialog dialog("Sphere Inertia", { "Radius" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
-  const auto& field_map = dialog.map();
-  const auto radius = field_map.at("Radius");
+  const auto& radius = dialog.getValue("Radius");
 
   vm_->inertial()->buildInertiaSphere(radius);
   vm_->sync();
