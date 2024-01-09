@@ -380,15 +380,15 @@ void UpdateLinkDialog::BuildInertiaBoxButtonClicked()
 
 void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
 {
-  DoubleMapInputDialog dialog({ "radius", "length" });
+  DoubleMapInputDialog dialog({ "Radius", "Length" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
   const auto& field_map = dialog.map();
-  const auto radius = field_map.at("radius");
-  const auto length = field_map.at("length");
+  const auto radius = field_map.at("Radius");
+  const auto length = field_map.at("Length");
 
   vm_->inertial()->buildInertiaCylinder(radius, length);
   vm_->sync();
@@ -399,14 +399,14 @@ void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
 
 void UpdateLinkDialog::BuildInertiaSphereButtonClicked()
 {
-  DoubleMapInputDialog dialog({ "radius" });
+  DoubleMapInputDialog dialog({ "Radius" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
   const auto& field_map = dialog.map();
-  const auto radius = field_map.at("radius");
+  const auto radius = field_map.at("Radius");
 
   vm_->inertial()->buildInertiaSphere(radius);
   vm_->sync();
