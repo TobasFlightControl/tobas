@@ -1460,35 +1460,6 @@
                         </property>
                         <layout class="QHBoxLayout">
                           <item>
-                            <widget class="QLabel" name="label_4">
-                              <property name="maximumSize">
-                                <size>
-                                  <width>50</width>
-                                  <height>16777215</height>
-                                </size>
-                              </property>
-                              <property name="layoutDirection">
-                                <enum>Qt::LeftToRight</enum>
-                              </property>
-                              <property name="text">
-                                <string>Width</string>
-                              </property>
-                              <property name="alignment">
-                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <widget class="QDoubleSpinBox" name="VisualGeometryBoxWidthSpinBox">
-                              <property name="decimals">
-                                <number>4</number>
-                              </property>
-                              <property name="singleStep">
-                                <double>0.001</double>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
                             <widget class="QLabel" name="label_8">
                               <property name="maximumSize">
                                 <size>
@@ -1509,6 +1480,35 @@
                           </item>
                           <item>
                             <widget class="QDoubleSpinBox" name="VisualGeometryBoxLengthSpinBox">
+                              <property name="decimals">
+                                <number>4</number>
+                              </property>
+                              <property name="singleStep">
+                                <double>0.001</double>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QLabel" name="label_4">
+                              <property name="maximumSize">
+                                <size>
+                                  <width>50</width>
+                                  <height>16777215</height>
+                                </size>
+                              </property>
+                              <property name="layoutDirection">
+                                <enum>Qt::LeftToRight</enum>
+                              </property>
+                              <property name="text">
+                                <string>Width</string>
+                              </property>
+                              <property name="alignment">
+                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QDoubleSpinBox" name="VisualGeometryBoxWidthSpinBox">
                               <property name="decimals">
                                 <number>4</number>
                               </property>
@@ -2269,35 +2269,6 @@
                         </property>
                         <layout class="QHBoxLayout">
                           <item>
-                            <widget class="QLabel" name="label_26">
-                              <property name="maximumSize">
-                                <size>
-                                  <width>50</width>
-                                  <height>16777215</height>
-                                </size>
-                              </property>
-                              <property name="layoutDirection">
-                                <enum>Qt::LeftToRight</enum>
-                              </property>
-                              <property name="text">
-                                <string>Width</string>
-                              </property>
-                              <property name="alignment">
-                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <widget class="QDoubleSpinBox" name="CollisionGeometryBoxWidthSpinBox">
-                              <property name="decimals">
-                                <number>4</number>
-                              </property>
-                              <property name="singleStep">
-                                <double>0.001</double>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
                             <widget class="QLabel" name="label_27">
                               <property name="maximumSize">
                                 <size>
@@ -2318,6 +2289,35 @@
                           </item>
                           <item>
                             <widget class="QDoubleSpinBox" name="CollisionGeometryBoxLengthSpinBox">
+                              <property name="decimals">
+                                <number>4</number>
+                              </property>
+                              <property name="singleStep">
+                                <double>0.001</double>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QLabel" name="label_26">
+                              <property name="maximumSize">
+                                <size>
+                                  <width>50</width>
+                                  <height>16777215</height>
+                                </size>
+                              </property>
+                              <property name="layoutDirection">
+                                <enum>Qt::LeftToRight</enum>
+                              </property>
+                              <property name="text">
+                                <string>Width</string>
+                              </property>
+                              <property name="alignment">
+                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QDoubleSpinBox" name="CollisionGeometryBoxWidthSpinBox">
                               <property name="decimals">
                                 <number>4</number>
                               </property>
@@ -3129,8 +3129,8 @@
     <tabstop>VisualGeometryMeshPathLineEdit</tabstop>
     <tabstop>VisualGeometryMeshBrowseButton</tabstop>
     <tabstop>VisualGeometryMeshScaleSpinBox</tabstop>
-    <tabstop>VisualGeometryBoxWidthSpinBox</tabstop>
     <tabstop>VisualGeometryBoxLengthSpinBox</tabstop>
+    <tabstop>VisualGeometryBoxWidthSpinBox</tabstop>
     <tabstop>VisualGeometryBoxHeightSpinBox</tabstop>
     <tabstop>VisualGeometryCylinderRadiusSpinBox</tabstop>
     <tabstop>VisualGeometryCylinderLengthSpinBox</tabstop>
@@ -3152,8 +3152,8 @@
     <tabstop>CollisionGeometryMeshPathLineEdit</tabstop>
     <tabstop>CollisionGeometryMeshBrowseButton</tabstop>
     <tabstop>CollisionGeometryMeshScaleSpinBox</tabstop>
-    <tabstop>CollisionGeometryBoxWidthSpinBox</tabstop>
     <tabstop>CollisionGeometryBoxLengthSpinBox</tabstop>
+    <tabstop>CollisionGeometryBoxWidthSpinBox</tabstop>
     <tabstop>CollisionGeometryBoxHeightSpinBox</tabstop>
     <tabstop>CollisionGeometryCylinderRadiusSpinBox</tabstop>
     <tabstop>CollisionGeometryCylinderLengthSpinBox</tabstop>
