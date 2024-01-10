@@ -22,7 +22,7 @@ class OgreController
 {
   static constexpr float kAxesLength = 0.1;
   static constexpr float kAxesRadius = 0.01;
-  static constexpr float kCharHeight = 0.1;
+  static constexpr float kCharHeight = 0.03;  // モデルビューに表示される文字のサイズ
   static constexpr float kHighlightR = 0.;
   static constexpr float kHighlightG = 1.;
   static constexpr float kHighlightB = 0.;
