@@ -196,7 +196,21 @@ void UpdateLinkDialog::JointParentComboBoxIndexChanged(int)
 void UpdateLinkDialog::JointTypeComboBoxIndexChanged(int)
 {
   readFromUI(vm_->joint());
-  ui_->JointLimitGroupBox->setVisible(vm_->joint()->limitsEnabled());
+
+  const auto& joint = vm_->joint();
+  ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
+
+  // 固定関節ならばAxis, Dynamicsは表示しない
+  if (joint->isFixed())
+  {
+    ui_->JointAxisGroupBox->setVisible(false);
+    ui_->JointDynamicsGroupBox->setVisible(false);
+  }
+  else
+  {
+    ui_->JointAxisGroupBox->setVisible(true);
+    ui_->JointDynamicsGroupBox->setVisible(true);
+  }
 
   emitChanged();
 }
@@ -428,14 +442,26 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
     ui_->JointParentLinkComboBox->setCurrentText(joint->parentLinkName());
 
   ui_->JointTypeComboBox->setCurrentText(joint->type());
-  ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
 
+  ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
   if (joint->limitsEnabled())
   {
     ui_->JointLimitLowerSpinBox->setValue(joint->limits()->lower());
     ui_->JointLimitUpperSpinBox->setValue(joint->limits()->upper());
     ui_->JointLimitEffortSpinBox->setValue(joint->limits()->effort());
     ui_->JointLimitVelocitySpinBox->setValue(joint->limits()->velocity());
+  }
+
+  // 固定関節ならばAxis, Dynamicsは表示しない
+  if (joint->isFixed())
+  {
+    ui_->JointAxisGroupBox->setVisible(false);
+    ui_->JointDynamicsGroupBox->setVisible(false);
+  }
+  else
+  {
+    ui_->JointAxisGroupBox->setVisible(true);
+    ui_->JointDynamicsGroupBox->setVisible(true);
   }
 
   const auto& origin = joint->origin();

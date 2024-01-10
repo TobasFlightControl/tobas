@@ -39,7 +39,7 @@ public:
     model_->name = name.toStdString();
   }
 
-  QString type();
+  const QString& type() const;
   void type(const QString& type);
 
   const urdf::Pose& origin() const
@@ -95,6 +95,11 @@ public:
   bool limitsEnabled() const
   {
     return model_->type == urdf::Joint::REVOLUTE || model_->type == urdf::Joint::PRISMATIC;
+  }
+
+  bool isFixed() const
+  {
+    return model_->type == urdf::Joint::FIXED;
   }
 
   const JointLimitsViewModelPtr& limits() const

@@ -21,7 +21,7 @@ namespace urdf_builder
 {
 namespace view_model
 {
-QString JointViewModel::type()
+const QString& JointViewModel::type() const
 {
   return kJointTypeToNameMap.at(model_->type);
 }
