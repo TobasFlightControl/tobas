@@ -7,6 +7,7 @@
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/widget_item.hpp"
 #include "../../include/urdf_builder/ui/double_map_input_dialog.hpp"
+#include "../../include/urdf_builder/ui/string_input_dialog.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
 #include "ui_update_link_dialog.h"
 
@@ -25,8 +26,6 @@ UpdateLinkDialog::UpdateLinkDialog(const view_model::LinkViewModelPtr& vm, QWidg
   ui_->JointSafetyGroupBox->hide();
   ui_->JointCalibrationGroupBox->hide();
   ui_->JointMimicGroupBox->hide();
-
-  ui_->NameLineEdit->setEnabled(false);  // FIXME: 名前を変更するとバグる
 
   frame_map_.visual_geom = {
     { "Box", ui_->VisualGeometryBoxTypeFrame },
@@ -54,7 +53,7 @@ void UpdateLinkDialog::done(int code)
     return;
   }
 
-  if (ui_->NameLineEdit->text().isEmpty())
+  if (ui_->LinkNameLineEdit->text().isEmpty())
     QMessageBox::warning(this, kError, "No name specified");
   else
     QDialog::done(code);
@@ -80,7 +79,7 @@ void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& vm)
   ui_->CollisionOriginGroupBox->hide();
   ui_->CollisionGeometryGroupBox->hide();
 
-  ui_->NameLineEdit->setText(vm_->name());
+  ui_->LinkNameLineEdit->setText(vm_->name());
 
   readFromVM(vm_->joint());
   readFromVM(vm_->inertial());
@@ -292,6 +291,40 @@ void UpdateLinkDialog::CollisionListWidgetItemClicked(QListWidgetItem* item)
 
   const auto collisionItem = dynamic_cast<CollisionListWidgetItem*>(item);
   readFromVM(collisionItem->viewModel());
+}
+
+void UpdateLinkDialog::RenameLinkButtonClicked()
+{
+  ROS_DEBUG_STREAM("UpdateLinkDialog::RenameLinkButtonClicked");
+
+  const auto& cur_name = ui_->LinkNameLineEdit->text();
+  auto excludeds = vm_->usedLinkNames();
+  excludeds.removeOne(cur_name);
+  StringInputDialog dialog("Rename Link", "Link Name", cur_name, excludeds);
+
+  const auto result = dialog.exec();
+  if (result != QDialog::Accepted)
+    return;
+
+  ui_->LinkNameLineEdit->setText(dialog.getText());
+
+  // FIXME: LinkNameLineEditの変更時とここで2回リロードしないとTreeNodeが重複する
+  emitChanged();
+}
+
+void UpdateLinkDialog::RenameJointButtonClicked()
+{
+  ROS_DEBUG_STREAM("UpdateLinkDialog::RenameJointButtonClicked");
+
+  StringInputDialog dialog("Rename Joint", "Joint Name", ui_->JointNameLineEdit->text());
+
+  const auto result = dialog.exec();
+  if (result != QDialog::Accepted)
+    return;
+
+  ui_->JointNameLineEdit->setText(dialog.getText());
+
+  emitChanged();
 }
 
 void UpdateLinkDialog::AddVisualButtonClicked()
@@ -740,7 +773,7 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint)
 {
   joint->name(ui_->JointNameLineEdit->text());
   joint->parentLinkName(ui_->JointParentLinkComboBox->currentText());
-  joint->childLinkName(ui_->NameLineEdit->text());
+  joint->childLinkName(ui_->LinkNameLineEdit->text());
   joint->type(ui_->JointTypeComboBox->currentText());
 
   if (joint->limitsEnabled())

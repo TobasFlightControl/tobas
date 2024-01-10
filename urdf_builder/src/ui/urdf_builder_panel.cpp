@@ -43,7 +43,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   ui_->EnableVisualCheckBox->setChecked(kDefaultVisualVisible);
   ui_->EnableCollisionCheckBox->setChecked(kDefaultCollisionVisible);
 
-  update_timer_ = new QTimer;
+  update_timer_ = new QTimer();
 
   const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
   link_dialog_ = new UpdateLinkDialog(vm);
@@ -476,7 +476,7 @@ bool URDFBuilderPanel::saveURDF(const QString& file_path)
 
 bool URDFBuilderPanel::isValid()
 {
-  if (!isRobotNameVolid())
+  if (!isRobotNameValid())
     return false;
 
   if (!isJointsValid())
@@ -485,7 +485,7 @@ bool URDFBuilderPanel::isValid()
   return true;
 }
 
-bool URDFBuilderPanel::isRobotNameVolid()
+bool URDFBuilderPanel::isRobotNameValid()
 {
   const auto name = ui_->RobotName->text();
 

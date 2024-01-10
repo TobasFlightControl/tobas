@@ -8,7 +8,7 @@ namespace ui
 void UpdateLinkDialog::defineConnections()
 {
   connect(
-    ui_->NameLineEdit, SIGNAL(textChanged(const QString&)), this,
+    ui_->LinkNameLineEdit, SIGNAL(textChanged(const QString&)), this,
     SLOT(LinkNameLineEditTextChanged(const QString&)));
   connect(
     ui_->JointNameLineEdit, SIGNAL(textChanged(const QString&)), this,
@@ -225,6 +225,8 @@ void UpdateLinkDialog::defineConnections()
     ui_->InertiaIZZSpinBox, SIGNAL(valueChanged(double)), this,
     SLOT(InertialSpinBoxValueChanged(double)));
 
+  connect(ui_->RenameLinkButton, SIGNAL(released()), this, SLOT(RenameLinkButtonClicked()));
+  connect(ui_->RenameJointButton, SIGNAL(released()), this, SLOT(RenameJointButtonClicked()));
   connect(ui_->AddVisualButton, SIGNAL(released()), this, SLOT(AddVisualButtonClicked()));
   connect(ui_->RemoveVisualButton, SIGNAL(released()), this, SLOT(RemoveVisualButtonClicked()));
   connect(ui_->AddCollisionButton, SIGNAL(released()), this, SLOT(AddCollisionButtonClicked()));

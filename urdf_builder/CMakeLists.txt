@@ -52,6 +52,7 @@ qt5_wrap_cpp(MOC_FILES
   include/urdf_builder/ui/update_link_dialog.hpp
   include/urdf_builder/ui/add_link_dialog.hpp
   include/urdf_builder/ui/double_map_input_dialog.hpp
+  include/urdf_builder/ui/string_input_dialog.hpp
   include/urdf_builder/rviz_helpers/display_context_proxy.hpp
   OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -DBOOST_LEXICAL_CAST_INCLUDED
 )

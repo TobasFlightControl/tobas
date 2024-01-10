@@ -68,6 +68,11 @@ public:
     return joint_;
   }
 
+  const QStringList& usedLinkNames() const
+  {
+    return joint_->usedLinkNames();
+  }
+
   void usedLinkNames(const QStringList& used_link_names)
   {
     joint_->usedLinkNames(used_link_names);

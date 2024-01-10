@@ -85,7 +85,7 @@ private:
   bool saveURDF(const QString& file_path);
 
   bool isValid();
-  bool isRobotNameVolid();
+  bool isRobotNameValid();
   bool isJointsValid();
 
   static void collectUncheckedLinks(QTreeWidgetItem* item, std::unordered_set<std::string>& set);
