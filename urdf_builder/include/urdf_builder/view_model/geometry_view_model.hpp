@@ -20,93 +20,31 @@ class GeometryViewModel : public BaseViewModel<urdf::Geometry, GeometryViewModel
   static constexpr double kDefaultScale = 1.;
 
 public:
-  explicit GeometryViewModel(const urdf::GeometrySharedPtr& model)
-    : BaseViewModel<urdf::Geometry, GeometryViewModel>(model),
-      type_(model_->type),
-      radius_(kDefaultRadius),
-      length_(kDefaultLength),
-      width_(kDefaultWidth),
-      height_(kDefaultHeight),
-      scale_(kDefaultScale, kDefaultScale, kDefaultScale)
-  {
-    if (!model)
-      model_.reset(new urdf::Sphere());
-    load();
-  }
+  explicit GeometryViewModel(const urdf::GeometrySharedPtr& model);
 
   const QString& name() const;
 
-  GeometryType type() const
-  {
-    return type_;
-  }
-
-  void type(GeometryType type)
-  {
-    type_ = type;
-  }
-
+  GeometryType type() const;
+  void type(GeometryType type);
   void type(const QString& type);
 
-  double width() const
-  {
-    return width_;
-  }
+  double width() const;
+  void width(double width);
 
-  void width(double width)
-  {
-    width_ = width;
-  }
+  double length() const;
+  void length(double length);
 
-  double length() const
-  {
-    return length_;
-  }
+  double height() const;
+  void height(double height);
 
-  void length(double length)
-  {
-    length_ = length;
-  }
+  double radius() const;
+  void radius(double radius);
 
-  double height() const
-  {
-    return height_;
-  }
+  QString filePath() const;
+  void filePath(const QString& filepath);
 
-  void height(double height)
-  {
-    height_ = height;
-  }
-
-  double radius() const
-  {
-    return radius_;
-  }
-
-  void radius(double radius)
-  {
-    radius_ = radius;
-  }
-
-  QString filePath() const
-  {
-    return QString::fromStdString(filepath_);
-  }
-
-  void filePath(const QString& filepath)
-  {
-    filepath_ = filepath.toStdString();
-  }
-
-  const urdf::Vector3& scale() const
-  {
-    return scale_;
-  }
-
-  void scale(const urdf::Vector3& scale)
-  {
-    scale_ = scale;
-  }
+  const urdf::Vector3& scale() const;
+  void scale(const urdf::Vector3& scale);
 
   void sync() override;
 

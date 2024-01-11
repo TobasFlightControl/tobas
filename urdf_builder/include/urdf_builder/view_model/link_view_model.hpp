@@ -22,148 +22,30 @@ using V_LinkViewModelPtr = std::vector<LinkViewModelPtr>;
 class LinkViewModel : public BaseViewModel<urdf::Link, LinkViewModel>
 {
 public:
-  explicit LinkViewModel(const urdf::LinkSharedPtr& model)
-    : BaseViewModel<urdf::Link, LinkViewModel>(model),
-      inertial_(std::make_shared<InertialViewModel>(model_->inertial)),
-      joint_(std::make_shared<JointViewModel>(model_->parent_joint))
-  {
-    for (const auto& visual : model_->visual_array)
-      visuals_.emplace_back(new VisualViewModel(visual));
+  explicit LinkViewModel(const urdf::LinkSharedPtr& model);
 
-    for (const auto& collision : model_->collision_array)
-      collisions_.emplace_back(new CollisionViewModel(collision));
+  QString name() const;
+  void name(const QString& name);
 
-    // コンストラクタの時点でURDFと同期しておく．
-    // そうしないとMeshをクローンしたときにパスエラーが出る．
-    sync();
-  }
+  const InertialViewModelPtr& inertial() const;
+  const V_VisualViewModelPtr& visuals() const;
+  const V_CollisionViewModelPtr& collisions() const;
+  const JointViewModelPtr& joint() const;
+  V_LinkViewModelPtr children() const;
 
-  QString name() const
-  {
-    return QString::fromStdString(model_->name);
-  }
+  const QStringList& usedLinkNames() const;
+  void usedLinkNames(const QStringList& used_link_names);
 
-  void name(const QString& name)
-  {
-    model_->name = name.toStdString();
-  }
-
-  const InertialViewModelPtr& inertial() const
-  {
-    return inertial_;
-  }
-
-  const V_VisualViewModelPtr& visuals() const
-  {
-    return visuals_;
-  }
-
-  const V_CollisionViewModelPtr& collisions() const
-  {
-    return collisions_;
-  }
-
-  const JointViewModelPtr& joint() const
-  {
-    return joint_;
-  }
-
-  const QStringList& usedLinkNames() const
-  {
-    return joint_->usedLinkNames();
-  }
-
-  void usedLinkNames(const QStringList& used_link_names)
-  {
-    joint_->usedLinkNames(used_link_names);
-  }
-
-  bool isValid() const
-  {
-    if (model_->name.empty())
-      return false;
-
-    if (joint_->usedLinkNames().contains(QString::fromStdString(model_->name)))
-      return false;
-
-    return true;
-  }
-
-  V_LinkViewModelPtr children() const
-  {
-    V_LinkViewModelPtr result;
-    for (const auto& child : model_->child_links)
-      result.emplace_back(new LinkViewModel(child));
-    return result;
-  }
+  bool isValid() const;
 
   /* View Modelの内容をurdf::Linkに反映させる． */
-  void sync() override
-  {
-    inertial_->sync();
-    joint_->sync();
-    for (const auto& visual : visuals_)
-      visual->sync();
-    for (const auto& collision : collisions_)
-      collision->sync();
+  void sync() override;
 
-    // inertial
-    model_->inertial = inertial_->model();
+  void add(const VisualViewModelPtr& visual);
+  void remove(const VisualViewModelPtr& visual);
 
-    // collision, collision_array
-    model_->collision_array.clear();
-    std::transform(
-      collisions_.begin(), collisions_.end(), std::back_inserter(model_->collision_array),
-      [](const CollisionViewModelPtr& vm) { return vm->model(); });
-    if (model_->collision_array.empty())
-      model_->collision = nullptr;
-    else
-      model_->collision = model_->collision_array.front();
-
-    // visual, visual_array
-    model_->visual_array.clear();
-    std::transform(
-      visuals_.begin(), visuals_.end(), std::back_inserter(model_->visual_array),
-      [](const VisualViewModelPtr& vm) { return vm->model(); });
-    if (model_->visual_array.empty())
-      model_->visual = nullptr;
-    else
-      model_->visual = model_->visual_array.front();
-
-    // parent_joint
-    model_->parent_joint = joint_->model();
-
-    // child_joints, child_linksは可視化に影響しないため省略？
-  }
-
-  void add(const VisualViewModelPtr& visual)
-  {
-    visuals_.push_back(visual);
-
-    sync();
-  }
-
-  void remove(const VisualViewModelPtr& visual)
-  {
-    visuals_.erase(std::remove(visuals_.begin(), visuals_.end(), visual), visuals_.end());
-
-    sync();
-  }
-
-  void add(const CollisionViewModelPtr& collision)
-  {
-    collisions_.push_back(collision);
-
-    sync();
-  }
-
-  void remove(const CollisionViewModelPtr& collision)
-  {
-    collisions_.erase(
-      std::remove(collisions_.begin(), collisions_.end(), collision), collisions_.end());
-
-    sync();
-  }
+  void add(const CollisionViewModelPtr& collision);
+  void remove(const CollisionViewModelPtr& collision);
 
 private:
   InertialViewModelPtr inertial_;

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include "./base_view_model.hpp"
-#include "../utils/time.hpp"
+#include "./geometry_view_model.hpp"
+#include "./material_view_model.hpp"
 
 namespace urdf_builder
 {
@@ -12,51 +11,18 @@ namespace view_model
 class VisualViewModel : public BaseViewModel<urdf::Visual, VisualViewModel>
 {
 public:
-  explicit VisualViewModel(const urdf::VisualSharedPtr& model)
-    : BaseViewModel<urdf::Visual, VisualViewModel>(model),
-      geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry)),
-      material_vm_(std::make_shared<MaterialViewModel>(model_->material))
-  {
-    if (model_->name.empty())
-      model_->name = "visual_" + std::to_string(utils::timeNowMilliseconds());
-  }
+  explicit VisualViewModel(const urdf::VisualSharedPtr& model);
 
-  QString name() const
-  {
-    return QString::fromStdString(model_->name);
-  }
+  QString name() const;
+  void name(const QString& name);
 
-  void name(const QString& name)
-  {
-    model_->name = name.toStdString();
-  }
+  const urdf::Pose& origin() const;
+  void origin(const urdf::Pose& origin);
 
-  const urdf::Pose& origin() const
-  {
-    return model_->origin;
-  }
+  const GeometryViewModelPtr& geometry() const;
+  const MaterialViewModelPtr& material() const;
 
-  void origin(const urdf::Pose& origin)
-  {
-    model_->origin = origin;
-  }
-
-  const MaterialViewModelPtr& material() const
-  {
-    return material_vm_;
-  }
-
-  const GeometryViewModelPtr& geometry() const
-  {
-    return geometry_vm_;
-  }
-
-  void sync() override
-  {
-    geometry_vm_->sync();
-    model_->geometry = geometry_vm_->model();
-    model_->material = material_vm_->model();
-  }
+  void sync() override;
 
 private:
   GeometryViewModelPtr geometry_vm_;

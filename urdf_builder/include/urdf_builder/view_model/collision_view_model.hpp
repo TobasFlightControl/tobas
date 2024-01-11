@@ -4,7 +4,6 @@
 
 #include "./base_view_model.hpp"
 #include "./geometry_view_model.hpp"
-#include "../utils/time.hpp"
 
 namespace urdf_builder
 {
@@ -13,44 +12,17 @@ namespace view_model
 class CollisionViewModel : public BaseViewModel<urdf::Collision, CollisionViewModel>
 {
 public:
-  explicit CollisionViewModel(const urdf::CollisionSharedPtr& model)
-    : BaseViewModel<urdf::Collision, CollisionViewModel>(model),
-      geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry))
-  {
-    if (model_->name.empty())
-      model_->name = "collision_" + std::to_string(utils::timeNowMilliseconds());
-  }
+  explicit CollisionViewModel(const urdf::CollisionSharedPtr& model);
 
-  const urdf::Pose& origin() const
-  {
-    return model_->origin;
-  }
+  const urdf::Pose& origin() const;
+  void origin(const urdf::Pose& origin);
 
-  void origin(const urdf::Pose& origin)
-  {
-    model_->origin = origin;
-  }
+  QString name() const;
+  void name(const QString& name);
 
-  QString name() const
-  {
-    return QString::fromStdString(model_->name);
-  }
+  const GeometryViewModelPtr& geometry() const;
 
-  void name(const QString& name)
-  {
-    model_->name = name.toStdString();
-  }
-
-  const GeometryViewModelPtr& geometry() const
-  {
-    return geometry_vm_;
-  }
-
-  void sync() override
-  {
-    geometry_vm_->sync();
-    model_->geometry = geometry_vm_->model();
-  }
+  void sync() override;
 
 private:
   GeometryViewModelPtr geometry_vm_;
