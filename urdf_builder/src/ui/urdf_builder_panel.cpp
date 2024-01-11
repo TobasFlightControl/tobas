@@ -235,16 +235,16 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
     return;
   }
 
-  const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
-  vm->usedLinkNames(vm_.linkNames());
+  const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
+  link_vm->usedLinkNames(vm_.linkNames());
 
-  AddLinkDialog dialog(vm);
+  AddLinkDialog dialog(link_vm);
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
-  vm_.addLink(vm);
+  vm_.addLink(link_vm);
   reload();
 }
 
