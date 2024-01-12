@@ -20,9 +20,7 @@ MotorsHandler::MotorsHandler(
   : super(nh, pnh, name)
 {
   if (!tobas_std::isSuperUser())
-  {
     ROS_THROW_NAMED(name_, "Please execute with root privileges.");
-  }
 
   getRosParams();
   drone_.loadFromParam(nh_);
