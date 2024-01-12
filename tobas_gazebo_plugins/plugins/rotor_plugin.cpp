@@ -138,9 +138,9 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   {
     cmd_rot_speed_ = 0.;
     is_activated_ = false;
-    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
-          << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
-          << endl;
+    gzwarn << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
+           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
+           << endl;
   }
 
   // Get rotation speed

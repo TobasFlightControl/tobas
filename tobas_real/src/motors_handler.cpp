@@ -211,7 +211,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     {
       latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
       is_activated_ = false;
-      rosInfo(
+      rosWarn(
         name_, "The speeds of all rotors are automatically stopped because "
                  << tobas::kAutoResetTimeThreshold
                  << " seconds have elapsed since the last command.");
