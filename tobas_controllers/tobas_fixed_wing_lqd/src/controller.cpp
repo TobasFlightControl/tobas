@@ -33,9 +33,7 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   eom_.updateInternalDataStructures();
 
   if (x_rotors_.count() == 0)
-  {
     ROS_THROW_NAMED(name_, "The number of propellers is zero.");
-  }
 
   q_0_.resize(drone_.tree().getNrOfJoints());
 
@@ -277,9 +275,7 @@ void Controller::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
   air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
 
   if (!pressure_received_)
-  {
     pressure_received_ = true;
-  }
 }
 
 void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
@@ -287,9 +283,7 @@ void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   battery_ = battery;
 
   if (!battery_received_)
-  {
     battery_received_ = true;
-  }
 }
 
 void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
@@ -298,9 +292,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   tf::baseStateNwuToNed(*odom_nwu, odom_ned_);
 
   if (!odom_received_)
-  {
     odom_received_ = true;
-  }
 
   switch (state_)
   {
@@ -320,9 +312,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
       const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
       const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_->voltage, q_0_);
       if (eom_error < 0)
-      {
         rosError(name_, eom_.errorMessage());
-      }
 
       publishTakeoffCommand();
 
