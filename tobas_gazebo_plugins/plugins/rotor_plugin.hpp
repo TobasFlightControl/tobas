@@ -54,7 +54,7 @@ private:
   double max_current_;  // [A] ESCの最大電流
   double check_delay_threshold_;
 
-  double cmd_rot_speed_;  // [rad/s]
+  double cmd_rot_speed_ = 0.;  // [rad/s]
   tobas_msgs::BatteryConstPtr battery_;
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   common::Time prev_sim_time_;

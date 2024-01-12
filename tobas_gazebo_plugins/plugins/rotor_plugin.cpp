@@ -136,9 +136,9 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
   if (is_activated_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    cmd_rot_speed_ = minRotSpeed();
+    cmd_rot_speed_ = 0.;
     is_activated_ = false;
-    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically slowed down because "
+    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
           << endl;
   }
@@ -267,6 +267,13 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 {
   assert(dt >= 0);
 
+  // アクティベートされていなければ無回転
+  if (!is_activated_)
+  {
+    joint_->SetVelocity(0, 0.);
+    return;
+  }
+
   // Check rotor speed limit and get set value
   auto set_rot_speed = cmd_rot_speed_;
   const auto max_rot_speed = maxRotSpeed();
@@ -364,14 +371,6 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
 
 void GazeboRotorPlugin::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
-  // 最初のバッテリー電圧取得時に最小回転数を目標回転数に設定する
-  if (battery_ == nullptr)
-  {
-    battery_ = battery;
-    cmd_rot_speed_ = minRotSpeed();
-    return;
-  }
-
   battery_ = battery;
 }
 

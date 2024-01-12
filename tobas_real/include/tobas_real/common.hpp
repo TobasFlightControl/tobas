@@ -61,7 +61,6 @@ static constexpr size_t kPwmMin = 1000;       // [us]
 static constexpr size_t kPwmMax = 2000;       // [us]
 static constexpr size_t kPwmNeutral = 1500;   // [us]
 static constexpr size_t kPwmDisarm = 900;     // [us]
-static constexpr size_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kArmThrottle;  // [us]
 
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
