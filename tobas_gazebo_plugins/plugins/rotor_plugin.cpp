@@ -107,8 +107,6 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
 
   getSdfParam(
     sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
-  getSdfParam(
-    sdf, "autoResetTimeThreshold", auto_reset_time_thr_, kDefaultAutoStopTimeThreshold, false);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -136,12 +134,13 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
   // Check elapsed time after last command
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
-  if (is_activated_ && time_after_last_cmd > auto_reset_time_thr_)
+  if (is_activated_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     cmd_rot_speed_ = minRotSpeed();
     is_activated_ = false;
-    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
-          << auto_reset_time_thr_ << " seconds have elapsed since the last command." << endl;
+    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically slowed down because "
+          << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
+          << endl;
   }
 
   // Get rotation speed

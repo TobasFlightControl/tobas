@@ -53,7 +53,6 @@ private:
   double time_const_down_;
   double max_current_;  // [A] ESCの最大電流
   double check_delay_threshold_;
-  double auto_reset_time_thr_;
 
   double cmd_rot_speed_;  // [rad/s]
   tobas_msgs::BatteryConstPtr battery_;

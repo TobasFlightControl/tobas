@@ -19,7 +19,6 @@ static constexpr size_t kMaxPinId = 14;
 
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
-// TODO: Ardupilotを参考にGUIで設定できるようにする
 static constexpr double kArmThrottle = 0.1;
 static constexpr double kMinThrottle = 0.;
 static constexpr double kMaxThrottle = 1.;
@@ -73,6 +72,7 @@ static constexpr char kUnknown[] = "unknown";
 static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
 static constexpr double kWaitForServiceExistence = 1.;  // [s]
+static constexpr double kAutoResetTimeThreshold = 0.5;  // [s]
 
 static constexpr size_t kStopwatchSamples = 100;
 

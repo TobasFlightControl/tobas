@@ -204,7 +204,7 @@ void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
 {
   const auto time_after_last_cmd = (event.current_real - last_cmd_time_).toSec();
-  if (time_after_last_cmd > kAutoStopTimeThreshold)
+  if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     setPeriodOnAllChannels(kPwmArm);
     if (is_activated_)
@@ -212,8 +212,9 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
       latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
       is_activated_ = false;
       rosInfo(
-        name_, "The rotors are automatically slowed down because "
-                 << kAutoStopTimeThreshold << " seconds have elapsed since the last command.");
+        name_, "The speeds of all rotors are automatically slowed down because "
+                 << tobas::kAutoResetTimeThreshold
+                 << " seconds have elapsed since the last command.");
     }
 
     // Publish arming speeds
