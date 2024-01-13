@@ -178,7 +178,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 
 void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd)
 {
-  if (odom_ == nullptr)
+  if (!is_initialized_)
     return;
 
   // コマンドレベルの処理

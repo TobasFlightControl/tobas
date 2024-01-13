@@ -34,12 +34,6 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  enum Stage
-  {
-    START,
-    FLIGHT,
-  };
-
   tobas::Drone drone_;
 
   tobas::RotorAxisExtractor x_rotors_;
@@ -53,7 +47,6 @@ private:
   bool pressure_received_ = false;
   bool battery_received_ = false;
   bool odom_received_ = false;
-  Stage state_ = START;                      // 飛行フェーズ
   double rho_;                               // 現在の大気密度
   tobas_msgs::BatteryConstPtr battery_;      // 現在のバッテリーの状態
   tobas_msgs::Odometry odom_ned_;            // 現在の状態 (NED座標系)

@@ -304,11 +304,8 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
 
 void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu)
 {
-  if (!(state_ == FLIGHT))
-  {
-    rosError(name_, "Not in flight state.");
+  if (!is_initialized_)
     return;
-  }
 
   if (!eom_.trimCondition().speedLimit(rho_).inRange(cmd_nwu->speed))
   {

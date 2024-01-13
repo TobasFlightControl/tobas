@@ -241,7 +241,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 
 void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 {
-  if (odom_ == nullptr)
+  if (!is_initialized_)
     return;
 
   // コマンドレベルの処理
@@ -262,7 +262,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 
 void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust)
 {
-  if (odom_ == nullptr)
+  if (!is_initialized_)
     return;
 
   if (!updateCommandLevel(cmd_level_, rpy_thrust->level.data))
