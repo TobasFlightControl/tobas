@@ -242,8 +242,10 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   const auto current = torque / kt;
   if (current > max_current_)
   {
-    gzwarn << kPluginName << ": The electric current of rotor " << motor_number_
-           << " is over limit: " << current << " > " << max_current_ << " [A]" << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, kPluginName << ": The electric current of rotor " << motor_number_
+                                << " is over limit: " << current << " > " << max_current_
+                                << " [A]");
   }
 
   // Publish rotor state
@@ -290,8 +292,10 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   }
   else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
-    gzerr << kPluginName << ": Commanded rotor speed on index " << motor_number_
-          << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed << " [rad/s]" << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, kPluginName << ": Target rotor speed on index " << motor_number_
+                                << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed
+                                << " [rad/s]");
     set_rot_speed = max_rot_speed;
   }
 
@@ -356,8 +360,8 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
   if (throttle < tobas::kMinThrottle)
   {
     throttle = tobas::kMinThrottle;
-    GZ_WARN_THROTTLE(
-      kWarnPeriod, "Negative throttle is commanded to motor " << motor_number_ << ".");
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, "Negative throttle is commanded to motor " << motor_number_ << ".");
   }
   else if (throttle >= tobas::kMaxThrottle)
   {

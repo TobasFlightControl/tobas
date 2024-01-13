@@ -1,6 +1,7 @@
 #include <gazebo/gazebo.hh>
 
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
+#include "../include/tobas_gazebo_plugins/common.hpp"
 
 #define POS_MARGIN 1e-2  // [rad]
 
@@ -23,8 +24,9 @@ void SimpleJointModel::update(double tar_pos, double dt)
 
   if (!pos_limit_.inRange(tar_pos, POS_MARGIN))
   {
-    gzerr << "The target position " << tar_pos << "[rad] is out of range " << pos_limit_ << "[rad]."
-          << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod,
+      "The target position " << tar_pos << "[rad] is out of range " << pos_limit_ << "[rad].");
     tar_pos = pos_limit_.clamp(tar_pos);
   }
 
