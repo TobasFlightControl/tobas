@@ -2,6 +2,7 @@
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Float64.h>
 
 #include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_kdl/treejntparser.hpp>
@@ -24,6 +25,8 @@ namespace tobas_mr_pid
 {
 class ControllerRos : public tobas::BaseNode
 {
+  static constexpr bool kDefaultDoThrustCorrection = true;
+
   using self = ControllerRos;
   using super = tobas::BaseNode;
 
@@ -42,6 +45,9 @@ private:
   KDL::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
+  // rosparams
+  bool do_thrust_correction_;
+
   // Controllers
   tobas::PositionPid pos_ctrl_;
   tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
@@ -57,6 +63,7 @@ private:
   tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
+  std_msgs::Float64ConstPtr thrust_corr_factor_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
@@ -71,6 +78,7 @@ private:
   ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber joint_state_sub_;
+  ros::Subscriber thrust_corr_factor_sub_;
   ros::Subscriber pvay_sub_;
   ros::Subscriber rpyt_sub_;
 
@@ -90,6 +98,7 @@ private:
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
+  void thrustCorrectionFactorCb(const std_msgs::Float64ConstPtr& msg);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt);
 

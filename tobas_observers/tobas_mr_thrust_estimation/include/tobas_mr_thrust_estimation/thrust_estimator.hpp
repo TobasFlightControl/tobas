@@ -17,6 +17,7 @@ namespace tobas_mr_thrust_estimation
 class ThrustEstimator : public tobas::BaseNode
 {
   static constexpr double kInitFactorStddev = 0.;  // [-]
+  static constexpr double kMinFactor = 0.9;  // 接地時に下振れしないよう最小値に制限をかける
 
   using self = ThrustEstimator;
   using super = tobas::BaseNode;
@@ -36,7 +37,6 @@ private:
   tobas::Drone drone_;
   tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
-  bool is_flying_ = false;
   bool is_initialized_ = false;
   ctrl::IdentityKalmanFilter kf_;
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;

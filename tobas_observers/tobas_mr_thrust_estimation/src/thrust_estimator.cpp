@@ -22,7 +22,7 @@ ThrustEstimator::ThrustEstimator(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name), dynamics_(drone_), kf_(1)
+  : super(nh, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -68,9 +68,6 @@ void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
     case tobas_msgs::Event::STOP:
       nh_.shutdown();
       break;
-    case tobas_msgs::Event::TAKEOFF_DETECTED:
-      is_flying_ = true;
-      break;
     default:
       break;
   }
@@ -78,24 +75,18 @@ void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  if (!is_initialized_)
-  {
-    if (rotor_speeds_ != nullptr && is_flying_)
-    {
-      is_initialized_ = true;
-      rosInfo(name_, "Start to estimate thrust correction factor.");
-    }
+  if (rotor_speeds_ == nullptr)
     return;
-  }
 
   const Matrix3d R_W_B = odom->pose.euler.toRotation().data;
   const Vector3d& acc_B = odom->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
 
   // 実際の推力に対するモデル推力の比率の観測値
+  // 回転数が観測できない場合はロータのダイナミクスとの分離は不可能なため，全て推力定数の誤差に起因すると考える
   const auto real_thrust = dynamics_.mass() * (acc_B + grav_B).z();
   const auto model_thrust = dynamics_.thrustSum(rotor_speeds_->speeds);
-  const auto factor_meas = model_thrust / real_thrust;
+  const auto factor_meas = max(model_thrust / real_thrust, kMinFactor);
   kf_.y(0) = factor_meas;
 
   // 観測ノイズの共分散

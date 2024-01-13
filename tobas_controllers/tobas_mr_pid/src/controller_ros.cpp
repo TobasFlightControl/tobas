@@ -45,6 +45,8 @@ ControllerRos::ControllerRos(
 
 void ControllerRos::getRosParams()
 {
+  tobas_ros::getParam(
+    pnh_, "do_thrust_correction", do_thrust_correction_, kDefaultDoThrustCorrection);
 }
 
 void ControllerRos::registerPublishers()
@@ -61,10 +63,11 @@ void ControllerRos::registerSubscribers()
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (drone_.isTransformable())
-  {
     joint_state_sub_ =
       nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
-  }
+  if (do_thrust_correction_)
+    thrust_corr_factor_sub_ = nh_.subscribe(
+      tobas::kThrustCorrectionFactorTopic, 1, &self::thrustCorrectionFactorCb, this, tcpNoDelay());
 
   pvay_sub_ =
     nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
@@ -80,6 +83,9 @@ bool ControllerRos::isReady() const
     return false;
 
   if (drone_.isTransformable() && js_ == nullptr)
+    return false;
+
+  if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
     return false;
 
   return true;
@@ -180,7 +186,10 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       const auto thrust = max(0., thrusts(i));
       const auto& rotor_idx = z_rotors_.rotorIdx(i);
-      throttles->data[rotor_idx] = z_rotors_.throttleFromThrust(i, thrust, battery_->voltage);
+      auto throttle = z_rotors_.throttleFromThrust(i, thrust, battery_->voltage);
+      if (do_thrust_correction_ && thrust_corr_factor_ != nullptr)  // 推力の修正
+        throttle = clamp(throttle * sqrt(thrust_corr_factor_->data), 0., 1.);
+      throttles->data[rotor_idx] = throttle;
     }
     throttles_pub_.publish(throttles);
 
@@ -205,6 +214,11 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
   }
 
   js_ = js;
+}
+
+void ControllerRos::thrustCorrectionFactorCb(const std_msgs::Float64ConstPtr& msg)
+{
+  thrust_corr_factor_ = msg;
 }
 
 void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
@@ -253,6 +267,9 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
   if (drone_.isTransformable() && js_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic);
+
+  if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
+    rosInfo(name_, "Waiting for " << ns() << tobas::kThrustCorrectionFactorTopic);
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
