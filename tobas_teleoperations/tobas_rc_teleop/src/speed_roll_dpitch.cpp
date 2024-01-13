@@ -32,11 +32,9 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 void SpeedRollDeltaPitchController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry&,
-  const double& battery_voltage,
+  const double&,
   const Range<double>&)
 {
-  assert(battery_voltage > 0);
-
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>();
   cmd->speed = remap(rcin.thrust, 0., 1., min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
