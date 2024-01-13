@@ -19,6 +19,7 @@
 #include "../include/tobas_rc_teleop/velocity_yaw.hpp"
 #include "../include/tobas_rc_teleop/rpy_thrust.hpp"
 #include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
+#include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std;
 using namespace ros::message_traits;
@@ -30,6 +31,7 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   : super(nh, pnh, name)
 {
   getRosParams();
+  drone_.loadFromParam(nh_);
 
   dead_zone_.lower = -dead_zone_rate_ / 2;
   dead_zone_.upper = dead_zone_rate_ / 2;
@@ -38,31 +40,31 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   {
     if (mode_name == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
     {
-      controllers_.push_back(make_unique<PosVelAccYawController>());
+      controllers_.push_back(make_unique<PosVelAccYawController>(drone_));
     }
     else if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
     {
-      controllers_.push_back(make_unique<PositionYawController>());
+      controllers_.push_back(make_unique<PositionYawController>(drone_));
     }
     else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
     {
-      controllers_.push_back(make_unique<VelocityYawController>());
+      controllers_.push_back(make_unique<VelocityYawController>(drone_));
     }
     else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
     {
-      controllers_.push_back(make_unique<RollPitchYawThrustController>());
+      controllers_.push_back(make_unique<RollPitchYawThrustController>(drone_));
     }
     else if (mode_name == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
     {
-      controllers_.push_back(make_unique<PoseTwistAccelController>());
+      controllers_.push_back(make_unique<PoseTwistAccelController>(drone_));
     }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
     {
-      rosError(name_, "Not implemented yet.");  // TODO
+      controllers_.push_back(make_unique<SpeedRollDeltaPitchController>(drone_));
     }
     else
     {
-      throw runtime_error("Invalid flight mode: " + mode_name);
+      ROS_THROW_NAMED(name_, "Invalid flight mode: " + mode_name);
     }
   }
 

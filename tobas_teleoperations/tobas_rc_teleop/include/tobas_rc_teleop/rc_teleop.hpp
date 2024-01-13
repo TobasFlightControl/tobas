@@ -30,7 +30,9 @@ private:
     ESTOP_ON,
     FIRST_COMMAND,
     RUNNING,
-  };
+  } stage_ = CHECK_PREREQUISITES;
+
+  tobas::Drone drone_;
 
   // rosparams
   double dead_zone_rate_;
@@ -40,7 +42,6 @@ private:
   tobas_std::Range<double> dead_zone_;
 
   // Mutables
-  stage_t stage_ = CHECK_PREREQUISITES;
   uint8_t last_mode_;
   tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;

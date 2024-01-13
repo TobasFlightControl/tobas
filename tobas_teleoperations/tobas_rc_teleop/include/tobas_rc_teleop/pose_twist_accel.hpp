@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Eigen/Core>
-
 #include <tobas_std_tools/first_order_filter.hpp>
 
 #include "./base_controller.hpp"
@@ -13,6 +11,8 @@ class PoseTwistAccelController : public BaseController
   using super = BaseController;
 
 public:
+  explicit PoseTwistAccelController(const tobas::Drone& drone);
+
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(

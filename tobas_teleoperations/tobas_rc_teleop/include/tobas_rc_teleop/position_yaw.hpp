@@ -1,9 +1,5 @@
 #pragma once
 
-#include <tobas_std_tools/range.hpp>
-
-#include <tobas_msgs/Odometry.h>
-#include <tobas_msgs/RCInput.h>
 #include <tobas_msgs/PositionYaw.h>
 
 #include "./base_controller.hpp"
@@ -15,6 +11,8 @@ class PositionYawController : public BaseController
   using super = BaseController;
 
 public:
+  explicit PositionYawController(const tobas::Drone& drone);
+
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(

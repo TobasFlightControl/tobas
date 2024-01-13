@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Eigen/Core>
-
 #include <tobas_std_tools/first_order_filter.hpp>
 
 #include <tobas_msgs/VelocityYaw.h>
@@ -17,6 +15,8 @@ class VelocityYawController : public BaseController
   using super = BaseController;
 
 public:
+  explicit VelocityYawController(const tobas::Drone& drone);
+
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(

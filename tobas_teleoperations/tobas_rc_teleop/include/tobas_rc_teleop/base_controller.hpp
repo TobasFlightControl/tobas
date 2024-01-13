@@ -4,6 +4,7 @@
 
 #include <tobas_std_tools/range.hpp>
 
+#include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/RCInput.h>
 
@@ -12,7 +13,7 @@ namespace tobas_rc_teleop
 class BaseController
 {
 public:
-  explicit BaseController();
+  explicit BaseController(const tobas::Drone& drone);
 
   virtual void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
@@ -23,5 +24,6 @@ public:
     const tobas_std::Range<double>& dead_zone) = 0;
 
 protected:
+  const tobas::Drone& drone_;
 };
 }  // namespace tobas_rc_teleop

@@ -15,6 +15,10 @@ using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
+PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : super(drone)
+{
+}
+
 void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);

@@ -6,14 +6,19 @@
 
 namespace tobas_rc_teleop
 {
-class RollPitchYawThrustController : public BaseController
+class SpeedRollDeltaPitchController : public BaseController
 {
-  static constexpr char kControllerName[] = "roll_pitch_yaw_thrust_controller";
+  static constexpr char kControllerName[] = "speed_roll_dpitch_controller";
+
+  static constexpr double kDefaultMinSpeed = 5.;           // [m/s]
+  static constexpr double kDefaultMaxSpeed = 20.;          // [m/s]
+  static constexpr double kDefaultMaxRoll = M_PI_2;        // [rad]
+  static constexpr double kDefaultMaxDeltaPitch = M_PI_4;  // [rad]
 
   using super = BaseController;
 
 public:
-  explicit RollPitchYawThrustController(const tobas::Drone& drone);
+  explicit SpeedRollDeltaPitchController(const tobas::Drone& drone);
 
   void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
@@ -24,21 +29,14 @@ public:
     const tobas_std::Range<double>& dead_zone) override;
 
 private:
-  tobas::RotorAxisExtractor z_rotors_;
-
-  double yaw_;
-  ros::Time t_last_rcin_;
-
   // rosparams
-  double max_attitude_;  // [rad]
-  double max_yawrate_;   // [rad/s]
-  double max_ver_acc_;   // [m/s^2] 垂直方向の加速度の最大値
-
-  // Constant values
-  double max_thrust_;  // [N] ドローンの最大推力和
+  double min_speed_;   // [m/s]
+  double max_speed_;   // [m/s]
+  double max_roll_;    // [rad]
+  double max_dpitch_;  // [rad]
 
   // PubSub
-  ros::Publisher rpy_thrust_pub_;
+  ros::Publisher cmd_pub_;
 
   void getRosParams(ros::NodeHandle& pnh);
   void registerPublishers(ros::NodeHandle& nh);

@@ -15,8 +15,8 @@ using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
-RollPitchYawThrustController::RollPitchYawThrustController()
-  : super(), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
+RollPitchYawThrustController::RollPitchYawThrustController(const tobas::Drone& drone)
+  : super(drone), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
 {
 }
 
@@ -24,7 +24,6 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
 {
   getRosParams(pnh);
 
-  drone_.loadFromParam(nh);
   z_rotors_.updateInternalDataStructures();
 
   const auto mass = tobas::getMass();
