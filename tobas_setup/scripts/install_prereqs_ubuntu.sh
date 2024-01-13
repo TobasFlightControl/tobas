@@ -24,7 +24,8 @@ rosdep install --from-paths . --ignore-src -ry
 pip3 install numpy -U  # Install latest version
 pip3 install sympy pandas pyyaml et-xmlfile jinja2 markdown overrides urdf-parser-py pyqt-vertical-tab-widget
 
-# Add setup.bash to .bashrc
-SETUP_BASH_PATH=$(realpath "./setup.bash")
-echo "source ${SETUP_BASH_PATH}" >> ~/.bashrc
+# Edit .bashrc
+echo "export ROS_IP=\`hostname -I | cut -d' ' -f1\`" >> ~/.bashrc
+echo "export ROS_HOSTNAME=\`hostname -I | cut -d' ' -f1\`" >> ~/.bashrc
+echo "source $(realpath "./setup.bash")" >> ~/.bashrc
 exec bash
