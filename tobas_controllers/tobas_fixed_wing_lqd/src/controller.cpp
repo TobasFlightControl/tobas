@@ -186,7 +186,10 @@ void Controller::updateCurrentStateVector()
 void Controller::updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch)
 {
   const auto& trim = eom_.trimCondition();
-  const auto tar_u = cmd_ned_.speed * cos(eom_.trimCondition().alpha());
+
+  // 失速しないように速度制限をした上で目標推力を計算
+  const auto tar_speed = trim.speedLimit(rho_).clamp(cmd_ned_.speed);
+  const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
 
   lqd_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
   lqd_.target_state(eom_.kStateIdx_alpha) = 0.;
@@ -306,12 +309,6 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 {
   if (!is_initialized_)
     return;
-
-  if (!eom_.trimCondition().speedLimit(rho_).inRange(cmd_nwu->speed))
-  {
-    rosError(name_, "Invalid speed is commanded.");
-    return;
-  }
 
   tf::speedRollDeltaPitchNwuToNed(*cmd_nwu, cmd_ned_);
 }
