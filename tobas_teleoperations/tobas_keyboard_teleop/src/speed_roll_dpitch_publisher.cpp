@@ -169,8 +169,9 @@ bool SpeedRollDeltaPitchPublisher::isReady()
 
 void SpeedRollDeltaPitchPublisher::initialize()
 {
-  // cmd_.speed = trim_.speedLimit(air_density_).lower + 0.1;
   cmd_.speed = trim_.takeOffSpeed(air_density_);
+  cmd_.roll = 0.;
+  cmd_.delta_pitch = 0.;
 
   // インストラクションを開始
   instruction_timer_.start();

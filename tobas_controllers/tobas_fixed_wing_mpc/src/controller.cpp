@@ -85,66 +85,11 @@ void Controller::registerSubscribers()
 
 bool Controller::isReady()
 {
-  return pressure_received_ && battery_received_ && odom_received_;
+  return air_pressure_ != nullptr && battery_ != nullptr && odom_nwu_ != nullptr;
 }
 
 void Controller::initialize()
 {
-  const auto& trim = eom_.trimCondition();
-  cmd_ned_.speed = trim.takeOffSpeed(rho_);
-
-  cmd_ned_.roll = 0.;
-  cmd_ned_.delta_pitch = kInitialDeltaPitch;
-}
-
-void Controller::runOnce()
-{
-  // 状態方程式を更新
-  switch (eom_.update(cmd_ned_.speed, rho_, battery_->voltage, q_0_))
-  {
-    case tobas::SolverI::E_NO_ERROR:
-      break;
-    case tobas::SolverI::E_WARN:
-      rosWarn(name_, eom_.errorMessage());
-      break;
-    case tobas::SolverI::E_ERROR:
-      rosError(name_, eom_.errorMessage());
-      return;
-    default:
-      rosWarn(name_, "Unknown error code from MicroDisturbanceEoM.");
-      break;
-  }
-  const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
-  const auto disc = c2d_.convert(cont, mpc_.time_step);
-  fill(mpc_.discrete_dynamics, disc);
-
-  setInputConstraint();  // EoMの更新後に呼ぶ必要がある
-  updateCurrentStateVector();
-  updateSetStateVector(cmd_ned_.roll, cmd_ned_.delta_pitch);
-
-  // MPCを解いて最適制御入力を求める
-  mpc_.solve();
-  const VectorXd& du = mpc_.optimalControlInput();
-  const VectorXd u = eom_.trimInput() + du;
-
-  // For debug
-  // cout << "A_cont:" << endl << eom_.A() << endl;
-  // cout << "B_cont:" << endl << eom_.B() << endl;
-  // cout << "Discrete dynamics:" << endl << disc << endl;
-  // cout << mpc_ << endl;
-
-  // For debug
-  // cout << "A_cont:" << endl << eom_.A() << endl;
-  // cout << "B_cont:" << endl << eom_.B() << endl;
-  // cout << lqd_ << endl;
-
-  const VectorXd thrust = u.block(0, 0, x_rotors_.count(), 1);
-  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
-
-  // Publish
-  publishRotorSpeeds(thrust);
-  publishDeflections(deflections);
-  publishFeedback(du);
 }
 
 void Controller::setCz()
@@ -227,19 +172,20 @@ void Controller::updateCurrentStateVector()
   mpc_.current_state(eom_.kStateIdx_r) = odom_ned_.twist.rot.z();
 }
 
-void Controller::updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch)
+void Controller::updateSetStateVector()
 {
   const auto& trim = eom_.trimCondition();
 
   // 失速しないように速度制限をした上で目標推力を計算
-  const auto tar_speed = trim.speedLimit(rho_).clamp(cmd_ned_.speed);
+  const auto rho = tobas_std::pressureToDensity(air_pressure_->fluid_pressure);
+  const auto tar_speed = trim.speedLimit(rho).clamp(cmd_ned_.speed);
   const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
 
   mpc_.set_state(kCtrlIdx_u) = tar_u - trim.u();
   mpc_.set_state(kCtrlIdx_alpha) = 0.;
   mpc_.set_state(kCtrlIdx_beta) = 0.;
-  mpc_.set_state(kCtrlIdx_phi) = tar_roll;
-  mpc_.set_state(kCtrlIdx_theta) = tar_delta_pitch;
+  mpc_.set_state(kCtrlIdx_phi) = cmd_ned_.roll;
+  mpc_.set_state(kCtrlIdx_theta) = cmd_ned_.delta_pitch;
   mpc_.set_state(kCtrlIdx_p) = 0.;
   mpc_.set_state(kCtrlIdx_q) = 0.;
   mpc_.set_state(kCtrlIdx_r) = 0.;
@@ -312,29 +258,17 @@ void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
 {
-  rho_ = tobas_std::pressureToDensity(msg->fluid_pressure);
-
-  if (!pressure_received_)
-    pressure_received_ = true;
+  air_pressure_ = msg;
 }
 
 void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
-
-  if (!battery_received_)
-    battery_received_ = true;
 }
 
 void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
 {
-  // コールバックの時点で全てNED座標系に変換しておく
-  tf::baseStateNwuToNed(*odom_nwu, odom_ned_);
-
-  if (!odom_received_)
-  {
-    odom_received_ = true;
-  }
+  odom_nwu_ = odom_nwu;
 
   if (!is_initialized_)
   {
@@ -348,7 +282,61 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
     return;
   }
 
-  runOnce();
+  // コマンドが来ていなければスキップ
+  if (cmd_nwu_ == nullptr)
+    return;
+
+  // NWU -> NED
+  tf::baseStateNwuToNed(*odom_nwu_, odom_ned_);
+  tf::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
+
+  // 状態方程式を更新
+  const auto rho = tobas_std::pressureToDensity(air_pressure_->fluid_pressure);
+  switch (eom_.update(cmd_ned_.speed, rho, battery_->voltage, q_0_))
+  {
+    case tobas::SolverI::E_NO_ERROR:
+      break;
+    case tobas::SolverI::E_WARN:
+      rosWarn(name_, eom_.errorMessage());
+      break;
+    case tobas::SolverI::E_ERROR:
+      rosError(name_, eom_.errorMessage());
+      return;
+    default:
+      rosWarn(name_, "Unknown error code from MicroDisturbanceEoM.");
+      break;
+  }
+  const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
+  const auto disc = c2d_.convert(cont, mpc_.time_step);
+  fill(mpc_.discrete_dynamics, disc);
+
+  setInputConstraint();  // EoMの更新後に呼ぶ必要がある
+  updateCurrentStateVector();
+  updateSetStateVector();
+
+  // MPCを解いて最適制御入力を求める
+  mpc_.solve();
+  const VectorXd& du = mpc_.optimalControlInput();
+  const VectorXd u = eom_.trimInput() + du;
+
+  // For debug
+  // cout << "A_cont:" << endl << eom_.A() << endl;
+  // cout << "B_cont:" << endl << eom_.B() << endl;
+  // cout << "Discrete dynamics:" << endl << disc << endl;
+  // cout << mpc_ << endl;
+
+  // For debug
+  // cout << "A_cont:" << endl << eom_.A() << endl;
+  // cout << "B_cont:" << endl << eom_.B() << endl;
+  // cout << lqd_ << endl;
+
+  const VectorXd thrust = u.block(0, 0, x_rotors_.count(), 1);
+  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
+
+  // Publish
+  publishRotorSpeeds(thrust);
+  publishDeflections(deflections);
+  publishFeedback(du);
 }
 
 void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu)
@@ -361,13 +349,13 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  if (!pressure_received_)
+  if (air_pressure_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
-  if (!battery_received_)
+  if (battery_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryTopic);
 
-  if (!odom_received_)
+  if (odom_nwu_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
 }
 

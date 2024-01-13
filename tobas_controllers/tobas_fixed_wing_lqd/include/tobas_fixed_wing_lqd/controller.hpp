@@ -44,13 +44,12 @@ private:
 
   ros::Time t_last_loop_;
   bool is_initialized_ = false;
-  bool pressure_received_ = false;
-  bool battery_received_ = false;
-  bool odom_received_ = false;
-  double rho_;                               // 現在の大気密度
-  tobas_msgs::BatteryConstPtr battery_;      // 現在のバッテリーの状態
-  tobas_msgs::Odometry odom_ned_;            // 現在の状態 (NED座標系)
-  tobas_msgs::SpeedRollDeltaPitch cmd_ned_;  // 現在のコマンド (NED座標系)
+  sensor_msgs::FluidPressureConstPtr air_pressure_;  // 大気圧
+  tobas_msgs::BatteryConstPtr battery_;              // 現在のバッテリーの状態
+  tobas_msgs::OdometryConstPtr odom_nwu_;            // 現在の状態 (NWU座標系)
+  tobas_msgs::SpeedRollDeltaPitchConstPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
+  tobas_msgs::Odometry odom_ned_;                    // 現在の状態 (NED座標系)
+  tobas_msgs::SpeedRollDeltaPitch cmd_ned_;          // 現在のコマンド (NED座標系)
 
   ctrl::LQD lqd_;  // 最適レギュレータ
 
@@ -75,10 +74,9 @@ private:
 
   bool isReady();
   void initialize();
-  void runOnce();
   void setScales();
   void updateCurrentStateVector();
-  void updateSetStateVector(const double& tar_roll, const double& tar_delta_pitch);
+  void updateSetStateVector();
   void publishRotorSpeeds(const Eigen::VectorXd& thrust);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
