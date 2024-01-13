@@ -37,9 +37,7 @@ private:
   enum Stage
   {
     START,
-    TAKEOFF,
     FLIGHT,
-    LANDING,
   };
 
   tobas::Drone drone_;
@@ -51,11 +49,12 @@ private:
   KDL::JntArray q_0_;
 
   ros::Time t_last_loop_;
+  bool is_initialized_ = false;
   bool pressure_received_ = false;
   bool battery_received_ = false;
   bool odom_received_ = false;
   Stage state_ = START;                      // 飛行フェーズ
-  double air_density_;                       // 現在の大気密度
+  double rho_;                               // 現在の大気密度
   tobas_msgs::BatteryConstPtr battery_;      // 現在のバッテリーの状態
   tobas_msgs::Odometry odom_ned_;            // 現在の状態 (NED座標系)
   tobas_msgs::SpeedRollDeltaPitch cmd_ned_;  // 現在のコマンド (NED座標系)
@@ -82,7 +81,6 @@ private:
   void registerSubscribers() override;
 
   bool isReady();
-  void publishTakeoffCommand();
   void initialize();
   void runOnce();
   void setScales();

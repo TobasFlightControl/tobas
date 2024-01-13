@@ -19,10 +19,10 @@ public:
 
   int update(const KDL::JntArray& q);
 
-  inline double cPitchAlpha() const;
-  inline double cYawBeta() const;
-  inline double cPitchDelta(const size_t& cs_idx) const;
-  inline double cYawDelta(const size_t& cs_idx) const;
+  inline const double& cPitchAlpha() const;
+  inline const double& cYawBeta() const;
+  inline const double& cPitchDelta(const size_t& cs_idx) const;
+  inline const double& cYawDelta(const size_t& cs_idx) const;
 
 private:
   const Drone& drone_;
@@ -35,22 +35,22 @@ private:
   std::vector<double> c_yaw_delta_cg_;
 };
 
-inline double StabilityDerivativesCG::cPitchAlpha() const
+inline const double& StabilityDerivativesCG::cPitchAlpha() const
 {
   return c_pitch_alpha_cg_;
 }
 
-inline double StabilityDerivativesCG::cYawBeta() const
+inline const double& StabilityDerivativesCG::cYawBeta() const
 {
   return c_yaw_beta_cg_;
 }
 
-inline double StabilityDerivativesCG::cPitchDelta(const size_t& cs_idx) const
+inline const double& StabilityDerivativesCG::cPitchDelta(const size_t& cs_idx) const
 {
   return c_pitch_delta_cg_[cs_idx];
 }
 
-inline double StabilityDerivativesCG::cYawDelta(const size_t& cs_idx) const
+inline const double& StabilityDerivativesCG::cYawDelta(const size_t& cs_idx) const
 {
   return c_yaw_delta_cg_[cs_idx];
 }

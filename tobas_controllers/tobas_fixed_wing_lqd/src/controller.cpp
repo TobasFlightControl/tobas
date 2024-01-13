@@ -82,22 +82,6 @@ bool Controller::isReady()
   return pressure_received_ && battery_received_ && odom_received_;
 }
 
-void Controller::publishTakeoffCommand()
-{
-  // 全モータを最大出力にする
-  const auto throttles_msg = boost::make_shared<tobas_msgs::Throttles>();
-  throttles_msg->header.stamp = odom_ned_.header.stamp;
-  throttles_msg->data.resize(drone_.numRotors(), tobas::kMaxThrottle);
-  throttles_pub_.publish(throttles_msg);
-
-  // 各操舵面の偏角を発行
-  const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = odom_ned_.header.stamp;
-  deflections_msg->deflections.resize(drone_.numControlSurfaces(), 0.);
-  deflections_msg->deflections[eom_.elevatorIndex()] = eom_.trimCondition().elevator();
-  deflections_pub_.publish(deflections_msg);
-}
-
 void Controller::initialize()
 {
   // 最新の制御時刻
@@ -108,7 +92,7 @@ void Controller::initialize()
 
   // コマンドの初期値
   const auto& trim = eom_.trimCondition();
-  cmd_ned_.speed = trim.takeOffSpeed(air_density_);
+  cmd_ned_.speed = trim.takeOffSpeed(rho_);
   cmd_ned_.roll = 0.;
   cmd_ned_.delta_pitch = kInitialDeltaPitch;
 }
@@ -121,10 +105,19 @@ void Controller::runOnce()
   t_last_loop_ = cur_time;
 
   // 現在の速度を使って状態方程式を更新
-  if (eom_.update(odom_ned_.twist.vel.norm(), air_density_, battery_->voltage, q_0_) < 0)
+  switch (eom_.update(odom_ned_.twist.vel.norm(), rho_, battery_->voltage, q_0_))
   {
-    rosError(name_, eom_.errorMessage());
-    return;
+    case tobas::SolverI::E_NO_ERROR:
+      break;
+    case tobas::SolverI::E_WARN:
+      rosWarn(name_, eom_.errorMessage());
+      break;
+    case tobas::SolverI::E_ERROR:
+      rosError(name_, eom_.errorMessage());
+      return;
+    default:
+      rosWarn(name_, "Unknown error code from MicroDisturbanceEoM.");
+      break;
   }
 
   lqd_.dynamics.A = eom_.A();
@@ -272,7 +265,7 @@ void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
 {
-  air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
+  rho_ = tobas_std::pressureToDensity(msg->fluid_pressure);
 
   if (!pressure_received_)
     pressure_received_ = true;
@@ -294,49 +287,19 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   if (!odom_received_)
     odom_received_ = true;
 
-  switch (state_)
+  if (!is_initialized_)
   {
-    case START:
+    if (isReady())
     {
-      if (isReady())
-      {
-        TOBAS_GOOD("Controller is ready.");
-        check_topics_timer_.stop();
-        state_ = TAKEOFF;
-      }
-      break;
+      check_topics_timer_.stop();
+      initialize();
+      is_initialized_ = true;
+      TOBAS_GOOD("Controller is ready.");
     }
-    case TAKEOFF:
-    {
-      const auto cur_V = odom_ned_.twist.vel.norm();
-      const auto min_V = eom_.trimCondition().minimumSpeed(air_density_);
-      const auto eom_error = eom_.update(max(cur_V, min_V), air_density_, battery_->voltage, q_0_);
-      if (eom_error < 0)
-        rosError(name_, eom_.errorMessage());
-
-      publishTakeoffCommand();
-
-      // 最低速度を上回ったら制御開始
-      const auto cur_speed = odom_nwu->twist.vel.norm();
-      if (cur_speed > eom_.trimCondition().minimumSpeed(air_density_))
-      {
-        initialize();
-        state_ = FLIGHT;
-        rosInfo(name_, "The aircraft takes off and begins flight control.");
-      }
-      break;
-    }
-    case FLIGHT:
-    {
-      runOnce();
-      break;
-    }
-    case LANDING:
-    {
-      // TODO
-      break;
-    }
+    return;
   }
+
+  runOnce();
 }
 
 void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu)
@@ -347,7 +310,7 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
     return;
   }
 
-  if (!eom_.trimCondition().speedLimit(air_density_).inRange(cmd_nwu->speed))
+  if (!eom_.trimCondition().speedLimit(rho_).inRange(cmd_nwu->speed))
   {
     rosError(name_, "Invalid speed is commanded.");
     return;

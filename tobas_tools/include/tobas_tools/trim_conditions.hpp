@@ -27,7 +27,7 @@ public:
    *
    * @return ErrorCode Error code
    */
-  int update(const double& V, const double& rho, const KDL::JntArray& q);
+  int update(double V, const double& rho, const KDL::JntArray& q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
