@@ -16,7 +16,7 @@ $ unzip tobas-x.x.x.zip
 2. Run installation script
 
 ```bash
-$ cd tobas-x.x.x/
+$ cd tobas/
 $ ./lib/tobas_setup/install_prereqs_ubuntu.sh
 ```
 
@@ -27,7 +27,7 @@ You can skip each step if you do not use the feature.
 #### ArduCopter SITL
 
 ```bash
-$ cd tobas-x.x.x/
+$ cd tobas/
 $ ./lib/tobas_setup/install_arducopter_sitl.sh
 ```
 
