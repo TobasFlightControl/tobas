@@ -86,7 +86,6 @@ $ ssh (user)@(host)  # e.g.) ssh pi@192.168.1.1
 
 ```bash
 $ su
-$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch your_config_pkg real.launch
 ```
 
@@ -163,7 +162,6 @@ $ roslaunch your_config_pkg gazebo.launch
 
 ```bash
 $ su
-$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch your_config_pkg hil.launch
 ```
 
@@ -212,7 +210,6 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
    ```bash
    $ su
-   $ source ~/catkin_ws/devel/setup.bash
    $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
    ```
 
@@ -222,7 +219,6 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 
    ```bash
    $ su
-   $ source ~/catkin_ws/devel/setup.bash
    $ roslaunch tobas_motor_test motors_handler.launch
    ```
 
@@ -254,7 +250,6 @@ Execute the following on FC (Be prepared to press Ctrl+C to immediately stop the
 
 ```bash
 $ su
-$ source ~/catkin_ws/devel/setup.bash
 $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 ```
 
