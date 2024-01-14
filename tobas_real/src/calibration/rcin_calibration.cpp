@@ -138,22 +138,22 @@ void RCInputCalibrator::run()
     break;
   }
 
-  // GPSw-1
+  // GPSw (General Purpose Switch)
   while (true)
   {
     // Up
-    cout << "Please set the GPSw-1 (CH" << kRcChannelGPSw + 1 << ") to UP and press Enter:";
+    cout << "Please set the GPSw (CH" << kRcChannelGPSw + 1 << ") to UP and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     gpsw_up = readRCInput(kRcChannelGPSw);
 
     // Down
-    cout << "Please set the GPSw-1 (CH" << kRcChannelGPSw + 1 << ") to DOWN and press Enter:";
+    cout << "Please set the GPSw (CH" << kRcChannelGPSw + 1 << ") to DOWN and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     gpsw_down = readRCInput(kRcChannelGPSw);
 
     if (abs(gpsw_up - gpsw_down) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on GPSw-1 channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on GPSw channel are too close. Please retry.");
       continue;
     }
 

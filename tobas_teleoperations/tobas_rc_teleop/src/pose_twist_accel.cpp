@@ -53,7 +53,7 @@ void PoseTwistAccelController::update(
   const auto& cur_pos = odom.pose.pos;
   const auto& cur_yaw = odom.pose.euler.yaw;
 
-  // GPSw-1の状態によって水平速度制御モードと姿勢制御モードを切り替える
+  // GPSwの状態によって水平速度制御モードと姿勢制御モードを切り替える
   if (rcin.gpsw)  // 姿勢固定で位置制御
   {
     // RC入力から目標水平速を計算
