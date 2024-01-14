@@ -66,11 +66,8 @@ void RCInputHandler::readConfig()
   estop_on_ = pt.get<double>(kConfigKey_RcEStopOn);
   estop_off_ = pt.get<double>(kConfigKey_RcEStopOff);
 
-  gpsw1_on_ = pt.get<double>(kConfigKey_RcGPSw1On);
-  gpsw1_off_ = pt.get<double>(kConfigKey_RcGPSw1Off);
-
-  gpsw2_on_ = pt.get<double>(kConfigKey_RcGPSw2On);
-  gpsw2_off_ = pt.get<double>(kConfigKey_RcGPSw2Off);
+  gpsw_on_ = pt.get<double>(kConfigKey_RcGPSwOn);
+  gpsw_off_ = pt.get<double>(kConfigKey_RcGPSwOff);
 
   const auto num_modes = pt.get<size_t>(kConfigKey_RcNrOfModes);
   modes_.resize(num_modes);
@@ -103,8 +100,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto thrust_period = rcin_.read(kRcChannelThrust);
   const auto estop_period = rcin_.read(kRcChannelEStop);
   const auto mode_period = rcin_.read(kRcChannelMode);
-  const auto gpsw1_period = rcin_.read(kRcChannelGPSw1);
-  const auto gpsw2_period = rcin_.read(kRcChannelGPSw2);
+  const auto gpsw_period = rcin_.read(kRcChannelGPSw);
 
   // Create message
   const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
@@ -115,8 +111,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->thrust = remap<double>(thrust_period, thrust_range_.lower, thrust_range_.upper, 0, 1);
   rcin_msg->mode = tobas_std::closestIndex<double>(modes_, mode_period);
   rcin_msg->e_stop = abs(estop_period - estop_on_) < abs(estop_period - estop_off_);
-  rcin_msg->gpsw1 = abs(gpsw1_period - gpsw1_on_) < abs(gpsw1_period - gpsw1_off_);
-  rcin_msg->gpsw2 = abs(gpsw2_period - gpsw2_on_) < abs(gpsw2_period - gpsw2_off_);
+  rcin_msg->gpsw = abs(gpsw_period - gpsw_on_) < abs(gpsw_period - gpsw_off_);
 
   // Publish message
   rcin_pub_.publish(rcin_msg);

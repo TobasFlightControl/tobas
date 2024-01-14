@@ -32,8 +32,7 @@ private:
   tobas_std::Range<double> thrust_range_;
   std::vector<double> modes_;
   double estop_on_, estop_off_;
-  double gpsw1_on_, gpsw1_off_;
-  double gpsw2_on_, gpsw2_off_;
+  double gpsw_on_, gpsw_off_;
 
   // Publisher
   ros::Publisher rcin_pub_;

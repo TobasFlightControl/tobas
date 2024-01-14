@@ -45,10 +45,8 @@ static constexpr char kConfigKey_RcThrustUp[] = "DEFAULT.rc_input/thrust/up";
 static constexpr char kConfigKey_RcThrustDown[] = "DEFAULT.rc_input/thrust/down";
 static constexpr char kConfigKey_RcEStopOn[] = "DEFAULT.rc_input/e_stop/on";
 static constexpr char kConfigKey_RcEStopOff[] = "DEFAULT.rc_input/e_stop/off";
-static constexpr char kConfigKey_RcGPSw1On[] = "DEFAULT.rc_input/gpsw1/on";
-static constexpr char kConfigKey_RcGPSw1Off[] = "DEFAULT.rc_input/gpsw1/off";
-static constexpr char kConfigKey_RcGPSw2On[] = "DEFAULT.rc_input/gpsw2/on";
-static constexpr char kConfigKey_RcGPSw2Off[] = "DEFAULT.rc_input/gpsw2/off";
+static constexpr char kConfigKey_RcGPSwOn[] = "DEFAULT.rc_input/gpsw/on";
+static constexpr char kConfigKey_RcGPSwOff[] = "DEFAULT.rc_input/gpsw/off";
 static constexpr char kConfigKey_RcNrOfModes[] = "DEFAULT.rc_input/num_modes";
 static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 
@@ -64,14 +62,14 @@ static constexpr size_t kPwmDisarm = 900;     // [us]
 
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
+// チャンネルは8までを想定．9以上は受信機が対応していないことがある
 static constexpr size_t kRcChannelRoll = 0;    // CH1
 static constexpr size_t kRcChannelPitch = 1;   // CH2
 static constexpr size_t kRcChannelThrust = 2;  // CH3
 static constexpr size_t kRcChannelYaw = 3;     // CH4
 static constexpr size_t kRcChannelMode = 4;    // CH5
 static constexpr size_t kRcChannelEStop = 6;   // CH7
-static constexpr size_t kRcChannelGPSw1 = 7;   // CH8
-static constexpr size_t kRcChannelGPSw2 = 8;   // CH9
+static constexpr size_t kRcChannelGPSw = 7;    // CH8
 
 static constexpr size_t kWaitToRefreshBarometer = 10000;  // [us]
 static constexpr double kDisarmDuration = 3.;             // [s]
