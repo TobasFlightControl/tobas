@@ -1,2 +1,2 @@
 string[] name
-float64[] data
+float64[] data  # [Nm]
