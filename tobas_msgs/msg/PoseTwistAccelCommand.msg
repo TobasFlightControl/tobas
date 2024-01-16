@@ -1,4 +1,4 @@
-CommandLevel level
+tobas_msgs/CommandLevel level
 
 tobas_kdl_msgs/Vector pos    # Target global position [m]
 tobas_kdl_msgs/Vector vel    # Target global linear velocity [m/s]

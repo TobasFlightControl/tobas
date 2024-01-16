@@ -1,6 +1,6 @@
 std_msgs/Header header
 
-Pose pose
+tobas_msgs/Pose pose
 tobas_kdl_msgs/Twist twist
 tobas_kdl_msgs/Accel accel
 
