@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.widgets import SpinBox
 
 from .base import ParamGetterWidget
+from ..utils import convert_superscript
 
 
 class ParamGetterWidget_SpinBox(ParamGetterWidget):
@@ -34,7 +35,7 @@ class ParamGetterWidget_SpinBox(ParamGetterWidget):
         if default is not None:
             assert minimum <= default <= maximum
             self._spin_box.setValue(default)
-        self._spin_box.setSuffix(suffix)
+        self._spin_box.setSuffix(convert_superscript(suffix))
 
         self._spin_box.setFocusPolicy(Qt.StrongFocus)
 

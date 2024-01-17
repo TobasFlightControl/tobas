@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.widgets import SpinBox, DoubleSpinBox
 
 from ..common import *
+from ..utils import convert_superscript
 
 
 class IntGetter(QWidget):
@@ -38,7 +39,7 @@ class IntGetter(QWidget):
         if default is not None:
             assert minimum <= default <= maximum
             self._data.setValue(default)
-        self._data.setSuffix(suffix)
+        self._data.setSuffix(convert_superscript(suffix))
         self._data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         cols.addWidget(self._data)
 
@@ -89,7 +90,7 @@ class FloatGetter(QWidget):
         if default is not None:
             assert minimum <= default <= maximum
             self._data.setValue(default)
-        self._data.setSuffix(suffix)
+        self._data.setSuffix(convert_superscript(suffix))
         self._data.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         cols.addWidget(self._data)
 
