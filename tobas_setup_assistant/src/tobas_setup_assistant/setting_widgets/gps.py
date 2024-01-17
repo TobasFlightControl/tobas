@@ -21,11 +21,7 @@ class GpsWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Global Positioning System"
-        abst_text = (
-            "GPSの設定を行います．データシートを確認し，各値を入力してください．"
-            + "緯度，経度，高度に加え，NWU世界座標系に対する絶対速度が得られるものを想定しています．"
-            + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
-        )
+        abst_text = ""
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("GPS Equipped")

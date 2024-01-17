@@ -29,9 +29,8 @@ class ObserverWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Observer"
         abst_text = (
-            "状態推定器の設定を行います．"
-            + "手法を1つ選択し，各パラメータを設定してください．"
-            + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
+            "Configure the state estimator by selecting one method and setting its parameters. "
+            "You can tune the parameters later, so it's fine to leave them at their default values if preferred."
         )
         super().__init__(main, title_text, abst_text)
 

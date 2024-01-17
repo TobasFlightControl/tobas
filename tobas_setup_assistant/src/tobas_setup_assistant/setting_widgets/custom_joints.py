@@ -46,7 +46,10 @@ class CustomJointsWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Custom Joints"
-        abst_text = "推進システム，固定翼舵面以外のTransmissionを持つ関節の設定を行います．"
+        abst_text = (
+            "Configure the settings for joints with transmissions "
+            "other than those in the propulsion system and fixed-wing control surfaces."
+        )
         super().__init__(main, title_text, abst_text)
 
         self._available_joints: List[str] = []

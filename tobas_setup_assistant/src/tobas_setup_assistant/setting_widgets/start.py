@@ -28,9 +28,11 @@ class StartWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Tobas Setup Assistant"
         abst_text = (
-            "Tobas Setup Assistantは，Tobasを用いてあなたのドローンのシミュレーションと制御を行うために"
-            + "必要な設定ファイルを作成するのを手助けするツールです．"
-            + "ここでの設定が完了すれば，すぐにあなたのドローンを飛ばすことができます．"
+            "The Tobas Setup Assistant is a GUI tool designed for creating configuration files "
+            "needed to operate drones with Tobas. "
+            "It utilizes the URDF created in the previous steps and allows for the configuration of elements "
+            "not expressed in the URDF, "
+            "such as propeller aerodynamics and controller settings."
         )
         super().__init__(main, title_text, abst_text)
 

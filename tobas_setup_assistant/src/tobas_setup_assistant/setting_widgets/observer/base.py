@@ -41,9 +41,10 @@ class BaseObserver(QWidget):
         self._rows.addWidget(abst)
 
         gps_hor_pos_stddev_threshold_description = (
-            "GPSを用いて初期位置合わせをする際の，"
-            + "水平位置の真値に対する標準偏差の閾値．"
-            + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
+            "Threshold for the standard deviation relative to the true value of the horizontal position "
+            "when aligning the initial position using GPS. "
+            "A smaller value results in a more accurate initial position determination, "
+            "but increases the time taken for alignment."
         )
         self.gps_hor_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
             "GPS horizontal position std. dev threshold",
@@ -57,9 +58,10 @@ class BaseObserver(QWidget):
         self._rows.addWidget(self.gps_hor_pos_stddev_threshold)
 
         gps_ver_pos_stddev_threshold_description = (
-            "GPSを用いて初期位置合わせをする際の，"
-            + "垂直位置の真値に対する標準偏差の閾値．"
-            + "小さいほど初期位置を精度良く求めるが，位置合わせにかかる時間が増える．"
+            "Threshold for the standard deviation relative to the true value of the vertical position "
+            "when aligning the initial position using GPS. "
+            "A smaller value results in a more accurate initial position determination, "
+            "but increases the time taken for alignment."
         )
         self.gps_ver_pos_stddev_threshold = ParamGetterWidget_DoubleSpinBox(
             "GPS vertical position std. dev threshold",

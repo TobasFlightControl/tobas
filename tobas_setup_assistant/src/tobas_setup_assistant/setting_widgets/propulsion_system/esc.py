@@ -28,9 +28,9 @@ class EscWidget(QWidget):
         rows.addWidget(title)
 
         max_current_description = (
-            "ESCが安全に処理できる電流の最大値．"
-            + "最大値を超えた電流を流すと，ESCが過熱したり損傷したりする可能性があり，"
-            + "最悪の場合は故障や発火を引き起こすこともあります．"
+            "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "
+            "Exceeding this maximum current may lead to overheating or damage to the ESC, "
+            "and in the worst case, it could cause failure or fire."
         )
         self._max_current = ParamGetterWidget_SpinBox(
             "Maximum Current",

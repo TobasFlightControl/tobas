@@ -34,7 +34,10 @@ class DepthCameraWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Depth Camera"
-        abst_text = "深度カメラの設定を行います．データシートを確認し，各値を入力してください．"
+        abst_text = (
+            "Configure the depth camera settings. "
+            "Please refer to the datasheet and input the respective values."
+        )
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("Depth Camera Equipped")

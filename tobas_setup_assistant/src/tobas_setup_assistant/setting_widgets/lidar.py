@@ -23,7 +23,10 @@ class LidarWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define LiDAR"
-        abst_text = "3D LiDARの設定を行います．データシートを確認し，各値を入力してください．"
+        abst_text = (
+            "Configure the 3D LiDAR settings. "
+            "Please refer to the datasheet and input the respective values."
+        )
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("LiDAR Equipped")

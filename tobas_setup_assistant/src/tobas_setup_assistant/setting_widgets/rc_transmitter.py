@@ -21,7 +21,7 @@ class RCTransmitterWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define RC Transmitter"
-        abst_text = "TODO"
+        abst_text = "Configure the RC transmitter settings. Please set appropriate values for each item."
         super().__init__(main, title_text, abst_text)
 
         num_modes_description = ""

@@ -22,7 +22,7 @@ class RgbCameraWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define RGB Camera"
-        abst_text = "RGBカメラの設定を行います．データシートを確認し，各値を入力してください．"
+        abst_text = "Configure the RGB camera settings. Please refer to the datasheet and enter the respective values."
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("RGB Camera Equipped")
@@ -30,7 +30,7 @@ class RgbCameraWidget(BaseSettingWidget):
         self._equipped.setChecked(False)
         self._rows.addWidget(self._equipped)
 
-        link_description = "カメラが取り付けられたフレームの名前．"
+        link_description = "The name of the link to which the camera is attached."
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
@@ -74,7 +74,10 @@ class RgbCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.image_height)
 
-        depth_range_description = "カメラで観測可能な深さの範囲．" + "シミュレーションでは，この範囲外にある物体は切り捨てられます．"
+        depth_range_description = (
+            "The range of depth observable by the camera. "
+            "In the simulation, objects outside this range will be truncated."
+        )
         self.depth_range = ParamGetterWidget_DoubleRange(
             "Depth Range",
             depth_range_description,

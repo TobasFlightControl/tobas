@@ -28,7 +28,7 @@ class BladeGeometry(QWidget):
         title.setAlignment(Qt.AlignTop)
         rows.addWidget(title)
 
-        num_blade_description = "1つのプロペラに対するブレードの個数．"
+        num_blade_description = "Number of blades per propeller."
         self._num_blade = ParamGetterWidget_SpinBox(
             "Number of blades",
             num_blade_description,
@@ -37,7 +37,7 @@ class BladeGeometry(QWidget):
         )
         rows.addWidget(self._num_blade)
 
-        diameter_description = "プロペラの回転面の直径．"
+        diameter_description = "Diameter of the propeller's rotational plane."
         self._diameter = ParamGetterWidget_SpinBox(
             "Propeller Diameter",
             diameter_description,
@@ -47,7 +47,9 @@ class BladeGeometry(QWidget):
         )
         rows.addWidget(self._diameter)
 
-        blade_chord_description = "ブレードの中心から75%の位置での弦長．"
+        blade_chord_description = (
+            "Chord length at 75% of the distance from the blade's center."
+        )
         self._blade_chord = ParamGetterWidget_SpinBox(
             "75% Blade chord",
             blade_chord_description,
@@ -57,7 +59,9 @@ class BladeGeometry(QWidget):
         )
         rows.addWidget(self._blade_chord)
 
-        pitch_angle_description = "ブレードの中心から75%の位置でのねじれ角．"
+        pitch_angle_description = (
+            "Twist angle at 75% of the distance from the blade's center."
+        )
         self._pitch_angle = ParamGetterWidget_SpinBox(
             "75% Blade pitch angle",
             pitch_angle_description,

@@ -28,9 +28,9 @@ class PropulsionSystemWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Propulsion System"
         abst_text = (
-            "推進系の設定を行います．"
-            + "Available Linksから推進系として使用するリンクを追加し，"
-            + "それぞれに対して必要事項を入力してください．"
+            "Configure the propulsion system. "
+            "Please add the link you intend to use for the propulsion system from the Available Links, "
+            "and input the necessary information for each."
         )
         super().__init__(main, title_text, abst_text)
 

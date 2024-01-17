@@ -33,8 +33,8 @@ class RosPackageWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Generate ROS Package"
         abst_text = (
-            "これまでの設定を元にTobasを使用するのに必要なROSパッケージを生成します．"
-            + "パッケージのパスを指定し，Generateボタンを押してください．"
+            "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
+            'Please specify the path for the package and click the "Generate" button.'
         )
         super().__init__(main, title_text, abst_text)
 

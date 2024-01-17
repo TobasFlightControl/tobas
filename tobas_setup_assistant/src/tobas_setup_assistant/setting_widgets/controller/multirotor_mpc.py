@@ -32,7 +32,10 @@ class MultirotorMpc(BaseController):
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "位置制御にLQR，姿勢制御に線形モデル予測制御を用いた制御器です．"
+        abst_text = (
+            "This is a controller for planar multirotors, "
+            "utilizing LQR for position control and linear model predictive control for attitude control."
+        )
         super().__init__(main, abst_text)
 
         # TODO: 設定項目

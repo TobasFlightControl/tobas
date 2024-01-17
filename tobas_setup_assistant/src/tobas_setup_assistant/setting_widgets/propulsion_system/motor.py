@@ -123,7 +123,7 @@ class MotorWidget(QWidget):
         self._update_visibility()
 
 
-class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
+class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
     NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -136,9 +136,10 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self.setLayout(self._rows)
 
         direction_description = (
-            "モータの回転方向．"
-            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
-            + "例えば回転翼機の場合，通常は対角に位置するプロペラが同じ回転方向になります．"
+            "Motor rotation direction. "
+            "Please choose either CW (Clockwise) or CCW (Counter Clockwise) relative to the rotation axis. "
+            "For instance, in rotary-wing aircraft, "
+            "propellers positioned diagonally opposite each other typically rotate in the same direction."
         )
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
@@ -147,7 +148,10 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._direction)
 
-        time_const_up_description = "モータの回転数が増加する際の，指令値に対する追従時定数．"
+        time_const_up_description = (
+            "Time constant of the motor's response when increasing its rotational speed, "
+            "relative to the command value."
+        )
         self._time_const_up = ParamGetterWidget_SpinBox(
             "Time Constant Up",
             time_const_up_description,
@@ -157,7 +161,10 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._time_const_up)
 
-        time_const_down_description = "モータの回転数が減少する際の，指令値に対する追従時定数．"
+        time_const_down_description = (
+            "Time constant of the motor's response when decreasing its rotational speed, "
+            "relative to the command value."
+        )
         self._time_const_down = ParamGetterWidget_SpinBox(
             "Time Constant Down",
             time_const_down_description,
@@ -204,7 +211,9 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        kv_description = "供給される電圧に対する無負荷時のモーターの回転速度．"
+        kv_description = (
+            "Motor's rotational speed under no load, relative to the supplied voltage."
+        )
         self._kv = ParamGetterWidget_SpinBox(
             "Kv",
             kv_description,
@@ -215,7 +224,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
         )
         self._rows.addWidget(self._kv)
 
-        resistance_description = "モータの内部抵抗値．"
+        resistance_description = "Internal resistance value of the motor."
         self._resistance = ParamGetterWidget_SpinBox(
             "Internal Registance",
             resistance_description,
@@ -263,10 +272,11 @@ class MotorWidget_Experiment(MotorWidget_Base):
         super().__init__(main, link_name)
 
         data_description = (
-            "Thrust Stand実験のデータから，ESCへのPWM信号とモータの回転数の関係を推定します．"
-            + "データを直接入力するか，CSVファイルを読み込んでください．"
-            + "実験には必ず機体に搭載するバッテリーを用い，実際のプロペラを取り付けた状態で行ってください．\n"
-            + "Thrust Standの例: https://www.tytorobotics.com/pages/series-1580-1585"
+            "Estimate the relationship between the PWM signal to the ESC "
+            "and the motor's rotational speed from Thrust Stand experiment data. "
+            "Please input the data directly or load it from a CSV file. "
+            "Ensure that the experiments are conducted using the battery intended for the aircraft "
+            "and with the actual propeller attached."
         )
         self._data = ParamGetterWidget_DoubleTable(
             "Experimental data",

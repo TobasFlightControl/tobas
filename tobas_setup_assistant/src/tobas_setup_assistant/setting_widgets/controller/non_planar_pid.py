@@ -32,7 +32,7 @@ class NonPlanarPid(BaseController):
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "非平面ロータ配置マルチコプターのためのPID制御器です．"
+        abst_text = "This is a PID controller for non-planar multirotors."
         super().__init__(main, abst_text)
 
         # TODO: 設定項目

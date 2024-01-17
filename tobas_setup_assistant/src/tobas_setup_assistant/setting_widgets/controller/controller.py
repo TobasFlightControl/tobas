@@ -32,9 +32,9 @@ class ControllerWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Controller"
         abst_text = (
-            "飛行制御器の設定を行います．"
-            + "手法を1つ選択し，各パラメータを設定してください．"
-            + "パラメータは後からチューニングすることもできるので，デフォルトのままでも構いません．"
+            "Configure the flight controller by selecting one method and setting its parameters. "
+            "You can fine-tune the parameters later, "
+            "so it's acceptable to leave them at their default settings initially."
         )
         super().__init__(main, title_text, abst_text)
 
