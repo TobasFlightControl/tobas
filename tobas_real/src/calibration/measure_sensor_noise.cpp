@@ -21,29 +21,21 @@ MeasureSensorNoise::MeasureSensorNoise()
 {
   // ルート権限を確認
   if (!tobas_std::isSuperUser())
-  {
     throw runtime_error("Please execute with root privileges.");
-  }
 
   // IMUドライバをセットアップ
   imu_.initialize();
   if (!imu_.probe())
-  {
     throw runtime_error("IMU not enabled.");
-  }
 
   // 気圧センサドライバをセットアップ
   barometer_.initialize();
   if (!barometer_.testConnection())
-  {
     throw runtime_error("Barometer test failed.");
-  }
 
   // PWMドライバをセットアップ
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
-  {
     setupRCOutput(pwm_, channel);
-  }
 }
 
 void MeasureSensorNoise::run()
@@ -84,9 +76,7 @@ void MeasureSensorNoise::run()
     barometer_.calculatePressureAndTemperature();
     pres_data(i) = barometer_.getPressure() * 100;  // mbar -> Pa
     if (pres_data(i) < kMinAirPressure || kMaxAirPressure < pres_data(i))
-    {
       throw runtime_error("Strange air pressure: " + to_string(pres_data(i)) + " [Pa]");
-    }
   }
   const auto t_get_data_end = system_clock::now();
 
@@ -138,12 +128,8 @@ void MeasureSensorNoise::run()
 void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 {
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
-  {
     if (!pwm_.setDutyCycle(channel, period))
-    {
       throw runtime_error("Failed to set PWM duty cycle.");
-    }
-  }
 }
 
 void MeasureSensorNoise::sendDisarm()
