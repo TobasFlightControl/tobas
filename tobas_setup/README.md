@@ -85,7 +85,6 @@ $ ssh (user)@(host)  # e.g.) ssh pi@192.168.1.1
    Please make sure that the RC transmitter and receiver can communicate correctly.
 
 ```bash
-$ su
 $ roslaunch your_config_pkg real.launch
 ```
 
@@ -161,7 +160,6 @@ $ roslaunch your_config_pkg gazebo.launch
    Make sure battery and motors are connected to FC properly and the propellers are NOT attached to the motors.
 
 ```bash
-$ su
 $ roslaunch your_config_pkg hil.launch
 ```
 
@@ -209,7 +207,6 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 2. Please execute the following on FC and follow the instructions displayed on the console:
 
    ```bash
-   $ su
    $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
    ```
 
@@ -218,7 +215,6 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
    Please execute the following on FC:
 
    ```bash
-   $ su
    $ roslaunch tobas_motor_test motors_handler.launch
    ```
 
@@ -249,7 +245,6 @@ and FC (Flight Controller) are properly connected, and that the airframe is secu
 Execute the following on FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
-$ su
 $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 ```
 
