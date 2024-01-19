@@ -8,6 +8,8 @@
 #include "../include/tobas_real/motors_handler.hpp"
 #include "../include/tobas_real/common.hpp"
 
+#define SETUP_PWM_INTERVAL 100000  // [us]
+
 using namespace std;
 using namespace tobas_std;
 
@@ -27,22 +29,8 @@ MotorsHandler::MotorsHandler(
 
   latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
 
-  // PWMドライバのセットアップ
-  for (const auto& rotor_config : drone_.rotorConfigs())
-  {
-    const auto channel = channelFromPin(rotor_config.pin);
-    setupRCOutput(pwm_, channel);
-  }
-
-  // Send disarm command
-  rosInfo(name_, "Sending disarm command for " << kDisarmDuration << " seconds.");
-  sendDisarm();
-  rosInfo(name_, "Disarming finished. The motors are ready to rotate.");
-
-  registerPublishers();
-  registerSubscribers();
-
-  check_interval_timer_ = nh_.createTimer(kCheckIntervalRate, &self::checkIntervalTimerCb, this);
+  // PWMのセットアップを開始
+  setup_pwm_timer_ = nh_.createTimer(kSetupPwmTimerRate, &self::setupPwmTimerCb, this);
 }
 
 void MotorsHandler::getRosParams()
@@ -61,16 +49,6 @@ void MotorsHandler::registerSubscribers()
   throttles_sub_ =
     nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
-}
-
-void MotorsHandler::sendDisarm()
-{
-  const ros::Time start_time = ros::Time::now();
-  while ((ros::Time::now() - start_time).toSec() < kDisarmDuration)
-  {
-    setPeriodOnAllChannels(kPwmDisarm);
-    ros::Duration(kDisarmInterval).sleep();
-  }
 }
 
 void MotorsHandler::setPeriodOnAllChannels(const double& period)
@@ -199,6 +177,57 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
 void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
+}
+
+void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
+{
+  for (const auto& rotor_config : drone_.rotorConfigs())
+  {
+    // 他のノードのPWM起動との競合を防ぐため，最後ではなく最初にスリープする
+    usleep(SETUP_PWM_INTERVAL);
+
+    const auto channel = channelFromPin(rotor_config.pin);
+    if (!pwm_.initialize(channel))
+    {
+      rosWarn(name_, "Failed to initialize RC output on CH" + to_string(channel) + ". Retrying...");
+      return;
+    }
+    if (!pwm_.setFrequency(channel, kPwmFrequency))
+    {
+      rosWarn(name_, "Failed to set PWM frequency on CH" + to_string(channel) + ". Retrying...");
+      return;
+    }
+    if (!pwm_.enable(channel))
+    {
+      rosWarn(name_, "Failed to enable RC output on CH" + to_string(channel) + ". Retrying...");
+      return;
+    }
+  }
+
+  // Disarmを開始
+  setup_pwm_timer_.stop();
+  disarm_timer_ = nh_.createTimer(kDisarmTimerRate, &self::disarmTimerCb, this);
+
+  disarm_start_time_ = event.current_real;
+  rosInfo(name_, "Sending disarm command for " << kDisarmDuration << " seconds.");
+}
+
+void MotorsHandler::disarmTimerCb(const ros::TimerEvent& event)
+{
+  setPeriodOnAllChannels(kPwmDisarm);
+
+  if ((event.current_real - disarm_start_time_).toSec() > kDisarmDuration)
+  {
+    registerPublishers();
+    registerSubscribers();
+
+    // コマンドのインターバルチェックを開始
+    setup_pwm_timer_.stop();
+    check_interval_timer_ =
+      nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this);
+
+    rosInfo(name_, "Disarming finished. The motors are ready to rotate.");
+  }
 }
 
 void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)

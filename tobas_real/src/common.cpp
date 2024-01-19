@@ -14,7 +14,7 @@ void setupRCOutput(RCOutput_Navio2& pwm, const size_t& channel)
   if (!pwm.setFrequency(channel, kPwmFrequency))
     throw runtime_error("Failed to set PWM frequency on CH" + to_string(channel) + ".");
   if (!pwm.enable(channel))
-    throw runtime_error("RC output on CH" + to_string(channel) + " is disabled.");
+    throw runtime_error("Failed to enable RC output on CH" + to_string(channel) + ".");
 }
 
 size_t channelFromPin(const size_t& pin)

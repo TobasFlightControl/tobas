@@ -16,7 +16,9 @@ namespace tobas_real
 {
 class MotorsHandler : public tobas::BaseNode
 {
-  static constexpr size_t kCheckIntervalRate = 10;  // [Hz]
+  static constexpr size_t kSetupPwmTimerRate = 1;        // [Hz]
+  static constexpr size_t kDisarmTimerRate = 10;         // [Hz]
+  static constexpr size_t kCheckIntervalTimerRate = 10;  // [Hz]
   static constexpr double kThrottleMargin = 1e-3;
 
   using self = MotorsHandler;
@@ -32,7 +34,8 @@ private:
   tobas::Drone drone_;
   RCOutput_Navio2 pwm_;
 
-  ros::Time last_cmd_time_;  // [s]
+  ros::Time disarm_start_time_;
+  ros::Time last_cmd_time_;
   bool is_activated_ = false;
   tobas_msgs::BatteryConstPtr battery_;
   tobas_std::FirstOrderFilter<double> latency_filter_;
@@ -43,19 +46,22 @@ private:
   ros::Subscriber battery_sub_;
 
   // Timer
+  ros::Timer setup_pwm_timer_;
+  ros::Timer disarm_timer_;
   ros::Timer check_interval_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void sendDisarm();
   void setPeriodOnAllChannels(const double& period);
 
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
 
+  void setupPwmTimerCb(const ros::TimerEvent& event);
+  void disarmTimerCb(const ros::TimerEvent& event);
   void checkIntervalTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real
