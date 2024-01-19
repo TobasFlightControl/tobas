@@ -19,9 +19,7 @@ int write_file(const char* path, const char* fmt, ...)
 
   int fd = ::open(path, O_WRONLY | O_CLOEXEC);
   if (fd == -1)
-  {
     return -errno;
-  }
 
   va_list args;
   va_start(args, fmt);
@@ -33,9 +31,7 @@ int write_file(const char* path, const char* fmt, ...)
   va_end(args);
 
   if (ret < 1)
-  {
     return -errno_bkp;
-  }
 
   return ret;
 }
