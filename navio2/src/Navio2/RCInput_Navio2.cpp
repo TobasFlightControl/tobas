@@ -7,27 +7,23 @@
 #include "../../include/Common/Util.h"
 #include "../../include/Navio2/RCInput_Navio2.h"
 
-#define RCIN_SYSFS_PATH "/sys/kernel/rcio/rcin"
-
 RCInput_Navio2::RCInput_Navio2()
 {
 }
 
 void RCInput_Navio2::initialize()
 {
-  for (size_t i = 0; i < ARRAY_SIZE(channels); ++i)
+  for (size_t i = 0; i < ARRAY_SIZE(channels_); ++i)
   {
-    channels[i] = open_channel(i);
-    if (channels[i] < 0)
-    {
+    channels_[i] = openChannel(i);
+    if (channels_[i] < 0)
       perror("open");
-    }
   }
 }
 
 int RCInput_Navio2::read(int ch)
 {
-  if (static_cast<size_t>(ch) > ARRAY_SIZE(channels))
+  if (static_cast<size_t>(ch) > ARRAY_SIZE(channels_))
   {
     fprintf(stderr, "Channel number too large\n");
     return -1;
@@ -35,23 +31,19 @@ int RCInput_Navio2::read(int ch)
 
   char buffer[10];
 
-  if (::pread(channels[ch], buffer, ARRAY_SIZE(buffer), 0) < 0)
-  {
+  if (::pread(channels_[ch], buffer, ARRAY_SIZE(buffer), 0) < 0)
     perror("pread");
-  }
 
   return atoi(buffer);
 }
 
-int RCInput_Navio2::open_channel(int channel)
+int RCInput_Navio2::openChannel(int channel)
 {
   char* channel_path;
-  if (asprintf(&channel_path, "%s/ch%d", RCIN_SYSFS_PATH, channel) == -1)
-  {
+  if (asprintf(&channel_path, "%s/ch%d", "/sys/kernel/rcio/rcin", channel) == -1)
     err(1, "channel: %d\n", channel);
-  }
 
-  int fd = ::open(channel_path, O_RDONLY);
+  const auto fd = ::open(channel_path, O_RDONLY);
 
   free(channel_path);
 

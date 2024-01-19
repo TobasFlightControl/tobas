@@ -2,18 +2,18 @@
 
 #include <cstddef>
 
-#include "../Common/RCInput.h"
-
-class RCInput_Navio2 : public RCInput
+class RCInput_Navio2
 {
+  static constexpr size_t kChannelCount = 14;
+
 public:
   explicit RCInput_Navio2();
-  void initialize() override;
-  int read(int ch) override;
+
+  void initialize();
+  int read(int ch);
 
 private:
-  int open_channel(int ch);
+  int channels_[kChannelCount];
 
-  static const size_t CHANNEL_COUNT = 14;
-  int channels[CHANNEL_COUNT];
+  int openChannel(int ch);
 };

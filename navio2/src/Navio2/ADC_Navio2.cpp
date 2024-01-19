@@ -17,7 +17,7 @@ void ADC_Navio2::initialize()
 {
   for (size_t i = 0; i < ARRAY_SIZE(channels); ++i)
   {
-    channels[i] = open_channel(i);
+    channels[i] = openChannel(i);
     if (channels[i] < 0)
     {
       perror("open");
@@ -27,7 +27,7 @@ void ADC_Navio2::initialize()
 
 int ADC_Navio2::get_channel_count(void)
 {
-  return CHANNEL_COUNT;
+  return kChannelCount;
 }
 
 int ADC_Navio2::read(int ch)
@@ -47,7 +47,7 @@ int ADC_Navio2::read(int ch)
   return atoi(buffer);
 }
 
-int ADC_Navio2::open_channel(int channel)
+int ADC_Navio2::openChannel(int channel)
 {
   char* channel_path;
   if (asprintf(&channel_path, "%s/ch%d", ADC_SYSFS_PATH, channel) == -1)

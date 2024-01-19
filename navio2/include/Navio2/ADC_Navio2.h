@@ -13,8 +13,8 @@ public:
   int read(int ch) override;
 
 private:
-  int open_channel(int ch);
+  int openChannel(int ch);
 
-  static const size_t CHANNEL_COUNT = 6;
-  int channels[CHANNEL_COUNT];
+  static const size_t kChannelCount = 6;
+  int channels[kChannelCount];
 };

@@ -22,7 +22,13 @@ bool PWM::enable(const size_t& channel)
   return write_file(path.c_str(), "1") >= 0;
 }
 
-bool PWM::setPeriod(const size_t& channel, const size_t& freq)
+bool PWM::disable(const size_t& channel)
+{
+  const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/enable";
+  return write_file(path.c_str(), "0") >= 0;
+}
+
+bool PWM::setFrequency(const size_t& channel, const size_t& freq)
 {
   const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/period";
   const int period_ns = 1e+9 / freq;
