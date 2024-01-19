@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <Common/Util.h>
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 
 #define SERVO_MIN 1250 /*uS*/
 #define SERVO_MAX 1750 /*uS*/
@@ -12,7 +12,7 @@
 
 int main(int, char* argv[])
 {
-  RCOutput_Navio2 pwm;
+  PWM pwm;
 
   if (check_apm())
   {

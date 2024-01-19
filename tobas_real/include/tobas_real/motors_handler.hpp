@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 
 #include <tobas_std_tools/first_order_filter.hpp>
 
@@ -32,7 +32,7 @@ public:
 
 private:
   tobas::Drone drone_;
-  RCOutput_Navio2 pwm_;
+  PWM pwm_;
 
   ros::Time disarm_start_time_;
   ros::Time last_cmd_time_;

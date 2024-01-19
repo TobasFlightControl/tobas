@@ -2,7 +2,7 @@
 
 #include <unistd.h>
 
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 #include <Navio2/ADC_Navio2.h>
 
 namespace tobas_real
@@ -21,7 +21,7 @@ public:
   void run();
 
 private:
-  RCOutput_Navio2 pwm_;
+  PWM pwm_;
   ADC_Navio2 adc_;
 
   void waitForBatteryDisconnected();

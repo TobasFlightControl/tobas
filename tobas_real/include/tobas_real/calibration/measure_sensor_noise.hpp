@@ -2,7 +2,7 @@
 
 #include <Eigen/Core>
 #include <Common/MS5611.h>
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 
 #include "../common.hpp"
 
@@ -24,7 +24,7 @@ public:
 private:
   ImuDevice imu_;
   MS5611 barometer_;
-  RCOutput_Navio2 pwm_;
+  PWM pwm_;
 
   void setPeriodOnAllChannels(const double& period);
   void sendDisarm();

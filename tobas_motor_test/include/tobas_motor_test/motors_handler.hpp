@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Throttles.h>
@@ -24,7 +24,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  RCOutput_Navio2 pwm_;
+  PWM pwm_;
   tobas_msgs::ThrottlesConstPtr throttles_;
 
   ros::Subscriber throttles_sub_;

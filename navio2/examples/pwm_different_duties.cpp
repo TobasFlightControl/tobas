@@ -4,7 +4,7 @@
 
 #include <Common/Util.h>
 #include <Navio2/PWM.h>
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 
 #define SERVO_RAIL_SIZE 14
 #define PWM_FREQUENCY 50    // [Hz]
@@ -30,7 +30,7 @@ int main(int, char** argv)
   }
 
   // Initialize PWM handler
-  RCOutput_Navio2 pwm;
+  PWM pwm;
   for (uint32_t channel = 0; channel < SERVO_RAIL_SIZE; ++channel)
   {
     if (!(pwm.initialize(channel)))
