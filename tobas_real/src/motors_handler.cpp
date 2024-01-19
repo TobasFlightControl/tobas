@@ -179,9 +179,6 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
 {
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
-    // 他のノードのPWM起動との競合を防ぐため，最後ではなく最初にスリープする
-    usleep(SETUP_PWM_INTERVAL);
-
     const auto channel = channelFromPin(rotor_config.pin);
     if (!pwm_.initialize(channel))
     {
@@ -198,6 +195,8 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
       rosWarn(name_, "Failed to enable RC output on CH" + to_string(channel) + ". Retrying...");
       return;
     }
+
+    usleep(SETUP_PWM_INTERVAL);
   }
 
   // Disarmを開始
