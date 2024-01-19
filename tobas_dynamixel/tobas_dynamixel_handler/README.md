@@ -12,7 +12,7 @@ KERNEL=="ttyUSB0", ACTION=="add", PROGRAM="/bin/sh -c 'chown root:dialout /sys/b
 
 `ttyUSB0`デバイスがシステムに追加された（`ACTION=="add"`）時に，
 `latency_timer`ファイルの所有者を`root`ユーザーと`dialout`グループに変更し，
-所有者とグループのみが読み書きできるように（`chmod 770`）設定している．
+所有者とグループのみに完全なアクセス権を与えている（`chmod 770`）．
 
 2. udev ルールの適用
 
