@@ -1,7 +1,6 @@
-#include <boost/property_tree/ini_parser.hpp>
-
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/vector.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 
@@ -48,33 +47,32 @@ void RCInputHandler::registerSubscribers()
 
 void RCInputHandler::readConfig()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
+  tobas_std::PropertyTree pt(kConfigPath);
 
-  roll_range_.lower = pt.get<double>(kConfigKey_RcRollLeft);
-  roll_range_.upper = pt.get<double>(kConfigKey_RcRollRight);
+  pt.get(kConfigKey_RcRollLeft, roll_range_.lower);
+  pt.get(kConfigKey_RcRollRight, roll_range_.upper);
 
-  pitch_range_.lower = pt.get<double>(kConfigKey_RcPitchDown);
-  pitch_range_.upper = pt.get<double>(kConfigKey_RcPitchUp);
+  pt.get(kConfigKey_RcPitchDown, pitch_range_.lower);
+  pt.get(kConfigKey_RcPitchUp, pitch_range_.upper);
 
-  yaw_range_.lower = pt.get<double>(kConfigKey_RcYawRight);
-  yaw_range_.upper = pt.get<double>(kConfigKey_RcYawLeft);
+  pt.get(kConfigKey_RcYawRight, yaw_range_.lower);
+  pt.get(kConfigKey_RcYawLeft, yaw_range_.upper);
 
-  thrust_range_.lower = pt.get<double>(kConfigKey_RcThrustDown);
-  thrust_range_.upper = pt.get<double>(kConfigKey_RcThrustUp);
+  pt.get(kConfigKey_RcThrustDown, thrust_range_.lower);
+  pt.get(kConfigKey_RcThrustUp, thrust_range_.upper);
 
-  estop_on_ = pt.get<double>(kConfigKey_RcEStopOn);
-  estop_off_ = pt.get<double>(kConfigKey_RcEStopOff);
+  pt.get(kConfigKey_RcEStopOn, estop_on_);
+  pt.get(kConfigKey_RcEStopOff, estop_off_);
 
-  gpsw_on_ = pt.get<double>(kConfigKey_RcGPSwOn);
-  gpsw_off_ = pt.get<double>(kConfigKey_RcGPSwOff);
+  pt.get(kConfigKey_RcGPSwOn, gpsw_on_);
+  pt.get(kConfigKey_RcGPSwOff, gpsw_off_);
 
-  const auto num_modes = pt.get<size_t>(kConfigKey_RcNrOfModes);
-  modes_.resize(num_modes);
-  for (size_t i = 0; i < num_modes; ++i)
+  pt.get(kConfigKey_RcNrOfModes, num_modes_);
+  modes_.resize(num_modes_);
+  for (size_t i = 0; i < num_modes_; ++i)
   {
     const string key = kConfigKey_RcModePrefix + to_string(i);
-    modes_[i] = pt.get<double>(key);
+    pt.get(key, modes_[i]);
   }
 }
 

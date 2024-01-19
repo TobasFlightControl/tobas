@@ -1,5 +1,4 @@
-#include <boost/property_tree/ini_parser.hpp>
-
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 
@@ -45,16 +44,8 @@ void BatteryHandler::registerSubscribers()
 
 void BatteryHandler::getAdcCoefficient()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-
-  adc_coef_ = pt.get<double>(kConfigKey_AdcCoef);
-  if (adc_coef_ <= 0.)
-  {
-    ROS_THROW_NAMED(name_, "Negative ADC coefficient: " << adc_coef_);
-  }
-
-  rosInfo(name_, "ADC coefficient: " << adc_coef_);
+  tobas_std::PropertyTree pt(kConfigPath);
+  pt.get(kConfigKey_AdcCoef, adc_coef_);
 }
 
 void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)

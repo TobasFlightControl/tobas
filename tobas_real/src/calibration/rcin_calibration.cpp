@@ -1,7 +1,4 @@
-#include <iostream>
-#include <boost/property_tree/ini_parser.hpp>
-
-#include <tobas_std_tools/fstream.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_std_tools/console.hpp>
 
 #include "../../include/tobas_real/calibration/rcin_calibration.hpp"
@@ -200,11 +197,7 @@ void RCInputCalibrator::run()
   }
 
   // Configに保存
-  boost::property_tree::ptree pt;
-  if (tobas_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
 
   pt.put(kConfigKey_RcRollLeft, roll_left);
   pt.put(kConfigKey_RcRollRight, roll_right);
@@ -226,7 +219,7 @@ void RCInputCalibrator::run()
     pt.put(key, modes[i]);
   }
 
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 

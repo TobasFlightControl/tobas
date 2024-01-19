@@ -1,7 +1,4 @@
-#include <iostream>
-#include <boost/property_tree/ini_parser.hpp>
-
-#include <tobas_std_tools/fstream.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 
 #include "../../include/tobas_real/calibration/accel_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -36,15 +33,11 @@ void AccelCalibrator::run()
   cout << "The estimated accelerometer offset is: " << acc_offset.transpose() << endl;
 
   // Configに保存
-  boost::property_tree::ptree pt;
-  if (tobas_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
   pt.put(kConfigKey_AccOffsetX, acc_offset.x());
   pt.put(kConfigKey_AccOffsetY, acc_offset.y());
   pt.put(kConfigKey_AccOffsetZ, acc_offset.z());
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 

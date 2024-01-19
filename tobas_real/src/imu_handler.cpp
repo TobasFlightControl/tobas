@@ -1,9 +1,9 @@
-#include <boost/property_tree/ini_parser.hpp>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/boost.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
@@ -55,27 +55,26 @@ void ImuHandler::registerSubscribers()
 
 void ImuHandler::readConfig()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
+  tobas_std::PropertyTree pt(kConfigPath);
 
-  acc_noise_density_ = pt.get<double>(kConfigKey_AccNoiseDensity);
-  gyro_noise_density_ = pt.get<double>(kConfigKey_GyroNoiseDensity);
-  mag_noise_density_ = pt.get<double>(kConfigKey_MagNoiseDensity);
+  pt.get(kConfigKey_AccNoiseDensity, acc_noise_density_);
+  pt.get(kConfigKey_GyroNoiseDensity, gyro_noise_density_);
+  pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_);
 
-  acc_bias_.x() = pt.get<float>(kConfigKey_AccOffsetX);
-  acc_bias_.y() = pt.get<float>(kConfigKey_AccOffsetY);
-  acc_bias_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
+  pt.get(kConfigKey_AccOffsetX, acc_bias_.x());
+  pt.get(kConfigKey_AccOffsetY, acc_bias_.y());
+  pt.get(kConfigKey_AccOffsetZ, acc_bias_.z());
 
-  mag_trans_.a_xx = pt.get<double>(kConfigKey_MagEllipseAxx);
-  mag_trans_.a_yy = pt.get<double>(kConfigKey_MagEllipseAyy);
-  mag_trans_.a_zz = pt.get<double>(kConfigKey_MagEllipseAzz);
-  mag_trans_.a_xy = pt.get<double>(kConfigKey_MagEllipseAxy);
-  mag_trans_.a_yz = pt.get<double>(kConfigKey_MagEllipseAyz);
-  mag_trans_.a_zx = pt.get<double>(kConfigKey_MagEllipseAzx);
-  mag_trans_.b_x = pt.get<double>(kConfigKey_MagEllipseBx);
-  mag_trans_.b_y = pt.get<double>(kConfigKey_MagEllipseBy);
-  mag_trans_.b_z = pt.get<double>(kConfigKey_MagEllipseBz);
-  mag_trans_.c = pt.get<double>(kConfigKey_MagEllipseC);
+  pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
+  pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
+  pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
+  pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
+  pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
+  pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
+  pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x);
+  pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y);
+  pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z);
+  pt.get(kConfigKey_MagEllipseC, mag_trans_.c);
 }
 
 void ImuHandler::setupImu()

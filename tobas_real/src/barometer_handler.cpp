@@ -1,9 +1,9 @@
-#include <boost/property_tree/ini_parser.hpp>
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/exception.hpp>
 
 #include "../include/tobas_real/barometer_handler.hpp"
@@ -23,9 +23,7 @@ BarometerHandler::BarometerHandler(
 
   barometer_.initialize();
   if (!barometer_.testConnection())
-  {
     ROS_THROW_NAMED(name_, "Barometer test failed.");
-  }
 
   registerPublishers();
   registerSubscribers();
@@ -50,10 +48,8 @@ void BarometerHandler::registerSubscribers()
 
 void BarometerHandler::readConfig()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-
-  pressure_noise_density_ = pt.get<double>(kConfigKey_PressureNoiseDensity);
+  tobas_std::PropertyTree pt(kConfigPath);
+  pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_);
 }
 
 void BarometerHandler::eventCb(const tobas_msgs::EventConstPtr& event)

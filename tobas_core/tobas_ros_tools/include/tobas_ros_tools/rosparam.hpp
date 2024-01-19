@@ -81,8 +81,7 @@ void getParam(ros::NodeHandle& nh, const std::string& key, T& param, const T& _d
   {
     param = _default;
     ROS_WARN_STREAM(
-      "Parameter '" << key << "' is not specified. The default value '" << _default
-                    << "' is used.");
+      "Parameter '" << key << "' is not specified. The default '" << _default << "' is used.");
   }
 }
 

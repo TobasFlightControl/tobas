@@ -30,6 +30,7 @@ private:
   tobas_std::Range<double> pitch_range_;
   tobas_std::Range<double> yaw_range_;
   tobas_std::Range<double> thrust_range_;
+  size_t num_modes_;
   std::vector<double> modes_;
   double estop_on_, estop_off_;
   double gpsw_on_, gpsw_off_;

@@ -1,8 +1,6 @@
-#include <iostream>
 #include <chrono>
-#include <boost/property_tree/ini_parser.hpp>
 
-#include <tobas_std_tools/fstream.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_eigen_tools/core.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -107,16 +105,12 @@ void MeasureSensorNoise::run()
   cout << "Pressure noise density: " << pres_noise_density << " Pa/sqrt(Hz)" << endl;
 
   // Configに保存
-  boost::property_tree::ptree pt;
-  if (tobas_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
   pt.put(kConfigKey_AccNoiseDensity, acc_noise_density);
   pt.put(kConfigKey_GyroNoiseDensity, gyro_noise_density);
   pt.put(kConfigKey_MagNoiseDensity, mag_noise_density);
   pt.put(kConfigKey_PressureNoiseDensity, pres_noise_density);
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "The result is saved to '" << kConfigPath << "'." << endl;
 }  // namespace tobas_real
 
