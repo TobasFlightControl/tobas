@@ -217,7 +217,7 @@ void MotorsHandler::disarmTimerCb(const ros::TimerEvent& event)
     registerSubscribers();
 
     // コマンドのインターバルチェックを開始
-    setup_pwm_timer_.stop();
+    disarm_timer_.stop();
     check_interval_timer_ =
       nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this);
 
