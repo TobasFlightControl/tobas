@@ -31,7 +31,7 @@ bool PWM::disable(const size_t& channel)
 bool PWM::setFrequency(const size_t& channel, const size_t& freq)
 {
   const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/period";
-  const int period_ns = 1e+9 / freq;
+  const auto period_ns = static_cast<int>(1e+9 / freq);
   return write_file(path.c_str(), "%u", period_ns) >= 0;
 }
 
