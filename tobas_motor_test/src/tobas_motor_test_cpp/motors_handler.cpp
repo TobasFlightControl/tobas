@@ -30,16 +30,7 @@ MotorsHandler::MotorsHandler(
 
   // Setup PWM driver
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
-  {
-    const auto pin = pinFromChannel(channel);
-
-    if (!pwm_.initialize(channel))
-      throw runtime_error("Failed to initialize RC output on PIN" + to_string(pin) + ".");
-    if (!pwm_.setFrequency(channel, kPwmFrequency))
-      throw runtime_error("Failed to set PWM frequency on PIN" + to_string(pin) + ".");
-    if (!pwm_.enable(channel))
-      throw runtime_error("RC output on PIN" + to_string(pin) + " is disabled.");
-  }
+    setupRCOutput(pwm_, channel);
 
   // Send disarm command
   rosInfo(name_, "Sending disarm command for " << kDisarmDuration << " seconds.");
