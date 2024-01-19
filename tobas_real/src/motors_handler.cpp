@@ -1,7 +1,6 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_std_tools/unix.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 
@@ -21,9 +20,6 @@ MotorsHandler::MotorsHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  if (!tobas_std::isSuperUser())
-    ROS_THROW_NAMED(name_, "Please execute with root privileges.");
-
   getRosParams();
   drone_.loadFromParam(nh_);
 

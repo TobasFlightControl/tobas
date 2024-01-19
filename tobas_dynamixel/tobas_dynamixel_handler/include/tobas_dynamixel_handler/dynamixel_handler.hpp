@@ -74,7 +74,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void setMinimumLatency();
+  bool setMinimumLatency();
   void getMotorConfigs();
   void publishCurrentStates(const ros::Time& cur_time);
   int readSyncPacket(dynamixel::GroupSyncRead& sync_read);

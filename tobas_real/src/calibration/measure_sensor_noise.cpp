@@ -3,7 +3,6 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <tobas_std_tools/fstream.hpp>
-#include <tobas_std_tools/unix.hpp>
 #include <tobas_eigen_tools/core.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -19,10 +18,6 @@ namespace tobas_real
 {
 MeasureSensorNoise::MeasureSensorNoise()
 {
-  // ルート権限を確認
-  if (!tobas_std::isSuperUser())
-    throw runtime_error("Please execute with root privileges.");
-
   // IMUドライバをセットアップ
   imu_.initialize();
   if (!imu_.probe())

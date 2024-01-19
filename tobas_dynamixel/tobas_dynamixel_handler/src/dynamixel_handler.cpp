@@ -63,10 +63,8 @@ DynamixelHandler::DynamixelHandler(
   }
 
   // Reduce latency
-  if (tobas_std::isSuperUser())
-    setMinimumLatency();
-  else
-    rosWarn(name_, "Please execute with root privileges to set minimum communication latency.");
+  if (!setMinimumLatency())
+    rosError(name_, "Failed to set communication latency.");
 
   // Register publishers and subscribers
   registerPublishers();
@@ -101,23 +99,21 @@ void DynamixelHandler::getRosParams()
   tobas_ros::getParam(pnh_, "read_temperature", read_temperature_, kDefaultReadTemperature);
 }
 
-void DynamixelHandler::setMinimumLatency()
+bool DynamixelHandler::setMinimumLatency()
 {
   const auto pos = device_name_.rfind('/');
   const auto port = pos == string::npos ? device_name_ : device_name_.substr(pos + 1);
   const auto file_path = "/sys/bus/usb-serial/devices/" + port + "/latency_timer";
+
   ofstream file(file_path);
-  if (file.is_open())
-  {
-    file << kMinimumLatency;  // uint8だと反映されなかった
-    file.close();
-    rosInfo(name_, "Communication latency is set to " << kMinimumLatency);
-  }
-  else
-  {
-    rosError(
-      name_, "Unable to open file '" << file_path << "'. Communication latency is unchanged.");
-  }
+  if (!file.is_open())
+    return false;
+
+  file << kMinimumLatency;  // uint8だと反映されなかった
+  file.close();
+
+  rosInfo(name_, "Communication latency is updated successfully.");
+  return true;
 }
 
 void DynamixelHandler::getMotorConfigs()

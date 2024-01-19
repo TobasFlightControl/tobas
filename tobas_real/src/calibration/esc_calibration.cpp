@@ -4,7 +4,6 @@
 
 #include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/console.hpp>
-#include <tobas_std_tools/unix.hpp>
 
 #include "../../include/tobas_real/calibration/esc_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -16,9 +15,6 @@ namespace tobas_real
 {
 EscCalibration::EscCalibration()
 {
-  if (!tobas_std::isSuperUser())
-    throw runtime_error("Please execute with root privileges.");
-
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
     setupRCOutput(pwm_, channel);
 
