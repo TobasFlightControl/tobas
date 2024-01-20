@@ -25,8 +25,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
 add_message_files(FILES ${MSG_FILES})
-# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
-# add_service_files(FILES ${SRV_FILES})
+file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
+add_service_files(FILES ${SRV_FILES})
 file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
 add_action_files(FILES ${ACTION_FILES})
 

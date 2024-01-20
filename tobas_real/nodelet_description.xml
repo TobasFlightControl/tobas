@@ -20,6 +20,10 @@
     <description>TODO</description>
   </class>
 
+  <class name="tobas_real/PwmHandlerNodelet" type="tobas_real::PwmHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
   <class name="tobas_real/MotorsHandlerNodelet" type="tobas_real::MotorsHandlerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>

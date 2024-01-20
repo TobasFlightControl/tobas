@@ -40,6 +40,7 @@ static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
 static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kWindTopic[] = "wind";
+static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
@@ -52,12 +53,16 @@ static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
 static constexpr char kEventTopic[] = "event";
+static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
 static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
+static constexpr char kInitializePwmSrv[] = "initialize_pwm";
+static constexpr char kEnablePwmSrv[] = "enable_pwm";
+static constexpr char kSetPwmFreqSrv[] = "set_pwm_frequency";
 
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";

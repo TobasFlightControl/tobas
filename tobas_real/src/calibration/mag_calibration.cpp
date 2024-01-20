@@ -3,6 +3,7 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_real/calibration/mag_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"

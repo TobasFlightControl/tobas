@@ -3,11 +3,16 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
+#include <tobas_tools/constants.hpp>
+#include <tobas_msgs/PwmArray.h>
+#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/Latency.h>
+#include <tobas_msgs/InitializePwm.h>
+#include <tobas_msgs/SetPwmFrequency.h>
+#include <tobas_msgs/EnablePwm.h>
 
 #include "../include/tobas_real/motors_handler.hpp"
 #include "../include/tobas_real/common.hpp"
-
-#define SETUP_PWM_INTERVAL 100000  // [us]
 
 using namespace std;
 using namespace tobas_std;
@@ -23,7 +28,7 @@ MotorsHandler::MotorsHandler(
   getRosParams();
   drone_.loadFromParam(nh_);
 
-  latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
+  registerServiceClients();
 
   // PWMのセットアップを開始
   setup_pwm_timer_ = nh_.createTimer(kSetupPwmTimerRate, &self::setupPwmTimerCb, this);
@@ -35,7 +40,9 @@ void MotorsHandler::getRosParams()
 
 void MotorsHandler::registerPublishers()
 {
+  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
   rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsTopic, 1);
+  latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
 }
 
 void MotorsHandler::registerSubscribers()
@@ -47,17 +54,25 @@ void MotorsHandler::registerSubscribers()
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
+void MotorsHandler::registerServiceClients()
+{
+  init_pwm_sc_ = nh_.serviceClient<tobas_msgs::InitializePwm>(tobas::kInitializePwmSrv);
+  set_pwm_freq_sc_ = nh_.serviceClient<tobas_msgs::SetPwmFrequency>(tobas::kSetPwmFreqSrv);
+  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+}
+
 void MotorsHandler::setPeriodOnAllChannels(const double& period)
 {
+  const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
+
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
-    const auto& pin = rotor_config.pin;
-    if (!pwm_.setDutyCycle(channelFromPin(pin), period))
-    {
-      rosFatal(name_, "Failed to set PWM duty cycle on PIN " << pin << ".");
-      // TODO: Request shutdown
-    }
+    pwm_.channel = channelFromPin(rotor_config.pin);
+    pwm_.period = period;
+    pwms->pwm.push_back(pwm_);
   }
+
+  pwms_pub_.publish(pwms);
 }
 
 void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -91,7 +106,8 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
   // Get current time
   const auto cur_time = ros::Time::now();
 
-  // Create real rotating speeds
+  // Create ROS messages
+  const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
   const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   real_speeds->header.stamp = cur_time;
   real_speeds->speeds.resize(drone_.numRotors());
@@ -100,6 +116,7 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
   for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
     const auto& pin = drone_.rotorConfig(rotor_idx).pin;
+    pwm_.channel = channelFromPin(pin);
 
     // スロットルを決定
     auto tar_throttle = throttles->data[rotor_idx];
@@ -113,26 +130,23 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
     }
     if (tar_throttle > tobas::kMaxThrottle - kThrottleMargin)
     {
-      rosWarnThrottle(kWarnPeriod, name_, "Full throttle is commanded to PIN " << pin);
+      rosWarnThrottle(kWarnPeriod, name_, "Full throttle is commanded to CH" << pwm_.channel);
       tar_throttle = tobas::kMaxThrottle;
     }
 
-    // スロットルをパルス幅に変換
-    const auto pwm_period =
+    // スロットルをパルス幅に変換して発行
+    pwm_.period =
       remap<double>(tar_throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
-
-    // Set PWM duty cycle
-    if (!pwm_.setDutyCycle(channelFromPin(pin), pwm_period))
-    {
-      rosFatal(name_, "Failed to set PWM duty cycle on PIN" << pin << ".");
-      // TODO: Request shutdown
-    }
+    pwms->pwm.push_back(pwm_);
 
     // 実際に印加される電圧から回転数を計算．モータ遅延は無視している．
     // TODO: エンコーダを用いて真の回転数が取得できる場合に対応
     const auto real_voltage = battery_->voltage * tar_throttle;
     real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
   }
+
+  // Publish PWM commands
+  pwms_pub_.publish(pwms);
 
   // Publish real rotating speeds
   rotor_speeds_pub_.publish(real_speeds);
@@ -141,8 +155,11 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
   // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
   if (is_activated_)
   {
-    const auto latency = (cur_time - throttles->header.stamp).toSec();
-    if (latency < 0)
+    const auto latency = boost::make_shared<tobas_msgs::Latency>();
+    latency->data = (cur_time - throttles->header.stamp).toSec();
+    latency_pub_.publish(latency);
+
+    if (latency->data < 0)
     {
       rosErrorThrottle(
         kErrorPeriod, name_, "The timestamp of the motor command precedes the current time.");
@@ -150,7 +167,7 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
     }
 
     const auto dt = (cur_time - last_cmd_time_).toSec();
-    latency_filter_.update(latency, dt);
+    latency_filter_.update(latency->data, dt);
     const auto& filtered_latency = latency_filter_.getState();
     if (filtered_latency > kCheckLatencyThreshold)
     {
@@ -158,9 +175,6 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
         name_, "The time averaged latency from IMU to the motor command is "
                  << filtered_latency << ", which exceeds the threshold " << kCheckLatencyThreshold);
     }
-
-    // cout << "Raw Latency[s]     : " << latency << endl;
-    // cout << "Filtered latency[s]: " << filtered_latency << endl;
   }
 
   // Update last commanded time
@@ -177,26 +191,56 @@ void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
 {
+  // サービスサーバの起動を待つ
+  if (!init_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosWarn(
+      name_,
+      "Failed to connect to '" << tobas::kInitializePwmSrv << "' service server. Retrying...");
+    return;
+  }
+  if (!set_pwm_freq_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosWarn(
+      name_, "Failed to connect to '" << tobas::kSetPwmFreqSrv << "' service server. Retrying...");
+    return;
+  }
+  if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosWarn(
+      name_, "Failed to connect to '" << tobas::kEnablePwmSrv << "' service server. Retrying...");
+    return;
+  }
+
+  // PWMの初期設定
+  tobas_msgs::InitializePwm init_pwm_msg;
+  tobas_msgs::SetPwmFrequency set_pwm_freq_msg;
+  tobas_msgs::EnablePwm enable_pwm_msg;
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
     const auto channel = channelFromPin(rotor_config.pin);
-    if (!pwm_.initialize(channel))
+
+    init_pwm_msg.request.channel = channel;
+    if (!init_pwm_sc_.call(init_pwm_msg) || !init_pwm_msg.response.success)
     {
-      rosWarn(name_, "Failed to initialize RC output on CH" + to_string(channel) + ". Retrying...");
-      return;
-    }
-    if (!pwm_.setFrequency(channel, kPwmFrequency))
-    {
-      rosWarn(name_, "Failed to set PWM frequency on CH" + to_string(channel) + ". Retrying...");
-      return;
-    }
-    if (!pwm_.enable(channel))
-    {
-      rosWarn(name_, "Failed to enable RC output on CH" + to_string(channel) + ". Retrying...");
+      rosWarn(name_, "Failed to initialize RC output on CH" << channel << ". Retrying...");
       return;
     }
 
-    usleep(SETUP_PWM_INTERVAL);
+    set_pwm_freq_msg.request.channel = channel;
+    set_pwm_freq_msg.request.frequency = kPwmFrequency;
+    if (!set_pwm_freq_sc_.call(set_pwm_freq_msg) || !set_pwm_freq_msg.response.success)
+    {
+      rosWarn(name_, "Failed to set PWM frequency on CH" << channel << ". Retrying...");
+      return;
+    }
+
+    enable_pwm_msg.request.channel = channel;
+    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
+    {
+      rosWarn(name_, "Failed to enable RC output on CH" << channel << ". Retrying...");
+      return;
+    }
   }
 
   // Disarmを開始
@@ -213,6 +257,8 @@ void MotorsHandler::disarmTimerCb(const ros::TimerEvent& event)
 
   if ((event.current_real - disarm_start_time_).toSec() > kDisarmDuration)
   {
+    latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
+
     registerPublishers();
     registerSubscribers();
 

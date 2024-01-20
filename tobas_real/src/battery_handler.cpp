@@ -1,7 +1,7 @@
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
-
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
 
 #include "../include/tobas_real/battery_handler.hpp"

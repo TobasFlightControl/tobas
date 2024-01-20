@@ -1,0 +1,4 @@
+uint64 channel
+uint64 frequency
+---
+bool success

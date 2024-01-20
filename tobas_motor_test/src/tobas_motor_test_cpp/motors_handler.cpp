@@ -2,6 +2,7 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_real/common.hpp>
 
 #include "../../include/tobas_motor_test/motors_handler.hpp"

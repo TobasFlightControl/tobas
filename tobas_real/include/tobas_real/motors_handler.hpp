@@ -2,15 +2,14 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Navio2/PWM.h>
 
 #include <tobas_std_tools/first_order_filter.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Throttles.h>
-#include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
+#include <tobas_msgs/Pwm.h>
 
 namespace tobas_real
 {
@@ -32,18 +31,25 @@ public:
 
 private:
   tobas::Drone drone_;
-  PWM pwm_;
 
   ros::Time disarm_start_time_;
   ros::Time last_cmd_time_;
   bool is_activated_ = false;
+  tobas_msgs::Pwm pwm_;
   tobas_msgs::BatteryConstPtr battery_;
   tobas_std::FirstOrderFilter<double> latency_filter_;
 
   // PubSub
+  ros::Publisher pwms_pub_;
   ros::Publisher rotor_speeds_pub_;
+  ros::Publisher latency_pub_;
   ros::Subscriber throttles_sub_;
   ros::Subscriber battery_sub_;
+
+  // Service Clients
+  ros::ServiceClient init_pwm_sc_;
+  ros::ServiceClient set_pwm_freq_sc_;
+  ros::ServiceClient enable_pwm_sc_;
 
   // Timer
   ros::Timer setup_pwm_timer_;
@@ -53,6 +59,7 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+  void registerServiceClients();
 
   void setPeriodOnAllChannels(const double& period);
 

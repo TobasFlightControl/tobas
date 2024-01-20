@@ -16,6 +16,12 @@ bool PWM::initialize(const size_t& channel)
   return err >= 0 || err == -EBUSY;
 }
 
+bool PWM::remove(const size_t& channel)
+{
+  const auto err = write_file("/sys/class/pwm/pwmchip0/unexport", "%u", channel);
+  return err >= 0;
+}
+
 bool PWM::enable(const size_t& channel)
 {
   const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/enable";

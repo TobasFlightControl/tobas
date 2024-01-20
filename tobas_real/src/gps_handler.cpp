@@ -3,6 +3,7 @@
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Gps.h>
 
 #include "../include/tobas_real/gps_handler.hpp"

@@ -5,6 +5,7 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/exception.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_real/barometer_handler.hpp"
 #include "../include/tobas_real/common.hpp"
