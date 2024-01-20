@@ -236,6 +236,7 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
     }
 
     enable_pwm_msg.request.channel = channel;
+    enable_pwm_msg.request.enable = true;
     if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
     {
       rosWarn(name_, "Failed to enable RC output on CH" << channel << ". Retrying...");
