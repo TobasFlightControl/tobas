@@ -108,6 +108,10 @@ bool PwmHandler::initializeCb(
   tobas_msgs::InitializePwmResponse& res)
 {
   res.success = pwm_.initialize(req.channel);
+
+  if (res.success)
+    pwm_states_.at(req.channel).exported = true;
+
   return true;
 }
 
@@ -117,6 +121,10 @@ bool PwmHandler::enableCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnableP
     res.success = pwm_.enable(req.channel);
   else
     res.success = pwm_.disable(req.channel);
+
+  if (res.success)
+    pwm_states_.at(req.channel).enabled = req.enable;
+
   return true;
 }
 
@@ -125,6 +133,7 @@ bool PwmHandler::setFreqCb(
   tobas_msgs::SetPwmFrequencyResponse& res)
 {
   res.success = pwm_.setFrequency(req.channel, req.frequency);
+
   return true;
 }
 }  // namespace tobas_real
