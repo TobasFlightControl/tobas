@@ -18,7 +18,6 @@ struct PwmState
 {
   bool exported = false;
   bool enabled = false;
-  double period = 0;  // [us]
 };
 
 class PwmHandler : public tobas::BaseNode

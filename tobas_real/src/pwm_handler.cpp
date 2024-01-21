@@ -78,29 +78,17 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
 
     if (!pwm_state.exported)
     {
-      rosError(name_, "PWM CH" << pwm.channel << " is not exported.");
+      rosError(name_, "PWM CH" << pwm.channel << " is not initialized.");
       continue;
     }
-
     if (!pwm_state.enabled)
     {
       rosError(name_, "PWM CH" << pwm.channel << " is not enabled.");
       continue;
     }
 
-    pwm_state.period = pwm.period;
-  }
-
-  // 有効化されている全てのPWMを発行
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
-  {
-    const auto& pwm_state = pwm_states_.at(channel);
-
-    if (!pwm_state.exported || !pwm_state.enabled)
-      continue;
-
-    if (!pwm_.setDutyCycle(channel, pwm_state.period))
-      rosFatal(name_, "Failed to set PWM duty cycle on CH" << channel << ".");
+    if (!pwm_.setDutyCycle(pwm.channel, pwm.period))
+      rosFatal(name_, "Failed to set PWM duty cycle on CH" << pwm.channel << ".");
   }
 }
 
