@@ -11,6 +11,8 @@ namespace tobas_real
 PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
+  pwm_ok_.fill(false);
+
   getRosParams();
   registerPublishers();
   registerSubscribers();
