@@ -9,7 +9,7 @@
 
 #define PWM_FAIL_ERROR(channel)                                                                    \
   {                                                                                                \
-    ROS_ERROR_STREAM("Failed to set PWM duty cycle on PIN " << pinFromChannel(channel) << ".");    \
+    ROS_ERROR_STREAM("Failed to set PWM duty cycle on CH" << channel << ".");                      \
   }
 
 using namespace std;
