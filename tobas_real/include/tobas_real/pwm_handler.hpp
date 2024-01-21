@@ -6,22 +6,16 @@
 #include <Navio2/PWM.h>
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PwmArray.h>
-#include <tobas_msgs/InitializePwm.h>
-#include <tobas_msgs/EnablePwm.h>
-#include <tobas_msgs/SetPwmFrequency.h>
+#include <tobas_msgs/SetupPwm.h>
 
 #include "./common.hpp"
 
 namespace tobas_real
 {
-struct PwmState
-{
-  bool exported = false;
-  bool enabled = false;
-};
-
 class PwmHandler : public tobas::BaseNode
 {
+  static constexpr bool kDefaultUnexportWhenShutdown = false;
+
   using self = PwmHandler;
   using super = tobas::BaseNode;
 
@@ -35,15 +29,16 @@ public:
 
 private:
   PWM pwm_;
-  std::array<PwmState, kServoRailSize> pwm_states_;  // Channel -> PWM State
+  std::array<bool, kServoRailSize> pwm_ok_;
+
+  // rosparams
+  bool unexport_when_shutdown_;
 
   // Subscribers
   ros::Subscriber pwms_sub_;
 
   // Service Servers
-  ros::ServiceServer initialize_srv_;
-  ros::ServiceServer enable_srv_;
-  ros::ServiceServer set_freq_srv_;
+  ros::ServiceServer setup_pwm_srv_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -53,8 +48,6 @@ private:
   void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms);
 
-  bool initializeCb(tobas_msgs::InitializePwmRequest& req, tobas_msgs::InitializePwmResponse& res);
-  bool enableCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);
-  bool setFreqCb(tobas_msgs::SetPwmFrequencyRequest& req, tobas_msgs::SetPwmFrequencyResponse& res);
+  bool setupPwmCb(tobas_msgs::SetupPwmRequest& req, tobas_msgs::SetupPwmResponse& res);
 };
 }  // namespace tobas_real

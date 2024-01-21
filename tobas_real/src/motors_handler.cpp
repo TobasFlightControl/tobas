@@ -7,9 +7,7 @@
 #include <tobas_msgs/PwmArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Latency.h>
-#include <tobas_msgs/InitializePwm.h>
-#include <tobas_msgs/SetPwmFrequency.h>
-#include <tobas_msgs/EnablePwm.h>
+#include <tobas_msgs/SetupPwm.h>
 
 #include "../include/tobas_real/motors_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -28,7 +26,7 @@ MotorsHandler::MotorsHandler(
   getRosParams();
   drone_.loadFromParam(nh_);
 
-  registerServiceClients();
+  setup_pwm_sc_ = nh_.serviceClient<tobas_msgs::SetupPwm>(tobas::kSetupPwmSrv);
 
   // PWMのセットアップを開始
   setup_pwm_timer_ = nh_.createTimer(kSetupPwmTimerRate, &self::setupPwmTimerCb, this);
@@ -52,13 +50,6 @@ void MotorsHandler::registerSubscribers()
   throttles_sub_ =
     nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
-}
-
-void MotorsHandler::registerServiceClients()
-{
-  init_pwm_sc_ = nh_.serviceClient<tobas_msgs::InitializePwm>(tobas::kInitializePwmSrv);
-  set_pwm_freq_sc_ = nh_.serviceClient<tobas_msgs::SetPwmFrequency>(tobas::kSetPwmFreqSrv);
-  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
 }
 
 void MotorsHandler::setPeriodOnAllChannels(const double& period)
@@ -192,54 +183,23 @@ void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
 {
   // サービスサーバの起動を待つ
-  if (!init_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!setup_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     rosWarn(
-      name_,
-      "Failed to connect to '" << tobas::kInitializePwmSrv << "' service server. Retrying...");
-    return;
-  }
-  if (!set_pwm_freq_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-  {
-    rosWarn(
-      name_, "Failed to connect to '" << tobas::kSetPwmFreqSrv << "' service server. Retrying...");
-    return;
-  }
-  if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-  {
-    rosWarn(
-      name_, "Failed to connect to '" << tobas::kEnablePwmSrv << "' service server. Retrying...");
+      name_, "Failed to connect to '" << tobas::kSetupPwmSrv << "' service server. Retrying...");
     return;
   }
 
-  // PWMの初期設定
-  tobas_msgs::InitializePwm init_pwm_msg;
-  tobas_msgs::SetPwmFrequency set_pwm_freq_msg;
-  tobas_msgs::EnablePwm enable_pwm_msg;
+  // PWMのセットアップ
+  tobas_msgs::SetupPwm setup_pwm_msg;
   for (const auto& rotor_config : drone_.rotorConfigs())
   {
     const auto channel = channelFromPin(rotor_config.pin);
-
-    init_pwm_msg.request.channel = channel;
-    if (!init_pwm_sc_.call(init_pwm_msg) || !init_pwm_msg.response.success)
+    setup_pwm_msg.request.channel = channel;
+    setup_pwm_msg.request.frequency = kPwmFrequency;
+    if (!setup_pwm_sc_.call(setup_pwm_msg) || !setup_pwm_msg.response.success)
     {
-      rosWarn(name_, "Failed to initialize RC output on CH" << channel << ". Retrying...");
-      return;
-    }
-
-    set_pwm_freq_msg.request.channel = channel;
-    set_pwm_freq_msg.request.frequency = kPwmFrequency;
-    if (!set_pwm_freq_sc_.call(set_pwm_freq_msg) || !set_pwm_freq_msg.response.success)
-    {
-      rosWarn(name_, "Failed to set PWM frequency on CH" << channel << ". Retrying...");
-      return;
-    }
-
-    enable_pwm_msg.request.channel = channel;
-    enable_pwm_msg.request.enable = true;
-    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
-    {
-      rosWarn(name_, "Failed to enable RC output on CH" << channel << ". Retrying...");
+      rosWarn(name_, "Failed to setup RC output on CH" << channel << ". Retrying...");
       return;
     }
   }

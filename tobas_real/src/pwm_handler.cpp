@@ -1,4 +1,5 @@
 #include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_real/pwm_handler.hpp"
@@ -20,19 +21,22 @@ PwmHandler::~PwmHandler()
 {
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
-    const auto& pwm_state = pwm_states_.at(channel);
+    if (pwm_ok_.at(channel))
+    {
+      if (!pwm_.disable(channel))
+        rosError(name_, "Failed to disable PWM CH" << channel << ".");
 
-    if (pwm_state.enabled)
-      pwm_.disable(channel);
-
-    // FIXME: 一度unexportすると再起動するまでexportできなくなる (2024/1/21)
-    // if (pwm_state.exported)
-    //   pwm_.remove(channel);
+      // FIXME: 一度unexportすると再起動するまでexportできなくなる (2024/1/21)
+      if (unexport_when_shutdown_ && !pwm_.remove(channel))
+        rosError(name_, "Failed to unexport PWM CH" << channel << ".");
+    }
   }
 }
 
 void PwmHandler::getRosParams()
 {
+  tobas_ros::getParam(
+    pnh_, "unexport_when_shutdown", unexport_when_shutdown_, kDefaultUnexportWhenShutdown);
 }
 
 void PwmHandler::registerPublishers()
@@ -46,9 +50,7 @@ void PwmHandler::registerSubscribers()
 
 void PwmHandler::registerServiceServers()
 {
-  initialize_srv_ = nh_.advertiseService(tobas::kInitializePwmSrv, &self::initializeCb, this);
-  enable_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enableCb, this);
-  set_freq_srv_ = nh_.advertiseService(tobas::kSetPwmFreqSrv, &self::setFreqCb, this);
+  setup_pwm_srv_ = nh_.advertiseService(tobas::kSetupPwmSrv, &self::setupPwmCb, this);
 }
 
 void PwmHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -74,16 +76,9 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
       continue;
     }
 
-    auto& pwm_state = pwm_states_.at(pwm.channel);
-
-    if (!pwm_state.exported)
+    if (!pwm_ok_.at(pwm.channel))
     {
       rosError(name_, "PWM CH" << pwm.channel << " is not initialized.");
-      continue;
-    }
-    if (!pwm_state.enabled)
-    {
-      rosError(name_, "PWM CH" << pwm.channel << " is not enabled.");
       continue;
     }
 
@@ -92,37 +87,25 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
   }
 }
 
-bool PwmHandler::initializeCb(
-  tobas_msgs::InitializePwmRequest& req,
-  tobas_msgs::InitializePwmResponse& res)
+bool PwmHandler::setupPwmCb(tobas_msgs::SetupPwmRequest& req, tobas_msgs::SetupPwmResponse& res)
 {
-  res.success = pwm_.initialize(req.channel);
+  pwm_ok_.at(req.channel) = false;
+  res.success = false;
 
-  if (res.success)
-    pwm_states_.at(req.channel).exported = true;
+  // Initialize
+  if (!pwm_.initialize(req.channel))
+    return true;
 
-  return true;
-}
+  // Set frequency
+  if (!pwm_.setFrequency(req.channel, req.frequency))
+    return true;
 
-bool PwmHandler::enableCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res)
-{
-  if (req.enable)
-    res.success = pwm_.enable(req.channel);
-  else
-    res.success = pwm_.disable(req.channel);
+  // Enable
+  if (!pwm_.enable(req.channel))
+    return true;
 
-  if (res.success)
-    pwm_states_.at(req.channel).enabled = req.enable;
-
-  return true;
-}
-
-bool PwmHandler::setFreqCb(
-  tobas_msgs::SetPwmFrequencyRequest& req,
-  tobas_msgs::SetPwmFrequencyResponse& res)
-{
-  res.success = pwm_.setFrequency(req.channel, req.frequency);
-
+  pwm_ok_.at(req.channel) = true;
+  res.success = true;
   return true;
 }
 }  // namespace tobas_real

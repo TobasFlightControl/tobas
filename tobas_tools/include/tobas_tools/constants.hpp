@@ -60,9 +60,7 @@ static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
-static constexpr char kInitializePwmSrv[] = "initialize_pwm";
-static constexpr char kEnablePwmSrv[] = "enable_pwm";
-static constexpr char kSetPwmFreqSrv[] = "set_pwm_frequency";
+static constexpr char kSetupPwmSrv[] = "setup_pwm";
 
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";

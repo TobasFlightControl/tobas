@@ -47,9 +47,7 @@ private:
   ros::Subscriber battery_sub_;
 
   // Service Clients
-  ros::ServiceClient init_pwm_sc_;
-  ros::ServiceClient set_pwm_freq_sc_;
-  ros::ServiceClient enable_pwm_sc_;
+  ros::ServiceClient setup_pwm_sc_;
 
   // Timer
   ros::Timer setup_pwm_timer_;
@@ -59,7 +57,6 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-  void registerServiceClients();
 
   void setPeriodOnAllChannels(const double& period);
 
