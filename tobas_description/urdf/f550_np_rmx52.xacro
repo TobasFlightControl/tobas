@@ -84,7 +84,7 @@
       <parent link="base_link"/>
       <child link="lg_${suffix}"/>
       <axis xyz="1 0 0"/>
-      <limit velocity="${pi/2}" effort="1" lower="0" upper="${75*deg2rad}"/>  <!-- TODO -->
+      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${75*deg2rad}"/>
       <dynamics damping="0" friction="0.01"/>
     </joint>
     <link name="lg_${suffix}">
