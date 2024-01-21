@@ -25,8 +25,9 @@ PwmHandler::~PwmHandler()
     if (pwm_state.enabled)
       pwm_.disable(channel);
 
-    if (pwm_state.exported)
-      pwm_.remove(channel);
+    // FIXME: 一度unexportすると再起動するまでexportできなくなる (2024/1/21)
+    // if (pwm_state.exported)
+    //   pwm_.remove(channel);
   }
 }
 
