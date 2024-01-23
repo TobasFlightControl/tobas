@@ -42,6 +42,7 @@ using NormalDistribution = std::normal_distribution<double>;
 using UniformDistribution = std::uniform_real_distribution<double>;
 
 // ROS Topics
+static constexpr char kBatteryGtTopic[] = "ground_truth/battery";
 static constexpr char kOdometryGtTopic[] = "ground_truth/odom";
 static constexpr char kWindGtTopic[] = "ground_truth/wind";
 static constexpr char kRotorStateGtTopicPrefix[] = "ground_truth/rotor_state";

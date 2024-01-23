@@ -123,8 +123,8 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     if (cur_time > kCheckTopicsTimeThreshold)
     {
       if (battery_ == nullptr)
-        gzwarn << kPluginName << ": " << ns_ + "/" << tobas::kBatteryTopic
-               << " is not received yet." << endl;
+        gzwarn << kPluginName << ": " << ns_ + "/" << kBatteryGtTopic << " is not received yet."
+               << endl;
       if (!wind_received_)
         gzwarn << kPluginName << ": " << ns_ + "/" << kWindGtTopic << " is not received yet."
                << endl;
@@ -177,11 +177,11 @@ void GazeboRotorPlugin::registerPubSub()
   throttles_sub_ = nh_.subscribe(
     prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
-  battery_sub_ = nh_.subscribe(
-    prefix + tobas::kBatteryTopic, 1, &self::batteryCb, this,
+  battery_gt_sub_ = nh_.subscribe(
+    prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
-  wind_sub_ = nh_.subscribe(
-    prefix + kWindGtTopic, 1, &self::windSpeedCb, this,
+  wind_gt_sub_ = nh_.subscribe(
+    prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 
@@ -373,12 +373,12 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
   cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
 }
 
-void GazeboRotorPlugin::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
 }
 
-void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
+void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::WindConstPtr& wind)
 {
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 

@@ -75,8 +75,8 @@ private:
   ros::Publisher rotor_state_pub_;
   ros::Publisher debug_pub_;
   ros::Subscriber throttles_sub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber wind_sub_;
+  ros::Subscriber battery_gt_sub_;
+  ros::Subscriber wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
@@ -90,7 +90,7 @@ private:
   double minRotSpeed();
 
   void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void windSpeedCb(const tobas_msgs::WindConstPtr& wind);
+  void batteryGtCb(const tobas_msgs::BatteryConstPtr& battery);
+  void windSpeedGtCb(const tobas_msgs::WindConstPtr& wind);
 };
 }  // namespace gazebo
