@@ -1,0 +1,7 @@
+<library path="lib/libtobas_preprocess_nodelet">
+
+  <class name="tobas_preprocess/BatteryLpfNodelet" type="tobas_preprocess::BatteryLpfNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

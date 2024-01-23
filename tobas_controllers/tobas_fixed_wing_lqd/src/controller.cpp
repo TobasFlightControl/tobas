@@ -71,7 +71,7 @@ void Controller::registerSubscribers()
 
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &Controller::odomCb, this, tcpNoDelay());
   cmd_sub_ =
     nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &Controller::commandCb, this, tcpNoDelay());
@@ -308,7 +308,7 @@ void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
     rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
 
   if (battery_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryTopic);
+    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryLpfTopic);
 
   if (odom_nwu_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);

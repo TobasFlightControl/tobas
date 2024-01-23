@@ -49,7 +49,7 @@ void MotorsHandler::registerSubscribers()
 
   throttles_sub_ =
     nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
 void MotorsHandler::setPeriodOnAllChannels(const double& period)

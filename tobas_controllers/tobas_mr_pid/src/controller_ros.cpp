@@ -61,7 +61,7 @@ void ControllerRos::registerSubscribers()
   super::registerSubscribers();
 
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (drone_.isTransformable())
     joint_state_sub_ =
       nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
@@ -260,7 +260,7 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (battery_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryTopic);
+    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryLpfTopic);
 
   if (odom_ == nullptr)
     rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
