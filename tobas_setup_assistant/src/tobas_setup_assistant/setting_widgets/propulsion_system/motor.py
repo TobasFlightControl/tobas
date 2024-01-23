@@ -229,7 +229,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
             "Internal Registance",
             resistance_description,
             minimum=1,
-            default=200,
+            default=250,
             suffix=" mΩ",
         )
         self._rows.addWidget(self._resistance)
