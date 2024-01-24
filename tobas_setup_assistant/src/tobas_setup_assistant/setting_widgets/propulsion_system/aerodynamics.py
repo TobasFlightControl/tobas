@@ -62,7 +62,9 @@ class AerodynamicsWidget(QWidget):
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
             q_error_named(
-                self._main, PROPULSION_SYSTEM, "Please select aerodynamics setting method."
+                self._main,
+                PROPULSION_SYSTEM,
+                "Please select aerodynamics setting method.",
             )
             return False
         else:
@@ -174,8 +176,8 @@ class AerodynamicsWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
-    def copy_from(self, src) -> None:
-        raise NotImplementedError()
+    def copy_from(self, src: AerodynamicsWidget_Base) -> None:
+        self._max_model_error_rate.set(src._max_model_error_rate.get())
 
     @final
     def max_model_error_rate(self) -> float:
@@ -255,6 +257,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_Manual) -> None:
+        super().copy_from(src)
         self._motor_const.set(src._motor_const.get())
         self._moment_const.set(src._moment_const.get())
         self._rotor_drag_coef.set(src._rotor_drag_coef.get())
@@ -293,7 +296,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
-        pass
+        super().copy_from(src)
 
     def _blade_thory(self) -> BladeTheory:
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
@@ -381,6 +384,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
+        super().copy_from(src)
         self._data.set(src._data.get())
 
 
@@ -414,7 +418,9 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(
-                self._main, PROPULSION_SYSTEM, "Measurements in static condition is blank."
+                self._main,
+                PROPULSION_SYSTEM,
+                "Measurements in static condition is blank.",
             )
             return False
 
@@ -463,4 +469,5 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:
+        super().copy_from(src)
         self._data.set(src._data.get())
