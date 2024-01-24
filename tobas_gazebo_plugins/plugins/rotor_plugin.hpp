@@ -20,7 +20,7 @@ class GazeboRotorPlugin : public ModelPlugin
   // Constants
   static constexpr char kPluginName[] = "motor_model_plugin";
   static constexpr char kDebugTopicPrefix[] = "ground_truth/rotor_debug";
-  static constexpr double kRotorSpeedCheckMargin = 1.;    // [rad/s]
+  static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
   static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
 
   // Default parameters
