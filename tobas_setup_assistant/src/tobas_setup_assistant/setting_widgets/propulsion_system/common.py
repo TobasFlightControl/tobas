@@ -1,4 +1,4 @@
-ROTARY_WINGS = "Propulsion System"
+PROPULSION_SYSTEM = "Propulsion System"
 
 
 class AxisType:

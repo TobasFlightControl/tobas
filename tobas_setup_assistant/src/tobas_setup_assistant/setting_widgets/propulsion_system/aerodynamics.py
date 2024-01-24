@@ -19,8 +19,8 @@ from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
-from ...utils import rpm_to_rad_per_sec
-from .common import ROTARY_WINGS
+from ...utils import rps_from_rpm
+from .common import PROPULSION_SYSTEM
 from .blade_theory import BladeTheory
 
 
@@ -62,7 +62,7 @@ class AerodynamicsWidget(QWidget):
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
             q_error_named(
-                self._main, ROTARY_WINGS, "Please select aerodynamics setting method."
+                self._main, PROPULSION_SYSTEM, "Please select aerodynamics setting method."
             )
             return False
         else:
@@ -343,7 +343,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     @overrides
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(self._main, ROTARY_WINGS, "Thrust stand data is blank.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Thrust stand data is blank.")
             return False
 
         return True
@@ -354,7 +354,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
-        omega2: NDArray = rpm_to_rad_per_sec(rpm) ** 2
+        omega2: NDArray = rps_from_rpm(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
     @overrides
@@ -414,7 +414,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(
-                self._main, ROTARY_WINGS, "Measurements in static condition is blank."
+                self._main, PROPULSION_SYSTEM, "Measurements in static condition is blank."
             )
             return False
 

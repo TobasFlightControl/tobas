@@ -18,8 +18,9 @@ from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
-from ...utils import rpm_to_rad_per_sec
-from .common import ROTARY_WINGS
+from ...utils import rps_from_rpm
+from .common import PROPULSION_SYSTEM
+from .max_rot_speed import MaxRotationSpeedWidget
 
 
 class MotorWidget(QWidget):
@@ -59,14 +60,20 @@ class MotorWidget(QWidget):
         if self._method_name.currentText() == self.NO_SELECT:
             print(self._method_name.currentText())
             q_error_named(
-                self._main, ROTARY_WINGS, "Please select motor setting method."
+                self._main,
+                PROPULSION_SYSTEM,
+                "Please select motor setting method.",
             )
             return False
-        else:
-            if not self._selected().is_valid():
-                return False
+
+        if not self._selected().is_valid():
+            return False
 
         return True
+
+    def max_rot_speed(self) -> float:
+        """[rad/s]"""
+        return self._selected().max_rot_speed()
 
     def direction(self) -> str:
         """CW or CCW"""
@@ -135,6 +142,9 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
+        self._max_rot_speed = MaxRotationSpeedWidget(main, link_name)
+        self._rows.addWidget(self._max_rot_speed)
+
         direction_description = (
             "Motor rotation direction. "
             "Please choose either CW (Clockwise) or CCW (Counter Clockwise) relative to the rotation axis. "
@@ -176,18 +186,27 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
 
     @abstractmethod
     def is_valid(self) -> bool:
-        raise NotImplementedError()
+        if not self._max_rot_speed.is_valid():
+            return False
+
+        return True
+
+    @abstractmethod
+    def copy_from(self, src: MotorWidget_Base) -> None:
+        self._max_rot_speed.copy_from(src._max_rot_speed)
+        self._direction.set(src._direction.get())
+        self._time_const_up.set(src._time_const_up.get())
+        self._time_const_down.set(src._time_const_down.get())
 
     @abstractmethod
     def rot_speed_coefs(self) -> Tuple[float, float]:
         """V = a w + b w^2 (V[V], w[rad/s])"""
         raise NotImplementedError()
 
-    @abstractmethod
-    def copy_from(self, src: MotorWidget_Base) -> None:
-        self._direction.set(src._direction.get())
-        self._time_const_up.set(src._time_const_up.get())
-        self._time_const_down.set(src._time_const_down.get())
+    @final
+    def max_rot_speed(self) -> float:
+        """[rad/s]"""
+        return self._max_rot_speed.max_rot_speed()
 
     @final
     def direction(self) -> str:
@@ -236,11 +255,14 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
 
     @overrides
     def is_valid(self) -> bool:
+        if not super().is_valid():
+            return False
+
         return True
 
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        kv_si = rpm_to_rad_per_sec(self._kv.get())  # [rad/s/V]
+        kv_si = rps_from_rpm(self._kv.get())  # [rad/s/V]
         R = self._resistance.get() * 1e-3  # [Ω]
 
         # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
@@ -293,8 +315,11 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
     @overrides
     def is_valid(self) -> bool:
+        if not super().is_valid():
+            return False
+
         if self._data.count() == 0:
-            q_error_named(self._main, ROTARY_WINGS, "Experiment data is blank.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Experiment data is blank.")
             return False
 
         return True
@@ -308,7 +333,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         data = self._data.get()
         throttle, battery_voltage, rpm = np.hsplit(data, 3)
         motor_voltage = battery_voltage * throttle / 100.0
-        omega = rpm_to_rad_per_sec(rpm)
+        omega = rps_from_rpm(rpm)
 
         # 最小二乗法で係数を推定
         X = np.c_[omega, omega**2]

@@ -21,7 +21,7 @@ from tobas_kdl_sympy.frames import Vector
 
 from ...parameter_getters import *
 from ...common import *
-from .common import ROTARY_WINGS, AxisType
+from .common import PROPULSION_SYSTEM, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget
 from .blade_geometry import BladeGeometry
@@ -68,7 +68,7 @@ class SelectedLinksWidget(TabWidget):
         if num_rotors == 0:
             q_error_named(
                 self._main,
-                ROTARY_WINGS,
+                PROPULSION_SYSTEM,
                 "Please register at least 1 propulsion systems.",
             )
             return

@@ -628,6 +628,7 @@ class PackageGenerator(QObject):
                 max_model_error_rate=selected.aerodynamics.max_model_error_rate(),
                 time_const_up=selected.motor.time_const_up(),
                 time_const_down=selected.motor.time_const_down(),
+                max_rot_speed=selected.motor.max_rot_speed(),
                 max_current=selected.esc.max_current(),
             )
             robot.append(motor_model)

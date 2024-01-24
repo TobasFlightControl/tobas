@@ -48,7 +48,8 @@ def is_valid_email(email: str) -> bool:
     return re.fullmatch(regex, email)
 
 
-def rpm_to_rad_per_sec(rpm: float) -> float:
+def rps_from_rpm(rpm: float) -> float:
+    """回転数をRPMからrad/sに変換する．"""
     return (math.pi / 30) * rpm
 
 

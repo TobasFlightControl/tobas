@@ -20,7 +20,7 @@ class GazeboRotorPlugin : public ModelPlugin
   // Constants
   static constexpr char kPluginName[] = "motor_model_plugin";
   static constexpr char kDebugTopicPrefix[] = "ground_truth/rotor_debug";
-  static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
+  static constexpr double kRotorSpeedCheckMargin = 1.;    // [rad/s]
   static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
 
   // Default parameters
@@ -51,7 +51,8 @@ private:
   double max_model_error_rate_;
   double time_const_up_;
   double time_const_down_;
-  double max_current_;  // [A] ESCの最大電流
+  double max_rot_speed_;  // [rad/s] モータ特性が成り立つ最大回転数．最大連続電流によって定まる．
+  double max_current_;    // [A] ESCの最大電流
   double check_delay_threshold_;
 
   double cmd_rot_speed_ = 0.;  // [rad/s]
@@ -86,8 +87,6 @@ private:
   void applyForceAndTorque(const double& rot_speed, const common::Time& cur_time);
   void updateRotationSpeed(const double& dt);
   double rotSpeedFromVoltage(const double& voltage);
-  double maxRotSpeed();
-  double minRotSpeed();
 
   void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
   void batteryGtCb(const tobas_msgs::BatteryConstPtr& battery);

@@ -103,6 +103,7 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
     gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: "
            << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
 
+  getSdfParam(sdf, "maxRotationSpeed", max_rot_speed_, POSITIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
   getSdfParam(
@@ -278,17 +279,12 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 
   // Check rotor speed limit and get set value
   auto set_rot_speed = cmd_rot_speed_;
-  const auto max_rot_speed = maxRotSpeed();
-  const auto min_rot_speed = minRotSpeed();
-  if (cmd_rot_speed_ < min_rot_speed)
+  const auto max_rot_speed = min(max_rot_speed_, rotSpeedFromVoltage(battery_->voltage));
+  if (cmd_rot_speed_ < 0)
   {
-    // エラーを出すのは指令値が負のときのみ．[0, min_rot_speed]の時は修正するだけにする．
-    if (cmd_rot_speed_ < 0)
-    {
-      gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_
-            << ": " << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
-    }
-    set_rot_speed = min_rot_speed;
+    gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_ << ": "
+          << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
+    set_rot_speed = 0.;
   }
   else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
@@ -309,16 +305,6 @@ double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
   const auto& a = rot_speed_coefs_.X();
   const auto& b = rot_speed_coefs_.Y();
   return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
-}
-
-double GazeboRotorPlugin::maxRotSpeed()
-{
-  return rotSpeedFromVoltage(battery_->voltage);
-}
-
-double GazeboRotorPlugin::minRotSpeed()
-{
-  return maxRotSpeed() * tobas::kArmThrottle;
 }
 
 void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
