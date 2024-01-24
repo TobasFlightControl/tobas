@@ -109,11 +109,10 @@ VectorXd Mixer::solve(
   qp_.problem.q = -h_.transpose() * Q_ * G_;
 
   // 不等式制約
-  const auto min_voltage = cur_voltage * tobas::kArmThrottle;
   for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
-    qp_.problem.b(i) = drone_.thrustFromVoltage(i, cur_voltage);
-    qp_.problem.b(drone_.numRotors() + i) = -drone_.thrustFromVoltage(i, min_voltage);
+    qp_.problem.b(i) = drone_.maxThrust(i, cur_voltage);
+    qp_.problem.b(drone_.numRotors() + i) = -drone_.minThrust(i, cur_voltage);
   }
 
   // QPPを解く

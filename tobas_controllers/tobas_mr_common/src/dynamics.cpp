@@ -27,23 +27,6 @@ void MultirotorDynamicsComponents::updateInternalDataStructures()
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 }
 
-double MultirotorDynamicsComponents::maxThrustSum(const double& battery_voltage) const
-{
-  double res = 0;
-  for (size_t i = 0; i < z_rotors_.count(); ++i)
-    res += z_rotors_.thrustFromVoltage(i, battery_voltage);
-  return res;
-}
-
-double MultirotorDynamicsComponents::minThrustSum(const double& battery_voltage) const
-{
-  const auto min_voltage = battery_voltage * tobas::kArmThrottle;
-  double res = 0;
-  for (size_t i = 0; i < z_rotors_.count(); ++i)
-    res += z_rotors_.thrustFromVoltage(i, min_voltage);
-  return res;
-}
-
 double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_speeds) const
 {
   assert(rot_speeds.size() == drone_.numRotors());

@@ -253,8 +253,8 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
 
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    min_u_(i) = 0.;
-    max_u_(i) = x_rotors_.thrustFromVoltage(i, battery_voltage);
+    min_u_(i) = x_rotors_.minThrust(i, battery_voltage);
+    max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
   }
 
   for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)

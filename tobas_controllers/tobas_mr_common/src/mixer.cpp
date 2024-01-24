@@ -139,15 +139,14 @@ void Mixer::updateThrustLimits(
   const double& cur_voltage,
   const double& thrusts_sum)
 {
-  const auto min_voltage = cur_voltage * tobas::kArmThrottle;
   tobas_std::Range<double> thrust_limit_1;
   tobas_std::Range<double> thrust_limit_2;
 
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     // ハードウェアによる制約
-    thrust_limit_1.upper = z_rotors_.thrustFromVoltage(i, cur_voltage);
-    thrust_limit_1.lower = z_rotors_.thrustFromVoltage(i, min_voltage);
+    thrust_limit_1.upper = z_rotors_.maxThrust(i, cur_voltage);
+    thrust_limit_1.lower = z_rotors_.minThrust(i, cur_voltage);
 
     // 回転数の変化率による制約
     const auto max_drot = cfg_.max_rot_acc * dt;  // 回転数の変化量の最大値

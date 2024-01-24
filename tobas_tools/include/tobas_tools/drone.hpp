@@ -41,6 +41,15 @@ public:
 
   std::vector<std::string> postureDefiningJointNames() const;
 
+  /* 機械的に許容できる最大回転数から計算される推力． */
+  double maxMechanicalThrust(const size_t& rotor_idx) const;
+
+  /* 与えられたバッテリー電圧で出力できる最大推力．*/
+  double maxThrust(const size_t& rotor_idx, const double& battery_voltage) const;
+
+  /* 与えられたバッテリー電圧で出力できる最小推力． */
+  double minThrust(const size_t& rotor_idx, const double& battery_voltage) const;
+
   /* 回転数 [rad/s] から推力 [N] を求める． */
   double thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
 

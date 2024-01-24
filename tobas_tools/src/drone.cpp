@@ -45,6 +45,24 @@ vector<string> Drone::postureDefiningJointNames() const
   return res;
 }
 
+double Drone::maxMechanicalThrust(const size_t& rotor_idx) const
+{
+  const auto& rotor = rotors_.at(rotor_idx);
+  return rotor.motor_constant * sqr(rotor.max_rot_speed);
+}
+
+double Drone::maxThrust(const size_t& rotor_idx, const double& battery_voltage) const
+{
+  // 機械的な限界とエネルギー的な限界の最小値を計算
+  return min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, battery_voltage));
+}
+
+double Drone::minThrust(const size_t& rotor_idx, const double& battery_voltage) const
+{
+  const auto min_voltage = battery_voltage * kArmThrottle;
+  return min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, min_voltage));
+}
+
 double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const
 {
   return rotors_[rotor_idx].motor_constant * sqr(rot_speed);
@@ -175,6 +193,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else
     ROS_THROW("Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
 
+  tobas_ros::getParam(nh, prefix + "/max_rot_speed", res.max_rot_speed, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     nh, prefix + "/moment_constant", res.moment_constant, tobas_ros::NON_NEGATIVE);

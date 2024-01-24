@@ -24,10 +24,10 @@ public:
   inline double thrustSum(const std::vector<double>& rot_speeds);
 
   /* 最大推力の合計． */
-  double maxThrustSum(const double& battery_voltage) const;
+  inline double maxThrustSum(const double& battery_voltage) const;
 
   /* 最小推力の合計． */
-  double minThrustSum(const double& battery_voltage) const;
+  inline double minThrustSum(const double& battery_voltage) const;
 
   /* 空気効力定数と回転数の積の和． */
   double dragRotorSum(const std::vector<double>& rot_speeds) const;
@@ -67,5 +67,15 @@ inline const double& MultirotorDynamicsComponents::mass() const
 inline double MultirotorDynamicsComponents::thrustSum(const std::vector<double>& rot_speeds)
 {
   return z_rotors_.thrustSum(rot_speeds);
+}
+
+inline double MultirotorDynamicsComponents::maxThrustSum(const double& battery_voltage) const
+{
+  return z_rotors_.maxThrustSum(battery_voltage);
+}
+
+inline double MultirotorDynamicsComponents::minThrustSum(const double& battery_voltage) const
+{
+  return z_rotors_.minThrustSum(battery_voltage);
 }
 }  // namespace tobas_mr_common

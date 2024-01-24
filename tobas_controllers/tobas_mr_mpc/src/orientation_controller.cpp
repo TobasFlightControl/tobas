@@ -81,15 +81,14 @@ VectorXd OrientationController::solve(
   assert(cur_voltage > 0);
 
   // 現在の姿勢と合計推力から，重力方向の推力を計算
-  const double thrust_z = tar_thrust * cos(cur_rpy.roll) * cos(cur_rpy.pitch);
+  const auto thrust_z = tar_thrust * cos(cur_rpy.roll) * cos(cur_rpy.pitch);
 
   // MPCの最適制御問題を構築
   updateCurrentState(cur_rpy, cur_twist_B, cur_wind_W, cur_q, thrust_z);
   updateSetState(tar_rpy);
 
-  const double min_voltage = cur_voltage * tobas::kArmThrottle;
-  const double max_thrust_sum = dynamics_.maxThrustSum(cur_voltage);
-  const double min_thrust_sum = dynamics_.minThrustSum(cur_voltage);
+  const auto max_thrust_sum = dynamics_.maxThrustSum(cur_voltage);
+  const auto min_thrust_sum = dynamics_.minThrustSum(cur_voltage);
 
   // ダイナミクスと制御入力の制約を更新
   // 姿勢や推力の目標値をそのまま使うと追従性能が悪い場合に想定外の動きになるため，
@@ -100,9 +99,9 @@ VectorXd OrientationController::solve(
     const double t = mpc_.time_step * k;  // 計画開始時刻 (= 0) からの経過時間
 
     // ダイナミクスを更新
-    const double roll_k =
+    const auto roll_k =
       ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts(kRollIdx), t);
-    const double pitch_k =
+    const auto pitch_k =
       ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts(kPitchIdx), t);
     cont_.update(roll_k, pitch_k, cur_q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
@@ -110,12 +109,12 @@ VectorXd OrientationController::solve(
     // 個々のプロペラの推力の限界に関する不等式制約
     for (size_t i = 0; i < z_rotors_.count(); ++i)
     {
-      mpc_.input_ineqs[k].b(i) = z_rotors_.thrustFromVoltage(i, cur_voltage);
-      mpc_.input_ineqs[k].b(z_rotors_.count() + i) = -z_rotors_.thrustFromVoltage(i, min_voltage);
+      mpc_.input_ineqs[k].b(i) = z_rotors_.maxThrust(i, cur_voltage);
+      mpc_.input_ineqs[k].b(z_rotors_.count() + i) = -z_rotors_.minThrust(i, cur_voltage);
     }
 
     // 全てのプロペラの推力の合計に関する等式制約
-    const double thrust_k =
+    const auto thrust_k =
       clamp(thrust_z / (cos(roll_k) * cos(pitch_k)), min_thrust_sum, max_thrust_sum);
     mpc_.input_eqs[k].b(0) = thrust_k;
   }

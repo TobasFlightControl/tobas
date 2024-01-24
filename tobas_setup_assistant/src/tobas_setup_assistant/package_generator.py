@@ -333,6 +333,7 @@ class PackageGenerator(QObject):
                 "link_name": selected.link_name(),
                 "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
+                "max_rot_speed": float(selected.motor.max_rot_speed()),
                 "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
                 "time_constant_down": float(selected.motor.time_const_down()),
