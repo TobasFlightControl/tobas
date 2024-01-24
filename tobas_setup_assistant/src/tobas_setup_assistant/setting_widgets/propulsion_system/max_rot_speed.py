@@ -175,6 +175,14 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
 
 
 class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
+    """
+    最大連続電流からロータの最大回転数を推定．
+
+    最大連続電流を超える高負荷になると，T = kt Iが成り立たなくなり，トルクが飽和する．
+    また，モータが加熱することによりコイルのインダクタンスが増加することも回転数低下の原因となる．
+    cf. [ブラシレスモータ効率の良い回し方](https://www.cqpub.co.jp/hanbai/books/MTR/MTRZ201310/MTRZ201310.pdf)
+    """
+
     NAME = "Estimate from maximum continuous current"
 
     def __init__(
