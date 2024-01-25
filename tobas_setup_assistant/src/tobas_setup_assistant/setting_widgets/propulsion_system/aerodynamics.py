@@ -14,12 +14,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
-from ...utils import rps_from_rpm
 from .common import PROPULSION_SYSTEM
 from .blade_theory import BladeTheory
 
@@ -357,7 +357,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
-        omega2: NDArray = rps_from_rpm(rpm) ** 2
+        omega2: NDArray = rpm2rps(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
     @overrides

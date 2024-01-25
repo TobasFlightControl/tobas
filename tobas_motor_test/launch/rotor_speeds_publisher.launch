@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_motor_test" type="rotor_speeds_publisher_node.py" name="rotor_speeds_publisher" output="screen" required="true"/>
+
+</launch>

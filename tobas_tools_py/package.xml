@@ -1,12 +1,16 @@
 <?xml version="1.0"?>
 <package format="2">
 
-	<name>tobas_motor_test</name>
+	<name>tobas_tools_py</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
 	<buildtool_depend>catkin</buildtool_depend>
+
+	<!-- <export>
+		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export> -->
 
 </package>

@@ -48,11 +48,6 @@ def is_valid_email(email: str) -> bool:
     return re.fullmatch(regex, email)
 
 
-def rps_from_rpm(rpm: float) -> float:
-    """回転数をRPMからrad/sに変換する．"""
-    return (math.pi / 30) * rpm
-
-
 def all_gt(seq: Sequence[float], x: float) -> bool:
     for elem in seq:
         if elem <= x:

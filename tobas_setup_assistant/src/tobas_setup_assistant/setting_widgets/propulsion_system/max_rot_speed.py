@@ -10,11 +10,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...common import *
-from ...utils import rps_from_rpm
 from .common import PROPULSION_SYSTEM
 
 
@@ -142,7 +142,7 @@ class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
 
     def max_rot_speed(self) -> float:
         """[rad/s]"""
-        return rps_from_rpm(self._spinbox.value())
+        return rpm2rps(self._spinbox.value())
 
     def is_valid(self) -> bool:
         return True

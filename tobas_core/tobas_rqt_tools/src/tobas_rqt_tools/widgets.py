@@ -296,9 +296,11 @@ class IntSliderDisplay(QWidget):
         minimum: int,
         maximum: int,
         default: int,
+        suffix: str = "",
         callback: Callable[[int], None] = None,
     ) -> None:
         super().__init__()
+        self._suffix = suffix
 
         font = QFont("Default", self.PSIZE, QFont.Bold)
 
@@ -312,7 +314,7 @@ class IntSliderDisplay(QWidget):
         name.setFont(font)
         cols.addWidget(name)
 
-        self._value = QLineEdit(f"{default}")
+        self._value = QLineEdit(f"{default}{suffix}")
         self._value.setAlignment(Qt.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
@@ -346,7 +348,7 @@ class IntSliderDisplay(QWidget):
 
     @pyqtSlot(int)
     def _on_value_changed(self, value: int) -> None:
-        self._value.setText(f"{value}")
+        self._value.setText(f"{value}{self._suffix}")
         self.value_changed.emit(value)
 
 
@@ -363,9 +365,11 @@ class FloatSliderDisplay(QWidget):
         minimum: float,
         maximum: float,
         default: float,
+        suffix: str = "",
         callback: Callable[[float], None] = None,
     ) -> None:
         super().__init__()
+        self._suffix = suffix
 
         font = QFont("Default", self.PSIZE, QFont.Bold)
 
@@ -379,7 +383,7 @@ class FloatSliderDisplay(QWidget):
         name.setFont(font)
         cols.addWidget(name)
 
-        self._value = QLineEdit(f"{default:.3f}")
+        self._value = QLineEdit(f"{default:.3f}{suffix}")
         self._value.setAlignment(Qt.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
@@ -413,7 +417,7 @@ class FloatSliderDisplay(QWidget):
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:
-        self._value.setText(f"{value:.3f}")
+        self._value.setText(f"{value:.3f}{self._suffix}")
         self.value_changed.emit(value)
 
 

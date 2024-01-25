@@ -6,7 +6,7 @@ import signal
 import rospy
 from PyQt5.QtWidgets import QApplication
 
-from tobas_motor_test.pwm_publisher import PwmPublisherWidget
+from tobas_motor_test.rotor_speeds_publisher import RotorSpeedsPublisherWidget
 
 
 if __name__ == "__main__":
@@ -15,8 +15,8 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    pwm_publisher = PwmPublisherWidget()
-    pwm_publisher.show()
+    rotor_speeds_publisher = RotorSpeedsPublisherWidget()
+    rotor_speeds_publisher.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

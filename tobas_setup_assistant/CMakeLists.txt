@@ -7,8 +7,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
   return()
 endif()
 
-find_package(catkin REQUIRED COMPONENTS
-)
+find_package(catkin REQUIRED)
 
 catkin_python_setup()
 catkin_package()

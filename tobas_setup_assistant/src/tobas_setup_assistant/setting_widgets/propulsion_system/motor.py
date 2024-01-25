@@ -13,12 +13,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
-from ...utils import rps_from_rpm
 from .common import PROPULSION_SYSTEM
 from .max_rot_speed import MaxRotationSpeedWidget
 
@@ -287,7 +287,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
 
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        kv_si = rps_from_rpm(self._kv.get())  # [rad/s/V]
+        kv_si = rpm2rps(self._kv.get())  # [rad/s/V]
         R = self._resistance.get() * 1e-3  # [Ω]
 
         # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
@@ -358,7 +358,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         data = self._data.get()
         throttle, battery_voltage, rpm = np.hsplit(data, 3)
         motor_voltage = battery_voltage * throttle / 100.0
-        omega = rps_from_rpm(rpm)
+        omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
         X = np.c_[omega, omega**2]
