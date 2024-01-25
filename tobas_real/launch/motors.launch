@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="nodelet" default="false"/>
+  <arg name="block_below_arm_speed" default="true"/>
 
   <arg name="node_name" value="motors_handler"/>
 
@@ -11,11 +12,15 @@
 
   <!-- Launch Motors Handler -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_real/MotorsHandlerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_real/MotorsHandlerNodelet nodelet_manager" output="screen">
+      <param name="block_below_arm_speed" value="$(arg block_below_arm_speed)"/>
+    </node>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_real" type="motors_handler_node" name="$(arg node_name)" output="screen"/>
+    <node pkg="tobas_real" type="motors_handler_node" name="$(arg node_name)" output="screen">
+      <param name="block_below_arm_speed" value="$(arg block_below_arm_speed)"/>
+    </node>
   </group>
 
 </launch>

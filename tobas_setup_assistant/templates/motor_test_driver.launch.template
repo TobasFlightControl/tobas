@@ -5,10 +5,10 @@
 
   <!-- Launch driver nodes necessary for the motor test -->
   <group ns="{{ drone_name }}">
-    <node pkg="tobas_real" type="pwm_handler_node" name="$(arg node_name)" output="screen"/>
-    <node pkg="tobas_real" type="motors_handler_node" name="$(arg node_name)" output="screen">
-      <param name="block_below_arm_speed" value="false"/>
-    </node>
+    <include file="$(find tobas_real)/launch/motors.launch">
+      <arg name="nodelet" value="false"/>
+      <arg name="block_below_arm_speed" value="false"/>
+    </include>
   </group>
 
 </launch>
