@@ -1,0 +1,16 @@
+<launch>
+
+  <!-- Load common parameters -->
+  <include file="$(find {{ pkg_name }})/launch/common_params.launch">
+    <arg name="user_debug" value="$(arg user_debug)"/>
+  </include>
+
+  <!-- Launch driver nodes necessary for the motor test -->
+  <group ns="{{ drone_name }}">
+    <node pkg="tobas_real" type="pwm_handler_node" name="$(arg node_name)" output="screen"/>
+    <node pkg="tobas_real" type="motors_handler_node" name="$(arg node_name)" output="screen">
+      <param name="block_below_arm_speed" value="false"/>
+    </node>
+  </group>
+
+</launch>

@@ -224,6 +224,16 @@ class PackageGenerator(QObject):
             "plotjuggler.launch.template",
             osp.join(launch_dir, "plotjuggler.launch"),
         )
+        self._generate_from_template(
+            items,
+            "motor_test_driver.launch.template",
+            osp.join(launch_dir, "motor_test_driver.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "motor_test_gui.launch.template",
+            osp.join(launch_dir, "motor_test_gui.launch"),
+        )
 
         command_msgs = self._main.settings.controller.command_msgs()
 

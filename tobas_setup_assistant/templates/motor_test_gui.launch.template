@@ -1,0 +1,7 @@
+<launch>
+
+  <group ns="{{ drone_name }}">
+    <include file="$(find tobas_motor_test)/launch/rotor_speeds_publisher.launch"/>
+  </group>
+
+</launch>

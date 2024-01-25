@@ -44,33 +44,4 @@ geomag::Elements geomag(const double& lat, const double& lon, const double& heig
   const auto mag_field = geomag::GeoMag(year_frac, position, geomag::WMM2020);
   return geomag::magField2Elements(mag_field, lat, lon);
 }
-
-double clampTargetRotSpeedAndWarn(
-  const Drone& drone,
-  const size_t& rotor_idx,
-  const double& battery_voltage,
-  const double& tar_speed)
-{
-  const auto min_speed = drone.minRotSpeed(rotor_idx, battery_voltage);
-  const auto max_speed = drone.maxRotSpeed(rotor_idx, battery_voltage);
-
-  if (tar_speed < min_speed - kRotSpeedMargin)
-  {
-    ROS_WARN_STREAM(
-      "Target rotation speed of CH" << rotor_idx << " is too low: " << tar_speed << " < "
-                                    << min_speed << " [rad/s]");
-    return min_speed;
-  }
-  else if (tar_speed > max_speed + kRotSpeedMargin)
-  {
-    ROS_WARN_STREAM(
-      "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
-                                    << max_speed << " [rad/s]");
-    return max_speed;
-  }
-  else
-  {
-    return tar_speed;
-  }
-}
 }  // namespace tobas

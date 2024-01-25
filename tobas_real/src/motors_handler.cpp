@@ -3,6 +3,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/PwmArray.h>
@@ -35,6 +36,8 @@ MotorsHandler::MotorsHandler(
 
 void MotorsHandler::getRosParams()
 {
+  tobas_ros::getParam(
+    pnh_, "block_below_arm_speed", block_below_arm_speed_, kDefaultBlockBelowArmSpeed);
 }
 
 void MotorsHandler::registerPublishers()
@@ -111,8 +114,24 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     const auto channel = channelFromPin(pin);
 
     // 目標回転数を決定
-    const auto tar_speed = tobas::clampTargetRotSpeedAndWarn(
-      drone_, rotor_idx, battery_->voltage, tar_speeds->speeds[rotor_idx]);
+    const auto min_speed =
+      block_below_arm_speed_ ? drone_.minRotSpeed(rotor_idx, battery_->voltage) : 0.;
+    const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_->voltage);
+    auto tar_speed = tar_speeds->speeds[rotor_idx];
+    if (tar_speed < min_speed - tobas::kRotSpeedMargin)
+    {
+      ROS_WARN_STREAM(
+        "Target rotation speed of CH" << rotor_idx << " is too low: " << tar_speed << " < "
+                                      << min_speed << " [rad/s]");
+      tar_speed = min_speed;
+    }
+    else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
+    {
+      ROS_WARN_STREAM(
+        "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
+                                      << max_speed << " [rad/s]");
+      tar_speed = max_speed;
+    }
 
     // モータの追従遅延やモデル化誤差を無視し，目標回転数をそのまま現在の回転数としてメッセージに格納．
     // TODO: エンコーダを用いて真の回転数が取得できる場合に対応
