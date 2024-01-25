@@ -1,8 +1,11 @@
 #include <string>
 #include <iostream>
+#include <unistd.h>
 
 #include "../../include/Common/Util.h"
 #include "../../include/Navio2/PWM.h"
+
+#define NON_ROOT_SLEEP 100000  // [us]
 
 using namespace std;
 
@@ -13,6 +16,11 @@ PWM::PWM()
 bool PWM::initialize(const size_t& channel)
 {
   const auto err = write_file("/sys/class/pwm/pwmchip0/export", "%u", channel);
+
+  // 非rootの場合は，udevによってPWMデバイスがシステムに追加された際にアクセス権の変更等の遅延が生じるため，少し待つ
+  if (getuid() != 0)
+    usleep(NON_ROOT_SLEEP);
+
   return err >= 0 || err == -EBUSY;
 }
 
