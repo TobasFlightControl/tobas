@@ -21,13 +21,13 @@ constexpr inline double rad2deg(const double& rad)
 }
 
 /* rpm -> rad/s */
-constexpr inline double rpmToRadPerSec(const double& rpm)
+constexpr inline double rpm2rps(const double& rpm)
 {
   return rpm * (M_PI / 30);
 }
 
 /* rad/s -> rpm */
-constexpr inline double radPerSecToRpm(const double& rad_per_sec)
+constexpr inline double rps2rpm(const double& rad_per_sec)
 {
   return rad_per_sec * (30 / M_PI);
 }

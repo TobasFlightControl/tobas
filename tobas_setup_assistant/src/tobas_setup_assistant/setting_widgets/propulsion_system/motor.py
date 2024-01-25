@@ -79,6 +79,9 @@ class MotorWidget(QWidget):
         """CW or CCW"""
         return self._selected().direction()
 
+    def num_poles(self) -> int:
+        return self._selected().num_poles()
+
     def time_const_up(self) -> float:
         """[s]"""
         return self._selected().time_const_up()
@@ -158,6 +161,15 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
         )
         self._rows.addWidget(self._direction)
 
+        num_poles_description = ""  # TODO
+        self._num_poles = ParamGetterWidget_SpinBox(
+            "The number of poles",
+            num_poles_description,
+            minimum=2,
+            default=14,
+        )
+        self._rows.addWidget(self._num_poles)
+
         time_const_up_description = (
             "Time constant of the motor's response when increasing its rotational speed, "
             "relative to the command value."
@@ -189,12 +201,21 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
         if not self._max_rot_speed.is_valid():
             return False
 
+        if self.num_poles() % 2 == 1:
+            q_error_named(
+                self._main,
+                PROPULSION_SYSTEM,
+                "The number of poles of a brushless motor must be even.",
+            )
+            return False
+
         return True
 
     @abstractmethod
     def copy_from(self, src: MotorWidget_Base) -> None:
         self._max_rot_speed.copy_from(src._max_rot_speed)
         self._direction.set(src._direction.get())
+        self._num_poles.set(src._num_poles.get())
         self._time_const_up.set(src._time_const_up.get())
         self._time_const_down.set(src._time_const_down.get())
 
@@ -212,6 +233,10 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
     def direction(self) -> str:
         """CW or CCW"""
         return self._direction.get()
+
+    @final
+    def num_poles(self) -> float:
+        return self._num_poles.get()
 
     @final
     def time_const_up(self) -> float:

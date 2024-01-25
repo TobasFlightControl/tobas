@@ -45,6 +45,17 @@ vector<string> Drone::postureDefiningJointNames() const
   return res;
 }
 
+double Drone::maxRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const
+{
+  return min(rotors_.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, battery_voltage));
+}
+
+double Drone::minRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const
+{
+  const auto min_voltage = battery_voltage * kArmThrottle;
+  return min(rotors_.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, min_voltage));
+}
+
 double Drone::maxMechanicalThrust(const size_t& rotor_idx) const
 {
   const auto& rotor = rotors_.at(rotor_idx);
@@ -63,26 +74,26 @@ double Drone::minThrust(const size_t& rotor_idx, const double& battery_voltage) 
   return min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, min_voltage));
 }
 
-double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const
+double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& tar_speed) const
 {
-  return rotors_[rotor_idx].motor_constant * sqr(rot_speed);
+  return rotors_[rotor_idx].motor_constant * sqr(tar_speed);
 }
 
 double Drone::thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const
 {
   assert(voltage > 0);
 
-  const auto rot_speed = rotSpeedFromVoltage(rotor_idx, voltage);
-  return thrustFromRotSpeed(rotor_idx, rot_speed);
+  const auto tar_speed = rotSpeedFromVoltage(rotor_idx, voltage);
+  return thrustFromRotSpeed(rotor_idx, tar_speed);
 }
 
-double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const
+double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& tar_speed) const
 {
-  assert(rot_speed >= 0);
+  assert(tar_speed >= 0);
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return a * rot_speed + b * sqr(rot_speed);
+  return a * tar_speed + b * sqr(tar_speed);
 }
 
 double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -100,14 +111,26 @@ double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) 
   return sqrt(thrust / rotors_[rotor_idx].motor_constant);
 }
 
+double Drone::throttleFromRotSpeed(
+  const size_t& rotor_idx,
+  const double& tar_speed,
+  const double& battery_voltage) const
+{
+  assert(tar_speed >= 0);
+
+  const auto voltage = voltageFromRotSpeed(rotor_idx, tar_speed);
+  return voltage / battery_voltage;
+}
+
 double Drone::throttleFromThrust(
   const size_t& rotor_idx,
   const double& thrust,
   const double& battery_voltage) const
 {
-  const auto rot_speed = rotSpeedFromThrust(rotor_idx, thrust);
-  const auto voltage = voltageFromRotSpeed(rotor_idx, rot_speed);
-  return voltage / battery_voltage;
+  assert(thrust >= 0);
+
+  const auto tar_speed = rotSpeedFromThrust(rotor_idx, thrust);
+  return throttleFromRotSpeed(rotor_idx, tar_speed, battery_voltage);
 }
 
 void Drone::getJointConfigs(ros::NodeHandle& nh)
@@ -171,6 +194,17 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   // Link name
   tobas_ros::getParam(nh, prefix + "/link_name", res.link_name);
 
+  // Direction
+  string direction;
+  tobas_ros::getParam(nh, prefix + "/direction", direction);
+  direction = tobas_std::toLower(direction);
+  if (direction == "ccw")
+    res.direction = 1;
+  else if (direction == "cw")
+    res.direction = -1;
+  else
+    ROS_THROW("Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
+
   // Axis
   string axis;
   tobas_ros::getParam(nh, prefix + "/axis", axis);
@@ -182,16 +216,27 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else
     res.axis = Axis::UNKNOWN;
 
-  // Direction
-  string direction;
-  tobas_ros::getParam(nh, prefix + "/direction", direction);
-  direction = tobas_std::toLower(direction);
-  if (direction == "ccw")
-    res.direction = 1;
-  else if (direction == "cw")
-    res.direction = -1;
+  // ESC signal mode
+  string esc_signal_mode;
+  tobas_ros::getParam(nh, prefix + "/esc_signal_mode", esc_signal_mode);
+  esc_signal_mode = tobas_std::toLower(esc_signal_mode);
+  if (esc_signal_mode == "blheli_open_loop")
+    res.esc_signal_mode = EscSignalMode::BLHELI_OPEN_LOOP;
+  else if (esc_signal_mode == "blheli_closed_loop_low_range")
+    res.esc_signal_mode = EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE;
+  else if (esc_signal_mode == "blheli_closed_loop_mid_range")
+    res.esc_signal_mode = EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE;
+  else if (esc_signal_mode == "blheli_closed_loop_high_range")
+    res.esc_signal_mode = EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE;
   else
-    ROS_THROW("Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
+    ROS_THROW("Invalid ESC signal mode: " << esc_signal_mode);
+
+  // The number of poles
+  tobas_ros::getParam(nh, prefix + "/num_poles", res.num_poles);
+  if (res.num_poles == 0)
+    ROS_THROW("The number of poles cannot be 0.");
+  if (res.num_poles % 2 == 1)
+    ROS_THROW("The number of poles must be even.");
 
   tobas_ros::getParam(nh, prefix + "/max_rot_speed", res.max_rot_speed, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, tobas_ros::POSITIVE);

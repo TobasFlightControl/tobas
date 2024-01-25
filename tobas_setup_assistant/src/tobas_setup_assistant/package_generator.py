@@ -331,8 +331,10 @@ class PackageGenerator(QObject):
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f"rotor_{i}"] = {
                 "link_name": selected.link_name(),
-                "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
+                "axis": selected.axis_type(),
+                "esc_signal_mode": selected.esc.signal_mode(),
+                "num_poles": selected.motor.num_poles(),
                 "max_rot_speed": float(selected.motor.max_rot_speed()),
                 "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),

@@ -7,6 +7,9 @@
 
 namespace tobas_gazebo
 {
+/**
+ * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboのトランスミッションに指令する．
+ */
 class JointCommandHandler : public tobas::BaseNode
 {
   using self = JointCommandHandler;

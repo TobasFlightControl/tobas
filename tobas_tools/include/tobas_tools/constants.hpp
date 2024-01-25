@@ -43,6 +43,7 @@ static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kWindTopic[] = "wind";
 static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
+static constexpr char kRotorSpeedsCmdTopic[] = "command/rotation_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
 static constexpr char kPositionYawCmdTopic[] = "command/position_yaw";
@@ -77,7 +78,7 @@ static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
 static constexpr double kWaitForServiceExistence = 1.;  // [s]
 static constexpr double kAutoResetTimeThreshold = 0.5;  // [s]
-
+static constexpr double kRotSpeedMargin = 1.;           // [rad/s]
 static constexpr size_t kStopwatchSamples = 100;
 
 static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)

@@ -54,7 +54,7 @@ private:
   ctrl::LQD lqd_;  // 最適レギュレータ
 
   // PubSub
-  ros::Publisher throttles_pub_;
+  ros::Publisher rot_speeds_pub_;
   ros::Publisher deflections_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;
@@ -77,7 +77,7 @@ private:
   void setScales();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishRotorSpeeds(const Eigen::VectorXd& thrust);
+  void publishRotSpeeds(const Eigen::VectorXd& thrust);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
 

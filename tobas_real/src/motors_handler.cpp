@@ -4,6 +4,7 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_tools/utils.hpp>
 #include <tobas_msgs/PwmArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Latency.h>
@@ -39,7 +40,7 @@ void MotorsHandler::getRosParams()
 void MotorsHandler::registerPublishers()
 {
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsTopic, 1);
+  cur_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsTopic, 1);
   latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
 }
 
@@ -47,8 +48,8 @@ void MotorsHandler::registerSubscribers()
 {
   super::registerSubscribers();
 
-  throttles_sub_ =
-    nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, tcpNoDelay());
+  tar_speeds_sub_ =
+    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
@@ -79,7 +80,7 @@ void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
+void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds)
 {
   if (battery_ == nullptr)
   {
@@ -88,9 +89,9 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
   }
 
   // Check array size
-  if (throttles->data.size() != drone_.numRotors())
+  if (tar_speeds->speeds.size() != drone_.numRotors())
   {
-    rosError(name_, "Size mismatch: " << throttles->data.size() << " != " << drone_.numRotors());
+    rosError(name_, "Size mismatch: " << tar_speeds->speeds.size() << " != " << drone_.numRotors());
     return;
   }
 
@@ -107,47 +108,65 @@ void MotorsHandler::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttle
   for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
   {
     const auto& pin = drone_.rotorConfig(rotor_idx).pin;
-    pwm_.channel = channelFromPin(pin);
+    const auto channel = channelFromPin(pin);
 
-    // スロットルを決定
-    auto tar_throttle = throttles->data[rotor_idx];
-    if (tar_throttle < tobas::kArmThrottle - kThrottleMargin)
-    {
-      rosWarnThrottle(
-        kWarnPeriod, name_,
-        "Target throttle on PIN" << pin << " is too low: " << tar_throttle << " < "
-                                 << tobas::kArmThrottle);
-      tar_throttle = tobas::kArmThrottle;
-    }
-    if (tar_throttle > tobas::kMaxThrottle - kThrottleMargin)
-    {
-      rosWarnThrottle(kWarnPeriod, name_, "Full throttle is commanded to CH" << pwm_.channel);
-      tar_throttle = tobas::kMaxThrottle;
-    }
+    // 目標回転数を決定
+    const auto tar_speed = tobas::clampTargetRotSpeedAndWarn(
+      drone_, rotor_idx, battery_->voltage, tar_speeds->speeds[rotor_idx]);
 
-    // スロットルをパルス幅に変換して発行
-    pwm_.period =
-      remap<double>(tar_throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
-    pwms->pwm.push_back(pwm_);
-
-    // 実際に印加される電圧から回転数を計算．モータ遅延は無視している．
+    // モータの追従遅延やモデル化誤差を無視し，目標回転数をそのまま現在の回転数としてメッセージに格納．
     // TODO: エンコーダを用いて真の回転数が取得できる場合に対応
-    const auto real_voltage = battery_->voltage * tar_throttle;
-    real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
+    real_speeds->speeds[rotor_idx] = tar_speed;
+
+    // PWMコマンドメッセージを作成
+    switch (drone_.rotorConfig(rotor_idx).esc_signal_mode)
+    {
+      case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
+      {
+        const auto throttle = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
+        pwm_.period = remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
+        break;
+      }
+      case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE:
+      {
+        const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
+        pwm_.period = remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
+        break;
+      }
+      case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE:
+      {
+        const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
+        pwm_.period = remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
+        break;
+      }
+      case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE:
+      {
+        const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
+        pwm_.period = remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
+        break;
+      }
+      default:
+      {
+        rosError(name_, "Unknown ESC signal mode of CH" << channel);
+        break;
+      }
+    }
+    pwm_.channel = channel;
+    pwms->pwm.push_back(pwm_);
   }
 
   // Publish PWM commands
   pwms_pub_.publish(pwms);
 
-  // Publish real rotating speeds
-  rotor_speeds_pub_.publish(real_speeds);
+  // Publish real rotation speeds
+  cur_speeds_pub_.publish(real_speeds);
 
   // Check latency: 多少の外れ値を許容するため，LPFを通したレイテンシで評価
   // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
   if (is_activated_)
   {
     const auto latency = boost::make_shared<tobas_msgs::Latency>();
-    latency->data = (cur_time - throttles->header.stamp).toSec();
+    latency->data = (cur_time - tar_speeds->header.stamp).toSec();
     latency_pub_.publish(latency);
 
     if (latency->data < 0)
@@ -261,7 +280,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
         real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
       }
 
-      rotor_speeds_pub_.publish(real_speeds);
+      cur_speeds_pub_.publish(real_speeds);
     }
   }
 }

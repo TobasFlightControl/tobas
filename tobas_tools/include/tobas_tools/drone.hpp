@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 
+#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/tree.hpp>
 
 #include "./joint_config.hpp"
@@ -39,7 +40,16 @@ public:
   inline size_t numRotors() const;
   inline size_t numControlSurfaces() const;
 
+  /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
+  inline double erpmFromRotSpeed(const size_t& rotor_idx, const double& rot_speed);
+
   std::vector<std::string> postureDefiningJointNames() const;
+
+  /* 与えられたバッテリー電圧で出力できる最大回転数．*/
+  double maxRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const;
+
+  /* 与えられたバッテリー電圧で出力できる最小回転数． */
+  double minRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const;
 
   /* 機械的に許容できる最大回転数から計算される推力． */
   double maxMechanicalThrust(const size_t& rotor_idx) const;
@@ -64,6 +74,12 @@ public:
 
   /* 推力 [N] から回転数 [rad/s] を求める． */
   double rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const;
+
+  /* 回転数 [rad/s] からスロットル [0,1] を求める． */
+  double throttleFromRotSpeed(
+    const size_t& rotor_idx,
+    const double& rot_speed,
+    const double& battery_voltage) const;
 
   /* 推力 [N] からスロットル [0,1] を求める． */
   double throttleFromThrust(
@@ -167,5 +183,10 @@ inline size_t Drone::numRotors() const
 inline size_t Drone::numControlSurfaces() const
 {
   return fixed_wing_.control_surfaces.size();
+}
+
+inline double Drone::erpmFromRotSpeed(const size_t& rotor_idx, const double& rot_speed)
+{
+  return tobas_std::rps2rpm(rot_speed) * rotors_.at(rotor_idx).num_poles / 2;
 }
 }  // namespace tobas

@@ -75,9 +75,9 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   const auto current = tobas_std::sum(currents_);
   if (current > max_current_)
   {
-    GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": The battery current is over limit: " << current << " > "
-                                << max_current_ << " [A]" << endl);
+    GZ_WARN_THROTTLE(
+      kWarnPeriod, kPluginName << ": The battery current is over limit: " << current << " > "
+                               << max_current_ << " [A]" << endl);
   }
 
   // 電気容量の減少

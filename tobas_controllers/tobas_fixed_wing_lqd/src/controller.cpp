@@ -8,7 +8,7 @@
 #include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/Throttles.h>
+#include <tobas_msgs/RotorSpeeds.h>
 
 #include "../include/tobas_fixed_wing_lqd/controller.hpp"
 #include "../include/tobas_fixed_wing_lqd/constants.hpp"
@@ -58,7 +58,7 @@ void Controller::getRosParams()
 
 void Controller::registerPublishers()
 {
-  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
+  rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
   deflections_pub_ =
     nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
   feedback_pub_ =
@@ -71,7 +71,8 @@ void Controller::registerSubscribers()
 
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
+  battery_sub_ =
+    nh_.subscribe(tobas::kBatteryLpfTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &Controller::odomCb, this, tcpNoDelay());
   cmd_sub_ =
     nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &Controller::commandCb, this, tcpNoDelay());
@@ -149,19 +150,16 @@ void Controller::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
 }
 
-void Controller::publishRotorSpeeds(const Eigen::VectorXd& thrust)
+void Controller::publishRotSpeeds(const Eigen::VectorXd& thrust)
 {
-  const auto throttles_msg = boost::make_shared<tobas_msgs::Throttles>();
-  throttles_msg->header.stamp = odom_ned_.header.stamp;
+  const auto rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  rot_speeds->header.stamp = odom_ned_.header.stamp;
 
-  throttles_msg->data.resize(drone_.numRotors(), tobas::kArmThrottle);
-  for (int i = 0; i < thrust.rows(); ++i)
-  {
-    throttles_msg->data[x_rotors_.rotorIdx(i)] =
-      x_rotors_.throttleFromThrust(i, max(0., thrust(i)), battery_->voltage);
-  }
+  rot_speeds->speeds.resize(drone_.numRotors(), 0.);
+  for (size_t i = 0; i < static_cast<size_t>(thrust.rows()); ++i)
+    rot_speeds->speeds[x_rotors_.rotorIdx(i)] = x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
 
-  throttles_pub_.publish(throttles_msg);
+  rot_speeds_pub_.publish(rot_speeds);
 }
 
 void Controller::publishDeflections(const Eigen::VectorXd& deflections)
@@ -289,7 +287,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
 
   // Publish
-  publishRotorSpeeds(thrust);
+  publishRotSpeeds(thrust);
   publishDeflections(deflections);
   publishFeedback(du);
 }

@@ -5,7 +5,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
-#include <tobas_msgs/Throttles.h>
+#include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_mr_pid/ControllerFeedback.h>
 
 #include "../include/tobas_mr_pid/controller_ros.hpp"
@@ -51,7 +51,7 @@ void ControllerRos::getRosParams()
 
 void ControllerRos::registerPublishers()
 {
-  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
+  rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_mr_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
@@ -178,20 +178,18 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
       dt, battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data,
       Vector3d::Zero(), tar_dgyro.data, tar_rpyt_->thrust);
 
-    // スロットルを発行
-    const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
-    throttles->header.stamp = odom->header.stamp;
-    throttles->data.resize(drone_.numRotors(), tobas::kArmThrottle);
-    for (int i = 0; i < thrusts.rows(); ++i)
+    // 目標回転数を発行
+    const auto tar_rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+    tar_rot_speeds->header.stamp = odom->header.stamp;
+    tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
+    for (size_t i = 0; i < static_cast<size_t>(thrusts.rows()); ++i)
     {
-      const auto thrust = max(0., thrusts(i));
-      const auto& rotor_idx = z_rotors_.rotorIdx(i);
-      auto throttle = z_rotors_.throttleFromThrust(i, thrust, battery_->voltage);
-      if (do_thrust_correction_ && thrust_corr_factor_ != nullptr)  // 推力の修正
-        throttle = clamp(throttle * sqrt(thrust_corr_factor_->data), 0., 1.);
-      throttles->data[rotor_idx] = throttle;
+      auto thrust = max(0., thrusts(i));
+      if (do_thrust_correction_ && thrust_corr_factor_ != nullptr)  // 推力補正
+        thrust *= thrust_corr_factor_->data;
+      tar_rot_speeds->speeds[z_rotors_.rotorIdx(i)] = z_rotors_.rotSpeedFromThrust(i, thrust);
     }
-    throttles_pub_.publish(throttles);
+    rot_speeds_pub_.publish(tar_rot_speeds);
 
     // フィードバックを発行
     feedback->target_orientation = tar_rpyt_->rpy;

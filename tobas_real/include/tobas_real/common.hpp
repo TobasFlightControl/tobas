@@ -53,10 +53,10 @@ static constexpr size_t kPowerModuleVoltageChannel = 2;
 
 static constexpr size_t kServoRailSize = 14;
 static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
-static constexpr size_t kPwmMin = 1000;       // [us]
-static constexpr size_t kPwmMax = 2000;       // [us]
-static constexpr size_t kPwmNeutral = 1500;   // [us]
-static constexpr size_t kPwmDisarm = 900;     // [us]
+static constexpr double kPwmMin = 1000;       // [us]
+static constexpr double kPwmMax = 2000;       // [us]
+static constexpr double kPwmNeutral = 1500;   // [us]
+static constexpr double kPwmDisarm = 900;     // [us]
 
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている

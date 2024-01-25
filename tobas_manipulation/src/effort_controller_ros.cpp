@@ -54,6 +54,8 @@ void EffortControllerRos::registerPublishers()
 
 void EffortControllerRos::registerSubscribers()
 {
+  super::registerSubscribers();
+
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());

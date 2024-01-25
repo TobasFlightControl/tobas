@@ -13,6 +13,13 @@ from ...common import *
 
 
 class EscWidget(QWidget):
+    SIGNAL_MODE_MAP = {
+        "BLHeli Open Loop": "blheli_open_loop",
+        "BHLeli Closed Loop (Low Range)": "blheli_closed_loop_low_range",
+        "BHLeli Closed Loop (Middle Range)": "blheli_closed_loop_mid_range",
+        "BHLeli Closed Loop (High Range)": "blheli_closed_loop_high_range",
+    }
+
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 
@@ -41,11 +48,23 @@ class EscWidget(QWidget):
         )
         rows.addWidget(self._max_current)
 
+        signal_mode_description = ""  # TODO
+        self._signal_mode = ParamGetterWidget_ComboBox(
+            "Signal Mode",
+            signal_mode_description,
+            self.SIGNAL_MODE_MAP.keys(),
+        )
+        rows.addWidget(self._signal_mode)
+
     def is_valid(self) -> bool:
         return True
 
     def copy_from(self, src: EscWidget) -> None:
         self._max_current.set(src._max_current.get())
+        self._signal_mode.set(src._signal_mode.get())
 
     def max_current(self) -> float:
         return self._max_current.get()
+
+    def signal_mode(self) -> str:
+        return self.SIGNAL_MODE_MAP[self._signal_mode.get()]

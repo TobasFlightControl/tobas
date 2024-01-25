@@ -55,7 +55,7 @@ private:
   ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御
 
   // PubSub
-  ros::Publisher throttles_pub_;
+  ros::Publisher rot_speeds_pub_;
   ros::Publisher deflections_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber air_pressure_sub_;
@@ -81,7 +81,7 @@ private:
   void setInputRateConstraint();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishRotorSpeeds(const Eigen::VectorXd& thrust);
+  void publishRotSpeeds(const Eigen::VectorXd& thrust);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
 

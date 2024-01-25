@@ -243,10 +243,9 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   const auto current = torque / kt;
   if (current > max_current_)
   {
-    GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": The electric current of rotor " << motor_number_
-                                << " is over limit: " << current << " > " << max_current_
-                                << " [A]");
+    GZ_WARN_THROTTLE(
+      kWarnPeriod, kPluginName << ": The electric current of rotor " << motor_number_
+                               << " is over limit: " << current << " > " << max_current_ << " [A]");
   }
 
   // Publish rotor state

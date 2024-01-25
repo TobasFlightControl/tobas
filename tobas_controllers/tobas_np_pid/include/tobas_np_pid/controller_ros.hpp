@@ -61,7 +61,7 @@ private:
   ros::Time t_last_loop_;
 
   // Publishers
-  ros::Publisher throttles_pub_;
+  ros::Publisher rot_speeds_pub_;
   ros::Publisher feedback_pub_;
 
   // Subscribers

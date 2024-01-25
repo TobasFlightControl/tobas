@@ -76,7 +76,7 @@ private:
   KDL::Vector tar_acc_fb_;
 
   // Publishers
-  ros::Publisher throttles_pub_;
+  ros::Publisher rot_speeds_pub_;
   ros::Publisher feedback_pub_;
 
   // Subscribers
