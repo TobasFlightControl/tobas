@@ -5,16 +5,16 @@ import signal
 import rospy
 from PyQt5.QtWidgets import QApplication
 
-from tobas_motor_test.motor_test_gui import MotorTestGui
+from tobas_motor_test.pwm_publisher import PwmPublisherWidget
 
 
 if __name__ == "__main__":
-    rospy.init_node("motor_test_gui")
+    rospy.init_node("pwm_publisher")
 
     app = QApplication(sys.argv)
 
-    motor_test_gui = MotorTestGui()
-    motor_test_gui.show()
+    pwm_publisher = PwmPublisherWidget()
+    pwm_publisher.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

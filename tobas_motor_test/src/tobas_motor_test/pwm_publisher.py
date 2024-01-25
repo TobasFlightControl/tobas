@@ -14,7 +14,7 @@ PKG_NAME = "tobas_motor_test"
 SERVO_RAIL_SIZE = 14
 
 
-class MotorTestGui(MainWidget):
+class PwmPublisherWidget(MainWidget):
     MAX_ROWS = SERVO_RAIL_SIZE // 2
     BUTTON_HEIGHT = 30
 

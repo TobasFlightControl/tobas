@@ -221,7 +221,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
    Please execute the following on the external PC:
 
    ```bash
-   $ roslaunch tobas_motor_test motor_test_gui.launch
+   $ roslaunch tobas_motor_test pwm_publisher.launch
    ```
 
    Then, confirm the following for all motors:
