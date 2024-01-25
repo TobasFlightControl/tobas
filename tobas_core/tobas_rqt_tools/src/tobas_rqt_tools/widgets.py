@@ -283,6 +283,73 @@ class MainWidget(ScrollArea):
         return super().closeEvent(event)
 
 
+class IntSliderDisplay(QWidget):
+    """整数スライダーとその値の表示機能を持つウィジェット．"""
+
+    PSIZE = 9
+
+    value_changed = pyqtSignal(int)
+
+    def __init__(
+        self,
+        name: str,
+        minimum: int,
+        maximum: int,
+        default: int,
+        callback: Callable[[int], None] = None,
+    ) -> None:
+        super().__init__()
+
+        font = QFont("Default", self.PSIZE, QFont.Bold)
+
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
+        cols = QHBoxLayout()
+        rows.addLayout(cols)
+
+        name = QLabel(name)
+        name.setFont(font)
+        cols.addWidget(name)
+
+        self._value = QLineEdit(f"{default}")
+        self._value.setAlignment(Qt.AlignRight)
+        self._value.setFont(font)
+        self._value.setReadOnly(True)
+        self._value.setFocusPolicy(Qt.NoFocus)
+        cols.addWidget(self._value)
+
+        self._slider = Slider(Qt.Horizontal)
+        self._slider.setMinimum(minimum)
+        self._slider.setMaximum(maximum)
+        self._slider.setValue(default)
+        rows.addWidget(self._slider)
+
+        if callback is not None:
+            self.value_changed.connect(callback)
+
+        self._slider.valueChanged.connect(self._on_value_changed)
+
+    def get_value(self) -> int:
+        return self._slider.value()
+
+    def set_value(self, value: int) -> None:
+        self._slider.setValue(value)
+
+    def set_random_value(self) -> None:
+        value = random.randint(self._slider.minimum(), self._slider.maximum())
+        self.set_value(value)
+
+    def set_center_value(self) -> None:
+        value = (self._slider.minimum() + self._slider.maximum()) // 2
+        self.set_value(value)
+
+    @pyqtSlot(int)
+    def _on_value_changed(self, value: int) -> None:
+        self._value.setText(f"{value}")
+        self.value_changed.emit(value)
+
+
 class FloatSliderDisplay(QWidget):
     """小数スライダーとその値の表示機能を持つウィジェット．"""
 

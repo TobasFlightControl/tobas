@@ -6,9 +6,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay, add_spacer
 
-from tobas_msgs.msg import Throttles
+from tobas_msgs.msg import Pwm, PwmArray
 
 PKG_NAME = "tobas_motor_test"
 SERVO_RAIL_SIZE = 14
@@ -18,9 +18,9 @@ class MotorTestGui(MainWidget):
     MAX_ROWS = SERVO_RAIL_SIZE // 2
     BUTTON_HEIGHT = 30
 
-    MIN_THROTTLE = 0.0
-    MAX_THROTTLE = 1.0
-    ARM_THROTTLE = 0.1
+    MIN_PWM = 1000
+    MAX_PWM = 2000
+    ARM_PWM = 1100
 
     def __init__(self) -> None:
         super().__init__(PKG_NAME)
@@ -35,13 +35,13 @@ class MotorTestGui(MainWidget):
         grid = QGridLayout()
         rows.addLayout(grid)
 
-        self._commanders: List[FloatSliderDisplay] = []
+        self._commanders: List[IntSliderDisplay] = []
         for i in range(SERVO_RAIL_SIZE):
-            commander = FloatSliderDisplay(
+            commander = IntSliderDisplay(
                 f"PIN {i + 1}",
-                self.MIN_THROTTLE,
-                self.MAX_THROTTLE,
-                self.MIN_THROTTLE,
+                self.MIN_PWM,
+                self.MAX_PWM,
+                self.MIN_PWM,
             )
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
@@ -59,9 +59,7 @@ class MotorTestGui(MainWidget):
 
         add_spacer(rows)
 
-        self._throttles_pub = rospy.Publisher(
-            "command/throttles", Throttles, queue_size=1
-        )
+        self._pwm_pub = rospy.Publisher("command/pwm", PwmArray, queue_size=1)
 
     @pyqtSlot()
     def _on_value_changed(self) -> None:
@@ -69,24 +67,23 @@ class MotorTestGui(MainWidget):
 
     @pyqtSlot()
     def _on_minimum_button_clicked(self) -> None:
-        self._set_all_values(self.MIN_THROTTLE)
+        self._set_all_values(self.MIN_PWM)
         self._publish_current_values()
 
     @pyqtSlot()
     def _on_arming_button_clicked(self) -> None:
-        self._set_all_values(self.ARM_THROTTLE)
+        self._set_all_values(self.ARM_PWM)
         self._publish_current_values()
 
     def _publish_current_values(self) -> None:
-        throttles = Throttles()
-        throttles.header.stamp = rospy.Time.now()
+        pwms = PwmArray()
 
-        for commander in self._commanders:
-            throttles.data.append(commander.get_value())
+        for channel, commander in enumerate(self._commanders):
+            pwms.pwm.append(Pwm(channel, commander.get_value()))
 
-        self._throttles_pub.publish(throttles)
+        self._pwm_pub.publish(pwms)
 
-    def _set_all_values(self, value: float) -> None:
+    def _set_all_values(self, value: int) -> None:
         for commander in self._commanders:
             commander.blockSignals(True)
             commander.set_value(value)
