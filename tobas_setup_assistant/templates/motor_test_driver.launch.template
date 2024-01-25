@@ -5,6 +5,7 @@
 
   <!-- Launch driver nodes necessary for the motor test -->
   <group ns="{{ drone_name }}">
+    <node pkg="tobas_preprocess" type="battery_lpf_node" name="battery_lpf" output="screen"/>
     <node pkg="tobas_real" type="battery_handler_node" name="battery_handler" output="screen"/>
     <node pkg="tobas_real" type="pwm_handler_node" name="pwm_handler" output="screen"/>
     <node pkg="tobas_real" type="motors_handler_node" name="motors_handler" output="screen">
