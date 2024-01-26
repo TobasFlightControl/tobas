@@ -29,15 +29,13 @@ private:
   KDL::Vector tar_vel_;
   KDL::Vector tar_pos_;
   double tar_yaw_;
-  KDL::Vector max_pos_err_;
 
   // rosparams
-  double max_hor_pos_err_;   // [m]
-  double max_ver_pos_err_;   // [m]
+  double min_alt_;           // [m]
+  double max_alt_;           // [m]
   double max_hor_vel_;       // [m/s]
   double max_ver_vel_;       // [m/s]
   double max_yawrate_;       // [rad/s]
-  double max_yaw_err_;       // [rad]
   double delay_time_const_;  // [s]
 
   // Publisher

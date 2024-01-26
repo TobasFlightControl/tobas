@@ -22,11 +22,6 @@ PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : 
 void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-
-  max_pos_err_.x(max_hor_pos_err_);
-  max_pos_err_.y(max_hor_pos_err_);
-  max_pos_err_.z(max_ver_pos_err_);
-
   registerPublishers(nh);
 }
 
@@ -40,7 +35,7 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 
 void PoseTwistAccelController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
+  const tobas_msgs::Odometry&,
   const double&,
   const Range<double>& dead_zone)
 {
@@ -48,10 +43,6 @@ void PoseTwistAccelController::update(
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
   t_last_rcin_ = cur_time;
-
-  // Aliases
-  const auto& cur_pos = odom.pose.pos;
-  const auto& cur_yaw = odom.pose.euler.yaw;
 
   // GPSwの状態によって水平速度制御モードと姿勢制御モードを切り替える
   if (rcin.gpsw)  // 姿勢固定で位置制御
@@ -83,14 +74,13 @@ void PoseTwistAccelController::update(
   tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
 
   // 目標速度を積分して目標位置を計算
-  // 離陸前に誤差が過大になるのを防ぐため，現在の位置との誤差を制限する
   tar_pos_ += tar_vel_ * dt;
-  tar_pos_ = tar_pos_.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
+  tar_pos_.z() = clamp(tar_pos_.z(), min_alt_, max_alt_);  // 高度制限
 
   // 目標ヨー角を更新
   const auto yawrate =
     dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
-  tar_rpy_.yaw = clamp(tar_rpy_.yaw + yawrate * dt, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
+  tar_rpy_.yaw += yawrate * dt;
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>();
@@ -109,11 +99,12 @@ void PoseTwistAccelController::update(
 void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_horizontal_position_error", max_hor_pos_err_, kDefaultMaxHorPosErr,
-    tobas_ros::POSITIVE);
+    pnh, "pose_twist_accel/min_altitude", min_alt_, kDefaultMinAltitude, tobas_ros::NON_POSITIVE);
   tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_vertical_position_error", max_ver_pos_err_, kDefaultMaxVerPosErr,
-    tobas_ros::POSITIVE);
+    pnh, "pose_twist_accel/max_altitude", max_alt_, kDefaultMaxAltitude, tobas_ros::POSITIVE);
+  if (min_alt_ >= max_alt_)
+    ROS_THROW("The maximum target altitude must be greater than minimum target altitude.");
+
   tobas_ros::getParam(
     pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
     tobas_ros::POSITIVE);
@@ -124,8 +115,6 @@ void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
     pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_yaw_error", max_yaw_err_, kDefaultMaxYawErr, tobas_ros::POSITIVE);
 }
 
 void PoseTwistAccelController::registerPublishers(ros::NodeHandle& nh)

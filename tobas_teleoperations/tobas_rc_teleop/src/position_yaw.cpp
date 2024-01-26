@@ -21,13 +21,7 @@ PositionYawController::PositionYawController(const tobas::Drone& drone) : super(
 void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-
-  max_pos_err_.x(max_hor_pos_err_);
-  max_pos_err_.y(max_hor_pos_err_);
-  max_pos_err_.z(max_ver_pos_err_);
-
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
-
   registerPublishers(nh);
 }
 
@@ -40,7 +34,7 @@ void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 
 void PositionYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
+  const tobas_msgs::Odometry&,
   const double&,
   const Range<double>& dead_zone)
 {
@@ -61,11 +55,8 @@ void PositionYawController::update(
   pos_yaw_.pos += vel_ * dt;
   pos_yaw_.yaw += yawrate * dt;
 
-  // 誤差を制限
-  const auto& cur_pos = odom.pose.pos;
-  const auto& cur_yaw = odom.pose.euler.yaw;
-  pos_yaw_.pos = pos_yaw_.pos.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
-  pos_yaw_.yaw = clamp(pos_yaw_.yaw, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
+  // コマンドを制限
+  pos_yaw_.pos.z() = clamp(pos_yaw_.pos.z(), min_alt_, max_alt_);  // 高度制限
 
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
@@ -76,6 +67,13 @@ void PositionYawController::update(
 void PositionYawController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
+    pnh, "pose_twist_accel/min_altitude", min_alt_, kDefaultMinAltitude, tobas_ros::NON_POSITIVE);
+  tobas_ros::getParam(
+    pnh, "pose_twist_accel/max_altitude", max_alt_, kDefaultMaxAltitude, tobas_ros::POSITIVE);
+  if (min_alt_ >= max_alt_)
+    ROS_THROW("The maximum target altitude must be greater than minimum target altitude.");
+
+  tobas_ros::getParam(
     pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
     tobas_ros::POSITIVE);
   tobas_ros::getParam(
@@ -83,14 +81,6 @@ void PositionYawController::getRosParams(ros::NodeHandle& pnh)
     tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_horizontal_position_error", max_hor_pos_err_, kDefaultMaxHorPosErr,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_vertical_position_error", max_ver_pos_err_, kDefaultMaxVerPosErr,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_yaw_error", max_yaw_err_, kDefaultMaxYawErr, tobas_ros::POSITIVE);
 }
 
 void PositionYawController::registerPublishers(ros::NodeHandle& nh)

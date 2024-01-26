@@ -23,16 +23,12 @@ public:
 
 private:
   // rosparams
-  double max_hor_pos_err_;  // [m]
-  double max_ver_pos_err_;  // [m]
-  double max_hor_vel_;      // [m/s]
-  double max_ver_vel_;      // [m/s]
-  double max_attitude_;     // [rad]
-  double max_yawrate_;      // [rad/s]
-  double max_yaw_err_;      // [rad]
-
-  // Constant
-  KDL::Vector max_pos_err_;
+  double min_alt_;       // [m]
+  double max_alt_;       // [m]
+  double max_hor_vel_;   // [m/s]
+  double max_ver_vel_;   // [m/s]
+  double max_attitude_;  // [rad]
+  double max_yawrate_;   // [rad/s]
 
   // Mutable
   ros::Time t_last_rcin_;

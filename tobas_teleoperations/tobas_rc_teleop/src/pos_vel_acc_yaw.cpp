@@ -22,11 +22,6 @@ PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : supe
 void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-
-  max_pos_err_.x(max_hor_pos_err_);
-  max_pos_err_.y(max_hor_pos_err_);
-  max_pos_err_.z(max_ver_pos_err_);
-
   registerPublishers(nh);
 }
 
@@ -41,7 +36,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 
 void PosVelAccYawController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
+  const tobas_msgs::Odometry&,
   const double&,
   const Range<double>& dead_zone)
 {
@@ -67,11 +62,8 @@ void PosVelAccYawController::update(
   tar_pos_ += tar_vel_filtered * dt;
   tar_yaw_ += yawrate * dt;
 
-  // 誤差を制限
-  const auto& cur_pos = odom.pose.pos;
-  const auto& cur_yaw = odom.pose.euler.yaw;
-  tar_pos_ = tar_pos_.clamp(cur_pos - max_pos_err_, cur_pos + max_pos_err_);
-  tar_yaw_ = clamp(tar_yaw_, cur_yaw - max_yaw_err_, cur_yaw + max_yaw_err_);
+  // コマンドを制限
+  tar_pos_.z() = clamp(tar_pos_.z(), min_alt_, max_alt_);  // 高度制限
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
@@ -90,11 +82,12 @@ void PosVelAccYawController::update(
 void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_horizontal_position_error", max_hor_pos_err_, kDefaultMaxHorPosErr,
-    tobas_ros::POSITIVE);
+    pnh, "pose_twist_accel/min_altitude", min_alt_, kDefaultMinAltitude, tobas_ros::NON_POSITIVE);
   tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_vertical_position_error", max_ver_pos_err_, kDefaultMaxVerPosErr,
-    tobas_ros::POSITIVE);
+    pnh, "pose_twist_accel/max_altitude", max_alt_, kDefaultMaxAltitude, tobas_ros::POSITIVE);
+  if (min_alt_ >= max_alt_)
+    ROS_THROW("The maximum target altitude must be greater than minimum target altitude.");
+
   tobas_ros::getParam(
     pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
     tobas_ros::POSITIVE);
@@ -103,8 +96,6 @@ void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
     tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_yaw_error", max_yaw_err_, kDefaultMaxYawErr, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "pos_vel_acc_yaw/delay_time_const", delay_time_const_, kDefaultDelayTimeConst,
     tobas_ros::NON_NEGATIVE);
