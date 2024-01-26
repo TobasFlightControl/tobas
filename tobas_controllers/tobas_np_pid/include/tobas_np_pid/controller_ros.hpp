@@ -24,6 +24,11 @@ namespace tobas_np_pid
 {
 class ControllerRos : public tobas::BaseNode
 {
+  static constexpr double kEmergencyAttiAbsThr = M_PI / 4;  // [rad] 緊急時とみなす絶対姿勢角の閾値
+  static constexpr double kEmergencyAttiErrThr = M_PI / 6;  // [rad] 緊急時とみなす姿勢角誤差の閾値
+  static constexpr double kEmergencyVerticalAccel = 10.;  // [m/s] 緊急時の垂直上昇加速度
+  static constexpr double kEmergencyAscendDuration = 0.5;  // [s] 緊急時の垂直上昇時間
+
   using self = ControllerRos;
   using super = tobas::BaseNode;
 
@@ -56,9 +61,13 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::PoseTwistAccelCommandConstPtr cmd_;
-  bool is_initialized_ = false;
   uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   ros::Time t_last_loop_;
+  bool is_initialized_ = false;
+
+  // 緊急垂直上昇に関する変数
+  ros::Time t_emergency_start_;
+  bool is_emergency_ = false;
 
   // Publishers
   ros::Publisher rot_speeds_pub_;
