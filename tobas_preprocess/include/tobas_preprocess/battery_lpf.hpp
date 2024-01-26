@@ -11,7 +11,10 @@ namespace tobas_preprocess
 {
 class BatteryLpf : public tobas::BaseNode
 {
-  static constexpr double kDefaultLpfTimeConst = 0.1;  // [s]
+  // LPFの時定数 [s]
+  // 大きくしすぎると離陸時の急激な電圧降下に追従できず，所望の推力が出ない．
+  // ADCのノイズを軽減できる最小限の時定数に設定すべき．
+  static constexpr double kDefaultLpfTimeConst = 0.1;
 
   using self = BatteryLpf;
   using super = tobas::BaseNode;
