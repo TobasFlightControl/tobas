@@ -11,7 +11,7 @@ namespace tobas_preprocess
 {
 class BatteryLpf : public tobas::BaseNode
 {
-  static constexpr double kDefaultLpfTimeConst = 10.;  // [s]
+  static constexpr double kDefaultLpfTimeConst = 0.1;  // [s]
 
   using self = BatteryLpf;
   using super = tobas::BaseNode;
