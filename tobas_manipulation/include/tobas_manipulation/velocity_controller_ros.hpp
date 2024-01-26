@@ -62,6 +62,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void setInitTargetJointStates();
   int jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
   int taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
 

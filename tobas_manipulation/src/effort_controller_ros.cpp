@@ -35,6 +35,7 @@ EffortControllerRos::EffortControllerRos(
   pid_ts_.updateInternalDataStructures();
 
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
+  setInitTargetJointStates();
 
   registerPublishers();
   registerSubscribers();
@@ -61,6 +62,23 @@ void EffortControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ = nh_.subscribe(kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_cs_sub_ = nh_.subscribe(kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+}
+
+void EffortControllerRos::setInitTargetJointStates()
+{
+  sensor_msgs::JointState init_tar_js;
+  for (const auto& joint : drone_.jointConfigs())
+  {
+    if (joint.cmd_type != tobas::JointConfig::EFFORT)
+      continue;
+    init_tar_js.name.push_back(joint.name);
+    init_tar_js.position.push_back(joint.home_pos);
+    init_tar_js.velocity.push_back(0.);
+    init_tar_js.effort.push_back(0.);
+  }
+
+  if (init_tar_js.name.size() > 0)
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(init_tar_js);
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
