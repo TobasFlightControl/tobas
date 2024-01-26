@@ -61,7 +61,7 @@ void PoseTwistAccelController::update(
   {
     // RC入力から目標姿勢を計算
     tar_rpy_.roll =
-      dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
+      dead_zone.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
     tar_rpy_.pitch =
       dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
 
