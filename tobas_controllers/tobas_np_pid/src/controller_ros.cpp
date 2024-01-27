@@ -179,15 +179,21 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   rot_speeds_pub_.publish(tar_rot_speeds);
 
   // フィードバックを発行
-  auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();
+  // 目標位置速度はコマンドそのままだが，発行されていない間も安定して描画するためにメッセージに含めている
+  const auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
-  feedback->target_position = cmd_->pos;
-  feedback->target_velocity_global = cmd_->vel;
-  feedback->target_velocity_local = odom->pose.euler.inverse(cmd_->vel);
-  feedback->target_acceleration_global = tar_acc_W;
-  feedback->target_acceleration_local = odom->pose.euler.inverse(tar_acc_W);
-  feedback->target_orientation = cmd_->rpy;
-  feedback->position_integral_error.data = pos_pid_.integralError();
+  feedback->target_pose.pos = cmd_->pos;
+  feedback->target_pose.euler = cmd_->rpy;
+  feedback->target_twist_local.vel = odom->pose.euler.inverse(cmd_->vel);
+  feedback->target_twist_local.rot = cmd_->gyro;
+  feedback->target_twist_global.vel = cmd_->vel;
+  feedback->target_twist_global.rot = odom->pose.euler * cmd_->gyro;
+  feedback->target_accel_local.linear = odom->pose.euler.inverse(tar_acc_W);
+  feedback->target_accel_local.angular = tar_dgyro_B;
+  feedback->target_accel_global.linear = tar_acc_W;
+  feedback->target_accel_global.angular = odom->pose.euler * tar_dgyro_B;
+  feedback->integral_error.pos.data = pos_pid_.integralError();
+  feedback->integral_error.euler = Euler(ori_pid_.integralError());
   feedback_pub_.publish(feedback);
 }
 

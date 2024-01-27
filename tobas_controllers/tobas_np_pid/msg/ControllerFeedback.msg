@@ -1,10 +1,9 @@
 std_msgs/Header header
 
-tobas_kdl_msgs/Vector target_position
-tobas_kdl_msgs/Vector target_velocity_global
-tobas_kdl_msgs/Vector target_velocity_local
-tobas_kdl_msgs/Vector target_acceleration_global
-tobas_kdl_msgs/Vector target_acceleration_local
-tobas_kdl_msgs/Euler target_orientation
+tobas_msgs/Pose target_pose
+tobas_kdl_msgs/Twist target_twist_local
+tobas_kdl_msgs/Twist target_twist_global
+tobas_kdl_msgs/Accel target_accel_local
+tobas_kdl_msgs/Accel target_accel_global
 
-tobas_kdl_msgs/Vector position_integral_error
+tobas_msgs/Pose integral_error
