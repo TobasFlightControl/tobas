@@ -11,6 +11,7 @@
     <node pkg="tobas_real" type="motors_handler_node" name="motors_handler" output="screen">
       <param name="block_below_arm_speed" value="false"/>
     </node>
+    <node pkg="tobas_real" type="time_reference_server_node" name="time_reference_server" output="screen"/>
   </group>
 
 </launch>
