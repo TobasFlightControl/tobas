@@ -119,7 +119,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
 
   // Fill output message
   efforts_msg.name = tar_js_conv_.getNamesMsg();
-  efforts_msg.data = tar_js_conv_.getVelocitiesMsg();
+  efforts_msg.data = tar_js_conv_.getEffortsMsg();
 
   return 0;
 }
@@ -205,7 +205,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
 
   // Fill output message
   efforts_msg.name = tar_js_conv_.getNamesMsg();
-  efforts_msg.data = tar_js_conv_.getVelocitiesMsg();
+  efforts_msg.data = tar_js_conv_.getEffortsMsg();
 
   return 0;
 }
