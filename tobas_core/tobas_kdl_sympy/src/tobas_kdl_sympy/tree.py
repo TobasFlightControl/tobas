@@ -82,7 +82,9 @@ class Tree:
                     elif hi == HardwareInterface.EFFORT.value:
                         return HardwareInterface.EFFORT
                     else:
-                        raise RuntimeError(f"Unknown hardware interface: {hi}")
+                        raise RuntimeError(
+                            f"Invalid hardware interface of joint {jnt_name}: {hi}"
+                        )
 
         return None
 
