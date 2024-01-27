@@ -27,7 +27,7 @@ static constexpr double kMaxThrottle = 1.;
 static constexpr char kRobotDescriptionParam[] = "robot_description";
 
 // ROS topics
-static constexpr char kTimeReferenceTopic[] = "/ntpd_shm/time_ref";
+static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCpuTopic[] = "cpu";
