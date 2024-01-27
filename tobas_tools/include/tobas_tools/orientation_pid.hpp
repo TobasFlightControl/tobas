@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tobas_std_tools/first_order_filter.hpp>
-#include <tobas_linear_control/pid3.hpp>
 #include <tobas_kdl/euler.hpp>
 
 namespace tobas
@@ -14,9 +13,6 @@ struct OrientationPidConfig
   double head_kp;
   double head_ki;
   double head_kd;
-
-  double max_atti_acc_int;  // [rad/s^2] I成分によって生成される角加速度の姿勢成分の最大値
-  double max_head_acc_int;  // [rad/s^2] I成分によって生成される角加速度の方位成分の最大値
 };
 
 class OrientationPid
@@ -39,12 +35,17 @@ public:
   inline KDL::Vector integralError() const;
 
 private:
+  // Config
+  KDL::Vector kp_;
+  KDL::Vector ki_;
+  KDL::Vector kd_;
+
+  KDL::Vector ei_ = KDL::Vector::Zero();
   tobas_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
-  ctrl::PID3 pid_;
 };
 
 inline KDL::Vector OrientationPid::integralError() const
 {
-  return KDL::Vector(pid_.integralError());
+  return ei_;
 }
 }  // namespace tobas

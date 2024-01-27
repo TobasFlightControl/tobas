@@ -88,7 +88,7 @@ Eigen::Vector3d euleraccFromAngaccGlobal(
   const double& pitch,
   const double& yaw);
 
-/* オイラー角加速度をローカル座標系で表現された角加速度に変換する (memo: 2-40)． */
+/* オイラー角加速度をローカル座標系で表現された角加速度に変換する (memo: 2-41)． */
 Eigen::Vector3d angaccFromEuleraccLocal(
   const double& roll,
   const double& pitch,
@@ -99,7 +99,7 @@ Eigen::Vector3d angaccFromEuleraccLocal(
   const double& ddpitch,
   const double& ddyaw);
 
-/* オイラー角加速度をローカル座標系で表現された角加速度に変換する (memo: 2-40)． */
+/* オイラー角加速度をローカル座標系で表現された角加速度に変換する (memo: 2-41)． */
 Eigen::Vector3d angaccFromEuleraccLocal(
   const double& roll,
   const double& pitch,

@@ -151,7 +151,7 @@ class AerodynamicsWidget_Base(QWidget):
             max_model_error_rate_description,
             minimum=0,
             maximum=1000,
-            default=5,
+            default=10,
             suffix=" %",
         )
         self._rows.addWidget(self._max_model_error_rate)

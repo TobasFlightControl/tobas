@@ -272,6 +272,7 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
+  // 位置制御
   pos_cfg_.hor_kp = cfg.horizontal_p_gain;
   pos_cfg_.hor_ki = cfg.horizontal_i_gain;
   pos_cfg_.hor_kd = cfg.horizontal_d_gain;
@@ -280,22 +281,22 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   pos_cfg_.ver_kd = cfg.vertical_d_gain;
   pos_cfg_.max_hor_acc = cfg.max_horizontal_accel;
   pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
-  pos_cfg_.max_hor_acc_int = cfg.max_horizontal_accel_I;
-  pos_cfg_.max_ver_acc_int = cfg.max_vertical_accel_I;
   pos_ctrl_.configure(pos_cfg_);
 
+  // 非線形変換
   acc_cfg_.max_attitude = cfg.max_attitude;
   acc_cfg_.h_force_comp_rate = 0;  // TODO
   acc_ctrl_.configure(acc_cfg_);
 
+  // 姿勢制御器
   ori_cfg_.atti_kp = cfg.attitude_p_gain;
   ori_cfg_.atti_ki = cfg.attitude_i_gain;
   ori_cfg_.atti_kd = cfg.attitude_d_gain;
   ori_cfg_.head_kp = cfg.heading_p_gain;
   ori_cfg_.head_ki = cfg.heading_i_gain;
   ori_cfg_.head_kd = cfg.heading_d_gain;
-  ori_cfg_.max_atti_acc_int = cfg.max_attitude_accel_I;
-  ori_cfg_.max_head_acc_int = cfg.max_heading_accel_I;
+
+  // パラメータを更新
   ori_ctrl_.configure(ori_cfg_);
 
   // TODO: Mixerの設定
