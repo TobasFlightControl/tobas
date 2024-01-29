@@ -46,6 +46,7 @@ private:
   dynamixel::PacketHandler* pah_;
 
   tobas_dynamixel_msgs::MotorState motor_state_;
+  bool is_enabled_ = true;
 
   // rosparams
   ros::V_string jnt_names_;
@@ -77,6 +78,8 @@ private:
   bool setMinimumLatency();
   void getMotorConfigs();
   void publishCurrentStates(const ros::Time& cur_time);
+  void enable();
+  void disable();
   int readSyncPacket(dynamixel::GroupSyncRead& sync_read);
 
   void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
