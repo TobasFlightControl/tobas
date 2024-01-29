@@ -28,10 +28,19 @@ MotorsHandler::MotorsHandler(
   getRosParams();
   drone_.loadFromParam(nh_);
 
+  registerPublishers();
+  registerSubscribers();
+
   setup_pwm_sc_ = nh_.serviceClient<tobas_msgs::SetupPwm>(tobas::kSetupPwmSrv);
 
+  setup_pwm_timer_ =
+    nh_.createTimer(kSetupPwmTimerRate, &self::setupPwmTimerCb, this, false, false);
+  disarm_timer_ = nh_.createTimer(kDisarmTimerRate, &self::disarmTimerCb, this, false, false);
+  check_interval_timer_ =
+    nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
+
   // PWMのセットアップを開始
-  setup_pwm_timer_ = nh_.createTimer(kSetupPwmTimerRate, &self::setupPwmTimerCb, this);
+  setup_pwm_timer_.start();
 }
 
 void MotorsHandler::getRosParams()
@@ -72,14 +81,23 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
 {
   if (battery_ == nullptr)
   {
-    rosWarn(name_, "The rotors cannot be rotated because battery state has not been received yet.");
+    rosErrorThrottle(
+      kErrorPeriod, name_,
+      "The rotors cannot be rotated because battery state has not been received yet.");
     return;
   }
 
-  // Check array size
-  if (tar_speeds->speeds.size() != drone_.numRotors())
+  if (!is_armed_)
   {
-    rosError(name_, "Size mismatch: " << tar_speeds->speeds.size() << " != " << drone_.numRotors());
+    rosErrorThrottle(
+      kErrorPeriod, name_, "The rotors cannot be rotated because they are disarmed.");
+    return;
+  }
+
+  const auto data_size = tar_speeds->speeds.size();
+  if (data_size != drone_.numRotors())
+  {
+    rosError(name_, "Size mismatch: " << data_size << " != " << drone_.numRotors());
     return;
   }
 
@@ -90,10 +108,10 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
   const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
   const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   real_speeds->header.stamp = cur_time;
-  real_speeds->speeds.resize(drone_.numRotors());
+  real_speeds->speeds.resize(data_size);
 
   // Update PWM periods
-  for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
+  for (size_t rotor_idx = 0; rotor_idx < data_size; ++rotor_idx)
   {
     const auto& pin = drone_.rotorConfig(rotor_idx).pin;
     const auto channel = channelFromPin(pin);
@@ -203,6 +221,24 @@ void MotorsHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   battery_ = battery;
 }
 
+bool MotorsHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
+{
+  if (!is_armed_ && req.data)
+  {
+    rosInfo(name_, "Arming rotors.");
+    disarm_timer_.start();
+    disarm_start_time_ = ros::Time::now();
+  }
+  else if (is_armed_ && !req.data)
+  {
+    rosInfo(name_, "Disarming rotors.");
+    is_armed_ = false;
+  }
+
+  res.success = true;
+  return true;
+}
+
 void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
 {
   // サービスサーバの起動を待つ
@@ -227,12 +263,12 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
     }
   }
 
-  // Disarmを開始
+  // PWMのセットアップ完了
   setup_pwm_timer_.stop();
-  disarm_timer_ = nh_.createTimer(kDisarmTimerRate, &self::disarmTimerCb, this);
 
+  // Disarmを開始
+  disarm_timer_.start();
   disarm_start_time_ = event.current_real;
-  rosInfo(name_, "Sending disarm command for " << kDisarmDuration << " seconds.");
 }
 
 void MotorsHandler::disarmTimerCb(const ros::TimerEvent& event)
@@ -241,15 +277,12 @@ void MotorsHandler::disarmTimerCb(const ros::TimerEvent& event)
 
   if ((event.current_real - disarm_start_time_).toSec() > kDisarmDuration)
   {
+    is_armed_ = true;
     latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
-
-    registerPublishers();
-    registerSubscribers();
 
     // コマンドのインターバルチェックを開始
     disarm_timer_.stop();
-    check_interval_timer_ =
-      nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this);
+    check_interval_timer_.start();
 
     rosInfo(name_, "Disarming finished. The motors are ready to rotate.");
   }

@@ -1,3 +1,5 @@
+#include <std_srvs/SetBool.h>
+
 #include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/rate.hpp>
@@ -21,6 +23,8 @@ StateChecker::StateChecker(
 
   registerPublishers();
   registerSubscribers();
+
+  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
 }
 
 void StateChecker::getRosParams()
@@ -68,6 +72,23 @@ void StateChecker::requestLanding()
   }
 }
 
+void StateChecker::requestDisarmingRotors()
+{
+  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kArmRotorsSrv << "' service server.");
+    return;
+  }
+
+  std_srvs::SetBool arm_rotors_msg;
+  arm_rotors_msg.request.data = false;
+  if (!arm_rotors_sc_.call(arm_rotors_msg) || !arm_rotors_msg.response.success)
+  {
+    rosError(name_, "Failed to disarm rotors.");
+    return;
+  }
+}
+
 void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
 {
   if (cpu->temperature > kCpuTempertureThreshold)
@@ -95,7 +116,7 @@ void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
-    // TODO: Stop motors
+    requestDisarmingRotors();
   }
 }
 }  // namespace tobas_state_checker

@@ -4,6 +4,7 @@
 #include <tobas_msgs/Throttles.h>
 
 #include "../include/tobas_gazebo/rotor_command_handler.hpp"
+#include "../include/tobas_gazebo/constants.hpp"
 
 using namespace std;
 
@@ -20,6 +21,8 @@ RotorCommandHandler::RotorCommandHandler(
 
   registerPublishers();
   registerSubscribers();
+
+  arm_rotors_ss_ = nh_.advertiseService(tobas::kArmRotorsSrv, &self::armRotorsCb, this);
 }
 
 void RotorCommandHandler::getRosParams()
@@ -45,9 +48,26 @@ void RotorCommandHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds)
 {
   if (battery_ == nullptr)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, name_,
+      "The rotors cannot be rotated because battery state has not been received yet.");
     return;
+  }
+
+  if (!is_armed_)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, name_, "The rotors cannot be rotated because they are disarmed.");
+    return;
+  }
 
   const auto data_size = tar_speeds->speeds.size();
+  if (data_size != drone_.numRotors())
+  {
+    rosError(name_, "Size mismatch: " << data_size << " != " << drone_.numRotors());
+    return;
+  }
 
   // Create throttle message
   const auto throttles = boost::make_shared<tobas_msgs::Throttles>();
@@ -82,5 +102,21 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
 
   // Publish throttle message
   throttles_pub_.publish(throttles);
+}
+
+bool RotorCommandHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
+{
+  if (!is_armed_ && req.data)
+  {
+    rosInfo(name_, "Arming rotors.");
+  }
+  else if (is_armed_ && !req.data)
+  {
+    rosInfo(name_, "Disarming rotors.");
+  }
+
+  is_armed_ = req.data;
+  res.success = true;
+  return true;
 }
 }  // namespace tobas_gazebo

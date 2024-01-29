@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
+#include <std_srvs/SetBool.h>
 
 #include <tobas_std_tools/first_order_filter.hpp>
 
@@ -39,6 +40,7 @@ private:
 
   ros::Time disarm_start_time_;
   ros::Time last_cmd_time_;
+  bool is_armed_ = false;
   bool is_activated_ = false;
   tobas_msgs::Pwm pwm_;
   tobas_msgs::BatteryConstPtr battery_;
@@ -54,7 +56,8 @@ private:
   ros::Subscriber tar_speeds_sub_;
   ros::Subscriber battery_sub_;
 
-  // Service Clients
+  // Service
+  ros::ServiceServer arm_rotors_ss_;
   ros::ServiceClient setup_pwm_sc_;
 
   // Timer
@@ -70,6 +73,8 @@ private:
 
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
+
+  bool armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
 
   void setupPwmTimerCb(const ros::TimerEvent& event);
   void disarmTimerCb(const ros::TimerEvent& event);

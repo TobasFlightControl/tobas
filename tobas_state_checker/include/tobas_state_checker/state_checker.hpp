@@ -37,6 +37,7 @@ private:
   ros::Subscriber odom_sub_;
   ros::Subscriber cmd_sub_;
 
+  ros::ServiceClient arm_rotors_sc_;
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
 
   void getRosParams() override;
@@ -44,6 +45,7 @@ private:
   void registerSubscribers() override;
 
   void requestLanding();
+  void requestDisarmingRotors();
 
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);

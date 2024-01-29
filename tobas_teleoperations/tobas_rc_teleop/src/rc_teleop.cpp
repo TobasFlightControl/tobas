@@ -1,3 +1,5 @@
+#include <std_srvs/SetBool.h>
+
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -73,6 +75,8 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
 
   registerPublishers();
   registerSubscribers();
+
+  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
 }
 
 void RCTeleop::getRosParams()
@@ -94,6 +98,23 @@ void RCTeleop::registerSubscribers()
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
+}
+
+void RCTeleop::requestDisarmingRotors()
+{
+  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kArmRotorsSrv << "' service server.");
+    return;
+  }
+
+  std_srvs::SetBool arm_rotors_msg;
+  arm_rotors_msg.request.data = false;
+  if (!arm_rotors_sc_.call(arm_rotors_msg) || !arm_rotors_msg.response.success)
+  {
+    rosError(name_, "Failed to disarm rotors.");
+    return;
+  }
 }
 
 void RCTeleop::odomCb(const tobas_msgs::OdometryConstPtr& odom)
@@ -168,7 +189,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       if (rcin->e_stop)
       {
         rosWarn(name_, "Emergency stop requested.");
-        // TODO: Stop motors
+        requestDisarmingRotors();
       }
 
       const auto& cur_mode = rcin->mode;

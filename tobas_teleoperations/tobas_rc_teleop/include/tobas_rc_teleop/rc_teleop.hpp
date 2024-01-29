@@ -54,9 +54,14 @@ private:
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;
 
+  // Service
+  ros::ServiceClient arm_rotors_sc_;
+
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  void requestDisarmingRotors();
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);

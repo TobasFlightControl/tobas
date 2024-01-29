@@ -1,5 +1,7 @@
 #pragma once
 
+#include <std_srvs/SetBool.h>
+
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Battery.h>
@@ -24,10 +26,13 @@ public:
 private:
   tobas::Drone drone_;
   tobas_msgs::BatteryConstPtr battery_;
+  bool is_armed_ = true;
 
   ros::Publisher throttles_pub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber tar_speeds_sub_;
+
+  ros::ServiceServer arm_rotors_ss_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -35,5 +40,7 @@ private:
 
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
+
+  bool armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
 };
 }  // namespace tobas_gazebo
