@@ -58,8 +58,6 @@ void ControllerRos::registerPublishers()
 
 void ControllerRos::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   wind_sub_ = nh_.subscribe(tobas::kWindTopic, 1, &self::windCb, this, tcpNoDelay());
@@ -98,19 +96,6 @@ bool ControllerRos::isReady() const
     return false;
 
   return true;
-}
-
-void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_topics_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)

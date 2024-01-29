@@ -36,8 +36,6 @@ void WaitForStillnessServer::registerPublishers()
 
 void WaitForStillnessServer::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
@@ -156,19 +154,6 @@ bool WaitForStillnessServer::isConditionsMet()
 void WaitForStillnessServer::fillResult()
 {
   result_.odom = odom_history_.back();
-}
-
-void WaitForStillnessServer::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      as_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void WaitForStillnessServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)

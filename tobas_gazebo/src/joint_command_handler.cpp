@@ -90,18 +90,6 @@ int JointCommandHandler::initialize()
   return 0;
 }
 
-void JointCommandHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
 void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
 {
   if (positions->name.size() != positions->data.size())

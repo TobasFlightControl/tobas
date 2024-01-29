@@ -45,7 +45,6 @@ private:
   void registerSubscribers() override;
   void registerServiceServers();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms);
 
   bool setupPwmCb(tobas_msgs::SetupPwmRequest& req, tobas_msgs::SetupPwmResponse& res);

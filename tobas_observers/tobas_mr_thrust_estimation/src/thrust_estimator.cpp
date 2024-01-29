@@ -54,23 +54,9 @@ void ThrustEstimator::registerPublishers()
 
 void ThrustEstimator::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
-}
-
-void ThrustEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)

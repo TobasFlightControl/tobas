@@ -29,21 +29,8 @@ void BatteryLpf::registerPublishers()
 
 void BatteryLpf::registerSubscribers()
 {
-  super::registerSubscribers();
   battery_raw_sub_ =
     nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryRawCb, this, tcpNoDelay());
-}
-
-void BatteryLpf::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)

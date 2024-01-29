@@ -67,7 +67,6 @@ private:
   void readConfig();
   void setupImu();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);
   void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };

@@ -46,8 +46,6 @@ void ControllerRos::registerPublishers()
 
 void ControllerRos::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
@@ -190,18 +188,6 @@ void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
   // cout << "Position: " << pos_W_ned << endl;
   // cout << "Orientation: " << quat_ned << endl;
   // cout << "Linear velocity: " << vel_W_ned << endl;
-}
-
-void ControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)

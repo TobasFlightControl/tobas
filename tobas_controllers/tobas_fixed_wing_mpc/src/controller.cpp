@@ -73,8 +73,6 @@ void Controller::registerPublishers()
 
 void Controller::registerSubscribers()
 {
-  super::registerSubscribers();
-
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
   battery_sub_ =
@@ -239,19 +237,6 @@ void Controller::publishFeedback(const Eigen::VectorXd& du)
   }
 
   feedback_pub_.publish(feedback);
-}
-
-void Controller::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_topics_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void Controller::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)

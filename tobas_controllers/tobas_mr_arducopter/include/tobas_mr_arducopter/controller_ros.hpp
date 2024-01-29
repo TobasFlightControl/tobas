@@ -48,7 +48,6 @@ private:
   void receiveAndPublishMotorCommand(const ros::Time& imu_time);
   void sendState(const tobas_msgs::Odometry& odom);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 };
 }  // namespace tobas_mr_arducopter

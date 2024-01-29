@@ -39,26 +39,12 @@ void BatteryHandler::registerPublishers()
 
 void BatteryHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void BatteryHandler::getAdcCoefficient()
 {
   tobas_std::PropertyTree pt(kConfigPath);
   pt.get(kConfigKey_AdcCoef, adc_coef_);
-}
-
-void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)

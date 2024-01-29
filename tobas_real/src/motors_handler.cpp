@@ -49,8 +49,6 @@ void MotorsHandler::registerPublishers()
 
 void MotorsHandler::registerSubscribers()
 {
-  super::registerSubscribers();
-
   tar_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
@@ -68,19 +66,6 @@ void MotorsHandler::setPeriodOnAllChannels(const double& period)
   }
 
   pwms_pub_.publish(pwms);
-}
-
-void MotorsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_interval_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds)

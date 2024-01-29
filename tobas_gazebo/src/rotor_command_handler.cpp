@@ -37,18 +37,6 @@ void RotorCommandHandler::registerSubscribers()
   tar_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::targetRotorSpeedsCb, this);
 }
 
-void RotorCommandHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
 void RotorCommandHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;

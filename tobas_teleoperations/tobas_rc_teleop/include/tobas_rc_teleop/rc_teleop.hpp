@@ -50,7 +50,6 @@ private:
   std::vector<std::unique_ptr<BaseController>> controllers_;
 
   // PubSub
-  ros::Publisher event_pub_;
   ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber rcin_sub_;
@@ -59,7 +58,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);

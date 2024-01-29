@@ -12,11 +12,6 @@ BaseNode::BaseNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
 {
 }
 
-void BaseNode::registerSubscribers()
-{
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &BaseNode::eventCb, this, tcpNoDelay());
-}
-
 bool BaseNode::updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level)
 {
   if (new_level < cur_level)

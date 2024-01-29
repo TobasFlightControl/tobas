@@ -51,8 +51,6 @@ void WindEstimator::registerPublishers()
 
 void WindEstimator::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
@@ -66,26 +64,11 @@ Matrix3d WindEstimator::velCoef(const Euler& R_W_B)
   return (drag_rotor_sum / mass) * E_XY * R_B_W;
 }
 
-void WindEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    case tobas_msgs::Event::TAKEOFF_DETECTED:
-      is_flying_ = true;
-      break;
-    default:
-      break;
-  }
-}
-
 void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_initialized_)
   {
-    if (rotor_speeds_ != nullptr && is_flying_)
+    if (rotor_speeds_ != nullptr && odom->pose.pos.z() > tobas::kTakeoffAltitudeThreshold)
     {
       t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;

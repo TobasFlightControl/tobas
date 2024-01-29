@@ -55,8 +55,6 @@ void EffortControllerRos::registerPublishers()
 
 void EffortControllerRos::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
@@ -208,18 +206,6 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   efforts_msg.data = tar_js_conv_.getEffortsMsg();
 
   return 0;
-}
-
-void EffortControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void EffortControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)

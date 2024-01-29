@@ -36,8 +36,6 @@ void MultirotorLandServer::registerPublishers()
 
 void MultirotorLandServer::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
@@ -46,19 +44,6 @@ void MultirotorLandServer::reset()
   odom_ = nullptr;
   is_history_filled_ = false;
   alt_history_.clear();
-}
-
-void MultirotorLandServer::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      as_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)

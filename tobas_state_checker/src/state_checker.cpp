@@ -15,7 +15,7 @@ StateChecker::StateChecker(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name), landing_client_(tobas::kLandingAction)
+  : super(nh, pnh, name), landing_ac_(tobas::kLandingAction)
 {
   getRosParams();
 
@@ -30,13 +30,10 @@ void StateChecker::getRosParams()
 
 void StateChecker::registerPublishers()
 {
-  event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 }
 
 void StateChecker::registerSubscribers()
 {
-  super::registerSubscribers();
-
   cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
@@ -44,7 +41,7 @@ void StateChecker::registerSubscribers()
 
 void StateChecker::requestLanding()
 {
-  if (!landing_client_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
+  if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
     rosError(
       name_, "'" << tobas::kLandingAction << "' action server failed to start within "
@@ -54,11 +51,11 @@ void StateChecker::requestLanding()
 
   tobas_msgs::LandGoal goal;
   goal.level.data = tobas_msgs::CommandLevel::DEFENSIVE;
-  landing_client_.sendGoal(goal);
-  landing_client_.waitForResult();
+  landing_ac_.sendGoal(goal);
+  landing_ac_.waitForResult();
 
-  const auto result = landing_client_.getResult();
-  const auto state = landing_client_.getState();
+  const auto result = landing_ac_.getResult();
+  const auto state = landing_ac_.getState();
   if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
   {
     rosInfo(name_, state.getText());
@@ -68,25 +65,6 @@ void StateChecker::requestLanding()
   {
     rosError(name_, state.getText());
     rosFatal(name_, "Landing action failed.");
-  }
-}
-
-void StateChecker::publishEvent(const uint8_t& event)
-{
-  const auto event_msg = boost::make_shared<tobas_msgs::Event>();
-  event_msg->data = event;
-  event_pub_.publish(event_msg);
-}
-
-void StateChecker::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
   }
 }
 
@@ -112,20 +90,12 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  // 離陸チェック
-  if (!is_flying_ && odom->pose.pos.z() > kTakeoffAltitudeThreshold)
-  {
-    rosInfo(name_, "Takeoff detected.");
-    is_flying_ = true;
-    publishEvent(tobas_msgs::Event::TAKEOFF_DETECTED);
-  }
-
   // 姿勢角が閾値を超えていたら落とす
   const auto& euler = odom->pose.euler;
   if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
   {
-    rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");
-    publishEvent(tobas_msgs::Event::STOP);
+    rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
+    // TODO: Stop motors
   }
 }
 }  // namespace tobas_state_checker

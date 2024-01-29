@@ -36,8 +36,6 @@ void TakeoffActionServer::registerPublishers()
 
 void TakeoffActionServer::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
@@ -58,19 +56,6 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
   }
 
   return true;
-}
-
-void TakeoffActionServer::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      as_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void TakeoffActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)

@@ -441,18 +441,6 @@ int DynamixelHandler::readSyncPacket(dynamixel::GroupSyncRead& sync_read)
   return sync_read.txRxPacket();
 }
 
-void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
 void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
 {
   const auto size = positions->name.size();

@@ -49,8 +49,6 @@ void OrientationEstimatorRos::registerPublishers()
 
 void OrientationEstimatorRos::registerSubscribers()
 {
-  super::registerSubscribers();
-
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
@@ -84,19 +82,6 @@ void OrientationEstimatorRos::initializeFilter()
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
-}
-
-void OrientationEstimatorRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_topics_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag)

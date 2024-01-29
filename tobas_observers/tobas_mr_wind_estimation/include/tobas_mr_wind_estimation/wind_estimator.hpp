@@ -33,7 +33,6 @@ private:
   tobas::Drone drone_;
   tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
-  bool is_flying_ = false;
   bool is_initialized_ = false;
   ros::Time t_last_loop_;
   ctrl::IdentityKalmanFilter kf_;
@@ -52,7 +51,6 @@ private:
 
   Eigen::Matrix3d velCoef(const KDL::Euler& R_W_B);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
 };

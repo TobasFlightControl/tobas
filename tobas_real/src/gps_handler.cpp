@@ -36,7 +36,6 @@ void GpsHandler::registerPublishers()
 
 void GpsHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void GpsHandler::configureGnssReceiver()
@@ -68,19 +67,6 @@ void GpsHandler::configureGnssReceiver()
     ROS_THROW_NAMED(name_, "Failed to configure QZSS.");
   if (!gps_.configureGnss_GLONASS(false))
     ROS_THROW_NAMED(name_, "Failed to configure GLONASS.");
-}
-
-void GpsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void GpsHandler::mainTimerCb(const ros::TimerEvent& event)

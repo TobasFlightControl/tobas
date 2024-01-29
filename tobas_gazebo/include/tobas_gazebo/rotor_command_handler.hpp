@@ -33,7 +33,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
 };

@@ -61,7 +61,5 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
-
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
 };
 }  // namespace tobas_keyboard_teleop

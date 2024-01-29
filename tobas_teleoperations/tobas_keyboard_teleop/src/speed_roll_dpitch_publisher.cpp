@@ -156,8 +156,6 @@ void SpeedRollDeltaPitchPublisher::registerPublishers()
 
 void SpeedRollDeltaPitchPublisher::registerSubscribers()
 {
-  super::registerSubscribers();
-
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
@@ -176,20 +174,6 @@ void SpeedRollDeltaPitchPublisher::initialize()
   // インストラクションを開始
   instruction_timer_.start();
   rosInfo(name_, instruction_);
-}
-
-void SpeedRollDeltaPitchPublisher::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_topics_timer_.stop();
-      instruction_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)

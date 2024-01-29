@@ -62,7 +62,6 @@ private:
   bool takeoff(const double& timeout, const double& target_altitude);
   void setSucceeded();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose);
   void paramServerStateCb(const std_msgs::BoolConstPtr& state);
 

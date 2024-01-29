@@ -51,7 +51,6 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void ImuHandler::readConfig()
@@ -84,20 +83,6 @@ void ImuHandler::setupImu()
   if (!imu_.probe())
   {
     ROS_THROW_NAMED(name_, "IMU not enabled.");
-  }
-}
-
-void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      measure_gyro_bias_timer_.stop();
-      break;
-    default:
-      break;
   }
 }
 

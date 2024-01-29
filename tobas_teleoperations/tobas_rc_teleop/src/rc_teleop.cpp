@@ -87,28 +87,13 @@ void RCTeleop::getRosParams()
 
 void RCTeleop::registerPublishers()
 {
-  event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 }
 
 void RCTeleop::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
-}
-
-void RCTeleop::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void RCTeleop::odomCb(const tobas_msgs::OdometryConstPtr& odom)
@@ -182,10 +167,8 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        rosWarn(name_, "Emergency stop requested. Shutting down the system.");
-        const auto event = boost::make_shared<tobas_msgs::Event>();
-        event->data = tobas_msgs::Event::STOP;
-        event_pub_.publish(event);
+        rosWarn(name_, "Emergency stop requested.");
+        // TODO: Stop motors
       }
 
       const auto& cur_mode = rcin->mode;

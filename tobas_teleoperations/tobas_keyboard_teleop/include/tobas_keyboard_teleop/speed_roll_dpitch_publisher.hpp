@@ -72,7 +72,6 @@ private:
   bool isReady();
   void initialize();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
 
   void checkTopicsTimerCb(const ros::TimerEvent&);

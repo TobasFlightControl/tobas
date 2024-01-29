@@ -47,8 +47,6 @@ void ParamServerRos::registerPublishers()
 
 void ParamServerRos::registerSubscribers()
 {
-  super::registerSubscribers();
-
   state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
   param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);
@@ -96,20 +94,6 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
       rosError(name_, "Failed to set " << param.name << ".");
       pnh_.setParam(param.name, doubles_[param.name]);
     }
-  }
-}
-
-void ParamServerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      set_init_config_timer_.stop();
-      set_init_params_timer_.stop();
-      break;
-    default:
-      break;
   }
 }
 

@@ -85,7 +85,6 @@ private:
   tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
   OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void filteredImuCb(const ImuMsg::ConstPtr& imu);
   void barometerCb(const BarMsg::ConstPtr& bar);
   void gpsPositionCb(const GpsMsg::ConstPtr& gps);

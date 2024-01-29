@@ -42,7 +42,6 @@ void RCInputHandler::registerPublishers()
 
 void RCInputHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void RCInputHandler::readConfig()
@@ -73,19 +72,6 @@ void RCInputHandler::readConfig()
   {
     const string key = kConfigKey_RcModePrefix + to_string(i);
     pt.get(key, modes_[i]);
-  }
-}
-
-void RCInputHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
   }
 }
 

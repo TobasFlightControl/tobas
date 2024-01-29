@@ -88,8 +88,6 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
 {
   TOBAS_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
 
-  super::registerSubscribers();
-
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
   mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
 
@@ -258,19 +256,6 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   odom->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
   return odom;
-}
-
-void ErrorStateKalmanFilterRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_topics_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)

@@ -68,7 +68,6 @@ private:
 
   void setPeriodOnAllChannels(const double& period);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
 

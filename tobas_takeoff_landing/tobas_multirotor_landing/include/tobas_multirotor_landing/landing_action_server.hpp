@@ -48,7 +48,6 @@ private:
 
   void reset();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
   void executeCb(const GoalType& goal);

@@ -85,7 +85,6 @@ private:
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu);

@@ -58,8 +58,6 @@ void StateEstimator::registerPublishers()
 
 void StateEstimator::registerSubscribers()
 {
-  super::registerSubscribers();
-
   filtered_imu_sub_ = nh_.subscribe(kFilteredImuTopic, 1, &self::filteredImuCb, this, tcpNoDelay());
   bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barometerCb, this, tcpNoDelay());
 
@@ -204,19 +202,6 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
   odom->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
 
   return odom;
-}
-
-void StateEstimator::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      check_topics_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)

@@ -44,26 +44,12 @@ void BarometerHandler::registerPublishers()
 
 void BarometerHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void BarometerHandler::readConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
   pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_);
-}
-
-void BarometerHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)

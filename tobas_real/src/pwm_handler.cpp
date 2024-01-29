@@ -55,18 +55,6 @@ void PwmHandler::registerServiceServers()
   setup_pwm_srv_ = nh_.advertiseService(tobas::kSetupPwmSrv, &self::setupPwmCb, this);
 }
 
-void PwmHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
 void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
 {
   // PWMのデューティサイクルを更新

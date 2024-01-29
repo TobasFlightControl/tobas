@@ -55,7 +55,6 @@ static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pit
 static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
-static constexpr char kEventTopic[] = "event";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
@@ -75,11 +74,12 @@ static constexpr char kWorldFrame[] = "world";
 
 static constexpr char kUnknown[] = "unknown";
 
-static constexpr double kCheckTopicsTimerPeriod = 5.;   // [s]
-static constexpr double kCommandLevelErrorPeriod = 1.;  // [s]
-static constexpr double kWaitForServiceExistence = 1.;  // [s]
-static constexpr double kAutoResetTimeThreshold = 0.5;  // [s]
-static constexpr double kRotSpeedMargin = 1.;           // [rad/s]
+static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
+static constexpr double kCommandLevelErrorPeriod = 1.;   // [s]
+static constexpr double kWaitForServiceExistence = 1.;   // [s]
+static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
+static constexpr double kRotSpeedMargin = 1.;            // [rad/s]
+static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr size_t kStopwatchSamples = 100;
 
 static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)

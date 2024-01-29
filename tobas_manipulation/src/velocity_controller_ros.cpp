@@ -183,18 +183,6 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
   return 0;
 }
 
-void VelocityControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
 void VelocityControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   odom_ = odom;

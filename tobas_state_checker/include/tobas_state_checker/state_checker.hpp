@@ -16,7 +16,6 @@ class StateChecker : public tobas::BaseNode
   static constexpr double kWarnPeriod = 3.;                  // [s]
   static constexpr double kWaitForActionServerTimeout = 3.;  // [s]
   static constexpr double kCpuTempertureThreshold = 70.;     // [degree celsius]
-  static constexpr double kTakeoffAltitudeThreshold = 1.5;   // [m]
   static constexpr double kAttitudeThreshold = M_PI_2;       // [rad]
 
   using self = StateChecker;
@@ -32,25 +31,20 @@ private:
   // rosparams
   double voltage_threshold_;  // 飛行を継続できる電圧の閾値
 
-  bool is_flying_ = false;
-
   // PubSub
-  ros::Publisher event_pub_;
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
   ros::Subscriber cmd_sub_;
 
-  actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_client_;
+  actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
   void requestLanding();
-  void publishEvent(const uint8_t& event);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

@@ -53,7 +53,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
 

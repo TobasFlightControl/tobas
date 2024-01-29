@@ -204,18 +204,5 @@ void PositionYawPublisher::registerPublishers()
 
 void PositionYawPublisher::registerSubscribers()
 {
-  super::registerSubscribers();
-}
-
-void PositionYawPublisher::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 }  // namespace tobas_keyboard_teleop

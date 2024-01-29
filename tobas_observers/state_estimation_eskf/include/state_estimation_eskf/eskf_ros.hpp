@@ -118,7 +118,6 @@ private:
   void setZeroPositions();
   OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void imuCb(const ImuMsg::ConstPtr& imu);
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);

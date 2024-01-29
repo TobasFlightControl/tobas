@@ -67,7 +67,6 @@ private:
   int jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg);
   int taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);

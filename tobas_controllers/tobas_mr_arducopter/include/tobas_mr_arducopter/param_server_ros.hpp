@@ -67,7 +67,6 @@ private:
 
   void setParams(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void stateCb(const mavros_msgs::StateConstPtr& state);
   void localPositionCb(const geometry_msgs::PoseStampedConstPtr&);
   void paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& cfg);

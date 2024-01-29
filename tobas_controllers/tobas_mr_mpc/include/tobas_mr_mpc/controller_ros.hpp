@@ -104,7 +104,6 @@ private:
 
   bool isReady() const;
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void windCb(const tobas_msgs::WindConstPtr& wind);

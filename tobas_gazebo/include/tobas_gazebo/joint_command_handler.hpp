@@ -40,7 +40,6 @@ private:
 
   int initialize();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts);

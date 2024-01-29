@@ -32,20 +32,6 @@ void CpuHandler::registerPublishers()
 
 void CpuHandler::registerSubscribers()
 {
-  super::registerSubscribers();
-}
-
-void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void CpuHandler::mainTimerCb(const ros::TimerEvent& event)

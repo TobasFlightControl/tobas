@@ -44,8 +44,6 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
-  super::registerSubscribers();
-
   imu_sub_ =
     nh_.subscribe(tobas::kImuTopic, 1, &StaticStateDeterminationServer::imuCb, this, tcpNoDelay());
   mag_sub_ =
@@ -165,19 +163,6 @@ bool StaticStateDeterminationServer::isStatic()
   }
 
   return true;
-}
-
-void StaticStateDeterminationServer::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      as_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
