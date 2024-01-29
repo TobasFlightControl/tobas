@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "rotor_command_handler");
+  ros::init(argc, argv, "gazebo_rotor_command_handler");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   tobas_gazebo::RotorCommandHandler node(nh, pnh);
