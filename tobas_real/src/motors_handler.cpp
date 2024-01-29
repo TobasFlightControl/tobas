@@ -31,6 +31,7 @@ MotorsHandler::MotorsHandler(
   registerPublishers();
   registerSubscribers();
 
+  arm_rotors_ss_ = nh_.advertiseService(tobas::kArmRotorsSrv, &self::armRotorsCb, this);
   setup_pwm_sc_ = nh_.serviceClient<tobas_msgs::SetupPwm>(tobas::kSetupPwmSrv);
 
   setup_pwm_timer_ =
