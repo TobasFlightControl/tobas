@@ -134,9 +134,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     case CHECK_PREREQUISITES:
     {
       if (odom_ != nullptr && battery_ != nullptr)
-      {
         stage_ = WAIT_FOR_ESTOP;
-      }
       break;
     }
 
@@ -158,9 +156,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     case ESTOP_ON:
     {
       if (!rcin->e_stop)
-      {
         stage_ = FIRST_COMMAND;
-      }
       break;
     }
 
@@ -188,8 +184,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        rosWarn(name_, "Emergency stop requested.");
+        rosWarn(name_, "Stopping rotors.");
         requestDisarmingRotors();
+        stage_ = DISARMED;
       }
 
       const auto& cur_mode = rcin->mode;
@@ -214,6 +211,12 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
       controllers_[cur_mode]->update(*rcin, *odom_, battery_->voltage, dead_zone_);
 
+      break;
+    }
+
+    case DISARMED:
+    {
+      // TODO: tobas_msgs::EventのリセットでWAIT_FOR_ESTOPに戻る
       break;
     }
 

@@ -30,6 +30,7 @@ private:
     ESTOP_ON,
     FIRST_COMMAND,
     RUNNING,
+    DISARMED,
   } stage_ = CHECK_PREREQUISITES;
 
   tobas::Drone drone_;

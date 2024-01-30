@@ -28,6 +28,8 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
+  bool is_armed_ = true;
+
   // rosparams
   double voltage_threshold_;  // 飛行を継続できる電圧の閾値
 

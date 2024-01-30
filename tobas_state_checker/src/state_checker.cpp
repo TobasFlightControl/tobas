@@ -111,12 +111,18 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  // 姿勢角が閾値を超えていたら落とす
+  // TODO: tobas_msgs::EventでGood Stateに戻せるようにする
+  if (!is_armed_)
+    return;
+
+  // 姿勢角が閾値を超えていたら全モータを非常停止
+  // TODO: ここでパラシュートを開く
   const auto& euler = odom->pose.euler;
-  if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
+  if (min(abs(euler.roll), abs(euler.pitch)) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
     requestDisarmingRotors();
+    is_armed_ = false;
   }
 }
 }  // namespace tobas_state_checker
