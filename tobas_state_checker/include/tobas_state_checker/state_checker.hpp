@@ -14,10 +14,10 @@ namespace tobas_state_checker
 {
 class StateChecker : public tobas::BaseNode
 {
-  static constexpr double kWarnPeriod = 3.;                           // [s]
-  static constexpr double kWaitForActionServerTimeout = 3.;           // [s]
-  static constexpr double kCpuTempertureThreshold = 70.;              // [degree celsius]
-  static constexpr double kAttitudeThreshold = 85 * tobas::kDeg2Rad;  // [rad]
+  static constexpr double kWarnPeriod = 3.;                            // [s]
+  static constexpr double kWaitForActionServerTimeout = 3.;            // [s]
+  static constexpr double kCpuTempertureThreshold = 70.;               // [celsius]
+  static constexpr double kAttitudeThreshold = 85. * tobas::kDeg2Rad;  // [rad]
 
   using self = StateChecker;
   using super = tobas::BaseNode;
