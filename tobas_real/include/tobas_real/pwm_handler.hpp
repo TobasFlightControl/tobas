@@ -14,8 +14,6 @@ namespace tobas_real
 {
 class PwmHandler : public tobas::BaseNode
 {
-  static constexpr bool kDefaultUnexportWhenShutdown = false;
-
   using self = PwmHandler;
   using super = tobas::BaseNode;
 
@@ -30,9 +28,6 @@ public:
 private:
   PWM pwm_;
   std::array<bool, kServoRailSize> pwm_ok_;
-
-  // rosparams
-  bool unexport_when_shutdown_;
 
   // Subscribers
   ros::Subscriber pwms_sub_;

@@ -13,6 +13,10 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 {
   pwm_ok_.fill(false);
 
+  // パルスが出力され始めたらexportを受け付けなくなるため，最初に全部やってしまう
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
+    pwm_.initialize(channel);
+
   getRosParams();
   registerPublishers();
   registerSubscribers();
@@ -23,22 +27,18 @@ PwmHandler::~PwmHandler()
 {
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
+    // PWMが有効化されていたら無効化する
+    // unexportは不安定なので行わない
     if (pwm_ok_.at(channel))
     {
       if (!pwm_.disable(channel))
         rosError(name_, "Failed to disable PWM CH" << channel << ".");
-
-      // FIXME: 一度unexportすると再起動するまでexportできなくなる (2024/1/21)
-      if (unexport_when_shutdown_ && !pwm_.remove(channel))
-        rosError(name_, "Failed to unexport PWM CH" << channel << ".");
     }
   }
 }
 
 void PwmHandler::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "unexport_when_shutdown", unexport_when_shutdown_, kDefaultUnexportWhenShutdown);
 }
 
 void PwmHandler::registerPublishers()
@@ -81,10 +81,6 @@ bool PwmHandler::setupPwmCb(tobas_msgs::SetupPwmRequest& req, tobas_msgs::SetupP
 {
   pwm_ok_.at(req.channel) = false;
   res.success = false;
-
-  // Initialize
-  if (!pwm_.initialize(req.channel))
-    return true;
 
   // Set frequency
   if (!pwm_.setFrequency(req.channel, req.frequency))
