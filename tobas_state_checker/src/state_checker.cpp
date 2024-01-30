@@ -5,8 +5,6 @@
 #include <tobas_ros_tools/rate.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 
-#include <tobas_tools/constants.hpp>
-
 #include "../include/tobas_state_checker/state_checker.hpp"
 
 using namespace std;
@@ -118,7 +116,7 @@ void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
   const auto& euler = odom->pose.euler;
-  if (min(abs(euler.roll), abs(euler.pitch)) > kAttitudeThreshold)
+  if (max(abs(euler.roll), abs(euler.pitch)) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
     requestDisarmingRotors();

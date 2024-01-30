@@ -8,8 +8,8 @@
 namespace tobas
 {
 static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
-static constexpr double kDegreeToRadian = M_PI / 180;
-static constexpr double kRadianToDegree = 1 / kDegreeToRadian;
+static constexpr double kDeg2Rad = M_PI / 180;
+static constexpr double kRad2Deg = 1 / kDeg2Rad;
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
 

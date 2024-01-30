@@ -4,6 +4,7 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Odometry.h>
@@ -13,10 +14,10 @@ namespace tobas_state_checker
 {
 class StateChecker : public tobas::BaseNode
 {
-  static constexpr double kWarnPeriod = 3.;                  // [s]
-  static constexpr double kWaitForActionServerTimeout = 3.;  // [s]
-  static constexpr double kCpuTempertureThreshold = 70.;     // [degree celsius]
-  static constexpr double kAttitudeThreshold = M_PI_2;       // [rad]
+  static constexpr double kWarnPeriod = 3.;                           // [s]
+  static constexpr double kWaitForActionServerTimeout = 3.;           // [s]
+  static constexpr double kCpuTempertureThreshold = 70.;              // [degree celsius]
+  static constexpr double kAttitudeThreshold = 85 * tobas::kDeg2Rad;  // [rad]
 
   using self = StateChecker;
   using super = tobas::BaseNode;

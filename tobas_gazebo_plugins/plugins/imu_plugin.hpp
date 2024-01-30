@@ -27,10 +27,10 @@ class GazeboImuPlugin : public SensorPlugin
   static constexpr double kDefaultAccBiasCorrTime = 300.;
   static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas::kGravity;
   static constexpr double kDefaultAccLpfCutoffFreq = 20.;
-  static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas::kDegreeToRadian;
-  static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas::kDegreeToRadian;
+  static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas::kDeg2Rad;
+  static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas::kDeg2Rad;
   static constexpr double kDefaultGyroBiasCorrTime = 1000.;
-  static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * tobas::kDegreeToRadian;
+  static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * tobas::kDeg2Rad;
   static constexpr double kDefaultGyroLpfCutoffFreq = 20.;
 
   using self = GazeboImuPlugin;
