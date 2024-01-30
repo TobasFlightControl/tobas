@@ -109,43 +109,12 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;  // 世界座標系から見た現在の速度
   const Vector tar_acc_fb(
     pos_pid_.update(odom->pose.pos.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
-  Vector tar_acc_W = cmd_->acc + tar_acc_fb;
+  const Vector tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
   const Vector tar_dgyro_fb =
     ori_pid_.update(odom->pose.euler, odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
   const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
-
-  // 緊急時の処理と判定
-  if (is_emergency_)
-  {
-    // 緊急時は急上昇することで危険状態を抜ける
-    tar_acc_W.x(0.);
-    tar_acc_W.y(0.);
-    tar_acc_W.z(kEmergencyVerticalAccel);
-    if ((t_last_loop_ - t_emergency_start_).toSec() > kEmergencyAscendDuration)
-      is_emergency_ = false;
-  }
-  else
-  {
-    // 絶対姿勢角と姿勢角追従誤差が閾値を超えていたら緊急状態と判定する
-    const auto& cur_roll = odom->pose.euler.roll;
-    const auto& cur_pitch = odom->pose.euler.pitch;
-    const auto& tar_roll = cmd_->rpy.roll;
-    const auto& tar_pitch = cmd_->rpy.pitch;
-    const auto atti_abs = max(abs(cur_roll), abs(cur_pitch));
-    const auto atti_err = max(abs(tar_roll - cur_roll), abs(tar_pitch - cur_pitch));
-    if (atti_abs > kEmergencyAttiAbsThr && atti_err > kEmergencyAttiErrThr)
-    {
-      is_emergency_ = true;
-      t_emergency_start_ = t_last_loop_;
-      rosWarn(
-        name_, "The condition of the aircraft is unstable. In order to recover its state, "
-               "a vertical ascent will be performed for a duration of "
-                 << kEmergencyAscendDuration
-                 << " seconds. Subsequently, please ensure a prompt landing.");
-    }
-  }
 
   // ミキサーで6軸加速度をプロペラの推力に変換
   const VectorXd thrusts = mixer_.solve(
