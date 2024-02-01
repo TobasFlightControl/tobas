@@ -35,12 +35,12 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 
 void PoseTwistAccelController::update(
   const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry&,
+  const tobas_msgs::Odometry& odom,
   const double&,
   const Range<double>& dead_zone)
 {
   // 時刻を更新
-  const ros::Time cur_time = ros::Time::now();
+  const auto cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
   t_last_rcin_ = cur_time;
 
@@ -70,17 +70,26 @@ void PoseTwistAccelController::update(
     tar_vel_.y() = 0;
   }
 
-  // 目標鉛直速度
   tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
-
-  // 目標速度を積分して目標位置を計算
-  tar_pos_ += tar_vel_ * dt;
-  tar_pos_.z() = clamp(tar_pos_.z(), min_alt_, max_alt_);  // 高度制限
-
-  // 目標ヨー角を更新
   const auto yawrate =
     dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
-  tar_rpy_.yaw += yawrate * dt;
+
+  // 一度でも上昇コマンドが入力されたら位置制御を行う
+  if (is_up_commanded_)
+  {
+    // 目標速度とヨーレートを積分
+    tar_pos_ += tar_vel_ * dt;
+    tar_rpy_.yaw += yawrate * dt;
+  }
+  else
+  {
+    // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
+    tar_pos_ = odom.pose.pos;
+    tar_rpy_.yaw = odom.pose.euler.yaw;
+
+    // 上昇コマンドが入力されたかどうかをチェック
+    is_up_commanded_ = tar_vel_.z() > 0;
+  }
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>();
@@ -98,13 +107,6 @@ void PoseTwistAccelController::update(
 
 void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
 {
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/min_altitude", min_alt_, kDefaultMinAltitude, tobas_ros::NON_POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_altitude", max_alt_, kDefaultMaxAltitude, tobas_ros::POSITIVE);
-  if (min_alt_ >= max_alt_)
-    ROS_THROW("The maximum target altitude must be greater than minimum target altitude.");
-
   tobas_ros::getParam(
     pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
     tobas_ros::POSITIVE);

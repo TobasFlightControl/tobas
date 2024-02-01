@@ -22,13 +22,12 @@ public:
     const tobas_std::Range<double>& dead_zone) override;
 
 private:
+  bool is_up_commanded_ = false;
   tobas_msgs::PositionYaw pos_yaw_;
   KDL::Vector vel_;
   ros::Time t_last_rcin_;
 
   // rosparams
-  double min_alt_;      // [m]
-  double max_alt_;      // [m]
   double max_hor_vel_;  // [m/s]
   double max_ver_vel_;  // [m/s]
   double max_yawrate_;  // [rad/s]

@@ -23,14 +23,13 @@ public:
 
 private:
   // rosparams
-  double min_alt_;       // [m]
-  double max_alt_;       // [m]
   double max_hor_vel_;   // [m/s]
   double max_ver_vel_;   // [m/s]
   double max_attitude_;  // [rad]
   double max_yawrate_;   // [rad/s]
 
   // Mutable
+  bool is_up_commanded_ = false;
   ros::Time t_last_rcin_;
   KDL::Vector tar_vel_;
   KDL::Vector tar_pos_;

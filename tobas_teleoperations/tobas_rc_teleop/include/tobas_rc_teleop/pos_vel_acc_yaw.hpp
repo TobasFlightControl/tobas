@@ -24,6 +24,7 @@ public:
     const tobas_std::Range<double>& dead_zone) override;
 
 private:
+  bool is_up_commanded_ = false;
   ros::Time t_last_rcin_;
   tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
   KDL::Vector tar_vel_;
@@ -31,8 +32,6 @@ private:
   double tar_yaw_;
 
   // rosparams
-  double min_alt_;           // [m]
-  double max_alt_;           // [m]
   double max_hor_vel_;       // [m/s]
   double max_ver_vel_;       // [m/s]
   double max_yawrate_;       // [rad/s]
