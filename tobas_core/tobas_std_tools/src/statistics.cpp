@@ -22,20 +22,4 @@ void OnlineStatistics::addData(const double& x)
   const auto delta2 = x - mean_;
   m2_ += delta * delta2;
 }
-
-double OnlineStatistics::getMean() const
-{
-  return mean_;
-}
-
-double OnlineStatistics::getVariance() const
-{
-  // データ数が2未満の場合，分散は定義されていない
-  return n_ >= 2 ? m2_ / (n_ - 1) : 0;
-}
-
-size_t OnlineStatistics::getCount() const
-{
-  return n_;
-}
 }  // namespace tobas_std

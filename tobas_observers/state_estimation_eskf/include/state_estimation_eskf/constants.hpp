@@ -32,8 +32,6 @@ static constexpr bool kDefaultDoAccBiasEstimation = false;
 static constexpr bool kDefaultDoGyroBiasEstimation = true;
 static constexpr bool kDefaultDoGravEstimation = true;
 static constexpr bool kDefaultCheckCovarianceConvergence = true;
-static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]
-static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
 
 // 標準偏差の初期値
 // 共分散行列は成長は遅いが収束は割と速いから，大きすぎるくらいで適当に決めてよい

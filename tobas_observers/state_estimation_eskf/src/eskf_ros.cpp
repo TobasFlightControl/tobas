@@ -60,12 +60,6 @@ void ErrorStateKalmanFilterRos::getRosParams()
   tobas_ros::getParam(
     pnh_, "check_covariance_convergence", check_covariance_convergence_,
     kDefaultCheckCovarianceConvergence);
-  tobas_ros::getParam(
-    pnh_, "gps_horizontal_position_stddev_threshold", gps_hor_pos_stddev_thr_,
-    kDefaultGpsHorPosStddevThreshold, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh_, "gps_vertical_position_stddev_threshold", gps_ver_pos_stddev_thr_,
-    kDefaultGpsVerPosStddevThreshold, tobas_ros::POSITIVE);
   tobas_ros::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
   tobas_ros::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
   tobas_ros::getParam(pnh_, "gps_offset", gps_offset_, Vector3d::Zero());
@@ -165,8 +159,6 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
     name_,
     "Action server '" << tobas::kStaticStateDeterminationAction << "' started, sending goal.");
   tobas_msgs::StaticStateDeterminationGoal goal;
-  goal.gps_horizontal_position_stddev_threshold = gps_hor_pos_stddev_thr_;
-  goal.gps_vertical_position_stddev_threshold = gps_ver_pos_stddev_thr_;
   ac.sendGoal(goal);
 
   const bool finished_before_timeout = ac.waitForResult();

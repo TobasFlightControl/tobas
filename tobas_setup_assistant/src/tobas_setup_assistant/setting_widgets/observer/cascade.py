@@ -128,8 +128,6 @@ class CascadeKalmanFilter(BaseObserver):
         res["state_estimator_cascade"] = {
             # Static parameters
             "use_gps": self._main.settings.gps.equipped(),
-            self.GPS_HOR_POS_STDDEV_THRESHOLD: self.gps_hor_pos_stddev_threshold.get(),
-            self.GPS_VER_POS_STDDEV_THRESHOLD: self.gps_ver_pos_stddev_threshold.get(),
             # Dynamic parameters
             self.GRAV_VAR: self._grav_var.get(),
         }

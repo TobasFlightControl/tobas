@@ -92,8 +92,6 @@ private:
   Eigen::Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
   Eigen::Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Eigen::Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
-  double gps_hor_pos_stddev_thr_;  // [m]
-  double gps_ver_pos_stddev_thr_;  // [m]
 
   // PubSub
   ros::Publisher odom_pub_;

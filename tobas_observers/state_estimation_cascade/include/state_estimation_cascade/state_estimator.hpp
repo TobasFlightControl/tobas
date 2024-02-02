@@ -61,8 +61,6 @@ private:
 
   // rosparams
   bool use_gps_;
-  double gps_hor_pos_stddev_thr_;  // [m]
-  double gps_ver_pos_stddev_thr_;  // [m]
 
   // PubSub
   ros::Publisher odom_pub_;

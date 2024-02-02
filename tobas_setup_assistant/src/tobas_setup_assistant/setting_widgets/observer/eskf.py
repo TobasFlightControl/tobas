@@ -127,8 +127,6 @@ class ErrorStateKalmanFilter(BaseObserver):
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
-            self.GPS_HOR_POS_STDDEV_THRESHOLD: self.gps_hor_pos_stddev_threshold.get(),
-            self.GPS_VER_POS_STDDEV_THRESHOLD: self.gps_ver_pos_stddev_threshold.get(),
             # Dynamic parameters
             self.GRAV_VAR: self._grav_var.get(),
             self.YAW_VAR: self._yaw_var.get(),

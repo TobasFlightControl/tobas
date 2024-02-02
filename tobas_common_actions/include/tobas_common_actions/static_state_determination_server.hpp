@@ -3,8 +3,6 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <tobas_std_tools/statistics.hpp>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
 
@@ -12,15 +10,12 @@ namespace tobas_common_actions
 {
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
-  // 中心極限定理によると，データ数が30以上なら多くの分布に対してサンプル平均の分布は近似的に正規分布になる．
-  // よって，データ数がそれ以上ならば平均と分散の推定がより信頼できると一般的には考えられる． (GPT4)
-  static constexpr size_t kMinimumImuCount = 100;
-  static constexpr size_t kMinimumBarCount = 100;
-  static constexpr size_t kMinimumGpsCount = 50;
+  static constexpr double kMeasureTime = 5.;               // [s]
+  static constexpr double kGyroThreshold = M_PI / 6;       // [rad/s]
+  static constexpr double kAirAltRangeThreshold = 1e+100;  // [m]  // TODO
+  static constexpr double kGpsAltRangeThreshold = 3.;      // [m]
 
-  static constexpr double kStaticGyroThreshold = 1e+300;               // [rad/s] // TODO
-  static constexpr double kStaticAirPressureAltVarThreshold = 1e+300;  // [m]  // TODO
-
+  using self = StaticStateDeterminationServer;
   using super = tobas::BaseNode;
 
   using ImuMsg = sensor_msgs::Imu;
@@ -41,18 +36,16 @@ public:
 
 private:
   ResultType result_;
-  FeedbackType feedback_;
   bool is_action_running_;
-  size_t imu_count_;
-  size_t mag_count_;
-  size_t bar_count_;
-  size_t gps_count_;
+  ros::Time t_meas_start_;
+  size_t imu_count_, mag_count_, bar_count_, gps_count_;
   ImuMsg imu_sum_;
   MagMsg mag_sum_;
   BarMsg bar_sum_;
   GpsMsg gps_sum_;
-  geometry_msgs::Vector3 gyro_;
-  tobas_std::OnlineStatistics pressure_alt_stat_;
+
+  double min_bar_alt_, max_bar_alt_;
+  double min_gps_alt_, max_gps_alt_;
 
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
@@ -67,9 +60,6 @@ private:
 
   void reset();
   void fillResult();
-  bool isGoalValid(const GoalType& goal);
-  bool isValidResult(const GoalType& goal);
-  bool isStatic();
 
   void imuCb(const ImuMsg::ConstPtr& imu);
   void magCb(const MagMsg::ConstPtr& mag);

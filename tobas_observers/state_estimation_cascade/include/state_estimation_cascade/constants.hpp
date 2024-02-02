@@ -19,6 +19,4 @@ static constexpr double kTimerPeriod = 5.;           // [s]
 static constexpr double kImuTimeGapThreshold = 0.1;  // [s]
 
 static constexpr bool kDefaultUseGps = true;
-static constexpr double kDefaultGpsHorPosStddevThreshold = 0.3;  // [m]
-static constexpr double kDefaultGpsVerPosStddevThreshold = 0.6;  // [m]
 }  // namespace state_estimation_cascade

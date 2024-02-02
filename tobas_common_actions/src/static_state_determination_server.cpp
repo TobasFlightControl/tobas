@@ -21,11 +21,7 @@ StaticStateDeterminationServer::StaticStateDeterminationServer(
   const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
-    as_(
-      nh_,
-      tobas::kStaticStateDeterminationAction,
-      boost::bind(&StaticStateDeterminationServer::executeCb, this, _1),
-      false)
+    as_(nh_, tobas::kStaticStateDeterminationAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
   registerPublishers();
@@ -44,18 +40,16 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
-  imu_sub_ =
-    nh_.subscribe(tobas::kImuTopic, 1, &StaticStateDeterminationServer::imuCb, this, tcpNoDelay());
-  mag_sub_ =
-    nh_.subscribe(tobas::kMagTopic, 1, &StaticStateDeterminationServer::magCb, this, tcpNoDelay());
-  bar_sub_ = nh_.subscribe(
-    tobas::kAirPressureTopic, 1, &StaticStateDeterminationServer::barCb, this, tcpNoDelay());
-  gps_sub_ =
-    nh_.subscribe(tobas::kGpsTopic, 1, &StaticStateDeterminationServer::gpsCb, this, tcpNoDelay());
+  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
+  gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 }
 
 void StaticStateDeterminationServer::reset()
 {
+  t_meas_start_ = ros::Time::now();
+
   imu_count_ = 0;
   mag_count_ = 0;
   bar_count_ = 0;
@@ -66,7 +60,8 @@ void StaticStateDeterminationServer::reset()
   bar_sum_ = BarMsg();
   gps_sum_ = GpsMsg();
 
-  pressure_alt_stat_.reset();
+  min_bar_alt_ = min_gps_alt_ = numeric_limits<double>::max();
+  max_bar_alt_ = max_gps_alt_ = numeric_limits<double>::lowest();
 }
 
 void StaticStateDeterminationServer::fillResult()
@@ -101,74 +96,16 @@ void StaticStateDeterminationServer::fillResult()
   result_.gps.velocity_covariance = gps_sum_.velocity_covariance / sqr(gps_count);
 }
 
-bool StaticStateDeterminationServer::isGoalValid(const GoalType& goal)
-{
-  if (
-    goal->gps_horizontal_position_stddev_threshold <= 0.
-    || goal->gps_vertical_position_stddev_threshold <= 0.)
-  {
-    result_.error_code = ResultType::INVALID_GOAL;
-    as_.setAborted(result_, "Position std. dev must be positive.");
-    return false;
-  }
-
-  return true;
-}
-
-bool StaticStateDeterminationServer::isValidResult(const GoalType& goal)
-{
-  if (imu_count_ < kMinimumImuCount)
-    return false;
-  if (mag_count_ < kMinimumImuCount)
-    return false;
-  if (bar_count_ < kMinimumBarCount)
-    return false;
-  if (gps_count_ < kMinimumGpsCount)
-    return false;
-
-  const auto gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
-  if (gps_x_stddev > goal->gps_horizontal_position_stddev_threshold)
-    return false;
-
-  const auto gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
-  if (gps_y_stddev > goal->gps_horizontal_position_stddev_threshold)
-    return false;
-
-  const auto gps_z_stddev = sqrt(gps_sum_.position_covariance[8] / sqr(gps_count_));
-  if (gps_z_stddev > goal->gps_vertical_position_stddev_threshold)
-    return false;
-
-  return true;
-}
-
-bool StaticStateDeterminationServer::isStatic()
-{
-  // ジャイロが閾値を超えたらダメ
-  if (tobas_ros::norm(gyro_) > kStaticGyroThreshold)
-  {
-    result_.error_code = ResultType::NOT_STATIC;
-    as_.setAborted(result_, "Rotation of the aircraft is detected.");
-    return false;
-  }
-
-  // 気圧高度の分散が閾値を超えたらダメ
-  if (bar_count_ > kMinimumBarCount)
-  {
-    if (pressure_alt_stat_.getVariance() > kStaticAirPressureAltVarThreshold)
-    {
-      result_.error_code = ResultType::NOT_STATIC;
-      as_.setAborted(result_, "A drift in barometric altitude is detected.");
-      return false;
-    }
-  }
-
-  return true;
-}
-
 void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
 {
   if (!is_action_running_)
+    return;
+
+  // ジャイロの大きさをチェック
+  if (tobas_ros::norm(imu->angular_velocity) > kGyroThreshold)
   {
+    rosWarn(name_, "Rotation of the aircraft is detected. Measuring sensor data again...");
+    reset();
     return;
   }
 
@@ -181,16 +118,12 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
     imu_sum_.angular_velocity_covariance + imu->angular_velocity_covariance;
   imu_sum_.linear_acceleration_covariance =
     imu_sum_.linear_acceleration_covariance + imu->linear_acceleration_covariance;
-
-  gyro_ = imu->angular_velocity;
 }
 
 void StaticStateDeterminationServer::magCb(const MagMsg::ConstPtr& mag)
 {
   if (!is_action_running_)
-  {
     return;
-  }
 
   ++mag_count_;
 
@@ -202,7 +135,17 @@ void StaticStateDeterminationServer::magCb(const MagMsg::ConstPtr& mag)
 void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
 {
   if (!is_action_running_)
+    return;
+
+  const auto bar_alt = pressureToAltitude(bar->fluid_pressure);
+  min_bar_alt_ = min(min_bar_alt_, bar_alt);
+  max_bar_alt_ = max(max_bar_alt_, bar_alt);
+
+  // 気圧高度の範囲をチェック
+  if (max_bar_alt_ - min_bar_alt_ > kAirAltRangeThreshold)
   {
+    rosWarn(name_, "A drift in barometric altitude is detected. Measuring sensor data again...");
+    reset();
     return;
   }
 
@@ -210,15 +153,21 @@ void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
 
   bar_sum_.fluid_pressure += bar->fluid_pressure;
   bar_sum_.variance += bar->variance;
-
-  const auto pressure_alt = pressureToAltitude(bar->fluid_pressure);
-  pressure_alt_stat_.addData(pressure_alt);
 }
 
 void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
 {
   if (!is_action_running_)
+    return;
+
+  min_gps_alt_ = min(min_gps_alt_, gps->altitude);
+  max_gps_alt_ = max(max_gps_alt_, gps->altitude);
+
+  // 気圧高度の範囲をチェック
+  if (max_gps_alt_ - min_gps_alt_ > kGpsAltRangeThreshold)
   {
+    rosWarn(name_, "A drift in GPS altitude is detected. Measuring sensor data again...");
+    reset();
     return;
   }
 
@@ -233,19 +182,17 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
   gps_sum_.velocity_covariance = gps_sum_.velocity_covariance + gps->velocity_covariance;
 }
 
-void StaticStateDeterminationServer::executeCb(const GoalType& goal)
+void StaticStateDeterminationServer::executeCb(const GoalType&)
 {
-  rosInfo(name_, "Action is called.");
+  rosInfo(name_, "Action is called. Measuring sensor data for " << kMeasureTime << " seconds.");
 
-  if (!isGoalValid(goal))
-  {
-    return;
-  }
-
-  reset();
   is_action_running_ = true;
+  reset();
 
+  // ros::Timerではなくros::Rateで時間管理を行う
+  // executeCbを先にreturnしてしまうと，アクションが完了する前に次のコールバックが呼ばれてしまう危険性がある？
   ros::Rate rate(kUpdateRate);
+
   while (nh_.ok())
   {
     if (as_.isPreemptRequested())
@@ -257,29 +204,8 @@ void StaticStateDeterminationServer::executeCb(const GoalType& goal)
       return;
     }
 
-    // 静止していなければ終了
-    if (!isStatic())
-    {
-      return;
-    }
-
-    if (gps_count_ > 0)
-    {
-      // フィードバックを発行
-      feedback_.gps_x_stddev = sqrt(gps_sum_.position_covariance[0] / sqr(gps_count_));
-      feedback_.gps_y_stddev = sqrt(gps_sum_.position_covariance[4] / sqr(gps_count_));
-      feedback_.gps_z_stddev = sqrt(gps_sum_.position_covariance[8] / sqr(gps_count_));
-      as_.publishFeedback(feedback_);
-
-      // コンソールにもフィードバックを出す
-      rosInfoThrottle(
-        kInfoPeriod, name_,
-        "GPS position std. dev [m]: (" << feedback_.gps_x_stddev << ", " << feedback_.gps_y_stddev
-                                       << ", " << feedback_.gps_z_stddev << ")");
-    }
-
-    // 条件を満たしていれば終了
-    if (isValidResult(goal))
+    // 何事もなく測定時間が経過したら終了
+    if ((ros::Time::now() - t_meas_start_).toSec() > kMeasureTime)
     {
       is_action_running_ = false;
       fillResult();
