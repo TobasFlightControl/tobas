@@ -48,6 +48,7 @@ static constexpr uint16_t kAddrVelocityLimit = 44;
 static constexpr uint16_t kAddrMaxPositionLimit = 48;
 static constexpr uint16_t kAddrMinPositionLimit = 52;
 static constexpr uint16_t kAddrToruqeEnable = 64;
+static constexpr uint16_t kAddrHardwareErrorStatus = 70;
 static constexpr uint16_t kAddrGoalPwm = 100;
 static constexpr uint16_t kAddrGoalCurrent = 102;
 static constexpr uint16_t kAddrGoalVelocity = 104;
@@ -75,6 +76,13 @@ static constexpr uint8_t kControlModePwm = 16;
 // Torque Enable
 static constexpr uint8_t kTorqueEnable = 1;
 static constexpr uint8_t kTorqueDisable = 0;
+
+// Hardware Error Status
+static constexpr uint8_t kErrorInputVoltage = 1 << 0;
+static constexpr uint8_t kErrorOverheating = 1 << 2;
+static constexpr uint8_t kErrorMotorEncoder = 1 << 3;
+static constexpr uint8_t kErrorElectricalShock = 1 << 4;
+static constexpr uint8_t kErrorOverload = 1 << 5;
 
 // ROS Topics
 static constexpr char kMotorStatesTopic[] = "dynamixel/motor_states";

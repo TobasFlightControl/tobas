@@ -76,8 +76,7 @@ DynamixelHandler::DynamixelHandler(
 DynamixelHandler::~DynamixelHandler()
 {
   // Disable torque
-  for (const auto& [name, cfg] : motors_)
-    pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable);
+  disableTorques();
 
   // Close serial port
   poh_->closePort();
@@ -259,7 +258,7 @@ void DynamixelHandler::getMotorConfigs()
   }
 }
 
-void DynamixelHandler::enable()
+void DynamixelHandler::enableTorques()
 {
   for (const auto& [name, cfg] : motors_)
   {
@@ -273,7 +272,7 @@ void DynamixelHandler::enable()
   is_enabled_ = true;
 }
 
-void DynamixelHandler::disable()
+void DynamixelHandler::disableTorques()
 {
   for (const auto& [name, cfg] : motors_)
   {
@@ -282,6 +281,31 @@ void DynamixelHandler::disable()
   }
 
   is_enabled_ = false;
+}
+
+void DynamixelHandler::printHardwareErrorStatus()
+{
+  dynamixel::GroupSyncRead hes_sync_read(poh_, pah_, kAddrHardwareErrorStatus, 1);
+  if (readSyncPacket(hes_sync_read))
+  {
+    rosError(name_, "Failed to receive a sync packet of hardware error status.");
+    return;
+  }
+
+  for (const auto& [name, cfg] : motors_)
+  {
+    const uint8_t hes = hes_sync_read.getData(cfg.id, kAddrHardwareErrorStatus, 1);
+    if (hes & kErrorInputVoltage)
+      rosError(name_, "Input voltage error in '" << name << "'");
+    if (hes & kErrorOverheating)
+      rosError(name_, "Overheating error in '" << name << "'");
+    if (hes & kErrorMotorEncoder)
+      rosError(name_, "Motor encoder error in '" << name << "'");
+    if (hes & kErrorElectricalShock)
+      rosError(name_, "Electrical shock error in '" << name << "'");
+    if (hes & kErrorOverload)
+      rosError(name_, "Overload error in '" << name << "'");
+  }
 }
 
 void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
@@ -300,37 +324,43 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   if (read_position_ && readSyncPacket(pos_sync_read) < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present position. Disabling torques.");
-    disable();
+    disableTorques();
+    printHardwareErrorStatus();
     return;
   }
   if (read_velocity_ && readSyncPacket(vel_sync_read) < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present velocity. Disabling torques.");
-    disable();
+    disableTorques();
+    printHardwareErrorStatus();
     return;
   }
   if (read_current_ && readSyncPacket(current_sync_read) < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present current. Disabling torques.");
-    disable();
+    disableTorques();
+    printHardwareErrorStatus();
     return;
   }
   if (read_pwm_ && readSyncPacket(pwm_sync_read) < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present PWM. Disabling torques.");
-    disable();
+    disableTorques();
+    printHardwareErrorStatus();
     return;
   }
   if (read_voltage_ && readSyncPacket(voltage_sync_read) < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present input voltage. Disabling torques.");
-    disable();
+    disableTorques();
+    printHardwareErrorStatus();
     return;
   }
   if (read_temperature_ && readSyncPacket(temp_sync_read) < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present temperature. Disabling torques.");
-    disable();
+    disableTorques();
+    printHardwareErrorStatus();
     return;
   }
 
