@@ -60,6 +60,7 @@ private:
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   common::Time prev_sim_time_;
   common::Time last_cmd_time_;
+  bool is_intact_ = true;
   bool is_activated_ = false;
   bool is_initialized_ = false;
   bool wind_received_ = false;

@@ -162,7 +162,10 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
   // Update simulation state
   applyForceAndTorque(rot_speed_real, info.simTime);
-  updateRotationSpeed(dt);
+
+  // ESCが壊れていなければ回転数を更新
+  if (is_intact_)
+    updateRotationSpeed(dt);
 }
 
 void GazeboRotorPlugin::registerPubSub()
@@ -241,11 +244,15 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   // Compute electric current
   const auto& kt = rot_speed_coefs_.X();  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
   const auto current = torque / kt;
+
+  // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
   if (current > max_current_)
   {
-    GZ_WARN_THROTTLE(
-      kWarnPeriod, kPluginName << ": The electric current of rotor " << motor_number_
-                               << " is over limit: " << current << " > " << max_current_ << " [A]");
+    gzerr << kPluginName << ": The ESC of rotor " << motor_number_
+          << " is critically damaged due to an overcurrent of " << current
+          << " A, which exceeded its maximum current capacity of " << max_current_ << " A." << endl;
+    joint_->SetVelocity(0, 0.);
+    is_intact_ = false;
   }
 
   // Publish rotor state
