@@ -63,7 +63,7 @@ class GpsWidget(BaseSettingWidget):
             horizontal_pos_std_description,
             decimals=2,
             minimum=0.0,
-            default=3.0,
+            default=1.5,
             suffix=" m",
         )
         self._rows.addWidget(self.horizontal_pos_std)
@@ -74,7 +74,7 @@ class GpsWidget(BaseSettingWidget):
             vertical_pos_std_description,
             decimals=2,
             minimum=0.0,
-            default=6.0,
+            default=3.0,
             suffix=" m",
         )
         self._rows.addWidget(self.vertical_pos_std)
