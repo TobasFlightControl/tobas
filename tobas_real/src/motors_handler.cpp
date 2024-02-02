@@ -204,9 +204,10 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     const auto& filtered_latency = latency_filter_.getState();
     if (filtered_latency > kCheckLatencyThreshold)
     {
-      rosWarn(
-        name_, "The time averaged latency from IMU to the motor command is "
-                 << filtered_latency << ", which exceeds the threshold " << kCheckLatencyThreshold);
+      rosWarnThrottle(
+        kWarnPeriod, name_,
+        "The time averaged latency from IMU to the motor command is "
+          << filtered_latency << ", which exceeds the threshold " << kCheckLatencyThreshold);
     }
   }
 
