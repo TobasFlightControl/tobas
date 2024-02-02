@@ -4,6 +4,7 @@
 #include <tobas_ros_tools/operators.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/util.hpp>
+#include <tobas_ros_tools/time.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -21,6 +22,8 @@ StaticStateDeterminationServer::StaticStateDeterminationServer(
   const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
+    bar_alt_buf_(kMeasureTime),
+    gps_alt_buf_(kMeasureTime),
     as_(nh_, tobas::kStaticStateDeterminationAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
@@ -59,9 +62,6 @@ void StaticStateDeterminationServer::reset()
   mag_sum_ = MagMsg();
   bar_sum_ = BarMsg();
   gps_sum_ = GpsMsg();
-
-  min_bar_alt_ = min_gps_alt_ = numeric_limits<double>::max();
-  max_bar_alt_ = max_gps_alt_ = numeric_limits<double>::lowest();
 }
 
 void StaticStateDeterminationServer::fillResult()
@@ -138,11 +138,10 @@ void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
     return;
 
   const auto bar_alt = pressureToAltitude(bar->fluid_pressure);
-  min_bar_alt_ = min(min_bar_alt_, bar_alt);
-  max_bar_alt_ = max(max_bar_alt_, bar_alt);
+  bar_alt_buf_.add(tobas_ros::chronoFromRosTime(bar->header.stamp), bar_alt);
 
   // 気圧高度の範囲をチェック
-  if (max_bar_alt_ - min_bar_alt_ > kAirAltRangeThreshold)
+  if (bar_alt_buf_.stddev() > kAirAltStddevThreshold)
   {
     rosWarn(name_, "A drift in barometric altitude is detected. Measuring sensor data again...");
     reset();
@@ -160,11 +159,10 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
   if (!is_action_running_)
     return;
 
-  min_gps_alt_ = min(min_gps_alt_, gps->altitude);
-  max_gps_alt_ = max(max_gps_alt_, gps->altitude);
+  gps_alt_buf_.add(tobas_ros::chronoFromRosTime(gps->header.stamp), gps->altitude);
 
   // 気圧高度の範囲をチェック
-  if (max_gps_alt_ - min_gps_alt_ > kGpsAltRangeThreshold)
+  if (gps_alt_buf_.stddev() > kGpsAltStddevThreshold)
   {
     rosWarn(name_, "A drift in GPS altitude is detected. Measuring sensor data again...");
     reset();

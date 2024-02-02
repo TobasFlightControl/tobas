@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
+#include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/StaticStateDeterminationAction.h>
 
@@ -10,10 +11,10 @@ namespace tobas_common_actions
 {
 class StaticStateDeterminationServer : public tobas::BaseNode
 {
-  static constexpr double kMeasureTime = 5.;               // [s]
-  static constexpr double kGyroThreshold = M_PI / 6;       // [rad/s]
-  static constexpr double kAirAltRangeThreshold = 1e+100;  // [m]  // TODO
-  static constexpr double kGpsAltRangeThreshold = 3.;      // [m]
+  static constexpr double kMeasureTime = 5.;                // [s]
+  static constexpr double kGyroThreshold = M_PI / 6;        // [rad/s]
+  static constexpr double kAirAltStddevThreshold = 1e+100;  // [m]  // TODO
+  static constexpr double kGpsAltStddevThreshold = 5.;      // [m]
 
   using self = StaticStateDeterminationServer;
   using super = tobas::BaseNode;
@@ -43,9 +44,7 @@ private:
   MagMsg mag_sum_;
   BarMsg bar_sum_;
   GpsMsg gps_sum_;
-
-  double min_bar_alt_, max_bar_alt_;
-  double min_gps_alt_, max_gps_alt_;
+  tobas_std::TimestampedBufferDouble bar_alt_buf_, gps_alt_buf_;
 
   ros::Subscriber imu_sub_;
   ros::Subscriber mag_sub_;
