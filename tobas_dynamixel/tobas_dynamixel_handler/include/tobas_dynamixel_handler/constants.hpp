@@ -79,6 +79,7 @@ static constexpr uint8_t kTorqueDisable = 0;
 
 // Hardware Error Status
 static constexpr uint8_t kErrorInputVoltage = 1 << 0;
+static constexpr uint8_t kErrorHallSensor = 1 << 1;
 static constexpr uint8_t kErrorOverheating = 1 << 2;
 static constexpr uint8_t kErrorMotorEncoder = 1 << 3;
 static constexpr uint8_t kErrorElectricalShock = 1 << 4;

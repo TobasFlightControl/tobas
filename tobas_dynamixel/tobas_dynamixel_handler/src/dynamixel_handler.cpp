@@ -297,6 +297,8 @@ void DynamixelHandler::printHardwareErrorStatus()
     const uint8_t hes = hes_sync_read.getData(cfg.id, kAddrHardwareErrorStatus, 1);
     if (hes & kErrorInputVoltage)
       rosError(name_, "Input voltage error in '" << name << "'");
+    if (hes & kErrorHallSensor)
+      rosError(name_, "Hall sensor error in '" << name << "'");
     if (hes & kErrorOverheating)
       rosError(name_, "Overheating error in '" << name << "'");
     if (hes & kErrorMotorEncoder)
