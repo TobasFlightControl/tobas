@@ -327,7 +327,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   {
     rosError(name_, "Failed to receive a sync packet of present position. Disabling torques.");
     disableTorques();
-    printHardwareErrorStatus();
+    printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
     return;
   }
   if (read_velocity_ && readSyncPacket(vel_sync_read) < 0)
