@@ -3,8 +3,8 @@
 #include <dynamixel_sdk/dynamixel_sdk.h>
 
 #include <tobas_std_tools/range.hpp>
-
 #include <tobas_tools/node.hpp>
+#include <tobas_msgs/Event.h>
 #include <tobas_msgs/JointPositions.h>
 #include <tobas_msgs/JointVelocities.h>
 #include <tobas_msgs/JointEfforts.h>
@@ -64,6 +64,7 @@ private:
 
   // PubSub
   ros::Publisher motor_states_pub_;
+  ros::Subscriber event_sub_;
   ros::Subscriber positions_sub_;
   ros::Subscriber velocities_sub_;
   ros::Subscriber efforts_sub_;
@@ -83,6 +84,7 @@ private:
   void printHardwareErrorStatus();
   int readSyncPacket(dynamixel::GroupSyncRead& sync_read);
 
+  void eventCb(const tobas_msgs::EventConstPtr& event);
   void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts);

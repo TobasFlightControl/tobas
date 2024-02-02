@@ -55,6 +55,7 @@ static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pit
 static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
+static constexpr char kEventTopic[] = "event";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 static constexpr char kControllerFeedbackTopic[] = "controller_feedback";

@@ -32,6 +32,7 @@ void StateChecker::getRosParams()
 
 void StateChecker::registerPublishers()
 {
+  event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 }
 
 void StateChecker::registerSubscribers()
@@ -39,6 +40,13 @@ void StateChecker::registerSubscribers()
   cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+}
+
+void StateChecker::publishSystemCriticalEvent()
+{
+  const auto event = boost::make_shared<tobas_msgs::Event>();
+  event->data = tobas_msgs::Event::SYSTEM_CRITICAL;
+  event_pub_.publish(event);
 }
 
 void StateChecker::requestLanding()
@@ -119,6 +127,7 @@ void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   if (max(abs(euler.roll), abs(euler.pitch)) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
+    publishSystemCriticalEvent();
     requestDisarmingRotors();
     is_armed_ = false;
   }

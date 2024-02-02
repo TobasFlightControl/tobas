@@ -5,6 +5,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Odometry.h>
@@ -34,7 +35,10 @@ private:
   // rosparams
   double voltage_threshold_;  // 飛行を継続できる電圧の閾値
 
-  // PubSub
+  // Publishers
+  ros::Publisher event_pub_;
+
+  // Subscribers
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
@@ -47,6 +51,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void publishSystemCriticalEvent();
   void requestLanding();
   void requestDisarmingRotors();
 

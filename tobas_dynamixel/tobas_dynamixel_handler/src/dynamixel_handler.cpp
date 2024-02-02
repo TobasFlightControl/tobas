@@ -104,6 +104,7 @@ void DynamixelHandler::registerPublishers()
 
 void DynamixelHandler::registerSubscribers()
 {
+  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this);
   positions_sub_ =
     nh_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
   velocities_sub_ =
@@ -458,6 +459,19 @@ int DynamixelHandler::readSyncPacket(dynamixel::GroupSyncRead& sync_read)
   }
 
   return sync_read.txRxPacket();
+}
+
+void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
+{
+  switch (event->data)
+  {
+    case tobas_msgs::Event::SYSTEM_CRITICAL:
+      rosWarn(name_, "System critical event message is received. Disabling torques.");
+      disableTorques();
+      break;
+    default:
+      break;
+  }
 }
 
 void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
