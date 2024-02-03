@@ -67,6 +67,9 @@ class BatteryWidget(BaseSettingWidget):
 
         return True
 
+    def nominal_voltage(self) -> float:
+        return self._selected().nominal_voltage()
+
     def max_voltage(self) -> float:
         return self._selected().max_voltage()
 
@@ -126,6 +129,10 @@ class BatteryWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
+    def nominal_voltage(self) -> float:
+        raise NotImplementedError()
+
+    @abstractmethod
     def max_voltage(self) -> float:
         """[V]"""
         raise NotImplementedError()
@@ -159,15 +166,16 @@ class BatteryWidget_Base(QWidget):
 class BatteryWidget_LiPo(BatteryWidget_Base):
     NAME = "Lithium Polymer Battery (LiPo)"
 
+    NOMINAL_VOLTAGE_PER_CELL = 3.7  # 1セルあたりの定格電圧
     MAX_VOLTAGE_PER_CELL = 4.2  # 1セルあたりの最大電圧
     SAG_VOLTAGE_PER_CELL = 3.4  # 放電特性が急激に変化する電圧
-    VOLTAGE_THR_PER_CELL = 3.2  # 内部抵抗による降圧を考慮し，警告の閾値を低めに設定 (3.0V以下で損傷リスク)
+    VOLTAGE_THR_PER_CELL = 3.2  # 内部抵抗による降圧を考慮した警告の閾値
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         num_cells_description = "The number of cells in the battery."
         self._num_cells = ParamGetterWidget_SpinBox(
@@ -177,9 +185,11 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             maximum=100,
             default=4,
         )
-        self._rows.addWidget(self._num_cells)
+        rows.addWidget(self._num_cells)
 
-        capacity_description = "The amount of electric charge that can be drawn from the battery."
+        capacity_description = (
+            "The amount of electric charge that can be drawn from the battery."
+        )
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity",
             capacity_description,
@@ -187,7 +197,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             default=5000,
             suffix=" mAh",
         )
-        self._rows.addWidget(self._capacity)
+        rows.addWidget(self._capacity)
 
         C_cont_description = (
             "The maximum continuous discharge current that the battery can provide. "
@@ -204,7 +214,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             default=50,
             suffix=" /h",
         )
-        self._rows.addWidget(self._C_cont)
+        rows.addWidget(self._C_cont)
 
         registance_description = "Internal resistance value per cell."
         self._registance = ParamGetterWidget_SpinBox(
@@ -214,11 +224,15 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             default=3,
             suffix=" mΩ",
         )
-        self._rows.addWidget(self._registance)
+        rows.addWidget(self._registance)
 
     @overrides
     def is_valid(self) -> bool:
         return True
+
+    @overrides
+    def nominal_voltage(self) -> float:
+        return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
 
     @overrides
     def max_voltage(self) -> float:
@@ -251,8 +265,19 @@ class BatteryWidget_Other(BatteryWidget_Base):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
+        nominal_voltage_description = "Nominal voltage of the battery."
+        self._nominal_voltage = ParamGetterWidget_DoubleSpinBox(
+            "Nominal Voltage",
+            nominal_voltage_description,
+            decimals=1,
+            minimum=0.1,
+            default=14.8,
+            suffix=" V",
+        )
+        rows.addWidget(self._nominal_voltage)
 
         max_voltage_description = "Maximum voltage of the battery."
         self._max_voltage = ParamGetterWidget_DoubleSpinBox(
@@ -263,9 +288,11 @@ class BatteryWidget_Other(BatteryWidget_Base):
             default=16.8,
             suffix=" V",
         )
-        self._rows.addWidget(self._max_voltage)
+        rows.addWidget(self._max_voltage)
 
-        sag_voltage_description = "Voltage at which the discharge characteristics change abruptly."
+        sag_voltage_description = (
+            "Voltage at which the discharge characteristics change abruptly."
+        )
         self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
             "Voltage Threshold",
             sag_voltage_description,
@@ -274,7 +301,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
             default=13.6,
             suffix=" V",
         )
-        self._rows.addWidget(self._sag_voltage)
+        rows.addWidget(self._sag_voltage)
 
         max_current_description = "Maximum current of the battery."
         self._max_current = ParamGetterWidget_DoubleSpinBox(
@@ -285,9 +312,11 @@ class BatteryWidget_Other(BatteryWidget_Base):
             default=250.0,
             suffix=" A",
         )
-        self._rows.addWidget(self._max_voltage)
+        rows.addWidget(self._max_current)
 
-        capacity_description = "The amount of electric charge that can be drawn from the battery."
+        capacity_description = (
+            "The amount of electric charge that can be drawn from the battery."
+        )
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity",
             capacity_description,
@@ -295,7 +324,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
             default=5000,
             suffix=" mAh",
         )
-        self._rows.addWidget(self._capacity)
+        rows.addWidget(self._capacity)
 
         registance_description = "Internal resistance value of the battery."
         self._registance = ParamGetterWidget_SpinBox(
@@ -305,7 +334,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
             default=12,
             suffix=" mΩ",
         )
-        self._rows.addWidget(self._registance)
+        rows.addWidget(self._registance)
 
     @overrides
     def is_valid(self) -> bool:
@@ -316,6 +345,10 @@ class BatteryWidget_Other(BatteryWidget_Base):
                 "Maximum voltage must be greater than voltage threshold.",
             )
             return False
+
+    @overrides
+    def nominal_voltage(self) -> float:
+        return self._nominal_voltage.get()
 
     @overrides
     def max_voltage(self) -> float:

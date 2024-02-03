@@ -1,3 +1,5 @@
+#include <Eigen/Eigen>
+
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -5,13 +7,14 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_ros_tools/time.hpp>
-
+#include <tobas_ros_tools/eigen_conversion.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_common_actions/static_state_determination_server.hpp"
 #include "../include/tobas_common_actions/common.hpp"
 
 using namespace std;
+using namespace Eigen;
 using namespace tobas_std;
 
 namespace tobas_common_actions
@@ -27,6 +30,8 @@ StaticStateDeterminationServer::StaticStateDeterminationServer(
     as_(nh_, tobas::kStaticStateDeterminationAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
+  drone_.loadFromParam(nh_);
+
   registerPublishers();
   registerSubscribers();
 
@@ -43,21 +48,43 @@ void StaticStateDeterminationServer::registerPublishers()
 
 void StaticStateDeterminationServer::registerSubscribers()
 {
+  bat_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batCb, this, tcpNoDelay());
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
   mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
   bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
   gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 }
 
+bool StaticStateDeterminationServer::isConditionsMet()
+{
+  if ((ros::Time::now() - t_meas_start_).toSec() > kMeasureTime)
+    return false;
+
+  if (bat_count_ == 0)
+    return false;
+  if (imu_count_ == 0)
+    return false;
+  if (mag_count_ == 0)
+    return false;
+  if (bar_count_ == 0)
+    return false;
+  if (gps_count_ == 0)
+    return false;
+
+  return true;
+}
+
 void StaticStateDeterminationServer::reset()
 {
   t_meas_start_ = ros::Time::now();
 
+  bat_count_ = 0;
   imu_count_ = 0;
   mag_count_ = 0;
   bar_count_ = 0;
   gps_count_ = 0;
 
+  bat_sum_ = BatMsg();
   imu_sum_ = ImuMsg();
   mag_sum_ = MagMsg();
   bar_sum_ = BarMsg();
@@ -66,10 +93,15 @@ void StaticStateDeterminationServer::reset()
 
 void StaticStateDeterminationServer::fillResult()
 {
+  result_.bat_count = bat_count_;
   result_.imu_count = imu_count_;
   result_.mag_count = mag_count_;
   result_.bar_count = bar_count_;
   result_.gps_count = gps_count_;
+
+  const double bat_count = static_cast<double>(bat_count_);
+  result_.battery.voltage = bat_sum_.voltage / bat_count;
+  result_.battery.current = bat_sum_.current / bat_count;
 
   const double imu_count = static_cast<double>(imu_count_);
   result_.imu.angular_velocity = imu_sum_.angular_velocity / imu_count;
@@ -96,15 +128,51 @@ void StaticStateDeterminationServer::fillResult()
   result_.gps.velocity_covariance = gps_sum_.velocity_covariance / sqr(gps_count);
 }
 
+void StaticStateDeterminationServer::batCb(const tobas_msgs::BatteryConstPtr& bat)
+{
+  if (!is_action_running_)
+    return;
+
+  // バッテリー電圧が定格電圧より小さければエラー
+  if (bat->voltage < drone_.nominalBatteryVoltage())
+  {
+    is_action_running_ = false;
+    result_.error_code = ResultType::BATTERY_VOLTAGE_ERROR;
+    as_.setAborted(result_, "Battery voltage is lower than the nominal voltage.");
+    return;
+  }
+
+  ++bat_count_;
+
+  bat_sum_.voltage += bat->voltage;
+  bat_sum_.current += bat->current;
+}
+
 void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
 {
   if (!is_action_running_)
     return;
 
   // ジャイロの大きさをチェック
-  if (tobas_ros::norm(imu->angular_velocity) > kGyroThreshold)
+  const auto gyro_norm = tobas_ros::norm(imu->angular_velocity);
+  if (gyro_norm > kGyroNormThreshold)
   {
-    rosWarn(name_, "Rotation of the aircraft is detected. Measuring sensor data again...");
+    rosWarnThrottle(
+      kWarnPeriod, name_,
+      "Rotational movement of the aircraft is detected. Measuring sensor data again...");
+    reset();
+    return;
+  }
+
+  // 加速度の重力ベクトルに対するの誤差をチェック
+  const auto acc_err_x = abs(imu->linear_acceleration.x);
+  const auto acc_err_y = abs(imu->linear_acceleration.y);
+  const auto acc_err_z = abs(imu->linear_acceleration.z - tobas::kGravity);
+  if (tobas_std::max(acc_err_x, acc_err_y, acc_err_z) > kAccelErrorThreshold)
+  {
+    rosWarnThrottle(
+      kWarnPeriod, name_,
+      "Translational movement of the aircraft is detected. Measuring sensor data again...");
     reset();
     return;
   }
@@ -143,7 +211,9 @@ void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
   // 気圧高度の範囲をチェック
   if (bar_alt_buf_.stddev() > kAirAltStddevThreshold)
   {
-    rosWarn(name_, "A drift in barometric altitude is detected. Measuring sensor data again...");
+    rosWarnThrottle(
+      kWarnPeriod, name_,
+      "A drift in barometric altitude is detected. Measuring sensor data again...");
     reset();
     return;
   }
@@ -164,7 +234,20 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
   // 気圧高度の範囲をチェック
   if (gps_alt_buf_.stddev() > kGpsAltStddevThreshold)
   {
-    rosWarn(name_, "A drift in GPS altitude is detected. Measuring sensor data again...");
+    rosWarnThrottle(
+      kWarnPeriod, name_, "A drift in GPS altitude is detected. Measuring sensor data again...");
+    reset();
+    return;
+  }
+
+  // 共分散をチェック
+  tobas_ros::matrix3MsgToEigen(gps->position_covariance, gps_pos_cov_);
+  const SelfAdjointEigenSolver<Matrix3d> gps_pos_es(gps_pos_cov_);
+  const auto max_eigenvalue = gps_pos_es.eigenvalues().z();
+  if (max_eigenvalue > sqr(kGpsPosCovStddevThreshold))
+  {
+    rosWarnThrottle(
+      kWarnPeriod, name_, "The accuracy of the GPS is poor. Measuring sensor data again...");
     reset();
     return;
   }
@@ -193,6 +276,7 @@ void StaticStateDeterminationServer::executeCb(const GoalType&)
 
   while (nh_.ok())
   {
+    // 外部からの中断命令
     if (as_.isPreemptRequested())
     {
       is_action_running_ = false;
@@ -202,8 +286,12 @@ void StaticStateDeterminationServer::executeCb(const GoalType&)
       return;
     }
 
-    // 何事もなく測定時間が経過したら終了
-    if ((ros::Time::now() - t_meas_start_).toSec() > kMeasureTime)
+    // 他のコールバックによりアクションが止められたら異常終了
+    if (!is_action_running_)
+      return;
+
+    // 一定時間の異常が起きなければ正常終了
+    if (isConditionsMet())
     {
       is_action_running_ = false;
       fillResult();
