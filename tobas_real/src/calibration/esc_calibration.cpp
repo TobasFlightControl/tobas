@@ -9,6 +9,11 @@
 #include "../../include/tobas_real/calibration/esc_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
 
+#define SLEEP_HIGH 3.   // [s]
+#define SLEEP_LOW 5.    // [s]
+#define INTERVAL 10000  // [us]
+#define A2_VALUE_THRESHOLD 300
+
 using namespace std;
 using namespace chrono;
 
@@ -44,7 +49,7 @@ void EscCalibration::run()
 void EscCalibration::waitForBatteryDisconnected()
 {
   while (isBatteryConnected())
-    usleep(kInterval);
+    usleep(INTERVAL);
 
   cout << "Battery disconnection detected." << endl;
 }
@@ -60,7 +65,7 @@ void EscCalibration::sendMaximum()
   cout << "Sending maximum throttle." << endl;
 
   const auto start_time = system_clock::now();
-  while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kSleepHigh)
+  while (duration<double>(system_clock::now() - start_time).count() < SLEEP_HIGH)
     setPeriodAndSleep(kPwmMax);
 }
 
@@ -69,7 +74,7 @@ void EscCalibration::sendMinimum()
   cout << "Sending minimum throttle." << endl;
 
   const auto start_time = system_clock::now();
-  while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kSleepLow)
+  while (duration<double>(system_clock::now() - start_time).count() < SLEEP_LOW)
     setPeriodAndSleep(kPwmMin);
 }
 
@@ -83,12 +88,12 @@ void EscCalibration::setPeriod(const double& period)
 void EscCalibration::setPeriodAndSleep(const double& period)
 {
   setPeriod(period);
-  usleep(kInterval);
+  usleep(INTERVAL);
 }
 
 bool EscCalibration::isBatteryConnected()
 {
   const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
-  return a2_value > kA2ValueThreshold;
+  return a2_value > A2_VALUE_THRESHOLD;
 }
 }  // namespace tobas_real

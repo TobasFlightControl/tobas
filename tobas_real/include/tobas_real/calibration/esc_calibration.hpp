@@ -10,11 +10,6 @@ namespace tobas_real
 /* 全てのPWMピンに対してキャリブレーションを行う． */
 class EscCalibration
 {
-  static constexpr long kSleepHigh = 3000000;     // [us]
-  static constexpr long kSleepLow = 5000000;      // [us]
-  static constexpr useconds_t kInterval = 10000;  // [us]
-  static constexpr int kA2ValueThreshold = 300;
-
 public:
   explicit EscCalibration();
 

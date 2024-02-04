@@ -30,14 +30,14 @@ uint64_t Stopwatch::stop()
 
   const auto end_time = system_clock::now();
   const auto duration = duration_cast<microseconds>(end_time - start_time_).count();
-  sum_duration += duration;
+  sum_duration_ += duration;
 
   if (++count_ == samples_)
   {
-    const auto mean_duration = sum_duration / samples_;
+    const auto mean_duration = sum_duration_ / samples_;
     cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << endl;
     count_ = 0;
-    sum_duration = 0;
+    sum_duration_ = 0;
   }
 
   return duration;

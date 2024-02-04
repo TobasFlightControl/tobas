@@ -13,8 +13,8 @@ class MeasureSensorNoise
 {
   static constexpr size_t kDataCount = 1000;
   static constexpr double kMaxThrottle = 0.5;
-  static constexpr double kPwmUpDownTime = 5000000;  // [us]
-  static constexpr size_t kPwmSleep = 1000;          // [us]
+  static constexpr double kPwmUpDownTime = 5.;  // [s]
+  static constexpr size_t kPwmSleep = 1000;     // [us]
 
 public:
   explicit MeasureSensorNoise();

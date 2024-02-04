@@ -77,8 +77,8 @@ void MeasureSensorNoise::run()
   decelerateMotors();
 
   // サンプリング周波数を計算
-  const auto elapsed_time = duration_cast<microseconds>(t_get_data_end - t_get_data_start).count();
-  const auto sample_freq = static_cast<float>(kDataCount * 1000000) / elapsed_time;
+  const auto elapsed_time = duration<double>(t_get_data_end - t_get_data_start).count();  // [s]
+  const auto sample_freq = static_cast<double>(kDataCount) / elapsed_time;                // [Hz]
   cout << "Sampling frequency: " << sample_freq << " Hz" << endl;
 
   // 差分をとることで定常部分とランダムウォークを除去．分散2倍の白色ノイズのみが残る．
@@ -124,8 +124,7 @@ void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 void MeasureSensorNoise::sendDisarm()
 {
   const auto t_get_data_start = system_clock::now();
-  while (duration_cast<milliseconds>(system_clock::now() - t_get_data_start).count()
-         < tobas::kDisarmDuration * 1000)
+  while (duration<double>(system_clock::now() - t_get_data_start).count() < tobas::kDisarmDuration)
   {
     setPeriodOnAllChannels(kPwmDisarm);
     usleep(kDisarmInterval * 1000000);
@@ -138,7 +137,7 @@ void MeasureSensorNoise::accelerateMotors()
   const auto t_motor_up_start = system_clock::now();
   while (elapsed_time < kPwmUpDownTime)
   {
-    elapsed_time = duration_cast<microseconds>(system_clock::now() - t_motor_up_start).count();
+    elapsed_time = duration<double>(system_clock::now() - t_motor_up_start).count();  // [s]
     const auto throttle = kMaxThrottle * elapsed_time / kPwmUpDownTime;
     const auto pwm_period = kPwmMin + (kPwmMax - kPwmMin) * throttle;
     setPeriodOnAllChannels(pwm_period);
@@ -152,7 +151,7 @@ void MeasureSensorNoise::decelerateMotors()
   const auto t_motor_down_start = system_clock::now();
   while (elapsed_time < kPwmUpDownTime)
   {
-    elapsed_time = duration_cast<microseconds>(system_clock::now() - t_motor_down_start).count();
+    elapsed_time = duration<double>(system_clock::now() - t_motor_down_start).count();  // [s]
     const auto throttle = kMaxThrottle * (kPwmUpDownTime - elapsed_time) / kPwmUpDownTime;
     const auto pwm_period = kPwmMin + (kPwmMax - kPwmMin) * throttle;
     setPeriodOnAllChannels(pwm_period);
