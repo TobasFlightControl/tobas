@@ -15,7 +15,7 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
-#include <tobas_msgs/StaticStateDeterminationAction.h>
+#include <tobas_msgs/PreArmCheckAction.h>
 #include <tobas_msgs/conversions/msg_msg.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
@@ -148,33 +148,26 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
 {
   TOBAS_DEBUG("ErrorStateKalmanFilterRos::setZeroPositions");
 
-  actionlib::SimpleActionClient<tobas_msgs::StaticStateDeterminationAction> ac(
-    tobas::kStaticStateDeterminationAction);
-  rosInfo(
-    name_,
-    "Waiting for action server '" << tobas::kStaticStateDeterminationAction << "' to start.");
+  actionlib::SimpleActionClient<tobas_msgs::PreArmCheckAction> ac(tobas::kPreArmCheckAction);
+  rosInfo(name_, "Waiting for action server '" << tobas::kPreArmCheckAction << "' to start.");
   ac.waitForServer();
 
-  rosInfo(
-    name_,
-    "Action server '" << tobas::kStaticStateDeterminationAction << "' started, sending goal.");
-  tobas_msgs::StaticStateDeterminationGoal goal;
+  rosInfo(name_, "Action server '" << tobas::kPreArmCheckAction << "' started, sending goal.");
+  tobas_msgs::PreArmCheckGoal goal;
   ac.sendGoal(goal);
 
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    ROS_THROW_NAMED(
-      name_, "'" << tobas::kStaticStateDeterminationAction << "' did not finish before timeout.");
+    ROS_THROW_NAMED(name_, "'" << tobas::kPreArmCheckAction << "' did not finish before timeout.");
   }
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
-  if (result->error_code != tobas_msgs::StaticStateDeterminationResult::NO_ERROR)
+  if (result->error_code != tobas_msgs::PreArmCheckResult::NO_ERROR)
   {
     ROS_THROW_NAMED(
-      name_, "'" << tobas::kStaticStateDeterminationAction
-                 << "' finished with error: " << state.getText());
+      name_, "'" << tobas::kPreArmCheckAction << "' finished with error: " << state.getText());
   }
 
   // GPS

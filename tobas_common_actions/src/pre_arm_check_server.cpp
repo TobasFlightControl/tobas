@@ -10,7 +10,7 @@
 #include <tobas_ros_tools/eigen_conversion.hpp>
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_common_actions/static_state_determination_server.hpp"
+#include "../include/tobas_common_actions/pre_arm_check_server.hpp"
 #include "../include/tobas_common_actions/common.hpp"
 
 using namespace std;
@@ -19,7 +19,7 @@ using namespace tobas_std;
 
 namespace tobas_common_actions
 {
-StaticStateDeterminationServer::StaticStateDeterminationServer(
+PreArmCheckServer::PreArmCheckServer(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
@@ -27,7 +27,7 @@ StaticStateDeterminationServer::StaticStateDeterminationServer(
     is_action_running_(false),
     bar_alt_buf_(kMeasureTime),
     gps_alt_buf_(kMeasureTime),
-    as_(nh_, tobas::kStaticStateDeterminationAction, boost::bind(&self::executeCb, this, _1), false)
+    as_(nh_, tobas::kPreArmCheckAction, boost::bind(&self::executeCb, this, _1), false)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -38,15 +38,15 @@ StaticStateDeterminationServer::StaticStateDeterminationServer(
   as_.start();
 }
 
-void StaticStateDeterminationServer::getRosParams()
+void PreArmCheckServer::getRosParams()
 {
 }
 
-void StaticStateDeterminationServer::registerPublishers()
+void PreArmCheckServer::registerPublishers()
 {
 }
 
-void StaticStateDeterminationServer::registerSubscribers()
+void PreArmCheckServer::registerSubscribers()
 {
   bat_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batCb, this, tcpNoDelay());
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
@@ -55,7 +55,7 @@ void StaticStateDeterminationServer::registerSubscribers()
   gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 }
 
-bool StaticStateDeterminationServer::isConditionsMet()
+bool PreArmCheckServer::isConditionsMet()
 {
   if ((ros::Time::now() - t_meas_start_).toSec() > kMeasureTime)
     return false;
@@ -74,7 +74,7 @@ bool StaticStateDeterminationServer::isConditionsMet()
   return true;
 }
 
-void StaticStateDeterminationServer::reset()
+void PreArmCheckServer::reset()
 {
   t_meas_start_ = ros::Time::now();
 
@@ -91,7 +91,7 @@ void StaticStateDeterminationServer::reset()
   gps_sum_ = GpsMsg();
 }
 
-void StaticStateDeterminationServer::fillResult()
+void PreArmCheckServer::fillResult()
 {
   result_.bat_count = bat_count_;
   result_.imu_count = imu_count_;
@@ -128,7 +128,7 @@ void StaticStateDeterminationServer::fillResult()
   result_.gps.velocity_covariance = gps_sum_.velocity_covariance / sqr(gps_count);
 }
 
-void StaticStateDeterminationServer::batCb(const tobas_msgs::BatteryConstPtr& bat)
+void PreArmCheckServer::batCb(const tobas_msgs::BatteryConstPtr& bat)
 {
   if (!is_action_running_)
     return;
@@ -148,7 +148,7 @@ void StaticStateDeterminationServer::batCb(const tobas_msgs::BatteryConstPtr& ba
   bat_sum_.current += bat->current;
 }
 
-void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
+void PreArmCheckServer::imuCb(const ImuMsg::ConstPtr& imu)
 {
   if (!is_action_running_)
     return;
@@ -188,7 +188,7 @@ void StaticStateDeterminationServer::imuCb(const ImuMsg::ConstPtr& imu)
     imu_sum_.linear_acceleration_covariance + imu->linear_acceleration_covariance;
 }
 
-void StaticStateDeterminationServer::magCb(const MagMsg::ConstPtr& mag)
+void PreArmCheckServer::magCb(const MagMsg::ConstPtr& mag)
 {
   if (!is_action_running_)
     return;
@@ -200,7 +200,7 @@ void StaticStateDeterminationServer::magCb(const MagMsg::ConstPtr& mag)
     mag_sum_.magnetic_field_covariance + mag->magnetic_field_covariance;
 }
 
-void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
+void PreArmCheckServer::barCb(const BarMsg::ConstPtr& bar)
 {
   if (!is_action_running_)
     return;
@@ -224,7 +224,7 @@ void StaticStateDeterminationServer::barCb(const BarMsg::ConstPtr& bar)
   bar_sum_.variance += bar->variance;
 }
 
-void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
+void PreArmCheckServer::gpsCb(const GpsMsg::ConstPtr& gps)
 {
   if (!is_action_running_)
     return;
@@ -263,7 +263,7 @@ void StaticStateDeterminationServer::gpsCb(const GpsMsg::ConstPtr& gps)
   gps_sum_.velocity_covariance = gps_sum_.velocity_covariance + gps->velocity_covariance;
 }
 
-void StaticStateDeterminationServer::executeCb(const GoalType&)
+void PreArmCheckServer::executeCb(const GoalType&)
 {
   rosInfo(name_, "Action is called. Measuring sensor data for " << kMeasureTime << " seconds.");
 

@@ -14,7 +14,7 @@
   </group>
 
   <!-- Static State Determinator -->
-  <include file="$(find tobas_common_actions)/launch/static_state_determination.launch">
+  <include file="$(find tobas_common_actions)/launch/pre_arm_check.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 

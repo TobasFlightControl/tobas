@@ -69,7 +69,7 @@ static constexpr char kArmRotorsSrv[] = "arm_rotors";
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";
 static constexpr char kTakeoffAction[] = "takeoff_action";
-static constexpr char kStaticStateDeterminationAction[] = "static_state_determination";
+static constexpr char kPreArmCheckAction[] = "pre_arm_check";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";

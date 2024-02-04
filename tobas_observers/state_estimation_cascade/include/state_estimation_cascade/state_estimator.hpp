@@ -12,7 +12,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Gps.h>
 #include <tobas_msgs/Odometry.h>
-#include <tobas_msgs/StaticStateDeterminationAction.h>
+#include <tobas_msgs/PreArmCheckAction.h>
 
 #include <state_estimation_cascade/StateEstimationCascadeConfig.h>
 
@@ -80,7 +80,7 @@ private:
 
   bool isReady();
   void initialize(const ImuMsg& imu);
-  tobas_msgs::StaticStateDeterminationResultConstPtr setZeroPositions();
+  tobas_msgs::PreArmCheckResultConstPtr setZeroPositions();
   OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
   void filteredImuCb(const ImuMsg::ConstPtr& imu);

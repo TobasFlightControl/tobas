@@ -7,11 +7,11 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/StaticStateDeterminationAction.h>
+#include <tobas_msgs/PreArmCheckAction.h>
 
 namespace tobas_common_actions
 {
-class StaticStateDeterminationServer : public tobas::BaseNode
+class PreArmCheckServer : public tobas::BaseNode
 {
   static constexpr double kMeasureTime = 5.;                // [s]
   static constexpr double kGyroNormThreshold = M_PI / 6;    // [rad/s]
@@ -20,7 +20,7 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   static constexpr double kGpsAltStddevThreshold = 5.;      // [m]
   static constexpr double kGpsPosCovStddevThreshold = 5.;   // [m]
 
-  using self = StaticStateDeterminationServer;
+  using self = PreArmCheckServer;
   using super = tobas::BaseNode;
 
   using BatMsg = tobas_msgs::Battery;
@@ -29,13 +29,13 @@ class StaticStateDeterminationServer : public tobas::BaseNode
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
 
-  using ActionType = tobas_msgs::StaticStateDeterminationAction;
-  using GoalType = tobas_msgs::StaticStateDeterminationGoalConstPtr;
-  using ResultType = tobas_msgs::StaticStateDeterminationResult;
-  using FeedbackType = tobas_msgs::StaticStateDeterminationFeedback;
+  using ActionType = tobas_msgs::PreArmCheckAction;
+  using GoalType = tobas_msgs::PreArmCheckGoalConstPtr;
+  using ResultType = tobas_msgs::PreArmCheckResult;
+  using FeedbackType = tobas_msgs::PreArmCheckFeedback;
 
 public:
-  explicit StaticStateDeterminationServer(
+  explicit PreArmCheckServer(
     const ros::NodeHandle& nh,
     const ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
