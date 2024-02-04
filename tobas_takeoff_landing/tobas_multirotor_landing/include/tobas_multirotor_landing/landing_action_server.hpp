@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
+#include <std_srvs/SetBool.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -13,7 +14,7 @@ class MultirotorLandServer : public tobas::BaseNode
 {
   static constexpr double kUpdateRate = 100.;    // [Hz]
   static constexpr double kVerticalSpeed = 0.3;  // [m/s]
-  static constexpr double kTimeWindow = 3.;      // [s] 高度の変化を見る時間窓の長さ
+  static constexpr double kTimeWindow = 5.;      // [s] 高度の変化を見る時間窓の長さ
   static constexpr double kStableAltitudeRange = 0.03;  // [m]
 
   using self = MultirotorLandServer;
@@ -36,10 +37,12 @@ private:
   std::deque<std::pair<ros::Time, double>> alt_history_;
   tobas_msgs::OdometryConstPtr odom_;
   ResultType result_;
+  std_srvs::SetBool arm_rotors_msg_;
 
   ros::Publisher cmd_pub_;
   ros::Subscriber odom_sub_;
 
+  ros::ServiceClient arm_rotors_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void getRosParams() override;
@@ -47,6 +50,7 @@ private:
   void registerSubscribers() override;
 
   void reset();
+  bool disarmRotors();
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 

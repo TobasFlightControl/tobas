@@ -68,6 +68,8 @@ bool TakeoffActionServer::getStartOdom()
     as_.setAborted(result_, "Failed to get the odometry of the start position.");
     return false;
   }
+
+  return true;
 }
 
 bool TakeoffActionServer::armRotors()
@@ -86,6 +88,8 @@ bool TakeoffActionServer::armRotors()
     as_.setAborted(result_, "Failed to arm rotors.");
     return false;
   }
+
+  return true;
 }
 
 void TakeoffActionServer::executeCb(const GoalType& goal)

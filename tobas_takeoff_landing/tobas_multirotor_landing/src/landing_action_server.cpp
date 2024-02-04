@@ -22,6 +22,8 @@ MultirotorLandServer::MultirotorLandServer(
   registerPublishers();
   registerSubscribers();
 
+  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
+
   as_.start();
 }
 
@@ -44,6 +46,26 @@ void MultirotorLandServer::reset()
   odom_ = nullptr;
   is_history_filled_ = false;
   alt_history_.clear();
+}
+
+bool MultirotorLandServer::disarmRotors()
+{
+  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    result_.error_code = ResultType::DISARM_FAILED;
+    as_.setAborted(result_, "Failed to connect to arming service server.");
+    return false;
+  }
+
+  arm_rotors_msg_.request.data = false;
+  if (!arm_rotors_sc_.call(arm_rotors_msg_) || !arm_rotors_msg_.response.success)
+  {
+    result_.error_code = ResultType::DISARM_FAILED;
+    as_.setAborted(result_, "Failed to disarm rotors.");
+    return false;
+  }
+
+  return true;
 }
 
 void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
@@ -108,12 +130,13 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
 
     if (is_history_filled_)
     {
-      // 一定時間幅の高度が一定の範囲内なら終了
+      // 一定時間幅の高度が一定の範囲内ならモータを停止して終了
       const auto alt_range = abs(alt_history_.front().second - alt_history_.back().second);
       if (alt_range < kStableAltitudeRange)
       {
-        rosInfo(name_, "Landing detected.");
-        is_action_running_ = false;
+        rosInfo(name_, "Landing detected. Stopping motors.");
+        if (!disarmRotors())
+          return;
         result_.error_code = ResultType::NO_ERROR;
         as_.setSucceeded(result_);
         return;
@@ -141,7 +164,5 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
     ros::spinOnce();
     rate.sleep();
   }
-
-  is_action_running_ = false;
 }
 }  // namespace tobas_multirotor_landing
