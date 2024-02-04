@@ -1,11 +1,14 @@
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <err.h>
 
 #include "../../include/Common/Util.h"
 #include "../../include/Navio2/RCInput_Navio2.h"
+
+using namespace std;
 
 RCInput_Navio2::RCInput_Navio2()
 {
@@ -30,7 +33,7 @@ int RCInput_Navio2::read(const size_t& ch)
 {
   if (ch >= kChannelCount)
   {
-    fprintf(stderr, "Channel number too large\n");
+    cerr << "Channel number too large." << endl;
     return -1;
   }
 

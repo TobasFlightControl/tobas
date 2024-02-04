@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <err.h>
@@ -8,6 +9,8 @@
 #include "../../include/Navio2/ADC_Navio2.h"
 
 #define ADC_SYSFS_PATH "/sys/kernel/rcio/adc"
+
+using namespace std;
 
 ADC_Navio2::ADC_Navio2()
 {
@@ -30,9 +33,9 @@ int ADC_Navio2::initialize()
 
 int ADC_Navio2::read(const size_t& ch)
 {
-  if (ch > kChannelCount)
+  if (ch >= kChannelCount)
   {
-    fprintf(stderr, "Channel number too large\n");
+    cerr << "Channel number too large." << endl;
     return -1;
   }
 
