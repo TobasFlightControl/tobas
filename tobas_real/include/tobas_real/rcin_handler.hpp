@@ -12,7 +12,8 @@ namespace tobas_real
 {
 class RCInputHandler : public tobas::BaseNode
 {
-  static constexpr size_t kUpdateRate = 100;  // [Hz]
+  static constexpr size_t kUpdateRate = 100;    // [Hz]
+  static constexpr double kSignalMargin = 10.;  // [us]
 
   using super = tobas::BaseNode;
 

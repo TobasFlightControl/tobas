@@ -77,7 +77,7 @@ void RCInputHandler::readConfig()
 
 void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  // Read RC input periods
+  // Read RC input signals
   const auto roll_period = rcin_.read(kRcChannelRoll);
   const auto pitch_period = rcin_.read(kRcChannelPitch);
   const auto yaw_period = rcin_.read(kRcChannelYaw);
@@ -85,6 +85,21 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto estop_period = rcin_.read(kRcChannelEStop);
   const auto mode_period = rcin_.read(kRcChannelMode);
   const auto gpsw_period = rcin_.read(kRcChannelGPSw);
+
+  // Check signal validity
+  if (
+    !roll_range_.inRange(roll_period, kSignalMargin)
+    || !pitch_range_.inRange(pitch_period, kSignalMargin)
+    || !yaw_range_.inRange(yaw_period, kSignalMargin)
+    || !thrust_range_.inRange(thrust_period, kSignalMargin))
+  {
+    rosErrorThrottle(
+      kErrorPeriod, name_,
+      "The value of the RC input is invalid. "
+      "Please check the connection between the transmitter and receiver "
+      "and ensure that they are properly calibrated.");
+    return;
+  }
 
   // Create message
   const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
