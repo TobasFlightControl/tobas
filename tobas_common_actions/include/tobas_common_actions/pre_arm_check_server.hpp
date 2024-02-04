@@ -6,7 +6,7 @@
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_msgs/RCInput.h>
 #include <tobas_msgs/PreArmCheckAction.h>
 
 namespace tobas_common_actions
@@ -45,6 +45,7 @@ private:
 
   ResultType result_;
   bool is_action_running_;
+  bool is_rcin_received_;
   Eigen::Matrix3d gps_pos_cov_;
   tobas_std::TimestampedBufferDouble bar_alt_buf_, gps_alt_buf_;
   ros::Time t_meas_start_;
@@ -60,6 +61,7 @@ private:
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
+  ros::Subscriber rcin_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
@@ -76,6 +78,7 @@ private:
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
+  void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);
 
   void executeCb(const GoalType& goal);
 };

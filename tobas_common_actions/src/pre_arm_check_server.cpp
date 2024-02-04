@@ -48,16 +48,21 @@ void PreArmCheckServer::registerPublishers()
 
 void PreArmCheckServer::registerSubscribers()
 {
-  bat_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batCb, this, tcpNoDelay());
-  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
-  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
-  bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
-  gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
+  bat_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batCb, this);
+  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this);
+  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this);
+  bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this);
+  gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this);
+  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this);
 }
 
 bool PreArmCheckServer::isConditionsMet()
 {
   if ((ros::Time::now() - t_meas_start_).toSec() > kMeasureTime)
+    return false;
+
+  // RC入力が発行されていることを確認
+  if (!is_rcin_received_)
     return false;
 
   if (bat_count_ == 0)
@@ -76,6 +81,7 @@ bool PreArmCheckServer::isConditionsMet()
 
 void PreArmCheckServer::reset()
 {
+  is_rcin_received_ = false;
   t_meas_start_ = ros::Time::now();
 
   bat_count_ = 0;
@@ -261,6 +267,14 @@ void PreArmCheckServer::gpsCb(const GpsMsg::ConstPtr& gps)
 
   gps_sum_.ground_speed += gps->ground_speed;
   gps_sum_.velocity_covariance = gps_sum_.velocity_covariance + gps->velocity_covariance;
+}
+
+void PreArmCheckServer::rcInputCb(const tobas_msgs::RCInputConstPtr&)
+{
+  if (!is_action_running_)
+    return;
+
+  is_rcin_received_ = true;
 }
 
 void PreArmCheckServer::executeCb(const GoalType&)
