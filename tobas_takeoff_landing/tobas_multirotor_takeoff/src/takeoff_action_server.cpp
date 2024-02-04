@@ -1,5 +1,6 @@
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/util.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
@@ -22,6 +23,8 @@ TakeoffActionServer::TakeoffActionServer(
   registerPublishers();
   registerSubscribers();
 
+  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
+
   as_.start();
 }
 
@@ -36,7 +39,6 @@ void TakeoffActionServer::registerPublishers()
 
 void TakeoffActionServer::registerSubscribers()
 {
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
@@ -58,38 +60,62 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
   return true;
 }
 
-void TakeoffActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+bool TakeoffActionServer::getStartOdom()
 {
-  odom_ = odom;
+  if (!tobas_ros::subscribeOnce(start_odom_, tobas::kOdometryTopic, nh_))
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to get the odometry of the start position.");
+    return false;
+  }
+}
+
+bool TakeoffActionServer::armRotors()
+{
+  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to connect to arming service server.");
+    return false;
+  }
+
+  arm_rotors_msg_.request.data = true;
+  if (!arm_rotors_sc_.call(arm_rotors_msg_) || !arm_rotors_msg_.response.success)
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "Failed to arm rotors.");
+    return false;
+  }
 }
 
 void TakeoffActionServer::executeCb(const GoalType& goal)
 {
   rosInfo(name_, "Action is called.");
 
-  ros::Rate rate(kUpdateRate);
-
-  while (odom_ == nullptr)
-  {
-    rosInfoThrottle(kInfoPeriod, name_, "Waiting for " << ns() << tobas::kOdometryTopic);
-    ros::spinOnce();
-    rate.sleep();
-  }
-
   // Check goal validity
   if (!isGoalValid(goal))
     return;
 
+  // Get the start position
+  if (!getStartOdom())
+    return;
+
+  // Arm rotors
+  if (!armRotors())
+    return;
+
   // 軌道を生成
-  tobas_std::CubicSpline traj_z(odom_->pose.pos.z(), goal->target_altitude, goal->target_duration);
+  tobas_std::CubicSpline traj_z(
+    start_odom_.pose.pos.z(), goal->target_altitude, goal->target_duration);
 
   // 初期状態
   const auto start_time = ros::Time::now();
-  const auto start_x = odom_->pose.pos.x();
-  const auto start_y = odom_->pose.pos.y();
-  const auto start_yaw = odom_->pose.euler.yaw;
+  const auto start_x = start_odom_.pose.pos.x();
+  const auto start_y = start_odom_.pose.pos.y();
+  const auto start_yaw = start_odom_.pose.euler.yaw;
 
   // 軌道を発行
+  ros::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     const auto t = (ros::Time::now() - start_time).toSec();

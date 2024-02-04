@@ -35,14 +35,14 @@ bool subscribeOnce(
   MsgType& msg,
   const std::string& topic,
   ros::NodeHandle& nh,
-  const double& timeout = 5.)
+  const double& timeout = std::numeric_limits<double>::max())
 {
   bool received = false;
   ros::Subscriber sub = nh.subscribe<MsgType>(
     topic, 1, boost::bind(&_subscribeOnceCb<MsgType>, _1, boost::ref(msg), boost::ref(received)));
   ros::Rate rate(10);  // 10 Hz
 
-  const ros::Time start_time = ros::Time::now();
+  const auto start_time = ros::Time::now();
   while (ros::ok() && !received && (ros::Time::now() - start_time).toSec() < timeout)
   {
     ros::spinOnce();
