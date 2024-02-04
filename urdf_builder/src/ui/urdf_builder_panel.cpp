@@ -20,6 +20,7 @@
 
 #define ROBOT_MODEL_UPDATE_INTERVAL 5
 #define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"
+#define TMP_URDF_PATH "/tmp/urdf_builder.urdf"
 
 using namespace std;
 using namespace urdf;
@@ -102,14 +103,26 @@ void URDFBuilderPanel::LoadButtonClicked()
   ROS_DEBUG_STREAM("URDFBuilderPanel::LoadButtonClicked");
 
   const auto last_opened_dir = getLastOpenedDir();
-  const auto file_path = QFileDialog::getOpenFileName(
+  auto file_path = QFileDialog::getOpenFileName(
     this, tr("Load URDF"), QString::fromStdString(last_opened_dir),
-    tr("URDF (*.urdf);;All Files (*)"));
+    tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
 
   if (file_path.isEmpty())
     return;
 
   setLastOpenedDir(file_path.toStdString());
+
+  // xacroが指定された場合は展開する
+  if (file_path.endsWith(".xacro"))
+  {
+    const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
+    if (system(command.toUtf8()) != 0)
+    {
+      QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
+      return;
+    }
+    file_path = TMP_URDF_PATH;
+  }
 
   if (!vm_.loadRobot(file_path))
   {
