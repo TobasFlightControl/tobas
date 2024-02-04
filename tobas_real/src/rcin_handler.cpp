@@ -21,9 +21,10 @@ RCInputHandler::RCInputHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
-
   readConfig();
-  rcin_.initialize();
+
+  if (rcin_.initialize() < 0)
+    ROS_THROW_NAMED(name_, "Failed to initialize RC input driver.");
 
   registerPublishers();
   registerSubscribers();
