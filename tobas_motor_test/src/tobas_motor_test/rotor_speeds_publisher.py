@@ -2,6 +2,7 @@ import rospy
 import rospkg
 import os.path as osp
 from typing import List
+from functools import partial
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -38,10 +39,11 @@ class RotorSpeedsPublisherWidget(MainWidget):
             rows.addWidget(commander)
             self._commanders.append(commander)
 
-        self._minimum_button = QPushButton("Minimum")
-        self._minimum_button.clicked.connect(self._on_minimum_button_clicked)
-        self._minimum_button.setFixedHeight(BUTTON_HEIGHT)
-        rows.addWidget(self._minimum_button)
+        for rpm in [0, 100, 500, 1000, 5000, 10000]:
+            button = QPushButton(f"{rpm} RPM")
+            button.setFixedHeight(BUTTON_HEIGHT)
+            button.clicked.connect(partial(self._on_rpm_button_clicked, rpm=rpm))
+            rows.addWidget(button)
 
         add_spacer(rows)
 
@@ -57,8 +59,8 @@ class RotorSpeedsPublisherWidget(MainWidget):
         self._publish_current_values()
 
     @pyqtSlot()
-    def _on_minimum_button_clicked(self) -> None:
-        self._set_all_values(0.0)
+    def _on_rpm_button_clicked(self, rpm: int) -> None:
+        self._set_all_values(rpm)
         self._publish_current_values()
 
     def _publish_current_values(self) -> None:
