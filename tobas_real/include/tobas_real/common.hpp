@@ -70,7 +70,6 @@ static constexpr size_t kRcChannelEStop = 6;   // CH7
 static constexpr size_t kRcChannelGPSw = 7;    // CH8
 
 static constexpr size_t kWaitToRefreshBarometer = 10000;  // [us]
-static constexpr double kDisarmDuration = 3.;             // [s]
 static constexpr double kDisarmInterval = 0.1;            // [s]
 static constexpr double kWarnPeriod = 3.;                 // [s]
 static constexpr double kErrorPeriod = 1.;                // [s]

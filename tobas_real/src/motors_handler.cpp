@@ -34,9 +34,7 @@ MotorsHandler::MotorsHandler(
   arm_rotors_ss_ = nh_.advertiseService(tobas::kArmRotorsSrv, &self::armRotorsCb, this);
   setup_pwm_sc_ = nh_.serviceClient<tobas_msgs::SetupPwm>(tobas::kSetupPwmSrv);
 
-  setup_pwm_timer_ =
-    nh_.createTimer(kSetupPwmTimerRate, &self::setupPwmTimerCb, this, false, false);
-  disarm_timer_ = nh_.createTimer(kDisarmTimerRate, &self::disarmTimerCb, this, false, false);
+  setup_pwm_timer_ = nh_.createTimer(ros::Duration(0), &self::setupPwmTimerCb, this, true, false);
   check_interval_timer_ =
     nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
@@ -228,29 +226,23 @@ bool MotorsHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBool
   if (!is_armed_ && req.data)
   {
     rosInfo(name_, "Arming rotors.");
-    disarm_timer_.start();
-    disarm_start_time_ = ros::Time::now();
+    armRotors();
   }
   else if (is_armed_ && !req.data)
   {
     rosInfo(name_, "Disarming rotors.");
-    check_interval_timer_.stop();
-    is_armed_ = false;
+    disarmRotors();
   }
 
   res.success = true;
   return true;
 }
 
-void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
+void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent&)
 {
   // サービスサーバの起動を待つ
-  if (!setup_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-  {
-    rosWarn(
-      name_, "Failed to connect to '" << tobas::kSetupPwmSrv << "' service server. Retrying...");
-    return;
-  }
+  while (!setup_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+    rosWarn(name_, "Failed to connect to '" << tobas::kSetupPwmSrv << "' server. Retrying...");
 
   // PWMのセットアップ
   tobas_msgs::SetupPwm setup_pwm_msg;
@@ -259,36 +251,40 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent& event)
     const auto channel = channelFromPin(rotor_config.pin);
     setup_pwm_msg.request.channel = channel;
     setup_pwm_msg.request.frequency = kPwmFrequency;
-    if (!setup_pwm_sc_.call(setup_pwm_msg) || !setup_pwm_msg.response.success)
+    while (!setup_pwm_sc_.call(setup_pwm_msg) || !setup_pwm_msg.response.success)
     {
       rosWarn(name_, "Failed to setup RC output on CH" << channel << ". Retrying...");
-      return;
+      ros::Duration(kSetupPwmRetryInterval).sleep();
     }
   }
 
-  // PWMのセットアップ完了
-  setup_pwm_timer_.stop();
-
-  // Disarmを開始
-  disarm_timer_.start();
-  disarm_start_time_ = event.current_real;
+  // 起動時は自動でアームする
+  armRotors();
 }
 
-void MotorsHandler::disarmTimerCb(const ros::TimerEvent& event)
+void MotorsHandler::armRotors()
 {
-  setPeriodOnAllChannels(kPwmDisarm);
-
-  if ((event.current_real - disarm_start_time_).toSec() > kDisarmDuration)
+  const auto t_start = ros::Time::now();
+  while ((ros::Time::now() - t_start).toSec() < tobas::kDisarmDuration)
   {
-    is_armed_ = true;
-    latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
-
-    // コマンドのインターバルチェックを開始
-    disarm_timer_.stop();
-    check_interval_timer_.start();
-
-    rosInfo(name_, "Disarming finished. The motors are ready to rotate.");
+    setPeriodOnAllChannels(kPwmDisarm);
+    ros::Duration(kDisarmInterval).sleep();
   }
+
+  is_armed_ = true;
+  check_interval_timer_.start();
+  latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
+
+  rosInfo(name_, "The motors are ready to rotate.");
+}
+
+void MotorsHandler::disarmRotors()
+{
+  is_armed_ = false;
+  check_interval_timer_.stop();
+
+  // 一定時間PWMを発行しなければESCは自動停止する
+  ros::Duration(tobas::kStopRotorsSleepTime).sleep();
 }
 
 void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)

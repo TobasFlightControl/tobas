@@ -34,7 +34,7 @@ MeasureSensorNoise::MeasureSensorNoise()
 void MeasureSensorNoise::run()
 {
   // 一定時間Disarmコマンドを送信
-  cout << "Sending disarm command for " << kDisarmDuration << " seconds." << endl;
+  cout << "Sending disarm command for " << tobas::kDisarmDuration << " seconds." << endl;
   sendDisarm();
 
   cout << "Sampling sensor data while rotating motors." << endl;
@@ -125,7 +125,7 @@ void MeasureSensorNoise::sendDisarm()
 {
   const auto t_get_data_start = system_clock::now();
   while (duration_cast<milliseconds>(system_clock::now() - t_get_data_start).count()
-         < kDisarmDuration * 1000)
+         < tobas::kDisarmDuration * 1000)
   {
     setPeriodOnAllChannels(kPwmDisarm);
     usleep(kDisarmInterval * 1000000);

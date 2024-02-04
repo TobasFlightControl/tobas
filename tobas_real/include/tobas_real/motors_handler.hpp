@@ -20,10 +20,8 @@ class MotorsHandler : public tobas::BaseNode
   static constexpr double kBLHeliClosedLoopMidRangeMaxERPM = 100000;
   static constexpr double kBLHeliClosedLoopHighRangeMaxERPM = 200000;
 
-  static constexpr size_t kSetupPwmTimerRate = 1;        // [Hz]
-  static constexpr size_t kDisarmTimerRate = 10;         // [Hz]
   static constexpr size_t kCheckIntervalTimerRate = 10;  // [Hz]
-
+  static constexpr double kSetupPwmRetryInterval = 1.;   // [s]
   static constexpr bool kDefaultBlockBelowArmSpeed = true;
 
   using self = MotorsHandler;
@@ -38,7 +36,6 @@ public:
 private:
   tobas::Drone drone_;
 
-  ros::Time disarm_start_time_;
   ros::Time last_cmd_time_;
   bool is_armed_ = false;
   bool is_activated_ = false;
@@ -62,13 +59,14 @@ private:
 
   // Timer
   ros::Timer setup_pwm_timer_;
-  ros::Timer disarm_timer_;
   ros::Timer check_interval_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void armRotors();
+  void disarmRotors();
   void setPeriodOnAllChannels(const double& period);
 
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
@@ -77,7 +75,6 @@ private:
   bool armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
 
   void setupPwmTimerCb(const ros::TimerEvent& event);
-  void disarmTimerCb(const ros::TimerEvent& event);
   void checkIntervalTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

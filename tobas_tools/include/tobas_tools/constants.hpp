@@ -80,8 +80,10 @@ static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;   // [s]
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
-static constexpr double kRotSpeedMargin = 1.;            // [rad/s]
+static constexpr double kDisarmDuration = 3.;            // [s]
+static constexpr double kStopRotorsSleepTime = 1.;       // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
+static constexpr double kRotSpeedMargin = 1.;            // [rad/s]
 static constexpr size_t kStopwatchSamples = 100;
 
 static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
