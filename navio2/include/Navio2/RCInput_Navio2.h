@@ -10,10 +10,10 @@ public:
   explicit RCInput_Navio2();
 
   void initialize();
-  int read(int ch);
+  int read(const size_t& ch);
 
 private:
   int channels_[kChannelCount];
 
-  int openChannel(int ch);
+  int openChannel(const size_t& ch);
 };
