@@ -77,7 +77,7 @@ void RCInputHandler::readConfig()
 
 void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  // Read RC input signals
+  // Read RC input periods
   const auto roll_period = rcin_.read(kRcChannelRoll);
   const auto pitch_period = rcin_.read(kRcChannelPitch);
   const auto yaw_period = rcin_.read(kRcChannelYaw);
@@ -85,21 +85,6 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto estop_period = rcin_.read(kRcChannelEStop);
   const auto mode_period = rcin_.read(kRcChannelMode);
   const auto gpsw_period = rcin_.read(kRcChannelGPSw);
-
-  // Check signal validity
-  if (
-    !roll_range_.inRange(roll_period, kSignalMargin)
-    || !pitch_range_.inRange(pitch_period, kSignalMargin)
-    || !yaw_range_.inRange(yaw_period, kSignalMargin)
-    || !thrust_range_.inRange(thrust_period, kSignalMargin))
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "The value of the RC input is invalid. "
-      "Please check the connection between the transmitter and receiver "
-      "and ensure that they are properly calibrated.");
-    return;
-  }
 
   // Create message
   const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
@@ -111,6 +96,22 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->mode = tobas_std::closestIndex<double>(modes_, mode_period);
   rcin_msg->e_stop = abs(estop_period - estop_on_) < abs(estop_period - estop_off_);
   rcin_msg->gpsw = abs(gpsw_period - gpsw_on_) < abs(gpsw_period - gpsw_off_);
+
+  // Check signal validity
+  constexpr double kOnePlusMargin = 1 + kSignalMargin;
+  if (
+    rcin_msg->roll < -kOnePlusMargin || kOnePlusMargin < rcin_msg->roll
+    || rcin_msg->pitch < -kOnePlusMargin || kOnePlusMargin < rcin_msg->pitch
+    || rcin_msg->yaw < -kOnePlusMargin || kOnePlusMargin < rcin_msg->yaw
+    || rcin_msg->thrust < -kSignalMargin || kOnePlusMargin < rcin_msg->thrust)
+  {
+    rosErrorThrottle(
+      kErrorPeriod, name_,
+      "The value of the RC input is invalid. "
+      "Please check the connection between the transmitter and receiver "
+      "and ensure that they are properly calibrated.");
+    return;
+  }
 
   // Publish message
   rcin_pub_.publish(rcin_msg);
