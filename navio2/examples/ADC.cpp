@@ -15,15 +15,15 @@ int main()
 
   ADC_Navio2 adc;
   adc.initialize();
-  std::vector<float> results(adc.get_channel_count(), 0.);
+  std::vector<float> results(adc.channelCount(), 0.);
   while (true)
   {
-    for (int i = 0; i < adc.get_channel_count(); ++i)
+    for (size_t i = 0; i < adc.channelCount(); ++i)
     {
       results[i] = adc.read(i);
       if (results[i] == READ_FAILED)
         return EXIT_FAILURE;
-      printf("A%d: %.4fV ", i, results[i] / 1000);
+      printf("A%zu: %.4fV ", i, results[i] / 1000);
     }
     printf("\n");
 
