@@ -99,6 +99,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   rcin_msg->gpsw = abs(gpsw_period - gpsw_on_) < abs(gpsw_period - gpsw_off_);
 
   // Check signal validity
+  // FIXME: 送信機を一度でも起動した場合は受信機に値が残るため，値だけ見ても通信の切断を検知できない
   constexpr double kOnePlusMargin = 1 + kSignalMargin;
   if (
     rcin_msg->roll < -kOnePlusMargin || kOnePlusMargin < rcin_msg->roll
