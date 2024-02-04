@@ -159,15 +159,17 @@ void ErrorStateKalmanFilterRos::setZeroPositions()
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
   {
-    ROS_THROW_NAMED(name_, "'" << tobas::kPreArmCheckAction << "' did not finish before timeout.");
+    rosFatal(name_, "'" << tobas::kPreArmCheckAction << "' did not finish before timeout.");
+    nh_.shutdown();
   }
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::PreArmCheckResult::NO_ERROR)
   {
-    ROS_THROW_NAMED(
+    rosFatal(
       name_, "'" << tobas::kPreArmCheckAction << "' finished with error: " << state.getText());
+    nh_.shutdown();
   }
 
   // GPS
