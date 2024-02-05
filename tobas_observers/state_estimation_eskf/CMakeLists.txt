@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	nodelet
 	pluginlib
+	tf2_ros
 	message_generation
 )
 
@@ -43,6 +44,7 @@ catkin_package(
 		actionlib
 		nodelet
 		pluginlib
+		tf2_ros
 		message_generation
 )
 

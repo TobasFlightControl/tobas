@@ -129,6 +129,12 @@ public:
     return segments_.find(root_name_);
   };
 
+  /* Request the name of the root link. */
+  inline const std::string& getRootName() const
+  {
+    return getRootSegment()->first;
+  }
+
   /**
    * Request the chain of the tree between chain_root and chain_tip.  The chain_root
    * and chain_tip can be in different branches of the tree, the chain_root can be

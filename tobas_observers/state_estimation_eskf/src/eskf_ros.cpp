@@ -39,6 +39,11 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   TOBAS_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
 
   getRosParams();
+  drone_.loadFromParam(nh_);
+
+  // Fill the static part of the transform message
+  tf_.header.frame_id = tobas::kWorldFrame;
+  tf_.child_frame_id = drone_.tree().getRootName();
 
   registerPublishers();
   registerSubscribers();
@@ -203,8 +208,9 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
 
   const auto odom = boost::make_shared<OdomMsg>();
 
-  // Time stamp
+  // Header
   odom->header.stamp = imu.header.stamp;
+  odom->header.frame_id = tobas::kWorldFrame;
 
   // Position (Global): IMU frame -> Base frame
   odom->pose.pos.data = W_Pos_WI - W_Rot_B * imu_offset_;
@@ -366,6 +372,11 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
       // 推定状態を発行
       const auto odom = makeOdometryMsg(*imu);
       odom_pub_.publish(odom);
+
+      // TFを発行
+      tf_.header.stamp = odom->header.stamp;
+      tobas::transformTobasToMsg(odom->pose, tf_.transform);
+      tf_br_.sendTransform(tf_);
 
       // フィードバックを発行
       const auto feedback = boost::make_shared<FeedbackMsg>();

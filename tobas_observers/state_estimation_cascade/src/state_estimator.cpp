@@ -33,6 +33,10 @@ StateEstimator::StateEstimator(
 {
   getRosParams();
 
+  // Fill the static part of the transform message
+  tf_.header.frame_id = tobas::kWorldFrame;
+  tf_.child_frame_id = drone_.tree().getRootName();
+
   registerPublishers();
   registerSubscribers();
 
@@ -56,9 +60,7 @@ void StateEstimator::registerSubscribers()
   bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barometerCb, this, tcpNoDelay());
 
   if (use_gps_)
-  {
     gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsPositionCb, this, tcpNoDelay());
-  }
 }
 
 bool StateEstimator::isReady()
@@ -144,8 +146,9 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
 {
   const auto odom = boost::make_shared<OdomMsg>();
 
-  // Time stamp
+  // Header
   odom->header.stamp = imu.header.stamp;
+  odom->header.frame_id = tobas::kWorldFrame;
 
   // Position
   odom->pose.pos.data = cart_filter_.getPosition();
@@ -192,9 +195,7 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
 void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
 {
   if (!imu_received_)
-  {
     imu_received_ = true;
-  }
 
   if (!is_initialized_)
   {
@@ -211,10 +212,8 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
   // TODO: ESKFのようにdtのチェック
   const double dt = (imu->header.stamp - t_last_).toSec();
   t_last_ = imu->header.stamp;
-  if (dt <= 0. || kImuTimeGapThreshold < dt)
-  {
+  if (dt <= 0 || kImuTimeGapThreshold < dt)
     return;
-  }
 
   tobas_ros::quaternionMsgToEigen(imu->orientation, quat_);
   tobas_ros::vectorMsgToEigen(imu->linear_acceleration, a_m_);
@@ -231,19 +230,20 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
   // 推定状態を発行
   const auto odom = makeOdometryMsg(*imu);
   odom_pub_.publish(odom);
+
+  // TFを発行
+  tf_.header.stamp = odom->header.stamp;
+  tobas::transformTobasToMsg(odom->pose, tf_.transform);
+  tf_br_.sendTransform(tf_);
 }
 
 void StateEstimator::barometerCb(const BarMsg::ConstPtr& bar)
 {
   if (!bar_received_)
-  {
     bar_received_ = true;
-  }
 
   if (!is_initialized_)
-  {
     return;
-  }
 
   double z_abs, z_var;
   pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
@@ -255,14 +255,10 @@ void StateEstimator::barometerCb(const BarMsg::ConstPtr& bar)
 void StateEstimator::gpsPositionCb(const GpsMsg::ConstPtr& gps)
 {
   if (!gps_received_)
-  {
     gps_received_ = true;
-  }
 
   if (!is_initialized_)
-  {
     return;
-  }
 
   // TODO: 位置と速度を同時にフィードバック
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, xy_m_.x(), xy_m_.y());

@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 	actionlib
 	nodelet
 	pluginlib
+	tf2_ros
 )
 
 generate_dynamic_reconfigure_options(cfg/StateEstimationCascade.cfg)
@@ -32,6 +33,7 @@ catkin_package(
 		actionlib
 		nodelet
 		pluginlib
+		tf2_ros
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

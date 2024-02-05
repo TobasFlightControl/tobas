@@ -1,10 +1,12 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_ros_tools/timer.hpp>
@@ -50,6 +52,8 @@ private:
     SET_FIRST_TIME,
     RUNNING,
   };
+
+  tobas::Drone drone_;
 
   // 固定値
   double lat_0_;            // 緯度のゼロ点 (Base Frame)
@@ -100,6 +104,10 @@ private:
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
+
+  // TF
+  geometry_msgs::TransformStamped tf_;
+  tf2_ros::TransformBroadcaster tf_br_;
 
   // Timer
   tobas_ros::Timer check_topics_timer_;

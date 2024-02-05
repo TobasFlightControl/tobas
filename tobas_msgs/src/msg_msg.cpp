@@ -1,3 +1,4 @@
+#include <tobas_std_tools/geometry.hpp>
 #include <tobas_kdl/conversion/kdl_msg.hpp>
 
 #include "../include/tobas_msgs/conversions/msg_msg.hpp"
@@ -6,12 +7,20 @@ using namespace KDL;
 
 namespace tobas
 {
+void transformTobasToMsg(const tobas_msgs::Pose& t, geometry_msgs::Transform& m)
+{
+  vectorKDLToMsg(t.pos, m.translation);
+  tobas_std::eulerToQuaternion(
+    t.euler.roll, t.euler.pitch, t.euler.yaw, m.rotation.x, m.rotation.y, m.rotation.z,
+    m.rotation.w);
+}
+
 void poseTobasToMsg(const tobas_msgs::Pose& t, geometry_msgs::Pose& m)
 {
   pointKDLToMsg(t.pos, m.position);
-
-  const auto rot = Rotation::RPY(t.euler.roll, t.euler.pitch, t.euler.yaw);
-  rot.getQuaternion(m.orientation.x, m.orientation.y, m.orientation.z, m.orientation.w);
+  tobas_std::eulerToQuaternion(
+    t.euler.roll, t.euler.pitch, t.euler.yaw, m.orientation.x, m.orientation.y, m.orientation.z,
+    m.orientation.w);
 }
 
 void odometryTobasToMsg(const tobas_msgs::Odometry& t, nav_msgs::Odometry& m)

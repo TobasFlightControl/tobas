@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <dynamic_reconfigure/server.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -8,8 +9,8 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_ros_tools/timer.hpp>
-
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Gps.h>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/PreArmCheckAction.h>
@@ -40,6 +41,8 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
+  tobas::Drone drone_;
+
   // 固定値
   double lat_0_;  // 緯度のゼロ点
   double lon_0_;  // 経度のゼロ点
@@ -67,6 +70,10 @@ private:
   ros::Subscriber filtered_imu_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
+
+  // TF
+  geometry_msgs::TransformStamped tf_;
+  tf2_ros::TransformBroadcaster tf_br_;
 
   // Timer
   tobas_ros::Timer check_topics_timer_;
