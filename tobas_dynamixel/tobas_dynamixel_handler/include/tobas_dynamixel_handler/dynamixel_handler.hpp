@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
 #include <dynamixel_sdk/dynamixel_sdk.h>
+#include <std_srvs/SetBool.h>
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/node.hpp>
@@ -69,6 +70,9 @@ private:
   ros::Subscriber velocities_sub_;
   ros::Subscriber efforts_sub_;
 
+  // Service
+  ros::ServiceServer enable_torques_ss_;
+
   // Timer
   ros::Timer main_timer_;
 
@@ -79,8 +83,8 @@ private:
   bool setMinimumLatency();
   void getMotorConfigs();
   void publishCurrentStates(const ros::Time& cur_time);
-  void enableTorques();
-  void disableTorques();
+  bool enableTorques();
+  bool disableTorques();
   void printHardwareErrorStatus();
   int readSyncPacket(dynamixel::GroupSyncRead& sync_read);
 
@@ -89,6 +93,7 @@ private:
   void jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts);
 
+  bool enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_dynamixel_handler

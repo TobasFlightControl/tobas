@@ -69,6 +69,9 @@ DynamixelHandler::DynamixelHandler(
   registerPublishers();
   registerSubscribers();
 
+  // Register service servers
+  enable_torques_ss_ = nh_.advertiseService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
+
   // Start main timer with maximum rate
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
 }
@@ -259,29 +262,34 @@ void DynamixelHandler::getMotorConfigs()
   }
 }
 
-void DynamixelHandler::enableTorques()
+bool DynamixelHandler::enableTorques()
 {
   for (const auto& [name, cfg] : motors_)
   {
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0)
     {
       rosError(name_, "Failed to enable torque of '" << name << "'.");
-      return;
+      return false;
     }
   }
 
   is_enabled_ = true;
+  return true;
 }
 
-void DynamixelHandler::disableTorques()
+bool DynamixelHandler::disableTorques()
 {
   for (const auto& [name, cfg] : motors_)
   {
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
+    {
       rosError(name_, "Failed to disable torque of '" << name << "'.");
+      return false;
+    }
   }
 
   is_enabled_ = false;
+  return true;
 }
 
 void DynamixelHandler::printHardwareErrorStatus()
@@ -618,6 +626,40 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr&
 
     rosError(name_, "Effort control is not implemented yet.");  // TODO
   }
+}
+
+bool DynamixelHandler::enableTorquesServiceCb(
+  std_srvs::SetBoolRequest& req,
+  std_srvs::SetBoolResponse& res)
+{
+  if (req.data)
+  {
+    if (enableTorques())
+    {
+      res.success = true;
+      res.message = "Torques enabled.";
+    }
+    else
+    {
+      res.success = false;
+      res.message = "Failed to enable torques.";
+    }
+  }
+  else
+  {
+    if (disableTorques())
+    {
+      res.success = true;
+      res.message = "Torques disabled.";
+    }
+    else
+    {
+      res.success = false;
+      res.message = "Failed to disable torques.";
+    }
+  }
+
+  return true;
 }
 
 void DynamixelHandler::mainTimerCb(const ros::TimerEvent& event)
