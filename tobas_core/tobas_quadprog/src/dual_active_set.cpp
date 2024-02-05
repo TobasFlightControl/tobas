@@ -444,7 +444,7 @@ bool DualActiveSetSolver::addConstraint()
   return true;
 }
 
-void DualActiveSetSolver::deleteConstraint(size_t l)
+void DualActiveSetSolver::deleteConstraint(const size_t& l)
 {
 #ifdef TRACE_SOLVER
   cout << "Delete constraint " << l << " " << iq_;

@@ -39,7 +39,7 @@ private:
 
   void update_r();
   bool addConstraint();
-  void deleteConstraint(size_t l);
+  void deleteConstraint(const size_t& l);
 
   // Euclidean distance between two numbers.
   static double distance(const double& a, const double& b);
