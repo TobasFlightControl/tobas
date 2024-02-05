@@ -13,6 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
+	tf2_ros
 	nodelet
 	pluginlib
 	dynamic_reconfigure
@@ -37,7 +38,7 @@ generate_dynamic_reconfigure_options(${CFG_FILES})
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_tools nodelet pluginlib dynamic_reconfigure
+	CATKIN_DEPENDS tobas_tools tf2_ros nodelet pluginlib dynamic_reconfigure
 # 	DEPENDS
 )
 

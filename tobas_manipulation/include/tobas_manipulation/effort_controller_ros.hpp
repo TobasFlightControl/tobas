@@ -7,10 +7,10 @@
 #include <tobas_kdl/treeactivejointsextractor.hpp>
 #include <tobas_kdl/treejntspacepid.hpp>
 #include <tobas_kdl/treetaskspacepid.hpp>
+#include <tobas_ros_tools/tf_listener.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/JointEfforts.h>
 #include <tobas_msgs/CartesianState.h>
 
@@ -41,8 +41,8 @@ private:
   KDL::TreeTaskSpacePID pid_ts_;
 
   KDL::JntArray jntarraynull_;
+  tobas_ros::TransformListener tf_listener_;
 
-  tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr cur_js_;
   sensor_msgs::JointStateConstPtr tar_js_;
   tobas_msgs::CartesianStateConstPtr tar_cs_;
@@ -67,7 +67,6 @@ private:
   int jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg);
   int taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg);
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
   void targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs);

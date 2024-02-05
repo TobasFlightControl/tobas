@@ -6,10 +6,9 @@
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
 #include <tobas_kdl/treetaskspacevelctrl.hpp>
-
+#include <tobas_ros_tools/tf_listener.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/JointVelocities.h>
 #include <tobas_msgs/CartesianState.h>
 
@@ -40,8 +39,8 @@ private:
 
   KDL::JntArray jntarraynull_;
   double jnt_time_const_;
+  tobas_ros::TransformListener tf_listener_;
 
-  tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr cur_js_;
   sensor_msgs::JointStateConstPtr tar_js_;
   tobas_msgs::CartesianStateConstPtr tar_cs_;
@@ -50,7 +49,6 @@ private:
   ros::Publisher velocities_pub_;
 
   // Subscribers
-  ros::Subscriber odom_sub_;
   ros::Subscriber cur_js_sub_;
   ros::Subscriber tar_js_sub_;
   ros::Subscriber tar_cs_sub_;
@@ -66,7 +64,6 @@ private:
   int jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
   int taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
   void targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& cs);

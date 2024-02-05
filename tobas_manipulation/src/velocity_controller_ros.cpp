@@ -1,4 +1,5 @@
 #include <tobas_std_tools/zip.hpp>
+#include <tobas_kdl/conversion/kdl_msg.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 
@@ -53,7 +54,6 @@ void VelocityControllerRos::registerPublishers()
 
 void VelocityControllerRos::registerSubscribers()
 {
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ = nh_.subscribe(kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
@@ -123,39 +123,19 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
     return -1;
   }
 
-  Frame tar_pi, T_W_B;
+  Frame T_B_X, T_X_Y;
   KDL::FrameMap tar_p;
-  for (const auto& [seg_name, frame_id, pose] :
-       tobas_std::zip(tar_cs_->name, tar_cs_->frame_id, tar_cs_->pose))
+  for (const auto& [seg_name, pose] : tobas_std::zip(tar_cs_->name, tar_cs_->pose))
   {
-    tobas::poseTobasToKDL(pose, tar_pi);
-    switch (frame_id.data)
+    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_cs_->header.frame_id))
     {
-      case tobas_msgs::FrameId::GLOBAL:
-      {
-        if (odom_ == nullptr)
-        {
-          rosWarnThrottle(
-            kOdomNotReceivedWarnPeriod, name_,
-            "Since odometry has not been received yet, commands in the global frame is ignored.");
-          return -1;
-        }
-
-        tobas::poseTobasToKDL(odom_->pose, T_W_B);
-        tar_pi = T_W_B.inverse() * tar_pi;  // T_B_P = T_B_W * T_W_P
-        break;
-      }
-      case tobas_msgs::FrameId::LOCAL:
-      {
-        break;
-      }
-      default:
-      {
-        rosError(name_, "Unknown frame ID: " << static_cast<int>(frame_id.data));
-        return -1;
-      }
+      rosError(name_, tf_listener_.getErrorMessage());
+      continue;
     }
-    tar_p[seg_name] = tar_pi;  // Base -> Segment tip
+
+    transformMsgToKDL(tf_listener_.getTransform().transform, T_B_X);
+    tobas::poseTobasToKDL(pose, T_X_Y);
+    tar_p[seg_name] = T_B_X * T_X_Y;  // Base -> Segment tip
   }
 
   // 目標関節速度を計算
@@ -181,11 +161,6 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
   velocities_msg.data = tar_js_conv_.getVelocitiesMsg();
 
   return 0;
-}
-
-void VelocityControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
-{
-  odom_ = odom;
 }
 
 void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js)
@@ -227,8 +202,7 @@ void VelocityControllerRos::targetJointStateCb(const sensor_msgs::JointStateCons
 
 void VelocityControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
 {
-  const auto np = tar_cs->name.size();  // The number of endpoints
-  if (tar_cs->frame_id.size() != np || tar_cs->pose.size() != np)
+  if (tar_cs->name.size() != tar_cs->pose.size())
   {
     rosError(name_, "Cartesian state size mismatch.");
     return;

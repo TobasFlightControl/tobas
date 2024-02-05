@@ -42,6 +42,16 @@ void twistMsgToKDL(const geometry_msgs::Twist& m, Twist& k)
   vectorMsgToKDL(m.angular, k.rot);
 }
 
+void rotationKDLToMsg(const Rotation& k, geometry_msgs::Quaternion& m)
+{
+  k.getQuaternion(m.x, m.y, m.z, m.w);
+}
+
+void rotationMsgToKDL(const geometry_msgs::Quaternion& m, Rotation& k)
+{
+  k = Rotation::Quaternion(m.x, m.y, m.z, m.w);
+}
+
 void quaternionKDLToMsg(const Quaternion& k, geometry_msgs::Quaternion& m)
 {
   m.x = k.x;
@@ -56,5 +66,17 @@ void quaternionMsgToKDL(const geometry_msgs::Quaternion& m, Quaternion& k)
   k.y = m.y;
   k.z = m.z;
   k.w = m.w;
+}
+
+void transformKDLToMsg(const Frame& k, geometry_msgs::Transform& m)
+{
+  vectorKDLToMsg(k.p, m.translation);
+  rotationKDLToMsg(k.M, m.rotation);
+}
+
+void transformMsgToKDL(const geometry_msgs::Transform& m, Frame& k)
+{
+  vectorMsgToKDL(m.translation, k.p);
+  rotationMsgToKDL(m.rotation, k.M);
 }
 }  // namespace KDL
