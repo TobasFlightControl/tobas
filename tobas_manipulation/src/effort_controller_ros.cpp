@@ -1,10 +1,8 @@
 #include <tobas_std_tools/zip.hpp>
-#include <tobas_kdl/conversion/kdl_msg.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
-
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/conversions/kdl_msg.hpp>
 
 #include "../include/tobas_manipulation/effort_controller_ros.hpp"
 #include "../include/tobas_manipulation/common.hpp"
@@ -133,13 +131,13 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   }
 
   // デカルト座標系の目標値を更新
-  Frame T_B_X, T_X_Y;
+  Frame T_Base_Parent;
   FrameMap tar_p;
   TwistMap tar_v;
   AccelMap a_ff;
   WrenchMap f_ext;
-  for (const auto& [seg_name, pose, twist, accel, wrench] : tobas_std::zip(
-         tar_cs_->name, tar_cs_->pose, tar_cs_->twist, tar_cs_->accel, tar_cs_->wrench))
+  for (const auto& [seg_name, frame, twist, accel, wrench] : tobas_std::zip(
+         tar_cs_->name, tar_cs_->frame, tar_cs_->twist, tar_cs_->accel, tar_cs_->wrench))
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_cs_->header.frame_id))
     {
@@ -147,14 +145,12 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
       continue;
     }
 
-    transformMsgToKDL(tf_listener_.getTransform().transform, T_B_X);
-    tobas::poseTobasToKDL(pose, T_X_Y);
-
-    // Xで表現された値をベースリンクで表現された値に変換
-    tar_p[seg_name] = T_B_X * T_X_Y;
-    tar_v[seg_name] = T_B_X.M * twist;
-    a_ff[seg_name] = T_B_X.M * accel;
-    f_ext[seg_name] = T_B_X.M * wrench;
+    // 親フレームで表現された値をベースリンクで表現された値に変換
+    transformMsgToKDL(tf_listener_.getTransform().transform, T_Base_Parent);
+    tar_p[seg_name] = T_Base_Parent * frame;
+    tar_v[seg_name] = T_Base_Parent.M * twist;
+    a_ff[seg_name] = T_Base_Parent.M * accel;
+    f_ext[seg_name] = T_Base_Parent.M * wrench;
   }
 
   // PIDで関節トルクを計算
@@ -224,7 +220,7 @@ void EffortControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateCons
 {
   const auto np = tar_cs->name.size();  // The number of endpoints
   if (
-    tar_cs->pose.size() != np || tar_cs->twist.size() != np || tar_cs->accel.size() != np
+    tar_cs->frame.size() != np || tar_cs->twist.size() != np || tar_cs->accel.size() != np
     || tar_cs->wrench.size() != np)
   {
     rosError(name_, "Cartesian state size mismatch.");

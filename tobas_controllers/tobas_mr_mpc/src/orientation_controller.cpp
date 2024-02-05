@@ -3,7 +3,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_linear_control/util.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
@@ -69,16 +68,21 @@ void OrientationController::updateInternalDataStructures()
 
 VectorXd OrientationController::solve(
   const double& dt,
-  const Euler& cur_rpy,
+  const Rotation& cur_rot,
   const Twist& cur_twist_B,
   const Vector& cur_wind_W,
   const JntArray& cur_q,
   const double& cur_voltage,
   const vector<double>& cur_rot_speeds,
   const double& tar_thrust,
-  const Euler& tar_rpy)
+  const Rotation& tar_rot)
 {
   assert(cur_voltage > 0);
+
+  // Rotation -> Euler
+  // FIXME: wrap_piを行う必要がある
+  const Euler cur_rpy(cur_rot);
+  const Euler tar_rpy(tar_rot);
 
   // 現在の姿勢と合計推力から，重力方向の推力を計算
   const auto thrust_z = tar_thrust * cos(cur_rpy.roll) * cos(cur_rpy.pitch);
@@ -130,13 +134,13 @@ VectorXd OrientationController::solve(
   const Vector3d dgyro_mpc = xd.block<3, 1>(kGyroIdx, 0);
 
   // 外乱補償用の微分先行型PD
-  const Vector error_B = (cur_rpy.toRotation().inverse() * tar_rpy.toRotation()).getRot();
+  const Vector error_B = (cur_rot.inverse() * tar_rot).getRot();
   const Vector dgyro_pd = kp_ * error_B - kd_ * cur_twist_B.rot;
 
   // Mixerで最終的な推力を計算
   const Vector3d dgyro_des = dgyro_mpc + dgyro_pd.data;  // FF + FB (二自由度制御)
   const Vector h_moment_raw =
-    dynamics_.horizontalMoment(cur_rpy, cur_twist_B.vel, cur_wind_W, cur_q, cur_rot_speeds);
+    dynamics_.horizontalMoment(cur_rot, cur_twist_B.vel, cur_wind_W, cur_q, cur_rot_speeds);
   const Vector h_moment_comp = h_force_comp_rate_ * h_moment_raw;
   return mixer_.solve(
     dt, cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
@@ -209,8 +213,8 @@ void OrientationController::updateCurrentState(
 
   // H-forceによるモーメントを計算
   // TODO: H-momentの時間変化を考慮
-  const Vector h_moment_raw =
-    dynamics_.horizontalMoment(cur_rpy, cur_twist_B.vel, cur_wind_W, cur_q, rot_speeds);
+  const Vector h_moment_raw = dynamics_.horizontalMoment(
+    cur_rpy.toRotation(), cur_twist_B.vel, cur_wind_W, cur_q, rot_speeds);
   const Vector h_moment_comp = h_moment_raw * h_force_comp_rate_;  // H-momentの補償分
 
   // 現在の状態を更新

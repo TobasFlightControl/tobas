@@ -2,11 +2,11 @@
 
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/x11.hpp>
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/rate.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/util.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/PositionYaw.h>
@@ -79,8 +79,8 @@ void PositionYawPublisher::run()
   tobas_msgs::Odometry odom;
   if (tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_))
   {
-    cmd_pos_ = odom.pose.pos;
-    cmd_yaw_ = odom.pose.euler.yaw;
+    cmd_pos_ = odom.frame.p;
+    cmd_yaw_ = KDL::Euler(odom.frame.M).yaw;
   }
   else
   {

@@ -1,5 +1,5 @@
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
@@ -75,7 +75,7 @@ void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // 現在の時刻と高度を履歴に追加
   const auto& cur_time = odom->header.stamp;
-  const auto& altitude = odom->pose.pos.z();
+  const auto& altitude = odom->frame.p.z();
   alt_history_.emplace_back(cur_time, altitude);
 
   // 古い履歴を削除
@@ -111,10 +111,10 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
 
   // 初期状態
   const auto start_time = ros::Time::now();
-  const auto start_x = odom_->pose.pos.x();
-  const auto start_y = odom_->pose.pos.y();
-  const auto start_z = odom_->pose.pos.z();
-  const auto start_yaw = odom_->pose.euler.yaw;
+  const auto start_x = odom_->frame.p.x();
+  const auto start_y = odom_->frame.p.y();
+  const auto start_z = odom_->frame.p.z();
+  const auto start_yaw = KDL::Euler(odom_->frame.M).yaw;
 
   // 高度チェック
   ros::Rate rate(kUpdateRate);

@@ -147,7 +147,7 @@ void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
   pkt.timestamp = odom.header.stamp.toSec();
 
   // Linear acceleration (Local)
-  const auto grav_B_nwu = odom.pose.euler.inverse(Vector(0, 0, tobas::kGravity));
+  const auto grav_B_nwu = odom.frame.M.inverse(Vector(0, 0, tobas::kGravity));
   const auto acc_B_ned = R_nwu_ned_.inverse(odom.accel.linear + grav_B_nwu);
   pkt.imuLinearAccelerationXYZ[0] = acc_B_ned.x();
   pkt.imuLinearAccelerationXYZ[1] = acc_B_ned.y();
@@ -160,13 +160,13 @@ void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
   pkt.imuAngularVelocityRPY[2] = gyro_B_ned.z();
 
   // Position (Global)
-  const auto pos_W_ned = R_nwu_ned_.inverse(odom.pose.pos);
+  const auto pos_W_ned = R_nwu_ned_.inverse(odom.frame.p);
   pkt.positionXYZ[0] = pos_W_ned.x();
   pkt.positionXYZ[1] = pos_W_ned.y();
   pkt.positionXYZ[2] = pos_W_ned.z();
 
   // Orientation (Global)
-  const auto rot_ned = R_nwu_ned_.inverse() * odom.pose.euler.toRotation() * R_nwu_ned_;
+  const auto rot_ned = R_nwu_ned_.inverse() * odom.frame.M * R_nwu_ned_;
   const Quaternion quat_ned(rot_ned);
   pkt.imuOrientationQuat[0] = quat_ned.w;
   pkt.imuOrientationQuat[1] = quat_ned.x;
@@ -174,7 +174,7 @@ void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
   pkt.imuOrientationQuat[3] = quat_ned.z;
 
   // Linear velocity (Global)
-  const auto vel_W_nwu = odom.pose.euler * odom.twist.vel;
+  const auto vel_W_nwu = odom.frame.M * odom.twist.vel;
   const auto vel_W_ned = R_nwu_ned_.inverse(vel_W_nwu);
   pkt.velocityXYZ[0] = vel_W_ned.x();
   pkt.velocityXYZ[1] = vel_W_ned.y();

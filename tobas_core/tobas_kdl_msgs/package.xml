@@ -12,4 +12,6 @@
 	<depend>message_generation</depend>
 	<depend>actionlib_msgs</depend>
 
+	<depend>tobas_kdl</depend>
+
 </package>

@@ -47,14 +47,14 @@ public:
 
   Eigen::VectorXd solve(
     const double& dt,
-    const KDL::Euler& cur_rpy,
+    const KDL::Rotation& cur_rot,
     const KDL::Twist& cur_twist_B,
     const KDL::Vector& cur_wind_W,
     const KDL::JntArray& cur_q,
     const double& cur_voltage,
     const std::vector<double>& cur_rot_speeds,
     const double& tar_thrust,
-    const KDL::Euler& tar_rpy);
+    const KDL::Rotation& tar_rot);
 
   void configure(const OrientationControllerConfig& cfg);
 

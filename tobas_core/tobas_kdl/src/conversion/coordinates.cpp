@@ -95,4 +95,53 @@ void eulerNwuToNed(Euler& arg)
 {
   eulerNwuToNed(arg, arg);
 }
+
+void rotationNedToNwu(const KDL::Rotation& src, KDL::Rotation& des)
+{
+  des.data(0, 0) = src.data(0, 0);   // xx
+  des.data(0, 1) = -src.data(0, 1);  // xy
+  des.data(0, 2) = -src.data(0, 2);  // xz
+  des.data(1, 0) = -src.data(1, 0);  // yx
+  des.data(1, 1) = src.data(1, 1);   // yy
+  des.data(1, 2) = src.data(1, 2);   // yz
+  des.data(2, 0) = -src.data(2, 0);  // zx
+  des.data(2, 1) = src.data(2, 1);   // zy
+  des.data(2, 2) = src.data(2, 2);   // zz
+}
+
+void rotationNwuToNed(const KDL::Rotation& src, KDL::Rotation& des)
+{
+  rotationNedToNwu(src, des);
+}
+
+void rotationNedToNwu(KDL::Rotation& arg)
+{
+  rotationNedToNwu(arg, arg);
+}
+
+void rotationNwuToNed(KDL::Rotation& arg)
+{
+  rotationNwuToNed(arg, arg);
+}
+
+void frameNedToNwu(const KDL::Frame& src, KDL::Frame& des)
+{
+  vectorNedToNwu(src.p, des.p);
+  rotationNedToNwu(src.M, des.M);
+}
+
+void frameNwuToNed(const KDL::Frame& src, KDL::Frame& des)
+{
+  frameNedToNwu(src, des);
+}
+
+void frameNedToNwu(KDL::Frame& arg)
+{
+  frameNedToNwu(arg, arg);
+}
+
+void frameNwuToNed(KDL::Frame& arg)
+{
+  frameNwuToNed(arg, arg);
+}
 }  // namespace KDL

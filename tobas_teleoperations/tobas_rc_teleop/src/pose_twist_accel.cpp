@@ -1,4 +1,5 @@
 #include <tobas_std_tools/math.hpp>
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
@@ -29,8 +30,8 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
   setToZero(tar_vel_);
-  tar_pos_ = odom.pose.pos;
-  tar_rpy_.yaw = odom.pose.euler.yaw;
+  tar_pos_ = odom.frame.p;
+  odom.frame.M.getRPY(tar_rpy_.roll, tar_rpy_.pitch, tar_rpy_.yaw);
 }
 
 void PoseTwistAccelController::update(
@@ -84,8 +85,8 @@ void PoseTwistAccelController::update(
   else
   {
     // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
-    tar_pos_ = odom.pose.pos;
-    tar_rpy_.yaw = odom.pose.euler.yaw;
+    tar_pos_ = odom.frame.p;
+    tar_rpy_.yaw = Euler(odom.frame.M).yaw;
 
     // 上昇コマンドが入力されたかどうかをチェック
     is_up_commanded_ = tar_vel_.z() > 0;

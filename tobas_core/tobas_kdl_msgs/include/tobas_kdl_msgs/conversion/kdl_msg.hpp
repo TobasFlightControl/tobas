@@ -4,10 +4,13 @@
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Transform.h>
 
-#include "../frames.hpp"
-#include "../quaternion.hpp"
+#include <tobas_kdl_msgs/Vector.h>
+#include <tobas_kdl_msgs/Twist.h>
+#include <tobas_kdl_msgs/Frame.h>
+#include <tobas_kdl_msgs/Quaternion.h>
 
 namespace KDL
 {
@@ -25,6 +28,9 @@ void rotationMsgToKDL(const geometry_msgs::Quaternion& m, Rotation& k);
 
 void quaternionKDLToMsg(const Quaternion& k, geometry_msgs::Quaternion& m);
 void quaternionMsgToKDL(const geometry_msgs::Quaternion& m, Quaternion& k);
+
+void poseKDLToMsg(const Frame& k, geometry_msgs::Pose& m);
+void poseMsgToKDL(const geometry_msgs::Pose& m, Frame& k);
 
 void transformKDLToMsg(const Frame& k, geometry_msgs::Transform& m);
 void transformMsgToKDL(const geometry_msgs::Transform& m, Frame& k);

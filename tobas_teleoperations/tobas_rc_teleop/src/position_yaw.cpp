@@ -1,4 +1,5 @@
 #include <tobas_std_tools/math.hpp>
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
@@ -27,8 +28,8 @@ void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh
 
 void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 {
-  pos_yaw_.pos = odom.pose.pos;
-  pos_yaw_.yaw = odom.pose.euler.yaw;
+  pos_yaw_.pos = odom.frame.p;
+  pos_yaw_.yaw = Euler(odom.frame.M).yaw;
   t_last_rcin_ = ros::Time::now();
 }
 
@@ -61,8 +62,8 @@ void PositionYawController::update(
   else
   {
     // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
-    pos_yaw_.pos = odom.pose.pos;
-    pos_yaw_.yaw = odom.pose.euler.yaw;
+    pos_yaw_.pos = odom.frame.p;
+    pos_yaw_.yaw = Euler(odom.frame.M).yaw;
 
     // 上昇コマンドが入力されたかどうかをチェック
     is_up_commanded_ = vel_.z() > 0;

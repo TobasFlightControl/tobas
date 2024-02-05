@@ -1,4 +1,5 @@
 #include <tobas_std_tools/math.hpp>
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
@@ -34,7 +35,7 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
 
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 {
-  yaw_ = odom.pose.euler.yaw;
+  yaw_ = KDL::Euler(odom.frame.M).yaw;
   t_last_rcin_ = ros::Time::now();
 }
 

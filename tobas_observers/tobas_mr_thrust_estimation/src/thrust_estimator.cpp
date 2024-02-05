@@ -64,8 +64,8 @@ void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   if (rotor_speeds_ == nullptr)
     return;
 
-  const Matrix3d R_W_B = odom->pose.euler.toRotation().data;
-  const Vector3d& acc_B = odom->accel.linear.data;
+  const auto& R_W_B = odom->frame.M.data;
+  const auto& acc_B = odom->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
 
   // 実際の推力に対するモデル推力の比率の観測値

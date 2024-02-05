@@ -49,7 +49,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  Eigen::Matrix3d velCoef(const KDL::Euler& R_W_B);
+  Eigen::Matrix3d velCoef(const KDL::Rotation& R_W_B);
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);

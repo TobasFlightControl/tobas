@@ -31,6 +31,7 @@ public:
 
 private:
   bool is_armed_ = true;
+  double roll_, pitch_, yaw_;
 
   // rosparams
   double voltage_threshold_;  // 飛行を継続できる電圧の閾値

@@ -106,20 +106,20 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
   // 位置制御器
-  const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;  // 世界座標系から見た現在の速度
+  const Vector cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
   const Vector tar_acc_fb(
-    pos_pid_.update(odom->pose.pos.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
+    pos_pid_.update(odom->frame.p.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
   const Vector tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
   const Vector tar_dgyro_fb =
-    ori_pid_.update(odom->pose.euler, odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
+    ori_pid_.update(Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
   const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキサーで6軸加速度をプロペラの推力に変換
   const VectorXd thrusts = mixer_.solve(
-    battery_->voltage, js_converter_.getPositionsKDL(), odom->pose.euler, odom->twist.rot,
-    tar_acc_W, tar_dgyro_B);
+    battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W,
+    tar_dgyro_B);
 
   // 目標回転数を発行
   const auto tar_rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
@@ -136,18 +136,18 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // 目標位置速度はコマンドそのままだが，発行されていない間も安定して描画するためにメッセージに含めている
   const auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
-  feedback->target_pose.pos = cmd_->pos;
-  feedback->target_pose.euler = cmd_->rpy;
-  feedback->target_twist_local.vel = odom->pose.euler.inverse(cmd_->vel);
+  feedback->target_position = cmd_->pos;
+  feedback->target_orientation = cmd_->rpy;
+  feedback->target_twist_local.vel = odom->frame.M.inverse(cmd_->vel);
   feedback->target_twist_local.rot = cmd_->gyro;
   feedback->target_twist_global.vel = cmd_->vel;
-  feedback->target_twist_global.rot = odom->pose.euler * cmd_->gyro;
-  feedback->target_accel_local.linear = odom->pose.euler.inverse(tar_acc_W);
+  feedback->target_twist_global.rot = odom->frame.M * cmd_->gyro;
+  feedback->target_accel_local.linear = odom->frame.M.inverse(tar_acc_W);
   feedback->target_accel_local.angular = tar_dgyro_B;
   feedback->target_accel_global.linear = tar_acc_W;
-  feedback->target_accel_global.angular = odom->pose.euler * tar_dgyro_B;
-  feedback->integral_error.pos.data = pos_pid_.integralError();
-  feedback->integral_error.euler = Euler(ori_pid_.integralError());
+  feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
+  feedback->position_integral_error.data = pos_pid_.integralError();
+  feedback->orientation_integral_error = Euler(ori_pid_.integralError());
   feedback_pub_.publish(feedback);
 }
 

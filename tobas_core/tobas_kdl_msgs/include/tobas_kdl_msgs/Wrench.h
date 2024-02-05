@@ -8,6 +8,8 @@
 
 #include <tobas_kdl/wrench.hpp>
 
+#include "./Vector.h"
+
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>

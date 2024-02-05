@@ -44,6 +44,7 @@ private:
   KDL::JntArray q_0_;
 
   bool is_initialized_ = false;
+  double cur_roll_, cur_pitch_, cur_yaw_;
   sensor_msgs::FluidPressureConstPtr air_pressure_;  // 大気圧
   tobas_msgs::BatteryConstPtr battery_;              // 現在のバッテリーの状態
   tobas_msgs::OdometryConstPtr odom_nwu_;            // 現在の状態 (NWU座標系)

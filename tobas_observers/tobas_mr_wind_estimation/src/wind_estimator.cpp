@@ -56,11 +56,11 @@ void WindEstimator::registerSubscribers()
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
-Matrix3d WindEstimator::velCoef(const Euler& R_W_B)
+Matrix3d WindEstimator::velCoef(const Rotation& R_W_B)
 {
   const auto drag_rotor_sum = dynamics_.dragRotorSum(rotor_speeds_->speeds);
-  const auto mass = dynamics_.mass();
-  const Matrix3d R_B_W = R_W_B.toRotation().inverse().data;
+  const auto& mass = dynamics_.mass();
+  const auto& R_B_W = R_W_B.inverse().data;
   return (drag_rotor_sum / mass) * E_XY * R_B_W;
 }
 
@@ -68,7 +68,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_initialized_)
   {
-    if (rotor_speeds_ != nullptr && odom->pose.pos.z() > tobas::kTakeoffAltitudeThreshold)
+    if (rotor_speeds_ != nullptr && odom->frame.p.z() > tobas::kTakeoffAltitudeThreshold)
     {
       t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
@@ -89,7 +89,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   const auto dt = (odom->header.stamp - t_last_loop_).toSec();
   t_last_loop_ = odom->header.stamp;
 
-  const Matrix3d R_W_B = odom->pose.euler.toRotation().data;
+  const Matrix3d& R_W_B = odom->frame.M.data;
   const Vector3d vel_W = R_W_B * odom->twist.vel.data;
   const Vector3d& acc_B = odom->accel.linear.data;
   const Vector3d grav_B = R_W_B.transpose() * GRAV_W;
@@ -100,7 +100,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // 2. 風速の水平成分のみを推定
   // の2つの選択肢がある．
   // 1の場合は水平成分の大きな誤差を垂直成分で説明しようとしてしまい精度が落ちるため，2を採用している．
-  const Matrix3d Cv = velCoef(odom->pose.euler);
+  const Matrix3d Cv = velCoef(odom->frame.M);
   const Matrix2d Cv_hor_inv = Cv.topLeftCorner(kStateSize, kStateSize).inverse();  // 水平成分のみ
 
   // 風速の観測値
@@ -110,7 +110,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // プロセスノイズの共分散
   const Vector2d relative_wind_vel =
     kf_.state() - odom->twist.vel.data.head(kStateSize);  // 相対風速
-  dryden_.update(relative_wind_vel.norm(), odom->pose.pos.z(), dt);
+  dryden_.update(relative_wind_vel.norm(), odom->frame.p.z(), dt);
   kf_.Q(0, 0) = tobas_std::sqr(dryden_.noiseStddevLon());
   kf_.Q(1, 1) = tobas_std::sqr(dryden_.noiseStddevLat());
 

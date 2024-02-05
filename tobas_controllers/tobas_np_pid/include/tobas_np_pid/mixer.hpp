@@ -32,7 +32,7 @@ public:
   Eigen::VectorXd solve(
     const double& cur_voltage,
     const KDL::JntArray& cur_q,
-    const KDL::Euler& cur_rpy,
+    const KDL::Rotation& cur_rot,
     const KDL::Vector& cur_gyro_B,
     const KDL::Vector& tar_acc_W,
     const KDL::Vector& tar_dgyro_B);

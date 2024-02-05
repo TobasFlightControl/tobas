@@ -133,18 +133,18 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     }
 
     // 世界座標系から見た現在の速度，加速度を計算
-    const Vector cur_vel_W = odom->pose.euler * odom->twist.vel;
-    const Vector cur_acc_W = odom->pose.euler * odom->accel.linear;
+    const Vector cur_vel_W = odom->frame.M * odom->twist.vel;
+    const Vector cur_acc_W = odom->frame.M * odom->accel.linear;
 
     // 目標加速度を計算
     pos_ctrl_.update(
-      odom->pose.pos, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
+      odom->frame.p, cur_vel_W, cur_acc_W, tar_pvay_->pos, tar_pvay_->vel, dt, tar_acc_fb_);
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb_;
 
     // 推力和と目標姿勢を計算
     acc_ctrl_.update(
-      odom->pose.euler, odom->twist.vel, wind_->vel, rotor_speeds_->speeds, tar_acc,
-      tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+      odom->frame.M, odom->twist.vel, wind_->vel, rotor_speeds_->speeds, tar_acc, tar_rpyt_->thrust,
+      tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は位置指令をそのまま流す
     tar_rpyt_->level = tar_pvay_->level;
@@ -153,9 +153,9 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     // Fill feedback
     feedback->target_position = tar_pvay_->pos;
     feedback->target_velocity_global = tar_pvay_->vel;
-    feedback->target_velocity_local = odom->pose.euler.inverse(tar_pvay_->vel);
+    feedback->target_velocity_local = odom->frame.M.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
-    feedback->target_acceleration_local = odom->pose.euler.inverse(tar_acc);
+    feedback->target_acceleration_local = odom->frame.M.inverse(tar_acc);
     feedback->position_integral_error = Vector(pos_ctrl_.positionIntegralError());
   }
 
@@ -173,8 +173,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       // stopwatch_.start();
       thrusts = ori_ctrl_.solve(
-        dt, odom->pose.euler, odom->twist, wind_->vel, js_converter_.getPositionsKDL(),
-        battery_->voltage, rotor_speeds_->speeds, tar_rpyt_->thrust, tar_rpyt_->rpy);
+        dt, odom->frame.M, odom->twist, wind_->vel, js_converter_.getPositionsKDL(),
+        battery_->voltage, rotor_speeds_->speeds, tar_rpyt_->thrust, tar_rpyt_->rpy.toRotation());
       // stopwatch_.stop();
     }
     catch (const exception& e)
@@ -249,7 +249,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   tar_pvay_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, odom_->pose.euler, *tar_pvay_))
+  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, odom_->frame.M, *tar_pvay_))
   {
     rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
     tar_pvay_ = nullptr;

@@ -1,4 +1,4 @@
-#include "../../include/tobas_kdl/conversion/kdl_msg.hpp"
+#include "../include/tobas_kdl_msgs/conversion/kdl_msg.hpp"
 
 namespace KDL
 {
@@ -66,6 +66,18 @@ void quaternionMsgToKDL(const geometry_msgs::Quaternion& m, Quaternion& k)
   k.y = m.y;
   k.z = m.z;
   k.w = m.w;
+}
+
+void poseKDLToMsg(const Frame& k, geometry_msgs::Pose& m)
+{
+  pointKDLToMsg(k.p, m.position);
+  rotationKDLToMsg(k.M, m.orientation);
+}
+
+void poseMsgToKDL(const geometry_msgs::Pose& m, Frame& k)
+{
+  pointMsgToKDL(m.position, k.p);
+  rotationMsgToKDL(m.orientation, k.M);
 }
 
 void transformKDLToMsg(const Frame& k, geometry_msgs::Transform& m)

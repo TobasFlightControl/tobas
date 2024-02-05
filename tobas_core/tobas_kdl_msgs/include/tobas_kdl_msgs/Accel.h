@@ -8,6 +8,8 @@
 
 #include <tobas_kdl/accel.hpp>
 
+#include "./Vector.h"
+
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>

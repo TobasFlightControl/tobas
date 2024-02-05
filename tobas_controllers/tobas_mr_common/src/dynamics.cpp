@@ -43,17 +43,17 @@ double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_spee
 }
 
 Vector MultirotorDynamicsComponents::relativePerpVel(
-  const Euler& rpy,
+  const Rotation& rot,
   const Vector& vel_B,
   const Vector& wind_W)
 {
   // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
-  const auto relative_vel_B = vel_B - rpy.inverse(wind_W);  // 風に対する相対速度
+  const auto relative_vel_B = vel_B - rot.inverse(wind_W);  // 風に対する相対速度
   return Vector(relative_vel_B.x(), relative_vel_B.y(), 0);
 }
 
 Vector MultirotorDynamicsComponents::horizontalForce(
-  const Euler& rpy,
+  const Rotation& rot,
   const Vector& vel_B,
   const Vector& wind_W,
   const vector<double>& rot_speeds)
@@ -61,12 +61,12 @@ Vector MultirotorDynamicsComponents::horizontalForce(
   assert(rot_speeds.size() == drone_.numRotors());
 
   const auto drag_rotor_sum = dragRotorSum(rot_speeds);
-  const auto rel_vel_perp = relativePerpVel(rpy, vel_B, wind_W);
+  const auto rel_vel_perp = relativePerpVel(rot, vel_B, wind_W);
   return -drag_rotor_sum * rel_vel_perp;
 }
 
 Vector MultirotorDynamicsComponents::horizontalMoment(
-  const Euler& rpy,
+  const Rotation& rot,
   const Vector& vel_B,
   const Vector& wind_W,
   const JntArray& q,
@@ -94,7 +94,7 @@ Vector MultirotorDynamicsComponents::horizontalMoment(
     h_momemt_arm += cd * abs(rot_speed) * P_cog_rotor;
   }
 
-  const auto vel_perp = relativePerpVel(rpy, vel_B, wind_W);
+  const auto vel_perp = relativePerpVel(rot, vel_B, wind_W);
   return -h_momemt_arm * vel_perp;
 }
 }  // namespace tobas_mr_common

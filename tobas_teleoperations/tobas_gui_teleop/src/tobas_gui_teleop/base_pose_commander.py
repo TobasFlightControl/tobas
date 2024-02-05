@@ -1,4 +1,5 @@
 import os.path as osp
+import numpy as np
 import math
 import rospy
 import rospkg
@@ -6,6 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_tools_py.geometry import euler_from_matrix
 from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 from tobas_msgs.msg import (
     PositionYaw,
@@ -174,12 +176,12 @@ class BasePoseCommander(MainWidget):
 
     def _odom_cb(self, odom: Odometry) -> None:
         # 初期コマンドを設定
-        self._cmd_x.set_value(odom.pose.pos.x)
-        self._cmd_y.set_value(odom.pose.pos.y)
-        self._cmd_z.set_value(odom.pose.pos.z + self._init_elevation)
+        self._cmd_x.set_value(odom.frame.trans.x)
+        self._cmd_y.set_value(odom.frame.trans.y)
+        self._cmd_z.set_value(odom.frame.trans.z + self._init_elevation)
         self._cmd_roll.set_value(0.0)
         self._cmd_pitch.set_value(0.0)
-        self._cmd_yaw.set_value(odom.pose.euler.yaw)
+        self._cmd_yaw.set_value(euler_from_matrix(odom.frame.rot.data)[2])
 
         # バーを有効化
         self._cmd_x.setEnabled(True)

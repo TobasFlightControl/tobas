@@ -5,11 +5,11 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/console.hpp>
-#include <tobas_kdl/conversion/kdl_msg.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/conversions/msg_msg.hpp>
@@ -96,13 +96,6 @@ void StateEstimator::initialize(const ImuMsg& imu)
     Matrix3d::Zero()                                              // Initial gravity cov
   );
 
-  // ヨー角の初期値
-  const auto& q0 = imu.orientation;
-  double roll, pitch;
-  quaternionToEuler(q0.x, q0.y, q0.z, q0.w, roll, pitch, yaw_prev_);
-
-  yaw_jump_count_ = 0;
-
   // IMUのタイムスタンプに初期化に要した時間を足した時間を最新のセンサ時間とする
   const auto duration = ros::Time::now() - start_time;
   t_last_ = imu.header.stamp + duration;
@@ -150,29 +143,18 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
   odom->header.stamp = imu.header.stamp;
   odom->header.frame_id = tobas::kWorldFrame;
 
-  // Position
-  odom->pose.pos.data = cart_filter_.getPosition();
+  // Position (Global)
+  odom->frame.p.data = cart_filter_.getPosition();
   tobas_ros::matrix3EigenToMsg(cart_filter_.getPositionCovariance(), odom->position_covariance);
 
-  // Roll, Pitch
-  const auto& q = imu.orientation;
-  auto& rpy = odom->pose.euler;
-  quaternionToEuler(q.x, q.y, q.z, q.w, rpy.roll, rpy.pitch, yaw_now_);
-
-  // Yaw
-  if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
-    --yaw_jump_count_;
-  else if (yaw_now_ - yaw_prev_ < -M_PI)  // 正方向のジャンプを検出
-    ++yaw_jump_count_;
-  yaw_prev_ = yaw_now_;
-  rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
-
+  // Orientation (Global)
+  rotationMsgToKDL(imu.orientation, odom->frame.M);
   odom->orientation_covariance.fill(nan(tobas::kUnknown));  // TODO: 相補フィルタから推定
 
   // Linear velocity (Local)
   odom->twist.vel.data = cart_filter_.getVelocity();
-  odom->twist.vel = rpy.inverse(odom->twist.vel);  // World -> Local
-  const Matrix3d R_W_B = rpy.toRotation().data;
+  odom->twist.vel = odom->frame.M.inverse(odom->twist.vel);  // World -> Local
+  const auto& R_W_B = odom->frame.M.data;
   const Matrix3d vel_cov_B = R_W_B.transpose() * cart_filter_.getVelocityCovariance() * R_W_B;
   tobas_ros::matrix3EigenToMsg(vel_cov_B, odom->linear_velocity_covariance);
 
@@ -182,7 +164,7 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
 
   // Linear acceleration (Local)
   vectorMsgToKDL(imu.linear_acceleration, odom->accel.linear);
-  odom->accel.linear += rpy.inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
+  odom->accel.linear += odom->frame.M.inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
   odom->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
   // Angular acceleration (Local)
@@ -233,7 +215,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
 
   // TFを発行
   tf_.header.stamp = odom->header.stamp;
-  tobas::transformTobasToMsg(odom->pose, tf_.transform);
+  transformKDLToMsg(odom->frame, tf_.transform);
   tf_br_.sendTransform(tf_);
 }
 

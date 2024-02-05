@@ -1,7 +1,7 @@
 #include <tobas_std_tools/trajectory.hpp>
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/util.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
@@ -110,13 +110,13 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
 
   // 軌道を生成
   tobas_std::CubicSpline traj_z(
-    start_odom_.pose.pos.z(), goal->target_altitude, goal->target_duration);
+    start_odom_.frame.p.z(), goal->target_altitude, goal->target_duration);
 
   // 初期状態
   const auto start_time = ros::Time::now();
-  const auto start_x = start_odom_.pose.pos.x();
-  const auto start_y = start_odom_.pose.pos.y();
-  const auto start_yaw = start_odom_.pose.euler.yaw;
+  const auto start_x = start_odom_.frame.p.x();
+  const auto start_y = start_odom_.frame.p.y();
+  const auto start_yaw = KDL::Euler(start_odom_.frame.M).yaw;
 
   // 軌道を発行
   ros::Rate rate(kUpdateRate);

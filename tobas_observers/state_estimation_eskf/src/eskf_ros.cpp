@@ -8,10 +8,12 @@
 #include <tobas_std_tools/debug.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/iostream.hpp>
+#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -141,12 +143,6 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
     sqr(init_grav_stddev)                                         // Init gravity var
   );
-
-  // ヨー角の初期値
-  double roll, pitch;
-  quaternionToEuler(q_0_.x(), q_0_.y(), q_0_.z(), q_0_.w(), roll, pitch, yaw_prev_);
-
-  yaw_jump_count_ = 0;
 }
 
 void ErrorStateKalmanFilterRos::setZeroPositions()
@@ -213,7 +209,7 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   odom->header.frame_id = tobas::kWorldFrame;
 
   // Position (Global): IMU frame -> Base frame
-  odom->pose.pos.data = W_Pos_WI - W_Rot_B * imu_offset_;
+  odom->frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
   tobas_ros::matrix3EigenToMsg(eskf_.getPositionCovariance(), odom->position_covariance);
 
   // Linear velocity (Local): IMU frame -> Base frame
@@ -221,19 +217,8 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
   tobas_ros::matrix3EigenToMsg(vel_cov_B, odom->linear_velocity_covariance);
 
-  // Roll, Pitch
-  auto& rpy = odom->pose.euler;
-  quaternionToEuler(
-    W_Rot_B.x(), W_Rot_B.y(), W_Rot_B.z(), W_Rot_B.w(), rpy.roll, rpy.pitch, yaw_now_);
-
-  // Yaw
-  if (yaw_now_ - yaw_prev_ > M_PI)  // 負方向のジャンプを検出
-    --yaw_jump_count_;
-  else if (yaw_now_ - yaw_prev_ < -M_PI)  // 正方向のジャンプを検出
-    ++yaw_jump_count_;
-  yaw_prev_ = yaw_now_;
-  rpy.yaw = (2 * M_PI) * yaw_jump_count_ + yaw_now_;
-
+  // Orientation (Global)
+  odom->frame.M.data = W_Rot_B.toRotationMatrix();
   tobas_ros::matrix3EigenToMsg(eskf_.getOrientationCovariance(), odom->orientation_covariance);
 
   // Angular velocity (Local)
@@ -375,12 +360,13 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 
       // TFを発行
       tf_.header.stamp = odom->header.stamp;
-      tobas::transformTobasToMsg(odom->pose, tf_.transform);
+      transformKDLToMsg(odom->frame, tf_.transform);
       tf_br_.sendTransform(tf_);
 
       // フィードバックを発行
       const auto feedback = boost::make_shared<FeedbackMsg>();
       feedback->header = imu->header;
+      feedback->rpy = KDL::Euler(odom->frame.M);
       feedback->acc_bias.data = eskf_.getAccelBias();
       feedback->gyro_bias.data = eskf_.getGyroBias();
       feedback->gravity = eskf_.getGravity();

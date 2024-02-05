@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
@@ -30,8 +31,10 @@ Vector OrientationPid::update(
 
   // 誤差を計算
   // 角軸ベクトルを使うのが正しいが，姿勢角と方位角のゲインを分けるためにオイラー角で計算する
-  const Vector ep(
-    tar_rpy.roll - cur_rpy.roll, tar_rpy.pitch - cur_rpy.pitch, tar_rpy.yaw - cur_rpy.yaw);
+  const auto roll_err = tobas_std::wrapPi(tar_rpy.roll - cur_rpy.roll);
+  const auto pitch_err = tobas_std::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
+  const auto yaw_err = tobas_std::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
+  const Vector ep(roll_err, pitch_err, yaw_err);
   const Vector gyro_error = tar_gyro - cur_gyro_lpf;
   const Vector ed(
     eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));

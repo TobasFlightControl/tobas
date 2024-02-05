@@ -1,4 +1,5 @@
 std_msgs/Header header
+tobas_kdl_msgs/Euler rpy
 tobas_kdl_msgs/Vector acc_bias
 tobas_kdl_msgs/Vector gyro_bias
 float64 gravity

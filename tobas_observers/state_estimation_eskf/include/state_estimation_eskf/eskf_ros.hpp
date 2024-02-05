@@ -69,9 +69,6 @@ private:
   bool bar_received_ = false;
   bool gps_received_ = false;
   ros::Time t_last_;
-  double yaw_now_;
-  double yaw_prev_;
-  int yaw_jump_count_;  // ヨー角の回転回数
   double gps_anormaly_score_ = 0.;
 
   Eigen::Vector3d acc_meas_;

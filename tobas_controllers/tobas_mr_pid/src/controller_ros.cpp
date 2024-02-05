@@ -122,16 +122,16 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     }
 
     // 世界座標系から見た現在の速度を計算
-    const auto cur_vel_W = odom->pose.euler * odom->twist.vel;
+    const auto cur_vel_W = odom->frame.M * odom->twist.vel;
 
     // 目標加速度を計算
     const Vector tar_acc_fb(pos_ctrl_.update(
-      odom->pose.pos.data, cur_vel_W.data, tar_pvay_->pos.data, tar_pvay_->vel.data, dt));
+      odom->frame.p.data, cur_vel_W.data, tar_pvay_->pos.data, tar_pvay_->vel.data, dt));
     const auto tar_acc = tar_pvay_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算
     acc_ctrl_.update(
-      odom->pose.euler, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+      odom->frame.M, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は加速度指令をそのまま流す
     tar_rpyt_->level = tar_pvay_->level;
@@ -140,9 +140,9 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     // Fill feedback
     feedback->target_position = tar_pvay_->pos;
     feedback->target_velocity_global = tar_pvay_->vel;
-    feedback->target_velocity_local = odom->pose.euler.inverse(tar_pvay_->vel);
+    feedback->target_velocity_local = odom->frame.M.inverse(tar_pvay_->vel);
     feedback->target_acceleration_global = tar_acc;
-    feedback->target_acceleration_local = odom->pose.euler.inverse(tar_acc);
+    feedback->target_acceleration_local = odom->frame.M.inverse(tar_acc);
     feedback->position_integral_error.data = pos_ctrl_.integralError();
   }
 
@@ -155,7 +155,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
     // 目標角加速度を計算
     const auto tar_dgyro =
-      ori_ctrl_.update(odom->pose.euler, odom->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
+      ori_ctrl_.update(Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
@@ -217,7 +217,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   tar_pvay_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, odom_->pose.euler, *tar_pvay_))
+  if (!tobas::changeFrame(tobas_msgs::FrameId::GLOBAL, odom_->frame.M, *tar_pvay_))
   {
     rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
     tar_pvay_ = nullptr;

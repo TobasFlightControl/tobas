@@ -1,10 +1,8 @@
 #include <tobas_std_tools/zip.hpp>
-#include <tobas_kdl/conversion/kdl_msg.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
-
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/conversions/kdl_msg.hpp>
 
 #include "../include/tobas_manipulation/velocity_controller_ros.hpp"
 #include "../include/tobas_manipulation/common.hpp"
@@ -123,9 +121,9 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
     return -1;
   }
 
-  Frame T_B_X, T_X_Y;
+  Frame T_Base_Parent;
   KDL::FrameMap tar_p;
-  for (const auto& [seg_name, pose] : tobas_std::zip(tar_cs_->name, tar_cs_->pose))
+  for (const auto& [seg_name, frame] : tobas_std::zip(tar_cs_->name, tar_cs_->frame))
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_cs_->header.frame_id))
     {
@@ -133,9 +131,8 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
       continue;
     }
 
-    transformMsgToKDL(tf_listener_.getTransform().transform, T_B_X);
-    tobas::poseTobasToKDL(pose, T_X_Y);
-    tar_p[seg_name] = T_B_X * T_X_Y;  // Base -> Segment tip
+    transformMsgToKDL(tf_listener_.getTransform().transform, T_Base_Parent);
+    tar_p[seg_name] = T_Base_Parent * frame;  // Base -> Segment tip
   }
 
   // 目標関節速度を計算
@@ -202,7 +199,7 @@ void VelocityControllerRos::targetJointStateCb(const sensor_msgs::JointStateCons
 
 void VelocityControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
 {
-  if (tar_cs->name.size() != tar_cs->pose.size())
+  if (tar_cs->name.size() != tar_cs->frame.size())
   {
     rosError(name_, "Cartesian state size mismatch.");
     return;

@@ -158,14 +158,15 @@ void Controller::setInputRateConstraint()
 void Controller::updateCurrentStateVector()
 {
   const auto& trim = eom_.trimCondition();
+  odom_ned_.frame.M.getRPY(cur_roll_, cur_pitch_, cur_yaw_);
 
   // TODO: 横系のトリムも考慮
   mpc_.current_state(eom_.kStateIdx_u) = odom_ned_.twist.vel.x() - trim.u();
   mpc_.current_state(eom_.kStateIdx_alpha) =
     tobas::angleOfAttack(odom_ned_.twist.vel) - trim.alpha();
   mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_ned_.twist.vel);
-  mpc_.current_state(eom_.kStateIdx_phi) = odom_ned_.pose.euler.roll;
-  mpc_.current_state(eom_.kStateIdx_theta) = odom_ned_.pose.euler.pitch - trim.theta();
+  mpc_.current_state(eom_.kStateIdx_phi) = cur_roll_;
+  mpc_.current_state(eom_.kStateIdx_theta) = cur_pitch_ - trim.theta();
   mpc_.current_state(eom_.kStateIdx_p) = odom_ned_.twist.rot.x();
   mpc_.current_state(eom_.kStateIdx_q) = odom_ned_.twist.rot.y();
   mpc_.current_state(eom_.kStateIdx_r) = odom_ned_.twist.rot.z();
@@ -270,7 +271,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
     return;
 
   // NWU -> NED
-  tf::baseStateNwuToNed(*odom_nwu_, odom_ned_);
+  tf::odometryNwuToNed(*odom_nwu_, odom_ned_);
   tf::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
 
   // 状態方程式を更新

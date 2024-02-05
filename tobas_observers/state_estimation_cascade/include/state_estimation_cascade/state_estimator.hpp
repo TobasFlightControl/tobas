@@ -56,9 +56,6 @@ private:
   Eigen::Quaterniond quat_;  // 推定された姿勢
   Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
   Eigen::Vector3d a_m_;      // 加速度の観測値 (local)
-  double yaw_now_;
-  double yaw_prev_;
-  int yaw_jump_count_;  // ヨー角の回転回数
 
   CartesianFilter cart_filter_;
 

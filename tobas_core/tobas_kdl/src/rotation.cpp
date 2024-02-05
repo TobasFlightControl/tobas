@@ -7,15 +7,24 @@ namespace KDL
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  double x2, y2, z2, w2;
-  x2 = x * x;
-  y2 = y * y;
-  z2 = z * z;
-  w2 = w * w;
+  assert(tobas_std::isClose(sqr(x) + sqr(y) + sqr(z) + sqr(w), 1));
+
+  const auto tx = 2 * x;
+  const auto ty = 2 * y;
+  const auto tz = 2 * z;
+  const auto twx = tx * w;
+  const auto twy = ty * w;
+  const auto twz = tz * w;
+  const auto txx = tx * x;
+  const auto txy = ty * x;
+  const auto txz = tz * x;
+  const auto tyy = ty * y;
+  const auto tyz = tz * y;
+  const auto tzz = tz * z;
+
   return Rotation(
-    w2 + x2 - y2 - z2, 2 * x * y - 2 * w * z, 2 * x * z + 2 * w * y, 2 * x * y + 2 * w * z,
-    w2 - x2 + y2 - z2, 2 * y * z - 2 * w * x, 2 * x * z - 2 * w * y, 2 * y * z + 2 * w * x,
-    w2 - x2 - y2 + z2);
+    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy,
+    tyz + twx, 1 - (txx + tyy));
 }
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
@@ -73,7 +82,6 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
     sa1 * sb1 * sc1 + ca1 * cc1, sa1 * sb1 * cc1 - ca1 * sc1, -sb1, cb1 * sc1, cb1 * cc1);
 }
 
-// Gives back a rotation matrix specified with RPY convention
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
   constexpr double epsilon = 1E-12;
@@ -86,7 +94,7 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
   else
   {
     roll = atan2(data(2, 1), data(2, 2));
-    yaw = atan2(data(1, 0), data(0, 1));
+    yaw = atan2(data(1, 0), data(0, 0));
   }
 }
 

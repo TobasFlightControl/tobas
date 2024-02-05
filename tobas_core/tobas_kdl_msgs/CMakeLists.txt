@@ -12,11 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_kdl
 	message_generation
 	actionlib_msgs
 )
-
-# catkin_python_setup()
 
 file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
 add_message_files(FILES ${MSG_FILES})
@@ -29,37 +28,22 @@ generate_messages(DEPENDENCIES
 	actionlib_msgs
 )
 
-# generate_dynamic_reconfigure_options(cfg/RenameMe.cfg)
-
 catkin_package(
 	INCLUDE_DIRS include
-# 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-# 	CATKIN_DEPENDS
-# 	DEPENDS
+	LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_kdl message_generation actionlib_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
 
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-# add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
-# add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
-# target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
-
-# file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-# foreach(FILE IN LISTS EXE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-# 	add_executable(${NODE_NAME} ${FILE})
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-# endforeach()
-
-# install(TARGETS ${PROJECT_NAME}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
 install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})

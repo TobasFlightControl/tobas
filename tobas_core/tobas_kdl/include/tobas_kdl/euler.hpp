@@ -21,6 +21,7 @@ public:
   inline explicit Euler();
   inline explicit Euler(const double& roll, const double& pitch, const double& yaw);
   inline explicit Euler(const Vector& rpy);
+  inline explicit Euler(const Rotation& rot);
 
   inline Vector toVector() const;
   inline Rotation toRotation() const;
@@ -49,6 +50,11 @@ inline Euler::Euler(const double& roll, const double& pitch, const double& yaw)
 
 inline Euler::Euler(const Vector& rpy) : roll(rpy.x()), pitch(rpy.y()), yaw(rpy.z())
 {
+}
+
+inline Euler::Euler(const Rotation& rot)
+{
+  rot.getRPY(roll, pitch, yaw);
 }
 
 inline Vector Euler::toVector() const

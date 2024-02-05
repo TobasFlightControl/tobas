@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tobas_kdl/euler.hpp>
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
@@ -34,18 +33,18 @@ public:
 
   /* 機体の風に対する相対速度のプロペラに対する水平成分を求める．機体座標系ではZ成分のみ0としたベクトルに等しい．*/
   KDL::Vector
-  relativePerpVel(const KDL::Euler& rpy, const KDL::Vector& vel_B, const KDL::Vector& wind_W);
+  relativePerpVel(const KDL::Rotation& rot, const KDL::Vector& vel_B, const KDL::Vector& wind_W);
 
   /* 機体座標系から見たH-force */
   KDL::Vector horizontalForce(
-    const KDL::Euler& rpy,
+    const KDL::Rotation& rot,
     const KDL::Vector& vel_B,
     const KDL::Vector& wind_W,
     const std::vector<double>& rot_speeds);
 
   /* 機体座標系から見たH-forceによるモーメント (memo: 2-34) */
   KDL::Vector horizontalMoment(
-    const KDL::Euler& rpy,
+    const KDL::Rotation& rot,
     const KDL::Vector& vel_B,
     const KDL::Vector& wind_W,
     const KDL::JntArray& q,

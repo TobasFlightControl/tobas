@@ -123,8 +123,8 @@ void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  const auto& euler = odom->pose.euler;
-  if (max(abs(euler.roll), abs(euler.pitch)) > kAttitudeThreshold)
+  odom->frame.M.getRPY(roll_, pitch_, yaw_);
+  if (max(abs(roll_), abs(pitch_)) > kAttitudeThreshold)
   {
     rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();
