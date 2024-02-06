@@ -12,7 +12,4 @@
   }
 
 /* A macro that throws an exception along with the node name. */
-#define ROS_THROW_NAMED(name, msg)                                                                 \
-  {                                                                                                \
-    ROS_THROW("[" << name << "] " << msg);                                                         \
-  }
+#define ROS_THROW_NAMED(name, msg) ROS_THROW("[" << name << "] " << msg)

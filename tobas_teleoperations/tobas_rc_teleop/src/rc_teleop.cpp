@@ -41,33 +41,19 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   for (const auto& mode_name : mode_names_)
   {
     if (mode_name == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
-    {
       controllers_.push_back(make_unique<PosVelAccYawController>(drone_));
-    }
     else if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
-    {
       controllers_.push_back(make_unique<PositionYawController>(drone_));
-    }
     else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
-    {
       controllers_.push_back(make_unique<VelocityYawController>(drone_));
-    }
     else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
-    {
       controllers_.push_back(make_unique<RollPitchYawThrustController>(drone_));
-    }
     else if (mode_name == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
-    {
       controllers_.push_back(make_unique<PoseTwistAccelController>(drone_));
-    }
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
-    {
       controllers_.push_back(make_unique<SpeedRollDeltaPitchController>(drone_));
-    }
     else
-    {
       ROS_THROW_NAMED(name_, "Invalid flight mode: " + mode_name);
-    }
   }
 
   for (const auto& ctrl : controllers_)
