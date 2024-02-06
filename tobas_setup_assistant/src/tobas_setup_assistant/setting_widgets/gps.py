@@ -85,7 +85,7 @@ class GpsWidget(BaseSettingWidget):
             horizontal_vel_std_description,
             decimals=2,
             minimum=0.0,
-            default=0.3,
+            default=0.1,
             suffix=" m/s",
         )
         self._rows.addWidget(self.horizontal_vel_std)
@@ -96,7 +96,7 @@ class GpsWidget(BaseSettingWidget):
             vertical_vel_std_description,
             decimals=2,
             minimum=0.0,
-            default=0.3,
+            default=0.1,
             suffix=" m/s",
         )
         self._rows.addWidget(self.vertical_vel_std)
