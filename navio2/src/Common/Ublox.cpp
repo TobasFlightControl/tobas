@@ -237,6 +237,10 @@ uint16_t Ublox::update()
 
     // Scanner checks the message structure with every byte received
     status = scanner_->update(from_gps_data);
+
+    // 開始信号を確認するまでは，計算量を削減するためスリープ
+    if (status == UBXScanner::Sync1)
+      usleep(1000);
   }
 
   scanner_->reset();
