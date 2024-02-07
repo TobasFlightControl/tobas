@@ -22,7 +22,8 @@ GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kMainTimerRate, &self::mainTimerCb, this);
+  // Start main timer with maximum rate
+  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
 }
 
 void GpsHandler::getRosParams()
@@ -79,9 +80,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
     case Ublox::NAV_PVT:
     {
       if (!cov_received_)
-      {
         break;
-      }
 
       gps_.decode(pvt_);
       // cout << pvt_ << endl;
@@ -143,9 +142,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_.decode(cov_);
 
       if (!cov_received_)
-      {
         cov_received_ = true;
-      }
 
       break;
     }
