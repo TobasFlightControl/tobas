@@ -1,4 +1,5 @@
 #include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_quadprog/utils.hpp>
 
 #include "../include/tobas_kdl/treeiksolveracc_rac.hpp"
 
@@ -8,7 +9,7 @@ using namespace Eigen;
 namespace KDL
 {
 TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
-  : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_)
+  : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
 {
   updateInternalDataStructures();
 }
@@ -19,6 +20,11 @@ void TreeIkSolverAcc_RAC::updateInternalDataStructures()
 
   jnt2jac_.updateInternalDataStructures();
   jnt2jdqd_.updateInternalDataStructures();
+  jntparser_.updateInternalDataStructures();
+
+  qp_solver_.x_scale = VectorXd::Ones(nj_);
+  qp_solver_.problem.G.conservativeResize(0, nj_);
+  qp_solver_.problem.h.conservativeResize(0);
 }
 
 int TreeIkSolverAcc_RAC::CartToJnt(
@@ -57,10 +63,29 @@ int TreeIkSolverAcc_RAC::CartToJnt(
     ++i;
   }
 
-  // 最小二乗解を計算
+  // 評価関数
   const VectorXd Wt = eigen_tools::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
-  qdd_out_.data = eigen_tools::minimizeWeightedNorm<double, Dynamic, Dynamic>(J, a, Wt, Wj);
+  const MatrixXd JT_Wt = J.transpose() * Wt.asDiagonal();
+  qp_solver_.problem.P = JT_Wt * J;
+  qp_solver_.problem.P.diagonal() += Wj;
+  qp_solver_.problem.q = -JT_Wt * a;
+
+  // 不等式制約
+  VectorXd qdd_min = VectorXd::Constant(nj_, numeric_limits<double>::lowest());
+  VectorXd qdd_max = VectorXd::Constant(nj_, numeric_limits<double>::max());
+  for (size_t j = 0; j < nj_; ++j)
+  {
+    // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
+    if (q_in(j) < jntparser_.lowerLimit(j))
+      qdd_min(j) = 0.;
+    else if (q_in(j) > jntparser_.upperLimit(j))
+      qdd_max(j) = 0.;
+  }
+  quadprog::matIneqFromRange(qdd_min, qdd_max, qp_solver_.problem.A, qp_solver_.problem.b);
+
+  // QPを解く
+  qdd_out_.data = qp_solver_.solve();
 
   return setDefaultError(E_NOERROR);
 }

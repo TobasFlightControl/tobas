@@ -1,8 +1,11 @@
 #pragma once
 
+#include <tobas_quadprog/dual_active_set.hpp>
+
 #include "./treeiksolver.hpp"
 #include "./treejnttojacsolver.hpp"
 #include "./treejnttojacaccsolver.hpp"
+#include "./treejntparser.hpp"
 
 namespace KDL
 {
@@ -26,8 +29,11 @@ public:
 private:
   TreeJntToJacSolver jnt2jac_;
   TreeJntToJacAccSolver jnt2jdqd_;
+  TreeJointParser jntparser_;
 
   Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(kDefaultWeightTS);  // Task space weight
   double Wj_ = kDefaultWeightJS;                                      // Joint space weight
+
+  quadprog::DualActiveSetSolver qp_solver_;
 };
 }  // namespace KDL
