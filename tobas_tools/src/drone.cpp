@@ -39,14 +39,6 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
   is_loaded_ = true;
 }
 
-vector<string> Drone::postureDefiningJointNames() const
-{
-  vector<string> res;
-  for (const auto& joint : joints_)
-    res.push_back(joint.name);
-  return res;
-}
-
 double Drone::maxRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const
 {
   return min(rotors_.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, battery_voltage));
@@ -142,37 +134,37 @@ void Drone::getJointConfigs(ros::NodeHandle& nh)
   size_t num_joints;
   tobas_ros::getParam(nh, "num_joints", num_joints);
 
-  for (size_t joint_idx = 0; joint_idx < num_joints; ++joint_idx)
-    joints_.push_back(getJointConfig(nh, joint_idx));
+  for (size_t jnt_idx = 0; jnt_idx < num_joints; ++jnt_idx)
+    getJointConfig(nh, jnt_idx);
 }
 
-JointConfig Drone::getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx)
+void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
 {
-  TOBAS_DEBUG("Drone::getJointConfigs(" << joint_idx << ")");
+  TOBAS_DEBUG("Drone::getJointConfigs(" << jnt_idx << ")");
 
-  const string prefix = "joint_" + to_string(joint_idx);
-  JointConfig res;
+  const string prefix = "joint_" + to_string(jnt_idx);
+  string name;
+  JointConfig cfg;
 
-  tobas_ros::getParam(nh, prefix + "/name", res.name);
-
-  tobas_ros::getParam(nh, prefix + "/home_position", res.home_pos);
-  tobas_ros::getParam(nh, prefix + "/min_position", res.min_pos);
-  tobas_ros::getParam(nh, prefix + "/max_position", res.max_pos);
-  if (!(res.min_pos <= res.home_pos && res.home_pos <= res.max_pos))
-    ROS_THROW("Invalid value for joint '" << res.name << "'.");
+  tobas_ros::getParam(nh, prefix + "/name", name);
+  tobas_ros::getParam(nh, prefix + "/home_position", cfg.home_pos);
+  tobas_ros::getParam(nh, prefix + "/min_position", cfg.min_pos);
+  tobas_ros::getParam(nh, prefix + "/max_position", cfg.max_pos);
+  if (!(cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos))
+    ROS_THROW("Invalid value for joint '" << name << "'.");
 
   string cmd_type;
   tobas_ros::getParam(nh, prefix + "/command_type", cmd_type);
   if (cmd_type == "position")
-    res.cmd_type = JointConfig::POSITION;
+    cfg.cmd_type = JointConfig::POSITION;
   else if (cmd_type == "velocity")
-    res.cmd_type = JointConfig::VELOCITY;
+    cfg.cmd_type = JointConfig::VELOCITY;
   else if (cmd_type == "effort")
-    res.cmd_type = JointConfig::EFFORT;
+    cfg.cmd_type = JointConfig::EFFORT;
   else
     ROS_THROW("Invalid command type: " << cmd_type);
 
-  return res;
+  joint_map_[name] = cfg;
 }
 
 void Drone::getRotorConfigs(ros::NodeHandle& nh)

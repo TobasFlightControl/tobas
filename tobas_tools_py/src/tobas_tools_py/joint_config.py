@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import List
+from typing import OrderedDict
 
 
 class JointCommandType(Enum):
@@ -18,4 +18,4 @@ class JointConfig:
     cmd_type: JointCommandType = JointCommandType.POSITION
 
 
-JointConfigs = List[JointConfig]
+JointConfigMap = OrderedDict[str, JointConfig]

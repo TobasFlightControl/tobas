@@ -23,8 +23,8 @@ public:
   void loadFromParam(ros::NodeHandle& nh);
 
   inline const KDL::Tree& tree() const;
-  inline const JointConfigs& jointConfigs() const;
-  inline const JointConfig& jointConfig(const size_t& joint_idx) const;
+  inline const JointConfigMap& jointConfigMap() const;
+  inline const JointConfig& jointConfig(const std::string& jnt_name) const;
   inline const RotorConfigs& rotorConfigs() const;
   inline const RotorConfig& rotorConfig(const size_t& rotor_idx) const;
   inline const FixedWingConfig& fixedWing() const;
@@ -43,8 +43,6 @@ public:
 
   /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
   inline double erpmFromRotSpeed(const size_t& rotor_idx, const double& rot_speed);
-
-  std::vector<std::string> postureDefiningJointNames() const;
 
   /* 与えられたバッテリー電圧で出力できる最大回転数．*/
   double maxRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const;
@@ -91,7 +89,7 @@ public:
 private:
   KDL::Tree tree_;
 
-  JointConfigs joints_;  // プロペラ，舵面以外の可動関節
+  JointConfigMap joint_map_;  // プロペラ，舵面以外の可動関節
   RotorConfigs rotors_;
   FixedWingConfig fixed_wing_;
 
@@ -100,7 +98,7 @@ private:
   bool is_loaded_ = false;
 
   void getJointConfigs(ros::NodeHandle& nh);
-  JointConfig getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx);
+  void getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx);
 
   void getRotorConfigs(ros::NodeHandle& nh);
   RotorConfig getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx);
@@ -117,14 +115,14 @@ inline const KDL::Tree& Drone::tree() const
   return tree_;
 }
 
-inline const JointConfigs& Drone::jointConfigs() const
+inline const JointConfigMap& Drone::jointConfigMap() const
 {
-  return joints_;
+  return joint_map_;
 }
 
-inline const JointConfig& Drone::jointConfig(const size_t& joint_idx) const
+inline const JointConfig& Drone::jointConfig(const std::string& jnt_name) const
 {
-  return joints_.at(joint_idx);
+  return joint_map_.at(jnt_name);
 }
 
 inline const RotorConfigs& Drone::rotorConfigs() const
@@ -179,7 +177,7 @@ inline const bool& Drone::isLoaded() const
 
 inline bool Drone::isTransformable() const
 {
-  return joints_.size() > 0;
+  return joint_map_.size() > 0;
 }
 
 inline size_t Drone::numRotors() const

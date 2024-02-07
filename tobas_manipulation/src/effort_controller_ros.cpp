@@ -36,12 +36,12 @@ EffortControllerRos::EffortControllerRos(
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
 
   // 力指令タイプの関節のホームポジションを取得
-  for (const auto& joint : drone_.jointConfigs())
+  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
   {
-    if (joint.cmd_type != tobas::JointConfig::EFFORT)
+    if (jnt_cfg.cmd_type != tobas::JointConfig::EFFORT)
       continue;
-    home_js_.name.push_back(joint.name);
-    home_js_.position.push_back(joint.home_pos);
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
     home_js_.velocity.push_back(0.);
     home_js_.effort.push_back(0.);
   }

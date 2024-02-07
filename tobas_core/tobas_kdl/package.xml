@@ -16,5 +16,6 @@
 
 	<depend>tobas_std_tools</depend>
 	<depend>tobas_eigen_tools</depend>
+	<depend>tobas_quadprog</depend>
 
 </package>

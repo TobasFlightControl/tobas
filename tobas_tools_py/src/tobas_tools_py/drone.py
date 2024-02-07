@@ -9,13 +9,13 @@ from .fixed_wing_tools import *
 
 @dataclass
 class Drone:
-    joints: JointConfigs = field(default_factory=list)
+    joint_map: JointConfigMap = field(default_factory=list)
     rotors: RotorConfigs = field(default_factory=list)
     fixed_wing: FixedWingConfig = FixedWingConfig()
     has_fixed_wing: bool = False
     is_loaded: bool = False
 
-    def load_from_param(self):
+    def load_from_param(self) -> None:
         self._get_joint_configs()
         self._get_rotor_configs()
 
@@ -25,35 +25,37 @@ class Drone:
 
         self.is_loaded = True
 
-    def _get_joint_configs(self):
+    def _get_joint_configs(self) -> None:
         num_joints = rospy.get_param("num_joints")
         for joint_idx in range(num_joints):
-            self.joints.append(self._get_joint_config(joint_idx))
+            self._get_joint_config(joint_idx)
 
-    def _get_joint_config(self, joint_idx: int) -> JointConfig:
+    def _get_joint_config(self, joint_idx: int) -> None:
         prefix = f"joint_{joint_idx}"
-        res = JointConfig()
+        cfg = JointConfig()
 
-        res.name = rospy.get_param(f"{prefix}/name")
+        name = rospy.get_param(f"{prefix}/name")
 
-        res.home_pos = rospy.get_param(f"{prefix}/home_position")
-        res.min_pos = rospy.get_param(f"{prefix}/min_position")
-        res.max_pos = rospy.get_param(f"{prefix}/max_position")
-        assert res.min_pos <= res.home_pos <= res.max_pos
+        cfg.home_pos = rospy.get_param(f"{prefix}/home_position")
+        cfg.min_pos = rospy.get_param(f"{prefix}/min_position")
+        cfg.max_pos = rospy.get_param(f"{prefix}/max_position")
+        assert cfg.min_pos <= cfg.home_pos <= cfg.max_pos
 
         cmd_type = rospy.get_param(f"{prefix}/command_type")
         if cmd_type == JointCommandType.POSITION.value:
-            res.cmd_type = JointCommandType.POSITION
+            cfg.cmd_type = JointCommandType.POSITION
         elif cmd_type == JointCommandType.VELOCITY.value:
-            res.cmd_type = JointCommandType.VELOCITY
+            cfg.cmd_type = JointCommandType.VELOCITY
         elif cmd_type == JointCommandType.EFFORT.value:
-            res.cmd_type = JointCommandType.EFFORT
+            cfg.cmd_type = JointCommandType.EFFORT
         else:
             raise RuntimeError(f"Invalid command type: {cmd_type}")
 
-        return res
+        self.joint_map[name] = cfg
 
-    def _get_rotor_configs(self):
+        return cfg
+
+    def _get_rotor_configs(self) -> None:
         num_rotors = rospy.get_param("num_rotors")
         for rotor_idx in range(num_rotors):
             self.rotors.append(self._get_rotor_config(rotor_idx))
@@ -118,5 +120,5 @@ class Drone:
 
         return res
 
-    def _get_fixed_wing_config(self):
+    def _get_fixed_wing_config(self) -> None:
         raise NotImplementedError()  # TODO

@@ -1,13 +1,12 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <map>
 
 namespace tobas
 {
 struct JointConfig
 {
-  std::string name;
   double home_pos;
   double min_pos;
   double max_pos;
@@ -20,5 +19,5 @@ struct JointConfig
   } cmd_type;
 };
 
-using JointConfigs = std::vector<JointConfig>;
+using JointConfigMap = std::map<std::string, JointConfig>;
 }  // namespace tobas

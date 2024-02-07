@@ -1,12 +1,54 @@
 #include <QuadProg++/QuadProg++.hh>
 
 #include "../include/tobas_quadprog/quadprogpp.hpp"
-#include "../include/tobas_quadprog/utilities/qp_eigen.hpp"
 
 #define F_VALUE_THRESHOLD 1e+10
 
 using namespace std;
 using namespace Eigen;
+
+namespace quadprogpp
+{
+void matrixEigenToQp(const MatrixXd& e, Matrix<double>& q)
+{
+  if (q.nrows() != e.rows() || q.ncols() != e.cols())
+    q.resize(e.rows(), e.cols());
+
+  for (size_t i = 0; i < e.rows(); ++i)
+    for (size_t j = 0; j < e.cols(); ++j)
+      q[i][j] = e(i, j);
+}
+
+void matrixQpToEigen(const Matrix<double>& q, MatrixXd& e)
+{
+  // Eigenは安易にresizeできないため，引数の時点でサイズが合っていることを確認する
+  assert(e.rows() == q.nrows() && e.cols() == q.ncols());
+
+  for (size_t i = 0; i < e.rows(); ++i)
+    for (size_t j = 0; j < e.cols(); ++j)
+      e(i, j) = q[i][j];
+}
+
+void vectorEigenToQp(const VectorXd& e, Vector<double>& q)
+{
+  assert(e.cols() == 1);
+
+  if (q.size() != e.size())
+    q.resize(e.rows());
+
+  for (size_t i = 0; i < e.rows(); ++i)
+    q[i] = e(i);
+}
+
+void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
+{
+  assert(e.rows() == q.size());
+  assert(e.cols() == 1);
+
+  for (size_t i = 0; i < e.rows(); ++i)
+    e(i) = q[i];
+}
+}  // namespace quadprogpp
 
 namespace quadprog
 {
@@ -14,7 +56,7 @@ QuadProgppSolver::QuadProgppSolver() : super()
 {
 }
 
-Eigen::VectorXd QuadProgppSolver::solve()
+VectorXd QuadProgppSolver::solve()
 {
   checkProblemValidity();
 

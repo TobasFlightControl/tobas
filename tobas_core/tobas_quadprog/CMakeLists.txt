@@ -25,6 +25,7 @@ include_directories(${catkin_INCLUDE_DIRS} include)
 
 # Library
 set(LIB_CPP_FILES
+	src/utils.cpp
 	src/qpsolver.cpp
 	src/dual_active_set.cpp
 	src/primal_dual_interior_point.cpp

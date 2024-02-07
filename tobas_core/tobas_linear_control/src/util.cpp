@@ -84,9 +84,7 @@ LinearEquation matIneqFromRange(const VectorXd& lb, const VectorXd& ub, const do
   for (int i = 0; i < size * 2; ++i)
   {
     if (!is_valid(i))
-    {
       continue;
-    }
     res.A.block(row, 0, 1, size) = left.row(i);
     res.b(row) = right(i);
     ++row;

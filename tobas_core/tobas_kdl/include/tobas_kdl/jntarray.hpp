@@ -34,6 +34,8 @@ public:
   inline JntArray& operator*=(const double& rhs);
   inline JntArray& operator/=(const double& rhs);
 
+  inline friend JntArray operator+(const JntArray& arg);
+  inline friend JntArray operator-(const JntArray& arg);
   inline friend JntArray operator*(const double& lhs, const JntArray& rhs);
 
   inline void setZero();
@@ -135,6 +137,16 @@ inline JntArray& JntArray::operator/=(const double& rhs)
   assert(rhs != 0);
   data /= rhs;
   return *this;
+}
+
+inline JntArray operator+(const JntArray& arg)
+{
+  return arg;
+}
+
+inline JntArray operator-(const JntArray& arg)
+{
+  return JntArray(-arg.data);
 }
 
 inline JntArray operator*(const double& lhs, const JntArray& rhs)

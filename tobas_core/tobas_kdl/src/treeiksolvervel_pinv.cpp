@@ -1,21 +1,36 @@
+#include <iostream>
+
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_quadprog/utils.hpp>
 
 #include "../include/tobas_kdl/treeiksolvervel_pinv.hpp"
+
+#define INF numeric_limits<double>::max()
 
 using namespace std;
 using namespace Eigen;
 
 namespace KDL
 {
-TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2jac_(tree_)
+TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree)
+  : super(tree), jnt2jac_(tree_), jntparser_(tree_)
 {
+  updateInternalDataStructures();
 }
 
 void TreeIkSolverVel_pinv::updateInternalDataStructures()
 {
   super::updateInternalDataStructures();
   jnt2jac_.updateInternalDataStructures();
+  jntparser_.updateInternalDataStructures();
+
+  qp_solver_.x_scale = VectorXd::Ones(nj_);
+  qp_solver_.problem.G.conservativeResize(0, nj_);
+  qp_solver_.problem.h.conservativeResize(0);
+
+  qd_min_.resize(nj_);
+  qd_max_.resize(nj_);
 }
 
 int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
@@ -46,10 +61,29 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
     ++i;
   }
 
-  // 最小二乗解を計算
+  // 評価関数
   const VectorXd Wt = eigen_tools::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
-  qd_out_.data = eigen_tools::minimizeWeightedNorm<double, Dynamic, Dynamic>(J, t, Wt, Wj);
+  const MatrixXd JT_Wt = J.transpose() * Wt.asDiagonal();
+  qp_solver_.problem.P = JT_Wt * J;
+  qp_solver_.problem.P.diagonal() += Wj;
+  qp_solver_.problem.q = -JT_Wt * t;
+
+  // 不等式制約
+  auto qd_min = -jntparser_.maxVelocities();
+  auto qd_max = +jntparser_.maxVelocities();
+  for (size_t j = 0; j < nj_; ++j)
+  {
+    // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
+    if (q_in(j) < jntparser_.lowerLimit(j))
+      qd_min(j) = 0.;
+    else if (q_in(j) > jntparser_.upperLimit(j))
+      qd_max(j) = 0.;
+  }
+  quadprog::matIneqFromRange(qd_min.data, qd_max.data, qp_solver_.problem.A, qp_solver_.problem.b);
+
+  // QPを解く
+  qd_out_.data = qp_solver_.solve();
 
   return setDefaultError(E_NOERROR);
 }

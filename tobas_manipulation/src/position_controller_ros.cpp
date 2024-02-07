@@ -22,12 +22,12 @@ PositionControllerRos::PositionControllerRos(
   drone_.loadFromParam(nh_);
 
   // 位置指令タイプの関節のホームポジションを取得
-  for (const auto& joint : drone_.jointConfigs())
+  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
   {
-    if (joint.cmd_type != tobas::JointConfig::POSITION)
+    if (jnt_cfg.cmd_type != tobas::JointConfig::POSITION)
       continue;
-    home_js_.name.push_back(joint.name);
-    home_js_.position.push_back(joint.home_pos);
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
     home_js_.velocity.push_back(0.);
     home_js_.effort.push_back(0.);
   }
@@ -68,7 +68,7 @@ int PositionControllerRos::jointSpaceControl(tobas_msgs::JointPositions& positio
   return 0;
 }
 
-int PositionControllerRos::taskSpaceControl(tobas_msgs::JointPositions& positions_msg)
+int PositionControllerRos::taskSpaceControl(tobas_msgs::JointPositions&)
 {
   rosError(name_, "Task space control of joint position controller is not implemented.");  // TODO
 

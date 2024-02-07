@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_quadprog
 	tobas_eigen_tools
 	tobas_std_tools
 	urdf
@@ -23,7 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_eigen_tools tobas_std_tools urdf roscpp geometry_msgs sensor_msgs
+	CATKIN_DEPENDS tobas_quadprog tobas_eigen_tools tobas_std_tools urdf roscpp geometry_msgs sensor_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

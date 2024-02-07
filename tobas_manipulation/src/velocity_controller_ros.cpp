@@ -34,12 +34,12 @@ VelocityControllerRos::VelocityControllerRos(
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
 
   // 速度指令タイプの関節のホームポジションを取得
-  for (const auto& joint : drone_.jointConfigs())
+  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
   {
-    if (joint.cmd_type != tobas::JointConfig::VELOCITY)
+    if (jnt_cfg.cmd_type != tobas::JointConfig::VELOCITY)
       continue;
-    home_js_.name.push_back(joint.name);
-    home_js_.position.push_back(joint.home_pos);
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
     home_js_.velocity.push_back(0.);
     home_js_.effort.push_back(0.);
   }
@@ -95,6 +95,8 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& veloci
   const auto& tar_q = tar_js_conv_.getPositionsKDL();
   const auto gain = 1 / jnt_time_const_;
   const auto velocities = gain * (tar_q - cur_q);
+
+  // TODO: 関節角制限を考慮し，制限に違反する速度を出さない
 
   // JntArray -> JointState
   if (tar_js_conv_.jntArrayToJointState(jntarraynull_, velocities, jntarraynull_, tar_js_->name) < 0)
