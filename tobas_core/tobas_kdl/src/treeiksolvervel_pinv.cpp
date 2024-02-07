@@ -41,19 +41,19 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   const auto eq_dim = 6 * num_points;
 
   // Create big jacobian and velocity
-  MatrixXd J(eq_dim, nj_);
-  VectorXd t(eq_dim);
+  J_.conservativeResize(eq_dim, nj_);
+  t_.conservativeResize(eq_dim);
   size_t i = 0;
   for (const auto& [seg_name, twist] : v_in)
   {
     // Update big jacobian
     if (jnt2jac_.JntToJac(q_in, seg_name) < 0)
       return copyError(jnt2jac_);
-    J.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
+    J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
 
     // Update big velocity
-    t.segment(6 * i, 3) = twist.vel.data;
-    t.segment(6 * i + 3, 3) = twist.rot.data;
+    t_.segment(6 * i, 3) = twist.vel.data;
+    t_.segment(6 * i + 3, 3) = twist.rot.data;
 
     ++i;
   }
@@ -61,10 +61,10 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   // 評価関数
   const VectorXd Wt = eigen_tools::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
-  const MatrixXd JT_Wt = J.transpose() * Wt.asDiagonal();
-  qp_solver_.problem.P = JT_Wt * J;
+  const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
+  qp_solver_.problem.P = JT_Wt * J_;
   qp_solver_.problem.P.diagonal() += Wj;
-  qp_solver_.problem.q = -JT_Wt * t;
+  qp_solver_.problem.q = -JT_Wt * t_;
 
   // 不等式制約
   auto qd_min = -jntparser_.maxVelocities();

@@ -33,6 +33,9 @@ private:
 
   Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(kDefaultWeightTS);  // Task space weight
   double Wj_ = kDefaultWeightJS;                                      // Joint space weight
+  Eigen::VectorXd qdd_min_, qdd_max_;                                 // Joint acceleration limits
+  Eigen::MatrixXd J_;                                                 // Big jacobian
+  Eigen::VectorXd a_;                                                 // Big acceleration in TS
 
   quadprog::DualActiveSetSolver qp_solver_;
 };

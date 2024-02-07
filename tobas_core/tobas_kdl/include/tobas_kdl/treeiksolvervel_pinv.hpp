@@ -31,6 +31,8 @@ private:
 
   Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(kDefaultWeightTS);
   double Wj_ = kDefaultWeightJS;
+  Eigen::MatrixXd J_;  // Big jacobian
+  Eigen::VectorXd t_;  // Big velocity in TS
 
   quadprog::DualActiveSetSolver qp_solver_;
 };

@@ -22,6 +22,9 @@ void TreeIkSolverAcc_RAC::updateInternalDataStructures()
   jnt2jdqd_.updateInternalDataStructures();
   jntparser_.updateInternalDataStructures();
 
+  qdd_min_.conservativeResize(nj_);
+  qdd_max_.conservativeResize(nj_);
+
   qp_solver_.x_scale = VectorXd::Ones(nj_);
   qp_solver_.problem.G.conservativeResize(0, nj_);
   qp_solver_.problem.h.conservativeResize(0);
@@ -45,20 +48,20 @@ int TreeIkSolverAcc_RAC::CartToJnt(
     return copyError(jnt2jdqd_);
 
   // Create big jacobian and acceleration
-  MatrixXd J(eq_dim, nj_);
-  VectorXd a(eq_dim);
+  J_.conservativeResize(eq_dim, nj_);
+  a_.conservativeResize(eq_dim);
   size_t i = 0;
   for (const auto& [seg_name, accel] : acc_in)
   {
     // Update big jacobian
     if (jnt2jac_.JntToJac(q_in, seg_name) < 0)
       return copyError(jnt2jac_);
-    J.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
+    J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
 
     // Update big acceleration
     const auto& Jdqd = jnt2jdqd_.getJdqd(seg_name);
-    a.segment(6 * i, 3) = (accel.linear - Jdqd.linear).data;
-    a.segment(6 * i + 3, 3) = (accel.angular - Jdqd.angular).data;
+    a_.segment(6 * i, 3) = (accel.linear - Jdqd.linear).data;
+    a_.segment(6 * i + 3, 3) = (accel.angular - Jdqd.angular).data;
 
     ++i;
   }
@@ -66,23 +69,23 @@ int TreeIkSolverAcc_RAC::CartToJnt(
   // 評価関数
   const VectorXd Wt = eigen_tools::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
-  const MatrixXd JT_Wt = J.transpose() * Wt.asDiagonal();
-  qp_solver_.problem.P = JT_Wt * J;
+  const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
+  qp_solver_.problem.P = JT_Wt * J_;
   qp_solver_.problem.P.diagonal() += Wj;
-  qp_solver_.problem.q = -JT_Wt * a;
+  qp_solver_.problem.q = -JT_Wt * a_;
 
   // 不等式制約
-  VectorXd qdd_min = VectorXd::Constant(nj_, numeric_limits<double>::lowest());
-  VectorXd qdd_max = VectorXd::Constant(nj_, numeric_limits<double>::max());
+  qdd_min_.fill(numeric_limits<double>::lowest());
+  qdd_max_.fill(numeric_limits<double>::max());
   for (size_t j = 0; j < nj_; ++j)
   {
     // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
     if (q_in(j) < jntparser_.lowerLimit(j))
-      qdd_min(j) = 0.;
+      qdd_min_(j) = 0.;
     else if (q_in(j) > jntparser_.upperLimit(j))
-      qdd_max(j) = 0.;
+      qdd_max_(j) = 0.;
   }
-  quadprog::matIneqFromRange(qdd_min, qdd_max, qp_solver_.problem.A, qp_solver_.problem.b);
+  quadprog::matIneqFromRange(qdd_min_, qdd_max_, qp_solver_.problem.A, qp_solver_.problem.b);
 
   // QPを解く
   qdd_out_.data = qp_solver_.solve();
