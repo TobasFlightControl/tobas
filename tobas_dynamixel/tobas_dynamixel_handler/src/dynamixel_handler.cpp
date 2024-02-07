@@ -20,7 +20,16 @@ DynamixelHandler::DynamixelHandler(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name)
+  : super(nh, pnh, name),
+    pos_sync_read_(poh_, pah_, kAddrPresentPosition, 4),
+    vel_sync_read_(poh_, pah_, kAddrPresentVelocity, 4),
+    current_sync_read_(poh_, pah_, kAddrPresentCurrent, 2),
+    pwm_sync_read_(poh_, pah_, kAddrPresentPwm, 2),
+    voltage_sync_read_(poh_, pah_, kAddrPresentInputVoltage, 2),
+    temp_sync_read_(poh_, pah_, kAddrPresentTemperature, 1),
+    hes_sync_read_(poh_, pah_, kAddrHardwareErrorStatus, 1),
+    pos_sync_write_(poh_, pah_, kAddrGoalPosition, 4),
+    vel_sync_write_(poh_, pah_, kAddrGoalVelocity, 4)
 {
   // Get ROS parameters
   getRosParams();
@@ -42,6 +51,14 @@ DynamixelHandler::DynamixelHandler(
 
   for (const auto& [name, cfg] : motors_)
   {
+    // Add parameters to GroupSyncRead objects
+    if (
+      !pos_sync_read_.addParam(cfg.id) || !vel_sync_read_.addParam(cfg.id)
+      || !current_sync_read_.addParam(cfg.id) || !pwm_sync_read_.addParam(cfg.id)
+      || !voltage_sync_read_.addParam(cfg.id) || !temp_sync_read_.addParam(cfg.id)
+      || !hes_sync_read_.addParam(cfg.id))
+      ROS_THROW_NAMED(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
+
     // Disable torque
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
       ROS_THROW_NAMED(name_, "Failed to disable torque of '" << name << "'.");
@@ -294,8 +311,7 @@ bool DynamixelHandler::disableTorques()
 
 void DynamixelHandler::printHardwareErrorStatus()
 {
-  dynamixel::GroupSyncRead hes_sync_read(poh_, pah_, kAddrHardwareErrorStatus, 1);
-  if (readSyncPacket(hes_sync_read))
+  if (hes_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of hardware error status.");
     return;
@@ -303,7 +319,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 
   for (const auto& [name, cfg] : motors_)
   {
-    const uint8_t hes = hes_sync_read.getData(cfg.id, kAddrHardwareErrorStatus, 1);
+    const uint8_t hes = hes_sync_read_.getData(cfg.id, kAddrHardwareErrorStatus, 1);
     if (hes & kErrorInputVoltage)
       rosError(name_, "Input voltage error in '" << name << "'");
     if (hes & kErrorHallSensor)
@@ -326,48 +342,42 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   motor_states->header.stamp = cur_time;
 
   // Read packets
-  dynamixel::GroupSyncRead pos_sync_read(poh_, pah_, kAddrPresentPosition, 4);
-  dynamixel::GroupSyncRead vel_sync_read(poh_, pah_, kAddrPresentVelocity, 4);
-  dynamixel::GroupSyncRead current_sync_read(poh_, pah_, kAddrPresentCurrent, 2);
-  dynamixel::GroupSyncRead pwm_sync_read(poh_, pah_, kAddrPresentPwm, 2);
-  dynamixel::GroupSyncRead voltage_sync_read(poh_, pah_, kAddrPresentInputVoltage, 2);
-  dynamixel::GroupSyncRead temp_sync_read(poh_, pah_, kAddrPresentTemperature, 1);
-  if (read_position_ && readSyncPacket(pos_sync_read) < 0)
+  if (read_position_ && pos_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present position. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
     return;
   }
-  if (read_velocity_ && readSyncPacket(vel_sync_read) < 0)
+  if (read_velocity_ && vel_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present velocity. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
-  if (read_current_ && readSyncPacket(current_sync_read) < 0)
+  if (read_current_ && current_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present current. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
-  if (read_pwm_ && readSyncPacket(pwm_sync_read) < 0)
+  if (read_pwm_ && pwm_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present PWM. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
-  if (read_voltage_ && readSyncPacket(voltage_sync_read) < 0)
+  if (read_voltage_ && voltage_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present input voltage. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
-  if (read_temperature_ && readSyncPacket(temp_sync_read) < 0)
+  if (read_temperature_ && temp_sync_read_.txRxPacket() < 0)
   {
     rosError(name_, "Failed to receive a sync packet of present temperature. Disabling torques.");
     disableTorques();
@@ -380,7 +390,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   {
     if (read_position_)
     {
-      const int32_t pos_raw = pos_sync_read.getData(cfg.id, kAddrPresentPosition, 4);
+      const int32_t pos_raw = pos_sync_read_.getData(cfg.id, kAddrPresentPosition, 4);
       motor_state_.position = tobas_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
     }
     else
@@ -390,7 +400,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
     if (read_velocity_)
     {
-      const int32_t vel_raw = vel_sync_read.getData(cfg.id, kAddrPresentVelocity, 4);
+      const int32_t vel_raw = vel_sync_read_.getData(cfg.id, kAddrPresentVelocity, 4);
       motor_state_.velocity = static_cast<double>(vel_raw) * kDecodeFactorVel;
     }
     else
@@ -400,7 +410,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
     if (read_current_)
     {
-      const int16_t current_raw = current_sync_read.getData(cfg.id, kAddrPresentCurrent, 2);
+      const int16_t current_raw = current_sync_read_.getData(cfg.id, kAddrPresentCurrent, 2);
       if (cfg.current_available)
       {
         motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
@@ -420,7 +430,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
     if (read_pwm_)
     {
-      const int16_t pwm_raw = pos_sync_read.getData(cfg.id, kAddrPresentPwm, 2);
+      const int16_t pwm_raw = pwm_sync_read_.getData(cfg.id, kAddrPresentPwm, 2);
       motor_state_.pwm = static_cast<double>(pwm_raw) * kDecodeFactorPwm;
     }
     else
@@ -430,7 +440,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
     if (read_voltage_)
     {
-      const uint16_t voltage_yaw = voltage_sync_read.getData(cfg.id, kAddrPresentInputVoltage, 2);
+      const uint16_t voltage_yaw = voltage_sync_read_.getData(cfg.id, kAddrPresentInputVoltage, 2);
       motor_state_.input_voltage = static_cast<double>(voltage_yaw) * kDecodeFactorVoltage;
     }
     else
@@ -440,7 +450,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
     if (read_temperature_)
     {
-      const uint8_t temp_raw = temp_sync_read.getData(cfg.id, kAddrPresentTemperature, 1);
+      const uint8_t temp_raw = temp_sync_read_.getData(cfg.id, kAddrPresentTemperature, 1);
       motor_state_.temperature = static_cast<double>(temp_raw) * kDecodeFactorTemp;
     }
     else
@@ -454,19 +464,6 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 
   // Publish motor states message
   motor_states_pub_.publish(motor_states);
-}
-
-int DynamixelHandler::readSyncPacket(dynamixel::GroupSyncRead& sync_read)
-{
-  // sync_read.clearParam();
-
-  for (const auto& [jnt_name, cfg] : motors_)
-  {
-    if (!sync_read.addParam(cfg.id))
-      rosError(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
-  }
-
-  return sync_read.txRxPacket();
 }
 
 void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
@@ -497,8 +494,8 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
     return;
   }
 
-  vector<int32_t> goal_positions(size);
-  dynamixel::GroupSyncWrite pos_sync_write(poh_, pah_, kAddrGoalPosition, 4);
+  goal_positions_.resize(size);
+  pos_sync_write_.clearParam();
 
   for (size_t i = 0; i < size; ++i)
   {
@@ -517,13 +514,13 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
         rosWarn(
           name_, "Target position of joint '"
                    << jnt_name << "' is out of limit. The value is clamped to " << tar_pos);
-      goal_positions[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
+      goal_positions_[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     }
     else if (
       cfg.operating_mode == kControlModeExtendedPosition
       || cfg.operating_mode == kControlModeCurrentBasePosition)
     {
-      goal_positions[i] = tar_pos / kDecodeFactorPos;
+      goal_positions_[i] = tar_pos / kDecodeFactorPos;
     }
     else
     {
@@ -531,11 +528,11 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
       continue;
     }
 
-    if (!pos_sync_write.addParam(cfg.id, (uint8_t*)&goal_positions[i]))
+    if (!pos_sync_write_.addParam(cfg.id, (uint8_t*)&goal_positions_[i]))
       rosError(name_, "Failed to set goal position of joint '" << jnt_name << "'.");
   }
 
-  if (pos_sync_write.txPacket() < 0)
+  if (pos_sync_write_.txPacket() < 0)
     rosError(name_, "Failed to transmit a sync write instruction packet of positions.");
 }
 
@@ -554,8 +551,8 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
     return;
   }
 
-  vector<int32_t> goal_velocities(size);
-  dynamixel::GroupSyncWrite vel_sync_write(poh_, pah_, kAddrGoalVelocity, 4);
+  goal_velocities_.resize(size);
+  vel_sync_write_.clearParam();
 
   for (size_t i = 0; i < size; ++i)
   {
@@ -582,12 +579,12 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
                  << jnt_name << "' is out of limit. The value is clamped to " << tar_vel);
     }
 
-    goal_velocities[i] = tar_vel / kDecodeFactorVel;
-    if (!vel_sync_write.addParam(cfg.id, (uint8_t*)&goal_velocities[i]))
+    goal_velocities_[i] = tar_vel / kDecodeFactorVel;
+    if (!vel_sync_write_.addParam(cfg.id, (uint8_t*)&goal_velocities_[i]))
       rosError(name_, "Failed to set goal velocity of joint '" << jnt_name << "'.");
   }
 
-  if (vel_sync_write.txPacket() < 0)
+  if (vel_sync_write_.txPacket() < 0)
     rosError(name_, "Failed to transmit a sync write instruction packet of velocities.");
 }
 

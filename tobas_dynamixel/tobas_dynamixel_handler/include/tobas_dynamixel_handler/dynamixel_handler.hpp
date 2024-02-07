@@ -45,7 +45,18 @@ public:
 private:
   dynamixel::PortHandler* poh_;
   dynamixel::PacketHandler* pah_;
+  dynamixel::GroupSyncRead pos_sync_read_;
+  dynamixel::GroupSyncRead vel_sync_read_;
+  dynamixel::GroupSyncRead current_sync_read_;
+  dynamixel::GroupSyncRead pwm_sync_read_;
+  dynamixel::GroupSyncRead voltage_sync_read_;
+  dynamixel::GroupSyncRead temp_sync_read_;
+  dynamixel::GroupSyncRead hes_sync_read_;
+  dynamixel::GroupSyncWrite pos_sync_write_;
+  dynamixel::GroupSyncWrite vel_sync_write_;
 
+  std::vector<int32_t> goal_positions_;
+  std::vector<int32_t> goal_velocities_;
   tobas_dynamixel_msgs::MotorState motor_state_;
   bool is_enabled_ = true;
 
@@ -86,7 +97,6 @@ private:
   bool enableTorques();
   bool disableTorques();
   void printHardwareErrorStatus();
-  int readSyncPacket(dynamixel::GroupSyncRead& sync_read);
 
   void eventCb(const tobas_msgs::EventConstPtr& event);
   void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
