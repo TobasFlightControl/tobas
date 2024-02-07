@@ -236,11 +236,8 @@ uint16_t Ublox::update()
     spi_dev_.transfer(&to_gps_data, &from_gps_data, 1);
 
     // Scanner checks the message structure with every byte received
+    // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
     status = scanner_->update(from_gps_data);
-
-    // 開始信号を確認するまでは，計算量を削減するためスリープ
-    if (status == UBXScanner::Sync1)
-      usleep(1000);
   }
 
   scanner_->reset();
