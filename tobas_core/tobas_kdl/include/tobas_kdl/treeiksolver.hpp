@@ -8,7 +8,7 @@
 namespace KDL
 {
 static constexpr double kDefaultWeightTS = 1.;
-static constexpr double kDefaultWeightJS = 1e-6;  // TODO: 関節ごとに支持重量でスケーリング
+static constexpr double kDefaultWeightJS = 1e-3;  // TODO: 関節ごとに支持重量でスケーリング
 
 /**
  * \brief This abstract class encapsulates the inverse position solver for a KDL::Tree.
