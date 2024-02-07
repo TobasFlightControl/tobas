@@ -163,7 +163,7 @@ void LSM9DS1::initializeMagnetometer()
   usleep(INITIALIZE_SLEEP);
 }
 
-void LSM9DS1::setGyroScale(uint8_t scale)
+void LSM9DS1::setGyroScale(const uint8_t& scale)
 {
   switch (scale)
   {
@@ -179,7 +179,7 @@ void LSM9DS1::setGyroScale(uint8_t scale)
   }
 }
 
-void LSM9DS1::setAccScale(uint8_t scale)
+void LSM9DS1::setAccScale(const uint8_t& scale)
 {
   switch (scale)
   {
@@ -198,7 +198,7 @@ void LSM9DS1::setAccScale(uint8_t scale)
   }
 }
 
-void LSM9DS1::setMagScale(uint8_t scale)
+void LSM9DS1::setMagScale(const uint8_t& scale)
 {
   switch (scale)
   {
