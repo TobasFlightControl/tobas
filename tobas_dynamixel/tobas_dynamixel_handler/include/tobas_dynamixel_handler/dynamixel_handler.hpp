@@ -45,15 +45,15 @@ public:
 private:
   dynamixel::PortHandler* poh_;
   dynamixel::PacketHandler* pah_;
-  std::shared_ptr<dynamixel::GroupSyncRead> pos_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncRead> vel_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncRead> current_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncRead> pwm_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncRead> voltage_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncRead> temp_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncRead> hes_sync_read_;
-  std::shared_ptr<dynamixel::GroupSyncWrite> pos_sync_write_;
-  std::shared_ptr<dynamixel::GroupSyncWrite> vel_sync_write_;
+  std::unique_ptr<dynamixel::GroupSyncRead> pos_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> vel_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> current_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> pwm_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> voltage_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> temp_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> hes_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncWrite> pos_sync_write_;
+  std::unique_ptr<dynamixel::GroupSyncWrite> vel_sync_write_;
 
   std::vector<int32_t> goal_positions_;
   std::vector<int32_t> goal_velocities_;
