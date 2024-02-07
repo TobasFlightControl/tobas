@@ -101,7 +101,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
       gps_msg->header.stamp = event.current_real;
-      gps_msg->header.frame_id = "gps_frame";
 
       // Fill GPS position
       gps_msg->latitude = pvt_.lat;                     // Latitude [deg]

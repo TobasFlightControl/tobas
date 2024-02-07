@@ -71,7 +71,6 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   // メッセージを作成
   const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
   bar_msg->header.stamp = event.current_real;
-  bar_msg->header.frame_id = "barometer_frame";
   bar_msg->fluid_pressure = pressure;
   bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
 
