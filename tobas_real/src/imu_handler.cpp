@@ -23,8 +23,15 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   getRosParams();
   readConfig();
 
-  setupImu();
+  imu_.initialize();
+  if (!imu_.probe())
+    ROS_THROW_NAMED(name_, "IMU not enabled.");
+
   mag_trans_.initialize();
+
+  acc_var_ = tobas_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
+  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
+  mag_var_ = tobas_std::sqr(mag_noise_density_) * update_rate_;    // TODO: スケーリング
 
   registerPublishers();
   registerSubscribers();
@@ -77,15 +84,6 @@ void ImuHandler::readConfig()
   pt.get(kConfigKey_MagEllipseC, mag_trans_.c);
 }
 
-void ImuHandler::setupImu()
-{
-  imu_.initialize();
-  if (!imu_.probe())
-  {
-    ROS_THROW_NAMED(name_, "IMU not enabled.");
-  }
-}
-
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // Update IMU
@@ -105,16 +103,11 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   // Fill headers
   imu_msg->header.stamp = event.current_real;
   mag_msg->header.stamp = event.current_real;
-  imu_msg->header.frame_id = "imu_frame";
-  mag_msg->header.frame_id = "mag_frame";
 
   // Fill covariance matrices
-  const auto acc_var = tobas_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
-  const auto gyro_var = tobas_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
-  const auto mag_var = tobas_std::sqr(mag_noise_density_) * update_rate_;
-  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
-  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
-  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
+  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var_);
+  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var_);
+  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var_);
 
   // Fill data (Convert to NWU coordinate system)
   const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
