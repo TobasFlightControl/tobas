@@ -28,9 +28,6 @@ void TreeIkSolverVel_pinv::updateInternalDataStructures()
   qp_solver_.x_scale = VectorXd::Ones(nj_);
   qp_solver_.problem.G.conservativeResize(0, nj_);
   qp_solver_.problem.h.conservativeResize(0);
-
-  qd_min_.resize(nj_);
-  qd_max_.resize(nj_);
 }
 
 int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)

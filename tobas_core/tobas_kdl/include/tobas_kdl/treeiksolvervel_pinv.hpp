@@ -31,7 +31,6 @@ private:
 
   Eigen::Vector6d Wt_ = Eigen::Vector6d::Constant(kDefaultWeightTS);
   double Wj_ = kDefaultWeightJS;
-  JntArray qd_min_, qd_max_;
 
   quadprog::DualActiveSetSolver qp_solver_;
 };
