@@ -11,8 +11,6 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
 
-from tobas_msgs.msg import JointPositions
-
 from .common import *
 
 
@@ -34,14 +32,14 @@ class JointPositionsCommander(MainWidget):
         self._get_params()
 
         # コマンド
-        self._tar_pos = JointPositions()
+        self._tar_js_pos = JointState()
         self._tar_js_vel = JointState()
         self._tar_js_eff = JointState()
         for jnt_name, cmd_type in self._cmd_types.items():
             home_pos = self._home_positions[jnt_name]
             if cmd_type == self.POSITION:
-                self._tar_pos.name.append(jnt_name)
-                self._tar_pos.data.append(home_pos)
+                self._tar_js_pos.name.append(jnt_name)
+                self._tar_js_pos.position.append(home_pos)
             elif cmd_type == self.VELOCITY:
                 self._tar_js_vel.name.append(jnt_name)
                 self._tar_js_vel.position.append(home_pos)
@@ -57,7 +55,7 @@ class JointPositionsCommander(MainWidget):
 
         # Publishers
         self._tar_pos_pub = rospy.Publisher(
-            "command/joint_positions", JointPositions, queue_size=1
+            "joint_position_controller/target_joint_states", JointState, queue_size=1
         )
         self._tar_js_vel_pub = rospy.Publisher(
             "joint_velocity_controller/target_joint_states", JointState, queue_size=1
@@ -115,7 +113,7 @@ class JointPositionsCommander(MainWidget):
             self._cmd_types[jnt_name] = cmd_type
 
     def _publish_current_commands(self):
-        self._tar_pos_pub.publish(self._tar_pos)
+        self._tar_pos_pub.publish(self._tar_js_pos)
         self._tar_js_vel_pub.publish(self._tar_js_vel)
         self._tar_js_eff_pub.publish(self._tar_js_eff)
 
@@ -124,9 +122,9 @@ class JointPositionsCommander(MainWidget):
         cmd_type = self._cmd_types[jnt_name]
 
         if cmd_type == self.POSITION:
-            idx = self._tar_pos.name.index(jnt_name)
-            self._tar_pos.data[idx] = value
-            self._tar_pos_pub.publish(self._tar_pos)
+            idx = self._tar_js_pos.name.index(jnt_name)
+            self._tar_js_pos.position[idx] = value
+            self._tar_pos_pub.publish(self._tar_js_pos)
         elif cmd_type == self.VELOCITY:
             idx = self._tar_js_vel.name.index(jnt_name)
             self._tar_js_vel.position[idx] = value

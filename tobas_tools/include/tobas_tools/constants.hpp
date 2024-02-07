@@ -60,6 +60,13 @@ static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
 static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
+// tobas_manipulation
+static constexpr char kPosCtrlJSTopic[] = "joint_position_controller/target_joint_states";
+static constexpr char kPosCtrlCSTopic[] = "joint_position_controller/target_cartesian_states";
+static constexpr char kVelCtrlJSTopic[] = "joint_velocity_controller/target_joint_states";
+static constexpr char kVelCtrlCSTopic[] = "joint_velocity_controller/target_cartesian_states";
+static constexpr char kEffortCtrlJSTopic[] = "joint_effort_controller/target_joint_states";
+static constexpr char kEffortCtrlCSTopic[] = "joint_effort_controller/target_cartesian_states";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";

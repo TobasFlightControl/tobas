@@ -1,5 +1,9 @@
 <library path="lib/libtobas_manipulation_nodelet">
 
+  <class name="tobas_manipulation/PositionControllerNodelet" type="tobas_manipulation::PositionControllerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
   <class name="tobas_manipulation/VelocityControllerNodelet" type="tobas_manipulation::VelocityControllerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>

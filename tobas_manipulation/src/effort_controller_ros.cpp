@@ -70,8 +70,10 @@ void EffortControllerRos::registerSubscribers()
 {
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = nh_.subscribe(kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ = nh_.subscribe(kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+  tar_js_sub_ =
+    nh_.subscribe(tobas::kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_cs_sub_ =
+    nh_.subscribe(tobas::kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
