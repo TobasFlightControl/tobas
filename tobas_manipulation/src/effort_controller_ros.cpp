@@ -34,7 +34,21 @@ EffortControllerRos::EffortControllerRos(
   pid_ts_.updateInternalDataStructures();
 
   jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
-  setInitTargetJointStates();
+
+  // 力指令タイプの関節のホームポジションを取得
+  for (const auto& joint : drone_.jointConfigs())
+  {
+    if (joint.cmd_type != tobas::JointConfig::EFFORT)
+      continue;
+    home_js_.name.push_back(joint.name);
+    home_js_.position.push_back(joint.home_pos);
+    home_js_.velocity.push_back(0.);
+    home_js_.effort.push_back(0.);
+  }
+
+  // ホームポジションを初期目標状態に設定
+  if (home_js_.name.size() > 0)
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
   registerPublishers();
   registerSubscribers();
@@ -58,23 +72,6 @@ void EffortControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ = nh_.subscribe(kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_cs_sub_ = nh_.subscribe(kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
-}
-
-void EffortControllerRos::setInitTargetJointStates()
-{
-  sensor_msgs::JointState init_tar_js;
-  for (const auto& joint : drone_.jointConfigs())
-  {
-    if (joint.cmd_type != tobas::JointConfig::EFFORT)
-      continue;
-    init_tar_js.name.push_back(joint.name);
-    init_tar_js.position.push_back(joint.home_pos);
-    init_tar_js.velocity.push_back(0.);
-    init_tar_js.effort.push_back(0.);
-  }
-
-  if (init_tar_js.name.size() > 0)
-    tar_js_ = boost::make_shared<sensor_msgs::JointState>(init_tar_js);
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
@@ -186,6 +183,18 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   if (tar_js_ == nullptr && tar_cs_ == nullptr)
     return;
 
+  const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
+  if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
+  {
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_cs_ = nullptr;
+    is_commanded_ = false;
+    rosWarn(
+      name_, "The target joint states are automatically reset because "
+               << tobas::kAutoResetTimeThreshold
+               << " seconds have elapsed since the last command.");
+  }
+
   // Create joint efforts command
   const auto efforts_msg = boost::make_shared<tobas_msgs::JointEfforts>();
 
@@ -214,6 +223,9 @@ void EffortControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstP
 {
   tar_js_ = tar_js;
   tar_cs_ = nullptr;
+
+  t_last_cmd_ = ros::Time::now();
+  is_commanded_ = true;
 }
 
 void EffortControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
@@ -229,6 +241,9 @@ void EffortControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateCons
 
   tar_cs_ = tar_cs;
   tar_js_ = nullptr;
+
+  t_last_cmd_ = ros::Time::now();
+  is_commanded_ = true;
 }
 
 void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

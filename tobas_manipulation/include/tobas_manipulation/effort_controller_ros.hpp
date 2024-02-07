@@ -40,8 +40,11 @@ private:
   KDL::TreeJntSpacePID pid_js_;
   KDL::TreeTaskSpacePID pid_ts_;
 
-  KDL::JntArray jntarraynull_;
   tobas_ros::TransformListener tf_listener_;
+  KDL::JntArray jntarraynull_;
+  sensor_msgs::JointState home_js_;
+  ros::Time t_last_cmd_;
+  bool is_commanded_ = false;
 
   sensor_msgs::JointStateConstPtr cur_js_;
   sensor_msgs::JointStateConstPtr tar_js_;
@@ -63,7 +66,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void setInitTargetJointStates();
   int jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg);
   int taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg);
 

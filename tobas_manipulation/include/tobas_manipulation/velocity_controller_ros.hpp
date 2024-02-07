@@ -37,9 +37,12 @@ private:
   KDL::TreeActiveJointsExtractor active_jnts_extractor_;
   KDL::TreeTaskSpaceVelCtrl vel_ctrl_;
 
+  tobas_ros::TransformListener tf_listener_;
   KDL::JntArray jntarraynull_;
   double jnt_time_const_;
-  tobas_ros::TransformListener tf_listener_;
+  sensor_msgs::JointState home_js_;
+  ros::Time t_last_cmd_;
+  bool is_commanded_ = false;
 
   sensor_msgs::JointStateConstPtr cur_js_;
   sensor_msgs::JointStateConstPtr tar_js_;
@@ -60,7 +63,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void setInitTargetJointStates();
   int jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
   int taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
 
