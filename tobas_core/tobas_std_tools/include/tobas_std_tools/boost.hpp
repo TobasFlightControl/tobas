@@ -8,9 +8,9 @@ namespace tobas_std
 template <typename T, typename U, std::size_t N>
 T average(const boost::array<T, N>& arr, const boost::array<U, N>& weights)
 {
-  T num = T();
-  U den = U();
-  for (int i = 0; i < arr.size(); ++i)
+  T num = 0;
+  U den = 0;
+  for (size_t i = 0; i < arr.size(); ++i)
   {
     num += arr[i] * weights[i];
     den += weights[i];
@@ -25,17 +25,15 @@ template <typename T, std::size_t N>
 T average(const boost::array<T, N>& arr)
 {
   boost::array<double, N> weights;
-  weights.fill(1.);
+  weights.fill(1);
   return average(arr, weights);
 }
 
 /* 3x3行列の対角要素を埋める． */
 template <typename T>
-void fillMatrix3Diag(boost::array<T, 9>& m, T v)
+inline void fillMatrix3Diag(boost::array<T, 9>& m, const T& v)
 {
-  m[0] = v;
-  m[4] = v;
-  m[8] = v;
+  m[0] = m[4] = m[8] = v;
 }
 
 /* 3x3行列のトレースを計算する． */
@@ -46,37 +44,33 @@ inline T trace(const boost::array<T, 9>& m)
 }
 
 template <typename T, size_t N>
-boost::array<T, N> operator*(const boost::array<T, N>& lhs, T rhs)
+boost::array<T, N> operator*(const boost::array<T, N>& lhs, const T& rhs)
 {
   boost::array<T, N> res;
   for (size_t i = 0; i < N; ++i)
-  {
     res[i] = lhs[i] * rhs;
-  }
   return res;
 }
 
 template <typename T, size_t N>
-boost::array<T, N> operator*(T lhs, const boost::array<T, N>& rhs)
+boost::array<T, N> operator*(const T& lhs, const boost::array<T, N>& rhs)
 {
   return rhs * lhs;
 }
 
 template <typename T, size_t N>
-boost::array<T, N> operator/(const boost::array<T, N>& lhs, T rhs)
+boost::array<T, N> operator/(const boost::array<T, N>& lhs, const T& rhs)
 {
   assert(rhs != 0);
 
   boost::array<T, N> res;
   for (size_t i = 0; i < N; ++i)
-  {
     res[i] = lhs[i] / rhs;
-  }
   return res;
 }
 
 template <typename T, size_t N>
-boost::array<T, N> operator/(T lhs, const boost::array<T, N>& rhs)
+boost::array<T, N> operator/(const T& lhs, const boost::array<T, N>& rhs)
 {
   boost::array<T, N> res;
   for (size_t i = 0; i < N; ++i)
@@ -92,9 +86,7 @@ boost::array<T, N> operator+(const boost::array<T, N>& lhs, const boost::array<T
 {
   boost::array<T, N> res;
   for (size_t i = 0; i < N; ++i)
-  {
     res[i] = lhs[i] + rhs[i];
-  }
   return res;
 }
 }  // namespace tobas_std
