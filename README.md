@@ -5,14 +5,15 @@
 ### CPU クロックの設定 (CPU 冷却必須)
 
 cf. [RaspberryPi4 の高速化（オーバークロック）](https://qiita.com/ousagi_sama/items/67ea6c7332df8d23b842)
+cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zdnet.com/article/35201090/)
 
 `/boot/config.txt`に以下を追記:
 
 ```txt
 over_voltage=6    # -16～8の整数,　default: 0
-arm_freq=2100     # 最大周波数MHz, default: 1200
-arm_freq_min=1800 # 最小周波数MHz, default: 600
-gpu_freq=600      # GPU周波数MHz, default: 500
+arm_freq=2000     # 最大周波数MHz, default: 1200
+arm_freq_min=2000 # 最小周波数MHz, default: 600
+gpu_freq=750      # GPU周波数MHz, default: 500
 force_turbo=1     # いるか分からない
 ```
 
