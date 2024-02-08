@@ -5,8 +5,6 @@ if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
 import threading
-import subprocess
-import rospy
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
