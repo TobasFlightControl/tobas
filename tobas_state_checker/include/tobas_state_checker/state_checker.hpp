@@ -17,7 +17,7 @@ class StateChecker : public tobas::BaseNode
 {
   static constexpr double kWarnPeriod = 3.;                            // [s]
   static constexpr double kWaitForActionServerTimeout = 3.;            // [s]
-  static constexpr double kCpuTempertureThreshold = 70.;               // [celsius]
+  static constexpr double kCpuTempertureThreshold = 80.;               // [celsius]
   static constexpr double kAttitudeThreshold = 85. * tobas::kDeg2Rad;  // [rad]
 
   using self = StateChecker;
