@@ -19,6 +19,8 @@ class JointPositionsCommander(MainWidget):
     VELOCITY = "velocity"
     EFFORT = "effort"
 
+    PUBILSH_CMDS_TIMER_PERIOD = 0.1  # [s]
+
     def __init__(self) -> None:
         super().__init__(f"{PKG_NAME}/jointpos_commander")
 
@@ -101,7 +103,10 @@ class JointPositionsCommander(MainWidget):
 
         add_spacer(rows)
 
-        self._publish_current_commands()
+        self._publish_commands_timer = rospy.Timer(
+            rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD),
+            self._publish_commands_timer_cb,
+        )
 
     def _get_params(self) -> None:
         num_joints = rospy.get_param("num_joints")
@@ -112,10 +117,13 @@ class JointPositionsCommander(MainWidget):
             self._home_positions[jnt_name] = home_pos
             self._cmd_types[jnt_name] = cmd_type
 
-    def _publish_current_commands(self):
+    def _publish_current_commands(self) -> None:
         self._tar_pos_pub.publish(self._tar_js_pos)
         self._tar_js_vel_pub.publish(self._tar_js_vel)
         self._tar_js_eff_pub.publish(self._tar_js_eff)
+
+    def _publish_commands_timer_cb(self, _) -> None:
+        self._publish_current_commands()
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float, jnt_name: str) -> None:
