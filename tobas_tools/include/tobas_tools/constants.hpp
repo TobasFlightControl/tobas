@@ -18,6 +18,7 @@ static constexpr size_t kMinPinId = 1;
 static constexpr size_t kMaxPinId = 14;
 
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
+// ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
 static constexpr double kArmThrottle = 0.1;
 static constexpr double kMinThrottle = 0.;
