@@ -9,7 +9,7 @@ from .fixed_wing_tools import *
 
 @dataclass
 class Drone:
-    joint_map: JointConfigMap = field(default_factory=list)
+    joint_map: JointConfigMap = field(default_factory=dict)
     rotors: RotorConfigs = field(default_factory=list)
     fixed_wing: FixedWingConfig = FixedWingConfig()
     has_fixed_wing: bool = False
