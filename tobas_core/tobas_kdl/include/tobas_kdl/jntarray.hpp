@@ -14,6 +14,7 @@ public:
   inline explicit JntArray(const Eigen::VectorXd& data);
 
   inline static JntArray Zero(size_t nj);
+  inline static JntArray Constant(size_t nj, double value);
 
   inline void resize(size_t nj);
 
@@ -57,6 +58,11 @@ inline JntArray::JntArray(const Eigen::VectorXd& data) : data(data)
 inline JntArray JntArray::Zero(size_t nj)
 {
   return JntArray(Eigen::VectorXd::Zero(nj));
+}
+
+inline JntArray JntArray::Constant(size_t nj, double value)
+{
+  return JntArray(Eigen::VectorXd::Constant(nj, value));
 }
 
 inline void JntArray::resize(size_t nj)
