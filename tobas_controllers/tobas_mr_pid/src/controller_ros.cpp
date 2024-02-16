@@ -117,9 +117,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   if (tar_pvay_ != nullptr)
   {
     if (tar_rpyt_ == nullptr)
-    {
       tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
-    }
 
     // 世界座標系から見た現在の速度を計算
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
