@@ -72,6 +72,7 @@ static constexpr char kEffortCtrlCSTopic[] = "joint_effort_controller/target_car
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kSetupPwmSrv[] = "setup_pwm";
+static constexpr char kEnablePwmSrv[] = "enable_pwm";
 static constexpr char kArmRotorsSrv[] = "arm_rotors";
 
 // ROS actions
@@ -89,7 +90,6 @@ static constexpr double kCommandLevelErrorPeriod = 1.;   // [s]
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kDisarmDuration = 3.;            // [s]
-static constexpr double kStopRotorsSleepTime = 1.;       // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 1.;            // [rad/s]
 static constexpr size_t kStopwatchSamples = 100;

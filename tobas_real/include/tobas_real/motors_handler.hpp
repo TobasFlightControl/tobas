@@ -56,6 +56,7 @@ private:
   // Service
   ros::ServiceServer arm_rotors_ss_;
   ros::ServiceClient setup_pwm_sc_;
+  ros::ServiceClient enable_pwm_sc_;
 
   // Timer
   ros::Timer setup_pwm_timer_;
@@ -65,8 +66,9 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void armRotors();
-  void disarmRotors();
+  bool armRotors();
+  bool disarmRotors();
+  bool enablePwms(const bool& enable);
   void setPeriodOnAllChannels(const double& period);
 
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);

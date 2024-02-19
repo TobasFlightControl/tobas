@@ -106,16 +106,14 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
 
 bool RotorCommandHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
 {
-  // 実機に近づけるためにArm, Disarmに要する時間だけスリープする
   if (!is_armed_ && req.data)
   {
     rosInfo(name_, "Arming rotors.");
-    ros::Duration(tobas::kDisarmDuration).sleep();
+    ros::Duration(tobas::kDisarmDuration).sleep();  // 実機に近づけるためArmに要する時間だけスリープ
   }
   else if (is_armed_ && !req.data)
   {
     rosInfo(name_, "Disarming rotors.");
-    ros::Duration(tobas::kStopRotorsSleepTime).sleep();
   }
 
   is_armed_ = req.data;

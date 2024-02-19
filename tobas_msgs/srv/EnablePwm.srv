@@ -1,0 +1,4 @@
+uint64 channel
+bool enable
+---
+bool success

@@ -10,6 +10,7 @@
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Latency.h>
 #include <tobas_msgs/SetupPwm.h>
+#include <tobas_msgs/EnablePwm.h>
 
 #include "../include/tobas_real/motors_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -33,6 +34,7 @@ MotorsHandler::MotorsHandler(
 
   arm_rotors_ss_ = nh_.advertiseService(tobas::kArmRotorsSrv, &self::armRotorsCb, this);
   setup_pwm_sc_ = nh_.serviceClient<tobas_msgs::SetupPwm>(tobas::kSetupPwmSrv);
+  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
 
   setup_pwm_timer_ = nh_.createTimer(ros::Duration(0), &self::setupPwmTimerCb, this, true, false);
   check_interval_timer_ =
@@ -226,12 +228,22 @@ bool MotorsHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBool
   if (!is_armed_ && req.data)
   {
     rosInfo(name_, "Arming rotors.");
-    armRotors();
+    if (!armRotors())
+    {
+      rosError(name_, "Failed to arm rotors.");
+      res.success = false;
+      return true;
+    }
   }
   else if (is_armed_ && !req.data)
   {
     rosInfo(name_, "Disarming rotors.");
-    disarmRotors();
+    if (!disarmRotors())
+    {
+      rosError(name_, "Failed to disarm rotors.");
+      res.success = false;
+      return true;
+    }
   }
 
   res.success = true;
@@ -259,11 +271,18 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent&)
   }
 
   // 起動時は自動でアームする
-  armRotors();
+  if (!armRotors())
+    rosError(name_, "Failed to arm rotors.");
 }
 
-void MotorsHandler::armRotors()
+bool MotorsHandler::armRotors()
 {
+  if (!enablePwms(true))
+  {
+    rosError(name_, "Failed to enable PWMs.");
+    return false;
+  }
+
   const auto t_start = ros::Time::now();
   while ((ros::Time::now() - t_start).toSec() < tobas::kDisarmDuration)
   {
@@ -276,15 +295,45 @@ void MotorsHandler::armRotors()
   latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
 
   rosInfo(name_, "The motors are ready to rotate.");
+  return true;
 }
 
-void MotorsHandler::disarmRotors()
+bool MotorsHandler::disarmRotors()
 {
+  if (!enablePwms(false))
+  {
+    rosError(name_, "Failed to disable PWMs.");
+    return false;
+  }
+
   is_armed_ = false;
   check_interval_timer_.stop();
 
-  // 一定時間PWMを発行しなければESCは自動停止する
-  ros::Duration(tobas::kStopRotorsSleepTime).sleep();
+  return true;
+}
+
+bool MotorsHandler::enablePwms(const bool& enable)
+{
+  if (!setup_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kSetupPwmSrv << "' server.");
+    return false;
+  }
+
+  tobas_msgs::EnablePwm enable_pwm_msg;
+  for (const auto& rotor_config : drone_.rotorConfigs())
+  {
+    const auto channel = channelFromPin(rotor_config.pin);
+    enable_pwm_msg.request.channel = channel;
+    enable_pwm_msg.request.enable = enable;
+    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
+    {
+      rosError(name_, "Failed to enable/disable RC output CH" << channel << ".");
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
