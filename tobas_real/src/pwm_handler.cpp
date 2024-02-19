@@ -99,6 +99,7 @@ bool PwmHandler::setupPwmCb(tobas_msgs::SetupPwmRequest& req, tobas_msgs::SetupP
     rosError(name_, "Failed to enable PWM CH" << req.channel << ".");
     return true;
   }
+  pwm_states_.at(req.channel).is_enabled = true;
 
   pwm_states_.at(req.channel).is_initialized = true;
   res.success = true;
