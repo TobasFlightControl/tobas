@@ -22,6 +22,11 @@ public:
     const JntArray& tar_q,
     const JntArray& tar_qd,
     const JntArray& qdd_ff);
+  int CartToJnt(
+    const JntArray& cur_q,
+    const JntArray& cur_qd,
+    const JntArray& tar_q,
+    const JntArray& tar_qd);
 
   bool setStiffness(const double& kp);
   bool setDamping(const double& kd);
@@ -30,6 +35,7 @@ public:
 
 private:
   TreeIdSolver_RNE rne_;
+  JntArray zeros_;
 
   double kp_ = kDefaultStiffness;
   double kd_ = kDefaultDamping;

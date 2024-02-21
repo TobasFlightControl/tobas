@@ -164,7 +164,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   {
     // 可動関節角を更新
     // 処理の遅延を防ぐため，JointStateのコールバックではなくここで行う
-    if (drone_.isTransformable() && js_converter_.jointStateToJntArray(*js_) < 0)
+    if (drone_.isTransformable() && js_converter_.jointStateToJntArrayPos(*js_) < 0)
       rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
     // プロペラ推力を計算

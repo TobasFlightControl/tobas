@@ -45,13 +45,10 @@ class JointPositionsCommander(MainWidget):
             elif cmd_type == self.VELOCITY:
                 self._tar_js_vel.name.append(jnt_name)
                 self._tar_js_vel.position.append(home_pos)
-                self._tar_js_vel.velocity.append(0.0)
-                self._tar_js_vel.effort.append(0.0)
             elif cmd_type == self.EFFORT:
                 self._tar_js_eff.name.append(jnt_name)
                 self._tar_js_eff.position.append(home_pos)
                 self._tar_js_eff.velocity.append(0.0)
-                self._tar_js_eff.effort.append(0.0)
             else:
                 raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 

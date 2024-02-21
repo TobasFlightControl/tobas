@@ -31,8 +31,6 @@ VelocityControllerRos::VelocityControllerRos(
   active_jnts_extractor_.updateInternalDataStructures();
   vel_ctrl_.updateInternalDataStructures();
 
-  jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
-
   // 速度指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
   {
@@ -77,13 +75,13 @@ void VelocityControllerRos::registerSubscribers()
 int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
     return -1;
   }
-  if (tar_js_conv_.jointStateToJntArray(*tar_js_) < 0)
+  if (tar_js_conv_.jointStateToJntArrayPos(*tar_js_) < 0)
   {
     rosError(
       name_, "Failed to convert target JointState to Jntarray: " << tar_js_conv_.errorMessage());
@@ -99,7 +97,7 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& veloci
   // TODO: 関節角制限を考慮し，制限に違反する速度を出さない
 
   // JntArray -> JointState
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, velocities, jntarraynull_, tar_js_->name) < 0)
+  if (tar_js_conv_.jntArrayToJointStateVel(velocities, tar_js_->name) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;
@@ -115,7 +113,7 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& veloci
 int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
@@ -148,7 +146,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
   // JntArray -> JointState
   active_jnts_extractor_.solve(tar_cs_->name);
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, velocities, jntarraynull_, active_joints) < 0)
+  if (tar_js_conv_.jntArrayToJointStateVel(velocities, active_joints) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;

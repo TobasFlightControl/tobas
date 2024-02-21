@@ -33,8 +33,6 @@ EffortControllerRos::EffortControllerRos(
   pid_js_.updateInternalDataStructures();
   pid_ts_.updateInternalDataStructures();
 
-  jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
-
   // 力指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
   {
@@ -79,13 +77,13 @@ void EffortControllerRos::registerSubscribers()
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
     return -1;
   }
-  if (tar_js_conv_.jointStateToJntArray(*tar_js_) < 0)
+  if (tar_js_conv_.jointStateToJntArrayPosVel(*tar_js_) < 0)
   {
     rosError(
       name_, "Failed to convert target JointState to Jntarray: " << tar_js_conv_.errorMessage());
@@ -98,7 +96,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
   const auto& tar_qd = tar_js_conv_.getVelocitiesKDL();
 
   // PIDで関節トルクを計算
-  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd, jntarraynull_) < 0)
+  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0)
   {
     rosError(name_, "Joint space PID failed: " << pid_js_.errorMessage());
     return -1;
@@ -106,7 +104,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
   const auto efforts = tar_js_conv_.getEffortsKDL() + pid_js_.getEfforts();  // FF + FB
 
   // JntArray -> JointState
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, tar_js_->name) < 0)
+  if (tar_js_conv_.jntArrayToJointStateEff(efforts, tar_js_->name) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;
@@ -122,7 +120,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
 int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
@@ -165,7 +163,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   // JntArray -> JointState
   active_jnts_extractor_.solve(tar_cs_->name);
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, active_joints) < 0)
+  if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;

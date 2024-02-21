@@ -102,7 +102,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     return;
 
   // 可動関節の角度を更新
-  if (drone_.isTransformable() && js_converter_.jointStateToJntArray(*js_) < 0)
+  if (drone_.isTransformable() && js_converter_.jointStateToJntArrayPos(*js_) < 0)
     rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
   // 位置制御器

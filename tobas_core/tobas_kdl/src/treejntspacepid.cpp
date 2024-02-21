@@ -13,8 +13,8 @@ TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav)
 void TreeJntSpacePID::updateInternalDataStructures()
 {
   super::updateInternalDataStructures();
-
   rne_.updateInternalDataStructures();
+  zeros_ = JntArray::Zero(nj_);
 }
 
 int TreeJntSpacePID::CartToJnt(
@@ -40,6 +40,15 @@ int TreeJntSpacePID::CartToJnt(
     return copyError(rne_);
 
   return setDefaultError(E_NOERROR);
+}
+
+int TreeJntSpacePID::CartToJnt(
+  const JntArray& cur_q,
+  const JntArray& cur_qd,
+  const JntArray& tar_q,
+  const JntArray& tar_qd)
+{
+  return CartToJnt(cur_q, cur_qd, tar_q, tar_qd, zeros_);
 }
 
 bool TreeJntSpacePID::setStiffness(const double& kp)

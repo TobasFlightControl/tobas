@@ -38,7 +38,6 @@ private:
   KDL::TreeTaskSpaceVelCtrl vel_ctrl_;
 
   tobas_ros::TransformListener tf_listener_;
-  KDL::JntArray jntarraynull_;
   double jnt_time_const_;
   sensor_msgs::JointState home_js_;
   ros::Time t_last_cmd_;

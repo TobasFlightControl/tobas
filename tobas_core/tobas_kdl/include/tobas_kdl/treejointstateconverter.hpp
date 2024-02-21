@@ -19,7 +19,15 @@ public:
 
   void updateInternalDataStructures() override;
 
+  int jointStateToJntArrayPos(const sensor_msgs::JointState& js);
+  int jointStateToJntArrayVel(const sensor_msgs::JointState& js);
+  int jointStateToJntArrayEff(const sensor_msgs::JointState& js);
+  int jointStateToJntArrayPosVel(const sensor_msgs::JointState& js);
   int jointStateToJntArray(const sensor_msgs::JointState& js);
+
+  int jntArrayToJointStatePos(const JntArray& q, const std::vector<std::string>& jnt_names);
+  int jntArrayToJointStateVel(const JntArray& qd, const std::vector<std::string>& jnt_names);
+  int jntArrayToJointStateEff(const JntArray& f, const std::vector<std::string>& jnt_names);
   int jntArrayToJointState(
     const JntArray& q,
     const JntArray& qd,
@@ -43,6 +51,8 @@ private:
   JntArray qd_out_;
   JntArray f_out_;
   sensor_msgs::JointState js_out_;
+
+  void clearJointState();
 };
 
 inline const JntArray& TreeJointStateConverter::getPositionsKDL() const

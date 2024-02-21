@@ -148,7 +148,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   if (tar_rpyt_ != nullptr)
   {
     // 可動関節角を更新
-    if (drone_.isTransformable() && js_converter_.jointStateToJntArray(*js_) < 0)
+    if (drone_.isTransformable() && js_converter_.jointStateToJntArrayPos(*js_) < 0)
       rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
 
     // 目標角加速度を計算

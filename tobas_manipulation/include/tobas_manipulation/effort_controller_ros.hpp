@@ -41,7 +41,6 @@ private:
   KDL::TreeTaskSpacePID pid_ts_;
 
   tobas_ros::TransformListener tf_listener_;
-  KDL::JntArray jntarraynull_;
   sensor_msgs::JointState home_js_;
   ros::Time t_last_cmd_;
   bool is_commanded_ = false;
