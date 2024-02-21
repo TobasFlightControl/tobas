@@ -69,8 +69,8 @@ void VelocityControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
     nh_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ =
-    nh_.subscribe(tobas::kVelCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+  tar_ls_sub_ =
+    nh_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
 int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
@@ -124,16 +124,16 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
 
   Frame T_Base_Parent;
   KDL::FrameMap tar_p;
-  for (const auto& [seg_name, frame] : tobas_std::zip(tar_cs_->name, tar_cs_->frame))
+  for (const auto& ls : tar_ls_->states)
   {
-    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_cs_->header.frame_id))
+    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
       rosError(name_, tf_listener_.getErrorMessage());
       continue;
     }
 
     transformMsgToKDL(tf_listener_.getTransform().transform, T_Base_Parent);
-    tar_p[seg_name] = T_Base_Parent * frame;  // Base -> Segment tip
+    tar_p[ls.name] = T_Base_Parent * ls.frame;  // Base -> Segment tip
   }
 
   // 目標関節速度を計算
@@ -146,7 +146,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   const auto& velocities = vel_ctrl_.getVelocities();
 
   // JntArray -> JointState
-  active_jnts_extractor_.solve(tar_cs_->name);
+  active_jnts_extractor_.solve(tar_ls_->names());
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateVel(velocities, active_joints) < 0)
   {
@@ -166,14 +166,14 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
 {
   cur_js_ = cur_js;
 
-  if (tar_js_ == nullptr && tar_cs_ == nullptr)
+  if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
   const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
-    tar_cs_ = nullptr;
+    tar_ls_ = nullptr;
     is_commanded_ = false;
     rosWarn(
       name_, "The target joint states are automatically reset because "
@@ -190,14 +190,14 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     if (jointSpaceControl(*velocities_msg) < 0)
       return;
   }
-  else if (tar_cs_ != nullptr)
+  else if (tar_ls_ != nullptr)
   {
     if (taskSpaceControl(*velocities_msg) < 0)
       return;
   }
   else
   {
-    rosError(name_, "Both target joint state and target cartesian state are NULL.");
+    rosError(name_, "Both target joint state and target link state are NULL.");
     return;
   }
 
@@ -208,21 +208,15 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
 void VelocityControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_cs_ = nullptr;
+  tar_ls_ = nullptr;
 
   t_last_cmd_ = ros::Time::now();
   is_commanded_ = true;
 }
 
-void VelocityControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
+void VelocityControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
 {
-  if (tar_cs->name.size() != tar_cs->frame.size())
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
-
-  tar_cs_ = tar_cs;
+  tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
   t_last_cmd_ = ros::Time::now();

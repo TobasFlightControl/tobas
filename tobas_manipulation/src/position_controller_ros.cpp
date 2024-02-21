@@ -55,8 +55,8 @@ void PositionControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
     nh_.subscribe(tobas::kPosCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ =
-    nh_.subscribe(tobas::kPosCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+  tar_ls_sub_ =
+    nh_.subscribe(tobas::kPosCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
 int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg)
@@ -77,14 +77,14 @@ int PositionControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray&)
 
 void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateConstPtr&)
 {
-  if (tar_js_ == nullptr && tar_cs_ == nullptr)
+  if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
   const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
-    tar_cs_ = nullptr;
+    tar_ls_ = nullptr;
     is_commanded_ = false;
     rosWarn(
       name_, "The target joint states are automatically reset because "
@@ -101,14 +101,14 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     if (jointSpaceControl(*positions_msg) < 0)
       return;
   }
-  else if (tar_cs_ != nullptr)
+  else if (tar_ls_ != nullptr)
   {
     if (taskSpaceControl(*positions_msg) < 0)
       return;
   }
   else
   {
-    rosError(name_, "Both target joint state and target cartesian state are NULL.");
+    rosError(name_, "Both target joint state and target link state are NULL.");
     return;
   }
 
@@ -119,21 +119,15 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
 void PositionControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_cs_ = nullptr;
+  tar_ls_ = nullptr;
 
   t_last_cmd_ = ros::Time::now();
   is_commanded_ = true;
 }
 
-void PositionControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
+void PositionControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
 {
-  if (tar_cs->name.size() != tar_cs->frame.size())
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
-
-  tar_cs_ = tar_cs;
+  tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
   t_last_cmd_ = ros::Time::now();

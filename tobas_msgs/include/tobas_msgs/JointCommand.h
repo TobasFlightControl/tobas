@@ -25,11 +25,10 @@ struct JointCommand_
     (void)_alloc;
   }
 
-  /* Added from here */
+  /* ADDED */
   JointCommand_(const std::string& _name, double _data) : name(_name), data(_data)
   {
   }
-  /* Added to here */
 
   typedef std::basic_string<
     char,

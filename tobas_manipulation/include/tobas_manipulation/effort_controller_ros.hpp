@@ -12,7 +12,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/JointCommandArray.h>
-#include <tobas_msgs/CartesianState.h>
+#include <tobas_msgs/LinkStateArray.h>
 
 #include <tobas_manipulation/EffortControllerConfig.h>
 
@@ -47,7 +47,7 @@ private:
 
   sensor_msgs::JointStateConstPtr cur_js_;
   sensor_msgs::JointStateConstPtr tar_js_;
-  tobas_msgs::CartesianStateConstPtr tar_cs_;
+  tobas_msgs::LinkStateArrayConstPtr tar_ls_;
 
   // Publishers
   ros::Publisher efforts_pub_;
@@ -56,7 +56,7 @@ private:
   ros::Subscriber odom_sub_;
   ros::Subscriber cur_js_sub_;
   ros::Subscriber tar_js_sub_;
-  ros::Subscriber tar_cs_sub_;
+  ros::Subscriber tar_ls_sub_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
@@ -70,7 +70,7 @@ private:
 
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
-  void targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

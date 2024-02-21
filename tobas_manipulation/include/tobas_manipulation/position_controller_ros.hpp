@@ -8,7 +8,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/JointCommandArray.h>
-#include <tobas_msgs/CartesianState.h>
+#include <tobas_msgs/LinkStateArray.h>
 
 namespace tobas_manipulation
 {
@@ -31,7 +31,7 @@ private:
   bool is_commanded_ = false;
 
   sensor_msgs::JointStateConstPtr tar_js_;
-  tobas_msgs::CartesianStateConstPtr tar_cs_;
+  tobas_msgs::LinkStateArrayConstPtr tar_ls_;
 
   // Publishers
   ros::Publisher positions_pub_;
@@ -39,7 +39,7 @@ private:
   // Subscribers
   ros::Subscriber cur_js_sub_;
   ros::Subscriber tar_js_sub_;
-  ros::Subscriber tar_cs_sub_;
+  ros::Subscriber tar_ls_sub_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -50,6 +50,6 @@ private:
 
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
-  void targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& cs);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls);
 };
 }  // namespace tobas_manipulation

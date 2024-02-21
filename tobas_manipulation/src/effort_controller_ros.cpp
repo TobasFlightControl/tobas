@@ -69,9 +69,9 @@ void EffortControllerRos::registerSubscribers()
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
-    nh_.subscribe(tobas::kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ =
-    nh_.subscribe(tobas::kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ =
+    nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
@@ -134,10 +134,9 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   TwistMap tar_v;
   AccelMap a_ff;
   WrenchMap f_ext;
-  for (const auto& [seg_name, frame, twist, accel, wrench] : tobas_std::zip(
-         tar_cs_->name, tar_cs_->frame, tar_cs_->twist, tar_cs_->accel, tar_cs_->wrench))
+  for (const auto& ls : tar_ls_->states)
   {
-    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_cs_->header.frame_id))
+    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
       rosError(name_, tf_listener_.getErrorMessage());
       continue;
@@ -145,10 +144,10 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
 
     // 親フレームで表現された値をベースリンクで表現された値に変換
     transformMsgToKDL(tf_listener_.getTransform().transform, T_Base_Parent);
-    tar_p[seg_name] = T_Base_Parent * frame;
-    tar_v[seg_name] = T_Base_Parent.M * twist;
-    a_ff[seg_name] = T_Base_Parent.M * accel;
-    f_ext[seg_name] = T_Base_Parent.M * wrench;
+    tar_p[ls.name] = T_Base_Parent * ls.frame;
+    tar_v[ls.name] = T_Base_Parent.M * ls.twist;
+    a_ff[ls.name] = T_Base_Parent.M * ls.accel;
+    f_ext[ls.name] = T_Base_Parent.M * ls.wrench;
   }
 
   // PIDで関節トルクを計算
@@ -162,7 +161,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   const auto& efforts = pid_ts_.getEfforts();
 
   // JntArray -> JointState
-  active_jnts_extractor_.solve(tar_cs_->name);
+  active_jnts_extractor_.solve(tar_ls_->names());
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
   {
@@ -182,14 +181,14 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
 {
   cur_js_ = cur_js;
 
-  if (tar_js_ == nullptr && tar_cs_ == nullptr)
+  if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
   const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
-    tar_cs_ = nullptr;
+    tar_ls_ = nullptr;
     is_commanded_ = false;
     rosWarn(
       name_, "The target joint states are automatically reset because "
@@ -206,7 +205,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
     if (jointSpaceControl(*efforts_msg) < 0)
       return;
   }
-  else if (tar_cs_ != nullptr)
+  else if (tar_ls_ != nullptr)
   {
     if (taskSpaceControl(*efforts_msg) < 0)
       return;
@@ -224,24 +223,15 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
 void EffortControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_cs_ = nullptr;
+  tar_ls_ = nullptr;
 
   t_last_cmd_ = ros::Time::now();
   is_commanded_ = true;
 }
 
-void EffortControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
+void EffortControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
 {
-  const auto np = tar_cs->name.size();  // The number of endpoints
-  if (
-    tar_cs->frame.size() != np || tar_cs->twist.size() != np || tar_cs->accel.size() != np
-    || tar_cs->wrench.size() != np)
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
-
-  tar_cs_ = tar_cs;
+  tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
   t_last_cmd_ = ros::Time::now();

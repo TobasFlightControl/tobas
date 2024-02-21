@@ -63,11 +63,11 @@ static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
 static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
 // tobas_manipulation
 static constexpr char kPosCtrlJSTopic[] = "joint_position_controller/target_joint_states";
-static constexpr char kPosCtrlCSTopic[] = "joint_position_controller/target_cartesian_states";
+static constexpr char kPosCtrlLSTopic[] = "joint_position_controller/target_link_states";
 static constexpr char kVelCtrlJSTopic[] = "joint_velocity_controller/target_joint_states";
-static constexpr char kVelCtrlCSTopic[] = "joint_velocity_controller/target_cartesian_states";
-static constexpr char kEffortCtrlJSTopic[] = "joint_effort_controller/target_joint_states";
-static constexpr char kEffortCtrlCSTopic[] = "joint_effort_controller/target_cartesian_states";
+static constexpr char kVelCtrlLSTopic[] = "joint_velocity_controller/target_link_states";
+static constexpr char kEffCtrlJSTopic[] = "joint_effort_controller/target_joint_states";
+static constexpr char kEffCtrlLSTopic[] = "joint_effort_controller/target_link_states";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
