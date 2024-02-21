@@ -2,6 +2,7 @@
 
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_kdl/treefksolverpos.hpp>
+#include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_tools/drone.hpp>
@@ -56,13 +57,14 @@ public:
 private:
   const tobas::Drone& drone_;
   KDL::TreeFkSolverPos fk_solver_;
+  KDL::TreeJntAxisSolver jnt_axis_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 
   MixerConfig cfg_;
 
   quadprog::DualActiveSetSolver qp_;
-  Eigen::Matrix3Xd A_;
+  Eigen::Matrix3Xd U_;
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_thrusts_;
   Eigen::VectorXd last_thrusts_;

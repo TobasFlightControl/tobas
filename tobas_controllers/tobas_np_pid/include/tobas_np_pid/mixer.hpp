@@ -51,7 +51,5 @@ private:
   Eigen::DiagonalXd R_;                  // 推力の重み
   Eigen::Matrix6Xd G_;                   // EoM行列等式の左辺
   Eigen::Vector6d h_;                    // EoM行列等式の右辺
-  std::vector<KDL::Vector> cog2prop_B_;  // Translation from CoG to propellers wrt. base frame
-  std::vector<KDL::Vector> axis_B_;      // Rotating axes wrt. base frame
 };
 }  // namespace tobas_np_pid

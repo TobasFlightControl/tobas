@@ -1,10 +1,7 @@
 #include <tobas_std_tools/console.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_common/mixer.hpp"
-
-#define UNIT_Z Vector3d::UnitZ()
 
 using namespace std;
 using namespace Eigen;
@@ -15,6 +12,7 @@ namespace tobas_mr_common
 Mixer::Mixer(const tobas::Drone& drone)
   : drone_(drone),
     fk_solver_(drone.tree()),
+    jnt_axis_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
     z_rotors_(drone, tobas::Axis::Z_POSITIVE)
 {
@@ -24,6 +22,7 @@ Mixer::Mixer(const tobas::Drone& drone)
 void Mixer::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
+  jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
@@ -49,7 +48,7 @@ void Mixer::updateInternalDataStructures()
   // QPの重み
   updateQpWeight();
 
-  A_.resize(NoChange, z_rotors_.count());
+  U_.resize(NoChange, z_rotors_.count());
   max_thrusts_.resize(z_rotors_.count());
   min_thrusts_.resize(z_rotors_.count());
   last_thrusts_ = VectorXd::Zero(z_rotors_.count());
@@ -68,30 +67,38 @@ VectorXd Mixer::solve(
   assert(cur_voltage > 0);
   assert(static_cast<size_t>(tar_thrusts.size()) == z_rotors_.count());
 
-  // 慣性テンソルと重心を計算
+  // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
-  const auto& I_base = inertia_solver_.getInertia();
-  const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
+  const auto& inertia = inertia_solver_.getInertia();
+  const auto B_Pos_B2G = inertia.getCOG();
+  const auto I_B = inertia.refPoint(B_Pos_B2G).getRotationalInertia();
 
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
-    if (fk_solver_.JntToCart(cur_q, z_rotors_.linkName(i)) < 0)
+    // FKと回転軸を更新
+    const auto& link_name = z_rotors_.linkName(i);
+    if (fk_solver_.JntToCart(cur_q, link_name) < 0)
       throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
-    const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
+    if (jnt_axis_solver_.JntToCart(cur_q, link_name) < 0)
+      throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
+
+    const auto& B_Pos_B2P = fk_solver_.getFrame().p;
+    const auto& axis_B = jnt_axis_solver_.getAxis();
+
     const auto& d = z_rotors_.direction(i);
     const auto& cm = z_rotors_.momentConstant(i);
-    A_.col(i) = (d * cm) * UNIT_Z - P_cog_rotor.data.cross(UNIT_Z);
+    const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+    U_.col(i) = ((d * cm) * axis_B - B_Pos_G2P * axis_B).data;
   }
 
-  qp_.problem.G.topLeftCorner(3, 3) = I_cog.data;
-  qp_.problem.G.topRightCorner(3, z_rotors_.count()) = A_;
+  qp_.problem.G.topLeftCorner(3, 3) = I_B.data;
+  qp_.problem.G.topRightCorner(3, z_rotors_.count()) = U_;
 
-  const auto m_inertia = I_cog.data * tar_dgyro_B;  // 慣性力によるモーメント
-  const auto m_coriolis = cur_gyro_B.cross(I_cog.data * cur_gyro_B);  // コリオリ力によるモーメント
-  qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - A_ * tar_thrusts;
-  // qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - A_ * tar_thrusts;  // コリオリ力無視の場合
+  const auto m_inertia = I_B.data * tar_dgyro_B;  // 慣性力によるモーメント
+  const auto m_coriolis = cur_gyro_B.cross(I_B.data * cur_gyro_B);  // コリオリ力によるモーメント
+  qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - U_ * tar_thrusts;
+  // qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - U_ * tar_thrusts;  // コリオリ力無視の場合
 
   updateThrustLimits(dt, cur_voltage, tar_thrusts.sum());
   const auto max_dthrusts = max_thrusts_ - tar_thrusts;

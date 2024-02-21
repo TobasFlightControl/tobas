@@ -1,7 +1,6 @@
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/console.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_np_pid/mixer.hpp"
@@ -46,8 +45,6 @@ void Mixer::updateInternalDataStructures()
 
   R_.resize(drone_.numRotors());
   G_.resize(NoChange, drone_.numRotors());
-  cog2prop_B_.resize(drone_.numRotors());
-  axis_B_.resize(drone_.numRotors());
 }
 
 VectorXd Mixer::solve(
@@ -70,30 +67,27 @@ VectorXd Mixer::solve(
   const auto I_B = inertia.refPoint(B_Pos_B2G).getRotationalInertia();
   const auto& mass = inertia.getMass();
 
-  // プロペラの位置と回転軸を更新
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
-  {
-    const auto& link_name = drone_.rotorConfig(i).link_name;
-
-    if (fk_solver_.JntToCart(cur_q, link_name) < 0)
-      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
-    cog2prop_B_[i] = fk_solver_.getFrame().p - B_Pos_B2G;
-
-    if (jnt_axis_solver_.JntToCart(cur_q, link_name) < 0)
-      throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
-    axis_B_[i] = jnt_axis_solver_.getAxis();
-  }
-
   // EoM行列等式の左辺
   for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
+    // FKと回転軸を更新
+    const auto& link_name = drone_.rotorConfig(i).link_name;
+    if (fk_solver_.JntToCart(cur_q, link_name) < 0)
+      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
+    if (jnt_axis_solver_.JntToCart(cur_q, link_name) < 0)
+      throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
+
+    const auto& B_Pos_B2P = fk_solver_.getFrame().p;
+    const auto& axis_B = jnt_axis_solver_.getAxis();
+
     // 並進
-    G_.block<3, 1>(0, i) = axis_B_[i].data;
+    G_.block<3, 1>(0, i) = axis_B.data;
 
     // 回転
     const auto& d = drone_.rotorConfig(i).direction;
     const auto& cm = drone_.rotorConfig(i).moment_constant;
-    G_.block<3, 1>(3, i) = (cog2prop_B_[i] * axis_B_[i] - (d * cm) * axis_B_[i]).data;
+    const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+    G_.block<3, 1>(3, i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
   // EoM行列等式の右辺
