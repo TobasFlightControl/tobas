@@ -120,7 +120,7 @@ void DynamixelHandler::getRosParams()
 
 void DynamixelHandler::registerPublishers()
 {
-  motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStates>(kMotorStatesTopic, 1);
+  motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStateArray>(kMotorStatesTopic, 1);
 }
 
 void DynamixelHandler::registerSubscribers()
@@ -339,7 +339,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
 {
   // Create motor states message
-  const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStates>();
+  const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStateArray>();
   motor_states->header.stamp = cur_time;
 
   // Read packets
@@ -389,6 +389,8 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   // Compute joint states in the SI unit system
   for (const auto& [name, cfg] : motors_)
   {
+    motor_state_.name = name;
+
     if (read_position_)
     {
       const int32_t pos_raw = pos_sync_read_->getData(cfg.id, kAddrPresentPosition, 4);
@@ -459,7 +461,6 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
       motor_state_.temperature = nan(kInactive);
     }
 
-    motor_states->names.push_back(name);
     motor_states->states.push_back(motor_state_);
   }
 

@@ -1,3 +1,4 @@
+string name
 float64 pwm            # [%]
 float64 current        # [A]
 float64 load           # [%] Unreliable

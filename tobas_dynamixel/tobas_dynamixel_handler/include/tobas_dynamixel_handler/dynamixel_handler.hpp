@@ -7,7 +7,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/JointCommandArray.h>
-#include <tobas_dynamixel_msgs/MotorStates.h>
+#include <tobas_dynamixel_msgs/MotorStateArray.h>
 
 namespace tobas_dynamixel_handler
 {
