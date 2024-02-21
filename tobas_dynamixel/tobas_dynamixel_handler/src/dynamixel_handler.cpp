@@ -480,7 +480,7 @@ void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
+void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions)
 {
   if (!is_enabled_)
   {
@@ -488,19 +488,13 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
     return;
   }
 
-  const auto size = positions->name.size();
-  if (positions->data.size() != size)
-  {
-    rosError(name_, "The sizes of name and data in joint positions message do not match.");
-    return;
-  }
-
+  const auto size = positions->commands.size();
   goal_positions_.resize(size);
   pos_sync_write_->clearParam();
 
   for (size_t i = 0; i < size; ++i)
   {
-    const auto& jnt_name = positions->name[i];
+    const auto& jnt_name = positions->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -508,7 +502,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
     }
 
     const auto& cfg = motors_.at(jnt_name);
-    auto tar_pos = positions->data[i];
+    auto tar_pos = positions->commands[i].data;
     if (cfg.operating_mode == kControlModePosition)
     {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos))
@@ -537,7 +531,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConst
     rosError(name_, "Failed to transmit a sync write instruction packet of positions.");
 }
 
-void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities)
+void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities)
 {
   if (!is_enabled_)
   {
@@ -545,19 +539,13 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
     return;
   }
 
-  const auto size = velocities->name.size();
-  if (velocities->data.size() != size)
-  {
-    rosError(name_, "The sizes of name and data in joint velocities message do not match.");
-    return;
-  }
-
+  const auto size = velocities->commands.size();
   goal_velocities_.resize(size);
   vel_sync_write_->clearParam();
 
   for (size_t i = 0; i < size; ++i)
   {
-    const auto& jnt_name = velocities->name[i];
+    const auto& jnt_name = velocities->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -571,7 +559,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
       continue;
     }
 
-    auto tar_vel = velocities->data[i];
+    auto tar_vel = velocities->commands[i].data;
     if (abs(tar_vel) > cfg.vel_limit)
     {
       tar_vel = clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
@@ -589,7 +577,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesCon
     rosError(name_, "Failed to transmit a sync write instruction packet of velocities.");
 }
 
-void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts)
+void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts)
 {
   if (!is_enabled_)
   {
@@ -597,17 +585,11 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr&
     return;
   }
 
-  const auto size = efforts->name.size();
-  if (efforts->data.size() != size)
-  {
-    rosError(name_, "The sizes of name and data in joint efforts message do not match.");
-    return;
-  }
+  const auto size = efforts->commands.size();
 
   for (size_t i = 0; i < size; ++i)
   {
-    const auto& jnt_name = efforts->name[i];
-
+    const auto& jnt_name = efforts->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
       rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
@@ -615,7 +597,6 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr&
     }
 
     const auto& cfg = motors_.at(jnt_name);
-
     if (cfg.operating_mode != kControlModeCurrent && cfg.operating_mode != kControlModePwm)
     {
       rosError(name_, "The operating mode of joint '" << jnt_name << "' is not effort.");

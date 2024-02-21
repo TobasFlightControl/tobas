@@ -61,7 +61,7 @@ void EffortControllerRos::getRosParams()
 
 void EffortControllerRos::registerPublishers()
 {
-  efforts_pub_ = nh_.advertise<tobas_msgs::JointEfforts>(tobas::kJointEffortsCmdTopic, 1);
+  efforts_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
 }
 
 void EffortControllerRos::registerSubscribers()
@@ -74,7 +74,7 @@ void EffortControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
 }
 
-int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
+int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
@@ -111,13 +111,14 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
   }
 
   // Fill output message
-  efforts_msg.name = tar_js_conv_.getNamesMsg();
-  efforts_msg.data = tar_js_conv_.getEffortsMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    efforts_msg.commands.emplace_back(name, vel);
 
   return 0;
 }
 
-int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
+int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
@@ -170,8 +171,9 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   }
 
   // Fill output message
-  efforts_msg.name = tar_js_conv_.getNamesMsg();
-  efforts_msg.data = tar_js_conv_.getEffortsMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    efforts_msg.commands.emplace_back(name, vel);
 
   return 0;
 }
@@ -196,7 +198,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   }
 
   // Create joint efforts command
-  const auto efforts_msg = boost::make_shared<tobas_msgs::JointEfforts>();
+  const auto efforts_msg = boost::make_shared<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)

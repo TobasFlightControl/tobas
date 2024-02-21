@@ -6,9 +6,7 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Event.h>
-#include <tobas_msgs/JointPositions.h>
-#include <tobas_msgs/JointVelocities.h>
-#include <tobas_msgs/JointEfforts.h>
+#include <tobas_msgs/JointCommandArray.h>
 #include <tobas_dynamixel_msgs/MotorStates.h>
 
 namespace tobas_dynamixel_handler
@@ -99,9 +97,9 @@ private:
   void printHardwareErrorStatus();
 
   void eventCb(const tobas_msgs::EventConstPtr& event);
-  void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts);
+  void jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities);
+  void jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts);
 
   bool enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);

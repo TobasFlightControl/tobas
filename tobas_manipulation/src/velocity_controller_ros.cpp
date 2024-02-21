@@ -59,7 +59,8 @@ void VelocityControllerRos::getRosParams()
 
 void VelocityControllerRos::registerPublishers()
 {
-  velocities_pub_ = nh_.advertise<tobas_msgs::JointVelocities>(tobas::kJointVelocitiesCmdTopic, 1);
+  velocities_pub_ =
+    nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
 }
 
 void VelocityControllerRos::registerSubscribers()
@@ -72,7 +73,7 @@ void VelocityControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kVelCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
 }
 
-int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg)
+int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
@@ -104,13 +105,14 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& veloci
   }
 
   // Fill output message
-  velocities_msg.name = tar_js_conv_.getNamesMsg();
-  velocities_msg.data = tar_js_conv_.getVelocitiesMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    velocities_msg.commands.emplace_back(name, vel);
 
   return 0;
 }
 
-int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg)
+int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
@@ -153,8 +155,9 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
   }
 
   // Fill output message
-  velocities_msg.name = tar_js_conv_.getNamesMsg();
-  velocities_msg.data = tar_js_conv_.getVelocitiesMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    velocities_msg.commands.emplace_back(name, vel);
 
   return 0;
 }
@@ -179,7 +182,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   }
 
   // Create joint velocities command
-  const auto velocities_msg = boost::make_shared<tobas_msgs::JointVelocities>();
+  const auto velocities_msg = boost::make_shared<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)

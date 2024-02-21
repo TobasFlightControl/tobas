@@ -9,7 +9,7 @@
 #include <tobas_ros_tools/tf_listener.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/JointVelocities.h>
+#include <tobas_msgs/JointCommandArray.h>
 #include <tobas_msgs/CartesianState.h>
 
 #include <tobas_manipulation/VelocityControllerConfig.h>
@@ -62,8 +62,8 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  int jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
-  int taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
+  int jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
+  int taskSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
 
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);

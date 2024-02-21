@@ -7,7 +7,7 @@
 #include <tobas_ros_tools/tf_listener.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/JointPositions.h>
+#include <tobas_msgs/JointCommandArray.h>
 #include <tobas_msgs/CartesianState.h>
 
 namespace tobas_manipulation
@@ -45,8 +45,8 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  int jointSpaceControl(tobas_msgs::JointPositions& positions_msg);
-  int taskSpaceControl(tobas_msgs::JointPositions& positions_msg);
+  int jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg);
+  int taskSpaceControl(tobas_msgs::JointCommandArray& positions_msg);
 
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);

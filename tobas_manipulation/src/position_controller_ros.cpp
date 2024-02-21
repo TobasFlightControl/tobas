@@ -46,7 +46,7 @@ void PositionControllerRos::getRosParams()
 
 void PositionControllerRos::registerPublishers()
 {
-  positions_pub_ = nh_.advertise<tobas_msgs::JointPositions>(tobas::kJointPositionsCmdTopic, 1);
+  positions_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
 }
 
 void PositionControllerRos::registerSubscribers()
@@ -59,16 +59,16 @@ void PositionControllerRos::registerSubscribers()
     nh_.subscribe(tobas::kPosCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
 }
 
-int PositionControllerRos::jointSpaceControl(tobas_msgs::JointPositions& positions_msg)
+int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg)
 {
   // 位置コマンドをそのまま流すだけ
-  positions_msg.name = tar_js_->name;
-  positions_msg.data = tar_js_->position;
+  for (const auto& [name, pos] : tobas_std::zip(tar_js_->name, tar_js_->position))
+    positions_msg.commands.emplace_back(name, pos);
 
   return 0;
 }
 
-int PositionControllerRos::taskSpaceControl(tobas_msgs::JointPositions&)
+int PositionControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray&)
 {
   rosError(name_, "Task space control of joint position controller is not implemented.");  // TODO
 
@@ -93,7 +93,7 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   }
 
   // Create joint velocities command
-  const auto positions_msg = boost::make_shared<tobas_msgs::JointPositions>();
+  const auto positions_msg = boost::make_shared<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)

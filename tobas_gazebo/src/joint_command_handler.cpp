@@ -90,24 +90,18 @@ int JointCommandHandler::initialize()
   return 0;
 }
 
-void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions)
+void JointCommandHandler::jointPositionsCmdCb(
+  const tobas_msgs::JointCommandArrayConstPtr& positions)
 {
-  if (positions->name.size() != positions->data.size())
-  {
-    rosError(name_, "The sizes of name and data in joint positions message do not match.");
-    return;
-  }
-
   if (ctrl_map_.size() == 0 && initialize() < 0)
   {
     ctrl_map_.clear();
     return;
   }
 
-  for (size_t i = 0; i < positions->name.size(); ++i)
+  for (size_t i = 0; i < positions->commands.size(); ++i)
   {
-    const auto& jnt_name = positions->name[i];
-
+    const auto& jnt_name = positions->commands[i].name;
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
       rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
@@ -118,7 +112,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsCo
     if (type == POSITION)
     {
       const auto cmd = boost::make_shared<std_msgs::Float64>();
-      cmd->data = positions->data[i];
+      cmd->data = positions->commands[i].data;
       pub.publish(cmd);
     }
     else
@@ -132,23 +126,17 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointPositionsCo
 }
 
 void JointCommandHandler::jointVelocitiesCmdCb(
-  const tobas_msgs::JointVelocitiesConstPtr& velocities)
+  const tobas_msgs::JointCommandArrayConstPtr& velocities)
 {
-  if (velocities->name.size() != velocities->data.size())
-  {
-    rosError(name_, "The sizes of name and data in joint velocities message do not match.");
-    return;
-  }
-
   if (ctrl_map_.size() == 0 && initialize() < 0)
   {
     ctrl_map_.clear();
     return;
   }
 
-  for (size_t i = 0; i < velocities->name.size(); ++i)
+  for (size_t i = 0; i < velocities->commands.size(); ++i)
   {
-    const auto& jnt_name = velocities->name[i];
+    const auto& jnt_name = velocities->commands[i].name;
 
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
@@ -160,7 +148,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(
     if (type == VELOCITY)
     {
       const auto cmd = boost::make_shared<std_msgs::Float64>();
-      cmd->data = velocities->data[i];
+      cmd->data = velocities->commands[i].data;
       pub.publish(cmd);
     }
     else
@@ -173,24 +161,17 @@ void JointCommandHandler::jointVelocitiesCmdCb(
   }
 }
 
-void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts)
+void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts)
 {
-  if (efforts->name.size() != efforts->data.size())
-  {
-    rosError(name_, "The sizes of name and data in joint efforts message do not match.");
-    return;
-  }
-
   if (ctrl_map_.size() == 0 && initialize() < 0)
   {
     ctrl_map_.clear();
     return;
   }
 
-  for (size_t i = 0; i < efforts->name.size(); ++i)
+  for (size_t i = 0; i < efforts->commands.size(); ++i)
   {
-    const auto& jnt_name = efforts->name[i];
-
+    const auto& jnt_name = efforts->commands[i].name;
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
       rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
@@ -201,7 +182,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointEffortsConstP
     if (type == EFFORT)
     {
       const auto cmd = boost::make_shared<std_msgs::Float64>();
-      cmd->data = efforts->data[i];
+      cmd->data = efforts->commands[i].data;
       pub.publish(cmd);
     }
     else
