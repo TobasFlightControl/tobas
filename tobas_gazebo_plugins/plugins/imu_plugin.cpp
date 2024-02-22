@@ -32,9 +32,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
 
   noise_ = NormalDistribution(0, 1);
   for (size_t i = 0; i < 3; ++i)
