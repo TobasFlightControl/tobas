@@ -36,7 +36,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.offset)
 
-        update_rate_description = ""
+        update_rate_description = ""  # TODO
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate",
             update_rate_description,
@@ -46,7 +46,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.update_rate)
 
-        delay_description = ""
+        delay_description = ""  # TODO
         self.delay = ParamGetterWidget_DoubleSpinBox(
             "Communication delay",
             delay_description,
@@ -57,49 +57,59 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.delay)
 
-        horizontal_pos_std_description = ""
-        self.horizontal_pos_std = ParamGetterWidget_DoubleSpinBox(
-            "Standard deviation for horizontal position noise",
-            horizontal_pos_std_description,
+        pos_corr_time_description = ""  # TODO
+        self.pos_corr_time = ParamGetterWidget_SpinBox(
+            "Position correction time constant",
+            pos_corr_time_description,
+            minimum=1,
+            default=10,
+            suffix=" s",
+        )
+        self._rows.addWidget(self.pos_corr_time)
+
+        horizontal_pos_accuracy_description = ""  # TODO
+        self.horizontal_pos_accuracy = ParamGetterWidget_DoubleSpinBox(
+            "Horizontal position accuracy",
+            horizontal_pos_accuracy_description,
             decimals=2,
             minimum=0.0,
-            default=1.5,
+            default=2.0,
             suffix=" m",
         )
-        self._rows.addWidget(self.horizontal_pos_std)
+        self._rows.addWidget(self.horizontal_pos_accuracy)
 
-        vertical_pos_std_description = ""
-        self.vertical_pos_std = ParamGetterWidget_DoubleSpinBox(
-            "Standard deviation for vertical position noise",
-            vertical_pos_std_description,
+        vertical_pos_accuracy_description = ""  # TODO
+        self.vertical_pos_accuracy = ParamGetterWidget_DoubleSpinBox(
+            "Hertical position accuracy",
+            vertical_pos_accuracy_description,
             decimals=2,
             minimum=0.0,
-            default=3.0,
+            default=4.0,
             suffix=" m",
         )
-        self._rows.addWidget(self.vertical_pos_std)
+        self._rows.addWidget(self.vertical_pos_accuracy)
 
-        horizontal_vel_std_description = ""
-        self.horizontal_vel_std = ParamGetterWidget_DoubleSpinBox(
+        horizontal_vel_stddev_description = ""  # TODO
+        self.horizontal_vel_stddev = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for horizontal speed noise",
-            horizontal_vel_std_description,
+            horizontal_vel_stddev_description,
             decimals=2,
             minimum=0.0,
             default=0.1,
             suffix=" m/s",
         )
-        self._rows.addWidget(self.horizontal_vel_std)
+        self._rows.addWidget(self.horizontal_vel_stddev)
 
-        vertical_vel_std_description = ""
-        self.vertical_vel_std = ParamGetterWidget_DoubleSpinBox(
+        vertical_vel_stddev_description = ""  # TODO
+        self.vertical_vel_stddev = ParamGetterWidget_DoubleSpinBox(
             "Standard deviation for vertical speed noise",
-            vertical_vel_std_description,
+            vertical_vel_stddev_description,
             decimals=2,
             minimum=0.0,
             default=0.1,
             suffix=" m/s",
         )
-        self._rows.addWidget(self.vertical_vel_std)
+        self._rows.addWidget(self.vertical_vel_stddev)
 
         add_spacer(self._rows)
         self._update_visibility()
@@ -124,14 +134,14 @@ class GpsWidget(BaseSettingWidget):
         if self._equipped.isChecked():
             self.offset.setVisible(True)
             self.update_rate.setVisible(True)
-            self.horizontal_pos_std.setVisible(True)
-            self.vertical_pos_std.setVisible(True)
-            self.horizontal_vel_std.setVisible(True)
-            self.vertical_vel_std.setVisible(True)
+            self.horizontal_pos_accuracy.setVisible(True)
+            self.vertical_pos_accuracy.setVisible(True)
+            self.horizontal_vel_stddev.setVisible(True)
+            self.vertical_vel_stddev.setVisible(True)
         else:
             self.offset.setVisible(False)
             self.update_rate.setVisible(False)
-            self.horizontal_pos_std.setVisible(False)
-            self.vertical_pos_std.setVisible(False)
-            self.horizontal_vel_std.setVisible(False)
-            self.vertical_vel_std.setVisible(False)
+            self.horizontal_pos_accuracy.setVisible(False)
+            self.vertical_pos_accuracy.setVisible(False)
+            self.horizontal_vel_stddev.setVisible(False)
+            self.vertical_vel_stddev.setVisible(False)
