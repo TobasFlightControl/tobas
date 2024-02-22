@@ -39,9 +39,9 @@ class GpsModel(SensorModel):
         pos_corr_time: float
             位置の自己回帰時定数
         hor_pos_accuracy : float
-            水平位置のノイズの標準偏差
+            水平位置の正確度
         ver_pos_accuracy : float
-            垂直位置のノイズの標準偏差
+            垂直位置の正確度
         hor_vel_stddev : float
             水平速度のノイズの標準偏差
         ver_vel_stddev : float
