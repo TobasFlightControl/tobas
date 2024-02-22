@@ -51,7 +51,6 @@ static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 // https://docs.emlid.com/navio2/dev/adc/
 static constexpr size_t kPowerModuleVoltageChannel = 2;
 
-static constexpr size_t kServoRailSize = 14;
 static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
 static constexpr double kPwmMin = 1000;       // [us]
 static constexpr double kPwmMax = 2000;       // [us]
@@ -80,7 +79,4 @@ static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
 void setupRCOutput(PWM& pwm, const size_t& channel);
-
-size_t channelFromPin(const size_t& pin);
-size_t pinFromChannel(const size_t& channel);
 }  // namespace tobas_real

@@ -27,7 +27,7 @@ MeasureSensorNoise::MeasureSensorNoise()
     throw runtime_error("Barometer test failed.");
 
   // PWMドライバをセットアップ
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     setupRCOutput(pwm_, channel);
 }
 
@@ -116,7 +116,7 @@ void MeasureSensorNoise::run()
 
 void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 {
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     if (!pwm_.setDutyCycle(channel, period))
       throw runtime_error("Failed to set PWM duty cycle.");
 }

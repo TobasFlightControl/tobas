@@ -244,9 +244,9 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   if (res.rot_speed_coefs.second < 0)
     ROS_THROW("The second term of 'rot_speed_coefs' must be non-negative.");
 
-  tobas_ros::getParam(nh, prefix + "/pin", res.pin);
-  if (res.pin < kMinPinId || kMaxPinId < res.pin)
-    ROS_THROW("Invalid rotor pin number: " << res.pin);
+  tobas_ros::getParam(nh, prefix + "/channel", res.channel);
+  if (res.channel >= kServoRailSize)
+    ROS_THROW("Invalid PWM channel: " << res.channel);
 
   return res;
 }

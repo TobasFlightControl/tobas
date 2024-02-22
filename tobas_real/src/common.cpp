@@ -16,16 +16,4 @@ void setupRCOutput(PWM& pwm, const size_t& channel)
   if (!pwm.enable(channel))
     throw runtime_error("Failed to enable RC output on CH" + to_string(channel) + ".");
 }
-
-size_t channelFromPin(const size_t& pin)
-{
-  assert(1 <= pin && pin <= kServoRailSize);
-  return pin - 1;
-}
-
-size_t pinFromChannel(const size_t& channel)
-{
-  assert(channel < kServoRailSize);
-  return channel + 1;
-}
 }  // namespace tobas_real

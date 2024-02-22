@@ -21,7 +21,7 @@ class RotorConfig:
     link_name: str = ""  # プロペラのリンク名
     direction: int = 0  # 回転方向: CCW(1) or CW(-1)
     axis: Axis = Axis.UNKNOWN  # 回転軸
-    esc_signal_mode: EscSignalMode = EscSignalMode.BLHELI_OPEN_LOOP  # ESCへの信号の解釈方式
+    esc_signal_mode: EscSignalMode = EscSignalMode.BLHELI_OPEN_LOOP  # ESCへの信号の解釈
     num_poles: int = 0  # モータの極数
     max_rot_speed: float = 0.0  # 最大連続回転数 [rad/s]
     motor_constant: float = 0.0  # 推力係数 [kg*m/rad^2]
@@ -31,7 +31,7 @@ class RotorConfig:
         0.0,
         0.0,
     )  # V = c1 w + c2 w^2 (V[V], w[rad/s])
-    pin: int = 0  # モータが接続されているピン番号
+    channel: int = 0  # モータが接続されているPWMチャンネル
 
 
 RotorConfigs = List[RotorConfig]

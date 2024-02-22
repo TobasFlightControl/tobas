@@ -68,8 +68,8 @@ void MotorsHandler::setPeriodOnAllChannels(const double& period)
 {
   const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
   pwms->header.stamp = ros::Time::now();
-  for (const auto& rotor_config : drone_.rotorConfigs())
-    pwms->pwm.emplace_back(channelFromPin(rotor_config.pin), period);
+  for (const auto& rotor : drone_.rotorConfigs())
+    pwms->pwm.emplace_back(rotor.channel, period);
   pwms_pub_.publish(pwms);
 }
 
@@ -110,8 +110,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
   // Update PWM periods
   for (size_t rotor_idx = 0; rotor_idx < data_size; ++rotor_idx)
   {
-    const auto& pin = drone_.rotorConfig(rotor_idx).pin;
-    const auto channel = channelFromPin(pin);
+    const auto& rotor = drone_.rotorConfig(rotor_idx);
 
     // 目標回転数を決定
     const auto min_speed =
@@ -139,7 +138,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
 
     // PWMコマンドメッセージを作成
     double pwm_period;
-    switch (drone_.rotorConfig(rotor_idx).esc_signal_mode)
+    switch (rotor.esc_signal_mode)
     {
       case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
       {
@@ -167,11 +166,11 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       }
       default:
       {
-        rosError(name_, "Unknown ESC signal mode of CH" << channel);
+        rosError(name_, "Unknown ESC signal mode of CH" << rotor.channel);
         break;
       }
     }
-    pwms->pwm.emplace_back(channel, pwm_period);
+    pwms->pwm.emplace_back(rotor.channel, pwm_period);
   }
 
   // Publish PWM commands
@@ -254,14 +253,13 @@ void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent&)
 
   // PWMのセットアップ
   tobas_msgs::SetupPwm setup_pwm_msg;
-  for (const auto& rotor_config : drone_.rotorConfigs())
+  for (const auto& rotor : drone_.rotorConfigs())
   {
-    const auto channel = channelFromPin(rotor_config.pin);
-    setup_pwm_msg.request.channel = channel;
+    setup_pwm_msg.request.channel = rotor.channel;
     setup_pwm_msg.request.frequency = kPwmFrequency;
     while (!setup_pwm_sc_.call(setup_pwm_msg) || !setup_pwm_msg.response.success)
     {
-      rosWarn(name_, "Failed to setup RC output on CH" << channel << ". Retrying...");
+      rosWarn(name_, "Failed to setup RC output on CH" << rotor.channel << ". Retrying...");
       ros::Duration(kSetupPwmRetryInterval).sleep();
     }
   }
@@ -317,14 +315,13 @@ bool MotorsHandler::enablePwms(const bool& enable)
   }
 
   tobas_msgs::EnablePwm enable_pwm_msg;
-  for (const auto& rotor_config : drone_.rotorConfigs())
+  for (const auto& rotor : drone_.rotorConfigs())
   {
-    const auto channel = channelFromPin(rotor_config.pin);
-    enable_pwm_msg.request.channel = channel;
+    enable_pwm_msg.request.channel = rotor.channel;
     enable_pwm_msg.request.enable = enable;
     if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
     {
-      rosError(name_, "Failed to enable/disable RC output CH" << channel << ".");
+      rosError(name_, "Failed to enable/disable RC output CH" << rotor.channel << ".");
       return false;
     }
   }

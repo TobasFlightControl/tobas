@@ -115,8 +115,8 @@ class Drone:
         assert res.rot_speed_coefs[0] > 0.0
         assert res.rot_speed_coefs[1] >= 0.0
 
-        res.pin = rospy.get_param(f"{prefix}/pin")
-        assert MIN_PIN_ID <= res.pin <= MAX_PIN_ID
+        res.channel = rospy.get_param(f"{prefix}/channel")
+        assert 0 <= res.channel < SERVO_RAIL_SIZE
 
         return res
 

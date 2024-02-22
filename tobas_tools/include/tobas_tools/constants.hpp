@@ -13,16 +13,13 @@ static constexpr double kRad2Deg = 1 / kDeg2Rad;
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
 
-static constexpr double kMinAirSpeedThresh = 0.1;  // 空力計算を行う最小の風速 [m/s]
-static constexpr size_t kMinPinId = 1;
-static constexpr size_t kMaxPinId = 14;
-
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
 static constexpr double kArmThrottle = 0.1;
 static constexpr double kMinThrottle = 0.;
 static constexpr double kMaxThrottle = 1.;
+static constexpr size_t kServoRailSize = 14;
 
 // ROS parameters
 static constexpr char kRobotDescriptionParam[] = "robot_description";
@@ -92,6 +89,7 @@ static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kDisarmDuration = 3.;            // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 1.;            // [rad/s]
+static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
 static constexpr size_t kStopwatchSamples = 100;
 
 static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)

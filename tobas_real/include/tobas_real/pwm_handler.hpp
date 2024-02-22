@@ -6,6 +6,7 @@
 
 #include <Navio2/PWM.h>
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PwmArray.h>
 #include <tobas_msgs/SetupPwm.h>
 #include <tobas_msgs/EnablePwm.h>
@@ -35,7 +36,7 @@ public:
 
 private:
   PWM pwm_;
-  std::array<PwmState, kServoRailSize> pwm_states_;
+  std::array<PwmState, tobas::kServoRailSize> pwm_states_;
 
   // Subscribers
   ros::Subscriber pwms_sub_;

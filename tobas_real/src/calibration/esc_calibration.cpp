@@ -21,7 +21,7 @@ namespace tobas_real
 {
 EscCalibration::EscCalibration()
 {
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     setupRCOutput(pwm_, channel);
 
   adc_.initialize();
@@ -80,7 +80,7 @@ void EscCalibration::sendMinimum()
 
 void EscCalibration::setPeriod(const double& period)
 {
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     if (!pwm_.setDutyCycle(channel, period))
       throw runtime_error("Failed to set PWM duty cycle.");
 }
