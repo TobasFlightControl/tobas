@@ -10,7 +10,6 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/Pwm.h>
 
 namespace tobas_real
 {
@@ -39,7 +38,6 @@ private:
   ros::Time last_cmd_time_;
   bool is_armed_ = false;
   bool is_activated_ = false;
-  tobas_msgs::Pwm pwm_;
   tobas_msgs::BatteryConstPtr battery_;
   tobas_std::FirstOrderFilter<double> latency_filter_;
 

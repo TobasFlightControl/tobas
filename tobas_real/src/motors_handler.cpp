@@ -67,14 +67,9 @@ void MotorsHandler::registerSubscribers()
 void MotorsHandler::setPeriodOnAllChannels(const double& period)
 {
   const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
-
+  pwms->header.stamp = ros::Time::now();
   for (const auto& rotor_config : drone_.rotorConfigs())
-  {
-    pwm_.channel = channelFromPin(rotor_config.pin);
-    pwm_.period = period;
-    pwms->pwm.push_back(pwm_);
-  }
-
+    pwms->pwm.emplace_back(channelFromPin(rotor_config.pin), period);
   pwms_pub_.publish(pwms);
 }
 
@@ -108,6 +103,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
   // Create ROS messages
   const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
   const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  pwms->header = tar_speeds->header;
   real_speeds->header.stamp = cur_time;
   real_speeds->speeds.resize(data_size);
 
@@ -142,30 +138,31 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     real_speeds->speeds[rotor_idx] = tar_speed;
 
     // PWMコマンドメッセージを作成
+    double pwm_period;
     switch (drone_.rotorConfig(rotor_idx).esc_signal_mode)
     {
       case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
       {
         const auto throttle = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
-        pwm_.period = remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
+        pwm_period = remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_.period = remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_.period = remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_.period = remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       default:
@@ -174,8 +171,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
         break;
       }
     }
-    pwm_.channel = channel;
-    pwms->pwm.push_back(pwm_);
+    pwms->pwm.emplace_back(channel, pwm_period);
   }
 
   // Publish PWM commands
