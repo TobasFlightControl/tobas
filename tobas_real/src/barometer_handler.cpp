@@ -24,7 +24,7 @@ BarometerHandler::BarometerHandler(
 
   barometer_.initialize();
   if (!barometer_.testConnection())
-    ROS_THROW_NAMED(name_, "Barometer test failed.");
+    ROS_EXIT_NAMED(nh_, name_, "Barometer test failed.");
 
   registerPublishers();
   registerSubscribers();

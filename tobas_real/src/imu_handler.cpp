@@ -25,7 +25,7 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   imu_.initialize();
   if (!imu_.probe())
-    ROS_THROW_NAMED(name_, "IMU not enabled.");
+    ROS_EXIT_NAMED(nh_, name_, "IMU not enabled.");
 
   mag_trans_.initialize();
 

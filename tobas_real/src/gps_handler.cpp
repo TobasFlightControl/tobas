@@ -42,32 +42,32 @@ void GpsHandler::registerSubscribers()
 void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
-    ROS_THROW_NAMED(name_, "Failed to disable all navigation messsages.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to disable all navigation messsages.");
   if (!gps_.enableMsg(Ublox::NAV_PVT, true))
-    ROS_THROW_NAMED(name_, "Failed to enable NAV_PVT");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_PVT");
   if (!gps_.enableMsg(Ublox::NAV_COV, true))
-    ROS_THROW_NAMED(name_, "Failed to enable NAV_COV");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_COV");
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
-    ROS_THROW_NAMED(name_, "Failed to set measurement rate.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to set measurement rate.");
 
   if (!gps_.configureDynamicsModel(Ublox::AIRBORNE_2G))
-    ROS_THROW_NAMED(name_, "Failed to set dynamics model.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to set dynamics model.");
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-    ROS_THROW_NAMED(name_, "Failed to configure GPS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure GPS.");
   if (!gps_.configureGnss_SBAS(true))
-    ROS_THROW_NAMED(name_, "Failed to configure SBAS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure SBAS.");
   if (!gps_.configureGnss_Galileo(false))
-    ROS_THROW_NAMED(name_, "Failed to configure Galileo.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure Galileo.");
   if (!gps_.configureGnss_BeiDou(false))
-    ROS_THROW_NAMED(name_, "Failed to configure BeiDou.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure BeiDou.");
   if (!gps_.configureGnss_QZSS(true))
-    ROS_THROW_NAMED(name_, "Failed to configure QZSS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure QZSS.");
   if (!gps_.configureGnss_GLONASS(false))
-    ROS_THROW_NAMED(name_, "Failed to configure GLONASS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure GLONASS.");
 }
 
 void GpsHandler::mainTimerCb(const ros::TimerEvent& event)

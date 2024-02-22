@@ -21,7 +21,7 @@ BatteryHandler::BatteryHandler(
   getAdcCoefficient();
 
   if (adc_.initialize() < 0)
-    ROS_THROW_NAMED(name_, "Failed to initialize ADC driver.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to initialize ADC driver.");
 
   registerPublishers();
   registerSubscribers();

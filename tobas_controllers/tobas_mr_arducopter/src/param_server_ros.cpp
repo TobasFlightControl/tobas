@@ -28,7 +28,7 @@ ParamServerRos::ParamServerRos(
 
   param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
   if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-    ROS_THROW_NAMED(name_, "Failed to connect to '" << kParamSetSrv << "' service server.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to connect to '" << kParamSetSrv << "' service server.");
 
   registerPublishers();
   registerSubscribers();

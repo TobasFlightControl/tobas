@@ -113,17 +113,14 @@ tobas_msgs::PreArmCheckResultConstPtr StateEstimator::setZeroPositions()
 
   const bool finished_before_timeout = ac.waitForResult();
   if (!finished_before_timeout)
-  {
-    ROS_THROW_NAMED(name_, "'" << tobas::kPreArmCheckAction << "' did not finish before timeout.");
-  }
+    ROS_EXIT_NAMED(
+      nh_, name_, "'" << tobas::kPreArmCheckAction << "' did not finish before timeout.");
 
   const auto result = ac.getResult();
   const auto state = ac.getState();
   if (result->error_code != tobas_msgs::PreArmCheckResult::NO_ERROR)
-  {
-    ROS_THROW_NAMED(
-      name_, "'" << tobas::kPreArmCheckAction << "' finished with error: " << state.getText());
-  }
+    ROS_EXIT_NAMED(
+      nh_, name_, "'" << tobas::kPreArmCheckAction << "' finished with error: " << state.getText());
 
   // 経緯度
   lat_0_ = result->gps.latitude;
@@ -159,11 +156,11 @@ StateEstimator::OdomMsg::ConstPtr StateEstimator::makeOdometryMsg(const ImuMsg& 
   tobas_ros::matrix3EigenToMsg(vel_cov_B, odom->linear_velocity_covariance);
 
   // Angular velocity (Local)
-  vectorMsgToKDL(imu.angular_velocity, odom->twist.rot);
+  KDL::vectorMsgToKDL(imu.angular_velocity, odom->twist.rot);
   odom->angular_velocity_covariance = imu.angular_velocity_covariance;
 
   // Linear acceleration (Local)
-  vectorMsgToKDL(imu.linear_acceleration, odom->accel.linear);
+  KDL::vectorMsgToKDL(imu.linear_acceleration, odom->accel.linear);
   odom->accel.linear += odom->frame.M.inverse(Vector(0, 0, -tobas::kGravity));  // 重力を除く
   odom->linear_acceleration_covariance = imu.linear_acceleration_covariance;
 
@@ -215,7 +212,7 @@ void StateEstimator::filteredImuCb(const ImuMsg::ConstPtr& imu)
 
   // TFを発行
   tf_.header.stamp = odom->header.stamp;
-  transformKDLToMsg(odom->frame, tf_.transform);
+  KDL::transformKDLToMsg(odom->frame, tf_.transform);
   tf_br_.sendTransform(tf_);
 }
 

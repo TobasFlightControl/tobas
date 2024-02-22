@@ -33,8 +33,9 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param)
 {
   int tmp;
   getParam(nh, key, tmp);
-  if (tmp < numeric_limits<uint8_t>::lowest() || numeric_limits<uint8_t>::max() < tmp)
-    ROS_THROW("The specified value for '" << key << "' is out of range of unsigned char.");
+  ROS_CHECK(
+    nh, numeric_limits<uint8_t>::lowest() <= tmp && tmp <= numeric_limits<uint8_t>::max(),
+    "The specified value for '" << key << "' is out of range of unsigned char.");
   param = static_cast<uint8_t>(tmp);
 }
 
@@ -59,10 +60,7 @@ void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param)
 {
   vector<double> tmp;
   getParam(nh, key, tmp);
-  if (tmp.size() != 3)
-  {
-    ROS_THROW("The size of '" << key << "' must be 3.");
-  }
+  ROS_CHECK(nh, tmp.size() == 3, "The size of '" << key << "' must be 3.");
   param = Map<Vector3d>(tmp.data());
 }
 

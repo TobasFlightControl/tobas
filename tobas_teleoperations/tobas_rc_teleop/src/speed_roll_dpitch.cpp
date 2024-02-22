@@ -56,8 +56,11 @@ void SpeedRollDeltaPitchController::getRosParams(ros::NodeHandle& pnh)
   tobas_ros::getParam(
     pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
 
-  if (min_speed_ >= max_speed_)
-    ROS_THROW_NAMED(kControllerName, "Maximum speed must be greater than minimum speed.");
+  if (min_speed_ > max_speed_)
+  {
+    rosError(kControllerName, "Maximum speed must be greater than minimum speed.");
+    swap(min_speed_, max_speed_);
+  }
 }
 
 void SpeedRollDeltaPitchController::registerPublishers(ros::NodeHandle& nh)

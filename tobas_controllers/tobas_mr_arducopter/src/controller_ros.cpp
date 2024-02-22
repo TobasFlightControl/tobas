@@ -34,9 +34,9 @@ void ControllerRos::getRosParams()
 {
   tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
   if (channels_.size() > kMaxMotors)
-    ROS_THROW_NAMED(name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
+    ROS_EXIT_NAMED(nh_, name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
   if (!tobas_std::isUnique(channels_))
-    ROS_THROW_NAMED(name_, "channels are not unique.");
+    ROS_EXIT_NAMED(nh_, name_, "channels are not unique.");
 }
 
 void ControllerRos::registerPublishers()
@@ -52,10 +52,10 @@ void ControllerRos::registerSubscribers()
 void ControllerRos::initializeSockets()
 {
   if (!socket_in_.bind(kFdmAddr, kFdmPortIn))
-    ROS_THROW_NAMED(name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortIn << ".");
+    ROS_EXIT_NAMED(nh_, name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortIn << ".");
 
   if (!socket_out_.connect(kFdmAddr, kFdmPortOut))
-    ROS_THROW_NAMED(name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortOut << ".");
+    ROS_EXIT_NAMED(nh_, name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortOut << ".");
 }
 
 void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)

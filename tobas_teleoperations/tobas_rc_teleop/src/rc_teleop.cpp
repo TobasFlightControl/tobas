@@ -53,7 +53,7 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
     else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
       controllers_.push_back(make_unique<SpeedRollDeltaPitchController>(drone_));
     else
-      ROS_THROW_NAMED(name_, "Invalid flight mode: " + mode_name);
+      ROS_EXIT_NAMED(nh_, name_, "Invalid flight mode: " + mode_name);
   }
 
   for (const auto& ctrl : controllers_)
@@ -70,7 +70,7 @@ void RCTeleop::getRosParams()
   tobas_ros::getParam(
     pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, tobas_ros::NON_NEGATIVE);
   if (dead_zone_rate_ >= 1)
-    ROS_THROW_NAMED(name_, "'dead_zone_rate' must be lower than 1.");
+    ROS_EXIT_NAMED(nh_, name_, "'dead_zone_rate' must be lower than 1.");
 
   tobas_ros::getParam(pnh_, "mode_names", mode_names_);
 }
@@ -208,7 +208,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     default:
     {
-      ROS_THROW_NAMED(name_, "Invalid stage: " << static_cast<int>(stage_));
+      ROS_EXIT_NAMED(nh_, name_, "Invalid stage: " << static_cast<int>(stage_));
     }
   }
 }

@@ -41,11 +41,11 @@ DynamixelHandler::DynamixelHandler(
 
   // Open serial port
   if (!poh_->openPort())
-    ROS_THROW_NAMED(name_, "Failed to open port '" << device_name_ << "'");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to open port '" << device_name_ << "'");
 
   // Set baudrate
   if (!poh_->setBaudRate(baudrate_))
-    ROS_THROW_NAMED(name_, "Failed to set baudrate to " << baudrate_);
+    ROS_EXIT_NAMED(nh_, name_, "Failed to set baudrate to " << baudrate_);
 
   // Get motor configurations
   getMotorConfigs();
@@ -58,30 +58,30 @@ DynamixelHandler::DynamixelHandler(
       || !current_sync_read_->addParam(cfg.id) || !pwm_sync_read_->addParam(cfg.id)
       || !voltage_sync_read_->addParam(cfg.id) || !temp_sync_read_->addParam(cfg.id)
       || !hes_sync_read_->addParam(cfg.id))
-      ROS_THROW_NAMED(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
+      ROS_EXIT_NAMED(nh_, name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
 
     // Disable torque
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
-      ROS_THROW_NAMED(name_, "Failed to disable torque of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to disable torque of '" << name << "'.");
 
     // Set return delay time
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrReturnDelayTime, return_delay_time_) < 0)
-      ROS_THROW_NAMED(name_, "Failed to set return delay time of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to set return delay time of '" << name << "'.");
 
     // Set operating mode
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrOperatingMode, cfg.operating_mode) < 0)
-      ROS_THROW_NAMED(name_, "Failed to set operating mode of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to set operating mode of '" << name << "'.");
 
     // Enable torque
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0)
-      ROS_THROW_NAMED(name_, "Failed to enable torque of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to enable torque of '" << name << "'.");
 
     rosInfo(name_, "'" << name << "' is initialized.");
   }
 
   // Reduce latency
   if (!setMinimumLatency())
-    ROS_THROW_NAMED(name_, "Failed to set communication latency.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to set communication latency.");
 
   // Register publishers and subscribers
   registerPublishers();
@@ -172,12 +172,12 @@ void DynamixelHandler::getMotorConfigs()
     // ID
     tobas_ros::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
     if (tobas_std::contains(used_ids, cfg.id))
-      ROS_THROW_NAMED(name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
+      ROS_EXIT_NAMED(nh_, name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
     used_ids.insert(cfg.id);
 
     // Current scaling factor
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrModelNumber, &model_number) < 0)
-      ROS_THROW_NAMED(name_, "Failed to get model number of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get model number of '" << name << "'.");
     switch (model_number)
     {
       case kModelNumberXL430W250:
@@ -191,8 +191,8 @@ void DynamixelHandler::getMotorConfigs()
         cfg.current_scaling_factor = 2.69 / 1000;
         break;
       default:
-        ROS_THROW_NAMED(
-          name_, "Setting for model number " << model_number << " is not implemented yet.");
+        ROS_EXIT_NAMED(
+          nh_, name_, "Setting for model number " << model_number << " is not implemented yet.");
     }
 
     // Operating mode
@@ -201,7 +201,7 @@ void DynamixelHandler::getMotorConfigs()
     if (operating_mode == "current")
     {
       if (!cfg.current_available)
-        ROS_THROW_NAMED(name_, "Current control mode is unavailable for '" << name << "'.");
+        ROS_EXIT_NAMED(nh_, name_, "Current control mode is unavailable for '" << name << "'.");
       cfg.operating_mode = kControlModePosition;
     }
     else if (operating_mode == "velocity")
@@ -213,42 +213,42 @@ void DynamixelHandler::getMotorConfigs()
     else if (operating_mode == "current_base_position")
     {
       if (!cfg.current_available)
-        ROS_THROW_NAMED(
-          name_, "Current-base position control mode is unavailable for '" << name << "'.");
+        ROS_EXIT_NAMED(
+          nh_, name_, "Current-base position control mode is unavailable for '" << name << "'.");
       cfg.operating_mode = kControlModeCurrentBasePosition;
     }
     else if (operating_mode == "pwm")
       cfg.operating_mode = kControlModePwm;
     else
-      ROS_THROW_NAMED(name_, "Unknown operating mode for '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Unknown operating mode for '" << name << "'.");
 
     // Limits
     if (pah_->read1ByteTxRx(poh_, cfg.id, kAddrTemperatureLimit, &temp_limit) == 0)
       cfg.temp_limit = static_cast<double>(temp_limit) * kDecodeFactorTemp;
     else
-      ROS_THROW_NAMED(name_, "Failed to get temperature limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get temperature limit of '" << name << "'.");
 
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMaxVoltageLimit, &max_voltage_limit) == 0)
       cfg.voltage_limit.upper = static_cast<double>(max_voltage_limit) * kDecodeFactorVoltage;
     else
-      ROS_THROW_NAMED(name_, "Failed to get maximum voltage limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get maximum voltage limit of '" << name << "'.");
 
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMinVoltageLimit, &min_voltage_limit) == 0)
       cfg.voltage_limit.lower = static_cast<double>(min_voltage_limit) * kDecodeFactorVoltage;
     else
-      ROS_THROW_NAMED(name_, "Failed to get minimum voltage limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get minimum voltage limit of '" << name << "'.");
 
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPwmLimit, &pwm_limit) == 0)
       cfg.pwm_limit = static_cast<double>(pwm_limit) * kDecodeFactorPwm;
     else
-      ROS_THROW_NAMED(name_, "Failed to get PWM limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get PWM limit of '" << name << "'.");
 
     if (cfg.current_available)
     {
       if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrCurrentLimit, &current_limit) == 0)
         cfg.current_limit = static_cast<double>(current_limit) * cfg.current_scaling_factor;
       else
-        ROS_THROW_NAMED(name_, "Failed to get current limit of '" << name << "'.");
+        ROS_EXIT_NAMED(nh_, name_, "Failed to get current limit of '" << name << "'.");
     }
     else
     {
@@ -258,22 +258,22 @@ void DynamixelHandler::getMotorConfigs()
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrAccelerationLimit, &acc_limit) == 0)
       cfg.acc_limit = static_cast<double>(acc_limit) * kDecodeFactorAcc;
     else
-      ROS_THROW_NAMED(name_, "Failed to get acceleration limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get acceleration limit of '" << name << "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrVelocityLimit, &vel_limit) == 0)
       cfg.vel_limit = static_cast<double>(vel_limit) * kDecodeFactorVel;
     else
-      ROS_THROW_NAMED(name_, "Failed to get velocity limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get velocity limit of '" << name << "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0)
       cfg.pos_limit.upper = tobas_std::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     else
-      ROS_THROW_NAMED(name_, "Failed to get maximum position limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get maximum position limit of '" << name << "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0)
       cfg.pos_limit.lower = tobas_std::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     else
-      ROS_THROW_NAMED(name_, "Failed to get minimum position limit of '" << name << "'.");
+      ROS_EXIT_NAMED(nh_, name_, "Failed to get minimum position limit of '" << name << "'.");
 
     // Insert motor config
     motors_[name] = cfg;

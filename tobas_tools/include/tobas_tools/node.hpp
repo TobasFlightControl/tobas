@@ -20,7 +20,10 @@ protected:
   virtual void registerPublishers() = 0;
   virtual void registerSubscribers() = 0;
 
-  inline std::string ns();
+  inline std::string ns()
+  {
+    return nh_.getNamespace() + "/";
+  }
 
   /**
    * @brief コマンドレベルを更新する．
@@ -35,9 +38,4 @@ protected:
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
   static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };
-
-inline std::string BaseNode::ns()
-{
-  return nh_.getNamespace() + "/";
-}
 }  // namespace tobas

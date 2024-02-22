@@ -36,7 +36,7 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   eom_.updateInternalDataStructures();
 
   if (x_rotors_.count() == 0)
-    ROS_THROW_NAMED(name_, "The number of propellers is zero.");
+    ROS_EXIT_NAMED(nh_, name_, "The number of propellers is zero.");
 
   q_0_.resize(drone_.tree().getNrOfJoints());
   c2d_.resize(eom_.kStateSize, eom_.inputSize());

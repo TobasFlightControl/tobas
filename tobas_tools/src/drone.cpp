@@ -24,8 +24,7 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
 {
   TOBAS_DEBUG("Drone::loadFromParam");
 
-  if (!treeFromParam(kRobotDescriptionParam, tree_))
-    ROS_THROW("Failed to get KDL tree.");
+  ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get KDL tree.")
 
   getJointConfigs(nh);
   getRotorConfigs(nh);
@@ -150,8 +149,9 @@ void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
   tobas_ros::getParam(nh, prefix + "/home_position", cfg.home_pos);
   tobas_ros::getParam(nh, prefix + "/min_position", cfg.min_pos);
   tobas_ros::getParam(nh, prefix + "/max_position", cfg.max_pos);
-  if (!(cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos))
-    ROS_THROW("Invalid value for joint '" << name << "'.");
+  ROS_CHECK(
+    nh, cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos,
+    "Invalid value for joint '" << name << "'.");
 
   string cmd_type;
   tobas_ros::getParam(nh, prefix + "/command_type", cmd_type);
@@ -162,7 +162,7 @@ void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
   else if (cmd_type == "effort")
     cfg.cmd_type = JointConfig::EFFORT;
   else
-    ROS_THROW("Invalid command type: " << cmd_type);
+    ROS_EXIT(nh, "Invalid command type: " << cmd_type);
 
   joint_map_[name] = cfg;
 }
@@ -197,7 +197,8 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else if (direction == "cw")
     res.direction = -1;
   else
-    ROS_THROW("Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
+    ROS_EXIT(
+      nh, "Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
 
   // Axis
   string axis;
@@ -223,14 +224,12 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else if (esc_signal_mode == "blheli_closed_loop_high_range")
     res.esc_signal_mode = EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE;
   else
-    ROS_THROW("Invalid ESC signal mode: " << esc_signal_mode);
+    ROS_EXIT(nh, "Invalid ESC signal mode: " << esc_signal_mode);
 
   // The number of poles
   tobas_ros::getParam(nh, prefix + "/num_poles", res.num_poles);
-  if (res.num_poles == 0)
-    ROS_THROW("The number of poles cannot be 0.");
-  if (res.num_poles % 2 == 1)
-    ROS_THROW("The number of poles must be even.");
+  ROS_CHECK(nh, res.num_poles > 0, "The number of poles cannot be 0.");
+  ROS_CHECK(nh, res.num_poles % 2 == 0, "The number of poles must be even.");
 
   tobas_ros::getParam(nh, prefix + "/max_rot_speed", res.max_rot_speed, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, tobas_ros::POSITIVE);
@@ -239,14 +238,14 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   tobas_ros::getParam(nh, prefix + "/drag_constant", res.drag_constant, tobas_ros::NON_NEGATIVE);
 
   tobas_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
-  if (res.rot_speed_coefs.first <= 0)
-    ROS_THROW("The first term of 'rot_speed_coefs' must be positive.");
-  if (res.rot_speed_coefs.second < 0)
-    ROS_THROW("The second term of 'rot_speed_coefs' must be non-negative.");
+  ROS_CHECK(
+    nh, res.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
+  ROS_CHECK(
+    nh, res.rot_speed_coefs.second >= 0,
+    "The second term of 'rot_speed_coefs' must be non-negative.");
 
   tobas_ros::getParam(nh, prefix + "/channel", res.channel);
-  if (res.channel >= kServoRailSize)
-    ROS_THROW("Invalid PWM channel: " << res.channel);
+  ROS_CHECK(nh, res.channel < kServoRailSize, "Invalid PWM channel: " << res.channel);
 
   return res;
 }
@@ -270,19 +269,11 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
   tobas_ros::getParam(nh, prefix + "/wing_surface", des.wing_surface, tobas_ros::POSITIVE);
   tobas_ros::getParam(nh, prefix + "/wing_span", des.wing_span, tobas_ros::POSITIVE);
   tobas_ros::getParam(nh, prefix + "/mean_aerodynamic_chord", des.mac, tobas_ros::POSITIVE);
-
-  vector<double> ac;
-  tobas_ros::getParam(nh, prefix + "/aerodynamic_center", ac);
-  if (ac.size() != 3)
-    ROS_THROW("Size mismatch: The size of aerodynamic_center must be 3.");
-  des.ac.x(ac[0]);
-  des.ac.y(ac[1]);
-  des.ac.z(ac[2]);
-
+  tobas_ros::getParam(nh, prefix + "/aerodynamic_center", des.ac.data);
   tobas_ros::getParam(nh, prefix + "/alpha_limit/lower", des.alpha_limit.lower);
   tobas_ros::getParam(nh, prefix + "/alpha_limit/upper", des.alpha_limit.upper);
-  if (!des.alpha_limit.isValid())
-    ROS_THROW("Invalid stall angles");
+
+  ROS_CHECK(nh, des.alpha_limit.isValid(), "Invalid stall angles");
 }
 
 void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
@@ -338,8 +329,9 @@ ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_id
 
   tobas_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
   tobas_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
-  if (!res.angle_limit.isValid() || !res.angle_limit.inRange(0))
-    ROS_THROW("Invalid range of control surface angle");
+  ROS_CHECK(
+    nh, res.angle_limit.isValid() && res.angle_limit.inRange(0),
+    "Invalid range of control surface angle");
 
   tobas_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, tobas_ros::POSITIVE);
 
