@@ -28,9 +28,7 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
 
   parent_sensor_ = dynamic_pointer_cast<sensors::DepthCameraSensor>(parent);
   if (!parent_sensor_)
-  {
     gzthrow(kPluginName << ": Depth camera sensor is not attached.");
-  }
   depth_camera_ = parent_sensor_->DepthCamera();
 
   // Copy from DepthCamera into GazeboRosCameraUtils
@@ -67,9 +65,7 @@ void GazeboNoisyDepthPlugin::onNewImageFrame(
   const string& format)
 {
   if (!initialized_ || height <= 0 || width <= 0)
-  {
     return;
-  }
 
   sensor_update_time_ = parent_sensor_->LastMeasurementTime();
 
@@ -77,24 +73,15 @@ void GazeboNoisyDepthPlugin::onNewImageFrame(
   if (parent_sensor_->IsActive())
   {
     if (depth_image_connect_count_ <= 0 && (*image_connect_count_) <= 0)
-    {
       parent_sensor_->SetActive(false);
-    }
-    else
-    {
-      if ((*image_connect_count_) > 0)
-      {
-        PutCameraData(image);
-      }
-    }
+    else if ((*image_connect_count_) > 0)
+      PutCameraData(image);
   }
   else
   {
+    // If parent is disabled, but has subscribers, enable it.
     if ((*image_connect_count_) > 0)
-    {
-      // If parent is disabled, but has subscribers, enable it.
       parent_sensor_->SetActive(true);
-    }
   }
 }
 
@@ -106,9 +93,7 @@ void GazeboNoisyDepthPlugin::onNewDepthFrame(
   const string& format)
 {
   if (!initialized_ || height <= 0 || width <= 0)
-  {
     return;
-  }
 
   depth_sensor_update_time_ = parent_sensor_->LastMeasurementTime();
 
@@ -116,24 +101,15 @@ void GazeboNoisyDepthPlugin::onNewDepthFrame(
   if (parent_sensor_->IsActive())
   {
     if (depth_image_connect_count_ <= 0 && (*image_connect_count_) <= 0)
-    {
       parent_sensor_->SetActive(false);
-    }
-    else
-    {
-      if (depth_image_connect_count_ > 0)
-      {
-        fillDepthImage(image);
-      }
-    }
+    else if (depth_image_connect_count_ > 0)
+      fillDepthImage(image);
   }
   else
   {
     // If parent is disabled, but has subscribers, enable it.
     if ((*image_connect_count_) > 0)
-    {
       parent_sensor_->SetActive(true);
-    }
   }
 
   publishCameraInfo();
@@ -151,9 +127,7 @@ void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "depthNoiseMinDist", noise_min_dist_, kDefaultDepthNoiseMinDist, NON_NEGATIVE);
   getSdfParam(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist, NON_NEGATIVE);
   if (noise_min_dist_ >= noise_max_dist_)
-  {
     gzthrow(kPluginName << ": Invalid noise distance range.");
-  }
 
   getSdfParam(sdf, "horizontalFOV", horizontal_fov_, kDefaultHorizontalFOV, POSITIVE);
   getSdfParam(sdf, "baseline", baseline_, kDefaultBaseline, POSITIVE);
@@ -162,22 +136,14 @@ void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboNoisyDepthPlugin::setNoiseModel()
 {
   if (noise_model_name_ == "Kinect")
-  {
     noise_model_.reset(new KinectDepthNoiseModel(noise_min_dist_, noise_max_dist_));
-  }
   else if (noise_model_name_ == "PMD")
-  {
     noise_model_.reset(new PMDDepthNoiseModel(noise_min_dist_, noise_max_dist_));
-  }
   else if (noise_model_name_ == "D435")
-  {
     noise_model_.reset(
       new D435DepthNoiseModel(noise_min_dist_, noise_max_dist_, horizontal_fov_, baseline_));
-  }
   else
-  {
     gzthrow(kPluginName << ": Invalid depth noise model: " << noise_model_name_);
-  }
 }
 
 void GazeboNoisyDepthPlugin::advertise()
@@ -228,9 +194,7 @@ void GazeboNoisyDepthPlugin::fillDepthImage(const float* src)
 
   // Copy from depth to depth image message
   if (fillDepthImageHelper(height_, width_, skip_, src, depth_image_msg_))
-  {
     depth_image_pub_.publish(depth_image_msg_);
-  }
 
   lock_.unlock();
 }
@@ -269,9 +233,7 @@ void GazeboNoisyDepthPlugin::publishCameraInfo()
   PublishCameraInfo();
 
   if (depth_info_connect_count_ <= 0)
-  {
     return;
-  }
 
   sensor_update_time_ = parentSensor_->LastMeasurementTime();
   common::Time cur_time = world_->SimTime();
