@@ -137,9 +137,14 @@ class PackageGenerator(QObject):
 
     def _generate_pkg(self) -> None:
         # 各ディレクトリのパス
+        pkg_name = self._main.settings.ros_package.pkg_name.get()
         pkg_path = self._main.settings.ros_package.pkg_path()
         config_dir = osp.join(pkg_path, "config")
         launch_dir = osp.join(pkg_path, "launch")
+        include_dir = osp.join(pkg_path, "include", pkg_name)
+        src_dir = osp.join(pkg_path, "src")
+        nodes_dir = osp.join(pkg_path, "nodes")
+        nodelets_dir = osp.join(pkg_path, "nodelets")
         urdf_dir = osp.join(pkg_path, "urdf")
         mesh_dir = osp.join(pkg_path, "mesh")
 
@@ -147,19 +152,34 @@ class PackageGenerator(QObject):
         os.mkdir(pkg_path)
         os.mkdir(config_dir)
         os.mkdir(launch_dir)
+        os.makedirs(include_dir)
+        os.mkdir(src_dir)
+        os.mkdir(nodes_dir)
+        os.mkdir(nodelets_dir)
         os.mkdir(urdf_dir)
         os.mkdir(mesh_dir)
 
         # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(
-            items, "CMakeLists.txt.template", osp.join(pkg_path, "CMakeLists.txt")
+            items,
+            "CMakeLists.txt.template",
+            osp.join(pkg_path, "CMakeLists.txt"),
         )
         self._generate_from_template(
-            items, "package.xml.template", osp.join(pkg_path, "package.xml")
+            items,
+            "package.xml.template",
+            osp.join(pkg_path, "package.xml"),
         )
         self._generate_from_template(
-            items, "environment.yaml.template", osp.join(config_dir, "environment.yaml")
+            items,
+            "nodelet_description.xml.template",
+            osp.join(pkg_path, "nodelet_description.xml"),
+        )
+        self._generate_from_template(
+            items,
+            "environment.yaml.template",
+            osp.join(config_dir, "environment.yaml"),
         )
         self._generate_from_template(
             items,
@@ -182,10 +202,14 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "common_params.launch"),
         )
         self._generate_from_template(
-            items, "gazebo.launch.template", osp.join(launch_dir, "gazebo.launch")
+            items,
+            "gazebo.launch.template",
+            osp.join(launch_dir, "gazebo.launch"),
         )
         self._generate_from_template(
-            items, "real.launch.template", osp.join(launch_dir, "real.launch")
+            items,
+            "real.launch.template",
+            osp.join(launch_dir, "real.launch"),
         )
         self._generate_from_template(
             items,
@@ -193,10 +217,14 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "controller.launch"),
         )
         self._generate_from_template(
-            items, "observer.launch.template", osp.join(launch_dir, "observer.launch")
+            items,
+            "observer.launch.template",
+            osp.join(launch_dir, "observer.launch"),
         )
         self._generate_from_template(
-            items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch")
+            items,
+            "bringup.launch.template",
+            osp.join(launch_dir, "bringup.launch"),
         )
         self._generate_from_template(
             items,
@@ -204,10 +232,14 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "hardware_interfaces.launch"),
         )
         self._generate_from_template(
-            items, "hil.launch.template", osp.join(launch_dir, "hil.launch")
+            items,
+            "hil.launch.template",
+            osp.join(launch_dir, "hil.launch"),
         )
         self._generate_from_template(
-            items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch")
+            items,
+            "rc_teleop.launch.template",
+            osp.join(launch_dir, "rc_teleop.launch"),
         )
         self._generate_from_template(
             items,
@@ -233,6 +265,36 @@ class PackageGenerator(QObject):
             items,
             "motor_test_gui.launch.template",
             osp.join(launch_dir, "motor_test_gui.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge.launch.template",
+            osp.join(launch_dir, "tobas_bridge.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge.hpp.template",
+            osp.join(include_dir, "tobas_bridge.hpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge.cpp.template",
+            osp.join(src_dir, "tobas_bridge.cpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge_node.cpp.template",
+            osp.join(nodes_dir, "tobas_bridge_node.cpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge_nodelet.hpp.template",
+            osp.join(nodelets_dir, "tobas_bridge_nodelet.hpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge_nodelet.cpp.template",
+            osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp"),
         )
 
         command_msgs = self._main.settings.controller.command_msgs()

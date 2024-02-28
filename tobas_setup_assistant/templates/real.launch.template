@@ -17,4 +17,9 @@
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
+  <!-- Bringup Tobas bridge -->
+  <include file="$(find {{ pkg_name }})/launch/tobas_bridge.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
 </launch>
