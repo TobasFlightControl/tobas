@@ -7,12 +7,12 @@ namespace tobas
 {
 struct OrientationPidConfig
 {
-  double atti_kp;
-  double atti_ki;
-  double atti_kd;
-  double head_kp;
-  double head_ki;
-  double head_kd;
+  double atti_natural_freq;  // [rad/s]
+  double atti_damp_ratio;    // [-]
+  double atti_ki;            // [1/s^3]
+  double head_natural_freq;  // [rad/s]
+  double head_damp_ratio;    // [-]
+  double head_ki;            // [1/s^3]
 };
 
 class OrientationPid

@@ -6,14 +6,14 @@ namespace tobas
 {
 struct PositionPidConfig
 {
-  double hor_kp;
-  double hor_ki;
-  double hor_kd;
-  double ver_kp;
-  double ver_ki;
-  double ver_kd;
-  double max_hor_acc;
-  double max_ver_acc;
+  double hor_natural_freq;  // [rad/s]
+  double hor_damp_ratio;    // [-]
+  double hor_ki;            // [1/s^3]
+  double ver_natural_freq;  // [rad/s]
+  double ver_damp_ratio;    // [-]
+  double ver_ki;            // [1/s^3]
+  double max_hor_acc;       // [m/s^2]
+  double max_ver_acc;       // [m/s^2]
 };
 
 class PositionPid

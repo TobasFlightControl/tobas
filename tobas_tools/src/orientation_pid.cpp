@@ -55,21 +55,26 @@ Vector OrientationPid::update(
 
 void OrientationPid::configure(const OrientationPidConfig& cfg)
 {
-  CHECK(cfg.atti_kp > 0);
+  CHECK(cfg.atti_natural_freq > 0);
+  CHECK(cfg.atti_damp_ratio > 0);
   CHECK(cfg.atti_ki > 0);
-  CHECK(cfg.atti_kd > 0);
-  CHECK(cfg.head_kp > 0);
+  CHECK(cfg.head_natural_freq > 0);
+  CHECK(cfg.head_damp_ratio > 0);
   CHECK(cfg.head_ki > 0);
-  CHECK(cfg.head_kd > 0);
 
-  kp_.x() = cfg.atti_kp;
-  kp_.y() = cfg.atti_kp;
-  kp_.z() = cfg.head_kp;
+  const auto atti_kp = tobas_std::sqr(cfg.atti_natural_freq);
+  const auto atti_kd = 2 * cfg.atti_damp_ratio * cfg.atti_natural_freq;
+  const auto head_kp = tobas_std::sqr(cfg.head_natural_freq);
+  const auto head_kd = 2 * cfg.head_damp_ratio * cfg.head_natural_freq;
+
+  kp_.x() = atti_kp;
+  kp_.y() = atti_kp;
+  kp_.z() = head_kp;
   ki_.x() = cfg.atti_ki;
   ki_.y() = cfg.atti_ki;
   ki_.z() = cfg.head_ki;
-  kd_.x() = cfg.atti_kd;
-  kd_.y() = cfg.atti_kd;
-  kd_.z() = cfg.head_kd;
+  kd_.x() = atti_kd;
+  kd_.y() = atti_kd;
+  kd_.z() = head_kd;
 }
 }  // namespace tobas

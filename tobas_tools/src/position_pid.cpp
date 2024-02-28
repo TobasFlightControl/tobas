@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -44,24 +45,29 @@ Vector3d PositionPid::update(
 
 void PositionPid::configure(const PositionPidConfig& cfg)
 {
-  CHECK(cfg.hor_kp > 0);
+  CHECK(cfg.hor_natural_freq > 0);
+  CHECK(cfg.hor_damp_ratio > 0);
   CHECK(cfg.hor_ki > 0);
-  CHECK(cfg.hor_kd > 0);
-  CHECK(cfg.ver_kp > 0);
+  CHECK(cfg.ver_natural_freq > 0);
+  CHECK(cfg.ver_damp_ratio > 0);
   CHECK(cfg.ver_ki > 0);
-  CHECK(cfg.ver_kd > 0);
   CHECK(cfg.max_hor_acc > 0);
   CHECK(cfg.max_ver_acc > 0);
 
-  kp_.x() = cfg.hor_kp;
-  kp_.y() = cfg.hor_kp;
-  kp_.z() = cfg.ver_kp;
+  const auto hor_kp = tobas_std::sqr(cfg.hor_natural_freq);
+  const auto hor_kd = 2 * cfg.hor_damp_ratio * cfg.hor_natural_freq;
+  const auto ver_kp = tobas_std::sqr(cfg.ver_natural_freq);
+  const auto ver_kd = 2 * cfg.ver_damp_ratio * cfg.ver_natural_freq;
+
+  kp_.x() = hor_kp;
+  kp_.y() = hor_kp;
+  kp_.z() = ver_kp;
   ki_.x() = cfg.hor_ki;
   ki_.y() = cfg.hor_ki;
   ki_.z() = cfg.ver_ki;
-  kd_.x() = cfg.hor_kd;
-  kd_.y() = cfg.hor_kd;
-  kd_.z() = cfg.ver_kd;
+  kd_.x() = hor_kd;
+  kd_.y() = hor_kd;
+  kd_.z() = ver_kd;
   max_acc_.x() = cfg.max_hor_acc;
   max_acc_.y() = cfg.max_hor_acc;
   max_acc_.z() = cfg.max_ver_acc;

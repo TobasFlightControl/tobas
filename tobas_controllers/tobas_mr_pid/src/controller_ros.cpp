@@ -256,12 +256,12 @@ void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   // 位置制御
-  pos_cfg_.hor_kp = cfg.horizontal_p_gain;
+  pos_cfg_.hor_natural_freq = cfg.horizontal_natural_frequency;
+  pos_cfg_.hor_damp_ratio = cfg.horizontal_damping_ratio;
   pos_cfg_.hor_ki = cfg.horizontal_i_gain;
-  pos_cfg_.hor_kd = cfg.horizontal_d_gain;
-  pos_cfg_.ver_kp = cfg.vertical_p_gain;
+  pos_cfg_.ver_natural_freq = cfg.vertical_natural_frequency;
+  pos_cfg_.ver_damp_ratio = cfg.vertical_damping_ratio;
   pos_cfg_.ver_ki = cfg.vertical_i_gain;
-  pos_cfg_.ver_kd = cfg.vertical_d_gain;
   pos_cfg_.max_hor_acc = cfg.max_horizontal_accel;
   pos_cfg_.max_ver_acc = cfg.max_vertical_accel;
   pos_ctrl_.configure(pos_cfg_);
@@ -272,14 +272,12 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   acc_ctrl_.configure(acc_cfg_);
 
   // 姿勢制御器
-  ori_cfg_.atti_kp = cfg.attitude_p_gain;
+  ori_cfg_.atti_natural_freq = cfg.attitude_natural_frequency;
+  ori_cfg_.atti_damp_ratio = cfg.attitude_damping_ratio;
   ori_cfg_.atti_ki = cfg.attitude_i_gain;
-  ori_cfg_.atti_kd = cfg.attitude_d_gain;
-  ori_cfg_.head_kp = cfg.heading_p_gain;
+  ori_cfg_.head_natural_freq = cfg.heading_natural_frequency;
+  ori_cfg_.head_damp_ratio = cfg.heading_damping_ratio;
   ori_cfg_.head_ki = cfg.heading_i_gain;
-  ori_cfg_.head_kd = cfg.heading_d_gain;
-
-  // パラメータを更新
   ori_ctrl_.configure(ori_cfg_);
 
   // TODO: Mixerの設定
