@@ -71,3 +71,15 @@ $ sudo usermod -a -G dialout pi
 $ getent group dialout  # dialoutグループのメンバーを確認
 $ id pi                 # piが所属するグループを確認
 ```
+
+## ラズパイをネットワークにつないだままアクセスポイント化
+
+### 手順
+
+[Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
+
+### メモ
+
+- `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
+  既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
+  その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
