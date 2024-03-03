@@ -17,9 +17,7 @@ MagnetometerCalibrator::MagnetometerCalibrator() : mag_data_(kDataCount * kDirec
 {
   imu_.initialize();
   if (!imu_.probe())
-  {
     throw runtime_error("IMU not enabled.");
-  }
 }
 
 void MagnetometerCalibrator::run(const string& method)

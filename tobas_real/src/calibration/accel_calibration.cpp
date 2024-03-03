@@ -13,9 +13,7 @@ AccelCalibrator::AccelCalibrator()
 {
   imu_.initialize();
   if (!imu_.probe())
-  {
     throw runtime_error("IMU not enabled.");
-  }
 }
 
 void AccelCalibrator::run()
