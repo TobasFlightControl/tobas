@@ -21,9 +21,16 @@ rm ./install_geographiclib_datasets.sh
 
 # Install dependencies
 rosdep install --from-paths . --ignore-src -ry
-pip3 install numpy sympy pandas pyyaml et-xmlfile jinja2 markdown overrides urdf-parser-py pyqt-vertical-tab-widget
+pip3 install numpy -U  # Install latest version
+pip3 install sympy pandas pyyaml et-xmlfile jinja2 markdown overrides urdf-parser-py pyqt-vertical-tab-widget
 
-# Add setup.bash to .bashrc
-SETUP_BASH_PATH=$(realpath "./setup.bash")
-echo "source ${SETUP_BASH_PATH}" >> ~/.bashrc
+# Edit .bashrc
+echo "export ROS_IP=\`hostname -I | cut -d' ' -f1\`" >> ~/.bashrc
+echo "export ROS_HOSTNAME=\`hostname -I | cut -d' ' -f1\`" >> ~/.bashrc
+echo "source $(realpath "./setup.bash")" >> ~/.bashrc
 exec bash
+
+# Setup for time synchronization: https://qiita.com/srs/items/ce0a0424e86936fc7170
+sudo apt install -y chrony ros-noetic-ntpd-driver  
+echo "refclock SHM 0:perm=0666 delay 0.5 refid ROS" | sudo tee -a /etc/chrony/chrony.conf
+sudo systemctl restart chrony

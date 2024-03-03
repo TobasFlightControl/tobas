@@ -6,7 +6,7 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <dh_std_tools/range.hpp>
+#include <tobas_std_tools/range.hpp>
 
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
@@ -33,8 +33,8 @@ class GazeboFixedWingPlugin : public ModelPlugin
   static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
 
   // Default values
-  static constexpr double kDefaultLowerStallAngle = -10. * tobas::kDegreeToRadian;
-  static constexpr double kDefaultUpperStallAngle = 20. * tobas::kDegreeToRadian;
+  static constexpr double kDefaultLowerStallAngle = -10. * tobas::kDeg2Rad;
+  static constexpr double kDefaultUpperStallAngle = 20. * tobas::kDeg2Rad;
 
   using super = ModelPlugin;
   using CmdMsg = tobas_msgs::ControlSurfaceDeflections;
@@ -54,7 +54,6 @@ private:
   std::string link_name_;
   double alt_0_;  // 基準点の幾何的高度
   double check_delay_threshold_;
-  double auto_reset_time_thr_;
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicsCoefficients aero_coefs_;
   std::vector<tobas::ControlSurface> control_surfaces_;

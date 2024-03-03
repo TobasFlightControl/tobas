@@ -14,8 +14,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer, add_center_button
-from dh_rqt_tools.messages import *
+from tobas_rqt_tools.widgets import add_spacer, add_center_button
+from tobas_rqt_tools.messages import *
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -33,8 +33,8 @@ class RosPackageWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Generate ROS Package"
         abst_text = (
-            "これまでの設定を元にTobasを使用するのに必要なROSパッケージを生成します．"
-            + "パッケージのパスを指定し，Generateボタンを押してください．"
+            "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
+            'Please specify the path for the package and click the "Generate" button.'
         )
         super().__init__(main, title_text, abst_text)
 

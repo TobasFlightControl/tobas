@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dh_std_tools/range.hpp>
+#include <tobas_std_tools/range.hpp>
 
 namespace gazebo
 {
@@ -8,13 +8,13 @@ namespace gazebo
 class SimpleJointModel
 {
 public:
-  explicit SimpleJointModel(const dh_std::Range<double>& pos_limit, const double& max_vel);
+  explicit SimpleJointModel(const tobas_std::Range<double>& pos_limit, const double& max_vel);
 
   void update(double tar_pos, double dt);
   const double& currentPosition() const;
 
 private:
-  const dh_std::Range<double> pos_limit_;
+  const tobas_std::Range<double> pos_limit_;
   const double max_vel_;
 
   double cur_pos_;

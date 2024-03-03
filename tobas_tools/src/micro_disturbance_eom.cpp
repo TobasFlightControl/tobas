@@ -1,5 +1,5 @@
-#include <dh_std_tools/standard_atmosphere.hpp>
-#include <dh_eigen_tools/geometry.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_eigen_tools/geometry.hpp>
 
 #include "../include/tobas_tools/micro_disturbance_eom.hpp"
 #include "../include/tobas_tools/constants.hpp"
@@ -49,15 +49,15 @@ int MicroDisturbanceEoM::update(
   assert(battery_voltage);
   assert(q.rows() == drone_.tree().getNrOfJoints());
 
+  error_code_ = E_NO_ERROR;
+
   // 制御入力の制約を更新
   setInputLimits(battery_voltage);
 
   // トリム状態を更新
-  if (trim_.update(V, rho, q) < 0)
-  {
-    error_msg_ = trim_.errorMessage();
-    return -1;
-  }
+  trim_.update(V, rho, q);
+  if (updateError(trim_) <= E_ERROR)
+    return error_code_;
 
   // エイリアス
   const auto& vehicle = drone_.vehicle();
@@ -68,7 +68,7 @@ int MicroDisturbanceEoM::update(
   if (inertia_solver_.JntToCart(q) < 0)
   {
     error_msg_ = inertia_solver_.errorMessage();
-    return -1;
+    return error_code_ = E_ERROR;
   }
   const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
@@ -163,9 +163,7 @@ int MicroDisturbanceEoM::update(
   // Bを更新
   // thrust -> u
   for (size_t i = 0; i < x_rotors_.count(); ++i)
-  {
     B_(kStateIdx_u, i) = 1 / I_base.getMass();
-  }
 
   // thrust -> p,q,r
   const auto I_cog_inv = I_cog.data.inverse();
@@ -174,7 +172,7 @@ int MicroDisturbanceEoM::update(
     if (fk_solver_.JntToCart(q, x_rotors_.linkName(i)) < 0)
     {
       error_msg_ = fk_solver_.errorMessage();
-      return -1;
+      return error_code_ = E_ERROR;
     }
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto& d = x_rotors_.direction(i);
@@ -226,23 +224,26 @@ int MicroDisturbanceEoM::update(
   x_0_(kStateIdx_r) = 0.;
 
   // トリム時の制御入力を更新
-  // TODO: 横の釣り合いも考慮して分配
   const auto thrust_sum = q_S * trim_.c_T();  // (2.2-2b)
-  const auto thrust_avg = thrust_sum / x_rotors_.count();
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
+    auto thrust = thrust_sum / x_rotors_.count();  // TODO: 横の釣り合いも考慮して分配
     const auto max_thrust = x_rotors_.thrustFromVoltage(i, battery_voltage);
-    if (thrust_avg > max_thrust)
+    if (thrust > max_thrust)
     {
-      error_msg_ = "Average thrust " + to_string(thrust_avg) + "[N] is over the maximum limit "
-                   + to_string(max_thrust) + "[N].";
-      return -1;
+      if (error_code_ > E_WARN)
+      {
+        error_msg_ = "Thrust force " + to_string(thrust) + "[N] is over the maximum limit "
+                     + to_string(max_thrust) + "[N].";
+        error_code_ = E_WARN;
+      }
+      thrust = max_thrust;
     }
+    u_0_(i) = thrust;
   }
-  u_0_.block(0, 0, x_rotors_.count(), 1).fill(thrust_avg);
   u_0_(x_rotors_.count() + trim_.elevatorIndex()) = trim_.elevator();
 
-  return 0;
+  return error_code_;
 }
 
 void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
@@ -252,8 +253,8 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
 
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    min_u_(i) = 0.;
-    max_u_(i) = x_rotors_.thrustFromVoltage(i, battery_voltage);
+    min_u_(i) = x_rotors_.minThrust(i, battery_voltage);
+    max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
   }
 
   for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)

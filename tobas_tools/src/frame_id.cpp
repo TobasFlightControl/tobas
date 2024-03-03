@@ -5,7 +5,7 @@ using namespace tobas_msgs;
 
 namespace tobas
 {
-bool changeFrame(const uint8_t& frame_id, const Euler& R_gl, PosVelAccYaw& msg)
+bool changeFrame(const uint8_t& frame_id, const Rotation& R_gl, PosVelAccYaw& msg)
 {
   switch (frame_id)
   {

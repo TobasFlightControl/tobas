@@ -42,6 +42,15 @@ public:
   /* 回転数と電圧の関係式の係数: V = c1 w + c2 w^2 (V[V], w[rad/s]) */
   inline const std::pair<double, double>& rotSpeedCoefs(const size_t& inner_idx) const;
 
+  /* 機械的に許容できる最大回転数から計算される推力． */
+  inline double maxMechanicalThrust(const size_t& inner_idx) const;
+
+  /* 与えられたバッテリー電圧で出力できる最大推力．*/
+  inline double maxThrust(const size_t& inner_idx, const double& battery_voltage) const;
+
+  /* 与えられたバッテリー電圧で出力できる最小推力．*/
+  inline double minThrust(const size_t& inner_idx, const double& battery_voltage) const;
+
   /* 指定したロータの推力 [N]． */
   inline double thrustFromVoltage(const size_t& inner_idx, const double& voltage) const;
 
@@ -119,6 +128,23 @@ inline const std::pair<double, double>&
 RotorAxisExtractor::rotSpeedCoefs(const size_t& inner_idx) const
 {
   return drone_.rotorConfig(rotorIdx(inner_idx)).rot_speed_coefs;
+}
+
+inline double RotorAxisExtractor::maxMechanicalThrust(const size_t& inner_idx) const
+{
+  return drone_.maxMechanicalThrust(rotorIdx(inner_idx));
+}
+
+inline double
+RotorAxisExtractor::maxThrust(const size_t& inner_idx, const double& battery_voltage) const
+{
+  return drone_.maxThrust(rotorIdx(inner_idx), battery_voltage);
+}
+
+inline double
+RotorAxisExtractor::minThrust(const size_t& inner_idx, const double& battery_voltage) const
+{
+  return drone_.minThrust(rotorIdx(inner_idx), battery_voltage);
 }
 
 inline double

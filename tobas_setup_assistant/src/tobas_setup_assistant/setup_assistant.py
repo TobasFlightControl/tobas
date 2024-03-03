@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import MainWidget
+from tobas_rqt_tools.widgets import MainWidget
 
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
@@ -17,7 +17,10 @@ class SetupAssistant(MainWidget):
     def __init__(self) -> None:
         super().__init__(PKG_NAME, DEFAULT)
 
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
+        icon_path = osp.join(
+            rospkg.RosPack().get_path(PKG_NAME),
+            "resources/icon_white.png",
+        )
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle(TITLE)
 

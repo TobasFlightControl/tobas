@@ -1,12 +1,13 @@
 #pragma once
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/JointPositions.h>
-#include <tobas_msgs/JointVelocities.h>
-#include <tobas_msgs/JointEfforts.h>
+#include <tobas_msgs/JointCommandArray.h>
 
 namespace tobas_gazebo
 {
+/**
+ * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboのトランスミッションに指令する．
+ */
 class JointCommandHandler : public tobas::BaseNode
 {
   using self = JointCommandHandler;
@@ -37,9 +38,8 @@ private:
 
   int initialize();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void jointPositionsCmdCb(const tobas_msgs::JointPositionsConstPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::JointVelocitiesConstPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::JointEffortsConstPtr& efforts);
+  void jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities);
+  void jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts);
 };
 }  // namespace tobas_gazebo

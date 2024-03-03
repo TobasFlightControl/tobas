@@ -40,16 +40,15 @@ double RotorAxisExtractor::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;
   for (const auto& rotor_idx : rotor_idxs_)
-    res += drone_.thrustFromVoltage(rotor_idx, battery_voltage);
+    res += drone_.maxThrust(rotor_idx, battery_voltage);
   return res;
 }
 
 double RotorAxisExtractor::minThrustSum(const double& battery_voltage) const
 {
-  const auto min_voltage = battery_voltage * kArmThrottle;
   double res = 0.;
   for (const auto& rotor_idx : rotor_idxs_)
-    res += drone_.thrustFromVoltage(rotor_idx, min_voltage);
+    res += drone_.minThrust(rotor_idx, battery_voltage);
   return res;
 }
 }  // namespace tobas

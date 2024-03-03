@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from dh_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer
 
 import os.path as osp
 import rospkg

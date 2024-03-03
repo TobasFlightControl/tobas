@@ -1,5 +1,5 @@
-#include <dh_std_tools/standard_atmosphere.hpp>
-#include <dh_std_tools/assert.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/assert.hpp>
 
 #include "../include/tobas_tools/trim_conditions.hpp"
 #include "../include/tobas_tools/constants.hpp"
@@ -37,22 +37,38 @@ void TrimConditions::updateInternalDataStructures()
   assert(b_ > 0);
 }
 
-int TrimConditions::update(const double& V, const double& rho, const JntArray& q)
+int TrimConditions::update(double V, const double& rho, const JntArray& q)
 {
   assert(V > 0);
   assert(rho > 0);
 
+  error_code_ = E_NO_ERROR;
+
   if (q.rows() != drone_.tree().getNrOfJoints())
   {
     error_msg_ = kErrorSizeMismatch;
-    return -1;
+    return error_code_ = E_ERROR;
   }
 
+  // 速度が有効な範囲内にあるかチェック
   const auto speed_limit = speedLimit(rho);
-  if (!speed_limit.inRange(V))
+  if (V < speed_limit.lower)
   {
-    error_msg_ = "V = " + to_string(V) + " is out of valid speed range " + speed_limit.toString();
-    return -1;
+    if (error_code_ > E_WARN)
+    {
+      error_msg_ = "Speed is too low: " + to_string(V) + " < " + to_string(speed_limit.lower);
+      error_code_ = E_WARN;
+    }
+    V = speed_limit.lower;
+  }
+  else if (V > speed_limit.upper)
+  {
+    if (error_code_ > E_WARN)
+    {
+      error_msg_ = "Speed is too high: " + to_string(V) + " > " + to_string(speed_limit.upper);
+      error_code_ = E_WARN;
+    }
+    V = speed_limit.upper;
   }
 
   // エイリアス
@@ -60,17 +76,15 @@ int TrimConditions::update(const double& V, const double& rho, const JntArray& q
   const auto& elev_cs = drone_.controlSurface(elev_idx_);
 
   // CoGまわりの安定微係数
-  if (asd_cog_.update(q) < 0)
-  {
-    error_msg_ = asd_cog_.errorMessage();
-    return -1;
-  }
-  const auto c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
-  const auto c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_idx_);
+  asd_cog_.update(q);
+  if (updateError(asd_cog_) <= E_ERROR)
+    return error_code_;
+  const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
+  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_idx_);
   if (c_pitch_elev_cg == 0)
   {
-    error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero";
-    return -1;
+    error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
+    return error_code_ = E_ERROR;
   }
 
   // 引数に依存する定数
@@ -87,21 +101,29 @@ int TrimConditions::update(const double& V, const double& rho, const JntArray& q
   // その他依存変数
   u_ = V * cos(alpha_);
 
-  if (alpha_ < -M_PI_2 || M_PI_2 < alpha_)
+  if (!drone_.vehicle().alpha_limit.inRange(alpha_))
   {
-    error_msg_ = "The angle of attack in the trimmed condition exceeds π/2";
-    return -1;
+    if (error_code_ > E_WARN)
+    {
+      error_msg_ = "The angle of attack in the trimmed condition is outside the valid range.";
+      error_code_ = E_WARN;
+    }
+    alpha_ = drone_.vehicle().alpha_limit.clamp(alpha_);
   }
   if (!drone_.controlSurface(elev_idx_).angle_limit.inRange(elevator_))
   {
-    error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
-    return -1;
+    if (error_code_ > E_WARN)
+    {
+      error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
+      error_code_ = E_WARN;
+    }
+    elevator_ = drone_.controlSurface(elev_idx_).angle_limit.clamp(elevator_);
   }
 
-  return 0;
+  return error_code_;
 }
 
-dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
+tobas_std::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
   assert(rho > 0);
 
@@ -117,7 +139,7 @@ dh_std::Range<double> TrimConditions::speedLimit(const double& rho) const
   const auto min_den = a_ * drone_.vehicle().alpha_limit.lower + b_;
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
 
-  return dh_std::Range<double>(V_min, V_max);
+  return tobas_std::Range<double>(V_min, V_max);
 }
 
 double TrimConditions::takeOffSpeed(const double& rho) const

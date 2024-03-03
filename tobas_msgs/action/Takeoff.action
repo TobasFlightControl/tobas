@@ -1,12 +1,12 @@
-# goal
+# Goal
 tobas_msgs/CommandLevel level
-float64 target_altitude = 3.0  # [m]
-float64 target_duration = 5.0  # [s]
-float64 timeout = 1e+9         # [s]
+float64 target_altitude  # [m]
+float64 target_duration  # [s]
+float64 timeout          # [s] By default, timeout is infinite.
 
 ---
 
-# result
+# Result
 int8 error_code
 int8 NO_ERROR = 0
 int8 NOT_READY = -1
@@ -17,4 +17,4 @@ int8 UNKNOWN_ERROR = -5
 
 ---
 
-# feedback
+# Feedback

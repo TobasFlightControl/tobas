@@ -1,4 +1,4 @@
-#include <dh_std_tools/geometry.hpp>
+#include <tobas_std_tools/geometry.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -62,12 +62,11 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   timeGazeboToRos(world_->SimTime(), odom->header.stamp);
 
   // Update position
-  vectorGazeboToKDL(T_W_B.Pos(), odom->pose.pos);
+  vectorGazeboToKDL(T_W_B.Pos(), odom->frame.p);
 
   // Update rotation
   const auto& q = T_W_B.Rot();
-  auto& e = odom->pose.euler;
-  dh_std::quaternionToEuler(q.X(), q.Y(), q.Z(), q.W(), e.roll, e.pitch, e.yaw);
+  odom->frame.M = KDL::Rotation::Quaternion(q.X(), q.Y(), q.Z(), q.W());
 
   // Update linear velocity (Local)
   vectorGazeboToKDL(link_->RelativeLinearVel(), odom->twist.vel);

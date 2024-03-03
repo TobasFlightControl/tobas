@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from kdl_sympy.frames import Vector
+from tobas_kdl_sympy.frames import Vector
 
 from tobas_msgs.msg import SpeedRollDeltaPitch
 
@@ -43,7 +43,11 @@ class FixedWingLQR(BaseController):
     MIN_NUM_CS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "TODO"
+        abst_text = (
+            "Control the fixed-wing aircraft using LQR (Linear Quadratic Regulator). "
+            "While this method is computationally light, it does not consider hard constraints, "
+            "which may lead to the issuance of commands outside the permissible range."
+        )
         super().__init__(main, abst_text)
 
         config = self._get_param_config(self.FORWARD_SPEED_WEIGHT)

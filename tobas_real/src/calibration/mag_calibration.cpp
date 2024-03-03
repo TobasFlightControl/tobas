@@ -1,10 +1,9 @@
-#include <iostream>
-#include <boost/property_tree/ini_parser.hpp>
 #include <Eigen/SVD>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/fstream.hpp>
-#include <dh_eigen_tools/linalg.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_real/calibration/mag_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -18,9 +17,7 @@ MagnetometerCalibrator::MagnetometerCalibrator() : mag_data_(kDataCount * kDirec
 {
   imu_.initialize();
   if (!imu_.probe())
-  {
     throw runtime_error("IMU not enabled.");
-  }
 }
 
 void MagnetometerCalibrator::run(const string& method)
@@ -56,9 +53,9 @@ void MagnetometerCalibrator::run(const string& method)
     const double rx = (x_max - x_min) / 2;
     const double ry = (y_max - y_min) / 2;
     const double rz = (z_max - z_min) / 2;
-    const double rx2 = dh_std::sqr(rx);
-    const double ry2 = dh_std::sqr(ry);
-    const double rz2 = dh_std::sqr(rz);
+    const double rx2 = tobas_std::sqr(rx);
+    const double ry2 = tobas_std::sqr(ry);
+    const double rz2 = tobas_std::sqr(rz);
 
     mag_trans_.a_xx = 1 / rx2;
     mag_trans_.a_yy = 1 / ry2;
@@ -69,7 +66,8 @@ void MagnetometerCalibrator::run(const string& method)
     mag_trans_.b_x = -2 * x0 / rx2;
     mag_trans_.b_y = -2 * y0 / ry2;
     mag_trans_.b_z = -2 * z0 / rz2;
-    mag_trans_.c = dh_std::sqr(x0) / rx2 + dh_std::sqr(y0) / ry2 + dh_std::sqr(z0) / rz2 - 1;
+    mag_trans_.c =
+      tobas_std::sqr(x0) / rx2 + tobas_std::sqr(y0) / ry2 + tobas_std::sqr(z0) / rz2 - 1;
   }
   else
   {
@@ -140,11 +138,7 @@ void MagnetometerCalibrator::run(const string& method)
   cout << "Radius:" << mag_trans_.getRadius().transpose() << endl;
 
   // Configに保存
-  boost::property_tree::ptree pt;
-  if (dh_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
   pt.put(kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
   pt.put(kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
   pt.put(kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
@@ -155,7 +149,7 @@ void MagnetometerCalibrator::run(const string& method)
   pt.put(kConfigKey_MagEllipseBy, mag_trans_.b_y);
   pt.put(kConfigKey_MagEllipseBz, mag_trans_.b_z);
   pt.put(kConfigKey_MagEllipseC, mag_trans_.c);
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 

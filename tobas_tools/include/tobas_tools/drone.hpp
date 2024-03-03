@@ -2,7 +2,8 @@
 
 #include <ros/ros.h>
 
-#include <dh_kdl/tree.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_kdl/tree.hpp>
 
 #include "./joint_config.hpp"
 #include "./rotor_config.hpp"
@@ -22,8 +23,8 @@ public:
   void loadFromParam(ros::NodeHandle& nh);
 
   inline const KDL::Tree& tree() const;
-  inline const JointConfigs& jointConfigs() const;
-  inline const JointConfig& jointConfig(const size_t& joint_idx) const;
+  inline const JointConfigMap& jointConfigMap() const;
+  inline const JointConfig& jointConfig(const std::string& jnt_name) const;
   inline const RotorConfigs& rotorConfigs() const;
   inline const RotorConfig& rotorConfig(const size_t& rotor_idx) const;
   inline const FixedWingConfig& fixedWing() const;
@@ -32,6 +33,7 @@ public:
   inline const ControlSurfaces& controlSurfaces() const;
   inline const ControlSurface& controlSurface(const size_t& cs_idx) const;
 
+  inline const double& nominalBatteryVoltage() const;
   inline const bool& hasFixedWing() const;
   inline const bool& isLoaded() const;
   inline bool isTransformable() const;
@@ -39,7 +41,23 @@ public:
   inline size_t numRotors() const;
   inline size_t numControlSurfaces() const;
 
-  std::vector<std::string> postureDefiningJointNames() const;
+  /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
+  inline double erpmFromRotSpeed(const size_t& rotor_idx, const double& rot_speed);
+
+  /* 与えられたバッテリー電圧で出力できる最大回転数．*/
+  double maxRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const;
+
+  /* 与えられたバッテリー電圧で出力できる最小回転数． */
+  double minRotSpeed(const size_t& rotor_idx, const double& battery_voltage) const;
+
+  /* 機械的に許容できる最大回転数から計算される推力． */
+  double maxMechanicalThrust(const size_t& rotor_idx) const;
+
+  /* 与えられたバッテリー電圧で出力できる最大推力．*/
+  double maxThrust(const size_t& rotor_idx, const double& battery_voltage) const;
+
+  /* 与えられたバッテリー電圧で出力できる最小推力． */
+  double minThrust(const size_t& rotor_idx, const double& battery_voltage) const;
 
   /* 回転数 [rad/s] から推力 [N] を求める． */
   double thrustFromRotSpeed(const size_t& rotor_idx, const double& rot_speed) const;
@@ -56,6 +74,12 @@ public:
   /* 推力 [N] から回転数 [rad/s] を求める． */
   double rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const;
 
+  /* 回転数 [rad/s] からスロットル [0,1] を求める． */
+  double throttleFromRotSpeed(
+    const size_t& rotor_idx,
+    const double& rot_speed,
+    const double& battery_voltage) const;
+
   /* 推力 [N] からスロットル [0,1] を求める． */
   double throttleFromThrust(
     const size_t& rotor_idx,
@@ -65,15 +89,16 @@ public:
 private:
   KDL::Tree tree_;
 
-  JointConfigs joints_;  // プロペラ，舵面以外の可動関節
+  JointConfigMap joint_map_;  // プロペラ，舵面以外の可動関節
   RotorConfigs rotors_;
   FixedWingConfig fixed_wing_;
 
+  double battery_nominal_voltage_;  // メインバッテリーの定格電圧
   bool has_fixed_wing_;
   bool is_loaded_ = false;
 
   void getJointConfigs(ros::NodeHandle& nh);
-  JointConfig getJointConfig(ros::NodeHandle& nh, const size_t& joint_idx);
+  void getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx);
 
   void getRotorConfigs(ros::NodeHandle& nh);
   RotorConfig getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx);
@@ -90,14 +115,14 @@ inline const KDL::Tree& Drone::tree() const
   return tree_;
 }
 
-inline const JointConfigs& Drone::jointConfigs() const
+inline const JointConfigMap& Drone::jointConfigMap() const
 {
-  return joints_;
+  return joint_map_;
 }
 
-inline const JointConfig& Drone::jointConfig(const size_t& joint_idx) const
+inline const JointConfig& Drone::jointConfig(const std::string& jnt_name) const
 {
-  return joints_.at(joint_idx);
+  return joint_map_.at(jnt_name);
 }
 
 inline const RotorConfigs& Drone::rotorConfigs() const
@@ -135,6 +160,11 @@ inline const ControlSurface& Drone::controlSurface(const size_t& cs_idx) const
   return fixed_wing_.control_surfaces.at(cs_idx);
 }
 
+inline const double& Drone::nominalBatteryVoltage() const
+{
+  return battery_nominal_voltage_;
+}
+
 inline const bool& Drone::hasFixedWing() const
 {
   return has_fixed_wing_;
@@ -147,7 +177,7 @@ inline const bool& Drone::isLoaded() const
 
 inline bool Drone::isTransformable() const
 {
-  return joints_.size() > 0;
+  return joint_map_.size() > 0;
 }
 
 inline size_t Drone::numRotors() const
@@ -158,5 +188,10 @@ inline size_t Drone::numRotors() const
 inline size_t Drone::numControlSurfaces() const
 {
   return fixed_wing_.control_surfaces.size();
+}
+
+inline double Drone::erpmFromRotSpeed(const size_t& rotor_idx, const double& rot_speed)
+{
+  return tobas_std::rps2rpm(rot_speed) * rotors_.at(rotor_idx).num_poles / 2;
 }
 }  // namespace tobas

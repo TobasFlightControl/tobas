@@ -4,6 +4,8 @@
 
 #include <XYZgeomag.hpp>
 
+#include "./drone.hpp"
+
 namespace tobas
 {
 /* rosparamに登録されているdescriptionから質量 [kg] を求める． */

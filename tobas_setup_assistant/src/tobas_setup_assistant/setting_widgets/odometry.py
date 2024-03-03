@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -22,8 +22,9 @@ class OdometryWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Odometry Publisher"
         abst_text = (
-            "オドメトリを発行する機器の設定を行います．データシートを確認し，各値を入力してください．"
-            + "ホイールエンコーダや，VIO (Visual Inertial Odometry) などが該当します．"
+            "Configure the settings for the device issuing odometry data. "
+            "Please refer to the datasheet and enter the respective values. "
+            "This includes devices like wheel encoders or Visual Inertial Odometry (VIO)."
         )
         super().__init__(main, title_text, abst_text)
 

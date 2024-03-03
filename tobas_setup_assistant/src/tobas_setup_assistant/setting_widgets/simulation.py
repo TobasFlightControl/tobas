@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -22,7 +22,8 @@ class SimulationWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Gazebo Simulation"
         abst_text = (
-            "Gazeboシミュレーション環境の設定を行います．" "シミュレーションの精度を向上させるために，実際の実行環境の情報を入力してください．"
+            "Configure the settings for the Gazebo simulation environment. "
+            "To enhance the accuracy of the simulation, please input information about the actual operating environment."
         )
         super().__init__(main, title_text, abst_text)
 

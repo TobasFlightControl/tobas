@@ -1,4 +1,4 @@
-#include <dh_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -65,7 +65,7 @@ void GazeboBarometerPlugin::onUpdate()
   const double altitude = alt_0_ + W_Pos_WS.Z();
 
   // Compute the air pressure at the current altitude
-  double pressure = dh_std::altitudeToPressure(altitude);
+  double pressure = tobas_std::altitudeToPressure(altitude);
 
   // Add noise to pressure measurement
   pressure += pressure_noise_(rnd_gen_);

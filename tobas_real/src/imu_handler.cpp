@@ -1,12 +1,13 @@
-#include <boost/property_tree/ini_parser.hpp>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/boost.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/boost.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_real/imu_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -22,8 +23,15 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   getRosParams();
   readConfig();
 
-  setupImu();
+  imu_.initialize();
+  if (!imu_.probe())
+    ROS_EXIT_NAMED(nh_, name_, "IMU not enabled.");
+
   mag_trans_.initialize();
+
+  acc_var_ = tobas_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
+  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
+  mag_var_ = tobas_std::sqr(mag_noise_density_) * update_rate_;    // TODO: スケーリング
 
   registerPublishers();
   registerSubscribers();
@@ -39,7 +47,7 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 void ImuHandler::getRosParams()
 {
-  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
+  tobas_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void ImuHandler::registerPublishers()
@@ -50,55 +58,30 @@ void ImuHandler::registerPublishers()
 
 void ImuHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void ImuHandler::readConfig()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
+  tobas_std::PropertyTree pt(kConfigPath);
 
-  acc_noise_density_ = pt.get<double>(kConfigKey_AccNoiseDensity);
-  gyro_noise_density_ = pt.get<double>(kConfigKey_GyroNoiseDensity);
-  mag_noise_density_ = pt.get<double>(kConfigKey_MagNoiseDensity);
+  pt.get(kConfigKey_AccNoiseDensity, acc_noise_density_);
+  pt.get(kConfigKey_GyroNoiseDensity, gyro_noise_density_);
+  pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_);
 
-  acc_bias_.x() = pt.get<float>(kConfigKey_AccOffsetX);
-  acc_bias_.y() = pt.get<float>(kConfigKey_AccOffsetY);
-  acc_bias_.z() = pt.get<float>(kConfigKey_AccOffsetZ);
+  pt.get(kConfigKey_AccOffsetX, acc_bias_.x());
+  pt.get(kConfigKey_AccOffsetY, acc_bias_.y());
+  pt.get(kConfigKey_AccOffsetZ, acc_bias_.z());
 
-  mag_trans_.a_xx = pt.get<double>(kConfigKey_MagEllipseAxx);
-  mag_trans_.a_yy = pt.get<double>(kConfigKey_MagEllipseAyy);
-  mag_trans_.a_zz = pt.get<double>(kConfigKey_MagEllipseAzz);
-  mag_trans_.a_xy = pt.get<double>(kConfigKey_MagEllipseAxy);
-  mag_trans_.a_yz = pt.get<double>(kConfigKey_MagEllipseAyz);
-  mag_trans_.a_zx = pt.get<double>(kConfigKey_MagEllipseAzx);
-  mag_trans_.b_x = pt.get<double>(kConfigKey_MagEllipseBx);
-  mag_trans_.b_y = pt.get<double>(kConfigKey_MagEllipseBy);
-  mag_trans_.b_z = pt.get<double>(kConfigKey_MagEllipseBz);
-  mag_trans_.c = pt.get<double>(kConfigKey_MagEllipseC);
-}
-
-void ImuHandler::setupImu()
-{
-  imu_.initialize();
-  if (!imu_.probe())
-  {
-    ROS_THROW_NAMED(name_, "IMU not enabled.");
-  }
-}
-
-void ImuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      measure_gyro_bias_timer_.stop();
-      break;
-    default:
-      break;
-  }
+  pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
+  pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
+  pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
+  pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
+  pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
+  pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
+  pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x);
+  pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y);
+  pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z);
+  pt.get(kConfigKey_MagEllipseC, mag_trans_.c);
 }
 
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -120,16 +103,11 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   // Fill headers
   imu_msg->header.stamp = event.current_real;
   mag_msg->header.stamp = event.current_real;
-  imu_msg->header.frame_id = "imu_frame";
-  mag_msg->header.frame_id = "mag_frame";
 
   // Fill covariance matrices
-  const auto acc_var = dh_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
-  const auto gyro_var = dh_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
-  const auto mag_var = dh_std::sqr(mag_noise_density_) * update_rate_;
-  dh_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
-  dh_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
-  dh_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var);
+  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var_);
+  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var_);
+  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var_);
 
   // Fill data (Convert to NWU coordinate system)
   const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く

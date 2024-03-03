@@ -2,7 +2,7 @@
 
 #include <Eigen/Core>
 #include <Common/MS5611.h>
-#include <Navio2/RCOutput_Navio2.h>
+#include <Navio2/PWM.h>
 
 #include "../common.hpp"
 
@@ -13,8 +13,8 @@ class MeasureSensorNoise
 {
   static constexpr size_t kDataCount = 1000;
   static constexpr double kMaxThrottle = 0.5;
-  static constexpr double kPwmUpDownTime = 5000000;  // [us]
-  static constexpr size_t kPwmSleep = 1000;          // [us]
+  static constexpr double kPwmUpDownTime = 5.;  // [s]
+  static constexpr size_t kPwmSleep = 1000;     // [us]
 
 public:
   explicit MeasureSensorNoise();
@@ -24,7 +24,7 @@ public:
 private:
   ImuDevice imu_;
   MS5611 barometer_;
-  RCOutput_Navio2 pwm_;
+  PWM pwm_;
 
   void setPeriodOnAllChannels(const double& period);
   void sendDisarm();

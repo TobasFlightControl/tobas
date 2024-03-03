@@ -1,0 +1,13 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="config_path" default="$(find tobas_dynamixel_handler)/config/motor_config.yaml"/>
+
+  <arg name="node_name" value="dynamixel_handler"/>
+
+  <rosparam file="$(arg config_path)" command="load"/>
+
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_dynamixel_handler/DynamixelHandlerNodelet nodelet_manager" output="screen"/>
+  <node unless="$(arg nodelet)" pkg="tobas_dynamixel_handler" type="dynamixel_handler_node" name="$(arg node_name)" output="screen"/>
+
+</launch>

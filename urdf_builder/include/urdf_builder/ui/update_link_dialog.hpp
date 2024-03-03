@@ -55,6 +55,8 @@ private Q_SLOTS:
   void MaterialTexturePathLineEditTextChanged(const QString& text);
   void VisualListWidgetItemClicked(QListWidgetItem*);
   void CollisionListWidgetItemClicked(QListWidgetItem*);
+  void RenameLinkButtonClicked();
+  void RenameJointButtonClicked();
   void AddVisualButtonClicked();
   void RemoveVisualButtonClicked();
   void AddCollisionButtonClicked();

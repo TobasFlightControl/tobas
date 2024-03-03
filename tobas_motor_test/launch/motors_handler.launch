@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_motor_test" type="motors_handler_node" name="motors_handler" output="screen"/>
-
-</launch>

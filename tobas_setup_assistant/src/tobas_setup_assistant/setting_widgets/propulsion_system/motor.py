@@ -13,13 +13,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox
-from dh_rqt_tools.messages import q_error_named
+from tobas_tools_py.math import rpm2rps
+from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
-from ...utils import rpm_to_rad_per_sec
-from .common import ROTARY_WINGS
+from .common import PROPULSION_SYSTEM
+from .max_rot_speed import MaxRotationSpeedWidget
 
 
 class MotorWidget(QWidget):
@@ -59,18 +60,27 @@ class MotorWidget(QWidget):
         if self._method_name.currentText() == self.NO_SELECT:
             print(self._method_name.currentText())
             q_error_named(
-                self._main, ROTARY_WINGS, "Please select motor setting method."
+                self._main,
+                PROPULSION_SYSTEM,
+                "Please select motor setting method.",
             )
             return False
-        else:
-            if not self._selected().is_valid():
-                return False
+
+        if not self._selected().is_valid():
+            return False
 
         return True
+
+    def max_rot_speed(self) -> float:
+        """[rad/s]"""
+        return self._selected().max_rot_speed()
 
     def direction(self) -> str:
         """CW or CCW"""
         return self._selected().direction()
+
+    def num_poles(self) -> int:
+        return self._selected().num_poles()
 
     def time_const_up(self) -> float:
         """[s]"""
@@ -123,7 +133,7 @@ class MotorWidget(QWidget):
         self._update_visibility()
 
 
-class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
+class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
     NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -135,10 +145,14 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
+        self._max_rot_speed = MaxRotationSpeedWidget(main, link_name)
+        self._rows.addWidget(self._max_rot_speed)
+
         direction_description = (
-            "モータの回転方向．"
-            + "X軸またはZ軸に対してCW (Clock Wise) またはCCW (Counter Clock Wise) を選択してください．"
-            + "例えば回転翼機の場合，通常は対角に位置するプロペラが同じ回転方向になります．"
+            "Motor rotation direction. "
+            "Please choose either CW (Clockwise) or CCW (Counter Clockwise) relative to the rotation axis. "
+            "For instance, in rotary-wing aircraft, "
+            "propellers positioned diagonally opposite each other typically rotate in the same direction."
         )
         self._direction = ParamGetterWidget_ComboBox(
             "Rotating Direction",
@@ -147,7 +161,19 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._direction)
 
-        time_const_up_description = "モータの回転数が増加する際の，指令値に対する追従時定数．"
+        num_poles_description = ""  # TODO
+        self._num_poles = ParamGetterWidget_SpinBox(
+            "The number of poles",
+            num_poles_description,
+            minimum=2,
+            default=14,
+        )
+        self._rows.addWidget(self._num_poles)
+
+        time_const_up_description = (
+            "Time constant of the motor's response when increasing its rotational speed, "
+            "relative to the command value."
+        )
         self._time_const_up = ParamGetterWidget_SpinBox(
             "Time Constant Up",
             time_const_up_description,
@@ -157,7 +183,10 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
         )
         self._rows.addWidget(self._time_const_up)
 
-        time_const_down_description = "モータの回転数が減少する際の，指令値に対する追従時定数．"
+        time_const_down_description = (
+            "Time constant of the motor's response when decreasing its rotational speed, "
+            "relative to the command value."
+        )
         self._time_const_down = ParamGetterWidget_SpinBox(
             "Time Constant Down",
             time_const_down_description,
@@ -169,23 +198,45 @@ class MotorWidget_Base(QWidget):  # ABCを継承するとバグる
 
     @abstractmethod
     def is_valid(self) -> bool:
-        raise NotImplementedError()
+        if not self._max_rot_speed.is_valid():
+            return False
+
+        if self.num_poles() % 2 == 1:
+            q_error_named(
+                self._main,
+                PROPULSION_SYSTEM,
+                "The number of poles of a brushless motor must be even.",
+            )
+            return False
+
+        return True
+
+    @abstractmethod
+    def copy_from(self, src: MotorWidget_Base) -> None:
+        self._max_rot_speed.copy_from(src._max_rot_speed)
+        self._direction.set(src._direction.get())
+        self._num_poles.set(src._num_poles.get())
+        self._time_const_up.set(src._time_const_up.get())
+        self._time_const_down.set(src._time_const_down.get())
 
     @abstractmethod
     def rot_speed_coefs(self) -> Tuple[float, float]:
         """V = a w + b w^2 (V[V], w[rad/s])"""
         raise NotImplementedError()
 
-    @abstractmethod
-    def copy_from(self, src: MotorWidget_Base) -> None:
-        self._direction.set(src._direction.get())
-        self._time_const_up.set(src._time_const_up.get())
-        self._time_const_down.set(src._time_const_down.get())
+    @final
+    def max_rot_speed(self) -> float:
+        """[rad/s]"""
+        return self._max_rot_speed.max_rot_speed()
 
     @final
     def direction(self) -> str:
         """CW or CCW"""
         return self._direction.get()
+
+    @final
+    def num_poles(self) -> float:
+        return self._num_poles.get()
 
     @final
     def time_const_up(self) -> float:
@@ -204,7 +255,9 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        kv_description = "供給される電圧に対する無負荷時のモーターの回転速度．"
+        kv_description = (
+            "Motor's rotational speed under no load, relative to the supplied voltage."
+        )
         self._kv = ParamGetterWidget_SpinBox(
             "Kv",
             kv_description,
@@ -215,23 +268,26 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
         )
         self._rows.addWidget(self._kv)
 
-        resistance_description = "モータの内部抵抗値．"
+        resistance_description = "Internal resistance value of the motor."
         self._resistance = ParamGetterWidget_SpinBox(
             "Internal Registance",
             resistance_description,
             minimum=1,
-            default=200,
+            default=250,
             suffix=" mΩ",
         )
         self._rows.addWidget(self._resistance)
 
     @overrides
     def is_valid(self) -> bool:
+        if not super().is_valid():
+            return False
+
         return True
 
     @overrides
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        kv_si = rpm_to_rad_per_sec(self._kv.get())  # [rad/s/V]
+        kv_si = rpm2rps(self._kv.get())  # [rad/s/V]
         R = self._resistance.get() * 1e-3  # [Ω]
 
         # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
@@ -263,10 +319,11 @@ class MotorWidget_Experiment(MotorWidget_Base):
         super().__init__(main, link_name)
 
         data_description = (
-            "Thrust Stand実験のデータから，ESCへのPWM信号とモータの回転数の関係を推定します．"
-            + "データを直接入力するか，CSVファイルを読み込んでください．"
-            + "実験には必ず機体に搭載するバッテリーを用い，実際のプロペラを取り付けた状態で行ってください．\n"
-            + "Thrust Standの例: https://www.tytorobotics.com/pages/series-1580-1585"
+            "Estimate the relationship between the PWM signal to the ESC "
+            "and the motor's rotational speed from Thrust Stand experiment data. "
+            "Please input the data directly or load it from a CSV file. "
+            "Ensure that the experiments are conducted using the battery intended for the aircraft "
+            "and with the actual propeller attached."
         )
         self._data = ParamGetterWidget_DoubleTable(
             "Experimental data",
@@ -283,8 +340,11 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
     @overrides
     def is_valid(self) -> bool:
+        if not super().is_valid():
+            return False
+
         if self._data.count() == 0:
-            q_error_named(self._main, ROTARY_WINGS, "Experiment data is blank.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Experiment data is blank.")
             return False
 
         return True
@@ -298,7 +358,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         data = self._data.get()
         throttle, battery_voltage, rpm = np.hsplit(data, 3)
         motor_voltage = battery_voltage * throttle / 100.0
-        omega = rpm_to_rad_per_sec(rpm)
+        omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
         X = np.c_[omega, omega**2]

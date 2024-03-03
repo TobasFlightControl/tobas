@@ -1,16 +1,17 @@
-# goal
+# Goal
 tobas_msgs/CommandLevel level
 
 ---
 
-# result
+# Result
 int8 error_code
 int8 NO_ERROR = 0
 int8 NOT_READY = -1
 int8 INVALID_GOAL = -2
 int8 PREEMPTED = -3
-int8 UNKNOWN_ERROR = -4
+int8 DISARM_FAILED = -4
+int8 UNKNOWN_ERROR = -5
 
 ---
 
-# feedback
+# Feedback

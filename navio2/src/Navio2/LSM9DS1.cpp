@@ -80,39 +80,33 @@ void LSM9DS1::updateAccelerometer()
 {
   readRegsImu(XG_OUT_X_L_XL, &response_[0], 6);
   for (size_t i = 0; i < 3; ++i)
-  {
     bit_data_[i] = ((int16_t)response_[2 * i + 1] << 8) | response_[2 * i];
-  }
 
-  ax_ = -G_SI * ((float)bit_data_[1] * acc_scale_);
-  ay_ = -G_SI * ((float)bit_data_[0] * acc_scale_);
-  az_ = G_SI * ((float)bit_data_[2] * acc_scale_);
+  ax_ = -G_SI * (static_cast<float>(bit_data_[1]) * acc_scale_);
+  ay_ = -G_SI * (static_cast<float>(bit_data_[0]) * acc_scale_);
+  az_ = G_SI * (static_cast<float>(bit_data_[2]) * acc_scale_);
 }
 
 void LSM9DS1::updateGyroscope()
 {
   readRegsImu(XG_OUT_X_L_G, &response_[0], 6);
   for (size_t i = 0; i < 3; ++i)
-  {
     bit_data_[i] = ((int16_t)response_[2 * i + 1] << 8) | response_[2 * i];
-  }
 
-  gx_ = -DEG2RAD * ((float)bit_data_[1] * gyro_scale_);
-  gy_ = -DEG2RAD * ((float)bit_data_[0] * gyro_scale_);
-  gz_ = DEG2RAD * ((float)bit_data_[2] * gyro_scale_);
+  gx_ = -DEG2RAD * (static_cast<float>(bit_data_[1]) * gyro_scale_);
+  gy_ = -DEG2RAD * (static_cast<float>(bit_data_[0]) * gyro_scale_);
+  gz_ = DEG2RAD * (static_cast<float>(bit_data_[2]) * gyro_scale_);
 }
 
 void LSM9DS1::updateMagnetometer()
 {
   readRegsMag(M_OUT_X_L_M, &response_[0], 6);
   for (size_t i = 0; i < 3; ++i)
-  {
     bit_data_[i] = ((int16_t)response_[2 * i + 1] << 8) | response_[2 * i];
-  }
 
-  mx_ = 100. * ((float)bit_data_[0] * mag_scale_);
-  my_ = -100. * ((float)bit_data_[1] * mag_scale_);
-  mz_ = -100. * ((float)bit_data_[2] * mag_scale_);
+  mx_ = 100. * (static_cast<float>(bit_data_[0]) * mag_scale_);
+  my_ = -100. * (static_cast<float>(bit_data_[1]) * mag_scale_);
+  mz_ = -100. * (static_cast<float>(bit_data_[2]) * mag_scale_);
 }
 
 void LSM9DS1::initializeGyroscope()
@@ -169,7 +163,7 @@ void LSM9DS1::initializeMagnetometer()
   usleep(INITIALIZE_SLEEP);
 }
 
-void LSM9DS1::setGyroScale(uint8_t scale)
+void LSM9DS1::setGyroScale(const uint8_t& scale)
 {
   switch (scale)
   {
@@ -185,7 +179,7 @@ void LSM9DS1::setGyroScale(uint8_t scale)
   }
 }
 
-void LSM9DS1::setAccScale(uint8_t scale)
+void LSM9DS1::setAccScale(const uint8_t& scale)
 {
   switch (scale)
   {
@@ -204,7 +198,7 @@ void LSM9DS1::setAccScale(uint8_t scale)
   }
 }
 
-void LSM9DS1::setMagScale(uint8_t scale)
+void LSM9DS1::setMagScale(const uint8_t& scale)
 {
   switch (scale)
   {

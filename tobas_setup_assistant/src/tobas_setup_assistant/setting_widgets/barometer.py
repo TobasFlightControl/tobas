@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -21,9 +21,7 @@ class BarometerWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Air Pressure Sensor"
-        abst_text = (
-            "気圧センサの設定を行います．データシートを確認し，各値を入力してください．" + "Tobasのハードウェアを用いる場合は修正する必要はありません．"
-        )
+        abst_text = ""
         super().__init__(main, title_text, abst_text)
 
         self.offset = ParamGetterWidget_Vector3d(

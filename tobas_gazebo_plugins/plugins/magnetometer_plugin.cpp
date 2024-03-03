@@ -1,5 +1,5 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/geometry.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/geometry.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -46,15 +46,15 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   // Fill the static parts of the magnetometer message
   mag_msg_.header.frame_id = link_name_;
 
-  mag_msg_.magnetic_field_covariance[0] = dh_std::sqr(noise_normal_.X());
+  mag_msg_.magnetic_field_covariance[0] = tobas_std::sqr(noise_normal_.X());
   mag_msg_.magnetic_field_covariance[1] = 0.;
   mag_msg_.magnetic_field_covariance[2] = 0.;
   mag_msg_.magnetic_field_covariance[3] = 0.;
-  mag_msg_.magnetic_field_covariance[4] = dh_std::sqr(noise_normal_.Y());
+  mag_msg_.magnetic_field_covariance[4] = tobas_std::sqr(noise_normal_.Y());
   mag_msg_.magnetic_field_covariance[5] = 0.;
   mag_msg_.magnetic_field_covariance[6] = 0.;
   mag_msg_.magnetic_field_covariance[7] = 0.;
-  mag_msg_.magnetic_field_covariance[8] = dh_std::sqr(noise_normal_.Z());
+  mag_msg_.magnetic_field_covariance[8] = tobas_std::sqr(noise_normal_.Z());
 
   // Advertise publisher
   mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + tobas::kMagTopic, 1);
@@ -91,7 +91,7 @@ void GazeboMagnetometerPlugin::onUpdate()
   const Vector3d W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
 
   // デカルト座標から経緯度と高度を計算
-  dh_std::cartToGpsRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, lat_, lon_);
+  tobas_std::cartToGpsRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, lat_, lon_);
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // 経緯度と高度から地磁気の参照値を計算

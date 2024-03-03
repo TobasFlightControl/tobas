@@ -8,8 +8,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from kdl_sympy.joint import JointType
-from dh_rqt_tools.widgets import ListWidgetItem
+from tobas_kdl_sympy.joint import JointType
+from tobas_rqt_tools.widgets import ListWidgetItem
 
 from ...parameter_getters import *
 from ...common import *

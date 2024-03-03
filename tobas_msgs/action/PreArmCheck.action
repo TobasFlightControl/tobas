@@ -1,0 +1,28 @@
+# goal
+
+---
+
+# result
+tobas_msgs/Battery battery
+sensor_msgs/Imu imu
+sensor_msgs/MagneticField magnetic_field
+sensor_msgs/FluidPressure air_pressure
+tobas_msgs/Gps gps
+
+uint32 bat_count
+uint32 imu_count
+uint32 mag_count
+uint32 bar_count
+uint32 gps_count
+
+int8 error_code
+int8 NO_ERROR = 0
+int8 INVALID_GOAL = -1
+int8 PREEMPTED = -2
+int8 NOT_STATIC = -3
+int8 BATTERY_VOLTAGE_ERROR = -4
+int8 UNKNOWN_ERROR = -5
+
+---
+
+# feedback

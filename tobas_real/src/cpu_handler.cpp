@@ -1,7 +1,7 @@
 #include <fstream>
 
-#include <dh_ros_tools/console_message.hpp>
-
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Cpu.h>
 
 #include "../include/tobas_real/cpu_handler.hpp"
@@ -32,20 +32,6 @@ void CpuHandler::registerPublishers()
 
 void CpuHandler::registerSubscribers()
 {
-  super::registerSubscribers();
-}
-
-void CpuHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
 }
 
 void CpuHandler::mainTimerCb(const ros::TimerEvent& event)

@@ -20,14 +20,98 @@ namespace urdf_builder
 {
 namespace view_model
 {
+GeometryViewModel::GeometryViewModel(const urdf::GeometrySharedPtr& model)
+  : BaseViewModel<urdf::Geometry, GeometryViewModel>(model),
+    type_(model_->type),
+    radius_(kDefaultRadius),
+    length_(kDefaultLength),
+    width_(kDefaultWidth),
+    height_(kDefaultHeight),
+    scale_(kDefaultScale, kDefaultScale, kDefaultScale)
+{
+  if (!model)
+    model_.reset(new urdf::Sphere());
+  load();
+}
+
 const QString& GeometryViewModel::name() const
 {
   return kGeometryTypeToNameMap.at(type_);
 }
 
+GeometryType GeometryViewModel::type() const
+{
+  return type_;
+}
+
+void GeometryViewModel::type(GeometryType type)
+{
+  type_ = type;
+}
+
 void GeometryViewModel::type(const QString& type)
 {
   type_ = kGeometryNameToTypeMap.at(type);
+}
+
+double GeometryViewModel::width() const
+{
+  return width_;
+}
+
+void GeometryViewModel::width(double width)
+{
+  width_ = width;
+}
+
+double GeometryViewModel::length() const
+{
+  return length_;
+}
+
+void GeometryViewModel::length(double length)
+{
+  length_ = length;
+}
+
+double GeometryViewModel::height() const
+{
+  return height_;
+}
+
+void GeometryViewModel::height(double height)
+{
+  height_ = height;
+}
+
+double GeometryViewModel::radius() const
+{
+  return radius_;
+}
+
+void GeometryViewModel::radius(double radius)
+{
+  radius_ = radius;
+}
+
+QString GeometryViewModel::filePath() const
+{
+  return QString::fromStdString(filepath_);
+}
+
+void GeometryViewModel::filePath(const QString& filepath)
+{
+  filepath_ = filepath.toStdString();
+}
+
+const urdf::Vector3& GeometryViewModel::scale() const
+{
+  return scale_;
+}
+
+void GeometryViewModel::scale(const urdf::Vector3& scale)
+{
+  scale_ = scale;
 }
 
 void GeometryViewModel::sync()

@@ -1,3 +1,85 @@
 # Tobas
 
-See [tobas_setup](https://github.com/TobasFlightControl/tobas/blob/develop/tobas_setup/README.md)
+## ラズパイの設定
+
+### CPU クロックの設定 (CPU 冷却必須)
+
+cf. [RaspberryPi4 の高速化（オーバークロック）](https://qiita.com/ousagi_sama/items/67ea6c7332df8d23b842)
+cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zdnet.com/article/35201090/)
+
+`/boot/config.txt`に以下を追記:
+
+```txt
+over_voltage=6    # -16～8の整数,　default: 0
+arm_freq=2000     # 最大周波数MHz, default: 1200
+arm_freq_min=2000 # 最小周波数MHz, default: 600
+gpu_freq=750      # GPU周波数MHz, default: 500
+force_turbo=1     # いるか分からない
+```
+
+### root 権限なしで PWM にアクセスできるようにする
+
+1. ルールの追加
+
+`/etc/udev/rules.d/10-local.rules`に以下を追記 \
+cf. [Need to configure non-root PWM access](https://community.emlid.com/t/need-to-configure-non-root-pwm-access/16501/10)
+
+```txt
+SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
+        chown -R root:gpio /sys/class/pwm && chmod -R 770 /sys/class/pwm;\
+        chown -R root:gpio /sys/devices/platform/soc/*.spi/spi_master/spi1/spi1.0/pwm/pwmchip0 && chmod -R 770 /sys/devices/platform/soc/*.spi/spi_master/spi1/spi1.0/pwm/pwmchip0\
+'"
+```
+
+2. udev ルールの適用
+
+```bash
+$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger
+```
+
+### root 権限なしで Dynamixel の USB 通信レイテンシを変更できるようにする
+
+1. ルールの追加
+
+`/etc/udev/rules.d/10-local.rules`に以下を追記
+
+```txt
+KERNEL=="ttyUSB0", ACTION=="add", PROGRAM="/bin/sh -c 'chown root:dialout /sys/bus/usb-serial/devices/%k/latency_timer; chmod 770 /sys/bus/usb-serial/devices/%k/latency_timer'"
+```
+
+`ttyUSB0`デバイスがシステムに追加された（`ACTION=="add"`）時に，
+`latency_timer`ファイルの所有者を`root`ユーザーと`dialout`グループに変更し，
+所有者とグループのみに完全なアクセス権を与えている（`chmod 770`）．
+
+2. udev ルールの適用
+
+```bash
+$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger
+```
+
+3. ユーザを dialout グループに追加
+
+```bash
+$ sudo usermod -a -G dialout pi
+```
+
+4. グループを確認
+
+```bash
+$ getent group dialout  # dialoutグループのメンバーを確認
+$ id pi                 # piが所属するグループを確認
+```
+
+## ラズパイをネットワークにつないだままアクセスポイント化
+
+### 手順
+
+[Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
+
+### メモ
+
+- `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
+  既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
+  その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．

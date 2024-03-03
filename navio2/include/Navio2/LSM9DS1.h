@@ -190,9 +190,9 @@ private:
   void initializeAccelerometer();
   void initializeMagnetometer();
 
-  void setGyroScale(uint8_t scale);
-  void setAccScale(uint8_t scale);
-  void setMagScale(uint8_t scale);
+  void setGyroScale(const uint8_t& scale);
+  void setAccScale(const uint8_t& scale);
+  void setMagScale(const uint8_t& scale);
 
   SPIdev spi_dev_imu_;
   SPIdev spi_dev_mag_;

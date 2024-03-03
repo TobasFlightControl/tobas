@@ -1,13 +1,13 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/console_message.hpp>
-
+#include <tobas_std_tools/math.hpp>
+#include <tobas_kdl/euler.hpp>
+#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_common_actions/wait_for_stillness_server.hpp"
 #include "../include/tobas_common_actions/common.hpp"
 
 using namespace std;
-using namespace dh_std;
+using namespace tobas_std;
 
 namespace tobas_common_actions
 {
@@ -36,8 +36,6 @@ void WaitForStillnessServer::registerPublishers()
 
 void WaitForStillnessServer::registerSubscribers()
 {
-  super::registerSubscribers();
-
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
@@ -108,7 +106,7 @@ bool WaitForStillnessServer::isConditionsMet()
 
   bool res = true;
 
-  const auto dp = odom_back.pose.pos - odom_front.pose.pos;
+  const auto dp = odom_back.frame.p - odom_front.frame.p;
   const auto hor_pos_var_norm = sqrt(sqr(dp.x()) + sqr(dp.y()));
   if (hor_pos_var_norm > goal_->horizontal_position_variance_threshold)
   {
@@ -129,7 +127,9 @@ bool WaitForStillnessServer::isConditionsMet()
     res = false;
   }
 
-  const auto yaw_diff = odom_back.pose.euler.yaw - odom_front.pose.euler.yaw;
+  const KDL::Euler euler_front(odom_front.frame.M);
+  const KDL::Euler euler_back(odom_back.frame.M);
+  const auto yaw_diff = euler_back.yaw - euler_front.yaw;
   if (abs(yaw_diff) > goal_->heading_variance_threshold)
   {
     rosWarnThrottle(
@@ -158,19 +158,6 @@ void WaitForStillnessServer::fillResult()
   result_.odom = odom_history_.back();
 }
 
-void WaitForStillnessServer::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      as_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
 void WaitForStillnessServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_action_running_)
@@ -192,20 +179,19 @@ void WaitForStillnessServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   }
 
   // 最後に姿勢角が閾値を下回った時刻を更新
-  const auto& roll = odom->pose.euler.roll;
-  const auto& pitch = odom->pose.euler.pitch;
-  if (abs(roll) > goal_->attitude_threshold)
+  const KDL::Euler euler(odom->frame.M);
+  if (abs(euler.roll) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
-      "Roll angle is over threshold: |" << roll << "| > " << goal_->attitude_threshold);
+      "Roll angle is over threshold: |" << euler.roll << "| > " << goal_->attitude_threshold);
     t_last_valid_attitude_ = odom->header.stamp;
   }
-  if (abs(pitch) > goal_->attitude_threshold)
+  if (abs(euler.pitch) > goal_->attitude_threshold)
   {
     rosWarnThrottle(
       kWarnPeriod, name_,
-      "Pitch angle is over threshold: |" << pitch << "| > " << goal_->attitude_threshold);
+      "Pitch angle is over threshold: |" << euler.pitch << "| > " << goal_->attitude_threshold);
     t_last_valid_attitude_ = odom->header.stamp;
   }
 

@@ -3,15 +3,14 @@
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 
-#include <dh_kdl/treejointstateconverter.hpp>
-#include <dh_kdl/treeactivejointsextractor.hpp>
-#include <dh_kdl/treetaskspacevelctrl.hpp>
-
+#include <tobas_kdl/treejointstateconverter.hpp>
+#include <tobas_kdl/treeactivejointsextractor.hpp>
+#include <tobas_kdl/treetaskspacevelctrl.hpp>
+#include <tobas_ros_tools/tf_listener.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Odometry.h>
-#include <tobas_msgs/JointVelocities.h>
-#include <tobas_msgs/CartesianState.h>
+#include <tobas_msgs/JointCommandArray.h>
+#include <tobas_msgs/LinkStateArray.h>
 
 #include <tobas_manipulation/VelocityControllerConfig.h>
 
@@ -38,22 +37,23 @@ private:
   KDL::TreeActiveJointsExtractor active_jnts_extractor_;
   KDL::TreeTaskSpaceVelCtrl vel_ctrl_;
 
-  KDL::JntArray jntarraynull_;
+  tobas_ros::TransformListener tf_listener_;
   double jnt_time_const_;
+  sensor_msgs::JointState home_js_;
+  ros::Time t_last_cmd_;
+  bool is_commanded_ = false;
 
-  tobas_msgs::OdometryConstPtr odom_;
   sensor_msgs::JointStateConstPtr cur_js_;
   sensor_msgs::JointStateConstPtr tar_js_;
-  tobas_msgs::CartesianStateConstPtr tar_cs_;
+  tobas_msgs::LinkStateArrayConstPtr tar_ls_;
 
   // Publishers
   ros::Publisher velocities_pub_;
 
   // Subscribers
-  ros::Subscriber odom_sub_;
   ros::Subscriber cur_js_sub_;
   ros::Subscriber tar_js_sub_;
-  ros::Subscriber tar_cs_sub_;
+  ros::Subscriber tar_ls_sub_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
@@ -62,14 +62,12 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  int jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
-  int taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg);
+  int jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
+  int taskSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js);
-  void targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& cs);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

@@ -11,10 +11,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import *
-from kdl_sympy.frames import *
-from kdl_sympy.tree import Tree
-from kdl_sympy.joint import *
+from tobas_rqt_tools.messages import *
+from tobas_kdl_sympy.frames import *
+from tobas_kdl_sympy.tree import Tree
+from tobas_kdl_sympy.joint import *
 
 from .utils import is_unique
 

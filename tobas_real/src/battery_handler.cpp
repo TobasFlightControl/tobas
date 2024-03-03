@@ -1,8 +1,7 @@
-#include <boost/property_tree/ini_parser.hpp>
-
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
-
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
 
 #include "../include/tobas_real/battery_handler.hpp"
@@ -21,12 +20,13 @@ BatteryHandler::BatteryHandler(
   getRosParams();
   getAdcCoefficient();
 
-  adc_.initialize();
+  if (adc_.initialize() < 0)
+    ROS_EXIT_NAMED(nh_, name_, "Failed to initialize ADC driver.");
 
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kUpdateRate, &BatteryHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
 void BatteryHandler::getRosParams()
@@ -40,34 +40,12 @@ void BatteryHandler::registerPublishers()
 
 void BatteryHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void BatteryHandler::getAdcCoefficient()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-
-  adc_coef_ = pt.get<double>(kConfigKey_AdcCoef);
-  if (adc_coef_ <= 0.)
-  {
-    ROS_THROW_NAMED(name_, "Negative ADC coefficient: " << adc_coef_);
-  }
-
-  rosInfo(name_, "ADC coefficient: " << adc_coef_);
-}
-
-void BatteryHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
+  pt.get(kConfigKey_AdcCoef, adc_coef_);
 }
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -81,30 +59,19 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   }
 
   // Compute voltage
-  const double voltage_raw = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
-  if (voltage_raw < kVoltageThreshold)
+  const double voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  if (voltage < kVoltageThreshold)
   {
     rosErrorThrottle(
       kErrorPeriod, name_,
-      "Battery voltage is abnormal: " << voltage_raw << "V. Please check the ADC connection.");
+      "Battery voltage is abnormal: " << voltage << "V. Please check the ADC connection.");
     return;
-  }
-
-  // Filtering
-  if (lpf_.isInitialized())
-  {
-    const auto ts = (event.current_real - event.last_real).toSec();
-    lpf_.update(voltage_raw, ts);
-  }
-  else
-  {
-    lpf_.initialize(kLpfTimeConst, voltage_raw);
   }
 
   // Create battery message
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   battery_msg->header.stamp = event.current_real;
-  battery_msg->voltage = lpf_.getState();
+  battery_msg->voltage = voltage;
   battery_msg->current = nan(tobas::kUnknown);
 
   // Publish battery message

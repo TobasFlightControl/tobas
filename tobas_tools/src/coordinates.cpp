@@ -1,50 +1,29 @@
-#include <dh_kdl/conversion/coordinates.hpp>
+#include <tobas_kdl/conversion/coordinates.hpp>
 
 #include "../include/tobas_tools/conversions/coordinates.hpp"
 
 namespace tf
 {
-void poseNedToNwu(const tobas_msgs::Pose& src, tobas_msgs::Pose& des)
-{
-  vectorNedToNwu(src.pos, des.pos);
-  eulerNedToNwu(src.euler, des.euler);
-}
-
-void poseNwuToNed(const tobas_msgs::Pose& src, tobas_msgs::Pose& des)
-{
-  poseNedToNwu(src, des);
-}
-
-void poseNedToNwu(tobas_msgs::Pose& arg)
-{
-  poseNedToNwu(arg, arg);
-}
-
-void poseNwuToNed(tobas_msgs::Pose& arg)
-{
-  poseNwuToNed(arg, arg);
-}
-
-void baseStateNedToNwu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
+void odometryNedToNwu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
 {
   des.header = src.header;
-  poseNedToNwu(src.pose, des.pose);
+  frameNedToNwu(src.frame, des.frame);
   twistNedToNwu(src.twist, des.twist);
 }
 
-void baseStateNwuToNed(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
+void odometryNwuToNed(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
 {
-  baseStateNedToNwu(src, des);
+  odometryNedToNwu(src, des);
 }
 
-void baseStateNedToNwu(tobas_msgs::Odometry& arg)
+void odometryNedToNwu(tobas_msgs::Odometry& arg)
 {
-  baseStateNedToNwu(arg, arg);
+  odometryNedToNwu(arg, arg);
 }
 
-void baseStateNwuToNed(tobas_msgs::Odometry& arg)
+void odometryNwuToNed(tobas_msgs::Odometry& arg)
 {
-  baseStateNwuToNed(arg, arg);
+  odometryNwuToNed(arg, arg);
 }
 
 void speedRollDeltaPitchNedToNwu(

@@ -40,7 +40,7 @@ foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
 	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${PLUGIN_NAME})
+	list(APPEND targets_to_install ${NAME})
 endforeach()
 
 install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_nodelet

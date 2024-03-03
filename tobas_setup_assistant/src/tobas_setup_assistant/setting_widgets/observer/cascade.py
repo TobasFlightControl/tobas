@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
@@ -25,9 +25,12 @@ class CascadeKalmanFilter(BaseObserver):
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
-            "この状態推定器は，姿勢推定器と位置推定器の2つの部分に分かれています．"
-            + "6軸IMUと地磁気センサの情報から相補フィルタにより姿勢を推定し，"
-            + "推定した姿勢と他のセンサの情報から線形カルマンフィルタにより3次元位置を推定します．"
+            "This state estimator is divided into two parts: "
+            "an attitude estimator and a position estimator. "
+            "It estimates attitude using a complementary filter "
+            "based on information from a 6-axis IMU and a geomagnetic sensor. "
+            "Then, it estimates the 3D position using a linear Kalman filter, "
+            "combining the estimated attitude with information from other sensors."
         )
         super().__init__(main, abst_text)
 
@@ -106,7 +109,7 @@ class CascadeKalmanFilter(BaseObserver):
             q_error_named(
                 self._main,
                 self.NAME,
-                "Absolute position connot be observed. Please review the sensor settings",
+                "Absolute position connot be observed. Please review the sensor settings.",
             )
             return False
 
@@ -125,8 +128,6 @@ class CascadeKalmanFilter(BaseObserver):
         res["state_estimator_cascade"] = {
             # Static parameters
             "use_gps": self._main.settings.gps.equipped(),
-            self.GPS_HOR_POS_STDDEV_THRESHOLD: self.gps_hor_pos_stddev_threshold.get(),
-            self.GPS_VER_POS_STDDEV_THRESHOLD: self.gps_ver_pos_stddev_threshold.get(),
             # Dynamic parameters
             self.GRAV_VAR: self._grav_var.get(),
         }

@@ -1,7 +1,8 @@
 #include <cassert>
 
-#include <dh_std_tools/algorithm.hpp>
-#include <dh_std_tools/check.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_std_tools/check.hpp>
 
 #include "../include/tobas_tools/position_pid.hpp"
 
@@ -25,46 +26,50 @@ Vector3d PositionPid::update(
   const auto ep = tar_pos - cur_pos;
   const auto ed = tar_vel - cur_vel;
 
-  // 目標加速度を計算
-  Vector3d tar_acc = pid_.update(ep, ed, dt);
+  // 積分誤差を蓄積
+  ei_ += ep * dt;
 
-  // 目標加速度を制限
-  dh_std::clamp2d(tar_acc.x(), tar_acc.y(), max_hor_acc_);
-  tar_acc.z() = clamp(tar_acc.z(), -max_ver_acc_, max_ver_acc_);
+  // 最大加速度からP加速度を除いた値でI加速度を制限する (動的なアンチワインドアップ)
+  // PI加速度が最大加速度を超える場合，I成分の効果は不安定化とオーバーシュートのみとなってしまう
+  const Vector3d tar_acc_p = kp_.cwiseProduct(ep).cwiseMax(-max_acc_).cwiseMin(max_acc_);
+  const Vector3d min_ei = (-max_acc_ - tar_acc_p).cwiseProduct(ki_.cwiseInverse());
+  const Vector3d max_ei = (max_acc_ - tar_acc_p).cwiseProduct(ki_.cwiseInverse());
+  ei_ = ei_.cwiseMax(min_ei).cwiseMin(max_ei);
 
-  return tar_acc;
+  // PID
+  const Vector3d tar_acc = kp_.cwiseProduct(ep) + ki_.cwiseProduct(ei_) + kd_.cwiseProduct(ed);
+
+  // 目標加速度を制限して出力
+  return tar_acc.cwiseMax(-max_acc_).cwiseMin(max_acc_);
 }
 
 void PositionPid::configure(const PositionPidConfig& cfg)
 {
-  CHECK(cfg.hor_kp >= 0);
-  CHECK(cfg.hor_ki >= 0);
-  CHECK(cfg.hor_kd >= 0);
-  CHECK(cfg.ver_kp >= 0);
-  CHECK(cfg.ver_ki >= 0);
-  CHECK(cfg.ver_kd >= 0);
-  CHECK(cfg.max_hor_acc >= 0);
-  CHECK(cfg.max_ver_acc >= 0);
-  CHECK(cfg.max_hor_acc_int >= 0);
-  CHECK(cfg.max_ver_acc_int >= 0);
+  CHECK(cfg.hor_natural_freq > 0);
+  CHECK(cfg.hor_damp_ratio > 0);
+  CHECK(cfg.hor_ki > 0);
+  CHECK(cfg.ver_natural_freq > 0);
+  CHECK(cfg.ver_damp_ratio > 0);
+  CHECK(cfg.ver_ki > 0);
+  CHECK(cfg.max_hor_acc > 0);
+  CHECK(cfg.max_ver_acc > 0);
 
-  pid_.kp.x() = cfg.hor_kp;
-  pid_.kp.y() = cfg.hor_kp;
-  pid_.kp.z() = cfg.ver_kp;
-  pid_.ki.x() = cfg.hor_ki;
-  pid_.ki.y() = cfg.hor_ki;
-  pid_.ki.z() = cfg.ver_ki;
-  pid_.kd.x() = cfg.hor_kd;
-  pid_.kd.y() = cfg.hor_kd;
-  pid_.kd.z() = cfg.ver_kd;
+  const auto hor_kp = tobas_std::sqr(cfg.hor_natural_freq);
+  const auto hor_kd = 2 * cfg.hor_damp_ratio * cfg.hor_natural_freq;
+  const auto ver_kp = tobas_std::sqr(cfg.ver_natural_freq);
+  const auto ver_kd = 2 * cfg.ver_damp_ratio * cfg.ver_natural_freq;
 
-  max_hor_acc_ = cfg.max_hor_acc;
-  max_ver_acc_ = cfg.max_ver_acc;
-
-  const double max_hor_int_err = cfg.hor_ki > 0 ? cfg.max_hor_acc_int / cfg.hor_ki : 0;
-  const double max_ver_int_err = cfg.ver_ki > 0 ? cfg.max_ver_acc_int / cfg.ver_ki : 0;
-  pid_.i_max.x() = max_hor_int_err;
-  pid_.i_max.y() = max_hor_int_err;
-  pid_.i_max.z() = max_ver_int_err;
+  kp_.x() = hor_kp;
+  kp_.y() = hor_kp;
+  kp_.z() = ver_kp;
+  ki_.x() = cfg.hor_ki;
+  ki_.y() = cfg.hor_ki;
+  ki_.z() = cfg.ver_ki;
+  kd_.x() = hor_kd;
+  kd_.y() = hor_kd;
+  kd_.z() = ver_kd;
+  max_acc_.x() = cfg.max_hor_acc;
+  max_acc_.y() = cfg.max_hor_acc;
+  max_acc_.z() = cfg.max_ver_acc;
 }
 }  // namespace tobas

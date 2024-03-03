@@ -9,8 +9,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import q_error_named
-from kdl_sympy.frames import Vector
+from tobas_rqt_tools.messages import q_error_named
+from tobas_kdl_sympy.frames import Vector
 
 from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrust
 
@@ -32,7 +32,7 @@ class MultirotorPid(BaseController):
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "位置制御，姿勢制御共にPIDを用いた制御器です．"
+        abst_text = "This controller for planar multirotors employs PID for both position and attitude control."
         super().__init__(main, abst_text)
 
         # TODO: 設定項目

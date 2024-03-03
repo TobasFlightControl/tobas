@@ -1,9 +1,8 @@
-#include <dh_std_tools/zip.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
-
+#include <tobas_std_tools/zip.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/conversions/kdl_msg.hpp>
 
 #include "../include/tobas_manipulation/effort_controller_ros.hpp"
 #include "../include/tobas_manipulation/common.hpp"
@@ -34,7 +33,20 @@ EffortControllerRos::EffortControllerRos(
   pid_js_.updateInternalDataStructures();
   pid_ts_.updateInternalDataStructures();
 
-  jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
+  // 力指令タイプの関節のホームポジションを取得
+  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
+  {
+    if (jnt_cfg.cmd_type != tobas::JointConfig::EFFORT)
+      continue;
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
+    home_js_.velocity.push_back(0.);
+    home_js_.effort.push_back(0.);
+  }
+
+  // ホームポジションを初期目標状態に設定
+  if (home_js_.name.size() > 0)
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
   registerPublishers();
   registerSubscribers();
@@ -49,28 +61,29 @@ void EffortControllerRos::getRosParams()
 
 void EffortControllerRos::registerPublishers()
 {
-  efforts_pub_ = nh_.advertise<tobas_msgs::JointEfforts>(tobas::kJointEffortsCmdTopic, 1);
+  efforts_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
 }
 
 void EffortControllerRos::registerSubscribers()
 {
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = nh_.subscribe(kEffortCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ = nh_.subscribe(kEffortCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+  tar_js_sub_ =
+    nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ =
+    nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
-int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
+int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
     return -1;
   }
-  if (tar_js_conv_.jointStateToJntArray(*tar_js_) < 0)
+  if (tar_js_conv_.jointStateToJntArrayPosVel(*tar_js_) < 0)
   {
     rosError(
       name_, "Failed to convert target JointState to Jntarray: " << tar_js_conv_.errorMessage());
@@ -83,7 +96,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
   const auto& tar_qd = tar_js_conv_.getVelocitiesKDL();
 
   // PIDで関節トルクを計算
-  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd, jntarraynull_) < 0)
+  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0)
   {
     rosError(name_, "Joint space PID failed: " << pid_js_.errorMessage());
     return -1;
@@ -91,23 +104,24 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointEfforts& efforts_msg
   const auto efforts = tar_js_conv_.getEffortsKDL() + pid_js_.getEfforts();  // FF + FB
 
   // JntArray -> JointState
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, tar_js_->name) < 0)
+  if (tar_js_conv_.jntArrayToJointStateEff(efforts, tar_js_->name) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;
   }
 
   // Fill output message
-  efforts_msg.name = tar_js_conv_.getNamesMsg();
-  efforts_msg.data = tar_js_conv_.getVelocitiesMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    efforts_msg.commands.emplace_back(name, vel);
 
   return 0;
 }
 
-int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
+int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
@@ -115,53 +129,25 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   }
 
   // デカルト座標系の目標値を更新
-  Frame tar_pi, T_W_B;
+  Frame T_Base_Parent;
   FrameMap tar_p;
   TwistMap tar_v;
   AccelMap a_ff;
   WrenchMap f_ext;
-  for (const auto& [seg_name, frame_id, pose, twist, accel, wrench] : dh_std::zip(
-         tar_cs_->name, tar_cs_->frame_id, tar_cs_->pose, tar_cs_->twist, tar_cs_->accel,
-         tar_cs_->wrench))
+  for (const auto& ls : tar_ls_->states)
   {
-    tobas::poseTobasToKDL(pose, tar_pi);
-    auto tar_vi = twist;
-    auto ai_ff = accel;
-    auto fi_ext = wrench;
-    switch (frame_id.data)
+    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
-      case tobas_msgs::FrameId::GLOBAL:
-      {
-        if (odom_ == nullptr)
-        {
-          rosWarnThrottle(
-            kOdomNotReceivedWarnPeriod, name_,
-            "Since odometry has not been received yet, commands in the global frame is ignored.");
-          return -1;
-        }
-
-        tobas::poseTobasToKDL(odom_->pose, T_W_B);
-        tar_pi = T_W_B.inverse() * tar_pi;  // T_B_P = T_B_W * T_W_P
-        tar_vi = T_W_B.M.inverse(tar_vi);
-        ai_ff = T_W_B.M.inverse(ai_ff);
-        fi_ext = T_W_B.M.inverse(fi_ext);
-
-        break;
-      }
-      case tobas_msgs::FrameId::LOCAL:
-      {
-        break;
-      }
-      default:
-      {
-        rosError(name_, "Unknown frame ID: " << static_cast<int>(frame_id.data));
-        return -1;
-      }
+      rosError(name_, tf_listener_.getErrorMessage());
+      continue;
     }
-    tar_p[seg_name] = tar_pi;  // Base -> Segment tip
-    tar_v[seg_name] = tar_vi;
-    a_ff[seg_name] = ai_ff;
-    f_ext[seg_name] = fi_ext;
+
+    // 親フレームで表現された値をベースリンクで表現された値に変換
+    transformMsgToKDL(tf_listener_.getTransform().transform, T_Base_Parent);
+    tar_p[ls.name] = T_Base_Parent * ls.frame;
+    tar_v[ls.name] = T_Base_Parent.M * ls.twist;
+    a_ff[ls.name] = T_Base_Parent.M * ls.accel;
+    f_ext[ls.name] = T_Base_Parent.M * ls.wrench;
   }
 
   // PIDで関節トルクを計算
@@ -175,47 +161,43 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointEfforts& efforts_msg)
   const auto& efforts = pid_ts_.getEfforts();
 
   // JntArray -> JointState
-  active_jnts_extractor_.solve(tar_cs_->name);
+  active_jnts_extractor_.solve(tar_ls_->names());
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, jntarraynull_, efforts, active_joints) < 0)
+  if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;
   }
 
   // Fill output message
-  efforts_msg.name = tar_js_conv_.getNamesMsg();
-  efforts_msg.data = tar_js_conv_.getVelocitiesMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    efforts_msg.commands.emplace_back(name, vel);
 
   return 0;
-}
-
-void EffortControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
-void EffortControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
-{
-  odom_ = odom;
 }
 
 void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js)
 {
   cur_js_ = cur_js;
 
-  if (tar_js_ == nullptr && tar_cs_ == nullptr)
+  if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
+  const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
+  if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
+  {
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_ls_ = nullptr;
+    is_commanded_ = false;
+    rosWarn(
+      name_, "The target joint states are automatically reset because "
+               << tobas::kAutoResetTimeThreshold
+               << " seconds have elapsed since the last command.");
+  }
+
   // Create joint efforts command
-  const auto efforts_msg = boost::make_shared<tobas_msgs::JointEfforts>();
+  const auto efforts_msg = boost::make_shared<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)
@@ -223,7 +205,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
     if (jointSpaceControl(*efforts_msg) < 0)
       return;
   }
-  else if (tar_cs_ != nullptr)
+  else if (tar_ls_ != nullptr)
   {
     if (taskSpaceControl(*efforts_msg) < 0)
       return;
@@ -241,25 +223,19 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
 void EffortControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_cs_ = nullptr;
+  tar_ls_ = nullptr;
+
+  t_last_cmd_ = ros::Time::now();
+  is_commanded_ = true;
 }
 
-void EffortControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
+void EffortControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
 {
-  if (odom_ == nullptr)
-    return;
-
-  const auto np = tar_cs->name.size();  // The number of endpoints
-  if (
-    tar_cs->frame_id.size() != np || tar_cs->pose.size() != np || tar_cs->twist.size() != np
-    || tar_cs->accel.size() != np || tar_cs->wrench.size() != np)
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
-
-  tar_cs_ = tar_cs;
+  tar_ls_ = tar_ls;
   tar_js_ = nullptr;
+
+  t_last_cmd_ = ros::Time::now();
+  is_commanded_ = true;
 }
 
 void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

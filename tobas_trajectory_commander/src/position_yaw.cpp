@@ -1,6 +1,6 @@
-#include <dh_eigen_tools/spline.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/rate.hpp>
+#include <tobas_eigen_tools/spline.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/rate.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -44,7 +44,6 @@ void FollowPositionYawTrajectoryServer::registerPublishers()
 
 void FollowPositionYawTrajectoryServer::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
@@ -100,19 +99,6 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   }
 
   return true;
-}
-
-void FollowPositionYawTrajectoryServer::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      as_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)

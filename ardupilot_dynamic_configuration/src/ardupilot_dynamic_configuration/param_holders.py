@@ -1,4 +1,4 @@
-from dh_rqt_tools.widgets import *
+from tobas_rqt_tools.widgets import *
 
 from .common import *
 

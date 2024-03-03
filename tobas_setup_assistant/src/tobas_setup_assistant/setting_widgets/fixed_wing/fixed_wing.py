@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer
 
 from ...parameter_getters import *
 from ...common import *
@@ -24,7 +24,10 @@ class FixedWingWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Fixed Wing"
-        abst_text = "固定翼の設定を行います．" + "設定方法を選択し，必要事項を入力してください．"
+        abst_text = (
+            "Set up the fixed-wing configuration. "
+            "Please choose a setup method and enter the required information."
+        )
         super().__init__(main, title_text, abst_text)
 
         self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")

@@ -2,19 +2,25 @@
 
 #include <cstddef>
 
-#include "../Common/ADC.h"
-
-class ADC_Navio2 : public ADC
+class ADC_Navio2
 {
+  static constexpr size_t kChannelCount = 6;
+
 public:
   explicit ADC_Navio2();
-  void initialize() override;
-  int get_channel_count(void) override;
-  int read(int ch) override;
+
+  int initialize();
+  int read(const size_t& ch);
+
+  inline const size_t& channelCount() const;
 
 private:
-  int open_channel(int ch);
+  int channels_[kChannelCount];
 
-  static const size_t CHANNEL_COUNT = 6;
-  int channels[CHANNEL_COUNT];
+  int openChannel(const size_t& ch);
 };
+
+inline const size_t& ADC_Navio2::channelCount() const
+{
+  return kChannelCount;
+}

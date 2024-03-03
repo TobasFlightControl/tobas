@@ -16,7 +16,7 @@ $ unzip tobas-x.x.x.zip
 2. Run installation script
 
 ```bash
-$ cd tobas-x.x.x/
+$ cd tobas/
 $ ./lib/tobas_setup/install_prereqs_ubuntu.sh
 ```
 
@@ -27,7 +27,7 @@ You can skip each step if you do not use the feature.
 #### ArduCopter SITL
 
 ```bash
-$ cd tobas-x.x.x/
+$ cd tobas/
 $ ./lib/tobas_setup/install_arducopter_sitl.sh
 ```
 
@@ -85,8 +85,6 @@ $ ssh (user)@(host)  # e.g.) ssh pi@192.168.1.1
    Please make sure that the RC transmitter and receiver can communicate correctly.
 
 ```bash
-$ su
-$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch your_config_pkg real.launch
 ```
 
@@ -162,8 +160,6 @@ $ roslaunch your_config_pkg gazebo.launch
    Make sure battery and motors are connected to FC properly and the propellers are NOT attached to the motors.
 
 ```bash
-$ su
-$ source ~/catkin_ws/devel/setup.bash
 $ roslaunch your_config_pkg hil.launch
 ```
 
@@ -211,8 +207,6 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 2. Please execute the following on FC and follow the instructions displayed on the console:
 
    ```bash
-   $ su
-   $ source ~/catkin_ws/devel/setup.bash
    $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
    ```
 
@@ -221,15 +215,13 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
    Please execute the following on FC:
 
    ```bash
-   $ su
-   $ source ~/catkin_ws/devel/setup.bash
    $ roslaunch tobas_motor_test motors_handler.launch
    ```
 
    Please execute the following on the external PC:
 
    ```bash
-   $ roslaunch tobas_motor_test motor_test_gui.launch
+   $ roslaunch tobas_motor_test pwm_publisher.launch
    ```
 
    Then, confirm the following for all motors:
@@ -253,8 +245,6 @@ and FC (Flight Controller) are properly connected, and that the airframe is secu
 Execute the following on FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
-$ su
-$ source ~/catkin_ws/devel/setup.bash
 $ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
 ```
 

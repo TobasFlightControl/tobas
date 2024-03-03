@@ -1,8 +1,6 @@
-#include <iostream>
-#include <boost/property_tree/ini_parser.hpp>
-
-#include <dh_std_tools/fstream.hpp>
-#include <dh_std_tools/console.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_std_tools/console.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_real/calibration/rcin_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -23,8 +21,7 @@ void RCInputCalibrator::run()
   double yaw_left, yaw_right;
   double thrust_up, thrust_down;
   double estop_up, estop_down;
-  double gpsw1_up, gpsw1_down;
-  double gpsw2_up, gpsw2_down;
+  double gpsw_up, gpsw_down;
   int num_modes;
   vector<double> modes;
 
@@ -43,7 +40,7 @@ void RCInputCalibrator::run()
 
     if (abs(roll_left - roll_right) < kPeriodDiffThreshold)
     {
-      DH_ERROR("The signals on Roll channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on Roll channel are too close. Please retry.");
       continue;
     }
 
@@ -65,7 +62,7 @@ void RCInputCalibrator::run()
 
     if (abs(pitch_up - pitch_down) < kPeriodDiffThreshold)
     {
-      DH_ERROR("The signals on Pitch channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on Pitch channel are too close. Please retry.");
       continue;
     }
 
@@ -87,7 +84,7 @@ void RCInputCalibrator::run()
 
     if (abs(yaw_left - yaw_right) < kPeriodDiffThreshold)
     {
-      DH_ERROR("The signals on Yaw channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on Yaw channel are too close. Please retry.");
       continue;
     }
 
@@ -110,7 +107,7 @@ void RCInputCalibrator::run()
 
     if (abs(thrust_up - thrust_down) < kPeriodDiffThreshold)
     {
-      DH_ERROR("The signals on Thrust channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on Thrust channel are too close. Please retry.");
       continue;
     }
 
@@ -132,51 +129,29 @@ void RCInputCalibrator::run()
 
     if (abs(estop_up - estop_down) < kPeriodDiffThreshold)
     {
-      DH_ERROR("The signals on E-Stop channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on E-Stop channel are too close. Please retry.");
       continue;
     }
 
     break;
   }
 
-  // GPSw-1
+  // GPSw (General Purpose Switch)
   while (true)
   {
     // Up
-    cout << "Please set the GPSw-1 (CH" << kRcChannelGPSw1 + 1 << ") to UP and press Enter:";
+    cout << "Please set the GPSw (CH" << kRcChannelGPSw + 1 << ") to UP and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    gpsw1_up = readRCInput(kRcChannelGPSw1);
+    gpsw_up = readRCInput(kRcChannelGPSw);
 
     // Down
-    cout << "Please set the GPSw-1 (CH" << kRcChannelGPSw1 + 1 << ") to DOWN and press Enter:";
+    cout << "Please set the GPSw (CH" << kRcChannelGPSw + 1 << ") to DOWN and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    gpsw1_down = readRCInput(kRcChannelGPSw1);
+    gpsw_down = readRCInput(kRcChannelGPSw);
 
-    if (abs(gpsw1_up - gpsw1_down) < kPeriodDiffThreshold)
+    if (abs(gpsw_up - gpsw_down) < kPeriodDiffThreshold)
     {
-      DH_ERROR("The signals on GPSw-1 channel are too close. Please retry.");
-      continue;
-    }
-
-    break;
-  }
-
-  // GPSw-2
-  while (true)
-  {
-    // Up
-    cout << "Please set the GPSw-2 (CH" << kRcChannelGPSw2 + 1 << ") to UP and press Enter:";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    gpsw2_up = readRCInput(kRcChannelGPSw2);
-
-    // Down
-    cout << "Please set the GPSw-2 (CH" << kRcChannelGPSw2 + 1 << ") to DOWN and press Enter:";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    gpsw2_down = readRCInput(kRcChannelGPSw2);
-
-    if (abs(gpsw2_up - gpsw2_down) < kPeriodDiffThreshold)
-    {
-      DH_ERROR("The signals on GPSw-2 channel are too close. Please retry.");
+      TOBAS_ERROR("The signals on GPSw channel are too close. Please retry.");
       continue;
     }
 
@@ -191,12 +166,12 @@ void RCInputCalibrator::run()
     cin.ignore(numeric_limits<streamsize>::max(), '\n');  // ストリームに残っている改行を処理
     if (num_modes <= 0)
     {
-      DH_ERROR("The number of flight modes must be positive. Please retry.");
+      TOBAS_ERROR("The number of flight modes must be positive. Please retry.");
       continue;
     }
     else if (static_cast<size_t>(num_modes) > kMaxNrOfFlightModes)
     {
-      DH_ERROR("The number of flight modes is too large. Please retry.");
+      TOBAS_ERROR("The number of flight modes is too large. Please retry.");
       continue;
     }
     break;
@@ -215,7 +190,7 @@ void RCInputCalibrator::run()
 
     if (isDifferentModesTooClose(modes))
     {
-      DH_ERROR("The signals of different modes are too close. Please retry.");
+      TOBAS_ERROR("The signals of different modes are too close. Please retry.");
       continue;
     }
 
@@ -223,11 +198,7 @@ void RCInputCalibrator::run()
   }
 
   // Configに保存
-  boost::property_tree::ptree pt;
-  if (dh_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
 
   pt.put(kConfigKey_RcRollLeft, roll_left);
   pt.put(kConfigKey_RcRollRight, roll_right);
@@ -239,10 +210,8 @@ void RCInputCalibrator::run()
   pt.put(kConfigKey_RcThrustDown, thrust_down);
   pt.put(kConfigKey_RcEStopOn, estop_up);
   pt.put(kConfigKey_RcEStopOff, estop_down);
-  pt.put(kConfigKey_RcGPSw1On, gpsw1_up);
-  pt.put(kConfigKey_RcGPSw1Off, gpsw1_down);
-  pt.put(kConfigKey_RcGPSw2On, gpsw2_up);
-  pt.put(kConfigKey_RcGPSw2Off, gpsw2_down);
+  pt.put(kConfigKey_RcGPSwOn, gpsw_up);
+  pt.put(kConfigKey_RcGPSwOff, gpsw_down);
 
   pt.put(kConfigKey_RcNrOfModes, num_modes);
   for (int i = 0; i < num_modes; ++i)
@@ -251,7 +220,7 @@ void RCInputCalibrator::run()
     pt.put(key, modes[i]);
   }
 
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 

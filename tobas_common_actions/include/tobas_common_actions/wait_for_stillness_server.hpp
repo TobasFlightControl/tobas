@@ -48,7 +48,6 @@ private:
   bool isConditionsMet();
   void fillResult();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
   void executeCb(const GoalType& goal);

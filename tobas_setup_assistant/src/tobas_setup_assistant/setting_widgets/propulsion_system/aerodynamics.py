@@ -14,13 +14,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox
-from dh_rqt_tools.messages import q_error_named
+from tobas_tools_py.math import rpm2rps
+from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
-from ...utils import rpm_to_rad_per_sec
-from .common import ROTARY_WINGS
+from .common import PROPULSION_SYSTEM
 from .blade_theory import BladeTheory
 
 
@@ -62,7 +62,9 @@ class AerodynamicsWidget(QWidget):
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
             q_error_named(
-                self._main, ROTARY_WINGS, "Please select aerodynamics setting method."
+                self._main,
+                PROPULSION_SYSTEM,
+                "Please select aerodynamics setting method.",
             )
             return False
         else:
@@ -141,13 +143,15 @@ class AerodynamicsWidget_Base(QWidget):
         abst = Description(abst_text)
         self._rows.addWidget(abst)
 
-        max_model_error_rate_description = "空力定数のモデル化誤差率の最大値．"
+        max_model_error_rate_description = (
+            "Maximum error rate in the modeling of aerodynamic constants."
+        )
         self._max_model_error_rate = ParamGetterWidget_SpinBox(
             "Max Model Error Rate",
             max_model_error_rate_description,
             minimum=0,
             maximum=1000,
-            default=5,
+            default=10,
             suffix=" %",
         )
         self._rows.addWidget(self._max_model_error_rate)
@@ -172,8 +176,8 @@ class AerodynamicsWidget_Base(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
-    def copy_from(self, src) -> None:
-        raise NotImplementedError()
+    def copy_from(self, src: AerodynamicsWidget_Base) -> None:
+        self._max_model_error_rate.set(src._max_model_error_rate.get())
 
     @final
     def max_model_error_rate(self) -> float:
@@ -185,13 +189,13 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
     NAME = "Set manually"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        abst_text = "プロペラ空気力学定数を直接設定します．"
+        abst_text = "Directly set the propeller aerodynamic constants."
         super().__init__(main, link_name, abst_text)
 
         motor_const_description = (
-            "プロペラの推力定数．"
-            + "推力定数をc[kg*m/rad^2]，回転数をw[rad/s]とすると，回転面に垂直な向きに発生する推力T[N]は"
-            + " T = c w^2 と表されます．"
+            "Propeller thrust constant. "
+            "If the thrust constant is denoted as c [kg*m/rad^2] and the rotational speed as w [rad/s], "
+            "the thrust force T [N] generated perpendicular to the rotational plane is expressed as T = c w^2."
         )
         self._motor_const = ParamGetterWidget_DoubleSpinBox(
             "Motor Constant",
@@ -199,14 +203,14 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
             decimals=12,
             minimum=0.0,
             default=8.54858e-6,
-            suffix=" kg*m/rad^2",
+            suffix=" kg m/rad^2",
         )
         self._rows.addWidget(self._motor_const)
 
         moment_const_description = (
-            "プロペラの反トルク係数．"
-            + "反トルク係数をc[m]，プロペラの推力をT[N]とすると，プロペラの回転方向と逆向きに発生するトルク[Nm]は"
-            + " N = c T と表されます．"
+            "Propeller torque reaction coefficient. "
+            "If the torque reaction coefficient is c [m] and the propeller's thrust is T [N], "
+            "the torque generated in the opposite direction to the propeller's rotation, in Newton-meters, is N = c T."
         )
         self._moment_const = ParamGetterWidget_DoubleSpinBox(
             "Moment Constant",
@@ -219,10 +223,11 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         self._rows.addWidget(self._moment_const)
 
         rotor_drag_coef_description = (
-            "プロペラの空気抗力係数．"
-            + "空気抗力係数をc[kg/rad]，モータの回転数をw[rad/s]，"
-            + "機体に対する相対的な大気速度の回転軸に垂直な成分の大きさをV[m/s]とすると，"
-            + "プロペラに発生する空気抗力の大きさF[N]は F = c w V と表されます．"
+            "Propeller drag coefficient. "
+            "If the drag coefficient is c [kg/rad], the motor's rotational speed is w [rad/s], "
+            "and V [m/s] is the magnitude of the atmospheric velocity component "
+            "perpendicular to the rotational axis relative to the aircraft, "
+            "then the magnitude of the air drag force F [N] generated on the propeller is expressed as F = c w V."
         )
         self._rotor_drag_coef = ParamGetterWidget_DoubleSpinBox(
             "Rotor Drag Coefficient",
@@ -252,6 +257,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_Manual) -> None:
+        super().copy_from(src)
         self._motor_const.set(src._motor_const.get())
         self._moment_const.set(src._moment_const.get())
         self._rotor_drag_coef.set(src._rotor_drag_coef.get())
@@ -264,10 +270,11 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         abst_text = (
-            "上で設定したプロペラの幾何形状から"
-            + "<a href='https://en.wikipedia.org/wiki/Blade_element_theory'>Blade Element Theory</a>や"
-            + "<a href='https://en.wikipedia.org/wiki/Momentum_theory'>Momentum Theory</a>"
-            + "を利用して空力定数を推定します．"
+            "Estimate aerodynamic constants using Blade Element Theory or Momentum Theory, "
+            "based on the geometric shape of the propeller set above. See "
+            "<a href='https://en.wikipedia.org/wiki/Blade_element_theory'>Blade Element Theory</a> and "
+            "<a href='https://en.wikipedia.org/wiki/Momentum_theory'>Momentum Theory</a> "
+            "for more information."
         )
         super().__init__(main, link_name, abst_text)
 
@@ -289,7 +296,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
-        pass
+        super().copy_from(src)
 
     def _blade_thory(self) -> BladeTheory:
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
@@ -315,15 +322,15 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     TABLE_COL_WIDTH = 180
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        # FIXME: テキスト中に改行コードを入れるとハイパーリンクが機能しない
+        # NOTE: テキスト中に改行コードを入れるとハイパーリンクが機能しない
         abst_text = (
-            "Thrust Stand実験のデータから，空力定数を推定します．"
-            + "Thrust Standの例: <a href='https://www.tytorobotics.com/pages/series-1580-1585'>"
-            + "Tyto Rootics Series 1585 Thrust Stand</a>"
+            "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
+            "For example, see the "
+            "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>"
         )
         super().__init__(main, link_name, abst_text)
 
-        data_description = "Thrust Standの実験データを入力してください．"
+        data_description = "Please input experimental data from the Thrust Stand."
         self._data = ParamGetterWidget_DoubleTable(
             "Data from thrust stand",
             ["RPM", "Thrust", "Torque"],
@@ -339,7 +346,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     @overrides
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(self._main, ROTARY_WINGS, "Thrust stand data is blank.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Thrust stand data is blank.")
             return False
 
         return True
@@ -350,7 +357,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
-        omega2: NDArray = rpm_to_rad_per_sec(rpm) ** 2
+        omega2: NDArray = rpm2rps(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
     @overrides
@@ -377,6 +384,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
+        super().copy_from(src)
         self._data.set(src._data.get())
 
 
@@ -388,14 +396,13 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         abst_text = (
-            "プロペラが"
-            + "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>"
-            + "UIUC Propeller Data Site</a>"
-            + "に登録されている場合は，研究機関によって測定された空力定数が利用できます．"
+            "If the propeller is listed in the "
+            "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
+            "aerodynamic constants measured by research institutions can be utilized."
         )
         super().__init__(main, link_name, abst_text)
 
-        data_description = "該当するプロペラのStaticデータを入力してください．"
+        data_description = "Input the Static data for the relevant propeller."
         self._data = ParamGetterWidget_DoubleTable(
             "Measurements in static condition",
             ["RPM", "CT", "CP"],
@@ -411,7 +418,9 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(
-                self._main, ROTARY_WINGS, "Measurements in static condition is blank."
+                self._main,
+                PROPULSION_SYSTEM,
+                "Measurements in static condition is blank.",
             )
             return False
 
@@ -460,4 +469,5 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
     @overrides
     def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:
+        super().copy_from(src)
         self._data.set(src._data.get())

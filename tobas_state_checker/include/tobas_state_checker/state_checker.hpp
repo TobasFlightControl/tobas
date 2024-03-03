@@ -4,6 +4,8 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/constants.hpp>
+#include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Odometry.h>
@@ -13,11 +15,10 @@ namespace tobas_state_checker
 {
 class StateChecker : public tobas::BaseNode
 {
-  static constexpr double kWarnPeriod = 3.;                  // [s]
-  static constexpr double kWaitForActionServerTimeout = 3.;  // [s]
-  static constexpr double kCpuTempertureThreshold = 70.;     // [degree celsius]
-  static constexpr double kTakeoffAltitudeThreshold = 1.5;   // [m]
-  static constexpr double kAttitudeThreshold = M_PI_2;       // [rad]
+  static constexpr double kWarnPeriod = 3.;                            // [s]
+  static constexpr double kWaitForActionServerTimeout = 3.;            // [s]
+  static constexpr double kCpuTempertureThreshold = 80.;               // [celsius]
+  static constexpr double kAttitudeThreshold = 85. * tobas::kDeg2Rad;  // [rad]
 
   using self = StateChecker;
   using super = tobas::BaseNode;
@@ -29,28 +30,32 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
+  bool is_armed_ = true;
+  double roll_, pitch_, yaw_;
+
   // rosparams
   double voltage_threshold_;  // 飛行を継続できる電圧の閾値
 
-  bool is_flying_ = false;
-
-  // PubSub
+  // Publishers
   ros::Publisher event_pub_;
+
+  // Subscribers
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
   ros::Subscriber cmd_sub_;
 
-  actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_client_;
+  ros::ServiceClient arm_rotors_sc_;
+  actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
+  void publishSystemCriticalEvent();
   void requestLanding();
-  void publishEvent(const uint8_t& event);
+  void requestDisarmingRotors();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

@@ -1,10 +1,11 @@
-#include <boost/property_tree/ini_parser.hpp>
 #include <sensor_msgs/FluidPressure.h>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/rosparam.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_real/barometer_handler.hpp"
 #include "../include/tobas_real/common.hpp"
@@ -23,9 +24,7 @@ BarometerHandler::BarometerHandler(
 
   barometer_.initialize();
   if (!barometer_.testConnection())
-  {
-    ROS_THROW_NAMED(name_, "Barometer test failed.");
-  }
+    ROS_EXIT_NAMED(nh_, name_, "Barometer test failed.");
 
   registerPublishers();
   registerSubscribers();
@@ -35,7 +34,7 @@ BarometerHandler::BarometerHandler(
 
 void BarometerHandler::getRosParams()
 {
-  dh_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
+  tobas_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void BarometerHandler::registerPublishers()
@@ -45,28 +44,12 @@ void BarometerHandler::registerPublishers()
 
 void BarometerHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void BarometerHandler::readConfig()
 {
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-
-  pressure_noise_density_ = pt.get<double>(kConfigKey_PressureNoiseDensity);
-}
-
-void BarometerHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
+  pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_);
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -88,9 +71,8 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   // メッセージを作成
   const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
   bar_msg->header.stamp = event.current_real;
-  bar_msg->header.frame_id = "barometer_frame";
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = dh_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
+  bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);

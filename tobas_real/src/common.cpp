@@ -7,35 +7,13 @@ using namespace std;
 
 namespace tobas_real
 {
-void setupRCOutput(RCOutput_Navio2& pwm, const size_t& channel)
+void setupRCOutput(PWM& pwm, const size_t& channel)
 {
-  const auto pin = pinFromChannel(channel);
-
   if (!pwm.initialize(channel))
-  {
-    throw runtime_error("Failed to initialize RC output on PIN" + to_string(pin) + ".");
-  }
-
+    throw runtime_error("Failed to initialize RC output on CH" + to_string(channel) + ".");
   if (!pwm.setFrequency(channel, kPwmFrequency))
-  {
-    throw runtime_error("Failed to set PWM frequency on PIN" + to_string(pin) + ".");
-  }
-
+    throw runtime_error("Failed to set PWM frequency on CH" + to_string(channel) + ".");
   if (!pwm.enable(channel))
-  {
-    throw runtime_error("RC output on PIN" + to_string(pin) + " is disabled.");
-  }
-}
-
-size_t channelFromPin(const size_t& pin)
-{
-  assert(1 <= pin && pin <= kServoRailSize);
-  return pin - 1;
-}
-
-size_t pinFromChannel(const size_t& channel)
-{
-  assert(channel < kServoRailSize);
-  return channel + 1;
+    throw runtime_error("Failed to enable RC output on CH" + to_string(channel) + ".");
 }
 }  // namespace tobas_real

@@ -1,7 +1,5 @@
-#include <iostream>
-#include <boost/property_tree/ini_parser.hpp>
-
-#include <dh_std_tools/fstream.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_real/calibration/adc_calibration.hpp"
 #include "../../include/tobas_real/common.hpp"
@@ -42,9 +40,7 @@ void AdcCalibrator::run()
   {
     const int a2_value = adc_.read(kPowerModuleVoltageChannel);
     if (a2_value <= 0)
-    {
       throw runtime_error("Failed to read power module voltage.");
-    }
     cout << "A2 value: " << a2_value << endl;
     a2_sum += a2_value;
     usleep(kSleepTime);
@@ -54,22 +50,14 @@ void AdcCalibrator::run()
   const double a2_mean = static_cast<double>(a2_sum) / kDataCount;
   const double adc_coef = voltage / a2_mean * 1e+3;
   if (kValidAdcCoefMin <= adc_coef && adc_coef <= kValidAdcCoefMax)
-  {
     cout << "ADC coefficient: " << adc_coef << endl;
-  }
   else
-  {
     cout << "Strange ADC coefficient: " << adc_coef << endl;
-  }
 
   // 設定ファイルに係数を書き込む
-  boost::property_tree::ptree pt;
-  if (dh_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
   pt.put(kConfigKey_AdcCoef, adc_coef);
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "Calibration finished. The result is saved to '" << kConfigPath << "'." << endl;
 }
 }  // namespace tobas_real

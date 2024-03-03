@@ -282,14 +282,7 @@
     </xacro:unless>
 
     <xacro:if value="${self == 1}">
-      <!-- dummy root link for KDL -->
-      <link name="root">
-        <!-- <inertial>
-          <origin xyz="0 0 0" rpy="0 0 0"/>
-          <mass value="0.00001"/>
-          <inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000002"/>
-        </inertial> -->
-      </link>
+      <link name="root"/>
       <joint name="root_joint" type="fixed">
         <parent link="root"/>
         <child link="link${self}"/>
@@ -303,29 +296,14 @@
       <transmission name="joint_tran${self}">
         <type>transmission_interface/SimpleTransmission</type>
         <joint name="joint${self}">
-          <!-- TODO: effort is torque, maybe position is enough -->
           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
         <actuator name="servo{self}">
-          <!-- TODO: effort is torque, maybe position is enough -->
           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
           <mechanicalReduction>1</mechanicalReduction>
         </actuator>
       </transmission>
     </xacro:unless>
-
-    <transmission name="rotor_tran${self}">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="rotor${self}">
-        <!-- TODO: effort is torque, maybe position is enough -->
-        <hardwareInterface>RotorInterface</hardwareInterface>
-      </joint>
-      <actuator name="rotor${self}">
-        <!-- TODO: effort is torque, maybe position is enough -->
-        <hardwareInterface>RotorInterface</hardwareInterface>
-        <mechanicalReduction>1</mechanicalReduction>
-      </actuator>
-    </transmission>
 
     <xacro:friction self ="${self}"/>
 

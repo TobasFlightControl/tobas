@@ -10,8 +10,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer, DoubleSpinBox, ComboBox
-from kdl_sympy.joint import *
+from tobas_rqt_tools.widgets import add_spacer, DoubleSpinBox, ComboBox
+from tobas_rqt_tools.messages import q_error_named
+from tobas_kdl_sympy.joint import *
 
 from ..parameter_getters import *
 from ..common import *
@@ -45,7 +46,10 @@ class CustomJointsWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Custom Joints"
-        abst_text = "推進システム，固定翼舵面以外のTransmissionを持つ関節の設定を行います．"
+        abst_text = (
+            "Configure the settings for joints with transmissions "
+            "other than those in the propulsion system and fixed-wing control surfaces."
+        )
         super().__init__(main, title_text, abst_text)
 
         self._available_joints: List[str] = []
@@ -65,6 +69,24 @@ class CustomJointsWidget(BaseSettingWidget):
 
     @overrides
     def is_valid(self) -> bool:
+        for i in range(self.count()):
+            jnt_name = self.joint_name(i)
+            home_pos = self.home_position(i)
+            min_pos = self.min_position(i)
+            max_pos = self.max_position(i)
+            if min_pos > max_pos:
+                q_error_named(
+                    self, self.NAME, f"Position limit of joint '{jnt_name} is invalid."
+                )
+                return False
+            if home_pos < min_pos or max_pos < home_pos:
+                q_error_named(
+                    self,
+                    self.NAME,
+                    f"Home position of joint '{jnt_name} is out of limit.",
+                )
+                return False
+
         return True
 
     def count(self) -> int:
@@ -175,7 +197,13 @@ class CustomJointsWidget(BaseSettingWidget):
 
             home_pos.setValue(0.0)
             if joint.limit is not None:
+                home_pos.setMinimum(joint.limit.lower)
+                home_pos.setMaximum(joint.limit.upper)
+                min_pos.setMinimum(joint.limit.lower)
+                min_pos.setMaximum(joint.limit.upper)
                 min_pos.setValue(joint.limit.lower)
+                max_pos.setMinimum(joint.limit.lower)
+                max_pos.setMaximum(joint.limit.upper)
                 max_pos.setValue(joint.limit.upper)
 
             if joint.type == JointType.REVOLUTE or joint.type == JointType.CONTINUOUS:

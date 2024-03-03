@@ -4,9 +4,9 @@
 #include <gazebo/gazebo.hh>
 
 // Log throttle data structure
-std::map<std::string, gazebo::common::Time> g_log_throttle;
+static std::map<std::string, gazebo::common::Time> g_log_throttle;
 // Mutex to protect logThrottle. Without it, the formatting breaks down.
-std::mutex g_log_throttle_mutex;
+static std::mutex g_log_throttle_mutex;
 
 #define GZ_LOG_THROTTLE(period, msg, os)                                                           \
   {                                                                                                \
@@ -42,12 +42,13 @@ using NormalDistribution = std::normal_distribution<double>;
 using UniformDistribution = std::uniform_real_distribution<double>;
 
 // ROS Topics
-static constexpr char kWindGtTopic[] = "ground_truth/wind";
+static constexpr char kBatteryGtTopic[] = "ground_truth/battery";
 static constexpr char kOdometryGtTopic[] = "ground_truth/odom";
+static constexpr char kWindGtTopic[] = "ground_truth/wind";
 static constexpr char kRotorStateGtTopicPrefix[] = "ground_truth/rotor_state";
 
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
-static constexpr double kWarnPeriod = 3.;                     // [s]
+static constexpr double kWarnPeriod = 1.;                     // [s]
 static constexpr double kErrorPeriod = 1.;                    // [s]
 static constexpr double kCheckTopicsTimeThreshold = 1.;       // [s]
 static constexpr double kNegativeCmdDelayErrThreshold = 0.1;  // [s]

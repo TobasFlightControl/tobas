@@ -1,8 +1,9 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/time.hpp>
-#include <dh_ros_tools/exception.hpp>
-#include <dh_ros_tools/console_message.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/time.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_ros_tools/console_message.hpp>
 
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Gps.h>
 
 #include "../include/tobas_real/gps_handler.hpp"
@@ -21,7 +22,8 @@ GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kMainTimerRate, &self::mainTimerCb, this);
+  // Start main timer with maximum rate
+  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
 }
 
 void GpsHandler::getRosParams()
@@ -35,51 +37,37 @@ void GpsHandler::registerPublishers()
 
 void GpsHandler::registerSubscribers()
 {
-  super::registerSubscribers();
 }
 
 void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
-    ROS_THROW_NAMED(name_, "Failed to disable all navigation messsages.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to disable all navigation messsages.");
   if (!gps_.enableMsg(Ublox::NAV_PVT, true))
-    ROS_THROW_NAMED(name_, "Failed to enable NAV_PVT");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_PVT");
   if (!gps_.enableMsg(Ublox::NAV_COV, true))
-    ROS_THROW_NAMED(name_, "Failed to enable NAV_COV");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_COV");
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
-    ROS_THROW_NAMED(name_, "Failed to set measurement rate.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to set measurement rate.");
 
   if (!gps_.configureDynamicsModel(Ublox::AIRBORNE_2G))
-    ROS_THROW_NAMED(name_, "Failed to set dynamics model.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to set dynamics model.");
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-    ROS_THROW_NAMED(name_, "Failed to configure GPS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure GPS.");
   if (!gps_.configureGnss_SBAS(true))
-    ROS_THROW_NAMED(name_, "Failed to configure SBAS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure SBAS.");
   if (!gps_.configureGnss_Galileo(false))
-    ROS_THROW_NAMED(name_, "Failed to configure Galileo.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure Galileo.");
   if (!gps_.configureGnss_BeiDou(false))
-    ROS_THROW_NAMED(name_, "Failed to configure BeiDou.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure BeiDou.");
   if (!gps_.configureGnss_QZSS(true))
-    ROS_THROW_NAMED(name_, "Failed to configure QZSS.");
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure QZSS.");
   if (!gps_.configureGnss_GLONASS(false))
-    ROS_THROW_NAMED(name_, "Failed to configure GLONASS.");
-}
-
-void GpsHandler::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      main_timer_.stop();
-      break;
-    default:
-      break;
-  }
+    ROS_EXIT_NAMED(nh_, name_, "Failed to configure GLONASS.");
 }
 
 void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -92,14 +80,12 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
     case Ublox::NAV_PVT:
     {
       if (!cov_received_)
-      {
         break;
-      }
 
       gps_.decode(pvt_);
       // cout << pvt_ << endl;
 
-      // const auto gps_tp = dh_std::timePointFromUTC(
+      // const auto gps_tp = tobas_std::timePointFromUTC(
       //   pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
       // const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
       // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
@@ -115,7 +101,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
       gps_msg->header.stamp = event.current_real;
-      gps_msg->header.frame_id = "gps_frame";
 
       // Fill GPS position
       gps_msg->latitude = pvt_.lat;                     // Latitude [deg]
@@ -156,9 +141,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_.decode(cov_);
 
       if (!cov_received_)
-      {
         cov_received_ = true;
-      }
 
       break;
     }

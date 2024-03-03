@@ -1,10 +1,7 @@
-#include <iostream>
 #include <chrono>
-#include <boost/property_tree/ini_parser.hpp>
 
-#include <dh_std_tools/fstream.hpp>
-#include <dh_std_tools/unix.hpp>
-#include <dh_eigen_tools/core.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_eigen_tools/core.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -19,37 +16,25 @@ namespace tobas_real
 {
 MeasureSensorNoise::MeasureSensorNoise()
 {
-  // ルート権限を確認
-  if (!dh_std::isSuperUser())
-  {
-    throw runtime_error("Please execute with root privileges.");
-  }
-
   // IMUドライバをセットアップ
   imu_.initialize();
   if (!imu_.probe())
-  {
     throw runtime_error("IMU not enabled.");
-  }
 
   // 気圧センサドライバをセットアップ
   barometer_.initialize();
   if (!barometer_.testConnection())
-  {
     throw runtime_error("Barometer test failed.");
-  }
 
   // PWMドライバをセットアップ
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
-  {
+  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     setupRCOutput(pwm_, channel);
-  }
 }
 
 void MeasureSensorNoise::run()
 {
   // 一定時間Disarmコマンドを送信
-  cout << "Sending disarm command for " << kDisarmDuration << " seconds." << endl;
+  cout << "Sending disarm command for " << tobas::kDisarmDuration << " seconds." << endl;
   sendDisarm();
 
   cout << "Sampling sensor data while rotating motors." << endl;
@@ -84,9 +69,7 @@ void MeasureSensorNoise::run()
     barometer_.calculatePressureAndTemperature();
     pres_data(i) = barometer_.getPressure() * 100;  // mbar -> Pa
     if (pres_data(i) < kMinAirPressure || kMaxAirPressure < pres_data(i))
-    {
       throw runtime_error("Strange air pressure: " + to_string(pres_data(i)) + " [Pa]");
-    }
   }
   const auto t_get_data_end = system_clock::now();
 
@@ -94,8 +77,8 @@ void MeasureSensorNoise::run()
   decelerateMotors();
 
   // サンプリング周波数を計算
-  const auto elapsed_time = duration_cast<microseconds>(t_get_data_end - t_get_data_start).count();
-  const auto sample_freq = static_cast<float>(kDataCount * 1000000) / elapsed_time;
+  const auto elapsed_time = duration<double>(t_get_data_end - t_get_data_start).count();  // [s]
+  const auto sample_freq = static_cast<double>(kDataCount) / elapsed_time;                // [Hz]
   cout << "Sampling frequency: " << sample_freq << " Hz" << endl;
 
   // 差分をとることで定常部分とランダムウォークを除去．分散2倍の白色ノイズのみが残る．
@@ -122,35 +105,26 @@ void MeasureSensorNoise::run()
   cout << "Pressure noise density: " << pres_noise_density << " Pa/sqrt(Hz)" << endl;
 
   // Configに保存
-  boost::property_tree::ptree pt;
-  if (dh_std::fileExists(kConfigPath))
-  {
-    boost::property_tree::ini_parser::read_ini(kConfigPath, pt);
-  }
+  tobas_std::PropertyTree pt(kConfigPath);
   pt.put(kConfigKey_AccNoiseDensity, acc_noise_density);
   pt.put(kConfigKey_GyroNoiseDensity, gyro_noise_density);
   pt.put(kConfigKey_MagNoiseDensity, mag_noise_density);
   pt.put(kConfigKey_PressureNoiseDensity, pres_noise_density);
-  boost::property_tree::ini_parser::write_ini(kConfigPath, pt);
+  pt.save();
   cout << "The result is saved to '" << kConfigPath << "'." << endl;
 }  // namespace tobas_real
 
 void MeasureSensorNoise::setPeriodOnAllChannels(const double& period)
 {
-  for (size_t channel = 0; channel < kServoRailSize; ++channel)
-  {
+  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     if (!pwm_.setDutyCycle(channel, period))
-    {
       throw runtime_error("Failed to set PWM duty cycle.");
-    }
-  }
 }
 
 void MeasureSensorNoise::sendDisarm()
 {
   const auto t_get_data_start = system_clock::now();
-  while (duration_cast<milliseconds>(system_clock::now() - t_get_data_start).count()
-         < kDisarmDuration * 1000)
+  while (duration<double>(system_clock::now() - t_get_data_start).count() < tobas::kDisarmDuration)
   {
     setPeriodOnAllChannels(kPwmDisarm);
     usleep(kDisarmInterval * 1000000);
@@ -163,7 +137,7 @@ void MeasureSensorNoise::accelerateMotors()
   const auto t_motor_up_start = system_clock::now();
   while (elapsed_time < kPwmUpDownTime)
   {
-    elapsed_time = duration_cast<microseconds>(system_clock::now() - t_motor_up_start).count();
+    elapsed_time = duration<double>(system_clock::now() - t_motor_up_start).count();  // [s]
     const auto throttle = kMaxThrottle * elapsed_time / kPwmUpDownTime;
     const auto pwm_period = kPwmMin + (kPwmMax - kPwmMin) * throttle;
     setPeriodOnAllChannels(pwm_period);
@@ -177,7 +151,7 @@ void MeasureSensorNoise::decelerateMotors()
   const auto t_motor_down_start = system_clock::now();
   while (elapsed_time < kPwmUpDownTime)
   {
-    elapsed_time = duration_cast<microseconds>(system_clock::now() - t_motor_down_start).count();
+    elapsed_time = duration<double>(system_clock::now() - t_motor_down_start).count();  // [s]
     const auto throttle = kMaxThrottle * (kPwmUpDownTime - elapsed_time) / kPwmUpDownTime;
     const auto pwm_period = kPwmMin + (kPwmMax - kPwmMin) * throttle;
     setPeriodOnAllChannels(pwm_period);

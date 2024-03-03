@@ -2,9 +2,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.widgets import DoubleSpinBox
 
 from .base import ParamGetterWidget
+from ..utils import convert_superscript
 
 
 class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
@@ -37,7 +38,7 @@ class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
         if default is not None:
             assert minimum <= default <= maximum
             self._spin_box.setValue(default)
-        self._spin_box.setSuffix(suffix)
+        self._spin_box.setSuffix(convert_superscript(suffix))
 
         self._spin_box.valueChanged.connect(self._on_value_changed)
 

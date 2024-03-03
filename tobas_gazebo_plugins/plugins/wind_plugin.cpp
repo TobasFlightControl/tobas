@@ -22,9 +22,7 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   link_ = model->GetLink(link_name_);
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
 
   wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
   set_wind_params_srv_ = nh_.advertiseService(

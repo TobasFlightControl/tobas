@@ -9,12 +9,14 @@ class BatteryModel(ET.Element):
         sag_voltage: float,
         max_current: float,
         capacity: float,
+        internal_registance: float,
         num_rotors: int,
     ) -> None:
         assert max_voltage > 0.0
         assert sag_voltage > 0.0
         assert max_current > 0.0
         assert capacity > 0.0
+        assert internal_registance > 0.0
         assert num_rotors >= 0
 
         super().__init__("gazebo")
@@ -28,4 +30,5 @@ class BatteryModel(ET.Element):
         ET.SubElement(plugin, "sagVoltage").text = str(sag_voltage)
         ET.SubElement(plugin, "maxCurrent").text = str(max_current)
         ET.SubElement(plugin, "currentCapacity").text = str(capacity)
+        ET.SubElement(plugin, "internalRegistance").text = str(internal_registance)
         ET.SubElement(plugin, "numRotors").text = str(num_rotors)

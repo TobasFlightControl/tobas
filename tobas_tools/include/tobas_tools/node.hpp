@@ -2,8 +2,6 @@
 
 #include <ros/ros.h>
 
-#include <tobas_msgs/Event.h>
-
 namespace tobas
 {
 /**
@@ -16,16 +14,16 @@ protected:
   ros::NodeHandle pnh_;
   const std::string name_;
 
-  ros::Subscriber event_sub_;
-
   explicit BaseNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name);
 
   virtual void getRosParams() = 0;
   virtual void registerPublishers() = 0;
   virtual void registerSubscribers() = 0;
-  virtual void eventCb(const tobas_msgs::EventConstPtr& event) = 0;
 
-  inline std::string ns();
+  inline std::string ns()
+  {
+    return nh_.getNamespace() + "/";
+  }
 
   /**
    * @brief コマンドレベルを更新する．
@@ -40,9 +38,4 @@ protected:
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
   static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };
-
-inline std::string BaseNode::ns()
-{
-  return nh_.getNamespace() + "/";
-}
 }  // namespace tobas

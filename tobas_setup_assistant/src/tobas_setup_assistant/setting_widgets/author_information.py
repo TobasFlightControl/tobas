@@ -9,8 +9,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import add_spacer
-from dh_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -23,7 +23,9 @@ class AuthorInformationWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Specify Author Information"
         abst_text = (
-            "生成されるパッケージの管理者に関する情報を入力してください．" + "ここで指定した情報はパッケージのpackage.xmlに反映されます．"
+            "Enter the name and email address of the person administering the Tobas package "
+            "that you're creating with the Setup Assistant. "
+            "This step is important for keeping track of package ownership and for any necessary future communications."
         )
         super().__init__(main, title_text, abst_text)
 

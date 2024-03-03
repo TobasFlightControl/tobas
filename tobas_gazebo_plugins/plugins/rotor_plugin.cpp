@@ -1,7 +1,7 @@
 #include <algorithm>
 
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/algorithm.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/algorithm.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/RotorState.h>
@@ -103,12 +103,11 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
     gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: "
            << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
 
+  getSdfParam(sdf, "maxRotationSpeed", max_rot_speed_, POSITIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
   getSdfParam(
     sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
-  getSdfParam(
-    sdf, "autoResetTimeThreshold", auto_reset_time_thr_, kDefaultAutoStopTimeThreshold, false);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -124,9 +123,9 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     // ros::Timer cannot be used for shared library.
     if (cur_time > kCheckTopicsTimeThreshold)
     {
-      if (!battery_received_)
-        gzwarn << kPluginName << ": " << ns_ + "/" << tobas::kBatteryTopic
-               << " is not received yet." << endl;
+      if (battery_ == nullptr)
+        gzwarn << kPluginName << ": " << ns_ + "/" << kBatteryGtTopic << " is not received yet."
+               << endl;
       if (!wind_received_)
         gzwarn << kPluginName << ": " << ns_ + "/" << kWindGtTopic << " is not received yet."
                << endl;
@@ -136,12 +135,13 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
   // Check elapsed time after last command
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
-  if (is_activated_ && time_after_last_cmd > auto_reset_time_thr_)
+  if (is_activated_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    cmd_rot_speed_ = minRotSpeed();
+    cmd_rot_speed_ = 0.;
     is_activated_ = false;
-    gzmsg << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
-          << auto_reset_time_thr_ << " seconds have elapsed since the last command." << endl;
+    gzwarn << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
+           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
+           << endl;
   }
 
   // Get rotation speed
@@ -162,7 +162,10 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
   // Update simulation state
   applyForceAndTorque(rot_speed_real, info.simTime);
-  updateRotationSpeed(dt);
+
+  // ESCが壊れていなければ回転数を更新
+  if (is_intact_)
+    updateRotationSpeed(dt);
 }
 
 void GazeboRotorPlugin::registerPubSub()
@@ -178,17 +181,17 @@ void GazeboRotorPlugin::registerPubSub()
   throttles_sub_ = nh_.subscribe(
     prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
-  battery_sub_ = nh_.subscribe(
-    prefix + tobas::kBatteryTopic, 1, &self::batteryCb, this,
+  battery_gt_sub_ = nh_.subscribe(
+    prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
-  wind_sub_ = nh_.subscribe(
-    prefix + kWindGtTopic, 1, &self::windSpeedCb, this,
+  wind_gt_sub_ = nh_.subscribe(
+    prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this,
     ros::TransportHints().reliable().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()
 {
-  return battery_received_ && wind_received_;
+  return battery_ != nullptr && wind_received_;
 }
 
 void GazeboRotorPlugin::addModelError()
@@ -220,8 +223,8 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   const auto local_axis = joint_->LocalAxis(0);
 
   // (1) first term: Thrust Force
-  const auto rot_speed_sgn = dh_std::sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * dh_std::sqr(rot_speed);
+  const auto rot_speed_sgn = tobas_std::sign(rot_speed);
+  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * tobas_std::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
 
@@ -239,12 +242,17 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
   // Compute electric current
-  const auto& kt = rot_speed_coefs_.X();  // トルク定数をKvの逆数(=発電係数)で推定
+  const auto& kt = rot_speed_coefs_.X();  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
   const auto current = torque / kt;
+
+  // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
   if (current > max_current_)
   {
-    gzwarn << kPluginName << ": The electric current of rotor " << motor_number_
-           << " is over limit: " << current << " > " << max_current_ << " [A]" << endl;
+    gzerr << kPluginName << ": The ESC of rotor " << motor_number_
+          << " is critically damaged due to an overcurrent of " << current
+          << " A, which exceeded its maximum current capacity of " << max_current_ << " A." << endl;
+    joint_->SetVelocity(0, 0.);
+    is_intact_ = false;
   }
 
   // Publish rotor state
@@ -268,24 +276,28 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 {
   assert(dt >= 0);
 
+  // アクティベートされていなければ無回転
+  if (!is_activated_)
+  {
+    joint_->SetVelocity(0, 0.);
+    return;
+  }
+
   // Check rotor speed limit and get set value
   auto set_rot_speed = cmd_rot_speed_;
-  const auto max_rot_speed = maxRotSpeed();
-  const auto min_rot_speed = minRotSpeed();
-  if (cmd_rot_speed_ < min_rot_speed)
+  const auto max_rot_speed = min(max_rot_speed_, rotSpeedFromVoltage(battery_->voltage));
+  if (cmd_rot_speed_ < 0)
   {
-    // エラーを出すのは指令値が負のときのみ．[0, min_rot_speed]の時は修正するだけにする．
-    if (cmd_rot_speed_ < 0)
-    {
-      gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_
-            << ": " << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
-    }
-    set_rot_speed = min_rot_speed;
+    gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_ << ": "
+          << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
+    set_rot_speed = 0.;
   }
   else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
-    gzerr << kPluginName << ": Commanded rotor speed on index " << motor_number_
-          << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed << " [rad/s]" << endl;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, kPluginName << ": Target rotor speed on index " << motor_number_
+                                << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed
+                                << " [rad/s]");
     set_rot_speed = max_rot_speed;
   }
 
@@ -298,22 +310,12 @@ double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
 {
   const auto& a = rot_speed_coefs_.X();
   const auto& b = rot_speed_coefs_.Y();
-  return b > 0 ? (sqrt(dh_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
-}
-
-double GazeboRotorPlugin::maxRotSpeed()
-{
-  return rotSpeedFromVoltage(battery_->voltage);
-}
-
-double GazeboRotorPlugin::minRotSpeed()
-{
-  return maxRotSpeed() * tobas::kArmThrottle;
+  return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
 {
-  if (!battery_received_)
+  if (battery_ == nullptr)
     return;
 
   // Check index
@@ -346,30 +348,34 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
   // Now the motor is activated
   is_activated_ = true;
 
-  const auto input_voltage = battery_->voltage * std::clamp(throttles->data[motor_number_], 0., 1.);
+  auto throttle = throttles->data[motor_number_];
+  if (throttle < tobas::kMinThrottle)
+  {
+    throttle = tobas::kMinThrottle;
+    GZ_ERROR_THROTTLE(
+      kErrorPeriod, "Negative throttle is commanded to motor " << motor_number_ << ".");
+  }
+  else if (throttle >= tobas::kMaxThrottle)
+  {
+    throttle = tobas::kMaxThrottle;
+    GZ_WARN_THROTTLE(kWarnPeriod, "Full throttle is commmanded to motor " << motor_number_ << " .");
+  }
+  const auto input_voltage =
+    tobas_std::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
   cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
 }
 
-void GazeboRotorPlugin::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   battery_ = battery;
-
-  // 最初のバッテリー電圧取得時に最小回転数を目標回転数に設定する
-  if (!battery_received_)
-  {
-    battery_received_ = true;
-    cmd_rot_speed_ = minRotSpeed();
-  }
 }
 
-void GazeboRotorPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
+void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::WindConstPtr& wind)
 {
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 
   if (!wind_received_)
-  {
     wind_received_ = true;
-  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRotorPlugin);

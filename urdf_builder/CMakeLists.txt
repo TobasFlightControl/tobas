@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(urdf_builder)
 
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
+  find_package(catkin REQUIRED)
+  catkin_package()
+  return()
+endif()
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
@@ -17,7 +23,7 @@ add_compile_options(-Wno-deprecated-copy)
 add_compile_options(-Wno-unused-but-set-parameter)
 
 find_package(catkin REQUIRED
-  dh_std_tools
+  tobas_std_tools
   rviz
   pluginlib
   urdf
@@ -28,7 +34,7 @@ find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Widgets)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS dh_std_tools rviz pluginlib urdf roslaunch
+  CATKIN_DEPENDS tobas_std_tools rviz pluginlib urdf roslaunch
 )
 
 include_directories(
@@ -46,6 +52,7 @@ qt5_wrap_cpp(MOC_FILES
   include/urdf_builder/ui/update_link_dialog.hpp
   include/urdf_builder/ui/add_link_dialog.hpp
   include/urdf_builder/ui/double_map_input_dialog.hpp
+  include/urdf_builder/ui/string_input_dialog.hpp
   include/urdf_builder/rviz_helpers/display_context_proxy.hpp
   OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -DBOOST_LEXICAL_CAST_INCLUDED
 )

@@ -51,18 +51,18 @@ private:
   double max_model_error_rate_;
   double time_const_up_;
   double time_const_down_;
-  double max_current_;  // [A] ESCの最大電流
+  double max_rot_speed_;  // [rad/s] モータ特性が成り立つ最大回転数．最大連続電流によって定まる．
+  double max_current_;    // [A] ESCの最大電流
   double check_delay_threshold_;
-  double auto_reset_time_thr_;
 
-  double cmd_rot_speed_;  // [rad/s]
+  double cmd_rot_speed_ = 0.;  // [rad/s]
   tobas_msgs::BatteryConstPtr battery_;
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   common::Time prev_sim_time_;
   common::Time last_cmd_time_;
+  bool is_intact_ = true;
   bool is_activated_ = false;
   bool is_initialized_ = false;
-  bool battery_received_ = false;
   bool wind_received_ = false;
   AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
 
@@ -77,8 +77,8 @@ private:
   ros::Publisher rotor_state_pub_;
   ros::Publisher debug_pub_;
   ros::Subscriber throttles_sub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber wind_sub_;
+  ros::Subscriber battery_gt_sub_;
+  ros::Subscriber wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
@@ -88,11 +88,9 @@ private:
   void applyForceAndTorque(const double& rot_speed, const common::Time& cur_time);
   void updateRotationSpeed(const double& dt);
   double rotSpeedFromVoltage(const double& voltage);
-  double maxRotSpeed();
-  double minRotSpeed();
 
   void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void windSpeedCb(const tobas_msgs::WindConstPtr& wind);
+  void batteryGtCb(const tobas_msgs::BatteryConstPtr& battery);
+  void windSpeedGtCb(const tobas_msgs::WindConstPtr& wind);
 };
 }  // namespace gazebo

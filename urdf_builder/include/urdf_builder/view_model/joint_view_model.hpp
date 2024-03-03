@@ -19,99 +19,35 @@ using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
 class JointViewModel : public BaseViewModel<urdf::Joint, JointViewModel>
 {
 public:
-  explicit JointViewModel(const urdf::JointSharedPtr& model)
-    : BaseViewModel<urdf::Joint, JointViewModel>(model)
-  {
-    if (model_->type == urdf::Joint::UNKNOWN)
-      model_->type = urdf::Joint::FIXED;
+  explicit JointViewModel(const urdf::JointSharedPtr& model);
 
-    if (limitsEnabled())
-      limits_.reset(new JointLimitsViewModel(model_->limits));
-  }
+  QString name() const;
+  void name(const QString& name);
 
-  QString name() const
-  {
-    return QString::fromStdString(model_->name);
-  }
-
-  void name(const QString& name)
-  {
-    model_->name = name.toStdString();
-  }
-
-  QString type();
+  const QString& type() const;
   void type(const QString& type);
 
-  const urdf::Pose& origin() const
-  {
-    return model_->parent_to_joint_origin_transform;
-  }
+  const urdf::Pose& origin() const;
+  void origin(const urdf::Pose& origin);
 
-  void origin(const urdf::Pose& origin)
-  {
-    model_->parent_to_joint_origin_transform = origin;
-  }
+  QString parentLinkName() const;
+  void parentLinkName(const QString& name);
 
-  QString parentLinkName() const
-  {
-    return QString::fromStdString(model_->parent_link_name);
-  }
+  QString childLinkName() const;
+  void childLinkName(const QString& name);
 
-  void parentLinkName(const QString& name)
-  {
-    model_->parent_link_name = name.toStdString();
-  }
+  const QStringList& usedLinkNames() const;
+  void usedLinkNames(const QStringList& links);
 
-  QString childLinkName() const
-  {
-    return QString::fromStdString(model_->child_link_name);
-  }
+  const urdf::Vector3& axis() const;
+  void axis(const urdf::Vector3& axis);
 
-  void childLinkName(const QString& name)
-  {
-    model_->child_link_name = name.toStdString();
-  }
+  const JointLimitsViewModelPtr& limits() const;
 
-  const QStringList& usedLinkNames() const
-  {
-    return link_names_;
-  }
-
-  void usedLinkNames(const QStringList& links)
-  {
-    link_names_ = links;
-  }
-
-  const urdf::Vector3& axis() const
-  {
-    return model_->axis;
-  }
-
-  void axis(const urdf::Vector3& axis)
-  {
-    model_->axis = axis;
-  }
-
-  bool limitsEnabled() const
-  {
-    return model_->type == urdf::Joint::REVOLUTE || model_->type == urdf::Joint::PRISMATIC;
-  }
-
-  const JointLimitsViewModelPtr& limits() const
-  {
-    return limits_;
-  }
-
-  void sync() override
-  {
-    if (limitsEnabled())
-      model_->limits = limits_->model();
-  }
-
-  void generateName()
-  {
-    name(childLinkName() + "_to_" + parentLinkName() + "_joint");
-  }
+  bool limitsEnabled() const;
+  bool isFixed() const;
+  void sync() override;
+  void generateName();
 
 private:
   QStringList link_names_;

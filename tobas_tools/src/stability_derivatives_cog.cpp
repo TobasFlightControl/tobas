@@ -22,6 +22,8 @@ void StabilityDerivativesCG::updateInternalDataStructures()
 
 int StabilityDerivativesCG::update(const JntArray& q)
 {
+  error_code_ = E_NO_ERROR;
+
   // エイリアス
   const auto& aero = drone_.aerodynamics();
 
@@ -29,7 +31,7 @@ int StabilityDerivativesCG::update(const JntArray& q)
   if (inertia_solver_.JntToCart(q) < 0)
   {
     error_msg_ = inertia_solver_.errorMessage();
-    return -1;
+    return error_code_ = E_ERROR;
   }
   const auto cog = inertia_solver_.getInertia().getCOG();
 
@@ -48,6 +50,6 @@ int StabilityDerivativesCG::update(const JntArray& q)
     c_yaw_delta_cg_[i] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }
 
-  return 0;
+  return error_code_;
 }
 }  // namespace tobas

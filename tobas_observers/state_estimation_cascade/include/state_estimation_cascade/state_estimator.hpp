@@ -1,0 +1,97 @@
+#pragma once
+
+#include <ros/ros.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <dynamic_reconfigure/server.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/FluidPressure.h>
+
+#include <tobas_ros_tools/timer.hpp>
+#include <tobas_tools/node.hpp>
+#include <tobas_tools/drone.hpp>
+#include <tobas_msgs/Gps.h>
+#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/PreArmCheckAction.h>
+
+#include <state_estimation_cascade/StateEstimationCascadeConfig.h>
+
+#include "./cartesian_filter.hpp"
+
+namespace state_estimation_cascade
+{
+class StateEstimator : public tobas::BaseNode
+{
+  using self = StateEstimator;
+  using super = tobas::BaseNode;
+
+  using ImuMsg = sensor_msgs::Imu;
+  using BarMsg = sensor_msgs::FluidPressure;
+  using GpsMsg = tobas_msgs::Gps;
+  using OdomMsg = tobas_msgs::Odometry;
+
+  using ConfigType = state_estimation_cascade::StateEstimationCascadeConfig;
+  using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
+
+public:
+  explicit StateEstimator(
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
+
+private:
+  tobas::Drone drone_;
+
+  // 固定値
+  double lat_0_;  // 緯度のゼロ点
+  double lon_0_;  // 経度のゼロ点
+  double alt_0_;  // 高度のゼロ点
+
+  bool is_initialized_ = false;
+  bool imu_received_ = false;
+  bool bar_received_ = false;
+  bool gps_received_ = false;
+  ros::Time t_last_;
+  Eigen::Quaterniond quat_;  // 推定された姿勢
+  Eigen::Vector2d xy_m_;     // 絶対平面位置の測定値 (world)
+  Eigen::Vector3d a_m_;      // 加速度の観測値 (local)
+
+  CartesianFilter cart_filter_;
+
+  // rosparams
+  bool use_gps_;
+
+  // PubSub
+  ros::Publisher odom_pub_;
+  ros::Subscriber filtered_imu_sub_;
+  ros::Subscriber bar_sub_;
+  ros::Subscriber gps_sub_;
+
+  // TF
+  geometry_msgs::TransformStamped tf_;
+  tf2_ros::TransformBroadcaster tf_br_;
+
+  // Timer
+  tobas_ros::Timer check_topics_timer_;
+
+  // Dynamic Reconfigure
+  ConfigServer server_;
+
+  void getRosParams() override;
+  void registerPublishers() override;
+  void registerSubscribers() override;
+
+  bool isReady();
+  void initialize(const ImuMsg& imu);
+  tobas_msgs::PreArmCheckResultConstPtr setZeroPositions();
+  OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
+
+  void filteredImuCb(const ImuMsg::ConstPtr& imu);
+  void barometerCb(const BarMsg::ConstPtr& bar);
+  void gpsPositionCb(const GpsMsg::ConstPtr& gps);
+
+  void checkTopicsTimerCb(const ros::TimerEvent&);
+  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
+};
+}  // namespace state_estimation_cascade

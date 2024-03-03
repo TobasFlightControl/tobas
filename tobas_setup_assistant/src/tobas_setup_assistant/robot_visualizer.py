@@ -5,15 +5,13 @@ if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
 import threading
-import subprocess
-import rospy
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from joint_state_publisher import JointStatePublisher
 from joint_state_publisher_gui import JointStatePublisherGui
 
-from dh_rqt_tools.roslaunch import rosrun
+from tobas_rqt_tools.roslaunch import rosrun
 
 from .frame_tree import FrameTreeWidget
 from .rviz import RvizWidget

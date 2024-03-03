@@ -2,9 +2,7 @@
 
 #include <Common/MPU9250.h>
 #include <Navio2/LSM9DS1.h>
-#include <Navio2/RCOutput_Navio2.h>
-
-#include <tobas_tools/constants.hpp>
+#include <Navio2/PWM.h>
 
 namespace tobas_real
 {
@@ -45,37 +43,32 @@ static constexpr char kConfigKey_RcThrustUp[] = "DEFAULT.rc_input/thrust/up";
 static constexpr char kConfigKey_RcThrustDown[] = "DEFAULT.rc_input/thrust/down";
 static constexpr char kConfigKey_RcEStopOn[] = "DEFAULT.rc_input/e_stop/on";
 static constexpr char kConfigKey_RcEStopOff[] = "DEFAULT.rc_input/e_stop/off";
-static constexpr char kConfigKey_RcGPSw1On[] = "DEFAULT.rc_input/gpsw1/on";
-static constexpr char kConfigKey_RcGPSw1Off[] = "DEFAULT.rc_input/gpsw1/off";
-static constexpr char kConfigKey_RcGPSw2On[] = "DEFAULT.rc_input/gpsw2/on";
-static constexpr char kConfigKey_RcGPSw2Off[] = "DEFAULT.rc_input/gpsw2/off";
+static constexpr char kConfigKey_RcGPSwOn[] = "DEFAULT.rc_input/gpsw/on";
+static constexpr char kConfigKey_RcGPSwOff[] = "DEFAULT.rc_input/gpsw/off";
 static constexpr char kConfigKey_RcNrOfModes[] = "DEFAULT.rc_input/num_modes";
 static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 
 // https://docs.emlid.com/navio2/dev/adc/
 static constexpr size_t kPowerModuleVoltageChannel = 2;
 
-static constexpr size_t kServoRailSize = 14;
 static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
-static constexpr size_t kPwmMin = 1000;       // [us]
-static constexpr size_t kPwmMax = 2000;       // [us]
-static constexpr size_t kPwmNeutral = 1500;   // [us]
-static constexpr size_t kPwmDisarm = 900;     // [us]
-static constexpr size_t kPwmArm = kPwmMin + (kPwmMax - kPwmMin) * tobas::kArmThrottle;  // [us]
+static constexpr double kPwmMin = 1000;       // [us]
+static constexpr double kPwmMax = 2000;       // [us]
+static constexpr double kPwmNeutral = 1500;   // [us]
+static constexpr double kPwmDisarm = 900;     // [us]
 
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
+// チャンネルは8までを想定．9以上は受信機が対応していないことがある
 static constexpr size_t kRcChannelRoll = 0;    // CH1
 static constexpr size_t kRcChannelPitch = 1;   // CH2
 static constexpr size_t kRcChannelThrust = 2;  // CH3
 static constexpr size_t kRcChannelYaw = 3;     // CH4
 static constexpr size_t kRcChannelMode = 4;    // CH5
 static constexpr size_t kRcChannelEStop = 6;   // CH7
-static constexpr size_t kRcChannelGPSw1 = 7;   // CH8
-static constexpr size_t kRcChannelGPSw2 = 8;   // CH9
+static constexpr size_t kRcChannelGPSw = 7;    // CH8
 
 static constexpr size_t kWaitToRefreshBarometer = 10000;  // [us]
-static constexpr double kDisarmDuration = 3.;             // [s]
 static constexpr double kDisarmInterval = 0.1;            // [s]
 static constexpr double kWarnPeriod = 3.;                 // [s]
 static constexpr double kErrorPeriod = 1.;                // [s]
@@ -85,8 +78,5 @@ static constexpr double kCheckLatencyThreshold = 0.02;    // [s]
 static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
-void setupRCOutput(RCOutput_Navio2& pwm, const size_t& channel);
-
-size_t channelFromPin(const size_t& pin);
-size_t pinFromChannel(const size_t& channel);
+void setupRCOutput(PWM& pwm, const size_t& channel);
 }  // namespace tobas_real

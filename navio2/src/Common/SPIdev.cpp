@@ -15,9 +15,7 @@ SPIdev::SPIdev(const char* spidev, uint32_t speed_hz, u_char bits_per_word, u_sh
 
   spi_fd_ = open(spidev, O_RDWR);
   if (spi_fd_ < 0)
-  {
     throw runtime_error("Failed to open SPI device.");
-  }
 }
 
 SPIdev::~SPIdev()

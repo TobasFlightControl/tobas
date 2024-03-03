@@ -1,8 +1,7 @@
 #include <geometry_msgs/PoseStamped.h>
 
-#include <dh_kdl/quaternion.hpp>
-#include <dh_kdl/conversion/kdl_msg.hpp>
-
+#include <tobas_kdl/quaternion.hpp>
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mavros_bridge/bridge.hpp"
@@ -35,22 +34,8 @@ void TobasMavrosBridge::registerPublishers()
 
 void TobasMavrosBridge::registerSubscribers()
 {
-  super::registerSubscribers();
-
   pos_yaw_sub_ =
     nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
-}
-
-void TobasMavrosBridge::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
 }
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)

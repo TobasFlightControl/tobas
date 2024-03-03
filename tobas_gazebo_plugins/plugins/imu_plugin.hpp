@@ -7,7 +7,7 @@
 #include <gazebo/sensors/sensors.hh>
 #include <sensor_msgs/Imu.h>
 
-#include <dh_std_tools/first_order_filter.hpp>
+#include <tobas_std_tools/first_order_filter.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -27,10 +27,10 @@ class GazeboImuPlugin : public SensorPlugin
   static constexpr double kDefaultAccBiasCorrTime = 300.;
   static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas::kGravity;
   static constexpr double kDefaultAccLpfCutoffFreq = 20.;
-  static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas::kDegreeToRadian;
-  static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas::kDegreeToRadian;
+  static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas::kDeg2Rad;
+  static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas::kDeg2Rad;
   static constexpr double kDefaultGyroBiasCorrTime = 1000.;
-  static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * tobas::kDegreeToRadian;
+  static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * tobas::kDeg2Rad;
   static constexpr double kDefaultGyroLpfCutoffFreq = 20.;
 
   using self = GazeboImuPlugin;
@@ -71,8 +71,8 @@ private:
   ignition::math::Vector3d gyro_bias_ = zero3;
   ignition::math::Vector3d acc_turn_on_bias_;
   ignition::math::Vector3d gyro_turn_on_bias_;
-  dh_std::FirstOrderFilter<ignition::math::Vector3d> acc_lpf_;
-  dh_std::FirstOrderFilter<ignition::math::Vector3d> gyro_lpf_;
+  tobas_std::FirstOrderFilter<ignition::math::Vector3d> acc_lpf_;
+  tobas_std::FirstOrderFilter<ignition::math::Vector3d> gyro_lpf_;
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;

@@ -11,10 +11,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import q_error_named
-from dh_rqt_tools.widgets import ComboBox
-from dh_rqt_tools.layouts import FormLayout
-from kdl_sympy.frames import Vector
+from tobas_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.layouts import FormLayout
+from tobas_kdl_sympy.frames import Vector
 
 from tobas_msgs.msg import PositionYaw
 
@@ -86,7 +86,9 @@ class ChannelsWidget(QWidget):
         label.setAlignment(Qt.AlignLeft)
         rows.addWidget(label)
 
-        description = Description("ダイアグラム上で，選択したフレームのプロペラ番号に対応するリンクを選択してください．")
+        description = Description(
+            "On the diagram, select the link corresponding to the propeller number of the frame you have chosen."
+        )
         rows.addWidget(description)
 
         self._form = FormLayout()
@@ -179,9 +181,7 @@ class ArduCopter(BaseController):
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
-            "ArduCopterをGazebo上でシミュレーションします．"
-            + "この機能を使う場合，<a href='https://github.com/TobasFlightControl/tobas/tree/develop#ardupilot'>"
-            + "Other Installation/ArduPilot</a>に従ってArduPilotをインストールする必要があります．"
+            "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
         )
         super().__init__(main, abst_text)
 
@@ -264,8 +264,8 @@ class ArduCopter(BaseController):
         ]
 
         frame_description = (
+            "Please select the frame type corresponding to your aircraft from the "
             "<a href='https://ardupilot.org/copter/docs/connect-escs-and-motors.html#motor-order-diagrams'>"
-            + "Motor order diagrams</a>から，あなたの機体に該当するフレームタイプを選択してください．"
         )
         self._frame = ParamGetterWidget_ComboBox(
             "Frame Type",

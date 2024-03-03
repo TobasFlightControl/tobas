@@ -19,9 +19,12 @@ class DoubleMapInputDialog : public QDialog
   static constexpr int kDecimals = 6;
 
 public:
-  explicit DoubleMapInputDialog(const QStringList& field_names, QWidget* parent = nullptr);
+  explicit DoubleMapInputDialog(
+    const QString& title,
+    const QStringList& field_names,
+    QWidget* parent = nullptr);
 
-  const std::map<QString, double>& map() const;
+  const double& getValue(const QString& field) const;
 
 private Q_SLOTS:
   void SpinBoxValueChanged(double value);

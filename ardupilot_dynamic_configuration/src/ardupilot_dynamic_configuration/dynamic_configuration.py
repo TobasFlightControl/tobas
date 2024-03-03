@@ -11,9 +11,9 @@ from PyQt5.QtGui import *
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.srv import ParamSet, ParamSetRequest, ParamSetResponse
 
-from dh_rqt_tools.widgets import *
-from dh_rqt_tools.layouts import FormLayout
-from dh_rqt_tools.messages import q_info, q_error
+from tobas_rqt_tools.widgets import *
+from tobas_rqt_tools.layouts import FormLayout
+from tobas_rqt_tools.messages import q_info, q_error
 
 from .common import *
 from .param_holders import *
@@ -27,9 +27,7 @@ class DynamicConfigurationWidget(MainWidget):
     def __init__(self) -> None:
         super().__init__(PKG_NAME)
 
-        icon_path = osp.join(
-            rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"
-        )
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle(TITLE)
 

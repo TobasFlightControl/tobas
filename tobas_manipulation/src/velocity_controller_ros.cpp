@@ -1,9 +1,8 @@
-#include <dh_std_tools/zip.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/exception.hpp>
-
+#include <tobas_std_tools/zip.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/exception.hpp>
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/conversions/kdl_msg.hpp>
 
 #include "../include/tobas_manipulation/velocity_controller_ros.hpp"
 #include "../include/tobas_manipulation/common.hpp"
@@ -16,7 +15,7 @@ namespace tobas_manipulation
 VelocityControllerRos::VelocityControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
-  const std::string& name)
+  const string& name)
   : super(nh, pnh, name),
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
@@ -32,7 +31,20 @@ VelocityControllerRos::VelocityControllerRos(
   active_jnts_extractor_.updateInternalDataStructures();
   vel_ctrl_.updateInternalDataStructures();
 
-  jntarraynull_ = JntArray::Zero(drone_.tree().getNrOfJoints());
+  // 速度指令タイプの関節のホームポジションを取得
+  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
+  {
+    if (jnt_cfg.cmd_type != tobas::JointConfig::VELOCITY)
+      continue;
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
+    home_js_.velocity.push_back(0.);
+    home_js_.effort.push_back(0.);
+  }
+
+  // ホームポジションを初期目標状態に設定
+  if (home_js_.name.size() > 0)
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
   registerPublishers();
   registerSubscribers();
@@ -47,28 +59,30 @@ void VelocityControllerRos::getRosParams()
 
 void VelocityControllerRos::registerPublishers()
 {
-  velocities_pub_ = nh_.advertise<tobas_msgs::JointVelocities>(tobas::kJointVelocitiesCmdTopic, 1);
+  velocities_pub_ =
+    nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
 }
 
 void VelocityControllerRos::registerSubscribers()
 {
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = nh_.subscribe(kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_cs_sub_ = nh_.subscribe(kVelCtrlCSTopic, 1, &self::targetCartStateCb, this, tcpNoDelay());
+  tar_js_sub_ =
+    nh_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ =
+    nh_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
-int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& velocities_msg)
+int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
     return -1;
   }
-  if (tar_js_conv_.jointStateToJntArray(*tar_js_) < 0)
+  if (tar_js_conv_.jointStateToJntArrayPos(*tar_js_) < 0)
   {
     rosError(
       name_, "Failed to convert target JointState to Jntarray: " << tar_js_conv_.errorMessage());
@@ -81,63 +95,45 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointVelocities& veloci
   const auto gain = 1 / jnt_time_const_;
   const auto velocities = gain * (tar_q - cur_q);
 
+  // TODO: 関節角制限を考慮し，制限に違反する速度を出さない
+
   // JntArray -> JointState
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, velocities, jntarraynull_, tar_js_->name) < 0)
+  if (tar_js_conv_.jntArrayToJointStateVel(velocities, tar_js_->name) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;
   }
 
   // Fill output message
-  velocities_msg.name = tar_js_conv_.getNamesMsg();
-  velocities_msg.data = tar_js_conv_.getVelocitiesMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    velocities_msg.commands.emplace_back(name, vel);
 
   return 0;
 }
 
-int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocities_msg)
+int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArray(*cur_js_) < 0)
+  if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
   {
     rosError(
       name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
     return -1;
   }
 
-  Frame tar_pi, T_W_B;
+  Frame T_Base_Parent;
   KDL::FrameMap tar_p;
-  for (const auto& [seg_name, frame_id, pose] :
-       dh_std::zip(tar_cs_->name, tar_cs_->frame_id, tar_cs_->pose))
+  for (const auto& ls : tar_ls_->states)
   {
-    tobas::poseTobasToKDL(pose, tar_pi);
-    switch (frame_id.data)
+    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
-      case tobas_msgs::FrameId::GLOBAL:
-      {
-        if (odom_ == nullptr)
-        {
-          rosWarnThrottle(
-            kOdomNotReceivedWarnPeriod, name_,
-            "Since odometry has not been received yet, commands in the global frame is ignored.");
-          return -1;
-        }
-
-        tobas::poseTobasToKDL(odom_->pose, T_W_B);
-        tar_pi = T_W_B.inverse() * tar_pi;  // T_B_P = T_B_W * T_W_P
-        break;
-      }
-      case tobas_msgs::FrameId::LOCAL:
-      {
-        break;
-      }
-      default:
-      {
-        rosError(name_, "Unknown frame ID: " << static_cast<int>(frame_id.data));
-        return -1;
-      }
+      rosError(name_, tf_listener_.getErrorMessage());
+      continue;
     }
-    tar_p[seg_name] = tar_pi;  // Base -> Segment tip
+
+    transformMsgToKDL(tf_listener_.getTransform().transform, T_Base_Parent);
+    tar_p[ls.name] = T_Base_Parent * ls.frame;  // Base -> Segment tip
   }
 
   // 目標関節速度を計算
@@ -150,47 +146,43 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointVelocities& velocit
   const auto& velocities = vel_ctrl_.getVelocities();
 
   // JntArray -> JointState
-  active_jnts_extractor_.solve(tar_cs_->name);
+  active_jnts_extractor_.solve(tar_ls_->names());
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
-  if (tar_js_conv_.jntArrayToJointState(jntarraynull_, velocities, jntarraynull_, active_joints) < 0)
+  if (tar_js_conv_.jntArrayToJointStateVel(velocities, active_joints) < 0)
   {
     rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
     return -1;
   }
 
   // Fill output message
-  velocities_msg.name = tar_js_conv_.getNamesMsg();
-  velocities_msg.data = tar_js_conv_.getVelocitiesMsg();
+  for (const auto& [name, vel] :
+       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+    velocities_msg.commands.emplace_back(name, vel);
 
   return 0;
-}
-
-void VelocityControllerRos::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
-  }
-}
-
-void VelocityControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
-{
-  odom_ = odom;
 }
 
 void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js)
 {
   cur_js_ = cur_js;
 
-  if (tar_js_ == nullptr && tar_cs_ == nullptr)
+  if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
+  const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
+  if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
+  {
+    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_ls_ = nullptr;
+    is_commanded_ = false;
+    rosWarn(
+      name_, "The target joint states are automatically reset because "
+               << tobas::kAutoResetTimeThreshold
+               << " seconds have elapsed since the last command.");
+  }
+
   // Create joint velocities command
-  const auto velocities_msg = boost::make_shared<tobas_msgs::JointVelocities>();
+  const auto velocities_msg = boost::make_shared<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)
@@ -198,14 +190,14 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     if (jointSpaceControl(*velocities_msg) < 0)
       return;
   }
-  else if (tar_cs_ != nullptr)
+  else if (tar_ls_ != nullptr)
   {
     if (taskSpaceControl(*velocities_msg) < 0)
       return;
   }
   else
   {
-    rosError(name_, "Both target joint state and target cartesian state are NULL.");
+    rosError(name_, "Both target joint state and target link state are NULL.");
     return;
   }
 
@@ -216,20 +208,19 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
 void VelocityControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_cs_ = nullptr;
+  tar_ls_ = nullptr;
+
+  t_last_cmd_ = ros::Time::now();
+  is_commanded_ = true;
 }
 
-void VelocityControllerRos::targetCartStateCb(const tobas_msgs::CartesianStateConstPtr& tar_cs)
+void VelocityControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
 {
-  const auto np = tar_cs->name.size();  // The number of endpoints
-  if (tar_cs->frame_id.size() != np || tar_cs->pose.size() != np)
-  {
-    rosError(name_, "Cartesian state size mismatch.");
-    return;
-  }
-
-  tar_cs_ = tar_cs;
+  tar_ls_ = tar_ls;
   tar_js_ = nullptr;
+
+  t_last_cmd_ = ros::Time::now();
+  is_commanded_ = true;
 }
 
 void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

@@ -45,7 +45,6 @@ private:
 
   bool isGoalValid(const GoalType& goal);
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void executeCb(const GoalType& goal);
 };
 }  // namespace tobas_trajectory_commander

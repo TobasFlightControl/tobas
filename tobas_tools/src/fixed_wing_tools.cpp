@@ -1,4 +1,4 @@
-#include <dh_std_tools/math.hpp>
+#include <tobas_std_tools/math.hpp>
 
 #include "../include/tobas_tools/fixed_wing_tools.hpp"
 #include "../include/tobas_tools/constants.hpp"
@@ -21,7 +21,7 @@ double angleOfAttack(const Vector& linvel_B)
 
 double angleOfSideSlip(const double& u, const double& v, const double& w)
 {
-  const double V = dh_std::norm(u, v, w);
+  const double V = tobas_std::norm(u, v, w);
   return V > kMinAirSpeedThresh ? asin(v / V) : 0.;
 }
 

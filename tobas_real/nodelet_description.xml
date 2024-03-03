@@ -1,5 +1,9 @@
 <library path="lib/libtobas_real_nodelet">
 
+  <class name="tobas_real/TimeReferenceServerNodelet" type="tobas_real::TimeReferenceServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
   <class name="tobas_real/CpuHandlerNodelet" type="tobas_real::CpuHandlerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
@@ -17,6 +21,10 @@
   </class>
 
   <class name="tobas_real/GpsHandlerNodelet" type="tobas_real::GpsHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real/PwmHandlerNodelet" type="tobas_real::PwmHandlerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
 

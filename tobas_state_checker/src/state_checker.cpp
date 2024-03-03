@@ -1,9 +1,9 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_ros_tools/console_message.hpp>
-#include <dh_ros_tools/rate.hpp>
-#include <dh_ros_tools/rosparam.hpp>
+#include <std_srvs/SetBool.h>
 
-#include <tobas_tools/constants.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_ros_tools/rate.hpp>
+#include <tobas_ros_tools/rosparam.hpp>
 
 #include "../include/tobas_state_checker/state_checker.hpp"
 
@@ -15,17 +15,19 @@ StateChecker::StateChecker(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name), landing_client_(tobas::kLandingAction)
+  : super(nh, pnh, name), landing_ac_(tobas::kLandingAction)
 {
   getRosParams();
 
   registerPublishers();
   registerSubscribers();
+
+  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
 }
 
 void StateChecker::getRosParams()
 {
-  dh_ros::getParam(pnh_, "battery_voltage_threshold", voltage_threshold_, dh_ros::POSITIVE);
+  tobas_ros::getParam(pnh_, "battery_voltage_threshold", voltage_threshold_, tobas_ros::POSITIVE);
 }
 
 void StateChecker::registerPublishers()
@@ -35,16 +37,21 @@ void StateChecker::registerPublishers()
 
 void StateChecker::registerSubscribers()
 {
-  super::registerSubscribers();
-
   cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+}
+
+void StateChecker::publishSystemCriticalEvent()
+{
+  const auto event = boost::make_shared<tobas_msgs::Event>();
+  event->data = tobas_msgs::Event::SYSTEM_CRITICAL;
+  event_pub_.publish(event);
 }
 
 void StateChecker::requestLanding()
 {
-  if (!landing_client_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
+  if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
     rosError(
       name_, "'" << tobas::kLandingAction << "' action server failed to start within "
@@ -54,11 +61,11 @@ void StateChecker::requestLanding()
 
   tobas_msgs::LandGoal goal;
   goal.level.data = tobas_msgs::CommandLevel::DEFENSIVE;
-  landing_client_.sendGoal(goal);
-  landing_client_.waitForResult();
+  landing_ac_.sendGoal(goal);
+  landing_ac_.waitForResult();
 
-  const auto result = landing_client_.getResult();
-  const auto state = landing_client_.getState();
+  const auto result = landing_ac_.getResult();
+  const auto state = landing_ac_.getState();
   if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
   {
     rosInfo(name_, state.getText());
@@ -71,22 +78,20 @@ void StateChecker::requestLanding()
   }
 }
 
-void StateChecker::publishEvent(const uint8_t& event)
+void StateChecker::requestDisarmingRotors()
 {
-  const auto event_msg = boost::make_shared<tobas_msgs::Event>();
-  event_msg->data = event;
-  event_pub_.publish(event_msg);
-}
-
-void StateChecker::eventCb(const tobas_msgs::EventConstPtr& event)
-{
-  switch (event->data)
+  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    case tobas_msgs::Event::STOP:
-      nh_.shutdown();
-      break;
-    default:
-      break;
+    rosError(name_, "Failed to connect to '" << tobas::kArmRotorsSrv << "' service server.");
+    return;
+  }
+
+  std_srvs::SetBool arm_rotors_msg;
+  arm_rotors_msg.request.data = false;
+  if (!arm_rotors_sc_.call(arm_rotors_msg) || !arm_rotors_msg.response.success)
+  {
+    rosError(name_, "Failed to disarm rotors.");
+    return;
   }
 }
 
@@ -112,20 +117,19 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  // 離陸チェック
-  if (!is_flying_ && odom->pose.pos.z() > kTakeoffAltitudeThreshold)
-  {
-    rosInfo(name_, "Takeoff detected.");
-    is_flying_ = true;
-    publishEvent(tobas_msgs::Event::TAKEOFF_DETECTED);
-  }
+  // TODO: tobas_msgs::EventでGood Stateに戻せるようにする
+  if (!is_armed_)
+    return;
 
-  // 姿勢角が閾値を超えていたら落とす
-  const auto& euler = odom->pose.euler;
-  if (abs(euler.roll) > kAttitudeThreshold || abs(euler.pitch) > kAttitudeThreshold)
+  // 姿勢角が閾値を超えていたら全モータを非常停止
+  // TODO: ここでパラシュートを開く
+  odom->frame.M.getRPY(roll_, pitch_, yaw_);
+  if (max(abs(roll_), abs(pitch_)) > kAttitudeThreshold)
   {
-    rosFatal(name_, "The attitude angle exceeds the threshold. Shutting down the system.");
-    publishEvent(tobas_msgs::Event::STOP);
+    rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
+    publishSystemCriticalEvent();
+    requestDisarmingRotors();
+    is_armed_ = false;
   }
 }
 }  // namespace tobas_state_checker

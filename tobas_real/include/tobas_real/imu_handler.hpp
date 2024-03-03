@@ -33,10 +33,9 @@ public:
 private:
   ImuDevice imu_;
 
-  Eigen::Vector3f acc_;
-  Eigen::Vector3f gyro_;
-  Eigen::Vector3f mag_;
   EllipseTransformer mag_trans_;
+  double acc_var_, gyro_var_, mag_var_;
+  Eigen::Vector3f acc_, gyro_, mag_;
 
   // ジャイロバイアス関連
   size_t loop_cnt_ = 0;
@@ -65,9 +64,7 @@ private:
   void registerSubscribers() override;
 
   void readConfig();
-  void setupImu();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);
   void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };

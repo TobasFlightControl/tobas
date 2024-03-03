@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
 from ...common import *
@@ -29,8 +29,18 @@ class ErrorStateKalmanFilter(BaseObserver):
 
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
-            "An implementation of <a href='https://arxiv.org/abs/1711.02508'>"
-            + "Quaternion kinematics for the error-state Kalman filter [Joan Sola, 2017]</a>."
+            "The Error State Kalman Filter (ESKF) is an advanced variant of the Kalman Filter, "
+            "tailored for systems with non-linear dynamics. "
+            "Unlike the traditional Kalman Filter, which directly estimates the system's state, "
+            "the ESKF focuses on estimating the error in the state. "
+            "This approach allows for more effective handling of non-linear relationships "
+            "between the system state and measurements. "
+            "The ESKF operates by linearizing these non-linearities around a nominal state. "
+            "It's particularly useful in applications like navigation and tracking, "
+            "where precision in estimating orientation and position is crucial, "
+            "such as in Inertial Navigation Systems and GPS technology. "
+            "The ESKF's blend of accuracy and computational efficiency "
+            "makes it a valuable tool in complex engineering tasks."
         )
         super().__init__(main, abst_text)
 
@@ -117,8 +127,6 @@ class ErrorStateKalmanFilter(BaseObserver):
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
-            self.GPS_HOR_POS_STDDEV_THRESHOLD: self.gps_hor_pos_stddev_threshold.get(),
-            self.GPS_VER_POS_STDDEV_THRESHOLD: self.gps_ver_pos_stddev_threshold.get(),
             # Dynamic parameters
             self.GRAV_VAR: self._grav_var.get(),
             self.YAW_VAR: self._yaw_var.get(),

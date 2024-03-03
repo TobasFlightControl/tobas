@@ -4,8 +4,6 @@
 #include <ros/timer.h>
 #include <Navio2/ADC_Navio2.h>
 
-#include <dh_std_tools/first_order_filter.hpp>
-
 #include <tobas_tools/node.hpp>
 
 namespace tobas_real
@@ -16,6 +14,7 @@ class BatteryHandler : public tobas::BaseNode
   static constexpr double kLpfTimeConst = 10.;     // [s]
   static constexpr double kVoltageThreshold = 3.;  // [V]
 
+  using self = BatteryHandler;
   using super = tobas::BaseNode;
 
 public:
@@ -26,7 +25,6 @@ public:
 
 private:
   ADC_Navio2 adc_;
-  dh_std::FirstOrderFilter<double> lpf_;
 
   // Config
   double adc_coef_;
@@ -43,7 +41,6 @@ private:
 
   void getAdcCoefficient();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

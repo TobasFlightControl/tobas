@@ -42,8 +42,8 @@
     <!-- Load the joint controllers -->
     <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
 
-    <!-- Launch joint command handler -->
-    <node pkg="tobas_gazebo" type="joint_command_handler_node" name="joint_command_handler" output="screen"/>
+    <!-- Launch Gazebo command handlers -->
+    <include file="$(find tobas_gazebo)/launch/command_handlers.launch"/>
   </group>
 
 </launch>

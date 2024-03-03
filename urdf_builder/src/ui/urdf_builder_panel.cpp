@@ -7,7 +7,7 @@
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
-#include <dh_std_tools/fstream.hpp>
+#include <tobas_std_tools/fstream.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -20,6 +20,7 @@
 
 #define ROBOT_MODEL_UPDATE_INTERVAL 5
 #define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"
+#define TMP_URDF_PATH "/tmp/urdf_builder.urdf"
 
 using namespace std;
 using namespace urdf;
@@ -30,12 +31,12 @@ namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   : rviz::Panel(item),
-    config_path_(dh_std::expandPath(kConfigPath)),
+    config_path_(tobas_std::expandPath(kConfigPath)),
     ui_(new Ui::URDFBuilderPanelUI()),
     ogre_ctrl_(nullptr)
 {
   // configファイルを作成
-  if (!dh_std::fileExists(config_path_))
+  if (!tobas_std::fileExists(config_path_))
     createConfig();
 
   ui_->setupUi(this);
@@ -43,7 +44,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   ui_->EnableVisualCheckBox->setChecked(kDefaultVisualVisible);
   ui_->EnableCollisionCheckBox->setChecked(kDefaultCollisionVisible);
 
-  update_timer_ = new QTimer;
+  update_timer_ = new QTimer();
 
   const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
   link_dialog_ = new UpdateLinkDialog(vm);
@@ -102,14 +103,26 @@ void URDFBuilderPanel::LoadButtonClicked()
   ROS_DEBUG_STREAM("URDFBuilderPanel::LoadButtonClicked");
 
   const auto last_opened_dir = getLastOpenedDir();
-  const auto file_path = QFileDialog::getOpenFileName(
+  auto file_path = QFileDialog::getOpenFileName(
     this, tr("Load URDF"), QString::fromStdString(last_opened_dir),
-    tr("URDF (*.urdf);;All Files (*)"));
+    tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
 
   if (file_path.isEmpty())
     return;
 
   setLastOpenedDir(file_path.toStdString());
+
+  // xacroが指定された場合は展開する
+  if (file_path.endsWith(".xacro"))
+  {
+    const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
+    if (system(command.toUtf8()) != 0)
+    {
+      QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
+      return;
+    }
+    file_path = TMP_URDF_PATH;
+  }
 
   if (!vm_.loadRobot(file_path))
   {
@@ -235,16 +248,16 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
     return;
   }
 
-  const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
-  vm->usedLinkNames(vm_.linkNames());
+  const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
+  link_vm->usedLinkNames(vm_.linkNames());
 
-  AddLinkDialog dialog(vm);
+  AddLinkDialog dialog(link_vm);
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
     return;
 
-  vm_.addLink(vm);
+  vm_.addLink(link_vm);
   reload();
 }
 
@@ -476,7 +489,7 @@ bool URDFBuilderPanel::saveURDF(const QString& file_path)
 
 bool URDFBuilderPanel::isValid()
 {
-  if (!isRobotNameVolid())
+  if (!isRobotNameValid())
     return false;
 
   if (!isJointsValid())
@@ -485,7 +498,7 @@ bool URDFBuilderPanel::isValid()
   return true;
 }
 
-bool URDFBuilderPanel::isRobotNameVolid()
+bool URDFBuilderPanel::isRobotNameValid()
 {
   const auto name = ui_->RobotName->text();
 

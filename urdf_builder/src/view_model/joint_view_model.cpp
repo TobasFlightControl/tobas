@@ -21,7 +21,27 @@ namespace urdf_builder
 {
 namespace view_model
 {
-QString JointViewModel::type()
+JointViewModel::JointViewModel(const urdf::JointSharedPtr& model)
+  : BaseViewModel<urdf::Joint, JointViewModel>(model)
+{
+  if (model_->type == urdf::Joint::UNKNOWN)
+    model_->type = urdf::Joint::FIXED;
+
+  if (limitsEnabled())
+    limits_.reset(new JointLimitsViewModel(model_->limits));
+}
+
+QString JointViewModel::name() const
+{
+  return QString::fromStdString(model_->name);
+}
+
+void JointViewModel::name(const QString& name)
+{
+  model_->name = name.toStdString();
+}
+
+const QString& JointViewModel::type() const
 {
   return kJointTypeToNameMap.at(model_->type);
 }
@@ -34,6 +54,82 @@ void JointViewModel::type(const QString& type)
     limits_.reset(new JointLimitsViewModel(model_->limits));
   else
     limits_ = nullptr;
+}
+
+const urdf::Pose& JointViewModel::origin() const
+{
+  return model_->parent_to_joint_origin_transform;
+}
+
+void JointViewModel::origin(const urdf::Pose& origin)
+{
+  model_->parent_to_joint_origin_transform = origin;
+}
+
+QString JointViewModel::parentLinkName() const
+{
+  return QString::fromStdString(model_->parent_link_name);
+}
+
+void JointViewModel::parentLinkName(const QString& name)
+{
+  model_->parent_link_name = name.toStdString();
+}
+
+QString JointViewModel::childLinkName() const
+{
+  return QString::fromStdString(model_->child_link_name);
+}
+
+void JointViewModel::childLinkName(const QString& name)
+{
+  model_->child_link_name = name.toStdString();
+}
+
+const QStringList& JointViewModel::usedLinkNames() const
+{
+  return link_names_;
+}
+
+void JointViewModel::usedLinkNames(const QStringList& links)
+{
+  link_names_ = links;
+}
+
+const urdf::Vector3& JointViewModel::axis() const
+{
+  return model_->axis;
+}
+
+void JointViewModel::axis(const urdf::Vector3& axis)
+{
+  model_->axis = axis;
+}
+
+const JointLimitsViewModelPtr& JointViewModel::limits() const
+{
+  return limits_;
+}
+
+bool JointViewModel::limitsEnabled() const
+{
+  return model_->type == urdf::Joint::REVOLUTE || model_->type == urdf::Joint::PRISMATIC;
+}
+
+bool JointViewModel::isFixed() const
+{
+  return model_->type == urdf::Joint::FIXED;
+}
+
+void JointViewModel::sync()
+{
+  if (limitsEnabled())
+    model_->limits = limits_->model();
+}
+
+void JointViewModel::generateName()
+{
+  name(childLinkName() + "_to_" + parentLinkName() + "_joint");
 }
 }  // namespace view_model
 }  // namespace urdf_builder

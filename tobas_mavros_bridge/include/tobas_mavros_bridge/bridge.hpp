@@ -25,7 +25,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void eventCb(const tobas_msgs::EventConstPtr& event) override;
   void positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs);
 };
 }  // namespace tobas_mavros_bridge

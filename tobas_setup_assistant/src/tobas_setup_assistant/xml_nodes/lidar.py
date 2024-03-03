@@ -1,8 +1,8 @@
 from xml.etree import ElementTree as ET
 from typing import Tuple
 
-from urdf_tools_py.core import *
-from urdf_tools_py.dummy import DummyLink
+from tobas_urdf_tools_py.core import *
+from tobas_urdf_tools_py.dummy import DummyLink
 
 
 def add_lidar_model(

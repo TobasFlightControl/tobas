@@ -1,22 +1,18 @@
 #pragma once
 
-#include <dh_std_tools/first_order_filter.hpp>
-#include <dh_linear_control/pid3.hpp>
-#include <dh_kdl/euler.hpp>
+#include <tobas_std_tools/first_order_filter.hpp>
+#include <tobas_kdl/euler.hpp>
 
 namespace tobas
 {
 struct OrientationPidConfig
 {
-  double atti_kp;
-  double atti_ki;
-  double atti_kd;
-  double head_kp;
-  double head_ki;
-  double head_kd;
-
-  double max_atti_acc_int;  // [rad/s^2] I成分によって生成される角加速度の姿勢成分の最大値
-  double max_head_acc_int;  // [rad/s^2] I成分によって生成される角加速度の方位成分の最大値
+  double atti_natural_freq;  // [rad/s]
+  double atti_damp_ratio;    // [-]
+  double atti_ki;            // [1/s^3]
+  double head_natural_freq;  // [rad/s]
+  double head_damp_ratio;    // [-]
+  double head_ki;            // [1/s^3]
 };
 
 class OrientationPid
@@ -39,12 +35,17 @@ public:
   inline KDL::Vector integralError() const;
 
 private:
-  dh_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
-  ctrl::PID3 pid_;
+  // Config
+  KDL::Vector kp_;
+  KDL::Vector ki_;
+  KDL::Vector kd_;
+
+  KDL::Vector ei_ = KDL::Vector::Zero();
+  tobas_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
 };
 
 inline KDL::Vector OrientationPid::integralError() const
 {
-  return KDL::Vector(pid_.integralError());
+  return ei_;
 }
 }  // namespace tobas

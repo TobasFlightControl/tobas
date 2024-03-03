@@ -9,6 +9,4 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>tobas_real</depend>
-
 </package>

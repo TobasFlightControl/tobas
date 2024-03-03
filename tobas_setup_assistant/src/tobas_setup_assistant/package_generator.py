@@ -17,11 +17,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from urdf_tools_py.core import *
-from urdf_tools_py.gazebo import GazeboRosControl
-from dh_rqt_tools.path import resolve_uri
-from dh_rqt_tools.messages import q_info, q_error
-from dh_rqt_tools.xml import prettify_and_save
+from tobas_urdf_tools_py.core import *
+from tobas_urdf_tools_py.gazebo import GazeboRosControl
+from tobas_rqt_tools.path import resolve_uri
+from tobas_rqt_tools.messages import q_info, q_error
+from tobas_rqt_tools.xml import prettify_and_save
 
 from tobas_msgs.msg import *
 
@@ -137,9 +137,14 @@ class PackageGenerator(QObject):
 
     def _generate_pkg(self) -> None:
         # 各ディレクトリのパス
+        pkg_name = self._main.settings.ros_package.pkg_name.get()
         pkg_path = self._main.settings.ros_package.pkg_path()
         config_dir = osp.join(pkg_path, "config")
         launch_dir = osp.join(pkg_path, "launch")
+        include_dir = osp.join(pkg_path, "include", pkg_name)
+        src_dir = osp.join(pkg_path, "src")
+        nodes_dir = osp.join(pkg_path, "nodes")
+        nodelets_dir = osp.join(pkg_path, "nodelets")
         urdf_dir = osp.join(pkg_path, "urdf")
         mesh_dir = osp.join(pkg_path, "mesh")
 
@@ -147,19 +152,34 @@ class PackageGenerator(QObject):
         os.mkdir(pkg_path)
         os.mkdir(config_dir)
         os.mkdir(launch_dir)
+        os.makedirs(include_dir)
+        os.mkdir(src_dir)
+        os.mkdir(nodes_dir)
+        os.mkdir(nodelets_dir)
         os.mkdir(urdf_dir)
         os.mkdir(mesh_dir)
 
         # テンプレートから生成
         items = self._make_template_items()
         self._generate_from_template(
-            items, "CMakeLists.txt.template", osp.join(pkg_path, "CMakeLists.txt")
+            items,
+            "CMakeLists.txt.template",
+            osp.join(pkg_path, "CMakeLists.txt"),
         )
         self._generate_from_template(
-            items, "package.xml.template", osp.join(pkg_path, "package.xml")
+            items,
+            "package.xml.template",
+            osp.join(pkg_path, "package.xml"),
         )
         self._generate_from_template(
-            items, "environment.yaml.template", osp.join(config_dir, "environment.yaml")
+            items,
+            "nodelet_description.xml.template",
+            osp.join(pkg_path, "nodelet_description.xml"),
+        )
+        self._generate_from_template(
+            items,
+            "environment.yaml.template",
+            osp.join(config_dir, "environment.yaml"),
         )
         self._generate_from_template(
             items,
@@ -182,10 +202,14 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "common_params.launch"),
         )
         self._generate_from_template(
-            items, "gazebo.launch.template", osp.join(launch_dir, "gazebo.launch")
+            items,
+            "gazebo.launch.template",
+            osp.join(launch_dir, "gazebo.launch"),
         )
         self._generate_from_template(
-            items, "real.launch.template", osp.join(launch_dir, "real.launch")
+            items,
+            "real.launch.template",
+            osp.join(launch_dir, "real.launch"),
         )
         self._generate_from_template(
             items,
@@ -193,10 +217,14 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "controller.launch"),
         )
         self._generate_from_template(
-            items, "observer.launch.template", osp.join(launch_dir, "observer.launch")
+            items,
+            "observer.launch.template",
+            osp.join(launch_dir, "observer.launch"),
         )
         self._generate_from_template(
-            items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch")
+            items,
+            "bringup.launch.template",
+            osp.join(launch_dir, "bringup.launch"),
         )
         self._generate_from_template(
             items,
@@ -204,10 +232,14 @@ class PackageGenerator(QObject):
             osp.join(launch_dir, "hardware_interfaces.launch"),
         )
         self._generate_from_template(
-            items, "hil.launch.template", osp.join(launch_dir, "hil.launch")
+            items,
+            "hil.launch.template",
+            osp.join(launch_dir, "hil.launch"),
         )
         self._generate_from_template(
-            items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch")
+            items,
+            "rc_teleop.launch.template",
+            osp.join(launch_dir, "rc_teleop.launch"),
         )
         self._generate_from_template(
             items,
@@ -223,6 +255,46 @@ class PackageGenerator(QObject):
             items,
             "plotjuggler.launch.template",
             osp.join(launch_dir, "plotjuggler.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "motor_test_driver.launch.template",
+            osp.join(launch_dir, "motor_test_driver.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "motor_test_gui.launch.template",
+            osp.join(launch_dir, "motor_test_gui.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge.launch.template",
+            osp.join(launch_dir, "tobas_bridge.launch"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge.hpp.template",
+            osp.join(include_dir, "tobas_bridge.hpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge.cpp.template",
+            osp.join(src_dir, "tobas_bridge.cpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge_node.cpp.template",
+            osp.join(nodes_dir, "tobas_bridge_node.cpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge_nodelet.hpp.template",
+            osp.join(nodelets_dir, "tobas_bridge_nodelet.hpp"),
+        )
+        self._generate_from_template(
+            items,
+            "tobas_bridge_nodelet.cpp.template",
+            osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp"),
         )
 
         command_msgs = self._main.settings.controller.command_msgs()
@@ -319,6 +391,10 @@ class PackageGenerator(QObject):
         # TBSFファイルに書き込むための辞書を作る
         drone_config = dict()
 
+        # Battery
+        battery = self._main.settings.battery
+        drone_config["battery_nominal_voltage"] = battery.nominal_voltage()
+
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
 
@@ -331,15 +407,18 @@ class PackageGenerator(QObject):
             # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f"rotor_{i}"] = {
                 "link_name": selected.link_name(),
-                "axis": selected.axis_type(),
                 "direction": selected.motor.direction(),
+                "axis": selected.axis_type(),
+                "esc_signal_mode": selected.esc.signal_mode(),
+                "num_poles": selected.motor.num_poles(),
+                "max_rot_speed": float(selected.motor.max_rot_speed()),
                 "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
                 "time_constant_down": float(selected.motor.time_const_down()),
                 "motor_constant": float(selected.aerodynamics.motor_const()),
                 "moment_constant": float(selected.aerodynamics.moment_const()),
                 "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
-                "pin": i + 1,
+                "channel": i,
             }
 
         # Fixed wing
@@ -516,7 +595,9 @@ class PackageGenerator(QObject):
         for mesh in robot.iter("mesh"):
             abs_path = resolve_uri(mesh.attrib["filename"])
             base_name = osp.basename(abs_path)
-            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
+            shutil.copy2(
+                abs_path, osp.join(mesh_dir, base_name)
+            )  # メッシュファイルをコピー
             mesh.attrib["filename"] = f"package://{pkg_name}/mesh/{base_name}"
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
@@ -607,6 +688,7 @@ class PackageGenerator(QObject):
             sag_voltage=battery.sag_voltage(),
             max_current=battery.max_current(),
             capacity=battery.capacity(),
+            internal_registance=battery.internal_registance(),
             num_rotors=propulsion_system.count(),
         )
         robot.append(battery_model)
@@ -627,6 +709,7 @@ class PackageGenerator(QObject):
                 max_model_error_rate=selected.aerodynamics.max_model_error_rate(),
                 time_const_up=selected.motor.time_const_up(),
                 time_const_down=selected.motor.time_const_down(),
+                max_rot_speed=selected.motor.max_rot_speed(),
                 max_current=selected.esc.max_current(),
             )
             robot.append(motor_model)
@@ -716,13 +799,14 @@ class PackageGenerator(QObject):
             gps_model = GpsModel(
                 ns=self._drone_name,
                 link_name=root_link,
+                offset=gps.offset.get(),
                 update_rate=gps.update_rate.get(),
                 delay=gps.delay.get(),
-                offset=gps.offset.get(),
-                hor_pos_std=gps.horizontal_pos_std.get(),
-                ver_pos_std=gps.vertical_pos_std.get(),
-                hor_vel_std=gps.horizontal_vel_std.get(),
-                ver_vel_std=gps.vertical_vel_std.get(),
+                pos_corr_time=gps.pos_corr_time.get(),
+                hor_pos_accuracy=gps.horizontal_pos_accuracy.get(),
+                ver_pos_accuracy=gps.vertical_pos_accuracy.get(),
+                hor_vel_stddev=gps.horizontal_vel_stddev.get(),
+                ver_vel_stddev=gps.vertical_vel_stddev.get(),
                 latitude_0=simulation.latitude_0.get(),
                 longitude_0=simulation.longitude_0.get(),
                 altitude_0=simulation.altitude_0.get(),

@@ -9,8 +9,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.messages import *
-from kdl_sympy.frames import Vector
+from tobas_rqt_tools.messages import *
+from tobas_kdl_sympy.frames import Vector
 
 from tobas_msgs.msg import PoseTwistAccelCommand
 
@@ -32,7 +32,7 @@ class NonPlanarPid(BaseController):
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "非平面ロータ配置マルチコプターのためのPID制御器です．"
+        abst_text = "This is a PID controller for non-planar multirotors."
         super().__init__(main, abst_text)
 
         # TODO: 設定項目

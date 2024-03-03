@@ -1,0 +1,26 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <arg name="node_name" value="state_estimator_cascade"/>
+
+  <!-- State Estimator -->
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_cascade/StateEstimatorNodelet nodelet_manager" output="screen"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="state_estimation_cascade" type="state_estimator_node" name="$(arg node_name)" output="screen"/>
+  </group>
+
+  <!-- Orientation Estimator -->
+  <include file="$(find orientation_estimation_complement)/launch/orientation_estimation.launch">
+    <arg name ="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+  <!-- Static State Determinator -->
+  <include file="$(find tobas_common_actions)/launch/pre_arm_check.launch">
+    <arg name ="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+</launch>

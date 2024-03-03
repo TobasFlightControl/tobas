@@ -14,7 +14,7 @@
   <depend>urdf</depend>
   <depend>roslaunch</depend>
 
-  <depend>dh_std_tools</depend>
+  <depend>tobas_std_tools</depend>
 
   <export>
     <rviz plugin="${prefix}/plugin_description.xml"/>

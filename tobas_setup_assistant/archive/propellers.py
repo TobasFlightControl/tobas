@@ -9,9 +9,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from dh_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox, add_expanding_widget
-from dh_rqt_tools.messages import q_error
-from kdl_sympy.joint import JointType
+from tobas_rqt_tools.widgets import (
+    ComboBox,
+    SpinBox,
+    DoubleSpinBox,
+    add_expanding_widget,
+)
+from tobas_rqt_tools.messages import q_error
+from tobas_kdl_sympy.joint import JointType
 
 from ..src.tobas_setup_assistant.setting_widgets.base_setting import BaseSettingWidget
 from ..src.tobas_setup_assistant.common import *
