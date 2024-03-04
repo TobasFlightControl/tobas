@@ -1,7 +1,0 @@
-#include "./start/start.hpp"
-#include "./urdf_builder/urdf_builder.hpp"
-#include "./setup_assistant/setup_assistant.hpp"
-#include "./simulation/simulation.hpp"
-#include "./hardware_setup/hardware_setup.hpp"
-#include "./mission_planner/mission_planner.hpp"
-#include "./control_system/control_system.hpp"
