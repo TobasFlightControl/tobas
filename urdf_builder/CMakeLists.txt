@@ -48,13 +48,12 @@ add_definitions(-DQT_NO_KEYWORDS)
 add_definitions(-DLINUX -DPOSIX)
 
 qt5_wrap_cpp(MOC_FILES
-  include/urdf_builder/ui/urdf_builder_panel.hpp
-  include/urdf_builder/ui/update_link_dialog.hpp
-  include/urdf_builder/ui/add_link_dialog.hpp
-  include/urdf_builder/ui/double_map_input_dialog.hpp
-  include/urdf_builder/ui/string_input_dialog.hpp
-  include/urdf_builder/rviz_helpers/display_context_proxy.hpp
-  OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -DBOOST_LEXICAL_CAST_INCLUDED
+  include/${PROJECT_NAME}/ui/urdf_builder_panel.hpp
+  include/${PROJECT_NAME}/ui/update_link_dialog.hpp
+  include/${PROJECT_NAME}/ui/add_link_dialog.hpp
+  include/${PROJECT_NAME}/ui/double_map_input_dialog.hpp
+  include/${PROJECT_NAME}/ui/string_input_dialog.hpp
+  include/${PROJECT_NAME}/rviz_helpers/display_context_proxy.hpp
 )
 
 file(GLOB_RECURSE UI_FILES RELATIVE ${PROJECT_SOURCE_DIR} ui/[^.]*.ui)
@@ -62,7 +61,7 @@ qt5_wrap_ui(UIC_FILES ${UI_FILES})
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_FILES} ${UIC_FILES} ${LIB_CPP_FILES})
-target_link_libraries(urdf_builder ${QT_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
