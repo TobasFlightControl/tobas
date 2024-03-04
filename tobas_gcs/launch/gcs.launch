@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_gcs" type="gcs_node" name="tobas_gcs" output="screen" required="true"/>
+
+</launch>
