@@ -19,7 +19,7 @@
 
 	<!-- Others -->
 	<exec_depend>ardupilot_dynamic_configuration</exec_depend>
-	<exec_depend>navio2</exec_depend>
+	<exec_depend>navio</exec_depend>
 	<exec_depend>tobas_common_actions</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
