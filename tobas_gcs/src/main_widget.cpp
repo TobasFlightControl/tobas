@@ -12,17 +12,19 @@ MainWidget::MainWidget(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
     simulation_(new SimulationWidget(this, nh_, pnh_)),
     hardware_setup_(new HardwareSetupWidget(this, nh_, pnh_)),
     mission_planner_(new MissionPlannerWidget(this, nh_, pnh_)),
-    control_system_(new ControlSystemWidget(this, nh_, pnh_))
+    control_system_(new ControlSystemWidget(this, nh_, pnh_)),
+    connection_manager_(new ConnectionManager(this)),
+    package_loader_(new PackageLoader(this))
 {
   setWindowTitle(kMainTitle);
 
-  auto* rows = new QVBoxLayout();
+  auto* rows = new QVBoxLayout(this);
   setLayout(rows);
 
-  auto* cols = new QHBoxLayout();
+  auto* cols = new QHBoxLayout(this);
   rows->addLayout(cols);
 
-  auto* combo_box = new QComboBox();
+  auto* combo_box = new QComboBox(this);
   cols->addWidget(combo_box);
   combo_box->addItem(kStartTitle);
   combo_box->addItem(kUrdfBuilderTitle);
@@ -32,7 +34,16 @@ MainWidget::MainWidget(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   combo_box->addItem(kMissionPlannerTitle);
   combo_box->addItem(kControlSystemTitle);
 
-  auto* apps = new QStackedWidget();
+  // 横に拡大するスペーサを追加
+  cols->addStretch(1);
+
+  auto* rows2 = new QVBoxLayout(this);
+  cols->addLayout(rows2);
+
+  rows2->addWidget(connection_manager_);
+  rows2->addWidget(package_loader_);
+
+  auto* apps = new QStackedWidget(this);
   rows->addWidget(apps);
   apps->addWidget(start_);
   apps->addWidget(urdf_builder_);

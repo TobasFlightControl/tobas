@@ -3,13 +3,9 @@
 #include <ros/ros.h>
 #include <QtWidgets>
 
-#include "./apps/start/start.hpp"
-#include "./apps/urdf_builder/urdf_builder.hpp"
-#include "./apps/setup_assistant/setup_assistant.hpp"
-#include "./apps/simulation/simulation.hpp"
-#include "./apps/hardware_setup/hardware_setup.hpp"
-#include "./apps/mission_planner/mission_planner.hpp"
-#include "./apps/control_system/control_system.hpp"
+#include "./apps/apps.hpp"
+#include "./connection_manager.hpp"
+#include "./package_loader.hpp"
 
 namespace tobas_gcs
 {
@@ -31,5 +27,8 @@ private:
   HardwareSetupWidget* hardware_setup_;
   MissionPlannerWidget* mission_planner_;
   ControlSystemWidget* control_system_;
+
+  ConnectionManager* connection_manager_;
+  PackageLoader* package_loader_;
 };
 }  // namespace tobas_gcs

@@ -8,7 +8,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
@@ -18,19 +18,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	tobas_tools
+  tobas_tools
 )
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Network)
 
 catkin_package(
-	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_tools
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS tobas_tools
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
 
-set(QT_LIBRARIES Qt5::Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Widgets Qt5::Network)
 add_definitions(-DQT_NO_KEYWORDS) # signals, slots, emitなどのキーワードを無効化し，Q_SIGNALS, Q_SLOTS, Q_EMITの使用を強制
 add_definitions(-DLINUX -DPOSIX) # LinuxまたはPOSIX準拠のシステムでコンパイルされることを示す
 
@@ -46,10 +46,10 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${QT_LIBRARIES})
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 set(targets_to_install "")
 foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-	add_executable(${NODE_NAME} ${FILE})
-	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NODE_NAME})
+  get_filename_component(NODE_NAME ${FILE} NAME_WE)
+  add_executable(${NODE_NAME} ${FILE})
+  target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+  list(APPEND targets_to_install ${NODE_NAME})
 endforeach()
 
 install(TARGETS ${PROJECT_NAME}
