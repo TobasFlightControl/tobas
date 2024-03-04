@@ -18,7 +18,7 @@ if __name__ == "__main__":
     setup_assistant = SetupAssistant()
     setup_assistant.show()
 
-    # Ctrl+Cを検出して即座に終了するための設定
+    # Ctrl+Cを検出したらプロセスを落とす
     # 何故かこの位置に書いたときのみ機能する
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
