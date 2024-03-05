@@ -22,7 +22,7 @@ rm ./install_geographiclib_datasets.sh
 # Install dependencies
 rosdep install --from-paths . --ignore-src -ry
 pip3 install numpy -U  # Install latest version
-pip3 install sympy pandas pyyaml et-xmlfile jinja2 markdown overrides urdf-parser-py pyqt-vertical-tab-widget
+pip3 install sympy pandas pyyaml et-xmlfile jinja2 markdown overrides urdf-parser-py pyqt-vertical-tab-widget paramiko scp
 
 # Edit .bashrc
 echo "export ROS_IP=\`hostname -I | cut -d' ' -f1\`" >> ~/.bashrc

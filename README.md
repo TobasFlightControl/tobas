@@ -72,14 +72,34 @@ $ getent group dialout  # dialoutグループのメンバーを確認
 $ id pi                 # piが所属するグループを確認
 ```
 
-## ラズパイをネットワークにつないだままアクセスポイント化
+### ラズパイをネットワークにつないだままアクセスポイント化
 
-### 手順
+#### 手順
 
 [Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
 
-### メモ
+#### メモ
 
 - `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
   既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
   その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
+
+### Tobas のオート起動のための設定
+
+- `/etc/systemd/system/tobas.service`にコマンドを書く
+- 環境変数を`/etc/tobas/tobas.env`にまとめる
+
+### 外部からパスワード無しで特定のコマンドを実行できるようにする
+
+1. sudoers ファイルを開く
+
+```bash
+$ sudo visudo
+```
+
+2. sudo なしで実行可能なコマンドを書く
+
+```txt
+...
+pi ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/tobas/tobas.env
+```
