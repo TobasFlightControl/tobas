@@ -17,7 +17,7 @@ BODY_PSIZE = 9
 
 
 class Signals(QObject):
-    pass
+    config_pkg_loaded = pyqtSignal()
 
 
 class Description(QLabel):

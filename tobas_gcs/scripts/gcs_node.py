@@ -6,7 +6,7 @@ import signal
 import rospy
 from PyQt5.QtWidgets import QApplication
 
-from tobas_gcs.gcs import GroundControlStation
+from tobas_gcs.gcs import GroundControlStationWidget
 
 
 if __name__ == "__main__":
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    gcs = GroundControlStation()
+    gcs = GroundControlStationWidget()
     gcs.show()
 
     # Ctrl+Cを検出したらプロセスを落とす
