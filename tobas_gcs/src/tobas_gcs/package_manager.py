@@ -18,7 +18,7 @@ from tobas_rqt_tools.messages import *
 from .common import *
 
 
-class PackageLoaderWidget(QWidget):
+class PackageManagerWidget(QWidget):
 
     KEY = "last_opened_dir/tobas_configuration_package"
 

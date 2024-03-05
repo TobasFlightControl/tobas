@@ -8,7 +8,7 @@ from tobas_rqt_tools.widgets import MainWidget, ComboBox, add_spacer
 
 from .common import *
 from .apps import *
-from .package_loader import PackageLoaderWidget
+from .package_manager import PackageManagerWidget
 
 
 class GroundControlStationWidget(MainWidget):
@@ -43,7 +43,7 @@ class GroundControlStationWidget(MainWidget):
             combo_box.addItem(app.NAME)
             apps.addWidget(app)
 
-        self.package_loader = PackageLoaderWidget(self)
+        self.package_manager = PackageManagerWidget(self)
 
         # レイアウト
         rows = QVBoxLayout()
@@ -52,7 +52,7 @@ class GroundControlStationWidget(MainWidget):
         rows.addLayout(cols)
         cols.addWidget(combo_box)
         add_spacer(cols)  # 横に拡大するスペーサを追加
-        cols.addWidget(self.package_loader)
+        cols.addWidget(self.package_manager)
         rows.addWidget(apps)
 
         # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
@@ -67,4 +67,4 @@ class GroundControlStationWidget(MainWidget):
         self.mission_planner.define_connections()
         self.control_system.define_connections()
 
-        self.package_loader.define_connections()
+        self.package_manager.define_connections()
