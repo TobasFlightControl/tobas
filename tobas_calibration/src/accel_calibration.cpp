@@ -46,7 +46,7 @@ bool AccelCalibrationRos::executeCb(
 
   // Top
   const Vector3f acc_top = readAccel();
-  // TODO: 明らかにおかしな値だった場合は例外を出す
+  // TODO: 明らかにおかしな値だった場合は失敗を返す
 
   // オフセットを計算
   const Vector3f acc_offset = acc_top - Vector3f(0., 0., tobas::kGravity);
