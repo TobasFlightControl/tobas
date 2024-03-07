@@ -86,7 +86,7 @@ $ id pi                 # piが所属するグループを確認
 
 ### Tobas のオート起動のための設定
 
-- `/etc/systemd/system/tobas.service`にコマンドを書く
+- `/etc/systemd/system/tobas_real.service`にコマンドを書く
 - 環境変数を`/etc/tobas/tobas.env`にまとめる
 
 ### 外部からパスワード無しで特定のコマンドを実行できるようにする

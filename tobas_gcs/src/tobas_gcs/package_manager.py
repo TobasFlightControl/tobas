@@ -183,7 +183,7 @@ class PackageManagerWidget(QWidget):
 
         # サービスの自動起動の有効化
         rospy.loginfo("Enabling Tobas auto launcher")
-        command = SUDO_PREFIX + "systemctl enable tobas.service"
+        command = SUDO_PREFIX + "systemctl enable tobas_real.service"
         exit_status, _, error_output = self._execute_command(command)
         if exit_status != 0:
             q_error(
