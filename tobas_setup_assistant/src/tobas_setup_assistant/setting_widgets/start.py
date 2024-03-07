@@ -76,9 +76,7 @@ class RobotModelLoaderWidget(QWidget):
         label.setAlignment(Qt.AlignTop)
         rows.addWidget(label)
 
-        instruction = Description(
-            "Please set the path for the robot description and press the load button."
-        )
+        instruction = Description("Please set the path for the robot description and press the load button.")
         rows.addWidget(instruction)
 
         cols = QHBoxLayout()
@@ -117,9 +115,7 @@ class RobotModelLoaderWidget(QWidget):
     def _on_browse_button_clicked(self) -> None:
         # 前回開いたパスを取得
         self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(
-            DEFAULT, self.KEY, fallback=osp.expanduser("~")
-        )
+        last_opened_dir = self._config.get(DEFAULT, self.KEY, fallback=osp.expanduser("~"))
 
         # URDFのパスを取得
         options = QFileDialog.Options()
@@ -185,9 +181,7 @@ class URDFBuilderLaunchder(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        instruction = Description(
-            "If you do not have URDF, you can create one using URDF Builder."
-        )
+        instruction = Description("If you do not have URDF, you can create one using URDF Builder.")
         rows.addWidget(instruction)
 
         self._open_button = add_center_button("Open URDF Builder", rows)

@@ -35,9 +35,7 @@ class PropulsionSystemWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         links_label = QLabel("Available Links")
-        links_label.setFont(
-            QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold)
-        )
+        links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 

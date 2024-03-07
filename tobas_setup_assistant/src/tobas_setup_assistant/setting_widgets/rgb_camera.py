@@ -145,7 +145,5 @@ class RgbCameraWidget(BaseSettingWidget):
     def _add_links(self) -> None:
         # Gazeboの仕様で，ルートリンクまたは可動関節をもつリンクのみ指定可能
         root_name = self._main.urdf_parser.get_root().name
-        body_choices = [
-            root_name
-        ] + self._main.urdf_parser.link_names_with_mobile_joint()
+        body_choices = [root_name] + self._main.urdf_parser.link_names_with_mobile_joint()
         self.link.add_items(body_choices)

@@ -12,9 +12,7 @@ class GazeboRosControl(ET.Element):
         plugin.attrib["name"] = "gazebo_ros_control"
 
         ET.SubElement(plugin, "robotNamespace").text = namespace
-        ET.SubElement(
-            plugin, "robotSimType"
-        ).text = "gazebo_ros_control/DefaultRobotHWSim"
+        ET.SubElement(plugin, "robotSimType").text = "gazebo_ros_control/DefaultRobotHWSim"
         ET.SubElement(plugin, "legacyModeNS").text = "true"
 
 

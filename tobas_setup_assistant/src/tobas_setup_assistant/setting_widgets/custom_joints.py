@@ -75,9 +75,7 @@ class CustomJointsWidget(BaseSettingWidget):
             min_pos = self.min_position(i)
             max_pos = self.max_position(i)
             if min_pos > max_pos:
-                q_error_named(
-                    self, self.NAME, f"Position limit of joint '{jnt_name} is invalid."
-                )
+                q_error_named(self, self.NAME, f"Position limit of joint '{jnt_name} is invalid.")
                 return False
             if home_pos < min_pos or max_pos < home_pos:
                 q_error_named(

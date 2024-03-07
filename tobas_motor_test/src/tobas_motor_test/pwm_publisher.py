@@ -42,9 +42,7 @@ class PwmPublisherWidget(MainWidget):
                 rospy.logerr(f"Failed to call service: {e}")
 
             # Add commander
-            commander = IntSliderDisplay(
-                f"CH{channel}", MIN_PWM, MAX_PWM, MIN_PWM, suffix=" us"
-            )
+            commander = IntSliderDisplay(f"CH{channel}", MIN_PWM, MAX_PWM, MIN_PWM, suffix=" us")
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
             grid.addWidget(commander, channel % self.MAX_ROWS, channel // self.MAX_ROWS)

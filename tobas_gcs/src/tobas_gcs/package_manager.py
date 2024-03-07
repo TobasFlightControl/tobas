@@ -76,18 +76,14 @@ class PackageManagerWidget(QWidget):
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
         self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(
-            DEFAULT, self.KEY, fallback=osp.expanduser("~")
-        )
+        last_opened_dir = self._config.get(DEFAULT, self.KEY, fallback=osp.expanduser("~"))
 
         # Tobasパッケージのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.DontResolveSymlinks
-        pkg_path = QFileDialog.getExistingDirectory(
-            self, TITLE, last_opened_dir, options=options
-        )
+        pkg_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
         if pkg_path == "":

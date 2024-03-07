@@ -255,9 +255,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        kv_description = (
-            "Motor's rotational speed under no load, relative to the supplied voltage."
-        )
+        kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
             "Kv",
             kv_description,
@@ -295,9 +293,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
         kt = 1 / kv_si  # トルク定数 [Nm/A]
 
         # 空力特性を取得
-        aero = self._main.settings.propulsion_system.selected.get_aerodynamics(
-            self._link_name
-        )
+        aero = self._main.settings.propulsion_system.selected.get_aerodynamics(self._link_name)
 
         a = ke
         b = R * aero.motor_const() * aero.moment_const() / kt

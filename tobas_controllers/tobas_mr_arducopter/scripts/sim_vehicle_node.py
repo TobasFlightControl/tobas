@@ -8,9 +8,7 @@ import signal
 
 class SimVehicleLauncher:
     def __init__(self) -> None:
-        self._timer = rospy.Timer(
-            rospy.Duration(1e-3), self._run_sim_vehicle, oneshot=True
-        )
+        self._timer = rospy.Timer(rospy.Duration(1e-3), self._run_sim_vehicle, oneshot=True)
 
     def _run_sim_vehicle(self, event) -> None:
         # ArduCopterのシミュレータを起動

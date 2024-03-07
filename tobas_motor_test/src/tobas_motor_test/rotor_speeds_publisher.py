@@ -31,9 +31,7 @@ class RotorSpeedsPublisherWidget(MainWidget):
 
         self._commanders: List[IntSliderDisplay] = []
         for rotor in drone.rotors:
-            commander = IntSliderDisplay(
-                f"CH{rotor.channel}", 0, rps2rpm(rotor.max_rot_speed), 0, suffix=" rpm"
-            )
+            commander = IntSliderDisplay(f"CH{rotor.channel}", 0, rps2rpm(rotor.max_rot_speed), 0, suffix=" rpm")
             commander.value_changed.connect(self._on_value_changed)
             rows.addWidget(commander)
             self._commanders.append(commander)
@@ -46,9 +44,7 @@ class RotorSpeedsPublisherWidget(MainWidget):
 
         add_spacer(rows)
 
-        self._speeds_pub = rospy.Publisher(
-            "command/rotor_speeds", RotorSpeeds, queue_size=1
-        )
+        self._speeds_pub = rospy.Publisher("command/rotor_speeds", RotorSpeeds, queue_size=1)
 
         # モータが停止しないよう一定周期でコマンドを発行し続ける
         rospy.Timer(rospy.Duration(COMMAND_PERIOD), self._command_timer_cb)

@@ -65,9 +65,7 @@ class AvailableLinksWidget(QListWidget):
 
     @pyqtSlot(str)
     def _add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(
-            link_name
-        ), f"Unknown link: {link_name}"
+        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
         assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
 
         item = ListWidgetItem()

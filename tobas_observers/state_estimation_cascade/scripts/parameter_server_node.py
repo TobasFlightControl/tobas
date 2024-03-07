@@ -6,9 +6,7 @@ from dynamic_reconfigure import server
 from state_estimation_cascade.cfg import StateEstimationCascadeConfig
 
 
-def dynamicReconfigureCb(
-    config: StateEstimationCascadeConfig, level: int
-) -> StateEstimationCascadeConfig:
+def dynamicReconfigureCb(config: StateEstimationCascadeConfig, level: int) -> StateEstimationCascadeConfig:
     return config
 
 

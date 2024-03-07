@@ -32,9 +32,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         # 最後に開かれたディレクトリの記録用
         self._config = ConfigParser()
-        self._path_key = (
-            f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
-        )
+        self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
         self._num_entry = len(labels)
@@ -205,8 +203,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         except Exception as e:
             q_error(
                 self.parent(),
-                f"Invalid column names: {df.columns.to_list()} \n"
-                f"The required names are: {self._labels}",
+                f"Invalid column names: {df.columns.to_list()} \n" f"The required names are: {self._labels}",
             )
             return
 
@@ -226,15 +223,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
     def _get_csv_file_path(self) -> str:
         self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(
-            DEFAULT, self._path_key, fallback=osp.expanduser("~")
-        )
+        last_opened_dir = self._config.get(DEFAULT, self._path_key, fallback=osp.expanduser("~"))
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, last_opened_dir, "CSV File (*.csv)", options=options
-        )
+        file_path, _ = QFileDialog.getOpenFileName(self, TITLE, last_opened_dir, "CSV File (*.csv)", options=options)
 
         # 最後に開かれたパスを保存
         if file_path != "":

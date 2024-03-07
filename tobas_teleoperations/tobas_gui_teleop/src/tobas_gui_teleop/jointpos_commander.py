@@ -53,15 +53,11 @@ class JointPositionsCommander(MainWidget):
                 raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 
         # Publishers
-        self._tar_pos_pub = rospy.Publisher(
-            "joint_position_controller/target_joint_states", JointState, queue_size=1
-        )
+        self._tar_pos_pub = rospy.Publisher("joint_position_controller/target_joint_states", JointState, queue_size=1)
         self._tar_js_vel_pub = rospy.Publisher(
             "joint_velocity_controller/target_joint_states", JointState, queue_size=1
         )
-        self._tar_js_eff_pub = rospy.Publisher(
-            "joint_effort_controller/target_joint_states", JointState, queue_size=1
-        )
+        self._tar_js_eff_pub = rospy.Publisher("joint_effort_controller/target_joint_states", JointState, queue_size=1)
 
         # メインレイアウト
         rows = QVBoxLayout()

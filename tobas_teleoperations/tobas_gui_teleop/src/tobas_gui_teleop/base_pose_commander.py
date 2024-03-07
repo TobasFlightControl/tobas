@@ -134,15 +134,9 @@ class BasePoseCommander(MainWidget):
         self._cmd_yaw.setEnabled(False)
 
         # PubSub
-        self._pos_yaw_pub = rospy.Publisher(
-            "command/position_yaw", PositionYaw, queue_size=1
-        )
-        self._pvay_pub = rospy.Publisher(
-            "command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1
-        )
-        self._pta_pub = rospy.Publisher(
-            "command/pose_twist_accel", PoseTwistAccelCommand, queue_size=1
-        )
+        self._pos_yaw_pub = rospy.Publisher("command/position_yaw", PositionYaw, queue_size=1)
+        self._pvay_pub = rospy.Publisher("command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1)
+        self._pta_pub = rospy.Publisher("command/pose_twist_accel", PoseTwistAccelCommand, queue_size=1)
         self._odom_sub = rospy.Subscriber("odom", Odometry, self._odom_cb, queue_size=1)
 
     def _get_params(self) -> None:
@@ -154,17 +148,11 @@ class BasePoseCommander(MainWidget):
         self._z_max = rospy.get_param("~pose_limit/z/max", self.DEFAULT_MAX_Z)
         self._roll_min = rospy.get_param("~pose_limit/roll/min", self.DEFAULT_MIN_ROLL)
         self._roll_max = rospy.get_param("~pose_limit/roll/max", self.DEFAULT_MAX_ROLL)
-        self._pitch_min = rospy.get_param(
-            "~pose_limit/pitch/min", self.DEFAULT_MIN_PITCH
-        )
-        self._pitch_max = rospy.get_param(
-            "~pose_limit/pitch/max", self.DEFAULT_MAX_PITCH
-        )
+        self._pitch_min = rospy.get_param("~pose_limit/pitch/min", self.DEFAULT_MIN_PITCH)
+        self._pitch_max = rospy.get_param("~pose_limit/pitch/max", self.DEFAULT_MAX_PITCH)
         self._yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MIN_YAW)
         self._yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAX_YAW)
-        self._init_elevation = rospy.get_param(
-            "~initial_elevation", self.DEFAULT_INIT_ELEVATION
-        )
+        self._init_elevation = rospy.get_param("~initial_elevation", self.DEFAULT_INIT_ELEVATION)
 
         assert self._x_min <= 0.0 <= self._x_max
         assert self._y_min <= 0.0 <= self._y_max

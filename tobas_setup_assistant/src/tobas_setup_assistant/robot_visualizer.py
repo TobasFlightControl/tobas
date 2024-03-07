@@ -51,9 +51,7 @@ class RobotVisualizerWidget(QWidget):
     @pyqtSlot()
     def _on_robot_model_loaded(self) -> None:
         # Robot State Publisherを別スレッドで起動
-        threading.Thread(
-            target=lambda: rosrun("robot_state_publisher", "robot_state_publisher")
-        ).start()
+        threading.Thread(target=lambda: rosrun("robot_state_publisher", "robot_state_publisher")).start()
 
         # Joint State Publisherを別スレッドで起動
         self._jsp = JointStatePublisher()
@@ -61,9 +59,7 @@ class RobotVisualizerWidget(QWidget):
 
         # JointState -> DisplayRobotStateの変換ノードを別スレッドで起動
         threading.Thread(
-            target=lambda: rosrun(
-                "tobas_setup_assistant", "joint_state_to_display_robot_state_node.py"
-            )
+            target=lambda: rosrun("tobas_setup_assistant", "joint_state_to_display_robot_state_node.py")
         ).start()
 
         self._jsp_gui = JointStatePublisherGui("Joint States", self._jsp)

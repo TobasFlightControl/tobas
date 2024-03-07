@@ -187,9 +187,7 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         rows.addWidget(self._num_cells)
 
-        capacity_description = (
-            "The amount of electric charge that can be drawn from the battery."
-        )
+        capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity",
             capacity_description,
@@ -290,9 +288,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         rows.addWidget(self._max_voltage)
 
-        sag_voltage_description = (
-            "Voltage at which the discharge characteristics change abruptly."
-        )
+        sag_voltage_description = "Voltage at which the discharge characteristics change abruptly."
         self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
             "Voltage Threshold",
             sag_voltage_description,
@@ -314,9 +310,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         rows.addWidget(self._max_current)
 
-        capacity_description = (
-            "The amount of electric charge that can be drawn from the battery."
-        )
+        capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity",
             capacity_description,

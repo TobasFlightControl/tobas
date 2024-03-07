@@ -85,9 +85,7 @@ class Vector:
 
         return angle < tol
 
-    def is_collinear_legacy(
-        self, other: Vector, same_direction_only: bool = False
-    ) -> True:
+    def is_collinear_legacy(self, other: Vector, same_direction_only: bool = False) -> True:
         """他方と常に平行となる場合にTrueを返す．この手法だと許容範囲 (tolerance) が設定できない．"""
         # 比例係数を定義
         k = sympy.symbols("k")
@@ -102,9 +100,7 @@ class Vector:
         eq_z2 = sympy.Eq(other.z / k, self.z)
 
         # 比例係数についてのみ方程式を解く
-        sol: Dict[Symbol, Symbol] = sympy.solve(
-            (eq_x1, eq_y1, eq_z1, eq_x2, eq_y2, eq_z2), (k), dict=False
-        )
+        sol: Dict[Symbol, Symbol] = sympy.solve((eq_x1, eq_y1, eq_z1, eq_x2, eq_y2, eq_z2), (k), dict=False)
 
         if len(sol) == 0:
             # 解がなければFalse
@@ -223,9 +219,7 @@ class Rotation:
 
     def get_rpy(self) -> Tuple[Symbol, Symbol, Symbol]:
         epsilon = 1e-12
-        pitch = sympy.atan2(
-            -self.data[2, 0], sympy.sqrt(self.data[0, 0] ** 2 + self.data[1, 0] ** 2)
-        )
+        pitch = sympy.atan2(-self.data[2, 0], sympy.sqrt(self.data[0, 0] ** 2 + self.data[1, 0] ** 2))
         if type(pitch) is float and abs(pitch) > math.pi / 2 - epsilon:
             roll = 0.0
             yaw = sympy.atan2(-self.data[0, 1], self.data[1, 1])

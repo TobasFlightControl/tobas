@@ -101,9 +101,7 @@ class ChannelsWidget(QWidget):
         # 未選択はダメ
         for r in range(self._form.rowCount()):
             if self._link_name(r) == self.NO_SELECT:
-                q_error_named(
-                    self._main, ARDUPILOT, "Please select link names for each channel."
-                )
+                q_error_named(self._main, ARDUPILOT, "Please select link names for each channel.")
                 return False
 
         # リンク名が被ってたらダメ
@@ -120,9 +118,7 @@ class ChannelsWidget(QWidget):
     def channels(self) -> List[int]:
         res = [-1] * self._form.rowCount()
         for r in range(self._form.rowCount()):
-            rotor_idx = self._main.settings.propulsion_system.selected.get_index(
-                self._link_name(r)
-            )
+            rotor_idx = self._main.settings.propulsion_system.selected.get_index(self._link_name(r))
             ardu_channel = r  # PIN - 1
             res[rotor_idx] = ardu_channel
         return res
@@ -180,9 +176,7 @@ class ArduCopter(BaseController):
     MIN_NUM_PROPS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = (
-            "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
-        )
+        abst_text = "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
         super().__init__(main, abst_text)
 
         # Frame Classes

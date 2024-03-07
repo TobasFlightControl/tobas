@@ -74,9 +74,7 @@ class Drone:
         elif direction == "cw":
             res.direction = -1
         else:
-            raise RuntimeError(
-                f"Invalid rotation direction: {direction}. direction must be 'cw' or 'ccw'."
-            )
+            raise RuntimeError(f"Invalid rotation direction: {direction}. direction must be 'cw' or 'ccw'.")
 
         # Axis
         axis = rospy.get_param(f"{prefix}/axis").lower()

@@ -60,9 +60,7 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.ros_package, RosPackageWidget.NAME)
 
         self.setMinimumHeight(self.MIN_HEIGHT)
-        self.setStyleSheet(
-            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
-        )
+        self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
 
     def define_connections(self) -> None:
         self.start.define_connections()

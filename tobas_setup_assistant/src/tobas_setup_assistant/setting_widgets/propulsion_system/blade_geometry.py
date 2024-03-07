@@ -47,9 +47,7 @@ class BladeGeometry(QWidget):
         )
         rows.addWidget(self._diameter)
 
-        blade_chord_description = (
-            "Chord length at 75% of the distance from the blade's center."
-        )
+        blade_chord_description = "Chord length at 75% of the distance from the blade's center."
         self._blade_chord = ParamGetterWidget_SpinBox(
             "75% Blade chord",
             blade_chord_description,
@@ -59,9 +57,7 @@ class BladeGeometry(QWidget):
         )
         rows.addWidget(self._blade_chord)
 
-        pitch_angle_description = (
-            "Twist angle at 75% of the distance from the blade's center."
-        )
+        pitch_angle_description = "Twist angle at 75% of the distance from the blade's center."
         self._pitch_angle = ParamGetterWidget_SpinBox(
             "75% Blade pitch angle",
             pitch_angle_description,

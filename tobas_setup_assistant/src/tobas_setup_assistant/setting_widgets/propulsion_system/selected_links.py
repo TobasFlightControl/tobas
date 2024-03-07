@@ -38,16 +38,12 @@ class SelectedLinksWidget(TabWidget):
 
         self._main = main
 
-        self.setStyleSheet(
-            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
-        )
+        self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
         self.setMovable(True)
         self.setTabsClosable(True)
 
         self._markers = MarkerArray()  # 推力の作用線
-        self._markers_pub = rospy.Publisher(
-            "visualization_marker_array", MarkerArray, queue_size=1
-        )
+        self._markers_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
 
     def define_connections(self):
         self._main.settings.propulsion_system.add_link.connect(self._add_link)

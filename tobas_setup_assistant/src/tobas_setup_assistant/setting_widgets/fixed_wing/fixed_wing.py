@@ -25,8 +25,7 @@ class FixedWingWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Fixed Wing"
         abst_text = (
-            "Set up the fixed-wing configuration. "
-            "Please choose a setup method and enter the required information."
+            "Set up the fixed-wing configuration. " "Please choose a setup method and enter the required information."
         )
         super().__init__(main, title_text, abst_text)
 

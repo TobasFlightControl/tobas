@@ -31,9 +31,7 @@ class PropellersWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         propellers_label = QLabel("Propellers")
-        propellers_label.setFont(
-            QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold)
-        )
+        propellers_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         propellers_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(propellers_label)
 
@@ -44,9 +42,7 @@ class PropellersWidget(BaseSettingWidget):
         self._rows.addWidget(self.add_delete)
 
         links_label = QLabel("Available Links")
-        links_label.setFont(
-            QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold)
-        )
+        links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
@@ -104,9 +100,7 @@ class SelectedPropellersWidget(QTableWidget):
     def define_connections(self) -> None:
         # 必ずAdd -> Deleteの順に実行する
         self._main.settings.propellers.add_delete.add.connect(self._add_selected_link)
-        self._main.settings.propellers.available_links.link_added.connect(
-            self._delete_cur_row
-        )
+        self._main.settings.propellers.available_links.link_added.connect(self._delete_cur_row)
 
     def selected_link(self) -> Union[str, None]:
         row = self.currentRow()
@@ -296,17 +290,11 @@ class AvailableLinksWidget(QListWidget):
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
-        self._main.settings.propellers.add_delete.delete.connect(
-            self._add_selected_link
-        )
-        self._main.settings.propellers.selected.link_added.connect(
-            self._delete_selected_link
-        )
+        self._main.settings.propellers.add_delete.delete.connect(self._add_selected_link)
+        self._main.settings.propellers.selected.link_added.connect(self._delete_selected_link)
 
     def add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(
-            link_name
-        ), f"Unknown link: {link_name}"
+        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
         assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
         self.addItem(link_name)
 

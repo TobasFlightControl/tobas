@@ -68,8 +68,7 @@ class CascadeKalmanFilter(BaseObserver):
         self._rows.addWidget(self.bias_alpha)
 
         do_bias_estimation_description = (
-            "Whether to do bias estimation of the gyroscope readings "
-            + "for the orientation estimation."
+            "Whether to do bias estimation of the gyroscope readings " + "for the orientation estimation."
         )
         self._do_bias_estimation = ParamGetterWidget_CheckBox(
             "Do bias estimation",
@@ -79,9 +78,7 @@ class CascadeKalmanFilter(BaseObserver):
         )
         self._rows.addWidget(self._do_bias_estimation)
 
-        do_adaptive_gain_description = (
-            "Whether to do adaptive gain for the orientation estimation."
-        )
+        do_adaptive_gain_description = "Whether to do adaptive gain for the orientation estimation."
         self._do_adaptive_gain = ParamGetterWidget_CheckBox(
             "Do adaptive gain",
             do_adaptive_gain_description,

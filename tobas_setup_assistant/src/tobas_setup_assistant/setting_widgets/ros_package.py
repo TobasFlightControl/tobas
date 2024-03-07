@@ -39,9 +39,7 @@ class RosPackageWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         pardir_description = ""
-        self.pardir = ParamGetterWidget_DirDialog(
-            "Parent Directory", pardir_description
-        )
+        self.pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
         self._rows.addWidget(self.pardir)
 
         pkg_name_description = ""
@@ -129,12 +127,8 @@ class PackagePath(QLabel):
         self._update()
 
     def define_connections(self) -> None:
-        self._main.settings.ros_package.pardir.path_changed.connect(
-            self._on_pardir_changed
-        )
-        self._main.settings.ros_package.pkg_name.text_changed.connect(
-            self._on_pkg_name_changed
-        )
+        self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
+        self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
         self._main.urdf_parser.robot_model_loaded.connect(self._set_defaults)
 
     def _update(self) -> None:

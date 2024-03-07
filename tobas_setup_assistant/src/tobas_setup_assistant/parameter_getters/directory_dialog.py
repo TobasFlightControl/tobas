@@ -55,13 +55,9 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget):
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
         self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(
-            DEFAULT, self._key, fallback=osp.expanduser("~")
-        )
+        last_opened_dir = self._config.get(DEFAULT, self._key, fallback=osp.expanduser("~"))
 
-        path = QFileDialog.getExistingDirectory(
-            self, TITLE, last_opened_dir, self._options
-        )
+        path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, self._options)
         if not path:  # Cancelの場合
             return
 

@@ -71,9 +71,7 @@ class Tree:
                     if len(joint.hardwareInterfaces) == 0:
                         raise RuntimeError("Hardware interface is not specified.")
                     elif len(joint.hardwareInterfaces) >= 2:
-                        raise RuntimeError(
-                            "Multiple hardware interfaces is not supported."
-                        )
+                        raise RuntimeError("Multiple hardware interfaces is not supported.")
                     hi: str = joint.hardwareInterfaces[0]
                     if hi == HardwareInterface.POSITION.value:
                         return HardwareInterface.POSITION
@@ -82,9 +80,7 @@ class Tree:
                     elif hi == HardwareInterface.EFFORT.value:
                         return HardwareInterface.EFFORT
                     else:
-                        raise RuntimeError(
-                            f"Invalid hardware interface of joint {jnt_name}: {hi}"
-                        )
+                        raise RuntimeError(f"Invalid hardware interface of joint {jnt_name}: {hi}")
 
         return None
 

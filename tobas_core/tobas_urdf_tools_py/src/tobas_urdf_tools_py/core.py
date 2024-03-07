@@ -4,9 +4,7 @@ from .shapes import Shape
 
 
 class Origin(ET.Element):
-    def __init__(
-        self, x: float, y: float, z: float, roll: float, pitch: float, yaw: float
-    ) -> None:
+    def __init__(self, x: float, y: float, z: float, roll: float, pitch: float, yaw: float) -> None:
         super().__init__("origin", xyz=f"{x} {y} {z}", rpy=f"{roll} {pitch} {yaw}")
 
     @classmethod
@@ -30,9 +28,7 @@ class Mass(ET.Element):
 
 
 class Inertia(ET.Element):
-    def __init__(
-        self, ixx: float, ixy: float, ixz: float, iyy: float, iyz: float, izz: float
-    ) -> None:
+    def __init__(self, ixx: float, ixy: float, ixz: float, iyy: float, iyz: float, izz: float) -> None:
         assert ixx > 0.0
         assert iyy > 0.0
         assert izz > 0.0
@@ -111,9 +107,7 @@ class Child(ET.Element):
 
 
 class Limit(ET.Element):
-    def __init__(
-        self, upper: float, lower: float, velocity: float, effort: float
-    ) -> None:
+    def __init__(self, upper: float, lower: float, velocity: float, effort: float) -> None:
         super().__init__(
             "limit",
             upper=f"{upper}",
@@ -150,9 +144,7 @@ class Transmission(ET.Element):
     VELOCITY = "hardware_interface/VelocityJointInterface"
     EFFORT = "hardware_interface/EffortJointInterface"  # 力制御でのみ反作用が考慮される
 
-    def __init__(
-        self, joint_name: str, interface: str = POSITION, reduction: float = 1.0
-    ):
+    def __init__(self, joint_name: str, interface: str = POSITION, reduction: float = 1.0):
         assert interface in {self.POSITION, self.VELOCITY, self.EFFORT}
         assert reduction >= 1.0
 

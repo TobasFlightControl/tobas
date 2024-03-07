@@ -48,9 +48,7 @@ class PackageGenerator(QObject):
 
     def define_connections(self) -> None:
         self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
-        self._main.settings.ros_package.generate_button.clicked.connect(
-            self._on_generate_button_clicked
-        )
+        self._main.settings.ros_package.generate_button.clicked.connect(self._on_generate_button_clicked)
 
     @pyqtSlot()
     def _on_robot_model_loaded(self) -> None:
@@ -122,9 +120,7 @@ class PackageGenerator(QObject):
 
         # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを保証
         prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
-        cs_jnt_names = (
-            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
-        )
+        cs_jnt_names = self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
         custom_jnt_names = self._main.settings.custom_joints.joint_names()
         if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
             q_error(
@@ -300,10 +296,7 @@ class PackageGenerator(QObject):
         command_msgs = self._main.settings.controller.command_msgs()
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
-        if (
-            PositionYaw.__name__ in command_msgs
-            or PosVelAccYaw.__name__ in command_msgs
-        ):
+        if PositionYaw.__name__ in command_msgs or PosVelAccYaw.__name__ in command_msgs:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/position_yaw.launch.template",
@@ -379,9 +372,7 @@ class PackageGenerator(QObject):
 
         return template_items
 
-    def _generate_from_template(
-        self, items: dict, template_file: str, out_path: str
-    ) -> None:
+    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
         template = self._template_env.get_template(template_file)
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
         with open(out_path, "w") as f:
@@ -620,9 +611,7 @@ class PackageGenerator(QObject):
                 elif child.tag == "sensor":
                     self._remove_or_keep_gazebo_child(gazebo, child)
 
-    def _remove_or_keep_gazebo_child(
-        self, gazebo: ET.Element, child: ET.Element
-    ) -> None:
+    def _remove_or_keep_gazebo_child(self, gazebo: ET.Element, child: ET.Element) -> None:
         """属性を確認した上でGazeboの子ノードを削除する．"""
         msg_box = QMessageBox(self._main)  # 親を設定しておけば一緒に落とせる
 
@@ -865,9 +854,7 @@ class PackageGenerator(QObject):
                 robot=robot,
                 ns=self._drone_name,
                 link_name=root_link,
-                offset=Origin.Trans(
-                    lidar.offset.x(), lidar.offset.y(), lidar.offset.z()
-                ),
+                offset=Origin.Trans(lidar.offset.x(), lidar.offset.y(), lidar.offset.z()),
                 update_rate=lidar.update_rate.get(),
                 hor_samples=lidar.hor_samples.get(),
                 ver_samples=lidar.ver_samples.get(),
