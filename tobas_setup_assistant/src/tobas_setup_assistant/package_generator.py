@@ -595,9 +595,7 @@ class PackageGenerator(QObject):
         for mesh in robot.iter("mesh"):
             abs_path = resolve_uri(mesh.attrib["filename"])
             base_name = osp.basename(abs_path)
-            shutil.copy2(
-                abs_path, osp.join(mesh_dir, base_name)
-            )  # メッシュファイルをコピー
+            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
             mesh.attrib["filename"] = f"package://{pkg_name}/mesh/{base_name}"
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:

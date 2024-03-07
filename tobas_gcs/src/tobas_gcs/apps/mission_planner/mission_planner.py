@@ -12,7 +12,6 @@ from ..base import BaseAppWidget
 
 
 class MissionPlannerWidget(BaseAppWidget):
-
     NAME = "Mission Planner"
 
     def __init__(self, main: GroundControlStationWidget) -> None:

@@ -12,7 +12,6 @@ from ..base import BaseAppWidget
 
 
 class UrdfBuilderWidget(BaseAppWidget):
-
     NAME = "URDF Builder"
 
     def __init__(self, main: GroundControlStationWidget) -> None:

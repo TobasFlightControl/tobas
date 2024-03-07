@@ -19,7 +19,6 @@ from .common import *
 
 
 class PackageManagerWidget(QWidget):
-
     KEY = "last_opened_dir/tobas_configuration_package"
 
     def __init__(self, main: GroundControlStationWidget) -> None:

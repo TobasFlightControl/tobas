@@ -12,7 +12,6 @@ from ..base import BaseAppWidget
 
 
 class SimulationWidget(BaseAppWidget):
-
     NAME = "Simulation"
 
     def __init__(self, main: GroundControlStationWidget) -> None:

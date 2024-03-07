@@ -12,7 +12,6 @@ from ..base import BaseAppWidget
 
 
 class HardwareSetupWidget(BaseAppWidget):
-
     NAME = "Hardware Setup"
 
     def __init__(self, main: GroundControlStationWidget) -> None:

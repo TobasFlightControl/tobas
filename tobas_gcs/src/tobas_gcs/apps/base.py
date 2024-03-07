@@ -13,7 +13,6 @@ from ..common import *
 
 
 class BaseAppWidget(QWidget):
-
     NAME = UNKNOWN
 
     def __init__(self, main: GroundControlStationWidget) -> None:

@@ -12,7 +12,6 @@ from ..base import BaseAppWidget
 
 
 class SetupAssistantWidget(BaseAppWidget):
-
     NAME = "Setup Assistant"
 
     def __init__(self, main: GroundControlStationWidget) -> None:

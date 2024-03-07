@@ -12,7 +12,6 @@ from ..base import BaseAppWidget
 
 
 class ControlSystemWidget(BaseAppWidget):
-
     NAME = "ControlSystemWidget"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
