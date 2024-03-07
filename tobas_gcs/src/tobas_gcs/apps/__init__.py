@@ -1,4 +1,3 @@
-from .base import BaseAppWidget
 from .start import StartWidget
 from .urdf_builder import UrdfBuilderWidget
 from .setup_assistant import SetupAssistantWidget

@@ -8,14 +8,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from ..base import BaseAppWidget
 
-
-class MissionPlannerWidget(BaseAppWidget):
+class MissionPlannerWidget(QWidget):
     NAME = "Mission Planner"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+        super().__init__()
+        self._main = main
 
     def define_connections(self) -> None:
         pass  # TODO

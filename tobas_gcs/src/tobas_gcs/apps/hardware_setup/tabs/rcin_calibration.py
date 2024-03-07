@@ -2,23 +2,21 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..gcs import GroundControlStationWidget
+    from ....gcs import GroundControlStationWidget
 
-from abc import abstractmethod
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from ..common import *
+from .base import BaseHardwareSetupWidget
 
 
-class BaseAppWidget(QWidget):
-    NAME = UNKNOWN
+class RcinCalibrationWidget(BaseHardwareSetupWidget):
+    NAME = "Radio Calibration"
+    TITLE = "Calibrate RC Input"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
-        self._main = main
+        super().__init__(main)
 
-    @abstractmethod
     def define_connections(self) -> None:
-        raise NotImplementedError()
+        pass  # TODO

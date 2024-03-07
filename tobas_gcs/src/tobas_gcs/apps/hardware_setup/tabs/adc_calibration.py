@@ -2,19 +2,21 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...gcs import GroundControlStationWidget
+    from ....gcs import GroundControlStationWidget
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from .base import BaseHardwareSetupWidget
 
-class SimulationWidget(QWidget):
-    NAME = "Simulation"
+
+class AdcCalibrationWidget(BaseHardwareSetupWidget):
+    NAME = "ADC Calibration"
+    TITLE = "Calibrate Analog-Digital Converter"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
-        self._main = main
+        super().__init__(main)
 
     def define_connections(self) -> None:
         pass  # TODO
