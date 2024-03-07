@@ -16,6 +16,9 @@ from ....common import *
 
 class BaseHardwareSetupWidget(ScrollArea):
     ABST_HEIGHT = 100
+    BUTTON_HEIGHT = 40
+    BUTTON_WIDTH = 100
+    WAIT_FOR_SERVICE = 1  # [s]
 
     NAME = UNKNOWN
     TITLE = UNKNOWN
@@ -33,6 +36,9 @@ class BaseHardwareSetupWidget(ScrollArea):
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
         self._rows.addWidget(title)
+
+        spacer = QSpacerItem(0, 50)
+        self._rows.addItem(spacer)
 
     @abstractmethod
     def define_connections(self) -> None:
