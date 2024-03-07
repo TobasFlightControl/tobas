@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -18,5 +19,6 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__(main)
 
+    @override
     def define_connections(self) -> None:
         pass  # TODO
