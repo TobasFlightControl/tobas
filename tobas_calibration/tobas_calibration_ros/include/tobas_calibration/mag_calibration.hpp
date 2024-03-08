@@ -14,6 +14,7 @@ namespace tobas_calibration
 {
 class MagCalibrationRos
 {
+  static constexpr char kMagTopicName[] = "magnetic_field_raw";
   static constexpr char kStartServiceName[] = "start_mag_calibration";
   static constexpr char kFinishServiceName[] = "finish_mag_calibration";
   static constexpr char kCancelServiceName[] = "cancel_mag_calibration";
@@ -36,7 +37,7 @@ private:
   tobas_real::EllipseTransformer mag_trans_;
 
   ros::Timer collect_data_timer_;
-
+  ros::Publisher mag_pub_;
   ros::ServiceServer start_ss_;
   ros::ServiceServer finish_ss_;
   ros::ServiceServer cancel_ss_;

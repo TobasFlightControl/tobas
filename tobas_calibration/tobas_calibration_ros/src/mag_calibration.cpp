@@ -1,4 +1,5 @@
 #include <Eigen/SVD>
+#include <sensor_msgs/MagneticField.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/property_tree.hpp>
@@ -19,12 +20,14 @@ MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh)
   collect_data_timer_ =
     nh.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
 
+  mag_pub_ = nh.advertise<sensor_msgs::MagneticField>(kMagTopicName, 1);
+
   start_ss_ = nh.advertiseService(kStartServiceName, &self::startServiceCb, this);
   finish_ss_ = nh.advertiseService(kFinishServiceName, &self::finishServiceCb, this);
   cancel_ss_ = nh.advertiseService(kCancelServiceName, &self::cancelServiceCb, this);
 }
 
-void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent&)
+void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)
 {
   // データサイズが最大値以上ならば強制終了
   if (mag_data_.size() >= kMaxDataCount)
@@ -35,10 +38,20 @@ void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent&)
     return;
   }
 
-  // 地磁気センサの値を取得して格納
+  // 地磁気センサの値を取得
   imu_.update();
   imu_.readMagnetometer(&mx_, &my_, &mz_);
+
+  // データを追加
   mag_data_.emplace_back(mx_, my_, mz_);
+
+  // センサ値を発行
+  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+  mag_msg->header.stamp = event.current_real;
+  mag_msg->magnetic_field.x = mx_;
+  mag_msg->magnetic_field.y = my_;
+  mag_msg->magnetic_field.z = mz_;
+  mag_pub_.publish(mag_msg);
 }
 
 bool MagCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType::Response& res)
