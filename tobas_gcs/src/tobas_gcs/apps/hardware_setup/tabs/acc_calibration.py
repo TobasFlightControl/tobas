@@ -53,4 +53,8 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         req = AccelCalibrationRequest()
         res: AccelCalibrationResponse = self._accel_calib_sc(req)
 
+        if not res.success:
+            q_error(self, f"Accel calibration failed\n\n{res.message}")
+            return
+
         q_info(self._main, "Accel calibration finished.")
