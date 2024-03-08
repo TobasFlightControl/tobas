@@ -1,5 +1,5 @@
 #include <Eigen/SVD>
-#include <sensor_msgs/MagneticField.h>
+#include <geometry_msgs/PointStamped.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/property_tree.hpp>
@@ -20,7 +20,7 @@ MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh)
   collect_data_timer_ =
     nh.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
 
-  mag_pub_ = nh.advertise<sensor_msgs::MagneticField>(kMagTopicName, 1);
+  mag_pub_ = nh.advertise<geometry_msgs::PointStamped>(kMagTopicName, 1);
 
   start_ss_ = nh.advertiseService(kStartServiceName, &self::startServiceCb, this);
   finish_ss_ = nh.advertiseService(kFinishServiceName, &self::finishServiceCb, this);
@@ -46,11 +46,11 @@ void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)
   mag_data_.emplace_back(mx_, my_, mz_);
 
   // センサ値を発行
-  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+  const auto mag_msg = boost::make_shared<geometry_msgs::PointStamped>();
   mag_msg->header.stamp = event.current_real;
-  mag_msg->magnetic_field.x = mx_;
-  mag_msg->magnetic_field.y = my_;
-  mag_msg->magnetic_field.z = mz_;
+  mag_msg->point.x = mx_;
+  mag_msg->point.y = my_;
+  mag_msg->point.z = mz_;
   mag_pub_.publish(mag_msg);
 }
 

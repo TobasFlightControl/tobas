@@ -14,7 +14,7 @@ namespace tobas_calibration
 {
 class MagCalibrationRos
 {
-  static constexpr char kMagTopicName[] = "magnetic_field_raw";
+  static constexpr char kMagTopicName[] = "mag_calibration/magnetic_field_raw";
   static constexpr char kStartServiceName[] = "mag_calibration/start";
   static constexpr char kFinishServiceName[] = "mag_calibration/finish";
   static constexpr char kCancelServiceName[] = "mag_calibration/cancel";
