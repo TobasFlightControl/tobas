@@ -48,6 +48,7 @@ void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)
   // センサ値を発行
   const auto mag_msg = boost::make_shared<geometry_msgs::PointStamped>();
   mag_msg->header.stamp = event.current_real;
+  mag_msg->header.frame_id = tobas::kNavioFrame;
   mag_msg->point.x = mx_;
   mag_msg->point.y = my_;
   mag_msg->point.z = mz_;

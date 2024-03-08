@@ -79,6 +79,7 @@ static constexpr char kPreArmCheckAction[] = "pre_arm_check";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
+static constexpr char kNavioFrame[] = "navio";
 
 static constexpr char kUnknown[] = "unknown";
 
