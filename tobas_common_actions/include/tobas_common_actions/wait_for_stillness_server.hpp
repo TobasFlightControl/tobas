@@ -16,7 +16,7 @@ class WaitForStillnessServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::WaitForStillnessAction;
-  using GoalType = tobas_msgs::WaitForStillnessGoalConstPtr;
+  using GoalType = tobas_msgs::WaitForStillnessGoal;
   using ResultType = tobas_msgs::WaitForStillnessResult;
   using FeedbackType = tobas_msgs::WaitForStillnessFeedback;
 
@@ -32,7 +32,7 @@ private:
   ros::Time t_last_valid_attitude_;  // 最後に姿勢角が閾値内に入った時刻
   ros::Time t_last_valid_velocity_;  // 最後に速度が閾値内に入った時刻
   std::deque<tobas_msgs::Odometry> odom_history_;
-  GoalType goal_;
+  GoalType::ConstPtr goal_;
   ResultType result_;
 
   ros::Subscriber odom_sub_;
@@ -50,6 +50,6 @@ private:
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_common_actions

@@ -43,14 +43,14 @@ void TakeoffActionServer::registerSubscribers()
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 {
-  if (goal->target_altitude <= 0)
+  if (goal.target_altitude <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target altitude must be positive.");
     return false;
   }
 
-  if (goal->target_duration <= 0)
+  if (goal.target_duration <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target duration must be positive.");
@@ -92,12 +92,12 @@ bool TakeoffActionServer::armRotors()
   return true;
 }
 
-void TakeoffActionServer::executeCb(const GoalType& goal)
+void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
   rosInfo(name_, "Action is called.");
 
   // Check goal validity
-  if (!isGoalValid(goal))
+  if (!isGoalValid(*goal))
     return;
 
   // Get the start position

@@ -12,7 +12,7 @@ EllipseTransformer::EllipseTransformer()
 {
 }
 
-void EllipseTransformer::initialize()
+bool EllipseTransformer::initialize()
 {
   // 楕円の方程式: x^T A x + b^T x + c = 0
   Matrix3d A;
@@ -33,12 +33,14 @@ void EllipseTransformer::initialize()
 
   // 楕円体であるための条件チェック
   if (!((Lam * W).array() > 0).all())
-    throw runtime_error("It cannot be an ellipsoid with the given coefficients.");
+    return false;
 
   const Vector3d S = (Lam / W).cwiseSqrt();
   PSPt_ = P * S.asDiagonal() * P.transpose();
   center_ = -0.5 * P * Lam_inv.asDiagonal() * P.transpose() * b;
   radius_ = S.cwiseInverse();
+
+  return true;
 }
 
 Vector3d EllipseTransformer::transform(const Vector3d& x) const

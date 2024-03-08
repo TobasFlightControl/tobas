@@ -21,7 +21,7 @@ class MultirotorLandServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::LandAction;
-  using GoalType = tobas_msgs::LandGoalConstPtr;  // Goalはポインタの必要あり
+  using GoalType = tobas_msgs::LandGoal;
   using ResultType = tobas_msgs::LandResult;
   using FeedbackType = tobas_msgs::LandFeedback;
 
@@ -54,6 +54,6 @@ private:
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_multirotor_landing

@@ -91,7 +91,7 @@ void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   odom_ = odom;
 }
 
-void MultirotorLandServer::executeCb(const GoalType& goal)
+void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
 {
   rosInfo(name_, "Action is called.");
 

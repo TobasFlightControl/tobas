@@ -3,9 +3,6 @@
 
 #include "../include/tobas_calibration/accel_calibration.hpp"
 
-#define DATA_COUNT 1000
-#define SLEEP_TIME 10000  // [us]
-
 using namespace std;
 using namespace Eigen;
 
@@ -14,8 +11,6 @@ namespace tobas_calibration
 AccelCalibrationRos::AccelCalibrationRos(ros::NodeHandle& nh)
 {
   imu_.initialize();
-  if (!imu_.probe())
-    throw runtime_error("IMU not enabled.");
 
   ss_ = nh.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
@@ -24,16 +19,16 @@ Vector3f AccelCalibrationRos::readAccel()
 {
   // 加速度を取得
   Vector3f acc_sum = Vector3f::Zero();
-  for (size_t _ = 0; _ < DATA_COUNT; ++_)
+  for (size_t _ = 0; _ < kDataCount; ++_)
   {
     imu_.update();
     imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
     acc_sum += acc_;
-    usleep(SLEEP_TIME);
+    usleep(kSleepTime);
   }
 
   // 平均を計算
-  const Vector3f acc_mean = acc_sum / DATA_COUNT;
+  const Vector3f acc_mean = acc_sum / kDataCount;
   return acc_mean;
 }
 
@@ -41,6 +36,13 @@ bool AccelCalibrationRos::executeCb(
   tobas_calibration::AccelCalibrationRequest&,
   tobas_calibration::AccelCalibrationResponse& res)
 {
+  if (!imu_.probe())
+  {
+    res.success = false;
+    res.message = "IMU not enabled.";
+    return true;
+  }
+
   // TODO: 6面分取得して最小二乗法で同時変換行列を推定
   // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
 

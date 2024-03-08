@@ -2,7 +2,6 @@
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../../include/tobas_real/calibration/mag_calibration.hpp"
@@ -123,15 +122,10 @@ void MagnetometerCalibrator::run(const string& method)
   // 推定された係数を表示
   cout << "Estimated coefficients:\n" << mag_trans_ << endl;
 
-  // 楕円体の射影クラスの初期化に成功したら有効な係数だと言える
-  try
-  {
-    mag_trans_.initialize();
-  }
-  catch (const exception& e)
-  {
-    throw runtime_error("Magnetometer calibration failed: " + string(e.what()));
-  }
+  // 楕円体であることを確認
+  if (!mag_trans_.initialize())
+    throw runtime_error("The estimated coefficients do not satisfy the conditions "
+                        "necessary for forming an ellipsoid.");
 
   // 中心と半径を表示
   cout << "Center:" << mag_trans_.getCenter().transpose() << endl;

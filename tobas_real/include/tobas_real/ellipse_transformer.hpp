@@ -24,7 +24,7 @@ public:
 
   explicit EllipseTransformer();
 
-  void initialize();
+  bool initialize();
 
   Eigen::Vector3d transform(const Eigen::Vector3d& mag_raw) const;
 

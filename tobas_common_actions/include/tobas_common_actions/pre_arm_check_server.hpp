@@ -29,7 +29,7 @@ class PreArmCheckServer : public tobas::BaseNode
   using GpsMsg = tobas_msgs::Gps;
 
   using ActionType = tobas_msgs::PreArmCheckAction;
-  using GoalType = tobas_msgs::PreArmCheckGoalConstPtr;
+  using GoalType = tobas_msgs::PreArmCheckGoal;
   using ResultType = tobas_msgs::PreArmCheckResult;
   using FeedbackType = tobas_msgs::PreArmCheckFeedback;
 
@@ -76,6 +76,6 @@ private:
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_common_actions

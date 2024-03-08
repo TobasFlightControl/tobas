@@ -25,7 +25,7 @@ class TakeoffActionServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::TakeoffAction;
-  using GoalType = tobas_msgs::TakeoffGoalConstPtr;
+  using GoalType = tobas_msgs::TakeoffGoal;
   using ResultType = tobas_msgs::TakeoffResult;
   using FeedbackType = tobas_msgs::TakeoffFeedback;
 
@@ -54,6 +54,6 @@ private:
   bool getStartOdom();
   bool armRotors();
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_multirotor_takeoff

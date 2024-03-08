@@ -48,13 +48,13 @@ void FollowPositionYawTrajectoryServer::registerSubscribers()
 
 bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
 {
-  const auto& waypoints = goal->waypoints;
+  const auto& waypoints = goal.waypoints;
 
   // 次数は1以上3以下
-  if (goal->degree < 1 || 3 < goal->degree)
+  if (goal.degree < 1 || 3 < goal.degree)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError(name_, "Spline degree is " << goal->degree << ". It must be in range of [1, 3].");
+    rosError(name_, "Spline degree is " << goal.degree << ". It must be in range of [1, 3].");
     as_.setAborted(result_);
     return false;
   }
@@ -101,12 +101,10 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   return true;
 }
 
-void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
+void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal)
 {
-  if (!isGoalValid(goal))
-  {
+  if (!isGoalValid(*goal))
     return;
-  }
 
   // Prepare time and position vectors for spline fitting
   const auto& waypoints = goal->waypoints;
@@ -124,9 +122,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType& goal)
   // Compute spline fit
   vector<eigen_tools::SplineFunction> splines;
   for (size_t i = 0; i < COMMAND_DIMENSION; ++i)
-  {
     splines.emplace_back(times, positions[i], goal->degree);
-  }
 
   // Execute trajectory
   for (double t = times[0]; t <= times[times.size() - 1]; t += kControlnterval)

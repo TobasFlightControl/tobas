@@ -263,7 +263,7 @@ void PreArmCheckServer::gpsCb(const GpsMsg::ConstPtr& gps)
   gps_sum_.velocity_covariance = gps_sum_.velocity_covariance + gps->velocity_covariance;
 }
 
-void PreArmCheckServer::executeCb(const GoalType&)
+void PreArmCheckServer::executeCb(const GoalType::ConstPtr&)
 {
   rosInfo(name_, "Action is called. Measuring sensor data for " << kMeasureTime << " seconds.");
 

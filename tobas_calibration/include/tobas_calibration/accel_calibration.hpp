@@ -13,6 +13,9 @@ class AccelCalibrationRos
 {
   static constexpr char kServiceName[] = "accel_calibration";
 
+  static constexpr size_t kDataCount = 1000;
+  static constexpr size_t kSleepTime = 10000;  // [us]
+
 public:
   explicit AccelCalibrationRos(ros::NodeHandle& nh);
 
