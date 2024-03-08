@@ -1,7 +1,7 @@
 <launch>
 
-  <node pkg="tobas_calibration" type="accel_calibration_node" name="accel_calibration" output="screen" required="true"/>
-  <node pkg="tobas_calibration" type="mag_calibration_node" name="mag_calibration" output="screen" required="true"/>
+  <node pkg="tobas_calibration_ros" type="accel_calibration_node" name="accel_calibration" output="screen" required="true"/>
+  <node pkg="tobas_calibration_ros" type="mag_calibration_node" name="mag_calibration" output="screen" required="true"/>
 
   <node pkg="fkie_master_discovery" type="master_discovery" name="master_discovery"/>
   <node pkg="fkie_master_sync" type="master_sync" name="master_sync"/>
