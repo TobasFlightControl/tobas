@@ -15,9 +15,9 @@ namespace tobas_calibration
 class MagCalibrationRos
 {
   static constexpr char kMagTopicName[] = "magnetic_field_raw";
-  static constexpr char kStartServiceName[] = "start_mag_calibration";
-  static constexpr char kFinishServiceName[] = "finish_mag_calibration";
-  static constexpr char kCancelServiceName[] = "cancel_mag_calibration";
+  static constexpr char kStartServiceName[] = "mag_calibration/start";
+  static constexpr char kFinishServiceName[] = "mag_calibration/finish";
+  static constexpr char kCancelServiceName[] = "mag_calibration/cancel";
 
   static constexpr size_t kSamplingRate = 100;     // [Hz]
   static constexpr size_t kMaxDataCount = 100000;  // 4 * 3 * 100000 / 1000000 = 1.2MB
