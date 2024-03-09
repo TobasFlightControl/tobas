@@ -9,8 +9,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
-
 from .base_setting import BaseSettingWidget
 from ..common import *
 from ..parameter_getters import *
@@ -111,7 +109,7 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.vertical_vel_stddev)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
     @overrides

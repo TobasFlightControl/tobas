@@ -38,7 +38,7 @@ class PackageManagerWidget(QWidget):
 
         cols.addWidget(QLabel("Tobas Package Path:"))
 
-        self._pkg_path = QLineEdit("")
+        self._pkg_path = QLineEdit()
         self._pkg_path.setReadOnly(True)
         self._pkg_path.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._pkg_path)

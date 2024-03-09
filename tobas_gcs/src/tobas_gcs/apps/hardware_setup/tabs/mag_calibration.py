@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer, create_rviz_frame
+from tobas_rqt_tools.widgets import create_rviz_frame
 from tobas_rqt_tools.messages import *
 from tobas_calibration_msgs.srv import (
     MagCalibrationStart,

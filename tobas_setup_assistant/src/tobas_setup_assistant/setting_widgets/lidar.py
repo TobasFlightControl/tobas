@@ -10,7 +10,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
@@ -118,7 +117,7 @@ class LidarWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.noise_stddev)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
     @overrides

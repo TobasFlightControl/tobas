@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import *
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.messages import q_info, q_error
 from tobas_calibration_msgs.srv import AdcCalibration, AdcCalibrationRequest, AdcCalibrationResponse
 
 from ....common import *
@@ -56,10 +57,11 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         self._rows.addLayout(cols2)
 
         cols2.addWidget(QLabel("ADC Coefficient:"))
-
+        
         self._adc_coef = QLineEdit()
         self._adc_coef.setFixedWidth(self.WIDTH)
         self._adc_coef.setReadOnly(True)
+        self._adc_coef.setFocusPolicy(Qt.NoFocus)
         cols2.addWidget(self._adc_coef)
 
         cols2.addStretch()
@@ -88,6 +90,6 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, res.message)
             return
 
-        self._adc_coef.setText(str(res.coefficient))
+        self._adc_coef.setText(f"{res.coefficient:.2f}")
 
         q_info(self._main, "ADC calibration finished.")

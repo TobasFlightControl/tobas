@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay
 
 from .common import *
 
@@ -94,7 +94,7 @@ class JointPositionsCommander(MainWidget):
         self._random_button.clicked.connect(self._on_random_button_clicked)
         rows.addWidget(self._random_button)
 
-        add_spacer(rows)
+        rows.addStretch()
 
         self._publish_commands_timer = rospy.Timer(
             rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD),

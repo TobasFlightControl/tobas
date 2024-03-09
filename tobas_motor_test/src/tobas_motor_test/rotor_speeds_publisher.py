@@ -9,7 +9,7 @@ from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_tools_py.drone import Drone
-from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
 from .common import *
@@ -42,7 +42,7 @@ class RotorSpeedsPublisherWidget(MainWidget):
             button.clicked.connect(partial(self._on_rpm_button_clicked, rpm=rpm))
             rows.addWidget(button)
 
-        add_spacer(rows)
+        rows.addStretch()
 
         self._speeds_pub = rospy.Publisher("command/rotor_speeds", RotorSpeeds, queue_size=1)
 

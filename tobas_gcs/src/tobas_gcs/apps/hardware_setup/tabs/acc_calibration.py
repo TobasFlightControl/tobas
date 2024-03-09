@@ -10,7 +10,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
 from tobas_rqt_tools.messages import *
 from tobas_calibration_msgs.srv import AccelCalibration, AccelCalibrationRequest, AccelCalibrationResponse
 
@@ -34,7 +33,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
 
         # TODO: Rvizで重力方向と測定結果を表示
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
         self._accel_calib_sc = rospy.ServiceProxy("/accel_calibration", AccelCalibration)
 

@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer, DoubleSpinBox, ComboBox
+from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.joint import *
 
@@ -60,7 +60,7 @@ class CustomJointsWidget(BaseSettingWidget):
             self._table.setColumnWidth(c, self.COL_WIDTH)
         self._rows.addWidget(self._table)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
     @overrides
     def define_connections(self) -> None:

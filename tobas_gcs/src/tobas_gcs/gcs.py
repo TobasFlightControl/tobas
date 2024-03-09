@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, ComboBox, add_spacer
+from tobas_rqt_tools.widgets import MainWidget, ComboBox
 
 from .common import *
 from .apps import *
@@ -55,7 +55,7 @@ class GroundControlStationWidget(MainWidget):
         cols = QHBoxLayout()
         rows.addLayout(cols)
         cols.addWidget(self._combo_box)
-        add_spacer(cols)  # 横に拡大するスペーサを追加
+        cols.addStretch()
         cols.addWidget(self.package_manager)
         rows.addWidget(self._apps)
 

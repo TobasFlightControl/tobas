@@ -422,18 +422,7 @@ class FloatSliderDisplay(QWidget):
         self.value_changed.emit(value)
 
 
-@singledispatch
-def add_spacer(layout: QVBoxLayout) -> None:
-    """レイアウトにスペーサを加える．"""
-    spacer = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
-    layout.addItem(spacer)
 
-
-@add_spacer.register(QHBoxLayout)
-def _(layout: QHBoxLayout) -> None:
-    """レイアウトにスペーサを加える．"""
-    spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
-    layout.addItem(spacer)
 
 
 def add_center_button(text: str, rows: QVBoxLayout) -> QPushButton:

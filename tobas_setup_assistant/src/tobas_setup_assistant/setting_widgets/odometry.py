@@ -9,8 +9,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
-
 from .base_setting import BaseSettingWidget
 from ..common import *
 from ..parameter_getters import *
@@ -132,7 +130,7 @@ class OdometryWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.angvel_uniform_noise_scale)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
     @overrides

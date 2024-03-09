@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay
 from tobas_msgs.msg import Pwm, PwmArray
 from tobas_msgs.srv import SetupPwm, SetupPwmResponse
 
@@ -52,7 +52,7 @@ class PwmPublisherWidget(MainWidget):
         self._minimum_button.setFixedHeight(BUTTON_HEIGHT)
         rows.addWidget(self._minimum_button)
 
-        add_spacer(rows)
+        rows.addStretch()
 
         self._pwm_pub = rospy.Publisher("command/pwm", PwmArray, queue_size=1)
 

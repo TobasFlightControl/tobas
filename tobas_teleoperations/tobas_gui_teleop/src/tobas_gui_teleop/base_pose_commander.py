@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.geometry import euler_from_matrix
-from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -123,7 +123,7 @@ class BasePoseCommander(MainWidget):
         rows.addWidget(self._home_button)
 
         # スペーサー
-        add_spacer(rows)
+        rows.addStretch()
 
         # 最初はバーを無効化
         self._cmd_x.setEnabled(False)

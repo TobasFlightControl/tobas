@@ -9,8 +9,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
-
 from ...parameter_getters import *
 from ...common import *
 from ..base_setting import BaseSettingWidget
@@ -45,7 +43,7 @@ class PropulsionSystemWidget(BaseSettingWidget):
         self.selected = SelectedLinksWidget(self._main)
         self._rows.addWidget(self.selected)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
     @overrides
     def define_connections(self) -> None:

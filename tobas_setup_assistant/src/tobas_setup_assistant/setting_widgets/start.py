@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer, add_center_button
+from tobas_rqt_tools.widgets import add_center_button
 from tobas_rqt_tools.messages import q_error
 from tobas_rqt_tools.roslaunch import create_launcher
 
@@ -46,7 +46,7 @@ class StartWidget(BaseSettingWidget):
         self._urdf_builder_launcher = URDFBuilderLaunchder(main)
         self._rows.addWidget(self._urdf_builder_launcher)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
     @overrides
     def define_connections(self) -> None:

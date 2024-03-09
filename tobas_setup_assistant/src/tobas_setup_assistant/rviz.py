@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from tobas_rqt_tools.widgets import add_spacer, create_rviz_frame
+from tobas_rqt_tools.widgets import create_rviz_frame
 
 import os.path as osp
 import rospkg
@@ -58,7 +58,7 @@ class RvizWidget(QWidget):
         self.setLayout(rows)
         rows.addWidget(self._frame)
         rows.addLayout(cols)
-        add_spacer(cols)
+        cols.addStretch()
         cols.addWidget(self._visual_box)
         cols.addWidget(self._collision_box)
 
