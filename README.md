@@ -72,11 +72,12 @@ $ getent group dialout  # dialoutグループのメンバーを確認
 $ id pi                 # piが所属するグループを確認
 ```
 
-### ラズパイをネットワークにつないだままアクセスポイント化
+### ラズパイをネットワークにつないだままアクセスポイント&ルーター化
 
 #### 手順
 
-[Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
+1. [Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
+2. [Raspberry Pi WiFi アクセスポイント&ルーター化](https://www.mikan-tech.net/entry/raspi-ap-sta-router)
 
 #### メモ
 
