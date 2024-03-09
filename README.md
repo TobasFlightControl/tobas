@@ -10,7 +10,7 @@ cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zd
 `/boot/config.txt`に以下を追記:
 
 ```txt
-over_voltage=6    # -16～8の整数,　default: 0
+over_voltage=6    # -16～8の整数, default: 0
 arm_freq=2000     # 最大周波数MHz, default: 1200
 arm_freq_min=2000 # 最小周波数MHz, default: 600
 gpu_freq=750      # GPU周波数MHz, default: 500
