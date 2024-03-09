@@ -24,6 +24,7 @@
 	<exec_depend>tobas_common_actions</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
+	<exec_depend>tobas_fkie_master</exec_depend>
 	<exec_depend>tobas_gazebo</exec_depend>
 	<exec_depend>tobas_gazebo_plugins</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>
