@@ -24,7 +24,8 @@ EscCalibration::EscCalibration()
   for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
     tobas_real::setupRCOutput(pwm_, channel);
 
-  adc_.initialize();
+  if (adc_.initialize() < 0)
+    throw runtime_error("Failed to initialize ADC driver.");
 }
 
 void EscCalibration::run()

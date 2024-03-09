@@ -2,5 +2,6 @@
 
   <node pkg="tobas_calibration_ros" type="accel_calibration_node" name="accel_calibration" output="screen" required="true"/>
   <node pkg="tobas_calibration_ros" type="mag_calibration_node" name="mag_calibration" output="screen" required="true"/>
+  <node pkg="tobas_calibration_ros" type="adc_calibration_node" name="adc_calibration" output="screen" required="true"/>
 
 </launch>

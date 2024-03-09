@@ -11,7 +11,8 @@ namespace tobas_calibration
 {
 AdcCalibrator::AdcCalibrator()
 {
-  adc_.initialize();
+  if (adc_.initialize() < 0)
+    throw runtime_error("Failed to initialize ADC driver.");
 }
 
 void AdcCalibrator::run()
@@ -48,8 +49,8 @@ void AdcCalibrator::run()
   }
 
   // 係数を計算
-  const double a2_mean = static_cast<double>(a2_sum) / kDataCount;
-  const double adc_coef = voltage / a2_mean * 1e+3;
+  const auto a2_mean = static_cast<double>(a2_sum) / kDataCount;
+  const auto adc_coef = voltage / a2_mean * 1e+3;
   if (kValidAdcCoefMin <= adc_coef && adc_coef <= kValidAdcCoefMax)
     cout << "ADC coefficient: " << adc_coef << endl;
   else
