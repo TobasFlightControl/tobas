@@ -15,15 +15,15 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.widgets import add_spacer, create_rviz_frame
 from tobas_rqt_tools.messages import *
 from tobas_calibration_msgs.srv import (
-    StartMagCalibration,
-    StartMagCalibrationRequest,
-    StartMagCalibrationResponse,
-    FinishMagCalibration,
-    FinishMagCalibrationRequest,
-    FinishMagCalibrationResponse,
-    CancelMagCalibration,
-    CancelMagCalibrationRequest,
-    CancelMagCalibrationResponse,
+    MagCalibrationStart,
+    MagCalibrationStartRequest,
+    MagCalibrationStartResponse,
+    MagCalibrationFinish,
+    MagCalibrationFinishRequest,
+    MagCalibrationFinishResponse,
+    MagCalibrationCancel,
+    MagCalibrationCancelRequest,
+    MagCalibrationCancelResponse,
 )
 
 from ....common import *
@@ -72,9 +72,9 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
         add_spacer(self._rows)
 
-        self._start_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/start", StartMagCalibration)
-        self._finish_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/finish", FinishMagCalibration)
-        self._cancel_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/cancel", CancelMagCalibration)
+        self._start_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/start", MagCalibrationStart)
+        self._finish_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/finish", MagCalibrationFinish)
+        self._cancel_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/cancel", MagCalibrationCancel)
 
     @override
     def define_connections(self) -> None:
@@ -90,8 +90,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = StartMagCalibrationRequest()
-        res: StartMagCalibrationResponse = self._start_mag_calib_sc.call(req)
+        req = MagCalibrationStartRequest()
+        res: MagCalibrationStartResponse = self._start_mag_calib_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)
@@ -111,8 +111,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = FinishMagCalibrationRequest()
-        res: FinishMagCalibrationResponse = self._finish_mag_calib_sc.call(req)
+        req = MagCalibrationFinishRequest()
+        res: MagCalibrationFinishResponse = self._finish_mag_calib_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)
@@ -132,8 +132,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = CancelMagCalibrationRequest()
-        res: CancelMagCalibrationResponse = self._cancel_mag_calib_sc.call(req)
+        req = MagCalibrationCancelRequest()
+        res: MagCalibrationCancelResponse = self._cancel_mag_calib_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)
