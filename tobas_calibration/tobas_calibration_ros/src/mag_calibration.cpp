@@ -64,13 +64,7 @@ bool MagCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType::Res
     return true;
   }
 
-  if (collect_data_timer_.hasStarted())
-  {
-    res.success = false;
-    res.message = "Data collecting timer is already running.";
-    return true;
-  }
-
+  // 既にデータ収集が始まっている場合も再スタートする
   mag_data_.clear();
   collect_data_timer_.start();
 
@@ -226,13 +220,7 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
 
 bool MagCalibrationRos::cancelServiceCb(CancelSrvType::Request&, CancelSrvType::Response& res)
 {
-  if (!collect_data_timer_.hasStarted())
-  {
-    res.success = false;
-    res.message = "Data collecting timer is not running.";
-    return true;
-  }
-
+  // データ収集が始まっていない場合もエラーを吐かずに初期化する
   mag_data_.clear();
   collect_data_timer_.stop();
 

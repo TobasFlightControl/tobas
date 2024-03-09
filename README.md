@@ -86,9 +86,9 @@ $ id pi                 # piが所属するグループを確認
 
 ### Tobas のオート起動のための設定
 
-- `/etc/systemd/system/tobas_real.service`にコマンドを書く
+- `/etc/systemd/system/tobas_xxx.service`にコマンドを書く
   - ExecStart 内でシェルスクリプトを実行して環境変数を設定しても元のシェルには影響しないことに注意
-- 環境変数を`/etc/tobas/tobas.env`にまとめる
+- 環境変数や共通のシェルスクリプトを`/etc/tobas/`以下にまとめる
 
 ### 外部からパスワード無しで特定のコマンドを実行できるようにする
 

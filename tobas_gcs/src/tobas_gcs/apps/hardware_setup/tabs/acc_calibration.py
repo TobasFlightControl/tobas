@@ -12,9 +12,9 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import add_spacer
 from tobas_rqt_tools.messages import *
-from tobas_calibration.srv import AccelCalibration, AccelCalibrationRequest, AccelCalibrationResponse
+from tobas_calibration_msgs.srv import AccelCalibration, AccelCalibrationRequest, AccelCalibrationResponse
 
-from ....common import Description
+from ....common import *
 from .base import BaseHardwareSetupWidget
 
 
@@ -25,7 +25,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__(main)
 
-        instruction = Description('Press "Start" button with the flight controller\'s TOP surface facing up.')
+        instruction = Description('Press "Start" button with the flight controller\'s TOP surface facing up.\n\n')
         self._rows.addWidget(instruction)
 
         self._start_button = QPushButton("Start")
@@ -47,14 +47,14 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         try:
             self._accel_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
-            q_error(self, "Failed to connect to the accel calibration server.")
+            q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = AccelCalibrationRequest()
-        res: AccelCalibrationResponse = self._accel_calib_sc(req)
+        res: AccelCalibrationResponse = self._accel_calib_sc.call(req)
 
         if not res.success:
-            q_error(self, f"Accel calibration failed\n\n{res.message}")
+            q_error(self, f"Accel calibration failed:\n\n{res.message}")
             return
 
         q_info(self._main, "Accel calibration finished.")

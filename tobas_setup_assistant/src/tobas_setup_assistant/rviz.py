@@ -4,11 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from tobas_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer, create_rviz_frame
 
 import os.path as osp
 import rospkg
-from rviz import bindings as rviz
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -27,24 +26,10 @@ class RvizWidget(QWidget):
 
         self._highlighted_link = ""
 
-        # Setup frame
-        # cf. RViz Python Tutorial: https://docs.ros.org/en/indigo/api/rviz_python_tutorial/html/
-        reader = rviz.YamlConfigReader()
-        config = rviz.Config()
+        # Create Rviz frame widget
         pkg_path = rospkg.RosPack().get_path(PKG_NAME)
         rviz_config_path = osp.join(pkg_path, "config/setup_assistant.rviz")
-        reader.readFile(config, rviz_config_path)
-
-        # Setup Visualization Frame
-        # https://docs.ros.org/en/jade/api/rviz/html/c++/visualization__frame_8h_source.html
-        self._frame = rviz.VisualizationFrame()
-        self._frame.setSplashPath("")
-        self._frame.initialize()
-        self._frame.load(config)
-        self._frame.setMenuBar(None)
-        self._frame.setStatusBar(None)
-        self._frame.setHideButtonVisibility(False)
-        self._frame.setStyleSheet("QSizeGrip { width: 0px; height: 0px; }")  # Remove SG
+        self._frame = create_rviz_frame(rviz_config_path)
 
         # Setup robot_model_display
         manager = self._frame.getManager()

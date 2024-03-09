@@ -4,14 +4,29 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+import os.path as osp
+import rospy
+import rospkg
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
+from tobas_rqt_tools.widgets import add_spacer, create_rviz_frame
+from tobas_rqt_tools.messages import *
+from tobas_calibration_msgs.srv import (
+    StartMagCalibration,
+    StartMagCalibrationRequest,
+    StartMagCalibrationResponse,
+    FinishMagCalibration,
+    FinishMagCalibrationRequest,
+    FinishMagCalibrationResponse,
+    CancelMagCalibration,
+    CancelMagCalibrationRequest,
+    CancelMagCalibrationResponse,
+)
 
-from ....common import Description
+from ....common import *
 from .base import BaseHardwareSetupWidget
 
 
@@ -31,8 +46,101 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         )
         self._rows.addWidget(instruction)
 
+        cols = QHBoxLayout()
+        self._rows.addLayout(cols)
+
+        self._start_button = QPushButton("Start")
+        self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        cols.addWidget(self._start_button)
+
+        self._finish_button = QPushButton("Finish")
+        self._finish_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._finish_button.setEnabled(False)
+        cols.addWidget(self._finish_button)
+
+        self._cancel_button = QPushButton("Cancel")
+        self._cancel_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._cancel_button.setEnabled(False)
+        cols.addWidget(self._cancel_button)
+
+        add_spacer(cols)
+
+        pkg_path = rospkg.RosPack().get_path(PKG_NAME)
+        rviz_config_path = osp.join(pkg_path, "config/mag_calibration.rviz")
+        self._rviz_frame = create_rviz_frame(rviz_config_path)
+        self._rows.addWidget(self._rviz_frame)
+
         add_spacer(self._rows)
+
+        self._start_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/start", StartMagCalibration)
+        self._finish_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/finish", FinishMagCalibration)
+        self._cancel_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/cancel", CancelMagCalibration)
 
     @override
     def define_connections(self) -> None:
-        pass  # TODO
+        self._start_button.clicked.connect(self._on_start_button_clicked)
+        self._finish_button.clicked.connect(self._on_finish_button_clicked)
+        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
+
+    @pyqtSlot()
+    def _on_start_button_clicked(self) -> None:
+        try:
+            self._start_mag_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+        except rospy.ROSException:
+            q_error(self, "Failed to connect to the calibration server.")
+            return
+
+        req = StartMagCalibrationRequest()
+        res: StartMagCalibrationResponse = self._start_mag_calib_sc.call(req)
+
+        if not res.success:
+            q_error(self, res.message)
+            return
+
+        self._start_button.setEnabled(False)
+        self._finish_button.setEnabled(True)
+        self._cancel_button.setEnabled(True)
+
+        q_info(self._main, "Magnet calibration started.")
+
+    @pyqtSlot()
+    def _on_finish_button_clicked(self) -> None:
+        try:
+            self._finish_mag_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+        except rospy.ROSException:
+            q_error(self, "Failed to connect to the calibration server.")
+            return
+
+        req = FinishMagCalibrationRequest()
+        res: FinishMagCalibrationResponse = self._finish_mag_calib_sc.call(req)
+
+        if not res.success:
+            q_error(self, res.message)
+            return
+
+        self._start_button.setEnabled(True)
+        self._finish_button.setEnabled(False)
+        self._cancel_button.setEnabled(False)
+
+        q_info(self._main, "Magnet calibration finished.")
+
+    @pyqtSlot()
+    def _on_cancel_button_clicked(self) -> None:
+        try:
+            self._cancel_mag_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+        except rospy.ROSException:
+            q_error(self, "Failed to connect to the calibration server.")
+            return
+
+        req = CancelMagCalibrationRequest()
+        res: CancelMagCalibrationResponse = self._cancel_mag_calib_sc.call(req)
+
+        if not res.success:
+            q_error(self, res.message)
+            return
+
+        self._start_button.setEnabled(True)
+        self._finish_button.setEnabled(False)
+        self._cancel_button.setEnabled(False)
+
+        q_info(self._main, "Magnet calibration is cancelled.")
