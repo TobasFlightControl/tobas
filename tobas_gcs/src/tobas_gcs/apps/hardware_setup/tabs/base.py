@@ -37,8 +37,7 @@ class BaseHardwareSetupWidget(ScrollArea):
         title.setAlignment(Qt.AlignTop)
         self._rows.addWidget(title)
 
-        spacer = QSpacerItem(0, 50)
-        self._rows.addItem(spacer)
+        self._rows.addSpacing(50)
 
     @abstractmethod
     def define_connections(self) -> None:

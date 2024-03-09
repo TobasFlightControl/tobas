@@ -36,7 +36,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
 
         add_spacer(self._rows)
 
-        self._accel_calib_sc = rospy.ServiceProxy("accel_calibration", AccelCalibration)
+        self._accel_calib_sc = rospy.ServiceProxy("/accel_calibration", AccelCalibration)
 
     @override
     def define_connections(self) -> None:
@@ -54,7 +54,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         res: AccelCalibrationResponse = self._accel_calib_sc.call(req)
 
         if not res.success:
-            q_error(self, f"Accel calibration failed:\n\n{res.message}")
+            q_error(self, res.message)
             return
 
         q_info(self._main, "Accel calibration finished.")

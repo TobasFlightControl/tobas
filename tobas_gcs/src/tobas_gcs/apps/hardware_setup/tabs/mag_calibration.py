@@ -63,14 +63,14 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         self._cancel_button.setEnabled(False)
         cols.addWidget(self._cancel_button)
 
-        add_spacer(cols)
+        cols.addStretch()
 
         pkg_path = rospkg.RosPack().get_path(PKG_NAME)
         rviz_config_path = osp.join(pkg_path, "config/mag_calibration.rviz")
         self._rviz_frame = create_rviz_frame(rviz_config_path)
         self._rows.addWidget(self._rviz_frame)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
         self._start_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/start", MagCalibrationStart)
         self._finish_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/finish", MagCalibrationFinish)
