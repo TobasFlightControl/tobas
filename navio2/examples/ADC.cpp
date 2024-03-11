@@ -15,10 +15,10 @@ int main()
 
   ADC_Navio2 adc;
   adc.initialize();
-  std::vector<float> results(adc.channelCount(), 0.);
+  std::vector<float> results(adc.kChannelCount, 0.);
   while (true)
   {
-    for (size_t i = 0; i < adc.channelCount(); ++i)
+    for (size_t i = 0; i < adc.kChannelCount; ++i)
     {
       results[i] = adc.read(i);
       if (results[i] == READ_FAILED)

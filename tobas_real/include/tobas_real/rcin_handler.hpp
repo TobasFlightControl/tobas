@@ -5,7 +5,7 @@
 #include <Navio2/RCInput_Navio2.h>
 
 #include <tobas_std_tools/range.hpp>
-
+#include <tobas_tools/constants.hpp>
 #include <tobas_tools/node.hpp>
 
 namespace tobas_real
@@ -27,12 +27,12 @@ private:
   RCInput_Navio2 rcin_;
 
   // Config
-  tobas_std::Range<double> roll_range_;
-  tobas_std::Range<double> pitch_range_;
-  tobas_std::Range<double> yaw_range_;
-  tobas_std::Range<double> thrust_range_;
-  size_t num_modes_;
-  std::vector<double> modes_;
+  tobas_std::Range<int> roll_range_;
+  tobas_std::Range<int> pitch_range_;
+  tobas_std::Range<int> yaw_range_;
+  tobas_std::Range<int> thrust_range_;
+  std::array<int, tobas::kNumFlightModes> modes_;
+  double mode_auto_, mode_position_, mode_sport_;
   double estop_on_, estop_off_;
   double gpsw_on_, gpsw_off_;
 

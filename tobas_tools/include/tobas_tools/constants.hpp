@@ -81,8 +81,14 @@ static constexpr char kPreArmCheckAction[] = "pre_arm_check";
 static constexpr char kWorldFrame[] = "world";
 static constexpr char kNavioFrame[] = "navio";
 
-static constexpr char kUnknown[] = "unknown";
+// Flight Mode
+static constexpr size_t kNumFlightModes = 3;
+static constexpr size_t kFlightModeAuto = 0;
+static constexpr size_t kFlightModePosition = 1;
+static constexpr size_t kFlightModeSport = 2;
 
+// Others
+static constexpr char kUnknown[] = "unknown";
 static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
 static constexpr double kCommandLevelErrorPeriod = 1.;   // [s]
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
