@@ -261,7 +261,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         # Mode
         bar_grid.addWidget(QLabel(f"Mode (CH{RCIN_MODE + 1})"), 0, 0)
         self._mode_range = HRangeWidget(
-            self.PWM_MIN, self.PWM_MAX, "Program" + " " * 20 + "Stabilize" + " " * 20 + "Acrobat"
+            self.PWM_MIN, self.PWM_MAX, "Program" + " " * 15 + "Stabilize" + " " * 15 + "Acrobat"
         )
         self._mode_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._mode_range, 0, 1)
