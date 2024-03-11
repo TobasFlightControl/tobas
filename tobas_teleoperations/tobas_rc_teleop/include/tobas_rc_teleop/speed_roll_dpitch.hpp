@@ -1,7 +1,5 @@
 #pragma once
 
-#include <tobas_tools/rotor_axis_extractor.hpp>
-
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
@@ -25,8 +23,7 @@ public:
   void update(
     const tobas_msgs::RCInput& rcin,
     const tobas_msgs::Odometry& odom,
-    const double& battery_voltage,
-    const tobas_std::Range<double>& dead_zone) override;
+    const double& battery_voltage) override;
 
 private:
   // rosparams

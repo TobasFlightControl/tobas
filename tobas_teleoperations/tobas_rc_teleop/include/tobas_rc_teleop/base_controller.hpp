@@ -20,10 +20,10 @@ public:
   virtual void update(
     const tobas_msgs::RCInput& rcin,
     const tobas_msgs::Odometry& odom,
-    const double& battery_voltage,
-    const tobas_std::Range<double>& dead_zone) = 0;
+    const double& battery_voltage) = 0;
 
 protected:
   const tobas::Drone& drone_;
+  const tobas_std::Range<double> dead_zone_;
 };
 }  // namespace tobas_rc_teleop

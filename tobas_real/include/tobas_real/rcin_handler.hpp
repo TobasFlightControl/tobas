@@ -32,7 +32,7 @@ private:
   tobas_std::Range<int> yaw_range_;
   tobas_std::Range<int> thrust_range_;
   std::array<int, tobas::kNumFlightModes> modes_;
-  double mode_auto_, mode_position_, mode_sport_;
+  double mode_auto_, mode_position_, mode__;
   double estop_on_, estop_off_;
   double gpsw_on_, gpsw_off_;
 

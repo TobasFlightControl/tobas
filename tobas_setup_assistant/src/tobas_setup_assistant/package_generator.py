@@ -99,9 +99,6 @@ class PackageGenerator(QObject):
         if not self._main.settings.odometry.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.odometry)
             return False
-        if not self._main.settings.rc_transmitter.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.rc_transmitter)
-            return False
         if not self._main.settings.controller.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
@@ -526,13 +523,11 @@ class PackageGenerator(QObject):
             yaml.dump(items, f)
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
-        rc_transmitter = self._main.settings.rc_transmitter
         controller = self._main.settings.controller
 
         items = dict()
         items["rc_teleop"] = {
-            "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
-            "mode_names": controller.flight_mode_names(),
+            # TODO
         }
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")

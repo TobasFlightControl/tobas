@@ -260,7 +260,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         # Mode
         bar_grid.addWidget(QLabel(f"Mode (CH{RCIN_MODE + 1})"), 0, 0)
-        self._mode_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX, "Auto" + " " * 20 + "Position" + " " * 20 + "Sport")
+        self._mode_range = HRangeWidget(
+            self.PWM_MIN, self.PWM_MAX, "Program" + " " * 20 + "Stabilize" + " " * 20 + "Acrobat"
+        )
         self._mode_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._mode_range, 0, 1)
 
@@ -351,9 +353,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         req.yaw_right = self._yaw_range.get_upper()
         req.thrust_down = self._thrust_range.get_upper()
         req.thrust_up = self._thrust_range.get_lower()
-        req.mode_auto = self._mode_range.get_lower()
-        req.mode_position = self._mode_range.get_middle()
-        req.mode_sport = self._mode_range.get_upper()
+        req.mode_program = self._mode_range.get_lower()
+        req.mode_stabilize = self._mode_range.get_middle()
+        req.mode_acrobat = self._mode_range.get_upper()
         req.estop_on = self._estop_range.get_lower()
         req.estop_off = self._estop_range.get_upper()
         req.gpsw_on = self._gpsw_range.get_lower()

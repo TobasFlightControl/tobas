@@ -36,8 +36,7 @@ void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 void PositionYawController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry& odom,
-  const double&,
-  const Range<double>& dead_zone)
+  const double&)
 {
   const auto cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
@@ -45,12 +44,12 @@ void PositionYawController::update(
 
   // 位置とヨー角の変化率を計算
   vel_.x(
-    dead_zone.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
+    dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
   vel_.y(
-    dead_zone.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
+    dead_zone_.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
   vel_.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));  // スラストレバーに遊びはなし
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 一度でも上昇コマンドが入力されたら位置制御を行う
   if (is_up_commanded_)

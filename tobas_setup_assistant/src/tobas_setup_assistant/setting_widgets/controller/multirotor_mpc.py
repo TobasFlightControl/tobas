@@ -42,7 +42,7 @@ class MultirotorMpc(BaseController):
 
     @overrides
     def define_connections(self) -> None:
-        super().define_connections()
+        pass
 
     @overrides
     def is_applicable(self) -> bool:

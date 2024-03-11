@@ -273,7 +273,6 @@ class ArduCopter(BaseController):
 
     @overrides
     def define_connections(self) -> None:
-        super().define_connections()
         self._channels.define_connections()
         self._frame.index_changed.connect(self._on_frame_idx_changed)
         self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)

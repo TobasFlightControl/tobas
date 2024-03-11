@@ -82,10 +82,10 @@ static constexpr char kWorldFrame[] = "world";
 static constexpr char kNavioFrame[] = "navio";
 
 // Flight Mode
-static constexpr size_t kNumFlightModes = 3;
-static constexpr size_t kFlightModeAuto = 0;
-static constexpr size_t kFlightModePosition = 1;
-static constexpr size_t kFlightModeSport = 2;
+static constexpr size_t kFlightModeProgram = 0;
+static constexpr size_t kFlightModeStabilize = kFlightModeProgram + 1;
+static constexpr size_t kFlightModeAcrobat = kFlightModeStabilize + 1;
+static constexpr size_t kNumFlightModes = kFlightModeAcrobat + 1;
 
 // Others
 static constexpr char kUnknown[] = "unknown";

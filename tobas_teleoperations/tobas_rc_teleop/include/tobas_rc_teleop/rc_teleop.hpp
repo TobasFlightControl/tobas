@@ -1,8 +1,7 @@
 #pragma once
 
-#include <memory>
-
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
@@ -36,11 +35,7 @@ private:
   tobas::Drone drone_;
 
   // rosparams
-  double dead_zone_rate_;
-  std::vector<std::string> mode_names_;
-
-  // Constants
-  tobas_std::Range<double> dead_zone_;
+  std::array<std::string, tobas::kNumFlightModes> modes_;
 
   // Mutables
   uint8_t last_mode_;
@@ -48,7 +43,7 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
 
   // Controllers
-  std::vector<std::unique_ptr<BaseController>> controllers_;
+  std::array<std::unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
 
   // PubSub
   ros::Subscriber odom_sub_;

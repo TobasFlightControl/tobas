@@ -88,9 +88,6 @@ class ControllerWidget(BaseSettingWidget):
     def command_msgs(self) -> FrozenSet[str]:
         return self._selected().COMMAND_MSGS
 
-    def flight_mode_names(self) -> List[str]:
-        return self._selected().flight_mode_names()
-
     def parameter_dict(self) -> dict:
         return self._selected().parameter_dict()
 

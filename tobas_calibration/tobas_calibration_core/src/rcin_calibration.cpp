@@ -21,7 +21,7 @@ void RCInputCalibrator::run()
   double pitch_up, pitch_down;
   double yaw_left, yaw_right;
   double thrust_up, thrust_down;
-  double mode_auto, mode_position, mode_sport;
+  double mode_program, mode_stabilize, mode_acrobat;
   double estop_up, estop_down;
   double gpsw_up, gpsw_down;
 
@@ -148,28 +148,28 @@ void RCInputCalibrator::run()
   // Mode
   while (true)
   {
-    // Auto
+    // Program
     cout << "Please set the Mode (CH" << tobas_real::kRcChannelMode + 1
-         << ") to Auto and press Enter:";
+         << ") to Program and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    mode_auto = readRCInput(tobas_real::kRcChannelMode);
+    mode_program = readRCInput(tobas_real::kRcChannelMode);
 
-    // Position
+    // Stabilize
     cout << "Please set the Mode (CH" << tobas_real::kRcChannelMode + 1
-         << ") to Position and press Enter:";
+         << ") to Stabilize and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    mode_position = readRCInput(tobas_real::kRcChannelMode);
+    mode_stabilize = readRCInput(tobas_real::kRcChannelMode);
 
-    // Sport
+    // Acrobat
     cout << "Please set the Mode (CH" << tobas_real::kRcChannelMode + 1
-         << ") to Sport and press Enter:";
+         << ") to Acrobat and press Enter:";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    mode_sport = readRCInput(tobas_real::kRcChannelMode);
+    mode_acrobat = readRCInput(tobas_real::kRcChannelMode);
 
     if (
-      abs(mode_auto - mode_position) < kPeriodDiffThreshold
-      || abs(mode_position - mode_sport) < kPeriodDiffThreshold
-      || abs(mode_sport - mode_auto) < kPeriodDiffThreshold)
+      abs(mode_program - mode_stabilize) < kPeriodDiffThreshold
+      || abs(mode_stabilize - mode_acrobat) < kPeriodDiffThreshold
+      || abs(mode_acrobat - mode_program) < kPeriodDiffThreshold)
     {
       TOBAS_ERROR("The signals on Mode channel are too close. Please retry.");
       continue;
@@ -213,9 +213,9 @@ void RCInputCalibrator::run()
   pt.put(tobas_real::kConfigKey_RcYawRight, yaw_right);
   pt.put(tobas_real::kConfigKey_RcThrustUp, thrust_up);
   pt.put(tobas_real::kConfigKey_RcThrustDown, thrust_down);
-  pt.put(tobas_real::kConfigKey_RcModeAuto, mode_auto);
-  pt.put(tobas_real::kConfigKey_RcModePosition, mode_position);
-  pt.put(tobas_real::kConfigKey_RcModeSport, mode_sport);
+  pt.put(tobas_real::kConfigKey_RcModeProgram, mode_program);
+  pt.put(tobas_real::kConfigKey_RcModeStabilize, mode_stabilize);
+  pt.put(tobas_real::kConfigKey_RcModeAcrobat, mode_acrobat);
   pt.put(tobas_real::kConfigKey_RcEStopOn, estop_up);
   pt.put(tobas_real::kConfigKey_RcEStopOff, estop_down);
   pt.put(tobas_real::kConfigKey_RcGPSwOn, gpsw_up);

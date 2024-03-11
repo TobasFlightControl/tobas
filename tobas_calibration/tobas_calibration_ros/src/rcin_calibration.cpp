@@ -83,7 +83,7 @@ bool RCInputCalibrationRos::finishServiceCb(
     res.message = "The signals on Thrust channel are too close.";
     return true;
   }
-  if (abs(req.mode_auto - req.mode_sport) < kMinSignalRange)
+  if (abs(req.mode_program - req.mode_acrobat) < kMinSignalRange)
   {
     res.message = "The signals on Mode channel are too close.";
     return true;
@@ -109,9 +109,9 @@ bool RCInputCalibrationRos::finishServiceCb(
   pt.put(tobas_real::kConfigKey_RcYawRight, req.yaw_right);
   pt.put(tobas_real::kConfigKey_RcThrustUp, req.thrust_up);
   pt.put(tobas_real::kConfigKey_RcThrustDown, req.thrust_down);
-  pt.put(tobas_real::kConfigKey_RcModeAuto, req.mode_auto);
-  pt.put(tobas_real::kConfigKey_RcModePosition, req.mode_position);
-  pt.put(tobas_real::kConfigKey_RcModeSport, req.mode_sport);
+  pt.put(tobas_real::kConfigKey_RcModeProgram, req.mode_program);
+  pt.put(tobas_real::kConfigKey_RcModeStabilize, req.mode_stabilize);
+  pt.put(tobas_real::kConfigKey_RcModeAcrobat, req.mode_acrobat);
   pt.put(tobas_real::kConfigKey_RcEStopOn, req.estop_on);
   pt.put(tobas_real::kConfigKey_RcEStopOff, req.estop_off);
   pt.put(tobas_real::kConfigKey_RcGPSwOn, req.gpsw_on);

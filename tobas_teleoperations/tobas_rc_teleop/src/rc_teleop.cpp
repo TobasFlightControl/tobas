@@ -16,6 +16,7 @@
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
+#include "../include/tobas_rc_teleop/program_mode.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "../include/tobas_rc_teleop/position_yaw.hpp"
 #include "../include/tobas_rc_teleop/velocity_yaw.hpp"
@@ -35,29 +36,29 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   getRosParams();
   drone_.loadFromParam(nh_);
 
-  dead_zone_.lower = -dead_zone_rate_ / 2;
-  dead_zone_.upper = dead_zone_rate_ / 2;
+  // プログラムモードのダミーコントローラを設定
+  controllers_[tobas::kFlightModeProgram] = make_unique<ProgramModeController>(drone_);
 
-  for (const auto& mode_name : mode_names_)
+  // その他の飛行モードのコントローラを設定
+  for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
-    if (mode_name == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
-      controllers_.push_back(make_unique<PosVelAccYawController>(drone_));
-    else if (mode_name == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
-      controllers_.push_back(make_unique<PositionYawController>(drone_));
-    else if (mode_name == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
-      controllers_.push_back(make_unique<VelocityYawController>(drone_));
-    else if (mode_name == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
-      controllers_.push_back(make_unique<RollPitchYawThrustController>(drone_));
-    else if (mode_name == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
-      controllers_.push_back(make_unique<PoseTwistAccelController>(drone_));
-    else if (mode_name == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
-      controllers_.push_back(make_unique<SpeedRollDeltaPitchController>(drone_));
+    if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
+      controllers_[i] = make_unique<PosVelAccYawController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
+      controllers_[i] = make_unique<PositionYawController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
+      controllers_[i] = make_unique<VelocityYawController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
+      controllers_[i] = make_unique<RollPitchYawThrustController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
+      controllers_[i] = make_unique<PoseTwistAccelController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
+      controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
-      ROS_EXIT_NAMED(nh_, name_, "Invalid flight mode: " + mode_name);
-  }
+      ROS_EXIT_NAMED(nh_, name_, "Invalid flight mode: " + modes_[i]);
 
-  for (const auto& ctrl : controllers_)
-    ctrl->initialize(nh_, pnh_);
+    controllers_[i]->initialize(nh_, pnh_);
+  }
 
   registerPublishers();
   registerSubscribers();
@@ -67,12 +68,8 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
 
 void RCTeleop::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "dead_zone_rate", dead_zone_rate_, kDefaultDeadZoneRate, tobas_ros::NON_NEGATIVE);
-  if (dead_zone_rate_ >= 1)
-    ROS_EXIT_NAMED(nh_, name_, "'dead_zone_rate' must be lower than 1.");
-
-  tobas_ros::getParam(pnh_, "mode_names", mode_names_);
+  tobas_ros::getParam(pnh_, "stabilize_mode", modes_[tobas::kFlightModeStabilize]);
+  tobas_ros::getParam(pnh_, "acrobat_mode", modes_[tobas::kFlightModeAcrobat]);
 }
 
 void RCTeleop::registerPublishers()
@@ -195,7 +192,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         break;
       }
 
-      controllers_[cur_mode]->update(*rcin, *odom_, battery_->voltage, dead_zone_);
+      controllers_[cur_mode]->update(*rcin, *odom_, battery_->voltage);
 
       break;
     }

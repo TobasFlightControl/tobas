@@ -20,8 +20,7 @@ public:
   void update(
     const tobas_msgs::RCInput& rcin,
     const tobas_msgs::Odometry& odom,
-    const double& battery_voltage,
-    const tobas_std::Range<double>& dead_zone) override;
+    const double& battery_voltage) override;
 
 private:
   tobas::RotorAxisExtractor z_rotors_;

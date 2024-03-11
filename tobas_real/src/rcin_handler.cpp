@@ -60,9 +60,9 @@ void RCInputHandler::readConfig()
   pt.get(kConfigKey_RcThrustDown, thrust_range_.lower);
   pt.get(kConfigKey_RcThrustUp, thrust_range_.upper);
 
-  pt.get(kConfigKey_RcModeAuto, modes_[tobas::kFlightModeAuto]);
-  pt.get(kConfigKey_RcModePosition, modes_[tobas::kFlightModePosition]);
-  pt.get(kConfigKey_RcModeSport, modes_[tobas::kFlightModeSport]);
+  pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram]);
+  pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize]);
+  pt.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat]);
 
   pt.get(kConfigKey_RcEStopOn, estop_on_);
   pt.get(kConfigKey_RcEStopOff, estop_off_);
