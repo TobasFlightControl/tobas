@@ -63,37 +63,37 @@ bool RCInputCalibrationRos::finishServiceCb(
   }
 
   // 各チャンネルの値の範囲をチェック
-  if (abs(req.roll_left - req.roll_right) > kMinSignalRange)
+  if (abs(req.roll_left - req.roll_right) < kMinSignalRange)
   {
     res.message = "The signals on Roll channel are too close.";
     return true;
   }
-  if (abs(req.pitch_up - req.pitch_down) > kMinSignalRange)
+  if (abs(req.pitch_up - req.pitch_down) < kMinSignalRange)
   {
     res.message = "The signals on Pitch channel are too close.";
     return true;
   }
-  if (abs(req.yaw_left - req.yaw_right) > kMinSignalRange)
+  if (abs(req.yaw_left - req.yaw_right) < kMinSignalRange)
   {
     res.message = "The signals on Yaw channel are too close.";
     return true;
   }
-  if (abs(req.thrust_up - req.thrust_down) > kMinSignalRange)
+  if (abs(req.thrust_up - req.thrust_down) < kMinSignalRange)
   {
     res.message = "The signals on Thrust channel are too close.";
     return true;
   }
-  if (abs(req.mode_auto - req.mode_sport) > kMinSignalRange)
+  if (abs(req.mode_auto - req.mode_sport) < kMinSignalRange)
   {
     res.message = "The signals on Mode channel are too close.";
     return true;
   }
-  if (abs(req.estop_on - req.estop_off) > kMinSignalRange)
+  if (abs(req.estop_on - req.estop_off) < kMinSignalRange)
   {
     res.message = "The signals on E-Stop channel are too close.";
     return true;
   }
-  if (abs(req.gpsw_on - req.gpsw_off) > kMinSignalRange)
+  if (abs(req.gpsw_on - req.gpsw_off) < kMinSignalRange)
   {
     res.message = "The signals on GPSw channel are too close.";
     return true;
