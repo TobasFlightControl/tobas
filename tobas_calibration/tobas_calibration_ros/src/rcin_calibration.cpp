@@ -42,7 +42,7 @@ void RCInputCalibrationRos::publishTimerCb(const ros::TimerEvent& event)
   rcin_pub_.publish(rcin_msg);
 }
 
-bool RCInputCalibrationRos::startServiceCb(StartSrvType::Request& req, StartSrvType::Response& res)
+bool RCInputCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType::Response& res)
 {
   publish_timer_.start();
 
@@ -123,9 +123,7 @@ bool RCInputCalibrationRos::finishServiceCb(
   return true;
 }
 
-bool RCInputCalibrationRos::cancelServiceCb(
-  CancelSrvType::Request& req,
-  CancelSrvType::Response& res)
+bool RCInputCalibrationRos::cancelServiceCb(CancelSrvType::Request&, CancelSrvType::Response& res)
 {
   publish_timer_.stop();
 
