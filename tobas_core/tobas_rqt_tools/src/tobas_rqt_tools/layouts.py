@@ -18,3 +18,14 @@ class FormLayout(QFormLayout):
         """指定した行に埋め込まれたウィジェットを取得する．"""
         item = self.itemAt(row, FormLayout.FieldRole)  # 2列目 (Field) を指定
         return item.widget()
+
+
+def create_fixed_width_vboxlayout(width: int, parent: QBoxLayout) -> QVBoxLayout:
+    widget = QWidget()
+    widget.setFixedWidth(width)
+    parent.addWidget(widget)
+
+    res = QVBoxLayout()
+    widget.setLayout(res)
+
+    return res

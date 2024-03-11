@@ -1,11 +1,10 @@
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 
 def remap(x: float, a: float, b: float, c: float, d: float) -> float:
     """xを[a, b]の範囲から[c, d]の範囲に投影する．"""
-    assert a <= b
-    assert c <= d
-
     if a == b:
         return (c + d) / 2
     else:
@@ -17,3 +16,11 @@ def block_signals_rec(obj: QObject, block: bool) -> None:
     obj.blockSignals(block)
     for child in obj.children():
         block_signals_rec(child, block)
+
+
+def place_center(widget: QWidget, rows: QVBoxLayout) -> None:
+    """ウィジェットをレイアウトの中央に配置する．"""
+    cols = QHBoxLayout()
+    cols.addWidget(widget)
+    cols.setAlignment(widget, Qt.AlignCenter)
+    rows.addLayout(cols)

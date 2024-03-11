@@ -57,7 +57,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         self._rows.addLayout(cols2)
 
         cols2.addWidget(QLabel("ADC Coefficient:"))
-        
+
         self._adc_coef = QLineEdit()
         self._adc_coef.setFixedWidth(self.WIDTH)
         self._adc_coef.setReadOnly(True)
@@ -84,8 +84,8 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
         req = AdcCalibrationRequest()
         req.voltage = self._voltage.value()
-        res: AdcCalibrationResponse = self._adc_calib_sc.call(req)
 
+        res: AdcCalibrationResponse = self._adc_calib_sc.call(req)
         if not res.success:
             q_error(self, res.message)
             return
