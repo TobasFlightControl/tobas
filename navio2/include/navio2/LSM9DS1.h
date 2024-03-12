@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./Common/SPIdev.h"
-#include "./Common/InertialSensor.h"
+#include "./SPIdev.h"
+#include "./InertialSensor.h"
 
 /**
  * @brief datasheet: https://www.st.com/resource/en/datasheet/lsm9ds1.pdf

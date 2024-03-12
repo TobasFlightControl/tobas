@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cassert>
 
-#include "../../include/Common/MPU9250.h"
+#include "../include/navio2/MPU9250.h"
 
 #define DEVICE "/dev/spidev0.1"
 #define G_SI 9.80665

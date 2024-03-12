@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <Common/MS5611.h>
-#include <Navio2/PWM.h>
+#include <navio2/MS5611.h>
+#include <navio2/PWM.h>
 
 #include <tobas_real/common.hpp>
 

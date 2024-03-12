@@ -1,8 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include <Common/MS5611.h>
-#include <Common/Util.h>
+#include <navio2/MS5611.h>
+#include <navio2/Util.h>
 
 int main()
 {

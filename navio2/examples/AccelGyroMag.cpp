@@ -1,9 +1,9 @@
 #include <memory>
 #include <string>
 
-#include <Common/Util.h>
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
+#include <navio2/Util.h>
+#include <navio2/MPU9250.h>
+#include <navio2/LSM9DS1.h>
 
 std::unique_ptr<InertialSensor> get_inertial_sensor(std::string sensor_name)
 {

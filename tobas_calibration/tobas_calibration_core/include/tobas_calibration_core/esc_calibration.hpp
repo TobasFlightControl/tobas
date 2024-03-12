@@ -2,8 +2,8 @@
 
 #include <unistd.h>
 
-#include <Navio2/PWM.h>
-#include <Navio2/ADC.h>
+#include <navio2/PWM.h>
+#include <navio2/ADC.h>
 
 namespace tobas_calibration
 {

@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
-#include <Navio2/RCInput.h>
+#include <navio2/RCInput.h>
 #include <tobas_real/common.hpp>
 
 #include <tobas_calibration_msgs/RCInputCalibration.h>

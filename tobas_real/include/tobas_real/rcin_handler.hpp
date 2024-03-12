@@ -2,8 +2,8 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Navio2/RCInput.h>
 
+#include <navio2/RCInput.h>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/node.hpp>

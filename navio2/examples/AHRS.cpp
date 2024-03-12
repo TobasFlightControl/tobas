@@ -7,9 +7,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#include <Common/Util.h>
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
+#include <navio2/Util.h>
+#include <navio2/MPU9250.h>
+#include <navio2/LSM9DS1.h>
 
 #include "./AHRS.hpp"
 

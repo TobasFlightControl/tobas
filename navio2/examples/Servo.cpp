@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <memory>
 
-#include <Common/Util.h>
-#include <Navio2/PWM.h>
+#include <navio2/Util.h>
+#include <navio2/PWM.h>
 
 #define SERVO_MIN 1250 /*uS*/
 #define SERVO_MAX 1750 /*uS*/

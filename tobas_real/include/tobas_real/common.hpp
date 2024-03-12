@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
-#include <Navio2/PWM.h>
+#include <navio2/MPU9250.h>
+#include <navio2/LSM9DS1.h>
+#include <navio2/PWM.h>
 
 namespace tobas_real
 {

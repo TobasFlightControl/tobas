@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 #include <vector>
-#include <Navio2/RCInput.h>
+#include <navio2/RCInput.h>
 
 namespace tobas_calibration
 {

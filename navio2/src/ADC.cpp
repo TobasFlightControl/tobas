@@ -5,8 +5,8 @@
 #include <fcntl.h>
 #include <err.h>
 
-#include "../../include/Common/Util.h"
-#include "../../include/Navio2/ADC.h"
+#include "../include/navio2/Util.h"
+#include "../include/navio2/ADC.h"
 
 #define ADC_SYSFS_PATH "/sys/kernel/rcio/adc"
 

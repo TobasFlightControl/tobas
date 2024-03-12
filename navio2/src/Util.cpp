@@ -7,9 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "../../include/Common/Util.h"
-
-#define SCRIPT_PATH "../../../check_apm.sh"
+#include "../include/navio2/Util.h"
 
 using namespace std;
 

@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <fcntl.h>
 
-#include "../../include/Common/SPIdev.h"
+#include "../include/navio2/SPIdev.h"
 
 using namespace std;
 

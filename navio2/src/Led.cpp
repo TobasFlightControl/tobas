@@ -1,4 +1,4 @@
-#include "../../include/Navio2/Led.h"
+#include "../include/navio2/Led.h"
 
 // Output is inverted
 #define OFF 1

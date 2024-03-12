@@ -3,8 +3,8 @@
 #include <vector>
 #include <unistd.h>
 
-#include <Common/Util.h>
-#include <Navio2/ADC.h>
+#include <navio2/Util.h>
+#include <navio2/ADC.h>
 
 #define READ_FAILED -1
 

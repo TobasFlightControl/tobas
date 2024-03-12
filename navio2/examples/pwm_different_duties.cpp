@@ -2,9 +2,8 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <Common/Util.h>
-#include <Navio2/PWM.h>
-#include <Navio2/PWM.h>
+#include <navio2/Util.h>
+#include <navio2/PWM.h>
 
 #define SERVO_RAIL_SIZE 14
 #define PWM_FREQUENCY 50    // [Hz]

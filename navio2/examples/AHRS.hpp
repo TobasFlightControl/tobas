@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdio.h>
 
-#include <Common/InertialSensor.h>
+#include <navio2/InertialSensor.h>
 
 class AHRS
 {

@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 
-#include <Navio2/ADC.h>
+#include <navio2/ADC.h>
 
 #include <tobas_calibration_msgs/AdcCalibration.h>
 

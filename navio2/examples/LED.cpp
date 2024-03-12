@@ -1,8 +1,8 @@
 #include <memory>
 #include <unistd.h>
 
-#include <Common/Util.h>
-#include <Navio2/Led.h>
+#include <navio2/Util.h>
+#include <navio2/Led.h>
 
 int main(int, char* argv[])
 {

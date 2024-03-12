@@ -3,8 +3,8 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <Common/Util.h>
-#include <Navio2/RCInput.h>
+#include <navio2/Util.h>
+#include <navio2/RCInput.h>
 
 #define READ_FAILED -1
 

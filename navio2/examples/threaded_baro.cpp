@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#include <Common/MS5611.h>
-#include <Common/Util.h>
+#include <navio2/MS5611.h>
+#include <navio2/Util.h>
 
 void* acquireBarometerData(void* barom)
 {

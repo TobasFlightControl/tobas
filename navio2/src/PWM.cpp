@@ -2,8 +2,8 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "../../include/Common/Util.h"
-#include "../../include/Navio2/PWM.h"
+#include "../include/navio2/Util.h"
+#include "../include/navio2/PWM.h"
 
 #define NON_ROOT_SLEEP 100000  // [us]
 

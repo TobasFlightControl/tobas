@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Common/gpio.h"
+#include "./gpio.h"
 
 enum class Colors
 {
