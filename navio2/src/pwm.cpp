@@ -57,4 +57,4 @@ bool PWM::setDutyCycle(const size_t& channel, const double& period_us)
   const auto period_ns = static_cast<int>(period_us * 1e+3);
   return write_file(path.c_str(), "%u", period_ns) >= 0;
 }
-}
+}  // namespace navio

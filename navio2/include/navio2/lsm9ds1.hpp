@@ -208,4 +208,4 @@ private:
   uint8_t response_[6];
   int16_t bit_data_[3];
 };
-}
+}  // namespace navio

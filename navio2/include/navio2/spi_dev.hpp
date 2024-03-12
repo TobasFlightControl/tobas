@@ -25,4 +25,4 @@ private:
   spi_ioc_transfer spi_transfer_;
   int spi_fd_;
 };
-}
+}  // namespace navio

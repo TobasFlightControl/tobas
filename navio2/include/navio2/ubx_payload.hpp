@@ -125,4 +125,4 @@ struct MonHw2Payload
 {
   // TODO
 };
-}
+}  // namespace navio

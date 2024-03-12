@@ -519,4 +519,4 @@ bool Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
 
   throw runtime_error("Failed to get acknowledgement message.");
 }
-}
+}  // namespace navio

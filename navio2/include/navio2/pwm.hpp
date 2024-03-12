@@ -22,4 +22,4 @@ public:
   bool setFrequency(const size_t& channel, const size_t& freq);
   bool setDutyCycle(const size_t& channel, const double& period_us);
 };
-}
+}  // namespace navio

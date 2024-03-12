@@ -13,4 +13,4 @@ int get_navio_version();
 
 /* Decode IEEE 754 single precision floating point number. */
 float decodeBinary32(uint32_t bin);
-}
+}  // namespace navio

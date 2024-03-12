@@ -326,4 +326,4 @@ inline const uint16_t& UBXParser::getLatestMsg() const
 {
   return latest_id_;
 }
-}
+}  // namespace navio

@@ -19,4 +19,4 @@ private:
 
   int openChannel(const size_t& ch);
 };
-}
+}  // namespace navio

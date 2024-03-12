@@ -41,4 +41,4 @@ protected:
   float gx_, gy_, gz_;
   float mx_, my_, mz_;
 };
-}
+}  // namespace navio

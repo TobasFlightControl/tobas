@@ -349,4 +349,4 @@ bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16
   close(fd);
   return TRUE;
 }
-}
+}  // namespace navio

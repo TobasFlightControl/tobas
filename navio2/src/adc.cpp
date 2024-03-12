@@ -65,4 +65,4 @@ int ADC::openChannel(const size_t& ch)
 
   return fd;
 }
-}
+}  // namespace navio

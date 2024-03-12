@@ -32,4 +32,4 @@ bool SPIdev::transfer(u_char* tx, u_char* rx, uint32_t length)
   spi_transfer_.len = length;
   return ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) >= 0;
 }
-}
+}  // namespace navio
