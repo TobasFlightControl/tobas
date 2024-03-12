@@ -41,12 +41,13 @@ static constexpr char kConfigKey_RcYawLeft[] = "DEFAULT.rc_input/yaw/left";
 static constexpr char kConfigKey_RcYawRight[] = "DEFAULT.rc_input/yaw/right";
 static constexpr char kConfigKey_RcThrustUp[] = "DEFAULT.rc_input/thrust/up";
 static constexpr char kConfigKey_RcThrustDown[] = "DEFAULT.rc_input/thrust/down";
+static constexpr char kConfigKey_RcModeProgram[] = "DEFAULT.rc_input/mode/program";
+static constexpr char kConfigKey_RcModeStabilize[] = "DEFAULT.rc_input/mode/stabilize";
+static constexpr char kConfigKey_RcModeAcrobat[] = "DEFAULT.rc_input/mode/acrobat";
 static constexpr char kConfigKey_RcEStopOn[] = "DEFAULT.rc_input/e_stop/on";
 static constexpr char kConfigKey_RcEStopOff[] = "DEFAULT.rc_input/e_stop/off";
 static constexpr char kConfigKey_RcGPSwOn[] = "DEFAULT.rc_input/gpsw/on";
 static constexpr char kConfigKey_RcGPSwOff[] = "DEFAULT.rc_input/gpsw/off";
-static constexpr char kConfigKey_RcNrOfModes[] = "DEFAULT.rc_input/num_modes";
-static constexpr char kConfigKey_RcModePrefix[] = "DEFAULT.rc_input/mode";
 
 // https://docs.emlid.com/navio2/dev/adc/
 static constexpr size_t kPowerModuleVoltageChannel = 2;
@@ -54,7 +55,6 @@ static constexpr size_t kPowerModuleVoltageChannel = 2;
 static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
 static constexpr double kPwmMin = 1000;       // [us]
 static constexpr double kPwmMax = 2000;       // [us]
-static constexpr double kPwmNeutral = 1500;   // [us]
 static constexpr double kPwmDisarm = 900;     // [us]
 
 // RCチャンネル

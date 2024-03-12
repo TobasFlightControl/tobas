@@ -21,13 +21,12 @@ from .base import BaseController
 
 class MultirotorMpc(BaseController):
     NAME = "Multirotor MPC"
-
     CONTROLLER_PKG = "tobas_mr_mpc"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
+    STABLIZE_MODE = PosVelAccYaw.__name__
+    ACROBAT_MODE = RollPitchYawThrust.__name__
     PARAM_SERVER_NODE = "tobas_mr_mpc"
-
-    COMMAND_MSGS = frozenset([PosVelAccYaw.__name__, RollPitchYawThrust.__name__])
 
     MIN_NUM_PROP = 3
 
@@ -42,7 +41,7 @@ class MultirotorMpc(BaseController):
 
     @overrides
     def define_connections(self) -> None:
-        super().define_connections()
+        pass
 
     @overrides
     def is_applicable(self) -> bool:

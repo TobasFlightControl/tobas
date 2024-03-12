@@ -5,11 +5,11 @@
 namespace tobas_rc_teleop
 {
 // Constants
+static constexpr double kDeadZone = 0.05;
 static constexpr double kInfoPeriod = 3.;   // [s]
 static constexpr double kErrorPeriod = 1.;  // [s]
 
 // Default parameters
-static constexpr double kDefaultDeadZoneRate = 0.1;
 static constexpr double kDefaultMaxHorVel = 3.;          // [m/s]
 static constexpr double kDefaultMaxVerVel = 3.;          // [m/s]
 static constexpr double kDefaultMaxHorAcc = 5.;          // [m/s^2]

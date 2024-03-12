@@ -6,3 +6,7 @@ float64 yaw     # CH4: [-1, 1]
 uint8 mode      # CH5: Flight Mode
 bool e_stop     # CH7: Emergency Stop
 bool gpsw       # CH8: General Purpose Switch
+
+uint8 MODE_PROGRAM = 0
+uint8 MODE_STABILIZE = 1
+uint8 MODE_ACROBAT = 2

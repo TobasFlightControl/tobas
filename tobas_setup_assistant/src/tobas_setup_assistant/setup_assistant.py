@@ -17,10 +17,7 @@ class SetupAssistant(MainWidget):
     def __init__(self) -> None:
         super().__init__(PKG_NAME, DEFAULT)
 
-        icon_path = osp.join(
-            rospkg.RosPack().get_path(PKG_NAME),
-            "resources/icon_white.png",
-        )
+        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle(TITLE)
 

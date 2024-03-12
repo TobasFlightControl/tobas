@@ -11,7 +11,8 @@ namespace tobas_calibration
 {
 RCInputCalibrator::RCInputCalibrator()
 {
-  rcin_.initialize();
+  if (rcin_.initialize() < 0)
+    throw runtime_error("Failed to initialize RC input driver.");
 }
 
 void RCInputCalibrator::run()
@@ -20,10 +21,9 @@ void RCInputCalibrator::run()
   double pitch_up, pitch_down;
   double yaw_left, yaw_right;
   double thrust_up, thrust_down;
+  double mode_program, mode_stabilize, mode_acrobat;
   double estop_up, estop_down;
   double gpsw_up, gpsw_down;
-  int num_modes;
-  vector<double> modes;
 
   // Roll
   while (true)
@@ -145,6 +145,39 @@ void RCInputCalibrator::run()
     break;
   }
 
+  // Mode
+  while (true)
+  {
+    // Program
+    cout << "Please set the Mode (CH" << tobas_real::kRcChannelMode + 1
+         << ") to Program and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    mode_program = readRCInput(tobas_real::kRcChannelMode);
+
+    // Stabilize
+    cout << "Please set the Mode (CH" << tobas_real::kRcChannelMode + 1
+         << ") to Stabilize and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    mode_stabilize = readRCInput(tobas_real::kRcChannelMode);
+
+    // Acrobat
+    cout << "Please set the Mode (CH" << tobas_real::kRcChannelMode + 1
+         << ") to Acrobat and press Enter:";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    mode_acrobat = readRCInput(tobas_real::kRcChannelMode);
+
+    if (
+      abs(mode_program - mode_stabilize) < kPeriodDiffThreshold
+      || abs(mode_stabilize - mode_acrobat) < kPeriodDiffThreshold
+      || abs(mode_acrobat - mode_program) < kPeriodDiffThreshold)
+    {
+      TOBAS_ERROR("The signals on Mode channel are too close. Please retry.");
+      continue;
+    }
+
+    break;
+  }
+
   // GPSw (General Purpose Switch)
   while (true)
   {
@@ -169,45 +202,6 @@ void RCInputCalibrator::run()
     break;
   }
 
-  // Mode
-  while (true)
-  {
-    cout << "Please enter the number of flight modes: ";
-    cin >> num_modes;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');  // ストリームに残っている改行を処理
-    if (num_modes <= 0)
-    {
-      TOBAS_ERROR("The number of flight modes must be positive. Please retry.");
-      continue;
-    }
-    else if (static_cast<size_t>(num_modes) > kMaxNrOfFlightModes)
-    {
-      TOBAS_ERROR("The number of flight modes is too large. Please retry.");
-      continue;
-    }
-    break;
-  }
-
-  modes.resize(num_modes);
-  while (true)
-  {
-    for (int i = 0; i < num_modes; ++i)
-    {
-      cout << "Please set the MODE (CH" << tobas_real::kRcChannelMode + 1 << ") to " << i + 1
-           << " and press Enter:";
-      cin.ignore(numeric_limits<streamsize>::max(), '\n');
-      modes[i] = readRCInput(tobas_real::kRcChannelMode);
-    }
-
-    if (isDifferentModesTooClose(modes))
-    {
-      TOBAS_ERROR("The signals of different modes are too close. Please retry.");
-      continue;
-    }
-
-    break;
-  }
-
   // Configに保存
   tobas_std::PropertyTree pt(tobas_real::kConfigPath);
 
@@ -219,17 +213,13 @@ void RCInputCalibrator::run()
   pt.put(tobas_real::kConfigKey_RcYawRight, yaw_right);
   pt.put(tobas_real::kConfigKey_RcThrustUp, thrust_up);
   pt.put(tobas_real::kConfigKey_RcThrustDown, thrust_down);
+  pt.put(tobas_real::kConfigKey_RcModeProgram, mode_program);
+  pt.put(tobas_real::kConfigKey_RcModeStabilize, mode_stabilize);
+  pt.put(tobas_real::kConfigKey_RcModeAcrobat, mode_acrobat);
   pt.put(tobas_real::kConfigKey_RcEStopOn, estop_up);
   pt.put(tobas_real::kConfigKey_RcEStopOff, estop_down);
   pt.put(tobas_real::kConfigKey_RcGPSwOn, gpsw_up);
   pt.put(tobas_real::kConfigKey_RcGPSwOff, gpsw_down);
-
-  pt.put(tobas_real::kConfigKey_RcNrOfModes, num_modes);
-  for (int i = 0; i < num_modes; ++i)
-  {
-    const string key = tobas_real::kConfigKey_RcModePrefix + to_string(i);
-    pt.put(key, modes[i]);
-  }
 
   pt.save();
   cout << "Calibration finished. The result is saved to '" << tobas_real::kConfigPath << "'."
@@ -243,10 +233,8 @@ double RCInputCalibrator::readRCInput(const size_t& channel)
   for (size_t _ = 0; _ < kDataCount; ++_)
   {
     const auto period = rcin_.read(channel);
-    if (period <= 0)
-    {
+    if (period < 0)
       throw runtime_error("Failed to read RC input.");
-    }
     period_sum += period;
     usleep(kSleepTime);
   }

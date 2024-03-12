@@ -8,23 +8,16 @@ import os.path as osp
 import rospy
 import rospkg
 from overrides import override
+from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+
+
 from tobas_rqt_tools.widgets import create_rviz_frame
 from tobas_rqt_tools.messages import *
-from tobas_calibration_msgs.srv import (
-    MagCalibrationStart,
-    MagCalibrationStartRequest,
-    MagCalibrationStartResponse,
-    MagCalibrationFinish,
-    MagCalibrationFinishRequest,
-    MagCalibrationFinishResponse,
-    MagCalibrationCancel,
-    MagCalibrationCancelRequest,
-    MagCalibrationCancelResponse,
-)
+from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
 
 from ....common import *
 from .base import BaseHardwareSetupWidget
@@ -72,9 +65,9 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
-        self._start_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/start", MagCalibrationStart)
-        self._finish_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/finish", MagCalibrationFinish)
-        self._cancel_mag_calib_sc = rospy.ServiceProxy("/mag_calibration/cancel", MagCalibrationCancel)
+        self._calib_start_sc = rospy.ServiceProxy("/mag_calibration/start", Trigger)
+        self._calib_finish_sc = rospy.ServiceProxy("/mag_calibration/finish", MagCalibration)
+        self._calib_cancel = rospy.ServiceProxy("/mag_calibration/cancel", Trigger)
 
     @override
     def define_connections(self) -> None:
@@ -85,13 +78,13 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
         try:
-            self._start_mag_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            self._calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = MagCalibrationStartRequest()
-        res: MagCalibrationStartResponse = self._start_mag_calib_sc.call(req)
+        req = TriggerRequest()
+        res: TriggerResponse = self._calib_start_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)
@@ -106,13 +99,13 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_finish_button_clicked(self) -> None:
         try:
-            self._finish_mag_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            self._calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = MagCalibrationFinishRequest()
-        res: MagCalibrationFinishResponse = self._finish_mag_calib_sc.call(req)
+        req = MagCalibrationRequest()
+        res: MagCalibrationResponse = self._calib_finish_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)
@@ -127,13 +120,13 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
         try:
-            self._cancel_mag_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            self._calib_cancel.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = MagCalibrationCancelRequest()
-        res: MagCalibrationCancelResponse = self._cancel_mag_calib_sc.call(req)
+        req = TriggerRequest()
+        res: TriggerResponse = self._calib_cancel.call(req)
 
         if not res.success:
             q_error(self, res.message)

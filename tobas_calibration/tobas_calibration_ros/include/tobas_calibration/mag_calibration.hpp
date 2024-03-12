@@ -2,13 +2,12 @@
 
 #include <Eigen/Core>
 #include <ros/ros.h>
+#include <std_srvs/Trigger.h>
 
 #include <tobas_real/common.hpp>
 #include <tobas_real/ellipse_transformer.hpp>
 
-#include <tobas_calibration_msgs/MagCalibrationStart.h>
-#include <tobas_calibration_msgs/MagCalibrationFinish.h>
-#include <tobas_calibration_msgs/MagCalibrationCancel.h>
+#include <tobas_calibration_msgs/MagCalibration.h>
 
 namespace tobas_calibration
 {
@@ -23,9 +22,9 @@ class MagCalibrationRos
   static constexpr size_t kMaxDataCount = 100000;  // 4 * 3 * 100000 / 1000000 = 1.2MB
 
   using self = MagCalibrationRos;
-  using StartSrvType = tobas_calibration_msgs::MagCalibrationStart;
-  using FinishSrvType = tobas_calibration_msgs::MagCalibrationFinish;
-  using CancelSrvType = tobas_calibration_msgs::MagCalibrationCancel;
+  using StartSrvType = std_srvs::Trigger;
+  using FinishSrvType = tobas_calibration_msgs::MagCalibration;
+  using CancelSrvType = std_srvs::Trigger;
 
 public:
   explicit MagCalibrationRos(ros::NodeHandle& nh);

@@ -37,8 +37,7 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 void PoseTwistAccelController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry& odom,
-  const double&,
-  const Range<double>& dead_zone)
+  const double&)
 {
   // 時刻を更新
   const auto cur_time = ros::Time::now();
@@ -50,9 +49,9 @@ void PoseTwistAccelController::update(
   {
     // RC入力から目標水平速を計算
     tar_vel_.x() =
-      dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
+      dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
     tar_vel_.y() =
-      dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
+      dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
 
     // 目標姿勢角はゼロ
     tar_rpy_.roll = 0;
@@ -62,9 +61,10 @@ void PoseTwistAccelController::update(
   {
     // RC入力から目標姿勢を計算
     tar_rpy_.roll =
-      dead_zone.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-    tar_rpy_.pitch =
-      dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+      dead_zone_.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
+    tar_rpy_.pitch = dead_zone_.inRange(rcin.pitch) ?
+                       0 :
+                       remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
 
     // 目標水平速度はゼロ
     tar_vel_.x() = 0;
@@ -73,7 +73,7 @@ void PoseTwistAccelController::update(
 
   tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 一度でも上昇コマンドが入力されたら位置制御を行う
   if (is_up_commanded_)

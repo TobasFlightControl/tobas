@@ -38,8 +38,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 void PosVelAccYawController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry& odom,
-  const double&,
-  const Range<double>& dead_zone)
+  const double&)
 {
   // 時刻を更新
   const auto cur_time = ros::Time::now();
@@ -48,12 +47,12 @@ void PosVelAccYawController::update(
 
   // RC入力を速度とヨーレートに変換
   tar_vel_.x() =
-    dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
+    dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
   tar_vel_.y() =
-    dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
+    dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
   tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 目標速度をフィルタリング
   vel_filter_.update(tar_vel_, dt);

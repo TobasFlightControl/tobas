@@ -6,7 +6,6 @@ import markdown
 import rospy
 from typing import Callable
 from overrides import overrides
-from functools import singledispatch
 from configparser import ConfigParser
 from rviz import bindings as rviz
 from PyQt5.QtCore import *
@@ -420,9 +419,6 @@ class FloatSliderDisplay(QWidget):
     def _on_value_changed(self, value: float) -> None:
         self._value.setText(f"{value:.3f}{self._suffix}")
         self.value_changed.emit(value)
-
-
-
 
 
 def add_center_button(text: str, rows: QVBoxLayout) -> QPushButton:

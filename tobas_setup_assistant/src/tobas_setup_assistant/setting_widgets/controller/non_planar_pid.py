@@ -25,9 +25,9 @@ class NonPlanarPid(BaseController):
     CONTROLLER_PKG = "tobas_np_pid"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    STABLIZE_MODE = PoseTwistAccelCommand.__name__
+    ACROBAT_MODE = PoseTwistAccelCommand.__name__  # TODO
     PARAM_SERVER_NODE = "tobas_np_pid"
-
-    COMMAND_MSGS = frozenset([PoseTwistAccelCommand.__name__])
 
     MIN_NUM_PROP = 3
 
@@ -39,7 +39,7 @@ class NonPlanarPid(BaseController):
 
     @overrides
     def define_connections(self) -> None:
-        super().define_connections()
+        pass
 
     @overrides
     def is_applicable(self) -> bool:

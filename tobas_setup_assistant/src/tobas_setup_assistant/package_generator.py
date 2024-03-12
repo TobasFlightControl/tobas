@@ -99,9 +99,6 @@ class PackageGenerator(QObject):
         if not self._main.settings.odometry.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.odometry)
             return False
-        if not self._main.settings.rc_transmitter.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.rc_transmitter)
-            return False
         if not self._main.settings.controller.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
@@ -293,16 +290,19 @@ class PackageGenerator(QObject):
             osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp"),
         )
 
-        command_msgs = self._main.settings.controller.command_msgs()
+        flight_modes = {
+            self._main.settings.controller.stabilize_mode(),
+            self._main.settings.controller.acrobat_mode(),
+        }
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
-        if PositionYaw.__name__ in command_msgs or PosVelAccYaw.__name__ in command_msgs:
+        if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/position_yaw.launch.template",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
-        elif SpeedRollDeltaPitch.__name__ in command_msgs:
+        elif SpeedRollDeltaPitch.__name__ in flight_modes:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/speed_roll_dpitch.launch.template",
@@ -311,9 +311,9 @@ class PackageGenerator(QObject):
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
         if (
-            PositionYaw.__name__ in command_msgs
-            or PosVelAccYaw.__name__ in command_msgs
-            or PoseTwistAccelCommand.__name__ in command_msgs
+            PositionYaw.__name__ in flight_modes
+            or PosVelAccYaw.__name__ in flight_modes
+            or PoseTwistAccelCommand.__name__ in flight_modes
         ):
             self._generate_from_template(
                 items,
@@ -526,13 +526,12 @@ class PackageGenerator(QObject):
             yaml.dump(items, f)
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
-        rc_transmitter = self._main.settings.rc_transmitter
         controller = self._main.settings.controller
 
         items = dict()
         items["rc_teleop"] = {
-            "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
-            "mode_names": controller.flight_mode_names(),
+            "stabilize_mode": controller.stabilize_mode(),
+            "acrobat_mode": controller.acrobat_mode(),
         }
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")

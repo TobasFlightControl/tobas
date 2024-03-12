@@ -165,13 +165,12 @@ class ChannelsWidget(QWidget):
 
 class ArduCopter(BaseController):
     NAME = "ArduCopter (Simulation Only)"
-
     CONTROLLER_PKG = "tobas_mr_arducopter"
     TAKEOFF_PKG = "tobas_mr_arducopter"
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    STABLIZE_MODE = PositionYaw.__name__
+    ACROBAT_MODE = PositionYaw.__name__  # TODO
     PARAM_SERVER_NODE = "arducopter_param_server"
-
-    COMMAND_MSGS = frozenset([PositionYaw.__name__])
 
     MIN_NUM_PROPS = 2
 
@@ -273,7 +272,6 @@ class ArduCopter(BaseController):
 
     @overrides
     def define_connections(self) -> None:
-        super().define_connections()
         self._channels.define_connections()
         self._frame.index_changed.connect(self._on_frame_idx_changed)
         self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
