@@ -165,13 +165,12 @@ class ChannelsWidget(QWidget):
 
 class ArduCopter(BaseController):
     NAME = "ArduCopter (Simulation Only)"
-
     CONTROLLER_PKG = "tobas_mr_arducopter"
     TAKEOFF_PKG = "tobas_mr_arducopter"
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    STABLIZE_MODE = PositionYaw.__name__
+    ACROBAT_MODE = PositionYaw.__name__  # TODO
     PARAM_SERVER_NODE = "arducopter_param_server"
-
-    COMMAND_MSGS = frozenset([PositionYaw.__name__])
 
     MIN_NUM_PROPS = 2
 

@@ -21,13 +21,12 @@ from .base import BaseController
 
 class MultirotorPid(BaseController):
     NAME = "Multirotor PID"
-
     CONTROLLER_PKG = "tobas_mr_pid"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
+    STABLIZE_MODE = PosVelAccYaw.__name__
+    ACROBAT_MODE = RollPitchYawThrust.__name__
     PARAM_SERVER_NODE = "tobas_mr_pid"
-
-    COMMAND_MSGS = frozenset([PosVelAccYaw.__name__, RollPitchYawThrust.__name__])
 
     MIN_NUM_PROP = 3
 

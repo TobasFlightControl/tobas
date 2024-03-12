@@ -20,13 +20,12 @@ from .base import BaseController
 
 class FixedWingLQR(BaseController):
     NAME = "Fixed Wing LQR"
-
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    STABLIZE_MODE = SpeedRollDeltaPitch.__name__
+    ACROBAT_MODE = SpeedRollDeltaPitch.__name__  # TODO
     PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"
-
-    COMMAND_MSGS = frozenset([SpeedRollDeltaPitch.__name__])
 
     # Dynamic Parameters
     FORWARD_SPEED_WEIGHT = "forward_speed_weight"

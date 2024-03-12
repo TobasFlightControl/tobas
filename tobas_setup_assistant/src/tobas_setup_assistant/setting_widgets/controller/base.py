@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from typing import List, final, FrozenSet
+from typing import List, final
 import rospy
 from dynamic_reconfigure import client
 from dynamic_reconfigure.msg import ConfigDescription
@@ -15,8 +15,6 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.roslaunch import rosrun
 from tobas_rqt_tools.dynamic_reconfigure import get_param_config
-from tobas_rqt_tools.widgets import ComboBox
-from tobas_rqt_tools.layouts import FormLayout
 
 from ...common import *
 
@@ -25,13 +23,12 @@ PARAM_DESCRIPTION_TIMEOUT = 3
 
 class BaseController(QWidget):
     NAME = UNKNOWN
-
     CONTROLLER_PKG = UNKNOWN
     TAKEOFF_PKG = UNKNOWN
     LANDING_PKG = UNKNOWN
+    STABLIZE_MODE = UNKNOWN
+    ACROBAT_MODE = UNKNOWN
     PARAM_SERVER_NODE = UNKNOWN
-
-    COMMAND_MSGS: FrozenSet[str] = frozenset()
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()

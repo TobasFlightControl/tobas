@@ -290,16 +290,19 @@ class PackageGenerator(QObject):
             osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp"),
         )
 
-        command_msgs = self._main.settings.controller.command_msgs()
+        flight_modes = {
+            self._main.settings.controller.stabilize_mode(),
+            self._main.settings.controller.acrobat_mode(),
+        }
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
-        if PositionYaw.__name__ in command_msgs or PosVelAccYaw.__name__ in command_msgs:
+        if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/position_yaw.launch.template",
                 osp.join(launch_dir, "keyboard_teleop.launch"),
             )
-        elif SpeedRollDeltaPitch.__name__ in command_msgs:
+        elif SpeedRollDeltaPitch.__name__ in flight_modes:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/speed_roll_dpitch.launch.template",
@@ -308,9 +311,9 @@ class PackageGenerator(QObject):
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
         if (
-            PositionYaw.__name__ in command_msgs
-            or PosVelAccYaw.__name__ in command_msgs
-            or PoseTwistAccelCommand.__name__ in command_msgs
+            PositionYaw.__name__ in flight_modes
+            or PosVelAccYaw.__name__ in flight_modes
+            or PoseTwistAccelCommand.__name__ in flight_modes
         ):
             self._generate_from_template(
                 items,
@@ -527,7 +530,8 @@ class PackageGenerator(QObject):
 
         items = dict()
         items["rc_teleop"] = {
-            # TODO
+            "stabilize_mode": controller.stabilize_mode(),
+            "acrobat_mode": controller.acrobat_mode(),
         }
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")

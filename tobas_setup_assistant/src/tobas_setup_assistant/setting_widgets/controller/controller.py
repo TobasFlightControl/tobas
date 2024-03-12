@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from typing import List, FrozenSet
+from typing import List
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -85,8 +85,11 @@ class ControllerWidget(BaseSettingWidget):
     def landing_pkg(self) -> str:
         return self._selected().LANDING_PKG
 
-    def command_msgs(self) -> FrozenSet[str]:
-        return self._selected().COMMAND_MSGS
+    def stabilize_mode(self) -> str:
+        return self._selected().STABLIZE_MODE
+
+    def acrobat_mode(self) -> str:
+        return self._selected().ACROBAT_MODE
 
     def parameter_dict(self) -> dict:
         return self._selected().parameter_dict()
