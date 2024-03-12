@@ -12,6 +12,8 @@
 #define DEG2RAD (M_PI / 180.)
 #define INITIALIZE_SLEEP 200  // [us]
 
+namespace navio
+{
 LSM9DS1::LSM9DS1()
   : spi_dev_imu_(DEVICE_ACC_GYRO, kSpiSpeedHz), spi_dev_mag_(DEVICE_MAG, kSpiSpeedHz)
 {
@@ -73,7 +75,7 @@ void LSM9DS1::update()
 void LSM9DS1::updateTemperature()
 {
   readRegsImu(XG_OUT_TEMP_L, &response_[0], 2);
-  temperature = (float)(((int16_t)response_[1] << 8) | response_[0]) / 256. + 25.;
+  temperature_ = static_cast<float>(((int16_t)response_[1] << 8) | response_[0]) / 256. + 25.;
 }
 
 void LSM9DS1::updateAccelerometer()
@@ -216,3 +218,4 @@ void LSM9DS1::setMagScale(const uint8_t& scale)
       break;
   }
 }
+}  // namespace navio

@@ -12,6 +12,8 @@
 #define FALSE (0 == 1)
 #endif
 
+namespace navio
+{
 class I2Cdev
 {
 public:
@@ -177,3 +179,4 @@ public:
    */
   static bool writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t* data);
 };
+}  // namespace navio

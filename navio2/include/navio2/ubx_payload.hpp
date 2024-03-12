@@ -3,6 +3,8 @@
 #include <cinttypes>
 #include <iostream>
 
+namespace navio
+{
 struct NavPosllhPayload
 {
   double lon;   // Longitude [deg]
@@ -123,3 +125,4 @@ struct MonHw2Payload
 {
   // TODO
 };
+}

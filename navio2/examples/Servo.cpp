@@ -9,6 +9,7 @@
 #define SERVO_MAX 1750 /*uS*/
 
 #define PWM_OUTPUT 0
+using namespace navio;
 
 int main(int, char* argv[])
 {

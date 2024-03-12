@@ -23,7 +23,7 @@ public:
   explicit AdcCalibrationRos(ros::NodeHandle& nh);
 
 private:
-  ADC adc_;
+  navio::ADC adc_;
 
   ros::ServiceServer ss_;
 

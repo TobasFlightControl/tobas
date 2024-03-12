@@ -31,8 +31,10 @@
 
 #define SYSFS_RPI_MODEL_FILE_PATH "/sys/firmware/devicetree/base/model"
 
-using namespace Navio;
+using namespace std;
 
+namespace navio
+{
 Pin::Pin(uint8_t pin) : pin_(pin), gpio_(nullptr), mode_(GpioModeInput)
 {
 }
@@ -70,9 +72,9 @@ bool Pin::init()
   {
     rpi_version = getRaspberryPiVersion();
   }
-  catch (std::runtime_error& e)
+  catch (runtime_error& e)
   {
-    std::cerr << e.what() << std::endl;
+    cerr << e.what() << endl;
     return false;
   }
 
@@ -91,7 +93,7 @@ bool Pin::init()
       address = GPIO_BASE(BCM2711_PERI_BASE);
       break;
     default:
-      std::cerr << "Unexpected version: " << rpi_version << std::endl;
+      cerr << "Unexpected version: " << rpi_version << endl;
       return false;
   }
 
@@ -167,12 +169,12 @@ void Pin::toggle()
 
 int Pin::getRaspberryPiVersion() const
 {
-  std::string buffer;
-  std::ifstream f(SYSFS_RPI_MODEL_FILE_PATH);
+  string buffer;
+  ifstream f(SYSFS_RPI_MODEL_FILE_PATH);
 
   if (!f)
   {
-    throw std::runtime_error(std::string("Could not open ") + SYSFS_RPI_MODEL_FILE_PATH);
+    throw runtime_error(string("Could not open ") + SYSFS_RPI_MODEL_FILE_PATH);
   }
 
   while (f >> buffer)
@@ -181,10 +183,11 @@ int Pin::getRaspberryPiVersion() const
     {
       return stoi(buffer);
     }
-    catch (std::invalid_argument())
+    catch (invalid_argument())
     {
     }
   }
 
-  throw std::runtime_error("Could not read RPi version");
+  throw runtime_error("Could not read RPi version");
 }
+}  // namespace navio

@@ -12,6 +12,8 @@
 
 #include "../include/navio2//I2Cdev.h"
 
+namespace navio
+{
 /** Default constructor.
  */
 I2Cdev::I2Cdev()
@@ -348,4 +350,5 @@ bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16
   }
   close(fd);
   return TRUE;
+}
 }

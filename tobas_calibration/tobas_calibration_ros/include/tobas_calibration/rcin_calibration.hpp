@@ -29,7 +29,7 @@ public:
   explicit RCInputCalibrationRos(ros::NodeHandle& nh);
 
 private:
-  RCInput rcin_;
+  navio::RCInput rcin_;
 
   ros::Timer publish_timer_;
   ros::Publisher rcin_pub_;

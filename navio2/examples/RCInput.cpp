@@ -9,6 +9,7 @@
 #define READ_FAILED -1
 
 using namespace std;
+using namespace navio;
 
 int main()
 {

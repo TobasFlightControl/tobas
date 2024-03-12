@@ -18,6 +18,6 @@ public:
   void run();
 
 private:
-  ADC adc_;
+  navio::ADC adc_;
 };
 }  // namespace tobas_calibration

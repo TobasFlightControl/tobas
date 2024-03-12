@@ -1,5 +1,7 @@
 #pragma once
 
+namespace navio
+{
 class InertialSensor
 {
 public:
@@ -9,7 +11,7 @@ public:
 
   float readTemperature()
   {
-    return temperature;
+    return temperature_;
   };
 
   void readAccelerometer(float* ax, float* ay, float* az)
@@ -34,8 +36,9 @@ public:
   };
 
 protected:
-  float temperature;
+  float temperature_;
   float ax_, ay_, az_;
   float gx_, gy_, gz_;
   float mx_, my_, mz_;
 };
+}

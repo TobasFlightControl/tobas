@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace navio
+{
 SPIdev::SPIdev(const char* spidev, uint32_t speed_hz, u_char bits_per_word, u_short delay_usecs)
 {
   memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
@@ -29,4 +31,5 @@ bool SPIdev::transfer(u_char* tx, u_char* rx, uint32_t length)
   spi_transfer_.rx_buf = (u_long)rx;
   spi_transfer_.len = length;
   return ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) >= 0;
+}
 }

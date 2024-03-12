@@ -24,7 +24,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  RCInput rcin_;
+  navio::RCInput rcin_;
 
   // Config
   tobas_std::Range<int> roll_range_;

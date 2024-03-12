@@ -8,8 +8,8 @@
 #define DEG2RAD (M_PI / 180.)
 #define DATA_LENGTH 255
 
-//-----------------------------------------------------------------------------------------------
-
+namespace navio
+{
 MPU9250::MPU9250() : spi_dev_(DEVICE, kSpiSpeedHz)
 {
 }
@@ -166,16 +166,16 @@ void MPU9250::set_acc_scale(uint8_t scale)
   switch (scale)
   {
     case BITS_FS_2G:
-      acc_divider = 16384;
+      acc_divider_ = 16384;
       break;
     case BITS_FS_4G:
-      acc_divider = 8192;
+      acc_divider_ = 8192;
       break;
     case BITS_FS_8G:
-      acc_divider = 4096;
+      acc_divider_ = 4096;
       break;
     case BITS_FS_16G:
-      acc_divider = 2048;
+      acc_divider_ = 2048;
       break;
   }
 }
@@ -197,16 +197,16 @@ void MPU9250::set_gyro_scale(uint8_t scale)
   switch (scale)
   {
     case BITS_FS_250DPS:
-      gyro_divider = 131;
+      gyro_divider_ = 131;
       break;
     case BITS_FS_500DPS:
-      gyro_divider = 65.5;
+      gyro_divider_ = 65.5;
       break;
     case BITS_FS_1000DPS:
-      gyro_divider = 32.8;
+      gyro_divider_ = 32.8;
       break;
     case BITS_FS_2000DPS:
-      gyro_divider = 16.4;
+      gyro_divider_ = 16.4;
       break;
   }
 }
@@ -230,9 +230,9 @@ void MPU9250::calib_acc()
   // temp_scale=WriteReg(MPUREG_ACCEL_CONFIG, 0x80>>axis);
 
   ReadRegs(MPUREG_SELF_TEST_X, response, 4);
-  calib_data[0] = ((response[0] & 11100000) >> 3) | ((response[3] & 00110000) >> 4);
-  calib_data[1] = ((response[1] & 11100000) >> 3) | ((response[3] & 00001100) >> 2);
-  calib_data[2] = ((response[2] & 11100000) >> 3) | ((response[3] & 00000011));
+  calib_data_[0] = ((response[0] & 11100000) >> 3) | ((response[3] & 00110000) >> 4);
+  calib_data_[1] = ((response[1] & 11100000) >> 3) | ((response[3] & 00001100) >> 2);
+  calib_data_[2] = ((response[2] & 11100000) >> 3) | ((response[3] & 00000011));
 
   set_acc_scale(temp_scale);
 }
@@ -260,7 +260,7 @@ void MPU9250::calib_mag()
   for (i = 0; i < 3; ++i)
   {
     data = response[i];
-    magnetometer_ASA[i] = ((data - 128) / 256 + 1) * Magnetometer_Sensitivity_Scale_Factor;
+    magnetometer_ASA_[i] = ((data - 128) / 256 + 1) * Magnetometer_Sensitivity_Scale_Factor;
   }
 }
 
@@ -288,29 +288,30 @@ void MPU9250::update()
   {
     bit_data[i] = ((int16_t)response[i * 2] << 8) | response[i * 2 + 1];
   }
-  ax_ = G_SI * bit_data[0] / acc_divider;
-  ay_ = G_SI * bit_data[1] / acc_divider;
-  az_ = G_SI * bit_data[2] / acc_divider;
+  ax_ = G_SI * bit_data[0] / acc_divider_;
+  ay_ = G_SI * bit_data[1] / acc_divider_;
+  az_ = G_SI * bit_data[2] / acc_divider_;
 
   // Get temperature
   bit_data[0] = ((int16_t)response[i * 2] << 8) | response[i * 2 + 1];
-  temperature = ((bit_data[0] - 21) / 333.87) + 21;
+  temperature_ = ((bit_data[0] - 21) / 333.87) + 21;
 
   // Get gyroscope value
   for (i = 4; i < 7; ++i)
   {
     bit_data[i - 4] = ((int16_t)response[i * 2] << 8) | response[i * 2 + 1];
   }
-  gx_ = DEG2RAD * bit_data[0] / gyro_divider;
-  gy_ = DEG2RAD * bit_data[1] / gyro_divider;
-  gz_ = DEG2RAD * bit_data[2] / gyro_divider;
+  gx_ = DEG2RAD * bit_data[0] / gyro_divider_;
+  gy_ = DEG2RAD * bit_data[1] / gyro_divider_;
+  gz_ = DEG2RAD * bit_data[2] / gyro_divider_;
 
   // Get Magnetometer value
   for (i = 7; i < 10; ++i)
   {
     bit_data[i - 7] = ((int16_t)response[i * 2 + 1] << 8) | response[i * 2];
   }
-  mx_ = bit_data[0] * magnetometer_ASA[0];
-  my_ = bit_data[1] * magnetometer_ASA[1];
-  mz_ = bit_data[2] * magnetometer_ASA[2];
+  mx_ = bit_data[0] * magnetometer_ASA_[0];
+  my_ = bit_data[1] * magnetometer_ASA_[1];
+  mz_ = bit_data[2] * magnetometer_ASA_[2];
 }
+}  // namespace navio

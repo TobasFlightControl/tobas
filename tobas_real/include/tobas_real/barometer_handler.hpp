@@ -23,7 +23,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  MS5611 barometer_;
+  navio::MS5611 barometer_;
 
   // Config
   double pressure_noise_density_;  // [Pa/sqrt(Hz)]

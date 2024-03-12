@@ -5,6 +5,8 @@
 #include <navio2/MS5611.h>
 #include <navio2/Util.h>
 
+using namespace navio;
+
 void* acquireBarometerData(void* barom)
 {
   MS5611* barometer = (MS5611*)barom;

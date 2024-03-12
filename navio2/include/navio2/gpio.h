@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-namespace Navio
+namespace navio
 {
 /* Raspberry Pi GPIO mapping */
 #define RPI_GPIO_2 2  // Pin 3     SDA
@@ -56,4 +56,4 @@ private:
 
   bool deinit();
 };
-}  // namespace Navio
+}  // namespace navio

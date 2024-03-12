@@ -8,6 +8,8 @@
 
 #define READ_FAILED -1
 
+using namespace navio;
+
 int main()
 {
   if (check_apm())

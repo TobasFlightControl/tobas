@@ -23,8 +23,8 @@ public:
 
 private:
   tobas_real::ImuDevice imu_;
-  MS5611 barometer_;
-  PWM pwm_;
+  navio::MS5611 barometer_;
+  navio::PWM pwm_;
 
   void setPeriodOnAllChannels(const double& period);
   void sendDisarm();

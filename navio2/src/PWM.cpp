@@ -9,6 +9,8 @@
 
 using namespace std;
 
+namespace navio
+{
 PWM::PWM()
 {
 }
@@ -54,4 +56,5 @@ bool PWM::setDutyCycle(const size_t& channel, const double& period_us)
   const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/duty_cycle";
   const auto period_ns = static_cast<int>(period_us * 1e+3);
   return write_file(path.c_str(), "%u", period_ns) >= 0;
+}
 }

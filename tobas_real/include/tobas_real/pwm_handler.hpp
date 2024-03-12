@@ -35,7 +35,7 @@ public:
   ~PwmHandler();
 
 private:
-  PWM pwm_;
+  navio::PWM pwm_;
   std::array<PwmState, tobas::kServoRailSize> pwm_states_;
 
   // Subscribers

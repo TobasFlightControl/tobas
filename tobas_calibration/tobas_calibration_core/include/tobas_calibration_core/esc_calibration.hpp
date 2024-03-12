@@ -16,8 +16,8 @@ public:
   void run();
 
 private:
-  PWM pwm_;
-  ADC adc_;
+  navio::PWM pwm_;
+  navio::ADC adc_;
 
   void waitForBatteryDisconnected();
   void sendMaximum();

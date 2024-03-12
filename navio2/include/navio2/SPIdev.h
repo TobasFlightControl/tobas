@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <cstring>
 
+namespace navio
+{
 class SPIdev
 {
 public:
@@ -23,3 +25,4 @@ private:
   spi_ioc_transfer spi_transfer_;
   int spi_fd_;
 };
+}

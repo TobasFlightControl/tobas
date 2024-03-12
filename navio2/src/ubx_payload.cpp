@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace navio
+{
 ostream& operator<<(ostream& os, const NavPosllhPayload& arg)
 {
   os << "Longitude: " << arg.lon << "[deg]" << endl;
@@ -70,4 +72,5 @@ ostream& operator<<(ostream& os, const NavCovPayload& arg)
   os << "Velocity covariance matrix value v_ED: " << arg.velCovED << "[m^2/s^2]" << endl;
   os << "Velocity covariance matrix value v_DD: " << arg.velCovDD << "[m^2/s^2]" << endl;
   return os;
+}
 }

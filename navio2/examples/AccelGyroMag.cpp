@@ -5,6 +5,8 @@
 #include <navio2/MPU9250.h>
 #include <navio2/LSM9DS1.h>
 
+using namespace navio;
+
 std::unique_ptr<InertialSensor> get_inertial_sensor(std::string sensor_name)
 {
   if (sensor_name == "mpu")
@@ -62,7 +64,7 @@ std::string get_sensor_name(int argc, char* argv[])
 
   return std::string();
 }
-//=============================================================================
+
 int main(int argc, char* argv[])
 {
   if (check_apm())

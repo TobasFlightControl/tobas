@@ -8,6 +8,7 @@
 #define SLEEP_TIME 200        // [us]
 
 using namespace std;
+using namespace navio;
 
 int main()
 {

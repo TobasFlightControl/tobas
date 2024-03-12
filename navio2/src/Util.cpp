@@ -11,6 +11,8 @@
 
 using namespace std;
 
+namespace navio
+{
 int write_file(const char* path, const char* fmt, ...)
 {
   errno = 0;
@@ -83,4 +85,5 @@ float decodeBinary32(uint32_t bin)
   const int exponent = (bin >> 23) & 0xFF;
   const int mantissa = (exponent == 0) ? (bin & 0x7FFFFF) << 1 : (bin & 0x7FFFFF) | 0x800000;
   return sign * mantissa * pow(2, exponent - 150);
+}
 }

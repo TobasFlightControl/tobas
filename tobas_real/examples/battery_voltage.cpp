@@ -15,7 +15,7 @@ int main()
   const double adc_coef = pt.get<double>(tobas_real::kConfigKey_AdcCoef);
 
   // Initialize ADC driver
-  ADC adc;
+  navio::ADC adc;
   adc.initialize();
 
   while (true)

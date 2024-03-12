@@ -14,6 +14,7 @@
 #define INTERVAL 0.1        // [s]
 
 using namespace std;
+using namespace navio;
 
 int main(int, char** argv)
 {

@@ -4,6 +4,8 @@
 #include <navio2/MS5611.h>
 #include <navio2/Util.h>
 
+using namespace navio;
+
 int main()
 {
   MS5611 barometer;

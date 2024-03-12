@@ -4,6 +4,7 @@
 #include <navio2/Util.h>
 
 using namespace std;
+using namespace navio;
 
 int main(int argc, char* argv[])
 {

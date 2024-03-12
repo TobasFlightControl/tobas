@@ -4,6 +4,8 @@
 #include <navio2/Util.h>
 #include <navio2/Led.h>
 
+using namespace navio;
+
 int main(int, char* argv[])
 {
   if (check_apm())

@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+namespace navio
+{
 class ADC
 {
 public:
@@ -17,3 +19,4 @@ private:
 
   int openChannel(const size_t& ch);
 };
+}  // namespace navio

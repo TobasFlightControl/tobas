@@ -24,7 +24,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  ADC adc_;
+ navio:: ADC adc_;
 
   // Config
   double adc_coef_;

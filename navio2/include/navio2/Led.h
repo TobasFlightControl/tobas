@@ -2,6 +2,8 @@
 
 #include "./gpio.h"
 
+namespace navio
+{
 enum class Colors
 {
   Black,
@@ -23,7 +25,8 @@ public:
   void setColor(Colors color);
 
 private:
-  Navio::Pin* pinR;
-  Navio::Pin* pinG;
-  Navio::Pin* pinB;
+  Pin* pin_R_;
+  Pin* pin_G_;
+  Pin* pin_B_;
 };
+}  // namespace navio

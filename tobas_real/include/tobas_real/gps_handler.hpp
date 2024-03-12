@@ -24,10 +24,10 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  Ublox gps_;
-  NavPvtPayload pvt_;
-  NavCovPayload cov_;
-  NavTimeutcPayload timeutc_;
+  navio::Ublox gps_;
+  navio::NavPvtPayload pvt_;
+  navio::NavCovPayload cov_;
+  navio::NavTimeutcPayload timeutc_;
   bool cov_received_ = false;
 
   // Publisher

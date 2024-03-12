@@ -30,6 +30,8 @@
 #define MS5611_RA_D2_OSR_2048 0x56
 #define MS5611_RA_D2_OSR_4096 0x58
 
+namespace navio
+{
 class MS5611
 {
 public:
@@ -90,9 +92,10 @@ public:
   float getPressure();
 
 private:
-  uint8_t devAddr;                  // I2C device adress
-  uint16_t C1, C2, C3, C4, C5, C6;  // Calibration data
-  uint32_t D1, D2;                  // Raw measurement data
-  float TEMP;                       // Calculated temperature
-  float PRES;                       // Calculated pressure
+  uint8_t dev_addr_;                      // I2C device adress
+  uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
+  uint32_t d1_, d2_;                      // Raw measurement data
+  float temp_;                            // Calculated temperature
+  float pres_;                            // Calculated pressure
 };
+}  // namespace navio

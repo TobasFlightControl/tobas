@@ -3,37 +3,6 @@
 #include "./SPIdev.h"
 #include "./InertialSensor.h"
 
-class MPU9250 : public InertialSensor
-{
-  static constexpr uint32_t kSpiSpeedHz = 1000000;  // Maximum frequency is 1MHz
-
-public:
-  explicit MPU9250();
-
-  void initialize() override;
-  bool probe() override;
-  void update() override;
-
-private:
-  uint8_t WriteReg(uint8_t WriteAddr, uint8_t WriteData);
-  uint8_t ReadReg(uint8_t ReadAddr);
-  void ReadRegs(uint8_t ReadAddr, uint8_t* ReadBuf, uint32_t Bytes);
-
-  void set_gyro_scale(uint8_t scale);
-  void set_acc_scale(uint8_t scale);
-
-  void calib_acc();
-  void calib_mag();
-
-  SPIdev spi_dev_;
-
-  float acc_divider;
-  float gyro_divider;
-
-  int calib_data[3];
-  float magnetometer_ASA[3];
-};
-
 // MPU9250 registers
 #define MPUREG_XG_OFFS_TC 0x00
 #define MPUREG_YG_OFFS_TC 0x01
@@ -229,3 +198,37 @@ private:
 #define MPU9250T_85degC ((float)0.002995177763f)  // 0.002995177763 degC/LSB
 
 #define Magnetometer_Sensitivity_Scale_Factor ((float)0.15f)
+
+namespace navio
+{
+class MPU9250 : public InertialSensor
+{
+  static constexpr uint32_t kSpiSpeedHz = 1000000;  // Maximum frequency is 1MHz
+
+public:
+  explicit MPU9250();
+
+  void initialize() override;
+  bool probe() override;
+  void update() override;
+
+private:
+  uint8_t WriteReg(uint8_t WriteAddr, uint8_t WriteData);
+  uint8_t ReadReg(uint8_t ReadAddr);
+  void ReadRegs(uint8_t ReadAddr, uint8_t* ReadBuf, uint32_t Bytes);
+
+  void set_gyro_scale(uint8_t scale);
+  void set_acc_scale(uint8_t scale);
+
+  void calib_acc();
+  void calib_mag();
+
+  SPIdev spi_dev_;
+
+  float acc_divider_;
+  float gyro_divider_;
+
+  int calib_data_[3];
+  float magnetometer_ASA_[3];
+};
+}  // namespace navio

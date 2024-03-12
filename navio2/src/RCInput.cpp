@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace navio
+{
 RCInput::RCInput()
 {
 }
@@ -60,4 +62,5 @@ int RCInput::openChannel(const size_t& ch)
   free(channel_path);
 
   return fd;
+}
 }

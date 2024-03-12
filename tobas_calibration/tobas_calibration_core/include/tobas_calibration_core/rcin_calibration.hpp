@@ -19,7 +19,7 @@ public:
   void run();
 
 private:
-  RCInput rcin_;
+  navio::RCInput rcin_;
 
   double readRCInput(const size_t& channel);
   bool isDifferentModesTooClose(const std::vector<double>& modes) const;

@@ -3,6 +3,8 @@
 #include "./SPIdev.h"
 #include "./InertialSensor.h"
 
+namespace navio
+{
 /**
  * @brief datasheet: https://www.st.com/resource/en/datasheet/lsm9ds1.pdf
  */
@@ -206,3 +208,4 @@ private:
   uint8_t response_[6];
   int16_t bit_data_[3];
 };
+}

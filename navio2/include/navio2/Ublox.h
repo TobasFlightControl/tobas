@@ -7,6 +7,8 @@
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
+namespace navio
+{
 static constexpr uint32_t kUbxBufferLength = 1024;
 static constexpr uint32_t kPreambleOffset = 2;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
@@ -323,4 +325,5 @@ inline const uint32_t& UBXParser::getPosition() const
 inline const uint16_t& UBXParser::getLatestMsg() const
 {
   return latest_id_;
+}
 }

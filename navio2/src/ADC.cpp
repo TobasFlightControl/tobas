@@ -12,6 +12,8 @@
 
 using namespace std;
 
+namespace navio
+{
 ADC::ADC()
 {
 }
@@ -62,4 +64,5 @@ int ADC::openChannel(const size_t& ch)
   free(channel_path);
 
   return fd;
+}
 }
