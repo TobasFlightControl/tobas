@@ -15,8 +15,9 @@ from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
-from tobas_rqt_tools.widgets import TabWidget, add_center_button
+from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
 
 from ...parameter_getters import *
@@ -204,8 +205,9 @@ class SelectedLinkTabWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._copy_button = add_center_button("Copy from left tab", rows)
+        self._copy_button = QPushButton("Copy from left tab")
         self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        place_center(self._copy_button, rows)
 
         self.esc = EscWidget(main, link_name)
         rows.addWidget(self.esc)

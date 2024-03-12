@@ -12,7 +12,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_center_button
 from tobas_rqt_tools.messages import q_error
 from tobas_rqt_tools.roslaunch import create_launcher
 
@@ -41,17 +40,11 @@ class StartWidget(BaseSettingWidget):
         self._robot_model_loader = RobotModelLoaderWidget(main)
         self._rows.addWidget(self._robot_model_loader)
 
-        self._rows.addSpacing(self.SPACE_HEIGHT)
-
-        self._urdf_builder_launcher = URDFBuilderLaunchder(main)
-        self._rows.addWidget(self._urdf_builder_launcher)
-
         self._rows.addStretch()
 
     @overrides
     def define_connections(self) -> None:
         self._robot_model_loader.define_connections()
-        self._urdf_builder_launcher.define_connections()
 
     @overrides
     def is_valid(self) -> bool:
@@ -169,34 +162,3 @@ class RobotModelLoaderWidget(QWidget):
         self._file_text.setEnabled(False)
         self._browse_button.setEnabled(False)
         self._load_button.setEnabled(False)
-
-
-class URDFBuilderLaunchder(QWidget):
-    BUTTON_HEIGHT = 40
-
-    def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        instruction = Description("If you do not have URDF, you can create one using URDF Builder.")
-        rows.addWidget(instruction)
-
-        self._open_button = add_center_button("Open URDF Builder", rows)
-        self._open_button.setFixedHeight(self.BUTTON_HEIGHT)
-        self._open_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-
-    def define_connections(self) -> None:
-        self._open_button.clicked.connect(self._on_open_button_clicked)
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
-
-    @pyqtSlot()
-    def _on_open_button_clicked(self) -> None:
-        create_launcher("urdf_builder", "urdf_builder.launch")
-        self._open_button.setEnabled(False)  # FIXME: URDF Builderを2つ立ち上げるとバグる
-
-    @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
-        self._open_button.setEnabled(False)

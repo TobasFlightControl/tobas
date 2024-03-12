@@ -421,16 +421,6 @@ class FloatSliderDisplay(QWidget):
         self.value_changed.emit(value)
 
 
-def add_center_button(text: str, rows: QVBoxLayout) -> QPushButton:
-    """layoutの中央にQPushButtonを配置する．"""
-    button = QPushButton(text)
-    cols = QHBoxLayout()
-    cols.addWidget(button)
-    cols.setAlignment(button, Qt.AlignCenter)  # この操作のためにLayoutが必要
-    rows.addLayout(cols)
-    return button
-
-
 def create_rviz_frame(config_path: str):
     # Setup frame
     # cf. RViz Python Tutorial: https://docs.ros.org/en/indigo/api/rviz_python_tutorial/html/

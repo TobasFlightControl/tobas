@@ -14,7 +14,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_center_button
+from tobas_rqt_tools.utils import place_center
 from tobas_rqt_tools.messages import *
 
 from .base_setting import BaseSettingWidget
@@ -56,9 +56,10 @@ class RosPackageWidget(BaseSettingWidget):
         self._rows.addWidget(self._pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
-        self.generate_button = add_center_button("Generate", self._rows)
+        self.generate_button = QPushButton("Generate")
         self.generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self.generate_button.setEnabled(False)
+        place_center(self.generate_button, self._rows)
 
         self._rows.addStretch()
 
