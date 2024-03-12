@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <navio2/Util.h>
+#include <navio2/util.hpp>
 
 using namespace std;
 using namespace navio;

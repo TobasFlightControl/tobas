@@ -3,8 +3,8 @@
 #include <cassert>
 #include <chrono>
 
-#include "../include/navio2/Ublox.h"
-#include "../include/navio2/Util.h"
+#include "../include/navio2/ublox.hpp"
+#include "../include/navio2/util.hpp"
 
 #define GPS_DEVICE "/dev/spidev0.0"
 

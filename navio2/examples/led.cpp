@@ -1,8 +1,8 @@
 #include <memory>
 #include <unistd.h>
 
-#include <navio2/Util.h>
-#include <navio2/Led.h>
+#include <navio2/util.hpp>
+#include <navio2/led.hpp>
 
 using namespace navio;
 

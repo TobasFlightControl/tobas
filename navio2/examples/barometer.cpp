@@ -1,8 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include <navio2/MS5611.h>
-#include <navio2/Util.h>
+#include <navio2/ms5611.hpp>
+#include <navio2/util.hpp>
 
 using namespace navio;
 

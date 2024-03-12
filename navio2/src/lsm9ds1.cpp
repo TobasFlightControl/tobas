@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "../include/navio2/LSM9DS1.h"
+#include "../include/navio2/lsm9ds1.hpp"
 
 #define DEVICE_ACC_GYRO "/dev/spidev0.3"
 #define DEVICE_MAG "/dev/spidev0.2"

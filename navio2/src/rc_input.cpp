@@ -5,8 +5,8 @@
 #include <fcntl.h>
 #include <err.h>
 
-#include "../include/navio2/Util.h"
-#include "../include/navio2/RCInput.h"
+#include "../include/navio2/util.hpp"
+#include "../include/navio2/rc_input.hpp"
 
 using namespace std;
 

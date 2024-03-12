@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cinttypes>
-#include <navio2/ADC.h>
+#include <navio2/adc.hpp>
 
 namespace tobas_calibration
 {

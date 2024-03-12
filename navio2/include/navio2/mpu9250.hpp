@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./SPIdev.h"
-#include "./InertialSensor.h"
+#include "./spi_dev.hpp"
+#include "./imu.hpp"
 
 // MPU9250 registers
 #define MPUREG_XG_OFFS_TC 0x00

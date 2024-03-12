@@ -2,7 +2,7 @@
 #include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <navio2/ADC.h>
+#include <navio2/adc.hpp>
 #include <tobas_real/common.hpp>
 
 using namespace std;

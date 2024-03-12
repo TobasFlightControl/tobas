@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "./SPIdev.h"
+#include "./spi_dev.hpp"
 #include "./ubx_payload.hpp"
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する

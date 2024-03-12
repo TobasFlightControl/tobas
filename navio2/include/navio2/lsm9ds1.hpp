@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./SPIdev.h"
-#include "./InertialSensor.h"
+#include "./spi_dev.hpp"
+#include "./imu.hpp"
 
 namespace navio
 {

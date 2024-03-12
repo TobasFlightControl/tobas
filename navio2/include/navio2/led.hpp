@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./gpio.h"
+#include "./gpio.hpp"
 
 namespace navio
 {

@@ -1,8 +1,8 @@
 #include <vector>
 #include <iostream>
 
-#include <navio2/Ublox.h>
-#include <navio2/Util.h>
+#include <navio2/ublox.hpp>
+#include <navio2/util.hpp>
 
 #define MEASUREMENT_RATE 100  // [ms]
 #define SLEEP_TIME 200        // [us]

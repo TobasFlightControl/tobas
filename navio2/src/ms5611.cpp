@@ -1,7 +1,7 @@
 #include <math.h>
 #include <unistd.h>
 
-#include "../include/navio2/MS5611.h"
+#include "../include/navio2/ms5611.hpp"
 
 namespace navio
 {

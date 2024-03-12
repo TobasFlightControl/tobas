@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./I2Cdev.h"
+#include "./i2c_dev.hpp"
 
 #define MS5611_ADDRESS_CSB_LOW 0x76
 #define MS5611_ADDRESS_CSB_HIGH 0x77

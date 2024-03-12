@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "../include/navio2/Util.h"
+#include "../include/navio2/util.hpp"
 
 using namespace std;
 

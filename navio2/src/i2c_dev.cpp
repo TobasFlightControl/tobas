@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <linux/i2c-dev.h>
 
-#include "../include/navio2//I2Cdev.h"
+#include "../include/navio2/i2c_dev.hpp"
 
 namespace navio
 {

@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <err.h>
 
-#include "../include/navio2/gpio.h"
+#include "../include/navio2/gpio.hpp"
 
 #define LOW 0
 #define HIGH 1

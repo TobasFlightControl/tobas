@@ -1,9 +1,9 @@
 #include <memory>
 #include <string>
 
-#include <navio2/Util.h>
-#include <navio2/MPU9250.h>
-#include <navio2/LSM9DS1.h>
+#include <navio2/util.hpp>
+#include <navio2/mpu9250.hpp>
+#include <navio2/lsm9ds1.hpp>
 
 using namespace navio;
 
@@ -68,15 +68,13 @@ std::string get_sensor_name(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
   if (check_apm())
-  {
     return 1;
-  }
 
-  auto sensor_name = get_sensor_name(argc, argv);
+  const auto sensor_name = get_sensor_name(argc, argv);
   if (sensor_name.empty())
     return EXIT_FAILURE;
 
-  auto sensor = get_inertial_sensor(sensor_name);
+  const auto sensor = get_inertial_sensor(sensor_name);
 
   if (!sensor)
   {

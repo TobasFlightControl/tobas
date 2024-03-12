@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
 
-#include <navio2/MS5611.h>
+#include <navio2/ms5611.hpp>
 #include <tobas_tools/node.hpp>
 
 namespace tobas_real
