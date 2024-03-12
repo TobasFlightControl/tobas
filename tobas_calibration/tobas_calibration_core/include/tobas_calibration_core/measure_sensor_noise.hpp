@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <Common/MS5611.h>
-#include <Navio2/PWM.h>
+#include <navio2/ms5611.hpp>
+#include <navio2/pwm.hpp>
 
 #include <tobas_real/common.hpp>
 
@@ -23,8 +23,8 @@ public:
 
 private:
   tobas_real::ImuDevice imu_;
-  MS5611 barometer_;
-  PWM pwm_;
+  navio::MS5611 barometer_;
+  navio::PWM pwm_;
 
   void setPeriodOnAllChannels(const double& period);
   void sendDisarm();

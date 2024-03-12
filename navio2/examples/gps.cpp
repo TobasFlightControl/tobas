@@ -1,13 +1,14 @@
 #include <vector>
 #include <iostream>
 
-#include <Common/Ublox.h>
-#include <Common/Util.h>
+#include <navio2/ublox.hpp>
+#include <navio2/util.hpp>
 
 #define MEASUREMENT_RATE 100  // [ms]
 #define SLEEP_TIME 200        // [us]
 
 using namespace std;
+using namespace navio;
 
 int main()
 {

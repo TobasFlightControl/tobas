@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
-#include <Navio2/RCInput_Navio2.h>
+#include <navio2/rc_input.hpp>
 #include <tobas_real/common.hpp>
 
 #include <tobas_calibration_msgs/RCInputCalibration.h>
@@ -29,7 +29,7 @@ public:
   explicit RCInputCalibrationRos(ros::NodeHandle& nh);
 
 private:
-  RCInput_Navio2 rcin_;
+  navio::RCInput rcin_;
 
   ros::Timer publish_timer_;
   ros::Publisher rcin_pub_;

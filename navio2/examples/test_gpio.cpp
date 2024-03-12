@@ -1,9 +1,10 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <Common/Util.h>
+#include <navio2/util.hpp>
 
 using namespace std;
+using namespace navio;
 
 int main(int argc, char* argv[])
 {

@@ -2,8 +2,8 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Common/MS5611.h>
 
+#include <navio2/ms5611.hpp>
 #include <tobas_tools/node.hpp>
 
 namespace tobas_real
@@ -23,7 +23,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  MS5611 barometer_;
+  navio::MS5611 barometer_;
 
   // Config
   double pressure_noise_density_;  // [Pa/sqrt(Hz)]

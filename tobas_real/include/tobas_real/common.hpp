@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
-#include <Navio2/PWM.h>
+#include <navio2/mpu9250.hpp>
+#include <navio2/lsm9ds1.hpp>
+#include <navio2/pwm.hpp>
 
 namespace tobas_real
 {
-// using ImuDevice = MPU9250;
-using ImuDevice = LSM9DS1;
+// using ImuDevice = navio::MPU9250;
+using ImuDevice = navio::LSM9DS1;
 
 static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
 
@@ -78,5 +78,5 @@ static constexpr double kCheckLatencyThreshold = 0.02;    // [s]
 static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
-void setupRCOutput(PWM& pwm, const size_t& channel);
+void setupRCOutput(navio::PWM& pwm, const size_t& channel);
 }  // namespace tobas_real

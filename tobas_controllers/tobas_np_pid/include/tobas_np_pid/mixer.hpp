@@ -46,10 +46,10 @@ private:
   KDL::TreeJntAxisSolver jnt_axis_solver_;
   KDL::TreeJntToInertiaSolver inertia_solver_;
 
-  quadprog::DualActiveSetSolver qp_;     // QPソルバー
-  Eigen::Diagonal6d Q_;                  // EoMの重み
-  Eigen::DiagonalXd R_;                  // 推力の重み
-  Eigen::Matrix6Xd G_;                   // EoM行列等式の左辺
-  Eigen::Vector6d h_;                    // EoM行列等式の右辺
+  quadprog::DualActiveSetSolver qp_;  // QPソルバー
+  Eigen::Diagonal6d Q_;               // EoMの重み
+  Eigen::DiagonalXd R_;               // 推力の重み
+  Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
+  Eigen::Vector6d h_;                 // EoM行列等式の右辺
 };
 }  // namespace tobas_np_pid

@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_real
 {
-void setupRCOutput(PWM& pwm, const size_t& channel)
+void setupRCOutput(navio::PWM& pwm, const size_t& channel)
 {
   if (!pwm.initialize(channel))
     throw runtime_error("Failed to initialize RC output on CH" + to_string(channel) + ".");

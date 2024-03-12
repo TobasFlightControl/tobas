@@ -4,7 +4,7 @@
 #include <ros/timer.h>
 #include <std_srvs/SetBool.h>
 
-#include <Navio2/PWM.h>
+#include <navio2/pwm.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PwmArray.h>
@@ -35,7 +35,7 @@ public:
   ~PwmHandler();
 
 private:
-  PWM pwm_;
+  navio::PWM pwm_;
   std::array<PwmState, tobas::kServoRailSize> pwm_states_;
 
   // Subscribers

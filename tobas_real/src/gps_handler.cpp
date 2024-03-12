@@ -43,15 +43,15 @@ void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
     ROS_EXIT_NAMED(nh_, name_, "Failed to disable all navigation messsages.");
-  if (!gps_.enableMsg(Ublox::NAV_PVT, true))
+  if (!gps_.enableMsg(navio::Ublox::NAV_PVT, true))
     ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_PVT");
-  if (!gps_.enableMsg(Ublox::NAV_COV, true))
+  if (!gps_.enableMsg(navio::Ublox::NAV_COV, true))
     ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_COV");
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
     ROS_EXIT_NAMED(nh_, name_, "Failed to set measurement rate.");
 
-  if (!gps_.configureDynamicsModel(Ublox::AIRBORNE_2G))
+  if (!gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G))
     ROS_EXIT_NAMED(nh_, name_, "Failed to set dynamics model.");
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
@@ -77,7 +77,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
   switch (msg)
   {
-    case Ublox::NAV_PVT:
+    case navio::Ublox::NAV_PVT:
     {
       if (!cov_received_)
         break;
@@ -91,7 +91,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
       // rosInfo(name_, "GPS delay: " << gps_delay.count() << "[ms]");
 
-      if (!pvt_.gnssFixOk || pvt_.fixType != Ublox::FIX_3D)
+      if (!pvt_.gnssFixOk || pvt_.fixType != navio::Ublox::FIX_3D)
       {
         rosWarnThrottle(
           kWarnPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
@@ -136,7 +136,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
       break;
     }
-    case Ublox::NAV_COV:
+    case navio::Ublox::NAV_COV:
     {
       gps_.decode(cov_);
 

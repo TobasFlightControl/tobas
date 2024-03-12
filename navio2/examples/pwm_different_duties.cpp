@@ -2,9 +2,8 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <Common/Util.h>
-#include <Navio2/PWM.h>
-#include <Navio2/PWM.h>
+#include <navio2/util.hpp>
+#include <navio2/pwm.hpp>
 
 #define SERVO_RAIL_SIZE 14
 #define PWM_FREQUENCY 50    // [Hz]
@@ -15,6 +14,7 @@
 #define INTERVAL 0.1        // [s]
 
 using namespace std;
+using namespace navio;
 
 int main(int, char** argv)
 {
