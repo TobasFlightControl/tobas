@@ -6,17 +6,17 @@
 #include <err.h>
 
 #include "../../include/Common/Util.h"
-#include "../../include/Navio2/ADC_Navio2.h"
+#include "../../include/Navio2/ADC.h"
 
 #define ADC_SYSFS_PATH "/sys/kernel/rcio/adc"
 
 using namespace std;
 
-ADC_Navio2::ADC_Navio2()
+ADC::ADC()
 {
 }
 
-int ADC_Navio2::initialize()
+int ADC::initialize()
 {
   for (size_t i = 0; i < kChannelCount; ++i)
   {
@@ -31,7 +31,7 @@ int ADC_Navio2::initialize()
   return 0;
 }
 
-int ADC_Navio2::read(const size_t& ch)
+int ADC::read(const size_t& ch)
 {
   if (ch >= kChannelCount)
   {
@@ -49,7 +49,7 @@ int ADC_Navio2::read(const size_t& ch)
   return atoi(buffer);
 }
 
-int ADC_Navio2::openChannel(const size_t& ch)
+int ADC::openChannel(const size_t& ch)
 {
   char* channel_path;
   if (asprintf(&channel_path, "%s/ch%zu", ADC_SYSFS_PATH, ch) == -1)

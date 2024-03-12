@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include <Common/Util.h>
-#include <Navio2/RCInput_Navio2.h>
+#include <Navio2/RCInput.h>
 
 #define READ_FAILED -1
 
@@ -15,7 +15,7 @@ int main()
   if (check_apm())
     return 1;
 
-  RCInput_Navio2 rcin;
+  RCInput rcin;
   rcin.initialize();
 
   while (true)

@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Navio2/RCInput_Navio2.h>
+#include <Navio2/RCInput.h>
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/constants.hpp>
@@ -24,7 +24,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  RCInput_Navio2 rcin_;
+  RCInput rcin_;
 
   // Config
   tobas_std::Range<int> roll_range_;

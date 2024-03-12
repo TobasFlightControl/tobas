@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 #include <vector>
-#include <Navio2/RCInput_Navio2.h>
+#include <Navio2/RCInput.h>
 
 namespace tobas_calibration
 {
@@ -19,7 +19,7 @@ public:
   void run();
 
 private:
-  RCInput_Navio2 rcin_;
+  RCInput rcin_;
 
   double readRCInput(const size_t& channel);
   bool isDifferentModesTooClose(const std::vector<double>& modes) const;

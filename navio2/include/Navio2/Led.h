@@ -1,12 +1,23 @@
 #pragma once
 
 #include "../Common/gpio.h"
-#include "../Common/Led.h"
 
-class RGBled
+enum class Colors
+{
+  Black,
+  Red,
+  Green,
+  Blue,
+  Cyan,
+  Magenta,
+  Yellow,
+  White
+};
+
+class Led
 {
 public:
-  explicit RGBled();
+  explicit Led();
 
   bool initialize();
   void setColor(Colors color);

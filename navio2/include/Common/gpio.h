@@ -31,11 +31,11 @@ namespace Navio
 class Pin
 {
 public:
-  typedef enum
+  enum GpioMode
   {
     GpioModeInput,
     GpioModeOutput
-  } GpioMode;
+  };
 
   explicit Pin(uint8_t pin);
   ~Pin();
@@ -50,10 +50,10 @@ private:
   int getRaspberryPiVersion() const;
   Pin(const Pin&);
 
-  uint8_t _pin;
-  volatile uint32_t* _gpio;
-  GpioMode _mode;
+  uint8_t pin_;
+  volatile uint32_t* gpio_;
+  GpioMode mode_;
 
-  bool _deinit();
+  bool deinit();
 };
 }  // namespace Navio

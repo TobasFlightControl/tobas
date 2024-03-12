@@ -1,4 +1,4 @@
-#include "../../include/Navio2/RGBled.h"
+#include "../../include/Navio2/Led.h"
 
 // Output is inverted
 #define OFF 1
@@ -6,15 +6,16 @@
 
 using namespace Navio;
 
-RGBled::RGBled()
+Led::Led()
 {
 }
 
-bool RGBled::initialize()
+bool Led::initialize()
 {
   pinR = new Pin(RPI_GPIO_4);
   pinG = new Pin(RPI_GPIO_27);
   pinB = new Pin(RPI_GPIO_6);
+
   if (pinR->init() && pinG->init() && pinB->init())
   {
     pinR->setMode(Pin::GpioModeOutput);
@@ -30,10 +31,11 @@ bool RGBled::initialize()
   {
     return false;
   }
+
   return true;
 }
 
-void RGBled::setColor(Colors color)
+void Led::setColor(Colors color)
 {
   switch (color)
   {

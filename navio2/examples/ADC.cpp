@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include <Common/Util.h>
-#include <Navio2/ADC_Navio2.h>
+#include <Navio2/ADC.h>
 
 #define READ_FAILED -1
 
@@ -13,7 +13,7 @@ int main()
   if (check_apm())
     return 1;
 
-  ADC_Navio2 adc;
+  ADC adc;
   adc.initialize();
   std::vector<float> results(adc.kChannelCount, 0.);
   while (true)

@@ -2,12 +2,12 @@
 
 #include <cstddef>
 
-class RCInput_Navio2
+class ADC
 {
 public:
-  static constexpr size_t kChannelCount = 14;
+  static constexpr size_t kChannelCount = 6;
 
-  explicit RCInput_Navio2();
+  explicit ADC();
 
   int initialize();
   int read(const size_t& ch);

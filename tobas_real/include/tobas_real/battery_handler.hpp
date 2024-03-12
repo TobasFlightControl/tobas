@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <Navio2/ADC_Navio2.h>
+#include <Navio2/ADC.h>
 
 #include <tobas_tools/node.hpp>
 
@@ -24,7 +24,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  ADC_Navio2 adc_;
+  ADC adc_;
 
   // Config
   double adc_coef_;

@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 
-#include <Navio2/ADC_Navio2.h>
+#include <Navio2/ADC.h>
 
 #include <tobas_calibration_msgs/AdcCalibration.h>
 
@@ -23,7 +23,7 @@ public:
   explicit AdcCalibrationRos(ros::NodeHandle& nh);
 
 private:
-  ADC_Navio2 adc_;
+  ADC adc_;
 
   ros::ServiceServer ss_;
 

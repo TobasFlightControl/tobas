@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cinttypes>
+#include <cstddef>
 
 /**
  * @brief 全てのPWMチャンネルを制御するモジュール．

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <Navio2/ADC_Navio2.h>
+#include <Navio2/ADC.h>
 #include <tobas_real/common.hpp>
 
 using namespace std;
@@ -15,7 +15,7 @@ int main()
   const double adc_coef = pt.get<double>(tobas_real::kConfigKey_AdcCoef);
 
   // Initialize ADC driver
-  ADC_Navio2 adc;
+  ADC adc;
   adc.initialize();
 
   while (true)

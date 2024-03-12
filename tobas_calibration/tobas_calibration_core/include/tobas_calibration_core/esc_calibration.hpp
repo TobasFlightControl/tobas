@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 #include <Navio2/PWM.h>
-#include <Navio2/ADC_Navio2.h>
+#include <Navio2/ADC.h>
 
 namespace tobas_calibration
 {
@@ -17,7 +17,7 @@ public:
 
 private:
   PWM pwm_;
-  ADC_Navio2 adc_;
+  ADC adc_;
 
   void waitForBatteryDisconnected();
   void sendMaximum();

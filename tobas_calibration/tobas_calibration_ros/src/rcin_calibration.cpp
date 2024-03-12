@@ -28,7 +28,7 @@ void RCInputCalibrationRos::publishTimerCb(const ros::TimerEvent& event)
   const auto rcin_msg = boost::make_shared<tobas_calibration_msgs::RCInput>();
   rcin_msg->header.stamp = event.current_real;
 
-  for (size_t i = 0; i < RCInput_Navio2::kChannelCount; ++i)
+  for (size_t i = 0; i < RCInput::kChannelCount; ++i)
   {
     const auto period = rcin_.read(i);
     if (period < 0)

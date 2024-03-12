@@ -6,15 +6,15 @@
 #include <err.h>
 
 #include "../../include/Common/Util.h"
-#include "../../include/Navio2/RCInput_Navio2.h"
+#include "../../include/Navio2/RCInput.h"
 
 using namespace std;
 
-RCInput_Navio2::RCInput_Navio2()
+RCInput::RCInput()
 {
 }
 
-int RCInput_Navio2::initialize()
+int RCInput::initialize()
 {
   for (size_t i = 0; i < kChannelCount; ++i)
   {
@@ -29,7 +29,7 @@ int RCInput_Navio2::initialize()
   return 0;
 }
 
-int RCInput_Navio2::read(const size_t& ch)
+int RCInput::read(const size_t& ch)
 {
   if (ch >= kChannelCount)
   {
@@ -47,7 +47,7 @@ int RCInput_Navio2::read(const size_t& ch)
   return atoi(buffer);
 }
 
-int RCInput_Navio2::openChannel(const size_t& ch)
+int RCInput::openChannel(const size_t& ch)
 {
   char* channel_path;
   if (asprintf(&channel_path, "%s/ch%zu", "/sys/kernel/rcio/rcin", ch) == -1)

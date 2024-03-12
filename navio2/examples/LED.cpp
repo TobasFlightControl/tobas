@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 #include <Common/Util.h>
-#include <Navio2/Led_Navio2.h>
+#include <Navio2/Led.h>
 
 int main(int, char* argv[])
 {
@@ -12,7 +12,7 @@ int main(int, char* argv[])
   if (getuid())
     fprintf(stderr, "Not root. Please launch like this: sudo %s\n", argv[0]);
 
-  Led_Navio2 led;
+  Led led;
   if (!led.initialize())
     return EXIT_FAILURE;
 
