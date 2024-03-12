@@ -84,12 +84,12 @@ public:
   /** Get calculated temperature value
    @return Temperature in degrees of Celsius
    */
-  float getTemperature();
+  inline float getTemperature() const;
 
   /** Get calculated pressure value
  @return Pressure in millibars
  */
-  float getPressure();
+  inline float getPressure() const;
 
 private:
   uint8_t dev_addr_;                      // I2C device adress
@@ -98,4 +98,14 @@ private:
   float temp_;                            // Calculated temperature
   float pres_;                            // Calculated pressure
 };
+
+inline float MS5611::getTemperature() const
+{
+  return temp_;
+}
+
+inline float MS5611::getPressure() const
+{
+  return pres_;
+}
 }  // namespace navio

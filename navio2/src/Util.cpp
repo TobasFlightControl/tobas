@@ -17,15 +17,15 @@ int write_file(const char* path, const char* fmt, ...)
 {
   errno = 0;
 
-  int fd = ::open(path, O_WRONLY | O_CLOEXEC);
+  const auto fd = ::open(path, O_WRONLY | O_CLOEXEC);
   if (fd == -1)
     return -errno;
 
   va_list args;
   va_start(args, fmt);
 
-  int ret = ::vdprintf(fd, fmt, args);
-  int errno_bkp = errno;
+  const auto ret = ::vdprintf(fd, fmt, args);
+  const auto errno_bkp = errno;
   ::close(fd);
 
   va_end(args);
@@ -47,8 +47,8 @@ int read_file(const char* path, const char* fmt, ...)
   va_list args;
   va_start(args, fmt);
 
-  int ret = ::vfscanf(file, fmt, args);
-  int errno_bkp = errno;
+  const auto ret = ::vfscanf(file, fmt, args);
+  const auto errno_bkp = errno;
   ::fclose(file);
 
   va_end(args);
@@ -61,7 +61,7 @@ int read_file(const char* path, const char* fmt, ...)
 
 bool check_apm()
 {
-  int ret = system("ps -AT | grep -c ap-timer > /dev/null");
+  const auto ret = system("ps -AT | grep -c ap-timer > /dev/null");
 
   if (WEXITSTATUS(ret) <= 0)
   {
@@ -81,9 +81,9 @@ int get_navio_version()
 
 float decodeBinary32(uint32_t bin)
 {
-  const int sign = bin >> 31 ? -1 : 1;
-  const int exponent = (bin >> 23) & 0xFF;
-  const int mantissa = (exponent == 0) ? (bin & 0x7FFFFF) << 1 : (bin & 0x7FFFFF) | 0x800000;
+  const auto sign = bin >> 31 ? -1 : 1;
+  const auto exponent = (bin >> 23) & 0xFF;
+  const auto mantissa = (exponent == 0) ? (bin & 0x7FFFFF) << 1 : (bin & 0x7FFFFF) | 0x800000;
   return sign * mantissa * pow(2, exponent - 150);
 }
-}
+}  // namespace navio

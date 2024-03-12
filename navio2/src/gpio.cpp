@@ -42,9 +42,7 @@ Pin::Pin(uint8_t pin) : pin_(pin), gpio_(nullptr), mode_(GpioModeInput)
 Pin::~Pin()
 {
   if (!deinit())
-  {
     warnx("deinitialization failed");
-  }
 }
 
 bool Pin::deinit()
@@ -148,18 +146,12 @@ uint8_t Pin::read() const
 void Pin::write(uint8_t value)
 {
   if (mode_ != GpioModeOutput)
-  {
     warnx("no effect because mode is not set");
-  }
 
   if (value == LOW)
-  {
     GPIO_SET_LOW = 1 << pin_;
-  }
   else
-  {
     GPIO_SET_HIGH = 1 << pin_;
-  }
 }
 
 void Pin::toggle()
@@ -173,9 +165,7 @@ int Pin::getRaspberryPiVersion() const
   ifstream f(SYSFS_RPI_MODEL_FILE_PATH);
 
   if (!f)
-  {
     throw runtime_error(string("Could not open ") + SYSFS_RPI_MODEL_FILE_PATH);
-  }
 
   while (f >> buffer)
   {

@@ -14,8 +14,6 @@
 
 namespace navio
 {
-/** Default constructor.
- */
 I2Cdev::I2Cdev()
 {
 }

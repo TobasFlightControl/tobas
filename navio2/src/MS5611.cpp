@@ -109,14 +109,4 @@ void MS5611::update()
 
   calculatePressureAndTemperature();
 }
-
-float MS5611::getTemperature()
-{
-  return temp_;
-}
-
-float MS5611::getPressure()
-{
-  return pres_;
-}
 }  // namespace navio
