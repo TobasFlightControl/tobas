@@ -1,4 +1,4 @@
-# goal
+# Goal
 duration time_window
 
 float64 horizontal_position_variance_threshold  # [m]
@@ -9,7 +9,7 @@ float64 velocity_threshold                      # [m/s]
 
 ---
 
-# result
+# Result
 tobas_msgs/Odometry odom
 
 int8 error_code
@@ -20,4 +20,4 @@ int8 UNKNOWN_ERROR = -3
 
 ---
 
-# feedback
+# Feedback

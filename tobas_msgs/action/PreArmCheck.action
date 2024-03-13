@@ -1,8 +1,8 @@
-# goal
+# Goal
 
 ---
 
-# result
+# Result
 tobas_msgs/Battery battery
 sensor_msgs/Imu imu
 sensor_msgs/MagneticField magnetic_field
@@ -25,4 +25,4 @@ int8 UNKNOWN_ERROR = -5
 
 ---
 
-# feedback
+# Feedback
