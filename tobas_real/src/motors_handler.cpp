@@ -9,7 +9,6 @@
 #include <tobas_msgs/PwmArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Latency.h>
-#include <tobas_msgs/SetupPwm.h>
 #include <tobas_msgs/EnablePwm.h>
 
 #include "../include/tobas_real/motors_handler.hpp"
@@ -33,15 +32,10 @@ MotorsHandler::MotorsHandler(
   registerSubscribers();
 
   arm_rotors_ss_ = nh_.advertiseService(tobas::kArmRotorsSrv, &self::armRotorsCb, this);
-  setup_pwm_sc_ = nh_.serviceClient<tobas_msgs::SetupPwm>(tobas::kSetupPwmSrv);
   enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
 
-  setup_pwm_timer_ = nh_.createTimer(ros::Duration(0), &self::setupPwmTimerCb, this, true, false);
   check_interval_timer_ =
     nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
-
-  // PWMのセットアップを開始
-  setup_pwm_timer_.start();
 }
 
 void MotorsHandler::getRosParams()
@@ -245,30 +239,6 @@ bool MotorsHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBool
   return true;
 }
 
-void MotorsHandler::setupPwmTimerCb(const ros::TimerEvent&)
-{
-  // サービスサーバの起動を待つ
-  while (!setup_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-    rosWarn(name_, "Failed to connect to '" << tobas::kSetupPwmSrv << "' server. Retrying...");
-
-  // PWMのセットアップ
-  tobas_msgs::SetupPwm setup_pwm_msg;
-  for (const auto& rotor : drone_.rotorConfigs())
-  {
-    setup_pwm_msg.request.channel = rotor.channel;
-    setup_pwm_msg.request.frequency = kPwmFrequency;
-    while (!setup_pwm_sc_.call(setup_pwm_msg) || !setup_pwm_msg.response.success)
-    {
-      rosWarn(name_, "Failed to setup RC output on CH" << rotor.channel << ". Retrying...");
-      ros::Duration(kSetupPwmRetryInterval).sleep();
-    }
-  }
-
-  // 起動時は自動でアームする
-  if (!armRotors())
-    rosError(name_, "Failed to arm rotors.");
-}
-
 bool MotorsHandler::armRotors()
 {
   if (!enablePwms(true))
@@ -308,9 +278,9 @@ bool MotorsHandler::disarmRotors()
 
 bool MotorsHandler::enablePwms(const bool& enable)
 {
-  if (!setup_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kSetupPwmSrv << "' server.");
+    rosError(name_, "Failed to connect to '" << tobas::kEnablePwmSrv << "' server.");
     return false;
   }
 
@@ -354,9 +324,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
 
       const auto real_voltage = battery_->voltage * tobas::kArmThrottle;
       for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
-      {
         real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
-      }
 
       cur_speeds_pub_.publish(real_speeds);
     }

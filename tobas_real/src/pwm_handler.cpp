@@ -11,8 +11,14 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   : super(nh, pnh, name)
 {
   // パルスが出力され始めたらexportを受け付けなくなるため，最初に全部やってしまう
+  // 周波数は固定
   for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
-    pwm_.initialize(channel);
+  {
+    if (!pwm_.initialize(channel))
+      ROS_EXIT_NAMED(nh_, name_, "Failed to initialize PWM CH" << channel << ".");
+    if (!pwm_.setFrequency(channel, kPwmFrequency))
+      ROS_EXIT_NAMED(nh_, name_, "Failed to set frequency of PWM CH" << channel << ".");
+  }
 
   getRosParams();
   registerPublishers();
@@ -26,7 +32,7 @@ PwmHandler::~PwmHandler()
   {
     // PWMが有効化されていたら無効化する
     // unexportは不安定なので行わない
-    if (pwm_states_.at(channel).is_enabled)
+    if (is_enabled_.at(channel))
     {
       if (!pwm_.disable(channel))
         rosError(name_, "Failed to disable PWM CH" << channel << ".");
@@ -49,7 +55,6 @@ void PwmHandler::registerSubscribers()
 
 void PwmHandler::registerServiceServers()
 {
-  setup_pwm_srv_ = nh_.advertiseService(tobas::kSetupPwmSrv, &self::setupPwmCb, this);
   enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
 }
 
@@ -64,7 +69,7 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
       continue;
     }
 
-    if (!pwm_states_.at(pwm.channel).is_enabled)
+    if (!is_enabled_.at(pwm.channel))
     {
       rosError(name_, "PWM CH" << pwm.channel << " is disabled.");
       continue;
@@ -73,36 +78,6 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
     if (!pwm_.setDutyCycle(pwm.channel, pwm.period))
       rosFatal(name_, "Failed to set PWM duty cycle on CH" << pwm.channel << ".");
   }
-}
-
-bool PwmHandler::setupPwmCb(tobas_msgs::SetupPwmRequest& req, tobas_msgs::SetupPwmResponse& res)
-{
-  res.success = false;
-
-  if (req.channel >= tobas::kServoRailSize)
-  {
-    rosError(name_, "PWM channel out of range.");
-    return true;
-  }
-
-  // Set frequency
-  if (!pwm_.setFrequency(req.channel, req.frequency))
-  {
-    rosError(name_, "Failed to set frequency of PWM CH" << req.channel << ".");
-    return true;
-  }
-
-  // Enable
-  if (!pwm_.enable(req.channel))
-  {
-    rosError(name_, "Failed to enable PWM CH" << req.channel << ".");
-    return true;
-  }
-  pwm_states_.at(req.channel).is_enabled = true;
-
-  pwm_states_.at(req.channel).is_initialized = true;
-  res.success = true;
-  return true;
 }
 
 bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res)
@@ -115,12 +90,6 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
     return true;
   }
 
-  if (!pwm_states_.at(req.channel).is_initialized)
-  {
-    rosError(name_, "PWM CH" << req.channel << " is not initialized.");
-    return true;
-  }
-
   if (req.enable)
   {
     if (!pwm_.enable(req.channel))
@@ -128,7 +97,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
       rosError(name_, "Failed to enable PWM CH" << req.channel << ".");
       return true;
     }
-    pwm_states_.at(req.channel).is_enabled = true;
+    is_enabled_.at(req.channel) = true;
   }
   else
   {
@@ -137,7 +106,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
       rosError(name_, "Failed to disable PWM CH" << req.channel << ".");
       return true;
     }
-    pwm_states_.at(req.channel).is_enabled = false;
+    is_enabled_.at(req.channel) = false;
   }
 
   res.success = true;

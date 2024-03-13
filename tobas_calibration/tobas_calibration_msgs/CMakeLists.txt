@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_kdl_msgs
 	message_generation
+	actionlib
 	actionlib_msgs
 )
 
@@ -21,8 +22,8 @@ file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
 add_message_files(FILES ${MSG_FILES})
 file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
 add_service_files(FILES ${SRV_FILES})
-# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
-# add_action_files(FILES ${ACTION_FILES})
+file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
+add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
 	tobas_kdl_msgs
@@ -32,7 +33,7 @@ generate_messages(DEPENDENCIES
 catkin_package(
 	# INCLUDE_DIRS include
 	# LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_kdl_msgs message_generation actionlib_msgs
+	CATKIN_DEPENDS tobas_kdl_msgs message_generation actionlib actionlib_msgs
 )
 
 # include_directories(${catkin_INCLUDE_DIRS} include)

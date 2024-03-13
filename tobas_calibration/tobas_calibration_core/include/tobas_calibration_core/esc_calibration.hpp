@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unistd.h>
-
 #include <navio2/pwm.hpp>
 #include <navio2/adc.hpp>
 

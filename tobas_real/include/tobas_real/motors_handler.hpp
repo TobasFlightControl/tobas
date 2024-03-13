@@ -52,11 +52,9 @@ private:
 
   // Service
   ros::ServiceServer arm_rotors_ss_;
-  ros::ServiceClient setup_pwm_sc_;
   ros::ServiceClient enable_pwm_sc_;
 
   // Timer
-  ros::Timer setup_pwm_timer_;
   ros::Timer check_interval_timer_;
 
   void getRosParams() override;

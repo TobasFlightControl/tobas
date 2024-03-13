@@ -8,7 +8,6 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay
 from tobas_msgs.msg import Pwm, PwmArray
-from tobas_msgs.srv import SetupPwm, SetupPwmResponse
 
 from .common import *
 
@@ -29,19 +28,8 @@ class PwmPublisherWidget(MainWidget):
         grid = QGridLayout()
         rows.addLayout(grid)
 
-        setup_pwm_sc = rospy.ServiceProxy("setup_pwm", SetupPwm)
         self._commanders: List[IntSliderDisplay] = []
-
         for channel in range(SERVO_RAIL_SIZE):
-            # Setup PWM
-            try:
-                setup_pwm_res: SetupPwmResponse = setup_pwm_sc.call(channel, PWM_FREQ)
-                if not setup_pwm_res.success:
-                    rospy.logerr(f"Failed to setup PWM CH{channel}")
-            except rospy.ServiceException as e:
-                rospy.logerr(f"Failed to call service: {e}")
-
-            # Add commander
             commander = IntSliderDisplay(f"CH{channel}", MIN_PWM, MAX_PWM, MIN_PWM, suffix=" us")
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
