@@ -69,7 +69,8 @@ static constexpr char kEffCtrlLSTopic[] = "joint_effort_controller/target_link_s
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kEnablePwmSrv[] = "enable_pwm";
-static constexpr char kArmRotorsSrv[] = "arm_rotors";
+static constexpr char kGetArmSrv[] = "get_arm";
+static constexpr char kSetArmSrv[] = "set_arm";
 
 // ROS actions
 static constexpr char kLandingAction[] = "landing_action";

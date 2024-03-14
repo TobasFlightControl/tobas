@@ -22,7 +22,7 @@ MultirotorLandServer::MultirotorLandServer(
   registerPublishers();
   registerSubscribers();
 
-  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
+  set_arm_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kSetArmSrv);
 
   as_.start();
 }
@@ -50,15 +50,15 @@ void MultirotorLandServer::reset()
 
 bool MultirotorLandServer::disarmRotors()
 {
-  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
   }
 
-  arm_rotors_msg_.request.data = false;
-  if (!arm_rotors_sc_.call(arm_rotors_msg_) || !arm_rotors_msg_.response.success)
+  set_arm_msg_.request.data = false;
+  if (!set_arm_sc_.call(set_arm_msg_) || !set_arm_msg_.response.success)
   {
     result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to disarm rotors.");

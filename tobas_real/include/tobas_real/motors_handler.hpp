@@ -2,13 +2,14 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <std_srvs/SetBool.h>
 
 #include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/Battery.h>
+#include <tobas_msgs/GetArm.h>
+#include <tobas_msgs/SetArm.h>
 
 namespace tobas_real
 {
@@ -51,7 +52,8 @@ private:
   ros::Subscriber battery_sub_;
 
   // Service
-  ros::ServiceServer arm_rotors_ss_;
+  ros::ServiceServer get_arm_ss_;
+  ros::ServiceServer set_arm_ss_;
   ros::ServiceClient enable_pwm_sc_;
 
   // Timer
@@ -69,9 +71,9 @@ private:
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
 
-  bool armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
+  bool getArmCb(tobas_msgs::GetArmRequest& req, tobas_msgs::GetArmResponse& res);
+  bool setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res);
 
-  void setupPwmTimerCb(const ros::TimerEvent& event);
   void checkIntervalTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_real

@@ -51,7 +51,7 @@ private:
   ros::Subscriber rcin_sub_;
 
   // Service
-  ros::ServiceClient arm_rotors_sc_;
+  ros::ServiceClient set_arm_sc_;
 
   void getRosParams() override;
   void registerPublishers() override;

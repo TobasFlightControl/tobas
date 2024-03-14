@@ -1,0 +1,4 @@
+bool arming
+---
+bool success
+string message

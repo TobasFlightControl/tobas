@@ -37,12 +37,12 @@ private:
   std::deque<std::pair<ros::Time, double>> alt_history_;
   tobas_msgs::OdometryConstPtr odom_;
   ResultType result_;
-  std_srvs::SetBool arm_rotors_msg_;
+  std_srvs::SetBool set_arm_msg_;
 
   ros::Publisher cmd_pub_;
   ros::Subscriber odom_sub_;
 
-  ros::ServiceClient arm_rotors_sc_;
+  ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void getRosParams() override;

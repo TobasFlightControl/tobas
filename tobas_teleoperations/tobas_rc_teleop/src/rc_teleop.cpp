@@ -63,7 +63,7 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   registerPublishers();
   registerSubscribers();
 
-  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
+  set_arm_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kSetArmSrv);
 }
 
 void RCTeleop::getRosParams()
@@ -85,15 +85,15 @@ void RCTeleop::registerSubscribers()
 
 void RCTeleop::requestDisarmingRotors()
 {
-  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kArmRotorsSrv << "' service server.");
+    rosError(name_, "Failed to connect to '" << tobas::kSetArmSrv << "' service server.");
     return;
   }
 
-  std_srvs::SetBool arm_rotors_msg;
-  arm_rotors_msg.request.data = false;
-  if (!arm_rotors_sc_.call(arm_rotors_msg) || !arm_rotors_msg.response.success)
+  std_srvs::SetBool set_arm_msg;
+  set_arm_msg.request.data = false;
+  if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     rosError(name_, "Failed to disarm rotors.");
     return;

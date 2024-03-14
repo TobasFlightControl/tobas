@@ -22,7 +22,8 @@ RotorCommandHandler::RotorCommandHandler(
   registerPublishers();
   registerSubscribers();
 
-  arm_rotors_ss_ = nh_.advertiseService(tobas::kArmRotorsSrv, &self::armRotorsCb, this);
+  get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
+  set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
 }
 
 void RotorCommandHandler::getRosParams()
@@ -104,19 +105,25 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
   throttles_pub_.publish(throttles);
 }
 
-bool RotorCommandHandler::armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
+bool RotorCommandHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetArmResponse& res)
 {
-  if (!is_armed_ && req.data)
+  res.arming = is_armed_;
+  return true;
+}
+
+bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
+{
+  if (!is_armed_ && req.arming)
   {
     rosInfo(name_, "Arming rotors.");
     ros::Duration(tobas::kDisarmDuration).sleep();  // 実機に近づけるためArmに要する時間だけスリープ
   }
-  else if (is_armed_ && !req.data)
+  else if (is_armed_ && !req.arming)
   {
     rosInfo(name_, "Disarming rotors.");
   }
 
-  is_armed_ = req.data;
+  is_armed_ = req.arming;
   res.success = true;
   return true;
 }

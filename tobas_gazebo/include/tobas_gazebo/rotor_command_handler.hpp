@@ -1,11 +1,11 @@
 #pragma once
 
-#include <std_srvs/SetBool.h>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/GetArm.h>
+#include <tobas_msgs/SetArm.h>
 
 namespace tobas_gazebo
 {
@@ -32,7 +32,8 @@ private:
   ros::Subscriber battery_sub_;
   ros::Subscriber tar_speeds_sub_;
 
-  ros::ServiceServer arm_rotors_ss_;
+  ros::ServiceServer get_arm_ss_;
+  ros::ServiceServer set_arm_ss_;
 
   void getRosParams() override;
   void registerPublishers() override;
@@ -41,6 +42,7 @@ private:
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
 
-  bool armRotorsCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
+  bool getArmCb(tobas_msgs::GetArmRequest& req, tobas_msgs::GetArmResponse& res);
+  bool setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res);
 };
 }  // namespace tobas_gazebo
