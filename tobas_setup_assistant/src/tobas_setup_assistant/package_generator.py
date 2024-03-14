@@ -206,6 +206,11 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items,
+            "calibration.launch.template",
+            osp.join(launch_dir, "calibration.launch"),
+        )
+        self._generate_from_template(
+            items,
             "controller.launch.template",
             osp.join(launch_dir, "controller.launch"),
         )

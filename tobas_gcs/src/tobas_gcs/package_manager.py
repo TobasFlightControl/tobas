@@ -167,7 +167,7 @@ class PackageManagerWidget(QWidget):
 
         # 環境変数TOBAS_CONFIG_PKGを設定
         rospy.loginfo("Setting environment variables")
-        command = f'echo "TOBAS_CONFIG_PKG={pkg_name}" | sudo tee /etc/tobas/tobas.env > /dev/null'
+        command = f'echo "TOBAS_CONFIG_PKG={pkg_name}" | sudo tee /etc/tobas/config_pkg.env > /dev/null'
         exit_status, _, error_output = self._execute_command(command)
         if exit_status != 0:
             q_error(

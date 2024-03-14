@@ -103,5 +103,5 @@ $ sudo visudo
 
 ```txt
 ...
-pi ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/tobas/tobas.env
+pi ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/tobas/config_pkg.env
 ```
