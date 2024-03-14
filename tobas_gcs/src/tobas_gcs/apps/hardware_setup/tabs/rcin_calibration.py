@@ -15,7 +15,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.layouts import create_fixed_width_vboxlayout
 from tobas_rqt_tools.utils import remap, place_center
 from tobas_tools_py.constants import *

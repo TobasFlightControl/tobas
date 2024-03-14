@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import create_rviz_frame
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.messages import q_info, q_error
 from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
 
 from ....common import *
