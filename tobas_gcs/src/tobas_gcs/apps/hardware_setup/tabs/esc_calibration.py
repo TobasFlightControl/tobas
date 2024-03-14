@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_calibration_msgs.msg import EscCalibrationAction, EscCalibrationGoal, EscCalibrationResult
+from tobas_calibration_msgs.msg import EscCalibrationAction, EscCalibrationGoal
 
 
 from ....common import *
