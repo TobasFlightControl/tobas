@@ -34,15 +34,19 @@ private:
   ResultType result_;
 
   ros::Publisher pwms_pub_;
+  ros::ServiceClient get_arm_sc_;
+  ros::ServiceClient enable_pwm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
-  void waitForBatteryDisconnected();
   void sendMaximum();
   void sendMinimum();
 
   void setPeriod(const double& period);
   void setPeriodAndSleep(const double& period);
   bool isBatteryConnected();
+  bool checkDisarmed();
+  bool enablePWM();
+  void disablePWM();
 
   void executeCb(const GoalType::ConstPtr& goal);
 };

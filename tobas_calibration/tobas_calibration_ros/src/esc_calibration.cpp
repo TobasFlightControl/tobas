@@ -2,6 +2,8 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_real/common.hpp>
 #include <tobas_msgs/PwmArray.h>
+#include <tobas_msgs/GetArm.h>
+#include <tobas_msgs/EnablePwm.h>
 
 #include "../include/tobas_calibration/esc_calibration.hpp"
 
@@ -18,6 +20,9 @@ EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh)
     ROS_EXIT(nh, "Failed to initialize ADC driver.");
 
   pwms_pub_ = nh.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
+  get_arm_sc_ = nh.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  enable_pwm_sc_ = nh.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+
   as_.start();
 }
 
@@ -56,21 +61,94 @@ bool EscCalibrationRos::isBatteryConnected()
   return a2_value > kA2ValueThreshold;
 }
 
+bool EscCalibrationRos::checkDisarmed()
+{
+  tobas_msgs::GetArm get_arm_msg;
+  if (!get_arm_sc_.call(get_arm_msg))
+  {
+    as_.setAborted(result_, "Failed to get arming state.");
+    return false;
+  }
+  if (get_arm_msg.response.arming)
+  {
+    as_.setAborted(result_, "Cannot execute ESC calibration because the motors are armed now.");
+    return false;
+  }
+
+  return true;
+}
+
+bool EscCalibrationRos::enablePWM()
+{
+  tobas_msgs::EnablePwm enable_pwm_msg;
+  enable_pwm_msg.request.enable = true;
+
+  for (const auto& rotor : drone_.rotorConfigs())
+  {
+    enable_pwm_msg.request.channel = rotor.channel;
+    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
+    {
+      as_.setAborted(result_, "Failed to enable PWM of CH" + to_string(rotor.channel) + ".");
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void EscCalibrationRos::disablePWM()
+{
+  tobas_msgs::EnablePwm enable_pwm_msg;
+  enable_pwm_msg.request.enable = false;
+
+  for (const auto& rotor : drone_.rotorConfigs())
+  {
+    enable_pwm_msg.request.channel = rotor.channel;
+    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
+      ROS_ERROR_STREAM("Failed to disable PWM of CH" << rotor.channel << ".");
+  }
+}
+
 void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
 {
+  const auto action_called_time = ros::Time::now();
+
+  // 各サービスサーバへの接続をチェック
+  if (!get_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    as_.setAborted(
+      result_, "Failed to connect to " + string(tobas::kGetArmSrv) + " service server.");
+    return;
+  }
+  if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    as_.setAborted(
+      result_, "Failed to connect to " + string(tobas::kEnablePwmSrv) + " service server.");
+    return;
+  }
+
+  // アームされていないことを確認
+  if (!checkDisarmed())
+    return;
+
+  // バッテリーが接続されていないことを確認
   if (isBatteryConnected())
   {
     as_.setAborted(result_, "Please disconnect battery before starting ESC calibration.");
     return;
   }
 
+  // PWMを有効化
+  if (!enablePWM())
+    return;
+
   // バッテリーが接続されるのを待つ
   ROS_INFO("Waiting for battery connection.");
-  const auto action_called_time = ros::Time::now();
   while (!isBatteryConnected())
   {
-    if ((ros::Time::now() - action_called_time).toSec() < kTimeout)
+    if ((ros::Time::now() - action_called_time).toSec() > kTimeout)
     {
+      disablePWM();
       as_.setAborted(result_, "Battery connection is not detected before timeout.");
       return;
     }
@@ -84,6 +162,9 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   // 最小スロットルを指令
   ROS_INFO("Sending minimum throttle.");
   sendMinimum();
+
+  // PWMを無効化
+  disablePWM();
 
   as_.setSucceeded(result_);
 }
