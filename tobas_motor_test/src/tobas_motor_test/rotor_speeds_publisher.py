@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
-from tobas_tools_py.drone import Drone
+from tobas_tools_py.drone import Drone, DroneLoader_Param
 from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
@@ -20,7 +20,7 @@ class RotorSpeedsPublisherWidget(MainWidget):
         super().__init__(PKG_NAME)
 
         drone = Drone()
-        drone.load_from_param()
+        DroneLoader_Param(drone).load()
 
         icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))

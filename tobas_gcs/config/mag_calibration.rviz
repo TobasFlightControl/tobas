@@ -26,7 +26,7 @@ Visualization Manager:
       Name: PointStamped
       Queue Size: 10
       Radius: 0.1
-      Topic: mag_calibration/magnetic_field_raw
+      Topic: undefined
       Unreliable: false
       Value: true
     - Alpha: 1

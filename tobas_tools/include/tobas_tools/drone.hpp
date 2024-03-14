@@ -33,6 +33,7 @@ public:
   inline const ControlSurfaces& controlSurfaces() const;
   inline const ControlSurface& controlSurface(const size_t& cs_idx) const;
 
+  inline const std::string& droneName() const;
   inline const double& nominalBatteryVoltage() const;
   inline const bool& hasFixedWing() const;
   inline const bool& isLoaded() const;
@@ -93,6 +94,7 @@ private:
   RotorConfigs rotors_;
   FixedWingConfig fixed_wing_;
 
+  std::string drone_name_;
   double battery_nominal_voltage_;  // メインバッテリーの定格電圧
   bool has_fixed_wing_;
   bool is_loaded_ = false;
@@ -158,6 +160,11 @@ inline const ControlSurfaces& Drone::controlSurfaces() const
 inline const ControlSurface& Drone::controlSurface(const size_t& cs_idx) const
 {
   return fixed_wing_.control_surfaces.at(cs_idx);
+}
+
+inline const std::string& Drone::droneName() const
+{
+  return drone_name_;
 }
 
 inline const double& Drone::nominalBatteryVoltage() const

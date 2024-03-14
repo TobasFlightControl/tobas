@@ -387,6 +387,9 @@ class PackageGenerator(QObject):
         # TBSFファイルに書き込むための辞書を作る
         drone_config = dict()
 
+        # Drone Name
+        drone_config["drone_name"] = self._drone_name
+
         # Battery
         battery = self._main.settings.battery
         drone_config["battery_nominal_voltage"] = battery.nominal_voltage()

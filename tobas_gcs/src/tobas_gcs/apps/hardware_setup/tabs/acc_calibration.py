@@ -35,22 +35,23 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
-        self._accel_calib_sc = rospy.ServiceProxy("/accel_calibration", AccelCalibration)
-
     @override
     def define_connections(self) -> None:
+        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
+        accel_calib_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/accel_calibration", AccelCalibration)
+
         try:
-            self._accel_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            accel_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = AccelCalibrationRequest()
-        res: AccelCalibrationResponse = self._accel_calib_sc.call(req)
+        res: AccelCalibrationResponse = accel_calib_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)

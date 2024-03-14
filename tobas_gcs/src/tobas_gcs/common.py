@@ -25,7 +25,7 @@ CATKIN_WS_TOBAS = "/home/pi/.catkin_ws_tobas/"  # Tobasパッケージ用ワー�
 
 
 class Signals(QObject):
-    config_pkg_loaded = pyqtSignal()
+    config_pkg_updated = pyqtSignal(str)
 
 
 class Description(QLabel):

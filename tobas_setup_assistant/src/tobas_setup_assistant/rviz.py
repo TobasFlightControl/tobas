@@ -32,8 +32,10 @@ class RvizWidget(QWidget):
         self._frame = create_rviz_frame(rviz_config_path)
 
         # Setup robot_model_display
+        # rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
         manager = self._frame.getManager()
         self._display = manager.getRootDisplayGroup().getDisplayAt(0)
+        assert self._display.getName() == "RobotState"
         self._display.setBool(False)
 
         # ハイライトプロパティ

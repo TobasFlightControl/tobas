@@ -21,4 +21,4 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        pass  # TODO
+        super().define_connections()

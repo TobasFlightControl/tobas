@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .gcs import GroundControlStationWidget
 
+import os.path as osp
 import paramiko
 import socket
 from scp import SCPClient
@@ -14,6 +15,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import *
+from tobas_tools_py.drone import Drone, DroneLoader_File
 
 from .common import *
 
@@ -56,11 +58,17 @@ class PackageManagerWidget(QWidget):
 
     def _is_valid_tobas_pkg(self, pkg_path: str) -> bool:
         """有効なTobasパッケージかどうかを判定する．"""
+        # TBSFファイルが存在することを確認
         tbsf_path = osp.join(pkg_path, "config/drone.tbsf")
         if not osp.isfile(tbsf_path):
             return False
 
-        # TODO: tbsfファイルが存在するか否か以外のチェック項目
+        # TBSFファイルが正常に読み込めることを確認
+        try:
+            DroneLoader_File(Drone(), tbsf_path).load()
+        except Exception as e:
+            rospy.logerr(f"Failed to load TBSF:\n\n{e}")
+            return False
 
         return True
 
@@ -84,6 +92,7 @@ class PackageManagerWidget(QWidget):
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.DontResolveSymlinks
         pkg_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
+        assert not pkg_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
         if pkg_path == "":
@@ -110,7 +119,7 @@ class PackageManagerWidget(QWidget):
         self._send_button.setEnabled(True)
 
         # Tobasパッケージがロードされたことを通知
-        self._main.signals.config_pkg_loaded.emit()
+        self._main.signals.config_pkg_updated.emit(pkg_path)
 
         # ロードが成功したことを示すダイアログ
         q_info(self._main, "Tobas configuration package is loaded successfully.")

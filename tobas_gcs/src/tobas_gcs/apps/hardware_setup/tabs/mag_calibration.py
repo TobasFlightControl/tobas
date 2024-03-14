@@ -13,8 +13,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-
-
 from tobas_rqt_tools.widgets import create_rviz_frame
 from tobas_rqt_tools.messages import *
 from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
@@ -26,6 +24,8 @@ from .base import BaseHardwareSetupWidget
 class MagCalibrationWidget(BaseHardwareSetupWidget):
     NAME = "Magnet Calibration"
     TITLE = "Calibrate Magnetometer"
+
+    POINT_HISTORY_LENGTH = 100000
 
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__(main)
@@ -63,29 +63,44 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         self._rviz_frame = create_rviz_frame(rviz_config_path)
         self._rows.addWidget(self._rviz_frame)
 
-        self._rows.addStretch()
+        manager = self._rviz_frame.getManager()
+        display = manager.getRootDisplayGroup().getDisplayAt(0)
+        assert display.getName() == "PointStamped"
+        self._point_topic = display.subProp("Topic")
+        self._point_history_length = display.subProp("History Length")
 
-        self._calib_start_sc = rospy.ServiceProxy("/mag_calibration/start", Trigger)
-        self._calib_finish_sc = rospy.ServiceProxy("/mag_calibration/finish", MagCalibration)
-        self._calib_cancel = rospy.ServiceProxy("/mag_calibration/cancel", Trigger)
+        self._rows.addStretch()
 
     @override
     def define_connections(self) -> None:
+        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._finish_button.clicked.connect(self._on_finish_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
 
+    @override
+    @pyqtSlot(str)
+    def _on_config_pkg_updated(self, pkg_path: str) -> None:
+        super()._on_config_pkg_updated(pkg_path)
+
+        # Rvizのトピックを変更
+        self._point_topic.setValue(f"/{self._drone.drone_name}/mag_calibration/magnetic_field_raw")
+
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
+        calib_start_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/start", Trigger)
+
         try:
-            self._calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        req = TriggerRequest()
-        res: TriggerResponse = self._calib_start_sc.call(req)
+        self._clear_points()
 
+        req = TriggerRequest()
+
+        res: TriggerResponse = calib_start_sc.call(req)
         if not res.success:
             q_error(self, res.message)
             return
@@ -98,15 +113,17 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_finish_button_clicked(self) -> None:
+        calib_finish_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/finish", MagCalibration)
+
         try:
-            self._calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = MagCalibrationRequest()
-        res: MagCalibrationResponse = self._calib_finish_sc.call(req)
 
+        res: MagCalibrationResponse = calib_finish_sc.call(req)
         if not res.success:
             q_error(self, res.message)
             return
@@ -119,15 +136,17 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
+        calib_cancel_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/cancel", Trigger)
+
         try:
-            self._calib_cancel.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = TriggerRequest()
-        res: TriggerResponse = self._calib_cancel.call(req)
 
+        res: TriggerResponse = calib_cancel_sc.call(req)
         if not res.success:
             q_error(self, res.message)
             return
@@ -137,3 +156,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         self._cancel_button.setEnabled(False)
 
         q_info(self._main, "Magnet calibration is cancelled.")
+
+    def _clear_points(self) -> None:
+        """Rviz上の点群を消去．"""
+        self._point_history_length.setValue(0)
+        self._point_history_length.setValue(self.POINT_HISTORY_LENGTH)

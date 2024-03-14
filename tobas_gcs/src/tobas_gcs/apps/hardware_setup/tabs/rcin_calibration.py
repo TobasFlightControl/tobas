@@ -125,7 +125,7 @@ class HRangeWidget(RangeWidget):
         # テキストを描画
         if self._text is not None:
             painter.setPen(Qt.gray)
-            painter.setFont(QFont("Arial", self.TEXT_PSIZE))
+            painter.setFont(QFont("Default", self.TEXT_PSIZE))
             painter.drawText(QRect(0, 0, self.width(), self.height()), Qt.AlignCenter, self._text)
 
 
@@ -170,7 +170,7 @@ class VRangeWidget(RangeWidget):
         if self._text is not None:
             # フォントを設定
             painter.setPen(Qt.gray)
-            painter.setFont(QFont("Arial", self.TEXT_PSIZE))
+            painter.setFont(QFont("Default", self.TEXT_PSIZE))
 
             # ペインターの回転と移動を設定
             painter.translate(self.width() / 2, self.height() / 2)
@@ -281,17 +281,26 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         bar_cols.addStretch()
         self._rows.addStretch()
 
-        self._rcin_sub = rospy.Subscriber("/rcin_calibration/rc_input_raw", RCInput, self._rcin_cb, queue_size=10)
-
-        self._calib_start_sc = rospy.ServiceProxy("/rcin_calibration/start", Trigger)
-        self._calib_finish_sc = rospy.ServiceProxy("/rcin_calibration/finish", RCInputCalibration)
-        self._calib_cancel = rospy.ServiceProxy("/rcin_calibration/cancel", Trigger)
+        self._rcin_sub = None
 
     @override
     def define_connections(self) -> None:
+        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._finish_button.clicked.connect(self._on_finish_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
+
+    @override
+    @pyqtSlot(str)
+    def _on_config_pkg_updated(self, pkg_path: str) -> None:
+        super()._on_config_pkg_updated(pkg_path)
+
+        # 購読するトピックを更新
+        if self._rcin_sub is not None:
+            self._rcin_sub.unregister()
+        self._rcin_sub = rospy.Subscriber(
+            f"{self._drone.drone_name}/rcin_calibration/rc_input_raw", RCInput, self._rcin_cb, queue_size=10
+        )
 
     def _reset(self) -> None:
         self._roll_range.clear()
@@ -306,6 +315,8 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._finish_button.setEnabled(False)
         self._cancel_button.setEnabled(False)
 
+        self._rcin_sub.unregister()
+
     def _rcin_cb(self, msg: RCInput) -> None:
         self._roll_range.set_value(msg.data[RCIN_ROLL])
         self._pitch_range.set_value(msg.data[RCIN_PITCH])
@@ -317,14 +328,16 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
+        calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/start", Trigger)
+
         try:
-            self._calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = TriggerRequest()
-        res: TriggerResponse = self._calib_start_sc.call(req)
+        res: TriggerResponse = calib_start_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)
@@ -338,8 +351,10 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_finish_button_clicked(self) -> None:
+        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
+
         try:
-            self._calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
@@ -361,7 +376,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         req.gpsw_on = self._gpsw_range.get_lower()
         req.gpsw_off = self._gpsw_range.get_upper()
 
-        res: RCInputCalibrationResponse = self._calib_finish_sc.call(req)
+        res: RCInputCalibrationResponse = calib_finish_sc.call(req)
         if not res.success:
             q_error(self, res.message)
             return
@@ -371,14 +386,16 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
+        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
+
         try:
-            self._calib_cancel.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = TriggerRequest()
-        res: TriggerResponse = self._calib_cancel.call(req)
+        res: TriggerResponse = calib_cancel_sc.call(req)
 
         if not res.success:
             q_error(self, res.message)

@@ -35,7 +35,7 @@ class HardwareSetupWidget(VerticalTabWidget):
         self.addTab(self._mag_calib, MagCalibrationWidget.NAME)
         self.addTab(self._adc_calib, AdcCalibrationWidget.NAME)
         self.addTab(self._rcin_calib, RcinCalibrationWidget.NAME)
-        self.addTab(self._noise_calib, NoiseCalibrationWidget.NAME)
+        # self.addTab(self._noise_calib, NoiseCalibrationWidget.NAME)  # TODO
         self.addTab(self._esc_calib, EscCalibrationWidget.NAME)
         self.addTab(self._motor_test, MotorTestWidget.NAME)
 

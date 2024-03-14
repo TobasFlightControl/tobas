@@ -69,3 +69,6 @@ class FixedWingConfig:
     vehicle: VehicleParameters = VehicleParameters()
     aerodynamics: AerodynamicsCoefficients = AerodynamicsCoefficients()
     control_surfaces: ControlSurfaces = field(default_factory=list)
+
+    def clear(self) -> None:
+        self.control_surfaces.clear()

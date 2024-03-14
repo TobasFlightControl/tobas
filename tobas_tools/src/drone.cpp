@@ -33,6 +33,7 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
   if (has_fixed_wing_)
     getFixedWingConfig(nh);
 
+  tobas_ros::getParam(nh, "drone_name", drone_name_);
   tobas_ros::getParam(nh, "battery_nominal_voltage", battery_nominal_voltage_, tobas_ros::POSITIVE);
 
   is_loaded_ = true;

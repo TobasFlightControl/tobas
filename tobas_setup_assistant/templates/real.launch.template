@@ -22,4 +22,7 @@
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
+  <!-- Bringup calibration nodes -->
+  <include file="$(find {{ pkg_name }})/launch/calibration.launch"/>
+
 </launch>
