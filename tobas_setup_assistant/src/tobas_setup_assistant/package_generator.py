@@ -226,11 +226,6 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items,
-            "hardware_interfaces.launch.template",
-            osp.join(launch_dir, "hardware_interfaces.launch"),
-        )
-        self._generate_from_template(
-            items,
             "hil.launch.template",
             osp.join(launch_dir, "hil.launch"),
         )

@@ -2,9 +2,9 @@
 
 #include <nodelet/nodelet.h>
 
-#include "../include/tobas_navio_ros/cpu_handler.hpp"
+#include "../include/tobas_real_ros/cpu_handler.hpp"
 
-namespace tobas_navio_ros
+namespace tobas_real
 {
 class CpuHandlerNodelet : public nodelet::Nodelet
 {
@@ -14,4 +14,4 @@ public:
 private:
   std::shared_ptr<CpuHandler> node_;
 };
-}  // namespace tobas_navio_ros
+}  // namespace tobas_real

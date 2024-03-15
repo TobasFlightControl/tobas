@@ -5,23 +5,29 @@
 
 #include <tobas_tools/node.hpp>
 
-namespace tobas_navio_ros
+namespace tobas_real
 {
-class TimeReferenceServer : public tobas::BaseNode
+class CpuHandler : public tobas::BaseNode
 {
-  static constexpr size_t kUpdateRate = 1;  // [Hz]
+  static constexpr size_t kUpdateRate = 10;  // [Hz]
+  static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
 
-  using self = TimeReferenceServer;
+  using self = CpuHandler;
   using super = tobas::BaseNode;
 
 public:
-  explicit TimeReferenceServer(
+  explicit CpuHandler(
     const ros::NodeHandle& nh,
     const ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
-  ros::Publisher time_ref_pub_;
+  int temp_millidegrees_;
+
+  // Publisher
+  ros::Publisher cpu_pub_;
+
+  // Timer
   ros::Timer main_timer_;
 
   void getRosParams() override;
@@ -30,4 +36,4 @@ private:
 
   void mainTimerCb(const ros::TimerEvent& event);
 };
-}  // namespace tobas_navio_ros
+}  // namespace tobas_real

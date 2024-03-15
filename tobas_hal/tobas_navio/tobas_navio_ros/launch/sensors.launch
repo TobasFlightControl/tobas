@@ -2,14 +2,12 @@
 
   <arg name="nodelet" default="false"/>
 
-  <arg name="cpu_name" value="cpu_handler"/>
   <arg name="bat_name" value="battery_handler"/>
   <arg name="imu_name" value="imu_handler"/>
   <arg name="bar_name" value="barometer_handler"/>
   <arg name="gps_name" value="gps_handler"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_navio_ros/CpuHandlerNodelet nodelet_manager" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="$(arg bat_name)" args="load tobas_navio_ros/BatteryHandlerNodelet nodelet_manager" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_navio_ros/ImuHandlerNodelet nodelet_manager" output="screen"/>
     <node pkg="nodelet" type="nodelet" name="$(arg bar_name)" args="load tobas_navio_ros/BarometerHandlerNodelet nodelet_manager" output="screen"/>
@@ -17,7 +15,6 @@
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_navio_ros" type="cpu_handler_node" name="$(arg cpu_name)" output="screen"/>
     <node pkg="tobas_navio_ros" type="battery_handler_node" name="$(arg bat_name)" output="screen"/>
     <node pkg="tobas_navio_ros" type="imu_handler_node" name="$(arg imu_name)" output="screen"/>
     <node pkg="tobas_navio_ros" type="barometer_handler_node" name="$(arg bar_name)" output="screen"/>

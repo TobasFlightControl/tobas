@@ -2,11 +2,11 @@
 
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_navio_ros/time_reference_server.hpp"
+#include "../include/tobas_real_ros/time_reference_server.hpp"
 
 using namespace std;
 
-namespace tobas_navio_ros
+namespace tobas_real
 {
 TimeReferenceServer::TimeReferenceServer(
   const ros::NodeHandle& nh,
@@ -41,4 +41,4 @@ void TimeReferenceServer::mainTimerCb(const ros::TimerEvent& event)
   time_ref->time_ref = event.current_real;
   time_ref_pub_.publish(time_ref);
 }
-}  // namespace tobas_navio_ros
+}  // namespace tobas_real

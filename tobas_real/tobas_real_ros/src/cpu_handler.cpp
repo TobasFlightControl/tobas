@@ -4,12 +4,11 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Cpu.h>
 
-#include "../include/tobas_navio_ros/cpu_handler.hpp"
-#include "../include/tobas_navio_ros/common.hpp"
+#include "../include/tobas_real_ros/cpu_handler.hpp"
 
 using namespace std;
 
-namespace tobas_navio_ros
+namespace tobas_real
 {
 CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
@@ -39,7 +38,7 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
   ifstream file(kTemperatureFilePath);
   if (!file)
   {
-    rosErrorThrottle(kErrorPeriod, name_, "Failed to open " << kTemperatureFilePath << ".");
+    rosError(name_, "Failed to open " << kTemperatureFilePath << ".");
     return;
   }
   file >> temp_millidegrees_;
@@ -50,4 +49,4 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
 
   cpu_pub_.publish(cpu_msg);
 }
-}  // namespace tobas_navio_ros
+}  // namespace tobas_real

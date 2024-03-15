@@ -14,8 +14,4 @@
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <include file="$(find tobas_navio_ros)/launch/time_reference_server.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
-
 </launch>
