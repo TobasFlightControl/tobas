@@ -18,12 +18,12 @@ RCInput::RCInput()
 
 int RCInput::initialize()
 {
-  for (size_t i = 0; i < kChannelCount; ++i)
+  for (size_t ch = 0; ch < kChannelCount; ++ch)
   {
-    channels_[i] = openChannel(i);
-    if (channels_[i] < 0)
+    channels_[ch] = openChannel(ch);
+    if (channels_[ch] < 0)
     {
-      perror("open");
+      cerr << "Failed to open RC input channel " << ch << "." << endl;
       return -1;
     }
   }
@@ -35,18 +35,24 @@ int RCInput::read(const size_t& ch)
 {
   if (ch >= kChannelCount)
   {
-    cerr << "Channel number too large." << endl;
+    cerr << "Channel number too large: " << ch << endl;
     return -1;
   }
 
-  char buffer[10];
-  if (::pread(channels_[ch], buffer, ARRAY_SIZE(buffer), 0) < 0)
+  if (::pread(channels_[ch], buffer_, ARRAY_SIZE(buffer_), 0) < 0)
   {
-    perror("pread");
+    cerr << "Failed to read RC input channel " << ch << "." << endl;
     return -1;
   }
 
-  return atoi(buffer);
+  const auto period = atoi(buffer_);
+  if (period < kValidPeriodMin || kValidPeriodMax < period)
+  {
+    cerr << "PWM period of channel " << ch << " is out of range: " << period << endl;
+    return -1;
+  }
+
+  return period;
 }
 
 int RCInput::openChannel(const size_t& ch)
@@ -54,7 +60,7 @@ int RCInput::openChannel(const size_t& ch)
   char* channel_path;
   if (asprintf(&channel_path, "%s/ch%zu", "/sys/kernel/rcio/rcin", ch) == -1)
   {
-    err(1, "channel: %zu\n", ch);
+    cerr << "Failed to open RC input channel " << ch << "." << endl;
     return -1;
   }
 

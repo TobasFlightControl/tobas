@@ -41,14 +41,13 @@ int ADC::read(const size_t& ch)
     return -1;
   }
 
-  char buffer[10];
-  if (::pread(channels_[ch], buffer, ARRAY_SIZE(buffer), 0) < 0)
+  if (::pread(channels_[ch], buffer_, ARRAY_SIZE(buffer_), 0) < 0)
   {
     perror("pread");
     return -1;
   }
 
-  return atoi(buffer);
+  return atoi(buffer_);
 }
 
 int ADC::openChannel(const size_t& ch)
