@@ -11,20 +11,41 @@ class RCInput
   static constexpr int kValidPeriodMax = 2100;  // [us]
 
 public:
+  enum error_t : int8_t
+  {
+    E_NO_ERROR = 0,
+    E_FAILED_TO_OPEN = -1,
+    E_FAILED_TO_READ = -2,
+    E_INVALID_PERIOD = -3,
+  };
+
   explicit RCInput();
 
-  int initialize();
-  int read(const size_t& ch);
+  error_t initialize();
+  error_t read(const size_t& ch);
 
-  inline static size_t channelCount()
+  /* Get the latest error code. */
+  inline error_t getError() const
+  {
+    return error_;
+  }
+
+  /* Get the latest PWM period. */
+  inline int getPeriod() const
+  {
+    return period_;
+  }
+
+  /* Get the number of channels. */
+  inline static constexpr size_t channelCount()
   {
     return kChannelCount;
   }
 
 private:
+  error_t error_;
+  int period_;
   int channels_[kChannelCount];
   char buffer_[10];
-
-  int openChannel(const size_t& ch);
 };
 }  // namespace navio

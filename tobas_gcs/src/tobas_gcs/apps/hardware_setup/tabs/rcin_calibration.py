@@ -19,6 +19,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.layouts import create_fixed_width_vboxlayout
 from tobas_rqt_tools.utils import remap, place_center
 from tobas_tools_py.constants import *
+from tobas_msgs.msg import RCInputError
 from tobas_calibration_msgs.msg import RCInput
 from tobas_calibration_msgs.srv import RCInputCalibration, RCInputCalibrationRequest, RCInputCalibrationResponse
 
@@ -317,7 +318,30 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rcin_sub.unregister()
 
+    def _cancel(self) -> None:
+        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
+
+        try:
+            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+        except rospy.ROSException:
+            q_error(self, "Failed to connect to the calibration server.")
+            return
+
+        req = TriggerRequest()
+        res: TriggerResponse = calib_cancel_sc.call(req)
+
+        if not res.success:
+            q_error(self, res.message)
+            return
+
+        self._reset()
+
     def _rcin_cb(self, msg: RCInput) -> None:
+        if msg.error.error != RCInputError.E_NO_ERROR:
+            q_error(self, "Failed to get RC input.")
+            self._cancel()
+            return
+
         self._roll_range.set_value(msg.data[RCIN_ROLL])
         self._pitch_range.set_value(msg.data[RCIN_PITCH])
         self._yaw_range.set_value(msg.data[RCIN_YAW])
@@ -386,20 +410,5 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
-
-        try:
-            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVICE)
-        except rospy.ROSException:
-            q_error(self, "Failed to connect to the calibration server.")
-            return
-
-        req = TriggerRequest()
-        res: TriggerResponse = calib_cancel_sc.call(req)
-
-        if not res.success:
-            q_error(self, res.message)
-            return
-
-        self._reset()
+        self._cancel()
         q_info(self._main, "Radio calibration is cancelled.")

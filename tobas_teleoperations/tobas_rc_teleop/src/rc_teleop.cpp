@@ -112,6 +112,9 @@ void RCTeleop::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 {
+  if (rcin->error.error != tobas_msgs::RCInputError::E_NO_ERROR)
+    return;
+
   switch (stage_)
   {
     case CHECK_PREREQUISITES:

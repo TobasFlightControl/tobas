@@ -30,13 +30,9 @@ void RCInputCalibrationRos::publishTimerCb(const ros::TimerEvent& event)
 
   for (size_t i = 0; i < navio::RCInput::channelCount(); ++i)
   {
-    const auto period = rcin_.read(i);
-    if (period < 0)
-    {
-      ROS_ERROR("Failed to read RC input.");
-      return;
-    }
-    rcin_msg->data[i] = period;
+    if (rcin_.read(i) < 0)
+      rcin_msg->error.error = rcin_.getError();
+    rcin_msg->data[i] = rcin_.getPeriod();
   }
 
   rcin_pub_.publish(rcin_msg);

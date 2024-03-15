@@ -13,6 +13,6 @@
 	<depend>actionlib</depend>
 	<depend>actionlib_msgs</depend>
 
-	<depend>tobas_kdl_msgs</depend>
+	<depend>tobas_msgs</depend>
 
 </package>

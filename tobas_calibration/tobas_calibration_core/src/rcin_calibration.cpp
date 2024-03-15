@@ -229,13 +229,12 @@ void RCInputCalibrator::run()
 double RCInputCalibrator::readRCInput(const size_t& channel)
 {
   // RC入力を取得
-  size_t period_sum = 0;
+  int period_sum = 0;
   for (size_t _ = 0; _ < kDataCount; ++_)
   {
-    const auto period = rcin_.read(channel);
-    if (period < 0)
+    if (rcin_.read(channel) < 0)
       throw runtime_error("Failed to read RC input.");
-    period_sum += period;
+    period_sum += rcin_.getPeriod();
     usleep(kSleepTime);
   }
 
