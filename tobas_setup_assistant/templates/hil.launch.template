@@ -11,7 +11,7 @@
 
   <!-- Launch hardware interfaces -->
   <group ns="{{ drone_name }}">
-    <include file="$(find tobas_real)/launch/rcin_handler.launch">
+    <include file="$(find tobas_navio_ros)/launch/rcin_handler.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
   </group>

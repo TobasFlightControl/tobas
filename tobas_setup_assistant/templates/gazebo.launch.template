@@ -23,7 +23,7 @@
 
   <!-- Bringup a Gazebo world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find tobas_gazebo)/worlds/$(arg wname).world"/>
+    <arg name="world_name" value="$(find tobas_gazebo_ros)/worlds/$(arg wname).world"/>
     <arg name="debug" value="$(arg debug)"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -43,7 +43,7 @@
     <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
 
     <!-- Launch Gazebo command handlers -->
-    <include file="$(find tobas_gazebo)/launch/command_handlers.launch"/>
+    <include file="$(find tobas_gazebo_ros)/launch/command_handlers.launch"/>
   </group>
 
 </launch>

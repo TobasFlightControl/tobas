@@ -1,0 +1,53 @@
+#include <fstream>
+
+#include <tobas_ros_tools/console_message.hpp>
+#include <tobas_tools/constants.hpp>
+#include <tobas_msgs/Cpu.h>
+
+#include "../include/tobas_navio_ros/cpu_handler.hpp"
+#include "../include/tobas_navio_ros/common.hpp"
+
+using namespace std;
+
+namespace tobas_navio_ros
+{
+CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name)
+{
+  getRosParams();
+  registerPublishers();
+  registerSubscribers();
+
+  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
+}
+
+void CpuHandler::getRosParams()
+{
+}
+
+void CpuHandler::registerPublishers()
+{
+  cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
+}
+
+void CpuHandler::registerSubscribers()
+{
+}
+
+void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
+{
+  ifstream file(kTemperatureFilePath);
+  if (!file)
+  {
+    rosErrorThrottle(kErrorPeriod, name_, "Failed to open " << kTemperatureFilePath << ".");
+    return;
+  }
+  file >> temp_millidegrees_;
+
+  const auto cpu_msg = boost::make_shared<tobas_msgs::Cpu>();
+  cpu_msg->header.stamp = event.current_real;
+  cpu_msg->temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
+
+  cpu_pub_.publish(cpu_msg);
+}
+}  // namespace tobas_navio_ros

@@ -10,23 +10,20 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<!-- Meta Packages -->
-	<exec_depend>tobas_calibration</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
-	<exec_depend>tobas_dynamixel</exec_depend>
+	<exec_depend>tobas_hal</exec_depend>
 	<exec_depend>tobas_observers</exec_depend>
+	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_takeoff_landing</exec_depend>
 	<exec_depend>tobas_teleoperations</exec_depend>
 
 	<!-- Others -->
 	<exec_depend>ardupilot_dynamic_configuration</exec_depend>
-	<exec_depend>navio</exec_depend>
 	<exec_depend>tobas_common_actions</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_fkie_master</exec_depend>
-	<exec_depend>tobas_gazebo</exec_depend>
-	<exec_depend>tobas_gazebo_plugins</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_mavros_bridge</exec_depend>
@@ -34,7 +31,6 @@
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_multirotor_trajectory</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
-	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>
 	<exec_depend>tobas_setup</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>

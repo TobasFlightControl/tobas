@@ -168,13 +168,13 @@ $ roslaunch your_config_pkg hil.launch
 ### Accelerometer Calibration
 
 ```bash
-$ ~/catkin_ws/devel/lib/tobas_real/accel_calibration
+$ ~/catkin_ws/devel/lib/tobas_navio_ros/accel_calibration
 ```
 
 ### Magnetometer Calibration
 
 ```bash
-$ ~/catkin_ws/devel/lib/tobas_real/mag_calibration
+$ ~/catkin_ws/devel/lib/tobas_navio_ros/mag_calibration
 ```
 
 ### ADC Calibration
@@ -183,7 +183,7 @@ Make sure battery is connected to FC properly.\
 Execute the following on FC:
 
 ```bash
-$ ~/catkin_ws/devel/lib/tobas_real/adc_calibration
+$ ~/catkin_ws/devel/lib/tobas_navio_ros/adc_calibration
 ```
 
 ### RC Input Calibration
@@ -192,7 +192,7 @@ Make sure RC receiver is connected to FC properly and it can communicate with a 
 Execute the following on FC:
 
 ```bash
-$ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
+$ ~/catkin_ws/devel/lib/tobas_navio_ros/rcin_calibration
 ```
 
 ### ESC Calibration
@@ -207,7 +207,7 @@ $ ~/catkin_ws/devel/lib/tobas_real/rcin_calibration
 2. Please execute the following on FC and follow the instructions displayed on the console:
 
    ```bash
-   $ ~/catkin_ws/devel/lib/tobas_real/esc_calibration
+   $ ~/catkin_ws/devel/lib/tobas_navio_ros/esc_calibration
    ```
 
 3. Verify that the calibration was successful.
@@ -245,7 +245,7 @@ and FC (Flight Controller) are properly connected, and that the airframe is secu
 Execute the following on FC (Be prepared to press Ctrl+C to immediately stop the program in case of danger):
 
 ```bash
-$ ~/catkin_ws/devel/lib/tobas_real/measure_sensor_noise
+$ ~/catkin_ws/devel/lib/tobas_navio_ros/measure_sensor_noise
 ```
 
 ## Trouble Shooting
