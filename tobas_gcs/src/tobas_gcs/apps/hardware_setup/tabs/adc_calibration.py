@@ -78,7 +78,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         adc_calib_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/adc_calibration", AdcCalibration)
 
         try:
-            adc_calib_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            adc_calib_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return

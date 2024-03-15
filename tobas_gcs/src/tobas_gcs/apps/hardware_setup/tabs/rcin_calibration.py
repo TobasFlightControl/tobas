@@ -291,18 +291,6 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._finish_button.clicked.connect(self._on_finish_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
 
-    @override
-    @pyqtSlot(str)
-    def _on_config_pkg_updated(self, pkg_path: str) -> None:
-        super()._on_config_pkg_updated(pkg_path)
-
-        # 購読するトピックを更新
-        if self._rcin_sub is not None:
-            self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/rcin_calibration/rc_input_raw", RCInput, self._rcin_cb, queue_size=10
-        )
-
     def _reset(self) -> None:
         self._roll_range.clear()
         self._pitch_range.clear()
@@ -316,13 +304,14 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._finish_button.setEnabled(False)
         self._cancel_button.setEnabled(False)
 
-        self._rcin_sub.unregister()
+        if self._rcin_sub is not None:
+            self._rcin_sub.unregister()
 
     def _cancel(self) -> None:
         calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
 
         try:
-            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
@@ -338,7 +327,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     def _rcin_cb(self, msg: RCInput) -> None:
         if msg.error.error != RCInputError.E_NO_ERROR:
-            q_error(self, "Failed to get RC input.")
+            q_error(self, "RC signal is not received.")
             self._cancel()
             return
 
@@ -355,17 +344,32 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/start", Trigger)
 
         try:
-            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
 
         req = TriggerRequest()
         res: TriggerResponse = calib_start_sc.call(req)
-
         if not res.success:
             q_error(self, res.message)
             return
+
+        # RC入力が正常に発行されていることを確認
+        rcin_topic = f"{self._drone.drone_name}/rcin_calibration/rc_input_raw"
+        try:
+            rcin_msg: RCInput = rospy.wait_for_message(rcin_topic, RCInput, self.WAIT_FOR_SERVER)
+        except Exception:
+            q_error(self, f"Failed to get RC input message in {self.WAIT_FOR_SERVER} seconds.")
+            self._cancel()
+            return
+        if rcin_msg.error.error != RCInputError.E_NO_ERROR:
+            q_error(self, "RC signal is not received.")
+            self._cancel()
+            return
+
+        # 購読するトピックを更新
+        self._rcin_sub = rospy.Subscriber(rcin_topic, RCInput, self._rcin_cb, queue_size=10)
 
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)
@@ -378,7 +382,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
 
         try:
-            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return

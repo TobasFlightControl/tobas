@@ -20,7 +20,7 @@ class BaseHardwareSetupWidget(ScrollArea):
     ABST_HEIGHT = 100
     BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
-    WAIT_FOR_SERVICE = 1  # [s]
+    WAIT_FOR_SERVER = 1  # [s]
 
     NAME = UNKNOWN
     TITLE = UNKNOWN

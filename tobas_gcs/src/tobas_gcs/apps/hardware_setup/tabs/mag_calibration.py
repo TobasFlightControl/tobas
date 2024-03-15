@@ -91,7 +91,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         calib_start_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/start", Trigger)
 
         try:
-            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
@@ -116,7 +116,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         calib_finish_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/finish", MagCalibration)
 
         try:
-            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return
@@ -139,7 +139,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         calib_cancel_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/cancel", Trigger)
 
         try:
-            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, "Failed to connect to the calibration server.")
             return

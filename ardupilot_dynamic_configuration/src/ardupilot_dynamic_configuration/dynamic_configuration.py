@@ -169,7 +169,7 @@ class DynamicConfigurationWidget(MainWidget):
     def _on_load_button_clicked(self) -> None:
         # パラメータサーバが利用可能化チェック
         try:
-            self._param_set_sc.wait_for_service(WAIT_FOR_SERVICE)
+            self._param_set_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException as e:
             q_error(self, "ArduPilot parameter server is not available.")
             return

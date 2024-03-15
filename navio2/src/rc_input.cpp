@@ -41,8 +41,8 @@ RCInput::error_t RCInput::read(const size_t& ch)
 
   period_ = atoi(buffer_);
 
-  if (period_ < kValidPeriodMin || kValidPeriodMax < period_)
-    return error_ = E_INVALID_PERIOD;
+  if (period_ == 0)
+    return error_ = E_NOT_RECEIVED;
 
   return error_ = E_NO_ERROR;
 }

@@ -3,4 +3,4 @@ int8 error
 int8 E_NO_ERROR = 0
 int8 E_FAILED_TO_OPEN = -1
 int8 E_FAILED_TO_READ = -2
-int8 E_INVALID_PERIOD = -3
+int8 E_NOT_RECEIVED = -3

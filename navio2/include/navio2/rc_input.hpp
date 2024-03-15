@@ -7,8 +7,6 @@ namespace navio
 class RCInput
 {
   static constexpr size_t kChannelCount = 14;
-  static constexpr int kValidPeriodMin = 900;   // [us]
-  static constexpr int kValidPeriodMax = 2100;  // [us]
 
 public:
   enum error_t : int8_t
@@ -16,7 +14,7 @@ public:
     E_NO_ERROR = 0,
     E_FAILED_TO_OPEN = -1,
     E_FAILED_TO_READ = -2,
-    E_INVALID_PERIOD = -3,
+    E_NOT_RECEIVED = -3,
   };
 
   explicit RCInput();
