@@ -6,11 +6,11 @@
 
   <!-- State Estimator -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_cascade/StateEstimatorNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_cascade/StateEstimatorNodelet nodelet_manager" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="state_estimation_cascade" type="state_estimator_node" name="$(arg node_name)" output="screen"/>
+    <node pkg="state_estimation_cascade" type="state_estimator_node" name="$(arg node_name)" output="screen" required="true"/>
   </group>
 
   <!-- Orientation Estimator -->

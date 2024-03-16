@@ -5,11 +5,11 @@
   <arg name="node_name" value="rc_teleop"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_rc_teleop/RCTeleopNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_rc_teleop/RCTeleopNodelet nodelet_manager" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_rc_teleop" type="rc_teleop_node" name="$(arg node_name)" output="screen"/>
+    <node pkg="tobas_rc_teleop" type="rc_teleop_node" name="$(arg node_name)" output="screen" required="true"/>
   </group>
 
 </launch>

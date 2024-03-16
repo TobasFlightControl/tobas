@@ -5,11 +5,11 @@
   <arg name="battery_lpf_name" value="battery_lpf"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg battery_lpf_name)" args="load tobas_preprocess/BatteryLpfNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg battery_lpf_name)" args="load tobas_preprocess/BatteryLpfNodelet nodelet_manager" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_preprocess" type="battery_lpf_node" name="$(arg battery_lpf_name)" output="screen"/>
+    <node pkg="tobas_preprocess" type="battery_lpf_node" name="$(arg battery_lpf_name)" output="screen" required="true"/>
   </group>
 
 </launch>

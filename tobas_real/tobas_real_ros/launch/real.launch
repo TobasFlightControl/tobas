@@ -6,13 +6,13 @@
   <arg name="cpu_name" value="cpu_handler"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg time_name)" args="load tobas_real_ros/TimeReferenceServerNodelet nodelet_manager" output="screen"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_real_ros/CpuHandlerNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg time_name)" args="load tobas_real_ros/TimeReferenceServerNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_real_ros/CpuHandlerNodelet nodelet_manager" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_real_ros" type="time_reference_server_node" name="$(arg time_name)" output="screen"/>
-    <node pkg="tobas_real_ros" type="cpu_handler_node" name="$(arg cpu_name)" output="screen"/>
+    <node pkg="tobas_real_ros" type="time_reference_server_node" name="$(arg time_name)" output="screen" required="true"/>
+    <node pkg="tobas_real_ros" type="cpu_handler_node" name="$(arg cpu_name)" output="screen" required="true"/>
   </group>
 
 </launch>

@@ -5,13 +5,13 @@
 
   <!-- Launch driver nodes necessary for the motor test -->
   <group ns="{{ drone_name }}">
-    <node pkg="tobas_preprocess" type="battery_lpf_node" name="battery_lpf" output="screen"/>
-    <node pkg="tobas_navio_ros" type="battery_handler_node" name="battery_handler" output="screen"/>
-    <node pkg="tobas_navio_ros" type="pwm_handler_node" name="pwm_handler" output="screen"/>
+    <node pkg="tobas_preprocess" type="battery_lpf_node" name="battery_lpf" output="screen" required="true"/>
+    <node pkg="tobas_navio_ros" type="battery_handler_node" name="battery_handler" output="screen" required="true"/>
+    <node pkg="tobas_navio_ros" type="pwm_handler_node" name="pwm_handler" output="screen" required="true"/>
     <node pkg="tobas_navio_ros" type="motors_handler_node" name="motors_handler" output="screen">
       <param name="block_below_arm_speed" value="false"/>
     </node>
-    <node pkg="tobas_navio_ros" type="time_reference_server_node" name="time_reference_server" output="screen"/>
+    <node pkg="tobas_navio_ros" type="time_reference_server_node" name="time_reference_server" output="screen" required="true"/>
   </group>
 
 </launch>
