@@ -17,7 +17,7 @@ CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void CpuHandler::getRosParams()

@@ -26,7 +26,7 @@ BatteryHandler::BatteryHandler(
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void BatteryHandler::getRosParams()

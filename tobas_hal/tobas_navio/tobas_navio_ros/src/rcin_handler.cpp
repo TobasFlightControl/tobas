@@ -28,7 +28,7 @@ RCInputHandler::RCInputHandler(
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kUpdateRate, &RCInputHandler::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kSamplingRate, &RCInputHandler::mainTimerCb, this);
 }
 
 void RCInputHandler::getRosParams()
