@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -32,6 +34,12 @@ private:
     FIRST_COMMAND,
     RUNNING,
   } stage_ = CHECK_PREREQUISITES;
+
+  const std::map<uint8_t, const char*> mode2str_{
+    { tobas::kFlightModeProgram, "Program" },
+    { tobas::kFlightModeStabilize, "Stabilize" },
+    { tobas::kFlightModeAcrobat, "Acrobat" },
+  };
 
   tobas::Drone drone_;
 

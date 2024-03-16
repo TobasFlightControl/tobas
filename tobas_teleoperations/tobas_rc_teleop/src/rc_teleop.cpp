@@ -213,18 +213,15 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     case FIRST_COMMAND:
     {
       const auto& cur_mode = rcin->mode;
-      if (cur_mode >= controllers_.size())
+      if (cur_mode >= tobas::kNumFlightModes)
       {
-        rosErrorThrottle(
-          kErrorPeriod, name_,
-          "You tried to set flight mode " << static_cast<int>(cur_mode)
-                                          << ", which is out of range.");
+        rosErrorThrottle(kErrorPeriod, name_, "Invalid flight mode.");
         return;
       }
 
       controllers_[cur_mode]->reset(*odom_);
       last_mode_ = cur_mode;
-      rosInfo(name_, "First flight mode is set to " << static_cast<int>(cur_mode));
+      rosInfo(name_, "First flight mode is set to \"" << mode2str_.at(cur_mode) << "\".");
 
       stage_ = RUNNING;
       break;
@@ -241,27 +238,21 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       }
 
       const auto& cur_mode = rcin->mode;
-      if (cur_mode >= controllers_.size())
+      if (cur_mode >= tobas::kNumFlightModes)
       {
-        rosErrorThrottle(
-          kErrorPeriod, name_,
-          "You tried to set flight mode " << static_cast<int>(cur_mode)
-                                          << ", which is out of range.");
+        rosErrorThrottle(kErrorPeriod, name_, "Invalid flight mode.");
         return;
       }
 
       if (cur_mode != last_mode_)
       {
-        controllers_[cur_mode]->reset(*odom_);
-        rosInfo(
-          name_, "Flight mode changed from " << static_cast<int>(last_mode_) << " to "
-                                             << static_cast<int>(cur_mode) << ".");
         last_mode_ = cur_mode;
+        controllers_[cur_mode]->reset(*odom_);
+        rosInfo(name_, "Flight mode changed to \"" << mode2str_.at(cur_mode) << "\".");
         break;
       }
 
       controllers_[cur_mode]->update(*rcin, *odom_, battery_->voltage);
-
       break;
     }
 
