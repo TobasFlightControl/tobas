@@ -79,8 +79,6 @@ bool checkAPM()
   return false;
 }
 
-
-
 float decodeBinary32(uint32_t bin)
 {
   const auto sign = bin >> 31 ? -1 : 1;

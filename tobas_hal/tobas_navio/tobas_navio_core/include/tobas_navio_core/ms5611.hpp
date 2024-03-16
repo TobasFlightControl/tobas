@@ -111,8 +111,8 @@ private:
   uint8_t dev_addr_;                      // I2C device adress
   uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
   uint32_t d1_, d2_;                      // Raw measurement data
-  double temp_;                            // Calculated temperature [Celcius]
-  double pres_;                            // Calculated pressure [Pa]
+  double temp_;                           // Calculated temperature [Celcius]
+  double pres_;                           // Calculated pressure [Pa]
 };
 
 inline double MS5611::getTemperature() const
