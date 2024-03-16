@@ -7,7 +7,7 @@
     <arg name="user_debug" value="false"/>
   </include>
 
-  <!-- FIXME: Hardware should depend on Tobas software. -->
+  <!-- FIXME: Tobas should not depend on each hardware. -->
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_navio_ros)/launch/hardware_interfaces.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
