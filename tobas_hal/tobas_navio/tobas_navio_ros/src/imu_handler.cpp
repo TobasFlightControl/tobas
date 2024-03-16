@@ -62,24 +62,24 @@ void ImuHandler::readConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
 
-  pt.get(kConfigKey_AccNoiseDensity, acc_noise_density_);
-  pt.get(kConfigKey_GyroNoiseDensity, gyro_noise_density_);
-  pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_);
+  pt.get(kConfigKey_AccNoiseDensity, acc_noise_density_, kDefaultAccNoiseDensity);
+  pt.get(kConfigKey_GyroNoiseDensity, gyro_noise_density_, kDefaultGyroNoiseDensity);
+  pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_, kDefaultMagNoiseDensity);
 
-  pt.get(kConfigKey_AccOffsetX, acc_bias_.x());
-  pt.get(kConfigKey_AccOffsetY, acc_bias_.y());
-  pt.get(kConfigKey_AccOffsetZ, acc_bias_.z());
+  pt.get(kConfigKey_AccOffsetX, acc_bias_.x(), 0.0f);
+  pt.get(kConfigKey_AccOffsetY, acc_bias_.y(), 0.0f);
+  pt.get(kConfigKey_AccOffsetZ, acc_bias_.z(), 0.0f);
 
-  pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
-  pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
-  pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
-  pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
-  pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
-  pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
-  pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x);
-  pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y);
-  pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z);
-  pt.get(kConfigKey_MagEllipseC, mag_trans_.c);
+  pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.);
+  pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.);
+  pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.);
+  pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.);
+  pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.);
+  pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.);
+  pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.);
+  pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.);
+  pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.);
+  pt.get(kConfigKey_MagEllipseC, mag_trans_.c, 0.);
 }
 
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)

@@ -45,7 +45,7 @@ void BatteryHandler::registerSubscribers()
 void BatteryHandler::getAdcCoefficient()
 {
   tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_AdcCoef, adc_coef_);
+  pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcCoef);
 }
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)

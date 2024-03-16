@@ -18,7 +18,10 @@ class ImuHandler : public tobas::BaseNode
   static constexpr size_t kMeasureGyroBiasCount = 1000;
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
-  // Default Parameters
+  // Defaults
+  static constexpr double kDefaultAccNoiseDensity = 0.05;    // [m/s^2/sqrt(Hz)]
+  static constexpr double kDefaultGyroNoiseDensity = 0.005;  // [rad/s/sqrt(Hz)]
+  static constexpr double kDefaultMagNoiseDensity = 0.05;    // [/sqrt(Hz)]
 
   using self = ImuHandler;
   using super = tobas::BaseNode;
@@ -32,7 +35,6 @@ public:
 private:
   ImuDevice imu_;
 
-  EllipseTransformer mag_trans_;
   double acc_var_, gyro_var_, mag_var_;
   Eigen::Vector3f acc_, gyro_, mag_;
 
@@ -46,6 +48,7 @@ private:
   double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
   double mag_noise_density_;   // [/sqrt(Hz)]
   Eigen::Vector3f acc_bias_;   // [m/s^2]
+  EllipseTransformer mag_trans_;
 
   // Publisher
   ros::Publisher imu_pub_;

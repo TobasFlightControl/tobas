@@ -48,27 +48,27 @@ void RCInputHandler::readConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
 
-  pt.get(kConfigKey_RcRollLeft, roll_range_.lower);
-  pt.get(kConfigKey_RcRollRight, roll_range_.upper);
+  pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin);
+  pt.get(kConfigKey_RcRollRight, roll_range_.upper, tobas_navio_ros::kPwmMax);
 
-  pt.get(kConfigKey_RcPitchDown, pitch_range_.lower);
-  pt.get(kConfigKey_RcPitchUp, pitch_range_.upper);
+  pt.get(kConfigKey_RcPitchDown, pitch_range_.lower, tobas_navio_ros::kPwmMax);
+  pt.get(kConfigKey_RcPitchUp, pitch_range_.upper, tobas_navio_ros::kPwmMin);
 
-  pt.get(kConfigKey_RcYawRight, yaw_range_.lower);
-  pt.get(kConfigKey_RcYawLeft, yaw_range_.upper);
+  pt.get(kConfigKey_RcYawRight, yaw_range_.lower, tobas_navio_ros::kPwmMax);
+  pt.get(kConfigKey_RcYawLeft, yaw_range_.upper, tobas_navio_ros::kPwmMin);
 
-  pt.get(kConfigKey_RcThrustDown, thrust_range_.lower);
-  pt.get(kConfigKey_RcThrustUp, thrust_range_.upper);
+  pt.get(kConfigKey_RcThrustDown, thrust_range_.lower, tobas_navio_ros::kPwmMax);
+  pt.get(kConfigKey_RcThrustUp, thrust_range_.upper, tobas_navio_ros::kPwmMin);
 
-  pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram]);
-  pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize]);
-  pt.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat]);
+  pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram], tobas_navio_ros::kPwmMin);
+  pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize], tobas_navio_ros::kPwmMid);
+  pt.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat], tobas_navio_ros::kPwmMax);
 
-  pt.get(kConfigKey_RcEStopOn, estop_on_);
-  pt.get(kConfigKey_RcEStopOff, estop_off_);
+  pt.get(kConfigKey_RcEStopOn, estop_on_, tobas_navio_ros::kPwmMin);
+  pt.get(kConfigKey_RcEStopOff, estop_off_, tobas_navio_ros::kPwmMax);
 
-  pt.get(kConfigKey_RcGPSwOn, gpsw_on_);
-  pt.get(kConfigKey_RcGPSwOff, gpsw_off_);
+  pt.get(kConfigKey_RcGPSwOn, gpsw_on_, tobas_navio_ros::kPwmMin);
+  pt.get(kConfigKey_RcGPSwOff, gpsw_off_, tobas_navio_ros::kPwmMax);
 }
 
 void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -101,7 +101,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   // Mode
   if (rcin_.read(kRcChannelMode) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->mode = tobas_std::closestIndex(modes_, rcin_.getPeriod());
+  rcin_msg->mode = tobas_std::closestIndex<double>(modes_, rcin_.getPeriod());
 
   // E-Stop
   if (rcin_.read(kRcChannelEStop) != navio::RCInput::E_NO_ERROR)

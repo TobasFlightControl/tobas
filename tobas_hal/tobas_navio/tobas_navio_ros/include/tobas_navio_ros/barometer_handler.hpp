@@ -13,7 +13,8 @@ class BarometerHandler : public tobas::BaseNode
   // Constants
   static constexpr size_t kSamplingRate = 50;  // [Hz]
 
-  // Default Parameters
+  // Defaults
+  static constexpr double kDefaultPressureNoiseDensity = 1.;  // [Pa/sqrt(Hz)]
 
   using self = BarometerHandler;
   using super = tobas::BaseNode;

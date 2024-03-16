@@ -48,7 +48,7 @@ void BarometerHandler::registerSubscribers()
 void BarometerHandler::readConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_);
+  pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity);
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)

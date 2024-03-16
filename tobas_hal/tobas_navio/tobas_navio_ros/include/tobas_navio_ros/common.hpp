@@ -56,6 +56,7 @@ static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
 static constexpr double kPwmMin = 1000;       // [us]
 static constexpr double kPwmMax = 2000;       // [us]
 static constexpr double kPwmDisarm = 900;     // [us]
+static constexpr double kPwmMid = (kPwmMin + kPwmMax) / 2;
 
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
