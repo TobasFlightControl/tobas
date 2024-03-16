@@ -112,19 +112,25 @@ pi ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/tobas/config_pkg.env
 
 ラズパイの ROS_MASTER_URI を AP のもので固定しているため，それに合わせる必要がある．
 
-2. 外部 PC とラズパイの両方で`fkie_multimaster`を立ち上げる
+2. ラズパイのオート起動のサービスを落とす
+
+```bash
+$ sudo systemctl stop tobas_roscore.service
+```
+
+3. 外部 PC とラズパイの両方で`fkie_multimaster`を立ち上げる
 
 ```bash
 $ roslaunch tobas_fkie_master fkie_master.launch
 ```
 
-3. ラズパイで`rcin_handler`を立ち上げる
+4. ラズパイで`rcin_handler`を立ち上げる
 
 ```bash
 $ roslaunch tobas_navio_ros rcin_handler.launch __ns:=drone_name
 ```
 
-4. 外部 PC で Tobas ソフトウェアを立ち上げる
+5. 外部 PC で Tobas ソフトウェアを立ち上げる
 
 ```bash
 $ roslaunch tobas_iris_config gazebo.launch
