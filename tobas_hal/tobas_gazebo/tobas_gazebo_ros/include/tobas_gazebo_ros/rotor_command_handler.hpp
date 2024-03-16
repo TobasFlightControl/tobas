@@ -26,7 +26,7 @@ public:
 private:
   tobas::Drone drone_;
   tobas_msgs::BatteryConstPtr battery_;
-  bool is_armed_ = true;
+  bool is_armed_ = false;
 
   ros::Publisher throttles_pub_;
   ros::Subscriber battery_sub_;
