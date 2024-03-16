@@ -150,6 +150,9 @@ class PackageManagerWidget(QWidget):
                 "Could not connect to the server. Please check your network connection.",
             )
             return
+        except Exception as e:
+            q_error(self._main, f"Unexpected error occurred:\n\n{e}")
+            return
 
         pkg_path = self._pkg_path.text()
         pkg_name = pkg_path.split("/")[-1]
@@ -185,23 +188,18 @@ class PackageManagerWidget(QWidget):
             )
             return
 
-        # サービスの自動起動の有効化
-        rospy.loginfo("Enabling Tobas auto launcher")
-        command = SUDO_PREFIX + "systemctl enable tobas_navio_ros.service"
+        # サービスを再起動
+        rospy.loginfo("Restarting Tobas software.")
+        command = SUDO_PREFIX + "systemctl restart tobas_real.service"
         exit_status, _, error_output = self._execute_command(command)
         if exit_status != 0:
             q_error(
                 self._main,
-                f"Failed to enable Tobas auto launcher:\n\n{error_output}",
+                f"Failed to restart Tobas software:\n\n{error_output}",
             )
             return
 
-        # 再起動
-        rospy.loginfo("Rebooting")
-        command = SUDO_PREFIX + "reboot"
-        self._ssh_client.exec_command(command)  # セッション中断のため結果を待たない
-
         q_info(
             self._main,
-            "Tobas configuration package is installed successfully. Rebooting...",
+            "Tobas configuration package is installed successfully.",
         )
