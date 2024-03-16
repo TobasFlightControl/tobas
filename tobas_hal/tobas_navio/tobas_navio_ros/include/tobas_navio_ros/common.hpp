@@ -57,6 +57,7 @@ static constexpr double kPwmMin = 1000;       // [us]
 static constexpr double kPwmMax = 2000;       // [us]
 static constexpr double kPwmDisarm = 900;     // [us]
 static constexpr double kPwmMid = (kPwmMin + kPwmMax) / 2;
+static constexpr double kPwmRange = kPwmMax - kPwmMin;
 
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている

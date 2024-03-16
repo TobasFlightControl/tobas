@@ -57,7 +57,7 @@ void MeasureSensorNoise::run()
 
     // モータが動いている状態でのノイズを計測するため，PWMコマンドを送信
     constexpr double max_pwm_period =
-      tobas_navio_ros::kPwmMin + (tobas_navio_ros::kPwmMax - tobas_navio_ros::kPwmMin) * kMaxThrottle;
+      tobas_navio_ros::kPwmMin + tobas_navio_ros::kPwmRange * kMaxThrottle;
     setPeriodOnAllChannels(max_pwm_period);
 
     // センサ情報を読み取る
@@ -68,7 +68,9 @@ void MeasureSensorNoise::run()
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
     pres_data(i) = barometer_.getPressure() * 100;  // mbar -> Pa
-    if (pres_data(i) < tobas_navio_ros::kMinAirPressure || tobas_navio_ros::kMaxAirPressure < pres_data(i))
+    if (
+      pres_data(i) < tobas_navio_ros::kMinAirPressure
+      || tobas_navio_ros::kMaxAirPressure < pres_data(i))
       throw runtime_error("Strange air pressure: " + to_string(pres_data(i)) + " [Pa]");
   }
   const auto t_get_data_end = system_clock::now();
@@ -139,8 +141,7 @@ void MeasureSensorNoise::accelerateMotors()
   {
     elapsed_time = duration<double>(system_clock::now() - t_motor_up_start).count();  // [s]
     const auto throttle = kMaxThrottle * elapsed_time / kPwmUpDownTime;
-    const auto pwm_period =
-      tobas_navio_ros::kPwmMin + (tobas_navio_ros::kPwmMax - tobas_navio_ros::kPwmMin) * throttle;
+    const auto pwm_period = tobas_navio_ros::kPwmMin + tobas_navio_ros::kPwmRange * throttle;
     setPeriodOnAllChannels(pwm_period);
     usleep(kPwmSleep);
   }
@@ -154,8 +155,7 @@ void MeasureSensorNoise::decelerateMotors()
   {
     elapsed_time = duration<double>(system_clock::now() - t_motor_down_start).count();  // [s]
     const auto throttle = kMaxThrottle * (kPwmUpDownTime - elapsed_time) / kPwmUpDownTime;
-    const auto pwm_period =
-      tobas_navio_ros::kPwmMin + (tobas_navio_ros::kPwmMax - tobas_navio_ros::kPwmMin) * throttle;
+    const auto pwm_period = tobas_navio_ros::kPwmMin + tobas_navio_ros::kPwmRange * throttle;
     setPeriodOnAllChannels(pwm_period);
     usleep(kPwmSleep);
   }

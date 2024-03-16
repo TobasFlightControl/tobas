@@ -12,7 +12,7 @@ namespace tobas_navio_ros
 {
 class RCInputHandler : public tobas::BaseNode
 {
-  static constexpr size_t kSamplingRate = 100;    // [Hz]
+  static constexpr size_t kSamplingRate = 100;  // [Hz]
 
   using super = tobas::BaseNode;
 

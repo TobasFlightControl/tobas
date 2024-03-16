@@ -11,7 +11,7 @@ namespace tobas_navio_ros
 class BatteryHandler : public tobas::BaseNode
 {
   // Constants
-  static constexpr size_t kSamplingRate = 100;       // [Hz]
+  static constexpr size_t kSamplingRate = 100;     // [Hz]
   static constexpr double kLpfTimeConst = 10.;     // [s]
   static constexpr double kVoltageThreshold = 3.;  // [V]
 
