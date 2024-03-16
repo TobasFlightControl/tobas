@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "../include/tobas_navio_core/ms5611.hpp"
+#include "../include/tobas_navio_core/util.hpp"
 
 namespace navio
 {
@@ -79,13 +80,13 @@ void MS5611::calculatePressureAndTemperature()
   if (temp < 2000)
   {
     T2 = dT * dT / (1 << 31);
-    OFF2 = 5 * pow(temp - 2000, 2) / 2;
+    OFF2 = 5 * sqr(temp - 2000) / 2;
     SENS2 = OFF2 / 2;
   }
   if (temp < -1500)
   {
-    OFF2 = OFF2 + 7 * pow(temp + 1500, 2);
-    SENS2 = SENS2 + 11 * pow(temp + 1500, 2) / 2;
+    OFF2 = OFF2 + 7 * sqr(temp + 1500);
+    SENS2 = SENS2 + 11 * sqr(temp + 1500) / 2;
   }
 
   temp = temp - T2;
