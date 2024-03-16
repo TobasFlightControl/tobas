@@ -2,7 +2,6 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <std_srvs/SetBool.h>
 
 #include <tobas_navio_core/pwm.hpp>
 #include <tobas_tools/node.hpp>

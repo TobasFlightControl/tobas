@@ -1,9 +1,8 @@
-#include <std_srvs/SetBool.h>
-
 #include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/rate.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_state_checker/state_checker.hpp"
 
@@ -22,7 +21,7 @@ StateChecker::StateChecker(
   registerPublishers();
   registerSubscribers();
 
-  set_arm_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kSetArmSrv);
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void StateChecker::getRosParams()
@@ -86,8 +85,8 @@ void StateChecker::requestDisarmingRotors()
     return;
   }
 
-  std_srvs::SetBool set_arm_msg;
-  set_arm_msg.request.data = false;
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     rosError(name_, "Failed to disarm rotors.");

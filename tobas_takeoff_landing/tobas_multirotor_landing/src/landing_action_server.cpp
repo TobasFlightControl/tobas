@@ -2,6 +2,7 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_multirotor_landing/landing_action_server.hpp"
 
@@ -22,7 +23,7 @@ MultirotorLandServer::MultirotorLandServer(
   registerPublishers();
   registerSubscribers();
 
-  set_arm_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kSetArmSrv);
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
 }
@@ -57,8 +58,9 @@ bool MultirotorLandServer::disarmRotors()
     return false;
   }
 
-  set_arm_msg_.request.data = false;
-  if (!set_arm_sc_.call(set_arm_msg_) || !set_arm_msg_.response.success)
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = false;
+  if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to disarm rotors.");

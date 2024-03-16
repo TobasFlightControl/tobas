@@ -2,7 +2,6 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
-#include <std_srvs/SetBool.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -38,7 +37,6 @@ public:
 private:
   ResultType result_;
   tobas_msgs::Odometry start_odom_;
-  std_srvs::SetBool set_arm_msg_;
 
   ros::Publisher cmd_pub_;
   ros::Subscriber odom_sub_;

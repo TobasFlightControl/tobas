@@ -4,6 +4,7 @@
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
 
@@ -23,7 +24,7 @@ TakeoffActionServer::TakeoffActionServer(
   registerPublishers();
   registerSubscribers();
 
-  set_arm_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kSetArmSrv);
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
 }
@@ -81,8 +82,9 @@ bool TakeoffActionServer::armRotors()
     return false;
   }
 
-  set_arm_msg_.request.data = true;
-  if (!set_arm_sc_.call(set_arm_msg_) || !set_arm_msg_.response.success)
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = true;
+  if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to arm rotors.");
