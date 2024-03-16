@@ -4,7 +4,7 @@
 
 #include "../include/tobas_real_ros/cpu_handler.hpp"
 
-namespace tobas_real
+namespace tobas_real_ros
 {
 class CpuHandlerNodelet : public nodelet::Nodelet
 {
@@ -14,4 +14,4 @@ public:
 private:
   std::shared_ptr<CpuHandler> node_;
 };
-}  // namespace tobas_real
+}  // namespace tobas_real_ros

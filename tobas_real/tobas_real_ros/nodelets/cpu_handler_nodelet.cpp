@@ -2,7 +2,7 @@
 
 #include "./cpu_handler_nodelet.hpp"
 
-namespace tobas_real
+namespace tobas_real_ros
 {
 void CpuHandlerNodelet::onInit()
 {
@@ -14,6 +14,6 @@ void CpuHandlerNodelet::onInit()
 
   node_.reset(new CpuHandler(nh, pnh, name));
 }
-}  // namespace tobas_real
+}  // namespace tobas_real_ros
 
-PLUGINLIB_EXPORT_CLASS(tobas_real::CpuHandlerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_real_ros::CpuHandlerNodelet, nodelet::Nodelet);

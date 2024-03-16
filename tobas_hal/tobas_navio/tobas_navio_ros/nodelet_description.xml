@@ -1,4 +1,4 @@
-<library path="lib/libtobas_real_nodelet">
+<library path="lib/libtobas_navio_ros_nodelet">
 
   <class name="tobas_navio_ros/BatteryHandlerNodelet" type="tobas_navio_ros::BatteryHandlerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>

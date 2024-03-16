@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace tobas_real
+namespace tobas_real_ros
 {
 TimeReferenceServer::TimeReferenceServer(
   const ros::NodeHandle& nh,
@@ -41,4 +41,4 @@ void TimeReferenceServer::mainTimerCb(const ros::TimerEvent& event)
   time_ref->time_ref = event.current_real;
   time_ref_pub_.publish(time_ref);
 }
-}  // namespace tobas_real
+}  // namespace tobas_real_ros

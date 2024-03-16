@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace tobas_real
+namespace tobas_real_ros
 {
 CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
@@ -49,4 +49,4 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
 
   cpu_pub_.publish(cpu_msg);
 }
-}  // namespace tobas_real
+}  // namespace tobas_real_ros

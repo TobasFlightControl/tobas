@@ -5,7 +5,7 @@
 
 #include <tobas_tools/node.hpp>
 
-namespace tobas_real
+namespace tobas_real_ros
 {
 class TimeReferenceServer : public tobas::BaseNode
 {
@@ -30,4 +30,4 @@ private:
 
   void mainTimerCb(const ros::TimerEvent& event);
 };
-}  // namespace tobas_real
+}  // namespace tobas_real_ros

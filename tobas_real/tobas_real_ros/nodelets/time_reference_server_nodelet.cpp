@@ -2,7 +2,7 @@
 
 #include "./time_reference_server_nodelet.hpp"
 
-namespace tobas_real
+namespace tobas_real_ros
 {
 void TimeReferenceServerNodelet::onInit()
 {
@@ -14,6 +14,6 @@ void TimeReferenceServerNodelet::onInit()
 
   node_.reset(new TimeReferenceServer(nh, pnh, name));
 }
-}  // namespace tobas_real
+}  // namespace tobas_real_ros
 
-PLUGINLIB_EXPORT_CLASS(tobas_real::TimeReferenceServerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_real_ros::TimeReferenceServerNodelet, nodelet::Nodelet);
