@@ -1,8 +1,8 @@
 import os.path as osp
-import numpy as np
 import math
 import rospy
 import rospkg
+from functools import partial
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -16,13 +16,15 @@ from tobas_msgs.msg import (
     CommandLevel,
     Odometry,
 )
+from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 
 from .common import *
 
 
 class BasePoseCommander(MainWidget):
     # Constants
-    HOME_ALTITUDE = 3.0  # [ m]
+    HOME_ALTITUDE = 3.0  # [m]
+    WAIT_FOR_SERVICE = 1.0  # [s]
 
     # Default parameters
     DEFAULT_INIT_ELEVATION = 0.0  # [m]
@@ -139,6 +141,13 @@ class BasePoseCommander(MainWidget):
         self._pta_pub = rospy.Publisher("command/pose_twist_accel", PoseTwistAccelCommand, queue_size=1)
         self._odom_sub = rospy.Subscriber("odom", Odometry, self._odom_cb, queue_size=1)
 
+        # Service
+        self._set_arm_sc = rospy.ServiceProxy(f"set_arm", SetArm)
+
+        # 終了時にDisarm
+        # FIXME: Ctrl + Cでは呼ばれない
+        rospy.on_shutdown(partial(self._set_arm, arming=False))
+
     def _get_params(self) -> None:
         self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
         self._x_max = rospy.get_param("~pose_limit/x/max", self.DEFAULT_MAX_X)
@@ -162,7 +171,28 @@ class BasePoseCommander(MainWidget):
         assert self._yaw_min <= 0.0 <= self._yaw_max
         assert self._init_elevation >= 0.0
 
+    def _set_arm(self, arming: bool) -> bool:
+        try:
+            self._set_arm_sc.wait_for_service(self.WAIT_FOR_SERVICE)
+        except rospy.ROSException as e:
+            rospy.logerr(self, e)
+            return False
+
+        req = SetArmRequest()
+        req.arming = arming
+
+        res: SetArmResponse = self._set_arm_sc.call(req)
+        if not res.success:
+            rospy.logerr(self, res.message)
+            return False
+
+        return True
+
     def _odom_cb(self, odom: Odometry) -> None:
+        # Arming
+        if not self._set_arm(True):
+            return
+
         # 初期コマンドを設定
         self._cmd_x.set_value(odom.frame.trans.x)
         self._cmd_y.set_value(odom.frame.trans.y)
@@ -179,8 +209,10 @@ class BasePoseCommander(MainWidget):
         self._cmd_pitch.setEnabled(True)
         self._cmd_yaw.setEnabled(True)
 
-        rospy.loginfo("GUI teleoperation is ready.")
+        # 1回きりで終了
         self._odom_sub.unregister()
+
+        rospy.loginfo("GUI teleoperation is ready.")
 
     @pyqtSlot()
     def _publish_current_command(self) -> None:
