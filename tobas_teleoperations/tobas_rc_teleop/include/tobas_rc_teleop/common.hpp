@@ -7,6 +7,7 @@ namespace tobas_rc_teleop
 // Constants
 static constexpr double kDeadZone = 0.05;
 static constexpr double kInfoPeriod = 3.;   // [s]
+static constexpr double kWarnPeriod = 1.;   // [s]
 static constexpr double kErrorPeriod = 1.;  // [s]
 
 // Default parameters
