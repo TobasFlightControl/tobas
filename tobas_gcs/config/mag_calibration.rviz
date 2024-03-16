@@ -22,7 +22,7 @@ Visualization Manager:
       Class: rviz/PointStamped
       Color: 204; 41; 204
       Enabled: true
-      History Length: 100000
+      History Length: 0
       Name: PointStamped
       Queue Size: 10
       Radius: 0.1

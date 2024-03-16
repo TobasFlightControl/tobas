@@ -96,14 +96,14 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, "Failed to connect to the calibration server.")
             return
 
-        self._clear_points()
-
         req = TriggerRequest()
 
         res: TriggerResponse = calib_start_sc.call(req)
         if not res.success:
             q_error(self, res.message)
             return
+
+        self._point_history_length.setValue(self.POINT_HISTORY_LENGTH)
 
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)
@@ -128,6 +128,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, res.message)
             return
 
+        self._point_history_length.setValue(0)
+
         self._start_button.setEnabled(True)
         self._finish_button.setEnabled(False)
         self._cancel_button.setEnabled(False)
@@ -151,13 +153,10 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, res.message)
             return
 
+        self._point_history_length.setValue(0)
+
         self._start_button.setEnabled(True)
         self._finish_button.setEnabled(False)
         self._cancel_button.setEnabled(False)
 
         q_info(self._main, "Magnet calibration is cancelled.")
-
-    def _clear_points(self) -> None:
-        """Rviz上の点群を消去．"""
-        self._point_history_length.setValue(0)
-        self._point_history_length.setValue(self.POINT_HISTORY_LENGTH)
