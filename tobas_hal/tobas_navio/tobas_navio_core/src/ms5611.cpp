@@ -64,12 +64,12 @@ void MS5611::readTemperature()
 
 void MS5611::calculatePressureAndTemperature()
 {
-  const float dT = d2_ - c5_ * (1 << 8);
-  float temp = (2000 + ((dT * c6_) / (1 << 23)));
-  float OFF = c2_ * (1 << 16) + (c4_ * dT) / (1 << 7);
-  float SENS = c1_ * (1 << 15) + (c3_ * dT) / (1 << 8);
+  const auto dT = d2_ - c5_ * (double)(1 << 8);
+  auto temp = (2000 + ((dT * c6_) / (double)(1 << 23)));
+  auto OFF = c2_ * (double)(1 << 16) + (c4_ * dT) / (double)(1 << 7);
+  auto SENS = c1_ * (double)(1 << 15) + (c3_ * dT) / (double)(1 << 8);
 
-  float T2, OFF2, SENS2;
+  double T2, OFF2, SENS2;
 
   if (temp >= 2000)
   {
@@ -79,7 +79,7 @@ void MS5611::calculatePressureAndTemperature()
   }
   if (temp < 2000)
   {
-    T2 = dT * dT / (1 << 31);
+    T2 = sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフローしてしまう
     OFF2 = 5 * sqr(temp - 2000) / 2;
     SENS2 = OFF2 / 2;
   }
@@ -94,7 +94,7 @@ void MS5611::calculatePressureAndTemperature()
   SENS = SENS - SENS2;
 
   // Final calculations
-  pres_ = ((d1_ * SENS) / (1 << 21) - OFF) / (1 << 15);
+  pres_ = ((d1_ * SENS) / (double)(1 << 21) - OFF) / (double)(1 << 15);
   temp_ = temp / 100;
 }
 

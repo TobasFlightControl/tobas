@@ -98,29 +98,29 @@ public:
    *
    * @return Temperature in degrees of Celsius
    */
-  inline float getTemperature() const;
+  inline double getTemperature() const;
 
   /**
    * @brief Get calculated pressure value.
    *
    * @return Pressure in Pascal.
    */
-  inline float getPressure() const;
+  inline double getPressure() const;
 
 private:
   uint8_t dev_addr_;                      // I2C device adress
   uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
   uint32_t d1_, d2_;                      // Raw measurement data
-  float temp_;                            // Calculated temperature [Celcius]
-  float pres_;                            // Calculated pressure [Pa]
+  double temp_;                            // Calculated temperature [Celcius]
+  double pres_;                            // Calculated pressure [Pa]
 };
 
-inline float MS5611::getTemperature() const
+inline double MS5611::getTemperature() const
 {
   return temp_;
 }
 
-inline float MS5611::getPressure() const
+inline double MS5611::getPressure() const
 {
   return pres_;
 }
