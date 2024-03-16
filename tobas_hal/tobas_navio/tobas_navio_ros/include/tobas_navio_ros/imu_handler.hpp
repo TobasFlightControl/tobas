@@ -18,7 +18,7 @@ class ImuHandler : public tobas::BaseNode
   static constexpr size_t kMeasureGyroBiasCount = 1000;
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
-  // Defaults
+  // Defaults (例外を出さないためにデフォルト値は基本用意しておく)
   static constexpr double kDefaultAccNoiseDensity = 0.05;    // [m/s^2/sqrt(Hz)]
   static constexpr double kDefaultGyroNoiseDensity = 0.005;  // [rad/s/sqrt(Hz)]
   static constexpr double kDefaultMagNoiseDensity = 0.05;    // [/sqrt(Hz)]
