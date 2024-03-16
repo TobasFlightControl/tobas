@@ -2,7 +2,6 @@ import os.path as osp
 import math
 import rospy
 import rospkg
-from functools import partial
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -143,10 +142,6 @@ class BasePoseCommander(MainWidget):
 
         # Service
         self._set_arm_sc = rospy.ServiceProxy(f"set_arm", SetArm)
-
-        # 終了時にDisarm
-        # FIXME: Ctrl + Cでは呼ばれない
-        rospy.on_shutdown(partial(self._set_arm, arming=False))
 
     def _get_params(self) -> None:
         self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
