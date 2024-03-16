@@ -5,7 +5,7 @@
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_calibration/mag_calibration.hpp"
+#include "../include/tobas_calibration_ros/mag_calibration.hpp"
 
 using namespace std;
 using namespace Eigen;

@@ -1,4 +1,4 @@
-#include "../include/tobas_calibration/mag_calibration.hpp"
+#include "../include/tobas_calibration_ros/mag_calibration.hpp"
 
 int main(int argc, char** argv)
 {

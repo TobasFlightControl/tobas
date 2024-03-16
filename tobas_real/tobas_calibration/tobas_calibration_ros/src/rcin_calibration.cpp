@@ -3,7 +3,7 @@
 
 #include <tobas_calibration_msgs/RCInput.h>
 
-#include "../include/tobas_calibration/rcin_calibration.hpp"
+#include "../include/tobas_calibration_ros/rcin_calibration.hpp"
 
 using namespace std;
 
