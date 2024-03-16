@@ -57,6 +57,8 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
 
 void SpeedRollDeltaPitchPublisher::run()
 {
+  // TODO: 離陸アクションを呼ぶ or アーム
+
   check_topics_timer_.start();
 
   tobas_ros::Rate rate(kUpdateRate);
