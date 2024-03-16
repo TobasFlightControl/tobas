@@ -171,16 +171,6 @@ class PackageGenerator(QObject):
         )
         self._generate_from_template(
             items,
-            "environment.yaml.template",
-            osp.join(config_dir, "environment.yaml"),
-        )
-        self._generate_from_template(
-            items,
-            "hardware_interfaces.yaml.template",
-            osp.join(config_dir, "hardware_interfaces.yaml"),
-        )
-        self._generate_from_template(
-            items,
             "plotjuggler_layout.xml.template",
             osp.join(config_dir, "plotjuggler_layout.xml"),
         )
@@ -336,9 +326,6 @@ class PackageGenerator(QObject):
         template_items = dict()
         template_items["drone_name"] = self._drone_name
 
-        # Sensors
-        template_items["imu_update_rate"] = settings.imu.update_rate.get()
-        template_items["bar_update_rate"] = settings.barometer.update_rate.get()
 
         # Controller
         controller = settings.controller

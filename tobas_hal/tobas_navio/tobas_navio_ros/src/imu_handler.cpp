@@ -29,25 +29,23 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   mag_trans_.initialize();
 
-  acc_var_ = tobas_std::sqr(acc_noise_density_) * update_rate_;    // [m^2/s^4]
-  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * update_rate_;  // [rad^2/s^2]
-  mag_var_ = tobas_std::sqr(mag_noise_density_) * update_rate_;    // TODO: スケーリング
+  acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
+  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
+  mag_var_ = tobas_std::sqr(mag_noise_density_) * kSamplingRate;    // TODO: スケーリング
 
   registerPublishers();
   registerSubscribers();
 
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
-  measure_gyro_bias_timer_ =
-    nh_.createTimer(kMeasureGyroBiasRate, &self::measureGyroBiasTimerCb, this);
+  measure_gyro_bias_timer_ = nh_.createTimer(kSamplingRate, &self::measureGyroBiasTimerCb, this);
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
-  main_timer_ = nh_.createTimer(update_rate_, &self::mainTimerCb, this, false, false);
+  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this, false, false);
 }
 
 void ImuHandler::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void ImuHandler::registerPublishers()

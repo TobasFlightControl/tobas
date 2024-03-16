@@ -10,8 +10,10 @@ namespace tobas_navio_ros
 {
 class BarometerHandler : public tobas::BaseNode
 {
+  // Constants
+  static constexpr size_t kSamplingRate = 50;  // [Hz]
+
   // Default Parameters
-  static constexpr size_t kDefaultUpdateRate = 50;  // [Hz]
 
   using self = BarometerHandler;
   using super = tobas::BaseNode;
@@ -27,9 +29,6 @@ private:
 
   // Config
   double pressure_noise_density_;  // [Pa/sqrt(Hz)]
-
-  // rosparam
-  size_t update_rate_;
 
   // Publisher
   ros::Publisher bar_pub_;

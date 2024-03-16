@@ -29,12 +29,11 @@ BarometerHandler::BarometerHandler(
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(update_rate_, &self::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void BarometerHandler::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "update_rate", update_rate_, kDefaultUpdateRate);
 }
 
 void BarometerHandler::registerPublishers()
@@ -72,7 +71,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
   bar_msg->header.stamp = event.current_real;
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * update_rate_;  // [Pa^2]
+  bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * kSamplingRate;  // [Pa^2]
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);

@@ -14,12 +14,11 @@ namespace tobas_navio_ros
 class ImuHandler : public tobas::BaseNode
 {
   // Constants
+  static constexpr size_t kSamplingRate = 400;  // [Hz]
   static constexpr size_t kMeasureGyroBiasCount = 1000;
-  static constexpr size_t kMeasureGyroBiasRate = 400;  // [Hz]
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
   // Default Parameters
-  static constexpr size_t kDefaultUpdateRate = 400;  // [Hz]
 
   using self = ImuHandler;
   using super = tobas::BaseNode;
@@ -47,9 +46,6 @@ private:
   double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
   double mag_noise_density_;   // [/sqrt(Hz)]
   Eigen::Vector3f acc_bias_;   // [m/s^2]
-
-  // rosparams
-  size_t update_rate_;
 
   // Publisher
   ros::Publisher imu_pub_;
