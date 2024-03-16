@@ -60,7 +60,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   barometer_.calculatePressureAndTemperature();
 
   // 気圧を求める
-  const auto pressure = barometer_.getPressure() * 100;  // mbar -> Pa
+  const auto pressure = barometer_.getPressure();
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
     rosError(name_, "Strange air pressure: " << pressure << " [Pa]");

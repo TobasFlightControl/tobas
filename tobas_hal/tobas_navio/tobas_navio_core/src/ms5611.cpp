@@ -63,38 +63,38 @@ void MS5611::readTemperature()
 
 void MS5611::calculatePressureAndTemperature()
 {
-  float dT = d2_ - c5_ * pow(2, 8);
-  temp_ = (2000 + ((dT * c6_) / pow(2, 23)));
-  float OFF = c2_ * pow(2, 16) + (c4_ * dT) / pow(2, 7);
-  float SENS = c1_ * pow(2, 15) + (c3_ * dT) / pow(2, 8);
+  const float dT = d2_ - c5_ * (1 << 8);
+  float temp = (2000 + ((dT * c6_) / (1 << 23)));
+  float OFF = c2_ * (1 << 16) + (c4_ * dT) / (1 << 7);
+  float SENS = c1_ * (1 << 15) + (c3_ * dT) / (1 << 8);
 
   float T2, OFF2, SENS2;
 
-  if (temp_ >= 2000)
+  if (temp >= 2000)
   {
     T2 = 0;
     OFF2 = 0;
     SENS2 = 0;
   }
-  if (temp_ < 2000)
+  if (temp < 2000)
   {
-    T2 = dT * dT / pow(2, 31);
-    OFF2 = 5 * pow(temp_ - 2000, 2) / 2;
+    T2 = dT * dT / (1 << 31);
+    OFF2 = 5 * pow(temp - 2000, 2) / 2;
     SENS2 = OFF2 / 2;
   }
-  if (temp_ < -1500)
+  if (temp < -1500)
   {
-    OFF2 = OFF2 + 7 * pow(temp_ + 1500, 2);
-    SENS2 = SENS2 + 11 * pow(temp_ + 1500, 2) / 2;
+    OFF2 = OFF2 + 7 * pow(temp + 1500, 2);
+    SENS2 = SENS2 + 11 * pow(temp + 1500, 2) / 2;
   }
 
-  temp_ = temp_ - T2;
+  temp = temp - T2;
   OFF = OFF - OFF2;
   SENS = SENS - SENS2;
 
   // Final calculations
-  pres_ = ((d1_ * SENS) / pow(2, 21) - OFF) / pow(2, 15) / 100;
-  temp_ = temp_ / 100;
+  pres_ = ((d1_ * SENS) / (1 << 21) - OFF) / (1 << 15);
+  temp_ = temp / 100;
 }
 
 void MS5611::update()

@@ -30,8 +30,7 @@ int main()
     barometer.calculatePressureAndTemperature();
 
     printf(
-      "Temperature(C): %f Pressure(millibar): %f\n", barometer.getTemperature(),
-      barometer.getPressure());
+      "Temperature[C]: %f Pressure[Pa]: %f\n", barometer.getTemperature(), barometer.getPressure());
 
     sleep(1);
   }

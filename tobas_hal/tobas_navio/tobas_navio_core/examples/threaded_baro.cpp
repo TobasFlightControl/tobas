@@ -49,8 +49,7 @@ int main()
 
   while (true)
   {
-    printf(
-      "Temperature(C): %f Pressure(millibar): %f\n", baro.getTemperature(), baro.getPressure());
+    printf("Temperature[C]: %f Pressure[Pa]: %f\n", baro.getTemperature(), baro.getPressure());
     sleep(1);
   }
 

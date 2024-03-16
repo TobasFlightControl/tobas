@@ -67,7 +67,7 @@ void MeasureSensorNoise::run()
 
     barometer_.readPressure();
     barometer_.calculatePressureAndTemperature();
-    pres_data(i) = barometer_.getPressure() * 100;  // mbar -> Pa
+    pres_data(i) = barometer_.getPressure();
     if (
       pres_data(i) < tobas_navio_ros::kMinAirPressure
       || tobas_navio_ros::kMaxAirPressure < pres_data(i))
