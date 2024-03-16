@@ -1,5 +1,3 @@
-#include <std_srvs/SetBool.h>
-
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -13,6 +11,8 @@
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
+#include <tobas_msgs/GetArm.h>
+#include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -63,7 +63,8 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   registerPublishers();
   registerSubscribers();
 
-  set_arm_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kSetArmSrv);
+  get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void RCTeleop::getRosParams()
@@ -83,21 +84,60 @@ void RCTeleop::registerSubscribers()
   rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
 }
 
-void RCTeleop::requestDisarmingRotors()
+bool RCTeleop::isRotorsArmed()
+{
+  if (!get_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kGetArmSrv << "' service server.");
+    return false;
+  }
+
+  tobas_msgs::GetArm get_arm_msg;
+  if (!get_arm_sc_.call(get_arm_msg))
+  {
+    rosError(name_, "Failed to get arming state.");
+    return false;
+  }
+
+  return get_arm_msg.response.arming;
+}
+
+bool RCTeleop::requestArmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     rosError(name_, "Failed to connect to '" << tobas::kSetArmSrv << "' service server.");
-    return;
+    return false;
   }
 
-  std_srvs::SetBool set_arm_msg;
-  set_arm_msg.request.data = false;
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = true;
+  if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
+  {
+    rosError(name_, "Failed to arm rotors.");
+    return false;
+  }
+
+  return true;
+}
+
+bool RCTeleop::requestDisarmingRotors()
+{
+  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kSetArmSrv << "' service server.");
+    return false;
+  }
+
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     rosError(name_, "Failed to disarm rotors.");
-    return;
+    return false;
   }
+
+  return true;
 }
 
 void RCTeleop::odomCb(const tobas_msgs::OdometryConstPtr& odom)
@@ -128,7 +168,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        TOBAS_GOOD("RC transmitter is ready. Set E-Stop toggle OFF to start control.");
+        TOBAS_GOOD("RC transmitter is ready. "
+                   "To start control, set the E-Stop toggle OFF "
+                   "with the throttle lever lowered to the bottom.");
         stage_ = ESTOP_ON;
       }
       else
@@ -141,8 +183,30 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     case ESTOP_ON:
     {
-      if (!rcin->e_stop)
+      // E-StopがONのままならスキップ
+      if (rcin->e_stop)
+        break;
+
+      // 既にアームされていたら，即コマンドを送信開始 (緊急的に制御を奪いたいときなど)
+      if (isRotorsArmed())
+      {
         stage_ = FIRST_COMMAND;
+        break;
+      }
+
+      // アームされていなければ，スロットルレバーを確認してアームする
+      if (rcin->thrust > kInitThrustThreshold)
+      {
+        rosWarnThrottle(
+          kWarnPeriod, name_,
+          "Please lower the throttle lever to the bottom before turning off the E-Stop.");
+        break;
+      }
+      if (!requestArmingRotors())
+        break;
+
+      // 問題なければコマンドを送信開始
+      stage_ = FIRST_COMMAND;
       break;
     }
 
