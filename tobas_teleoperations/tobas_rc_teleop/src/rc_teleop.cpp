@@ -232,11 +232,12 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     case RUNNING:
     {
+      // E-Stopがオンになったら非常停止
       if (rcin->e_stop)
       {
         rosWarn(name_, "Stopping rotors.");
         requestDisarmingRotors();
-        stage_ = DISARMED;
+        stage_ = ESTOP_ON;
       }
 
       const auto& cur_mode = rcin->mode;
@@ -264,15 +265,10 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       break;
     }
 
-    case DISARMED:
-    {
-      // TODO: tobas_msgs::EventのリセットでWAIT_FOR_ESTOPに戻る
-      break;
-    }
-
     default:
     {
-      ROS_EXIT_NAMED(nh_, name_, "Invalid stage: " << static_cast<int>(stage_));
+      rosError(name_, "Invalid stage: " << static_cast<int>(stage_));
+      break;
     }
   }
 }
