@@ -67,7 +67,7 @@ std::string get_sensor_name(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-  if (check_apm())
+  if (checkAPM())
     return 1;
 
   const auto sensor_name = get_sensor_name(argc, argv);

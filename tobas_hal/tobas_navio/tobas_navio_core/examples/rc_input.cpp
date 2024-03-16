@@ -13,7 +13,7 @@ using namespace navio;
 
 int main()
 {
-  if (check_apm())
+  if (checkAPM())
     return 1;
 
   RCInput rcin;

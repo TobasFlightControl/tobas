@@ -13,7 +13,7 @@ using namespace std;
 
 namespace navio
 {
-int write_file(const char* path, const char* fmt, ...)
+int writeFile(const char* path, const char* fmt, ...)
 {
   errno = 0;
 
@@ -36,7 +36,7 @@ int write_file(const char* path, const char* fmt, ...)
   return ret;
 }
 
-int read_file(const char* path, const char* fmt, ...)
+int readFile(const char* path, const char* fmt, ...)
 {
   errno = 0;
 
@@ -59,7 +59,14 @@ int read_file(const char* path, const char* fmt, ...)
   return ret;
 }
 
-bool check_apm()
+int getNavioVersion()
+{
+  int version;
+  readFile("/sys/firmware/devicetree/base/hat/product_id", "%x", &version);
+  return version;
+}
+
+bool checkAPM()
 {
   const auto ret = system("ps -AT | grep -c ap-timer > /dev/null");
 
@@ -72,12 +79,7 @@ bool check_apm()
   return false;
 }
 
-int get_navio_version()
-{
-  int version;
-  read_file("/sys/firmware/devicetree/base/hat/product_id", "%x", &version);
-  return version;
-}
+
 
 float decodeBinary32(uint32_t bin)
 {

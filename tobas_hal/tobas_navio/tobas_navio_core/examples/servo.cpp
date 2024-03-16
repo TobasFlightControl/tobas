@@ -15,7 +15,7 @@ int main(int, char* argv[])
 {
   PWM pwm;
 
-  if (check_apm())
+  if (checkAPM())
   {
     return 1;
   }

@@ -19,7 +19,7 @@ using namespace navio;
 int main(int, char** argv)
 {
   // Check superuser authority
-  if (check_apm())
+  if (checkAPM())
   {
     return 1;
   }

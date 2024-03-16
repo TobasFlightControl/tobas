@@ -10,7 +10,7 @@ int main()
 {
   MS5611 barometer;
 
-  if (check_apm())
+  if (checkAPM())
   {
     return 1;
   }

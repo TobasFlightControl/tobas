@@ -8,7 +8,7 @@ using namespace navio;
 
 int main(int, char* argv[])
 {
-  if (check_apm())
+  if (checkAPM())
     return 1;
 
   if (getuid())

@@ -31,7 +31,7 @@ void* acquireBarometerData(void* barom)
 
 int main()
 {
-  if (check_apm())
+  if (checkAPM())
   {
     return 1;
   }
