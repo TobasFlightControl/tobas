@@ -53,11 +53,10 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
         esc_calib_ac = actionlib.SimpleActionClient(f"/{self._drone.drone_name}/esc_calibration", EscCalibrationAction)
-
         try:
             esc_calib_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER))
         except rospy.ROSException:
-            q_error(self, "Failed to connect to the calibration server.")
+            q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
         goal = EscCalibrationGoal()

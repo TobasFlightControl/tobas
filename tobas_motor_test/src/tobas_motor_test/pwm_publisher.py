@@ -30,7 +30,12 @@ class PwmPublisherWidget(MainWidget):
 
         self._commanders: List[IntSliderDisplay] = []
         for channel in range(SERVO_RAIL_SIZE):
-            commander = IntSliderDisplay(f"CH{channel}", MIN_PWM, MAX_PWM, MIN_PWM, suffix=" us")
+            commander = IntSliderDisplay(self)
+            commander.set_text(f"CH{channel}")
+            commander.set_minimum(MIN_PWM)
+            commander.set_maximum(MAX_PWM)
+            commander.set_value(MIN_PWM)
+            commander.set_suffix(" us")
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
             grid.addWidget(commander, channel % self.MAX_ROWS, channel // self.MAX_ROWS)

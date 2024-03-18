@@ -309,16 +309,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     def _cancel(self) -> None:
         calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
-
         try:
             calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
-            q_error(self, "Failed to connect to the calibration server.")
+            q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        req = TriggerRequest()
-        res: TriggerResponse = calib_cancel_sc.call(req)
-
+        res: TriggerResponse = calib_cancel_sc.call(TriggerRequest())
         if not res.success:
             q_error(self, res.message)
             return
@@ -342,15 +339,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
         calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/start", Trigger)
-
         try:
             calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
-            q_error(self, "Failed to connect to the calibration server.")
+            q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        req = TriggerRequest()
-        res: TriggerResponse = calib_start_sc.call(req)
+        res: TriggerResponse = calib_start_sc.call(TriggerRequest())
         if not res.success:
             q_error(self, res.message)
             return
@@ -380,11 +375,10 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_finish_button_clicked(self) -> None:
         calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
-
         try:
             calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
-            q_error(self, "Failed to connect to the calibration server.")
+            q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
         req = RCInputCalibrationRequest()

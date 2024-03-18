@@ -22,6 +22,8 @@ class BaseHardwareSetupWidget(ScrollArea):
     BUTTON_WIDTH = 100
     WAIT_FOR_SERVER = 1  # [s]
 
+    E_FAILED_TO_CONNECT = "Failed to connect to the flight controller."
+
     NAME = UNKNOWN
     TITLE = UNKNOWN
 

@@ -3,6 +3,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+SERVO_RAIL_SIZE = 14
+MIN_PWM = 1000
+MAX_PWM = 2000
 
 PKG_NAME = "tobas_gcs"
 CONFIG_PATH = osp.expanduser(f"~/.config/{PKG_NAME}/config.ini")

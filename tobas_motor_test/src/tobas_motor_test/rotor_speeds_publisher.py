@@ -31,7 +31,12 @@ class RotorSpeedsPublisherWidget(MainWidget):
 
         self._commanders: List[IntSliderDisplay] = []
         for rotor in drone.rotors:
-            commander = IntSliderDisplay(f"CH{rotor.channel}", 0, rps2rpm(rotor.max_rot_speed), 0, suffix=" rpm")
+            commander = IntSliderDisplay(self)
+            commander.set_text(f"CH{rotor.channel}")
+            commander.set_minimum(0)
+            commander.set_maximum(rps2rpm(rotor.max_rot_speed))
+            commander.set_value(0)
+            commander.set_suffix(" rpm")
             commander.value_changed.connect(self._on_value_changed)
             rows.addWidget(commander)
             self._commanders.append(commander)

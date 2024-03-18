@@ -68,53 +68,58 @@ class BasePoseCommander(MainWidget):
         self.setLayout(rows)
 
         # XYZRPYに対応するバーを追加
-        self._cmd_x = FloatSliderDisplay(
-            "x",
-            self._x_min,
-            self._x_max,
-            0.0,
-            callback=self._publish_current_command,
-        )
-        self._cmd_y = FloatSliderDisplay(
-            "y",
-            self._y_min,
-            self._y_max,
-            0.0,
-            callback=self._publish_current_command,
-        )
-        self._cmd_z = FloatSliderDisplay(
-            "z",
-            self._z_min,
-            self._z_max,
-            0.0,
-            callback=self._publish_current_command,
-        )
-        self._cmd_roll = FloatSliderDisplay(
-            "roll",
-            self._roll_min,
-            self._roll_max,
-            0.0,
-            callback=self._publish_current_command,
-        )
-        self._cmd_pitch = FloatSliderDisplay(
-            "pitch",
-            self._pitch_min,
-            self._pitch_max,
-            0.0,
-            callback=self._publish_current_command,
-        )
-        self._cmd_yaw = FloatSliderDisplay(
-            "yaw",
-            self._yaw_min,
-            self._yaw_max,
-            0.0,
-            callback=self._publish_current_command,
-        )
+        self._cmd_x = FloatSliderDisplay(self)
+        self._cmd_x.set_text("x")
+        self._cmd_x.set_minimum(self._x_min)
+        self._cmd_x.set_maximum(self._x_max)
+        self._cmd_x.set_value(0.0)
+        self._cmd_x.set_callback(self._publish_current_command)
+        self._cmd_x.setEnabled(False)
         rows.addWidget(self._cmd_x)
+
+        self._cmd_y = FloatSliderDisplay(self)
+        self._cmd_y.set_text("y")
+        self._cmd_y.set_minimum(self._y_min)
+        self._cmd_y.set_maximum(self._y_max)
+        self._cmd_y.set_value(0.0)
+        self._cmd_y.set_callback(self._publish_current_command)
+        self._cmd_y.setEnabled(False)
         rows.addWidget(self._cmd_y)
+
+        self._cmd_z = FloatSliderDisplay(self)
+        self._cmd_z.set_text("z")
+        self._cmd_z.set_minimum(self._z_min)
+        self._cmd_z.set_maximum(self._z_max)
+        self._cmd_z.set_value(0.0)
+        self._cmd_z.set_callback(self._publish_current_command)
+        self._cmd_z.setEnabled(False)
         rows.addWidget(self._cmd_z)
+
+        self._cmd_roll = FloatSliderDisplay(self)
+        self._cmd_roll.set_text("roll")
+        self._cmd_roll.set_minimum(self._roll_min)
+        self._cmd_roll.set_maximum(self._roll_max)
+        self._cmd_roll.set_value(0.0)
+        self._cmd_roll.set_callback(self._publish_current_command)
+        self._cmd_roll.setEnabled(False)
         rows.addWidget(self._cmd_roll)
+
+        self._cmd_pitch = FloatSliderDisplay(self)
+        self._cmd_pitch.set_text("pitch")
+        self._cmd_pitch.set_minimum(self._pitch_min)
+        self._cmd_pitch.set_maximum(self._pitch_max)
+        self._cmd_pitch.set_value(0.0)
+        self._cmd_pitch.set_callback(self._publish_current_command)
+        self._cmd_pitch.setEnabled(False)
         rows.addWidget(self._cmd_pitch)
+
+        self._cmd_yaw = FloatSliderDisplay(self)
+        self._cmd_yaw.set_text("yaw")
+        self._cmd_yaw.set_minimum(self._yaw_min)
+        self._cmd_yaw.set_maximum(self._yaw_max)
+        self._cmd_yaw.set_value(0.0)
+        self._cmd_yaw.set_callback(self._publish_current_command)
+        self._cmd_yaw.setEnabled(False)
         rows.addWidget(self._cmd_yaw)
 
         # 初期位置にボタン
@@ -125,14 +130,6 @@ class BasePoseCommander(MainWidget):
 
         # スペーサー
         rows.addStretch()
-
-        # 最初はバーを無効化
-        self._cmd_x.setEnabled(False)
-        self._cmd_y.setEnabled(False)
-        self._cmd_z.setEnabled(False)
-        self._cmd_roll.setEnabled(False)
-        self._cmd_pitch.setEnabled(False)
-        self._cmd_yaw.setEnabled(False)
 
         # PubSub
         self._pos_yaw_pub = rospy.Publisher("command/position_yaw", PositionYaw, queue_size=1)
