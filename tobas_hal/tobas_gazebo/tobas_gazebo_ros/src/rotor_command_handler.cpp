@@ -89,9 +89,9 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      ROS_WARN_STREAM(
-        "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
-                                      << max_speed << " [rad/s]");
+      rosWarn(
+        name_, "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
+                                             << max_speed << " [rad/s]");
       tar_speed = max_speed;
     }
 
