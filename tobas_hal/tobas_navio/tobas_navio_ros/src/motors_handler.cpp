@@ -41,8 +41,6 @@ MotorsHandler::MotorsHandler(
 
 void MotorsHandler::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "block_below_arm_speed", block_below_arm_speed_, kDefaultBlockBelowArmSpeed);
 }
 
 void MotorsHandler::registerPublishers()
@@ -168,22 +166,20 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     const auto& rotor = drone_.rotorConfig(rotor_idx);
 
     // 目標回転数を決定
-    const auto min_speed =
-      block_below_arm_speed_ ? drone_.minRotSpeed(rotor_idx, battery_->voltage) : 0.;
     const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_->voltage);
     auto tar_speed = tar_speeds->speeds[rotor_idx];
-    if (tar_speed < min_speed - tobas::kRotSpeedMargin)
+    if (tar_speed < 0.)  // モータテストでも使用するため，ここではARM_THROTTLEの制約を課さない
     {
-      ROS_WARN_STREAM(
-        "Target rotation speed of CH" << rotor_idx << " is too low: " << tar_speed << " < "
-                                      << min_speed << " [rad/s]");
-      tar_speed = min_speed;
+      rosWarn(
+        name_, "Negative rotation speed is commanded on CH" << rotor_idx << ": " << tar_speed
+                                                            << " < 0 [rad/s]");
+      tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      ROS_WARN_STREAM(
-        "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
-                                      << max_speed << " [rad/s]");
+      rosWarn(
+        name_, "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
+                                             << max_speed << " [rad/s]");
       tar_speed = max_speed;
     }
 

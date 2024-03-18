@@ -21,7 +21,6 @@ class MotorsHandler : public tobas::BaseNode
 
   static constexpr size_t kCheckIntervalTimerRate = 10;  // [Hz]
   static constexpr double kSetupPwmRetryInterval = 1.;   // [s]
-  static constexpr bool kDefaultBlockBelowArmSpeed = true;
 
   using self = MotorsHandler;
   using super = tobas::BaseNode;
@@ -40,9 +39,6 @@ private:
   bool is_activated_ = false;
   tobas_msgs::BatteryConstPtr battery_;
   tobas_std::FirstOrderFilter<double> latency_filter_;
-
-  // rosparams
-  bool block_below_arm_speed_;
 
   // PubSub
   ros::Publisher pwms_pub_;

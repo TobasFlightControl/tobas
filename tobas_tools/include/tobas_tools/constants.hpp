@@ -95,7 +95,7 @@ static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kDisarmDuration = 3.;            // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
-static constexpr double kRotSpeedMargin = 1.;            // [rad/s]
+static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
 static constexpr size_t kStopwatchSamples = 100;
 
