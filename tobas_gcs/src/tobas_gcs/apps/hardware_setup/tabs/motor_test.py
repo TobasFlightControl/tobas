@@ -92,7 +92,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_stop_button_clicked(self) -> None:
-        if not self._set_arm(True):
+        if not self._set_arm(False):
             return
 
         self._rotor_speeds_publisher.stop()
@@ -236,18 +236,16 @@ class RotorSpeedsPublisherWidget(QWidget):
     def _publish_current_values(self) -> None:
         rot_speeds = RotorSpeeds()
         rot_speeds.header.stamp = rospy.Time.now()
-        rot_speeds.speeds = [0.0] * len(self._commanders)
+        rot_speeds.speeds = [0.0] * len(self._drone.rotors)
 
-        for channel, commander in enumerate(self._commanders):
-            rot_speeds.speeds[channel] = rpm2rps(commander.get_value())
+        for rotor in self._drone.rotors:
+            rot_speeds.speeds[rotor.channel] = rpm2rps(self._commanders[rotor.channel].get_value())
 
         self._speeds_pub.publish(rot_speeds)
 
     def _set_all_values(self, value: int) -> None:
-        for commander in self._commanders:
-            commander.blockSignals(True)
-            commander.set_value(value)
-            commander.blockSignals(False)
+        for rotor in self._drone.rotors:
+            self._commanders[rotor.channel].set_value(value)
 
     def _publish_timer_cb(self, _) -> None:
         self._publish_current_values()
