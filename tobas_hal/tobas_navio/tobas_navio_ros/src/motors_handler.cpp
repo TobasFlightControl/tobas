@@ -286,8 +286,8 @@ bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmR
     rosInfo(name_, "Arming rotors.");
     if (!armRotors())
     {
-      rosError(name_, "Failed to arm rotors.");
       res.success = false;
+      res.message = "Failed to enable PWMs.";
       return true;
     }
   }
@@ -296,8 +296,8 @@ bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmR
     rosInfo(name_, "Disarming rotors.");
     if (!disarmRotors())
     {
-      rosError(name_, "Failed to disarm rotors.");
       res.success = false;
+      res.message = "Failed to disable PWMs.";
       return true;
     }
   }
