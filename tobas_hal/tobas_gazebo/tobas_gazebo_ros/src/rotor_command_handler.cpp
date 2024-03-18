@@ -78,15 +78,14 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
   for (size_t rotor_idx = 0; rotor_idx < data_size; ++rotor_idx)
   {
     // Check the validity of the target rotation speed
-    const auto min_speed = drone_.minRotSpeed(rotor_idx, battery_->voltage);
     const auto max_speed = drone_.maxRotSpeed(rotor_idx, battery_->voltage);
     auto tar_speed = tar_speeds->speeds[rotor_idx];
-    if (tar_speed < min_speed - tobas::kRotSpeedMargin)
+    if (tar_speed < 0.)
     {
-      ROS_WARN_STREAM(
-        "Target rotation speed of CH" << rotor_idx << " is too low: " << tar_speed << " < "
-                                      << min_speed << " [rad/s]");
-      tar_speed = min_speed;
+      rosWarn(
+        name_, "Negative rotation speed is commanded on CH" << rotor_idx << ": " << tar_speed
+                                                            << " < 0 [rad/s]");
+      tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
