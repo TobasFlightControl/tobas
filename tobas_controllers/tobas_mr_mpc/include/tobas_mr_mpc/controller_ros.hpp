@@ -10,6 +10,7 @@
 #include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/command_level_handler.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
@@ -71,9 +72,9 @@ private:
   tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
-  uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   ros::Time t_last_loop_;
   KDL::Vector tar_acc_fb_;
+  tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
   ros::Publisher rot_speeds_pub_;

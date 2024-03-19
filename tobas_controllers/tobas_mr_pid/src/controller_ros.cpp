@@ -208,7 +208,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
     return;
 
   // コマンドレベルの処理
-  if (!updateCommandLevel(cmd_level_, pvay->level.data))
+  if (!cmd_level_handler_.update(pvay->level.data, ros::Time::now()))
     return;
 
   // コマンドを更新
@@ -228,7 +228,7 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
   if (!is_initialized_)
     return;
 
-  if (!updateCommandLevel(cmd_level_, rpyt->level.data))
+  if (!cmd_level_handler_.update(rpyt->level.data, ros::Time::now()))
     return;
 
   // 外側の制御を止める

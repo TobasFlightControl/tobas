@@ -9,6 +9,7 @@
 #include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
@@ -56,9 +57,9 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
   tobas_msgs::PoseTwistAccelCommandConstPtr cmd_;
-  uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   ros::Time t_last_loop_;
   bool is_initialized_ = false;
+  tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
   ros::Publisher rot_speeds_pub_;

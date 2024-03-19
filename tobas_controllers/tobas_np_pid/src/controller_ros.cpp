@@ -173,7 +173,7 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
     return;
 
   // コマンドレベルの処理
-  if (!updateCommandLevel(cmd_level_, cmd->level.data))
+  if (!cmd_level_handler_.update(cmd->level.data, ros::Time::now()))
     return;
 
   // コマンドを更新
