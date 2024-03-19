@@ -23,6 +23,7 @@ class HardwareSetupWidget(VerticalTabWidget):
         super().__init__()
         self._main = main
 
+        self._network_setting = NetworkSettingWidget(main)
         self._acc_calib = AccelCalibrationWidget(main)
         self._mag_calib = MagCalibrationWidget(main)
         self._adc_calib = AdcCalibrationWidget(main)
@@ -31,6 +32,7 @@ class HardwareSetupWidget(VerticalTabWidget):
         self._esc_calib = EscCalibrationWidget(main)
         self._motor_test = MotorTestWidget(main)
 
+        self.addTab(self._network_setting, NetworkSettingWidget.NAME)
         self.addTab(self._acc_calib, AccelCalibrationWidget.NAME)
         self.addTab(self._mag_calib, MagCalibrationWidget.NAME)
         self.addTab(self._adc_calib, AdcCalibrationWidget.NAME)
@@ -43,6 +45,7 @@ class HardwareSetupWidget(VerticalTabWidget):
         self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
 
     def define_connections(self) -> None:
+        self._network_setting.define_connections()
         self._acc_calib.define_connections()
         self._mag_calib.define_connections()
         self._adc_calib.define_connections()

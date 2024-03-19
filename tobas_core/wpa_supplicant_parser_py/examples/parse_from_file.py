@@ -8,4 +8,4 @@ if __name__ == "__main__":
     conf_path = osp.join(osp.dirname(__file__), "wpa_supplicant.conf")
     parser.parse_from_file(conf_path)
 
-    print(parser)
+    print(parser.text())

@@ -1,3 +1,4 @@
+from .network_setting import NetworkSettingWidget
 from .acc_calibration import AccelCalibrationWidget
 from .mag_calibration import MagCalibrationWidget
 from .adc_calibration import AdcCalibrationWidget

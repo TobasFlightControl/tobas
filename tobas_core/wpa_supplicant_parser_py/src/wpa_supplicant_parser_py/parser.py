@@ -26,14 +26,6 @@ class Network:
     key_mgmt: KeyManagement = KeyManagement.WPA_PSK
     priority: int = 0
 
-    def __repr__(self) -> str:
-        res = ""
-        res += f"SSID: {self.ssid}\n"
-        res += f"PSK: {self.psk}\n"
-        res += f"Key Management: {self.key_mgmt.value}\n"
-        res += f"Priority: {self.priority}\n"
-        return res
-
 
 class WPASupplicantParser:
 
@@ -57,18 +49,6 @@ class WPASupplicantParser:
         self.ctrl_interface: str = self.DEFAULT_CTRL_INTERFACE
         self.update_config: bool = self.DEFAULT_UPDATE_CONFIG
         self.networks: List[Network] = []
-
-    def __repr__(self) -> str:
-        res = ""
-        res += f"Country: {self.country.value}\n"
-        res += f"Countrol Interface: {self.ctrl_interface}\n"
-        res += f"Update Configuration: {self.update_config}\n"
-        res += "Networks:\n"
-        for network in self.networks:
-            res += "---\n"
-            res += str(network)
-        res += "---\n"
-        return res
 
     def clear(self) -> None:
         self.country = self.DEFAULT_COUNTRY
@@ -170,7 +150,8 @@ class WPASupplicantParser:
             text = f.read()
         self.parse_from_text(text)
 
-    def write(self, path: str) -> None:
+    def text(self) -> str:
+        """設定をwpa_supplicant.confのテキスト形式で返す．"""
         text = ""
         text += f"{self.COUNTRY_PREFIX}{self.country.value}\n"
         text += f"{self.CTRL_INTERFACE_PREFIX}{self.ctrl_interface}\n"
@@ -185,5 +166,8 @@ class WPASupplicantParser:
             text += f"\t{self.PRIORITY_PREFIX}{network.priority}\n"
             text += f"{self.STOP_NETWORK_BLOCK}\n"
 
+        return text
+
+    def write(self, path: str) -> None:
         with open(path, "w") as f:
-            f.write(text)
+            f.write(self.text())
