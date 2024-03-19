@@ -1,3 +1,4 @@
+import os.path as osp
 import paramiko
 import socket
 from scp import SCPClient
@@ -70,12 +71,29 @@ class SSHClientWrapper:
             scp.get(remote_path, local_path, True)
 
     def sftp_read(self, remote_path: str) -> str:
+        assert not remote_path.endswith("/")
+
         with self._ssh_client.open_sftp() as sftp:
             with sftp.file(remote_path, "r") as f:
                 text = f.read().decode(self.UTF_8)
         return text
 
     def sftp_write(self, remote_path: str, text: str) -> None:
+        assert not remote_path.endswith("/")
+
         with self._ssh_client.open_sftp() as sftp:
             with sftp.file(remote_path, "w") as f:
                 f.write(text)
+
+    def sftp_write_super(self, remote_path: str, text: str) -> None:
+        """root権限が必要なファイルに書き込む．"""
+        # 一時ファイルのパス
+        tmp_path = osp.join("/tmp", osp.basename(remote_path))
+
+        # 一時ファイルに書き込む
+        self.sftp_write(tmp_path, text)
+
+        # 一時ファイルを目的の場所に移動させる
+        success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_path}")
+        if not success:
+            raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")

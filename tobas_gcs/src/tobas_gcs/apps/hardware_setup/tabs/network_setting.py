@@ -24,7 +24,6 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
     COL_WIDTH = 200
     WPA_SUPPLICANT_PATH = "/etc/wpa_supplicant/wpa_supplicant.conf"
-    WPA_SUPPLICANT_PATH_TMP = "/tmp/wpa_supplicant.conf"
 
     COL_SSID = 0
     COL_PSK = 1
@@ -144,16 +143,12 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             psk = self._table.item(row, self.COL_PSK).text()
             self._wpa_parser.networks.append(Network(ssid, psk))
 
-        # 設定を一時ファイルに書き込む
-        rospy.loginfo(f"Writing {self.WPA_SUPPLICANT_PATH_TMP}.")
-        self._ssh_client.sftp_write(self.WPA_SUPPLICANT_PATH_TMP, self._wpa_parser.text())
-
-        # SSH経由でsudoを使用して一時ファイルを目的の場所に移動させる
-        rospy.loginfo(f"Moving {self.WPA_SUPPLICANT_PATH_TMP} to {self.WPA_SUPPLICANT_PATH}.")
-        command = f"mv {self.WPA_SUPPLICANT_PATH_TMP} {self.WPA_SUPPLICANT_PATH}"
-        success, _, error_output = self._ssh_client.exec_command_super(command)
-        if not success:
-            q_error(self._main, f"Failed to write network configuration:\n\n{error_output}")
+        # 設定を書き込む
+        rospy.loginfo(f"Writing {self.WPA_SUPPLICANT_PATH}.")
+        try:
+            self._ssh_client.sftp_write_super(self.WPA_SUPPLICANT_PATH, self._wpa_parser.text())
+        except Exception as e:
+            q_error(self._main, e)
             return
 
         # Wi-Fiを再起動

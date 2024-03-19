@@ -91,21 +91,6 @@ $ id pi                 # piが所属するグループを確認
   - ExecStart 内でシェルスクリプトを実行して環境変数を設定しても元のシェルには影響しないことに注意
 - 環境変数や共通のシェルスクリプトを`/etc/tobas/`以下にまとめる
 
-### 外部からパスワード無しで特定のコマンドを実行できるようにする
-
-1. sudoers ファイルを開く
-
-```bash
-$ sudo visudo
-```
-
-2. sudo なしで実行可能なコマンドを書く
-
-```txt
-...
-pi ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/tobas/config_pkg.env
-```
-
 ## CUI で HIL
 
 1. 外部 PC から`raspberry_wifi`に接続

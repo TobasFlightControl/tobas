@@ -134,10 +134,10 @@ class PackageManagerWidget(QWidget):
 
         # 環境変数TOBAS_CONFIG_PKGを設定
         rospy.loginfo("Setting environment variables")
-        command = f'echo "TOBAS_CONFIG_PKG={pkg_name}" | sudo tee /etc/tobas/config_pkg.env > /dev/null'
-        success, _, error_output = self._ssh_client.exec_command(command)
-        if not success:
-            q_error(self._main, f"Failed to set TOBAS_CONFIG_PKG:\n\n{error_output}")
+        try:
+            self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
+        except Exception as e:
+            q_error(self._main, e)
             return
 
         # サービスを再起動
