@@ -12,6 +12,7 @@ CONFIG_PATH = osp.expanduser(f"~/.config/{PKG_NAME}/config.ini")
 DEFAULT = "DEFAULT"
 TITLE = "Tobas"
 UNKNOWN = "Unknown"
+UTF_8 = "utf-8"
 
 # Point Sizes
 TITLE_PSIZE = 18
@@ -19,11 +20,6 @@ LABEL_PSIZE = 12
 BODY_PSIZE = 9
 
 # Raspberry Pi
-HOST_NAME = "navio.local"  # ラズパイのホスト名
-PORT = 22  # SSHポート番号
-USER = "pi"  # ユーザ名
-LOGIN_PASSWORD = "raspberry"  # ログインパスワード
-SUDO_PREFIX = f"echo {LOGIN_PASSWORD} | sudo -S "
 CATKIN_WS_TOBAS = "/home/pi/.catkin_ws_tobas/"  # Tobasパッケージ用ワークスペース
 
 

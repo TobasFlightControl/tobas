@@ -4,12 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import os.path as osp
-import paramiko
-import socket
-from scp import SCPClient
 from overrides import override
-from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -18,6 +13,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from wpa_supplicant_parser_py.parser import WPASupplicantParser, Network
 
 from ....common import *
+from ....utils.ssh_client import SSHClientWrapper
 from .base import BaseHardwareSetupWidget
 
 
@@ -36,12 +32,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__(main)
 
-        # SSHクライアント
-        # TODO: AutoAddPolicyは脆弱なので，予めサーバーのホストキーをクライアントに登録する
-        self._ssh_client = paramiko.SSHClient()
-        self._ssh_client.load_system_host_keys()
-        self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
+        self._ssh_client = SSHClientWrapper()
         self._wpa_parser = WPASupplicantParser()
 
         instruction = Description(
@@ -105,36 +96,14 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_read_button_clicked(self) -> None:
         # SSH接続
-        # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
-            self._ssh_client.connect(HOST_NAME, PORT, USER, LOGIN_PASSWORD)
-        except paramiko.AuthenticationException:
-            q_error(
-                self._main,
-                "Authentication failed. Please check your username or password.",
-            )
-            return
-        except paramiko.SSHException:
-            q_error(
-                self._main,
-                "Failed to establish an SSH connection.",
-            )
-            return
-        except socket.error:
-            q_error(
-                self._main,
-                "Could not connect to the server. Please check your network connection.",
-            )
-            return
+            self._ssh_client.connect()
         except Exception as e:
-            q_error(self._main, f"Unexpected error occurred:\n\n{e}")
+            q_error(self._main, e)
             return
 
         # リモートファイルを開いて内容を読む
-        sftp = self._ssh_client.open_sftp()
-        with sftp.file(self.WPA_SUPPLICANT_PATH, "r") as f:
-            config_text = f.read().decode("utf-8")
-        sftp.close()
+        config_text = self._ssh_client.sftp_read(self.WPA_SUPPLICANT_PATH)
 
         # 解析の成否に関わらず編集用ボタンを有効化
         self._write_button.setEnabled(True)
@@ -164,27 +133,14 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             psk = self._table.item(row, self.COL_PSK).text()
             self._wpa_parser.networks.append(Network(ssid, psk))
 
-        # SFTPセッションを開始し，一時ファイルに書き込む
-        sftp = self._ssh_client.open_sftp()
-        try:
-            with sftp.file(self.WPA_SUPPLICANT_PATH_TMP, "w") as f:
-                f.write(self._wpa_parser.text())
-        except Exception as e:
-            q_error(self._main, f"Failed to write network configuration to the temporary file:\n\n{e}")
-            return
-        sftp.close()
+        # 設定を一時ファイルに書き込む
+        self._ssh_client.sftp_write(self.WPA_SUPPLICANT_PATH_TMP, self._wpa_parser.text())
 
         # SSH経由でsudoを使用して一時ファイルを目的の場所に移動させる
-        command = SUDO_PREFIX + f"mv {self.WPA_SUPPLICANT_PATH_TMP} {self.WPA_SUPPLICANT_PATH}"
-        _, stdout, stderr = self._ssh_client.exec_command(command)
-        stdout.channel.recv_exit_status()  # コマンドの実行結果を待つ
-        exit_status = stdout.channel.exit_status
-        error_output = stderr.read().decode("utf-8")  # 標準エラー出力
-        if exit_status != 0:
-            q_error(
-                self._main,
-                f"Failed to write network configuration:\n\n{error_output}",
-            )
+        command = f"mv {self.WPA_SUPPLICANT_PATH_TMP} {self.WPA_SUPPLICANT_PATH}"
+        success, _, error_output = self._ssh_client.exec_command_super(command)
+        if not success:
+            q_error(self._main, f"Failed to write network configuration:\n\n{error_output}")
             return
 
         q_info(self._main, "Network configuration is written successfully.")

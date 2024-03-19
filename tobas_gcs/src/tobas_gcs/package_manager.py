@@ -5,11 +5,7 @@ if TYPE_CHECKING:
     from .gcs import GroundControlStationWidget
 
 import os.path as osp
-import paramiko
-import socket
-from scp import SCPClient
 from configparser import ConfigParser
-from typing import Tuple
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -18,6 +14,7 @@ from tobas_rqt_tools.messages import *
 from tobas_tools_py.drone import Drone, DroneLoader_File
 
 from .common import *
+from .utils.ssh_client import SSHClientWrapper
 
 
 class PackageManagerWidget(QWidget):
@@ -28,12 +25,7 @@ class PackageManagerWidget(QWidget):
         self._main = main
 
         self._config = ConfigParser()
-
-        # SSHクライアント
-        # TODO: AutoAddPolicyは脆弱なので，予めサーバーのホストキーをクライアントに登録する
-        self._ssh_client = paramiko.SSHClient()
-        self._ssh_client.load_system_host_keys()
-        self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self._ssh_client = SSHClientWrapper()
 
         cols = QHBoxLayout()
         self.setLayout(cols)
@@ -72,14 +64,6 @@ class PackageManagerWidget(QWidget):
 
         return True
 
-    def _execute_command(self, command: str) -> Tuple[int, str, str]:
-        _, stdout, stderr = self._ssh_client.exec_command(command)
-        stdout.channel.recv_exit_status()  # コマンドの実行結果を待つ
-        output = stdout.read().decode("utf-8")  # 標準出力
-        error_output = stderr.read().decode("utf-8")  # 標準エラー出力
-        exit_status = stdout.channel.exit_status
-        return exit_status, output, error_output
-
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
@@ -100,10 +84,7 @@ class PackageManagerWidget(QWidget):
 
         # 有効なTobas Configuration Packageでなければ終了
         if not self._is_valid_tobas_pkg(pkg_path):
-            q_error(
-                self._main,
-                f'"{pkg_path}" is not a Tobas configuration package or is collapsed.',
-            )
+            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package or is collapsed.')
             return
 
         # パスをテキストに設定
@@ -129,29 +110,10 @@ class PackageManagerWidget(QWidget):
         # TODO: 進行状況をダイアログなどで表示
 
         # SSH接続
-        # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
-            self._ssh_client.connect(HOST_NAME, PORT, USER, LOGIN_PASSWORD)
-        except paramiko.AuthenticationException:
-            q_error(
-                self._main,
-                "Authentication failed. Please check your username or password.",
-            )
-            return
-        except paramiko.SSHException:
-            q_error(
-                self._main,
-                "Failed to establish an SSH connection.",
-            )
-            return
-        except socket.error:
-            q_error(
-                self._main,
-                "Could not connect to the server. Please check your network connection.",
-            )
-            return
+            self._ssh_client.connect()
         except Exception as e:
-            q_error(self._main, f"Unexpected error occurred:\n\n{e}")
+            q_error(self._main, e)
             return
 
         pkg_path = self._pkg_path.text()
@@ -159,47 +121,30 @@ class PackageManagerWidget(QWidget):
 
         # Tobasパッケージを送信
         rospy.loginfo("Sending Tobas configuration package.")
-        with SCPClient(self._ssh_client.get_transport()) as scp:
-            scp.put(
-                pkg_path,
-                recursive=True,
-                remote_path=osp.join(CATKIN_WS_TOBAS, "src/"),
-            )
+        self._ssh_client.scp_put(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
 
         # ビルド
         rospy.loginfo("Building Tobas configuration package.")
         command = f"cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
-        exit_status, _, error_output = self._execute_command(command)
-        if exit_status != 0:
-            q_error(
-                self._main,
-                f"Failed to build the Tobas configuration package:\n\n{error_output}",
-            )
+        success, _, error_output = self._ssh_client.exec_command(command)
+        if not success:
+            q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
             return
 
         # 環境変数TOBAS_CONFIG_PKGを設定
         rospy.loginfo("Setting environment variables")
         command = f'echo "TOBAS_CONFIG_PKG={pkg_name}" | sudo tee /etc/tobas/config_pkg.env > /dev/null'
-        exit_status, _, error_output = self._execute_command(command)
-        if exit_status != 0:
-            q_error(
-                self._main,
-                f"Failed to set TOBAS_CONFIG_PKG:\n\n{error_output}",
-            )
+        success, _, error_output = self._ssh_client.exec_command(command)
+        if not success:
+            q_error(self._main, f"Failed to set TOBAS_CONFIG_PKG:\n\n{error_output}")
             return
 
         # サービスを再起動
         rospy.loginfo("Restarting Tobas software.")
-        command = SUDO_PREFIX + "systemctl restart tobas_real.service"
-        exit_status, _, error_output = self._execute_command(command)
-        if exit_status != 0:
-            q_error(
-                self._main,
-                f"Failed to restart Tobas software:\n\n{error_output}",
-            )
+        command = "systemctl restart tobas_real.service"
+        success, _, error_output = self._ssh_client.exec_command_super(command)
+        if not success:
+            q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
             return
 
-        q_info(
-            self._main,
-            "Tobas configuration package is installed successfully.",
-        )
+        q_info(self._main, "Tobas configuration package is installed successfully.")
