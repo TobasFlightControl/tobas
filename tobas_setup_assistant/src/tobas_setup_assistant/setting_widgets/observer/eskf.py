@@ -103,9 +103,7 @@ class ErrorStateKalmanFilter(BaseObserver):
         no_odom = not self._main.settings.odometry.equipped()
         if no_gps and no_odom:
             q_error_named(
-                self._main,
-                self.NAME,
-                "Absolute position connot be observed. Please review the sensor settings.",
+                self._main, self.NAME, "Absolute position connot be observed. Please review the sensor settings."
             )
             return False
 

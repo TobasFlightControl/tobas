@@ -59,11 +59,7 @@ class MotorWidget(QWidget):
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
             print(self._method_name.currentText())
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please select motor setting method.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please select motor setting method.")
             return False
 
         if not self._selected().is_valid():
@@ -202,11 +198,7 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
             return False
 
         if self.num_poles() % 2 == 1:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "The number of poles of a brushless motor must be even.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "The number of poles of a brushless motor must be even.")
             return False
 
         return True

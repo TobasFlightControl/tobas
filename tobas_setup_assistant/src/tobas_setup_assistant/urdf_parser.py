@@ -176,10 +176,7 @@ class URDFParser(QObject):
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin
         if origin is not None and any(angle != 0 for angle in origin.rpy):
-            q_error(
-                self._main,
-                "The frame of the root link must coincide with the NWU coordinate axis.",
-            )
+            q_error(self._main, "The frame of the root link must coincide with the NWU coordinate axis.")
             return False
 
         # ルートリンクがInertialを持たない

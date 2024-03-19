@@ -61,11 +61,7 @@ class AerodynamicsWidget(QWidget):
 
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please select aerodynamics setting method.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please select aerodynamics setting method.")
             return False
         else:
             if not self._selected().is_valid():
@@ -411,11 +407,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     @overrides
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Measurements in static condition is blank.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Measurements in static condition is blank.")
             return False
 
         return True

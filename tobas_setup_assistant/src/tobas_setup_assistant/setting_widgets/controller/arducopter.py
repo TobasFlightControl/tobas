@@ -106,11 +106,7 @@ class ChannelsWidget(QWidget):
 
         # リンク名が被ってたらダメ
         if len(set(self._link_names())) < self._form.rowCount():
-            q_error_named(
-                self._main,
-                ARDUPILOT,
-                "Link names of different channels must be different.",
-            )
+            q_error_named(self._main, ARDUPILOT, "Link names of different channels must be different.")
             return False
 
         return True

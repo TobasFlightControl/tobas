@@ -210,10 +210,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         try:
             data = df.to_numpy(dtype=float)
         except Exception as e:
-            q_error(
-                self.parent(),
-                f"The data contains invalid data type. The error message is: {e}",
-            )
+            q_error(self.parent(), f"The data contains invalid data type. The error message is: {e}")
             return
 
         if not self.set(data):
@@ -245,10 +242,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             for col in range(self._num_entry):
                 val = src[row, col]
                 if not self._minimum[col] <= val <= self._maximum[col]:
-                    q_error(
-                        self.parent(),
-                        f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.",
-                    )
+                    q_error(self.parent(), f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
                     return False
 
         return True

@@ -57,11 +57,7 @@ class MaxRotationSpeedWidget(QWidget):
                     return False
                 break
         else:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please set max rotation speed.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please set max rotation speed.")
             return False
 
         return True

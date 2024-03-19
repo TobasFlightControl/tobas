@@ -333,11 +333,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
     @overrides
     def is_valid(self) -> bool:
         if self._max_voltage.get() <= self._sag_voltage.get():
-            q_error_named(
-                self._main,
-                self.NAME,
-                "Maximum voltage must be greater than voltage threshold.",
-            )
+            q_error_named(self._main, self.NAME, "Maximum voltage must be greater than voltage threshold.")
             return False
 
     @overrides

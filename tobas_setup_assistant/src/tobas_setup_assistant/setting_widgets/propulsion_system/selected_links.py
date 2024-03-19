@@ -63,11 +63,7 @@ class SelectedLinksWidget(TabWidget):
 
         # 最低1つは登録されていなければならない
         if num_rotors == 0:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please register at least 1 propulsion systems.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please register at least 1 propulsion systems.")
             return
 
         return True
