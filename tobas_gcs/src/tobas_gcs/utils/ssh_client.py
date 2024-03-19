@@ -12,7 +12,6 @@ class SSHClientWrapper:
     PORT = 22  # SSHポート番号
     USER = "pi"  # ユーザ名
     LOGIN_PASSWORD = "raspberry"  # ログインパスワード
-    SUDO_PREFIX = f"echo {LOGIN_PASSWORD} | sudo -S "
 
     def __init__(self) -> None:
         # TODO: AutoAddPolicyは脆弱なので，予めサーバーのホストキーをクライアントに登録する
@@ -60,7 +59,7 @@ class SSHClientWrapper:
         return success, output, error_output
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
-        return self.exec_command(self.SUDO_PREFIX + command)
+        return self.exec_command(f"echo {self.LOGIN_PASSWORD} | sudo -S {command}")
 
     def scp_put(self, local_path: str, remote_path: str) -> None:
         with SCPClient(self._ssh_client.get_transport()) as scp:
