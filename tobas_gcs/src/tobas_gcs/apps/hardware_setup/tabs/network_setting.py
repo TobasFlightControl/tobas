@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -96,6 +97,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_read_button_clicked(self) -> None:
         # SSH接続
+        rospy.loginfo("Connecting to the Raspberry Pi.")
         try:
             self._ssh_client.connect()
         except Exception as e:
@@ -103,6 +105,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             return
 
         # リモートファイルを開いて内容を読む
+        rospy.loginfo(f"Reading {self.WPA_SUPPLICANT_PATH}.")
         config_text = self._ssh_client.sftp_read(self.WPA_SUPPLICANT_PATH)
 
         # 解析の成否に関わらず編集用ボタンを有効化
@@ -126,6 +129,14 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_write_button_clicked(self) -> None:
+        # SSH接続
+        rospy.loginfo("Connecting to the Raspberry Pi.")
+        try:
+            self._ssh_client.connect()
+        except Exception as e:
+            q_error(self._main, e)
+            return
+
         # WPA Parserにテーブルの内容を反映
         self._wpa_parser.networks.clear()
         for row in range(self._table.rowCount()):
@@ -134,13 +145,23 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             self._wpa_parser.networks.append(Network(ssid, psk))
 
         # 設定を一時ファイルに書き込む
+        rospy.loginfo(f"Writing {self.WPA_SUPPLICANT_PATH_TMP}.")
         self._ssh_client.sftp_write(self.WPA_SUPPLICANT_PATH_TMP, self._wpa_parser.text())
 
         # SSH経由でsudoを使用して一時ファイルを目的の場所に移動させる
+        rospy.loginfo(f"Moving {self.WPA_SUPPLICANT_PATH_TMP} to {self.WPA_SUPPLICANT_PATH}.")
         command = f"mv {self.WPA_SUPPLICANT_PATH_TMP} {self.WPA_SUPPLICANT_PATH}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to write network configuration:\n\n{error_output}")
+            return
+
+        # Wi-Fiを再起動
+        rospy.loginfo("Restarting dhcpcd.service.")
+        command = "systemctl restart dhcpcd.service"
+        success, _, error_output = self._ssh_client.exec_command_super(command)
+        if not success:
+            q_error(self._main, f"Failed to restart DHCPCD:\n\n{error_output}")
             return
 
         q_info(self._main, "Network configuration is written successfully.")

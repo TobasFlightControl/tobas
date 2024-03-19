@@ -110,6 +110,7 @@ class PackageManagerWidget(QWidget):
         # TODO: 進行状況をダイアログなどで表示
 
         # SSH接続
+        rospy.loginfo("Connecting to the Raspberry Pi.")
         try:
             self._ssh_client.connect()
         except Exception as e:
@@ -140,7 +141,7 @@ class PackageManagerWidget(QWidget):
             return
 
         # サービスを再起動
-        rospy.loginfo("Restarting Tobas software.")
+        rospy.loginfo("Restarting tobas_real.service.")
         command = "systemctl restart tobas_real.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
