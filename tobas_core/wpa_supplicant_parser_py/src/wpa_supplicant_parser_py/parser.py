@@ -41,6 +41,17 @@ class WPASupplicantParser:
     DEFAULT_CTRL_INTERFACE = "DIR=/var/run/wpa_supplicant GROUP=netdev"
     DEFAULT_UPDATE_CONFIG = True
 
+    COUNTRY_PREFIX = "country="
+    CTRL_INTERFACE_PREFIX = "ctrl_interface="
+    UPDATE_CONFIG_PREFIX = "update_config="
+
+    START_NETWORK_BLOCK = "network={"
+    STOP_NETWORK_BLOCK = "}"
+    SSID_PREFIX = "ssid="
+    PSK_PREFIX = "psk="
+    KEY_MGMT_PREFIX = "key_mgmt="
+    PRIORITY_PREFIX = "priority="
+
     def __init__(self) -> None:
         self.country: CountryCode = self.DEFAULT_COUNTRY
         self.ctrl_interface: str = self.DEFAULT_CTRL_INTERFACE
@@ -81,7 +92,7 @@ class WPASupplicantParser:
                 continue
 
             # country
-            if line.startswith("country="):
+            if line.startswith(self.COUNTRY_PREFIX):
                 cc = line.split("=", 1)[1]
                 for item in CountryCode:
                     if item.value == cc:
@@ -92,23 +103,23 @@ class WPASupplicantParser:
                 continue
 
             # ctrl_interface
-            if line.startswith("ctrl_interface="):
+            if line.startswith(self.CTRL_INTERFACE_PREFIX):
                 self.ctrl_interface = line.split("=", 1)[1]
                 continue
 
             # update_config
-            if line.startswith("update_config="):
+            if line.startswith(self.UPDATE_CONFIG_PREFIX):
                 self.update_config = bool(line.split("=", 1)[1])
                 continue
 
             # ネットワークブロックの開始
-            if line == "network={":
+            if line == self.START_NETWORK_BLOCK:
                 network = Network()
                 in_network_block = True
                 continue
 
             # ネットワークブロックの終了
-            if line == "}":
+            if line == self.STOP_NETWORK_BLOCK:
                 if not in_network_block:
                     raise RuntimeError(f"Unexpected closing bracket.")
 
@@ -116,16 +127,16 @@ class WPASupplicantParser:
                 in_network_block = False
                 continue
 
-            # SSID
-            if line.startswith("ssid="):
+            # ssid
+            if line.startswith(self.SSID_PREFIX):
                 if not in_network_block:
                     raise RuntimeError(f"A setting for SSID is found outside the network block.")
 
                 network.ssid = line.split("=", 1)[1].strip('"')
                 continue
 
-            # PSK
-            if line.startswith("psk="):
+            # psk
+            if line.startswith(self.PSK_PREFIX):
                 if not in_network_block:
                     raise RuntimeError(f"A setting for PSK is found outside the network block.")
 
@@ -133,7 +144,7 @@ class WPASupplicantParser:
                 continue
 
             # key_mgmt
-            if line.startswith("key_mgmt="):
+            if line.startswith(self.KEY_MGMT_PREFIX):
                 if not in_network_block:
                     raise RuntimeError(f"A setting for key management is found outside the network block.")
 
@@ -147,9 +158,32 @@ class WPASupplicantParser:
                 continue
 
             # priority
-            if line.startswith("priority="):
+            if line.startswith(self.PRIORITY_PREFIX):
                 if not in_network_block:
                     raise RuntimeError(f"A setting for network priority is found outside the network block.")
 
                 network.priority = int(line.split("=", 1)[1])
                 continue
+
+    def parse_from_file(self, path: str) -> None:
+        with open(path, "r") as f:
+            text = f.read()
+        self.parse_from_text(text)
+
+    def write(self, path: str) -> None:
+        text = ""
+        text += f"{self.COUNTRY_PREFIX}{self.country.value}\n"
+        text += f"{self.CTRL_INTERFACE_PREFIX}{self.ctrl_interface}\n"
+        text += f"{self.UPDATE_CONFIG_PREFIX}{int(self.update_config)}\n"
+
+        for network in self.networks:
+            text += "\n"
+            text += f"{self.START_NETWORK_BLOCK}\n"
+            text += f'\t{self.SSID_PREFIX}"{network.ssid}"\n'
+            text += f'\t{self.PSK_PREFIX}"{network.psk}"\n'
+            text += f"\t{self.KEY_MGMT_PREFIX}{network.key_mgmt.value}\n"
+            text += f"\t{self.PRIORITY_PREFIX}{network.priority}\n"
+            text += f"{self.STOP_NETWORK_BLOCK}\n"
+
+        with open(path, "w") as f:
+            f.write(text)
