@@ -3,10 +3,10 @@ import socket
 from scp import SCPClient
 from typing import Tuple
 
-from ..common import *
-
 
 class SSHClientWrapper:
+
+    UTF_8 = "utf-8"
 
     HOST_NAME = "navio.local"  # ラズパイのホスト名
     PORT = 22  # SSHポート番号
@@ -53,8 +53,8 @@ class SSHClientWrapper:
         _, stdout, stderr = self._ssh_client.exec_command(command)
         stdout.channel.recv_exit_status()  # コマンドの実行結果を待つ
 
-        output: str = stdout.read().decode(UTF_8)  # 標準出力
-        error_output: str = stderr.read().decode(UTF_8)  # 標準エラー出力
+        output: str = stdout.read().decode(self.UTF_8)  # 標準出力
+        error_output: str = stderr.read().decode(self.UTF_8)  # 標準エラー出力
         success: bool = stdout.channel.exit_status == 0
 
         return success, output, error_output
@@ -73,7 +73,7 @@ class SSHClientWrapper:
     def sftp_read(self, remote_path: str) -> str:
         with self._ssh_client.open_sftp() as sftp:
             with sftp.file(remote_path, "r") as f:
-                text = f.read().decode(UTF_8)
+                text = f.read().decode(self.UTF_8)
         return text
 
     def sftp_write(self, remote_path: str, text: str) -> None:

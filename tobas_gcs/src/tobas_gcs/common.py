@@ -12,7 +12,6 @@ CONFIG_PATH = osp.expanduser(f"~/.config/{PKG_NAME}/config.ini")
 DEFAULT = "DEFAULT"
 TITLE = "Tobas"
 UNKNOWN = "Unknown"
-UTF_8 = "utf-8"
 
 # Point Sizes
 TITLE_PSIZE = 18
