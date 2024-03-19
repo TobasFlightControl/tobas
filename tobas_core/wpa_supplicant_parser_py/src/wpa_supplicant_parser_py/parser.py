@@ -63,7 +63,7 @@ class WPASupplicantParser:
         res += f"Country: {self.country.value}\n"
         res += f"Countrol Interface: {self.ctrl_interface}\n"
         res += f"Update Configuration: {self.update_config}\n"
-        res += f"Networks:\n"
+        res += "Networks:\n"
         for network in self.networks:
             res += "---\n"
             res += str(network)
@@ -121,7 +121,7 @@ class WPASupplicantParser:
             # ネットワークブロックの終了
             if line == self.STOP_NETWORK_BLOCK:
                 if not in_network_block:
-                    raise RuntimeError(f"Unexpected closing bracket.")
+                    raise RuntimeError("Unexpected closing bracket.")
 
                 self.networks.append(network)
                 in_network_block = False
@@ -130,7 +130,7 @@ class WPASupplicantParser:
             # ssid
             if line.startswith(self.SSID_PREFIX):
                 if not in_network_block:
-                    raise RuntimeError(f"A setting for SSID is found outside the network block.")
+                    raise RuntimeError("A setting for SSID is found outside the network block.")
 
                 network.ssid = line.split("=", 1)[1].strip('"')
                 continue
@@ -138,7 +138,7 @@ class WPASupplicantParser:
             # psk
             if line.startswith(self.PSK_PREFIX):
                 if not in_network_block:
-                    raise RuntimeError(f"A setting for PSK is found outside the network block.")
+                    raise RuntimeError("A setting for PSK is found outside the network block.")
 
                 network.psk = line.split("=", 1)[1].strip('"')
                 continue
@@ -146,7 +146,7 @@ class WPASupplicantParser:
             # key_mgmt
             if line.startswith(self.KEY_MGMT_PREFIX):
                 if not in_network_block:
-                    raise RuntimeError(f"A setting for key management is found outside the network block.")
+                    raise RuntimeError("A setting for key management is found outside the network block.")
 
                 key_mgmt = line.split("=", 1)[1]
                 for item in KeyManagement:
@@ -154,13 +154,13 @@ class WPASupplicantParser:
                         network.key_mgmt = item
                         break
                     else:
-                        raise RuntimeError(f"Invalid key management setting.")
+                        raise RuntimeError("Invalid key management setting.")
                 continue
 
             # priority
             if line.startswith(self.PRIORITY_PREFIX):
                 if not in_network_block:
-                    raise RuntimeError(f"A setting for network priority is found outside the network block.")
+                    raise RuntimeError("A setting for network priority is found outside the network block.")
 
                 network.priority = int(line.split("=", 1)[1])
                 continue
