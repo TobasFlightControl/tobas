@@ -4,9 +4,13 @@ import os.path as osp
 import sys
 import signal
 import rospy
+import rospkg
 from PyQt5.QtWidgets import QApplication
 
+from tobas_rqt_tools.widgets import MainWidget
+
 from tobas_gcs.gcs import GroundControlStationWidget
+from tobas_gcs.common import *
 
 
 if __name__ == "__main__":
@@ -15,8 +19,13 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    gcs = GroundControlStationWidget()
-    gcs.show()
+    main_widget = MainWidget(
+        PKG_NAME,
+        TITLE,
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        GroundControlStationWidget(),
+    )
+    main_widget.show()
 
     # Ctrl+Cを検出したらプロセスを落とす
     # 何故かこの位置に書いたときのみ機能する

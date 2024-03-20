@@ -4,9 +4,13 @@ import os.path as osp
 import sys
 import signal
 import rospy
+import rospkg
 from PyQt5.QtWidgets import QApplication
 
-from tobas_gui_teleop.jointpos_commander import JointPositionsCommander
+from tobas_rqt_tools.widgets import MainWidget
+
+from tobas_gui_teleop.jointpos_commander import JointPositionsCommanderWidget
+from tobas_gui_teleop.common import *
 
 
 if __name__ == "__main__":
@@ -15,7 +19,12 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    main_widget = JointPositionsCommander()
+    main_widget = MainWidget(
+        f"{PKG_NAME}/jointpos_commander",
+        "Joint Position Commander",
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        JointPositionsCommanderWidget(),
+    )
     main_widget.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)

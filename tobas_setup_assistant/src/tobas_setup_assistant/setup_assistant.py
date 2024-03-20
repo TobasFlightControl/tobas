@@ -1,5 +1,3 @@
-import os.path as osp
-import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -15,10 +13,6 @@ class SetupAssistant(QWidget):
 
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle(TITLE)
 
         self.urdf_parser = URDFParser(self)
         self.pkg_generator = PackageGenerator(self)

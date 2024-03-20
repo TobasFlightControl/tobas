@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 import os.path as osp
 import random
+from PyQt5.QtWidgets import QWidget
 import markdown
 import rospy
 from typing import Callable
@@ -190,8 +191,14 @@ class ListWidgetItem(QListWidgetItem):
 class ScrollArea(QScrollArea):
     """
     ===== QScrollAreaとの違い =====
+    - デフォルトでスクロール可能
     - setLayoutをオーバーライド
     """
+
+    def __init__(self, parent: QWidget = None) -> None:
+        super().__init__(parent)
+
+        self.setWidgetResizable(True)
 
     @overrides
     def setLayout(self, layout: QLayout) -> None:
@@ -217,7 +224,7 @@ class MarkDownWidget(QTextBrowser):
         self.setHtml(html)
 
 
-class MainWidget(ScrollArea):
+class MainWidget(QWidget):
     """
     メイン画面
     - Configを作成
@@ -225,19 +232,25 @@ class MainWidget(ScrollArea):
     - 終了時にROSノードを落とす
     """
 
+    DEFAULT = "DEFAULT"
+
     POS_X_KEY = "main_window/pos_x"
     POS_Y_KEY = "main_window/pos_y"
     WIDTH_KEY = "main_window/width"
     HEIGHT_KEY = "main_window/height"
 
-    def __init__(self, name: str, section: str = "DEFAULT") -> None:
+    def __init__(self, name: str, title: str, icon_path: str, widget: QWidget) -> None:
         super().__init__()
 
         self._config_path = osp.expanduser(f"~/.config/{name}/config.ini")
-        self._section = section
 
-        # スクロール可能にする
-        self.setWidgetResizable(True)
+        self.setWindowTitle(title)
+        self.setWindowIcon(QIcon(icon_path))
+
+        # ウィジェットを配置
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+        rows.addWidget(widget)
 
         # configがなければ作成
         config_dir = osp.dirname(self._config_path)
@@ -246,10 +259,10 @@ class MainWidget(ScrollArea):
         # 最新のウィンドウの位置とサイズを反映
         self._config = ConfigParser()
         self._config.read(self._config_path)
-        pos_x = self._config.getint(self._section, self.POS_X_KEY, fallback=-1)
-        pos_y = self._config.getint(self._section, self.POS_Y_KEY, fallback=-1)
-        width = self._config.getint(self._section, self.WIDTH_KEY, fallback=-1)
-        height = self._config.getint(self._section, self.HEIGHT_KEY, fallback=-1)
+        pos_x = self._config.getint(self.DEFAULT, self.POS_X_KEY, fallback=-1)
+        pos_y = self._config.getint(self.DEFAULT, self.POS_Y_KEY, fallback=-1)
+        width = self._config.getint(self.DEFAULT, self.WIDTH_KEY, fallback=-1)
+        height = self._config.getint(self.DEFAULT, self.HEIGHT_KEY, fallback=-1)
         if pos_x >= 0 and pos_y >= 0 and width > 0 and height > 0:
             self.setGeometry(pos_x, pos_y, width, height)
 
@@ -258,8 +271,8 @@ class MainWidget(ScrollArea):
         # 現在のウィンドウ位置を保存
         self._config.read(self._config_path)
         cur_pos = self.pos()
-        self._config[self._section][self.POS_X_KEY] = str(cur_pos.x())
-        self._config[self._section][self.POS_Y_KEY] = str(cur_pos.y())
+        self._config[self.DEFAULT][self.POS_X_KEY] = str(cur_pos.x())
+        self._config[self.DEFAULT][self.POS_Y_KEY] = str(cur_pos.y())
         with open(self._config_path, "w") as f:
             self._config.write(f)
 
@@ -270,8 +283,8 @@ class MainWidget(ScrollArea):
         # 現在のウィンドウサイズを保存
         self._config.read(self._config_path)
         cur_size = self.size()
-        self._config[self._section][self.WIDTH_KEY] = str(cur_size.width())
-        self._config[self._section][self.HEIGHT_KEY] = str(cur_size.height())
+        self._config[self.DEFAULT][self.WIDTH_KEY] = str(cur_size.width())
+        self._config[self.DEFAULT][self.HEIGHT_KEY] = str(cur_size.height())
         with open(self._config_path, "w") as f:
             self._config.write(f)
 
@@ -290,7 +303,7 @@ class IntSliderDisplay(QWidget):
 
     value_changed = pyqtSignal(int)
 
-    def __init__(self, parent: QWidget = None) -> None:
+    def __init__(self, parent: QObject = None) -> None:
         super().__init__(parent)
         self._suffix = ""
 
@@ -365,7 +378,7 @@ class FloatSliderDisplay(QWidget):
 
     value_changed = pyqtSignal(float)
 
-    def __init__(self, parent: QWidget = None) -> None:
+    def __init__(self, parent: QObject = None) -> None:
         super().__init__(parent)
         self._suffix = ""
 

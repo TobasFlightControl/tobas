@@ -1,6 +1,5 @@
 import os.path as osp
 import rospy
-import rospkg
 import csv
 from datetime import datetime
 from typing import List
@@ -19,17 +18,13 @@ from .common import *
 from .param_holders import *
 
 
-class DynamicConfigurationWidget(MainWidget):
+class DynamicConfigurationWidget(QWidget):
     BUTTON_HEIGHT = 30
     LAST_OPENED_DIR = "last_opened_dir"
     SECTIONS = ["ATC", "PSC"]
 
     def __init__(self) -> None:
-        super().__init__(PKG_NAME)
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle(TITLE)
+        super().__init__()
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -48,7 +43,6 @@ class DynamicConfigurationWidget(MainWidget):
         cols.addWidget(self._save_button)
 
         scroll_area = ScrollArea()
-        scroll_area.setWidgetResizable(True)
         rows.addWidget(scroll_area)
 
         self._form = FormLayout()

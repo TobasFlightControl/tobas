@@ -1,6 +1,4 @@
 import rospy
-import rospkg
-import os.path as osp
 from typing import List
 from functools import partial
 from PyQt5.QtCore import *
@@ -9,22 +7,19 @@ from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_tools_py.drone import Drone, DroneLoader_Param
-from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay
+from tobas_rqt_tools.widgets import IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
 from .common import *
 
 
-class RotorSpeedsPublisherWidget(MainWidget):
+class RotorSpeedsPublisherWidget(QWidget):
+
     def __init__(self) -> None:
-        super().__init__(PKG_NAME)
+        super().__init__()
 
         drone = Drone()
         DroneLoader_Param(drone).load()
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Motor Test")
 
         rows = QVBoxLayout()
         self.setLayout(rows)

@@ -1,6 +1,4 @@
-import os.path as osp
 import rospy
-import rospkg
 from typing import Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
@@ -9,12 +7,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay
+from tobas_rqt_tools.widgets import FloatSliderDisplay
 
 from .common import *
 
 
-class JointPositionsCommander(MainWidget):
+class JointPositionsCommanderWidget(QWidget):
     POSITION = "position"
     VELOCITY = "velocity"
     EFFORT = "effort"
@@ -22,11 +20,7 @@ class JointPositionsCommander(MainWidget):
     PUBILSH_CMDS_TIMER_PERIOD = 0.1  # [s]
 
     def __init__(self) -> None:
-        super().__init__(f"{PKG_NAME}/jointpos_commander")
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Joint Positions Commander")
+        super().__init__()
 
         # rosparams
         self._home_positions: Dict[str, float] = {}

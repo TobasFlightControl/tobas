@@ -33,7 +33,6 @@ class BaseHardwareSetupWidget(ScrollArea):
         self._main = main
         self._drone = Drone()
 
-        self.setWidgetResizable(True)  # この設定が必須．無いとオブジェクトが潰れてしまう．
         self.setEnabled(False)  # configパッケージが読み込まれたら有効化
 
         self._rows = QVBoxLayout()

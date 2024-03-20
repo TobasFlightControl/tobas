@@ -4,9 +4,13 @@ import os.path as osp
 import sys
 import signal
 import rospy
+import rospkg
 from PyQt5.QtWidgets import QApplication
 
+from tobas_rqt_tools.widgets import MainWidget
+
 from tobas_motor_test.pwm_publisher import PwmPublisherWidget
+from tobas_motor_test.common import *
 
 
 if __name__ == "__main__":
@@ -15,8 +19,13 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    pwm_publisher = PwmPublisherWidget()
-    pwm_publisher.show()
+    main_widget = MainWidget(
+        PKG_NAME,
+        TITLE,
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        PwmPublisherWidget(),
+    )
+    main_widget.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

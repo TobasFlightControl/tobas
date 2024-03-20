@@ -1,19 +1,30 @@
 #!/usr/bin/env python3
 
+import os.path as osp
 import sys
 import signal
 import rospy
+import rospkg
 from PyQt5.QtWidgets import QApplication
 
-from ardupilot_dynamic_configuration import DynamicConfigurationWidget
+from tobas_rqt_tools.widgets import MainWidget
+
+from ardupilot_dynamic_configuration.dynamic_configuration import DynamicConfigurationWidget
+from ardupilot_dynamic_configuration.common import *
 
 
 if __name__ == "__main__":
-    rospy.init_node("ardupilot_dynamic_configuration")
+    node_name = osp.splitext(osp.basename(__file__))[0]
+    rospy.init_node(node_name)
 
     app = QApplication(sys.argv)
 
-    main_widget = DynamicConfigurationWidget()
+    main_widget = MainWidget(
+        PKG_NAME,
+        TITLE,
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        DynamicConfigurationWidget(),
+    )
     main_widget.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)

@@ -1,13 +1,11 @@
-import os.path as osp
 import math
 import rospy
-import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.geometry import euler_from_matrix
-from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay
+from tobas_rqt_tools.widgets import FloatSliderDisplay
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -20,7 +18,7 @@ from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 from .common import *
 
 
-class BasePoseCommander(MainWidget):
+class BasePoseCommanderWidget(QWidget):
     # Constants
     HOME_ALTITUDE = 3.0  # [m]
     WAIT_FOR_SERVICE = 1.0  # [s]
@@ -41,11 +39,7 @@ class BasePoseCommander(MainWidget):
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
     def __init__(self) -> None:
-        super().__init__(f"{PKG_NAME}/base_pose_commander")
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Base State Commander")
+        super().__init__()
 
         # rosparams
         self._x_min = 0.0

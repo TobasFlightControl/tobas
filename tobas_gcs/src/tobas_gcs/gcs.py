@@ -1,23 +1,17 @@
-import os.path as osp
-import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, ComboBox
+from tobas_rqt_tools.widgets import ComboBox
 
 from .common import *
 from .apps import *
 from .package_manager import PackageManagerWidget
 
 
-class GroundControlStationWidget(MainWidget):
+class GroundControlStationWidget(QWidget):
     def __init__(self) -> None:
-        super().__init__(PKG_NAME, DEFAULT)
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle(TITLE)
+        super().__init__()
 
         self.signals = Signals()
 
