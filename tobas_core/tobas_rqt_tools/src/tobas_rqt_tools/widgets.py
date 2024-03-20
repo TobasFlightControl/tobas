@@ -290,7 +290,7 @@ class IntSliderDisplay(QWidget):
 
     value_changed = pyqtSignal(int)
 
-    def __init__(self, parent: QObject = None) -> None:
+    def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self._suffix = ""
 
@@ -365,7 +365,7 @@ class FloatSliderDisplay(QWidget):
 
     value_changed = pyqtSignal(float)
 
-    def __init__(self, parent: QObject = None) -> None:
+    def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self._suffix = ""
 

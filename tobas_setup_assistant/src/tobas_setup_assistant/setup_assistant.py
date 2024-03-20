@@ -4,8 +4,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget
-
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
 from .robot_visualizer import RobotVisualizerWidget
@@ -13,9 +11,10 @@ from .settings import SettingsWidget
 from .common import *
 
 
-class SetupAssistant(MainWidget):
-    def __init__(self) -> None:
-        super().__init__(PKG_NAME, DEFAULT)
+class SetupAssistant(QWidget):
+
+    def __init__(self, parent: QWidget = None) -> None:
+        super().__init__(parent)
 
         icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
         self.setWindowIcon(QIcon(icon_path))

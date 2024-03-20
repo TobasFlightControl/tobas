@@ -8,6 +8,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_setup_assistant.setup_assistant import SetupAssistant
+
 
 class SetupAssistantWidget(QWidget):
     NAME = "Setup Assistant"
@@ -16,5 +18,11 @@ class SetupAssistantWidget(QWidget):
         super().__init__()
         self._main = main
 
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
+        self.setup_assistant = SetupAssistant(self)
+        rows.addWidget(self.setup_assistant)
+
     def define_connections(self) -> None:
-        pass  # TODO
+        pass

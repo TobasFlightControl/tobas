@@ -36,7 +36,7 @@ class RangeWidget(QWidget):
         minimum: int,
         maximum: int,
         text: str = None,
-        parent: QObject = None,
+        parent: QWidget = None,
     ) -> None:
         assert minimum < maximum
 
