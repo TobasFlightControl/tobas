@@ -23,4 +23,7 @@
 	<exec_depend>python3-paramiko</exec_depend>
 	<exec_depend>python3-scp</exec_depend>
 
+	<exec_depend>urdf_builder</exec_depend>
+	<exec_depend>tobas_setup_assistant</exec_depend>
+
 </package>
