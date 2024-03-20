@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from tobas_rqt_tools.widgets import create_rviz_frame
-
 import os.path as osp
 import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from tobas_rqt_tools.widgets import create_rviz_frame
 
 from .common import *
 

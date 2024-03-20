@@ -37,4 +37,4 @@ class StartWidget(QWidget):
         rows.addStretch()
 
     def define_connections(self) -> None:
-        pass  # TODO
+        pass
