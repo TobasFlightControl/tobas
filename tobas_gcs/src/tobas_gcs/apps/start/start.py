@@ -18,7 +18,7 @@ class StartWidget(QWidget):
     SUBTITLE_PSIZE = 20
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(self._main)
+        super().__init__()
         self._main = main
 
         rows = QVBoxLayout()
