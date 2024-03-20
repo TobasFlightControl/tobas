@@ -12,6 +12,8 @@
 	<depend>roscpp</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
+	<depend>mavros</depend>
+	<depend>mavros_extras</depend>
 
 	<depend>tobas_tools</depend>
 

@@ -1,9 +1,0 @@
-cmake_minimum_required(VERSION 3.10)
-project(tobas_setup)
-find_package(catkin REQUIRED)
-catkin_package()
-
-install(FILES README.md DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
-file(GLOB_RECURSE SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} scripts/[^.]*)
-install(PROGRAMS ${SCRIPTS} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

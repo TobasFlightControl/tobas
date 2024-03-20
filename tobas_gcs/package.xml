@@ -9,7 +9,18 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<depend>rospy</depend>
-	<depend>rviz</depend>
+	<exec_depend>rospy</exec_depend>
+	<exec_depend>rviz</exec_depend>
+	<exec_depend>urdfdom_py</exec_depend>
+
+	<exec_depend>python3-numpy</exec_depend>
+	<exec_depend>python3-sympy</exec_depend>
+	<exec_depend>python3-pandas</exec_depend>
+	<exec_depend>python3-yaml</exec_depend>
+	<exec_depend>python3-jinja2</exec_depend>
+	<exec_depend>python3-markdown</exec_depend>
+	<exec_depend>python3-overrides</exec_depend>
+	<exec_depend>python3-paramiko</exec_depend>
+	<exec_depend>python3-scp</exec_depend>
 
 </package>

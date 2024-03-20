@@ -32,7 +32,6 @@
 	<exec_depend>tobas_multirotor_trajectory</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>
-	<exec_depend>tobas_setup</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_state_checker</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>

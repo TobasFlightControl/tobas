@@ -7,7 +7,8 @@ if TYPE_CHECKING:
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from pyqt_vertical_tab_widget.verticalTabWidget import VerticalTabWidget
+
+from tobas_rqt_tools.vertical_tab_widget import VerticalTabWidget
 
 from .tabs import *
 
