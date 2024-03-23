@@ -57,7 +57,6 @@ class RobotModelLoaderWidget(QWidget):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
-        self._urdf_path: str = None
 
         self._config = ConfigParser()
 
@@ -80,32 +79,14 @@ class RobotModelLoaderWidget(QWidget):
         self._file_text.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._file_text)
 
-        self._browse_button = QPushButton("Browse")
-        cols.addWidget(self._browse_button)
-
         self._load_button = QPushButton("Load")
-        self._load_button.setEnabled(False)
         cols.addWidget(self._load_button)
 
     def define_connections(self) -> None:
-        self._file_text.textChanged.connect(self._on_file_path_changed)
-        self._browse_button.clicked.connect(self._on_browse_button_clicked)
         self._load_button.clicked.connect(self._on_load_button_clicked)
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
 
     @pyqtSlot()
-    def _on_file_path_changed(self) -> None:
-        file_path = self._file_text.text().strip()
-
-        if not self._is_valid_path(file_path):
-            self._load_button.setEnabled(False)
-            return
-
-        self._urdf_path = file_path
-        self._load_button.setEnabled(True)
-
-    @pyqtSlot()
-    def _on_browse_button_clicked(self) -> None:
+    def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
         self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
         last_opened_dir = self._config.get(DEFAULT, self.KEY, fallback=osp.expanduser("~"))
@@ -134,31 +115,12 @@ class RobotModelLoaderWidget(QWidget):
         with open(CONFIG_PATH, "w") as f:
             self._config.write(f)
 
-    @pyqtSlot()
-    def _on_load_button_clicked(self) -> None:
+        # robot_descriptionをrosparamに登録
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path
         try:
-            self._launch_file()
+            create_launcher(PKG_NAME, "description.launch")
         except Exception as e:
             q_error(self._main, f"Failed to load robot description:\n\n{e}")
             return
 
         self._main.signals.urdf_loaded.emit()
-
-    def _launch_file(self) -> None:
-        # description.launchで使われる環境変数を設定
-        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = self._urdf_path
-
-        # robot_descriptionをrosparamに登録
-        create_launcher(PKG_NAME, "description.launch")
-
-    def _is_valid_path(self, file_path: str) -> bool:
-        """引数が実在するロボット記述言語かどうかを判定する．"""
-        _, ext = osp.splitext(file_path)
-        return ext.lower() in {".urdf", ".xacro"} and osp.isfile(file_path)
-
-    @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
-        # 無事にモデルがロードされたら，それ以降モデルの修正はできないようにする
-        self._file_text.setEnabled(False)
-        self._browse_button.setEnabled(False)
-        self._load_button.setEnabled(False)
