@@ -27,7 +27,7 @@ class FrameTreeWidget(QTreeWidget):
         self.itemClicked.connect(self._on_item_clicked)
         self.itemExpanded.connect(self._resize_columns)
         self.itemCollapsed.connect(self._resize_columns)
-        self._main.urdf_parser.robot_model_loaded.connect(self._add_tree_items)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     @pyqtSlot(QTreeWidgetItem, int)
     def _on_item_clicked(self, item: QTreeWidgetItem, col: int) -> None:
@@ -36,11 +36,12 @@ class FrameTreeWidget(QTreeWidget):
         self._main.robot_visualizer.highlight_link(link_name)
 
     @pyqtSlot()
-    def _add_tree_items(self) -> None:
-        """
-        ルートリンクから再帰的にリンクをTreeに追加していく．
-        cf. https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
-        """
+    def _on_robot_model_updated(self) -> None:
+        # ツリーを消去
+        self.clear()
+
+        # ルートリンクから再帰的にリンクをTreeに追加していく．
+        # cf. https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
         root = self._main.urdf_parser.get_root()
         root_item = QTreeWidgetItem([root.name])
         self._add_tree_items_rec(root_item)

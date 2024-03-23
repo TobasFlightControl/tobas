@@ -65,7 +65,7 @@ class CustomJointsWidget(BaseSettingWidget):
     @overrides
     def define_connections(self) -> None:
         super().define_connections()
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     @overrides
     def is_valid(self) -> bool:
@@ -159,7 +159,7 @@ class CustomJointsWidget(BaseSettingWidget):
         return f"{group}/{controller}"
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         row = 0
 
         for joint in self._main.urdf_parser.get_joints():

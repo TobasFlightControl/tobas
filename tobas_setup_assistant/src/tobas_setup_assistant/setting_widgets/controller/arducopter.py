@@ -270,7 +270,7 @@ class ArduCopter(BaseController):
     def define_connections(self) -> None:
         self._channels.define_connections()
         self._frame.index_changed.connect(self._on_frame_idx_changed)
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     @overrides
     def is_applicable(self) -> bool:
@@ -346,6 +346,6 @@ class ArduCopter(BaseController):
         self._channels.update_num_channels(self._frames[idx].num_props())
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         cur_idx = self._frame.cur_index()
         self._channels.update_num_channels(self._frames[cur_idx].num_props())

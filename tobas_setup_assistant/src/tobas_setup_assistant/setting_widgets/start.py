@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import q_error
+from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import create_launcher
 
 from .base_setting import BaseSettingWidget
@@ -124,3 +124,5 @@ class RobotModelLoaderWidget(QWidget):
             return
 
         self._main.signals.urdf_loaded.emit()
+
+        q_info(self._main, "URDF is loaded successfully. Configure the settings for each tab.")

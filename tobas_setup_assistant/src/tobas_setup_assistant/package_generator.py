@@ -47,11 +47,11 @@ class PackageGenerator(QObject):
         self._drone_name = ""
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._main.settings.ros_package.generate_button.clicked.connect(self._on_generate_button_clicked)
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         self._drone_name = get_drone_name()
 
     @pyqtSlot()

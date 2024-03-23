@@ -49,7 +49,7 @@ class SelectedLinksWidget(TabWidget):
     def define_connections(self):
         self._main.settings.propulsion_system.add_link.connect(self._add_link)
         self._main.settings.propulsion_system.remove_link.connect(self._remove_link)
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self.tabCloseRequested.connect(self._on_tab_close_requested)
 
     def is_valid(self) -> bool:
@@ -150,7 +150,7 @@ class SelectedLinksWidget(TabWidget):
         self._markers_pub.publish(self._markers)
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         # 全ての可動リンクのマーカーを保持しておく
         for i, link_name in enumerate(self._main.urdf_parser.link_names()):
             if link_name == self._main.urdf_parser.get_root().name:

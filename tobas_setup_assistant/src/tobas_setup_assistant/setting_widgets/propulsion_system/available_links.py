@@ -29,7 +29,7 @@ class AvailableLinksWidget(QListWidget):
     def define_connections(self) -> None:
         self._main.settings.propulsion_system.add_link.connect(self._remove_link)
         self._main.settings.propulsion_system.remove_link.connect(self._add_link)
-        self._main.urdf_parser.robot_model_loaded.connect(self._add_available_links)
+        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
 
     def is_valid(self) -> bool:
         return True

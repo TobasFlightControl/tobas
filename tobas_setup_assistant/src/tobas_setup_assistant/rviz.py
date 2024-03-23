@@ -33,14 +33,12 @@ class RvizWidget(QWidget):
 
         # Setup robot_model_display
         # rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
-        manager = self._frame.getManager()
-        self._display = manager.getRootDisplayGroup().getDisplayAt(0)
+        self._manager = self._frame.getManager()
+        self._display = self._manager.getRootDisplayGroup().getDisplayAt(0)
         assert self._display.getName() == "RobotState"
-        self._display.setBool(False)
 
-        # ハイライトプロパティ
-        self._highlight_link = self._display.subProp("Highlight Link")
-        self._unhighlight_link = self._display.subProp("Unhighlight Link")
+        # 最初は機能をオフにしておく．さもないとrobot_descriptionが見つからないというエラーが出る．
+        self._display.setBool(False)
 
         # 可視化プロパティ
         self._enable_visual = self._display.subProp("Visual Enabled")
@@ -67,7 +65,7 @@ class RvizWidget(QWidget):
         self.setMinimumWidth(self.MIN_WIDTH)
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._visual_box.toggled.connect(self._on_visual_box_toggled)
         self._collision_box.toggled.connect(self._on_collision_box_toggled)
 
@@ -78,17 +76,25 @@ class RvizWidget(QWidget):
         if self._highlighted_link:
             self.unhighlight_link(self._highlighted_link)
 
-        self._highlight_link.setValue(link_name)
+        self._display.subProp("Highlight Link").setValue(link_name)
         self._highlighted_link = link_name
 
     def unhighlight_link(self, link_name: str) -> None:
-        self._unhighlight_link.setValue(link_name)
+        self._display.subProp("Unhighlight Link").setValue(link_name)
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
-        root_link = self._main.urdf_parser.get_root()
-        self._frame.getManager().setFixedFrame(root_link.name)
+    def _on_robot_model_updated(self) -> None:
+        # 有効化
         self._display.setBool(True)
+
+        # 固定フレームをルートリンクに設定
+        root_link = self._main.urdf_parser.get_root()
+        self._manager.setFixedFrame(root_link.name)
+
+        # ロボットモデルをリロード
+        reload = self._display.subProp("Reload")
+        reload.setBool(False)
+        reload.setBool(True)
 
     @pyqtSlot(bool)
     def _on_visual_box_toggled(self, checked: bool) -> None:
