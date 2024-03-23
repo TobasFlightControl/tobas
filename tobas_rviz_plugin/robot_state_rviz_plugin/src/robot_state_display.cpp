@@ -7,11 +7,6 @@
 
 #include "../include/robot_state_rviz_plugin/robot_state_display.hpp"
 
-#define HIGHLIGHT_R 0
-#define HIGHLIGHT_G 255
-#define HIGHLIGHT_B 0
-#define HIGHLIGHT_A 0.7
-
 using namespace std;
 
 namespace moveit_rviz_plugin
@@ -317,10 +312,10 @@ void RobotStateDisplay::changedHighlightColor()
     return;
 
   std_msgs::ColorRGBA color_msg;
-  color_msg.r = HIGHLIGHT_R;
-  color_msg.g = HIGHLIGHT_G;
-  color_msg.b = HIGHLIGHT_B;
-  color_msg.a = HIGHLIGHT_A;
+  color_msg.r = kHighlightR;
+  color_msg.g = kHighlightG;
+  color_msg.b = kHighlightB;
+  color_msg.a = kHighlightA;
   setHighlight(highlight_link_->getStdString(), color_msg);
   update_state_ = true;
 }

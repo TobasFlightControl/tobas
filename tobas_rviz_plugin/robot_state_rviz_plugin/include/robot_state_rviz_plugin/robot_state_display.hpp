@@ -24,6 +24,11 @@ class RobotStateDisplay : public rviz::Display
 {
   Q_OBJECT
 
+  static constexpr float kHighlightR = 0;
+  static constexpr float kHighlightG = 255;
+  static constexpr float kHighlightB = 0;
+  static constexpr float kHighlightA = 0.7;
+
   using self = RobotStateDisplay;
   using super = rviz::Display;
 
