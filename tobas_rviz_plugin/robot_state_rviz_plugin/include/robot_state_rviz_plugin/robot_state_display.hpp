@@ -36,26 +36,8 @@ public:
   void setLinkColor(const std::string& link_name, const QColor& color);
   void unsetLinkColor(const std::string& link_name);
 
-private Q_SLOTS:
-  void changedRobotDescription();
-  void changedRootLinkName();
-  void changedHighlightColor();
-  void changedUnhighlightColor();
-  void changedRobotStateTopic();
-  void changedRobotSceneAlpha();
-  void changedAttachedBodyColor();
-  void changedEnableLinkHighlight();
-  void changedEnableVisualVisible();
-  void changedEnableCollisionVisible();
-  void changedShowAllLinks();
-  void changedReload();
-
-protected:
+private:
   void loadRobotModel();
-
-  /**
-   * \brief Set the scene node's position, given the target frame and the planning frame
-   */
   void calculateOffsetPosition();
 
   void setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color);
@@ -67,7 +49,6 @@ protected:
   void restartSubscribers();
   void robotStateCb(const moveit_msgs::DisplayRobotStateConstPtr& state);
 
-  // overrides from Display
   void onInitialize() override;
   void onEnable() override;
   void onDisable() override;
@@ -98,5 +79,19 @@ protected:
   std::shared_ptr<rviz::BoolProperty> enable_collision_visible_;
   std::shared_ptr<rviz::BoolProperty> show_all_links_;
   std::shared_ptr<rviz::BoolProperty> reload_;
+
+private Q_SLOTS:
+  void changedRobotDescription();
+  void changedRootLinkName();
+  void changedHighlightColor();
+  void changedUnhighlightColor();
+  void changedRobotStateTopic();
+  void changedRobotSceneAlpha();
+  void changedAttachedBodyColor();
+  void changedEnableLinkHighlight();
+  void changedEnableVisualVisible();
+  void changedEnableCollisionVisible();
+  void changedShowAllLinks();
+  void changedReload();
 };
 }  // namespace moveit_rviz_plugin
