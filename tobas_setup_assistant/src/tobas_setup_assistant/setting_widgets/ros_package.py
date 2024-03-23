@@ -130,7 +130,7 @@ class PackagePath(QLabel):
     def define_connections(self) -> None:
         self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
         self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._set_defaults)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     def _update(self) -> None:
         path = self.pardir + "/" + self.pkg_name
@@ -150,14 +150,14 @@ class PackagePath(QLabel):
         self._update()
 
     @pyqtSlot()
-    def _set_defaults(self) -> None:
-        # srcディレクトリ
+    def _on_robot_model_updated(self) -> None:
+        # デフォルトのsrcディレクトリを設定
         ws_path = self._last_accessed_ws_path()
         if ws_path is not None:
             src_dir = osp.join(ws_path, "src")
             self._main.settings.ros_package.pardir.set(src_dir)
 
-        # パッケージ名
+        # デフォルトのパッケージ名を設定
         pkg_name = f"tobas_{get_drone_name()}_config"
         self._main.settings.ros_package.pkg_name.set(pkg_name)
 

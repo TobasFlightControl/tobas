@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
 from wpa_supplicant_parser_py.parser import WPASupplicantParser, Network
 
@@ -66,7 +67,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
         cols.addStretch()
 
-        self._table = QTableWidget(0, len(self.LABELS))
+        self._table = TableWidget(0, len(self.LABELS))
         self._table.setHorizontalHeaderLabels(self.LABELS)
         for c in range(self._table.columnCount()):
             self._table.setColumnWidth(c, self.COL_WIDTH)

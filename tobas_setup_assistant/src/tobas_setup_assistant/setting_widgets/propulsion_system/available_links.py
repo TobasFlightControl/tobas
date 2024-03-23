@@ -29,19 +29,22 @@ class AvailableLinksWidget(QListWidget):
     def define_connections(self) -> None:
         self._main.settings.propulsion_system.add_link.connect(self._remove_link)
         self._main.settings.propulsion_system.remove_link.connect(self._add_link)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     def is_valid(self) -> bool:
         return True
 
     @pyqtSlot()
-    def _add_available_links(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         """
         以下の条件を満たすリンクを推進系候補としてリストに追加する．
         - 回転関節 (continuous) をもつ．
         - Transmissionをもたない．
         - 回転軸が常にZ軸と一致している．
         """
+        # リストの要素を削除
+        self.clear()
+
         urdf_parser = self._main.urdf_parser
         root_link = urdf_parser.get_root()
 

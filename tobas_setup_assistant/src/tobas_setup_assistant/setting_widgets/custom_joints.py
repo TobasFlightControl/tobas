@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox
+from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox, TableWidget
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.joint import *
 
@@ -52,9 +52,7 @@ class CustomJointsWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._available_joints: List[str] = []
-
-        self._table = QTableWidget(0, len(self.LABELS))
+        self._table = TableWidget(0, len(self.LABELS))
         self._table.setHorizontalHeaderLabels(self.LABELS)
         for c in range(self._table.columnCount()):
             self._table.setColumnWidth(c, self.COL_WIDTH)
@@ -160,6 +158,7 @@ class CustomJointsWidget(BaseSettingWidget):
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
+        self._table.remove_all()
         row = 0
 
         for joint in self._main.urdf_parser.get_joints():
@@ -176,7 +175,6 @@ class CustomJointsWidget(BaseSettingWidget):
             if hi is None:
                 continue
 
-            self._available_joints.append(joint.name)
             self._table.insertRow(row)
 
             jnt_name = QLabel(joint.name)

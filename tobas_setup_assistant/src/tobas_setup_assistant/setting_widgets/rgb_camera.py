@@ -103,7 +103,7 @@ class RgbCameraWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_links)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     @overrides
     def is_valid(self) -> bool:
@@ -141,8 +141,8 @@ class RgbCameraWidget(BaseSettingWidget):
             self.noise_stddev.setVisible(False)
 
     @pyqtSlot()
-    def _add_links(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         # Gazeboの仕様で，ルートリンクまたは可動関節をもつリンクのみ指定可能
         root_name = self._main.urdf_parser.get_root().name
         body_choices = [root_name] + self._main.urdf_parser.link_names_with_mobile_joint()
-        self.link.add_items(body_choices)
+        self.link.set_choices(body_choices)

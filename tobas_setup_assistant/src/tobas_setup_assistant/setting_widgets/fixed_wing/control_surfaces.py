@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
@@ -224,7 +224,7 @@ class AddDeleteButtonsWidget(QWidget):
         self.delete.emit()
 
 
-class SelectedLinksWidget(QTableWidget):
+class SelectedLinksWidget(TableWidget):
     COL_WIDTH = 120
     COEF_DECIMALS = 6
     ANGLE_LIMIT = math.pi / 4

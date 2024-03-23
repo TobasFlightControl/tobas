@@ -126,6 +126,10 @@ class SelectedLinksWidget(TabWidget):
                 marker.action = action
                 return
 
+    def _reset(self) -> None:
+        self.clear()
+        self._markers.markers.clear()
+
     @pyqtSlot(str)
     def _add_link(self, link_name: str) -> None:
         # タブを追加
@@ -151,6 +155,8 @@ class SelectedLinksWidget(TabWidget):
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
+        self._reset()
+
         # 全ての可動リンクのマーカーを保持しておく
         for i, link_name in enumerate(self._main.urdf_parser.link_names()):
             if link_name == self._main.urdf_parser.get_root().name:

@@ -34,7 +34,7 @@ class DepthCameraWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Depth Camera"
         abst_text = (
-            "Configure the depth camera settings. " "Please refer to the datasheet and input the respective values."
+            "Configure the depth camera settings. Please refer to the datasheet and input the respective values."
         )
         super().__init__(main, title_text, abst_text)
 
@@ -43,7 +43,7 @@ class DepthCameraWidget(BaseSettingWidget):
         self._equipped.setChecked(False)
         self._rows.addWidget(self._equipped)
 
-        link_description = "カメラが取り付けられたフレームの名前．"
+        link_description = "The name of the link to which the camera is attached."
         self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
         self._rows.addWidget(self.link)
 
@@ -98,7 +98,10 @@ class DepthCameraWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.image_height)
 
-        depth_range_description = "カメラで観測可能な深さの範囲．" + "シミュレーションでは，この範囲外にある物体は切り捨てられます．"
+        depth_range_description = (
+            "The range of depth observable by the camera. "
+            "In the simulation, objects outside this range will be truncated."
+        )
         self.depth_range = ParamGetterWidget_DoubleRange(
             "Depth Range",
             depth_range_description,
@@ -123,7 +126,7 @@ class DepthCameraWidget(BaseSettingWidget):
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_updated.connect(self._add_links)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     @overrides
     def is_valid(self) -> bool:
@@ -163,8 +166,8 @@ class DepthCameraWidget(BaseSettingWidget):
             self.noise_model.setVisible(False)
 
     @pyqtSlot()
-    def _add_links(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         # Gazeboの仕様で，ルートリンクまたは可動関節をもつリンクのみ指定可能
         root_name = self._main.urdf_parser.get_root().name
         body_choices = [root_name] + self._main.urdf_parser.link_names_with_mobile_joint()
-        self.link.add_items(body_choices)
+        self.link.set_choices(body_choices)

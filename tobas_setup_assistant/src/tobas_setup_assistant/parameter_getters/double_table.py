@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
 
 from .base import ParamGetterWidget
@@ -47,30 +47,32 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         self._add_row_btn = QPushButton("Add row")
         self._add_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._add_row_btn.clicked.connect(self._add_row)
         cols.addWidget(self._add_row_btn)
 
         self._delete_row_btn = QPushButton("Delete row")
         self._delete_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._delete_row_btn.clicked.connect(self._delete_row)
         cols.addWidget(self._delete_row_btn)
 
         self._clear_btn = QPushButton("Clear")
         self._clear_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._clear_btn.clicked.connect(self._clear)
         cols.addWidget(self._clear_btn)
 
         self._load_csv_btn = QPushButton("Load CSV")
         self._load_csv_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._load_csv_btn.clicked.connect(self._load_csv)
         cols.addWidget(self._load_csv_btn)
 
         cols.addStretch()  # ボタンを左詰めにする
 
-        self._table = QTableWidget(0, len(labels))
+        self._table = TableWidget(0, len(labels))
         self._table.setHorizontalHeaderLabels(labels)
         self._table.verticalHeader().setVisible(True)  # 行番号を表示
         self._rows.addWidget(self._table)
+
+        # Connections
+        self._add_row_btn.clicked.connect(self._add_row)
+        self._delete_row_btn.clicked.connect(self._delete_row)
+        self._clear_btn.clicked.connect(self._table.remove_all)
+        self._load_csv_btn.clicked.connect(self._load_csv)
 
     def get(self) -> NDArray[np.float64]:
         """
@@ -104,7 +106,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         if not self._is_valid_data(src):
             return False
 
-        self._clear()
+        self._table.remove_all()
         for row in range(src.shape[0]):
             self._add_row()
             for col in range(src.shape[1]):
@@ -182,12 +184,6 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         if row < 0:
             return
         self._table.removeRow(row)
-
-    @pyqtSlot()
-    def _clear(self) -> None:
-        rows = self.count()
-        for _ in range(rows):
-            self._table.removeRow(0)
 
     @pyqtSlot()
     def _load_csv(self) -> None:

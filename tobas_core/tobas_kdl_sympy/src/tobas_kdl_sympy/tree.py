@@ -12,7 +12,13 @@ class Tree:
         self._robot = Robot()
         self._q_map: Dict[str, Union[Symbol, int]] = {}
 
+    def clear(self) -> None:
+        self._robot = Robot()
+        self._q_map = {}
+
     def load_from_param(self, param: str = "robot_description") -> None:
+        self.clear()
+
         self._robot = Robot.from_parameter_server(param)
 
         for i, joint in enumerate(self.get_joints()):
