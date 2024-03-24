@@ -18,8 +18,8 @@ class GroundControlStationWidget(QWidget):
         self.start = StartWidget(self)
         self.urdf_builder = UrdfBuilderWidget(self)
         self.setup_assistant = SetupAssistantWidget(self)
-        self.simulation = SimulationWidget(self)
         self.hardware_setup = HardwareSetupWidget(self)
+        self.simulation = SimulationWidget(self)
         self.mission_planner = MissionPlannerWidget(self)
         self.control_system = ControlSystemWidget(self)
 
@@ -27,8 +27,8 @@ class GroundControlStationWidget(QWidget):
         self._combo_box.addItem(StartWidget.NAME)
         self._combo_box.addItem(UrdfBuilderWidget.NAME)
         self._combo_box.addItem(SetupAssistantWidget.NAME)
-        self._combo_box.addItem(SimulationWidget.NAME)
         self._combo_box.addItem(HardwareSetupWidget.NAME)
+        self._combo_box.addItem(SimulationWidget.NAME)
         self._combo_box.addItem(MissionPlannerWidget.NAME)
         self._combo_box.addItem(ControlSystemWidget.NAME)
 
@@ -36,8 +36,8 @@ class GroundControlStationWidget(QWidget):
         self._apps.addWidget(self.start)
         self._apps.addWidget(self.urdf_builder)
         self._apps.addWidget(self.setup_assistant)
-        self._apps.addWidget(self.simulation)
         self._apps.addWidget(self.hardware_setup)
+        self._apps.addWidget(self.simulation)
         self._apps.addWidget(self.mission_planner)
         self._apps.addWidget(self.control_system)
 
@@ -63,8 +63,8 @@ class GroundControlStationWidget(QWidget):
         self.start.define_connections()
         self.urdf_builder.define_connections()
         self.setup_assistant.define_connections()
-        self.simulation.define_connections()
         self.hardware_setup.define_connections()
+        self.simulation.define_connections()
         self.mission_planner.define_connections()
         self.control_system.define_connections()
 
