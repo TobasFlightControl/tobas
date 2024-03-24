@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tobas_std_tools/first_order_filter.hpp>
-
 #include <tobas_msgs/VelocityYaw.h>
 
 #include "./base_controller.hpp"
@@ -26,8 +25,8 @@ public:
 
 private:
   ros::Time t_last_rcin_;
-  tobas_std::FirstOrderFilter<Eigen::Vector3d> vel_filter_;
-  Eigen::Vector3d vel_raw_;
+  tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
+  KDL::Vector vel_F_;
   double yaw_;
 
   // rosparams

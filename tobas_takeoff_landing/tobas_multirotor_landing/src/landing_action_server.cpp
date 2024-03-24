@@ -149,8 +149,7 @@ void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
     const auto t = (ros::Time::now() - start_time).toSec();
     const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
-    cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
-    cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
     cmd->pos.x(start_x);
     cmd->pos.y(start_y);
     cmd->pos.z(start_z - kVerticalSpeed * t);

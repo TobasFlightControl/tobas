@@ -3,8 +3,8 @@
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
+#include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
@@ -31,7 +31,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector::Zero());
   tar_pos_ = odom.frame.p;
-  tar_vel_.setZero();
+  tar_vel_F_.setZero();
   tar_yaw_ = Euler(odom.frame.M).yaw;
 }
 
@@ -46,17 +46,19 @@ void PosVelAccYawController::update(
   t_last_rcin_ = cur_time;
 
   // RC入力を速度とヨーレートに変換
-  tar_vel_.x() =
+  tar_vel_F_.x() =
     dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_.y() =
+  tar_vel_F_.y() =
     dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
+  tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
   const auto yawrate =
     dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 目標速度をフィルタリング
-  vel_filter_.update(tar_vel_, dt);
-  const auto& tar_vel_filtered = vel_filter_.getState();
+  vel_filter_.update(tar_vel_F_, dt);
+
+  // 目標速度を世界座標系に変換
+  const auto& tar_vel_filtered = tobas::rotWorldToFootprint(odom.frame.M) * vel_filter_.getState();
 
   // 一度でも上昇コマンドが入力されたら位置制御を行う
   if (is_up_commanded_)
@@ -72,14 +74,13 @@ void PosVelAccYawController::update(
     tar_yaw_ = Euler(odom.frame.M).yaw;
 
     // 上昇コマンドが入力されたかどうかをチェック
-    is_up_commanded_ = tar_vel_.z() > 0;
+    is_up_commanded_ = tar_vel_F_.z() > 0;
   }
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
-  cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
+  cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
   cmd->pos = tar_pos_;
   cmd->vel = tar_vel_filtered;
   cmd->acc.setZero();

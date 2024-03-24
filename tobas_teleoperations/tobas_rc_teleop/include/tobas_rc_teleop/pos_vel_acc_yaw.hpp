@@ -26,7 +26,7 @@ private:
   bool is_up_commanded_ = false;
   ros::Time t_last_rcin_;
   tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
-  KDL::Vector tar_vel_;
+  KDL::Vector tar_vel_F_;
   KDL::Vector tar_pos_;
   double tar_yaw_;
 

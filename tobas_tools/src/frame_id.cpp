@@ -5,33 +5,40 @@ using namespace tobas_msgs;
 
 namespace tobas
 {
-bool changeFrame(const uint8_t& frame_id, const Rotation& R_gl, PosVelAccYaw& msg)
+Rotation rotWorldToFootprint(const Rotation& R_W_B)
+{
+  return Rotation::RotZ(R_W_B.getYaw());
+}
+
+Rotation rotFootprintToLocal(const Rotation& R_W_B)
+{
+  double roll, pitch, yaw;
+  R_W_B.getRPY(roll, pitch, yaw);
+  return Rotation::RPY(roll, pitch, 0);
+}
+
+bool changeFrame(const uint8_t& frame_id, const Rotation& R_W_B, PosVelAccYaw& msg)
 {
   switch (frame_id)
   {
     // 変換先がグローバル座標系の場合
-    case FrameId::GLOBAL:
+    case FrameId::WORLD:
     {
-      // Velocity
-      switch (msg.vel_frame.data)
+      switch (msg.frame_id.data)
       {
-        case FrameId::GLOBAL:
+        case FrameId::WORLD:
           break;
         case FrameId::LOCAL:
-          msg.vel = R_gl * msg.vel;
+          msg.vel = R_W_B * msg.vel;
+          msg.acc = R_W_B * msg.acc;
           break;
-        default:
-          return false;
-      }
-
-      // Acceleration
-      switch (msg.acc_frame.data)
-      {
-        case FrameId::GLOBAL:
-          break;
-        case FrameId::LOCAL:
-          msg.acc = R_gl * msg.acc;
-          break;
+        case FrameId::FOOTPRINT:
+        {
+          const auto R_W_F = rotWorldToFootprint(R_W_B);
+          msg.vel = R_W_F * msg.vel;
+          msg.acc = R_W_F * msg.acc;
+        }
+        break;
         default:
           return false;
       }
@@ -42,25 +49,46 @@ bool changeFrame(const uint8_t& frame_id, const Rotation& R_gl, PosVelAccYaw& ms
     // 変換先がローカル座標系の場合
     case FrameId::LOCAL:
     {
-      // Velocity
-      switch (msg.vel_frame.data)
+      switch (msg.frame_id.data)
       {
-        case FrameId::GLOBAL:
-          msg.vel = R_gl.inverse(msg.vel);
+        case FrameId::WORLD:
+          msg.vel = R_W_B.inverse(msg.vel);
+          msg.acc = R_W_B.inverse(msg.acc);
           break;
         case FrameId::LOCAL:
           break;
+        case FrameId::FOOTPRINT:
+        {
+          const auto R_F_L = rotFootprintToLocal(R_W_B);
+          msg.vel = R_F_L.inverse(msg.vel);
+          msg.acc = R_F_L.inverse(msg.acc);
+        }
+        break;
         default:
           return false;
       }
+    }
 
-      // Acceleration
-      switch (msg.acc_frame.data)
+    // 変換先がフットプリントの場合
+    case FrameId::FOOTPRINT:
+    {
+      switch (msg.frame_id.data)
       {
-        case FrameId::GLOBAL:
-          msg.acc = R_gl.inverse(msg.acc);
-          break;
+        case FrameId::WORLD:
+        {
+          const auto R_W_F = rotWorldToFootprint(R_W_B);
+          msg.vel = R_W_F.inverse(msg.vel);
+          msg.acc = R_W_F.inverse(msg.acc);
+        }
+        break;
         case FrameId::LOCAL:
+        {
+          const auto R_F_L = rotFootprintToLocal(R_W_B);
+          msg.vel = R_F_L * msg.vel;
+          msg.acc = R_F_L * msg.acc;
+        }
+        break;
+        case FrameId::FOOTPRINT:
           break;
         default:
           return false;
@@ -76,8 +104,7 @@ bool changeFrame(const uint8_t& frame_id, const Rotation& R_gl, PosVelAccYaw& ms
   }
 
   // FrameIdを更新
-  msg.vel_frame.data = frame_id;
-  msg.acc_frame.data = frame_id;
+  msg.frame_id.data = frame_id;
 
   return true;
 }

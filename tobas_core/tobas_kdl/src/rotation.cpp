@@ -29,11 +29,10 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 {
-  const double trace = data.trace();
-  constexpr double epsilon = 1E-12;
-  if (trace > epsilon)
+  const auto trace = data.trace();
+  if (trace > kEpsilon)
   {
-    double s = 0.5 / sqrt(trace + 1.0);
+    const auto s = 0.5 / sqrt(trace + 1.0);
     w = 0.25 / s;
     x = ((*this)(2, 1) - (*this)(1, 2)) * s;
     y = ((*this)(0, 2) - (*this)(2, 0)) * s;
@@ -43,7 +42,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
   {
     if ((*this)(0, 0) > (*this)(1, 1) && (*this)(0, 0) > (*this)(2, 2))
     {
-      double s = 2.0 * sqrt(1.0 + (*this)(0, 0) - (*this)(1, 1) - (*this)(2, 2));
+      const auto s = 2.0 * sqrt(1.0 + (*this)(0, 0) - (*this)(1, 1) - (*this)(2, 2));
       w = ((*this)(2, 1) - (*this)(1, 2)) / s;
       x = 0.25 * s;
       y = ((*this)(0, 1) + (*this)(1, 0)) / s;
@@ -51,7 +50,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
     }
     else if ((*this)(1, 1) > (*this)(2, 2))
     {
-      double s = 2.0 * sqrt(1.0 + (*this)(1, 1) - (*this)(0, 0) - (*this)(2, 2));
+      const auto s = 2.0 * sqrt(1.0 + (*this)(1, 1) - (*this)(0, 0) - (*this)(2, 2));
       w = ((*this)(0, 2) - (*this)(2, 0)) / s;
       x = ((*this)(0, 1) + (*this)(1, 0)) / s;
       y = 0.25 * s;
@@ -59,7 +58,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
     }
     else
     {
-      double s = 2.0 * sqrt(1.0 + (*this)(2, 2) - (*this)(0, 0) - (*this)(1, 1));
+      const auto s = 2.0 * sqrt(1.0 + (*this)(2, 2) - (*this)(0, 0) - (*this)(1, 1));
       w = ((*this)(1, 0) - (*this)(0, 1)) / s;
       x = ((*this)(0, 2) + (*this)(2, 0)) / s;
       y = ((*this)(1, 2) + (*this)(2, 1)) / s;
@@ -84,9 +83,8 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  constexpr double epsilon = 1E-12;
   pitch = atan2(-data(2, 0), sqrt(sqr(data(0, 0)) + sqr(data(1, 0))));
-  if (fabs(pitch) > (M_PI_2 - epsilon))
+  if (fabs(pitch) > (M_PI_2 - kEpsilon))
   {
     yaw = atan2(-data(0, 1), data(1, 1));
     roll = 0;
@@ -96,6 +94,72 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
     roll = atan2(data(2, 1), data(2, 2));
     yaw = atan2(data(1, 0), data(0, 0));
   }
+}
+
+void Rotation::doRotX(double angle)
+{
+  const auto cs = cos(angle);
+  const auto sn = sin(angle);
+  const auto x1 = cs * (*this)(0, 1) + sn * (*this)(0, 2);
+  const auto x2 = cs * (*this)(1, 1) + sn * (*this)(1, 2);
+  const auto x3 = cs * (*this)(2, 1) + sn * (*this)(2, 2);
+  (*this)(0, 2) = -sn * (*this)(0, 1) + cs * (*this)(0, 2);
+  (*this)(1, 2) = -sn * (*this)(1, 1) + cs * (*this)(1, 2);
+  (*this)(2, 2) = -sn * (*this)(2, 1) + cs * (*this)(2, 2);
+  (*this)(0, 1) = x1;
+  (*this)(1, 1) = x2;
+  (*this)(2, 1) = x3;
+}
+
+void Rotation::doRotY(double angle)
+{
+  const auto cs = cos(angle);
+  const auto sn = sin(angle);
+  const auto x1 = cs * (*this)(0, 0) - sn * (*this)(0, 2);
+  const auto x2 = cs * (*this)(1, 0) - sn * (*this)(1, 2);
+  const auto x3 = cs * (*this)(2, 0) - sn * (*this)(2, 2);
+  (*this)(0, 2) = sn * (*this)(0, 0) + cs * (*this)(0, 2);
+  (*this)(1, 2) = sn * (*this)(1, 0) + cs * (*this)(1, 2);
+  (*this)(2, 2) = sn * (*this)(2, 0) + cs * (*this)(2, 2);
+  (*this)(0, 0) = x1;
+  (*this)(1, 0) = x2;
+  (*this)(2, 0) = x3;
+}
+
+void Rotation::doRotZ(double angle)
+{
+  const auto cs = cos(angle);
+  const auto sn = sin(angle);
+  const auto x1 = cs * (*this)(0, 0) + sn * (*this)(0, 1);
+  const auto x2 = cs * (*this)(1, 0) + sn * (*this)(1, 1);
+  const auto x3 = cs * (*this)(2, 0) + sn * (*this)(2, 1);
+  (*this)(0, 1) = -sn * (*this)(0, 0) + cs * (*this)(0, 1);
+  (*this)(1, 1) = -sn * (*this)(1, 0) + cs * (*this)(1, 1);
+  (*this)(2, 1) = -sn * (*this)(2, 0) + cs * (*this)(2, 1);
+  (*this)(0, 0) = x1;
+  (*this)(1, 0) = x2;
+  (*this)(2, 0) = x3;
+}
+
+Rotation Rotation::RotX(double angle)
+{
+  const auto cs = cos(angle);
+  const auto sn = sin(angle);
+  return Rotation(1, 0, 0, 0, cs, -sn, 0, sn, cs);
+}
+
+Rotation Rotation::RotY(double angle)
+{
+  const auto cs = cos(angle);
+  const auto sn = sin(angle);
+  return Rotation(cs, 0, sn, 0, 1, 0, -sn, 0, cs);
+}
+
+Rotation Rotation::RotZ(double angle)
+{
+  const auto cs = cos(angle);
+  const auto sn = sin(angle);
+  return Rotation(cs, -sn, 0, sn, cs, 0, 0, 0, 1);
 }
 
 Rotation Rotation::Rot(const Vector& rotaxis, double angle)
@@ -112,18 +176,18 @@ Rotation Rotation::Rot2(const Vector& rotvec, double angle)
   // V.(V.tr) + st*[V x] + ct*(I-V.(V.tr))
   // can be found by multiplying it with an arbitrary vector p
   // and noting that this vector is rotated.
-  double ct = cos(angle);
-  double st = sin(angle);
-  double vt = 1 - ct;
-  double m_vt_0 = vt * rotvec.x();
-  double m_vt_1 = vt * rotvec.y();
-  double m_vt_2 = vt * rotvec.z();
-  double m_st_0 = rotvec.x() * st;
-  double m_st_1 = rotvec.y() * st;
-  double m_st_2 = rotvec.z() * st;
-  double m_vt_0_1 = m_vt_0 * rotvec.y();
-  double m_vt_0_2 = m_vt_0 * rotvec.z();
-  double m_vt_1_2 = m_vt_1 * rotvec.z();
+  const auto ct = cos(angle);
+  const auto st = sin(angle);
+  const auto vt = 1 - ct;
+  const auto m_vt_0 = vt * rotvec.x();
+  const auto m_vt_1 = vt * rotvec.y();
+  const auto m_vt_2 = vt * rotvec.z();
+  const auto m_st_0 = rotvec.x() * st;
+  const auto m_st_1 = rotvec.y() * st;
+  const auto m_st_2 = rotvec.z() * st;
+  const auto m_vt_0_1 = m_vt_0 * rotvec.y();
+  const auto m_vt_0_2 = m_vt_0 * rotvec.z();
+  const auto m_vt_1_2 = m_vt_1 * rotvec.z();
   return Rotation(
     ct + m_vt_0 * rotvec.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1,
     ct + m_vt_1 * rotvec.y(), -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2,
@@ -133,27 +197,25 @@ Rotation Rotation::Rot2(const Vector& rotvec, double angle)
 Vector Rotation::getRot() const
 {
   Vector axis;
-  double angle;
-  angle = Rotation::getRotAngle(axis, kDefaultEpsilon);
+  const auto angle = Rotation::getRotAngle(axis);
   return axis * angle;
 }
 
-double Rotation::getRotAngle(Vector& axis, double eps) const
+double Rotation::getRotAngle(Vector& axis) const
 {
-  double angle, x, y, z;       // variables for result
-  double epsilon = eps;        // margin to allow for rounding errors
-  double epsilon2 = eps * 10;  // margin to distinguish between 0 and 180 degrees
+  double angle, x, y, z;                    // variables for result
+  constexpr auto epsilon2 = kEpsilon * 10;  // margin to distinguish between 0 and 180 degrees
 
   // optional check that input is pure rotation, 'isRotationMatrix' is defined at:
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
   if (
-    (abs(data(0, 1) - data(1, 0)) < epsilon) && (abs(data(0, 2) - data(2, 0)) < epsilon)
-    && (abs(data(1, 2) - data(2, 1)) < epsilon))
+    (abs(data(0, 1) - data(1, 0)) < kEpsilon) && (abs(data(0, 2) - data(2, 0)) < kEpsilon)
+    && (abs(data(1, 2) - data(2, 1)) < kEpsilon))
   {
     // singularity found
-    // first check for identity matrix which must have +1 for all terms
-    //  in leading diagonal and zero in other terms
+    // first check for identity matrix which must have +1
+    // for all terms in leading diagonal and zero in other terms
     if (
       (abs(data(0, 1) + data(1, 0)) < epsilon2) && (abs(data(0, 2) + data(2, 0)) < epsilon2)
       && (abs(data(1, 2) + data(2, 1)) < epsilon2)
@@ -168,12 +230,12 @@ double Rotation::getRotAngle(Vector& axis, double eps) const
 
     // otherwise this singularity is angle = 180
     angle = M_PI;
-    double xx = (data(0, 0) + 1) / 2;
-    double yy = (data(1, 1) + 1) / 2;
-    double zz = (data(2, 2) + 1) / 2;
-    double xy = (data(0, 1) + data(1, 0)) / 4;
-    double xz = (data(0, 2) + data(2, 0)) / 4;
-    double yz = (data(1, 2) + data(2, 1)) / 4;
+    const auto xx = (data(0, 0) + 1) / 2;
+    const auto yy = (data(1, 1) + 1) / 2;
+    const auto zz = (data(2, 2) + 1) / 2;
+    const auto xy = (data(0, 1) + data(1, 0)) / 4;
+    const auto xz = (data(0, 2) + data(2, 0)) / 4;
+    const auto yz = (data(1, 2) + data(2, 1)) / 4;
 
     if ((xx > yy) && (xx > zz))
     {
@@ -196,11 +258,12 @@ double Rotation::getRotAngle(Vector& axis, double eps) const
       x = xz / z;
       y = yz / z;
     }
+
     axis = Vector(x, y, z);
     return angle;  // return 180 deg rotation
   }
 
-  double f = (data.trace() - 1) / 2;
+  const auto f = (data.trace() - 1) / 2;
 
   x = (data(2, 1) - data(1, 2));
   y = (data(0, 2) - data(2, 0));
