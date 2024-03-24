@@ -17,6 +17,7 @@ from tobas_rqt_tools.roslaunch import create_launcher
 
 from ...common import *
 from ...utils.ssh_client import SSHClientWrapper
+from ...utils.system import kill_gazebo
 
 
 class SimulationWidget(QWidget):
@@ -105,7 +106,7 @@ class SimulationWidget(QWidget):
 
         # Kill Gazebo
         rospy.loginfo("Killing Gazebo.")
-        os.system("killall -9 gzserver gzclient")
+        kill_gazebo()
 
         # Launch Gazebo
         # 一度ROSLaunchParent.shutdownを呼ぶと再開できないため，ランチャーを作り直す．
@@ -137,6 +138,10 @@ class SimulationWidget(QWidget):
         # Terminate Gazebo
         rospy.loginfo("Terminating Gazebo simulation.")
         self._gazebo_launcher.shutdown()
+
+        # Kill Gazebo
+        rospy.loginfo("Killing Gazebo.")
+        kill_gazebo()
 
         # Terminate Tobas flight controller
         rospy.loginfo("Terminating Tobas flight controller.")
