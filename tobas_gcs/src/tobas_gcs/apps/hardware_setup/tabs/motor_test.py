@@ -37,7 +37,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         instruction = Description(
             "1. Connect the ESCs to the Navio2 in the correct order.\n\n"
             '2. Press "Start" button.\n\n'
-            "3. for all motors, confirm the followings:\n"
+            "3. For all motors, confirm the followings:\n"
             "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
             "   - The motor does not rotate when the command RPM is 0.\n"
             "   - The sound of rotation gradually increases as the command RPM approaches its maximum value.\n"
