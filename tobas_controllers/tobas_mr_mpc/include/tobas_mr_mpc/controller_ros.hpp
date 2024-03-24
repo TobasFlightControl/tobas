@@ -69,7 +69,7 @@ private:
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
   sensor_msgs::JointStateConstPtr js_;
   std_msgs::Float64ConstPtr thrust_corr_factor_;
-  tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
+  tobas_msgs::PosVelAccYawPtr tar_pvay_W_;        // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
   ros::Time t_last_loop_;

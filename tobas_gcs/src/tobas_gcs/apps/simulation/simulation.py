@@ -25,6 +25,7 @@ class SimulationWidget(QWidget):
 
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
+    WAIT_GAZEBO_TO_OPEN = 5.0  # [s]
 
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__()
@@ -113,6 +114,7 @@ class SimulationWidget(QWidget):
         rospy.loginfo("Launching Gazebo simulation.")
         self._gazebo_launcher = create_launcher(config_pkg_name, "gazebo.launch")
         rospy.wait_for_service("/gazebo/get_world_properties")  # Gazeboの起動を待つ
+        rospy.sleep(self.WAIT_GAZEBO_TO_OPEN)  # TODO: Gazebo内で一定時間経過するまで待つ
 
         # Launch Tobas flight controller
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．

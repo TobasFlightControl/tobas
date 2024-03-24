@@ -56,7 +56,7 @@ private:
   tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
-  tobas_msgs::PoseTwistAccelCommandConstPtr cmd_;
+  tobas_msgs::PoseTwistAccelCommandPtr cmd_;
   ros::Time t_last_loop_;
   bool is_initialized_ = false;
   tobas::CommandLevelHandler cmd_level_handler_;

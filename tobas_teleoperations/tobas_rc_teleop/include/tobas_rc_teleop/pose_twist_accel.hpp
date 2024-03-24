@@ -30,8 +30,8 @@ private:
   // Mutable
   bool is_up_commanded_ = false;
   ros::Time t_last_rcin_;
-  KDL::Vector tar_vel_;
-  KDL::Vector tar_pos_;
+  KDL::Vector tar_vel_F_;  // フットプリント座標系から見た目標速度
+  KDL::Vector tar_pos_W_;  // 世界座標系から見た目標位置
   KDL::Euler tar_rpy_;
 
   // Publisher

@@ -177,7 +177,15 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
     return;
 
   // コマンドを更新
-  cmd_ = cmd;
+  cmd_ = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>(*cmd);
+
+  // グローバル座標系に変換
+  if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *cmd_))
+  {
+    rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
+    cmd_ = nullptr;
+    return;
+  }
 }
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
