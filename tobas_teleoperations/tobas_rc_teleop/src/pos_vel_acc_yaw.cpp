@@ -4,7 +4,6 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
@@ -30,7 +29,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector::Zero());
-  tar_pos_ = odom.frame.p;
+  tar_pos_W_ = odom.frame.p;
   tar_vel_F_.setZero();
   tar_yaw_ = Euler(odom.frame.M).yaw;
 }
@@ -58,22 +57,18 @@ void PosVelAccYawController::update(
   vel_filter_.update(tar_vel_F_, dt);
 
   // 目標速度を世界座標系に変換
-  const auto& tar_vel_filtered = tobas::rotWorldToFootprint(odom.frame.M) * vel_filter_.getState();
+  // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
+  const auto tar_vel_W = Rotation::RotZ(tar_yaw_) * vel_filter_.getState();
 
-  // 一度でも上昇コマンドが入力されたら位置制御を行う
-  if (is_up_commanded_)
+  // 目標速度とヨーレートを積分
+  tar_pos_W_ += tar_vel_W * dt;
+  tar_yaw_ += yawrate * dt;
+
+  // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
+  if (!is_up_commanded_)
   {
-    // 速度とヨーレートを積分
-    tar_pos_ += tar_vel_filtered * dt;
-    tar_yaw_ += yawrate * dt;
-  }
-  else
-  {
-    // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
-    tar_pos_ = odom.frame.p;
+    tar_pos_W_ = odom.frame.p;
     tar_yaw_ = Euler(odom.frame.M).yaw;
-
-    // 上昇コマンドが入力されたかどうかをチェック
     is_up_commanded_ = tar_vel_F_.z() > 0;
   }
 
@@ -81,8 +76,8 @@ void PosVelAccYawController::update(
   const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
-  cmd->pos = tar_pos_;
-  cmd->vel = tar_vel_filtered;
+  cmd->pos = tar_pos_W_;
+  cmd->vel = tar_vel_W;
   cmd->acc.setZero();
   cmd->yaw = tar_yaw_;
 

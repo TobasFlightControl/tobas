@@ -25,7 +25,7 @@ class SimulationWidget(QWidget):
 
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
-    WAIT_GAZEBO_TO_OPEN = 5.0  # [s]
+    WAIT_GAZEBO_TO_OPEN = 3.0  # [s]
 
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__()
@@ -159,7 +159,7 @@ class SimulationWidget(QWidget):
 
         # Start tobas_real.service
         rospy.loginfo("Starting tobas_real.service.")
-        command = "systemctl start tobas_real.service"
+        command = "systemctl restart tobas_real.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to restart tobas_real.service:\n\n{error_output}")

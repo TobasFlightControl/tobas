@@ -27,7 +27,7 @@ private:
   ros::Time t_last_rcin_;
   tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
   KDL::Vector tar_vel_F_;
-  KDL::Vector tar_pos_;
+  KDL::Vector tar_pos_W_;
   double tar_yaw_;
 
   // rosparams

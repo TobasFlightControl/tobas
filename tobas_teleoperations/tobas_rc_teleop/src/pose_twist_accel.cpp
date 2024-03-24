@@ -5,7 +5,6 @@
 #include <tobas_ros_tools/exception.hpp>
 
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 
 #include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
@@ -72,27 +71,24 @@ void PoseTwistAccelController::update(
     tar_vel_F_.y() = 0;
   }
 
+  // RC入力から鉛直速度とヨーレートを計算
   tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
   const auto yawrate =
     dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 目標速度を世界座標系に変換
-  const auto tar_vel_W = tobas::rotWorldToFootprint(odom.frame.M) * tar_vel_F_;
+  // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
+  const auto tar_vel_W = Rotation::RotZ(tar_rpy_.yaw) * tar_vel_F_;
 
-  // 一度でも上昇コマンドが入力されたら位置制御を行う
-  if (is_up_commanded_)
+  // 目標速度とヨーレートを積分
+  tar_pos_W_ += tar_vel_W * dt;
+  tar_rpy_.yaw += yawrate * dt;
+
+  // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
+  if (!is_up_commanded_)
   {
-    // 目標速度とヨーレートを積分
-    tar_pos_W_ += tar_vel_W * dt;
-    tar_rpy_.yaw += yawrate * dt;
-  }
-  else
-  {
-    // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
     tar_pos_W_ = odom.frame.p;
     tar_rpy_.yaw = Euler(odom.frame.M).yaw;
-
-    // 上昇コマンドが入力されたかどうかをチェック
     is_up_commanded_ = tar_vel_W.z() > 0;
   }
 
