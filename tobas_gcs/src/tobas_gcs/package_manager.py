@@ -115,7 +115,7 @@ class PackageManagerWidget(QWidget):
         try:
             self._ssh_client.connect()
         except Exception as e:
-            q_error(self._main, e)
+            q_error(self._main, str(e))
             return
 
         pkg_path = self._pkg_path.text()
@@ -138,7 +138,7 @@ class PackageManagerWidget(QWidget):
         try:
             self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
         except Exception as e:
-            q_error(self._main, e)
+            q_error(self._main, str(e))
             return
 
         # サービスを再起動

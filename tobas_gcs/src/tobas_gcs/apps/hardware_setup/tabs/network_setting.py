@@ -101,7 +101,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._ssh_client.connect()
         except Exception as e:
-            q_error(self._main, e)
+            q_error(self._main, str(e))
             return
 
         # リモートファイルを開いて内容を読む
@@ -134,7 +134,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._ssh_client.connect()
         except Exception as e:
-            q_error(self._main, e)
+            q_error(self._main, str(e))
             return
 
         # WPA Parserにテーブルの内容を反映
@@ -149,7 +149,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._ssh_client.sftp_write_super(self.WPA_SUPPLICANT_PATH, self._wpa_parser.text())
         except Exception as e:
-            q_error(self._main, e)
+            q_error(self._main, str(e))
             return
 
         # Wi-Fiを再起動
