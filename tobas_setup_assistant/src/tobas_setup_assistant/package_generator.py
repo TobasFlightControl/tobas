@@ -31,7 +31,6 @@ from .common import *
 
 
 class PackageGenerator(QObject):
-    generated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
         super().__init__()
@@ -60,7 +59,6 @@ class PackageGenerator(QObject):
             return
         self._generate_pkg()
         q_info(self._main, "Configuration package is generated.")
-        self.generated.emit()
 
     def _is_valid_config(self) -> bool:
         if not self._main.settings.start.is_valid():
@@ -325,7 +323,6 @@ class PackageGenerator(QObject):
 
         template_items = dict()
         template_items["drone_name"] = self._drone_name
-
 
         # Controller
         controller = settings.controller

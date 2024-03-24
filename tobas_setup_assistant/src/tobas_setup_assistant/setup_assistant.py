@@ -36,6 +36,3 @@ class SetupAssistant(QWidget):
         self.pkg_generator.define_connections()
         self.robot_visualizer.define_connections()
         self.settings.define_connections()
-
-        # パッケージの作成が完了したら閉じる
-        self.pkg_generator.generated.connect(self.close)
