@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import os
 import os.path as osp
 import re
 import subprocess
 from overrides import overrides
-from glob import glob
-from typing import Union
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.path import get_catkin_ws_paths
 from tobas_rqt_tools.utils import place_center
 from tobas_rqt_tools.messages import *
 
@@ -153,9 +153,8 @@ class PackagePath(QLabel):
     def _on_robot_model_updated(self) -> None:
         # デフォルトのsrcディレクトリを設定
         ws_path = self._last_accessed_ws_path()
-        if ws_path is not None:
-            src_dir = osp.join(ws_path, "src")
-            self._main.settings.ros_package.pardir.set(src_dir)
+        src_path = osp.join(ws_path, "src")
+        self._main.settings.ros_package.pardir.set(src_path)
 
         # デフォルトのパッケージ名を設定
         pkg_name = f"tobas_{get_drone_name()}_config"
@@ -163,16 +162,22 @@ class PackagePath(QLabel):
 
         self._update()
 
-    def _last_accessed_ws_path(self) -> Union[str, None]:
-        pattern = osp.expanduser("~/catkin_ws*/")
-        ws_paths = glob(pattern)
+    def _last_accessed_ws_path(self) -> str:
+        catkin_ws_paths = get_catkin_ws_paths()
 
-        if len(ws_paths) == 0:
-            return None
+        # もしcatkin_wsが存在しなければ作る
+        if len(catkin_ws_paths) == 0:
+            ws_path = osp.expanduser("~/catkin_ws/")
+            src_path = osp.join(ws_path, "src")
+            os.makedirs(src_path, exist_ok=True)
+            os.chdir(ws_path)
+            if os.system("catkin init") != 0:
+                raise RuntimeError("Failed to create catkin workspace.")
+            return ws_path
 
         cnd_ws = None
         cnd_time = 0
-        for ws in ws_paths:
+        for ws in catkin_ws_paths:
             last_accessed_time = osp.getatime(ws)
             if last_accessed_time > cnd_time:
                 cnd_ws = ws

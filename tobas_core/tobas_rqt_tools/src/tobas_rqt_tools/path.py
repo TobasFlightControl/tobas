@@ -1,6 +1,8 @@
 import os.path as osp
 import urllib
 import rospkg
+from glob import glob
+from typing import List
 
 
 def resolve_uri(uri: str) -> str:
@@ -14,3 +16,9 @@ def resolve_uri(uri: str) -> str:
         return urllib.parse.unquote(urllib.parse.urlparse(uri).path)
     else:
         raise RuntimeError(f"Invalid URI: {uri}")
+
+
+def get_catkin_ws_paths() -> List[str]:
+    """ホームディレクトリ直下のcatkinワークスペースまでのパスのリストを返す．"""
+    catkin_tools_paths = glob(osp.expanduser("~/*/.catkin_tools/"))
+    return [path.replace(".catkin_tools/", "") for path in catkin_tools_paths]
