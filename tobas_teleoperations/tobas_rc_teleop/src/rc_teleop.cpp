@@ -7,7 +7,6 @@
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_msgs/VelocityYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
@@ -19,7 +18,6 @@
 #include "../include/tobas_rc_teleop/program_mode.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "../include/tobas_rc_teleop/position_yaw.hpp"
-#include "../include/tobas_rc_teleop/velocity_yaw.hpp"
 #include "../include/tobas_rc_teleop/rpy_thrust.hpp"
 #include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
@@ -46,8 +44,6 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
       controllers_[i] = make_unique<PosVelAccYawController>(drone_);
     else if (modes_[i] == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
       controllers_[i] = make_unique<PositionYawController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::VelocityYaw>::value(), '/').back())
-      controllers_[i] = make_unique<VelocityYawController>(drone_);
     else if (modes_[i] == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
       controllers_[i] = make_unique<RollPitchYawThrustController>(drone_);
     else if (modes_[i] == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
