@@ -141,9 +141,9 @@ class PackageManagerWidget(QWidget):
             q_error(self._main, str(e))
             return
 
-        # サービスを再起動
-        rospy.loginfo("Restarting tobas_real.service.")
-        command = "systemctl restart tobas_real.service"
+        # ROS関連の全てのサービスを再起動 (でないと古いトピックが残ってしまう)
+        rospy.loginfo("Restarting Tobas software.")
+        command = "systemctl restart tobas_roscore.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")

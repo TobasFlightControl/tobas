@@ -1,18 +1,18 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
-  <arg name="ground_truth" default="false"/>
+  <!-- <arg name="nodelet" default="true"/> -->
+  <!-- <arg name="ground_truth" default="false"/> -->
 
   <!-- Bringup Tobas core software -->
-  <include file="$(find {{ pkg_name }})/launch/bringup.launch">
+  <!-- <include file="$(find {{ pkg_name }})/launch/bringup.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
     <arg name="ground_truth" value="$(arg ground_truth)"/>
-  </include>
+  </include> -->
 
   <!-- Launch hardware interfaces -->
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_navio_ros)/launch/rcin_handler.launch">
-      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="nodelet" value="false"/>
     </include>
   </group>
 
