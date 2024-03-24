@@ -11,12 +11,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import *
-from tobas_kdl_sympy.frames import *
+from tobas_std_tools_py.sequence import is_unique
+from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.tree import Tree
+from tobas_kdl_sympy.frames import *
 from tobas_kdl_sympy.joint import *
-
-from .utils import is_unique
 
 
 class URDFParser(QObject):

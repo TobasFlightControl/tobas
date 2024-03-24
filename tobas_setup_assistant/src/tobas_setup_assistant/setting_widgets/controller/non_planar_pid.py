@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.messages import QMessageLevel, yes_or_no
 from tobas_kdl_sympy.frames import Vector
 
 from tobas_msgs.msg import PoseTwistAccelCommand

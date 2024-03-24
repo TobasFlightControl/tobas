@@ -2,10 +2,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.string import convert_superscript
 from tobas_rqt_tools.widgets import SpinBox
 
 from .base import ParamGetterWidget
-from ..utils import convert_superscript
 
 
 class ParamGetterWidget_SpinBox(ParamGetterWidget):
@@ -36,9 +36,7 @@ class ParamGetterWidget_SpinBox(ParamGetterWidget):
             assert minimum <= default <= maximum
             self._spin_box.setValue(default)
         self._spin_box.setSuffix(convert_superscript(suffix))
-
         self._spin_box.setFocusPolicy(Qt.StrongFocus)
-
         self._spin_box.valueChanged.connect(self._on_value_changed)
 
     def get(self) -> int:

@@ -15,7 +15,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.path import get_catkin_ws_paths
 from tobas_rqt_tools.utils import place_center
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.messages import q_error_named, QMessageLevel
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *

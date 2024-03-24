@@ -1,8 +1,9 @@
 from xml.etree import ElementTree as ET
 from typing import Tuple
 
+from tobas_std_tools_py.sequence import all_ge
+
 from .sensor import SensorModel
-from ..utils import all_ge
 
 
 class OdometryModel(SensorModel):

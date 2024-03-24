@@ -17,6 +17,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.sequence import is_unique
 from tobas_urdf_tools_py.core import *
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
 from tobas_rqt_tools.path import resolve_uri
@@ -25,7 +26,7 @@ from tobas_rqt_tools.xml import prettify_and_save
 
 from tobas_msgs.msg import *
 
-from .utils import *
+from .utils import get_drone_name
 from .xml_nodes import *
 from .common import *
 

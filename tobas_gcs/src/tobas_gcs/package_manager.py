@@ -5,12 +5,13 @@ if TYPE_CHECKING:
     from .gcs import GroundControlStationWidget
 
 import os.path as osp
+import rospy
 from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone, DroneLoader_File
 
 from .common import *

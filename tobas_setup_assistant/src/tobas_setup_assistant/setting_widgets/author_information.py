@@ -4,16 +4,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import os
 from overrides import overrides
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.string import is_valid_email
+from tobas_std_tools_py.git import get_git_user_email
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
-from ..utils import is_valid_email, get_user_name, get_git_user_email
 
 
 class AuthorInformationWidget(BaseSettingWidget):
@@ -28,16 +30,10 @@ class AuthorInformationWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self.name = ParamGetterWidget_LineEdit(
-            "Name of the Maintainer",
-            default=get_user_name(),
-        )
+        self.name = ParamGetterWidget_LineEdit("Name of the Maintainer", default=os.environ["USER"])
         self._rows.addWidget(self.name)
 
-        self.email = ParamGetterWidget_LineEdit(
-            "Email of the Maintainer",
-            default=get_git_user_email(),
-        )
+        self.email = ParamGetterWidget_LineEdit("Email of the Maintainer", default=get_git_user_email())
         self._rows.addWidget(self.email)
 
         self._rows.addStretch()
