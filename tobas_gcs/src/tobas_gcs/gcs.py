@@ -57,7 +57,7 @@ class GroundControlStationWidget(QWidget):
         self.define_connections()
 
     def define_connections(self) -> None:
-        # コンボボックスで選択されたアプリケーションを表示
+        # 選択リストから選択されたアプリケーションを表示
         self._combo_box.currentIndexChanged.connect(self._apps.setCurrentIndex)
 
         self.start.define_connections()
