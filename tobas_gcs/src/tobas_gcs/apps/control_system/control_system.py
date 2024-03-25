@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 
 
 class ControlSystemWidget(QWidget):
-    NAME = "ControlSystemWidget"
+    NAME = "Control System"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__()
