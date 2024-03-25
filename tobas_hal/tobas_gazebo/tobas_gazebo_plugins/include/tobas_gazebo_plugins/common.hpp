@@ -47,6 +47,10 @@ static constexpr char kOdometryGtTopic[] = "ground_truth/odom";
 static constexpr char kWindGtTopic[] = "ground_truth/wind";
 static constexpr char kRotorStateGtTopicPrefix[] = "ground_truth/rotor_state";
 
+// ROS Services
+static constexpr char kChargeBatterySrv[] = "gazebo/charge_battery";
+static constexpr char kSetWindParamsSrv[] = "gazebo/set_wind_parameters";
+
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 1.;                     // [s]
 static constexpr double kErrorPeriod = 1.;                    // [s]
