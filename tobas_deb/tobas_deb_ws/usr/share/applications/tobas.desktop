@@ -2,5 +2,5 @@
 Type=Application
 Name=Tobas
 Icon=/opt/tobas/share/tobas_gcs/resources/icon.png
-Exec=/usr/bin/tobas.sh
+Exec=/usr/bin/tobas
 Terminal=false
