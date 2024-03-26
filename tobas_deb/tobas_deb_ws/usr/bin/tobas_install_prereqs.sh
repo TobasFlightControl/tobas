@@ -26,6 +26,11 @@ chmod a+x install_geographiclib_datasets.sh
 sudo ./install_geographiclib_datasets.sh
 rm ./install_geographiclib_datasets.sh
 
+# ===== Install balenaEtcher =====
+curl -1sLf 'https://dl.cloudsmith.io/public/balena/etcher/setup.deb.sh' | sudo -E bash
+sudo apt update
+sudo apt install balena-etcher-electron
+
 # ===== Install ROS dependencies of Tobas =====
 # pipを使うと依存管理が面倒なので，Pythonパッケージも極力package.xmlに書いてaptで管理する
 source /opt/ros/noetic/setup.bash
