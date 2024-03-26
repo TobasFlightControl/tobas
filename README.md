@@ -85,6 +85,14 @@ $ id pi                 # piが所属するグループを確認
   既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
   その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
 
+- `/etc/udev/rules.d/99-ap0.rules`の MAC アドレスをハードコードせず，wlan0 からコピーするよう変更．
+
+```txt
+SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
+  RUN+="/sbin/iw phy phy0 interface add ap0 type __ap", \
+  RUN+="/bin/ip link set ap0 address $(cat /sys/class/net/wlan0/address)"
+```
+
 ### Tobas のオート起動のための設定
 
 - `/etc/systemd/system/tobas_xxx.service`にコマンドを書く
