@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 
 import math
 import numpy as np
-from numpy.typing import NDArray
 from abc import abstractmethod
 from overrides import overrides
 from typing import List, final
@@ -349,7 +348,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
-        omega2: NDArray = rpm2rps(rpm) ** 2
+        omega2: np.ndarray = rpm2rps(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
     @overrides

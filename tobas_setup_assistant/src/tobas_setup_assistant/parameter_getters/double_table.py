@@ -1,7 +1,6 @@
 from typing import List
 from configparser import ConfigParser
 import numpy as np
-from numpy.typing import NDArray  # numpy >= 1.20
 import pandas as pd
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -74,11 +73,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._clear_btn.clicked.connect(self._table.remove_all)
         self._load_csv_btn.clicked.connect(self._load_csv)
 
-    def get(self) -> NDArray[np.float64]:
+    def get(self) -> np.ndarray:
         """
         Returns
         -------
-        NDArray[np.float64]
+        np.ndarray
             shape = (num_data, num_entry)
         """
         rows = self.count()
@@ -91,11 +90,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         return res
 
-    def set(self, src: NDArray[np.float64]) -> bool:
+    def set(self, src: np.ndarray) -> bool:
         """
         Parameters
         ----------
-        src : NDArray[np.float64]
+        src : np.ndarray
             shape = (num_data, num_entry)
 
         Returns
@@ -230,7 +229,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         return file_path
 
-    def _is_valid_data(self, src: NDArray[np.float64]) -> bool:
+    def _is_valid_data(self, src: np.ndarray) -> bool:
         assert src.ndim == 2
         assert src.shape[1] == self._num_entry
 
