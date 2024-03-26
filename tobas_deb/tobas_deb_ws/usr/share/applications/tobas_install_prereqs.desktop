@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Tobas Install
+Icon=/opt/tobas/share/tobas_gcs/resources/icon.png
+
+# pkexecを使用しない場合
+# Exec=/usr/bin/tobas_install_prereqs.sh
+# Terminal=true
+
+# pkexecを使用する場合
+# pkexecのプロセスでは環境変数が初期化され，Xサーバへのアクセス情報が失われるためにそのままではgnome-terminalを起動できない．
+# そのため，Terminal=falseにしてプロセス内で明示的に環境変数の再設定とターミナルの立ち上げを行っている．
+Exec=bash -c "pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY gnome-terminal -- /usr/bin/tobas_install_prereqs.sh"
+Terminal=false

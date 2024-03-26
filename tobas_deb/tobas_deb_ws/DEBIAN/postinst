@@ -1,18 +1,1 @@
 #!/bin/bash
-
-# aptコマンドは実行せず，依存パッケージはcontrol/Dependsに書く．
-# pipを使うと依存管理が面倒なので，Pythonパッケージも極力aptでインストールする．
-
-# Initialize rosdep
-rosdep init || true
-rosdep update
-
-# Install MAVROS
-wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
-chmod u+x install_geographiclib_datasets.sh
-./install_geographiclib_datasets.sh
-rm ./install_geographiclib_datasets.sh
-
-# Install ROS dependencies
-source /opt/ros/noetic/setup.bash
-rosdep install --from-paths /opt/tobas/ --ignore-src -ry
