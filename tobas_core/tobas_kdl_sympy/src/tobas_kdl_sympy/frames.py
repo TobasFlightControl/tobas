@@ -211,11 +211,11 @@ class Rotation:
         I = np.identity(3)  # sympy.Identity(3)だと続く行列和がMatAddのまま評価されなかった
 
         data: Matrix = I + sn * cross + (1 - cs) * (cross @ cross)
-        return cls(*data.flat())
+        return cls(*list(data))
 
     def inverse(self) -> Rotation:
         data: Matrix = self.data.T
-        return Rotation(*data.flat())
+        return Rotation(*list(data))
 
     def get_rpy(self) -> Tuple[Symbol, Symbol, Symbol]:
         epsilon = 1e-12
@@ -231,7 +231,7 @@ class Rotation:
     @singledispatchmethod
     def __mul__(self, rhs: Rotation) -> Rotation:
         data: Matrix = self.data @ rhs.data
-        return Rotation(*data.flat())
+        return Rotation(*list(data))
 
     @__mul__.register
     def _(self, rhs: Vector) -> Vector:
