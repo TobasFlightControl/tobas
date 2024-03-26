@@ -1,13 +1,14 @@
 from typing import List
-from configparser import ConfigParser
 import numpy as np
 import pandas as pd
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import CONFIG_PATH
 
 from .base import ParamGetterWidget
 from ..common import *
@@ -30,7 +31,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._config = ConfigParser()
+        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
         self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
@@ -214,8 +215,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         q_info(self.parent(), "Data is loaded successfully.")
 
     def _get_csv_file_path(self) -> str:
-        self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(DEFAULT, self._path_key, fallback=osp.expanduser("~"))
+        self._config.read()
+        last_opened_dir = self._config.get(self._path_key, fallback=osp.expanduser("~"))
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -223,9 +224,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         # 最後に開かれたパスを保存
         if file_path != "":
-            self._config[DEFAULT][self._path_key] = osp.dirname(file_path)
-            with open(CONFIG_PATH, "w") as f:
-                self._config.write(f)
+            self._config.set(self._path_key, osp.dirname(file_path))
+            self._config.write()
 
         return file_path
 

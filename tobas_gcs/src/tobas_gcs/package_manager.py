@@ -6,12 +6,13 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import rospy
-from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import CONFIG_PATH
 from tobas_tools_py.drone import Drone, DroneLoader_File
 
 from .common import *
@@ -25,7 +26,7 @@ class PackageManagerWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._config = ConfigParser()
+        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
         self._ssh_client = SSHClientWrapper()
 
         cols = QHBoxLayout()
@@ -68,8 +69,8 @@ class PackageManagerWidget(QWidget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(DEFAULT, self.KEY, fallback=osp.expanduser("~"))
+        self._config.read()  # 排他処理のためにこの関数内でRead & Write
+        last_opened_dir = self._config.get(self.KEY, fallback=osp.expanduser("~"))
 
         # Tobasパッケージのパスを取得
         options = QFileDialog.Options()
@@ -93,9 +94,8 @@ class PackageManagerWidget(QWidget):
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config[DEFAULT][self.KEY] = osp.dirname(pkg_path)
-        with open(CONFIG_PATH, "w") as f:
-            self._config.write(f)
+        self._config.set(self.KEY, osp.dirname(pkg_path))
+        self._config.write()
 
         # Writeボタンを有効化
         self._send_button.setEnabled(True)

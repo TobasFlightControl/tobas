@@ -10,9 +10,11 @@ from PyQt5.QtGui import *
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.srv import ParamSet, ParamSetRequest, ParamSetResponse
 
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import *
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import CONFIG_PATH
 
 from .common import *
 from .param_holders import *
@@ -25,6 +27,8 @@ class DynamicConfigurationWidget(QWidget):
 
     def __init__(self) -> None:
         super().__init__()
+
+        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -169,12 +173,8 @@ class DynamicConfigurationWidget(QWidget):
             return
 
         # 前回開いたパスを取得
-        self._config.read(self._config_path)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(
-            self._section,
-            self.LAST_OPENED_DIR,
-            fallback=osp.expanduser("~"),
-        )
+        self._config.read()  # 排他処理のためにこの関数内でRead & Write
+        last_opened_dir = self._config.get(self.LAST_OPENED_DIR, osp.expanduser("~"))
 
         # paramsのパスを取得
         options = QFileDialog.Options()
@@ -193,9 +193,8 @@ class DynamicConfigurationWidget(QWidget):
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config[self._section][self.LAST_OPENED_DIR] = osp.dirname(file_path)
-        with open(self._config_path, "w") as f:
-            self._config.write(f)
+        self._config.set(self.LAST_OPENED_DIR, osp.dirname(file_path))
+        self._config.write()
 
         # フォームと辞書を初期化
         self._form.clear()
@@ -207,12 +206,8 @@ class DynamicConfigurationWidget(QWidget):
     @pyqtSlot()
     def _on_save_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read(self._config_path)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(
-            self._section,
-            self.LAST_OPENED_DIR,
-            fallback=osp.expanduser("~"),
-        )
+        self._config.read()  # 排他処理のためにこの関数内でRead & Write
+        last_opened_dir = self._config.get(self.LAST_OPENED_DIR, fallback=osp.expanduser("~"))
 
         # paramsのパスを取得
         options = QFileDialog.Options()
@@ -231,9 +226,8 @@ class DynamicConfigurationWidget(QWidget):
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config[self._section][self.LAST_OPENED_DIR] = osp.dirname(file_path)
-        with open(self._config_path, "w") as f:
-            self._config.write(f)
+        self._config.set(self.LAST_OPENED_DIR, osp.dirname(file_path))
+        self._config.write()
 
         # TSVファイルを保存
         try:

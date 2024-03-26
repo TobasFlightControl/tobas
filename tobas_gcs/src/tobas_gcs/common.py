@@ -8,8 +8,6 @@ MIN_PWM = 1000
 MAX_PWM = 2000
 
 PKG_NAME = "tobas_gcs"
-CONFIG_PATH = osp.expanduser(f"~/.config/{PKG_NAME}/config.ini")
-DEFAULT = "DEFAULT"
 TITLE = "Tobas"
 UNKNOWN = "Unknown"
 

@@ -9,8 +9,6 @@ from PyQt5.QtGui import *
 AIR_DENSITY = 1.225  # [kg/m^3]
 
 PKG_NAME = "tobas_setup_assistant"
-CONFIG_PATH = osp.expanduser(f"~/.config/{PKG_NAME}/config.ini")
-DEFAULT = "DEFAULT"
 TITLE = "Tobas Setup Assistant"
 UNKNOWN = "Unknown"
 CW = "CW"

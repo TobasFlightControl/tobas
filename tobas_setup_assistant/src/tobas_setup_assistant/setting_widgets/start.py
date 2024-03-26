@@ -7,13 +7,14 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 from overrides import overrides
-from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import create_launcher
+from tobas_tools_py.constants import CONFIG_PATH
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -58,7 +59,7 @@ class RobotModelLoaderWidget(QWidget):
         super().__init__()
         self._main = main
 
-        self._config = ConfigParser()
+        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -88,8 +89,8 @@ class RobotModelLoaderWidget(QWidget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(DEFAULT, self.KEY, fallback=osp.expanduser("~"))
+        self._config.read()  # 排他処理のためにこの関数内でRead & Write
+        last_opened_dir = self._config.get(self.KEY, fallback=osp.expanduser("~"))
 
         # URDFのパスを取得
         options = QFileDialog.Options()
@@ -111,9 +112,8 @@ class RobotModelLoaderWidget(QWidget):
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config[DEFAULT][self.KEY] = osp.dirname(file_path)
-        with open(CONFIG_PATH, "w") as f:
-            self._config.write(f)
+        self._config.set(self.KEY, osp.dirname(file_path))
+        self._config.write()
 
         # robot_descriptionをrosparamに登録
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path

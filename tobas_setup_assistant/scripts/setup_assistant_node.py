@@ -8,6 +8,7 @@ import rospkg
 from PyQt5.QtWidgets import QApplication
 
 from tobas_rqt_tools.widgets import MainWidget
+from tobas_tools_py.constants import CONFIG_PATH
 
 from tobas_setup_assistant.setup_assistant import SetupAssistant
 from tobas_setup_assistant.common import *
@@ -20,6 +21,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(
+        CONFIG_PATH,
         PKG_NAME,
         TITLE,
         osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
