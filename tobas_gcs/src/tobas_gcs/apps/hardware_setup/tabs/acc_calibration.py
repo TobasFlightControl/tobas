@@ -49,7 +49,12 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        res: AccelCalibrationResponse = accel_calib_sc.call(AccelCalibrationRequest())
+        try:
+            res: AccelCalibrationResponse = accel_calib_sc.call(AccelCalibrationRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return

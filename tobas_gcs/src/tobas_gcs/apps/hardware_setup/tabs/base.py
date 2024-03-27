@@ -23,6 +23,7 @@ class BaseHardwareSetupWidget(ScrollArea):
     WAIT_FOR_SERVER = 1  # [s]
 
     E_FAILED_TO_CONNECT = "Failed to connect to the flight controller."
+    E_FAILED_TO_CALL_SRV = "Failed to call ROS service"
 
     NAME = UNKNOWN
     TITLE = UNKNOWN

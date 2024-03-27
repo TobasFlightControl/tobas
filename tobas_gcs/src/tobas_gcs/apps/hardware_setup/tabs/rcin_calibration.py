@@ -307,7 +307,12 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        res: TriggerResponse = calib_cancel_sc.call(TriggerRequest())
+        try:
+            res: TriggerResponse = calib_cancel_sc.call(TriggerRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return
@@ -337,7 +342,12 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        res: TriggerResponse = calib_start_sc.call(TriggerRequest())
+        try:
+            res: TriggerResponse = calib_start_sc.call(TriggerRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return
@@ -390,7 +400,12 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         req.gpsw_on = self._gpsw_range.get_lower()
         req.gpsw_off = self._gpsw_range.get_upper()
 
-        res: RCInputCalibrationResponse = calib_finish_sc.call(req)
+        try:
+            res: RCInputCalibrationResponse = calib_finish_sc.call(req)
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return

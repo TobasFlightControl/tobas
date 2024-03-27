@@ -98,7 +98,12 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
         req = TriggerRequest()
 
-        res: TriggerResponse = calib_start_sc.call(req)
+        try:
+            res: TriggerResponse = calib_start_sc.call(req)
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return
@@ -123,7 +128,12 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
         req = MagCalibrationRequest()
 
-        res: MagCalibrationResponse = calib_finish_sc.call(req)
+        try:
+            res: MagCalibrationResponse = calib_finish_sc.call(req)
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return
@@ -145,7 +155,12 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        res: TriggerResponse = calib_cancel_sc.call(TriggerRequest())
+        try:
+            res: TriggerResponse = calib_cancel_sc.call(TriggerRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return

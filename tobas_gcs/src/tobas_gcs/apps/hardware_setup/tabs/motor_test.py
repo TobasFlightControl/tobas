@@ -108,7 +108,12 @@ class MotorTestWidget(BaseHardwareSetupWidget):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 
-        res: GetArmResponse = get_arm_sc.call(GetArmRequest())
+        try:
+            res: GetArmResponse = get_arm_sc.call(GetArmRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if res.arming:
             q_error(self, "Cannot start motor test because they are already armed.")
             return False
@@ -126,7 +131,12 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         req = SetArmRequest()
         req.arming = arming
 
-        res: SetArmResponse = set_arm_sc.call(req)
+        try:
+            res: SetArmResponse = set_arm_sc.call(req)
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return False

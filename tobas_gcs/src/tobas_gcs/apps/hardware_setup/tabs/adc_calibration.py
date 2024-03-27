@@ -85,7 +85,12 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         req = AdcCalibrationRequest()
         req.voltage = self._voltage.value()
 
-        res: AdcCalibrationResponse = adc_calib_sc.call(req)
+        try:
+            res: AdcCalibrationResponse = adc_calib_sc.call(req)
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return
+
         if not res.success:
             q_error(self, res.message)
             return
