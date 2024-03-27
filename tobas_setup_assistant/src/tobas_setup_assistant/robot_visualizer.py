@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
+import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -86,7 +87,10 @@ class RobotVisualizerWidget(Widget):
             # Joint State Publisher GUIを削除
             self._cols.removeWidget(self._jsp_gui)
 
-            # バックグラウンドのスレッドとプロセスを終了
-            self._jsp_thread.kill()
+            # バックグラウンドのスレッドを終了
+            if not self._jsp_thread.kill():
+                rospy.logwarn("Failed to kill the thread of joint state publisher.")
+
+            # バックグラウンドのプロセスを終了
             self._rsp_process.terminate()
             self._js2drs_process.terminate()
