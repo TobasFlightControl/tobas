@@ -153,8 +153,10 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             return
 
         # Wi-Fiを再起動
-        rospy.loginfo("Restarting dhcpcd.service.")
-        command = "systemctl restart dhcpcd.service"
+        rospy.loginfo("Restarting network.")
+        command = "wpa_cli -i wlan0 reconfigure"
+        # command = "systemctl restart dhcpcd.service"  # DHCPCDサーバを再起動するとアクセスポイントの接続が中断される
+        # command = "ip link set wlan0 down && ip link set wlan0 up"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to restart DHCPCD:\n\n{error_output}")
