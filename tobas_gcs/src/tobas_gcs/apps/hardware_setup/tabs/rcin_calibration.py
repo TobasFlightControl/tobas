@@ -356,7 +356,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             return
 
         # 購読するトピックを更新
-        self._rcin_sub = rospy.Subscriber(rcin_topic, RCInput, self._rcin_cb, queue_size=10)
+        self._rcin_sub = rospy.Subscriber(rcin_topic, RCInput, self._rcin_cb, queue_size=1)
 
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)
