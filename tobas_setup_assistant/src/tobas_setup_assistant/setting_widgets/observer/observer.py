@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from typing import List
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -52,12 +52,12 @@ class ObserverWidget(BaseSettingWidget):
         self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._type.currentTextChanged.connect(self._on_type_changed)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select observer type.")

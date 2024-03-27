@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from typing import List
 from dataclasses import dataclass
 from PyQt5.QtCore import *
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
-from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.widgets import Widget, ComboBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_kdl_sympy.frames import Vector
 
@@ -71,7 +71,7 @@ class Frame:
         return self._frame_class.num_props
 
 
-class ChannelsWidget(QWidget):
+class ChannelsWidget(Widget):
     NO_SELECT = "Select link name"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -266,13 +266,13 @@ class ArduCopter(BaseController):
         self._channels = ChannelsWidget(main)
         self._rows.addWidget(self._channels)
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         self._channels.define_connections()
         self._frame.index_changed.connect(self._on_frame_idx_changed)
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
-    @overrides
+    @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing
@@ -293,7 +293,7 @@ class ArduCopter(BaseController):
 
         return True
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         selected = self._selected()
 
@@ -328,7 +328,7 @@ class ArduCopter(BaseController):
 
         return True
 
-    @overrides
+    @override
     def parameter_dict(self) -> dict:
         return {
             "arducopter": {

@@ -20,7 +20,7 @@ class BaseSettingWidget(ScrollArea):
     NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, title_text: str, abst_text: str) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         self.setEnabled(False)  # 基本的にモデルが読み込まれて初めてアクティブになる

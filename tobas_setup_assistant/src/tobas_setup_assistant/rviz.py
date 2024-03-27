@@ -10,18 +10,18 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import create_rviz_frame
+from tobas_rqt_tools.widgets import Widget, create_rviz_frame
 
 from .common import *
 
 
-class RvizWidget(QWidget):
+class RvizWidget(Widget):
     MIN_WIDTH = 300
     DEFAULT_VISUAL_ENABLED = True
     DEFAULT_COLLISION_ENABLED = False
 
     def __init__(self, main: SetupAssistant):
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         self._highlighted_link = ""

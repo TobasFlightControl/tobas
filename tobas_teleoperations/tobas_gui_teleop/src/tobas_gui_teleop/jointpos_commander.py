@@ -7,12 +7,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import FloatSliderDisplay
+from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
 
 from .common import *
 
 
-class JointPositionsCommanderWidget(QWidget):
+class JointPositionsCommanderWidget(Widget):
     POSITION = "position"
     VELOCITY = "velocity"
     EFFORT = "effort"

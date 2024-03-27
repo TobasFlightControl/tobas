@@ -8,7 +8,7 @@ import os
 import os.path as osp
 import re
 import subprocess
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -63,13 +63,13 @@ class RosPackageWidget(BaseSettingWidget):
 
         self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._pkg_path.define_connections()
         self._pkg_path.path_changed.connect(self._on_path_changed)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         pardir = self._pkg_path.pardir
         if not osp.isdir(pardir):

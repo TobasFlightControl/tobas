@@ -1,4 +1,4 @@
-import subprocess
+from subprocess import Popen
 import roslaunch
 from roslaunch import rlutil, parent
 from typing import List
@@ -21,10 +21,10 @@ def create_launcher(
     return launcher
 
 
-def rosrun(pkg_name: str, node_type: str, node_name: str = None) -> None:
+def rosrun(pkg_name: str, node_type: str, node_name: str = None) -> Popen:
     command = ["rosrun", pkg_name, node_type]
     if node_name is not None:
         command += [f"__name:={node_name}"]
 
     # バックグラウンドでrosrunを実行
-    subprocess.Popen(command)
+    return Popen(command)

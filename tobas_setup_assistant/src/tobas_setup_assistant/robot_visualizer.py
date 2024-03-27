@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from threading import Thread
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -12,22 +12,25 @@ from joint_state_publisher import JointStatePublisher
 from joint_state_publisher_gui import JointStatePublisherGui
 
 from tobas_std_tools_py.threading import KillableThread
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.roslaunch import rosrun
 
 from .frame_tree import FrameTreeWidget
 from .rviz import RvizWidget
 
 
-class RobotVisualizerWidget(QWidget):
+class RobotVisualizerWidget(Widget):
     HEIGHT = 350
     JSP_WIDTH = 200
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         self._jsp_gui = None
         self._jsp_thread = None
+        self._rsp_process = None
+        self._js2drs_process = None
 
         self._cols = QHBoxLayout()
         self.setLayout(self._cols)
@@ -41,6 +44,11 @@ class RobotVisualizerWidget(QWidget):
         self.setFixedHeight(self.HEIGHT)
         self.setVisible(False)
 
+    @override
+    def close(self) -> bool:
+        self._terminate_backgrounds()
+        return super().close()
+
     def define_connections(self) -> None:
         self._frame_tree.define_connections()
         self._rviz.define_connections()
@@ -51,21 +59,15 @@ class RobotVisualizerWidget(QWidget):
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
-        if self._jsp_gui is not None:
-            # Joint State Publisher GUIを削除
-            self._cols.removeWidget(self._jsp_gui)
+        self._terminate_backgrounds()
 
-            # バックグラウンドのスレッドをキル
-            self._jsp_thread.kill()
-
-        # Robot State Publisherを別スレッドで起動
+        # Robot State Publisherを別プロセスで起動
         # Arrow等の表示に必要なTFを発行する役割
         # robot_descriptionがrosparamに登録された後に立ち上げる必要がある
-        Thread(target=lambda: rosrun("robot_state_publisher", "robot_state_publisher")).start()
+        self._rsp_process = rosrun("robot_state_publisher", "robot_state_publisher")
 
-        # JointState -> DisplayRobotStateの変換ノードを別スレッドで起動
-        # ROSノードは同名があれば自動でシャットダウンされるため，手動でスレッドをキルする必要はない
-        Thread(target=lambda: rosrun("tobas_setup_assistant", "js2drs_node.py")).start()
+        # JointState -> DisplayRobotStateの変換ノードを別プロセスで起動
+        self._js2drs_process = rosrun("tobas_setup_assistant", "js2drs_node.py")
 
         # Joint State Publisherを別スレッドで起動
         jsp = JointStatePublisher()
@@ -78,3 +80,13 @@ class RobotVisualizerWidget(QWidget):
         self._cols.addWidget(self._jsp_gui)
 
         self.setVisible(True)
+
+    def _terminate_backgrounds(self) -> None:
+        if self._jsp_gui is not None:
+            # Joint State Publisher GUIを削除
+            self._cols.removeWidget(self._jsp_gui)
+
+            # バックグラウンドのスレッドとプロセスを終了
+            self._jsp_thread.kill()
+            self._rsp_process.terminate()
+            self._js2drs_process.terminate()

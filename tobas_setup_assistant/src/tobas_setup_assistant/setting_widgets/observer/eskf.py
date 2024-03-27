@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -96,7 +96,7 @@ class ErrorStateKalmanFilter(BaseObserver):
         )
         self._rows.addWidget(self._gravity_noise_var_log10)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
         no_gps = not self._main.settings.gps.equipped()
@@ -109,7 +109,7 @@ class ErrorStateKalmanFilter(BaseObserver):
 
         return True
 
-    @overrides
+    @override
     def parameter_dict(self) -> dict:
         gps = self._main.settings.gps
 

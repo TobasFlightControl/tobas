@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
-from tobas_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.widgets import Widget, DoubleSpinBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
@@ -19,7 +19,7 @@ from ...common import *
 from .common import STABILITY_COEF_DECIMALS
 
 
-class AerodynamicsCoefficientsWidget(QWidget):
+class AerodynamicsCoefficientsWidget(Widget):
     BTN_HEIGHT = 30
     BTN_WIDTH = 150
     LAST_OPENED_DIR = "aerodynamics/last_opened_dir"

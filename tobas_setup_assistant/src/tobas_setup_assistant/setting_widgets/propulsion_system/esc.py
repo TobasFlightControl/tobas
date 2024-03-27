@@ -8,11 +8,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
+
 from ...parameter_getters import *
 from ...common import *
 
 
-class EscWidget(QWidget):
+class EscWidget(Widget):
     SIGNAL_MODE_MAP = {
         "BLHeli Open Loop": "blheli_open_loop",
         "BHLeli Closed Loop (Low Range)": "blheli_closed_loop_low_range",

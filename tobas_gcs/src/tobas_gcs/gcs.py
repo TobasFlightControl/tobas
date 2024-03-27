@@ -2,16 +2,16 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.widgets import Widget, ComboBox
 
 from .common import *
 from .apps import *
 from .package_manager import PackageManagerWidget
 
 
-class GroundControlStationWidget(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
+class GroundControlStationWidget(Widget):
+    def __init__(self, parent: Widget = None) -> None:
+        super().__init__(parent=parent)
 
         self.signals = Signals()
 

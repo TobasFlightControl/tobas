@@ -8,14 +8,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
 from tobas_setup_assistant.setup_assistant import SetupAssistant
 
 
-class SetupAssistantWidget(QWidget):
+class SetupAssistantWidget(Widget):
     NAME = "Setup Assistant"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         rows = QVBoxLayout()

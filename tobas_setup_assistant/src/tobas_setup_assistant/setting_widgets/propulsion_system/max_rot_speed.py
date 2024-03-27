@@ -11,14 +11,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rpm2rps
-from tobas_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.widgets import Widget, DoubleSpinBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...common import *
 from .common import PROPULSION_SYSTEM
 
 
-class MaxRotationSpeedWidget(QWidget):
+class MaxRotationSpeedWidget(Widget):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
         self._main = main
@@ -75,7 +75,7 @@ class MaxRotationSpeedWidget(QWidget):
             raise RuntimeError("No method is selected.")
 
 
-class MaxRotationSpeedMethod(QWidget):
+class MaxRotationSpeedMethod(Widget):
     NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:

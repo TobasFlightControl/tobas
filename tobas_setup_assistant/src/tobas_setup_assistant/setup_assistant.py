@@ -2,6 +2,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
+
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
 from .robot_visualizer import RobotVisualizerWidget
@@ -9,10 +11,10 @@ from .settings import SettingsWidget
 from .common import *
 
 
-class SetupAssistant(QWidget):
+class SetupAssistant(Widget):
 
-    def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(parent)
+    def __init__(self, parent: Widget = None) -> None:
+        super().__init__(parent=parent)
 
         self.urdf_parser = URDFParser(self)
         self.pkg_generator = PackageGenerator(self)

@@ -21,7 +21,7 @@ class HardwareSetupWidget(VerticalTabWidget):
     MIN_HEIGHT = 300
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         self._network_setting = NetworkSettingWidget(main)

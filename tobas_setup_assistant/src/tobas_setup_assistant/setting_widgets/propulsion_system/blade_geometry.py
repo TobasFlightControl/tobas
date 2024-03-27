@@ -9,11 +9,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
+
 from ...parameter_getters import *
 from ...common import *
 
 
-class BladeGeometry(QWidget):
+class BladeGeometry(Widget):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 

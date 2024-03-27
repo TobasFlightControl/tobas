@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 from tobas_tools_py.drone import Drone, DroneLoader_File
@@ -19,11 +20,11 @@ from .common import *
 from .utils.ssh_client import SSHClientWrapper
 
 
-class PackageManagerWidget(QWidget):
+class PackageManagerWidget(Widget):
     KEY = "last_opened_dir/tobas_configuration_package"
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)

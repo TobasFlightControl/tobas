@@ -5,13 +5,13 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from overrides import overrides
+from overrides import override
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.widgets import Widget,ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
@@ -51,12 +51,12 @@ class BatteryWidget(BaseSettingWidget):
         self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._type.currentTextChanged.connect(self._on_battery_type_changed)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select battery type.")
@@ -116,7 +116,7 @@ class BatteryWidget(BaseSettingWidget):
         self._update_visibility()
 
 
-class BatteryWidget_Base(QWidget):
+class BatteryWidget_Base(Widget):
     NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -224,35 +224,35 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         rows.addWidget(self._registance)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         return True
 
-    @overrides
+    @override
     def nominal_voltage(self) -> float:
         return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
 
-    @overrides
+    @override
     def max_voltage(self) -> float:
         return self._num_cells.get() * self.MAX_VOLTAGE_PER_CELL
 
-    @overrides
+    @override
     def sag_voltage(self) -> float:
         return self._num_cells.get() * self.SAG_VOLTAGE_PER_CELL
 
-    @overrides
+    @override
     def max_current(self) -> float:
         return self._capacity.get() * self._C_cont.get() / 1000
 
-    @overrides
+    @override
     def capacity(self) -> float:
         return self._capacity.get() * 3600 / 1000
 
-    @overrides
+    @override
     def internal_registance(self) -> float:
         return self._num_cells.get() * self._registance.get() / 1000
 
-    @overrides
+    @override
     def voltage_threshold(self) -> float:
         return self._num_cells.get() * self.VOLTAGE_THR_PER_CELL
 
@@ -330,36 +330,36 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         rows.addWidget(self._registance)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._max_voltage.get() <= self._sag_voltage.get():
             q_error_named(self._main, self.NAME, "Maximum voltage must be greater than voltage threshold.")
             return False
 
-    @overrides
+    @override
     def nominal_voltage(self) -> float:
         return self._nominal_voltage.get()
 
-    @overrides
+    @override
     def max_voltage(self) -> float:
         return self._max_voltage.get()
 
-    @overrides
+    @override
     def sag_voltage(self) -> float:
         return self._sag_voltage.get()
 
-    @overrides
+    @override
     def max_current(self) -> float:
         return self._max_current.get()
 
-    @overrides
+    @override
     def capacity(self) -> float:
         return self._capacity.get() * 3600 / 1000
 
-    @overrides
+    @override
     def internal_registance(self) -> float:
         return self._registance.get() / 1000
 
-    @overrides
+    @override
     def voltage_threshold(self) -> float:
         return self.sag_voltage()  # TODO: sag_voltageとは分けるべきかも

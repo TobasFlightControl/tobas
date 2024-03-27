@@ -1,11 +1,11 @@
 from __future__ import annotations
 import os
-import os.path as osp
+import signal
 import random
 import markdown
 import rospy
 from typing import Callable
-from overrides import overrides
+from overrides import override
 from rviz import bindings as rviz
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -14,6 +14,22 @@ from PyQt5.QtGui import *
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 
 from .utils import remap
+
+
+class Widget(QWidget):
+    """
+    ===== QWidgetとの違い =====
+    - closeで子ウィジェットのcloseを再帰的に呼び出す
+    """
+
+    @override
+    def close(self) -> bool:
+        rospy.logdebug(f"{self.__class__.__name__}.close")
+
+        for child in self.findChildren(Widget):
+            child.close()
+
+        return super().close()
 
 
 class SpinBox(QSpinBox):
@@ -33,11 +49,11 @@ class SpinBox(QSpinBox):
         self.setMaximum(self.INT32_MAX)
         self.setMinimum(self.INT32_MIN)
 
-    @overrides
+    @override
     def wheelEvent(self, e: QWheelEvent) -> None:
         e.ignore()
 
-    @overrides
+    @override
     def focusInEvent(self, e) -> None:
         super().focusInEvent(e)
         QTimer.singleShot(0, lambda: self.selectAll())
@@ -57,11 +73,11 @@ class DoubleSpinBox(QDoubleSpinBox):
         self.setMaximum(float("inf"))
         self.setMinimum(float("-inf"))
 
-    @overrides
+    @override
     def wheelEvent(self, e: QWheelEvent) -> None:
         e.ignore()
 
-    @overrides
+    @override
     def focusInEvent(self, e) -> None:
         super().focusInEvent(e)
         QTimer.singleShot(0, lambda: self.selectAll())
@@ -74,7 +90,7 @@ class ComboBox(QComboBox):
     - 追加メソッド
     """
 
-    @overrides
+    @override
     def wheelEvent(self, e: QWheelEvent) -> None:
         e.ignore()
 
@@ -107,7 +123,7 @@ class Slider(QSlider):
     - マウスホイールイベントを無効化
     """
 
-    @overrides
+    @override
     def wheelEvent(self, e: QWheelEvent) -> None:
         e.ignore()
 
@@ -132,28 +148,28 @@ class FloatSlider(QSlider):
 
         super().valueChanged.connect(self._on_slider_value_changed)
 
-    @overrides
+    @override
     def minimum(self) -> float:
         return self._min
 
-    @overrides
+    @override
     def setMinimum(self, minimum: float) -> None:
         self._min = minimum
 
-    @overrides
+    @override
     def maximum(self) -> float:
         return self._max
 
-    @overrides
+    @override
     def setMaximum(self, maximum: float) -> None:
         self._max = maximum
 
-    @overrides
+    @override
     def value(self) -> float:
         slider_value = super().value()
         return self._value_from_slider(slider_value)
 
-    @overrides
+    @override
     def setValue(self, value: float) -> None:
         slider_value = int(remap(value, self._min, self._max, 0.0, self.RANGE))
         super().setValue(slider_value)
@@ -173,7 +189,7 @@ class TabBar(QTabBar):
     - マウスホイールイベントを無効化
     """
 
-    @overrides
+    @override
     def wheelEvent(self, e: QWheelEvent) -> None:
         e.ignore()
 
@@ -195,7 +211,7 @@ class ListWidgetItem(QListWidgetItem):
     - UserRoleを基準にソート
     """
 
-    @overrides
+    @override
     def __lt__(self, other: ListWidgetItem) -> bool:
         return self.data(Qt.UserRole) < other.data(Qt.UserRole)
 
@@ -212,7 +228,7 @@ class ScrollArea(QScrollArea):
 
         self.setWidgetResizable(True)
 
-    @overrides
+    @override
     def setLayout(self, layout: QLayout) -> None:
         # デフォルトのsetLayoutは親クラスであるQWidgetの名残であり，そのままでは使用できない
         # スクロールエリアに入れられるウィジェットは1つのみだから，Layoutを使うためには空のウィジェットを挟む必要がある
@@ -241,7 +257,6 @@ class MainWidget(QWidget):
     メイン画面
     - Configを作成
     - 最新のウィンドウ位置とサイズを保存
-    - 終了時にROSノードを落とす
     """
 
     POS_X_KEY = "main_window/pos_x"
@@ -258,7 +273,8 @@ class MainWidget(QWidget):
         # ウィジェットを配置
         rows = QVBoxLayout()
         self.setLayout(rows)
-        rows.addWidget(widget)
+        self._widget = widget
+        rows.addWidget(self._widget)
 
         # configを読み込み
         self._config = ConfigParserWrapper(config_path, section)
@@ -271,7 +287,16 @@ class MainWidget(QWidget):
         if pos_x >= 0 and pos_y >= 0 and width > 0 and height > 0:
             self.setGeometry(pos_x, pos_y, width, height)
 
-    @overrides
+    @override
+    def closeEvent(self, _: QCloseEvent) -> None:
+        rospy.logdebug(f"{self.__class__.__name__}.closeEvent")
+
+        self._widget.close()
+
+        # メインウィンドウが閉じられる時にプロセスごと落とすことで，確実に終了させる．
+        os.kill(os.getpid(), signal.SIGINT)
+
+    @override
     def moveEvent(self, event: QMoveEvent) -> None:
         # 現在のウィンドウ位置を保存
         self._config.read()
@@ -282,7 +307,7 @@ class MainWidget(QWidget):
 
         return super().moveEvent(event)
 
-    @overrides
+    @override
     def resizeEvent(self, event: QResizeEvent) -> None:
         # 現在のウィンドウサイズを保存
         self._config.read()
@@ -292,11 +317,6 @@ class MainWidget(QWidget):
         self._config.write()
 
         return super().resizeEvent(event)
-
-    @overrides
-    def closeEvent(self, event: QCloseEvent) -> None:
-        rospy.signal_shutdown("Main window is closed.")
-        return super().closeEvent(event)
 
 
 class IntSliderDisplay(QWidget):

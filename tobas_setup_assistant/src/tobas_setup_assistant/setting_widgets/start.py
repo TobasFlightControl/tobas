@@ -6,12 +6,13 @@ if TYPE_CHECKING:
 
 import os
 import os.path as osp
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import create_launcher
 from tobas_tools_py.constants import CONFIG_PATH
@@ -43,16 +44,16 @@ class StartWidget(BaseSettingWidget):
 
         self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         self._robot_model_loader.define_connections()
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         return True
 
 
-class RobotModelLoaderWidget(QWidget):
+class RobotModelLoaderWidget(Widget):
     KEY = "last_opened_dir/robot_model_loader"
 
     def __init__(self, main: SetupAssistant) -> None:

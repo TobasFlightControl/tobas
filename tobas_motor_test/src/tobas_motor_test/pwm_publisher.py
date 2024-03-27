@@ -4,13 +4,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import IntSliderDisplay
+from tobas_rqt_tools.widgets import Widget,IntSliderDisplay
 from tobas_msgs.msg import Pwm, PwmArray
 
 from .common import *
 
 
-class PwmPublisherWidget(QWidget):
+class PwmPublisherWidget(Widget):
     MAX_ROWS = SERVO_RAIL_SIZE // 2
 
     def __init__(self) -> None:

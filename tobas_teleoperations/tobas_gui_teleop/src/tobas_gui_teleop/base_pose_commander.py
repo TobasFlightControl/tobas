@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.geometry import euler_from_matrix
-from tobas_rqt_tools.widgets import FloatSliderDisplay
+from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -18,7 +18,7 @@ from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 from .common import *
 
 
-class BasePoseCommanderWidget(QWidget):
+class BasePoseCommanderWidget(Widget):
     # Constants
     HOME_ALTITUDE = 3.0  # [m]
     WAIT_FOR_SERVICE = 1.0  # [s]

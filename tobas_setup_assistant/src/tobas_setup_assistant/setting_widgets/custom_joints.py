@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -60,12 +60,12 @@ class CustomJointsWidget(BaseSettingWidget):
 
         self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         for i in range(self.count()):
             jnt_name = self.joint_name(i)

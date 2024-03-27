@@ -8,17 +8,18 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.utils import place_center
 
 
-class StartWidget(QWidget):
+class StartWidget(Widget):
     NAME = "Start"
 
     TITLE_PSIZE = 50
     SUBTITLE_PSIZE = 20
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         rows = QVBoxLayout()

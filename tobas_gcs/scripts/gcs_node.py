@@ -16,7 +16,7 @@ from tobas_gcs.common import *
 
 if __name__ == "__main__":
     node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    rospy.init_node(node_name, log_level=rospy.DEBUG)
 
     app = QApplication(sys.argv)
 
@@ -30,7 +30,6 @@ if __name__ == "__main__":
     main_widget.show()
 
     # Ctrl+Cを検出したらプロセスを落とす
-    # 何故かこの位置に書いたときのみ機能する
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     sys.exit(app.exec())

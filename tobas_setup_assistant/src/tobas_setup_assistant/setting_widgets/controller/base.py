@@ -4,15 +4,17 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+import rospy
 from abc import abstractmethod
 from typing import List, final
-import rospy
+from overrides import override
 from dynamic_reconfigure import client
 from dynamic_reconfigure.msg import ConfigDescription
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.roslaunch import rosrun
 from tobas_rqt_tools.dynamic_reconfigure import get_param_config
 
@@ -21,7 +23,7 @@ from ...common import *
 PARAM_DESCRIPTION_TIMEOUT = 3
 
 
-class BaseController(QWidget):
+class BaseController(Widget):
     NAME = UNKNOWN
     CONTROLLER_PKG = UNKNOWN
     TAKEOFF_PKG = UNKNOWN
@@ -31,11 +33,11 @@ class BaseController(QWidget):
     PARAM_SERVER_NODE = UNKNOWN
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         # 動的パラメータの設定を取得
-        rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
+        self._param_server_process = rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
         cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
         self._configs: List[dict] = cli.get_parameter_descriptions()
 
@@ -44,6 +46,11 @@ class BaseController(QWidget):
 
         abst = Description(abst_text)
         self._rows.addWidget(abst)
+
+    @override
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._param_server_process.terminate()
+        return super().closeEvent(event)
 
     @abstractmethod
     def define_connections(self) -> None:

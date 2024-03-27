@@ -7,13 +7,13 @@ from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_tools_py.drone import Drone, DroneLoader_Param
-from tobas_rqt_tools.widgets import IntSliderDisplay
+from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
 from .common import *
 
 
-class RotorSpeedsPublisherWidget(QWidget):
+class RotorSpeedsPublisherWidget(Widget):
 
     def __init__(self) -> None:
         super().__init__()

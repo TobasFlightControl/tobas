@@ -8,13 +8,13 @@ import numpy as np
 from numpy import linalg as LA
 from abc import abstractmethod
 from typing import final, Tuple, List
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rpm2rps
-from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.widgets import Widget, ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
@@ -23,7 +23,7 @@ from .common import PROPULSION_SYSTEM
 from .max_rot_speed import MaxRotationSpeedWidget
 
 
-class MotorWidget(QWidget):
+class MotorWidget(Widget):
     NO_SELECT = "Select setting method"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -129,7 +129,7 @@ class MotorWidget(QWidget):
         self._update_visibility()
 
 
-class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
+class MotorWidget_Base(Widget):  # NOTE: ABCを継承するとバグる
     NAME = UNKNOWN
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -268,14 +268,14 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
         )
         self._rows.addWidget(self._resistance)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not super().is_valid():
             return False
 
         return True
 
-    @overrides
+    @override
     def rot_speed_coefs(self) -> Tuple[float, float]:
         kv_si = rpm2rps(self._kv.get())  # [rad/s/V]
         R = self._resistance.get() * 1e-3  # [Ω]
@@ -291,7 +291,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
         b = R * aero.motor_const() * aero.moment_const() / kt
         return a, b
 
-    @overrides
+    @override
     def copy_from(self, src: MotorWidget_MotorSpec) -> None:
         super().copy_from(src)
         self._kv.set(src._kv.get())
@@ -326,7 +326,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not super().is_valid():
             return False
@@ -337,7 +337,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
         return True
 
-    @overrides
+    @override
     def rot_speed_coefs(self) -> Tuple[float, float]:
         # TODO: 外れ値を除去
         # TODO: あまりにモデルからかけ離れていたら警告を出す
@@ -354,7 +354,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
         return a, b
 
-    @overrides
+    @override
     def copy_from(self, src: MotorWidget_Experiment) -> None:
         super().copy_from(src)
         self._data.set(src._data.get())

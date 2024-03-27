@@ -11,6 +11,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from overrides import override
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.path import get_catkin_ws_path
 from tobas_rqt_tools.roslaunch import create_launcher
@@ -20,7 +22,7 @@ from ...utils.ssh_client import SSHClientWrapper
 from ...utils.system import kill_gazebo
 
 
-class SimulationWidget(QWidget):
+class SimulationWidget(Widget):
     NAME = "Simulation"
 
     BUTTON_WIDTH = 100
@@ -28,7 +30,7 @@ class SimulationWidget(QWidget):
     WAIT_GAZEBO_TO_OPEN = 3.0  # [s]
 
     def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
+        super().__init__(parent=main)
         self._main = main
 
         self.setEnabled(False)  # configパッケージが読み込まれたら有効化
@@ -58,6 +60,15 @@ class SimulationWidget(QWidget):
         # TODO: Wind Parameters
 
         rows.addStretch()
+
+    @override
+    def close(self) -> bool:
+        if self._gazebo_launcher is not None:
+            self._gazebo_launcher.shutdown()
+        if self._bringup_launcher is not None:
+            self._bringup_launcher.shutdown()
+
+        return super().close()
 
     def define_connections(self) -> None:
         self._main.signals.config_pkg_updated.connect(self._on_config_pkg_updated)

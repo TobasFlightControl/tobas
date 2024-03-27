@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
+from tobas_rqt_tools.widgets import Widget, DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
@@ -35,7 +35,7 @@ class ControlSurface:
         self.c_yaw_delta = 0.0  # [/rad]
 
 
-class ControlSurfacesWidget(QWidget):
+class ControlSurfacesWidget(Widget):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
@@ -189,7 +189,7 @@ class AvailableLinksWidget(QListWidget):
         return len(items) > 0
 
 
-class AddDeleteButtonsWidget(QWidget):
+class AddDeleteButtonsWidget(Widget):
     BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
 
