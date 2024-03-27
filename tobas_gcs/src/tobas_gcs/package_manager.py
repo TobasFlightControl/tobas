@@ -123,16 +123,23 @@ class PackageManagerWidget(Widget):
         pkg_name = pkg_path.split("/")[-1]
 
         # Tobasパッケージを送信
+        # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
         rospy.loginfo("Sending Tobas configuration package.")
         self._ssh_client.scp_put(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
 
-        # ビルド
+        # Tobasパッケージをビルド
+        # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
+        # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
         rospy.loginfo("Building Tobas configuration package.")
-        command = f"cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
+        command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
         success, _, error_output = self._ssh_client.exec_command(command)
-        if not success:
-            q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
-            return
+        if not success:  # ビルドできなければcatkin cleanして再試行
+            rospy.logwarn("Failed to build. Retrying...")
+            command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {pkg_name}"
+            success, _, error_output = self._ssh_client.exec_command(command)
+            if not success:
+                q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
+                return
 
         # 環境変数TOBAS_CONFIG_PKGを設定
         rospy.loginfo("Setting environment variables")
