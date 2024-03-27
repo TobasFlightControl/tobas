@@ -33,15 +33,7 @@ class Inertia(ET.Element):
         assert iyy > 0.0
         assert izz > 0.0
 
-        super().__init__(
-            "inertia",
-            ixx=f"{ixx}",
-            ixy=f"{ixy}",
-            ixz=f"{ixz}",
-            iyy=f"{iyy}",
-            iyz=f"{iyz}",
-            izz=f"{izz}",
-        )
+        super().__init__("inertia", ixx=f"{ixx}", ixy=f"{ixy}", ixz=f"{ixz}", iyy=f"{iyy}", iyz=f"{iyz}", izz=f"{izz}")
 
 
 class Geometry(ET.Element):
@@ -78,11 +70,7 @@ class Inertial(ET.Element):
 
 class Link(ET.Element):
     def __init__(
-        self,
-        name: str,
-        inertial: Inertial = None,
-        visual: Visual = None,
-        collision: Collision = None,
+        self, name: str, inertial: Inertial = None, visual: Visual = None, collision: Collision = None
     ) -> None:
         super().__init__("link", name=name)
 
@@ -108,25 +96,11 @@ class Child(ET.Element):
 
 class Limit(ET.Element):
     def __init__(self, upper: float, lower: float, velocity: float, effort: float) -> None:
-        super().__init__(
-            "limit",
-            upper=f"{upper}",
-            lower=f"{lower}",
-            velocity=f"{velocity}",
-            effort=f"{effort}",
-        )
+        super().__init__("limit", upper=f"{upper}", lower=f"{lower}", velocity=f"{velocity}", effort=f"{effort}")
 
 
 class Joint(ET.Element):
-    def __init__(
-        self,
-        name: str,
-        type: str,
-        parent: str,
-        child: str,
-        origin: Origin = None,
-        limit: Limit = None,
-    ):
+    def __init__(self, name: str, type: str, parent: str, child: str, origin: Origin = None, limit: Limit = None):
         super().__init__("joint", name=name, type=type)
 
         self.append(Parent(parent))

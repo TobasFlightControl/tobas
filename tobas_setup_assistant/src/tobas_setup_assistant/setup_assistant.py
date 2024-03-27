@@ -12,7 +12,6 @@ from .common import *
 
 
 class SetupAssistant(Widget):
-
     def __init__(self, parent: Widget = None) -> None:
         super().__init__(parent=parent)
 

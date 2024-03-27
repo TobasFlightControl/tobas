@@ -238,18 +238,8 @@ class ArduCopter(BaseController):
             Frame("OCTO QUAD V", octa_quad, v, [CCW, CW, CCW, CW, CCW, CW, CCW, CW]),
             Frame("OCTO QUAD H", octa_quad, h, [CW, CCW, CW, CCW, CW, CCW, CW, CCW]),
             # DodecaHexacopter
-            Frame(
-                "DOCECA HEXA X",
-                dodeca_hexa,
-                x,
-                [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW],
-            ),
-            Frame(
-                "DOCECA HEXA +",
-                dodeca_hexa,
-                plus,
-                [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW],
-            ),
+            Frame("DOCECA HEXA X", dodeca_hexa, x, [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW]),
+            Frame("DOCECA HEXA +", dodeca_hexa, plus, [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW]),
         ]
 
         frame_description = (
@@ -257,9 +247,7 @@ class ArduCopter(BaseController):
             "<a href='https://ardupilot.org/copter/docs/connect-escs-and-motors.html#motor-order-diagrams'>"
         )
         self._frame = ParamGetterWidget_ComboBox(
-            "Frame Type",
-            frame_description,
-            [frame.name() for frame in self._frames],
+            "Frame Type", frame_description, [frame.name() for frame in self._frames]
         )
         self._rows.addWidget(self._frame)
 

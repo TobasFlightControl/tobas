@@ -22,12 +22,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
     data_changed = pyqtSignal()
 
-    def __init__(
-        self,
-        param_name: str,
-        labels: List[str],
-        description_text: str = None,
-    ) -> None:
+    def __init__(self, param_name: str, labels: List[str], description_text: str = None) -> None:
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用

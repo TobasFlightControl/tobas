@@ -180,11 +180,7 @@ class DynamicConfigurationWidget(Widget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            TITLE,
-            last_opened_dir,
-            "Parameter Files (*.params)",
-            options=options,
+            self, TITLE, last_opened_dir, "Parameter Files (*.params)", options=options
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
@@ -213,11 +209,7 @@ class DynamicConfigurationWidget(Widget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getSaveFileName(  # 上書きするかどうかの確認も自動でやってくれる
-            self,
-            TITLE,
-            last_opened_dir,
-            "Parameter Files (*.params)",
-            options=options,
+            self, TITLE, last_opened_dir, "Parameter Files (*.params)", options=options
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)

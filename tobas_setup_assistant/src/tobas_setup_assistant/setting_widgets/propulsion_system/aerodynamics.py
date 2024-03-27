@@ -140,12 +140,7 @@ class AerodynamicsWidget_Base(Widget):
 
         max_model_error_rate_description = "Maximum error rate in the modeling of aerodynamic constants."
         self._max_model_error_rate = ParamGetterWidget_SpinBox(
-            "Max Model Error Rate",
-            max_model_error_rate_description,
-            minimum=0,
-            maximum=1000,
-            default=10,
-            suffix=" %",
+            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
         )
         self._rows.addWidget(self._max_model_error_rate)
 
@@ -206,12 +201,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
             "the torque generated in the opposite direction to the propeller's rotation, in Newton-meters, is N = c T."
         )
         self._moment_const = ParamGetterWidget_DoubleSpinBox(
-            "Moment Constant",
-            moment_const_description,
-            decimals=6,
-            minimum=0.0,
-            default=0.016,
-            suffix=" m",
+            "Moment Constant", moment_const_description, decimals=6, minimum=0.0, default=0.016, suffix=" m"
         )
         self._rows.addWidget(self._moment_const)
 
@@ -293,12 +283,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     def _blade_thory(self) -> BladeTheory:
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return BladeTheory(
-            blade.num_blade(),
-            blade.propeller_radius(),
-            blade.blade_chord(),
-            blade.pitch_angle(),
-        )
+        return BladeTheory(blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle())
 
 
 class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
@@ -323,9 +308,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
         data_description = "Please input experimental data from the Thrust Stand."
         self._data = ParamGetterWidget_DoubleTable(
-            "Data from thrust stand",
-            ["RPM", "Thrust", "Torque"],
-            description_text=data_description,
+            "Data from thrust stand", ["RPM", "Thrust", "Torque"], description_text=data_description
         )
         self._data.set_minimum([1e-1, 1e-6, 1e-6])  # TODO: 負の値にも対応
         self._data.set_decimals([0, 6, 6])
@@ -364,10 +347,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         blade_theory = BladeTheory(
-            blade.num_blade(),
-            blade.propeller_radius(),
-            blade.blade_chord(),
-            blade.pitch_angle(),
+            blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()
 
@@ -393,9 +373,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
         data_description = "Input the Static data for the relevant propeller."
         self._data = ParamGetterWidget_DoubleTable(
-            "Measurements in static condition",
-            ["RPM", "CT", "CP"],
-            description_text=data_description,
+            "Measurements in static condition", ["RPM", "CT", "CP"], description_text=data_description
         )
         self._data.set_minimum([1e-3, 1e-6, 1e-6])
         self._data.set_decimals([3, 6, 6])
@@ -419,7 +397,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
+        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi ** 2)
 
     @override
     def moment_const(self) -> float:
@@ -439,10 +417,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         blade_theory = BladeTheory(
-            blade.num_blade(),
-            blade.propeller_radius(),
-            blade.blade_chord(),
-            blade.pitch_angle(),
+            blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()
 

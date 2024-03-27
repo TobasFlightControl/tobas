@@ -27,41 +27,24 @@ class GpsWidget(BaseSettingWidget):
         self._equipped.setChecked(True)
         self._rows.addWidget(self._equipped)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""  # TODO
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=5,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=5, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
         delay_description = ""  # TODO
         self.delay = ParamGetterWidget_DoubleSpinBox(
-            "Communication delay",
-            delay_description,
-            decimals=2,
-            minimum=0.0,
-            default=0.2,
-            suffix=" s",
+            "Communication delay", delay_description, decimals=2, minimum=0.0, default=0.2, suffix=" s"
         )
         self._rows.addWidget(self.delay)
 
         pos_corr_time_description = ""  # TODO
         self.pos_corr_time = ParamGetterWidget_SpinBox(
-            "Position correction time constant",
-            pos_corr_time_description,
-            minimum=1,
-            default=10,
-            suffix=" s",
+            "Position correction time constant", pos_corr_time_description, minimum=1, default=10, suffix=" s"
         )
         self._rows.addWidget(self.pos_corr_time)
 

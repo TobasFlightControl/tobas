@@ -97,11 +97,7 @@ class RobotModelLoaderWidget(Widget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            TITLE,
-            last_opened_dir,
-            "Robot Description (*.urdf *.xacro)",
-            options=options,
+            self, TITLE, last_opened_dir, "Robot Description (*.urdf *.xacro)", options=options
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)

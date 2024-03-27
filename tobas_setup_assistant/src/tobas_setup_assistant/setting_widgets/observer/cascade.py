@@ -36,34 +36,19 @@ class CascadeKalmanFilter(BaseObserver):
 
         gain_acc_description = "Accelerometer gain for the orientation estimation."
         self._gain_acc = ParamGetterWidget_DoubleSpinBox(
-            "Acelerometer gain",
-            gain_acc_description,
-            decimals=3,
-            minimum=0.0,
-            maximum=1.0,
-            default=0.01,
+            "Acelerometer gain", gain_acc_description, decimals=3, minimum=0.0, maximum=1.0, default=0.01
         )
         self._rows.addWidget(self._gain_acc)
 
         gain_mag_description = "Magnetometer gain for the orientation estimation."
         self._gain_mag = ParamGetterWidget_DoubleSpinBox(
-            "Magnetometer gain",
-            gain_mag_description,
-            decimals=3,
-            minimum=0.0,
-            maximum=1.0,
-            default=0.01,
+            "Magnetometer gain", gain_mag_description, decimals=3, minimum=0.0, maximum=1.0, default=0.01
         )
         self._rows.addWidget(self._gain_mag)
 
         bias_alpha_description = "Bias estimation gain for the orientation estimation."
         self.bias_alpha = ParamGetterWidget_DoubleSpinBox(
-            "Bias estimation gain",
-            bias_alpha_description,
-            decimals=3,
-            minimum=0.0,
-            maximum=1.0,
-            default=0.01,
+            "Bias estimation gain", bias_alpha_description, decimals=3, minimum=0.0, maximum=1.0, default=0.01
         )
         self._rows.addWidget(self.bias_alpha)
 
@@ -71,19 +56,13 @@ class CascadeKalmanFilter(BaseObserver):
             "Whether to do bias estimation of the gyroscope readings " + "for the orientation estimation."
         )
         self._do_bias_estimation = ParamGetterWidget_CheckBox(
-            "Do bias estimation",
-            do_bias_estimation_description,
-            check_box_text="Do bias estimation",
-            default=True,
+            "Do bias estimation", do_bias_estimation_description, check_box_text="Do bias estimation", default=True
         )
         self._rows.addWidget(self._do_bias_estimation)
 
         do_adaptive_gain_description = "Whether to do adaptive gain for the orientation estimation."
         self._do_adaptive_gain = ParamGetterWidget_CheckBox(
-            "Do adaptive gain",
-            do_adaptive_gain_description,
-            check_box_text="Do adaptive gain",
-            default=False,
+            "Do adaptive gain", do_adaptive_gain_description, check_box_text="Do adaptive gain", default=False
         )
         self._rows.addWidget(self._do_adaptive_gain)
 

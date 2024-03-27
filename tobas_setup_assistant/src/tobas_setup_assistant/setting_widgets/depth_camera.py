@@ -58,43 +58,25 @@ class DepthCameraWidget(BaseSettingWidget):
 
         fov_description = ""
         self.fov = ParamGetterWidget_DoubleSpinBox(
-            "Horizontal Field of View",
-            fov_description,
-            decimals=6,
-            minimum=0.0,
-            default=1.59174,
-            suffix=" rad",
+            "Horizontal Field of View", fov_description, decimals=6, minimum=0.0, default=1.59174, suffix=" rad"
         )
         self._rows.addWidget(self.fov)
 
         baseline_description = ""
         self.baseline = ParamGetterWidget_DoubleSpinBox(
-            "Baseline",  # TODO
-            baseline_description,
-            decimals=6,
-            minimum=0.0,
-            default=0.05,
-            suffix="",  # TODO
+            "Baseline", baseline_description, decimals=6, minimum=0.0, default=0.05, suffix=""  # TODO  # TODO
         )
         self._rows.addWidget(self.baseline)
 
         image_width_description = ""
         self.image_width = ParamGetterWidget_SpinBox(
-            "Image Width",
-            image_width_description,
-            minimum=1,
-            default=848,
-            suffix=" px",
+            "Image Width", image_width_description, minimum=1, default=848, suffix=" px"
         )
         self._rows.addWidget(self.image_width)
 
         image_height_description = ""
         self.image_height = ParamGetterWidget_SpinBox(
-            "Image Height",
-            image_height_description,
-            minimum=1,
-            default=480,
-            suffix=" px",
+            "Image Height", image_height_description, minimum=1, default=480, suffix=" px"
         )
         self._rows.addWidget(self.image_height)
 
@@ -103,19 +85,13 @@ class DepthCameraWidget(BaseSettingWidget):
             "In the simulation, objects outside this range will be truncated."
         )
         self.depth_range = ParamGetterWidget_DoubleRange(
-            "Depth Range",
-            depth_range_description,
-            minimum=0.0,
-            default=(0.195, 50.0),
-            suffix=" m",
+            "Depth Range", depth_range_description, minimum=0.0, default=(0.195, 50.0), suffix=" m"
         )
         self._rows.addWidget(self.depth_range)
 
         noise_model_description = ""
         self.noise_model = ParamGetterWidget_ComboBox(
-            "Depth Noise Model",
-            noise_model_description,
-            DepthNoiseModel.get_all_values(),
+            "Depth Noise Model", noise_model_description, DepthNoiseModel.get_all_values()
         )
         self._rows.addWidget(self.noise_model)
 

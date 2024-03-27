@@ -2,11 +2,7 @@ from xml.etree import ElementTree as ET
 
 
 class GroundTruthStateModel(ET.Element):
-    def __init__(
-        self,
-        ns: str,
-        link_name: str,
-    ) -> None:
+    def __init__(self, ns: str, link_name: str) -> None:
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")

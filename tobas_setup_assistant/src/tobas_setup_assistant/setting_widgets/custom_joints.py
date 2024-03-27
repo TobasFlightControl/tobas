@@ -163,11 +163,7 @@ class CustomJointsWidget(BaseSettingWidget):
 
         for joint in self._main.urdf_parser.get_joints():
             # ジョイントタイプが回転または直動でない場合はスキップ
-            if joint.type not in {
-                JointType.REVOLUTE,
-                JointType.CONTINUOUS,
-                JointType.PRISMATIC,
-            }:
+            if joint.type not in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
                 continue
 
             # トランスミッションを持たない場合はスキップ

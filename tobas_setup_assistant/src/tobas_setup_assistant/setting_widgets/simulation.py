@@ -27,12 +27,7 @@ class SimulationWidget(BaseSettingWidget):
 
         gravity_description = ""
         self.gravity = ParamGetterWidget_DoubleSpinBox(
-            "Gravity",
-            gravity_description,
-            decimals=6,
-            minimum=0.0,
-            default=9.80665,  # 標準重力加速度
-            suffix=" m/s^2",
+            "Gravity", gravity_description, decimals=6, minimum=0.0, default=9.80665, suffix=" m/s^2"  # 標準重力加速度
         )
         self._rows.addWidget(self.gravity)
         self.gravity.setEnabled(False)  # 重力の変化は無視できるため，標準重力加速度のみを使う

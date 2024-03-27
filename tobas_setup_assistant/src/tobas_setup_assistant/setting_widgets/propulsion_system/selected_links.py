@@ -15,7 +15,7 @@ from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
-from tobas_rqt_tools.widgets import Widget,TabWidget
+from tobas_rqt_tools.widgets import Widget, TabWidget
 from tobas_rqt_tools.messages import q_error_named
 from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector

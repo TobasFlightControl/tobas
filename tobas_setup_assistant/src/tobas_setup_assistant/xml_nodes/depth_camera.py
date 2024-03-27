@@ -30,13 +30,7 @@ def add_depth_camera_model(
 
     # robot/joint
     robot.append(
-        Joint(
-            name=f"{ns}/depth_camera_joint",
-            type="fixed",
-            parent=link_name,
-            child=depth_camera_link,
-            origin=offset,
-        )
+        Joint(name=f"{ns}/depth_camera_joint", type="fixed", parent=link_name, child=depth_camera_link, origin=offset)
     )
     robot.append(
         Joint(

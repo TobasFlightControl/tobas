@@ -4,7 +4,6 @@ from configparser import ConfigParser
 
 
 class ConfigParserWrapper:
-
     def __init__(self, config_path: str, section: str) -> None:
         self._config_path = config_path
         self._section = section

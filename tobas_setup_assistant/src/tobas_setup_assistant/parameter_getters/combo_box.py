@@ -13,11 +13,7 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
     text_changed = pyqtSignal(str)
 
     def __init__(
-        self,
-        param_name: str,
-        description_text: str = None,
-        choices: List[str] = [],
-        default: str = None,
+        self, param_name: str, description_text: str = None, choices: List[str] = [], default: str = None
     ) -> None:
         super().__init__(param_name, description_text)
 

@@ -31,10 +31,7 @@ class PlotJugglerLauncher:
             for topic, received in self._received_msgs.items():
                 if not received:
                     all_received = False
-                    rospy.loginfo_throttle(
-                        self.INFO_PERIOD,
-                        f"Waiting for {rospy.get_namespace()}{topic}",
-                    )
+                    rospy.loginfo_throttle(self.INFO_PERIOD, f"Waiting for {rospy.get_namespace()}{topic}")
 
             if all_received:
                 rospy.loginfo(f"All required messages are received. Launching PlotJuggler.")

@@ -90,8 +90,7 @@ class JointPositionsCommanderWidget(Widget):
         rows.addStretch()
 
         self._publish_commands_timer = rospy.Timer(
-            rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD),
-            self._publish_commands_timer_cb,
+            rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD), self._publish_commands_timer_cb
         )
 
     def _get_params(self) -> None:

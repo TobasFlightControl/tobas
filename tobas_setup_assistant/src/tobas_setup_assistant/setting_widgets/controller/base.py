@@ -80,9 +80,7 @@ class BaseController(Widget):
     def parameter_dict(self) -> dict:
         # 動的パラメータを取得
         cfg: ConfigDescription = rospy.wait_for_message(
-            f"/{self.CONTROLLER_PKG}/parameter_descriptions",
-            ConfigDescription,
-            PARAM_DESCRIPTION_TIMEOUT,
+            f"/{self.CONTROLLER_PKG}/parameter_descriptions", ConfigDescription, PARAM_DESCRIPTION_TIMEOUT
         )
         dflt = cfg.dflt
 

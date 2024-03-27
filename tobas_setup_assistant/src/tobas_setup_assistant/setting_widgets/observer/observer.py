@@ -34,10 +34,7 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._observers: List[BaseObserver] = [
-            CascadeKalmanFilter(main),
-            ErrorStateKalmanFilter(main),
-        ]
+        self._observers: List[BaseObserver] = [CascadeKalmanFilter(main), ErrorStateKalmanFilter(main)]
 
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)

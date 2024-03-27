@@ -7,11 +7,7 @@ from ..common import *
 
 
 class ParamGetterWidget(QWidget):
-    def __init__(
-        self,
-        param_name: str,
-        description_text: str = None,
-    ) -> None:
+    def __init__(self, param_name: str, description_text: str = None) -> None:
         super().__init__()
 
         self._rows = QVBoxLayout()

@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import Widget,IntSliderDisplay
+from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
 from tobas_msgs.msg import Pwm, PwmArray
 
 from .common import *

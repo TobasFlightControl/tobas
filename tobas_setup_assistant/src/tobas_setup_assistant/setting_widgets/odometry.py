@@ -31,20 +31,12 @@ class OdometryWidget(BaseSettingWidget):
         self._equipped.setChecked(False)
         self._rows.addWidget(self._equipped)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=10,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 

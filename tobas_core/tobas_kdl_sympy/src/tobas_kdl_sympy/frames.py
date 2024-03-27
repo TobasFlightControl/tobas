@@ -45,7 +45,7 @@ class Vector:
 
     def norm(self) -> Symbol:
         """ノルムを返す．"""
-        return sympy.sqrt(self.x**2 + self.y**2 + self.z**2)
+        return sympy.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     def normalize(self) -> Vector:
         """正規化する．"""
@@ -53,13 +53,7 @@ class Vector:
 
     def cross_mat(self) -> Matrix:
         """ベクトルの外積に相当する行列を返す．"""
-        return Matrix(
-            [
-                [0, -self.z, self.y],
-                [self.z, 0, -self.x],
-                [-self.y, self.x, 0],
-            ]
-        )
+        return Matrix([[0, -self.z, self.y], [self.z, 0, -self.x], [-self.y, self.x, 0]])
 
     def dot(self, other: Vector) -> Symbol:
         """2つのベクトルの内積を計算する．"""
@@ -114,9 +108,7 @@ class Vector:
 
     def simplify(self, chop=False) -> Vector:
         return Vector(
-            sympy.simplify(self.x, chop=chop),
-            sympy.simplify(self.y, chop=chop),
-            sympy.simplify(self.z, chop=chop),
+            sympy.simplify(self.x, chop=chop), sympy.simplify(self.y, chop=chop), sympy.simplify(self.z, chop=chop)
         )
 
     def __add__(self, rhs: Vector) -> Vector:
@@ -143,24 +135,9 @@ class Vector:
 
 class Rotation:
     def __init__(
-        self,
-        Xx: Symbol,
-        Yx: Symbol,
-        Zx: Symbol,
-        Xy: Symbol,
-        Yy: Symbol,
-        Zy: Symbol,
-        Xz: Symbol,
-        Yz: Symbol,
-        Zz: Symbol,
+        self, Xx: Symbol, Yx: Symbol, Zx: Symbol, Xy: Symbol, Yy: Symbol, Zy: Symbol, Xz: Symbol, Yz: Symbol, Zz: Symbol
     ) -> None:
-        self.data = Matrix(
-            [
-                [Xx, Yx, Zx],
-                [Xy, Yy, Zy],
-                [Xz, Yz, Zz],
-            ]
-        )
+        self.data = Matrix([[Xx, Yx, Zx], [Xy, Yy, Zy], [Xz, Yz, Zz]])
 
     @classmethod
     def Identity(cls) -> Rotation:
@@ -294,13 +271,7 @@ class Frame:
         return cls.Rot(Rotation.RotZ(yaw))
 
     @classmethod
-    def DH(
-        cls,
-        alpha: Symbol,
-        a: Symbol,
-        theta: Symbol,
-        d: Symbol,
-    ) -> Frame:
+    def DH(cls, alpha: Symbol, a: Symbol, theta: Symbol, d: Symbol) -> Frame:
         """
         DenavitHartenbergパラメータによる座標変換．
 

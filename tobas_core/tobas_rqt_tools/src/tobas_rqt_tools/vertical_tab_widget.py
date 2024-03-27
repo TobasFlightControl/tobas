@@ -4,7 +4,6 @@ from PyQt5.QtGui import *
 
 
 class _TabBar(QTabBar):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -39,7 +38,6 @@ class _TabBar(QTabBar):
 
 
 class VerticalTabWidget(QTabWidget):
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setTabBar(_TabBar(self))

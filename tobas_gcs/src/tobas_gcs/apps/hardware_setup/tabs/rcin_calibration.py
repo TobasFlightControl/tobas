@@ -31,13 +31,7 @@ class RangeWidget(QWidget):
     LINE_WIDTH = 3
     TEXT_PSIZE = 10
 
-    def __init__(
-        self,
-        minimum: int,
-        maximum: int,
-        text: str = None,
-        parent: QWidget = None,
-    ) -> None:
+    def __init__(self, minimum: int, maximum: int, text: str = None, parent: QWidget = None) -> None:
         assert minimum < maximum
 
         super().__init__(parent)
@@ -87,7 +81,6 @@ class RangeWidget(QWidget):
 
 
 class HRangeWidget(RangeWidget):
-
     @override
     def paintEvent(self, event: QPaintEvent) -> None:
         # Painterを毎回定義し直す必要がある
@@ -131,7 +124,6 @@ class HRangeWidget(RangeWidget):
 
 
 class VRangeWidget(RangeWidget):
-
     @override
     def paintEvent(self, event: QPaintEvent) -> None:
         # Painterを毎回定義し直す必要がある

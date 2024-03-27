@@ -14,10 +14,7 @@ class FollowTrajectoryClient(ABC):
     WAIT_FOR_SERVER = 3.0  # [s]
 
     def __init__(self) -> None:
-        self._ac = actionlib.SimpleActionClient(
-            self.ACTION_NAME,
-            FollowPositionYawTrajectoryAction,
-        )
+        self._ac = actionlib.SimpleActionClient(self.ACTION_NAME, FollowPositionYawTrajectoryAction)
 
         # Ctrl + Cでアクションを止められるようにする
         rospy.on_shutdown(self._on_shutdown)

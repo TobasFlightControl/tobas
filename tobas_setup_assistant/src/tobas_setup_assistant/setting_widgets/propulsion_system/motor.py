@@ -150,20 +150,11 @@ class MotorWidget_Base(Widget):  # NOTE: ABCを継承するとバグる
             "For instance, in rotary-wing aircraft, "
             "propellers positioned diagonally opposite each other typically rotate in the same direction."
         )
-        self._direction = ParamGetterWidget_ComboBox(
-            "Rotating Direction",
-            direction_description,
-            [CW, CCW],
-        )
+        self._direction = ParamGetterWidget_ComboBox("Rotating Direction", direction_description, [CW, CCW])
         self._rows.addWidget(self._direction)
 
         num_poles_description = ""  # TODO
-        self._num_poles = ParamGetterWidget_SpinBox(
-            "The number of poles",
-            num_poles_description,
-            minimum=2,
-            default=14,
-        )
+        self._num_poles = ParamGetterWidget_SpinBox("The number of poles", num_poles_description, minimum=2, default=14)
         self._rows.addWidget(self._num_poles)
 
         time_const_up_description = (
@@ -171,11 +162,7 @@ class MotorWidget_Base(Widget):  # NOTE: ABCを継承するとバグる
             "relative to the command value."
         )
         self._time_const_up = ParamGetterWidget_SpinBox(
-            "Time Constant Up",
-            time_const_up_description,
-            minimum=1,
-            default=15,
-            suffix=" ms",
+            "Time Constant Up", time_const_up_description, minimum=1, default=15, suffix=" ms"
         )
         self._rows.addWidget(self._time_const_up)
 
@@ -184,11 +171,7 @@ class MotorWidget_Base(Widget):  # NOTE: ABCを継承するとバグる
             "relative to the command value."
         )
         self._time_const_down = ParamGetterWidget_SpinBox(
-            "Time Constant Down",
-            time_const_down_description,
-            minimum=1,
-            default=30,
-            suffix=" ms",
+            "Time Constant Down", time_const_down_description, minimum=1, default=30, suffix=" ms"
         )
         self._rows.addWidget(self._time_const_down)
 
@@ -249,22 +232,13 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
 
         kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
-            "Kv",
-            kv_description,
-            minimum=1,
-            maximum=10**5,
-            default=920,
-            suffix=" rpm/V",
+            "Kv", kv_description, minimum=1, maximum=10 ** 5, default=920, suffix=" rpm/V"
         )
         self._rows.addWidget(self._kv)
 
         resistance_description = "Internal resistance value of the motor."
         self._resistance = ParamGetterWidget_SpinBox(
-            "Internal Registance",
-            resistance_description,
-            minimum=1,
-            default=250,
-            suffix=" mΩ",
+            "Internal Registance", resistance_description, minimum=1, default=250, suffix=" mΩ"
         )
         self._rows.addWidget(self._resistance)
 
@@ -314,9 +288,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
             "and with the actual propeller attached."
         )
         self._data = ParamGetterWidget_DoubleTable(
-            "Experimental data",
-            ["Throttle", "Voltage", "RPM"],
-            description_text=data_description,
+            "Experimental data", ["Throttle", "Voltage", "RPM"], description_text=data_description
         )
         self._data.set_minimum([1.0, 1.0, 1.0])
         self._data.set_maximum([100.0, 1e9, 1e9])
@@ -349,7 +321,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega**2]
+        X = np.c_[omega, omega ** 2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b

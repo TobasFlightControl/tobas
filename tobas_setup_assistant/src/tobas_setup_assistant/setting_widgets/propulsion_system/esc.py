@@ -42,19 +42,13 @@ class EscWidget(Widget):
             "and in the worst case, it could cause failure or fire."
         )
         self._max_current = ParamGetterWidget_SpinBox(
-            "Maximum Current",
-            max_current_description,
-            minimum=1,
-            default=20,
-            suffix=" A",
+            "Maximum Current", max_current_description, minimum=1, default=20, suffix=" A"
         )
         rows.addWidget(self._max_current)
 
         signal_mode_description = ""  # TODO
         self._signal_mode = ParamGetterWidget_ComboBox(
-            "Signal Mode",
-            signal_mode_description,
-            self.SIGNAL_MODE_MAP.keys(),
+            "Signal Mode", signal_mode_description, self.SIGNAL_MODE_MAP.keys()
         )
         rows.addWidget(self._signal_mode)
 

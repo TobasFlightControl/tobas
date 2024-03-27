@@ -30,48 +30,30 @@ class LidarWidget(BaseSettingWidget):
         self._equipped.setChecked(False)
         self._rows.addWidget(self._equipped)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=10,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
         hor_samples_description = ""
         self.hor_samples = ParamGetterWidget_SpinBox(
-            "The number of horizontal samples",
-            hor_samples_description,
-            minimum=1,
-            default=100,
+            "The number of horizontal samples", hor_samples_description, minimum=1, default=100
         )
         self._rows.addWidget(self.hor_samples)
 
         ver_samples_description = ""
         self.ver_samples = ParamGetterWidget_SpinBox(
-            "The number of vertical samples",
-            ver_samples_description,
-            minimum=1,
-            default=360,
+            "The number of vertical samples", ver_samples_description, minimum=1, default=360
         )
         self._rows.addWidget(self.ver_samples)
 
         hor_fov_description = ""
         self.hor_fov = ParamGetterWidget_DoubleRange(
-            "Horizontal Field of View",
-            hor_fov_description,
-            decimals=3,
-            default=(0.0, 2 * math.pi),
-            suffix=" rad",
+            "Horizontal Field of View", hor_fov_description, decimals=3, default=(0.0, 2 * math.pi), suffix=" rad"
         )
         self._rows.addWidget(self.hor_fov)
 
@@ -87,22 +69,13 @@ class LidarWidget(BaseSettingWidget):
 
         range_description = ""
         self.range = ParamGetterWidget_DoubleRange(
-            "Laser distance range",
-            range_description,
-            decimals=3,
-            default=(0.1, 200.0),
-            suffix=" m",
+            "Laser distance range", range_description, decimals=3, default=(0.1, 200.0), suffix=" m"
         )
         self._rows.addWidget(self.range)
 
         resolution_description = ""
         self.resolution = ParamGetterWidget_DoubleSpinBox(
-            "Distance resolution",
-            resolution_description,
-            decimals=3,
-            minimum=1e-3,
-            default=2e-3,
-            suffix=" m",
+            "Distance resolution", resolution_description, decimals=3, minimum=1e-3, default=2e-3, suffix=" m"
         )
         self._rows.addWidget(self.resolution)
 

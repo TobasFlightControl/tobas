@@ -69,7 +69,6 @@ class DroneLoader(ABC):
 
 
 class DroneLoader_Param(DroneLoader):
-
     @override
     def load(self) -> None:
         self._clear()
@@ -183,7 +182,6 @@ class DroneLoader_Param(DroneLoader):
 
 
 class DroneLoader_File(DroneLoader):
-
     def __init__(self, drone: Drone, tbsf_path: str) -> None:
         super().__init__(drone)
         self._tbsf_path = tbsf_path

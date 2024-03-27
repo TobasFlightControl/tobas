@@ -23,20 +23,12 @@ class ImuWidget(BaseSettingWidget):
 
         super().__init__(main, title_text, abst_text)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=400,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
