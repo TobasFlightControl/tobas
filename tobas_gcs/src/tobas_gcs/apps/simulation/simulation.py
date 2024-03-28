@@ -14,7 +14,6 @@ from PyQt5.QtGui import *
 from overrides import override
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.path import get_catkin_ws_path
 from tobas_rqt_tools.roslaunch import create_launcher
 
 from ...common import *
