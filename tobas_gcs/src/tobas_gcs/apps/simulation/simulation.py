@@ -27,6 +27,7 @@ class SimulationWidget(Widget):
 
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
+    WAIT_FOR_GAZEBO_SERVICE = 30.0  # [s]
     WAIT_GAZEBO_TO_OPEN = 3.0  # [s]
 
     def __init__(self, main: GroundControlStationWidget) -> None:
@@ -83,9 +84,7 @@ class SimulationWidget(Widget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        catkin_ws_path = get_catkin_ws_path(self._config_pkg_path)
         config_pkg_name = osp.basename(self._config_pkg_path)
-        setup_bash_path = osp.join(catkin_ws_path, "devel/setup.bash")
 
         # SSH接続
         rospy.loginfo("Connecting to the Raspberry Pi.")
@@ -102,11 +101,9 @@ class SimulationWidget(Widget):
             q_error(self._main, "Failed to build Tobas package.")
             return
 
-        # Source catkin workspace
-        rospy.loginfo("Sourcing catkin workspace.")
-        if os.system(f"bash -c 'source {setup_bash_path}'") != 0:
-            q_error(self._main, f"Failed to source catkin workspace.")
-            return
+        # Tobasパッケージのパスを追加
+        os.environ["ROS_PACKAGE_PATH"] = self._config_pkg_path + ":" + os.environ["ROS_PACKAGE_PATH"]
+        print(os.environ["ROS_PACKAGE_PATH"])
 
         # Stop tobas_real.service
         rospy.loginfo("Stopping tobas_real.service.")
@@ -123,9 +120,24 @@ class SimulationWidget(Widget):
         # Launch Gazebo
         # 一度ROSLaunchParent.shutdownを呼ぶと再開できないため，ランチャーを作り直す．
         rospy.loginfo("Launching Gazebo simulation.")
-        self._gazebo_launcher = create_launcher(config_pkg_name, "gazebo.launch")
-        rospy.wait_for_service("/gazebo/get_world_properties")  # Gazeboの起動を待つ
-        rospy.sleep(self.WAIT_GAZEBO_TO_OPEN)  # TODO: Gazebo内で一定時間経過するまで待つ
+        try:
+            self._gazebo_launcher = create_launcher(config_pkg_name, "gazebo.launch")
+        except Exception as e:
+            q_error(self._main, f"Failed to launch Gazebo simulation:\n\n{e}")
+            self._reset()
+            return
+
+        # Gazeboノードの起動を待つ
+        try:
+            rospy.wait_for_service("/gazebo/get_world_properties", rospy.Duration(self.WAIT_FOR_GAZEBO_SERVICE))
+        except rospy.ROSException:
+            q_error("Failed to connect to Gazebo server.")
+            self._reset()
+            return
+
+        # Gazebo内で機体が静止するまで待つ
+        # TODO: Gazebo内で一定時間経過するまで待つ
+        rospy.sleep(self.WAIT_GAZEBO_TO_OPEN)
 
         # Launch Tobas flight controller
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．
@@ -148,17 +160,26 @@ class SimulationWidget(Widget):
 
     @pyqtSlot()
     def _on_terminate_button_clicked(self) -> None:
+        if not self._reset():
+            return
+
+        q_info(self._main, "Gazebo simulation is terminated.")
+
+    def _reset(self) -> bool:
+        """初期状態に戻す．"""
         # Terminate Gazebo
-        rospy.loginfo("Terminating Gazebo simulation.")
-        self._gazebo_launcher.shutdown()
+        if self._gazebo_launcher is not None:
+            rospy.loginfo("Terminating Gazebo simulation.")
+            self._gazebo_launcher.shutdown()
 
         # Kill Gazebo
         rospy.loginfo("Killing Gazebo.")
         kill_gazebo()
 
         # Terminate Tobas flight controller
-        rospy.loginfo("Terminating Tobas flight controller.")
-        self._bringup_launcher.shutdown()
+        if self._bringup_launcher is not None:
+            rospy.loginfo("Terminating Tobas flight controller.")
+            self._bringup_launcher.shutdown()
 
         # Stop tobas_hil.service
         rospy.loginfo("Stopping tobas_hil.service.")
@@ -166,7 +187,7 @@ class SimulationWidget(Widget):
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to stop tobas_hil.service:\n\n{error_output}")
-            return
+            return False
 
         # Start tobas_real.service
         rospy.loginfo("Starting tobas_real.service.")
@@ -174,9 +195,9 @@ class SimulationWidget(Widget):
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to restart tobas_real.service:\n\n{error_output}")
-            return
+            return False
 
         self._start_button.setEnabled(True)
         self._terminate_button.setEnabled(False)
 
-        q_info(self._main, "Gazebo simulation is terminated.")
+        return True
