@@ -102,7 +102,6 @@ class SimulationWidget(Widget):
 
         # Tobasパッケージのパスを追加
         os.environ["ROS_PACKAGE_PATH"] = self._config_pkg_path + ":" + os.environ["ROS_PACKAGE_PATH"]
-        print(os.environ["ROS_PACKAGE_PATH"])
 
         # Stop tobas_real.service
         rospy.loginfo("Stopping tobas_real.service.")

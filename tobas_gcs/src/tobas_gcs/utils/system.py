@@ -6,4 +6,4 @@ def source_common_setup_bashes() -> int:
 
 
 def kill_gazebo() -> int:
-    return os.system("killall -9 gzserver gzclient")
+    return os.system("rosnode kill /gazebo /gazebo_gui || true && killall -9 gzserver gzclient")
