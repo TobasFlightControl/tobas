@@ -14,7 +14,7 @@ from PyQt5.QtGui import *
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.roslaunch import create_launcher
+from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.constants import CONFIG_PATH
 
 from .base_setting import BaseSettingWidget
@@ -114,10 +114,10 @@ class RobotModelLoaderWidget(Widget):
 
         # robot_descriptionをrosparamに登録
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path
-        try:
-            create_launcher(PKG_NAME, "description.launch")
-        except Exception as e:
-            q_error(self._main, f"Failed to load robot description:\n\n{e}")
+        process = launch(PKG_NAME, "description.launch")
+        _, stderr = process.communicate()
+        if process.returncode != 0:
+            q_error(self._main, f"Failed to load robot description:\n\n{stderr.decode()}")
             return
 
         self._main.signals.urdf_loaded.emit()

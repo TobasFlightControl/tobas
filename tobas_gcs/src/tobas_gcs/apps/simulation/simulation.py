@@ -14,7 +14,7 @@ from PyQt5.QtGui import *
 from overrides import override
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.roslaunch import create_launcher
+from tobas_rqt_tools.roslaunch import launch
 
 from ...common import *
 from ...utils.ssh_client import SSHClientWrapper
@@ -37,8 +37,8 @@ class SimulationWidget(Widget):
 
         self._ssh_client = SSHClientWrapper()
         self._config_pkg_path = None
-        self._gazebo_launcher = None
-        self._bringup_launcher = None
+        self._gazebo_process = None
+        self._bringup_process = None
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -63,10 +63,10 @@ class SimulationWidget(Widget):
 
     @override
     def close(self) -> bool:
-        if self._gazebo_launcher is not None:
-            self._gazebo_launcher.shutdown()
-        if self._bringup_launcher is not None:
-            self._bringup_launcher.shutdown()
+        if self._gazebo_process is not None:
+            self._gazebo_process.terminate()
+        if self._bringup_process is not None:
+            self._bringup_process.terminate()
 
         return super().close()
 
@@ -118,12 +118,7 @@ class SimulationWidget(Widget):
         # Launch Gazebo
         # 一度ROSLaunchParent.shutdownを呼ぶと再開できないため，ランチャーを作り直す．
         rospy.loginfo("Launching Gazebo simulation.")
-        try:
-            self._gazebo_launcher = create_launcher(config_pkg_name, "gazebo.launch")
-        except Exception as e:
-            q_error(self._main, f"Failed to launch Gazebo simulation:\n\n{e}")
-            self._reset()
-            return
+        self._gazebo_process = launch(config_pkg_name, "gazebo.launch")
 
         # Gazeboノードの起動を待つ
         try:
@@ -141,12 +136,7 @@ class SimulationWidget(Widget):
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．
         # FIXME: nodeletを有効化すると"Failed to load"エラーが出る
         rospy.loginfo("Launching Tobas flight controller.")
-        try:
-            self._bringup_launcher = create_launcher(config_pkg_name, "bringup.launch", args=["nodelet:=false"])
-        except Exception as e:
-            q_error(self._main, f"Failed to launch Tobas flight controller:\n\n{e}")
-            self._reset()
-            return
+        self._bringup_process = launch(config_pkg_name, "bringup.launch", {"nodelet": "false"})
 
         # Start tobas_hil.service
         rospy.loginfo("Starting tobas_hil.service.")
@@ -171,18 +161,18 @@ class SimulationWidget(Widget):
     def _reset(self) -> bool:
         """初期状態に戻す．"""
         # Terminate Gazebo
-        if self._gazebo_launcher is not None:
+        if self._gazebo_process is not None:
             rospy.loginfo("Terminating Gazebo simulation.")
-            self._gazebo_launcher.shutdown()
+            self._gazebo_process.terminate()
 
         # Kill Gazebo
         rospy.loginfo("Killing Gazebo.")
         kill_gazebo()
 
         # Terminate Tobas flight controller
-        if self._bringup_launcher is not None:
+        if self._bringup_process is not None:
             rospy.loginfo("Terminating Tobas flight controller.")
-            self._bringup_launcher.shutdown()
+            self._bringup_process.terminate()
 
         # Stop tobas_hil.service
         rospy.loginfo("Stopping tobas_hil.service.")
