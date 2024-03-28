@@ -59,9 +59,8 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
-        goal = EscCalibrationGoal()
-        esc_calib_ac.send_goal_and_wait(goal)
-
+        # TODO: アクションの実行中に接続が切れた場合の対応
+        esc_calib_ac.send_goal_and_wait(EscCalibrationGoal())
         if esc_calib_ac.get_state() != actionlib.GoalStatus.SUCCEEDED:
             q_error(self, esc_calib_ac.get_goal_status_text())
             return
