@@ -74,6 +74,7 @@ class RangeWidget(QWidget):
         self._value = None
         self._lower = self._maximum
         self._upper = self._minimum
+        self.update()
 
     @abstractmethod
     def paintEvent(self, event: QPaintEvent) -> None:
@@ -83,7 +84,7 @@ class RangeWidget(QWidget):
 class HRangeWidget(RangeWidget):
     @override
     def paintEvent(self, event: QPaintEvent) -> None:
-        # Painterを毎回定義し直す必要がある
+        # QPainterはpaintEvent内でのみ定義できる
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
@@ -122,11 +123,14 @@ class HRangeWidget(RangeWidget):
             painter.setFont(QFont("Default", self.TEXT_PSIZE))
             painter.drawText(QRect(0, 0, self.width(), self.height()), Qt.AlignCenter, self._text)
 
+        # Painterを破棄 (適切に破棄しないとメモリリークが起きる)
+        painter.end()
+
 
 class VRangeWidget(RangeWidget):
     @override
     def paintEvent(self, event: QPaintEvent) -> None:
-        # Painterを毎回定義し直す必要がある
+        # QPainterはpaintEvent内でのみ定義できる
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
@@ -172,6 +176,9 @@ class VRangeWidget(RangeWidget):
             # 回転した状態でテキストを描画
             text_rect = QRect(-self.height() / 2, -self.width() / 2, self.height(), self.width())
             painter.drawText(text_rect, Qt.AlignCenter, self._text)
+
+        # Painterを破棄 (適切に破棄しないとメモリリークが起きる)
+        painter.end()
 
 
 class RcinCalibrationWidget(BaseHardwareSetupWidget):
