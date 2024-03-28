@@ -18,7 +18,9 @@ BatteryHandler::BatteryHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
-  reloadConfig();
+
+  if (!reloadConfig())
+    ROS_EXIT_NAMED(nh_, name_, "Failed to load configuratins.")
 
   if (adc_.initialize() < 0)
     ROS_EXIT_NAMED(nh_, name_, "Failed to initialize ADC driver.");
@@ -44,21 +46,31 @@ void BatteryHandler::registerSubscribers()
 {
 }
 
-void BatteryHandler::reloadConfig()
+bool BatteryHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
   pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcCoef);
+
+  return true;
 }
 
-bool BatteryHandler::reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
+bool BatteryHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
 {
-  reloadConfig();
+  if (!reloadConfig())
+  {
+    res.success = false;
+    res.message = "Failed to reload configurations.";
+    return true;
+  }
+
+  res.success = true;
+  return true;
 }
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // Read from ADC converter
-  const int a2_value = adc_.read(kPowerModuleVoltageChannel);
+  const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
   if (a2_value < 0)
   {
     rosError(name_, "Failed to read battery voltage.");
@@ -66,7 +78,7 @@ void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
   }
 
   // Compute voltage
-  const double voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  const auto voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
   if (voltage < kVoltageThreshold)
   {
     rosErrorThrottle(
