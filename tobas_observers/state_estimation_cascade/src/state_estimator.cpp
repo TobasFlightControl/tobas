@@ -239,6 +239,9 @@ void StateEstimator::gpsPositionCb(const GpsMsg::ConstPtr& gps)
   if (!is_initialized_)
     return;
 
+  if (gps->fix_type != GpsMsg::FIX_3D)
+    return;
+
   // TODO: 位置と速度を同時にフィードバック
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, xy_m_.x(), xy_m_.y());
   Matrix2d pos_cov;

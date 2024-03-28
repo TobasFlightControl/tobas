@@ -115,6 +115,7 @@ void GazeboGpsPlugin::onUpdate()
   const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
   gps_msg->header.frame_id = link_name_;
   timeGazeboToRos(gps_time, gps_msg->header.stamp);
+  gps_msg->fix_type = tobas_msgs::Gps::FIX_3D;
   fillCovariances(*gps_msg);
   updatePosition(*gps_msg, T_W_B);
   updateVelocity(*gps_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);

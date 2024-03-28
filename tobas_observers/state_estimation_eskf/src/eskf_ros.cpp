@@ -416,6 +416,9 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   if (stage_ < RUNNING)
     return;
 
+  if (gps->fix_type != GpsMsg::FIX_3D)
+    return;
+
   // 位置の観測値
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
   pos_meas_.z() = gps->altitude - alt_0_gps_;

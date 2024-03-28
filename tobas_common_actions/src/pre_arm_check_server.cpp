@@ -229,9 +229,12 @@ void PreArmCheckServer::gpsCb(const GpsMsg::ConstPtr& gps)
   if (!is_action_running_)
     return;
 
+  if (gps->fix_type != GpsMsg::FIX_3D)
+    return;
+
   gps_alt_buf_.add(tobas_ros::chronoFromRosTime(gps->header.stamp), gps->altitude);
 
-  // 気圧高度の範囲をチェック
+  // GPS高度の範囲をチェック
   if (gps_alt_buf_.stddev() > kGpsAltStddevThreshold)
   {
     rosWarnThrottle(

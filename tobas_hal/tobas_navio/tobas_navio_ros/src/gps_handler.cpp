@@ -91,16 +91,12 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
       // rosInfo(name_, "GPS delay: " << gps_delay.count() << "[ms]");
 
-      if (!pvt_.gnssFixOk || pvt_.fixType != navio::Ublox::FIX_3D)
-      {
-        rosWarnThrottle(
-          kWarnPeriod, name_, "GPS no fix. Please check GNSS signal and connection strength.");
-        break;
-      }
-
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
       gps_msg->header.stamp = event.current_real;
+
+      // Fill fix type
+      gps_msg->fix_type = pvt_.fixType;
 
       // Fill GPS position
       gps_msg->latitude = pvt_.lat;                     // Latitude [deg]
