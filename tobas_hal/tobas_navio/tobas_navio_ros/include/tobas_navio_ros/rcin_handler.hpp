@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
+#include <std_srvs/Empty.h>
 
 #include <tobas_navio_core/rc_input.hpp>
 #include <tobas_std_tools/range.hpp>
@@ -14,6 +15,7 @@ class RCInputHandler : public tobas::BaseNode
 {
   static constexpr size_t kSamplingRate = 100;  // [Hz]
 
+  using self = RCInputHandler;
   using super = tobas::BaseNode;
 
 public:
@@ -35,18 +37,17 @@ private:
   double estop_on_, estop_off_;
   double gpsw_on_, gpsw_off_;
 
-  // Publisher
   ros::Publisher rcin_pub_;
-
-  // Timer
+  ros::ServiceServer reload_config_srv_;
   ros::Timer main_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void readConfig();
+  void reloadConfig();
 
+  bool reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

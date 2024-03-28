@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
+#include <std_srvs/Empty.h>
 
 #include <tobas_navio_core/ms5611.hpp>
 #include <tobas_tools/node.hpp>
@@ -31,18 +32,17 @@ private:
   // Config
   double pressure_noise_density_;  // [Pa/sqrt(Hz)]
 
-  // Publisher
   ros::Publisher bar_pub_;
-
-  // Timer
+  ros::ServiceServer reload_config_srv_;
   ros::Timer main_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void readConfig();
+  void reloadConfig();
 
+  bool reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

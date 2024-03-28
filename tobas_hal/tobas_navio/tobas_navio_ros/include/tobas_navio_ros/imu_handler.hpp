@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <ros/ros.h>
 #include <ros/timer.h>
+#include <std_srvs/Empty.h>
 
 #include <tobas_tools/node.hpp>
 
@@ -54,6 +55,9 @@ private:
   ros::Publisher imu_pub_;
   ros::Publisher mag_pub_;
 
+  // Service Server
+  ros::ServiceServer reload_config_srv_;
+
   // Timer
   ros::Timer main_timer_;
   ros::Timer measure_gyro_bias_timer_;
@@ -62,8 +66,9 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void readConfig();
+  void reloadConfig();
 
+  bool reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
   void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };

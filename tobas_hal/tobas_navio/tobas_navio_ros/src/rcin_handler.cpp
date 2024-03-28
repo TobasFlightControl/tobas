@@ -20,7 +20,7 @@ RCInputHandler::RCInputHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
-  readConfig();
+  reloadConfig();
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
     ROS_EXIT_NAMED(nh_, name_, "Failed to initialize RC input driver.");
@@ -28,7 +28,9 @@ RCInputHandler::RCInputHandler(
   registerPublishers();
   registerSubscribers();
 
-  main_timer_ = nh_.createTimer(kSamplingRate, &RCInputHandler::mainTimerCb, this);
+  reload_config_srv_ =
+    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void RCInputHandler::getRosParams()
@@ -44,7 +46,7 @@ void RCInputHandler::registerSubscribers()
 {
 }
 
-void RCInputHandler::readConfig()
+void RCInputHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
 
@@ -69,6 +71,11 @@ void RCInputHandler::readConfig()
 
   pt.get(kConfigKey_RcGPSwOn, gpsw_on_, tobas_navio_ros::kPwmMin);
   pt.get(kConfigKey_RcGPSwOff, gpsw_off_, tobas_navio_ros::kPwmMax);
+}
+
+bool RCInputHandler::reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
+{
+  reloadConfig();
 }
 
 void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)

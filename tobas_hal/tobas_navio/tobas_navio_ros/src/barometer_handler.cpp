@@ -21,6 +21,7 @@ BarometerHandler::BarometerHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
+  reloadConfig();
 
   barometer_.initialize();
   if (!barometer_.testConnection())
@@ -29,6 +30,8 @@ BarometerHandler::BarometerHandler(
   registerPublishers();
   registerSubscribers();
 
+  reload_config_srv_ =
+    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
@@ -45,10 +48,15 @@ void BarometerHandler::registerSubscribers()
 {
 }
 
-void BarometerHandler::readConfig()
+void BarometerHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
   pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity);
+}
+
+bool BarometerHandler::reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
+{
+  reloadConfig();
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)

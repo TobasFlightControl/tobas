@@ -21,20 +21,17 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   : super(nh, pnh, name)
 {
   getRosParams();
-  readConfig();
+  reloadConfig();
 
   imu_.initialize();
   if (!imu_.probe())
     ROS_EXIT_NAMED(nh_, name_, "IMU not enabled.");
 
-  mag_trans_.initialize();
-
-  acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
-  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
-  mag_var_ = tobas_std::sqr(mag_noise_density_) * kSamplingRate;    // TODO: スケーリング
-
   registerPublishers();
   registerSubscribers();
+
+  reload_config_srv_ =
+    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
@@ -58,7 +55,7 @@ void ImuHandler::registerSubscribers()
 {
 }
 
-void ImuHandler::readConfig()
+void ImuHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
 
@@ -80,6 +77,17 @@ void ImuHandler::readConfig()
   pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.);
   pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.);
   pt.get(kConfigKey_MagEllipseC, mag_trans_.c, 0.);
+
+  mag_trans_.initialize();
+
+  acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
+  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
+  mag_var_ = tobas_std::sqr(mag_noise_density_) * kSamplingRate;    // TODO: スケーリング
+}
+
+bool ImuHandler::reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
+{
+  reloadConfig();
 }
 
 void ImuHandler::mainTimerCb(const ros::TimerEvent& event)

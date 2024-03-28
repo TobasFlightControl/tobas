@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <ros/timer.h>
+#include <std_srvs/Empty.h>
 
 #include <tobas_navio_core/adc.hpp>
 #include <tobas_tools/node.hpp>
@@ -33,18 +34,17 @@ private:
   // Config
   double adc_coef_;
 
-  // Publisher
   ros::Publisher battery_pub_;
-
-  // Timer
+  ros::ServiceServer reload_config_srv_;
   ros::Timer main_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void getAdcCoefficient();
+  void reloadConfig();
 
+  bool reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

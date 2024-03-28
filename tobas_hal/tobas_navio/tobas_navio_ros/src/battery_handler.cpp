@@ -18,7 +18,7 @@ BatteryHandler::BatteryHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
-  getAdcCoefficient();
+  reloadConfig();
 
   if (adc_.initialize() < 0)
     ROS_EXIT_NAMED(nh_, name_, "Failed to initialize ADC driver.");
@@ -26,6 +26,8 @@ BatteryHandler::BatteryHandler(
   registerPublishers();
   registerSubscribers();
 
+  reload_config_srv_ =
+    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
@@ -42,10 +44,15 @@ void BatteryHandler::registerSubscribers()
 {
 }
 
-void BatteryHandler::getAdcCoefficient()
+void BatteryHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
   pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcCoef);
+}
+
+bool BatteryHandler::reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
+{
+  reloadConfig();
 }
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
