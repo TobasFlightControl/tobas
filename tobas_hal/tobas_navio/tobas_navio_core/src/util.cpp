@@ -81,9 +81,9 @@ bool checkAPM()
 
 float decodeBinary32(uint32_t bin)
 {
-  const auto sign = bin >> 31 ? -1 : 1;
-  const auto exponent = (bin >> 23) & 0xFF;
-  const auto mantissa = (exponent == 0) ? (bin & 0x7FFFFF) << 1 : (bin & 0x7FFFFF) | 0x800000;
+  const int sign = bin >> 31 ? -1 : 1;
+  const int exponent = (bin >> 23) & 0xFF;
+  const int mantissa = (exponent == 0) ? (bin & 0x7FFFFF) << 1 : (bin & 0x7FFFFF) | 0x800000;
   return sign * mantissa * pow(2, exponent - 150);
 }
 }  // namespace navio
