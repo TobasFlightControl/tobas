@@ -143,7 +143,12 @@ class SimulationWidget(Widget):
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．
         # FIXME: nodeletを有効化すると"Failed to load"エラーが出る
         rospy.loginfo("Launching Tobas flight controller.")
-        self._bringup_launcher = create_launcher(config_pkg_name, "bringup.launch", args=["nodelet:=false"])
+        try:
+            self._bringup_launcher = create_launcher(config_pkg_name, "bringup.launch", args=["nodelet:=false"])
+        except Exception as e:
+            q_error(self._main, f"Failed to launch Tobas flight controller:\n\n{e}")
+            self._reset()
+            return
 
         # Start tobas_hil.service
         rospy.loginfo("Starting tobas_hil.service.")
