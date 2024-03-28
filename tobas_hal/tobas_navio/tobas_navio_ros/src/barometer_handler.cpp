@@ -21,7 +21,9 @@ BarometerHandler::BarometerHandler(
   : super(nh, pnh, name)
 {
   getRosParams();
-  reloadConfig();
+
+  if (!reloadConfig())
+    ROS_EXIT_NAMED(nh_, name_, "Failed to load configurations.");
 
   barometer_.initialize();
   if (!barometer_.testConnection())
@@ -48,15 +50,24 @@ void BarometerHandler::registerSubscribers()
 {
 }
 
-void BarometerHandler::reloadConfig()
+bool BarometerHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
   pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity);
+
+  return true;
 }
 
-bool BarometerHandler::reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
+bool BarometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
 {
-  reloadConfig();
+  if (!reloadConfig())
+  {
+    res.success = false;
+    return true;
+  }
+
+  res.success = true;
+  return true;
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)

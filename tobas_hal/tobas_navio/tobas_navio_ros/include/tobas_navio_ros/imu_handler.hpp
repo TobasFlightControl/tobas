@@ -3,7 +3,7 @@
 #include <Eigen/Core>
 #include <ros/ros.h>
 #include <ros/timer.h>
-#include <std_srvs/Empty.h>
+#include <std_srvs/Trigger.h>
 
 #include <tobas_tools/node.hpp>
 
@@ -66,9 +66,9 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void reloadConfig();
+  bool reloadConfig();
 
-  bool reloadConfigCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
+  bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
   void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };
