@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import rospy
+from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -75,12 +76,21 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
+        if not self._calibrate():
+            return
+
+        if not self._reload_config():
+            return
+
+        q_info(self._main, "ADC calibration finished.")
+
+    def _calibrate(self) -> bool:
         adc_calib_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/adc_calibration", AdcCalibration)
         try:
             adc_calib_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
-            return
+            return False
 
         req = AdcCalibrationRequest()
         req.voltage = self._voltage.value()
@@ -89,12 +99,32 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
             res: AdcCalibrationResponse = adc_calib_sc.call(req)
         except Exception as e:
             q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
-            return
+            return False
 
         if not res.success:
             q_error(self, res.message)
-            return
+            return False
 
         self._adc_coef.setText(f"{res.coefficient:.2f}")
 
-        q_info(self._main, "ADC calibration finished.")
+        return True
+
+    def _reload_config(self) -> bool:
+        reload_config_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/battery_handler/reload_config", Trigger)
+        try:
+            reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
+        except rospy.ROSException:
+            q_error(self, self.E_FAILED_TO_CONNECT)
+            return False
+
+        try:
+            res: TriggerResponse = reload_config_sc.call(TriggerRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return False
+
+        if not res.success:
+            q_error(self, res.message)
+            return False
+
+        return True

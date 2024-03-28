@@ -376,12 +376,27 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_finish_button_clicked(self) -> None:
+        if not self._finish_calibration():
+            return
+
+        if not self._reload_config():
+            return
+
+        self._reset()
+        q_info(self._main, "Radio calibration finished.")
+
+    @pyqtSlot()
+    def _on_cancel_button_clicked(self) -> None:
+        self._cancel()
+        q_info(self._main, "Radio calibration is cancelled.")
+
+    def _finish_calibration(self) -> bool:
         calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
         try:
             calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
-            return
+            return False
 
         req = RCInputCalibrationRequest()
         req.roll_left = self._roll_range.get_lower()
@@ -404,16 +419,30 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             res: RCInputCalibrationResponse = calib_finish_sc.call(req)
         except Exception as e:
             q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
-            return
+            return False
 
         if not res.success:
             q_error(self, res.message)
-            return
+            return False
 
-        self._reset()
-        q_info(self._main, "Radio calibration finished.")
+        return True
 
-    @pyqtSlot()
-    def _on_cancel_button_clicked(self) -> None:
-        self._cancel()
-        q_info(self._main, "Radio calibration is cancelled.")
+    def _reload_config(self) -> bool:
+        reload_config_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_handler/reload_config", Trigger)
+        try:
+            reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
+        except rospy.ROSException:
+            q_error(self, self.E_FAILED_TO_CONNECT)
+            return False
+
+        try:
+            res: TriggerResponse = reload_config_sc.call(TriggerRequest())
+        except Exception as e:
+            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
+            return False
+
+        if not res.success:
+            q_error(self, res.message)
+            return False
+
+        return True

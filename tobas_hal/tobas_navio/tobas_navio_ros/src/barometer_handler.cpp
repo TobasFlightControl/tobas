@@ -63,6 +63,7 @@ bool BarometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::Trigg
   if (!reloadConfig())
   {
     res.success = false;
+    res.message = "Failed to reload configurations.";
     return true;
   }
 
