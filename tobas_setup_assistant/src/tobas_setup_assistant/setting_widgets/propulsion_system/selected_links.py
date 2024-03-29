@@ -195,8 +195,8 @@ class SelectedLinksWidget(TabWidget):
 
 
 class SelectedLinkTabWidget(Widget):
-    BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 150
+    BUTTON_HEIGHT = 40
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()

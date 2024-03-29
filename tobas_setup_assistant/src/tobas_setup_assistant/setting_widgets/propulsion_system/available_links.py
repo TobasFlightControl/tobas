@@ -97,8 +97,8 @@ class AvailableLinksWidget(QListWidget):
 
 
 class AvailableLinkItemWidget(QListWidget):
-    BUTTON_HEIGHT = 20
     BUTTON_WIDTH = 60
+    BUTTON_HEIGHT = 20
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()

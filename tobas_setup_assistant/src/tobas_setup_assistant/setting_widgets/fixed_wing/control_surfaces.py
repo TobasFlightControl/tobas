@@ -190,8 +190,8 @@ class AvailableLinksWidget(QListWidget):
 
 
 class AddDeleteButtonsWidget(Widget):
-    BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
+    BUTTON_HEIGHT = 40
 
     add = pyqtSignal()
     delete = pyqtSignal()

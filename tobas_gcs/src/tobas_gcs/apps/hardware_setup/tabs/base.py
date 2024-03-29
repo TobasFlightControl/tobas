@@ -18,8 +18,8 @@ from ....common import *
 
 class BaseHardwareSetupWidget(ScrollArea):
     ABST_HEIGHT = 100
-    BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
+    BUTTON_HEIGHT = 40
     WAIT_FOR_SERVER = 1  # [s]
 
     E_FAILED_TO_CONNECT = "Failed to connect to the flight controller."
