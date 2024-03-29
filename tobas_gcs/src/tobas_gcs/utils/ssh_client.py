@@ -20,9 +20,6 @@ class SSHClientWrapper:
         self._ssh_client.load_system_host_keys()
         self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    def __del__(self) -> None:
-        self._ssh_client.close()
-
     def connect(self) -> None:
         # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
@@ -35,6 +32,9 @@ class SSHClientWrapper:
             raise RuntimeError("Could not connect to the server. Please check your network connection.")
         except Exception as e:
             raise RuntimeError(f"Unexpected error occurred: {e}")
+
+    def close(self) -> None:
+        self._ssh_client.close()
 
     def exec_command(self, command: str) -> Tuple[bool, str, str]:
         """
