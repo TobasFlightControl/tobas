@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.layouts import create_fixed_width_vboxlayout
+from tobas_rqt_tools.layouts import create_fixed_height_hboxlayout
 from tobas_rqt_tools.utils import remap, place_center
 from tobas_tools_py.constants import *
 from tobas_msgs.msg import RCInputError
@@ -190,6 +190,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
     RANGE_SIDE_SHORT = 30
     RANGE_SIDE_LONG = 300
 
+    MODE_TEXT = "Program" + " " * 15 + "Stabilize" + " " * 15 + "Acrobat"
+    ON_OFF_TEXT = "ON" + " " * 55 + "OFF"
+
     def __init__(self, main: GroundControlStationWidget) -> None:
         super().__init__(main)
 
@@ -222,63 +225,72 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addSpacing(50)
 
-        bar_cols = QHBoxLayout()
-        self._rows.addLayout(bar_cols)
+        cols2 = QHBoxLayout()
+        self._rows.addLayout(cols2)
 
         # Roll, Pitch, Yaw, Thrust
-        bar_rows = create_fixed_width_vboxlayout(320, bar_cols)
-
-        self._roll_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX)
-        self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
-        place_center(QLabel(f"Roll (CH{RCIN_ROLL + 1})"), bar_rows)
-        place_center(self._roll_range, bar_rows)
-
-        pitch_thrust_cols = QHBoxLayout()
-        bar_rows.addLayout(pitch_thrust_cols)
+        cols3 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols2)
 
         self._pitch_range = VRangeWidget(self.PWM_MIN, self.PWM_MAX)
         self._pitch_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
-        pitch_thrust_cols.addWidget(self._pitch_range)
+        cols3.addWidget(self._pitch_range)
 
-        pitch_thrust_cols.addWidget(QLabel(f"Pitch (CH{RCIN_PITCH + 1})"))
-        pitch_thrust_cols.addStretch()
-        pitch_thrust_cols.addWidget(QLabel(f"Thrust (CH{RCIN_THRUST + 1})"))
+        rows1 = QVBoxLayout()
+        cols3.addLayout(rows1)
+
+        self._roll_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX)
+        self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
+        place_center(self._roll_range, rows1)
+        place_center(QLabel(f"Roll (CH{RCIN_ROLL + 1})"), rows1)
+
+        rows1.addStretch()
+
+        cols4 = QHBoxLayout()
+        rows1.addLayout(cols4)
+
+        pitch_label = QLabel(f"Pitch (CH{RCIN_PITCH + 1})")
+        pitch_label.setAlignment(Qt.AlignLeft)
+        cols4.addWidget(pitch_label)
+
+        thrust_label = QLabel(f"Thrust (CH{RCIN_THRUST + 1})")
+        thrust_label.setAlignment(Qt.AlignRight)
+        cols4.addWidget(thrust_label)
+
+        rows1.addStretch()
+
+        place_center(QLabel(f"Yaw (CH{RCIN_YAW + 1})"), rows1)
+        self._yaw_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX)
+        self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
+        place_center(self._yaw_range, rows1)
 
         self._thrust_range = VRangeWidget(self.PWM_MIN, self.PWM_MAX)
         self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
-        pitch_thrust_cols.addWidget(self._thrust_range)
+        cols3.addWidget(self._thrust_range)
 
-        self._yaw_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX)
-        self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
-        place_center(self._yaw_range, bar_rows)
-        place_center(QLabel(f"Yaw (CH{RCIN_YAW + 1})"), bar_rows)
-
-        bar_cols.addSpacing(30)
+        cols2.addSpacing(30)
 
         bar_grid = QGridLayout()
-        bar_cols.addLayout(bar_grid)
+        cols2.addLayout(bar_grid)
 
         # Mode
         bar_grid.addWidget(QLabel(f"Mode (CH{RCIN_MODE + 1})"), 0, 0)
-        self._mode_range = HRangeWidget(
-            self.PWM_MIN, self.PWM_MAX, "Program" + " " * 15 + "Stabilize" + " " * 15 + "Acrobat"
-        )
+        self._mode_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX, self.MODE_TEXT)
         self._mode_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._mode_range, 0, 1)
 
         # E-Stop
         bar_grid.addWidget(QLabel(f"E-Stop (CH{RCIN_ESTOP + 1})"), 1, 0)
-        self._estop_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX, "ON" + " " * 60 + "OFF")
+        self._estop_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX, self.ON_OFF_TEXT)
         self._estop_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._estop_range, 1, 1)
 
         # GPSw
         bar_grid.addWidget(QLabel(f"GPSw (CH{RCIN_GPSW + 1})"), 2, 0)
-        self._gpsw_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX, "ON" + " " * 60 + "OFF")
+        self._gpsw_range = HRangeWidget(self.PWM_MIN, self.PWM_MAX, self.ON_OFF_TEXT)
         self._gpsw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._gpsw_range, 2, 1)
 
-        bar_cols.addStretch()
+        cols2.addStretch()
         self._rows.addStretch()
 
         self._rcin_sub = None

@@ -29,3 +29,14 @@ def create_fixed_width_vboxlayout(width: int, parent: QBoxLayout) -> QVBoxLayout
     widget.setLayout(res)
 
     return res
+
+
+def create_fixed_height_hboxlayout(height: int, parent: QBoxLayout) -> QHBoxLayout:
+    widget = QWidget()
+    widget.setFixedHeight(height)
+    parent.addWidget(widget)
+
+    res = QHBoxLayout()
+    widget.setLayout(res)
+
+    return res
