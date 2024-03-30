@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton
 from PyQt5.QtGui import QMouseEvent, QResizeEvent
 
 
-class LEDWidget(QPushButton):
+class LEDPushButton(QPushButton):
     BLACK = np.array([0x00, 0x00, 0x00], dtype=np.uint8)
     WHITE = np.array([0xFF, 0xFF, 0xFF], dtype=np.uint8)
     BLUE = np.array([0x73, 0xCE, 0xF4], dtype=np.uint8)
@@ -72,11 +72,11 @@ class LEDWidget(QPushButton):
 
     @override
     def sizeHint(self) -> QSize:
-        if self._shape == LEDWidget.CAPSULE:
+        if self._shape == LEDPushButton.CAPSULE:
             return QSize(50, 30)
-        elif self._shape == LEDWidget.CIRCLE:
+        elif self._shape == LEDPushButton.CIRCLE:
             return QSize(30, 30)
-        elif self._shape == LEDWidget.RECTANGLE:
+        elif self._shape == LEDPushButton.RECTANGLE:
             return QSize(40, 30)
 
     @override
@@ -87,7 +87,7 @@ class LEDWidget(QPushButton):
     @override
     def setFixedSize(self, width: int, height: int) -> None:
         self._height = height
-        if self._shape == LEDWidget.CIRCLE:
+        if self._shape == LEDPushButton.CIRCLE:
             super().setFixedSize(height, height)
         else:
             super().setFixedSize(width, height)
@@ -194,7 +194,7 @@ class LEDWidget(QPushButton):
         return color, grad
 
     def _update_end_radius(self) -> None:
-        if self.__shape == LEDWidget.RECTANGLE:
+        if self.__shape == LEDPushButton.RECTANGLE:
             self._end_radius = int(self.__height / 10)
         else:
             self._end_radius = int(self.__height / 2)
