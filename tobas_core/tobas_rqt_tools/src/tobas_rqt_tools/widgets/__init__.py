@@ -1,4 +1,5 @@
 from .combo_box import ComboBox
+from .led_widget import LEDWidget
 from .list_widget import ListWidgetItem
 from .main_widget import MainWidget
 from .scroll_area import ScrollArea
