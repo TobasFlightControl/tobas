@@ -21,14 +21,14 @@ class LampWidget(QLabel):
                                     ); \
                             }}"
 
-    def set_color(self, color: np.ndarray) -> None:
+    def set_color(self, color: LEDColor) -> None:
         end_radius = self.sizeHint().height() / 2
-        color, grad = self._get_gradient(color)
-        qss = self._qss.format(end_radius, grad, color, color)
+        color_str, grad_str = self._get_gradient(color)
+        qss = self._qss.format(end_radius, grad_str, color_str, color_str)
         self.setStyleSheet(qss)
 
-    def _get_gradient(self, color: np.ndarray) -> Tuple[str, str]:
-        grad = ((LEDColor.WHITE - color) / 2).astype(np.uint8) + color
-        grad = "{:02X}{:02X}{:02X}".format(grad[0], grad[1], grad[2])
-        color = "{:02X}{:02X}{:02X}".format(color[0], color[1], color[2])
-        return color, grad
+    def _get_gradient(self, color: LEDColor) -> Tuple[str, str]:
+        grad = ((LEDColor.WHITE.array - color.array) / 2).astype(np.uint8) + color.array
+        grad_str = "{:02X}{:02X}{:02X}".format(grad[0], grad[1], grad[2])
+        color_str = "{:02X}{:02X}{:02X}".format(color.array[0], color.array[1], color.array[2])
+        return color_str, grad_str
