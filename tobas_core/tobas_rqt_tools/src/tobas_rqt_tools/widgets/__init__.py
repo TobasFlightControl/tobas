@@ -1,4 +1,6 @@
+from .led_color import LEDColor
 from .combo_box import ComboBox
+from .lamp_widget import LampWidget
 from .led_push_button import LEDPushButton
 from .list_widget import ListWidgetItem
 from .main_widget import MainWidget

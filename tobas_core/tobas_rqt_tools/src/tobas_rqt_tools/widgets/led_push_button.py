@@ -6,17 +6,10 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QWidget, QPushButton
 from PyQt5.QtGui import QMouseEvent, QResizeEvent
 
+from .led_color import LEDColor
+
 
 class LEDPushButton(QPushButton):
-    BLACK = np.array([0x00, 0x00, 0x00], dtype=np.uint8)
-    WHITE = np.array([0xFF, 0xFF, 0xFF], dtype=np.uint8)
-    BLUE = np.array([0x73, 0xCE, 0xF4], dtype=np.uint8)
-    GREEN = np.array([0xAD, 0xFF, 0x2F], dtype=np.uint8)
-    ORANGE = np.array([0xFF, 0xA5, 0x00], dtype=np.uint8)
-    PURPLE = np.array([0xAF, 0x00, 0xFF], dtype=np.uint8)
-    RED = np.array([0xF4, 0x37, 0x53], dtype=np.uint8)
-    YELLOW = np.array([0xFF, 0xFF, 0x00], dtype=np.uint8)
-
     CAPSULE = 1
     CIRCLE = 2
     RECTANGLE = 3
@@ -24,14 +17,14 @@ class LEDPushButton(QPushButton):
     def __init__(
         self,
         parent: QWidget = None,
-        on_color: np.ndarray = GREEN,
-        off_color: np.ndarray = BLACK,
+        on_color: np.ndarray = LEDColor.GREEN,
+        off_color: np.ndarray = LEDColor.BLACK,
         shape: int = RECTANGLE,
     ) -> None:
         super().__init__(parent=parent)
 
         self._qss = "QPushButton {{ \
-                                   border: 3px solid lightgray; \
+                                   border: 2px solid lightgray; \
                                    border-radius: {}px; \
                                    background-color: \
                                        QLinearGradient( \
@@ -188,7 +181,7 @@ class LEDPushButton(QPushButton):
         self._off_qss = self._qss.format(self._end_radius, grad, color, color)
 
     def _get_gradient(self, color: np.ndarray) -> Tuple[str, str]:
-        grad = ((self.WHITE - color) / 2).astype(np.uint8) + color
+        grad = ((LEDColor.WHITE - color) / 2).astype(np.uint8) + color
         grad = "{:02X}{:02X}{:02X}".format(grad[0], grad[1], grad[2])
         color = "{:02X}{:02X}{:02X}".format(color[0], color[1], color[2])
         return color, grad

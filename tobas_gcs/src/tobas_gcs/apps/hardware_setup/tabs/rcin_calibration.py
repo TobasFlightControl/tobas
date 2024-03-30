@@ -1,9 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from PyQt5.QtGui import QPaintEvent
-
-
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
