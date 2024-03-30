@@ -10,7 +10,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import Widget, create_rviz_frame
+from tobas_rqt_tools.widgets import Widget
+from tobas_rqt_tools.rviz import create_rviz_frame
 
 from .common import *
 

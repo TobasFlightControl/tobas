@@ -15,9 +15,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.math import remap
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.layouts import create_fixed_height_hboxlayout
-from tobas_rqt_tools.utils import remap, place_center
+from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.constants import *
 from tobas_msgs.msg import RCInputError
 from tobas_calibration_msgs.msg import RCInput

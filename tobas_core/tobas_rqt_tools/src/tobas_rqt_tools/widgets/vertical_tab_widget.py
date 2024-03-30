@@ -1,6 +1,5 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QRect, QPoint
+from PyQt5.QtWidgets import QTabBar, QTabWidget, QStyle, QStylePainter, QStyleOptionTab
 
 
 class _TabBar(QTabBar):

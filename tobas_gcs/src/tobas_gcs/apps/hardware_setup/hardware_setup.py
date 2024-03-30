@@ -8,7 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.vertical_tab_widget import VerticalTabWidget
+from tobas_rqt_tools.widgets import VerticalTabWidget
 
 from .tabs import *
 

@@ -9,4 +9,9 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<exec_depend>rospy</exec_depend>
+	<exec_depend>python3-markdown</exec_depend>
+
+	<exec_depend>tobas_std_tools_py</exec_depend>
+
 </package>

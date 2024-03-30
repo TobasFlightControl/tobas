@@ -1,4 +1,6 @@
-from tobas_rqt_tools.widgets import *
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
+
+from tobas_rqt_tools.widgets import SpinBox, DoubleSpinBox
 
 from .common import *
 
