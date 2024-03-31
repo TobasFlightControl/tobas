@@ -44,6 +44,8 @@ class ErrorStateKalmanFilter(BaseObserver):
         )
         super().__init__(main, abst_text)
 
+    @override
+    def add_dynamic_params(self) -> None:
         config = self._get_param_config(self.GRAV_VAR)
         self._grav_var = ParamGetterWidget_SpinBox(
             "Dynamic gravity variance",

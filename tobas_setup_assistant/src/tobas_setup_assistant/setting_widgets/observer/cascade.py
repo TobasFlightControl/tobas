@@ -66,6 +66,8 @@ class CascadeKalmanFilter(BaseObserver):
         )
         self._rows.addWidget(self._do_adaptive_gain)
 
+    @override
+    def add_dynamic_params(self) -> None:
         config = self._get_param_config(self.GRAV_VAR)
         self._grav_var = ParamGetterWidget_SpinBox(
             "Gravity variance",

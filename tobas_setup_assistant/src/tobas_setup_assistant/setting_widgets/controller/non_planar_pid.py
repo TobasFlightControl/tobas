@@ -35,11 +35,13 @@ class NonPlanarPid(BaseController):
         abst_text = "This is a PID controller for non-planar multirotors."
         super().__init__(main, abst_text)
 
-        # TODO: 設定項目
-
     @override
     def define_connections(self) -> None:
         pass
+
+    @override
+    def add_dynamic_params(self) -> None:
+        pass  # TODO
 
     @override
     def is_applicable(self) -> bool:

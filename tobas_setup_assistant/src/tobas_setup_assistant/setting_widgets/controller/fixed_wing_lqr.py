@@ -49,6 +49,12 @@ class FixedWingLQR(BaseController):
         )
         super().__init__(main, abst_text)
 
+    @override
+    def define_connections(self) -> None:
+        pass
+
+    @override
+    def add_dynamic_params(self) -> None:
         config = self._get_param_config(self.FORWARD_SPEED_WEIGHT)
         self._forward_speed_weight = ParamGetterWidget_SpinBox(
             "Weight on forward speed",
@@ -138,10 +144,6 @@ class FixedWingLQR(BaseController):
             default=config["default"],
         )
         self._rows.addWidget(self._deflection_rate_weight_log10)
-
-    @override
-    def define_connections(self) -> None:
-        pass
 
     @override
     def is_applicable(self) -> bool:

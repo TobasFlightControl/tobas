@@ -36,10 +36,8 @@ class BaseController(Widget):
         super().__init__(parent=main)
         self._main = main
 
-        # 動的パラメータの設定を取得
-        self._param_server_process = rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
-        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
-        self._configs: List[dict] = cli.get_parameter_descriptions()
+        self._param_server_process = None
+        self._configs: List[dict] = []
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -48,12 +46,17 @@ class BaseController(Widget):
         self._rows.addWidget(abst)
 
     @override
-    def closeEvent(self, event: QCloseEvent) -> None:
+    def close(self) -> bool:
         self._param_server_process.terminate()
-        return super().closeEvent(event)
+        return super().close()
 
     @abstractmethod
     def define_connections(self) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add_dynamic_params(self) -> None:
+        """動的パラメータをウィジェットに反映"""
         raise NotImplementedError()
 
     @abstractmethod
@@ -91,6 +94,12 @@ class BaseController(Widget):
                 res[self.PARAM_SERVER_NODE][param.name] = param.value
 
         return res
+
+    @final
+    def get_dynamic_params(self) -> None:
+        self._param_server_process = rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
+        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
+        self._configs: List[dict] = cli.get_parameter_descriptions()
 
     @final
     def _get_param_config(self, name: str) -> dict:
