@@ -32,8 +32,6 @@ class BaseHardwareSetupWidget(ScrollArea):
         self._main = main
         self._drone = drone
 
-        self.setEnabled(False)  # configパッケージが読み込まれたら有効化
-
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 

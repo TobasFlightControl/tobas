@@ -33,8 +33,6 @@ class SimulationWidget(BaseAppWidget):
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        self.setEnabled(False)  # configパッケージが読み込まれたら有効化
-
         self._ssh_client = SSHClientWrapper()
         self._config_pkg_path = None
         self._gazebo_process = None
@@ -83,7 +81,6 @@ class SimulationWidget(BaseAppWidget):
     @pyqtSlot(str)
     def _on_config_pkg_updated(self, config_pkg_path: str) -> None:
         self._config_pkg_path = config_pkg_path
-        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
