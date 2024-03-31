@@ -9,14 +9,16 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_tools_py.drone import Drone
+
 from .base_section import BaseControlSystemSectionWidget
 
 
 class TwistViewerWidget(BaseControlSystemSectionWidget):
     LABEL = "Twist"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         # TODO
 

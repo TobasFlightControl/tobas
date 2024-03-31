@@ -14,8 +14,8 @@ from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_rqt_tools.messages import q_error
-from tobas_tools_py.drone import Drone
 from tobas_rqt_tools.widgets import IntSliderDisplay
+from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
 
@@ -27,8 +27,8 @@ class MotorTestWidget(BaseHardwareSetupWidget):
     NAME = "Motor Test"
     TITLE = "Test Motors"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         warning = Description("Warning: Ensure that propellers are removed from motors.\n\n")
         warning.setStyleSheet("color: red; font-weight: bold;")
@@ -205,6 +205,8 @@ class RotorSpeedsPublisherWidget(QWidget):
             self._commanders[channel].setEnabled(False)
 
         # 回転数トピックを更新
+        if self._speeds_pub is not None:
+            self._speeds_pub.unregister()
         self._speeds_pub = rospy.Publisher(f"{self._drone.drone_name}/command/rotor_speeds", RotorSpeeds, queue_size=1)
 
     def start(self) -> None:

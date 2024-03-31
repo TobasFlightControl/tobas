@@ -6,20 +6,23 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import rospkg
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.rviz import create_rviz_frame
+from tobas_tools_py.drone import Drone
+
+from ..base import BaseAppWidget
 
 
-class UrdfBuilderWidget(Widget):
+class UrdfBuilderWidget(BaseAppWidget):
     NAME = "URDF Builder"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(parent=main)
-        self._main = main
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -30,5 +33,6 @@ class UrdfBuilderWidget(Widget):
 
         rows.addWidget(self._frame)
 
+    @override
     def define_connections(self) -> None:
         pass

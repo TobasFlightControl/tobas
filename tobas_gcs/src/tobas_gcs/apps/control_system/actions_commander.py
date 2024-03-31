@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
+from tobas_tools_py.drone import Drone
 
 from ...common import *
 from ...utils.ssh_client import SSHClientWrapper
@@ -26,8 +27,8 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
     BUTTON_WIDTH = 120
     BUTTON_HEIGHT = 50
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         self._ssh_client = SSHClientWrapper()
 

@@ -23,9 +23,10 @@ from .utils.ssh_client import SSHClientWrapper
 class PackageManagerWidget(Widget):
     KEY = "last_opened_dir/tobas_configuration_package"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(parent=main)
         self._main = main
+        self._drone = drone
 
         self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
         self._ssh_client = SSHClientWrapper()
@@ -51,8 +52,8 @@ class PackageManagerWidget(Widget):
         self._load_button.clicked.connect(self._on_load_button_clicked)
         self._send_button.clicked.connect(self._on_send_button_clicked)
 
-    def _is_valid_tobas_pkg(self, pkg_path: str) -> bool:
-        """有効なTobasパッケージかどうかを判定する．"""
+    def _load_drone(self, pkg_path: str) -> bool:
+        """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
         tbsf_path = osp.join(pkg_path, "config/drone.tbsf")
         if not osp.isfile(tbsf_path):
@@ -60,7 +61,7 @@ class PackageManagerWidget(Widget):
 
         # TBSFファイルが正常に読み込めることを確認
         try:
-            DroneLoader_File(Drone(), tbsf_path).load()
+            DroneLoader_File(self._drone, tbsf_path).load()
         except Exception as e:
             rospy.logerr(f"Failed to load TBSF:\n\n{e}")
             return False
@@ -86,7 +87,7 @@ class PackageManagerWidget(Widget):
             return
 
         # 有効なTobas Configuration Packageでなければ終了
-        if not self._is_valid_tobas_pkg(pkg_path):
+        if not self._load_drone(pkg_path):
             q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package or is collapsed.')
             return
 

@@ -12,6 +12,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.drone import Drone
 from wpa_supplicant_parser_py.parser import WPASupplicantParser, Network
 
 from ....common import *
@@ -30,8 +31,8 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
     COL_PSK = 1
     LABELS = ("SSID", "PSK")
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         self._ssh_client = SSHClientWrapper()
         self._wpa_parser = WPASupplicantParser()

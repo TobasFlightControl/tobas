@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import AccelCalibration, AccelCalibrationRequest, AccelCalibrationResponse
 
 from ....common import *
@@ -22,8 +23,8 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
     NAME = "Accel Calibration"
     TITLE = "Calibrate Accelerometer"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         instruction = Description('Press "Start" button with the flight controller\'s TOP surface facing up.\n\n')
         self._rows.addWidget(instruction)

@@ -15,6 +15,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.rviz import create_rviz_frame
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
 
 from ....common import *
@@ -27,8 +28,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
     POINT_HISTORY_LENGTH = 100000
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         instruction = Description(
             '1. Press "Start" button.\n\n'

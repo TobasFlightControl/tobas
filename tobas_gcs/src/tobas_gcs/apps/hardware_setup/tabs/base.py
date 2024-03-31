@@ -4,14 +4,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import os.path as osp
-from abc import abstractmethod
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import ScrollArea
-from tobas_tools_py.drone import Drone, DroneLoader_File
+from tobas_tools_py.drone import Drone
 
 from ....common import *
 
@@ -28,11 +26,10 @@ class BaseHardwareSetupWidget(ScrollArea):
     NAME = UNKNOWN
     TITLE = UNKNOWN
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__()
-
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(parent=main)
         self._main = main
-        self._drone = Drone()
+        self._drone = drone
 
         self.setEnabled(False)  # configパッケージが読み込まれたら有効化
 
@@ -46,14 +43,9 @@ class BaseHardwareSetupWidget(ScrollArea):
 
         self._rows.addSpacing(50)
 
-    @abstractmethod
     def define_connections(self) -> None:
         self._main.signals.config_pkg_updated.connect(self._on_config_pkg_updated)
 
-    @abstractmethod
     @pyqtSlot(str)
     def _on_config_pkg_updated(self, pkg_path: str) -> None:
-        tbsf_path = osp.join(pkg_path, "config/drone.tbsf")
-        DroneLoader_File(self._drone, tbsf_path).load()
-
         self.setEnabled(True)

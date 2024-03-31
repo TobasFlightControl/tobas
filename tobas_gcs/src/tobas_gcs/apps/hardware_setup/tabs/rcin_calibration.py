@@ -17,6 +17,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.layouts import create_fixed_height_hboxlayout
 from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.constants import *
+from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RCInputError
 from tobas_calibration_msgs.msg import RCInput
 from tobas_calibration_msgs.srv import RCInputCalibration, RCInputCalibrationRequest, RCInputCalibrationResponse
@@ -191,8 +192,8 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
     MODE_TEXT = "Program" + " " * 15 + "Stabilize" + " " * 15 + "Acrobat"
     ON_OFF_TEXT = "ON" + " " * 55 + "OFF"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         instruction = Description(
             '1. Press "Start" button.\n\n'

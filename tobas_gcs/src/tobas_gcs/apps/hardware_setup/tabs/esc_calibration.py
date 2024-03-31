@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.msg import EscCalibrationAction, EscCalibrationGoal
 
 
@@ -23,8 +24,8 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
     NAME = "ESC Calibration"
     TITLE = "Calibrate ESCs"
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         warning = Description("Warning: Ensure that propellers are removed from motors.\n\n")
         warning.setStyleSheet("color: red; font-weight: bold;")

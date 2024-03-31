@@ -4,58 +4,67 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import VerticalTabWidget
+from tobas_tools_py.drone import Drone
 
+from ..base import BaseAppWidget
 from .tabs import *
 
 
-class HardwareSetupWidget(VerticalTabWidget):
+class HardwareSetupWidget(BaseAppWidget):
     NAME = "Hardware Setup"
 
     TAB_HEIGHT = 35  # これ以上無いと何故かTabBarの文字が横に見切れてしまう
     TAB_WIDTH = 80
     MIN_HEIGHT = 300
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(parent=main)
-        self._main = main
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
-        self._network_setting = NetworkSettingWidget(main)
-        self._acc_calib = AccelCalibrationWidget(main)
-        self._mag_calib = MagCalibrationWidget(main)
-        self._adc_calib = AdcCalibrationWidget(main)
-        self._rcin_calib = RcinCalibrationWidget(main)
-        self._noise_calib = NoiseCalibrationWidget(main)
-        self._esc_calib = EscCalibrationWidget(main)
-        self._motor_test = MotorTestWidget(main)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
-        self.addTab(self._network_setting, NetworkSettingWidget.NAME)
-        self.addTab(self._acc_calib, AccelCalibrationWidget.NAME)
-        self.addTab(self._mag_calib, MagCalibrationWidget.NAME)
-        self.addTab(self._adc_calib, AdcCalibrationWidget.NAME)
-        self.addTab(self._rcin_calib, RcinCalibrationWidget.NAME)
-        # self.addTab(self._noise_calib, NoiseCalibrationWidget.NAME)  # TODO
-        self.addTab(self._esc_calib, EscCalibrationWidget.NAME)
-        self.addTab(self._motor_test, MotorTestWidget.NAME)
+        self._tabs = VerticalTabWidget(parent=self)
+        rows.addWidget(self._tabs)
 
-        self.setMinimumHeight(self.MIN_HEIGHT)
-        self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
+        self._network_setting = NetworkSettingWidget(main, drone)
+        self._acc_calib = AccelCalibrationWidget(main, drone)
+        self._mag_calib = MagCalibrationWidget(main, drone)
+        self._adc_calib = AdcCalibrationWidget(main, drone)
+        self._rcin_calib = RcinCalibrationWidget(main, drone)
+        # self._noise_calib = NoiseCalibrationWidget(main, drone)  # TODO
+        self._esc_calib = EscCalibrationWidget(main, drone)
+        self._motor_test = MotorTestWidget(main, drone)
 
+        self._tabs.addTab(self._network_setting, NetworkSettingWidget.NAME)
+        self._tabs.addTab(self._acc_calib, AccelCalibrationWidget.NAME)
+        self._tabs.addTab(self._mag_calib, MagCalibrationWidget.NAME)
+        self._tabs.addTab(self._adc_calib, AdcCalibrationWidget.NAME)
+        self._tabs.addTab(self._rcin_calib, RcinCalibrationWidget.NAME)
+        # self._tabs.addTab(self._noise_calib, NoiseCalibrationWidget.NAME)  # TODO
+        self._tabs.addTab(self._esc_calib, EscCalibrationWidget.NAME)
+        self._tabs.addTab(self._motor_test, MotorTestWidget.NAME)
+
+        self._tabs.setMinimumHeight(self.MIN_HEIGHT)
+        self._tabs.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
+
+    @override
     def define_connections(self) -> None:
         self._network_setting.define_connections()
         self._acc_calib.define_connections()
         self._mag_calib.define_connections()
         self._adc_calib.define_connections()
         self._rcin_calib.define_connections()
-        self._noise_calib.define_connections()
+        # self._noise_calib.define_connections()  # TODO
         self._esc_calib.define_connections()
         self._motor_test.define_connections()
 
     def switch_to_tab(self, tab: QWidget) -> None:
-        idx = self.indexOf(tab)
+        idx = self._tabs.indexOf(tab)
         assert idx >= 0
-        self.setCurrentIndex(idx)
+        self._tabs.setCurrentIndex(idx)

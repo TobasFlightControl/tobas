@@ -12,16 +12,17 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from overrides import override
-from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
+from tobas_tools_py.drone import Drone
 
 from ...common import *
 from ...utils.ssh_client import SSHClientWrapper
 from ...utils.system import kill_gazebo
+from ..base import BaseAppWidget
 
 
-class SimulationWidget(Widget):
+class SimulationWidget(BaseAppWidget):
     NAME = "Simulation"
 
     BUTTON_WIDTH = 100
@@ -29,9 +30,8 @@ class SimulationWidget(Widget):
     WAIT_FOR_GAZEBO_SERVICE = 30.0  # [s]
     WAIT_GAZEBO_TO_OPEN = 3.0  # [s]
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(parent=main)
-        self._main = main
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         self.setEnabled(False)  # configパッケージが読み込まれたら有効化
 
@@ -70,6 +70,7 @@ class SimulationWidget(Widget):
 
         return super().close()
 
+    @override
     def define_connections(self) -> None:
         self._main.signals.config_pkg_updated.connect(self._on_config_pkg_updated)
         self._start_button.clicked.connect(self._on_start_button_clicked)
@@ -78,7 +79,6 @@ class SimulationWidget(Widget):
     @pyqtSlot(str)
     def _on_config_pkg_updated(self, config_pkg_path: str) -> None:
         self._config_pkg_path = config_pkg_path
-
         self.setEnabled(True)
 
     @pyqtSlot()

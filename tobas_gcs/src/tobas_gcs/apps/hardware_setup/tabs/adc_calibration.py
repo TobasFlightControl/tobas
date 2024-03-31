@@ -13,6 +13,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import AdcCalibration, AdcCalibrationRequest, AdcCalibrationResponse
 
 from ....common import *
@@ -25,8 +26,8 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
     WIDTH = 100
 
-    def __init__(self, main: GroundControlStationWidget) -> None:
-        super().__init__(main)
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
 
         instruction = Description(
             "1. Ensure the battery and the ADC port is correctly connected.\n\n"

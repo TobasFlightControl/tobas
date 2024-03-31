@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import Widget, ComboBox
+from tobas_tools_py.drone import Drone
 
 from .common import *
 from .apps import *
@@ -13,15 +14,16 @@ class GroundControlStationWidget(Widget):
     def __init__(self, parent: Widget = None) -> None:
         super().__init__(parent=parent)
 
+        self._drone = Drone()
         self.signals = Signals()
 
-        self.start = StartWidget(self)
-        self.urdf_builder = UrdfBuilderWidget(self)
-        self.setup_assistant = SetupAssistantWidget(self)
-        self.hardware_setup = HardwareSetupWidget(self)
-        self.simulation = SimulationWidget(self)
-        self.mission_planner = MissionPlannerWidget(self)
-        self.control_system = ControlSystemWidget(self)
+        self.start = StartWidget(self, self._drone)
+        self.urdf_builder = UrdfBuilderWidget(self, self._drone)
+        self.setup_assistant = SetupAssistantWidget(self, self._drone)
+        self.hardware_setup = HardwareSetupWidget(self, self._drone)
+        self.simulation = SimulationWidget(self, self._drone)
+        self.mission_planner = MissionPlannerWidget(self, self._drone)
+        self.control_system = ControlSystemWidget(self, self._drone)
 
         self._combo_box = ComboBox()
         self._combo_box.addItem(StartWidget.NAME)
@@ -41,7 +43,7 @@ class GroundControlStationWidget(Widget):
         self._apps.addWidget(self.mission_planner)
         self._apps.addWidget(self.control_system)
 
-        self.package_manager = PackageManagerWidget(self)
+        self.package_manager = PackageManagerWidget(self, self._drone)
 
         # レイアウト
         rows = QVBoxLayout()
