@@ -42,8 +42,8 @@ private:
 
   // PubSub
   ros::Publisher pwms_pub_;
-  ros::Publisher cur_speeds_pub_;
   ros::Publisher latency_pub_;
+  ros::Publisher arming_pub_;
   ros::Subscriber tar_speeds_sub_;
   ros::Subscriber battery_sub_;
 
@@ -63,6 +63,7 @@ private:
   bool disarmRotors();
   bool enablePwms(const bool& enable);
   void setPeriodOnAllChannels(const double& period);
+  void publishArming();
 
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);

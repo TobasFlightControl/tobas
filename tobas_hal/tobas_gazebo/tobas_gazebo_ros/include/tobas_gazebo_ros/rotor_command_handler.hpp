@@ -29,6 +29,7 @@ private:
   bool is_armed_ = false;
 
   ros::Publisher throttles_pub_;
+  ros::Publisher arming_pub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber tar_speeds_sub_;
 
@@ -38,6 +39,8 @@ private:
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
+
+  void publishArming();
 
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);

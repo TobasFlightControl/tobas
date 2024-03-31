@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import rospy
+from std_msgs.msg import Bool
 from abc import abstractmethod
 from typing import final
 from overrides import override
@@ -29,22 +30,26 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         self._gps_status = GpsStatus(main, drone)
         self._rcin_status = RCInputStatus(main, drone)
         self._ready_status = ReadyToFlightStatus(main, drone)
+        self._arming_status = ArmingStatus(main, drone)
 
         self._rows.addWidget(self._gps_status)
         self._rows.addWidget(self._rcin_status)
         self._rows.addWidget(self._ready_status)
+        self._rows.addWidget(self._arming_status)
 
     @override
     def define_connections(self) -> None:
         self._gps_status.define_connections()
         self._rcin_status.define_connections()
         self._ready_status.define_connections()
+        self._arming_status.define_connections()
 
     @override
     def update_internal_data_structures(self) -> None:
         self._gps_status.update_internal_data_structures()
         self._rcin_status.update_internal_data_structures()
         self._ready_status.update_internal_data_structures()
+        self._arming_status.update_internal_data_structures()
 
 
 class BaseStatusWidget(QWidget):
@@ -121,7 +126,7 @@ class GpsStatus(BaseStatusWidget):
 
 
 class RCInputStatus(BaseStatusWidget):
-    TEXT = "Radio input received"
+    TEXT = "Radio input"
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
@@ -138,10 +143,10 @@ class RCInputStatus(BaseStatusWidget):
 
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(f"/{self._drone.drone_name}/rc_input", Gps, self._rcin_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(f"/{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
 
     def _rcin_cb(self, rcin: RCInput) -> None:
-        if rcin.error == RCInputError.E_NO_ERROR:
+        if rcin.error.error == RCInputError.E_NO_ERROR:
             self.set_yes()
         else:
             self.set_no()
@@ -165,8 +170,35 @@ class ReadyToFlightStatus(BaseStatusWidget):
 
         if self._odom_sub is not None:
             self._odom_sub.unregister()
-        self._odom_sub = rospy.Subscriber(f"/{self._drone.drone_name}/odom", Gps, self._odom_cb, queue_size=1)
+        self._odom_sub = rospy.Subscriber(f"/{self._drone.drone_name}/odom", Odometry, self._odom_cb, queue_size=1)
 
     def _odom_cb(self, _: Odometry) -> None:
         # TODO: 状態推定だけでなく，アクチュエータのチェックも行う
         self.set_yes()
+
+
+class ArmingStatus(BaseStatusWidget):
+    TEXT = "Rotors armed"
+
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
+
+        self._arming_sub = None
+
+    @override
+    def define_connections(self) -> None:
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        self.set_unknown()
+
+        if self._arming_sub is not None:
+            self._arming_sub.unregister()
+        self._arming_sub = rospy.Subscriber(f"/{self._drone.drone_name}/arming", Bool, self._arming_cb, queue_size=1)
+
+    def _arming_cb(self, arming: Bool) -> None:
+        if arming.data:
+            self.set_yes()
+        else:
+            self.set_no()

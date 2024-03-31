@@ -1,3 +1,5 @@
+#include <std_msgs/Bool.h>
+
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -24,6 +26,8 @@ RotorCommandHandler::RotorCommandHandler(
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
+
+  publishArming();
 }
 
 void RotorCommandHandler::getRosParams()
@@ -33,12 +37,20 @@ void RotorCommandHandler::getRosParams()
 void RotorCommandHandler::registerPublishers()
 {
   throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
+  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
 }
 
 void RotorCommandHandler::registerSubscribers()
 {
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
   tar_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::targetRotorSpeedsCb, this);
+}
+
+void RotorCommandHandler::publishArming()
+{
+  const auto arming_msg = boost::make_shared<std_msgs::Bool>();
+  arming_msg->data = is_armed_;
+  arming_pub_.publish(arming_msg);
 }
 
 void RotorCommandHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
@@ -48,18 +60,14 @@ void RotorCommandHandler::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds)
 {
+  if (!is_armed_)
+    return;
+
   if (battery_ == nullptr)
   {
     rosErrorThrottle(
       kErrorPeriod, name_,
       "The rotors cannot be rotated because battery state has not been received yet.");
-    return;
-  }
-
-  if (!is_armed_)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_, "The rotors cannot be rotated because they are disarmed.");
     return;
   }
 
@@ -116,13 +124,16 @@ bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::S
   {
     rosInfo(name_, "Arming rotors.");
     ros::Duration(tobas::kDisarmDuration).sleep();  // 実機に近づけるためArmに要する時間だけスリープ
+    is_armed_ = req.arming;
   }
   else if (is_armed_ && !req.arming)
   {
     rosInfo(name_, "Disarming rotors.");
+    is_armed_ = req.arming;
   }
 
-  is_armed_ = req.arming;
+  publishArming();
+
   res.success = true;
   return true;
 }

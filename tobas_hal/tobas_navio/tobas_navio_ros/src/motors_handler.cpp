@@ -1,3 +1,5 @@
+#include <std_msgs/Bool.h>
+
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/vector.hpp>
@@ -37,6 +39,8 @@ MotorsHandler::MotorsHandler(
 
   check_interval_timer_ =
     nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
+
+  publishArming();
 }
 
 void MotorsHandler::getRosParams()
@@ -46,8 +50,8 @@ void MotorsHandler::getRosParams()
 void MotorsHandler::registerPublishers()
 {
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  cur_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsTopic, 1);
   latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
+  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
 }
 
 void MotorsHandler::registerSubscribers()
@@ -126,20 +130,23 @@ void MotorsHandler::setPeriodOnAllChannels(const double& period)
   pwms_pub_.publish(pwms);
 }
 
+void MotorsHandler::publishArming()
+{
+  const auto arming_msg = boost::make_shared<std_msgs::Bool>();
+  arming_msg->data = is_armed_;
+  arming_pub_.publish(arming_msg);
+}
+
 void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds)
 {
+  if (!is_armed_)
+    return;
+
   if (battery_ == nullptr)
   {
     rosErrorThrottle(
       kErrorPeriod, name_,
       "The rotors cannot be rotated because battery state has not been received yet.");
-    return;
-  }
-
-  if (!is_armed_)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_, "The rotors cannot be rotated because they are disarmed.");
     return;
   }
 
@@ -153,12 +160,9 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
   // Get current time
   const auto cur_time = ros::Time::now();
 
-  // Create ROS messages
+  // Create PWM message
   const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
-  const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   pwms->header = tar_speeds->header;
-  real_speeds->header.stamp = cur_time;
-  real_speeds->speeds.resize(data_size);
 
   // Update PWM periods
   for (size_t rotor_idx = 0; rotor_idx < data_size; ++rotor_idx)
@@ -182,10 +186,6 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
                                              << max_speed << " [rad/s]");
       tar_speed = max_speed;
     }
-
-    // モータの追従遅延やモデル化誤差を無視し，目標回転数をそのまま現在の回転数としてメッセージに格納．
-    // TODO: エンコーダを用いて真の回転数が取得できる場合に対応
-    real_speeds->speeds[rotor_idx] = tar_speed;
 
     // PWMコマンドメッセージを作成
     double pwm_period;
@@ -226,9 +226,6 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
 
   // Publish PWM commands
   pwms_pub_.publish(pwms);
-
-  // Publish real rotation speeds
-  cur_speeds_pub_.publish(real_speeds);
 
   // Check latency: 多少の外れ値を許容するため，LPFを通したレイテンシで評価
   // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
@@ -298,6 +295,8 @@ bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmR
     }
   }
 
+  publishArming();
+
   res.success = true;
   return true;
 }
@@ -316,20 +315,6 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
         name_, "The speeds of all rotors are automatically stopped because "
                  << tobas::kAutoResetTimeThreshold
                  << " seconds have elapsed since the last command.");
-    }
-
-    // Publish arming speeds
-    if (battery_ != nullptr)
-    {
-      const auto real_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
-      real_speeds->header.stamp = event.current_real;
-      real_speeds->speeds.resize(drone_.numRotors());
-
-      const auto real_voltage = battery_->voltage * tobas::kArmThrottle;
-      for (size_t rotor_idx = 0; rotor_idx < drone_.numRotors(); ++rotor_idx)
-        real_speeds->speeds[rotor_idx] = drone_.rotSpeedFromVoltage(rotor_idx, real_voltage);
-
-      cur_speeds_pub_.publish(real_speeds);
     }
   }
 }
