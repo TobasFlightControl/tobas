@@ -86,6 +86,10 @@ class BaseStatusWidget(QWidget):
 
     @final
     def set_no(self) -> None:
+        self._led.set_color(LEDColor.RED)
+
+    @final
+    def set_unknown(self) -> None:
         self._led.set_color(LEDColor.BLACK)
 
 
@@ -103,7 +107,7 @@ class GpsStatus(BaseStatusWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self.set_no()
+        self.set_unknown()
 
         if self._gps_sub is not None:
             self._gps_sub.unregister()
@@ -130,7 +134,7 @@ class RCInputStatus(BaseStatusWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self.set_no()
+        self.set_unknown()
 
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
@@ -157,7 +161,7 @@ class ReadyToFlightStatus(BaseStatusWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self.set_no()
+        self.set_unknown()
 
         if self._odom_sub is not None:
             self._odom_sub.unregister()
