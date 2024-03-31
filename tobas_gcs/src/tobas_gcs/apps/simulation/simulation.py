@@ -59,6 +59,8 @@ class SimulationWidget(BaseAppWidget):
 
         rows.addStretch()
 
+        self.setEnabled(False)
+
     @override
     def close(self) -> bool:
         if self._gazebo_process is not None:
@@ -81,6 +83,7 @@ class SimulationWidget(BaseAppWidget):
     @pyqtSlot(str)
     def _on_config_pkg_updated(self, config_pkg_path: str) -> None:
         self._config_pkg_path = config_pkg_path
+        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:

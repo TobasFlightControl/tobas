@@ -93,8 +93,8 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
         # ラズパイをシャットダウン
         # 即座に接続が切れるため別スレッドでコマンドを実行
+        rospy.loginfo("Shutting down the Raspberry Pi.")
         Thread(target=lambda: self._ssh_client.exec_command_super("poweroff")).run()
-        q_info(self._main, "The flight controller has been shut down. Please confirm safety and turn off the power.")
 
         # GCSを強制終了
         os.kill(os.getpid(), signal.SIGINT)

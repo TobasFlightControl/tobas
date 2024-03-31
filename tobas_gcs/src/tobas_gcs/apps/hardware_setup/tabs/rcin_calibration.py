@@ -5,8 +5,8 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import rospy
-from overrides import override
 from abc import abstractmethod
+from overrides import override
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
