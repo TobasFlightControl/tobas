@@ -59,6 +59,9 @@ class GroundControlStationWidget(Widget):
         self.define_connections()
 
     def define_connections(self) -> None:
+        # Tobasパッケージが変更されたら内部状態を更新
+        self.signals.config_pkg_updated.connect(self._on_config_pkg_updated)
+
         # 選択リストから選択されたアプリケーションを表示
         self._combo_box.currentIndexChanged.connect(self._apps.setCurrentIndex)
 
@@ -71,3 +74,13 @@ class GroundControlStationWidget(Widget):
         self.control_system.define_connections()
 
         self.package_manager.define_connections()
+
+    @pyqtSlot(str)
+    def _on_config_pkg_updated(self, _: str) -> None:
+        self.start.update_internal_data_structures()
+        self.urdf_builder.update_internal_data_structures()
+        self.setup_assistant.update_internal_data_structures()
+        self.hardware_setup.update_internal_data_structures()
+        self.simulation.update_internal_data_structures()
+        self.mission_planner.update_internal_data_structures()
+        self.control_system.update_internal_data_structures()

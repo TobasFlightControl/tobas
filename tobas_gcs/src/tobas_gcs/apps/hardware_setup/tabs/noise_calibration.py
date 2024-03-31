@@ -23,4 +23,8 @@ class NoiseCalibrationWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        super().define_connections()
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass

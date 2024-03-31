@@ -67,14 +67,11 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._stop_button.clicked.connect(self._on_stop_button_clicked)
 
     @override
-    @pyqtSlot(str)
-    def _on_config_pkg_updated(self, pkg_path: str) -> None:
-        super()._on_config_pkg_updated(pkg_path)
+    def update_internal_data_structures(self) -> None:
         self._rotor_speeds_publisher.update_internal_data_structures()
 
     @pyqtSlot()

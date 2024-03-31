@@ -74,16 +74,12 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._finish_button.clicked.connect(self._on_finish_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
 
     @override
-    @pyqtSlot(str)
-    def _on_config_pkg_updated(self, pkg_path: str) -> None:
-        super()._on_config_pkg_updated(pkg_path)
-
+    def update_internal_data_structures(self) -> None:
         # Rvizのトピックを変更
         self._point_topic.setValue(f"/{self._drone.drone_name}/mag_calibration/magnetic_field_raw")
 

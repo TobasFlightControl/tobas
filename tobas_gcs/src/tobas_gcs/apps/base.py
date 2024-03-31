@@ -20,4 +20,10 @@ class BaseAppWidget(Widget):
 
     @abstractmethod
     def define_connections(self) -> None:
+        """シグナルスロット通信の定義．"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def update_internal_data_structures(self) -> None:
+        """Tobasパッケージが変更されたときの内部情報の更新．"""
         raise NotImplementedError()

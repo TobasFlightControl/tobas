@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...gcs import GroundControlStationWidget
+    from ....gcs import GroundControlStationWidget
 
 import os
 import signal
@@ -16,8 +16,8 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
-from ...common import *
-from ...utils.ssh_client import SSHClientWrapper
+from ....common import *
+from ....utils.ssh_client import SSHClientWrapper
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -60,6 +60,10 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
         self._landing_button.clicked.connect(self._on_landing_button_clicked)
         self._rth_button.clicked.connect(self._on_rth_button_clicked)
         self._poweroff_button.clicked.connect(self._on_poweroff_button_clicked)
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
 
     @pyqtSlot()
     def _on_takeoff_button_clicked(self) -> None:

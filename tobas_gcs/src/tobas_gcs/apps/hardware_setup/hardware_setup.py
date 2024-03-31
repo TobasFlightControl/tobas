@@ -64,6 +64,17 @@ class HardwareSetupWidget(BaseAppWidget):
         self._esc_calib.define_connections()
         self._motor_test.define_connections()
 
+    @override
+    def update_internal_data_structures(self) -> None:
+        self._network_setting.update_internal_data_structures()
+        self._acc_calib.update_internal_data_structures()
+        self._mag_calib.update_internal_data_structures()
+        self._adc_calib.update_internal_data_structures()
+        self._rcin_calib.update_internal_data_structures()
+        # self._noise_calib.update_internal_data_structures()  # TODO
+        self._esc_calib.update_internal_data_structures()
+        self._motor_test.update_internal_data_structures()
+
     def switch_to_tab(self, tab: QWidget) -> None:
         idx = self._tabs.indexOf(tab)
         assert idx >= 0

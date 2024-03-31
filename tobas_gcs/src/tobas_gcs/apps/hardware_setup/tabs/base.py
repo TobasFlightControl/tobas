@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+from abc import abstractmethod
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -43,9 +44,10 @@ class BaseHardwareSetupWidget(ScrollArea):
 
         self._rows.addSpacing(50)
 
+    @abstractmethod
     def define_connections(self) -> None:
-        self._main.signals.config_pkg_updated.connect(self._on_config_pkg_updated)
+        raise NotImplementedError()
 
-    @pyqtSlot(str)
-    def _on_config_pkg_updated(self, pkg_path: str) -> None:
-        self.setEnabled(True)
+    @abstractmethod
+    def update_internal_data_structures(self) -> None:
+        raise NotImplementedError()

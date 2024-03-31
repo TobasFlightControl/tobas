@@ -11,7 +11,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.rviz import create_rviz_frame
 from tobas_tools_py.drone import Drone
 
@@ -35,4 +34,8 @@ class UrdfBuilderWidget(BaseAppWidget):
 
     @override
     def define_connections(self) -> None:
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
         pass

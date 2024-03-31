@@ -14,6 +14,7 @@ from tobas_setup_assistant.setup_assistant import SetupAssistant
 
 from ..base import BaseAppWidget
 
+
 class SetupAssistantWidget(BaseAppWidget):
     NAME = "Setup Assistant"
 
@@ -28,4 +29,8 @@ class SetupAssistantWidget(BaseAppWidget):
 
     @override
     def define_connections(self) -> None:
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
         pass

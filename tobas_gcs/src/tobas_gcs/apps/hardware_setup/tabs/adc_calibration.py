@@ -72,8 +72,11 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:

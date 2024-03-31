@@ -9,18 +9,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.drone import Drone
 
-from .actions_commander import ActionsCommanderWidget
-from .pose_viewer import PoseViewerWidget
-from .twist_viewer import TwistViewerWidget
-from .battery_viewer import BatteryViewerWidget
-from .rotors_viewer import RotorsViewerWidget
-from .status_viewer import StatusViewerWidget
-from .rc_input_viewer import RCInputViewerWidget
-
 from ..base import BaseAppWidget
+from .sections import *
 
 
 class ControlSystemWidget(BaseAppWidget):
@@ -59,3 +51,13 @@ class ControlSystemWidget(BaseAppWidget):
         self._rotors_viewer.define_connections()
         self._status_viewer.define_connections()
         self._rc_input_viewer.define_connections()
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        self._actions_commander.update_internal_data_structures()
+        self._pose_viewer.update_internal_data_structures()
+        self._twist_viewer.update_internal_data_structures()
+        self._battery_viewer.update_internal_data_structures()
+        self._rotors_viewer.update_internal_data_structures()
+        self._status_viewer.update_internal_data_structures()
+        self._rc_input_viewer.update_internal_data_structures()

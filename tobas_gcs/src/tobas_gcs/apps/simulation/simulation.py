@@ -76,6 +76,10 @@ class SimulationWidget(BaseAppWidget):
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._terminate_button.clicked.connect(self._on_terminate_button_clicked)
 
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
     @pyqtSlot(str)
     def _on_config_pkg_updated(self, config_pkg_path: str) -> None:
         self._config_pkg_path = config_pkg_path

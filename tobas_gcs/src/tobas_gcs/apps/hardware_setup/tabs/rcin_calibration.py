@@ -296,10 +296,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        super().define_connections()
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._finish_button.clicked.connect(self._on_finish_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
 
     def _reset(self) -> None:
         self._roll_range.clear()

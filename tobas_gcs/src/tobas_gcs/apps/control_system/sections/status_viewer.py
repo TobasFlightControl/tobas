@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...gcs import GroundControlStationWidget
+    from ....gcs import GroundControlStationWidget
 
 import rospy
 from abc import abstractmethod
@@ -29,6 +29,10 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
 
     @override
     def define_connections(self) -> None:
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
         pass
 
 

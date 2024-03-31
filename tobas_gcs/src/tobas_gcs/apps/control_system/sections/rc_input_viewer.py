@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...gcs import GroundControlStationWidget
+    from ....gcs import GroundControlStationWidget
 
 from overrides import override
 from PyQt5.QtCore import *
@@ -14,8 +14,8 @@ from tobas_tools_py.drone import Drone
 from .base_section import BaseControlSystemSectionWidget
 
 
-class PoseViewerWidget(BaseControlSystemSectionWidget):
-    LABEL = "Pose"
+class RCInputViewerWidget(BaseControlSystemSectionWidget):
+    LABEL = "Radio Input"
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
@@ -24,4 +24,8 @@ class PoseViewerWidget(BaseControlSystemSectionWidget):
 
     @override
     def define_connections(self) -> None:
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
         pass

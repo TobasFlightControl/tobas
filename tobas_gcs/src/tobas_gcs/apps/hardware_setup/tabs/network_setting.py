@@ -78,11 +78,14 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
     @override
     def define_connections(self) -> None:
-        super().define_connections()
         self._read_button.clicked.connect(self._on_read_button_clicked)
         self._write_button.clicked.connect(self._on_write_button_clicked)
         self._add_button.clicked.connect(self._on_add_button_clicked)
         self._remove_button.clicked.connect(self._on_remove_button_clicked)
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
 
     def _add_row(self, ssid: str, psk: str) -> None:
         row = self._table.rowCount()

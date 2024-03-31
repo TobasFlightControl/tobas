@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...gcs import GroundControlStationWidget
+    from ....gcs import GroundControlStationWidget
 
 from abc import abstractmethod
 from PyQt5.QtCore import *
@@ -12,7 +12,7 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.drone import Drone
 
-from ...common import *
+from ....common import *
 
 
 class BaseControlSystemSectionWidget(Widget):
@@ -32,4 +32,8 @@ class BaseControlSystemSectionWidget(Widget):
 
     @abstractmethod
     def define_connections(self) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def update_internal_data_structures(self) -> None:
         raise NotImplementedError()
