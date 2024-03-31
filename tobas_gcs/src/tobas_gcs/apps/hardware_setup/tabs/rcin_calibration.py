@@ -374,7 +374,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             return
 
         # RC入力が正常に発行されていることを確認
-        rcin_topic = f"{self._drone.drone_name}/rcin_calibration/rc_input_raw"
+        rcin_topic = f"/{self._drone.drone_name}/rcin_calibration/rc_input_raw"
         try:
             rcin_msg: RCInput = rospy.wait_for_message(rcin_topic, RCInput, self.WAIT_FOR_SERVER)
         except Exception:
