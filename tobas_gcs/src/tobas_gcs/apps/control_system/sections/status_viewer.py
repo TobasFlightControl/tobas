@@ -14,6 +14,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import LEDColor, LampWidget
 from tobas_tools_py.drone import Drone
+from tobas_msgs.msg import Gps
 
 from .base_section import BaseControlSystemSectionWidget
 
@@ -29,11 +30,11 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
 
     @override
     def define_connections(self) -> None:
-        pass
+        self._gps_status.define_connections()
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self._gps_status.update_internal_data_structures()
 
 
 class BaseStatusWidget(QWidget):
@@ -65,13 +66,21 @@ class BaseStatusWidget(QWidget):
     def define_connections(self) -> None:
         raise NotImplementedError()
 
+    @abstractmethod
+    def update_internal_data_structures(self) -> None:
+        raise NotImplementedError()
+
     @final
-    def set_on(self) -> None:
+    def set_yes(self) -> None:
         self._led.set_color(LEDColor.GREEN)
 
     @final
-    def set_off(self) -> None:
+    def set_no(self) -> None:
         self._led.set_color(LEDColor.RED)
+
+    @final
+    def set_unknown(self) -> None:
+        self._led.set_color(LEDColor.BLACK)
 
 
 class GpsStatus(BaseStatusWidget):
@@ -85,3 +94,17 @@ class GpsStatus(BaseStatusWidget):
     @override
     def define_connections(self) -> None:
         pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        self.set_unknown()
+
+        if self._gps_sub is not None:
+            self._gps_sub.unregister()
+        self._gps_sub = rospy.Subscriber(f"/{self._drone.drone_name}/gps", Gps, self._gps_cb, queue_size=1)
+
+    def _gps_cb(self, gps: Gps) -> None:
+        if gps.fix_type == Gps.FIX_3D:
+            self.set_yes()
+        else:
+            self.set_no()

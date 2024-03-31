@@ -21,11 +21,21 @@ class LampWidget(QLabel):
                                     ); \
                             }}"
 
+        self._color = None
+
     def set_color(self, color: LEDColor) -> None:
+        # 色が変化しないなら何もしない
+        if color == self._color:
+            return
+
+        # 描画
         end_radius = self.sizeHint().height() / 2
         color_str, grad_str = self._get_gradient(color)
         qss = self._qss.format(end_radius, grad_str, color_str, color_str)
         self.setStyleSheet(qss)
+
+        # 新しい色に更新
+        self._color = color
 
     def _get_gradient(self, color: LEDColor) -> Tuple[str, str]:
         grad = ((LEDColor.WHITE.array - color.array) / 2).astype(np.uint8) + color.array
