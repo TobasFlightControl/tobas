@@ -76,7 +76,7 @@ class MaxRotationSpeedWidget(Widget):
 
 
 class MaxRotationSpeedMethod(Widget):
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__()

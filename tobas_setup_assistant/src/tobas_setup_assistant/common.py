@@ -10,7 +10,7 @@ AIR_DENSITY = 1.225  # [kg/m^3]
 
 PKG_NAME = "tobas_setup_assistant"
 TITLE = "Tobas Setup Assistant"
-UNKNOWN = "Unknown"
+TO_DO = "TODO"
 CW = "CW"
 CCW = "CCW"
 

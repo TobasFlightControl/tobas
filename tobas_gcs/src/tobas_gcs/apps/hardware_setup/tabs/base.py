@@ -24,8 +24,8 @@ class BaseHardwareSetupWidget(ScrollArea):
     E_FAILED_TO_CONNECT = "Failed to connect to the flight controller."
     E_FAILED_TO_CALL_SRV = "Failed to call ROS service"
 
-    NAME = UNKNOWN
-    TITLE = UNKNOWN
+    NAME = TO_DO
+    TITLE = TO_DO
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(parent=main)

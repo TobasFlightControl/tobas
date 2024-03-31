@@ -114,7 +114,7 @@ class BatteryWidget(BaseSettingWidget):
 
 
 class BatteryWidget_Base(Widget):
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()

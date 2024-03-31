@@ -16,6 +16,7 @@ from tobas_rqt_tools.widgets import LEDColor, LampWidget
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Gps
 
+from ....common import TO_DO
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -38,7 +39,7 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
 
 
 class BaseStatusWidget(QWidget):
-    TEXT = "Not defined"
+    TEXT = TO_DO
 
     LED_SIZE = 20
     TEXT_PSIZE = 12

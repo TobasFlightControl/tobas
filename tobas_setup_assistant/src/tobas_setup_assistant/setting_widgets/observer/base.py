@@ -21,8 +21,8 @@ from ...parameter_getters import *
 
 
 class BaseObserver(Widget):
-    NAME = UNKNOWN
-    PACKAGE_NAME = UNKNOWN
+    NAME = TO_DO
+    PACKAGE_NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__(parent=main)

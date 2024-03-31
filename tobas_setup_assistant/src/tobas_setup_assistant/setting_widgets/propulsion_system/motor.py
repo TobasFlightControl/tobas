@@ -130,7 +130,7 @@ class MotorWidget(Widget):
 
 
 class MotorWidget_Base(Widget):  # NOTE: ABCを継承するとバグる
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()

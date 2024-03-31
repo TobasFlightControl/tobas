@@ -124,7 +124,7 @@ class AerodynamicsWidget(Widget):
 
 
 class AerodynamicsWidget_Base(Widget):
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str, abst_text: str) -> None:
         super().__init__()

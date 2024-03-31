@@ -17,7 +17,7 @@ from ..common import *
 class BaseSettingWidget(ScrollArea):
     ABST_HEIGHT = 100
 
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, title_text: str, abst_text: str) -> None:
         super().__init__(parent=main)

@@ -24,13 +24,13 @@ PARAM_DESCRIPTION_TIMEOUT = 3
 
 
 class BaseController(Widget):
-    NAME = UNKNOWN
-    CONTROLLER_PKG = UNKNOWN
-    TAKEOFF_PKG = UNKNOWN
-    LANDING_PKG = UNKNOWN
-    STABLIZE_MODE = UNKNOWN
-    ACROBAT_MODE = UNKNOWN
-    PARAM_SERVER_NODE = UNKNOWN
+    NAME = TO_DO
+    CONTROLLER_PKG = TO_DO
+    TAKEOFF_PKG = TO_DO
+    LANDING_PKG = TO_DO
+    STABLIZE_MODE = TO_DO
+    ACROBAT_MODE = TO_DO
+    PARAM_SERVER_NODE = TO_DO
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__(parent=main)

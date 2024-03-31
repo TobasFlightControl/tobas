@@ -16,7 +16,7 @@ from ....common import *
 
 
 class BaseControlSystemSectionWidget(Widget):
-    LABEL = UNKNOWN
+    LABEL = TO_DO
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(parent=main)
