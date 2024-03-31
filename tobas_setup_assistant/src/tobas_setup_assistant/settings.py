@@ -81,6 +81,4 @@ class SettingsWidget(VerticalTabWidget):
         self.ros_package.define_connections()
 
     def switch_to_tab(self, tab: QWidget) -> None:
-        idx = self.indexOf(tab)
-        assert idx >= 0
-        self.setCurrentIndex(idx)
+        self.switch(tab)

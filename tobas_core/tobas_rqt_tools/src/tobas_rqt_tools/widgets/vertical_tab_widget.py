@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QRect, QPoint
-from PyQt5.QtWidgets import QTabBar, QTabWidget, QStyle, QStylePainter, QStyleOptionTab
+from PyQt5.QtWidgets import QWidget, QTabBar, QTabWidget, QStyle, QStylePainter, QStyleOptionTab
 
 
 class _TabBar(QTabBar):
@@ -41,3 +41,8 @@ class VerticalTabWidget(QTabWidget):
         super().__init__(parent=parent)
         self.setTabBar(_TabBar(self))
         self.setTabPosition(QTabWidget.West)
+
+    def switch(self, tab: QWidget) -> None:
+        idx = self.indexOf(tab)
+        assert idx >= 0
+        self.setCurrentIndex(idx)

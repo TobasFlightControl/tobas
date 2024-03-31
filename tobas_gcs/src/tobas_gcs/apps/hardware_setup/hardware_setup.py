@@ -76,6 +76,4 @@ class HardwareSetupWidget(BaseAppWidget):
         self._motor_test.update_internal_data_structures()
 
     def switch_to_tab(self, tab: QWidget) -> None:
-        idx = self._tabs.indexOf(tab)
-        assert idx >= 0
-        self._tabs.setCurrentIndex(idx)
+        self._tabs.switch(tab)
