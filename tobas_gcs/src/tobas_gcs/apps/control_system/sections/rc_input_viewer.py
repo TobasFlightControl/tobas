@@ -103,7 +103,6 @@ class VPositionBarWidget(PositionBarWidget):
 class RCInputViewerWidget(BaseControlSystemSectionWidget):
     LABEL = "Radio Input"
 
-    SCALAR = 10000
     RANGE_SIDE_SHORT = 30
     RANGE_SIDE_LONG = 300
     LABEL_WIDTH = 100
@@ -118,14 +117,14 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Roll, Pitch, Yaw, Thrust
         cols2 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols1)
 
-        self._pitch_range = VPositionBarWidget(self.SCALAR, -self.SCALAR)
+        self._pitch_range = VPositionBarWidget(1.0, -1.0)
         self._pitch_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._pitch_range)
 
         rows1 = QVBoxLayout()
         cols2.addLayout(rows1)
 
-        self._roll_range = HPositionBarWidget(-self.SCALAR, self.SCALAR)
+        self._roll_range = HPositionBarWidget(-1.0, 1.0)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
         place_center(QLabel(f"Roll"), rows1)
@@ -146,11 +145,11 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         rows1.addStretch()
 
         place_center(QLabel(f"Yaw"), rows1)
-        self._yaw_range = HPositionBarWidget(self.SCALAR, -self.SCALAR)
+        self._yaw_range = HPositionBarWidget(1.0, -1.0)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._thrust_range = VPositionBarWidget(self.SCALAR, 0)
+        self._thrust_range = VPositionBarWidget(1.0, 0.0)
         self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._thrust_range)
 
@@ -207,10 +206,10 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         if rcin.error.error != RCInputError.E_NO_ERROR:
             return
 
-        self._roll_range.set_value(rcin.roll * self.SCALAR)
-        self._pitch_range.set_value(rcin.pitch * self.SCALAR)
-        self._yaw_range.set_value(rcin.yaw * self.SCALAR)
-        self._thrust_range.set_value(rcin.thrust * self.SCALAR)
+        self._roll_range.set_value(rcin.roll)
+        self._pitch_range.set_value(rcin.pitch)
+        self._yaw_range.set_value(rcin.yaw)
+        self._thrust_range.set_value(rcin.thrust)
 
         if rcin.mode == RCInput.MODE_PROGRAM:
             self._mode.setText("Program")

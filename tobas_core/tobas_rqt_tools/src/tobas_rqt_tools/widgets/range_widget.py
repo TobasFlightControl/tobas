@@ -1,3 +1,4 @@
+import sys
 from abc import abstractmethod
 from overrides import override
 from PyQt5.QtCore import Qt, QRect
@@ -11,52 +12,50 @@ class RangeWidget(QWidget):
     LINE_WIDTH = 3
     TEXT_PSIZE = 10
 
-    def __init__(self, minimum: int = 0, maximum: int = 0, text: str = None, parent: QWidget = None) -> None:
-        assert minimum <= maximum
-
+    def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
 
-        self._minimum = minimum
-        self._maximum = maximum
-        self._text = text
+        self._minimum = 0
+        self._maximum = 0
+        self._text = None
 
         self._value = None
-        self._lower = maximum
-        self._upper = minimum
+        self._lower = sys.maxsize
+        self._upper = -sys.maxsize
 
-    def set_minimum(self, minimum: int) -> None:
+    def set_minimum(self, minimum: float) -> None:
         self._minimum = minimum
 
-    def set_maximum(self, maximum: int) -> None:
+    def set_maximum(self, maximum: float) -> None:
         self._maximum = maximum
 
     def set_text(self, text: str) -> None:
         self._text = text
 
-    def get_value(self) -> int:
+    def get_value(self) -> float:
         return self._value
 
-    def set_value(self, value: int) -> None:
+    def set_value(self, value: float) -> None:
         self._value = value
         if value < self._lower:
             self._lower = value
         if value > self._upper:
             self._upper = value
 
-    def get_lower(self) -> int:
+    def get_lower(self) -> float:
         return self._lower
 
-    def set_lower(self, lower: int) -> None:
+    def set_lower(self, lower: float) -> None:
         self._lower = lower
 
-    def get_upper(self) -> int:
+    def get_upper(self) -> float:
         return self._upper
 
-    def set_upper(self, upper: int) -> None:
+    def set_upper(self, upper: float) -> None:
         self._upper = upper
 
-    def get_middle(self) -> int:
-        return (self._lower + self._upper) // 2
+    def get_middle(self) -> float:
+        return (self._lower + self._upper) / 2
 
     def clear(self) -> None:
         self._value = None
