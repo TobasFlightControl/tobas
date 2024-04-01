@@ -1,6 +1,5 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QObject
+from PyQt5.QtWidgets import QWidget, QBoxLayout, QVBoxLayout, QHBoxLayout
 
 
 def block_signals_rec(obj: QObject, block: bool) -> None:
@@ -16,3 +15,25 @@ def place_center(widget: QWidget, rows: QVBoxLayout) -> None:
     cols.addWidget(widget)
     cols.setAlignment(widget, Qt.AlignCenter)
     rows.addLayout(cols)
+
+
+def create_fixed_width_vboxlayout(width: int, parent: QBoxLayout) -> QVBoxLayout:
+    widget = QWidget()
+    widget.setFixedWidth(width)
+    parent.addWidget(widget)
+
+    res = QVBoxLayout()
+    widget.setLayout(res)
+
+    return res
+
+
+def create_fixed_height_hboxlayout(height: int, parent: QBoxLayout) -> QHBoxLayout:
+    widget = QWidget()
+    widget.setFixedHeight(height)
+    parent.addWidget(widget)
+
+    res = QHBoxLayout()
+    widget.setLayout(res)
+
+    return res

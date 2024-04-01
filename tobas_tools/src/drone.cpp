@@ -26,15 +26,15 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
 
   ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get KDL tree.")
 
+  tobas_ros::getParam(nh, "drone_name", drone_name_);
+
+  getBatteryConfig(nh);
   getJointConfigs(nh);
   getRotorConfigs(nh);
 
   has_fixed_wing_ = tobas_ros::match(nh, "fixed_wing");
   if (has_fixed_wing_)
     getFixedWingConfig(nh);
-
-  tobas_ros::getParam(nh, "drone_name", drone_name_);
-  tobas_ros::getParam(nh, "battery_nominal_voltage", battery_nominal_voltage_, tobas_ros::POSITIVE);
 
   is_loaded_ = true;
 }
@@ -125,6 +125,24 @@ double Drone::throttleFromThrust(
 
   const auto tar_speed = rotSpeedFromThrust(rotor_idx, thrust);
   return throttleFromRotSpeed(rotor_idx, tar_speed, battery_voltage);
+}
+
+void Drone::getBatteryConfig(ros::NodeHandle& nh)
+{
+  TOBAS_DEBUG("Drone::getBatteryConfig");
+
+  const string prefix = "battery";
+
+  tobas_ros::getParam(nh, prefix + "/nominal_voltage", battery_.nominal_voltage);
+  tobas_ros::getParam(nh, prefix + "/max_voltage", battery_.max_voltage);
+  tobas_ros::getParam(nh, prefix + "/sag_voltage", battery_.sag_voltage);
+  ROS_CHECK(
+    nh,
+    0 < battery_.sag_voltage && battery_.sag_voltage < battery_.nominal_voltage
+      && battery_.nominal_voltage < battery_.max_voltage,
+    "Invalid battery configuration.");
+
+  tobas_ros::getParam(nh, prefix + "/max_current", battery_.max_current, tobas_ros::POSITIVE);
 }
 
 void Drone::getJointConfigs(ros::NodeHandle& nh)

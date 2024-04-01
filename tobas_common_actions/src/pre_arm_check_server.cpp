@@ -134,7 +134,7 @@ void PreArmCheckServer::batCb(const tobas_msgs::BatteryConstPtr& bat)
     return;
 
   // バッテリー電圧が定格電圧より小さければエラー
-  if (bat->voltage < drone_.nominalBatteryVoltage())
+  if (bat->voltage < drone_.batteryConfig().nominal_voltage)
   {
     is_action_running_ = false;
     result_.error_code = ResultType::BATTERY_VOLTAGE_ERROR;

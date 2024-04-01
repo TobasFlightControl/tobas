@@ -13,8 +13,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.widgets import HRangeWidget, VRangeWidget
-from tobas_rqt_tools.layouts import create_fixed_height_hboxlayout
-from tobas_rqt_tools.utils import place_center
+from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.constants import *
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RCInputError
@@ -157,6 +156,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._mode_range.clear()
         self._estop_range.clear()
         self._gpsw_range.clear()
+        self._update_ranges()
 
         self._start_button.setEnabled(True)
         self._finish_button.setEnabled(False)
@@ -164,6 +164,15 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
+
+    def _update_ranges(self) -> None:
+        self._roll_range.update()
+        self._pitch_range.update()
+        self._yaw_range.update()
+        self._thrust_range.update()
+        self._mode_range.update()
+        self._estop_range.update()
+        self._gpsw_range.update()
 
     def _cancel(self) -> None:
         calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
@@ -198,6 +207,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._mode_range.set_value(msg.data[RCIN_MODE])
         self._estop_range.set_value(msg.data[RCIN_ESTOP])
         self._gpsw_range.set_value(msg.data[RCIN_GPSW])
+        self._update_ranges()
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:

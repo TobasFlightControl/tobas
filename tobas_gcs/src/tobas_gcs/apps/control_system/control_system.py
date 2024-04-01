@@ -9,6 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_tools_py.drone import Drone
 
 from ..base import BaseAppWidget
@@ -21,7 +22,7 @@ class ControlSystemWidget(BaseAppWidget):
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        rows = QVBoxLayout()
+        rows = ScrollableVBoxLayout()
         self.setLayout(rows)
 
         self._actions_commander = ActionsCommanderWidget(main, drone)

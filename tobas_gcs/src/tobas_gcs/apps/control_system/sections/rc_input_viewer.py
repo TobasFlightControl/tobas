@@ -13,8 +13,7 @@ from PyQt5.QtGui import *
 
 from tobas_std_tools_py.math import remap
 from tobas_rqt_tools.widgets import FramedLabel
-from tobas_rqt_tools.layouts import create_fixed_height_hboxlayout
-from tobas_rqt_tools.utils import place_center
+from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RCInput, RCInputError
 

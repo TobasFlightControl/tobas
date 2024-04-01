@@ -6,6 +6,7 @@ from overrides import override
 from typing import final
 
 from .constants import *
+from .battery_config import BatteryConfig
 from .joint_config import *
 from .rotor_config import *
 from .fixed_wing_tools import *
@@ -14,7 +15,7 @@ from .fixed_wing_tools import *
 @dataclass
 class Drone:
     drone_name: str = ""
-    battery_nominal_voltage: float = 0.0
+    battery: BatteryConfig = BatteryConfig()
     joint_map: JointConfigMap = field(default_factory=dict)
     rotors: RotorConfigs = field(default_factory=list)
     fixed_wing: FixedWingConfig = FixedWingConfig()
@@ -25,7 +26,12 @@ class Drone:
 class DroneLoader(ABC):
 
     DRONE_NAME = "drone_name"
-    BATTERY_NOMINAL_VOLTAGE = "battery_nominal_voltage"
+
+    BATTERY = "battery"
+    NOMINAL_VOLTAGE = "nominal_voltage"
+    MAX_VOLTAGE = "max_voltage"
+    SAG_VOLTAGE = "sag_voltage"
+    MAX_CURRENT = "max_current"
 
     NUM_JOINTS = "num_joints"
     JOINT_PREFIX = "joint_"
@@ -74,8 +80,8 @@ class DroneLoader_Param(DroneLoader):
         self._clear()
 
         self._drone.drone_name = rospy.get_param(self.DRONE_NAME)
-        self._drone.battery_nominal_voltage = rospy.get_param(self.BATTERY_NOMINAL_VOLTAGE)
 
+        self._get_battery_config()
         self._get_joint_configs()
         self._get_rotor_configs()
 
@@ -84,6 +90,12 @@ class DroneLoader_Param(DroneLoader):
             self._get_fixed_wing_config()
 
         self._drone.is_loaded = True
+
+    def _get_battery_config(self) -> None:
+        self._drone.battery.nominal_voltage = rospy.get_param(f"{self.BATTERY}/{self.NOMINAL_VOLTAGE}")
+        self._drone.battery.max_voltage = rospy.get_param(f"{self.BATTERY}/{self.MAX_VOLTAGE}")
+        self._drone.battery.sag_voltage = rospy.get_param(f"{self.BATTERY}/{self.SAG_VOLTAGE}")
+        self._drone.battery.max_current = rospy.get_param(f"{self.BATTERY}/{self.MAX_CURRENT}")
 
     def _get_joint_configs(self) -> None:
         num_joints = rospy.get_param(self.NUM_JOINTS)
@@ -197,8 +209,8 @@ class DroneLoader_File(DroneLoader):
         self._clear()
 
         self._drone.drone_name = self._data[self.DRONE_NAME]
-        self._drone.battery_nominal_voltage = self._data[self.BATTERY_NOMINAL_VOLTAGE]
 
+        self._get_battery_config()
         self._get_joint_configs()
         self._get_rotor_configs()
 
@@ -207,6 +219,13 @@ class DroneLoader_File(DroneLoader):
             self._get_fixed_wing_config()
 
         self._drone.is_loaded = True
+
+    def _get_battery_config(self) -> None:
+        battery_data = self._data[self.BATTERY]
+        self._drone.battery.nominal_voltage = battery_data[self.NOMINAL_VOLTAGE]
+        self._drone.battery.max_voltage = battery_data[self.MAX_VOLTAGE]
+        self._drone.battery.sag_voltage = battery_data[self.SAG_VOLTAGE]
+        self._drone.battery.max_current = battery_data[self.MAX_CURRENT]
 
     def _get_joint_configs(self) -> None:
         num_joints = self._data[self.NUM_JOINTS]

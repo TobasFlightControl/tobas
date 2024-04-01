@@ -11,7 +11,7 @@ from geometry_msgs.msg import PoseStamped
 from mavros_msgs.srv import ParamSet, ParamSetRequest, ParamSetResponse
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
-from tobas_rqt_tools.widgets import Widget
+from tobas_rqt_tools.widgets import Widget, ScrollArea
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH

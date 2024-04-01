@@ -5,6 +5,7 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/tree.hpp>
 
+#include "./battery_config.hpp"
 #include "./joint_config.hpp"
 #include "./rotor_config.hpp"
 #include "./fixed_wing_tools.hpp"
@@ -23,6 +24,7 @@ public:
   void loadFromParam(ros::NodeHandle& nh);
 
   inline const KDL::Tree& tree() const;
+  inline const BatteryConfig& batteryConfig() const;
   inline const JointConfigMap& jointConfigMap() const;
   inline const JointConfig& jointConfig(const std::string& jnt_name) const;
   inline const RotorConfigs& rotorConfigs() const;
@@ -90,15 +92,16 @@ public:
 private:
   KDL::Tree tree_;
 
+  BatteryConfig battery_;
   JointConfigMap joint_map_;  // プロペラ，舵面以外の可動関節
   RotorConfigs rotors_;
   FixedWingConfig fixed_wing_;
 
   std::string drone_name_;
-  double battery_nominal_voltage_;  // メインバッテリーの定格電圧
   bool has_fixed_wing_;
   bool is_loaded_ = false;
 
+  void getBatteryConfig(ros::NodeHandle& nh);
   void getJointConfigs(ros::NodeHandle& nh);
   void getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx);
 
@@ -115,6 +118,11 @@ private:
 inline const KDL::Tree& Drone::tree() const
 {
   return tree_;
+}
+
+inline const BatteryConfig& Drone::batteryConfig() const
+{
+  return battery_;
 }
 
 inline const JointConfigMap& Drone::jointConfigMap() const
@@ -165,11 +173,6 @@ inline const ControlSurface& Drone::controlSurface(const size_t& cs_idx) const
 inline const std::string& Drone::droneName() const
 {
   return drone_name_;
-}
-
-inline const double& Drone::nominalBatteryVoltage() const
-{
-  return battery_nominal_voltage_;
 }
 
 inline const bool& Drone::hasFixedWing() const

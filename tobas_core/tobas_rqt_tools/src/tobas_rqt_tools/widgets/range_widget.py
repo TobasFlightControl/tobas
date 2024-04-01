@@ -11,8 +11,8 @@ class RangeWidget(QWidget):
     LINE_WIDTH = 3
     TEXT_PSIZE = 10
 
-    def __init__(self, minimum: int, maximum: int, text: str = None, parent: QWidget = None) -> None:
-        assert minimum < maximum
+    def __init__(self, minimum: int = 0, maximum: int = 0, text: str = None, parent: QWidget = None) -> None:
+        assert minimum <= maximum
 
         super().__init__(parent)
 
@@ -24,6 +24,15 @@ class RangeWidget(QWidget):
         self._lower = maximum
         self._upper = minimum
 
+    def set_minimum(self, minimum: int) -> None:
+        self._minimum = minimum
+
+    def set_maximum(self, maximum: int) -> None:
+        self._maximum = maximum
+
+    def set_text(self, text: str) -> None:
+        self._text = text
+
     def get_value(self) -> int:
         return self._value
 
@@ -33,21 +42,18 @@ class RangeWidget(QWidget):
             self._lower = value
         if value > self._upper:
             self._upper = value
-        self.update()
 
     def get_lower(self) -> int:
         return self._lower
 
     def set_lower(self, lower: int) -> None:
         self._lower = lower
-        self.update()
 
     def get_upper(self) -> int:
         return self._upper
 
     def set_upper(self, upper: int) -> None:
         self._upper = upper
-        self.update()
 
     def get_middle(self) -> int:
         return (self._lower + self._upper) // 2
@@ -56,7 +62,6 @@ class RangeWidget(QWidget):
         self._value = None
         self._lower = self._maximum
         self._upper = self._minimum
-        self.update()
 
     @abstractmethod
     def paintEvent(self, event: QPaintEvent) -> None:

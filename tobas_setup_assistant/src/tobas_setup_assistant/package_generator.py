@@ -281,7 +281,12 @@ class PackageGenerator(QObject):
 
         # Battery
         battery = self._main.settings.battery
-        drone_config["battery_nominal_voltage"] = battery.nominal_voltage()
+        drone_config["battery"] = {
+            "nominal_voltage": battery.nominal_voltage(),
+            "max_voltage": battery.max_voltage(),
+            "sag_voltage": battery.sag_voltage(),
+            "max_current": battery.max_current(),
+        }
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
