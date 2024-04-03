@@ -53,7 +53,6 @@ class HPositionBarWidget(PositionBarWidget):
     def paintEvent(self, event: QPaintEvent) -> None:
         # QPainterはpaintEvent内でのみ定義できる
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
 
         # 背景を描画
         painter.fillRect(event.rect(), Qt.white)
@@ -79,7 +78,6 @@ class VPositionBarWidget(PositionBarWidget):
     def paintEvent(self, event: QPaintEvent) -> None:
         # QPainterはpaintEvent内でのみ定義できる
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
 
         # 背景を描画
         painter.fillRect(event.rect(), Qt.white)
