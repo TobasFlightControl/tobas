@@ -205,7 +205,8 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         elif OO_sky and WO_sky and OH_sky and WH_sky:  # 1111
             points[OO, WO, WH, OH]
         else:
-            raise RuntimeError("Impossible pattern.")
+            rospy.logerr("Impossible ground-sky pattern.")
+            return
 
         polygon = QPolygon(points)
         painter.setBrush(Qt.blue)
