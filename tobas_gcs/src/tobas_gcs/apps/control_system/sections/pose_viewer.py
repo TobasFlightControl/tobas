@@ -203,7 +203,7 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         elif OO_sky and WO_sky and OH_sky and not WH_sky:  # 1110
             points = [WO, OO, OH, XH, WY]
         elif OO_sky and WO_sky and OH_sky and WH_sky:  # 1111
-            points[OO, WO, WH, OH]
+            points = [OO, WO, WH, OH]
         else:
             rospy.logerr("Impossible ground-sky pattern.")
             return
