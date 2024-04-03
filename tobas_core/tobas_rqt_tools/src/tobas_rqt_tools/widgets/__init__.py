@@ -6,7 +6,7 @@ from .led_push_button import LEDPushButton
 from .list_widget import ListWidgetItem
 from .main_widget import MainWidget
 from .markdown_widget import MarkDownWidget
-from .range_widget import HRangeWidget, VRangeWidget
+from .position_bar_widget import HPositionBarWidget, VPositionBarWidget
 from .scroll_area import ScrollArea
 from .slider_display import IntSliderDisplay, FloatSliderDisplay
 from .slider import Slider, FloatSlider

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.widgets import HRangeWidget, VRangeWidget
+from tobas_rqt_tools.widgets import HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.constants import *
 from tobas_tools_py.drone import Drone
@@ -74,18 +74,14 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         # Roll, Pitch, Yaw, Thrust
         cols3 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols2)
 
-        self._pitch_range = VRangeWidget(parent=self)
-        self._pitch_range.set_minimum(self.PWM_MIN)
-        self._pitch_range.set_maximum(self.PWM_MAX)
+        self._pitch_range = VPositionBarWidget(parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._pitch_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols3.addWidget(self._pitch_range)
 
         rows1 = QVBoxLayout()
         cols3.addLayout(rows1)
 
-        self._roll_range = HRangeWidget(parent=self)
-        self._roll_range.set_minimum(self.PWM_MIN)
-        self._roll_range.set_maximum(self.PWM_MAX)
+        self._roll_range = HPositionBarWidget(parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
         place_center(QLabel(f"Roll (CH{RCIN_ROLL + 1})"), rows1)
@@ -106,15 +102,11 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         rows1.addStretch()
 
         place_center(QLabel(f"Yaw (CH{RCIN_YAW + 1})"), rows1)
-        self._yaw_range = HRangeWidget(parent=self)
-        self._yaw_range.set_minimum(self.PWM_MIN)
-        self._yaw_range.set_maximum(self.PWM_MAX)
+        self._yaw_range = HPositionBarWidget(parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._thrust_range = VRangeWidget(parent=self)
-        self._thrust_range.set_minimum(self.PWM_MIN)
-        self._thrust_range.set_maximum(self.PWM_MAX)
+        self._thrust_range = VPositionBarWidget(parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols3.addWidget(self._thrust_range)
 
@@ -125,28 +117,25 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         # Mode
         bar_grid.addWidget(QLabel(f"Mode (CH{RCIN_MODE + 1})"), 0, 0)
-        self._mode_range = HRangeWidget(parent=self)
-        self._mode_range.set_minimum(self.PWM_MIN)
-        self._mode_range.set_maximum(self.PWM_MAX)
-        self._mode_range.set_text(self.MODE_TEXT)
+        self._mode_range = HPositionBarWidget(
+            parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX, text=self.MODE_TEXT
+        )
         self._mode_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._mode_range, 0, 1)
 
         # E-Stop
         bar_grid.addWidget(QLabel(f"E-Stop (CH{RCIN_ESTOP + 1})"), 1, 0)
-        self._estop_range = HRangeWidget(parent=self)
-        self._estop_range.set_minimum(self.PWM_MIN)
-        self._estop_range.set_maximum(self.PWM_MAX)
-        self._estop_range.set_text(self.ON_OFF_TEXT)
+        self._estop_range = HPositionBarWidget(
+            parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX, text=self.ON_OFF_TEXT
+        )
         self._estop_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._estop_range, 1, 1)
 
         # GPSw
         bar_grid.addWidget(QLabel(f"GPSw (CH{RCIN_GPSW + 1})"), 2, 0)
-        self._gpsw_range = HRangeWidget(parent=self)
-        self._gpsw_range.set_minimum(self.PWM_MIN)
-        self._gpsw_range.set_maximum(self.PWM_MAX)
-        self._gpsw_range.set_text(self.ON_OFF_TEXT)
+        self._gpsw_range = HPositionBarWidget(
+            parent=self, minimum=self.PWM_MIN, maximum=self.PWM_MAX, text=self.ON_OFF_TEXT
+        )
         self._gpsw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._gpsw_range, 2, 1)
 

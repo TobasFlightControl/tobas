@@ -5,97 +5,17 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import rospy
-from abc import abstractmethod
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_std_tools_py.math import remap
-from tobas_rqt_tools.widgets import FramedLabel
+from tobas_rqt_tools.widgets import FramedLabel, HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RCInput, RCInputError
 
 from .base_section import BaseControlSystemSectionWidget
-
-
-class PositionBarWidget(QWidget):
-    LINE_WIDTH = 3
-    TEXT_PSIZE = 10
-
-    def __init__(self, lower: int, upper: int, parent: QWidget = None) -> None:
-        super().__init__(parent)
-
-        self._lower = lower
-        self._upper = upper
-
-        self._value = None
-
-    def get_value(self) -> int:
-        return self._value
-
-    def set_value(self, value: int) -> None:
-        self._value = value
-        self.update()
-
-    def clear(self) -> None:
-        self._value = None
-        self.update()
-
-    @abstractmethod
-    def paintEvent(self, event: QPaintEvent) -> None:
-        raise NotImplementedError()
-
-
-class HPositionBarWidget(PositionBarWidget):
-    @override
-    def paintEvent(self, event: QPaintEvent) -> None:
-        # QPainterはpaintEvent内でのみ定義できる
-        painter = QPainter(self)
-
-        # 背景を描画
-        painter.fillRect(event.rect(), Qt.white)
-
-        # 枠を描画
-        painter.setPen(Qt.black)
-        painter.drawRect(0, 0, self.width(), self.height())
-
-        if self._value is not None:
-            # バーの位置を計算
-            value_pos = remap(self._value, self._lower, self._upper, 0, self.width())
-
-            # 現在値の位置に赤色の線を描画
-            painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
-            painter.drawLine(value_pos, 0, value_pos, self.height())
-
-        # Painterを破棄 (適切に破棄しないとメモリリークが起きる)
-        painter.end()
-
-
-class VPositionBarWidget(PositionBarWidget):
-    @override
-    def paintEvent(self, event: QPaintEvent) -> None:
-        # QPainterはpaintEvent内でのみ定義できる
-        painter = QPainter(self)
-
-        # 背景を描画
-        painter.fillRect(event.rect(), Qt.white)
-
-        # 枠を描画
-        painter.setPen(Qt.black)
-        painter.drawRect(0, 0, self.width(), self.height())
-
-        if self._value is not None:
-            # バーの位置を計算
-            value_pos = remap(self._value, self._lower, self._upper, 0, self.height())
-
-            # 現在値の位置に赤色の線を描画
-            painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
-            painter.drawLine(0, value_pos, self.width(), value_pos)
-
-        # Painterを破棄 (適切に破棄しないとメモリリークが起きる)
-        painter.end()
 
 
 class RCInputViewerWidget(BaseControlSystemSectionWidget):
@@ -115,14 +35,14 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Roll, Pitch, Yaw, Thrust
         cols2 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols1)
 
-        self._pitch_range = VPositionBarWidget(1.0, -1.0)
+        self._pitch_range = VPositionBarWidget(fill_range=False, minimum=1.0, maximum=-1.0)
         self._pitch_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._pitch_range)
 
         rows1 = QVBoxLayout()
         cols2.addLayout(rows1)
 
-        self._roll_range = HPositionBarWidget(-1.0, 1.0)
+        self._roll_range = HPositionBarWidget(fill_range=False, minimum=-1.0, maximum=1.0)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
         place_center(QLabel(f"Roll"), rows1)
@@ -143,11 +63,11 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         rows1.addStretch()
 
         place_center(QLabel(f"Yaw"), rows1)
-        self._yaw_range = HPositionBarWidget(1.0, -1.0)
+        self._yaw_range = HPositionBarWidget(fill_range=False, minimum=1.0, maximum=-1.0)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._thrust_range = VPositionBarWidget(1.0, 0.0)
+        self._thrust_range = VPositionBarWidget(fill_range=False, minimum=1.0, maximum=0.0)
         self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._thrust_range)
 
@@ -185,13 +105,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self._clear()
-
-        if self._rcin_sub is not None:
-            self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(f"/{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
-
-    def _clear(self) -> None:
+        # Clear
         self._roll_range.clear()
         self._pitch_range.clear()
         self._yaw_range.clear()
@@ -199,6 +113,17 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         self._mode.clear()
         self._estop.clear()
         self._gpsw.clear()
+
+        # Update subscriber
+        if self._rcin_sub is not None:
+            self._rcin_sub.unregister()
+        self._rcin_sub = rospy.Subscriber(f"/{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
+
+        # Start drawing timers
+        self._roll_range.start_timer()
+        self._pitch_range.start_timer()
+        self._yaw_range.start_timer()
+        self._thrust_range.start_timer()
 
     def _rcin_cb(self, rcin: RCInput) -> None:
         if rcin.error.error != RCInputError.E_NO_ERROR:

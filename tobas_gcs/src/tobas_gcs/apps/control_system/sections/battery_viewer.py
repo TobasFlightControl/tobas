@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.math import remap
-from tobas_rqt_tools.widgets import HRangeWidget
+from tobas_rqt_tools.widgets import HPositionBarWidget
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Battery
@@ -31,11 +31,11 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         form = FormLayout()
         self._rows.addLayout(form)
 
-        self._voltage_range = HRangeWidget(parent=self)
+        self._voltage_range = HPositionBarWidget(parent=self)
         self._voltage_range.setFixedSize(self.RANGE_WIDTH, self.RANGE_HEIGHT)
         form.addRow(QLabel("Voltage"), self._voltage_range)
 
-        self._current_range = HRangeWidget(parent=self)
+        self._current_range = HPositionBarWidget(parent=self)
         self._current_range.setFixedSize(self.RANGE_WIDTH, self.RANGE_HEIGHT)
         form.addRow(QLabel("Current"), self._current_range)
 
