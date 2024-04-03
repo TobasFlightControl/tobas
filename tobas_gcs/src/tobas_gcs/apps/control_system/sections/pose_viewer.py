@@ -97,9 +97,12 @@ class OrientationViewerWidget(QWidget):
 
         self.setFixedSize(self.W, self.H)
 
+        # 現在のオイラー角
         self._roll = 0.0
         self._pitch = 0.0
         self._yaw = 0.0
+
+        # 機体から見た地平線の方程式
         self._slope = 0.0
         self._y_intercept = self.H / 2
 
@@ -137,6 +140,7 @@ class OrientationViewerWidget(QWidget):
         painter.fillRect(self.rect(), Qt.green)
 
     def _draw_sky(self, painter: QPainter) -> None:
+        """空に含まれる領域を塗りつぶす． (memo: 2-59)"""
         tan_roll = math.tan(self._roll)
         pitch_rate = self._pitch / self.ALPHA
 
@@ -190,9 +194,11 @@ class OrientationViewerWidget(QWidget):
         painter.drawPolygon(polygon)
 
     def _is_sky(self, p: QPoint) -> bool:
+        """カメラの枠内の点が空に含まれるかどうかを判定する．"""
         left = p.y()
         right = self._slope * p.x() + self._y_intercept
 
+        # ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
         if -math.pi / 2 < self._roll < math.pi / 2:
             return left < right
         else:
