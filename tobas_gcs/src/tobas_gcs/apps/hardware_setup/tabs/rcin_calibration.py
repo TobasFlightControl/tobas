@@ -173,7 +173,6 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._mode_range.clear()
         self._estop_range.clear()
         self._gpsw_range.clear()
-        self._update_ranges()
 
         self._start_button.setEnabled(True)
         self._finish_button.setEnabled(False)
@@ -182,17 +181,28 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
 
-    def _update_ranges(self) -> None:
-        self._roll_range.update()
-        self._pitch_range.update()
-        self._yaw_range.update()
-        self._thrust_range.update()
-        self._mode_range.update()
-        self._estop_range.update()
-        self._gpsw_range.update()
+        self._stop_timers()
+
+    def _start_timers(self) -> None:
+        self._roll_range.start_timer()
+        self._pitch_range.start_timer()
+        self._yaw_range.start_timer()
+        self._thrust_range.start_timer()
+        self._mode_range.start_timer()
+        self._estop_range.start_timer()
+        self._gpsw_range.start_timer()
+
+    def _stop_timers(self) -> None:
+        self._roll_range.stop_timer()
+        self._pitch_range.stop_timer()
+        self._yaw_range.stop_timer()
+        self._thrust_range.stop_timer()
+        self._mode_range.stop_timer()
+        self._estop_range.stop_timer()
+        self._gpsw_range.stop_timer()
 
     def _cancel(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
+        calib_cancel_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
         try:
             calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -224,11 +234,10 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._mode_range.set_value(msg.data[RCIN_MODE])
         self._estop_range.set_value(msg.data[RCIN_ESTOP])
         self._gpsw_range.set_value(msg.data[RCIN_GPSW])
-        self._update_ranges()
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/start", Trigger)
+        calib_start_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_calibration/start", Trigger)
         try:
             calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -265,6 +274,8 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._finish_button.setEnabled(True)
         self._cancel_button.setEnabled(True)
 
+        self._start_timers()
+
         q_info(self._main, "Radio calibration started.")
 
     @pyqtSlot()
@@ -284,7 +295,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Radio calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
+        calib_finish_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
         try:
             calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:

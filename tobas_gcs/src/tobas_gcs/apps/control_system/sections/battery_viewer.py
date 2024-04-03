@@ -51,12 +51,12 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._voltage_range.set_lower(self._drone.battery.sag_voltage)
         self._voltage_range.set_minimum(self._drone.battery.sag_voltage)
         self._voltage_range.set_maximum(self._drone.battery.max_voltage)
-        self._voltage_range.update()
+        self._voltage_range.start_timer()
 
         self._current_range.clear()
         self._current_range.set_minimum(0)
         self._current_range.set_maximum(self._drone.battery.max_current)
-        self._current_range.update()
+        self._current_range.start_timer()
 
         if self._battery_sub is not None:
             self._battery_sub.unregister()
@@ -71,6 +71,5 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         rate = remap(battery.voltage, self._drone.battery.sag_voltage, self._drone.battery.max_voltage, 0, 100)
         self._voltage_range.set_upper(battery.voltage)
         self._voltage_range.set_text(f"{battery.voltage:.2f} V ({int(rate)} %)")
-        self._voltage_range.update()
 
         # TODO: 電流の設定
