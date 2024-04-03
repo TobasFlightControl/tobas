@@ -57,7 +57,7 @@ class BasePoseCommanderWidget(Widget):
         self.setLayout(rows)
 
         # XYZRPYに対応するバーを追加
-        self._cmd_x = FloatSliderDisplay(self)
+        self._cmd_x = FloatSliderDisplay()
         self._cmd_x.set_text("x")
         self._cmd_x.set_minimum(self._x_min)
         self._cmd_x.set_maximum(self._x_max)
@@ -66,7 +66,7 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_x.setEnabled(False)
         rows.addWidget(self._cmd_x)
 
-        self._cmd_y = FloatSliderDisplay(self)
+        self._cmd_y = FloatSliderDisplay()
         self._cmd_y.set_text("y")
         self._cmd_y.set_minimum(self._y_min)
         self._cmd_y.set_maximum(self._y_max)
@@ -75,7 +75,7 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_y.setEnabled(False)
         rows.addWidget(self._cmd_y)
 
-        self._cmd_z = FloatSliderDisplay(self)
+        self._cmd_z = FloatSliderDisplay()
         self._cmd_z.set_text("z")
         self._cmd_z.set_minimum(self._z_min)
         self._cmd_z.set_maximum(self._z_max)
@@ -84,7 +84,7 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_z.setEnabled(False)
         rows.addWidget(self._cmd_z)
 
-        self._cmd_roll = FloatSliderDisplay(self)
+        self._cmd_roll = FloatSliderDisplay()
         self._cmd_roll.set_text("roll")
         self._cmd_roll.set_minimum(self._roll_min)
         self._cmd_roll.set_maximum(self._roll_max)
@@ -93,7 +93,7 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_roll.setEnabled(False)
         rows.addWidget(self._cmd_roll)
 
-        self._cmd_pitch = FloatSliderDisplay(self)
+        self._cmd_pitch = FloatSliderDisplay()
         self._cmd_pitch.set_text("pitch")
         self._cmd_pitch.set_minimum(self._pitch_min)
         self._cmd_pitch.set_maximum(self._pitch_max)
@@ -102,7 +102,7 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_pitch.setEnabled(False)
         rows.addWidget(self._cmd_pitch)
 
-        self._cmd_yaw = FloatSliderDisplay(self)
+        self._cmd_yaw = FloatSliderDisplay()
         self._cmd_yaw.set_text("yaw")
         self._cmd_yaw.set_minimum(self._yaw_min)
         self._cmd_yaw.set_maximum(self._yaw_max)

@@ -26,18 +26,18 @@ class IntSliderDisplay(QWidget):
         cols = QHBoxLayout()
         rows.addLayout(cols)
 
-        self._text = QLabel(self)
+        self._text = QLabel()
         self._text.setFont(font)
         cols.addWidget(self._text)
 
-        self._value = QLineEdit(self)
+        self._value = QLineEdit()
         self._value.setAlignment(Qt.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
         self._value.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._value)
 
-        self._slider = Slider(Qt.Horizontal, self)
+        self._slider = Slider(Qt.Horizontal)
         rows.addWidget(self._slider)
 
         self.update()
@@ -101,18 +101,18 @@ class FloatSliderDisplay(QWidget):
         cols = QHBoxLayout()
         rows.addLayout(cols)
 
-        self._text = QLabel(self)
+        self._text = QLabel()
         self._text.setFont(font)
         cols.addWidget(self._text)
 
-        self._value = QLineEdit(self)
+        self._value = QLineEdit()
         self._value.setAlignment(Qt.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
         self._value.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._value)
 
-        self._slider = FloatSlider(Qt.Horizontal, self)
+        self._slider = FloatSlider(Qt.Horizontal)
         rows.addWidget(self._slider)
 
         self.update()
