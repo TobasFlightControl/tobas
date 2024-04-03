@@ -6,12 +6,14 @@ if TYPE_CHECKING:
 
 import math
 import rospy
+from abc import abstractmethod
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_kdl_msgs.msg import Euler
+from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.drone import Drone
 
 from ....common import PAINT_REFRESH_DURATION
@@ -51,39 +53,55 @@ class PoseViewerWidget(BaseControlSystemSectionWidget):
         self._orientation_viewer.update_internal_data_structures()
 
 
-class PositionViewerWidget(QWidget):
+class PoseViewerWidgetComponent(Widget):
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__()
         self._main = main
         self._drone = drone
 
-        # TODO
-
+    @abstractmethod
     def define_connections(self) -> None:
-        pass
+        raise NotImplementedError()
 
+    @abstractmethod
     def update_internal_data_structures(self) -> None:
-        pass
+        raise NotImplementedError()
 
 
-class AltitudeViewerWidget(QWidget):
+class PositionViewerWidget(PoseViewerWidgetComponent):
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__()
-        self._main = main
-        self._drone = drone
+        super().__init__(main, drone)
 
         # TODO
 
+    @override
     def define_connections(self) -> None:
         pass
 
+    @override
     def update_internal_data_structures(self) -> None:
         pass
 
 
-class OrientationViewerWidget(QWidget):
+class AltitudeViewerWidget(PoseViewerWidgetComponent):
+
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__(main, drone)
+
+        # TODO
+
+    @override
+    def define_connections(self) -> None:
+        pass
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+
+class OrientationViewerWidget(PoseViewerWidgetComponent):
 
     W = 300
     H = 300
@@ -91,9 +109,7 @@ class OrientationViewerWidget(QWidget):
     EPS = 1e-6
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__()
-        self._main = main
-        self._drone = drone
+        super().__init__(main, drone)
 
         self.setFixedSize(self.W, self.H)
 
@@ -111,9 +127,11 @@ class OrientationViewerWidget(QWidget):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)
 
+    @override
     def define_connections(self) -> None:
         pass
 
+    @override
     def update_internal_data_structures(self) -> None:
         self._roll = 0.0
         self._pitch = 0.0
