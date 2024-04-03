@@ -19,6 +19,12 @@ class PreArmCheckServer : public tobas::BaseNode
   static constexpr double kGpsAltStddevThreshold = 5.;      // [m]
   static constexpr double kGpsPosCovStddevThreshold = 5.;   // [m]
 
+  // 状態の標準偏差の閾値
+  static constexpr double kHorPosStddevThreshold = 1.0;     // [m]
+  static constexpr double kVerPosStddevThreshold = 2.0;     // [m]
+  static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
+  static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
+
   using self = PreArmCheckServer;
   using super = tobas::BaseNode;
 

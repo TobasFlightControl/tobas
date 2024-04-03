@@ -100,6 +100,9 @@ bool ControllerRos::isReady() const
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   // 状態を更新
   odom_ = odom;
 

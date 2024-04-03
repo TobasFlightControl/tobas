@@ -161,9 +161,10 @@ void WaitForStillnessServer::fillResult()
 void WaitForStillnessServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (!is_action_running_)
-  {
     return;
-  }
+
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
 
   // 現在の時刻と高度を履歴に追加
   odom_history_.push_back(*odom);

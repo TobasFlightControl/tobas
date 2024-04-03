@@ -175,6 +175,9 @@ class BasePoseCommanderWidget(Widget):
         return True
 
     def _odom_cb(self, odom: Odometry) -> None:
+        if odom.status != Odometry.NO_ERROR:
+            return
+
         # Arming
         if not self._set_arm(True):
             return

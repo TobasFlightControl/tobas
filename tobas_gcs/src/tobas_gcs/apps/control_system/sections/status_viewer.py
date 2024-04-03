@@ -172,7 +172,10 @@ class ReadyToFlightStatus(BaseStatusWidget):
             self._odom_sub.unregister()
         self._odom_sub = rospy.Subscriber(f"/{self._drone.drone_name}/odom", Odometry, self._odom_cb, queue_size=1)
 
-    def _odom_cb(self, _: Odometry) -> None:
+    def _odom_cb(self, odom: Odometry) -> None:
+        if odom.status != Odometry.NO_ERROR:
+            self.set_no()
+
         # TODO: 状態推定だけでなく，アクチュエータのチェックも行う
         self.set_yes()
 

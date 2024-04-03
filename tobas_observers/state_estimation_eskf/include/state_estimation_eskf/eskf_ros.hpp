@@ -45,29 +45,20 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  enum Stage
-  {
-    FIRST_IMU,
-    WAIT_TOPICS,
-    SET_FIRST_TIME,
-    RUNNING,
-  };
-
   tobas::Drone drone_;
 
   // 固定値
-  double lat_0_;            // 緯度のゼロ点 (Base Frame)
-  double lon_0_;            // 経度のゼロ点 (Base Frame)
-  double alt_0_gps_;        // GPS高度のゼロ点 (Base Frame)
-  double alt_0_bar_;        // 気圧高度のゼロ点 (Base Frame)
-  Eigen::Quaterniond q_0_;  // 姿勢の初期値 (Base Frame)
+  double lat_0_;      // 緯度のゼロ点 (Base Frame)
+  double lon_0_;      // 経度のゼロ点 (Base Frame)
+  double alt_0_gps_;  // GPS高度のゼロ点 (Base Frame)
+  double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
+  double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
-  Stage stage_ = FIRST_IMU;
-  bool cov_converged_ = false;
   bool imu_received_ = false;
   bool mag_received_ = false;
   bool bar_received_ = false;
   bool gps_received_ = false;
+  bool gps_fix_ = false;
   ros::Time t_last_;
   double gps_anormaly_score_ = 0.;
 
@@ -89,7 +80,6 @@ private:
   bool do_acc_bias_estimation_;
   bool do_gyro_bias_estimation_;
   bool do_grav_estimation_;
-  bool check_covariance_convergence_;
   Eigen::Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
   Eigen::Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Eigen::Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
@@ -106,9 +96,6 @@ private:
   geometry_msgs::TransformStamped tf_;
   tf2_ros::TransformBroadcaster tf_br_;
 
-  // Timer
-  tobas_ros::Timer check_topics_timer_;
-
   // Dynamic Reconfigure
   ConfigServer server_;
 
@@ -116,9 +103,7 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  bool isReady() const;
   void initialize();
-  void setZeroPositions();
   OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
   void imuCb(const ImuMsg::ConstPtr& imu);
@@ -126,7 +111,6 @@ private:
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace state_estimation_eskf
