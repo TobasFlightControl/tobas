@@ -24,7 +24,7 @@ class PackageManagerWidget(Widget):
     KEY = "last_opened_dir/tobas_configuration_package"
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
         self._drone = drone
 

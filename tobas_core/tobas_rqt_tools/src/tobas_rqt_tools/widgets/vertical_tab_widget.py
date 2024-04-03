@@ -37,8 +37,8 @@ class _TabBar(QTabBar):
 
 
 class VerticalTabWidget(QTabWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
+    def __init__(self):
+        super().__init__()
         self.setTabBar(_TabBar(self))
         self.setTabPosition(QTabWidget.West)
 

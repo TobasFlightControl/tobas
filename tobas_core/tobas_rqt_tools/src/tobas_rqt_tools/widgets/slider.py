@@ -26,8 +26,8 @@ class FloatSlider(Slider):
 
     valueChanged = pyqtSignal(float)  # シグナルのオーバーライドも可能
 
-    def __init__(self, orientation: Qt.Orientation, parent: QWidget = None) -> None:
-        super().__init__(orientation, parent)
+    def __init__(self, orientation: Qt.Orientation) -> None:
+        super().__init__(orientation)
 
         self._min = self.DEFAULT_MINIMUM
         self._max = self.DEFAULT_MAXIMUM

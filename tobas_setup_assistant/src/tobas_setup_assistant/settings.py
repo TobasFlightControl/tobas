@@ -19,7 +19,7 @@ class SettingsWidget(VerticalTabWidget):
     MIN_HEIGHT = 300
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
 
         self.start = StartWidget(main)

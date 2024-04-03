@@ -9,8 +9,8 @@ class ScrollArea(QScrollArea):
     - setLayoutをオーバーライド
     """
 
-    def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(parent)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.setWidgetResizable(True)
 

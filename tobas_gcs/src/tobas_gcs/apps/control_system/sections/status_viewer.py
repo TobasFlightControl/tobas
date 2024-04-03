@@ -59,7 +59,7 @@ class BaseStatusWidget(QWidget):
     TEXT_PSIZE = 12
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
         self._drone = drone
 

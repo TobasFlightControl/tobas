@@ -11,8 +11,8 @@ from .package_manager import PackageManagerWidget
 
 
 class GroundControlStationWidget(Widget):
-    def __init__(self, parent: Widget = None) -> None:
-        super().__init__(parent=parent)
+    def __init__(self) -> None:
+        super().__init__()
 
         self._drone = Drone()
         self.signals = Signals()

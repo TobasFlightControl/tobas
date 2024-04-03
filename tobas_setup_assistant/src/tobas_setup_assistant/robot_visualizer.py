@@ -25,7 +25,7 @@ class RobotVisualizerWidget(Widget):
     JSP_WIDTH = 200
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
 
         self._jsp_gui = None

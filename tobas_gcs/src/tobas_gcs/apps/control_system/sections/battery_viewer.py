@@ -31,11 +31,11 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         form = FormLayout()
         self._rows.addLayout(form)
 
-        self._voltage_range = HPositionBarWidget(parent=self)
+        self._voltage_range = HPositionBarWidget()
         self._voltage_range.setFixedSize(self.RANGE_WIDTH, self.RANGE_HEIGHT)
         form.addRow(QLabel("Voltage"), self._voltage_range)
 
-        self._current_range = HPositionBarWidget(parent=self)
+        self._current_range = HPositionBarWidget()
         self._current_range.setFixedSize(self.RANGE_WIDTH, self.RANGE_HEIGHT)
         form.addRow(QLabel("Current"), self._current_range)
 

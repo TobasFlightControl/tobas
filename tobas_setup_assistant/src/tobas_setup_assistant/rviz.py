@@ -22,7 +22,7 @@ class RvizWidget(Widget):
     DEFAULT_COLLISION_ENABLED = False
 
     def __init__(self, main: SetupAssistant):
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
 
         self._highlighted_link = ""

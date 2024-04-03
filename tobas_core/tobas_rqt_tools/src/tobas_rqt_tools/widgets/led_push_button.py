@@ -3,7 +3,7 @@ from overrides import override
 from typing import Tuple
 
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QWidget, QPushButton
+from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtGui import QMouseEvent, QResizeEvent
 
 from .led_color import LEDColor
@@ -15,13 +15,9 @@ class LEDPushButton(QPushButton):
     RECTANGLE = 3
 
     def __init__(
-        self,
-        parent: QWidget = None,
-        on_color: LEDColor = LEDColor.GREEN,
-        off_color: LEDColor = LEDColor.BLACK,
-        shape: int = RECTANGLE,
+        self, on_color: LEDColor = LEDColor.GREEN, off_color: LEDColor = LEDColor.BLACK, shape: int = RECTANGLE
     ) -> None:
-        super().__init__(parent=parent)
+        super().__init__()
 
         self._qss = "QPushButton {{ \
                                    border: 2px solid lightgray; \

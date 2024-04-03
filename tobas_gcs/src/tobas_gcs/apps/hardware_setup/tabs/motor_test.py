@@ -159,7 +159,7 @@ class RotorSpeedsPublisherWidget(QWidget):
 
         self._commanders: List[IntSliderDisplay] = []
         for channel in range(SERVO_RAIL_SIZE):
-            commander = IntSliderDisplay(self)
+            commander = IntSliderDisplay()
             commander.set_suffix(" rpm")
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
@@ -170,7 +170,7 @@ class RotorSpeedsPublisherWidget(QWidget):
 
         self._rpm_buttons: List[QPushButton] = []
         for rpm in [0, 100, 500, 1000, 5000, 10000]:
-            button = QPushButton(f"{rpm} RPM", self)
+            button = QPushButton(f"{rpm} RPM")
             button.setFixedHeight(self.BUTTON_HEIGHT)
             button.clicked.connect(partial(self._on_rpm_button_clicked, rpm=rpm))
             self._rpm_buttons.append(button)

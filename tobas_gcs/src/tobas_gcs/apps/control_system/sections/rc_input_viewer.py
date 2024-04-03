@@ -78,19 +78,19 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
 
         # Mode
         bar_grid.addWidget(QLabel(f"Mode  :"), 0, 0)
-        self._mode = FramedLabel(parent=self)  # QLineEditだと処理が重すぎるのか落ちてしまう
+        self._mode = FramedLabel()  # QLineEditだと処理が重すぎるのか落ちてしまう
         self._mode.setFixedSize(self.LABEL_WIDTH, self.LABEL_HEIGHT)
         bar_grid.addWidget(self._mode, 0, 1)
 
         # E-Stop
         bar_grid.addWidget(QLabel(f"E-Stop:"), 1, 0)
-        self._estop = FramedLabel(parent=self)
+        self._estop = FramedLabel()
         self._estop.setFixedSize(self.LABEL_WIDTH, self.LABEL_HEIGHT)
         bar_grid.addWidget(self._estop, 1, 1)
 
         # GPSw
         bar_grid.addWidget(QLabel(f"GPSw  :"), 2, 0)
-        self._gpsw = FramedLabel(parent=self)
+        self._gpsw = FramedLabel()
         self._gpsw.setFixedSize(self.LABEL_WIDTH, self.LABEL_HEIGHT)
         bar_grid.addWidget(self._gpsw, 2, 1)
 

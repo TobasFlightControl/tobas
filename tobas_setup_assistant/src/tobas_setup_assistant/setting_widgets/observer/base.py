@@ -25,7 +25,7 @@ class BaseObserver(Widget):
     PACKAGE_NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
 
         self._param_server_process = None

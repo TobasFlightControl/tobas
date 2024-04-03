@@ -14,8 +14,8 @@ class IntSliderDisplay(QWidget):
 
     value_changed = pyqtSignal(int)
 
-    def __init__(self, parent: QObject = None) -> None:
-        super().__init__(parent)
+    def __init__(self) -> None:
+        super().__init__()
         self._suffix = ""
 
         font = QFont("Default", self.PSIZE, QFont.Bold)
@@ -89,8 +89,8 @@ class FloatSliderDisplay(QWidget):
 
     value_changed = pyqtSignal(float)
 
-    def __init__(self, parent: QObject = None) -> None:
-        super().__init__(parent)
+    def __init__(self) -> None:
+        super().__init__()
         self._suffix = ""
 
         font = QFont("Default", self.PSIZE, QFont.Bold)

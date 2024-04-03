@@ -112,7 +112,7 @@ class BasePoseCommanderWidget(Widget):
         rows.addWidget(self._cmd_yaw)
 
         # 初期位置にボタン
-        self._home_button = QPushButton("Home", parent=self)
+        self._home_button = QPushButton("Home")
         self._home_button.setFixedHeight(BUTTON_HEIGHT)
         self._home_button.clicked.connect(self._on_home_button_clicked)
         rows.addWidget(self._home_button)

@@ -29,7 +29,7 @@ class HardwareSetupWidget(BaseAppWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._tabs = VerticalTabWidget(parent=self)
+        self._tabs = VerticalTabWidget()
         rows.addWidget(self._tabs)
 
         self._network_setting = NetworkSettingWidget(main, drone)

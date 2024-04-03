@@ -24,7 +24,7 @@ class SetupAssistantWidget(BaseAppWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self.setup_assistant = SetupAssistant(self)
+        self.setup_assistant = SetupAssistant()
         rows.addWidget(self.setup_assistant)
 
     @override

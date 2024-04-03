@@ -12,8 +12,8 @@ from .common import *
 
 
 class SetupAssistant(Widget):
-    def __init__(self, parent: Widget = None) -> None:
-        super().__init__(parent=parent)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.urdf_parser = URDFParser(self)
         self.pkg_generator = PackageGenerator(self)

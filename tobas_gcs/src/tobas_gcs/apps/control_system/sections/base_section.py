@@ -19,7 +19,7 @@ class BaseControlSystemSectionWidget(Widget):
     LABEL = TO_DO
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(parent=main)
+        super().__init__()
         self._main = main
         self._drone = drone
 

@@ -15,7 +15,6 @@ class PositionBarWidget(QWidget):
 
     def __init__(
         self,
-        parent: QWidget = None,
         fill_range: bool = True,
         minimum: int = 0,
         maximum: int = 0,
@@ -23,7 +22,7 @@ class PositionBarWidget(QWidget):
         line_width: int = DEFAULT_LINE_WIDTH,
         text_psize: int = DEFAULT_TEXT_PSIZE,
     ) -> None:
-        super().__init__(parent)
+        super().__init__()
 
         self._fill_range = fill_range
         self._minimum = minimum

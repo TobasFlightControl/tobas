@@ -15,8 +15,8 @@ class SpinBox(QSpinBox):
     INT32_MAX = (1 << 31) - 1
     INT32_MIN = -(1 << 31)
 
-    def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(parent)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.setMaximum(self.INT32_MAX)
         self.setMinimum(self.INT32_MIN)
@@ -39,8 +39,8 @@ class DoubleSpinBox(QDoubleSpinBox):
     - フォーカス時にテキスト全体を選択
     """
 
-    def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(parent)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.setMaximum(float("inf"))
         self.setMinimum(float("-inf"))

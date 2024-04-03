@@ -72,17 +72,17 @@ class JointPositionsCommanderWidget(Widget):
             self._commanders[jnt_name] = commander
             rows.addWidget(commander)
 
-        self._home_button = QPushButton("Home", parent=self)
+        self._home_button = QPushButton("Home")
         self._home_button.setFixedHeight(BUTTON_HEIGHT)
         self._home_button.clicked.connect(self._on_home_button_clicked)
         rows.addWidget(self._home_button)
 
-        self._center_button = QPushButton("Center", parent=self)
+        self._center_button = QPushButton("Center")
         self._center_button.setFixedHeight(BUTTON_HEIGHT)
         self._center_button.clicked.connect(self._on_center_button_clicked)
         rows.addWidget(self._center_button)
 
-        self._random_button = QPushButton("Randomize", parent=self)
+        self._random_button = QPushButton("Randomize")
         self._random_button.setFixedHeight(BUTTON_HEIGHT)
         self._random_button.clicked.connect(self._on_random_button_clicked)
         rows.addWidget(self._random_button)

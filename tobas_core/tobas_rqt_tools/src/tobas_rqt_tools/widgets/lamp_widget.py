@@ -1,13 +1,13 @@
 import numpy as np
 from typing import Tuple
-from PyQt5.QtWidgets import QWidget, QLabel
+from PyQt5.QtWidgets import QLabel
 
 from .led_color import LEDColor
 
 
 class LampWidget(QLabel):
-    def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(parent=parent)
+    def __init__(self) -> None:
+        super().__init__()
         self._qss = "QLabel {{ \
                                 border: 2px solid lightgray; \
                                 border-radius: {}px; \
