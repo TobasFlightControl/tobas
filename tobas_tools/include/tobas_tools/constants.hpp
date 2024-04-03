@@ -39,6 +39,7 @@ static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
 static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kOdometryTopic[] = "odom";
+static constexpr char kEulerTopic[] = "euler";
 static constexpr char kWindTopic[] = "wind";
 static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";

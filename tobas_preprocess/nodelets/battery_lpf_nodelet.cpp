@@ -6,7 +6,7 @@ namespace tobas_preprocess
 {
 void BatteryLpfNodelet::onInit()
 {
-  NODELET_INFO("Initializing Battery Handler Nodelet.");
+  NODELET_INFO("Initializing Battery LPF Nodelet.");
 
   const auto& nh = getNodeHandle();
   const auto& pnh = getPrivateNodeHandle();
