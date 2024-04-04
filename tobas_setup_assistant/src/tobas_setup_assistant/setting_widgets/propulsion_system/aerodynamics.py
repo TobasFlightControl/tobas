@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rpm2rps
-from tobas_rqt_tools.widgets import Widget, ComboBox
+from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
@@ -23,7 +23,7 @@ from .common import PROPULSION_SYSTEM
 from .blade_theory import BladeTheory
 
 
-class AerodynamicsWidget(Widget):
+class AerodynamicsWidget(QWidget):
     NO_SELECT = "Select setting method"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -123,7 +123,7 @@ class AerodynamicsWidget(Widget):
         self._update_visibility()
 
 
-class AerodynamicsWidget_Base(Widget):
+class AerodynamicsWidget_Base(QWidget):
     NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str, abst_text: str) -> None:
@@ -397,7 +397,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi ** 2)
+        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
 
     @override
     def moment_const(self) -> float:
