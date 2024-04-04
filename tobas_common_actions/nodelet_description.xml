@@ -4,8 +4,4 @@
     <description>TODO</description>
   </class>
 
-  <class name="tobas_common_actions/WaitForStillnessServerNodelet" type="tobas_common_actions::WaitForStillnessServerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
 </library>
