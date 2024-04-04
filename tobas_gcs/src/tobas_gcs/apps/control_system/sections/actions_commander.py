@@ -8,12 +8,11 @@ import os
 import signal
 import rospy
 from overrides import override
-from threading import Thread
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
+from tobas_rqt_tools.messages import q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
 from ....common import *
@@ -92,9 +91,8 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
             return
 
         # ラズパイをシャットダウン
-        # 即座に接続が切れるため別スレッドでコマンドを実行
         rospy.loginfo("Shutting down the Raspberry Pi.")
-        Thread(target=lambda: self._ssh_client.exec_command_super("poweroff")).run()
+        self._ssh_client.exec_command_super("poweroff &")  # 実行結果は帰ってこないためバックグランドで実行
 
         # GCSを強制終了
         os.kill(os.getpid(), signal.SIGINT)
