@@ -18,7 +18,6 @@ from ...parameter_getters import *
 from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseObserver
-from .cascade import CascadeKalmanFilter
 from .eskf import ErrorStateKalmanFilter
 
 
@@ -35,7 +34,7 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._observers: List[BaseObserver] = [CascadeKalmanFilter(main), ErrorStateKalmanFilter(main)]
+        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main)]
 
         # 各観測器の動的パラメータを並列に読み込む
         # NOTE: ウィジェット自体をマルチスレッドにすると親子関係が壊れるため，コンストラクタの並列処理はできない
@@ -50,8 +49,6 @@ class ObserverWidget(BaseSettingWidget):
             observer.add_dynamic_params()
             self._rows.addWidget(observer)
             self._type.addItem(observer.NAME)
-
-        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)  # Default
 
         self._rows.addStretch()
         self._update_visibility()
