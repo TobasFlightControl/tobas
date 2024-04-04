@@ -127,6 +127,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
         req = SetArmRequest()
         req.arming = arming
+        req.ignore_pre_arm_check = True
 
         try:
             res: SetArmResponse = set_arm_sc.call(req)

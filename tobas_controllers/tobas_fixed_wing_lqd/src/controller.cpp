@@ -210,6 +210,9 @@ void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
 {
+  if (odom_nwu->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   odom_nwu_ = odom_nwu;
 
   if (!is_initialized_)

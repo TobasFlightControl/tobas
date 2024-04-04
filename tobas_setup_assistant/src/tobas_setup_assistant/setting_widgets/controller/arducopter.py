@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
-from tobas_rqt_tools.widgets import Widget, ComboBox
+from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_kdl_sympy.frames import Vector
 
@@ -71,7 +71,7 @@ class Frame:
         return self._frame_class.num_props
 
 
-class ChannelsWidget(Widget):
+class ChannelsWidget(QWidget):
     NO_SELECT = "Select link name"
 
     def __init__(self, main: SetupAssistant) -> None:

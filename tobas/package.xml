@@ -20,7 +20,6 @@
 
 	<!-- Others -->
 	<exec_depend>ardupilot_dynamic_configuration</exec_depend>
-	<exec_depend>tobas_common_actions</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_fkie_master</exec_depend>
@@ -30,6 +29,7 @@
 	<exec_depend>tobas_motor_test</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_multirotor_trajectory</exec_depend>
+	<exec_depend>tobas_pre_arm_check</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>

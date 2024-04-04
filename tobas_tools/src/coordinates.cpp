@@ -7,6 +7,7 @@ namespace tf
 void odometryNedToNwu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
 {
   des.header = src.header;
+  des.status = src.status;
   frameNedToNwu(src.frame, des.frame);
   twistNedToNwu(src.twist, des.twist);
 }

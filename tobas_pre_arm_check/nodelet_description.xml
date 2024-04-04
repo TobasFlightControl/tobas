@@ -1,0 +1,7 @@
+<library path="lib/libtobas_pre_arm_check_nodelet">
+
+  <class name="tobas_pre_arm_check/PreArmCheckServerNodelet" type="tobas_pre_arm_check::PreArmCheckServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

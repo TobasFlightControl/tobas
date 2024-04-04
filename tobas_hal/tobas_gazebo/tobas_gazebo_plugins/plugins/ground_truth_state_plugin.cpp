@@ -61,6 +61,9 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   // Update time stamp
   timeGazeboToRos(world_->SimTime(), odom->header.stamp);
 
+  // Update status
+  odom->status = tobas_msgs::Odometry::NO_ERROR;
+
   // Update position
   vectorGazeboToKDL(T_W_B.Pos(), odom->frame.p);
 

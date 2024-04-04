@@ -192,6 +192,9 @@ void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   receiveAndPublishMotorCommand(odom->header.stamp);
   sendState(*odom);
 }

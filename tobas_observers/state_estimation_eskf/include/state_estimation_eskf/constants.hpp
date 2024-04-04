@@ -31,7 +31,6 @@ static constexpr bool kDefaultUseGps = true;
 static constexpr bool kDefaultDoAccBiasEstimation = false;
 static constexpr bool kDefaultDoGyroBiasEstimation = true;
 static constexpr bool kDefaultDoGravEstimation = true;
-static constexpr bool kDefaultCheckCovarianceConvergence = true;
 
 // 標準偏差の初期値
 // 共分散行列は成長は遅いが収束は割と速いから，大きすぎるくらいで適当に決めてよい
@@ -41,12 +40,6 @@ static constexpr double kInitRotStddev = M_PI_4;    // [rad]
 static constexpr double kInitAccBiasStddev = 1.;    // [m/s^2]
 static constexpr double kInitGyroBiasStddev = 0.1;  // [rad/s]
 static constexpr double kInitGravStddev = 0.1;      // [m/s^2]
-
-// 状態を発行し始めるための標準偏差の閾値
-static constexpr double kHorPosStddevThreshold = 1.0;     // [m]
-static constexpr double kVerPosStddevThreshold = 2.0;     // [m]
-static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
-static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
 
 // その他定数
 static constexpr double kWarnPeriod = 1.;               // [s]

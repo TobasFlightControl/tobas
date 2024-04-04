@@ -10,3 +10,7 @@ float64[9] linear_velocity_covariance       # [m^2/s^2]
 float64[9] angular_velocity_covariance      # [rad^2/s^2]
 float64[9] linear_acceleration_covariance   # [m^2/s^2/4]
 float64[9] angular_acceleration_covariance  # [rad^2/s^4]
+
+int8 status
+int8 NO_ERROR = 0
+int8 POSITION_LOST = -1

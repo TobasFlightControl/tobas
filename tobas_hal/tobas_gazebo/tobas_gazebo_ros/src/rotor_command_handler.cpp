@@ -26,6 +26,7 @@ RotorCommandHandler::RotorCommandHandler(
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
+  pre_arm_check_sc_ = nh_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
   publishArming();
 }
@@ -120,15 +121,32 @@ bool RotorCommandHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetAr
 
 bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
 {
+  res.success = false;
+
   if (!is_armed_ && req.arming)
   {
-    rosInfo(name_, "Arming rotors.");
+    // Pre-arm check
+    if (!req.ignore_pre_arm_check)
+    {
+      if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+      {
+        res.message = "Failed to connect to pre-arm check service server.";
+        return true;
+      }
+      if (!pre_arm_check_sc_.call(pre_arm_check_msg_) || !pre_arm_check_msg_.response.success)
+      {
+        res.message = pre_arm_check_msg_.response.message;
+        return true;
+      }
+    }
+
+    // Arming
     ros::Duration(tobas::kDisarmDuration).sleep();  // 実機に近づけるためArmに要する時間だけスリープ
     is_armed_ = req.arming;
   }
   else if (is_armed_ && !req.arming)
   {
-    rosInfo(name_, "Disarming rotors.");
+    // Disarming
     is_armed_ = req.arming;
   }
 

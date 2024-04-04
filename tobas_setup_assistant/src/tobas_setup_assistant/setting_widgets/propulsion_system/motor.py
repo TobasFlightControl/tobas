@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rpm2rps
-from tobas_rqt_tools.widgets import Widget, ComboBox
+from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
@@ -23,7 +23,7 @@ from .common import PROPULSION_SYSTEM
 from .max_rot_speed import MaxRotationSpeedWidget
 
 
-class MotorWidget(Widget):
+class MotorWidget(QWidget):
     NO_SELECT = "Select setting method"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -129,7 +129,7 @@ class MotorWidget(Widget):
         self._update_visibility()
 
 
-class MotorWidget_Base(Widget):  # NOTE: ABCを継承するとバグる
+class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
     NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -232,7 +232,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
 
         kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
-            "Kv", kv_description, minimum=1, maximum=10 ** 5, default=920, suffix=" rpm/V"
+            "Kv", kv_description, minimum=1, maximum=10**5, default=920, suffix=" rpm/V"
         )
         self._rows.addWidget(self._kv)
 
@@ -321,7 +321,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega ** 2]
+        X = np.c_[omega, omega**2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b

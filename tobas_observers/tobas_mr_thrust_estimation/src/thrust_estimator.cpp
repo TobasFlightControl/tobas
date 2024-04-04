@@ -61,6 +61,9 @@ void ThrustEstimator::registerSubscribers()
 
 void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   if (rotor_speeds_ == nullptr)
     return;
 

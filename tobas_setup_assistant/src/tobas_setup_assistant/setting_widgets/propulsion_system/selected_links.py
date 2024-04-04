@@ -15,7 +15,7 @@ from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
-from tobas_rqt_tools.widgets import Widget, TabWidget
+from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_error_named
 from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
@@ -194,7 +194,7 @@ class SelectedLinksWidget(TabWidget):
         self._main.signals.airframe_updated.emit()
 
 
-class SelectedLinkTabWidget(Widget):
+class SelectedLinkTabWidget(QWidget):
     BUTTON_WIDTH = 150
     BUTTON_HEIGHT = 40
 
