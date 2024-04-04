@@ -16,8 +16,8 @@ namespace tobas_pre_arm_check
 class PreArmCheckServer : public tobas::BaseNode
 {
   static constexpr double kGyroNormThreshold = M_PI / 6;    // [rad/s]
-  static constexpr double kHorPosStddevThreshold = 1.0;     // [m]
-  static constexpr double kVerPosStddevThreshold = 2.0;     // [m]
+  static constexpr double kHorPosStddevThreshold = 0.5;     // [m]
+  static constexpr double kVerPosStddevThreshold = 1.0;     // [m]
   static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
   static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
 

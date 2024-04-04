@@ -9,12 +9,14 @@ cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zd
 
 `/boot/config.txt`に以下を追記:
 
+注意: ラズパイでの電力消費が大きすぎると，電源を共有した他のデバイスが低電圧状態に陥るリスクがあるため，ほどほどにすべき．
+
 ```txt
-over_voltage=6    # -16～8の整数, default: 0
-arm_freq=2000     # 最大周波数MHz, default: 1200
-arm_freq_min=2000 # 最小周波数MHz, default: 600
-gpu_freq=750      # GPU周波数MHz, default: 500
-force_turbo=1     # いるか分からない
+over_voltage=6    # CPU,GPUへの印加電圧, default: 0, minimum: -16, maximum: 8
+arm_freq=2000     # 最大周波数MHz, default: 1200, maximum: 2147
+arm_freq_min=2000 # 最小周波数MHz, default: 600, maximum: 2147
+gpu_freq=750      # GPU周波数MHz, default: 500, maximum: 750
+force_turbo=1     # arm_freq=1200, over_voltage=6が強制される
 ```
 
 ### root 権限なしで PWM にアクセスできるようにする
