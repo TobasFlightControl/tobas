@@ -2,9 +2,9 @@
 
 #include <nodelet/nodelet.h>
 
-#include "../include/tobas_common_actions/pre_arm_check_server.hpp"
+#include "../include/tobas_pre_arm_check/pre_arm_check_server.hpp"
 
-namespace tobas_common_actions
+namespace tobas_pre_arm_check
 {
 class PreArmCheckServerNodelet : public nodelet::Nodelet
 {
@@ -14,4 +14,4 @@ public:
 private:
   std::shared_ptr<PreArmCheckServer> node_;
 };
-}  // namespace tobas_common_actions
+}  // namespace tobas_pre_arm_check

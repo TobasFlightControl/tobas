@@ -2,14 +2,14 @@
 #include <tobas_ros_tools/eigen_conversion.hpp>
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_common_actions/pre_arm_check_server.hpp"
-#include "../include/tobas_common_actions/common.hpp"
+#include "../include/tobas_pre_arm_check/pre_arm_check_server.hpp"
+#include "../include/tobas_pre_arm_check/common.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace tobas_std;
 
-namespace tobas_common_actions
+namespace tobas_pre_arm_check
 {
 PreArmCheckServer::PreArmCheckServer(
   const ros::NodeHandle& nh,
@@ -146,4 +146,4 @@ bool PreArmCheckServer::executeCb(std_srvs::TriggerRequest&, std_srvs::TriggerRe
   res.success = true;
   return true;
 }
-}  // namespace tobas_common_actions
+}  // namespace tobas_pre_arm_check

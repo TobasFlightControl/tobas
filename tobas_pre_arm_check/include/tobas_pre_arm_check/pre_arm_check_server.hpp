@@ -10,7 +10,7 @@
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Odometry.h>
 
-namespace tobas_common_actions
+namespace tobas_pre_arm_check
 {
 class PreArmCheckServer : public tobas::BaseNode
 {
@@ -56,4 +56,4 @@ private:
 
   bool executeCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 };
-}  // namespace tobas_common_actions
+}  // namespace tobas_pre_arm_check
