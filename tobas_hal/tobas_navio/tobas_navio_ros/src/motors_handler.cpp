@@ -1,4 +1,5 @@
 #include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
@@ -36,6 +37,7 @@ MotorsHandler::MotorsHandler(
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
   enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+  pre_arm_check_sc_ = nh_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
   check_interval_timer_ =
     nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
@@ -116,6 +118,24 @@ bool MotorsHandler::enablePwms(const bool& enable)
       rosError(name_, "Failed to enable/disable RC output CH" << rotor.channel << ".");
       return false;
     }
+  }
+
+  return true;
+}
+
+bool MotorsHandler::preArmCheck()
+{
+  if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  {
+    rosError(name_, "Failed to connect to '" << tobas::kPreArmCheckSrv << "' server.");
+    return false;
+  }
+
+  std_srvs::Trigger pre_arm_check_msg;
+  if (!pre_arm_check_sc_.call(pre_arm_check_msg) || !pre_arm_check_msg.response.success)
+  {
+    rosError(name_, pre_arm_check_msg.response.message);
+    return false;
   }
 
   return true;
@@ -274,22 +294,26 @@ bool MotorsHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetArmRespo
 
 bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
 {
+  res.success = false;
+
   if (!is_armed_ && req.arming)
   {
-    rosInfo(name_, "Arming rotors.");
+    if (!req.ignore_pre_arm_check && !preArmCheck())
+    {
+      res.message = "Pre-arm check failed.";
+      return true;
+    }
+
     if (!armRotors())
     {
-      res.success = false;
       res.message = "Failed to enable PWMs.";
       return true;
     }
   }
   else if (is_armed_ && !req.arming)
   {
-    rosInfo(name_, "Disarming rotors.");
     if (!disarmRotors())
     {
-      res.success = false;
       res.message = "Failed to disable PWMs.";
       return true;
     }

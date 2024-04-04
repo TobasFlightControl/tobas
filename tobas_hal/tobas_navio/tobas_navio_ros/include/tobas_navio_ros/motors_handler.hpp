@@ -51,6 +51,7 @@ private:
   ros::ServiceServer get_arm_ss_;
   ros::ServiceServer set_arm_ss_;
   ros::ServiceClient enable_pwm_sc_;
+  ros::ServiceClient pre_arm_check_sc_;
 
   // Timer
   ros::Timer check_interval_timer_;
@@ -62,6 +63,7 @@ private:
   bool armRotors();
   bool disarmRotors();
   bool enablePwms(const bool& enable);
+  bool preArmCheck();
   void setPeriodOnAllChannels(const double& period);
   void publishArming();
 

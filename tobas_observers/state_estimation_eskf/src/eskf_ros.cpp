@@ -15,7 +15,6 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
-#include <tobas_msgs/PreArmCheckAction.h>
 #include <tobas_msgs/conversions/msg_msg.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"

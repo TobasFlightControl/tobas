@@ -1,5 +1,7 @@
 #pragma once
 
+#include <std_srvs/Trigger.h>
+
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Battery.h>
@@ -35,6 +37,9 @@ private:
 
   ros::ServiceServer get_arm_ss_;
   ros::ServiceServer set_arm_ss_;
+
+  ros::ServiceClient pre_arm_check_sc_;
+  std_srvs::Trigger pre_arm_check_msg_;
 
   void getRosParams() override;
   void registerPublishers() override;
