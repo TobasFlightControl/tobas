@@ -73,12 +73,12 @@ static constexpr char kListControllersSrv[] = "controller_manager/list_controlle
 static constexpr char kEnablePwmSrv[] = "enable_pwm";
 static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
+static constexpr char kPreArmCheckSrv[] = "pre_arm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandingAction[] = "landing_action";
-static constexpr char kPreArmCheckAction[] = "pre_arm_check";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
