@@ -9,6 +9,7 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/PreArmCheck.h>
 
 namespace tobas_pre_arm_check
 {
@@ -19,6 +20,8 @@ class PreArmCheckServer : public tobas::BaseNode
   static constexpr double kVerPosStddevThreshold = 2.0;     // [m]
   static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
   static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
+
+  static constexpr double kPreArmCheckTimerRate = 1.;  // [s]
 
   using self = PreArmCheckServer;
   using super = tobas::BaseNode;
@@ -37,23 +40,26 @@ private:
   tobas_msgs::OdometryConstPtr odom_;
 
   Eigen::Matrix3d cov_;
+  tobas_msgs::PreArmCheck pre_arm_check_;
 
+  ros::Publisher pre_arm_check_pub_;
   ros::Subscriber arming_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
 
-  ros::ServiceServer ss_;
+  ros::ServiceServer pre_arm_check_ss_;
+
+  ros::Timer pre_arm_check_timer_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void reset();
-
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
-  bool executeCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool preArmCheckSrvCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  void preArmCheckTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_pre_arm_check
