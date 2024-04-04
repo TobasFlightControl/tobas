@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
-from tobas_rqt_tools.widgets import add_spacer
 
 from ...parameter_getters import *
 from ...common import *
@@ -25,8 +23,7 @@ class FixedWingWidget(BaseSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Fixed Wing"
         abst_text = (
-            "Set up the fixed-wing configuration. "
-            "Please choose a setup method and enter the required information."
+            "Set up the fixed-wing configuration. " "Please choose a setup method and enter the required information."
         )
         super().__init__(main, title_text, abst_text)
 
@@ -47,10 +44,10 @@ class FixedWingWidget(BaseSettingWidget):
         self.control_surfaces = ControlSurfacesWidget(self._main)
         self._rows.addWidget(self.control_surfaces)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
@@ -58,7 +55,7 @@ class FixedWingWidget(BaseSettingWidget):
         self.aero_coefs.define_connections()
         self.control_surfaces.define_connections()
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not self.has_fixed_wing.isChecked():
             return True

@@ -4,9 +4,14 @@ import os.path as osp
 import sys
 import signal
 import rospy
+import rospkg
 from PyQt5.QtWidgets import QApplication
 
+from tobas_rqt_tools.widgets import MainWidget
+from tobas_tools_py.constants import CONFIG_PATH
+
 from tobas_motor_test.rotor_speeds_publisher import RotorSpeedsPublisherWidget
+from tobas_setup_assistant.common import *
 
 
 if __name__ == "__main__":
@@ -15,8 +20,14 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    rotor_speeds_publisher = RotorSpeedsPublisherWidget()
-    rotor_speeds_publisher.show()
+    main_widget = MainWidget(
+        CONFIG_PATH,
+        PKG_NAME,
+        TITLE,
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        RotorSpeedsPublisherWidget(),
+    )
+    main_widget.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

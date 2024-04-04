@@ -1,0 +1,31 @@
+<library path="lib/libtobas_navio_ros_nodelet">
+
+  <class name="tobas_navio_ros/BatteryHandlerNodelet" type="tobas_navio_ros::BatteryHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_navio_ros/ImuHandlerNodelet" type="tobas_navio_ros::ImuHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_navio_ros/BarometerHandlerNodelet" type="tobas_navio_ros::BarometerHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_navio_ros/GpsHandlerNodelet" type="tobas_navio_ros::GpsHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_navio_ros/PwmHandlerNodelet" type="tobas_navio_ros::PwmHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_navio_ros/MotorsHandlerNodelet" type="tobas_navio_ros::MotorsHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_navio_ros/RCInputHandlerNodelet" type="tobas_navio_ros::RCInputHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

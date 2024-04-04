@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox
+from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
@@ -49,9 +49,7 @@ class ControlSurfacesWidget(QWidget):
         rows.addWidget(label)
 
         available_links_label = QLabel("Available Links")
-        available_links_label.setFont(
-            QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold)
-        )
+        available_links_label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         available_links_label.setAlignment(Qt.AlignLeft)
         rows.addWidget(available_links_label)
 
@@ -100,18 +98,12 @@ class AvailableLinksWidget(QListWidget):
         self._main = main
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_loaded.connect(self._add_available_links)
-        self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(
-            self._add_selected_link
-        )
-        self._main.settings.fixed_wing.control_surfaces.selected.link_added.connect(
-            self._delete_selected_link
-        )
+        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
+        self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(self._add_selected_link)
+        self._main.settings.fixed_wing.control_surfaces.selected.link_added.connect(self._delete_selected_link)
 
     def add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(
-            link_name
-        ), f"Unknown link: {link_name}"
+        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
         assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
         self.addItem(link_name)
 
@@ -178,9 +170,7 @@ class AvailableLinksWidget(QListWidget):
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
-        selected_link = (
-            self._main.settings.fixed_wing.control_surfaces.selected.selected_link()
-        )
+        selected_link = self._main.settings.fixed_wing.control_surfaces.selected.selected_link()
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return
@@ -200,8 +190,8 @@ class AvailableLinksWidget(QListWidget):
 
 
 class AddDeleteButtonsWidget(QWidget):
-    BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
+    BUTTON_HEIGHT = 40
 
     add = pyqtSignal()
     delete = pyqtSignal()
@@ -234,7 +224,7 @@ class AddDeleteButtonsWidget(QWidget):
         self.delete.emit()
 
 
-class SelectedLinksWidget(QTableWidget):
+class SelectedLinksWidget(TableWidget):
     COL_WIDTH = 120
     COEF_DECIMALS = 6
     ANGLE_LIMIT = math.pi / 4
@@ -333,9 +323,7 @@ class SelectedLinksWidget(QTableWidget):
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
-        selected_link = (
-            self._main.settings.fixed_wing.control_surfaces.available_links.selected_link()
-        )
+        selected_link = self._main.settings.fixed_wing.control_surfaces.available_links.selected_link()
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return

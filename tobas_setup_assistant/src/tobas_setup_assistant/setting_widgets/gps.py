@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
-from tobas_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -29,41 +27,24 @@ class GpsWidget(BaseSettingWidget):
         self._equipped.setChecked(True)
         self._rows.addWidget(self._equipped)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""  # TODO
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=5,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=5, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
         delay_description = ""  # TODO
         self.delay = ParamGetterWidget_DoubleSpinBox(
-            "Communication delay",
-            delay_description,
-            decimals=2,
-            minimum=0.0,
-            default=0.2,
-            suffix=" s",
+            "Communication delay", delay_description, decimals=2, minimum=0.0, default=0.2, suffix=" s"
         )
         self._rows.addWidget(self.delay)
 
         pos_corr_time_description = ""  # TODO
         self.pos_corr_time = ParamGetterWidget_SpinBox(
-            "Position correction time constant",
-            pos_corr_time_description,
-            minimum=1,
-            default=10,
-            suffix=" s",
+            "Position correction time constant", pos_corr_time_description, minimum=1, default=10, suffix=" s"
         )
         self._rows.addWidget(self.pos_corr_time)
 
@@ -111,15 +92,15 @@ class GpsWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.vertical_vel_stddev)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not self._equipped.isChecked():
             return True

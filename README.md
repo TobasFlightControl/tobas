@@ -10,7 +10,7 @@ cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zd
 `/boot/config.txt`に以下を追記:
 
 ```txt
-over_voltage=6    # -16～8の整数,　default: 0
+over_voltage=6    # -16～8の整数, default: 0
 arm_freq=2000     # 最大周波数MHz, default: 1200
 arm_freq_min=2000 # 最小周波数MHz, default: 600
 gpu_freq=750      # GPU周波数MHz, default: 500
@@ -72,14 +72,60 @@ $ getent group dialout  # dialoutグループのメンバーを確認
 $ id pi                 # piが所属するグループを確認
 ```
 
-## ラズパイをネットワークにつないだままアクセスポイント化
+### ラズパイをアクセスポイント&ルーター化
 
-### 手順
+#### 手順
 
-[Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
+1. [Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
+2. [Raspberry Pi WiFi アクセスポイント&ルーター化](https://www.mikan-tech.net/entry/raspi-ap-sta-router)
 
-### メモ
+#### メモ
 
 - `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
   既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
   その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
+
+- `/etc/udev/rules.d/99-ap0.rules`の MAC アドレスをハードコードせず，wlan0 からコピーするよう変更．
+
+```txt
+SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
+  RUN+="/sbin/iw phy phy0 interface add ap0 type __ap", \
+  RUN+="/bin/ip link set ap0 address $(cat /sys/class/net/wlan0/address)"
+```
+
+### Tobas のオート起動のための設定
+
+- `/etc/systemd/system/tobas_xxx.service`にコマンドを書く
+  - ExecStart 内でシェルスクリプトを実行して環境変数を設定しても元のシェルには影響しないことに注意
+- 環境変数や共通のシェルスクリプトを`/etc/tobas/`以下にまとめる
+
+## CUI で HIL
+
+1. 外部 PC から`raspberry_wifi`に接続
+
+ラズパイの ROS_MASTER_URI を AP のもので固定しているため，それに合わせる必要がある．
+
+2. ラズパイのオート起動のサービスを落とす
+
+```bash
+$ sudo systemctl stop tobas_roscore.service
+```
+
+3. 外部 PC とラズパイの両方で`fkie_multimaster`を立ち上げる
+
+```bash
+$ roslaunch tobas_fkie_master fkie_master.launch
+```
+
+4. ラズパイで`rcin_handler`を立ち上げる
+
+```bash
+$ roslaunch tobas_navio_ros rcin_handler.launch __ns:=drone_name
+```
+
+5. 外部 PC で Tobas ソフトウェアを立ち上げる
+
+```bash
+$ roslaunch tobas_iris_config gazebo.launch
+$ roslaunch tobas_iris_config bringup.launch
+```

@@ -21,7 +21,7 @@ class FollowPositionYawTrajectoryServer : tobas::BaseNode
   using CommandType = tobas_msgs::PositionYaw;
 
   using ActionType = tobas_trajectory_commander::FollowPositionYawTrajectoryAction;
-  using GoalType = tobas_trajectory_commander::FollowPositionYawTrajectoryGoalConstPtr;
+  using GoalType = tobas_trajectory_commander::FollowPositionYawTrajectoryGoal;
   using ResultType = tobas_trajectory_commander::FollowPositionYawTrajectoryResult;
   using FeedbackType = tobas_trajectory_commander::FollowPositionYawTrajectoryFeedback;
 
@@ -45,6 +45,6 @@ private:
 
   bool isGoalValid(const GoalType& goal);
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_trajectory_commander

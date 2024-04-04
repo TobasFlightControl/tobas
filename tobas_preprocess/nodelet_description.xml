@@ -4,4 +4,8 @@
     <description>TODO</description>
   </class>
 
+  <class name="tobas_preprocess/MatrixEulerConverterNodelet" type="tobas_preprocess::MatrixEulerConverterNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
 </library>

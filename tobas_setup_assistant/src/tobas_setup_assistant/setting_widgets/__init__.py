@@ -10,7 +10,6 @@ from .rgb_camera import RgbCameraWidget
 from .depth_camera import DepthCameraWidget
 from .lidar import LidarWidget
 from .odometry import OdometryWidget
-from .rc_transmitter import RCTransmitterWidget
 from .controller import ControllerWidget
 from .observer import ObserverWidget
 from .simulation import SimulationWidget

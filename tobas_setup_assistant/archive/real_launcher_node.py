@@ -24,9 +24,7 @@ if __name__ == "__main__":
         time.sleep(WAIT_NODELET_MANAGER)
 
     # Launch hardware_interfaces.launch
-    create_launcher(
-        "{{ pkg_name }}", "hardware_interfaces.launch", [f"nodelet:={nodelet}"]
-    )
+    create_launcher("{{ pkg_name }}", "hardware_interfaces.launch", [f"nodelet:={nodelet}"])
 
     # Launch bringup.launch
     create_launcher("{{ pkg_name }}", "bringup.launch", [f"nodelet:={nodelet}"])

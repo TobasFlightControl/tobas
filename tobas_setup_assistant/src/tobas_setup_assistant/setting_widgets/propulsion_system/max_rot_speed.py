@@ -57,11 +57,7 @@ class MaxRotationSpeedWidget(QWidget):
                     return False
                 break
         else:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please set max rotation speed.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please set max rotation speed.")
             return False
 
         return True
@@ -80,11 +76,9 @@ class MaxRotationSpeedWidget(QWidget):
 
 
 class MaxRotationSpeedMethod(QWidget):
-    NAME = UNKNOWN
+    NAME = TO_DO
 
-    def __init__(
-        self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup
-    ) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__()
         self._main = main
         self._link_name = link_name
@@ -129,9 +123,7 @@ class MaxRotationSpeedMethod(QWidget):
 class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
     NAME = "Set manually"
 
-    def __init__(
-        self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup
-    ) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__(main, link_name, ckb_group)
 
         self._spinbox.setSuffix(" rpm")
@@ -151,9 +143,7 @@ class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
 class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
     NAME = "Estimate from maximum input voltage"
 
-    def __init__(
-        self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup
-    ) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__(main, link_name, ckb_group)
 
         self._spinbox.setSuffix(" V")
@@ -163,9 +153,7 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
 
     def max_rot_speed(self) -> float:
         """[rad/s]"""
-        motor = self._main.settings.propulsion_system.selected.get_motor(
-            self._link_name
-        )
+        motor = self._main.settings.propulsion_system.selected.get_motor(self._link_name)
         a, b = motor.rot_speed_coefs()
         V = self._spinbox.value()
         return (math.sqrt(a**2 + 4 * b * V) - a) / (2 * b)
@@ -185,9 +173,7 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
 
     NAME = "Estimate from maximum continuous current"
 
-    def __init__(
-        self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup
-    ) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__(main, link_name, ckb_group)
 
         self._spinbox.setSuffix(" A")

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -20,13 +20,12 @@ from .base import BaseController
 
 class FixedWingLQR(BaseController):
     NAME = "Fixed Wing LQR"
-
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    STABLIZE_MODE = SpeedRollDeltaPitch.__name__
+    ACROBAT_MODE = SpeedRollDeltaPitch.__name__  # TODO
     PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"
-
-    COMMAND_MSGS = frozenset([SpeedRollDeltaPitch.__name__])
 
     # Dynamic Parameters
     FORWARD_SPEED_WEIGHT = "forward_speed_weight"
@@ -50,6 +49,12 @@ class FixedWingLQR(BaseController):
         )
         super().__init__(main, abst_text)
 
+    @override
+    def define_connections(self) -> None:
+        pass
+
+    @override
+    def add_dynamic_params(self) -> None:
         config = self._get_param_config(self.FORWARD_SPEED_WEIGHT)
         self._forward_speed_weight = ParamGetterWidget_SpinBox(
             "Weight on forward speed",
@@ -140,11 +145,7 @@ class FixedWingLQR(BaseController):
         )
         self._rows.addWidget(self._deflection_rate_weight_log10)
 
-    @overrides
-    def define_connections(self) -> None:
-        super().define_connections()
-
-    @overrides
+    @override
     def is_applicable(self) -> bool:
         # 固定翼を持つ
         fixed_wing = self._main.settings.fixed_wing
@@ -168,12 +169,12 @@ class FixedWingLQR(BaseController):
 
         return True
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         # TODO: 制御面の数や符号などに関する条件
         return True
 
-    @overrides
+    @override
     def parameter_dict(self) -> dict:
         res = dict()
         res["tobas_fixed_wing_lqd"] = {

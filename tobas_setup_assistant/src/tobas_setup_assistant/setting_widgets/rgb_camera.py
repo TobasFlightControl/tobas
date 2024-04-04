@@ -4,12 +4,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
@@ -45,32 +44,19 @@ class RgbCameraWidget(BaseSettingWidget):
 
         fov_description = ""
         self.fov = ParamGetterWidget_DoubleSpinBox(
-            "Horizontal Field of View",
-            fov_description,
-            decimals=6,
-            minimum=0.0,
-            default=1.59174,
-            suffix=" rad",
+            "Horizontal Field of View", fov_description, decimals=6, minimum=0.0, default=1.59174, suffix=" rad"
         )
         self._rows.addWidget(self.fov)
 
         image_width_description = ""
         self.image_width = ParamGetterWidget_SpinBox(
-            "Image Width",
-            image_width_description,
-            minimum=1,
-            default=848,
-            suffix=" px",
+            "Image Width", image_width_description, minimum=1, default=848, suffix=" px"
         )
         self._rows.addWidget(self.image_width)
 
         image_height_description = ""
         self.image_height = ParamGetterWidget_SpinBox(
-            "Image Height",
-            image_height_description,
-            minimum=1,
-            default=480,
-            suffix=" px",
+            "Image Height", image_height_description, minimum=1, default=480, suffix=" px"
         )
         self._rows.addWidget(self.image_height)
 
@@ -79,34 +65,26 @@ class RgbCameraWidget(BaseSettingWidget):
             "In the simulation, objects outside this range will be truncated."
         )
         self.depth_range = ParamGetterWidget_DoubleRange(
-            "Depth Range",
-            depth_range_description,
-            minimum=0.0,
-            default=(0.01, 500.0),
-            suffix=" m",
+            "Depth Range", depth_range_description, minimum=0.0, default=(0.01, 500.0), suffix=" m"
         )
         self._rows.addWidget(self.depth_range)
 
         noise_stddev_description = ""
         self.noise_stddev = ParamGetterWidget_DoubleSpinBox(
-            "Noise Standard Deviation",
-            noise_stddev_description,
-            decimals=6,
-            minimum=0.0,
-            default=0.007,
+            "Noise Standard Deviation", noise_stddev_description, decimals=6, minimum=0.0, default=0.007
         )
         self._rows.addWidget(self.noise_stddev)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
-        self._main.urdf_parser.robot_model_loaded.connect(self._add_links)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not self._equipped.isChecked():
             return True
@@ -142,10 +120,8 @@ class RgbCameraWidget(BaseSettingWidget):
             self.noise_stddev.setVisible(False)
 
     @pyqtSlot()
-    def _add_links(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         # Gazeboの仕様で，ルートリンクまたは可動関節をもつリンクのみ指定可能
         root_name = self._main.urdf_parser.get_root().name
-        body_choices = [
-            root_name
-        ] + self._main.urdf_parser.link_names_with_mobile_joint()
-        self.link.add_items(body_choices)
+        body_choices = [root_name] + self._main.urdf_parser.link_names_with_mobile_joint()
+        self.link.set_choices(body_choices)

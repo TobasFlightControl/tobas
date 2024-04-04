@@ -4,15 +4,15 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-import csv
-from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox, add_spacer
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import CONFIG_PATH
 
 from ...parameter_getters import *
 from ...common import *
@@ -43,7 +43,7 @@ class AerodynamicsCoefficientsWidget(QWidget):
         self._load_button.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         rows.addWidget(self._load_button)
 
-        add_spacer(cols)
+        cols.addStretch()
 
         self._form = FormLayout()
         rows.addLayout(self._form)
@@ -229,23 +229,15 @@ class AerodynamicsCoefficientsWidget(QWidget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        config = ConfigParser()
+        config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
         config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = config.get(
-            DEFAULT,
-            self.LAST_OPENED_DIR,
-            fallback=osp.expanduser("~"),
-        )
+        last_opened_dir = config.get(self.LAST_OPENED_DIR, fallback=osp.expanduser("~"))
 
         # paramsのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            TITLE,
-            last_opened_dir,
-            "OpenVSP Stability Derivatives (*.stab)",
-            options=options,
+            self, TITLE, last_opened_dir, "OpenVSP Stability Derivatives (*.stab)", options=options
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
@@ -254,9 +246,8 @@ class AerodynamicsCoefficientsWidget(QWidget):
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        config[DEFAULT][self.LAST_OPENED_DIR] = osp.dirname(file_path)
-        with open(CONFIG_PATH, "w") as f:
-            config.write(f)
+        config.set(self.LAST_OPENED_DIR, osp.dirname(file_path))
+        config.write()
 
         # パラメータを読み込む
         self._load_params(file_path)

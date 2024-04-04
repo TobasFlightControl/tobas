@@ -32,7 +32,6 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    const Eigen::Vector3d& mag_W,
     const Eigen::Vector3d& init_pos,
     const Eigen::Vector3d& init_vel,
     const Eigen::Quaterniond& init_quat,
@@ -125,6 +124,7 @@ public:
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas);
   double measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
+  double measureYaw(const double& yaw_meas, const double& yaw_var);
 
   /**
    * @brief 重力方向の観測．姿勢の修正に用いる．
@@ -138,37 +138,7 @@ public:
    */
   double measureGravity(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& grav_cov);
 
-  /**
-   * @brief 地磁気の観測．姿勢の修正に用いる．
-   *
-   * @param mag_meas 地磁気センサの読み．
-   * @param mag_cov 観測による修正量を決めるパラメータ．
-   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
-   *
-   * @note
-   * 地磁気センサのバイアスが大きく，ロールピッチの観測に用いると姿勢推定の精度が落ちる恐れがあるため，
-   * 地磁気はヨー角の観測にのみ用いるべきという意見もある．
-   *
-   * @return Anormaly score
-   */
-  double measureMagneticField(const Eigen::Vector3d& mag_meas, const Eigen::Matrix3d& mag_cov);
-
-  /**
-   * @brief 地磁気の観測．ヨー角の修正に用いる．
-   * https://github.com/PX4/PX4-ECL/blob/b3fed06fe822d08d19ab1d2c2f8daf7b7d21951c/EKF/mag_fusion.cpp#L420
-   *
-   * @param mag_meas 地磁気センサの読み．
-   * @param yaw_var 観測による修正量を決めるパラメータ．
-   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
-   *
-   * @return Anormaly score
-   */
-  double
-  measureMagneticField(const double& mag_meas_x, const double& mag_meas_y, const double& yaw_var);
-
 private:
-  Eigen::Vector3d mag_W_;  // Magnetic field wrt. world frame [T]
-
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
   DeltaStateMatrix F_x_;  // Jacobian of the state transition
@@ -180,8 +150,7 @@ private:
   Eigen::Matrix<double, 6, kDeltaStateSize> H_pv_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_theta_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_acc_;
-  Eigen::Matrix<double, 3, kDeltaStateSize> H_mag_rpy_;
-  Eigen::Matrix<double, 1, kDeltaStateSize> H_mag_yaw_;
+  Eigen::Matrix<double, 1, kDeltaStateSize> H_mag_;
 
   /**
    * @brief クオータニオンをベクトルの形で得る．

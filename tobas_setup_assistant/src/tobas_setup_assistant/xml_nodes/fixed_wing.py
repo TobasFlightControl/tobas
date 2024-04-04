@@ -51,9 +51,7 @@ class FixedWingModel(ET.Element):
         ET.SubElement(plugin, "wingSurface").text = str(wing_surface)
         ET.SubElement(plugin, "wingSpan").text = str(wing_span)
         ET.SubElement(plugin, "meanAerodynamicChord").text = str(mean_aerodynamic_chord)
-        ET.SubElement(plugin, "aerodynamicCenter").text = " ".join(
-            map(str, aerodynamic_center)
-        )
+        ET.SubElement(plugin, "aerodynamicCenter").text = " ".join(map(str, aerodynamic_center))
         ET.SubElement(plugin, "lowerStallAngle").text = str(alpha_limit[0])
         ET.SubElement(plugin, "upperStallAngle").text = str(alpha_limit[1])
 

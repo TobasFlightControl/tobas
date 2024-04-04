@@ -1,10 +1,8 @@
-import os.path as osp
-import rospkg
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget
+from tobas_rqt_tools.widgets import Widget
 
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
@@ -13,16 +11,9 @@ from .settings import SettingsWidget
 from .common import *
 
 
-class SetupAssistant(MainWidget):
+class SetupAssistant(Widget):
     def __init__(self) -> None:
-        super().__init__(PKG_NAME, DEFAULT)
-
-        icon_path = osp.join(
-            rospkg.RosPack().get_path(PKG_NAME),
-            "resources/icon_white.png",
-        )
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle(TITLE)
+        super().__init__()
 
         self.urdf_parser = URDFParser(self)
         self.pkg_generator = PackageGenerator(self)
@@ -46,6 +37,3 @@ class SetupAssistant(MainWidget):
         self.pkg_generator.define_connections()
         self.robot_visualizer.define_connections()
         self.settings.define_connections()
-
-        # パッケージの作成が完了したら閉じる
-        self.pkg_generator.generated.connect(self.close)

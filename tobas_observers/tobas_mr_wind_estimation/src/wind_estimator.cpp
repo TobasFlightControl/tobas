@@ -66,6 +66,9 @@ Matrix3d WindEstimator::velCoef(const Rotation& R_W_B)
 
 void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   if (!is_initialized_)
   {
     if (rotor_speeds_ != nullptr && odom->frame.p.z() > tobas::kTakeoffAltitudeThreshold)

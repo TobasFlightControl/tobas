@@ -17,6 +17,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.sequence import is_unique
 from tobas_urdf_tools_py.core import *
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
 from tobas_rqt_tools.path import resolve_uri
@@ -25,35 +26,27 @@ from tobas_rqt_tools.xml import prettify_and_save
 
 from tobas_msgs.msg import *
 
-from .utils import *
+from .utils import get_drone_name
 from .xml_nodes import *
 from .common import *
 
 
 class PackageGenerator(QObject):
-    generated = pyqtSignal()
-
     def __init__(self, main: SetupAssistant):
         super().__init__()
         self._main = main
 
         templates_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "templates")
-        self._template_env = Environment(
-            loader=FileSystemLoader(templates_path),
-            trim_blocks=True,
-            lstrip_blocks=True,
-        )
+        self._template_env = Environment(loader=FileSystemLoader(templates_path), trim_blocks=True, lstrip_blocks=True)
 
         self._drone_name = ""
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
-        self._main.settings.ros_package.generate_button.clicked.connect(
-            self._on_generate_button_clicked
-        )
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.settings.ros_package.generate_button.clicked.connect(self._on_generate_button_clicked)
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         self._drone_name = get_drone_name()
 
     @pyqtSlot()
@@ -62,7 +55,6 @@ class PackageGenerator(QObject):
             return
         self._generate_pkg()
         q_info(self._main, "Configuration package is generated.")
-        self.generated.emit()
 
     def _is_valid_config(self) -> bool:
         if not self._main.settings.start.is_valid():
@@ -101,9 +93,6 @@ class PackageGenerator(QObject):
         if not self._main.settings.odometry.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.odometry)
             return False
-        if not self._main.settings.rc_transmitter.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.rc_transmitter)
-            return False
         if not self._main.settings.controller.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
@@ -122,14 +111,11 @@ class PackageGenerator(QObject):
 
         # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを保証
         prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
-        cs_jnt_names = (
-            self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
-        )
+        cs_jnt_names = self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
         custom_jnt_names = self._main.settings.custom_joints.joint_names()
         if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
             q_error(
-                self,
-                "The joints set in the propulsion system, control surfaces, and custom joints are duplicated.",
+                self, "The joints set in the propulsion system, control surfaces, and custom joints are duplicated."
             )
             return False
 
@@ -161,155 +147,62 @@ class PackageGenerator(QObject):
 
         # テンプレートから生成
         items = self._make_template_items()
+        self._generate_from_template(items, "CMakeLists.txt.template", osp.join(pkg_path, "CMakeLists.txt"))
+        self._generate_from_template(items, "package.xml.template", osp.join(pkg_path, "package.xml"))
         self._generate_from_template(
-            items,
-            "CMakeLists.txt.template",
-            osp.join(pkg_path, "CMakeLists.txt"),
+            items, "nodelet_description.xml.template", osp.join(pkg_path, "nodelet_description.xml")
         )
         self._generate_from_template(
-            items,
-            "package.xml.template",
-            osp.join(pkg_path, "package.xml"),
+            items, "plotjuggler_layout.xml.template", osp.join(config_dir, "plotjuggler_layout.xml")
         )
         self._generate_from_template(
-            items,
-            "nodelet_description.xml.template",
-            osp.join(pkg_path, "nodelet_description.xml"),
+            items, "nodelet_manager.launch.template", osp.join(launch_dir, "nodelet_manager.launch")
         )
         self._generate_from_template(
-            items,
-            "environment.yaml.template",
-            osp.join(config_dir, "environment.yaml"),
+            items, "common_params.launch.template", osp.join(launch_dir, "common_params.launch")
+        )
+        self._generate_from_template(items, "gazebo.launch.template", osp.join(launch_dir, "gazebo.launch"))
+        self._generate_from_template(items, "real.launch.template", osp.join(launch_dir, "real.launch"))
+        self._generate_from_template(items, "calibration.launch.template", osp.join(launch_dir, "calibration.launch"))
+        self._generate_from_template(items, "controller.launch.template", osp.join(launch_dir, "controller.launch"))
+        self._generate_from_template(items, "observer.launch.template", osp.join(launch_dir, "observer.launch"))
+        self._generate_from_template(items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch"))
+        self._generate_from_template(items, "hil.launch.template", osp.join(launch_dir, "hil.launch"))
+        self._generate_from_template(items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch"))
+        self._generate_from_template(
+            items, "joint_control.launch.template", osp.join(launch_dir, "joint_control.launch")
         )
         self._generate_from_template(
-            items,
-            "hardware_interfaces.yaml.template",
-            osp.join(config_dir, "hardware_interfaces.yaml"),
+            items, "jointpos_commander.launch.template", osp.join(launch_dir, "jointpos_commander.launch")
+        )
+        self._generate_from_template(items, "plotjuggler.launch.template", osp.join(launch_dir, "plotjuggler.launch"))
+        self._generate_from_template(
+            items, "motor_test_driver.launch.template", osp.join(launch_dir, "motor_test_driver.launch")
         )
         self._generate_from_template(
-            items,
-            "plotjuggler_layout.xml.template",
-            osp.join(config_dir, "plotjuggler_layout.xml"),
+            items, "motor_test_gui.launch.template", osp.join(launch_dir, "motor_test_gui.launch")
+        )
+        self._generate_from_template(items, "tobas_bridge.launch.template", osp.join(launch_dir, "tobas_bridge.launch"))
+        self._generate_from_template(items, "tobas_bridge.hpp.template", osp.join(include_dir, "tobas_bridge.hpp"))
+        self._generate_from_template(items, "tobas_bridge.cpp.template", osp.join(src_dir, "tobas_bridge.cpp"))
+        self._generate_from_template(
+            items, "tobas_bridge_node.cpp.template", osp.join(nodes_dir, "tobas_bridge_node.cpp")
         )
         self._generate_from_template(
-            items,
-            "nodelet_manager.launch.template",
-            osp.join(launch_dir, "nodelet_manager.launch"),
+            items, "tobas_bridge_nodelet.hpp.template", osp.join(nodelets_dir, "tobas_bridge_nodelet.hpp")
         )
         self._generate_from_template(
-            items,
-            "common_params.launch.template",
-            osp.join(launch_dir, "common_params.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "gazebo.launch.template",
-            osp.join(launch_dir, "gazebo.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "real.launch.template",
-            osp.join(launch_dir, "real.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "controller.launch.template",
-            osp.join(launch_dir, "controller.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "observer.launch.template",
-            osp.join(launch_dir, "observer.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "bringup.launch.template",
-            osp.join(launch_dir, "bringup.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "hardware_interfaces.launch.template",
-            osp.join(launch_dir, "hardware_interfaces.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "hil.launch.template",
-            osp.join(launch_dir, "hil.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "rc_teleop.launch.template",
-            osp.join(launch_dir, "rc_teleop.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "joint_control.launch.template",
-            osp.join(launch_dir, "joint_control.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "jointpos_commander.launch.template",
-            osp.join(launch_dir, "jointpos_commander.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "plotjuggler.launch.template",
-            osp.join(launch_dir, "plotjuggler.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "motor_test_driver.launch.template",
-            osp.join(launch_dir, "motor_test_driver.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "motor_test_gui.launch.template",
-            osp.join(launch_dir, "motor_test_gui.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "tobas_bridge.launch.template",
-            osp.join(launch_dir, "tobas_bridge.launch"),
-        )
-        self._generate_from_template(
-            items,
-            "tobas_bridge.hpp.template",
-            osp.join(include_dir, "tobas_bridge.hpp"),
-        )
-        self._generate_from_template(
-            items,
-            "tobas_bridge.cpp.template",
-            osp.join(src_dir, "tobas_bridge.cpp"),
-        )
-        self._generate_from_template(
-            items,
-            "tobas_bridge_node.cpp.template",
-            osp.join(nodes_dir, "tobas_bridge_node.cpp"),
-        )
-        self._generate_from_template(
-            items,
-            "tobas_bridge_nodelet.hpp.template",
-            osp.join(nodelets_dir, "tobas_bridge_nodelet.hpp"),
-        )
-        self._generate_from_template(
-            items,
-            "tobas_bridge_nodelet.cpp.template",
-            osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp"),
+            items, "tobas_bridge_nodelet.cpp.template", osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp")
         )
 
-        command_msgs = self._main.settings.controller.command_msgs()
+        flight_modes = {self._main.settings.controller.stabilize_mode(), self._main.settings.controller.acrobat_mode()}
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
-        if (
-            PositionYaw.__name__ in command_msgs
-            or PosVelAccYaw.__name__ in command_msgs
-        ):
+        if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
             self._generate_from_template(
-                items,
-                "keyboard_teleop/position_yaw.launch.template",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
+                items, "keyboard_teleop/position_yaw.launch.template", osp.join(launch_dir, "keyboard_teleop.launch")
             )
-        elif SpeedRollDeltaPitch.__name__ in command_msgs:
+        elif SpeedRollDeltaPitch.__name__ in flight_modes:
             self._generate_from_template(
                 items,
                 "keyboard_teleop/speed_roll_dpitch.launch.template",
@@ -318,14 +211,12 @@ class PackageGenerator(QObject):
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
         if (
-            PositionYaw.__name__ in command_msgs
-            or PosVelAccYaw.__name__ in command_msgs
-            or PoseTwistAccelCommand.__name__ in command_msgs
+            PositionYaw.__name__ in flight_modes
+            or PosVelAccYaw.__name__ in flight_modes
+            or PoseTwistAccelCommand.__name__ in flight_modes
         ):
             self._generate_from_template(
-                items,
-                "gui_teleop/position_yaw.launch.template",
-                osp.join(launch_dir, "gui_teleop.launch"),
+                items, "gui_teleop/position_yaw.launch.template", osp.join(launch_dir, "gui_teleop.launch")
             )
 
         # Pythonで自動生成
@@ -342,10 +233,6 @@ class PackageGenerator(QObject):
 
         template_items = dict()
         template_items["drone_name"] = self._drone_name
-
-        # Sensors
-        template_items["imu_update_rate"] = settings.imu.update_rate.get()
-        template_items["bar_update_rate"] = settings.barometer.update_rate.get()
 
         # Controller
         controller = settings.controller
@@ -379,9 +266,7 @@ class PackageGenerator(QObject):
 
         return template_items
 
-    def _generate_from_template(
-        self, items: dict, template_file: str, out_path: str
-    ) -> None:
+    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
         template = self._template_env.get_template(template_file)
         content = template.render(items)  # テンプレートにdict型で文字を埋め込む
         with open(out_path, "w") as f:
@@ -391,9 +276,17 @@ class PackageGenerator(QObject):
         # TBSFファイルに書き込むための辞書を作る
         drone_config = dict()
 
+        # Drone Name
+        drone_config["drone_name"] = self._drone_name
+
         # Battery
         battery = self._main.settings.battery
-        drone_config["battery_nominal_voltage"] = battery.nominal_voltage()
+        drone_config["battery"] = {
+            "nominal_voltage": battery.nominal_voltage(),
+            "max_voltage": battery.max_voltage(),
+            "sag_voltage": battery.sag_voltage(),
+            "max_current": battery.max_current(),
+        }
 
         # Propulsion System
         propulsion_system = self._main.settings.propulsion_system.selected
@@ -433,10 +326,7 @@ class PackageGenerator(QObject):
                 "wing_span": vehicle.wing_span.get(),
                 "mean_aerodynamic_chord": vehicle.mac.get(),
                 "aerodynamic_center": vehicle.aerodynamic_center.get(),
-                "alpha_limit": {
-                    "lower": vehicle.alpha_limit.min(),
-                    "upper": vehicle.alpha_limit.max(),
-                },
+                "alpha_limit": {"lower": vehicle.alpha_limit.min(), "upper": vehicle.alpha_limit.max()},
             }
 
             # Aerodynamic Coefficients
@@ -468,10 +358,7 @@ class PackageGenerator(QObject):
 
             for idx, cs in enumerate(control_surfaces.control_surfaces()):
                 drone_config["fixed_wing"][f"control_surface_{idx}"] = {
-                    "angle_limit": {
-                        "lower": cs.min_angle,
-                        "upper": cs.max_angle,
-                    },
+                    "angle_limit": {"lower": cs.min_angle, "upper": cs.max_angle},
                     "max_angle_rate": cs.max_angle_rate,
                     "c_lift_delta": cs.c_lift_delta,
                     "c_drag_abs_delta": cs.c_drag_abs_delta,
@@ -495,27 +382,21 @@ class PackageGenerator(QObject):
             }
 
         # TBSFファイルを作成
-        drone_config_path = osp.join(config_dir, f"{self._drone_name}.tbsf")
+        drone_config_path = osp.join(config_dir, "drone.tbsf")
         with open(drone_config_path, "w") as f:
             yaml.dump(drone_config, f)
 
     def _generate_joint_control_config(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
         items = dict()
-        items["joint_state_controller"] = {
-            "type": "joint_state_controller/JointStateController",
-            "publish_rate": 1000,
-        }
+        items["joint_state_controller"] = {"type": "joint_state_controller/JointStateController", "publish_rate": 1000}
         items["gazebo_ros_control"] = {"pid_gains": dict()}
 
         custom_joints = self._main.settings.custom_joints
         for i in range(custom_joints.count()):
             jnt_name = custom_joints.joint_name(i)
             controller_name = f"{jnt_name}_controller"
-            items[controller_name] = {
-                "joint": jnt_name,
-                "type": custom_joints.controller_type(i),
-            }
+            items[controller_name] = {"joint": jnt_name, "type": custom_joints.controller_type(i)}
 
             if custom_joints.pid_enabled(i):
                 items[controller_name]["pid"] = {
@@ -535,14 +416,10 @@ class PackageGenerator(QObject):
             yaml.dump(items, f)
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
-        rc_transmitter = self._main.settings.rc_transmitter
         controller = self._main.settings.controller
 
         items = dict()
-        items["rc_teleop"] = {
-            "dead_zone_rate": rc_transmitter.dead_zone_rate.get() / 100.0,
-            "mode_names": controller.flight_mode_names(),
-        }
+        items["rc_teleop"] = {"stabilize_mode": controller.stabilize_mode(), "acrobat_mode": controller.acrobat_mode()}
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")
         with open(file_path, "w") as f:
@@ -562,9 +439,7 @@ class PackageGenerator(QObject):
 
     def _generate_state_checker_config(self, config_dir: str) -> None:
         items = dict()
-        items["state_checker"] = {
-            "battery_voltage_threshold": self._main.settings.battery.voltage_threshold(),
-        }
+        items["state_checker"] = {"battery_voltage_threshold": self._main.settings.battery.voltage_threshold()}
 
         file_path = osp.join(config_dir, "state_checker.yaml")
         with open(file_path, "w") as f:
@@ -595,9 +470,7 @@ class PackageGenerator(QObject):
         for mesh in robot.iter("mesh"):
             abs_path = resolve_uri(mesh.attrib["filename"])
             base_name = osp.basename(abs_path)
-            shutil.copy2(
-                abs_path, osp.join(mesh_dir, base_name)
-            )  # メッシュファイルをコピー
+            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
             mesh.attrib["filename"] = f"package://{pkg_name}/mesh/{base_name}"
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
@@ -622,9 +495,7 @@ class PackageGenerator(QObject):
                 elif child.tag == "sensor":
                     self._remove_or_keep_gazebo_child(gazebo, child)
 
-    def _remove_or_keep_gazebo_child(
-        self, gazebo: ET.Element, child: ET.Element
-    ) -> None:
+    def _remove_or_keep_gazebo_child(self, gazebo: ET.Element, child: ET.Element) -> None:
         """属性を確認した上でGazeboの子ノードを削除する．"""
         msg_box = QMessageBox(self._main)  # 親を設定しておけば一緒に落とせる
 
@@ -671,10 +542,7 @@ class PackageGenerator(QObject):
         robot.append(base_fix_joint)
 
         # Base plugin
-        base_plugin = BasePlugin(
-            ns=self._drone_name,
-            rotor_joint_names=propulsion_system.joint_names(),
-        )
+        base_plugin = BasePlugin(ns=self._drone_name, rotor_joint_names=propulsion_system.joint_names())
         robot.append(base_plugin)
 
         # Wind plugin
@@ -867,9 +735,7 @@ class PackageGenerator(QObject):
                 robot=robot,
                 ns=self._drone_name,
                 link_name=root_link,
-                offset=Origin.Trans(
-                    lidar.offset.x(), lidar.offset.y(), lidar.offset.z()
-                ),
+                offset=Origin.Trans(lidar.offset.x(), lidar.offset.y(), lidar.offset.z()),
                 update_rate=lidar.update_rate.get(),
                 hor_samples=lidar.hor_samples.get(),
                 ver_samples=lidar.ver_samples.get(),

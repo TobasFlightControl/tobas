@@ -12,9 +12,7 @@ class GazeboRosControl(ET.Element):
         plugin.attrib["name"] = "gazebo_ros_control"
 
         ET.SubElement(plugin, "robotNamespace").text = namespace
-        ET.SubElement(
-            plugin, "robotSimType"
-        ).text = "gazebo_ros_control/DefaultRobotHWSim"
+        ET.SubElement(plugin, "robotSimType").text = "gazebo_ros_control/DefaultRobotHWSim"
         ET.SubElement(plugin, "legacyModeNS").text = "true"
 
 
@@ -23,14 +21,7 @@ class Camera(ET.Element):
     L8 = "L8"
 
     def __init__(
-        self,
-        width: int,
-        height: int,
-        near: float,
-        far: float,
-        fov: float,
-        format: str = RGB8,
-        noise: Noise = None,
+        self, width: int, height: int, near: float, far: float, fov: float, format: str = RGB8, noise: Noise = None
     ) -> None:
         assert width > 0
         assert height > 0

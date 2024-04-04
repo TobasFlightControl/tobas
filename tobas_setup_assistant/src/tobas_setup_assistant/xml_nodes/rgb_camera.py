@@ -31,13 +31,7 @@ def add_rgb_camera_model(
 
     # robot/joint
     robot.append(
-        Joint(
-            name=f"{ns}/rgb_camera_joint",
-            type="fixed",
-            parent=link_name,
-            child=rgb_camera_link,
-            origin=offset,
-        )
+        Joint(name=f"{ns}/rgb_camera_joint", type="fixed", parent=link_name, child=rgb_camera_link, origin=offset)
     )
     robot.append(
         Joint(

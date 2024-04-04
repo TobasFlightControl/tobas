@@ -12,7 +12,13 @@ class Tree:
         self._robot = Robot()
         self._q_map: Dict[str, Union[Symbol, int]] = {}
 
+    def clear(self) -> None:
+        self._robot = Robot()
+        self._q_map = {}
+
     def load_from_param(self, param: str = "robot_description") -> None:
+        self.clear()
+
         self._robot = Robot.from_parameter_server(param)
 
         for i, joint in enumerate(self.get_joints()):
@@ -71,9 +77,7 @@ class Tree:
                     if len(joint.hardwareInterfaces) == 0:
                         raise RuntimeError("Hardware interface is not specified.")
                     elif len(joint.hardwareInterfaces) >= 2:
-                        raise RuntimeError(
-                            "Multiple hardware interfaces is not supported."
-                        )
+                        raise RuntimeError("Multiple hardware interfaces is not supported.")
                     hi: str = joint.hardwareInterfaces[0]
                     if hi == HardwareInterface.POSITION.value:
                         return HardwareInterface.POSITION
@@ -82,9 +86,7 @@ class Tree:
                     elif hi == HardwareInterface.EFFORT.value:
                         return HardwareInterface.EFFORT
                     else:
-                        raise RuntimeError(
-                            f"Invalid hardware interface of joint {jnt_name}: {hi}"
-                        )
+                        raise RuntimeError(f"Invalid hardware interface of joint {jnt_name}: {hi}")
 
         return None
 

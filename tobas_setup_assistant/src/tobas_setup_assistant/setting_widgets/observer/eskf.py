@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -44,6 +44,8 @@ class ErrorStateKalmanFilter(BaseObserver):
         )
         super().__init__(main, abst_text)
 
+    @override
+    def add_dynamic_params(self) -> None:
         config = self._get_param_config(self.GRAV_VAR)
         self._grav_var = ParamGetterWidget_SpinBox(
             "Dynamic gravity variance",
@@ -96,22 +98,20 @@ class ErrorStateKalmanFilter(BaseObserver):
         )
         self._rows.addWidget(self._gravity_noise_var_log10)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
         no_gps = not self._main.settings.gps.equipped()
         no_odom = not self._main.settings.odometry.equipped()
         if no_gps and no_odom:
             q_error_named(
-                self._main,
-                self.NAME,
-                "Absolute position connot be observed. Please review the sensor settings.",
+                self._main, self.NAME, "Absolute position connot be observed. Please review the sensor settings."
             )
             return False
 
         return True
 
-    @overrides
+    @override
     def parameter_dict(self) -> dict:
         gps = self._main.settings.gps
 

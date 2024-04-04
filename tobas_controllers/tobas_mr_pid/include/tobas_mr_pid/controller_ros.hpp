@@ -10,6 +10,7 @@
 #include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
 #include <tobas_mr_common/accel_attitude_converter.hpp>
@@ -64,11 +65,11 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
   std_msgs::Float64ConstPtr thrust_corr_factor_;
-  tobas_msgs::PosVelAccYawPtr tar_pvay_;        // PosVelYawの目標値 (世界座標系)
+  tobas_msgs::PosVelAccYawPtr tar_pvay_W_;      // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
   bool is_initialized_ = false;
-  uint8_t cmd_level_ = tobas_msgs::CommandLevel::NORMAL;
   ros::Time t_last_loop_;
+  tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
   ros::Publisher rot_speeds_pub_;

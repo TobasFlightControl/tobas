@@ -9,10 +9,8 @@ from PyQt5.QtGui import *
 AIR_DENSITY = 1.225  # [kg/m^3]
 
 PKG_NAME = "tobas_setup_assistant"
-CONFIG_PATH = osp.expanduser(f"~/.config/{PKG_NAME}/config.ini")
-DEFAULT = "DEFAULT"
 TITLE = "Tobas Setup Assistant"
-UNKNOWN = "Unknown"
+TO_DO = "TODO"
 CW = "CW"
 CCW = "CCW"
 
@@ -35,7 +33,6 @@ CAMERA_OFFSET_DESCRIPTION = "選択したフレームの基準点に対するカ
 class Signals(QObject):
     urdf_loaded = pyqtSignal()
     airframe_updated = pyqtSignal()
-    num_modes_updated = pyqtSignal(int)
 
 
 class Description(QLabel):

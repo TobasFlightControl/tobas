@@ -45,7 +45,7 @@ private:
   ros::Subscriber odom_sub_;
   ros::Subscriber cmd_sub_;
 
-  ros::ServiceClient arm_rotors_sc_;
+  ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
 
   void getRosParams() override;

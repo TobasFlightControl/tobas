@@ -8,7 +8,7 @@ import numpy as np
 from numpy import linalg as LA
 from abc import abstractmethod
 from typing import final, Tuple, List
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -59,11 +59,7 @@ class MotorWidget(QWidget):
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
             print(self._method_name.currentText())
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please select motor setting method.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please select motor setting method.")
             return False
 
         if not self._selected().is_valid():
@@ -134,7 +130,7 @@ class MotorWidget(QWidget):
 
 
 class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -154,20 +150,11 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
             "For instance, in rotary-wing aircraft, "
             "propellers positioned diagonally opposite each other typically rotate in the same direction."
         )
-        self._direction = ParamGetterWidget_ComboBox(
-            "Rotating Direction",
-            direction_description,
-            [CW, CCW],
-        )
+        self._direction = ParamGetterWidget_ComboBox("Rotating Direction", direction_description, [CW, CCW])
         self._rows.addWidget(self._direction)
 
         num_poles_description = ""  # TODO
-        self._num_poles = ParamGetterWidget_SpinBox(
-            "The number of poles",
-            num_poles_description,
-            minimum=2,
-            default=14,
-        )
+        self._num_poles = ParamGetterWidget_SpinBox("The number of poles", num_poles_description, minimum=2, default=14)
         self._rows.addWidget(self._num_poles)
 
         time_const_up_description = (
@@ -175,11 +162,7 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
             "relative to the command value."
         )
         self._time_const_up = ParamGetterWidget_SpinBox(
-            "Time Constant Up",
-            time_const_up_description,
-            minimum=1,
-            default=15,
-            suffix=" ms",
+            "Time Constant Up", time_const_up_description, minimum=1, default=15, suffix=" ms"
         )
         self._rows.addWidget(self._time_const_up)
 
@@ -188,11 +171,7 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
             "relative to the command value."
         )
         self._time_const_down = ParamGetterWidget_SpinBox(
-            "Time Constant Down",
-            time_const_down_description,
-            minimum=1,
-            default=30,
-            suffix=" ms",
+            "Time Constant Down", time_const_down_description, minimum=1, default=30, suffix=" ms"
         )
         self._rows.addWidget(self._time_const_down)
 
@@ -202,11 +181,7 @@ class MotorWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
             return False
 
         if self.num_poles() % 2 == 1:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "The number of poles of a brushless motor must be even.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "The number of poles of a brushless motor must be even.")
             return False
 
         return True
@@ -255,37 +230,26 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        kv_description = (
-            "Motor's rotational speed under no load, relative to the supplied voltage."
-        )
+        kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
-            "Kv",
-            kv_description,
-            minimum=1,
-            maximum=10**5,
-            default=920,
-            suffix=" rpm/V",
+            "Kv", kv_description, minimum=1, maximum=10**5, default=920, suffix=" rpm/V"
         )
         self._rows.addWidget(self._kv)
 
         resistance_description = "Internal resistance value of the motor."
         self._resistance = ParamGetterWidget_SpinBox(
-            "Internal Registance",
-            resistance_description,
-            minimum=1,
-            default=250,
-            suffix=" mΩ",
+            "Internal Registance", resistance_description, minimum=1, default=250, suffix=" mΩ"
         )
         self._rows.addWidget(self._resistance)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not super().is_valid():
             return False
 
         return True
 
-    @overrides
+    @override
     def rot_speed_coefs(self) -> Tuple[float, float]:
         kv_si = rpm2rps(self._kv.get())  # [rad/s/V]
         R = self._resistance.get() * 1e-3  # [Ω]
@@ -295,15 +259,13 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
         kt = 1 / kv_si  # トルク定数 [Nm/A]
 
         # 空力特性を取得
-        aero = self._main.settings.propulsion_system.selected.get_aerodynamics(
-            self._link_name
-        )
+        aero = self._main.settings.propulsion_system.selected.get_aerodynamics(self._link_name)
 
         a = ke
         b = R * aero.motor_const() * aero.moment_const() / kt
         return a, b
 
-    @overrides
+    @override
     def copy_from(self, src: MotorWidget_MotorSpec) -> None:
         super().copy_from(src)
         self._kv.set(src._kv.get())
@@ -326,9 +288,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
             "and with the actual propeller attached."
         )
         self._data = ParamGetterWidget_DoubleTable(
-            "Experimental data",
-            ["Throttle", "Voltage", "RPM"],
-            description_text=data_description,
+            "Experimental data", ["Throttle", "Voltage", "RPM"], description_text=data_description
         )
         self._data.set_minimum([1.0, 1.0, 1.0])
         self._data.set_maximum([100.0, 1e9, 1e9])
@@ -338,7 +298,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not super().is_valid():
             return False
@@ -349,7 +309,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
         return True
 
-    @overrides
+    @override
     def rot_speed_coefs(self) -> Tuple[float, float]:
         # TODO: 外れ値を除去
         # TODO: あまりにモデルからかけ離れていたら警告を出す
@@ -366,7 +326,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
 
         return a, b
 
-    @overrides
+    @override
     def copy_from(self, src: MotorWidget_Experiment) -> None:
         super().copy_from(src)
         self._data.set(src._data.get())

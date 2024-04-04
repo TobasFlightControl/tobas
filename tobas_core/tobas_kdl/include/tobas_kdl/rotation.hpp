@@ -12,6 +12,8 @@ using RotationMap = std::map<std::string, Rotation>;
 
 class Rotation
 {
+  static constexpr double kEpsilon = 1e-12;
+
 public:
   Eigen::Matrix3d data;
 
@@ -58,22 +60,22 @@ public:
   // The same as R.inverse()*arg but more efficient.
   inline SegmentJacobian inverse(const SegmentJacobian& arg) const;
 
-  // = Rotations
-  // The Rot... static functions give the value of the appropriate rotation matrix back.
-  inline static Rotation RotX(double angle);
-  // The Rot... static functions give the value of the appropriate rotation matrix back.
-  inline static Rotation RotY(double angle);
-  // The Rot... static functions give the value of the appropriate rotation matrix back.
-  inline static Rotation RotZ(double angle);
   // The DoRot... functions apply a rotation R to *this,such that *this = *this * Rot..
   // DoRot... functions are only defined when they can be executed more efficiently
-  inline void doRotX(double angle);
+  void doRotX(double angle);
   // The DoRot... functions apply a rotation R to *this,such that *this = *this * Rot..
   // DoRot... functions are only defined when they can be executed more efficiently
-  inline void doRotY(double angle);
+  void doRotY(double angle);
   // The DoRot... functions apply a rotation R to *this,such that *this = *this * Rot..
   // DoRot... functions are only defined when they can be executed more efficiently
-  inline void doRotZ(double angle);
+  void doRotZ(double angle);
+
+  // The Rot... static functions give the value of the appropriate rotation matrix back.
+  static Rotation RotX(double angle);
+  // The Rot... static functions give the value of the appropriate rotation matrix back.
+  static Rotation RotY(double angle);
+  // The Rot... static functions give the value of the appropriate rotation matrix back.
+  static Rotation RotZ(double angle);
 
   // Along an arbitrary axes.  It is not necessary to normalize rotvec.
   // returns identity rotation matrix in the case that the norm of rotvec
@@ -96,7 +98,7 @@ public:
    *                                            of the axis is chosen.
    * @result returns the rotation angle (between [0..PI] )
    */
-  double getRotAngle(Vector& axis, double eps = kDefaultEpsilon) const;
+  double getRotAngle(Vector& axis) const;
 
   // Gives back a rotation matrix specified with Quaternion convention
   // the norm of (x,y,z,w) should be equal to 1
@@ -137,6 +139,8 @@ public:
 
   **/
   void getRPY(double& roll, double& pitch, double& yaw) const;
+
+  inline double getYaw() const;
 
   inline double trace() const;
 
@@ -237,72 +241,6 @@ inline Rotation Rotation::operator-(const Rotation& rhs) const
   return (*this) * rhs.inverse();
 }
 
-inline void Rotation::doRotX(double angle)
-{
-  const double cs = std::cos(angle);
-  const double sn = std::sin(angle);
-  const double x1 = cs * (*this)(0, 1) + sn * (*this)(0, 2);
-  const double x2 = cs * (*this)(1, 1) + sn * (*this)(1, 2);
-  const double x3 = cs * (*this)(2, 1) + sn * (*this)(2, 2);
-  (*this)(0, 2) = -sn * (*this)(0, 1) + cs * (*this)(0, 2);
-  (*this)(1, 2) = -sn * (*this)(1, 1) + cs * (*this)(1, 2);
-  (*this)(2, 2) = -sn * (*this)(2, 1) + cs * (*this)(2, 2);
-  (*this)(0, 1) = x1;
-  (*this)(1, 1) = x2;
-  (*this)(2, 1) = x3;
-}
-
-inline void Rotation::doRotY(double angle)
-{
-  const double cs = std::cos(angle);
-  const double sn = std::sin(angle);
-  const double x1 = cs * (*this)(0, 0) - sn * (*this)(0, 2);
-  const double x2 = cs * (*this)(1, 0) - sn * (*this)(1, 2);
-  const double x3 = cs * (*this)(2, 0) - sn * (*this)(2, 2);
-  (*this)(0, 2) = sn * (*this)(0, 0) + cs * (*this)(0, 2);
-  (*this)(1, 2) = sn * (*this)(1, 0) + cs * (*this)(1, 2);
-  (*this)(2, 2) = sn * (*this)(2, 0) + cs * (*this)(2, 2);
-  (*this)(0, 0) = x1;
-  (*this)(1, 0) = x2;
-  (*this)(2, 0) = x3;
-}
-
-inline void Rotation::doRotZ(double angle)
-{
-  const double cs = std::cos(angle);
-  const double sn = std::sin(angle);
-  const double x1 = cs * (*this)(0, 0) + sn * (*this)(0, 1);
-  const double x2 = cs * (*this)(1, 0) + sn * (*this)(1, 1);
-  const double x3 = cs * (*this)(2, 0) + sn * (*this)(2, 1);
-  (*this)(0, 1) = -sn * (*this)(0, 0) + cs * (*this)(0, 1);
-  (*this)(1, 1) = -sn * (*this)(1, 0) + cs * (*this)(1, 1);
-  (*this)(2, 1) = -sn * (*this)(2, 0) + cs * (*this)(2, 1);
-  (*this)(0, 0) = x1;
-  (*this)(1, 0) = x2;
-  (*this)(2, 0) = x3;
-}
-
-inline Rotation Rotation::RotX(double angle)
-{
-  const double cs = std::cos(angle);
-  const double sn = std::sin(angle);
-  return Rotation(1, 0, 0, 0, cs, -sn, 0, sn, cs);
-}
-
-inline Rotation Rotation::RotY(double angle)
-{
-  const double cs = std::cos(angle);
-  const double sn = std::sin(angle);
-  return Rotation(cs, 0, sn, 0, 1, 0, -sn, 0, cs);
-}
-
-inline Rotation Rotation::RotZ(double angle)
-{
-  const double cs = std::cos(angle);
-  const double sn = std::sin(angle);
-  return Rotation(cs, -sn, 0, sn, cs, 0, 0, 0, 1);
-}
-
 inline Rotation Rotation::inverse() const
 {
   return Rotation(data.transpose());
@@ -348,6 +286,11 @@ inline double Rotation::operator()(int i, int j) const
 inline void Rotation::setInverse()
 {
   data.transposeInPlace();
+}
+
+inline double Rotation::getYaw() const
+{
+  return atan2(data(1, 0), data(0, 0));
 }
 
 inline double Rotation::trace() const

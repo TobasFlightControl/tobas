@@ -49,7 +49,7 @@ void TakeoffActionServer::registerSubscribers()
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 {
-  if (goal->target_altitude < kTakeoffCheckAltThreshold)
+  if (goal.target_altitude < kTakeoffCheckAltThreshold)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(
@@ -58,7 +58,7 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
     return false;
   }
 
-  if (goal->timeout < 0)
+  if (goal.timeout < 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Timeout must be non-negative.");
@@ -273,12 +273,12 @@ void TakeoffActionServer::paramServerStateCb(const std_msgs::BoolConstPtr& state
   is_param_server_ok_ = state->data;
 }
 
-void TakeoffActionServer::executeCb(const GoalType& goal)
+void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
   rosInfo(name_, "Action is called.");
   action_called_time_ = ros::Time::now();
 
-  if (!isGoalValid(goal))
+  if (!isGoalValid(*goal))
     return;
 
   if (!waitForServiceExistence())

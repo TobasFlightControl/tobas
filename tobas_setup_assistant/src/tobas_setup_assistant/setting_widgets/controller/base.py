@@ -4,43 +4,40 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from abc import abstractmethod
-from typing import List, final, FrozenSet
 import rospy
+from abc import abstractmethod
+from typing import List, final
+from overrides import override
 from dynamic_reconfigure import client
 from dynamic_reconfigure.msg import ConfigDescription
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.roslaunch import rosrun
 from tobas_rqt_tools.dynamic_reconfigure import get_param_config
-from tobas_rqt_tools.widgets import ComboBox
-from tobas_rqt_tools.layouts import FormLayout
 
 from ...common import *
 
 PARAM_DESCRIPTION_TIMEOUT = 3
 
 
-class BaseController(QWidget):
-    NAME = UNKNOWN
-
-    CONTROLLER_PKG = UNKNOWN
-    TAKEOFF_PKG = UNKNOWN
-    LANDING_PKG = UNKNOWN
-    PARAM_SERVER_NODE = UNKNOWN
-
-    COMMAND_MSGS: FrozenSet[str] = frozenset()
+class BaseController(Widget):
+    NAME = TO_DO
+    CONTROLLER_PKG = TO_DO
+    TAKEOFF_PKG = TO_DO
+    LANDING_PKG = TO_DO
+    STABLIZE_MODE = TO_DO
+    ACROBAT_MODE = TO_DO
+    PARAM_SERVER_NODE = TO_DO
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()
         self._main = main
 
-        # 動的パラメータの設定を取得
-        rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
-        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
-        self._configs: List[dict] = cli.get_parameter_descriptions()
+        self._param_server_process = None
+        self._configs: List[dict] = []
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
@@ -48,13 +45,19 @@ class BaseController(QWidget):
         abst = Description(abst_text)
         self._rows.addWidget(abst)
 
-        self._flight_modes = FlightModesWidget()
-        self._flight_modes.set_num_modes(DEFAULT_NUM_FLIGHT_MODES, self.COMMAND_MSGS)
-        self._rows.addWidget(self._flight_modes)
+    @override
+    def close(self) -> bool:
+        self._param_server_process.terminate()
+        return super().close()
 
     @abstractmethod
     def define_connections(self) -> None:
-        self._main.signals.num_modes_updated.connect(self._on_num_modes_updated)
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add_dynamic_params(self) -> None:
+        """動的パラメータをウィジェットに反映"""
+        raise NotImplementedError()
 
     @abstractmethod
     def is_applicable(self) -> bool:
@@ -80,9 +83,7 @@ class BaseController(QWidget):
     def parameter_dict(self) -> dict:
         # 動的パラメータを取得
         cfg: ConfigDescription = rospy.wait_for_message(
-            f"/{self.CONTROLLER_PKG}/parameter_descriptions",
-            ConfigDescription,
-            PARAM_DESCRIPTION_TIMEOUT,
+            f"/{self.CONTROLLER_PKG}/parameter_descriptions", ConfigDescription, PARAM_DESCRIPTION_TIMEOUT
         )
         dflt = cfg.dflt
 
@@ -95,61 +96,11 @@ class BaseController(QWidget):
         return res
 
     @final
-    def flight_mode_names(self) -> List[str]:
-        return self._flight_modes.mode_names()
+    def get_dynamic_params(self) -> None:
+        self._param_server_process = rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
+        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
+        self._configs: List[dict] = cli.get_parameter_descriptions()
 
     @final
     def _get_param_config(self, name: str) -> dict:
         return get_param_config(self._configs, name)
-
-    @final
-    @pyqtSlot(int)
-    def _on_num_modes_updated(self, num_modes: int) -> None:
-        self._flight_modes.set_num_modes(num_modes, self.COMMAND_MSGS)
-
-
-class FlightModesWidget(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
-
-        label = QLabel("Flight Modes")
-        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignLeft)
-        self._rows.addWidget(label)
-
-        description_text = (
-            "プロポの5チャンネルで，プロポから指令するコマンド形式を切り替えることができます．"
-            + "各モードに対応するコマンドを選択してください．"
-            + "5チャンネルの状態に対する各モードの割当は実機でのRCキャリブレーションで行います．"
-        )
-        description = Description(description_text)
-        self._rows.addWidget(description)
-
-        self._form = FormLayout()
-        self._rows.addLayout(self._form)
-
-    def set_num_modes(self, num: int, choices: List[str]) -> None:
-        assert num >= 0
-        assert len(choices) >= 1
-
-        self._form.clear()
-
-        for i in range(num):
-            label = QLabel(f"Flight Mode {i + 1}")
-            label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-
-            combo = ComboBox()
-            combo.addItems(choices)
-            combo.setCurrentIndex(min(i, len(choices) - 1))
-
-            self._form.addRow(label, combo)
-
-    def mode_names(self) -> List[str]:
-        res = []
-        for i in range(self._form.rowCount()):
-            combo: ComboBox = self._form.get_widget(i)
-            res.append(combo.currentText())
-        return res

@@ -5,13 +5,13 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from overrides import overrides
+from overrides import override
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ComboBox, add_spacer
+from tobas_rqt_tools.widgets import Widget, ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
@@ -33,10 +33,7 @@ class BatteryWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._batteries: List[BatteryWidget_Base] = [
-            BatteryWidget_LiPo(main),
-            BatteryWidget_Other(main),
-        ]
+        self._batteries: List[BatteryWidget_Base] = [BatteryWidget_LiPo(main), BatteryWidget_Other(main)]
 
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
@@ -48,15 +45,15 @@ class BatteryWidget(BaseSettingWidget):
 
         self._type.setCurrentText(BatteryWidget_LiPo.NAME)  # Default
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._type.currentTextChanged.connect(self._on_battery_type_changed)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select battery type.")
@@ -116,8 +113,8 @@ class BatteryWidget(BaseSettingWidget):
         self._update_visibility()
 
 
-class BatteryWidget_Base(QWidget):
-    NAME = UNKNOWN
+class BatteryWidget_Base(Widget):
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -179,23 +176,13 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
 
         num_cells_description = "The number of cells in the battery."
         self._num_cells = ParamGetterWidget_SpinBox(
-            "Number of Cells",
-            num_cells_description,
-            minimum=1,
-            maximum=100,
-            default=4,
+            "Number of Cells", num_cells_description, minimum=1, maximum=100, default=4
         )
         rows.addWidget(self._num_cells)
 
-        capacity_description = (
-            "The amount of electric charge that can be drawn from the battery."
-        )
+        capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
-            "Current Capacity",
-            capacity_description,
-            minimum=1,
-            default=5000,
-            suffix=" mAh",
+            "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
         )
         rows.addWidget(self._capacity)
 
@@ -208,53 +195,45 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             "it can continuously supply up to 2000mA (2A) of current."
         )
         self._C_cont = ParamGetterWidget_SpinBox(
-            "Continuous Discharge Current Rate",
-            C_cont_description,
-            minimum=1,
-            default=50,
-            suffix=" /h",
+            "Continuous Discharge Current Rate", C_cont_description, minimum=1, default=50, suffix=" /h"
         )
         rows.addWidget(self._C_cont)
 
         registance_description = "Internal resistance value per cell."
         self._registance = ParamGetterWidget_SpinBox(
-            "Internal Registance",
-            registance_description,
-            minimum=0,
-            default=3,
-            suffix=" mΩ",
+            "Internal Registance", registance_description, minimum=0, default=3, suffix=" mΩ"
         )
         rows.addWidget(self._registance)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         return True
 
-    @overrides
+    @override
     def nominal_voltage(self) -> float:
         return self._num_cells.get() * self.NOMINAL_VOLTAGE_PER_CELL
 
-    @overrides
+    @override
     def max_voltage(self) -> float:
         return self._num_cells.get() * self.MAX_VOLTAGE_PER_CELL
 
-    @overrides
+    @override
     def sag_voltage(self) -> float:
         return self._num_cells.get() * self.SAG_VOLTAGE_PER_CELL
 
-    @overrides
+    @override
     def max_current(self) -> float:
         return self._capacity.get() * self._C_cont.get() / 1000
 
-    @overrides
+    @override
     def capacity(self) -> float:
         return self._capacity.get() * 3600 / 1000
 
-    @overrides
+    @override
     def internal_registance(self) -> float:
         return self._num_cells.get() * self._registance.get() / 1000
 
-    @overrides
+    @override
     def voltage_threshold(self) -> float:
         return self._num_cells.get() * self.VOLTAGE_THR_PER_CELL
 
@@ -270,106 +249,70 @@ class BatteryWidget_Other(BatteryWidget_Base):
 
         nominal_voltage_description = "Nominal voltage of the battery."
         self._nominal_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Nominal Voltage",
-            nominal_voltage_description,
-            decimals=1,
-            minimum=0.1,
-            default=14.8,
-            suffix=" V",
+            "Nominal Voltage", nominal_voltage_description, decimals=1, minimum=0.1, default=14.8, suffix=" V"
         )
         rows.addWidget(self._nominal_voltage)
 
         max_voltage_description = "Maximum voltage of the battery."
         self._max_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Maximum Voltage",
-            max_voltage_description,
-            decimals=1,
-            minimum=0.1,
-            default=16.8,
-            suffix=" V",
+            "Maximum Voltage", max_voltage_description, decimals=1, minimum=0.1, default=16.8, suffix=" V"
         )
         rows.addWidget(self._max_voltage)
 
-        sag_voltage_description = (
-            "Voltage at which the discharge characteristics change abruptly."
-        )
+        sag_voltage_description = "Voltage at which the discharge characteristics change abruptly."
         self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Voltage Threshold",
-            sag_voltage_description,
-            decimals=1,
-            minimum=0.1,
-            default=13.6,
-            suffix=" V",
+            "Voltage Threshold", sag_voltage_description, decimals=1, minimum=0.1, default=13.6, suffix=" V"
         )
         rows.addWidget(self._sag_voltage)
 
         max_current_description = "Maximum current of the battery."
         self._max_current = ParamGetterWidget_DoubleSpinBox(
-            "Maximum Current",
-            max_current_description,
-            decimals=1,
-            minimum=0.1,
-            default=250.0,
-            suffix=" A",
+            "Maximum Current", max_current_description, decimals=1, minimum=0.1, default=250.0, suffix=" A"
         )
         rows.addWidget(self._max_current)
 
-        capacity_description = (
-            "The amount of electric charge that can be drawn from the battery."
-        )
+        capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
-            "Current Capacity",
-            capacity_description,
-            minimum=1,
-            default=5000,
-            suffix=" mAh",
+            "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
         )
         rows.addWidget(self._capacity)
 
         registance_description = "Internal resistance value of the battery."
         self._registance = ParamGetterWidget_SpinBox(
-            "Internal Registance",
-            registance_description,
-            minimum=0,
-            default=12,
-            suffix=" mΩ",
+            "Internal Registance", registance_description, minimum=0, default=12, suffix=" mΩ"
         )
         rows.addWidget(self._registance)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._max_voltage.get() <= self._sag_voltage.get():
-            q_error_named(
-                self._main,
-                self.NAME,
-                "Maximum voltage must be greater than voltage threshold.",
-            )
+            q_error_named(self._main, self.NAME, "Maximum voltage must be greater than voltage threshold.")
             return False
 
-    @overrides
+    @override
     def nominal_voltage(self) -> float:
         return self._nominal_voltage.get()
 
-    @overrides
+    @override
     def max_voltage(self) -> float:
         return self._max_voltage.get()
 
-    @overrides
+    @override
     def sag_voltage(self) -> float:
         return self._sag_voltage.get()
 
-    @overrides
+    @override
     def max_current(self) -> float:
         return self._max_current.get()
 
-    @overrides
+    @override
     def capacity(self) -> float:
         return self._capacity.get() * 3600 / 1000
 
-    @overrides
+    @override
     def internal_registance(self) -> float:
         return self._registance.get() / 1000
 
-    @overrides
+    @override
     def voltage_threshold(self) -> float:
         return self.sag_voltage()  # TODO: sag_voltageとは分けるべきかも

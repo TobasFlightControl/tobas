@@ -1,8 +1,10 @@
 import os.path as osp
-from configparser import ConfigParser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_tools_py.constants import CONFIG_PATH
 
 from .base import ParamGetterWidget
 from ..common import *
@@ -11,16 +13,11 @@ from ..common import *
 class ParamGetterWidget_DirDialog(ParamGetterWidget):
     path_changed = pyqtSignal(str)
 
-    def __init__(
-        self,
-        param_name: str,
-        description_text: str = None,
-        default: str = "",
-    ) -> None:
+    def __init__(self, param_name: str, description_text: str = None, default: str = "") -> None:
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._config = ConfigParser()
+        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
         self._key = f'last_opened_dir/dir_dialog/{param_name.lower().replace(" ", "_")}'
 
         self._options = QFileDialog.Options()
@@ -54,19 +51,14 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget):
 
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
-        self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(
-            DEFAULT, self._key, fallback=osp.expanduser("~")
-        )
+        self._config.read()
+        last_opened_dir = self._config.get(self._key, fallback=osp.expanduser("~"))
 
-        path = QFileDialog.getExistingDirectory(
-            self, TITLE, last_opened_dir, self._options
-        )
+        path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, self._options)
         if not path:  # Cancelの場合
             return
 
         self._path.setText(path)
 
-        self._config[DEFAULT][self._key] = osp.dirname(path)
-        with open(CONFIG_PATH, "w") as f:
-            self._config.write(f)
+        self._config.set(self._key, osp.dirname(path))
+        self._config.write()

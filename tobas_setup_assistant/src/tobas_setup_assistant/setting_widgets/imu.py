@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
-from tobas_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..common import *
@@ -25,20 +23,12 @@ class ImuWidget(BaseSettingWidget):
 
         super().__init__(main, title_text, abst_text)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=400,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
@@ -170,13 +160,13 @@ class ImuWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.mag_uniform_noise)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         return True
 

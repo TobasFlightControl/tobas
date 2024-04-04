@@ -11,16 +11,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import *
-from tobas_kdl_sympy.frames import *
+from tobas_std_tools_py.sequence import is_unique
+from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.tree import Tree
+from tobas_kdl_sympy.frames import *
 from tobas_kdl_sympy.joint import *
-
-from .utils import is_unique
 
 
 class URDFParser(QObject):
-    robot_model_loaded = pyqtSignal()
+    robot_model_updated = pyqtSignal()
 
     def __init__(self, main: SetupAssistant):
         super().__init__()
@@ -43,7 +42,7 @@ class URDFParser(QObject):
             return
 
         rospy.loginfo("Robot model is loaded successfully.")
-        self.robot_model_loaded.emit()
+        self.robot_model_updated.emit()
 
     def get_links(self) -> List[Link]:
         return self._tree.get_links()
@@ -176,10 +175,7 @@ class URDFParser(QObject):
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin
         if origin is not None and any(angle != 0 for angle in origin.rpy):
-            q_error(
-                self._main,
-                "The frame of the root link must coincide with the NWU coordinate axis.",
-            )
+            q_error(self._main, "The frame of the root link must coincide with the NWU coordinate axis.")
             return False
 
         # ルートリンクがInertialを持たない

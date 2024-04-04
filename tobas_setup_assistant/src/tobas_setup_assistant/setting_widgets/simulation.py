@@ -5,12 +5,10 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 import math
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
-from tobas_rqt_tools.widgets import add_spacer
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -29,12 +27,7 @@ class SimulationWidget(BaseSettingWidget):
 
         gravity_description = ""
         self.gravity = ParamGetterWidget_DoubleSpinBox(
-            "Gravity",
-            gravity_description,
-            decimals=6,
-            minimum=0.0,
-            default=9.80665,  # 標準重力加速度
-            suffix=" m/s^2",
+            "Gravity", gravity_description, decimals=6, minimum=0.0, default=9.80665, suffix=" m/s^2"  # 標準重力加速度
         )
         self._rows.addWidget(self.gravity)
         self.gravity.setEnabled(False)  # 重力の変化は無視できるため，標準重力加速度のみを使う
@@ -73,13 +66,13 @@ class SimulationWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.altitude_0)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         # TODO: 極に近すぎると方角がわからない
         return True

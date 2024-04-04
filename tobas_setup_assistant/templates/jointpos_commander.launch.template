@@ -1,5 +1,5 @@
 <launch>
 
-  <node ns="{{ drone_name }}" pkg="tobas_gui_teleop" type="jointpos_commander_node.py" name="jointpos_commander" output="screen"/>
+  <node ns="{{ drone_name }}" pkg="tobas_gui_teleop" type="jointpos_commander_node.py" name="jointpos_commander" output="screen" required="true"/>
 
 </launch>

@@ -1,14 +1,14 @@
 from typing import List
-from configparser import ConfigParser
 import numpy as np
-from numpy.typing import NDArray  # numpy >= 1.20
 import pandas as pd
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import DoubleSpinBox, add_spacer
+from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import CONFIG_PATH
 
 from .base import ParamGetterWidget
 from ..common import *
@@ -22,19 +22,12 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
     data_changed = pyqtSignal()
 
-    def __init__(
-        self,
-        param_name: str,
-        labels: List[str],
-        description_text: str = None,
-    ) -> None:
+    def __init__(self, param_name: str, labels: List[str], description_text: str = None) -> None:
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._config = ConfigParser()
-        self._path_key = (
-            f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
-        )
+        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
+        self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
         self._num_entry = len(labels)
@@ -49,36 +42,38 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         self._add_row_btn = QPushButton("Add row")
         self._add_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._add_row_btn.clicked.connect(self._add_row)
         cols.addWidget(self._add_row_btn)
 
         self._delete_row_btn = QPushButton("Delete row")
         self._delete_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._delete_row_btn.clicked.connect(self._delete_row)
         cols.addWidget(self._delete_row_btn)
 
         self._clear_btn = QPushButton("Clear")
         self._clear_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._clear_btn.clicked.connect(self._clear)
         cols.addWidget(self._clear_btn)
 
         self._load_csv_btn = QPushButton("Load CSV")
         self._load_csv_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
-        self._load_csv_btn.clicked.connect(self._load_csv)
         cols.addWidget(self._load_csv_btn)
 
-        add_spacer(cols)  # ボタンを左詰めにする
+        cols.addStretch()  # ボタンを左詰めにする
 
-        self._table = QTableWidget(0, len(labels))
+        self._table = TableWidget(0, len(labels))
         self._table.setHorizontalHeaderLabels(labels)
         self._table.verticalHeader().setVisible(True)  # 行番号を表示
         self._rows.addWidget(self._table)
 
-    def get(self) -> NDArray[np.float64]:
+        # Connections
+        self._add_row_btn.clicked.connect(self._add_row)
+        self._delete_row_btn.clicked.connect(self._delete_row)
+        self._clear_btn.clicked.connect(self._table.remove_all)
+        self._load_csv_btn.clicked.connect(self._load_csv)
+
+    def get(self) -> np.ndarray:
         """
         Returns
         -------
-        NDArray[np.float64]
+        np.ndarray
             shape = (num_data, num_entry)
         """
         rows = self.count()
@@ -91,11 +86,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         return res
 
-    def set(self, src: NDArray[np.float64]) -> bool:
+    def set(self, src: np.ndarray) -> bool:
         """
         Parameters
         ----------
-        src : NDArray[np.float64]
+        src : np.ndarray
             shape = (num_data, num_entry)
 
         Returns
@@ -106,7 +101,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         if not self._is_valid_data(src):
             return False
 
-        self._clear()
+        self._table.remove_all()
         for row in range(src.shape[0]):
             self._add_row()
             for col in range(src.shape[1]):
@@ -186,12 +181,6 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._table.removeRow(row)
 
     @pyqtSlot()
-    def _clear(self) -> None:
-        rows = self.count()
-        for _ in range(rows):
-            self._table.removeRow(0)
-
-    @pyqtSlot()
     def _load_csv(self) -> None:
         file_path = self._get_csv_file_path()
         if file_path == "":  # Cancelの場合
@@ -205,18 +194,14 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         except Exception as e:
             q_error(
                 self.parent(),
-                f"Invalid column names: {df.columns.to_list()} \n"
-                f"The required names are: {self._labels}",
+                f"Invalid column names: {df.columns.to_list()} \n" f"The required names are: {self._labels}",
             )
             return
 
         try:
             data = df.to_numpy(dtype=float)
         except Exception as e:
-            q_error(
-                self.parent(),
-                f"The data contains invalid data type. The error message is: {e}",
-            )
+            q_error(self.parent(), f"The data contains invalid data type. The error message is: {e}")
             return
 
         if not self.set(data):
@@ -225,26 +210,21 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         q_info(self.parent(), "Data is loaded successfully.")
 
     def _get_csv_file_path(self) -> str:
-        self._config.read(CONFIG_PATH)
-        last_opened_dir = self._config.get(
-            DEFAULT, self._path_key, fallback=osp.expanduser("~")
-        )
+        self._config.read()
+        last_opened_dir = self._config.get(self._path_key, fallback=osp.expanduser("~"))
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, last_opened_dir, "CSV File (*.csv)", options=options
-        )
+        file_path, _ = QFileDialog.getOpenFileName(self, TITLE, last_opened_dir, "CSV File (*.csv)", options=options)
 
         # 最後に開かれたパスを保存
         if file_path != "":
-            self._config[DEFAULT][self._path_key] = osp.dirname(file_path)
-            with open(CONFIG_PATH, "w") as f:
-                self._config.write(f)
+            self._config.set(self._path_key, osp.dirname(file_path))
+            self._config.write()
 
         return file_path
 
-    def _is_valid_data(self, src: NDArray[np.float64]) -> bool:
+    def _is_valid_data(self, src: np.ndarray) -> bool:
         assert src.ndim == 2
         assert src.shape[1] == self._num_entry
 
@@ -252,10 +232,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             for col in range(self._num_entry):
                 val = src[row, col]
                 if not self._minimum[col] <= val <= self._maximum[col]:
-                    q_error(
-                        self.parent(),
-                        f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.",
-                    )
+                    q_error(self.parent(), f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
                     return False
 
         return True

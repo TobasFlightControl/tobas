@@ -42,8 +42,7 @@ void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 void RollPitchYawThrustController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry&,
-  const double& battery_voltage,
-  const Range<double>& dead_zone)
+  const double& battery_voltage)
 {
   assert(battery_voltage > 0);
 
@@ -52,7 +51,7 @@ void RollPitchYawThrustController::update(
   const auto dt = (cur_time - t_last_rcin_).toSec();
   t_last_rcin_ = cur_time;
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
   yaw_ += yawrate * dt;
 
   // コマンドを作成
@@ -61,9 +60,9 @@ void RollPitchYawThrustController::update(
 
   // 姿勢と推力を埋める
   rpyt->rpy.roll =
-    dead_zone.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
+    dead_zone_.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
   rpyt->rpy.pitch =
-    dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+    dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
   rpyt->rpy.yaw = yaw_;
 
   const auto min_thrust = z_rotors_.minThrustSum(battery_voltage);

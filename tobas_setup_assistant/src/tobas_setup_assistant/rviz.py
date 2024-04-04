@@ -4,19 +4,19 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from tobas_rqt_tools.widgets import add_spacer
-
 import os.path as osp
 import rospkg
-from rviz import bindings as rviz
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
+from tobas_rqt_tools.rviz import create_rviz_frame
+
 from .common import *
 
 
-class RvizWidget(QWidget):
+class RvizWidget(Widget):
     MIN_WIDTH = 300
     DEFAULT_VISUAL_ENABLED = True
     DEFAULT_COLLISION_ENABLED = False
@@ -27,33 +27,19 @@ class RvizWidget(QWidget):
 
         self._highlighted_link = ""
 
-        # Setup frame
-        # cf. RViz Python Tutorial: https://docs.ros.org/en/indigo/api/rviz_python_tutorial/html/
-        reader = rviz.YamlConfigReader()
-        config = rviz.Config()
+        # Create Rviz frame widget
         pkg_path = rospkg.RosPack().get_path(PKG_NAME)
         rviz_config_path = osp.join(pkg_path, "config/setup_assistant.rviz")
-        reader.readFile(config, rviz_config_path)
-
-        # Setup Visualization Frame
-        # https://docs.ros.org/en/jade/api/rviz/html/c++/visualization__frame_8h_source.html
-        self._frame = rviz.VisualizationFrame()
-        self._frame.setSplashPath("")
-        self._frame.initialize()
-        self._frame.load(config)
-        self._frame.setMenuBar(None)
-        self._frame.setStatusBar(None)
-        self._frame.setHideButtonVisibility(False)
-        self._frame.setStyleSheet("QSizeGrip { width: 0px; height: 0px; }")  # Remove SG
+        self._frame = create_rviz_frame(rviz_config_path)
 
         # Setup robot_model_display
-        manager = self._frame.getManager()
-        self._display = manager.getRootDisplayGroup().getDisplayAt(0)
-        self._display.setBool(False)
+        # rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
+        self._manager = self._frame.getManager()
+        self._display = self._manager.getRootDisplayGroup().getDisplayAt(0)
+        assert self._display.getName() == "RobotState"
 
-        # ハイライトプロパティ
-        self._highlight_link = self._display.subProp("Highlight Link")
-        self._unhighlight_link = self._display.subProp("Unhighlight Link")
+        # 最初は機能をオフにしておく．さもないとrobot_descriptionが見つからないというエラーが出る．
+        self._display.setBool(False)
 
         # 可視化プロパティ
         self._enable_visual = self._display.subProp("Visual Enabled")
@@ -73,14 +59,14 @@ class RvizWidget(QWidget):
         self.setLayout(rows)
         rows.addWidget(self._frame)
         rows.addLayout(cols)
-        add_spacer(cols)
+        cols.addStretch()
         cols.addWidget(self._visual_box)
         cols.addWidget(self._collision_box)
 
         self.setMinimumWidth(self.MIN_WIDTH)
 
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._visual_box.toggled.connect(self._on_visual_box_toggled)
         self._collision_box.toggled.connect(self._on_collision_box_toggled)
 
@@ -91,17 +77,25 @@ class RvizWidget(QWidget):
         if self._highlighted_link:
             self.unhighlight_link(self._highlighted_link)
 
-        self._highlight_link.setValue(link_name)
+        self._display.subProp("Highlight Link").setValue(link_name)
         self._highlighted_link = link_name
 
     def unhighlight_link(self, link_name: str) -> None:
-        self._unhighlight_link.setValue(link_name)
+        self._display.subProp("Unhighlight Link").setValue(link_name)
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
-        root_link = self._main.urdf_parser.get_root()
-        self._frame.getManager().setFixedFrame(root_link.name)
+    def _on_robot_model_updated(self) -> None:
+        # 有効化
         self._display.setBool(True)
+
+        # 固定フレームをルートリンクに設定
+        root_link = self._main.urdf_parser.get_root()
+        self._manager.setFixedFrame(root_link.name)
+
+        # ロボットモデルをリロード
+        reload = self._display.subProp("Reload")
+        reload.setBool(False)
+        reload.setBool(True)
 
     @pyqtSlot(bool)
     def _on_visual_box_toggled(self, checked: bool) -> None:

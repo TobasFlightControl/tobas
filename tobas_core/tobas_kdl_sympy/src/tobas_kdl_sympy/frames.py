@@ -45,7 +45,7 @@ class Vector:
 
     def norm(self) -> Symbol:
         """ノルムを返す．"""
-        return sympy.sqrt(self.x**2 + self.y**2 + self.z**2)
+        return sympy.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     def normalize(self) -> Vector:
         """正規化する．"""
@@ -53,13 +53,7 @@ class Vector:
 
     def cross_mat(self) -> Matrix:
         """ベクトルの外積に相当する行列を返す．"""
-        return Matrix(
-            [
-                [0, -self.z, self.y],
-                [self.z, 0, -self.x],
-                [-self.y, self.x, 0],
-            ]
-        )
+        return Matrix([[0, -self.z, self.y], [self.z, 0, -self.x], [-self.y, self.x, 0]])
 
     def dot(self, other: Vector) -> Symbol:
         """2つのベクトルの内積を計算する．"""
@@ -85,9 +79,7 @@ class Vector:
 
         return angle < tol
 
-    def is_collinear_legacy(
-        self, other: Vector, same_direction_only: bool = False
-    ) -> True:
+    def is_collinear_legacy(self, other: Vector, same_direction_only: bool = False) -> True:
         """他方と常に平行となる場合にTrueを返す．この手法だと許容範囲 (tolerance) が設定できない．"""
         # 比例係数を定義
         k = sympy.symbols("k")
@@ -102,9 +94,7 @@ class Vector:
         eq_z2 = sympy.Eq(other.z / k, self.z)
 
         # 比例係数についてのみ方程式を解く
-        sol: Dict[Symbol, Symbol] = sympy.solve(
-            (eq_x1, eq_y1, eq_z1, eq_x2, eq_y2, eq_z2), (k), dict=False
-        )
+        sol: Dict[Symbol, Symbol] = sympy.solve((eq_x1, eq_y1, eq_z1, eq_x2, eq_y2, eq_z2), (k), dict=False)
 
         if len(sol) == 0:
             # 解がなければFalse
@@ -118,9 +108,7 @@ class Vector:
 
     def simplify(self, chop=False) -> Vector:
         return Vector(
-            sympy.simplify(self.x, chop=chop),
-            sympy.simplify(self.y, chop=chop),
-            sympy.simplify(self.z, chop=chop),
+            sympy.simplify(self.x, chop=chop), sympy.simplify(self.y, chop=chop), sympy.simplify(self.z, chop=chop)
         )
 
     def __add__(self, rhs: Vector) -> Vector:
@@ -147,24 +135,9 @@ class Vector:
 
 class Rotation:
     def __init__(
-        self,
-        Xx: Symbol,
-        Yx: Symbol,
-        Zx: Symbol,
-        Xy: Symbol,
-        Yy: Symbol,
-        Zy: Symbol,
-        Xz: Symbol,
-        Yz: Symbol,
-        Zz: Symbol,
+        self, Xx: Symbol, Yx: Symbol, Zx: Symbol, Xy: Symbol, Yy: Symbol, Zy: Symbol, Xz: Symbol, Yz: Symbol, Zz: Symbol
     ) -> None:
-        self.data = Matrix(
-            [
-                [Xx, Yx, Zx],
-                [Xy, Yy, Zy],
-                [Xz, Yz, Zz],
-            ]
-        )
+        self.data = Matrix([[Xx, Yx, Zx], [Xy, Yy, Zy], [Xz, Yz, Zz]])
 
     @classmethod
     def Identity(cls) -> Rotation:
@@ -215,17 +188,15 @@ class Rotation:
         I = np.identity(3)  # sympy.Identity(3)だと続く行列和がMatAddのまま評価されなかった
 
         data: Matrix = I + sn * cross + (1 - cs) * (cross @ cross)
-        return cls(*data.flat())
+        return cls(*list(data))
 
     def inverse(self) -> Rotation:
         data: Matrix = self.data.T
-        return Rotation(*data.flat())
+        return Rotation(*list(data))
 
     def get_rpy(self) -> Tuple[Symbol, Symbol, Symbol]:
         epsilon = 1e-12
-        pitch = sympy.atan2(
-            -self.data[2, 0], sympy.sqrt(self.data[0, 0] ** 2 + self.data[1, 0] ** 2)
-        )
+        pitch = sympy.atan2(-self.data[2, 0], sympy.sqrt(self.data[0, 0] ** 2 + self.data[1, 0] ** 2))
         if type(pitch) is float and abs(pitch) > math.pi / 2 - epsilon:
             roll = 0.0
             yaw = sympy.atan2(-self.data[0, 1], self.data[1, 1])
@@ -237,7 +208,7 @@ class Rotation:
     @singledispatchmethod
     def __mul__(self, rhs: Rotation) -> Rotation:
         data: Matrix = self.data @ rhs.data
-        return Rotation(*data.flat())
+        return Rotation(*list(data))
 
     @__mul__.register
     def _(self, rhs: Vector) -> Vector:
@@ -300,13 +271,7 @@ class Frame:
         return cls.Rot(Rotation.RotZ(yaw))
 
     @classmethod
-    def DH(
-        cls,
-        alpha: Symbol,
-        a: Symbol,
-        theta: Symbol,
-        d: Symbol,
-    ) -> Frame:
+    def DH(cls, alpha: Symbol, a: Symbol, theta: Symbol, d: Symbol) -> Frame:
         """
         DenavitHartenbergパラメータによる座標変換．
 

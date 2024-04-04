@@ -3,7 +3,6 @@
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
@@ -30,16 +29,15 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector::Zero());
-  tar_pos_ = odom.frame.p;
-  tar_vel_.setZero();
+  tar_pos_W_ = odom.frame.p;
+  tar_vel_F_.setZero();
   tar_yaw_ = Euler(odom.frame.M).yaw;
 }
 
 void PosVelAccYawController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry& odom,
-  const double&,
-  const Range<double>& dead_zone)
+  const double&)
 {
   // 時刻を更新
   const auto cur_time = ros::Time::now();
@@ -47,42 +45,39 @@ void PosVelAccYawController::update(
   t_last_rcin_ = cur_time;
 
   // RC入力を速度とヨーレートに変換
-  tar_vel_.x() =
-    dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_.y() =
-    dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
+  tar_vel_F_.x() =
+    dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
+  tar_vel_F_.y() =
+    dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
+  tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
   // 目標速度をフィルタリング
-  vel_filter_.update(tar_vel_, dt);
-  const auto& tar_vel_filtered = vel_filter_.getState();
+  vel_filter_.update(tar_vel_F_, dt);
 
-  // 一度でも上昇コマンドが入力されたら位置制御を行う
-  if (is_up_commanded_)
+  // 目標速度を世界座標系に変換
+  // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
+  const auto tar_vel_W = Rotation::RotZ(tar_yaw_) * vel_filter_.getState();
+
+  // 目標速度とヨーレートを積分
+  tar_pos_W_ += tar_vel_W * dt;
+  tar_yaw_ += yawrate * dt;
+
+  // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
+  if (!is_up_commanded_)
   {
-    // 速度とヨーレートを積分
-    tar_pos_ += tar_vel_filtered * dt;
-    tar_yaw_ += yawrate * dt;
-  }
-  else
-  {
-    // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
-    tar_pos_ = odom.frame.p;
+    tar_pos_W_ = odom.frame.p;
     tar_yaw_ = Euler(odom.frame.M).yaw;
-
-    // 上昇コマンドが入力されたかどうかをチェック
-    is_up_commanded_ = tar_vel_.z() > 0;
+    is_up_commanded_ = tar_vel_F_.z() > 0;
   }
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
-  cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
-  cmd->pos = tar_pos_;
-  cmd->vel = tar_vel_filtered;
+  cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
+  cmd->pos = tar_pos_W_;
+  cmd->vel = tar_vel_W;
   cmd->acc.setZero();
   cmd->yaw = tar_yaw_;
 

@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <include file="$(find tobas_navio_ros)/launch/sensors.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+  <include file="$(find tobas_navio_ros)/launch/motors.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+  <include file="$(find tobas_navio_ros)/launch/rcin_handler.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+</launch>

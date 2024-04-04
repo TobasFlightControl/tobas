@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -21,13 +21,12 @@ from .base import BaseController
 
 class MultirotorPid(BaseController):
     NAME = "Multirotor PID"
-
     CONTROLLER_PKG = "tobas_mr_pid"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
+    STABLIZE_MODE = PosVelAccYaw.__name__
+    ACROBAT_MODE = RollPitchYawThrust.__name__
     PARAM_SERVER_NODE = "tobas_mr_pid"
-
-    COMMAND_MSGS = frozenset([PosVelAccYaw.__name__, RollPitchYawThrust.__name__])
 
     MIN_NUM_PROP = 3
 
@@ -35,13 +34,15 @@ class MultirotorPid(BaseController):
         abst_text = "This controller for planar multirotors employs PID for both position and attitude control."
         super().__init__(main, abst_text)
 
-        # TODO: 設定項目
-
-    @overrides
+    @override
     def define_connections(self) -> None:
-        super().define_connections()
+        pass
 
-    @overrides
+    @override
+    def add_dynamic_params(self) -> None:
+        pass  # TODO
+
+    @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing
@@ -62,7 +63,7 @@ class MultirotorPid(BaseController):
 
         return True
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         # 両方の回転方向のプロペラをもつ
         directions = set(self._main.settings.propulsion_system.selected.directions())
@@ -80,6 +81,6 @@ class MultirotorPid(BaseController):
 
         return True
 
-    @overrides
+    @override
     def parameter_dict(self) -> dict:
         return super().parameter_dict()  # TODO

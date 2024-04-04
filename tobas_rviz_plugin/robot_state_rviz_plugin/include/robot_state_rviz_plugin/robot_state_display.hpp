@@ -24,6 +24,11 @@ class RobotStateDisplay : public rviz::Display
 {
   Q_OBJECT
 
+  static constexpr float kHighlightR = 0;
+  static constexpr float kHighlightG = 255;
+  static constexpr float kHighlightB = 0;
+  static constexpr float kHighlightA = 0.7;
+
   using self = RobotStateDisplay;
   using super = rviz::Display;
 
@@ -33,49 +38,29 @@ public:
   void update(float wall_dt, float ros_dt) override;
   void reset() override;
 
-  inline const robot_model::RobotModelConstPtr& getRobotModel() const;
-
   void setLinkColor(const std::string& link_name, const QColor& color);
   void unsetLinkColor(const std::string& link_name);
 
-private Q_SLOTS:
-  void changedRobotDescription();
-  void changedRootLinkName();
-  void changedRobotSceneAlpha();
-  void changedAttachedBodyColor();
-  void changedHighlightColor();
-  void changedUnhighlightColor();
-  void changedRobotStateTopic();
-  void changedEnableLinkHighlight();
-  void changedEnableVisualVisible();
-  void changedEnableCollisionVisible();
-  void changedAllLinks();
-
-protected:
+private:
   void loadRobotModel();
-
-  /**
-   * \brief Set the scene node's position, given the target frame and the planning frame
-   */
   void calculateOffsetPosition();
 
   void setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color);
   void unsetLinkColor(rviz::Robot* robot, const std::string& link_name);
 
-  void newRobotStateCallback(const moveit_msgs::DisplayRobotStateConstPtr& state);
-
   void setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& links);
   void setHighlight(const std::string& link_name, const std_msgs::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
+  void restartSubscribers();
+  void robotStateCb(const moveit_msgs::DisplayRobotStateConstPtr& state);
 
-  // overrides from Display
   void onInitialize() override;
   void onEnable() override;
   void onDisable() override;
   void fixedFrameChanged() override;
 
   ros::NodeHandle nh_;
-  ros::Subscriber robot_state_subscriber_;
+  ros::Subscriber robot_state_sub_;
 
   RobotStateVisualizationPtr robot_;
   rdf_loader::RDFLoaderPtr rdf_loader_;
@@ -98,10 +83,20 @@ protected:
   std::shared_ptr<rviz::BoolProperty> enable_visual_visible_;
   std::shared_ptr<rviz::BoolProperty> enable_collision_visible_;
   std::shared_ptr<rviz::BoolProperty> show_all_links_;
-};
+  std::shared_ptr<rviz::BoolProperty> reload_;
 
-inline const robot_model::RobotModelConstPtr& RobotStateDisplay::getRobotModel() const
-{
-  return kmodel_;
-}
+private Q_SLOTS:
+  void changedRobotDescription();
+  void changedRootLinkName();
+  void changedHighlightColor();
+  void changedUnhighlightColor();
+  void changedRobotStateTopic();
+  void changedRobotSceneAlpha();
+  void changedAttachedBodyColor();
+  void changedEnableLinkHighlight();
+  void changedEnableVisualVisible();
+  void changedEnableCollisionVisible();
+  void changedShowAllLinks();
+  void changedReload();
+};
 }  // namespace moveit_rviz_plugin

@@ -1,27 +1,20 @@
 import rospy
-import rospkg
-import os.path as osp
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
 from tobas_msgs.msg import Pwm, PwmArray
-from tobas_msgs.srv import SetupPwm, SetupPwmResponse
 
 from .common import *
 
 
-class PwmPublisherWidget(MainWidget):
+class PwmPublisherWidget(Widget):
     MAX_ROWS = SERVO_RAIL_SIZE // 2
 
     def __init__(self) -> None:
-        super().__init__(PKG_NAME)
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Motor Test")
+        super().__init__()
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -29,22 +22,14 @@ class PwmPublisherWidget(MainWidget):
         grid = QGridLayout()
         rows.addLayout(grid)
 
-        setup_pwm_sc = rospy.ServiceProxy("setup_pwm", SetupPwm)
         self._commanders: List[IntSliderDisplay] = []
-
         for channel in range(SERVO_RAIL_SIZE):
-            # Setup PWM
-            try:
-                setup_pwm_res: SetupPwmResponse = setup_pwm_sc.call(channel, PWM_FREQ)
-                if not setup_pwm_res.success:
-                    rospy.logerr(f"Failed to setup PWM CH{channel}")
-            except rospy.ServiceException as e:
-                rospy.logerr(f"Failed to call service: {e}")
-
-            # Add commander
-            commander = IntSliderDisplay(
-                f"CH{channel}", MIN_PWM, MAX_PWM, MIN_PWM, suffix=" us"
-            )
+            commander = IntSliderDisplay(self)
+            commander.set_text(f"CH{channel}")
+            commander.set_minimum(MIN_PWM)
+            commander.set_maximum(MAX_PWM)
+            commander.set_value(MIN_PWM)
+            commander.set_suffix(" us")
             commander.value_changed.connect(self._on_value_changed)
             self._commanders.append(commander)
             grid.addWidget(commander, channel % self.MAX_ROWS, channel // self.MAX_ROWS)
@@ -54,7 +39,7 @@ class PwmPublisherWidget(MainWidget):
         self._minimum_button.setFixedHeight(BUTTON_HEIGHT)
         rows.addWidget(self._minimum_button)
 
-        add_spacer(rows)
+        rows.addStretch()
 
         self._pwm_pub = rospy.Publisher("command/pwm", PwmArray, queue_size=1)
 

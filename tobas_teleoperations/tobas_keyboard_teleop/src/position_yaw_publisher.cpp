@@ -77,7 +77,9 @@ void PositionYawPublisher::run()
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
-  if (tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_))
+  if (
+    tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_)
+    && odom.status == tobas_msgs::Odometry::NO_ERROR)
   {
     cmd_pos_ = odom.frame.p;
     cmd_yaw_ = KDL::Euler(odom.frame.M).yaw;

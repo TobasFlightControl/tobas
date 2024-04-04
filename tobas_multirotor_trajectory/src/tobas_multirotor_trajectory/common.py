@@ -14,10 +14,7 @@ class FollowTrajectoryClient(ABC):
     WAIT_FOR_SERVER = 3.0  # [s]
 
     def __init__(self) -> None:
-        self._ac = actionlib.SimpleActionClient(
-            self.ACTION_NAME,
-            FollowPositionYawTrajectoryAction,
-        )
+        self._ac = actionlib.SimpleActionClient(self.ACTION_NAME, FollowPositionYawTrajectoryAction)
 
         # Ctrl + Cでアクションを止められるようにする
         rospy.on_shutdown(self._on_shutdown)
@@ -33,9 +30,7 @@ class FollowTrajectoryClient(ABC):
         goal = self._make_goal()
         self._call_action_and_show_result(goal)
 
-    def _call_action_and_show_result(
-        self, goal: FollowPositionYawTrajectoryGoal
-    ) -> None:
+    def _call_action_and_show_result(self, goal: FollowPositionYawTrajectoryGoal) -> None:
         rospy.loginfo(f'Sending a goal to "{self.ACTION_NAME}" action.')
         self._ac.send_goal_and_wait(goal)
         rospy.logdebug("Action finished.")

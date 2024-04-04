@@ -13,11 +13,7 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
     text_changed = pyqtSignal(str)
 
     def __init__(
-        self,
-        param_name: str,
-        description_text: str = None,
-        choices: List[str] = [],
-        default: str = None,
+        self, param_name: str, description_text: str = None, choices: List[str] = [], default: str = None
     ) -> None:
         super().__init__(param_name, description_text)
 
@@ -41,8 +37,12 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
     def cur_index(self) -> int:
         return self._box.currentIndex()
 
-    def add_items(self, items: List[str]) -> None:
+    def add_choices(self, items: List[str]) -> None:
         self._box.addItems(items)
+
+    def set_choices(self, items: List[str]) -> None:
+        self._box.clear()
+        self.add_choices(items)
 
     @pyqtSlot(int)
     def _on_index_changed(self, idx: int) -> None:

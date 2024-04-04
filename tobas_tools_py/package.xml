@@ -9,8 +9,4 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<!-- <export>
-		<nodelet plugin="${prefix}/nodelet_description.xml"/>
-	</export> -->
-
 </package>

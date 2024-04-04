@@ -4,18 +4,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+import os
 import os.path as osp
 import re
 import subprocess
-from overrides import overrides
-from glob import glob
-from typing import Union
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer, add_center_button
-from tobas_rqt_tools.messages import *
+from tobas_rqt_tools.path import get_catkin_ws_paths
+from tobas_rqt_tools.utils import place_center
+from tobas_rqt_tools.messages import q_error_named, QMessageLevel
 
 from .base_setting import BaseSettingWidget
 from ..parameter_getters import *
@@ -39,9 +39,7 @@ class RosPackageWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         pardir_description = ""
-        self.pardir = ParamGetterWidget_DirDialog(
-            "Parent Directory", pardir_description
-        )
+        self.pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
         self._rows.addWidget(self.pardir)
 
         pkg_name_description = ""
@@ -58,19 +56,20 @@ class RosPackageWidget(BaseSettingWidget):
         self._rows.addWidget(self._pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
-        self.generate_button = add_center_button("Generate", self._rows)
+        self.generate_button = QPushButton("Generate")
         self.generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self.generate_button.setEnabled(False)
+        place_center(self.generate_button, self._rows)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._pkg_path.define_connections()
         self._pkg_path.path_changed.connect(self._on_path_changed)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         pardir = self._pkg_path.pardir
         if not osp.isdir(pardir):
@@ -129,13 +128,9 @@ class PackagePath(QLabel):
         self._update()
 
     def define_connections(self) -> None:
-        self._main.settings.ros_package.pardir.path_changed.connect(
-            self._on_pardir_changed
-        )
-        self._main.settings.ros_package.pkg_name.text_changed.connect(
-            self._on_pkg_name_changed
-        )
-        self._main.urdf_parser.robot_model_loaded.connect(self._set_defaults)
+        self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
+        self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     def _update(self) -> None:
         path = self.pardir + "/" + self.pkg_name
@@ -155,29 +150,34 @@ class PackagePath(QLabel):
         self._update()
 
     @pyqtSlot()
-    def _set_defaults(self) -> None:
-        # srcディレクトリ
+    def _on_robot_model_updated(self) -> None:
+        # デフォルトのsrcディレクトリを設定
         ws_path = self._last_accessed_ws_path()
-        if ws_path is not None:
-            src_dir = osp.join(ws_path, "src")
-            self._main.settings.ros_package.pardir.set(src_dir)
+        src_path = osp.join(ws_path, "src")
+        self._main.settings.ros_package.pardir.set(src_path)
 
-        # パッケージ名
+        # デフォルトのパッケージ名を設定
         pkg_name = f"tobas_{get_drone_name()}_config"
         self._main.settings.ros_package.pkg_name.set(pkg_name)
 
         self._update()
 
-    def _last_accessed_ws_path(self) -> Union[str, None]:
-        pattern = osp.expanduser("~/catkin_ws*/")
-        ws_paths = glob(pattern)
+    def _last_accessed_ws_path(self) -> str:
+        catkin_ws_paths = get_catkin_ws_paths()
 
-        if len(ws_paths) == 0:
-            return None
+        # もしcatkin_wsが存在しなければ作る
+        if len(catkin_ws_paths) == 0:
+            ws_path = osp.expanduser("~/catkin_ws/")
+            src_path = osp.join(ws_path, "src")
+            os.makedirs(src_path, exist_ok=True)
+            os.chdir(ws_path)
+            if os.system("catkin init") != 0:
+                raise RuntimeError("Failed to create catkin workspace.")
+            return ws_path
 
         cnd_ws = None
         cnd_time = 0
-        for ws in ws_paths:
+        for ws in catkin_ws_paths:
             last_accessed_time = osp.getatime(ws)
             if last_accessed_time > cnd_time:
                 cnd_ws = ws

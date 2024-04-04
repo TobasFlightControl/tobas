@@ -1,6 +1,4 @@
 import rospy
-import rospkg
-import os.path as osp
 from typing import List
 from functools import partial
 from PyQt5.QtCore import *
@@ -8,32 +6,31 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
-from tobas_tools_py.drone import Drone
-from tobas_rqt_tools.widgets import MainWidget, IntSliderDisplay, add_spacer
+from tobas_tools_py.drone import Drone, DroneLoader_Param
+from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
 from .common import *
 
 
-class RotorSpeedsPublisherWidget(MainWidget):
+class RotorSpeedsPublisherWidget(Widget):
     def __init__(self) -> None:
-        super().__init__(PKG_NAME)
+        super().__init__()
 
         drone = Drone()
-        drone.load_from_param()
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Motor Test")
+        DroneLoader_Param(drone).load()
 
         rows = QVBoxLayout()
         self.setLayout(rows)
 
         self._commanders: List[IntSliderDisplay] = []
         for rotor in drone.rotors:
-            commander = IntSliderDisplay(
-                f"CH{rotor.channel}", 0, rps2rpm(rotor.max_rot_speed), 0, suffix=" rpm"
-            )
+            commander = IntSliderDisplay(self)
+            commander.set_text(f"CH{rotor.channel}")
+            commander.set_minimum(0)
+            commander.set_maximum(rps2rpm(rotor.max_rot_speed))
+            commander.set_value(0)
+            commander.set_suffix(" rpm")
             commander.value_changed.connect(self._on_value_changed)
             rows.addWidget(commander)
             self._commanders.append(commander)
@@ -44,11 +41,9 @@ class RotorSpeedsPublisherWidget(MainWidget):
             button.clicked.connect(partial(self._on_rpm_button_clicked, rpm=rpm))
             rows.addWidget(button)
 
-        add_spacer(rows)
+        rows.addStretch()
 
-        self._speeds_pub = rospy.Publisher(
-            "command/rotor_speeds", RotorSpeeds, queue_size=1
-        )
+        self._speeds_pub = rospy.Publisher("command/rotor_speeds", RotorSpeeds, queue_size=1)
 
         # モータが停止しないよう一定周期でコマンドを発行し続ける
         rospy.Timer(rospy.Duration(COMMAND_PERIOD), self._command_timer_cb)

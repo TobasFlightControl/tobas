@@ -4,10 +4,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-from pyqt_vertical_tab_widget.verticalTabWidget import VerticalTabWidget
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from tobas_rqt_tools.widgets import VerticalTabWidget
 
 from .setting_widgets import *
 
@@ -33,7 +34,6 @@ class SettingsWidget(VerticalTabWidget):
         self.depth_camera = DepthCameraWidget(main)
         self.lidar = LidarWidget(main)
         self.odometry = OdometryWidget(main)
-        self.rc_transmitter = RCTransmitterWidget(main)
         self.controller = ControllerWidget(main)
         self.observer = ObserverWidget(main)
         self.simulation = SimulationWidget(main)
@@ -52,7 +52,6 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.depth_camera, DepthCameraWidget.NAME)
         self.addTab(self.lidar, LidarWidget.NAME)
         self.addTab(self.odometry, OdometryWidget.NAME)
-        self.addTab(self.rc_transmitter, RCTransmitterWidget.NAME)
         self.addTab(self.controller, ControllerWidget.NAME)
         self.addTab(self.observer, ObserverWidget.NAME)
         self.addTab(self.simulation, SimulationWidget.NAME)
@@ -60,9 +59,7 @@ class SettingsWidget(VerticalTabWidget):
         self.addTab(self.ros_package, RosPackageWidget.NAME)
 
         self.setMinimumHeight(self.MIN_HEIGHT)
-        self.setStyleSheet(
-            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
-        )
+        self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
 
     def define_connections(self) -> None:
         self.start.define_connections()
@@ -77,7 +74,6 @@ class SettingsWidget(VerticalTabWidget):
         self.depth_camera.define_connections()
         self.lidar.define_connections()
         self.odometry.define_connections()
-        self.rc_transmitter.define_connections()
         self.controller.define_connections()
         self.observer.define_connections()
         self.simulation.define_connections()
@@ -85,6 +81,4 @@ class SettingsWidget(VerticalTabWidget):
         self.ros_package.define_connections()
 
     def switch_to_tab(self, tab: QWidget) -> None:
-        idx = self.indexOf(tab)
-        assert idx >= 0
-        self.setCurrentIndex(idx)
+        self.switch(tab)

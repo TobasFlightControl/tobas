@@ -1,1 +1,3 @@
 *.pyc
+*.deb
+tobas_deb/tobas_deb_ws/opt/

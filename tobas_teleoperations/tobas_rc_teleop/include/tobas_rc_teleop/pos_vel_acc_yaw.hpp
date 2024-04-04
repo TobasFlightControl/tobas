@@ -20,15 +20,14 @@ public:
   void update(
     const tobas_msgs::RCInput& rcin,
     const tobas_msgs::Odometry& odom,
-    const double& battery_voltage,
-    const tobas_std::Range<double>& dead_zone) override;
+    const double& battery_voltage) override;
 
 private:
   bool is_up_commanded_ = false;
   ros::Time t_last_rcin_;
   tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
-  KDL::Vector tar_vel_;
-  KDL::Vector tar_pos_;
+  KDL::Vector tar_vel_F_;
+  KDL::Vector tar_pos_W_;
   double tar_yaw_;
 
   // rosparams

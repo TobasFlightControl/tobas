@@ -26,14 +26,10 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
         cols = QHBoxLayout()
         self._rows.addLayout(cols)
 
-        self._min = FloatGetter(
-            "min", decimals, minimum, maximum, single_step, default[0], suffix
-        )
+        self._min = FloatGetter("min", decimals, minimum, maximum, single_step, default[0], suffix)
         cols.addWidget(self._min)
 
-        self._max = FloatGetter(
-            "max", decimals, minimum, maximum, single_step, default[1], suffix
-        )
+        self._max = FloatGetter("max", decimals, minimum, maximum, single_step, default[1], suffix)
         cols.addWidget(self._max)
 
         self._min.value_changed.connect(self._on_value_changed)

@@ -44,9 +44,7 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "jointName").text = joint_name
         ET.SubElement(plugin, "turningDirection").text = direction.lower()
-        ET.SubElement(plugin, "rotSpeedCoefficients").text = " ".join(
-            map(str, rot_speed_coefs)
-        )
+        ET.SubElement(plugin, "rotSpeedCoefficients").text = " ".join(map(str, rot_speed_coefs))
         ET.SubElement(plugin, "motorConstant").text = str(motor_const)
         ET.SubElement(plugin, "momentConstant").text = str(moment_const)
         ET.SubElement(plugin, "rotorDragCoefficient").text = str(rotor_drag_coef)

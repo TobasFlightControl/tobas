@@ -28,8 +28,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
   H_pv_.setZero();
   H_theta_.setZero();
   H_acc_.setZero();
-  H_mag_rpy_.setZero();
-  H_mag_yaw_.setZero();
+  H_mag_.setZero();
 
   H_pos_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
   H_xy_.block<2, 2>(0, kDeltaPosIdx).diagonal().setOnes();
@@ -42,7 +41,6 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 }
 
 void ErrorStateKalmanFilter::initialize(
-  const Vector3d& mag_W,
   const Vector3d& init_pos,
   const Vector3d& init_vel,
   const Quaterniond& init_quat,
@@ -61,8 +59,6 @@ void ErrorStateKalmanFilter::initialize(
   assert(et::isSymmetricSemiPositiveDefinite(init_acc_bias_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
   assert(init_grav_var >= 0);
-
-  mag_W_ = mag_W;
 
   // ノミナル状態を初期化
   x_.setZero();
@@ -270,34 +266,15 @@ double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Ma
   return correct<3>(delta_acc, grav_cov, H_acc_);
 }
 
-double
-ErrorStateKalmanFilter::measureMagneticField(const Vector3d& mag_meas, const Matrix3d& mag_cov)
+double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var)
 {
   TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
-
-  const Quaterniond Q_W_B = getQuaternion();
-  const Vector3d mag_B = Q_W_B.conjugate() * mag_W_;
-  const Vector3d delta_mag = mag_meas - mag_B;
-
-  H_mag_rpy_.block<3, 3>(0, kDeltaThetaIdx) = 2 * et::crossMat(mag_B);
-  return correct<3>(delta_mag, mag_cov, H_mag_rpy_);
-}
-
-double ErrorStateKalmanFilter::measureMagneticField(
-  const double& mag_meas_x,
-  const double& mag_meas_y,
-  const double& yaw_var)
-{
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
-
-  assert(yaw_var > 0);
 
   // Compute innovation
-  const double yaw_meas = wrapPi(atan2(mag_W_.y(), mag_W_.x()) - atan2(mag_meas_y, mag_meas_x));
   const double delta_yaw = wrapPi(yaw_meas - getYaw());
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
-  constexpr double epsilon = 1e-6;
+  constexpr double kEpsilon = 1e-6;
   const Quaterniond q = getQuaternion();
 
   bool can_use_A = false;
@@ -306,11 +283,11 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const double SA2 = SA0 * q.w() + SA1 * q.x();
   const double SA3 = sqr(q.w()) + sqr(q.x()) - sqr(q.y()) - sqr(q.z());
   double SA4, SA5_inv;
-  if (sqr(SA3) > epsilon)
+  if (sqr(SA3) > kEpsilon)
   {
     SA4 = 1 / sqr(SA3);
     SA5_inv = sqr(SA2) * SA4 + 1;
-    can_use_A = abs(SA5_inv) > epsilon;
+    can_use_A = abs(SA5_inv) > kEpsilon;
   }
 
   bool can_use_B = false;
@@ -319,11 +296,11 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const double SB2 = SB0 * q.z() + SB1 * q.y();
   const double SB4 = sqr(q.w()) + sqr(q.x()) - sqr(q.y()) - sqr(q.z());
   double SB3, SB5_inv;
-  if (sqr(SB2) > epsilon)
+  if (sqr(SB2) > kEpsilon)
   {
     SB3 = 1 / sqr(SB2);
     SB5_inv = SB3 * sqr(SB4) + 1;
-    can_use_B = abs(SB5_inv) > epsilon;
+    can_use_B = abs(SB5_inv) > kEpsilon;
   }
 
   // Compute output matrix
@@ -360,10 +337,10 @@ double ErrorStateKalmanFilter::measureMagneticField(
   }
 
   const auto Q_dtheta = getQ_dtheta();
-  H_mag_yaw_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
+  H_mag_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
 
   // Update the quaternion states and covariance matrix
-  return correct<1>(Scalard(delta_yaw), Scalard(yaw_var), H_mag_yaw_);
+  return correct<1>(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
 }
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta() const

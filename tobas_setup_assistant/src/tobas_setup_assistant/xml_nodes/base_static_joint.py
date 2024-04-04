@@ -9,8 +9,4 @@ class BaseStaticJoint(ET.Element):
 
         super().__init__("xacro:if", value="$(arg DEBUG)")
         self.append(Link(name="world"))
-        self.append(
-            Joint(
-                name="base_static_joint", type="fixed", parent="world", child=root_link
-            )
-        )
+        self.append(Joint(name="base_static_joint", type="fixed", parent="world", child=root_link))

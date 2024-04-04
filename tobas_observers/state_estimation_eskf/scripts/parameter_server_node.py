@@ -7,9 +7,7 @@ from dynamic_reconfigure import server
 from state_estimation_eskf.cfg import StateEstimationEskfConfig
 
 
-def dynamicReconfigureCb(
-    config: StateEstimationEskfConfig, level: int
-) -> StateEstimationEskfConfig:
+def dynamicReconfigureCb(config: StateEstimationEskfConfig, level: int) -> StateEstimationEskfConfig:
     return config
 
 

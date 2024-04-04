@@ -36,6 +36,4 @@ class MagnetometerModel(SensorModel):
         ET.SubElement(plugin, "longitudeZero").text = str(longitude_0)
         ET.SubElement(plugin, "altitudeZero").text = str(altitude_0)
         ET.SubElement(plugin, "noiseNormal").text = " ".join([str(gauss_noise)] * 3)
-        ET.SubElement(plugin, "noiseUniformInitialBias").text = " ".join(
-            [str(uniform_noise)] * 3
-        )
+        ET.SubElement(plugin, "noiseUniformInitialBias").text = " ".join([str(uniform_noise)] * 3)

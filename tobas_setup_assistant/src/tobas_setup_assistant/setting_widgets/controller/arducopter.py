@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from typing import List
 from dataclasses import dataclass
 from PyQt5.QtCore import *
@@ -101,18 +101,12 @@ class ChannelsWidget(QWidget):
         # 未選択はダメ
         for r in range(self._form.rowCount()):
             if self._link_name(r) == self.NO_SELECT:
-                q_error_named(
-                    self._main, ARDUPILOT, "Please select link names for each channel."
-                )
+                q_error_named(self._main, ARDUPILOT, "Please select link names for each channel.")
                 return False
 
         # リンク名が被ってたらダメ
         if len(set(self._link_names())) < self._form.rowCount():
-            q_error_named(
-                self._main,
-                ARDUPILOT,
-                "Link names of different channels must be different.",
-            )
+            q_error_named(self._main, ARDUPILOT, "Link names of different channels must be different.")
             return False
 
         return True
@@ -120,9 +114,7 @@ class ChannelsWidget(QWidget):
     def channels(self) -> List[int]:
         res = [-1] * self._form.rowCount()
         for r in range(self._form.rowCount()):
-            rotor_idx = self._main.settings.propulsion_system.selected.get_index(
-                self._link_name(r)
-            )
+            rotor_idx = self._main.settings.propulsion_system.selected.get_index(self._link_name(r))
             ardu_channel = r  # PIN - 1
             res[rotor_idx] = ardu_channel
         return res
@@ -169,20 +161,17 @@ class ChannelsWidget(QWidget):
 
 class ArduCopter(BaseController):
     NAME = "ArduCopter (Simulation Only)"
-
     CONTROLLER_PKG = "tobas_mr_arducopter"
     TAKEOFF_PKG = "tobas_mr_arducopter"
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    STABLIZE_MODE = PositionYaw.__name__
+    ACROBAT_MODE = PositionYaw.__name__  # TODO
     PARAM_SERVER_NODE = "arducopter_param_server"
-
-    COMMAND_MSGS = frozenset([PositionYaw.__name__])
 
     MIN_NUM_PROPS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = (
-            "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
-        )
+        abst_text = "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
         super().__init__(main, abst_text)
 
         # Frame Classes
@@ -249,18 +238,8 @@ class ArduCopter(BaseController):
             Frame("OCTO QUAD V", octa_quad, v, [CCW, CW, CCW, CW, CCW, CW, CCW, CW]),
             Frame("OCTO QUAD H", octa_quad, h, [CW, CCW, CW, CCW, CW, CCW, CW, CCW]),
             # DodecaHexacopter
-            Frame(
-                "DOCECA HEXA X",
-                dodeca_hexa,
-                x,
-                [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW],
-            ),
-            Frame(
-                "DOCECA HEXA +",
-                dodeca_hexa,
-                plus,
-                [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW],
-            ),
+            Frame("DOCECA HEXA X", dodeca_hexa, x, [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW]),
+            Frame("DOCECA HEXA +", dodeca_hexa, plus, [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW]),
         ]
 
         frame_description = (
@@ -268,23 +247,24 @@ class ArduCopter(BaseController):
             "<a href='https://ardupilot.org/copter/docs/connect-escs-and-motors.html#motor-order-diagrams'>"
         )
         self._frame = ParamGetterWidget_ComboBox(
-            "Frame Type",
-            frame_description,
-            [frame.name() for frame in self._frames],
+            "Frame Type", frame_description, [frame.name() for frame in self._frames]
         )
         self._rows.addWidget(self._frame)
 
         self._channels = ChannelsWidget(main)
         self._rows.addWidget(self._channels)
 
-    @overrides
+    @override
     def define_connections(self) -> None:
-        super().define_connections()
         self._channels.define_connections()
         self._frame.index_changed.connect(self._on_frame_idx_changed)
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
-    @overrides
+    @override
+    def add_dynamic_params(self) -> None:
+        pass
+
+    @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing
@@ -305,7 +285,7 @@ class ArduCopter(BaseController):
 
         return True
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         selected = self._selected()
 
@@ -340,7 +320,7 @@ class ArduCopter(BaseController):
 
         return True
 
-    @overrides
+    @override
     def parameter_dict(self) -> dict:
         return {
             "arducopter": {
@@ -358,6 +338,6 @@ class ArduCopter(BaseController):
         self._channels.update_num_channels(self._frames[idx].num_props())
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
         cur_idx = self._frame.cur_index()
         self._channels.update_num_channels(self._frames[cur_idx].num_props())

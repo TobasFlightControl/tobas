@@ -12,29 +12,6 @@ BaseNode::BaseNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
 {
 }
 
-bool BaseNode::updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level)
-{
-  if (new_level < cur_level)
-  {
-    rosErrorThrottle(
-      kCommandLevelErrorPeriod, name_,
-      "The command is ignored because its level " << static_cast<int>(new_level)
-                                                  << "is lower than the current command level "
-                                                  << static_cast<int>(cur_level) << ".");
-    return false;
-  }
-
-  if (new_level > cur_level)
-  {
-    rosInfo(
-      name_, "The command level is raised from " << static_cast<int>(cur_level) << " to "
-                                                 << static_cast<int>(new_level) << ".");
-    cur_level = new_level;
-  }
-
-  return true;
-}
-
 ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
 {
   return ros::TransportHints().reliable().tcpNoDelay(nodelay);

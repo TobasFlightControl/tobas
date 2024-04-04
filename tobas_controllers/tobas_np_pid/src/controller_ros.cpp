@@ -79,6 +79,9 @@ bool ControllerRos::isReady() const
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   odom_ = odom;
 
   if (!is_initialized_)
@@ -173,11 +176,19 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
     return;
 
   // コマンドレベルの処理
-  if (!updateCommandLevel(cmd_level_, cmd->level.data))
+  if (!cmd_level_handler_.update(cmd->level.data, ros::Time::now()))
     return;
 
   // コマンドを更新
-  cmd_ = cmd;
+  cmd_ = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>(*cmd);
+
+  // グローバル座標系に変換
+  if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *cmd_))
+  {
+    rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
+    cmd_ = nullptr;
+    return;
+  }
 }
 
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)

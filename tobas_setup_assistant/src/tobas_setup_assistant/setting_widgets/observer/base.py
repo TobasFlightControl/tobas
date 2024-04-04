@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+from overrides import override
 from abc import abstractmethod
 from typing import List, final
 from dynamic_reconfigure import client
@@ -11,6 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.roslaunch import rosrun
 from tobas_rqt_tools.dynamic_reconfigure import get_param_config
 
@@ -18,24 +20,32 @@ from ...common import *
 from ...parameter_getters import *
 
 
-class BaseObserver(QWidget):
-    NAME = UNKNOWN
-    PACKAGE_NAME = UNKNOWN
+class BaseObserver(Widget):
+    NAME = TO_DO
+    PACKAGE_NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()
         self._main = main
 
-        # 動的パラメータの設定を取得
-        rosrun(self.PACKAGE_NAME, "parameter_server_node.py", self.PACKAGE_NAME)
-        cli = client.Client(self.PACKAGE_NAME, timeout=ROSLAUNCH_TIMEOUT)
-        self._configs: List[dict] = cli.get_parameter_descriptions()
+        self._param_server_process = None
+        self._configs: List[dict] = []
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
         abst = Description(abst_text)
         self._rows.addWidget(abst)
+
+    @override
+    def close(self) -> bool:
+        self._param_server_process.terminate()
+        return super().close()
+
+    @abstractmethod
+    def add_dynamic_params(self) -> None:
+        """動的パラメータをウィジェットに反映"""
+        raise NotImplementedError()
 
     @abstractmethod
     def is_valid(self) -> bool:
@@ -44,6 +54,12 @@ class BaseObserver(QWidget):
     @abstractmethod
     def parameter_dict(self) -> dict:
         raise NotImplementedError()
+
+    @final
+    def get_dynamic_params(self) -> None:
+        self._param_server_process = rosrun(self.PACKAGE_NAME, "parameter_server_node.py", self.PACKAGE_NAME)
+        cli = client.Client(self.PACKAGE_NAME, timeout=ROSLAUNCH_TIMEOUT)
+        self._configs: List[dict] = cli.get_parameter_descriptions()
 
     @final
     def _get_param_config(self, name: str) -> dict:

@@ -17,13 +17,12 @@ from ..common import *
 class BaseSettingWidget(ScrollArea):
     ABST_HEIGHT = 100
 
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, title_text: str, abst_text: str) -> None:
         super().__init__()
         self._main = main
 
-        self.setWidgetResizable(True)  # この設定が必須．無いとオブジェクトが潰れてしまう．
         self.setEnabled(False)  # 基本的にモデルが読み込まれて初めてアクティブになる
 
         self._rows = QVBoxLayout()
@@ -40,8 +39,7 @@ class BaseSettingWidget(ScrollArea):
 
     @abstractmethod
     def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_loaded.connect(lambda: self.setEnabled(True))
-        self._main.pkg_generator.generated.connect(lambda: self.setEnabled(False))
+        self._main.urdf_parser.robot_model_updated.connect(lambda: self.setEnabled(True))
 
     @abstractmethod
     def is_valid(self) -> bool:

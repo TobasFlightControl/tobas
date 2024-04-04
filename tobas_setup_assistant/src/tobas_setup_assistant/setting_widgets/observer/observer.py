@@ -4,27 +4,24 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+import joblib
 from typing import List
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ComboBox, add_spacer
-from tobas_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.widgets import ComboBox
 
 from ...parameter_getters import *
 from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseObserver
-from .cascade import CascadeKalmanFilter
 from .eskf import ErrorStateKalmanFilter
 
 
 class ObserverWidget(BaseSettingWidget):
     NAME = "Observer"
-
-    NO_SELECT = "Select observer type"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Observer"
@@ -34,35 +31,30 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._observers: List[BaseObserver] = [
-            CascadeKalmanFilter(main),
-            ErrorStateKalmanFilter(main),
-        ]
+        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main)]
+
+        # 各観測器の動的パラメータを並列に読み込む
+        # NOTE: ウィジェット自体をマルチスレッドにすると親子関係が壊れるため，コンストラクタの並列処理はできない
+        job = joblib.Parallel(n_jobs=-1, prefer="threads")  # メモリ共有するためマルチプロセスではなくマルチスレッド
+        job(joblib.delayed(obsv.get_dynamic_params)() for obsv in self._observers)
 
         self._type = ComboBox()
-        self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
-
         for observer in self._observers:
+            observer.add_dynamic_params()
             self._rows.addWidget(observer)
             self._type.addItem(observer.NAME)
 
-        self._type.setCurrentText(ErrorStateKalmanFilter.NAME)  # Default
-
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._type.currentTextChanged.connect(self._on_type_changed)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
-        if self._type.currentText() == self.NO_SELECT:
-            q_error_named(self._main, self.NAME, "Please select observer type.")
-            return False
-
         if not self._selected().is_valid():
             return False
 
@@ -76,9 +68,6 @@ class ObserverWidget(BaseSettingWidget):
 
     def _selected(self) -> BaseObserver:
         observer_type = self._type.currentText()
-
-        if observer_type == self.NO_SELECT:
-            raise RuntimeError("Observer type is not selected.")
 
         for observer in self._observers:
             if observer_type == observer.NAME:

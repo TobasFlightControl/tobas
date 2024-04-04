@@ -31,15 +31,10 @@ class PlotJugglerLauncher:
             for topic, received in self._received_msgs.items():
                 if not received:
                     all_received = False
-                    rospy.loginfo_throttle(
-                        self.INFO_PERIOD,
-                        f"Waiting for {rospy.get_namespace()}{topic}",
-                    )
+                    rospy.loginfo_throttle(self.INFO_PERIOD, f"Waiting for {rospy.get_namespace()}{topic}")
 
             if all_received:
-                rospy.loginfo(
-                    f"All required messages are received. Launching PlotJuggler."
-                )
+                rospy.loginfo(f"All required messages are received. Launching PlotJuggler.")
 
                 # Unregister all subscribers
                 for sub in self._subscribers:
@@ -47,9 +42,7 @@ class PlotJugglerLauncher:
 
                 # Launch PlotJuggler
                 if self._layout:
-                    subprocess.run(
-                        f"rosrun plotjuggler plotjuggler -l {self._layout}", shell=True
-                    )
+                    subprocess.run(f"rosrun plotjuggler plotjuggler -l {self._layout}", shell=True)
                 else:
                     subprocess.run("rosrun plotjuggler plotjuggler", shell=True)
 

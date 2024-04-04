@@ -15,8 +15,9 @@ from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
-from tobas_rqt_tools.widgets import TabWidget, add_spacer, add_center_button
+from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
 
 from ...parameter_getters import *
@@ -38,21 +39,17 @@ class SelectedLinksWidget(TabWidget):
 
         self._main = main
 
-        self.setStyleSheet(
-            f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}"
-        )
+        self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
         self.setMovable(True)
         self.setTabsClosable(True)
 
         self._markers = MarkerArray()  # 推力の作用線
-        self._markers_pub = rospy.Publisher(
-            "visualization_marker_array", MarkerArray, queue_size=1
-        )
+        self._markers_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
 
     def define_connections(self):
         self._main.settings.propulsion_system.add_link.connect(self._add_link)
         self._main.settings.propulsion_system.remove_link.connect(self._remove_link)
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self.tabCloseRequested.connect(self._on_tab_close_requested)
 
     def is_valid(self) -> bool:
@@ -66,11 +63,7 @@ class SelectedLinksWidget(TabWidget):
 
         # 最低1つは登録されていなければならない
         if num_rotors == 0:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please register at least 1 propulsion systems.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please register at least 1 propulsion systems.")
             return
 
         return True
@@ -133,6 +126,10 @@ class SelectedLinksWidget(TabWidget):
                 marker.action = action
                 return
 
+    def _reset(self) -> None:
+        self.clear()
+        self._markers.markers.clear()
+
     @pyqtSlot(str)
     def _add_link(self, link_name: str) -> None:
         # タブを追加
@@ -157,7 +154,9 @@ class SelectedLinksWidget(TabWidget):
         self._markers_pub.publish(self._markers)
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
+        self._reset()
+
         # 全ての可動リンクのマーカーを保持しておく
         for i, link_name in enumerate(self._main.urdf_parser.link_names()):
             if link_name == self._main.urdf_parser.get_root().name:
@@ -196,8 +195,8 @@ class SelectedLinksWidget(TabWidget):
 
 
 class SelectedLinkTabWidget(QWidget):
-    BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 150
+    BUTTON_HEIGHT = 40
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -208,8 +207,9 @@ class SelectedLinkTabWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._copy_button = add_center_button("Copy from left tab", rows)
+        self._copy_button = QPushButton("Copy from left tab")
         self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        place_center(self._copy_button, rows)
 
         self.esc = EscWidget(main, link_name)
         rows.addWidget(self.esc)
@@ -223,7 +223,7 @@ class SelectedLinkTabWidget(QWidget):
         self.aerodynamics = AerodynamicsWidget(main, link_name)
         rows.addWidget(self.aerodynamics)
 
-        add_spacer(rows)
+        rows.addStretch()
         self._define_connections()
 
     def is_valid(self) -> bool:

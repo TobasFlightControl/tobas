@@ -7,11 +7,7 @@ class VehicleParameters:
     wing_surface: float = 0.0  # Wing surface [m^2]
     wing_span: float = 0.0  # Wing span [m]
     mac: float = 0.0  # Mean Aerodynamic Chord [m]
-    ac: Tuple[float, float, float] = (
-        0.0,
-        0.0,
-        0.0,
-    )  # Aerodynamic Center wrt the frame origin (NWU) [m]
+    ac: Tuple[float, float, float] = (0.0, 0.0, 0.0)  # Aerodynamic Center wrt the frame origin (NWU) [m]
     alpha_limit: Tuple[float, float] = (0.0, 0.0)  # Stall angles [rad]
 
 
@@ -69,3 +65,6 @@ class FixedWingConfig:
     vehicle: VehicleParameters = VehicleParameters()
     aerodynamics: AerodynamicsCoefficients = AerodynamicsCoefficients()
     control_surfaces: ControlSurfaces = field(default_factory=list)
+
+    def clear(self) -> None:
+        self.control_surfaces.clear()

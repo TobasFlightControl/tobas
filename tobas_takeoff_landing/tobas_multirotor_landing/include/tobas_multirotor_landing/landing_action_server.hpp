@@ -2,7 +2,6 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
-#include <std_srvs/SetBool.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -21,7 +20,7 @@ class MultirotorLandServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::LandAction;
-  using GoalType = tobas_msgs::LandGoalConstPtr;  // Goalはポインタの必要あり
+  using GoalType = tobas_msgs::LandGoal;
   using ResultType = tobas_msgs::LandResult;
   using FeedbackType = tobas_msgs::LandFeedback;
 
@@ -37,12 +36,11 @@ private:
   std::deque<std::pair<ros::Time, double>> alt_history_;
   tobas_msgs::OdometryConstPtr odom_;
   ResultType result_;
-  std_srvs::SetBool arm_rotors_msg_;
 
   ros::Publisher cmd_pub_;
   ros::Subscriber odom_sub_;
 
-  ros::ServiceClient arm_rotors_sc_;
+  ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void getRosParams() override;
@@ -54,6 +52,6 @@ private:
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_multirotor_landing

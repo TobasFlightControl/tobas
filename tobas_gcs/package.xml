@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>tobas_gcs</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<exec_depend>rospy</exec_depend>
+	<exec_depend>rviz</exec_depend>
+	<exec_depend>urdfdom_py</exec_depend>
+
+	<exec_depend>python3-numpy</exec_depend>
+	<exec_depend>python3-sympy</exec_depend>
+	<exec_depend>python3-pandas</exec_depend>
+	<exec_depend>python3-yaml</exec_depend>
+	<exec_depend>python3-jinja2</exec_depend>
+	<exec_depend>python3-markdown</exec_depend>
+	<exec_depend>python3-overrides</exec_depend>
+	<exec_depend>python3-paramiko</exec_depend>
+	<exec_depend>python3-scp</exec_depend>
+
+	<exec_depend>urdf_builder</exec_depend>
+	<exec_depend>tobas_setup_assistant</exec_depend>
+
+</package>

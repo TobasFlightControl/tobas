@@ -4,6 +4,7 @@
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
 
@@ -23,7 +24,7 @@ TakeoffActionServer::TakeoffActionServer(
   registerPublishers();
   registerSubscribers();
 
-  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
 }
@@ -43,14 +44,14 @@ void TakeoffActionServer::registerSubscribers()
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 {
-  if (goal->target_altitude <= 0)
+  if (goal.target_altitude <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target altitude must be positive.");
     return false;
   }
 
-  if (goal->target_duration <= 0)
+  if (goal.target_duration <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target duration must be positive.");
@@ -74,15 +75,16 @@ bool TakeoffActionServer::getStartOdom()
 
 bool TakeoffActionServer::armRotors()
 {
-  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
   }
 
-  arm_rotors_msg_.request.data = true;
-  if (!arm_rotors_sc_.call(arm_rotors_msg_) || !arm_rotors_msg_.response.success)
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = true;
+  if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to arm rotors.");
@@ -92,12 +94,12 @@ bool TakeoffActionServer::armRotors()
   return true;
 }
 
-void TakeoffActionServer::executeCb(const GoalType& goal)
+void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
   rosInfo(name_, "Action is called.");
 
   // Check goal validity
-  if (!isGoalValid(goal))
+  if (!isGoalValid(*goal))
     return;
 
   // Get the start position
@@ -141,8 +143,7 @@ void TakeoffActionServer::executeCb(const GoalType& goal)
     // コマンドを作成
     const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
-    cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
-    cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
     cmd->pos.setZero();
     cmd->vel.setZero();
     cmd->acc.setZero();

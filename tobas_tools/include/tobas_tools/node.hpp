@@ -25,16 +25,6 @@ protected:
     return nh_.getNamespace() + "/";
   }
 
-  /**
-   * @brief コマンドレベルを更新する．
-   *
-   * @param cur_level 現在のコマンドレベル．
-   * @param new_level 指令されたコマンドレベル．
-   *
-   * @return 指令されたコマンドが有効な場合にtrueを返す．
-   */
-  bool updateCommandLevel(uint8_t& cur_level, const uint8_t& new_level);
-
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
   static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 };

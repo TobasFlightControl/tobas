@@ -29,16 +29,15 @@ void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = ros::Time::now();
-  setToZero(tar_vel_);
-  tar_pos_ = odom.frame.p;
+  setToZero(tar_vel_F_);
+  tar_pos_W_ = odom.frame.p;
   odom.frame.M.getRPY(tar_rpy_.roll, tar_rpy_.pitch, tar_rpy_.yaw);
 }
 
 void PoseTwistAccelController::update(
   const tobas_msgs::RCInput& rcin,
   const tobas_msgs::Odometry& odom,
-  const double&,
-  const Range<double>& dead_zone)
+  const double&)
 {
   // 時刻を更新
   const auto cur_time = ros::Time::now();
@@ -49,10 +48,10 @@ void PoseTwistAccelController::update(
   if (rcin.gpsw)  // 姿勢固定で位置制御
   {
     // RC入力から目標水平速を計算
-    tar_vel_.x() =
-      dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
-    tar_vel_.y() =
-      dead_zone.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
+    tar_vel_F_.x() =
+      dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
+    tar_vel_F_.y() =
+      dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
 
     // 目標姿勢角はゼロ
     tar_rpy_.roll = 0;
@@ -62,41 +61,43 @@ void PoseTwistAccelController::update(
   {
     // RC入力から目標姿勢を計算
     tar_rpy_.roll =
-      dead_zone.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-    tar_rpy_.pitch =
-      dead_zone.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+      dead_zone_.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
+    tar_rpy_.pitch = dead_zone_.inRange(rcin.pitch) ?
+                       0 :
+                       remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
 
     // 目標水平速度はゼロ
-    tar_vel_.x() = 0;
-    tar_vel_.y() = 0;
+    tar_vel_F_.x() = 0;
+    tar_vel_F_.y() = 0;
   }
 
-  tar_vel_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
+  // RC入力から鉛直速度とヨーレートを計算
+  tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
   const auto yawrate =
-    dead_zone.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
 
-  // 一度でも上昇コマンドが入力されたら位置制御を行う
-  if (is_up_commanded_)
+  // 目標速度を世界座標系に変換
+  // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
+  const auto tar_vel_W = Rotation::RotZ(tar_rpy_.yaw) * tar_vel_F_;
+
+  // 目標速度とヨーレートを積分
+  tar_pos_W_ += tar_vel_W * dt;
+  tar_rpy_.yaw += yawrate * dt;
+
+  // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
+  if (!is_up_commanded_)
   {
-    // 目標速度とヨーレートを積分
-    tar_pos_ += tar_vel_ * dt;
-    tar_rpy_.yaw += yawrate * dt;
-  }
-  else
-  {
-    // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
-    tar_pos_ = odom.frame.p;
+    tar_pos_W_ = odom.frame.p;
     tar_rpy_.yaw = Euler(odom.frame.M).yaw;
-
-    // 上昇コマンドが入力されたかどうかをチェック
-    is_up_commanded_ = tar_vel_.z() > 0;
+    is_up_commanded_ = tar_vel_W.z() > 0;
   }
 
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
-  cmd->pos = tar_pos_;
-  cmd->vel = tar_vel_;
+  cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
+  cmd->pos = tar_pos_W_;
+  cmd->vel = tar_vel_W;
   cmd->acc.setZero();
   cmd->rpy = tar_rpy_;
   cmd->gyro.setZero();

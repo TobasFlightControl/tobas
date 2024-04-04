@@ -1,5 +1,5 @@
 <launch>
 
-  <node pkg="plotjuggler" type="plotjuggler" name="plotjuggler" output="screen"/>
+  <node pkg="plotjuggler" type="plotjuggler" name="plotjuggler" output="screen" required="true"/>
 
 </launch>

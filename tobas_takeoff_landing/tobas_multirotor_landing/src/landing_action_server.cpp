@@ -2,6 +2,7 @@
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_multirotor_landing/landing_action_server.hpp"
 
@@ -22,7 +23,7 @@ MultirotorLandServer::MultirotorLandServer(
   registerPublishers();
   registerSubscribers();
 
-  arm_rotors_sc_ = nh_.serviceClient<std_srvs::SetBool>(tobas::kArmRotorsSrv);
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
 }
@@ -50,15 +51,16 @@ void MultirotorLandServer::reset()
 
 bool MultirotorLandServer::disarmRotors()
 {
-  if (!arm_rotors_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
   }
 
-  arm_rotors_msg_.request.data = false;
-  if (!arm_rotors_sc_.call(arm_rotors_msg_) || !arm_rotors_msg_.response.success)
+  tobas_msgs::SetArm set_arm_msg;
+  set_arm_msg.request.arming = false;
+  if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
     result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to disarm rotors.");
@@ -70,6 +72,9 @@ bool MultirotorLandServer::disarmRotors()
 
 void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
+  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+    return;
+
   if (!is_action_running_)
     return;
 
@@ -91,7 +96,7 @@ void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   odom_ = odom;
 }
 
-void MultirotorLandServer::executeCb(const GoalType& goal)
+void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
 {
   rosInfo(name_, "Action is called.");
 
@@ -147,8 +152,7 @@ void MultirotorLandServer::executeCb(const GoalType& goal)
     const auto t = (ros::Time::now() - start_time).toSec();
     const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
-    cmd->vel_frame.data = tobas_msgs::FrameId::GLOBAL;
-    cmd->acc_frame.data = tobas_msgs::FrameId::GLOBAL;
+    cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
     cmd->pos.x(start_x);
     cmd->pos.y(start_y);
     cmd->pos.z(start_z - kVerticalSpeed * t);

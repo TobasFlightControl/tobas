@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer, DoubleSpinBox, ComboBox
+from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox, TableWidget
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.joint import *
 
@@ -52,22 +52,20 @@ class CustomJointsWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._available_joints: List[str] = []
-
-        self._table = QTableWidget(0, len(self.LABELS))
+        self._table = TableWidget(0, len(self.LABELS))
         self._table.setHorizontalHeaderLabels(self.LABELS)
         for c in range(self._table.columnCount()):
             self._table.setColumnWidth(c, self.COL_WIDTH)
         self._rows.addWidget(self._table)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
-        self._main.urdf_parser.robot_model_loaded.connect(self._on_robot_model_loaded)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         for i in range(self.count()):
             jnt_name = self.joint_name(i)
@@ -75,16 +73,10 @@ class CustomJointsWidget(BaseSettingWidget):
             min_pos = self.min_position(i)
             max_pos = self.max_position(i)
             if min_pos > max_pos:
-                q_error_named(
-                    self, self.NAME, f"Position limit of joint '{jnt_name} is invalid."
-                )
+                q_error_named(self, self.NAME, f"Position limit of joint '{jnt_name} is invalid.")
                 return False
             if home_pos < min_pos or max_pos < home_pos:
-                q_error_named(
-                    self,
-                    self.NAME,
-                    f"Home position of joint '{jnt_name} is out of limit.",
-                )
+                q_error_named(self, self.NAME, f"Home position of joint '{jnt_name} is out of limit.")
                 return False
 
         return True
@@ -165,16 +157,13 @@ class CustomJointsWidget(BaseSettingWidget):
         return f"{group}/{controller}"
 
     @pyqtSlot()
-    def _on_robot_model_loaded(self) -> None:
+    def _on_robot_model_updated(self) -> None:
+        self._table.remove_all()
         row = 0
 
         for joint in self._main.urdf_parser.get_joints():
             # ジョイントタイプが回転または直動でない場合はスキップ
-            if joint.type not in {
-                JointType.REVOLUTE,
-                JointType.CONTINUOUS,
-                JointType.PRISMATIC,
-            }:
+            if joint.type not in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
                 continue
 
             # トランスミッションを持たない場合はスキップ
@@ -182,7 +171,6 @@ class CustomJointsWidget(BaseSettingWidget):
             if hi is None:
                 continue
 
-            self._available_joints.append(joint.name)
             self._table.insertRow(row)
 
             jnt_name = QLabel(joint.name)

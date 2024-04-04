@@ -14,7 +14,7 @@ class BatteryLpf : public tobas::BaseNode
   // LPFの時定数 [s]
   // 大きくしすぎると離陸時の急激な電圧降下に追従できず，所望の推力が出ない．
   // ADCのノイズを軽減できる最小限の時定数に設定すべき．
-  static constexpr double kDefaultLpfTimeConst = 0.1;
+  static constexpr double kLpfTimeConst = 0.1;
 
   using self = BatteryLpf;
   using super = tobas::BaseNode;
@@ -26,9 +26,6 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  // rosparams
-  double lpf_time_const_;
-
   tobas_std::FirstOrderFilter<double> lpf_;
   ros::Time t_last_;
 

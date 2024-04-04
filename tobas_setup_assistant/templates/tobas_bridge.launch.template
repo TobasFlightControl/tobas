@@ -6,11 +6,11 @@
 
   <group ns="{{ drone_name }}">
     <group if="$(arg nodelet)">
-      <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load TobasBridgeNodelet nodelet_manager" output="screen"/>
+      <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load TobasBridgeNodelet nodelet_manager" output="screen" required="true"/>
     </group>
 
     <group unless="$(arg nodelet)">
-      <node pkg="{{ pkg_name }}" type="tobas_bridge_node" name="$(arg node_name)" output="screen"/>
+      <node pkg="{{ pkg_name }}" type="tobas_bridge_node" name="$(arg node_name)" output="screen" required="true"/>
     </group>
   </group>
 

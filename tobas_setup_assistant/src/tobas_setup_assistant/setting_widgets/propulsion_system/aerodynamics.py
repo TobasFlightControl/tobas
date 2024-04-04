@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import math
 import numpy as np
-from numpy.typing import NDArray
 from abc import abstractmethod
-from overrides import overrides
+from overrides import override
 from typing import List, final
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -61,11 +60,7 @@ class AerodynamicsWidget(QWidget):
 
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Please select aerodynamics setting method.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please select aerodynamics setting method.")
             return False
         else:
             if not self._selected().is_valid():
@@ -129,7 +124,7 @@ class AerodynamicsWidget(QWidget):
 
 
 class AerodynamicsWidget_Base(QWidget):
-    NAME = UNKNOWN
+    NAME = TO_DO
 
     def __init__(self, main: SetupAssistant, link_name: str, abst_text: str) -> None:
         super().__init__()
@@ -143,16 +138,9 @@ class AerodynamicsWidget_Base(QWidget):
         abst = Description(abst_text)
         self._rows.addWidget(abst)
 
-        max_model_error_rate_description = (
-            "Maximum error rate in the modeling of aerodynamic constants."
-        )
+        max_model_error_rate_description = "Maximum error rate in the modeling of aerodynamic constants."
         self._max_model_error_rate = ParamGetterWidget_SpinBox(
-            "Max Model Error Rate",
-            max_model_error_rate_description,
-            minimum=0,
-            maximum=1000,
-            default=10,
-            suffix=" %",
+            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
         )
         self._rows.addWidget(self._max_model_error_rate)
 
@@ -213,12 +201,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
             "the torque generated in the opposite direction to the propeller's rotation, in Newton-meters, is N = c T."
         )
         self._moment_const = ParamGetterWidget_DoubleSpinBox(
-            "Moment Constant",
-            moment_const_description,
-            decimals=6,
-            minimum=0.0,
-            default=0.016,
-            suffix=" m",
+            "Moment Constant", moment_const_description, decimals=6, minimum=0.0, default=0.016, suffix=" m"
         )
         self._rows.addWidget(self._moment_const)
 
@@ -239,23 +222,23 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         )
         self._rows.addWidget(self._rotor_drag_coef)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         return True
 
-    @overrides
+    @override
     def motor_const(self) -> float:
         return self._motor_const.get()
 
-    @overrides
+    @override
     def moment_const(self) -> float:
         return self._moment_const.get()
 
-    @overrides
+    @override
     def rotor_drag_coef(self) -> float:
         return self._rotor_drag_coef.get()
 
-    @overrides
+    @override
     def copy_from(self, src: AerodynamicsWidget_Manual) -> None:
         super().copy_from(src)
         self._motor_const.set(src._motor_const.get())
@@ -278,36 +261,29 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         )
         super().__init__(main, link_name, abst_text)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         return True
 
-    @overrides
+    @override
     def motor_const(self) -> float:
         return self._blade_thory().motor_const()
 
-    @overrides
+    @override
     def moment_const(self) -> float:
         return self._blade_thory().moment_const()
 
-    @overrides
+    @override
     def rotor_drag_coef(self) -> float:
         return self._blade_thory().rotor_drag_coef()
 
-    @overrides
+    @override
     def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
         super().copy_from(src)
 
     def _blade_thory(self) -> BladeTheory:
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
-            self._link_name
-        )
-        return BladeTheory(
-            blade.num_blade(),
-            blade.propeller_radius(),
-            blade.blade_chord(),
-            blade.pitch_angle(),
-        )
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
+        return BladeTheory(blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle())
 
 
 class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
@@ -332,9 +308,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
         data_description = "Please input experimental data from the Thrust Stand."
         self._data = ParamGetterWidget_DoubleTable(
-            "Data from thrust stand",
-            ["RPM", "Thrust", "Torque"],
-            description_text=data_description,
+            "Data from thrust stand", ["RPM", "Thrust", "Torque"], description_text=data_description
         )
         self._data.set_minimum([1e-1, 1e-6, 1e-6])  # TODO: 負の値にも対応
         self._data.set_decimals([0, 6, 6])
@@ -343,7 +317,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._data.count() == 0:
             q_error_named(self._main, PROPULSION_SYSTEM, "Thrust stand data is blank.")
@@ -351,16 +325,16 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
         return True
 
-    @overrides
+    @override
     def motor_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
         data = self._data.get()
         rpm, thrust, _ = np.hsplit(data, 3)
-        omega2: NDArray = rpm2rps(rpm) ** 2
+        omega2: np.ndarray = rpm2rps(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
-    @overrides
+    @override
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
@@ -368,21 +342,16 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         _, thrust, torque = np.hsplit(data, 3)
         return ((torque.T @ thrust) / (thrust.T @ thrust)).item()  # 最小2乗解 (memo: 2-28)
 
-    @overrides
+    @override
     def rotor_drag_coef(self) -> float:
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
-            self._link_name
-        )
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         blade_theory = BladeTheory(
-            blade.num_blade(),
-            blade.propeller_radius(),
-            blade.blade_chord(),
-            blade.pitch_angle(),
+            blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()
 
-    @overrides
+    @override
     def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
         super().copy_from(src)
         self._data.set(src._data.get())
@@ -404,9 +373,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
         data_description = "Input the Static data for the relevant propeller."
         self._data = ParamGetterWidget_DoubleTable(
-            "Measurements in static condition",
-            ["RPM", "CT", "CP"],
-            description_text=data_description,
+            "Measurements in static condition", ["RPM", "CT", "CP"], description_text=data_description
         )
         self._data.set_minimum([1e-3, 1e-6, 1e-6])
         self._data.set_decimals([3, 6, 6])
@@ -414,31 +381,25 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         self._data.set_column_width(self.TABLE_COL_WIDTH)
         self._rows.addWidget(self._data)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(
-                self._main,
-                PROPULSION_SYSTEM,
-                "Measurements in static condition is blank.",
-            )
+            q_error_named(self._main, PROPULSION_SYSTEM, "Measurements in static condition is blank.")
             return False
 
         return True
 
-    @overrides
+    @override
     def motor_const(self) -> float:
         # CTの平均をとる
         data = self._data.get()
         CTs = data[:, 1]
         CT = np.mean(CTs)
 
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
-            self._link_name
-        )
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
 
-    @overrides
+    @override
     def moment_const(self) -> float:
         # CT, CPの平均をとる
         # TODO: 単純な平均ではなく，ホバリング時の回転数に対応する値をとる
@@ -448,26 +409,19 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
         CP = np.mean(CPs)
 
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
-            self._link_name
-        )
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (blade.propeller_diameter() * CP) / (2 * math.pi * CT)
 
-    @overrides
+    @override
     def rotor_drag_coef(self) -> float:
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(
-            self._link_name
-        )
+        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
         blade_theory = BladeTheory(
-            blade.num_blade(),
-            blade.propeller_radius(),
-            blade.blade_chord(),
-            blade.pitch_angle(),
+            blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()
 
-    @overrides
+    @override
     def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:
         super().copy_from(src)
         self._data.set(src._data.get())

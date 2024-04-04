@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
-from tobas_rqt_tools.widgets import add_spacer
 
 from ...parameter_getters import *
 from ...common import *
@@ -35,9 +33,7 @@ class PropulsionSystemWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         links_label = QLabel("Available Links")
-        links_label.setFont(
-            QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold)
-        )
+        links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
@@ -47,15 +43,15 @@ class PropulsionSystemWidget(BaseSettingWidget):
         self.selected = SelectedLinksWidget(self._main)
         self._rows.addWidget(self.selected)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._available.define_connections()
         self.selected.define_connections()
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not self._available.is_valid():
             return False

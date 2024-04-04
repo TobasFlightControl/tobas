@@ -1,0 +1,11 @@
+<library path="lib/libtobas_real_ros_nodelet">
+
+  <class name="tobas_real_ros/TimeReferenceServerNodelet" type="tobas_real_ros::TimeReferenceServerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real_ros/CpuHandlerNodelet" type="tobas_real_ros::CpuHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

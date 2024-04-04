@@ -1,5 +1,3 @@
-#include <actionlib/client/simple_action_client.h>
-
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -17,7 +15,6 @@
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
-#include <tobas_msgs/PreArmCheckAction.h>
 #include <tobas_msgs/conversions/msg_msg.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
@@ -34,9 +31,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name),
-    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
-    server_(pnh_)  // NodeletのときはPrivate NodeHandleを明示的に渡す必要がある
+  : super(nh, pnh, name), server_(pnh_)
 {
   TOBAS_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
 
@@ -64,9 +59,6 @@ void ErrorStateKalmanFilterRos::getRosParams()
   tobas_ros::getParam(
     pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
   tobas_ros::getParam(pnh_, "do_gravity_estimation", do_grav_estimation_, kDefaultDoGravEstimation);
-  tobas_ros::getParam(
-    pnh_, "check_covariance_convergence", check_covariance_convergence_,
-    kDefaultCheckCovarianceConvergence);
   tobas_ros::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
   tobas_ros::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
   tobas_ros::getParam(pnh_, "gps_offset", gps_offset_, Vector3d::Zero());
@@ -99,32 +91,9 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
     gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 }
 
-bool ErrorStateKalmanFilterRos::isReady() const
-{
-  if (!imu_received_)
-    return false;
-  if (!mag_received_)
-    return false;
-  if (use_bar_ && !bar_received_)
-    return false;
-  if (use_gps_ && !gps_received_)
-    return false;
-
-  return true;
-}
-
 void ErrorStateKalmanFilterRos::initialize()
 {
   TOBAS_DEBUG("ErrorStateKalmanFilterRos::initialize");
-
-  // 静止状態でのセンサデータを平均してゼロ点を決める
-  setZeroPositions();
-
-  // GPSの初期値から地磁気の参照値を求める
-  // TODO: 位置の変化に合わせてオンラインで参照値を求める
-  const auto mag = tobas::geomag(lat_0_, lon_0_, alt_0_gps_);
-  cout << "The magnetic field of the initial point:" << endl;
-  cout << "North: " << mag.north << ", East: " << mag.east << ", Down: " << mag.down << endl;
 
   // ESKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
@@ -132,10 +101,9 @@ void ErrorStateKalmanFilterRos::initialize()
   const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0;
   const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0;
   eskf_.initialize(
-    Vector3d(mag.north, -mag.east, -mag.down),                    // Magnetic field (NWU)
     Vector3d::Zero(),                                             // Init position
     Vector3d::Zero(),                                             // Init velocity
-    q_0_,                                                         // Init quaternion
+    Quaterniond::Identity(),                                      // Init quaternion
     Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
     Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
     Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
@@ -143,52 +111,6 @@ void ErrorStateKalmanFilterRos::initialize()
     Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
     sqr(init_grav_stddev)                                         // Init gravity var
   );
-}
-
-void ErrorStateKalmanFilterRos::setZeroPositions()
-{
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::setZeroPositions");
-
-  actionlib::SimpleActionClient<tobas_msgs::PreArmCheckAction> ac(tobas::kPreArmCheckAction);
-  rosInfo(name_, "Waiting for action server '" << tobas::kPreArmCheckAction << "' to start.");
-  ac.waitForServer();
-
-  rosInfo(name_, "Action server '" << tobas::kPreArmCheckAction << "' started, sending goal.");
-  tobas_msgs::PreArmCheckGoal goal;
-  ac.sendGoal(goal);
-
-  const bool finished_before_timeout = ac.waitForResult();
-  if (!finished_before_timeout)
-  {
-    rosFatal(name_, "'" << tobas::kPreArmCheckAction << "' did not finish before timeout.");
-    nh_.shutdown();
-  }
-
-  const auto result = ac.getResult();
-  const auto state = ac.getState();
-  if (result->error_code != tobas_msgs::PreArmCheckResult::NO_ERROR)
-  {
-    rosFatal(
-      name_, "'" << tobas::kPreArmCheckAction << "' finished with error: " << state.getText());
-    nh_.shutdown();
-  }
-
-  // GPS
-  // TODO: IMUフレームに変換
-  lat_0_ = result->gps.latitude;
-  lon_0_ = result->gps.longitude;
-  alt_0_gps_ = result->gps.altitude;
-
-  // Barometer
-  // TODO: IMUフレームに変換
-  alt_0_bar_ = pressureToAltitude(result->air_pressure.fluid_pressure);
-
-  // 初期姿勢
-  tobas_ros::vectorMsgToEigen(result->imu.linear_acceleration, acc_meas_);
-  tobas_ros::vectorMsgToEigen(result->magnetic_field.magnetic_field, mag_meas_);
-  const auto mag = tobas::geomag(result->gps.latitude, result->gps.longitude, result->gps.altitude);
-  const Vector3d m0(mag.north, -mag.east, -mag.down);  // NED -> NWU
-  et::imuToQuaternion(acc_meas_, mag_meas_, m0, q_0_);
 }
 
 ErrorStateKalmanFilterRos::OdomMsg::ConstPtr
@@ -207,6 +129,12 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
   // Header
   odom->header.stamp = imu.header.stamp;
   odom->header.frame_id = tobas::kWorldFrame;
+
+  // Status
+  if (!gps_fix_)
+    odom->status = OdomMsg::POSITION_LOST;
+  else
+    odom->status = OdomMsg::NO_ERROR;
 
   // Position (Global): IMU frame -> Base frame
   odom->frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
@@ -238,167 +166,107 @@ ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 {
+  if (!imu_received_)
+  {
+    t_last_ = imu->header.stamp;
+    initialize();
+
+    imu_received_ = true;
+    return;
+  }
+
   // 加速度とジャイロを更新
-  // 他のコールバックで使用する場合があるので，この更新だけは先にやっておく
   tobas_ros::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
   tobas_ros::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
 
-  switch (stage_)
+  // Compute IMU time gap
+  const double dt = (imu->header.stamp - t_last_).toSec();
+  // cout << "dt[s] " << dt << endl;
+  t_last_ = imu->header.stamp;
+
+  // Check IMU time gap
+  if (dt == 0.)
   {
-    case FIRST_IMU:
-    {
-      imu_received_ = true;
-      stage_ = WAIT_TOPICS;
-      break;
-    }
-    case WAIT_TOPICS:
-    {
-      if (isReady())
-      {
-        check_topics_timer_.stop();
-        initialize();
-        rosInfo(name_, "All messages are received. Initializing kalman filter.");
-        stage_ = SET_FIRST_TIME;
-      }
-      break;
-    }
-    case SET_FIRST_TIME:
-    {
-      t_last_ = imu->header.stamp;
-      stage_ = RUNNING;
-      break;
-    }
-    case RUNNING:
-    {
-      // Compute IMU time gap
-      const double dt = (imu->header.stamp - t_last_).toSec();
-      // cout << "dt[s] " << dt << endl;
-      t_last_ = imu->header.stamp;
-
-      // Check IMU time gap
-      if (dt == 0.)
-      {
-        rosError(name_, "The time gap between 2 IMU messages is 0.");
-        break;
-      }
-      if (dt < 0.)
-      {
-        rosError(name_, "The time gap between 2 IMU messages is negative: " << dt << " [s]");
-        break;
-      }
-      if (dt > kImuTimeGapThreshold)
-      {
-        rosWarn(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
-      }
-
-      // 観測ノイズの分散を計算
-      const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
-      const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
-
-      // 事前予測
-      eskf_.predictIMU(
-        acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
-        gyro_bias_noise_var_, grav_noise_var_, dt);
-
-      // 重力方向の観測
-      eskf_.measureGravity(acc_meas_, grav_cov_);
-
-      // 共分散の収束を確認
-      if (check_covariance_convergence_ && !cov_converged_)
-      {
-        const auto pos_cov = eskf_.getPositionCovariance();
-        const auto vel_cov = eskf_.getVelocityCovariance();
-        const auto rot_cov = eskf_.getOrientationCovariance();
-
-        const auto hor_pos_var = max(pos_cov(0, 0), pos_cov(1, 1));
-        const auto ver_pos_var = pos_cov(2, 2);
-        const auto vel_var = vel_cov.diagonal().maxCoeff();
-        const auto rot_var = rot_cov.diagonal().maxCoeff();
-
-        bool cov_ok = true;
-        if (hor_pos_var > sqr(kHorPosStddevThreshold))
-        {
-          ROS_INFO_STREAM_THROTTLE(
-            kPrintStddevPeriod, "Horizontal Position std. dev [m]: " << sqrt(hor_pos_var) << " > "
-                                                                     << kHorPosStddevThreshold);
-          cov_ok = false;
-        }
-        if (ver_pos_var > sqr(kVerPosStddevThreshold))
-        {
-          ROS_INFO_STREAM_THROTTLE(
-            kPrintStddevPeriod, "Vertical Position std. dev [m]: " << sqrt(ver_pos_var) << " > "
-                                                                   << kVerPosStddevThreshold);
-          cov_ok = false;
-        }
-        if (vel_var > sqr(kVelStddevThreshold))
-        {
-          ROS_INFO_STREAM_THROTTLE(
-            kPrintStddevPeriod,
-            "Velocity std. dev [m/s]: " << sqrt(vel_var) << " > " << kVelStddevThreshold);
-          cov_ok = false;
-        }
-        if (rot_var > sqr(kRotStddevThreshold))
-        {
-          ROS_INFO_STREAM_THROTTLE(
-            kPrintStddevPeriod,
-            "Rotation std. dev [rad]: " << sqrt(rot_var) << " > " << kRotStddevThreshold);
-          cov_ok = false;
-        }
-
-        if (cov_ok)
-        {
-          cov_converged_ = true;
-          rosInfo(name_, "Kalman filter is initialized. Start to publish pose & twist.");
-        }
-
-        return;
-      }
-
-      // 推定状態を発行
-      const auto odom = makeOdometryMsg(*imu);
-      odom_pub_.publish(odom);
-
-      // TFを発行
-      tf_.header.stamp = odom->header.stamp;
-      transformKDLToMsg(odom->frame, tf_.transform);
-      tf_br_.sendTransform(tf_);
-
-      // フィードバックを発行
-      const auto feedback = boost::make_shared<FeedbackMsg>();
-      feedback->header = imu->header;
-      feedback->rpy = KDL::Euler(odom->frame.M);
-      feedback->acc_bias.data = eskf_.getAccelBias();
-      feedback->gyro_bias.data = eskf_.getGyroBias();
-      feedback->gravity = eskf_.getGravity();
-      tobas_ros::matrix3EigenToMsg(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
-      tobas_ros::matrix3EigenToMsg(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
-      feedback->gravity_variance = eskf_.getGravityVariance();
-      feedback->gps_anormaly_score = gps_anormaly_score_;
-      feedback_pub_.publish(feedback);
-
-      break;
-    }
+    rosError(name_, "The time gap between 2 IMU messages is 0.");
+    return;
   }
+  if (dt < 0.)
+  {
+    rosError(name_, "The time gap between 2 IMU messages is negative: " << dt << " [s]");
+    return;
+  }
+  if (dt > kImuTimeGapThreshold)
+  {
+    rosWarn(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
+  }
+
+  // 観測ノイズの分散を計算
+  const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
+  const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
+
+  // 事前予測
+  eskf_.predictIMU(
+    acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_,
+    grav_noise_var_, dt);
+
+  // 重力方向の観測
+  eskf_.measureGravity(acc_meas_, grav_cov_);
+
+  // 推定状態を発行
+  const auto odom = makeOdometryMsg(*imu);
+  odom_pub_.publish(odom);
+
+  // TFを発行
+  tf_.header.stamp = odom->header.stamp;
+  transformKDLToMsg(odom->frame, tf_.transform);
+  tf_br_.sendTransform(tf_);
+
+  // フィードバックを発行
+  const auto feedback = boost::make_shared<FeedbackMsg>();
+  feedback->header = imu->header;
+  feedback->acc_bias.data = eskf_.getAccelBias();
+  feedback->gyro_bias.data = eskf_.getGyroBias();
+  feedback->gravity = eskf_.getGravity();
+  tobas_ros::matrix3EigenToMsg(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
+  tobas_ros::matrix3EigenToMsg(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
+  feedback->gravity_variance = eskf_.getGravityVariance();
+  feedback->gps_anormaly_score = gps_anormaly_score_;
+  feedback_pub_.publish(feedback);
 }
 
 void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 {
-  if (!mag_received_)
-    mag_received_ = true;
-
-  if (stage_ < RUNNING)
+  if (!imu_received_)
     return;
 
-  eskf_.measureMagneticField(mag->magnetic_field.x, mag->magnetic_field.y, yaw_var_);
+  if (!mag_received_)
+  {
+    // GPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
+    if (!gps_received_)
+      yaw_0_ = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
+
+    mag_received_ = true;
+    return;
+  }
+
+  const double yaw_meas = wrapPi(yaw_0_ - atan2(mag->magnetic_field.y, mag->magnetic_field.x));
+  eskf_.measureYaw(yaw_meas, yaw_var_);
 }
 
 void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 {
-  if (!bar_received_)
-    bar_received_ = true;
-
-  if (stage_ < RUNNING)
+  if (!imu_received_)
     return;
+
+  if (!bar_received_)
+  {
+    // 気圧高度の初期値
+    // TODO: IMUフレームに変換
+    alt_0_bar_ = pressureToAltitude(bar->fluid_pressure);
+
+    bar_received_ = true;
+    return;
+  }
 
   double z_abs, z_var;
   pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
@@ -410,22 +278,40 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 
 void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 {
-  if (!gps_received_)
-    gps_received_ = true;
-
-  if (stage_ < RUNNING)
+  if (!imu_received_)
     return;
+
+  gps_fix_ = (gps->fix_type == GpsMsg::FIX_3D);
+  if (!gps_fix_)
+    return;
+
+  if (!gps_received_)
+  {
+    // GPSの初期位置
+    // TODO: IMUフレームに変換
+    lat_0_ = gps->latitude;
+    lon_0_ = gps->longitude;
+    alt_0_gps_ = gps->altitude;
+
+    // GPSの初期値から地磁気の参照値を求める
+    // TODO: 位置の変化に合わせてオンラインで参照値を求める
+    const auto mag = tobas::geomag(lat_0_, lon_0_, alt_0_gps_);
+    yaw_0_ = atan2(-mag.east, mag.north);
+
+    gps_received_ = true;
+    return;
+  }
 
   // 位置の観測値
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
-  pos_meas_.z() = gps->altitude - alt_0_gps_;
+  pos_meas_.z() = gps->altitude - alt_0_gps_;  // FIXME: 気圧高度と競合しそう
 
   // 共分散
   const Matrix3d pos_cov = Map<const Matrix3d>(gps->position_covariance.data());
   const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
 
   // ESKFを更新
-  const auto imu2gps = gps_offset_ - imu_offset_;
+  const Vector3d imu2gps = gps_offset_ - imu_offset_;
   gps_anormaly_score_ =
     eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps, gyro_meas_);
 
@@ -437,21 +323,6 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
       "The kalman filter is in an abnormal state. There is a very large error between the GPS "
       "position and velocity information and the estimated values from the Kalman filter.");
   }
-}
-
-void ErrorStateKalmanFilterRos::checkTopicsTimerCb(const ros::TimerEvent&)
-{
-  if (!imu_received_)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
-
-  if (!mag_received_)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kMagTopic);
-
-  if (use_bar_ && !bar_received_)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
-
-  if (use_gps_ && !gps_received_)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kGpsTopic);
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

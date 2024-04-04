@@ -1,0 +1,7 @@
+uint8 method
+uint8 BOUNDING = 0
+uint8 SPHERE_FITTING = 1
+uint8 ELLIPSE_FITTING = 2
+---
+bool success
+string message

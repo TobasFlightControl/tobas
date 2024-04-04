@@ -2,7 +2,6 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
-#include <std_srvs/SetBool.h>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -25,7 +24,7 @@ class TakeoffActionServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::TakeoffAction;
-  using GoalType = tobas_msgs::TakeoffGoalConstPtr;
+  using GoalType = tobas_msgs::TakeoffGoal;
   using ResultType = tobas_msgs::TakeoffResult;
   using FeedbackType = tobas_msgs::TakeoffFeedback;
 
@@ -38,12 +37,11 @@ public:
 private:
   ResultType result_;
   tobas_msgs::Odometry start_odom_;
-  std_srvs::SetBool arm_rotors_msg_;
 
   ros::Publisher cmd_pub_;
   ros::Subscriber odom_sub_;
 
-  ros::ServiceClient arm_rotors_sc_;
+  ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void getRosParams() override;
@@ -54,6 +52,6 @@ private:
   bool getStartOdom();
   bool armRotors();
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_multirotor_takeoff

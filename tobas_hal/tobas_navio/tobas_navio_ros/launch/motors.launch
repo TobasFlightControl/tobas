@@ -1,0 +1,21 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <arg name="node_name" value="motors_handler"/>
+
+  <!-- Launch PWM Handler -->
+  <include file="$(find tobas_navio_ros)/launch/pwm_handler.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+  </include>
+
+  <!-- Launch Motors Handler -->
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_navio_ros/MotorsHandlerNodelet nodelet_manager" output="screen" required="true"/>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_navio_ros" type="motors_handler_node" name="$(arg node_name)" output="screen" required="true"/>
+  </group>
+
+</launch>

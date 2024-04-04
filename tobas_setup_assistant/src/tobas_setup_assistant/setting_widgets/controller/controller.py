@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from typing import List, FrozenSet
-from overrides import overrides
+import joblib
+from typing import List
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ComboBox, add_spacer
+from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...parameter_getters import *
@@ -46,17 +47,23 @@ class ControllerWidget(BaseSettingWidget):
             FixedWingLQR(main),
         ]
 
+        # 各制御器の動的パラメータを並列に読み込む
+        # NOTE: ウィジェット自体をマルチスレッドにすると親子関係が壊れるため，コンストラクタの並列処理はできない
+        job = joblib.Parallel(n_jobs=-1, prefer="threads")  # メモリ共有するためマルチプロセスではなくマルチスレッド
+        job(joblib.delayed(ctrl.get_dynamic_params)() for ctrl in self._controllers)
+
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
         for controller in self._controllers:
+            controller.add_dynamic_params()
             self._rows.addWidget(controller)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._type.currentTextChanged.connect(self._on_type_changed)
@@ -65,7 +72,7 @@ class ControllerWidget(BaseSettingWidget):
         for controller in self._controllers:
             controller.define_connections()
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select controller type.")
@@ -85,11 +92,11 @@ class ControllerWidget(BaseSettingWidget):
     def landing_pkg(self) -> str:
         return self._selected().LANDING_PKG
 
-    def command_msgs(self) -> FrozenSet[str]:
-        return self._selected().COMMAND_MSGS
+    def stabilize_mode(self) -> str:
+        return self._selected().STABLIZE_MODE
 
-    def flight_mode_names(self) -> List[str]:
-        return self._selected().flight_mode_names()
+    def acrobat_mode(self) -> str:
+        return self._selected().ACROBAT_MODE
 
     def parameter_dict(self) -> dict:
         return self._selected().parameter_dict()

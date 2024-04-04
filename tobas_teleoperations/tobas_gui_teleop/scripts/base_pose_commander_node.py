@@ -4,9 +4,14 @@ import os.path as osp
 import sys
 import signal
 import rospy
+import rospkg
 from PyQt5.QtWidgets import QApplication
 
-from tobas_gui_teleop.base_pose_commander import BasePoseCommander
+from tobas_rqt_tools.widgets import MainWidget
+from tobas_tools_py.constants import CONFIG_PATH
+
+from tobas_gui_teleop.base_pose_commander import BasePoseCommanderWidget
+from tobas_gui_teleop.common import *
 
 
 if __name__ == "__main__":
@@ -15,7 +20,13 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    main_widget = BasePoseCommander()
+    main_widget = MainWidget(
+        CONFIG_PATH,
+        f"{PKG_NAME}/base_pose_commander",
+        "Base State Commander",
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        BasePoseCommanderWidget(),
+    )
     main_widget.show()
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)

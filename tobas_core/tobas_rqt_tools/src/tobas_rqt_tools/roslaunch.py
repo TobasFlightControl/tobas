@@ -1,12 +1,36 @@
-import subprocess
+from subprocess import Popen
 import roslaunch
 from roslaunch import rlutil, parent
-from typing import List
+from typing import List, Dict
+
+
+def rosrun(pkg_name: str, node_type: str, node_name: str = None) -> Popen:
+    command = ["rosrun", pkg_name, node_type]
+    if node_name is not None:
+        command += [f"__name:={node_name}"]
+
+    # 別プロセスでrosrunを実行
+    return Popen(command)
+
+
+def launch(pkg_name: str, launch_name: str, args: Dict[str, str] = dict()) -> Popen:
+    assert launch_name.endswith(".launch")
+
+    command = ["roslaunch", pkg_name, launch_name]
+    for key, value in args.items():
+        command += [f"{key}:={value}"]
+
+    # 別プロセスでroslaunchを実行
+    return Popen(command)
 
 
 def create_launcher(
     pkg_name: str, launch_name: str, args: List[str] = [], autostart: bool = True
 ) -> parent.ROSLaunchParent:
+    """
+    呼び出し元と同じプロセスでroslaunchを起動．
+    NOTE: roslaunch.parent.ROSLaunchParentを使うとQWidget.closeEventが呼ばれなくなる．
+    """
     assert launch_name.endswith(".launch")
 
     uuid = rlutil.get_or_generate_uuid(None, False)
@@ -19,12 +43,3 @@ def create_launcher(
         launcher.start()
 
     return launcher
-
-
-def rosrun(pkg_name: str, node_type: str, node_name: str = None) -> None:
-    command = ["rosrun", pkg_name, node_type]
-    if node_name is not None:
-        command += [f"__name:={node_name}"]
-
-    # バックグラウンドでrosrunを実行
-    subprocess.Popen(command)

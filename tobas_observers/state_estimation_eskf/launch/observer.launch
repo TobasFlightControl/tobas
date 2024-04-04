@@ -4,18 +4,12 @@
 
   <arg name="node_name" value="state_estimator_eskf"/>
 
-  <!-- State Estimator -->
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="state_estimation_eskf" type="eskf_node" name="$(arg node_name)" output="screen"/>
+    <node pkg="state_estimation_eskf" type="eskf_node" name="$(arg node_name)" output="screen" required="true"/>
   </group>
-
-  <!-- Static State Determinator -->
-  <include file="$(find tobas_common_actions)/launch/pre_arm_check.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
 
 </launch>

@@ -5,12 +5,11 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 import math
-from overrides import overrides
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import add_spacer
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
@@ -23,10 +22,7 @@ class LidarWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define LiDAR"
-        abst_text = (
-            "Configure the 3D LiDAR settings. "
-            "Please refer to the datasheet and input the respective values."
-        )
+        abst_text = "Configure the 3D LiDAR settings. " "Please refer to the datasheet and input the respective values."
         super().__init__(main, title_text, abst_text)
 
         self._equipped = QCheckBox("LiDAR Equipped")
@@ -34,48 +30,30 @@ class LidarWidget(BaseSettingWidget):
         self._equipped.setChecked(False)
         self._rows.addWidget(self._equipped)
 
-        self.offset = ParamGetterWidget_Vector3d(
-            "Offset",
-            SENSOR_OFFSET_DESCRIPTION,
-            suffix=" m",
-        )
+        self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate",
-            update_rate_description,
-            minimum=1,
-            default=10,
-            suffix=" Hz",
+            "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
         self._rows.addWidget(self.update_rate)
 
         hor_samples_description = ""
         self.hor_samples = ParamGetterWidget_SpinBox(
-            "The number of horizontal samples",
-            hor_samples_description,
-            minimum=1,
-            default=100,
+            "The number of horizontal samples", hor_samples_description, minimum=1, default=100
         )
         self._rows.addWidget(self.hor_samples)
 
         ver_samples_description = ""
         self.ver_samples = ParamGetterWidget_SpinBox(
-            "The number of vertical samples",
-            ver_samples_description,
-            minimum=1,
-            default=360,
+            "The number of vertical samples", ver_samples_description, minimum=1, default=360
         )
         self._rows.addWidget(self.ver_samples)
 
         hor_fov_description = ""
         self.hor_fov = ParamGetterWidget_DoubleRange(
-            "Horizontal Field of View",
-            hor_fov_description,
-            decimals=3,
-            default=(0.0, 2 * math.pi),
-            suffix=" rad",
+            "Horizontal Field of View", hor_fov_description, decimals=3, default=(0.0, 2 * math.pi), suffix=" rad"
         )
         self._rows.addWidget(self.hor_fov)
 
@@ -91,22 +69,13 @@ class LidarWidget(BaseSettingWidget):
 
         range_description = ""
         self.range = ParamGetterWidget_DoubleRange(
-            "Laser distance range",
-            range_description,
-            decimals=3,
-            default=(0.1, 200.0),
-            suffix=" m",
+            "Laser distance range", range_description, decimals=3, default=(0.1, 200.0), suffix=" m"
         )
         self._rows.addWidget(self.range)
 
         resolution_description = ""
         self.resolution = ParamGetterWidget_DoubleSpinBox(
-            "Distance resolution",
-            resolution_description,
-            decimals=3,
-            minimum=1e-3,
-            default=2e-3,
-            suffix=" m",
+            "Distance resolution", resolution_description, decimals=3, minimum=1e-3, default=2e-3, suffix=" m"
         )
         self._rows.addWidget(self.resolution)
 
@@ -121,15 +90,15 @@ class LidarWidget(BaseSettingWidget):
         )
         self._rows.addWidget(self.noise_stddev)
 
-        add_spacer(self._rows)
+        self._rows.addStretch()
         self._update_visibility()
 
-    @overrides
+    @override
     def define_connections(self) -> None:
         super().define_connections()
         self._equipped.toggled.connect(self._update_visibility)
 
-    @overrides
+    @override
     def is_valid(self) -> bool:
         if not self.hor_fov.is_valid():
             q_error_named(self._main, self.NAME, "Horizontal Field of View is invalid.")

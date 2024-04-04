@@ -1,5 +1,4 @@
 #include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_preprocess/battery_lpf.hpp"
@@ -18,8 +17,6 @@ BatteryLpf::BatteryLpf(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 void BatteryLpf::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "lpf_time_const", lpf_time_const_, kDefaultLpfTimeConst, tobas_ros::NON_NEGATIVE);
 }
 
 void BatteryLpf::registerPublishers()
@@ -38,7 +35,7 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
   if (!lpf_.isInitialized())
   {
     rosInfo(name_, "First raw battery message is received.");
-    lpf_.initialize(lpf_time_const_, battery_raw->voltage);
+    lpf_.initialize(kLpfTimeConst, battery_raw->voltage);
     t_last_ = ros::Time::now();
     return;
   }

@@ -1,6 +1,4 @@
-import os.path as osp
 import rospy
-import rospkg
 from typing import Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
@@ -9,12 +7,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import MainWidget, FloatSliderDisplay, add_spacer
+from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
 
 from .common import *
 
 
-class JointPositionsCommander(MainWidget):
+class JointPositionsCommanderWidget(Widget):
     POSITION = "position"
     VELOCITY = "velocity"
     EFFORT = "effort"
@@ -22,11 +20,7 @@ class JointPositionsCommander(MainWidget):
     PUBILSH_CMDS_TIMER_PERIOD = 0.1  # [s]
 
     def __init__(self) -> None:
-        super().__init__(f"{PKG_NAME}/jointpos_commander")
-
-        icon_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png")
-        self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Joint Positions Commander")
+        super().__init__()
 
         # rosparams
         self._home_positions: Dict[str, float] = {}
@@ -53,15 +47,11 @@ class JointPositionsCommander(MainWidget):
                 raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 
         # Publishers
-        self._tar_pos_pub = rospy.Publisher(
-            "joint_position_controller/target_joint_states", JointState, queue_size=1
-        )
+        self._tar_pos_pub = rospy.Publisher("joint_position_controller/target_joint_states", JointState, queue_size=1)
         self._tar_js_vel_pub = rospy.Publisher(
             "joint_velocity_controller/target_joint_states", JointState, queue_size=1
         )
-        self._tar_js_eff_pub = rospy.Publisher(
-            "joint_effort_controller/target_joint_states", JointState, queue_size=1
-        )
+        self._tar_js_eff_pub = rospy.Publisher("joint_effort_controller/target_joint_states", JointState, queue_size=1)
 
         # メインレイアウト
         rows = QVBoxLayout()
@@ -73,36 +63,34 @@ class JointPositionsCommander(MainWidget):
         for jnt_name in self._cmd_types.keys():
             joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
-            commander = FloatSliderDisplay(
-                jnt_name,
-                limit.lower,
-                limit.upper,
-                self._home_positions[jnt_name],
-                callback=partial(self._on_value_changed, jnt_name=jnt_name),
-            )
+            commander = FloatSliderDisplay(self)
+            commander.set_text(jnt_name)
+            commander.set_minimum(limit.lower)
+            commander.set_maximum(limit.upper)
+            commander.set_value(self._home_positions[jnt_name])
+            commander.set_callback(partial(self._on_value_changed, jnt_name=jnt_name))
             self._commanders[jnt_name] = commander
             rows.addWidget(commander)
 
-        self._home_button = QPushButton("Home", parent=self)
+        self._home_button = QPushButton("Home")
         self._home_button.setFixedHeight(BUTTON_HEIGHT)
         self._home_button.clicked.connect(self._on_home_button_clicked)
         rows.addWidget(self._home_button)
 
-        self._center_button = QPushButton("Center", parent=self)
+        self._center_button = QPushButton("Center")
         self._center_button.setFixedHeight(BUTTON_HEIGHT)
         self._center_button.clicked.connect(self._on_center_button_clicked)
         rows.addWidget(self._center_button)
 
-        self._random_button = QPushButton("Randomize", parent=self)
+        self._random_button = QPushButton("Randomize")
         self._random_button.setFixedHeight(BUTTON_HEIGHT)
         self._random_button.clicked.connect(self._on_random_button_clicked)
         rows.addWidget(self._random_button)
 
-        add_spacer(rows)
+        rows.addStretch()
 
         self._publish_commands_timer = rospy.Timer(
-            rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD),
-            self._publish_commands_timer_cb,
+            rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD), self._publish_commands_timer_cb
         )
 
     def _get_params(self) -> None:

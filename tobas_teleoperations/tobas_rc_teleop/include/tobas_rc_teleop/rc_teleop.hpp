@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
+#include <map>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/RCInput.h>
@@ -13,6 +14,8 @@ namespace tobas_rc_teleop
 {
 class RCTeleop : public tobas::BaseNode
 {
+  static constexpr double kInitThrustThreshold = 0.05;
+
   using self = RCTeleop;
   using super = tobas::BaseNode;
 
@@ -30,17 +33,18 @@ private:
     ESTOP_ON,
     FIRST_COMMAND,
     RUNNING,
-    DISARMED,
   } stage_ = CHECK_PREREQUISITES;
+
+  const std::map<uint8_t, const char*> mode2str_{
+    { tobas::kFlightModeProgram, "Program" },
+    { tobas::kFlightModeStabilize, "Stabilize" },
+    { tobas::kFlightModeAcrobat, "Acrobat" },
+  };
 
   tobas::Drone drone_;
 
   // rosparams
-  double dead_zone_rate_;
-  std::vector<std::string> mode_names_;
-
-  // Constants
-  tobas_std::Range<double> dead_zone_;
+  std::array<std::string, tobas::kNumFlightModes> modes_;
 
   // Mutables
   uint8_t last_mode_;
@@ -48,7 +52,7 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
 
   // Controllers
-  std::vector<std::unique_ptr<BaseController>> controllers_;
+  std::array<std::unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
 
   // PubSub
   ros::Subscriber odom_sub_;
@@ -56,13 +60,16 @@ private:
   ros::Subscriber rcin_sub_;
 
   // Service
-  ros::ServiceClient arm_rotors_sc_;
+  ros::ServiceClient get_arm_sc_;
+  ros::ServiceClient set_arm_sc_;
 
   void getRosParams() override;
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void requestDisarmingRotors();
+  bool isRotorsArmed();
+  bool requestArmingRotors();
+  bool requestDisarmingRotors();
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);

@@ -25,7 +25,7 @@ class TakeoffActionServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::TakeoffAction;
-  using GoalType = tobas_msgs::TakeoffGoalConstPtr;
+  using GoalType = tobas_msgs::TakeoffGoal;
   using ResultType = tobas_msgs::TakeoffResult;
   using FeedbackType = tobas_msgs::TakeoffFeedback;
 
@@ -65,6 +65,6 @@ private:
   void localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose);
   void paramServerStateCb(const std_msgs::BoolConstPtr& state);
 
-  void executeCb(const GoalType& goal);
+  void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_mr_arducopter
