@@ -60,11 +60,32 @@ class SSHClientWrapper:
         return success, output, error_output
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
-        return self.exec_command(f"echo {self.LOGIN_PASSWORD} | sudo -S {command}")
+        assert command.count("'") == 0
+        return self.exec_command(f"echo {self.LOGIN_PASSWORD} | sudo -S bash -c '{command}'")
 
-    def scp_put(self, local_path: str, remote_path: str) -> None:
+    def scp_put(self, local_path: str, remote_dir: str) -> None:
+        # SCPでリモートディレクトリ以下にローカルオブジェクトをコピー
         with SCPClient(self._ssh_client.get_transport()) as scp:
-            scp.put(local_path, remote_path, True)
+            scp.put(local_path, remote_dir, True)
+
+    def scp_put_super(self, local_path: str, remote_dir: str) -> None:
+        """root権限が必要なファイルに書き込む．"""
+        # リモートディレクトリが存在することを確かめる
+        # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう
+        remote_dir_exists, _, _ = self.exec_command(f"[ -d {remote_dir} ]")
+        if not remote_dir_exists:
+            raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
+
+        # 一時オブジェクトに書き込む
+        self.scp_put(local_path, "/tmp/")
+
+        # 一時オブジェクトのパス
+        tmp_path = osp.join("/tmp", osp.basename(local_path.rstrip("/")))
+
+        # 一時オブジェクトをリモートディレクトリ以下にコピーする
+        success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_dir}")
+        if not success:
+            raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
     def scp_get(self, remote_path: str, local_path: str) -> None:
         with SCPClient(self._ssh_client.get_transport()) as scp:

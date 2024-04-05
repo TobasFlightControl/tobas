@@ -17,7 +17,7 @@ BODY_PSIZE = 9
 PAINT_REFRESH_DURATION = 100  # [ms]
 
 # Raspberry Pi
-CATKIN_WS_TOBAS = "/home/pi/.catkin_ws_tobas/"  # Tobasパッケージ用ワークスペース
+CATKIN_WS_TOBAS = "/etc/tobas/catkin_ws/"  # Tobasパッケージ用ワークスペース
 
 
 class Signals(QObject):
