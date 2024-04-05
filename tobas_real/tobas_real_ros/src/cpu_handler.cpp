@@ -47,9 +47,10 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
   file >> temp_millidegrees_;
 
   // Get CPU frequency
-  const auto vcgencmd_out = tobas_std::exec_command("vcgencmd measure_clock arm");
-  const auto freq_str = tobas_std::deleteNl(tobas_std::split(vcgencmd_out, '=').back());
-  const auto freq = stoul(freq_str);
+  auto vcgencmd_out = tobas_std::exec_command("vcgencmd measure_clock arm");
+  vcgencmd_out.pop_back();                                           // 改行コードを削除
+  const auto freq_str = tobas_std::split(vcgencmd_out, '=').back();  // 数値部分のみ抜き出す
+  const auto freq = stoul(freq_str);                                 // str -> uint64
 
   // Create ROS message
   const auto cpu_msg = boost::make_shared<tobas_msgs::Cpu>();
