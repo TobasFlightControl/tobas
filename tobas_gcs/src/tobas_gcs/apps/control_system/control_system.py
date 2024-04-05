@@ -32,6 +32,7 @@ class ControlSystemWidget(BaseAppWidget):
         self._rotors_viewer = RotorsViewerWidget(main, drone)
         self._status_viewer = StatusViewerWidget(main, drone)
         self._rc_input_viewer = RCInputViewerWidget(main, drone)
+        self._cpu_viewer = CpuViewerWidget(main, drone)
 
         rows.addWidget(self._actions_commander)
         rows.addWidget(self._pose_viewer)
@@ -40,6 +41,7 @@ class ControlSystemWidget(BaseAppWidget):
         rows.addWidget(self._rotors_viewer)
         rows.addWidget(self._status_viewer)
         rows.addWidget(self._rc_input_viewer)
+        rows.addWidget(self._cpu_viewer)
 
         rows.addStretch()
 
@@ -52,6 +54,7 @@ class ControlSystemWidget(BaseAppWidget):
         self._rotors_viewer.define_connections()
         self._status_viewer.define_connections()
         self._rc_input_viewer.define_connections()
+        self._cpu_viewer.define_connections()
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -62,3 +65,4 @@ class ControlSystemWidget(BaseAppWidget):
         self._rotors_viewer.update_internal_data_structures()
         self._status_viewer.update_internal_data_structures()
         self._rc_input_viewer.update_internal_data_structures()
+        self._cpu_viewer.update_internal_data_structures()
