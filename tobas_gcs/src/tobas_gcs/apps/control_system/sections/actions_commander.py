@@ -92,7 +92,7 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
         # ラズパイをシャットダウン
         rospy.loginfo("Shutting down the Raspberry Pi.")
-        self._ssh_client.exec_command_super("poweroff &")  # 実行結果は帰ってこないためバックグランドで実行
+        self._ssh_client.exec_command_bg_super("poweroff")
 
         # GCSを強制終了
         os.kill(os.getpid(), signal.SIGINT)

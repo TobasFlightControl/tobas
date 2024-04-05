@@ -60,8 +60,17 @@ class SSHClientWrapper:
         return success, output, error_output
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
+        """sudoコマンドを実行．"""
         assert command.count("'") == 0
-        return self.exec_command(f"echo {self.LOGIN_PASSWORD} | sudo -S bash -c '{command}'")
+        return self.exec_command(self._sudo_command(command))
+
+    def exec_command_bg(self, command: str) -> None:
+        """バックグラウンドでコマンドを実行．"""
+        self._ssh_client.exec_command(command + " &")
+
+    def exec_command_bg_super(self, command: str) -> None:
+        """バックグラウンドでsudoコマンドを実行．"""
+        self.exec_command_bg(self._sudo_command(command))
 
     def scp_put(self, local_path: str, remote_dir: str) -> None:
         # SCPでリモートディレクトリ以下にローカルオブジェクトをコピー
@@ -118,3 +127,6 @@ class SSHClientWrapper:
         success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_path}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")
+
+    def _sudo_command(self, command: str) -> str:
+        return f"echo {self.LOGIN_PASSWORD} | sudo -S bash -c '{command}'"
