@@ -9,7 +9,7 @@ namespace tobas_real_ros
 {
 class CpuHandler : public tobas::BaseNode
 {
-  static constexpr size_t kSamplingRate = 10;  // [Hz]
+  static constexpr size_t kSamplingRate = 1;  // [Hz]
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
 
   using self = CpuHandler;

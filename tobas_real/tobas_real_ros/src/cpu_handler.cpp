@@ -1,5 +1,7 @@
 #include <fstream>
 
+#include <tobas_std_tools/unix.hpp>
+#include <tobas_std_tools/string.hpp>
 #include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Cpu.h>
@@ -35,6 +37,7 @@ void CpuHandler::registerSubscribers()
 
 void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
 {
+  // Get CPU temperature
   ifstream file(kTemperatureFilePath);
   if (!file)
   {
@@ -43,10 +46,18 @@ void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
   }
   file >> temp_millidegrees_;
 
+  // Get CPU frequency
+  const auto vcgencmd_out = tobas_std::exec_command("vcgencmd measure_clock arm");
+  const auto freq_str = tobas_std::deleteNl(tobas_std::split(vcgencmd_out, '=').back());
+  const auto freq = stoul(freq_str);
+
+  // Create ROS message
   const auto cpu_msg = boost::make_shared<tobas_msgs::Cpu>();
   cpu_msg->header.stamp = event.current_real;
   cpu_msg->temperature = static_cast<double>(temp_millidegrees_) * 1e-3;
+  cpu_msg->frequency = freq;
 
+  // Publish ROS message
   cpu_pub_.publish(cpu_msg);
 }
 }  // namespace tobas_real_ros
