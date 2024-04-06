@@ -26,7 +26,8 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  tobas_std::FirstOrderFilter<double> lpf_;
+  tobas_std::FirstOrderFilter<double> voltage_lpf_;
+  tobas_std::FirstOrderFilter<double> current_lpf_;
   ros::Time t_last_;
 
   ros::Publisher battery_lpf_pub_;
