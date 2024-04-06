@@ -76,7 +76,7 @@ bool CpuHandler::getLoad(double& load)
   }
 
   // CPUの行を空白で区切る
-  std::istringstream iss(cpu_line_);
+  istringstream iss(cpu_line_);
 
   // CPU使用時間を取得 (http://my-web-site.iobb.net/~yuki/2017-10/raspberry-pi/cpustat/)
   // 最初のトークン（"cpu"）を読み飛ばす
@@ -88,7 +88,7 @@ bool CpuHandler::getLoad(double& load)
     rosError(name_, "Failed to read the CPU time spent in user mode.");
     return false;
   }
-  const auto new_user_time = std::stoul(token_);
+  const auto new_user_time = stoul(token_);
 
   // (02) Time spent in user mode with low priority (nice)
   if (!(iss >> token_))
@@ -96,7 +96,7 @@ bool CpuHandler::getLoad(double& load)
     rosError(name_, "Failed to read the CPU time spent in user mode with low priority.");
     return false;
   }
-  const auto new_nice_time = std::stoul(token_);
+  const auto new_nice_time = stoul(token_);
 
   // (03) Time spent in system mode
   if (!(iss >> token_))
@@ -104,7 +104,7 @@ bool CpuHandler::getLoad(double& load)
     rosError(name_, "Failed to read the CPU time spent in system mode.");
     return false;
   }
-  const auto new_system_time = std::stoul(token_);
+  const auto new_system_time = stoul(token_);
 
   // (04) Time spent in the idle task
   if (!(iss >> token_))
@@ -112,7 +112,7 @@ bool CpuHandler::getLoad(double& load)
     rosError(name_, "Failed to read the CPU time spent in the idle task.");
     return false;
   }
-  const auto new_idle_time = std::stoul(token_);
+  const auto new_idle_time = stoul(token_);
 
   // 前回値との差分を計算
   const auto user_time = new_user_time - prev_user_time_;
