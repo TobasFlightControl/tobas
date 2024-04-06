@@ -17,7 +17,7 @@ static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr uint32_t kConfigureMessageSize = 11;
 static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
 static constexpr uint32_t kWaitForGnssAck = 1000000;  // [us]
-static constexpr size_t kSpiInterval = 60;            // [us]
+static constexpr size_t kSpiInterval = 50;            // [us]
 
 class UBXScanner
 {
