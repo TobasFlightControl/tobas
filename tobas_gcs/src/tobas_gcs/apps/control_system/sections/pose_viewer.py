@@ -160,16 +160,18 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
     def _draw_sky(self, painter: QPainter) -> None:
         """空に含まれる領域を塗りつぶす． (memo: 2-59)"""
         tan_roll = math.tan(self._roll)
+        tan_roll_sign = 1 if tan_roll >= 0 else -1
+        tan_roll += tan_roll_sign * self.EPS  # tan(roll)が0になるのを防ぐ
         pitch_rate = self._pitch / self.ALPHA
 
         OO = QPoint(0, 0)
         WO = QPoint(self.W, 0)
         OH = QPoint(0, self.H)
         WH = QPoint(self.W, self.H)
-        XO = QPoint(int((self.W + (1 - pitch_rate) * self.H / (tan_roll + self.EPS)) / 2), 0)
-        XH = QPoint(int((self.W - (1 + pitch_rate) * self.H / (tan_roll + self.EPS)) / 2), self.H)
-        OY = QPoint(0, int((self.H * (1 - pitch_rate) + self.W * tan_roll) / 2))
-        WY = QPoint(self.W, int((self.H * (1 - pitch_rate) - self.W * tan_roll) / 2))
+        XO = QPoint((self.W + (1 - pitch_rate) * self.H / tan_roll) / 2, 0)
+        XH = QPoint((self.W - (1 + pitch_rate) * self.H / tan_roll) / 2, self.H)
+        OY = QPoint(0, (self.H * (1 - pitch_rate) + self.W * tan_roll) / 2)
+        WY = QPoint(self.W, (self.H * (1 - pitch_rate) - self.W * tan_roll) / 2)
 
         OO_sky = self._is_sky(OO)
         WO_sky = self._is_sky(WO)
