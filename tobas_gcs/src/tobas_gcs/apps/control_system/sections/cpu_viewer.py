@@ -37,6 +37,10 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
         self._frequency.setFixedWidth(self.BOX_WIDTH)
         form.addRow(QLabel("Frequency"), self._frequency)
 
+        self._load = FramedLabel()
+        self._load.setFixedWidth(self.BOX_WIDTH)
+        form.addRow(QLabel("Load"), self._load)
+
         self._cpu_sub = None
 
     @override
@@ -53,11 +57,17 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
         self._cpu_sub = rospy.Subscriber(f"/{self._drone.drone_name}/cpu", Cpu, self._cpu_cb, queue_size=1)
 
     def _cpu_cb(self, cpu: Cpu) -> None:
+        # Temperature
         self._temperature.setText(f"{cpu.temperature:.1f} ℃")
 
+        # Frequency
         if cpu.frequency < 1e9:
             freq_mhz = int(cpu.frequency * 1e-6)
             self._frequency.setText(f"{freq_mhz} MHz")
         else:
             freq_ghz = cpu.frequency * 1e-9
             self._frequency.setText(f"{freq_ghz:.1f} GHz")
+
+        # Load
+        cpu_load_percent = cpu.load * 100
+        self._load.setText(f"{cpu_load_percent:.1f} %")
