@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <tobas_std_tools/stopwatch.hpp>
 
 #include "./spi_dev.hpp"
 #include "./ubx_payload.hpp"
@@ -281,6 +282,8 @@ private:
   SPIdev spi_dev_;
   UBXScanner* scanner_;
   UBXParser* parser_;
+
+  tobas_std::Stopwatch stopwatch_;
 
   bool sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size);
   int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);

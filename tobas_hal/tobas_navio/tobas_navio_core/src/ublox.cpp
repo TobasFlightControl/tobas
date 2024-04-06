@@ -3,6 +3,8 @@
 #include <cassert>
 #include <chrono>
 
+#include <tobas_std_tools/float.hpp>
+
 #include "../include/tobas_navio_core/ublox.hpp"
 #include "../include/tobas_navio_core/util.hpp"
 
@@ -235,7 +237,9 @@ uint16_t Ublox::update()
   {
     // From now on, we will send zeroes to the receiver, which it will ignore
     // However, we are simultaneously getting useful information from it
+    // stopwatch_.start();
     spi_dev_.transfer(&to_gps_data, &from_gps_data, 1);
+    // stopwatch_.stop();
 
     // Scanner checks the message structure with every byte received
     // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
@@ -368,30 +372,30 @@ void Ublox::decode(NavCovPayload& data) const
   const auto pos = parser_->getPosition() - parser_->getLength();
   const auto s = msg + pos;
 
-  data.posCovNN =
-    decodeBinary32((*(s + 25) << 24) | (*(s + 24) << 16) | (*(s + 23) << 8) | (*(s + 22)));
-  data.posCovNE =
-    decodeBinary32((*(s + 29) << 24) | (*(s + 28) << 16) | (*(s + 27) << 8) | (*(s + 26)));
-  data.posCovND =
-    decodeBinary32((*(s + 33) << 24) | (*(s + 32) << 16) | (*(s + 31) << 8) | (*(s + 30)));
-  data.posCovEE =
-    decodeBinary32((*(s + 37) << 24) | (*(s + 36) << 16) | (*(s + 35) << 8) | (*(s + 34)));
-  data.posCovED =
-    decodeBinary32((*(s + 41) << 24) | (*(s + 40) << 16) | (*(s + 39) << 8) | (*(s + 38)));
-  data.posCovDD =
-    decodeBinary32((*(s + 45) << 24) | (*(s + 44) << 16) | (*(s + 43) << 8) | (*(s + 42)));
-  data.velCovNN =
-    decodeBinary32((*(s + 49) << 24) | (*(s + 48) << 16) | (*(s + 47) << 8) | (*(s + 46)));
-  data.velCovNE =
-    decodeBinary32((*(s + 53) << 24) | (*(s + 52) << 16) | (*(s + 51) << 8) | (*(s + 50)));
-  data.velCovND =
-    decodeBinary32((*(s + 57) << 24) | (*(s + 56) << 16) | (*(s + 55) << 8) | (*(s + 54)));
-  data.velCovEE =
-    decodeBinary32((*(s + 61) << 24) | (*(s + 60) << 16) | (*(s + 59) << 8) | (*(s + 58)));
-  data.velCovED =
-    decodeBinary32((*(s + 65) << 24) | (*(s + 64) << 16) | (*(s + 63) << 8) | (*(s + 62)));
-  data.velCovDD =
-    decodeBinary32((*(s + 69) << 24) | (*(s + 68) << 16) | (*(s + 67) << 8) | (*(s + 66)));
+  data.posCovNN = tobas_std::decodeBinary32(
+    (*(s + 25) << 24) | (*(s + 24) << 16) | (*(s + 23) << 8) | (*(s + 22)));
+  data.posCovNE = tobas_std::decodeBinary32(
+    (*(s + 29) << 24) | (*(s + 28) << 16) | (*(s + 27) << 8) | (*(s + 26)));
+  data.posCovND = tobas_std::decodeBinary32(
+    (*(s + 33) << 24) | (*(s + 32) << 16) | (*(s + 31) << 8) | (*(s + 30)));
+  data.posCovEE = tobas_std::decodeBinary32(
+    (*(s + 37) << 24) | (*(s + 36) << 16) | (*(s + 35) << 8) | (*(s + 34)));
+  data.posCovED = tobas_std::decodeBinary32(
+    (*(s + 41) << 24) | (*(s + 40) << 16) | (*(s + 39) << 8) | (*(s + 38)));
+  data.posCovDD = tobas_std::decodeBinary32(
+    (*(s + 45) << 24) | (*(s + 44) << 16) | (*(s + 43) << 8) | (*(s + 42)));
+  data.velCovNN = tobas_std::decodeBinary32(
+    (*(s + 49) << 24) | (*(s + 48) << 16) | (*(s + 47) << 8) | (*(s + 46)));
+  data.velCovNE = tobas_std::decodeBinary32(
+    (*(s + 53) << 24) | (*(s + 52) << 16) | (*(s + 51) << 8) | (*(s + 50)));
+  data.velCovND = tobas_std::decodeBinary32(
+    (*(s + 57) << 24) | (*(s + 56) << 16) | (*(s + 55) << 8) | (*(s + 54)));
+  data.velCovEE = tobas_std::decodeBinary32(
+    (*(s + 61) << 24) | (*(s + 60) << 16) | (*(s + 59) << 8) | (*(s + 58)));
+  data.velCovED = tobas_std::decodeBinary32(
+    (*(s + 65) << 24) | (*(s + 64) << 16) | (*(s + 63) << 8) | (*(s + 62)));
+  data.velCovDD = tobas_std::decodeBinary32(
+    (*(s + 69) << 24) | (*(s + 68) << 16) | (*(s + 67) << 8) | (*(s + 66)));
 }
 
 void Ublox::decode(AckNakPayload& data) const
