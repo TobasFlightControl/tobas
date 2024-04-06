@@ -10,21 +10,12 @@ cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zd
 `/boot/config.txt`に以下を追記:
 
 ```txt
-over_voltage=0    # CPU,GPUへの印加電圧, default: 0, minimum: -16, maximum: 8
-arm_freq=1200     # 最大周波数MHz, default: 1200, maximum: 2147
-arm_freq_min=1200 # 最小周波数MHz, default: 600, maximum: 2147
-gpu_freq=500      # GPU周波数MHz, default: 500, maximum: 750
-force_turbo=0     # arm_freq=1200, 1にするとover_voltage=6が強制される
+over_voltage=6    # CPU,GPUへの印加電圧, default: 0, minimum: -16, maximum: 8
+arm_freq=2000     # 最大周波数MHz, default: 1200, maximum: 2147
+arm_freq_min=2000 # 最小周波数MHz, default: 600, maximum: 2147
+gpu_freq=750      # GPU周波数MHz, default: 500, maximum: 750
+force_turbo=1     # arm_freq=1200, 1にするとover_voltage=6が強制される
 ```
-
-#### 注意
-
-CPU や GPU をオーバークロックする場合は over_voltage を正にすることが推奨されるが，
-そうするとラズパイと電源を共有する IC が低電圧状態になってしまう (特に Ublox の GNSS レシーバ)．
-これは Type-C から給電しようが BEC を使おうが変わらなかった．
-そのため，基本的には標準の電圧とクロック数で使用すべきだろう．
-また，標準のクロック数でも計算機での消費電力が大きすぎると他の IC への電力供給が不足するため，
-Navio2 のパワーモジュール (5V 2.25A) を使用する場合は CPU のクロック数は 1.2GHz が限度．
 
 ### root 権限なしで PWM にアクセスできるようにする
 
