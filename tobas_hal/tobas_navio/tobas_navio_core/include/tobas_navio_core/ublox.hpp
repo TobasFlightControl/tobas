@@ -11,9 +11,9 @@ namespace navio
 {
 static constexpr uint32_t kUbxBufferLength = 1024;
 static constexpr uint32_t kPreambleOffset = 2;
-// static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
+static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 // static constexpr uint32_t kSpiSpeedHz = 5000000;  // コアクロック (250MHz) を割り切るように設定
-static constexpr uint32_t kSpiSpeedHz = 1000000;
+// static constexpr uint32_t kSpiSpeedHz = 1000000;
 static constexpr uint32_t kConfigureMessageSize = 11;
 static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
 static constexpr uint32_t kWaitForGnssAck = 1000000;  // [us]
