@@ -94,14 +94,14 @@ int UBXScanner::update(const uint8_t& data)
   return state_;
 }
 
-UBXParser::UBXParser(UBXScanner* ubxsc) : scanner_(ubxsc), message_(ubxsc->getMessage())
+UBXParser::UBXParser(UBXScanner& ubxsc) : scanner_(ubxsc), message_(ubxsc.getMessage())
 {
 }
 
 uint16_t UBXParser::calcId()
 {
-  const auto& position = scanner_->getPosition();
-  const auto& length = scanner_->getMessageLength();
+  const auto& position = scanner_.getPosition();
+  const auto& length = scanner_.getMessageLength();
   const auto pos = position - length;  // count the message start position
   const auto s = message_ + pos;
 
@@ -129,14 +129,7 @@ uint16_t UBXParser::calcId()
 }
 
 Ublox::Ublox()
-  : spi_dev_(GPS_DEVICE, kSpiSpeedHz), scanner_(new UBXScanner()), parser_(new UBXParser(scanner_))
-{
-  if (!enableMsg(ACK_NAK, true) || !enableMsg(ACK_ACK, true))
-    throw runtime_error("Failed to configure.");
-}
-
-Ublox::Ublox(UBXScanner* scan, UBXParser* pars)
-  : spi_dev_(GPS_DEVICE, kSpiSpeedHz), scanner_(scan), parser_(pars)
+  : spi_dev_(GPS_DEVICE, kSpiSpeedHz), parser_(scanner_), rate_(chrono::microseconds(kSpiInterval))
 {
   if (!enableMsg(ACK_NAK, true) || !enableMsg(ACK_ACK, true))
     throw runtime_error("Failed to configure.");
@@ -233,6 +226,7 @@ uint16_t Ublox::update()
   int status = -1;
   uint8_t to_gps_data = 0, from_gps_data = 0;
 
+  rate_.start();
   while (status != UBXScanner::Done)
   {
     // From now on, we will send zeroes to the receiver, which it will ignore
@@ -243,20 +237,23 @@ uint16_t Ublox::update()
 
     // Scanner checks the message structure with every byte received
     // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
-    status = scanner_->update(from_gps_data);
+    status = scanner_.update(from_gps_data);
+
+    // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
+    rate_.sleep();
   }
 
-  scanner_->reset();
-  return parser_->calcId();
+  scanner_.reset();
+  return parser_.calcId();
 }
 
 void Ublox::decode(NavPosllhPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::NAV_POSLLH)
+  if (parser_.getLatestMsg() != Ublox::NAV_POSLLH)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.lon = int((*(s + 13) << 24) | (*(s + 12) << 16) | (*(s + 11) << 8) | (*(s + 10))) * 1e-7;
@@ -266,11 +263,11 @@ void Ublox::decode(NavPosllhPayload& data) const
 
 void Ublox::decode(NavStatusPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::NAV_STATUS)
+  if (parser_.getLatestMsg() != Ublox::NAV_STATUS)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.gpsFix = uint8_t(*(s + 10));
@@ -286,11 +283,11 @@ void Ublox::decode(NavDopPayload&) const
 
 void Ublox::decode(NavPvtPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::NAV_PVT)
+  if (parser_.getLatestMsg() != Ublox::NAV_PVT)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.year = uint16_t((*(s + 11) << 8) | (*(s + 10)));
@@ -324,11 +321,11 @@ void Ublox::decode(NavPvtPayload& data) const
 
 void Ublox::decode(NavVelnedPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::NAV_VELNED)
+  if (parser_.getLatestMsg() != Ublox::NAV_VELNED)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.velN = int((*(s + 13) << 24) | (*(s + 12) << 16) | (*(s + 11) << 8) | (*(s + 10))) * 1e-2;
@@ -343,11 +340,11 @@ void Ublox::decode(NavTimegpsPayload&) const
 
 void Ublox::decode(NavTimeutcPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::NAV_TIMEUTC)
+  if (parser_.getLatestMsg() != Ublox::NAV_TIMEUTC)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.tAcc = uint32_t((*(s + 13) << 24) | (*(s + 12) << 16) | (*(s + 11) << 8) | (*(s + 10)));
@@ -365,11 +362,11 @@ void Ublox::decode(NavTimeutcPayload& data) const
 
 void Ublox::decode(NavCovPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::NAV_COV)
+  if (parser_.getLatestMsg() != Ublox::NAV_COV)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.posCovNN = tobas_std::decodeBinary32(
@@ -400,11 +397,11 @@ void Ublox::decode(NavCovPayload& data) const
 
 void Ublox::decode(AckNakPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::ACK_NAK)
+  if (parser_.getLatestMsg() != Ublox::ACK_NAK)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.clsID = uint8_t(*(s + 6));
@@ -413,11 +410,11 @@ void Ublox::decode(AckNakPayload& data) const
 
 void Ublox::decode(AckAckPayload& data) const
 {
-  if (parser_->getLatestMsg() != Ublox::ACK_ACK)
+  if (parser_.getLatestMsg() != Ublox::ACK_ACK)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_->getMessage();
-  const auto pos = parser_->getPosition() - parser_->getLength();
+  const auto msg = parser_.getMessage();
+  const auto pos = parser_.getPosition() - parser_.getLength();
   const auto s = msg + pos;
 
   data.clsID = uint8_t(*(s + 6));
