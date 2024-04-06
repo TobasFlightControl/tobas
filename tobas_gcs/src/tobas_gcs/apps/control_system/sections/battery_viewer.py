@@ -73,4 +73,4 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._voltage_range.set_text(f"{battery.voltage:.2f} V ({int(rate)} %)")
 
         self._current_range.set_value(battery.current)
-        self._voltage_range.set_text(f"{battery.current:.2f} A")
+        self._current_range.set_text(f"{battery.current:.2f} A")
