@@ -51,6 +51,7 @@ static constexpr char kConfigKey_RcGPSwOff[] = "DEFAULT.rc_input/gpsw/off";
 
 // https://docs.emlid.com/tobas_navio_core/dev/adc/
 static constexpr size_t kPowerModuleVoltageChannel = 2;
+static constexpr size_t kPowerModuleCurrentChannel = 3;
 
 static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
 static constexpr double kPwmMin = 1000;       // [us]
