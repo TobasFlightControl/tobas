@@ -37,13 +37,12 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
     rosInfo(name_, "First raw battery message is received.");
     voltage_lpf_.initialize(kLpfTimeConst, battery_raw->voltage);
     current_lpf_.initialize(kLpfTimeConst, battery_raw->current);
-    t_last_ = ros::Time::now();
+    t_last_ = battery_raw->header.stamp;
     return;
   }
 
-  const auto cur_time = ros::Time::now();
-  const auto ts = (cur_time - t_last_).toSec();
-  t_last_ = cur_time;
+  const auto ts = (battery_raw->header.stamp - t_last_).toSec();
+  t_last_ = battery_raw->header.stamp;
 
   voltage_lpf_.update(battery_raw->voltage, ts);
   current_lpf_.update(battery_raw->current, ts);
