@@ -122,7 +122,8 @@ bool CpuHandler::getLoad(double& load)
 
   // 負荷を計算
   const auto busy_time = user_time + nice_time + system_time;
-  load = static_cast<double>(busy_time) / static_cast<double>(idle_time);
+  const auto all_time = busy_time + idle_time;
+  load = static_cast<double>(busy_time) / static_cast<double>(all_time);
 
   // CPU使用時間を更新
   prev_user_time_ = new_user_time;
