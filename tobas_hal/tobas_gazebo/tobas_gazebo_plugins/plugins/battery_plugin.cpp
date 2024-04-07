@@ -24,7 +24,8 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   currents_.resize(num_rotors_, 0.);
   q_ = capacity_;
-  noise_ = NormalDistribution(0., noise_stddev_);
+  voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
+  current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
   charge_srv_ = nh_.advertiseService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
@@ -41,7 +42,10 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
   getSdfParam(sdf, "currentCapacity", capacity_, POSITIVE);
   getSdfParam(sdf, "internalRegistance", registance_, NON_NEGATIVE);
-  getSdfParam(sdf, "voltageNoiseStddev", noise_stddev_, kDefaultNoiseStddev, NON_NEGATIVE);
+  getSdfParam(
+    sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
+  getSdfParam(
+    sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
   getSdfParam(sdf, "numRotors", num_rotors_, NON_NEGATIVE);
 }
 
@@ -79,6 +83,7 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
       kWarnPeriod, kPluginName << ": The battery current is over limit: " << current << " > "
                                << max_current_ << " [A]" << endl);
   }
+  const auto current_obs = current + current_noise_(rnd_gen_);  // 観測ノイズを受けた観測電流
 
   // 電気容量の減少
   q_ = max(q_ - current * ts, 0.);
@@ -86,13 +91,13 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   // 電圧を計算
   const auto voltage_in = currentVoltage();                              // 内部電圧
   const auto voltage_out = max(voltage_in - registance_ * current, 0.);  // 内部抵抗による電圧降下
-  const auto voltage_obs = voltage_out + noise_(rnd_gen_);  // 観測ノイズを受けた観測電圧
+  const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);  // 観測ノイズを受けた観測電圧
 
-  // バッテリーの状態を発行
+  // 観測したバッテリーの状態を発行
   const auto battery = boost::make_shared<tobas_msgs::Battery>();
   timeGazeboToRos(info.simTime, battery->header.stamp);
   battery->voltage = voltage_obs;
-  battery->current = nan(tobas::kUnknown);
+  battery->current = current_obs;
   battery_pub_.publish(battery);
 
   // 真のバッテリーの状態を発行
