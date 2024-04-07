@@ -13,7 +13,6 @@ class BatteryHandler : public tobas::BaseNode
 {
   // Constants
   static constexpr size_t kSamplingRate = 100;     // [Hz]
-  static constexpr double kVoltageThreshold = 3.;  // [V]
   static constexpr double kAdcCurrentCoef = 17.;   // https://docs.emlid.com/navio2/dev/adc/
 
   // Defaults

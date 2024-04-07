@@ -66,13 +66,6 @@ bool BatteryHandler::getVoltage(double& voltage)
 
   // Compute voltage
   voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
-  if (voltage < kVoltageThreshold)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "Battery voltage is abnormal: " << voltage << "V. Please check the ADC connection.");
-    return false;
-  }
 
   return true;
 }
