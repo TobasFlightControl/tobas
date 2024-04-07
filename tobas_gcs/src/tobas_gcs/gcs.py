@@ -51,8 +51,9 @@ class GroundControlStationWidget(Widget):
         cols = QHBoxLayout()
         rows.addLayout(cols)
         cols.addWidget(self._combo_box)
-        cols.addStretch()
         cols.addWidget(self.package_manager)
+        cols.setAlignment(self._combo_box, Qt.AlignLeft)
+        cols.setAlignment(self.package_manager, Qt.AlignRight)
         rows.addWidget(self._apps)
 
         # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する

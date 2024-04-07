@@ -23,6 +23,8 @@ from .utils.ssh_client import SSHClientWrapper
 class PackageManagerWidget(Widget):
     KEY = "last_opened_dir/tobas_configuration_package"
 
+    PATH_WIDTH = 300
+
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__()
         self._main = main
@@ -37,6 +39,7 @@ class PackageManagerWidget(Widget):
         cols.addWidget(QLabel("Tobas Package Path:"))
 
         self._pkg_path = QLineEdit()
+        self._pkg_path.setFixedWidth(self.PATH_WIDTH)
         self._pkg_path.setReadOnly(True)
         self._pkg_path.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._pkg_path)
