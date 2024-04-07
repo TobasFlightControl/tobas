@@ -11,7 +11,6 @@
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/PwmArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
-#include <tobas_msgs/Latency.h>
 #include <tobas_msgs/EnablePwm.h>
 
 #include "../include/tobas_navio_ros/motors_handler.hpp"
@@ -52,7 +51,6 @@ void MotorsHandler::getRosParams()
 void MotorsHandler::registerPublishers()
 {
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
   arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
 }
 

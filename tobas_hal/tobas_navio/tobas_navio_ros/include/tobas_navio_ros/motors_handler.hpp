@@ -41,7 +41,6 @@ private:
 
   // PubSub
   ros::Publisher pwms_pub_;
-  ros::Publisher latency_pub_;
   ros::Publisher arming_pub_;
   ros::Subscriber tar_speeds_sub_;
   ros::Subscriber battery_sub_;

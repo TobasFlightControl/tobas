@@ -9,4 +9,6 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<exec_depend>python3-sortedcontainers</exec_depend>
+
 </package>
