@@ -23,7 +23,7 @@ public:
     const double& battery_voltage) override;
 
 private:
-  bool is_up_commanded_ = false;
+  bool is_up_commanded_;
   ros::Time t_last_rcin_;
   tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
   KDL::Vector tar_vel_F_;

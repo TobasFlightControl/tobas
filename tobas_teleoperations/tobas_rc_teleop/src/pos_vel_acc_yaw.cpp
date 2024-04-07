@@ -27,6 +27,7 @@ void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pn
 
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
+  is_up_commanded_ = false;
   t_last_rcin_ = ros::Time::now();
   vel_filter_.initialize(delay_time_const_, Vector::Zero());
   tar_pos_W_ = odom.frame.p;
@@ -64,11 +65,17 @@ void PosVelAccYawController::update(
   tar_pos_W_ += tar_vel_W * dt;
   tar_yaw_ += yawrate * dt;
 
+  // 目標位置とヨー角の偏差を制限
+  const auto& cur_pos_W = odom.frame.p;
+  const auto cur_yaw = Euler(odom.frame.M).yaw;
+  tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
+  tar_yaw_ = clamp(tar_yaw_, cur_yaw - kMaxYawError, cur_yaw + kMaxYawError);
+
   // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
   if (!is_up_commanded_)
   {
-    tar_pos_W_ = odom.frame.p;
-    tar_yaw_ = Euler(odom.frame.M).yaw;
+    tar_pos_W_ = cur_pos_W;
+    tar_yaw_ = cur_yaw;
     is_up_commanded_ = tar_vel_F_.z() > 0;
   }
 
