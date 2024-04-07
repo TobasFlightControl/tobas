@@ -38,7 +38,6 @@ private:
   bool is_armed_ = false;
   bool is_activated_ = false;
   tobas_msgs::BatteryConstPtr battery_;
-  tobas_std::FirstOrderFilter<double> latency_filter_;
 
   // PubSub
   ros::Publisher pwms_pub_;
