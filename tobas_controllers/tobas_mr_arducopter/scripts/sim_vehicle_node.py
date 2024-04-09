@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
-import os.path as osp
 import subprocess
 import signal
+
+from tobas_rospy.utils import init_node
 
 
 class SimVehicleLauncher:
@@ -27,8 +28,7 @@ class SimVehicleLauncher:
 
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    init_node()
     node = SimVehicleLauncher()
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     rospy.spin()

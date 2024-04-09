@@ -5,10 +5,10 @@ import os.path as osp
 import sympy
 
 from tobas_kdl_sympy.tree import Tree
+from tobas_rospy.utils import init_node
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    init_node()
 
     tree = Tree()
     tree.load_from_param()

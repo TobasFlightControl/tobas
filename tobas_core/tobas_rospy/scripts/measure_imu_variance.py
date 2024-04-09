@@ -5,6 +5,7 @@ import rospy
 import numpy as np
 from sensor_msgs.msg import Imu
 
+from tobas_rospy.utils import init_node
 from tobas_rospy.conversions.np_msg import vector3_msg_to_np
 
 
@@ -36,7 +37,6 @@ class MeasureImuVariance:
 
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    init_node()
     node = MeasureImuVariance()
     rospy.spin()

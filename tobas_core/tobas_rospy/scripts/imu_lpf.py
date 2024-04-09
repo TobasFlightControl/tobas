@@ -6,6 +6,7 @@ import rospy
 from sensor_msgs.msg import Imu
 
 from tobas_rospy.conversions.np_msg import *
+from tobas_rospy.utils import init_node
 
 
 class ImuLpf:
@@ -42,7 +43,6 @@ class ImuLpf:
 
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    init_node()
     node = ImuLpf()
     rospy.spin()
