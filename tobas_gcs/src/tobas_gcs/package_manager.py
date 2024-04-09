@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
-from tobas_rqt_tools.widgets import Widget
+from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 from tobas_tools_py.drone import Drone, DroneLoader_File
@@ -113,32 +113,42 @@ class PackageManagerWidget(Widget):
 
     @pyqtSlot()
     def _on_send_button_clicked(self) -> None:
-        # TODO: 進行状況をダイアログなどで表示
+        progress = ProgressDialog(parent=self._main)
+        progress.setWindowModality(Qt.WindowModal)  # ユーザーが他のUI要素と対話できないようにする
+        progress.setCancelButton(None)
+        progress.setWindowTitle(TITLE)
+        progress.setValue(0)
+        progress.show()
 
         # SSH接続
-        rospy.loginfo("Connecting to the Raspberry Pi.")
+        progress.setLabelText("Connecting to the Raspberry Pi.")
+        progress.reflesh()
         try:
             self._ssh_client.connect()
         except Exception as e:
             q_error(self._main, str(e))
             return
+        progress.setValue(20)
 
         pkg_path = self._pkg_path.text()
         pkg_name = pkg_path.split("/")[-1]
 
         # Tobasパッケージを送信
         # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
-        rospy.loginfo("Sending Tobas configuration package.")
+        progress.setLabelText("Sending Tobas configuration package.")
+        progress.reflesh()
         try:
             self._ssh_client.scp_put_super(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
         except Exception as e:
             q_error(self._main, f"Failed to send tobas configuration package:\n\n{e}")
             return
+        progress.setValue(40)
 
         # Tobasパッケージをビルド
         # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
         # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
-        rospy.loginfo("Building Tobas configuration package.")
+        progress.setLabelText("Building Tobas configuration package.")
+        progress.reflesh()
         command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
@@ -148,21 +158,27 @@ class PackageManagerWidget(Widget):
             if not success:
                 q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
                 return
+        progress.setValue(60)
 
         # 環境変数TOBAS_CONFIG_PKGを設定
-        rospy.loginfo("Setting environment variables")
+        progress.setLabelText("Setting environment variables.")
+        progress.reflesh()
         try:
             self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
         except Exception as e:
             q_error(self._main, str(e))
             return
+        progress.setValue(80)
 
         # ROS関連の全てのサービスを再起動 (でないと古いトピックが残ってしまう)
-        rospy.loginfo("Restarting Tobas software.")
+        progress.setLabelText("Restarting Tobas software.")
+        progress.reflesh()
         command = "systemctl restart tobas_roscore.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
             return
+        progress.setValue(100)
 
+        progress.close()
         q_info(self._main, "Tobas configuration package is installed successfully.")
