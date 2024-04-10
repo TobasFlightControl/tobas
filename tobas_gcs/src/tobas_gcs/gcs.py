@@ -29,7 +29,7 @@ class GroundControlStationWidget(Widget):
         self._combo_box.addItem(SetupAssistantWidget.NAME)
         self._combo_box.addItem(HardwareSetupWidget.NAME)
         self._combo_box.addItem(SimulationWidget.NAME)
-        self._combo_box.addItem(MissionPlannerWidget.NAME)
+        # self._combo_box.addItem(MissionPlannerWidget.NAME)  # TODO
         self._combo_box.addItem(ControlSystemWidget.NAME)
 
         self._apps = QStackedWidget()
@@ -38,7 +38,7 @@ class GroundControlStationWidget(Widget):
         self._apps.addWidget(self.setup_assistant)
         self._apps.addWidget(self.hardware_setup)
         self._apps.addWidget(self.simulation)
-        self._apps.addWidget(self.mission_planner)
+        # self._apps.addWidget(self.mission_planner)  # TODO
         self._apps.addWidget(self.control_system)
 
         self.package_manager = PackageManagerWidget(self, self._drone)
