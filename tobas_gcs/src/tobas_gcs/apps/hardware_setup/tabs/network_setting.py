@@ -100,7 +100,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_read_button_clicked(self) -> None:
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=3)
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=3)
         progress.setCancelButton(None)
         progress.show()
 
@@ -144,7 +144,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_write_button_clicked(self) -> None:
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=3)
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=3)
         progress.setCancelButton(None)
         progress.show()
 

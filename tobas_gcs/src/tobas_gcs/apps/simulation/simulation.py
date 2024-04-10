@@ -84,7 +84,7 @@ class SimulationWidget(BaseAppWidget):
         config_pkg_path = self._main.package_manager.package_path()
         config_pkg_name = osp.basename(config_pkg_path)
 
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=11)
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=11)
         progress.setCancelButton(None)
         progress.show()
 
@@ -180,7 +180,7 @@ class SimulationWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_terminate_button_clicked(self) -> None:
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=6)
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=6)
         progress.setCancelButton(None)
         progress.show()
 
