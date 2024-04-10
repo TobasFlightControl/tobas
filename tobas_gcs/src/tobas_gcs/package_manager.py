@@ -116,7 +116,7 @@ class PackageManagerWidget(Widget):
 
     @pyqtSlot()
     def _on_send_button_clicked(self) -> None:
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=5)
+        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=6)
         progress.setCancelButton(None)
         progress.show()
 
@@ -178,6 +178,10 @@ class PackageManagerWidget(Widget):
             progress.close()
             q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
             return
+        progress.progress_step()
+
+        progress.setLabelText("Reloading.")
+        self._main.update_internal_data_structures()
         progress.progress_step()
 
         progress.close()
