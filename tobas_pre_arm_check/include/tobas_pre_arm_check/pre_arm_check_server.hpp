@@ -15,7 +15,7 @@ namespace tobas_pre_arm_check
 {
 class PreArmCheckServer : public tobas::BaseNode
 {
-  static constexpr double kGyroNormThreshold = M_PI / 6;    // [rad/s]
+  static constexpr double kAttitudeThreshold = M_PI / 6;    // [rad/s]
   static constexpr double kHorPosStddevThreshold = 1.;      // [m]
   static constexpr double kVerPosStddevThreshold = 2.;      // [m]
   static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
@@ -35,15 +35,14 @@ public:
 private:
   tobas::Drone drone_;
 
-  std_msgs::BoolConstPtr arming_ = boost::make_shared<std_msgs::Bool>();  // デフォルトでFalse
   tobas_msgs::BatteryConstPtr battery_;
   tobas_msgs::OdometryConstPtr odom_;
 
+  double roll_, pitch_, yaw_;
   Eigen::Matrix3d cov_;
   tobas_msgs::PreArmCheck pre_arm_check_;
 
   ros::Publisher pre_arm_check_pub_;
-  ros::Subscriber arming_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
 
@@ -55,7 +54,6 @@ private:
   void registerPublishers() override;
   void registerSubscribers() override;
 
-  void armingCb(const std_msgs::BoolConstPtr& arming);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 

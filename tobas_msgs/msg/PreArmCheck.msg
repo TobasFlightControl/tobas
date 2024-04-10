@@ -1,15 +1,9 @@
 std_msgs/Header header
 
-int8 error_code
-int8 E_ALREADY_ARMED = 1
-int8 E_NO_ERROR = 0
-int8 E_NOT_CONDUCTED = -1
-int8 E_BATTERY_NOT_RECEIVED = -2
-int8 E_ODOMETRY_NOT_RECEIVED = -3
-int8 E_BATTERY_VOLTAGE_TOO_LOW = -4
-int8 E_GYRO_TOO_LARGE = -5
-int8 E_STATE_ESTIMATION_ISSUE = -6
-int8 E_HORIZONTAL_POSITION_ACCURACY_POOR = -7
-int8 E_VERTICAL_POSITION_ACCURACY_POOR = -8
-int8 E_ORIENTATION_ACCURACY_POOR = -9
-int8 E_LINEAR_VELOCITY_ACCURACY_POOR = -10
+bool ok
+
+bool battery_voltage_ok
+bool attitude_ok
+bool position_accuracy_ok
+bool orientation_accuracy_ok
+bool velocity_accuracy_ok
