@@ -65,20 +65,20 @@ void PositionController::configure(const PositionControllerConfig& cfg)
   lqid_.dynamics.B(kAccIdx + 2, 2) = 1 / kVerAccDecayTimeConst;
 
   // 重みを更新
-  lqid_.state_weight.block<2, 1>(kPosIdx, 0).fill(cfg.hor_pos_weight);
+  lqid_.state_weight.segment<2>(kPosIdx).fill(cfg.hor_pos_weight);
   lqid_.state_weight(kPosIdx + 2) = cfg.ver_pos_weight;
-  lqid_.state_weight.block<2, 1>(kVelIdx, 0).fill(cfg.hor_vel_weight);
+  lqid_.state_weight.segment<2>(kVelIdx).fill(cfg.hor_vel_weight);
   lqid_.state_weight(kVelIdx + 2) = cfg.ver_vel_weight;
-  lqid_.state_weight.block<2, 1>(kAccIdx, 0).fill(cfg.hor_acc_weight);
+  lqid_.state_weight.segment<2>(kAccIdx).fill(cfg.hor_acc_weight);
   lqid_.state_weight(kAccIdx + 2) = cfg.ver_acc_weight;
 
-  lqid_.integrated_error_weight.block<2, 1>(0, 0).fill(cfg.hor_posint_weight);
+  lqid_.integrated_error_weight.head<2>().fill(cfg.hor_posint_weight);
   lqid_.integrated_error_weight(2) = cfg.ver_posint_weight;
 
   lqid_.input_weight.setZero();  // 加速度の目標値は実際の加速度ではないため重みはかけない
   lqid_.input_rate_weight.fill(exp10(cfg.jerk_weight_log10));  // 加速度の観測ノイズの補償
 
-  lqid_.max_integrated_error.block<2, 1>(0, 0).fill(cfg.max_hor_posint_error);
+  lqid_.max_integrated_error.head<2>().fill(cfg.max_hor_posint_error);
   lqid_.max_integrated_error(2) = cfg.max_ver_posint_error;
 
   lqid_.updateGain();

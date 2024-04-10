@@ -76,12 +76,12 @@ Matrix3d dcmFromRPY(const double& roll, const double& pitch, const double& yaw)
 
 Quaterniond hamiltonToQuaternion(const Vector4d& ham)
 {
-  return Quaterniond((Vector4d() << ham.block<3, 1>(1, 0), ham.block<1, 1>(0, 0)).finished());
+  return Quaterniond((Vector4d() << ham.tail<3>(), ham.head<1>()).finished());
 }
 
 Vector4d quaternionToHamilton(const Quaterniond& q)
 {
-  return (Vector4d() << q.coeffs().block<1, 1>(3, 0), q.coeffs().block<3, 1>(0, 0)).finished();
+  return (Vector4d() << q.coeffs().tail<1>(), q.coeffs().head<3>()).finished();
 }
 
 Matrix3d crossMat(const double& x, const double& y, const double& z)

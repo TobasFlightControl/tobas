@@ -31,9 +31,9 @@ OrientationController::OrientationController(const tobas::Drone& drone)
 
   // 状態変数のスケール
   mpc_.state_scale.resize(kStateSize);
-  mpc_.state_scale.block<3, 1>(kRotIdx, 0).fill(M_PI);
-  mpc_.state_scale.block<3, 1>(kGyroIdx, 0).fill(M_PI);
-  mpc_.state_scale.block<3, 1>(kHForceIdx, 0).fill(kHMomentScale);
+  mpc_.state_scale.segment<3>(kRotIdx).fill(M_PI);
+  mpc_.state_scale.segment<3>(kGyroIdx).fill(M_PI);
+  mpc_.state_scale.segment<3>(kHForceIdx).fill(kHMomentScale);
 
   // 制御変数のスケールは状態変数と等しい
   mpc_.control_scale = mpc_.state_scale.head(kCtrlSize);
@@ -131,7 +131,7 @@ VectorXd OrientationController::solve(
   // MPCの解
   const VectorXd& thrusts_des = mpc_.optimalControlInput();
   const VectorXd xd = cont_.dynamics(mpc_.current_state, thrusts_des);
-  const Vector3d dgyro_mpc = xd.block<3, 1>(kGyroIdx, 0);
+  const Vector3d dgyro_mpc = xd.segment<3>(kGyroIdx);
 
   // 外乱補償用の微分先行型PD
   const Vector error_B = (cur_rot.inverse() * tar_rot).getRot();
@@ -169,13 +169,13 @@ void OrientationController::configure(const OrientationControllerConfig& cfg)
 
   mpc_.decay_time_consts(kRollIdx) = mpc_.decay_time_consts(kPitchIdx) = cfg.attitude_decay;
   mpc_.decay_time_consts(kYawIdx) = cfg.heading_decay;
-  mpc_.decay_time_consts.block<3, 1>(kGyroIdx, 0).fill(cfg.angvel_decay);
+  mpc_.decay_time_consts.segment<3>(kGyroIdx).fill(cfg.angvel_decay);
 
   mpc_.discrete_dynamics.resize(cfg.pred_steps);
 
   mpc_.control_weight(kRollIdx) = mpc_.control_weight(kPitchIdx) = cfg.attitude_weight;
   mpc_.control_weight(kYawIdx) = cfg.heading_weight;
-  mpc_.control_weight.block<3, 1>(kGyroIdx, 0).fill(cfg.angvel_weight);
+  mpc_.control_weight.segment<3>(kGyroIdx).fill(cfg.angvel_weight);
   mpc_.input_rate_weight.fill(exp10(cfg.thrust_rate_weight_log10));
 
   mpc_.input_rate_eqs.resize(cfg.pred_steps, ctrl::LinearEquation(z_rotors_.count(), 0));

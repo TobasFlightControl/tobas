@@ -64,6 +64,9 @@ public:
   inline Eigen::Matrix3d getGyroBiasCovariance() const;
   inline double getGravityVariance() const;
 
+  inline void setPosition(const Eigen::Vector3d& pos);
+  inline void setQuaternion(const Eigen::Quaterniond& quat);
+
   /**
    * @brief 加速度とジャイロから次の状態を予測する．
    *
@@ -187,7 +190,7 @@ private:
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition() const
 {
-  return x_.block<3, 1>(kPosIdx, 0);
+  return x_.segment<3>(kPosIdx);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const Eigen::Vector3d& offset) const
@@ -207,7 +210,7 @@ inline double ErrorStateKalmanFilter::getAltitude() const
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity() const
 {
-  return x_.block<3, 1>(kVelIdx, 0);
+  return x_.segment<3>(kVelIdx);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
@@ -224,12 +227,12 @@ inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion() const
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias() const
 {
-  return x_.block<3, 1>(kAccBiasIdx, 0);
+  return x_.segment<3>(kAccBiasIdx);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias() const
 {
-  return x_.block<3, 1>(kGyroBiasIdx, 0);
+  return x_.segment<3>(kGyroBiasIdx);
 }
 
 inline double ErrorStateKalmanFilter::getGravity() const
@@ -283,9 +286,19 @@ inline double ErrorStateKalmanFilter::getGravityVariance() const
   return P_(kDeltaGravIdx, kDeltaGravIdx);
 }
 
+inline void ErrorStateKalmanFilter::setPosition(const Eigen::Vector3d& pos)
+{
+  x_.segment<3>(kPosIdx) = pos;
+}
+
+inline void ErrorStateKalmanFilter::setQuaternion(const Eigen::Quaterniond& quat)
+{
+  x_.segment<4>(kQuatIdx) = eigen_tools::quaternionToHamilton(quat).normalized();
+}
+
 inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
 {
-  return x_.block<4, 1>(kQuatIdx, 0);
+  return x_.segment<4>(kQuatIdx);
 }
 
 template <size_t M>

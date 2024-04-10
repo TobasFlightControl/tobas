@@ -62,9 +62,9 @@ void ErrorStateKalmanFilter::initialize(
 
   // ノミナル状態を初期化
   x_.setZero();
-  x_.block<3, 1>(kPosIdx, 0) = init_pos;
-  x_.block<3, 1>(kVelIdx, 0) = init_vel;
-  x_.block<4, 1>(kQuatIdx, 0) = et::quaternionToHamilton(init_quat).normalized();
+  x_.segment<3>(kPosIdx) = init_pos;
+  x_.segment<3>(kVelIdx) = init_vel;
+  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(init_quat).normalized();
   x_(kGravIdx) = tobas::kGravity;
 
   // 共分散行列を初期化
@@ -107,11 +107,10 @@ void ErrorStateKalmanFilter::predictIMU(
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
-  // x_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * sqr(dt);
-  x_.block<3, 1>(kPosIdx, 0) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
-  x_.block<3, 1>(kVelIdx, 0) += (acc_W + getGravVector()) * dt;
-  x_.block<4, 1>(kQuatIdx, 0) =
-    et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
+  // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * sqr(dt);
+  x_.segment<3>(kPosIdx) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
+  x_.segment<3>(kVelIdx) += (acc_W + getGravVector()) * dt;
+  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
@@ -127,10 +126,10 @@ void ErrorStateKalmanFilter::predictIMU(
   et::symmetrise(P_);  // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
-  P_.diagonal().block<3, 1>(kDeltaVelIdx, 0).array() += acc_noise_var * sqr(dt);
-  P_.diagonal().block<3, 1>(kDeltaThetaIdx, 0).array() += gyro_noise_var * sqr(dt);
-  P_.diagonal().block<3, 1>(kDeltaAccBiasIdx, 0).array() += acc_bias_noise_var;
-  P_.diagonal().block<3, 1>(kDeltaGyroBiasIdx, 0).array() += gyro_bias_noise_var;
+  P_.diagonal().segment<3>(kDeltaVelIdx).array() += acc_noise_var * sqr(dt);
+  P_.diagonal().segment<3>(kDeltaThetaIdx).array() += gyro_noise_var * sqr(dt);
+  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_noise_var;
+  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_noise_var;
   P_(kDeltaGravIdx, kDeltaGravIdx) += grav_var;
 
   // NaN検出
@@ -374,13 +373,13 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const Vector
 void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_state)
 {
   // (283) 観測した誤差をノミナル状態に反映
-  const Vector3d dtheta = error_state.block<3, 1>(kDeltaThetaIdx, 0);
+  const Vector3d dtheta = error_state.segment<3>(kDeltaThetaIdx);
   const Quaterniond q_dtheta = et::angleAxisToQuaternion(dtheta);
-  x_.block<3, 1>(kPosIdx, 0) += error_state.block<3, 1>(kDeltaPosIdx, 0);
-  x_.block<3, 1>(kVelIdx, 0) += error_state.block<3, 1>(kDeltaVelIdx, 0);
-  x_.block<4, 1>(kQuatIdx, 0) = et::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
-  x_.block<3, 1>(kAccBiasIdx, 0) += error_state.block<3, 1>(kDeltaAccBiasIdx, 0);
-  x_.block<3, 1>(kGyroBiasIdx, 0) += error_state.block<3, 1>(kDeltaGyroBiasIdx, 0);
+  x_.segment<3>(kPosIdx) += error_state.segment<3>(kDeltaPosIdx);
+  x_.segment<3>(kVelIdx) += error_state.segment<3>(kDeltaVelIdx);
+  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
+  x_.segment<3>(kAccBiasIdx) += error_state.segment<3>(kDeltaAccBiasIdx);
+  x_.segment<3>(kGyroBiasIdx) += error_state.segment<3>(kDeltaGyroBiasIdx);
   x_(kGravIdx) += error_state(kDeltaGravIdx);
 
   // (286) ESKFを初期化 (不要)
