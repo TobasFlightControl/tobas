@@ -11,7 +11,6 @@
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/PwmArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
-#include <tobas_msgs/Latency.h>
 #include <tobas_msgs/EnablePwm.h>
 
 #include "../include/tobas_navio_ros/motors_handler.hpp"
@@ -52,7 +51,6 @@ void MotorsHandler::getRosParams()
 void MotorsHandler::registerPublishers()
 {
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
   arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
 }
 
@@ -80,7 +78,6 @@ bool MotorsHandler::armRotors()
 
   is_armed_ = true;
   check_interval_timer_.start();
-  latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
 
   rosInfo(name_, "The motors are ready to rotate.");
   return true;
@@ -177,9 +174,6 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     return;
   }
 
-  // Get current time
-  const auto cur_time = ros::Time::now();
-
   // Create PWM message
   const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
   pwms->header = tar_speeds->header;
@@ -247,35 +241,8 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
   // Publish PWM commands
   pwms_pub_.publish(pwms);
 
-  // Check latency: 多少の外れ値を許容するため，LPFを通したレイテンシで評価
-  // TODO: LPFを通したレイテンシで評価するのは妥当なのか．本当は最悪時間を見るべきでは？
-  if (is_activated_)
-  {
-    const auto latency = boost::make_shared<tobas_msgs::Latency>();
-    latency->data = (cur_time - tar_speeds->header.stamp).toSec();
-    latency_pub_.publish(latency);
-
-    if (latency->data < 0)
-    {
-      rosErrorThrottle(
-        kErrorPeriod, name_, "The timestamp of the motor command precedes the current time.");
-      return;
-    }
-
-    const auto dt = (cur_time - last_cmd_time_).toSec();
-    latency_filter_.update(latency->data, dt);
-    const auto& filtered_latency = latency_filter_.getState();
-    if (filtered_latency > kCheckLatencyThreshold)
-    {
-      rosWarnThrottle(
-        kWarnPeriod, name_,
-        "The time averaged latency from IMU to the motor command is "
-          << filtered_latency << ", which exceeds the threshold " << kCheckLatencyThreshold);
-    }
-  }
-
   // Update last commanded time
-  last_cmd_time_ = cur_time;
+  last_cmd_time_ = ros::Time::now();
 
   // Now the motors are activated
   is_activated_ = true;
@@ -333,7 +300,6 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     setPeriodOnAllChannels(kPwmMin);
     if (is_activated_)
     {
-      latency_filter_.initialize(kCheckLatencyTimeConst, 0.);
       is_activated_ = false;
       rosWarn(
         name_, "The speeds of all rotors are automatically stopped because "

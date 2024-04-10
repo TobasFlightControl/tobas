@@ -7,6 +7,7 @@ from .list_widget import ListWidgetItem
 from .main_widget import MainWidget
 from .markdown_widget import MarkDownWidget
 from .position_bar_widget import HPositionBarWidget, VPositionBarWidget
+from .progress_dialog import ProgressDialog
 from .scroll_area import ScrollArea
 from .slider_display import IntSliderDisplay, FloatSliderDisplay
 from .slider import Slider, FloatSlider

@@ -15,9 +15,6 @@ Stopwatch::Stopwatch(size_t samples) : samples_(samples)
 
 void Stopwatch::start()
 {
-  if (running_)
-    throw runtime_error("Stopwatch is still running.");
-
   start_time_ = system_clock::now();
   running_ = true;
 }
@@ -25,8 +22,7 @@ void Stopwatch::start()
 uint64_t Stopwatch::stop()
 {
   if (!running_)
-    throw runtime_error("Stopwatch is not running.");
-  running_ = false;
+    return 0;
 
   const auto end_time = system_clock::now();
   const auto duration = duration_cast<microseconds>(end_time - start_time_).count();

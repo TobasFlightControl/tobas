@@ -1,5 +1,10 @@
+import math
+
+
 def remap(x: float, a: float, b: float, c: float, d: float) -> float:
     """xを[a, b]の範囲から[c, d]の範囲に投影する．"""
+    assert math.isfinite(x)
+
     if a == b:
         return (c + d) / 2
     else:

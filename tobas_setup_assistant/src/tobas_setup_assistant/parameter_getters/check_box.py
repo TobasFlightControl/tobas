@@ -1,3 +1,4 @@
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -9,7 +10,11 @@ class ParamGetterWidget_CheckBox(ParamGetterWidget):
     toggled = pyqtSignal(bool)
 
     def __init__(
-        self, param_name: str, description_text: str = None, check_box_text: str = None, default: bool = False
+        self,
+        param_name: str,
+        description_text: Optional[str] = None,
+        check_box_text: Optional[str] = None,
+        default: bool = False,
     ) -> None:
         super().__init__(param_name, description_text)
 

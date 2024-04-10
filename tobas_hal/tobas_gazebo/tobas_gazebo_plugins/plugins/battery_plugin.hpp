@@ -21,7 +21,8 @@ class GazeboBatteryPlugin : public ModelPlugin
   static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
 
   // Default parameters
-  static constexpr double kDefaultNoiseStddev = 0.1;  // [V]
+  static constexpr double kDefaultVoltageNoiseStddev = 0.1;  // [V]
+  static constexpr double kDefaultCurrentNoiseStddev = 0.;   // [A]
 
   using self = GazeboBatteryPlugin;
   using super = ModelPlugin;
@@ -39,10 +40,11 @@ private:
   std::string ns_;
   double max_voltage_;  // [V] 満充電時の電圧
   double sag_voltage_;  // [V] 放電特性が急激に変化する電圧．LiPoなら1セルあたり3.4Vくらい．
-  double max_current_;   // [A] 最大電流
-  double capacity_;      // [As] 電気容量
-  double registance_;    // [Ω] 内部抵抗値
-  double noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
+  double max_current_;           // [A] 最大電流
+  double capacity_;              // [As] 電気容量
+  double registance_;            // [Ω] 内部抵抗値
+  double voltage_noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
+  double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
   size_t num_rotors_;
 
   std::vector<double> currents_;  // [A] 各モータに流れる電流
@@ -51,9 +53,10 @@ private:
   event::ConnectionPtr update_connection_;
 
   // Random generator
-  NormalDistribution noise_;
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
+  NormalDistribution voltage_noise_;
+  NormalDistribution current_noise_;
 
   // Publishers
   ros::Publisher battery_pub_;

@@ -1,4 +1,5 @@
 import os.path as osp
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,7 +15,11 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget):
     path_changed = pyqtSignal(str)
 
     def __init__(
-        self, param_name: str, description_text: str = None, default: str = "", initial_filter: str = "All (*)"
+        self,
+        param_name: str,
+        description_text: Optional[str] = None,
+        default: str = "",
+        initial_filter: str = "All (*)",
     ) -> None:
         super().__init__(param_name, description_text)
         self._init_filter = initial_filter

@@ -298,6 +298,10 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
     const auto mag = tobas::geomag(lat_0_, lon_0_, alt_0_gps_);
     yaw_0_ = atan2(-mag.east, mag.north);
 
+    // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
+    // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
+    eskf_.setPosition(Eigen::Vector3d::Zero());
+
     gps_received_ = true;
     return;
   }

@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from typing import Tuple
+from typing import Tuple, Optional
 
 from .base import ParamGetterWidget
 from .utils import IntGetter
@@ -13,9 +13,9 @@ class ParamGetterWidget_IntRange(ParamGetterWidget):
     def __init__(
         self,
         param_name: str,
-        description_text: str = None,
-        minimum: int = -(10 ** 9),
-        maximum: int = +(10 ** 9),
+        description_text: Optional[str] = None,
+        minimum: int = -(10**9),
+        maximum: int = +(10**9),
         single_step: int = 1,
         default: Tuple[int, int] = (0, 0),
         suffix: str = "",

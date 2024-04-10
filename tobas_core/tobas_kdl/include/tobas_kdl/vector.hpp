@@ -62,6 +62,10 @@ public:
   inline Vector& operator-=(const Vector& arg);
 
   inline friend Vector operator-(const Vector& arg);
+  inline friend Vector operator+(const Vector& lhs, double rhs);
+  inline friend Vector operator+(double lhs, const Vector& rhs);
+  inline friend Vector operator-(const Vector& lhs, double rhs);
+  inline friend Vector operator-(double lhs, const Vector& rhs);
   inline friend Vector operator*(const Vector& lhs, double rhs);
   inline friend Vector operator*(double lhs, const Vector& rhs);
   inline friend Vector operator/(const Vector& lhs, double rhs);
@@ -231,6 +235,26 @@ inline Vector& Vector::operator-=(const Vector& arg)
 inline Vector operator-(const Vector& arg)
 {
   return Vector(-arg.data);
+}
+
+inline Vector operator+(const Vector& lhs, double rhs)
+{
+  return Vector(lhs.data.array() + rhs);
+}
+
+inline Vector operator+(double lhs, const Vector& rhs)
+{
+  return Vector(lhs + rhs.data.array());
+}
+
+inline Vector operator-(const Vector& lhs, double rhs)
+{
+  return Vector(lhs.data.array() - rhs);
+}
+
+inline Vector operator-(double lhs, const Vector& rhs)
+{
+  return Vector(lhs - rhs.data.array());
 }
 
 inline Vector operator*(const Vector& lhs, double rhs)

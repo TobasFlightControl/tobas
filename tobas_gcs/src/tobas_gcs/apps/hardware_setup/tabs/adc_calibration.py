@@ -11,6 +11,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
@@ -80,12 +81,23 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=2)
+        progress.setCancelButton(None)
+        progress.show()
+
+        progress.setLabelText("Calibrating.")
         if not self._calibrate():
+            progress.close()
             return
+        progress.progress_step()
 
+        progress.setLabelText("Reloading.")
         if not self._reload_config():
+            progress.close()
             return
+        progress.progress_step()
 
+        progress.close()
         q_info(self._main, "ADC calibration finished.")
 
     def _calibrate(self) -> bool:

@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Optional
 
 from .shapes import Shape
 
@@ -70,7 +71,11 @@ class Inertial(ET.Element):
 
 class Link(ET.Element):
     def __init__(
-        self, name: str, inertial: Inertial = None, visual: Visual = None, collision: Collision = None
+        self,
+        name: str,
+        inertial: Optional[Inertial] = None,
+        visual: Optional[Visual] = None,
+        collision: Optional[Collision] = None,
     ) -> None:
         super().__init__("link", name=name)
 
@@ -100,7 +105,15 @@ class Limit(ET.Element):
 
 
 class Joint(ET.Element):
-    def __init__(self, name: str, type: str, parent: str, child: str, origin: Origin = None, limit: Limit = None):
+    def __init__(
+        self,
+        name: str,
+        type: str,
+        parent: str,
+        child: str,
+        origin: Optional[Origin] = None,
+        limit: Optional[Limit] = None,
+    ):
         super().__init__("joint", name=name, type=type)
 
         self.append(Parent(parent))

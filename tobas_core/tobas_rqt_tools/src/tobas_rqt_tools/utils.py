@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QObject
+from PyQt5.QtCore import Qt, QObject, QEventLoop, QTimer
 from PyQt5.QtWidgets import QWidget, QBoxLayout, QVBoxLayout, QHBoxLayout
 
 
@@ -37,3 +37,9 @@ def create_fixed_height_hboxlayout(height: int, parent: QBoxLayout) -> QHBoxLayo
     widget.setLayout(res)
 
     return res
+
+
+def qsleep(msec: int) -> None:
+    loop = QEventLoop()
+    QTimer.singleShot(msec, loop.quit)
+    loop.exec_()

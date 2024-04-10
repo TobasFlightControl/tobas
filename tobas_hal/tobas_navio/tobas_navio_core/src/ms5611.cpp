@@ -1,8 +1,11 @@
-#include <math.h>
 #include <unistd.h>
+
+#include <tobas_std_tools/math.hpp>
 
 #include "../include/tobas_navio_core/ms5611.hpp"
 #include "../include/tobas_navio_core/util.hpp"
+
+using namespace tobas_std;
 
 namespace navio
 {

@@ -29,7 +29,7 @@ namespace tobas_mr_mpc
 {
 class ControllerRos : public tobas::BaseNode
 {
-  static constexpr bool kDefaultDoThrustCorrection = true;
+  static constexpr bool kDefaultDoThrustCorrection = false;
 
   using self = ControllerRos;
   using super = tobas::BaseNode;

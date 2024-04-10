@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import TableWidget
+from tobas_rqt_tools.widgets import TableWidget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 from wpa_supplicant_parser_py.parser import WPASupplicantParser, Network
@@ -100,17 +100,24 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_read_button_clicked(self) -> None:
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=3)
+        progress.setCancelButton(None)
+        progress.show()
+
         # SSH接続
-        rospy.loginfo("Connecting to the Raspberry Pi.")
+        progress.setLabelText("Connecting to the Raspberry Pi.")
         try:
             self._ssh_client.connect()
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
+        progress.progress_step()
 
         # リモートファイルを開いて内容を読む
-        rospy.loginfo(f"Reading {self.WPA_SUPPLICANT_PATH}.")
+        progress.setLabelText(f"Reading {self.WPA_SUPPLICANT_PATH}.")
         config_text = self._ssh_client.sftp_read(self.WPA_SUPPLICANT_PATH)
+        progress.progress_step()
 
         # 解析の成否に関わらず編集用ボタンを有効化
         self._write_button.setEnabled(True)
@@ -118,9 +125,11 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         self._remove_button.setEnabled(True)
 
         # テキストを解析
+        progress.setLabelText(f"Parsing {self.WPA_SUPPLICANT_PATH}.")
         try:
             self._wpa_parser.parse_from_text(config_text)
         except Exception as e:
+            progress.close()
             q_error(self._main, f"Failed to parse network configuration:\n\n{e}")
             return
 
@@ -128,18 +137,26 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         self._clear()
         for network in self._wpa_parser.networks:
             self._add_row(network.ssid, network.psk)
+        progress.progress_step()
 
+        progress.close()
         q_info(self._main, "Network configuration is read successfully.")
 
     @pyqtSlot()
     def _on_write_button_clicked(self) -> None:
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=3)
+        progress.setCancelButton(None)
+        progress.show()
+
         # SSH接続
-        rospy.loginfo("Connecting to the Raspberry Pi.")
+        progress.setLabelText("Connecting to the Raspberry Pi.")
         try:
             self._ssh_client.connect()
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
+        progress.progress_step()
 
         # WPA Parserにテーブルの内容を反映
         self._wpa_parser.networks.clear()
@@ -149,23 +166,28 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             self._wpa_parser.networks.append(Network(ssid, psk))
 
         # 設定を書き込む
-        rospy.loginfo(f"Writing {self.WPA_SUPPLICANT_PATH}.")
+        progress.setLabelText(f"Writing {self.WPA_SUPPLICANT_PATH}.")
         try:
             self._ssh_client.sftp_write_super(self.WPA_SUPPLICANT_PATH, self._wpa_parser.text())
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
+        progress.progress_step()
 
         # Wi-Fiを再起動
-        rospy.loginfo("Restarting network.")
+        progress.setLabelText("Restarting network.")
         command = "wpa_cli -i wlan0 reconfigure"
         # command = "systemctl restart dhcpcd.service"  # DHCPCDサーバを再起動するとアクセスポイントの接続が中断される
         # command = "ip link set wlan0 down && ip link set wlan0 up"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
+            progress.close()
             q_error(self._main, f"Failed to restart DHCPCD:\n\n{error_output}")
             return
+        progress.progress_step()
 
+        progress.close()
         q_info(self._main, "Network configuration is written successfully.")
 
     @pyqtSlot()

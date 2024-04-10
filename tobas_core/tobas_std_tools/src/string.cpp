@@ -32,6 +32,15 @@ vector<string> split(const string& str, const char& del)
   return res;
 }
 
+string deleteNl(const string& str)
+{
+  string res;
+  for (const auto& ch : str)
+    if (ch != '\r' && ch != '\n')
+      res += ch;
+  return res;
+}
+
 string toLower(string arg)
 {
   transform(arg.begin(), arg.end(), arg.begin(), [](uint8_t c) { return tolower(c); });

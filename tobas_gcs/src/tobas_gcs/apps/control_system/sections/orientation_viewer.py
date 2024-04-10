@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 
 import math
 import rospy
-from abc import abstractmethod
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -20,88 +19,25 @@ from ....common import PAINT_REFRESH_DURATION
 from .base_section import BaseControlSystemSectionWidget
 
 
-class PoseViewerWidget(BaseControlSystemSectionWidget):
-    LABEL = "Pose"
+class OrientationViewerWidget(BaseControlSystemSectionWidget):
+    LABEL = "Orientation"
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        cols = QHBoxLayout()
-        self._rows.addLayout(cols)
-
-        self._position_viewer = PositionViewerWidget(main, drone)
-        cols.addWidget(self._position_viewer)
-
-        self._altitude_viewer = AltitudeViewerWidget(main, drone)
-        cols.addWidget(self._altitude_viewer)
-
-        self._orientation_viewer = OrientationViewerWidget(main, drone)
-        cols.addWidget(self._orientation_viewer)
-
-        cols.addStretch()
+        self._orientation_viewer = _OrientationViewerWidget(main, drone)
+        self._rows.addWidget(self._orientation_viewer)
 
     @override
     def define_connections(self) -> None:
-        self._position_viewer.define_connections()
-        self._altitude_viewer.define_connections()
-        self._orientation_viewer.define_connections()
+        pass
 
     @override
     def update_internal_data_structures(self) -> None:
-        self._position_viewer.update_internal_data_structures()
-        self._altitude_viewer.update_internal_data_structures()
         self._orientation_viewer.update_internal_data_structures()
 
 
-class PoseViewerWidgetComponent(Widget):
-
-    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__()
-        self._main = main
-        self._drone = drone
-
-    @abstractmethod
-    def define_connections(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def update_internal_data_structures(self) -> None:
-        raise NotImplementedError()
-
-
-class PositionViewerWidget(PoseViewerWidgetComponent):
-
-    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(main, drone)
-
-        # TODO
-
-    @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
-    def update_internal_data_structures(self) -> None:
-        pass
-
-
-class AltitudeViewerWidget(PoseViewerWidgetComponent):
-
-    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(main, drone)
-
-        # TODO
-
-    @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
-    def update_internal_data_structures(self) -> None:
-        pass
-
-
-class OrientationViewerWidget(PoseViewerWidgetComponent):
+class _OrientationViewerWidget(Widget):
 
     W = 300
     H = 300
@@ -109,7 +45,9 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
     EPS = 1e-6
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(main, drone)
+        super().__init__()
+        self._main = main
+        self._drone = drone
 
         self.setFixedSize(self.W, self.H)
 
@@ -127,17 +65,8 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)
 
-    @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
-        self._roll = 0.0
-        self._pitch = 0.0
-        self._yaw = 0.0
-        self._slope = 0.0
-        self._y_intercept = self.H / 2
+        self._reset()
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
@@ -148,11 +77,19 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
     @override
     def paintEvent(self, _: QPaintEvent) -> None:
         painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
 
         self._draw_ground(painter)
         self._draw_sky(painter)
 
         painter.end()
+
+    def _reset(self) -> None:
+        self._roll = 0.0
+        self._pitch = 0.0
+        self._yaw = 0.0
+        self._slope = 0.0
+        self._y_intercept = self.H / 2
 
     def _draw_ground(self, painter: QPainter) -> None:
         painter.fillRect(self.rect(), Qt.green)
@@ -160,16 +97,18 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
     def _draw_sky(self, painter: QPainter) -> None:
         """空に含まれる領域を塗りつぶす． (memo: 2-59)"""
         tan_roll = math.tan(self._roll)
+        tan_roll_sign = 1 if tan_roll >= 0 else -1
+        tan_roll += tan_roll_sign * self.EPS  # tan(roll)が0になるのを防ぐ
         pitch_rate = self._pitch / self.ALPHA
 
         OO = QPoint(0, 0)
         WO = QPoint(self.W, 0)
         OH = QPoint(0, self.H)
         WH = QPoint(self.W, self.H)
-        XO = QPoint((self.W + (1 - pitch_rate) * self.H / (tan_roll + self.EPS)) / 2, 0)
-        XH = QPoint((self.W - (1 + pitch_rate) * self.H / (tan_roll + self.EPS)) / 2, self.H)
-        OY = QPoint(0, (self.H * (1 - pitch_rate) + self.W * tan_roll) / 2)
-        WY = QPoint(self.W, (self.H * (1 - pitch_rate) - self.W * tan_roll) / 2)
+        XO = QPoint(int(self.W + (1 - pitch_rate) * self.H / tan_roll) // 2, 0)
+        XH = QPoint(int(self.W - (1 + pitch_rate) * self.H / tan_roll) // 2, self.H)
+        OY = QPoint(0, int(self.H * (1 - pitch_rate) + self.W * tan_roll) // 2)
+        WY = QPoint(self.W, int(self.H * (1 - pitch_rate) - self.W * tan_roll) // 2)
 
         OO_sky = self._is_sky(OO)
         WO_sky = self._is_sky(WO)
@@ -218,12 +157,17 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         right = self._slope * p.x() + self._y_intercept
 
         # ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
-        if -math.pi / 2 < self._roll < math.pi / 2:
+        if abs(self._roll) < math.pi / 2:
             return left < right
         else:
             return left > right
 
     def _euler_cb(self, euler: Euler) -> None:
+        if math.isnan(euler.roll) or math.isnan(euler.pitch) or math.isnan(euler.yaw):
+            rospy.logerr("NaN detected in euler angles.")
+            self._reset()
+            return
+
         self._roll = euler.roll
         self._pitch = euler.pitch
         self._yaw = euler.yaw

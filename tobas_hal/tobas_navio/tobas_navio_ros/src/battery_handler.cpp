@@ -49,7 +49,39 @@ void BatteryHandler::registerSubscribers()
 bool BatteryHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcCoef);
+  pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef);
+
+  return true;
+}
+
+bool BatteryHandler::getVoltage(double& voltage)
+{
+  // Read from ADC converter
+  const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
+  if (a2_value < 0)
+  {
+    rosError(name_, "Failed to read battery voltage.");
+    return false;
+  }
+
+  // Compute voltage
+  voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+
+  return true;
+}
+
+bool BatteryHandler::getCurrent(double& current)
+{
+  // Read from ADC converter
+  const auto a3_value = adc_.read(kPowerModuleCurrentChannel);
+  if (a3_value < 0)
+  {
+    rosError(name_, "Failed to read battery current.");
+    return false;
+  }
+
+  // Compute current
+  current = static_cast<double>(a3_value) * kAdcCurrentCoef * 1e-3;
 
   return true;
 }
@@ -69,29 +101,15 @@ bool BatteryHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::Trigger
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
 {
-  // Read from ADC converter
-  const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
-  if (a2_value < 0)
-  {
-    rosError(name_, "Failed to read battery voltage.");
-    return;
-  }
-
-  // Compute voltage
-  const auto voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
-  if (voltage < kVoltageThreshold)
-  {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "Battery voltage is abnormal: " << voltage << "V. Please check the ADC connection.");
-    return;
-  }
-
   // Create battery message
   const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
   battery_msg->header.stamp = event.current_real;
-  battery_msg->voltage = voltage;
-  battery_msg->current = nan(tobas::kUnknown);
+
+  // Fill values
+  if (!getVoltage(battery_msg->voltage))
+    return;
+  if (!getCurrent(battery_msg->current))
+    return;
 
   // Publish battery message
   battery_pub_.publish(battery_msg);

@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
-from tobas_rqt_tools.messages import q_error
-from tobas_rqt_tools.widgets import IntSliderDisplay
+from tobas_rqt_tools.messages import q_info, q_error
+from tobas_rqt_tools.widgets import IntSliderDisplay, ProgressDialog
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
@@ -76,26 +76,48 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        if not self._check_disarm():
-            return
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=2)
+        progress.setCancelButton(None)
+        progress.show()
 
-        if not self._set_arm(True):
+        progress.setLabelText("Verifying that the motors are disarmed.")
+        if not self._check_disarm():
+            progress.close()
             return
+        progress.progress_step()
+
+        progress.setLabelText("Arming.")
+        if not self._set_arm(True):
+            progress.close()
+            return
+        progress.progress_step()
 
         self._rotor_speeds_publisher.start()
 
         self._start_button.setEnabled(False)
         self._stop_button.setEnabled(True)
 
+        progress.close()
+        q_info(self._main, "Motor test is started.")
+
     @pyqtSlot()
     def _on_stop_button_clicked(self) -> None:
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=1)
+        progress.setCancelButton(None)
+        progress.show()
+
+        progress.setLabelText("Disarming.")
         if not self._set_arm(False):
             return
+        progress.progress_step()
 
         self._rotor_speeds_publisher.stop()
 
         self._start_button.setEnabled(True)
         self._stop_button.setEnabled(False)
+
+        progress.close()
+        q_info(self._main, "Motor test is finished.")
 
     def _check_disarm(self) -> bool:
         get_arm_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/get_arm", GetArm)
@@ -109,7 +131,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
             res: GetArmResponse = get_arm_sc.call(GetArmRequest())
         except Exception as e:
             q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
-            return
+            return False
 
         if res.arming:
             q_error(self, "Cannot start motor test because they are already armed.")
@@ -133,7 +155,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
             res: SetArmResponse = set_arm_sc.call(req)
         except Exception as e:
             q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
-            return
+            return False
 
         if not res.success:
             q_error(self, res.message)

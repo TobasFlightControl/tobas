@@ -10,12 +10,22 @@ cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zd
 `/boot/config.txt`に以下を追記:
 
 ```txt
-over_voltage=6    # -16～8の整数, default: 0
-arm_freq=2000     # 最大周波数MHz, default: 1200
-arm_freq_min=2000 # 最小周波数MHz, default: 600
-gpu_freq=750      # GPU周波数MHz, default: 500
-force_turbo=1     # いるか分からない
+over_voltage=6    # CPU,GPUへの印加電圧, default: 0, minimum: -16, maximum: 8
+arm_freq=2000     # 最大周波数MHz, default: 1200, maximum: 2147
+arm_freq_min=2000 # 最小周波数MHz, default: 600, maximum: 2147
+gpu_freq=750      # GPU周波数MHz, default: 500, maximum: 750
+force_turbo=1     # arm_freq=1200, 1にするとover_voltage=6が強制される
 ```
+
+NOTE: オーバークロックは発熱や電力供給の面でデメリットが大きいため，必要なければ定格周波数 (1.5GHz) までにしておくべき．
+定格までならば`over_voltage`と`force_turbo`は必要ない．
+
+#### FIXME: クロック数を上げると低電圧状態になる
+
+ラズパイの電圧が 4.65V を下回ると低電圧状態となり，強制的にクロック数を下げられる．
+CPU でに流れる電流が増加することで電圧降下が大きくなることが原因．
+現在は`/boot/config.txt`に`avoid_warnings=2`を記述することで低電圧時のターボを許可しているが，
+危険なので近いうちに電力供給を改善する必要がある．
 
 ### root 権限なしで PWM にアクセスできるようにする
 

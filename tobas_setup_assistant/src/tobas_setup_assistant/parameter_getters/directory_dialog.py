@@ -1,4 +1,5 @@
 import os.path as osp
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -13,7 +14,7 @@ from ..common import *
 class ParamGetterWidget_DirDialog(ParamGetterWidget):
     path_changed = pyqtSignal(str)
 
-    def __init__(self, param_name: str, description_text: str = None, default: str = "") -> None:
+    def __init__(self, param_name: str, description_text: Optional[str] = None, default: str = "") -> None:
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用

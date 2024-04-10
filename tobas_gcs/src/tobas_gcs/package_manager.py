@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
-from tobas_rqt_tools.widgets import Widget
+from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 from tobas_tools_py.drone import Drone, DroneLoader_File
@@ -22,6 +22,8 @@ from .utils.ssh_client import SSHClientWrapper
 
 class PackageManagerWidget(Widget):
     KEY = "last_opened_dir/tobas_configuration_package"
+
+    PATH_WIDTH = 300
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__()
@@ -37,6 +39,7 @@ class PackageManagerWidget(Widget):
         cols.addWidget(QLabel("Tobas Package Path:"))
 
         self._pkg_path = QLineEdit()
+        self._pkg_path.setFixedWidth(self.PATH_WIDTH)
         self._pkg_path.setReadOnly(True)
         self._pkg_path.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._pkg_path)
@@ -51,6 +54,9 @@ class PackageManagerWidget(Widget):
     def define_connections(self) -> None:
         self._load_button.clicked.connect(self._on_load_button_clicked)
         self._send_button.clicked.connect(self._on_send_button_clicked)
+
+    def package_path(self) -> str:
+        return self._pkg_path.text()
 
     def _load_drone(self, pkg_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
@@ -102,60 +108,82 @@ class PackageManagerWidget(Widget):
         # Writeボタンを有効化
         self._send_button.setEnabled(True)
 
-        # Tobasパッケージがロードされたことを通知
-        self._main.signals.config_pkg_updated.emit(pkg_path)
+        # 内部状態を更新
+        self._main.update_internal_data_structures()
 
         # ロードが成功したことを示すダイアログ
         q_info(self._main, "Tobas configuration package is loaded successfully.")
 
     @pyqtSlot()
     def _on_send_button_clicked(self) -> None:
-        # TODO: 進行状況をダイアログなどで表示
+        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=6)
+        progress.setCancelButton(None)
+        progress.show()
 
         # SSH接続
-        rospy.loginfo("Connecting to the Raspberry Pi.")
+        progress.setLabelText("Connecting to the Raspberry Pi.")
         try:
             self._ssh_client.connect()
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
+        progress.progress_step()
 
-        pkg_path = self._pkg_path.text()
+        pkg_path = self.package_path()
         pkg_name = pkg_path.split("/")[-1]
 
         # Tobasパッケージを送信
         # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
-        rospy.loginfo("Sending Tobas configuration package.")
-        self._ssh_client.scp_put(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
+        progress.setLabelText("Sending Tobas configuration package.")
+        try:
+            self._ssh_client.scp_put_super(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
+        except Exception as e:
+            progress.close()
+            q_error(self._main, f"Failed to send tobas configuration package:\n\n{e}")
+            return
+        progress.progress_step()
 
         # Tobasパッケージをビルド
         # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
         # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
-        rospy.loginfo("Building Tobas configuration package.")
+        progress.setLabelText("Building Tobas configuration package.")
         command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
-        success, _, error_output = self._ssh_client.exec_command(command)
+        success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
             rospy.logwarn("Failed to build. Retrying...")
             command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {pkg_name}"
-            success, _, error_output = self._ssh_client.exec_command(command)
+            success, _, error_output = self._ssh_client.exec_command_super(command)
             if not success:
+                progress.close()
                 q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
                 return
+        progress.progress_step()
 
         # 環境変数TOBAS_CONFIG_PKGを設定
-        rospy.loginfo("Setting environment variables")
+        progress.setLabelText("Setting environment variables.")
         try:
             self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
+        progress.progress_step()
 
         # ROS関連の全てのサービスを再起動 (でないと古いトピックが残ってしまう)
-        rospy.loginfo("Restarting Tobas software.")
+        progress.setLabelText("Restarting Tobas software.")
         command = "systemctl restart tobas_roscore.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
+            progress.close()
             q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
             return
+        progress.progress_step()
 
+        # リロード
+        progress.setLabelText("Reloading.")
+        self._main.update_internal_data_structures()
+        progress.progress_step()
+
+        progress.close()
         q_info(self._main, "Tobas configuration package is installed successfully.")

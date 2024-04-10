@@ -35,7 +35,7 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._voltage_range.setFixedSize(self.RANGE_WIDTH, self.RANGE_HEIGHT)
         form.addRow(QLabel("Voltage"), self._voltage_range)
 
-        self._current_range = HPositionBarWidget()
+        self._current_range = HPositionBarWidget(fill_range=False)
         self._current_range.setFixedSize(self.RANGE_WIDTH, self.RANGE_HEIGHT)
         form.addRow(QLabel("Current"), self._current_range)
 
@@ -54,7 +54,7 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._voltage_range.start_timer()
 
         self._current_range.clear()
-        self._current_range.set_minimum(0)
+        self._current_range.set_minimum(0.0)
         self._current_range.set_maximum(self._drone.battery.max_current)
         self._current_range.start_timer()
 
@@ -72,4 +72,5 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._voltage_range.set_upper(battery.voltage)
         self._voltage_range.set_text(f"{battery.voltage:.2f} V ({int(rate)} %)")
 
-        # TODO: 電流の設定
+        self._current_range.set_value(battery.current)
+        self._current_range.set_text(f"{battery.current:.2f} A")

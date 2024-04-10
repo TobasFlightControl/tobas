@@ -24,6 +24,7 @@
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_fkie_master</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>
+	<exec_depend>tobas_latency_publisher</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_mavros_bridge</exec_depend>
 	<exec_depend>tobas_motor_test</exec_depend>

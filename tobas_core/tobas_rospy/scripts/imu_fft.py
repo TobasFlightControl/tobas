@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-import os.path as osp
 import numpy as np
 from numpy import fft
 import matplotlib.pyplot as plt
 import rospy
 from sensor_msgs.msg import Imu
 
+from tobas_rospy.utils import init_node
 from tobas_rospy.conversions.np_msg import vector3_msg_to_np
 
 
@@ -74,7 +74,6 @@ class ImuFft:
 
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    init_node()
     node = ImuFft()
     rospy.spin()

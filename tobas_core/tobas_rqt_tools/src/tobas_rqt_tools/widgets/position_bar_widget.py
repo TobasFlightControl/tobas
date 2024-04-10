@@ -1,6 +1,8 @@
 import sys
+import math
 from abc import abstractmethod
 from overrides import override
+from typing import Union
 from PyQt5.QtCore import Qt, QRect, QTimer
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPaintEvent, QPen, QFont
@@ -16,9 +18,8 @@ class PositionBarWidget(QWidget):
     def __init__(
         self,
         fill_range: bool = True,
-        minimum: int = 0,
-        maximum: int = 0,
-        text: str = "",
+        minimum: float = 0.0,
+        maximum: float = 0.0,
         line_width: int = DEFAULT_LINE_WIDTH,
         text_psize: int = DEFAULT_TEXT_PSIZE,
     ) -> None:
@@ -27,10 +28,10 @@ class PositionBarWidget(QWidget):
         self._fill_range = fill_range
         self._minimum = minimum
         self._maximum = maximum
-        self._text = text
         self._line_width = line_width
         self._text_psize = text_psize
 
+        self._text = ""
         self._value = None
         self._lower = sys.maxsize
         self._upper = -sys.maxsize
@@ -45,19 +46,20 @@ class PositionBarWidget(QWidget):
     def set_maximum(self, maximum: float) -> None:
         self._maximum = maximum
 
-    def set_text(self, text: str) -> None:
-        self._text = text
-
     def set_line_width(self, line_width: int) -> None:
         self._line_width = line_width
 
     def set_text_psize(self, text_psize: int) -> None:
         self._text_psize = text_psize
 
-    def get_value(self) -> float:
+    def set_text(self, text: str) -> None:
+        self._text = text
+
+    def get_value(self) -> Union[float, None]:
         return self._value
 
     def set_value(self, value: float) -> None:
+        assert math.isfinite(value)
         self._value = value
         if value < self._lower:
             self._lower = value
@@ -68,18 +70,21 @@ class PositionBarWidget(QWidget):
         return self._lower
 
     def set_lower(self, lower: float) -> None:
+        assert math.isfinite(lower)
         self._lower = lower
 
     def get_upper(self) -> float:
         return self._upper
 
     def set_upper(self, upper: float) -> None:
+        assert math.isfinite(upper)
         self._upper = upper
 
     def get_middle(self) -> float:
         return (self._lower + self._upper) / 2
 
     def clear(self) -> None:
+        self._text = ""
         self._value = None
         self._lower = self._maximum
         self._upper = self._minimum
@@ -136,8 +141,8 @@ class HPositionBarWidget(PositionBarWidget):
     @override
     def _draw_range(self, painter: QPainter) -> None:
         # バーの位置を計算
-        lower_pos = remap(self._lower, self._minimum, self._maximum, 0, self.width())
-        upper_pos = remap(self._upper, self._minimum, self._maximum, 0, self.width())
+        lower_pos = int(remap(self._lower, self._minimum, self._maximum, 0, self.width()))
+        upper_pos = int(remap(self._upper, self._minimum, self._maximum, 0, self.width()))
 
         # 最小値と最大値の間を緑色で塗る
         painter.setBrush(Qt.green)
@@ -151,7 +156,7 @@ class HPositionBarWidget(PositionBarWidget):
     @override
     def _draw_value(self, painter: QPainter) -> None:
         # バーの位置を計算
-        value_pos = remap(self._value, self._minimum, self._maximum, 0, self.width())
+        value_pos = int(remap(self._value, self._minimum, self._maximum, 0, self.width()))
 
         # 現在値の位置に赤色の線を描画
         painter.setPen(QPen(Qt.red, self._line_width))
@@ -168,8 +173,8 @@ class VPositionBarWidget(PositionBarWidget):
     @override
     def _draw_range(self, painter: QPainter) -> None:
         # バーの位置を計算
-        lower_pos = remap(self._lower, self._minimum, self._maximum, 0, self.height())
-        upper_pos = remap(self._upper, self._minimum, self._maximum, 0, self.height())
+        lower_pos = int(remap(self._lower, self._minimum, self._maximum, 0, self.height()))
+        upper_pos = int(remap(self._upper, self._minimum, self._maximum, 0, self.height()))
 
         # 最小値と最大値の間を緑色で塗る
         painter.setBrush(Qt.green)
@@ -183,7 +188,7 @@ class VPositionBarWidget(PositionBarWidget):
     @override
     def _draw_value(self, painter: QPainter) -> None:
         # バーの位置を計算
-        value_pos = remap(self._value, self._minimum, self._maximum, 0, self.height())
+        value_pos = int(remap(self._value, self._minimum, self._maximum, 0, self.height()))
 
         # 現在値の位置に赤色の線を描画
         painter.setPen(QPen(Qt.red, self._line_width))

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import os.path as osp
 import rospy
 from sensor_msgs.msg import JointState
 from moveit_msgs.msg import DisplayRobotState
+
+from tobas_rospy.utils import init_node
 
 
 class JointStateToDisplayRobotState:
@@ -19,7 +20,6 @@ class JointStateToDisplayRobotState:
 
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
+    init_node()
     node = JointStateToDisplayRobotState()
     rospy.spin()

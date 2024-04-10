@@ -45,6 +45,11 @@
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
 
+    <!-- Launch latency publisher -->
+    <include file="$(find tobas_latency_publisher)/launch/latency_publisher.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+
     <!-- Launch robot state publisher -->
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
       <param name="publish_frequency" value="1000"/>

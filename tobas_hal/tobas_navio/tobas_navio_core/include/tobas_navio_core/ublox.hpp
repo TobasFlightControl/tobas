@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <tobas_std_tools/rate.hpp>
+#include <tobas_std_tools/stopwatch.hpp>
 
 #include "./spi_dev.hpp"
 #include "./ubx_payload.hpp"
@@ -15,6 +17,7 @@ static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr uint32_t kConfigureMessageSize = 11;
 static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
 static constexpr uint32_t kWaitForGnssAck = 1000000;  // [us]
+static constexpr size_t kSpiInterval = 100;  // [us] これより小さくするのは危険
 
 class UBXScanner
 {
@@ -53,7 +56,7 @@ private:
 class UBXParser
 {
 public:
-  explicit UBXParser(UBXScanner* ubxsc);
+  explicit UBXParser(UBXScanner& ubxsc);
 
   uint16_t calcId();
 
@@ -63,7 +66,7 @@ public:
   inline const uint16_t& getLatestMsg() const;
 
 private:
-  UBXScanner* scanner_;  // Pointer to the scanner, which finds the messages in the data stream
+  UBXScanner scanner_;  // The scanner, which finds the messages in the data stream
 
   uint8_t* message_;  // Pointer to the scanner's message buffer
   uint16_t latest_id_;
@@ -168,7 +171,6 @@ public:
   };
 
   explicit Ublox();
-  explicit Ublox(UBXScanner* scan, UBXParser* pars);
 
   /* 32.10.18.3 Set message rate */
   bool enableMsg(message_t msg, bool enable);
@@ -279,8 +281,11 @@ private:
   /* ==============================*/
 
   SPIdev spi_dev_;
-  UBXScanner* scanner_;
-  UBXParser* parser_;
+  UBXScanner scanner_;
+  UBXParser parser_;
+
+  tobas_std::Rate rate_;
+  tobas_std::Stopwatch stopwatch_;
 
   bool sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size);
   int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
@@ -314,12 +319,12 @@ inline uint8_t* UBXParser::getMessage() const
 
 inline const uint32_t& UBXParser::getLength() const
 {
-  return scanner_->getMessageLength();
+  return scanner_.getMessageLength();
 }
 
 inline const uint32_t& UBXParser::getPosition() const
 {
-  return scanner_->getPosition();
+  return scanner_.getPosition();
 }
 
 inline const uint16_t& UBXParser::getLatestMsg() const

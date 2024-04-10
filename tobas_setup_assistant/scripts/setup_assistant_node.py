@@ -3,10 +3,10 @@
 import os.path as osp
 import sys
 import signal
-import rospy
 import rospkg
 from PyQt5.QtWidgets import QApplication
 
+from tobas_rospy.utils import init_node
 from tobas_rqt_tools.widgets import MainWidget
 from tobas_tools_py.constants import CONFIG_PATH
 
@@ -15,9 +15,7 @@ from tobas_setup_assistant.common import *
 
 
 if __name__ == "__main__":
-    node_name = osp.splitext(osp.basename(__file__))[0]
-    rospy.init_node(node_name)
-
+    init_node()
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(

@@ -8,12 +8,11 @@ import os
 import signal
 import rospy
 from overrides import override
-from threading import Thread
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
+from tobas_rqt_tools.messages import q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
 from ....common import *
@@ -49,17 +48,17 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
         cols.addStretch()
 
-        self._poweroff_button = QPushButton("Poweroff")
-        self._poweroff_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._poweroff_button.setStyleSheet("background-color: red")
-        cols.addWidget(self._poweroff_button)
+        self._shutdown_button = QPushButton("Shutdown")
+        self._shutdown_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._shutdown_button.setStyleSheet("background-color: red")
+        cols.addWidget(self._shutdown_button)
 
     @override
     def define_connections(self) -> None:
         self._takeoff_button.clicked.connect(self._on_takeoff_button_clicked)
         self._landing_button.clicked.connect(self._on_landing_button_clicked)
         self._rth_button.clicked.connect(self._on_rth_button_clicked)
-        self._poweroff_button.clicked.connect(self._on_poweroff_button_clicked)
+        self._shutdown_button.clicked.connect(self._on_shutdown_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -78,7 +77,7 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
         q_error(self._main, "Not implemented yet.")  # TODO
 
     @pyqtSlot()
-    def _on_poweroff_button_clicked(self) -> None:
+    def _on_shutdown_button_clicked(self) -> None:
         # 本当にシャットダウンしてよいか確認
         if not yes_or_no(self._main, "Are you sure you want to shut down the FC and the GCS?", QMessageLevel.WARN):
             return
@@ -92,9 +91,8 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
             return
 
         # ラズパイをシャットダウン
-        # 即座に接続が切れるため別スレッドでコマンドを実行
         rospy.loginfo("Shutting down the Raspberry Pi.")
-        Thread(target=lambda: self._ssh_client.exec_command_super("poweroff")).run()
+        self._ssh_client.exec_command_bg_super("poweroff")
 
         # GCSを強制終了
         os.kill(os.getpid(), signal.SIGINT)

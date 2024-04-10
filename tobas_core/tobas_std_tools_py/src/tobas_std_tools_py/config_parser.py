@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 from configparser import ConfigParser
+from typing import Optional
 
 
 class ConfigParserWrapper:
@@ -30,7 +31,7 @@ class ConfigParserWrapper:
     def get(self, key: str, fallback=None):
         return self._config.get(self._section, key, fallback=fallback)
 
-    def getint(self, key: str, fallback: int = None):
+    def getint(self, key: str, fallback: Optional[int] = None):
         return self._config.getint(self._section, key, fallback=fallback)
 
     def set(self, key: str, value) -> None:

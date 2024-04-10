@@ -1,12 +1,10 @@
 <launch>
 
+  <arg name="log_level" default="info"/>
   <arg name="launch_fkie_master" default="true"/>
 
-  <node pkg="tobas_gcs" type="gcs_node.py" name="tobas_gcs" output="screen" required="true"/>
+  <node pkg="tobas_gcs" type="gcs_node.py" name="tobas_gcs" output="screen" required="true" args="--log_level $(arg log_level)"/>
 
-  <group if="$(arg launch_fkie_master)">
-    <node pkg="fkie_master_discovery" type="master_discovery" name="master_discovery" respawn="true"/>
-    <node pkg="fkie_master_sync" type="master_sync" name="master_sync" respawn="true"/>
-  </group>
+  <include if="$(arg launch_fkie_master)" file="$(find tobas_fkie_master)/launch/fkie_master.launch"/>
 
 </launch>

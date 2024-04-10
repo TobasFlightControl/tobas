@@ -22,7 +22,9 @@
 	<exec_depend>python3-overrides</exec_depend>
 	<exec_depend>python3-paramiko</exec_depend>
 	<exec_depend>python3-scp</exec_depend>
+	<exec_depend>python3-pyqtgraph</exec_depend>
 
+	<exec_depend>tobas_fkie_master</exec_depend>
 	<exec_depend>urdf_builder</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
 

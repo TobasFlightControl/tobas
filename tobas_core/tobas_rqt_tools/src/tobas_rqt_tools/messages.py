@@ -1,5 +1,5 @@
-import rospy
 from enum import Enum
+from typing import Optional
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
 
@@ -10,17 +10,14 @@ class QMessageLevel(Enum):
 
 
 def q_info(parent: QWidget, msg: str) -> None:
-    rospy.loginfo(msg)
     QMessageBox.information(parent, QMessageLevel.INFO.name, msg)
 
 
 def q_warn(parent: QWidget, msg: str) -> None:
-    rospy.logwarn(msg)
     QMessageBox.warning(parent, QMessageLevel.WARN.name, msg)
 
 
 def q_error(parent: QWidget, msg: str) -> None:
-    rospy.logerr(msg)
     QMessageBox.critical(parent, QMessageLevel.ERROR.name, msg)
 
 
@@ -36,7 +33,7 @@ def q_error_named(parent: QWidget, name: str, msg: str) -> None:
     q_error(parent, f"[{name}] {msg}")
 
 
-def yes_or_no(parent: QWidget, text: str, level: QMessageLevel = None) -> bool:
+def yes_or_no(parent: QWidget, text: str, level: Optional[QMessageLevel] = None) -> bool:
     """Yew-Noクエスチョンを表示し，その結果を取得する．"""
     msg_box = QMessageBox(parent)
 

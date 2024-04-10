@@ -13,11 +13,10 @@ class BatteryHandler : public tobas::BaseNode
 {
   // Constants
   static constexpr size_t kSamplingRate = 100;     // [Hz]
-  static constexpr double kLpfTimeConst = 10.;     // [s]
-  static constexpr double kVoltageThreshold = 3.;  // [V]
+  static constexpr double kAdcCurrentCoef = 17.;   // https://docs.emlid.com/navio2/dev/adc/
 
   // Defaults
-  static constexpr double kDefaultAdcCoef = 11.3;
+  static constexpr double kDefaultAdcVoltageCoef = 11.3;
 
   using self = BatteryHandler;
   using super = tobas::BaseNode;
@@ -43,6 +42,8 @@ private:
   void registerSubscribers() override;
 
   bool reloadConfig();
+  bool getVoltage(double& voltage);
+  bool getCurrent(double& current);
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);

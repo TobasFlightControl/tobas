@@ -1,5 +1,5 @@
 import math
-from typing import Tuple
+from typing import Tuple, Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,7 +14,7 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
     def __init__(
         self,
         param_name: str,
-        description_text: str = None,
+        description_text: Optional[str] = None,
         decimals: int = 3,
         xyz_min: Tuple[float, float, float] = (-1e9,) * 3,
         xyz_max: Tuple[float, float, float] = (+1e9,) * 3,
