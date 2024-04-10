@@ -1,4 +1,3 @@
-import rospy
 from enum import Enum
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
@@ -10,17 +9,14 @@ class QMessageLevel(Enum):
 
 
 def q_info(parent: QWidget, msg: str) -> None:
-    rospy.loginfo(msg)
     QMessageBox.information(parent, QMessageLevel.INFO.name, msg)
 
 
 def q_warn(parent: QWidget, msg: str) -> None:
-    rospy.logwarn(msg)
     QMessageBox.warning(parent, QMessageLevel.WARN.name, msg)
 
 
 def q_error(parent: QWidget, msg: str) -> None:
-    rospy.logerr(msg)
     QMessageBox.critical(parent, QMessageLevel.ERROR.name, msg)
 
 
