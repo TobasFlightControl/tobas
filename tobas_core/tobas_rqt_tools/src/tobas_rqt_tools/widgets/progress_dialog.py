@@ -1,4 +1,5 @@
 from overrides import override
+from typing import Optional
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QProgressDialog
 
@@ -20,7 +21,7 @@ class ProgressDialog(QProgressDialog):
     REFLESH_SLEEP = 50  # [ms]
 
     @override
-    def __init__(self, parent: QWidget = None, title: str = "", num_steps: int = 1) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, title: str = "", num_steps: int = 1) -> None:
         assert num_steps > 0
 
         super().__init__(parent=parent)

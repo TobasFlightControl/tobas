@@ -1,7 +1,7 @@
+from typing import Tuple, List, Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from typing import Tuple, List
 
 from .base import ParamGetterWidget
 from .utils import FloatGetter
@@ -13,7 +13,7 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
     def __init__(
         self,
         param_name: str,
-        description_text: str = None,
+        description_text: Optional[str] = None,
         decimals: int = 3,
         minimum: Tuple[float, float, float] = (-1e9,) * 3,
         maximum: Tuple[float, float, float] = (+1e9,) * 3,

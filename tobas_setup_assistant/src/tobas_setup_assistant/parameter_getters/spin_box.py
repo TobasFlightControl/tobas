@@ -1,3 +1,4 @@
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,11 +15,11 @@ class ParamGetterWidget_SpinBox(ParamGetterWidget):
     def __init__(
         self,
         param_name: str,
-        description_text: str = None,
+        description_text: Optional[str] = None,
         minimum: int = -(1 << 31),
         maximum: int = (1 << 31) - 1,
         single_step: int = 1,
-        default: int = None,
+        default: Optional[int] = None,
         suffix: str = "",
     ) -> None:
         assert minimum < maximum

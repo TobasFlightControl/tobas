@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Optional
 
 from .noise import Noise
 
@@ -21,7 +22,14 @@ class Camera(ET.Element):
     L8 = "L8"
 
     def __init__(
-        self, width: int, height: int, near: float, far: float, fov: float, format: str = RGB8, noise: Noise = None
+        self,
+        width: int,
+        height: int,
+        near: float,
+        far: float,
+        fov: float,
+        format: str = RGB8,
+        noise: Optional[Noise] = None,
     ) -> None:
         assert width > 0
         assert height > 0

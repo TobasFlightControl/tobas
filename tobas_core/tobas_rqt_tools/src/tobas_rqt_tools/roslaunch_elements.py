@@ -1,4 +1,5 @@
 from xml.etree import ElementTree as ET
+from typing import Optional
 
 
 def _bool2str(x: bool) -> str:
@@ -39,8 +40,8 @@ class Node(ET.Element):
         output: str = SCREEN,
         required: bool = False,
         respawn: bool = False,
-        ns: str = None,
-        args: str = None,
+        ns: Optional[str] = None,
+        args: Optional[str] = None,
     ) -> None:
         super().__init__(
             "node",

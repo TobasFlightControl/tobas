@@ -1,3 +1,4 @@
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,12 +15,12 @@ class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
     def __init__(
         self,
         param_name: str,
-        description_text: str = None,
+        description_text: Optional[str] = None,
         decimals: int = 12,
         minimum: float = -1e9,
         maximum: float = +1e9,
         single_step: float = 1.0,
-        default: float = None,
+        default: Optional[float] = None,
         suffix: str = "",
     ) -> None:
         assert minimum < maximum

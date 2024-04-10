@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -7,7 +8,7 @@ from ..common import *
 
 
 class ParamGetterWidget(QWidget):
-    def __init__(self, param_name: str, description_text: str = None) -> None:
+    def __init__(self, param_name: str, description_text: Optional[str] = None) -> None:
         super().__init__()
 
         self._rows = QVBoxLayout()

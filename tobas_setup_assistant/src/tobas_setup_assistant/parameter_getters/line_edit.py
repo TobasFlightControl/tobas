@@ -1,3 +1,4 @@
+from typing import Optional
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -8,7 +9,7 @@ from .base import ParamGetterWidget
 class ParamGetterWidget_LineEdit(ParamGetterWidget):
     text_changed = pyqtSignal(str)
 
-    def __init__(self, param_name: str, description_text: str = None, default: str = "") -> None:
+    def __init__(self, param_name: str, description_text: Optional[str] = None, default: str = "") -> None:
         super().__init__(param_name, description_text)
 
         self._line = QLineEdit(default)

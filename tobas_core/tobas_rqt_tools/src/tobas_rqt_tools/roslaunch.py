@@ -1,10 +1,10 @@
 from subprocess import Popen
 import roslaunch
 from roslaunch import rlutil, parent
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
-def rosrun(pkg_name: str, node_type: str, node_name: str = None) -> Popen:
+def rosrun(pkg_name: str, node_type: str, node_name: Optional[str] = None) -> Popen:
     command = ["rosrun", pkg_name, node_type]
     if node_name is not None:
         command += [f"__name:={node_name}"]
