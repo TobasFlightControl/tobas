@@ -220,7 +220,7 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         right = self._slope * p.x() + self._y_intercept
 
         # ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
-        if -math.pi / 2 < self._roll < math.pi / 2:
+        if abs(self._roll) < math.pi / 2:
             return left < right
         else:
             return left > right
