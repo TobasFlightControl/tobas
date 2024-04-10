@@ -59,20 +59,25 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         self._gps_status = StatusWidget("GPS Fix")
         self._rcin_status = StatusWidget("Radio Input")
         self._voltage_status = StatusWidget("Battery Voltage")
+        self._attitude_status = StatusWidget("Attitude Stable")
         self._pos_accuracy_status = StatusWidget("Position Accuracy")
         self._rot_accuracy_status = StatusWidget("Orientation Accuracy")
         self._vel_accuracy_status = StatusWidget("Velocity Accuracy")
         self._ready_status = StatusWidget("Ready to Arm")
         self._arming_status = StatusWidget("Rotors Armed")
 
-        self._rows.addWidget(self._gps_status)
-        self._rows.addWidget(self._rcin_status)
-        self._rows.addWidget(self._voltage_status)
-        self._rows.addWidget(self._pos_accuracy_status)
-        self._rows.addWidget(self._rot_accuracy_status)
-        self._rows.addWidget(self._vel_accuracy_status)
-        self._rows.addWidget(self._ready_status)
-        self._rows.addWidget(self._arming_status)
+        grid = QGridLayout()
+        self._rows.addLayout(grid)
+
+        grid.addWidget(self._gps_status, 0, 0)
+        grid.addWidget(self._rcin_status, 0, 1)
+        grid.addWidget(self._voltage_status, 0, 2)
+        grid.addWidget(self._attitude_status, 1, 0)
+        grid.addWidget(self._pos_accuracy_status, 1, 1)
+        grid.addWidget(self._rot_accuracy_status, 1, 2)
+        grid.addWidget(self._vel_accuracy_status, 2, 0)
+        grid.addWidget(self._ready_status, 2, 1)
+        grid.addWidget(self._arming_status, 2, 2)
 
         self._gps_sub = None
         self._rcin_sub = None
@@ -89,6 +94,12 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
     def update_internal_data_structures(self) -> None:
         self._gps_status.set_unknown()
         self._rcin_status.set_unknown()
+        self._voltage_status.set_unknown()
+        self._attitude_status.set_unknown()
+        self._pos_accuracy_status.set_unknown()
+        self._rot_accuracy_status.set_unknown()
+        self._vel_accuracy_status.set_unknown()
+        self._ready_status.set_unknown()
         self._arming_status.set_unknown()
 
         if not self._is_first_update:
@@ -124,15 +135,20 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         else:
             self._voltage_status.set_no()
 
+        if msg.attitude_ok:
+            self._attitude_status.set_yes()
+        else:
+            self._attitude_status.set_no()
+
         if msg.position_accuracy_ok:
             self._pos_accuracy_status.set_yes()
         else:
             self._pos_accuracy_status.set_no()
 
         if msg.orientation_accuracy_ok:
-            self._vel_accuracy_status.set_yes()
+            self._rot_accuracy_status.set_yes()
         else:
-            self._vel_accuracy_status.set_no()
+            self._rot_accuracy_status.set_no()
 
         if msg.velocity_accuracy_ok:
             self._vel_accuracy_status.set_yes()
