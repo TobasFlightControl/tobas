@@ -167,6 +167,7 @@ class SimulationWidget(BaseAppWidget):
             return
         progress.progress_step()
 
+        # リロード
         progress.setLabelText("Reloading.")
         self._main.update_internal_data_structures()
         progress.progress_step()
@@ -220,6 +221,7 @@ class SimulationWidget(BaseAppWidget):
             return
         progress.progress_step()
 
+        # リロード
         progress.setLabelText("Reloading.")
         self._main.update_internal_data_structures()
         progress.progress_step()
