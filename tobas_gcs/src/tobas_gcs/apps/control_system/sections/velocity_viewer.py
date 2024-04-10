@@ -14,8 +14,8 @@ from tobas_tools_py.drone import Drone
 from .base_section import BaseControlSystemSectionWidget
 
 
-class TwistViewerWidget(BaseControlSystemSectionWidget):
-    LABEL = "Twist"
+class VelocityViewerWidget(BaseControlSystemSectionWidget):
+    LABEL = "Velocity"
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)

@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 
 import math
 import rospy
-from abc import abstractmethod
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -20,88 +19,25 @@ from ....common import PAINT_REFRESH_DURATION
 from .base_section import BaseControlSystemSectionWidget
 
 
-class PoseViewerWidget(BaseControlSystemSectionWidget):
-    LABEL = "Pose"
+class OrientationViewerWidget(BaseControlSystemSectionWidget):
+    LABEL = "Orientation"
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        cols = QHBoxLayout()
-        self._rows.addLayout(cols)
-
-        self._position_viewer = PositionViewerWidget(main, drone)
-        cols.addWidget(self._position_viewer)
-
-        self._altitude_viewer = AltitudeViewerWidget(main, drone)
-        cols.addWidget(self._altitude_viewer)
-
-        self._orientation_viewer = OrientationViewerWidget(main, drone)
-        cols.addWidget(self._orientation_viewer)
-
-        cols.addStretch()
+        self._orientation_viewer = _OrientationViewerWidget(main, drone)
+        self._rows.addWidget(self._orientation_viewer)
 
     @override
     def define_connections(self) -> None:
-        self._position_viewer.define_connections()
-        self._altitude_viewer.define_connections()
-        self._orientation_viewer.define_connections()
+        pass
 
     @override
     def update_internal_data_structures(self) -> None:
-        self._position_viewer.update_internal_data_structures()
-        self._altitude_viewer.update_internal_data_structures()
         self._orientation_viewer.update_internal_data_structures()
 
 
-class PoseViewerWidgetComponent(Widget):
-
-    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__()
-        self._main = main
-        self._drone = drone
-
-    @abstractmethod
-    def define_connections(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def update_internal_data_structures(self) -> None:
-        raise NotImplementedError()
-
-
-class PositionViewerWidget(PoseViewerWidgetComponent):
-
-    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(main, drone)
-
-        # TODO
-
-    @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
-    def update_internal_data_structures(self) -> None:
-        pass
-
-
-class AltitudeViewerWidget(PoseViewerWidgetComponent):
-
-    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(main, drone)
-
-        # TODO
-
-    @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
-    def update_internal_data_structures(self) -> None:
-        pass
-
-
-class OrientationViewerWidget(PoseViewerWidgetComponent):
+class _OrientationViewerWidget(Widget):
 
     W = 300
     H = 300
@@ -109,7 +45,9 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
     EPS = 1e-6
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
-        super().__init__(main, drone)
+        super().__init__()
+        self._main = main
+        self._drone = drone
 
         self.setFixedSize(self.W, self.H)
 
@@ -127,11 +65,6 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.update)
 
-    @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._reset()
 
