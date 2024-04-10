@@ -144,6 +144,7 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
     @override
     def paintEvent(self, _: QPaintEvent) -> None:
         painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
 
         self._draw_ground(painter)
         self._draw_sky(painter)
