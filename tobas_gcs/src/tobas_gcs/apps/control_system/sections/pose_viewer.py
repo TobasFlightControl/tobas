@@ -133,11 +133,7 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self._roll = 0.0
-        self._pitch = 0.0
-        self._yaw = 0.0
-        self._slope = 0.0
-        self._y_intercept = self.H / 2
+        self._reset()
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
@@ -153,6 +149,13 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
         self._draw_sky(painter)
 
         painter.end()
+
+    def _reset(self) -> None:
+        self._roll = 0.0
+        self._pitch = 0.0
+        self._yaw = 0.0
+        self._slope = 0.0
+        self._y_intercept = self.H / 2
 
     def _draw_ground(self, painter: QPainter) -> None:
         painter.fillRect(self.rect(), Qt.green)
@@ -226,6 +229,11 @@ class OrientationViewerWidget(PoseViewerWidgetComponent):
             return left > right
 
     def _euler_cb(self, euler: Euler) -> None:
+        if math.isnan(euler.roll) or math.isnan(euler.pitch) or math.isnan(euler.yaw):
+            rospy.logerr("NaN detected in euler angles.")
+            self._reset()
+            return
+
         self._roll = euler.roll
         self._pitch = euler.pitch
         self._yaw = euler.yaw
