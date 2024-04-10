@@ -122,6 +122,7 @@ class PackageManagerWidget(Widget):
         try:
             self._ssh_client.connect()
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
         progress.progress_step()
@@ -135,6 +136,7 @@ class PackageManagerWidget(Widget):
         try:
             self._ssh_client.scp_put_super(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
         except Exception as e:
+            progress.close()
             q_error(self._main, f"Failed to send tobas configuration package:\n\n{e}")
             return
         progress.progress_step()
@@ -150,6 +152,7 @@ class PackageManagerWidget(Widget):
             command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {pkg_name}"
             success, _, error_output = self._ssh_client.exec_command_super(command)
             if not success:
+                progress.close()
                 q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
                 return
         progress.progress_step()
@@ -159,6 +162,7 @@ class PackageManagerWidget(Widget):
         try:
             self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
         progress.progress_step()
@@ -168,6 +172,7 @@ class PackageManagerWidget(Widget):
         command = "systemctl restart tobas_roscore.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
+            progress.close()
             q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
             return
         progress.progress_step()

@@ -109,6 +109,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._ssh_client.connect()
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
         progress.progress_step()
@@ -128,6 +129,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._wpa_parser.parse_from_text(config_text)
         except Exception as e:
+            progress.close()
             q_error(self._main, f"Failed to parse network configuration:\n\n{e}")
             return
 
@@ -137,6 +139,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
             self._add_row(network.ssid, network.psk)
         progress.progress_step()
 
+        progress.close()
         q_info(self._main, "Network configuration is read successfully.")
 
     @pyqtSlot()
@@ -150,6 +153,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._ssh_client.connect()
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
         progress.progress_step()
@@ -166,6 +170,7 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         try:
             self._ssh_client.sftp_write_super(self.WPA_SUPPLICANT_PATH, self._wpa_parser.text())
         except Exception as e:
+            progress.close()
             q_error(self._main, str(e))
             return
         progress.progress_step()
@@ -177,10 +182,12 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         # command = "ip link set wlan0 down && ip link set wlan0 up"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
+            progress.close()
             q_error(self._main, f"Failed to restart DHCPCD:\n\n{error_output}")
             return
         progress.progress_step()
 
+        progress.close()
         q_info(self._main, "Network configuration is written successfully.")
 
     @pyqtSlot()
