@@ -62,7 +62,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
     def _timer_cb(self) -> None:
         stamps = []
         latencies = []
-        for stamp, latency in self._buffer.items():
+        for stamp, latency in self._buffer:
             stamps.append(stamp.to_sec())
             latencies.append(latency * 1e3)
 
