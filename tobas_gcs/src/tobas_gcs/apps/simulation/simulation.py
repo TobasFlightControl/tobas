@@ -35,7 +35,6 @@ class SimulationWidget(BaseAppWidget):
         super().__init__(main, drone)
 
         self._ssh_client = SSHClientWrapper()
-        self._config_pkg_path = None
         self._gazebo_process = None
         self._bringup_process = None
 
@@ -73,24 +72,19 @@ class SimulationWidget(BaseAppWidget):
 
     @override
     def define_connections(self) -> None:
-        self._main.signals.config_pkg_updated.connect(self._on_config_pkg_updated)
         self._start_button.clicked.connect(self._on_start_button_clicked)
         self._terminate_button.clicked.connect(self._on_terminate_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
-
-    @pyqtSlot(str)
-    def _on_config_pkg_updated(self, config_pkg_path: str) -> None:
-        self._config_pkg_path = config_pkg_path
         self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        config_pkg_name = osp.basename(self._config_pkg_path)
+        config_pkg_path = self._main.package_manager.package_path()
+        config_pkg_name = osp.basename(config_pkg_path)
 
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=10)
+        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=11)
         progress.setCancelButton(None)
         progress.show()
 
@@ -106,7 +100,7 @@ class SimulationWidget(BaseAppWidget):
 
         # Build config package
         progress.setLabelText("Building Tobas configuration package.")
-        os.chdir(self._config_pkg_path)
+        os.chdir(config_pkg_path)
         if os.system(f"catkin build {config_pkg_name}") != 0:
             progress.close()
             q_error(self._main, "Failed to build Tobas package.")
@@ -115,7 +109,7 @@ class SimulationWidget(BaseAppWidget):
 
         # Tobasパッケージのパスを追加
         progress.setLabelText("Adding Tobas package path.")
-        os.environ["ROS_PACKAGE_PATH"] = self._config_pkg_path + ":" + os.environ["ROS_PACKAGE_PATH"]
+        os.environ["ROS_PACKAGE_PATH"] = config_pkg_path + ":" + os.environ["ROS_PACKAGE_PATH"]
         progress.progress_step()
 
         # Stop tobas_real.service
@@ -173,6 +167,10 @@ class SimulationWidget(BaseAppWidget):
             return
         progress.progress_step()
 
+        progress.setLabelText("Reloading.")
+        self._main.update_internal_data_structures()
+        progress.progress_step()
+
         self._start_button.setEnabled(False)
         self._terminate_button.setEnabled(True)
 
@@ -181,7 +179,7 @@ class SimulationWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_terminate_button_clicked(self) -> None:
-        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=5)
+        progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=6)
         progress.setCancelButton(None)
         progress.show()
 
@@ -220,6 +218,10 @@ class SimulationWidget(BaseAppWidget):
             progress.close()
             q_error(self._main, f"Failed to restart tobas_real.service:\n\n{error_output}")
             return
+        progress.progress_step()
+
+        progress.setLabelText("Reloading.")
+        self._main.update_internal_data_structures()
         progress.progress_step()
 
         self._start_button.setEnabled(True)

@@ -5,7 +5,6 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.widgets import Widget, ComboBox
 from tobas_tools_py.drone import Drone
 
-from .common import *
 from .apps import *
 from .package_manager import PackageManagerWidget
 
@@ -15,7 +14,6 @@ class GroundControlStationWidget(Widget):
         super().__init__()
 
         self._drone = Drone()
-        self.signals = Signals()
 
         self.start = StartWidget(self, self._drone)
         self.urdf_builder = UrdfBuilderWidget(self, self._drone)
@@ -60,9 +58,6 @@ class GroundControlStationWidget(Widget):
         self.define_connections()
 
     def define_connections(self) -> None:
-        # Tobasパッケージが変更されたら内部状態を更新
-        self.signals.config_pkg_updated.connect(self._on_config_pkg_updated)
-
         # 選択リストから選択されたアプリケーションを表示
         self._combo_box.currentIndexChanged.connect(self._apps.setCurrentIndex)
 
@@ -76,8 +71,8 @@ class GroundControlStationWidget(Widget):
 
         self.package_manager.define_connections()
 
-    @pyqtSlot(str)
-    def _on_config_pkg_updated(self, _: str) -> None:
+    def update_internal_data_structures(self) -> None:
+        """ドローンの更新に応じて内部データを更新．"""
         self.start.update_internal_data_structures()
         self.urdf_builder.update_internal_data_structures()
         self.setup_assistant.update_internal_data_structures()

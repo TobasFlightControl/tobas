@@ -20,7 +20,6 @@ class PositionBarWidget(QWidget):
         fill_range: bool = True,
         minimum: float = 0.0,
         maximum: float = 0.0,
-        text: str = "",
         line_width: int = DEFAULT_LINE_WIDTH,
         text_psize: int = DEFAULT_TEXT_PSIZE,
     ) -> None:
@@ -29,10 +28,10 @@ class PositionBarWidget(QWidget):
         self._fill_range = fill_range
         self._minimum = minimum
         self._maximum = maximum
-        self._text = text
         self._line_width = line_width
         self._text_psize = text_psize
 
+        self._text = ""
         self._value = None
         self._lower = sys.maxsize
         self._upper = -sys.maxsize
@@ -47,14 +46,14 @@ class PositionBarWidget(QWidget):
     def set_maximum(self, maximum: float) -> None:
         self._maximum = maximum
 
-    def set_text(self, text: str) -> None:
-        self._text = text
-
     def set_line_width(self, line_width: int) -> None:
         self._line_width = line_width
 
     def set_text_psize(self, text_psize: int) -> None:
         self._text_psize = text_psize
+
+    def set_text(self, text: str) -> None:
+        self._text = text
 
     def get_value(self) -> Union[float, None]:
         return self._value
@@ -85,6 +84,7 @@ class PositionBarWidget(QWidget):
         return (self._lower + self._upper) / 2
 
     def clear(self) -> None:
+        self._text = ""
         self._value = None
         self._lower = self._maximum
         self._upper = self._minimum

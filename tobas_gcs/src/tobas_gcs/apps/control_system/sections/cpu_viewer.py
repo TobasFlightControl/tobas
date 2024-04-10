@@ -51,6 +51,7 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
     def update_internal_data_structures(self) -> None:
         self._temperature.clear()
         self._frequency.clear()
+        self._load.clear()
 
         if self._cpu_sub is not None:
             self._cpu_sub.unregister()

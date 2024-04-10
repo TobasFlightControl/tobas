@@ -55,6 +55,9 @@ class PackageManagerWidget(Widget):
         self._load_button.clicked.connect(self._on_load_button_clicked)
         self._send_button.clicked.connect(self._on_send_button_clicked)
 
+    def package_path(self) -> str:
+        return self._pkg_path.text()
+
     def _load_drone(self, pkg_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
@@ -105,8 +108,8 @@ class PackageManagerWidget(Widget):
         # Writeボタンを有効化
         self._send_button.setEnabled(True)
 
-        # Tobasパッケージがロードされたことを通知
-        self._main.signals.config_pkg_updated.emit(pkg_path)
+        # 内部状態を更新
+        self._main.update_internal_data_structures()
 
         # ロードが成功したことを示すダイアログ
         q_info(self._main, "Tobas configuration package is loaded successfully.")
@@ -127,7 +130,7 @@ class PackageManagerWidget(Widget):
             return
         progress.progress_step()
 
-        pkg_path = self._pkg_path.text()
+        pkg_path = self.package_path()
         pkg_name = pkg_path.split("/")[-1]
 
         # Tobasパッケージを送信

@@ -117,19 +117,19 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         # Mode
         bar_grid.addWidget(QLabel(f"Mode (CH{RCIN_MODE + 1})"), 0, 0)
-        self._mode_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX, text=self.MODE_TEXT)
+        self._mode_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._mode_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._mode_range, 0, 1)
 
         # E-Stop
         bar_grid.addWidget(QLabel(f"E-Stop (CH{RCIN_ESTOP + 1})"), 1, 0)
-        self._estop_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX, text=self.ON_OFF_TEXT)
+        self._estop_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._estop_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._estop_range, 1, 1)
 
         # GPSw
         bar_grid.addWidget(QLabel(f"GPSw (CH{RCIN_GPSW + 1})"), 2, 0)
-        self._gpsw_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX, text=self.ON_OFF_TEXT)
+        self._gpsw_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._gpsw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._gpsw_range, 2, 1)
 
@@ -137,6 +137,8 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._rows.addStretch()
 
         self._rcin_sub = None
+
+        self._reset()
 
     @override
     def define_connections(self) -> None:
@@ -156,6 +158,10 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._mode_range.clear()
         self._estop_range.clear()
         self._gpsw_range.clear()
+
+        self._mode_range.set_text(self.MODE_TEXT)
+        self._estop_range.set_text(self.ON_OFF_TEXT)
+        self._gpsw_range.set_text(self.ON_OFF_TEXT)
 
         self._start_button.setEnabled(True)
         self._finish_button.setEnabled(False)
