@@ -4,41 +4,20 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+import os.path as osp
 import math
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QObject, QUrl, pyqtSignal, QMetaObject, Q_ARG, QVariant
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout
+from PyQt5.QtQuickWidgets import QQuickWidget
 
 from tobas_rqt_tools.widgets import FramedLabel
+from tobas_rqt_tools.utils import qsleep
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Gps
 
 from .base_section import BaseControlSystemSectionWidget
-
-
-class LabelTextWidget(QWidget):
-
-    TEXT_WIDTH = 150
-
-    def __init__(self, label: str) -> None:
-        super().__init__()
-
-        cols = QHBoxLayout()
-        self.setLayout(cols)
-
-        cols.addWidget(QLabel(label))
-
-        self._text = FramedLabel()
-        self._text.setFixedWidth(self.TEXT_WIDTH)
-        cols.addWidget(self._text)
-
-    def set_text(self, text: str) -> None:
-        self._text.setText(text)
-
-    def clear(self) -> None:
-        self._text.clear()
 
 
 class PositionViewerWidget(BaseControlSystemSectionWidget):
@@ -47,7 +26,8 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        # TODO: マップと高度
+        self._map = MapWidget(main, drone)
+        self._rows.addWidget(self._map)
 
         self._latitude = LabelTextWidget("Latitude")
         self._longitude = LabelTextWidget("Longitude")
@@ -94,3 +74,49 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         self._x_stddev.set_text(f"{math.sqrt(gps.position_covariance[0]):.3f} m")
         self._y_stddev.set_text(f"{math.sqrt(gps.position_covariance[4]):.3f} m")
         self._z_stddev.set_text(f"{math.sqrt(gps.position_covariance[8]):.3f} m")
+
+
+class LabelTextWidget(QWidget):
+
+    TEXT_WIDTH = 150
+
+    def __init__(self, label: str) -> None:
+        super().__init__()
+
+        cols = QHBoxLayout()
+        self.setLayout(cols)
+
+        cols.addWidget(QLabel(label))
+
+        self._text = FramedLabel()
+        self._text.setFixedWidth(self.TEXT_WIDTH)
+        cols.addWidget(self._text)
+
+    def set_text(self, text: str) -> None:
+        self._text.setText(text)
+
+    def clear(self) -> None:
+        self._text.clear()
+
+
+class MapWidget(QQuickWidget):
+
+    WIDTH = 640
+    HEIGHT = 480
+
+    def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
+        super().__init__()
+        self._main = main
+        self._drone = drone
+
+        self.setFixedSize(self.WIDTH, self.HEIGHT)
+
+        qml_path = osp.abspath(osp.join(osp.dirname(__file__), "Map.qml"))
+        self.setSource(QUrl.fromLocalFile(qml_path))
+
+        root = None
+        while root is None:
+            root = self.rootObject()
+            qsleep(1000)
+        print("Loaded")
+        root.setCenter(35.6895, 139.6917)
