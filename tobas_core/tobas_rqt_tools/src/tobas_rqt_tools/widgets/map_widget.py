@@ -61,6 +61,7 @@ class MapWidget(QQuickWidget):
         qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
         self.setSource(QUrl.fromLocalFile(qml_path))
 
+        # 更新周波数が大きすぎるとバグるため，インターバルを設ける．
         cur_time = QDateTime.currentDateTime()
         self._last_set_center = cur_time
         self._last_set_zoom_level = cur_time
