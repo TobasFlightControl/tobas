@@ -24,12 +24,25 @@ def get_catkin_ws_paths() -> List[str]:
     return [path.replace(".catkin_tools/", "") for path in catkin_tools_paths]
 
 
-def get_catkin_ws_path(path_in: str) -> str:
-    """ファイルが属するcatkinワークスペースのパスを返す．"""
-    path = osp.abspath(path_in)
-    while path != "/":
-        if osp.exists(osp.join(path, ".catkin_tools/")):
-            return path
-        path = osp.dirname(path)
+def get_catkin_ws_path(path: str) -> str:
+    """ファイルが属するcatkinワークスペースの絶対パスを返す．"""
+    path_ = osp.abspath(path)
+    while path_ != "/":
+        if osp.exists(osp.join(path_, ".catkin_tools/")):
+            return path_
+        path_ = osp.dirname(path_)
     else:
-        raise RuntimeError(f"{path} is not located under a catkin workspace.")
+        raise RuntimeError(f"{path_} is not located under a catkin workspace.")
+
+
+def is_in_catkin_src(path: str) -> bool:
+    """パスがcatkinワークスペースのsrcディレクトリ以下に存在するかどうかを返す．"""
+    path_ = osp.abspath(path)
+
+    try:
+        ws_path = get_catkin_ws_path(path_)
+    except:
+        return False
+
+    src_path = osp.join(ws_path, "src/")
+    return osp.exists(src_path) and path_.startswith(src_path)

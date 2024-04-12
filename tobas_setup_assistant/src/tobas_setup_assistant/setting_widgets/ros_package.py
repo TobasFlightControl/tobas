@@ -13,7 +13,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.path import get_catkin_ws_paths
+from tobas_rqt_tools.path import get_catkin_ws_paths, is_in_catkin_src
 from tobas_rqt_tools.utils import place_center
 from tobas_rqt_tools.messages import q_error_named, QMessageLevel
 
@@ -74,6 +74,9 @@ class RosPackageWidget(BaseSettingWidget):
         pardir = self._pkg_path.pardir
         if not osp.isdir(pardir):
             q_error_named(self._main, self.NAME, f"{pardir} does not exist.")
+            return False
+        if not is_in_catkin_src(pardir):
+            q_error_named(self._main, self.NAME, f"{pardir} is not in the src directory of a catkin workspace.")
             return False
 
         pkg_name = self._pkg_path.pkg_name
