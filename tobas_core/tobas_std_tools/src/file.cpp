@@ -1,3 +1,5 @@
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "../include/tobas_std_tools/file.hpp"
@@ -26,10 +28,10 @@ string expandPath(const string& path)
   return path;
 }
 
-bool createFilePath(const filesystem::path& file_path)
+bool createFilePath(const string& file_path)
 {
   // ファイルのパスからディレクトリ部分のみを取得
-  const auto dir_path = file_path.parent_path();
+  const auto dir_path = filesystem::path(file_path).parent_path();
 
   // ディレクトリが存在しなければ作成
   if (!filesystem::exists(dir_path) && !filesystem::create_directories(dir_path))
