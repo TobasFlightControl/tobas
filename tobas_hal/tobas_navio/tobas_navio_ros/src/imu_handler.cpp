@@ -78,7 +78,7 @@ bool ImuHandler::reloadConfig()
   pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.);
   pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.);
   pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.);
-  pt.get(kConfigKey_MagEllipseC, mag_trans_.c, 0.);
+  pt.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.);
 
   acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
   gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
