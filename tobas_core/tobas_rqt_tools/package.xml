@@ -12,6 +12,12 @@
 	<exec_depend>rospy</exec_depend>
 	<exec_depend>python3-overrides</exec_depend>
 	<exec_depend>python3-markdown</exec_depend>
+	<exec_depend>python3-pyqtgraph</exec_depend>
+	<exec_depend>python3-pyqt5.qtquick</exec_depend>
+
+	<exec_depend>qml-module-qtquick-controls</exec_depend>
+	<exec_depend>qml-module-qtlocation</exec_depend>
+	<exec_depend>qml-module-qtpositioning</exec_depend>
 
 	<exec_depend>tobas_std_tools_py</exec_depend>
 

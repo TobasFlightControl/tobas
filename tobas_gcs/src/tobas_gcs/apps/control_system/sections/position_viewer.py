@@ -4,16 +4,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import os.path as osp
 import math
 import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtQuickWidgets import QQuickWidget
-from PyQt5.QtPositioning import QGeoCoordinate
 
-from tobas_rqt_tools.widgets import FramedLabel
+from tobas_rqt_tools.widgets import FramedLabel, MapWidget
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Gps
 
@@ -23,10 +20,16 @@ from .base_section import BaseControlSystemSectionWidget
 class PositionViewerWidget(BaseControlSystemSectionWidget):
     LABEL = "Position"
 
+    MAP_WIDTH = 640
+    MAP_HEIGHT = 480
+    MAP_ZOOM_LEVEL = 18
+
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
         self._map = MapWidget()
+        self._map.setFixedSize(self.MAP_WIDTH, self.MAP_HEIGHT)
+        self._map.set_zoom_level(self.MAP_ZOOM_LEVEL)
         self._rows.addWidget(self._map)
 
         self._latitude = LabelTextWidget("Latitude")
@@ -68,6 +71,8 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         if gps.fix_type != Gps.FIX_3D:
             return
 
+        self._map.set_center(gps.latitude, gps.longitude)
+
         self._latitude.set_text(f"{gps.latitude:.9f} deg")
         self._longitude.set_text(f"{gps.longitude:.9f} deg")
         self._altitude.set_text(f"{gps.altitude:.3f} m")
@@ -97,62 +102,3 @@ class LabelTextWidget(QWidget):
 
     def clear(self) -> None:
         self._text.clear()
-
-
-class MarkerModel(QAbstractListModel):
-    PositionRole, SourceRole = range(Qt.UserRole, Qt.UserRole + 2)
-
-    def __init__(self):
-        super().__init__()
-        self._markers = []
-
-    @override
-    def rowCount(self, parent=QModelIndex()):
-        return len(self._markers)
-
-    @override
-    def data(self, index: QModelIndex, role: Qt.ItemDataRole = Qt.DisplayRole):
-        if 0 <= index.row() < self.rowCount():
-            if role == MarkerModel.PositionRole:
-                return self._markers[index.row()]["position"]
-            elif role == MarkerModel.SourceRole:
-                return self._markers[index.row()]["source"]
-        return QVariant()
-
-    @override
-    def roleNames(self):
-        return {MarkerModel.PositionRole: b"position_marker", MarkerModel.SourceRole: b"source_marker"}
-
-    def append_marker(self, marker):
-        self.beginInsertRows(QModelIndex(), self.rowCount(), self.rowCount())
-        self._markers.append(marker)
-        self.endInsertRows()
-
-
-class MapWidget(QQuickWidget):
-    """
-    マップウィジェット．
-    cf. https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
-    """
-
-    WIDTH = 640
-    HEIGHT = 480
-
-    def __init__(self):
-        super().__init__()
-
-        # リサイズモードを指定した上でのサイズ固定が必須
-        self.setResizeMode(QQuickWidget.SizeRootObjectToView)
-        self.setFixedSize(self.WIDTH, self.HEIGHT)
-
-        self._marker = MarkerModel()
-        self.rootContext().setContextProperty("markermodel", self._marker)
-
-        # QMLをセット
-        qml_path = osp.join(osp.dirname(__file__), "Map.qml")
-        self.setSource(QUrl.fromLocalFile(qml_path))
-
-    def append_marker(self, latitude: float, longitude: float, color: str = "red") -> None:
-        coord = QGeoCoordinate(latitude, longitude)
-        source = QUrl(f"http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_{color}.png")
-        self._marker.append_marker({"position": coord, "source": source})
