@@ -34,7 +34,7 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
 
         self._latitude = LabelTextWidget("Latitude")
         self._longitude = LabelTextWidget("Longitude")
-        self._altitude = LabelTextWidget("Altitude")
+        self._altitude = LabelTextWidget("Altitude (ASL)")
         self._x_stddev = LabelTextWidget("X std. dev")
         self._y_stddev = LabelTextWidget("Y std. dev")
         self._z_stddev = LabelTextWidget("Z std. dev")
