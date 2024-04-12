@@ -62,7 +62,7 @@ class MapWidget(QQuickWidget):
         self.setSource(QUrl.fromLocalFile(qml_path))
 
         # 更新周波数が大きすぎるとバグるため，インターバルを設ける．
-        cur_time = QDateTime.currentDateTime()
+        cur_time = QDateTime.fromSecsSinceEpoch(0)
         self._last_set_center = cur_time
         self._last_set_zoom_level = cur_time
         self._last_set_arrow_rotation = cur_time
