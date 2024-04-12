@@ -13,6 +13,7 @@
 	<exec_depend>python3-scp</exec_depend>
 	<exec_depend>python3-pyqtgraph</exec_depend>
 	<exec_depend>python3-pyqt5.qtquick</exec_depend>
+	<exec_depend>python3-pyqt5.qtwebengine</exec_depend>
 
 	<exec_depend>qml-module-qtquick-controls</exec_depend>
 	<exec_depend>qml-module-qtlocation</exec_depend>
