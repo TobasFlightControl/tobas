@@ -8,7 +8,10 @@ Rectangle {
   Plugin {
     id: osmPlugin
     name: "osm"
-    PluginParameter { name: "osm.mapping.providersrepository.disabled"; value: "true" }  // これが必須
+    PluginParameter {
+      name: "osm.mapping.providersrepository.disabled"
+      value: "true"
+    }
   }
 
   Map {
@@ -22,10 +25,29 @@ Rectangle {
       model: markermodel
       delegate: MapQuickItem {
         coordinate: model.position_marker
-        anchorPoint.x: image.width
-        anchorPoint.y: image.height
-        sourceItem:
-        Image { id: image; source: model.source_marker }
+        anchorPoint.x: markerImage.width
+        anchorPoint.y: markerImage.height
+        sourceItem: Image {
+          id: markerImage
+          source: model.source_marker
+        }
+      }
+    }
+
+    MapQuickItem {
+      coordinate: map.center // 中央に配置
+      sourceItem: Image {
+        id: iconImage
+        source: "gps_arrow.png" // アイコン画像のパス
+        width: 32
+        height: 32
+        transform: Rotation {
+          id: iconImageRotation
+          origin.x: iconImage.width / 2
+          origin.y: iconImage.height / 2
+          axis { x: 0; y: 0; z: 1 }
+          angle: 0
+        }
       }
     }
   }
@@ -33,10 +55,12 @@ Rectangle {
   // エラーを防ぐために，関数の呼び出しには必ずシグナルスロット接続を挟む．
   signal setCenter(double latitude, double longitude)
   signal setZoomLevel(int level)
+  signal setArrowRotation(double angle)
 
   Component.onCompleted: {
     setCenter.connect(onSetCenter);
     setZoomLevel.connect(onSetZoomLevel);
+    setArrowRotation.connect(onSetArrowRotation);
   }
 
   function onSetCenter(latitude, longitude)
@@ -47,5 +71,10 @@ Rectangle {
   function onSetZoomLevel(level)
   {
     map.zoomLevel = level;
+  }
+
+  function onSetArrowRotation(angle)
+  {
+    iconImageRotation.angle = angle;  // ユニークなIDを直接参照する
   }
 }
