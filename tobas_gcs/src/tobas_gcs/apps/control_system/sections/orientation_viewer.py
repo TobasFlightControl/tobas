@@ -39,8 +39,11 @@ class OrientationViewerWidget(BaseControlSystemSectionWidget):
 
 class _OrientationViewerWidget(Widget):
 
-    W = 300
-    H = 300
+    W = 640
+    H = 480
+    LINE_WIDTH = 3  # ゲージ線の幅
+    ROLL_RADIUS = 200  # ロール円の半径
+    ROLL_TICK_LENGTH = 10
     ALPHA = math.pi / 4  # ピッチ角の最大値
     EPS = 1e-6
 
@@ -58,7 +61,7 @@ class _OrientationViewerWidget(Widget):
 
         # 機体から見た地平線の方程式
         self._slope = 0.0
-        self._y_intercept = self.H / 2
+        self._y_intercept = self.height() / 2
 
         self._euler_sub = None
 
@@ -81,6 +84,8 @@ class _OrientationViewerWidget(Widget):
 
         self._draw_ground(painter)
         self._draw_sky(painter)
+        self._draw_roll(painter)
+        self._draw_pitch(painter)
 
         painter.end()
 
@@ -89,7 +94,7 @@ class _OrientationViewerWidget(Widget):
         self._pitch = 0.0
         self._yaw = 0.0
         self._slope = 0.0
-        self._y_intercept = self.H / 2
+        self._y_intercept = self.height() / 2
 
     def _draw_ground(self, painter: QPainter) -> None:
         painter.fillRect(self.rect(), Qt.green)
@@ -102,13 +107,13 @@ class _OrientationViewerWidget(Widget):
         pitch_rate = self._pitch / self.ALPHA
 
         OO = QPoint(0, 0)
-        WO = QPoint(self.W, 0)
-        OH = QPoint(0, self.H)
-        WH = QPoint(self.W, self.H)
-        XO = QPoint(int(self.W + (1 - pitch_rate) * self.H / tan_roll) // 2, 0)
-        XH = QPoint(int(self.W - (1 + pitch_rate) * self.H / tan_roll) // 2, self.H)
-        OY = QPoint(0, int(self.H * (1 - pitch_rate) + self.W * tan_roll) // 2)
-        WY = QPoint(self.W, int(self.H * (1 - pitch_rate) - self.W * tan_roll) // 2)
+        WO = QPoint(self.width(), 0)
+        OH = QPoint(0, self.height())
+        WH = QPoint(self.width(), self.height())
+        XO = QPoint(int(self.width() + (1 - pitch_rate) * self.height() / tan_roll) // 2, 0)
+        XH = QPoint(int(self.width() - (1 + pitch_rate) * self.height() / tan_roll) // 2, self.height())
+        OY = QPoint(0, int(self.height() * (1 - pitch_rate) + self.width() * tan_roll) // 2)
+        WY = QPoint(self.width(), int(self.height() * (1 - pitch_rate) - self.width() * tan_roll) // 2)
 
         OO_sky = self._is_sky(OO)
         WO_sky = self._is_sky(WO)
@@ -162,6 +167,46 @@ class _OrientationViewerWidget(Widget):
         else:
             return left > right
 
+    def _draw_roll(self, painter: QPainter) -> None:
+        center = QPointF(self.width() / 2, self.height() / 2)
+
+        # 機体から見た円の中心に移動
+        painter.translate(center)
+        painter.rotate(-math.degrees(self._roll))
+
+        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+        painter.setBrush(Qt.NoBrush)
+
+        painter.drawEllipse(QPoint(0, 0), self.ROLL_RADIUS, self.ROLL_RADIUS)
+
+        outer_radius = self.ROLL_RADIUS + self.ROLL_TICK_LENGTH
+        for i in range(36):
+            angle = math.radians((i - 9) * 10)
+            inner_x = self.ROLL_RADIUS * math.cos(angle)
+            inner_y = self.ROLL_RADIUS * math.sin(angle)
+            outer_x = outer_radius * math.cos(angle)
+            outer_y = outer_radius * math.sin(angle)
+
+            # 目盛りを描画
+            painter.drawLine(QPointF(inner_x, inner_y), QPointF(outer_x, outer_y))
+
+            # 数字を描画
+            text_radius = outer_radius + 20  # テキストの半径
+            text_x = text_radius * math.cos(angle) - 10  # テキスト位置調整
+            text_y = text_radius * math.sin(angle) + 5  # テキスト位置調整
+            painter.drawText(QPointF(text_x, text_y), f"{self._wrap_pi(i * 10)}°")
+
+        # 移動をリセット
+        painter.resetTransform()
+
+    def _draw_pitch(self, painter: QPainter) -> None:
+        pass  # TODO
+
+    @staticmethod
+    def _wrap_pi(deg: int) -> int:
+        """角度を[-180, 180]の範囲にラップする．"""
+        return deg if deg < 180 else deg - 360
+
     def _euler_cb(self, euler: Euler) -> None:
         if math.isnan(euler.roll) or math.isnan(euler.pitch) or math.isnan(euler.yaw):
             rospy.logerr("NaN detected in euler angles.")
@@ -174,4 +219,4 @@ class _OrientationViewerWidget(Widget):
 
         tan_roll = math.tan(euler.roll)
         self._slope = -tan_roll
-        self._y_intercept = (self.W * tan_roll + self.H * (1 - euler.pitch / self.ALPHA)) / 2
+        self._y_intercept = (self.width() * tan_roll + self.height() * (1 - euler.pitch / self.ALPHA)) / 2
