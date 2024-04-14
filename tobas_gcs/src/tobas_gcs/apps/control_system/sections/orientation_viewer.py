@@ -11,6 +11,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_std_tools_py.math import wrap, ceil, floor
 from tobas_kdl_msgs.msg import Euler
 from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.drone import Drone
@@ -46,7 +47,7 @@ class _OrientationViewerWidget(Widget):
     SCALE_INTERVAL = 10  # [deg]
     ROLL_RADIUS = 200  # ロール円の半径
     ROLL_TICK_LENGTH = 10
-    PITCH_MAX = 90  # [deg]
+    PITCH_RANGE = 30  # [deg] 描画するピッチ角の範囲
     PITCH_LINE_LENGTH = 100
     EPS = 1e-6
 
@@ -174,14 +175,12 @@ class _OrientationViewerWidget(Widget):
             return left > right
 
     def _draw_roll(self, painter: QPainter) -> None:
-        center = QPoint(self.width() // 2, self.height() // 2)
-
-        # 機体から見た円の中心に移動
-        painter.translate(center)
-        painter.rotate(-math.degrees(self._roll))
-
         # ペンの設定
         painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+
+        # 機体から見た円の中心に移動
+        painter.translate(self.width() / 2, self.height() / 2)
+        painter.rotate(-math.degrees(self._roll))
 
         # 円を描画
         painter.drawEllipse(QPoint(0, 0), self.ROLL_RADIUS, self.ROLL_RADIUS)
@@ -194,7 +193,7 @@ class _OrientationViewerWidget(Widget):
             painter.drawLine(0, -self.ROLL_RADIUS, 0, -outer_radius)
 
             # 数字を描画
-            painter.drawText(-10, -text_radius, f"{self._wrap_pi(deg)}°")
+            painter.drawText(-10, -text_radius, f"{wrap(deg, 180)}°")
 
             # 目盛りの間隔だけ進める
             painter.rotate(self.SCALE_INTERVAL)
@@ -203,27 +202,32 @@ class _OrientationViewerWidget(Widget):
         self._reset_painter(painter)
 
     def _draw_pitch(self, painter: QPainter) -> None:
-        center = QPoint(self.width() // 2, self.height() // 2)
-
-        # 機体から見た開始位置に移動
-        painter.translate(center)
-        painter.rotate(-math.degrees(self._roll))
-        painter.translate(0, self._pitch2height(-self._pitch - math.radians(self.PITCH_MAX)))
-
         # ペンの設定
         painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+
+        # 機体から見た中心位置に移動
+        painter.translate(self.width() / 2, self.height() / 2)
+        painter.rotate(-math.degrees(self._roll))
+
+        # 描画する値の範囲を決める
+        pitch_deg = math.degrees(self._pitch)
+        pitch_min = floor(pitch_deg - self.PITCH_RANGE, self.SCALE_INTERVAL)
+        pitch_max = ceil(pitch_deg + self.PITCH_RANGE, self.SCALE_INTERVAL)
+
+        # 初期位置に移動
+        painter.translate(0, self._pitch2height(math.radians(pitch_min - pitch_deg)))
 
         # 各値を描画
         line_half = self.PITCH_LINE_LENGTH // 2
         text_x = -line_half - 30
         text_y = 5
         y_interval = self._pitch2height(math.radians(self.SCALE_INTERVAL))
-        for deg in range(-self.PITCH_MAX, self.PITCH_MAX + 1, self.SCALE_INTERVAL):
+        for deg in range(pitch_min, pitch_max + 1, self.SCALE_INTERVAL):
             # 目盛りを描画
             painter.drawLine(-line_half, 0, line_half, 0)
 
             # 数字を描画
-            painter.drawText(text_x, text_y, f"{self._wrap_pi(deg)}°")
+            painter.drawText(text_x, text_y, f"{wrap(deg, 180)}°")
 
             # 目盛りの間隔だけ進める
             painter.translate(0, y_interval)
@@ -240,11 +244,6 @@ class _OrientationViewerWidget(Widget):
         painter.setPen(Qt.black)
         painter.setBrush(Qt.NoBrush)
         painter.resetTransform()
-
-    @staticmethod
-    def _wrap_pi(deg: int) -> int:
-        """角度を[-180, 180]の範囲にラップする．"""
-        return deg if deg <= 180 else deg - 360
 
     def _euler_cb(self, euler: Euler) -> None:
         if math.isnan(euler.roll) or math.isnan(euler.pitch) or math.isnan(euler.yaw):
