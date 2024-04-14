@@ -44,6 +44,7 @@ class _OrientationViewerWidget(Widget):
     LINE_WIDTH = 3  # ゲージ線の幅
     ROLL_RADIUS = 200  # ロール円の半径
     ROLL_TICK_LENGTH = 10
+    SCALE_INTERVAL = 10  # [deg]
     ALPHA = math.pi / 4  # ピッチ角の最大値
     EPS = 1e-6
 
@@ -180,21 +181,15 @@ class _OrientationViewerWidget(Widget):
         painter.drawEllipse(QPoint(0, 0), self.ROLL_RADIUS, self.ROLL_RADIUS)
 
         outer_radius = self.ROLL_RADIUS + self.ROLL_TICK_LENGTH
-        for i in range(36):
-            angle = math.radians((i - 9) * 10)
-            inner_x = self.ROLL_RADIUS * math.cos(angle)
-            inner_y = self.ROLL_RADIUS * math.sin(angle)
-            outer_x = outer_radius * math.cos(angle)
-            outer_y = outer_radius * math.sin(angle)
-
+        text_radius = outer_radius + 10
+        for deg in range(0, 360, self.SCALE_INTERVAL):
             # 目盛りを描画
-            painter.drawLine(QPointF(inner_x, inner_y), QPointF(outer_x, outer_y))
+            painter.drawLine(QPointF(0, -self.ROLL_RADIUS), QPointF(0, -outer_radius))
 
             # 数字を描画
-            text_radius = outer_radius + 20  # テキストの半径
-            text_x = text_radius * math.cos(angle) - 10  # テキスト位置調整
-            text_y = text_radius * math.sin(angle) + 5  # テキスト位置調整
-            painter.drawText(QPointF(text_x, text_y), f"{self._wrap_pi(i * 10)}°")
+            painter.drawText(QPointF(-10, -text_radius), f"{self._wrap_pi(deg)}°")
+
+            painter.rotate(self.SCALE_INTERVAL)
 
         # 移動をリセット
         painter.resetTransform()
@@ -205,7 +200,7 @@ class _OrientationViewerWidget(Widget):
     @staticmethod
     def _wrap_pi(deg: int) -> int:
         """角度を[-180, 180]の範囲にラップする．"""
-        return deg if deg < 180 else deg - 360
+        return deg if deg <= 180 else deg - 360
 
     def _euler_cb(self, euler: Euler) -> None:
         if math.isnan(euler.roll) or math.isnan(euler.pitch) or math.isnan(euler.yaw):
