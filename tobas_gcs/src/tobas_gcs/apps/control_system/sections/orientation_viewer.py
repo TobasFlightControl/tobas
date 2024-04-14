@@ -175,14 +175,12 @@ class _OrientationViewerWidget(Widget):
             return left > right
 
     def _draw_roll(self, painter: QPainter) -> None:
-        # ペンの設定
-        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
-
         # 機体から見た円の中心に移動
         painter.translate(self.width() / 2, self.height() / 2)
         painter.rotate(-math.degrees(self._roll))
 
         # 円を描画
+        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
         painter.drawEllipse(QPoint(0, 0), self.ROLL_RADIUS, self.ROLL_RADIUS)
 
         # 各値を描画
@@ -198,13 +196,16 @@ class _OrientationViewerWidget(Widget):
             # 目盛りの間隔だけ進める
             painter.rotate(self.SCALE_INTERVAL)
 
+        # 現在の位置に目印を描く
+        self._reset_painter(painter)
+        painter.translate(self.width() / 2, self.height() / 2)
+        painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
+        painter.drawLine(0, -self.ROLL_RADIUS - self.ROLL_TICK_LENGTH * 2, 0, -self.ROLL_RADIUS)
+
         # リセット
         self._reset_painter(painter)
 
     def _draw_pitch(self, painter: QPainter) -> None:
-        # ペンの設定
-        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
-
         # 機体から見た中心位置に移動
         painter.translate(self.width() / 2, self.height() / 2)
         painter.rotate(-math.degrees(self._roll))
@@ -222,6 +223,7 @@ class _OrientationViewerWidget(Widget):
         text_x = -line_half - 30
         text_y = 5
         y_interval = self._pitch2height(math.radians(self.SCALE_INTERVAL))
+        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
         for deg in range(pitch_min, pitch_max + 1, self.SCALE_INTERVAL):
             # 目盛りを描画
             painter.drawLine(-line_half, 0, line_half, 0)
@@ -231,6 +233,13 @@ class _OrientationViewerWidget(Widget):
 
             # 目盛りの間隔だけ進める
             painter.translate(0, y_interval)
+
+        # 現在の位置に目印を描く
+        self._reset_painter(painter)
+        painter.translate(self.width() / 2, self.height() / 2)
+        painter.rotate(-math.degrees(self._roll))
+        painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
+        painter.drawLine(-line_half, 0, line_half, 0)
 
         # リセット
         self._reset_painter(painter)

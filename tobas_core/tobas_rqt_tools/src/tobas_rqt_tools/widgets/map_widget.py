@@ -62,16 +62,13 @@ class MapWidget(QQuickWidget):
         self.setSource(QUrl.fromLocalFile(qml_path))
 
         # 更新周波数が大きすぎるとバグるため，インターバルを設ける．
-        cur_time = QDateTime.fromSecsSinceEpoch(0)
-        self._last_set_center = cur_time
-        self._last_set_zoom_level = cur_time
-        self._last_set_arrow_rotation = cur_time
+        t0 = QDateTime.fromSecsSinceEpoch(0)
+        self._last_set_center = t0
+        self._last_set_zoom_level = t0
+        self._last_set_arrow_rotation = t0
 
     def clear(self) -> None:
         self._marker.clear()
-        self.set_center(self.DEFAULT_LATITUDE, self.DEFAULT_LONGITUDE)
-        self.set_zoom_level(self.DEFAULT_ZOOM_LEVEL)
-        self.set_arrow_rotation(self.DEFAULT_ARROW_ROTATION)
 
     def append_marker(self, latitude: float, longitude: float, color: str = "red") -> None:
         assert -90 <= latitude <= 90
@@ -85,7 +82,7 @@ class MapWidget(QQuickWidget):
         assert -90 <= latitude <= 90
         assert -180 <= longitude <= 180
 
-        cur_time = QDateTime.currentDateTime()
+        cur_time = QDateTime.currentDateTimeUtc()
         elapsed_time = self._last_set_center.msecsTo(cur_time)
         if elapsed_time < self.MIN_INTERVAL:
             return
@@ -96,7 +93,7 @@ class MapWidget(QQuickWidget):
     def set_zoom_level(self, level: int) -> None:
         assert 0 <= level <= 20
 
-        cur_time = QDateTime.currentDateTime()
+        cur_time = QDateTime.currentDateTimeUtc()
         elapsed_time = self._last_set_zoom_level.msecsTo(cur_time)
         if elapsed_time < self.MIN_INTERVAL:
             return
@@ -106,7 +103,7 @@ class MapWidget(QQuickWidget):
 
     def set_arrow_rotation(self, angle: float) -> None:
 
-        cur_time = QDateTime.currentDateTime()
+        cur_time = QDateTime.currentDateTimeUtc()
         elapsed_time = self._last_set_arrow_rotation.msecsTo(cur_time)
         if elapsed_time < self.MIN_INTERVAL:
             return
