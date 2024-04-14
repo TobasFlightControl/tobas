@@ -18,6 +18,14 @@ from tobas_msgs.msg import Latency
 from .base_section import BaseControlSystemSectionWidget
 
 
+class PlotWidget(pg.PlotWidget):
+
+    def wheelEvent(self, e: QWheelEvent) -> None:
+        # マウスホイールイベントを無効化
+        # なぜか@overrideは付けられない
+        e.ignore()
+
+
 class LatencyViewerWidget(BaseControlSystemSectionWidget):
     LABEL = "Control Latency"
 
@@ -28,7 +36,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        self._pw = pg.PlotWidget()
+        self._pw = PlotWidget()
         self._pw.setFixedHeight(self.PLOT_HEIGHT)
         self._pw.setBackground("w")
         self._rows.addWidget(self._pw)
