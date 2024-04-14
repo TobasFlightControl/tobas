@@ -42,10 +42,12 @@ class _OrientationViewerWidget(Widget):
     W = 640
     H = 480
     LINE_WIDTH = 3  # ゲージ線の幅
+    ALPHA = math.pi / 4  # ピッチ角の最大値
+    SCALE_INTERVAL = 10  # [deg]
     ROLL_RADIUS = 200  # ロール円の半径
     ROLL_TICK_LENGTH = 10
-    SCALE_INTERVAL = 10  # [deg]
-    ALPHA = math.pi / 4  # ピッチ角の最大値
+    PITCH_MAX = 90  # [deg]
+    PITCH_LINE_LENGTH = 100
     EPS = 1e-6
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
@@ -157,6 +159,9 @@ class _OrientationViewerWidget(Widget):
         painter.setBrush(Qt.blue)
         painter.drawPolygon(polygon)
 
+        # リセット
+        self._reset_painter(painter)
+
     def _is_sky(self, p: QPoint) -> bool:
         """カメラの枠内の点が空に含まれるかどうかを判定する．"""
         left = p.y()
@@ -169,33 +174,72 @@ class _OrientationViewerWidget(Widget):
             return left > right
 
     def _draw_roll(self, painter: QPainter) -> None:
-        center = QPointF(self.width() / 2, self.height() / 2)
+        center = QPoint(self.width() // 2, self.height() // 2)
 
         # 機体から見た円の中心に移動
         painter.translate(center)
         painter.rotate(-math.degrees(self._roll))
 
+        # ペンの設定
         painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
-        painter.setBrush(Qt.NoBrush)
 
+        # 円を描画
         painter.drawEllipse(QPoint(0, 0), self.ROLL_RADIUS, self.ROLL_RADIUS)
 
+        # 各値を描画
         outer_radius = self.ROLL_RADIUS + self.ROLL_TICK_LENGTH
         text_radius = outer_radius + 10
         for deg in range(0, 360, self.SCALE_INTERVAL):
             # 目盛りを描画
-            painter.drawLine(QPointF(0, -self.ROLL_RADIUS), QPointF(0, -outer_radius))
+            painter.drawLine(0, -self.ROLL_RADIUS, 0, -outer_radius)
 
             # 数字を描画
-            painter.drawText(QPointF(-10, -text_radius), f"{self._wrap_pi(deg)}°")
+            painter.drawText(-10, -text_radius, f"{self._wrap_pi(deg)}°")
 
+            # 目盛りの間隔だけ進める
             painter.rotate(self.SCALE_INTERVAL)
 
-        # 移動をリセット
-        painter.resetTransform()
+        # リセット
+        self._reset_painter(painter)
 
     def _draw_pitch(self, painter: QPainter) -> None:
-        pass  # TODO
+        center = QPoint(self.width() // 2, self.height() // 2)
+
+        # 機体から見た開始位置に移動
+        painter.translate(center)
+        painter.rotate(-math.degrees(self._roll))
+        painter.translate(0, self._pitch2height(-self._pitch - math.radians(self.PITCH_MAX)))
+
+        # ペンの設定
+        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+
+        # 各値を描画
+        line_half = self.PITCH_LINE_LENGTH // 2
+        text_x = -line_half - 30
+        text_y = 5
+        y_interval = self._pitch2height(math.radians(self.SCALE_INTERVAL))
+        for deg in range(-self.PITCH_MAX, self.PITCH_MAX + 1, self.SCALE_INTERVAL):
+            # 目盛りを描画
+            painter.drawLine(-line_half, 0, line_half, 0)
+
+            # 数字を描画
+            painter.drawText(text_x, text_y, f"{self._wrap_pi(deg)}°")
+
+            # 目盛りの間隔だけ進める
+            painter.translate(0, y_interval)
+
+        # リセット
+        self._reset_painter(painter)
+
+    def _pitch2height(self, pitch: float) -> None:
+        """ピッチ角 [rad] をウィンドウ高さに変換する．"""
+        return self.height() * pitch / (2 * self.ALPHA)
+
+    @staticmethod
+    def _reset_painter(painter: QPainter) -> None:
+        painter.setPen(Qt.black)
+        painter.setBrush(Qt.NoBrush)
+        painter.resetTransform()
 
     @staticmethod
     def _wrap_pi(deg: int) -> int:
