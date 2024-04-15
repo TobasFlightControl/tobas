@@ -14,7 +14,7 @@ SOURCE_CMD = "source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash"
 TITLE_PSIZE = 18
 LABEL_PSIZE = 12
 BODY_PSIZE = 9
-PAINT_REFRESH_DURATION = 100  # [ms]
+PAINT_REFRESH_PERIOD = 30  # [ms]
 
 # Raspberry Pi
 CATKIN_WS_TOBAS = "/etc/tobas/catkin_ws/"  # Tobasパッケージ用ワークスペース

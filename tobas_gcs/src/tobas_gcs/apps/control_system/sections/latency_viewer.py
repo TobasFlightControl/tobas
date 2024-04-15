@@ -15,6 +15,7 @@ from tobas_rospy.timestamped_buffer import TimestampedBuffer
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Latency
 
+from ....common import PAINT_REFRESH_PERIOD
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -31,7 +32,6 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
 
     PLOT_HEIGHT = 300
     EXPIRY_DURATION = 10  # [s]
-    PLOT_UPDATE_PERIOD = 100  # [ms]
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
@@ -62,7 +62,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
             f"/{self._drone.drone_name}/latency", Latency, self._latency_cb, queue_size=1
         )
 
-        self._timer.start(self.PLOT_UPDATE_PERIOD)
+        self._timer.start(PAINT_REFRESH_PERIOD)
 
     def _latency_cb(self, latency: Latency) -> None:
         self._buffer.add(latency.header.stamp, latency.data)

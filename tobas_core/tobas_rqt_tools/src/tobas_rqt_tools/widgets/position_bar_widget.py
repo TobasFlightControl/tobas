@@ -13,7 +13,7 @@ from tobas_std_tools_py.math import remap
 class PositionBarWidget(QWidget):
     DEFAULT_LINE_WIDTH = 3
     DEFAULT_TEXT_PSIZE = 10
-    DEFAULT_UPDATE_RATE = 10  # [Hz] リフレッシュレート
+    DEFAULT_REFRESH_PERIOD = 30  # [ms] 描画の更新周期
 
     def __init__(
         self,
@@ -90,9 +90,9 @@ class PositionBarWidget(QWidget):
         self._upper = self._minimum
         self.update()
 
-    def start_timer(self, update_rate: int = DEFAULT_UPDATE_RATE) -> None:
-        assert update_rate > 0
-        self._timer.start(1000 / update_rate)
+    def start_timer(self, refresh_period: int = DEFAULT_REFRESH_PERIOD) -> None:
+        assert refresh_period >= 0
+        self._timer.start(refresh_period)
 
     def stop_timer(self) -> None:
         self._timer.stop()

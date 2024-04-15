@@ -16,7 +16,7 @@ from tobas_kdl_msgs.msg import Euler
 from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.drone import Drone
 
-from ....common import PAINT_REFRESH_DURATION
+from ....common import PAINT_REFRESH_PERIOD
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -41,15 +41,17 @@ class OrientationViewerWidget(BaseControlSystemSectionWidget):
 class _OrientationViewerWidget(Widget):
 
     W = 640
-    H = 480
+    H = 640
     LINE_WIDTH = 3  # ゲージ線の幅
-    ALPHA = math.pi / 4  # ピッチ角の最大値
     SCALE_INTERVAL = 10  # [deg]
     ROLL_RADIUS = 200  # ロール円の半径
     ROLL_TICK_LENGTH = 10
-    PITCH_RANGE = 30  # [deg] 描画するピッチ角の範囲
+    PITCH_HEIGHT_RANGE = math.radians(120)
+    PITCH_VISUAL_RANGE = 25  # [deg] 描画するピッチ角の範囲
     PITCH_LINE_LENGTH = 100
-    EPS = 1e-6
+    YAW_WIDTH_RANGE = math.radians(120)
+    YAW_LINE_Y = 60
+    YAW_TICK_LENGTH = 10
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__()
@@ -79,7 +81,7 @@ class _OrientationViewerWidget(Widget):
             self._euler_sub.unregister()
         self._euler_sub = rospy.Subscriber(f"/{self._drone.drone_name}/euler", Euler, self._euler_cb, queue_size=1)
 
-        self._timer.start(PAINT_REFRESH_DURATION)
+        self._timer.start(PAINT_REFRESH_PERIOD)
 
     @override
     def paintEvent(self, _: QPaintEvent) -> None:
@@ -90,6 +92,7 @@ class _OrientationViewerWidget(Widget):
         self._draw_sky(painter)
         self._draw_roll(painter)
         self._draw_pitch(painter)
+        self._draw_yaw(painter)
 
         painter.end()
 
@@ -107,8 +110,8 @@ class _OrientationViewerWidget(Widget):
         """空に含まれる領域を塗りつぶす． (memo: 2-59)"""
         tan_roll = math.tan(self._roll)
         tan_roll_sign = 1 if tan_roll >= 0 else -1
-        tan_roll += tan_roll_sign * self.EPS  # tan(roll)が0になるのを防ぐ
-        pitch_rate = self._pitch / self.ALPHA
+        tan_roll += tan_roll_sign * 1e-6  # tan(roll)が0になるのを防ぐ
+        pitch_rate = 2 * self._pitch / self.PITCH_HEIGHT_RANGE
 
         OO = QPoint(0, 0)
         WO = QPoint(self.width(), 0)
@@ -185,7 +188,7 @@ class _OrientationViewerWidget(Widget):
 
         # 各値を描画
         outer_radius = self.ROLL_RADIUS + self.ROLL_TICK_LENGTH
-        text_radius = outer_radius + 10
+        text_radius = outer_radius + 20
         for deg in range(0, 360, self.SCALE_INTERVAL):
             # 目盛りを描画
             painter.drawLine(0, -self.ROLL_RADIUS, 0, -outer_radius)
@@ -212,8 +215,8 @@ class _OrientationViewerWidget(Widget):
 
         # 描画する値の範囲を決める
         pitch_deg = math.degrees(self._pitch)
-        pitch_min = floor(pitch_deg - self.PITCH_RANGE, self.SCALE_INTERVAL)
-        pitch_max = ceil(pitch_deg + self.PITCH_RANGE, self.SCALE_INTERVAL)
+        pitch_min = floor(pitch_deg - self.PITCH_VISUAL_RANGE, self.SCALE_INTERVAL)
+        pitch_max = ceil(pitch_deg + self.PITCH_VISUAL_RANGE, self.SCALE_INTERVAL)
 
         # 初期位置に移動
         painter.translate(0, self._pitch2height(math.radians(pitch_min - pitch_deg)))
@@ -244,9 +247,53 @@ class _OrientationViewerWidget(Widget):
         # リセット
         self._reset_painter(painter)
 
-    def _pitch2height(self, pitch: float) -> None:
+    def _draw_yaw(self, painter: QPainter) -> None:
+        # 中心位置に移動
+        beta = self.YAW_WIDTH_RANGE / 2  # [rad]
+        painter.translate(self._yaw2width(beta), self.YAW_LINE_Y)
+
+        # 数直線を描画
+        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+        painter.drawLine(-self.width() / 2, 0, self.width() / 2, 0)
+
+        # 描画する値の範囲を決める
+        yaw_deg = math.degrees(self._yaw)
+        yaw_min = floor(math.degrees(self._yaw - beta), self.SCALE_INTERVAL)
+        yaw_max = ceil(math.degrees(self._yaw + beta), self.SCALE_INTERVAL)
+
+        # 初期位置に移動
+        painter.translate(self._yaw2width(math.radians(yaw_deg - yaw_min)), 0)
+
+        # 各値を描画
+        text_x = -10
+        text_y = -self.YAW_TICK_LENGTH - 20
+        x_interval = self._yaw2width(math.radians(self.SCALE_INTERVAL))
+        for deg in range(yaw_min, yaw_max + 1, self.SCALE_INTERVAL):
+            # 目盛りを描画
+            painter.drawLine(0, 0, 0, -self.YAW_TICK_LENGTH)
+
+            # 数字を描画
+            painter.drawText(text_x, text_y, f"{wrap(deg, 180)}°")
+
+            # 目盛りの間隔だけ進める
+            painter.translate(-x_interval, 0)
+
+        # 現在の位置に目印を描く
+        self._reset_painter(painter)
+        painter.translate(self._yaw2width(beta), self.YAW_LINE_Y)
+        painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
+        painter.drawLine(0, 0, 0, -self.YAW_TICK_LENGTH * 2)
+
+        # リセット
+        self._reset_painter(painter)
+
+    def _pitch2height(self, pitch: float) -> float:
         """ピッチ角 [rad] をウィンドウ高さに変換する．"""
-        return self.height() * pitch / (2 * self.ALPHA)
+        return self.height() * pitch / self.PITCH_HEIGHT_RANGE
+
+    def _yaw2width(self, yaw: float) -> float:
+        """ヨー角 [rad] をウィンドウ幅に変換する．"""
+        return self.width() * yaw / self.YAW_WIDTH_RANGE
 
     @staticmethod
     def _reset_painter(painter: QPainter) -> None:
@@ -265,5 +312,6 @@ class _OrientationViewerWidget(Widget):
         self._yaw = euler.yaw
 
         tan_roll = math.tan(euler.roll)
+        alpha = self.PITCH_HEIGHT_RANGE / 2
         self._slope = -tan_roll
-        self._y_intercept = (self.width() * tan_roll + self.height() * (1 - euler.pitch / self.ALPHA)) / 2
+        self._y_intercept = (self.width() * tan_roll + self.height() * (1 - euler.pitch / alpha)) / 2
