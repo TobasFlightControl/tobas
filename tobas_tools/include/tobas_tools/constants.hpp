@@ -55,6 +55,7 @@ static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
 static constexpr char kEventTopic[] = "event";
+static constexpr char kMessageTopic[] = "message";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
