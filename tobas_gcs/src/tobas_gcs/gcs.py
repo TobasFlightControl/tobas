@@ -7,6 +7,7 @@ from tobas_tools_py.drone import Drone
 
 from .apps import *
 from .package_manager import PackageManagerWidget
+from .shutdown_button import ShutdownButtonWidget
 
 
 class GroundControlStationWidget(Widget):
@@ -15,13 +16,13 @@ class GroundControlStationWidget(Widget):
 
         self._drone = Drone()
 
-        self.start = StartWidget(self, self._drone)
-        self.urdf_builder = UrdfBuilderWidget(self, self._drone)
-        self.setup_assistant = SetupAssistantWidget(self, self._drone)
-        self.hardware_setup = HardwareSetupWidget(self, self._drone)
-        self.simulation = SimulationWidget(self, self._drone)
-        self.mission_planner = MissionPlannerWidget(self, self._drone)
-        self.control_system = ControlSystemWidget(self, self._drone)
+        self._start = StartWidget(self, self._drone)
+        self._urdf_builder = UrdfBuilderWidget(self, self._drone)
+        self._setup_assistant = SetupAssistantWidget(self, self._drone)
+        self._hardware_setup = HardwareSetupWidget(self, self._drone)
+        self._simulation = SimulationWidget(self, self._drone)
+        self._mission_planner = MissionPlannerWidget(self, self._drone)
+        self._control_system = ControlSystemWidget(self, self._drone)
 
         self._combo_box = ComboBox()
         self._combo_box.addItem(StartWidget.NAME)
@@ -33,15 +34,16 @@ class GroundControlStationWidget(Widget):
         self._combo_box.addItem(ControlSystemWidget.NAME)
 
         self._apps = QStackedWidget()
-        self._apps.addWidget(self.start)
-        self._apps.addWidget(self.urdf_builder)
-        self._apps.addWidget(self.setup_assistant)
-        self._apps.addWidget(self.hardware_setup)
-        self._apps.addWidget(self.simulation)
-        # self._apps.addWidget(self.mission_planner)  # TODO
-        self._apps.addWidget(self.control_system)
+        self._apps.addWidget(self._start)
+        self._apps.addWidget(self._urdf_builder)
+        self._apps.addWidget(self._setup_assistant)
+        self._apps.addWidget(self._hardware_setup)
+        self._apps.addWidget(self._simulation)
+        # self._apps.addWidget(self._mission_planner)  # TODO
+        self._apps.addWidget(self._control_system)
 
-        self.package_manager = PackageManagerWidget(self, self._drone)
+        self._package_manager = PackageManagerWidget(self, self._drone)
+        self._shutdown_button = ShutdownButtonWidget(self, self._drone)
 
         # レイアウト
         rows = QVBoxLayout()
@@ -49,9 +51,11 @@ class GroundControlStationWidget(Widget):
         cols = QHBoxLayout()
         rows.addLayout(cols)
         cols.addWidget(self._combo_box)
-        cols.addWidget(self.package_manager)
+        cols.addWidget(self._package_manager)
+        cols.addWidget(self._shutdown_button)
         cols.setAlignment(self._combo_box, Qt.AlignLeft)
-        cols.setAlignment(self.package_manager, Qt.AlignRight)
+        cols.setAlignment(self._package_manager, Qt.AlignCenter)
+        cols.setAlignment(self._shutdown_button, Qt.AlignRight)
         rows.addWidget(self._apps)
 
         # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
@@ -61,22 +65,23 @@ class GroundControlStationWidget(Widget):
         # 選択リストから選択されたアプリケーションを表示
         self._combo_box.currentIndexChanged.connect(self._apps.setCurrentIndex)
 
-        self.start.define_connections()
-        self.urdf_builder.define_connections()
-        self.setup_assistant.define_connections()
-        self.hardware_setup.define_connections()
-        self.simulation.define_connections()
-        self.mission_planner.define_connections()
-        self.control_system.define_connections()
-
-        self.package_manager.define_connections()
+        self._start.define_connections()
+        self._urdf_builder.define_connections()
+        self._setup_assistant.define_connections()
+        self._hardware_setup.define_connections()
+        self._simulation.define_connections()
+        self._mission_planner.define_connections()
+        self._control_system.define_connections()
 
     def update_internal_data_structures(self) -> None:
         """ドローンの更新に応じて内部データを更新．"""
-        self.start.update_internal_data_structures()
-        self.urdf_builder.update_internal_data_structures()
-        self.setup_assistant.update_internal_data_structures()
-        self.hardware_setup.update_internal_data_structures()
-        self.simulation.update_internal_data_structures()
-        self.mission_planner.update_internal_data_structures()
-        self.control_system.update_internal_data_structures()
+        self._start.update_internal_data_structures()
+        self._urdf_builder.update_internal_data_structures()
+        self._setup_assistant.update_internal_data_structures()
+        self._hardware_setup.update_internal_data_structures()
+        self._simulation.update_internal_data_structures()
+        self._mission_planner.update_internal_data_structures()
+        self._control_system.update_internal_data_structures()
+
+    def package_path(self) -> str:
+        return self._package_manager.package_path()
