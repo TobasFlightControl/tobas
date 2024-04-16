@@ -48,6 +48,7 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         grid.addWidget(self._x_stddev, 1, 0)
         grid.addWidget(self._y_stddev, 1, 1)
         grid.addWidget(self._z_stddev, 1, 2)
+        grid.setColumnStretch(3, 1)
 
         self._gps_sub = None
         self._euler_sub = None

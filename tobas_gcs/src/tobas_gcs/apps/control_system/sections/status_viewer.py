@@ -68,7 +68,6 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
 
         grid = QGridLayout()
         self._rows.addLayout(grid)
-
         grid.addWidget(self._gps_status, 0, 0)
         grid.addWidget(self._rcin_status, 0, 1)
         grid.addWidget(self._voltage_status, 0, 2)
@@ -78,6 +77,7 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         grid.addWidget(self._vel_accuracy_status, 2, 0)
         grid.addWidget(self._ready_status, 2, 1)
         grid.addWidget(self._arming_status, 2, 2)
+        grid.setColumnStretch(3, 1)
 
         self._gps_sub = None
         self._rcin_sub = None
