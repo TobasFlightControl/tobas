@@ -9,7 +9,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import q_error
 from tobas_tools_py.drone import Drone
 
 from ....common import *
@@ -30,6 +29,8 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
         cols = QHBoxLayout()
         self._rows.addLayout(cols)
+
+        # TODO: コマンド中にキャンセルできるように
 
         self._takeoff_button = QPushButton("Takeoff")
         self._takeoff_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
@@ -57,12 +58,12 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
     @pyqtSlot()
     def _on_takeoff_button_clicked(self) -> None:
-        q_error(self._main, "Not implemented yet.")  # TODO
+        pass  # TODO
 
     @pyqtSlot()
     def _on_landing_button_clicked(self) -> None:
-        q_error(self._main, "Not implemented yet.")  # TODO
+        pass  # TODO
 
     @pyqtSlot()
     def _on_rth_button_clicked(self) -> None:
-        q_error(self._main, "Not implemented yet.")  # TODO
+        pass  # TODO
