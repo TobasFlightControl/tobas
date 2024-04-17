@@ -20,6 +20,8 @@ from ..base import BaseAppWidget
 class ConsoleWidget(BaseAppWidget):
     NAME = "Console"
 
+    MAX_ROWS = 1000  # 表示するメッセージの最大数
+
     LABELS = ("Stamp", "Name", "Level", "Message")
     COL_STAMP = 0
     COL_NAME = 1
@@ -69,7 +71,13 @@ class ConsoleWidget(BaseAppWidget):
         if message.level == Message.DEBUG:
             return
 
+        # 先頭に行を追加
         self._table.insertRow(0)
+
+        # 行が溢れていたら古い方から消す
+        num_rows = self._table.rowCount()
+        if num_rows > self.MAX_ROWS:
+            self._table.removeRow(num_rows - 1)
 
         stamp = message.header.stamp
         stamp_item = QTableWidgetItem(f"{stamp.secs}.{stamp.nsecs}")
@@ -78,6 +86,7 @@ class ConsoleWidget(BaseAppWidget):
         name_item = QTableWidgetItem(message.name)
         self._table.setItem(0, self.COL_NAME, name_item)
 
+        # TODO: メッセージにカーソルを重ねると全文を表示 (cf. rqt_console)
         message_item = QTableWidgetItem(message.message)
 
         if message.level == Message.DEBUG:
