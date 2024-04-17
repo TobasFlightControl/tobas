@@ -38,8 +38,8 @@ private:
 };
 
 /**
- * \brief  This class encapsulates a <strong>tree</strong>
- * kinematic interconnection structure. It is built out of segments.
+ * \brief  This class encapsulates a tree kinematic interconnection structure.
+ * It is built out of segments.
  */
 class Tree
 {
@@ -88,8 +88,8 @@ public:
 
   /**
    * Request the total number of joints in the tree.\n
-   * <strong> Important:</strong> It is not the same as the
-   * total number of segments since a segment does not need to have a joint.
+   * Important: It is not the same as the total number of segments
+   * since a segment does not need to have a joint.
    *
    * @return total nr of joints
    */
@@ -167,8 +167,7 @@ public:
 
 private:
   SegmentMap segments_;
-  size_t nj_;
-  size_t ns_;
+  size_t nj_, ns_;
   std::string root_name_;
 
   bool addTreeRecursive(const SegmentMap::const_iterator& root, const std::string& hook_name);
