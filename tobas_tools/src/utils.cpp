@@ -2,7 +2,6 @@
 #include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
-#include <tobas_ros_tools/exception.hpp>
 
 #include "../include/tobas_tools/utils.hpp"
 #include "../include/tobas_tools/constants.hpp"

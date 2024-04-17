@@ -1,8 +1,6 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_msgs/RCInput.h>
 
 #include "../include/tobas_navio_ros/rcin_handler.hpp"
@@ -22,10 +20,10 @@ RCInputHandler::RCInputHandler(
   getRosParams();
 
   if (!reloadConfig())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to load configurations.");
+    exit("Failed to load configurations.");
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
-    ROS_EXIT_NAMED(nh_, name_, "Failed to initialize RC input driver.");
+    exit("Failed to initialize RC input driver.");
 
   registerPublishers();
   registerSubscribers();
@@ -134,7 +132,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
 
   // Error message
   if (rcin_msg->error.error != tobas_msgs::RCInputError::E_NO_ERROR)
-    rosErrorThrottle(kErrorPeriod, name_, "Failed to read RC input.");
+    errorThrottle(kErrorPeriod, "Failed to read RC input.");
 
   // Publish message
   rcin_pub_.publish(rcin_msg);

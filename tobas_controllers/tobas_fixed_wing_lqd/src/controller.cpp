@@ -2,9 +2,6 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/frames.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
@@ -33,7 +30,7 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   eom_.updateInternalDataStructures();
 
   if (x_rotors_.count() == 0)
-    ROS_EXIT_NAMED(nh_, name_, "The number of propellers is zero.");
+    exit("The number of propellers is zero.");
 
   q_0_.resize(drone_.tree().getNrOfJoints());
 
@@ -247,13 +244,13 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
     case tobas::SolverI::E_NO_ERROR:
       break;
     case tobas::SolverI::E_WARN:
-      rosWarn(name_, eom_.errorMessage());
+      warn(eom_.errorMessage());
       break;
     case tobas::SolverI::E_ERROR:
-      rosError(name_, eom_.errorMessage());
+      error(eom_.errorMessage());
       return;
     default:
-      rosWarn(name_, "Unknown error code from MicroDisturbanceEoM.");
+      warn("Unknown error code from MicroDisturbanceEoM.");
       break;
   }
 
@@ -292,13 +289,13 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (air_pressure_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
+    info("Waiting for ", ns(), tobas::kAirPressureTopic);
 
   if (battery_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryLpfTopic);
+    info("Waiting for ", ns(), tobas::kBatteryLpfTopic);
 
   if (odom_nwu_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
+    info("Waiting for ", ns(), tobas::kOdometryTopic);
 }
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)

@@ -1,6 +1,4 @@
 #include <tobas_std_tools/zip.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -70,7 +68,7 @@ int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& posi
 
 int PositionControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray&)
 {
-  rosError(name_, "Task space control of joint position controller is not implemented.");  // TODO
+  error("Task space control of joint position controller is not implemented.");  // TODO
 
   return 0;
 }
@@ -86,10 +84,9 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
-    rosWarn(
-      name_, "The target joint states are automatically reset because "
-               << tobas::kAutoResetTimeThreshold
-               << " seconds have elapsed since the last command.");
+    warn(
+      "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
+      " seconds have elapsed since the last command.");
   }
 
   // Create joint velocities command
@@ -108,7 +105,7 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   }
   else
   {
-    rosError(name_, "Both target joint state and target link state are NULL.");
+    error("Both target joint state and target link state are NULL.");
     return;
   }
 

@@ -1,8 +1,5 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
@@ -56,11 +53,7 @@ void SpeedRollDeltaPitchController::getRosParams(ros::NodeHandle& pnh)
   tobas_ros::getParam(
     pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
 
-  if (min_speed_ > max_speed_)
-  {
-    rosError(kControllerName, "Maximum speed must be greater than minimum speed.");
-    swap(min_speed_, max_speed_);
-  }
+  ROS_CHECK(pnh, min_speed_ < max_speed_, "Maximum speed must be greater than minimum speed.");
 }
 
 void SpeedRollDeltaPitchController::registerPublishers(ros::NodeHandle& nh)

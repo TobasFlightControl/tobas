@@ -13,18 +13,22 @@ using namespace tobas_std;
 
 namespace tobas_calibration
 {
-MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh)
+MagCalibrationRos::MagCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name)
 {
   imu_.initialize();
 
   collect_data_timer_ =
-    nh.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
+    nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
 
-  mag_pub_ = nh.advertise<geometry_msgs::PointStamped>(kMagTopicName, 1);
+  mag_pub_ = nh_.advertise<geometry_msgs::PointStamped>(kMagTopicName, 1);
 
-  start_ss_ = nh.advertiseService(kStartServiceName, &self::startServiceCb, this);
-  finish_ss_ = nh.advertiseService(kFinishServiceName, &self::finishServiceCb, this);
-  cancel_ss_ = nh.advertiseService(kCancelServiceName, &self::cancelServiceCb, this);
+  start_ss_ = nh_.advertiseService(kStartServiceName, &self::startServiceCb, this);
+  finish_ss_ = nh_.advertiseService(kFinishServiceName, &self::finishServiceCb, this);
+  cancel_ss_ = nh_.advertiseService(kCancelServiceName, &self::cancelServiceCb, this);
 }
 
 void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)

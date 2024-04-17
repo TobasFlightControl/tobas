@@ -21,7 +21,4 @@ static constexpr char kFrameType[] = "FRAME_TYPE";
 static constexpr char kArmingCheck[] = "ARMING_CHECK";
 
 static constexpr size_t kMaxConnectionTimeoutCount = 10;
-
-// Default parameters
-static constexpr double kWarnPeriod = 3.;  // [s]
 }  // namespace tobas_mr_arducopter

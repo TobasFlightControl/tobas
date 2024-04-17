@@ -1,7 +1,6 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
@@ -152,7 +151,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   {
     // 可動関節角を更新
     if (drone_.isTransformable() && js_converter_.jointStateToJntArrayPos(*js_) < 0)
-      rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
+      error("Joint state converter failed: ", js_converter_.errorMessage());
 
     // 目標角加速度を計算
     const auto tar_dgyro =
@@ -193,7 +192,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 {
   if (js->name.size() != js->position.size())
   {
-    rosError(name_, "The size of joint name and position is different.");
+    error("The size of joint name and position is different.");
     return;
   }
 
@@ -220,7 +219,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
   {
-    rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
+    error("Failed to change command frame. Probably the frame id is invalid.");
     tar_pvay_W_ = nullptr;
     return;
   }
@@ -244,16 +243,16 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (battery_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryLpfTopic);
+    info("Waiting for ", ns(), tobas::kBatteryLpfTopic);
 
   if (odom_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
+    info("Waiting for ", ns(), tobas::kOdometryTopic);
 
   if (drone_.isTransformable() && js_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic);
+    info("Waiting for ", ns(), tobas::kJointStatesTopic);
 
   if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kThrustCorrectionFactorTopic);
+    info("Waiting for ", ns(), tobas::kThrustCorrectionFactorTopic);
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
@@ -285,6 +284,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 
   // TODO: Mixerの設定
 
-  rosInfo(name_, "Dynamic parameters are updated.");
+  info("Dynamic parameters are updated.");
 }
 }  // namespace tobas_mr_pid

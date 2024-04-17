@@ -8,11 +8,15 @@ using namespace Eigen;
 
 namespace tobas_calibration
 {
-AccelCalibrationRos::AccelCalibrationRos(ros::NodeHandle& nh)
+AccelCalibrationRos::AccelCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name)
 {
   imu_.initialize();
 
-  ss_ = nh.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
+  ss_ = nh_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
 
 Vector3f AccelCalibrationRos::readAccel()

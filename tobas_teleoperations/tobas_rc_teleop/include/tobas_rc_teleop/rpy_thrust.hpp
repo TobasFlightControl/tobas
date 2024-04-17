@@ -8,8 +8,6 @@ namespace tobas_rc_teleop
 {
 class RollPitchYawThrustController : public BaseController
 {
-  static constexpr char kControllerName[] = "roll_pitch_yaw_thrust_controller";
-
   using super = BaseController;
 
 public:

@@ -2,10 +2,10 @@
 
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/x11.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/rate.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -52,15 +52,15 @@ void PositionYawPublisher::run()
 {
   // 離陸アクションクライアントを用意
   actionlib::SimpleActionClient<tobas_msgs::TakeoffAction> takeoff(tobas::kTakeoffAction);
-  rosInfo(name_, "Waiting for '" << tobas::kTakeoffAction << "' action server.");
+  TOBAS_INFO("Waiting for '" << tobas::kTakeoffAction << "' action server.");
   if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
+    TOBAS_ERROR("Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
     return;
   }
 
   // 離陸
-  rosInfo(name_, "Requesting takeoff action.");
+  TOBAS_INFO("Requesting takeoff action.");
   tobas_msgs::TakeoffGoal takeoff_goal;
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
   takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
@@ -70,10 +70,10 @@ void PositionYawPublisher::run()
   const auto takeoff_state = takeoff.getState();
   if (takeoff_result->error_code != tobas_msgs::TakeoffResult::NO_ERROR)
   {
-    rosError(name_, "'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
+    TOBAS_ERROR("'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
     return;
   }
-  rosInfo(name_, "Takeoff finished successfully.");
+  TOBAS_INFO("Takeoff finished successfully.");
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
@@ -86,7 +86,7 @@ void PositionYawPublisher::run()
   }
   else
   {
-    rosError(name_, "Failed to get " << nh_.getNamespace() << "/" << tobas::kOdometryTopic << ".");
+    TOBAS_ERROR("Failed to get " << nh_.getNamespace() << "/" << tobas::kOdometryTopic << ".");
     cmd_pos_.x() = 0;
     cmd_pos_.y() = 0;
     cmd_pos_.z() = takeoff_goal.target_altitude;
@@ -98,61 +98,61 @@ void PositionYawPublisher::run()
   while (nh_.ok())
   {
     // インストラクション
-    rosInfoThrottle(kInstructionTimerPeriod, name_, instruction_);
+    infoThrottle(kInstructionTimerPeriod, instruction_);
 
     // キーボード入力に依ってコマンドを更新
     const auto c = key_reader_.readKey();
     if (c < 0)
-      rosError(name_, "Failed to read keyboard.");
+      TOBAS_ERROR("Failed to read keyboard.");
 
     switch (c)
     {
       case 'w':  // X+
       {
         cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));
-        rosInfo(name_, "[Moving forward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Moving forward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case 's':  // X-
       {
         cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() - delta_pos_));
-        rosInfo(name_, "[Moving backward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Moving backward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case 'a':  // Y+
       {
         cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() + delta_pos_));
-        rosInfo(name_, "[Moving left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Moving left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case 'd':  // Y-
       {
         cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() - delta_pos_));
-        rosInfo(name_, "[Moving right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Moving right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Up:  // Z+
       {
         cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() + delta_pos_));
-        rosInfo(name_, "[Moving up] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Moving up] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Down:  // Z-
       {
         cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() - delta_pos_));
-        rosInfo(name_, "[Moving down] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Moving down] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
         cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ + delta_rot_);
-        rosInfo(name_, "[Rotating left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Rotating left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
         cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ - delta_rot_);
-        rosInfo(name_, "[Rotating right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        TOBAS_INFO("[Rotating right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
     }

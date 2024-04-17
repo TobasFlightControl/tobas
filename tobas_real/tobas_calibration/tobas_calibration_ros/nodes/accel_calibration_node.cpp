@@ -4,6 +4,7 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "accel_calibration");
   ros::NodeHandle nh;
-  tobas_calibration::AccelCalibrationRos node(nh);
+  ros::NodeHandle pnh("~");
+  tobas_calibration::AccelCalibrationRos node(nh, pnh);
   ros::spin();
 }

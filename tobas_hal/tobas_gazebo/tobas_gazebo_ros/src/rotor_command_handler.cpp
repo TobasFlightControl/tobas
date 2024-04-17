@@ -1,6 +1,5 @@
 #include <std_msgs/Bool.h>
 
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/Throttles.h>
@@ -66,16 +65,16 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
 
   if (battery_ == nullptr)
   {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "The rotors cannot be rotated because battery state has not been received yet.");
+    errorThrottle(
+      kErrorPeriod, "The rotors cannot be rotated because battery state has not been received "
+                    "yet.");
     return;
   }
 
   const auto data_size = tar_speeds->speeds.size();
   if (data_size != drone_.numRotors())
   {
-    rosError(name_, "Size mismatch: " << data_size << " != " << drone_.numRotors());
+    error("Size mismatch: ", data_size, " != ", drone_.numRotors());
     return;
   }
 
@@ -91,16 +90,15 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)
     {
-      rosWarn(
-        name_, "Negative rotation speed is commanded on CH" << rotor_idx << ": " << tar_speed
-                                                            << " < 0 [rad/s]");
+      warn(
+        "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      rosWarn(
-        name_, "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
-                                             << max_speed << " [rad/s]");
+      warn(
+        "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
+        " [rad/s]");
       tar_speed = max_speed;
     }
 
