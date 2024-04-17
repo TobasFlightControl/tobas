@@ -215,6 +215,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       default:
       {
         TOBAS_ERROR("Unknown ESC signal mode of CH", rotor.channel);
+        pwm_period = kPwmMin;
         break;
       }
     }
