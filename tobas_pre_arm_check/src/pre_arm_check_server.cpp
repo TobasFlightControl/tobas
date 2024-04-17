@@ -17,28 +17,14 @@ PreArmCheckServer::PreArmCheckServer(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
-  registerPublishers();
-  registerSubscribers();
-  pre_arm_check_ss_ = nh_.advertiseService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
-  pre_arm_check_timer_ = nh_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
-}
-
-void PreArmCheckServer::getRosParams()
-{
-}
-
-void PreArmCheckServer::registerPublishers()
-{
   pre_arm_check_pub_ = nh_.advertise<tobas_msgs::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
-}
-
-void PreArmCheckServer::registerSubscribers()
-{
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+
+  pre_arm_check_ss_ = nh_.advertiseService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
+  pre_arm_check_timer_ = nh_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
 }
 
 void PreArmCheckServer::batteryCb(const tobas_msgs::BatteryConstPtr& battery)

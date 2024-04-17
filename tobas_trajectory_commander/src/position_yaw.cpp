@@ -23,25 +23,8 @@ FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
   const string& name)
   : super(nh, pnh, name), as_(nh_, kActionName, boost::bind(&self::executeCb, this, _1), false)
 {
-  getRosParams();
-
-  registerPublishers();
-  registerSubscribers();
-
-  as_.start();
-}
-
-void FollowPositionYawTrajectoryServer::getRosParams()
-{
-}
-
-void FollowPositionYawTrajectoryServer::registerPublishers()
-{
   cmd_pub_ = nh_.advertise<CommandType>(tobas::kPositionYawCmdTopic, 1);
-}
-
-void FollowPositionYawTrajectoryServer::registerSubscribers()
-{
+  as_.start();
 }
 
 bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)

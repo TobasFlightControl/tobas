@@ -32,10 +32,6 @@ private:
   ros::Subscriber velocities_sub_;
   ros::Subscriber efforts_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   int initialize();
 
   void jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions);

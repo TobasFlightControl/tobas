@@ -20,7 +20,7 @@ void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh
 {
   getRosParams(pnh);
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
-  registerPublishers(nh);
+  pos_yaw_pub_ = nh.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
 }
 
 void PositionYawController::reset(const tobas_msgs::Odometry& odom)
@@ -81,10 +81,5 @@ void PositionYawController::getRosParams(ros::NodeHandle& pnh)
     tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-}
-
-void PositionYawController::registerPublishers(ros::NodeHandle& nh)
-{
-  pos_yaw_pub_ = nh.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

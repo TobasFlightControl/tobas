@@ -44,8 +44,8 @@ PositionYawPublisher::PositionYawPublisher(
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  registerPublishers();
-  registerSubscribers();
+  pos_yaw_pub_ = nh_.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
+  pvay_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void PositionYawPublisher::run()
@@ -198,13 +198,4 @@ void PositionYawPublisher::getRosParams()
   ROS_ASSERT(yaw_limit_.isValid());
 }
 
-void PositionYawPublisher::registerPublishers()
-{
-  pos_yaw_pub_ = nh_.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
-  pvay_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-}
-
-void PositionYawPublisher::registerSubscribers()
-{
-}
 }  // namespace tobas_keyboard_teleop

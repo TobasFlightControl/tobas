@@ -43,10 +43,6 @@ private:
   ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void reset();
   bool disarmRotors();
 

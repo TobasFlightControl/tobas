@@ -14,24 +14,8 @@ TimeReferenceServer::TimeReferenceServer(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-
-  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
-}
-
-void TimeReferenceServer::getRosParams()
-{
-}
-
-void TimeReferenceServer::registerPublishers()
-{
   time_ref_pub_ = nh_.advertise<sensor_msgs::TimeReference>(tobas::kTimeReferenceTopic, 1);
-}
-
-void TimeReferenceServer::registerSubscribers()
-{
+  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
 void TimeReferenceServer::mainTimerCb(const ros::TimerEvent& event)

@@ -13,22 +13,7 @@ MatrixEulerConverter::MatrixEulerConverter(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-}
-
-void MatrixEulerConverter::getRosParams()
-{
-}
-
-void MatrixEulerConverter::registerPublishers()
-{
   euler_pub_ = nh_.advertise<tobas_kdl_msgs::Euler>(tobas::kEulerTopic, 1);
-}
-
-void MatrixEulerConverter::registerSubscribers()
-{
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 

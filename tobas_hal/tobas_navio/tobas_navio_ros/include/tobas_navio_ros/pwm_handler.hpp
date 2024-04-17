@@ -36,11 +36,6 @@ private:
   // Service Servers
   ros::ServiceServer enable_pwm_srv_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-  void registerServiceServers();
-
   void pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms);
   bool enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);
 };

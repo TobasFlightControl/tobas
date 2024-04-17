@@ -15,29 +15,15 @@ StateChecker::StateChecker(
   const string& name)
   : super(nh, pnh, name), landing_ac_(tobas::kLandingAction)
 {
-  getRosParams();
-
-  registerPublishers();
-  registerSubscribers();
-
-  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
-}
-
-void StateChecker::getRosParams()
-{
   tobas_ros::getParam(pnh_, "battery_voltage_threshold", voltage_threshold_, tobas_ros::POSITIVE);
-}
 
-void StateChecker::registerPublishers()
-{
   event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
-}
 
-void StateChecker::registerSubscribers()
-{
   cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void StateChecker::publishSystemCriticalEvent()

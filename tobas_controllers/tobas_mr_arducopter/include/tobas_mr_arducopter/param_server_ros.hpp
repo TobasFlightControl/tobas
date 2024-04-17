@@ -61,10 +61,7 @@ private:
 
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   void setParams(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
   void stateCb(const mavros_msgs::StateConstPtr& state);

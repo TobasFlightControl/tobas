@@ -48,10 +48,6 @@ private:
   ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void publishSystemCriticalEvent();
   void requestLanding();
   void requestDisarmingRotors();

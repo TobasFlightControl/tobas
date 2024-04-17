@@ -15,24 +15,8 @@ namespace tobas_real_ros
 CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-
-  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-}
-
-void CpuHandler::getRosParams()
-{
-}
-
-void CpuHandler::registerPublishers()
-{
   cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
-}
-
-void CpuHandler::registerSubscribers()
-{
+  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 bool CpuHandler::getTemperature(double& temp)

@@ -17,28 +17,11 @@ MultirotorLandServer::MultirotorLandServer(
     is_action_running_(false),
     as_(nh_, tobas::kLandingAction, boost::bind(&self::executeCb, this, _1), false)
 {
-  getRosParams();
-
-  registerPublishers();
-  registerSubscribers();
-
+  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
-}
-
-void MultirotorLandServer::getRosParams()
-{
-}
-
-void MultirotorLandServer::registerPublishers()
-{
-  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-}
-
-void MultirotorLandServer::registerSubscribers()
-{
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void MultirotorLandServer::reset()

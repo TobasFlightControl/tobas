@@ -17,21 +17,6 @@ JointCommandHandler::JointCommandHandler(
   const std::string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-}
-
-void JointCommandHandler::getRosParams()
-{
-}
-
-void JointCommandHandler::registerPublishers()
-{
-}
-
-void JointCommandHandler::registerSubscribers()
-{
   positions_sub_ = nh_.subscribe(
     tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
   velocities_sub_ = nh_.subscribe(

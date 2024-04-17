@@ -9,22 +9,7 @@ namespace tobas_preprocess
 BatteryLpf::BatteryLpf(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-}
-
-void BatteryLpf::getRosParams()
-{
-}
-
-void BatteryLpf::registerPublishers()
-{
   battery_lpf_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryLpfTopic, 1);
-}
-
-void BatteryLpf::registerSubscribers()
-{
   battery_raw_sub_ =
     nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryRawCb, this, tcpNoDelay());
 }

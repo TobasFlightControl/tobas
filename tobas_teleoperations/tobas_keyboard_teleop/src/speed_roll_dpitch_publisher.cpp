@@ -51,8 +51,9 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  registerPublishers();
-  registerSubscribers();
+  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
+  air_pressure_sub_ =
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 void SpeedRollDeltaPitchPublisher::run()
@@ -150,17 +151,6 @@ void SpeedRollDeltaPitchPublisher::getRosParams()
   tobas_ros::getParam(pnh_, "maximum_roll", max_roll_, kDefaultMaximumRoll, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, tobas_ros::POSITIVE);
-}
-
-void SpeedRollDeltaPitchPublisher::registerPublishers()
-{
-  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
-}
-
-void SpeedRollDeltaPitchPublisher::registerSubscribers()
-{
-  air_pressure_sub_ =
-    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()

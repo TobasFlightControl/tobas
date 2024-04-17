@@ -25,11 +25,14 @@ MotorsHandler::MotorsHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
-  registerPublishers();
-  registerSubscribers();
+  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
+  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
+
+  tar_speeds_sub_ =
+    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
@@ -40,23 +43,6 @@ MotorsHandler::MotorsHandler(
     nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
   publishArming();
-}
-
-void MotorsHandler::getRosParams()
-{
-}
-
-void MotorsHandler::registerPublishers()
-{
-  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
-}
-
-void MotorsHandler::registerSubscribers()
-{
-  tar_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 }
 
 bool MotorsHandler::armRotors()

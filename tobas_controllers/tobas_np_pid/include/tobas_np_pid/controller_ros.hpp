@@ -77,10 +77,8 @@ private:
   // Dynamic Reconfigure Server
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void registerPublishers();
+  void registerSubscribers();
   bool isReady() const;
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

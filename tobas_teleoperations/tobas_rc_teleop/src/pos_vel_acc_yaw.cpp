@@ -20,7 +20,8 @@ PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : supe
 void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-  registerPublishers(nh);
+
+  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
@@ -103,10 +104,5 @@ void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
   tobas_ros::getParam(
     pnh, "pos_vel_acc_yaw/delay_time_const", delay_time_const_, kDefaultDelayTimeConst,
     tobas_ros::NON_NEGATIVE);
-}
-
-void PosVelAccYawController::registerPublishers(ros::NodeHandle& nh)
-{
-  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

@@ -18,27 +18,9 @@ TakeoffActionServer::TakeoffActionServer(
   : super(nh, pnh, name),
     as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
 {
-  getRosParams();
-
-  registerPublishers();
-  registerSubscribers();
-
-  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
-
-  as_.start();
-}
-
-void TakeoffActionServer::getRosParams()
-{
-}
-
-void TakeoffActionServer::registerPublishers()
-{
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-}
-
-void TakeoffActionServer::registerSubscribers()
-{
+  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  as_.start();
 }
 
 bool TakeoffActionServer::isGoalValid(const GoalType& goal)

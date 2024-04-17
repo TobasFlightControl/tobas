@@ -63,10 +63,7 @@ private:
   ros::ServiceClient get_arm_sc_;
   ros::ServiceClient set_arm_sc_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   bool isRotorsArmed();
   bool requestArmingRotors();
   bool requestDisarmingRotors();

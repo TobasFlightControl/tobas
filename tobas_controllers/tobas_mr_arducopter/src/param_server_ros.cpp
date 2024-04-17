@@ -27,26 +27,16 @@ ParamServerRos::ParamServerRos(
   if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
     exit("Failed to connect to '", kParamSetSrv, "' service server.");
 
-  registerPublishers();
-  registerSubscribers();
+  server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
+  state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
+  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
+  param_updates_sub_ = nh_.subscribe(name + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
 
 void ParamServerRos::getRosParams()
 {
   tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
   tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
-}
-
-void ParamServerRos::registerPublishers()
-{
-  server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
-}
-
-void ParamServerRos::registerSubscribers()
-{
-  state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
-  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
-  param_updates_sub_ = nh_.subscribe(name() + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
 
 void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)

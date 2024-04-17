@@ -19,10 +19,8 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
       exit("Failed to set frequency of PWM CH", channel, ".");
   }
 
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-  registerServiceServers();
+  pwms_sub_ = nh_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
+  enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
 }
 
 PwmHandler::~PwmHandler()
@@ -37,24 +35,6 @@ PwmHandler::~PwmHandler()
         TOBAS_ERROR("Failed to disable PWM CH", channel, ".");
     }
   }
-}
-
-void PwmHandler::getRosParams()
-{
-}
-
-void PwmHandler::registerPublishers()
-{
-}
-
-void PwmHandler::registerSubscribers()
-{
-  pwms_sub_ = nh_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
-}
-
-void PwmHandler::registerServiceServers()
-{
-  enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
 }
 
 void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)

@@ -15,33 +15,17 @@ BatteryHandler::BatteryHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
     exit("Failed to load configuratins.");
 
   if (adc_.initialize() < 0)
     exit("Failed to initialize ADC driver.");
 
-  registerPublishers();
-  registerSubscribers();
+  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
 
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-}
-
-void BatteryHandler::getRosParams()
-{
-}
-
-void BatteryHandler::registerPublishers()
-{
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
-}
-
-void BatteryHandler::registerSubscribers()
-{
 }
 
 bool BatteryHandler::reloadConfig()

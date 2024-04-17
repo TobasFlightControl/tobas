@@ -18,8 +18,6 @@ namespace tobas_navio_ros
 ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
     exit("Failed to load configurations.");
 
@@ -27,8 +25,8 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   if (!imu_.probe())
     exit("IMU not enabled.");
 
-  registerPublishers();
-  registerSubscribers();
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
+  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
 
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
@@ -39,20 +37,6 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this, false, false);
-}
-
-void ImuHandler::getRosParams()
-{
-}
-
-void ImuHandler::registerPublishers()
-{
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
-  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
-}
-
-void ImuHandler::registerSubscribers()
-{
 }
 
 bool ImuHandler::reloadConfig()

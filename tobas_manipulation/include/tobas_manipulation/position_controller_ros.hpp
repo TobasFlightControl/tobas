@@ -41,10 +41,6 @@ private:
   ros::Subscriber tar_js_sub_;
   ros::Subscriber tar_ls_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   int jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg);
   int taskSpaceControl(tobas_msgs::JointCommandArray& positions_msg);
 

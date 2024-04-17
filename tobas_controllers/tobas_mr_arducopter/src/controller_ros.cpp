@@ -21,10 +21,14 @@ ControllerRos::ControllerRos(
   : super(nh, pnh, name)
 {
   getRosParams();
-  initializeSockets();
 
-  registerPublishers();
-  registerSubscribers();
+  if (!socket_in_.bind(kFdmAddr, kFdmPortIn))
+    exit("failed to bind with ", kFdmAddr, ":", kFdmPortIn, ".");
+  if (!socket_out_.connect(kFdmAddr, kFdmPortOut))
+    exit("failed to bind with ", kFdmAddr, ":", kFdmPortOut, ".");
+
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void ControllerRos::getRosParams()
@@ -34,25 +38,6 @@ void ControllerRos::getRosParams()
     exit("Too many rotors. The maximum number is ", kMaxMotors, ".");
   if (!tobas_std::isUnique(channels_))
     exit("channels are not unique.");
-}
-
-void ControllerRos::registerPublishers()
-{
-  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
-}
-
-void ControllerRos::registerSubscribers()
-{
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-}
-
-void ControllerRos::initializeSockets()
-{
-  if (!socket_in_.bind(kFdmAddr, kFdmPortIn))
-    exit("failed to bind with ", kFdmAddr, ":", kFdmPortIn, ".");
-
-  if (!socket_out_.connect(kFdmAddr, kFdmPortOut))
-    exit("failed to bind with ", kFdmAddr, ":", kFdmPortOut, ".");
 }
 
 void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)

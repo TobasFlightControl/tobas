@@ -40,11 +40,7 @@ private:
   // Subscribers
   ros::Subscriber odom_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
-  void initializeSockets();
+  void getRosParams();
   void receiveAndPublishMotorCommand(const ros::Time& imu_time);
   void sendState(const tobas_msgs::Odometry& odom);
 

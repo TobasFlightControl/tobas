@@ -36,12 +36,7 @@ private:
   // Timer
   ros::Timer main_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void configureGnssReceiver();
-
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

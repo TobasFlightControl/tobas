@@ -13,27 +13,12 @@ namespace tobas_navio_ros
 GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   configureGnssReceiver();
 
-  registerPublishers();
-  registerSubscribers();
+  gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 
   // Start main timer with maximum rate
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
-}
-
-void GpsHandler::getRosParams()
-{
-}
-
-void GpsHandler::registerPublishers()
-{
-  gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
-}
-
-void GpsHandler::registerSubscribers()
-{
 }
 
 void GpsHandler::configureGnssReceiver()

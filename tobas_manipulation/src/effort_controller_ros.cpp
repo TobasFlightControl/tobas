@@ -22,7 +22,6 @@ EffortControllerRos::EffortControllerRos(
     pid_ts_(drone_.tree()),
     server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   cur_js_conv_.updateInternalDataStructures();
@@ -46,30 +45,17 @@ EffortControllerRos::EffortControllerRos(
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
-  registerPublishers();
-  registerSubscribers();
-
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-}
-
-void EffortControllerRos::getRosParams()
-{
-}
-
-void EffortControllerRos::registerPublishers()
-{
   efforts_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
-}
 
-void EffortControllerRos::registerSubscribers()
-{
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
     nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ =
     nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)

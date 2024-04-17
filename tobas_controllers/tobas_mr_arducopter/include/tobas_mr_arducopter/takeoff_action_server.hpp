@@ -50,10 +50,6 @@ private:
 
   actionlib::SimpleActionServer<ActionType> as_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool isGoalValid(const GoalType& goal);
   bool waitForServiceExistence();
   bool waitForParamServer(const double& timeout);

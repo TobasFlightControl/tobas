@@ -17,33 +17,16 @@ RCInputHandler::RCInputHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
     exit("Failed to load configurations.");
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
     exit("Failed to initialize RC input driver.");
 
-  registerPublishers();
-  registerSubscribers();
-
+  rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-}
-
-void RCInputHandler::getRosParams()
-{
-}
-
-void RCInputHandler::registerPublishers()
-{
-  rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
-}
-
-void RCInputHandler::registerSubscribers()
-{
 }
 
 bool RCInputHandler::reloadConfig()

@@ -19,7 +19,8 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone&
 void SpeedRollDeltaPitchController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-  registerPublishers(nh);
+
+  cmd_pub_ = nh.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
 }
 
 void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
@@ -54,10 +55,5 @@ void SpeedRollDeltaPitchController::getRosParams(ros::NodeHandle& pnh)
     pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
 
   ROS_CHECK(pnh, min_speed_ < max_speed_, "Maximum speed must be greater than minimum speed.");
-}
-
-void SpeedRollDeltaPitchController::registerPublishers(ros::NodeHandle& nh)
-{
-  cmd_pub_ = nh.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

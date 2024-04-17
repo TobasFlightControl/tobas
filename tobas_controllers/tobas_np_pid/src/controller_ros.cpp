@@ -25,7 +25,6 @@ ControllerRos::ControllerRos(
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   js_converter_.updateInternalDataStructures();
@@ -36,10 +35,6 @@ ControllerRos::ControllerRos(
 
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
-}
-
-void ControllerRos::getRosParams()
-{
 }
 
 void ControllerRos::registerPublishers()

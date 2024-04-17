@@ -26,8 +26,9 @@ OrientationEstimatorRos::OrientationEstimatorRos(
 {
   getRosParams();
   initializeFilter();
-  registerPublishers();
-  registerSubscribers();
+
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", kQueueSize);
+  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::getRosParams()
@@ -37,16 +38,6 @@ void OrientationEstimatorRos::getRosParams()
   tobas_ros::getParam(pnh_, "bias_alpha", bias_alpha_, kDefaultBiasAlpha);
   tobas_ros::getParam(pnh_, "do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
   tobas_ros::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
-}
-
-void OrientationEstimatorRos::registerPublishers()
-{
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", kQueueSize);
-}
-
-void OrientationEstimatorRos::registerSubscribers()
-{
-  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::initializeFilter()

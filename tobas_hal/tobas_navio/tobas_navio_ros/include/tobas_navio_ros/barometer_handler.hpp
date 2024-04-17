@@ -36,10 +36,6 @@ private:
   ros::ServiceServer reload_config_srv_;
   ros::Timer main_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);

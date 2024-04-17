@@ -22,10 +22,6 @@ private:
   ros::Publisher latency_pub_;
   ros::Subscriber tar_rot_speeds_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
 };
 }  // namespace tobas_latency_publisher

@@ -99,10 +99,9 @@ private:
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
+  void registerPublishers();
+  void registerSubscribers();
   void initialize();
   OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 

@@ -23,7 +23,6 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
     check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
     server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   x_rotors_.updateInternalDataStructures();
@@ -41,29 +40,12 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   lqd_.current_state.resize(eom_.kStateSize);
   lqd_.target_state.resize(eom_.kStateSize);
 
-  registerPublishers();
-  registerSubscribers();
-
-  // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-}
-
-void Controller::getRosParams()
-{
-}
-
-void Controller::registerPublishers()
-{
   rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
   deflections_pub_ =
     nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
-}
 
-void Controller::registerSubscribers()
-{
   air_pressure_sub_ =
     nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
   battery_sub_ =
@@ -71,6 +53,10 @@ void Controller::registerSubscribers()
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &Controller::odomCb, this, tcpNoDelay());
   cmd_sub_ =
     nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &Controller::commandCb, this, tcpNoDelay());
+
+  // Dynamic Reconfigure
+  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 bool Controller::isReady()

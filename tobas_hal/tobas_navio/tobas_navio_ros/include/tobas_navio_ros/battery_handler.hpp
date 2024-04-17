@@ -37,10 +37,6 @@ private:
   ros::ServiceServer reload_config_srv_;
   ros::Timer main_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool reloadConfig();
   bool getVoltage(double& voltage);
   bool getCurrent(double& current);

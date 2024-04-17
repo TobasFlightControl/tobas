@@ -21,7 +21,6 @@ VelocityControllerRos::VelocityControllerRos(
     vel_ctrl_(drone_.tree()),
     server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   cur_js_conv_.updateInternalDataStructures();
@@ -44,31 +43,18 @@ VelocityControllerRos::VelocityControllerRos(
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
-  registerPublishers();
-  registerSubscribers();
-
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-}
-
-void VelocityControllerRos::getRosParams()
-{
-}
-
-void VelocityControllerRos::registerPublishers()
-{
   velocities_pub_ =
     nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
-}
 
-void VelocityControllerRos::registerSubscribers()
-{
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
     nh_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ =
     nh_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)

@@ -16,7 +16,6 @@ PositionControllerRos::PositionControllerRos(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   // 位置指令タイプの関節のホームポジションを取得
@@ -34,21 +33,8 @@ PositionControllerRos::PositionControllerRos(
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
-  registerPublishers();
-  registerSubscribers();
-}
-
-void PositionControllerRos::getRosParams()
-{
-}
-
-void PositionControllerRos::registerPublishers()
-{
   positions_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
-}
 
-void PositionControllerRos::registerSubscribers()
-{
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =

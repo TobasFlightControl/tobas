@@ -70,10 +70,6 @@ private:
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool isReady();
   void initialize();
   void setCz();

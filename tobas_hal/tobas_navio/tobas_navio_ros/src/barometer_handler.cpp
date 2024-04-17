@@ -18,8 +18,6 @@ BarometerHandler::BarometerHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
     exit("Failed to load configurations.");
 
@@ -27,25 +25,11 @@ BarometerHandler::BarometerHandler(
   if (!barometer_.testConnection())
     exit("Barometer test failed.");
 
-  registerPublishers();
-  registerSubscribers();
+  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
 
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-}
-
-void BarometerHandler::getRosParams()
-{
-}
-
-void BarometerHandler::registerPublishers()
-{
-  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
-}
-
-void BarometerHandler::registerSubscribers()
-{
 }
 
 bool BarometerHandler::reloadConfig()

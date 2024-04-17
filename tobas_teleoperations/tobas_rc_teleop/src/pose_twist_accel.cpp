@@ -20,7 +20,8 @@ PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : 
 void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-  registerPublishers(nh);
+
+  cmd_pub_ = nh.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
 }
 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
@@ -123,10 +124,5 @@ void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
     pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-}
-
-void PoseTwistAccelController::registerPublishers(ros::NodeHandle& nh)
-{
-  cmd_pub_ = nh.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

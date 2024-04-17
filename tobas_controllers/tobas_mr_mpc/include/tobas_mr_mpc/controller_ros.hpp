@@ -99,10 +99,9 @@ private:
   // Other
   tobas_std::Stopwatch stopwatch_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
+  void registerPublishers();
+  void registerSubscribers();
   bool isReady() const;
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

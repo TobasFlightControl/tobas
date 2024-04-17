@@ -27,7 +27,7 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
   const auto mass = tobas::getMass();
   max_thrust_ = mass * (tobas::kGravity + max_ver_acc_);
 
-  registerPublishers(nh);
+  rpy_thrust_pub_ = nh.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
 }
 
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
@@ -78,10 +78,5 @@ void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
     pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, tobas_ros::POSITIVE);
-}
-
-void RollPitchYawThrustController::registerPublishers(ros::NodeHandle& nh)
-{
-  rpy_thrust_pub_ = nh.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop
