@@ -8,8 +8,9 @@ MAX_PWM = 2000
 
 PKG_NAME = "tobas_gcs"
 TITLE = "Tobas"
-TO_DO = "TODO"
 SOURCE_CMD = "source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash"
+
+TO_DO = "TODO"
 
 TITLE_PSIZE = 18
 LABEL_PSIZE = 12

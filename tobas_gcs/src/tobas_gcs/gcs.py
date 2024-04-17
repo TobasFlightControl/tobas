@@ -23,6 +23,7 @@ class GroundControlStationWidget(Widget):
         self._simulation = SimulationWidget(self, self._drone)
         self._mission_planner = MissionPlannerWidget(self, self._drone)
         self._control_system = ControlSystemWidget(self, self._drone)
+        self._console = ConsoleWidget(self, self._drone)
 
         self._combo_box = ComboBox()
         self._combo_box.addItem(StartWidget.NAME)
@@ -32,6 +33,7 @@ class GroundControlStationWidget(Widget):
         self._combo_box.addItem(SimulationWidget.NAME)
         # self._combo_box.addItem(MissionPlannerWidget.NAME)  # TODO
         self._combo_box.addItem(ControlSystemWidget.NAME)
+        self._combo_box.addItem(ConsoleWidget.NAME)
 
         self._apps = QStackedWidget()
         self._apps.addWidget(self._start)
@@ -41,6 +43,7 @@ class GroundControlStationWidget(Widget):
         self._apps.addWidget(self._simulation)
         # self._apps.addWidget(self._mission_planner)  # TODO
         self._apps.addWidget(self._control_system)
+        self._apps.addWidget(self._console)
 
         self._package_manager = PackageManagerWidget(self, self._drone)
         self._shutdown_button = ShutdownButtonWidget(self, self._drone)
@@ -72,6 +75,7 @@ class GroundControlStationWidget(Widget):
         self._simulation.define_connections()
         self._mission_planner.define_connections()
         self._control_system.define_connections()
+        self._console.define_connections()
 
     def update_internal_data_structures(self) -> None:
         """ドローンの更新に応じて内部データを更新．"""
@@ -82,6 +86,7 @@ class GroundControlStationWidget(Widget):
         self._simulation.update_internal_data_structures()
         self._mission_planner.update_internal_data_structures()
         self._control_system.update_internal_data_structures()
+        self._console.update_internal_data_structures()
 
     def package_path(self) -> str:
         return self._package_manager.package_path()
