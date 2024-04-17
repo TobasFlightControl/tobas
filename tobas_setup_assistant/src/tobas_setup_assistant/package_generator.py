@@ -225,7 +225,6 @@ class PackageGenerator(QObject):
         self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
-        self._generate_state_checker_config(config_dir)
         self._generate_urdf(urdf_dir, mesh_dir)
 
     def _make_template_items(self) -> None:
@@ -434,14 +433,6 @@ class PackageGenerator(QObject):
     def _generate_observer_config(self, config_dir: str) -> None:
         items = self._main.settings.observer.parameter_dict()
         file_path = osp.join(config_dir, "observer.yaml")
-        with open(file_path, "w") as f:
-            yaml.dump(items, f)
-
-    def _generate_state_checker_config(self, config_dir: str) -> None:
-        items = dict()
-        items["state_checker"] = {"battery_voltage_threshold": self._main.settings.battery.voltage_threshold()}
-
-        file_path = osp.join(config_dir, "state_checker.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 

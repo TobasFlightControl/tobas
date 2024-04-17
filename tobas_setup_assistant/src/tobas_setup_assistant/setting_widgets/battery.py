@@ -82,9 +82,6 @@ class BatteryWidget(BaseSettingWidget):
     def internal_registance(self) -> float:
         return self._selected().internal_registance()
 
-    def voltage_threshold(self) -> float:
-        return self._selected().voltage_threshold()
-
     def _selected(self) -> BatteryWidget_Base:
         battery_type = self._type.currentText()
 
@@ -152,11 +149,6 @@ class BatteryWidget_Base(Widget):
     @abstractmethod
     def internal_registance(self) -> float:
         """[Ω] 内部抵抗値．"""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def voltage_threshold(self) -> float:
-        """[V] 警告を発する電圧値．"""
         raise NotImplementedError()
 
 
@@ -233,10 +225,6 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
     def internal_registance(self) -> float:
         return self._num_cells.get() * self._registance.get() / 1000
 
-    @override
-    def voltage_threshold(self) -> float:
-        return self._num_cells.get() * self.VOLTAGE_THR_PER_CELL
-
 
 class BatteryWidget_Other(BatteryWidget_Base):
     NAME = "Other Battery"
@@ -312,7 +300,3 @@ class BatteryWidget_Other(BatteryWidget_Base):
     @override
     def internal_registance(self) -> float:
         return self._registance.get() / 1000
-
-    @override
-    def voltage_threshold(self) -> float:
-        return self.sag_voltage()  # TODO: sag_voltageとは分けるべきかも

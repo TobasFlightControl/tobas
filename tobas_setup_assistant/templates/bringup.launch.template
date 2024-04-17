@@ -30,7 +30,6 @@
 
   <group ns="{{ drone_name }}">
     <!-- Launch state checker -->
-    <rosparam file="$(find {{ pkg_name }})/config/state_checker.yaml" command="load"/>
     <include file="$(find tobas_state_checker)/launch/state_checker.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>

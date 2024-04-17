@@ -1,6 +1,4 @@
 #include <tobas_std_tools/math.hpp>
-#include <tobas_ros_tools/rate.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_state_checker/state_checker.hpp"
@@ -15,13 +13,14 @@ StateChecker::StateChecker(
   const string& name)
   : super(nh, pnh, name), landing_ac_(tobas::kLandingAction)
 {
-  tobas_ros::getParam(pnh_, "battery_voltage_threshold", voltage_threshold_, tobas_ros::POSITIVE);
+  drone_.loadFromParam(nh_);
 
   event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 
+  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
   cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  euler_sub_ = nh_.subscribe(tobas::kEulerTopic, 1, &self::eulerCb, this, tcpNoDelay());
 
   set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
@@ -79,8 +78,16 @@ void StateChecker::requestDisarmingRotors()
   }
 }
 
+void StateChecker::armingCb(const std_msgs::BoolConstPtr& arming)
+{
+  arming_ = arming;
+}
+
 void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
 {
+  if (arming_ == nullptr || !arming_->data)
+    return;
+
   if (cpu->temperature > kCpuTempertureThreshold)
   {
     TOBAS_WARN_THROTTLE(
@@ -91,7 +98,10 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
 
 void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
-  if (battery->voltage < voltage_threshold_)
+  if (arming_ == nullptr || !arming_->data)
+    return;
+
+  if (battery->voltage < drone_.batteryConfig().sag_voltage)
   {
     TOBAS_WARN_THROTTLE(
       kWarnPeriod, "Battery voltage is too low: ", battery->voltage,
@@ -99,21 +109,18 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void StateChecker::eulerCb(const tobas_kdl_msgs::EulerConstPtr& euler)
 {
-  // TODO: tobas_msgs::EventでGood Stateに戻せるようにする
-  if (!is_armed_)
+  if (arming_ == nullptr || !arming_->data)
     return;
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  odom->frame.M.getRPY(roll_, pitch_, yaw_);
-  if (max(abs(roll_), abs(pitch_)) > kAttitudeThreshold)
+  if (max(abs(euler->roll), abs(euler->pitch)) > kAttitudeThreshold)
   {
     TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();
     requestDisarmingRotors();
-    is_armed_ = false;
   }
 }
 }  // namespace tobas_state_checker
