@@ -48,14 +48,14 @@ int JointCommandHandler::initialize()
     nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
   if (!sc.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kListControllersSrv, "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kListControllersSrv, "' service server.");
     return -1;
   }
 
   controller_manager_msgs::ListControllers msg;
   if (!sc.call(msg))
   {
-    error("Failed to call '", tobas::kListControllersSrv, "'.");
+    TOBAS_ERROR("Failed to call '", tobas::kListControllersSrv, "'.");
     return -1;
   }
 
@@ -75,7 +75,7 @@ int JointCommandHandler::initialize()
       cmd_type = EFFORT;
     else
     {
-      error("Unknown controller type: ", item.type);
+      TOBAS_ERROR("Unknown controller type: ", item.type);
       return -1;
     }
 
@@ -101,7 +101,7 @@ void JointCommandHandler::jointPositionsCmdCb(
     const auto& jnt_name = positions->commands[i].name;
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
-      error("Transmission for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -136,7 +136,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(
 
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
-      error("Transmission for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -169,7 +169,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     const auto& jnt_name = efforts->commands[i].name;
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
-      error("Transmission for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
       continue;
     }
 

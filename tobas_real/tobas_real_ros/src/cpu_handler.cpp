@@ -40,7 +40,7 @@ bool CpuHandler::getTemperature(double& temp)
   ifstream temp_file(kTemperatureFilePath);
   if (!temp_file)
   {
-    error("Failed to open ", kTemperatureFilePath, ".");
+    TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
     return false;
   }
   temp_file >> temp_millidegrees_;
@@ -63,14 +63,14 @@ bool CpuHandler::getLoad(double& load)
   ifstream stat_file(kStatisticsFilePath);
   if (!stat_file)
   {
-    error("Failed to open ", kStatisticsFilePath, ".");
+    TOBAS_ERROR("Failed to open ", kStatisticsFilePath, ".");
     return false;
   }
 
   // ファイルの最初の行を読む
   if (!getline(stat_file, cpu_line_))
   {
-    error("Failed to read the first line of ", kStatisticsFilePath, ".");
+    TOBAS_ERROR("Failed to read the first line of ", kStatisticsFilePath, ".");
     return false;
   }
 
@@ -84,7 +84,7 @@ bool CpuHandler::getLoad(double& load)
   // (01) Time spent in user mode
   if (!(iss >> token_))
   {
-    error("Failed to read the CPU time spent in user mode.");
+    TOBAS_ERROR("Failed to read the CPU time spent in user mode.");
     return false;
   }
   const auto new_user_time = stoul(token_);
@@ -92,7 +92,7 @@ bool CpuHandler::getLoad(double& load)
   // (02) Time spent in user mode with low priority (nice)
   if (!(iss >> token_))
   {
-    error("Failed to read the CPU time spent in user mode with low priority.");
+    TOBAS_ERROR("Failed to read the CPU time spent in user mode with low priority.");
     return false;
   }
   const auto new_nice_time = stoul(token_);
@@ -100,7 +100,7 @@ bool CpuHandler::getLoad(double& load)
   // (03) Time spent in system mode
   if (!(iss >> token_))
   {
-    error("Failed to read the CPU time spent in system mode.");
+    TOBAS_ERROR("Failed to read the CPU time spent in system mode.");
     return false;
   }
   const auto new_system_time = stoul(token_);
@@ -108,7 +108,7 @@ bool CpuHandler::getLoad(double& load)
   // (04) Time spent in the idle task
   if (!(iss >> token_))
   {
-    error("Failed to read the CPU time spent in the idle task.");
+    TOBAS_ERROR("Failed to read the CPU time spent in the idle task.");
     return false;
   }
   const auto new_idle_time = stoul(token_);

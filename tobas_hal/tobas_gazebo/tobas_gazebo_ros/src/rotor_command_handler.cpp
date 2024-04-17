@@ -65,7 +65,7 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
 
   if (battery_ == nullptr)
   {
-    errorThrottle(
+    TOBAS_ERROR_THROTTLE(
       kErrorPeriod, "The rotors cannot be rotated because battery state has not been received "
                     "yet.");
     return;
@@ -74,7 +74,7 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
   const auto data_size = tar_speeds->speeds.size();
   if (data_size != drone_.numRotors())
   {
-    error("Size mismatch: ", data_size, " != ", drone_.numRotors());
+    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.numRotors());
     return;
   }
 

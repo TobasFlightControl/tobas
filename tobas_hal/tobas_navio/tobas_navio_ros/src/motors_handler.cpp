@@ -63,7 +63,7 @@ bool MotorsHandler::armRotors()
 {
   if (!enablePwms(true))
   {
-    error("Failed to enable PWMs.");
+    TOBAS_ERROR("Failed to enable PWMs.");
     return false;
   }
 
@@ -77,7 +77,7 @@ bool MotorsHandler::armRotors()
   is_armed_ = true;
   check_interval_timer_.start();
 
-  info("The motors are ready to rotate.");
+  TOBAS_INFO("The motors are ready to rotate.");
   return true;
 }
 
@@ -85,7 +85,7 @@ bool MotorsHandler::disarmRotors()
 {
   if (!enablePwms(false))
   {
-    error("Failed to disable PWMs.");
+    TOBAS_ERROR("Failed to disable PWMs.");
     return false;
   }
 
@@ -99,7 +99,7 @@ bool MotorsHandler::enablePwms(const bool& enable)
 {
   if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kEnablePwmSrv, "' server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kEnablePwmSrv, "' server.");
     return false;
   }
 
@@ -110,7 +110,7 @@ bool MotorsHandler::enablePwms(const bool& enable)
     enable_pwm_msg.request.enable = enable;
     if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
     {
-      error("Failed to enable/disable RC output CH", rotor.channel, ".");
+      TOBAS_ERROR("Failed to enable/disable RC output CH", rotor.channel, ".");
       return false;
     }
   }
@@ -122,7 +122,7 @@ bool MotorsHandler::preArmCheck()
 {
   if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kPreArmCheckSrv, "' server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kPreArmCheckSrv, "' server.");
     return false;
   }
 
@@ -159,7 +159,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
 
   if (battery_ == nullptr)
   {
-    errorThrottle(
+    TOBAS_ERROR_THROTTLE(
       kErrorPeriod, "The rotors cannot be rotated because battery state has not been received "
                     "yet.");
     return;
@@ -168,7 +168,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
   const auto data_size = tar_speeds->speeds.size();
   if (data_size != drone_.numRotors())
   {
-    error("Size mismatch: ", data_size, " != ", drone_.numRotors());
+    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.numRotors());
     return;
   }
 
@@ -228,7 +228,7 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       }
       default:
       {
-        error("Unknown ESC signal mode of CH", rotor.channel);
+        TOBAS_ERROR("Unknown ESC signal mode of CH", rotor.channel);
         break;
       }
     }

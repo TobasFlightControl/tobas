@@ -73,7 +73,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
-      info("Start to estimate wind speed.");
+      TOBAS_INFO("Start to estimate wind speed.");
     }
 
     // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．

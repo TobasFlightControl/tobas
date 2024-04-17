@@ -261,7 +261,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
       check_topics_timer_.stop();
       initialize();
       is_initialized_ = true;
-      info("Controller is ready.");
+      TOBAS_INFO("Controller is ready.");
     }
     return;
   }
@@ -287,7 +287,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
       error(eom_.errorMessage());
       return;
     default:
-      warn("Unknown error code from MicroDisturbanceEoM.");
+      TOBAS_WARN("Unknown error code from MicroDisturbanceEoM.");
       break;
   }
   const ctrl::LinearDynamics cont(eom_.A(), eom_.B());
@@ -334,13 +334,13 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (air_pressure_ == nullptr)
-    info("Waiting for ", ns(), tobas::kAirPressureTopic);
+    TOBAS_INFO("Waiting for ", ns(), tobas::kAirPressureTopic);
 
   if (battery_ == nullptr)
-    info("Waiting for ", ns(), tobas::kBatteryLpfTopic);
+    TOBAS_INFO("Waiting for ", ns(), tobas::kBatteryLpfTopic);
 
   if (odom_nwu_ == nullptr)
-    info("Waiting for ", ns(), tobas::kOdometryTopic);
+    TOBAS_INFO("Waiting for ", ns(), tobas::kOdometryTopic);
 }
 
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)

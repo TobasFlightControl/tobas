@@ -44,7 +44,7 @@ bool PropertyTree::get(const std::string& key, T& value, const T& _default) cons
   if (!optional)
   {
     value = _default;
-    TOBAS_WARN("Failed to get '" << key << "'. The default '" << _default << "' is used.");
+    PRINT_WARN("Failed to get '" << key << "'. The default '" << _default << "' is used.");
     return false;
   }
 

@@ -52,15 +52,15 @@ void PositionYawPublisher::run()
 {
   // 離陸アクションクライアントを用意
   actionlib::SimpleActionClient<tobas_msgs::TakeoffAction> takeoff(tobas::kTakeoffAction);
-  TOBAS_INFO("Waiting for '" << tobas::kTakeoffAction << "' action server.");
+  PRINT_INFO("Waiting for '" << tobas::kTakeoffAction << "' action server.");
   if (!takeoff.waitForServer(ros::Duration(kWaitForExternalActionServer)))
   {
-    TOBAS_ERROR("Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
+    PRINT_ERROR("Failed to connect to '" << tobas::kTakeoffAction << "' action server.");
     return;
   }
 
   // 離陸
-  TOBAS_INFO("Requesting takeoff action.");
+  PRINT_INFO("Requesting takeoff action.");
   tobas_msgs::TakeoffGoal takeoff_goal;
   takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
   takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
@@ -70,10 +70,10 @@ void PositionYawPublisher::run()
   const auto takeoff_state = takeoff.getState();
   if (takeoff_result->error_code != tobas_msgs::TakeoffResult::NO_ERROR)
   {
-    TOBAS_ERROR("'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
+    PRINT_ERROR("'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
     return;
   }
-  TOBAS_INFO("Takeoff finished successfully.");
+  PRINT_INFO("Takeoff finished successfully.");
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
@@ -86,7 +86,7 @@ void PositionYawPublisher::run()
   }
   else
   {
-    TOBAS_ERROR("Failed to get " << nh_.getNamespace() << "/" << tobas::kOdometryTopic << ".");
+    PRINT_ERROR("Failed to get " << nh_.getNamespace() << "/" << tobas::kOdometryTopic << ".");
     cmd_pos_.x() = 0;
     cmd_pos_.y() = 0;
     cmd_pos_.z() = takeoff_goal.target_altitude;
@@ -98,61 +98,61 @@ void PositionYawPublisher::run()
   while (nh_.ok())
   {
     // インストラクション
-    infoThrottle(kInstructionTimerPeriod, instruction_);
+    TOBAS_INFO_THROTTLE(kInstructionTimerPeriod, instruction_);
 
     // キーボード入力に依ってコマンドを更新
     const auto c = key_reader_.readKey();
     if (c < 0)
-      TOBAS_ERROR("Failed to read keyboard.");
+      PRINT_ERROR("Failed to read keyboard.");
 
     switch (c)
     {
       case 'w':  // X+
       {
         cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));
-        TOBAS_INFO("[Moving forward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Moving forward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case 's':  // X-
       {
         cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() - delta_pos_));
-        TOBAS_INFO("[Moving backward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Moving backward] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case 'a':  // Y+
       {
         cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() + delta_pos_));
-        TOBAS_INFO("[Moving left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Moving left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case 'd':  // Y-
       {
         cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() - delta_pos_));
-        TOBAS_INFO("[Moving right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Moving right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Up:  // Z+
       {
         cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() + delta_pos_));
-        TOBAS_INFO("[Moving up] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Moving up] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Down:  // Z-
       {
         cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() - delta_pos_));
-        TOBAS_INFO("[Moving down] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Moving down] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Left:  // Yaw+
       {
         cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ + delta_rot_);
-        TOBAS_INFO("[Rotating left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Rotating left] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
       case kKeyCode_Right:  // Yaw-
       {
         cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ - delta_rot_);
-        TOBAS_INFO("[Rotating right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
+        PRINT_INFO("[Rotating right] pos[m]: " << cmd_pos_ << ", yaw[rad]: " << cmd_yaw_);
         break;
       }
     }

@@ -180,7 +180,7 @@ void Mixer::updateThrustLimits(
   // 合計推力の等式制約を満たせない場合は，不等式制約を取り除く
   if (thrusts_sum < min_thrusts_.sum() || max_thrusts_.sum() < thrusts_sum)
   {
-    TOBAS_ERROR("Target thrust sum is not within the limit.");
+    PRINT_ERROR("Target thrust sum is not within the limit.");
     max_thrusts_.fill(numeric_limits<double>::max());
     min_thrusts_.fill(0);
   }

@@ -33,7 +33,7 @@ geomag::Elements geomag(const double& lat, const double& lon, const double& heig
   // 5年ごとに新しいデータが出るので，それを過ぎたら警告する
   // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
   if (year_frac - 2020 > 5)
-    TOBAS_WARN("It is time to replace the WMM data with the latest version.");
+    PRINT_WARN("It is time to replace the WMM data with the latest version.");
 
   const auto position = geomag::geodetic2ecef(lat, lon, height);
   const auto mag_field = geomag::GeoMag(year_frac, position, geomag::WMM2020);

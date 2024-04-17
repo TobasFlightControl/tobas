@@ -95,7 +95,7 @@ bool TakeoffActionServer::armRotors()
 
 void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
-  info("Action is called.");
+  TOBAS_INFO("Action is called.");
 
   // Check goal validity
   if (!isGoalValid(*goal))

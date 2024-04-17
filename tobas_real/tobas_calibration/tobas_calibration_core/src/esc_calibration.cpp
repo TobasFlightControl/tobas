@@ -30,7 +30,7 @@ EscCalibration::EscCalibration()
 
 void EscCalibration::run()
 {
-  TOBAS_WARN("Please make sure propellers are memoved from motors.");
+  PRINT_WARN("Please make sure propellers are memoved from motors.");
 
   cout << "Please press Enter:";
   cin.ignore(numeric_limits<streamsize>::max(), '\n');

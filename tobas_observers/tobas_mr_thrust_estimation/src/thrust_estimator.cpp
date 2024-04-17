@@ -102,6 +102,6 @@ void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   // TODO: dtを反映
   kf_.Q(0, 0) = exp10(cfg.process_noise_variance_log10);
 
-  info("New dynamic parameters are set.");
+  TOBAS_INFO("New dynamic parameters are set.");
 }
 }  // namespace tobas_mr_thrust_estimation

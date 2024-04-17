@@ -81,14 +81,14 @@ bool RCTeleop::isRotorsArmed()
 {
   if (!get_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
     return false;
   }
 
   tobas_msgs::GetArm get_arm_msg;
   if (!get_arm_sc_.call(get_arm_msg))
   {
-    error("Failed to get arming state.");
+    TOBAS_ERROR("Failed to get arming state.");
     return false;
   }
 
@@ -99,7 +99,7 @@ bool RCTeleop::requestArmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
   }
 
@@ -107,7 +107,7 @@ bool RCTeleop::requestArmingRotors()
   set_arm_msg.request.arming = true;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    error("Failed to arm rotors.");
+    TOBAS_ERROR("Failed to arm rotors.");
     return false;
   }
 
@@ -118,7 +118,7 @@ bool RCTeleop::requestDisarmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
   }
 
@@ -126,7 +126,7 @@ bool RCTeleop::requestDisarmingRotors()
   set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    error("Failed to disarm rotors.");
+    TOBAS_ERROR("Failed to disarm rotors.");
     return false;
   }
 
@@ -164,14 +164,14 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        info("RC transmitter is ready. "
-             "To start control, set the E-Stop toggle OFF "
-             "with the throttle lever lowered to the bottom.");
+        TOBAS_INFO("RC transmitter is ready. "
+                   "To start control, set the E-Stop toggle OFF "
+                   "with the throttle lever lowered to the bottom.");
         stage_ = ESTOP_ON;
       }
       else
       {
-        infoThrottle(kInfoPeriod, "Please start with the transmitter's E-Stop toggle ON.");
+        TOBAS_INFO_THROTTLE(kInfoPeriod, "Please start with the transmitter's E-Stop toggle ON.");
       }
       break;
     }
@@ -192,7 +192,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       // アームされていなければ，スロットルレバーを確認してアームする
       if (rcin->thrust > kInitThrustThreshold)
       {
-        warnThrottle(
+        TOBAS_WARN_THROTTLE(
           kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
         break;
       }
@@ -209,13 +209,13 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        errorThrottle(kErrorPeriod, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(kErrorPeriod, "Invalid flight mode.");
         return;
       }
 
       controllers_[cur_mode]->reset(*odom_);
       last_mode_ = cur_mode;
-      info("First flight mode is set to \"", mode2str_.at(cur_mode), "\".");
+      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(cur_mode), "\".");
 
       stage_ = RUNNING;
       break;
@@ -226,7 +226,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       // E-Stopがオンになったら非常停止
       if (rcin->e_stop)
       {
-        warn("Stopping rotors.");
+        TOBAS_WARN("Stopping rotors.");
         requestDisarmingRotors();
         stage_ = ESTOP_ON;
       }
@@ -234,7 +234,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        errorThrottle(kErrorPeriod, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(kErrorPeriod, "Invalid flight mode.");
         return;
       }
 
@@ -242,7 +242,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       {
         last_mode_ = cur_mode;
         controllers_[cur_mode]->reset(*odom_);
-        info("Flight mode changed to \"", mode2str_.at(cur_mode), "\".");
+        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(cur_mode), "\".");
         break;
       }
 
@@ -252,7 +252,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     default:
     {
-      error("Invalid stage: ", static_cast<int>(stage_));
+      TOBAS_ERROR("Invalid stage: ", static_cast<int>(stage_));
       break;
     }
   }

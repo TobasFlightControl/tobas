@@ -86,7 +86,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       //   pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
       // const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
       // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
-      // info("GPS delay: ", gps_delay.count(), "[ms]");
+      // TOBAS_INFO("GPS delay: ", gps_delay.count(), "[ms]");
 
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
@@ -140,7 +140,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
     }
     default:
     {
-      warn("Unnecessary UBX message: ", msg);
+      TOBAS_WARN("Unnecessary UBX message: ", msg);
       break;
     }
   }

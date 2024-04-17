@@ -33,7 +33,7 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
 {
   if (!voltage_lpf_.isInitialized() || !current_lpf_.isInitialized())
   {
-    info("First raw battery message is received.");
+    TOBAS_INFO("First raw battery message is received.");
     voltage_lpf_.initialize(kLpfTimeConst, battery_raw->voltage);
     current_lpf_.initialize(kLpfTimeConst, battery_raw->current);
     t_last_ = battery_raw->header.stamp;

@@ -42,7 +42,7 @@ void RCInputCalibrator::run()
 
     if (abs(roll_left - roll_right) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on Roll channel are too close. Please retry.");
+      PRINT_ERROR("The signals on Roll channel are too close. Please retry.");
       continue;
     }
 
@@ -66,7 +66,7 @@ void RCInputCalibrator::run()
 
     if (abs(pitch_up - pitch_down) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on Pitch channel are too close. Please retry.");
+      PRINT_ERROR("The signals on Pitch channel are too close. Please retry.");
       continue;
     }
 
@@ -90,7 +90,7 @@ void RCInputCalibrator::run()
 
     if (abs(yaw_left - yaw_right) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on Yaw channel are too close. Please retry.");
+      PRINT_ERROR("The signals on Yaw channel are too close. Please retry.");
       continue;
     }
 
@@ -114,7 +114,7 @@ void RCInputCalibrator::run()
 
     if (abs(thrust_up - thrust_down) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on Thrust channel are too close. Please retry.");
+      PRINT_ERROR("The signals on Thrust channel are too close. Please retry.");
       continue;
     }
 
@@ -138,7 +138,7 @@ void RCInputCalibrator::run()
 
     if (abs(estop_up - estop_down) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on E-Stop channel are too close. Please retry.");
+      PRINT_ERROR("The signals on E-Stop channel are too close. Please retry.");
       continue;
     }
 
@@ -171,7 +171,7 @@ void RCInputCalibrator::run()
       || abs(mode_stabilize - mode_acrobat) < kPeriodDiffThreshold
       || abs(mode_acrobat - mode_program) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on Mode channel are too close. Please retry.");
+      PRINT_ERROR("The signals on Mode channel are too close. Please retry.");
       continue;
     }
 
@@ -195,7 +195,7 @@ void RCInputCalibrator::run()
 
     if (abs(gpsw_up - gpsw_down) < kPeriodDiffThreshold)
     {
-      TOBAS_ERROR("The signals on GPSw channel are too close. Please retry.");
+      PRINT_ERROR("The signals on GPSw channel are too close. Please retry.");
       continue;
     }
 

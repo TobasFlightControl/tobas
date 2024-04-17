@@ -66,7 +66,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
     }
     else
     {
-      error("Failed to set ", param.name, ".");
+      TOBAS_ERROR("Failed to set ", param.name, ".");
       pnh_.setParam(param.name, ints_[param.name]);
     }
   }
@@ -88,7 +88,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
     }
     else
     {
-      error("Failed to set ", param.name, ".");
+      TOBAS_ERROR("Failed to set ", param.name, ".");
       pnh_.setParam(param.name, doubles_[param.name]);
     }
   }
@@ -99,7 +99,7 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
   if (state->system_status != mavros_msgs::CompanionProcessStatus::MAV_STATE_STANDBY)
     return;
 
-  info("System status has become MAV_STATE_STANDBY.");
+  TOBAS_INFO("System status has become MAV_STATE_STANDBY.");
   set_init_config_timer_ =
     nh_.createTimer(ros::Duration(20), &self::setInitConfigTimerCb, this, true);
 
@@ -132,12 +132,12 @@ void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& c
 
   if (!is_init_params_set_)
   {
-    error("Parameter server is not ready.");
+    TOBAS_ERROR("Parameter server is not ready.");
     return;
   }
 
   setParams(cfg);
-  info("Parameters are updated.");
+  TOBAS_INFO("Parameters are updated.");
 }
 
 void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
@@ -148,7 +148,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    warn("Failed to set ", kFrameClass, ". Retrying...");
+    TOBAS_WARN("Failed to set ", kFrameClass, ". Retrying...");
     ros::Duration(RETRY_SLEEP).sleep();
   }
 
@@ -158,7 +158,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    warn("Failed to set ", kFrameType, ". Retrying...");
+    TOBAS_WARN("Failed to set ", kFrameType, ". Retrying...");
     ros::Duration(RETRY_SLEEP).sleep();
   }
 
@@ -168,7 +168,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    warn("Failed to set ", kArmingCheck, ". Retrying...");
+    TOBAS_WARN("Failed to set ", kArmingCheck, ". Retrying...");
     ros::Duration(RETRY_SLEEP).sleep();
   }
 }
@@ -177,7 +177,7 @@ void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
 {
   setParams(init_cfg_);
   is_init_params_set_ = true;
-  info("Initial parameters are set.");
+  TOBAS_INFO("Initial parameters are set.");
 
   // サーバの準備が完了したことをROSメッセージで他のノードに伝える
   const auto server_state = boost::make_shared<std_msgs::Bool>();

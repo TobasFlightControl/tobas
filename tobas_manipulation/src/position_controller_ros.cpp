@@ -68,7 +68,7 @@ int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& posi
 
 int PositionControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray&)
 {
-  error("Task space control of joint position controller is not implemented.");  // TODO
+  TOBAS_ERROR("Task space control of joint position controller is not implemented.");  // TODO
 
   return 0;
 }
@@ -105,7 +105,7 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   }
   else
   {
-    error("Both target joint state and target link state are NULL.");
+    TOBAS_ERROR("Both target joint state and target link state are NULL.");
     return;
   }
 

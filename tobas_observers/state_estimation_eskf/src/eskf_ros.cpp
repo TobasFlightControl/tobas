@@ -30,7 +30,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
+  PRINT_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
 
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -67,7 +67,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 void ErrorStateKalmanFilterRos::registerPublishers()
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::registerPublishers");
+  PRINT_DEBUG("ErrorStateKalmanFilterRos::registerPublishers");
 
   odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
   feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
@@ -75,7 +75,7 @@ void ErrorStateKalmanFilterRos::registerPublishers()
 
 void ErrorStateKalmanFilterRos::registerSubscribers()
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
+  PRINT_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
 
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
   mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
@@ -89,7 +89,7 @@ void ErrorStateKalmanFilterRos::registerSubscribers()
 
 void ErrorStateKalmanFilterRos::initialize()
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::initialize");
+  PRINT_DEBUG("ErrorStateKalmanFilterRos::initialize");
 
   // ESKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
@@ -182,17 +182,17 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   // Check IMU time gap
   if (dt == 0.)
   {
-    error("The time gap between 2 IMU messages is 0.");
+    TOBAS_ERROR("The time gap between 2 IMU messages is 0.");
     return;
   }
   if (dt < 0.)
   {
-    error("The time gap between 2 IMU messages is negative: ", dt, " [s]");
+    TOBAS_ERROR("The time gap between 2 IMU messages is negative: ", dt, " [s]");
     return;
   }
   if (dt > kImuTimeGapThreshold)
   {
-    warn("The time gap between 2 IMU messages is too large: ", dt, " [s]");
+    TOBAS_WARN("The time gap between 2 IMU messages is too large: ", dt, " [s]");
   }
 
   // 観測ノイズの分散を計算
@@ -316,9 +316,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > kAnormalyScoreThreshold)
-  {
-    warnThrottle(kWarnPeriod, "The position estimation using GNSS is unstable.");
-  }
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
@@ -329,6 +327,6 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size
   gyro_bias_noise_var_ = do_gyro_bias_estimation_ ? exp10(cfg.gyro_bias_noise_var_log10) : 0;
   grav_noise_var_ = do_grav_estimation_ ? exp10(cfg.gravity_noise_var_log10) : 0;
 
-  info("New dynamic parameters are set.");
+  TOBAS_INFO("New dynamic parameters are set.");
 }
 }  // namespace state_estimation_eskf

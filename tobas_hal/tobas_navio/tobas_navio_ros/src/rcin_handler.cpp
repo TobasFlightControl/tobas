@@ -132,7 +132,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
 
   // Error message
   if (rcin_msg->error.error != tobas_msgs::RCInputError::E_NO_ERROR)
-    errorThrottle(kErrorPeriod, "Failed to read RC input.");
+    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to read RC input.");
 
   // Publish message
   rcin_pub_.publish(rcin_msg);

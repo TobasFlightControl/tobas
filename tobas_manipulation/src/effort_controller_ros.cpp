@@ -77,12 +77,12 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
-    error("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return -1;
   }
   if (tar_js_conv_.jointStateToJntArrayPosVel(*tar_js_) < 0)
   {
-    error("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -94,7 +94,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   // PIDで関節トルクを計算
   if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0)
   {
-    error("Joint space PID failed: ", pid_js_.errorMessage());
+    TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return -1;
   }
   const auto efforts = tar_js_conv_.getEffortsKDL() + pid_js_.getEfforts();  // FF + FB
@@ -102,7 +102,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   // JntArray -> JointState
   if (tar_js_conv_.jntArrayToJointStateEff(efforts, tar_js_->name) < 0)
   {
-    error("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -119,7 +119,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
-    error("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return -1;
   }
 
@@ -150,7 +150,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   const auto& cur_qd = cur_js_conv_.getVelocitiesKDL();
   if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
-    error("Cartesian PID failed: ", pid_ts_.errorMessage());
+    TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
     return -1;
   }
   const auto& efforts = pid_ts_.getEfforts();
@@ -160,7 +160,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
   {
-    error("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -206,7 +206,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   }
   else
   {
-    error("Both target joint state and target cartesian state are NULL.");
+    TOBAS_ERROR("Both target joint state and target cartesian state are NULL.");
     return;
   }
 
@@ -236,22 +236,22 @@ void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   // Joint space control
   if (!pid_js_.setStiffness(cfg.joint_stiffness))
-    error("Failed to set joint stiffness.");
+    TOBAS_ERROR("Failed to set joint stiffness.");
 
   if (!pid_js_.setDamping(cfg.joint_damping))
-    error("Failed to set joint damping.");
+    TOBAS_ERROR("Failed to set joint damping.");
 
   // Task space control
   if (!pid_ts_.setLinearStiffness(cfg.linear_stiffness))
-    error("Failed to set linear stiffness.");
+    TOBAS_ERROR("Failed to set linear stiffness.");
 
   if (!pid_ts_.setAngularStiffness(cfg.angular_stiffness))
-    error("Failed to set angular stiffness.");
+    TOBAS_ERROR("Failed to set angular stiffness.");
 
   if (!pid_ts_.setLinearDamping(cfg.linear_damping))
-    error("Failed to set linear damping.");
+    TOBAS_ERROR("Failed to set linear damping.");
 
   if (!pid_ts_.setAngularDamping(cfg.angular_damping))
-    error("Failed to set angular damping.");
+    TOBAS_ERROR("Failed to set angular damping.");
 }
 }  // namespace tobas_manipulation

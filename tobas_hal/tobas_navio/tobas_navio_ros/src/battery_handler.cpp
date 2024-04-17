@@ -58,7 +58,7 @@ bool BatteryHandler::getVoltage(double& voltage)
   const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
   if (a2_value < 0)
   {
-    error("Failed to read battery voltage.");
+    TOBAS_ERROR("Failed to read battery voltage.");
     return false;
   }
 
@@ -74,7 +74,7 @@ bool BatteryHandler::getCurrent(double& current)
   const auto a3_value = adc_.read(kPowerModuleCurrentChannel);
   if (a3_value < 0)
   {
-    error("Failed to read battery current.");
+    TOBAS_ERROR("Failed to read battery current.");
     return false;
   }
 

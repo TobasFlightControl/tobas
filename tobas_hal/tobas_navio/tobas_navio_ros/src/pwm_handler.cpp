@@ -34,7 +34,7 @@ PwmHandler::~PwmHandler()
     if (is_enabled_.at(channel))
     {
       if (!pwm_.disable(channel))
-        error("Failed to disable PWM CH", channel, ".");
+        TOBAS_ERROR("Failed to disable PWM CH", channel, ".");
     }
   }
 }
@@ -64,18 +64,18 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
   {
     if (pwm.channel >= tobas::kServoRailSize)
     {
-      error("PWM CH", pwm.channel, " does not exist.");
+      TOBAS_ERROR("PWM CH", pwm.channel, " does not exist.");
       continue;
     }
 
     if (!is_enabled_.at(pwm.channel))
     {
-      error("PWM CH", pwm.channel, " is disabled.");
+      TOBAS_ERROR("PWM CH", pwm.channel, " is disabled.");
       continue;
     }
 
     if (!pwm_.setDutyCycle(pwm.channel, pwm.period))
-      fatal("Failed to set PWM duty cycle on CH", pwm.channel, ".");
+      TOBAS_FATAL("Failed to set PWM duty cycle on CH", pwm.channel, ".");
   }
 }
 
@@ -85,7 +85,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
 
   if (req.channel >= tobas::kServoRailSize)
   {
-    error("PWM channel out of range.");
+    TOBAS_ERROR("PWM channel out of range.");
     return true;
   }
 
@@ -93,7 +93,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
   {
     if (!pwm_.enable(req.channel))
     {
-      error("Failed to enable PWM CH", req.channel, ".");
+      TOBAS_ERROR("Failed to enable PWM CH", req.channel, ".");
       return true;
     }
     is_enabled_.at(req.channel) = true;
@@ -102,7 +102,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
   {
     if (!pwm_.disable(req.channel))
     {
-      error("Failed to disable PWM CH", req.channel, ".");
+      TOBAS_ERROR("Failed to disable PWM CH", req.channel, ".");
       return true;
     }
     is_enabled_.at(req.channel) = false;

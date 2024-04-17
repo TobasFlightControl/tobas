@@ -67,12 +67,12 @@ void StateChecker::requestLanding()
   if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
   {
     info(state.getText());
-    info("Landing action finished successfully.");
+    TOBAS_INFO("Landing action finished successfully.");
   }
   else
   {
     error(state.getText());
-    fatal("Landing action failed.");
+    TOBAS_FATAL("Landing action failed.");
   }
 }
 
@@ -80,7 +80,7 @@ void StateChecker::requestDisarmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    error("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return;
   }
 
@@ -88,7 +88,7 @@ void StateChecker::requestDisarmingRotors()
   set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    error("Failed to disarm rotors.");
+    TOBAS_ERROR("Failed to disarm rotors.");
     return;
   }
 }
@@ -97,7 +97,7 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
 {
   if (cpu->temperature > kCpuTempertureThreshold)
   {
-    warnThrottle(
+    TOBAS_WARN_THROTTLE(
       kWarnPeriod, "CPU temperature is too high: ", cpu->temperature,
       " [C]. It is time to stop flying.");
   }
@@ -107,7 +107,7 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   if (battery->voltage < voltage_threshold_)
   {
-    warnThrottle(
+    TOBAS_WARN_THROTTLE(
       kWarnPeriod, "Battery voltage is too low: ", battery->voltage,
       " [V]. It is time to stop flying.");
   }
@@ -124,7 +124,7 @@ void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   odom->frame.M.getRPY(roll_, pitch_, yaw_);
   if (max(abs(roll_), abs(pitch_)) > kAttitudeThreshold)
   {
-    fatal("The attitude angle exceeds the threshold. Stopping motors.");
+    TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();
     requestDisarmingRotors();
     is_armed_ = false;

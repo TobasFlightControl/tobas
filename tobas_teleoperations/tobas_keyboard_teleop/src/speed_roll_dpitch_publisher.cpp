@@ -80,53 +80,53 @@ void SpeedRollDeltaPitchPublisher::run()
 
     if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
     {
-      TOBAS_ERROR(trim_.errorMessage());
+      PRINT_ERROR(trim_.errorMessage());
       continue;
     }
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
     if (c < 0)
-      TOBAS_ERROR("Failed to read keyboard.");
+      PRINT_ERROR("Failed to read keyboard.");
 
     switch (c)
     {
       case 'w':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
-        TOBAS_INFO("Increase speed");
+        PRINT_INFO("Increase speed");
         break;
       }
       case 's':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
-        TOBAS_INFO("Decrease speed");
+        PRINT_INFO("Decrease speed");
         break;
       }
       case kKeyCode_Up:
       {
         cmd_.delta_pitch =
           clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        TOBAS_INFO("Nose up");
+        PRINT_INFO("Nose up");
         break;
       }
       case kKeyCode_Down:
       {
         cmd_.delta_pitch =
           clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        TOBAS_INFO("Nose down");
+        PRINT_INFO("Nose down");
         break;
       }
       case kKeyCode_Left:
       {
         cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        TOBAS_INFO("Turn left");
+        PRINT_INFO("Turn left");
         break;
       }
       case kKeyCode_Right:
       {
         cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        TOBAS_INFO("Turn right");
+        PRINT_INFO("Turn right");
         break;
       }
     }
@@ -176,7 +176,7 @@ void SpeedRollDeltaPitchPublisher::initialize()
 
   // インストラクションを開始
   instruction_timer_.start();
-  TOBAS_INFO(instruction_);
+  PRINT_INFO(instruction_);
 }
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
@@ -190,11 +190,11 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressur
 void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-    TOBAS_INFO("Waiting for " << ns() << tobas::kAirPressureTopic);
+    PRINT_INFO("Waiting for " << ns() << tobas::kAirPressureTopic);
 }
 
 void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)
 {
-  TOBAS_INFO(instruction_);
+  PRINT_INFO(instruction_);
 }
 }  // namespace tobas_keyboard_teleop

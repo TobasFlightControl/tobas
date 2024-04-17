@@ -84,7 +84,7 @@ bool ImuHandler::reloadConfig()
 
   if (!mag_trans_.initialize())
   {
-    error("Failed to initialize ellipse transformer.");
+    TOBAS_ERROR("Failed to initialize ellipse transformer.");
     return false;
   }
 
@@ -155,7 +155,7 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
   if (loop_cnt_ == kMeasureGyroBiasCount)
   {
     gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
-    info("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_.transpose());
+    TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_.transpose());
     measure_gyro_bias_timer_.stop();
     main_timer_.start();
     return;

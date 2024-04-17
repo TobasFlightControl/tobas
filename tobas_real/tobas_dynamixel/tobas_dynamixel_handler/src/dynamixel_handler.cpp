@@ -73,7 +73,7 @@ DynamixelHandler::DynamixelHandler(
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0)
       exit("Failed to enable torque of '", name, "'.");
 
-    info("'", name, "' is initialized.");
+    TOBAS_INFO("'", name, "' is initialized.");
   }
 
   // Reduce latency
@@ -144,7 +144,7 @@ bool DynamixelHandler::setMinimumLatency()
   file << kMinimumLatency;  // uint8だと反映されなかった
   file.close();
 
-  info("Communication latency is updated successfully.");
+  TOBAS_INFO("Communication latency is updated successfully.");
   return true;
 }
 
@@ -281,7 +281,7 @@ bool DynamixelHandler::enableTorques()
   {
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0)
     {
-      error("Failed to enable torque of '", name, "'.");
+      TOBAS_ERROR("Failed to enable torque of '", name, "'.");
       return false;
     }
   }
@@ -296,7 +296,7 @@ bool DynamixelHandler::disableTorques()
   {
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
     {
-      error("Failed to disable torque of '", name, "'.");
+      TOBAS_ERROR("Failed to disable torque of '", name, "'.");
       return false;
     }
   }
@@ -309,7 +309,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 {
   if (hes_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of hardware error status.");
+    TOBAS_ERROR("Failed to receive a sync packet of hardware error status.");
     return;
   }
 
@@ -317,17 +317,17 @@ void DynamixelHandler::printHardwareErrorStatus()
   {
     const uint8_t hes = hes_sync_read_->getData(cfg.id, kAddrHardwareErrorStatus, 1);
     if (hes & kErrorInputVoltage)
-      error("Input voltage error in '", name, "'");
+      TOBAS_ERROR("Input voltage error in '", name, "'");
     if (hes & kErrorHallSensor)
-      error("Hall sensor error in '", name, "'");
+      TOBAS_ERROR("Hall sensor error in '", name, "'");
     if (hes & kErrorOverheating)
-      error("Overheating error in '", name, "'");
+      TOBAS_ERROR("Overheating error in '", name, "'");
     if (hes & kErrorMotorEncoder)
-      error("Motor encoder error in '", name, "'");
+      TOBAS_ERROR("Motor encoder error in '", name, "'");
     if (hes & kErrorElectricalShock)
-      error("Electrical shock error in '", name, "'");
+      TOBAS_ERROR("Electrical shock error in '", name, "'");
     if (hes & kErrorOverload)
-      error("Overload error in '", name, "'");
+      TOBAS_ERROR("Overload error in '", name, "'");
   }
 }
 
@@ -340,42 +340,42 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   // Read packets
   if (read_position_ && pos_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of present position. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present position. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
     return;
   }
   if (read_velocity_ && vel_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of present velocity. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present velocity. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_current_ && current_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of present current. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present current. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_pwm_ && pwm_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of present PWM. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present PWM. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_voltage_ && voltage_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of present input voltage. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present input voltage. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_temperature_ && temp_sync_read_->txRxPacket() < 0)
   {
-    error("Failed to receive a sync packet of present temperature. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present temperature. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
@@ -468,7 +468,7 @@ void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   switch (event->data)
   {
     case tobas_msgs::Event::SYSTEM_CRITICAL:
-      warn("System critical event message is received. Disabling torques.");
+      TOBAS_WARN("System critical event message is received. Disabling torques.");
       disableTorques();
       break;
     default:
@@ -480,7 +480,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
 {
   if (!is_enabled_)
   {
-    error("Motors are disabled. You cannot command positions.");
+    TOBAS_ERROR("Motors are disabled. You cannot command positions.");
     return;
   }
 
@@ -493,7 +493,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     const auto& jnt_name = positions->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
-      error("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -515,23 +515,23 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     }
     else
     {
-      error("The operating mode of joint '", jnt_name, "' is not position.");
+      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not position.");
       continue;
     }
 
     if (!pos_sync_write_->addParam(cfg.id, (uint8_t*)&goal_positions_[i]))
-      error("Failed to set goal position of joint '", jnt_name, "'.");
+      TOBAS_ERROR("Failed to set goal position of joint '", jnt_name, "'.");
   }
 
   if (pos_sync_write_->txPacket() < 0)
-    error("Failed to transmit a sync write instruction packet of positions.");
+    TOBAS_ERROR("Failed to transmit a sync write instruction packet of positions.");
 }
 
 void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities)
 {
   if (!is_enabled_)
   {
-    error("Motors are disabled. You cannot command velocities.");
+    TOBAS_ERROR("Motors are disabled. You cannot command velocities.");
     return;
   }
 
@@ -544,14 +544,14 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
     const auto& jnt_name = velocities->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
-      error("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
     if (cfg.operating_mode != kControlModeVelocity)
     {
-      error("The operating mode of joint '", jnt_name, "' is not velocity.");
+      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not velocity.");
       continue;
     }
 
@@ -566,18 +566,18 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
 
     goal_velocities_[i] = tar_vel / kDecodeFactorVel;
     if (!vel_sync_write_->addParam(cfg.id, (uint8_t*)&goal_velocities_[i]))
-      error("Failed to set goal velocity of joint '", jnt_name, "'.");
+      TOBAS_ERROR("Failed to set goal velocity of joint '", jnt_name, "'.");
   }
 
   if (vel_sync_write_->txPacket() < 0)
-    error("Failed to transmit a sync write instruction packet of velocities.");
+    TOBAS_ERROR("Failed to transmit a sync write instruction packet of velocities.");
 }
 
 void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts)
 {
   if (!is_enabled_)
   {
-    error("Motors are disabled. You cannot command efforts.");
+    TOBAS_ERROR("Motors are disabled. You cannot command efforts.");
     return;
   }
 
@@ -588,18 +588,18 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayCons
     const auto& jnt_name = efforts->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
-      error("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
     if (cfg.operating_mode != kControlModeCurrent && cfg.operating_mode != kControlModePwm)
     {
-      error("The operating mode of joint '", jnt_name, "' is not effort.");
+      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not effort.");
       continue;
     }
 
-    error("Effort control is not implemented yet.");  // TODO
+    TOBAS_ERROR("Effort control is not implemented yet.");  // TODO
   }
 }
 

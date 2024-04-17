@@ -3,12 +3,12 @@
 
 #include "../../include/urdf_builder/rviz_helpers/static_link_updater.hpp"
 
-static inline Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
+inline static Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
 {
   return Ogre::Vector3(v.x, v.y, v.z);
 }
 
-static inline Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
+inline static Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
 {
   return Ogre::Quaternion(r.w, r.x, r.y, r.z);
 }

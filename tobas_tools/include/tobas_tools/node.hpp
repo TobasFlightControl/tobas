@@ -1,10 +1,28 @@
 #pragma once
 
-#include <mutex>
 #include <ros/ros.h>
 
 #include <tobas_std_tools/stream.hpp>
+#include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_msgs/Message.h>
+
+#define TOBAS_DEBUG(...) debug(__VA_ARGS__)
+#define TOBAS_INFO(...) info(__VA_ARGS__)
+#define TOBAS_WARN(...) warn(__VA_ARGS__)
+#define TOBAS_ERROR(...) error(__VA_ARGS__)
+#define TOBAS_FATAL(...) fatal(__VA_ARGS__)
+
+#define TOBAS_DEBUG_ONCE(...) debugOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_INFO_ONCE(...) infoOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_WARN_ONCE(...) warnOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_ERROR_ONCE(...) errorOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_FATAL_ONCE(...) fatalOnce(__FILE__, __LINE__, __VA_ARGS__)
+
+#define TOBAS_DEBUG_THROTTLE(period, ...) debugThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_INFO_THROTTLE(period, ...) infoThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_WARN_THROTTLE(period, ...) warnThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_ERROR_THROTTLE(period, ...) errorThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_FATAL_THROTTLE(period, ...) fatalThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
 
 namespace tobas
 {
@@ -33,6 +51,16 @@ protected:
   inline std::string ns() const;
 
   template <typename... Args>
+  void log(uint8_t level, const Args&... args);
+  template <typename... Args>
+  void logOnce(const char* file, int line, uint8_t level, const Args&... args);
+  template <typename... Args>
+  void logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args);
+
+  template <typename... Args>
+  void exit(const Args&... args);
+
+  template <typename... Args>
   inline void debug(const Args&... args);
   template <typename... Args>
   inline void info(const Args&... args);
@@ -44,18 +72,26 @@ protected:
   inline void fatal(const Args&... args);
 
   template <typename... Args>
-  void debugThrottle(const double& period, const Args&... args);
+  inline void debugOnce(const char* file, int line, const Args&... args);
   template <typename... Args>
-  void infoThrottle(const double& period, const Args&... args);
+  inline void infoOnce(const char* file, int line, const Args&... args);
   template <typename... Args>
-  void warnThrottle(const double& period, const Args&... args);
+  inline void warnOnce(const char* file, int line, const Args&... args);
   template <typename... Args>
-  void errorThrottle(const double& period, const Args&... args);
+  inline void errorOnce(const char* file, int line, const Args&... args);
   template <typename... Args>
-  void fatalThrottle(const double& period, const Args&... args);
+  inline void fatalOnce(const char* file, int line, const Args&... args);
 
   template <typename... Args>
-  void exit(const Args&... args);
+  inline void debugThrottle(const char* file, int line, double period, const Args&... args);
+  template <typename... Args>
+  inline void infoThrottle(const char* file, int line, double period, const Args&... args);
+  template <typename... Args>
+  inline void warnThrottle(const char* file, int line, double period, const Args&... args);
+  template <typename... Args>
+  inline void errorThrottle(const char* file, int line, double period, const Args&... args);
+  template <typename... Args>
+  inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
   /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
   static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
@@ -63,16 +99,12 @@ protected:
 private:
   const std::string name_;
 
-  std::map<std::string, ros::Time> log_throttle_;
-  std::mutex log_throttle_mutex_;
+  std::unordered_set<std::string> log_once_;
+  std::unordered_map<std::string, ros::Time> log_throttle_;
 
   ros::Publisher message_pub_;
 
-  template <typename... Args>
-  void log(const uint8_t& level, const Args&... args);
-
-  template <typename... Args>
-  void logThrottle(const uint8_t& level, const double& period, const Args&... args);
+  inline static std::string createID(const char* file, int line);
 };
 
 inline const std::string& BaseNode::name() const
@@ -83,6 +115,61 @@ inline const std::string& BaseNode::name() const
 inline std::string BaseNode::ns() const
 {
   return nh_.getNamespace() + "/";
+}
+
+template <typename... Args>
+void BaseNode::log(uint8_t level, const Args&... args)
+{
+  const auto message = boost::make_shared<tobas_msgs::Message>();
+  message->header.stamp = ros::Time::now();
+  message->level = level;
+  message->name = name_;
+  message->message = tobas_std::buildString(args...);
+  message_pub_.publish(message);
+}
+
+template <typename... Args>
+void BaseNode::logOnce(const char* file, int line, uint8_t level, const Args&... args)
+{
+  const auto id = createID(file, line);
+  if (tobas_std::contains(log_once_, id))
+    return;
+  log(level, args...);
+  log_once_.insert(id);
+}
+
+template <typename... Args>
+void BaseNode::logThrottle(
+  const char* file,
+  int line,
+  uint8_t level,
+  double period,
+  const Args&... args)
+{
+  const auto id = createID(file, line);
+  const auto now = ros::Time::now();
+  auto it = log_throttle_.find(id);
+  if (it == log_throttle_.end())
+  {
+    log(level, args...);
+    log_throttle_[id] = now;
+  }
+  else
+  {
+    const auto diff = (now - it->second).toSec();
+    if (diff > period)
+    {
+      log(level, args...);
+      it->second = now;
+    }
+  }
+}
+
+template <typename... Args>
+void BaseNode::exit(const Args&... args)
+{
+  fatal(args...);
+  nh_.shutdown();
 }
 
 template <typename... Args>
@@ -116,73 +203,67 @@ inline void BaseNode::fatal(const Args&... args)
 }
 
 template <typename... Args>
-void BaseNode::debugThrottle(const double& period, const Args&... args)
+inline void BaseNode::debugOnce(const char* file, int line, const Args&... args)
 {
-  logThrottle(tobas_msgs::Message::DEBUG, period, args...);
+  logOnce(file, line, tobas_msgs::Message::DEBUG, args...);
 }
 
 template <typename... Args>
-void BaseNode::infoThrottle(const double& period, const Args&... args)
+inline void BaseNode::infoOnce(const char* file, int line, const Args&... args)
 {
-  logThrottle(tobas_msgs::Message::INFO, period, args...);
+  logOnce(file, line, tobas_msgs::Message::INFO, args...);
 }
 
 template <typename... Args>
-void BaseNode::warnThrottle(const double& period, const Args&... args)
+inline void BaseNode::warnOnce(const char* file, int line, const Args&... args)
 {
-  logThrottle(tobas_msgs::Message::WARN, period, args...);
+  logOnce(file, line, tobas_msgs::Message::WARN, args...);
 }
 
 template <typename... Args>
-void BaseNode::errorThrottle(const double& period, const Args&... args)
+inline void BaseNode::errorOnce(const char* file, int line, const Args&... args)
 {
-  logThrottle(tobas_msgs::Message::ERROR, period, args...);
+  logOnce(file, line, tobas_msgs::Message::ERROR, args...);
 }
 
 template <typename... Args>
-void BaseNode::fatalThrottle(const double& period, const Args&... args)
+inline void BaseNode::fatalOnce(const char* file, int line, const Args&... args)
 {
-  logThrottle(tobas_msgs::Message::FATAL, period, args...);
+  logOnce(file, line, tobas_msgs::Message::FATAL, args...);
 }
 
 template <typename... Args>
-void BaseNode::exit(const Args&... args)
+inline void BaseNode::debugThrottle(const char* file, int line, double period, const Args&... args)
 {
-  fatal(args...);
-  nh_.shutdown();
+  logThrottle(file, line, tobas_msgs::Message::DEBUG, period, args...);
 }
 
 template <typename... Args>
-void BaseNode::log(const uint8_t& level, const Args&... args)
+inline void BaseNode::infoThrottle(const char* file, int line, double period, const Args&... args)
 {
-  const auto message = boost::make_shared<tobas_msgs::Message>();
-  message->header.stamp = ros::Time::now();
-  message->level = level;
-  message->name = name_;
-  message->message = tobas_std::buildString(args...);
-  message_pub_.publish(message);
+  logThrottle(file, line, tobas_msgs::Message::INFO, period, args...);
 }
 
 template <typename... Args>
-void BaseNode::logThrottle(const uint8_t& level, const double& period, const Args&... args)
+inline void BaseNode::warnThrottle(const char* file, int line, double period, const Args&... args)
 {
-  const auto id = std::string(__FILE__) + ":" + std::to_string(__LINE__);
-  const auto now = ros::Time::now();
-  std::lock_guard<std::mutex> lock(log_throttle_mutex_);
-  auto it = log_throttle_.find(id);
-  if (it == log_throttle_.end())
-  {
-    log_throttle_[id] = now;
-    log(level, args...);
-  }
-  else
-  {
-    const auto diff = (now - it->second).toSec();
-    if (diff > period)
-    {
-      it->second = now;
-      log(level, args...);
-    }
-  }
+  logThrottle(file, line, tobas_msgs::Message::WARN, period, args...);
+}
+
+template <typename... Args>
+inline void BaseNode::errorThrottle(const char* file, int line, double period, const Args&... args)
+{
+  logThrottle(file, line, tobas_msgs::Message::ERROR, period, args...);
+}
+
+template <typename... Args>
+inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
+{
+  logThrottle(file, line, tobas_msgs::Message::FATAL, period, args...);
+}
+
+inline std::string BaseNode::createID(const char* file, int line)
+{
+  return std::string(file) + ":" + std::to_string(line);
 }
 }  // namespace tobas

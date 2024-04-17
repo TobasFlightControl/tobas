@@ -20,14 +20,14 @@ Mixer::Mixer(const tobas::Drone& drone)
     jnt_axis_solver_(drone.tree()),
     inertia_solver_(drone.tree())
 {
-  TOBAS_DEBUG("Mixer::Mixer");
+  PRINT_DEBUG("Mixer::Mixer");
 
   updateInternalDataStructures();
 }
 
 void Mixer::updateInternalDataStructures()
 {
-  TOBAS_DEBUG("Mixer::updateInternalDataStructures");
+  PRINT_DEBUG("Mixer::updateInternalDataStructures");
 
   fk_solver_.updateInternalDataStructures();
   jnt_axis_solver_.updateInternalDataStructures();
@@ -55,7 +55,7 @@ VectorXd Mixer::solve(
   const Vector& tar_acc_W,
   const Vector& tar_dgyro_B)
 {
-  TOBAS_DEBUG_ONCE("Mixer::solve");
+  PRINT_DEBUG_ONCE("Mixer::solve");
 
   assert(cur_voltage > 0);
 
@@ -116,7 +116,7 @@ VectorXd Mixer::solve(
 
 void Mixer::configure(const MixerConfig& cfg)
 {
-  TOBAS_DEBUG("Mixer::configure");
+  PRINT_DEBUG("Mixer::configure");
 
   if (!drone_.isLoaded())
     throw runtime_error("Drone is not loaded yet.");

@@ -89,7 +89,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
       {
         connection_timeout_count_ = 0;
         ardupilot_online_ = false;
-        warn("Broken ArduPilot connection.");
+        TOBAS_WARN("Broken ArduPilot connection.");
       }
     }
     return;

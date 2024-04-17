@@ -81,7 +81,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto pressure = barometer_.getPressure();
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
-    error("Strange air pressure: ", pressure, " [Pa]");
+    TOBAS_ERROR("Strange air pressure: ", pressure, " [Pa]");
     return;
   }
 

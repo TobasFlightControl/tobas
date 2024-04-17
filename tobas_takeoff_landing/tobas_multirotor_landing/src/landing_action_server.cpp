@@ -97,7 +97,7 @@ void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
 void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
 {
-  info("Action is called.");
+  TOBAS_INFO("Action is called.");
 
   reset();
   is_action_running_ = true;
@@ -138,7 +138,7 @@ void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
       const auto alt_range = abs(alt_history_.front().second - alt_history_.back().second);
       if (alt_range < kStableAltitudeRange)
       {
-        info("Landing detected. Stopping motors.");
+        TOBAS_INFO("Landing detected. Stopping motors.");
         if (!disarmRotors())
           return;
         result_.error_code = ResultType::NO_ERROR;

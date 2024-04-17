@@ -52,7 +52,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (goal.degree < 1 || 3 < goal.degree)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    error("Spline degree is ", goal.degree, ". It must be in range of [1, 3].");
+    TOBAS_ERROR("Spline degree is ", goal.degree, ". It must be in range of [1, 3].");
     as_.setAborted(result_);
     return false;
   }
@@ -61,7 +61,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (waypoints.size() < 2)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    error("Waypoints must include more than 1 points.");
+    TOBAS_ERROR("Waypoints must include more than 1 points.");
     as_.setAborted(result_);
     return false;
   }
@@ -70,7 +70,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (waypoints.size() > kMaxNrOfTrajPoint)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    error("Too many number of trajectory points.");
+    TOBAS_ERROR("Too many number of trajectory points.");
     as_.setAborted(result_);
     return false;
   }
@@ -79,7 +79,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (waypoints[0].time_from_start.toSec() != 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    error("The duration of the first trajectory point must be 0.");
+    TOBAS_ERROR("The duration of the first trajectory point must be 0.");
     as_.setAborted(result_);
     return false;
   }
@@ -90,7 +90,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
     if (waypoints[i].time_from_start >= waypoints[i + 1].time_from_start)
     {
       result_.error_code = ResultType::INVALID_GOAL;
-      error("The durations must be strictly increasing.");
+      TOBAS_ERROR("The durations must be strictly increasing.");
       as_.setAborted(result_);
       return false;
     }
@@ -128,7 +128,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
     if (as_.isPreemptRequested())
     {
       result_.error_code = ResultType::PREEMPTED;
-      warn("Preempt requested.");
+      TOBAS_WARN("Preempt requested.");
       as_.setPreempted(result_);
       return;
     }

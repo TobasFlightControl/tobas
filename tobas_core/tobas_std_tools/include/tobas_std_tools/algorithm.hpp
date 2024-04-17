@@ -20,7 +20,7 @@ T clamp(const T& x, const T& lb, const T& ub, const std::string& description)
   else
   {
     const T res = std::clamp(x, lb, ub);
-    TOBAS_WARN("Clamp occurred: " << description << ", " << x << " -> " << res);
+    PRINT_WARN("Clamp occurred: " << description << ", " << x << " -> " << res);
     return res;
   }
 }
