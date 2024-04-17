@@ -90,7 +90,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
       check_topics_timer_.stop();
       t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
-      TOBAS_GOOD("Controller is ready.");
+      info("Controller is ready.");
     }
     return;
   }

@@ -219,7 +219,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
       check_topics_timer_.stop();
       initialize();
       is_initialized_ = true;
-      TOBAS_GOOD("Controller is ready.");
+      info("Controller is ready.");
     }
     return;
   }

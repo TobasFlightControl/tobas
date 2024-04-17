@@ -164,9 +164,9 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        TOBAS_GOOD("RC transmitter is ready. "
-                   "To start control, set the E-Stop toggle OFF "
-                   "with the throttle lever lowered to the bottom.");
+        info("RC transmitter is ready. "
+             "To start control, set the E-Stop toggle OFF "
+             "with the throttle lever lowered to the bottom.");
         stage_ = ESTOP_ON;
       }
       else
