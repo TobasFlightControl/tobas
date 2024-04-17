@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <ros/ros.h>
 
 #include <tobas_std_tools/stream.hpp>
