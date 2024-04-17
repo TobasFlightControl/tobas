@@ -1,5 +1,4 @@
 #include <tobas_std_tools/math.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/rate.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_msgs/SetArm.h>
@@ -52,9 +51,9 @@ void StateChecker::requestLanding()
 {
   if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
-    rosError(
-      name_, "'" << tobas::kLandingAction << "' action server failed to start within "
-                 << kWaitForActionServerTimeout << " seconds. Please check the server status.");
+    error(
+      "'", tobas::kLandingAction, "' action server failed to start within ",
+      kWaitForActionServerTimeout, " seconds. Please check the server status.");
     return;
   }
 
@@ -67,13 +66,13 @@ void StateChecker::requestLanding()
   const auto state = landing_ac_.getState();
   if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
   {
-    rosInfo(name_, state.getText());
-    rosInfo(name_, "Landing action finished successfully.");
+    info(state.getText());
+    info("Landing action finished successfully.");
   }
   else
   {
-    rosError(name_, state.getText());
-    rosFatal(name_, "Landing action failed.");
+    error(state.getText());
+    fatal("Landing action failed.");
   }
 }
 
@@ -81,7 +80,7 @@ void StateChecker::requestDisarmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kSetArmSrv << "' service server.");
+    error("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return;
   }
 
@@ -89,7 +88,7 @@ void StateChecker::requestDisarmingRotors()
   set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    rosError(name_, "Failed to disarm rotors.");
+    error("Failed to disarm rotors.");
     return;
   }
 }
@@ -98,9 +97,9 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
 {
   if (cpu->temperature > kCpuTempertureThreshold)
   {
-    rosWarnThrottle(
-      kWarnPeriod, name_,
-      "CPU temperature is too high: " << cpu->temperature << " [C]. It is time to stop flying.");
+    warnThrottle(
+      kWarnPeriod, "CPU temperature is too high: ", cpu->temperature,
+      " [C]. It is time to stop flying.");
   }
 }
 
@@ -108,9 +107,9 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 {
   if (battery->voltage < voltage_threshold_)
   {
-    rosWarnThrottle(
-      kWarnPeriod, name_,
-      "Battery voltage is too low: " << battery->voltage << " [V]. It is time to stop flying.");
+    warnThrottle(
+      kWarnPeriod, "Battery voltage is too low: ", battery->voltage,
+      " [V]. It is time to stop flying.");
   }
 }
 
@@ -125,7 +124,7 @@ void StateChecker::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   odom->frame.M.getRPY(roll_, pitch_, yaw_);
   if (max(abs(roll_), abs(pitch_)) > kAttitudeThreshold)
   {
-    rosFatal(name_, "The attitude angle exceeds the threshold. Stopping motors.");
+    fatal("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();
     requestDisarmingRotors();
     is_armed_ = false;

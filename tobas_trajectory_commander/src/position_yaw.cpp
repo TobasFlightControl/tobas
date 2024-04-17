@@ -1,7 +1,5 @@
 #include <tobas_eigen_tools/spline.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/rate.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_trajectory_commander/position_yaw.hpp"
@@ -54,7 +52,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (goal.degree < 1 || 3 < goal.degree)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError(name_, "Spline degree is " << goal.degree << ". It must be in range of [1, 3].");
+    error("Spline degree is ", goal.degree, ". It must be in range of [1, 3].");
     as_.setAborted(result_);
     return false;
   }
@@ -63,7 +61,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (waypoints.size() < 2)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError(name_, "Waypoints must include more than 1 points.");
+    error("Waypoints must include more than 1 points.");
     as_.setAborted(result_);
     return false;
   }
@@ -72,7 +70,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (waypoints.size() > kMaxNrOfTrajPoint)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError(name_, "Too many number of trajectory points.");
+    error("Too many number of trajectory points.");
     as_.setAborted(result_);
     return false;
   }
@@ -81,7 +79,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   if (waypoints[0].time_from_start.toSec() != 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
-    rosError(name_, "The duration of the first trajectory point must be 0.");
+    error("The duration of the first trajectory point must be 0.");
     as_.setAborted(result_);
     return false;
   }
@@ -92,7 +90,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
     if (waypoints[i].time_from_start >= waypoints[i + 1].time_from_start)
     {
       result_.error_code = ResultType::INVALID_GOAL;
-      rosError(name_, "The durations must be strictly increasing.");
+      error("The durations must be strictly increasing.");
       as_.setAborted(result_);
       return false;
     }
@@ -130,7 +128,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
     if (as_.isPreemptRequested())
     {
       result_.error_code = ResultType::PREEMPTED;
-      rosWarn(name_, "Preempt requested.");
+      warn("Preempt requested.");
       as_.setPreempted(result_);
       return;
     }

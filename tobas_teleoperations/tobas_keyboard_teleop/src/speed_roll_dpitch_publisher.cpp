@@ -6,9 +6,9 @@
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/x11.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/rate.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -80,53 +80,53 @@ void SpeedRollDeltaPitchPublisher::run()
 
     if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
     {
-      rosError(name_, trim_.errorMessage());
+      TOBAS_ERROR(trim_.errorMessage());
       continue;
     }
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
     if (c < 0)
-      rosError(name_, "Failed to read keyboard.");
+      TOBAS_ERROR("Failed to read keyboard.");
 
     switch (c)
     {
       case 'w':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
-        rosInfoThrottle(kInfoPeriod, name_, "Increase speed");
+        TOBAS_INFO("Increase speed");
         break;
       }
       case 's':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
-        rosInfoThrottle(kInfoPeriod, name_, "Decrease speed");
+        TOBAS_INFO("Decrease speed");
         break;
       }
       case kKeyCode_Up:
       {
         cmd_.delta_pitch =
           clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        rosInfoThrottle(kInfoPeriod, name_, "Nose up");
+        TOBAS_INFO("Nose up");
         break;
       }
       case kKeyCode_Down:
       {
         cmd_.delta_pitch =
           clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        rosInfoThrottle(kInfoPeriod, name_, "Nose down");
+        TOBAS_INFO("Nose down");
         break;
       }
       case kKeyCode_Left:
       {
         cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        rosInfoThrottle(kInfoPeriod, name_, "Turn left");
+        TOBAS_INFO("Turn left");
         break;
       }
       case kKeyCode_Right:
       {
         cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        rosInfoThrottle(kInfoPeriod, name_, "Turn right");
+        TOBAS_INFO("Turn right");
         break;
       }
     }
@@ -176,7 +176,7 @@ void SpeedRollDeltaPitchPublisher::initialize()
 
   // インストラクションを開始
   instruction_timer_.start();
-  rosInfo(name_, instruction_);
+  TOBAS_INFO(instruction_);
 }
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
@@ -190,11 +190,11 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressur
 void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
+    TOBAS_INFO("Waiting for " << ns() << tobas::kAirPressureTopic);
 }
 
 void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)
 {
-  rosInfo(name_, instruction_);
+  TOBAS_INFO(instruction_);
 }
 }  // namespace tobas_keyboard_teleop

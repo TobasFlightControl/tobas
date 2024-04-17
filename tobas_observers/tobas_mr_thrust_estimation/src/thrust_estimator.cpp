@@ -3,8 +3,6 @@
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_thrust_estimation/thrust_estimator.hpp"
@@ -104,6 +102,6 @@ void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   // TODO: dtを反映
   kf_.Q(0, 0) = exp10(cfg.process_noise_variance_log10);
 
-  rosInfo(name_, "New dynamic parameters are set.");
+  info("New dynamic parameters are set.");
 }
 }  // namespace tobas_mr_thrust_estimation

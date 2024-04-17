@@ -40,7 +40,7 @@ void AdcCalibrator::run()
   int a2_sum = 0;
   for (size_t _ = 0; _ < kDataCount; ++_)
   {
-    const int a2_value = adc_.read(tobas_navio_ros::kPowerModuleVoltageChannel);
+    const auto a2_value = adc_.read(tobas_navio_ros::kPowerModuleVoltageChannel);
     if (a2_value <= 0)
       throw runtime_error("Failed to read power module voltage.");
     cout << "A2 value: " << a2_value << endl;

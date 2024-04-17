@@ -1,5 +1,4 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/SetArm.h>
@@ -98,7 +97,7 @@ void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
 void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
 {
-  rosInfo(name_, "Action is called.");
+  info("Action is called.");
 
   reset();
   is_action_running_ = true;
@@ -139,7 +138,7 @@ void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
       const auto alt_range = abs(alt_history_.front().second - alt_history_.back().second);
       if (alt_range < kStableAltitudeRange)
       {
-        rosInfo(name_, "Landing detected. Stopping motors.");
+        info("Landing detected. Stopping motors.");
         if (!disarmRotors())
           return;
         result_.error_code = ResultType::NO_ERROR;

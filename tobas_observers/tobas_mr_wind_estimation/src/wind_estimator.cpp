@@ -1,8 +1,6 @@
 #include <Eigen/LU>
 
 #include <tobas_std_tools/math.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Wind.h>
 
@@ -75,7 +73,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
-      rosInfo(name_, "Start to estimate wind speed.");
+      info("Start to estimate wind speed.");
     }
 
     // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．

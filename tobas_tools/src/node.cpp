@@ -1,5 +1,3 @@
-#include <tobas_ros_tools/console_message.hpp>
-
 #include "../include/tobas_tools/node.hpp"
 #include "../include/tobas_tools/constants.hpp"
 

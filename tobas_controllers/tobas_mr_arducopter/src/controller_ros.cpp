@@ -1,10 +1,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_kdl/quaternion.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Throttles.h>
 
@@ -34,9 +31,9 @@ void ControllerRos::getRosParams()
 {
   tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
   if (channels_.size() > kMaxMotors)
-    ROS_EXIT_NAMED(nh_, name_, "Too many rotors. The maximum number is " << kMaxMotors << ".");
+    exit("Too many rotors. The maximum number is ", kMaxMotors, ".");
   if (!tobas_std::isUnique(channels_))
-    ROS_EXIT_NAMED(nh_, name_, "channels are not unique.");
+    exit("channels are not unique.");
 }
 
 void ControllerRos::registerPublishers()
@@ -52,10 +49,10 @@ void ControllerRos::registerSubscribers()
 void ControllerRos::initializeSockets()
 {
   if (!socket_in_.bind(kFdmAddr, kFdmPortIn))
-    ROS_EXIT_NAMED(nh_, name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortIn << ".");
+    exit("failed to bind with ", kFdmAddr, ":", kFdmPortIn, ".");
 
   if (!socket_out_.connect(kFdmAddr, kFdmPortOut))
-    ROS_EXIT_NAMED(nh_, name_, "failed to bind with " << kFdmAddr << ":" << kFdmPortOut << ".");
+    exit("failed to bind with ", kFdmAddr, ":", kFdmPortOut, ".");
 }
 
 void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
@@ -85,14 +82,14 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   {
     if (ardupilot_online_)
     {
-      rosWarn(
-        name_, "Broken ArduPilot connection, count [" << connection_timeout_count_ << "/"
-                                                      << kMaxConnectionTimeoutCount << "]");
+      warn(
+        "Broken ArduPilot connection, count [", connection_timeout_count_, "/",
+        kMaxConnectionTimeoutCount, "]");
       if (++connection_timeout_count_ > kMaxConnectionTimeoutCount)
       {
         connection_timeout_count_ = 0;
         ardupilot_online_ = false;
-        rosWarn(name_, "Broken ArduPilot connection.");
+        warn("Broken ArduPilot connection.");
       }
     }
     return;
@@ -101,9 +98,9 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   const ssize_t expected_pkt_size = sizeof(pkt.motorSpeed[0]) * channels_.size();
   if (recv_size < expected_pkt_size)
   {
-    rosError(
-      name_, "Got less than model needs. Got: " << recv_size << "commands, expected size: "
-                                                << expected_pkt_size);
+    error(
+      "Got less than model needs. Got: ", recv_size,
+      "commands, expected size: ", expected_pkt_size);
   }
   const ssize_t recv_channels = recv_size / sizeof(pkt.motorSpeed[0]);
 
@@ -128,10 +125,9 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
     }
     else
     {
-      rosError(
-        name_, "control[" << i << "] channel[" << channels_[i]
-                          << "] is greater than incoming commands size[" << recv_channels
-                          << "], control not applied.");
+      error(
+        "control[", i, "] channel[", channels_[i], "] is greater than incoming commands size[",
+        recv_channels, "], control not applied.");
     }
   }
 

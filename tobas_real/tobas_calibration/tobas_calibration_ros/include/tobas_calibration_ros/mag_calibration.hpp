@@ -6,12 +6,12 @@
 
 #include <tobas_navio_ros/common.hpp>
 #include <tobas_navio_ros/ellipse_transformer.hpp>
-
+#include <tobas_tools/node.hpp>
 #include <tobas_calibration_msgs/MagCalibration.h>
 
 namespace tobas_calibration
 {
-class MagCalibrationRos
+class MagCalibrationRos : public tobas::BaseNode
 {
   static constexpr char kMagTopicName[] = "mag_calibration/magnetic_field_raw";
   static constexpr char kStartServiceName[] = "mag_calibration/start";
@@ -22,12 +22,16 @@ class MagCalibrationRos
   static constexpr size_t kMaxDataCount = 100000;  // 4 * 3 * 100000 / 1000000 = 1.2MB
 
   using self = MagCalibrationRos;
+  using super = tobas::BaseNode;
   using StartSrvType = std_srvs::Trigger;
   using FinishSrvType = tobas_calibration_msgs::MagCalibration;
   using CancelSrvType = std_srvs::Trigger;
 
 public:
-  explicit MagCalibrationRos(ros::NodeHandle& nh);
+  explicit MagCalibrationRos(
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   tobas_navio_ros::ImuDevice imu_;

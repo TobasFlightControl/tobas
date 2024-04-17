@@ -1,9 +1,6 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 

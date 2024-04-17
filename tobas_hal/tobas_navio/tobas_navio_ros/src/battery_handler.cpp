@@ -1,6 +1,4 @@
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
 
@@ -20,10 +18,10 @@ BatteryHandler::BatteryHandler(
   getRosParams();
 
   if (!reloadConfig())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to load configuratins.")
+    exit("Failed to load configuratins.");
 
   if (adc_.initialize() < 0)
-    ROS_EXIT_NAMED(nh_, name_, "Failed to initialize ADC driver.");
+    exit("Failed to initialize ADC driver.");
 
   registerPublishers();
   registerSubscribers();
@@ -60,7 +58,7 @@ bool BatteryHandler::getVoltage(double& voltage)
   const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
   if (a2_value < 0)
   {
-    rosError(name_, "Failed to read battery voltage.");
+    error("Failed to read battery voltage.");
     return false;
   }
 
@@ -76,7 +74,7 @@ bool BatteryHandler::getCurrent(double& current)
   const auto a3_value = adc_.read(kPowerModuleCurrentChannel);
   if (a3_value < 0)
   {
-    rosError(name_, "Failed to read battery current.");
+    error("Failed to read battery current.");
     return false;
   }
 

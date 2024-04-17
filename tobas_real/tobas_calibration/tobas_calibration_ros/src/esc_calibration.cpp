@@ -11,17 +11,21 @@ using namespace std;
 
 namespace tobas_calibration
 {
-EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh)
-  : as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
+EscCalibrationRos::EscCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name),
+    as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
-  drone_.loadFromParam(nh);
+  drone_.loadFromParam(nh_);
 
   if (adc_.initialize() < 0)
-    ROS_EXIT(nh, "Failed to initialize ADC driver.");
+    exit("Failed to initialize ADC driver.");
 
-  pwms_pub_ = nh.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  get_arm_sc_ = nh.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  enable_pwm_sc_ = nh.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
+  get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
 
   as_.start();
 }

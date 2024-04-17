@@ -2,10 +2,7 @@
 
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/util.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
@@ -56,18 +53,18 @@ void OrientationEstimatorRos::initializeFilter()
 {
   sensor_msgs::NavSatFix gps;
   if (!tobas_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to get GPS message.");
+    exit("Failed to get GPS message.");
   const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
   filter_.setReferenceMagneticField(mag.north, mag.east);
 
   if (!filter_.setGravity(tobas::kGravity))
-    ROS_EXIT_NAMED(nh_, name_, "Invalid gravity");
+    exit("Invalid gravity");
 
   if (!filter_.setGainAcc(gain_acc_))
-    ROS_EXIT_NAMED(nh_, name_, "Invalid gain_acc");
+    exit("Invalid gain_acc");
 
   if (do_bias_estimation_ && !filter_.setBiasAlpha(bias_alpha_))
-    ROS_EXIT_NAMED(nh_, name_, "Invalid bias_alpha");
+    exit("Invalid bias_alpha");
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
@@ -117,6 +114,6 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
+  info("Waiting for ", ns(), tobas::kImuTopic);
 }
 }  // namespace orientation_estimation_complement

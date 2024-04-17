@@ -1,6 +1,5 @@
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
@@ -96,7 +95,7 @@ bool TakeoffActionServer::armRotors()
 
 void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
-  rosInfo(name_, "Action is called.");
+  info("Action is called.");
 
   // Check goal validity
   if (!isGoalValid(*goal))

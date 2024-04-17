@@ -2,9 +2,7 @@
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/barometer_handler.hpp"
@@ -23,11 +21,11 @@ BarometerHandler::BarometerHandler(
   getRosParams();
 
   if (!reloadConfig())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to load configurations.");
+    exit("Failed to load configurations.");
 
   barometer_.initialize();
   if (!barometer_.testConnection())
-    ROS_EXIT_NAMED(nh_, name_, "Barometer test failed.");
+    exit("Barometer test failed.");
 
   registerPublishers();
   registerSubscribers();
@@ -83,7 +81,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto pressure = barometer_.getPressure();
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
-    rosError(name_, "Strange air pressure: " << pressure << " [Pa]");
+    error("Strange air pressure: ", pressure, " [Pa]");
     return;
   }
 

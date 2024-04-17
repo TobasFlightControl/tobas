@@ -2,8 +2,6 @@
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/CommandTOL.h>
 
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_arducopter/takeoff_action_server.hpp"
@@ -112,7 +110,7 @@ bool TakeoffActionServer::waitForParamServer(const double& timeout)
       return false;
     }
 
-    rosInfoThrottle(kRetryInterval, name_, "Waiting for ArduCopter to be ready.");
+    infoThrottle(kRetryInterval, "Waiting for ArduCopter to be ready.");
     ros::Duration(1e-2).sleep();
     ros::spinOnce();
   }
@@ -122,7 +120,7 @@ bool TakeoffActionServer::waitForParamServer(const double& timeout)
 
 bool TakeoffActionServer::setMode(const double& timeout)
 {
-  rosInfo(name_, "Setting flight mode.");
+  info("Setting flight mode.");
 
   mavros_msgs::SetMode set_mode_msg;
   set_mode_msg.request.custom_mode = "GUIDED";
@@ -146,7 +144,7 @@ bool TakeoffActionServer::setMode(const double& timeout)
 
     if (!set_mode_sc_.call(set_mode_msg))
     {
-      rosWarn(name_, "Failed to call '" + kSetModeSrvName + "'. Retrying...");
+      warn("Failed to call '" + kSetModeSrvName + "'. Retrying...");
       ros::Duration(kRetryInterval).sleep();
       ros::spinOnce();
       continue;
@@ -154,7 +152,7 @@ bool TakeoffActionServer::setMode(const double& timeout)
 
     if (!set_mode_msg.response.mode_sent)
     {
-      rosWarn(name_, "Failed to send mode. Retrying...");
+      warn("Failed to send mode. Retrying...");
       ros::Duration(kRetryInterval).sleep();
       ros::spinOnce();
       continue;
@@ -166,7 +164,7 @@ bool TakeoffActionServer::setMode(const double& timeout)
 
 bool TakeoffActionServer::arming(const double& timeout)
 {
-  rosInfo(name_, "Arming");
+  info("Arming");
 
   mavros_msgs::CommandBool arming_msg;
   arming_msg.request.value = true;
@@ -190,7 +188,7 @@ bool TakeoffActionServer::arming(const double& timeout)
 
     if (!arming_sc_.call(arming_msg))
     {
-      rosWarn(name_, "Failed to call '" + kArmingSrvName + "'. Retrying...");
+      warn("Failed to call '" + kArmingSrvName + "'. Retrying...");
       ros::Duration(kRetryInterval).sleep();
       ros::spinOnce();
       continue;
@@ -198,7 +196,7 @@ bool TakeoffActionServer::arming(const double& timeout)
 
     if (!arming_msg.response.success)
     {
-      rosWarn(name_, "Arming failed. Retrying...");
+      warn("Arming failed. Retrying...");
       ros::Duration(kRetryInterval).sleep();
       ros::spinOnce();
       continue;
@@ -211,7 +209,7 @@ bool TakeoffActionServer::arming(const double& timeout)
 
 bool TakeoffActionServer::takeoff(const double& timeout, const double& target_altitude)
 {
-  rosInfo(name_, "Takeoff");
+  info("Takeoff");
 
   // リクエストを作成．ヨーは反映されないため高度のみ指定．
   mavros_msgs::CommandTOL takeoff_msg;
@@ -236,7 +234,7 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
 
     if (!takeoff_sc_.call(takeoff_msg))
     {
-      rosWarn(name_, "Failed to call '" + kTakeoffSrvName + "'. Retrying...");
+      warn("Failed to call '" + kTakeoffSrvName + "'. Retrying...");
       ros::Duration(kRetryInterval).sleep();
       ros::spinOnce();
       continue;
@@ -244,7 +242,7 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
 
     if (!takeoff_msg.response.success)
     {
-      rosWarn(name_, "Failed to takeoff. Retrying...");
+      warn("Failed to takeoff. Retrying...");
       ros::Duration(kRetryInterval).sleep();
       ros::spinOnce();
       continue;
@@ -275,7 +273,7 @@ void TakeoffActionServer::paramServerStateCb(const std_msgs::BoolConstPtr& state
 
 void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
-  rosInfo(name_, "Action is called.");
+  info("Action is called.");
   action_called_time_ = ros::Time::now();
 
   if (!isGoalValid(*goal))
