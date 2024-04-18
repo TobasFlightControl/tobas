@@ -15,7 +15,7 @@ TO_DO = "TODO"
 TITLE_PSIZE = 18
 LABEL_PSIZE = 12
 BODY_PSIZE = 9
-PAINT_REFRESH_PERIOD = 100  # [ms]
+PAINT_REFRESH_PERIOD = 100  # [ms] これより短いとフリーズの恐れあり
 
 # Raspberry Pi
 CATKIN_WS_TOBAS = "/etc/tobas/catkin_ws/"  # Tobasパッケージ用ワークスペース
