@@ -187,7 +187,10 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
         break;
       }
       if (!requestArmingRotors())
+      {
+        ros::Duration(kArmFailRetryInterval).sleep();
         break;
+      }
 
       // 問題なければコマンドを送信開始
       stage_ = FIRST_COMMAND;
