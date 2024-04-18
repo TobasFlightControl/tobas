@@ -91,11 +91,12 @@ $ id pi                 # piが所属するグループを確認
 
 #### メモ
 
+- [hostapd.conf 覚書](https://qiita.com/JhonnyBravo/items/5df2d9b2fcb142b6a67c)に設定が網羅されている．
 - `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
   既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
   その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
-
 - `/etc/udev/rules.d/99-ap0.rules`の MAC アドレスをハードコードせず，wlan0 からコピーするよう変更．
+- `hostapd.conf`は設定値とコメントを同じ行に書けない．
 
 ```txt
 SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
