@@ -180,7 +180,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       }
 
       // アームされていなければ，スロットルレバーを確認してアームする
-      if (rcin->thrust > kInitThrustThreshold)
+      if (rcin->throttle > tobas::kRCInputMin + kInitThrottleMargin)
       {
         TOBAS_WARN_THROTTLE(
           kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");

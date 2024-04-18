@@ -7,6 +7,7 @@
 
 namespace tobas
 {
+// Universal constants
 static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
 static constexpr double kDeg2Rad = M_PI / 180;
 static constexpr double kRad2Deg = 1 / kDeg2Rad;
@@ -19,7 +20,10 @@ static constexpr double kMeterToFeet = 1 / kFeetToMeter;
 static constexpr double kArmThrottle = 0.1;
 static constexpr double kMinThrottle = 0.;
 static constexpr double kMaxThrottle = 1.;
-static constexpr size_t kServoRailSize = 14;
+
+// RCInput
+static constexpr double kRCInputMin = -1.;
+static constexpr double kRCInputMax = 1.;
 
 // ROS parameters
 static constexpr char kRobotDescriptionParam[] = "robot_description";

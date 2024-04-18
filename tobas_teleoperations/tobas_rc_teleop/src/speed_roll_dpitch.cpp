@@ -1,4 +1,3 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
@@ -7,7 +6,6 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -34,10 +32,9 @@ void SpeedRollDeltaPitchController::update(
 {
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>();
-  cmd->speed = remap(rcin.thrust, 0., 1., min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
-  cmd->roll = dead_zone_.inRange(rcin.roll) ? 0. : remap(rcin.roll, -1., 1., -max_roll_, max_roll_);
-  cmd->delta_pitch =
-    dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_dpitch_, max_dpitch_);
+  cmd->speed = remap(rcin.throttle, min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
+  cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
+  cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
 
   // コマンドを発行
   cmd_pub_.publish(cmd);

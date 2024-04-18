@@ -14,7 +14,7 @@ namespace tobas_rc_teleop
 {
 class RCTeleop : public tobas::BaseNode
 {
-  static constexpr double kInitThrustThreshold = 0.05;
+  static constexpr double kInitThrottleMargin = 0.05;
 
   using self = RCTeleop;
   using super = tobas::BaseNode;

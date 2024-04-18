@@ -1,4 +1,3 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
@@ -9,7 +8,6 @@
 
 using namespace std;
 using namespace KDL;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -45,13 +43,10 @@ void PosVelAccYawController::update(
   t_last_rcin_ = cur_time;
 
   // RC入力を速度とヨーレートに変換
-  tar_vel_F_.x() =
-    dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_F_.y() =
-    dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
-  const auto yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  tar_vel_F_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
+  tar_vel_F_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
+  tar_vel_F_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
+  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
 
   // 目標速度をフィルタリング
   vel_filter_.update(tar_vel_F_, dt);

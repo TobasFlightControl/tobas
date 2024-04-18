@@ -28,7 +28,7 @@ public:
 
 private:
   navio::PWM pwm_;
-  std::array<bool, tobas::kServoRailSize> is_enabled_;
+  std::array<bool, kServoRailSize> is_enabled_;
 
   // Subscribers
   ros::Subscriber pwms_sub_;

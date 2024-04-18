@@ -71,7 +71,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         cols2 = QHBoxLayout()
         self._rows.addLayout(cols2)
 
-        # Roll, Pitch, Yaw, Thrust
+        # Roll, Pitch, Yaw, Throttle
         cols3 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols2)
 
         self._pitch_range = VPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
@@ -95,9 +95,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         pitch_label.setAlignment(Qt.AlignLeft)
         cols4.addWidget(pitch_label)
 
-        thrust_label = QLabel(f"Thrust (CH{RCIN_THRUST + 1})")
-        thrust_label.setAlignment(Qt.AlignRight)
-        cols4.addWidget(thrust_label)
+        throttle_label = QLabel(f"Throttle (CH{RCIN_THROTTLE + 1})")
+        throttle_label.setAlignment(Qt.AlignRight)
+        cols4.addWidget(throttle_label)
 
         rows1.addStretch()
 
@@ -106,9 +106,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._thrust_range = VPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
-        self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
-        cols3.addWidget(self._thrust_range)
+        self._throttle_range = VPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
+        self._throttle_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
+        cols3.addWidget(self._throttle_range)
 
         cols2.addSpacing(30)
 
@@ -154,7 +154,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.clear()
         self._pitch_range.clear()
         self._yaw_range.clear()
-        self._thrust_range.clear()
+        self._throttle_range.clear()
         self._mode_range.clear()
         self._estop_range.clear()
         self._gpsw_range.clear()
@@ -176,7 +176,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.start_timer()
         self._pitch_range.start_timer()
         self._yaw_range.start_timer()
-        self._thrust_range.start_timer()
+        self._throttle_range.start_timer()
         self._mode_range.start_timer()
         self._estop_range.start_timer()
         self._gpsw_range.start_timer()
@@ -185,7 +185,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.stop_timer()
         self._pitch_range.stop_timer()
         self._yaw_range.stop_timer()
-        self._thrust_range.stop_timer()
+        self._throttle_range.stop_timer()
         self._mode_range.stop_timer()
         self._estop_range.stop_timer()
         self._gpsw_range.stop_timer()
@@ -219,7 +219,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.set_value(msg.data[RCIN_ROLL])
         self._pitch_range.set_value(msg.data[RCIN_PITCH])
         self._yaw_range.set_value(msg.data[RCIN_YAW])
-        self._thrust_range.set_value(msg.data[RCIN_THRUST])
+        self._throttle_range.set_value(msg.data[RCIN_THROTTLE])
         self._mode_range.set_value(msg.data[RCIN_MODE])
         self._estop_range.set_value(msg.data[RCIN_ESTOP])
         self._gpsw_range.set_value(msg.data[RCIN_GPSW])
@@ -298,8 +298,8 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         req.pitch_up = int(self._pitch_range.get_lower())
         req.yaw_left = int(self._yaw_range.get_lower())
         req.yaw_right = int(self._yaw_range.get_upper())
-        req.thrust_down = int(self._thrust_range.get_upper())
-        req.thrust_up = int(self._thrust_range.get_lower())
+        req.throttle_down = int(self._throttle_range.get_upper())
+        req.throttle_up = int(self._throttle_range.get_lower())
         req.mode_program = int(self._mode_range.get_lower())
         req.mode_stabilize = int(self._mode_range.get_middle())
         req.mode_acrobat = int(self._mode_range.get_upper())

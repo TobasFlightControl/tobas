@@ -13,6 +13,7 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.widgets import FramedLabel, HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.drone import Drone
+from tobas_tools_py.constants import *
 from tobas_msgs.msg import RCInput, RCInputError
 
 from .base_section import BaseControlSystemSectionWidget
@@ -32,17 +33,17 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         cols1 = QHBoxLayout()
         self._rows.addLayout(cols1)
 
-        # Roll, Pitch, Yaw, Thrust
+        # Roll, Pitch, Yaw, Throttle
         cols2 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols1)
 
-        self._pitch_range = VPositionBarWidget(fill_range=False, minimum=1.0, maximum=-1.0)
+        self._pitch_range = VPositionBarWidget(fill_range=False, minimum=RCIN_MAX, maximum=RCIN_MIN)
         self._pitch_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._pitch_range)
 
         rows1 = QVBoxLayout()
         cols2.addLayout(rows1)
 
-        self._roll_range = HPositionBarWidget(fill_range=False, minimum=-1.0, maximum=1.0)
+        self._roll_range = HPositionBarWidget(fill_range=False, minimum=RCIN_MIN, maximum=RCIN_MAX)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
         place_center(QLabel(f"Roll"), rows1)
@@ -56,20 +57,20 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         pitch_label.setAlignment(Qt.AlignLeft)
         cols3.addWidget(pitch_label)
 
-        thrust_label = QLabel(f"Thrust")
-        thrust_label.setAlignment(Qt.AlignRight)
-        cols3.addWidget(thrust_label)
+        throttle_label = QLabel(f"Throttle")
+        throttle_label.setAlignment(Qt.AlignRight)
+        cols3.addWidget(throttle_label)
 
         rows1.addStretch()
 
         place_center(QLabel(f"Yaw"), rows1)
-        self._yaw_range = HPositionBarWidget(fill_range=False, minimum=1.0, maximum=-1.0)
+        self._yaw_range = HPositionBarWidget(fill_range=False, minimum=RCIN_MAX, maximum=RCIN_MIN)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._thrust_range = VPositionBarWidget(fill_range=False, minimum=1.0, maximum=0.0)
-        self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
-        cols2.addWidget(self._thrust_range)
+        self._throttle_range = VPositionBarWidget(fill_range=False, minimum=RCIN_MAX, maximum=RCIN_MIN)
+        self._throttle_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
+        cols2.addWidget(self._throttle_range)
 
         cols1.addSpacing(30)
 
@@ -109,7 +110,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         self._roll_range.clear()
         self._pitch_range.clear()
         self._yaw_range.clear()
-        self._thrust_range.clear()
+        self._throttle_range.clear()
         self._mode.clear()
         self._estop.clear()
         self._gpsw.clear()
@@ -123,7 +124,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         self._roll_range.start_timer()
         self._pitch_range.start_timer()
         self._yaw_range.start_timer()
-        self._thrust_range.start_timer()
+        self._throttle_range.start_timer()
 
     def _rcin_cb(self, rcin: RCInput) -> None:
         if rcin.error.error != RCInputError.E_NO_ERROR:
@@ -132,7 +133,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         self._roll_range.set_value(rcin.roll)
         self._pitch_range.set_value(rcin.pitch)
         self._yaw_range.set_value(rcin.yaw)
-        self._thrust_range.set_value(rcin.thrust)
+        self._throttle_range.set_value(rcin.throttle)
 
         if rcin.mode == RCInput.MODE_PROGRAM:
             self._mode.setText("Program")

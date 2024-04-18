@@ -1,4 +1,3 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
@@ -8,7 +7,6 @@
 
 using namespace std;
 using namespace KDL;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -40,13 +38,10 @@ void PositionYawController::update(
   t_last_rcin_ = cur_time;
 
   // 位置とヨー角の変化率を計算
-  vel_.x(
-    dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_.y(
-    dead_zone_.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));  // スラストレバーに遊びはなし
-  const auto yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  vel_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
+  vel_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
+  vel_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
+  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
 
   // 一度でも上昇コマンドが入力されたら位置制御を行う
   if (is_up_commanded_)

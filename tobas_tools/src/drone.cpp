@@ -264,7 +264,6 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
     "The second term of 'rot_speed_coefs' must be non-negative.");
 
   tobas_ros::getParam(nh, prefix + "/channel", res.channel);
-  ROS_CHECK(nh, res.channel < kServoRailSize, "Invalid PWM channel: " << res.channel);
 
   return res;
 }

@@ -11,7 +11,7 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 {
   // パルスが出力され始めたらexportを受け付けなくなるため，最初に全部やってしまう
   // 周波数は固定
-  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     if (!pwm_.initialize(channel))
       exit("Failed to initialize PWM CH", channel, ".");
@@ -25,7 +25,7 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 PwmHandler::~PwmHandler()
 {
-  for (size_t channel = 0; channel < tobas::kServoRailSize; ++channel)
+  for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     // PWMが有効化されていたら無効化する
     // unexportは不安定なので行わない
@@ -42,7 +42,7 @@ void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
   // PWMのデューティサイクルを更新
   for (const auto& pwm : pwms->pwm)
   {
-    if (pwm.channel >= tobas::kServoRailSize)
+    if (pwm.channel >= kServoRailSize)
     {
       TOBAS_ERROR("PWM CH", pwm.channel, " does not exist.");
       continue;
@@ -63,7 +63,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
 {
   res.success = false;
 
-  if (req.channel >= tobas::kServoRailSize)
+  if (req.channel >= kServoRailSize)
   {
     TOBAS_ERROR("PWM channel out of range.");
     return true;

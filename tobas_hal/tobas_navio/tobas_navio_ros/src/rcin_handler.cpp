@@ -42,8 +42,8 @@ bool RCInputHandler::reloadConfig()
   pt.get(kConfigKey_RcYawRight, yaw_range_.lower, tobas_navio_ros::kPwmMax);
   pt.get(kConfigKey_RcYawLeft, yaw_range_.upper, tobas_navio_ros::kPwmMin);
 
-  pt.get(kConfigKey_RcThrustDown, thrust_range_.lower, tobas_navio_ros::kPwmMax);
-  pt.get(kConfigKey_RcThrustUp, thrust_range_.upper, tobas_navio_ros::kPwmMin);
+  pt.get(kConfigKey_RcThrottleDown, throttle_range_.lower, tobas_navio_ros::kPwmMax);
+  pt.get(kConfigKey_RcThrottleUp, throttle_range_.upper, tobas_navio_ros::kPwmMin);
 
   pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram], tobas_navio_ros::kPwmMin);
   pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize], tobas_navio_ros::kPwmMid);
@@ -80,23 +80,29 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   // Roll
   if (rcin_.read(kRcChannelRoll) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->roll = remap<double>(rcin_.getPeriod(), roll_range_.lower, roll_range_.upper, -1, 1);
+  rcin_msg->roll = remap<double>(
+    rcin_.getPeriod(), roll_range_.lower, roll_range_.upper, tobas::kRCInputMin,
+    tobas::kRCInputMax);
 
   // Pitch
   if (rcin_.read(kRcChannelPitch) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->pitch = remap<double>(rcin_.getPeriod(), pitch_range_.lower, pitch_range_.upper, -1, 1);
+  rcin_msg->pitch = remap<double>(
+    rcin_.getPeriod(), pitch_range_.lower, pitch_range_.upper, tobas::kRCInputMin,
+    tobas::kRCInputMax);
 
   // Yaw
   if (rcin_.read(kRcChannelYaw) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->yaw = remap<double>(rcin_.getPeriod(), yaw_range_.lower, yaw_range_.upper, -1, 1);
+  rcin_msg->yaw = remap<double>(
+    rcin_.getPeriod(), yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
 
-  // Thrust
-  if (rcin_.read(kRcChannelThrust) != navio::RCInput::E_NO_ERROR)
+  // Throttle
+  if (rcin_.read(kRcChannelThrottle) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->thrust =
-    remap<double>(rcin_.getPeriod(), thrust_range_.lower, thrust_range_.upper, 0, 1);
+  rcin_msg->throttle = remap<double>(
+    rcin_.getPeriod(), throttle_range_.lower, throttle_range_.upper, tobas::kRCInputMin,
+    tobas::kRCInputMax);
 
   // Mode
   if (rcin_.read(kRcChannelMode) != navio::RCInput::E_NO_ERROR)

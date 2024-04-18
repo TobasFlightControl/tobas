@@ -31,7 +31,7 @@ private:
   tobas_std::Range<double> roll_range_;
   tobas_std::Range<double> pitch_range_;
   tobas_std::Range<double> yaw_range_;
-  tobas_std::Range<double> thrust_range_;
+  tobas_std::Range<double> throttle_range_;
   std::array<double, tobas::kNumFlightModes> modes_;
   double mode_auto_, mode_position_, mode__;
   double estop_on_, estop_off_;

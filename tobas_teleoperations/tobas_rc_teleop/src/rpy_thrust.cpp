@@ -1,4 +1,3 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
@@ -9,7 +8,6 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -47,8 +45,7 @@ void RollPitchYawThrustController::update(
   const ros::Time cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
   t_last_rcin_ = cur_time;
-  const auto yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
   yaw_ += yawrate * dt;
 
   // コマンドを作成
@@ -56,15 +53,13 @@ void RollPitchYawThrustController::update(
   rpyt->level.data = tobas_msgs::CommandLevel::MANUAL;
 
   // 姿勢と推力を埋める
-  rpyt->rpy.roll =
-    dead_zone_.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-  rpyt->rpy.pitch =
-    dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+  rpyt->rpy.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
+  rpyt->rpy.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
   rpyt->rpy.yaw = yaw_;
 
   const auto min_thrust = z_rotors_.minThrustSum(battery_voltage);
   const auto max_thrust = min(max_thrust_, z_rotors_.maxThrustSum(battery_voltage));
-  rpyt->thrust = remap(rcin.thrust, 0., 1., min_thrust, max_thrust);
+  rpyt->thrust = remap(rcin.throttle, min_thrust, max_thrust);
 
   // コマンドを発行
   rpy_thrust_pub_.publish(rpyt);

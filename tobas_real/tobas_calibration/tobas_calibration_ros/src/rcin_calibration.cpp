@@ -76,9 +76,9 @@ bool RCInputCalibrationRos::finishServiceCb(
     res.message = "The signals on Yaw channel are too close.";
     return true;
   }
-  if (abs(req.thrust_up - req.thrust_down) < kMinSignalRange)
+  if (abs(req.throttle_up - req.throttle_down) < kMinSignalRange)
   {
-    res.message = "The signals on Thrust channel are too close.";
+    res.message = "The signals on Throttle channel are too close.";
     return true;
   }
   if (abs(req.mode_program - req.mode_acrobat) < kMinSignalRange)
@@ -105,8 +105,8 @@ bool RCInputCalibrationRos::finishServiceCb(
   pt.put(tobas_navio_ros::kConfigKey_RcPitchDown, req.pitch_down);
   pt.put(tobas_navio_ros::kConfigKey_RcYawLeft, req.yaw_left);
   pt.put(tobas_navio_ros::kConfigKey_RcYawRight, req.yaw_right);
-  pt.put(tobas_navio_ros::kConfigKey_RcThrustUp, req.thrust_up);
-  pt.put(tobas_navio_ros::kConfigKey_RcThrustDown, req.thrust_down);
+  pt.put(tobas_navio_ros::kConfigKey_RcThrottleUp, req.throttle_up);
+  pt.put(tobas_navio_ros::kConfigKey_RcThrottleDown, req.throttle_down);
   pt.put(tobas_navio_ros::kConfigKey_RcModeProgram, req.mode_program);
   pt.put(tobas_navio_ros::kConfigKey_RcModeStabilize, req.mode_stabilize);
   pt.put(tobas_navio_ros::kConfigKey_RcModeAcrobat, req.mode_acrobat);
