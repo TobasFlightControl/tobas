@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os.path as osp
 import rospy
 import numpy as np
 from sensor_msgs.msg import Imu
