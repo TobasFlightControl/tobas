@@ -59,6 +59,7 @@ class ParamBlockWidget(QWidget):
             q_error(self._main, "Failed to get dynamic parameter descriptions.")
             return False
 
+        # TODO: QGridLayoutを使うなどして各要素を整列させる (cf. rqt_reconfigure)
         for param_desc in param_descs:
             name = param_desc["name"]
             type_ = param_desc["type"]
