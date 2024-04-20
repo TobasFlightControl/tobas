@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ScrollArea
+from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 
@@ -26,11 +26,11 @@ class ParameterTuningWidget(BaseAppWidget):
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        rows1 = QVBoxLayout()
-        self.setLayout(rows1)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         cols = QHBoxLayout()
-        rows1.addLayout(cols)
+        rows.addLayout(cols)
 
         self._load_button = QPushButton("Load")
         self._load_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
@@ -46,20 +46,17 @@ class ParameterTuningWidget(BaseAppWidget):
 
         cols.addStretch()
 
-        scroll_area = ScrollArea()
-        rows1.addWidget(scroll_area)
-
-        rows2 = QVBoxLayout()
-        scroll_area.setLayout(rows2)
+        scroll_area = ScrollableVBoxLayout()
+        rows.addLayout(scroll_area)
 
         self._param_blocks = [
             ParamBlockWidget(main, drone, "controller", "Controller"),
             ParamBlockWidget(main, drone, "observer", "Observer"),
         ]
         for param_block in self._param_blocks:
-            rows2.addWidget(param_block)
+            scroll_area.addWidget(param_block)
 
-        rows2.addStretch()
+        scroll_area.addStretch()
 
     @override
     def define_connections(self) -> None:
