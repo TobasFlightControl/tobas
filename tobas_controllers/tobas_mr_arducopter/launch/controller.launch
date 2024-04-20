@@ -3,8 +3,8 @@
   <arg name="nodelet" default="false"/>
   <arg name="ground_truth" default="false"/>
   <arg name="fcu_url" default="udp://127.0.0.1:14550@14555"/>
+  <arg name="node_name" default="arducopter_controller"/>
 
-  <arg name="controller_node_name" value="arducopter_controller"/>
   <arg name="param_server_node_name" value="arducopter_param_server"/>
 
   <!-- APM -->
@@ -23,10 +23,10 @@
   </include>
 
   <!-- Controller -->  <!-- TODO: Use estimated odometry -->
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg controller_node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen" required="true">
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_arducopter/ControllerNodelet nodelet_manager" output="screen" required="true">
     <remap from="odom" to="ground_truth/odom"/>
   </node>
-  <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="controller_node" name="$(arg controller_node_name)" output="screen" required="true">
+  <node unless="$(arg nodelet)" pkg="tobas_mr_arducopter" type="controller_node" name="$(arg node_name)" output="screen" required="true">
     <remap from="odom" to="ground_truth/odom"/>
   </node>
 

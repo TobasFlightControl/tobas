@@ -11,6 +11,7 @@
     <include file="$(find {{ controller_pkg }})/launch/controller.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
       <arg name="ground_truth" value="$(arg ground_truth)"/>
+      <arg name="node_name" value="controller"/>
     </include>
 
     <!-- Bringup takeoff and landing action servers at the same time -->

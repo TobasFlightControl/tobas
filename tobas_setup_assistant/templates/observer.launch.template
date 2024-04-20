@@ -9,6 +9,7 @@
     <!-- Bringup observer -->
     <include file="$(find {{ observer_pkg }})/launch/observer.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="node_name" value="observer"/>
     </include>
   </group>
 

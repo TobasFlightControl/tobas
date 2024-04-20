@@ -2,8 +2,7 @@
 
   <arg name="nodelet" default="false"/>
   <arg name="ground_truth" default="false"/>
-
-  <arg name="node_name" value="tobas_np_pid"/>
+  <arg name="node_name" default="tobas_np_pid"/>
 
   <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_np_pid/ControllerNodelet nodelet_manager" output="screen">
     <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
