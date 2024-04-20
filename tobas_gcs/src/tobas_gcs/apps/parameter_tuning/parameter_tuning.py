@@ -40,6 +40,10 @@ class ParameterTuningWidget(BaseAppWidget):
         self._save_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         cols.addWidget(self._save_button)
 
+        self._reset_button = QPushButton("Reset")
+        self._reset_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        cols.addWidget(self._reset_button)
+
         cols.addStretch()
 
         scroll_area = ScrollArea()
@@ -61,6 +65,7 @@ class ParameterTuningWidget(BaseAppWidget):
     def define_connections(self) -> None:
         self._load_button.clicked.connect(self._on_load_button_clicked)
         self._save_button.clicked.connect(self._on_save_button_clicked)
+        self._reset_button.clicked.connect(self._on_reset_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -82,3 +87,7 @@ class ParameterTuningWidget(BaseAppWidget):
     @pyqtSlot()
     def _on_save_button_clicked(self) -> None:
         pass  # TODO
+
+    @pyqtSlot()
+    def _on_reset_button_clicked(self) -> None:
+        pass  # TODO: ダイアログで確認した上で全てのパラメータをデフォルトにする

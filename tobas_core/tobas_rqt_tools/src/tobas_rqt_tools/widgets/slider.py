@@ -1,6 +1,6 @@
 from overrides import override
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QSlider
+from PyQt5.QtWidgets import QSlider
 from PyQt5.QtGui import QWheelEvent
 
 from tobas_std_tools_py.math import remap
@@ -62,6 +62,11 @@ class FloatSlider(Slider):
     def setValue(self, value: float) -> None:
         slider_value = int(remap(value, self._min, self._max, 0.0, self.RANGE))
         super().setValue(slider_value)
+
+    @override
+    def setRange(self, minimum: float, maximum: float) -> None:
+        self.setMinimum(minimum)
+        self.setMaximum(maximum)
 
     @pyqtSlot(int)
     def _on_slider_value_changed(self, slider_value: int) -> None:

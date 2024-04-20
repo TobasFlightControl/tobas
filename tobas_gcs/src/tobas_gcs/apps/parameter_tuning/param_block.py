@@ -9,6 +9,7 @@ from typing import List, Dict
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtGui import QFont
 
+from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_error
 from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.drone import Drone
@@ -26,18 +27,21 @@ class ParamBlockWidget(QWidget):
         self._drone = drone
         self._node_name = node_name
 
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         label_widget = QLabel(label)
         label_widget.setFont(QFont("Default", self.LABEL_PSIZE, QFont.Bold))
-        place_center(label_widget, self._rows)
+        place_center(label_widget, rows)
+
+        self._form = FormLayout()
+        rows.addLayout(self._form)
 
     def update_internal_data_structures(self) -> None:
-        self._clear()
+        self._form.clear()
 
     def load(self) -> bool:
-        self._clear()
+        self._form.clear()
 
         try:
             cli = client.Client(f"/{self._drone.drone_name}/{self._node_name}", timeout=self.TIMEOUT)
@@ -58,11 +62,12 @@ class ParamBlockWidget(QWidget):
         for param_desc in param_descs:
             name = param_desc["name"]
             type_ = param_desc["type"]
+            value = configs[name]
 
             if type_ == "int":
-                param_widget = IntParamWidget(name, param_desc["min"], param_desc["max"])
+                param_widget = IntParamWidget(param_desc["min"], param_desc["max"])
             elif type_ == "double":
-                param_widget = FloatParamWidget(name, param_desc["min"], param_desc["max"])
+                param_widget = FloatParamWidget(param_desc["min"], param_desc["max"])
             elif type_ == "bool":
                 q_error("Configuration for bool parameter is not supported yet.")  # TODO
                 return False
@@ -73,12 +78,8 @@ class ParamBlockWidget(QWidget):
                 q_error(f"Unknown parameter type: {type_}")
                 return False
 
-            value = configs[name]
-            param_widget.set_value(value)
+            param_widget.set(value)
 
-            self._rows.addWidget(param_widget)
+            self._form.addRow(QLabel(name), param_widget)
 
         return True
-
-    def _clear(self) -> None:
-        pass  # TODO: 全てのパラメータウィジェットを消す
