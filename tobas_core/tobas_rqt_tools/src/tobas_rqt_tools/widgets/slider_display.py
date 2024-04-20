@@ -1,6 +1,6 @@
 import random
 from typing import Callable
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QObject
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 

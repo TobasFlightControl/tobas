@@ -22,8 +22,8 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @override
     def define_connections(self) -> None:
-        pass  # TODO
+        pass
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass  # TODO
+        pass
