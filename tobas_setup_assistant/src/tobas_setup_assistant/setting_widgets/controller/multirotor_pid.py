@@ -78,5 +78,5 @@ class MultirotorPid(BaseController):
         return True
 
     @override
-    def parameter_dict(self) -> dict:
+    def static_parameters(self) -> dict:
         return dict()

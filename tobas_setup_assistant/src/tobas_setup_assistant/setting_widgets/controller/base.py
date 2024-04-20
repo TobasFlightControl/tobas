@@ -11,8 +11,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import Widget
-from tobas_rqt_tools.roslaunch import rosrun
-from tobas_rqt_tools.dynamic_reconfigure import get_param_config
 
 from ...common import *
 
@@ -67,5 +65,6 @@ class BaseController(Widget):
         raise NotImplementedError()
 
     @abstractmethod
-    def parameter_dict(self) -> dict:
+    def static_parameters(self) -> dict:
+        """静的ROSパラメータをまとめた辞書を返す．"""
         raise NotImplementedError()

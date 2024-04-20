@@ -91,8 +91,8 @@ class ControllerWidget(BaseSettingWidget):
     def acrobat_mode(self) -> str:
         return self._selected().ACROBAT_MODE
 
-    def parameter_dict(self) -> dict:
-        return self._selected().parameter_dict()
+    def static_parameters(self) -> dict:
+        return self._selected().static_parameters()
 
     def _update_controller_types(self) -> None:
         for controller in self._controllers:

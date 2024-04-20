@@ -39,5 +39,6 @@ class BaseObserver(Widget):
         raise NotImplementedError()
 
     @abstractmethod
-    def parameter_dict(self) -> dict:
+    def static_parameters(self) -> dict:
+        """静的ROSパラメータをまとめた辞書を返す．"""
         raise NotImplementedError()

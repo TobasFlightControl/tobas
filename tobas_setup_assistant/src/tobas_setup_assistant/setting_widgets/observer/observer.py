@@ -56,8 +56,8 @@ class ObserverWidget(BaseSettingWidget):
     def pkg_name(self) -> str:
         return self._selected().PACKAGE_NAME
 
-    def parameter_dict(self) -> dict:
-        return self._selected().parameter_dict()
+    def static_parameters(self) -> dict:
+        return self._selected().static_parameters()
 
     def _selected(self) -> BaseObserver:
         observer_type = self._type.currentText()

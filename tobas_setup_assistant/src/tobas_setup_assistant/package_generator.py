@@ -425,13 +425,13 @@ class PackageGenerator(QObject):
             yaml.dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        items = self._main.settings.controller.parameter_dict()
+        items = self._main.settings.controller.static_parameters()
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        items = self._main.settings.observer.parameter_dict()
+        items = self._main.settings.observer.static_parameters()
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
