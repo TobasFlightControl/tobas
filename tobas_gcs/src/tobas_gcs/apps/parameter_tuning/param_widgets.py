@@ -42,7 +42,7 @@ class IntParamWidget(BaseParamWidget):
         self._lineedit = QLineEdit()
         self._lineedit.setFixedWidth(self.VALUE_WIDTH)
         self._lineedit.setValidator(QIntValidator(minimum, maximum))
-        self._lineedit.textChanged.connect(self._on_lineedit_text_changed)
+        self._lineedit.returnPressed.connect(self._on_lineedit_return_pressed)
         cols.addWidget(self._lineedit)
 
     @override
@@ -58,9 +58,10 @@ class IntParamWidget(BaseParamWidget):
     def _on_slider_value_changed(self, value: int) -> None:
         self._set_lineedit_text(value)
 
-    @pyqtSlot(str)
-    def _on_lineedit_text_changed(self, text: str) -> None:
-        self._set_slider_value(int(text))
+    @pyqtSlot()
+    def _on_lineedit_return_pressed(self) -> None:
+        value = int(self._lineedit.text())
+        self._set_slider_value(value)
 
     def _set_slider_value(self, value: int) -> None:
         self._slider.blockSignals(True)
@@ -95,7 +96,7 @@ class FloatParamWidget(BaseParamWidget):
         self._lineedit = QLineEdit()
         self._lineedit.setFixedWidth(self.VALUE_WIDTH)
         self._lineedit.setValidator(QDoubleValidator(minimum, maximum, self._decimals))
-        self._lineedit.textChanged.connect(self._on_lineedit_text_changed)
+        self._lineedit.returnPressed.connect(self._on_lineedit_return_pressed)
         cols.addWidget(self._lineedit)
 
     @override
@@ -111,9 +112,10 @@ class FloatParamWidget(BaseParamWidget):
     def _on_slider_value_changed(self, value: float) -> None:
         self._set_lineedit_text(value)
 
-    @pyqtSlot(str)
-    def _on_lineedit_text_changed(self, text: str) -> None:
-        self._set_slider_value(float(text))
+    @pyqtSlot()
+    def _on_lineedit_return_pressed(self) -> None:
+        value = float(self._lineedit.text())
+        self._set_slider_value(value)
 
     def _set_slider_value(self, value: float) -> None:
         self._slider.blockSignals(True)
