@@ -20,13 +20,6 @@ class ErrorStateKalmanFilter(BaseObserver):
     NAME = "Error State Kalman Filter"
     PACKAGE_NAME = "state_estimation_eskf"
 
-    # Dynamic Parameters
-    GRAV_VAR = "gravity_variance"
-    YAW_VAR = "yaw_variance"
-    ACC_BIAS_NOISE_VAR_LOG10 = "acc_bias_noise_var_log10"
-    GYRO_BIAS_NOISE_VAR_LOG10 = "gyro_bias_noise_var_log10"
-    GRAV_NOISE_VAR_LOG10 = "gravity_noise_var_log10"
-
     def __init__(self, main: SetupAssistant) -> None:
         abst_text = (
             "The Error State Kalman Filter (ESKF) is an advanced variant of the Kalman Filter, "
@@ -43,60 +36,6 @@ class ErrorStateKalmanFilter(BaseObserver):
             "makes it a valuable tool in complex engineering tasks."
         )
         super().__init__(main, abst_text)
-
-    @override
-    def add_dynamic_params(self) -> None:
-        config = self._get_param_config(self.GRAV_VAR)
-        self._grav_var = ParamGetterWidget_SpinBox(
-            "Dynamic gravity variance",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-            suffix=" m^2/s^4",
-        )
-        self._rows.addWidget(self._grav_var)
-
-        config = self._get_param_config(self.YAW_VAR)
-        self._yaw_var = ParamGetterWidget_SpinBox(
-            "Magnetic yaw angle variance",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-            suffix=" rad^2",
-        )
-        self._rows.addWidget(self._yaw_var)
-
-        config = self._get_param_config(self.ACC_BIAS_NOISE_VAR_LOG10)
-        self._acc_bias_noise_var_log10 = ParamGetterWidget_SpinBox(
-            "Accelerometer bias process noise variance level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._acc_bias_noise_var_log10)
-
-        config = self._get_param_config(self.GYRO_BIAS_NOISE_VAR_LOG10)
-        self._gyro_bias_noise_var_log10 = ParamGetterWidget_SpinBox(
-            "Gyroscope bias process noise variance level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._gyro_bias_noise_var_log10)
-
-        config = self._get_param_config(self.GRAV_NOISE_VAR_LOG10)
-        self._gravity_noise_var_log10 = ParamGetterWidget_SpinBox(
-            "Gravity process noise variance level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._gravity_noise_var_log10)
 
     @override
     def is_valid(self) -> bool:
@@ -117,7 +56,6 @@ class ErrorStateKalmanFilter(BaseObserver):
 
         res = dict()
         res["state_estimator_eskf"] = {
-            # Static parameters
             "use_barometer": False,  # TODO: 選択できるように
             "use_gps": gps.equipped(),
             "do_acc_bias_estimation": False,
@@ -127,11 +65,6 @@ class ErrorStateKalmanFilter(BaseObserver):
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
-            # Dynamic parameters
-            self.GRAV_VAR: self._grav_var.get(),
-            self.YAW_VAR: self._yaw_var.get(),
-            self.ACC_BIAS_NOISE_VAR_LOG10: self._acc_bias_noise_var_log10.get(),
-            self.GYRO_BIAS_NOISE_VAR_LOG10: self._gyro_bias_noise_var_log10.get(),
         }
 
         return res

@@ -17,7 +17,7 @@ class KillableThread(threading.Thread):
         if ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit)) > 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
             return False
-        
+
         return True
 
     def _get_id(self) -> Union[int, None]:

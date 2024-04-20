@@ -261,10 +261,6 @@ class ArduCopter(BaseController):
         self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     @override
-    def add_dynamic_params(self) -> None:
-        pass
-
-    @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing

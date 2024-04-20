@@ -37,12 +37,21 @@ def get_catkin_ws_path(path: str) -> str:
 
 def is_in_catkin_src(path: str) -> bool:
     """パスがcatkinワークスペースのsrcディレクトリ以下に存在するかどうかを返す．"""
+    # パスの存在を確認
     path_ = osp.abspath(path)
+    if not osp.exists(path_):
+        return False
 
+    # catkinワークスペースのパスを取得
     try:
         ws_path = get_catkin_ws_path(path_)
     except:
         return False
 
-    src_path = osp.join(ws_path, "src/")
-    return osp.exists(src_path) and path_.startswith(src_path)
+    # srcディレクトリの存在を確認
+    src_dir = osp.join(ws_path, "src/")
+    if not osp.exists(src_dir):
+        return False
+
+    # srcそのものである場合と，srcディレクトリの内部に存在する場合にTrueを返す．
+    return path == osp.join(ws_path, "src") or path_.startswith(src_dir)

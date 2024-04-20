@@ -42,10 +42,6 @@ class MultirotorMpc(BaseController):
         pass
 
     @override
-    def add_dynamic_params(self) -> None:
-        pass  # TODO
-
-    @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.settings.fixed_wing
@@ -86,4 +82,4 @@ class MultirotorMpc(BaseController):
 
     @override
     def parameter_dict(self) -> dict:
-        return super().parameter_dict()  # TODO
+        return dict()

@@ -18,7 +18,6 @@ from .utils.ssh_client import SSHClientWrapper
 
 
 class ShutdownButtonWidget(QPushButton):
-
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__()
         self._main = main

@@ -20,7 +20,6 @@ from .base_section import BaseControlSystemSectionWidget
 
 
 class PlotWidget(pg.PlotWidget):
-
     def wheelEvent(self, e: QWheelEvent) -> None:
         # マウスホイールイベントを無効化
         # なぜか@overrideは付けられない

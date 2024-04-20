@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-import joblib
 from typing import List
 from overrides import override
 from PyQt5.QtCore import *
@@ -47,17 +46,11 @@ class ControllerWidget(BaseSettingWidget):
             FixedWingLQR(main),
         ]
 
-        # 各制御器の動的パラメータを並列に読み込む
-        # NOTE: ウィジェット自体をマルチスレッドにすると親子関係が壊れるため，コンストラクタの並列処理はできない
-        job = joblib.Parallel(n_jobs=-1, prefer="threads")  # メモリ共有するためマルチプロセスではなくマルチスレッド
-        job(joblib.delayed(ctrl.get_dynamic_params)() for ctrl in self._controllers)
-
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
         for controller in self._controllers:
-            controller.add_dynamic_params()
             self._rows.addWidget(controller)
 
         self._rows.addStretch()

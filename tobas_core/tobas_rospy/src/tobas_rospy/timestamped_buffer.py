@@ -4,7 +4,6 @@ from typing import Deque, Tuple, Iterator, Any
 
 
 class TimestampedBuffer:
-
     def __init__(self, expiry_duration: rospy.Duration) -> None:
         self._expiry_duration = expiry_duration
         self._que: Deque[rospy.Time, Any] = deque()

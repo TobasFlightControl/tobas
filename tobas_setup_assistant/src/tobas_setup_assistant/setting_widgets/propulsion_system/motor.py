@@ -232,7 +232,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
 
         kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
-            "Kv", kv_description, minimum=1, maximum=10**5, default=920, suffix=" rpm/V"
+            "Kv", kv_description, minimum=1, maximum=10 ** 5, default=920, suffix=" rpm/V"
         )
         self._rows.addWidget(self._kv)
 
@@ -321,7 +321,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega**2]
+        X = np.c_[omega, omega ** 2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b

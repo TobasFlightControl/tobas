@@ -4,12 +4,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-import rospy
 from abc import abstractmethod
-from typing import List, final
 from overrides import override
-from dynamic_reconfigure import client
-from dynamic_reconfigure.msg import ConfigDescription
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -36,9 +32,6 @@ class BaseController(Widget):
         super().__init__()
         self._main = main
 
-        self._param_server_process = None
-        self._configs: List[dict] = []
-
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
@@ -47,16 +40,10 @@ class BaseController(Widget):
 
     @override
     def close(self) -> bool:
-        self._param_server_process.terminate()
         return super().close()
 
     @abstractmethod
     def define_connections(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def add_dynamic_params(self) -> None:
-        """動的パラメータをウィジェットに反映"""
         raise NotImplementedError()
 
     @abstractmethod
@@ -81,26 +68,4 @@ class BaseController(Widget):
 
     @abstractmethod
     def parameter_dict(self) -> dict:
-        # 動的パラメータを取得
-        cfg: ConfigDescription = rospy.wait_for_message(
-            f"/{self.CONTROLLER_PKG}/parameter_descriptions", ConfigDescription, PARAM_DESCRIPTION_TIMEOUT
-        )
-        dflt = cfg.dflt
-
-        # デフォルトのパラメータを入れる
-        res = {self.PARAM_SERVER_NODE: dict()}
-        for defaults in [dflt.ints, dflt.doubles, dflt.strs, dflt.bools]:
-            for param in defaults:
-                res[self.PARAM_SERVER_NODE][param.name] = param.value
-
-        return res
-
-    @final
-    def get_dynamic_params(self) -> None:
-        self._param_server_process = rosrun(self.CONTROLLER_PKG, "parameter_server_node.py", self.CONTROLLER_PKG)
-        cli = client.Client(self.CONTROLLER_PKG, timeout=ROSLAUNCH_TIMEOUT)
-        self._configs: List[dict] = cli.get_parameter_descriptions()
-
-    @final
-    def _get_param_config(self, name: str) -> dict:
-        return get_param_config(self._configs, name)
+        raise NotImplementedError()

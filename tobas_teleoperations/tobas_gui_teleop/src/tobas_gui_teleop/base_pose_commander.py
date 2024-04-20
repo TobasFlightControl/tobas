@@ -179,6 +179,7 @@ class BasePoseCommanderWidget(Widget):
             return
 
         # Arming
+        rospy.loginfo("Arming")
         if not self._set_arm(True):
             return
 
