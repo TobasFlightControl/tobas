@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.sequence import is_unique
+from tobas_std_tools_py.file import create_empty_file
 from tobas_urdf_tools_py.core import *
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
 from tobas_rqt_tools.path import resolve_uri
@@ -225,6 +226,7 @@ class PackageGenerator(QObject):
         self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
+        self._generate_dynamic_params_config(config_dir)
         self._generate_urdf(urdf_dir, mesh_dir)
 
     def _make_template_items(self) -> None:
@@ -435,6 +437,10 @@ class PackageGenerator(QObject):
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.dump(items, f)
+
+    def _generate_dynamic_params_config(self, config_dir: str) -> None:
+        file_path = osp.join(config_dir, "dynamic_params.yaml")
+        create_empty_file(file_path)
 
     def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
         robot = self._make_urdf_with_plugins(mesh_dir)

@@ -3,6 +3,11 @@
   <arg name="nodelet" default="true"/>
   <arg name="ground_truth" default="false"/>
 
+  <!-- Load dynamic parameters -->
+  <group ns="{{ drone_name }}">
+    <rosparam file="$(find {{ pkg_name }})/config/dynamic_params.yaml" command="load"/>
+  </group>
+
   <!-- Launch nodelet manager -->
   <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
 
