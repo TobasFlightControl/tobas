@@ -385,7 +385,7 @@ class PackageGenerator(QObject):
         # TBSFファイルを作成
         drone_config_path = osp.join(config_dir, "drone.tbsf")
         with open(drone_config_path, "w") as f:
-            yaml.dump(drone_config, f)
+            yaml.safe_dump(drone_config, f)
 
     def _generate_joint_control_config(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
@@ -414,7 +414,7 @@ class PackageGenerator(QObject):
         # yamlファイルを作成
         jnt_ctrl_path = osp.join(config_dir, "joint_control.yaml")
         with open(jnt_ctrl_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
         controller = self._main.settings.controller
@@ -424,19 +424,19 @@ class PackageGenerator(QObject):
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")
         with open(file_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
         items = self._main.settings.controller.static_parameters()
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
         items = self._main.settings.observer.static_parameters()
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_dynamic_params_config(self, config_dir: str) -> None:
         file_path = osp.join(config_dir, "dynamic_params.yaml")
