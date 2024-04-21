@@ -6,6 +6,8 @@ if TYPE_CHECKING:
 
 from dynamic_reconfigure import client
 from typing import List, Dict
+from functools import partial
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtGui import QFont
 
@@ -37,24 +39,31 @@ class ParamBlockWidget(QWidget):
         self._form = FormLayout()
         rows.addLayout(self._form)
 
+        self._client = None
+
     def update_internal_data_structures(self) -> None:
         self._form.clear()
+
+        if self._client is not None:
+            self._client.close()
 
     def load(self) -> bool:
         self._form.clear()
 
-        try:
-            cli = client.Client(f"/{self._drone.drone_name}/{self._node_name}", timeout=self.TIMEOUT)
-        except Exception:
-            q_error(self._main, "Failed to connect to dynamic reconfigure server.")
-            return False
+        # Dynamic Reconfigureのクライアントを作成
+        if self._client is None:
+            try:
+                self._client = client.Client(f"/{self._drone.drone_name}/{self._node_name}", timeout=self.TIMEOUT)
+            except Exception:
+                q_error(self._main, "Failed to connect to dynamic reconfigure server.")
+                return False
 
-        configs: Dict = cli.get_configuration(self.TIMEOUT)
+        configs: Dict = self._client.get_configuration(self.TIMEOUT)
         if configs is None:
             q_error(self._main, "Failed to get dynamic parameter configurations.")
             return False
 
-        param_descs: List[dict] = cli.get_parameter_descriptions(self.TIMEOUT)
+        param_descs: List[dict] = self._client.get_parameter_descriptions(self.TIMEOUT)
         if param_descs is None:
             q_error(self._main, "Failed to get dynamic parameter descriptions.")
             return False
@@ -67,8 +76,10 @@ class ParamBlockWidget(QWidget):
 
             if type_ == "int":
                 param_widget = IntParamWidget(param_desc["min"], param_desc["max"])
+                param_widget.value_changed.connect(partial(self._on_int_param_changed, name=name))
             elif type_ == "double":
                 param_widget = FloatParamWidget(param_desc["min"], param_desc["max"])
+                param_widget.value_changed.connect(partial(self._on_float_param_changed, name=name))
             elif type_ == "bool":
                 q_error("Configuration for bool parameter is not supported yet.")  # TODO
                 return False
@@ -84,3 +95,19 @@ class ParamBlockWidget(QWidget):
             self._form.addRow(QLabel(name), param_widget)
 
         return True
+
+    @pyqtSlot(int)
+    def _on_int_param_changed(self, value: int, name: str) -> None:
+        self._client.update_configuration({name: value})
+
+    @pyqtSlot(float)
+    def _on_float_param_changed(self, value: float, name: str) -> None:
+        self._client.update_configuration({name: value})
+
+    @pyqtSlot(bool)
+    def _on_bool_param_changed(self, value: bool, name: str) -> None:
+        self._client.update_configuration({name: value})
+
+    @pyqtSlot(str)
+    def _on_str_param_changed(self, value: str, name: str) -> None:
+        self._client.update_configuration({name: value})

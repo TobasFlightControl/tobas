@@ -1,7 +1,7 @@
 import math
 from abc import abstractmethod
 from overrides import override
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
@@ -24,6 +24,8 @@ class BaseParamWidget(QWidget):
 
 
 class IntParamWidget(BaseParamWidget):
+    value_changed = pyqtSignal(int)
+
     def __init__(self, minimum: int, maximum: int) -> None:
         super().__init__()
 
@@ -57,11 +59,13 @@ class IntParamWidget(BaseParamWidget):
     @pyqtSlot(int)
     def _on_slider_value_changed(self, value: int) -> None:
         self._set_lineedit_text(value)
+        self.value_changed.emit(value)
 
     @pyqtSlot()
     def _on_lineedit_return_pressed(self) -> None:
         value = int(self._lineedit.text())
         self._set_slider_value(value)
+        self.value_changed.emit(value)
 
     def _set_slider_value(self, value: int) -> None:
         self._slider.blockSignals(True)
@@ -75,6 +79,8 @@ class IntParamWidget(BaseParamWidget):
 
 
 class FloatParamWidget(BaseParamWidget):
+    value_changed = pyqtSignal(float)
+
     def __init__(self, minimum: float, maximum: float) -> None:
         super().__init__()
 
@@ -111,11 +117,13 @@ class FloatParamWidget(BaseParamWidget):
     @pyqtSlot(float)
     def _on_slider_value_changed(self, value: float) -> None:
         self._set_lineedit_text(value)
+        self.value_changed.emit(value)
 
     @pyqtSlot()
     def _on_lineedit_return_pressed(self) -> None:
         value = float(self._lineedit.text())
         self._set_slider_value(value)
+        self.value_changed.emit(value)
 
     def _set_slider_value(self, value: float) -> None:
         self._slider.blockSignals(True)
