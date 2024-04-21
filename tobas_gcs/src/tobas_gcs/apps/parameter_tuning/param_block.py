@@ -42,12 +42,16 @@ class ParamBlockWidget(QWidget):
         rows.addLayout(self._form)
 
         self._client = None
+        self._param_descs: List[dict] = None
 
     def update_internal_data_structures(self) -> None:
         self._form.clear()
 
         if self._client is not None:
             self._client.close()
+            self._client = None
+
+        self._param_descs = []
 
     def load(self) -> bool:
         self._form.clear()
@@ -60,18 +64,20 @@ class ParamBlockWidget(QWidget):
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False
 
+        # Dynamic Reconfigureの設定を取得
+        self._param_descs = self._client.get_parameter_descriptions(self.TIMEOUT)
+        if self._param_descs is None:
+            q_error(self._main, "Failed to get dynamic parameter descriptions.")
+            return False
+
+        # 現在のパラメータの値を取得
         configs: Dict[str, ParamType] = self._client.get_configuration(self.TIMEOUT)
         if configs is None:
             q_error(self._main, "Failed to get dynamic parameter configurations.")
             return False
 
-        param_descs: List[dict] = self._client.get_parameter_descriptions(self.TIMEOUT)
-        if param_descs is None:
-            q_error(self._main, "Failed to get dynamic parameter descriptions.")
-            return False
-
         # TODO: QGridLayoutを使うなどして各要素を整列させる (cf. rqt_reconfigure)
-        for param_desc in param_descs:
+        for param_desc in self._param_descs:
             name: str = param_desc["name"]
             type_: str = param_desc["type"]
             value: ParamType = configs[name]
@@ -97,6 +103,14 @@ class ParamBlockWidget(QWidget):
             self._form.addRow(QLabel(name), param_widget)
 
         return True
+
+    def set_to_defaults(self) -> bool:
+        config = {}
+        for param_desc in self._param_descs:
+            config[param_desc["name"]] = param_desc["default"]
+
+        self._client.update_configuration(config)
+        return self.load()
 
     @pyqtSlot(int)
     def _on_int_param_changed(self, value: int, name: str) -> None:

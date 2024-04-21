@@ -10,9 +10,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_rqt_tools.layouts import ScrollableVBoxLayout
-from tobas_rqt_tools.messages import q_info, q_error
+from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
+from ...utils.ssh_client import SSHClientWrapper
 from ..base import BaseAppWidget
 from .param_block import ParamBlockWidget
 
@@ -34,14 +35,17 @@ class ParameterTuningWidget(BaseAppWidget):
 
         self._load_button = QPushButton("Load")
         self._load_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._load_button.setEnabled(False)
         cols.addWidget(self._load_button)
 
         self._save_button = QPushButton("Save")
         self._save_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._save_button.setEnabled(False)
         cols.addWidget(self._save_button)
 
         self._reset_button = QPushButton("Reset")
         self._reset_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._reset_button.setEnabled(False)
         cols.addWidget(self._reset_button)
 
         cols.addStretch()
@@ -58,6 +62,8 @@ class ParameterTuningWidget(BaseAppWidget):
 
         scroll_area.addStretch()
 
+        self._ssh_client = SSHClientWrapper()
+
     @override
     def define_connections(self) -> None:
         self._load_button.clicked.connect(self._on_load_button_clicked)
@@ -69,15 +75,18 @@ class ParameterTuningWidget(BaseAppWidget):
         for param_block in self._param_blocks:
             param_block.update_internal_data_structures()
 
+        self._load_button.setEnabled(True)
+        self._save_button.setEnabled(False)
+        self._reset_button.setEnabled(False)
+
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
-        if not self._main.package_loaded():
-            q_error(self._main, "Tobas configuration package is not loaded yet.")
-            return
-
         for param_block in self._param_blocks:
             if not param_block.load():
                 return
+
+        self._save_button.setEnabled(True)
+        self._reset_button.setEnabled(True)
 
         q_info(self._main, "Dynamic parameters are loaded successfully.")
 
@@ -87,4 +96,15 @@ class ParameterTuningWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_reset_button_clicked(self) -> None:
-        pass  # TODO: ダイアログで確認した上で全てのパラメータをデフォルトにする
+        # 本当に全てのパラメータをリセットしてよいか確認
+        if not yes_or_no(
+            self._main, "Are you sure you want to reset all parameters to their defaults?", QMessageLevel.WARN
+        ):
+            return
+
+        # 全てのパラメータをデフォルト値に戻す
+        for param_block in self._param_blocks:
+            if not param_block.set_to_defaults():
+                return
+
+        q_info(self._main, "Dynamic parameters are set to their defaults successfully.")
