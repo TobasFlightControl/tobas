@@ -81,8 +81,7 @@ class SSHClientWrapper:
         """root権限が必要なファイルに書き込む．"""
         # リモートディレクトリが存在することを確かめる
         # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう
-        remote_dir_exists, _, _ = self.exec_command(f"[ -d {remote_dir} ]")
-        if not remote_dir_exists:
+        if not self.dir_exists(remote_dir):
             raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
 
         # 一時オブジェクトに書き込む
@@ -127,6 +126,12 @@ class SSHClientWrapper:
         success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_path}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")
+
+    def file_exists(self, file_path: str) -> bool:
+        return self.exec_command(f"[ -f {file_path} ]")[0]
+
+    def dir_exists(self, dir_path: str) -> bool:
+        return self.exec_command(f"[ -d {dir_path} ]")[0]
 
     def _sudo_command(self, command: str) -> str:
         return f"echo {self.LOGIN_PASSWORD} | sudo -S bash -c '{command}'"

@@ -5,7 +5,6 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 import os
-import os.path as osp
 import rospy
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -82,7 +81,7 @@ class SimulationWidget(BaseAppWidget):
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
         config_pkg_path = self._main.package_path()
-        config_pkg_name = osp.basename(config_pkg_path)
+        config_pkg_name = self._main.package_name()
 
         progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=11)
         progress.setCancelButton(None)

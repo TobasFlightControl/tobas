@@ -1,3 +1,4 @@
+import os.path as osp
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -68,6 +69,9 @@ class GroundControlStationWidget(Widget):
 
     def package_path(self) -> str:
         return self._package_manager.package_path()
+
+    def package_name(self) -> str:
+        return osp.basename(self.package_path())
 
     def package_loaded(self) -> bool:
         return self.package_path() != ""

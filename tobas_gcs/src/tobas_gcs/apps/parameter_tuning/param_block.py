@@ -64,23 +64,14 @@ class ParamBlockWidget(QWidget):
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False
 
-        # Dynamic Reconfigureの設定を取得
         self._param_descs = self._client.get_parameter_descriptions(self.TIMEOUT)
-        if self._param_descs is None:
-            q_error(self._main, "Failed to get dynamic parameter descriptions.")
-            return False
-
-        # 現在のパラメータの値を取得
-        configs: Dict[str, ParamType] = self._client.get_configuration(self.TIMEOUT)
-        if configs is None:
-            q_error(self._main, "Failed to get dynamic parameter configurations.")
-            return False
+        config = self.get_current_config()
 
         # TODO: QGridLayoutを使うなどして各要素を整列させる (cf. rqt_reconfigure)
         for param_desc in self._param_descs:
             name: str = param_desc["name"]
             type_: str = param_desc["type"]
-            value: ParamType = configs[name]
+            value: ParamType = config[name]
 
             if type_ == "int":
                 param_widget = IntParamWidget(param_desc["min"], param_desc["max"])
@@ -111,6 +102,12 @@ class ParamBlockWidget(QWidget):
 
         self._client.update_configuration(config)
         return self.load()
+
+    def get_node_name(self) -> str:
+        return self._node_name
+
+    def get_current_config(self) -> Dict[str, ParamType]:
+        return self._client.get_configuration(self.TIMEOUT)
 
     @pyqtSlot(int)
     def _on_int_param_changed(self, value: int, name: str) -> None:

@@ -4,7 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
+import os.path as osp
+import yaml
 from overrides import override
+from typing import Dict
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -13,9 +16,10 @@ from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
+from ...common import *
 from ...utils.ssh_client import SSHClientWrapper
 from ..base import BaseAppWidget
-from .param_block import ParamBlockWidget
+from .param_block import ParamBlockWidget, ParamType
 
 
 class ParameterTuningWidget(BaseAppWidget):
@@ -92,7 +96,18 @@ class ParameterTuningWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_save_button_clicked(self) -> None:
-        pass  # TODO
+        # 現在のパラメータが格納された辞書を作成
+        config = self._create_current_config()
+
+        # FCに保存
+        if not self._save_config_on_fc(config):
+            return
+
+        # PCに保存
+        if not self._save_config_on_pc(config):
+            return
+
+        q_info(self._main, "Dynamic parameters are saved to PC and FC successfully.")
 
     @pyqtSlot()
     def _on_reset_button_clicked(self) -> None:
@@ -108,3 +123,48 @@ class ParameterTuningWidget(BaseAppWidget):
                 return
 
         q_info(self._main, "Dynamic parameters are set to their defaults successfully.")
+
+    def _create_current_config(self) -> Dict[str, Dict[str, ParamType]]:
+        config = {}
+        for param_block in self._param_blocks:
+            config[param_block.get_node_name()] = param_block.get_current_config()
+        return config
+
+    def _save_config_on_fc(self, config: Dict[str, Dict[str, ParamType]]) -> None:
+        # SSH接続
+        try:
+            self._ssh_client.connect()
+        except Exception as e:
+            q_error(self._main, str(e))
+            return False
+
+        # 設定ファイルが存在することを確認
+        config_path = osp.join(CATKIN_WS_TOBAS, "src", self._main.package_name(), "config/dynamic_params.yaml")
+        if not self._ssh_client.file_exists(config_path):
+            q_error(self._main, f"{config_path} does not exist.")
+            return False
+
+        # 設定をテキストに変換
+        config_text = yaml.dump(config)
+
+        # FCに書き込む
+        try:
+            self._ssh_client.sftp_write_super(config_path, config_text)
+        except Exception as e:
+            q_error(self._main, str(e))
+            return False
+
+        return True
+
+    def _save_config_on_pc(self, config: Dict[str, Dict[str, ParamType]]) -> bool:
+        # 設定ファイルが存在することを確認
+        config_path = osp.join(self._main.package_path(), "config/dynamic_params.yaml")
+        if not osp.exists(config_path):
+            q_error(self._main, "Configuration file does not exist on PC.")
+            return False
+
+        # PCに書き込む
+        with open(config_path, "w") as f:
+            yaml.dump(config, f)
+
+        return True
