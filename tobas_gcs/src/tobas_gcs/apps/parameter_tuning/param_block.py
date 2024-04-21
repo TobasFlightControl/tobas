@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 from dynamic_reconfigure import client
-from typing import List, Dict
+from typing import List, Dict, TypeVar
 from functools import partial
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QVBoxLayout
@@ -17,6 +17,8 @@ from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.drone import Drone
 
 from .param_widgets import *
+
+ParamType = TypeVar("ParamType", int, float, bool, str)
 
 
 class ParamBlockWidget(QWidget):
@@ -58,7 +60,7 @@ class ParamBlockWidget(QWidget):
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False
 
-        configs: Dict = self._client.get_configuration(self.TIMEOUT)
+        configs: Dict[str, ParamType] = self._client.get_configuration(self.TIMEOUT)
         if configs is None:
             q_error(self._main, "Failed to get dynamic parameter configurations.")
             return False
@@ -70,9 +72,9 @@ class ParamBlockWidget(QWidget):
 
         # TODO: QGridLayoutを使うなどして各要素を整列させる (cf. rqt_reconfigure)
         for param_desc in param_descs:
-            name = param_desc["name"]
-            type_ = param_desc["type"]
-            value = configs[name]
+            name: str = param_desc["name"]
+            type_: str = param_desc["type"]
+            value: ParamType = configs[name]
 
             if type_ == "int":
                 param_widget = IntParamWidget(param_desc["min"], param_desc["max"])
