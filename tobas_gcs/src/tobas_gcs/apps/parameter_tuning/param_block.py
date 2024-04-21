@@ -42,7 +42,6 @@ class ParamBlockWidget(QWidget):
         rows.addLayout(self._form)
 
         self._client = None
-        self._param_descs: List[dict] = None
 
     def update_internal_data_structures(self) -> None:
         self._form.clear()
@@ -50,8 +49,6 @@ class ParamBlockWidget(QWidget):
         if self._client is not None:
             self._client.close()
             self._client = None
-
-        self._param_descs = []
 
     def load(self) -> bool:
         self._form.clear()
@@ -64,11 +61,10 @@ class ParamBlockWidget(QWidget):
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False
 
-        self._param_descs = self._client.get_parameter_descriptions(self.TIMEOUT)
         config = self.get_current_config()
 
         # TODO: QGridLayoutを使うなどして各要素を整列させる (cf. rqt_reconfigure)
-        for param_desc in self._param_descs:
+        for param_desc in self.get_parameter_descriptions():
             name: str = param_desc["name"]
             type_: str = param_desc["type"]
             value: ParamType = config[name]
@@ -97,7 +93,7 @@ class ParamBlockWidget(QWidget):
 
     def set_to_defaults(self) -> bool:
         config = {}
-        for param_desc in self._param_descs:
+        for param_desc in self.get_parameter_descriptions():
             config[param_desc["name"]] = param_desc["default"]
 
         self._client.update_configuration(config)
@@ -106,7 +102,14 @@ class ParamBlockWidget(QWidget):
     def get_node_name(self) -> str:
         return self._node_name
 
+    def get_parameter_descriptions(self) -> List[dict]:
+        return self._client.get_parameter_descriptions(self.TIMEOUT)
+
     def get_current_config(self) -> Dict[str, ParamType]:
+        """
+        現在のパラメータを取得する．\\
+        NOTE: 辞書にはgroupsなどの不要な値も含まれ，そのままファイルに変換することはできない．
+        """
         return self._client.get_configuration(self.TIMEOUT)
 
     @pyqtSlot(int)

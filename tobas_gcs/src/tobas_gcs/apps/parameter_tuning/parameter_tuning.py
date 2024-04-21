@@ -125,10 +125,15 @@ class ParameterTuningWidget(BaseAppWidget):
         q_info(self._main, "Dynamic parameters are set to their defaults successfully.")
 
     def _create_current_config(self) -> Dict[str, Dict[str, ParamType]]:
-        config = {}
+        res = {}
         for param_block in self._param_blocks:
-            config[param_block.get_node_name()] = param_block.get_current_config()
-        return config
+            config = param_block.get_current_config()
+            param_dict = {}
+            for param_desc in param_block.get_parameter_descriptions():
+                param_name = param_desc["name"]
+                param_dict[param_name] = config[param_name]
+            res[param_block.get_node_name()] = param_dict
+        return res
 
     def _save_config_on_fc(self, config: Dict[str, Dict[str, ParamType]]) -> None:
         # SSH接続
@@ -145,7 +150,7 @@ class ParameterTuningWidget(BaseAppWidget):
             return False
 
         # 設定をテキストに変換
-        config_text = yaml.dump(config)
+        config_text = yaml.safe_dump(config)
 
         # FCに書き込む
         try:
@@ -165,6 +170,6 @@ class ParameterTuningWidget(BaseAppWidget):
 
         # PCに書き込む
         with open(config_path, "w") as f:
-            yaml.dump(config, f)
+            yaml.safe_dump(config, f)
 
         return True

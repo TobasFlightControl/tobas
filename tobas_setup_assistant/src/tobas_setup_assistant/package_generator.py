@@ -298,7 +298,7 @@ class PackageGenerator(QObject):
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = propulsion_system.widget(i)
 
-            # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
+            # yamlに変換する際の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f"rotor_{i}"] = {
                 "link_name": selected.link_name(),
                 "direction": selected.motor.direction(),
