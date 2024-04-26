@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ....gcs import GroundControlStationWidget
+    from .....gcs import GroundControlStationWidget
 
 import os.path as osp
 import math
@@ -17,7 +17,7 @@ from tobas_tools_py.drone import Drone
 from tobas_kdl_msgs.msg import Euler
 from tobas_msgs.msg import Gps
 
-from .base_section import BaseControlSystemSectionWidget
+from ..base_section import BaseControlSystemSectionWidget
 
 
 class LabelTextWidget(QWidget):
@@ -55,7 +55,7 @@ class MapWidget(QQuickWidget):
         super().__init__(resizeMode=QQuickWidget.SizeRootObjectToView)  # リサイズモードの指定が必須
 
         # QMLをセット
-        qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
+        qml_path = osp.join(osp.dirname(__file__), "Map.qml")
         self.setSource(QUrl.fromLocalFile(qml_path))
 
         # 更新周波数が大きすぎるとバグるため，インターバルを設ける．
