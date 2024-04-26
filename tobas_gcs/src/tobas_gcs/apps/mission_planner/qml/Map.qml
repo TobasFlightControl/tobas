@@ -4,7 +4,7 @@ import QtPositioning 5.12
 
 Rectangle {
   id: rectangle
-  height: 640  // QMLに定義できる値はなるべくQMLに定義
+  height: 500  // QMLに定義できる値はなるべくQMLに定義
 
   Plugin {
     id: osmPlugin
@@ -51,7 +51,6 @@ Rectangle {
   signal markerDropped(double latitude, double longitude)
 
   // 関数呼び出し用シグナル
-  // エラーを防ぐために，関数の呼び出しには必ずシグナルスロット接続を挟む．
   signal setCenter(double latitude, double longitude)
 
   Component.onCompleted: {

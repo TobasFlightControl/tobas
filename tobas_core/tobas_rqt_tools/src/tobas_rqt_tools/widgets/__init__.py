@@ -3,7 +3,7 @@ from .combo_box import ComboBox
 from .label import FramedLabel
 from .lamp_widget import LampWidget
 from .led_push_button import LEDPushButton
-from .list_widget import ListWidgetItem
+from .list_widget import ListWidget, ListWidgetItem
 from .main_widget import MainWidget
 from .markdown_widget import MarkDownWidget
 from .position_bar_widget import HPositionBarWidget, VPositionBarWidget
