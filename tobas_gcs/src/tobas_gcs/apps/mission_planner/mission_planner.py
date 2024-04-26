@@ -12,6 +12,7 @@ from PyQt5.QtGui import *
 from tobas_tools_py.drone import Drone
 
 from ..base import BaseAppWidget
+from .map_widget import MapWidget
 
 
 class MissionPlannerWidget(BaseAppWidget):
@@ -19,6 +20,15 @@ class MissionPlannerWidget(BaseAppWidget):
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
+
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
+        self._map = MapWidget()
+        self._map.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        rows.addWidget(self._map)
+
+        rows.addStretch()
 
     @override
     def define_connections(self) -> None:
