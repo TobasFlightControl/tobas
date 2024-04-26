@@ -19,20 +19,7 @@ Rectangle {
     anchors.fill: parent
     plugin: osmPlugin
     center: QtPositioning.coordinate(35.6580992222, 139.7413574722)  // 日本経緯度原点
-    zoomLevel: 10  // 0 ~ 20
-
-    MapItemView {
-      model: markermodel
-      delegate: MapQuickItem {
-        coordinate: model.position_marker
-        anchorPoint.x: markerImage.width
-        anchorPoint.y: markerImage.height
-        sourceItem: Image {
-          id: markerImage
-          source: model.source_marker
-        }
-      }
-    }
+    zoomLevel: 18  // 0 ~ 20
 
     MapQuickItem {
       coordinate: map.center // 中央に配置
@@ -52,25 +39,19 @@ Rectangle {
     }
   }
 
+  // 関数呼び出し用シグナル
   // エラーを防ぐために，関数の呼び出しには必ずシグナルスロット接続を挟む．
   signal setCenter(double latitude, double longitude)
-  signal setZoomLevel(int level)
   signal setArrowRotation(double angle)
 
   Component.onCompleted: {
     setCenter.connect(onSetCenter);
-    setZoomLevel.connect(onSetZoomLevel);
     setArrowRotation.connect(onSetArrowRotation);
   }
 
   function onSetCenter(latitude, longitude)
   {
     map.center = QtPositioning.coordinate(latitude, longitude);
-  }
-
-  function onSetZoomLevel(level)
-  {
-    map.zoomLevel = level;
   }
 
   function onSetArrowRotation(angle)

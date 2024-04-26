@@ -4,13 +4,15 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
+import os.path as osp
 import math
 import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtQuickWidgets import QQuickWidget
 
-from tobas_rqt_tools.widgets import FramedLabel, MapWidget
+from tobas_rqt_tools.widgets import FramedLabel
 from tobas_tools_py.drone import Drone
 from tobas_kdl_msgs.msg import Euler
 from tobas_msgs.msg import Gps
@@ -18,19 +20,83 @@ from tobas_msgs.msg import Gps
 from .base_section import BaseControlSystemSectionWidget
 
 
+class LabelTextWidget(QWidget):
+
+    TEXT_WIDTH = 150
+
+    def __init__(self, label: str) -> None:
+        super().__init__()
+
+        cols = QHBoxLayout()
+        self.setLayout(cols)
+
+        cols.addWidget(QLabel(label))
+
+        self._text = FramedLabel()
+        self._text.setFixedWidth(self.TEXT_WIDTH)
+        cols.addWidget(self._text)
+
+    def set_text(self, text: str) -> None:
+        self._text.setText(text)
+
+    def clear(self) -> None:
+        self._text.clear()
+
+
+class MapWidget(QQuickWidget):
+    """
+    Open Street Mapを埋め込んだウィジェット．
+    cf. https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
+    """
+
+    MIN_INTERVAL = 100  # [ms]
+
+    def __init__(self) -> None:
+        super().__init__(resizeMode=QQuickWidget.SizeRootObjectToView)  # リサイズモードの指定が必須
+
+        # QMLをセット
+        qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
+        self.setSource(QUrl.fromLocalFile(qml_path))
+
+        # 更新周波数が大きすぎるとバグるため，インターバルを設ける．
+        t0 = QDateTime.fromSecsSinceEpoch(0)
+        self._last_set_center = t0
+        self._last_set_arrow_rotation = t0
+
+    def set_center(self, latitude: float, longitude: float) -> None:
+        assert -90 <= latitude <= 90
+        assert -180 <= longitude <= 180
+
+        cur_time = QDateTime.currentDateTimeUtc()
+        elapsed_time = self._last_set_center.msecsTo(cur_time)
+        if elapsed_time < self.MIN_INTERVAL:
+            return
+
+        self.rootObject().setCenter.emit(latitude, longitude)
+        self._last_set_center = cur_time
+
+    def set_arrow_rotation(self, angle: float) -> None:
+
+        cur_time = QDateTime.currentDateTimeUtc()
+        elapsed_time = self._last_set_arrow_rotation.msecsTo(cur_time)
+        if elapsed_time < self.MIN_INTERVAL:
+            return
+
+        self.rootObject().setArrowRotation.emit(angle)
+        self._last_set_arrow_rotation = cur_time
+
+
 class PositionViewerWidget(BaseControlSystemSectionWidget):
     LABEL = "Position"
 
     MAP_WIDTH = 640
     MAP_HEIGHT = 480
-    MAP_ZOOM_LEVEL = 18
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
         self._map = MapWidget()
         self._map.setFixedSize(self.MAP_WIDTH, self.MAP_HEIGHT)
-        self._map.set_zoom_level(self.MAP_ZOOM_LEVEL)
         self._rows.addWidget(self._map)
 
         self._latitude = LabelTextWidget("Latitude")
@@ -59,7 +125,6 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self._map.clear()
         self._latitude.clear()
         self._longitude.clear()
         self._altitude.clear()
@@ -89,26 +154,3 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
     def _euler_cb(self, euler: Euler) -> None:
         yaw_deg = -math.degrees(euler.yaw)
         self._map.set_arrow_rotation(yaw_deg)
-
-
-class LabelTextWidget(QWidget):
-
-    TEXT_WIDTH = 150
-
-    def __init__(self, label: str) -> None:
-        super().__init__()
-
-        cols = QHBoxLayout()
-        self.setLayout(cols)
-
-        cols.addWidget(QLabel(label))
-
-        self._text = FramedLabel()
-        self._text.setFixedWidth(self.TEXT_WIDTH)
-        cols.addWidget(self._text)
-
-    def set_text(self, text: str) -> None:
-        self._text.setText(text)
-
-    def clear(self) -> None:
-        self._text.clear()
