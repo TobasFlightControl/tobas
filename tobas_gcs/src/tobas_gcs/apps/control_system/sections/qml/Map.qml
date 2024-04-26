@@ -4,6 +4,8 @@ import QtPositioning 5.12
 
 Rectangle {
   id: rectangle
+  width: 640
+  height: 480
 
   Plugin {
     id: osmPlugin

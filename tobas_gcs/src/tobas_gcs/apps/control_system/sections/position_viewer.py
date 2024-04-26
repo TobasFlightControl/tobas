@@ -89,14 +89,11 @@ class MapWidget(QQuickWidget):
 class PositionViewerWidget(BaseControlSystemSectionWidget):
     LABEL = "Position"
 
-    MAP_WIDTH = 640
-    MAP_HEIGHT = 480
-
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
         self._map = MapWidget()
-        self._map.setFixedSize(self.MAP_WIDTH, self.MAP_HEIGHT)
+        self._map.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self._rows.addWidget(self._map)
 
         self._latitude = LabelTextWidget("Latitude")
