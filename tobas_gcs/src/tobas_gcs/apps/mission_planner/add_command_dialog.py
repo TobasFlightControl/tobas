@@ -2,14 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_std_tools_py.enum import ExtEnum
-
-
-class Commands(ExtEnum):
-    WAYPOINT = "Waypoint"
-    TAKEOFF = "Takeoff"
-    LAND = "Land"
-    RETURN_TO_HOME = "Return to Home"
+from .commands import Commands
 
 
 class AddCommandDialog(QDialog):
@@ -51,6 +44,5 @@ class AddCommandDialog(QDialog):
         elif len(selected_items) == 1:
             self._selected_command = selected_items[0].text()
             self.accept()
-            return
         else:
             raise RuntimeError()

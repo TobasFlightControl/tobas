@@ -69,6 +69,8 @@ class MissionPlannerWidget(BaseAppWidget):
         rows.addLayout(mission_cols)
 
         self._command_list = ListWidget()
+        self._command_list.setSelectionMode(QListWidget.SingleSelection)
+        self._command_list.setDragDropMode(QListWidget.InternalMove)
         mission_cols.addWidget(self._command_list)
 
         self._properties = QStackedWidget()
@@ -86,7 +88,8 @@ class MissionPlannerWidget(BaseAppWidget):
         self._execute_button.clicked.connect(self._on_execute_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
 
-        self._command_list.itemClicked.connect(self._on_list_item_clicked)
+        self._command_list.itemClicked.connect(self._on_list_item_changed)
+        self._command_list.item_moved.connect(self._on_list_item_changed)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -128,6 +131,8 @@ class MissionPlannerWidget(BaseAppWidget):
 
         self._pairs.append((item, prop))
 
+        self._update_property_viewer()
+
     @pyqtSlot()
     def _on_clear_button_clicked(self) -> None:
         pass  # TODO
@@ -148,14 +153,30 @@ class MissionPlannerWidget(BaseAppWidget):
         for item, prop in self._pairs:
             if item is target_item and prop is target_prop:
                 self._pairs.remove((item, prop))
-                return
+                break
         else:
             raise RuntimeError("Failed to find the target item in the set.")
 
-    @pyqtSlot(QListWidgetItem)
-    def _on_list_item_clicked(self, clicked_item: QListWidgetItem):
+        self._update_property_viewer()
+
+    @pyqtSlot()
+    def _on_list_item_changed(self):
+        self._update_property_viewer()
+
+    def _update_property_viewer(self) -> None:
+        if self._command_list.count() == 0:
+            return
+
+        # 選択されているアイテムを取得
+        selected_items = self._command_list.selectedItems()
+        if len(selected_items) > 0:
+            selected_item = selected_items[0]
+        else:  # 何も選択されていなければ強制的に最初の要素を選択する
+            self._command_list.setCurrentRow(0)
+            selected_item = self._command_list.item(0)
+
         for item, prop in self._pairs:
-            if item is clicked_item:
+            if item is selected_item:
                 self._properties.setCurrentWidget(prop)
                 return
         else:
