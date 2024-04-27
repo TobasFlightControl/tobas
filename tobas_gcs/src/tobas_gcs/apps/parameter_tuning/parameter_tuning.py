@@ -63,6 +63,7 @@ class ParameterTuningWidget(BaseAppWidget):
         ]
         for param_block in self._param_blocks:
             scroll_area.addWidget(param_block)
+            param_block.setVisible(False)  # ラベルだけ見えているのは不自然なので最初は隠す
 
         scroll_area.addStretch()
 
@@ -88,6 +89,7 @@ class ParameterTuningWidget(BaseAppWidget):
         for param_block in self._param_blocks:
             if not param_block.load():
                 return
+            param_block.setVisible(True)  # 読み込みと同時に可視化
 
         self._save_button.setEnabled(True)
         self._reset_button.setEnabled(True)
