@@ -2,7 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from .commands import Commands
+from .structs import Commands
 
 
 class AddCommandDialog(QDialog):
@@ -23,13 +23,13 @@ class AddCommandDialog(QDialog):
         cols = QHBoxLayout()
         rows.addLayout(cols)
 
-        self._ok_button = QPushButton("OK")
-        self._ok_button.clicked.connect(self._on_ok_clicked)
-        cols.addWidget(self._ok_button)
-
         self._cancel_button = QPushButton("Cancel")
         self._cancel_button.clicked.connect(self.reject)
         cols.addWidget(self._cancel_button)
+
+        self._ok_button = QPushButton("OK")
+        self._ok_button.clicked.connect(self._on_ok_clicked)
+        cols.addWidget(self._ok_button)
 
         self._selected_command = ""
 

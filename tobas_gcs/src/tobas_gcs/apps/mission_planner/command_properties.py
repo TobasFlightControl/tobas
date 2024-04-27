@@ -2,9 +2,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.utils import place_center
 
-from .commands import Commands
+from .structs import Commands
+from .property_items import *
 
 
 class BasePropertyWidget(QWidget):
@@ -25,6 +27,8 @@ class BasePropertyWidget(QWidget):
         label = QLabel(self.NAME)
         label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         place_center(label, rows)
+
+        rows.addSpacing(30)
 
         self._rows = QVBoxLayout()
         rows.addLayout(self._rows)
@@ -47,7 +51,26 @@ class WaypointPropertyWidget(BasePropertyWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        # TODO
+        form = FormLayout()
+        self._rows.addLayout(form)
+
+        self._latitude = LatitudeSpinBox()
+        form.addRow(QLabel(LatitudeSpinBox.LABEL), self._latitude)
+
+        self._longitude = LongitudeSpinBox()
+        form.addRow(QLabel(LongitudeSpinBox.LABEL), self._longitude)
+
+        self._altitude = AltitudeSpinBox()
+        form.addRow(QLabel(AltitudeSpinBox.LABEL), self._altitude)
+
+        self._altitude_frame = AltitudeFrameComboBox()
+        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self._altitude_frame)
+
+        self._acceptance_radius = AcceptanceRadiusSpinBox()
+        form.addRow(QLabel(AcceptanceRadiusSpinBox.LABEL), self._acceptance_radius)
+
+        self._duration = DurationSpinBox()
+        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
 
 
 class TakeoffPropertyWidget(BasePropertyWidget):
@@ -56,7 +79,17 @@ class TakeoffPropertyWidget(BasePropertyWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        # TODO
+        form = FormLayout()
+        self._rows.addLayout(form)
+
+        self._altitude = AltitudeSpinBox()
+        form.addRow(QLabel(AltitudeSpinBox.LABEL), self._altitude)
+
+        self._altitude_frame = AltitudeFrameComboBox()
+        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self._altitude_frame)
+
+        self._duration = DurationSpinBox()
+        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
 
 
 class LandPropertyWidget(BasePropertyWidget):
@@ -65,7 +98,11 @@ class LandPropertyWidget(BasePropertyWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        # TODO
+        form = FormLayout()
+        self._rows.addLayout(form)
+
+        self._duration = DurationSpinBox()
+        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
 
 
 class RTHPropertyWidget(BasePropertyWidget):
@@ -74,4 +111,17 @@ class RTHPropertyWidget(BasePropertyWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        # TODO
+        form = FormLayout()
+        self._rows.addLayout(form)
+
+        self._altitude = AltitudeSpinBox()
+        form.addRow(QLabel(AltitudeSpinBox.LABEL), self._altitude)
+
+        self._altitude_frame = AltitudeFrameComboBox()
+        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self._altitude_frame)
+
+        self._acceptance_radius = AcceptanceRadiusSpinBox()
+        form.addRow(QLabel(AcceptanceRadiusSpinBox.LABEL), self._acceptance_radius)
+
+        self._duration = DurationSpinBox()
+        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
