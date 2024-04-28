@@ -23,6 +23,7 @@ Rectangle {
     center: QtPositioning.coordinate(35., 150.)  // 日本で一般的に販売されている世界地図の中心座標
     zoomLevel: 0  // 最小
 
+    // ImageModel
     MapItemView {
       model: ImageModel
       delegate: MapQuickItem {
@@ -36,60 +37,60 @@ Rectangle {
       }
     }
 
+    // WaypointModel
     MapItemView {
       model: WaypointModel
 
+      // Rectangleはdelegateに設定できないため，MapQuickItemを使う
       delegate: MapQuickItem {
         id: wayPoint
         coordinate: model.coordinate
         anchorPoint.x: circle.width / 2
         anchorPoint.y: circle.height / 2
 
-        sourceItem: Item {
-          Rectangle {
-            id: circle
-            width: 30
-            height: 30
-            radius: 15  // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる．
-            color: model.marker_color
-            border.color: "black"
-            border.width: 2
+        sourceItem: Rectangle {
+          id: circle
+          width: 30
+          height: 30
+          radius: 15  // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
+          color: model.marker_color
+          border.color: "black"
+          border.width: 2
 
-            // 親オブジェクトに対する相対座標
-            x: 0
-            y: 0
+          // 親オブジェクトに対する相対座標
+          x: 0
+          y: 0
 
-            // 円の中心に番号を表示
-            Text {
-              anchors.centerIn: parent
-              text: model.index
-              color: "black"
-              font.pixelSize: 16
-            }
+          // 円の中心に番号を表示
+          Text {
+            anchors.centerIn: parent
+            text: model.index
+            color: "black"
+            font.pixelSize: 16
+          }
 
-            // 円をドラッグ・アンド・ドロップできるようにするための設定
-            MouseArea {
-              anchors.fill: parent
-              drag.target: parent
-              onReleased: {
-                // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
-                let offset_x = circle.x;
-                let offset_y = circle.y;
+          // 円をドラッグ・アンド・ドロップできるようにするための設定
+          MouseArea {
+            anchors.fill: parent
+            drag.target: parent
+            onReleased: {
+              // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
+              let offset_x = circle.x;
+              let offset_y = circle.y;
 
-                // 子オブジェクトの移動分を親オブジェクトに反映させる
-                let old_coord = wayPoint.coordinate;
-                let old_point = map.fromCoordinate(old_coord);
-                let new_x = old_point.x + circle.x;
-                let new_y = old_point.y + circle.y;
-                let new_coord = map.toCoordinate(Qt.point(new_x, new_y));
-                wayPoint.coordinate = new_coord;
+              // 子オブジェクトの移動分を親オブジェクトに反映させる
+              let old_coord = wayPoint.coordinate;
+              let old_point = map.fromCoordinate(old_coord);
+              let new_x = old_point.x + circle.x;
+              let new_y = old_point.y + circle.y;
+              let new_coord = map.toCoordinate(Qt.point(new_x, new_y));
+              wayPoint.coordinate = new_coord;
 
-                // 子オブジェクトのオフセットをリセット
-                circle.x = 0;
-                circle.y = 0;
+              // 子オブジェクトのオフセットをリセット
+              circle.x = 0;
+              circle.y = 0;
 
-                waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
-              }
+              waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
             }
           }
         }
@@ -97,7 +98,7 @@ Rectangle {
     }
 
     MapItemView {
-      model: WaypointModel
+      model: WaypointModel  // 1つのモデルに対して複数のMapItemViewを定義できる
 
       delegate: MapCircle {
         center: model.coordinate
@@ -108,6 +109,7 @@ Rectangle {
       }
     }
 
+    // LineModel
     MapItemView {
       model: LineModel
       delegate: MapPolyline {
