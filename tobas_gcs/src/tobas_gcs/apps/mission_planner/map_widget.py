@@ -1,7 +1,7 @@
 import os.path as osp
 from overrides import override
 from typing import Tuple, List, Tuple, Dict, Type
-from PyQt5.QtCore import Qt, QObject, QAbstractListModel, QModelIndex, QVariant, QUrl
+from PyQt5.QtCore import *
 from PyQt5.QtQuickWidgets import QQuickWidget
 from PyQt5.QtPositioning import QGeoCoordinate
 
@@ -64,18 +64,17 @@ class MapWidget(QQuickWidget):
     def __init__(self) -> None:
         super().__init__(resizeMode=QQuickWidget.SizeRootObjectToView)  # リサイズモードの指定が必須
 
-        self._image = ImageModel()
-        self.rootContext().setContextProperty(ImageModel.__name__, self._image)
-
-        self._waypoint = WaypointModel()
-        self.rootContext().setContextProperty(WaypointModel.__name__, self._waypoint)
-
-        self._line = LineModel()
-        self.rootContext().setContextProperty(LineModel.__name__, self._line)
-
-        # QMLをセット
         qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
         self.setSource(QUrl.fromLocalFile(qml_path))
+
+        self._image = ImageModel()
+        self._waypoint = WaypointModel()
+        self._line = LineModel()
+        self.rootContext().setContextProperty(ImageModel.__name__, self._image)
+        self.rootContext().setContextProperty(WaypointModel.__name__, self._waypoint)
+        self.rootContext().setContextProperty(LineModel.__name__, self._line)
+
+        self.waypoint_moved: pyqtSignal = self.rootObject().waypointMoved
 
     def clear(self) -> None:
         self._image.clear()

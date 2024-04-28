@@ -92,6 +92,8 @@ class MissionPlannerWidget(BaseAppWidget):
         self._command_list.itemClicked.connect(self._on_list_item_changed)
         self._command_list.item_moved.connect(self._on_list_item_changed)
 
+        self._map.waypoint_moved.connect(self._on_waypoint_moved)
+
     @override
     def update_internal_data_structures(self) -> None:
         pass
@@ -175,6 +177,21 @@ class MissionPlannerWidget(BaseAppWidget):
         self._update_properties()
         self._update_map()
 
+    @pyqtSlot(int, float, float)
+    def _on_waypoint_moved(self, index: int, latitude: float, longitude: float) -> None:
+        cur_idx = 0
+        for item in self._command_list:
+            command = item.text()
+            if command == Commands.WAYPOINT.value:
+                cur_idx += 1
+            if cur_idx == index:
+                prop: WaypointPropertyWidget = self._get_property(item)
+                prop.latitude.setValue(latitude)
+                prop.longitude.setValue(longitude)
+                break
+        else:
+            raise RuntimeError(f"Index {index} is out of range.")
+
     def _update_properties(self) -> None:
         """選択されているリストアイテムに基づいてプロパティの表示を更新．"""
         if self._command_list.count() == 0:
@@ -196,10 +213,10 @@ class MissionPlannerWidget(BaseAppWidget):
             raise RuntimeError()
 
     def _update_map(self) -> None:
-        """現在のコマンドに基づいてマップを更新．"""
+        """現在のコマンドに基づいてマップ上のオブジェクトを描き直す．"""
         self._map.clear()
 
-        index = 0
+        index = 1
         last_coord: Tuple[float, float] = None
 
         for item in self._command_list:
