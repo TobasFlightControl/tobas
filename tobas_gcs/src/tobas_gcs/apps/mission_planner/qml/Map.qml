@@ -27,8 +27,8 @@ Rectangle {
       model: ImageModel
       delegate: MapQuickItem {
         coordinate: model.coordinate
-        anchorPoint.x: sourceImage.width
-        anchorPoint.y: sourceImage.height
+        anchorPoint.x: sourceImage.width / 2
+        anchorPoint.y: sourceImage.height / 2
         sourceItem: Image {
           id: sourceImage
           source: model.source
@@ -92,15 +92,19 @@ Rectangle {
               }
             }
           }
-
-          MapCircle {
-            // center: model.coordinate
-            radius: model.acceptance_radius  // [m]
-            color: "transparent"
-            border.color: "yellow"
-            border.width: 2
-          }
         }
+      }
+    }
+
+    MapItemView {
+      model: WaypointModel
+
+      delegate: MapCircle {
+        center: model.coordinate
+        radius: model.acceptance_radius  // [m]
+        color: "transparent"
+        border.color: "yellow"
+        border.width: 2
       }
     }
 

@@ -64,15 +64,15 @@ class MapWidget(QQuickWidget):
     def __init__(self) -> None:
         super().__init__(resizeMode=QQuickWidget.SizeRootObjectToView)  # リサイズモードの指定が必須
 
-        qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
-        self.setSource(QUrl.fromLocalFile(qml_path))
-
         self._image = ImageModel()
         self._waypoint = WaypointModel()
         self._line = LineModel()
         self.rootContext().setContextProperty(ImageModel.__name__, self._image)
         self.rootContext().setContextProperty(WaypointModel.__name__, self._waypoint)
         self.rootContext().setContextProperty(LineModel.__name__, self._line)
+
+        qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
+        self.setSource(QUrl.fromLocalFile(qml_path))
 
         self.waypoint_moved: pyqtSignal = self.rootObject().waypointMoved
 
