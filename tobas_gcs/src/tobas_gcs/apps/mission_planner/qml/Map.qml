@@ -24,22 +24,81 @@ Rectangle {
     zoomLevel: 0  // 最小
 
     MapItemView {
-      model: MarkerModel
+      model: ImageModel
       delegate: MapQuickItem {
-        id: markerItem
-        coordinate: model.position
-        anchorPoint.x: markerImage.width
-        anchorPoint.y: markerImage.height
+        coordinate: model.coordinate
+        anchorPoint.x: sourceImage.width
+        anchorPoint.y: sourceImage.height
         sourceItem: Image {
-          id: markerImage
+          id: sourceImage
           source: model.source
         }
-        MouseArea {
-          id: markerMouseArea
-          anchors.fill: parent
-          drag.target: parent
-          onReleased: {
-            markerDropped()
+      }
+    }
+
+    MapItemView {
+      model: WaypointModel
+
+      delegate: MapQuickItem {
+        id: wayPoint
+        coordinate: model.coordinate
+        anchorPoint.x: circle.width / 2
+        anchorPoint.y: circle.height / 2
+
+        sourceItem: Item {
+          Rectangle {
+            id: circle
+            width: 30
+            height: 30
+            radius: 15  // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる．
+            color: model.marker_color
+            border.color: "black"
+            border.width: 2
+
+            // 親オブジェクトに対する相対座標
+            x: 0
+            y: 0
+
+            // 円の中心に番号を表示
+            Text {
+              anchors.centerIn: parent
+              text: model.index
+              color: "black"
+              font.pixelSize: 16
+            }
+
+            // 円をドラッグ・アンド・ドロップできるようにするための設定
+            MouseArea {
+              anchors.fill: parent
+              drag.target: parent
+              onReleased: {
+                // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
+                let offset_x = circle.x;
+                let offset_y = circle.y;
+
+                // 子オブジェクトの移動分を親オブジェクトに反映させる
+                let old_coord = wayPoint.coordinate;
+                let old_point = map.fromCoordinate(old_coord);
+                let new_x = old_point.x + circle.x;
+                let new_y = old_point.y + circle.y;
+                let new_coord = map.toCoordinate(Qt.point(new_x, new_y));
+                wayPoint.coordinate = new_coord;
+
+                // 子オブジェクトのオフセットをリセット
+                circle.x = 0;
+                circle.y = 0;
+
+                waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
+              }
+            }
+          }
+
+          MapCircle {
+            // center: model.coordinate
+            radius: model.acceptance_radius  // [m]
+            color: "transparent"
+            border.color: "yellow"
+            border.width: 2
           }
         }
       }
@@ -59,7 +118,7 @@ Rectangle {
   }
 
   // イベント通知用シグナル
-  signal markerDropped()
+  signal waypointMoved(int index, double latitude, double longitude)
 
   // 関数呼び出し用シグナル
   signal setCenter(double latitude, double longitude)

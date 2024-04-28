@@ -43,8 +43,12 @@ class AbstractListModel(QAbstractListModel):
         self.endRemoveRows()
 
 
-class MarkerModel(AbstractListModel):
-    FIELDS = [("position", QGeoCoordinate), ("source", QUrl)]
+class ImageModel(AbstractListModel):
+    FIELDS = [("coordinate", QGeoCoordinate), ("source", QUrl)]
+
+
+class WaypointModel(AbstractListModel):
+    FIELDS = [("index", int), ("coordinate", QGeoCoordinate), ("acceptance_radius", float), ("marker_color", str)]
 
 
 class LineModel(AbstractListModel):
@@ -60,8 +64,11 @@ class MapWidget(QQuickWidget):
     def __init__(self) -> None:
         super().__init__(resizeMode=QQuickWidget.SizeRootObjectToView)  # リサイズモードの指定が必須
 
-        self._marker = MarkerModel()
-        self.rootContext().setContextProperty(MarkerModel.__name__, self._marker)
+        self._image = ImageModel()
+        self.rootContext().setContextProperty(ImageModel.__name__, self._image)
+
+        self._waypoint = WaypointModel()
+        self.rootContext().setContextProperty(WaypointModel.__name__, self._waypoint)
 
         self._line = LineModel()
         self.rootContext().setContextProperty(LineModel.__name__, self._line)
@@ -71,16 +78,15 @@ class MapWidget(QQuickWidget):
         self.setSource(QUrl.fromLocalFile(qml_path))
 
     def clear(self) -> None:
-        self._marker.clear()
+        self._image.clear()
+        self._waypoint.clear()
         self._line.clear()
 
-    def add_marker(self, latitude: float, longitude: float, color: str = "red") -> None:
-        assert -90 <= latitude <= 90
-        assert -180 <= longitude <= 180
+    def add_image(self, coord: QGeoCoordinate, url: QUrl) -> None:
+        self._image.add(coord, url)
 
-        coord = QGeoCoordinate(latitude, longitude)
-        source = QUrl(f"http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_{color}.png")  # TODO: ローカルに保存
-        self._marker.add(coord, source)
+    def add_waypoint(self, index: int, coord: QGeoCoordinate, acceptance_radius: float, marker_color: str) -> None:
+        self._waypoint.add(index, coord, acceptance_radius, marker_color)
 
     def add_line(self, latitude_1: float, longitude_1: float, latitude_2: float, longitude_2: float) -> None:
         self._line.add(latitude_1, longitude_1, latitude_2, longitude_2)

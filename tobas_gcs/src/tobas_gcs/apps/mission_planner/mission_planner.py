@@ -10,6 +10,7 @@ from typing import Tuple, List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtPositioning import QGeoCoordinate
 
 from tobas_rqt_tools.widgets import ListWidget
 from tobas_tools_py.drone import Drone
@@ -198,6 +199,7 @@ class MissionPlannerWidget(BaseAppWidget):
         """現在のコマンドに基づいてマップを更新．"""
         self._map.clear()
 
+        index = 0
         last_coord: Tuple[float, float] = None
 
         for item in self._command_list:
@@ -206,10 +208,12 @@ class MissionPlannerWidget(BaseAppWidget):
                 prop: WaypointPropertyWidget = self._get_property(item)
                 latitude = prop.latitude.value()
                 longitude = prop.longitude.value()
-                self._map.add_marker(latitude, longitude, color="blue")
+                coord = QGeoCoordinate(latitude, longitude)
+                self._map.add_waypoint(index, coord, prop.acceptance_radius.value(), "cyan")
                 if last_coord is not None:
                     last_latitude, last_longitude = last_coord
                     self._map.add_line(last_latitude, last_longitude, latitude, longitude)
+                index += 1
                 last_coord = (latitude, longitude)
             elif command == Commands.TAKEOFF.value:
                 pass
