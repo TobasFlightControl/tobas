@@ -23,20 +23,6 @@ Rectangle {
     center: QtPositioning.coordinate(35., 150.)  // 日本で一般的に販売されている世界地図の中心座標
     zoomLevel: 0  // 最小
 
-    // ImageModel
-    MapItemView {
-      model: ImageModel
-      delegate: MapQuickItem {
-        coordinate: model.coordinate
-        anchorPoint.x: sourceImage.width / 2
-        anchorPoint.y: sourceImage.height / 2
-        sourceItem: Image {
-          id: sourceImage
-          source: model.source
-        }
-      }
-    }
-
     // WaypointModel
     MapItemView {
       model: WaypointModel

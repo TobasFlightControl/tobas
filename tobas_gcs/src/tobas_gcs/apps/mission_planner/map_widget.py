@@ -66,10 +66,8 @@ class MapWidget(QQuickWidget):
 
         # モデルオブジェクトの設定
         # QMLファイルのロード前に行う必要がある
-        self._image = ImageModel()
         self._waypoint = WaypointModel()
         self._line = LineModel()
-        self.rootContext().setContextProperty(ImageModel.__name__, self._image)
         self.rootContext().setContextProperty(WaypointModel.__name__, self._waypoint)
         self.rootContext().setContextProperty(LineModel.__name__, self._line)
 
@@ -81,12 +79,8 @@ class MapWidget(QQuickWidget):
         self.waypoint_moved: pyqtSignal = self.rootObject().waypointMoved
 
     def clear(self) -> None:
-        self._image.clear()
         self._waypoint.clear()
         self._line.clear()
-
-    def add_image(self, coord: QGeoCoordinate, url: QUrl) -> None:
-        self._image.add(coord, url)
 
     def add_waypoint(self, index: int, coord: QGeoCoordinate, acceptance_radius: float, marker_color: str) -> None:
         self._waypoint.add(index, coord, acceptance_radius, marker_color)
