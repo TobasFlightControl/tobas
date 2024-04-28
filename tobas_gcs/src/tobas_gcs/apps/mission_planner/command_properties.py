@@ -16,6 +16,7 @@ class BasePropertyWidget(QWidget):
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
 
+    value_changed = pyqtSignal()
     delete_button_clicked = pyqtSignal()
 
     def __init__(self) -> None:
@@ -44,6 +45,9 @@ class BasePropertyWidget(QWidget):
     def _on_delete_button_clicked(self) -> None:
         self.delete_button_clicked.emit()
 
+    def _emit_value_changed(self) -> None:
+        self.value_changed.emit()
+
 
 class WaypointPropertyWidget(BasePropertyWidget):
     NAME = Commands.WAYPOINT.value
@@ -54,23 +58,28 @@ class WaypointPropertyWidget(BasePropertyWidget):
         form = FormLayout()
         self._rows.addLayout(form)
 
-        self._latitude = LatitudeSpinBox()
-        form.addRow(QLabel(LatitudeSpinBox.LABEL), self._latitude)
+        self.latitude = LatitudeSpinBox()
+        self.latitude.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(LatitudeSpinBox.LABEL), self.latitude)
 
-        self._longitude = LongitudeSpinBox()
-        form.addRow(QLabel(LongitudeSpinBox.LABEL), self._longitude)
+        self.longitude = LongitudeSpinBox()
+        self.longitude.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(LongitudeSpinBox.LABEL), self.longitude)
 
-        self._altitude = AltitudeSpinBox()
-        form.addRow(QLabel(AltitudeSpinBox.LABEL), self._altitude)
+        self.altitude = AltitudeSpinBox()
+        self.altitude.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(AltitudeSpinBox.LABEL), self.altitude)
 
-        self._altitude_frame = AltitudeFrameComboBox()
-        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self._altitude_frame)
+        self.altitude_frame = AltitudeFrameComboBox()
+        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self.altitude_frame)
 
-        self._acceptance_radius = AcceptanceRadiusSpinBox()
-        form.addRow(QLabel(AcceptanceRadiusSpinBox.LABEL), self._acceptance_radius)
+        self.acceptance_radius = AcceptanceRadiusSpinBox()
+        self.acceptance_radius.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(AcceptanceRadiusSpinBox.LABEL), self.acceptance_radius)
 
-        self._duration = DurationSpinBox()
-        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
+        self.duration = DurationSpinBox()
+        self.duration.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
 
 
 class TakeoffPropertyWidget(BasePropertyWidget):
@@ -82,14 +91,16 @@ class TakeoffPropertyWidget(BasePropertyWidget):
         form = FormLayout()
         self._rows.addLayout(form)
 
-        self._altitude = AltitudeSpinBox()
-        form.addRow(QLabel(AltitudeSpinBox.LABEL), self._altitude)
+        self.altitude = AltitudeSpinBox()
+        self.altitude.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(AltitudeSpinBox.LABEL), self.altitude)
 
-        self._altitude_frame = AltitudeFrameComboBox()
-        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self._altitude_frame)
+        self.altitude_frame = AltitudeFrameComboBox()
+        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self.altitude_frame)
 
-        self._duration = DurationSpinBox()
-        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
+        self.duration = DurationSpinBox()
+        self.duration.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
 
 
 class LandPropertyWidget(BasePropertyWidget):
@@ -101,8 +112,9 @@ class LandPropertyWidget(BasePropertyWidget):
         form = FormLayout()
         self._rows.addLayout(form)
 
-        self._duration = DurationSpinBox()
-        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
+        self.duration = DurationSpinBox()
+        self.duration.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
 
 
 class RTHPropertyWidget(BasePropertyWidget):
@@ -114,14 +126,17 @@ class RTHPropertyWidget(BasePropertyWidget):
         form = FormLayout()
         self._rows.addLayout(form)
 
-        self._altitude = AltitudeSpinBox()
-        form.addRow(QLabel(AltitudeSpinBox.LABEL), self._altitude)
+        self.altitude = AltitudeSpinBox()
+        self.altitude.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(AltitudeSpinBox.LABEL), self.altitude)
 
-        self._altitude_frame = AltitudeFrameComboBox()
-        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self._altitude_frame)
+        self.altitude_frame = AltitudeFrameComboBox()
+        form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self.altitude_frame)
 
-        self._acceptance_radius = AcceptanceRadiusSpinBox()
-        form.addRow(QLabel(AcceptanceRadiusSpinBox.LABEL), self._acceptance_radius)
+        self.acceptance_radius = AcceptanceRadiusSpinBox()
+        self.acceptance_radius.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(AcceptanceRadiusSpinBox.LABEL), self.acceptance_radius)
 
-        self._duration = DurationSpinBox()
-        form.addRow(QLabel(DurationSpinBox.LABEL), self._duration)
+        self.duration = DurationSpinBox()
+        self.duration.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)

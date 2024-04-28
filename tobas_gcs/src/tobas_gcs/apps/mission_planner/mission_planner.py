@@ -114,6 +114,9 @@ class MissionPlannerWidget(BaseAppWidget):
         command = dialog.selected_command()
         if command == Commands.WAYPOINT.value:
             prop = WaypointPropertyWidget()
+            latitude, longitude = self._map.get_center()
+            prop.latitude.setValue(latitude)
+            prop.longitude.setValue(longitude)
         elif command == Commands.TAKEOFF.value:
             prop = TakeoffPropertyWidget()
         elif command == Commands.LAND.value:
@@ -127,11 +130,13 @@ class MissionPlannerWidget(BaseAppWidget):
         self._command_list.addItem(item)
 
         self._properties.addWidget(prop)
+        prop.value_changed.connect(self._on_property_value_changed)
         prop.delete_button_clicked.connect(partial(self._on_delete_button_clicked, target_item=item, target_prop=prop))
 
         self._pairs.append((item, prop))
 
-        self._update_property_viewer()
+        self._update_properties()
+        self._update_map()
 
     @pyqtSlot()
     def _on_clear_button_clicked(self) -> None:
@@ -146,6 +151,10 @@ class MissionPlannerWidget(BaseAppWidget):
         pass  # TODO
 
     @pyqtSlot()
+    def _on_property_value_changed(self) -> None:
+        self._update_map()
+
+    @pyqtSlot()
     def _on_delete_button_clicked(self, target_item: QListWidgetItem, target_prop: BasePropertyWidget) -> None:
         self._command_list.remove(target_item)
         self._properties.removeWidget(target_prop)
@@ -155,15 +164,18 @@ class MissionPlannerWidget(BaseAppWidget):
                 self._pairs.remove((item, prop))
                 break
         else:
-            raise RuntimeError("Failed to find the target item in the set.")
+            raise RuntimeError()
 
-        self._update_property_viewer()
+        self._update_properties()
+        self._update_map()
 
     @pyqtSlot()
     def _on_list_item_changed(self):
-        self._update_property_viewer()
+        self._update_properties()
+        self._update_map()
 
-    def _update_property_viewer(self) -> None:
+    def _update_properties(self) -> None:
+        """選択されているリストアイテムに基づいてプロパティの表示を更新．"""
         if self._command_list.count() == 0:
             return
 
@@ -180,4 +192,37 @@ class MissionPlannerWidget(BaseAppWidget):
                 self._properties.setCurrentWidget(prop)
                 return
         else:
-            raise RuntimeError("Failed to find the clicked item in the set.")
+            raise RuntimeError()
+
+    def _update_map(self) -> None:
+        """現在のコマンドに基づいてマップを更新．"""
+        self._map.clear()
+
+        last_coord: Tuple[float, float] = None
+
+        for item in self._command_list:
+            command = item.text()
+            if command == Commands.WAYPOINT.value:
+                prop: WaypointPropertyWidget = self._get_property(item)
+                latitude = prop.latitude.value()
+                longitude = prop.longitude.value()
+                self._map.add_marker(latitude, longitude, color="blue")
+                if last_coord is not None:
+                    last_latitude, last_longitude = last_coord
+                    self._map.add_line(last_latitude, last_longitude, latitude, longitude)
+                last_coord = (latitude, longitude)
+            elif command == Commands.TAKEOFF.value:
+                pass
+            elif command == Commands.LAND.value:
+                pass
+            elif command == Commands.RETURN_TO_HOME.value:
+                pass
+            else:
+                raise RuntimeError(f"Unknown command: {command}")
+
+    def _get_property(self, item: QListWidgetItem) -> BasePropertyWidget:
+        for item_, prop in self._pairs:
+            if item_ is item:
+                return prop
+        else:
+            raise RuntimeError()

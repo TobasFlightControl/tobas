@@ -17,6 +17,7 @@ Rectangle {
 
   Map {
     id: map
+    objectName: "map"  // Python側からアクセスするためのオブジェクト名
     anchors.fill: parent
     plugin: osmPlugin
     center: QtPositioning.coordinate(35., 150.)  // 日本で一般的に販売されている世界地図の中心座標
@@ -26,29 +27,39 @@ Rectangle {
       model: MarkerModel
       delegate: MapQuickItem {
         id: markerItem
-        coordinate: model.position_marker
+        coordinate: model.position
         anchorPoint.x: markerImage.width
         anchorPoint.y: markerImage.height
         sourceItem: Image {
           id: markerImage
-          source: model.source_marker
+          source: model.source
         }
         MouseArea {
           id: markerMouseArea
           anchors.fill: parent
           drag.target: parent
           onReleased: {
-            markerDropped
-            var coord = map.toCoordinate(Qt.point(markerItem.coordinate));
-            markerItem.coordinate = coord;
+            markerDropped()
           }
         }
+      }
+    }
+
+    MapItemView {
+      model: LineModel
+      delegate: MapPolyline {
+        line.width: 3
+        line.color:"green"
+        path: [
+        {latitude: model.latitude_1, longitude: model.longitude_1},
+        {latitude: model.latitude_2, longitude: model.longitude_2},
+        ]
       }
     }
   }
 
   // イベント通知用シグナル
-  signal markerDropped(double latitude, double longitude)
+  signal markerDropped()
 
   // 関数呼び出し用シグナル
   signal setCenter(double latitude, double longitude)
