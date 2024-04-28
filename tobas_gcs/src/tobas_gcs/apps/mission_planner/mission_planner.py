@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtPositioning import QGeoCoordinate
 
-from tobas_rqt_tools.widgets import ListWidget
+from tobas_rqt_tools.widgets import ListWidget, StackedWidget
 from tobas_tools_py.drone import Drone
 
 from ..base import BaseAppWidget
@@ -74,7 +74,7 @@ class MissionPlannerWidget(BaseAppWidget):
         self._command_list.setDragDropMode(QListWidget.InternalMove)
         mission_cols.addWidget(self._command_list)
 
-        self._properties = QStackedWidget()
+        self._properties = StackedWidget()
         self._properties.setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }")
         mission_cols.addWidget(self._properties)
 
@@ -143,7 +143,10 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_clear_button_clicked(self) -> None:
-        pass  # TODO
+        self._map.clear()
+        self._command_list.clear()
+        self._properties.clear()
+        self._pairs.clear()
 
     @pyqtSlot()
     def _on_execute_button_clicked(self) -> None:

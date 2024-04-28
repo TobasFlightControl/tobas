@@ -12,6 +12,7 @@ from .scroll_area import ScrollArea
 from .slider_display import IntSliderDisplay, FloatSliderDisplay
 from .slider import Slider, FloatSlider
 from .spin_box import SpinBox, DoubleSpinBox
+from .stacked_widget import StackedWidget
 from .tab_widget import TabWidget
 from .table_widget import TableWidget
 from .vertical_tab_widget import VerticalTabWidget
