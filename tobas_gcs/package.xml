@@ -11,6 +11,11 @@
 
 	<exec_depend>python3-paramiko</exec_depend>
 	<exec_depend>python3-scp</exec_depend>
+	<exec_depend>python3-pyqt5.qtquick</exec_depend>
+
+	<exec_depend>qml-module-qtquick-controls</exec_depend>
+	<exec_depend>qml-module-qtlocation</exec_depend>
+	<exec_depend>qml-module-qtpositioning</exec_depend>
 
 	<exec_depend>tobas_fkie_master</exec_depend>
 	<exec_depend>urdf_builder</exec_depend>
