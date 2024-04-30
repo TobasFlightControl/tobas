@@ -23,9 +23,6 @@ public:
   inline TwistAcc inverse(const Twist& arg) const;
   inline TwistAcc inverse(const TwistAcc& arg) const;
 
-  inline RotationAcc& operator=(const Rotation& arg);
-  inline RotationAcc& operator=(const RotationAcc& arg);
-
   inline VectorAcc operator*(const Vector& rhs) const;
   inline VectorAcc operator*(const VectorAcc& rhs) const;
   inline TwistAcc operator*(const Twist& rhs) const;
@@ -85,22 +82,6 @@ inline TwistAcc RotationAcc::inverse(const Twist& arg) const
 inline TwistAcc RotationAcc::inverse(const TwistAcc& arg) const
 {
   return TwistAcc(inverse(arg.vel), inverse(arg.rot));
-}
-
-inline RotationAcc& RotationAcc::operator=(const Rotation& arg)
-{
-  R = arg;
-  w = Vector::Zero();
-  dw = Vector::Zero();
-  return *this;
-}
-
-inline RotationAcc& RotationAcc::operator=(const RotationAcc& arg)
-{
-  R = arg.R;
-  w = arg.w;
-  dw = arg.dw;
-  return *this;
 }
 
 inline VectorAcc RotationAcc::operator*(const Vector& rhs) const

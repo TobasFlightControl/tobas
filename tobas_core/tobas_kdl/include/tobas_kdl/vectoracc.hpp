@@ -25,8 +25,6 @@ public:
   inline doubleAcc dot(const Vector& rhs);
   inline doubleAcc dot(const VectorAcc& rhs);
 
-  inline VectorAcc& operator=(const VectorAcc& arg);
-  inline VectorAcc& operator=(const Vector& arg);
   inline VectorAcc& operator+=(const VectorAcc& arg);
   inline VectorAcc& operator-=(const VectorAcc& arg);
 
@@ -77,7 +75,7 @@ inline VectorAcc VectorAcc::Zero()
 inline doubleAcc VectorAcc::norm(double eps)
 {
   doubleAcc res;
-  res.t = p.norm();
+  res.t = p.norm(eps);
   res.d = p.dot(v) / res.t;
   res.dd = (p.dot(dv) + v.dot(v) - res.d * res.d) / res.t;
   return res;
@@ -92,22 +90,6 @@ inline doubleAcc VectorAcc::dot(const VectorAcc& rhs)
 {
   return doubleAcc(
     p.dot(rhs.p), p.dot(rhs.v) + v.dot(rhs.p), p.dot(rhs.dv) + 2 * v.dot(rhs.v) + dv.dot(rhs.p));
-}
-
-inline VectorAcc& VectorAcc::operator=(const VectorAcc& arg)
-{
-  p = arg.p;
-  v = arg.v;
-  dv = arg.dv;
-  return *this;
-}
-
-inline VectorAcc& VectorAcc::operator=(const Vector& arg)
-{
-  p = arg;
-  v = Vector::Zero();
-  dv = Vector::Zero();
-  return *this;
 }
 
 inline VectorAcc& VectorAcc::operator+=(const VectorAcc& arg)
