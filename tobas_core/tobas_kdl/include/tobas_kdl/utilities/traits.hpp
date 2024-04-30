@@ -2,18 +2,16 @@
 
 #include "./utility.hpp"
 
-// forwards declarations :
 namespace KDL
 {
-class Frame;
-class Rotation;
 class Vector;
+class Rotation;
+class Frame;
 class Twist;
 class Wrench;
-class FrameVel;
-class RotationVel;
+class doubleVel;
 class VectorVel;
-}  // namespace KDL
+class RotationVel;
 
 /**
  * @brief Traits are traits classes to determine the type of a derivative of another type.
@@ -33,38 +31,10 @@ struct Traits
 };
 
 template <>
-struct Traits<KDL::Frame>
+struct Traits<float>
 {
-  typedef KDL::Frame valueType;
-  typedef KDL::Twist derivType;
-};
-
-template <>
-struct Traits<KDL::Twist>
-{
-  typedef KDL::Twist valueType;
-  typedef KDL::Twist derivType;
-};
-
-template <>
-struct Traits<KDL::Wrench>
-{
-  typedef KDL::Wrench valueType;
-  typedef KDL::Wrench derivType;
-};
-
-template <>
-struct Traits<KDL::Rotation>
-{
-  typedef KDL::Rotation valueType;
-  typedef KDL::Vector derivType;
-};
-
-template <>
-struct Traits<KDL::Vector>
-{
-  typedef KDL::Vector valueType;
-  typedef KDL::Vector derivType;
+  typedef float valueType;
+  typedef float derivType;
 };
 
 template <>
@@ -75,22 +45,58 @@ struct Traits<double>
 };
 
 template <>
-struct Traits<float>
+struct Traits<Vector>
 {
-  typedef float valueType;
-  typedef float derivType;
+  typedef Vector valueType;
+  typedef Vector derivType;
 };
 
 template <>
-struct Traits<KDL::RotationVel>
+struct Traits<Rotation>
 {
-  typedef KDL::Rotation valueType;
-  typedef KDL::VectorVel derivType;
+  typedef Rotation valueType;
+  typedef Vector derivType;
 };
 
 template <>
-struct Traits<KDL::VectorVel>
+struct Traits<Frame>
 {
-  typedef KDL::Vector valueType;
-  typedef KDL::VectorVel derivType;
+  typedef Frame valueType;
+  typedef Twist derivType;
 };
+
+template <>
+struct Traits<Twist>
+{
+  typedef Twist valueType;
+  typedef Twist derivType;
+};
+
+template <>
+struct Traits<Wrench>
+{
+  typedef Wrench valueType;
+  typedef Wrench derivType;
+};
+
+template <>
+struct Traits<doubleVel>
+{
+  typedef double valueType;
+  typedef doubleVel derivType;
+};
+
+template <>
+struct Traits<VectorVel>
+{
+  typedef Vector valueType;
+  typedef VectorVel derivType;
+};
+
+template <>
+struct Traits<RotationVel>
+{
+  typedef Rotation valueType;
+  typedef VectorVel derivType;
+};
+}  // namespace KDL

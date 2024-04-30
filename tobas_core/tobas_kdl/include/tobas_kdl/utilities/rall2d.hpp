@@ -165,6 +165,8 @@ public:
   }
 };
 
+using doubleAcc = Rall2d<double>;
+
 // = Operators between Rall2d objects
 template <class T, class V, class S>
 inline Rall2d<T, V, S> operator/(const Rall2d<T, V, S>& lhs, const Rall2d<T, V, S>& rhs)
