@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./frame.hpp"
 #include "./vectoracc.hpp"
 #include "./rotationacc.hpp"
@@ -27,9 +29,6 @@ public:
   inline VectorAcc inverse(const VectorAcc& arg) const;
   inline TwistAcc inverse(const Twist& arg) const;
   inline TwistAcc inverse(const TwistAcc& arg) const;
-
-  inline FrameAcc& operator=(const Frame& arg);
-  inline FrameAcc& operator=(const FrameAcc& arg);
 
   inline VectorAcc operator*(const Vector& rhs) const;
   inline VectorAcc operator*(const VectorAcc& rhs) const;
@@ -107,20 +106,6 @@ inline TwistAcc FrameAcc::inverse(const TwistAcc& arg) const
   tmp.rot = M.inverse(arg.rot);
   tmp.vel = M.inverse(arg.vel - p * arg.rot);
   return tmp;
-}
-
-inline FrameAcc& FrameAcc::operator=(const Frame& arg)
-{
-  M = arg.M;
-  p = arg.p;
-  return *this;
-}
-
-inline FrameAcc& FrameAcc::operator=(const FrameAcc& arg)
-{
-  M = arg.M;
-  p = arg.p;
-  return *this;
 }
 
 inline VectorAcc FrameAcc::operator*(const Vector& rhs) const

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./jntarray.hpp"
 #include "./jntarrayvel.hpp"
 #include "./frameacc.hpp"
