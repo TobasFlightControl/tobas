@@ -1,7 +1,6 @@
 #pragma once
 
-#include <math.h>
-#include <assert.h>
+#include <cmath>
 
 #include "./utility.hpp"
 
@@ -31,7 +30,7 @@ public:
   T t;   // value
   V d;   // 1st derivative
   V dd;  // 2nd derivative
-public:
+
   // = Constructors
   inline Rall2d() : t(), d(), dd(){};
 
@@ -83,7 +82,7 @@ public:
   inline static Rall2d<T, V, S> Identity()
   {
     Rall2d<T, V, S> tmp;
-    SetToIdentity(tmp);
+    setToIdentity(tmp);
     return tmp;
   }
 
@@ -455,10 +454,10 @@ inline void setToZero(Rall2d<T, V, S>& value)
 }
 
 template <class T, class V, class S>
-inline void SetToIdentity(Rall2d<T, V, S>& value)
+inline void setToIdentity(Rall2d<T, V, S>& value)
 {
   setToZero(value.d);
-  SetToIdentity(value.t);
+  setToIdentity(value.t);
   setToZero(value.dd);
 }
 }  // namespace KDL

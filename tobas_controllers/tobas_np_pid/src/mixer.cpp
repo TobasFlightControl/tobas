@@ -134,8 +134,8 @@ void Mixer::configure(const MixerConfig& cfg)
   const auto angular_scale = I.trace() / 3 * DGYRO_SCALE;
   const auto thrust_scale = mass * tobas::kGravity / drone_.numRotors();
 
-  Q_.diagonal().head<3>().fill(cfg.linear_weight / sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(cfg.angular_weight / sqr(angular_scale));
-  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / sqr(thrust_scale));
+  Q_.diagonal().head<3>().fill(cfg.linear_weight / tobas_std::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg.angular_weight / tobas_std::sqr(angular_scale));
+  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / tobas_std::sqr(thrust_scale));
 }
 }  // namespace tobas_np_pid

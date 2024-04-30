@@ -158,9 +158,10 @@ void Mixer::updateThrustLimits(
     // 回転数の変化率による制約
     const auto max_drot = cfg_.max_rot_acc * dt;  // 回転数の変化量の最大値
     const auto& ct = z_rotors_.motorConstant(i);
-    const auto max_dthrust = 2 * sqrt(ct * last_thrusts_(i)) * max_drot + ct * sqr(max_drot);
-    thrust_limit_2.upper = last_thrusts_(i) + max_dthrust;
-    thrust_limit_2.lower = last_thrusts_(i) - max_dthrust;
+    const auto& last_thrust = last_thrusts_(i);
+    const auto max_dthrust = 2 * sqrt(ct * last_thrust) * max_drot + ct * tobas_std::sqr(max_drot);
+    thrust_limit_2.upper = last_thrust + max_dthrust;
+    thrust_limit_2.lower = last_thrust - max_dthrust;
 
     if (thrust_limit_1.isOverlapped(thrust_limit_2))
     {

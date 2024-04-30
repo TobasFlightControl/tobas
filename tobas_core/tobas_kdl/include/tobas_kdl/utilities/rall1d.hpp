@@ -1,7 +1,5 @@
 #pragma once
 
-#include <assert.h>
-
 #include "./utility.hpp"
 
 namespace KDL
@@ -75,7 +73,7 @@ public:
   inline static Rall1d<T, V, S> Identity()
   {
     Rall1d<T, V, S> tmp;
-    SetToIdentity(tmp);
+    setToIdentity(tmp);
     return tmp;
   }
 
@@ -395,9 +393,9 @@ inline void setToZero(Rall1d<T, V, S>& value)
 }
 
 template <class T, class V, class S>
-inline void SetToIdentity(Rall1d<T, V, S>& value)
+inline void setToIdentity(Rall1d<T, V, S>& value)
 {
-  SetToIdentity(value.t);
+  setToIdentity(value.t);
   setToZero(value.grad);
 }
 }  // namespace KDL

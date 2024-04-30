@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "./utilities/utility.hpp"
+#include "./utilities/constants.hpp"
 
 namespace KDL
 {
