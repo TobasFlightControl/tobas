@@ -4,7 +4,7 @@
 
 namespace tobas_multirotor_landing
 {
-void MultirotorLandServerNodelet::onInit()
+void LandActionServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Multirotor Landing Action Server Nodelet.");
 
@@ -12,8 +12,8 @@ void MultirotorLandServerNodelet::onInit()
   const auto& pnh = getPrivateNodeHandle();
   const auto& name = getName();
 
-  node_.reset(new MultirotorLandServer(nh, pnh, name));
+  node_.reset(new LandActionServer(nh, pnh, name));
 }
 }  // namespace tobas_multirotor_landing
 
-PLUGINLIB_EXPORT_CLASS(tobas_multirotor_landing::MultirotorLandServerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_multirotor_landing::LandActionServerNodelet, nodelet::Nodelet);

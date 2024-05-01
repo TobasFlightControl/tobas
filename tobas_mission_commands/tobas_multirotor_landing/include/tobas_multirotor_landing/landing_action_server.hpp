@@ -9,14 +9,14 @@
 
 namespace tobas_multirotor_landing
 {
-class MultirotorLandServer : public tobas::BaseNode
+class LandActionServer : public tobas::BaseNode
 {
   static constexpr double kUpdateRate = 100.;    // [Hz]
   static constexpr double kVerticalSpeed = 0.3;  // [m/s]
   static constexpr double kTimeWindow = 5.;      // [s] 高度の変化を見る時間窓の長さ
   static constexpr double kStableAltitudeRange = 0.03;  // [m]
 
-  using self = MultirotorLandServer;
+  using self = LandActionServer;
   using super = tobas::BaseNode;
 
   using ActionType = tobas_msgs::LandAction;
@@ -25,7 +25,7 @@ class MultirotorLandServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::LandFeedback;
 
 public:
-  explicit MultirotorLandServer(
+  explicit LandActionServer(
     const ros::NodeHandle& nh,
     const ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());

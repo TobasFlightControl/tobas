@@ -6,12 +6,12 @@
 
 namespace tobas_multirotor_landing
 {
-class MultirotorLandServerNodelet : public nodelet::Nodelet
+class LandActionServerNodelet : public nodelet::Nodelet
 {
 public:
   void onInit() override;
 
 private:
-  std::shared_ptr<MultirotorLandServer> node_;
+  std::shared_ptr<LandActionServer> node_;
 };
 }  // namespace tobas_multirotor_landing

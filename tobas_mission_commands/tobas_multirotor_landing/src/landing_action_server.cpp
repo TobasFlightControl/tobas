@@ -9,7 +9,7 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-MultirotorLandServer::MultirotorLandServer(
+LandActionServer::LandActionServer(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
@@ -24,14 +24,14 @@ MultirotorLandServer::MultirotorLandServer(
   as_.start();
 }
 
-void MultirotorLandServer::reset()
+void LandActionServer::reset()
 {
   odom_ = nullptr;
   is_history_filled_ = false;
   alt_history_.clear();
 }
 
-bool MultirotorLandServer::disarmRotors()
+bool LandActionServer::disarmRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
@@ -52,7 +52,7 @@ bool MultirotorLandServer::disarmRotors()
   return true;
 }
 
-void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void LandActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
   if (odom->status != tobas_msgs::Odometry::NO_ERROR)
     return;
@@ -78,7 +78,7 @@ void MultirotorLandServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   odom_ = odom;
 }
 
-void MultirotorLandServer::executeCb(const GoalType::ConstPtr& goal)
+void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
   TOBAS_INFO("Action is called.");
 
