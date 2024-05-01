@@ -15,7 +15,7 @@ LandActionServer::LandActionServer(
   const string& name)
   : super(nh, pnh, name),
     is_action_running_(false),
-    as_(nh_, tobas::kLandingAction, boost::bind(&self::executeCb, this, _1), false)
+    as_(nh_, tobas::kLandAction, boost::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());

@@ -11,7 +11,7 @@ StateChecker::StateChecker(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name), landing_ac_(tobas::kLandingAction)
+  : super(nh, pnh, name), landing_ac_(tobas::kLandAction)
 {
   drone_.loadFromParam(nh_);
 
@@ -37,7 +37,7 @@ void StateChecker::requestLanding()
   if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
     error(
-      "'", tobas::kLandingAction, "' action server failed to start within ",
+      "'", tobas::kLandAction, "' action server failed to start within ",
       kWaitForActionServerTimeout, " seconds. Please check the server status.");
     return;
   }

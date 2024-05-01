@@ -5,7 +5,7 @@ float64 target_longitude   # [m]
 float64 target_altitude    # [m]
 float64 acceptance_radius  # [m]
 float64 duration           # [s]
-float64 timeout            # [s] By default, timeout is infinite.
+float64 timeout            # [s] Timeout after command duration. By default, timeout is infinite.
 
 ---
 
