@@ -1,6 +1,7 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QWidget, QDialog, QPushButton, QVBoxLayout, QHBoxLayout
+
+from tobas_rqt_tools.widgets import ListWidget
 
 from .structs import Commands
 
@@ -15,9 +16,9 @@ class AddCommandDialog(QDialog):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._cmd_list = QListWidget()
+        self._cmd_list = ListWidget()
         self._cmd_list.addItems(Commands.values())
-        self._cmd_list.setSelectionMode(QListWidget.SingleSelection)  # 単一選択
+        self._cmd_list.setSelectionMode(ListWidget.SingleSelection)  # 単一選択
         rows.addWidget(self._cmd_list)
 
         cols = QHBoxLayout()
@@ -38,11 +39,9 @@ class AddCommandDialog(QDialog):
 
     @pyqtSlot()
     def _on_ok_clicked(self) -> None:
-        selected_items = self._cmd_list.selectedItems()
-        if len(selected_items) == 0:
+        selected_item = self._cmd_list.selected_item()
+        if selected_item is None:
             return
-        elif len(selected_items) == 1:
-            self._selected_command = selected_items[0].text()
-            self.accept()
-        else:
-            raise RuntimeError()
+
+        self._selected_command = selected_item.text()
+        self.accept()
