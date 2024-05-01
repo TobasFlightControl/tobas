@@ -201,10 +201,9 @@ class MissionPlannerWidget(BaseAppWidget):
             return
 
         # 選択されているアイテムを取得
-        selected_items = self._command_list.selectedItems()
-        if len(selected_items) > 0:
-            selected_item = selected_items[0]
-        else:  # 何も選択されていなければ強制的に最初の要素を選択する
+        selected_item = self._command_list.selected_item()
+        if selected_item is None:
+            # 何も選択されていなければ強制的に最初の要素を選択する
             self._command_list.setCurrentRow(0)
             selected_item = self._command_list.item(0)
 
@@ -221,26 +220,36 @@ class MissionPlannerWidget(BaseAppWidget):
 
         index = 1
         last_coord: Tuple[float, float] = None
+        selected_item = self._command_list.selected_item()
 
         for item in self._command_list:
             command = item.text()
+
             if command == Commands.WAYPOINT.value:
                 prop: WaypointPropertyWidget = self._get_property(item)
                 latitude = prop.latitude.value()
                 longitude = prop.longitude.value()
                 coord = QGeoCoordinate(latitude, longitude)
-                self._map.add_waypoint(index, coord, prop.acceptance_radius.value(), "cyan")
+
+                point_color = "orange" if item is selected_item else "cyan"
+                self._map.add_waypoint(index, coord, prop.acceptance_radius.value(), point_color)
+
                 if last_coord is not None:
                     last_latitude, last_longitude = last_coord
                     self._map.add_line(last_latitude, last_longitude, latitude, longitude)
+
                 index += 1
                 last_coord = (latitude, longitude)
+
             elif command == Commands.TAKEOFF.value:
                 pass
+
             elif command == Commands.LAND.value:
                 pass
+
             elif command == Commands.RETURN_TO_HOME.value:
                 pass
+
             else:
                 raise RuntimeError(f"Unknown command: {command}")
 
