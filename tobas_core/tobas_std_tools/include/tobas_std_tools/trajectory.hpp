@@ -21,9 +21,6 @@ public:
 
 private:
   double T_;
-  double a0_;
-  double a1_;
-  double a2_;
-  double a3_;
+  double a0_, a1_, a2_, a3_;
 };
 }  // namespace tobas_std
