@@ -32,7 +32,7 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
     return false;
   }
 
-  if (goal.target_duration <= 0)
+  if (goal.duration <= 0)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target duration must be positive.");
@@ -92,8 +92,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
     return;
 
   // 軌道を生成
-  tobas_std::CubicSpline traj_z(
-    start_odom_.frame.p.z(), goal->target_altitude, goal->target_duration);
+  tobas_std::CubicSpline traj_z(start_odom_.frame.p.z(), goal->target_altitude, goal->duration);
 
   // 初期状態
   const auto start_time = ros::Time::now();
