@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
 
-	<name>tobas_mission_commands</name>
+	<name>tobas_multirotor_move</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,12 +9,14 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<exec_depend>tobas_multirotor_takeoff</exec_depend>
-	<exec_depend>tobas_multirotor_landing</exec_depend>
-	<exec_depend>tobas_multirotor_move</exec_depend>
+	<depend>actionlib</depend>
+	<depend>nodelet</depend>
+	<depend>pluginlib</depend>
+
+	<depend>tobas_tools</depend>
 
 	<export>
-		<metapackage/>
+		<nodelet plugin="${prefix}/nodelet_description.xml"/>
 	</export>
 
 </package>
