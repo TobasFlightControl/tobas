@@ -47,7 +47,14 @@ bool TakeoffActionServer::getStartOdom()
   if (!tobas_ros::subscribeOnce(start_odom_, tobas::kOdometryTopic, nh_))
   {
     result_.error_code = ResultType::NOT_READY;
-    as_.setAborted(result_, "Failed to get the odometry of the start position.");
+    as_.setAborted(result_, "Failed to get the odometry message.");
+    return false;
+  }
+
+  if (start_odom_.status != tobas_msgs::Odometry::NO_ERROR)
+  {
+    result_.error_code = ResultType::NOT_READY;
+    as_.setAborted(result_, "There is a problem with the state estimation.");
     return false;
   }
 

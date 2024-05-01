@@ -16,9 +16,7 @@ namespace tobas_multirotor_takeoff
  */
 class TakeoffActionServer : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;                 // [Hz]
-  static constexpr double kWaitForExternalActionServer = 3.;  // [s]
-  static constexpr double kInfoPeriod = 3.;                   // [s]
+  static constexpr double kUpdateRate = 100.;  // [Hz]
 
   using self = TakeoffActionServer;
   using super = tobas::BaseNode;
@@ -39,8 +37,6 @@ private:
   tobas_msgs::Odometry start_odom_;
 
   ros::Publisher cmd_pub_;
-  ros::Subscriber odom_sub_;
-
   ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
