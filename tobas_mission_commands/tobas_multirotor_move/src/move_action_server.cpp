@@ -61,15 +61,10 @@ bool MoveActionServer::isGoalValid(const GoalType& goal)
   return true;
 }
 
-bool MoveActionServer::getCartPosFromGnss(
-  const double& latitude,
-  const double& longitude,
-  double& x,
-  double& y)
+bool MoveActionServer::computeGoalPosition(const GoalType& goal, KDL::Vector& goal_pos)
 {
-  // FIXME: XYの絶対値が大きいほど平面近似の誤差が大きくなる
-  // 長距離移動の際は目標地点の経緯度を基準にするなどの工夫が必要
-
+  // XY軸
+  // FIXME: 平面近似誤差が無視できない場合は目標地点の経緯度を基準にするなどの工夫が必要
   tobas_ros::ServiceClientWrapper<tobas_msgs::GetGnssOrigin> sc(nh_, tobas::kGetGnssOriginSrv);
   if (!sc.call() || !sc.res.success)
   {
@@ -77,10 +72,15 @@ bool MoveActionServer::getCartPosFromGnss(
     as_.setAborted(result_, "Failed to get GNSS origin.");
     return false;
   }
+  const auto& tar_lat = goal.target_latitude;
+  const auto& tar_lon = goal.target_longitude;
+  const auto& lat_0 = sc.res.latitude;
+  const auto& lon_0 = sc.res.longitude;
+  tobas_std::gpsToCartRelative(tar_lat, tar_lon, lat_0, lon_0, goal_pos.x(), goal_pos.y());
 
-  const auto& latitude_0 = sc.res.latitude;
-  const auto& longitude_0 = sc.res.longitude;
-  tobas_std::gpsToCartRelative(latitude, longitude, latitude_0, longitude_0, x, y);
+  // Z軸
+  // TODO: 目標高度がMSLで与えられた場合にも対応
+  goal_pos.z(goal.target_altitude);
 
   return true;
 }
@@ -119,20 +119,16 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     return;
   }
 
-  // 現在位置
-  const auto& cur_pos = odom_->frame.p;
-
   // 目標位置
-  KDL::Vector tar_pos;
-  if (!getCartPosFromGnss(goal->target_latitude, goal->target_longitude, tar_pos.x(), tar_pos.y()))
+  KDL::Vector goal_pos;
+  if (!computeGoalPosition(*goal, goal_pos))
     return;
-  tar_pos.z(goal->target_altitude);  // TODO: 目標高度がMSLで与えられた場合にも対応
 
   // 軌道を生成
   // TODO: 最高速度を考慮して起動を作成
-  tobas_std::CubicSpline traj_x(cur_pos.x(), tar_pos.x(), goal->duration);
-  tobas_std::CubicSpline traj_y(cur_pos.y(), tar_pos.y(), goal->duration);
-  tobas_std::CubicSpline traj_z(cur_pos.z(), tar_pos.z(), goal->duration);
+  tobas_std::CubicSpline traj_x(odom_->frame.p.x(), goal_pos.x(), goal->duration);
+  tobas_std::CubicSpline traj_y(odom_->frame.p.y(), goal_pos.y(), goal->duration);
+  tobas_std::CubicSpline traj_z(odom_->frame.p.z(), goal_pos.z(), goal->duration);
   const auto duration = tobas_std::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
 
   // 初期状態
@@ -163,7 +159,8 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     }
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらミッション成功
-    const auto pos_error = tar_pos - cur_pos;
+    const auto& cur_pos = odom_->frame.p;
+    const auto pos_error = goal_pos - cur_pos;  // 現在位置
     if (t > duration && pos_error.norm() < goal->acceptance_radius)
     {
       result_.success = true;
@@ -180,8 +177,8 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     cmd->yaw = start_yaw;
 
     // 現在の時刻における目標状態を取得
-    traj_z.get(t, cmd->pos.x(), cmd->vel.x(), cmd->acc.x());
-    traj_z.get(t, cmd->pos.y(), cmd->vel.y(), cmd->acc.y());
+    traj_x.get(t, cmd->pos.x(), cmd->vel.x(), cmd->acc.x());
+    traj_y.get(t, cmd->pos.y(), cmd->vel.y(), cmd->acc.y());
     traj_z.get(t, cmd->pos.z(), cmd->vel.z(), cmd->acc.z());
 
     // コマンドを発行
@@ -190,8 +187,8 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     // フィードバックを発行
     const auto feedback = boost::make_shared<FeedbackType>();
     feedback->current_position = cur_pos;
-    feedback->target_position = tar_pos;
-    feedback->position_error = pos_error;
+    feedback->target_position = cmd->pos;
+    feedback->position_error = cmd->pos - cur_pos;
     as_.publishFeedback(feedback);
 
     ros::spinOnce();

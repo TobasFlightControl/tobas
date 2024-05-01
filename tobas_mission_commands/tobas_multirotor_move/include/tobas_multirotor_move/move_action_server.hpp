@@ -41,7 +41,7 @@ private:
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);
-  bool getCartPosFromGnss(const double& latitude, const double& longitude, double& x, double& y);
+  bool computeGoalPosition(const GoalType& goal, KDL::Vector& goal_pos);
 
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
