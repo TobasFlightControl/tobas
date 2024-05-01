@@ -4,7 +4,7 @@
 
 namespace tobas_multirotor_move
 {
-void MultirotorMoveServerNodelet::onInit()
+void MoveActionServerNodelet::onInit()
 {
   NODELET_INFO("Initializing Multirotor Move Action Server Nodelet.");
 
@@ -12,8 +12,8 @@ void MultirotorMoveServerNodelet::onInit()
   const auto& pnh = getPrivateNodeHandle();
   const auto& name = getName();
 
-  node_.reset(new MultirotorMoveServer(nh, pnh, name));
+  node_.reset(new MoveActionServer(nh, pnh, name));
 }
 }  // namespace tobas_multirotor_move
 
-PLUGINLIB_EXPORT_CLASS(tobas_multirotor_move::MultirotorMoveServerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_multirotor_move::MoveActionServerNodelet, nodelet::Nodelet);

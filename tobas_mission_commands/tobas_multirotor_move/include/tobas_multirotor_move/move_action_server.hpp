@@ -1,0 +1,51 @@
+#pragma once
+
+#include <ros/ros.h>
+#include <actionlib/server/simple_action_server.h>
+#include <std_msgs/Bool.h>
+
+#include <tobas_tools/node.hpp>
+#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/MoveAction.h>
+
+namespace tobas_multirotor_move
+{
+class MoveActionServer : public tobas::BaseNode
+{
+  static constexpr double kUpdateRate = 100.;  // [Hz]
+
+  using self = MoveActionServer;
+  using super = tobas::BaseNode;
+
+  using ActionType = tobas_msgs::MoveAction;
+  using GoalType = tobas_msgs::MoveGoal;
+  using ResultType = tobas_msgs::MoveResult;
+  using FeedbackType = tobas_msgs::MoveFeedback;
+
+public:
+  explicit MoveActionServer(
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
+
+private:
+  ResultType result_;
+
+  std_msgs::BoolConstPtr arming_;
+  tobas_msgs::OdometryConstPtr odom_;
+
+  ros::Publisher cmd_pub_;
+  ros::Subscriber arming_sub_;
+  ros::Subscriber odom_sub_;
+
+  actionlib::SimpleActionServer<ActionType> as_;
+
+  bool isGoalValid(const GoalType& goal);
+  bool getCartPosFromGnss(const double& latitude, const double& longitude, double& x, double& y);
+
+  void armingCb(const std_msgs::BoolConstPtr& arming);
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
+
+  void executeCb(const GoalType::ConstPtr& goal);
+};
+}  // namespace tobas_multirotor_move

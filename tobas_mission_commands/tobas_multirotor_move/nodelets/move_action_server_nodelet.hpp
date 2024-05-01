@@ -6,12 +6,12 @@
 
 namespace tobas_multirotor_move
 {
-class MultirotorMoveServerNodelet : public nodelet::Nodelet
+class MoveActionServerNodelet : public nodelet::Nodelet
 {
 public:
   void onInit() override;
 
 private:
-  std::shared_ptr<MultirotorMoveServer> node_;
+  std::shared_ptr<MoveActionServer> node_;
 };
 }  // namespace tobas_multirotor_move

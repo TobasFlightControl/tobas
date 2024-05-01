@@ -1,6 +1,6 @@
 <library path="lib/libtobas_multirotor_move_nodelet">
 
-  <class name="tobas_multirotor_move/MultirotorMoveServerNodelet" type="tobas_multirotor_move::MultirotorMoveServerNodelet" base_class_type="nodelet::Nodelet">
+  <class name="tobas_multirotor_move/MoveActionServerNodelet" type="tobas_multirotor_move::MoveActionServerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
 
