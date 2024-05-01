@@ -13,17 +13,6 @@
       <arg name="ground_truth" value="$(arg ground_truth)"/>
       <arg name="node_name" value="controller"/>
     </include>
-
-    <!-- Bringup takeoff and landing action servers at the same time -->
-    <include file="$(find {{ takeoff_pkg }})/launch/takeoff_action_server.launch">
-      <arg name="nodelet" value="$(arg nodelet)"/>
-      <arg name="ground_truth" value="$(arg ground_truth)"/>
-    </include>
-
-    <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch">
-      <arg name="nodelet" value="$(arg nodelet)"/>
-      <arg name="ground_truth" value="$(arg ground_truth)"/>
-    </include>
   </group>
 
 </launch>

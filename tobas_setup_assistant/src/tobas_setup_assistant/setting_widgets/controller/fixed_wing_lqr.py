@@ -23,6 +23,7 @@ class FixedWingLQR(BaseController):
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = SpeedRollDeltaPitch.__name__
     ACROBAT_MODE = SpeedRollDeltaPitch.__name__  # TODO
     PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"

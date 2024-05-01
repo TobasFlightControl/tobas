@@ -25,6 +25,7 @@ class NonPlanarPid(BaseController):
     CONTROLLER_PKG = "tobas_np_pid"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PoseTwistAccelCommand.__name__
     ACROBAT_MODE = PoseTwistAccelCommand.__name__  # TODO
     PARAM_SERVER_NODE = "tobas_np_pid"

@@ -24,6 +24,7 @@ class MultirotorPid(BaseController):
     CONTROLLER_PKG = "tobas_mr_pid"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
+    MOVE_PKG = "tobas_multirotor_move"
     STABLIZE_MODE = PosVelAccYaw.__name__
     ACROBAT_MODE = RollPitchYawThrust.__name__
     PARAM_SERVER_NODE = "tobas_mr_pid"

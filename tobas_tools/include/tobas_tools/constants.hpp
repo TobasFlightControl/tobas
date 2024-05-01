@@ -87,6 +87,7 @@ static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandingAction[] = "landing_action";
+static constexpr char kMoveAction[] = "move_action";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";

@@ -12,9 +12,7 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.widgets import Widget
 
-from ...common import *
-
-PARAM_DESCRIPTION_TIMEOUT = 3
+from ...common import TO_DO, Description
 
 
 class BaseController(Widget):
@@ -22,6 +20,7 @@ class BaseController(Widget):
     CONTROLLER_PKG = TO_DO
     TAKEOFF_PKG = TO_DO
     LANDING_PKG = TO_DO
+    MOVE_PKG = TO_DO
     STABLIZE_MODE = TO_DO
     ACROBAT_MODE = TO_DO
     PARAM_SERVER_NODE = TO_DO

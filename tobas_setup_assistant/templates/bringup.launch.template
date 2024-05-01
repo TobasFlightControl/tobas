@@ -22,6 +22,12 @@
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
+  <!-- Launch action servers for mission -->
+  <include file="$(find {{ pkg_name }})/launch/mission_action_servers.launch">
+    <arg name="nodelet" value="$(arg nodelet)"/>
+    <arg name="ground_truth" value="$(arg ground_truth)"/>
+  </include>
+
   <!-- Launch RC teleoperation -->
   <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>

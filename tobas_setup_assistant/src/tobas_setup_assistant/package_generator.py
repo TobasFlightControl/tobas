@@ -167,6 +167,9 @@ class PackageGenerator(QObject):
         self._generate_from_template(items, "calibration.launch.template", osp.join(launch_dir, "calibration.launch"))
         self._generate_from_template(items, "controller.launch.template", osp.join(launch_dir, "controller.launch"))
         self._generate_from_template(items, "observer.launch.template", osp.join(launch_dir, "observer.launch"))
+        self._generate_from_template(
+            items, "mission_action_servers.launch.template", osp.join(launch_dir, "mission_action_servers.launch")
+        )
         self._generate_from_template(items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch"))
         self._generate_from_template(items, "hil.launch.template", osp.join(launch_dir, "hil.launch"))
         self._generate_from_template(items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch"))
@@ -240,6 +243,7 @@ class PackageGenerator(QObject):
         template_items["controller_pkg"] = controller.controller_pkg()
         template_items["takeoff_pkg"] = controller.takeoff_pkg()
         template_items["landing_pkg"] = controller.landing_pkg()
+        template_items["move_pkg"] = controller.move_pkg()
 
         # Observer
         template_items["observer_pkg"] = settings.observer.pkg_name()

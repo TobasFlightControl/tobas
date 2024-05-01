@@ -85,6 +85,9 @@ class ControllerWidget(BaseSettingWidget):
     def landing_pkg(self) -> str:
         return self._selected().LANDING_PKG
 
+    def move_pkg(self) -> str:
+        return self._selected().MOVE_PKG
+
     def stabilize_mode(self) -> str:
         return self._selected().STABLIZE_MODE
 
