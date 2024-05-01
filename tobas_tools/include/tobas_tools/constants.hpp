@@ -79,6 +79,8 @@ static constexpr char kListControllersSrv[] = "controller_manager/list_controlle
 static constexpr char kEnablePwmSrv[] = "enable_pwm";
 static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
+static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
+static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kPreArmCheckSrv[] = "pre_arm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 

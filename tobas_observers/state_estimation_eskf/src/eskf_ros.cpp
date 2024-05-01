@@ -39,8 +39,23 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   tf_.header.frame_id = tobas::kWorldFrame;
   tf_.child_frame_id = drone_.tree().getRootName();
 
-  registerPublishers();
-  registerSubscribers();
+  // Register publishers
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
+  feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
+
+  // Register subscribers
+  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  if (use_bar_)
+    bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
+  if (use_gps_)
+    gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
+
+  // Register service servers
+  get_gnss_origin_ss_ =
+    nh_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ =
+    nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
@@ -63,28 +78,6 @@ void ErrorStateKalmanFilterRos::getRosParams()
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
     exit("You cannot enable both accelerometer bias estimation and gravity estimation.");
-}
-
-void ErrorStateKalmanFilterRos::registerPublishers()
-{
-  PRINT_DEBUG("ErrorStateKalmanFilterRos::registerPublishers");
-
-  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
-  feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
-}
-
-void ErrorStateKalmanFilterRos::registerSubscribers()
-{
-  PRINT_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
-
-  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
-  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
-
-  if (use_bar_)
-    bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
-
-  if (use_gps_)
-    gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 }
 
 void ErrorStateKalmanFilterRos::initialize()
@@ -317,6 +310,42 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > kAnormalyScoreThreshold)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The position estimation using GNSS is unstable.");
+}
+
+bool ErrorStateKalmanFilterRos::getGnssOriginCb(
+  tobas_msgs::GetGnssOriginRequest&,
+  tobas_msgs::GetGnssOriginResponse& res)
+{
+  if (!gps_fix_)
+  {
+    res.success = false;
+    res.message = "GNSS is not fixed.";
+    return true;
+  }
+
+  res.latitude = lat_0_;
+  res.longitude = lon_0_;
+
+  res.success = true;
+  return true;
+}
+
+bool ErrorStateKalmanFilterRos::setGnssOriginCb(
+  tobas_msgs::SetGnssOriginRequest& req,
+  tobas_msgs::SetGnssOriginResponse& res)
+{
+  if (!gps_fix_)
+  {
+    res.success = false;
+    res.message = "GNSS is not fixed.";
+    return true;
+  }
+
+  lat_0_ = req.latitude;
+  lon_0_ = req.longitude;
+
+  res.success = true;
+  return true;
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
