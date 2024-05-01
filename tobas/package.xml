@@ -13,9 +13,9 @@
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
 	<exec_depend>tobas_hal</exec_depend>
+	<exec_depend>tobas_mission_commands</exec_depend>
 	<exec_depend>tobas_observers</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
-	<exec_depend>tobas_takeoff_landing</exec_depend>
 	<exec_depend>tobas_teleoperations</exec_depend>
 
 	<!-- Others -->
