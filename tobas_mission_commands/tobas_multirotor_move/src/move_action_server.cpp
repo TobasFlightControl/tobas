@@ -32,28 +32,24 @@ bool MoveActionServer::isGoalValid(const GoalType& goal)
 {
   if (goal.target_latitude < -90 || 90 < goal.target_latitude)
   {
-    result_.success = false;
     as_.setAborted(result_, "Invalid target latitude.");
     return false;
   }
 
   if (goal.target_longitude < -180 || 180 < goal.target_longitude)
   {
-    result_.success = false;
     as_.setAborted(result_, "Invalid target longitude.");
     return false;
   }
 
   if (goal.acceptance_radius <= 0)
   {
-    result_.success = false;
     as_.setAborted(result_, "Acceptance radius must be positive.");
     return false;
   }
 
   if (goal.duration <= 0)
   {
-    result_.success = false;
     as_.setAborted(result_, "Target duration must be positive.");
     return false;
   }
@@ -68,7 +64,6 @@ bool MoveActionServer::computeGoalPosition(const GoalType& goal, KDL::Vector& go
   tobas_ros::ServiceClientWrapper<tobas_msgs::GetGnssOrigin> sc(nh_, tobas::kGetGnssOriginSrv);
   if (!sc.call() || !sc.res.success)
   {
-    result_.success = false;
     as_.setAborted(result_, "Failed to get GNSS origin.");
     return false;
   }
@@ -106,7 +101,6 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
   // Check if rotors are armed
   if (arming_ == nullptr || !arming_->data)
   {
-    result_.success = false;
     as_.setAborted(result_, "Rotors are disarmed.");
     return;
   }
@@ -114,7 +108,6 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
   // Check if state estimation is OK
   if (odom_ == nullptr || odom_->status != tobas_msgs::Odometry::NO_ERROR)
   {
-    result_.success = false;
     as_.setAborted(result_, "There is a problem with the state estimation.");
     return;
   }
@@ -142,7 +135,6 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     // クライアントからアクション中止のリクエストが来ているか確認
     if (as_.isPreemptRequested())
     {
-      result_.success = false;
       as_.setPreempted(result_);
       return;
     }
@@ -153,7 +145,6 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     // タイムアウトの確認
     if (goal->timeout > 0 && t > duration + goal->timeout)
     {
-      result_.success = false;
       as_.setAborted(result_, "Timeout before reaching the goal position.");
       return;
     }
@@ -163,7 +154,6 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     const auto pos_error = goal_pos - cur_pos;  // 現在位置
     if (t > duration && pos_error.norm() < goal->acceptance_radius)
     {
-      result_.success = true;
       as_.setSucceeded(result_);
       return;
     }

@@ -10,7 +10,6 @@ float64 timeout            # [s] Timeout after command duration. By default, tim
 ---
 
 # Result
-bool success
 
 ---
 
