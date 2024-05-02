@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication
 
 from tobas_rospy.utils import init_node
 from tobas_rqt_tools.widgets import MainWidget
+from tobas_rqt_tools.utils import handle_exception
 from tobas_tools_py.constants import CONFIG_PATH
 
 from tobas_setup_assistant.setup_assistant import SetupAssistant
@@ -27,8 +28,7 @@ if __name__ == "__main__":
     )
     main_widget.show()
 
-    # Ctrl+Cを検出したらプロセスを落とす
-    # 何故かこの位置に書いたときのみ機能する
     signal.signal(signal.SIGINT, signal.SIG_DFL)
+    sys.excepthook = handle_exception
 
     sys.exit(app.exec())

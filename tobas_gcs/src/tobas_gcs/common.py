@@ -11,6 +11,7 @@ TITLE = "Tobas"
 SOURCE_CMD = "source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash"
 
 TO_DO = "TODO"
+NOT_IMPLEMENTED = "Not implemented yet."
 
 TITLE_PSIZE = 18
 LABEL_PSIZE = 12
