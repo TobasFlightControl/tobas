@@ -49,7 +49,7 @@ def qsleep(msec: int) -> None:
     loop.exec_()
 
 
-def handle_exception(exc_type: Type[BaseException], exc_value: BaseException, exc_traceback):
+def handle_unexpected_exception(exc_type: Type[BaseException], exc_value: BaseException, exc_traceback):
     """未処理の例外をキャッチし，プロセスを強制終了する．"""
     QMessageBox.critical(
         None,
