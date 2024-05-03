@@ -11,11 +11,13 @@ TITLE = "Tobas"
 SOURCE_CMD = "source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash"
 
 TO_DO = "TODO"
+CONFIG_PKG_NOT_LOADED = "Tobas configuration package is not loaded yet."
 NOT_IMPLEMENTED = "Not implemented yet."
 
 TITLE_PSIZE = 18
 LABEL_PSIZE = 12
 BODY_PSIZE = 9
+WAIT_FOR_SERVER = 1.0  # [s]
 PAINT_REFRESH_PERIOD = 100  # [ms] これより短いとフリーズの恐れあり
 
 # Raspberry Pi

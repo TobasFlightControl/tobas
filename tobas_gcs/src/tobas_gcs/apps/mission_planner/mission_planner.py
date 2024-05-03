@@ -5,7 +5,6 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 import rospy
-import actionlib
 from overrides import override
 from functools import partial
 from typing import Tuple, List
@@ -14,17 +13,16 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtPositioning import QGeoCoordinate
 
-from tobas_std_tools_py.threading import KillableThread
 from tobas_rqt_tools.widgets import ListWidget, StackedWidget
 from tobas_rqt_tools.messages import q_info, q_warn, q_error
 from tobas_tools_py.drone import Drone
-from tobas_msgs.msg import Gps, CommandLevel, TakeoffAction, TakeoffGoal, LandAction, LandGoal, MoveAction, MoveGoal
-from tobas_msgs.srv import GetGnssOrigin, GetGnssOriginRequest, GetGnssOriginResponse
+from tobas_msgs.msg import Gps
 
-from ...common import NOT_IMPLEMENTED
+from ...common import CONFIG_PKG_NOT_LOADED, NOT_IMPLEMENTED, WAIT_FOR_SERVER
 from ..base import BaseAppWidget
 from .map_widget import MapWidget
 from .add_command_dialog import Commands, AddCommandDialog
+from .mission_execution_thread import MissionExecutionThread
 from .command_properties import *
 
 
@@ -33,9 +31,6 @@ class MissionPlannerWidget(BaseAppWidget):
 
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
-    WAIT_FOR_SERVER = 1.0  # [s]
-    COMMAND_LEVEL = CommandLevel.NORMAL
-    COMMAND_TIMEOUT = 10.0  # [s]  # TODO: ユーザが設定できるようにする
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
@@ -70,7 +65,6 @@ class MissionPlannerWidget(BaseAppWidget):
 
         self._execute_button = QPushButton("Execute")
         self._execute_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._execute_button.setEnabled(False)
         button_cols.addWidget(self._execute_button)
 
         self._cancel_button = QPushButton("Cancel")
@@ -80,7 +74,6 @@ class MissionPlannerWidget(BaseAppWidget):
 
         self._focus_button = QPushButton("Focus")
         self._focus_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._focus_button.setEnabled(False)
         button_cols.addWidget(self._focus_button)
 
         mission_cols = QHBoxLayout()
@@ -96,12 +89,7 @@ class MissionPlannerWidget(BaseAppWidget):
         mission_cols.addWidget(self._properties)
 
         self._pairs: List[Tuple[QListWidgetItem, BasePropertyWidget]] = []
-        self._mission_thread = KillableThread()
-
-        self._get_gnss_origin_sc = None
-        self._takeoff_ac = None
-        self._land_ac = None
-        self._move_ac = None
+        self._mission_thread = QThread()
 
     @override
     def define_connections(self) -> None:
@@ -120,14 +108,7 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        self._get_gnss_origin_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/get_gnss_origin", GetGnssOrigin)
-
-        self._takeoff_ac = actionlib.SimpleActionClient(f"/{self._drone.drone_name}/takeoff_action", TakeoffAction)
-        self._land_ac = actionlib.SimpleActionClient(f"/{self._drone.drone_name}/land_action", LandAction)
-        self._move_ac = actionlib.SimpleActionClient(f"/{self._drone.drone_name}/move_action", MoveAction)
-
-        self._execute_button.setEnabled(True)
-        self._focus_button.setEnabled(True)
+        pass
 
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
@@ -181,36 +162,36 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_execute_button_clicked(self) -> None:
+        if not self._main.package_loaded():
+            q_error(self._main, CONFIG_PKG_NOT_LOADED)
+            return
+
         # ミッションが設定されているかどうかを確認
         if self._command_list.count() == 0:
             q_error(self._main, "Mission is empty.")
             return
 
-        # TODO: 有効なミッションかどうかを確認 (Takeoff後にTakeoffはダメとか)
+        # ミッションデータを抽出
+        mission_commands = self._create_mission_commands()
 
-        # 各サーバとの接続を確認
-        if not self._check_server_connections():
-            return
+        # TODO: 有効なミッションかどうかを確認 (Takeoff後にTakeoffはダメとか)
 
         # 実行モードに切り替える
         self._set_execute_mode()
 
         # ユーザ操作をブロックしないように別スレッドでミッションを実行
-        self._mission_thread = KillableThread(target=self._execute_mission)
+        self._mission_thread = MissionExecutionThread(self, self._drone.drone_name, mission_commands)
+        self._mission_thread.finished.connect(self._on_mission_finished)
         self._mission_thread.start()
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
-        # ミッションを実行しているスレッドを落とす
-        if not self._mission_thread.kill():
-            q_error(self._main, "Failed to terminate the thread for mission execution.")
+        if not self._main.package_loaded():
+            q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
-        # アクションをキャンセル
-        # TODO: とりあえず全てキャンセルしているが，現在実行中のアクションのみキャンセルする．
-        self._takeoff_ac.cancel_all_goals()
-        self._land_ac.cancel_all_goals()
-        self._move_ac.cancel_all_goals()
+        # ミッションを停止
+        self._mission_thread.stop()
 
         # 編集モードに切り替える
         self._set_edit_mode()
@@ -219,8 +200,12 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_focus_button_clicked(self) -> None:
+        if not self._main.package_loaded():
+            q_error(self._main, CONFIG_PKG_NOT_LOADED)
+            return
+
         try:
-            gps: Gps = rospy.wait_for_message(f"/{self._drone.drone_name}/gps", Gps, self.WAIT_FOR_SERVER)
+            gps: Gps = rospy.wait_for_message(f"/{self._drone.drone_name}/gps", Gps, WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self._main, "Failed to get GNSS message.")
             return
@@ -253,7 +238,7 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot(int, float, float)
     def _on_waypoint_moved(self, index: int, latitude: float, longitude: float) -> None:
-        if self._mission_thread.is_alive():
+        if self._mission_thread.isRunning():
             q_warn(self._main, "You cannot edit the mission while executing it.")
             self._update_map()
             return
@@ -271,111 +256,14 @@ class MissionPlannerWidget(BaseAppWidget):
         else:
             raise RuntimeError(f"Index {index} is out of range.")
 
-    def _execute_mission(self) -> None:
-        for item in self._command_list:
-            prop = self._get_property(item)
-            if not self._execute_command(prop):
-                self._set_edit_mode()
-                return
-
-        q_info(self._main, "The mission is completed.")
-        self._set_edit_mode()
-
-    def _execute_command(self, prop: BasePropertyWidget) -> bool:
-        if isinstance(prop, WaypointPropertyWidget):
-            return self._execute_waypoint(prop)
-        elif isinstance(prop, TakeoffPropertyWidget):
-            return self._execute_takeoff(prop)
-        elif isinstance(prop, LandPropertyWidget):
-            return self._execute_land(prop)
-        elif isinstance(prop, RTHPropertyWidget):
-            return self._execute_rth(prop)
+    @pyqtSlot(bool, str)
+    def _on_mission_finished(self, success: bool, message: str) -> None:
+        if success:
+            q_info(self._main, "The mission is completed.")
         else:
-            raise RuntimeError(f"Unknown command type: {prop.__class__.__name__}")
+            q_error(self._main, message)
 
-    def _execute_waypoint(self, prop: WaypointPropertyWidget) -> bool:
-        rospy.loginfo('Executing "Waypoint" mission.')
-
-        # ゴールを作成
-        goal = MoveGoal()
-        goal.level.data = self.COMMAND_LEVEL
-        goal.target_latitude = prop.latitude.value()
-        goal.target_longitude = prop.longitude.value()
-        goal.target_altitude = prop.altitude.value()
-        goal.acceptance_radius = prop.acceptance_radius.value()
-        goal.duration = prop.duration.value()
-        goal.timeout = self.COMMAND_TIMEOUT
-
-        # アクションを実行
-        self._move_ac.send_goal_and_wait(goal)
-
-        if self._move_ac.get_state() != actionlib.GoalStatus.SUCCEEDED:
-            q_error(self._main, self._move_ac.get_goal_status_text())
-            return False
-
-        return True
-
-    def _execute_takeoff(self, prop: TakeoffPropertyWidget) -> bool:
-        rospy.loginfo('Executing "Takeoff" mission.')
-
-        # ゴールを作成
-        goal = TakeoffGoal()
-        goal.level.data = self.COMMAND_LEVEL
-        goal.target_altitude = prop.altitude.value()
-        goal.duration = prop.duration.value()
-        goal.timeout = self.COMMAND_TIMEOUT
-
-        # アクションを実行
-        self._takeoff_ac.send_goal_and_wait(goal)
-
-        if self._takeoff_ac.get_state() != actionlib.GoalStatus.SUCCEEDED:
-            q_error(self._main, self._takeoff_ac.get_goal_status_text())
-            return False
-
-        return True
-
-    def _execute_land(self, prop: LandPropertyWidget) -> bool:
-        rospy.loginfo('Executing "Land" mission.')
-
-        # ゴールを作成
-        goal = LandGoal()
-        goal.level.data = self.COMMAND_LEVEL
-
-        # アクションを実行
-        self._land_ac.send_goal_and_wait(goal)
-
-        if self._land_ac.get_state() != actionlib.GoalStatus.SUCCEEDED:
-            q_error(self._main, self._land_ac.get_goal_status_text())
-            return False
-
-        return True
-
-    def _execute_rth(self, prop: RTHPropertyWidget) -> bool:
-        rospy.loginfo('Executing "Return to Home" mission.')
-
-        # ホームポジションの経緯度を取得
-        res: GetGnssOriginResponse = self._get_gnss_origin_sc.call(GetGnssOriginRequest())
-        if not res.success:
-            q_error(self._main, f"Failed to get GNSS origin: {res.message}")
-
-        # ゴールを作成
-        goal = MoveGoal()
-        goal.level.data = self.COMMAND_LEVEL
-        goal.target_latitude = res.latitude
-        goal.target_longitude = res.longitude
-        goal.target_altitude = prop.altitude.value()
-        goal.acceptance_radius = prop.acceptance_radius.value()
-        goal.duration = prop.duration.value()
-        goal.timeout = self.COMMAND_TIMEOUT
-
-        # アクションを実行
-        self._move_ac.send_goal_and_wait(goal)
-
-        if self._move_ac.get_state() != actionlib.GoalStatus.SUCCEEDED:
-            q_error(self._main, self._move_ac.get_goal_status_text())
-            return False
-
-        return True
+        self._set_edit_mode()
 
     def _set_execute_mode(self) -> None:
         """各ウィジェットを実行モードに切り替える．"""
@@ -466,21 +354,9 @@ class MissionPlannerWidget(BaseAppWidget):
         else:
             raise RuntimeError()
 
-    def _check_server_connections(self) -> bool:
-        if not self._takeoff_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER)):
-            q_error(self._main, "Takeoff action server is not ready.")
-            return False
-        if not self._land_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER)):
-            q_error(self._main, "Land action server is not ready.")
-            return False
-        if not self._move_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER)):
-            q_error(self._main, "Move action server is not ready.")
-            return False
-
-        try:
-            self._get_gnss_origin_sc.wait_for_service(self.WAIT_FOR_SERVER)
-        except rospy.ROSException:
-            q_error(self._main, "Get GNSS origin server is not ready.")
-            return False
-
-        return True
+    def _create_mission_commands(self) -> List:
+        res = []
+        for item in self._command_list:
+            prop = self._get_property(item)
+            res.append(prop.get_data())
+        return res

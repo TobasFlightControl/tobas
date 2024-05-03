@@ -1,3 +1,5 @@
+from abc import abstractmethod
+from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -5,12 +7,13 @@ from PyQt5.QtGui import *
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.utils import place_center
 
-from .structs import Commands
+from ...common import TO_DO
+from .structs import *
 from .property_items import *
 
 
 class BasePropertyWidget(QWidget):
-    NAME = "Unknown"
+    NAME = TO_DO
 
     LABEL_PSIZE = 12
     BUTTON_WIDTH = 100
@@ -40,6 +43,10 @@ class BasePropertyWidget(QWidget):
         self._delete_button.setStyleSheet("background-color: red")
         self._delete_button.clicked.connect(self._on_delete_button_clicked)
         place_center(self._delete_button, rows)
+
+    @abstractmethod
+    def get_data(self):
+        raise NotImplementedError()
 
     @pyqtSlot()
     def _on_delete_button_clicked(self) -> None:
@@ -81,6 +88,17 @@ class WaypointPropertyWidget(BasePropertyWidget):
         self.duration.valueChanged.connect(self._emit_value_changed)
         form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
 
+    @override
+    def get_data(self):
+        data = WaypointProperty()
+        data.latitude = self.latitude.value()
+        data.longitude = self.longitude.value()
+        data.altitude = self.altitude.value()
+        data.altitude_frame = self.altitude_frame.currentText()
+        data.acceptance_radius = self.acceptance_radius.value()
+        data.duration = self.duration.value()
+        return data
+
 
 class TakeoffPropertyWidget(BasePropertyWidget):
     NAME = Commands.TAKEOFF.value
@@ -102,6 +120,14 @@ class TakeoffPropertyWidget(BasePropertyWidget):
         self.duration.valueChanged.connect(self._emit_value_changed)
         form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
 
+    @override
+    def get_data(self):
+        data = TakeoffProperty()
+        data.altitude = self.altitude.value()
+        data.altitude_frame = self.altitude_frame.currentText()
+        data.duration = self.duration.value()
+        return data
+
 
 class LandPropertyWidget(BasePropertyWidget):
     NAME = Commands.LAND.value
@@ -115,6 +141,12 @@ class LandPropertyWidget(BasePropertyWidget):
         self.duration = DurationSpinBox()
         self.duration.valueChanged.connect(self._emit_value_changed)
         form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
+
+    @override
+    def get_data(self):
+        data = LandProperty()
+        data.duration = self.duration.value()
+        return data
 
 
 class RTHPropertyWidget(BasePropertyWidget):
@@ -140,3 +172,12 @@ class RTHPropertyWidget(BasePropertyWidget):
         self.duration = DurationSpinBox()
         self.duration.valueChanged.connect(self._emit_value_changed)
         form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
+
+    @override
+    def get_data(self):
+        data = RTHProperty()
+        data.altitude = self.altitude.value()
+        data.altitude_frame = self.altitude_frame.currentText()
+        data.acceptance_radius = self.acceptance_radius.value()
+        data.duration = self.duration.value()
+        return data
