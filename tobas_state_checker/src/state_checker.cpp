@@ -49,7 +49,7 @@ void StateChecker::requestLanding()
 
   const auto result = landing_ac_.getResult();
   const auto state = landing_ac_.getState();
-  if (result->error_code == tobas_msgs::LandResult::NO_ERROR)
+  if (state == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     info(state.getText());
     TOBAS_INFO("Landing action finished successfully.");

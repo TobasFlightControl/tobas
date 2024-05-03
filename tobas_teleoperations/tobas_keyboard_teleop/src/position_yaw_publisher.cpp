@@ -68,7 +68,7 @@ void PositionYawPublisher::run()
   takeoff.sendGoalAndWait(takeoff_goal);
   const auto takeoff_result = takeoff.getResult();
   const auto takeoff_state = takeoff.getState();
-  if (takeoff_result->error_code != tobas_msgs::TakeoffResult::NO_ERROR)
+  if (takeoff_state != actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     PRINT_ERROR("'" << tobas::kTakeoffAction << "' action failed: " << takeoff_state.getText());
     return;

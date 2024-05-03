@@ -27,14 +27,12 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 {
   if (goal.target_altitude <= 0)
   {
-    result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target altitude must be positive.");
     return false;
   }
 
   if (goal.duration <= 0)
   {
-    result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Target duration must be positive.");
     return false;
   }
@@ -46,14 +44,12 @@ bool TakeoffActionServer::getStartOdom()
 {
   if (!tobas_ros::subscribeOnce(start_odom_, tobas::kOdometryTopic, nh_))
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to get the odometry message.");
     return false;
   }
 
   if (start_odom_.status != tobas_msgs::Odometry::NO_ERROR)
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "There is a problem with the state estimation.");
     return false;
   }
@@ -65,7 +61,6 @@ bool TakeoffActionServer::armRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
   }
@@ -74,7 +69,6 @@ bool TakeoffActionServer::armRotors()
   set_arm_msg.request.arming = true;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to arm rotors.");
     return false;
   }
@@ -115,14 +109,12 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 
     if (t > traj_z.duration())
     {
-      result_.error_code = ResultType::NO_ERROR;
       as_.setSucceeded(result_);
       return;
     }
 
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return;
     }

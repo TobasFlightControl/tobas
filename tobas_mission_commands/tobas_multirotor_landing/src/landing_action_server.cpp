@@ -35,7 +35,6 @@ bool LandActionServer::disarmRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
   }
@@ -44,7 +43,6 @@ bool LandActionServer::disarmRotors()
   set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    result_.error_code = ResultType::DISARM_FAILED;
     as_.setAborted(result_, "Failed to disarm rotors.");
     return false;
   }
@@ -91,7 +89,6 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
   if (odom_ == nullptr)
   {
     is_action_running_ = false;
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to get pose & twist.");
     return;
   }
@@ -110,7 +107,6 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
     if (as_.isPreemptRequested())
     {
       is_action_running_ = false;
-      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return;
     }
@@ -124,7 +120,6 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
         TOBAS_INFO("Landing detected. Stopping motors.");
         if (!disarmRotors())
           return;
-        result_.error_code = ResultType::NO_ERROR;
         as_.setSucceeded(result_);
         return;
       }

@@ -33,7 +33,6 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 {
   if (goal.target_altitude < kTakeoffCheckAltThreshold)
   {
-    result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(
       result_,
       "Target elevation must be greater than " + to_string(kTakeoffCheckAltThreshold) + " [m].");
@@ -42,7 +41,6 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
   if (goal.timeout < 0)
   {
-    result_.error_code = ResultType::INVALID_GOAL;
     as_.setAborted(result_, "Timeout must be non-negative.");
     return false;
   }
@@ -54,21 +52,18 @@ bool TakeoffActionServer::waitForServiceExistence()
 {
   if (!set_mode_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
     return false;
   }
 
   if (!arming_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
     return false;
   }
 
   if (!takeoff_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    result_.error_code = ResultType::NOT_READY;
     as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
     return false;
   }
@@ -82,14 +77,12 @@ bool TakeoffActionServer::waitForParamServer(const double& timeout)
   {
     if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
-      result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while setting flight mode.");
       return false;
     }
 
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return false;
     }
@@ -114,14 +107,12 @@ bool TakeoffActionServer::setMode(const double& timeout)
   {
     if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
-      result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while setting flight mode.");
       return false;
     }
 
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return false;
     }
@@ -158,14 +149,12 @@ bool TakeoffActionServer::arming(const double& timeout)
   {
     if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
-      result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while arming.");
       return false;
     }
 
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return false;
     }
@@ -204,14 +193,12 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
   {
     if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
     {
-      result_.error_code = ResultType::TIMEOUT;
       as_.setAborted(result_, "Timeout while takeoff.");
       return false;
     }
 
     if (as_.isPreemptRequested())
     {
-      result_.error_code = ResultType::PREEMPTED;
       as_.setPreempted(result_);
       return false;
     }
@@ -241,7 +228,6 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
 
 void TakeoffActionServer::setSucceeded()
 {
-  result_.error_code = ResultType::NO_ERROR;
   as_.setSucceeded(result_);
 }
 
