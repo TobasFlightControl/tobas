@@ -63,7 +63,7 @@ class PackageManagerWidget(Widget):
     def _load_drone(self, pkg_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
-        tbsf_path = osp.join(pkg_path, "config/drone.tbsf")
+        tbsf_path = osp.join(pkg_path, "config/drone.tbsdrn")
         if not osp.isfile(tbsf_path):
             return False
 

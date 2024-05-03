@@ -201,7 +201,7 @@ class DroneLoader_File(DroneLoader):
 
     @override
     def load(self) -> None:
-        assert self._tbsf_path.endswith(".tbsf")
+        assert self._tbsf_path.endswith(".tbsdrn")
 
         with open(self._tbsf_path, "r") as f:
             self._data = yaml.safe_load(f)

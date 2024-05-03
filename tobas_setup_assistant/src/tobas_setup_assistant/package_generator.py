@@ -387,7 +387,7 @@ class PackageGenerator(QObject):
             }
 
         # TBSFファイルを作成
-        drone_config_path = osp.join(config_dir, "drone.tbsf")
+        drone_config_path = osp.join(config_dir, "drone.tbsdrn")
         with open(drone_config_path, "w") as f:
             yaml.safe_dump(drone_config, f)
 
