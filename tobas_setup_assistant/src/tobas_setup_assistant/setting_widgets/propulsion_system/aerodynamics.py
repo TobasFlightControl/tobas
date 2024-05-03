@@ -17,8 +17,8 @@ from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...parameter_getters import *
 from ...common import *
+from ...parameter_getters import *
 from .common import PROPULSION_SYSTEM
 from .blade_theory import BladeTheory
 
