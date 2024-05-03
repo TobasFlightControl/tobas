@@ -16,7 +16,7 @@ class AltitudeFrame(ExtEnum):
 
 
 @dataclass
-class WaypointProperty:
+class Waypoint:
     latitude: float = 0.0
     longitude: float = 0.0
     altitude: float = 0.0
@@ -26,19 +26,20 @@ class WaypointProperty:
 
 
 @dataclass
-class TakeoffProperty:
+class Takeoff:
     altitude: float = 0.0
     altitude_frame: AltitudeFrame = AltitudeFrame.RELATIVE_TO_HOME
+    altitude_tolerance: float = 0.0
     duration: float = 0.0
 
 
 @dataclass
-class LandProperty:
+class Land:
     duration: float = 0.0
 
 
 @dataclass
-class RTHProperty:
+class ReturnToHome:
     altitude: float = 0.0
     altitude_frame: AltitudeFrame = AltitudeFrame.RELATIVE_TO_HOME
     acceptance_radius: float = 0.0

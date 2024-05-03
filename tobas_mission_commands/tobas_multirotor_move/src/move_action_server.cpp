@@ -105,8 +105,13 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     return;
   }
 
-  // Check if state estimation is OK
-  if (odom_ == nullptr || odom_->status != tobas_msgs::Odometry::NO_ERROR)
+  // Check odometry
+  if (odom_ == nullptr)
+  {
+    as_.setAborted(result_, "Odometry message is not received yet.");
+    return;
+  }
+  if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
   {
     as_.setAborted(result_, "There is a problem with the state estimation.");
     return;
@@ -142,9 +147,9 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
       return;
     }
 
-    // コマンドを発行し終え，且つ許容範囲内に入っていたらミッション成功
+    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
-    const auto pos_error = goal_pos - cur_pos;  // 現在位置
+    const auto pos_error = goal_pos - cur_pos;
     if (t > duration && pos_error.norm() < goal->acceptance_radius)
     {
       as_.setSucceeded(result_);

@@ -34,16 +34,17 @@ public:
 
 private:
   ResultType result_;
-  tobas_msgs::Odometry start_odom_;
+  tobas_msgs::OdometryConstPtr odom_;
 
   ros::Publisher cmd_pub_;
+  ros::Subscriber odom_sub_;
   ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);
-  bool getStartOdom();
   bool armRotors();
 
+  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_multirotor_takeoff

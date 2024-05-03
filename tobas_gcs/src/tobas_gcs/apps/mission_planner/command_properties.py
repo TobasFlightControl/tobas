@@ -90,7 +90,7 @@ class WaypointPropertyWidget(BasePropertyWidget):
 
     @override
     def get_data(self):
-        data = WaypointProperty()
+        data = Waypoint()
         data.latitude = self.latitude.value()
         data.longitude = self.longitude.value()
         data.altitude = self.altitude.value()
@@ -116,15 +116,20 @@ class TakeoffPropertyWidget(BasePropertyWidget):
         self.altitude_frame = AltitudeFrameComboBox()
         form.addRow(QLabel(AltitudeFrameComboBox.LABEL), self.altitude_frame)
 
+        self.altitude_tolerance = AltitudeToleranceSpinBox()
+        self.altitude_tolerance.valueChanged.connect(self._emit_value_changed)
+        form.addRow(QLabel(AltitudeToleranceSpinBox.LABEL), self.altitude_tolerance)
+
         self.duration = DurationSpinBox()
         self.duration.valueChanged.connect(self._emit_value_changed)
         form.addRow(QLabel(DurationSpinBox.LABEL), self.duration)
 
     @override
     def get_data(self):
-        data = TakeoffProperty()
+        data = Takeoff()
         data.altitude = self.altitude.value()
         data.altitude_frame = self.altitude_frame.currentText()
+        data.altitude_tolerance = self.altitude_tolerance.value()
         data.duration = self.duration.value()
         return data
 
@@ -144,7 +149,7 @@ class LandPropertyWidget(BasePropertyWidget):
 
     @override
     def get_data(self):
-        data = LandProperty()
+        data = Land()
         data.duration = self.duration.value()
         return data
 
@@ -175,7 +180,7 @@ class RTHPropertyWidget(BasePropertyWidget):
 
     @override
     def get_data(self):
-        data = RTHProperty()
+        data = ReturnToHome()
         data.altitude = self.altitude.value()
         data.altitude_frame = self.altitude_frame.currentText()
         data.acceptance_radius = self.acceptance_radius.value()

@@ -75,20 +75,20 @@ class MissionExecutionThread(QThread):
         return True
 
     def _execute_command(self, command) -> bool:
-        if isinstance(command, WaypointProperty):
+        rospy.loginfo(f"Executing command: {command}")
+
+        if isinstance(command, Waypoint):
             return self._execute_waypoint(command)
-        elif isinstance(command, TakeoffProperty):
+        elif isinstance(command, Takeoff):
             return self._execute_takeoff(command)
-        elif isinstance(command, LandProperty):
+        elif isinstance(command, Land):
             return self._execute_land(command)
-        elif isinstance(command, RTHProperty):
+        elif isinstance(command, ReturnToHome):
             return self._execute_rth(command)
         else:
             raise RuntimeError(f"Unknown command type: {command.__class__.__name__}")
 
-    def _execute_waypoint(self, command: WaypointProperty) -> bool:
-        rospy.loginfo('Executing "Waypoint" mission.')
-
+    def _execute_waypoint(self, command: Waypoint) -> bool:
         # ゴールを作成
         goal = MoveGoal()
         goal.level.data = self.COMMAND_LEVEL
@@ -114,13 +114,12 @@ class MissionExecutionThread(QThread):
 
         return True
 
-    def _execute_takeoff(self, command: TakeoffProperty) -> bool:
-        rospy.loginfo('Executing "Takeoff" mission.')
-
+    def _execute_takeoff(self, command: Takeoff) -> bool:
         # ゴールを作成
         goal = TakeoffGoal()
         goal.level.data = self.COMMAND_LEVEL
         goal.target_altitude = command.altitude
+        goal.altitude_tolerance = command.altitude_tolerance
         goal.duration = command.duration
         goal.timeout = self.COMMAND_TIMEOUT
 
@@ -139,9 +138,7 @@ class MissionExecutionThread(QThread):
 
         return True
 
-    def _execute_land(self, command: LandProperty) -> bool:
-        rospy.loginfo('Executing "Land" mission.')
-
+    def _execute_land(self, command: Land) -> bool:
         # ゴールを作成
         goal = LandGoal()
         goal.level.data = self.COMMAND_LEVEL
@@ -161,9 +158,7 @@ class MissionExecutionThread(QThread):
 
         return True
 
-    def _execute_rth(self, command: RTHProperty) -> bool:
-        rospy.loginfo('Executing "Return to Home" mission.')
-
+    def _execute_rth(self, command: ReturnToHome) -> bool:
         # ホームポジションの経緯度を取得
         res: GetGnssOriginResponse = self._get_gnss_origin_sc.call(GetGnssOriginRequest())
         if not res.success:

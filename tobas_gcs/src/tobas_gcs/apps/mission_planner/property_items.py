@@ -62,6 +62,18 @@ class AcceptanceRadiusSpinBox(DoubleSpinBox):
         self.setSuffix(" m")
 
 
+class AltitudeToleranceSpinBox(DoubleSpinBox):
+    LABEL = "Altitude Tolerance"
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.setMinimum(1e-3)
+        self.setValue(0.1)
+        self.setDecimals(3)
+        self.setSuffix(" m")
+
+
 class DurationSpinBox(SpinBox):
     LABEL = "Duration"
 
