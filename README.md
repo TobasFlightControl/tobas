@@ -114,7 +114,10 @@ SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
 
 cf. https://qiita.com/mt08/items/56a1ef23b2c768e46dcd
 
-NOTE: bullseye から bookworm のアップグレードは同様にはできない: https://yagiful.com/blog/raspberry-bookworm-upgrade/
+NOTE:
+
+- クラッシュの恐れがあるため，bullseye のイメージをクリーンインストールしていじるほうが安全．
+- bullseye から bookworm のアップグレードは同様にはできない: https://yagiful.com/blog/raspberry-bookworm-upgrade/
 
 ```bash
 $ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list
@@ -124,6 +127,8 @@ $ sudo apt upgrade -y
 $ sudo apt dist-upgrade -y
 $ sudo apt autoremove --purge -y
 $ sudo reboot
+$ cat /etc/os-release  # bullseyeになっていればOK
+$ gcc --version  # 11になっていればOK
 ```
 
 ## CUI で HIL
