@@ -19,6 +19,7 @@ class TimestampedBuffer
 public:
   explicit TimestampedBuffer(const double& expiry_duration) : expiry_duration_(expiry_duration)
   {
+    assert(expiry_duration >= 0);
   }
 
   void add(const TimeType& cur_time, const T& x)
