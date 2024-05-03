@@ -110,6 +110,22 @@ SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
   - ExecStart 内でシェルスクリプトを実行して環境変数を設定しても元のシェルには影響しないことに注意
 - 環境変数や共通のシェルスクリプトを`/etc/tobas/`以下にまとめる
 
+### Debian 10 (buster) から Debian 11 (bullseye) にアップグレード
+
+cf. https://qiita.com/mt08/items/56a1ef23b2c768e46dcd
+
+NOTE: bullseye から bookworm のアップグレードは同様にはできない: https://yagiful.com/blog/raspberry-bookworm-upgrade/
+
+```bash
+$ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list
+$ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list.d/raspi.list
+$ sudo apt update
+$ sudo apt upgrade -y
+$ sudo apt dist-upgrade -y
+$ sudo apt autoremove --purge -y
+$ sudo reboot
+```
+
 ## CUI で HIL
 
 1. 外部 PC から`raspberry_wifi`に接続
