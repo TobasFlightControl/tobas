@@ -88,13 +88,6 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
   ros::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
-    if (as_.isPreemptRequested())
-    {
-      as_.setPreempted(result_);
-      is_action_running_ = false;
-      return;
-    }
-
     if (alt_buf_.isFilled())
     {
       // 一定時間幅の高度が一定の範囲内ならモータを停止して終了
@@ -127,6 +120,18 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
 
     // コマンドを発行
     cmd_pub_.publish(cmd);
+
+    // アクション中止の場合は目標速度・加速度を0にして終了
+    if (as_.isPreemptRequested())
+    {
+      cmd->vel.setZero();
+      cmd->acc.setZero();
+      cmd_pub_.publish(cmd);
+
+      as_.setPreempted(result_);
+      is_action_running_ = false;
+      return;
+    }
 
     ros::spinOnce();
     rate.sleep();

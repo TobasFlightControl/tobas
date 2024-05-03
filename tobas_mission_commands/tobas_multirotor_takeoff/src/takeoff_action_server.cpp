@@ -113,12 +113,6 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
       return;
     }
 
-    if (as_.isPreemptRequested())
-    {
-      as_.setPreempted(result_);
-      return;
-    }
-
     // コマンドを作成
     const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
@@ -137,6 +131,17 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 
     // コマンドを発行
     cmd_pub_.publish(cmd);
+
+    // アクション中止の場合は目標速度・加速度を0にして終了
+    if (as_.isPreemptRequested())
+    {
+      cmd->vel.setZero();
+      cmd->acc.setZero();
+      cmd_pub_.publish(cmd);
+
+      as_.setPreempted(result_);
+      return;
+    }
 
     ros::spinOnce();
     rate.sleep();

@@ -2,6 +2,7 @@
 
 #include <map>
 #include <chrono>
+#include <cassert>
 
 namespace tobas_std
 {

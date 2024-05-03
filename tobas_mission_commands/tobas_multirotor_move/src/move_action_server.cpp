@@ -132,13 +132,6 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
   ros::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
-    // クライアントからアクション中止のリクエストが来ているか確認
-    if (as_.isPreemptRequested())
-    {
-      as_.setPreempted(result_);
-      return;
-    }
-
     // 開始からの経過時間を計算
     const auto t = (ros::Time::now() - start_time).toSec();
 
@@ -180,6 +173,17 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     feedback->target_position = cmd->pos;
     feedback->position_error = cmd->pos - cur_pos;
     as_.publishFeedback(feedback);
+
+    // アクション中止の場合は目標速度・加速度を0にして終了
+    if (as_.isPreemptRequested())
+    {
+      cmd->vel.setZero();
+      cmd->acc.setZero();
+      cmd_pub_.publish(cmd);
+
+      as_.setPreempted(result_);
+      return;
+    }
 
     ros::spinOnce();
     rate.sleep();
