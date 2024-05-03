@@ -201,19 +201,21 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
+        # ミッションを実行しているスレッドを落とす
+        if not self._mission_thread.kill():
+            q_error(self._main, "Failed to terminate the thread for mission execution.")
+            return
+
         # アクションをキャンセル
         # TODO: とりあえず全てキャンセルしているが，現在実行中のアクションのみキャンセルする．
         self._takeoff_ac.cancel_all_goals()
         self._land_ac.cancel_all_goals()
         self._move_ac.cancel_all_goals()
 
-        # ミッションを実行しているスレッドを落とす
-        if not self._mission_thread.kill():
-            q_error(self._main, "Failed to terminate the thread for mission execution.")
-            return
-
         # 編集モードに切り替える
         self._set_edit_mode()
+
+        q_info(self._main, "The mission is canceled.")
 
     @pyqtSlot()
     def _on_focus_button_clicked(self) -> None:
@@ -273,7 +275,7 @@ class MissionPlannerWidget(BaseAppWidget):
         for item in self._command_list:
             prop = self._get_property(item)
             if not self._execute_command(prop):
-                # TODO: 編集モードに戻す
+                self._set_edit_mode()
                 return
 
         q_info(self._main, "The mission is completed.")
