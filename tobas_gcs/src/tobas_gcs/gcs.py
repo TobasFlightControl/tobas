@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import Widget, ComboBox
+from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget
 from tobas_tools_py.drone import Drone
 
 from .apps import *
@@ -31,7 +31,7 @@ class GroundControlStationWidget(Widget):
         ]
 
         combo_box = ComboBox()
-        stacked_widget = QStackedWidget()
+        stacked_widget = StackedWidget()
         for app in self._apps:
             combo_box.addItem(app.NAME)
             stacked_widget.addWidget(app)
