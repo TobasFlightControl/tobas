@@ -45,13 +45,13 @@ public:
     return is_filled_;
   }
 
-  const MapType::const_iterator first() const
+  typename MapType::const_iterator first() const
   {
     assert(map_.size() > 0);
     return map_.begin();
   }
 
-  const MapType::const_iterator last() const
+  typename MapType::const_iterator last() const
   {
     assert(map_.size() > 0);
     return std::prev(map_.end());
