@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
+#include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/LandAction.h>
@@ -31,9 +32,8 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  bool is_action_running_;
-  bool is_history_filled_;  // 時間窓分だけ履歴が溜まっている場合にtrue
-  std::deque<std::pair<ros::Time, double>> alt_history_;
+  bool is_action_running_ = false;
+  tobas_std::TimestampedBuffer<double> alt_buf_;
   tobas_msgs::OdometryConstPtr odom_;
   ResultType result_;
 
@@ -43,11 +43,9 @@ private:
   ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
-  void reset();
   bool disarmRotors();
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
-
   void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_multirotor_landing
