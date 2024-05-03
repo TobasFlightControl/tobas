@@ -8,8 +8,8 @@ template <typename SrvType>
 class ServiceClientWrapper
 {
 public:
-  SrvType::Request req;
-  SrvType::Response res;
+  typename SrvType::Request req;
+  typename SrvType::Response res;
 
   explicit ServiceClientWrapper(ros::NodeHandle& nh, const std::string& service_name)
   {
