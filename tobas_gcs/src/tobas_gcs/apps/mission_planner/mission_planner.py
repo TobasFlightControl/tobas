@@ -201,7 +201,7 @@ class MissionPlannerWidget(BaseAppWidget):
         sizes_cs = cumsum(sizes)  # ファイルサイズの累積和
         last_alive_idx = bisect_left(sizes_cs, self.CACHE_MAX_SIZE)  # 新しい方から数えて最大サイズを超える位置
         for i in range(last_alive_idx, len(files)):
-            files[i].unlink()
+            files[i].unlink()  # ファイルを削除
 
         q_info(self._main, f"Map tiles are cached to {self.CACHE_DIR_OFFLINE}.")
 
