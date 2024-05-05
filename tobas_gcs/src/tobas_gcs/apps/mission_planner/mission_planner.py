@@ -19,7 +19,7 @@ from PyQt5.QtPositioning import QGeoCoordinate
 
 from tobas_std_tools_py.algorithm import cumsum
 from tobas_rqt_tools.widgets import ListWidget, StackedWidget
-from tobas_rqt_tools.messages import q_info, q_warn, q_error
+from tobas_rqt_tools.messages import q_info, q_warn, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Gps
 
@@ -169,6 +169,9 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_clear_button_clicked(self) -> None:
+        if not yes_or_no(self._main, "Do you want to clear all the commands?", QMessageLevel.WARN):
+            return
+
         self._map.clear()
         self._command_list.clear()
         self._properties.clear()
@@ -176,6 +179,9 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_cache_button_clicked(self) -> None:
+        if not yes_or_no(self._main, "Do you want to cache map tiles to offline storage?", QMessageLevel.WARN):
+            return
+
         # 確認用のディレクトリパスをPathオブジェクトに変換
         dir_from = Path(self.CACHE_DIR_ONLINE)
         dir_to = Path(self.CACHE_DIR_OFFLINE)
@@ -201,6 +207,9 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_execute_button_clicked(self) -> None:
+        if not yes_or_no(self._main, "Do you want to execute the mission?", QMessageLevel.WARN):
+            return
+
         if not self._main.package_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
@@ -225,6 +234,9 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
+        if not yes_or_no(self._main, "Do you want to cancel the mission?", QMessageLevel.WARN):
+            return
+
         if not self._main.package_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
