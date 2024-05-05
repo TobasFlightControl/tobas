@@ -8,8 +8,8 @@ import os.path as osp
 import math
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, QStandardPaths, QDateTime, QUrl
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout, QSizePolicy
 from PyQt5.QtQuickWidgets import QQuickWidget
 
 from tobas_rqt_tools.widgets import FramedLabel
@@ -43,6 +43,20 @@ class LabelTextWidget(QWidget):
         self._text.clear()
 
 
+class SystemInfo(QObject):
+    """QMLのコンストラクタ引数．"""
+
+    _ = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(SystemInfo, self).__init__(parent)
+        self._home_dir = QStandardPaths.writableLocation(QStandardPaths.HomeLocation)
+
+    @pyqtProperty(str, notify=_)
+    def homeDirectory(self):
+        return self._home_dir
+
+
 class MapWidget(QQuickWidget):
     """
     Open Street Mapを埋め込んだウィジェット．
@@ -54,7 +68,11 @@ class MapWidget(QQuickWidget):
     def __init__(self) -> None:
         super().__init__(resizeMode=QQuickWidget.SizeRootObjectToView)  # リサイズモードの指定が必須
 
-        # QMLをセット
+        # コンストラクタ引数を設定
+        system_info = SystemInfo()
+        self.rootContext().setContextProperty(SystemInfo.__name__, system_info)
+
+        # QMLを読み込む
         qml_path = osp.join(osp.dirname(__file__), "Map.qml")
         self.setSource(QUrl.fromLocalFile(qml_path))
 

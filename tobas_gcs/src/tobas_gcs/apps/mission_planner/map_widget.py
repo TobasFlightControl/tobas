@@ -99,7 +99,7 @@ class MapWidget(QQuickWidget):
         system_info = SystemInfo()
         self.rootContext().setContextProperty(SystemInfo.__name__, system_info)
 
-        # QMLファイルを読み込む
+        # QMLを読み込む
         qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")
         self.setSource(QUrl.fromLocalFile(qml_path))
 
