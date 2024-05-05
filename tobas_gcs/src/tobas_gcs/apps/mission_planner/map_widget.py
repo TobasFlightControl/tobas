@@ -1,7 +1,17 @@
 import os.path as osp
 from overrides import override
 from typing import Tuple, List, Tuple, Dict, Type
-from PyQt5.QtCore import *
+from PyQt5.QtCore import (
+    Qt,
+    QObject,
+    QVariant,
+    QModelIndex,
+    pyqtSignal,
+    pyqtProperty,  # VSCodeで解析できないが存在する
+    QStandardPaths,
+    QUrl,
+    QAbstractListModel,
+)
 from PyQt5.QtQuickWidgets import QQuickWidget
 from PyQt5.QtPositioning import QGeoCoordinate
 
@@ -55,6 +65,20 @@ class LineModel(AbstractListModel):
     FIELDS = [("latitude_1", float), ("longitude_1", float), ("latitude_2", float), ("longitude_2", float)]
 
 
+class SystemInfo(QObject):
+    """QMLのコンストラクタ引数．"""
+
+    _ = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(SystemInfo, self).__init__(parent)
+        self._home_dir = QStandardPaths.writableLocation(QStandardPaths.HomeLocation)
+
+    @pyqtProperty(str, notify=_)
+    def homeDirectory(self):
+        return self._home_dir
+
+
 class MapWidget(QQuickWidget):
     """
     Open Street Mapを埋め込んだウィジェット．
@@ -70,6 +94,10 @@ class MapWidget(QQuickWidget):
         self._line = LineModel()
         self.rootContext().setContextProperty(WaypointModel.__name__, self._waypoint)
         self.rootContext().setContextProperty(LineModel.__name__, self._line)
+
+        # コンストラクタ引数を設定
+        system_info = SystemInfo()
+        self.rootContext().setContextProperty(SystemInfo.__name__, system_info)
 
         # QMLファイルを読み込む
         qml_path = osp.join(osp.dirname(__file__), "qml/Map.qml")

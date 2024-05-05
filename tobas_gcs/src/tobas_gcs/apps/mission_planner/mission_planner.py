@@ -4,15 +4,20 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
+import os.path as osp
 import rospy
+import shutil
+from bisect import bisect_left
 from overrides import override
 from functools import partial
 from typing import Tuple, List
+from pathlib import Path
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtPositioning import QGeoCoordinate
 
+from tobas_std_tools_py.algorithm import cumsum
 from tobas_rqt_tools.widgets import ListWidget, StackedWidget
 from tobas_rqt_tools.messages import q_info, q_warn, q_error
 from tobas_tools_py.drone import Drone
@@ -31,6 +36,10 @@ class MissionPlannerWidget(BaseAppWidget):
 
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
+
+    CACHE_DIR_ONLINE = osp.expanduser("~/.cache/tobas/tiles/online/")
+    CACHE_DIR_OFFLINE = osp.expanduser("~/.cache/tobas/tiles/offline/")
+    CACHE_MAX_SIZE = 1 << 30  # 1GiB
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
@@ -60,6 +69,10 @@ class MissionPlannerWidget(BaseAppWidget):
         self._clear_button = QPushButton("Clear")
         self._clear_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         button_cols.addWidget(self._clear_button)
+
+        self._cache_button = QPushButton("Cache Map")
+        self._cache_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        button_cols.addWidget(self._cache_button)
 
         button_cols.addStretch()
 
@@ -97,6 +110,7 @@ class MissionPlannerWidget(BaseAppWidget):
         self._save_button.clicked.connect(self._on_save_button_clicked)
         self._add_button.clicked.connect(self._on_add_button_clicked)
         self._clear_button.clicked.connect(self._on_clear_button_clicked)
+        self._cache_button.clicked.connect(self._on_cache_button_clicked)
         self._execute_button.clicked.connect(self._on_execute_button_clicked)
         self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
         self._focus_button.clicked.connect(self._on_focus_button_clicked)
@@ -159,6 +173,31 @@ class MissionPlannerWidget(BaseAppWidget):
         self._command_list.clear()
         self._properties.clear()
         self._pairs.clear()
+
+    @pyqtSlot()
+    def _on_cache_button_clicked(self) -> None:
+        # 確認用のディレクトリパスをPathオブジェクトに変換
+        dir_from = Path(self.CACHE_DIR_ONLINE)
+        dir_to = Path(self.CACHE_DIR_OFFLINE)
+
+        if not dir_to.exists():
+            dir_to.mkdir()
+
+        # 全てのPNGファイルをコピー
+        for file_from in dir_from.glob("*.png"):
+            file_to = dir_to / file_from.name
+            shutil.copy(file_from, file_to)  # ファイルをコピー (最終変更時刻はコピーした瞬間の時刻になる)
+
+        # ディレクトリの合計サイズがリミット未満になるまでファイルを削除
+        files = list(dir_to.glob("*.png"))
+        files.sort(key=lambda x: x.stat().st_mtime_ns, reverse=True)  # 最終変更時刻が新しい順に並べかえる
+        sizes = [file.stat().st_size for file in files]  # 全てのファイルのサイズ[bits]を計算
+        sizes_cs = cumsum(sizes)  # ファイルサイズの累積和
+        last_alive_idx = bisect_left(sizes_cs, self.CACHE_MAX_SIZE)  # 新しい方から数えて最大サイズを超える位置
+        for i in range(last_alive_idx, len(files)):
+            files[i].unlink()
+
+        q_info(self._main, f"Map tiles are cached to {self.CACHE_DIR_OFFLINE}.")
 
     @pyqtSlot()
     def _on_execute_button_clicked(self) -> None:

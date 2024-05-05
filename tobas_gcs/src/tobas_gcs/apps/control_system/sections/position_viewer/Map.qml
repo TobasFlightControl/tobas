@@ -14,6 +14,22 @@ Rectangle {
       name: "osm.mapping.providersrepository.disabled"
       value: "true"
     }
+    PluginParameter {
+      name: "osm.mapping.cache.directory"
+      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/online/"
+    }
+    PluginParameter {
+      name: "osm.mapping.offline.directory"
+      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/offline/"
+    }
+    PluginParameter {
+      name: "osm.mapping.cache.disk.cost_strategy"
+      value: "bytesize"
+    }
+    PluginParameter {
+      name: "osm.mapping.cache.disk.size"
+      value: 1 << 30  // 1GiB
+    }
   }
 
   Map {
