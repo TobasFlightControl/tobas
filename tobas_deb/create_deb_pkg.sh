@@ -5,7 +5,7 @@ cd ${TOBAS_DEB}
 
 # Ubuntu
 UBUNTU_WS=$(realpath ${TOBAS_DEB}/ubuntu)
-catkin build tobas -DCMAKE_INSTALL_PREFIX=${UBUNTU_WS}/opt/tobas/
+catkin build tobas -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${UBUNTU_WS}/opt/tobas/
 fakeroot dpkg-deb --build ${UBUNTU_WS} ${TOBAS_DEB}
 
 # Raspbian
