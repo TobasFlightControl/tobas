@@ -8,6 +8,8 @@
 
 #include <tobas_kdl/jntarray.hpp>
 
+#include "./util/serialization.hpp"
+
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
@@ -103,16 +105,31 @@ namespace ros
 {
 namespace serialization
 {
+/* Serializer for Eigen vector. */
 template <>
 struct Serializer<KDL::JntArray>
 {
   template <typename Stream, typename T>
-  inline static void allInOne(Stream& stream, T m)
+  inline static void write(Stream& stream, const T& m)
   {
-    stream.next(m.data);
+    serialize(stream, m.data.data(), m.data.rows());
   }
 
-  ROS_DECLARE_ALLINONE_SERIALIZER
+  template <typename Stream, typename T>
+  inline static void read(Stream& stream, T& m)
+  {
+    IStream peek_size_stream(stream.getData(), stream.getLength());
+    uint32_t size;
+    peek_size_stream.next(size);
+    m.resize(size);
+    deserialize(stream, m.data.data(), m.data.rows());
+  }
+
+  template <typename T>
+  inline static uint32_t serializedLength(const T& m)
+  {
+    return serializationLength(m.data.data(), m.data.rows());
+  }
 };  // struct JntArray_
 }  // namespace serialization
 }  // namespace ros
