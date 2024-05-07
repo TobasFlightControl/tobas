@@ -72,7 +72,7 @@ VectorXd Mixer::solve(
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
-  const auto I_B = inertia.refPoint(B_Pos_B2G).getRotationalInertia();
+  const auto I_B = inertia.getRotationalInertiaCoG();
 
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {

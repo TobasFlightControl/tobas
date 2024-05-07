@@ -72,7 +72,7 @@ int MicroDisturbanceEoM::update(
   }
   const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
+  const auto I_cog = I_base.getRotationalInertiaCoG();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
   const auto I_x = I_cog.ixx();
   const auto I_y = I_cog.iyy();
