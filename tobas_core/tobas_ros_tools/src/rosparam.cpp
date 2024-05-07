@@ -81,6 +81,13 @@ void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param, const Vec
   param = Map<Vector3d>(param_vec.data());
 }
 
+void getParam(ros::NodeHandle& nh, const string& key, VectorXd& param)
+{
+  vector<double> tmp;
+  getParam(nh, key, tmp);
+  param = Map<VectorXd>(tmp.data());
+}
+
 bool match(ros::NodeHandle& nh, const string& key)
 {
   if (tobas_std::contains(key, '/'))

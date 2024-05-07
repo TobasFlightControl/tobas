@@ -106,6 +106,8 @@ void getParam(
   Eigen::Vector3d& param,
   const Eigen::Vector3d& _default);
 
+void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::VectorXd& param);
+
 /**
  * @brief keyにマッチするパラメータが存在する場合にtrueを返す．
  *
