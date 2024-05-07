@@ -16,10 +16,10 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Frame_ = KDL::Frame;
 
-typedef ::tobas_kdl_msgs::Frame_<std::allocator<void> > Frame;
+typedef tobas_kdl_msgs::Frame_<std::allocator<void> > Frame;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Frame> FramePtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Frame const> FrameConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Frame> FramePtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Frame const> FrameConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros

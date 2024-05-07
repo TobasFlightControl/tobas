@@ -13,10 +13,10 @@ namespace tobas_kdl_msgs
 template <class ContainerAllocator>
 using VectorAcc_ = KDL::VectorAcc;
 
-typedef ::tobas_kdl_msgs::VectorAcc_<std::allocator<void> > VectorAcc;
+typedef tobas_kdl_msgs::VectorAcc_<std::allocator<void> > VectorAcc;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::VectorAcc> VectorAccPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::VectorAcc const> VectorAccConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::VectorAcc> VectorAccPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::VectorAcc const> VectorAccConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -139,13 +139,13 @@ struct Printer<KDL::VectorAcc>
   {
     s << indent << "p: ";
     s << std::endl;
-    Printer< ::tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.p);
+    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.p);
     s << indent << "v: ";
     s << std::endl;
-    Printer< ::tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.v);
+    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.v);
     s << indent << "dv: ";
     s << std::endl;
-    Printer< ::tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.dv);
+    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.dv);
   }
 };
 }  // namespace message_operations

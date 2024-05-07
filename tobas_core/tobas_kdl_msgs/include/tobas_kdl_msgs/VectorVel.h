@@ -13,10 +13,10 @@ namespace tobas_kdl_msgs
 template <class ContainerAllocator>
 using VectorVel_ = KDL::VectorVel;
 
-typedef ::tobas_kdl_msgs::VectorVel_<std::allocator<void> > VectorVel;
+typedef tobas_kdl_msgs::VectorVel_<std::allocator<void> > VectorVel;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::VectorVel> VectorVelPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::VectorVel const> VectorVelConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::VectorVel> VectorVelPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::VectorVel const> VectorVelConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -137,10 +137,10 @@ struct Printer<KDL::VectorVel>
   {
     s << indent << "p: ";
     s << std::endl;
-    Printer< ::tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.p);
+    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.p);
     s << indent << "v: ";
     s << std::endl;
-    Printer< ::tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.v);
+    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.v);
   }
 };
 }  // namespace message_operations

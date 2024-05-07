@@ -15,10 +15,10 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Twist_ = KDL::Twist;
 
-typedef ::tobas_kdl_msgs::Twist_<std::allocator<void> > Twist;
+typedef tobas_kdl_msgs::Twist_<std::allocator<void> > Twist;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Twist> TwistPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Twist const> TwistConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Twist> TwistPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Twist const> TwistConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros

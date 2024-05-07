@@ -52,16 +52,16 @@ struct LinkState_
     _name_type;
   _name_type name;
 
-  typedef ::tobas_kdl_msgs::Frame_<ContainerAllocator> _frame_type;
+  typedef tobas_kdl_msgs::Frame_<ContainerAllocator> _frame_type;
   _frame_type frame;
 
-  typedef ::tobas_kdl_msgs::Twist_<ContainerAllocator> _twist_type;
+  typedef tobas_kdl_msgs::Twist_<ContainerAllocator> _twist_type;
   _twist_type twist;
 
-  typedef ::tobas_kdl_msgs::Accel_<ContainerAllocator> _accel_type;
+  typedef tobas_kdl_msgs::Accel_<ContainerAllocator> _accel_type;
   _accel_type accel;
 
-  typedef ::tobas_kdl_msgs::Wrench_<ContainerAllocator> _wrench_type;
+  typedef tobas_kdl_msgs::Wrench_<ContainerAllocator> _wrench_type;
   _wrench_type wrench;
 
   typedef boost::shared_ptr<::tobas_msgs::LinkState_<ContainerAllocator>> Ptr;
@@ -260,16 +260,16 @@ struct Printer<::tobas_msgs::LinkState_<ContainerAllocator>>
       stream(s, indent + "  ", v.name);
     s << indent << "frame: ";
     s << std::endl;
-    Printer<::tobas_kdl_msgs::Frame_<ContainerAllocator>>::stream(s, indent + "  ", v.frame);
+    Printer<tobas_kdl_msgs::Frame_<ContainerAllocator>>::stream(s, indent + "  ", v.frame);
     s << indent << "twist: ";
     s << std::endl;
-    Printer<::tobas_kdl_msgs::Twist_<ContainerAllocator>>::stream(s, indent + "  ", v.twist);
+    Printer<tobas_kdl_msgs::Twist_<ContainerAllocator>>::stream(s, indent + "  ", v.twist);
     s << indent << "accel: ";
     s << std::endl;
-    Printer<::tobas_kdl_msgs::Accel_<ContainerAllocator>>::stream(s, indent + "  ", v.accel);
+    Printer<tobas_kdl_msgs::Accel_<ContainerAllocator>>::stream(s, indent + "  ", v.accel);
     s << indent << "wrench: ";
     s << std::endl;
-    Printer<::tobas_kdl_msgs::Wrench_<ContainerAllocator>>::stream(s, indent + "  ", v.wrench);
+    Printer<tobas_kdl_msgs::Wrench_<ContainerAllocator>>::stream(s, indent + "  ", v.wrench);
   }
 };
 

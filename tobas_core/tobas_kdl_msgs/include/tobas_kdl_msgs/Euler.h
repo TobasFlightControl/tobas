@@ -44,10 +44,10 @@ struct Euler_
 };  // struct Euler_
 Commented out to here */
 
-typedef ::tobas_kdl_msgs::Euler_<std::allocator<void> > Euler;
+typedef tobas_kdl_msgs::Euler_<std::allocator<void> > Euler;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Euler> EulerPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Euler const> EulerConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Euler> EulerPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Euler const> EulerConstPtr;
 
 // constants requiring out of line definition
 
@@ -61,16 +61,16 @@ std::ostream& operator<<(std::ostream& s, const KDL::Euler& v)
 
 template <typename ContainerAllocator1, typename ContainerAllocator2>
 bool operator==(
-  const ::tobas_kdl_msgs::Euler_<ContainerAllocator1>& lhs,
-  const ::tobas_kdl_msgs::Euler_<ContainerAllocator2>& rhs)
+  const tobas_kdl_msgs::Euler_<ContainerAllocator1>& lhs,
+  const tobas_kdl_msgs::Euler_<ContainerAllocator2>& rhs)
 {
   return lhs.roll == rhs.roll && lhs.pitch == rhs.pitch && lhs.yaw == rhs.yaw;
 }
 
 template <typename ContainerAllocator1, typename ContainerAllocator2>
 bool operator!=(
-  const ::tobas_kdl_msgs::Euler_<ContainerAllocator1>& lhs,
-  const ::tobas_kdl_msgs::Euler_<ContainerAllocator2>& rhs)
+  const tobas_kdl_msgs::Euler_<ContainerAllocator1>& lhs,
+  const tobas_kdl_msgs::Euler_<ContainerAllocator2>& rhs)
 {
   return !(lhs == rhs);
 }

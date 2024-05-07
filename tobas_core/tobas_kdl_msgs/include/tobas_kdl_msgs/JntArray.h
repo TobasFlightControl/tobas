@@ -13,10 +13,10 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using JntArray_ = KDL::JntArray;
 
-typedef ::tobas_kdl_msgs::JntArray_<std::allocator<void> > JntArray;
+typedef tobas_kdl_msgs::JntArray_<std::allocator<void> > JntArray;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::JntArray> JntArrayPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::JntArray const> JntArrayConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::JntArray> JntArrayPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::JntArray const> JntArrayConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros

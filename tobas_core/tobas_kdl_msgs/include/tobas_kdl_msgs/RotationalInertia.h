@@ -1,23 +1,22 @@
-#ifndef KDL_MSGS_MESSAGE_ROTATION_H
-#define KDL_MSGS_MESSAGE_ROTATION_H
+#ifndef KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H
+#define KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H
 
 #include <ros/types.h>
 #include <ros/serialization.h>
 #include <ros/builtin_message_traits.h>
 #include <ros/message_operations.h>
 
-#include <tobas_kdl/rotation.hpp>
+#include <tobas_kdl/rotationalinertia.hpp>
 
 namespace tobas_kdl_msgs
 {
-// using C++11 syntax KDL::Rotation and tobas_kdl_msgs::Rotation_ are exactly the same type
 template <typename ContainerAllocator>
-using Rotation_ = KDL::Rotation;
+using RotationalInertia_ = KDL::RotationalInertia;
 
-typedef tobas_kdl_msgs::Rotation_<std::allocator<void> > Rotation;
+typedef tobas_kdl_msgs::RotationalInertia_<std::allocator<void> > RotationalInertia;
 
-typedef boost::shared_ptr<tobas_kdl_msgs::Rotation> RotationPtr;
-typedef boost::shared_ptr<tobas_kdl_msgs::Rotation const> RotationConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::RotationalInertia> RotationalInertiaPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::RotationalInertia const> RotationalInertiaConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -25,44 +24,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsFixedSize<KDL::Rotation> : TrueType
+struct IsFixedSize<KDL::RotationalInertia> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Rotation const> : TrueType
+struct IsFixedSize<KDL::RotationalInertia const> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Rotation> : TrueType
+struct IsMessage<KDL::RotationalInertia> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Rotation const> : TrueType
+struct IsMessage<KDL::RotationalInertia const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Rotation> : FalseType
+struct HasHeader<KDL::RotationalInertia> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Rotation const> : FalseType
+struct HasHeader<KDL::RotationalInertia const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Rotation>
+struct MD5Sum<KDL::RotationalInertia>
 {
   static const char* value()
   {
     return "ca66b32e4ad9de837a30ea9fe5ade752";
   }
 
-  static const char* value(const KDL::Rotation&)
+  static const char* value(const KDL::RotationalInertia&)
   {
     return value();
   }
@@ -71,31 +70,31 @@ struct MD5Sum<KDL::Rotation>
 };
 
 template <>
-struct DataType<KDL::Rotation>
+struct DataType<KDL::RotationalInertia>
 {
   static const char* value()
   {
-    return "tobas_kdl_msgs/Rotation";
+    return "tobas_kdl_msgs/RotationalInertia";
   }
 
-  static const char* value(const KDL::Rotation&)
+  static const char* value(const KDL::RotationalInertia&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Rotation>
+struct Definition<KDL::RotationalInertia>
 {
   static const char* value()
   {
-    return "# Represents a KDL::Rotation instance.\n\
+    return "# Represents a KDL::RotationalInertia instance.\n\
 \n\
 float64[9] data\n\
 ";
   }
 
-  static const char* value(const KDL::Rotation&)
+  static const char* value(const KDL::RotationalInertia&)
   {
     return value();
   }
@@ -108,7 +107,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Rotation>
+struct Serializer<KDL::RotationalInertia>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -125,7 +124,7 @@ struct Serializer<KDL::Rotation>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Rotation_
+};  // struct RotationalInertia_
 }  // namespace serialization
 }  // namespace ros
 
@@ -134,23 +133,20 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Rotation>
+struct Printer<KDL::RotationalInertia>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Rotation& v)
+  static void stream(Stream& s, const std::string& indent, const KDL::RotationalInertia& v)
   {
     s << indent << "data[]" << std::endl;
-    for (size_t i = 0; i < 3; ++i)
+    for (size_t i = 0; i < 9; ++i)
     {
-      for (size_t j = 0; j < 3; ++j)
-      {
-        s << indent << "  data[" << i << "]: ";
-        Printer<double>::stream(s, indent + "  ", v.data(i, j));
-      }
+      s << indent << "  data[" << i << "]: ";
+      Printer<double>::stream(s, indent + "  ", v.data[i]);
     }
   }
 };
 }  // namespace message_operations
 }  // namespace ros
 
-#endif  // KDL_MSGS_MESSAGE_ROTATION_H
+#endif  // KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H

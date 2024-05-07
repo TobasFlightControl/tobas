@@ -13,10 +13,10 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Vector_ = KDL::Vector;
 
-typedef ::tobas_kdl_msgs::Vector_<std::allocator<void> > Vector;
+typedef tobas_kdl_msgs::Vector_<std::allocator<void> > Vector;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Vector> VectorPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Vector const> VectorConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Vector> VectorPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Vector const> VectorConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
