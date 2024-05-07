@@ -1,5 +1,4 @@
 #include <Eigen/SVD>
-#include <eigen_conversions/eigen_kdl.h>
 
 #include <tobas_kdl/util.hpp>
 #include <tobas_kdl/conversion/kdl_eigen.hpp>

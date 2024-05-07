@@ -1,5 +1,5 @@
-#include <dh_std_tools/math.hpp>
-#include <dh_std_tools/algorithm.hpp>
+#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/algorithm.hpp>
 
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
@@ -26,7 +26,7 @@ void AccelerationController::update(
   // 目標加速度を制限
   auto tar_ax = tar_acc.x();
   auto tar_ay = tar_acc.y();
-  dh_std::clamp2d(tar_ax, tar_ay, config_.max_hor_acc);
+  tobas_std::clamp2d(tar_ax, tar_ay, config_.max_hor_acc);
   const auto tar_az = clamp(tar_acc.z(), -config_.max_ver_acc, config_.max_ver_acc);
 
   // 並進のEoMの左辺
@@ -38,7 +38,7 @@ void AccelerationController::update(
   // さもないと姿勢制御器での目標姿勢角のクランプにより推力が過剰になる恐れがある
   const auto tan_max_atti = tan(config_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
-  dh_std::clamp2d(x, y, max_xy_norm);
+  tobas_std::clamp2d(x, y, max_xy_norm);
 
   // 3元非線形方程式の解析解を計算
   // TODO: 姿勢制御と同様にH-forceを考慮する
