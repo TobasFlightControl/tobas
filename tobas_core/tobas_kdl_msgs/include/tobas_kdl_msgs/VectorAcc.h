@@ -8,6 +8,8 @@
 
 #include <tobas_kdl/vectoracc.hpp>
 
+#include "./Vector.h"
+
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>

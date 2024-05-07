@@ -8,6 +8,8 @@
 
 #include <tobas_kdl/jntarrayacc.hpp>
 
+#include "./JntArray.h"
+
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
@@ -136,19 +138,19 @@ struct Printer<KDL::JntArrayAcc>
     for (size_t i = 0; i < v.q.size(); ++i)
     {
       s << indent << "  q[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.q[i]);
+      Printer<double>::stream(s, indent + "  ", v.q(i));
     }
     s << indent << "qdot[]" << std::endl;
     for (size_t i = 0; i < v.qdot.size(); ++i)
     {
       s << indent << "  qdot[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.qdot[i]);
+      Printer<double>::stream(s, indent + "  ", v.qdot(i));
     }
     s << indent << "qdotdot[]" << std::endl;
     for (size_t i = 0; i < v.qdotdot.size(); ++i)
     {
       s << indent << "  qdotdot[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.qdotdot[i]);
+      Printer<double>::stream(s, indent + "  ", v.qdotdot(i));
     }
   }
 };

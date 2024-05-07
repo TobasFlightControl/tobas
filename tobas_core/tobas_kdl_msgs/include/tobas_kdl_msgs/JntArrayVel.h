@@ -8,6 +8,8 @@
 
 #include <tobas_kdl/jntarrayvel.hpp>
 
+#include "./JntArray.h"
+
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
@@ -97,7 +99,6 @@ struct Definition<KDL::JntArrayVel>
     return value();
   }
 };
-
 }  // namespace message_traits
 }  // namespace ros
 
@@ -117,7 +118,6 @@ struct Serializer<KDL::JntArrayVel>
 
   ROS_DECLARE_ALLINONE_SERIALIZER
 };  // struct JntArrayVel_
-
 }  // namespace serialization
 }  // namespace ros
 
@@ -135,17 +135,16 @@ struct Printer<KDL::JntArrayVel>
     for (size_t i = 0; i < v.q.size(); ++i)
     {
       s << indent << "  q[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.q[i]);
+      Printer<double>::stream(s, indent + "  ", v.q(i));
     }
     s << indent << "qdot[]" << std::endl;
     for (size_t i = 0; i < v.qdot.size(); ++i)
     {
       s << indent << "  qdot[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.qdot[i]);
+      Printer<double>::stream(s, indent + "  ", v.qdot(i));
     }
   }
 };
-
 }  // namespace message_operations
 }  // namespace ros
 

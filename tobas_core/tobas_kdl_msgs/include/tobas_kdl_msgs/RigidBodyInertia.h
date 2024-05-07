@@ -140,17 +140,17 @@ struct Serializer<KDL::RigidBodyInertia>
   template <typename Stream, typename T>
   inline static void read(Stream& stream, T& m)
   {
-    typename T::_mass_type _mass;
-    stream.next(_mass);
-    typename T::_cog_type _cog;
-    stream.next(_cog);
-    typename T::_Ic_type _Ic;
-    stream.next(_Ic);
-    m = T(_mass, _cog, _Ic);
+    typename T::_mass_type mass;
+    stream.next(mass);
+    typename T::_cog_type cog;
+    stream.next(cog);
+    typename T::_Ic_type Ic;
+    stream.next(Ic);
+    m = T(mass, cog, Ic);
   }
 
   template <typename T>
-  inline static uint32_t serializedLength(const T& m)
+  inline static uint32_t serializedLength(const T&)
   {
     return (uint32_t)(sizeof(double) + 3 * sizeof(double) + 9 * sizeof(double));
   }
