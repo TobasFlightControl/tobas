@@ -9,8 +9,8 @@ namespace KDL
 class FrameVel
 {
 public:
-  RotationVel M;
-  VectorVel p;
+  RotationVel M;  // Rotation and angular velocity
+  VectorVel p;    // Position and linear velocity
 
   inline explicit FrameVel();
   inline explicit FrameVel(const Frame& _T);
@@ -19,8 +19,6 @@ public:
 
   inline static FrameVel Identity();
 
-  inline Frame value() const;
-  inline Twist deriv() const;
   inline Frame getFrame() const;
   inline Twist getTwist() const;
 
@@ -55,16 +53,6 @@ inline FrameVel::FrameVel(const RotationVel& _M, const VectorVel& _p) : M(_M), p
 inline FrameVel FrameVel::Identity()
 {
   return FrameVel(RotationVel::Identity(), VectorVel::Zero());
-}
-
-inline Frame FrameVel::value() const
-{
-  return Frame(M.value(), p.value());
-}
-
-inline Twist FrameVel::deriv() const
-{
-  return Twist(p.deriv(), M.deriv());
 }
 
 inline Frame FrameVel::getFrame() const

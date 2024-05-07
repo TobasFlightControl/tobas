@@ -16,9 +16,6 @@ public:
   inline explicit VectorVel(const Vector& _p, const Vector& _v);
   inline explicit VectorVel(const Vector& _p);
 
-  inline const Vector& value() const;
-  inline const Vector& deriv() const;
-
   inline static VectorVel Zero();
 
   doubleVel norm(double eps = kDefaultEpsilon) const;
@@ -64,16 +61,6 @@ inline VectorVel::VectorVel(const Vector& _p) : p(_p), v(Vector::Zero())
 VectorVel VectorVel::Zero()
 {
   return VectorVel(Vector::Zero(), Vector::Zero());
-}
-
-inline const Vector& VectorVel::value() const
-{
-  return p;
-}
-
-inline const Vector& VectorVel::deriv() const
-{
-  return v;
 }
 
 inline VectorVel operator+(const VectorVel& r1, const VectorVel& r2)

@@ -29,16 +29,6 @@ public:
 
   inline Rall1d() : t(), grad(){};
 
-  T value() const
-  {
-    return t;
-  }
-
-  V deriv() const
-  {
-    return grad;
-  }
-
   explicit inline Rall1d(typename TI<T>::Arg c)
   {
     t = T(c);
@@ -51,16 +41,6 @@ public:
 
   inline Rall1d(const Rall1d<T, V, S>& r) : t(r.t), grad(r.grad)
   {
-  }
-
-  inline T& Value()
-  {
-    return t;
-  }
-
-  inline V& Gradient()
-  {
-    return grad;
   }
 
   inline static Rall1d<T, V, S> Zero()

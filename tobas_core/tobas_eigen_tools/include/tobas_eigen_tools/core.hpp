@@ -42,9 +42,7 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, int num)
 
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(r * num, c * num);
   for (int i = 0; i < num; ++i)
-  {
     res.block(r * i, c * i, r, c) = A;
-  }
 
   return res;
 }
@@ -73,18 +71,14 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const int& num, const 
     {
       Eigen::MatrixXd res(r * num, c);
       for (int i = 0; i < num; ++i)
-      {
         res.block(r * i, 0, r, c) = A;
-      }
       return res;
     }
     case 1:
     {
       Eigen::MatrixXd res(r, c * num);
       for (int i = 0; i < num; ++i)
-      {
         res.block(0, c * i, r, c) = A;
-      }
       return res;
     }
     default:
@@ -197,12 +191,8 @@ void symmetrise(Eigen::MatrixBase<Derived>& A, const uint8_t& method = 0)
       break;
     case 1:
       for (int i = 0; i < A.rows(); ++i)
-      {
         for (int j = i + 1; j < A.cols(); ++j)
-        {
           A(i, j) = A(j, i);
-        }
-      }
       break;
     default:
       throw std::runtime_error("Invalid method: " + std::to_string(method));
@@ -215,9 +205,7 @@ Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& 
 {
   Eigen::Matrix<Scalar, Rows, 1> res;
   for (int r = 0; r < Rows; ++r)
-  {
     res(r) = A.row(r).mean();
-  }
   return res;
 }
 
@@ -227,9 +215,7 @@ Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& 
 {
   Eigen::Matrix<Scalar, Cols, 1> res;
   for (int c = 0; c < Cols; ++c)
-  {
     res(c) = A.col(c).mean();
-  }
   return res;
 }
 
@@ -240,9 +226,7 @@ Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Col
   const Eigen::Matrix<Scalar, Rows, 1> mean = meanRow(A);
   Eigen::Matrix<Scalar, Rows, 1> res;
   for (int r = 0; r < Rows; ++r)
-  {
     res(r) = (A.row(r).array() - mean(r)).square().mean();
-  }
   return res;
 }
 
@@ -253,9 +237,7 @@ Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Col
   const Eigen::Matrix<Scalar, Cols, 1> mean = meanCol(A);
   Eigen::Matrix<Scalar, Cols, 1> res;
   for (int c = 0; c < Cols; ++c)
-  {
     res(c) = (A.col(c).array() - mean(c)).square().mean();
-  }
   return res;
 }
 
