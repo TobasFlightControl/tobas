@@ -87,4 +87,49 @@ public:
 protected:
   JntArray qd_out_;
 };
+
+/**
+ * \brief This abstract class encapsulates the inverse acceleration solver for a KDL::Tree.
+ */
+class ChainIkSolverAcc : public ChainSolverI
+{
+  using super = ChainSolverI;
+
+public:
+  explicit ChainIkSolverAcc(const Chain& chain) : super(chain)
+  {
+  }
+
+  /**
+   * Calculate inverse acceleration kinematics, from joint positions
+   * and cartesian velocities to joint velocities.
+   *
+   * @param q_in input joint positions
+   * @param qd_in input joint velocities
+   * @param a_in input cartesian acceleration
+   *
+   * @return if < 0 something went wrong.
+   */
+  virtual int CartToJnt(const JntArray& q_in, const JntArray& qd_in, const Vector& a_in) = 0;
+
+  /**
+   * Calculate inverse acceleration kinematics, from joint positions
+   * and cartesian velocities to joint velocities.
+   *
+   * @param q_in input joint positions
+   * @param qd_in input joint velocities
+   * @param a_in input cartesian acceleration
+   *
+   * @return if < 0 something went wrong.
+   */
+  virtual int CartToJnt(const JntArray& q_in, const JntArray& qd_in, const Accel& a_in) = 0;
+
+  const JntArray& getAccelerations() const
+  {
+    return qdd_out_;
+  }
+
+protected:
+  JntArray qdd_out_;
+};
 }  // end of namespace KDL
