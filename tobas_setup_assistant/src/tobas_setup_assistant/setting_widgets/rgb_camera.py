@@ -30,7 +30,7 @@ class RgbCameraWidget(BaseSettingWidget):
         self._rows.addWidget(self._equipped)
 
         link_description = "The name of the link to which the camera is attached."
-        self.link = ParamGetterWidget_ComboBox("Link name", link_description)
+        self.link = ParamGetterWidget_ComboBox("Link Name", link_description)
         self._rows.addWidget(self.link)
 
         self.offset = ParamGetterWidget_Pose("Offset", CAMERA_OFFSET_DESCRIPTION)
