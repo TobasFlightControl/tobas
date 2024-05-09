@@ -502,7 +502,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     if (cfg.operating_mode == kControlModePosition)
     {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos))
-        warn(
+        TOBAS_WARN(
           "Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ",
           tar_pos);
       goal_positions_[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
@@ -559,7 +559,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
     if (abs(tar_vel) > cfg.vel_limit)
     {
       tar_vel = clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
-      warn(
+      TOBAS_WARN(
         "Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ",
         tar_vel);
     }

@@ -100,7 +100,7 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
 void ParamServerRos::localPositionCb(const geometry_msgs::PoseStampedConstPtr&)
 {
   // 状態推定の開始を確認してから初期パラメータの設定を行う
-  info(
+  TOBAS_INFO(
     "First local position is received. The parameter server will be ready in ",
     kActivationDelayFromFirstPose, " seconds.");
   set_init_params_timer_ = nh_.createTimer(

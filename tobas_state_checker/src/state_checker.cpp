@@ -36,7 +36,7 @@ void StateChecker::requestLanding()
 {
   if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
-    error(
+    TOBAS_ERROR(
       "'", tobas::kLandAction, "' action server failed to start within ",
       kWaitForActionServerTimeout, " seconds. Please check the server status.");
     return;
@@ -51,12 +51,12 @@ void StateChecker::requestLanding()
   const auto state = landing_ac_.getState();
   if (state == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
-    info(state.getText());
+    TOBAS_INFO(state.getText());
     TOBAS_INFO("Landing action finished successfully.");
   }
   else
   {
-    error(state.getText());
+    TOBAS_ERROR(state.getText());
     TOBAS_FATAL("Landing action failed.");
   }
 }

@@ -70,7 +70,7 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
-    warn(
+    TOBAS_WARN(
       "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
       " seconds have elapsed since the last command.");
   }

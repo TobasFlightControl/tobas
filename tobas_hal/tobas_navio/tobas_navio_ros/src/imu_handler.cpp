@@ -150,7 +150,7 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
 
   if (gyro_.norm() > kStaticGyroThreshold)
   {
-    warn(
+    TOBAS_WARN(
       "Perturbation is detected while measuring gyro bias: ", gyro_.transpose(),
       " [rad/s]. Retrying...");
     gyro_sum_.setZero();

@@ -67,7 +67,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   {
     if (ardupilot_online_)
     {
-      warn(
+      TOBAS_WARN(
         "Broken ArduPilot connection, count [", connection_timeout_count_, "/",
         kMaxConnectionTimeoutCount, "]");
       if (++connection_timeout_count_ > kMaxConnectionTimeoutCount)
@@ -83,7 +83,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
   const ssize_t expected_pkt_size = sizeof(pkt.motorSpeed[0]) * channels_.size();
   if (recv_size < expected_pkt_size)
   {
-    error(
+    TOBAS_ERROR(
       "Got less than model needs. Got: ", recv_size,
       "commands, expected size: ", expected_pkt_size);
   }
@@ -110,7 +110,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
     }
     else
     {
-      error(
+      TOBAS_ERROR(
         "control[", i, "] channel[", channels_[i], "] is greater than incoming commands size[",
         recv_channels, "], control not applied.");
     }

@@ -109,7 +109,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
-      error(tf_listener_.getErrorMessage());
+      TOBAS_ERROR(tf_listener_.getErrorMessage());
       continue;
     }
 
@@ -156,7 +156,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
-    warn(
+    TOBAS_WARN(
       "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
       " seconds have elapsed since the last command.");
   }

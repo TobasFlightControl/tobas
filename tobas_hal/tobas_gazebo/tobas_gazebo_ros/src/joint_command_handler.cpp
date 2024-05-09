@@ -99,7 +99,7 @@ void JointCommandHandler::jointPositionsCmdCb(
     }
     else
     {
-      warn(
+      TOBAS_WARN(
         "Transmission type for joint '", jnt_name,
         "' is not position. So received position command for joint '", jnt_name, "' is ignored.");
     }
@@ -134,7 +134,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(
     }
     else
     {
-      warn(
+      TOBAS_WARN(
         "Transmission type for joint '", jnt_name,
         "' is not velocity. So received velocity command for joint '", jnt_name, "' is ignored.");
     }
@@ -167,7 +167,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     }
     else
     {
-      warn(
+      TOBAS_WARN(
         "Transmission type for joint '", jnt_name,
         "' is not effort. So received effort command for joint '", jnt_name, "' is ignored.");
     }

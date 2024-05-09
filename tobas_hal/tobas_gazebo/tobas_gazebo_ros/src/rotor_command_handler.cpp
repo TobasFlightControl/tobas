@@ -76,13 +76,13 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)
     {
-      warn(
+      TOBAS_WARN(
         "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      warn(
+      TOBAS_WARN(
         "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
         " [rad/s]");
       tar_speed = max_speed;

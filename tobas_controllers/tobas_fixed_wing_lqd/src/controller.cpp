@@ -230,10 +230,10 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
     case tobas::SolverI::E_NO_ERROR:
       break;
     case tobas::SolverI::E_WARN:
-      warn(eom_.errorMessage());
+      TOBAS_WARN(eom_.errorMessage());
       break;
     case tobas::SolverI::E_ERROR:
-      error(eom_.errorMessage());
+      TOBAS_ERROR(eom_.errorMessage());
       return;
     default:
       TOBAS_WARN("Unknown error code from MicroDisturbanceEoM.");

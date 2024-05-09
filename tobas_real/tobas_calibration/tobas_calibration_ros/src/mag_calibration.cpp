@@ -36,7 +36,7 @@ void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)
   // データサイズが最大値以上ならば強制終了
   if (mag_data_.size() >= kMaxDataCount)
   {
-    error("The size of magnetic field vectors is over maximum. Data collection is stopped.");
+    TOBAS_ERROR("The size of magnetic field vectors is over maximum. Data collection is stopped.");
     mag_data_.clear();
     collect_data_timer_.stop();
     return;

@@ -109,7 +109,7 @@ void EscCalibrationRos::disablePWM()
   {
     enable_pwm_msg.request.channel = rotor.channel;
     if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
-      error("Failed to disable PWM of CH", rotor.channel, ".");
+      TOBAS_ERROR("Failed to disable PWM of CH", rotor.channel, ".");
   }
 }
 
@@ -147,7 +147,7 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
     return;
 
   // バッテリーが接続されるのを待つ
-  info("Waiting for battery connection.");
+  TOBAS_INFO("Waiting for battery connection.");
   while (!isBatteryConnected())
   {
     if ((ros::Time::now() - action_called_time).toSec() > kTimeout)
@@ -160,11 +160,11 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   }
 
   // 最大スロットルを指令
-  info("Sending maximum throttle.");
+  TOBAS_INFO("Sending maximum throttle.");
   sendMaximum();
 
   // 最小スロットルを指令
-  info("Sending minimum throttle.");
+  TOBAS_INFO("Sending minimum throttle.");
   sendMinimum();
 
   // PWMを無効化

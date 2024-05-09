@@ -115,7 +115,7 @@ bool MotorsHandler::preArmCheck()
   std_srvs::Trigger pre_arm_check_msg;
   if (!pre_arm_check_sc_.call(pre_arm_check_msg) || !pre_arm_check_msg.response.success)
   {
-    error(pre_arm_check_msg.response.message);
+    TOBAS_ERROR(pre_arm_check_msg.response.message);
     return false;
   }
 
@@ -172,13 +172,13 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)  // モータテストでも使用するため，ここではARM_THROTTLEの制約を課さない
     {
-      warn(
+      TOBAS_WARN(
         "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      warn(
+      TOBAS_WARN(
         "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
         " [rad/s]");
       tar_speed = max_speed;
@@ -286,7 +286,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     if (is_activated_)
     {
       is_activated_ = false;
-      warn(
+      TOBAS_WARN(
         "The speeds of all rotors are automatically stopped because ",
         tobas::kAutoResetTimeThreshold, " seconds have elapsed since the last command.");
     }
