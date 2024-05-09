@@ -19,7 +19,7 @@ class SensorModel(ET.Element):
         # robot/gazebo
         super().__init__("gazebo", reference=link_name)
 
-        # robot/gazebo/self.sensor
+        # robot/gazebo/sensor
         self.sensor = ET.SubElement(self, "sensor")
         self.sensor.attrib["name"] = sensor_name
         self.sensor.attrib["type"] = sensor_type

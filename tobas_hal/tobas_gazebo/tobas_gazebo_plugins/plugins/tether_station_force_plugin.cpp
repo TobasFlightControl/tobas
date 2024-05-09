@@ -38,7 +38,7 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo&)
   const auto& W_Rot_B = link_->WorldPose().Rot();
   const auto B_Pos_PQ = W_Rot_B.Inverse() * (W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
   const auto axis = -B_Pos_PQ.Normalized();
-  const auto force = tension_ * axis;
+  const auto force = tension_ * axis;  // TODO: 実際張力は一定ではない．より詳細な張力モデルを実装．
   link_->AddLinkForce(force, B_Pos_BQ_);
 }
 

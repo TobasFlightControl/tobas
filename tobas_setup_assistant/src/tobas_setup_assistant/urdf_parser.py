@@ -114,6 +114,14 @@ class URDFParser(QObject):
                 res.append(link.name)
         return res
 
+    def link_names_available_in_gazebo(self) -> List[str]:
+        """
+        Gazeboで扱えるリンク名を返す．\\
+        Gazeboの仕様で，ルートリンクまたは可動関節をもつリンク以外は省略されてしまう．
+        """
+        root_name = self.get_root().name
+        return [root_name] + self.link_names_with_mobile_joint()
+
     def global_pose(self, link_name: str) -> Frame:
         return self._tree.global_pose(link_name)
 

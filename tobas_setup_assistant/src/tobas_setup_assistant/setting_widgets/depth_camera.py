@@ -39,7 +39,7 @@ class DepthCameraWidget(BaseSettingWidget):
         self._rows.addWidget(self._equipped)
 
         link_description = "The name of the link to which the camera is attached."
-        self.link = ParamGetterWidget_ComboBox("Link name", link_description, [])
+        self.link = ParamGetterWidget_ComboBox("Link name", link_description)
         self._rows.addWidget(self.link)
 
         self.offset = ParamGetterWidget_Pose("Offset", CAMERA_OFFSET_DESCRIPTION)
@@ -138,7 +138,4 @@ class DepthCameraWidget(BaseSettingWidget):
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
-        # Gazeboの仕様で，ルートリンクまたは可動関節をもつリンクのみ指定可能
-        root_name = self._main.urdf_parser.get_root().name
-        body_choices = [root_name] + self._main.urdf_parser.link_names_with_mobile_joint()
-        self.link.set_choices(body_choices)
+        self.link.set_choices(self._main.urdf_parser.link_names_available_in_gazebo())

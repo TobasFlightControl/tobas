@@ -94,6 +94,9 @@ class PackageGenerator(QObject):
         if not self._main.settings.odometry.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.odometry)
             return False
+        if not self._main.settings.tether_station.is_valid():
+            self._main.settings.switch_to_tab(self._main.settings.tether_station)
+            return False
         if not self._main.settings.controller.is_valid():
             self._main.settings.switch_to_tab(self._main.settings.controller)
             return False
@@ -533,6 +536,7 @@ class PackageGenerator(QObject):
         depth_camera = self._main.settings.depth_camera
         lidar = self._main.settings.lidar
         odometry = self._main.settings.odometry
+        tether_station = self._main.settings.tether_station
         simulation = self._main.settings.simulation
 
         # XML namespace
@@ -764,6 +768,16 @@ class PackageGenerator(QObject):
                 angvel_uniform_noise_scale=odometry.angvel_uniform_noise_scale.get(),
             )
             robot.append(odometry_model)
+
+        # Tether Station plugin
+        if tether_station.equipped():
+            add_tether_station_model(
+                robot=robot,
+                link_name=tether_station.link.get(),
+                world_end=tether_station.world_end.get(),
+                drone_end=tether_station.drone_end.get(),
+                tension=tether_station.tension.get(),
+            )
 
         # Ground Truth State plugin
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)

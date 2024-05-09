@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-import math
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -18,7 +17,7 @@ class SimulationWidget(BaseSettingWidget):
     NAME = "Simulation"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Gazebo Simulation"
+        title_text = "Define Simulation Environment"
         abst_text = (
             "Configure the settings for the Gazebo simulation environment. "
             "To enhance the accuracy of the simulation, please input information about the actual operating environment."

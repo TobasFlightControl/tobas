@@ -26,8 +26,8 @@ DEFAULT_NUM_FLIGHT_MODES = 2
 ROSLAUNCH_TIMEOUT = 5  # [s]
 PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
 
-SENSOR_OFFSET_DESCRIPTION = "ルートリンクの基準点 (ドローンウィンドウ中の座標軸の交点) に対するセンサフレームの基準点のオフセット．"
-CAMERA_OFFSET_DESCRIPTION = "選択したフレームの基準点に対するカメラフレームの基準点のオフセット．"
+SENSOR_OFFSET_DESCRIPTION = "The pose of the sensor frame wrt. the the drone root frame."
+CAMERA_OFFSET_DESCRIPTION = "The pose of the camera frame wrt. the the selected link frame."
 
 
 class Signals(QObject):
