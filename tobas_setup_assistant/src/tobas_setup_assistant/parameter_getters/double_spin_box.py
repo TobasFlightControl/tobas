@@ -1,7 +1,5 @@
 from typing import Optional
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
 from tobas_std_tools_py.string import convert_superscript
 from tobas_rqt_tools.widgets import DoubleSpinBox

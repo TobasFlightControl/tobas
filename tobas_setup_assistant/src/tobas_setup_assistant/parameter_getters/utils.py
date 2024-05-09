@@ -1,11 +1,11 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QSizePolicy
+from PyQt5.QtGui import QFont
 
 from tobas_std_tools_py.string import convert_superscript
 from tobas_rqt_tools.widgets import SpinBox, DoubleSpinBox
 
-from ..common import *
+from ..common import BODY_PSIZE
 
 
 class IntGetter(QWidget):

@@ -1,7 +1,6 @@
 from typing import Tuple, List, Optional
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QHBoxLayout
 
 from .base import ParamGetterWidget
 from .utils import FloatGetter
