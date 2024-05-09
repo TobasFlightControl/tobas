@@ -5,19 +5,19 @@
 
 namespace gazebo
 {
-class GazeboDroneSpiderForcePlugin : public ModelPlugin
+class GazeboTetherStationForcePlugin : public ModelPlugin
 {
   // Constants
-  static constexpr char kPluginName[] = "drone_spider_force_plugin";
+  static constexpr char kPluginName[] = "tether_station_force_plugin";
 
   // Default parameters
   static constexpr double kDefaultTension = 1.;  // [N]
 
-  using self = GazeboDroneSpiderForcePlugin;
+  using self = GazeboTetherStationForcePlugin;
   using super = ModelPlugin;
 
 public:
-  explicit GazeboDroneSpiderForcePlugin();
+  explicit GazeboTetherStationForcePlugin();
 
 protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;

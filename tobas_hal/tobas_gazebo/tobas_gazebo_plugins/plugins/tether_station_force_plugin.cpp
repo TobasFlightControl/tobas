@@ -1,4 +1,4 @@
-#include "./drone_spider_force_plugin.hpp"
+#include "./tether_station_force_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 
 using namespace std;
@@ -6,11 +6,11 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-GazeboDroneSpiderForcePlugin::GazeboDroneSpiderForcePlugin() : super()
+GazeboTetherStationForcePlugin::GazeboTetherStationForcePlugin() : super()
 {
 }
 
-void GazeboDroneSpiderForcePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 {
   gzmsg << "Loading " << kPluginName << "." << endl;
 
@@ -24,7 +24,7 @@ void GazeboDroneSpiderForcePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
     event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboDroneSpiderForcePlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboTetherStationForcePlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, Vector3d::Zero);
@@ -32,7 +32,7 @@ void GazeboDroneSpiderForcePlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "tension", tension_, kDefaultTension);
 }
 
-void GazeboDroneSpiderForcePlugin::onUpdate(const common::UpdateInfo&)
+void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo&)
 {
   const auto& W_Pos_WB = link_->WorldPose().Pos();
   const auto& W_Rot_B = link_->WorldPose().Rot();
@@ -42,5 +42,5 @@ void GazeboDroneSpiderForcePlugin::onUpdate(const common::UpdateInfo&)
   link_->AddLinkForce(force, B_Pos_BQ_);
 }
 
-GZ_REGISTER_MODEL_PLUGIN(GazeboDroneSpiderForcePlugin);
+GZ_REGISTER_MODEL_PLUGIN(GazeboTetherStationForcePlugin);
 }  // namespace gazebo

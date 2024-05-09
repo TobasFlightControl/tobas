@@ -6,16 +6,16 @@
 
 namespace gazebo
 {
-class GazeboDroneSpiderVisualPlugin : public VisualPlugin
+class GazeboTetherStationVisualPlugin : public VisualPlugin
 {
   // Constants
-  static constexpr char kPluginName[] = "drone_spider_visual_plugin";
+  static constexpr char kPluginName[] = "tether_station_visual_plugin";
 
-  using self = GazeboDroneSpiderVisualPlugin;
+  using self = GazeboTetherStationVisualPlugin;
   using super = VisualPlugin;
 
 public:
-  explicit GazeboDroneSpiderVisualPlugin();
+  explicit GazeboTetherStationVisualPlugin();
 
 protected:
   void Load(rendering::VisualPtr visual, sdf::ElementPtr sdf) override;
