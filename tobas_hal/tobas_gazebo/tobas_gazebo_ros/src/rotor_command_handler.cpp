@@ -105,8 +105,6 @@ bool RotorCommandHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetAr
 
 bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
 {
-  res.success = false;
-
   if (!is_armed_ && req.arming)
   {
     // Pre-arm check
@@ -114,11 +112,13 @@ bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::S
     {
       if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
       {
+        res.success = false;
         res.message = "Failed to connect to pre-arm check service server.";
         return true;
       }
       if (!pre_arm_check_sc_.call(pre_arm_check_msg_) || !pre_arm_check_msg_.response.success)
       {
+        res.success = false;
         res.message = pre_arm_check_msg_.response.message;
         return true;
       }

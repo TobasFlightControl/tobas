@@ -58,7 +58,7 @@ bool TakeoffActionServer::armRotors()
   set_arm_msg.request.arming = true;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    as_.setAborted(result_, "Failed to arm rotors.");
+    as_.setAborted(result_, "Failed to arm rotors: " + set_arm_msg.response.message);
     return false;
   }
 

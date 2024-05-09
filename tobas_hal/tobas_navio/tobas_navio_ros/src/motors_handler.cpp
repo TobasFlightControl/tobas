@@ -245,18 +245,18 @@ bool MotorsHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetArmRespo
 
 bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
 {
-  res.success = false;
-
   if (!is_armed_ && req.arming)
   {
     if (!req.ignore_pre_arm_check && !preArmCheck())
     {
+      res.success = false;
       res.message = "Pre-arm check failed.";
       return true;
     }
 
     if (!armRotors())
     {
+      res.success = false;
       res.message = "Failed to enable PWMs.";
       return true;
     }
@@ -265,6 +265,7 @@ bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmR
   {
     if (!disarmRotors())
     {
+      res.success = false;
       res.message = "Failed to disable PWMs.";
       return true;
     }
