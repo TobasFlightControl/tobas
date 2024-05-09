@@ -19,7 +19,7 @@ class BarometerWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Air Pressure Sensor"
-        abst_text = ""
+        abst_text = ""  # TODO
         super().__init__(main, title_text, abst_text)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")

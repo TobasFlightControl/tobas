@@ -1,8 +1,7 @@
-import os.path as osp
 import math
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QFont
 
 
 # Physics Constants
@@ -26,8 +25,9 @@ DEFAULT_NUM_FLIGHT_MODES = 2
 ROSLAUNCH_TIMEOUT = 5  # [s]
 PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
 
-SENSOR_OFFSET_DESCRIPTION = "The pose of the sensor frame wrt. the the drone root frame."
+CAMERA_LINK_DESCRIPTION = "The name of the link to which the camera is attached."
 CAMERA_OFFSET_DESCRIPTION = "The pose of the camera frame wrt. the the selected link frame."
+SENSOR_OFFSET_DESCRIPTION = "The pose of the sensor frame wrt. the the drone root frame."
 
 
 class Signals(QObject):
