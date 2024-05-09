@@ -82,6 +82,3 @@ class SettingsWidget(VerticalTabWidget):
         self.simulation.define_connections()
         self.author_information.define_connections()
         self.ros_package.define_connections()
-
-    def switch_to_tab(self, tab: QWidget) -> None:
-        self.switch(tab)

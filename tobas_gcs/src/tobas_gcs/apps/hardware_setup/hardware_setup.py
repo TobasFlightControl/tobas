@@ -74,6 +74,3 @@ class HardwareSetupWidget(BaseAppWidget):
         # self._noise_calib.update_internal_data_structures()  # TODO
         self._esc_calib.update_internal_data_structures()
         self._motor_test.update_internal_data_structures()
-
-    def switch_to_tab(self, tab: QWidget) -> None:
-        self._tabs.switch(tab)
