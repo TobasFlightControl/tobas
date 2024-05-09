@@ -72,6 +72,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         self._start_button.clicked.connect(self._on_start_button_clicked)
@@ -81,11 +83,13 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
     @override
     def update_internal_data_structures(self) -> None:
         # Rvizのトピックを変更
-        self._point_topic.setValue(f"/{self._drone.drone_name}/mag_calibration/magnetic_field_raw")
+        self._point_topic.setValue(f"{self._drone.drone_name}/mag_calibration/magnetic_field_raw")
+
+        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        calib_start_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/start", Trigger)
+        calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/start", Trigger)
 
         try:
             calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
@@ -131,7 +135,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/cancel", Trigger)
+        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/cancel", Trigger)
         try:
             calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -157,7 +161,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Magnet calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_finish_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/mag_calibration/finish", MagCalibration)
+        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/finish", MagCalibration)
 
         try:
             calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
@@ -180,7 +184,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/imu_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/imu_handler/reload_config", Trigger)
         try:
             reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:

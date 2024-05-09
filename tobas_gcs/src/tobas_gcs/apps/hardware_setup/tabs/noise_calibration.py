@@ -21,10 +21,12 @@ class NoiseCalibrationWidget(BaseHardwareSetupWidget):
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         pass
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self.setEnabled(True)

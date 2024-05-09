@@ -56,7 +56,7 @@ class ParamBlockWidget(QWidget):
         # Dynamic Reconfigureのクライアントを作成
         if self._client is None:
             try:
-                self._client = client.Client(f"/{self._drone.drone_name}/{self._node_name}", timeout=self.TIMEOUT)
+                self._client = client.Client(f"{self._drone.drone_name}/{self._node_name}", timeout=self.TIMEOUT)
             except Exception:
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False

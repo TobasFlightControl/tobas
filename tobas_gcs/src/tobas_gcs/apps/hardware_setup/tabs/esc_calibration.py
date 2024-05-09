@@ -24,6 +24,8 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
     NAME = "ESC Calibration"
     TITLE = "Calibrate ESCs"
 
+    TIMEOUT = 60  # [s]
+
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
@@ -46,20 +48,20 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         self._start_button.clicked.connect(self._on_start_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        esc_calib_ac = actionlib.SimpleActionClient(f"/{self._drone.drone_name}/esc_calibration", EscCalibrationAction)
-        try:
-            esc_calib_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER))
-        except rospy.ROSException:
+        esc_calib_ac = actionlib.SimpleActionClient(f"{self._drone.drone_name}/esc_calibration", EscCalibrationAction)
+        if not esc_calib_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER)):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 

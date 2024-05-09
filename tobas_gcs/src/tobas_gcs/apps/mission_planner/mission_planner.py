@@ -256,7 +256,7 @@ class MissionPlannerWidget(BaseAppWidget):
             return
 
         try:
-            gps: Gps = rospy.wait_for_message(f"/{self._drone.drone_name}/gps", Gps, WAIT_FOR_SERVER)
+            gps: Gps = rospy.wait_for_message(f"{self._drone.drone_name}/gps", Gps, WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self._main, "Failed to get GNSS message.")
             return

@@ -79,7 +79,7 @@ class _OrientationViewerWidget(Widget):
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
-        self._euler_sub = rospy.Subscriber(f"/{self._drone.drone_name}/euler", Euler, self._euler_cb, queue_size=1)
+        self._euler_sub = rospy.Subscriber(f"{self._drone.drone_name}/euler", Euler, self._euler_cb, queue_size=1)
 
         self._timer.start(PAINT_REFRESH_PERIOD)
 

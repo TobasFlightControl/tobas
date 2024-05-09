@@ -63,7 +63,7 @@ class ConsoleWidget(BaseAppWidget):
         if self._message_sub is not None:
             self._message_sub.unregister()
         self._message_sub = rospy.Subscriber(
-            f"/{self._drone.drone_name}/message", Message, self._message_cb, queue_size=1
+            f"{self._drone.drone_name}/message", Message, self._message_cb, queue_size=1
         )
 
     def _message_cb(self, message: Message) -> None:

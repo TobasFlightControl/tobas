@@ -58,7 +58,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         if self._latency_sub is not None:
             self._latency_sub.unregister()
         self._latency_sub = rospy.Subscriber(
-            f"/{self._drone.drone_name}/latency", Latency, self._latency_cb, queue_size=1
+            f"{self._drone.drone_name}/latency", Latency, self._latency_cb, queue_size=1
         )
 
         self._timer.start(PAINT_REFRESH_PERIOD)
