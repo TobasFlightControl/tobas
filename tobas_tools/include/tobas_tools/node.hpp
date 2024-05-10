@@ -107,12 +107,18 @@ inline std::string BaseNode::ns() const
 template <typename... Args>
 void BaseNode::log(uint8_t level, const Args&... args) const
 {
+  // Publish message
   const auto message = boost::make_shared<tobas_msgs::Message>();
   message->header.stamp = ros::Time::now();
   message->level = level;
   message->name = name_;
   message->message = tobas_std::buildString(args...);
   message_pub_.publish(message);
+
+  // Output message to the console
+  ROS_LOG_STREAM(
+    static_cast<ros::console::Level>(level), ROSCONSOLE_DEFAULT_NAME,
+    "[" << name_ << "] " << message->message);
 }
 
 template <typename... Args>

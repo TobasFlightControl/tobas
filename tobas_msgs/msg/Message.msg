@@ -3,8 +3,9 @@ uint8 level
 string name
 string message
 
-uint8 DEBUG = 1
-uint8 INFO = 2
-uint8 WARN = 4
-uint8 ERROR = 8
-uint8 FATAL = 16
+# Message level (same as ros::console::levels::Level)
+uint8 DEBUG = 0
+uint8 INFO = 1
+uint8 WARN = 2
+uint8 ERROR = 3
+uint8 FATAL = 4
