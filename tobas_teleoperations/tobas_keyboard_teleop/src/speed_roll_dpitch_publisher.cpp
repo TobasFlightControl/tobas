@@ -26,12 +26,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   const string& name)
   : super(nh, pnh, name),
     trim_(drone_),
-    check_topics_timer_(
-      nh_,
-      tobas::kCheckTopicsTimerPeriod,
-      &self::checkTopicsTimerCb,
-      this,
-      false),
+    check_topics_timer_(nh_, tobas::kCheckTopicsMsgPeriod, &self::checkTopicsTimerCb, this, false),
     instruction_timer_(nh_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)
 {
   instruction_ = "Control your drone!\n"

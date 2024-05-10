@@ -1,13 +1,11 @@
 #pragma once
 
-#include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/FluidPressure.h>
+#include <std_msgs/Bool.h>
 
-#include <tobas_ros_tools/timer.hpp>
 #include <tobas_linear_control/c2d/rk4.hpp>
 #include <tobas_linear_control/mpc/linear_dense.hpp>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
@@ -23,6 +21,7 @@ namespace tobas_fixed_wing_mpc
 {
 class Controller : public tobas::BaseNode
 {
+  using self = Controller;
   using super = tobas::BaseNode;
 
   using ConfigType = tobas_fixed_wing_mpc::ControllerConfig;
@@ -35,21 +34,21 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
+  // Drone
   tobas::Drone drone_;
-
   tobas::RotorAxisExtractor x_rotors_;
   tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
   // 固定値
   KDL::JntArray q_0_;
 
-  bool is_initialized_ = false;
   double cur_roll_, cur_pitch_, cur_yaw_;
   sensor_msgs::FluidPressureConstPtr air_pressure_;  // 大気圧
   tobas_msgs::BatteryConstPtr battery_;              // 現在のバッテリーの状態
   tobas_msgs::OdometryConstPtr odom_nwu_;            // 現在の状態 (NWU座標系)
   tobas_msgs::SpeedRollDeltaPitchConstPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
   tobas_msgs::Odometry odom_ned_;                    // 現在の状態 (NED座標系)
+  std_msgs::BoolConstPtr arming_;                    // ロータのアーム状態
   tobas_msgs::SpeedRollDeltaPitch cmd_ned_;          // 現在のコマンド (NED座標系)
 
   ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
@@ -62,16 +61,13 @@ private:
   ros::Subscriber air_pressure_sub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
+  ros::Subscriber arming_sub_;
   ros::Subscriber cmd_sub_;
-
-  // Timer
-  tobas_ros::Timer check_topics_timer_;
 
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  bool isReady();
-  void initialize();
+  bool isReadyToControl();
   void setCz();
   void setScales();
   void setInputConstraint();
@@ -85,9 +81,9 @@ private:
   void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu);
+  void armingCb(const std_msgs::BoolConstPtr& arming);
   void commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_fixed_wing_mpc

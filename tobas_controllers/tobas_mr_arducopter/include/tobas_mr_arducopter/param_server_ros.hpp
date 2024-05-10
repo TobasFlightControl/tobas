@@ -1,4 +1,5 @@
-#include <ros/ros.h>
+#pragma once
+
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_reconfigure/Config.h>
 #include <geometry_msgs/PoseStamped.h>

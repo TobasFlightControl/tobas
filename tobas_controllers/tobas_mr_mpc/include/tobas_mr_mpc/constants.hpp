@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cinttypes>
+#include <cstddef>
 
 namespace tobas_mr_mpc
 {

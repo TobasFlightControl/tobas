@@ -12,16 +12,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace tobas_fixed_wing_lqd
 {
 Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name),
-    x_rotors_(drone_, tobas::Axis::X_POSITIVE),
-    eom_(drone_),
-    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &Controller::checkTopicsTimerCb, this),
-    server_(pnh_)
+  : super(nh, pnh, name), x_rotors_(drone_, tobas::Axis::X_POSITIVE), eom_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
 
@@ -39,38 +34,68 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   lqd_.input_rate_weight.resize(eom_.inputSize());
   lqd_.current_state.resize(eom_.kStateSize);
   lqd_.target_state.resize(eom_.kStateSize);
+  lqd_.last_input = VectorXd::Zero(eom_.inputSize());
 
+  // Register publishers
   rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
   deflections_pub_ =
     nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
   feedback_pub_ =
     nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
 
+  // Register subscribers
   air_pressure_sub_ =
-    nh_.subscribe(tobas::kAirPressureTopic, 1, &Controller::airPressureCb, this, tcpNoDelay());
-  battery_sub_ =
-    nh_.subscribe(tobas::kBatteryLpfTopic, 1, &Controller::batteryCb, this, tcpNoDelay());
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &Controller::odomCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
   cmd_sub_ =
-    nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &Controller::commandCb, this, tcpNoDelay());
+    nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 
   // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&Controller::dynamicReconfigureCb, this, _1, _2);
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
 }
 
-bool Controller::isReady()
+bool Controller::isReadyToControl()
 {
-  return air_pressure_ != nullptr && battery_ != nullptr && odom_nwu_ != nullptr;
-}
+  if (air_pressure_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kAirPressureTopic);
+    return false;
+  }
 
-void Controller::initialize()
-{
-  // 最新の制御時刻
-  t_last_loop_ = odom_ned_.header.stamp;
+  if (battery_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
+    return false;
+  }
 
-  // 制御入力の初期値
-  lqd_.last_input = VectorXd::Zero(eom_.inputSize());
+  if (odom_nwu_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kOdometryTopic);
+    return false;
+  }
+
+  if (odom_nwu_->status != tobas_msgs::Odometry::NO_ERROR)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
+    return false;
+  }
+
+  if (arming_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kArmingTopic);
+    return false;
+  }
+
+  if (!arming_->data)
+    return false;
+
+  return true;
 }
 
 void Controller::setScales()
@@ -91,9 +116,7 @@ void Controller::setScales()
   const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
   for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
-  {
     lqd_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
-  }
 }
 
 void Controller::updateCurrentStateVector()
@@ -132,7 +155,7 @@ void Controller::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
 }
 
-void Controller::publishRotSpeeds(const Eigen::VectorXd& thrust)
+void Controller::publishRotSpeeds(const VectorXd& thrust)
 {
   const auto rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
   rot_speeds->header.stamp = odom_ned_.header.stamp;
@@ -144,7 +167,7 @@ void Controller::publishRotSpeeds(const Eigen::VectorXd& thrust)
   rot_speeds_pub_.publish(rot_speeds);
 }
 
-void Controller::publishDeflections(const Eigen::VectorXd& deflections)
+void Controller::publishDeflections(const VectorXd& deflections)
 {
   const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
   deflections_msg->header.stamp = odom_ned_.header.stamp;
@@ -152,7 +175,7 @@ void Controller::publishDeflections(const Eigen::VectorXd& deflections)
   deflections_pub_.publish(deflections_msg);
 }
 
-void Controller::publishFeedback(const Eigen::VectorXd& du)
+void Controller::publishFeedback(const VectorXd& du)
 {
   const auto& trim = eom_.trimCondition();
   const auto feedback = boost::make_shared<tobas_msgs::FixedWingControllerFeedback>();
@@ -193,27 +216,18 @@ void Controller::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 
 void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
 {
-  if (odom_nwu->status != tobas_msgs::Odometry::NO_ERROR)
-    return;
-
-  odom_nwu_ = odom_nwu;
-
-  if (!is_initialized_)
+  if (odom_nwu_ == nullptr)
   {
-    if (isReady())
-    {
-      check_topics_timer_.stop();
-      initialize();
-      is_initialized_ = true;
-      TOBAS_INFO("Controller is ready.");
-    }
+    odom_nwu_ = odom_nwu;
     return;
   }
 
-  // 時刻を更新
-  const auto& cur_time = odom_nwu->header.stamp;
-  const auto dt = (cur_time - t_last_loop_).toSec();
-  t_last_loop_ = cur_time;
+  // 経過時間を計算してオドメトリを更新
+  const auto dt = (odom_nwu->header.stamp - odom_nwu_->header.stamp).toSec();
+  odom_nwu_ = odom_nwu;
+
+  if (!isReadyToControl())
+    return;
 
   // コマンドが来ていなければスキップ
   if (cmd_nwu_ == nullptr)
@@ -264,33 +278,59 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   publishFeedback(du);
 }
 
+void Controller::armingCb(const std_msgs::BoolConstPtr& arming)
+{
+  arming_ = arming;
+
+  if (!arming->data)
+  {
+    cmd_nwu_ = nullptr;
+    lqd_.last_input.setZero();
+    TOBAS_INFO("Controller is reset.");
+  }
+}
+
 void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nwu)
 {
-  if (!is_initialized_)
+  if (!isReadyToControl())
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
+  }
+
+  // TODO: コマンドレベルの処理
 
   cmd_nwu_ = cmd_nwu;
 }
 
-void Controller::checkTopicsTimerCb(const ros::TimerEvent&)
-{
-  if (air_pressure_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kAirPressureTopic);
-
-  if (battery_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kBatteryLpfTopic);
-
-  if (odom_nwu_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kOdometryTopic);
-}
-
 void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
-  ROS_ASSERT(cfg.forward_speed_weight > 0.);
-  ROS_ASSERT(cfg.alpha_weight > 0.);
-  ROS_ASSERT(cfg.beta_weight > 0.);
-  ROS_ASSERT(cfg.attitude_weight > 0.);
-  ROS_ASSERT(cfg.angular_velocity_weight > 0.);
+  if (cfg.forward_speed_weight <= 0)
+  {
+    TOBAS_ERROR("Forward speed weight must be positive.");
+    return;
+  }
+  if (cfg.alpha_weight <= 0)
+  {
+    TOBAS_ERROR("Alpha weight must be positive.");
+    return;
+  }
+  if (cfg.beta_weight <= 0)
+  {
+    TOBAS_ERROR("Beta weight must be positive.");
+    return;
+  }
+  if (cfg.attitude_weight <= 0)
+  {
+    TOBAS_ERROR("Attitude weight must be positive.");
+    return;
+  }
+  if (cfg.angular_velocity_weight <= 0)
+  {
+    TOBAS_ERROR("Angular velocity weight must be positive.");
+    return;
+  }
 
   // 状態変数の重み
   lqd_.state_weight(eom_.kStateIdx_u) = cfg.forward_speed_weight;
@@ -313,5 +353,7 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   const auto deflection_rate_weight = exp10(cfg.deflection_rate_weight_log10);
   lqd_.input_rate_weight.head(x_rotors_.count()).fill(thrust_rate_weight);
   lqd_.input_rate_weight.tail(drone_.numControlSurfaces()).fill(deflection_rate_weight);
+
+  TOBAS_INFO("Dynamic parameters are updated.");
 }
 }  // namespace tobas_fixed_wing_lqd

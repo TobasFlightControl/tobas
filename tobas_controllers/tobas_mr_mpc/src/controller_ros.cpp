@@ -1,7 +1,4 @@
-#include <tobas_std_tools/vector.hpp>
-#include <tobas_eigen_tools/core.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -10,8 +7,8 @@
 #include "../include/tobas_mr_mpc/controller_ros.hpp"
 
 using namespace std;
-using namespace KDL;
 using namespace Eigen;
+using namespace KDL;
 
 namespace tobas_mr_mpc
 {
@@ -24,7 +21,6 @@ ControllerRos::ControllerRos(
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
     acc_ctrl_(drone_),
     ori_ctrl_(drone_),
-    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
     server_(pnh_)
 {
   getRosParams();
@@ -63,35 +59,73 @@ void ControllerRos::registerSubscribers()
   rotor_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
   if (drone_.isTransformable())
-    joint_state_sub_ =
-      nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
+    js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
   if (do_thrust_correction_)
     thrust_corr_factor_sub_ = nh_.subscribe(
       tobas::kThrustCorrectionFactorTopic, 1, &self::thrustCorrectionFactorCb, this, tcpNoDelay());
+  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
 
   pvay_sub_ =
     nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
   rpyt_sub_ = nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &self::rpyThrustCb, this, tcpNoDelay());
 }
 
-bool ControllerRos::isReady() const
+bool ControllerRos::isReadyToControl()
 {
   if (odom_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kOdometryTopic);
     return false;
+  }
+
+  if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
+    return false;
+  }
 
   if (battery_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
     return false;
+  }
 
   if (wind_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kWindTopic);
     return false;
+  }
 
   if (rotor_speeds_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kRotorSpeedsTopic);
     return false;
+  }
 
   if (drone_.isTransformable() && js_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kJointStatesTopic);
     return false;
+  }
 
   if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kThrustCorrectionFactorTopic);
+    return false;
+  }
+
+  if (arming_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kArmingTopic);
+    return false;
+  }
+
+  if (!arming_->data)
     return false;
 
   return true;
@@ -99,28 +133,18 @@ bool ControllerRos::isReady() const
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
-    return;
-
-  // 状態を更新
-  odom_ = odom;
-
-  // 初期化
-  if (!is_initialized_)
+  if (odom_ == nullptr)
   {
-    if (isReady())
-    {
-      check_topics_timer_.stop();
-      t_last_loop_ = odom->header.stamp;
-      is_initialized_ = true;
-      TOBAS_INFO("Controller is ready.");
-    }
+    odom_ = odom;
     return;
   }
 
-  // 時刻を更新
-  const auto dt = (odom->header.stamp - t_last_loop_).toSec();
-  t_last_loop_ = odom->header.stamp;
+  // 経過時間を計算してオドメトリを更新
+  const auto dt = (odom->header.stamp - odom_->header.stamp).toSec();
+  odom_ = odom;
+
+  if (!isReadyToControl())
+    return;
 
   // Create a feedback message
   const auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
@@ -135,8 +159,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     }
 
     // 世界座標系から見た現在の速度，加速度を計算
-    const Vector cur_vel_W = odom->frame.M * odom->twist.vel;
-    const Vector cur_acc_W = odom->frame.M * odom->accel.linear;
+    const auto cur_vel_W = odom->frame.M * odom->twist.vel;
+    const auto cur_acc_W = odom->frame.M * odom->accel.linear;
 
     // 目標加速度を計算
     pos_ctrl_.update(
@@ -238,14 +262,34 @@ void ControllerRos::thrustCorrectionFactorCb(const std_msgs::Float64ConstPtr& ms
   thrust_corr_factor_ = msg;
 }
 
+void ControllerRos::armingCb(const std_msgs::BoolConstPtr& arming)
+{
+  arming_ = arming;
+
+  // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
+  if (!arming->data)
+  {
+    tar_pvay_W_ = nullptr;
+    tar_rpyt_ = nullptr;
+    TOBAS_INFO("Command is reset.");
+  }
+}
+
 void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 {
-  if (!is_initialized_)
+  if (!isReadyToControl())
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
+  }
 
-  // コマンドレベルの処理
   if (!cmd_level_handler_.update(pvay->level.data, ros::Time::now()))
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
+  }
 
   // コマンドを更新
   tar_pvay_W_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
@@ -259,40 +303,27 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   }
 }
 
-void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust)
+void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt)
 {
-  if (!is_initialized_)
+  if (!isReadyToControl())
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
+  }
 
-  if (!cmd_level_handler_.update(rpy_thrust->level.data, ros::Time::now()))
+  if (!cmd_level_handler_.update(rpyt->level.data, ros::Time::now()))
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
+  }
 
   // 外側の制御を止める
   tar_pvay_W_ = nullptr;
 
   // コマンドを更新
-  tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpy_thrust);
-}
-
-void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
-{
-  if (odom_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kOdometryTopic);
-
-  if (battery_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kBatteryLpfTopic);
-
-  if (wind_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kWindTopic);
-
-  if (rotor_speeds_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kRotorSpeedsTopic);
-
-  if (drone_.isTransformable() && js_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kJointStatesTopic);
-
-  if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kThrustCorrectionFactorTopic);
+  tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpyt);
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

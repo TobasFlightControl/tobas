@@ -93,16 +93,18 @@ static constexpr char kMoveAction[] = "move_action";
 static constexpr char kWorldFrame[] = "world";
 static constexpr char kNavioFrame[] = "navio";
 
-// Flight Mode
+// Flight mode
 static constexpr size_t kFlightModeProgram = 0;
 static constexpr size_t kFlightModeStabilize = kFlightModeProgram + 1;
 static constexpr size_t kFlightModeAcrobat = kFlightModeStabilize + 1;
 static constexpr size_t kNumFlightModes = kFlightModeAcrobat + 1;
 
+// Console message period
+static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
+static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
+
 // Others
 static constexpr char kUnknown[] = "unknown";
-static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
-static constexpr double kCommandLevelErrorPeriod = 1.;   // [s]
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 1.;    // [s]
 static constexpr double kDisarmDuration = 3.;            // [s]

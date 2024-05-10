@@ -38,7 +38,7 @@ protected:
   inline std::string ns() const;
 
   template <typename... Args>
-  void log(uint8_t level, const Args&... args);
+  void log(uint8_t level, const Args&... args) const;
   template <typename... Args>
   void logOnce(const char* file, int line, uint8_t level, const Args&... args);
   template <typename... Args>
@@ -48,15 +48,15 @@ protected:
   void exit(const Args&... args);
 
   template <typename... Args>
-  inline void debug(const Args&... args);
+  inline void debug(const Args&... args) const;
   template <typename... Args>
-  inline void info(const Args&... args);
+  inline void info(const Args&... args) const;
   template <typename... Args>
-  inline void warn(const Args&... args);
+  inline void warn(const Args&... args) const;
   template <typename... Args>
-  inline void error(const Args&... args);
+  inline void error(const Args&... args) const;
   template <typename... Args>
-  inline void fatal(const Args&... args);
+  inline void fatal(const Args&... args) const;
 
   template <typename... Args>
   inline void debugOnce(const char* file, int line, const Args&... args);
@@ -105,7 +105,7 @@ inline std::string BaseNode::ns() const
 }
 
 template <typename... Args>
-void BaseNode::log(uint8_t level, const Args&... args)
+void BaseNode::log(uint8_t level, const Args&... args) const
 {
   const auto message = boost::make_shared<tobas_msgs::Message>();
   message->header.stamp = ros::Time::now();
@@ -160,31 +160,31 @@ void BaseNode::exit(const Args&... args)
 }
 
 template <typename... Args>
-inline void BaseNode::debug(const Args&... args)
+inline void BaseNode::debug(const Args&... args) const
 {
   log(tobas_msgs::Message::DEBUG, args...);
 }
 
 template <typename... Args>
-inline void BaseNode::info(const Args&... args)
+inline void BaseNode::info(const Args&... args) const
 {
   log(tobas_msgs::Message::INFO, args...);
 }
 
 template <typename... Args>
-inline void BaseNode::warn(const Args&... args)
+inline void BaseNode::warn(const Args&... args) const
 {
   log(tobas_msgs::Message::WARN, args...);
 }
 
 template <typename... Args>
-inline void BaseNode::error(const Args&... args)
+inline void BaseNode::error(const Args&... args) const
 {
   log(tobas_msgs::Message::ERROR, args...);
 }
 
 template <typename... Args>
-inline void BaseNode::fatal(const Args&... args)
+inline void BaseNode::fatal(const Args&... args) const
 {
   log(tobas_msgs::Message::FATAL, args...);
 }

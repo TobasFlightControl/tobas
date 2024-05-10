@@ -1,4 +1,5 @@
-#include <ros/ros.h>
+#pragma once
+
 #include <sensor_msgs/JointState.h>
 
 #include <tobas_tools/node.hpp>
