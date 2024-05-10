@@ -6,14 +6,11 @@ if TYPE_CHECKING:
 
 from overrides import override
 from abc import abstractmethod
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget
 
-from ...common import *
-from ...parameter_getters import *
+from ...common import TO_DO, Description
 
 
 class BaseObserver(Widget):

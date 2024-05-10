@@ -21,7 +21,6 @@ class BaseController(Widget):
     MOVE_PKG = TO_DO
     STABLIZE_MODE = TO_DO
     ACROBAT_MODE = TO_DO
-    PARAM_SERVER_NODE = TO_DO
 
     def __init__(self, main: SetupAssistant, abst_text: str) -> None:
         super().__init__()

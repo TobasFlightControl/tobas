@@ -5,14 +5,9 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
 
-from ...parameter_getters import *
-from ...common import *
 from .base import BaseObserver
 
 

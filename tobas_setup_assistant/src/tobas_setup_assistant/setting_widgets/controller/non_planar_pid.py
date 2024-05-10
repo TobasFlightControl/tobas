@@ -5,9 +5,6 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import QMessageLevel, yes_or_no
 from tobas_kdl_sympy.frames import Vector
@@ -25,7 +22,6 @@ class NonPlanarPid(BaseController):
     MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PoseTwistAccelCommand.__name__
     ACROBAT_MODE = PoseTwistAccelCommand.__name__  # TODO
-    PARAM_SERVER_NODE = "tobas_np_pid"
 
     MIN_NUM_PROP = 3
 

@@ -5,9 +5,6 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_kdl_sympy.frames import Vector
 from tobas_msgs.msg import SpeedRollDeltaPitch
@@ -24,7 +21,6 @@ class FixedWingLQR(BaseController):
     MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = SpeedRollDeltaPitch.__name__
     ACROBAT_MODE = SpeedRollDeltaPitch.__name__  # TODO
-    PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"
 
     MIN_NUM_PROP = 1
     MIN_NUM_CS = 2

@@ -6,17 +6,14 @@ if TYPE_CHECKING:
 
 from typing import List
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
 
 from tobas_rqt_tools.widgets import ComboBox
 
-from ...parameter_getters import *
-from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseObserver
 from .eskf import ErrorStateKalmanFilter
+from .custom import CustomObserver
 
 
 class ObserverWidget(BaseSettingWidget):
@@ -30,7 +27,7 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main)]
+        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main), CustomObserver(main)]
 
         self._type = ComboBox()
         self._rows.addWidget(self._type)

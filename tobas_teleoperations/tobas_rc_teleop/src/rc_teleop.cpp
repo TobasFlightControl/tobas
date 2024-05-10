@@ -37,7 +37,9 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   // その他の飛行モードのコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
-    if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
+    if (modes_[i] == "")
+      controllers_[i] = make_unique<ProgramModeController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
       controllers_[i] = make_unique<PosVelAccYawController>(drone_);
     else if (modes_[i] == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
       controllers_[i] = make_unique<PositionYawController>(drone_);
@@ -48,7 +50,12 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
     else if (modes_[i] == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
       controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
-      exit("Invalid flight mode: " + modes_[i]);
+    {
+      TOBAS_ERROR(
+        "Invalid flight mode: ", modes_[i],
+        ". The RC command for this mode will not be published.");
+      controllers_[i] = make_unique<ProgramModeController>(drone_);
+    }
 
     controllers_[i]->initialize(nh_, pnh_);
   }

@@ -7,9 +7,9 @@ if TYPE_CHECKING:
 from overrides import override
 from typing import List
 from dataclasses import dataclass
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.messages import q_error_named
 from tobas_rqt_tools.widgets import ComboBox
@@ -165,7 +165,6 @@ class ArduCopter(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PositionYaw.__name__
     ACROBAT_MODE = PositionYaw.__name__  # TODO
-    PARAM_SERVER_NODE = "arducopter_param_server"
 
     MIN_NUM_PROPS = 2
 

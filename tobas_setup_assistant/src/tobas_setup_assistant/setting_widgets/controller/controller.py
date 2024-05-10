@@ -15,9 +15,10 @@ from ..base_setting import BaseSettingWidget
 from .base import BaseController
 from .multirotor_pid import MultirotorPid
 from .multirotor_mpc import MultirotorMpc
+from .arducopter import ArduCopter
 from .non_planar_pid import NonPlanarPid
 from .fixed_wing_lqr import FixedWingLQR
-from .arducopter import ArduCopter
+from .custom import CustomController
 
 
 class ControllerWidget(BaseSettingWidget):
@@ -40,6 +41,7 @@ class ControllerWidget(BaseSettingWidget):
             ArduCopter(main),
             NonPlanarPid(main),
             FixedWingLQR(main),
+            CustomController(main),
         ]
 
         self._type = ComboBox()

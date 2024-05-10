@@ -5,9 +5,6 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.frames import Vector
@@ -25,7 +22,6 @@ class MultirotorMpc(BaseController):
     MOVE_PKG = "tobas_multirotor_move"
     STABLIZE_MODE = PosVelAccYaw.__name__
     ACROBAT_MODE = RollPitchYawThrust.__name__
-    PARAM_SERVER_NODE = "tobas_mr_mpc"
 
     MIN_NUM_PROP = 3
 

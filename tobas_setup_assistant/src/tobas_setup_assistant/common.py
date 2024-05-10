@@ -9,9 +9,9 @@ AIR_DENSITY = 1.225  # [kg/m^3]
 
 PKG_NAME = "tobas_setup_assistant"
 TITLE = "Tobas Setup Assistant"
-TO_DO = "TODO"
 CW = "CW"
 CCW = "CCW"
+TO_DO = "TODO"
 
 # Point Sizes
 TITLE_PSIZE = 18
