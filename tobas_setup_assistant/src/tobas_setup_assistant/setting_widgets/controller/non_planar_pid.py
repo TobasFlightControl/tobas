@@ -11,17 +11,14 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import QMessageLevel, yes_or_no
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import PoseTwistAccelCommand
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
 class NonPlanarPid(BaseController):
     NAME = "Non-Planar Multirotor PID"
-
     CONTROLLER_PKG = "tobas_np_pid"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO

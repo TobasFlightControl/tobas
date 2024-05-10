@@ -6,9 +6,7 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget
 

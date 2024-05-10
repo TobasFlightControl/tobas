@@ -15,11 +15,10 @@ from tobas_rqt_tools.messages import q_error_named
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import PositionYaw
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL, LABEL_PSIZE, CW, CCW, Description
+from ...parameter_getters import ParamGetterWidget_ComboBox
 from .base import BaseController
 
 ARDUPILOT = "ArduPilot"

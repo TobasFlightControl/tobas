@@ -10,11 +10,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import SpeedRollDeltaPitch
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 

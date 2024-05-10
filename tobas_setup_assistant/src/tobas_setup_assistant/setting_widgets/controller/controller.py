@@ -6,15 +6,11 @@ if TYPE_CHECKING:
 
 from typing import List
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
 
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...parameter_getters import *
-from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseController
 from .multirotor_pid import MultirotorPid

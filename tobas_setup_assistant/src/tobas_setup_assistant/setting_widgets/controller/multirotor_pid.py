@@ -11,11 +11,9 @@ from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrust
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
