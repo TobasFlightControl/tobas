@@ -7,9 +7,8 @@ if TYPE_CHECKING:
 import rospy
 import pyqtgraph as pg
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QWheelEvent
 
 from tobas_rospy.timestamped_buffer import TimestampedBuffer
 from tobas_tools_py.drone import Drone
