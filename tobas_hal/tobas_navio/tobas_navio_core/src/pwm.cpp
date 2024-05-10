@@ -1,8 +1,5 @@
-#include <string>
-#include <iostream>
 #include <unistd.h>
 
-#include "../include/tobas_navio_core/util.hpp"
 #include "../include/tobas_navio_core/pwm.hpp"
 
 #define NON_ROOT_SLEEP 100000  // [us]
@@ -13,6 +10,12 @@ namespace navio
 {
 PWM::PWM()
 {
+  for (size_t channel = 0; channel < kChannelCount; ++channel)
+  {
+    enable_paths_[channel] = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/enable";
+    period_paths_[channel] = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/period";
+    duty_paths_[channel] = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/duty_cycle";
+  }
 }
 
 bool PWM::initialize(const size_t& channel)
@@ -28,33 +31,6 @@ bool PWM::initialize(const size_t& channel)
 
 bool PWM::remove(const size_t& channel)
 {
-  const auto err = writeFile("/sys/class/pwm/pwmchip0/unexport", "%u", channel);
-  return err >= 0;
-}
-
-bool PWM::enable(const size_t& channel)
-{
-  const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/enable";
-  return writeFile(path.c_str(), "1") >= 0;
-}
-
-bool PWM::disable(const size_t& channel)
-{
-  const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/enable";
-  return writeFile(path.c_str(), "0") >= 0;
-}
-
-bool PWM::setFrequency(const size_t& channel, const size_t& freq)
-{
-  const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/period";
-  const auto period_ns = static_cast<int>(1e+9 / freq);
-  return writeFile(path.c_str(), "%u", period_ns) >= 0;
-}
-
-bool PWM::setDutyCycle(const size_t& channel, const double& period_us)
-{
-  const string path = "/sys/class/pwm/pwmchip0/pwm" + to_string(channel) + "/duty_cycle";
-  const auto period_ns = static_cast<int>(period_us * 1e+3);
-  return writeFile(path.c_str(), "%u", period_ns) >= 0;
+  return writeFile("/sys/class/pwm/pwmchip0/unexport", "%u", channel) >= 0;
 }
 }  // namespace navio
