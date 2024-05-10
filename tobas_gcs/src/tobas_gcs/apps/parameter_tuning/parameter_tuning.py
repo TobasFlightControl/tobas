@@ -16,7 +16,7 @@ from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
-from ...common import *
+from ...common import CATKIN_WS_TOBAS
 from ...utils.ssh_client import SSHClientWrapper
 from ..base import BaseAppWidget
 from .param_block import ParamBlockWidget, ParamType
