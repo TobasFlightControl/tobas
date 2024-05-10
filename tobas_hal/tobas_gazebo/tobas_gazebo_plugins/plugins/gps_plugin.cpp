@@ -119,6 +119,7 @@ void GazeboGpsPlugin::onUpdate()
   fillCovariances(*gps_msg);
   updatePosition(*gps_msg, T_W_B);
   updateVelocity(*gps_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
+  gps_msg->delay.fromSec((cur_time - gps_time).Double());
 
   // メッセージを発行
   gps_pub_.publish(gps_msg);
