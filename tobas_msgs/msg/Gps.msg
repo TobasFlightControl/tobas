@@ -18,3 +18,6 @@ float64[9] position_covariance   # [m^2]
 # Velocity
 tobas_kdl_msgs/Vector ground_speed  # [m/s]
 float64[9] velocity_covariance      # [m^2/s^2]
+
+# Delay
+float64 delay  # [s] The communication delay. It is only available when connected to the Internet.

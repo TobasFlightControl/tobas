@@ -13,9 +13,7 @@ system_clock::time_point tmToTimePoint(tm tm)
   // https://dev.activebasic.com/egtra/2017/01/03/941/
   const auto tt = timegm(&tm);
   if (tt == -1)
-  {
-    throw "Failed to convert tm to time_t.";
-  }
+    throw runtime_error("Failed to convert tm to time_t.");
 
   // time_t -> time_pointの変換にはタイムゾーンは影響しない
   return system_clock::from_time_t(tt);
@@ -74,7 +72,7 @@ ostream& operator<<(ostream& os, const tm& arg)
 
 double operator-(tm lhs, tm rhs)
 {
-  const time_t time_l = mktime(&lhs);
-  const time_t time_r = mktime(&rhs);
+  const auto time_l = mktime(&lhs);
+  const auto time_r = mktime(&rhs);
   return difftime(time_l, time_r);  // sec
 }
