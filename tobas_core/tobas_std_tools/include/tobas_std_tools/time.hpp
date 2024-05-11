@@ -4,24 +4,24 @@
 
 namespace tobas_std
 {
-constexpr inline double secondsFromMilliSeconds(const int& ms)
+constexpr inline double secondsFromMilliSeconds(const int& msec)
 {
-  return ms / 1000;
+  return msec / 1000;
 }
 
-constexpr inline int milliSecondsFromSeconds(const double& s)
+constexpr inline int milliSecondsFromSeconds(const double& sec)
 {
-  return s * 1000;
+  return sec * 1000;
 }
 
-constexpr inline double secondsFromMicroSeconds(const int& us)
+constexpr inline double secondsFromMicroSeconds(const int& usec)
 {
-  return us / 1000000;
+  return usec / 1000000;
 }
 
-constexpr inline int microSecondsFromSeconds(const double& s)
+constexpr inline int microSecondsFromSeconds(const double& sec)
 {
-  return s * 1000000;
+  return sec * 1000000;
 }
 
 inline void sleep(double sec)
