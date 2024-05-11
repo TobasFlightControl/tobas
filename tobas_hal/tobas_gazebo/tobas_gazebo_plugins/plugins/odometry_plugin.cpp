@@ -32,9 +32,7 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   world_ = physics::get_world(sensor->WorldName());
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
 
   registerPublishers();
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboOdometryPlugin::onUpdate, this));
@@ -59,9 +57,7 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
     const auto image_name = sdf->GetElement("covarianceImage")->Get<string>();
     covariance_image_ = cv::imread(image_name, cv::IMREAD_GRAYSCALE);
     if (covariance_image_.data == nullptr)
-    {
       gzthrow(kPluginName << ": Loading covariance image " << image_name << " failed.");
-    }
 
     getSdfParam(
       sdf, "covarianceImageScale", cov_image_scale_, kDefaultCovarianceImageScale, POSITIVE);
@@ -138,9 +134,7 @@ void GazeboOdometryPlugin::onUpdate()
     {
       const auto pixel_value = covariance_image_.at<uint8_t>(y, x);
       if (pixel_value == 0)
-      {
         return;  // Unable to get odometry
-      }
     }
   }
 
