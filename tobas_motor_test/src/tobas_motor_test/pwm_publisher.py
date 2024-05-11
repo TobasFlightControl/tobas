@@ -1,13 +1,13 @@
 import rospy
 from typing import List
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QGridLayout
 
 from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
+from tobas_tools_py.constants import SERVO_RAIL_SIZE, MIN_PWM, MAX_PWM
 from tobas_msgs.msg import Pwm, PwmArray
 
-from .common import *
+from .common import BUTTON_HEIGHT, COMMAND_PERIOD
 
 
 class PwmPublisherWidget(Widget):

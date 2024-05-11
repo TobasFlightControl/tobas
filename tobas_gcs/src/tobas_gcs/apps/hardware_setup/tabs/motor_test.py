@@ -15,6 +15,7 @@ from PyQt5.QtGui import *
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.widgets import IntSliderDisplay, ProgressDialog
+from tobas_tools_py.constants import SERVO_RAIL_SIZE
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
