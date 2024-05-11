@@ -47,19 +47,13 @@ class ErrorStateKalmanFilter(BaseObserver):
 
     @override
     def static_parameters(self) -> dict:
-        gps = self._main.settings.gps
-
-        res = dict()
-        res["state_estimator_eskf"] = {
+        return {
             "use_barometer": False,  # TODO: 選択できるように
-            "use_gps": gps.equipped(),
+            "use_gps": self._main.settings.gps.equipped(),
             "do_acc_bias_estimation": False,
             "do_gyro_bias_estimation": True,
             "do_gravity_estimation": True,
-            "check_covariance_convergence": True,
             "imu_offset": self._main.settings.imu.offset.get(),
             "barometer_offset": self._main.settings.barometer.offset.get(),
             "gps_offset": self._main.settings.gps.offset.get(),
         }
-
-        return res

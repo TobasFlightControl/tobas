@@ -24,7 +24,7 @@ from tobas_urdf_tools_py.gazebo import GazeboRosControl
 from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.xml import prettify_and_save
-
+from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
 from tobas_msgs.msg import *
 
 from .utils import get_drone_name
@@ -434,13 +434,13 @@ class PackageGenerator(QObject):
             yaml.safe_dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        items = self._main.settings.controller.static_parameters()
+        items = {CONTROLLER_NODE_NAME: self._main.settings.controller.static_parameters()}
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
             yaml.safe_dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        items = self._main.settings.observer.static_parameters()
+        items = {OBSERVER_NODE_NAME: self._main.settings.observer.static_parameters()}
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.safe_dump(items, f)

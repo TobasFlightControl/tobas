@@ -173,12 +173,12 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   t_last_ = imu->header.stamp;
 
   // Check IMU time gap
-  if (dt == 0.)
+  if (dt == 0)
   {
     TOBAS_ERROR("The time gap between 2 IMU messages is 0.");
     return;
   }
-  if (dt < 0.)
+  if (dt < 0)
   {
     TOBAS_ERROR("The time gap between 2 IMU messages is negative: ", dt, " [s]");
     return;

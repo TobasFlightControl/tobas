@@ -21,7 +21,6 @@ BODY_PSIZE = 9
 # Default Parameters
 DEFAULT_NUM_FLIGHT_MODES = 2
 
-
 ROSLAUNCH_TIMEOUT = 5  # [s]
 PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
 

@@ -62,5 +62,5 @@ class BaseController(Widget):
 
     @abstractmethod
     def static_parameters(self) -> dict:
-        """静的ROSパラメータをまとめた辞書を返す．"""
+        """静的プライベートROSパラメータをまとめた辞書を返す．"""
         raise NotImplementedError()

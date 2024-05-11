@@ -8,13 +8,13 @@ import os.path as osp
 import yaml
 from overrides import override
 from typing import Dict
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QHBoxLayout
 
 from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
+from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
 
 from ...common import CATKIN_WS_TOBAS
 from ...utils.ssh_client import SSHClientWrapper
@@ -58,8 +58,8 @@ class ParameterTuningWidget(BaseAppWidget):
         rows.addLayout(scroll_area)
 
         self._param_blocks = [
-            ParamBlockWidget(main, drone, "controller", "Controller"),
-            ParamBlockWidget(main, drone, "observer", "Observer"),
+            ParamBlockWidget(main, drone, CONTROLLER_NODE_NAME, "Controller"),
+            ParamBlockWidget(main, drone, OBSERVER_NODE_NAME, "Observer"),
         ]
         for param_block in self._param_blocks:
             scroll_area.addWidget(param_block)

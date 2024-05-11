@@ -17,3 +17,6 @@ RCIN_ESTOP = 6  # CH7
 RCIN_GPSW = 7  # CH8
 
 CONFIG_PATH = osp.expanduser(f"~/.config/tobas/config.ini")
+
+CONTROLLER_NODE_NAME = "controller"
+OBSERVER_NODE_NAME = "observer"

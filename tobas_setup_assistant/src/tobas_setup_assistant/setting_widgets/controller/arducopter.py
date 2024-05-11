@@ -317,11 +317,9 @@ class ArduCopter(BaseController):
     @override
     def static_parameters(self) -> dict:
         return {
-            "arducopter": {
-                "frame_class": self._selected().class_id(),
-                "frame_type": self._selected().type_id(),
-                "channels": self._channels.channels(),
-            }
+            "frame_class": self._selected().class_id(),
+            "frame_type": self._selected().type_id(),
+            "channels": self._channels.channels(),
         }
 
     def _selected(self) -> Frame:
