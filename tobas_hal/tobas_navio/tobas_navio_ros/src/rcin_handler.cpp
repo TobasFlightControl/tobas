@@ -18,10 +18,10 @@ RCInputHandler::RCInputHandler(
   : super(nh, pnh, name)
 {
   if (!reloadConfig())
-    exit("Failed to load configurations.");
+    TOBAS_EXIT("Failed to load configurations.");
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
-    exit("Failed to initialize RC input driver.");
+    TOBAS_EXIT("Failed to initialize RC input driver.");
 
   rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
   reload_config_srv_ =

@@ -14,7 +14,7 @@ RCInputCalibrationRos::RCInputCalibrationRos(
   : super(nh, pnh, name)
 {
   if (rcin_.initialize() < 0)
-    exit("Failed to initialize RC input driver.");
+    TOBAS_EXIT("Failed to initialize RC input driver.");
 
   publish_timer_ = nh_.createTimer(kSamplingRate, &self::publishTimerCb, this, false, false);
 

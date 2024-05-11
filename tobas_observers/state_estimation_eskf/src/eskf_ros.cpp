@@ -77,7 +77,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
-    exit("You cannot enable both accelerometer bias estimation and gravity estimation.");
+    TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
 void ErrorStateKalmanFilterRos::initialize()

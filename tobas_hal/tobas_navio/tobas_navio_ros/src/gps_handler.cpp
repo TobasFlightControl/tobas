@@ -24,32 +24,32 @@ GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
-    exit("Failed to disable all navigation messsages.");
+    TOBAS_EXIT("Failed to disable all navigation messsages.");
   if (!gps_.enableMsg(navio::Ublox::NAV_PVT, true))
-    exit("Failed to enable NAV_PVT");
+    TOBAS_EXIT("Failed to enable NAV_PVT");
   if (!gps_.enableMsg(navio::Ublox::NAV_COV, true))
-    exit("Failed to enable NAV_COV");
+    TOBAS_EXIT("Failed to enable NAV_COV");
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
-    exit("Failed to set measurement rate.");
+    TOBAS_EXIT("Failed to set measurement rate.");
 
   if (!gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G))
-    exit("Failed to set dynamics model.");
+    TOBAS_EXIT("Failed to set dynamics model.");
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-    exit("Failed to configure GPS.");
+    TOBAS_EXIT("Failed to configure GPS.");
   if (!gps_.configureGnss_SBAS(true))
-    exit("Failed to configure SBAS.");
+    TOBAS_EXIT("Failed to configure SBAS.");
   if (!gps_.configureGnss_Galileo(false))
-    exit("Failed to configure Galileo.");
+    TOBAS_EXIT("Failed to configure Galileo.");
   if (!gps_.configureGnss_BeiDou(false))
-    exit("Failed to configure BeiDou.");
+    TOBAS_EXIT("Failed to configure BeiDou.");
   if (!gps_.configureGnss_QZSS(true))
-    exit("Failed to configure QZSS.");
+    TOBAS_EXIT("Failed to configure QZSS.");
   if (!gps_.configureGnss_GLONASS(false))
-    exit("Failed to configure GLONASS.");
+    TOBAS_EXIT("Failed to configure GLONASS.");
 }
 
 void GpsHandler::mainTimerCb(const ros::TimerEvent& event)

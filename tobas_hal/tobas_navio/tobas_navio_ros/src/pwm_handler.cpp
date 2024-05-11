@@ -14,9 +14,9 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     if (!pwm_.initialize(channel))
-      exit("Failed to initialize PWM CH", channel, ".");
+      TOBAS_EXIT("Failed to initialize PWM CH", channel, ".");
     if (!pwm_.setFrequency(channel, kPwmFrequency))
-      exit("Failed to set frequency of PWM CH", channel, ".");
+      TOBAS_EXIT("Failed to set frequency of PWM CH", channel, ".");
   }
 
   pwms_sub_ = nh_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());

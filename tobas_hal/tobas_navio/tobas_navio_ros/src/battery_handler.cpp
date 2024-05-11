@@ -16,10 +16,10 @@ BatteryHandler::BatteryHandler(
   : super(nh, pnh, name)
 {
   if (!reloadConfig())
-    exit("Failed to load configuratins.");
+    TOBAS_EXIT("Failed to load configuratins.");
 
   if (adc_.initialize() < 0)
-    exit("Failed to initialize ADC driver.");
+    TOBAS_EXIT("Failed to initialize ADC driver.");
 
   battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
 

@@ -19,11 +19,11 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   : super(nh, pnh, name)
 {
   if (!reloadConfig())
-    exit("Failed to load configurations.");
+    TOBAS_EXIT("Failed to load configurations.");
 
   imu_.initialize();
   if (!imu_.probe())
-    exit("IMU not enabled.");
+    TOBAS_EXIT("IMU not enabled.");
 
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
   mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);

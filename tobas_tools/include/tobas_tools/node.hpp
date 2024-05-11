@@ -6,6 +6,8 @@
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_msgs/Message.h>
 
+#define TOBAS_EXIT(...) exit(__VA_ARGS__)
+
 #define TOBAS_DEBUG(...) debug(__VA_ARGS__)
 #define TOBAS_INFO(...) info(__VA_ARGS__)
 #define TOBAS_WARN(...) warn(__VA_ARGS__)

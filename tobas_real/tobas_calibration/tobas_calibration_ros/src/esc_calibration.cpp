@@ -21,7 +21,7 @@ EscCalibrationRos::EscCalibrationRos(
   drone_.loadFromParam(nh_);
 
   if (adc_.initialize() < 0)
-    exit("Failed to initialize ADC driver.");
+    TOBAS_EXIT("Failed to initialize ADC driver.");
 
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
   get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);

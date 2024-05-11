@@ -16,7 +16,7 @@ AdcCalibrationRos::AdcCalibrationRos(
   : super(nh, pnh, name)
 {
   if (adc_.initialize() < 0)
-    exit("Failed to initialize ADC driver.");
+    TOBAS_EXIT("Failed to initialize ADC driver.");
 
   ss_ = nh_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }

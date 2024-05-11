@@ -19,11 +19,11 @@ BarometerHandler::BarometerHandler(
   : super(nh, pnh, name)
 {
   if (!reloadConfig())
-    exit("Failed to load configurations.");
+    TOBAS_EXIT("Failed to load configurations.");
 
   barometer_.initialize();
   if (!barometer_.testConnection())
-    exit("Barometer test failed.");
+    TOBAS_EXIT("Barometer test failed.");
 
   bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
 

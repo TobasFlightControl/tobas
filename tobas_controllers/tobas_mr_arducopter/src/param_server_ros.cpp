@@ -25,7 +25,7 @@ ParamServerRos::ParamServerRos(
 
   param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
   if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-    exit("Failed to connect to '", kParamSetSrv, "' service server.");
+    TOBAS_EXIT("Failed to connect to '", kParamSetSrv, "' service server.");
 
   server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
   state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);

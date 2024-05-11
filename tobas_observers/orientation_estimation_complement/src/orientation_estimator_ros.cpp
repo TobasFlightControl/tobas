@@ -44,18 +44,18 @@ void OrientationEstimatorRos::initializeFilter()
 {
   sensor_msgs::NavSatFix gps;
   if (!tobas_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
-    exit("Failed to get GPS message.");
+    TOBAS_EXIT("Failed to get GPS message.");
   const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
   filter_.setReferenceMagneticField(mag.north, mag.east);
 
   if (!filter_.setGravity(tobas::kGravity))
-    exit("Invalid gravity");
+    TOBAS_EXIT("Invalid gravity");
 
   if (!filter_.setGainAcc(gain_acc_))
-    exit("Invalid gain_acc");
+    TOBAS_EXIT("Invalid gain_acc");
 
   if (do_bias_estimation_ && !filter_.setBiasAlpha(bias_alpha_))
-    exit("Invalid bias_alpha");
+    TOBAS_EXIT("Invalid bias_alpha");
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
