@@ -1,4 +1,5 @@
 #include <chrono>
+#include <thread>
 #include <iostream>
 
 namespace tobas_std
@@ -21,6 +22,26 @@ constexpr inline double secondsFromMicroSeconds(const int& us)
 constexpr inline int microSecondsFromSeconds(const double& s)
 {
   return s * 1000000;
+}
+
+inline void sleep(double sec)
+{
+  std::this_thread::sleep_for(std::chrono::duration<double>(sec));
+}
+
+inline void msleep(size_t msec)
+{
+  std::this_thread::sleep_for(std::chrono::milliseconds(msec));
+}
+
+inline void usleep(size_t usec)
+{
+  std::this_thread::sleep_for(std::chrono::microseconds(usec));
+}
+
+inline void nsleep(size_t nsec)
+{
+  std::this_thread::sleep_for(std::chrono::nanoseconds(nsec));
 }
 
 std::chrono::system_clock::time_point tmToTimePoint(tm tm);

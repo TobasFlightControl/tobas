@@ -1,6 +1,7 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
@@ -57,7 +58,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // バロメータを更新
   barometer_.refreshPressure();
-  usleep(kWaitToRefreshBarometer);  // この待ち時間が必須
+  tobas_std::msleep(kWaitToRefreshBarometer);  // この待ち時間が必須
   barometer_.readPressure();
   barometer_.calculatePressureAndTemperature();
 

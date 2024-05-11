@@ -14,10 +14,10 @@ class EscCalibrationRos : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "esc_calibration";
 
-  static constexpr double kSleepHigh = 3.;        // [s]
-  static constexpr double kSleepLow = 5.;         // [s]
-  static constexpr double kTimeout = 30.;         // [s]
-  static constexpr useconds_t kInterval = 10000;  // [us]
+  static constexpr double kSleepHigh = 3.;     // [s]
+  static constexpr double kSleepLow = 5.;      // [s]
+  static constexpr double kTimeout = 30.;      // [s]
+  static constexpr useconds_t kInterval = 10;  // [ms]
   static constexpr int kA2ValueThreshold = 300;
 
   using super = tobas::BaseNode;

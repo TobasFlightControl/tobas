@@ -1,11 +1,8 @@
-#include <unistd.h>
-
 #include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_navio_core/ms5611.hpp"
 #include "../include/tobas_navio_core/util.hpp"
-
-using namespace tobas_std;
 
 namespace navio
 {
@@ -82,14 +79,14 @@ void MS5611::calculatePressureAndTemperature()
   }
   if (temp < 2000)
   {
-    T2 = sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフローしてしまう
-    OFF2 = 5 * sqr(temp - 2000) / 2;
+    T2 = tobas_std::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
+    OFF2 = 5 * tobas_std::sqr(temp - 2000) / 2;
     SENS2 = OFF2 / 2;
   }
   if (temp < -1500)
   {
-    OFF2 = OFF2 + 7 * sqr(temp + 1500);
-    SENS2 = SENS2 + 11 * sqr(temp + 1500) / 2;
+    OFF2 = OFF2 + 7 * tobas_std::sqr(temp + 1500);
+    SENS2 = SENS2 + 11 * tobas_std::sqr(temp + 1500) / 2;
   }
 
   temp = temp - T2;
@@ -104,11 +101,11 @@ void MS5611::calculatePressureAndTemperature()
 void MS5611::update()
 {
   refreshPressure();
-  usleep(10000);  // Waiting for pressure data ready
+  tobas_std::msleep(10);  // Waiting for pressure data ready
   readPressure();
 
   refreshTemperature();
-  usleep(10000);  // Waiting for temperature data ready
+  tobas_std::msleep(10);  // Waiting for temperature data ready
   readTemperature();
 
   calculatePressureAndTemperature();

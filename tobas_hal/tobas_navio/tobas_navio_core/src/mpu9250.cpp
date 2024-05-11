@@ -1,6 +1,8 @@
 #include <cmath>
 #include <cassert>
 
+#include <tobas_std_tools/time.hpp>
+
 #include "../include/tobas_navio_core/mpu9250.hpp"
 
 #define DEVICE "/dev/spidev0.1"
@@ -73,7 +75,7 @@ bool MPU9250::probe()
   WriteReg(MPUREG_I2C_SLV0_REG, AK8963_WIA);  // I2C slave 0 register address from where to begin
                                               // data transfer
   WriteReg(MPUREG_I2C_SLV0_CTRL, 0x81);       // Read 1 byte from the magnetometer
-  usleep(10000);
+  tobas_std::msleep(10);
   responseM = ReadReg(MPUREG_EXT_SENS_DATA_00);
 
   if (responseXG == 0x71 && responseM == 0x48)
@@ -142,7 +144,7 @@ void MPU9250::initialize()
   for (i = 0; i < MPU_InitRegNum; ++i)
   {
     WriteReg(MPU_Init_Data[i][1], MPU_Init_Data[i][0]);
-    usleep(100000);  // I2C must slow down the write speed, otherwise it won't work
+    tobas_std::msleep(100);  // I2C must slow down the write speed, otherwise it won't work
   }
 
   calib_mag();
@@ -252,7 +254,7 @@ void MPU9250::calib_mag()
   WriteReg(MPUREG_I2C_SLV0_CTRL, 0x83);        // Read 3 bytes from the magnetometer
 
   // WriteReg(MPUREG_I2C_SLV0_CTRL, 0x81);    //Enable I2C and set bytes
-  usleep(10000);
+  tobas_std::msleep(10);
   // response[0]=WriteReg(MPUREG_EXT_SENS_DATA_01 | READ_FLAG, 0x00);    //Read I2C
   ReadRegs(MPUREG_EXT_SENS_DATA_00, response, 3);
 

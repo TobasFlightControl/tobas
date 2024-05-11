@@ -14,7 +14,7 @@ class AccelCalibrationRos : public tobas::BaseNode
   static constexpr char kServiceName[] = "accel_calibration";
 
   static constexpr size_t kDataCount = 1000;
-  static constexpr size_t kSleepTime = 10000;  // [us]
+  static constexpr size_t kSleepTime = 10;  // [ms]
 
   using super = tobas::BaseNode;
   using SrvType = tobas_calibration_msgs::AccelCalibration;

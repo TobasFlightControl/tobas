@@ -73,10 +73,9 @@ static constexpr size_t kRcChannelMode = 4;      // CH5
 static constexpr size_t kRcChannelEStop = 6;     // CH7
 static constexpr size_t kRcChannelGPSw = 7;      // CH8
 
-static constexpr size_t kWaitToRefreshBarometer = 10000;  // [us]
-static constexpr double kDisarmInterval = 0.1;            // [s]
-static constexpr double kWarnPeriod = 3.;                 // [s]
-static constexpr double kErrorPeriod = 1.;                // [s]
+static constexpr double kDisarmInterval = 0.1;  // [s]
+static constexpr double kWarnPeriod = 3.;       // [s]
+static constexpr double kErrorPeriod = 1.;      // [s]
 
 static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)

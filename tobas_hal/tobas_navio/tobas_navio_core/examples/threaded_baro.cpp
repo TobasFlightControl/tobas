@@ -1,10 +1,11 @@
+#include <iostream>
 #include <unistd.h>
-#include <stdio.h>
 #include <pthread.h>
 
 #include <tobas_navio_core/ms5611.hpp>
 #include <tobas_navio_core/util.hpp>
 
+using namespace std;
 using namespace navio;
 
 void* acquireBarometerData(void* barom)
@@ -23,7 +24,7 @@ void* acquireBarometerData(void* barom)
 
     barometer->calculatePressureAndTemperature();
 
-    // sleep(0.5);
+    sleep(0.5);
   }
 
   pthread_exit(nullptr);
@@ -32,9 +33,7 @@ void* acquireBarometerData(void* barom)
 int main()
 {
   if (checkAPM())
-  {
     return 1;
-  }
 
   MS5611 baro;
   baro.initialize();
@@ -43,13 +42,14 @@ int main()
 
   if (pthread_create(&baro_thread, nullptr, acquireBarometerData, (void*)&baro))
   {
-    printf("Error: Failed to create barometer thread\n");
+    cout << "Error: Failed to create barometer thread" << endl;
     return 0;
   }
 
   while (true)
   {
-    printf("Temperature[C]: %f Pressure[Pa]: %f\n", baro.getTemperature(), baro.getPressure());
+    cout << "Temperature[C]: " << baro.getTemperature() << ", Pressure[Pa]: " << baro.getPressure()
+         << endl;
     sleep(1);
   }
 

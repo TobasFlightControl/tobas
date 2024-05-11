@@ -1,3 +1,4 @@
+#include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_navio_ros/common.hpp>
@@ -56,7 +57,7 @@ void EscCalibrationRos::setPeriod(const double& period)
 void EscCalibrationRos::setPeriodAndSleep(const double& period)
 {
   setPeriod(period);
-  usleep(kInterval);
+  tobas_std::msleep(kInterval);
 }
 
 bool EscCalibrationRos::isBatteryConnected()

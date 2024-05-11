@@ -1,6 +1,8 @@
-#include <sys/ioctl.h>
+#include <cstring>
 #include <stdexcept>
+#include <unistd.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 
 #include "../include/tobas_navio_core/spi_dev.hpp"
 
@@ -8,7 +10,7 @@ using namespace std;
 
 namespace navio
 {
-SPIdev::SPIdev(const char* spidev, uint32_t speed_hz, u_char bits_per_word, u_short delay_usecs)
+SPIdev::SPIdev(const char* spidev, uint32_t speed_hz, uint8_t bits_per_word, uint16_t delay_usecs)
 {
   memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
   spi_transfer_.speed_hz = speed_hz;
@@ -25,10 +27,10 @@ SPIdev::~SPIdev()
   close(spi_fd_);
 }
 
-bool SPIdev::transfer(u_char* tx, u_char* rx, uint32_t length)
+bool SPIdev::transfer(uint8_t* tx, uint8_t* rx, uint32_t length)
 {
-  spi_transfer_.tx_buf = (u_long)tx;
-  spi_transfer_.rx_buf = (u_long)rx;
+  spi_transfer_.tx_buf = (uint64_t)tx;
+  spi_transfer_.rx_buf = (uint64_t)rx;
   spi_transfer_.len = length;
   return ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) >= 0;
 }

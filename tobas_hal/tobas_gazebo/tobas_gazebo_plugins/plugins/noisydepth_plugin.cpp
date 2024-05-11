@@ -58,7 +58,7 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
 }
 
 void GazeboNoisyDepthPlugin::onNewImageFrame(
-  const u_char* image,
+  const uint8_t* image,
   size_t width,
   size_t height,
   size_t depth,

@@ -1,3 +1,4 @@
+#include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -28,7 +29,7 @@ Vector3f AccelCalibrationRos::readAccel()
     imu_.update();
     imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
     acc_sum += acc_;
-    usleep(kSleepTime);
+    tobas_std::msleep(kSleepTime);
   }
 
   // 平均を計算

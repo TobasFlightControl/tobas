@@ -1,8 +1,9 @@
-#include <unistd.h>
+#include <tobas_std_tools/time.hpp>
+#include <tobas_std_tools/unix.hpp>
 
 #include "../include/tobas_navio_core/pwm.hpp"
 
-#define NON_ROOT_SLEEP 100000  // [us]
+#define NON_ROOT_SLEEP 100  // [ms]
 
 using namespace std;
 
@@ -23,8 +24,8 @@ bool PWM::initialize(const size_t& channel)
   const auto err = writeFile("/sys/class/pwm/pwmchip0/export", "%u", channel);
 
   // 非rootの場合は，udevによってPWMデバイスがシステムに追加された際にアクセス権の変更等の遅延が生じるため，少し待つ
-  if (getuid() != 0)
-    usleep(NON_ROOT_SLEEP);
+  if (!tobas_std::isSuperUser())
+    tobas_std::msleep(NON_ROOT_SLEEP);
 
   return err >= 0 || err == -EBUSY;
 }

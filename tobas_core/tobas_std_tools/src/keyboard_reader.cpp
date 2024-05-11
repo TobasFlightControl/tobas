@@ -1,7 +1,6 @@
 #include <cstring>
-#include <stdio.h>
-#include <unistd.h>
 #include <stdexcept>
+#include <unistd.h>
 
 #include "../include/tobas_std_tools/keyboard_reader.hpp"
 
