@@ -99,7 +99,11 @@ class ParameterTuningWidget(BaseAppWidget):
     @pyqtSlot()
     def _on_save_button_clicked(self) -> None:
         # 現在のパラメータが格納された辞書を作成
-        config = self._create_current_config()
+        try:
+            config = self._create_current_config()
+        except Exception as e:
+            q_error(self._main, str(e))
+            return
 
         # FCに保存
         if not self._save_config_on_fc(config):

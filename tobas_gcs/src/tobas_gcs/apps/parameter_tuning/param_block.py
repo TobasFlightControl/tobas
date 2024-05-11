@@ -8,7 +8,7 @@ from dynamic_reconfigure import client
 from typing import List, Dict, TypeVar
 from functools import partial
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.layouts import FormLayout
@@ -16,14 +16,14 @@ from tobas_rqt_tools.messages import q_error
 from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.drone import Drone
 
-from .param_widgets import *
+from ...common import WAIT_FOR_SERVER
+from .param_widgets import IntParamWidget, FloatParamWidget
 
 ParamType = TypeVar("ParamType", int, float, bool, str)
 
 
 class ParamBlockWidget(QWidget):
     LABEL_PSIZE = 12
-    TIMEOUT = 1
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone, node_name: str, label: str) -> None:
         super().__init__()
@@ -56,15 +56,25 @@ class ParamBlockWidget(QWidget):
         # Dynamic Reconfigureのクライアントを作成
         if self._client is None:
             try:
-                self._client = client.Client(f"{self._drone.drone_name}/{self._node_name}", timeout=self.TIMEOUT)
+                self._client = client.Client(f"{self._drone.drone_name}/{self._node_name}", timeout=WAIT_FOR_SERVER)
             except Exception:
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False
 
-        config = self.get_current_config()
+        try:
+            config = self.get_current_config()
+        except Exception as e:
+            q_error(self._main, str(e))
+            return False
+
+        try:
+            param_descriptions = self.get_parameter_descriptions()
+        except Exception as e:
+            q_error(self._main, str(e))
+            return False
 
         # TODO: QGridLayoutを使うなどして各要素を整列させる (cf. rqt_reconfigure)
-        for param_desc in self.get_parameter_descriptions():
+        for param_desc in param_descriptions:
             name: str = param_desc["name"]
             type_: str = param_desc["type"]
             value: ParamType = config[name]
@@ -92,8 +102,14 @@ class ParamBlockWidget(QWidget):
         return True
 
     def set_to_defaults(self) -> bool:
+        try:
+            param_descriptions = self.get_parameter_descriptions()
+        except Exception as e:
+            q_error(self._main, str(e))
+            return False
+
         config = {}
-        for param_desc in self.get_parameter_descriptions():
+        for param_desc in param_descriptions:
             config[param_desc["name"]] = param_desc["default"]
 
         self._client.update_configuration(config)
@@ -103,14 +119,23 @@ class ParamBlockWidget(QWidget):
         return self._node_name
 
     def get_parameter_descriptions(self) -> List[dict]:
-        return self._client.get_parameter_descriptions(self.TIMEOUT)
+        res = self._client.get_parameter_descriptions(timeout=WAIT_FOR_SERVER)
+        if res is None:
+            raise RuntimeError("Failed to get parameter descriptions.")
+        return res
 
     def get_current_config(self) -> Dict[str, ParamType]:
         """
-        現在のパラメータを取得する．\\
-        NOTE: 辞書にはgroupsなどの不要な値も含まれ，そのままファイルに変換することはできない．
+        現在のパラメータを取得する．
+
+        NOTE
+        ----------
+        - 辞書にはgroupsなどの不要な値も含まれ，そのままファイルに変換することはできない．
         """
-        return self._client.get_configuration(self.TIMEOUT)
+        res = self._client.get_configuration(timeout=WAIT_FOR_SERVER)
+        if res is None:
+            raise RuntimeError("Failed to get current configurations.")
+        return res
 
     @pyqtSlot(int)
     def _on_int_param_changed(self, value: int, name: str) -> None:
