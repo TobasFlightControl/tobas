@@ -26,7 +26,8 @@ public:
    * @param v 時刻tにおける速度
    * @param a 時刻tにおける加速度
    */
-  void get(const double& t, const KDL::Rotation& r, KDL::Vector& p, KDL::Vector& v, KDL::Vector& a);
+  void get(const double& t, const KDL::Rotation& r, KDL::Vector& p, KDL::Vector& v, KDL::Vector& a)
+    const;
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -36,7 +37,7 @@ public:
    * @param v 時刻tにおける速度
    * @param a 時刻tにおける加速度
    */
-  void get(const double& t, KDL::Vector& p, KDL::Vector& v, KDL::Vector& a);
+  void get(const double& t, KDL::Vector& p, KDL::Vector& v, KDL::Vector& a) const;
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -45,7 +46,7 @@ public:
    * @param p 時刻tにおける位置
    * @param v 時刻tにおける速度
    */
-  void get(const double& t, KDL::Vector& p, KDL::Vector& v);
+  void get(const double& t, KDL::Vector& p, KDL::Vector& v) const;
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -53,7 +54,7 @@ public:
    * @param t 開始点からの時刻
    * @param p 時刻tにおける位置
    */
-  void get(const double& t, KDL::Vector& p);
+  void get(const double& t, KDL::Vector& p) const;
 
 private:
   KDL::Vector p0_;
@@ -64,11 +65,10 @@ private:
   double TT_;
   double kk_;
   KDL::Vector p_diff_;
-  KDL::Vector dummy_vector_;
   const KDL::Rotation r0_;  // 単位行列
 
-  void getPos(const double& t, const KDL::Rotation& r, KDL::Vector& p);
-  void getVel(const double& t, const KDL::Rotation& r, KDL::Vector& v);
-  void getAcc(const double& t, const KDL::Rotation& r, KDL::Vector& a);
+  void getPos(const double& t, const KDL::Rotation& r, KDL::Vector& p) const;
+  void getVel(const double& t, const KDL::Rotation& r, KDL::Vector& v) const;
+  void getAcc(const double& t, const KDL::Rotation& r, KDL::Vector& a) const;
 };
 }  // namespace tj
