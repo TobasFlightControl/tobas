@@ -254,7 +254,7 @@ struct CVectorSerializer<T, typename boost::enable_if<mt::IsSimple<T> >::type>
     return (std::size_t)len;
   }
 
-  inline static uint32_t serializedLength(const T* v, const std::size_t size)
+  inline static uint32_t serializedLength(const T*, const std::size_t size)
   {
     return 4 + size * (uint32_t)sizeof(T);
   }

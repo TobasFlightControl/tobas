@@ -139,10 +139,10 @@ struct Printer<KDL::VectorVel>
   {
     s << indent << "p: ";
     s << std::endl;
-    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.p);
+    Printer<KDL::Vector>::stream(s, indent + "  ", v.p);
     s << indent << "v: ";
     s << std::endl;
-    Printer<tobas_kdl_msgs::Vector_<ContainerAllocator> >::stream(s, indent + "  ", v.v);
+    Printer<KDL::Vector>::stream(s, indent + "  ", v.v);
   }
 };
 }  // namespace message_operations

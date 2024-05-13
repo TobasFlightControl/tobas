@@ -140,12 +140,14 @@ struct Serializer<KDL::RigidBodyInertia>
   template <typename Stream, typename T>
   inline static void read(Stream& stream, T& m)
   {
-    typename T::_mass_type mass;
+    double mass;
+    KDL::Vector cog;
+    KDL::RigidBodyInertia Ic;
+
     stream.next(mass);
-    typename T::_cog_type cog;
     stream.next(cog);
-    typename T::_Ic_type Ic;
     stream.next(Ic);
+
     m = T(mass, cog, Ic);
   }
 

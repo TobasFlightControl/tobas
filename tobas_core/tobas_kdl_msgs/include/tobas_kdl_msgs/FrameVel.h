@@ -140,10 +140,12 @@ struct Serializer<KDL::FrameVel>
   template <typename Stream, typename T>
   inline static void read(Stream& stream, T& m)
   {
-    typename T::_frame_type frame;
+    KDL::Frame frame;
+    KDL::Twist twist;
+
     stream.next(frame);
-    typename T::_twist_type twist;
     stream.next(twist);
+
     m = T(frame, twist);
   }
 
