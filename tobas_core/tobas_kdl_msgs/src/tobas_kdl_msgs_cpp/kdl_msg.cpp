@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl_msgs/conversion/kdl_msg.hpp"
+#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 
 namespace KDL
 {
