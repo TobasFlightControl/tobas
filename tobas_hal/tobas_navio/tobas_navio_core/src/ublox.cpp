@@ -179,12 +179,22 @@ bool Ublox::configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate, uint16_
 bool Ublox::configureDynamicsModel(dynamics_model dyn_model)
 {
   CfgNav5 cfg_nav5;
-  memset(&cfg_nav5, 0, sizeof(CfgNav5));
 
   cfg_nav5.mask = 1;  // dynModelのみ更新
   cfg_nav5.dynModel = dyn_model;
 
   return sendMessage(CLASS_CFG, ID_CFG_NAV5, &cfg_nav5, sizeof(CfgNav5));
+}
+
+bool Ublox::configurePowerMode(power_setup_value mode, uint16_t period, uint16_t on_time)
+{
+  CfgPms cfg_pms;
+
+  cfg_pms.powerSetupValue = mode;
+  cfg_pms.period = period;
+  cfg_pms.onTime = on_time;
+
+  return sendMessage(CLASS_CFG, ID_CFG_PMS, &cfg_pms, sizeof(CfgPms));
 }
 
 bool Ublox::configureGnss_GPS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
@@ -475,11 +485,8 @@ bool Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_tra
   assert(max_track_ch >= res_track_ch);
 
   CfgGnss cfg_gnss;
-  memset(&cfg_gnss, 0, sizeof(CfgGnss));
 
-  cfg_gnss.msgVer = 0x00;
   cfg_gnss.numTrkChUse = 0xFF;  // 使えるチャンネルは全て使う
-  cfg_gnss.numConfigBlocks = 1;
 
   cfg_gnss.block.gnssId = gnss_id;
   cfg_gnss.block.resTrkCh = res_track_ch;

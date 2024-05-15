@@ -36,6 +36,9 @@ void GpsHandler::configureGnssReceiver()
   if (!gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G))
     TOBAS_EXIT("Failed to set dynamics model.");
 
+  if (!gps_.configurePowerMode(navio::Ublox::FULL_POWER))
+    TOBAS_EXIT("Failed to set power mode.");
+
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
