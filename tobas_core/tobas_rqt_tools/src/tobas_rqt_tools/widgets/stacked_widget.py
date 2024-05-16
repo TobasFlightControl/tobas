@@ -21,7 +21,6 @@ class StackedWidget(QStackedWidget):
 
         # 画面を更新
         self.update()
-        self.repaint()
 
     def clear(self) -> None:
         """全てのウィジェットを削除し，メモリを開放する．"""
