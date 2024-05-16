@@ -25,7 +25,7 @@ rm -rf ~/.vscode-server/* &&
 # Remove personal information
 rm -rf ~/.gnupg/ &&
 rm -rf ~/.ssh/ &&
-rm -rf ~/.config/tobas/ &&
+sudo rm -rf ~/.config/tobas/ &&
 
 # Clean ROS
 rosclean purge -y &&
@@ -34,7 +34,7 @@ rosclean purge -y &&
 cd ~/catkin_ws/ &&
 catkin clean -y &&
 rm -rf ./src/* &&
-cd ~/etc/tobas/catkin_ws/ &&
+cd /etc/tobas/catkin_ws/ &&
 sudo catkin clean -y &&
 sudo rm -rf ./src/* &&
 
