@@ -1,0 +1,15 @@
+[Unit]
+Description=Launch FKIE multimaster nodes
+After=tobas_roscore.service
+Requires=tobas_roscore.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/common.env
+ExecStartPre=/bin/bash -c '/etc/tobas/check_roscore.sh'
+ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/catkin_ws/devel/setup.bash && /opt/ros/noetic/bin/roslaunch tobas_fkie_master fkie_master.launch'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

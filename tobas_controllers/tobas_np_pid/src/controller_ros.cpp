@@ -1,8 +1,4 @@
-#include <tobas_std_tools/vector.hpp>
-#include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -11,8 +7,8 @@
 #include "../include/tobas_np_pid/controller_ros.hpp"
 
 using namespace std;
-using namespace KDL;
 using namespace Eigen;
+using namespace KDL;
 
 namespace tobas_np_pid
 {
@@ -20,13 +16,8 @@ ControllerRos::ControllerRos(
   const ros::NodeHandle& nh,
   const ros::NodeHandle& pnh,
   const string& name)
-  : super(nh, pnh, name),
-    js_converter_(drone_.tree()),
-    mixer_(drone_),
-    check_topics_timer_(nh_, tobas::kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this),
-    server_(pnh_)
+  : super(nh, pnh, name), js_converter_(drone_.tree()), mixer_(drone_), server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   js_converter_.updateInternalDataStructures();
@@ -37,10 +28,6 @@ ControllerRos::ControllerRos(
 
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
-}
-
-void ControllerRos::getRosParams()
-{
 }
 
 void ControllerRos::registerPublishers()
@@ -55,23 +42,48 @@ void ControllerRos::registerSubscribers()
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (drone_.isTransformable())
-  {
-    joint_state_sub_ =
-      nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
-  }
+    js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
 
+  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
   cmd_sub_ = nh_.subscribe(tobas::kPoseTwistAccelCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 }
 
-bool ControllerRos::isReady() const
+bool ControllerRos::isReadyToControl()
 {
   if (odom_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kOdometryTopic);
     return false;
+  }
+
+  if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
+    return false;
+  }
 
   if (battery_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
     return false;
+  }
 
   if (drone_.isTransformable() && js_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kJointStatesTopic);
+    return false;
+  }
+
+  if (arming_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kArmingTopic);
+    return false;
+  }
+
+  if (!arming_->data)
     return false;
 
   return true;
@@ -79,26 +91,18 @@ bool ControllerRos::isReady() const
 
 void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
-    return;
-
-  odom_ = odom;
-
-  if (!is_initialized_)
+  if (odom_ == nullptr)
   {
-    if (isReady())
-    {
-      check_topics_timer_.stop();
-      t_last_loop_ = odom->header.stamp;
-      is_initialized_ = true;
-      TOBAS_GOOD("Controller is ready.");
-    }
+    odom_ = odom;
     return;
   }
 
-  // 時刻を更新
-  const auto dt = (odom->header.stamp - t_last_loop_).toSec();
-  t_last_loop_ = odom->header.stamp;
+  // 経過時間を計算してオドメトリを更新
+  const auto dt = (odom->header.stamp - odom_->header.stamp).toSec();
+  odom_ = odom;
+
+  if (!isReadyToControl())
+    return;
 
   // コマンドが来ていなければスキップ
   if (cmd_ == nullptr)
@@ -106,7 +110,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // 可動関節の角度を更新
   if (drone_.isTransformable() && js_converter_.jointStateToJntArrayPos(*js_) < 0)
-    rosError(name_, "Joint state converter failed: " << js_converter_.errorMessage());
+    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
   // 位置制御器
   const Vector cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
@@ -163,21 +167,40 @@ void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
 {
   if (js->name.size() != js->position.size())
   {
-    rosError(name_, "The size of joint name and position is different.");
+    TOBAS_ERROR("The size of joint name and position is different.");
     return;
   }
 
   js_ = js;
 }
 
+void ControllerRos::armingCb(const std_msgs::BoolConstPtr& arming)
+{
+  arming_ = arming;
+
+  // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
+  if (!arming->data)
+  {
+    cmd_ = nullptr;
+    TOBAS_INFO("Command is reset.");
+  }
+}
+
 void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd)
 {
-  if (!is_initialized_)
+  if (!isReadyToControl())
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
+  }
 
-  // コマンドレベルの処理
   if (!cmd_level_handler_.update(cmd->level.data, ros::Time::now()))
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
+  }
 
   // コマンドを更新
   cmd_ = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>(*cmd);
@@ -185,22 +208,10 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *cmd_))
   {
-    rosError(name_, "Failed to change command frame. Probably the frame id is invalid.");
+    TOBAS_ERROR("Failed to change command frame. Probably the frame id is invalid.");
     cmd_ = nullptr;
     return;
   }
-}
-
-void ControllerRos::checkTopicsTimerCb(const ros::TimerEvent&)
-{
-  if (battery_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kBatteryLpfTopic);
-
-  if (odom_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kOdometryTopic);
-
-  if (drone_.isTransformable() && js_ == nullptr)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kJointStatesTopic);
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
@@ -231,6 +242,6 @@ void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   mixer_cfg_.thrust_weight_log10 = cfg.mixer_thrust_weight_log10;
   mixer_.configure(mixer_cfg_);
 
-  rosInfo(name_, "Dynamic parameters are updated.");
+  TOBAS_INFO("Dynamic parameters are updated.");
 }
 }  // namespace tobas_np_pid

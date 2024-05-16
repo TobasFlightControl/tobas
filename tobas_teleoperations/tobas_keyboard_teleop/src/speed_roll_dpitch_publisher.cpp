@@ -6,9 +6,9 @@
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/x11.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/rate.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -26,12 +26,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   const string& name)
   : super(nh, pnh, name),
     trim_(drone_),
-    check_topics_timer_(
-      nh_,
-      tobas::kCheckTopicsTimerPeriod,
-      &self::checkTopicsTimerCb,
-      this,
-      false),
+    check_topics_timer_(nh_, tobas::kCheckTopicsMsgPeriod, &self::checkTopicsTimerCb, this, false),
     instruction_timer_(nh_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)
 {
   instruction_ = "Control your drone!\n"
@@ -51,8 +46,9 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  registerPublishers();
-  registerSubscribers();
+  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
+  air_pressure_sub_ =
+    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 void SpeedRollDeltaPitchPublisher::run()
@@ -80,53 +76,53 @@ void SpeedRollDeltaPitchPublisher::run()
 
     if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
     {
-      rosError(name_, trim_.errorMessage());
+      PRINT_ERROR(trim_.errorMessage());
       continue;
     }
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
     if (c < 0)
-      rosError(name_, "Failed to read keyboard.");
+      PRINT_ERROR("Failed to read keyboard.");
 
     switch (c)
     {
       case 'w':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
-        rosInfoThrottle(kInfoPeriod, name_, "Increase speed");
+        PRINT_INFO("Increase speed");
         break;
       }
       case 's':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
-        rosInfoThrottle(kInfoPeriod, name_, "Decrease speed");
+        PRINT_INFO("Decrease speed");
         break;
       }
       case kKeyCode_Up:
       {
         cmd_.delta_pitch =
           clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        rosInfoThrottle(kInfoPeriod, name_, "Nose up");
+        PRINT_INFO("Nose up");
         break;
       }
       case kKeyCode_Down:
       {
         cmd_.delta_pitch =
           clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        rosInfoThrottle(kInfoPeriod, name_, "Nose down");
+        PRINT_INFO("Nose down");
         break;
       }
       case kKeyCode_Left:
       {
         cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        rosInfoThrottle(kInfoPeriod, name_, "Turn left");
+        PRINT_INFO("Turn left");
         break;
       }
       case kKeyCode_Right:
       {
         cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        rosInfoThrottle(kInfoPeriod, name_, "Turn right");
+        PRINT_INFO("Turn right");
         break;
       }
     }
@@ -152,17 +148,6 @@ void SpeedRollDeltaPitchPublisher::getRosParams()
     pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, tobas_ros::POSITIVE);
 }
 
-void SpeedRollDeltaPitchPublisher::registerPublishers()
-{
-  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
-}
-
-void SpeedRollDeltaPitchPublisher::registerSubscribers()
-{
-  air_pressure_sub_ =
-    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
-}
-
 bool SpeedRollDeltaPitchPublisher::isReady()
 {
   return pressure_received_;
@@ -176,7 +161,7 @@ void SpeedRollDeltaPitchPublisher::initialize()
 
   // インストラクションを開始
   instruction_timer_.start();
-  rosInfo(name_, instruction_);
+  PRINT_INFO(instruction_);
 }
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
@@ -190,11 +175,11 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressur
 void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
 {
   if (!pressure_received_)
-    rosInfo(name_, "Waiting for " << ns() << tobas::kAirPressureTopic);
+    PRINT_INFO("Waiting for " << ns() << tobas::kAirPressureTopic);
 }
 
 void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)
 {
-  rosInfo(name_, instruction_);
+  PRINT_INFO(instruction_);
 }
 }  // namespace tobas_keyboard_teleop

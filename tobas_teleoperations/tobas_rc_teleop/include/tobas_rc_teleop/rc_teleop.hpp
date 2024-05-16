@@ -14,7 +14,8 @@ namespace tobas_rc_teleop
 {
 class RCTeleop : public tobas::BaseNode
 {
-  static constexpr double kInitThrustThreshold = 0.05;
+  static constexpr double kInitThrottleMargin = 0.05;
+  static constexpr double kArmFailRetryInterval = 1.;  // [s]
 
   using self = RCTeleop;
   using super = tobas::BaseNode;
@@ -63,10 +64,7 @@ private:
   ros::ServiceClient get_arm_sc_;
   ros::ServiceClient set_arm_sc_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   bool isRotorsArmed();
   bool requestArmingRotors();
   bool requestDisarmingRotors();

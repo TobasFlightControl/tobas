@@ -4,8 +4,8 @@ int32 pitch_up
 int32 pitch_down
 int32 yaw_left
 int32 yaw_right
-int32 thrust_up
-int32 thrust_down
+int32 throttle_up
+int32 throttle_down
 int32 mode_program
 int32 mode_stabilize
 int32 mode_acrobat

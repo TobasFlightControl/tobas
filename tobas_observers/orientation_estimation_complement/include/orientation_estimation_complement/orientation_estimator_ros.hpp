@@ -67,10 +67,7 @@ private:
   // Timer
   tobas_ros::Timer check_topics_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   void initializeFilter();
 
   void imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag);

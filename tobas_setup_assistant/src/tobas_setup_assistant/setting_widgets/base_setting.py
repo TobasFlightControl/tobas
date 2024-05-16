@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from abc import abstractmethod
+from typing import final
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -45,3 +46,40 @@ class BaseSettingWidget(ScrollArea):
     def is_valid(self) -> bool:
         """Returns true if user configuration is valid."""
         raise NotImplementedError()
+
+
+class OptionalDeviceWidget(BaseSettingWidget):
+    """
+    オプションデバイスの共通機能を備えた設定ウィジェット．\\
+    搭載する場合のみ各種設定項目が有効になる．
+    """
+
+    def __init__(self, main: SetupAssistant, title_text: str, abst_text: str, default_equipped: bool) -> None:
+        super().__init__(main, title_text, abst_text)
+
+        self._equipped = QCheckBox(f"{self.NAME} Equipped")
+        self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        self._equipped.setChecked(default_equipped)
+        self._equipped.toggled.connect(self._on_equipped_toggled)
+        self._rows.addWidget(self._equipped)
+
+        # Enable, Disableを一括で管理するために，設定ウィジェットを全て1つのウィジェットの子にする．
+        self._config = QWidget()
+        self._config.setEnabled(default_equipped)
+        self._rows.addWidget(self._config)
+
+        self._config_rows = QVBoxLayout()
+        self._config.setLayout(self._config_rows)
+
+    @final
+    def equipped(self) -> bool:
+        return self._equipped.isChecked()
+
+    @final
+    def _add_config_widget(self, widget: QWidget) -> None:
+        """Equippedがチェックされているときだけ有効になるウィジェットを追加する．"""
+        self._config_rows.addWidget(widget)
+
+    @pyqtSlot(bool)
+    def _on_equipped_toggled(self, checked: bool) -> None:
+        self._config.setEnabled(checked)

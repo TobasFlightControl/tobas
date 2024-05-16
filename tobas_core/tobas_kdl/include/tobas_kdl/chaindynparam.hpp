@@ -1,8 +1,5 @@
 #pragma once
 
-#include "./chainsolveri.hpp"
-#include "./jntarray.hpp"
-#include "./jntspaceinertiamatrix.hpp"
 #include "./chainidsolver_rne.hpp"
 
 namespace KDL
@@ -17,11 +14,9 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int JntToMass(const JntArray& q);
   int JntToCoriolis(const JntArray& q, const JntArray& qd);
   int JntToGravity(const JntArray& q, const Vector& grav);
 
-  inline const JntSpaceInertiaMatrix& getJntInertia() const;
   inline const JntArray& getCoriolisEffort() const;
   inline const JntArray& getGravityEffort() const;
 
@@ -32,17 +27,7 @@ private:
   JntArray zero_jntarray_;
   Wrenches zero_wrenches_;
   const Vector zero_vector_ = Vector::Zero();
-  std::vector<RigidBodyInertia> I_;
-  std::vector<Frame> X_;
-  std::vector<SegmentJacobian> S_;
-
-  JntSpaceInertiaMatrix H_out_;
 };
-
-inline const JntSpaceInertiaMatrix& ChainDynParam::getJntInertia() const
-{
-  return H_out_;
-}
 
 inline const JntArray& ChainDynParam::getCoriolisEffort() const
 {

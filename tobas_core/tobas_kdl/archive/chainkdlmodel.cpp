@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <dh_std_tools/unordered_map.hpp>
+#include <tobas_std_tools/unordered_map.hpp>
 
-#include "../include/dh_kdl/chainkdlmodel.hpp"
+#include "../include/tobas_kdl/chainkdlmodel.hpp"
 
 using namespace std;
 
@@ -152,7 +152,7 @@ void ChainKDLModel::parseJntNames()
 
 int ChainKDLModel::getSegIdx(const string& name)
 {
-  assert(dh_std::contains(seg2idx_, name));
+  assert(tobas_std::contains(seg2idx_, name));
   int idx = seg2idx_[name];
   assert(chain_.getSegment(idx).name() == name);
   return idx;

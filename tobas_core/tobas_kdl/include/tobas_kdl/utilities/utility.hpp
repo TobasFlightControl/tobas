@@ -1,10 +1,6 @@
 #pragma once
 
-#include <cstdlib>
-#include <cassert>
 #include <cmath>
-
-#include "./constants.hpp"
 
 namespace KDL
 {
@@ -54,7 +50,7 @@ inline void setToZero(double& arg)
 }
 
 // to uniformly set double, RNDouble,Vector,... objects to the identity element in template-classes
-inline void SetToIdentity(double& arg)
+inline void setToIdentity(double& arg)
 {
   arg = 1;
 }

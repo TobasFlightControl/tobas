@@ -67,7 +67,7 @@ void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param)
 void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param, const Vector3d& _default)
 {
   vector<double> param_vec;
-  const vector<double> default_vec{ _default.x(), _default.y(), _default.z() };
+  const vector<double> default_vec(_default.data(), _default.data() + _default.size());
   getParam(nh, key, param_vec, default_vec);
 
   if (param_vec.size() != 3)
@@ -79,6 +79,13 @@ void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param, const Vec
   }
 
   param = Map<Vector3d>(param_vec.data());
+}
+
+void getParam(ros::NodeHandle& nh, const string& key, VectorXd& param)
+{
+  vector<double> tmp;
+  getParam(nh, key, tmp);
+  param = Map<VectorXd>(tmp.data(), tmp.size());
 }
 
 bool match(ros::NodeHandle& nh, const string& key)

@@ -4,8 +4,6 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -27,11 +25,14 @@ MotorsHandler::MotorsHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
-  registerPublishers();
-  registerSubscribers();
+  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
+  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
+
+  tar_speeds_sub_ =
+    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
@@ -44,28 +45,11 @@ MotorsHandler::MotorsHandler(
   publishArming();
 }
 
-void MotorsHandler::getRosParams()
-{
-}
-
-void MotorsHandler::registerPublishers()
-{
-  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
-}
-
-void MotorsHandler::registerSubscribers()
-{
-  tar_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-}
-
 bool MotorsHandler::armRotors()
 {
   if (!enablePwms(true))
   {
-    rosError(name_, "Failed to enable PWMs.");
+    TOBAS_ERROR("Failed to enable PWMs.");
     return false;
   }
 
@@ -79,7 +63,7 @@ bool MotorsHandler::armRotors()
   is_armed_ = true;
   check_interval_timer_.start();
 
-  rosInfo(name_, "The motors are ready to rotate.");
+  TOBAS_INFO("The motors are ready to rotate.");
   return true;
 }
 
@@ -87,7 +71,7 @@ bool MotorsHandler::disarmRotors()
 {
   if (!enablePwms(false))
   {
-    rosError(name_, "Failed to disable PWMs.");
+    TOBAS_ERROR("Failed to disable PWMs.");
     return false;
   }
 
@@ -101,7 +85,7 @@ bool MotorsHandler::enablePwms(const bool& enable)
 {
   if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kEnablePwmSrv << "' server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kEnablePwmSrv, "' server.");
     return false;
   }
 
@@ -112,7 +96,7 @@ bool MotorsHandler::enablePwms(const bool& enable)
     enable_pwm_msg.request.enable = enable;
     if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
     {
-      rosError(name_, "Failed to enable/disable RC output CH" << rotor.channel << ".");
+      TOBAS_ERROR("Failed to enable/disable RC output CH", rotor.channel, ".");
       return false;
     }
   }
@@ -124,14 +108,14 @@ bool MotorsHandler::preArmCheck()
 {
   if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kPreArmCheckSrv << "' server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kPreArmCheckSrv, "' server.");
     return false;
   }
 
   std_srvs::Trigger pre_arm_check_msg;
   if (!pre_arm_check_sc_.call(pre_arm_check_msg) || !pre_arm_check_msg.response.success)
   {
-    rosError(name_, pre_arm_check_msg.response.message);
+    TOBAS_ERROR(pre_arm_check_msg.response.message);
     return false;
   }
 
@@ -161,16 +145,16 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
 
   if (battery_ == nullptr)
   {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "The rotors cannot be rotated because battery state has not been received yet.");
+    TOBAS_ERROR_THROTTLE(
+      kErrorPeriod, "The rotors cannot be rotated because battery state has not been received "
+                    "yet.");
     return;
   }
 
   const auto data_size = tar_speeds->speeds.size();
   if (data_size != drone_.numRotors())
   {
-    rosError(name_, "Size mismatch: " << data_size << " != " << drone_.numRotors());
+    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.numRotors());
     return;
   }
 
@@ -188,16 +172,15 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)  // モータテストでも使用するため，ここではARM_THROTTLEの制約を課さない
     {
-      rosWarn(
-        name_, "Negative rotation speed is commanded on CH" << rotor_idx << ": " << tar_speed
-                                                            << " < 0 [rad/s]");
+      TOBAS_WARN(
+        "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      rosWarn(
-        name_, "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
-                                             << max_speed << " [rad/s]");
+      TOBAS_WARN(
+        "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
+        " [rad/s]");
       tar_speed = max_speed;
     }
 
@@ -231,7 +214,8 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       }
       default:
       {
-        rosError(name_, "Unknown ESC signal mode of CH" << rotor.channel);
+        TOBAS_ERROR("Unknown ESC signal mode of CH", rotor.channel);
+        pwm_period = kPwmMin;
         break;
       }
     }
@@ -261,18 +245,18 @@ bool MotorsHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetArmRespo
 
 bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
 {
-  res.success = false;
-
   if (!is_armed_ && req.arming)
   {
     if (!req.ignore_pre_arm_check && !preArmCheck())
     {
+      res.success = false;
       res.message = "Pre-arm check failed.";
       return true;
     }
 
     if (!armRotors())
     {
+      res.success = false;
       res.message = "Failed to enable PWMs.";
       return true;
     }
@@ -281,6 +265,7 @@ bool MotorsHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmR
   {
     if (!disarmRotors())
     {
+      res.success = false;
       res.message = "Failed to disable PWMs.";
       return true;
     }
@@ -301,10 +286,9 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     if (is_activated_)
     {
       is_activated_ = false;
-      rosWarn(
-        name_, "The speeds of all rotors are automatically stopped because "
-                 << tobas::kAutoResetTimeThreshold
-                 << " seconds have elapsed since the last command.");
+      TOBAS_WARN(
+        "The speeds of all rotors are automatically stopped because ",
+        tobas::kAutoResetTimeThreshold, " seconds have elapsed since the last command.");
     }
   }
 }

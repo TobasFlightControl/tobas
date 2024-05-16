@@ -1,0 +1,20 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <arg name="node_name" value="move_action_server"/>
+
+  <group if="$(arg nodelet)">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_move/MoveActionServerNodelet nodelet_manager" output="screen">
+      <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
+    </node>
+  </group>
+
+  <group unless="$(arg nodelet)">
+    <node pkg="tobas_multirotor_move" type="move_action_server_node" name="$(arg node_name)" output="screen">
+      <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
+    </node>
+  </group>
+
+</launch>

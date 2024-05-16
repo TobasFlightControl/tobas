@@ -1,9 +1,6 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
@@ -40,7 +37,9 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   // その他の飛行モードのコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
-    if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
+    if (modes_[i] == "")
+      controllers_[i] = make_unique<ProgramModeController>(drone_);
+    else if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
       controllers_[i] = make_unique<PosVelAccYawController>(drone_);
     else if (modes_[i] == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
       controllers_[i] = make_unique<PositionYawController>(drone_);
@@ -51,13 +50,19 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
     else if (modes_[i] == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
       controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
-      ROS_EXIT_NAMED(nh_, name_, "Invalid flight mode: " + modes_[i]);
+    {
+      TOBAS_ERROR(
+        "Invalid flight mode: ", modes_[i],
+        ". The RC command for this mode will not be published.");
+      controllers_[i] = make_unique<ProgramModeController>(drone_);
+    }
 
     controllers_[i]->initialize(nh_, pnh_);
   }
 
-  registerPublishers();
-  registerSubscribers();
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
 
   get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
   set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
@@ -69,29 +74,18 @@ void RCTeleop::getRosParams()
   tobas_ros::getParam(pnh_, "acrobat_mode", modes_[tobas::kFlightModeAcrobat]);
 }
 
-void RCTeleop::registerPublishers()
-{
-}
-
-void RCTeleop::registerSubscribers()
-{
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
-}
-
 bool RCTeleop::isRotorsArmed()
 {
   if (!get_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kGetArmSrv << "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
     return false;
   }
 
   tobas_msgs::GetArm get_arm_msg;
   if (!get_arm_sc_.call(get_arm_msg))
   {
-    rosError(name_, "Failed to get arming state.");
+    TOBAS_ERROR("Failed to get arming state.");
     return false;
   }
 
@@ -102,7 +96,7 @@ bool RCTeleop::requestArmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kSetArmSrv << "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
   }
 
@@ -110,7 +104,7 @@ bool RCTeleop::requestArmingRotors()
   set_arm_msg.request.arming = true;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    rosError(name_, "Failed to arm rotors.");
+    TOBAS_ERROR("Failed to arm rotors.");
     return false;
   }
 
@@ -121,7 +115,7 @@ bool RCTeleop::requestDisarmingRotors()
 {
   if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kSetArmSrv << "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
   }
 
@@ -129,7 +123,7 @@ bool RCTeleop::requestDisarmingRotors()
   set_arm_msg.request.arming = false;
   if (!set_arm_sc_.call(set_arm_msg) || !set_arm_msg.response.success)
   {
-    rosError(name_, "Failed to disarm rotors.");
+    TOBAS_ERROR("Failed to disarm rotors.");
     return false;
   }
 
@@ -167,15 +161,14 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
     {
       if (rcin->e_stop)
       {
-        TOBAS_GOOD("RC transmitter is ready. "
+        TOBAS_INFO("RC transmitter is ready. "
                    "To start control, set the E-Stop toggle OFF "
                    "with the throttle lever lowered to the bottom.");
         stage_ = ESTOP_ON;
       }
       else
       {
-        rosInfoThrottle(
-          kInfoPeriod, name_, "Please start with the transmitter's E-Stop toggle ON.");
+        TOBAS_INFO_THROTTLE(kInfoPeriod, "Please start with the transmitter's E-Stop toggle ON.");
       }
       break;
     }
@@ -194,15 +187,17 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       }
 
       // アームされていなければ，スロットルレバーを確認してアームする
-      if (rcin->thrust > kInitThrustThreshold)
+      if (rcin->throttle > tobas::kRCInputMin + kInitThrottleMargin)
       {
-        rosWarnThrottle(
-          kWarnPeriod, name_,
-          "Please lower the throttle lever to the bottom before turning off the E-Stop.");
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
         break;
       }
       if (!requestArmingRotors())
+      {
+        ros::Duration(kArmFailRetryInterval).sleep();
         break;
+      }
 
       // 問題なければコマンドを送信開始
       stage_ = FIRST_COMMAND;
@@ -214,13 +209,13 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        rosErrorThrottle(kErrorPeriod, name_, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(kErrorPeriod, "Invalid flight mode.");
         return;
       }
 
       controllers_[cur_mode]->reset(*odom_);
       last_mode_ = cur_mode;
-      rosInfo(name_, "First flight mode is set to \"" << mode2str_.at(cur_mode) << "\".");
+      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(cur_mode), "\".");
 
       stage_ = RUNNING;
       break;
@@ -231,7 +226,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       // E-Stopがオンになったら非常停止
       if (rcin->e_stop)
       {
-        rosWarn(name_, "Stopping rotors.");
+        TOBAS_WARN("Stopping rotors.");
         requestDisarmingRotors();
         stage_ = ESTOP_ON;
       }
@@ -239,7 +234,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        rosErrorThrottle(kErrorPeriod, name_, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(kErrorPeriod, "Invalid flight mode.");
         return;
       }
 
@@ -247,7 +242,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       {
         last_mode_ = cur_mode;
         controllers_[cur_mode]->reset(*odom_);
-        rosInfo(name_, "Flight mode changed to \"" << mode2str_.at(cur_mode) << "\".");
+        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(cur_mode), "\".");
         break;
       }
 
@@ -257,7 +252,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
 
     default:
     {
-      rosError(name_, "Invalid stage: " << static_cast<int>(stage_));
+      TOBAS_ERROR("Invalid stage: ", static_cast<int>(stage_));
       break;
     }
   }

@@ -21,10 +21,6 @@ private:
   ros::Publisher setpoint_pos_local_pub_;
   ros::Subscriber pos_yaw_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs);
 };
 }  // namespace tobas_mavros_bridge

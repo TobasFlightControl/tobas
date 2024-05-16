@@ -1,7 +1,7 @@
-#include <dh_eigen_tools/core.hpp>
+#include <tobas_eigen_tools/core.hpp>
 #include <qpipm/qpipm.hpp>
 
-#include "../../include/dh_linear_control/quadprog/qpipm.hpp"
+#include "../../include/tobas_linear_control/quadprog/qpipm.hpp"
 
 using namespace std;
 using namespace Eigen;

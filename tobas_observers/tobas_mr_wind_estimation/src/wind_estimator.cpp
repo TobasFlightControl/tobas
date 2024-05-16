@@ -1,8 +1,6 @@
 #include <Eigen/LU>
 
 #include <tobas_std_tools/math.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Wind.h>
 
@@ -23,7 +21,6 @@ WindEstimator::WindEstimator(
   const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
   updateInternalDataStructures();
 
@@ -31,29 +28,16 @@ WindEstimator::WindEstimator(
     Vector2d::Zero(), Vector2d::Constant(tobas_std::sqr(kInitWindStddev)).asDiagonal());
   kf_.setZero();
 
-  registerPublishers();
-  registerSubscribers();
+  wind_pub_ = nh_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
+
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  rotor_speeds_sub_ =
+    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 void WindEstimator::updateInternalDataStructures()
 {
   dynamics_.updateInternalDataStructures();
-}
-
-void WindEstimator::getRosParams()
-{
-}
-
-void WindEstimator::registerPublishers()
-{
-  wind_pub_ = nh_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
-}
-
-void WindEstimator::registerSubscribers()
-{
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 Matrix3d WindEstimator::velCoef(const Rotation& R_W_B)
@@ -75,7 +59,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       t_last_loop_ = odom->header.stamp;
       is_initialized_ = true;
-      rosInfo(name_, "Start to estimate wind speed.");
+      TOBAS_INFO("Start to estimate wind speed.");
     }
 
     // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．

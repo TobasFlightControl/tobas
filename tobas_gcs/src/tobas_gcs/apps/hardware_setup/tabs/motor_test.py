@@ -15,6 +15,7 @@ from PyQt5.QtGui import *
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.widgets import IntSliderDisplay, ProgressDialog
+from tobas_tools_py.constants import SERVO_RAIL_SIZE
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
@@ -65,6 +66,8 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         self._start_button.clicked.connect(self._on_start_button_clicked)
@@ -73,6 +76,8 @@ class MotorTestWidget(BaseHardwareSetupWidget):
     @override
     def update_internal_data_structures(self) -> None:
         self._rotor_speeds_publisher.update_internal_data_structures()
+
+        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
@@ -120,7 +125,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Motor test is finished.")
 
     def _check_disarm(self) -> bool:
-        get_arm_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/get_arm", GetArm)
+        get_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/get_arm", GetArm)
         try:
             get_arm_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -140,7 +145,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         return True
 
     def _set_arm(self, arming: bool) -> bool:
-        set_arm_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/set_arm", SetArm)
+        set_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/set_arm", SetArm)
         try:
             set_arm_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:

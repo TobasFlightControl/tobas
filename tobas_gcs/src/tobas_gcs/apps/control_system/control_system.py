@@ -36,7 +36,7 @@ class ControlSystemWidget(BaseAppWidget):
         self._cpu_viewer = CpuViewerWidget(main, drone)
         self._latency_viewer = LatencyViewerWidget(main, drone)
 
-        rows.addWidget(self._actions_commander)
+        # rows.addWidget(self._actions_commander)  # TODO
         rows.addWidget(self._position_viewer)
         rows.addWidget(self._orientation_viewer)
         # rows.addWidget(self._velocity_viewer)  # TODO

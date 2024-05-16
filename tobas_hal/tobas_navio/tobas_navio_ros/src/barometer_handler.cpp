@@ -1,10 +1,9 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/barometer_handler.hpp"
@@ -20,34 +19,18 @@ BarometerHandler::BarometerHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to load configurations.");
+    TOBAS_EXIT("Failed to load configurations.");
 
   barometer_.initialize();
   if (!barometer_.testConnection())
-    ROS_EXIT_NAMED(nh_, name_, "Barometer test failed.");
+    TOBAS_EXIT("Barometer test failed.");
 
-  registerPublishers();
-  registerSubscribers();
+  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
 
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-}
-
-void BarometerHandler::getRosParams()
-{
-}
-
-void BarometerHandler::registerPublishers()
-{
-  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
-}
-
-void BarometerHandler::registerSubscribers()
-{
 }
 
 bool BarometerHandler::reloadConfig()
@@ -75,7 +58,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // バロメータを更新
   barometer_.refreshPressure();
-  usleep(kWaitToRefreshBarometer);  // この待ち時間が必須
+  tobas_std::msleep(kWaitToRefreshBarometer);  // この待ち時間が必須
   barometer_.readPressure();
   barometer_.calculatePressureAndTemperature();
 
@@ -83,7 +66,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto pressure = barometer_.getPressure();
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
-    rosError(name_, "Strange air pressure: " << pressure << " [Pa]");
+    TOBAS_ERROR("Strange air pressure: ", pressure, " [Pa]");
     return;
   }
 

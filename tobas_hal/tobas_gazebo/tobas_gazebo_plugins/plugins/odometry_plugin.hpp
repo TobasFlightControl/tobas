@@ -21,7 +21,6 @@ class GazeboOdometryPlugin : public SensorPlugin
   static constexpr double kDefaultCovarianceImageScale = 1.;
 
   using super = SensorPlugin;
-  using CovarianceMatrix = boost::array<double, 36>;
 
 public:
   explicit GazeboOdometryPlugin();

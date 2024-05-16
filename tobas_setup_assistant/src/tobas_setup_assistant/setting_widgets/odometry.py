@@ -9,12 +9,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from .base_setting import BaseSettingWidget
 from ..common import *
 from ..parameter_getters import *
+from .base_setting import OptionalDeviceWidget
 
 
-class OdometryWidget(BaseSettingWidget):
+class OdometryWidget(OptionalDeviceWidget):
     NAME = "Odometry"
 
     def __init__(self, main: SetupAssistant) -> None:
@@ -24,21 +24,16 @@ class OdometryWidget(BaseSettingWidget):
             "Please refer to the datasheet and enter the respective values. "
             "This includes devices like wheel encoders or Visual Inertial Odometry (VIO)."
         )
-        super().__init__(main, title_text, abst_text)
-
-        self._equipped = QCheckBox("Odometry Publisher Equipped")
-        self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._equipped.setChecked(False)
-        self._rows.addWidget(self._equipped)
+        super().__init__(main, title_text, abst_text, False)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
-        self._rows.addWidget(self.offset)
+        self._add_config_widget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
-        self._rows.addWidget(self.update_rate)
+        self._add_config_widget(self.update_rate)
 
         # TODO: Covariance Image getter
 
@@ -50,7 +45,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.01] * 3,
             suffix=" m",
         )
-        self._rows.addWidget(self.pos_normal_noise_std)
+        self._add_config_widget(self.pos_normal_noise_std)
 
         rot_normal_noise_std_descripiton = ""
         self.rot_normal_noise_std = ParamGetterWidget_Vector3d(
@@ -60,7 +55,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.017] * 3,
             suffix=" rad",
         )
-        self._rows.addWidget(self.rot_normal_noise_std)
+        self._add_config_widget(self.rot_normal_noise_std)
 
         linvel_normal_noise_std_descripiton = ""
         self.linvel_normal_noise_std = ParamGetterWidget_Vector3d(
@@ -70,7 +65,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.0] * 3,
             suffix=" m/s",
         )
-        self._rows.addWidget(self.linvel_normal_noise_std)
+        self._add_config_widget(self.linvel_normal_noise_std)
 
         angvel_normal_noise_std_descripiton = ""
         self.angvel_normal_noise_std = ParamGetterWidget_Vector3d(
@@ -80,7 +75,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.0] * 3,
             suffix=" rad/s",
         )
-        self._rows.addWidget(self.angvel_normal_noise_std)
+        self._add_config_widget(self.angvel_normal_noise_std)
 
         pos_uniform_noise_scale_descripiton = ""
         self.pos_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -90,7 +85,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.0] * 3,
             suffix=" m",
         )
-        self._rows.addWidget(self.pos_uniform_noise_scale)
+        self._add_config_widget(self.pos_uniform_noise_scale)
 
         rot_uniform_noise_scale_descripiton = ""
         self.rot_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -100,7 +95,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.0] * 3,
             suffix=" rad",
         )
-        self._rows.addWidget(self.rot_uniform_noise_scale)
+        self._add_config_widget(self.rot_uniform_noise_scale)
 
         linvel_uniform_noise_scale_descripiton = ""
         self.linvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -110,7 +105,7 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.0] * 3,
             suffix=" m/s",
         )
-        self._rows.addWidget(self.linvel_uniform_noise_scale)
+        self._add_config_widget(self.linvel_uniform_noise_scale)
 
         angvel_uniform_noise_scale_descripiton = ""
         self.angvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -120,47 +115,17 @@ class OdometryWidget(BaseSettingWidget):
             default=[0.0] * 3,
             suffix=" rad/s",
         )
-        self._rows.addWidget(self.angvel_uniform_noise_scale)
+        self._add_config_widget(self.angvel_uniform_noise_scale)
 
         self._rows.addStretch()
-        self._update_visibility()
 
     @override
     def define_connections(self) -> None:
         super().define_connections()
-        self._equipped.toggled.connect(self._update_visibility)
 
     @override
     def is_valid(self) -> bool:
-        if not self._equipped.isChecked():
+        if not self.equipped():
             return True
 
         return True
-
-    def equipped(self) -> bool:
-        return self._equipped.isChecked()
-
-    @pyqtSlot()
-    def _update_visibility(self) -> None:
-        if self._equipped.isChecked():
-            self.offset.setVisible(True)
-            self.update_rate.setVisible(True)
-            self.pos_normal_noise_std.setVisible(True)
-            self.rot_normal_noise_std.setVisible(True)
-            self.linvel_normal_noise_std.setVisible(True)
-            self.angvel_normal_noise_std.setVisible(True)
-            self.pos_uniform_noise_scale.setVisible(True)
-            self.rot_uniform_noise_scale.setVisible(True)
-            self.linvel_uniform_noise_scale.setVisible(True)
-            self.angvel_uniform_noise_scale.setVisible(True)
-        else:
-            self.offset.setVisible(False)
-            self.update_rate.setVisible(False)
-            self.pos_normal_noise_std.setVisible(False)
-            self.rot_normal_noise_std.setVisible(False)
-            self.linvel_normal_noise_std.setVisible(False)
-            self.angvel_normal_noise_std.setVisible(False)
-            self.pos_uniform_noise_scale.setVisible(False)
-            self.rot_uniform_noise_scale.setVisible(False)
-            self.linvel_uniform_noise_scale.setVisible(False)
-            self.angvel_uniform_noise_scale.setVisible(False)

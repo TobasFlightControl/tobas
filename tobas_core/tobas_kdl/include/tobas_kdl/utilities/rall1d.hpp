@@ -1,7 +1,5 @@
 #pragma once
 
-#include <assert.h>
-
 #include "./utility.hpp"
 
 namespace KDL
@@ -31,16 +29,6 @@ public:
 
   inline Rall1d() : t(), grad(){};
 
-  T value() const
-  {
-    return t;
-  }
-
-  V deriv() const
-  {
-    return grad;
-  }
-
   explicit inline Rall1d(typename TI<T>::Arg c)
   {
     t = T(c);
@@ -55,16 +43,6 @@ public:
   {
   }
 
-  inline T& Value()
-  {
-    return t;
-  }
-
-  inline V& Gradient()
-  {
-    return grad;
-  }
-
   inline static Rall1d<T, V, S> Zero()
   {
     Rall1d<T, V, S> tmp;
@@ -75,7 +53,7 @@ public:
   inline static Rall1d<T, V, S> Identity()
   {
     Rall1d<T, V, S> tmp;
-    SetToIdentity(tmp);
+    setToIdentity(tmp);
     return tmp;
   }
 
@@ -395,9 +373,9 @@ inline void setToZero(Rall1d<T, V, S>& value)
 }
 
 template <class T, class V, class S>
-inline void SetToIdentity(Rall1d<T, V, S>& value)
+inline void setToIdentity(Rall1d<T, V, S>& value)
 {
-  SetToIdentity(value.t);
+  setToIdentity(value.t);
   setToZero(value.grad);
 }
 }  // namespace KDL

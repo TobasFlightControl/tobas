@@ -2,13 +2,15 @@
 
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
+#include <std_msgs/Bool.h>
 
 #include <tobas_tools/node.hpp>
+#include <tobas_tools/drone.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_kdl_msgs/Euler.h>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/LandAction.h>
 
 namespace tobas_state_checker
@@ -30,34 +32,28 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  bool is_armed_ = true;
-  double roll_, pitch_, yaw_;
-
-  // rosparams
-  double voltage_threshold_;  // 飛行を継続できる電圧の閾値
+  tobas::Drone drone_;
+  std_msgs::BoolConstPtr arming_;
 
   // Publishers
   ros::Publisher event_pub_;
 
   // Subscribers
+  ros::Subscriber arming_sub_;
   ros::Subscriber cpu_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber odom_sub_;
-  ros::Subscriber cmd_sub_;
+  ros::Subscriber euler_sub_;
 
   ros::ServiceClient set_arm_sc_;
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
-
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
 
   void publishSystemCriticalEvent();
   void requestLanding();
   void requestDisarmingRotors();
 
+  void armingCb(const std_msgs::BoolConstPtr& arming);
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
+  void eulerCb(const tobas_kdl_msgs::EulerConstPtr& euler);
 };
 }  // namespace tobas_state_checker

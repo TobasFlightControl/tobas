@@ -21,6 +21,7 @@ public:
   inline double operator()(size_t i) const;
   inline double& operator()(size_t i);
 
+  inline size_t size() const;
   inline size_t rows() const;
 
   inline double max() const;
@@ -80,9 +81,14 @@ inline double& JntArray::operator()(size_t i)
   return data(i);
 }
 
-inline size_t JntArray::rows() const
+inline size_t JntArray::size() const
 {
   return static_cast<size_t>(data.rows());
+}
+
+inline size_t JntArray::rows() const
+{
+  return size();
 }
 
 inline double JntArray::max() const

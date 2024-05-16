@@ -5,12 +5,12 @@
 
 #include <tobas_navio_core/rc_input.hpp>
 #include <tobas_navio_ros/common.hpp>
-
+#include <tobas_tools/node.hpp>
 #include <tobas_calibration_msgs/RCInputCalibration.h>
 
 namespace tobas_calibration
 {
-class RCInputCalibrationRos
+class RCInputCalibrationRos : public tobas::BaseNode
 {
   static constexpr char kRcInputTopicName[] = "rcin_calibration/rc_input_raw";
   static constexpr char kStartServiceName[] = "rcin_calibration/start";
@@ -21,12 +21,16 @@ class RCInputCalibrationRos
   static constexpr size_t kMinSignalRange = 300;
 
   using self = RCInputCalibrationRos;
+  using super = tobas::BaseNode;
   using StartSrvType = std_srvs::Trigger;
   using FinishSrvType = tobas_calibration_msgs::RCInputCalibration;
   using CancelSrvType = std_srvs::Trigger;
 
 public:
-  explicit RCInputCalibrationRos(ros::NodeHandle& nh);
+  explicit RCInputCalibrationRos(
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   navio::RCInput rcin_;

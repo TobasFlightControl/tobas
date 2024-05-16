@@ -20,14 +20,14 @@ Mixer::Mixer(const tobas::Drone& drone)
     jnt_axis_solver_(drone.tree()),
     inertia_solver_(drone.tree())
 {
-  TOBAS_DEBUG("Mixer::Mixer");
+  PRINT_DEBUG("Mixer::Mixer");
 
   updateInternalDataStructures();
 }
 
 void Mixer::updateInternalDataStructures()
 {
-  TOBAS_DEBUG("Mixer::updateInternalDataStructures");
+  PRINT_DEBUG("Mixer::updateInternalDataStructures");
 
   fk_solver_.updateInternalDataStructures();
   jnt_axis_solver_.updateInternalDataStructures();
@@ -55,7 +55,7 @@ VectorXd Mixer::solve(
   const Vector& tar_acc_W,
   const Vector& tar_dgyro_B)
 {
-  TOBAS_DEBUG_ONCE("Mixer::solve");
+  PRINT_DEBUG_ONCE("Mixer::solve");
 
   assert(cur_voltage > 0);
 
@@ -64,7 +64,7 @@ VectorXd Mixer::solve(
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
-  const auto I_B = inertia.refPoint(B_Pos_B2G).getRotationalInertia();
+  const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
@@ -116,7 +116,7 @@ VectorXd Mixer::solve(
 
 void Mixer::configure(const MixerConfig& cfg)
 {
-  TOBAS_DEBUG("Mixer::configure");
+  PRINT_DEBUG("Mixer::configure");
 
   if (!drone_.isLoaded())
     throw runtime_error("Drone is not loaded yet.");
@@ -134,8 +134,8 @@ void Mixer::configure(const MixerConfig& cfg)
   const auto angular_scale = I.trace() / 3 * DGYRO_SCALE;
   const auto thrust_scale = mass * tobas::kGravity / drone_.numRotors();
 
-  Q_.diagonal().head<3>().fill(cfg.linear_weight / sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(cfg.angular_weight / sqr(angular_scale));
-  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / sqr(thrust_scale));
+  Q_.diagonal().head<3>().fill(cfg.linear_weight / tobas_std::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg.angular_weight / tobas_std::sqr(angular_scale));
+  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / tobas_std::sqr(thrust_scale));
 }
 }  // namespace tobas_np_pid

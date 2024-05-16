@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-import os.path as osp
 import rospy
 import numpy as np
 from sensor_msgs.msg import Imu
 
 from tobas_rospy.utils import init_node
-from tobas_rospy.conversions.np_msg import vector3_msg_to_np
+from tobas_rospy.conversions.np_msg import vectorMsgToNp
 
 
 class MeasureImuVariance:
@@ -24,8 +23,8 @@ class MeasureImuVariance:
     def _imu_cb(self, msg: Imu) -> None:
         rospy.loginfo_once("First IMU message is received.")
 
-        self._acc_data[self._cnt, :] = vector3_msg_to_np(msg.linear_acceleration)
-        self._gyro_data[self._cnt, :] = vector3_msg_to_np(msg.angular_velocity)
+        self._acc_data[self._cnt, :] = vectorMsgToNp(msg.linear_acceleration)
+        self._gyro_data[self._cnt, :] = vectorMsgToNp(msg.angular_velocity)
         self._cnt += 1
 
         if self._cnt == self.DATA_SIZE:

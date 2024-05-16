@@ -4,20 +4,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-import joblib
 from typing import List
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
 
 from tobas_rqt_tools.widgets import ComboBox
 
-from ...parameter_getters import *
-from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseObserver
 from .eskf import ErrorStateKalmanFilter
+from .custom import CustomObserver
 
 
 class ObserverWidget(BaseSettingWidget):
@@ -31,17 +27,11 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main)]
-
-        # 各観測器の動的パラメータを並列に読み込む
-        # NOTE: ウィジェット自体をマルチスレッドにすると親子関係が壊れるため，コンストラクタの並列処理はできない
-        job = joblib.Parallel(n_jobs=-1, prefer="threads")  # メモリ共有するためマルチプロセスではなくマルチスレッド
-        job(joblib.delayed(obsv.get_dynamic_params)() for obsv in self._observers)
+        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main), CustomObserver(main)]
 
         self._type = ComboBox()
         self._rows.addWidget(self._type)
         for observer in self._observers:
-            observer.add_dynamic_params()
             self._rows.addWidget(observer)
             self._type.addItem(observer.NAME)
 
@@ -63,8 +53,8 @@ class ObserverWidget(BaseSettingWidget):
     def pkg_name(self) -> str:
         return self._selected().PACKAGE_NAME
 
-    def parameter_dict(self) -> dict:
-        return self._selected().parameter_dict()
+    def static_parameters(self) -> dict:
+        return self._selected().static_parameters()
 
     def _selected(self) -> BaseObserver:
         observer_type = self._type.currentText()

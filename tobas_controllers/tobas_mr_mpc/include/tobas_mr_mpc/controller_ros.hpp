@@ -1,14 +1,11 @@
-#include <Eigen/Core>
-#include <ros/ros.h>
+#pragma once
+
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 
-#include <tobas_std_tools/stopwatch.hpp>
-#include <tobas_kdl/treejntparser.hpp>
 #include <tobas_kdl/treejointstateconverter.hpp>
-#include <tobas_ros_tools/timer.hpp>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_msgs/Odometry.h>
@@ -69,10 +66,9 @@ private:
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
   sensor_msgs::JointStateConstPtr js_;
   std_msgs::Float64ConstPtr thrust_corr_factor_;
+  std_msgs::BoolConstPtr arming_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_W_;      // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
-  bool is_initialized_ = false;
-  ros::Time t_last_loop_;
   KDL::Vector tar_acc_fb_;
   tobas::CommandLevelHandler cmd_level_handler_;
 
@@ -85,25 +81,19 @@ private:
   ros::Subscriber battery_sub_;
   ros::Subscriber wind_sub_;
   ros::Subscriber rotor_speeds_sub_;
-  ros::Subscriber joint_state_sub_;
+  ros::Subscriber arming_sub_;
+  ros::Subscriber js_sub_;
   ros::Subscriber thrust_corr_factor_sub_;
   ros::Subscriber pvay_sub_;
   ros::Subscriber rpyt_sub_;
 
-  // Timers
-  tobas_ros::Timer check_topics_timer_;
-
   // Dynamic Reconfigure Server
   ConfigServer server_;
 
-  // Other
-  tobas_std::Stopwatch stopwatch_;
-
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
-  bool isReady() const;
+  void getRosParams();
+  void registerPublishers();
+  void registerSubscribers();
+  bool isReadyToControl();
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
@@ -111,10 +101,10 @@ private:
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
   void thrustCorrectionFactorCb(const std_msgs::Float64ConstPtr& msg);
+  void armingCb(const std_msgs::BoolConstPtr& arming);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);
-  void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpy_thrust);
+  void rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rpyt);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_mr_mpc

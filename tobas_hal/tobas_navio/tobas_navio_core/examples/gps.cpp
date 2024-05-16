@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <unistd.h>
 
 #include <tobas_navio_core/ublox.hpp>
 #include <tobas_navio_core/util.hpp>
@@ -13,9 +14,7 @@ using namespace navio;
 int main()
 {
   if (checkAPM())
-  {
     return 1;
-  }
 
   // Ublox class instance
   Ublox gps;

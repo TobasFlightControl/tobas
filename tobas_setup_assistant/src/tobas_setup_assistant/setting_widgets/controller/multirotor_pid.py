@@ -5,17 +5,12 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrust
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
@@ -24,9 +19,9 @@ class MultirotorPid(BaseController):
     CONTROLLER_PKG = "tobas_mr_pid"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"
     LANDING_PKG = "tobas_multirotor_landing"
+    MOVE_PKG = "tobas_multirotor_move"
     STABLIZE_MODE = PosVelAccYaw.__name__
     ACROBAT_MODE = RollPitchYawThrust.__name__
-    PARAM_SERVER_NODE = "tobas_mr_pid"
 
     MIN_NUM_PROP = 3
 
@@ -37,10 +32,6 @@ class MultirotorPid(BaseController):
     @override
     def define_connections(self) -> None:
         pass
-
-    @override
-    def add_dynamic_params(self) -> None:
-        pass  # TODO
 
     @override
     def is_applicable(self) -> bool:
@@ -82,5 +73,5 @@ class MultirotorPid(BaseController):
         return True
 
     @override
-    def parameter_dict(self) -> dict:
-        return super().parameter_dict()  # TODO
+    def static_parameters(self) -> dict:
+        return dict()

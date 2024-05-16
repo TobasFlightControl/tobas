@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./treeidsolver.hpp"
+#include "./utilities/constants.hpp"
 
 namespace KDL
 {
@@ -27,7 +28,7 @@ public:
    * \param tree The kinematic tree to calculate the inverse dynamics for, an internal reference
    * will be stored. \param grav The gravity vector to use during the calculation.
    */
-  explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav);
+  explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -kDefaultGravity));
 
   void updateInternalDataStructures() override;
 

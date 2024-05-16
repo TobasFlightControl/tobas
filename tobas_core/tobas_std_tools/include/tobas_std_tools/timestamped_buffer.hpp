@@ -2,6 +2,7 @@
 
 #include <map>
 #include <chrono>
+#include <cassert>
 
 namespace tobas_std
 {
@@ -12,37 +13,83 @@ namespace tobas_std
 template <typename T>
 class TimestampedBuffer
 {
+  using TimeType = std::chrono::steady_clock::time_point;
+  using DurationType = std::chrono::duration<double>;
+  using MapType = std::map<TimeType, T>;
+
 public:
   explicit TimestampedBuffer(const double& expiry_duration) : expiry_duration_(expiry_duration)
   {
+    assert(expiry_duration >= 0);
   }
 
-  void add(const std::chrono::system_clock::time_point& cur_time, const T& x)
+  void add(const TimeType& cur_time, const T& x)
   {
-    buffer_[cur_time] = x;
+    map_[cur_time] = x;
     removeExpiredData(cur_time);
   }
 
   void clear()
   {
-    buffer_.clear();
+    map_.clear();
+    is_filled_ = false;
   }
 
   size_t size() const
   {
-    return buffer_.size();
+    return map_.size();
+  }
+
+  const bool& isFilled() const
+  {
+    return is_filled_;
+  }
+
+  typename MapType::const_iterator first() const
+  {
+    assert(map_.size() > 0);
+    return map_.begin();
+  }
+
+  typename MapType::const_iterator last() const
+  {
+    assert(map_.size() > 0);
+    return std::prev(map_.end());
+  }
+
+  const TimeType& firstTime() const
+  {
+    return first()->first;
+  }
+
+  const T& firstValue() const
+  {
+    return first()->second;
+  }
+
+  const TimeType& lastTime() const
+  {
+    return last()->first;
+  }
+
+  const T& lastValue() const
+  {
+    return last()->second;
   }
 
 protected:
-  double expiry_duration_;
-  std::map<std::chrono::system_clock::time_point, T> buffer_;
+  const double expiry_duration_;
+  MapType map_;
+  bool is_filled_ = false;
 
-  void removeExpiredData(const std::chrono::system_clock::time_point& cur_time)
+  void removeExpiredData(const TimeType& cur_time)
   {
-    auto it = buffer_.begin();
-    while (it != buffer_.end()
-           && std::chrono::duration<double>(cur_time - it->first).count() > expiry_duration_)
-      it = buffer_.erase(it);  // Erase returns the iterator following the removed element
+    auto it = map_.begin();
+    while (it != map_.end() && DurationType(cur_time - it->first).count() > expiry_duration_)
+    {
+      it = map_.erase(it);  // Erase returns the iterator following the removed element
+      is_filled_ = true;
+    }
   }
 };
 

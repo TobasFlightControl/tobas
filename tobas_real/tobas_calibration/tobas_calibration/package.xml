@@ -9,7 +9,6 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
-	<exec_depend>tobas_calibration_core</exec_depend>
 	<exec_depend>tobas_calibration_ros</exec_depend>
 	<exec_depend>tobas_calibration_msgs</exec_depend>
 

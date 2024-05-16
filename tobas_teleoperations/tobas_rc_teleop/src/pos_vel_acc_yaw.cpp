@@ -1,8 +1,5 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
@@ -11,7 +8,6 @@
 
 using namespace std;
 using namespace KDL;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -22,7 +18,8 @@ PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : supe
 void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-  registerPublishers(nh);
+
+  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
@@ -46,13 +43,10 @@ void PosVelAccYawController::update(
   t_last_rcin_ = cur_time;
 
   // RC入力を速度とヨーレートに変換
-  tar_vel_F_.x() =
-    dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_F_.y() =
-    dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
-  tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
-  const auto yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  tar_vel_F_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
+  tar_vel_F_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
+  tar_vel_F_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
+  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
 
   // 目標速度をフィルタリング
   vel_filter_.update(tar_vel_F_, dt);
@@ -105,10 +99,5 @@ void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
   tobas_ros::getParam(
     pnh, "pos_vel_acc_yaw/delay_time_const", delay_time_const_, kDefaultDelayTimeConst,
     tobas_ros::NON_NEGATIVE);
-}
-
-void PosVelAccYawController::registerPublishers(ros::NodeHandle& nh)
-{
-  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

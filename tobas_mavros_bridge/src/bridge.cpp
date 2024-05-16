@@ -17,23 +17,8 @@ TobasMavrosBridge::TobasMavrosBridge(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-}
-
-void TobasMavrosBridge::getRosParams()
-{
-}
-
-void TobasMavrosBridge::registerPublishers()
-{
   setpoint_pos_local_pub_ =
     nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);
-}
-
-void TobasMavrosBridge::registerSubscribers()
-{
   pos_yaw_sub_ =
     nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
 }

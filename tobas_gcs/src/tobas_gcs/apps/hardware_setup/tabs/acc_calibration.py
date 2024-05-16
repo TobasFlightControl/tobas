@@ -38,13 +38,15 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         self._start_button.clicked.connect(self._on_start_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
@@ -68,7 +70,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Accel calibration finished.")
 
     def _calibrate(self) -> bool:
-        accel_calib_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/accel_calibration", AccelCalibration)
+        accel_calib_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/accel_calibration", AccelCalibration)
         try:
             accel_calib_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -88,7 +90,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/imu_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/imu_handler/reload_config", Trigger)
         try:
             reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:

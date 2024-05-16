@@ -1,0 +1,6 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+</launch>

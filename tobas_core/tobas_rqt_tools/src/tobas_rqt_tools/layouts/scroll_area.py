@@ -5,7 +5,6 @@ from ..widgets import ScrollArea
 
 
 class ScrollableVBoxLayout(QVBoxLayout):
-
     def __init__(self) -> None:
         super().__init__()
 

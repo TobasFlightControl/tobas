@@ -61,10 +61,7 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         if self._battery_sub is not None:
             self._battery_sub.unregister()
         self._battery_sub = rospy.Subscriber(
-            f"/{self._drone.drone_name}/battery_filtered",
-            Battery,
-            self._battery_cb,
-            queue_size=1,
+            f"{self._drone.drone_name}/battery_filtered", Battery, self._battery_cb, queue_size=1
         )
 
     def _battery_cb(self, battery: Battery) -> None:

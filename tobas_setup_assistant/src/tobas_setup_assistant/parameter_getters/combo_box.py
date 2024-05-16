@@ -1,7 +1,5 @@
 from typing import List, Optional
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from tobas_rqt_tools.widgets import ComboBox
 

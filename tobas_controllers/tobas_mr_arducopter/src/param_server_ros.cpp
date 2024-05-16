@@ -3,9 +3,6 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_arducopter/param_server_ros.hpp"
@@ -28,28 +25,18 @@ ParamServerRos::ParamServerRos(
 
   param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
   if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to connect to '" << kParamSetSrv << "' service server.");
+    TOBAS_EXIT("Failed to connect to '", kParamSetSrv, "' service server.");
 
-  registerPublishers();
-  registerSubscribers();
+  server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
+  state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
+  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
+  param_updates_sub_ = nh_.subscribe(name + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
 
 void ParamServerRos::getRosParams()
 {
   tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
   tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
-}
-
-void ParamServerRos::registerPublishers()
-{
-  server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
-}
-
-void ParamServerRos::registerSubscribers()
-{
-  state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
-  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
-  param_updates_sub_ = nh_.subscribe(name_ + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
 
 void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
@@ -69,7 +56,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
     }
     else
     {
-      rosError(name_, "Failed to set " << param.name << ".");
+      TOBAS_ERROR("Failed to set ", param.name, ".");
       pnh_.setParam(param.name, ints_[param.name]);
     }
   }
@@ -91,7 +78,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
     }
     else
     {
-      rosError(name_, "Failed to set " << param.name << ".");
+      TOBAS_ERROR("Failed to set ", param.name, ".");
       pnh_.setParam(param.name, doubles_[param.name]);
     }
   }
@@ -102,7 +89,7 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
   if (state->system_status != mavros_msgs::CompanionProcessStatus::MAV_STATE_STANDBY)
     return;
 
-  rosInfo(name_, "System status has become MAV_STATE_STANDBY.");
+  TOBAS_INFO("System status has become MAV_STATE_STANDBY.");
   set_init_config_timer_ =
     nh_.createTimer(ros::Duration(20), &self::setInitConfigTimerCb, this, true);
 
@@ -113,9 +100,9 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
 void ParamServerRos::localPositionCb(const geometry_msgs::PoseStampedConstPtr&)
 {
   // 状態推定の開始を確認してから初期パラメータの設定を行う
-  rosInfo(
-    name_, "First local position is received. The parameter server will be ready in "
-             << kActivationDelayFromFirstPose << " seconds.");
+  TOBAS_INFO(
+    "First local position is received. The parameter server will be ready in ",
+    kActivationDelayFromFirstPose, " seconds.");
   set_init_params_timer_ = nh_.createTimer(
     ros::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
 
@@ -135,12 +122,12 @@ void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& c
 
   if (!is_init_params_set_)
   {
-    rosError(name_, "Parameter server is not ready.");
+    TOBAS_ERROR("Parameter server is not ready.");
     return;
   }
 
   setParams(cfg);
-  rosInfo(name_, "Parameters are updated.");
+  TOBAS_INFO("Parameters are updated.");
 }
 
 void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
@@ -151,7 +138,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    rosWarnThrottle(kWarnPeriod, name_, "Failed to set " << kFrameClass << ". Retrying...");
+    TOBAS_WARN("Failed to set ", kFrameClass, ". Retrying...");
     ros::Duration(RETRY_SLEEP).sleep();
   }
 
@@ -161,7 +148,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    rosWarnThrottle(kWarnPeriod, name_, "Failed to set " << kFrameType << ". Retrying...");
+    TOBAS_WARN("Failed to set ", kFrameType, ". Retrying...");
     ros::Duration(RETRY_SLEEP).sleep();
   }
 
@@ -171,7 +158,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   param_set_msg_.request.value.real = 0;
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
-    rosWarnThrottle(kWarnPeriod, name_, "Failed to set " << kArmingCheck << ". Retrying...");
+    TOBAS_WARN("Failed to set ", kArmingCheck, ". Retrying...");
     ros::Duration(RETRY_SLEEP).sleep();
   }
 }
@@ -180,7 +167,7 @@ void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
 {
   setParams(init_cfg_);
   is_init_params_set_ = true;
-  rosInfo(name_, "Initial parameters are set.");
+  TOBAS_INFO("Initial parameters are set.");
 
   // サーバの準備が完了したことをROSメッセージで他のノードに伝える
   const auto server_state = boost::make_shared<std_msgs::Bool>();

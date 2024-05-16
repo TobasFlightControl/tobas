@@ -6,23 +6,20 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from overrides import override
-from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import Widget, ComboBox
+from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget
 from tobas_rqt_tools.messages import q_error_named
 
 from .base_setting import BaseSettingWidget
+from ..common import TO_DO
 from ..parameter_getters import *
-from ..common import *
 
 
 class BatteryWidget(BaseSettingWidget):
     NAME = "Battery"
-
-    NO_SELECT = "Select battery type"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Battery"
@@ -33,32 +30,24 @@ class BatteryWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._batteries: List[BatteryWidget_Base] = [BatteryWidget_LiPo(main), BatteryWidget_Other(main)]
+        battery_types = ComboBox()
+        self._batteries = StackedWidget()
+        battery_types.currentIndexChanged.connect(self._batteries.setCurrentIndex)
+        self._rows.addWidget(battery_types)
+        self._rows.addWidget(self._batteries)
 
-        self._type = ComboBox()
-        self._type.addItem(self.NO_SELECT)
-        self._rows.addWidget(self._type)
+        for battery_class in [BatteryWidget_LiPo, BatteryWidget_Other]:
+            battery_types.addItem(battery_class.NAME)
+            self._batteries.addWidget(battery_class(main))
 
-        for battery in self._batteries:
-            self._rows.addWidget(battery)
-            self._type.addItem(battery.NAME)
-
-        self._type.setCurrentText(BatteryWidget_LiPo.NAME)  # Default
-
-        self._rows.addStretch()
-        self._update_visibility()
+        # NOTE: QStackedWidgetは各子ウィジェットのサイズを合わせるため，ストレッチを各子ウィジェットで設定しないとレイアウトが崩れる．
 
     @override
     def define_connections(self) -> None:
         super().define_connections()
-        self._type.currentTextChanged.connect(self._on_battery_type_changed)
 
     @override
     def is_valid(self) -> bool:
-        if self._type.currentText() == self.NO_SELECT:
-            q_error_named(self._main, self.NAME, "Please select battery type.")
-            return False
-
         if not self._selected().is_valid():
             return False
 
@@ -82,35 +71,8 @@ class BatteryWidget(BaseSettingWidget):
     def internal_registance(self) -> float:
         return self._selected().internal_registance()
 
-    def voltage_threshold(self) -> float:
-        return self._selected().voltage_threshold()
-
     def _selected(self) -> BatteryWidget_Base:
-        battery_type = self._type.currentText()
-
-        if battery_type == self.NO_SELECT:
-            raise RuntimeError("Battery type is not selected.")
-
-        for battery in self._batteries:
-            if battery_type == battery.NAME:
-                return battery
-
-        RuntimeError(f"Unknown battery type: {battery_type}")
-
-    def _update_visibility(self) -> None:
-        battery_type = self._type.currentText()
-
-        for battery in self._batteries:
-            battery.setVisible(False)
-
-        for battery in self._batteries:
-            if battery.NAME == battery_type:
-                battery.setVisible(True)
-                return
-
-    @pyqtSlot(str)
-    def _on_battery_type_changed(self, _: str) -> None:
-        self._update_visibility()
+        return self._batteries.currentWidget()
 
 
 class BatteryWidget_Base(Widget):
@@ -118,7 +80,6 @@ class BatteryWidget_Base(Widget):
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
-
         self._main = main
 
     @abstractmethod
@@ -152,11 +113,6 @@ class BatteryWidget_Base(Widget):
     @abstractmethod
     def internal_registance(self) -> float:
         """[Ω] 内部抵抗値．"""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def voltage_threshold(self) -> float:
-        """[V] 警告を発する電圧値．"""
         raise NotImplementedError()
 
 
@@ -205,6 +161,8 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         )
         rows.addWidget(self._registance)
 
+        rows.addStretch()
+
     @override
     def is_valid(self) -> bool:
         return True
@@ -232,10 +190,6 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
     @override
     def internal_registance(self) -> float:
         return self._num_cells.get() * self._registance.get() / 1000
-
-    @override
-    def voltage_threshold(self) -> float:
-        return self._num_cells.get() * self.VOLTAGE_THR_PER_CELL
 
 
 class BatteryWidget_Other(BatteryWidget_Base):
@@ -267,7 +221,7 @@ class BatteryWidget_Other(BatteryWidget_Base):
 
         max_current_description = "Maximum current of the battery."
         self._max_current = ParamGetterWidget_DoubleSpinBox(
-            "Maximum Current", max_current_description, decimals=1, minimum=0.1, default=250.0, suffix=" A"
+            "Maximum Current", max_current_description, decimals=1, minimum=0.1, default=200.0, suffix=" A"
         )
         rows.addWidget(self._max_current)
 
@@ -283,11 +237,15 @@ class BatteryWidget_Other(BatteryWidget_Base):
         )
         rows.addWidget(self._registance)
 
+        rows.addStretch()
+
     @override
     def is_valid(self) -> bool:
         if self._max_voltage.get() <= self._sag_voltage.get():
             q_error_named(self._main, self.NAME, "Maximum voltage must be greater than voltage threshold.")
             return False
+
+        return True
 
     @override
     def nominal_voltage(self) -> float:
@@ -312,7 +270,3 @@ class BatteryWidget_Other(BatteryWidget_Base):
     @override
     def internal_registance(self) -> float:
         return self._registance.get() / 1000
-
-    @override
-    def voltage_threshold(self) -> float:
-        return self.sag_voltage()  # TODO: sag_voltageとは分けるべきかも

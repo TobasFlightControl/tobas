@@ -5,29 +5,23 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import QMessageLevel, yes_or_no
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import PoseTwistAccelCommand
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
 class NonPlanarPid(BaseController):
     NAME = "Non-Planar Multirotor PID"
-
     CONTROLLER_PKG = "tobas_np_pid"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PoseTwistAccelCommand.__name__
     ACROBAT_MODE = PoseTwistAccelCommand.__name__  # TODO
-    PARAM_SERVER_NODE = "tobas_np_pid"
 
     MIN_NUM_PROP = 3
 
@@ -38,10 +32,6 @@ class NonPlanarPid(BaseController):
     @override
     def define_connections(self) -> None:
         pass
-
-    @override
-    def add_dynamic_params(self) -> None:
-        pass  # TODO
 
     @override
     def is_applicable(self) -> bool:
@@ -81,5 +71,5 @@ class NonPlanarPid(BaseController):
         return True
 
     @override
-    def parameter_dict(self) -> dict:
-        return super().parameter_dict()  # TODO
+    def static_parameters(self) -> dict:
+        return dict()

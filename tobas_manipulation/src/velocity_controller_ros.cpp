@@ -1,6 +1,4 @@
 #include <tobas_std_tools/zip.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -23,7 +21,6 @@ VelocityControllerRos::VelocityControllerRos(
     vel_ctrl_(drone_.tree()),
     server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   cur_js_conv_.updateInternalDataStructures();
@@ -46,31 +43,18 @@ VelocityControllerRos::VelocityControllerRos(
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
-  registerPublishers();
-  registerSubscribers();
-
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-}
-
-void VelocityControllerRos::getRosParams()
-{
-}
-
-void VelocityControllerRos::registerPublishers()
-{
   velocities_pub_ =
     nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
-}
 
-void VelocityControllerRos::registerSubscribers()
-{
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
     nh_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ =
     nh_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
@@ -78,14 +62,12 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velo
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
   {
-    rosError(
-      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return -1;
   }
   if (tar_js_conv_.jointStateToJntArrayPos(*tar_js_) < 0)
   {
-    rosError(
-      name_, "Failed to convert target JointState to Jntarray: " << tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -100,7 +82,7 @@ int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velo
   // JntArray -> JointState
   if (tar_js_conv_.jntArrayToJointStateVel(velocities, tar_js_->name) < 0)
   {
-    rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -117,8 +99,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPos(*cur_js_) < 0)
   {
-    rosError(
-      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return -1;
   }
 
@@ -128,7 +109,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
-      rosError(name_, tf_listener_.getErrorMessage());
+      TOBAS_ERROR(tf_listener_.getErrorMessage());
       continue;
     }
 
@@ -140,7 +121,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   const auto& cur_q = cur_js_conv_.getPositionsKDL();
   if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0)
   {
-    rosError(name_, "Cartesian controller failed: " << vel_ctrl_.errorMessage());
+    TOBAS_ERROR("Cartesian controller failed: ", vel_ctrl_.errorMessage());
     return -1;
   }
   const auto& velocities = vel_ctrl_.getVelocities();
@@ -150,7 +131,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateVel(velocities, active_joints) < 0)
   {
-    rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -175,10 +156,9 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
-    rosWarn(
-      name_, "The target joint states are automatically reset because "
-               << tobas::kAutoResetTimeThreshold
-               << " seconds have elapsed since the last command.");
+    TOBAS_WARN(
+      "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
+      " seconds have elapsed since the last command.");
   }
 
   // Create joint velocities command
@@ -197,7 +177,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   }
   else
   {
-    rosError(name_, "Both target joint state and target link state are NULL.");
+    TOBAS_ERROR("Both target joint state and target link state are NULL.");
     return;
   }
 
@@ -230,19 +210,19 @@ void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   // Joint space control
   if (cfg.joint_time_constant <= 0)
   {
-    rosError(name_, "Tracking time constant must be positive.");
+    TOBAS_ERROR("Tracking time constant must be positive.");
     success = false;
   }
 
   // Task space control
   if (cfg.linear_time_constant <= 0)
   {
-    rosError(name_, "Linear time constant must be positive.");
+    TOBAS_ERROR("Linear time constant must be positive.");
     success = false;
   }
   if (cfg.angular_time_constant <= 0)
   {
-    rosError(name_, "Angular time constant must be positive.");
+    TOBAS_ERROR("Angular time constant must be positive.");
     success = false;
   }
 
@@ -250,14 +230,14 @@ void VelocityControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   {
     jnt_time_const_ = cfg.joint_time_constant;
     if (!vel_ctrl_.setLinearTimeConst(cfg.linear_time_constant))
-      rosError(name_, "Failed to set linear tracking time constant.");
+      TOBAS_ERROR("Failed to set linear tracking time constant.");
     if (!vel_ctrl_.setAngularTimeConst(cfg.angular_time_constant))
-      rosError(name_, "Failed to set angular tracking time constant.");
-    rosInfo(name_, "Dynamic parameters are updated.");
+      TOBAS_ERROR("Failed to set angular tracking time constant.");
+    TOBAS_INFO("Dynamic parameters are updated.");
   }
   else
   {
-    rosError(name_, "Failed to update dynamic parameters.");
+    TOBAS_ERROR("Failed to update dynamic parameters.");
   }
 }
 }  // namespace tobas_manipulation

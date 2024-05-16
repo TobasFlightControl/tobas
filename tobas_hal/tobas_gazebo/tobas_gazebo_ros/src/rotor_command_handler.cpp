@@ -1,6 +1,5 @@
 #include <std_msgs/Bool.h>
 
-#include <tobas_ros_tools/console_message.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/Throttles.h>
@@ -18,33 +17,19 @@ RotorCommandHandler::RotorCommandHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
-  registerPublishers();
-  registerSubscribers();
+  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
+  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
+
+  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
+  tar_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::targetRotorSpeedsCb, this);
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
   pre_arm_check_sc_ = nh_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
   publishArming();
-}
-
-void RotorCommandHandler::getRosParams()
-{
-}
-
-void RotorCommandHandler::registerPublishers()
-{
-  throttles_pub_ = nh_.advertise<tobas_msgs::Throttles>(tobas::kThrottlesCmdTopic, 1);
-  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
-}
-
-void RotorCommandHandler::registerSubscribers()
-{
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
-  tar_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::targetRotorSpeedsCb, this);
 }
 
 void RotorCommandHandler::publishArming()
@@ -66,16 +51,16 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
 
   if (battery_ == nullptr)
   {
-    rosErrorThrottle(
-      kErrorPeriod, name_,
-      "The rotors cannot be rotated because battery state has not been received yet.");
+    TOBAS_ERROR_THROTTLE(
+      kErrorPeriod, "The rotors cannot be rotated because battery state has not been received "
+                    "yet.");
     return;
   }
 
   const auto data_size = tar_speeds->speeds.size();
   if (data_size != drone_.numRotors())
   {
-    rosError(name_, "Size mismatch: " << data_size << " != " << drone_.numRotors());
+    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.numRotors());
     return;
   }
 
@@ -91,16 +76,15 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)
     {
-      rosWarn(
-        name_, "Negative rotation speed is commanded on CH" << rotor_idx << ": " << tar_speed
-                                                            << " < 0 [rad/s]");
+      TOBAS_WARN(
+        "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      rosWarn(
-        name_, "Target rotation speed of CH" << rotor_idx << " is too high: " << tar_speed << " > "
-                                             << max_speed << " [rad/s]");
+      TOBAS_WARN(
+        "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
+        " [rad/s]");
       tar_speed = max_speed;
     }
 
@@ -121,8 +105,6 @@ bool RotorCommandHandler::getArmCb(tobas_msgs::GetArmRequest&, tobas_msgs::GetAr
 
 bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res)
 {
-  res.success = false;
-
   if (!is_armed_ && req.arming)
   {
     // Pre-arm check
@@ -130,11 +112,13 @@ bool RotorCommandHandler::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::S
     {
       if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
       {
+        res.success = false;
         res.message = "Failed to connect to pre-arm check service server.";
         return true;
       }
       if (!pre_arm_check_sc_.call(pre_arm_check_msg_) || !pre_arm_check_msg_.response.success)
       {
+        res.success = false;
         res.message = pre_arm_check_msg_.response.message;
         return true;
       }

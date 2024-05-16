@@ -18,7 +18,7 @@ namespace state_estimation_eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
+  PRINT_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
 
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
@@ -51,7 +51,7 @@ void ErrorStateKalmanFilter::initialize(
   const Matrix3d& init_gyro_bias_cov,
   const double& init_grav_var)
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilter::initialize");
+  PRINT_DEBUG("ErrorStateKalmanFilter::initialize");
 
   assert(et::isSymmetricSemiPositiveDefinite(init_pos_cov));
   assert(et::isSymmetricSemiPositiveDefinite(init_vel_cov));
@@ -90,7 +90,7 @@ void ErrorStateKalmanFilter::predictIMU(
   const double& grav_var,
   const double& dt)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
 
   assert(acc_noise_var >= 0);
   assert(gyro_noise_var >= 0);
@@ -143,7 +143,7 @@ double ErrorStateKalmanFilter::measurePosition(
   const Matrix3d& pos_cov,
   const Vector3d& offset)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
 
   const Vector3d delta_pos = pos_meas - getPosition(offset);
 
@@ -157,7 +157,7 @@ double ErrorStateKalmanFilter::measurePosition(
 
 double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
 
   const Vector2d delta_xy = xy_meas - getXY();
   return correct<2>(delta_xy, xy_cov, H_xy_);
@@ -165,7 +165,7 @@ double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d
 
 double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
 
   const double delta_z = z_meas - getAltitude();
   return correct<1>(Scalard(delta_z), Scalard(z_var), H_z_);
@@ -173,7 +173,7 @@ double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const doubl
 
 double ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
 
   return measureVelocity(vel_meas, vel_cov, Vector3d::Zero(), Vector3d::Zero());
 }
@@ -184,7 +184,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   const Vector3d& offset,
   const Vector3d& gyro_meas)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
 
   const Vector3d gyro_nominal = gyro_meas - getGyroBias();
   const Vector3d gyro_offset = gyro_nominal.cross(offset);
@@ -210,7 +210,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   const Vector3d& offset,
   const Vector3d& gyro_meas)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosVel");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosVel");
 
   // 観測誤差
   Vector6d delta;
@@ -242,7 +242,7 @@ double ErrorStateKalmanFilter::measurePosVel(
 double
 ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
 
   const Quaterniond q_nominal = getQuaternion();
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
@@ -253,7 +253,7 @@ ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matri
 
 double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureGravity");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureGravity");
 
   const Matrix3d R_B_W = getDCM().transpose();
   const Vector3d grav_B = R_B_W * getGravVector();
@@ -267,7 +267,7 @@ double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Ma
 
 double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var)
 {
-  TOBAS_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
 
   // Compute innovation
   const double delta_yaw = wrapPi(yaw_meas - getYaw());

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os.path as osp
 import numpy as np
 import rospy
 from sensor_msgs.msg import Imu
@@ -29,15 +28,15 @@ class ImuLpf:
         ts = max((imu.header.stamp - self._t_last).to_sec(), 0.0)
         self._t_last = imu.header.stamp
 
-        acc_raw = vector3_msg_to_np(imu.linear_acceleration)
-        gyro_raw = vector3_msg_to_np(imu.angular_velocity)
+        acc_raw = vectorMsgToNp(imu.linear_acceleration)
+        gyro_raw = vectorMsgToNp(imu.angular_velocity)
 
         alpha = np.exp(-ts / self._tau)
         self._acc = alpha * self._acc + (1 - alpha) * acc_raw
         self._gyro = alpha * self._gyro + (1 - alpha) * gyro_raw
 
-        imu.linear_acceleration = vector3_np_to_msg(self._acc)
-        imu.angular_velocity = vector3_np_to_msg(self._gyro)
+        imu.linear_acceleration = vectorNpToMsg(self._acc)
+        imu.angular_velocity = vectorNpToMsg(self._gyro)
 
         self._filterd_imu_pub.publish(imu)
 

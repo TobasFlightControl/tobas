@@ -50,10 +50,6 @@ private:
 
   ros::Timer pre_arm_check_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 

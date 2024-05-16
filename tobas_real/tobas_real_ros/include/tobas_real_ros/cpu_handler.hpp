@@ -33,10 +33,6 @@ private:
   // Timer
   ros::Timer main_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool getTemperature(double& temp);
   bool getFrequency(uint64_t& freq);
   bool getLoad(double& load);

@@ -1,0 +1,13 @@
+# Allow access to the PWM devices for all users
+SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
+        chown -R root:gpio /sys/class/pwm &&\
+        chmod -R 770 /sys/class/pwm;\
+        chown -R root:gpio /sys/devices/platform/soc/*.spi/spi_master/spi1/spi1.0/pwm/pwmchip0 &&\
+        chmod -R 770 /sys/devices/platform/soc/*.spi/spi_master/spi1/spi1.0/pwm/pwmchip0\
+'"
+
+# Allow all users to modify the communication latency of the USB devices
+KERNEL=="ttyUSB0", ACTION=="add", PROGRAM="/bin/sh -c '\
+        chown root:dialout /sys/bus/usb-serial/devices/%k/latency_timer;\
+        chmod 770 /sys/bus/usb-serial/devices/%k/latency_timer\
+'"

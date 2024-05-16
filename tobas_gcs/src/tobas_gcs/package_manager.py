@@ -24,6 +24,7 @@ class PackageManagerWidget(Widget):
     KEY = "last_opened_dir/tobas_configuration_package"
 
     PATH_WIDTH = 300
+    BUTTON_WIDTH = 50
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__()
@@ -36,7 +37,8 @@ class PackageManagerWidget(Widget):
         cols = QHBoxLayout()
         self.setLayout(cols)
 
-        cols.addWidget(QLabel("Tobas Package Path:"))
+        label = QLabel("Tobas Package Path:")
+        cols.addWidget(label)
 
         self._pkg_path = QLineEdit()
         self._pkg_path.setFixedWidth(self.PATH_WIDTH)
@@ -45,15 +47,15 @@ class PackageManagerWidget(Widget):
         cols.addWidget(self._pkg_path)
 
         self._load_button = QPushButton("Load")
+        self._load_button.setFixedWidth(self.BUTTON_WIDTH)
+        self._load_button.clicked.connect(self._on_load_button_clicked)
         cols.addWidget(self._load_button)
 
         self._send_button = QPushButton("Send")
+        self._send_button.setFixedWidth(self.BUTTON_WIDTH)
         self._send_button.setEnabled(False)
-        cols.addWidget(self._send_button)
-
-    def define_connections(self) -> None:
-        self._load_button.clicked.connect(self._on_load_button_clicked)
         self._send_button.clicked.connect(self._on_send_button_clicked)
+        cols.addWidget(self._send_button)
 
     def package_path(self) -> str:
         return self._pkg_path.text()
@@ -61,7 +63,7 @@ class PackageManagerWidget(Widget):
     def _load_drone(self, pkg_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
-        tbsf_path = osp.join(pkg_path, "config/drone.tbsf")
+        tbsf_path = osp.join(pkg_path, "config/drone.tbsdrn")
         if not osp.isfile(tbsf_path):
             return False
 

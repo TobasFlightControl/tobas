@@ -72,7 +72,7 @@ VectorXd Mixer::solve(
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
-  const auto I_B = inertia.refPoint(B_Pos_B2G).getRotationalInertia();
+  const auto I_B = inertia.getRotationalInertiaCoG();
 
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
@@ -158,9 +158,10 @@ void Mixer::updateThrustLimits(
     // 回転数の変化率による制約
     const auto max_drot = cfg_.max_rot_acc * dt;  // 回転数の変化量の最大値
     const auto& ct = z_rotors_.motorConstant(i);
-    const auto max_dthrust = 2 * sqrt(ct * last_thrusts_(i)) * max_drot + ct * sqr(max_drot);
-    thrust_limit_2.upper = last_thrusts_(i) + max_dthrust;
-    thrust_limit_2.lower = last_thrusts_(i) - max_dthrust;
+    const auto& last_thrust = last_thrusts_(i);
+    const auto max_dthrust = 2 * sqrt(ct * last_thrust) * max_drot + ct * tobas_std::sqr(max_drot);
+    thrust_limit_2.upper = last_thrust + max_dthrust;
+    thrust_limit_2.lower = last_thrust - max_dthrust;
 
     if (thrust_limit_1.isOverlapped(thrust_limit_2))
     {
@@ -180,7 +181,7 @@ void Mixer::updateThrustLimits(
   // 合計推力の等式制約を満たせない場合は，不等式制約を取り除く
   if (thrusts_sum < min_thrusts_.sum() || max_thrusts_.sum() < thrusts_sum)
   {
-    TOBAS_ERROR("Target thrust sum is not within the limit.");
+    PRINT_ERROR("Target thrust sum is not within the limit.");
     max_thrusts_.fill(numeric_limits<double>::max());
     min_thrusts_.fill(0);
   }

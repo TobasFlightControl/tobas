@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Eigen/Core>
-
 #include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_kdl/frames.hpp>
 #include <tobas_kdl/euler.hpp>

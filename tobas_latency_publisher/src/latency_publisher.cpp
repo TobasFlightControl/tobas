@@ -13,22 +13,7 @@ LatencyPublisher::LatencyPublisher(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-}
-
-void LatencyPublisher::getRosParams()
-{
-}
-
-void LatencyPublisher::registerPublishers()
-{
   latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
-}
-
-void LatencyPublisher::registerSubscribers()
-{
   tar_rot_speeds_sub_ =
     nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::targetRotorSpeedsCb, this, tcpNoDelay());
 }

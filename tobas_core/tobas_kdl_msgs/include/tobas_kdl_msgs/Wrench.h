@@ -15,10 +15,10 @@ namespace tobas_kdl_msgs
 template <class ContainerAllocator>
 using Wrench_ = KDL::Wrench;
 
-typedef ::tobas_kdl_msgs::Wrench_<std::allocator<void> > Wrench;
+typedef tobas_kdl_msgs::Wrench_<std::allocator<void> > Wrench;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Wrench> WrenchPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Wrench const> WrenchConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Wrench> WrenchPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Wrench const> WrenchConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros

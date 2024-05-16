@@ -1,0 +1,17 @@
+[Unit]
+Description=Launch Tobas HIL
+After=tobas_roscore.service
+Requires=tobas_roscore.service
+Conflicts=tobas_real.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/common.env
+EnvironmentFile=/etc/tobas/config_pkg.env
+ExecStartPre=/bin/bash -c '/etc/tobas/check_roscore.sh'
+ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/catkin_ws/devel/setup.bash && /opt/ros/noetic/bin/roslaunch ${TOBAS_CONFIG_PKG} hil.launch'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

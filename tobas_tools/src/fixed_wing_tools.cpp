@@ -34,6 +34,6 @@ double dynamicPressure(const double& rho, const double& V)
 {
   assert(rho > 0.);
   assert(V >= 0.);
-  return rho * sqr(V) / 2.;
+  return rho * tobas_std::sqr(V) / 2.;
 }
 }  // namespace tobas

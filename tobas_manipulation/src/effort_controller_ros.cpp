@@ -1,6 +1,4 @@
 #include <tobas_std_tools/zip.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -24,7 +22,6 @@ EffortControllerRos::EffortControllerRos(
     pid_ts_(drone_.tree()),
     server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
 
   cur_js_conv_.updateInternalDataStructures();
@@ -48,30 +45,17 @@ EffortControllerRos::EffortControllerRos(
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
 
-  registerPublishers();
-  registerSubscribers();
-
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
-}
-
-void EffortControllerRos::getRosParams()
-{
-}
-
-void EffortControllerRos::registerPublishers()
-{
   efforts_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
-}
 
-void EffortControllerRos::registerSubscribers()
-{
   cur_js_sub_ =
     nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
   tar_js_sub_ =
     nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ =
     nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+
+  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
+  server_.setCallback(f);
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
@@ -79,14 +63,12 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
-    rosError(
-      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return -1;
   }
   if (tar_js_conv_.jointStateToJntArrayPosVel(*tar_js_) < 0)
   {
-    rosError(
-      name_, "Failed to convert target JointState to Jntarray: " << tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -98,7 +80,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   // PIDで関節トルクを計算
   if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0)
   {
-    rosError(name_, "Joint space PID failed: " << pid_js_.errorMessage());
+    TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return -1;
   }
   const auto efforts = tar_js_conv_.getEffortsKDL() + pid_js_.getEfforts();  // FF + FB
@@ -106,7 +88,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   // JntArray -> JointState
   if (tar_js_conv_.jntArrayToJointStateEff(efforts, tar_js_->name) < 0)
   {
-    rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -123,8 +105,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   // JointState -> JntArray
   if (cur_js_conv_.jointStateToJntArrayPosVel(*cur_js_) < 0)
   {
-    rosError(
-      name_, "Failed to convert current JointState to Jntarray: " << cur_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return -1;
   }
 
@@ -138,7 +119,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
     {
-      rosError(name_, tf_listener_.getErrorMessage());
+      TOBAS_ERROR(tf_listener_.getErrorMessage());
       continue;
     }
 
@@ -155,7 +136,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   const auto& cur_qd = cur_js_conv_.getVelocitiesKDL();
   if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
-    rosError(name_, "Cartesian PID failed: " << pid_ts_.errorMessage());
+    TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
     return -1;
   }
   const auto& efforts = pid_ts_.getEfforts();
@@ -165,7 +146,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
   {
-    rosError(name_, "Failed to convert Jntarray to JointState: " << tar_js_conv_.errorMessage());
+    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
     return -1;
   }
 
@@ -190,10 +171,9 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
     tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
-    rosWarn(
-      name_, "The target joint states are automatically reset because "
-               << tobas::kAutoResetTimeThreshold
-               << " seconds have elapsed since the last command.");
+    TOBAS_WARN(
+      "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
+      " seconds have elapsed since the last command.");
   }
 
   // Create joint efforts command
@@ -212,7 +192,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   }
   else
   {
-    rosError(name_, "Both target joint state and target cartesian state are NULL.");
+    TOBAS_ERROR("Both target joint state and target cartesian state are NULL.");
     return;
   }
 
@@ -242,22 +222,22 @@ void EffortControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   // Joint space control
   if (!pid_js_.setStiffness(cfg.joint_stiffness))
-    rosError(name_, "Failed to set joint stiffness.");
+    TOBAS_ERROR("Failed to set joint stiffness.");
 
   if (!pid_js_.setDamping(cfg.joint_damping))
-    rosError(name_, "Failed to set joint damping.");
+    TOBAS_ERROR("Failed to set joint damping.");
 
   // Task space control
   if (!pid_ts_.setLinearStiffness(cfg.linear_stiffness))
-    rosError(name_, "Failed to set linear stiffness.");
+    TOBAS_ERROR("Failed to set linear stiffness.");
 
   if (!pid_ts_.setAngularStiffness(cfg.angular_stiffness))
-    rosError(name_, "Failed to set angular stiffness.");
+    TOBAS_ERROR("Failed to set angular stiffness.");
 
   if (!pid_ts_.setLinearDamping(cfg.linear_damping))
-    rosError(name_, "Failed to set linear damping.");
+    TOBAS_ERROR("Failed to set linear damping.");
 
   if (!pid_ts_.setAngularDamping(cfg.angular_damping))
-    rosError(name_, "Failed to set angular damping.");
+    TOBAS_ERROR("Failed to set angular damping.");
 }
 }  // namespace tobas_manipulation

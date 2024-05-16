@@ -49,10 +49,6 @@ private:
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
 

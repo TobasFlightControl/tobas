@@ -28,15 +28,6 @@ public:
   /* Creates an inertia with zero mass, and zero RotationalInertia */
   inline static RigidBodyInertia Zero();
 
-  /* Get the center of gravity of the rigid body */
-  Vector getCOG() const;
-
-  /**
-   * Reference point change with v the vector from the old to
-   * the new point expressed in the current reference frame
-   */
-  RigidBodyInertia refPoint(const Vector& p) const;
-
   /* Get the mass of the rigid body */
   inline const double& getMass() const;
 
@@ -45,6 +36,18 @@ public:
 
   /* Get the rotational inertia expressed in the reference frame (not the cog) */
   inline const RotationalInertia& getRotationalInertia() const;
+
+  /* Get the center of gravity of the rigid body */
+  inline Vector getCOG() const;
+
+  /* Get the rotational inertia expressed in the center of gravity. */
+  inline RotationalInertia getRotationalInertiaCoG() const;
+
+  /**
+   * Reference point change with v the vector from the old to
+   * the new point expressed in the current reference frame
+   */
+  RigidBodyInertia refPoint(const Vector& p) const;
 
   inline RigidBodyInertia operator+(const RigidBodyInertia& rhs) const;
   inline Impulse operator*(const Twist& rhs) const;
@@ -83,6 +86,16 @@ inline const RotationalInertia& RigidBodyInertia::getRotationalInertia() const
 {
   return I_;
 };
+
+inline Vector RigidBodyInertia::getCOG() const
+{
+  return m_ == 0 ? Vector::Zero() : h_ / m_;
+};
+
+inline RotationalInertia RigidBodyInertia::getRotationalInertiaCoG() const
+{
+  return refPoint(getCOG()).getRotationalInertia();
+}
 
 inline RigidBodyInertia RigidBodyInertia::operator+(const RigidBodyInertia& rhs) const
 {

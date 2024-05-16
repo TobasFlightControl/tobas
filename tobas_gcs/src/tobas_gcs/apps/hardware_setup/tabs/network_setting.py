@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -27,9 +26,9 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
     COL_WIDTH = 200
     WPA_SUPPLICANT_PATH = "/etc/wpa_supplicant/wpa_supplicant.conf"
 
+    LABELS = ("SSID", "PSK")
     COL_SSID = 0
     COL_PSK = 1
-    LABELS = ("SSID", "PSK")
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)

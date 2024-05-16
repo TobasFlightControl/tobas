@@ -18,12 +18,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from tobas_std_tools_py.sequence import is_unique
+from tobas_std_tools_py.file import create_empty_file
 from tobas_urdf_tools_py.core import *
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
 from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.xml import prettify_and_save
-
+from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
 from tobas_msgs.msg import *
 
 from .utils import get_drone_name
@@ -58,55 +59,58 @@ class PackageGenerator(QObject):
 
     def _is_valid_config(self) -> bool:
         if not self._main.settings.start.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.start)
+            self._main.settings.switch(self._main.settings.start)
             return False
         if not self._main.settings.battery.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.battery)
+            self._main.settings.switch(self._main.settings.battery)
             return False
         if not self._main.settings.propulsion_system.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.propulsion_system)
+            self._main.settings.switch(self._main.settings.propulsion_system)
             return False
         if not self._main.settings.fixed_wing.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.fixed_wing)
+            self._main.settings.switch(self._main.settings.fixed_wing)
             return False
         if not self._main.settings.custom_joints.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.custom_joints)
+            self._main.settings.switch(self._main.settings.custom_joints)
             return False
         if not self._main.settings.imu.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.imu)
+            self._main.settings.switch(self._main.settings.imu)
             return False
         if not self._main.settings.barometer.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.barometer)
+            self._main.settings.switch(self._main.settings.barometer)
             return False
         if not self._main.settings.gps.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.gps)
+            self._main.settings.switch(self._main.settings.gps)
             return False
         if not self._main.settings.rgb_camera.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.rgb_camera)
+            self._main.settings.switch(self._main.settings.rgb_camera)
             return False
         if not self._main.settings.depth_camera.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.depth_camera)
+            self._main.settings.switch(self._main.settings.depth_camera)
             return False
         if not self._main.settings.lidar.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.lidar)
+            self._main.settings.switch(self._main.settings.lidar)
             return False
         if not self._main.settings.odometry.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.odometry)
+            self._main.settings.switch(self._main.settings.odometry)
+            return False
+        if not self._main.settings.tether_station.is_valid():
+            self._main.settings.switch(self._main.settings.tether_station)
             return False
         if not self._main.settings.controller.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.controller)
+            self._main.settings.switch(self._main.settings.controller)
             return False
         if not self._main.settings.observer.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.observer)
+            self._main.settings.switch(self._main.settings.observer)
             return False
         if not self._main.settings.simulation.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.simulation)
+            self._main.settings.switch(self._main.settings.simulation)
             return False
         if not self._main.settings.author_information.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.author_information)
+            self._main.settings.switch(self._main.settings.author_information)
             return False
         if not self._main.settings.ros_package.is_valid():
-            self._main.settings.switch_to_tab(self._main.settings.ros_package)
+            self._main.settings.switch(self._main.settings.ros_package)
             return False
 
         # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを保証
@@ -166,6 +170,9 @@ class PackageGenerator(QObject):
         self._generate_from_template(items, "calibration.launch.template", osp.join(launch_dir, "calibration.launch"))
         self._generate_from_template(items, "controller.launch.template", osp.join(launch_dir, "controller.launch"))
         self._generate_from_template(items, "observer.launch.template", osp.join(launch_dir, "observer.launch"))
+        self._generate_from_template(
+            items, "mission_action_servers.launch.template", osp.join(launch_dir, "mission_action_servers.launch")
+        )
         self._generate_from_template(items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch"))
         self._generate_from_template(items, "hil.launch.template", osp.join(launch_dir, "hil.launch"))
         self._generate_from_template(items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch"))
@@ -225,7 +232,7 @@ class PackageGenerator(QObject):
         self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
-        self._generate_state_checker_config(config_dir)
+        self._generate_dynamic_params_config(config_dir)
         self._generate_urdf(urdf_dir, mesh_dir)
 
     def _make_template_items(self) -> None:
@@ -239,6 +246,7 @@ class PackageGenerator(QObject):
         template_items["controller_pkg"] = controller.controller_pkg()
         template_items["takeoff_pkg"] = controller.takeoff_pkg()
         template_items["landing_pkg"] = controller.landing_pkg()
+        template_items["move_pkg"] = controller.move_pkg()
 
         # Observer
         template_items["observer_pkg"] = settings.observer.pkg_name()
@@ -297,7 +305,7 @@ class PackageGenerator(QObject):
         for i in range(num_rotors):
             selected: SelectedLinkTabWidget = propulsion_system.widget(i)
 
-            # yaml.dump()時の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
+            # yamlに変換する際の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f"rotor_{i}"] = {
                 "link_name": selected.link_name(),
                 "direction": selected.motor.direction(),
@@ -382,9 +390,9 @@ class PackageGenerator(QObject):
             }
 
         # TBSFファイルを作成
-        drone_config_path = osp.join(config_dir, "drone.tbsf")
+        drone_config_path = osp.join(config_dir, "drone.tbsdrn")
         with open(drone_config_path, "w") as f:
-            yaml.dump(drone_config, f)
+            yaml.safe_dump(drone_config, f)
 
     def _generate_joint_control_config(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
@@ -413,7 +421,7 @@ class PackageGenerator(QObject):
         # yamlファイルを作成
         jnt_ctrl_path = osp.join(config_dir, "joint_control.yaml")
         with open(jnt_ctrl_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
         controller = self._main.settings.controller
@@ -423,27 +431,23 @@ class PackageGenerator(QObject):
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")
         with open(file_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        items = self._main.settings.controller.parameter_dict()
+        items = {CONTROLLER_NODE_NAME: self._main.settings.controller.static_parameters()}
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        items = self._main.settings.observer.parameter_dict()
+        items = {OBSERVER_NODE_NAME: self._main.settings.observer.static_parameters()}
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
-            yaml.dump(items, f)
+            yaml.safe_dump(items, f)
 
-    def _generate_state_checker_config(self, config_dir: str) -> None:
-        items = dict()
-        items["state_checker"] = {"battery_voltage_threshold": self._main.settings.battery.voltage_threshold()}
-
-        file_path = osp.join(config_dir, "state_checker.yaml")
-        with open(file_path, "w") as f:
-            yaml.dump(items, f)
+    def _generate_dynamic_params_config(self, config_dir: str) -> None:
+        file_path = osp.join(config_dir, "dynamic_params.yaml")
+        create_empty_file(file_path)
 
     def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
         robot = self._make_urdf_with_plugins(mesh_dir)
@@ -532,6 +536,7 @@ class PackageGenerator(QObject):
         depth_camera = self._main.settings.depth_camera
         lidar = self._main.settings.lidar
         odometry = self._main.settings.odometry
+        tether_station = self._main.settings.tether_station
         simulation = self._main.settings.simulation
 
         # XML namespace
@@ -763,6 +768,16 @@ class PackageGenerator(QObject):
                 angvel_uniform_noise_scale=odometry.angvel_uniform_noise_scale.get(),
             )
             robot.append(odometry_model)
+
+        # Tether Station plugin
+        if tether_station.equipped():
+            add_tether_station_model(
+                robot=robot,
+                link_name=tether_station.link.get(),
+                world_end=tether_station.world_end.get(),
+                drone_end=tether_station.drone_end.get(),
+                tension=tether_station.tension.get(),
+            )
 
         # Ground Truth State plugin
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)

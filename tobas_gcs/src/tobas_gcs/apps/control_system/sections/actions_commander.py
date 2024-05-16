@@ -4,15 +4,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import os
-import signal
-import rospy
 from overrides import override
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.messages import q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 
 from ....common import *
@@ -34,6 +30,8 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
         cols = QHBoxLayout()
         self._rows.addLayout(cols)
 
+        # TODO: コマンド中にキャンセルできるように
+
         self._takeoff_button = QPushButton("Takeoff")
         self._takeoff_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         cols.addWidget(self._takeoff_button)
@@ -48,17 +46,11 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
         cols.addStretch()
 
-        self._shutdown_button = QPushButton("Shutdown")
-        self._shutdown_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._shutdown_button.setStyleSheet("background-color: red")
-        cols.addWidget(self._shutdown_button)
-
     @override
     def define_connections(self) -> None:
         self._takeoff_button.clicked.connect(self._on_takeoff_button_clicked)
         self._landing_button.clicked.connect(self._on_landing_button_clicked)
         self._rth_button.clicked.connect(self._on_rth_button_clicked)
-        self._shutdown_button.clicked.connect(self._on_shutdown_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -66,33 +58,12 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
     @pyqtSlot()
     def _on_takeoff_button_clicked(self) -> None:
-        q_error(self._main, "Not implemented yet.")  # TODO
+        pass  # TODO
 
     @pyqtSlot()
     def _on_landing_button_clicked(self) -> None:
-        q_error(self._main, "Not implemented yet.")  # TODO
+        pass  # TODO
 
     @pyqtSlot()
     def _on_rth_button_clicked(self) -> None:
-        q_error(self._main, "Not implemented yet.")  # TODO
-
-    @pyqtSlot()
-    def _on_shutdown_button_clicked(self) -> None:
-        # 本当にシャットダウンしてよいか確認
-        if not yes_or_no(self._main, "Are you sure you want to shut down the FC and the GCS?", QMessageLevel.WARN):
-            return
-
-        # SSH接続
-        rospy.loginfo("Connecting to the Raspberry Pi.")
-        try:
-            self._ssh_client.connect()
-        except Exception as e:
-            q_error(self._main, str(e))
-            return
-
-        # ラズパイをシャットダウン
-        rospy.loginfo("Shutting down the Raspberry Pi.")
-        self._ssh_client.exec_command_bg_super("poweroff")
-
-        # GCSを強制終了
-        os.kill(os.getpid(), signal.SIGINT)
+        pass  # TODO

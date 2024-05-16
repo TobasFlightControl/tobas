@@ -45,7 +45,7 @@ class Vector:
 
     def norm(self) -> Symbol:
         """ノルムを返す．"""
-        return sympy.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+        return sympy.sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def normalize(self) -> Vector:
         """正規化する．"""

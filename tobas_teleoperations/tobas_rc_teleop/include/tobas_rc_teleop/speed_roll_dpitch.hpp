@@ -6,8 +6,6 @@ namespace tobas_rc_teleop
 {
 class SpeedRollDeltaPitchController : public BaseController
 {
-  static constexpr char kControllerName[] = "speed_roll_dpitch_controller";
-
   static constexpr double kDefaultMinSpeed = 5.;           // [m/s]
   static constexpr double kDefaultMaxSpeed = 20.;          // [m/s]
   static constexpr double kDefaultMaxRoll = M_PI_2;        // [rad]
@@ -36,6 +34,5 @@ private:
   ros::Publisher cmd_pub_;
 
   void getRosParams(ros::NodeHandle& pnh);
-  void registerPublishers(ros::NodeHandle& nh);
 };
 }  // namespace tobas_rc_teleop

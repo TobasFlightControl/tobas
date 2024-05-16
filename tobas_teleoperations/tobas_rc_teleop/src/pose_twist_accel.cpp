@@ -1,9 +1,5 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 
@@ -12,7 +8,6 @@
 
 using namespace std;
 using namespace KDL;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -23,7 +18,8 @@ PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : 
 void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
   getRosParams(pnh);
-  registerPublishers(nh);
+
+  cmd_pub_ = nh.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
 }
 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
@@ -49,10 +45,8 @@ void PoseTwistAccelController::update(
   if (rcin.gpsw)  // 姿勢固定で位置制御
   {
     // RC入力から目標水平速を計算
-    tar_vel_F_.x() =
-      dead_zone_.inRange(rcin.pitch) ? 0 : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_);
-    tar_vel_F_.y() =
-      dead_zone_.inRange(rcin.roll) ? 0 : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_);
+    tar_vel_F_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
+    tar_vel_F_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
 
     // 目標姿勢角はゼロ
     tar_rpy_.roll = 0;
@@ -61,11 +55,8 @@ void PoseTwistAccelController::update(
   else  // 位置固定で姿勢制御
   {
     // RC入力から目標姿勢を計算
-    tar_rpy_.roll =
-      dead_zone_.inRange(rcin.roll) ? 0 : remap(rcin.roll, -1., 1., -max_attitude_, max_attitude_);
-    tar_rpy_.pitch = dead_zone_.inRange(rcin.pitch) ?
-                       0 :
-                       remap(rcin.pitch, -1., 1., -max_attitude_, max_attitude_);
+    tar_rpy_.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
+    tar_rpy_.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
 
     // 目標水平速度はゼロ
     tar_vel_F_.x() = 0;
@@ -73,9 +64,8 @@ void PoseTwistAccelController::update(
   }
 
   // RC入力から鉛直速度とヨーレートを計算
-  tar_vel_F_.z() = remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_);
-  const auto yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  tar_vel_F_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
+  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
 
   // 目標速度を世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
@@ -126,10 +116,5 @@ void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
     pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-}
-
-void PoseTwistAccelController::registerPublishers(ros::NodeHandle& nh)
-{
-  cmd_pub_ = nh.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

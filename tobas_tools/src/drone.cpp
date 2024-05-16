@@ -17,12 +17,12 @@ namespace tobas
 {
 Drone::Drone()
 {
-  TOBAS_DEBUG("Drone::Drone");
+  PRINT_DEBUG("Drone::Drone");
 }
 
 void Drone::loadFromParam(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::loadFromParam");
+  PRINT_DEBUG("Drone::loadFromParam");
 
   ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get KDL tree.")
 
@@ -53,7 +53,7 @@ double Drone::minRotSpeed(const size_t& rotor_idx, const double& battery_voltage
 double Drone::maxMechanicalThrust(const size_t& rotor_idx) const
 {
   const auto& rotor = rotors_.at(rotor_idx);
-  return rotor.motor_constant * sqr(rotor.max_rot_speed);
+  return rotor.motor_constant * tobas_std::sqr(rotor.max_rot_speed);
 }
 
 double Drone::maxThrust(const size_t& rotor_idx, const double& battery_voltage) const
@@ -70,7 +70,7 @@ double Drone::minThrust(const size_t& rotor_idx, const double& battery_voltage) 
 
 double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& tar_speed) const
 {
-  return rotors_[rotor_idx].motor_constant * sqr(tar_speed);
+  return rotors_[rotor_idx].motor_constant * tobas_std::sqr(tar_speed);
 }
 
 double Drone::thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -87,7 +87,7 @@ double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& tar_spe
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return a * tar_speed + b * sqr(tar_speed);
+  return a * tar_speed + b * tobas_std::sqr(tar_speed);
 }
 
 double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -96,7 +96,7 @@ double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return b > 0 ? (sqrt(sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+  return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const
@@ -129,7 +129,7 @@ double Drone::throttleFromThrust(
 
 void Drone::getBatteryConfig(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getBatteryConfig");
+  PRINT_DEBUG("Drone::getBatteryConfig");
 
   const string prefix = "battery";
 
@@ -147,7 +147,7 @@ void Drone::getBatteryConfig(ros::NodeHandle& nh)
 
 void Drone::getJointConfigs(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getJointConfigs");
+  PRINT_DEBUG("Drone::getJointConfigs");
 
   size_t num_joints;
   tobas_ros::getParam(nh, "num_joints", num_joints);
@@ -158,7 +158,7 @@ void Drone::getJointConfigs(ros::NodeHandle& nh)
 
 void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
 {
-  TOBAS_DEBUG("Drone::getJointConfigs(" << jnt_idx << ")");
+  PRINT_DEBUG("Drone::getJointConfigs(" << jnt_idx << ")");
 
   const string prefix = "joint_" + to_string(jnt_idx);
   string name;
@@ -188,7 +188,7 @@ void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
 
 void Drone::getRotorConfigs(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getRotorConfigs");
+  PRINT_DEBUG("Drone::getRotorConfigs");
 
   size_t num_rotors;
   tobas_ros::getParam(nh, "num_rotors", num_rotors);
@@ -199,7 +199,7 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
 
 RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
 {
-  TOBAS_DEBUG("Drone::getRotorConfigs(" << rotor_idx << ")");
+  PRINT_DEBUG("Drone::getRotorConfigs(" << rotor_idx << ")");
 
   const string prefix = "rotor_" + to_string(rotor_idx);
   RotorConfig res;
@@ -264,14 +264,13 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
     "The second term of 'rot_speed_coefs' must be non-negative.");
 
   tobas_ros::getParam(nh, prefix + "/channel", res.channel);
-  ROS_CHECK(nh, res.channel < kServoRailSize, "Invalid PWM channel: " << res.channel);
 
   return res;
 }
 
 void Drone::getFixedWingConfig(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getFixedWingConfig");
+  PRINT_DEBUG("Drone::getFixedWingConfig");
 
   getVehicleParameters(nh);
   getAerodynamicsCoefficients(nh);
@@ -280,7 +279,7 @@ void Drone::getFixedWingConfig(ros::NodeHandle& nh)
 
 void Drone::getVehicleParameters(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getVehicleParameters");
+  PRINT_DEBUG("Drone::getVehicleParameters");
 
   const string prefix = "fixed_wing/vehicle";
   auto& des = fixed_wing_.vehicle;
@@ -297,7 +296,7 @@ void Drone::getVehicleParameters(ros::NodeHandle& nh)
 
 void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getAerodynamicsCoefficients");
+  PRINT_DEBUG("Drone::getAerodynamicsCoefficients");
 
   const string prefix = "fixed_wing/aerodynamic_coefficients";
   auto& des = fixed_wing_.aerodynamics;
@@ -325,7 +324,7 @@ void Drone::getAerodynamicsCoefficients(ros::NodeHandle& nh)
 
 void Drone::getControlSurfaces(ros::NodeHandle& nh)
 {
-  TOBAS_DEBUG("Drone::getControlSurfaces");
+  PRINT_DEBUG("Drone::getControlSurfaces");
 
   // fixed_wing/controll_surface_0などにはnh.searchParam()が使えないため，
   // 制御面の個数を明示的にパラメータサーバから取得する．
@@ -338,7 +337,7 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
 
 ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_idx)
 {
-  TOBAS_DEBUG("Drone::getRotorConfigs(" << cs_idx << ")");
+  PRINT_DEBUG("Drone::getRotorConfigs(" << cs_idx << ")");
 
   const string prefix = "fixed_wing/control_surface_" + to_string(cs_idx);
   ControlSurface res;

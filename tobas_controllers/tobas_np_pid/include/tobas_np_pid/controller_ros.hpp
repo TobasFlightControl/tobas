@@ -1,13 +1,12 @@
-#include <ros/ros.h>
+#pragma once
+
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Bool.h>
 
-#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_kdl/jntarray.hpp>
 #include <tobas_kdl/treejntparser.hpp>
 #include <tobas_kdl/treejointstateconverter.hpp>
-#include <tobas_ros_tools/timer.hpp>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/drone.hpp>
@@ -56,9 +55,8 @@ private:
   tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
   sensor_msgs::JointStateConstPtr js_;
+  std_msgs::BoolConstPtr arming_;
   tobas_msgs::PoseTwistAccelCommandPtr cmd_;
-  ros::Time t_last_loop_;
-  bool is_initialized_ = false;
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
@@ -68,27 +66,23 @@ private:
   // Subscribers
   ros::Subscriber odom_sub_;
   ros::Subscriber battery_sub_;
-  ros::Subscriber joint_state_sub_;
+  ros::Subscriber js_sub_;
+  ros::Subscriber arming_sub_;
   ros::Subscriber cmd_sub_;
-
-  // Timers
-  tobas_ros::Timer check_topics_timer_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
-  bool isReady() const;
+  void registerPublishers();
+  void registerSubscribers();
+  bool isReadyToControl();
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
+  void armingCb(const std_msgs::BoolConstPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };
 }  // namespace tobas_np_pid

@@ -5,25 +5,25 @@ namespace tobas_std
 {
 double TimestampedBufferDouble::mean() const
 {
-  if (buffer_.size() == 0)
+  if (this->size() == 0)
     return 0.;
 
   double sum = 0.;
-  for (const auto& [_, x] : buffer_)
+  for (const auto& [_, x] : map_)
     sum += x;
-  return sum / buffer_.size();
+  return sum / this->size();
 }
 
 double TimestampedBufferDouble::variance() const
 {
-  if (buffer_.size() == 0)
+  if (this->size() == 0)
     return 0.;
 
   const auto mean = this->mean();
   double sum = 0.;
-  for (const auto& [_, x] : buffer_)
+  for (const auto& [_, x] : map_)
     sum += sqr(x - mean);
-  return sum / buffer_.size();
+  return sum / this->size();
 }
 
 double TimestampedBufferDouble::stddev() const

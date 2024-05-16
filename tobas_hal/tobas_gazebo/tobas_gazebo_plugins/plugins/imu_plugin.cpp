@@ -11,7 +11,6 @@
 
 using namespace std;
 using namespace ignition::math;
-using namespace tobas_std;
 
 namespace gazebo
 {
@@ -129,11 +128,11 @@ void GazeboImuPlugin::onUpdate()
   vectorGazeboToRos(acc_lpf_.getState(), imu_msg_.linear_acceleration);
   vectorGazeboToRos(gyro_lpf_.getState(), imu_msg_.angular_velocity);
 
-  const double acc_var = sqr(acc_noise_density_obs_) / dt;
-  fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
+  const double acc_var = tobas_std::sqr(acc_noise_density_obs_) / dt;
+  tobas_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
 
-  const double gyro_var = sqr(gyro_noise_density_obs_) / dt;
-  fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
+  const double gyro_var = tobas_std::sqr(gyro_noise_density_obs_) / dt;
+  tobas_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
 
   // Publish IMU message
   imu_pub_.publish(imu_msg_);

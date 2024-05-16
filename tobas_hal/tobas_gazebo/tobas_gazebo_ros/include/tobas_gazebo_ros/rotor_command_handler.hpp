@@ -41,10 +41,6 @@ private:
   ros::ServiceClient pre_arm_check_sc_;
   std_srvs::Trigger pre_arm_check_msg_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void publishArming();
 
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);

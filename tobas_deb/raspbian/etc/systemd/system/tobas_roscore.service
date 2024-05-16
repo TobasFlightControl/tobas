@@ -1,0 +1,16 @@
+[Unit]
+Description=Tobas roscore launcher
+After=networking.service
+Requires=networking.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/common.env
+ExecStartPre=/bin/bash -c '/etc/tobas/kill_ros.sh'
+ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && /opt/ros/noetic/bin/roscore'
+ExecStopPost=/bin/bash -c '/etc/tobas/kill_ros.sh'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -4,25 +4,21 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-import joblib
 from typing import List
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
 
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...parameter_getters import *
-from ...common import *
 from ..base_setting import BaseSettingWidget
 from .base import BaseController
 from .multirotor_pid import MultirotorPid
 from .multirotor_mpc import MultirotorMpc
+from .arducopter import ArduCopter
 from .non_planar_pid import NonPlanarPid
 from .fixed_wing_lqr import FixedWingLQR
-from .arducopter import ArduCopter
+from .custom import CustomController
 
 
 class ControllerWidget(BaseSettingWidget):
@@ -45,19 +41,14 @@ class ControllerWidget(BaseSettingWidget):
             ArduCopter(main),
             NonPlanarPid(main),
             FixedWingLQR(main),
+            CustomController(main),
         ]
-
-        # 各制御器の動的パラメータを並列に読み込む
-        # NOTE: ウィジェット自体をマルチスレッドにすると親子関係が壊れるため，コンストラクタの並列処理はできない
-        job = joblib.Parallel(n_jobs=-1, prefer="threads")  # メモリ共有するためマルチプロセスではなくマルチスレッド
-        job(joblib.delayed(ctrl.get_dynamic_params)() for ctrl in self._controllers)
 
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
         self._rows.addWidget(self._type)
 
         for controller in self._controllers:
-            controller.add_dynamic_params()
             self._rows.addWidget(controller)
 
         self._rows.addStretch()
@@ -92,14 +83,17 @@ class ControllerWidget(BaseSettingWidget):
     def landing_pkg(self) -> str:
         return self._selected().LANDING_PKG
 
+    def move_pkg(self) -> str:
+        return self._selected().MOVE_PKG
+
     def stabilize_mode(self) -> str:
         return self._selected().STABLIZE_MODE
 
     def acrobat_mode(self) -> str:
         return self._selected().ACROBAT_MODE
 
-    def parameter_dict(self) -> dict:
-        return self._selected().parameter_dict()
+    def static_parameters(self) -> dict:
+        return self._selected().static_parameters()
 
     def _update_controller_types(self) -> None:
         for controller in self._controllers:

@@ -7,15 +7,22 @@ if TYPE_CHECKING:
 import rospy
 import pyqtgraph as pg
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QWheelEvent
 
 from tobas_rospy.timestamped_buffer import TimestampedBuffer
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Latency
 
+from ....common import PAINT_REFRESH_PERIOD
 from .base_section import BaseControlSystemSectionWidget
+
+
+class PlotWidget(pg.PlotWidget):
+    def wheelEvent(self, e: QWheelEvent) -> None:
+        # マウスホイールイベントを無効化
+        # なぜか@overrideは付けられない
+        e.ignore()
 
 
 class LatencyViewerWidget(BaseControlSystemSectionWidget):
@@ -23,12 +30,11 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
 
     PLOT_HEIGHT = 300
     EXPIRY_DURATION = 10  # [s]
-    PLOT_UPDATE_PERIOD = 100  # [ms]
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
 
-        self._pw = pg.PlotWidget()
+        self._pw = PlotWidget()
         self._pw.setFixedHeight(self.PLOT_HEIGHT)
         self._pw.setBackground("w")
         self._rows.addWidget(self._pw)
@@ -51,10 +57,10 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         if self._latency_sub is not None:
             self._latency_sub.unregister()
         self._latency_sub = rospy.Subscriber(
-            f"/{self._drone.drone_name}/latency", Latency, self._latency_cb, queue_size=1
+            f"{self._drone.drone_name}/latency", Latency, self._latency_cb, queue_size=1
         )
 
-        self._timer.start(self.PLOT_UPDATE_PERIOD)
+        self._timer.start(PAINT_REFRESH_PERIOD)
 
     def _latency_cb(self, latency: Latency) -> None:
         self._buffer.add(latency.header.stamp, latency.data)

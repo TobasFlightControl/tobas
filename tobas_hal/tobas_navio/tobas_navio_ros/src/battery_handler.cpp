@@ -1,6 +1,4 @@
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
 
@@ -17,33 +15,17 @@ BatteryHandler::BatteryHandler(
   const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to load configuratins.")
+    TOBAS_EXIT("Failed to load configuratins.");
 
   if (adc_.initialize() < 0)
-    ROS_EXIT_NAMED(nh_, name_, "Failed to initialize ADC driver.");
+    TOBAS_EXIT("Failed to initialize ADC driver.");
 
-  registerPublishers();
-  registerSubscribers();
+  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
 
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-}
-
-void BatteryHandler::getRosParams()
-{
-}
-
-void BatteryHandler::registerPublishers()
-{
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
-}
-
-void BatteryHandler::registerSubscribers()
-{
 }
 
 bool BatteryHandler::reloadConfig()
@@ -60,7 +42,7 @@ bool BatteryHandler::getVoltage(double& voltage)
   const auto a2_value = adc_.read(kPowerModuleVoltageChannel);
   if (a2_value < 0)
   {
-    rosError(name_, "Failed to read battery voltage.");
+    TOBAS_ERROR("Failed to read battery voltage.");
     return false;
   }
 
@@ -76,7 +58,7 @@ bool BatteryHandler::getCurrent(double& current)
   const auto a3_value = adc_.read(kPowerModuleCurrentChannel);
   if (a3_value < 0)
   {
-    rosError(name_, "Failed to read battery current.");
+    TOBAS_ERROR("Failed to read battery current.");
     return false;
   }
 

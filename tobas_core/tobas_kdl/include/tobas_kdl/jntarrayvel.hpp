@@ -18,6 +18,7 @@ public:
   inline explicit JntArrayVel(const JntArray& q);
 
   inline void resize(size_t nj);
+  inline void setZero();
 
   inline JntArrayVel operator+(const JntArrayVel& rhs) const;
   inline JntArrayVel operator-(const JntArrayVel& rhs) const;
@@ -25,8 +26,6 @@ public:
   inline JntArrayVel operator*(const doubleVel& rhs) const;
   inline JntArrayVel operator/(const double& rhs) const;
   inline JntArrayVel operator/(const doubleVel& rhs) const;
-
-  inline friend void setToZero(JntArrayVel& array);
 };
 
 inline JntArrayVel::JntArrayVel()
@@ -52,10 +51,10 @@ inline void JntArrayVel::resize(size_t nj)
   qdot.resize(nj);
 }
 
-inline void setToZero(JntArrayVel& array)
+inline void JntArrayVel::setZero()
 {
-  setToZero(array.q);
-  setToZero(array.qdot);
+  q.setZero();
+  qdot.setZero();
 }
 
 inline JntArrayVel JntArrayVel::operator+(const JntArrayVel& rhs) const

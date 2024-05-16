@@ -25,7 +25,7 @@ void DrydenComponents::update(
   const auto h_ft = h * kMeterToFeet;
   if (h_ft > dryden::kLowAltitudeThreshold)
   {
-    TOBAS_WARN(
+    PRINT_WARN(
       "Since the altitude from the ground exceeds "
       << dryden::kLowAltitudeThreshold << " feet, the Dryden wind model might be inaccurate.");
   }

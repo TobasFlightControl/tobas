@@ -1,24 +1,26 @@
 #include <memory>
 #include <string>
+#include <unistd.h>
 
 #include <tobas_navio_core/util.hpp>
 #include <tobas_navio_core/mpu9250.hpp>
 #include <tobas_navio_core/lsm9ds1.hpp>
 
+using namespace std;
 using namespace navio;
 
-std::unique_ptr<InertialSensor> get_inertial_sensor(std::string sensor_name)
+unique_ptr<InertialSensor> get_inertial_sensor(string sensor_name)
 {
   if (sensor_name == "mpu")
   {
     printf("Selected: MPU9250\n");
-    auto ptr = std::unique_ptr<InertialSensor>{ new MPU9250() };
+    auto ptr = unique_ptr<InertialSensor>{ new MPU9250() };
     return ptr;
   }
   else if (sensor_name == "lsm")
   {
     printf("Selected: LSM9DS1\n");
-    auto ptr = std::unique_ptr<InertialSensor>{ new LSM9DS1() };
+    auto ptr = unique_ptr<InertialSensor>{ new LSM9DS1() };
     return ptr;
   }
   else
@@ -33,13 +35,13 @@ void print_help()
   printf("Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h\n");
 }
 
-std::string get_sensor_name(int argc, char* argv[])
+string get_sensor_name(int argc, char* argv[])
 {
   if (argc < 2)
   {
     printf("Enter parameter\n");
     print_help();
-    return std::string();
+    return "";
   }
 
   // prevent the error message
@@ -58,11 +60,11 @@ std::string get_sensor_name(int argc, char* argv[])
       case '?':
         printf("Wrong parameter.\n");
         print_help();
-        return std::string();
+        return "";
     }
   }
 
-  return std::string();
+  return "";
 }
 
 int main(int argc, char* argv[])

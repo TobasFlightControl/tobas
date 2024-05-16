@@ -62,10 +62,6 @@ private:
   ros::Timer main_timer_;
   ros::Timer measure_gyro_bias_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);

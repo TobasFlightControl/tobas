@@ -16,8 +16,15 @@ static constexpr uint32_t kPreambleOffset = 2;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr uint32_t kConfigureMessageSize = 11;
 static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
-static constexpr uint32_t kWaitForGnssAck = 1000000;  // [us]
-static constexpr size_t kSpiInterval = 100;  // [us] これより小さくするのは危険
+static constexpr double kWaitForGnssAck = 1.;  // [s]
+
+// SPIで1バイト受け取る間隔 [us]
+// 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる
+// 50usだと明らかに位置精度が悪くなり，100usだと大きく改善 (2024/5/16)
+// 100usの場合はPVT (92バイト) を受け取るのに 0.1 x 92 = 9.2ms かかる．
+// PX4はデフォルトで 38400bit/s のUARTだから，PVTの受信遅延は 92 / (38400 / 8) * 1000 ~ 19.2ms．
+// どうせ衛生からの通信遅延が70msで固定で，レシーバとFCの通信遅延はボトルネックではないから，速度より精度を重視すべき．
+static constexpr size_t kSpiInterval = 100;
 
 class UBXScanner
 {
@@ -106,6 +113,7 @@ private:
     ID_CFG_RATE = 0x08,
     ID_CFG_NAV5 = 0x24,
     ID_CFG_GNSS = 0x3E,
+    ID_CFG_PMS = 0x86,
 
     ID_MON_HW = 0x09,
     ID_MON_HW2 = 0x0B,
@@ -159,6 +167,17 @@ public:
     ELECTRIC_KICK_SCOOTER = 12,
   };
 
+  // powerSetupValue (UBX-CFG-PMS)
+  enum power_setup_value : uint8_t
+  {
+    FULL_POWER = 0,
+    BALANCED = 1,
+    INTERVAL = 2,
+    AGGRESSIVE_WITH_1HZ = 3,
+    AGGRESSIVE_WITH_2HZ = 4,
+    AGGRESSIVE_WITH_4HZ = 5,
+  };
+
   // gnssId (UBX-CFG-GNSS)
   enum gnss_id : uint8_t
   {
@@ -181,6 +200,9 @@ public:
 
   /* 32.10.19.1 Navigation engine settings */
   bool configureDynamicsModel(dynamics_model dyn_model);
+
+  /* 32.10.24.1 Power mode setup */
+  bool configurePowerMode(power_setup_value mode, uint16_t period = 0, uint16_t on_time = 0);
 
   /* 32.10.13.1 GNSS system configuration */
   bool configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
@@ -255,10 +277,19 @@ private:
     uint8_t dgnssTimeout;
     uint8_t cnoThreshNumSVs;
     uint8_t cnoThresh;
-    uint8_t reserved1[2];
+    const uint8_t reserved1[2] = { 0, 0 };
     uint16_t staticHoldMaxDist;
     uint8_t utcStandard;
-    uint8_t reserved2[5];
+    const uint8_t reserved2[5] = { 0, 0, 0, 0, 0 };
+  };
+
+  struct PACKED CfgPms
+  {
+    const uint8_t version = 0x00;
+    uint8_t powerSetupValue;
+    uint16_t period;
+    uint16_t onTime;
+    const uint8_t reserved1[2] = { 0, 0 };
   };
 
   struct PACKED CfgGnssBlock
@@ -266,16 +297,16 @@ private:
     uint8_t gnssId;
     uint8_t resTrkCh;
     uint8_t maxTrkCh;
-    uint8_t reserved1;
+    const uint8_t reserved1 = 0;
     uint32_t flags;
   };
 
   struct PACKED CfgGnss
   {
-    uint8_t msgVer;
-    uint8_t numTrkChHw;
+    const uint8_t msgVer = 0x00;
+    const uint8_t numTrkChHw = 0;  // Read only
     uint8_t numTrkChUse;
-    uint8_t numConfigBlocks;  // Always 1
+    const uint8_t numConfigBlocks = 1;
     CfgGnssBlock block;
   };
   /* ==============================*/

@@ -14,10 +14,10 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Rotation_ = KDL::Rotation;
 
-typedef ::tobas_kdl_msgs::Rotation_<std::allocator<void> > Rotation;
+typedef tobas_kdl_msgs::Rotation_<std::allocator<void> > Rotation;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Rotation> RotationPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Rotation const> RotationConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Rotation> RotationPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Rotation const> RotationConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros

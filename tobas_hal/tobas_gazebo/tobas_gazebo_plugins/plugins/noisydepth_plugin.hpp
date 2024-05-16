@@ -66,7 +66,7 @@ private:
   ros::Publisher depth_info_pub_;
 
   void onNewImageFrame(
-    const u_char* image,
+    const uint8_t* image,
     size_t width,
     size_t height,
     size_t depth,

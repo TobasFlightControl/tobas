@@ -13,10 +13,10 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Quaternion_ = KDL::Quaternion;
 
-typedef ::tobas_kdl_msgs::Quaternion_<std::allocator<void> > Quaternion;
+typedef tobas_kdl_msgs::Quaternion_<std::allocator<void> > Quaternion;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Quaternion> QuaternionPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Quaternion const> QuaternionConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Quaternion> QuaternionPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Quaternion const> QuaternionConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros

@@ -2,9 +2,6 @@
 #include <controller_manager_msgs/ListControllers.h>
 
 #include <tobas_std_tools/unordered_map.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_gazebo_ros/joint_command_handler.hpp"
@@ -19,21 +16,6 @@ JointCommandHandler::JointCommandHandler(
   const ros::NodeHandle& pnh,
   const std::string& name)
   : super(nh, pnh, name)
-{
-  getRosParams();
-  registerPublishers();
-  registerSubscribers();
-}
-
-void JointCommandHandler::getRosParams()
-{
-}
-
-void JointCommandHandler::registerPublishers()
-{
-}
-
-void JointCommandHandler::registerSubscribers()
 {
   positions_sub_ = nh_.subscribe(
     tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
@@ -51,14 +33,14 @@ int JointCommandHandler::initialize()
     nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
   if (!sc.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    rosError(name_, "Failed to connect to '" << tobas::kListControllersSrv << "' service server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kListControllersSrv, "' service server.");
     return -1;
   }
 
   controller_manager_msgs::ListControllers msg;
   if (!sc.call(msg))
   {
-    rosError(name_, "Failed to call '" << tobas::kListControllersSrv << "'.");
+    TOBAS_ERROR("Failed to call '", tobas::kListControllersSrv, "'.");
     return -1;
   }
 
@@ -78,7 +60,7 @@ int JointCommandHandler::initialize()
       cmd_type = EFFORT;
     else
     {
-      rosError(name_, "Unknown controller type: " << item.type);
+      TOBAS_ERROR("Unknown controller type: ", item.type);
       return -1;
     }
 
@@ -104,7 +86,7 @@ void JointCommandHandler::jointPositionsCmdCb(
     const auto& jnt_name = positions->commands[i].name;
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
-      rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
+      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -117,10 +99,9 @@ void JointCommandHandler::jointPositionsCmdCb(
     }
     else
     {
-      rosWarn(
-        name_, "Transmission type for joint '"
-                 << jnt_name << "' is not position. So received position command for joint '"
-                 << jnt_name << "' is ignored.");
+      TOBAS_WARN(
+        "Transmission type for joint '", jnt_name,
+        "' is not position. So received position command for joint '", jnt_name, "' is ignored.");
     }
   }
 }
@@ -140,7 +121,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(
 
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
-      rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
+      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -153,10 +134,9 @@ void JointCommandHandler::jointVelocitiesCmdCb(
     }
     else
     {
-      rosWarn(
-        name_, "Transmission type for joint '"
-                 << jnt_name << "' is not velocity. So received velocity command for joint '"
-                 << jnt_name << "' is ignored.");
+      TOBAS_WARN(
+        "Transmission type for joint '", jnt_name,
+        "' is not velocity. So received velocity command for joint '", jnt_name, "' is ignored.");
     }
   }
 }
@@ -174,7 +154,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     const auto& jnt_name = efforts->commands[i].name;
     if (!tobas_std::contains(ctrl_map_, jnt_name))
     {
-      rosError(name_, "Transmission for joint '" << jnt_name << "' is not found.");
+      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -187,10 +167,9 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     }
     else
     {
-      rosWarn(
-        name_, "Transmission type for joint '"
-                 << jnt_name << "' is not effort. So received effort command for joint '"
-                 << jnt_name << "' is ignored.");
+      TOBAS_WARN(
+        "Transmission type for joint '", jnt_name,
+        "' is not effort. So received effort command for joint '", jnt_name, "' is ignored.");
     }
   }
 }

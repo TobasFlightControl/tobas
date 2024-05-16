@@ -5,16 +5,11 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_kdl_sympy.frames import Vector
-
 from tobas_msgs.msg import SpeedRollDeltaPitch
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
@@ -23,20 +18,9 @@ class FixedWingLQR(BaseController):
     CONTROLLER_PKG = "tobas_fixed_wing_lqd"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
+    MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = SpeedRollDeltaPitch.__name__
     ACROBAT_MODE = SpeedRollDeltaPitch.__name__  # TODO
-    PARAM_SERVER_NODE = "tobas_fixed_wing_lqd"
-
-    # Dynamic Parameters
-    FORWARD_SPEED_WEIGHT = "forward_speed_weight"
-    ALPHA_WEIGHT = "alpha_weight"
-    BETA_WEIGHT = "beta_weight"
-    ATTITUDE_WEIGHT = "attitude_weight"
-    ANGVEL_WEIGHT = "angular_velocity_weight"
-    THRUST_WEIGHT_LOG10 = "thrust_weight_log10"
-    THRUST_RATE_WEIGHT_LOG10 = "thrust_rate_weight_log10"
-    DEFLECTION_WEIGHT_LOG10 = "deflection_weight_log10"
-    DEFLECTION_RATE_WEIGHT_LOG10 = "deflection_rate_weight_log10"
 
     MIN_NUM_PROP = 1
     MIN_NUM_CS = 2
@@ -52,98 +36,6 @@ class FixedWingLQR(BaseController):
     @override
     def define_connections(self) -> None:
         pass
-
-    @override
-    def add_dynamic_params(self) -> None:
-        config = self._get_param_config(self.FORWARD_SPEED_WEIGHT)
-        self._forward_speed_weight = ParamGetterWidget_SpinBox(
-            "Weight on forward speed",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._forward_speed_weight)
-
-        config = self._get_param_config(self.ALPHA_WEIGHT)
-        self._alpha_weight = ParamGetterWidget_SpinBox(
-            "Weight on angle of attack",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._alpha_weight)
-
-        config = self._get_param_config(self.BETA_WEIGHT)
-        self._beta_weight = ParamGetterWidget_SpinBox(
-            "Weight on angle of sideslip",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._beta_weight)
-
-        config = self._get_param_config(self.ATTITUDE_WEIGHT)
-        self._attitude_weight = ParamGetterWidget_SpinBox(
-            "Weight on attitude",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._attitude_weight)
-
-        config = self._get_param_config(self.ANGVEL_WEIGHT)
-        self._angvel_weight = ParamGetterWidget_SpinBox(
-            "Weight on angular velocity",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._angvel_weight)
-
-        config = self._get_param_config(self.THRUST_WEIGHT_LOG10)
-        self._thrust_weight_log10 = ParamGetterWidget_SpinBox(
-            "Weight on thrust level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._thrust_weight_log10)
-
-        config = self._get_param_config(self.THRUST_RATE_WEIGHT_LOG10)
-        self._thrust_rate_weight_log10 = ParamGetterWidget_SpinBox(
-            "Weight on thrust rate level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._thrust_rate_weight_log10)
-
-        config = self._get_param_config(self.DEFLECTION_WEIGHT_LOG10)
-        self._deflection_weight_log10 = ParamGetterWidget_SpinBox(
-            "Weight on deflection level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._deflection_weight_log10)
-
-        config = self._get_param_config(self.DEFLECTION_RATE_WEIGHT_LOG10)
-        self._deflection_rate_weight_log10 = ParamGetterWidget_SpinBox(
-            "Weight on deflection rate level",
-            config["description"],
-            minimum=config["min"],
-            maximum=config["max"],
-            default=config["default"],
-        )
-        self._rows.addWidget(self._deflection_rate_weight_log10)
 
     @override
     def is_applicable(self) -> bool:
@@ -173,20 +65,3 @@ class FixedWingLQR(BaseController):
     def is_valid(self) -> bool:
         # TODO: 制御面の数や符号などに関する条件
         return True
-
-    @override
-    def parameter_dict(self) -> dict:
-        res = dict()
-        res["tobas_fixed_wing_lqd"] = {
-            self.FORWARD_SPEED_WEIGHT: self._forward_speed_weight.get(),
-            self.ALPHA_WEIGHT: self._alpha_weight.get(),
-            self.BETA_WEIGHT: self._beta_weight.get(),
-            self.ATTITUDE_WEIGHT: self._attitude_weight.get(),
-            self.ANGVEL_WEIGHT: self._angvel_weight.get(),
-            self.THRUST_WEIGHT_LOG10: self._thrust_weight_log10.get(),
-            self.THRUST_RATE_WEIGHT_LOG10: self._thrust_rate_weight_log10.get(),
-            self.DEFLECTION_WEIGHT_LOG10: self._deflection_weight_log10.get(),
-            self.DEFLECTION_RATE_WEIGHT_LOG10: self._deflection_rate_weight_log10.get(),
-        }
-
-        return res

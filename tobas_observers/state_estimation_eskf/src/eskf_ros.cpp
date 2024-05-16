@@ -8,11 +8,8 @@
 #include <tobas_eigen_tools/iostream.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/conversions/msg_msg.hpp>
@@ -33,7 +30,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
+  PRINT_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
 
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -42,8 +39,23 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   tf_.header.frame_id = tobas::kWorldFrame;
   tf_.child_frame_id = drone_.tree().getRootName();
 
-  registerPublishers();
-  registerSubscribers();
+  // Register publishers
+  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
+  feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
+
+  // Register subscribers
+  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  if (use_bar_)
+    bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
+  if (use_gps_)
+    gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
+
+  // Register service servers
+  get_gnss_origin_ss_ =
+    nh_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ =
+    nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
@@ -65,35 +77,12 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
-    ROS_EXIT_NAMED(
-      nh_, name_, "You cannot enable both accelerometer bias estimation and gravity estimation.");
-}
-
-void ErrorStateKalmanFilterRos::registerPublishers()
-{
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::registerPublishers");
-
-  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
-  feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
-}
-
-void ErrorStateKalmanFilterRos::registerSubscribers()
-{
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::registerSubscribers");
-
-  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
-  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
-
-  if (use_bar_)
-    bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
-
-  if (use_gps_)
-    gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
+    TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
 void ErrorStateKalmanFilterRos::initialize()
 {
-  TOBAS_DEBUG("ErrorStateKalmanFilterRos::initialize");
+  PRINT_DEBUG("ErrorStateKalmanFilterRos::initialize");
 
   // ESKFを初期化
   // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
@@ -180,24 +169,23 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   tobas_ros::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
 
   // Compute IMU time gap
-  const double dt = (imu->header.stamp - t_last_).toSec();
-  // cout << "dt[s] " << dt << endl;
+  const auto dt = (imu->header.stamp - t_last_).toSec();
   t_last_ = imu->header.stamp;
 
   // Check IMU time gap
-  if (dt == 0.)
+  if (dt == 0)
   {
-    rosError(name_, "The time gap between 2 IMU messages is 0.");
+    TOBAS_ERROR("The time gap between 2 IMU messages is 0.");
     return;
   }
-  if (dt < 0.)
+  if (dt < 0)
   {
-    rosError(name_, "The time gap between 2 IMU messages is negative: " << dt << " [s]");
+    TOBAS_ERROR("The time gap between 2 IMU messages is negative: ", dt, " [s]");
     return;
   }
   if (dt > kImuTimeGapThreshold)
   {
-    rosWarn(name_, "The time gap between 2 IMU messages is too large: " << dt << " [s]");
+    TOBAS_WARN("The time gap between 2 IMU messages is too large: ", dt, " [s]");
   }
 
   // 観測ノイズの分散を計算
@@ -321,12 +309,43 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > kAnormalyScoreThreshold)
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "The position estimation using GNSS is unstable.");
+}
+
+bool ErrorStateKalmanFilterRos::getGnssOriginCb(
+  tobas_msgs::GetGnssOriginRequest&,
+  tobas_msgs::GetGnssOriginResponse& res)
+{
+  if (!gps_fix_)
   {
-    rosWarnThrottle(
-      kWarnPeriod, name_,
-      "The kalman filter is in an abnormal state. There is a very large error between the GPS "
-      "position and velocity information and the estimated values from the Kalman filter.");
+    res.success = false;
+    res.message = "GNSS is not fixed.";
+    return true;
   }
+
+  res.latitude = lat_0_;
+  res.longitude = lon_0_;
+
+  res.success = true;
+  return true;
+}
+
+bool ErrorStateKalmanFilterRos::setGnssOriginCb(
+  tobas_msgs::SetGnssOriginRequest& req,
+  tobas_msgs::SetGnssOriginResponse& res)
+{
+  if (!gps_fix_)
+  {
+    res.success = false;
+    res.message = "GNSS is not fixed.";
+    return true;
+  }
+
+  lat_0_ = req.latitude;
+  lon_0_ = req.longitude;
+
+  res.success = true;
+  return true;
 }
 
 void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
@@ -337,6 +356,6 @@ void ErrorStateKalmanFilterRos::dynamicReconfigureCb(const ConfigType& cfg, size
   gyro_bias_noise_var_ = do_gyro_bias_estimation_ ? exp10(cfg.gyro_bias_noise_var_log10) : 0;
   grav_noise_var_ = do_grav_estimation_ ? exp10(cfg.gravity_noise_var_log10) : 0;
 
-  rosInfo(name_, "New dynamic parameters are set.");
+  TOBAS_INFO("New dynamic parameters are set.");
 }
 }  // namespace state_estimation_eskf

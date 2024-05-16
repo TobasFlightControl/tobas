@@ -4,9 +4,6 @@
 #include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_dynamixel_handler/dynamixel_handler.hpp"
@@ -41,11 +38,11 @@ DynamixelHandler::DynamixelHandler(
 
   // Open serial port
   if (!poh_->openPort())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to open port '" << device_name_ << "'");
+    TOBAS_EXIT("Failed to open port '", device_name_, "'");
 
   // Set baudrate
   if (!poh_->setBaudRate(baudrate_))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to set baudrate to " << baudrate_);
+    TOBAS_EXIT("Failed to set baudrate to ", baudrate_);
 
   // Get motor configurations
   getMotorConfigs();
@@ -58,30 +55,30 @@ DynamixelHandler::DynamixelHandler(
       || !current_sync_read_->addParam(cfg.id) || !pwm_sync_read_->addParam(cfg.id)
       || !voltage_sync_read_->addParam(cfg.id) || !temp_sync_read_->addParam(cfg.id)
       || !hes_sync_read_->addParam(cfg.id))
-      ROS_EXIT_NAMED(nh_, name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
+      TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
 
     // Disable torque
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
-      ROS_EXIT_NAMED(nh_, name_, "Failed to disable torque of '" << name << "'.");
+      TOBAS_EXIT("Failed to disable torque of '", name, "'.");
 
     // Set return delay time
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrReturnDelayTime, return_delay_time_) < 0)
-      ROS_EXIT_NAMED(nh_, name_, "Failed to set return delay time of '" << name << "'.");
+      TOBAS_EXIT("Failed to set return delay time of '", name, "'.");
 
     // Set operating mode
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrOperatingMode, cfg.operating_mode) < 0)
-      ROS_EXIT_NAMED(nh_, name_, "Failed to set operating mode of '" << name << "'.");
+      TOBAS_EXIT("Failed to set operating mode of '", name, "'.");
 
     // Enable torque
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0)
-      ROS_EXIT_NAMED(nh_, name_, "Failed to enable torque of '" << name << "'.");
+      TOBAS_EXIT("Failed to enable torque of '", name, "'.");
 
-    rosInfo(name_, "'" << name << "' is initialized.");
+    TOBAS_INFO("'", name, "' is initialized.");
   }
 
   // Reduce latency
   if (!setMinimumLatency())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to set communication latency.");
+    TOBAS_EXIT("Failed to set communication latency.");
 
   // Register publishers and subscribers
   registerPublishers();
@@ -147,7 +144,7 @@ bool DynamixelHandler::setMinimumLatency()
   file << kMinimumLatency;  // uint8だと反映されなかった
   file.close();
 
-  rosInfo(name_, "Communication latency is updated successfully.");
+  TOBAS_INFO("Communication latency is updated successfully.");
   return true;
 }
 
@@ -172,12 +169,12 @@ void DynamixelHandler::getMotorConfigs()
     // ID
     tobas_ros::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
     if (tobas_std::contains(used_ids, cfg.id))
-      ROS_EXIT_NAMED(nh_, name_, "Motor ID " << static_cast<int>(cfg.id) << " is duplicated.");
+      TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
     used_ids.insert(cfg.id);
 
     // Current scaling factor
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrModelNumber, &model_number) < 0)
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get model number of '" << name << "'.");
+      TOBAS_EXIT("Failed to get model number of '", name, "'.");
     switch (model_number)
     {
       case kModelNumberXL430W250:
@@ -191,8 +188,7 @@ void DynamixelHandler::getMotorConfigs()
         cfg.current_scaling_factor = 2.69 / 1000;
         break;
       default:
-        ROS_EXIT_NAMED(
-          nh_, name_, "Setting for model number " << model_number << " is not implemented yet.");
+        TOBAS_EXIT("Setting for model number ", model_number, " is not implemented yet.");
     }
 
     // Operating mode
@@ -201,7 +197,7 @@ void DynamixelHandler::getMotorConfigs()
     if (operating_mode == "current")
     {
       if (!cfg.current_available)
-        ROS_EXIT_NAMED(nh_, name_, "Current control mode is unavailable for '" << name << "'.");
+        TOBAS_EXIT("Current control mode is unavailable for '", name, "'.");
       cfg.operating_mode = kControlModePosition;
     }
     else if (operating_mode == "velocity")
@@ -213,42 +209,41 @@ void DynamixelHandler::getMotorConfigs()
     else if (operating_mode == "current_base_position")
     {
       if (!cfg.current_available)
-        ROS_EXIT_NAMED(
-          nh_, name_, "Current-base position control mode is unavailable for '" << name << "'.");
+        TOBAS_EXIT("Current-base position control mode is unavailable for '", name, "'.");
       cfg.operating_mode = kControlModeCurrentBasePosition;
     }
     else if (operating_mode == "pwm")
       cfg.operating_mode = kControlModePwm;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Unknown operating mode for '" << name << "'.");
+      TOBAS_EXIT("Unknown operating mode for '", name, "'.");
 
     // Limits
     if (pah_->read1ByteTxRx(poh_, cfg.id, kAddrTemperatureLimit, &temp_limit) == 0)
       cfg.temp_limit = static_cast<double>(temp_limit) * kDecodeFactorTemp;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get temperature limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get temperature limit of '", name, "'.");
 
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMaxVoltageLimit, &max_voltage_limit) == 0)
       cfg.voltage_limit.upper = static_cast<double>(max_voltage_limit) * kDecodeFactorVoltage;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get maximum voltage limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get maximum voltage limit of '", name, "'.");
 
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMinVoltageLimit, &min_voltage_limit) == 0)
       cfg.voltage_limit.lower = static_cast<double>(min_voltage_limit) * kDecodeFactorVoltage;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get minimum voltage limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get minimum voltage limit of '", name, "'.");
 
     if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPwmLimit, &pwm_limit) == 0)
       cfg.pwm_limit = static_cast<double>(pwm_limit) * kDecodeFactorPwm;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get PWM limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get PWM limit of '", name, "'.");
 
     if (cfg.current_available)
     {
       if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrCurrentLimit, &current_limit) == 0)
         cfg.current_limit = static_cast<double>(current_limit) * cfg.current_scaling_factor;
       else
-        ROS_EXIT_NAMED(nh_, name_, "Failed to get current limit of '" << name << "'.");
+        TOBAS_EXIT("Failed to get current limit of '", name, "'.");
     }
     else
     {
@@ -258,22 +253,22 @@ void DynamixelHandler::getMotorConfigs()
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrAccelerationLimit, &acc_limit) == 0)
       cfg.acc_limit = static_cast<double>(acc_limit) * kDecodeFactorAcc;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get acceleration limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get acceleration limit of '", name, "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrVelocityLimit, &vel_limit) == 0)
       cfg.vel_limit = static_cast<double>(vel_limit) * kDecodeFactorVel;
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get velocity limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get velocity limit of '", name, "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0)
       cfg.pos_limit.upper = tobas_std::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get maximum position limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get maximum position limit of '", name, "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0)
       cfg.pos_limit.lower = tobas_std::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     else
-      ROS_EXIT_NAMED(nh_, name_, "Failed to get minimum position limit of '" << name << "'.");
+      TOBAS_EXIT("Failed to get minimum position limit of '", name, "'.");
 
     // Insert motor config
     motors_[name] = cfg;
@@ -286,7 +281,7 @@ bool DynamixelHandler::enableTorques()
   {
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0)
     {
-      rosError(name_, "Failed to enable torque of '" << name << "'.");
+      TOBAS_ERROR("Failed to enable torque of '", name, "'.");
       return false;
     }
   }
@@ -301,7 +296,7 @@ bool DynamixelHandler::disableTorques()
   {
     if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0)
     {
-      rosError(name_, "Failed to disable torque of '" << name << "'.");
+      TOBAS_ERROR("Failed to disable torque of '", name, "'.");
       return false;
     }
   }
@@ -314,7 +309,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 {
   if (hes_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of hardware error status.");
+    TOBAS_ERROR("Failed to receive a sync packet of hardware error status.");
     return;
   }
 
@@ -322,17 +317,17 @@ void DynamixelHandler::printHardwareErrorStatus()
   {
     const uint8_t hes = hes_sync_read_->getData(cfg.id, kAddrHardwareErrorStatus, 1);
     if (hes & kErrorInputVoltage)
-      rosError(name_, "Input voltage error in '" << name << "'");
+      TOBAS_ERROR("Input voltage error in '", name, "'");
     if (hes & kErrorHallSensor)
-      rosError(name_, "Hall sensor error in '" << name << "'");
+      TOBAS_ERROR("Hall sensor error in '", name, "'");
     if (hes & kErrorOverheating)
-      rosError(name_, "Overheating error in '" << name << "'");
+      TOBAS_ERROR("Overheating error in '", name, "'");
     if (hes & kErrorMotorEncoder)
-      rosError(name_, "Motor encoder error in '" << name << "'");
+      TOBAS_ERROR("Motor encoder error in '", name, "'");
     if (hes & kErrorElectricalShock)
-      rosError(name_, "Electrical shock error in '" << name << "'");
+      TOBAS_ERROR("Electrical shock error in '", name, "'");
     if (hes & kErrorOverload)
-      rosError(name_, "Overload error in '" << name << "'");
+      TOBAS_ERROR("Overload error in '", name, "'");
   }
 }
 
@@ -345,42 +340,42 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
   // Read packets
   if (read_position_ && pos_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of present position. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present position. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
     return;
   }
   if (read_velocity_ && vel_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of present velocity. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present velocity. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_current_ && current_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of present current. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present current. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_pwm_ && pwm_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of present PWM. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present PWM. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_voltage_ && voltage_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of present input voltage. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present input voltage. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
   }
   if (read_temperature_ && temp_sync_read_->txRxPacket() < 0)
   {
-    rosError(name_, "Failed to receive a sync packet of present temperature. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present temperature. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();
     return;
@@ -473,7 +468,7 @@ void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   switch (event->data)
   {
     case tobas_msgs::Event::SYSTEM_CRITICAL:
-      rosWarn(name_, "System critical event message is received. Disabling torques.");
+      TOBAS_WARN("System critical event message is received. Disabling torques.");
       disableTorques();
       break;
     default:
@@ -485,7 +480,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
 {
   if (!is_enabled_)
   {
-    rosError(name_, "Motors are disabled. You cannot command positions.");
+    TOBAS_ERROR("Motors are disabled. You cannot command positions.");
     return;
   }
 
@@ -498,7 +493,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     const auto& jnt_name = positions->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
-      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
@@ -507,9 +502,9 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     if (cfg.operating_mode == kControlModePosition)
     {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos))
-        rosWarn(
-          name_, "Target position of joint '"
-                   << jnt_name << "' is out of limit. The value is clamped to " << tar_pos);
+        TOBAS_WARN(
+          "Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ",
+          tar_pos);
       goal_positions_[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     }
     else if (
@@ -520,23 +515,23 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     }
     else
     {
-      rosError(name_, "The operating mode of joint '" << jnt_name << "' is not position.");
+      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not position.");
       continue;
     }
 
     if (!pos_sync_write_->addParam(cfg.id, (uint8_t*)&goal_positions_[i]))
-      rosError(name_, "Failed to set goal position of joint '" << jnt_name << "'.");
+      TOBAS_ERROR("Failed to set goal position of joint '", jnt_name, "'.");
   }
 
   if (pos_sync_write_->txPacket() < 0)
-    rosError(name_, "Failed to transmit a sync write instruction packet of positions.");
+    TOBAS_ERROR("Failed to transmit a sync write instruction packet of positions.");
 }
 
 void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities)
 {
   if (!is_enabled_)
   {
-    rosError(name_, "Motors are disabled. You cannot command velocities.");
+    TOBAS_ERROR("Motors are disabled. You cannot command velocities.");
     return;
   }
 
@@ -549,14 +544,14 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
     const auto& jnt_name = velocities->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
-      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
     if (cfg.operating_mode != kControlModeVelocity)
     {
-      rosError(name_, "The operating mode of joint '" << jnt_name << "' is not velocity.");
+      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not velocity.");
       continue;
     }
 
@@ -564,25 +559,25 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
     if (abs(tar_vel) > cfg.vel_limit)
     {
       tar_vel = clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
-      rosWarn(
-        name_, "Target velocity of joint '"
-                 << jnt_name << "' is out of limit. The value is clamped to " << tar_vel);
+      TOBAS_WARN(
+        "Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ",
+        tar_vel);
     }
 
     goal_velocities_[i] = tar_vel / kDecodeFactorVel;
     if (!vel_sync_write_->addParam(cfg.id, (uint8_t*)&goal_velocities_[i]))
-      rosError(name_, "Failed to set goal velocity of joint '" << jnt_name << "'.");
+      TOBAS_ERROR("Failed to set goal velocity of joint '", jnt_name, "'.");
   }
 
   if (vel_sync_write_->txPacket() < 0)
-    rosError(name_, "Failed to transmit a sync write instruction packet of velocities.");
+    TOBAS_ERROR("Failed to transmit a sync write instruction packet of velocities.");
 }
 
 void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts)
 {
   if (!is_enabled_)
   {
-    rosError(name_, "Motors are disabled. You cannot command efforts.");
+    TOBAS_ERROR("Motors are disabled. You cannot command efforts.");
     return;
   }
 
@@ -593,18 +588,18 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayCons
     const auto& jnt_name = efforts->commands[i].name;
     if (!tobas_std::contains(motors_, jnt_name))
     {
-      rosError(name_, "Controller for joint '" << jnt_name << "' is not found.");
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
     if (cfg.operating_mode != kControlModeCurrent && cfg.operating_mode != kControlModePwm)
     {
-      rosError(name_, "The operating mode of joint '" << jnt_name << "' is not effort.");
+      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not effort.");
       continue;
     }
 
-    rosError(name_, "Effort control is not implemented yet.");  // TODO
+    TOBAS_ERROR("Effort control is not implemented yet.");  // TODO
   }
 }
 

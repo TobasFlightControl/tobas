@@ -103,7 +103,7 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 // recursive function to walk through tree
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  TOBAS_DEBUG_ONCE("KDL::addChildrenToTree");
+  PRINT_DEBUG_ONCE("KDL::addChildrenToTree");
 
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
@@ -127,7 +127,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 
 bool treeFromFile(const string& file, Tree& tree)
 {
-  TOBAS_DEBUG("KDL::treeFromFile");
+  PRINT_DEBUG("KDL::treeFromFile");
 
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDFFile(file);
   return treeFromUrdfModel(*robot_model, tree);
@@ -135,7 +135,7 @@ bool treeFromFile(const string& file, Tree& tree)
 
 bool treeFromParam(const string& param, Tree& tree)
 {
-  TOBAS_DEBUG("KDL::treeFromParam");
+  PRINT_DEBUG("KDL::treeFromParam");
 
   urdf::Model robot_model;
   if (!robot_model.initParam(param))
@@ -148,7 +148,7 @@ bool treeFromParam(const string& param, Tree& tree)
 
 bool treeFromString(const string& xml, Tree& tree)
 {
-  TOBAS_DEBUG("KDL::treeFromString");
+  PRINT_DEBUG("KDL::treeFromString");
 
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
   if (!robot_model)
@@ -161,7 +161,7 @@ bool treeFromString(const string& xml, Tree& tree)
 
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
-  TOBAS_DEBUG("KDL::treeFromUrdfModel");
+  PRINT_DEBUG("KDL::treeFromUrdfModel");
 
   if (!robot_model.getRoot())
   {

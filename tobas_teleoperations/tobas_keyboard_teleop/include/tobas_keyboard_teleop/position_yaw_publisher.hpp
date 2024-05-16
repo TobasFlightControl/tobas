@@ -58,8 +58,6 @@ private:
   ros::Publisher pos_yaw_pub_;
   ros::Publisher pvay_pub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
+  void getRosParams();
 };
 }  // namespace tobas_keyboard_teleop

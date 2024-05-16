@@ -9,12 +9,16 @@ using namespace std;
 
 namespace tobas_calibration
 {
-AdcCalibrationRos::AdcCalibrationRos(ros::NodeHandle& nh)
+AdcCalibrationRos::AdcCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name)
 {
   if (adc_.initialize() < 0)
-    ROS_EXIT(nh, "Failed to initialize ADC driver.");
+    TOBAS_EXIT("Failed to initialize ADC driver.");
 
-  ss_ = nh.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
+  ss_ = nh_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
 
 bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
@@ -32,7 +36,7 @@ bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
   ros::Rate rate(kSamplingRate);
   for (size_t _ = 0; _ < kDataCount; ++_)
   {
-    const int a2_value = adc_.read(tobas_navio_ros::kPowerModuleVoltageChannel);
+    const auto a2_value = adc_.read(tobas_navio_ros::kPowerModuleVoltageChannel);
     if (a2_value <= 0)
     {
       res.success = false;

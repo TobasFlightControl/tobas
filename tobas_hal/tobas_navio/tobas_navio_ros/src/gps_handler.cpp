@@ -1,8 +1,5 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/time.hpp>
-#include <tobas_ros_tools/exception.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Gps.h>
 
@@ -16,58 +13,46 @@ namespace tobas_navio_ros
 GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
   configureGnssReceiver();
 
-  registerPublishers();
-  registerSubscribers();
+  gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 
   // Start main timer with maximum rate
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
 }
 
-void GpsHandler::getRosParams()
-{
-}
-
-void GpsHandler::registerPublishers()
-{
-  gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
-}
-
-void GpsHandler::registerSubscribers()
-{
-}
-
 void GpsHandler::configureGnssReceiver()
 {
   if (!gps_.enableAllMsgs(false))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to disable all navigation messsages.");
+    TOBAS_EXIT("Failed to disable all navigation messsages.");
   if (!gps_.enableMsg(navio::Ublox::NAV_PVT, true))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_PVT");
+    TOBAS_EXIT("Failed to enable NAV_PVT");
   if (!gps_.enableMsg(navio::Ublox::NAV_COV, true))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to enable NAV_COV");
+    TOBAS_EXIT("Failed to enable NAV_COV");
 
   if (!gps_.configureSolutionRate(kMeasurementRate))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to set measurement rate.");
+    TOBAS_EXIT("Failed to set measurement rate.");
 
   if (!gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to set dynamics model.");
+    TOBAS_EXIT("Failed to set dynamics model.");
+
+  if (!gps_.configurePowerMode(navio::Ublox::FULL_POWER))
+    TOBAS_EXIT("Failed to set power mode.");
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
   if (!gps_.configureGnss_GPS(true))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to configure GPS.");
+    TOBAS_EXIT("Failed to configure GPS.");
   if (!gps_.configureGnss_SBAS(true))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to configure SBAS.");
+    TOBAS_EXIT("Failed to configure SBAS.");
   if (!gps_.configureGnss_Galileo(false))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to configure Galileo.");
+    TOBAS_EXIT("Failed to configure Galileo.");
   if (!gps_.configureGnss_BeiDou(false))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to configure BeiDou.");
+    TOBAS_EXIT("Failed to configure BeiDou.");
   if (!gps_.configureGnss_QZSS(true))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to configure QZSS.");
+    TOBAS_EXIT("Failed to configure QZSS.");
   if (!gps_.configureGnss_GLONASS(false))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to configure GLONASS.");
+    TOBAS_EXIT("Failed to configure GLONASS.");
 }
 
 void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -84,12 +69,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
       gps_.decode(pvt_);
       // cout << pvt_ << endl;
-
-      // const auto gps_tp = tobas_std::timePointFromUTC(
-      //   pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
-      // const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
-      // const auto gps_delay = chrono::duration_cast<chrono::milliseconds>(cur_tp - gps_tp);
-      // rosInfo(name_, "GPS delay: " << gps_delay.count() << "[ms]");
 
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
@@ -127,6 +106,12 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->velocity_covariance[7] = cov_.velCovED;  // DE
       gps_msg->velocity_covariance[8] = cov_.velCovDD;  // DD
 
+      // Fill the communication delay
+      const auto gps_tp = tobas_std::timePointFromUTC(
+        pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
+      const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
+      gps_msg->delay.fromNSec(chrono::duration_cast<chrono::nanoseconds>(cur_tp - gps_tp).count());
+
       // Publish GPS message
       gps_pub_.publish(gps_msg);
 
@@ -143,7 +128,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
     }
     default:
     {
-      rosWarn(name_, "Unnecessary UBX message: " << msg);
+      TOBAS_WARN("Unnecessary UBX message: ", msg);
       break;
     }
   }

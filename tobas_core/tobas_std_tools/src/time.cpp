@@ -1,5 +1,3 @@
-#include <time.h>
-
 #include "../include/tobas_std_tools/time.hpp"
 
 using namespace std;
@@ -13,9 +11,7 @@ system_clock::time_point tmToTimePoint(tm tm)
   // https://dev.activebasic.com/egtra/2017/01/03/941/
   const auto tt = timegm(&tm);
   if (tt == -1)
-  {
-    throw "Failed to convert tm to time_t.";
-  }
+    throw runtime_error("Failed to convert tm to time_t.");
 
   // time_t -> time_pointの変換にはタイムゾーンは影響しない
   return system_clock::from_time_t(tt);
@@ -48,14 +44,11 @@ timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int n
 
 double yearFraction(const system_clock::time_point& tp)
 {
-  const tm tm = timePointToTm(tp);
-
-  const int year = tm.tm_year + 1900;  // 年
-  const int day_of_year = tm.tm_yday;  // 年の中の現在の日数（0から始まる）
-
-  const bool is_leap_year = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
-  const int days_in_year = is_leap_year ? 366 : 365;  // 閏年の場合は366日
-
+  const auto tm = timePointToTm(tp);
+  const auto year = tm.tm_year + 1900;  // 年
+  const auto is_leap_year = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+  const auto day_of_year = tm.tm_yday;  // 年の中の現在の日数（0から始まる）
+  const auto days_in_year = is_leap_year ? 366 : 365;  // 閏年の場合は366日
   return year + static_cast<double>(day_of_year) / days_in_year;
 }
 }  // namespace tobas_std
@@ -68,13 +61,12 @@ ostream& operator<<(ostream& os, const tm& arg)
   os << "Hour: " << arg.tm_hour << endl;
   os << "Min: " << arg.tm_min << endl;
   os << "Sec: " << arg.tm_sec << endl;
-
   return os;
 }
 
 double operator-(tm lhs, tm rhs)
 {
-  const time_t time_l = mktime(&lhs);
-  const time_t time_r = mktime(&rhs);
+  const auto time_l = mktime(&lhs);
+  const auto time_r = mktime(&rhs);
   return difftime(time_l, time_r);  // sec
 }

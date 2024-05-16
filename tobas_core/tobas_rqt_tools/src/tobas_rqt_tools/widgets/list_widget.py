@@ -1,7 +1,50 @@
 from __future__ import annotations  # 自クラスをメソッドの引数としてアノテーションするために必要
 from overrides import override
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QListWidgetItem
+from typing import Union
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QDropEvent
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem
+
+
+class ListWidget(QListWidget):
+    """
+    ===== QListWidgetItemとの違い =====
+    - イテレータとして使用可能
+    - ドラッグアンドドロップでシグナル発行
+    - 追加メソッド
+    """
+
+    item_moved = pyqtSignal(QListWidgetItem)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._index = 0
+
+    def __iter__(self) -> ListWidget:
+        self._index = 0
+        return self
+
+    def __next__(self) -> QListWidgetItem:
+        if self._index >= self.count():
+            raise StopIteration()
+
+        item = self.item(self._index)
+        self._index += 1
+        return item
+
+    @override
+    def dropEvent(self, event: QDropEvent) -> None:
+        super().dropEvent(event)
+        self.item_moved.emit(self.selectedItems()[0])
+
+    def remove(self, item: QListWidgetItem) -> None:
+        row = self.row(item)
+        self.takeItem(row)
+
+    def selected_item(self) -> Union[QListWidgetItem, None]:
+        """選択中のアイテムのうち，最も上のものを返す．存在しない場合はNoneを返す．"""
+        selected_items = self.selectedItems()
+        return selected_items[0] if len(selected_items) > 0 else None
 
 
 class ListWidgetItem(QListWidgetItem):

@@ -91,11 +91,12 @@ $ id pi                 # piが所属するグループを確認
 
 #### メモ
 
+- [hostapd.conf 覚書](https://qiita.com/JhonnyBravo/items/5df2d9b2fcb142b6a67c)に設定が網羅されている．
 - `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
   既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
   その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
-
 - `/etc/udev/rules.d/99-ap0.rules`の MAC アドレスをハードコードせず，wlan0 からコピーするよう変更．
+- `hostapd.conf`は設定値とコメントを同じ行に書けない．
 
 ```txt
 SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
@@ -108,6 +109,27 @@ SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
 - `/etc/systemd/system/tobas_xxx.service`にコマンドを書く
   - ExecStart 内でシェルスクリプトを実行して環境変数を設定しても元のシェルには影響しないことに注意
 - 環境変数や共通のシェルスクリプトを`/etc/tobas/`以下にまとめる
+
+### Debian 10 (buster) から Debian 11 (bullseye) にアップグレード
+
+cf. https://qiita.com/mt08/items/56a1ef23b2c768e46dcd
+
+NOTE:
+
+- クラッシュの恐れがあるため，bullseye のイメージをクリーンインストールしていじるほうが安全．
+- bullseye から bookworm のアップグレードは同様にはできない: https://yagiful.com/blog/raspberry-bookworm-upgrade/
+
+```bash
+$ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list
+$ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list.d/raspi.list
+$ sudo apt update
+$ sudo apt upgrade -y
+$ sudo apt dist-upgrade -y
+$ sudo apt autoremove --purge -y
+$ sudo reboot
+$ cat /etc/os-release  # bullseyeになっていればOK
+$ gcc --version  # 11になっていればOK
+```
 
 ## CUI で HIL
 

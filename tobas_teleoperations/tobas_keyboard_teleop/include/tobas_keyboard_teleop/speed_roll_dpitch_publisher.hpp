@@ -65,10 +65,7 @@ private:
   tobas_ros::Timer check_topics_timer_;
   tobas_ros::Timer instruction_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   bool isReady();
   void initialize();
 

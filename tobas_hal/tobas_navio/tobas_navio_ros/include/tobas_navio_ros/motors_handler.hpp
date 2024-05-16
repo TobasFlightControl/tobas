@@ -54,10 +54,6 @@ private:
   // Timer
   ros::Timer check_interval_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool armRotors();
   bool disarmRotors();
   bool enablePwms(const bool& enable);

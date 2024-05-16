@@ -23,9 +23,6 @@ public:
   /* rotvec is normalized. rotation around a constant vector! */
   inline static RotationVel Rot2(const Vector& rotvec, const doubleVel& angle);
 
-  inline const Rotation& value() const;
-  inline const Vector& deriv() const;
-
   inline VectorVel UnitX() const;
   inline VectorVel UnitY() const;
   inline VectorVel UnitZ() const;
@@ -96,16 +93,6 @@ inline RotationVel RotationVel::Rot(const Vector& rotvec, const doubleVel& angle
 inline RotationVel RotationVel::Rot2(const Vector& rotvec, const doubleVel& angle)
 {
   return RotationVel(Rotation::Rot2(rotvec, angle.t), rotvec * angle.grad);
-}
-
-inline const Rotation& RotationVel::value() const
-{
-  return R;
-}
-
-inline const Vector& RotationVel::deriv() const
-{
-  return w;
 }
 
 inline VectorVel RotationVel::UnitX() const

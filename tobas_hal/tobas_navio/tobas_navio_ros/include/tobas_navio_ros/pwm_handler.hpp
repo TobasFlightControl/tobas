@@ -28,18 +28,13 @@ public:
 
 private:
   navio::PWM pwm_;
-  std::array<bool, tobas::kServoRailSize> is_enabled_;
+  std::array<bool, kServoRailSize> is_enabled_;
 
   // Subscribers
   ros::Subscriber pwms_sub_;
 
   // Service Servers
   ros::ServiceServer enable_pwm_srv_;
-
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-  void registerServiceServers();
 
   void pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms);
   bool enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);

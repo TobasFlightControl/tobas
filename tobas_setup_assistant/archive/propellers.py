@@ -166,7 +166,7 @@ class SelectedPropellersWidget(QTableWidget):
 
         kv = SpinBox()
         kv.setMinimum(1)
-        kv.setMaximum(10 ** 5)
+        kv.setMaximum(10**5)
         kv.setSuffix(" rpm/V")
         self.kvs.append(kv)
         self.setCellWidget(row, 6, kv)

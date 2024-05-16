@@ -1,0 +1,7 @@
+Package: tobas
+Maintainer: Masayoshi Dohi <masa0u0masa1215@gmail.com>
+Architecture: armhf
+Version: 1.2.0
+Description: Tobas Flight Controller
+Homepage: https://tobas-wiki-ja.readthedocs.io/
+Depends: hostapd, dnsmasq, netfilter-persistent, iptables-persistent

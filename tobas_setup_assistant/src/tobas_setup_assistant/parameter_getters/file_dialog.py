@@ -1,14 +1,13 @@
 import os.path as osp
 from typing import Optional
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QFileDialog, QHBoxLayout
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_tools_py.constants import CONFIG_PATH
 
 from .base import ParamGetterWidget
-from ..common import *
+from ..common import TITLE, PKG_NAME
 
 
 class ParamGetterWidget_FileDialog(ParamGetterWidget):

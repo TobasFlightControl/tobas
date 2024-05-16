@@ -1,5 +1,7 @@
 #include <cmath>
 
+#include <tobas_std_tools/time.hpp>
+
 #include "../include/tobas_navio_core/lsm9ds1.hpp"
 
 #define DEVICE_ACC_GYRO "/dev/spidev0.3"
@@ -125,7 +127,7 @@ void LSM9DS1::initializeGyroscope()
   // Set scale
   setGyroScale(scale);
 
-  usleep(INITIALIZE_SLEEP);
+  tobas_std::usleep(INITIALIZE_SLEEP);
 }
 
 void LSM9DS1::initializeAccelerometer()
@@ -144,7 +146,7 @@ void LSM9DS1::initializeAccelerometer()
   // Set scale
   setAccScale(scale);
 
-  usleep(INITIALIZE_SLEEP);
+  tobas_std::usleep(INITIALIZE_SLEEP);
 }
 
 void LSM9DS1::initializeMagnetometer()
@@ -162,7 +164,7 @@ void LSM9DS1::initializeMagnetometer()
   // Set scale
   setMagScale(scale);
 
-  usleep(INITIALIZE_SLEEP);
+  tobas_std::usleep(INITIALIZE_SLEEP);
 }
 
 void LSM9DS1::setGyroScale(const uint8_t& scale)

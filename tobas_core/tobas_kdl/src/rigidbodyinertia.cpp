@@ -14,14 +14,6 @@ RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalI
   I_.data = Ic.data - m * (c_eig * c_eig.transpose() - c_eig.dot(c_eig) * E3);
 }
 
-Vector RigidBodyInertia::getCOG() const
-{
-  if (m_ == 0)
-    return Vector::Zero();
-  else
-    return h_ / m_;
-};
-
 RigidBodyInertia RigidBodyInertia::refPoint(const Vector& p) const
 {
   const Vector hmr = h_ - m_ * p;

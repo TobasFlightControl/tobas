@@ -85,10 +85,9 @@ private:
   // Timer
   ros::Timer main_timer_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
+  void registerPublishers();
+  void registerSubscribers();
   bool setMinimumLatency();
   void getMotorConfigs();
   void publishCurrentStates(const ros::Time& cur_time);

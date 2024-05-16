@@ -2,10 +2,7 @@
 
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/util.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
@@ -29,8 +26,9 @@ OrientationEstimatorRos::OrientationEstimatorRos(
 {
   getRosParams();
   initializeFilter();
-  registerPublishers();
-  registerSubscribers();
+
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", kQueueSize);
+  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
 void OrientationEstimatorRos::getRosParams()
@@ -42,32 +40,22 @@ void OrientationEstimatorRos::getRosParams()
   tobas_ros::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
 }
 
-void OrientationEstimatorRos::registerPublishers()
-{
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", kQueueSize);
-}
-
-void OrientationEstimatorRos::registerSubscribers()
-{
-  sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
-}
-
 void OrientationEstimatorRos::initializeFilter()
 {
   sensor_msgs::NavSatFix gps;
   if (!tobas_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
-    ROS_EXIT_NAMED(nh_, name_, "Failed to get GPS message.");
+    TOBAS_EXIT("Failed to get GPS message.");
   const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
   filter_.setReferenceMagneticField(mag.north, mag.east);
 
   if (!filter_.setGravity(tobas::kGravity))
-    ROS_EXIT_NAMED(nh_, name_, "Invalid gravity");
+    TOBAS_EXIT("Invalid gravity");
 
   if (!filter_.setGainAcc(gain_acc_))
-    ROS_EXIT_NAMED(nh_, name_, "Invalid gain_acc");
+    TOBAS_EXIT("Invalid gain_acc");
 
   if (do_bias_estimation_ && !filter_.setBiasAlpha(bias_alpha_))
-    ROS_EXIT_NAMED(nh_, name_, "Invalid bias_alpha");
+    TOBAS_EXIT("Invalid bias_alpha");
 
   filter_.setDoBiasEstimation(do_bias_estimation_);
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
@@ -117,6 +105,6 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
 {
-  rosInfo(name_, "Waiting for " << ns() << tobas::kImuTopic);
+  TOBAS_INFO("Waiting for ", ns(), tobas::kImuTopic);
 }
 }  // namespace orientation_estimation_complement

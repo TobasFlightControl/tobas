@@ -35,6 +35,5 @@ private:
   ros::Publisher pos_yaw_pub_;
 
   void getRosParams(ros::NodeHandle& pnh);
-  void registerPublishers(ros::NodeHandle& nh);
 };
 }  // namespace tobas_rc_teleop

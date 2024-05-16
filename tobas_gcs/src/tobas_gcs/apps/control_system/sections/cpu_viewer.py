@@ -55,7 +55,7 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
 
         if self._cpu_sub is not None:
             self._cpu_sub.unregister()
-        self._cpu_sub = rospy.Subscriber(f"/{self._drone.drone_name}/cpu", Cpu, self._cpu_cb, queue_size=1)
+        self._cpu_sub = rospy.Subscriber(f"{self._drone.drone_name}/cpu", Cpu, self._cpu_cb, queue_size=1)
 
     def _cpu_cb(self, cpu: Cpu) -> None:
         # Temperature

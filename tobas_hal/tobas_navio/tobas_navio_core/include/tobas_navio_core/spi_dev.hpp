@@ -1,11 +1,7 @@
 #pragma once
 
-#include <linux/spi/spidev.h>
-#include <linux/types.h>
-#include <sys/types.h>
 #include <cinttypes>
-#include <unistd.h>
-#include <cstring>
+#include <linux/spi/spidev.h>
 
 namespace navio
 {
@@ -15,11 +11,11 @@ public:
   explicit SPIdev(
     const char* spidev,
     uint32_t speed_hz,
-    u_char bits_per_word = 8,
-    u_short delay_usecs = 0);
+    uint8_t bits_per_word = 8,
+    uint16_t delay_usecs = 0);
   ~SPIdev();
 
-  bool transfer(u_char* tx, u_char* rx, uint32_t length);
+  bool transfer(uint8_t* tx, uint8_t* rx, uint32_t length);
 
 private:
   spi_ioc_transfer spi_transfer_;

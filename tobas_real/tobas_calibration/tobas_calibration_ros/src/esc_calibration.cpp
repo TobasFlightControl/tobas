@@ -1,3 +1,4 @@
+#include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_navio_ros/common.hpp>
@@ -11,17 +12,21 @@ using namespace std;
 
 namespace tobas_calibration
 {
-EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh)
-  : as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
+EscCalibrationRos::EscCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name),
+    as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
-  drone_.loadFromParam(nh);
+  drone_.loadFromParam(nh_);
 
   if (adc_.initialize() < 0)
-    ROS_EXIT(nh, "Failed to initialize ADC driver.");
+    TOBAS_EXIT("Failed to initialize ADC driver.");
 
-  pwms_pub_ = nh.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
-  get_arm_sc_ = nh.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  enable_pwm_sc_ = nh.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
+  get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
 
   as_.start();
 }
@@ -52,7 +57,7 @@ void EscCalibrationRos::setPeriod(const double& period)
 void EscCalibrationRos::setPeriodAndSleep(const double& period)
 {
   setPeriod(period);
-  usleep(kInterval);
+  tobas_std::msleep(kInterval);
 }
 
 bool EscCalibrationRos::isBatteryConnected()
@@ -105,7 +110,7 @@ void EscCalibrationRos::disablePWM()
   {
     enable_pwm_msg.request.channel = rotor.channel;
     if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
-      ROS_ERROR_STREAM("Failed to disable PWM of CH" << rotor.channel << ".");
+      TOBAS_ERROR("Failed to disable PWM of CH", rotor.channel, ".");
   }
 }
 
@@ -143,7 +148,7 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
     return;
 
   // バッテリーが接続されるのを待つ
-  ROS_INFO("Waiting for battery connection.");
+  TOBAS_INFO("Waiting for battery connection.");
   while (!isBatteryConnected())
   {
     if ((ros::Time::now() - action_called_time).toSec() > kTimeout)
@@ -156,11 +161,11 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   }
 
   // 最大スロットルを指令
-  ROS_INFO("Sending maximum throttle.");
+  TOBAS_INFO("Sending maximum throttle.");
   sendMaximum();
 
   // 最小スロットルを指令
-  ROS_INFO("Sending minimum throttle.");
+  TOBAS_INFO("Sending minimum throttle.");
   sendMinimum();
 
   // PWMを無効化

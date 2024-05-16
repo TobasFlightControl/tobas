@@ -25,10 +25,6 @@ private:
   ros::Publisher euler_pub_;
   ros::Subscriber odom_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 };
 }  // namespace tobas_preprocess

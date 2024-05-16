@@ -15,6 +15,8 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/Gps.h>
 #include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/GetGnssOrigin.h>
+#include <tobas_msgs/SetGnssOrigin.h>
 
 #include <state_estimation_eskf/ErrorStateKalmanFilterFeedback.h>
 #include <state_estimation_eskf/StateEstimationEskfConfig.h>
@@ -92,6 +94,10 @@ private:
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
 
+  // Service
+  ros::ServiceServer get_gnss_origin_ss_;
+  ros::ServiceServer set_gnss_origin_ss_;
+
   // TF
   geometry_msgs::TransformStamped tf_;
   tf2_ros::TransformBroadcaster tf_br_;
@@ -99,10 +105,7 @@ private:
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   void initialize();
   OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
 
@@ -110,6 +113,11 @@ private:
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
+
+  bool
+  getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
+  bool
+  setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

@@ -4,6 +4,10 @@
 
 namespace quadprog
 {
+/**
+ * @brief Quadratic problem.
+ * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
+ */
 class QuadProgProblem
 {
 public:

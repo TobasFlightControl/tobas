@@ -7,7 +7,7 @@
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
-#include <tobas_std_tools/fstream.hpp>
+#include <tobas_std_tools/file.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"

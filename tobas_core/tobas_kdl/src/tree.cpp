@@ -10,14 +10,14 @@ namespace KDL
 {
 Tree::Tree(const string& root_name) : nj_(0), ns_(0), root_name_(root_name)
 {
-  TOBAS_DEBUG("Tree::Tree(\"" << root_name_ << "\")");
+  PRINT_DEBUG("Tree::Tree(\"" << root_name_ << "\")");
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
 }
 
 Tree::Tree(const Tree& in)
 {
-  TOBAS_DEBUG("Tree::Tree(const Tree&)");
+  PRINT_DEBUG("Tree::Tree(const Tree&)");
 
   segments_.clear();
   nj_ = 0;
@@ -30,7 +30,7 @@ Tree::Tree(const Tree& in)
 
 Tree& Tree::operator=(const Tree& in)
 {
-  TOBAS_DEBUG("Tree::operator=(const Tree&)");
+  PRINT_DEBUG("Tree::operator=(const Tree&)");
 
   segments_.clear();
   nj_ = 0;

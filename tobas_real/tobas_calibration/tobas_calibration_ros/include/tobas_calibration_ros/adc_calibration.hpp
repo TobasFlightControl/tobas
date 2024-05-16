@@ -3,12 +3,12 @@
 #include <ros/ros.h>
 
 #include <tobas_navio_core/adc.hpp>
-
+#include <tobas_tools/node.hpp>
 #include <tobas_calibration_msgs/AdcCalibration.h>
 
 namespace tobas_calibration
 {
-class AdcCalibrationRos
+class AdcCalibrationRos : public tobas::BaseNode
 {
   static constexpr char kServiceName[] = "adc_calibration";
 
@@ -17,10 +17,14 @@ class AdcCalibrationRos
   static constexpr double kValidAdcCoefMin = 9.;
   static constexpr double kValidAdcCoefMax = 13.;
 
+  using super = tobas::BaseNode;
   using SrvType = tobas_calibration_msgs::AdcCalibration;
 
 public:
-  explicit AdcCalibrationRos(ros::NodeHandle& nh);
+  explicit AdcCalibrationRos(
+    const ros::NodeHandle& nh,
+    const ros::NodeHandle& pnh,
+    const std::string& name = ros::this_node::getName());
 
 private:
   navio::ADC adc_;

@@ -68,7 +68,6 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
 
         grid = QGridLayout()
         self._rows.addLayout(grid)
-
         grid.addWidget(self._gps_status, 0, 0)
         grid.addWidget(self._rcin_status, 0, 1)
         grid.addWidget(self._voltage_status, 0, 2)
@@ -78,6 +77,7 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         grid.addWidget(self._vel_accuracy_status, 2, 0)
         grid.addWidget(self._ready_status, 2, 1)
         grid.addWidget(self._arming_status, 2, 2)
+        grid.setColumnStretch(3, 1)
 
         self._gps_sub = None
         self._rcin_sub = None
@@ -108,12 +108,12 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._pre_arm_check_sub.unregister()
             self._arming_sub.unregister()
 
-        self._gps_sub = rospy.Subscriber(f"/{self._drone.drone_name}/gps", Gps, self._gps_cb, queue_size=1)
-        self._rcin_sub = rospy.Subscriber(f"/{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
+        self._gps_sub = rospy.Subscriber(f"{self._drone.drone_name}/gps", Gps, self._gps_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(f"{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
         self._pre_arm_check_sub = rospy.Subscriber(
-            f"/{self._drone.drone_name}/pre_arm_check", PreArmCheck, self._pre_arm_check_cb, queue_size=1
+            f"{self._drone.drone_name}/pre_arm_check", PreArmCheck, self._pre_arm_check_cb, queue_size=1
         )
-        self._arming_sub = rospy.Subscriber(f"/{self._drone.drone_name}/arming", Bool, self._arming_cb, queue_size=1)
+        self._arming_sub = rospy.Subscriber(f"{self._drone.drone_name}/arming", Bool, self._arming_cb, queue_size=1)
 
         self._is_first_update = False
 

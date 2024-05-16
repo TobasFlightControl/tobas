@@ -71,13 +71,15 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
         self._rows.addStretch()
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         self._start_button.clicked.connect(self._on_start_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
@@ -101,7 +103,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "ADC calibration finished.")
 
     def _calibrate(self) -> bool:
-        adc_calib_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/adc_calibration", AdcCalibration)
+        adc_calib_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/adc_calibration", AdcCalibration)
         try:
             adc_calib_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -126,7 +128,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/battery_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/battery_handler/reload_config", Trigger)
         try:
             reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:

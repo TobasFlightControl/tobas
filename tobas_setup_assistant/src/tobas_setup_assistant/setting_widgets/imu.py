@@ -19,7 +19,7 @@ class ImuWidget(BaseSettingWidget):
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Inertial Measurement Unit"
-        abst_text = ""
+        abst_text = ""  # TODO
 
         super().__init__(main, title_text, abst_text)
 

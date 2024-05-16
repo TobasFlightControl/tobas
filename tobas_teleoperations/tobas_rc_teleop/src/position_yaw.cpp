@@ -1,9 +1,5 @@
-#include <tobas_std_tools/math.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_rc_teleop/position_yaw.hpp"
@@ -11,7 +7,6 @@
 
 using namespace std;
 using namespace KDL;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -23,7 +18,7 @@ void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh
 {
   getRosParams(pnh);
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
-  registerPublishers(nh);
+  pos_yaw_pub_ = nh.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
 }
 
 void PositionYawController::reset(const tobas_msgs::Odometry& odom)
@@ -43,13 +38,10 @@ void PositionYawController::update(
   t_last_rcin_ = cur_time;
 
   // 位置とヨー角の変化率を計算
-  vel_.x(
-    dead_zone_.inRange(rcin.pitch) ? 0. : remap(rcin.pitch, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_.y(
-    dead_zone_.inRange(rcin.roll) ? 0. : -remap(rcin.roll, -1., 1., -max_hor_vel_, max_hor_vel_));
-  vel_.z(remap(rcin.thrust, 0., 1., -max_ver_vel_, max_ver_vel_));  // スラストレバーに遊びはなし
-  const auto yawrate =
-    dead_zone_.inRange(rcin.yaw) ? 0 : remap(rcin.yaw, -1., 1., -max_yawrate_, max_yawrate_);
+  vel_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
+  vel_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
+  vel_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
+  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
 
   // 一度でも上昇コマンドが入力されたら位置制御を行う
   if (is_up_commanded_)
@@ -84,10 +76,5 @@ void PositionYawController::getRosParams(ros::NodeHandle& pnh)
     tobas_ros::POSITIVE);
   tobas_ros::getParam(
     pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-}
-
-void PositionYawController::registerPublishers(ros::NodeHandle& nh)
-{
-  pos_yaw_pub_ = nh.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
 }
 }  // namespace tobas_rc_teleop

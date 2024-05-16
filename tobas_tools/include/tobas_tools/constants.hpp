@@ -7,6 +7,7 @@
 
 namespace tobas
 {
+// Universal constants
 static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
 static constexpr double kDeg2Rad = M_PI / 180;
 static constexpr double kRad2Deg = 1 / kDeg2Rad;
@@ -19,7 +20,10 @@ static constexpr double kMeterToFeet = 1 / kFeetToMeter;
 static constexpr double kArmThrottle = 0.1;
 static constexpr double kMinThrottle = 0.;
 static constexpr double kMaxThrottle = 1.;
-static constexpr size_t kServoRailSize = 14;
+
+// RCInput
+static constexpr double kRCInputMin = -1.;
+static constexpr double kRCInputMax = 1.;
 
 // ROS parameters
 static constexpr char kRobotDescriptionParam[] = "robot_description";
@@ -55,6 +59,7 @@ static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
 static constexpr char kEventTopic[] = "event";
+static constexpr char kMessageTopic[] = "message";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
@@ -74,27 +79,32 @@ static constexpr char kListControllersSrv[] = "controller_manager/list_controlle
 static constexpr char kEnablePwmSrv[] = "enable_pwm";
 static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
+static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
+static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kPreArmCheckSrv[] = "pre_arm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
-static constexpr char kLandingAction[] = "landing_action";
+static constexpr char kLandAction[] = "land_action";
+static constexpr char kMoveAction[] = "move_action";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
 static constexpr char kNavioFrame[] = "navio";
 
-// Flight Mode
+// Flight mode
 static constexpr size_t kFlightModeProgram = 0;
 static constexpr size_t kFlightModeStabilize = kFlightModeProgram + 1;
 static constexpr size_t kFlightModeAcrobat = kFlightModeStabilize + 1;
 static constexpr size_t kNumFlightModes = kFlightModeAcrobat + 1;
 
+// Console message period
+static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
+static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
+
 // Others
 static constexpr char kUnknown[] = "unknown";
-static constexpr double kCheckTopicsTimerPeriod = 5.;    // [s]
-static constexpr double kCommandLevelErrorPeriod = 1.;   // [s]
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 1.;    // [s]
 static constexpr double kDisarmDuration = 3.;            // [s]

@@ -36,15 +36,9 @@ private:
 
   ros::Publisher cmd_pub_;
   ros::Subscriber event_sub_;
-
   actionlib::SimpleActionServer<ActionType> as_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   bool isGoalValid(const GoalType& goal);
-
   void executeCb(const GoalType::ConstPtr& goal);
 };
 }  // namespace tobas_trajectory_commander

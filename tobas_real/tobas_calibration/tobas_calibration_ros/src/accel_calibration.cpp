@@ -1,3 +1,4 @@
+#include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -8,11 +9,15 @@ using namespace Eigen;
 
 namespace tobas_calibration
 {
-AccelCalibrationRos::AccelCalibrationRos(ros::NodeHandle& nh)
+AccelCalibrationRos::AccelCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name)
 {
   imu_.initialize();
 
-  ss_ = nh.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
+  ss_ = nh_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
 
 Vector3f AccelCalibrationRos::readAccel()
@@ -24,7 +29,7 @@ Vector3f AccelCalibrationRos::readAccel()
     imu_.update();
     imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
     acc_sum += acc_;
-    usleep(kSleepTime);
+    tobas_std::msleep(kSleepTime);
   }
 
   // 平均を計算

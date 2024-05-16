@@ -71,7 +71,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         cols2 = QHBoxLayout()
         self._rows.addLayout(cols2)
 
-        # Roll, Pitch, Yaw, Thrust
+        # Roll, Pitch, Yaw, Throttle
         cols3 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols2)
 
         self._pitch_range = VPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
@@ -95,9 +95,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         pitch_label.setAlignment(Qt.AlignLeft)
         cols4.addWidget(pitch_label)
 
-        thrust_label = QLabel(f"Thrust (CH{RCIN_THRUST + 1})")
-        thrust_label.setAlignment(Qt.AlignRight)
-        cols4.addWidget(thrust_label)
+        throttle_label = QLabel(f"Throttle (CH{RCIN_THROTTLE + 1})")
+        throttle_label.setAlignment(Qt.AlignRight)
+        cols4.addWidget(throttle_label)
 
         rows1.addStretch()
 
@@ -106,9 +106,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._thrust_range = VPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
-        self._thrust_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
-        cols3.addWidget(self._thrust_range)
+        self._throttle_range = VPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
+        self._throttle_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
+        cols3.addWidget(self._throttle_range)
 
         cols2.addSpacing(30)
 
@@ -140,6 +140,8 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         self._reset()
 
+        self.setEnabled(False)
+
     @override
     def define_connections(self) -> None:
         self._start_button.clicked.connect(self._on_start_button_clicked)
@@ -148,13 +150,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self.setEnabled(True)
 
     def _reset(self) -> None:
         self._roll_range.clear()
         self._pitch_range.clear()
         self._yaw_range.clear()
-        self._thrust_range.clear()
+        self._throttle_range.clear()
         self._mode_range.clear()
         self._estop_range.clear()
         self._gpsw_range.clear()
@@ -176,7 +178,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.start_timer()
         self._pitch_range.start_timer()
         self._yaw_range.start_timer()
-        self._thrust_range.start_timer()
+        self._throttle_range.start_timer()
         self._mode_range.start_timer()
         self._estop_range.start_timer()
         self._gpsw_range.start_timer()
@@ -185,13 +187,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.stop_timer()
         self._pitch_range.stop_timer()
         self._yaw_range.stop_timer()
-        self._thrust_range.stop_timer()
+        self._throttle_range.stop_timer()
         self._mode_range.stop_timer()
         self._estop_range.stop_timer()
         self._gpsw_range.stop_timer()
 
     def _cancel(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
+        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
         try:
             calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -219,14 +221,14 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range.set_value(msg.data[RCIN_ROLL])
         self._pitch_range.set_value(msg.data[RCIN_PITCH])
         self._yaw_range.set_value(msg.data[RCIN_YAW])
-        self._thrust_range.set_value(msg.data[RCIN_THRUST])
+        self._throttle_range.set_value(msg.data[RCIN_THROTTLE])
         self._mode_range.set_value(msg.data[RCIN_MODE])
         self._estop_range.set_value(msg.data[RCIN_ESTOP])
         self._gpsw_range.set_value(msg.data[RCIN_GPSW])
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        calib_start_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_calibration/start", Trigger)
+        calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/start", Trigger)
         try:
             calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -244,7 +246,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             return
 
         # RC入力が正常に発行されていることを確認
-        rcin_topic = f"/{self._drone.drone_name}/rcin_calibration/rc_input_raw"
+        rcin_topic = f"{self._drone.drone_name}/rcin_calibration/rc_input_raw"
         try:
             rcin_msg: RCInput = rospy.wait_for_message(rcin_topic, RCInput, self.WAIT_FOR_SERVER)
         except Exception:
@@ -284,7 +286,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Radio calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_finish_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
+        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
         try:
             calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -292,21 +294,21 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             return False
 
         req = RCInputCalibrationRequest()
-        req.roll_left = self._roll_range.get_lower()
-        req.roll_right = self._roll_range.get_upper()
-        req.pitch_down = self._pitch_range.get_upper()
-        req.pitch_up = self._pitch_range.get_lower()
-        req.yaw_left = self._yaw_range.get_lower()
-        req.yaw_right = self._yaw_range.get_upper()
-        req.thrust_down = self._thrust_range.get_upper()
-        req.thrust_up = self._thrust_range.get_lower()
-        req.mode_program = self._mode_range.get_lower()
-        req.mode_stabilize = self._mode_range.get_middle()
-        req.mode_acrobat = self._mode_range.get_upper()
-        req.estop_on = self._estop_range.get_lower()
-        req.estop_off = self._estop_range.get_upper()
-        req.gpsw_on = self._gpsw_range.get_lower()
-        req.gpsw_off = self._gpsw_range.get_upper()
+        req.roll_left = int(self._roll_range.get_lower())
+        req.roll_right = int(self._roll_range.get_upper())
+        req.pitch_down = int(self._pitch_range.get_upper())
+        req.pitch_up = int(self._pitch_range.get_lower())
+        req.yaw_left = int(self._yaw_range.get_lower())
+        req.yaw_right = int(self._yaw_range.get_upper())
+        req.throttle_down = int(self._throttle_range.get_upper())
+        req.throttle_up = int(self._throttle_range.get_lower())
+        req.mode_program = int(self._mode_range.get_lower())
+        req.mode_stabilize = int(self._mode_range.get_middle())
+        req.mode_acrobat = int(self._mode_range.get_upper())
+        req.estop_on = int(self._estop_range.get_lower())
+        req.estop_off = int(self._estop_range.get_upper())
+        req.gpsw_on = int(self._gpsw_range.get_lower())
+        req.gpsw_off = int(self._gpsw_range.get_upper())
 
         try:
             res: RCInputCalibrationResponse = calib_finish_sc.call(req)
@@ -321,7 +323,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"/{self._drone.drone_name}/rcin_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_handler/reload_config", Trigger)
         try:
             reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
         except rospy.ROSException:

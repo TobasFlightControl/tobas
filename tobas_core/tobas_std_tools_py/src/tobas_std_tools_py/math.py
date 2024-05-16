@@ -1,4 +1,5 @@
 import math
+from typing import Tuple, List, Union
 
 
 def remap(x: float, a: float, b: float, c: float, d: float) -> float:
@@ -9,3 +10,46 @@ def remap(x: float, a: float, b: float, c: float, d: float) -> float:
         return (c + d) / 2
     else:
         return (c * (b - x) + d * (x - a)) / (b - a)
+
+
+def wrap(x, n):
+    """与えられた数を[-n, n]の範囲にラップする．"""
+    n2 = 2 * n
+    if x >= 0:
+        while x > n:
+            x -= n2
+    else:
+        while x < -n:
+            x += n2
+    return x
+
+
+def ceil(x: float, unit: int = 1) -> int:
+    return math.ceil(x / unit) * unit
+
+
+def floor(x: float, unit: int = 1) -> int:
+    return math.floor(x / unit) * unit
+
+
+def is_almost_int(x: float) -> bool:
+    """小数xが整数に近いかどうかを判定する"""
+
+    r = abs(x - round(x))
+    return r < 1e-5
+
+
+def common_range(range_list: List[Tuple[float, float]]) -> Union[Tuple[float, float], None]:
+    """range_listの共通範囲を求める"""
+
+    lb_res = -np.inf
+    ub_res = np.inf
+
+    for lb, ub in range_list:
+        assert lb <= ub
+        lb_res = max(lb_res, lb)
+        ub_res = min(ub_res, ub)
+        if lb_res > ub_res:
+            return None
+
+    return lb_res, ub_res

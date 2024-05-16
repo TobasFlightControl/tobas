@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="dummy_inertial">
+    <inertial>
+      <mass value="1e-9"/>
+      <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="dummy_inertial_link" params="name">
+    <link name="${name}">
+      <!-- set dummy inetial param for avoiding gazebo error -->
+      <xacro:dummy_inertial/>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="floating_base" params="world base_link">
+    <joint name="base_joint_trans_x" type="prismatic">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="${world}"/>
+      <child link="base_link_trans_x"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-10" upper="10" effort="0" velocity="1e+4"/>
+    </joint>
+    <xacro:dummy_inertial_link name="base_link_trans_x"/>
+
+    <joint name="base_joint_trans_y" type="prismatic">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="base_link_trans_x"/>
+      <child link="base_link_trans_y"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-10" upper="10" effort="0" velocity="1e+4"/>
+    </joint>
+    <xacro:dummy_inertial_link name="base_link_trans_y"/>
+
+    <joint name="base_joint_trans_z" type="prismatic">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="base_link_trans_y"/>
+      <child link="base_link_trans_z"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-10" upper="10" effort="0" velocity="1e+4"/>
+    </joint>
+    <xacro:dummy_inertial_link name="base_link_trans_z"/>
+
+    <joint name="base_joint_rot_yaw" type="continuous">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="base_link_trans_z"/>
+      <child link="base_link_rot_yaw"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+    <xacro:dummy_inertial_link name="base_link_rot_yaw"/>
+
+    <joint name="base_joint_rot_pitch" type="continuous">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="base_link_rot_yaw"/>
+      <child link="base_link_rot_pitch"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+    <xacro:dummy_inertial_link name="base_link_rot_pitch"/>
+
+    <joint name="base_joint_rot_roll" type="continuous">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <parent link="base_link_rot_pitch"/>
+      <child link="base_link_rot_roll"/>
+      <axis xyz="1 0 0"/>
+    </joint>
+    <xacro:dummy_inertial_link name="base_link_rot_roll"/>
+
+    <joint name="base_joint" type="fixed">
+      <parent link="base_link_rot_roll"/>
+      <child link="${base_link}"/>
+    </joint>
+
+    <!-- set dummy transmissions for avoiding gazebo error -->
+    <transmission name="base_joint_trans_x_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_joint_trans_x">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="base_joint_trans_x_actuator">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <transmission name="base_joint_trans_y_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_joint_trans_y">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="base_joint_trans_y_actuator">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <transmission name="base_joint_trans_z_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_joint_trans_z">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="base_joint_trans_z_actuator">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <transmission name="base_joint_rot_yaw_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_joint_rot_yaw">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="base_joint_rot_yaw_actuator">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <transmission name="base_joint_rot_pitch_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_joint_rot_pitch">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="base_joint_rot_pitch_actuator">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <transmission name="base_joint_rot_roll_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_joint_rot_roll">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="base_joint_rot_roll_actuator">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+</robot>

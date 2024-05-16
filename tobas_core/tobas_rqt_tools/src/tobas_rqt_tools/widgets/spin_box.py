@@ -1,6 +1,6 @@
 from overrides import override
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QWidget, QSpinBox, QDoubleSpinBox
+from PyQt5.QtWidgets import QSpinBox, QDoubleSpinBox
 from PyQt5.QtGui import QWheelEvent
 
 

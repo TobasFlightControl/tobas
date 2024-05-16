@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/array.hpp>
+#include <array>
 
 #include "./base.hpp"
 
@@ -19,7 +19,7 @@ public:
 private:
   size_t x_size_;
   size_t u_size_;
-  boost::array<Eigen::MatrixXd, 5> Ac_dt_pows_;  // Ac*dtの累乗を保持する配列
-  boost::array<double, 5> factorials_;           // 階乗を保持する配列
+  std::array<Eigen::MatrixXd, 5> Ac_dt_pows_;  // Ac*dtの累乗を保持する配列
+  std::array<double, 5> factorials_;           // 階乗を保持する配列
 };
 }  // namespace ctrl

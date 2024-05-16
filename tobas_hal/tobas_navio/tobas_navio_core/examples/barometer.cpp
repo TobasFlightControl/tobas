@@ -1,9 +1,10 @@
+#include <iostream>
 #include <unistd.h>
-#include <stdio.h>
 
 #include <tobas_navio_core/ms5611.hpp>
 #include <tobas_navio_core/util.hpp>
 
+using namespace std;
 using namespace navio;
 
 int main()
@@ -11,9 +12,7 @@ int main()
   MS5611 barometer;
 
   if (checkAPM())
-  {
     return 1;
-  }
 
   barometer.initialize();
 
@@ -29,8 +28,8 @@ int main()
 
     barometer.calculatePressureAndTemperature();
 
-    printf(
-      "Temperature[C]: %f Pressure[Pa]: %f\n", barometer.getTemperature(), barometer.getPressure());
+    cout << "Temperature[C]: " << barometer.getTemperature()
+         << ", Pressure[Pa]: " << barometer.getPressure() << endl;
 
     sleep(1);
   }

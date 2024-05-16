@@ -1,8 +1,7 @@
-import os.path as osp
 import math
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QFont
 
 
 # Physics Constants
@@ -10,9 +9,9 @@ AIR_DENSITY = 1.225  # [kg/m^3]
 
 PKG_NAME = "tobas_setup_assistant"
 TITLE = "Tobas Setup Assistant"
-TO_DO = "TODO"
 CW = "CW"
 CCW = "CCW"
+TO_DO = "TODO"
 
 # Point Sizes
 TITLE_PSIZE = 18
@@ -22,12 +21,12 @@ BODY_PSIZE = 9
 # Default Parameters
 DEFAULT_NUM_FLIGHT_MODES = 2
 
-
 ROSLAUNCH_TIMEOUT = 5  # [s]
 PROP_TILT_TOL = math.radians(5)  # 軸と平行とみなす傾きの閾値
 
-SENSOR_OFFSET_DESCRIPTION = "ルートリンクの基準点 (ドローンウィンドウ中の座標軸の交点) に対するセンサフレームの基準点のオフセット．"
-CAMERA_OFFSET_DESCRIPTION = "選択したフレームの基準点に対するカメラフレームの基準点のオフセット．"
+CAMERA_LINK_DESCRIPTION = "The name of the link to which the camera is attached."
+CAMERA_OFFSET_DESCRIPTION = "The pose of the camera frame wrt. the the selected link frame."
+SENSOR_OFFSET_DESCRIPTION = "The pose of the sensor frame wrt. the the drone root frame."
 
 
 class Signals(QObject):

@@ -1,9 +1,9 @@
-from typing import List, Optional
+import os.path as osp
 import numpy as np
 import pandas as pd
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from typing import List, Optional
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QFileDialog, QHBoxLayout
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
@@ -11,7 +11,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 
 from .base import ParamGetterWidget
-from ..common import *
+from ..common import TITLE, PKG_NAME
 
 
 class ParamGetterWidget_DoubleTable(ParamGetterWidget):

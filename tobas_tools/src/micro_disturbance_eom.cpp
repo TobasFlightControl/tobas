@@ -72,7 +72,7 @@ int MicroDisturbanceEoM::update(
   }
   const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
-  const auto I_cog = I_base.refPoint(P_base_cog).getRotationalInertia();
+  const auto I_cog = I_base.getRotationalInertiaCoG();
   // TODO: CoGが許容範囲内にあることとX軸対称性をチェック
   const auto I_x = I_cog.ixx();
   const auto I_y = I_cog.iyy();
@@ -80,7 +80,7 @@ int MicroDisturbanceEoM::update(
   const auto I_xz = I_cog.ixz();
 
   // p.97
-  const auto tmp = 1 - sqr(I_xz) / (I_x * I_z);
+  const auto tmp = 1 - tobas_std::sqr(I_xz) / (I_x * I_z);
   const auto I_x_tilde = I_x * tmp;
   const auto I_z_tilde = I_z * tmp;
 
@@ -90,8 +90,8 @@ int MicroDisturbanceEoM::update(
   const auto q_S_b = q_S * vehicle.wing_span;
   const auto q_S_c = q_S * vehicle.mac;
   const auto rho_V_S = rho * V * vehicle.wing_surface;
-  const auto rho_V_S_b2 = rho_V_S * sqr(vehicle.wing_span);
-  const auto rho_V_S_c2 = rho_V_S * sqr(vehicle.mac);
+  const auto rho_V_S_b2 = rho_V_S * tobas_std::sqr(vehicle.wing_span);
+  const auto rho_V_S_c2 = rho_V_S * tobas_std::sqr(vehicle.mac);
   const auto P = I_base.getMass() * V;  // 運動量
 
   // (2.2-45)

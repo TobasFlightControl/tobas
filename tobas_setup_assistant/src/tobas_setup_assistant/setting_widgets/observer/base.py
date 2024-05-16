@@ -6,18 +6,11 @@ if TYPE_CHECKING:
 
 from overrides import override
 from abc import abstractmethod
-from typing import List, final
-from dynamic_reconfigure import client
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget
-from tobas_rqt_tools.roslaunch import rosrun
-from tobas_rqt_tools.dynamic_reconfigure import get_param_config
 
-from ...common import *
-from ...parameter_getters import *
+from ...common import TO_DO, Description
 
 
 class BaseObserver(Widget):
@@ -28,9 +21,6 @@ class BaseObserver(Widget):
         super().__init__()
         self._main = main
 
-        self._param_server_process = None
-        self._configs: List[dict] = []
-
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
@@ -39,28 +29,13 @@ class BaseObserver(Widget):
 
     @override
     def close(self) -> bool:
-        self._param_server_process.terminate()
         return super().close()
-
-    @abstractmethod
-    def add_dynamic_params(self) -> None:
-        """動的パラメータをウィジェットに反映"""
-        raise NotImplementedError()
 
     @abstractmethod
     def is_valid(self) -> bool:
         raise NotImplementedError()
 
     @abstractmethod
-    def parameter_dict(self) -> dict:
+    def static_parameters(self) -> dict:
+        """静的プライベートROSパラメータをまとめた辞書を返す．"""
         raise NotImplementedError()
-
-    @final
-    def get_dynamic_params(self) -> None:
-        self._param_server_process = rosrun(self.PACKAGE_NAME, "parameter_server_node.py", self.PACKAGE_NAME)
-        cli = client.Client(self.PACKAGE_NAME, timeout=ROSLAUNCH_TIMEOUT)
-        self._configs: List[dict] = cli.get_parameter_descriptions()
-
-    @final
-    def _get_param_config(self, name: str) -> dict:
-        return get_param_config(self._configs, name)

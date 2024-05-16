@@ -33,10 +33,6 @@ private:
   ros::Publisher battery_lpf_pub_;
   ros::Subscriber battery_raw_sub_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   void batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw);
 };
 }  // namespace tobas_preprocess

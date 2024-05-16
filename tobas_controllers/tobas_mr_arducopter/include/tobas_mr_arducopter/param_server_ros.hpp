@@ -1,4 +1,5 @@
-#include <ros/ros.h>
+#pragma once
+
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_reconfigure/Config.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -61,10 +62,7 @@ private:
 
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
+  void getRosParams();
   void setParams(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
   void stateCb(const mavros_msgs::StateConstPtr& state);

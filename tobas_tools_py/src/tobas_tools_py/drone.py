@@ -5,11 +5,11 @@ from abc import ABC, abstractmethod
 from overrides import override
 from typing import final
 
-from .constants import *
+from .constants import SERVO_RAIL_SIZE
 from .battery_config import BatteryConfig
-from .joint_config import *
-from .rotor_config import *
-from .fixed_wing_tools import *
+from .joint_config import JointCommandType, JointConfig, JointConfigMap
+from .rotor_config import Axis, EscSignalMode, RotorConfig, RotorConfigs
+from .fixed_wing_tools import FixedWingConfig
 
 
 @dataclass
@@ -201,7 +201,7 @@ class DroneLoader_File(DroneLoader):
 
     @override
     def load(self) -> None:
-        assert self._tbsf_path.endswith(".tbsf")
+        assert self._tbsf_path.endswith(".tbsdrn")
 
         with open(self._tbsf_path, "r") as f:
             self._data = yaml.safe_load(f)

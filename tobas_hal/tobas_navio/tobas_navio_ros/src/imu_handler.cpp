@@ -5,8 +5,6 @@
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-#include <tobas_ros_tools/exception.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/imu_handler.hpp"
@@ -20,17 +18,15 @@ namespace tobas_navio_ros
 ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  getRosParams();
-
   if (!reloadConfig())
-    ROS_EXIT_NAMED(nh_, name_, "Failed to load configurations.");
+    TOBAS_EXIT("Failed to load configurations.");
 
   imu_.initialize();
   if (!imu_.probe())
-    ROS_EXIT_NAMED(nh_, name_, "IMU not enabled.");
+    TOBAS_EXIT("IMU not enabled.");
 
-  registerPublishers();
-  registerSubscribers();
+  imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
+  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
 
   reload_config_srv_ =
     nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
@@ -41,20 +37,6 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this, false, false);
-}
-
-void ImuHandler::getRosParams()
-{
-}
-
-void ImuHandler::registerPublishers()
-{
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
-  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
-}
-
-void ImuHandler::registerSubscribers()
-{
 }
 
 bool ImuHandler::reloadConfig()
@@ -78,7 +60,7 @@ bool ImuHandler::reloadConfig()
   pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.);
   pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.);
   pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.);
-  pt.get(kConfigKey_MagEllipseC, mag_trans_.c, 0.);
+  pt.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.);
 
   acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
   gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
@@ -86,7 +68,7 @@ bool ImuHandler::reloadConfig()
 
   if (!mag_trans_.initialize())
   {
-    rosError(name_, "Failed to initialize ellipse transformer.");
+    TOBAS_ERROR("Failed to initialize ellipse transformer.");
     return false;
   }
 
@@ -157,8 +139,7 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
   if (loop_cnt_ == kMeasureGyroBiasCount)
   {
     gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
-    rosInfo(
-      name_, "Finished measuring gyro bias. It is estimated to be: " << gyro_bias_.transpose());
+    TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_.transpose());
     measure_gyro_bias_timer_.stop();
     main_timer_.start();
     return;
@@ -169,9 +150,9 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
 
   if (gyro_.norm() > kStaticGyroThreshold)
   {
-    rosWarn(
-      name_, "Perturbation is detected while measuring gyro bias: " << gyro_.transpose()
-                                                                    << " [rad/s]. Retrying...");
+    TOBAS_WARN(
+      "Perturbation is detected while measuring gyro bias: ", gyro_.transpose(),
+      " [rad/s]. Retrying...");
     gyro_sum_.setZero();
     loop_cnt_ = 0;
     return;

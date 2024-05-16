@@ -1,4 +1,5 @@
 #include "../include/tobas_kdl/polar.hpp"
+#include "../include/tobas_kdl/utilities/utility.hpp"
 
 namespace KDL
 {

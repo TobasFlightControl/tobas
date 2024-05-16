@@ -1,6 +1,4 @@
 #include <tobas_std_tools/property_tree.hpp>
-#include <tobas_ros_tools/exception.hpp>
-
 #include <tobas_calibration_msgs/RCInput.h>
 
 #include "../include/tobas_calibration_ros/rcin_calibration.hpp"
@@ -9,18 +7,22 @@ using namespace std;
 
 namespace tobas_calibration
 {
-RCInputCalibrationRos::RCInputCalibrationRos(ros::NodeHandle& nh)
+RCInputCalibrationRos::RCInputCalibrationRos(
+  const ros::NodeHandle& nh,
+  const ros::NodeHandle& pnh,
+  const string& name)
+  : super(nh, pnh, name)
 {
   if (rcin_.initialize() < 0)
-    ROS_EXIT(nh, "Failed to initialize RC input driver.");
+    TOBAS_EXIT("Failed to initialize RC input driver.");
 
-  publish_timer_ = nh.createTimer(kSamplingRate, &self::publishTimerCb, this, false, false);
+  publish_timer_ = nh_.createTimer(kSamplingRate, &self::publishTimerCb, this, false, false);
 
-  rcin_pub_ = nh.advertise<tobas_calibration_msgs::RCInput>(kRcInputTopicName, 1);
+  rcin_pub_ = nh_.advertise<tobas_calibration_msgs::RCInput>(kRcInputTopicName, 1);
 
-  start_ss_ = nh.advertiseService(kStartServiceName, &self::startServiceCb, this);
-  finish_ss_ = nh.advertiseService(kFinishServiceName, &self::finishServiceCb, this);
-  cancel_ss_ = nh.advertiseService(kCancelServiceName, &self::cancelServiceCb, this);
+  start_ss_ = nh_.advertiseService(kStartServiceName, &self::startServiceCb, this);
+  finish_ss_ = nh_.advertiseService(kFinishServiceName, &self::finishServiceCb, this);
+  cancel_ss_ = nh_.advertiseService(kCancelServiceName, &self::cancelServiceCb, this);
 }
 
 void RCInputCalibrationRos::publishTimerCb(const ros::TimerEvent& event)
@@ -74,9 +76,9 @@ bool RCInputCalibrationRos::finishServiceCb(
     res.message = "The signals on Yaw channel are too close.";
     return true;
   }
-  if (abs(req.thrust_up - req.thrust_down) < kMinSignalRange)
+  if (abs(req.throttle_up - req.throttle_down) < kMinSignalRange)
   {
-    res.message = "The signals on Thrust channel are too close.";
+    res.message = "The signals on Throttle channel are too close.";
     return true;
   }
   if (abs(req.mode_program - req.mode_acrobat) < kMinSignalRange)
@@ -103,8 +105,8 @@ bool RCInputCalibrationRos::finishServiceCb(
   pt.put(tobas_navio_ros::kConfigKey_RcPitchDown, req.pitch_down);
   pt.put(tobas_navio_ros::kConfigKey_RcYawLeft, req.yaw_left);
   pt.put(tobas_navio_ros::kConfigKey_RcYawRight, req.yaw_right);
-  pt.put(tobas_navio_ros::kConfigKey_RcThrustUp, req.thrust_up);
-  pt.put(tobas_navio_ros::kConfigKey_RcThrustDown, req.thrust_down);
+  pt.put(tobas_navio_ros::kConfigKey_RcThrottleUp, req.throttle_up);
+  pt.put(tobas_navio_ros::kConfigKey_RcThrottleDown, req.throttle_down);
   pt.put(tobas_navio_ros::kConfigKey_RcModeProgram, req.mode_program);
   pt.put(tobas_navio_ros::kConfigKey_RcModeStabilize, req.mode_stabilize);
   pt.put(tobas_navio_ros::kConfigKey_RcModeAcrobat, req.mode_acrobat);

@@ -58,10 +58,6 @@ private:
   // Dynamic Reconfigure Server
   ConfigServer server_;
 
-  void getRosParams() override;
-  void registerPublishers() override;
-  void registerSubscribers() override;
-
   int jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
   int taskSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
 

@@ -3,8 +3,6 @@
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_ros_tools/console_message.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_thrust_estimation/thrust_estimator.hpp"
@@ -24,15 +22,17 @@ ThrustEstimator::ThrustEstimator(
   const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
-  getRosParams();
   drone_.loadFromParam(nh_);
   updateInternalDataStructures();
 
   kf_.initialize(Scalard(1), Scalard(kInitFactorStddev));
   kf_.setZero();
 
-  registerPublishers();
-  registerSubscribers();
+  factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
+
+  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  rotor_speeds_sub_ =
+    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
@@ -41,22 +41,6 @@ ThrustEstimator::ThrustEstimator(
 void ThrustEstimator::updateInternalDataStructures()
 {
   dynamics_.updateInternalDataStructures();
-}
-
-void ThrustEstimator::getRosParams()
-{
-}
-
-void ThrustEstimator::registerPublishers()
-{
-  factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
-}
-
-void ThrustEstimator::registerSubscribers()
-{
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
@@ -104,6 +88,6 @@ void ThrustEstimator::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   // TODO: dtを反映
   kf_.Q(0, 0) = exp10(cfg.process_noise_variance_log10);
 
-  rosInfo(name_, "New dynamic parameters are set.");
+  TOBAS_INFO("New dynamic parameters are set.");
 }
 }  // namespace tobas_mr_thrust_estimation

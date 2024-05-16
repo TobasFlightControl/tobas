@@ -15,10 +15,10 @@ namespace tobas_kdl_msgs
 template <class ContainerAllocator>
 using Accel_ = KDL::Accel;
 
-typedef ::tobas_kdl_msgs::Accel_<std::allocator<void> > Accel;
+typedef tobas_kdl_msgs::Accel_<std::allocator<void> > Accel;
 
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Accel> AccelPtr;
-typedef boost::shared_ptr< ::tobas_kdl_msgs::Accel const> AccelConstPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Accel> AccelPtr;
+typedef boost::shared_ptr<tobas_kdl_msgs::Accel const> AccelConstPtr;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
