@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using Wrench_ = KDL::Wrench;
+using Wrench_ = tobas_kdl::Wrench;
 
 typedef tobas_kdl_msgs::Wrench_<std::allocator<void> > Wrench;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::Wrench> : TrueType
+struct IsMessage<tobas_kdl::Wrench> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Wrench const> : TrueType
+struct IsMessage<tobas_kdl::Wrench const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Wrench> : TrueType
+struct IsFixedSize<tobas_kdl::Wrench> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Wrench const> : TrueType
+struct IsFixedSize<tobas_kdl::Wrench const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Wrench> : FalseType
+struct HasHeader<tobas_kdl::Wrench> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Wrench const> : FalseType
+struct HasHeader<tobas_kdl::Wrench const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Wrench>
+struct MD5Sum<tobas_kdl::Wrench>
 {
   static const char* value()
   {
     return "4f539cf138b23283b520fd271b567936";
   }
 
-  static const char* value(const KDL::Wrench&)
+  static const char* value(const tobas_kdl::Wrench&)
   {
     return value();
   }
@@ -72,21 +72,21 @@ struct MD5Sum<KDL::Wrench>
 };
 
 template <>
-struct DataType<KDL::Wrench>
+struct DataType<tobas_kdl::Wrench>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Wrench";
   }
 
-  static const char* value(const KDL::Wrench&)
+  static const char* value(const tobas_kdl::Wrench&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Wrench>
+struct Definition<tobas_kdl::Wrench>
 {
   static const char* value()
   {
@@ -100,7 +100,7 @@ struct Definition<KDL::Wrench>
            "float64 z\n";
   }
 
-  static const char* value(const KDL::Wrench&)
+  static const char* value(const tobas_kdl::Wrench&)
   {
     return value();
   }
@@ -113,7 +113,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Wrench>
+struct Serializer<tobas_kdl::Wrench>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -132,17 +132,17 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Wrench>
+struct Printer<tobas_kdl::Wrench>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Wrench& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Wrench& v)
   {
     s << indent << "force: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.force);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.force);
     s << indent << "torque: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.torque);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.torque);
   }
 };
 }  // namespace message_operations

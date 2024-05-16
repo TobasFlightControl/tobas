@@ -2,13 +2,13 @@
 
 #include "./chainfksolver.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * Implementation of a recursive forward position and velocity
  * kinematics algorithm to calculate the position and velocity
  * transformation from joint space to Cartesian space of a general
- * kinematic chain (KDL::Chain).
+ * kinematic chain (tobas_kdl::Chain).
  */
 class ChainFkSolverVel_recursive : public ChainFkSolverVel
 {
@@ -21,4 +21,4 @@ public:
 
   int JntToCart(const JntArrayVel& q_in, int seg_nr = -1) override;
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

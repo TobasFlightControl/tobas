@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using VectorAcc_ = KDL::VectorAcc;
+using VectorAcc_ = tobas_kdl::VectorAcc;
 
 typedef tobas_kdl_msgs::VectorAcc_<std::allocator<void> > VectorAcc;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::VectorAcc> : TrueType
+struct IsMessage<tobas_kdl::VectorAcc> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::VectorAcc const> : TrueType
+struct IsMessage<tobas_kdl::VectorAcc const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::VectorAcc> : TrueType
+struct IsFixedSize<tobas_kdl::VectorAcc> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::VectorAcc const> : TrueType
+struct IsFixedSize<tobas_kdl::VectorAcc const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::VectorAcc> : FalseType
+struct HasHeader<tobas_kdl::VectorAcc> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::VectorAcc const> : FalseType
+struct HasHeader<tobas_kdl::VectorAcc const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::VectorAcc>
+struct MD5Sum<tobas_kdl::VectorAcc>
 {
   static const char* value()
   {
     return "25990730987cb33c6804001eca036b26";
   }
 
-  static const char* value(const KDL::VectorAcc&)
+  static const char* value(const tobas_kdl::VectorAcc&)
   {
     return value();
   }
@@ -72,21 +72,21 @@ struct MD5Sum<KDL::VectorAcc>
 };
 
 template <>
-struct DataType<KDL::VectorAcc>
+struct DataType<tobas_kdl::VectorAcc>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/VectorAcc";
   }
 
-  static const char* value(const KDL::VectorAcc&)
+  static const char* value(const tobas_kdl::VectorAcc&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::VectorAcc>
+struct Definition<tobas_kdl::VectorAcc>
 {
   static const char* value()
   {
@@ -101,7 +101,7 @@ struct Definition<KDL::VectorAcc>
            "float64 z\n";
   }
 
-  static const char* value(const KDL::VectorAcc&)
+  static const char* value(const tobas_kdl::VectorAcc&)
   {
     return value();
   }
@@ -114,7 +114,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::VectorAcc>
+struct Serializer<tobas_kdl::VectorAcc>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -134,20 +134,20 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::VectorAcc>
+struct Printer<tobas_kdl::VectorAcc>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::VectorAcc& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::VectorAcc& v)
   {
     s << indent << "p: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.p);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.p);
     s << indent << "v: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.v);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.v);
     s << indent << "dv: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.dv);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.dv);
   }
 };
 }  // namespace message_operations

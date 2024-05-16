@@ -11,7 +11,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 ChainIkSolverPos_LM::ChainIkSolverPos_LM(const Chain& chain) : super(chain)
 {
@@ -218,4 +218,4 @@ void ChainIkSolverPos_LM::enforceJointLimits(Eigen::VectorXd& q)
     }
   }
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

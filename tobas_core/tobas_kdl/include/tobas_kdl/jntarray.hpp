@@ -2,7 +2,7 @@
 
 #include "./frames.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class JntArray
 {
@@ -175,4 +175,4 @@ inline void setToZero(JntArray& array)
 {
   array.data.setZero();
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

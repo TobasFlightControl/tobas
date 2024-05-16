@@ -6,7 +6,7 @@
 #include "./frames.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * \brief This class encapsulates a simple joint, that is with one
@@ -93,4 +93,4 @@ inline void Joint::axis(const Vector& axis)
 {
   axis_ = axis.normalized();
 }
-}  // end of namespace KDL
+}  // end of namespace tobas_kdl

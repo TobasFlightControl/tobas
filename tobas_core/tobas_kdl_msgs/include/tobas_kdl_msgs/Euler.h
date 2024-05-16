@@ -12,7 +12,7 @@ namespace tobas_kdl_msgs
 {
 /* Added from here */
 template <typename ContainerAllocator>
-using Euler_ = KDL::Euler;
+using Euler_ = tobas_kdl::Euler;
 /* Added to here */
 
 /* Commented out from here
@@ -38,8 +38,8 @@ struct Euler_
   typedef double _yaw_type;
   _yaw_type yaw;
 
-  typedef boost::shared_ptr< KDL::Euler > Ptr;
-  typedef boost::shared_ptr< KDL::Euler const> ConstPtr;
+  typedef boost::shared_ptr< tobas_kdl::Euler > Ptr;
+  typedef boost::shared_ptr< tobas_kdl::Euler const> ConstPtr;
 
 };  // struct Euler_
 Commented out to here */
@@ -53,9 +53,9 @@ typedef boost::shared_ptr<tobas_kdl_msgs::Euler const> EulerConstPtr;
 
 /* Commented out from here
 template <typename ContainerAllocator>
-std::ostream& operator<<(std::ostream& s, const KDL::Euler& v)
+std::ostream& operator<<(std::ostream& s, const tobas_kdl::Euler& v)
 {
-  ros::message_operations::Printer< KDL::Euler >::stream(s, "", v);
+  ros::message_operations::Printer< tobas_kdl::Euler >::stream(s, "", v);
   return s;
 }
 
@@ -83,44 +83,44 @@ namespace message_traits
 {
 // edit: removed all template parameters
 template <>
-struct IsMessage<KDL::Euler> : TrueType
+struct IsMessage<tobas_kdl::Euler> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Euler const> : TrueType
+struct IsMessage<tobas_kdl::Euler const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Euler> : TrueType
+struct IsFixedSize<tobas_kdl::Euler> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Euler const> : TrueType
+struct IsFixedSize<tobas_kdl::Euler const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Euler> : FalseType
+struct HasHeader<tobas_kdl::Euler> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Euler const> : FalseType
+struct HasHeader<tobas_kdl::Euler const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Euler>
+struct MD5Sum<tobas_kdl::Euler>
 {
   static const char* value()
   {
     return "eeec8b25a660789a89540dedcb2b06d6";
   }
 
-  static const char* value(const KDL::Euler&)
+  static const char* value(const tobas_kdl::Euler&)
   {
     return value();
   }
@@ -129,21 +129,21 @@ struct MD5Sum<KDL::Euler>
 };
 
 template <>
-struct DataType<KDL::Euler>
+struct DataType<tobas_kdl::Euler>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Euler";
   }
 
-  static const char* value(const KDL::Euler&)
+  static const char* value(const tobas_kdl::Euler&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Euler>
+struct Definition<tobas_kdl::Euler>
 {
   static const char* value()
   {
@@ -152,7 +152,7 @@ struct Definition<KDL::Euler>
            "float64 yaw    # [rad]\n";
   }
 
-  static const char* value(const KDL::Euler&)
+  static const char* value(const tobas_kdl::Euler&)
   {
     return value();
   }
@@ -165,7 +165,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Euler>
+struct Serializer<tobas_kdl::Euler>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -185,10 +185,10 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Euler>
+struct Printer<tobas_kdl::Euler>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Euler& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Euler& v)
   {
     s << indent << "roll: ";
     Printer<double>::stream(s, indent + "  ", v.roll);

@@ -32,10 +32,10 @@ public:
 
 private:
   tobas::Drone drone_;
-  KDL::TreeJointStateConverter cur_js_conv_;
-  KDL::TreeJointStateConverter tar_js_conv_;
-  KDL::TreeActiveJointsExtractor active_jnts_extractor_;
-  KDL::TreeTaskSpaceVelCtrl vel_ctrl_;
+  tobas_kdl::TreeJointStateConverter cur_js_conv_;
+  tobas_kdl::TreeJointStateConverter tar_js_conv_;
+  tobas_kdl::TreeActiveJointsExtractor active_jnts_extractor_;
+  tobas_kdl::TreeTaskSpaceVelCtrl vel_ctrl_;
 
   tobas_ros::TransformListener tf_listener_;
   double jnt_time_const_;

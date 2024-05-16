@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 Tree::Tree(const string& root_name) : nj_(0), ns_(0), root_name_(root_name)
 {
@@ -194,4 +194,4 @@ bool Tree::getSubTree(const string& segment_name, Tree& tree) const
   tree = Tree(root->first);
   return tree.addTreeRecursive(root, segment_name);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

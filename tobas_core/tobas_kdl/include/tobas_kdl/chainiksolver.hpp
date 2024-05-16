@@ -6,11 +6,11 @@
 #include "./jntarray.hpp"
 #include "./jntarrayvel.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * \brief This <strong>abstract</strong> class encapsulates the inverse
- * position solver for a KDL::Chain.
+ * position solver for a tobas_kdl::Chain.
  */
 class ChainIkSolverPos : public ChainSolverI
 {
@@ -44,7 +44,7 @@ protected:
 
 /**
  * \brief This <strong>abstract</strong> class encapsulates the inverse
- * velocity solver for a KDL::Chain.
+ * velocity solver for a tobas_kdl::Chain.
  */
 class ChainIkSolverVel : public ChainSolverI
 {
@@ -89,7 +89,7 @@ protected:
 };
 
 /**
- * \brief This abstract class encapsulates the inverse acceleration solver for a KDL::Tree.
+ * \brief This abstract class encapsulates the inverse acceleration solver for a tobas_kdl::Tree.
  */
 class ChainIkSolverAcc : public ChainSolverI
 {
@@ -132,4 +132,4 @@ public:
 protected:
   JntArray qdd_out_;
 };
-}  // end of namespace KDL
+}  // end of namespace tobas_kdl

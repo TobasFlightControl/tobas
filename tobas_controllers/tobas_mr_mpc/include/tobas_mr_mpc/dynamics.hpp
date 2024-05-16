@@ -28,13 +28,13 @@ public:
    * @param pitch {world}に対する{base}のピッチ角
    * @param q 関節角
    */
-  void update(const double& roll, const double& pitch, const KDL::JntArray& q);
+  void update(const double& roll, const double& pitch, const tobas_kdl::JntArray& q);
 
 private:
   const tobas::Drone& drone_;
 
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  tobas_kdl::TreeFkSolverPos fk_solver_;
+  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 };
 }  // namespace tobas_mr_mpc

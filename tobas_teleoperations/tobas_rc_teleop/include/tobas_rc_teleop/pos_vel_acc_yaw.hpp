@@ -25,9 +25,9 @@ public:
 private:
   bool is_up_commanded_;
   ros::Time t_last_rcin_;
-  tobas_std::FirstOrderFilter<KDL::Vector> vel_filter_;
-  KDL::Vector tar_vel_F_;
-  KDL::Vector tar_pos_W_;
+  tobas_std::FirstOrderFilter<tobas_kdl::Vector> vel_filter_;
+  tobas_kdl::Vector tar_vel_F_;
+  tobas_kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
   // rosparams

@@ -4,7 +4,7 @@
 #include "./wrench.hpp"
 #include "./segmentinertia.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * @brief 1つのセグメント対するヤコビアン．
@@ -64,4 +64,4 @@ inline double SegmentJacobian::dot(const SegmentInertia& rhs) const
 {
   return linear.dot(rhs.linear) + angular.dot(rhs.angular);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

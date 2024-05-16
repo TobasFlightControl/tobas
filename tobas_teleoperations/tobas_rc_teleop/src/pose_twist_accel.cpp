@@ -7,7 +7,7 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace tobas_kdl;
 
 namespace tobas_rc_teleop
 {

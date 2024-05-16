@@ -4,7 +4,7 @@
 #include "./jntarray.hpp"
 #include "./rigidbodyinertia.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeJntToInertiaSolver : public TreeSolverI
 {
@@ -31,4 +31,4 @@ private:
 
   void step(const SegmentMap::const_iterator& segment, const JntArray& q);
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

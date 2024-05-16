@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 ostream& operator<<(ostream& os, const Vector& v)
 {
@@ -58,4 +58,4 @@ Rotation operator*(const Rotation& lhs, const Rotation& rhs)
 {
   return Rotation(lhs.data * rhs.data);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

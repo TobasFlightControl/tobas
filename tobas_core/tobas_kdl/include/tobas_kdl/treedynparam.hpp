@@ -3,10 +3,10 @@
 #include "./treeidsolver_rne.hpp"
 #include "./utilities/constants.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
- * @brief KDL::ChainDynParamのTree版
+ * @brief tobas_kdl::ChainDynParamのTree版
  */
 class TreeDynParam : public TreeSolverI
 {
@@ -51,4 +51,4 @@ inline const JntArray& TreeDynParam::getGravityEffort() const
 {
   return rne_gravity_.getEfforts();
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

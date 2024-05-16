@@ -11,7 +11,7 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace tobas_kdl;
 
 namespace tobas
 {
@@ -24,7 +24,7 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
 {
   PRINT_DEBUG("Drone::loadFromParam");
 
-  ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get KDL tree.")
+  ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get tobas_kdl tree.")
 
   tobas_ros::getParam(nh, "drone_name", drone_name_);
 

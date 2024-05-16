@@ -5,7 +5,7 @@
 #include "../include/tobas_kdl/trajectory.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace tobas_kdl;
 using namespace tobas_std;
 
 namespace tj
@@ -15,8 +15,8 @@ CycloidGenerator3d::CycloidGenerator3d()
 }
 
 void CycloidGenerator3d::generate(
-  const KDL::Vector& p0,
-  const KDL::Vector& pf,
+  const tobas_kdl::Vector& p0,
+  const tobas_kdl::Vector& pf,
   const double& T,
   const double& h,
   const double& k)
@@ -71,7 +71,7 @@ void CycloidGenerator3d::get(const double& t, Vector& p) const
   return get(t, r0_, p, dummy_vector, dummy_vector);
 }
 
-void CycloidGenerator3d::getPos(const double& t, const KDL::Rotation& r, Vector& p) const
+void CycloidGenerator3d::getPos(const double& t, const tobas_kdl::Rotation& r, Vector& p) const
 {
   const auto theta = 2 * M_PI * t / T_;
   const auto tmp = (theta - sin(theta)) / (2 * M_PI);
@@ -83,7 +83,7 @@ void CycloidGenerator3d::getPos(const double& t, const KDL::Rotation& r, Vector&
   p = r * p;
 }
 
-void CycloidGenerator3d::getVel(const double& t, const KDL::Rotation& r, Vector& v) const
+void CycloidGenerator3d::getVel(const double& t, const tobas_kdl::Rotation& r, Vector& v) const
 {
   const auto theta = 2 * M_PI * t / T_;
   const auto tmp = (1 - cos(theta)) / T_;
@@ -95,7 +95,7 @@ void CycloidGenerator3d::getVel(const double& t, const KDL::Rotation& r, Vector&
   v = r * v;
 }
 
-void CycloidGenerator3d::getAcc(const double& t, const KDL::Rotation& r, Vector& a) const
+void CycloidGenerator3d::getAcc(const double& t, const tobas_kdl::Rotation& r, Vector& a) const
 {
   const auto theta = 2 * M_PI * t / T_;
   const auto tmp = 2 * M_PI / TT_ * sin(theta);

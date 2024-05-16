@@ -3,7 +3,7 @@
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * @brief セグメントに対し，ジョイントの単位加速度あたりに発生する力．
@@ -33,4 +33,4 @@ inline SegmentInertia SegmentInertia::Zero()
 {
   return SegmentInertia(Vector::Zero(), Vector::Zero());
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 Quaternion::Quaternion(const double& x, const double& y, const double& z, const double& w)
   : x(x), y(y), z(z), w(w)
@@ -107,4 +107,4 @@ ostream& operator<<(ostream& os, const Quaternion& arg)
   os << "w: " << arg.w << ", x: " << arg.x << ", y: " << arg.y << ", z: " << arg.z;
   return os;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

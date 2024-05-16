@@ -4,7 +4,7 @@
 
 #include "./vector.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class Accel;
 using AccelMap = std::map<std::string, Accel>;
@@ -110,4 +110,4 @@ inline Accel operator-(const Accel& lhs, const Accel& rhs)
 {
   return Accel(lhs.linear - rhs.linear, lhs.angular - rhs.angular);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

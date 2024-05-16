@@ -10,9 +10,9 @@
 
 namespace tobas_kdl_msgs
 {
-// using C++11 syntax KDL::Rotation and tobas_kdl_msgs::Rotation_ are exactly the same type
+// using C++11 syntax tobas_kdl::Rotation and tobas_kdl_msgs::Rotation_ are exactly the same type
 template <typename ContainerAllocator>
-using Rotation_ = KDL::Rotation;
+using Rotation_ = tobas_kdl::Rotation;
 
 typedef tobas_kdl_msgs::Rotation_<std::allocator<void> > Rotation;
 
@@ -25,44 +25,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsFixedSize<KDL::Rotation> : TrueType
+struct IsFixedSize<tobas_kdl::Rotation> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Rotation const> : TrueType
+struct IsFixedSize<tobas_kdl::Rotation const> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Rotation> : TrueType
+struct IsMessage<tobas_kdl::Rotation> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Rotation const> : TrueType
+struct IsMessage<tobas_kdl::Rotation const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Rotation> : FalseType
+struct HasHeader<tobas_kdl::Rotation> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Rotation const> : FalseType
+struct HasHeader<tobas_kdl::Rotation const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Rotation>
+struct MD5Sum<tobas_kdl::Rotation>
 {
   static const char* value()
   {
     return "ca66b32e4ad9de837a30ea9fe5ade752";
   }
 
-  static const char* value(const KDL::Rotation&)
+  static const char* value(const tobas_kdl::Rotation&)
   {
     return value();
   }
@@ -71,31 +71,31 @@ struct MD5Sum<KDL::Rotation>
 };
 
 template <>
-struct DataType<KDL::Rotation>
+struct DataType<tobas_kdl::Rotation>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Rotation";
   }
 
-  static const char* value(const KDL::Rotation&)
+  static const char* value(const tobas_kdl::Rotation&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Rotation>
+struct Definition<tobas_kdl::Rotation>
 {
   static const char* value()
   {
-    return "# Represents a KDL::Rotation instance.\n\
+    return "# Represents a tobas_kdl::Rotation instance.\n\
 \n\
 float64[9] data\n\
 ";
   }
 
-  static const char* value(const KDL::Rotation&)
+  static const char* value(const tobas_kdl::Rotation&)
   {
     return value();
   }
@@ -108,7 +108,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Rotation>
+struct Serializer<tobas_kdl::Rotation>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -134,10 +134,10 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Rotation>
+struct Printer<tobas_kdl::Rotation>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Rotation& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Rotation& v)
   {
     s << indent << "data[]" << std::endl;
     for (size_t i = 0; i < 3; ++i)

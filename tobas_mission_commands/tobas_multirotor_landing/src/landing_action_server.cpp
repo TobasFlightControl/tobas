@@ -79,7 +79,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
   const auto start_z = odom_->frame.p.z();
-  const auto start_yaw = KDL::Euler(odom_->frame.M).yaw;
+  const auto start_yaw = tobas_kdl::Euler(odom_->frame.M).yaw;
 
   // Now the action is running
   is_action_running_ = true;

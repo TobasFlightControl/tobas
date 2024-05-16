@@ -3,7 +3,7 @@
 #include "../include/tobas_kdl/rotation.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
@@ -273,4 +273,4 @@ double Rotation::getRotAngle(Vector& axis) const
   axis.normalize();
   return angle;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

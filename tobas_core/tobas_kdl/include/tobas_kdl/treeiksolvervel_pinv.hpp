@@ -6,7 +6,7 @@
 #include "./treejnttojacsolver.hpp"
 #include "./treejntparser.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeIkSolverVel_pinv : public TreeIkSolverVel
 {
@@ -36,4 +36,4 @@ private:
 
   quadprog::DualActiveSetSolver qp_solver_;
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

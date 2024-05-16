@@ -25,7 +25,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  const KDL::Rotation R_nwu_ned_ = KDL::Rotation::RotX(M_PI);
+  const tobas_kdl::Rotation R_nwu_ned_ = tobas_kdl::Rotation::RotX(M_PI);
 
   bool ardupilot_online_ = false;
   size_t connection_timeout_count_ = 0;

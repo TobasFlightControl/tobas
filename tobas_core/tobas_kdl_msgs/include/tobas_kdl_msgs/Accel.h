@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using Accel_ = KDL::Accel;
+using Accel_ = tobas_kdl::Accel;
 
 typedef tobas_kdl_msgs::Accel_<std::allocator<void> > Accel;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::Accel> : TrueType
+struct IsMessage<tobas_kdl::Accel> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Accel const> : TrueType
+struct IsMessage<tobas_kdl::Accel const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Accel> : TrueType
+struct IsFixedSize<tobas_kdl::Accel> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Accel const> : TrueType
+struct IsFixedSize<tobas_kdl::Accel const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Accel> : FalseType
+struct HasHeader<tobas_kdl::Accel> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Accel const> : FalseType
+struct HasHeader<tobas_kdl::Accel const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Accel>
+struct MD5Sum<tobas_kdl::Accel>
 {
   static const char* value()
   {
     return "9f195f881246fdfa2798d1d3eebca84a";
   }
 
-  static const char* value(const KDL::Accel&)
+  static const char* value(const tobas_kdl::Accel&)
   {
     return value();
   }
@@ -72,21 +72,21 @@ struct MD5Sum<KDL::Accel>
 };
 
 template <>
-struct DataType<KDL::Accel>
+struct DataType<tobas_kdl::Accel>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Accel";
   }
 
-  static const char* value(const KDL::Accel&)
+  static const char* value(const tobas_kdl::Accel&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Accel>
+struct Definition<tobas_kdl::Accel>
 {
   static const char* value()
   {
@@ -100,7 +100,7 @@ struct Definition<KDL::Accel>
            "float64 z\n";
   }
 
-  static const char* value(const KDL::Accel&)
+  static const char* value(const tobas_kdl::Accel&)
   {
     return value();
   }
@@ -113,7 +113,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Accel>
+struct Serializer<tobas_kdl::Accel>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -132,17 +132,17 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Accel>
+struct Printer<tobas_kdl::Accel>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Accel& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Accel& v)
   {
     s << indent << "linear: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.linear);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.linear);
     s << indent << "angular: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.angular);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.angular);
   }
 };
 }  // namespace message_operations

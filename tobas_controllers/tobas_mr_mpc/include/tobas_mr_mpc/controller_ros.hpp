@@ -43,7 +43,7 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
-  KDL::TreeJointStateConverter js_converter_;
+  tobas_kdl::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
   // rosparams
@@ -69,7 +69,7 @@ private:
   std_msgs::BoolConstPtr arming_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_W_;      // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
-  KDL::Vector tar_acc_fb_;
+  tobas_kdl::Vector tar_acc_fb_;
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers

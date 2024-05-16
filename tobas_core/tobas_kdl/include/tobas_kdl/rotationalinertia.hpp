@@ -2,7 +2,7 @@
 
 #include "./frames.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class RotationalInertia
 {
@@ -98,4 +98,4 @@ inline RotationalInertia operator*(const Rotation& R_a_b, const RotationalInerti
 {
   return RotationalInertia(R_a_b.data * I_b.data * R_a_b.data.transpose());
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -6,7 +6,7 @@
 
 #include "./utilities/constants.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class Vector;
 using VectorMap = std::map<std::string, Vector>;
@@ -302,4 +302,4 @@ inline void setToZero(Vector& v)
 {
   v.data.setZero();
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

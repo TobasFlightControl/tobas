@@ -1,6 +1,6 @@
 #include "../include/tobas_kdl/chain.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 Chain::Chain() : segments(0), nj_(0), ns_(0)
 {
@@ -35,4 +35,4 @@ void Chain::addChain(const Chain& chain)
   for (size_t i = 0; i < chain.getNrOfSegments(); ++i)
     this->addSegment(chain.getSegment(i));
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

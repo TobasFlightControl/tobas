@@ -2,7 +2,7 @@
 
 #include "./treeidsolver_rne.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeJntSpacePID : public TreeSolverI
 {
@@ -45,4 +45,4 @@ inline const JntArray& TreeJntSpacePID::getEfforts() const
 {
   return rne_.getEfforts();
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 ChainIkSolverAcc_RAC::ChainIkSolverAcc_RAC(const Chain& chain)
   : super(chain), jnt2jac_(chain_), jnt2jdqd_(chain_)
@@ -69,4 +69,4 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

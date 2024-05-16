@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
@@ -56,4 +56,4 @@ FrameVel TreeFkSolverVel::recursiveFk(
     return recursiveFk(q, qd, parent_it) * cur_framevel;
   }
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

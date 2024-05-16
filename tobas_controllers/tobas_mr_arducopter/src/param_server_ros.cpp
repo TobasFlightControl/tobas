@@ -11,7 +11,7 @@
 #define RETRY_SLEEP 1
 
 using namespace std;
-using namespace KDL;
+using namespace tobas_kdl;
 
 namespace tobas_mr_arducopter
 {

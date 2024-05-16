@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using VectorVel_ = KDL::VectorVel;
+using VectorVel_ = tobas_kdl::VectorVel;
 
 typedef tobas_kdl_msgs::VectorVel_<std::allocator<void> > VectorVel;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::VectorVel> : TrueType
+struct IsMessage<tobas_kdl::VectorVel> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::VectorVel const> : TrueType
+struct IsMessage<tobas_kdl::VectorVel const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::VectorVel> : TrueType
+struct IsFixedSize<tobas_kdl::VectorVel> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::VectorVel const> : TrueType
+struct IsFixedSize<tobas_kdl::VectorVel const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::VectorVel> : FalseType
+struct HasHeader<tobas_kdl::VectorVel> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::VectorVel const> : FalseType
+struct HasHeader<tobas_kdl::VectorVel const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::VectorVel>
+struct MD5Sum<tobas_kdl::VectorVel>
 {
   static const char* value()
   {
     return "5596953d851bb0bf15ba1b09a4a1c3c1";
   }
 
-  static const char* value(const KDL::VectorVel&)
+  static const char* value(const tobas_kdl::VectorVel&)
   {
     return value();
   }
@@ -72,21 +72,21 @@ struct MD5Sum<KDL::VectorVel>
 };
 
 template <>
-struct DataType<KDL::VectorVel>
+struct DataType<tobas_kdl::VectorVel>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/VectorVel";
   }
 
-  static const char* value(const KDL::VectorVel&)
+  static const char* value(const tobas_kdl::VectorVel&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::VectorVel>
+struct Definition<tobas_kdl::VectorVel>
 {
   static const char* value()
   {
@@ -100,7 +100,7 @@ struct Definition<KDL::VectorVel>
            "float64 z\n";
   }
 
-  static const char* value(const KDL::VectorVel&)
+  static const char* value(const tobas_kdl::VectorVel&)
   {
     return value();
   }
@@ -113,7 +113,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::VectorVel>
+struct Serializer<tobas_kdl::VectorVel>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -132,17 +132,17 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::VectorVel>
+struct Printer<tobas_kdl::VectorVel>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::VectorVel& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::VectorVel& v)
   {
     s << indent << "p: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.p);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.p);
     s << indent << "v: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.v);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.v);
   }
 };
 }  // namespace message_operations

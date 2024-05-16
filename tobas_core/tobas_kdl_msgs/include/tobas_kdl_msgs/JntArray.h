@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using JntArray_ = KDL::JntArray;
+using JntArray_ = tobas_kdl::JntArray;
 
 typedef tobas_kdl_msgs::JntArray_<std::allocator<void> > JntArray;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsFixedSize<KDL::JntArray> : FalseType
+struct IsFixedSize<tobas_kdl::JntArray> : FalseType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::JntArray const> : FalseType
+struct IsFixedSize<tobas_kdl::JntArray const> : FalseType
 {
 };
 
 template <>
-struct IsMessage<KDL::JntArray> : TrueType
+struct IsMessage<tobas_kdl::JntArray> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::JntArray const> : TrueType
+struct IsMessage<tobas_kdl::JntArray const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::JntArray> : FalseType
+struct HasHeader<tobas_kdl::JntArray> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::JntArray const> : FalseType
+struct HasHeader<tobas_kdl::JntArray const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::JntArray>
+struct MD5Sum<tobas_kdl::JntArray>
 {
   static const char* value()
   {
     return "788898178a3da2c3718461eecda8f714";
   }
 
-  static const char* value(const KDL::JntArray&)
+  static const char* value(const tobas_kdl::JntArray&)
   {
     return value();
   }
@@ -72,28 +72,28 @@ struct MD5Sum<KDL::JntArray>
 };
 
 template <>
-struct DataType<KDL::JntArray>
+struct DataType<tobas_kdl::JntArray>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/JntArray";
   }
 
-  static const char* value(const KDL::JntArray&)
+  static const char* value(const tobas_kdl::JntArray&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::JntArray>
+struct Definition<tobas_kdl::JntArray>
 {
   static const char* value()
   {
     return "float64[] data\n";
   }
 
-  static const char* value(const KDL::JntArray&)
+  static const char* value(const tobas_kdl::JntArray&)
   {
     return value();
   }
@@ -107,7 +107,7 @@ namespace serialization
 {
 /* Serializer for Eigen vector. */
 template <>
-struct Serializer<KDL::JntArray>
+struct Serializer<tobas_kdl::JntArray>
 {
   template <typename Stream, typename T>
   inline static void write(Stream& stream, const T& m)
@@ -139,10 +139,10 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::JntArray>
+struct Printer<tobas_kdl::JntArray>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::JntArray& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::JntArray& v)
   {
     s << indent << "data[]" << std::endl;
     for (size_t i = 0; i < v.rows(); ++i)

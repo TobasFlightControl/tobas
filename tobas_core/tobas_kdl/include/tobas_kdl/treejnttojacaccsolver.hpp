@@ -3,7 +3,7 @@
 #include "./treesolveri.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * @brief xdd = J qd + Jd qd におけるJd qdの項を計算する．
@@ -35,4 +35,4 @@ private:
   void
   JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

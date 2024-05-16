@@ -14,7 +14,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using FrameVel_ = KDL::FrameVel;
+using FrameVel_ = tobas_kdl::FrameVel;
 
 typedef tobas_kdl_msgs::FrameVel_<std::allocator<void> > FrameVel;
 
@@ -27,44 +27,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::FrameVel> : TrueType
+struct IsMessage<tobas_kdl::FrameVel> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::FrameVel const> : TrueType
+struct IsMessage<tobas_kdl::FrameVel const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::FrameVel> : TrueType
+struct IsFixedSize<tobas_kdl::FrameVel> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::FrameVel const> : TrueType
+struct IsFixedSize<tobas_kdl::FrameVel const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::FrameVel> : FalseType
+struct HasHeader<tobas_kdl::FrameVel> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::FrameVel const> : FalseType
+struct HasHeader<tobas_kdl::FrameVel const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::FrameVel>
+struct MD5Sum<tobas_kdl::FrameVel>
 {
   static const char* value()
   {
     return "2a4ef0eeda46a6fb602f53c28f12ffef";
   }
 
-  static const char* value(const KDL::FrameVel&)
+  static const char* value(const tobas_kdl::FrameVel&)
   {
     return value();
   }
@@ -73,21 +73,21 @@ struct MD5Sum<KDL::FrameVel>
 };
 
 template <>
-struct DataType<KDL::FrameVel>
+struct DataType<tobas_kdl::FrameVel>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/FrameVel";
   }
 
-  static const char* value(const KDL::FrameVel&)
+  static const char* value(const tobas_kdl::FrameVel&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::FrameVel>
+struct Definition<tobas_kdl::FrameVel>
 {
   static const char* value()
   {
@@ -115,7 +115,7 @@ struct Definition<KDL::FrameVel>
            "tobas_kdl_msgs/Vector angular\n";
   }
 
-  static const char* value(const KDL::FrameVel&)
+  static const char* value(const tobas_kdl::FrameVel&)
   {
     return value();
   }
@@ -128,7 +128,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::FrameVel>
+struct Serializer<tobas_kdl::FrameVel>
 {
   template <typename Stream, typename T>
   inline static void write(Stream& stream, const T& m)
@@ -140,8 +140,8 @@ struct Serializer<KDL::FrameVel>
   template <typename Stream, typename T>
   inline static void read(Stream& stream, T& m)
   {
-    KDL::Frame frame;
-    KDL::Twist twist;
+    tobas_kdl::Frame frame;
+    tobas_kdl::Twist twist;
 
     stream.next(frame);
     stream.next(twist);
@@ -163,17 +163,17 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::FrameVel>
+struct Printer<tobas_kdl::FrameVel>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::FrameVel& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::FrameVel& v)
   {
     s << indent << "frame: ";
     s << std::endl;
-    Printer<KDL::Frame>::stream(s, indent + "  ", v.getFrame());
+    Printer<tobas_kdl::Frame>::stream(s, indent + "  ", v.getFrame());
     s << indent << "twist: ";
     s << std::endl;
-    Printer<KDL::Twist>::stream(s, indent + "  ", v.getTwist());
+    Printer<tobas_kdl::Twist>::stream(s, indent + "  ", v.getTwist());
   }
 };
 }  // namespace message_operations

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 ChainDynParam::ChainDynParam(const Chain& chain)
   : super(chain), rne_coriolis_(chain_), rne_gravity_(chain_)
@@ -32,4 +32,4 @@ int ChainDynParam::JntToGravity(const JntArray& q, const Vector& grav)
   rne_gravity_.CartToJnt(q, zero_jntarray_, zero_jntarray_, zero_wrenches_, grav);
   return copyError(rne_gravity_);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -2,7 +2,7 @@
 
 #include "./utility.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * Rall1d contains a value, and its gradient, and defines an algebraic structure on this pair.
@@ -378,4 +378,4 @@ inline void setToIdentity(Rall1d<T, V, S>& value)
   setToIdentity(value.t);
   setToZero(value.grad);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

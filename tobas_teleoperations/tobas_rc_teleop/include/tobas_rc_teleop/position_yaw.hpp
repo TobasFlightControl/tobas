@@ -23,7 +23,7 @@ public:
 private:
   bool is_up_commanded_ = false;
   tobas_msgs::PositionYaw pos_yaw_;
-  KDL::Vector vel_;
+  tobas_kdl::Vector vel_;
   ros::Time t_last_rcin_;
 
   // rosparams

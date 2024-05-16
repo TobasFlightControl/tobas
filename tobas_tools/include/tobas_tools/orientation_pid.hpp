@@ -23,28 +23,28 @@ class OrientationPid
 public:
   explicit OrientationPid();
 
-  KDL::Vector update(
-    const KDL::Euler& cur_rpy,
-    const KDL::Vector& cur_gyro,
-    const KDL::Euler& tar_rpy,
-    const KDL::Vector& tar_gyro,
+  tobas_kdl::Vector update(
+    const tobas_kdl::Euler& cur_rpy,
+    const tobas_kdl::Vector& cur_gyro,
+    const tobas_kdl::Euler& tar_rpy,
+    const tobas_kdl::Vector& tar_gyro,
     const double& dt);
 
   void configure(const OrientationPidConfig& cfg);
 
-  inline KDL::Vector integralError() const;
+  inline tobas_kdl::Vector integralError() const;
 
 private:
   // Config
-  KDL::Vector kp_;
-  KDL::Vector ki_;
-  KDL::Vector kd_;
+  tobas_kdl::Vector kp_;
+  tobas_kdl::Vector ki_;
+  tobas_kdl::Vector kd_;
 
-  KDL::Vector ei_ = KDL::Vector::Zero();
-  tobas_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
+  tobas_kdl::Vector ei_ = tobas_kdl::Vector::Zero();
+  tobas_std::FirstOrderFilter<tobas_kdl::Vector> gyro_lpf_;
 };
 
-inline KDL::Vector OrientationPid::integralError() const
+inline tobas_kdl::Vector OrientationPid::integralError() const
 {
   return ei_;
 }

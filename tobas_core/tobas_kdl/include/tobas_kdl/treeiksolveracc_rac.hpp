@@ -7,7 +7,7 @@
 #include "./treejnttojacaccsolver.hpp"
 #include "./treejntparser.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeIkSolverAcc_RAC : public TreeIkSolverAcc
 {
@@ -39,4 +39,4 @@ private:
 
   quadprog::DualActiveSetSolver qp_solver_;
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

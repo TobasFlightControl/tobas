@@ -5,7 +5,7 @@
 
 #include "./chain.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeElement;
 using SegmentMap = std::map<std::string, TreeElement>;
@@ -172,4 +172,4 @@ private:
 
   bool addTreeRecursive(const SegmentMap::const_iterator& root, const std::string& hook_name);
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

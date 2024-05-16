@@ -5,7 +5,7 @@
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class Twist;
 using TwistMap = std::map<std::string, Twist>;
@@ -141,4 +141,4 @@ inline void setToZero(Twist& v)
   setToZero(v.rot);
   setToZero(v.vel);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

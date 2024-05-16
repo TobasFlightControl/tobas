@@ -8,7 +8,7 @@
 #include "./angle_axis.hpp"
 #include "./quaternion.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * @brief ZYXオイラー角．
@@ -94,4 +94,4 @@ inline std::ostream& operator<<(std::ostream& os, const Euler& arg)
   os << "roll: " << arg.roll << ", pitch: " << arg.pitch << ", yaw: " << arg.yaw;
   return os;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

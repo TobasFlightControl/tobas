@@ -4,7 +4,7 @@
 #include "./rotation.hpp"
 #include "./utilities/rall2d.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class VectorAcc
 {
@@ -193,4 +193,4 @@ inline VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1)
 {
   return r2 * (1.0 / r1);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

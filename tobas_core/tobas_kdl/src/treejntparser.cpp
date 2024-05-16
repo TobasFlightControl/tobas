@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
 {
@@ -48,4 +48,4 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segmen
   for (const auto& child : segment->second.children)
     parseJntNamesStep(child);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

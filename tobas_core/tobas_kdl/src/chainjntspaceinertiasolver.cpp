@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 ChainJntSpaceInertiaSolver::ChainJntSpaceInertiaSolver(const Chain& chain) : super(chain)
 {
@@ -78,4 +78,4 @@ int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

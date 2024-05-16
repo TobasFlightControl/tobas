@@ -4,7 +4,7 @@
 #include "./vectorvel.hpp"
 #include "./rotationvel.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class FrameVel
 {
@@ -104,4 +104,4 @@ inline FrameVel operator*(const Frame& lhs, const FrameVel& rhs)
 {
   return FrameVel(lhs.M * rhs.M, lhs.M * rhs.p + lhs.p);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -1,6 +1,6 @@
 #include "../include/tobas_kdl/chainidsolver_rne.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain)
 {
@@ -148,4 +148,4 @@ int ChainIdSolver_RNE::CartToJnt(
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

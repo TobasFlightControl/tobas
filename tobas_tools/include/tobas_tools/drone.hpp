@@ -23,7 +23,7 @@ public:
   /* Load drone configurations from ROS parameter server. */
   void loadFromParam(ros::NodeHandle& nh);
 
-  inline const KDL::Tree& tree() const;
+  inline const tobas_kdl::Tree& tree() const;
   inline const BatteryConfig& batteryConfig() const;
   inline const JointConfigMap& jointConfigMap() const;
   inline const JointConfig& jointConfig(const std::string& jnt_name) const;
@@ -90,7 +90,7 @@ public:
     const double& battery_voltage) const;
 
 private:
-  KDL::Tree tree_;
+  tobas_kdl::Tree tree_;
 
   BatteryConfig battery_;
   JointConfigMap joint_map_;  // プロペラ，舵面以外の可動関節
@@ -115,7 +115,7 @@ private:
   ControlSurface getControlSurface(ros::NodeHandle& nh, const size_t& cs_idx);
 };
 
-inline const KDL::Tree& Drone::tree() const
+inline const tobas_kdl::Tree& Drone::tree() const
 {
   return tree_;
 }

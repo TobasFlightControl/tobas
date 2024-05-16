@@ -4,7 +4,7 @@
 #include "./framevel.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeFkSolverVel : public TreeSolverI
 {
@@ -27,4 +27,4 @@ private:
 
   FrameVel recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& it);
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

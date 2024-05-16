@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 void Jacobian::changeRefPoint(const Vector& base_AB)
 {
@@ -49,4 +49,4 @@ bool changeRefFrame(const Jacobian& src1, const Frame& frame, Jacobian& dest)
     dest.setColumn(i, frame * src1.getColumn(i));
   return true;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

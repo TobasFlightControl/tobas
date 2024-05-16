@@ -1,6 +1,6 @@
 #include "../include/tobas_kdl/chainjnttojacaccsolver.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 ChainJntToJacAccSolver::ChainJntToJacAccSolver(const Chain& chain) : super(chain)
 {
@@ -62,4 +62,4 @@ int ChainJntToJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

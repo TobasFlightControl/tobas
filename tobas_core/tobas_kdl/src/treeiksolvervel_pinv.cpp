@@ -11,7 +11,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree)
   : super(tree), jnt2jac_(tree_), jntparser_(tree_)
@@ -113,4 +113,4 @@ const double& TreeIkSolverVel_pinv::getWeightJS() const
 {
   return Wj_;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

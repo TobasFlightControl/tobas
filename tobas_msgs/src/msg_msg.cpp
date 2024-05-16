@@ -3,7 +3,7 @@
 
 #include "../include/tobas_msgs/conversions/msg_msg.hpp"
 
-using namespace KDL;
+using namespace tobas_kdl;
 
 namespace tobas
 {

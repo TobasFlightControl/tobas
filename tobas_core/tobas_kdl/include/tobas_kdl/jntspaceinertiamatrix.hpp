@@ -4,11 +4,11 @@
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * @brief This class represents an fixed nj matrix containing
- * the Joint-Space Inertia Matrix of a KDL::Chain.
+ * the Joint-Space Inertia Matrix of a tobas_kdl::Chain.
  *
  * \warning An object constructed with the default constructor provides
  * a valid, but inert, object. Many of the member functions will do
@@ -173,4 +173,4 @@ inline void setToZero(JntSpaceInertiaMatrix& mat)
 {
   mat.data.setZero();
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

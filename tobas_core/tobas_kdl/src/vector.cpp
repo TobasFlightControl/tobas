@@ -4,7 +4,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 double Vector::norm(double eps) const
 {
@@ -60,4 +60,4 @@ Vector Vector::normalized() const
 {
   return Vector(data.normalized());
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

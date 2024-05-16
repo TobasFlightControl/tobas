@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 TreeJntToJacSolver::TreeJntToJacSolver(const Tree& tree) : super(tree)
 {
@@ -67,4 +67,4 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

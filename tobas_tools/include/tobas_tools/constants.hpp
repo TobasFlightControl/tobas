@@ -113,5 +113,5 @@ static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
 static constexpr size_t kStopwatchSamples = 100;
 
-static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
+static const tobas_kdl::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
 }  // namespace tobas

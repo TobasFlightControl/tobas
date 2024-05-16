@@ -12,7 +12,7 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace tobas_kdl;
 
 namespace tobas_mr_thrust_estimation
 {

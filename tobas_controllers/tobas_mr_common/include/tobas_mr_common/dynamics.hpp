@@ -32,29 +32,31 @@ public:
   double dragRotorSum(const std::vector<double>& rot_speeds) const;
 
   /* 機体の風に対する相対速度のプロペラに対する水平成分を求める．機体座標系ではZ成分のみ0としたベクトルに等しい．*/
-  KDL::Vector
-  relativePerpVel(const KDL::Rotation& rot, const KDL::Vector& vel_B, const KDL::Vector& wind_W);
+  tobas_kdl::Vector relativePerpVel(
+    const tobas_kdl::Rotation& rot,
+    const tobas_kdl::Vector& vel_B,
+    const tobas_kdl::Vector& wind_W);
 
   /* 機体座標系から見たH-force */
-  KDL::Vector horizontalForce(
-    const KDL::Rotation& rot,
-    const KDL::Vector& vel_B,
-    const KDL::Vector& wind_W,
+  tobas_kdl::Vector horizontalForce(
+    const tobas_kdl::Rotation& rot,
+    const tobas_kdl::Vector& vel_B,
+    const tobas_kdl::Vector& wind_W,
     const std::vector<double>& rot_speeds);
 
   /* 機体座標系から見たH-forceによるモーメント (memo: 2-34) */
-  KDL::Vector horizontalMoment(
-    const KDL::Rotation& rot,
-    const KDL::Vector& vel_B,
-    const KDL::Vector& wind_W,
-    const KDL::JntArray& q,
+  tobas_kdl::Vector horizontalMoment(
+    const tobas_kdl::Rotation& rot,
+    const tobas_kdl::Vector& vel_B,
+    const tobas_kdl::Vector& wind_W,
+    const tobas_kdl::JntArray& q,
     const std::vector<double>& rot_speeds);
 
 private:
   const tobas::Drone& drone_;
 
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  tobas_kdl::TreeFkSolverPos fk_solver_;
+  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 };
 

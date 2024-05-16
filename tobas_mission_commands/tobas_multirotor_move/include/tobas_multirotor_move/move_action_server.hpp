@@ -41,7 +41,7 @@ private:
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);
-  bool computeGoalPosition(const GoalType& goal, KDL::Vector& goal_pos);
+  bool computeGoalPosition(const GoalType& goal, tobas_kdl::Vector& goal_pos);
 
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

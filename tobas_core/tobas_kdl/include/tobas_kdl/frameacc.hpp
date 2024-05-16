@@ -5,7 +5,7 @@
 #include "./rotationacc.hpp"
 #include "./twistacc.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class FrameAcc
 {
@@ -148,4 +148,4 @@ inline FrameAcc operator*(const Frame& lhs, const FrameAcc& rhs)
 {
   return FrameAcc(lhs.M * rhs.M, lhs.M * rhs.p + lhs.p);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

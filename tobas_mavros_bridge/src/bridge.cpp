@@ -7,7 +7,7 @@
 #include "../include/tobas_mavros_bridge/bridge.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace tobas_kdl;
 
 namespace tobas_mavros_bridge
 {

@@ -4,7 +4,7 @@
 #include "./rotationalinertia.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  *	\brief 6D Inertia of a rigid body
@@ -130,4 +130,4 @@ inline RigidBodyInertia::RigidBodyInertia(
   : m_(m), h_(h), I_(I)
 {
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

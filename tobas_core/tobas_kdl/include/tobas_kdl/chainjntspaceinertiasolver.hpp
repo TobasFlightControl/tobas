@@ -3,7 +3,7 @@
 #include "./chainsolveri.hpp"
 #include "./jntspaceinertiamatrix.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /* ベースは公式のChainDynParamで，重力加速度を呼び出し時に与えるようにしたもの */
 class ChainJntSpaceInertiaSolver : public ChainSolverI
@@ -30,4 +30,4 @@ inline const JntSpaceInertiaMatrix& ChainJntSpaceInertiaSolver::getMass() const
 {
   return H_out_;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

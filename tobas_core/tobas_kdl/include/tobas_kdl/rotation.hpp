@@ -5,7 +5,7 @@
 #include "./wrench.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class Rotation;
 using RotationMap = std::map<std::string, Rotation>;
@@ -327,4 +327,4 @@ inline void Rotation::UnitZ(const Vector& X)
 {
   data.col(2) = X.data;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -42,7 +42,7 @@ public:
     const double& V,
     const double& rho,
     const double& battery_voltage,
-    const KDL::JntArray& q);
+    const tobas_kdl::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -132,8 +132,8 @@ public:
 private:
   const Drone& drone_;
 
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  tobas_kdl::TreeFkSolverPos fk_solver_;
+  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 

@@ -31,20 +31,20 @@ public:
 
   Eigen::VectorXd solve(
     const double& cur_voltage,
-    const KDL::JntArray& cur_q,
-    const KDL::Rotation& cur_rot,
-    const KDL::Vector& cur_gyro_B,
-    const KDL::Vector& tar_acc_W,
-    const KDL::Vector& tar_dgyro_B);
+    const tobas_kdl::JntArray& cur_q,
+    const tobas_kdl::Rotation& cur_rot,
+    const tobas_kdl::Vector& cur_gyro_B,
+    const tobas_kdl::Vector& tar_acc_W,
+    const tobas_kdl::Vector& tar_dgyro_B);
 
   void configure(const MixerConfig& cfg);
 
 private:
   const tobas::Drone& drone_;
 
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntAxisSolver jnt_axis_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  tobas_kdl::TreeFkSolverPos fk_solver_;
+  tobas_kdl::TreeJntAxisSolver jnt_axis_solver_;
+  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
 
   quadprog::DualActiveSetSolver qp_;  // QPソルバー
   Eigen::Diagonal6d Q_;               // EoMの重み

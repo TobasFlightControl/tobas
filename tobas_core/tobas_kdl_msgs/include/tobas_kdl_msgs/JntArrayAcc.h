@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using JntArrayAcc_ = KDL::JntArrayAcc;
+using JntArrayAcc_ = tobas_kdl::JntArrayAcc;
 
 typedef tobas_kdl_msgs::JntArrayAcc_<std::allocator<void>> JntArrayAcc;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::JntArrayAcc> : TrueType
+struct IsMessage<tobas_kdl::JntArrayAcc> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::JntArrayAcc const> : TrueType
+struct IsMessage<tobas_kdl::JntArrayAcc const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::JntArrayAcc> : FalseType
+struct IsFixedSize<tobas_kdl::JntArrayAcc> : FalseType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::JntArrayAcc const> : FalseType
+struct IsFixedSize<tobas_kdl::JntArrayAcc const> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::JntArrayAcc> : FalseType
+struct HasHeader<tobas_kdl::JntArrayAcc> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::JntArrayAcc const> : FalseType
+struct HasHeader<tobas_kdl::JntArrayAcc const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::JntArrayAcc>
+struct MD5Sum<tobas_kdl::JntArrayAcc>
 {
   static const char* value()
   {
     return "cb75d1f3d3b3f8137a70dc309f21917e";
   }
 
-  static const char* value(const KDL::JntArrayAcc&)
+  static const char* value(const tobas_kdl::JntArrayAcc&)
   {
     return value();
   }
@@ -72,21 +72,21 @@ struct MD5Sum<KDL::JntArrayAcc>
 };
 
 template <>
-struct DataType<KDL::JntArrayAcc>
+struct DataType<tobas_kdl::JntArrayAcc>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/JntArrayAcc";
   }
 
-  static const char* value(const KDL::JntArrayAcc&)
+  static const char* value(const tobas_kdl::JntArrayAcc&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::JntArrayAcc>
+struct Definition<tobas_kdl::JntArrayAcc>
 {
   static const char* value()
   {
@@ -95,7 +95,7 @@ struct Definition<KDL::JntArrayAcc>
            "float64[] qdotdot\n";
   }
 
-  static const char* value(const KDL::JntArrayAcc&)
+  static const char* value(const tobas_kdl::JntArrayAcc&)
   {
     return value();
   }
@@ -109,7 +109,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::JntArrayAcc>
+struct Serializer<tobas_kdl::JntArrayAcc>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -129,10 +129,10 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::JntArrayAcc>
+struct Printer<tobas_kdl::JntArrayAcc>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::JntArrayAcc& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::JntArrayAcc& v)
   {
     s << indent << "q[]" << std::endl;
     for (size_t i = 0; i < v.q.size(); ++i)

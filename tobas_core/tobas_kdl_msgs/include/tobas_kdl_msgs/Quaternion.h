@@ -11,7 +11,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Quaternion_ = KDL::Quaternion;
+using Quaternion_ = tobas_kdl::Quaternion;
 
 typedef tobas_kdl_msgs::Quaternion_<std::allocator<void> > Quaternion;
 
@@ -24,44 +24,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::Quaternion> : TrueType
+struct IsMessage<tobas_kdl::Quaternion> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Quaternion const> : TrueType
+struct IsMessage<tobas_kdl::Quaternion const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Quaternion> : TrueType
+struct IsFixedSize<tobas_kdl::Quaternion> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Quaternion const> : TrueType
+struct IsFixedSize<tobas_kdl::Quaternion const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Quaternion> : FalseType
+struct HasHeader<tobas_kdl::Quaternion> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Quaternion const> : FalseType
+struct HasHeader<tobas_kdl::Quaternion const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Quaternion>
+struct MD5Sum<tobas_kdl::Quaternion>
 {
   static const char* value()
   {
     return "a779879fadf0160734f906b8c19c7004";
   }
 
-  static const char* value(const KDL::Quaternion&)
+  static const char* value(const tobas_kdl::Quaternion&)
   {
     return value();
   }
@@ -70,21 +70,21 @@ struct MD5Sum<KDL::Quaternion>
 };
 
 template <>
-struct DataType<KDL::Quaternion>
+struct DataType<tobas_kdl::Quaternion>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Quaternion";
   }
 
-  static const char* value(const KDL::Quaternion&)
+  static const char* value(const tobas_kdl::Quaternion&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Quaternion>
+struct Definition<tobas_kdl::Quaternion>
 {
   static const char* value()
   {
@@ -94,7 +94,7 @@ struct Definition<KDL::Quaternion>
            "float64 w\n";
   }
 
-  static const char* value(const KDL::Quaternion&)
+  static const char* value(const tobas_kdl::Quaternion&)
   {
     return value();
   }
@@ -107,7 +107,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Quaternion>
+struct Serializer<tobas_kdl::Quaternion>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -129,10 +129,10 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Quaternion>
+struct Printer<tobas_kdl::Quaternion>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Quaternion& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Quaternion& v)
   {
     s << indent << "x: ";
     Printer<double>::stream(s, indent + "  ", v.x);

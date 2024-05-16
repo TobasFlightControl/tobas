@@ -6,9 +6,9 @@
 
 namespace tobas
 {
-KDL::Rotation rotWorldToFootprint(const KDL::Rotation& R_W_B);
+tobas_kdl::Rotation rotWorldToFootprint(const tobas_kdl::Rotation& R_W_B);
 
-KDL::Rotation rotFootprintToLocal(const KDL::Rotation& R_W_B);
+tobas_kdl::Rotation rotFootprintToLocal(const tobas_kdl::Rotation& R_W_B);
 
 /**
  * @brief コマンドメッセージのvel, accのフレームを変換する．
@@ -21,7 +21,7 @@ KDL::Rotation rotFootprintToLocal(const KDL::Rotation& R_W_B);
  * @return false 変換に失敗した場合
  */
 template <typename T>
-bool changeFrame(const uint8_t& frame_id, const KDL::Rotation& R_W_B, T& msg)
+bool changeFrame(const uint8_t& frame_id, const tobas_kdl::Rotation& R_W_B, T& msg)
 {
   switch (frame_id)
   {

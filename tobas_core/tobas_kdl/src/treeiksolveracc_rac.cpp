@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
   : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
@@ -121,4 +121,4 @@ const double& TreeIkSolverAcc_RAC::getWeightJS() const
 {
   return Wj_;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

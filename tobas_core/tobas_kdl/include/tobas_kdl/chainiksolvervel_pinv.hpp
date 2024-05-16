@@ -3,7 +3,7 @@
 #include "./chainiksolver.hpp"
 #include "./chainjnttojacsolver.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 /* 公式のChainIkSolverVel_pinvを並進速度のみの場合にも対応させたもの */
 class ChainIkSolverVel_pinv : public ChainIkSolverVel
@@ -21,4 +21,4 @@ public:
 private:
   ChainJntToJacSolver jnt2jac_;
 };
-}  // namespace KDL
+}  // namespace tobas_kdl

@@ -11,7 +11,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using RotationalInertia_ = KDL::RotationalInertia;
+using RotationalInertia_ = tobas_kdl::RotationalInertia;
 
 typedef tobas_kdl_msgs::RotationalInertia_<std::allocator<void> > RotationalInertia;
 
@@ -24,44 +24,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsFixedSize<KDL::RotationalInertia> : TrueType
+struct IsFixedSize<tobas_kdl::RotationalInertia> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::RotationalInertia const> : TrueType
+struct IsFixedSize<tobas_kdl::RotationalInertia const> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::RotationalInertia> : TrueType
+struct IsMessage<tobas_kdl::RotationalInertia> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::RotationalInertia const> : TrueType
+struct IsMessage<tobas_kdl::RotationalInertia const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::RotationalInertia> : FalseType
+struct HasHeader<tobas_kdl::RotationalInertia> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::RotationalInertia const> : FalseType
+struct HasHeader<tobas_kdl::RotationalInertia const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::RotationalInertia>
+struct MD5Sum<tobas_kdl::RotationalInertia>
 {
   static const char* value()
   {
     return "ca66b32e4ad9de837a30ea9fe5ade752";
   }
 
-  static const char* value(const KDL::RotationalInertia&)
+  static const char* value(const tobas_kdl::RotationalInertia&)
   {
     return value();
   }
@@ -70,31 +70,31 @@ struct MD5Sum<KDL::RotationalInertia>
 };
 
 template <>
-struct DataType<KDL::RotationalInertia>
+struct DataType<tobas_kdl::RotationalInertia>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/RotationalInertia";
   }
 
-  static const char* value(const KDL::RotationalInertia&)
+  static const char* value(const tobas_kdl::RotationalInertia&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::RotationalInertia>
+struct Definition<tobas_kdl::RotationalInertia>
 {
   static const char* value()
   {
-    return "# Represents a KDL::RotationalInertia instance.\n\
+    return "# Represents a tobas_kdl::RotationalInertia instance.\n\
 \n\
 float64[9] data\n\
 ";
   }
 
-  static const char* value(const KDL::RotationalInertia&)
+  static const char* value(const tobas_kdl::RotationalInertia&)
   {
     return value();
   }
@@ -107,7 +107,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::RotationalInertia>
+struct Serializer<tobas_kdl::RotationalInertia>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -133,10 +133,10 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::RotationalInertia>
+struct Printer<tobas_kdl::RotationalInertia>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::RotationalInertia& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::RotationalInertia& v)
   {
     s << indent << "data[]" << std::endl;
     for (size_t i = 0; i < 9; ++i)

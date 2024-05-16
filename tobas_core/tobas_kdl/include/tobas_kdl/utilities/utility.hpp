@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace KDL
+namespace tobas_kdl
 {
 /**
  * Auxiliary class for argument types (Trait-template class )
@@ -79,4 +79,4 @@ inline double addDelta(double a, double da, double dt)
 {
   return a + da * dt;
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

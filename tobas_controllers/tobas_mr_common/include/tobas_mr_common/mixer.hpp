@@ -37,7 +37,7 @@ public:
   Eigen::VectorXd solve(
     const double& dt,
     const double& cur_voltage,
-    const KDL::JntArray& cur_q,
+    const tobas_kdl::JntArray& cur_q,
     const Eigen::Vector3d& cur_gyro_B,
     const Eigen::Vector3d& cur_h_moment_B,
     const Eigen::Vector3d& tar_dgyro_B,
@@ -46,7 +46,7 @@ public:
   Eigen::VectorXd solve(
     const double& dt,
     const double& cur_voltage,
-    const KDL::JntArray& cur_q,
+    const tobas_kdl::JntArray& cur_q,
     const Eigen::Vector3d& cur_gyro_B,
     const Eigen::Vector3d& cur_h_moment_B,
     const Eigen::Vector3d& tar_dgyro_B,
@@ -56,9 +56,9 @@ public:
 
 private:
   const tobas::Drone& drone_;
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntAxisSolver jnt_axis_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  tobas_kdl::TreeFkSolverPos fk_solver_;
+  tobas_kdl::TreeJntAxisSolver jnt_axis_solver_;
+  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
   tobas::RotorAxisExtractor z_rotors_;
 
   MixerConfig cfg_;

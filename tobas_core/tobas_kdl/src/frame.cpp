@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace tobas_kdl
 {
 Frame Frame::DH_Craig1989(double a, double alpha, double d, double theta)
 {
@@ -50,4 +50,4 @@ Twist Frame::toTwist() const
 {
   return Twist(p, M.getRot());
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

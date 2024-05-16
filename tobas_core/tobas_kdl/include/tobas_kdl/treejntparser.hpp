@@ -7,7 +7,7 @@
 #include "./treesolveri.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace tobas_kdl
 {
 class TreeJointParser : public TreeSolverI
 {
@@ -143,4 +143,4 @@ inline bool TreeJointParser::exist(const std::string& jnt_name) const
 {
   return tobas_std::contains(jnt_idx_, jnt_name);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

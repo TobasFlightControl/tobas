@@ -5,7 +5,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace tobas_kdl
 {
 RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic)
   : m_(m), h_(m * oc)
@@ -48,4 +48,4 @@ RigidBodyInertia operator*(const Rotation& M, const RigidBodyInertia& I)
   const RotationalInertia Ib(R * I.I_.data * R.transpose());
   return RigidBodyInertia(I.m_, M * I.h_, Ib, true);
 }
-}  // namespace KDL
+}  // namespace tobas_kdl

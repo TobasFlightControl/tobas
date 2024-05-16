@@ -13,7 +13,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Twist_ = KDL::Twist;
+using Twist_ = tobas_kdl::Twist;
 
 typedef tobas_kdl_msgs::Twist_<std::allocator<void> > Twist;
 
@@ -26,44 +26,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsFixedSize<KDL::Twist> : TrueType
+struct IsFixedSize<tobas_kdl::Twist> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Twist const> : TrueType
+struct IsFixedSize<tobas_kdl::Twist const> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Twist> : TrueType
+struct IsMessage<tobas_kdl::Twist> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Twist const> : TrueType
+struct IsMessage<tobas_kdl::Twist const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Twist> : FalseType
+struct HasHeader<tobas_kdl::Twist> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Twist const> : FalseType
+struct HasHeader<tobas_kdl::Twist const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Twist>
+struct MD5Sum<tobas_kdl::Twist>
 {
   static const char* value()
   {
     return "9f195f881246fdfa2798d1d3eebca84a";
   }
 
-  static const char* value(const KDL::Twist&)
+  static const char* value(const tobas_kdl::Twist&)
   {
     return value();
   }
@@ -72,25 +72,25 @@ struct MD5Sum<KDL::Twist>
 };
 
 template <>
-struct DataType<KDL::Twist>
+struct DataType<tobas_kdl::Twist>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Twist";
   }
 
-  static const char* value(const KDL::Twist&)
+  static const char* value(const tobas_kdl::Twist&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Twist>
+struct Definition<tobas_kdl::Twist>
 {
   static const char* value()
   {
-    return "# Represents a KDL::Twist instance.\n\
+    return "# Represents a tobas_kdl::Twist instance.\n\
 # This message is compatible to geometry_msgs/Twist.\n\
 \n\
 Vector linear\n\
@@ -98,7 +98,7 @@ Vector angular\n\
 \n\
 ================================================================================\n\
 MSG: tobas_kdl_msgs/Vector\n\
-# Represents a KDL::Vector instance.\n\
+# Represents a tobas_kdl::Vector instance.\n\
 # This message is compatible to geometry_msgs/Vector3.\n\
 \n\
 float64 x\n\
@@ -107,7 +107,7 @@ float64 z\n\
 ";
   }
 
-  static const char* value(const KDL::Twist&)
+  static const char* value(const tobas_kdl::Twist&)
   {
     return value();
   }
@@ -120,7 +120,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Twist>
+struct Serializer<tobas_kdl::Twist>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -139,17 +139,17 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Twist>
+struct Printer<tobas_kdl::Twist>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Twist& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Twist& v)
   {
     s << indent << "linear: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.vel);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.vel);
     s << indent << "angular: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.rot);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.rot);
   }
 };
 }  // namespace message_operations

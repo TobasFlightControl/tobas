@@ -14,7 +14,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Frame_ = KDL::Frame;
+using Frame_ = tobas_kdl::Frame;
 
 typedef tobas_kdl_msgs::Frame_<std::allocator<void> > Frame;
 
@@ -27,44 +27,44 @@ namespace ros
 namespace message_traits
 {
 template <>
-struct IsMessage<KDL::Frame> : TrueType
+struct IsMessage<tobas_kdl::Frame> : TrueType
 {
 };
 
 template <>
-struct IsMessage<KDL::Frame const> : TrueType
+struct IsMessage<tobas_kdl::Frame const> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Frame> : TrueType
+struct IsFixedSize<tobas_kdl::Frame> : TrueType
 {
 };
 
 template <>
-struct IsFixedSize<KDL::Frame const> : TrueType
+struct IsFixedSize<tobas_kdl::Frame const> : TrueType
 {
 };
 
 template <>
-struct HasHeader<KDL::Frame> : FalseType
+struct HasHeader<tobas_kdl::Frame> : FalseType
 {
 };
 
 template <>
-struct HasHeader<KDL::Frame const> : FalseType
+struct HasHeader<tobas_kdl::Frame const> : FalseType
 {
 };
 
 template <>
-struct MD5Sum<KDL::Frame>
+struct MD5Sum<tobas_kdl::Frame>
 {
   static const char* value()
   {
     return "0aee6f06cea54f3cb5357fdf456e198c";
   }
 
-  static const char* value(const KDL::Frame&)
+  static const char* value(const tobas_kdl::Frame&)
   {
     return value();
   }
@@ -73,21 +73,21 @@ struct MD5Sum<KDL::Frame>
 };
 
 template <>
-struct DataType<KDL::Frame>
+struct DataType<tobas_kdl::Frame>
 {
   static const char* value()
   {
     return "tobas_kdl_msgs/Frame";
   }
 
-  static const char* value(const KDL::Frame&)
+  static const char* value(const tobas_kdl::Frame&)
   {
     return value();
   }
 };
 
 template <>
-struct Definition<KDL::Frame>
+struct Definition<tobas_kdl::Frame>
 {
   static const char* value()
   {
@@ -105,7 +105,7 @@ struct Definition<KDL::Frame>
            "float64[9] data\n";
   }
 
-  static const char* value(const KDL::Frame&)
+  static const char* value(const tobas_kdl::Frame&)
   {
     return value();
   }
@@ -118,7 +118,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<KDL::Frame>
+struct Serializer<tobas_kdl::Frame>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
@@ -137,17 +137,17 @@ namespace ros
 namespace message_operations
 {
 template <>
-struct Printer<KDL::Frame>
+struct Printer<tobas_kdl::Frame>
 {
   template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const KDL::Frame& v)
+  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Frame& v)
   {
     s << indent << "trans: ";
     s << std::endl;
-    Printer<KDL::Vector>::stream(s, indent + "  ", v.p);
+    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.p);
     s << indent << "rot: ";
     s << std::endl;
-    Printer<KDL::Rotation>::stream(s, indent + "  ", v.M);
+    Printer<tobas_kdl::Rotation>::stream(s, indent + "  ", v.M);
   }
 };
 }  // namespace message_operations
