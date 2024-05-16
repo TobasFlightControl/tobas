@@ -505,7 +505,7 @@ bool Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
   AckNakPayload nak;
 
   const auto start_time = system_clock::now();
-  while (duration_cast<microseconds>(system_clock::now() - start_time).count() < kWaitForGnssAck)
+  while (duration<double>(system_clock::now() - start_time).count() < kWaitForGnssAck)
   {
     const auto msg = update();
     switch (msg)

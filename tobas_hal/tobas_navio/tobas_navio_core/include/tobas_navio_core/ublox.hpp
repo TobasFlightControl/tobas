@@ -16,8 +16,15 @@ static constexpr uint32_t kPreambleOffset = 2;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr uint32_t kConfigureMessageSize = 11;
 static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
-static constexpr uint32_t kWaitForGnssAck = 1000000;  // [us]
-static constexpr size_t kSpiInterval = 100;  // [us] 小さすぎるとレシーバへのリクエスト過多で重くなる
+static constexpr double kWaitForGnssAck = 1.;  // [s]
+
+// SPIで1バイト受け取る間隔 [us]
+// 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる
+// 50usだと明らかに位置精度が悪くなり，100usだと大きく改善 (2024/5/16)
+// 100usの場合はPVT (92バイト) を受け取るのに 0.1 x 92 = 9.2ms かかる．
+// PX4はデフォルトで 38400bit/s のUARTだから，PVTの受信遅延は 92 / (38400 / 8) * 1000 ~ 19.2ms．
+// どうせ衛生からの通信遅延が70msで固定で，レシーバとFCの通信遅延はボトルネックではないから，速度より精度を重視すべき．
+static constexpr size_t kSpiInterval = 100;
 
 class UBXScanner
 {
