@@ -49,6 +49,11 @@ def qsleep(msec: int) -> None:
     loop.exec_()
 
 
+def update_event_loop() -> None:
+    """Qtのイベントループを僅かに進める．"""
+    qsleep(0)
+
+
 def handle_unexpected_exception(exc_type: Type[BaseException], exc_value: BaseException, exc_traceback):
     """未処理の例外をキャッチし，プロセスを強制終了する．"""
     QMessageBox.critical(
