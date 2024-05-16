@@ -8,9 +8,8 @@ import rospy
 from typing import List
 from functools import partial
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_rqt_tools.messages import q_info, q_error
@@ -20,7 +19,7 @@ from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
 
-from ....common import *
+from ....common import WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
 
 
@@ -127,7 +126,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
     def _check_disarm(self) -> bool:
         get_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/get_arm", GetArm)
         try:
-            get_arm_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            get_arm_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -147,7 +146,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
     def _set_arm(self, arming: bool) -> bool:
         set_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/set_arm", SetArm)
         try:
-            set_arm_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            set_arm_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False

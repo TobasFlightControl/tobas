@@ -5,21 +5,20 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 from abc import abstractmethod
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.widgets import ScrollArea
 from tobas_tools_py.drone import Drone
 
-from ....common import *
+from ....common import TITLE_PSIZE, TO_DO
 
 
 class BaseHardwareSetupWidget(ScrollArea):
     ABST_HEIGHT = 100
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
-    WAIT_FOR_SERVER = 1  # [s]
 
     E_FAILED_TO_CONNECT = "Failed to connect to the flight controller."
     E_FAILED_TO_CALL_SRV = "Failed to call ROS service"
