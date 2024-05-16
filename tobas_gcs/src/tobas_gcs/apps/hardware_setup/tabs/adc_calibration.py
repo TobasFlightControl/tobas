@@ -7,9 +7,8 @@ if TYPE_CHECKING:
 import rospy
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QHBoxLayout
 
 from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.widgets import DoubleSpinBox
@@ -17,7 +16,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import AdcCalibration, AdcCalibrationRequest, AdcCalibrationResponse
 
-from ....common import *
+from ....common import WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
 
 
@@ -105,7 +104,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
     def _calibrate(self) -> bool:
         adc_calib_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/adc_calibration", AdcCalibration)
         try:
-            adc_calib_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            adc_calib_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -130,7 +129,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
     def _reload_config(self) -> bool:
         reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/battery_handler/reload_config", Trigger)
         try:
-            reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False

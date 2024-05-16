@@ -9,16 +9,15 @@ import rospy
 import rospkg
 from overrides import override
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout
 
 from tobas_rqt_tools.rviz import create_rviz_frame
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
 
-from ....common import *
+from ....common import PKG_NAME, WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
 
 
@@ -92,7 +91,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/start", Trigger)
 
         try:
-            calib_start_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            calib_start_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
@@ -137,7 +136,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
     def _on_cancel_button_clicked(self) -> None:
         calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/cancel", Trigger)
         try:
-            calib_cancel_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            calib_cancel_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
@@ -164,7 +163,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/finish", MagCalibration)
 
         try:
-            calib_finish_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            calib_finish_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -186,7 +185,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
     def _reload_config(self) -> bool:
         reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/imu_handler/reload_config", Trigger)
         try:
-            reload_config_sc.wait_for_service(self.WAIT_FOR_SERVER)
+            reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False

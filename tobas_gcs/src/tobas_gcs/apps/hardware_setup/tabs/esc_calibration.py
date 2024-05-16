@@ -7,16 +7,14 @@ if TYPE_CHECKING:
 import rospy
 import actionlib
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton
 
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.msg import EscCalibrationAction, EscCalibrationGoal
 
-
-from ....common import *
+from ....common import WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
 
 
@@ -61,7 +59,7 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
         esc_calib_ac = actionlib.SimpleActionClient(f"{self._drone.drone_name}/esc_calibration", EscCalibrationAction)
-        if not esc_calib_ac.wait_for_server(rospy.Duration(self.WAIT_FOR_SERVER)):
+        if not esc_calib_ac.wait_for_server(rospy.Duration(WAIT_FOR_SERVER)):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return
 
