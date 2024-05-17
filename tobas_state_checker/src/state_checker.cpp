@@ -109,14 +109,14 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void StateChecker::eulerCb(const tobas_kdl_msgs::EulerConstPtr& euler)
+void StateChecker::eulerCb(const tobas_kdl_msgs::EulerStampedConstPtr& euler)
 {
   if (arming_ == nullptr || !arming_->data)
     return;
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  if (max(abs(euler->roll), abs(euler->pitch)) > kAttitudeThreshold)
+  if (max(abs(euler->euler.roll), abs(euler->euler.pitch)) > kAttitudeThreshold)
   {
     TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();

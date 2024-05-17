@@ -7,7 +7,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_kdl_msgs/Euler.h>
+#include <tobas_kdl_msgs/EulerStamped.h>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
@@ -54,6 +54,6 @@ private:
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void eulerCb(const tobas_kdl_msgs::EulerConstPtr& euler);
+  void eulerCb(const tobas_kdl_msgs::EulerStampedConstPtr& euler);
 };
 }  // namespace tobas_state_checker
