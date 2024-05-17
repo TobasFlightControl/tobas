@@ -1,8 +1,33 @@
+#include <limits>
+
 #include "../include/tobas_std_tools/timestamped_buffer.hpp"
 #include "../include/tobas_std_tools/math.hpp"
 
+using namespace std;
+
 namespace tobas_std
 {
+double TimestampedBufferDouble::max() const
+{
+  double res = numeric_limits<double>::lowest();
+  for (const auto& [_, x] : map_)
+    res = ::max(res, x);
+  return res;
+}
+
+double TimestampedBufferDouble::min() const
+{
+  double res = numeric_limits<double>::max();
+  for (const auto& [_, x] : map_)
+    res = ::min(res, x);
+  return res;
+}
+
+double TimestampedBufferDouble::range() const
+{
+  return this->max() - this->min();
+}
+
 double TimestampedBufferDouble::mean() const
 {
   if (this->size() == 0)

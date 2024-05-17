@@ -98,6 +98,9 @@ class TimestampedBufferDouble : public TimestampedBuffer<double>
 public:
   using TimestampedBuffer<double>::TimestampedBuffer;
 
+  double max() const;
+  double min() const;
+  double range() const;
   double mean() const;
   double variance() const;
   double stddev() const;
