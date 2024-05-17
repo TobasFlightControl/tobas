@@ -7,15 +7,13 @@ if TYPE_CHECKING:
 import rospy
 from std_msgs.msg import Bool
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.widgets import LEDColor, LampWidget
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Gps, RCInput, RCInputError, PreArmCheck
 
-from ....common import *
 from .base_section import BaseControlSystemSectionWidget
 
 
