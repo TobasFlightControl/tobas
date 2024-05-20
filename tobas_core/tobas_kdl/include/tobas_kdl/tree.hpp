@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <map>
-
 #include "./chain.hpp"
 
 namespace tobas_kdl
@@ -47,11 +44,17 @@ public:
   /**
    * The constructor of a tree, a new tree is always empty
    */
-  explicit Tree(const std::string& root_name = "root");
+  explicit Tree(const std::string& root_name = "");
 
-  /* Copy constructor. */
-  explicit Tree(const Tree& in);
+  /**
+   * @brief コピーコンストラクタ．
+   * TreeElementのメンバ変数にポインタが含まれるため，オブジェクトをコピーするためには明示的にコピーコンストラクタを定義する必要がある．
+   */
+  Tree(const Tree& in);
   Tree& operator=(const Tree& arg);
+
+  /* 6DoFの浮遊リンク系． */
+  static Tree FloatingBase(const std::string& world_name, const std::string& base_name);
 
   /**
    * Adds a new segment to the end of the segment with
@@ -60,20 +63,16 @@ public:
    * @param segment new segment to add
    * @param hook_name name of the segment to connect this
    * segment with.
-   *
-   * @return false if hook_name could not be found.
    */
-  bool addSegment(const Segment& segment, const std::string& hook_name);
+  void addSegment(const Segment& segment, const std::string& hook_name);
 
   /**
    * Adds a complete chain to the end of the segment with
    * hook_name as segment_name.
    *
    * @param hook_name name of the segment to connect the chain with.
-   *
-   * @return false if hook_name could not be found.
    */
-  bool addChain(const Chain& chain, const std::string& hook_name);
+  void addChain(const Chain& chain, const std::string& hook_name);
 
   /**
    * Adds a complete tree to the end of the segment with
@@ -81,10 +80,8 @@ public:
    *
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
-   *
-   * @return false if hook_name could not be found
    */
-  bool addTree(const Tree& tree, const std::string& hook_name);
+  void addTree(const Tree& tree, const std::string& hook_name);
 
   /**
    * Request the total number of joints in the tree.\n
@@ -143,10 +140,8 @@ public:
    * @param chain_root the name of the root segment of the chain
    * @param chain_tip the name of the tip segment of the chain
    * @param chain the resulting chain
-   *
-   * @return success or failure
    */
-  bool getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
+  void getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
 
   /**
    * Extract a tree having segment_name as root. Only child segments of
@@ -155,21 +150,21 @@ public:
    * @param segment_name the name of the segment to be used as root
    * of the new tree
    * @param tree the resulting sub-tree
-   *
-   * @return success or failure
    */
-  bool getSubTree(const std::string& segment_name, Tree& tree) const;
+  void getSubTree(const std::string& segment_name, Tree& tree) const;
 
   inline const SegmentMap& getSegments() const
   {
     return segments_;
   }
 
+  friend std::ostream& operator<<(std::ostream& os, const Tree& arg);
+
 private:
   SegmentMap segments_;
   size_t nj_, ns_;
   std::string root_name_;
 
-  bool addTreeRecursive(const SegmentMap::const_iterator& root, const std::string& hook_name);
+  void addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
 }  // namespace tobas_kdl
