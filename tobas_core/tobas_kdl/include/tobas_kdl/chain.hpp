@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "./segment.hpp"
 
 namespace tobas_kdl
@@ -23,8 +21,10 @@ public:
   explicit Chain();
 
   /* Copy constructor */
-  explicit Chain(const Chain& in);
+  Chain(const Chain& in);
   Chain& operator=(const Chain& arg);
+
+  void clear();
 
   /**
    * Adds a new segment to the <strong>end</strong> of the chain.
@@ -77,9 +77,11 @@ public:
    */
   inline Segment& getSegment(size_t nr);
 
+  friend std::ostream& operator<<(std::ostream& os, const Chain& arg);
+
 private:
-  size_t nj_;  // The number of joints
-  size_t ns_;  // The number of segments
+  size_t nj_ = 0;  // The number of joints
+  size_t ns_ = 0;  // The number of segments
 };
 
 inline const size_t& Chain::getNrOfJoints() const

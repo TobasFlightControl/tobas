@@ -20,8 +20,8 @@ public:
   inline explicit Jacobian();
   inline explicit Jacobian(size_t nj);
 
-  /// Allocates memory for new size (can break realtime behavior)
   inline void resize(size_t nj);
+  inline void setZero();
 
   inline size_t rows() const;
   inline size_t columns() const;
@@ -56,6 +56,11 @@ inline Jacobian::Jacobian(size_t nj) : data(6, nj)
 inline void Jacobian::resize(size_t nj)
 {
   data.conservativeResize(Eigen::NoChange, nj);
+}
+
+inline void Jacobian::setZero()
+{
+  data.setZero();
 }
 
 inline size_t Jacobian::rows() const

@@ -33,11 +33,11 @@ void KalmanFilter::resize(
   const size_t& v_size)
 {
   ss.resize(x_size, u_size, y_size);
-  Bv.resize(x_size, v_size);
-  Q.resize(v_size, v_size);
-  R.resize(y_size, y_size);
-  y.resize(y_size);
-  u.resize(u_size);
+  Bv.conservativeResize(x_size, v_size);
+  Q.conservativeResize(v_size, v_size);
+  R.conservativeResize(y_size, y_size);
+  y.conservativeResize(y_size);
+  u.conservativeResize(u_size);
 }
 
 void KalmanFilter::setZero()
@@ -117,9 +117,9 @@ void IdentityKalmanFilter::resize(const size_t& size)
   kf_.ss.C.setIdentity(size, size);
   kf_.Bv.setIdentity(size, size);
 
-  Q.resize(size, size);
-  R.resize(size, size);
-  y.resize(size);
+  Q.conservativeResize(size, size);
+  R.conservativeResize(size, size);
+  y.conservativeResize(size);
 }
 
 void IdentityKalmanFilter::setZero()

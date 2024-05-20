@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "./frames.hpp"
 #include "./rigidbodyinertia.hpp"
 #include "./joint.hpp"

@@ -53,7 +53,7 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, int num)
  *
  * @param A 部分行列
  * @param num 繰り返す回数
- * @param axis 繰り返す方向(0 or 1)
+ * @param axis 繰り返す方向: Row(0) or Column(1)
  *
  * @return Eigen::MatrixXd
  */
@@ -93,7 +93,7 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const int& num, const 
  * cf. numpy.concatenate()
  *
  * @param A,B 結合する行列
- * @param axis 結合する方向(0 or 1)
+ * @param axis 結合する方向: Row(0) or Column(1)
  *
  * @return Eigen::MatrixXd
  */
@@ -129,7 +129,7 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8
  * cf. numpy.concatenate()
  *
  * @param A,B,C 結合する行列
- * @param axis 結合する方向(0 or 1)
+ * @param axis 結合する方向: Row(0) or Column(1)
  *
  * @return Eigen::MatrixXd
  */
