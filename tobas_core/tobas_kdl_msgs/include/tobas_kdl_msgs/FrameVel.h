@@ -152,7 +152,7 @@ struct Serializer<tobas_kdl::FrameVel>
   template <typename T>
   inline static uint32_t serializedLength(const T&)
   {
-    return (uint32_t)(3 * sizeof(double) + 3 * sizeof(double));
+    return (uint32_t)(12 * sizeof(double) + 6 * sizeof(double));
   }
 };  // struct FrameVel_
 }  // namespace serialization
