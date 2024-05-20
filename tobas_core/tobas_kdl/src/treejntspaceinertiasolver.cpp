@@ -40,8 +40,7 @@ int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
     if (rne_.CartToJnt(q, jntarray_null_, elements_[i]) < 0)
       return copyError(rne_);
     const auto m = rne_.getEfforts() - bias;
-    for (size_t j = 0; j < nj_; ++j)
-      H_out_(j, i) = m(j);
+    H_out_.data.col(i) = m.data;
   }
 
   return setDefaultError(E_NOERROR);
