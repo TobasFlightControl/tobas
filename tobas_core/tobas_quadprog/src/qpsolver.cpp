@@ -100,7 +100,7 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
 {
   QuadProgProblem scaled;
 
-  // xが[-1, 1]の範囲に収まるように全体をスケーリング (ChatGPT)
+  // xが[-1, 1]の範囲に収まるように全体をスケーリング (GPT4)
   const DiagonalMatrix<double, Dynamic> x_scale_diag = x_scale.asDiagonal();
   scaled.P = x_scale_diag * problem.P * x_scale_diag;
   scaled.q = x_scale_diag * problem.q;
@@ -109,7 +109,7 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
   scaled.A = problem.A * x_scale_diag;
   scaled.b = problem.b;
 
-  // 目的関数をPの要素和でスケーリング (ChatGPT)
+  // 目的関数をPの要素和でスケーリング (GPT4)
   // 理論上結果には影響しない
   const double P_norm = scaled.P.sum();
   assert(P_norm > 0);  // Pは正定行列
