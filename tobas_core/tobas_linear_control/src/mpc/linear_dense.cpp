@@ -62,7 +62,8 @@ void LinearDenseMPC::solve()
   const VectorXd last_u_scaled = last_input_.array() / input_scale.array();
 
   // 重み行列
-  const DiagonalMatrix<double, -1> Q = et::tile(control_weight, prediction_steps, 0).asDiagonal();
+  const DiagonalMatrix<double, Dynamic> Q =
+    et::tile(control_weight, prediction_steps, 0).asDiagonal();
   const MatrixXd R = et::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
   const MatrixXd Sa = makeSa();
   const MatrixXd Sb = makeSb(last_u_scaled);
@@ -95,8 +96,10 @@ void LinearDenseMPC::solve()
     qpsolver_.problem.A, qpsolver_.problem.b);
 
   // 決定変数のスケール
-  // 制御入力のスケールとその変化量のスケールを一致させる必要があることに注意
-  qpsolver_.x_scale = et::tile(input_scale, input_steps, 0);
+  // 変化率が小さい時の精度を重視し，制御入力の変化率は入力区間で最大値から最小値まで変化する程度を想定する．
+  // 制御入力は1にスケーリングされているため，制御入力の変化量のスケールは (1/Tu)*dt = 1/Hu となる．
+  qpsolver_.x_scale.conservativeResize(u_size_ * input_steps);
+  qpsolver_.x_scale.fill(1. / static_cast<double>(input_steps));
 
   // QPを解く
   // stopwatch_.start();
