@@ -30,9 +30,6 @@ void LinearDenseMPC::solve()
 
   checkProblemValidity();
 
-  const VectorXd& input_rate_scale = input_scale;  // FIXME: 変化率のスケールは元と異なるかも
-  const VectorXd du_scale = input_rate_scale * time_step;
-
   // 出力行列をスケーリング
   MatrixXd Cz_scaled = Cz;
   for (size_t c = 0; c < x_size_; ++c)
@@ -49,12 +46,12 @@ void LinearDenseMPC::solve()
     dyns_scaled.emplace_back(discrete_dynamics[k].scale(state_scale, input_scale));
 
     const auto du_eq = input_rate_eqs[k].discretise(time_step);
-    du_eqs_scaled.emplace_back(du_eq.scale(du_scale));
+    du_eqs_scaled.emplace_back(du_eq.scale(input_scale));
     u_eqs_scaled.emplace_back(input_eqs[k].scale(input_scale));
     z_eqs_scaled.emplace_back(control_eqs[k].scale(control_scale));
 
     const auto du_ineq = input_rate_ineqs[k].discretise(time_step);
-    du_ineqs_scaled.emplace_back(du_ineq.scale(du_scale));
+    du_ineqs_scaled.emplace_back(du_ineq.scale(input_scale));
     u_ineqs_scaled.emplace_back(input_ineqs[k].scale(input_scale));
     z_ineqs_scaled.emplace_back(control_ineqs[k].scale(control_scale));
   }
@@ -98,16 +95,17 @@ void LinearDenseMPC::solve()
     qpsolver_.problem.A, qpsolver_.problem.b);
 
   // 決定変数のスケール
-  qpsolver_.x_scale = et::tile(du_scale, input_steps, 0);
+  // 制御入力のスケールとその変化量のスケールを一致させる必要があることに注意
+  qpsolver_.x_scale = et::tile(input_scale, input_steps, 0);
 
   // QPを解く
   // stopwatch_.start();
-  const VectorXd dU = qpsolver_.solve();
+  const auto dU = qpsolver_.solve();
   // stopwatch_.stop();
 
   // 最新の制御入力を更新
   const auto du_scaled = dU.head(u_size_);
-  last_input_ += du_scaled.cwiseProduct(du_scale);
+  last_input_ += du_scaled.cwiseProduct(input_scale);
 }
 
 ostream& operator<<(ostream& os, const LinearDenseMPC& arg)
@@ -235,21 +233,14 @@ MatrixXd LinearDenseMPC::makeSa()
   vector<MatrixXd> S_cumsum(input_steps + 1);
   S_cumsum[0] = MatrixXd::Zero(u_size_, u_size_);
   for (size_t i = 0; i < input_steps; ++i)
-  {
-    // S_cumsum[i + 1] = S_cumsum[i] + S_list[i];
     S_cumsum[i + 1] = S_cumsum[i] + S_diag;
-  }
 
   // ブロックを当てはめる
   MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
   for (size_t i = 0; i < input_steps; ++i)
-  {
     for (size_t j = 0; j < input_steps; ++j)
-    {
       Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) =
         S_cumsum[input_steps] - S_cumsum[max(i, j)];
-    }
-  }
 
   return Sa;
 }
@@ -259,34 +250,28 @@ VectorXd LinearDenseMPC::makeSb(const VectorXd& last_u_scaled)
   // 演習問題3-5
   const VectorXd Sb_elem = input_weight.cwiseProduct(last_u_scaled);
 
+  // Sが予測区間にわたって一定かつu_refがゼロであることを利用して簡略化している
   VectorXd Sb(u_size_ * input_steps);
   for (size_t i = 0; i < input_steps; ++i)
-  {
-    // Sが予測区間にわたって一定かつu_refがゼロであることを利用して簡略化している
-    Sb.block(u_size_ * i, 0, u_size_, 1) = (input_steps - i) * Sb_elem;
-  }
+    Sb.segment(u_size_ * i, u_size_) = (input_steps - i) * Sb_elem;
 
   return Sb;
 }
 
 MatrixXd LinearDenseMPC::makeFGothic(const MatrixXd& F)
 {
-  const size_t n_cond_u = F.rows();  // (3.35)の条件数
+  const auto n_cond_u = F.rows();  // (3.35)の条件数
 
   // Fの要素の累積和を計算
   vector<MatrixXd> F_cumsum(input_steps + 1);
   F_cumsum[0] = MatrixXd::Zero(n_cond_u, u_size_);
   for (size_t i = 0; i < input_steps; ++i)
-  {
     F_cumsum[i + 1] = F_cumsum[i] + F.block(0, u_size_ * i, n_cond_u, u_size_);
-  }
 
   // F_gothicを作成
   MatrixXd F_gothic(n_cond_u, u_size_ * input_steps);
   for (size_t i = 0; i < input_steps; ++i)
-  {
     F_gothic.block(0, u_size_ * i, n_cond_u, u_size_) = F_cumsum[input_steps] - F_cumsum[i];
-  }
 
   return F_gothic;
 }
@@ -352,9 +337,7 @@ VectorXd LinearDenseMPC::makeTau(
 
   VectorXd Tau(z_size_ * prediction_steps);
   for (size_t i = 0; i < prediction_steps; ++i)
-  {
-    Tau.block(z_size_ * i, 0, z_size_, 1) = s_scaled - decays[i].cwiseProduct(error);
-  }
+    Tau.segment(z_size_ * i, z_size_) = s_scaled - decays[i].cwiseProduct(error);
 
   return Tau;
 }
@@ -365,10 +348,10 @@ vector<VectorXd> LinearDenseMPC::makeDecays()
 
   for (size_t i = 0; i < prediction_steps; ++i)
   {
-    const double coin_time = time_step * static_cast<double>(i + 1);
+    const auto coin_time = time_step * static_cast<double>(i + 1);
     for (size_t j = 0; j < z_size_; ++j)
     {
-      const double& T_ref = decay_time_consts(j);
+      const auto& T_ref = decay_time_consts(j);
       decays[i](j) = T_ref > 0 ? exp(-coin_time / T_ref) : 0;
     }
   }
@@ -378,8 +361,8 @@ vector<VectorXd> LinearDenseMPC::makeDecays()
 
 MatrixXd LinearDenseMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, const size_t& H)
 {
-  const size_t const_size = consts[0].equationSize();
-  const size_t var_size = consts[0].variableSize();
+  const auto const_size = consts[0].equationSize();
+  const auto var_size = consts[0].variableSize();
 
   MatrixXd res(const_size * H, var_size * H + 1);
   res.setZero();
