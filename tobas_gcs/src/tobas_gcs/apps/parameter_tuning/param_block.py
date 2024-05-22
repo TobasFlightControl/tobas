@@ -86,13 +86,13 @@ class ParamBlockWidget(QWidget):
                 param_widget = FloatParamWidget(param_desc["min"], param_desc["max"])
                 param_widget.value_changed.connect(partial(self._on_float_param_changed, name=name))
             elif type_ == "bool":
-                q_error("Configuration for bool parameter is not supported yet.")  # TODO
+                q_error(self._main, "Configuration for bool parameter is not supported yet.")  # TODO
                 return False
             elif type_ == "str":
-                q_error("Configuration for str parameter is not supported yet.")  # TODO
+                q_error(self._main, "Configuration for str parameter is not supported yet.")  # TODO
                 return False
             else:
-                q_error(f"Unknown parameter type: {type_}")
+                q_error(self._main, f"Unknown parameter type: {type_}")
                 return False
 
             param_widget.set(value)

@@ -156,7 +156,7 @@ class BasePoseCommanderWidget(Widget):
         try:
             self._set_arm_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException as e:
-            q_error("Failed to connect to set_arm service server.")
+            q_error(self, "Failed to connect to set_arm service server.")
             return False
 
         req = SetArmRequest()
@@ -169,7 +169,7 @@ class BasePoseCommanderWidget(Widget):
             return
 
         if not res.success:
-            q_error(f"Failed to arm rotors: {res.message}")
+            q_error(self, f"Failed to arm rotors: {res.message}")
             return False
 
         return True

@@ -138,7 +138,7 @@ class SimulationWidget(BaseAppWidget):
             rospy.wait_for_service("/gazebo/get_world_properties", rospy.Duration(self.WAIT_FOR_GAZEBO_SERVICE))
         except rospy.ROSException:
             progress.close()
-            q_error("Failed to connect to Gazebo server.")
+            q_error(self._main, "Failed to connect to Gazebo server.")
             # TODO: Gazeboを落とし，tobas_real.serviceを再起動
             return
         progress.progress_step()
