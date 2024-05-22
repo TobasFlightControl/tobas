@@ -14,7 +14,7 @@ from PyQt5.QtQuickWidgets import QQuickWidget
 
 from tobas_rqt_tools.widgets import FramedLabel
 from tobas_tools_py.drone import Drone
-from tobas_kdl_msgs.msg import Euler
+from tobas_kdl_msgs.msg import EulerStamped
 from tobas_msgs.msg import Gps
 
 from ..base_section import BaseControlSystemSectionWidget
@@ -151,7 +151,9 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
             self._gps_sub.unregister()
             self._euler_sub.unregister()
         self._gps_sub = rospy.Subscriber(f"{self._drone.drone_name}/gps", Gps, self._gps_cb, queue_size=1)
-        self._euler_sub = rospy.Subscriber(f"{self._drone.drone_name}/euler", Euler, self._euler_cb, queue_size=1)
+        self._euler_sub = rospy.Subscriber(
+            f"{self._drone.drone_name}/euler", EulerStamped, self._euler_cb, queue_size=1
+        )
 
     def _gps_cb(self, gps: Gps) -> None:
         if gps.fix_type != Gps.FIX_3D:
@@ -166,6 +168,6 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         self._y_stddev.set_text(f"{math.sqrt(gps.position_covariance[4]):.3f} m")
         self._z_stddev.set_text(f"{math.sqrt(gps.position_covariance[8]):.3f} m")
 
-    def _euler_cb(self, euler: Euler) -> None:
-        yaw_deg = -math.degrees(euler.yaw)
+    def _euler_cb(self, euler: EulerStamped) -> None:
+        yaw_deg = -math.degrees(euler.euler.yaw)
         self._map.set_arrow_rotation(yaw_deg)
