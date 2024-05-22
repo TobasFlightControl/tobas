@@ -16,6 +16,7 @@ class GazeboTetherStationVisualPlugin : public VisualPlugin
 
 public:
   explicit GazeboTetherStationVisualPlugin();
+  ~GazeboTetherStationVisualPlugin();
 
 protected:
   void Load(rendering::VisualPtr visual, sdf::ElementPtr sdf) override;

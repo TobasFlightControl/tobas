@@ -10,6 +10,11 @@ GazeboTetherStationVisualPlugin::GazeboTetherStationVisualPlugin() : super()
 {
 }
 
+GazeboTetherStationVisualPlugin::~GazeboTetherStationVisualPlugin()
+{
+  visual_->DeleteDynamicLine(line_);
+}
+
 void GazeboTetherStationVisualPlugin::Load(rendering::VisualPtr visual, sdf::ElementPtr sdf)
 {
   gzmsg << "Loading " << kPluginName << "." << endl;

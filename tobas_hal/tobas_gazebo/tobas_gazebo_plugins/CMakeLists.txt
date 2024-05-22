@@ -43,7 +43,7 @@ generate_messages(DEPENDENCIES
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_tools gazebo_plugins laser_geometry sensor_msgs geometry_msgs
+	CATKIN_DEPENDS tobas_tools gazebo_plugins laser_geometry sensor_msgs geometry_msgs message_generation
 	DEPENDS GAZEBO OpenCV
 )
 

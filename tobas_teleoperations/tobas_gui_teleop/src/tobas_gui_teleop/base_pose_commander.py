@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_tools_py.geometry import euler_from_matrix
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
-from tobas_rqt_tools.messages import q_error
 from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, CommandLevel, Odometry
 from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 
@@ -16,6 +15,7 @@ class BasePoseCommanderWidget(Widget):
     # Constants
     HOME_ALTITUDE = 3.0  # [m]
     WAIT_FOR_SERVICE = 1.0  # [s]
+    ARM_RETRY_INTERVAL = 1.0  # [s]
 
     # Default parameters
     DEFAULT_INIT_ELEVATION = 0.0  # [m]
@@ -155,7 +155,7 @@ class BasePoseCommanderWidget(Widget):
         try:
             self._set_arm_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException as e:
-            q_error(self, "Failed to connect to set_arm service server.")
+            rospy.logerr("Failed to connect to set_arm service server.")
             return False
 
         req = SetArmRequest()
@@ -164,11 +164,11 @@ class BasePoseCommanderWidget(Widget):
         try:
             res: SetArmResponse = self._set_arm_sc.call(req)
         except Exception as e:
-            q_error(self, f"Failed to call set_arm service: {e}")
-            return
+            rospy.logerr(f"Failed to call set_arm service: {e}")
+            return False
 
         if not res.success:
-            q_error(self, f"Failed to arm rotors: {res.message}")
+            rospy.logerr(f"Failed to arm rotors: {res.message}")
             return False
 
         return True
@@ -180,6 +180,7 @@ class BasePoseCommanderWidget(Widget):
         # Arming
         rospy.loginfo("Arming")
         if not self._set_arm(True):
+            rospy.sleep(self.ARM_RETRY_INTERVAL)
             return
 
         # 初期コマンドを設定
