@@ -7,9 +7,8 @@ if TYPE_CHECKING:
 import math
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QPoint, QTimer
+from PyQt5.QtGui import QPainter, QPaintEvent, QPolygon, QPen
 
 from tobas_std_tools_py.math import wrap, ceil, floor
 from tobas_kdl_msgs.msg import EulerStamped

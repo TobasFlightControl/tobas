@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import os
 import rospy
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QHBoxLayout
 
 from overrides import override
 from tobas_rqt_tools.widgets import ProgressDialog
@@ -16,7 +15,6 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.drone import Drone
 
-from ...common import *
 from ...utils.ssh_client import SSHClientWrapper
 from ...utils.system import kill_gazebo
 from ..base import BaseAppWidget

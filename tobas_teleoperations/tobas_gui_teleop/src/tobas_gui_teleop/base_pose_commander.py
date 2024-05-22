@@ -1,8 +1,7 @@
 import math
 import rospy
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_tools_py.geometry import euler_from_matrix
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
@@ -10,7 +9,7 @@ from tobas_rqt_tools.messages import q_error
 from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, CommandLevel, Odometry
 from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 
-from .common import *
+from .common import BUTTON_HEIGHT
 
 
 class BasePoseCommanderWidget(Widget):
