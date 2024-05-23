@@ -8,6 +8,7 @@
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/add_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/widget_item.hpp"
+#include "../../include/urdf_builder/ui/save_urdf_dialog.hpp"
 #include "../../include/urdf_builder/rviz_helpers/display_context_proxy.hpp"
 #include "../../include/urdf_builder/rviz_helpers/static_link_updater.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
@@ -155,12 +156,13 @@ void URDFBuilderPanel::SaveAsButtonClicked()
     return;
 
   const auto last_opened_dir = getLastOpenedDir();
-  const auto file_path = QFileDialog::getSaveFileName(
-    this, tr("save URDF"), QString::fromStdString(last_opened_dir),
-    tr("URDF (*.urdf);;All Files (*)"));
+  SaveUrdfDialog dialog(this, QString::fromStdString(last_opened_dir));
 
-  if (file_path.isEmpty())
+  const auto result = dialog.exec();
+  if (result != QDialog::Accepted)
     return;
+  const auto file_path = dialog.selectedFiles().first();
+  assert(file_path.endsWith(".urdf"));
 
   setLastOpenedDir(file_path.toStdString());
 
