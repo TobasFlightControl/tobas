@@ -1,8 +1,4 @@
 #include <ros/ros.h>
-#include <QMessageBox>
-#include <QColorDialog>
-#include <QFileDialog>
-#include <QDir>
 
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/widget_item.hpp"

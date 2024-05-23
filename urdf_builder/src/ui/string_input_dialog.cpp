@@ -1,7 +1,3 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
-
 #include "../../include/urdf_builder/ui/string_input_dialog.hpp"
 
 namespace urdf_builder

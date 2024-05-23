@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <QStringList>
+#include <QtCore/QtCore>
 
 #include "./base_view_model.hpp"
 #include "./joint_limits_view_model.hpp"

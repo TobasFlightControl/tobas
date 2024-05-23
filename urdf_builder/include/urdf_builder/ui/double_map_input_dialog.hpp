@@ -1,8 +1,7 @@
 #pragma once
 
 #include <map>
-#include <QDialog>
-#include <QDoubleSpinBox>
+#include <QtWidgets/QtWidgets>
 
 namespace urdf_builder
 {

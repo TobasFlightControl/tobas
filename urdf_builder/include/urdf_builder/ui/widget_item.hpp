@@ -1,7 +1,6 @@
 #pragma once
 
-#include <QTreeWidgetItem>
-#include <QListWidgetItem>
+#include <QtWidgets/QtWidgets>
 
 #include "../view_model/visual_view_model.hpp"
 #include "../view_model/collision_view_model.hpp"

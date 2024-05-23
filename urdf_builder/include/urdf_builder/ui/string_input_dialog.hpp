@@ -1,9 +1,6 @@
 #pragma once
 
-#include <QDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QDialogButtonBox>
+#include <QtWidgets/QtWidgets>
 
 namespace urdf_builder
 {

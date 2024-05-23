@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QColor>
+#include <QtGui/QtGui>
 
 #include "./base_view_model.hpp"
 #include "../utils/time.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <QString>
+#include <QtCore/QtCore>
 
 #include "./base_view_model.hpp"
 

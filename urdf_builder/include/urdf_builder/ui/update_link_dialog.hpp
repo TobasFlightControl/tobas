@@ -1,9 +1,7 @@
 #pragma once
 
 #include <map>
-#include <QDialog>
-#include <QFrame>
-#include <QListWidgetItem>
+#include <QtWidgets/QtWidgets>
 
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/joint_view_model.hpp"

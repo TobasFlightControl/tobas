@@ -1,5 +1,5 @@
 #include <utility>
-#include <QMessageBox>
+#include <QtWidgets/QtWidgets>
 
 #include "../../include/urdf_builder/ui/add_link_dialog.hpp"
 #include "ui_add_link_dialog.h"

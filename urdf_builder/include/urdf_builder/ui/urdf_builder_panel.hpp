@@ -2,9 +2,8 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
-#include <QListWidgetItem>
-#include <QTreeWidgetItem>
-#include <QTimer>
+#include <QtCore/QtCore>
+#include <QtWidgets/QtWidgets>
 #include <rviz/panel.h>
 
 #ifndef Q_MOC_RUN

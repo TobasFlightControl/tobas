@@ -1,8 +1,3 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QDialogButtonBox>
-
 #include "../../include/urdf_builder/ui/double_map_input_dialog.hpp"
 
 namespace urdf_builder

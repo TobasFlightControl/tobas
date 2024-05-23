@@ -1,8 +1,3 @@
-#include <QListWidget>
-#include <QFileDialog>
-#include <QTreeWidget>
-#include <QtWidgets/QtWidgets>
-#include <QGridLayout>
 #include <ros/ros.h>
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
