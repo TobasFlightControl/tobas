@@ -113,7 +113,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="JointParentLinkComboBox"/>
+      <widget class="QComboBox" name="JointParentLinkComboBox">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
