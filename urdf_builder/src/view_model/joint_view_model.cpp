@@ -119,7 +119,7 @@ bool JointViewModel::isFixed() const
 
 void JointViewModel::generateName()
 {
-  name(childLinkName() + "_to_" + parentLinkName() + "_joint");
+  name(childLinkName() + "_joint");
 }
 }  // namespace view_model
 }  // namespace urdf_builder
