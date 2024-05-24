@@ -12,12 +12,11 @@ class StringInputDialog : public QDialog
 
 public:
   explicit StringInputDialog(
+    QWidget* parent,
     const QString& title,
     const QString& name,
     const QString& default_text = "",
-    const QStringList& excludeds = QStringList(),
-    const QString& warn_msg = "This is already used.",
-    QWidget* parent = nullptr);
+    const QStringList& excludeds = QStringList());
 
   QString getText() const;
 
@@ -29,6 +28,8 @@ private:
   QLineEdit* line_edit_;
   QLabel* warn_label_;
   QDialogButtonBox* button_box_;
+
+  void enableOkButton(bool enable);
 };
 }  // namespace ui
 }  // namespace urdf_builder

@@ -300,7 +300,7 @@ void UpdateLinkDialog::RenameLinkButtonClicked()
   const auto& cur_name = ui_->LinkNameLineEdit->text();
   auto excludeds = main_->linkNames();
   excludeds.removeOne(cur_name);
-  StringInputDialog dialog("Rename Link", "Link Name", cur_name, excludeds);
+  StringInputDialog dialog(this, "Rename Link", "Link Name", cur_name, excludeds);
 
   const auto result = dialog.exec();
   if (result != QDialog::Accepted)
@@ -319,7 +319,7 @@ void UpdateLinkDialog::RenameJointButtonClicked()
   const auto& cur_name = ui_->JointNameLineEdit->text();
   auto excludeds = main_->jointNames();
   excludeds.removeOne(cur_name);
-  StringInputDialog dialog("Rename Joint", "Joint Name", cur_name, excludeds);
+  StringInputDialog dialog(this, "Rename Joint", "Joint Name", cur_name, excludeds);
 
   const auto result = dialog.exec();
   if (result != QDialog::Accepted)

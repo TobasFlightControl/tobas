@@ -251,7 +251,7 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
   }
 
   const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
-  AddLinkDialog dialog(vm_.linkNames(), *link_vm);
+  AddLinkDialog dialog(this, vm_.linkNames(), *link_vm);
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
