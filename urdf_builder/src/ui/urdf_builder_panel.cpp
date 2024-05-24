@@ -200,12 +200,11 @@ void URDFBuilderPanel::LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
   ROS_DEBUG_STREAM("URDFBuilderPanel::LinkTreeWidgetItemClicked");
 
   const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
-  const auto link_name = link_item->viewModel()->name().toStdString();
+  const auto& link_vm = link_item->viewModel();
+  const auto link_name = link_vm->name().toStdString();
 
   ogre_ctrl_->unhighlightAll();
   ogre_ctrl_->highlight(link_name);
-
-  const auto link_vm = link_item->viewModel()->clone();
 
   link_dialog_->show();
   link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新

@@ -61,7 +61,7 @@ void UpdateLinkDialog::done(int code)
 
 void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
 {
-  link_vm_ = link_vm;
+  link_vm_ = link_vm->clone();
 
   blockSignals(true);
 
@@ -105,9 +105,9 @@ void UpdateLinkDialog::VisualGeometryTypeComboBoxIndexChanged(int)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::VisualGeometryTypeComboBoxIndexChanged");
 
-  const auto& cb = ui_->VisualGeometryTypeComboBox;
-  arrangeVisualGeometryTypeFrames(frame_map_.visual_geom, cb->currentText());
-  visual_vm_->geometry()->type(cb->currentText());
+  const auto geometry_type = ui_->VisualGeometryTypeComboBox->currentText();
+  arrangeVisualGeometryTypeFrames(frame_map_.visual_geom, geometry_type);
+  visual_vm_->geometry()->type(geometry_type);
   link_vm_->sync();
 
   emitChanged();
@@ -117,9 +117,9 @@ void UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChanged(int)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChange");
 
-  const auto& cb = ui_->CollisionGeometryTypeComboBox;
-  arrangeVisualGeometryTypeFrames(frame_map_.collision_geom, cb->currentText());
-  collision_vm_->geometry()->type(cb->currentText());
+  const auto geometry_type = ui_->VisualGeometryTypeComboBox->currentText();
+  arrangeVisualGeometryTypeFrames(frame_map_.collision_geom, geometry_type);
+  collision_vm_->geometry()->type(geometry_type);
   link_vm_->sync();
 
   emitChanged();
@@ -297,7 +297,7 @@ void UpdateLinkDialog::RenameLinkButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::RenameLinkButtonClicked");
 
-  const auto& cur_name = ui_->LinkNameLineEdit->text();
+  const auto cur_name = ui_->LinkNameLineEdit->text();
   auto excludeds = main_->linkNames();
   excludeds.removeOne(cur_name);
   StringInputDialog dialog(this, "Rename Link", "Link Name", cur_name, excludeds);
@@ -316,7 +316,7 @@ void UpdateLinkDialog::RenameJointButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::RenameJointButtonClicked");
 
-  const auto& cur_name = ui_->JointNameLineEdit->text();
+  const auto cur_name = ui_->JointNameLineEdit->text();
   auto excludeds = main_->jointNames();
   excludeds.removeOne(cur_name);
   StringInputDialog dialog(this, "Rename Joint", "Joint Name", cur_name, excludeds);
@@ -334,12 +334,12 @@ void UpdateLinkDialog::AddVisualButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::AddVisualButtonClicked");
 
-  const auto& link_vm = make_shared<view_model::VisualViewModel>(nullptr);
-  const auto item = new VisualListWidgetItem(link_vm);
+  const auto visual_vm = make_shared<view_model::VisualViewModel>(nullptr);
+  const auto item = new VisualListWidgetItem(visual_vm);
   ui_->VisualListWidget->addItem(item);
   ui_->VisualListWidget->setCurrentItem(item);
-  link_vm_->add(link_vm);
-  readFromVM(link_vm);
+  link_vm_->add(visual_vm);
+  readFromVM(visual_vm);
 
   emitChanged();
 }
@@ -378,12 +378,12 @@ void UpdateLinkDialog::AddCollisionButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::AddCollisionButtonClicked");
 
-  const auto& link_vm = make_shared<view_model::CollisionViewModel>(nullptr);
-  const auto item = new CollisionListWidgetItem(link_vm);
+  const auto collision_vm = make_shared<view_model::CollisionViewModel>(nullptr);
+  const auto item = new CollisionListWidgetItem(collision_vm);
   ui_->CollisionListWidget->addItem(item);
   ui_->CollisionListWidget->setCurrentItem(item);
-  link_vm_->add(link_vm);
-  readFromVM(link_vm);
+  link_vm_->add(collision_vm);
+  readFromVM(collision_vm);
 
   emitChanged();
 }
