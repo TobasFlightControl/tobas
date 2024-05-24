@@ -602,22 +602,22 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
   ui_->VisualOriginPitchSpinBox->setValue(p);
   ui_->VisualOriginYawSpinBox->setValue(y);
 
-  auto gvm = visual_vm_->geometry();
-  ui_->VisualGeometryBoxLengthSpinBox->setValue(gvm->length());
-  ui_->VisualGeometryBoxWidthSpinBox->setValue(gvm->width());
-  ui_->VisualGeometryBoxHeightSpinBox->setValue(gvm->height());
-  ui_->VisualGeometryCylinderLengthSpinBox->setValue(gvm->length());
-  ui_->VisualGeometryCylinderRadiusSpinBox->setValue(gvm->radius());
-  ui_->VisualGeometrySphereRadiusSpinBox->setValue(gvm->radius());
-  ui_->VisualGeometryMeshPathLineEdit->setText(gvm->filePath());
-  ui_->VisualGeometryMeshScaleSpinBox->setValue(gvm->scale().x);  // FIXME: scaleを3軸設定すべき？
+  const auto& geometry_vm = visual_vm_->geometry();
+  ui_->VisualGeometryBoxLengthSpinBox->setValue(geometry_vm->length());
+  ui_->VisualGeometryBoxWidthSpinBox->setValue(geometry_vm->width());
+  ui_->VisualGeometryBoxHeightSpinBox->setValue(geometry_vm->height());
+  ui_->VisualGeometryCylinderLengthSpinBox->setValue(geometry_vm->length());
+  ui_->VisualGeometryCylinderRadiusSpinBox->setValue(geometry_vm->radius());
+  ui_->VisualGeometrySphereRadiusSpinBox->setValue(geometry_vm->radius());
+  ui_->VisualGeometryMeshPathLineEdit->setText(geometry_vm->filePath());
+  ui_->VisualGeometryMeshScaleSpinBox->setValue(geometry_vm->scale().x);
 
-  auto mvm = visual_vm_->material();
-  ui_->MaterialNameLineEdit->setText(mvm->name());
-  ui_->MaterialColorRedSpinBox->setValue(mvm->color().r);
-  ui_->MaterialColorGreenSpinBox->setValue(mvm->color().g);
-  ui_->MaterialColorBlueSpinBox->setValue(mvm->color().b);
-  ui_->MaterialTexturePathLineEdit->setText(mvm->textureFileName());
+  const auto& material_vm = visual_vm_->material();
+  ui_->MaterialNameLineEdit->setText(material_vm->name());
+  ui_->MaterialColorRedSpinBox->setValue(material_vm->color().r);
+  ui_->MaterialColorGreenSpinBox->setValue(material_vm->color().g);
+  ui_->MaterialColorBlueSpinBox->setValue(material_vm->color().b);
+  ui_->MaterialTexturePathLineEdit->setText(material_vm->textureFileName());
 
   arrangeVisualGeometryTypeFrames(
     frame_map_.visual_geom, ui_->VisualGeometryTypeComboBox->currentText());
@@ -648,15 +648,15 @@ void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& colli
   ui_->CollisionOriginPitchSpinBox->setValue(p);
   ui_->CollisionOriginYawSpinBox->setValue(y);
 
-  auto gvm = collision_vm_->geometry();
-  ui_->CollisionGeometryBoxLengthSpinBox->setValue(gvm->length());
-  ui_->CollisionGeometryBoxWidthSpinBox->setValue(gvm->width());
-  ui_->CollisionGeometryBoxHeightSpinBox->setValue(gvm->height());
-  ui_->CollisionGeometryCylinderLengthSpinBox->setValue(gvm->length());
-  ui_->CollisionGeometryCylinderRadiusSpinBox->setValue(gvm->radius());
-  ui_->CollisionGeometrySphereRadiusSpinBox->setValue(gvm->radius());
-  ui_->CollisionGeometryMeshPathLineEdit->setText(gvm->filePath());
-  ui_->CollisionGeometryMeshScaleSpinBox->setValue(gvm->scale().x);
+  const auto& geometry_vm = collision_vm_->geometry();
+  ui_->CollisionGeometryBoxLengthSpinBox->setValue(geometry_vm->length());
+  ui_->CollisionGeometryBoxWidthSpinBox->setValue(geometry_vm->width());
+  ui_->CollisionGeometryBoxHeightSpinBox->setValue(geometry_vm->height());
+  ui_->CollisionGeometryCylinderLengthSpinBox->setValue(geometry_vm->length());
+  ui_->CollisionGeometryCylinderRadiusSpinBox->setValue(geometry_vm->radius());
+  ui_->CollisionGeometrySphereRadiusSpinBox->setValue(geometry_vm->radius());
+  ui_->CollisionGeometryMeshPathLineEdit->setText(geometry_vm->filePath());
+  ui_->CollisionGeometryMeshScaleSpinBox->setValue(geometry_vm->scale().x);
 
   arrangeVisualGeometryTypeFrames(
     frame_map_.collision_geom, ui_->CollisionGeometryTypeComboBox->currentText());
@@ -704,34 +704,34 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
     ui_->VisualOriginYawSpinBox->value());
   visual->origin(pose);
 
-  const auto& gvm = visual->geometry();
-  switch (gvm->type())
+  const auto& geometry_vm = visual->geometry();
+  switch (geometry_vm->type())
   {
     case GeometryType::BOX:
-      gvm->length(ui_->VisualGeometryBoxLengthSpinBox->value());
-      gvm->width(ui_->VisualGeometryBoxWidthSpinBox->value());
-      gvm->height(ui_->VisualGeometryBoxHeightSpinBox->value());
+      geometry_vm->length(ui_->VisualGeometryBoxLengthSpinBox->value());
+      geometry_vm->width(ui_->VisualGeometryBoxWidthSpinBox->value());
+      geometry_vm->height(ui_->VisualGeometryBoxHeightSpinBox->value());
       break;
     case GeometryType::SPHERE:
-      gvm->radius(ui_->VisualGeometrySphereRadiusSpinBox->value());
+      geometry_vm->radius(ui_->VisualGeometrySphereRadiusSpinBox->value());
       break;
     case GeometryType::CYLINDER:
-      gvm->radius(ui_->VisualGeometryCylinderRadiusSpinBox->value());
-      gvm->length(ui_->VisualGeometryCylinderLengthSpinBox->value());
+      geometry_vm->radius(ui_->VisualGeometryCylinderRadiusSpinBox->value());
+      geometry_vm->length(ui_->VisualGeometryCylinderLengthSpinBox->value());
       break;
     case GeometryType::MESH:
-      gvm->filePath(ui_->VisualGeometryMeshPathLineEdit->text());
+      geometry_vm->filePath(ui_->VisualGeometryMeshPathLineEdit->text());
       const auto scale = ui_->VisualGeometryMeshScaleSpinBox->value();
-      gvm->scale(urdf::Vector3(scale, scale, scale));
+      geometry_vm->scale(urdf::Vector3(scale, scale, scale));
       break;
   }
 
-  const auto& mvm = visual_vm_->material();
-  mvm->name(ui_->MaterialNameLineEdit->text());
-  mvm->color(
+  const auto& material_vm = visual_vm_->material();
+  material_vm->name(ui_->MaterialNameLineEdit->text());
+  material_vm->color(
     ui_->MaterialColorRedSpinBox->value(), ui_->MaterialColorGreenSpinBox->value(),
     ui_->MaterialColorBlueSpinBox->value());
-  mvm->textureFileName(ui_->MaterialTexturePathLineEdit->text());
+  material_vm->textureFileName(ui_->MaterialTexturePathLineEdit->text());
   link_vm_->sync();
 }
 
@@ -748,25 +748,25 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
     ui_->CollisionOriginYawSpinBox->value());
   collision->origin(pose);
 
-  const auto& gvm = collision->geometry();
-  switch (gvm->type())
+  const auto& geometry_vm = collision->geometry();
+  switch (geometry_vm->type())
   {
     case GeometryType::BOX:
-      gvm->length(ui_->CollisionGeometryBoxLengthSpinBox->value());
-      gvm->width(ui_->CollisionGeometryBoxWidthSpinBox->value());
-      gvm->height(ui_->CollisionGeometryBoxHeightSpinBox->value());
+      geometry_vm->length(ui_->CollisionGeometryBoxLengthSpinBox->value());
+      geometry_vm->width(ui_->CollisionGeometryBoxWidthSpinBox->value());
+      geometry_vm->height(ui_->CollisionGeometryBoxHeightSpinBox->value());
       break;
     case GeometryType::SPHERE:
-      gvm->radius(ui_->CollisionGeometrySphereRadiusSpinBox->value());
+      geometry_vm->radius(ui_->CollisionGeometrySphereRadiusSpinBox->value());
       break;
     case GeometryType::CYLINDER:
-      gvm->radius(ui_->CollisionGeometryCylinderRadiusSpinBox->value());
-      gvm->length(ui_->CollisionGeometryCylinderLengthSpinBox->value());
+      geometry_vm->radius(ui_->CollisionGeometryCylinderRadiusSpinBox->value());
+      geometry_vm->length(ui_->CollisionGeometryCylinderLengthSpinBox->value());
       break;
     case GeometryType::MESH:
-      gvm->filePath(ui_->CollisionGeometryMeshPathLineEdit->text());
+      geometry_vm->filePath(ui_->CollisionGeometryMeshPathLineEdit->text());
       const auto scale = ui_->CollisionGeometryMeshScaleSpinBox->value();
-      gvm->scale(urdf::Vector3(scale, scale, scale));
+      geometry_vm->scale(urdf::Vector3(scale, scale, scale));
       break;
   }
   link_vm_->sync();
@@ -818,7 +818,7 @@ void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inerti
 
   inertial->mass(ui_->InertialMassSpinBox->value());
 
-  view_model::Inertia inertia{};
+  view_model::Inertia inertia;
   inertia.ixx = ui_->InertiaIXXSpinBox->value();
   inertia.ixy = ui_->InertiaIXYSpinBox->value();
   inertia.ixz = ui_->InertiaIXZSpinBox->value();
@@ -832,7 +832,7 @@ void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inerti
 
 void UpdateLinkDialog::blockSignals(bool block)
 {
-  const QList<QWidget*> widget_list = this->findChildren<QWidget*>();
+  const auto widget_list = findChildren<QWidget*>();
   const QList<QWidget*>::const_iterator last_widget(widget_list.end());
   QList<QWidget*>::const_iterator widget_iter(widget_list.begin());
 

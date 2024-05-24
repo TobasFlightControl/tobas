@@ -25,6 +25,7 @@ private Q_SLOTS:
 
 private:
   const QStringList& excludeds_;
+
   QLineEdit* line_edit_;
   QLabel* warn_label_;
   QDialogButtonBox* button_box_;

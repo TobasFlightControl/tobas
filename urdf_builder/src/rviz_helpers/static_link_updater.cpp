@@ -61,7 +61,7 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
   {
     if (!cur->parent_joint)
       break;
-    auto pose = cur->parent_joint->parent_to_joint_origin_transform;
+    const auto& pose = cur->parent_joint->parent_to_joint_origin_transform;
     Ogre::Matrix4 m;
     m.makeTransform(
       URDFVector3ToOgre(pose.position), Ogre::Vector3(1.0, 1.0, 1.0),
