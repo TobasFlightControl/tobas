@@ -13,16 +13,16 @@ class VisualViewModel : public BaseViewModel<urdf::Visual, VisualViewModel>
 public:
   explicit VisualViewModel(const urdf::VisualSharedPtr& model);
 
+  void sync() override;
+
   QString name() const;
   void name(const QString& name);
 
   const urdf::Pose& origin() const;
   void origin(const urdf::Pose& origin);
 
-  const GeometryViewModelPtr& geometry() const;
-  const MaterialViewModelPtr& material() const;
-
-  void sync() override;
+  const GeometryViewModelPtr& geometry();
+  const MaterialViewModelPtr& material();
 
 private:
   GeometryViewModelPtr geometry_vm_;

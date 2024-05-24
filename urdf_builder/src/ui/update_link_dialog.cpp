@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 
+#include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/widget_item.hpp"
 #include "../../include/urdf_builder/ui/double_map_input_dialog.hpp"
@@ -13,8 +14,11 @@ namespace urdf_builder
 {
 namespace ui
 {
-UpdateLinkDialog::UpdateLinkDialog(const view_model::LinkViewModelPtr& vm, QWidget* parent)
-  : QDialog(parent), ui_(new Ui::UpdateLinkDialogUI()), vm_(vm)
+UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
+  : QDialog(main),
+    main_(main),
+    ui_(new Ui::UpdateLinkDialogUI()),
+    link_vm_(new view_model::LinkViewModel(nullptr))
 {
   ui_->setupUi(this);
 
@@ -37,7 +41,7 @@ UpdateLinkDialog::UpdateLinkDialog(const view_model::LinkViewModelPtr& vm, QWidg
     { "Mesh", ui_->CollisionGeometryMeshTypeFrame },
   };
 
-  readFromVM(vm);
+  readFromVM(link_vm_);
   defineConnections();
 }
 
@@ -55,18 +59,18 @@ void UpdateLinkDialog::done(int code)
     QDialog::done(code);
 }
 
-void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& vm)
+void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
 {
-  vm_ = vm;
+  link_vm_ = link_vm;
 
   blockSignals(true);
 
   ui_->VisualListWidget->clear();
-  for (const auto& visual : vm_->visuals())
+  for (const auto& visual : link_vm_->visuals())
     ui_->VisualListWidget->addItem(new VisualListWidgetItem(visual));
 
   ui_->CollisionListWidget->clear();
-  for (const auto& collision : vm_->collisions())
+  for (const auto& collision : link_vm_->collisions())
     ui_->CollisionListWidget->addItem(new CollisionListWidgetItem(collision));
 
   ui_->VisualOriginGroupBox->hide();
@@ -75,10 +79,10 @@ void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& vm)
   ui_->CollisionOriginGroupBox->hide();
   ui_->CollisionGeometryGroupBox->hide();
 
-  ui_->LinkNameLineEdit->setText(vm_->name());
+  ui_->LinkNameLineEdit->setText(link_vm_->name());
 
-  readFromVM(vm_->joint());
-  readFromVM(vm_->inertial());
+  readFromVM(link_vm_->joint());
+  readFromVM(link_vm_->inertial());
 
   blockSignals(false);
 }
@@ -94,7 +98,7 @@ void UpdateLinkDialog::setTabsEnabled(bool enabled)
 
 const view_model::LinkViewModelPtr& UpdateLinkDialog::viewModel() const
 {
-  return vm_;
+  return link_vm_;
 }
 
 void UpdateLinkDialog::VisualGeometryTypeComboBoxIndexChanged(int)
@@ -103,8 +107,8 @@ void UpdateLinkDialog::VisualGeometryTypeComboBoxIndexChanged(int)
 
   const auto& cb = ui_->VisualGeometryTypeComboBox;
   arrangeVisualGeometryTypeFrames(frame_map_.visual_geom, cb->currentText());
-  vvm_->geometry()->type(cb->currentText());
-  vm_->sync();
+  visual_vm_->geometry()->type(cb->currentText());
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -115,8 +119,8 @@ void UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChanged(int)
 
   const auto& cb = ui_->CollisionGeometryTypeComboBox;
   arrangeVisualGeometryTypeFrames(frame_map_.collision_geom, cb->currentText());
-  cvm_->geometry()->type(cb->currentText());
-  vm_->sync();
+  collision_vm_->geometry()->type(cb->currentText());
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -125,9 +129,9 @@ void UpdateLinkDialog::LinkNameLineEditTextChanged(const QString& text)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::LinkNameLineEditTextChanged(" << text.toStdString() << ")");
 
-  vm_->name(text);
-  vm_->joint()->childLinkName(text);
-  vm_->sync();
+  link_vm_->name(text);
+  link_vm_->joint()->childLinkName(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -136,8 +140,8 @@ void UpdateLinkDialog::JointNameLineEditTextChanged(const QString& text)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::JointNameLineEditTextChanged(" << text.toStdString() << ")");
 
-  vm_->joint()->name(text);
-  vm_->sync();
+  link_vm_->joint()->name(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -146,8 +150,8 @@ void UpdateLinkDialog::VisualNameLineEditTextChanged(const QString& text)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::VisualNameLineEditTextChanged(" << text.toStdString() << ")");
 
-  vvm_->name(text);
-  vm_->sync();
+  visual_vm_->name(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -157,8 +161,8 @@ void UpdateLinkDialog::VisualGeometryMeshPathLineEditTextChanged(const QString& 
   ROS_DEBUG_STREAM(
     "UpdateLinkDialog::VisualGeometryMeshPathLineEditTextChanged(" << text.toStdString() << ")");
 
-  vvm_->geometry()->filePath(text);
-  vm_->sync();
+  visual_vm_->geometry()->filePath(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -168,7 +172,7 @@ void UpdateLinkDialog::CollisionNameLineEditTextChanged(const QString& text)
   ROS_DEBUG_STREAM(
     "UpdateLinkDialog::CollisionNameLineEditTextChanged(" << text.toStdString() << ")");
 
-  cvm_->name(text);
+  collision_vm_->name(text);
 
   emitChanged();
 }
@@ -178,8 +182,8 @@ void UpdateLinkDialog::CollisionGeometryMeshPathEditTextChanged(const QString& t
   ROS_DEBUG_STREAM(
     "UpdateLinkDialog::CollisionGeometryMeshPathEditTextChanged(" << text.toStdString() << ")");
 
-  cvm_->geometry()->filePath(text);
-  vm_->sync();
+  collision_vm_->geometry()->filePath(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -189,8 +193,8 @@ void UpdateLinkDialog::MaterialNameLineEditTextChanged(const QString& text)
   ROS_DEBUG_STREAM(
     "UpdateLinkDialog::MaterialNameLineEditTextChanged(" << text.toStdString() << ")");
 
-  vvm_->material()->name(text);
-  vm_->sync();
+  visual_vm_->material()->name(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -200,8 +204,8 @@ void UpdateLinkDialog::MaterialTexturePathLineEditTextChanged(const QString& tex
   ROS_DEBUG_STREAM(
     "UpdateLinkDialog::MaterialTexturePathLineEditTextChanged(" << text.toStdString() << ")");
 
-  vvm_->material()->textureFileName(text);
-  vm_->sync();
+  visual_vm_->material()->textureFileName(text);
+  link_vm_->sync();
 
   emitChanged();
 }
@@ -210,7 +214,7 @@ void UpdateLinkDialog::JointParentComboBoxIndexChanged(int)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::JointParentComboBoxIndexChanged");
 
-  readFromUI(vm_->joint());
+  readFromUI(link_vm_->joint());
 
   emitChanged();
 }
@@ -219,9 +223,9 @@ void UpdateLinkDialog::JointTypeComboBoxIndexChanged(int)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::JointTypeComboBoxIndexChanged");
 
-  readFromUI(vm_->joint());
+  readFromUI(link_vm_->joint());
 
-  const auto& joint = vm_->joint();
+  const auto& joint = link_vm_->joint();
   ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
 
   // 固定関節ならばAxis, Dynamicsは表示しない
@@ -243,7 +247,7 @@ void UpdateLinkDialog::JointSpinBoxValueChanged(double)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::JointSpinBoxValueChanged");
 
-  readFromUI(vm_->joint());
+  readFromUI(link_vm_->joint());
   emitChanged();
 }
 
@@ -251,7 +255,7 @@ void UpdateLinkDialog::VisualSpinBoxValueChanged(double)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::VisualSpinBoxValueChanged");
 
-  readFromUI(vvm_);
+  readFromUI(visual_vm_);
   emitChanged();
 }
 
@@ -259,7 +263,7 @@ void UpdateLinkDialog::CollisionSpinBoxValueChanged(double)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionSpinBoxValueChanged");
 
-  readFromUI(cvm_);
+  readFromUI(collision_vm_);
   emitChanged();
 }
 
@@ -267,7 +271,7 @@ void UpdateLinkDialog::InertialSpinBoxValueChanged(double)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::InertialSpinBoxValueChanged");
 
-  readFromUI(vm_->inertial());
+  readFromUI(link_vm_->inertial());
   emitChanged();
 }
 
@@ -294,7 +298,7 @@ void UpdateLinkDialog::RenameLinkButtonClicked()
   ROS_DEBUG_STREAM("UpdateLinkDialog::RenameLinkButtonClicked");
 
   const auto& cur_name = ui_->LinkNameLineEdit->text();
-  auto excludeds = vm_->usedLinkNames();
+  auto excludeds = main_->linkNames();
   excludeds.removeOne(cur_name);
   StringInputDialog dialog("Rename Link", "Link Name", cur_name, excludeds);
 
@@ -312,7 +316,10 @@ void UpdateLinkDialog::RenameJointButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::RenameJointButtonClicked");
 
-  StringInputDialog dialog("Rename Joint", "Joint Name", ui_->JointNameLineEdit->text());
+  const auto& cur_name = ui_->JointNameLineEdit->text();
+  auto excludeds = main_->jointNames();
+  excludeds.removeOne(cur_name);
+  StringInputDialog dialog("Rename Joint", "Joint Name", cur_name, excludeds);
 
   const auto result = dialog.exec();
   if (result != QDialog::Accepted)
@@ -327,12 +334,12 @@ void UpdateLinkDialog::AddVisualButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::AddVisualButtonClicked");
 
-  const auto& vm = make_shared<view_model::VisualViewModel>(nullptr);
-  const auto item = new VisualListWidgetItem(vm);
+  const auto& link_vm = make_shared<view_model::VisualViewModel>(nullptr);
+  const auto item = new VisualListWidgetItem(link_vm);
   ui_->VisualListWidget->addItem(item);
   ui_->VisualListWidget->setCurrentItem(item);
-  vm_->add(vm);
-  readFromVM(vm);
+  link_vm_->add(link_vm);
+  readFromVM(link_vm);
 
   emitChanged();
 }
@@ -349,7 +356,7 @@ void UpdateLinkDialog::RemoveVisualButtonClicked()
 
   const auto item = ui_->VisualListWidget->selectedItems().front();
   const auto casted_item = dynamic_cast<VisualListWidgetItem*>(item);
-  vm_->remove(casted_item->viewModel());
+  link_vm_->remove(casted_item->viewModel());
   ui_->VisualListWidget->removeItemWidget(item);
   delete item;
 
@@ -371,12 +378,12 @@ void UpdateLinkDialog::AddCollisionButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::AddCollisionButtonClicked");
 
-  const auto& vm = make_shared<view_model::CollisionViewModel>(nullptr);
-  const auto item = new CollisionListWidgetItem(vm);
+  const auto& link_vm = make_shared<view_model::CollisionViewModel>(nullptr);
+  const auto item = new CollisionListWidgetItem(link_vm);
   ui_->CollisionListWidget->addItem(item);
   ui_->CollisionListWidget->setCurrentItem(item);
-  vm_->add(vm);
-  readFromVM(vm);
+  link_vm_->add(link_vm);
+  readFromVM(link_vm);
 
   emitChanged();
 }
@@ -393,7 +400,7 @@ void UpdateLinkDialog::RemoveCollisionButtonClicked()
 
   const auto item = ui_->CollisionListWidget->selectedItems().front();
   const auto casted_item = dynamic_cast<CollisionListWidgetItem*>(item);
-  vm_->remove(casted_item->viewModel());
+  link_vm_->remove(casted_item->viewModel());
   ui_->CollisionListWidget->removeItemWidget(item);
   delete item;
 
@@ -441,15 +448,15 @@ void UpdateLinkDialog::MaterialColorPickButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::MaterialColorPickButtonClicked");
 
-  const auto& color = vvm_->material()->color();
+  const auto& color = visual_vm_->material()->color();
   QColorDialog dialog(QColor::fromRgbF(color.r, color.g, color.b, color.a));
 
   if (dialog.exec() != QDialog::Accepted)
     return;
 
-  vvm_->material()->color(dialog.currentColor());
-  vm_->sync();
-  readFromVM(vvm_);
+  visual_vm_->material()->color(dialog.currentColor());
+  link_vm_->sync();
+  readFromVM(visual_vm_);
 
   emitChanged();
 }
@@ -468,9 +475,9 @@ void UpdateLinkDialog::BuildInertiaBoxButtonClicked()
   const auto& y = dialog.getValue("Y");
   const auto& z = dialog.getValue("Z");
 
-  vm_->inertial()->buildInertiaBox(x, y, z);
-  vm_->sync();
-  readFromVM(vm_->inertial());
+  link_vm_->inertial()->buildInertiaBox(x, y, z);
+  link_vm_->sync();
+  readFromVM(link_vm_->inertial());
 
   emitChanged();
 }
@@ -488,9 +495,9 @@ void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
   const auto& radius = dialog.getValue("Radius");
   const auto& length = dialog.getValue("Length");
 
-  vm_->inertial()->buildInertiaCylinder(radius, length);
-  vm_->sync();
-  readFromVM(vm_->inertial());
+  link_vm_->inertial()->buildInertiaCylinder(radius, length);
+  link_vm_->sync();
+  readFromVM(link_vm_->inertial());
 
   emitChanged();
 }
@@ -507,9 +514,9 @@ void UpdateLinkDialog::BuildInertiaSphereButtonClicked()
 
   const auto& radius = dialog.getValue("Radius");
 
-  vm_->inertial()->buildInertiaSphere(radius);
-  vm_->sync();
-  readFromVM(vm_->inertial());
+  link_vm_->inertial()->buildInertiaSphere(radius);
+  link_vm_->sync();
+  readFromVM(link_vm_->inertial());
 
   emitChanged();
 }
@@ -521,8 +528,8 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
   ui_->JointNameLineEdit->setText(joint->name());
 
   ui_->JointParentLinkComboBox->clear();
-  for (const auto& link_name : joint->usedLinkNames())
-    if (link_name != vm_->name())
+  for (const auto& link_name : main_->linkNames())
+    if (link_name != link_vm_->name())
       ui_->JointParentLinkComboBox->addItem(link_name);
   if (joint->parentLinkName().isEmpty())
     ui_->JointParentLinkComboBox->setCurrentIndex(-1);
@@ -572,7 +579,7 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
 
 void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
 {
-  vvm_ = visual;
+  visual_vm_ = visual;
   ui_->VisualOriginGroupBox->setVisible(visual != nullptr);
   ui_->VisualGeometryGroupBox->setVisible(visual != nullptr);
   ui_->VisualMaterialGroupBox->setVisible(visual != nullptr);
@@ -583,19 +590,19 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
   blockSignals(true);
 
   ui_->VisualNameLineEdit->setText(visual->name());
-  ui_->VisualGeometryTypeComboBox->setCurrentText(vvm_->geometry()->name());
+  ui_->VisualGeometryTypeComboBox->setCurrentText(visual_vm_->geometry()->name());
 
-  ui_->VisualOriginXSpinBox->setValue(vvm_->origin().position.x);
-  ui_->VisualOriginYSpinBox->setValue(vvm_->origin().position.y);
-  ui_->VisualOriginZSpinBox->setValue(vvm_->origin().position.z);
+  ui_->VisualOriginXSpinBox->setValue(visual_vm_->origin().position.x);
+  ui_->VisualOriginYSpinBox->setValue(visual_vm_->origin().position.y);
+  ui_->VisualOriginZSpinBox->setValue(visual_vm_->origin().position.z);
 
   double r, p, y;
-  vvm_->origin().rotation.getRPY(r, p, y);
+  visual_vm_->origin().rotation.getRPY(r, p, y);
   ui_->VisualOriginRollSpinBox->setValue(r);
   ui_->VisualOriginPitchSpinBox->setValue(p);
   ui_->VisualOriginYawSpinBox->setValue(y);
 
-  auto gvm = vvm_->geometry();
+  auto gvm = visual_vm_->geometry();
   ui_->VisualGeometryBoxLengthSpinBox->setValue(gvm->length());
   ui_->VisualGeometryBoxWidthSpinBox->setValue(gvm->width());
   ui_->VisualGeometryBoxHeightSpinBox->setValue(gvm->height());
@@ -605,7 +612,7 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
   ui_->VisualGeometryMeshPathLineEdit->setText(gvm->filePath());
   ui_->VisualGeometryMeshScaleSpinBox->setValue(gvm->scale().x);  // FIXME: scaleを3軸設定すべき？
 
-  auto mvm = vvm_->material();
+  auto mvm = visual_vm_->material();
   ui_->MaterialNameLineEdit->setText(mvm->name());
   ui_->MaterialColorRedSpinBox->setValue(mvm->color().r);
   ui_->MaterialColorGreenSpinBox->setValue(mvm->color().g);
@@ -620,7 +627,7 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
 
 void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& collision)
 {
-  cvm_ = collision;
+  collision_vm_ = collision;
   ui_->CollisionOriginGroupBox->setVisible(collision != nullptr);
   ui_->CollisionGeometryGroupBox->setVisible(collision != nullptr);
 
@@ -630,18 +637,18 @@ void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& colli
   blockSignals(true);
 
   ui_->CollisionNameLineEdit->setText(collision->name());
-  ui_->CollisionGeometryTypeComboBox->setCurrentText(cvm_->geometry()->name());
-  ui_->CollisionOriginXSpinBox->setValue(cvm_->origin().position.x);
-  ui_->CollisionOriginYSpinBox->setValue(cvm_->origin().position.y);
-  ui_->CollisionOriginZSpinBox->setValue(cvm_->origin().position.z);
+  ui_->CollisionGeometryTypeComboBox->setCurrentText(collision_vm_->geometry()->name());
+  ui_->CollisionOriginXSpinBox->setValue(collision_vm_->origin().position.x);
+  ui_->CollisionOriginYSpinBox->setValue(collision_vm_->origin().position.y);
+  ui_->CollisionOriginZSpinBox->setValue(collision_vm_->origin().position.z);
 
   double r, p, y;
-  cvm_->origin().rotation.getRPY(r, p, y);
+  collision_vm_->origin().rotation.getRPY(r, p, y);
   ui_->CollisionOriginRollSpinBox->setValue(r);
   ui_->CollisionOriginPitchSpinBox->setValue(p);
   ui_->CollisionOriginYawSpinBox->setValue(y);
 
-  auto gvm = cvm_->geometry();
+  auto gvm = collision_vm_->geometry();
   ui_->CollisionGeometryBoxLengthSpinBox->setValue(gvm->length());
   ui_->CollisionGeometryBoxWidthSpinBox->setValue(gvm->width());
   ui_->CollisionGeometryBoxHeightSpinBox->setValue(gvm->height());
@@ -671,7 +678,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
   ui_->InertialOriginPitchSpinBox->setValue(p);
   ui_->InertialOriginYawSpinBox->setValue(y);
 
-  ui_->InertialMassSpinBox->setValue(vm_->inertial()->mass());
+  ui_->InertialMassSpinBox->setValue(link_vm_->inertial()->mass());
 
   const auto& inertia = inertial->inertia();
   ui_->InertiaIXXSpinBox->setValue(inertia.ixx);
@@ -684,7 +691,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
   blockSignals(false);
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual)
+void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) const
 {
   assert(visual != nullptr);
 
@@ -719,16 +726,16 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual)
       break;
   }
 
-  const auto& mvm = vvm_->material();
+  const auto& mvm = visual_vm_->material();
   mvm->name(ui_->MaterialNameLineEdit->text());
   mvm->color(
     ui_->MaterialColorRedSpinBox->value(), ui_->MaterialColorGreenSpinBox->value(),
     ui_->MaterialColorBlueSpinBox->value());
   mvm->textureFileName(ui_->MaterialTexturePathLineEdit->text());
-  vm_->sync();
+  link_vm_->sync();
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& collision)
+void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& collision) const
 {
   assert(collision != nullptr);
 
@@ -762,10 +769,10 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
       gvm->scale(urdf::Vector3(scale, scale, scale));
       break;
   }
-  vm_->sync();
+  link_vm_->sync();
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint)
+void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) const
 {
   joint->name(ui_->JointNameLineEdit->text());
   joint->parentLinkName(ui_->JointParentLinkComboBox->currentText());
@@ -795,10 +802,10 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint)
   axis.z = ui_->JointAxisZSpinBox->value();
   joint->axis(axis);
 
-  vm_->sync();
+  link_vm_->sync();
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inertial)
+void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inertial) const
 {
   urdf::Pose pose;
   pose.position.x = ui_->InertialOriginXSpinBox->value();
@@ -820,7 +827,7 @@ void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inerti
   inertia.izz = ui_->InertiaIZZSpinBox->value();
   inertial->inertia(inertia);
 
-  vm_->sync();
+  link_vm_->sync();
 }
 
 void UpdateLinkDialog::blockSignals(bool block)
@@ -843,11 +850,11 @@ void UpdateLinkDialog::emitChanged()
 
 void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(
   const map<QString, QFrame*>& map,
-  const QString& frameName)
+  const QString& type)
 {
   for (const auto& pair : map)
     pair.second->hide();
-  map.at(frameName)->show();
+  map.at(type)->show();
 }
 }  // namespace ui
 }  // namespace urdf_builder

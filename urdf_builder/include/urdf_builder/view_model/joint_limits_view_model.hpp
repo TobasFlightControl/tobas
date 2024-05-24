@@ -11,6 +11,8 @@ class JointLimitsViewModel : public BaseViewModel<urdf::JointLimits, JointLimits
 public:
   using BaseViewModel<urdf::JointLimits, JointLimitsViewModel>::BaseViewModel;
 
+  void sync() override;
+
   double lower() const;
   void lower(double lower);
 

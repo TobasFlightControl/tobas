@@ -42,8 +42,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
 
   update_timer_ = new QTimer();
 
-  const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
-  link_dialog_ = new UpdateLinkDialog(vm);
+  link_dialog_ = new UpdateLinkDialog(this);
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
 
@@ -73,6 +72,16 @@ void URDFBuilderPanel::load(const rviz::Config& config)
 void URDFBuilderPanel::save(rviz::Config config) const
 {
   Panel::save(config);
+}
+
+QStringList URDFBuilderPanel::linkNames() const
+{
+  return vm_.linkNames();
+}
+
+QStringList URDFBuilderPanel::jointNames() const
+{
+  return vm_.jointNames();
 }
 
 void URDFBuilderPanel::RobotNameTextChanged(const QString& name)
@@ -196,18 +205,14 @@ void URDFBuilderPanel::LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
   ogre_ctrl_->unhighlightAll();
   ogre_ctrl_->highlight(link_name);
 
-  const auto vm = link_item->viewModel()->clone();
-  vm->usedLinkNames(vm_.linkNames());
+  const auto link_vm = link_item->viewModel()->clone();
 
   link_dialog_->show();
-  link_dialog_->readFromVM(vm);  // リンクのビューモデルからダイアログの値を更新
-  old_link_vm_ = vm->clone();    // リンクが選択された時点での設定を保持
+  link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新
+  old_link_vm_ = link_vm->clone();  // リンクが選択された時点での設定を保持
 
   // ルートリンクだったら変更不可にする
-  if (link_name == vm_.rootLink()->name)
-    link_dialog_->setTabsEnabled(false);
-  else
-    link_dialog_->setTabsEnabled(true);
+  link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
 }
 
 void URDFBuilderPanel::LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
@@ -246,9 +251,7 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
   }
 
   const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
-  link_vm->usedLinkNames(vm_.linkNames());
-
-  AddLinkDialog dialog(link_vm);
+  AddLinkDialog dialog(vm_.linkNames(), *link_vm);
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
@@ -429,28 +432,25 @@ void URDFBuilderPanel::reloadLinkTree()
     const auto t = que.front();
     que.pop();
 
-    const auto& vm = t.first;
+    const auto& link_vm = t.first;
     const auto& item = t.second;
 
-    item->setText(0, vm->name());
+    item->setText(0, link_vm->name());
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 
     // 選択リンクが残っている場合は再び選択
-    if (vm->name() == selected_link_name)
-      item->setSelected(true);
-    else
-      item->setSelected(false);
+    item->setSelected(link_vm->name() == selected_link_name);
 
     // チェック状態を保持
-    if (unchecked_links.contains(vm->name().toStdString()))
+    if (unchecked_links.contains(link_vm->name().toStdString()))
       item->setCheckState(0, Qt::Unchecked);
     else
       item->setCheckState(0, Qt::Checked);
 
     // 子ノードをキューに追加
-    for (const auto& child : vm->children())
+    for (const auto& child : link_vm->children())
     {
-      auto child_item = new LinkTreeWidgetItem(child);
+      const auto child_item = new LinkTreeWidgetItem(child);
       item->addChild(child_item);
       que.push({ child, child_item });
     }
@@ -467,10 +467,9 @@ void URDFBuilderPanel::reloadRobot()
 
 void URDFBuilderPanel::addRootLink()
 {
-  const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
-  vm->name("root");
-  vm->usedLinkNames(QStringList(vm->name()));
-  vm_.addLink(vm);
+  const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
+  link_vm->name("root");
+  vm_.addLink(link_vm);
 }
 
 bool URDFBuilderPanel::saveURDF(const QString& file_path)

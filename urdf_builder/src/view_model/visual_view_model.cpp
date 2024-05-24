@@ -14,6 +14,13 @@ VisualViewModel::VisualViewModel(const urdf::VisualSharedPtr& model)
     model_->name = "visual_" + std::to_string(utils::timeNowMilliseconds());
 }
 
+void VisualViewModel::sync()
+{
+  geometry_vm_->sync();
+  model_->geometry = geometry_vm_->model();
+  model_->material = material_vm_->model();
+}
+
 QString VisualViewModel::name() const
 {
   return QString::fromStdString(model_->name);
@@ -34,21 +41,14 @@ void VisualViewModel::origin(const urdf::Pose& origin)
   model_->origin = origin;
 }
 
-const GeometryViewModelPtr& VisualViewModel::geometry() const
+const GeometryViewModelPtr& VisualViewModel::geometry()
 {
   return geometry_vm_;
 }
 
-const MaterialViewModelPtr& VisualViewModel::material() const
+const MaterialViewModelPtr& VisualViewModel::material()
 {
   return material_vm_;
-}
-
-void VisualViewModel::sync()
-{
-  geometry_vm_->sync();
-  model_->geometry = geometry_vm_->model();
-  model_->material = material_vm_->model();
 }
 }  // namespace view_model
 }  // namespace urdf_builder

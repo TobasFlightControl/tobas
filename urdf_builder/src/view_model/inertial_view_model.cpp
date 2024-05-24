@@ -8,6 +8,10 @@ namespace urdf_builder
 {
 namespace view_model
 {
+void InertialViewModel::sync()
+{
+}
+
 const urdf::Pose& InertialViewModel::origin() const
 {
   return model_->origin;

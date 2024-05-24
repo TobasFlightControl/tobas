@@ -9,7 +9,6 @@
 namespace Ui
 {
 class UpdateLinkDialogUI;
-
 using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 }  // namespace Ui
 
@@ -17,6 +16,8 @@ namespace urdf_builder
 {
 namespace ui
 {
+class URDFBuilderPanel;
+
 class UpdateLinkDialog : public QDialog
 {
   Q_OBJECT
@@ -25,11 +26,11 @@ Q_SIGNALS:
   void Changed();
 
 public:
-  explicit UpdateLinkDialog(const view_model::LinkViewModelPtr& vm, QWidget* parent = nullptr);
+  explicit UpdateLinkDialog(URDFBuilderPanel* main);
 
-  void done(int) override;
+  void done(int code) override;
 
-  void readFromVM(const view_model::LinkViewModelPtr& vm);
+  void readFromVM(const view_model::LinkViewModelPtr& link_vm);
   void setTabsEnabled(bool enabled);
 
   const view_model::LinkViewModelPtr& viewModel() const;
@@ -67,10 +68,11 @@ private Q_SLOTS:
   void BuildInertiaSphereButtonClicked();
 
 private:
+  URDFBuilderPanel* main_;
   Ui::UpdateLinkDialogUIPtr ui_;
-  view_model::LinkViewModelPtr vm_;
-  view_model::VisualViewModelPtr vvm_;
-  view_model::CollisionViewModelPtr cvm_;
+  view_model::LinkViewModelPtr link_vm_;
+  view_model::VisualViewModelPtr visual_vm_;
+  view_model::CollisionViewModelPtr collision_vm_;
 
   struct
   {
@@ -85,16 +87,16 @@ private:
   void readFromVM(const view_model::CollisionViewModelPtr& collision);
   void readFromVM(const view_model::InertialViewModelPtr& inertial);
 
-  void readFromUI(const view_model::JointViewModelPtr& joint);
-  void readFromUI(const view_model::VisualViewModelPtr& visual);
-  void readFromUI(const view_model::CollisionViewModelPtr& collision);
-  void readFromUI(const view_model::InertialViewModelPtr& inertial);
+  void readFromUI(const view_model::JointViewModelPtr& joint) const;
+  void readFromUI(const view_model::VisualViewModelPtr& visual) const;
+  void readFromUI(const view_model::CollisionViewModelPtr& collision) const;
+  void readFromUI(const view_model::InertialViewModelPtr& inertial) const;
 
   void blockSignals(bool block);
   void emitChanged();
 
   static void
-  arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& typeName);
+  arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type);
 };
 }  // namespace ui
 }  // namespace urdf_builder

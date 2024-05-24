@@ -12,7 +12,6 @@ namespace urdf_builder
 namespace view_model
 {
 class JointViewModel;
-
 using JointViewModelPtr = std::shared_ptr<JointViewModel>;
 using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
 
@@ -20,6 +19,8 @@ class JointViewModel : public BaseViewModel<urdf::Joint, JointViewModel>
 {
 public:
   explicit JointViewModel(const urdf::JointSharedPtr& model);
+
+  void sync() override;
 
   QString name() const;
   void name(const QString& name);
@@ -36,21 +37,16 @@ public:
   QString childLinkName() const;
   void childLinkName(const QString& name);
 
-  const QStringList& usedLinkNames() const;
-  void usedLinkNames(const QStringList& links);
-
   const urdf::Vector3& axis() const;
   void axis(const urdf::Vector3& axis);
 
-  const JointLimitsViewModelPtr& limits() const;
+  const JointLimitsViewModelPtr& limits();
 
   bool limitsEnabled() const;
   bool isFixed() const;
-  void sync() override;
   void generateName();
 
 private:
-  QStringList link_names_;
   JointLimitsViewModelPtr limits_;
 };
 }  // namespace view_model

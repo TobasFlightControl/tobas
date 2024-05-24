@@ -22,6 +22,8 @@ class GeometryViewModel : public BaseViewModel<urdf::Geometry, GeometryViewModel
 public:
   explicit GeometryViewModel(const urdf::GeometrySharedPtr& model);
 
+  void sync() override;
+
   const QString& name() const;
 
   GeometryType type() const;
@@ -45,8 +47,6 @@ public:
 
   const urdf::Vector3& scale() const;
   void scale(const urdf::Vector3& scale);
-
-  void sync() override;
 
 private:
   GeometryType type_;

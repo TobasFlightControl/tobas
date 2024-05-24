@@ -64,6 +64,17 @@ QStringList URDFViewModel::linkNames() const
   return result;
 }
 
+QStringList URDFViewModel::jointNames() const
+{
+  QStringList result;
+  transform(
+    urdf_->joints_.begin(), urdf_->joints_.end(), back_inserter(result),
+    [](const pair<string, urdf::JointSharedPtr>& pair) {
+      return QString::fromStdString(pair.first);
+    });
+  return result;
+}
+
 void URDFViewModel::newRobot()
 {
   urdf_.reset(new urdf::Model());
@@ -123,8 +134,8 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
 
 void URDFViewModel::cloneLink(const LinkViewModelPtr& link_vm)
 {
-  const auto& clone = link_vm->clone();
-  const auto& suffix = "_" + QString::number(++clone_count_);
+  const auto clone = link_vm->clone();
+  const auto suffix = "_" + QString::number(++clone_count_);
 
   clone->name(clone->name() + suffix);
   clone->joint()->name(clone->joint()->name() + suffix);

@@ -34,12 +34,14 @@ class URDFBuilderPanel : public rviz::Panel
 
 public:
   explicit URDFBuilderPanel(QWidget* parent = nullptr);
-
   ~URDFBuilderPanel() override;
 
   void onInitialize() override;
   void load(const rviz::Config& config) override;
   void save(rviz::Config config) const override;
+
+  QStringList linkNames() const;
+  QStringList jointNames() const;
 
 private Q_SLOTS:
   void RobotNameTextChanged(const QString& name);

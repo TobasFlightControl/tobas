@@ -21,9 +21,7 @@ class AddLinkDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit AddLinkDialog(view_model::LinkViewModelPtr vm, QWidget* parent = nullptr);
-
-  void done(int) override;
+  explicit AddLinkDialog(const QStringList& link_names, view_model::LinkViewModel& link_vm);
 
 private Q_SLOTS:
   void LinkNameLineEditTextChanged(const QString& text);
@@ -32,7 +30,7 @@ private Q_SLOTS:
 
 private:
   Ui::AddLinkDialogUIPtr ui_;
-  view_model::LinkViewModelPtr vm_;
+  view_model::LinkViewModel& link_vm_;
 };
 }  // namespace ui
 }  // namespace urdf_builder

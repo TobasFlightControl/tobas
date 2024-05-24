@@ -36,7 +36,9 @@ public:
   const urdf::LinkSharedPtr& rootLink() const;
 
   const LinkViewModelPtr& rootLinkViewModel() const;
+
   QStringList linkNames() const;
+  QStringList jointNames() const;
 
   void newRobot();
   bool loadRobot(const QString& file_path);

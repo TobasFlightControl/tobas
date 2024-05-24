@@ -8,14 +8,14 @@ namespace urdf_builder
 {
 namespace ui
 {
-AddLinkDialog::AddLinkDialog(view_model::LinkViewModelPtr vm, QWidget* parent)
-  : QDialog(parent), ui_(new Ui::AddLinkDialogUI()), vm_(std::move(vm))
+AddLinkDialog::AddLinkDialog(const QStringList& link_names, view_model::LinkViewModel& link_vm)
+  : ui_(new Ui::AddLinkDialogUI()), link_vm_(link_vm)
 {
   ui_->setupUi(this);
 
-  ui_->JointParentLinkComboBox->addItems(vm_->joint()->usedLinkNames());
-  if (!vm_->joint()->usedLinkNames().empty())
-    vm_->joint()->parentLinkName(vm_->joint()->usedLinkNames().first());
+  ui_->JointParentLinkComboBox->addItems(link_names);
+  if (!link_names.empty())
+    link_vm_.joint()->parentLinkName(link_names.first());
 
   connect(
     ui_->LinkNameLineEdit, SIGNAL(textChanged(const QString&)), this,
@@ -28,46 +28,29 @@ AddLinkDialog::AddLinkDialog(view_model::LinkViewModelPtr vm, QWidget* parent)
     SLOT(JointParentComboBoxIndexChanged(int)));
 }
 
-void AddLinkDialog::done(int code)
-{
-  if (code == QDialog::Rejected)
-  {
-    QDialog::done(code);
-    return;
-  }
-
-  if (!vm_->isValid())
-  {
-    QMessageBox::warning(this, "ERROR", "No link name specified or name already exist");
-    return;
-  }
-
-  QDialog::done(code);
-}
-
 void AddLinkDialog::LinkNameLineEditTextChanged(const QString& text)
 {
-  vm_->name(text);
-  vm_->joint()->childLinkName(text);
-  vm_->joint()->generateName();
-  vm_->sync();
+  link_vm_.name(text);
+  link_vm_.joint()->childLinkName(text);
+  link_vm_.joint()->generateName();
+  link_vm_.sync();
 
-  ui_->JointNameLineEdit->setText(vm_->joint()->name());
+  ui_->JointNameLineEdit->setText(link_vm_.joint()->name());
 }
 
 void AddLinkDialog::JointNameLineEditTextChanged(const QString& text)
 {
-  vm_->joint()->name(text);
-  vm_->sync();
+  link_vm_.joint()->name(text);
+  link_vm_.sync();
 }
 
 void AddLinkDialog::JointParentComboBoxIndexChanged(int)
 {
-  vm_->joint()->parentLinkName(ui_->JointParentLinkComboBox->currentText());
-  vm_->joint()->generateName();
-  vm_->sync();
+  link_vm_.joint()->parentLinkName(ui_->JointParentLinkComboBox->currentText());
+  link_vm_.joint()->generateName();
+  link_vm_.sync();
 
-  ui_->JointNameLineEdit->setText(vm_->joint()->name());
+  ui_->JointNameLineEdit->setText(link_vm_.joint()->name());
 }
 }  // namespace ui
 }  // namespace urdf_builder

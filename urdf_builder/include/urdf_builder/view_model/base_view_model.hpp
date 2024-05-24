@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <urdf_model/link.h>
 
 #include "../utils/urdf_clone.hpp"
 
@@ -9,6 +8,12 @@ namespace urdf_builder
 {
 namespace view_model
 {
+/**
+ * @brief URDFの要素クラスのラッパー．
+ *
+ * @tparam M URDFの要素クラス
+ * @tparam Derived 派生クラス
+ */
 template <typename M, typename Derived>
 class BaseViewModel
 {
@@ -18,11 +23,11 @@ public:
 
   explicit BaseViewModel(const ModelPtr& model) : model_(model)
   {
-    if (!model_)
+    if (model_ == nullptr)
       model_.reset(new M());
   }
 
-  const ModelPtr& model() const
+  const ModelPtr& model()
   {
     return model_;
   }
@@ -32,9 +37,8 @@ public:
     return DerivedPtr(new Derived(utils::clone(model_)));
   }
 
-  virtual void sync()
-  {
-  }
+  /* View Modelの内容をURDFモデルに反映させる． */
+  virtual void sync() = 0;
 
 protected:
   ModelPtr model_;

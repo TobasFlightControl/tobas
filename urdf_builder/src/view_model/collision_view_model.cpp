@@ -13,6 +13,12 @@ CollisionViewModel::CollisionViewModel(const urdf::CollisionSharedPtr& model)
     model_->name = "collision_" + std::to_string(utils::timeNowMilliseconds());
 }
 
+void CollisionViewModel::sync()
+{
+  geometry_vm_->sync();
+  model_->geometry = geometry_vm_->model();
+}
+
 const urdf::Pose& CollisionViewModel::origin() const
 {
   return model_->origin;
@@ -33,15 +39,9 @@ void CollisionViewModel::name(const QString& name)
   model_->name = name.toStdString();
 }
 
-const GeometryViewModelPtr& CollisionViewModel::geometry() const
+const GeometryViewModelPtr& CollisionViewModel::geometry()
 {
   return geometry_vm_;
-}
-
-void CollisionViewModel::sync()
-{
-  geometry_vm_->sync();
-  model_->geometry = geometry_vm_->model();
 }
 }  // namespace view_model
 }  // namespace urdf_builder

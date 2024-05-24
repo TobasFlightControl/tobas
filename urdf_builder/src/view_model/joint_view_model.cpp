@@ -31,6 +31,12 @@ JointViewModel::JointViewModel(const urdf::JointSharedPtr& model)
     limits_.reset(new JointLimitsViewModel(model_->limits));
 }
 
+void JointViewModel::sync()
+{
+  if (limitsEnabled())
+    model_->limits = limits_->model();
+}
+
 QString JointViewModel::name() const
 {
   return QString::fromStdString(model_->name);
@@ -86,16 +92,6 @@ void JointViewModel::childLinkName(const QString& name)
   model_->child_link_name = name.toStdString();
 }
 
-const QStringList& JointViewModel::usedLinkNames() const
-{
-  return link_names_;
-}
-
-void JointViewModel::usedLinkNames(const QStringList& links)
-{
-  link_names_ = links;
-}
-
 const urdf::Vector3& JointViewModel::axis() const
 {
   return model_->axis;
@@ -106,7 +102,7 @@ void JointViewModel::axis(const urdf::Vector3& axis)
   model_->axis = axis;
 }
 
-const JointLimitsViewModelPtr& JointViewModel::limits() const
+const JointLimitsViewModelPtr& JointViewModel::limits()
 {
   return limits_;
 }
@@ -119,12 +115,6 @@ bool JointViewModel::limitsEnabled() const
 bool JointViewModel::isFixed() const
 {
   return model_->type == urdf::Joint::FIXED;
-}
-
-void JointViewModel::sync()
-{
-  if (limitsEnabled())
-    model_->limits = limits_->model();
 }
 
 void JointViewModel::generateName()

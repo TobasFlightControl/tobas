@@ -19,6 +19,8 @@ class MaterialViewModel : public BaseViewModel<urdf::Material, MaterialViewModel
 public:
   explicit MaterialViewModel(const urdf::MaterialSharedPtr& model);
 
+  void sync() override;
+
   QString name() const;
   void name(const QString& name);
 
