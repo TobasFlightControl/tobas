@@ -19,9 +19,9 @@ class DoubleMapInputDialog : public QDialog
 
 public:
   explicit DoubleMapInputDialog(
+    QWidget* parent,
     const QString& title,
-    const QStringList& field_names,
-    QWidget* parent = nullptr);
+    const QStringList& field_names);
 
   const double& getValue(const QString& field) const;
 

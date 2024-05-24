@@ -465,7 +465,7 @@ void UpdateLinkDialog::BuildInertiaBoxButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::BuildInertiaBoxButtonClicked");
 
-  DoubleMapInputDialog dialog("Box Inertia", { "X", "Y", "Z" });
+  DoubleMapInputDialog dialog(this, "Box Inertia", { "X", "Y", "Z" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
@@ -486,7 +486,7 @@ void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::BuildInertiaCylinderButtonClicked");
 
-  DoubleMapInputDialog dialog("Cylinder Inertia", { "Radius", "Length" });
+  DoubleMapInputDialog dialog(this, "Cylinder Inertia", { "Radius", "Length" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
@@ -506,7 +506,7 @@ void UpdateLinkDialog::BuildInertiaSphereButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::BuildInertiaSphereButtonClicked");
 
-  DoubleMapInputDialog dialog("Sphere Inertia", { "Radius" });
+  DoubleMapInputDialog dialog(this, "Sphere Inertia", { "Radius" });
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)

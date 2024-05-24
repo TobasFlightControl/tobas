@@ -5,9 +5,9 @@ namespace urdf_builder
 namespace ui
 {
 DoubleMapInputDialog::DoubleMapInputDialog(
+  QWidget* parent,
   const QString& title,
-  const QStringList& field_names,
-  QWidget* parent)
+  const QStringList& field_names)
   : QDialog(parent)
 {
   setWindowTitle(title);
