@@ -5,9 +5,9 @@
 #include <rviz/ogre_helpers/movable_text.h>
 #include <rviz/visualization_manager.h>
 
-#include "../../include/urdf_builder/rviz_helpers/static_link_updater.hpp"
-#include "../../include/urdf_builder/rviz_helpers/display_context_proxy.hpp"
+#include "../../include/urdf_builder/ogre_helpers/static_link_updater.hpp"
 #include "../../include/urdf_builder/ogre_helpers/ogre_controller.hpp"
+#include "../../include/urdf_builder/ui/display_context_proxy.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
 
 using namespace std;
@@ -27,8 +27,8 @@ struct OgreController::PImpl
     ogre.robot_node = ogre.root_node->createChildSceneNode();
     ogre.axes_node = ogre.root_node->createChildSceneNode();
     ogre.names_node = ogre.root_node->createChildSceneNode();
-    display_context_proxy = new rviz::DisplayContextProxy(
-      ogre.scene_manager, visualization_manager->getSelectionManager());
+    display_context_proxy =
+      new ui::DisplayContextProxy(ogre.scene_manager, visualization_manager->getSelectionManager());
     rviz.robot.reset(
       new rviz::Robot(ogre.robot_node, display_context_proxy, "urdf_robot_model", nullptr));
 
@@ -71,8 +71,8 @@ struct OgreController::PImpl
     Ogre::SceneNode* names_node = nullptr;
   } ogre;
 
-  rviz_helpers::StaticLinkUpdaterPtr link_updater;
-  rviz::DisplayContextProxy* display_context_proxy;
+  ogre_helpers::StaticLinkUpdaterPtr link_updater;
+  ui::DisplayContextProxy* display_context_proxy;
 };
 
 OgreController::OgreController(rviz::VisualizationManager* visualization_manager)
@@ -100,7 +100,7 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
 {
   const auto& model = vm.urdf();
   pimpl_->rviz.robot->load(*model);
-  pimpl_->link_updater.reset(new rviz_helpers::StaticLinkUpdater(model));
+  pimpl_->link_updater.reset(new ogre_helpers::StaticLinkUpdater(model));
 
   for (const auto& pair : pimpl_->rviz.robot->getLinks())
   {

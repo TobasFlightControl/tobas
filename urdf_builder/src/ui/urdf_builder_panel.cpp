@@ -9,8 +9,8 @@
 #include "../../include/urdf_builder/ui/add_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/widget_item.hpp"
 #include "../../include/urdf_builder/ui/save_urdf_dialog.hpp"
-#include "../../include/urdf_builder/rviz_helpers/display_context_proxy.hpp"
-#include "../../include/urdf_builder/rviz_helpers/static_link_updater.hpp"
+#include "../../include/urdf_builder/ui/display_context_proxy.hpp"
+#include "../../include/urdf_builder/ogre_helpers/static_link_updater.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
 #include "ui_urdf_builder_panel.h"
 

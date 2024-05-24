@@ -47,15 +47,8 @@ set(QT_LIBRARIES Qt5::Widgets)
 add_definitions(-DQT_NO_KEYWORDS)
 add_definitions(-DLINUX -DPOSIX)
 
-qt5_wrap_cpp(MOC_FILES
-  include/${PROJECT_NAME}/ui/add_link_dialog.hpp
-  include/${PROJECT_NAME}/ui/double_map_input_dialog.hpp
-  include/${PROJECT_NAME}/ui/save_urdf_dialog.hpp
-  include/${PROJECT_NAME}/ui/string_input_dialog.hpp
-  include/${PROJECT_NAME}/ui/update_link_dialog.hpp
-  include/${PROJECT_NAME}/ui/urdf_builder_panel.hpp
-  include/${PROJECT_NAME}/rviz_helpers/display_context_proxy.hpp
-)
+file(GLOB_RECURSE MO_FILES RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/ui/[^.]*.hpp)
+qt5_wrap_cpp(MOC_FILES ${MO_FILES})
 
 file(GLOB_RECURSE UI_FILES RELATIVE ${PROJECT_SOURCE_DIR} ui/[^.]*.ui)
 qt5_wrap_ui(UIC_FILES ${UI_FILES})

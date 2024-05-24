@@ -8,7 +8,7 @@
 
 #ifndef Q_MOC_RUN
 #include <urdf/model.h>
-#include "../rviz_helpers/static_link_updater.hpp"
+#include "../ogre_helpers/static_link_updater.hpp"
 #include "../view_model/urdf_view_model.hpp"
 #include "../ogre_helpers/ogre_controller.hpp"
 #include "./update_link_dialog.hpp"

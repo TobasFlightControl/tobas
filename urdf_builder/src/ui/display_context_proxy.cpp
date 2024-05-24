@@ -1,6 +1,10 @@
-#include "../../include/urdf_builder/rviz_helpers/display_context_proxy.hpp"
+#include "../../include/urdf_builder/ui/display_context_proxy.hpp"
 
-namespace rviz
+using namespace rviz;
+
+namespace urdf_builder
+{
+namespace ui
 {
 DisplayContextProxy::DisplayContextProxy(
   Ogre::SceneManager* scene_manager,
@@ -94,4 +98,5 @@ void DisplayContextProxy::setStatus(const QString&)
 void DisplayContextProxy::queueRender()
 {
 }
-}  // namespace rviz
+}  // namespace ui
+}  // namespace urdf_builder

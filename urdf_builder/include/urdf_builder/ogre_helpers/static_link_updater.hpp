@@ -7,7 +7,7 @@
 
 namespace urdf_builder
 {
-namespace rviz_helpers
+namespace ogre_helpers
 {
 class StaticLinkUpdater : public rviz::LinkUpdater
 {
@@ -32,5 +32,5 @@ private:
 };
 
 using StaticLinkUpdaterPtr = std::shared_ptr<StaticLinkUpdater>;
-}  // namespace rviz_helpers
+}  // namespace ogre_helpers
 }  // namespace urdf_builder

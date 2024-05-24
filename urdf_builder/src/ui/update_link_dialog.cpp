@@ -2,9 +2,9 @@
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
-#include "../../include/urdf_builder/ui/widget_item.hpp"
 #include "../../include/urdf_builder/ui/double_map_input_dialog.hpp"
 #include "../../include/urdf_builder/ui/string_input_dialog.hpp"
+#include "../../include/urdf_builder/ui/widget_item.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
 #include "ui_update_link_dialog.h"
 
