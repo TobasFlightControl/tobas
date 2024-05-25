@@ -42,8 +42,8 @@ def is_almost_int(x: float) -> bool:
 def common_range(range_list: List[Tuple[float, float]]) -> Union[Tuple[float, float], None]:
     """range_listの共通範囲を求める"""
 
-    lb_res = -np.inf
-    ub_res = np.inf
+    lb_res = -math.inf
+    ub_res = math.inf
 
     for lb, ub in range_list:
         assert lb <= ub

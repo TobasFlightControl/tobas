@@ -1,4 +1,4 @@
-#include "../include/{{ pkg_name }}/tobas_bridge.hpp"
+#include "../include/{{ user_pkg_name }}/tobas_bridge.hpp"
 
 int main(int argc, char** argv)
 {

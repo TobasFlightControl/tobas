@@ -9,10 +9,11 @@ import rospy
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout
 
+from tobas_std_tools_py.path import get_basename_without_extension
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION, CONFIG_PKG_SUFFIX
 from tobas_tools_py.drone import Drone, DroneLoader_File
 
 from .common import TITLE, PKG_NAME, CATKIN_WS_TOBAS, SOURCE_CMD
@@ -62,15 +63,17 @@ class PackageManagerWidget(Widget):
     def _load_drone(self, pkg_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
-        tbsf_path = osp.join(pkg_path, "config/drone.tbsdrn")
+        config_pkg_name = get_basename_without_extension(pkg_path) + CONFIG_PKG_SUFFIX
+        tbsf_path = osp.join(pkg_path, config_pkg_name, "config", "drone.tbsdrn")
         if not osp.isfile(tbsf_path):
+            q_error(self._main, f"{tbsf_path} does not exist.")
             return False
 
         # TBSFファイルが正常に読み込めることを確認
         try:
             DroneLoader_File(self._drone, tbsf_path).load()
         except Exception as e:
-            rospy.logerr(f"Failed to load TBSF:\n\n{e}")
+            q_error(self, f"Failed to load TBSF:\n\n{e}")
             return False
 
         return True
@@ -93,9 +96,13 @@ class PackageManagerWidget(Widget):
         if pkg_path == "":
             return
 
-        # 有効なTobas Configuration Packageでなければ終了
+        # 拡張子をチェック
+        if not pkg_path.endswith(PKG_EXTENSION):
+            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
+            return
+
+        # ドローンの機体情報を読み込む
         if not self._load_drone(pkg_path):
-            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package or is collapsed.')
             return
 
         # パスをテキストに設定

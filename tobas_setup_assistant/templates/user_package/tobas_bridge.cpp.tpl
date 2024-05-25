@@ -2,7 +2,7 @@
 
 #include <tobas_tools/constants.hpp>
 
-#include "../include/{{ pkg_name }}/tobas_bridge.hpp"
+#include "../include/{{ user_pkg_name }}/tobas_bridge.hpp"
 
 #define MAIN_TIMER_FREQ 100
 

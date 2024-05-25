@@ -4,7 +4,7 @@
 
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
-    <rosparam file="$(find {{ pkg_name }})/config/rc_teleop.yaml" command="load"/>
+    <rosparam file="$(find {{ config_pkg_name }})/config/rc_teleop.yaml" command="load"/>
 
     <!-- Launch RC teleoperation -->
     <include file="$(find tobas_rc_teleop)/launch/rc_teleop.launch">

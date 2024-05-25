@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
 
-	<name>{{ pkg_name }}</name>
+	<name>{{ user_pkg_name }}</name>
 	<version>0.0.0</version>
-	<description>Tobas configuration package for {{ drone_name }}</description>
+	<description>Tobas user package for {{ drone_name }}</description>
 	<maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
 	<license>BSD</license>
 

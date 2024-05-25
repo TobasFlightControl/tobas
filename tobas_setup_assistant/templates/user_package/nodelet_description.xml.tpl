@@ -1,4 +1,4 @@
-<library path="lib/lib{{ pkg_name }}_nodelet">
+<library path="lib/lib{{ user_pkg_name }}_nodelet">
 
   <class name="TobasBridgeNodelet" type="TobasBridgeNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>

@@ -3,7 +3,7 @@
   <arg name="nodelet" default="true"/>
 
   <!-- Load common parameters -->
-  <include file="$(find {{ pkg_name }})/launch/common_params.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/common_params.launch">
     <arg name="user_debug" value="false"/>
   </include>
 
@@ -14,24 +14,24 @@
     </include>
   </group>
 
-  <!-- Bringup nodes that work only on Raspberry Pi. -->
+  <!-- Launch nodes that work only on Raspberry Pi. -->
   <group ns="{{ drone_name }}">
     <include file="$(find tobas_real_ros)/launch/real.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
   </group>
 
-  <!-- Bringup Tobas core software -->
-  <include file="$(find {{ pkg_name }})/launch/bringup.launch">
+  <!-- Launch Tobas core software -->
+  <include file="$(find {{ config_pkg_name }})/launch/bringup.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <!-- Bringup Tobas bridge -->
-  <include file="$(find {{ pkg_name }})/launch/tobas_bridge.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
+  <!-- Launch calibration nodes -->
+  <include file="$(find {{ config_pkg_name }})/launch/calibration.launch"/>
 
-  <!-- Bringup calibration nodes -->
-  <include file="$(find {{ pkg_name }})/launch/calibration.launch"/>
+  <!-- Launch user launch file -->
+  <group ns="{{ drone_name }}">
+    <include file="$(find {{ user_pkg_name }})/launch/real.launch"/>
+  </group>
 
 </launch>

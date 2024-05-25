@@ -2,7 +2,7 @@
 
 #include <nodelet/nodelet.h>
 
-#include "../include/{{ pkg_name }}/tobas_bridge.hpp"
+#include "../include/{{ user_pkg_name }}/tobas_bridge.hpp"
 
 class TobasBridgeNodelet : public nodelet::Nodelet
 {

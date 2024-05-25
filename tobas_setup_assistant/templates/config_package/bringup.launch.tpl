@@ -5,36 +5,36 @@
 
   <!-- Load dynamic parameters -->
   <group ns="{{ drone_name }}">
-    <rosparam file="$(find {{ pkg_name }})/config/dynamic_params.yaml" command="load"/>
+    <rosparam file="$(find {{ config_pkg_name }})/config/dynamic_params.yaml" command="load"/>
   </group>
 
   <!-- Launch nodelet manager -->
-  <include if="$(arg nodelet)" file="$(find {{ pkg_name }})/launch/nodelet_manager.launch"/>
+  <include if="$(arg nodelet)" file="$(find {{ config_pkg_name }})/launch/nodelet_manager.launch"/>
 
   <!-- Launch controller -->
-  <include file="$(find {{ pkg_name }})/launch/controller.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/controller.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
     <arg name="ground_truth" value="$(arg ground_truth)"/>
   </include>
 
   <!-- Launch observer -->
-  <include file="$(find {{ pkg_name }})/launch/observer.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/observer.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
   <!-- Launch action servers for mission -->
-  <include file="$(find {{ pkg_name }})/launch/mission_action_servers.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/mission_action_servers.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
     <arg name="ground_truth" value="$(arg ground_truth)"/>
   </include>
 
   <!-- Launch RC teleoperation -->
-  <include file="$(find {{ pkg_name }})/launch/rc_teleop.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/rc_teleop.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
   <!-- Launch joint controller -->
-  <include file="$(find {{ pkg_name }})/launch/joint_control.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/joint_control.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
     <arg name="ground_truth" value="$(arg ground_truth)"/>
   </include>
@@ -64,6 +64,9 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
       <param name="publish_frequency" value="1000"/>
     </node>
+
+    <!-- Launch user launch file -->
+    <include file="$(find {{ user_pkg_name }})/launch/common.launch"/>
   </group>
 
 </launch>

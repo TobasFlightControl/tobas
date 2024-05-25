@@ -5,7 +5,7 @@
 
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
-    <rosparam file="$(find {{ pkg_name }})/config/controller.yaml" command="load"/>
+    <rosparam file="$(find {{ config_pkg_name }})/config/controller.yaml" command="load"/>
 
     <!-- Bringup controller -->
     <include file="$(find {{ controller_pkg }})/launch/controller.launch">

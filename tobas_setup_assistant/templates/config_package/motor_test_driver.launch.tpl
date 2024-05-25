@@ -1,7 +1,7 @@
 <launch>
 
   <!-- Load common parameters -->
-  <include file="$(find {{ pkg_name }})/launch/common_params.launch"/>
+  <include file="$(find {{ config_pkg_name }})/launch/common_params.launch"/>
 
   <!-- Launch driver nodes necessary for the motor test -->
   <group ns="{{ drone_name }}">

@@ -7,15 +7,15 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import re
-import subprocess
 from overrides import override
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QLabel, QPushButton, QMessageBox
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QPushButton
 from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.path import get_catkin_ws_paths, is_in_catkin_src
 from tobas_rqt_tools.utils import place_center
-from tobas_rqt_tools.messages import q_error_named, QMessageLevel
+from tobas_rqt_tools.messages import q_error_named, yes_or_no, QMessageLevel
+from tobas_tools_py.constants import PKG_EXTENSION, CONFIG_PKG_SUFFIX, USER_PKG_SUFFIX
 
 from ..common import BODY_PSIZE
 from ..parameter_getters import ParamGetterWidget_DirDialog, ParamGetterWidget_LineEdit
@@ -39,12 +39,12 @@ class RosPackageWidget(BaseSettingWidget):
         super().__init__(main, title_text, abst_text)
 
         pardir_description = ""
-        self.pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
-        self._rows.addWidget(self.pardir)
+        self._pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
+        self._rows.addWidget(self._pardir)
 
         pkg_name_description = ""
-        self.pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
-        self._rows.addWidget(self.pkg_name)
+        self._pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
+        self._rows.addWidget(self._pkg_name)
 
         text = QLabel("The package will be generated as")
         text.setFont(QFont("Default", pointSize=BODY_PSIZE))
@@ -52,7 +52,10 @@ class RosPackageWidget(BaseSettingWidget):
         self.setAlignment(Qt.AlignTop)
         self._rows.addWidget(text)
 
-        self._pkg_path = PackagePath(main)
+        self._pkg_path = QLabel(main)
+        self._pkg_path.setFont(QFont("Default", pointSize=BODY_PSIZE, weight=QFont.Bold))
+        self._pkg_path.setFixedHeight(self.TEXT_HEIGHT)
+        self._pkg_path.setAlignment(Qt.AlignTop)
         self._rows.addWidget(self._pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
@@ -66,12 +69,13 @@ class RosPackageWidget(BaseSettingWidget):
     @override
     def define_connections(self) -> None:
         super().define_connections()
-        self._pkg_path.define_connections()
-        self._pkg_path.path_changed.connect(self._on_path_changed)
+        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._pardir.path_changed.connect(self._on_path_changed)
+        self._pkg_name.text_changed.connect(self._on_path_changed)
 
     @override
     def is_valid(self) -> bool:
-        pardir = self._pkg_path.pardir
+        pardir = self._pardir.get()
         if not osp.isdir(pardir):
             q_error_named(self._main, self.NAME, f"{pardir} does not exist.")
             return False
@@ -79,91 +83,57 @@ class RosPackageWidget(BaseSettingWidget):
             q_error_named(self._main, self.NAME, f"{pardir} is not in the src directory of a catkin workspace.")
             return False
 
-        pkg_name = self._pkg_path.pkg_name
-        if pkg_name.count("/") > 0 or pkg_name.count(" "):
+        pkg_name = self._pkg_name.get()
+        if pkg_name.count("/") or pkg_name.count(".") or pkg_name.count(" "):
             q_error_named(self._main, self.NAME, f"Invalid package name: {pkg_name}")
             return False
 
         pkg_path = self._pkg_path.text()
         if osp.exists(pkg_path):
-            res = QMessageBox.warning(
-                self._main,
-                QMessageLevel.WARN.name,
-                f"{pkg_path} already exists. Do you want to replace it?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if res == QMessageBox.Yes:
-                subprocess.run(["rm", "-r", pkg_path])
-            else:
+            if not yes_or_no(self._main, f"{pkg_path} already exists. Do you want to replace it?", QMessageLevel.WARN):
                 return False
 
         return True
 
+    def pkg_name(self) -> str:
+        return self._pkg_name.get()
+
+    def config_pkg_name(self) -> str:
+        return self.pkg_name() + CONFIG_PKG_SUFFIX
+
+    def user_pkg_name(self) -> str:
+        return self.pkg_name() + USER_PKG_SUFFIX
+
     def pkg_path(self) -> str:
         return self._pkg_path.text()
 
-    @pyqtSlot(str, str)
-    def _on_path_changed(self, pardir: str, pkg_name: str) -> None:
-        if pardir == "" or pkg_name == "":
-            self.generate_button.setEnabled(False)
-            return
+    def config_pkg_path(self) -> str:
+        return osp.join(self.pkg_path(), self.config_pkg_name())
 
-        self.generate_button.setEnabled(True)
-
-
-class PackagePath(QLabel):
-    HEIGHT = 50
-
-    path_changed = pyqtSignal(str, str)
-
-    def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        self.pardir = ""
-        self.pkg_name = ""
-
-        self.setFont(QFont("Default", pointSize=BODY_PSIZE, weight=QFont.Bold))
-        self.setFixedHeight(self.HEIGHT)
-        self.setAlignment(Qt.AlignTop)
-
-        self._update()
-
-    def define_connections(self) -> None:
-        self._main.settings.ros_package.pardir.path_changed.connect(self._on_pardir_changed)
-        self._main.settings.ros_package.pkg_name.text_changed.connect(self._on_pkg_name_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
-
-    def _update(self) -> None:
-        path = self.pardir + "/" + self.pkg_name
-        path = re.sub("/*/", "/", path)  # スラッシュの重複を削除
-        self.setText(path)
-
-        self.path_changed.emit(self.pardir, self.pkg_name)
-
-    @pyqtSlot(str)
-    def _on_pardir_changed(self, pardir: str) -> None:
-        self.pardir = pardir
-        self._update()
-
-    @pyqtSlot(str)
-    def _on_pkg_name_changed(self, pkg_name: str) -> None:
-        self.pkg_name = pkg_name
-        self._update()
+    def user_pkg_path(self) -> str:
+        return osp.join(self.pkg_path(), self.user_pkg_name())
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
         # デフォルトのsrcディレクトリを設定
         ws_path = self._last_accessed_ws_path()
         src_path = osp.join(ws_path, "src")
-        self._main.settings.ros_package.pardir.set(src_path)
+        self._pardir.set(src_path)
 
         # デフォルトのパッケージ名を設定
-        pkg_name = f"tobas_{get_drone_name()}_config"
-        self._main.settings.ros_package.pkg_name.set(pkg_name)
+        pkg_name = f"tobas_{get_drone_name()}"
+        self._pkg_name.set(pkg_name)
 
-        self._update()
+    @pyqtSlot()
+    def _on_path_changed(self) -> None:
+        pardir = self._pardir.get()
+        pkg_name = self._pkg_name.get()
+
+        path = pardir + "/" + pkg_name + PKG_EXTENSION
+        path = re.sub("/*/", "/", path)  # スラッシュの重複を削除
+        self._pkg_path.setText(path)
+
+        self.generate_button.setEnabled(pardir != "" and pkg_name != "")
 
     def _last_accessed_ws_path(self) -> str:
         catkin_ws_paths = get_catkin_ws_paths()

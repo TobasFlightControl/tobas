@@ -17,11 +17,11 @@
   <arg name="yaw_rad" value="$(eval arg('yaw') * arg('pi') / 180)"/>
 
   <!-- Load common parameters -->
-  <include file="$(find {{ pkg_name }})/launch/common_params.launch">
+  <include file="$(find {{ config_pkg_name }})/launch/common_params.launch">
     <arg name="user_debug" value="$(arg user_debug)"/>
   </include>
 
-  <!-- Bringup a Gazebo world -->
+  <!-- Launch a Gazebo world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find tobas_gazebo_ros)/worlds/$(arg wname).world"/>
     <arg name="debug" value="$(arg debug)"/>
@@ -37,13 +37,16 @@
     <node pkg="gazebo_ros" type="spawn_model" name="spawn_{{ drone_name }}" output="screen" args="-param robot_description -urdf -model {{ drone_name }} -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw_rad)"/>
 
     <!-- Load joint controller configurations from YAML file to parameter server -->
-    <rosparam file="$(find {{ pkg_name }})/config/joint_control.yaml" command="load"/>
+    <rosparam file="$(find {{ config_pkg_name }})/config/joint_control.yaml" command="load"/>
 
     <!-- Load the joint controllers -->
     <node pkg="controller_manager" type="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }}"/>
 
     <!-- Launch Gazebo command handlers -->
     <include file="$(find tobas_gazebo_ros)/launch/command_handlers.launch"/>
+
+    <!-- Launch user launch file -->
+    <include file="$(find {{ user_pkg_name }})/launch/gazebo.launch"/>
   </group>
 
 </launch>

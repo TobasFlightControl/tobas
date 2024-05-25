@@ -4,7 +4,7 @@
 
   <group ns="{{ drone_name }}">
     <!-- Load parameters -->
-    <rosparam file="$(find {{ pkg_name }})/config/observer.yaml" command="load"/>
+    <rosparam file="$(find {{ config_pkg_name }})/config/observer.yaml" command="load"/>
 
     <!-- Bringup observer -->
     <include file="$(find {{ observer_pkg }})/launch/observer.launch">
