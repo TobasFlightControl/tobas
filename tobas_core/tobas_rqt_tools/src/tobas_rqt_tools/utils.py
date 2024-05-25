@@ -1,6 +1,7 @@
 import os
 import sys
 import signal
+import traceback
 from typing import Type
 from PyQt5.QtCore import Qt, QObject, QEventLoop, QTimer
 from PyQt5.QtWidgets import QWidget, QBoxLayout, QVBoxLayout, QHBoxLayout, QMessageBox
@@ -63,7 +64,7 @@ def handle_unexpected_exception(exc_type: Type[BaseException], exc_value: BaseEx
         "The application will shutdown soon. "
         "Please report this issue to the developers.\n"
         "---\n"
-        f"{exc_value}",
+        f"{''.join(traceback.format_tb(exc_traceback))}{exc_type.__name__}: {exc_value}",
     )
     sys.__excepthook__(exc_type, exc_value, exc_traceback)  # 元の例外ハンドラを呼び出す
     os.kill(os.getpid(), signal.SIGINT)  # 強制終了
