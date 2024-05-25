@@ -35,8 +35,8 @@ class ErrorStateKalmanFilter(BaseObserver):
     @override
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
-        no_gps = not self._main.settings.gps.equipped()
-        no_odom = not self._main.settings.odometry.equipped()
+        no_gps = not self._main.gps.equipped()
+        no_odom = not self._main.odometry.equipped()
         if no_gps and no_odom:
             q_error_named(
                 self._main, self.NAME, "Absolute position connot be observed. Please review the sensor settings."
@@ -49,11 +49,11 @@ class ErrorStateKalmanFilter(BaseObserver):
     def static_parameters(self) -> dict:
         return {
             "use_barometer": False,  # TODO: 選択できるように
-            "use_gps": self._main.settings.gps.equipped(),
+            "use_gps": self._main.gps.equipped(),
             "do_acc_bias_estimation": False,
             "do_gyro_bias_estimation": True,
             "do_gravity_estimation": True,
-            "imu_offset": self._main.settings.imu.offset.get(),
-            "barometer_offset": self._main.settings.barometer.offset.get(),
-            "gps_offset": self._main.settings.gps.offset.get(),
+            "imu_offset": self._main.imu.offset.get(),
+            "barometer_offset": self._main.barometer.offset.get(),
+            "gps_offset": self._main.gps.offset.get(),
         }

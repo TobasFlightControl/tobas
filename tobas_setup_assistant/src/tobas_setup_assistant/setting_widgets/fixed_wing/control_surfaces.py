@@ -173,7 +173,7 @@ class AvailableLinksWidget(QListWidget):
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
-        selected_link = self._main.settings.fixed_wing.control_surfaces.selected.selected_link()
+        selected_link = self._main.fixed_wing.control_surfaces.selected.selected_link()
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return
@@ -309,7 +309,7 @@ class SelectedLinksWidget(TableWidget):
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
-        selected_link = self._main.settings.fixed_wing.control_surfaces.available_links.selected_link()
+        selected_link = self._main.fixed_wing.control_surfaces.available_links.selected_link()
         if selected_link is None:
             q_error(self._main, "No link is selected.")
             return

@@ -112,7 +112,7 @@ class ChannelsWidget(QWidget):
     def channels(self) -> List[int]:
         res = [-1] * self._form.rowCount()
         for r in range(self._form.rowCount()):
-            rotor_idx = self._main.settings.propulsion_system.selected.get_index(self._link_name(r))
+            rotor_idx = self._main.propulsion_system.selected.get_index(self._link_name(r))
             ardu_channel = r  # PIN - 1
             res[rotor_idx] = ardu_channel
         return res
@@ -124,7 +124,7 @@ class ChannelsWidget(QWidget):
     def update_num_channels(self, num_props: int) -> None:
         # 設定ミスを防ぐため，フレームタイプが変わったら各チャンネルのリンク名をリセット
         self._form.clear()
-        prop_link_names = self._main.settings.propulsion_system.selected.link_names()
+        prop_link_names = self._main.propulsion_system.selected.link_names()
 
         for i in range(num_props):
             choices = ComboBox()
@@ -135,7 +135,7 @@ class ChannelsWidget(QWidget):
     @pyqtSlot()
     def _on_airframe_updated(self) -> None:
         """リンク名の候補を更新．"""
-        new_links = self._main.settings.propulsion_system.selected.link_names()
+        new_links = self._main.propulsion_system.selected.link_names()
 
         for i in range(self._form.rowCount()):
             combo: ComboBox = self._form.get_widget(i)
@@ -257,12 +257,12 @@ class ArduCopter(BaseController):
     @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
-        fixed_wing = self._main.settings.fixed_wing
+        fixed_wing = self._main.fixed_wing
         if fixed_wing.has_fixed_wing.isChecked():
             return False
 
         # プロペラの個数条件
-        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
+        prop_jnt_names = self._main.propulsion_system.selected.joint_names()
         if len(prop_jnt_names) < self.MIN_NUM_PROPS:
             return False
 
@@ -292,7 +292,7 @@ class ArduCopter(BaseController):
             return False
 
         # 回転方向がフレームタイプと一致することを確認
-        propulsion_system = self._main.settings.propulsion_system
+        propulsion_system = self._main.propulsion_system
         channels = self._channels.channels()
         for rotor_idx in range(self._channels.count()):
             channel = channels[rotor_idx]

@@ -36,7 +36,7 @@ class FixedWingLQR(BaseController):
     @override
     def is_applicable(self) -> bool:
         # 固定翼を持つ
-        fixed_wing = self._main.settings.fixed_wing
+        fixed_wing = self._main.fixed_wing
         if not fixed_wing.has_fixed_wing.isChecked():
             return False
 
@@ -45,7 +45,7 @@ class FixedWingLQR(BaseController):
             return False
 
         # プロペラの個数条件
-        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
+        prop_jnt_names = self._main.propulsion_system.selected.joint_names()
         if len(prop_jnt_names) < self.MIN_NUM_PROP:
             return False
 

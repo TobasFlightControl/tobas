@@ -256,7 +256,7 @@ class SelectedLinkTabWidget(QWidget):
 
     @pyqtSlot()
     def _copy_from_left_tab(self) -> None:
-        selected = self._main.settings.propulsion_system.selected
+        selected = self._main.propulsion_system.selected
         self_idx = selected.get_index(self._link_name)
 
         if self_idx == 0:

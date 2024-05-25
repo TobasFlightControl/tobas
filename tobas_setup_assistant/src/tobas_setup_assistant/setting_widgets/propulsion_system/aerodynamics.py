@@ -286,7 +286,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         super().copy_from(src)
 
     def _blade_thory(self) -> BladeTheory:
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
+        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
         return BladeTheory(blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle())
 
 
@@ -349,7 +349,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     @override
     def rotor_drag_coef(self) -> float:
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
+        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
         blade_theory = BladeTheory(
             blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )
@@ -400,7 +400,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CTs = data[:, 1]
         CT = np.mean(CTs)
 
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
+        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi ** 2)
 
     @override
@@ -413,13 +413,13 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
         CP = np.mean(CPs)
 
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
+        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
         return (blade.propeller_diameter() * CP) / (2 * math.pi * CT)
 
     @override
     def rotor_drag_coef(self) -> float:
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-        blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
+        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
         blade_theory = BladeTheory(
             blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )

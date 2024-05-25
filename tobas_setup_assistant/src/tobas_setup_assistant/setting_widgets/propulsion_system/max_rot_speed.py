@@ -154,7 +154,7 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
 
     def max_rot_speed(self) -> float:
         """[rad/s]"""
-        motor = self._main.settings.propulsion_system.selected.get_motor(self._link_name)
+        motor = self._main.propulsion_system.selected.get_motor(self._link_name)
         a, b = motor.rot_speed_coefs()
         V = self._spinbox.value()
         return (math.sqrt(a ** 2 + 4 * b * V) - a) / (2 * b)
@@ -184,7 +184,7 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
 
     def max_rot_speed(self) -> float:
         """[rad/s]"""
-        selected = self._main.settings.propulsion_system.selected
+        selected = self._main.propulsion_system.selected
         motor = selected.get_motor(self._link_name)
         aero = selected.get_aerodynamics(self._link_name)
 
