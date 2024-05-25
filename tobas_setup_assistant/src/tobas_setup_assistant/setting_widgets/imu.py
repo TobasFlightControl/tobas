@@ -5,13 +5,10 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
+from ..common import SENSOR_OFFSET_DESCRIPTION
+from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_Vector3d, ParamGetterWidget_DoubleSpinBox
 from .base_setting import BaseSettingWidget
-from ..common import *
-from ..parameter_getters import *
 
 
 class ImuWidget(BaseSettingWidget):

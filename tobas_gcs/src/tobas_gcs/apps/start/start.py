@@ -5,9 +5,8 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.drone import Drone

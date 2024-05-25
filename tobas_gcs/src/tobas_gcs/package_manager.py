@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import rospy
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import Widget, ProgressDialog
@@ -16,7 +15,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 from tobas_tools_py.drone import Drone, DroneLoader_File
 
-from .common import *
+from .common import TITLE, PKG_NAME, CATKIN_WS_TOBAS, SOURCE_CMD
 from .utils.ssh_client import SSHClientWrapper
 
 

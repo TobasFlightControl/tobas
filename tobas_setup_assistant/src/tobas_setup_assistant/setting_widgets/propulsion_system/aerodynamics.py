@@ -9,16 +9,20 @@ import numpy as np
 from abc import abstractmethod
 from overrides import override
 from typing import List, final
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...common import *
-from ...parameter_getters import *
+from ...common import AIR_DENSITY, TITLE_PSIZE, TO_DO, Description
+from ...parameter_getters import (
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_DoubleTable,
+)
 from .common import PROPULSION_SYSTEM
 from .blade_theory import BladeTheory
 

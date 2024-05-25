@@ -4,15 +4,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QSize, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QPushButton, QListWidget, QHBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_kdl_sympy.joint import JointType
 from tobas_rqt_tools.widgets import ListWidgetItem
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import BODY_PSIZE
 
 
 class AvailableLinksWidget(QListWidget):

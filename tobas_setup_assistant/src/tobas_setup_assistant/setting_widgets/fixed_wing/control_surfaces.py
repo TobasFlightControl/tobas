@@ -6,16 +6,15 @@ if TYPE_CHECKING:
 
 import math
 from typing import List, Union
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import TITLE_PSIZE, LABEL_PSIZE, BODY_PSIZE
 from .common import STABILITY_COEF_DECIMALS
 
 

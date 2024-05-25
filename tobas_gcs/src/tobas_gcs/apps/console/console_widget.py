@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem, QVBoxLayout
+from PyQt5.QtGui import QColor
 
 from tobas_rqt_tools.widgets import TableWidget
 from tobas_tools_py.drone import Drone

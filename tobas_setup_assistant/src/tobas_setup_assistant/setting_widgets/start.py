@@ -7,9 +7,9 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import Widget
@@ -17,8 +17,8 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.constants import CONFIG_PATH
 
+from ..common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 from .base_setting import BaseSettingWidget
-from ..common import *
 
 
 class StartWidget(BaseSettingWidget):

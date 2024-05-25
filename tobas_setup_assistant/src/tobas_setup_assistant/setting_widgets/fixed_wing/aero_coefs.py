@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+import os.path as osp
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import DoubleSpinBox
@@ -14,8 +15,7 @@ from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import TITLE, PKG_NAME, TITLE_PSIZE
 from .common import STABILITY_COEF_DECIMALS
 
 

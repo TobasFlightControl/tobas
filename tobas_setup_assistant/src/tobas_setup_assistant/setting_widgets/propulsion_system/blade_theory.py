@@ -1,6 +1,6 @@
 import math
 
-from ...common import *
+from ...common import AIR_DENSITY
 
 
 class BladeTheory:

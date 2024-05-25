@@ -8,9 +8,8 @@ import rospy
 import numpy as np
 from numpy import linalg as LA
 from typing import List
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
@@ -20,8 +19,7 @@ from tobas_rqt_tools.messages import q_error_named
 from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import PROP_TILT_TOL
 from .common import PROPULSION_SYSTEM, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget

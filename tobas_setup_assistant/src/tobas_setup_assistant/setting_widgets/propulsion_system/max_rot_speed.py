@@ -4,17 +4,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+import math
 from abc import abstractmethod
 from typing import final, List
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QButtonGroup, QCheckBox, QVBoxLayout, QHBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...common import *
+from ...common import LABEL_PSIZE, TO_DO, Description
 from .common import PROPULSION_SYSTEM
 
 

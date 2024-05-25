@@ -1,16 +1,15 @@
 import rospy
 from typing import List
 from functools import partial
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_tools_py.math import rps2rpm, rpm2rps
 from tobas_tools_py.drone import Drone, DroneLoader_Param
 from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
-from .common import *
+from .common import BUTTON_HEIGHT, COMMAND_PERIOD
 
 
 class RotorSpeedsPublisherWidget(Widget):

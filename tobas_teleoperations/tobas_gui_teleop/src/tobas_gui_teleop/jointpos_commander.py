@@ -3,13 +3,12 @@ from typing import Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
 from sensor_msgs.msg import JointState
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
 
-from .common import *
+from .common import BUTTON_HEIGHT
 
 
 class JointPositionsCommanderWidget(Widget):

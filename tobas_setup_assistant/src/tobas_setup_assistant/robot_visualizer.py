@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QHBoxLayout
 from joint_state_publisher import JointStatePublisher
 from joint_state_publisher_gui import JointStatePublisherGui
 

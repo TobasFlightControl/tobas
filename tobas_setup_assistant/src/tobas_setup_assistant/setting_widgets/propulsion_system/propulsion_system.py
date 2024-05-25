@@ -5,12 +5,10 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QFont
 
-from ...parameter_getters import *
-from ...common import *
 from ..base_setting import BaseSettingWidget
 from .available_links import AvailableLinksWidget
 from .selected_links import SelectedLinksWidget

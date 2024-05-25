@@ -9,16 +9,16 @@ from numpy import linalg as LA
 from abc import abstractmethod
 from typing import final, Tuple, List
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...common import *
-from ...parameter_getters import *
+from ...common import TITLE_PSIZE, TO_DO, CW, CCW
+from ...parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_ComboBox, ParamGetterWidget_DoubleTable
 from .common import PROPULSION_SYSTEM
 from .max_rot_speed import MaxRotationSpeedWidget
 

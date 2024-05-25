@@ -13,9 +13,8 @@ import rospkg
 import shutil
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtWidgets import QMessageBox
 
 from tobas_std_tools_py.sequence import is_unique
 from tobas_std_tools_py.file import create_empty_file
@@ -27,9 +26,9 @@ from tobas_rqt_tools.xml import prettify_and_save
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
 from tobas_msgs.msg import *
 
+from .common import PKG_NAME
 from .utils import get_drone_name
 from .xml_nodes import *
-from .common import *
 
 
 class PackageGenerator(QObject):

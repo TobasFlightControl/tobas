@@ -7,15 +7,13 @@ if TYPE_CHECKING:
 import rospy
 from typing import List, Tuple, Union
 from urdf_parser_py.urdf import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from tobas_std_tools_py.sequence import is_unique
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.tree import Tree
-from tobas_kdl_sympy.frames import *
-from tobas_kdl_sympy.joint import *
+from tobas_kdl_sympy.frames import Vector, Frame
+from tobas_kdl_sympy.joint import JointType, HardwareInterface
 
 
 class URDFParser(QObject):

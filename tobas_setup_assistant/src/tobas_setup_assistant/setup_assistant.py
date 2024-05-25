@@ -1,6 +1,4 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget
 
@@ -8,7 +6,7 @@ from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
 from .robot_visualizer import RobotVisualizerWidget
 from .settings import SettingsWidget
-from .common import *
+from .common import Signals
 
 
 class SetupAssistant(Widget):

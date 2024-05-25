@@ -5,12 +5,9 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
+from ..parameter_getters import ParamGetterWidget_DoubleSpinBox
 from .base_setting import BaseSettingWidget
-from ..parameter_getters import *
 
 
 class SimulationWidget(BaseSettingWidget):

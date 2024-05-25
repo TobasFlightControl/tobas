@@ -6,13 +6,13 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from typing import final
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.widgets import ScrollArea
 
-from ..common import *
+from ..common import TITLE_PSIZE, BODY_PSIZE, TO_DO, Description
 
 
 class BaseSettingWidget(ScrollArea):

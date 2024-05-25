@@ -6,16 +6,13 @@ if TYPE_CHECKING:
 
 import os
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_std_tools_py.string import is_valid_email
 from tobas_std_tools_py.git import get_git_user_email
 from tobas_rqt_tools.messages import q_error_named
 
+from ..parameter_getters import ParamGetterWidget_LineEdit
 from .base_setting import BaseSettingWidget
-from ..parameter_getters import *
 
 
 class AuthorInformationWidget(BaseSettingWidget):

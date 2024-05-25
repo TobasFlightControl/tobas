@@ -5,13 +5,11 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout
 
 from tobas_tools_py.drone import Drone
 
-from ....common import *
 from ....utils.ssh_client import SSHClientWrapper
 from .base_section import BaseControlSystemSectionWidget
 

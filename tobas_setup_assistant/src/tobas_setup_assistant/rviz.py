@@ -6,14 +6,13 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import rospkg
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QCheckBox, QVBoxLayout, QHBoxLayout
 
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.rviz import create_rviz_frame
 
-from .common import *
+from .common import PKG_NAME
 
 
 class RvizWidget(Widget):

@@ -6,16 +6,14 @@ if TYPE_CHECKING:
 
 from abc import abstractmethod
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget
 from tobas_rqt_tools.messages import q_error_named
 
-from .base_setting import BaseSettingWidget
 from ..common import TO_DO
-from ..parameter_getters import *
+from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox
+from .base_setting import BaseSettingWidget
 
 
 class BatteryWidget(BaseSettingWidget):

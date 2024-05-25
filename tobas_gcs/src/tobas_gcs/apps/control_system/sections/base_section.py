@@ -5,14 +5,13 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 from abc import abstractmethod
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.drone import Drone
 
-from ....common import *
+from ....common import TITLE_PSIZE, TO_DO
 
 
 class BaseControlSystemSectionWidget(Widget):

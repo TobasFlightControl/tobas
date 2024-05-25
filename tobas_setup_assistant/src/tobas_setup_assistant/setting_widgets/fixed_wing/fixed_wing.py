@@ -5,12 +5,11 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtGui import QFont
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import BODY_PSIZE
 from ..base_setting import BaseSettingWidget
 from .vehicle import VehicleParametersWidget
 from .aero_coefs import AerodynamicsCoefficientsWidget

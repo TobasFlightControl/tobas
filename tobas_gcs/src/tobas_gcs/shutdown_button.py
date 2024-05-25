@@ -7,9 +7,8 @@ if TYPE_CHECKING:
 import os
 import signal
 import rospy
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton
 
 from tobas_rqt_tools.messages import q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone

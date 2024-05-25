@@ -2,8 +2,6 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from tobas_rqt_tools.widgets import SpinBox, DoubleSpinBox
 
-from .common import *
-
 
 class IntParam(SpinBox):
     value_changed = pyqtSignal(str, int)

@@ -12,9 +12,8 @@ from overrides import override
 from functools import partial
 from typing import Tuple, List
 from pathlib import Path
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QDialog, QListWidget, QListWidgetItem, QVBoxLayout, QHBoxLayout, QSizePolicy
 from PyQt5.QtPositioning import QGeoCoordinate
 
 from tobas_std_tools_py.algorithm import cumsum

@@ -6,9 +6,7 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QLabel
 
 from tobas_std_tools_py.math import remap
 from tobas_rqt_tools.widgets import HPositionBarWidget

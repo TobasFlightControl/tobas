@@ -5,16 +5,15 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QTableWidgetItem, QHBoxLayout
 
 from tobas_rqt_tools.widgets import TableWidget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 from wpa_supplicant_parser_py.parser import WPASupplicantParser, Network
 
-from ....common import *
+from ....common import Description
 from ....utils.ssh_client import SSHClientWrapper
 from .base import BaseHardwareSetupWidget
 

@@ -3,9 +3,8 @@ import rospy
 import csv
 from datetime import datetime
 from typing import List
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
 
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.srv import ParamSet, ParamSetRequest, ParamSetResponse
@@ -16,8 +15,8 @@ from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 
-from .common import *
-from .param_holders import *
+from .common import TITLE, PKG_NAME, PARAM_SET_SRV_NAME, FLOAT_DECIMALS, WAIT_FOR_SERVER
+from .param_holders import IntParam, FloatParam
 
 
 class DynamicConfigurationWidget(Widget):

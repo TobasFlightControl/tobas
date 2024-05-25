@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
 
 from tobas_rqt_tools.widgets import FramedLabel, HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout

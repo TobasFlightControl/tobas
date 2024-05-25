@@ -5,14 +5,18 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
 
 from tobas_rqt_tools.messages import q_error_named
 
-from ..common import *
-from ..parameter_getters import *
+from ..common import CAMERA_LINK_DESCRIPTION, CAMERA_OFFSET_DESCRIPTION
+from ..parameter_getters import (
+    ParamGetterWidget_ComboBox,
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_DoubleRange,
+    ParamGetterWidget_Pose,
+)
 from .base_setting import OptionalDeviceWidget
 
 

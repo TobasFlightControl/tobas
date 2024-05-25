@@ -4,12 +4,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PyQt5.QtGui import QFont
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import TITLE_PSIZE
+from ...parameter_getters import (
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_DoubleRange,
+    ParamGetterWidget_Vector3d,
+)
 
 
 class VehicleParametersWidget(QWidget):

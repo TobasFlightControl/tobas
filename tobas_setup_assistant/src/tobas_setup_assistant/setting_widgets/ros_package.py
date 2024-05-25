@@ -9,18 +9,18 @@ import os.path as osp
 import re
 import subprocess
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QPushButton, QMessageBox
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.path import get_catkin_ws_paths, is_in_catkin_src
 from tobas_rqt_tools.utils import place_center
 from tobas_rqt_tools.messages import q_error_named, QMessageLevel
 
-from .base_setting import BaseSettingWidget
-from ..parameter_getters import *
-from ..common import *
+from ..common import BODY_PSIZE
+from ..parameter_getters import ParamGetterWidget_DirDialog, ParamGetterWidget_LineEdit
 from ..utils import get_drone_name
+from .base_setting import BaseSettingWidget
 
 
 class RosPackageWidget(BaseSettingWidget):

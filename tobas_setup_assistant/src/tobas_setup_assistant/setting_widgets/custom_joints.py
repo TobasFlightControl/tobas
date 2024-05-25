@@ -6,16 +6,13 @@ if TYPE_CHECKING:
 
 from overrides import override
 from typing import List
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QLabel
 
 from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox, TableWidget
 from tobas_rqt_tools.messages import q_error_named
-from tobas_kdl_sympy.joint import *
+from tobas_kdl_sympy.joint import HardwareInterface, JointType
 
-from ..parameter_getters import *
-from ..common import *
 from .base_setting import BaseSettingWidget
 
 

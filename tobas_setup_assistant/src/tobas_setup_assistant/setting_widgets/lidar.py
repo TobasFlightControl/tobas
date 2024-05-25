@@ -6,14 +6,16 @@ if TYPE_CHECKING:
 
 import math
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_rqt_tools.messages import q_error_named
 
-from ..common import *
-from ..parameter_getters import *
+from ..common import SENSOR_OFFSET_DESCRIPTION
+from ..parameter_getters import (
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_Vector3d,
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_DoubleRange,
+)
 from .base_setting import OptionalDeviceWidget
 
 
