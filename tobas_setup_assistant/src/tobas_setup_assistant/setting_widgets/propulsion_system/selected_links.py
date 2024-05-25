@@ -21,6 +21,7 @@ from tobas_kdl_sympy.frames import Vector
 
 from ...common import PROP_TILT_TOL
 from .common import PROPULSION_SYSTEM, AxisType
+from .signals import PropulsionSystemSignals
 from .esc import EscWidget
 from .motor import MotorWidget
 from .blade_geometry import BladeGeometry
@@ -32,10 +33,10 @@ class SelectedLinksWidget(TabWidget):
     TAB_WIDTH = 150
     ARROW_LENGTH = 0.2  # 想定される推力の最大値を矢印の長さに反映
 
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, main: SetupAssistant, signals: PropulsionSystemSignals) -> None:
         super().__init__()
-
         self._main = main
+        self._signals = signals
 
         self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
         self.setMovable(True)
@@ -44,10 +45,9 @@ class SelectedLinksWidget(TabWidget):
         self._markers = MarkerArray()  # 推力の作用線
         self._markers_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
 
-    def define_connections(self):
-        self._main.settings.propulsion_system.add_link.connect(self._add_link)
-        self._main.settings.propulsion_system.remove_link.connect(self._remove_link)
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        signals.add_link.connect(self._add_link)
+        signals.remove_link.connect(self._remove_link)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
         self.tabCloseRequested.connect(self._on_tab_close_requested)
 
     def is_valid(self) -> bool:
@@ -188,7 +188,7 @@ class SelectedLinksWidget(TabWidget):
 
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:
-        self._main.settings.propulsion_system.remove_link.emit(self.link_name(idx))
+        self._signals.remove_link.emit(self.link_name(idx))
         self._main.signals.airframe_updated.emit()
 
 

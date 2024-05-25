@@ -16,14 +16,7 @@ def step2impulse(S_arr: np.ndarray) -> np.ndarray:
     return H_arr
 
 
-def ss2impulse(
-    m: int,
-    n: int,
-    A: np.ndarray,
-    B: np.ndarray,
-    Cy: np.ndarray,
-    Dy: np.ndarray = None,
-) -> np.ndarray:
+def ss2impulse(m: int, n: int, A: np.ndarray, B: np.ndarray, Cy: np.ndarray, Dy: np.ndarray = None) -> np.ndarray:
     """MPC, p.135"""
 
     x_dim = A.shape[0]
@@ -48,14 +41,7 @@ def ss2impulse(
     return H_arr[m:, :, :]
 
 
-def ss2step(
-    m: int,
-    n: int,
-    A: np.ndarray,
-    B: np.ndarray,
-    Cy: np.ndarray,
-    Dy: np.ndarray = None,
-) -> np.ndarray:
+def ss2step(m: int, n: int, A: np.ndarray, B: np.ndarray, Cy: np.ndarray, Dy: np.ndarray = None) -> np.ndarray:
     """MPC, p.135"""
 
     H_arr = ss2impulse(0, n, A, B, Cy, Dy)

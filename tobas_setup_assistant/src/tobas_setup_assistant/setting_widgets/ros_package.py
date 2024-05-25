@@ -40,10 +40,12 @@ class RosPackageWidget(BaseSettingWidget):
 
         pardir_description = ""
         self._pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
+        self._pardir.path_changed.connect(self._on_path_changed)
         self._rows.addWidget(self._pardir)
 
         pkg_name_description = ""
         self._pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
+        self._pkg_name.text_changed.connect(self._on_path_changed)
         self._rows.addWidget(self._pkg_name)
 
         text = QLabel("The package will be generated as")
@@ -59,19 +61,15 @@ class RosPackageWidget(BaseSettingWidget):
         self._rows.addWidget(self._pkg_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
-        self.generate_button = QPushButton("Generate")
-        self.generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self.generate_button.setEnabled(False)
-        place_center(self.generate_button, self._rows)
+        self._generate_button = QPushButton("Generate")
+        self._generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._generate_button.setEnabled(False)
+        self._generate_button.clicked.connect(lambda: self._main.signals.generate_button_clicked.emit())
+        place_center(self._generate_button, self._rows)
 
         self._rows.addStretch()
 
-    @override
-    def define_connections(self) -> None:
-        super().define_connections()
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
-        self._pardir.path_changed.connect(self._on_path_changed)
-        self._pkg_name.text_changed.connect(self._on_path_changed)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
     @override
     def is_valid(self) -> bool:
@@ -120,6 +118,17 @@ class RosPackageWidget(BaseSettingWidget):
         return osp.join(self.pkg_path(), self.user_pkg_name())
 
     @pyqtSlot()
+    def _on_path_changed(self) -> None:
+        pardir = self._pardir.get()
+        pkg_name = self._pkg_name.get()
+
+        path = pardir + "/" + pkg_name + PKG_EXTENSION
+        path = re.sub("/*/", "/", path)  # スラッシュの重複を削除
+        self._pkg_path.setText(path)
+
+        self._generate_button.setEnabled(pardir != "" and pkg_name != "")
+
+    @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
         # デフォルトのsrcディレクトリを設定
         ws_path = self._last_accessed_ws_path()
@@ -129,17 +138,6 @@ class RosPackageWidget(BaseSettingWidget):
         # デフォルトのパッケージ名を設定
         pkg_name = f"tobas_{get_drone_name()}"
         self._pkg_name.set(pkg_name)
-
-    @pyqtSlot()
-    def _on_path_changed(self) -> None:
-        pardir = self._pardir.get()
-        pkg_name = self._pkg_name.get()
-
-        path = pardir + "/" + pkg_name + PKG_EXTENSION
-        path = re.sub("/*/", "/", path)  # スラッシュの重複を削除
-        self._pkg_path.setText(path)
-
-        self.generate_button.setEnabled(pardir != "" and pkg_name != "")
 
     def _last_accessed_ws_path(self) -> str:
         catkin_ws_paths = get_catkin_ws_paths()

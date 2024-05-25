@@ -47,19 +47,6 @@ class ControlSystemWidget(BaseAppWidget):
         rows.addStretch()
 
     @override
-    def define_connections(self) -> None:
-        self._actions_commander.define_connections()
-        self._position_viewer.define_connections()
-        self._orientation_viewer.define_connections()
-        self._velocity_viewer.define_connections()
-        self._battery_viewer.define_connections()
-        self._rotors_viewer.define_connections()
-        self._status_viewer.define_connections()
-        self._rc_input_viewer.define_connections()
-        self._cpu_viewer.define_connections()
-        self._latency_viewer.define_connections()
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._actions_commander.update_internal_data_structures()
         self._position_viewer.update_internal_data_structures()

@@ -75,14 +75,7 @@ class LinearSimulator:
         return self._x.copy()
 
     @classmethod
-    def from_tf(
-        cls,
-        num: List[float],
-        den: List[float],
-        Ts: float,
-        disc_method: str = "euler",
-        **kwargs,
-    ):
+    def from_tf(cls, num: List[float], den: List[float], Ts: float, disc_method: str = "euler", **kwargs):
         sys_tf = matlab.tf(num, den)
         sys_cont = matlab.tf2ss(sys_tf)
         sys_disc = matlab.c2d(sys_cont, Ts=Ts, method=disc_method)

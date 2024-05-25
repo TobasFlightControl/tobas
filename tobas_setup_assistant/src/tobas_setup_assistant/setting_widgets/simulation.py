@@ -65,10 +65,6 @@ class SimulationWidget(BaseSettingWidget):
         self._rows.addStretch()
 
     @override
-    def define_connections(self) -> None:
-        super().define_connections()
-
-    @override
     def is_valid(self) -> bool:
         # TODO: 極に近すぎると方角がわからない
         return True

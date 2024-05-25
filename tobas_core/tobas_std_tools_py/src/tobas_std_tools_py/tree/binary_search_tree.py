@@ -1,5 +1,4 @@
 class BinarySearchNode:
-
     def __init__(self, value: int):
         self.value = value
         self.left: BinarySearchNode = None
@@ -130,7 +129,6 @@ class BinarySearchNode:
 
 
 class BinarySearchTree:
-
     def __init__(self):
         self.root: BinarySearchNode = None
 

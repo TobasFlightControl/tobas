@@ -64,10 +64,9 @@ class RvizWidget(Widget):
 
         self.setMinimumWidth(self.MIN_WIDTH)
 
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._visual_box.toggled.connect(self._on_visual_box_toggled)
         self._collision_box.toggled.connect(self._on_collision_box_toggled)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
     def highlight_link(self, link_name: str) -> None:
         if link_name == self._highlighted_link:

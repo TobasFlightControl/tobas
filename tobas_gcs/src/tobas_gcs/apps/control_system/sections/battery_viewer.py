@@ -40,10 +40,6 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._battery_sub = None
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._voltage_range.clear()
         self._voltage_range.set_lower(self._drone.battery.sag_voltage)

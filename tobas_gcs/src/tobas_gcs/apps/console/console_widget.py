@@ -52,10 +52,6 @@ class ConsoleWidget(BaseAppWidget):
         self._message_sub = None
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._table.remove_all()
 

@@ -87,10 +87,6 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         self._is_first_update = True
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._gps_status.set_unknown()
         self._rcin_status.set_unknown()

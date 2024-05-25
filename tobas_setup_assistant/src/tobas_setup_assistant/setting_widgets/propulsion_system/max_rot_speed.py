@@ -157,7 +157,7 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
         motor = self._main.settings.propulsion_system.selected.get_motor(self._link_name)
         a, b = motor.rot_speed_coefs()
         V = self._spinbox.value()
-        return (math.sqrt(a**2 + 4 * b * V) - a) / (2 * b)
+        return (math.sqrt(a ** 2 + 4 * b * V) - a) / (2 * b)
 
     def is_valid(self) -> bool:
         return True

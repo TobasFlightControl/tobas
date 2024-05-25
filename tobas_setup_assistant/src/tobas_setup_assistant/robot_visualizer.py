@@ -44,15 +44,12 @@ class RobotVisualizerWidget(Widget):
         self.setFixedHeight(self.HEIGHT)
         self.setVisible(False)
 
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+
     @override
     def close(self) -> bool:
         self._terminate_backgrounds()
         return super().close()
-
-    def define_connections(self) -> None:
-        self._frame_tree.define_connections()
-        self._rviz.define_connections()
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
 
     def highlight_link(self, link_name: str) -> None:
         return self._rviz.highlight_link(link_name)

@@ -42,10 +42,6 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
         self._cpu_sub = None
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._temperature.clear()
         self._frequency.clear()

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import math
 from typing import List, Union
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 
@@ -34,10 +34,19 @@ class ControlSurface:
         self.c_yaw_delta = 0.0  # [/rad]
 
 
+class ControlSurfaceSignals(QObject):
+    available_link_added = pyqtSignal(str)
+    selected_link_added = pyqtSignal(str)
+    add_button_clicked = pyqtSignal()
+    delete_button_clicked = pyqtSignal()
+
+
 class ControlSurfacesWidget(QWidget):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
+
+        self._signals = ControlSurfaceSignals()
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -52,19 +61,14 @@ class ControlSurfacesWidget(QWidget):
         available_links_label.setAlignment(Qt.AlignLeft)
         rows.addWidget(available_links_label)
 
-        self.available_links = AvailableLinksWidget(main)
+        self.available_links = AvailableLinksWidget(main, self._signals)
         rows.addWidget(self.available_links)
 
-        self.add_delete = AddDeleteButtonsWidget(main)
+        self.add_delete = AddDeleteButtonsWidget(self._signals)
         rows.addWidget(self.add_delete)
 
-        self.selected = SelectedLinksWidget(main)
+        self.selected = SelectedLinksWidget(main, self._signals)
         rows.addWidget(self.selected)
-
-    def define_connections(self) -> None:
-        self.selected.define_connections()
-        self.add_delete.define_connections()
-        self.available_links.define_connections()
 
     def is_valid(self) -> bool:
         if not self.selected.is_valid():
@@ -90,16 +94,16 @@ class ControlSurfacesWidget(QWidget):
 
 
 class AvailableLinksWidget(QListWidget):
-    link_added = pyqtSignal()
-
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, main: SetupAssistant, signals: ControlSurfaceSignals) -> None:
         super().__init__()
         self._main = main
+        self._signals = signals
 
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
-        self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(self._add_selected_link)
-        self._main.settings.fixed_wing.control_surfaces.selected.link_added.connect(self._delete_selected_link)
+        self._main.signals.robot_model_updated.connect(self._add_available_links)
+
+        # 必ずAdd -> Deleteの順に実行する
+        signals.delete_button_clicked.connect(self._add_selected_link)
+        signals.selected_link_added.connect(self._delete_selected_link)
 
     def add_link(self, link_name: str) -> None:
         assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
@@ -177,7 +181,7 @@ class AvailableLinksWidget(QListWidget):
         self.add_link(selected_link)
         self.sortItems()
 
-        self.link_added.emit()
+        self._signals.available_link_added.emit(selected_link)
 
     @pyqtSlot(str)
     def _delete_selected_link(self, link_name: str) -> None:
@@ -192,35 +196,21 @@ class AddDeleteButtonsWidget(QWidget):
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
 
-    add = pyqtSignal()
-    delete = pyqtSignal()
-
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, signals: ControlSurfaceSignals) -> None:
         super().__init__()
-        self._main = main
 
         cols = QHBoxLayout()
         self.setLayout(cols)
 
         self._add_button = QPushButton("⬇")
         self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._add_button.clicked.connect(lambda: signals.add_button_clicked.emit())
         cols.addWidget(self._add_button)
 
         self._delete_button = QPushButton("⬆")
         self._delete_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._delete_button.clicked.connect(lambda: signals.delete_button_clicked.emit())
         cols.addWidget(self._delete_button)
-
-    def define_connections(self) -> None:
-        self._add_button.clicked.connect(self._add_button_clicked)
-        self._delete_button.clicked.connect(self._delete_button_clicked)
-
-    @pyqtSlot()
-    def _add_button_clicked(self) -> None:
-        self.add.emit()
-
-    @pyqtSlot()
-    def _delete_button_clicked(self) -> None:
-        self.delete.emit()
 
 
 class SelectedLinksWidget(TableWidget):
@@ -241,21 +231,18 @@ class SelectedLinksWidget(TableWidget):
         "Yaw Coef",
     )
 
-    link_added = pyqtSignal(str)
-
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, main: SetupAssistant, signals: ControlSurfaceSignals) -> None:
         super().__init__(0, len(self.LABELS))
         self._main = main
+        self._signals = signals
 
         self.setHorizontalHeaderLabels(self.LABELS)
         for c in range(self.columnCount()):
             self.setColumnWidth(c, self.COL_WIDTH)
 
-    def define_connections(self) -> None:
         # 必ずAdd -> Deleteの順に実行する
-        control_surfaces = self._main.settings.fixed_wing.control_surfaces
-        control_surfaces.add_delete.add.connect(self._add_selected_link)
-        control_surfaces.available_links.link_added.connect(self._delete_cur_row)
+        signals.add_button_clicked.connect(self._add_selected_link)
+        signals.available_link_added.connect(self._delete_cur_row)
 
     def is_valid(self) -> bool:
         return True
@@ -394,14 +381,13 @@ class SelectedLinksWidget(TableWidget):
         c_yaw_delta.setSuffix(" /rad")
         self.setCellWidget(row, 10, c_yaw_delta)
 
-        self.link_added.emit(selected_link)
+        self._signals.selected_link_added.emit(selected_link)
         self._main.signals.airframe_updated.emit()
 
-    @pyqtSlot()
-    def _delete_cur_row(self) -> None:
+    @pyqtSlot(str)
+    def _delete_cur_row(self, link_name: str) -> None:
         row = self.currentRow()
-        if row < 0:
-            return
+        assert self.link_name(row) == link_name
 
         self.removeRow(row)
         self._main.signals.airframe_updated.emit()

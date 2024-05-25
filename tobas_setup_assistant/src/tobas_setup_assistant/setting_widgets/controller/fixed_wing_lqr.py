@@ -34,10 +34,6 @@ class FixedWingLQR(BaseController):
         super().__init__(main, abst_text)
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def is_applicable(self) -> bool:
         # 固定翼を持つ
         fixed_wing = self._main.settings.fixed_wing

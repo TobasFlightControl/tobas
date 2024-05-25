@@ -12,23 +12,23 @@ from tobas_kdl_sympy.joint import JointType
 from tobas_rqt_tools.widgets import ListWidgetItem
 
 from ...common import BODY_PSIZE
+from .signals import PropulsionSystemSignals
 
 
 class AvailableLinksWidget(QListWidget):
     HEIGHT = 200
     ITEM_HEIGHT = 40
 
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, main: SetupAssistant, signals: PropulsionSystemSignals) -> None:
         super().__init__()
-
         self._main = main
+        self._signals = signals
 
         self.setFixedHeight(self.HEIGHT)
 
-    def define_connections(self) -> None:
-        self._main.settings.propulsion_system.add_link.connect(self._remove_link)
-        self._main.settings.propulsion_system.remove_link.connect(self._add_link)
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        signals.add_link.connect(self._remove_link)
+        signals.remove_link.connect(self._add_link)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
     def is_valid(self) -> bool:
         return True
@@ -74,7 +74,7 @@ class AvailableLinksWidget(QListWidget):
         item.setSizeHint(QSize(0, self.ITEM_HEIGHT))  # 横幅が小さすぎる場合は自動で引き伸ばされる
         item.setData(Qt.UserRole, link_name)  # リンク名をソート基準にする
         self.addItem(item)
-        self.setItemWidget(item, AvailableLinkItemWidget(self._main, link_name))
+        self.setItemWidget(item, AvailableLinkItemWidget(self._main, self._signals, link_name))
 
         # リンクが追加されるたびにソート
         self.sortItems(Qt.AscendingOrder)
@@ -99,10 +99,10 @@ class AvailableLinkItemWidget(QListWidget):
     BUTTON_WIDTH = 60
     BUTTON_HEIGHT = 20
 
-    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+    def __init__(self, main: SetupAssistant, signals: PropulsionSystemSignals, link_name: str) -> None:
         super().__init__()
-
         self._main = main
+        self._signals = signals
 
         cols = QHBoxLayout()
         self.setLayout(cols)
@@ -126,5 +126,5 @@ class AvailableLinkItemWidget(QListWidget):
 
     @pyqtSlot()
     def _on_add_button_clicked(self) -> None:
-        self._main.settings.propulsion_system.add_link.emit(self.link_name())
+        self._signals.add_link.emit(self.link_name())
         self._main.signals.airframe_updated.emit()

@@ -87,10 +87,6 @@ class GpsWidget(OptionalDeviceWidget):
         self._rows.addStretch()
 
     @override
-    def define_connections(self) -> None:
-        super().define_connections()
-
-    @override
     def is_valid(self) -> bool:
         if not self.equipped():
             return True

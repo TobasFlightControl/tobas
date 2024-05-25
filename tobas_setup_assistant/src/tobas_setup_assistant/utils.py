@@ -14,7 +14,6 @@ def get_drone_name() -> str:
 
 
 class TemplateGenerator:
-
     def __init__(self, dir: str) -> None:
         self._env = Environment(loader=FileSystemLoader(dir), trim_blocks=True, lstrip_blocks=True)
 

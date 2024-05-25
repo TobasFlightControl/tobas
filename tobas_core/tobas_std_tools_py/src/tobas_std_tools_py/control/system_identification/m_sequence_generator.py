@@ -5,7 +5,6 @@ from dh_function.basic import is_unique
 
 
 class MSequenceGenerator:
-
     def __init__(self, num_registers: int, taps: List[int] = None, initial_state: List[bool] = None) -> None:
         assert num_registers >= 2
 

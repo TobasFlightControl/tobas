@@ -38,11 +38,13 @@ class DynamicConfigurationWidget(Widget):
         self._load_button = QPushButton("Load")
         self._load_button.setFixedHeight(self.BUTTON_HEIGHT)
         self._load_button.setEnabled(False)
+        self._load_button.clicked.connect(self._on_load_button_clicked)
         cols.addWidget(self._load_button)
 
         self._save_button = QPushButton("Save")
         self._save_button.setFixedHeight(self.BUTTON_HEIGHT)
         self._save_button.setEnabled(False)
+        self._save_button.clicked.connect(self._on_save_button_clicked)
         cols.addWidget(self._save_button)
 
         scroll_area = ScrollArea()
@@ -51,17 +53,11 @@ class DynamicConfigurationWidget(Widget):
         self._form = FormLayout()
         scroll_area.setLayout(self._form)
 
-        self.define_connections()
-
         self._params = dict()
         self._local_pose_sub = rospy.Subscriber(
             "mavros/local_position/pose", PoseStamped, self._local_pose_cb, queue_size=1
         )
         self._param_set_sc = rospy.ServiceProxy(PARAM_SET_SRV_NAME, ParamSet)
-
-    def define_connections(self) -> None:
-        self._load_button.clicked.connect(self._on_load_button_clicked)
-        self._save_button.clicked.connect(self._on_save_button_clicked)
 
     def _load_params(self, file_path: str) -> None:
         fail_params: List[str] = []  # ロードに失敗したパラメータ

@@ -41,6 +41,7 @@ class AerodynamicsCoefficientsWidget(QWidget):
 
         self._load_button = QPushButton("Load VSPAERO Output")
         self._load_button.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
+        self._load_button.clicked.connect(self._on_load_button_clicked)
         rows.addWidget(self._load_button)
 
         cols.addStretch()
@@ -143,9 +144,6 @@ class AerodynamicsCoefficientsWidget(QWidget):
         self.c_yaw_r.setSuffix(" [s/rad]")
         self.c_yaw_r.setValue(-0.0827)
         self._form.addRow(QLabel("c_yaw_r"), self.c_yaw_r)
-
-    def define_connections(self) -> None:
-        self._load_button.clicked.connect(self._on_load_button_clicked)
 
     def is_valid(self) -> bool:
         return True

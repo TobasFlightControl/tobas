@@ -36,10 +36,6 @@ class AuthorInformationWidget(BaseSettingWidget):
         self._rows.addStretch()
 
     @override
-    def define_connections(self) -> None:
-        super().define_connections()
-
-    @override
     def is_valid(self) -> bool:
         author_name = self.name.get()
         if author_name == "":

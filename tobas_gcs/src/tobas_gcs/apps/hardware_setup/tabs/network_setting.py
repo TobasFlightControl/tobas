@@ -47,21 +47,25 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
         self._read_button = QPushButton("Read")
         self._read_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._read_button.clicked.connect(self._on_read_button_clicked)
         cols.addWidget(self._read_button)
 
         self._write_button = QPushButton("Write")
         self._write_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._write_button.setEnabled(False)
+        self._write_button.clicked.connect(self._on_write_button_clicked)
         cols.addWidget(self._write_button)
 
         self._add_button = QPushButton("Add")
         self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._add_button.setEnabled(False)
+        self._add_button.clicked.connect(self._on_add_button_clicked)
         cols.addWidget(self._add_button)
 
         self._remove_button = QPushButton("Remove")
         self._remove_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._remove_button.setEnabled(False)
+        self._remove_button.clicked.connect(self._on_remove_button_clicked)
         cols.addWidget(self._remove_button)
 
         cols.addStretch()
@@ -73,13 +77,6 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         self._rows.addWidget(self._table)
 
         self._rows.addStretch()
-
-    @override
-    def define_connections(self) -> None:
-        self._read_button.clicked.connect(self._on_read_button_clicked)
-        self._write_button.clicked.connect(self._on_write_button_clicked)
-        self._add_button.clicked.connect(self._on_add_button_clicked)
-        self._remove_button.clicked.connect(self._on_remove_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

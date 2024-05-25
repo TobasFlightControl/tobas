@@ -58,23 +58,3 @@ class SettingsWidget(VerticalTabWidget):
 
         self.setMinimumHeight(self.MIN_HEIGHT)
         self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
-
-    def define_connections(self) -> None:
-        self.start.define_connections()
-        self.battery.define_connections()
-        self.propulsion_system.define_connections()
-        self.fixed_wing.define_connections()
-        self.custom_joints.define_connections()
-        self.imu.define_connections()
-        self.barometer.define_connections()
-        self.gps.define_connections()
-        self.rgb_camera.define_connections()
-        self.depth_camera.define_connections()
-        self.lidar.define_connections()
-        self.odometry.define_connections()
-        self.tether_station.define_connections()
-        self.controller.define_connections()
-        self.observer.define_connections()
-        self.simulation.define_connections()
-        self.author_information.define_connections()
-        self.ros_package.define_connections()

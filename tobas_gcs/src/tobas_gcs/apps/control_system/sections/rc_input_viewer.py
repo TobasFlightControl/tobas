@@ -100,10 +100,6 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         self._rcin_sub = None
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         # Clear
         self._roll_range.clear()

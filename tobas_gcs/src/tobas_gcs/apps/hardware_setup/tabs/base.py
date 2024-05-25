@@ -42,9 +42,5 @@ class BaseHardwareSetupWidget(ScrollArea):
         self._rows.addSpacing(50)
 
     @abstractmethod
-    def define_connections(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
     def update_internal_data_structures(self) -> None:
         raise NotImplementedError()

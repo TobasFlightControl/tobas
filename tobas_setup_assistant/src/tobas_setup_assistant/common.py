@@ -31,7 +31,9 @@ SENSOR_OFFSET_DESCRIPTION = "The pose of the sensor frame wrt. the the drone roo
 
 class Signals(QObject):
     urdf_loaded = pyqtSignal()
+    robot_model_updated = pyqtSignal()
     airframe_updated = pyqtSignal()
+    generate_button_clicked = pyqtSignal()
 
 
 class Description(QLabel):

@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 
 
 class BaseObserver(ABC):
-
     @abstractmethod
     def __init__(self) -> None:
         raise NotImplementedError()
@@ -13,13 +12,7 @@ class BaseObserver(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def update_dynamics(
-        self,
-        A: np.ndarray,
-        B: np.ndarray,
-        Cy: np.ndarray,
-        Cz: np.ndarray,
-    ) -> None:
+    def update_dynamics(self, A: np.ndarray, B: np.ndarray, Cy: np.ndarray, Cz: np.ndarray) -> None:
         raise NotImplementedError()
 
     @property

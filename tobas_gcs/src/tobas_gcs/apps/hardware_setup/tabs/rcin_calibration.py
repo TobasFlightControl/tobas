@@ -51,16 +51,19 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
         cols1.addWidget(self._start_button)
 
         self._finish_button = QPushButton("Finish")
         self._finish_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._finish_button.setEnabled(False)
+        self._finish_button.clicked.connect(self._on_finish_button_clicked)
         cols1.addWidget(self._finish_button)
 
         self._cancel_button = QPushButton("Cancel")
         self._cancel_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._cancel_button.setEnabled(False)
+        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
         cols1.addWidget(self._cancel_button)
 
         cols1.addStretch()
@@ -140,12 +143,6 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._reset()
 
         self.setEnabled(False)
-
-    @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
-        self._finish_button.clicked.connect(self._on_finish_button_clicked)
-        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

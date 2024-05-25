@@ -38,9 +38,7 @@ class BaseSettingWidget(ScrollArea):
         abst.setFixedHeight(self.ABST_HEIGHT)
         self._rows.addWidget(abst)
 
-    @abstractmethod
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(lambda: self.setEnabled(True))
+        self._main.signals.robot_model_updated.connect(lambda: self.setEnabled(True))
 
     @abstractmethod
     def is_valid(self) -> bool:

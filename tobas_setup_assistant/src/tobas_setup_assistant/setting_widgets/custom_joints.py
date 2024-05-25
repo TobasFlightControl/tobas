@@ -57,10 +57,7 @@ class CustomJointsWidget(BaseSettingWidget):
 
         self._rows.addStretch()
 
-    @override
-    def define_connections(self) -> None:
-        super().define_connections()
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
     @override
     def is_valid(self) -> bool:

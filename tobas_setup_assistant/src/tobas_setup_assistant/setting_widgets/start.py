@@ -45,10 +45,6 @@ class StartWidget(BaseSettingWidget):
         self._rows.addStretch()
 
     @override
-    def define_connections(self) -> None:
-        self._robot_model_loader.define_connections()
-
-    @override
     def is_valid(self) -> bool:
         return True
 
@@ -82,10 +78,8 @@ class RobotModelLoaderWidget(Widget):
         cols.addWidget(self._file_text)
 
         self._load_button = QPushButton("Load")
-        cols.addWidget(self._load_button)
-
-    def define_connections(self) -> None:
         self._load_button.clicked.connect(self._on_load_button_clicked)
+        cols.addWidget(self._load_button)
 
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:

@@ -5,11 +5,12 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QFont
 
 from ..base_setting import BaseSettingWidget
+from .signals import PropulsionSystemSignals
 from .available_links import AvailableLinksWidget
 from .selected_links import SelectedLinksWidget
 
@@ -17,9 +18,6 @@ from .selected_links import SelectedLinksWidget
 class PropulsionSystemWidget(BaseSettingWidget):
     NAME = "Propulsion"
     LABEL_PSIZE = 12
-
-    add_link = pyqtSignal(str)  # selectedにリンクを追加
-    remove_link = pyqtSignal(str)  # selectedからリンクを削除
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Propulsion System"
@@ -30,24 +28,20 @@ class PropulsionSystemWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
+        self._signals = PropulsionSystemSignals()
+
         links_label = QLabel("Available Links")
         links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
-        self._available = AvailableLinksWidget(self._main)
+        self._available = AvailableLinksWidget(self._main, self._signals)
         self._rows.addWidget(self._available)
 
-        self.selected = SelectedLinksWidget(self._main)
+        self.selected = SelectedLinksWidget(self._main, self._signals)
         self._rows.addWidget(self.selected)
 
         self._rows.addStretch()
-
-    @override
-    def define_connections(self) -> None:
-        super().define_connections()
-        self._available.define_connections()
-        self.selected.define_connections()
 
     @override
     def is_valid(self) -> bool:

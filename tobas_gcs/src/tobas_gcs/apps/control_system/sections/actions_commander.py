@@ -32,23 +32,20 @@ class ActionsCommanderWidget(BaseControlSystemSectionWidget):
 
         self._takeoff_button = QPushButton("Takeoff")
         self._takeoff_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._takeoff_button.clicked.connect(self._on_takeoff_button_clicked)
         cols.addWidget(self._takeoff_button)
 
         self._landing_button = QPushButton("Landing")
         self._landing_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._landing_button.clicked.connect(self._on_landing_button_clicked)
         cols.addWidget(self._landing_button)
 
         self._rth_button = QPushButton("Return to Home")
         self._rth_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._rth_button.clicked.connect(self._on_rth_button_clicked)
         cols.addWidget(self._rth_button)
 
         cols.addStretch()
-
-    @override
-    def define_connections(self) -> None:
-        self._takeoff_button.clicked.connect(self._on_takeoff_button_clicked)
-        self._landing_button.clicked.connect(self._on_landing_button_clicked)
-        self._rth_button.clicked.connect(self._on_rth_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

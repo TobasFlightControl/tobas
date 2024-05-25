@@ -52,17 +52,6 @@ class HardwareSetupWidget(BaseAppWidget):
         self._tabs.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
 
     @override
-    def define_connections(self) -> None:
-        self._network_setting.define_connections()
-        self._acc_calib.define_connections()
-        self._mag_calib.define_connections()
-        self._adc_calib.define_connections()
-        self._rcin_calib.define_connections()
-        # self._noise_calib.define_connections()  # TODO
-        self._esc_calib.define_connections()
-        self._motor_test.define_connections()
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._network_setting.update_internal_data_structures()
         self._acc_calib.update_internal_data_structures()

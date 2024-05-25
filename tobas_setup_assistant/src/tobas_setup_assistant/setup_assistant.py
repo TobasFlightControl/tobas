@@ -13,9 +13,10 @@ class SetupAssistant(Widget):
     def __init__(self) -> None:
         super().__init__()
 
+        self.signals = Signals()
+
         self.urdf_parser = URDFParser(self)
         self.pkg_generator = PackageGenerator(self)
-        self.signals = Signals()
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -26,12 +27,3 @@ class SetupAssistant(Widget):
 
         self.settings = SettingsWidget(self)
         rows.addWidget(self.settings)
-
-        # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
-        self.define_connections()
-
-    def define_connections(self) -> None:
-        self.urdf_parser.define_connections()
-        self.pkg_generator.define_connections()
-        self.robot_visualizer.define_connections()
-        self.settings.define_connections()

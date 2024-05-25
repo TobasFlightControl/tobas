@@ -401,7 +401,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         blade = self._main.settings.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
+        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi ** 2)
 
     @override
     def moment_const(self) -> float:

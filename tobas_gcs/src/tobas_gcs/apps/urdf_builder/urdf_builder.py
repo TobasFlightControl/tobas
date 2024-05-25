@@ -31,9 +31,5 @@ class UrdfBuilderWidget(BaseAppWidget):
         rows.addWidget(self._frame)
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         pass

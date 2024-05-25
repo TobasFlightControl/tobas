@@ -93,7 +93,6 @@ class ChannelsWidget(QWidget):
         self._form = FormLayout()
         rows.addLayout(self._form)
 
-    def define_connections(self) -> None:
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
 
     def is_valid(self) -> bool:
@@ -247,16 +246,13 @@ class ArduCopter(BaseController):
         self._frame = ParamGetterWidget_ComboBox(
             "Frame Type", frame_description, [frame.name() for frame in self._frames]
         )
+        self._frame.index_changed.connect(self._on_frame_idx_changed)
         self._rows.addWidget(self._frame)
 
         self._channels = ChannelsWidget(main)
         self._rows.addWidget(self._channels)
 
-    @override
-    def define_connections(self) -> None:
-        self._channels.define_connections()
-        self._frame.index_changed.connect(self._on_frame_idx_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
     @override
     def is_applicable(self) -> bool:

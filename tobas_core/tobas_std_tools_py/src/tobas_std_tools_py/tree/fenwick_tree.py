@@ -1,5 +1,4 @@
 class FenwickTree:
-
     def __init__(self, n):
         self._n = n
         self.data = [0] * n

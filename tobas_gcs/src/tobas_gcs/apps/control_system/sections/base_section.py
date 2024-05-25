@@ -30,9 +30,5 @@ class BaseControlSystemSectionWidget(Widget):
         self._rows.addWidget(label)
 
     @abstractmethod
-    def define_connections(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
     def update_internal_data_structures(self) -> None:
         raise NotImplementedError()

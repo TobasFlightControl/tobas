@@ -170,8 +170,7 @@ class PackageManagerWidget(Widget):
         progress.setLabelText("Setting environment variables.")
         try:
             self._ssh_client.sftp_write_super(
-                "/etc/tobas/config_pkg.env",
-                f"TOBAS_CONFIG_PKG={self._main.config_pkg_name()}\n",
+                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={self._main.config_pkg_name()}\n"
             )
         except Exception as e:
             progress.close()

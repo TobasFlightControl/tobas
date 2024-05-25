@@ -20,9 +20,5 @@ class RotorsViewerWidget(BaseControlSystemSectionWidget):
         # TODO
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         pass

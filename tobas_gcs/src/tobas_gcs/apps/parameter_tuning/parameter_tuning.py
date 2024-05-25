@@ -40,16 +40,19 @@ class ParameterTuningWidget(BaseAppWidget):
         self._load_button = QPushButton("Load")
         self._load_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._load_button.setEnabled(False)
+        self._load_button.clicked.connect(self._on_load_button_clicked)
         cols.addWidget(self._load_button)
 
         self._save_button = QPushButton("Save")
         self._save_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._save_button.setEnabled(False)
+        self._save_button.clicked.connect(self._on_save_button_clicked)
         cols.addWidget(self._save_button)
 
         self._reset_button = QPushButton("Reset")
         self._reset_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._reset_button.setEnabled(False)
+        self._reset_button.clicked.connect(self._on_reset_button_clicked)
         cols.addWidget(self._reset_button)
 
         cols.addStretch()
@@ -68,12 +71,6 @@ class ParameterTuningWidget(BaseAppWidget):
         scroll_area.addStretch()
 
         self._ssh_client = SSHClientWrapper()
-
-    @override
-    def define_connections(self) -> None:
-        self._load_button.clicked.connect(self._on_load_button_clicked)
-        self._save_button.clicked.connect(self._on_save_button_clicked)
-        self._reset_button.clicked.connect(self._on_reset_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

@@ -29,6 +29,7 @@ class FixedWingWidget(BaseSettingWidget):
         self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")
         self.has_fixed_wing.setFont(QFont("Default", pointSize=BODY_PSIZE))
         self.has_fixed_wing.setChecked(False)
+        self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
         self._rows.addWidget(self.has_fixed_wing)
 
         # Vehicle Parameters
@@ -44,15 +45,7 @@ class FixedWingWidget(BaseSettingWidget):
         self._rows.addWidget(self.control_surfaces)
 
         self._rows.addStretch()
-        self._update_visibility()
-
-    @override
-    def define_connections(self) -> None:
-        super().define_connections()
-        self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
-        self.vehicle.define_connections()
-        self.aero_coefs.define_connections()
-        self.control_surfaces.define_connections()
+        self._update_enability()
 
     @override
     def is_valid(self) -> bool:
@@ -71,17 +64,13 @@ class FixedWingWidget(BaseSettingWidget):
     def num_control_surfaces(self) -> int:
         return self.control_surfaces.selected.count()
 
-    def _update_visibility(self) -> None:
-        if self.has_fixed_wing.isChecked():
-            self.vehicle.setVisible(True)
-            self.aero_coefs.setVisible(True)
-            self.control_surfaces.setVisible(True)
-        else:
-            self.vehicle.setVisible(False)
-            self.aero_coefs.setVisible(False)
-            self.control_surfaces.setVisible(False)
+    def _update_enability(self) -> None:
+        checked = self.has_fixed_wing.isChecked()
+        self.vehicle.setEnabled(checked)
+        self.aero_coefs.setEnabled(checked)
+        self.control_surfaces.setEnabled(checked)
 
     @pyqtSlot()
     def _on_has_fixed_wing_toggled(self) -> None:
-        self._update_visibility()
+        self._update_enability()
         self._main.signals.airframe_updated.emit()

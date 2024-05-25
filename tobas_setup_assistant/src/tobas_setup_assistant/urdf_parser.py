@@ -6,8 +6,8 @@ if TYPE_CHECKING:
 
 import rospy
 from typing import List, Tuple, Union
-from urdf_parser_py.urdf import *
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from urdf_parser_py.urdf import Link, Joint, Pose, Inertia, Inertial
+from PyQt5.QtCore import QObject, pyqtSlot
 
 from tobas_std_tools_py.sequence import is_unique
 from tobas_rqt_tools.messages import q_error
@@ -17,15 +17,12 @@ from tobas_kdl_sympy.joint import JointType, HardwareInterface
 
 
 class URDFParser(QObject):
-    robot_model_updated = pyqtSignal()
-
     def __init__(self, main: SetupAssistant):
         super().__init__()
         self._main = main
 
         self._tree = Tree()
 
-    def define_connections(self) -> None:
         self._main.signals.urdf_loaded.connect(self._on_urdf_loaded)
 
     @pyqtSlot()
@@ -40,7 +37,7 @@ class URDFParser(QObject):
             return
 
         rospy.loginfo("Robot model is loaded successfully.")
-        self.robot_model_updated.emit()
+        self._main.signals.robot_model_updated.emit()
 
     def get_links(self) -> List[Link]:
         return self._tree.get_links()

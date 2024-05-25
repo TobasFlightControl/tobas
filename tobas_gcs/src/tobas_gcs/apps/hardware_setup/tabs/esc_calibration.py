@@ -42,15 +42,12 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
         self._rows.addWidget(self._start_button)
 
         self._rows.addStretch()
 
         self.setEnabled(False)
-
-    @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

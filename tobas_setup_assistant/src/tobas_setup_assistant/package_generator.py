@@ -43,9 +43,8 @@ class PackageGenerator(QObject):
 
         self._drone_name = ""
 
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
-        self._main.settings.ros_package.generate_button.clicked.connect(self._on_generate_button_clicked)
+        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+        self._main.signals.generate_button_clicked.connect(self._on_generate_button_clicked)
 
     @pyqtSlot()
     def _on_robot_model_updated(self) -> None:
@@ -206,9 +205,7 @@ class PackageGenerator(QObject):
             )
         elif SpeedRollDeltaPitch.__name__ in flight_modes:
             self._cfg_env.generate(
-                items,
-                "keyboard_teleop/speed_roll_dpitch.launch.tpl",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
+                items, "keyboard_teleop/speed_roll_dpitch.launch.tpl", osp.join(launch_dir, "keyboard_teleop.launch")
             )
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)

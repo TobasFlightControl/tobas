@@ -46,6 +46,7 @@ class ControllerWidget(BaseSettingWidget):
 
         self._type = ComboBox()
         self._type.addItem(self.NO_SELECT)
+        self._type.currentTextChanged.connect(self._on_type_changed)
         self._rows.addWidget(self._type)
 
         for controller in self._controllers:
@@ -54,14 +55,7 @@ class ControllerWidget(BaseSettingWidget):
         self._rows.addStretch()
         self._update_visibility()
 
-    @override
-    def define_connections(self) -> None:
-        super().define_connections()
-        self._type.currentTextChanged.connect(self._on_type_changed)
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
-
-        for controller in self._controllers:
-            controller.define_connections()
 
     @override
     def is_valid(self) -> bool:

@@ -37,10 +37,6 @@ class BaseController(Widget):
         return super().close()
 
     @abstractmethod
-    def define_connections(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
     def is_applicable(self) -> bool:
         """
         ハードウェアの構造のみから，制御器が適用可能かどうかを返す．

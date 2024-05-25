@@ -26,9 +26,5 @@ class SetupAssistantWidget(BaseAppWidget):
         rows.addWidget(self.setup_assistant)
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         pass

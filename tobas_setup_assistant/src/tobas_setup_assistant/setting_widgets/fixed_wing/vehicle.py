@@ -59,8 +59,5 @@ class VehicleParametersWidget(QWidget):
         )
         rows.addWidget(self.alpha_limit)
 
-    def define_connections(self) -> None:
-        pass
-
     def is_valid(self) -> bool:
         return True

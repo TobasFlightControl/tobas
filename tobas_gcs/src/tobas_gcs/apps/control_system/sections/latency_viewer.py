@@ -46,10 +46,6 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         self._timer.timeout.connect(self._timer_cb)
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._pw.plotItem.clear()
         self._buffer.clear()

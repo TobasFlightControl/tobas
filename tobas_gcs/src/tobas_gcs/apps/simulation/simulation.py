@@ -43,11 +43,12 @@ class SimulationWidget(BaseAppWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        cols.addWidget(self._start_button)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
 
         self._terminate_button = QPushButton("Terminate")
         self._terminate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._terminate_button.setEnabled(False)
+        self._terminate_button.clicked.connect(self._on_terminate_button_clicked)
         cols.addWidget(self._terminate_button)
 
         cols.addStretch()
@@ -66,11 +67,6 @@ class SimulationWidget(BaseAppWidget):
             self._bringup_process.terminate()
 
         return super().close()
-
-    @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
-        self._terminate_button.clicked.connect(self._on_terminate_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

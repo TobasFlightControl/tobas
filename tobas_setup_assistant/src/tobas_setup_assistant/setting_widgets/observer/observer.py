@@ -30,18 +30,15 @@ class ObserverWidget(BaseSettingWidget):
         self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main), CustomObserver(main)]
 
         self._type = ComboBox()
+        self._type.currentTextChanged.connect(self._on_type_changed)
         self._rows.addWidget(self._type)
+
         for observer in self._observers:
             self._rows.addWidget(observer)
             self._type.addItem(observer.NAME)
 
         self._rows.addStretch()
         self._update_visibility()
-
-    @override
-    def define_connections(self) -> None:
-        super().define_connections()
-        self._type.currentTextChanged.connect(self._on_type_changed)
 
     @override
     def is_valid(self) -> bool:
