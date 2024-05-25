@@ -3,7 +3,9 @@ from typing import List
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
 
+from tobas_std_tools_py.path import get_basename_without_extension
 from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget
+from tobas_tools_py.constants import CONFIG_PKG_SUFFIX, USER_PKG_SUFFIX
 from tobas_tools_py.drone import Drone
 
 from .apps import *
@@ -66,11 +68,29 @@ class GroundControlStationWidget(Widget):
         for app in self._apps:
             app.update_internal_data_structures()
 
-    def package_path(self) -> str:
+    def pkg_name(self) -> str:
+        return get_basename_without_extension(self.pkg_path())
+
+    def meta_pkg_name(self) -> str:
+        return self.pkg_name()
+
+    def config_pkg_name(self) -> str:
+        return self.pkg_name() + CONFIG_PKG_SUFFIX
+
+    def user_pkg_name(self) -> str:
+        return self.pkg_name() + USER_PKG_SUFFIX
+
+    def pkg_path(self) -> str:
         return self._package_manager.package_path()
 
-    def package_name(self) -> str:
-        return osp.basename(self.package_path())
+    def meta_pkg_path(self) -> str:
+        return osp.join(self.pkg_path(), self.meta_pkg_name())
 
-    def package_loaded(self) -> bool:
-        return self.package_path() != ""
+    def config_pkg_path(self) -> str:
+        return osp.join(self.pkg_path(), self.config_pkg_name())
+
+    def user_pkg_path(self) -> str:
+        return osp.join(self.pkg_path(), self.user_pkg_name())
+
+    def pkg_loaded(self) -> bool:
+        return self.pkg_path() != ""

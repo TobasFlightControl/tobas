@@ -24,7 +24,7 @@ from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.xml import prettify_and_save
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
-from tobas_msgs.msg import *
+from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, SpeedRollDeltaPitch
 
 from .common import PKG_NAME
 from .utils import get_drone_name, TemplateGenerator
@@ -37,6 +37,7 @@ class PackageGenerator(QObject):
         self._main = main
 
         templates_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "templates")
+        self._meta_env = TemplateGenerator(osp.join(templates_path, "meta_package"))
         self._cfg_env = TemplateGenerator(osp.join(templates_path, "config_package"))
         self._usr_env = TemplateGenerator(osp.join(templates_path, "user_package"))
 
@@ -132,6 +133,12 @@ class PackageGenerator(QObject):
         # テンプレート用アイテムを作成
         items = self._make_template_items()
 
+        # メタパッケージを作り直す
+        meta_pkg_path = self._main.settings.ros_package.meta_pkg_path()
+        if osp.exists(meta_pkg_path):
+            subprocess.run(["rm", "-r", meta_pkg_path])
+        self._generate_meta_pkg(items)
+
         # 設定パッケージを作り直す
         config_pkg_path = self._main.settings.ros_package.config_pkg_path()
         if osp.exists(config_pkg_path):
@@ -141,6 +148,15 @@ class PackageGenerator(QObject):
         # ユーザパッケージが存在しなければ作成
         if not osp.exists(self._main.settings.ros_package.user_pkg_path()):
             self._generate_user_pkg(items)
+
+    def _generate_meta_pkg(self, items: dict) -> None:
+        meta_pkg_path = self._main.settings.ros_package.meta_pkg_path()
+        os.mkdir(meta_pkg_path)
+
+        self._meta_env.generate(items, "CMakeLists.txt.tpl", osp.join(meta_pkg_path, "CMakeLists.txt"))
+        self._meta_env.generate(items, "package.xml.tpl", osp.join(meta_pkg_path, "package.xml"))
+
+        create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"))
 
     def _generate_config_pkg(self, items: dict) -> None:
         config_pkg_path = self._main.settings.ros_package.config_pkg_path()
@@ -279,6 +295,7 @@ class PackageGenerator(QObject):
 
         # Ros Package
         ros_pkg = settings.ros_package
+        template_items["meta_pkg_name"] = ros_pkg.meta_pkg_name()
         template_items["config_pkg_name"] = ros_pkg.config_pkg_name()
         template_items["user_pkg_name"] = ros_pkg.user_pkg_name()
 

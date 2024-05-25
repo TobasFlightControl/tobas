@@ -138,14 +138,11 @@ class PackageManagerWidget(Widget):
             return
         progress.progress_step()
 
-        pkg_path = self.package_path()
-        pkg_name = pkg_path.split("/")[-1]
-
         # Tobasパッケージを送信
         # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
         progress.setLabelText("Sending Tobas configuration package.")
         try:
-            self._ssh_client.scp_put_super(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
+            self._ssh_client.scp_put_super(self.package_path(), osp.join(CATKIN_WS_TOBAS, "src/"))
         except Exception as e:
             progress.close()
             q_error(self._main, f"Failed to send tobas configuration package:\n\n{e}")
@@ -156,11 +153,12 @@ class PackageManagerWidget(Widget):
         # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
         # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
         progress.setLabelText("Building Tobas configuration package.")
-        command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
+        meta_pkg_name = self._main.meta_pkg_name()
+        command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {meta_pkg_name}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
             rospy.logwarn("Failed to build. Retrying...")
-            command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {pkg_name}"
+            command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {meta_pkg_name}"
             success, _, error_output = self._ssh_client.exec_command_super(command)
             if not success:
                 progress.close()
@@ -171,7 +169,10 @@ class PackageManagerWidget(Widget):
         # 環境変数TOBAS_CONFIG_PKGを設定
         progress.setLabelText("Setting environment variables.")
         try:
-            self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
+            self._ssh_client.sftp_write_super(
+                "/etc/tobas/config_pkg.env",
+                f"TOBAS_CONFIG_PKG={self._main.config_pkg_name()}\n",
+            )
         except Exception as e:
             progress.close()
             q_error(self._main, str(e))

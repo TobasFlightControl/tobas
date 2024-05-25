@@ -78,9 +78,6 @@ class SimulationWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        config_pkg_path = self._main.package_path()
-        config_pkg_name = self._main.package_name()
-
         progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=11)
         progress.setCancelButton(None)
         progress.show()
@@ -95,18 +92,20 @@ class SimulationWidget(BaseAppWidget):
             return
         progress.progress_step()
 
-        # Build config package
-        progress.setLabelText("Building Tobas configuration package.")
-        os.chdir(config_pkg_path)
-        if os.system(f"catkin build {config_pkg_name}") != 0:
+        # Build Tobas packages
+        progress.setLabelText("Building Tobas packages.")
+        os.chdir(self._main.pkg_path())
+        if os.system(f"catkin build {self._main.meta_pkg_name()}") != 0:
             progress.close()
             q_error(self._main, "Failed to build Tobas package.")
             return
         progress.progress_step()
 
         # Tobasパッケージのパスを追加
-        progress.setLabelText("Adding Tobas package path.")
-        os.environ["ROS_PACKAGE_PATH"] = config_pkg_path + ":" + os.environ["ROS_PACKAGE_PATH"]
+        progress.setLabelText("Adding Tobas package paths.")
+        os.environ["ROS_PACKAGE_PATH"] = (
+            self._main.config_pkg_path() + ":" + self._main.user_pkg_path() + ":" + os.environ["ROS_PACKAGE_PATH"]
+        )
         progress.progress_step()
 
         # Stop tobas_real.service
@@ -127,7 +126,7 @@ class SimulationWidget(BaseAppWidget):
         # Launch Gazebo
         # 一度ROSLaunchParent.shutdownを呼ぶと再開できないため，ランチャーを作り直す．
         progress.setLabelText("Launching Gazebo simulation.")
-        self._gazebo_process = launch(config_pkg_name, "gazebo.launch")
+        self._gazebo_process = launch(self._main.config_pkg_name(), "gazebo.launch")
         progress.progress_step()
 
         # Gazeboノードの起動を待つ
@@ -151,7 +150,7 @@ class SimulationWidget(BaseAppWidget):
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．
         # FIXME: nodeletを有効化すると"Failed to load"エラーが出る
         progress.setLabelText("Launching Tobas flight controller.")
-        self._bringup_process = launch(config_pkg_name, "bringup.launch", {"nodelet": "false"})
+        self._bringup_process = launch(self._main.config_pkg_name(), "bringup.launch", {"nodelet": "false"})
         progress.progress_step()
 
         # Start tobas_hil.service

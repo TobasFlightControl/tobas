@@ -169,7 +169,7 @@ class ParameterTuningWidget(BaseAppWidget):
 
     def _save_config_on_pc(self, config: Dict[str, Dict[str, ParamType]]) -> bool:
         # 設定ファイルが存在することを確認
-        config_path = osp.join(self._main.package_path(), "config/dynamic_params.yaml")
+        config_path = osp.join(self._main.config_pkg_path(), "config", "dynamic_params.yaml")
         if not osp.exists(config_path):
             q_error(self._main, "Configuration file does not exist on PC.")
             return False

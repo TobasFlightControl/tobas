@@ -98,6 +98,9 @@ class RosPackageWidget(BaseSettingWidget):
     def pkg_name(self) -> str:
         return self._pkg_name.get()
 
+    def meta_pkg_name(self) -> str:
+        return self.pkg_name()
+
     def config_pkg_name(self) -> str:
         return self.pkg_name() + CONFIG_PKG_SUFFIX
 
@@ -106,6 +109,9 @@ class RosPackageWidget(BaseSettingWidget):
 
     def pkg_path(self) -> str:
         return self._pkg_path.text()
+
+    def meta_pkg_path(self) -> str:
+        return osp.join(self.pkg_path(), self.meta_pkg_name())
 
     def config_pkg_path(self) -> str:
         return osp.join(self.pkg_path(), self.config_pkg_name())

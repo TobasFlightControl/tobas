@@ -209,7 +209,7 @@ class MissionPlannerWidget(BaseAppWidget):
         if not yes_or_no(self._main, "Do you want to execute the mission?", QMessageLevel.WARN):
             return
 
-        if not self._main.package_loaded():
+        if not self._main.pkg_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
@@ -236,7 +236,7 @@ class MissionPlannerWidget(BaseAppWidget):
         if not yes_or_no(self._main, "Do you want to cancel the mission?", QMessageLevel.WARN):
             return
 
-        if not self._main.package_loaded():
+        if not self._main.pkg_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
@@ -250,7 +250,7 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_focus_button_clicked(self) -> None:
-        if not self._main.package_loaded():
+        if not self._main.pkg_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
