@@ -10,8 +10,7 @@ using namespace Eigen;
 
 namespace ctrl
 {
-MatrixXd
-care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R)
+MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R)
 {
   const auto n = A.rows();
   [[maybe_unused]] const auto l = B.cols();

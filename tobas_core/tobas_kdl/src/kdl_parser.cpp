@@ -88,14 +88,12 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 
   // Rotation operators are not defined for rotational inertia,
   // so we use the RigidBodyInertia operators (with com = 0) as a workaround
-  const RigidBodyInertia kdl_inertia_wrt_com_workaround =
-    origin.M * RigidBodyInertia(0, Vector::Zero(), urdf_inertia);
+  const RigidBodyInertia kdl_inertia_wrt_com_workaround = origin.M * RigidBodyInertia(0, Vector::Zero(), urdf_inertia);
 
   // Note that the RigidBodyInertia constructor takes the 3d inertia wrt the com
   // while the getRotationalInertia method returns the 3d inertia wrt the frame origin
   // (but having com = Vector::Zero() in kdl_inertia_wrt_com_workaround they match)
-  const RotationalInertia kdl_inertia_wrt_com =
-    kdl_inertia_wrt_com_workaround.getRotationalInertia();
+  const RotationalInertia kdl_inertia_wrt_com = kdl_inertia_wrt_com_workaround.getRotationalInertia();
 
   return RigidBodyInertia(kdl_mass, kdl_com, kdl_inertia_wrt_com);
 }
@@ -114,8 +112,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
   const Joint jnt = toKdl(*root->parent_joint);
 
   // construct the kdl segment
-  const Segment sgm(
-    root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
+  const Segment sgm(root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
 
   // add segment to tree
   tree.addSegment(sgm, root->parent_joint->parent_link_name);

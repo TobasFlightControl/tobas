@@ -15,10 +15,7 @@ namespace urdf_builder
 namespace ui
 {
 UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
-  : QDialog(main),
-    main_(main),
-    ui_(new Ui::UpdateLinkDialogUI()),
-    link_vm_(new view_model::LinkViewModel(nullptr))
+  : QDialog(main), main_(main), ui_(new Ui::UpdateLinkDialogUI()), link_vm_(new view_model::LinkViewModel(nullptr))
 {
   ui_->setupUi(this);
 
@@ -158,8 +155,7 @@ void UpdateLinkDialog::VisualNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::VisualGeometryMeshPathLineEditTextChanged(const QString& text)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::VisualGeometryMeshPathLineEditTextChanged(" << text.toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::VisualGeometryMeshPathLineEditTextChanged(" << text.toStdString() << ")");
 
   visual_vm_->geometry()->filePath(text);
   link_vm_->sync();
@@ -169,8 +165,7 @@ void UpdateLinkDialog::VisualGeometryMeshPathLineEditTextChanged(const QString& 
 
 void UpdateLinkDialog::CollisionNameLineEditTextChanged(const QString& text)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::CollisionNameLineEditTextChanged(" << text.toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionNameLineEditTextChanged(" << text.toStdString() << ")");
 
   collision_vm_->name(text);
 
@@ -179,8 +174,7 @@ void UpdateLinkDialog::CollisionNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::CollisionGeometryMeshPathEditTextChanged(const QString& text)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::CollisionGeometryMeshPathEditTextChanged(" << text.toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionGeometryMeshPathEditTextChanged(" << text.toStdString() << ")");
 
   collision_vm_->geometry()->filePath(text);
   link_vm_->sync();
@@ -190,8 +184,7 @@ void UpdateLinkDialog::CollisionGeometryMeshPathEditTextChanged(const QString& t
 
 void UpdateLinkDialog::MaterialNameLineEditTextChanged(const QString& text)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::MaterialNameLineEditTextChanged(" << text.toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::MaterialNameLineEditTextChanged(" << text.toStdString() << ")");
 
   visual_vm_->material()->name(text);
   link_vm_->sync();
@@ -201,8 +194,7 @@ void UpdateLinkDialog::MaterialNameLineEditTextChanged(const QString& text)
 
 void UpdateLinkDialog::MaterialTexturePathLineEditTextChanged(const QString& text)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::MaterialTexturePathLineEditTextChanged(" << text.toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::MaterialTexturePathLineEditTextChanged(" << text.toStdString() << ")");
 
   visual_vm_->material()->textureFileName(text);
   link_vm_->sync();
@@ -277,8 +269,7 @@ void UpdateLinkDialog::InertialSpinBoxValueChanged(double)
 
 void UpdateLinkDialog::VisualListWidgetItemClicked(QListWidgetItem* item)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::VisualListWidgetItemClicked(" << item->text().toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::VisualListWidgetItemClicked(" << item->text().toStdString() << ")");
 
   auto visualItem = dynamic_cast<VisualListWidgetItem*>(item);
   readFromVM(visualItem->viewModel());
@@ -286,8 +277,7 @@ void UpdateLinkDialog::VisualListWidgetItemClicked(QListWidgetItem* item)
 
 void UpdateLinkDialog::CollisionListWidgetItemClicked(QListWidgetItem* item)
 {
-  ROS_DEBUG_STREAM(
-    "UpdateLinkDialog::CollisionListWidgetItemClicked(" << item->text().toStdString() << ")");
+  ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionListWidgetItemClicked(" << item->text().toStdString() << ")");
 
   const auto collisionItem = dynamic_cast<CollisionListWidgetItem*>(item);
   readFromVM(collisionItem->viewModel());
@@ -619,8 +609,7 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
   ui_->MaterialColorBlueSpinBox->setValue(material_vm->color().b);
   ui_->MaterialTexturePathLineEdit->setText(material_vm->textureFileName());
 
-  arrangeVisualGeometryTypeFrames(
-    frame_map_.visual_geom, ui_->VisualGeometryTypeComboBox->currentText());
+  arrangeVisualGeometryTypeFrames(frame_map_.visual_geom, ui_->VisualGeometryTypeComboBox->currentText());
 
   blockSignals(false);
 }
@@ -658,8 +647,7 @@ void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& colli
   ui_->CollisionGeometryMeshPathLineEdit->setText(geometry_vm->filePath());
   ui_->CollisionGeometryMeshScaleSpinBox->setValue(geometry_vm->scale().x);
 
-  arrangeVisualGeometryTypeFrames(
-    frame_map_.collision_geom, ui_->CollisionGeometryTypeComboBox->currentText());
+  arrangeVisualGeometryTypeFrames(frame_map_.collision_geom, ui_->CollisionGeometryTypeComboBox->currentText());
 
   blockSignals(false);
 }
@@ -792,8 +780,7 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) co
   pose.position.y = ui_->JointOriginYSpinBox->value();
   pose.position.z = ui_->JointOriginZSpinBox->value();
   pose.rotation.setFromRPY(
-    ui_->JointOriginRollSpinBox->value(), ui_->JointOriginPitchSpinBox->value(),
-    ui_->JointOriginYawSpinBox->value());
+    ui_->JointOriginRollSpinBox->value(), ui_->JointOriginPitchSpinBox->value(), ui_->JointOriginYawSpinBox->value());
   joint->origin(pose);
 
   urdf::Vector3 axis;
@@ -848,9 +835,7 @@ void UpdateLinkDialog::emitChanged()
   Q_EMIT Changed();
 }
 
-void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(
-  const map<QString, QFrame*>& map,
-  const QString& type)
+void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const map<QString, QFrame*>& map, const QString& type)
 {
   for (const auto& pair : map)
     pair.second->hide();

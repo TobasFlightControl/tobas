@@ -103,10 +103,8 @@ VectorXd OrientationController::solve(
     const double t = mpc_.time_step * k;  // 計画開始時刻 (= 0) からの経過時間
 
     // ダイナミクスを更新
-    const auto roll_k =
-      ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts(kRollIdx), t);
-    const auto pitch_k =
-      ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts(kPitchIdx), t);
+    const auto roll_k = ctrl::firstOrderPos(cur_rpy.roll, tar_rpy.roll, mpc_.decay_time_consts(kRollIdx), t);
+    const auto pitch_k = ctrl::firstOrderPos(cur_rpy.pitch, tar_rpy.pitch, mpc_.decay_time_consts(kPitchIdx), t);
     cont_.update(roll_k, pitch_k, cur_q);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
 
@@ -118,8 +116,7 @@ VectorXd OrientationController::solve(
     }
 
     // 全てのプロペラの推力の合計に関する等式制約
-    const auto thrust_k =
-      clamp(thrust_z / (cos(roll_k) * cos(pitch_k)), min_thrust_sum, max_thrust_sum);
+    const auto thrust_k = clamp(thrust_z / (cos(roll_k) * cos(pitch_k)), min_thrust_sum, max_thrust_sum);
     mpc_.input_eqs[k].b(0) = thrust_k;
   }
 
@@ -139,11 +136,9 @@ VectorXd OrientationController::solve(
 
   // Mixerで最終的な推力を計算
   const Vector3d dgyro_des = dgyro_mpc + dgyro_pd.data;  // FF + FB (二自由度制御)
-  const Vector h_moment_raw =
-    dynamics_.horizontalMoment(cur_rot, cur_twist_B.vel, cur_wind_W, cur_q, cur_rot_speeds);
+  const Vector h_moment_raw = dynamics_.horizontalMoment(cur_rot, cur_twist_B.vel, cur_wind_W, cur_q, cur_rot_speeds);
   const Vector h_moment_comp = h_force_comp_rate_ * h_moment_raw;
-  return mixer_.solve(
-    dt, cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
+  return mixer_.solve(dt, cur_voltage, cur_q, cur_twist_B.rot.data, h_moment_comp.data, dgyro_des, thrusts_des);
 }
 
 void OrientationController::configure(const OrientationControllerConfig& cfg)
@@ -213,14 +208,13 @@ void OrientationController::updateCurrentState(
 
   // H-forceによるモーメントを計算
   // TODO: H-momentの時間変化を考慮
-  const Vector h_moment_raw = dynamics_.horizontalMoment(
-    cur_rpy.toRotation(), cur_twist_B.vel, cur_wind_W, cur_q, rot_speeds);
+  const Vector h_moment_raw =
+    dynamics_.horizontalMoment(cur_rpy.toRotation(), cur_twist_B.vel, cur_wind_W, cur_q, rot_speeds);
   const Vector h_moment_comp = h_moment_raw * h_force_comp_rate_;  // H-momentの補償分
 
   // 現在の状態を更新
-  mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_twist_B.rot.x(),
-    cur_twist_B.rot.y(), cur_twist_B.rot.z(), h_moment_comp.x(), h_moment_comp.y(),
-    h_moment_comp.z();
+  mpc_.current_state << cur_rpy.roll, cur_rpy.pitch, cur_rpy.yaw, cur_twist_B.rot.x(), cur_twist_B.rot.y(),
+    cur_twist_B.rot.z(), h_moment_comp.x(), h_moment_comp.y(), h_moment_comp.z();
 }
 
 void OrientationController::updateSetState(const Euler& tar_rpy)

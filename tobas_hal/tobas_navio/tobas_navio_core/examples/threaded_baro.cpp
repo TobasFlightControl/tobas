@@ -48,8 +48,7 @@ int main()
 
   while (true)
   {
-    cout << "Temperature[C]: " << baro.getTemperature() << ", Pressure[Pa]: " << baro.getPressure()
-         << endl;
+    cout << "Temperature[C]: " << baro.getTemperature() << ", Pressure[Pa]: " << baro.getPressure() << endl;
     sleep(1);
   }
 

@@ -6,10 +6,7 @@ namespace urdf_builder
 {
 namespace ui
 {
-AddLinkDialog::AddLinkDialog(
-  URDFBuilderPanel* main,
-  const QStringList& link_names,
-  view_model::LinkViewModel& link_vm)
+AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm)
   : QDialog(main), main_(main), ui_(new Ui::AddLinkDialogUI()), link_vm_(link_vm)
 {
   ui_->setupUi(this);
@@ -27,8 +24,7 @@ AddLinkDialog::AddLinkDialog(
     ui_->JointNameLineEdit, SIGNAL(textChanged(const QString&)), this,
     SLOT(JointNameLineEditTextChanged(const QString&)));
   connect(
-    ui_->JointParentLinkComboBox, SIGNAL(currentIndexChanged(int)), this,
-    SLOT(JointParentComboBoxIndexChanged(int)));
+    ui_->JointParentLinkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(JointParentComboBoxIndexChanged(int)));
 }
 
 void AddLinkDialog::LinkNameLineEditTextChanged(const QString& text)

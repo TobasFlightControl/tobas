@@ -31,11 +31,7 @@ public:
    *
    * @return if < 0 something went wrong
    */
-  virtual int CartToJnt(
-    const JntArray& q,
-    const JntArray& q_dot,
-    const JntArray& q_dotdot,
-    const WrenchMap& f_ext) = 0;
+  virtual int CartToJnt(const JntArray& q, const JntArray& q_dot, const JntArray& q_dotdot, const WrenchMap& f_ext) = 0;
 
   const JntArray& getEfforts() const
   {

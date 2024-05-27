@@ -138,10 +138,8 @@ void ErrorStateKalmanFilter::predictIMU(
   assertWithMsg(et::isFinite(P_), "Covariance matrix:\n" << P_);
 }
 
-double ErrorStateKalmanFilter::measurePosition(
-  const Vector3d& pos_meas,
-  const Matrix3d& pos_cov,
-  const Vector3d& offset)
+double
+ErrorStateKalmanFilter::measurePosition(const Vector3d& pos_meas, const Matrix3d& pos_cov, const Vector3d& offset)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
 
@@ -239,8 +237,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   return correct<6>(delta, cov, H_pv_);
 }
 
-double
-ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
+double ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
 
@@ -364,8 +361,7 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const Vector
 
   Matrix<double, 3, 4> res;
   res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
-  res.block<3, 3>(0, 1) =
-    2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::crossMat(a));
+  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::crossMat(a));
 
   return res;
 }

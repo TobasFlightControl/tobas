@@ -47,8 +47,7 @@ public:
   inline Eigen::Vector2d getXY() const;
   inline double getAltitude() const;
   inline Eigen::Vector3d getVelocity() const;
-  inline Eigen::Vector3d
-  getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
+  inline Eigen::Vector3d getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
   inline Eigen::Quaterniond getQuaternion() const;
   inline Eigen::Vector3d getAccelBias() const;
   inline Eigen::Vector3d getGyroBias() const;
@@ -213,9 +212,8 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity() const
   return x_.segment<3>(kVelIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
-  const Eigen::Vector3d& offset,
-  const Eigen::Vector3d& gyro_meas) const
+inline Eigen::Vector3d
+ErrorStateKalmanFilter::getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const
 {
   return getVelocity() + getQuaternion() * (gyro_meas - getGyroBias()).cross(offset);
 }

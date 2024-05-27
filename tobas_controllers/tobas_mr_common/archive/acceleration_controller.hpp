@@ -16,12 +16,7 @@ class AccelerationController
 public:
   explicit AccelerationController();
 
-  void update(
-    const KDL::Vector& tar_acc,
-    const double& yaw,
-    double& U_out,
-    double& roll_out,
-    double& pitch_out);
+  void update(const KDL::Vector& tar_acc, const double& yaw, double& U_out, double& roll_out, double& pitch_out);
   void configure(const AccelerationControllerConfig& config);
 
 private:

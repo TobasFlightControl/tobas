@@ -6,9 +6,7 @@ namespace urdf_builder
 {
 namespace ui
 {
-DisplayContextProxy::DisplayContextProxy(
-  Ogre::SceneManager* scene_manager,
-  SelectionManager* selection_manager)
+DisplayContextProxy::DisplayContextProxy(Ogre::SceneManager* scene_manager, SelectionManager* selection_manager)
   : scene_manager_(scene_manager), selection_manager_(selection_manager)
 {
 }

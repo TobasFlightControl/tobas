@@ -197,8 +197,8 @@ void ChainIkSolverPos_LM::computeJacobian(const VectorXd& q)
     {
       // compute twist of the end effector motion caused by joint[j];
       // expressed in base frame, with vel. ref. point equal to the end effector
-      const Twist t = (T_base_jointroot_[j].M * segment.twist(q(j), 1.))
-                        .refPoint(T_base_head_.p - T_base_jointtip_[j].p);
+      const Twist t =
+        (T_base_jointroot_[j].M * segment.twist(q(j), 1.)).refPoint(T_base_head_.p - T_base_jointtip_[j].p);
       jac_.col(j) = t.ravel();
       ++j;
     }

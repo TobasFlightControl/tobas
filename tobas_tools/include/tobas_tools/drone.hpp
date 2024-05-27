@@ -78,16 +78,10 @@ public:
   double rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const;
 
   /* 回転数 [rad/s] からスロットル [0,1] を求める． */
-  double throttleFromRotSpeed(
-    const size_t& rotor_idx,
-    const double& rot_speed,
-    const double& battery_voltage) const;
+  double throttleFromRotSpeed(const size_t& rotor_idx, const double& rot_speed, const double& battery_voltage) const;
 
   /* 推力 [N] からスロットル [0,1] を求める． */
-  double throttleFromThrust(
-    const size_t& rotor_idx,
-    const double& thrust,
-    const double& battery_voltage) const;
+  double throttleFromThrust(const size_t& rotor_idx, const double& thrust, const double& battery_voltage) const;
 
 private:
   tobas_kdl::Tree tree_;

@@ -5,10 +5,7 @@ using namespace ignition::math;
 
 namespace gazebo
 {
-NormalDistribution3d::NormalDistribution3d(
-  random_device& rnd_dev,
-  const Vector3d& mean,
-  const Vector3d& stddev)
+NormalDistribution3d::NormalDistribution3d(random_device& rnd_dev, const Vector3d& mean, const Vector3d& stddev)
   : rnd_gen_(rnd_dev())
 {
   for (size_t i = 0; i < 3; ++i)
@@ -22,10 +19,7 @@ Vector3d NormalDistribution3d::get()
   return values_;
 }
 
-UniformDistribution3d::UniformDistribution3d(
-  random_device& rnd_dev,
-  const Vector3d& lb,
-  const Vector3d& ub)
+UniformDistribution3d::UniformDistribution3d(random_device& rnd_dev, const Vector3d& lb, const Vector3d& ub)
   : rnd_gen_(rnd_dev())
 {
   for (size_t i = 0; i < 3; ++i)

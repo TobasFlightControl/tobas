@@ -9,8 +9,7 @@ using namespace std;
 
 namespace tobas_rc_teleop
 {
-SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone& drone)
-  : super(drone)
+SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone& drone) : super(drone)
 {
 }
 
@@ -25,10 +24,7 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void SpeedRollDeltaPitchController::update(
-  const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry&,
-  const double&)
+void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, const double&)
 {
   // コマンドを作成
   const auto cmd = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>();
@@ -42,14 +38,10 @@ void SpeedRollDeltaPitchController::update(
 
 void SpeedRollDeltaPitchController::getRosParams(ros::NodeHandle& pnh)
 {
-  tobas_ros::getParam(
-    pnh, "speed_roll_dpitch/min_speed", min_speed_, kDefaultMinSpeed, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "speed_roll_dpitch/max_speed", max_speed_, kDefaultMaxSpeed, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "speed_roll_dpitch/max_roll", max_roll_, kDefaultMaxRoll, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "speed_roll_dpitch/min_speed", min_speed_, kDefaultMinSpeed, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_speed", max_speed_, kDefaultMaxSpeed, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_roll", max_roll_, kDefaultMaxRoll, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
 
   ROS_CHECK(pnh, min_speed_ < max_speed_, "Maximum speed must be greater than minimum speed.");
 }

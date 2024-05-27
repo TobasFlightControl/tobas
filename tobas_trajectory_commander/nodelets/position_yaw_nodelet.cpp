@@ -16,6 +16,4 @@ void FollowPositionYawTrajectoryServerNodelet::onInit()
 }
 }  // namespace tobas_trajectory_commander
 
-PLUGINLIB_EXPORT_CLASS(
-  tobas_trajectory_commander::FollowPositionYawTrajectoryServerNodelet,
-  nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_trajectory_commander::FollowPositionYawTrajectoryServerNodelet, nodelet::Nodelet);

@@ -347,19 +347,13 @@ inline Rall1d<T, V, S> atan2(const Rall1d<T, V, S>& y, const Rall1d<T, V, S>& x)
 }
 
 template <class T, class V, class S>
-inline Rall1d<T, V, S>
-LinComb(S alfa, const Rall1d<T, V, S>& a, const T& beta, const Rall1d<T, V, S>& b)
+inline Rall1d<T, V, S> LinComb(S alfa, const Rall1d<T, V, S>& a, const T& beta, const Rall1d<T, V, S>& b)
 {
   return Rall1d<T, V, S>(LinComb(alfa, a.t, beta, b.t), LinComb(alfa, a.grad, beta, b.grad));
 }
 
 template <class T, class V, class S>
-inline void LinCombR(
-  S alfa,
-  const Rall1d<T, V, S>& a,
-  const T& beta,
-  const Rall1d<T, V, S>& b,
-  Rall1d<T, V, S>& result)
+inline void LinCombR(S alfa, const Rall1d<T, V, S>& a, const T& beta, const Rall1d<T, V, S>& b, Rall1d<T, V, S>& result)
 {
   LinCombR(alfa, a.t, beta, b.t, result.t);
   LinCombR(alfa, a.grad, beta, b.grad, result.grad);

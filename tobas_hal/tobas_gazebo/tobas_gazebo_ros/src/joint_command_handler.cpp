@@ -11,26 +11,19 @@ using namespace tobas_kdl;
 
 namespace tobas_gazebo_ros
 {
-JointCommandHandler::JointCommandHandler(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const std::string& name)
+JointCommandHandler::JointCommandHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name)
   : super(nh, pnh, name)
 {
-  positions_sub_ = nh_.subscribe(
-    tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ = nh_.subscribe(
-    tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
-  efforts_sub_ =
-    nh_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+  positions_sub_ = nh_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
+  velocities_sub_ = nh_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
+  efforts_sub_ = nh_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
 }
 
 int JointCommandHandler::initialize()
 {
   // ノードの起動順が不確定なため，サービスコールをコンストラクタでやるべきではない
   // 制限時間を設けて成功するまで何度も繰り返すのが正しい
-  ros::ServiceClient sc =
-    nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
+  ros::ServiceClient sc = nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
   if (!sc.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kListControllersSrv, "' service server.");
@@ -72,8 +65,7 @@ int JointCommandHandler::initialize()
   return 0;
 }
 
-void JointCommandHandler::jointPositionsCmdCb(
-  const tobas_msgs::JointCommandArrayConstPtr& positions)
+void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions)
 {
   if (ctrl_map_.size() == 0 && initialize() < 0)
   {
@@ -100,14 +92,13 @@ void JointCommandHandler::jointPositionsCmdCb(
     else
     {
       TOBAS_WARN(
-        "Transmission type for joint '", jnt_name,
-        "' is not position. So received position command for joint '", jnt_name, "' is ignored.");
+        "Transmission type for joint '", jnt_name, "' is not position. So received position command for joint '",
+        jnt_name, "' is ignored.");
     }
   }
 }
 
-void JointCommandHandler::jointVelocitiesCmdCb(
-  const tobas_msgs::JointCommandArrayConstPtr& velocities)
+void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities)
 {
   if (ctrl_map_.size() == 0 && initialize() < 0)
   {
@@ -135,8 +126,8 @@ void JointCommandHandler::jointVelocitiesCmdCb(
     else
     {
       TOBAS_WARN(
-        "Transmission type for joint '", jnt_name,
-        "' is not velocity. So received velocity command for joint '", jnt_name, "' is ignored.");
+        "Transmission type for joint '", jnt_name, "' is not velocity. So received velocity command for joint '",
+        jnt_name, "' is ignored.");
     }
   }
 }
@@ -168,8 +159,8 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     else
     {
       TOBAS_WARN(
-        "Transmission type for joint '", jnt_name,
-        "' is not effort. So received effort command for joint '", jnt_name, "' is ignored.");
+        "Transmission type for joint '", jnt_name, "' is not effort. So received effort command for joint '", jnt_name,
+        "' is ignored.");
     }
   }
 }

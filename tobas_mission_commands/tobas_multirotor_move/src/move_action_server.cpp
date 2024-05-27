@@ -13,12 +13,8 @@ using namespace std;
 
 namespace tobas_multirotor_move
 {
-MoveActionServer::MoveActionServer(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name),
-    as_(nh_, tobas::kMoveAction, boost::bind(&self::executeCb, this, _1), false)
+MoveActionServer::MoveActionServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name), as_(nh_, tobas::kMoveAction, boost::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 

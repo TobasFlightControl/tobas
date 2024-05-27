@@ -48,22 +48,19 @@ void imuToQuaternion(
 Eigen::Matrix3d angvelFromEulerrateGlobal(const double& pitch, const double& yaw);
 
 /* ZYXオイラー角の変化率をグローバル座標系で表現された角速度に変換する． */
-Eigen::Vector3d
-angvelFromEulerrateGlobal(const Eigen::Vector3d& eulerrate, const double& pitch, const double& yaw);
+Eigen::Vector3d angvelFromEulerrateGlobal(const Eigen::Vector3d& eulerrate, const double& pitch, const double& yaw);
 
 /* ZYXオイラー角の変化率をローカル座標系で表現された角速度に変換する行列を返す． */
 Eigen::Matrix3d angvelFromEulerrateLocal(const double& roll, const double& pitch);
 
 /* ZYXオイラー角の変化率をローカル座標系で表現された角速度に変換する． */
-Eigen::Vector3d
-angvelFromEulerrateLocal(const Eigen::Vector3d& eulerrate, const double& roll, const double& pitch);
+Eigen::Vector3d angvelFromEulerrateLocal(const Eigen::Vector3d& eulerrate, const double& roll, const double& pitch);
 
 /* グローバル座標系で表現された角速度をZYXオイラー角の変化率に変換する行列を計算する． */
 Eigen::Matrix3d eulerrateFromAngvelGlobal(const double& pitch, const double& yaw);
 
 /* グローバル座標系で表現された角速度をZYXオイラー角の変化率に変換する． */
-Eigen::Vector3d
-eulerrateFromAngvelGlobal(const Eigen::Vector3d& angvel, const double& pitch, const double& yaw);
+Eigen::Vector3d eulerrateFromAngvelGlobal(const Eigen::Vector3d& angvel, const double& pitch, const double& yaw);
 
 /**
  * @brief ローカル座標系で表現された角速度をZYXオイラー角の変化率に変換する行列を計算する．
@@ -72,8 +69,7 @@ eulerrateFromAngvelGlobal(const Eigen::Vector3d& angvel, const double& pitch, co
 Eigen::Matrix3d eulerrateFromAngvelLocal(const double& roll, const double& pitch);
 
 /* ローカル座標系で表現された角速度をZYXオイラー角の変化率に変換する． */
-Eigen::Vector3d
-eulerrateFromAngvelLocal(const Eigen::Vector3d& angvel, const double& roll, const double& pitch);
+Eigen::Vector3d eulerrateFromAngvelLocal(const Eigen::Vector3d& angvel, const double& roll, const double& pitch);
 
 /* 角軸ベクトルを回転行列に変換する． */
 Eigen::Matrix3d matrixFromAngleAxis(const Eigen::Vector3d& a);

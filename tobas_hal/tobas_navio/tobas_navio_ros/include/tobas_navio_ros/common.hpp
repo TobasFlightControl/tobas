@@ -77,7 +77,7 @@ static constexpr double kDisarmInterval = 0.1;  // [s]
 static constexpr double kWarnPeriod = 3.;       // [s]
 static constexpr double kErrorPeriod = 1.;      // [s]
 
-static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
+static constexpr double kMinAirPressure = 30000.;   // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
 void setupRCOutput(navio::PWM& pwm, const size_t& channel);

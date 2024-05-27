@@ -5,8 +5,7 @@ using namespace tobas_kdl;
 
 namespace tobas
 {
-StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone)
-  : drone_(drone), inertia_solver_(drone.tree())
+StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone) : drone_(drone), inertia_solver_(drone.tree())
 {
   if (drone.isLoaded())
     updateInternalDataStructures();

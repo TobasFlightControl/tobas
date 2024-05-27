@@ -115,11 +115,7 @@ double pressureToAltitude(const double& pressure)
   return gphToAltitude(gph);
 }
 
-void pressureToAltitude(
-  const double& pressure,
-  const double& pressure_var,
-  double& altitude,
-  double& altitude_var)
+void pressureToAltitude(const double& pressure, const double& pressure_var, double& altitude, double& altitude_var)
 {
   constexpr auto a = T0 / L;
   constexpr auto b = -(L * R) / (G * M);

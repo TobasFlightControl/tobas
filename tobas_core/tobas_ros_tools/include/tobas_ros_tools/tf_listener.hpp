@@ -9,10 +9,7 @@ class TransformListener
 public:
   explicit TransformListener();
 
-  bool lookupTransform(
-    const std::string& parent,
-    const std::string& child,
-    const ros::Time& time = ros::Time(0));
+  bool lookupTransform(const std::string& parent, const std::string& child, const ros::Time& time = ros::Time(0));
 
   inline const geometry_msgs::TransformStamped& getTransform();
   inline const char* getErrorMessage();

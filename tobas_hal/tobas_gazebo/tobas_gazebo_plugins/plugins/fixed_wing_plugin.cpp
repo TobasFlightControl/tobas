@@ -40,8 +40,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     // ジョイントを取得
     const auto joint = model->GetJoint(cs.joint_name);
     if (joint == nullptr)
-      gzthrow(
-        kPluginName << ": Couldn't find the control surface joint \"" << cs.joint_name << "\".");
+      gzthrow(kPluginName << ": Couldn't find the control surface joint \"" << cs.joint_name << "\".");
 
     // ジョイントの制限をチェック
     if (joint->LowerLimit(0) >= joint->UpperLimit(0))
@@ -61,8 +60,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   registerPubSub();
 
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboFixedWingPlugin::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboFixedWingPlugin::onUpdate, this, _1));
 }
 
 void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -71,8 +69,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
-  getSdfParam(
-    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
+  getSdfParam(sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
 
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
@@ -159,8 +156,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ =
-    nh_.advertise<tobas_gazebo_plugins::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
+  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   deflections_sub_ = nh_.subscribe(
     "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
@@ -179,10 +175,8 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   {
     tobas_std::fill(cs_deflections_.deflections, 0.);
     cs_activated_ = false;
-    gzmsg << kPluginName
-          << ": Deflection angles of control surfaces are automatically reset because "
-          << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
-          << endl;
+    gzmsg << kPluginName << ": Deflection angles of control surfaces are automatically reset because "
+          << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command." << endl;
   }
 
   // 風に対する相対的な機体速度
@@ -207,8 +201,8 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   if (!vehicle_params_.alpha_limit.inRange(alpha))
   {
     GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": The angle of attack " << alpha
-                                << " is not within the valid range " << vehicle_params_.alpha_limit
+      kErrorPeriod, kPluginName << ": The angle of attack " << alpha << " is not within the valid range "
+                                << vehicle_params_.alpha_limit
                                 << ". The accuracy of the physics simulation may be compromised.");
   }
 
@@ -289,8 +283,7 @@ void GazeboFixedWingPlugin::updateDeflections(const double& dt)
   }
 }
 
-Vector3d
-GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta)
+Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta)
 {
   const auto C_L = liftCoefficient(alpha);  // 揚力係数 (1.8-3)
   const auto C_D = dragCoefficient(alpha);  // 抗力係数 (1.8-3)
@@ -363,11 +356,7 @@ double GazeboFixedWingPlugin::sideCoefficient(const double& beta)
   return C_S;
 }
 
-double GazeboFixedWingPlugin::rollCoefficient(
-  const double& beta,
-  const double& p,
-  const double& r,
-  const double& V)
+double GazeboFixedWingPlugin::rollCoefficient(const double& beta, const double& p, const double& r, const double& V)
 {
   // 横滑り角
   auto C_l = aero_coefs_.c_roll_beta * beta;
@@ -405,11 +394,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   return C_m;
 }
 
-double GazeboFixedWingPlugin::yawCoefficient(
-  const double& beta,
-  const double& p,
-  const double& r,
-  const double& V)
+double GazeboFixedWingPlugin::yawCoefficient(const double& beta, const double& p, const double& r, const double& V)
 {
   // 横滑り角
   auto C_n = aero_coefs_.c_yaw_beta * beta;
@@ -447,13 +432,12 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(
-      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay
-                               << "[s] is over " << check_delay_threshold_ << "[s].");
+      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay << "[s] is over "
+                               << check_delay_threshold_ << "[s].");
   }
   else if (delay < -kNegativeCmdDelayErrThreshold)
   {
-    GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
+    GZ_ERROR_THROTTLE(kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
   }
 
   // Update reference deflection angles

@@ -21,8 +21,7 @@ namespace urdf_builder
 {
 namespace view_model
 {
-JointViewModel::JointViewModel(const urdf::JointSharedPtr& model)
-  : BaseViewModel<urdf::Joint, JointViewModel>(model)
+JointViewModel::JointViewModel(const urdf::JointSharedPtr& model) : BaseViewModel<urdf::Joint, JointViewModel>(model)
 {
   if (model_->type == urdf::Joint::UNKNOWN)
     model_->type = urdf::Joint::FIXED;

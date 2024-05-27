@@ -14,31 +14,27 @@ namespace moveit_rviz_plugin
 RobotStateDisplay::RobotStateDisplay()
 {
   robot_description_property_.reset(new rviz::StringProperty(
-    "Robot Description", "robot_description",
-    "The name of the ROS parameter where the URDF for the robot is loaded.", this,
-    SLOT(changedRobotDescription()), this));
+    "Robot Description", "robot_description", "The name of the ROS parameter where the URDF for the robot is loaded.",
+    this, SLOT(changedRobotDescription()), this));
 
   root_link_name_property_.reset(new rviz::StringProperty(
-    "Robot Root Link", "", "Shows the name of the root link for the robot model.", this,
-    SLOT(changedRootLinkName()), this));
+    "Robot Root Link", "", "Shows the name of the root link for the robot model.", this, SLOT(changedRootLinkName()),
+    this));
   root_link_name_property_->setReadOnly(true);
 
   highlight_link_.reset(new rviz::StringProperty(
     "Highlight Link", "", "Highlight chosen link.", this, SLOT(changedHighlightColor()), this));
 
   unhighlight_link_.reset(new rviz::StringProperty(
-    "Unhighlight Link", "", "Unhighlight chosen link.", this, SLOT(changedUnhighlightColor()),
-    this));
+    "Unhighlight Link", "", "Unhighlight chosen link.", this, SLOT(changedUnhighlightColor()), this));
 
   robot_state_topic_property_.reset(new rviz::RosTopicProperty(
-    "Robot State Topic", "display_robot_state",
-    ros::message_traits::datatype<moveit_msgs::DisplayRobotState>(),
-    "The topic on which the moveit_msgs::RobotState messages are received.", this,
-    SLOT(changedRobotStateTopic()), this));
+    "Robot State Topic", "display_robot_state", ros::message_traits::datatype<moveit_msgs::DisplayRobotState>(),
+    "The topic on which the moveit_msgs::RobotState messages are received.", this, SLOT(changedRobotStateTopic()),
+    this));
 
   robot_alpha_property_.reset(new rviz::FloatProperty(
-    "Robot Alpha", 1., "Specifies the alpha for the robot links.", this,
-    SLOT(changedRobotSceneAlpha()), this));
+    "Robot Alpha", 1., "Specifies the alpha for the robot links.", this, SLOT(changedRobotSceneAlpha()), this));
   robot_alpha_property_->setMin(0.);
   robot_alpha_property_->setMax(1.);
 
@@ -55,15 +51,13 @@ RobotStateDisplay::RobotStateDisplay()
     SLOT(changedEnableVisualVisible()), this));
 
   enable_collision_visible_.reset(new rviz::BoolProperty(
-    "Collision Enabled", false, "Whether to display the collision representation of the robot.",
-    this, SLOT(changedEnableCollisionVisible()), this));
+    "Collision Enabled", false, "Whether to display the collision representation of the robot.", this,
+    SLOT(changedEnableCollisionVisible()), this));
 
   show_all_links_.reset(new rviz::BoolProperty(
-    "Show All Links", true, "Toggle all links visibility on or off.", this,
-    SLOT(changedShowAllLinks()), this));
+    "Show All Links", true, "Toggle all links visibility on or off.", this, SLOT(changedShowAllLinks()), this));
 
-  reload_.reset(new rviz::BoolProperty(
-    "Reload", true, "Reload robot model.", this, SLOT(changedReload()), this));
+  reload_.reset(new rviz::BoolProperty("Reload", true, "Reload robot model.", this, SLOT(changedReload()), this));
 }
 
 void RobotStateDisplay::update(float wall_dt, float ros_dt)
@@ -145,17 +139,13 @@ void RobotStateDisplay::calculateOffsetPosition()
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
-  context_->getFrameManager()->getTransform(
-    kmodel_->getModelFrame(), ros::Time(0), position, orientation);
+  context_->getFrameManager()->getTransform(kmodel_->getModelFrame(), ros::Time(0), position, orientation);
 
   scene_node_->setPosition(position);
   scene_node_->setOrientation(orientation);
 }
 
-void RobotStateDisplay::setLinkColor(
-  rviz::Robot* robot,
-  const string& link_name,
-  const QColor& color)
+void RobotStateDisplay::setLinkColor(rviz::Robot* robot, const string& link_name, const QColor& color)
 {
   auto* link = robot->getLink(link_name);
   if (link == nullptr)
@@ -173,8 +163,7 @@ void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const string& link_na
   link->unsetColor();
 }
 
-void RobotStateDisplay::setRobotHighlights(
-  const moveit_msgs::DisplayRobotState::_highlight_links_type& links)
+void RobotStateDisplay::setRobotHighlights(const moveit_msgs::DisplayRobotState::_highlight_links_type& links)
 {
   if (links.empty() && highlights_.empty())
     return;
@@ -249,8 +238,7 @@ void RobotStateDisplay::unsetHighlight(const string& link_name)
 void RobotStateDisplay::restartSubscribers()
 {
   robot_state_sub_.shutdown();
-  robot_state_sub_ =
-    nh_.subscribe(robot_state_topic_property_->getStdString(), 1, &self::robotStateCb, this);
+  robot_state_sub_ = nh_.subscribe(robot_state_topic_property_->getStdString(), 1, &self::robotStateCb, this);
 }
 
 void RobotStateDisplay::robotStateCb(const moveit_msgs::DisplayRobotStateConstPtr& state_msg)

@@ -39,8 +39,7 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Inde
  * @return Eigen::MatrixXd
  */
 template <typename Derived>
-Eigen::MatrixXd
-tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num, const uint8_t& axis)
+Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num, const uint8_t& axis)
 {
   assert(num > 0);
 
@@ -80,8 +79,7 @@ tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num, const uint8_t
  * @return Eigen::MatrixXd
  */
 template <typename T, typename U>
-Eigen::MatrixXd
-concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
+Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
 {
   switch (axis)
   {
@@ -116,11 +114,8 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8
  * @return Eigen::MatrixXd
  */
 template <typename T, typename U, typename V>
-inline Eigen::MatrixXd concat(
-  const Eigen::MatrixBase<T>& A,
-  const Eigen::MatrixBase<U>& B,
-  const Eigen::MatrixBase<V>& C,
-  const uint8_t& axis)
+inline Eigen::MatrixXd
+concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen::MatrixBase<V>& C, const uint8_t& axis)
 {
   return concat(concat(A, B, axis), C, axis);
 }

@@ -58,9 +58,7 @@ QStringList URDFViewModel::linkNames() const
   QStringList result;
   transform(
     urdf_->links_.begin(), urdf_->links_.end(), back_inserter(result),
-    [](const pair<string, urdf::LinkSharedPtr>& pair) {
-      return QString::fromStdString(pair.first);
-    });
+    [](const pair<string, urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
 
@@ -69,9 +67,7 @@ QStringList URDFViewModel::jointNames() const
   QStringList result;
   transform(
     urdf_->joints_.begin(), urdf_->joints_.end(), back_inserter(result),
-    [](const pair<string, urdf::JointSharedPtr>& pair) {
-      return QString::fromStdString(pair.first);
-    });
+    [](const pair<string, urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
 
@@ -152,8 +148,7 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
   auto& child_links = parent_link->child_links;
   auto& child_joints = parent_link->child_joints;
   child_links.erase(remove(child_links.begin(), child_links.end(), link), child_links.end());
-  child_joints.erase(
-    remove(child_joints.begin(), child_joints.end(), link->parent_joint), child_joints.end());
+  child_joints.erase(remove(child_joints.begin(), child_joints.end(), link->parent_joint), child_joints.end());
 
   queue<urdf::LinkSharedPtr> que;
   que.push(link);
@@ -175,9 +170,7 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
   }
 }
 
-void URDFViewModel::updateLink(
-  const LinkViewModelPtr& old_link_vm,
-  const LinkViewModelPtr& new_link_vm)
+void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm)
 {
   // remove old
   const auto& old_joint = old_link_vm->joint();
@@ -193,17 +186,15 @@ void URDFViewModel::updateLink(
     const auto& old_parent_link = old_parent_link_it->second;
 
     auto& child_links = old_parent_link->child_links;
-    const auto& it1 =
-      remove_if(child_links.begin(), child_links.end(), [&](const urdf::LinkSharedPtr& link) {
-        return link->name == old_link_vm->name().toStdString();
-      });
+    const auto& it1 = remove_if(child_links.begin(), child_links.end(), [&](const urdf::LinkSharedPtr& link) {
+      return link->name == old_link_vm->name().toStdString();
+    });
     child_links.erase(it1, child_links.end());
 
     auto& child_joints = old_parent_link->child_joints;
-    const auto& it2 =
-      remove_if(child_joints.begin(), child_joints.end(), [&](const urdf::JointSharedPtr& joint) {
-        return joint->name == old_joint->name().toStdString();
-      });
+    const auto& it2 = remove_if(child_joints.begin(), child_joints.end(), [&](const urdf::JointSharedPtr& joint) {
+      return joint->name == old_joint->name().toStdString();
+    });
     child_joints.erase(it2, child_joints.end());
   }
 
@@ -234,8 +225,7 @@ void URDFViewModel::removeTextureTagsWithoutFilename(TiXmlElement* element)
   if (element == nullptr)
     return;
 
-  for (auto child = element->FirstChildElement(); child != nullptr;
-       child = child->NextSiblingElement())
+  for (auto child = element->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
   {
     if (string(child->Value()) == "texture" && !child->Attribute("filename"))
       element->RemoveChild(child);

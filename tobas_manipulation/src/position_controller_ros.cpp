@@ -10,10 +10,7 @@ using namespace tobas_kdl;
 
 namespace tobas_manipulation
 {
-PositionControllerRos::PositionControllerRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+PositionControllerRos::PositionControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   drone_.loadFromParam(nh_);
@@ -35,12 +32,9 @@ PositionControllerRos::PositionControllerRos(
 
   positions_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
 
-  cur_js_sub_ =
-    nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ =
-    nh_.subscribe(tobas::kPosCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_ls_sub_ =
-    nh_.subscribe(tobas::kPosCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+  cur_js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
+  tar_js_sub_ = nh_.subscribe(tobas::kPosCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ = nh_.subscribe(tobas::kPosCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
 int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg)

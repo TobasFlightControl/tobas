@@ -38,11 +38,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-int MicroDisturbanceEoM::update(
-  const double& V,
-  const double& rho,
-  const double& battery_voltage,
-  const JntArray& q)
+int MicroDisturbanceEoM::update(const double& V, const double& rho, const double& battery_voltage, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
@@ -233,8 +229,8 @@ int MicroDisturbanceEoM::update(
     {
       if (error_code_ > E_WARN)
       {
-        error_msg_ = "Thrust force " + to_string(thrust) + "[N] is over the maximum limit "
-                     + to_string(max_thrust) + "[N].";
+        error_msg_ =
+          "Thrust force " + to_string(thrust) + "[N] is over the maximum limit " + to_string(max_thrust) + "[N].";
         error_code_ = E_WARN;
       }
       thrust = max_thrust;

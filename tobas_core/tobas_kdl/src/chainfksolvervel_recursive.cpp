@@ -32,10 +32,7 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArrayVel& in, int _seg_nr)
     // Calculate new Frame_base_ee
     if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
     {
-      p_out_ =
-        p_out_
-        * FrameVel(
-          chain_.getSegment(i).pose(in.q(j)), chain_.getSegment(i).twist(in.q(j), in.qdot(j)));
+      p_out_ = p_out_ * FrameVel(chain_.getSegment(i).pose(in.q(j)), chain_.getSegment(i).twist(in.q(j), in.qdot(j)));
       ++j;  // Only increase jointnr if the segment has a joint
     }
     else

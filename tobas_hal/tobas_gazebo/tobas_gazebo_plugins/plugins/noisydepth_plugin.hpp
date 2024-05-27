@@ -65,19 +65,9 @@ private:
   ros::Publisher depth_image_pub_;
   ros::Publisher depth_info_pub_;
 
-  void onNewImageFrame(
-    const uint8_t* image,
-    size_t width,
-    size_t height,
-    size_t depth,
-    const std::string& format);
+  void onNewImageFrame(const uint8_t* image, size_t width, size_t height, size_t depth, const std::string& format);
 
-  void onNewDepthFrame(
-    const float* image,
-    size_t width,
-    size_t height,
-    size_t depth,
-    const std::string& format);
+  void onNewDepthFrame(const float* image, size_t width, size_t height, size_t depth, const std::string& format);
 
   void getSdfParams(sdf::ElementPtr sdf);
   void setNoiseModel();

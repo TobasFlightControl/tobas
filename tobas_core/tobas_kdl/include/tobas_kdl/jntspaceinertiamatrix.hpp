@@ -85,20 +85,13 @@ public:
    */
   inline size_t columns() const;
 
-  inline friend void Add(
-    const JntSpaceInertiaMatrix& src1,
-    const JntSpaceInertiaMatrix& src2,
-    JntSpaceInertiaMatrix& dest);
-  inline friend void Subtract(
-    const JntSpaceInertiaMatrix& src1,
-    const JntSpaceInertiaMatrix& src2,
-    JntSpaceInertiaMatrix& dest);
   inline friend void
-  Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
+  Add(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
   inline friend void
-  Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
-  inline friend void
-  Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest);
+  Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
+  inline friend void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
+  inline friend void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
+  inline friend void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest);
   inline friend void setToZero(JntSpaceInertiaMatrix& matrix);
 };
 
@@ -136,30 +129,22 @@ inline size_t JntSpaceInertiaMatrix::columns() const
   return static_cast<size_t>(data.cols());
 }
 
-inline void Add(
-  const JntSpaceInertiaMatrix& src1,
-  const JntSpaceInertiaMatrix& src2,
-  JntSpaceInertiaMatrix& dest)
+inline void Add(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest)
 {
   dest.data = src1.data + src2.data;
 }
 
-inline void Subtract(
-  const JntSpaceInertiaMatrix& src1,
-  const JntSpaceInertiaMatrix& src2,
-  JntSpaceInertiaMatrix& dest)
+inline void Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest)
 {
   dest.data = src1.data - src2.data;
 }
 
-inline void
-Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
+inline void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
 {
   dest.data = factor * src.data;
 }
 
-inline void
-Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
+inline void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
 {
   dest.data = src.data / factor;
 }

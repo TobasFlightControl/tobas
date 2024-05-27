@@ -32,7 +32,6 @@ private:
   AccelMap a_;
   AccelMap Jdqd_out_;
 
-  void
-  JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
+  void JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
 };
 }  // namespace tobas_kdl

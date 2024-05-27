@@ -26,12 +26,9 @@ public:
    * @param v 時刻tにおける速度
    * @param a 時刻tにおける加速度
    */
-  void get(
-    const double& t,
-    const tobas_kdl::Rotation& r,
-    tobas_kdl::Vector& p,
-    tobas_kdl::Vector& v,
-    tobas_kdl::Vector& a) const;
+  void
+  get(const double& t, const tobas_kdl::Rotation& r, tobas_kdl::Vector& p, tobas_kdl::Vector& v, tobas_kdl::Vector& a)
+    const;
 
   /**
    * @brief 時刻tにおける軌跡を得る

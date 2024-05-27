@@ -19,9 +19,7 @@ namespace ogre_helpers
 struct OgreController::PImpl
 {
   explicit PImpl(rviz::VisualizationManager* visualization_manager)
-    : rviz(visualization_manager),
-      ogre(visualization_manager->getSceneManager()),
-      link_updater(nullptr)
+    : rviz(visualization_manager), ogre(visualization_manager->getSceneManager()), link_updater(nullptr)
   {
     ogre.root_node = ogre.scene_manager->getRootSceneNode();
     ogre.robot_node = ogre.root_node->createChildSceneNode();
@@ -29,8 +27,7 @@ struct OgreController::PImpl
     ogre.names_node = ogre.root_node->createChildSceneNode();
     display_context_proxy =
       new ui::DisplayContextProxy(ogre.scene_manager, visualization_manager->getSelectionManager());
-    rviz.robot.reset(
-      new rviz::Robot(ogre.robot_node, display_context_proxy, "urdf_robot_model", nullptr));
+    rviz.robot.reset(new rviz::Robot(ogre.robot_node, display_context_proxy, "urdf_robot_model", nullptr));
 
     rviz.robot->setAlpha(kDefaultRobotAlpha);  // ロボット全体のAlpha
     rviz.robot->setVisualVisible(kDefaultVisualVisible);
@@ -129,12 +126,10 @@ void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
   Ogre::Quaternion orientation;
   for (const auto& pair : model->links_)
   {
-    if (!pimpl_->link_updater->getLinkTransforms(
-          pair.second->name, position, orientation, position, orientation))
+    if (!pimpl_->link_updater->getLinkTransforms(pair.second->name, position, orientation, position, orientation))
       continue;
 
-    rviz::AxesPtr axes(
-      new rviz::Axes(pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius));
+    rviz::AxesPtr axes(new rviz::Axes(pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius));
     axes->setPosition(position);
     axes->setOrientation(orientation);
     pimpl_->rviz.axes.push_back(axes);

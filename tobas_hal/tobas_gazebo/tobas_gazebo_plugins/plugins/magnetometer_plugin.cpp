@@ -39,8 +39,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_));
 
   // Create the initial bias
-  UniformDistribution3d init_bias_dist(
-    rnd_dev_, -noise_uniform_initial_bias_, noise_uniform_initial_bias_);
+  UniformDistribution3d init_bias_dist(rnd_dev_, -noise_uniform_initial_bias_, noise_uniform_initial_bias_);
   init_bias_ = init_bias_dist.get();
 
   // Fill the static parts of the magnetometer message
@@ -60,8 +59,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + tobas::kMagTopic, 1);
 
   // Listen to the update event
-  update_connection_ =
-    sensor->ConnectUpdated(boost::bind(&GazeboMagnetometerPlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboMagnetometerPlugin::onUpdate, this));
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)

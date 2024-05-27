@@ -68,13 +68,13 @@ bool MPU9250::probe()
 
   responseXG = ReadReg(MPUREG_WHOAMI | READ_FLAG);
 
-  WriteReg(MPUREG_USER_CTRL, 0x20);     // I2C Master mode
-  WriteReg(MPUREG_I2C_MST_CTRL, 0x0D);  // I2C configuration multi-master  IIC 400KHz
+  WriteReg(MPUREG_USER_CTRL, 0x20);                             // I2C Master mode
+  WriteReg(MPUREG_I2C_MST_CTRL, 0x0D);                          // I2C configuration multi-master  IIC 400KHz
   WriteReg(MPUREG_I2C_SLV0_ADDR, AK8963_I2C_ADDR | READ_FLAG);  // Set the I2C slave addres of
                                                                 // AK8963 and set for read.
-  WriteReg(MPUREG_I2C_SLV0_REG, AK8963_WIA);  // I2C slave 0 register address from where to begin
-                                              // data transfer
-  WriteReg(MPUREG_I2C_SLV0_CTRL, 0x81);       // Read 1 byte from the magnetometer
+  WriteReg(MPUREG_I2C_SLV0_REG, AK8963_WIA);                    // I2C slave 0 register address from where to begin
+                                                                // data transfer
+  WriteReg(MPUREG_I2C_SLV0_CTRL, 0x81);                         // Read 1 byte from the magnetometer
   tobas_std::msleep(10);
   responseM = ReadReg(MPUREG_EXT_SENS_DATA_00);
 
@@ -107,9 +107,9 @@ void MPU9250::initialize()
   uint8_t MPU_Init_Data[MPU_InitRegNum][2] = {
     //{0x80, MPUREG_PWR_MGMT_1},     // Reset Device - Disabled because it seems to corrupt
     // initialisation of AK8963
-    { 0x01, MPUREG_PWR_MGMT_1 },  // Clock Source
-    { 0x00, MPUREG_PWR_MGMT_2 },  // Enable Acc & Gyro
-    { 0x00, MPUREG_CONFIG },  // Use DLPF set Gyroscope bandwidth 184Hz, temperature bandwidth 188Hz
+    { 0x01, MPUREG_PWR_MGMT_1 },      // Clock Source
+    { 0x00, MPUREG_PWR_MGMT_2 },      // Enable Acc & Gyro
+    { 0x00, MPUREG_CONFIG },          // Use DLPF set Gyroscope bandwidth 184Hz, temperature bandwidth 188Hz
     { 0x18, MPUREG_GYRO_CONFIG },     // +-2000dps
     { 3 << 3, MPUREG_ACCEL_CONFIG },  // +-16G
     { 0x08, MPUREG_ACCEL_CONFIG_2 },  // Set Acc Data Rates, Enable Acc LPF , Bandwidth 184Hz
@@ -249,9 +249,9 @@ void MPU9250::calib_mag()
 
   WriteReg(MPUREG_I2C_SLV0_ADDR, AK8963_I2C_ADDR | READ_FLAG);  // Set the I2C slave addres of
                                                                 // AK8963 and set for read.
-  WriteReg(MPUREG_I2C_SLV0_REG, AK8963_ASAX);  // I2C slave 0 register address from where to begin
-                                               // data transfer
-  WriteReg(MPUREG_I2C_SLV0_CTRL, 0x83);        // Read 3 bytes from the magnetometer
+  WriteReg(MPUREG_I2C_SLV0_REG, AK8963_ASAX);                   // I2C slave 0 register address from where to begin
+                                                                // data transfer
+  WriteReg(MPUREG_I2C_SLV0_CTRL, 0x83);                         // Read 3 bytes from the magnetometer
 
   // WriteReg(MPUREG_I2C_SLV0_CTRL, 0x81);    //Enable I2C and set bytes
   tobas_std::msleep(10);
@@ -277,9 +277,9 @@ void MPU9250::update()
   // Send I2C command at first
   WriteReg(MPUREG_I2C_SLV0_ADDR, AK8963_I2C_ADDR | READ_FLAG);  // Set the I2C slave addres of
                                                                 // AK8963 and set for read.
-  WriteReg(MPUREG_I2C_SLV0_REG, AK8963_HXL);  // I2C slave 0 register address from where to begin
-                                              // data transfer
-  WriteReg(MPUREG_I2C_SLV0_CTRL, 0x87);       // Read 7 bytes from the magnetometer
+  WriteReg(MPUREG_I2C_SLV0_REG, AK8963_HXL);                    // I2C slave 0 register address from where to begin
+                                                                // data transfer
+  WriteReg(MPUREG_I2C_SLV0_CTRL, 0x87);                         // Read 7 bytes from the magnetometer
   // must start your read from AK8963A register 0x03 and read seven bytes so that upon read of ST2
   // register 0x09 the AK8963A will unlatch the data registers for the next measurement.
 

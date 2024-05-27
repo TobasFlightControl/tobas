@@ -47,8 +47,7 @@ bool StaticLinkUpdater::getLinkTransforms(
   return true;
 }
 
-void StaticLinkUpdater::setLinkStatus(rviz::StatusLevel, const std::string&, const std::string&)
-  const
+void StaticLinkUpdater::setLinkStatus(rviz::StatusLevel, const std::string&, const std::string&) const
 {
 }
 
@@ -63,9 +62,7 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
       break;
     const auto& pose = cur->parent_joint->parent_to_joint_origin_transform;
     Ogre::Matrix4 m;
-    m.makeTransform(
-      URDFVector3ToOgre(pose.position), Ogre::Vector3(1.0, 1.0, 1.0),
-      URDFRotationToOgre(pose.rotation));
+    m.makeTransform(URDFVector3ToOgre(pose.position), Ogre::Vector3(1.0, 1.0, 1.0), URDFRotationToOgre(pose.rotation));
 
     matrices.push_back(m);
     cur = urdf_->getLink(cur->parent_joint->parent_link_name);

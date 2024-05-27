@@ -27,10 +27,8 @@ public:
 
   Eigen::VectorXd step(const Eigen::VectorXd& x, const Eigen::VectorXd& s);
 
-  Eigen::VectorXd step(
-    const Eigen::VectorXd& x,
-    const Eigen::VectorXd& s,
-    const std::vector<LinearDynamics>& disc_dyns);
+  Eigen::VectorXd
+  step(const Eigen::VectorXd& x, const Eigen::VectorXd& s, const std::vector<LinearDynamics>& disc_dyns);
 
 private:
   const int Hp_;
@@ -57,22 +55,15 @@ private:
 
   std::vector<Eigen::VectorXd> makeDecays(double dt, const std::vector<double>& decay_time_consts);
 
-  Eigen::MatrixXd makeG(
-    const Eigen::VectorXd& R,
-    const Eigen::VectorXd& S,
-    const Eigen::VectorXd& Q,
-    const Eigen::MatrixXd& Cz);
+  Eigen::MatrixXd
+  makeG(const Eigen::VectorXd& R, const Eigen::VectorXd& S, const Eigen::VectorXd& Q, const Eigen::MatrixXd& Cz);
 
   Eigen::MatrixXd makeBaseCE();
 
-  Eigen::MatrixXd makeCI(
-    const Eigen::MatrixXd& E,
-    const Eigen::MatrixXd& F,
-    const Eigen::MatrixXd& G,
-    const Eigen::MatrixXd& Cz);
+  Eigen::MatrixXd
+  makeCI(const Eigen::MatrixXd& E, const Eigen::MatrixXd& F, const Eigen::MatrixXd& G, const Eigen::MatrixXd& Cz);
 
-  Eigen::VectorXd
-  makeCi0(const Eigen::VectorXd& e, const Eigen::VectorXd& f, const Eigen::VectorXd& g);
+  Eigen::VectorXd makeCi0(const Eigen::VectorXd& e, const Eigen::VectorXd& f, const Eigen::VectorXd& g);
 
   void updateDynamics(const std::vector<LinearDynamics>& disc_dyns);
 

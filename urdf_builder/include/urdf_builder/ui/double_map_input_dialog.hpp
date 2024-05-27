@@ -18,10 +18,7 @@ class DoubleMapInputDialog : public QDialog
   static constexpr int kDecimals = 6;
 
 public:
-  explicit DoubleMapInputDialog(
-    QWidget* parent,
-    const QString& title,
-    const QStringList& field_names);
+  explicit DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names);
 
   const double& getValue(const QString& field) const;
 

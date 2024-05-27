@@ -15,10 +15,7 @@ public:
   SegmentMap::const_iterator parent;
   std::vector<SegmentMap::const_iterator> children;
 
-  inline explicit TreeElement(
-    const Segment& _segment,
-    const SegmentMap::const_iterator& _parent,
-    const size_t& _q_nr)
+  inline explicit TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, const size_t& _q_nr)
     : segment(_segment), q_nr(_q_nr), parent(_parent)
   {
   }

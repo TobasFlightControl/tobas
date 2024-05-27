@@ -32,8 +32,8 @@ class GazeboGpsPlugin : public SensorPlugin
 
   using self = GazeboGpsPlugin;
   using super = SensorPlugin;
-  using HistoryType = std::
-    tuple<common::Time, ignition::math::Pose3d, ignition::math::Vector3d, ignition::math::Vector3d>;
+  using HistoryType =
+    std::tuple<common::Time, ignition::math::Pose3d, ignition::math::Vector3d, ignition::math::Vector3d>;
 
 public:
   explicit GazeboGpsPlugin();

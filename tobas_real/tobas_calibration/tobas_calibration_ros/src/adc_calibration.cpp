@@ -9,10 +9,7 @@ using namespace std;
 
 namespace tobas_calibration
 {
-AdcCalibrationRos::AdcCalibrationRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+AdcCalibrationRos::AdcCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   if (adc_.initialize() < 0)

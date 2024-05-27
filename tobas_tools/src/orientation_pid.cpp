@@ -36,8 +36,7 @@ Vector OrientationPid::update(
   const auto yaw_err = tobas_std::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
   const Vector ep(roll_err, pitch_err, yaw_err);
   const Vector gyro_error = tar_gyro - cur_gyro_lpf;
-  const Vector ed(
-    eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
+  const Vector ed(eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
 
   // 積分誤差を蓄積
   // 制御入力の飽和により姿勢が実現できない状況は無いとして，アンチワインドアップは行わない
@@ -47,10 +46,8 @@ Vector OrientationPid::update(
   const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
 
   // オイラー角加速度をDジャイロに変換
-  const Vector3d cur_rpyd =
-    eigen_tools::eulerrateFromAngvelLocal(cur_gyro_lpf.data, cur_rpy.roll, cur_rpy.pitch);
-  return Vector(eigen_tools::angaccFromEuleraccLocal(
-    cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
+  const Vector3d cur_rpyd = eigen_tools::eulerrateFromAngvelLocal(cur_gyro_lpf.data, cur_rpy.roll, cur_rpy.pitch);
+  return Vector(eigen_tools::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
 }
 
 void OrientationPid::configure(const OrientationPidConfig& cfg)

@@ -13,8 +13,7 @@ using namespace Eigen;
 
 namespace tobas_kdl
 {
-TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree)
-  : super(tree), jnt2jac_(tree_), jntparser_(tree_)
+TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
 {
   updateInternalDataStructures();
 }

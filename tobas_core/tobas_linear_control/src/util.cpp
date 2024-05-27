@@ -79,12 +79,7 @@ double firstOrderPos(const double& x0, const double& xd, const double& tau, cons
   return xd - exp(-t / (tau + EPS)) * (xd - x0);
 }
 
-double firstOrderVel(
-  const double& x0,
-  const double& v0,
-  const double& vd,
-  const double& tau,
-  const double& t)
+double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t)
 {
   return x0 + vd * t - tau * (1 - exp(-t / (tau + EPS))) * (vd - v0);
 }

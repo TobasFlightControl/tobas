@@ -11,16 +11,11 @@ using namespace tobas_kdl;
 
 namespace tobas_mavros_bridge
 {
-TobasMavrosBridge::TobasMavrosBridge(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+TobasMavrosBridge::TobasMavrosBridge(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  setpoint_pos_local_pub_ =
-    nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);
-  pos_yaw_sub_ =
-    nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
+  setpoint_pos_local_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);
+  pos_yaw_sub_ = nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
 }
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)

@@ -10,13 +10,9 @@ using namespace tobas_std;
 
 namespace tobas_pre_arm_check
 {
-PreArmCheckServer::PreArmCheckServer(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+PreArmCheckServer::PreArmCheckServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
-    pos_buf_{ TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-              TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+    pos_buf_{ TimestampedBufferDouble(kPosDriftCheckTimeWindow), TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
   drone_.loadFromParam(nh_);
@@ -107,8 +103,7 @@ void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
   pre_arm_check_.ok = true;
 
   // バッテリー電圧
-  pre_arm_check_.battery_voltage_sufficient =
-    battery_->voltage > drone_.batteryConfig().sag_voltage;
+  pre_arm_check_.battery_voltage_sufficient = battery_->voltage > drone_.batteryConfig().sag_voltage;
   if (!pre_arm_check_.battery_voltage_sufficient)
     pre_arm_check_.ok = false;
 

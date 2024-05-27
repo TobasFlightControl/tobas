@@ -72,8 +72,7 @@ void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param, const Vec
 
   if (param_vec.size() != 3)
   {
-    ROS_ERROR_STREAM(
-      "The size of specified vector for '" << key << "' is not 3. The default vector is used.");
+    ROS_ERROR_STREAM("The size of specified vector for '" << key << "' is not 3. The default vector is used.");
     param = _default;
     return;
   }

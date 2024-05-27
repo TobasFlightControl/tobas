@@ -80,19 +80,15 @@ void getSdfParam(
   {
     if (verbose)
     {
-      gzwarn << "SDF parameter '" << name << "' is not specified. The default value '"
-             << default_value << "' is used." << std::endl;
+      gzwarn << "SDF parameter '" << name << "' is not specified. The default value '" << default_value << "' is used."
+             << std::endl;
     }
     param = default_value;
   }
 }
 
 template <typename T>
-void getSdfParam(
-  const sdf::ElementPtr& sdf,
-  const std::string& name,
-  T& param,
-  const Constraint& constraint)
+void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param, const Constraint& constraint)
 {
   getSdfParam(sdf, name, param);
   checkConstraint(name, param, constraint);

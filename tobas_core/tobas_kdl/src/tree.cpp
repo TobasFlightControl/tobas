@@ -124,8 +124,7 @@ void Tree::addSegment(const Segment& segment, const string& hook_name)
 
   // Insert new element
   const auto q_nr = segment.getJoint().type != Joint::Fixed ? nj_ : 0;
-  const auto retval =
-    segments_.insert(make_pair(segment.name(), TreeElement(segment, parent, q_nr)));
+  const auto retval = segments_.insert(make_pair(segment.name(), TreeElement(segment, parent, q_nr)));
 
   // check if insertion succeeded
   if (!retval.second)

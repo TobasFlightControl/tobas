@@ -15,24 +15,19 @@ using namespace tobas_kdl;
 
 namespace tobas_mr_wind_estimation
 {
-WindEstimator::WindEstimator(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+WindEstimator::WindEstimator(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
   drone_.loadFromParam(nh_);
   updateInternalDataStructures();
 
-  kf_.initialize(
-    Vector2d::Zero(), Vector2d::Constant(tobas_std::sqr(kInitWindStddev)).asDiagonal());
+  kf_.initialize(Vector2d::Zero(), Vector2d::Constant(tobas_std::sqr(kInitWindStddev)).asDiagonal());
   kf_.setZero();
 
   wind_pub_ = nh_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
 
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 void WindEstimator::updateInternalDataStructures()
@@ -95,8 +90,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.y = wind_W_meas;
 
   // プロセスノイズの共分散
-  const Vector2d relative_wind_vel =
-    kf_.state() - odom->twist.vel.data.head(kStateSize);  // 相対風速
+  const Vector2d relative_wind_vel = kf_.state() - odom->twist.vel.data.head(kStateSize);  // 相対風速
   dryden_.update(relative_wind_vel.norm(), odom->frame.p.z(), dt);
   kf_.Q(0, 0) = tobas_std::sqr(dryden_.noiseStddevLon());
   kf_.Q(1, 1) = tobas_std::sqr(dryden_.noiseStddevLat());

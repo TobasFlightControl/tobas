@@ -42,14 +42,8 @@ public:
   Eigen::MatrixXd B;
   Eigen::MatrixXd C;
 
-  inline explicit LinearStateSpace(
-    const Eigen::Index& x_size,
-    const Eigen::Index& u_size,
-    const Eigen::Index& y_size);
-  inline explicit LinearStateSpace(
-    const Eigen::MatrixXd& A,
-    const Eigen::MatrixXd& B,
-    const Eigen::MatrixXd& C);
+  inline explicit LinearStateSpace(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size);
+  inline explicit LinearStateSpace(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& C);
   inline explicit LinearStateSpace(const LinearDynamics& dyn, const Eigen::MatrixXd& C);
   inline explicit LinearStateSpace();
 
@@ -62,8 +56,7 @@ public:
   inline Eigen::Index inputSize() const;
   inline Eigen::Index outputSize() const;
 
-  inline void
-  resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size);
+  inline void resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size);
   inline void setZero();
 
   inline bool isSizeMatch() const;
@@ -79,8 +72,7 @@ inline LinearDynamics::LinearDynamics(const Eigen::Index& x_size, const Eigen::I
 {
 }
 
-inline LinearDynamics::LinearDynamics(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B)
-  : A(A), B(B)
+inline LinearDynamics::LinearDynamics(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B) : A(A), B(B)
 {
   assert(A.cols() == stateSize());
   assert(B.rows() == stateSize());
@@ -117,8 +109,7 @@ inline bool LinearDynamics::isSizeMatch() const
   return A.rows() == A.cols() && A.cols() == B.rows();
 }
 
-inline Eigen::VectorXd
-LinearDynamics::dynamics(const Eigen::VectorXd& x, const Eigen::VectorXd& u) const
+inline Eigen::VectorXd LinearDynamics::dynamics(const Eigen::VectorXd& x, const Eigen::VectorXd& u) const
 {
   assert(x.size() == stateSize());
   assert(u.size() == inputSize());
@@ -144,10 +135,7 @@ inline LinearStateSpace::LinearStateSpace(
 {
 }
 
-inline LinearStateSpace::LinearStateSpace(
-  const Eigen::MatrixXd& A,
-  const Eigen::MatrixXd& B,
-  const Eigen::MatrixXd& C)
+inline LinearStateSpace::LinearStateSpace(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& C)
   : A(A), B(B), C(C)
 {
   assert(A.cols() == stateSize());
@@ -194,10 +182,7 @@ inline Eigen::Index LinearStateSpace::outputSize() const
   return C.rows();
 }
 
-inline void LinearStateSpace::resize(
-  const Eigen::Index& x_size,
-  const Eigen::Index& u_size,
-  const Eigen::Index& y_size)
+inline void LinearStateSpace::resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size)
 {
   A.conservativeResize(x_size, x_size);
   B.conservativeResize(x_size, u_size);

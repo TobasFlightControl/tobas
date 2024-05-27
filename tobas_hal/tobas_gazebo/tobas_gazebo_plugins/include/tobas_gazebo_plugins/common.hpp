@@ -8,26 +8,26 @@ static std::map<std::string, gazebo::common::Time> g_log_throttle;
 // Mutex to protect logThrottle. Without it, the formatting breaks down.
 static std::mutex g_log_throttle_mutex;
 
-#define GZ_LOG_THROTTLE(period, msg, os)                                                           \
-  {                                                                                                \
-    std::string id = std::string(__FILE__) + ":" + std::to_string(__LINE__);                       \
-    const auto now = gazebo::common::Time::GetWallTime();                                          \
-    std::lock_guard<std::mutex> lock(g_log_throttle_mutex);                                        \
-    auto it = g_log_throttle.find(id);                                                             \
-    if (it == g_log_throttle.end())                                                                \
-    {                                                                                              \
-      g_log_throttle[id] = now;                                                                    \
-      os << msg << std::endl;                                                                      \
-    }                                                                                              \
-    else                                                                                           \
-    {                                                                                              \
-      const auto diff = (now - it->second).Double();                                               \
-      if (diff > period)                                                                           \
-      {                                                                                            \
-        it->second = now;                                                                          \
-        os << msg << std::endl;                                                                    \
-      }                                                                                            \
-    }                                                                                              \
+#define GZ_LOG_THROTTLE(period, msg, os)                                                                               \
+  {                                                                                                                    \
+    std::string id = std::string(__FILE__) + ":" + std::to_string(__LINE__);                                           \
+    const auto now = gazebo::common::Time::GetWallTime();                                                              \
+    std::lock_guard<std::mutex> lock(g_log_throttle_mutex);                                                            \
+    auto it = g_log_throttle.find(id);                                                                                 \
+    if (it == g_log_throttle.end())                                                                                    \
+    {                                                                                                                  \
+      g_log_throttle[id] = now;                                                                                        \
+      os << msg << std::endl;                                                                                          \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+      const auto diff = (now - it->second).Double();                                                                   \
+      if (diff > period)                                                                                               \
+      {                                                                                                                \
+        it->second = now;                                                                                              \
+        os << msg << std::endl;                                                                                        \
+      }                                                                                                                \
+    }                                                                                                                  \
   }
 
 #define GZ_MSG_THROTTLE(period, msg) GZ_LOG_THROTTLE(period, msg, gzmsg)
@@ -58,7 +58,7 @@ static constexpr double kCheckTopicsTimeThreshold = 1.;       // [s]
 static constexpr double kNegativeCmdDelayErrThreshold = 0.1;  // [s]
 static constexpr double kRotorSpeedSlowdownSim = 10.;         // [-]
 
-static constexpr double kDefaultLatitudeZero = 35.658099;  // [deg] 日本: 北緯35度39分29秒
+static constexpr double kDefaultLatitudeZero = 35.658099;    // [deg] 日本: 北緯35度39分29秒
 static constexpr double kDefaultLongitudeZero = 139.741354;  // [deg] 日本: 東経139度44分28秒8759
 static constexpr double kDefaultAltitudeZero = 0.;           // [m]
 

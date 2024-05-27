@@ -51,8 +51,7 @@ inline Accel::Accel()
 {
 }
 
-inline Accel::Accel(const Vector& _linear, const Vector& _angular)
-  : linear(_linear), angular(_angular)
+inline Accel::Accel(const Vector& _linear, const Vector& _angular) : linear(_linear), angular(_angular)
 {
 }
 

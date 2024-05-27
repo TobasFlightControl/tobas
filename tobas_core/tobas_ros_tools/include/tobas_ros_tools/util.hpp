@@ -20,10 +20,7 @@ void clear(sensor_msgs::JointState& js);
 void resize(sensor_msgs::JointState& js, const size_t& size);
 
 template <typename MsgType>
-void _subscribeOnceCb(
-  const boost::shared_ptr<const MsgType>& input_msg,
-  MsgType& msg,
-  bool& received)
+void _subscribeOnceCb(const boost::shared_ptr<const MsgType>& input_msg, MsgType& msg, bool& received)
 {
   msg = *input_msg;
   received = true;
@@ -38,8 +35,8 @@ bool subscribeOnce(
   const double& timeout = std::numeric_limits<double>::max())
 {
   bool received = false;
-  ros::Subscriber sub = nh.subscribe<MsgType>(
-    topic, 1, boost::bind(&_subscribeOnceCb<MsgType>, _1, boost::ref(msg), boost::ref(received)));
+  ros::Subscriber sub =
+    nh.subscribe<MsgType>(topic, 1, boost::bind(&_subscribeOnceCb<MsgType>, _1, boost::ref(msg), boost::ref(received)));
   ros::Rate rate(10);  // 10 Hz
 
   const auto start_time = ros::Time::now();

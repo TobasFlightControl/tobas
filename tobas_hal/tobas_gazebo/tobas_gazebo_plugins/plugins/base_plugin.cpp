@@ -37,8 +37,7 @@ void GazeboBasePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   registerPubSub();
 
   // Listen to the update event
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboBasePlugin::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboBasePlugin::onUpdate, this, _1));
 }
 
 void GazeboBasePlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -63,8 +62,7 @@ void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboBasePlugin::registerPubSub()
 {
-  rotor_speeds_pub_ =
-    nh_.advertise<tobas_msgs::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic, 1);
+  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic, 1);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboBasePlugin);

@@ -14,7 +14,7 @@ public:
   explicit SaveUrdfDialog(QWidget* parent, const QString& dir);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
+  bool eventFilter(QObject* obj, QEvent* event) override;
 
 private Q_SLOTS:
   void onLineEditTextChanged();

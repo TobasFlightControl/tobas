@@ -62,8 +62,7 @@ void LinearDenseMPC::solve()
   const VectorXd last_u_scaled = last_input_.array() / input_scale.array();
 
   // 重み行列
-  const DiagonalMatrix<double, Dynamic> Q =
-    et::tile(control_weight, prediction_steps, 0).asDiagonal();
+  const DiagonalMatrix<double, Dynamic> Q = et::tile(control_weight, prediction_steps, 0).asDiagonal();
   const MatrixXd R = et::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
   const MatrixXd Sa = makeSa();
   const MatrixXd Sb = makeSb(last_u_scaled);
@@ -87,13 +86,13 @@ void LinearDenseMPC::solve()
 
   // 等式制約
   updateQpConstraint(
-    last_u_scaled, Psi_x, Upsilon_u, Theta, du_eqs_scaled, u_eqs_scaled, z_eqs_scaled,
-    qpsolver_.problem.G, qpsolver_.problem.h);
+    last_u_scaled, Psi_x, Upsilon_u, Theta, du_eqs_scaled, u_eqs_scaled, z_eqs_scaled, qpsolver_.problem.G,
+    qpsolver_.problem.h);
 
   // 不等式制約
   updateQpConstraint(
-    last_u_scaled, Psi_x, Upsilon_u, Theta, du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled,
-    qpsolver_.problem.A, qpsolver_.problem.b);
+    last_u_scaled, Psi_x, Upsilon_u, Theta, du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled, qpsolver_.problem.A,
+    qpsolver_.problem.b);
 
   // 決定変数のスケール
   // 変化率が小さい時の精度を重視し，制御入力の変化率は入力区間で最大値から最小値まで変化する程度を想定する．
@@ -242,8 +241,7 @@ MatrixXd LinearDenseMPC::makeSa()
   MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
   for (Index i = 0; i < input_steps; ++i)
     for (Index j = 0; j < input_steps; ++j)
-      Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) =
-        S_cumsum[input_steps] - S_cumsum[max(i, j)];
+      Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) = S_cumsum[input_steps] - S_cumsum[max(i, j)];
 
   return Sa;
 }
@@ -279,8 +277,7 @@ MatrixXd LinearDenseMPC::makeFGothic(const MatrixXd& F)
   return F_gothic;
 }
 
-MatrixXd
-LinearDenseMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearDenseMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Psi(z_size_ * prediction_steps, x_size_);
   MatrixXd tmp = MatrixXd::Identity(x_size_, x_size_);
@@ -293,8 +290,7 @@ LinearDenseMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixX
   return Psi;
 }
 
-MatrixXd
-LinearDenseMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearDenseMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Upsilon(z_size_ * prediction_steps, u_size_);
   MatrixXd tmp = MatrixXd::Zero(x_size_, u_size_);
@@ -307,8 +303,7 @@ LinearDenseMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const Mat
   return Upsilon;
 }
 
-MatrixXd
-LinearDenseMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearDenseMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Theta(z_size_ * prediction_steps, u_size_ * input_steps);
   vector<MatrixXd> tmp;
@@ -330,10 +325,7 @@ LinearDenseMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const Matri
   return Theta;
 }
 
-VectorXd LinearDenseMPC::makeTau(
-  const VectorXd& x_scaled,
-  const VectorXd& s_scaled,
-  const MatrixXd& Cz_scaled)
+VectorXd LinearDenseMPC::makeTau(const VectorXd& x_scaled, const VectorXd& s_scaled, const MatrixXd& Cz_scaled)
 {
   const VectorXd error = s_scaled - Cz_scaled * x_scaled;
   const auto decays = makeDecays();

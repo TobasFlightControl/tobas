@@ -7,8 +7,7 @@ using namespace Eigen;
 
 namespace tobas_kdl
 {
-RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic)
-  : m_(m), h_(m * oc)
+RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
 {
   const auto& c_eig = oc.data;
   I_.data = Ic.data - m * (c_eig * c_eig.transpose() - c_eig.dot(c_eig) * E3);

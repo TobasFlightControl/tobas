@@ -10,10 +10,7 @@ using namespace tobas_kdl;
 
 namespace tobas_manipulation
 {
-EffortControllerRos::EffortControllerRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+EffortControllerRos::EffortControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
@@ -47,12 +44,9 @@ EffortControllerRos::EffortControllerRos(
 
   efforts_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
 
-  cur_js_sub_ =
-    nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ =
-    nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_ls_sub_ =
-    nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+  cur_js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
+  tar_js_sub_ = nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ = nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);
@@ -93,8 +87,7 @@ int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& effort
   }
 
   // Fill output message
-  for (const auto& [name, vel] :
-       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+  for (const auto& [name, vel] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
     efforts_msg.commands.emplace_back(name, vel);
 
   return 0;
@@ -151,8 +144,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   }
 
   // Fill output message
-  for (const auto& [name, vel] :
-       tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+  for (const auto& [name, vel] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
     efforts_msg.commands.emplace_back(name, vel);
 
   return 0;

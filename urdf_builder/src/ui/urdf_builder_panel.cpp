@@ -208,7 +208,7 @@ void URDFBuilderPanel::LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
 
   link_dialog_->show();
   link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新
-  old_link_vm_ = link_vm->clone();  // リンクが選択された時点での設定を保持
+  old_link_vm_ = link_vm->clone();    // リンクが選択された時点での設定を保持
 
   // ルートリンクだったら変更不可にする
   link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
@@ -358,21 +358,15 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
 
 void URDFBuilderPanel::defineConnections()
 {
-  connect(
-    ui_->RobotName, SIGNAL(textChanged(const QString&)), this,
-    SLOT(RobotNameTextChanged(const QString&)));
+  connect(ui_->RobotName, SIGNAL(textChanged(const QString&)), this, SLOT(RobotNameTextChanged(const QString&)));
 
   connect(ui_->LoadButton, SIGNAL(released()), this, SLOT(LoadButtonClicked()));
   connect(ui_->NewButton, SIGNAL(released()), this, SLOT(NewButtonClicked()));
   connect(ui_->SaveButton, SIGNAL(released()), this, SLOT(SaveButtonClicked()));
   connect(ui_->SaveAsButton, SIGNAL(released()), this, SLOT(SaveAsButtonClicked()));
 
-  connect(
-    ui_->EnableVisualCheckBox, SIGNAL(toggled(bool)), this,
-    SLOT(EnableVisualCheckBoxToggled(bool)));
-  connect(
-    ui_->EnableCollisionCheckBox, SIGNAL(toggled(bool)), this,
-    SLOT(EnableCollisionCheckBoxToggled(bool)));
+  connect(ui_->EnableVisualCheckBox, SIGNAL(toggled(bool)), this, SLOT(EnableVisualCheckBoxToggled(bool)));
+  connect(ui_->EnableCollisionCheckBox, SIGNAL(toggled(bool)), this, SLOT(EnableCollisionCheckBoxToggled(bool)));
 
   connect(
     ui_->LinkTreeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this,
@@ -385,8 +379,7 @@ void URDFBuilderPanel::defineConnections()
     SLOT(LinkTreeContextMenuRequested(const QPoint&)));
 
   connect(ui_->AddLinkAction, SIGNAL(triggered(bool)), this, SLOT(AddLinkActionToggled(bool)));
-  connect(
-    ui_->RemoveLinkAction, SIGNAL(triggered(bool)), this, SLOT(RemoveLinkActionToggled(bool)));
+  connect(ui_->RemoveLinkAction, SIGNAL(triggered(bool)), this, SLOT(RemoveLinkActionToggled(bool)));
   connect(ui_->CloneLinkAction, SIGNAL(triggered(bool)), this, SLOT(CloneLinkActionToggled(bool)));
 
   connect(update_timer_, SIGNAL(timeout()), this, SLOT(OnUpdate()));
@@ -423,8 +416,7 @@ void URDFBuilderPanel::reloadLinkTree()
   ui_->LinkTreeWidget->clear();
 
   queue<pair<view_model::LinkViewModelPtr, QTreeWidgetItem*>> que;
-  que.push({ vm_.rootLinkViewModel(),
-             new LinkTreeWidgetItem(vm_.rootLinkViewModel(), ui_->LinkTreeWidget) });
+  que.push({ vm_.rootLinkViewModel(), new LinkTreeWidgetItem(vm_.rootLinkViewModel(), ui_->LinkTreeWidget) });
 
   while (!que.empty())
   {
@@ -525,14 +517,11 @@ bool URDFBuilderPanel::isJointsValid()
     // 可動関節の軸が設定されていなければエラー
     const auto& type = joint->type;
     const auto& axis = joint->axis;
-    if (
-      type == Joint::REVOLUTE || type == Joint::CONTINUOUS || type == Joint::PRISMATIC
-      || type == Joint::PLANAR)
+    if (type == Joint::REVOLUTE || type == Joint::CONTINUOUS || type == Joint::PRISMATIC || type == Joint::PLANAR)
     {
       if (axis.x == 0 && axis.y == 0 && axis.z == 0)
       {
-        QMessageBox::warning(
-          this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
+        QMessageBox::warning(this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
         return false;
       }
     }

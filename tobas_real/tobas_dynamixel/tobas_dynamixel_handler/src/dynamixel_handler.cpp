@@ -14,10 +14,7 @@ using namespace dynamixel;
 
 namespace tobas_dynamixel_handler
 {
-DynamixelHandler::DynamixelHandler(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+DynamixelHandler::DynamixelHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   // Get ROS parameters
@@ -51,10 +48,9 @@ DynamixelHandler::DynamixelHandler(
   {
     // Add parameters to GroupSyncRead objects
     if (
-      !pos_sync_read_->addParam(cfg.id) || !vel_sync_read_->addParam(cfg.id)
-      || !current_sync_read_->addParam(cfg.id) || !pwm_sync_read_->addParam(cfg.id)
-      || !voltage_sync_read_->addParam(cfg.id) || !temp_sync_read_->addParam(cfg.id)
-      || !hes_sync_read_->addParam(cfg.id))
+      !pos_sync_read_->addParam(cfg.id) || !vel_sync_read_->addParam(cfg.id) || !current_sync_read_->addParam(cfg.id)
+      || !pwm_sync_read_->addParam(cfg.id) || !voltage_sync_read_->addParam(cfg.id)
+      || !temp_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id))
       TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
 
     // Disable torque
@@ -123,12 +119,9 @@ void DynamixelHandler::registerPublishers()
 void DynamixelHandler::registerSubscribers()
 {
   event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this);
-  positions_sub_ =
-    nh_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ =
-    nh_.subscribe(kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
-  efforts_sub_ =
-    nh_.subscribe(kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+  positions_sub_ = nh_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
+  velocities_sub_ = nh_.subscribe(kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
+  efforts_sub_ = nh_.subscribe(kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
 }
 
 bool DynamixelHandler::setMinimumLatency()
@@ -192,8 +185,7 @@ void DynamixelHandler::getMotorConfigs()
     }
 
     // Operating mode
-    tobas_ros::getParam(
-      pnh_, name + "/operating_mode", operating_mode, string(kDefaultOperatingMode));
+    tobas_ros::getParam(pnh_, name + "/operating_mode", operating_mode, string(kDefaultOperatingMode));
     if (operating_mode == "current")
     {
       if (!cfg.current_available)
@@ -502,14 +494,10 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     if (cfg.operating_mode == kControlModePosition)
     {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos))
-        TOBAS_WARN(
-          "Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ",
-          tar_pos);
+        TOBAS_WARN("Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_pos);
       goal_positions_[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     }
-    else if (
-      cfg.operating_mode == kControlModeExtendedPosition
-      || cfg.operating_mode == kControlModeCurrentBasePosition)
+    else if (cfg.operating_mode == kControlModeExtendedPosition || cfg.operating_mode == kControlModeCurrentBasePosition)
     {
       goal_positions_[i] = tar_pos / kDecodeFactorPos;
     }
@@ -559,9 +547,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
     if (abs(tar_vel) > cfg.vel_limit)
     {
       tar_vel = clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
-      TOBAS_WARN(
-        "Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ",
-        tar_vel);
+      TOBAS_WARN("Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_vel);
     }
 
     goal_velocities_[i] = tar_vel / kDecodeFactorVel;
@@ -603,9 +589,7 @@ void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayCons
   }
 }
 
-bool DynamixelHandler::enableTorquesServiceCb(
-  std_srvs::SetBoolRequest& req,
-  std_srvs::SetBoolResponse& res)
+bool DynamixelHandler::enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
 {
   if (req.data)
   {

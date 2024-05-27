@@ -95,7 +95,7 @@ VectorXd Mixer::solve(
   qp_.problem.G.topLeftCorner(3, 3) = I_B.data;
   qp_.problem.G.topRightCorner(3, z_rotors_.count()) = U_;
 
-  const auto m_inertia = I_B.data * tar_dgyro_B;  // 慣性力によるモーメント
+  const auto m_inertia = I_B.data * tar_dgyro_B;                    // 慣性力によるモーメント
   const auto m_coriolis = cur_gyro_B.cross(I_B.data * cur_gyro_B);  // コリオリ力によるモーメント
   qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - U_ * tar_thrusts;
   // qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - U_ * tar_thrusts;  // コリオリ力無視の場合
@@ -141,10 +141,7 @@ void Mixer::updateQpWeight()
   qp_.problem.P.diagonal().tail(z_rotors_.count()).fill(cfg_.thrust_weight);
 }
 
-void Mixer::updateThrustLimits(
-  const double& dt,
-  const double& cur_voltage,
-  const double& thrusts_sum)
+void Mixer::updateThrustLimits(const double& dt, const double& cur_voltage, const double& thrusts_sum)
 {
   tobas_std::Range<double> thrust_limit_1;
   tobas_std::Range<double> thrust_limit_2;

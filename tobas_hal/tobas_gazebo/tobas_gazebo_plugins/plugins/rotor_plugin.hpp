@@ -52,7 +52,7 @@ private:
   double time_const_up_;
   double time_const_down_;
   double max_rot_speed_;  // [rad/s] モータ特性が成り立つ最大回転数．最大連続電流によって定まる．
-  double max_current_;    // [A] ESCの最大電流
+  double max_current_;  // [A] ESCの最大電流
   double check_delay_threshold_;
 
   double cmd_rot_speed_ = 0.;  // [rad/s]

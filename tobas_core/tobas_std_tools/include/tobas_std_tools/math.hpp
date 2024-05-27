@@ -109,9 +109,5 @@ double norm(T... args)
 double wrapPi(double angle);
 
 /* 2つの数値がほとんど等しいときにtrueを返す．GPT4によるとnumpy.isclose()と同じらしい． */
-bool isClose(
-  const double& a,
-  const double& b,
-  const double& abs_tol = 1e-8,
-  const double& rel_tol = 1e-5);
+bool isClose(const double& a, const double& b, const double& abs_tol = 1e-8, const double& rel_tol = 1e-5);
 }  // namespace tobas_std

@@ -9,10 +9,7 @@ using namespace Eigen;
 
 namespace tobas_calibration
 {
-AccelCalibrationRos::AccelCalibrationRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+AccelCalibrationRos::AccelCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   imu_.initialize();

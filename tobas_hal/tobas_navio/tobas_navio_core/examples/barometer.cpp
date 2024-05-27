@@ -28,8 +28,7 @@ int main()
 
     barometer.calculatePressureAndTemperature();
 
-    cout << "Temperature[C]: " << barometer.getTemperature()
-         << ", Pressure[Pa]: " << barometer.getPressure() << endl;
+    cout << "Temperature[C]: " << barometer.getTemperature() << ", Pressure[Pa]: " << barometer.getPressure() << endl;
 
     sleep(1);
   }

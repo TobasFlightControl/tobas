@@ -21,8 +21,7 @@ public:
     Ogre::Vector3& collision_position,
     Ogre::Quaternion& collision_orientation) const override;
 
-  void setLinkStatus(rviz::StatusLevel level, const std::string& link_name, const std::string& text)
-    const override;
+  void setLinkStatus(rviz::StatusLevel level, const std::string& link_name, const std::string& text) const override;
 
 private:
   urdf::ModelSharedPtr urdf_;

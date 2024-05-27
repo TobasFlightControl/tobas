@@ -6,8 +6,7 @@ using namespace std;
 
 namespace tobas_kdl
 {
-TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav)
-  : super(tree), ag_(-grav, Vector::Zero())
+TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav) : super(tree), ag_(-grav, Vector::Zero())
 {
   updateInternalDataStructures();
 }

@@ -16,6 +16,4 @@ void OrientationEstimatorNodelet::onInit()
 }
 }  // namespace orientation_estimation_complement
 
-PLUGINLIB_EXPORT_CLASS(
-  orientation_estimation_complement::OrientationEstimatorNodelet,
-  nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(orientation_estimation_complement::OrientationEstimatorNodelet, nodelet::Nodelet);

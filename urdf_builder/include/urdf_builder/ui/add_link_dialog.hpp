@@ -22,10 +22,7 @@ class AddLinkDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit AddLinkDialog(
-    URDFBuilderPanel* main,
-    const QStringList& link_names,
-    view_model::LinkViewModel& link_vm);
+  explicit AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm);
 
 private Q_SLOTS:
   void LinkNameLineEditTextChanged(const QString& text);

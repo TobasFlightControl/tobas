@@ -28,10 +28,7 @@ AsymmetricFirstOrderFilter<T>::AsymmetricFirstOrderFilter()
 }
 
 template <typename T>
-void AsymmetricFirstOrderFilter<T>::initialize(
-  const double& time_const_up,
-  const double& time_const_down,
-  T init_state)
+void AsymmetricFirstOrderFilter<T>::initialize(const double& time_const_up, const double& time_const_down, T init_state)
 {
   assert(time_const_up >= 0);
   assert(time_const_down >= 0);

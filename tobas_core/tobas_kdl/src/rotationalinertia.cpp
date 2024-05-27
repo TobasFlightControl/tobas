@@ -4,13 +4,7 @@ using namespace Eigen;
 
 namespace tobas_kdl
 {
-RotationalInertia::RotationalInertia(
-  double Ixx,
-  double Iyy,
-  double Izz,
-  double Ixy,
-  double Ixz,
-  double Iyz)
+RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
 {
   data(0, 0) = Ixx;
   data(0, 1) = data(1, 0) = Ixy;

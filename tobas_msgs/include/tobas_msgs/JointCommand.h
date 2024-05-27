@@ -55,8 +55,7 @@ typedef boost::shared_ptr<::tobas_msgs::JointCommand const> JointCommandConstPtr
 template <typename ContainerAllocator>
 std::ostream& operator<<(std::ostream& s, const ::tobas_msgs::JointCommand_<ContainerAllocator>& v)
 {
-  ros::message_operations::Printer<::tobas_msgs::JointCommand_<ContainerAllocator>>::stream(
-    s, "", v);
+  ros::message_operations::Printer<::tobas_msgs::JointCommand_<ContainerAllocator>>::stream(s, "", v);
   return s;
 }
 
@@ -188,15 +187,11 @@ template <class ContainerAllocator>
 struct Printer<::tobas_msgs::JointCommand_<ContainerAllocator>>
 {
   template <typename Stream>
-  static void stream(
-    Stream& s,
-    const std::string& indent,
-    const ::tobas_msgs::JointCommand_<ContainerAllocator>& v)
+  static void stream(Stream& s, const std::string& indent, const ::tobas_msgs::JointCommand_<ContainerAllocator>& v)
   {
     s << indent << "name: ";
     Printer<std::basic_string<
-      char, std::char_traits<char>,
-      typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>>::
+      char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>>::
       stream(s, indent + "  ", v.name);
     s << indent << "data: ";
     Printer<double>::stream(s, indent + "  ", v.data);

@@ -13,16 +13,12 @@ using namespace tobas_std;
 
 namespace tobas_calibration
 {
-MagCalibrationRos::MagCalibrationRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+MagCalibrationRos::MagCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   imu_.initialize();
 
-  collect_data_timer_ =
-    nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
+  collect_data_timer_ = nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
 
   mag_pub_ = nh_.advertise<geometry_msgs::PointStamped>(kMagTopicName, 1);
 

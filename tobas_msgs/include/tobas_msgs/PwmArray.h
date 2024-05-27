@@ -33,8 +33,7 @@ struct PwmArray_
 
   typedef std::vector<
     ::tobas_msgs::Pwm_<ContainerAllocator>,
-    typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<
-      ::tobas_msgs::Pwm_<ContainerAllocator>>>
+    typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<::tobas_msgs::Pwm_<ContainerAllocator>>>
     _pwm_type;
   _pwm_type pwm;
 
@@ -208,8 +207,7 @@ template <class ContainerAllocator>
 struct Printer<::tobas_msgs::PwmArray_<ContainerAllocator>>
 {
   template <typename Stream>
-  static void
-  stream(Stream& s, const std::string& indent, const ::tobas_msgs::PwmArray_<ContainerAllocator>& v)
+  static void stream(Stream& s, const std::string& indent, const ::tobas_msgs::PwmArray_<ContainerAllocator>& v)
   {
     s << indent << "header: ";
     s << std::endl;

@@ -28,10 +28,7 @@ void PositionYawController::reset(const tobas_msgs::Odometry& odom)
   t_last_rcin_ = ros::Time::now();
 }
 
-void PositionYawController::update(
-  const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
-  const double&)
+void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   const auto cur_time = ros::Time::now();
   const auto dt = (cur_time - t_last_rcin_).toSec();
@@ -69,12 +66,8 @@ void PositionYawController::update(
 void PositionYawController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
-    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

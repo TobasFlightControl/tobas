@@ -50,8 +50,7 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
 
   // GazeboRosCameraUtilsのLoadが完了してからadvertiseを行うように設定する
   // これをせずadvertiseをベタ書きするとsegmentation faultになる
-  load_connection_ =
-    GazeboRosCameraUtils::OnLoad(boost::bind(&GazeboNoisyDepthPlugin::advertise, this));
+  load_connection_ = GazeboRosCameraUtils::OnLoad(boost::bind(&GazeboNoisyDepthPlugin::advertise, this));
   GazeboRosCameraUtils::Load(parent, sdf);
 
   parent_sensor_->SetActive(true);
@@ -140,8 +139,7 @@ void GazeboNoisyDepthPlugin::setNoiseModel()
   else if (noise_model_name_ == "PMD")
     noise_model_.reset(new PMDDepthNoiseModel(noise_min_dist_, noise_max_dist_));
   else if (noise_model_name_ == "D435")
-    noise_model_.reset(
-      new D435DepthNoiseModel(noise_min_dist_, noise_max_dist_, horizontal_fov_, baseline_));
+    noise_model_.reset(new D435DepthNoiseModel(noise_min_dist_, noise_max_dist_, horizontal_fov_, baseline_));
   else
     gzthrow(kPluginName << ": Invalid depth noise model: " << noise_model_name_);
 }
@@ -150,15 +148,13 @@ void GazeboNoisyDepthPlugin::advertise()
 {
   ros::AdvertiseOptions depth_image_ao = ros::AdvertiseOptions::create<sensor_msgs::Image>(
     depth_image_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthImageConnect, this),
-    boost::bind(&GazeboNoisyDepthPlugin::depthImageDisconnect, this), ros::VoidPtr(),
-    &camera_queue_);
+    boost::bind(&GazeboNoisyDepthPlugin::depthImageDisconnect, this), ros::VoidPtr(), &camera_queue_);
 
   depth_image_pub_ = rosnode_->advertise(depth_image_ao);
 
   ros::AdvertiseOptions depth_info_ao = ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
     depth_info_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthInfoConnect, this),
-    boost::bind(&GazeboNoisyDepthPlugin::depthInfoDisconnect, this), ros::VoidPtr(),
-    &camera_queue_);
+    boost::bind(&GazeboNoisyDepthPlugin::depthInfoDisconnect, this), ros::VoidPtr(), &camera_queue_);
 
   depth_info_pub_ = rosnode_->advertise(depth_info_ao);
 }

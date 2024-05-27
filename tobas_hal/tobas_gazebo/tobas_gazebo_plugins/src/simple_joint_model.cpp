@@ -25,8 +25,7 @@ void SimpleJointModel::update(double tar_pos, double dt)
   if (!pos_limit_.inRange(tar_pos, POS_MARGIN))
   {
     GZ_ERROR_THROTTLE(
-      kErrorPeriod,
-      "The target position " << tar_pos << "[rad] is out of range " << pos_limit_ << "[rad].");
+      kErrorPeriod, "The target position " << tar_pos << "[rad] is out of range " << pos_limit_ << "[rad].");
     tar_pos = pos_limit_.clamp(tar_pos);
   }
 

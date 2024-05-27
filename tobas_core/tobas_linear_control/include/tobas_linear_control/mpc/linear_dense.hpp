@@ -45,13 +45,13 @@ public:
 
   // Equality constraints
   std::vector<LinearEquation> input_rate_eqs;  // Ee du <= ee: 制御入力の変化率に対する等式制約
-  std::vector<LinearEquation> input_eqs;    // Fe u <= fe: 制御入力に対する等式制約
-  std::vector<LinearEquation> control_eqs;  // Ge z <= ge: 制御変数に対する等式制約
+  std::vector<LinearEquation> input_eqs;       // Fe u <= fe: 制御入力に対する等式制約
+  std::vector<LinearEquation> control_eqs;     // Ge z <= ge: 制御変数に対する等式制約
 
   // Inequality constraints
   std::vector<LinearEquation> input_rate_ineqs;  // Ei du <= ei: 制御入力の変化率に対する不等式制約
-  std::vector<LinearEquation> input_ineqs;    // Fi u <= fi: 制御入力に対する不等式制約
-  std::vector<LinearEquation> control_ineqs;  // Gi z <= gi: 制御変数に対する不等式制約
+  std::vector<LinearEquation> input_ineqs;       // Fi u <= fi: 制御入力に対する不等式制約
+  std::vector<LinearEquation> control_ineqs;     // Gi z <= gi: 制御変数に対する不等式制約
 
   // States
   Eigen::VectorXd current_state;  // x: 現在の状態
@@ -98,13 +98,11 @@ private:
   Eigen::MatrixXd makeTheta(const std::vector<LinearDynamics>& dyn, const Eigen::MatrixXd& Cz);
 
   /* p.12の例題1.3を参考にp.90のTauを作成． */
-  Eigen::VectorXd
-  makeTau(const Eigen::VectorXd& x, const Eigen::VectorXd& z, const Eigen::MatrixXd& Cz);
+  Eigen::VectorXd makeTau(const Eigen::VectorXd& x, const Eigen::VectorXd& z, const Eigen::MatrixXd& Cz);
   std::vector<Eigen::VectorXd> makeDecays();
 
   /* 不等式条件式 A x <= b の時系列を受け取り，全体の不等式成約行列を作る． */
-  static Eigen::MatrixXd
-  makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const Eigen::Index& H);
+  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const Eigen::Index& H);
 };
 
 inline const Eigen::VectorXd& LinearDenseMPC::optimalControlInput() const

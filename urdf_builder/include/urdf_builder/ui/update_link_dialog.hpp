@@ -95,8 +95,7 @@ private:
   void blockSignals(bool block);
   void emitChanged();
 
-  static void
-  arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type);
+  static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type);
 };
 }  // namespace ui
 }  // namespace urdf_builder

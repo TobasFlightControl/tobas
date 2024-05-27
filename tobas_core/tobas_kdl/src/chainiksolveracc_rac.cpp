@@ -8,8 +8,7 @@ using namespace Eigen;
 
 namespace tobas_kdl
 {
-ChainIkSolverAcc_RAC::ChainIkSolverAcc_RAC(const Chain& chain)
-  : super(chain), jnt2jac_(chain_), jnt2jdqd_(chain_)
+ChainIkSolverAcc_RAC::ChainIkSolverAcc_RAC(const Chain& chain) : super(chain), jnt2jac_(chain_), jnt2jdqd_(chain_)
 {
 }
 

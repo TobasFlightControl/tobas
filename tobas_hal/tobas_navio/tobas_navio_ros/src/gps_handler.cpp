@@ -10,8 +10,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   configureGnssReceiver();
 
@@ -107,8 +106,8 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->velocity_covariance[8] = cov_.velCovDD;  // DD
 
       // Fill the communication delay
-      const auto gps_tp = tobas_std::timePointFromUTC(
-        pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
+      const auto gps_tp =
+        tobas_std::timePointFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
       const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
       gps_msg->delay.fromNSec(chrono::duration_cast<chrono::nanoseconds>(cur_tp - gps_tp).count());
 

@@ -15,10 +15,7 @@ using namespace tobas_kdl;
 
 namespace tobas_mr_arducopter
 {
-ParamServerRos::ParamServerRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+ParamServerRos::ParamServerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
   getRosParams();
@@ -63,9 +60,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 
   for (const auto& param : cfg->doubles)
   {
-    if (
-      tobas_std::contains(doubles_, param.name)
-      && tobas_std::isClose(doubles_[param.name], param.value))
+    if (tobas_std::contains(doubles_, param.name) && tobas_std::isClose(doubles_[param.name], param.value))
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -90,8 +85,7 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
     return;
 
   TOBAS_INFO("System status has become MAV_STATE_STANDBY.");
-  set_init_config_timer_ =
-    nh_.createTimer(ros::Duration(20), &self::setInitConfigTimerCb, this, true);
+  set_init_config_timer_ = nh_.createTimer(ros::Duration(20), &self::setInitConfigTimerCb, this, true);
 
   // Unsubscribe
   state_sub_.shutdown();
@@ -101,10 +95,10 @@ void ParamServerRos::localPositionCb(const geometry_msgs::PoseStampedConstPtr&)
 {
   // 状態推定の開始を確認してから初期パラメータの設定を行う
   TOBAS_INFO(
-    "First local position is received. The parameter server will be ready in ",
-    kActivationDelayFromFirstPose, " seconds.");
-  set_init_params_timer_ = nh_.createTimer(
-    ros::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
+    "First local position is received. The parameter server will be ready in ", kActivationDelayFromFirstPose,
+    " seconds.");
+  set_init_params_timer_ =
+    nh_.createTimer(ros::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
 
   // Unsubscribe
   local_pos_sub_.shutdown();

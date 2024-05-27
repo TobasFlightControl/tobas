@@ -13,10 +13,7 @@ DrydenComponents::DrydenComponents()
 {
 }
 
-void DrydenComponents::update(
-  const double& relative_wind_speed,
-  const double& altitude,
-  const double& dt)
+void DrydenComponents::update(const double& relative_wind_speed, const double& altitude, const double& dt)
 {
   assert(relative_wind_speed >= 0);
   assert(dt >= 0);
@@ -26,8 +23,8 @@ void DrydenComponents::update(
   if (h_ft > dryden::kLowAltitudeThreshold)
   {
     PRINT_WARN(
-      "Since the altitude from the ground exceeds "
-      << dryden::kLowAltitudeThreshold << " feet, the Dryden wind model might be inaccurate.");
+      "Since the altitude from the ground exceeds " << dryden::kLowAltitudeThreshold
+                                                    << " feet, the Dryden wind model might be inaccurate.");
   }
 
   const auto tmp = 0.177 + 0.000823 * h_ft;  // [-]
@@ -49,10 +46,7 @@ DrydenSimulator::DrydenSimulator() : rnd_gen_(rnd_dev_()), noise_(0, 1)
 {
 }
 
-void DrydenSimulator::update(
-  const double& relative_wind_speed,
-  const double& altitude,
-  const double& dt)
+void DrydenSimulator::update(const double& relative_wind_speed, const double& altitude, const double& dt)
 {
   components_.update(relative_wind_speed, altitude, dt);
 

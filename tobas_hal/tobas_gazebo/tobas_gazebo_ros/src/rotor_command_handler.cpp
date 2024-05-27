@@ -11,10 +11,7 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-RotorCommandHandler::RotorCommandHandler(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+RotorCommandHandler::RotorCommandHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   drone_.loadFromParam(nh_);
@@ -76,21 +73,17 @@ void RotorCommandHandler::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConst
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)
     {
-      TOBAS_WARN(
-        "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
+      TOBAS_WARN("Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      TOBAS_WARN(
-        "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
-        " [rad/s]");
+      TOBAS_WARN("Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed, " [rad/s]");
       tar_speed = max_speed;
     }
 
     // Fill throttle
-    throttles->data[rotor_idx] =
-      drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
+    throttles->data[rotor_idx] = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
   }
 
   // Publish throttle message

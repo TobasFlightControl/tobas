@@ -328,8 +328,7 @@ inline Rall2d<T, V, S> tanh(const Rall2d<T, V, S>& arg)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> sqr(const Rall2d<T, V, S>& arg)
 {
-  return Rall2d<T, V, S>(
-    arg.t * arg.t, (S(2) * arg.t) * arg.d, S(2) * (sqr(arg.d) + arg.t * arg.dd));
+  return Rall2d<T, V, S>(arg.t * arg.t, (S(2) * arg.t) * arg.d, S(2) * (sqr(arg.d) + arg.t * arg.dd));
 }
 
 template <class T, class V, class S>
@@ -425,20 +424,13 @@ inline S norm(const Rall2d<T, V, S>& value)
 }
 
 template <class T, class V, class S>
-inline Rall2d<T, V, S>
-LinComb(S alfa, const Rall2d<T, V, S>& a, const T& beta, const Rall2d<T, V, S>& b)
+inline Rall2d<T, V, S> LinComb(S alfa, const Rall2d<T, V, S>& a, const T& beta, const Rall2d<T, V, S>& b)
 {
-  return Rall2d<T, V, S>(
-    LinComb(alfa, a.t, beta, b.t), LinComb(alfa, a.d, beta, b.d), LinComb(alfa, a.dd, beta, b.dd));
+  return Rall2d<T, V, S>(LinComb(alfa, a.t, beta, b.t), LinComb(alfa, a.d, beta, b.d), LinComb(alfa, a.dd, beta, b.dd));
 }
 
 template <class T, class V, class S>
-inline void LinCombR(
-  S alfa,
-  const Rall2d<T, V, S>& a,
-  const T& beta,
-  const Rall2d<T, V, S>& b,
-  Rall2d<T, V, S>& result)
+inline void LinCombR(S alfa, const Rall2d<T, V, S>& a, const T& beta, const Rall2d<T, V, S>& b, Rall2d<T, V, S>& result)
 {
   LinCombR(alfa, a.t, beta, b.t, result.t);
   LinCombR(alfa, a.d, beta, b.d, result.d);

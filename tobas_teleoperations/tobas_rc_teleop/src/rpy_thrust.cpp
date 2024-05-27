@@ -67,11 +67,8 @@ void RollPitchYawThrustController::update(
 
 void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
 {
-  tobas_ros::getParam(
-    pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, tobas_ros::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

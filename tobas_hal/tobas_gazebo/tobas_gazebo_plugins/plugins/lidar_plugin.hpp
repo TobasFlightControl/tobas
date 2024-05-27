@@ -54,7 +54,7 @@ private:
   common::Time sim_time_;
   sensor_msgs::PointCloud cloud_msg_;  // ros message
 
-  boost::mutex lock_;  // A mutex to lock access to fields that are used in message callbacks
+  boost::mutex lock_;               // A mutex to lock access to fields that are used in message callbacks
   ros::CallbackQueue laser_queue_;  // Custom Callback Queue
   boost::thread callback_laser_queue_thread_;
 

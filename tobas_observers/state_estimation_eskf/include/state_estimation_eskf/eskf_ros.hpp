@@ -114,10 +114,8 @@ private:
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
 
-  bool
-  getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
-  bool
-  setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);
+  bool getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
+  bool setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

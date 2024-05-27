@@ -54,8 +54,7 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   registerPubSub();
 
   // Listen to the update event
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
@@ -84,30 +83,27 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
   if (rot_speed_coefs_.X() <= 0)
     gzthrow(kPluginName << ": The first term of 'rotationSpeedCoefficients' must be positive.");
   if (rot_speed_coefs_.Y() < 0)
-    gzthrow(
-      kPluginName << ": The second term of 'rotationSpeedCoefficients' must be non-negative.");
+    gzthrow(kPluginName << ": The second term of 'rotationSpeedCoefficients' must be non-negative.");
 
   getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
 
-  getSdfParam(
-    sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
+  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
   if (time_const_up_ > kTimeConstWarnThreshold)
-    gzwarn << kPluginName << ": The value provided for 'timeConstantUp' appears to be too large: "
-           << time_const_up_ << "[s]. Please check settings and datasheet." << endl;
+    gzwarn << kPluginName << ": The value provided for 'timeConstantUp' appears to be too large: " << time_const_up_
+           << "[s]. Please check settings and datasheet." << endl;
   if (time_const_down_ > kTimeConstWarnThreshold)
-    gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: "
-           << time_const_down_ << "[s]. Please check settings and datasheet." << endl;
+    gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: " << time_const_down_
+           << "[s]. Please check settings and datasheet." << endl;
 
   getSdfParam(sdf, "maxRotationSpeed", max_rot_speed_, POSITIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
-  getSdfParam(
-    sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
+  getSdfParam(sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -124,11 +120,9 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     if (cur_time > kCheckTopicsTimeThreshold)
     {
       if (battery_ == nullptr)
-        gzwarn << kPluginName << ": " << ns_ + "/" << kBatteryGtTopic << " is not received yet."
-               << endl;
+        gzwarn << kPluginName << ": " << ns_ + "/" << kBatteryGtTopic << " is not received yet." << endl;
       if (!wind_received_)
-        gzwarn << kPluginName << ": " << ns_ + "/" << kWindGtTopic << " is not received yet."
-               << endl;
+        gzwarn << kPluginName << ": " << ns_ + "/" << kWindGtTopic << " is not received yet." << endl;
     }
     return;
   }
@@ -140,8 +134,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
     cmd_rot_speed_ = 0.;
     is_activated_ = false;
     gzwarn << kPluginName << ": Motor " << motor_number_ << " is automatically stopped because "
-           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command."
-           << endl;
+           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command." << endl;
   }
 
   // Get rotation speed
@@ -156,8 +149,8 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   if (abs(rot_speed_sim) * dt > M_PI)
   {
     GZ_WARN_THROTTLE(
-      kWarnPeriod, kPluginName << ": Aliasing on motor [" << motor_number_
-                               << "] might occur. Lower simulation time step.");
+      kWarnPeriod,
+      kPluginName << ": Aliasing on motor [" << motor_number_ << "] might occur. Lower simulation time step.");
   }
 
   // Update simulation state
@@ -173,20 +166,15 @@ void GazeboRotorPlugin::registerPubSub()
   const string prefix = "/" + ns_ + "/";
   const string suffix = "_" + to_string(motor_number_);
 
-  rotor_state_pub_ =
-    nh_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
-  debug_pub_ =
-    nh_.advertise<tobas_gazebo_plugins::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
+  rotor_state_pub_ = nh_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
+  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
 
   throttles_sub_ = nh_.subscribe(
-    prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this,
-    ros::TransportHints().reliable().tcpNoDelay());
-  battery_gt_sub_ = nh_.subscribe(
-    prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this,
-    ros::TransportHints().reliable().tcpNoDelay());
-  wind_gt_sub_ = nh_.subscribe(
-    prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this,
-    ros::TransportHints().reliable().tcpNoDelay());
+    prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, ros::TransportHints().reliable().tcpNoDelay());
+  battery_gt_sub_ =
+    nh_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, ros::TransportHints().reliable().tcpNoDelay());
+  wind_gt_sub_ =
+    nh_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, ros::TransportHints().reliable().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()
@@ -248,9 +236,8 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
   if (current > max_current_)
   {
-    gzerr << kPluginName << ": The ESC of rotor " << motor_number_
-          << " is critically damaged due to an overcurrent of " << current
-          << " A, which exceeded its maximum current capacity of " << max_current_ << " A." << endl;
+    gzerr << kPluginName << ": The ESC of rotor " << motor_number_ << " is critically damaged due to an overcurrent of "
+          << current << " A, which exceeded its maximum current capacity of " << max_current_ << " A." << endl;
     joint_->SetVelocity(0, 0.);
     is_intact_ = false;
   }
@@ -288,16 +275,15 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   const auto max_rot_speed = min(max_rot_speed_, rotSpeedFromVoltage(battery_->voltage));
   if (cmd_rot_speed_ < 0)
   {
-    gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_ << ": "
-          << cmd_rot_speed_ << " < 0 [rad/s]" << endl;
+    gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_ << ": " << cmd_rot_speed_
+          << " < 0 [rad/s]" << endl;
     set_rot_speed = 0.;
   }
   else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
     GZ_ERROR_THROTTLE(
       kErrorPeriod, kPluginName << ": Target rotor speed on index " << motor_number_
-                                << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed
-                                << " [rad/s]");
+                                << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed << " [rad/s]");
     set_rot_speed = max_rot_speed;
   }
 
@@ -333,13 +319,12 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(
-      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay
-                               << "[s] is over " << check_delay_threshold_ << "[s].");
+      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay << "[s] is over "
+                               << check_delay_threshold_ << "[s].");
   }
   else if (delay < -kNegativeCmdDelayErrThreshold)
   {
-    GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
+    GZ_ERROR_THROTTLE(kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
   }
 
   // Update last commanded time
@@ -352,8 +337,7 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
   if (throttle < tobas::kMinThrottle)
   {
     throttle = tobas::kMinThrottle;
-    GZ_ERROR_THROTTLE(
-      kErrorPeriod, "Negative throttle is commanded to motor " << motor_number_ << ".");
+    GZ_ERROR_THROTTLE(kErrorPeriod, "Negative throttle is commanded to motor " << motor_number_ << ".");
   }
   else if (throttle >= tobas::kMaxThrottle)
   {

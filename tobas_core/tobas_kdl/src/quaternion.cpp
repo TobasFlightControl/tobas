@@ -7,8 +7,7 @@ using namespace std;
 
 namespace tobas_kdl
 {
-Quaternion::Quaternion(const double& x, const double& y, const double& z, const double& w)
-  : x(x), y(y), z(z), w(w)
+Quaternion::Quaternion(const double& x, const double& y, const double& z, const double& w) : x(x), y(y), z(z), w(w)
 {
 }
 

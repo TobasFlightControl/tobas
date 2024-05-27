@@ -4,8 +4,7 @@ using namespace std;
 
 namespace tobas_kdl
 {
-ChainDynParam::ChainDynParam(const Chain& chain)
-  : super(chain), rne_coriolis_(chain_), rne_gravity_(chain_)
+ChainDynParam::ChainDynParam(const Chain& chain) : super(chain), rne_coriolis_(chain_), rne_gravity_(chain_)
 {
   updateInternalDataStructures();
 }

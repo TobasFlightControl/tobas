@@ -40,8 +40,7 @@ inline JntArrayAcc::JntArrayAcc(const JntArray& _q, const JntArray& _qdot, const
   assert(q.rows() == qdot.rows() && qdot.rows() == qdotdot.rows());
 }
 
-inline JntArrayAcc::JntArrayAcc(const JntArray& _q, const JntArray& _qdot)
-  : q(_q), qdot(_qdot), qdotdot(q.rows())
+inline JntArrayAcc::JntArrayAcc(const JntArray& _q, const JntArray& _qdot) : q(_q), qdot(_qdot), qdotdot(q.rows())
 {
   assert(q.rows() == qdot.rows());
 }

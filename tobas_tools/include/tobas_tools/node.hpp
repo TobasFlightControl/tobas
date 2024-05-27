@@ -119,8 +119,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 
   // Output message to the console
   ROS_LOG_STREAM(
-    static_cast<ros::console::Level>(level), ROSCONSOLE_DEFAULT_NAME,
-    "[" << name_ << "] " << message->message);
+    static_cast<ros::console::Level>(level), ROSCONSOLE_DEFAULT_NAME, "[" << name_ << "] " << message->message);
 }
 
 template <typename... Args>
@@ -134,12 +133,7 @@ void BaseNode::logOnce(const char* file, int line, uint8_t level, const Args&...
 }
 
 template <typename... Args>
-void BaseNode::logThrottle(
-  const char* file,
-  int line,
-  uint8_t level,
-  double period,
-  const Args&... args)
+void BaseNode::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
 {
   const auto id = createID(file, line);
   const auto now = ros::Time::now();

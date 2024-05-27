@@ -8,10 +8,7 @@ TransformListener::TransformListener() : tf_listener_(tf_buffer_)
 {
 }
 
-bool TransformListener::lookupTransform(
-  const string& parent,
-  const string& child,
-  const ros::Time& time)
+bool TransformListener::lookupTransform(const string& parent, const string& child, const ros::Time& time)
 {
   try
   {

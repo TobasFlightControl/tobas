@@ -52,10 +52,8 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
     gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 
   // Register service servers
-  get_gnss_origin_ss_ =
-    nh_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ =
-    nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = nh_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
@@ -66,10 +64,8 @@ void ErrorStateKalmanFilterRos::getRosParams()
 {
   tobas_ros::getParam(pnh_, "use_barometer", use_bar_, kDefaultUseBarometer);
   tobas_ros::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
-  tobas_ros::getParam(
-    pnh_, "do_acc_bias_estimation", do_acc_bias_estimation_, kDefaultDoAccBiasEstimation);
-  tobas_ros::getParam(
-    pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
+  tobas_ros::getParam(pnh_, "do_acc_bias_estimation", do_acc_bias_estimation_, kDefaultDoAccBiasEstimation);
+  tobas_ros::getParam(pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
   tobas_ros::getParam(pnh_, "do_gravity_estimation", do_grav_estimation_, kDefaultDoGravEstimation);
   tobas_ros::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
   tobas_ros::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
@@ -102,8 +98,7 @@ void ErrorStateKalmanFilterRos::initialize()
   );
 }
 
-ErrorStateKalmanFilterRos::OdomMsg::ConstPtr
-ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
+ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
 {
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -194,8 +189,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 
   // 事前予測
   eskf_.predictIMU(
-    acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_,
-    grav_noise_var_, dt);
+    acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_, grav_noise_var_,
+    dt);
 
   // 重力方向の観測
   eskf_.measureGravity(acc_meas_, grav_cov_);
@@ -304,8 +299,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 
   // ESKFを更新
   const Vector3d imu2gps = gps_offset_ - imu_offset_;
-  gps_anormaly_score_ =
-    eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps, gyro_meas_);
+  gps_anormaly_score_ = eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps, gyro_meas_);
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > kAnormalyScoreThreshold)

@@ -14,10 +14,7 @@ namespace eigen_tools
 class SplineFunction
 {
 public:
-  explicit SplineFunction(
-    const Eigen::VectorXd& x_vec,
-    const Eigen::VectorXd& y_vec,
-    const size_t& degree);
+  explicit SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::VectorXd& y_vec, const size_t& degree);
 
   double operator()(const double& x) const;
 

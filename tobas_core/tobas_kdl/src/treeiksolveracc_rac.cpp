@@ -30,10 +30,7 @@ void TreeIkSolverAcc_RAC::updateInternalDataStructures()
   qp_solver_.problem.h.conservativeResize(0);
 }
 
-int TreeIkSolverAcc_RAC::CartToJnt(
-  const JntArray& q_in,
-  const JntArray& qd_in,
-  const AccelMap& acc_in)
+int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);

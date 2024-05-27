@@ -7,10 +7,7 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+StateChecker::StateChecker(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), landing_ac_(tobas::kLandAction)
 {
   drone_.loadFromParam(nh_);
@@ -37,8 +34,8 @@ void StateChecker::requestLanding()
   if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
     TOBAS_ERROR(
-      "'", tobas::kLandAction, "' action server failed to start within ",
-      kWaitForActionServerTimeout, " seconds. Please check the server status.");
+      "'", tobas::kLandAction, "' action server failed to start within ", kWaitForActionServerTimeout,
+      " seconds. Please check the server status.");
     return;
   }
 
@@ -91,8 +88,7 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
   if (cpu->temperature > kCpuTempertureThreshold)
   {
     TOBAS_WARN_THROTTLE(
-      kWarnPeriod, "CPU temperature is too high: ", cpu->temperature,
-      " [C]. It is time to stop flying.");
+      kWarnPeriod, "CPU temperature is too high: ", cpu->temperature, " [C]. It is time to stop flying.");
   }
 }
 
@@ -104,8 +100,7 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   if (battery->voltage < drone_.batteryConfig().sag_voltage)
   {
     TOBAS_WARN_THROTTLE(
-      kWarnPeriod, "Battery voltage is too low: ", battery->voltage,
-      " [V]. It is time to stop flying.");
+      kWarnPeriod, "Battery voltage is too low: ", battery->voltage, " [V]. It is time to stop flying.");
   }
 }
 

@@ -122,11 +122,7 @@ inline RigidBodyInertia operator*(double a, const RigidBodyInertia& I)
   return RigidBodyInertia(a * I.m_, a * I.h_, a * I.I_, true);
 }
 
-inline RigidBodyInertia::RigidBodyInertia(
-  double m,
-  const Vector& h,
-  const RotationalInertia& I,
-  bool)
+inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool)
   : m_(m), h_(h), I_(I)
 {
 }

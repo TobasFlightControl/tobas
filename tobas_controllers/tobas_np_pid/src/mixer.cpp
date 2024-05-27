@@ -15,10 +15,7 @@ using namespace tobas_kdl;
 namespace tobas_np_pid
 {
 Mixer::Mixer(const tobas::Drone& drone)
-  : drone_(drone),
-    fk_solver_(drone.tree()),
-    jnt_axis_solver_(drone.tree()),
-    inertia_solver_(drone.tree())
+  : drone_(drone), fk_solver_(drone.tree()), jnt_axis_solver_(drone.tree()), inertia_solver_(drone.tree())
 {
   PRINT_DEBUG("Mixer::Mixer");
 

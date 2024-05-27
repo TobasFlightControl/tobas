@@ -31,10 +31,7 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
   odom.frame.M.getRPY(tar_rpy_.roll, tar_rpy_.pitch, tar_rpy_.yaw);
 }
 
-void PoseTwistAccelController::update(
-  const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
-  const double&)
+void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   // 時刻を更新
   const auto cur_time = ros::Time::now();
@@ -107,14 +104,10 @@ void PoseTwistAccelController::update(
 void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
-    tobas_ros::POSITIVE);
+    pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
   tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+    pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

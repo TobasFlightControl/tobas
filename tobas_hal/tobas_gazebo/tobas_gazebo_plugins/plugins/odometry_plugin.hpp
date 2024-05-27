@@ -68,9 +68,6 @@ private:
   void setRandomDistributions();
   void registerPublishers();
   void onUpdate();
-  void addNoise(
-    ignition::math::Pose3d& pose,
-    ignition::math::Vector3d& linvel,
-    ignition::math::Vector3d& angvel);
+  void addNoise(ignition::math::Pose3d& pose, ignition::math::Vector3d& linvel, ignition::math::Vector3d& angvel);
 };
 }  // namespace gazebo

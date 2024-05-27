@@ -7,12 +7,7 @@ using namespace Eigen;
 
 namespace quadprog
 {
-void matIneqFromRange(
-  const VectorXd& lb,
-  const VectorXd& ub,
-  MatrixXd& A,
-  VectorXd& b,
-  const double inf)
+void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, VectorXd& b, const double inf)
 {
   assert(lb.rows() == ub.rows());
   assert(((ub - lb).array() >= 0.).all());

@@ -25,8 +25,7 @@ using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -51,9 +50,7 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
       controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
     {
-      TOBAS_ERROR(
-        "Invalid flight mode: ", modes_[i],
-        ". The RC command for this mode will not be published.");
+      TOBAS_ERROR("Invalid flight mode: ", modes_[i], ". The RC command for this mode will not be published.");
       controllers_[i] = make_unique<ProgramModeController>(drone_);
     }
 
@@ -189,8 +186,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       // アームされていなければ，スロットルレバーを確認してアームする
       if (rcin->throttle > tobas::kRCInputMin + kInitThrottleMargin)
       {
-        TOBAS_WARN_THROTTLE(
-          kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
+        TOBAS_WARN_THROTTLE(kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
         break;
       }
       if (!requestArmingRotors())

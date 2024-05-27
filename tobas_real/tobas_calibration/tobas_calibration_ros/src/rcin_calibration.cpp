@@ -7,10 +7,7 @@ using namespace std;
 
 namespace tobas_calibration
 {
-RCInputCalibrationRos::RCInputCalibrationRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+RCInputCalibrationRos::RCInputCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   if (rcin_.initialize() < 0)
@@ -48,9 +45,7 @@ bool RCInputCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType:
   return true;
 }
 
-bool RCInputCalibrationRos::finishServiceCb(
-  FinishSrvType::Request& req,
-  FinishSrvType::Response& res)
+bool RCInputCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvType::Response& res)
 {
   res.success = false;
 

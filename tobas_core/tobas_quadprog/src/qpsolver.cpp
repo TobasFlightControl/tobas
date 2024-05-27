@@ -7,10 +7,7 @@ using namespace Eigen;
 
 namespace quadprog
 {
-QuadProgProblem::QuadProgProblem(
-  const Index& var_size,
-  const Index& eq_size,
-  const Index& ineq_size)
+QuadProgProblem::QuadProgProblem(const Index& var_size, const Index& eq_size, const Index& ineq_size)
 {
   resize(var_size, eq_size, ineq_size);
 }
@@ -58,8 +55,8 @@ bool QuadProgProblem::isSizeMatch() const
 
 bool QuadProgProblem::isFinite() const
 {
-  return eigen_tools::isFinite(P) && eigen_tools::isFinite(q) && eigen_tools::isFinite(G)
-         && eigen_tools::isFinite(h) && eigen_tools::isFinite(A) && eigen_tools::isFinite(b);
+  return eigen_tools::isFinite(P) && eigen_tools::isFinite(q) && eigen_tools::isFinite(G) && eigen_tools::isFinite(h)
+         && eigen_tools::isFinite(A) && eigen_tools::isFinite(b);
 }
 
 ostream& operator<<(ostream& os, const QuadProgProblem& arg)

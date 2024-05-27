@@ -16,8 +16,7 @@
 
 namespace navio
 {
-LSM9DS1::LSM9DS1()
-  : spi_dev_imu_(DEVICE_ACC_GYRO, kSpiSpeedHz), spi_dev_mag_(DEVICE_MAG, kSpiSpeedHz)
+LSM9DS1::LSM9DS1() : spi_dev_imu_(DEVICE_ACC_GYRO, kSpiSpeedHz), spi_dev_mag_(DEVICE_MAG, kSpiSpeedHz)
 {
 }
 
@@ -139,8 +138,7 @@ void LSM9DS1::initializeAccelerometer()
   writeReg(spi_dev_imu_, XG_CTRL_REG5_XL, BITS_XEN_XL | BITS_YEN_XL | BITS_ZEN_XL);
 
   // Configure accelerometer
-  writeReg(
-    spi_dev_imu_, XG_CTRL_REG6_XL, BITS_ODR_XL_952HZ | scale | BITS_BW_SCAL_ODR | BITS_BW_XL_50HZ);
+  writeReg(spi_dev_imu_, XG_CTRL_REG6_XL, BITS_ODR_XL_952HZ | scale | BITS_BW_SCAL_ODR | BITS_BW_XL_50HZ);
   writeReg(spi_dev_imu_, XG_CTRL_REG7_XL, BITS_HR | BITS_DCF_50);  // HR mode (Digital LPF)
 
   // Set scale

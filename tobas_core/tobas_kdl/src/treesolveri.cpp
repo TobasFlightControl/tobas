@@ -2,8 +2,7 @@
 
 namespace tobas_kdl
 {
-TreeSolverI::TreeSolverI(const Tree& tree)
-  : tree_(tree), nj_(tree.getNrOfJoints()), ns_(tree.getNrOfSegments())
+TreeSolverI::TreeSolverI(const Tree& tree) : tree_(tree), nj_(tree.getNrOfJoints()), ns_(tree.getNrOfSegments())
 {
 }
 

@@ -52,11 +52,7 @@ class D435DepthNoiseModel : public DepthNoiseModel
   using super = DepthNoiseModel;
 
 public:
-  explicit D435DepthNoiseModel(
-    float min_depth,
-    float max_depth,
-    float horizontal_fov,
-    float baseline);
+  explicit D435DepthNoiseModel(float min_depth, float max_depth, float horizontal_fov, float baseline);
 
   void applyNoise(const size_t& width, const size_t& height, float* data) override;
 

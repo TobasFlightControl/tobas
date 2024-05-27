@@ -64,8 +64,7 @@ public:
   inline double rotSpeedFromThrust(const size_t& inner_idx, const double& thrust) const;
 
   /* 推力 [N] からスロットル [0,1] を求める． */
-  inline double
-  throttleFromThrust(const size_t& inner_idx, const double& thrust, const double& battery_voltage);
+  inline double throttleFromThrust(const size_t& inner_idx, const double& thrust, const double& battery_voltage);
 
   /* 回転数から合計推力を求める． */
   double thrustSum(const std::vector<double>& rot_speeds) const;
@@ -124,8 +123,7 @@ inline const double& RotorAxisExtractor::dragConstant(const size_t& inner_idx) c
   return drone_.rotorConfig(rotorIdx(inner_idx)).drag_constant;
 }
 
-inline const std::pair<double, double>&
-RotorAxisExtractor::rotSpeedCoefs(const size_t& inner_idx) const
+inline const std::pair<double, double>& RotorAxisExtractor::rotSpeedCoefs(const size_t& inner_idx) const
 {
   return drone_.rotorConfig(rotorIdx(inner_idx)).rot_speed_coefs;
 }
@@ -135,46 +133,38 @@ inline double RotorAxisExtractor::maxMechanicalThrust(const size_t& inner_idx) c
   return drone_.maxMechanicalThrust(rotorIdx(inner_idx));
 }
 
-inline double
-RotorAxisExtractor::maxThrust(const size_t& inner_idx, const double& battery_voltage) const
+inline double RotorAxisExtractor::maxThrust(const size_t& inner_idx, const double& battery_voltage) const
 {
   return drone_.maxThrust(rotorIdx(inner_idx), battery_voltage);
 }
 
-inline double
-RotorAxisExtractor::minThrust(const size_t& inner_idx, const double& battery_voltage) const
+inline double RotorAxisExtractor::minThrust(const size_t& inner_idx, const double& battery_voltage) const
 {
   return drone_.minThrust(rotorIdx(inner_idx), battery_voltage);
 }
 
-inline double
-RotorAxisExtractor::thrustFromVoltage(const size_t& inner_idx, const double& voltage) const
+inline double RotorAxisExtractor::thrustFromVoltage(const size_t& inner_idx, const double& voltage) const
 {
   return drone_.thrustFromVoltage(rotorIdx(inner_idx), voltage);
 }
 
-inline double
-RotorAxisExtractor::voltageFromRotSpeed(const size_t& inner_idx, const double& rot_speed) const
+inline double RotorAxisExtractor::voltageFromRotSpeed(const size_t& inner_idx, const double& rot_speed) const
 {
   return drone_.voltageFromRotSpeed(rotorIdx(inner_idx), rot_speed);
 }
 
-inline double
-RotorAxisExtractor::rotSpeedFromVoltage(const size_t& inner_idx, const double& voltage) const
+inline double RotorAxisExtractor::rotSpeedFromVoltage(const size_t& inner_idx, const double& voltage) const
 {
   return drone_.rotSpeedFromVoltage(rotorIdx(inner_idx), voltage);
 }
 
-inline double
-RotorAxisExtractor::rotSpeedFromThrust(const size_t& inner_idx, const double& thrust) const
+inline double RotorAxisExtractor::rotSpeedFromThrust(const size_t& inner_idx, const double& thrust) const
 {
   return drone_.rotSpeedFromThrust(rotorIdx(inner_idx), thrust);
 }
 
-inline double RotorAxisExtractor::throttleFromThrust(
-  const size_t& inner_idx,
-  const double& thrust,
-  const double& battery_voltage)
+inline double
+RotorAxisExtractor::throttleFromThrust(const size_t& inner_idx, const double& thrust, const double& battery_voltage)
 {
   return drone_.throttleFromThrust(rotorIdx(inner_idx), thrust, battery_voltage);
 }

@@ -6,8 +6,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   // パルスが出力され始めたらexportを受け付けなくなるため，最初に全部やってしまう
   // 周波数は固定

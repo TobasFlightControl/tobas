@@ -35,8 +35,7 @@ void CycloidGenerator3d::generate(
   p_diff_ = pf - p0;
 }
 
-void CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a)
-  const
+void CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
 {
   assert(t >= 0);
 

@@ -27,10 +27,7 @@ public:
   // 外乱が急に取り除かれる可能性があるなら安全な値に設定すべき
   Eigen::VectorXd max_integrated_error;
 
-  explicit LQID(
-    const Eigen::Index& state_size,
-    const Eigen::Index& input_size,
-    const Eigen::Index& integrate_size);
+  explicit LQID(const Eigen::Index& state_size, const Eigen::Index& input_size, const Eigen::Index& integrate_size);
 
   Eigen::VectorXd solve(const double& dt, const bool& update_gain = true);
   void updateGain();

@@ -26,9 +26,7 @@ StringInputDialog::StringInputDialog(
 
   line_edit_ = new QLineEdit();
   line_edit_->setText(default_text);
-  connect(
-    line_edit_, SIGNAL(textChanged(const QString&)), this,
-    SLOT(LineEditTextChanged(const QString&)));
+  connect(line_edit_, SIGNAL(textChanged(const QString&)), this, SLOT(LineEditTextChanged(const QString&)));
   cols->addWidget(line_edit_);
 
   warn_label_ = new QLabel();

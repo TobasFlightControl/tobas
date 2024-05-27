@@ -151,9 +151,7 @@ int TreeJointStateConverter::jointStateToJntArray(const sensor_msgs::JointState&
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jntArrayToJointStatePos(
-  const JntArray& q,
-  const std::vector<std::string>& jnt_names)
+int TreeJointStateConverter::jntArrayToJointStatePos(const JntArray& q, const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -180,9 +178,7 @@ int TreeJointStateConverter::jntArrayToJointStatePos(
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jntArrayToJointStateVel(
-  const JntArray& qd,
-  const std::vector<std::string>& jnt_names)
+int TreeJointStateConverter::jntArrayToJointStateVel(const JntArray& qd, const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -209,9 +205,7 @@ int TreeJointStateConverter::jntArrayToJointStateVel(
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jntArrayToJointStateEff(
-  const JntArray& f,
-  const std::vector<std::string>& jnt_names)
+int TreeJointStateConverter::jntArrayToJointStateEff(const JntArray& f, const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);

@@ -17,20 +17,12 @@ KalmanFilter::KalmanFilter()
 {
 }
 
-KalmanFilter::KalmanFilter(
-  const Index& x_size,
-  const Index& u_size,
-  const Index& y_size,
-  const Index& v_size)
+KalmanFilter::KalmanFilter(const Index& x_size, const Index& u_size, const Index& y_size, const Index& v_size)
 {
   resize(x_size, u_size, y_size, v_size);
 }
 
-void KalmanFilter::resize(
-  const Index& x_size,
-  const Index& u_size,
-  const Index& y_size,
-  const Index& v_size)
+void KalmanFilter::resize(const Index& x_size, const Index& u_size, const Index& y_size, const Index& v_size)
 {
   ss.resize(x_size, u_size, y_size);
   Bv.conservativeResize(x_size, v_size);

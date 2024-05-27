@@ -53,8 +53,7 @@ std::chrono::system_clock::time_point
 timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano);
 
 /* 西暦を日数まで年に換算する． */
-double
-yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
+double yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
 }  // namespace tobas_std
 
 std::ostream& operator<<(std::ostream& os, const tm& arg);

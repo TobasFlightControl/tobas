@@ -38,20 +38,16 @@ public:
    * @param m Magnetic field, units irrelevant
    * @param dt time delta [s]
    */
-  void update(
-    const Eigen::Vector3d& a,
-    const Eigen::Vector3d& w,
-    const Eigen::Vector3d& m,
-    const double& dt);
+  void update(const Eigen::Vector3d& a, const Eigen::Vector3d& w, const Eigen::Vector3d& m, const double& dt);
 
   /* Reset the filter to the initial state. */
   void reset();
 
 private:
   double gravity_;
-  double gain_acc_;    // Accel gain parameter for the complementary filter, belongs in [0, 1].
-  double gain_mag_;    // Magnetic gain parameter for the complementary filter, belongs in [0, 1].
-  double bias_alpha_;  // Bias estimation gain parameter, belongs in [0, 1].
+  double gain_acc_;          // Accel gain parameter for the complementary filter, belongs in [0, 1].
+  double gain_mag_;          // Magnetic gain parameter for the complementary filter, belongs in [0, 1].
+  double bias_alpha_;        // Bias estimation gain parameter, belongs in [0, 1].
   bool do_bias_estimation_;  // Parameter whether to do bias estimation or not.
   bool do_adaptive_gain_;    // Parameter whether to do adaptive gain or not.
 

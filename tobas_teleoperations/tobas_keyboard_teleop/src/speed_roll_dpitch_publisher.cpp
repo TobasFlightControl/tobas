@@ -47,8 +47,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   delta_rot_ = max_angvel_ * repeat_interval;
 
   cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
-  air_pressure_sub_ =
-    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  air_pressure_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 void SpeedRollDeltaPitchPublisher::run()
@@ -101,15 +100,13 @@ void SpeedRollDeltaPitchPublisher::run()
       }
       case kKeyCode_Up:
       {
-        cmd_.delta_pitch =
-          clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+        cmd_.delta_pitch = clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
         PRINT_INFO("Nose up");
         break;
       }
       case kKeyCode_Down:
       {
-        cmd_.delta_pitch =
-          clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+        cmd_.delta_pitch = clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
         PRINT_INFO("Nose down");
         break;
       }
@@ -138,14 +135,10 @@ void SpeedRollDeltaPitchPublisher::run()
 
 void SpeedRollDeltaPitchPublisher::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh_, "max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, tobas_ros::POSITIVE);
   tobas_ros::getParam(pnh_, "maximum_roll", max_roll_, kDefaultMaximumRoll, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, tobas_ros::POSITIVE);
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()

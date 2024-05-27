@@ -8,10 +8,7 @@ using namespace std;
 using namespace Eigen;
 
 DepthNoiseModel::DepthNoiseModel(const float& min_depth, const float& max_depth)
-  : bad_point_(numeric_limits<float>::quiet_NaN()),
-    rnd_gen_(rnd_dev_()),
-    min_depth_(min_depth),
-    max_depth_(max_depth)
+  : bad_point_(numeric_limits<float>::quiet_NaN()), rnd_gen_(rnd_dev_()), min_depth_(min_depth), max_depth_(max_depth)
 {
 }
 
@@ -53,8 +50,7 @@ void KinectDepthNoiseModel::applyNoise(const size_t& width, const size_t& height
   }
 }
 
-PMDDepthNoiseModel::PMDDepthNoiseModel(const float& min_depth, const float& max_depth)
-  : super(min_depth, max_depth)
+PMDDepthNoiseModel::PMDDepthNoiseModel(const float& min_depth, const float& max_depth) : super(min_depth, max_depth)
 {
 }
 
@@ -83,11 +79,7 @@ void PMDDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, f
   }
 }
 
-D435DepthNoiseModel::D435DepthNoiseModel(
-  float min_depth,
-  float max_depth,
-  float horizontal_fov,
-  float baseline)
+D435DepthNoiseModel::D435DepthNoiseModel(float min_depth, float max_depth, float horizontal_fov, float baseline)
   : super(min_depth, max_depth), horizontal_fov_(horizontal_fov), baseline_(baseline)
 {
 }

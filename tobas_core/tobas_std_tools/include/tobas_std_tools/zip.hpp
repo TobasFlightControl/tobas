@@ -45,9 +45,7 @@ public:
 };
 
 template <typename... Iterators>
-class zip_iterator
-  : std::
-      iterator<std::forward_iterator_tag, std::tuple<typename get_value_type<Iterators>::type...>>
+class zip_iterator : std::iterator<std::forward_iterator_tag, std::tuple<typename get_value_type<Iterators>::type...>>
 {
   // Index sequence for accessing elements in tuples.
   using indices = std::make_index_sequence<sizeof...(Iterators)>;
@@ -131,10 +129,7 @@ private:
            && this_type::all_cmp_impl<n + 1>(fnc, lhs, rhs);
   };
 
-  template <
-    std::size_t n,
-    typename Fnc,
-    std::enable_if_t<n == (sizeof...(Iterators)), std::nullptr_t> = nullptr>
+  template <std::size_t n, typename Fnc, std::enable_if_t<n == (sizeof...(Iterators)), std::nullptr_t> = nullptr>
   static bool all_cmp_impl(Fnc, const this_type&, const this_type&)
   {
     return true;
@@ -157,10 +152,7 @@ private:
            || this_type::all_cmp_impl<n + 1>(fnc, lhs, rhs);
   };
 
-  template <
-    std::size_t n,
-    typename Fnc,
-    std::enable_if_t<n == (sizeof...(Iterators)), std::nullptr_t> = nullptr>
+  template <std::size_t n, typename Fnc, std::enable_if_t<n == (sizeof...(Iterators)), std::nullptr_t> = nullptr>
   static bool any_cmp_impl(Fnc, const this_type&, const this_type&)
   {
     return false;

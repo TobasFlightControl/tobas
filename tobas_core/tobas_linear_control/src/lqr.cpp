@@ -47,8 +47,7 @@ void LQR::resize(const Index& state_size, const Index& input_size)
 void LQR::updateGain()
 {
   const auto dyn_scaled = dynamics.scale(state_scale, input_scale);
-  P_inf_ = care_ArimotoPotter(
-    dyn_scaled.A, dyn_scaled.B, state_weight.asDiagonal(), input_weight.asDiagonal());
+  P_inf_ = care_ArimotoPotter(dyn_scaled.A, dyn_scaled.B, state_weight.asDiagonal(), input_weight.asDiagonal());
   K_ = input_weight.asDiagonal().inverse() * dyn_scaled.B.transpose() * P_inf_;
 }
 

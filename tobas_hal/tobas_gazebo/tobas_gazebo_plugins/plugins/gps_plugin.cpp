@@ -75,8 +75,7 @@ void GazeboGpsPlugin::onUpdate()
 {
   // 現在の状態を履歴に追加
   const auto cur_time = world_->SimTime();
-  history_.emplace_back(
-    cur_time, link_->WorldPose(), link_->WorldLinearVel(), link_->RelativeAngularVel());
+  history_.emplace_back(cur_time, link_->WorldPose(), link_->WorldLinearVel(), link_->RelativeAngularVel());
 
   // 古い履歴を削除
   while ((cur_time - get<0>(history_.front())).Double() > delay_)
@@ -163,8 +162,7 @@ void GazeboGpsPlugin::updatePosition(tobas_msgs::Gps& gps_msg, const Pose3d& T_W
   W_Pos_WS += pos_bias_;
 
   // Fill the GPS message
-  tobas_std::cartToGpsRelative(
-    W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, gps_msg.latitude, gps_msg.longitude);
+  tobas_std::cartToGpsRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, gps_msg.latitude, gps_msg.longitude);
   gps_msg.altitude = W_Pos_WS.Z();
 }
 

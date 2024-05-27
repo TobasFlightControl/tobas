@@ -20,8 +20,7 @@ void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementP
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(sdf::ElementPtr sdf)

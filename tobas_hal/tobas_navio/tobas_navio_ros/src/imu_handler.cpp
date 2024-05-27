@@ -15,8 +15,7 @@ using namespace Eigen;
 
 namespace tobas_navio_ros
 {
-ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   if (!reloadConfig())
     TOBAS_EXIT("Failed to load configurations.");
@@ -28,8 +27,7 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
   mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
 
-  reload_config_srv_ =
-    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 
   // まずジャイロのバイアスを測定する
   // コンストラクタで時間をとると他のNodeletがスタックするため，タイマーコールバックで行う
@@ -150,9 +148,7 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
 
   if (gyro_.norm() > kStaticGyroThreshold)
   {
-    TOBAS_WARN(
-      "Perturbation is detected while measuring gyro bias: ", gyro_.transpose(),
-      " [rad/s]. Retrying...");
+    TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", gyro_.transpose(), " [rad/s]. Retrying...");
     gyro_sum_.setZero();
     loop_cnt_ = 0;
     return;

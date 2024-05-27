@@ -40,8 +40,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
   odom_pub_ = nh_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic, 1);
 
   // Listen to the update event
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)

@@ -40,9 +40,9 @@ private:
   std::string ns_;
   double max_voltage_;  // [V] 満充電時の電圧
   double sag_voltage_;  // [V] 放電特性が急激に変化する電圧．LiPoなら1セルあたり3.4Vくらい．
-  double max_current_;           // [A] 最大電流
-  double capacity_;              // [As] 電気容量
-  double registance_;            // [Ω] 内部抵抗値
+  double max_current_;  // [A] 最大電流
+  double capacity_;     // [As] 電気容量
+  double registance_;   // [Ω] 内部抵抗値
   double voltage_noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
   double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
   size_t num_rotors_;

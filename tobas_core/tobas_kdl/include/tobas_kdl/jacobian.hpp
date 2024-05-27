@@ -75,8 +75,7 @@ inline size_t Jacobian::columns() const
 
 inline SegmentJacobian Jacobian::getColumn(size_t i) const
 {
-  return SegmentJacobian(
-    Vector(data(0, i), data(1, i), data(2, i)), Vector(data(3, i), data(4, i), data(5, i)));
+  return SegmentJacobian(Vector(data(0, i), data(1, i), data(2, i)), Vector(data(3, i), data(4, i), data(5, i)));
 }
 
 inline void Jacobian::setColumn(size_t i, const SegmentJacobian& jac)

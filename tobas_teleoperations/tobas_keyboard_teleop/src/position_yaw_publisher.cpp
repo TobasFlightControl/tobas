@@ -24,10 +24,7 @@ using namespace tobas_std;
 
 namespace tobas_keyboard_teleop
 {
-PositionYawPublisher::PositionYawPublisher(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+PositionYawPublisher::PositionYawPublisher(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   instruction_ = "Control your drone!\n"
@@ -77,9 +74,7 @@ void PositionYawPublisher::run()
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
-  if (
-    tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_)
-    && odom.status == tobas_msgs::Odometry::NO_ERROR)
+  if (tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_) && odom.status == tobas_msgs::Odometry::NO_ERROR)
   {
     cmd_pos_ = odom.frame.p;
     cmd_yaw_ = tobas_kdl::Euler(odom.frame.M).yaw;
@@ -179,10 +174,8 @@ void PositionYawPublisher::run()
 
 void PositionYawPublisher::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh_, "max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, tobas_ros::POSITIVE);
 
   tobas_ros::getParam(pnh_, "pose_limit/x/min", x_limit_.lower, kDefaultMinimumX);
   tobas_ros::getParam(pnh_, "pose_limit/x/max", x_limit_.upper, kDefaultMaximumX);

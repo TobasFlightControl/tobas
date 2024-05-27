@@ -16,10 +16,7 @@ using namespace tobas_kdl;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+ThrustEstimator::ThrustEstimator(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
@@ -31,8 +28,7 @@ ThrustEstimator::ThrustEstimator(
   factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
 
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 
   ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
   server_.setCallback(f);

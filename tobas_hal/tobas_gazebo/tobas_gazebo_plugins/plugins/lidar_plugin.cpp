@@ -57,8 +57,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
   parent_ray_sensor_->SetActive(false);
 
   // start custom queue for laser
-  callback_laser_queue_thread_ =
-    boost::thread(boost::bind(&GazeboLidarPlugin::laserQueueThread, this));
+  callback_laser_queue_thread_ = boost::thread(boost::bind(&GazeboLidarPlugin::laserQueueThread, this));
 }
 
 void GazeboLidarPlugin::onStats(const boost::shared_ptr<msgs::WorldStatistics const>& msg)
@@ -140,8 +139,7 @@ void GazeboLidarPlugin::putLaserData(common::Time& update_time)
   for (int j = 0; j < ver_range_count; ++j)
   {
     // interpolating in vertical direction
-    double vb =
-      (ver_range_count == 1) ? 0 : (double)j * (ver_ray_count - 1) / (ver_range_count - 1);
+    double vb = (ver_range_count == 1) ? 0 : (double)j * (ver_ray_count - 1) / (ver_range_count - 1);
     const int vja = (int)floor(vb);
     const int vjb = min(vja + 1, ver_ray_count - 1);
     vb = vb - floor(vb);  // fraction from min
@@ -182,11 +180,10 @@ void GazeboLidarPlugin::putLaserData(common::Time& update_time)
       }
 
       // Intensity is averaged
-      const auto intensity = (parent_ray_sensor_->LaserShape()->GetRetro(j1)
-                              + parent_ray_sensor_->LaserShape()->GetRetro(j2)
-                              + parent_ray_sensor_->LaserShape()->GetRetro(j3)
-                              + parent_ray_sensor_->LaserShape()->GetRetro(j4))
-                             / 4;
+      const auto intensity =
+        (parent_ray_sensor_->LaserShape()->GetRetro(j1) + parent_ray_sensor_->LaserShape()->GetRetro(j2)
+         + parent_ray_sensor_->LaserShape()->GetRetro(j3) + parent_ray_sensor_->LaserShape()->GetRetro(j4))
+        / 4;
 
       // get angles of ray to get xyz for point
       const auto y_angle = (hja + hjb) * y_diff / (ray_count - 1) / 2 + min_angle.Radian();

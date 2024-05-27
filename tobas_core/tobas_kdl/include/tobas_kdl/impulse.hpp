@@ -23,8 +23,7 @@ inline Impulse::Impulse()
 {
 }
 
-inline Impulse::Impulse(const Vector& _linear, const Vector& _angular)
-  : linear(_linear), angular(_angular)
+inline Impulse::Impulse(const Vector& _linear, const Vector& _angular) : linear(_linear), angular(_angular)
 {
 }
 

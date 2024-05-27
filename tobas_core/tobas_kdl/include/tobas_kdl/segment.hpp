@@ -143,11 +143,7 @@ private:
   Frame f_tip_;
 };
 
-inline Segment::Segment(
-  const std::string& name,
-  const Joint& joint,
-  const Frame& f_tip,
-  const RigidBodyInertia& I)
+inline Segment::Segment(const std::string& name, const Joint& joint, const Frame& f_tip, const RigidBodyInertia& I)
   : name_(name), joint_(joint), I_(I), f_tip_(joint.pose(0).inverse() * f_tip)
 {
 }

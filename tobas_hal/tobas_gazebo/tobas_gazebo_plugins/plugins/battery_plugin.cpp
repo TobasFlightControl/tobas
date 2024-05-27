@@ -30,8 +30,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   registerPubSub();
   charge_srv_ = nh_.advertiseService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
 
-  update_connection_ =
-    event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -42,10 +41,8 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
   getSdfParam(sdf, "currentCapacity", capacity_, POSITIVE);
   getSdfParam(sdf, "internalRegistance", registance_, NON_NEGATIVE);
-  getSdfParam(
-    sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
-  getSdfParam(
-    sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
+  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
+  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
   getSdfParam(sdf, "numRotors", num_rotors_, NON_NEGATIVE);
 }
 
@@ -59,13 +56,11 @@ void GazeboBatteryPlugin::registerPubSub()
   // モータ状態のコールバックとサブスクライバを設定
   for (size_t i = 0; i < num_rotors_; ++i)
   {
-    rotor_state_cbs_.push_back(
-      [this, i](const tobas_msgs::RotorStateConstPtr& msg) { currents_[i] = msg->current; });
+    rotor_state_cbs_.push_back([this, i](const tobas_msgs::RotorStateConstPtr& msg) { currents_[i] = msg->current; });
 
     const string suffix = "_" + to_string(i);
     const string topic = prefix + kRotorStateGtTopicPrefix + suffix;
-    rotor_state_subs_.push_back(
-      nh_.subscribe<tobas_msgs::RotorState>(topic, 1, rotor_state_cbs_[i]));
+    rotor_state_subs_.push_back(nh_.subscribe<tobas_msgs::RotorState>(topic, 1, rotor_state_cbs_[i]));
   }
 }
 
@@ -80,8 +75,8 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   if (current > max_current_)
   {
     GZ_WARN_THROTTLE(
-      kWarnPeriod, kPluginName << ": The battery current is over limit: " << current << " > "
-                               << max_current_ << " [A]" << endl);
+      kWarnPeriod,
+      kPluginName << ": The battery current is over limit: " << current << " > " << max_current_ << " [A]" << endl);
   }
   const auto current_obs = current + current_noise_(rnd_gen_);  // 観測ノイズを受けた観測電流
 
@@ -91,7 +86,7 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   // 電圧を計算
   const auto voltage_in = currentVoltage();                              // 内部電圧
   const auto voltage_out = max(voltage_in - registance_ * current, 0.);  // 内部抵抗による電圧降下
-  const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);  // 観測ノイズを受けた観測電圧
+  const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);       // 観測ノイズを受けた観測電圧
 
   // 観測したバッテリーの状態を発行
   const auto battery = boost::make_shared<tobas_msgs::Battery>();

@@ -105,10 +105,8 @@ double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) 
   return sqrt(thrust / rotors_[rotor_idx].motor_constant);
 }
 
-double Drone::throttleFromRotSpeed(
-  const size_t& rotor_idx,
-  const double& tar_speed,
-  const double& battery_voltage) const
+double
+Drone::throttleFromRotSpeed(const size_t& rotor_idx, const double& tar_speed, const double& battery_voltage) const
 {
   assert(tar_speed >= 0);
 
@@ -116,10 +114,7 @@ double Drone::throttleFromRotSpeed(
   return voltage / battery_voltage;
 }
 
-double Drone::throttleFromThrust(
-  const size_t& rotor_idx,
-  const double& thrust,
-  const double& battery_voltage) const
+double Drone::throttleFromThrust(const size_t& rotor_idx, const double& thrust, const double& battery_voltage) const
 {
   assert(thrust >= 0);
 
@@ -169,8 +164,7 @@ void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
   tobas_ros::getParam(nh, prefix + "/min_position", cfg.min_pos);
   tobas_ros::getParam(nh, prefix + "/max_position", cfg.max_pos);
   ROS_CHECK(
-    nh, cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos,
-    "Invalid value for joint '" << name << "'.");
+    nh, cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos, "Invalid value for joint '" << name << "'.");
 
   string cmd_type;
   tobas_ros::getParam(nh, prefix + "/command_type", cmd_type);
@@ -216,8 +210,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else if (direction == "cw")
     res.direction = -1;
   else
-    ROS_EXIT(
-      nh, "Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
+    ROS_EXIT(nh, "Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
 
   // Axis
   string axis;
@@ -252,16 +245,12 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
 
   tobas_ros::getParam(nh, prefix + "/max_rot_speed", res.max_rot_speed, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    nh, prefix + "/moment_constant", res.moment_constant, tobas_ros::NON_NEGATIVE);
+  tobas_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/drag_constant", res.drag_constant, tobas_ros::NON_NEGATIVE);
 
   tobas_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
-  ROS_CHECK(
-    nh, res.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
-  ROS_CHECK(
-    nh, res.rot_speed_coefs.second >= 0,
-    "The second term of 'rot_speed_coefs' must be non-negative.");
+  ROS_CHECK(nh, res.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
+  ROS_CHECK(nh, res.rot_speed_coefs.second >= 0, "The second term of 'rot_speed_coefs' must be non-negative.");
 
   tobas_ros::getParam(nh, prefix + "/channel", res.channel);
 
@@ -347,9 +336,7 @@ ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_id
 
   tobas_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
   tobas_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
-  ROS_CHECK(
-    nh, res.angle_limit.isValid() && res.angle_limit.inRange(0),
-    "Invalid range of control surface angle");
+  ROS_CHECK(nh, res.angle_limit.isValid() && res.angle_limit.inRange(0), "Invalid range of control surface angle");
 
   tobas_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, tobas_ros::POSITIVE);
 
