@@ -8,9 +8,9 @@ using namespace Eigen;
 namespace quadprog
 {
 QuadProgProblem::QuadProgProblem(
-  const size_t& var_size,
-  const size_t& eq_size,
-  const size_t& ineq_size)
+  const Index& var_size,
+  const Index& eq_size,
+  const Index& ineq_size)
 {
   resize(var_size, eq_size, ineq_size);
 }
@@ -19,14 +19,14 @@ QuadProgProblem::QuadProgProblem()
 {
 }
 
-void QuadProgProblem::resize(const size_t& var_size, const size_t& eq_size, const size_t& ineq_size)
+void QuadProgProblem::resize(const Index& var_size, const Index& eq_size, const Index& ineq_size)
 {
-  eigen_tools::resizeIfNecessary(P, var_size, var_size);
-  eigen_tools::resizeIfNecessary(q, var_size);
-  eigen_tools::resizeIfNecessary(G, eq_size, var_size);
-  eigen_tools::resizeIfNecessary(h, eq_size);
-  eigen_tools::resizeIfNecessary(A, ineq_size, var_size);
-  eigen_tools::resizeIfNecessary(b, ineq_size);
+  P.conservativeResize(var_size, var_size);
+  q.conservativeResize(var_size);
+  G.conservativeResize(eq_size, var_size);
+  h.conservativeResize(eq_size);
+  A.conservativeResize(ineq_size, var_size);
+  b.conservativeResize(ineq_size);
 }
 
 void QuadProgProblem::setZero()
@@ -43,15 +43,15 @@ bool QuadProgProblem::isSizeMatch() const
 {
   bool res = true;
 
-  res &= static_cast<size_t>(P.rows()) == varSize();
-  res &= static_cast<size_t>(P.cols()) == varSize();
-  res &= static_cast<size_t>(q.size()) == varSize();
-  res &= static_cast<size_t>(G.rows()) == eqSize();
-  res &= static_cast<size_t>(G.cols()) == varSize();
-  res &= static_cast<size_t>(h.size()) == eqSize();
-  res &= static_cast<size_t>(A.rows()) == ineqSize();
-  res &= static_cast<size_t>(A.cols()) == varSize();
-  res &= static_cast<size_t>(b.size()) == ineqSize();
+  res &= P.rows() == varSize();
+  res &= P.cols() == varSize();
+  res &= q.size() == varSize();
+  res &= G.rows() == eqSize();
+  res &= G.cols() == varSize();
+  res &= h.size() == eqSize();
+  res &= A.rows() == ineqSize();
+  res &= A.cols() == varSize();
+  res &= b.size() == ineqSize();
 
   return res;
 }
@@ -77,10 +77,10 @@ QuadProgSolver::QuadProgSolver()
 {
 }
 
-void QuadProgSolver::resize(const size_t& var_size, const size_t& eq_size, const size_t& ineq_size)
+void QuadProgSolver::resize(const Index& var_size, const Index& eq_size, const Index& ineq_size)
 {
   problem.resize(var_size, eq_size, ineq_size);
-  eigen_tools::resizeIfNecessary(x_scale, var_size);
+  x_scale.conservativeResize(var_size);
 }
 
 void QuadProgSolver::setZero()
@@ -123,7 +123,7 @@ void QuadProgSolver::checkProblemValidity() const
 {
   assert(problem.isSizeMatch());
   assert(problem.isFinite());
-  assert(static_cast<size_t>(x_scale.size()) == problem.varSize());
+  assert(x_scale.size() == problem.varSize());
   assert((x_scale.array() > 0).all());
 }
 }  // namespace quadprog

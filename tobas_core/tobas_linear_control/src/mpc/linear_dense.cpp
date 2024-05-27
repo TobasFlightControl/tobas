@@ -32,16 +32,16 @@ void LinearDenseMPC::solve()
 
   // 出力行列をスケーリング
   MatrixXd Cz_scaled = Cz;
-  for (size_t c = 0; c < x_size_; ++c)
+  for (Index c = 0; c < x_size_; ++c)
     Cz_scaled.col(c) *= state_scale(c);
-  for (size_t r = 0; r < z_size_; ++r)
+  for (Index r = 0; r < z_size_; ++r)
     Cz_scaled.row(r) /= control_scale(r);
 
   // ダイナミクスと制約をスケーリング
   vector<LinearDynamics> dyns_scaled;
   vector<LinearEquation> du_eqs_scaled, u_eqs_scaled, z_eqs_scaled;
   vector<LinearEquation> du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled;
-  for (size_t k = 0; k < prediction_steps; ++k)
+  for (Index k = 0; k < prediction_steps; ++k)
   {
     dyns_scaled.emplace_back(discrete_dynamics[k].scale(state_scale, input_scale));
 
@@ -122,8 +122,8 @@ ostream& operator<<(ostream& os, const LinearDenseMPC& arg)
 void LinearDenseMPC::checkProblemValidity()
 {
   // Dynamics
-  assert(discrete_dynamics.size() == prediction_steps);
-  for (const auto& dyn : discrete_dynamics)
+  assert(static_cast<Index>(discrete_dynamics.size()) == prediction_steps);
+  for ([[maybe_unused]] const auto& dyn : discrete_dynamics)
   {
     assert(dyn.stateSize() == x_size_ && dyn.inputSize() == u_size_);
     assert(dyn.isFinite());
@@ -163,14 +163,14 @@ void LinearDenseMPC::checkProblemValidity()
   assert((control_weight.array() >= 0).all());
 
   // Constraints
-  assert(input_rate_eqs.size() == prediction_steps);
-  assert(input_eqs.size() == prediction_steps);
-  assert(control_eqs.size() == prediction_steps);
-  assert(input_rate_ineqs.size() == prediction_steps);
-  assert(input_ineqs.size() == prediction_steps);
-  assert(control_ineqs.size() == prediction_steps);
+  assert(static_cast<Index>(input_rate_eqs.size()) == prediction_steps);
+  assert(static_cast<Index>(input_eqs.size()) == prediction_steps);
+  assert(static_cast<Index>(control_eqs.size()) == prediction_steps);
+  assert(static_cast<Index>(input_rate_ineqs.size()) == prediction_steps);
+  assert(static_cast<Index>(input_ineqs.size()) == prediction_steps);
+  assert(static_cast<Index>(control_ineqs.size()) == prediction_steps);
 
-  for (size_t k = 0; k < prediction_steps; ++k)
+  for (Index k = 0; k < prediction_steps; ++k)
   {
     assert(input_rate_eqs[k].variableSize() == u_size_);
     assert(input_eqs[k].variableSize() == u_size_);
@@ -235,13 +235,13 @@ MatrixXd LinearDenseMPC::makeSa()
   // Sの累積和を計算(昔の名残)
   vector<MatrixXd> S_cumsum(input_steps + 1);
   S_cumsum[0] = MatrixXd::Zero(u_size_, u_size_);
-  for (size_t i = 0; i < input_steps; ++i)
+  for (Index i = 0; i < input_steps; ++i)
     S_cumsum[i + 1] = S_cumsum[i] + S_diag;
 
   // ブロックを当てはめる
   MatrixXd Sa(u_size_ * input_steps, u_size_ * input_steps);
-  for (size_t i = 0; i < input_steps; ++i)
-    for (size_t j = 0; j < input_steps; ++j)
+  for (Index i = 0; i < input_steps; ++i)
+    for (Index j = 0; j < input_steps; ++j)
       Sa.block(u_size_ * i, u_size_ * j, u_size_, u_size_) =
         S_cumsum[input_steps] - S_cumsum[max(i, j)];
 
@@ -255,7 +255,7 @@ VectorXd LinearDenseMPC::makeSb(const VectorXd& last_u_scaled)
 
   // Sが予測区間にわたって一定かつu_refがゼロであることを利用して簡略化している
   VectorXd Sb(u_size_ * input_steps);
-  for (size_t i = 0; i < input_steps; ++i)
+  for (Index i = 0; i < input_steps; ++i)
     Sb.segment(u_size_ * i, u_size_) = (input_steps - i) * Sb_elem;
 
   return Sb;
@@ -268,12 +268,12 @@ MatrixXd LinearDenseMPC::makeFGothic(const MatrixXd& F)
   // Fの要素の累積和を計算
   vector<MatrixXd> F_cumsum(input_steps + 1);
   F_cumsum[0] = MatrixXd::Zero(n_cond_u, u_size_);
-  for (size_t i = 0; i < input_steps; ++i)
+  for (Index i = 0; i < input_steps; ++i)
     F_cumsum[i + 1] = F_cumsum[i] + F.block(0, u_size_ * i, n_cond_u, u_size_);
 
   // F_gothicを作成
   MatrixXd F_gothic(n_cond_u, u_size_ * input_steps);
-  for (size_t i = 0; i < input_steps; ++i)
+  for (Index i = 0; i < input_steps; ++i)
     F_gothic.block(0, u_size_ * i, n_cond_u, u_size_) = F_cumsum[input_steps] - F_cumsum[i];
 
   return F_gothic;
@@ -284,7 +284,7 @@ LinearDenseMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixX
 {
   MatrixXd Psi(z_size_ * prediction_steps, x_size_);
   MatrixXd tmp = MatrixXd::Identity(x_size_, x_size_);
-  for (size_t i = 0; i < prediction_steps; ++i)
+  for (Index i = 0; i < prediction_steps; ++i)
   {
     tmp = dyns_scaled[i].A * tmp;
     Psi.block(z_size_ * i, 0, z_size_, x_size_) = Cz_scaled * tmp;
@@ -298,7 +298,7 @@ LinearDenseMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const Mat
 {
   MatrixXd Upsilon(z_size_ * prediction_steps, u_size_);
   MatrixXd tmp = MatrixXd::Zero(x_size_, u_size_);
-  for (size_t i = 0; i < prediction_steps; ++i)
+  for (Index i = 0; i < prediction_steps; ++i)
   {
     tmp = dyns_scaled[i].A * tmp + dyns_scaled[i].B;
     Upsilon.block(z_size_ * i, 0, z_size_, u_size_) = Cz_scaled * tmp;
@@ -312,16 +312,16 @@ LinearDenseMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const Matri
 {
   MatrixXd Theta(z_size_ * prediction_steps, u_size_ * input_steps);
   vector<MatrixXd> tmp;
-  for (size_t i = 0; i < prediction_steps; ++i)
+  for (Index i = 0; i < prediction_steps; ++i)
   {
     tmp.push_back(MatrixXd::Zero(x_size_, u_size_));
     const auto max_j = min(input_steps, i + 1);
-    for (size_t j = 0; j < max_j; ++j)
+    for (Index j = 0; j < max_j; ++j)
     {
       tmp[j] = dyns_scaled[i].A * tmp[j] + dyns_scaled[i].B;
       Theta.block(z_size_ * i, u_size_ * j, z_size_, u_size_) = Cz_scaled * tmp[j];
     }
-    for (size_t j = max_j; j < input_steps; ++j)
+    for (Index j = max_j; j < input_steps; ++j)
     {
       Theta.block(z_size_ * i, u_size_ * j, z_size_, u_size_).setZero();
     }
@@ -339,7 +339,7 @@ VectorXd LinearDenseMPC::makeTau(
   const auto decays = makeDecays();
 
   VectorXd Tau(z_size_ * prediction_steps);
-  for (size_t i = 0; i < prediction_steps; ++i)
+  for (Index i = 0; i < prediction_steps; ++i)
     Tau.segment(z_size_ * i, z_size_) = s_scaled - decays[i].cwiseProduct(error);
 
   return Tau;
@@ -349,10 +349,10 @@ vector<VectorXd> LinearDenseMPC::makeDecays()
 {
   vector<VectorXd> decays(prediction_steps, VectorXd(z_size_));
 
-  for (size_t i = 0; i < prediction_steps; ++i)
+  for (Index i = 0; i < prediction_steps; ++i)
   {
     const auto coin_time = time_step * static_cast<double>(i + 1);
-    for (size_t j = 0; j < z_size_; ++j)
+    for (Index j = 0; j < z_size_; ++j)
     {
       const auto& T_ref = decay_time_consts(j);
       decays[i](j) = T_ref > 0 ? exp(-coin_time / T_ref) : 0;
@@ -362,7 +362,7 @@ vector<VectorXd> LinearDenseMPC::makeDecays()
   return decays;
 }
 
-MatrixXd LinearDenseMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, const size_t& H)
+MatrixXd LinearDenseMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, const Index& H)
 {
   const auto const_size = consts[0].equationSize();
   const auto var_size = consts[0].variableSize();
@@ -370,7 +370,7 @@ MatrixXd LinearDenseMPC::makeConstraintMatrix(const vector<LinearEquation>& cons
   MatrixXd res(const_size * H, var_size * H + 1);
   res.setZero();
 
-  for (size_t k = 0; k < H; ++k)
+  for (Index k = 0; k < H; ++k)
   {
     res.block(const_size * k, var_size * k, const_size, var_size) = consts[k].A;
     res.block(const_size * k, var_size * H, const_size, 1) = -consts[k].b;

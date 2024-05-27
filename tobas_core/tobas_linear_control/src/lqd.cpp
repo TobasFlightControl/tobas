@@ -41,20 +41,20 @@ VectorXd LQD::solve(const double& dt, const bool& update_gain)
   return last_input;
 }
 
-void LQD::resize(const size_t& state_size, const size_t& input_size)
+void LQD::resize(const Index& state_size, const Index& input_size)
 {
   dynamics.resize(state_size, input_size);
 
-  state_scale = VectorXd::Zero(state_size);
-  input_scale = VectorXd::Zero(input_size);
+  state_scale.conservativeResize(state_size);
+  input_scale.conservativeResize(input_size);
 
-  state_weight = VectorXd::Zero(state_size);
-  input_weight = VectorXd::Zero(input_size);
-  input_rate_weight = VectorXd::Zero(input_size);
+  state_weight.conservativeResize(state_size);
+  input_weight.conservativeResize(input_size);
+  input_rate_weight.conservativeResize(input_size);
 
-  current_state = VectorXd::Zero(state_size);
-  target_state = VectorXd::Zero(state_size);
-  last_input = VectorXd::Zero(input_size);
+  current_state.conservativeResize(state_size);
+  target_state.conservativeResize(state_size);
+  last_input.conservativeResize(input_size);
 }
 
 void LQD::updateGain()
@@ -67,11 +67,13 @@ void LQD::updateGain()
   const auto dyn_scaled = dynamics.scale(state_scale, input_scale);
 
   // 拡大状態に対応するダイナミクスを作成
-  MatrixXd A_tilde = MatrixXd::Zero(x_tilde_size, x_tilde_size);
+  MatrixXd A_tilde(x_tilde_size, x_tilde_size);
   A_tilde.topLeftCorner(x_size, x_size) = dyn_scaled.A;
   A_tilde.topRightCorner(x_size, u_size) = dyn_scaled.B;
+  A_tilde.bottomRows(u_size).setZero();
 
-  MatrixXd B_tilde = MatrixXd::Zero(x_tilde_size, u_size);
+  MatrixXd B_tilde(x_tilde_size, u_size);
+  B_tilde.topRows(x_size).setZero();
   B_tilde.bottomRows(u_size).diagonal().setOnes();
 
   // 重み行列を作成
@@ -87,8 +89,8 @@ void LQD::updateGain()
 
 void LQD::checkProblemValidity()
 {
-  const auto x_size = current_state.rows();
-  const auto u_size = last_input.rows();
+  [[maybe_unused]] const auto x_size = current_state.rows();
+  [[maybe_unused]] const auto u_size = last_input.rows();
 
   assert(x_size > 0);
   assert(u_size > 0);
@@ -107,10 +109,6 @@ void LQD::checkProblemValidity()
   assert((input_weight.array() >= 0.).all());
   assert(input_rate_weight.rows() == u_size);
   assert((input_rate_weight.array() > 0.).all());
-
-  assert(current_state.rows() == x_size);
-  assert(target_state.rows() == x_size);
-  assert(last_input.rows() == u_size);
 }
 
 ostream& operator<<(ostream& os, const LQD& arg)

@@ -18,19 +18,19 @@ KalmanFilter::KalmanFilter()
 }
 
 KalmanFilter::KalmanFilter(
-  const size_t& x_size,
-  const size_t& u_size,
-  const size_t& y_size,
-  const size_t& v_size)
+  const Index& x_size,
+  const Index& u_size,
+  const Index& y_size,
+  const Index& v_size)
 {
   resize(x_size, u_size, y_size, v_size);
 }
 
 void KalmanFilter::resize(
-  const size_t& x_size,
-  const size_t& u_size,
-  const size_t& y_size,
-  const size_t& v_size)
+  const Index& x_size,
+  const Index& u_size,
+  const Index& y_size,
+  const Index& v_size)
 {
   ss.resize(x_size, u_size, y_size);
   Bv.conservativeResize(x_size, v_size);
@@ -105,12 +105,12 @@ const MatrixXd& KalmanFilter::covariance() const
   return P_;
 }
 
-IdentityKalmanFilter::IdentityKalmanFilter(const size_t& size)
+IdentityKalmanFilter::IdentityKalmanFilter(const Index& size)
 {
   resize(size);
 }
 
-void IdentityKalmanFilter::resize(const size_t& size)
+void IdentityKalmanFilter::resize(const Index& size)
 {
   kf_.resize(size, 0, size, size);
   kf_.ss.A.setIdentity(size, size);

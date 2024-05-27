@@ -27,7 +27,10 @@ public:
   // 外乱が急に取り除かれる可能性があるなら安全な値に設定すべき
   Eigen::VectorXd max_integrated_error;
 
-  explicit LQID(const size_t& state_size, const size_t& input_size, const size_t& integrate_size);
+  explicit LQID(
+    const Eigen::Index& state_size,
+    const Eigen::Index& input_size,
+    const Eigen::Index& integrate_size);
 
   Eigen::VectorXd solve(const double& dt, const bool& update_gain = true);
   void updateGain();
@@ -37,13 +40,13 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const LQID& arg);
 
 private:
-  const size_t x_size_;        // 状態のサイズ
-  const size_t u_size_;        // 制御入力のサイズ
-  const size_t r_size_;        // 積分する変数のサイズ
-  const size_t x_tilde_size_;  // 拡大状態のサイズ
-  const size_t x_idx_;
-  const size_t u_idx_;
-  const size_t eps_idx_;
+  const Eigen::Index x_size_;        // 状態のサイズ
+  const Eigen::Index u_size_;        // 制御入力のサイズ
+  const Eigen::Index r_size_;        // 積分する変数のサイズ
+  const Eigen::Index x_tilde_size_;  // 拡大状態のサイズ
+  const Eigen::Index x_idx_;
+  const Eigen::Index u_idx_;
+  const Eigen::Index eps_idx_;
 
   Eigen::VectorXd last_u_;   // 最新の制御入力
   Eigen::VectorXd eps_;      // 誤差の積分

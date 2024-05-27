@@ -14,8 +14,8 @@ void matrixEigenToQp(const MatrixXd& e, Matrix<double>& q)
   if (q.nrows() != e.rows() || q.ncols() != e.cols())
     q.resize(e.rows(), e.cols());
 
-  for (size_t i = 0; i < e.rows(); ++i)
-    for (size_t j = 0; j < e.cols(); ++j)
+  for (Index i = 0; i < e.rows(); ++i)
+    for (Index j = 0; j < e.cols(); ++j)
       q[i][j] = e(i, j);
 }
 
@@ -24,8 +24,8 @@ void matrixQpToEigen(const Matrix<double>& q, MatrixXd& e)
   // Eigenは安易にresizeできないため，引数の時点でサイズが合っていることを確認する
   assert(e.rows() == q.nrows() && e.cols() == q.ncols());
 
-  for (size_t i = 0; i < e.rows(); ++i)
-    for (size_t j = 0; j < e.cols(); ++j)
+  for (Index i = 0; i < e.rows(); ++i)
+    for (Index j = 0; j < e.cols(); ++j)
       e(i, j) = q[i][j];
 }
 
@@ -36,7 +36,7 @@ void vectorEigenToQp(const VectorXd& e, Vector<double>& q)
   if (q.size() != e.size())
     q.resize(e.rows());
 
-  for (size_t i = 0; i < e.rows(); ++i)
+  for (Index i = 0; i < e.rows(); ++i)
     q[i] = e(i);
 }
 
@@ -45,7 +45,7 @@ void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
   assert(e.rows() == q.size());
   assert(e.cols() == 1);
 
-  for (size_t i = 0; i < e.rows(); ++i)
+  for (Index i = 0; i < e.rows(); ++i)
     e(i) = q[i];
 }
 }  // namespace quadprogpp

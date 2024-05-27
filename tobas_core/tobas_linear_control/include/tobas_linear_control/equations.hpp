@@ -11,21 +11,21 @@ public:
   Eigen::VectorXd b;
 
   inline explicit LinearEquation(const Eigen::MatrixXd& A, const Eigen::MatrixXd& b);
-  inline explicit LinearEquation(const size_t& var_size, const size_t& eq_size);
+  inline explicit LinearEquation(const Eigen::Index& var_size, const Eigen::Index& eq_size);
   inline explicit LinearEquation();
 
-  inline static LinearEquation Zero(const size_t& var_size, const size_t& eq_size);
+  inline static LinearEquation Zero(const Eigen::Index& var_size, const Eigen::Index& eq_size);
 
-  inline void resize(const size_t& var_size, const size_t& eq_size);
+  inline void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size);
   inline void setZero();
 
   inline bool isFinite() const;
 
   /* 変数の次元． */
-  inline size_t variableSize() const;
+  inline Eigen::Index variableSize() const;
 
   /* (不)等式の次元． */
-  inline size_t equationSize() const;
+  inline Eigen::Index equationSize() const;
 
   /* スケーリングされた変数に対する行列方程式を作成． */
   LinearEquation scale(const Eigen::VectorXd& scale) const;
@@ -42,7 +42,7 @@ inline LinearEquation::LinearEquation(const Eigen::MatrixXd& A, const Eigen::Mat
   assert(A.rows() == b.rows());
 }
 
-inline LinearEquation::LinearEquation(const size_t& var_size, const size_t& eq_size)
+inline LinearEquation::LinearEquation(const Eigen::Index& var_size, const Eigen::Index& eq_size)
   : A(eq_size, var_size), b(eq_size)
 {
 }
@@ -51,17 +51,18 @@ inline LinearEquation::LinearEquation()
 {
 }
 
-inline LinearEquation LinearEquation::Zero(const size_t& var_size, const size_t& eq_size)
+inline LinearEquation
+LinearEquation::Zero(const Eigen::Index& var_size, const Eigen::Index& eq_size)
 {
   LinearEquation res(var_size, eq_size);
   res.setZero();
   return res;
 }
 
-inline void LinearEquation::resize(const size_t& var_size, const size_t& eq_size)
+inline void LinearEquation::resize(const Eigen::Index& var_size, const Eigen::Index& eq_size)
 {
-  eigen_tools::resizeIfNecessary(A, eq_size, var_size);
-  eigen_tools::resizeIfNecessary(b, eq_size);
+  A.conservativeResize(eq_size, var_size);
+  b.conservativeResize(eq_size);
 }
 
 inline void LinearEquation::setZero()
@@ -75,12 +76,12 @@ inline bool LinearEquation::isFinite() const
   return eigen_tools::isFinite(A) && eigen_tools::isFinite(b);
 }
 
-inline size_t LinearEquation::variableSize() const
+inline Eigen::Index LinearEquation::variableSize() const
 {
   return A.cols();
 }
 
-inline size_t LinearEquation::equationSize() const
+inline Eigen::Index LinearEquation::equationSize() const
 {
   return A.rows();
 }

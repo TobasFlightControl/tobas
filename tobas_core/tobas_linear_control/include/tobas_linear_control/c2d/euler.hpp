@@ -7,13 +7,12 @@ namespace ctrl
 class C2D_Euler : BaseC2D
 {
 public:
-  explicit C2D_Euler(const size_t& x_size, const size_t& u_size);
+  explicit C2D_Euler(const Eigen::Index& x_size, const Eigen::Index& u_size);
 
   LinearDynamics convert(const LinearDynamics& cont, const double& dt) override;
 
 private:
-  const size_t x_size_;
-  const size_t u_size_;
+  const Eigen::Index x_size_, u_size_;
   const Eigen::MatrixXd I_;  // 単位行列
 };
 }  // namespace ctrl

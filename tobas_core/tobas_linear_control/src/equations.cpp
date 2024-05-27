@@ -11,7 +11,7 @@ LinearEquation LinearEquation::scale(const VectorXd& scale) const
   assert((scale.array() > 0).all());
 
   auto res = *this;
-  for (size_t c = 0; c < variableSize(); ++c)
+  for (Index c = 0; c < variableSize(); ++c)
     res.A.col(c) *= scale(c);
 
   return res;

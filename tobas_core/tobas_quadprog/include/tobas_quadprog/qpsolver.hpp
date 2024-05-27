@@ -18,18 +18,22 @@ public:
   Eigen::MatrixXd A;
   Eigen::VectorXd b;
 
-  explicit QuadProgProblem(const size_t& var_size, const size_t& eq_size, const size_t& ineq_size);
+  explicit QuadProgProblem(
+    const Eigen::Index& var_size,
+    const Eigen::Index& eq_size,
+    const Eigen::Index& ineq_size);
   explicit QuadProgProblem();
 
-  void resize(const size_t& var_size, const size_t& eq_size, const size_t& ineq_size);
+  void
+  resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
   void setZero();
 
   bool isSizeMatch() const;
   bool isFinite() const;
 
-  inline size_t varSize() const;
-  inline size_t eqSize() const;
-  inline size_t ineqSize() const;
+  inline Eigen::Index varSize() const;
+  inline Eigen::Index eqSize() const;
+  inline Eigen::Index ineqSize() const;
 
   friend std::ostream& operator<<(std::ostream& os, const QuadProgProblem& arg);
 };
@@ -48,7 +52,8 @@ public:
 
   virtual Eigen::VectorXd solve() = 0;
 
-  void resize(const size_t& var_size, const size_t& eq_size, const size_t& ineq_size);
+  void
+  resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
   void setZero();
 
   friend std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg);
@@ -58,17 +63,17 @@ protected:
   void checkProblemValidity() const;
 };
 
-inline size_t QuadProgProblem::varSize() const
+inline Eigen::Index QuadProgProblem::varSize() const
 {
   return q.rows();
 }
 
-inline size_t QuadProgProblem::eqSize() const
+inline Eigen::Index QuadProgProblem::eqSize() const
 {
   return h.rows();
 }
 
-inline size_t QuadProgProblem::ineqSize() const
+inline Eigen::Index QuadProgProblem::ineqSize() const
 {
   return b.rows();
 }

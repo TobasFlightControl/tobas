@@ -20,13 +20,16 @@ public:
 
   explicit KalmanFilter();
   explicit KalmanFilter(
-    const size_t& x_size,
-    const size_t& u_size,
-    const size_t& y_size,
-    const size_t& v_size);
+    const Eigen::Index& x_size,
+    const Eigen::Index& u_size,
+    const Eigen::Index& y_size,
+    const Eigen::Index& v_size);
 
-  void
-  resize(const size_t& x_size, const size_t& u_size, const size_t& y_size, const size_t& v_size);
+  void resize(
+    const Eigen::Index& x_size,
+    const Eigen::Index& u_size,
+    const Eigen::Index& y_size,
+    const Eigen::Index& v_size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();
@@ -35,11 +38,7 @@ public:
   const Eigen::MatrixXd& covariance() const;
 
 private:
-  size_t x_size_;
-  size_t u_size_;
-  size_t y_size_;
-  size_t v_size_;
-
+  Eigen::Index x_size_, u_size_, y_size_, v_size_;
   Eigen::VectorXd x_;
   Eigen::MatrixXd P_;
 };
@@ -52,9 +51,9 @@ public:
   Eigen::MatrixXd R;  // 観測ノイズの共分散
   Eigen::VectorXd y;  // 観測
 
-  explicit IdentityKalmanFilter(const size_t& size = 0);
+  explicit IdentityKalmanFilter(const Eigen::Index& size = 0);
 
-  void resize(const size_t& size);
+  void resize(const Eigen::Index& size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();

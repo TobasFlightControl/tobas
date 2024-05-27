@@ -30,18 +30,18 @@ VectorXd LQR::solve(const bool& update_gain)
   return u_scaled.cwiseProduct(input_scale);
 }
 
-void LQR::resize(const size_t& state_size, const size_t& input_size)
+void LQR::resize(const Index& state_size, const Index& input_size)
 {
   dynamics.resize(state_size, input_size);
 
-  state_scale = VectorXd::Zero(state_size);
-  input_scale = VectorXd::Zero(input_size);
+  state_scale.conservativeResize(state_size);
+  input_scale.conservativeResize(input_size);
 
-  state_weight = VectorXd::Zero(state_size);
-  input_weight = VectorXd::Zero(input_size);
+  state_weight.conservativeResize(state_size);
+  input_weight.conservativeResize(input_size);
 
-  current_state = VectorXd::Zero(state_size);
-  target_state = VectorXd::Zero(state_size);
+  current_state.conservativeResize(state_size);
+  target_state.conservativeResize(state_size);
 }
 
 void LQR::updateGain()
@@ -54,8 +54,8 @@ void LQR::updateGain()
 
 void LQR::checkProblemValidity()
 {
-  const auto x_size = current_state.rows();
-  const auto u_size = input_weight.rows();
+  [[maybe_unused]] const auto x_size = current_state.rows();
+  [[maybe_unused]] const auto u_size = input_weight.rows();
 
   assert(x_size > 0);
   assert(u_size > 0);
@@ -72,9 +72,6 @@ void LQR::checkProblemValidity()
   assert((state_weight.array() >= 0.).all());
   assert(input_weight.rows() == u_size);
   assert((input_weight.array() > 0.).all());
-
-  assert(current_state.rows() == x_size);
-  assert(target_state.rows() == x_size);
 }
 
 ostream& operator<<(ostream& os, const LQR& arg)

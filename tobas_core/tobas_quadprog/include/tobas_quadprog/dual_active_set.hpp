@@ -25,12 +25,12 @@ private:
     DETERMINE_STEP_DIRECTION,
   };
 
-  size_t n_;
-  size_t p_;  // The number of equality constraints
-  size_t m_;  // The number of inequality constraints
-  size_t l_;
-  size_t ip_;  // The index of the constraint to be added to the active set
-  size_t iq_;
+  Eigen::Index n_;
+  Eigen::Index p_;  // The number of equality constraints
+  Eigen::Index m_;  // The number of inequality constraints
+  Eigen::Index l_;
+  Eigen::Index ip_;  // The index of the constraint to be added to the active set
+  Eigen::Index iq_;
   double c_, ss_, R_norm_;
   Eigen::MatrixXd R_, J_;
   Eigen::VectorXd s_, z_, r_, d_, np_, x_, u_, x_old_, u_old_;
@@ -39,7 +39,7 @@ private:
 
   void update_r();
   bool addConstraint();
-  void deleteConstraint(const size_t& l);
+  void deleteConstraint(const Eigen::Index& l);
 
   // Euclidean distance between two numbers.
   static double distance(const double& a, const double& b);

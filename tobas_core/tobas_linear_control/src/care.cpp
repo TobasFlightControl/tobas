@@ -14,7 +14,7 @@ MatrixXd
 care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R)
 {
   const auto n = A.rows();
-  const auto l = B.cols();
+  [[maybe_unused]] const auto l = B.cols();
 
   assert(A.rows() == n && A.cols() == n);
   assert(eigen_tools::isFinite(A));
@@ -42,9 +42,7 @@ care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, cons
   // Get eigenvalues and eigenvectors
   const EigenSolver<MatrixXd> es(H);
   if (es.info() != Success)
-  {
     throw runtime_error("Failed to get eigenvalues.");
-  }
   const VectorXd eigvals = es.eigenvalues().real();
   const MatrixXcd eigvecs = es.eigenvectors();  // 固有ベクトルは虚部も使う必要がある
 
@@ -52,14 +50,12 @@ care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, cons
   // 0と比較すると未初期化の値がヒットするため，少しマージンを設ける
   const auto num_stable_eigvals = (eigvals.array() < -numeric_limits<double>::epsilon()).count();
   if (num_stable_eigvals != n)
-  {
     throw runtime_error("The number of stable eigenvalues does not match the order of the system.");
-  }
 
   // Extract eigenvectors corresponding to stable eigenvalues
   MatrixXcd eigvecs_stable(n * 2, n);
-  int j = 0;  // The index of stable eigenvalue. This value must become identical to n.
-  for (int i = 0; i < n * 2; ++i)
+  Index j = 0;  // The index of stable eigenvalue. This value must become identical to n.
+  for (Index i = 0; i < n * 2; ++i)
   {
     if (eigvals(i) < 0.)
     {
@@ -78,7 +74,7 @@ care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, cons
 MatrixXd care_Schur(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R)
 {
   const auto n = A.rows();
-  const auto l = B.cols();
+  [[maybe_unused]] const auto l = B.cols();
 
   assert(A.rows() == n && A.cols() == n);
   assert(B.rows() == n && B.cols() == l);

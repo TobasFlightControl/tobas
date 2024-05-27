@@ -2,7 +2,6 @@
 #include <Eigen/Cholesky>
 
 #include <tobas_std_tools/math.hpp>
-#include <tobas_eigen_tools/core.hpp>
 
 #include "../include/tobas_quadprog/dual_active_set.hpp"
 
@@ -42,20 +41,20 @@ VectorXd DualActiveSetSolver::solve()
   n_ = scaled.P.cols();
   p_ = scaled.G.rows();
   m_ = scaled.A.rows();
-  eigen_tools::resizeIfNecessary(R_, n_, n_);
-  eigen_tools::resizeIfNecessary(J_, n_, n_);
-  eigen_tools::resizeIfNecessary(s_, m_ + p_);
-  eigen_tools::resizeIfNecessary(z_, n_);
-  eigen_tools::resizeIfNecessary(r_, m_ + p_);
-  eigen_tools::resizeIfNecessary(d_, n_);
-  eigen_tools::resizeIfNecessary(np_, n_);
-  eigen_tools::resizeIfNecessary(x_, n_);
-  eigen_tools::resizeIfNecessary(u_, m_ + p_);
-  eigen_tools::resizeIfNecessary(A_, m_ + p_);
-  eigen_tools::resizeIfNecessary(x_old_, n_);
-  eigen_tools::resizeIfNecessary(u_old_, m_ + p_);
-  eigen_tools::resizeIfNecessary(A_old_, m_ + p_);
-  eigen_tools::resizeIfNecessary(iai_, m_ + p_);
+  R_.conservativeResize(n_, n_);
+  J_.conservativeResize(n_, n_);
+  s_.conservativeResize(m_ + p_);
+  z_.conservativeResize(n_);
+  r_.conservativeResize(m_ + p_);
+  d_.conservativeResize(n_);
+  np_.conservativeResize(n_);
+  x_.conservativeResize(n_);
+  u_.conservativeResize(m_ + p_);
+  A_.conservativeResize(m_ + p_);
+  x_old_.conservativeResize(n_);
+  u_old_.conservativeResize(m_ + p_);
+  A_old_.conservativeResize(m_ + p_);
+  iai_.conservativeResize(m_ + p_);
   iaexcl_.resize(m_ + p_);
 
   /* Preprocessing phase */
@@ -91,7 +90,7 @@ VectorXd DualActiveSetSolver::solve()
 #endif
 
   // Add equality constraints to the working set A
-  for (size_t i = 0; i < p_; ++i)
+  for (Index i = 0; i < p_; ++i)
   {
     np_ = -scaled.G.row(i);
     d_ = J_.transpose() * np_;
@@ -123,7 +122,7 @@ VectorXd DualActiveSetSolver::solve()
   }
 
   // Set iai = K \ A
-  for (size_t i = 0; i < m_; ++i)
+  for (Index i = 0; i < m_; ++i)
     iai_(i) = i;
 
   state_t state = CHOOSE_VIOLATED_CONSTRAINT;
@@ -137,12 +136,12 @@ VectorXd DualActiveSetSolver::solve()
         cout << "x:\n" << x_.transpose() << endl;
 #endif
 
-        for (size_t i = p_; i < iq_; ++i)
+        for (Index i = p_; i < iq_; ++i)
           iai_(A_(i)) = -1;
 
         ss_ = 0.;
         ip_ = 0;  // ip will be the index of the chosen violated constraint
-        for (size_t i = 0; i < m_; ++i)
+        for (Index i = 0; i < m_; ++i)
           iaexcl_[i] = true;
 
         // Compute s[x] = b - A * x for all elements of K \ A
@@ -169,7 +168,7 @@ VectorXd DualActiveSetSolver::solve()
       }
       case CHECK_FEASIBILITY:
       {
-        for (size_t i = 0; i < m_; ++i)
+        for (Index i = 0; i < m_; ++i)
         {
           if (s_(i) < ss_ && iai_(i) != -1 && iaexcl_[i])
           {
@@ -221,7 +220,7 @@ VectorXd DualActiveSetSolver::solve()
         // = maximum step in dual space without violating dual feasibility
         auto t1 = INF;
         // Find the index l s.t. it reaches the minimum of u+[x] / r
-        for (size_t k = p_; k < iq_; ++k)
+        for (Index k = p_; k < iq_; ++k)
         {
           if (r_(k) > 0.)
           {
@@ -312,9 +311,9 @@ VectorXd DualActiveSetSolver::solve()
             cout << "iai:\n" << iai_.transpose() << endl;
 #endif
 
-            for (size_t i = 0; i < m_; ++i)
+            for (Index i = 0; i < m_; ++i)
               iai_(i) = i;
-            for (size_t i = p_; i < iq_; ++i)
+            for (Index i = p_; i < iq_; ++i)
             {
               A_(i) = A_old_(i);
               u_(i) = u_old_(i);
@@ -388,7 +387,7 @@ bool DualActiveSetSolver::addConstraint()
 
   // We have to find the Givens rotation which will reduce the element d(j) to zero.
   // If it is already zero, we don't have to do anything, except of decreasing j.
-  for (size_t j = n_ - 1; j >= iq_ + 1; --j)
+  for (Index j = n_ - 1; j >= iq_ + 1; --j)
   {
     // The Givens rotation is done with the matrix (cc cs, cs -cc).
     // If cc is one, then element (j) of d is zero compared with element (j - 1).
@@ -444,17 +443,17 @@ bool DualActiveSetSolver::addConstraint()
   return true;
 }
 
-void DualActiveSetSolver::deleteConstraint(const size_t& l)
+void DualActiveSetSolver::deleteConstraint(const Index& l)
 {
 #ifdef TRACE_SOLVER
   cout << "Delete constraint " << l << " " << iq_;
 #endif
 
-  size_t qq = 0;  // Just to prevent warnings from smart compilers
+  Index qq = 0;  // Just to prevent warnings from smart compilers
   bool found = false;
 
   // Find the index qq for active constraint l to be removed
-  for (size_t i = p_; i < iq_; ++i)
+  for (Index i = p_; i < iq_; ++i)
   {
     if (A_(i) == static_cast<int>(l))
     {
@@ -491,7 +490,7 @@ void DualActiveSetSolver::deleteConstraint(const size_t& l)
   if (iq_ == 0)
     return;
 
-  for (size_t j = qq; j < iq_; ++j)
+  for (Index j = qq; j < iq_; ++j)
   {
     auto cc = R_(j, j);
     auto ss = R_(j + 1, j);

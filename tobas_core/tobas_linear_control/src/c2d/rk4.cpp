@@ -5,7 +5,7 @@ using namespace Eigen;
 
 namespace ctrl
 {
-C2D_RK4::C2D_RK4(const size_t& x_size, const size_t& u_size)
+C2D_RK4::C2D_RK4(const Index& x_size, const Index& u_size)
 {
   resize(x_size, u_size);
 }
@@ -39,7 +39,7 @@ LinearDynamics C2D_RK4::convert(const LinearDynamics& cont, const double& dt)
   return LinearDynamics(Ad, Bd);
 }
 
-void C2D_RK4::resize(const size_t& x_size, const size_t& u_size)
+void C2D_RK4::resize(const Index& x_size, const Index& u_size)
 {
   x_size_ = x_size;
   u_size_ = u_size;
