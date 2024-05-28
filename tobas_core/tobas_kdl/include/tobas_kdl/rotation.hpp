@@ -290,7 +290,7 @@ inline void Rotation::setInverse()
 
 inline double Rotation::getYaw() const
 {
-  return atan2(data(1, 0), data(0, 0));
+  return ::atan2(data(1, 0), data(0, 0));
 }
 
 inline double Rotation::trace() const
